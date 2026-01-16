@@ -1,0 +1,15 @@
+// Quick reference for dark mode classes to apply to each component:
+// Main container: className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+// Title: className={`section-title ${darkMode ? 'text-white' : 'text-gray-800'}`}
+// Paragraph text: className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
+// Subsection titles: className={`subsection-title ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}
+// Labels: className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+// Inputs/selects/textareas: Add to existing className - ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900'}
+// Buttons: ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'}
+
+Components to update:
+1. ComplexInteractions - PENDING
+2. AdvancedScenarios - PENDING
+3. DataTable - PENDING
+4. APISimulation - PENDING
+5. FrameworkComparison - COMPLETED (partial - needs more sections updated)
