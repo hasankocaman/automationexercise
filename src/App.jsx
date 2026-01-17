@@ -107,7 +107,7 @@ function App() {
             {/* Navigation */}
             <nav className={`shadow-md sticky top-0 z-40 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`} data-testid="main-navigation">
                 <div className="container mx-auto px-6">
-                    <div className="flex space-x-1 overflow-x-auto py-4">
+                    <div className="flex flex-wrap gap-2 justify-center py-4">
                         {sections.map((section) => (
                             <button
                                 key={section.id}
@@ -123,6 +123,28 @@ function App() {
                                 {section.name}
                             </button>
                         ))}
+
+                        {/* Cypress Button */}
+                        <a
+                            href="https://hasankocaman.net/#/teachCypress"
+                            className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode
+                                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                                }`}
+                        >
+                            {language === 'tr' ? 'Cypress Öğren' : 'Learn Cypress'}
+                        </a>
+
+                        {/* Playwright Button */}
+                        <a
+                            href="https://hasankocaman.github.io/teachPlaywright/"
+                            className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode
+                                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                                }`}
+                        >
+                            {language === 'tr' ? 'Playwright Öğren' : 'Learn Playwright'}
+                        </a>
                     </div>
                 </div>
             </nav>
