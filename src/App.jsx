@@ -114,7 +114,7 @@ function App() {
                     <div className="flex flex-wrap gap-2 justify-center py-4">
                         {/* Cypress Button */}
                         <a
-                            href="https://hasankocaman.net/#/teachCypress"
+                            href="https://hasankocaman.github.io/teach-Cypress/"
                             className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode
                                 ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
