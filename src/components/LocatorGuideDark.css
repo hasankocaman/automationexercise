@@ -1,0 +1,67 @@
+/* src/components/LocatorGuideDark.css */
+
+/* Dark Mode Overrides */
+.locator-guide-container.dark-mode {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #e2e8f0;
+}
+
+.locator-guide-container.dark-mode header {
+    background: #1e293b;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.locator-guide-container.dark-mode h1 {
+    color: #818cf8;
+}
+
+.locator-guide-container.dark-mode .subtitle {
+    color: #cbd5e1;
+}
+
+.locator-guide-container.dark-mode .tab-btn {
+    background: #334155;
+    color: #e2e8f0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.locator-guide-container.dark-mode .tab-btn:hover {
+    background: #475569;
+}
+
+.locator-guide-container.dark-mode .tab-btn.active {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+}
+
+.locator-guide-container.dark-mode .example-card {
+    background: #1e293b;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.locator-guide-container.dark-mode .html-section {
+    background: #0f172a;
+    border-left-color: #818cf8;
+}
+
+.locator-guide-container.dark-mode .html-title {
+    color: #818cf8;
+}
+
+.locator-guide-container.dark-mode .code-block {
+    background: #0f172a;
+}
+
+.locator-guide-container.dark-mode .code-header {
+    color: #f1f5f9;
+}
+
+.locator-guide-container.dark-mode .tip-box {
+    background: #422006;
+    border-left-color: #eab308;
+    color: #fefce8;
+}
+
+.locator-guide-container.dark-mode .tip-box strong {
+    color: #facc15;
+}

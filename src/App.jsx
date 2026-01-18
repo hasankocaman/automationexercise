@@ -6,6 +6,7 @@ import AdvancedScenarios from './components/AdvancedScenarios'
 import DataTable from './components/DataTable'
 import APISimulation from './components/APISimulation'
 import FrameworkComparison from './components/FrameworkComparison'
+import LocatorGuide from './components/LocatorGuide'
 
 function App() {
     const { language, t, toggleLanguage } = useLanguage()
@@ -21,6 +22,7 @@ function App() {
 
     const sections = [
         { id: 'basic', name: t('nav.basic') },
+        { id: 'locator-guide', name: t('nav.locatorGuide') },
         { id: 'complex', name: t('nav.complex') },
         { id: 'advanced', name: t('nav.advanced') },
         { id: 'table', name: t('nav.table') },
@@ -32,6 +34,8 @@ function App() {
         switch (activeSection) {
             case 'basic':
                 return <BasicElements darkMode={darkMode} />
+            case 'locator-guide':
+                return <LocatorGuide darkMode={darkMode} />
             case 'complex':
                 return <ComplexInteractions darkMode={darkMode} />
             case 'advanced':
@@ -108,22 +112,6 @@ function App() {
             <nav className={`shadow-md sticky top-0 z-40 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`} data-testid="main-navigation">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-wrap gap-2 justify-center py-4">
-                        {sections.map((section) => (
-                            <button
-                                key={section.id}
-                                onClick={() => setActiveSection(section.id)}
-                                data-testid={`nav-${section.id}`}
-                                className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${activeSection === section.id
-                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-105'
-                                    : darkMode
-                                        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                                    }`}
-                            >
-                                {section.name}
-                            </button>
-                        ))}
-
                         {/* Cypress Button */}
                         <a
                             href="https://hasankocaman.net/#/teachCypress"
@@ -145,6 +133,33 @@ function App() {
                         >
                             {language === 'tr' ? 'Playwright Öğren' : 'Learn Playwright'}
                         </a>
+
+                        {/* JS/TS Comparison Button */}
+                        <a
+                            href="https://hasankocaman.github.io/boltJSTScompare/"
+                            className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode
+                                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                                }`}
+                        >
+                            {language === 'tr' ? 'JavaScript ve TypeScript Karşılaştırma' : 'JavaScript and TypeScript compare'}
+                        </a>
+
+                        {sections.map((section) => (
+                            <button
+                                key={section.id}
+                                onClick={() => setActiveSection(section.id)}
+                                data-testid={`nav-${section.id}`}
+                                className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${activeSection === section.id
+                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-105'
+                                    : darkMode
+                                        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 hover:scale-102'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                                    }`}
+                            >
+                                {section.name}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </nav>

@@ -11,6 +11,7 @@
     },
     "nav": {
         "basic": "📝 Basic Elements",
+        "locatorGuide": "🎯 Locator",
         "complex": "🎯 Complex Interactions",
         "advanced": "🚀 Advanced Scenarios",
         "table": "📊 Data Table",
