@@ -6,8 +6,7 @@
     "buttons": {
         "darkMode": "Karanlık Mod",
         "lightMode": "Aydınlık Mod",
-        "homeTooltip": "Sayfanın başına dön",
-        "backToWebsite": "hasankocaman.net sayfasına dön"
+        "homeTooltip": "Sayfanın başına dön"
     },
     "nav": {
         "basic": "📝 Temel Elementler",

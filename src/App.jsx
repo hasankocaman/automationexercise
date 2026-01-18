@@ -58,13 +58,7 @@ function App() {
                 <div className="container mx-auto px-6 py-8">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col items-center gap-2">
-                            <a
-                                href="https://hasankocaman.net"
-                                target="_self"
-                                className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
-                            >
-                                {t('buttons.backToWebsite')}
-                            </a>
+
                             <button
                                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                                 title={t('buttons.homeTooltip')}

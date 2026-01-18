@@ -6,8 +6,7 @@
     "buttons": {
         "darkMode": "Dark Mode",
         "lightMode": "Light Mode",
-        "homeTooltip": "Back to top",
-        "backToWebsite": "back to hasankocaman.net"
+        "homeTooltip": "Back to top"
     },
     "nav": {
         "basic": "📝 Basic Elements",
