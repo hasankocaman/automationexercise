@@ -11,10 +11,13 @@ import { LanguageProvider } from './context/LanguageContext'
 
 
 async function enableMocking() {
-    // In Vite, use import.meta.env.DEV for development check
-    if (!import.meta.env.DEV) {
-        return
-    }
+    // In this specific project (Automation Testing Playground), we WANT the mock simulation
+    // to work in production (GitHub Pages) as well.
+    // So we remove the !import.meta.env.DEV check.
+
+    // if (!import.meta.env.DEV) {
+    //    return
+    // }
 
     const { worker } = await import('./mocks/browser')
 
