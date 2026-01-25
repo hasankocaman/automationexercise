@@ -29,13 +29,25 @@ function APISimulation({ darkMode }) {
         setIsLoading(true)
         const requestTime = new Date().toLocaleTimeString()
 
+        // Normalize URL to include base path for MSW interception
+        const baseUrl = import.meta.env.BASE_URL
+        let fetchUrl = url
+        if (url.startsWith('/')) {
+            const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+            // Prevent double prepending if url already includes base
+            if (!url.startsWith(cleanBase)) {
+                // If url is /login, and cleanBase is /automationexercise/, result is /automationexercise/login
+                fetchUrl = cleanBase + url.slice(1)
+            }
+        }
+
         // Add pending log
         const newLogId = Date.now()
         const requestLog = {
             id: newLogId,
             time: requestTime,
             name,
-            url,
+            url: fetchUrl, // Log the actual URL being fetched
             method,
             body,
             status: 'Pending...',
@@ -54,7 +66,7 @@ function APISimulation({ darkMode }) {
             }
 
             // Replaced mockFetch with real window.fetch (intercepted by MSW)
-            const res = await fetch(url, options)
+            const res = await fetch(fetchUrl, options)
             const json = await res.json()
 
             // Update log with success
