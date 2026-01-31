@@ -127,7 +127,40 @@
         "serverErrorButton": "500 - Server Error",
         "statusCode": "Status Code:",
         "responseMessage": "Response Message:",
-        "noRequestYet": "No request made yet"
+        "noRequestYet": "No request made yet",
+        "booksTag": "Books API",
+        "booksDescription": "Full CRUD operations for managing a digital library.",
+        "postmanGuide": "How to Trigger in Postman",
+        "postmanSteps": {
+            "step1": "1. Open Postman application",
+            "step2": "2. Select {{method}} method",
+            "step3": "3. Enter URL: {{url}}",
+            "step4": "4. Set Header: Content-Type: application/json",
+            "step5": "5. Go to Body > raw > JSON and paste the request body (if needed)",
+            "step6": "6. Click 'Send' button"
+        },
+        "endpoints": {
+            "getBooks": {
+                "summary": "Get All Books",
+                "description": "Retrieves a list of all available books in the library."
+            },
+            "getBookById": {
+                "summary": "Get Book by ID",
+                "description": "Retrieves a specific book using its unique ID."
+            },
+            "createBook": {
+                "summary": "Create New Book",
+                "description": "Adds a new book to the library."
+            },
+            "updateBook": {
+                "summary": "Update Book",
+                "description": "Updates an existing book's information by ID."
+            },
+            "deleteBook": {
+                "summary": "Delete Book",
+                "description": "Removes a book from the library permanently."
+            }
+        }
     },
     "comparison": {
         "title": "🔍 Cypress, Selenium, and Playwright Command Comparison",

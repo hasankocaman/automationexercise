@@ -127,7 +127,40 @@
         "serverErrorButton": "500 - Sunucu Hatası",
         "statusCode": "Durum Kodu:",
         "responseMessage": "Yanıt Mesajı:",
-        "noRequestYet": "Henüz istek yapılmadı"
+        "noRequestYet": "Henüz istek yapılmadı",
+        "booksTag": "Kitaplar API",
+        "booksDescription": "Dijital kütüphane yönetimi için tam CRUD işlemleri.",
+        "postmanGuide": "Postman ile Nasıl Tetiklenir",
+        "postmanSteps": {
+            "step1": "1. Postman uygulamasını açın",
+            "step2": "2. {{method}} metodunu seçin",
+            "step3": "3. URL: {{url}} girin",
+            "step4": "4. Header ekleyin: Content-Type: application/json",
+            "step5": "5. Body > raw > JSON sekmesine gidin ve veriyi yapıştırın (gerekliyse)",
+            "step6": "6. 'Send' butonuna tıklayın"
+        },
+        "endpoints": {
+            "getBooks": {
+                "summary": "Tüm Kitapları Getir",
+                "description": "Kütüphanedeki tüm mevcut kitapların listesini getirir."
+            },
+            "getBookById": {
+                "summary": "ID ile Kitap Getir",
+                "description": "Benzersiz ID'sini kullanarak belirli bir kitabı getirir."
+            },
+            "createBook": {
+                "summary": "Yeni Kitap Ekle",
+                "description": "Kütüphaneye yeni bir kitap ekler."
+            },
+            "updateBook": {
+                "summary": "Kitap Güncelle",
+                "description": "Mevcut bir kitabın bilgilerini ID ile günceller."
+            },
+            "deleteBook": {
+                "summary": "Kitap Sil",
+                "description": "Bir kitabı kütüphaneden kalıcı olarak siler."
+            }
+        }
     },
     "comparison": {
         "title": "🔍 Cypress, Selenium ve Playwright Komut Karşılaştırması",
