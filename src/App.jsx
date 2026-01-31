@@ -7,6 +7,7 @@ import DataTable from './components/DataTable'
 import APISimulation from './components/APISimulation'
 import FrameworkComparison from './components/FrameworkComparison'
 import LocatorGuide from './components/LocatorGuide'
+import Practice from './components/Practice'
 
 function App() {
     const { language, t, toggleLanguage } = useLanguage()
@@ -28,6 +29,7 @@ function App() {
         { id: 'table', name: t('nav.table') },
         { id: 'api', name: t('nav.api') },
         { id: 'comparison', name: t('nav.comparison') },
+        { id: 'practice', name: t('nav.practice') || '🛠️ Uygulama Bahçesi' },
     ]
 
     const renderSection = () => {
@@ -46,6 +48,8 @@ function App() {
                 return <APISimulation darkMode={darkMode} />
             case 'comparison':
                 return <FrameworkComparison darkMode={darkMode} />
+            case 'practice':
+                return <Practice darkMode={darkMode} onHomeClick={() => setActiveSection('basic')} />
             default:
                 return <BasicElements darkMode={darkMode} />
         }

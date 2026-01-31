@@ -15,7 +15,8 @@
         "advanced": "🚀 Advanced Scenarios",
         "table": "📊 Data Table",
         "api": "🌐 API Simulation",
-        "comparison": "🔍 Test Tools Comparison"
+        "comparison": "🔍 Test Tools Comparison",
+        "practice": "🛠️ Practice Playground"
     },
     "footer": {
         "text": "Created for Automation Testers • All elements have unique test IDs",
@@ -259,6 +260,63 @@
             "frameElement": "🎭 Playwright - Element inside Frame:",
             "allElements": "🎭 Playwright - Get All Elements:",
             "fileUpload": "🎭 Playwright - File Upload:"
+        }
+    },
+    "practice": {
+        "title": "🛠️ Practice Playground",
+        "subtitle": "Practice automation with modern UI elements",
+        "homeTooltip": "Return to home",
+        "personalInfo": {
+            "title": "👤 Personal Information",
+            "name": "Full Name",
+            "namePlaceholder": "Enter your name",
+            "email": "Email",
+            "emailPlaceholder": "example@mail.com",
+            "phone": "Phone",
+            "phonePlaceholder": "5XX XXX XX XX",
+            "address": "Address",
+            "addressPlaceholder": "Enter your full address"
+        },
+        "selections": {
+            "title": "🔘 Selection Elements",
+            "gender": "Gender",
+            "male": "Male",
+            "female": "Female",
+            "days": "Days",
+            "monday": "Monday",
+            "tuesday": "Tuesday",
+            "wednesday": "Wednesday",
+            "thursday": "Thursday",
+            "friday": "Friday",
+            "saturday": "Saturday",
+            "sunday": "Sunday",
+            "country": "Country",
+            "colors": "Color Selection (Multi)",
+            "selectedColors": "Selected Colors:"
+        },
+        "datePickers": {
+            "title": "📅 Date Pickers",
+            "standard": "Standard Date",
+            "range": "Date Range"
+        },
+        "tables": {
+            "title": "📊 Table Structures",
+            "static": "Static Table",
+            "pagination": "Pagination Table"
+        },
+        "files": {
+            "title": "📁 File Operations",
+            "single": "Single File Upload",
+            "multiple": "Multiple File Upload"
+        },
+        "interactions": {
+            "title": "🖱️ Interactive Tools",
+            "slider": "Slider",
+            "dragDrop": "Drag and Drop",
+            "doubleClick": "Double Click",
+            "dragMe": "Drag Me",
+            "dropHere": "Drop Here",
+            "doubleClickResult": "Double clicked!"
         }
     }
 }

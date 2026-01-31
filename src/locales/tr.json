@@ -15,7 +15,8 @@
         "advanced": "🚀 Gelişmiş Senaryolar",
         "table": "📊 Veri Tablosu",
         "api": "🌐 API Simülasyonu",
-        "comparison": "🔍 Test Araçları Karşılaştırma"
+        "comparison": "🔍 Test Araçları Karşılaştırma",
+        "practice": "🛠️ Uygulama Bahçesi"
     },
     "footer": {
         "text": "Otomasyon Test Mühendisleri İçin Hazırlandı • Tüm elementlerin benzersiz test ID'leri var",
@@ -259,6 +260,63 @@
             "frameElement": "🎭 Playwright - Frame İçi Element:",
             "allElements": "🎭 Playwright - Tüm Elementleri Alma:",
             "fileUpload": "🎭 Playwright - Dosya Yükleme:"
+        }
+    },
+    "practice": {
+        "title": "🛠️ Uygulama Bahçesi",
+        "subtitle": "Modern UI elementleri ile otomasyon pratikleri yapın",
+        "homeTooltip": "Ana sayfaya dön",
+        "personalInfo": {
+            "title": "👤 Kişisel Bilgiler",
+            "name": "Ad Soyad",
+            "namePlaceholder": "Adınızı giriniz",
+            "email": "E-posta",
+            "emailPlaceholder": "ornek@mail.com",
+            "phone": "Telefon",
+            "phonePlaceholder": "5XX XXX XX XX",
+            "address": "Adres",
+            "addressPlaceholder": "Açık adresinizi yazınız"
+        },
+        "selections": {
+            "title": "🔘 Seçim Elemanları",
+            "gender": "Cinsiyet",
+            "male": "Erkek",
+            "female": "Kadın",
+            "days": "Günler",
+            "monday": "Pazartesi",
+            "tuesday": "Salı",
+            "wednesday": "Çarşamba",
+            "thursday": "Perşembe",
+            "friday": "Cuma",
+            "saturday": "Cumartesi",
+            "sunday": "Pazar",
+            "country": "Ülke",
+            "colors": "Renk Seçimi (Çoklu)",
+            "selectedColors": "Seçilen Renkler:"
+        },
+        "datePickers": {
+            "title": "📅 Tarih Seçiciler",
+            "standard": "Standart Tarih",
+            "range": "Tarih Aralığı"
+        },
+        "tables": {
+            "title": "📊 Tablo Yapıları",
+            "static": "Statik Tablo",
+            "pagination": "Sayfalamalı Tablo"
+        },
+        "files": {
+            "title": "📁 Dosya İşlemleri",
+            "single": "Tekli Dosya Yükle",
+            "multiple": "Çoklu Dosya Yükle"
+        },
+        "interactions": {
+            "title": "🖱️ Etkileşimli Araçlar",
+            "slider": "Sürgü (Slider)",
+            "dragDrop": "Sürükle ve Bırak",
+            "doubleClick": "Çift Tıklama",
+            "dragMe": "Beni Sürükle",
+            "dropHere": "Buraya Bırak",
+            "doubleClickResult": "Çift tıklandı!"
         }
     }
 }
