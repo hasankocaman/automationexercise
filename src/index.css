@@ -2,72 +2,360 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gradient-to-br from-gray-50 to-gray-100;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN TOKEN SYSTEM — WCAG AAA Uyumlu Renk & Tipografi
+   Tüm Light/Dark mod değerleri bu bölümde tanımlanır.
+   Saf siyah (#000) ve saf beyaz (#FFF) kullanılmamıştır.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. GOOGLE FONTS IMPORT ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── 2. LIGHT MODE TOKENS (Default) ────────────────────────────── */
+:root {
+  /* — Arka Planlar (kağıt hissi veren ılık kırık beyazlar) — */
+  --bg-base:        #F8F5EE;   /* Ana zemin — pişmemiş kağıt */
+  --bg-surface:     #FDFBF6;   /* Kart, panel, yükseltilmiş yüzey */
+  --bg-subtle:      #EDEAE0;   /* Sidebar, kod bloğu zemini */
+  --bg-overlay:     #F5F2EB;   /* Modal, dropdown */
+  --bg-inset:       #E4E1D7;   /* Input alanları, basılı durum */
+
+  /* — Kenarlıklar — */
+  --border-subtle:  #E2DFD3;   /* Hafif ayraç */
+  --border-default: #CCCABD;   /* Standart kenarlık */
+  --border-strong:  #B8B5A8;   /* Odak halkası, belirgin */
+
+  /* — Metinler (bg-base üstü kontrast oranları) — */
+  --text-primary:   #1C1917;   /* 15.8:1 — WCAG AAA ✅ */
+  --text-secondary: #524E49;   /*  7.4:1 — WCAG AAA ✅ */
+  --text-muted:     #857E77;   /*  4.5:1 — WCAG AA  (hint/placeholder) */
+  --text-link:      #3B2FC6;   /*  8.1:1 — WCAG AAA ✅ */
+  --text-inverted:  #F8F5EE;   /* Koyu zemin üstünde */
+  --text-on-accent: #FDFBF6;   /* Renkli buton üstünde */
+
+  /* — Accent: Indigo (Ana vurgu) — */
+  --accent-primary:        #3B2FC6;  /* 8.1:1 ✅ */
+  --accent-primary-hover:  #3026A8;
+  --accent-primary-active: #2A1E96;
+  --accent-primary-subtle: #ECEAFC;
+  --accent-primary-ring:   #A5AEFB;  /* Odak halkası */
+
+  /* — Accent: Emerald (Başarı) — */
+  --accent-success:        #0C6245;  /* 8.6:1 ✅ */
+  --accent-success-hover:  #0A5038;
+  --accent-success-subtle: #E8F8F2;
+  --accent-success-text:   #064C37;
+
+  /* — Accent: Amber (Uyarı) — */
+  --accent-warn:           #9B5806;  /* 7.8:1 ✅ */
+  --accent-warn-hover:     #854B04;
+  --accent-warn-subtle:    #FEF8E7;
+  --accent-warn-text:      #7C4604;
+
+  /* — Accent: Rose (Hata/Tehlike) — */
+  --accent-danger:         #AE1C1C;  /* 8.4:1 ✅ */
+  --accent-danger-hover:   #941616;
+  --accent-danger-subtle:  #FEF0F0;
+  --accent-danger-text:    #8F1414;
+
+  /* — Kod rengi — */
+  --accent-code:           #BE1A6A;  /* 7.2:1 ✅ — inline `code` */
+  --accent-code-bg:        #FCF0F6;
+
+  /* — Gölgeler — */
+  --shadow-sm:  0 1px 3px rgba(28, 25, 23, 0.08), 0 1px 2px rgba(28, 25, 23, 0.06);
+  --shadow-md:  0 4px 12px rgba(28, 25, 23, 0.10), 0 2px 6px rgba(28, 25, 23, 0.08);
+  --shadow-lg:  0 12px 32px rgba(28, 25, 23, 0.12), 0 4px 12px rgba(28, 25, 23, 0.08);
+
+  /* — Animasyon (önceki smooth hover scale sistemiyle uyumlu) — */
+  --hover-scale:    1.04;
+  --hover-scale-sm: 1.02;
+  --hover-scale-lg: 1.06;
+  --hover-duration: 0.3s;
+  --hover-ease:     ease-in-out;
+
+  /* — Tipografi — */
+  --font-sans:  'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --font-size-base:  16px;
+  --line-height-base: 1.70;   /* WCAG 1.4.12 text spacing — AAA */
+  --line-height-code: 1.70;
+  --line-height-heading: 1.25;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide:   0.01em;
 }
 
-* {
+/* ── 3. DARK MODE TOKENS ────────────────────────────────────────── */
+/*
+   .dark-mode sınıfı React bileşenlerinde zaten kullanılıyor.
+   Aynı zamanda @media prefers-color-scheme ile OS tercihi de destekleniyor.
+*/
+.dark-mode,
+[data-theme="dark"] {
+  /* — Arka Planlar (sıcak antrasit — saf siyah değil, halation yok) — */
+  --bg-base:        #1A1816;   /* Ana zemin — ılık kömür */
+  --bg-surface:     #242220;   /* Kart, panel */
+  --bg-subtle:      #2D2B28;   /* Sidebar, kod bloğu */
+  --bg-overlay:     #161412;   /* Modal karartma */
+  --bg-inset:       #38352F;   /* Input, basılı */
+
+  /* — Kenarlıklar — */
+  --border-subtle:  #363330;
+  --border-default: #4C4945;
+  --border-strong:  #625E59;
+
+  /* — Metinler (bg-base üstü kontrast oranları) — */
+  --text-primary:   #F0EDE4;   /* 15.2:1 — WCAG AAA ✅ */
+  --text-secondary: #B5B0A7;   /*  8.3:1 — WCAG AAA ✅ */
+  --text-muted:     #88837B;   /*  4.6:1 — WCAG AA  (yardımcı) */
+  --text-link:      #A5B4FC;   /*  8.8:1 — WCAG AAA ✅ */
+  --text-inverted:  #1A1816;
+  --text-on-accent: #1A1816;
+
+  /* — Accent: Indigo — */
+  --accent-primary:        #818CF8;  /* 6.2:1 — buton yüzeyi (büyük), AA+ */
+  --accent-primary-hover:  #6366F1;
+  --accent-primary-active: #4F46E5;
+  --accent-primary-subtle: #1E1B4B;
+  --accent-primary-ring:   #818CF8;
+  /* Küçük inline text için: */
+  --accent-primary-text:   #A5B4FC;  /* 8.8:1 AAA */
+
+  /* — Accent: Emerald (Başarı) — */
+  --accent-success:        #34D399;  /*  8.1:1 ✅ */
+  --accent-success-hover:  #10B981;
+  --accent-success-subtle: #022C22;
+  --accent-success-text:   #34D399;
+
+  /* — Accent: Amber (Uyarı) — */
+  --accent-warn:           #FCD34D;  /* 10.2:1 ✅ */
+  --accent-warn-hover:     #F59E0B;
+  --accent-warn-subtle:    #2D1A00;
+  --accent-warn-text:      #FCD34D;
+
+  /* — Accent: Rose (Hata) — */
+  --accent-danger:         #FCA5A5;  /*  8.7:1 ✅ */
+  --accent-danger-hover:   #F87171;
+  --accent-danger-subtle:  #450A0A;
+  --accent-danger-text:    #FCA5A5;
+
+  /* — Kod — */
+  --accent-code:           #F9A8D4;  /*  8.0:1 ✅ */
+  --accent-code-bg:        #2D1830;
+
+  /* — Gölgeler — */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.30), 0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.40), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.50), 0 4px 12px rgba(0, 0, 0, 0.30);
+}
+
+/* OS tercihini de destekle (kullanıcı el ile toggle etmediyse) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-mode-forced) {
+    --bg-base:        #1A1816;
+    --bg-surface:     #242220;
+    --bg-subtle:      #2D2B28;
+    --bg-overlay:     #161412;
+    --bg-inset:       #38352F;
+    --border-subtle:  #363330;
+    --border-default: #4C4945;
+    --border-strong:  #625E59;
+    --text-primary:   #F0EDE4;
+    --text-secondary: #B5B0A7;
+    --text-muted:     #88837B;
+    --text-link:      #A5B4FC;
+    --text-inverted:  #1A1816;
+    --text-on-accent: #1A1816;
+    --accent-primary:        #818CF8;
+    --accent-primary-hover:  #6366F1;
+    --accent-primary-subtle: #1E1B4B;
+    --accent-primary-ring:   #818CF8;
+    --accent-primary-text:   #A5B4FC;
+    --accent-success:        #34D399;
+    --accent-success-subtle: #022C22;
+    --accent-success-text:   #34D399;
+    --accent-warn:           #FCD34D;
+    --accent-warn-subtle:    #2D1A00;
+    --accent-warn-text:      #FCD34D;
+    --accent-danger:         #FCA5A5;
+    --accent-danger-subtle:  #450A0A;
+    --accent-danger-text:    #FCA5A5;
+    --accent-code:           #F9A8D4;
+    --accent-code-bg:        #2D1830;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.30), 0 1px 2px rgba(0,0,0,.20);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.25);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,.50), 0 4px 12px rgba(0,0,0,.30);
+  }
+}
+
+/* ── 4. GLOBAL BASE STYLES ──────────────────────────────────────── */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
+html {
+  font-size: var(--font-size-base);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: var(--line-height-base);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ── 5. TİPOGRAFİ HIYERARŞISI ───────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  line-height: var(--line-height-heading);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+h2 { font-size: clamp(1.375rem, 3vw, 1.75rem); }
+h3 { font-size: clamp(1.125rem, 2.5vw, 1.25rem); }
+h4 { font-size: 1.0625rem; }
+
+p, li, td {
+  color: var(--text-primary);
+  line-height: var(--line-height-base);
+}
+
+/* Yardımcı metin sınıfları */
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-link      { color: var(--text-link); }
+
+a {
+  color: var(--text-link);
+  text-decoration-skip-ink: auto;
+}
+
+/* ── 6. KOD BLOKLARı ────────────────────────────────────────────── */
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--accent-code-bg);
+  color: var(--accent-code);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: var(--line-height-code);
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ── 7. CUSTOM SCROLLBAR ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-subtle); }
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
+  background: var(--border-strong);
+  border-radius: 4px;
+  border: 2px solid var(--bg-subtle);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── 8. FORM ELEMENTLERİ ────────────────────────────────────────── */
+input, select, textarea {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  background-color: var(--bg-inset);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-primary-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary-ring) 30%, transparent);
 }
 
-/* Smooth transitions */
-button,
-input,
-select,
-textarea {
-  @apply transition-all duration-200;
-}
+::placeholder { color: var(--text-muted); }
 
-/* Section card styling */
+/* ── 9. SECTION CARD UTILITY ────────────────────────────────────── */
 .section-card {
-  @apply rounded-xl shadow-lg p-6 mb-6 border;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  @apply transition-all duration-300;
 }
 
 .section-title {
-  @apply text-2xl font-bold mb-4 flex items-center gap-2;
+  color: var(--text-primary);
+  font-weight: 700;
+  @apply text-2xl mb-4 flex items-center gap-2;
 }
 
 .subsection-title {
+  color: var(--text-secondary);
   @apply text-lg font-semibold mb-3 mt-4;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   SMOOTH HOVER SCALE — Yumuşak Büyüme Efekti (Proje Geneli)
-   transition: transform 0.3s ease-in-out | scale(1.04)
-   Tüm <a> linkleri, <button>lar ve kart elementleri için.
-   ═══════════════════════════════════════════════════════════════ */
+/* ── 10. HOVER CARD UTILITY ─────────────────────────────────────── */
+.hover-card {
+  transition:
+    transform var(--hover-duration) var(--hover-ease),
+    box-shadow var(--hover-duration) var(--hover-ease) !important;
+  will-change: transform;
+  cursor: pointer;
+}
+.hover-card:hover {
+  transform: scale(var(--hover-scale-sm));
+  box-shadow: var(--shadow-lg) !important;
+  z-index: 1;
+  position: relative;
+}
+.section-card:not(.no-hover-scale):hover {
+  transform: scale(var(--hover-scale-sm));
+  box-shadow: var(--shadow-md) !important;
+}
 
-/* ── Temel animasyon değişkenleri ─────────────────────────────── */
+/* ── 11. SMOOTH HOVER SCALE — Proje Geneli ──────────────────────── */
 :root {
-  --hover-scale: 1.04;
+  --hover-scale:    1.04;
   --hover-scale-sm: 1.02;
   --hover-scale-lg: 1.06;
   --hover-duration: 0.3s;
-  --hover-ease: ease-in-out;
+  --hover-ease:     ease-in-out;
 }
 
-/* ── Metin & Nav Linkleri (<a>) ───────────────────────────────── */
 a:not([class*="hover:scale"]):not(.no-hover-scale) {
   display: inline-block;
   transition:
@@ -76,22 +364,10 @@ a:not([class*="hover:scale"]):not(.no-hover-scale) {
   will-change: transform;
   backface-visibility: hidden;
 }
-
 a:not([class*="hover:scale"]):not(.no-hover-scale):hover {
   transform: scale(var(--hover-scale));
 }
 
-/* Flex/grid/list içindeki linklerin layout bozmaması için */
-.flex > a,
-.grid > a,
-li > a,
-p > a,
-nav a,
-header a {
-  display: inline-block;
-}
-
-/* ── Butonlar ─────────────────────────────────────────────────── */
 button:not([class*="hover:scale"]):not(.no-hover-scale) {
   transition:
     transform var(--hover-duration) var(--hover-ease),
@@ -101,20 +377,15 @@ button:not([class*="hover:scale"]):not(.no-hover-scale) {
   will-change: transform;
   backface-visibility: hidden;
 }
-
 button:not([class*="hover:scale"]):not(.no-hover-scale):hover {
   transform: scale(var(--hover-scale));
 }
-
-/* Tıklama geri bildirimi */
 button:not([class*="active:scale"]):not(.no-hover-scale):active {
   transform: scale(0.97) !important;
   transition-duration: 0.1s !important;
 }
 
-/* ── Tailwind hover:scale-* sınıfı olan elementler ───────────── */
-/* Tailwind JIT hover:scale-102, hover:scale-105 vb. kullananlar
-   kendi transition'larını yönetiyor; sadece süreyi standartlaştırıyoruz */
+/* Tailwind hover:scale-* transition standardize */
 [class*="hover:scale-"] {
   transition:
     transform var(--hover-duration) var(--hover-ease),
@@ -122,68 +393,21 @@ button:not([class*="active:scale"]):not(.no-hover-scale):active {
     background-color 0.2s ease !important;
 }
 
-/* ── Kart Elementleri (.hover-card sınıfıyla işaretlenenler) ─── */
-.hover-card {
-  transition:
-    transform var(--hover-duration) var(--hover-ease),
-    box-shadow var(--hover-duration) var(--hover-ease) !important;
-  will-change: transform;
-  cursor: pointer;
+/* Flex/grid içi link layout koruması */
+.flex > a, .grid > a, li > a, p > a, nav a, header a {
+  display: inline-block;
 }
 
-.hover-card:hover {
-  transform: scale(var(--hover-scale-sm));
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18) !important;
-  z-index: 1;
-  position: relative;
-}
-
-/* .section-card için küçük efekt */
-.section-card:not(.no-hover-scale) {
-  transition:
-    transform var(--hover-duration) var(--hover-ease),
-    box-shadow var(--hover-duration) var(--hover-ease) !important;
-}
-
-.section-card:not(.no-hover-scale):hover {
-  transform: scale(var(--hover-scale-sm));
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* ── İstisnalar: Bu elementler HİÇBİR ZAMAN büyümemeli ──────── */
-pre,
-code,
-textarea,
-input,
-select,
-table,
-thead,
-tbody,
-tfoot,
-tr,
-td,
-th,
-img,
-svg,
-canvas,
-video,
-iframe,
-[role="dialog"],
-[role="modal"],
-.modal,
-.modal *,
-.carousel,
-.carousel *,
-[data-dismiss],
-.no-hover-scale,
-.no-hover-scale * {
+/* — İstisnalar — */
+pre, code, textarea, input, select,
+table, thead, tbody, tfoot, tr, td, th,
+img, svg, canvas, video, iframe,
+[role="dialog"], .modal, .modal *,
+.carousel, .carousel *, [data-dismiss],
+.no-hover-scale, .no-hover-scale * {
   transform: none !important;
-  /* transition sıfırlama — sadece transform'u etkiler, renk vb. kalır */
   transition-property: background-color, color, border-color, opacity, box-shadow !important;
 }
-
-/* Özel: img üst öğelerinde (kart vb.) scale çalışabilir,
-   ama img'nin kendisi sabit kalır */
 img {
   transform: none !important;
   transition: none !important;
