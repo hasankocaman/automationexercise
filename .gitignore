@@ -4,3 +4,17 @@ playwright-report/
 dist/
 .DS_Store
 .env
+
+# Debug / verification screenshots
+verify_*.png
+v_*.png
+v1_*.png
+final_*.png
+
+# One-time data transform & fix scripts
+fix_*.cjs
+transform_*.js
+transform_*.cjs
+
+# Tampermonkey / console injection userscripts
+smooth_hover_scale*.js

@@ -1389,6 +1389,116 @@ console.log(formatUser(null));` },
       { type: "quiz", question: { tr: "TypeScript'te '??' ve '||' operatörleri arasındaki fark nedir?", en: "What is the difference between '??' and '||' operators in TypeScript?" }, options: [{ id: "a", text: { tr: "Hiçbir fark yok", en: "No difference" } }, { id: "b", text: { tr: "?? sadece null/undefined'ı kontrol eder, || 0, '', false'ı da falsy sayar", en: "?? only checks for null/undefined, while || also treats 0, '', false as falsy" } }, { id: "c", text: { tr: "|| daha güvenli", en: "|| is safer" } }, { id: "d", text: { tr: "?? sadece TypeScript'te var, JS'de yok", en: "?? only exists in TypeScript, not JS" } }], correct: "b", explanation: { tr: "0 || 'default' = 'default' (0 falsy). 0 ?? 'default' = 0 (0 null/undefined değil). QA testlerinde sıfır değer kontrol ediyorsanız ?? kullanın — || sıfırı da default'a düşürür.", en: "0 || 'default' = 'default' (0 is falsy). 0 ?? 'default' = 0 (0 is not null/undefined). In QA tests checking for zero values, use ?? — || would incorrectly treat 0 as missing." } },
 
       // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 16 — Definitely Typed
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: "heading", text: "Definitely Typed & @types Packages", difficulty: "🟡 Intermediate" },
+      { type: "simple-box", emoji: "📦", title: { tr: "Bunu 10 yaşındaki birine anlatalım:", en: "Simply put:" }, content: { tr: "@types paketi, bir JavaScript kütüphanesinin TypeScript rehber kitabı gibidir. Kütüphane TypeScript ile yazılmamışsa, bu paket TypeScript'e 'bu kütüphanede şu metodlar ve tipler var' der. Rehber olmadan TypeScript kütüphaneyi göremez.", en: "A @types package is TypeScript's manual for a JavaScript library. If the library isn't written in TypeScript, this package tells TypeScript 'this library has these methods and types'. Without the manual, TypeScript can't see the library." } },
+      { type: "text", content: { tr: "Bazı kütüphaneler TypeScript ile yazılmış ve kendi .d.ts tip tanım dosyalarını içerir — Playwright ve axios buna örnek. Eski veya saf JavaScript kütüphaneleri için DefinitelyTyped topluluk deposu @types paketleri sağlar.", en: "Some libraries are written in TypeScript and bundle their own .d.ts type definition files — Playwright and axios are examples. For older or plain JavaScript libraries, the DefinitelyTyped community repository provides @types packages." } },
+      { type: "code", language: "typescript", code: `// Installing @types packages
+
+// Library ships its own types — NO @types needed:
+npm install --save-dev @playwright/test  // includes its own .d.ts
+npm install axios                        // includes its own .d.ts
+
+// Library is plain JS — @types required:
+npm install node-fetch
+npm install --save-dev @types/node-fetch   // provides type definitions
+
+// Essential for Node.js projects:
+npm install --save-dev @types/node         // Node.js built-ins (fs, path, process)
+npm install --save-dev @types/jest         // Jest matchers (describe, it, expect)
+
+// Verify if a package bundles its own types:
+// Check package.json for "types" or "typings" field
+// → "@playwright/test": { "types": "index.d.ts" }    ← bundled!
+// → "node-fetch": (no types field)                   ← needs @types/node-fetch
+
+import path from 'path';              // TypeScript knows: path.join, path.resolve
+import { readFileSync } from 'fs';    // TypeScript knows the return type
+const configPath: string = path.join(__dirname, 'playwright.config.ts');
+console.log('Config path:', configPath);` },
+      { type: "code", language: "typescript", code: `// What a .d.ts declaration file looks like
+// TypeScript reads these automatically — you don't write them for @types
+
+// Simplified version of @types/node fs.d.ts:
+declare module 'fs' {
+  function readFileSync(path: string, options: { encoding: BufferEncoding }): string;
+  function readFileSync(path: string): Buffer;
+  function writeFileSync(path: string, data: string | Buffer): void;
+  function existsSync(path: string): boolean;
+}
+
+// tsconfig.json — controlling type resolution
+// {
+//   "compilerOptions": {
+//     "typeRoots": ["./node_modules/@types", "./src/types"],
+//     // default already includes node_modules/@types — rarely need to change
+//
+//     "types": ["node", "jest"]
+//     // restrict to ONLY these @types packages (optional — omit to include all)
+//   }
+// }
+
+// Writing your own declaration for a legacy JS library
+// File: src/types/legacy-tool.d.ts
+declare module 'legacy-tool' {
+  export function runSuite(config: { url: string; timeout?: number }): Promise<void>;
+  export interface SuiteResult { passed: number; failed: number; }
+}` },
+      { type: "editor", lang: "typescript", defaultCode: `// Practice: Simulate type declarations for a plain JS library
+
+// Declare types for an imaginary legacy JavaScript library:
+declare function runBenchmark(
+  name: string,
+  fn: () => void,
+  iterations?: number
+): { name: string; avgMs: number; minMs: number; maxMs: number };
+
+// Now TypeScript understands runBenchmark:
+const result = runBenchmark("sort 1000 items", () => {
+  [3, 1, 4, 1, 5, 9, 2, 6].sort();
+}, 100);
+
+// TypeScript knows the return type shape:
+const report: string = result.name + ": avg " + result.avgMs.toFixed(2) + "ms";
+console.log(report);
+
+// Try breaking a type to see TypeScript catch it:
+// runBenchmark(42, () => {});   // Error: number not assignable to string
+// result.totalMs;               // Error: property does not exist
+console.log("Avg:", result.avgMs, "ms | Min:", result.minMs, "ms");` },
+      { type: "java-compare", topic: "Type declarations for external libraries", why: "Java'da Jackson veya Gson kullanırken tipler Maven/Gradle ile gelir ve Java sınıflarının kendisidir. TypeScript'te ise çoğu JavaScript kütüphanesi tip tanımı içermez — @types paketi bu boşluğu doldurur.", why_en: "In Java, libraries like Jackson or Gson come via Maven/Gradle and their types are the Java classes themselves. In TypeScript, most JavaScript libraries don't bundle type definitions — @types packages fill this gap.", java: `// Java: types come from the library's compiled .class files
+// Add to pom.xml — types come bundled in the .jar:
+// <dependency>
+//   <groupId>com.fasterxml.jackson.core</groupId>
+//   <artifactId>jackson-databind</artifactId>
+//   <version>2.15.0</version>
+// </dependency>
+
+// IDE and compiler see all types automatically:
+ObjectMapper mapper = new ObjectMapper();
+MyData obj = mapper.readValue(jsonString, MyData.class);
+// ↑ Full type safety — IDE shows all readValue overloads`, typescript: `// TypeScript: runtime code and types are SEPARATE for JS libraries
+
+// Option 1 — library bundles its own types (modern):
+import { test, expect } from '@playwright/test';  // types included
+import axios from 'axios';                         // types included
+
+// Option 2 — install @types for legacy JS libraries:
+// npm install node-fetch
+// npm install --save-dev @types/node-fetch
+import fetch from 'node-fetch';  // now TypeScript understands fetch
+
+// Option 3 — write your own .d.ts declaration file:
+// src/types/legacy-api.d.ts
+declare module 'legacy-api' {
+  export function callEndpoint(url: string): Promise<{ status: number }>;
+}
+
+// Without types, TypeScript falls back to 'any' — no type safety`, note: "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun.", note_en: "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name." },
+      { type: "quiz", question: { tr: "@types/node kurulumu ne zaman GEREKLİDİR?", en: "When is it REQUIRED to install @types/node?" }, options: [{ id: "a", text: { tr: "Her TypeScript projesinde otomatik kurulur", en: "It installs automatically in every TypeScript project" } }, { id: "b", text: { tr: "Node.js API'lerini (fs, path, process) TypeScript kodunda kullanırken", en: "When using Node.js APIs (fs, path, process) in TypeScript code" } }, { id: "c", text: { tr: "Yalnızca Playwright projeleri için gereklidir", en: "Only required for Playwright projects" } }, { id: "d", text: { tr: "Yalnızca frontend (React, Vue) projelerinde", en: "Only in frontend (React, Vue) projects" } }], correct: "b", explanation: { tr: "Node.js runtime'ı JavaScript ile yazılmıştır — TypeScript tipleri içermez. @types/node paketi fs.readFileSync, path.join, process.env gibi built-in modüller için tip tanımları sağlar. Playwright projeleri de Node.js API'lerini kullandığından neredeyse her Playwright+TypeScript projesinde @types/node bulunur.", en: "@types/node is required when using Node.js built-in modules (fs, path, process) in TypeScript. The Node.js runtime ships no TypeScript types — @types/node provides them. Most Playwright projects need @types/node since they use Node.js APIs for file I/O, env vars, and path manipulation." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
       // Advanced: Conditional & Mapped Types
       // ═══════════════════════════════════════════════════════════════════════
       { type: "heading", text: "Conditional & Mapped Types", difficulty: "🔴 Advanced" },

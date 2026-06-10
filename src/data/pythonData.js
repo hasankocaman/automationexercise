@@ -1858,6 +1858,761 @@ print(suite.get_test(99))   # Should return None` },
         { level: 'intermediate', q: { tr: "Python'da generator ve list arasındaki fark nedir? QA'de neden generator kullanırsın?", en: 'What is the difference between a generator and a list in Python? Why use generators in QA?' }, a: { tr: "List tüm elemanları bellekte tutar. Generator lazy — her seferinde bir eleman üretir, bellekte hepsi tutulmaz. QA'de 100.000 test verisi üretmek için generator idealdir: def gen_users(): for i in range(100000): yield {...}. Bellek tasarrufu büyük.", en: "A list holds all elements in memory. A generator is lazy — produces one element at a time, not all in memory. In QA, generators are ideal for producing large test datasets: def gen_users(): for i in range(100000): yield {...}. Significant memory savings." } },
         { level: 'advanced', q: { tr: "Python type hints runtime'da nasıl çalışır? Tip hatası olursa ne olur?", en: 'How do Python type hints work at runtime? What happens if there is a type mismatch?' }, a: { tr: "Python type hints runtime'da enforce edilmez — sadece documentation ve tool'lar (mypy, IDE) için var. def foo(x: int): pass; foo('string') çalışır, hata vermez. Hata almak için mypy ile statik analiz veya pydantic gibi bir validation kütüphanesi gerekir. Java'nın static typing'ından bu farkı bilmek önemli.", en: "Python type hints are not enforced at runtime — they are only for documentation and tools like mypy and IDEs. def foo(x: int): pass; foo('string') works without error. To get errors, use mypy for static analysis or a validation library like pydantic. This difference from Java's static typing is important to understand." } },
       ]},
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 31 — Polymorphism
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'Polymorphism', difficulty: '🔴 Advanced' },
+      { type: 'simple-box', emoji: '🎭', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: 'Polimorfizm, aynı komuta farklı nesnelerin farklı tepki vermesi. "Ses çıkar" dersen kedi miyavlar, köpek havlar, inek möö der. Aynı metod ismi, farklı davranışlar.', en: 'Polymorphism means the same command gets different responses from different objects. "Make sound" and a cat meows, a dog barks, a cow moos. Same method name, different behaviors.' } },
+      { type: 'text', content: { tr: "Java'da polimorfizm interface veya abstract class ile sağlanır. Python'da duck typing ile çalışır — bir nesne gerekli metodu sağladığı sürece tip önemli değildir: 'eğer ördek gibi yürüyorsa ve ördek gibi vaklıyorsa, o bir ördektir'.", en: "In Java, polymorphism uses interfaces or abstract classes. Python uses duck typing — if an object has the required method, its type doesn't matter: 'If it walks like a duck and quacks like a duck, it's a duck'." } },
+      { type: 'code', language: 'python', code: `# Python Polymorphism — Duck Typing
+class Dog:
+    def speak(self):
+        return "Woof!"
+
+class Cat:
+    def speak(self):
+        return "Meow!"
+
+class Duck:
+    def speak(self):
+        return "Quack!"
+
+# Polymorphic function — works with ANY object that has .speak()
+def make_sound(animal):
+    print(animal.speak())     # no type check needed!
+
+# Same function, different behaviors:
+make_sound(Dog())    # Woof!
+make_sound(Cat())    # Meow!
+make_sound(Duck())   # Quack!
+
+# For loops work too — completely polymorphic
+animals = [Dog(), Cat(), Duck(), Dog()]
+for animal in animals:
+    print(animal.speak())
+
+# QA Example: different reporters with same interface
+class HTMLReporter:
+    def report(self, results): return f"<html>{results}</html>"
+
+class JSONReporter:
+    def report(self, results): return f'{{"results": "{results}"}}'
+
+class ConsoleReporter:
+    def report(self, results): print(f"[REPORT] {results}")
+
+reporters = [HTMLReporter(), JSONReporter(), ConsoleReporter()]
+for reporter in reporters:
+    reporter.report("PASS: 87, FAIL: 3")` },
+      { type: 'editor', lang: 'python', defaultCode: `# Polymorphism with abstract base class
+from abc import ABC, abstractmethod
+
+class TestRunner(ABC):
+    @abstractmethod
+    def run(self, test_name: str) -> str:
+        pass
+
+class SeleniumRunner(TestRunner):
+    def run(self, test_name: str) -> str:
+        return f"Selenium: {test_name} → PASS"
+
+class PlaywrightRunner(TestRunner):
+    def run(self, test_name: str) -> str:
+        return f"Playwright: {test_name} → PASS"
+
+runners = [SeleniumRunner(), PlaywrightRunner()]
+for runner in runners:
+    print(runner.run("test_login"))` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Polymorphism' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Polimorfizm mekanizması', en: 'Polymorphism mechanism' }, java: 'interface / abstract class required', python: 'Duck typing — no interface needed' },
+        { concept: { tr: 'Abstract metod', en: 'Abstract method' }, java: 'abstract void speak();', python: '@abstractmethod def speak(self): pass' },
+        { concept: { tr: 'Runtime type check', en: 'Runtime type check' }, java: 'instanceof', python: 'isinstance(obj, ClassName)' },
+        { concept: { tr: 'Override', en: 'Method override' }, java: '@Override annotation', python: 'Just define same method name' },
+      ]},
+      { type: 'quiz', question: { tr: "Python'da duck typing ne anlama gelir?", en: 'What does duck typing mean in Python?' }, options: [{ id: 'a', text: { tr: 'Sadece Duck sınıfıyla çalışır', en: 'Works only with Duck class' } }, { id: 'b', text: { tr: 'Nesnenin tipi değil, hangi metodları sağladığı önemlidir', en: "An object's type doesn't matter — only whether it has the required methods" } }, { id: 'c', text: { tr: 'Interface zorunludur', en: 'Interface is required' } }, { id: 'd', text: { tr: 'Java polymorphism ile aynıdır', en: 'Same as Java polymorphism' } }], correct: 'b', explanation: { tr: "Duck typing: 'Eğer ördek gibi yürüyorsa ve vaklıyorsa, o bir ördektir.' Python nesnelerin tipini değil, çağrılan metodun varlığını kontrol eder. Java'da interface zorunluyken Python'da duck typing ile herhangi bir sınıf çalışır.", en: "Duck typing: 'If it walks like a duck and quacks like a duck, it's a duck.' Python checks if the method exists, not the object's type. Java requires an interface; Python's duck typing works with any class that has the method." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 32 — Arrays (array module)
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'Arrays (array module)', difficulty: '🟡 Intermediate' },
+      { type: 'simple-box', emoji: '📊', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "Python'daki array modülü, sadece aynı tip sayıları tutan özel bir liste. Normal list her şeyi tutabilir ama array yalnızca int veya float gibi tek bir tip tutar — bu sayede daha az yer kaplar.", en: "Python's array module holds only one type of number. A regular list holds anything, but array holds only ints or only floats — uses less memory." } },
+      { type: 'text', content: { tr: "Python'da normal list zaten dinamik ve esnek. array modülü çok sayısal veriyle çalışırken bellek optimizasyonu için kullanılır. QA'de büyük performans ölçümü verisi işlerken yararlı olabilir. Java'daki primitive array (int[]) kavramına yakın.", en: "Python's regular list is already flexible. The array module is for memory optimization when working with large numeric data. Useful in QA for processing large performance measurement datasets. Similar to Java's primitive arrays (int[])." } },
+      { type: 'code', language: 'python', code: `import array
+
+# Create typed arrays (must specify type code)
+# 'i' = signed int, 'f' = float, 'd' = double
+int_arr = array.array('i', [1, 2, 3, 4, 5])
+float_arr = array.array('f', [1.5, 2.5, 3.5])
+
+# Access and modify (same as list)
+print(int_arr[0])       # 1
+int_arr.append(6)       # Add element
+int_arr.remove(3)       # Remove value 3
+
+# Type codes reference:
+# 'b' = signed char (int, 1 byte)
+# 'i' = signed int  (int, 2-4 bytes)
+# 'f' = float       (4 bytes)
+# 'd' = double      (8 bytes)
+
+# QA Use: store 1M response times efficiently
+response_times = array.array('f')
+for _ in range(1_000_000):
+    response_times.append(142.5)   # much less memory than list
+
+print(f"Count: {len(response_times)}")
+print(f"Type: {response_times.typecode}")
+
+# Convert to list when needed
+as_list = response_times.tolist()` },
+      { type: 'editor', lang: 'python', defaultCode: `import array
+
+# Typed array for test durations (milliseconds as integers)
+durations = array.array('i', [120, 340, 89, 450, 220, 180])
+
+print("Durations:", list(durations))
+print("Count:", len(durations))
+print("Min:", min(durations))
+print("Max:", max(durations))
+print("Average:", sum(durations) / len(durations))
+
+# Add new measurement
+durations.append(295)
+print("After append:", list(durations))` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Arrays' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Primitive dizi', en: 'Primitive array' }, java: 'int[] arr = {1, 2, 3};', python: "array.array('i', [1, 2, 3])" },
+        { concept: { tr: 'Dinamik dizi', en: 'Dynamic array' }, java: 'ArrayList<Integer>', python: 'list (built-in, use this)' },
+        { concept: { tr: 'Bellek verimliliği', en: 'Memory efficiency' }, java: 'int[] (very efficient)', python: "array.array('i') — efficient for numbers" },
+        { concept: { tr: 'Tip kısıtlaması', en: 'Type restriction' }, java: 'Compile-time enforced', python: 'Runtime (typecode enforced)' },
+      ]},
+      { type: 'quiz', question: { tr: "Python'da array.array('i', [...]) ile list arasındaki temel fark nedir?", en: "What is the key difference between array.array('i', [...]) and a list in Python?" }, options: [{ id: 'a', text: { tr: 'array daha hızlıdır', en: 'array is faster' } }, { id: 'b', text: { tr: "array yalnızca aynı tipte veri tutar, list her tipi tutar", en: 'array holds only one data type, list holds any type' } }, { id: 'c', text: { tr: 'array değiştirilemez (immutable)', en: 'array is immutable' } }, { id: 'd', text: { tr: 'array sırasız', en: 'array is unordered' } }], correct: 'b', explanation: { tr: "array.array tek bir tip (int, float vb.) tutar ve bu sayede bellekte daha verimlidir. Python list her tipte veri tutabilir. QA'de büyük sayısal veri setlerinde array kullanmak bellek tasarrufu sağlar.", en: "array.array holds only one type (int, float, etc.) making it memory efficient. Python's list holds any type. Using array for large numeric datasets in QA saves memory." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 33 — Dates (datetime module)
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'Dates (datetime module)', difficulty: '🟡 Intermediate' },
+      { type: 'simple-box', emoji: '📅', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "Python'daki datetime modülü, tarih ve saat işlemleri için. 'Test ne zaman çalıştı?', 'Bu rapor ne kadar sürdü?', 'Bugünün tarihi nedir?' sorularını cevaplar.", en: "Python's datetime module handles date and time. 'When did the test run?', 'How long did the report take?', 'What is today's date?' — all answered here." } },
+      { type: 'code', language: 'python', code: `from datetime import datetime, date, timedelta
+
+# Current date and time
+now = datetime.now()
+print(now)                          # 2024-01-15 14:30:25.123456
+print(now.year, now.month, now.day) # 2024 1 15
+print(now.hour, now.minute)         # 14 30
+
+# Format dates as strings (strftime)
+print(now.strftime("%Y-%m-%d"))          # 2024-01-15
+print(now.strftime("%d/%m/%Y %H:%M"))    # 15/01/2024 14:30
+print(now.strftime("%B %d, %Y"))         # January 15, 2024
+
+# Parse string to datetime (strptime)
+date_str = "2024-03-25"
+parsed = datetime.strptime(date_str, "%Y-%m-%d")
+print(parsed.year)   # 2024
+
+# Date arithmetic with timedelta
+today = date.today()
+yesterday = today - timedelta(days=1)
+next_week = today + timedelta(weeks=1)
+print("Yesterday:", yesterday)
+print("Next week:", next_week)
+
+# QA: measure test duration
+start = datetime.now()
+# ... run test ...
+end = datetime.now()
+duration = end - start
+print(f"Test took: {duration.total_seconds():.2f} seconds")
+
+# QA: generate timestamped filename
+timestamp = now.strftime("%Y%m%d_%H%M%S")
+filename = f"report_{timestamp}.json"
+print(filename)  # report_20240115_143025.json` },
+      { type: 'editor', lang: 'python', defaultCode: `from datetime import datetime, timedelta
+
+# Generate test report with timestamp
+def create_report_filename(prefix="test_report"):
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{prefix}_{ts}.json"
+
+# Check if a date is within the last 7 days
+def is_recent(date_str: str, days: int = 7) -> bool:
+    date = datetime.strptime(date_str, "%Y-%m-%d")
+    cutoff = datetime.now() - timedelta(days=days)
+    return date >= cutoff
+
+print(create_report_filename())
+print(create_report_filename("smoke"))
+
+# Test recent check
+print(is_recent("2020-01-01"))  # False - too old
+print(is_recent(datetime.now().strftime("%Y-%m-%d")))  # True - today` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Dates' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Şimdiki zaman', en: 'Current time' }, java: 'LocalDateTime.now()', python: 'datetime.now()' },
+        { concept: { tr: 'Tarih formatla', en: 'Format date' }, java: 'DateTimeFormatter.ofPattern(...)', python: 'strftime("%Y-%m-%d")' },
+        { concept: { tr: 'String → tarih', en: 'Parse string' }, java: 'LocalDate.parse(str)', python: 'strptime(str, format)' },
+        { concept: { tr: 'Tarih farkı', en: 'Date difference' }, java: 'ChronoUnit.DAYS.between()', python: 'timedelta and .total_seconds()' },
+      ]},
+      { type: 'quiz', question: { tr: "datetime.now().strftime('%Y%m%d') ne döner?", en: "What does datetime.now().strftime('%Y%m%d') return?" }, options: [{ id: 'a', text: '2024-01-15' }, { id: 'b', text: '20240115' }, { id: 'c', text: 'January 15' }, { id: 'd', text: '15/01/2024' }], correct: 'b', explanation: { tr: "'%Y' 4 haneli yıl, '%m' 2 haneli ay, '%d' 2 haneli gün döner — birleşik: '20240115'. Bu format log dosyaları ve report isimlendirmesi için yaygın kullanılır.", en: "'%Y' = 4-digit year, '%m' = 2-digit month, '%d' = 2-digit day. Combined: '20240115'. This format is commonly used for log files and report naming." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 34 — Math (math module)
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'Math (math module)', difficulty: '🟢 Beginner' },
+      { type: 'simple-box', emoji: '🧮', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "Python'ın math modülü, hesap makinenizdeki gelişmiş fonksiyonlar gibi: karekök, log, güç, yuvarlama. Normal +, -, *, / için gerekmiyor ama sqrt(25) veya pi sayısı için lazım.", en: "Python's math module is like your calculator's advanced functions: square root, log, power, rounding. Not needed for +, -, *, / but necessary for sqrt(25) or the pi constant." } },
+      { type: 'code', language: 'python', code: `import math
+
+# Constants
+print(math.pi)          # 3.141592653589793
+print(math.e)           # 2.718281828459045
+print(math.inf)         # inf (infinity)
+
+# Rounding
+print(math.ceil(4.2))   # 5  — round UP always
+print(math.floor(4.8))  # 4  — round DOWN always
+print(round(4.5))       # 4  — banker's rounding (built-in)
+
+# Power and roots
+print(math.sqrt(16))    # 4.0 — square root
+print(math.pow(2, 10))  # 1024.0 — power (returns float)
+print(2 ** 10)          # 1024   — power (returns int)
+
+# Logarithm
+print(math.log(100))          # 4.60... — natural log (ln)
+print(math.log(100, 10))      # 2.0     — log base 10
+print(math.log10(1000))       # 3.0     — convenient shorthand
+
+# Absolute value
+print(abs(-5))          # 5 (built-in, no import needed)
+print(math.fabs(-5.0))  # 5.0 (math version, always float)
+
+# QA: calculate pass percentages
+total = 150
+passed = 137
+pass_rate = (passed / total) * 100
+print(f"Pass rate: {math.floor(pass_rate)}%")  # always round down for safety` },
+      { type: 'editor', lang: 'python', defaultCode: `import math
+
+# QA statistical calculations
+response_times = [120, 340, 89, 450, 220, 180, 95, 510]
+
+avg = sum(response_times) / len(response_times)
+variance = sum((x - avg) ** 2 for x in response_times) / len(response_times)
+std_dev = math.sqrt(variance)
+
+print(f"Count: {len(response_times)}")
+print(f"Average: {avg:.1f} ms")
+print(f"Std deviation: {std_dev:.1f} ms")
+print(f"Min: {min(response_times)} ms")
+print(f"Max: {max(response_times)} ms")
+
+# SLA check: all times must be under 500ms
+sla_threshold = 500
+violations = [t for t in response_times if t > sla_threshold]
+print(f"SLA violations: {len(violations)}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Math' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Karekök', en: 'Square root' }, java: 'Math.sqrt(16)', python: 'math.sqrt(16)' },
+        { concept: { tr: 'Yuvarla yukarı', en: 'Round up' }, java: 'Math.ceil(4.2)', python: 'math.ceil(4.2)' },
+        { concept: { tr: 'Yuvarla aşağı', en: 'Round down' }, java: 'Math.floor(4.8)', python: 'math.floor(4.8)' },
+        { concept: { tr: 'Pi sabiti', en: 'Pi constant' }, java: 'Math.PI', python: 'math.pi' },
+        { concept: { tr: 'Mutlak değer', en: 'Absolute value' }, java: 'Math.abs(-5)', python: 'abs(-5) or math.fabs(-5)' },
+      ]},
+      { type: 'quiz', question: { tr: "math.ceil(4.1) ve math.floor(4.9) sırasıyla ne döner?", en: "What do math.ceil(4.1) and math.floor(4.9) each return?" }, options: [{ id: 'a', text: '4 ve 4' }, { id: 'b', text: '5 ve 5' }, { id: 'c', text: '5 ve 4' }, { id: 'd', text: '4 ve 5' }], correct: 'c', explanation: { tr: "ceil() her zaman yukarı yuvarlar: ceil(4.1) = 5. floor() her zaman aşağı yuvarlar: floor(4.9) = 4. Java'daki Math.ceil() ve Math.floor() ile aynı davranış.", en: "ceil() always rounds UP: ceil(4.1) = 5. floor() always rounds DOWN: floor(4.9) = 4. Same behavior as Java's Math.ceil() and Math.floor()." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 35 — PIP (Package Manager)
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'PIP — Python Package Manager', difficulty: '🟢 Beginner' },
+      { type: 'simple-box', emoji: '📦', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "pip, Python'ın uygulama mağazası gibi. Başkalarının yazdığı kütüphaneleri indirir. 'pip install requests' yazarsın, her şey hazır! Java'daki Maven/Gradle'a benzer ama komut satırından.", en: "pip is like Python's app store. It downloads libraries others wrote. Type 'pip install requests' and everything is ready! Similar to Maven/Gradle in Java but from the command line." } },
+      { type: 'code', language: 'python', code: `# PIP — Python Package Installer
+# ─────────────────────────────────────────
+# Install a package
+# pip install requests
+
+# Install specific version
+# pip install requests==2.31.0
+
+# Install minimum version
+# pip install requests>=2.28.0
+
+# Install multiple packages
+# pip install pytest requests playwright faker
+
+# Uninstall
+# pip uninstall requests
+
+# List installed packages
+# pip list
+
+# Show package details
+# pip show requests
+
+# Upgrade pip itself
+# python -m pip install --upgrade pip
+
+# Save dependencies to file
+# pip freeze > requirements.txt
+
+# Install from requirements file
+# pip install -r requirements.txt
+
+# ─────────────────────────────────────────
+# Example requirements.txt:
+# pytest==7.4.3
+# playwright==1.40.0
+# requests==2.31.0
+# faker==20.1.0
+# allure-pytest==2.13.2
+
+# QA Essential packages:
+PACKAGES = {
+    "pytest":         "Test runner, assertions, fixtures",
+    "playwright":     "Browser automation (modern)",
+    "selenium":       "Browser automation (classic)",
+    "requests":       "HTTP/API testing",
+    "faker":          "Generate realistic test data",
+    "allure-pytest":  "Beautiful HTML reports",
+    "pandas":         "Read/process CSV/Excel test data",
+}
+
+for pkg, desc in PACKAGES.items():
+    print(f"  pip install {pkg:15} # {desc}")` },
+      { type: 'editor', lang: 'python', defaultCode: `# Simulate reading a requirements.txt file
+requirements_txt = """pytest==7.4.3
+requests==2.31.0
+playwright==1.40.0
+faker==20.1.0
+allure-pytest==2.13.2"""
+
+print("Packages from requirements.txt:")
+for line in requirements_txt.strip().split("\\n"):
+    if line and not line.startswith("#"):
+        name, version = line.split("==")
+        print(f"  {name} version {version}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Package Management' }, columns: ['Java (Maven)', 'Python (pip)'], rows: [
+        { concept: { tr: 'Bağımlılık dosyası', en: 'Dependency file' }, java: 'pom.xml', python: 'requirements.txt' },
+        { concept: { tr: 'Paket indir', en: 'Install package' }, java: 'mvn install', python: 'pip install package' },
+        { concept: { tr: 'Belirli sürüm', en: 'Specific version' }, java: '<version>2.31</version>', python: 'pip install pkg==2.31' },
+        { concept: { tr: 'Paket deposu', en: 'Package registry' }, java: 'Maven Central', python: 'PyPI (pypi.org)' },
+        { concept: { tr: 'Sanal ortam', en: 'Virtual environment' }, java: 'N/A (global or project scope)', python: 'venv + pip (per project)' },
+      ]},
+      { type: 'quiz', question: { tr: "pip freeze > requirements.txt komutu ne yapar?", en: "What does the command 'pip freeze > requirements.txt' do?" }, options: [{ id: 'a', text: { tr: 'requirements.txt dosyasını siler', en: 'Deletes requirements.txt' } }, { id: 'b', text: { tr: 'Mevcut ortamdaki tüm paketleri ve sürümlerini requirements.txt dosyasına yazar', en: 'Writes all installed packages and their exact versions to requirements.txt' } }, { id: 'c', text: { tr: 'Tüm paketleri günceller', en: 'Updates all packages' } }, { id: 'd', text: { tr: 'Pip\'i günceller', en: 'Updates pip' } }], correct: 'b', explanation: { tr: "pip freeze tüm kurulu paketleri ve tam sürümlerini (pkg==x.y.z formatında) listeler. > operatörü çıktıyı requirements.txt dosyasına yönlendirir. Başka bir ortamda pip install -r requirements.txt ile aynı ortam oluşturulur.", en: "pip freeze lists all installed packages with exact versions (pkg==x.y.z format). > redirects output to requirements.txt. Run 'pip install -r requirements.txt' on another machine to recreate the exact same environment." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 36 — User Input
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'User Input', difficulty: '🟢 Beginner' },
+      { type: 'simple-box', emoji: '⌨️', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "input() fonksiyonu, kullanıcıdan bilgi almak için. 'Adınızı girin:' yazarsın, kullanıcı yazar ve Enter'a basar. Python ne yazıldığını bir değişkende saklar. Dikkat: her zaman string döner!", en: "input() asks the user for information. You write 'Enter your name:' and the user types and presses Enter. Python stores what was typed in a variable. Important: it always returns a string!" } },
+      { type: 'code', language: 'python', code: `# Python User Input
+# input() always returns a STRING
+
+name = input("Enter your name: ")
+print(f"Hello, {name}!")
+
+# Converting input to number
+age_str = input("Enter your age: ")
+age = int(age_str)    # Must convert! input() gives string
+print(f"Next year you'll be {age + 1}")
+
+# Safe conversion with error handling
+def get_int_input(prompt: str) -> int:
+    while True:
+        raw = input(prompt)
+        try:
+            return int(raw)
+        except ValueError:
+            print(f"  Invalid: '{raw}' is not a number. Try again.")
+
+# QA CLI tool pattern
+def run_interactive_test():
+    url     = input("Test URL (default: http://localhost:3000): ").strip()
+    url     = url or "http://localhost:3000"
+    browser = input("Browser [chromium/firefox/webkit]: ").strip().lower()
+    browser = browser if browser in ["chromium", "firefox", "webkit"] else "chromium"
+    headless_str = input("Headless? [y/N]: ").strip().lower()
+    headless = headless_str == "y"
+
+    print(f"\\nStarting: {browser} → {url} | headless={headless}")
+    # ... launch playwright here ...
+
+# Note: In automated tests (pytest, CI), input() is NOT used.
+# Use argparse or environment variables instead.` },
+      { type: 'editor', lang: 'python', defaultCode: `# Simple input example (run in a regular Python file, not pytest)
+# In browser sandbox we simulate input:
+
+def simulate_qa_config():
+    """Simulates what an interactive CLI config script might do."""
+    # In real code: these would be input() calls
+    test_url = "https://automationexercise.com"
+    browser = "chromium"
+    workers = 4
+
+    config = {
+        "url": test_url,
+        "browser": browser,
+        "workers": workers,
+        "headless": True,
+    }
+
+    print("Test Configuration:")
+    for key, value in config.items():
+        print(f"  {key}: {value}")
+    return config
+
+config = simulate_qa_config()
+print(f"\\nReady to run {config['workers']} parallel tests!")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — User Input' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Kullanıcıdan oku', en: 'Read from user' }, java: 'Scanner sc = new Scanner(System.in); sc.nextLine()', python: 'input("prompt: ")' },
+        { concept: { tr: 'Integer oku', en: 'Read integer' }, java: 'sc.nextInt()', python: 'int(input("prompt: "))' },
+        { concept: { tr: 'Tip dönüşümü', en: 'Type conversion' }, java: 'Automatic for nextInt()', python: 'Always manual: int(), float()' },
+        { concept: { tr: 'CLI araçları için', en: 'For CLI tools' }, java: 'Apache Commons CLI', python: 'argparse (built-in)' },
+      ]},
+      { type: 'quiz', question: { tr: "age = input('Yaşınız: ') sonrası age + 1 yazmak hata verir. Neden?", en: "After age = input('Your age: '), writing age + 1 causes an error. Why?" }, options: [{ id: 'a', text: { tr: 'input() None döner', en: 'input() returns None' } }, { id: 'b', text: { tr: "input() her zaman string döner, int ile toplama yapılamaz", en: "input() always returns a string, you can't add int to a string" } }, { id: 'c', text: { tr: 'input() sayı döner', en: 'input() returns a number' } }, { id: 'd', text: { tr: 'Syntax hatası', en: 'Syntax error' } }], correct: 'b', explanation: { tr: "input() her zaman str döner. '25' + 1 TypeError verir. Önce int(age) dönüştürmeliyiz. Bu Python'da çok yaygın bir hata kaynağı.", en: "input() always returns str. '25' + 1 raises TypeError. We must convert first: int(age). This is a very common mistake in Python." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 37 — String Formatting
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'String Formatting', difficulty: '🟢 Beginner' },
+      { type: 'simple-box', emoji: '🖨️', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "String formatting, boşluk bırakılmış bir mektuba değer doldurmak gibi. 'Merhaba ___! Puanın: ___' şablonuna ad ve puan yazarsın. Python'da bunu yapmanın birkaç yolu var; en moderni f-string.", en: "String formatting is like filling out a form letter. 'Hello ___! Your score: ___' — you fill in the name and score. Python has several ways to do this; the most modern is f-strings." } },
+      { type: 'code', language: 'python', code: `# Python String Formatting — 4 methods (newest to oldest)
+
+name = "Alice"
+score = 95.5
+
+# 1. f-strings (Python 3.6+) — RECOMMENDED
+print(f"Hello {name}! Score: {score:.1f}%")   # Hello Alice! Score: 95.5%
+print(f"Next year: {2024 + 1}")                # Can do math inside!
+print(f"Upper: {name.upper()}")                # Can call methods!
+
+# Format specifiers in f-strings:
+pi = 3.14159
+print(f"{pi:.2f}")          # 3.14   — 2 decimal places
+print(f"{1000000:,}")       # 1,000,000 — thousand separator
+print(f"{0.876:.1%}")       # 87.6%  — percentage
+print(f"{'left':<10}|")     # left       | — left-aligned, 10 wide
+print(f"{'right':>10}|")    #      right| — right-aligned, 10 wide
+print(f"{42:05d}")          # 00042  — zero-padded integer
+
+# 2. .format() method (Python 3.0+)
+msg = "Hello {}! Score: {:.1f}%".format(name, score)
+named = "Hello {name}! Score: {s:.1f}%".format(name=name, s=score)
+
+# 3. % operator (old style — avoid)
+old = "Hello %s! Score: %.1f%%" % (name, score)
+
+# QA Reporting example:
+def format_test_result(test_name, passed, failed, total, duration_s):
+    pass_rate = (passed / total) * 100 if total else 0
+    return (
+        f"{'='*50}\\n"
+        f"  Suite: {test_name}\\n"
+        f"  Passed:  {passed:>3}/{total} ({pass_rate:.1f}%)\\n"
+        f"  Failed:  {failed:>3}/{total}\\n"
+        f"  Duration: {duration_s:.2f}s\\n"
+        f"{'='*50}"
+    )
+
+print(format_test_result("Regression Suite", 87, 3, 90, 142.5))` },
+      { type: 'editor', lang: 'python', defaultCode: `# Practice string formatting
+test_results = [
+    {"name": "test_login",    "status": "PASS", "ms": 234},
+    {"name": "test_checkout", "status": "FAIL", "ms": 891},
+    {"name": "test_search",   "status": "PASS", "ms": 156},
+    {"name": "test_register", "status": "SKIP", "ms": 0},
+]
+
+icons = {"PASS": "✅", "FAIL": "❌", "SKIP": "⏭️"}
+
+print(f"{'Test Name':<20} {'Status':<8} {'Duration':>10}")
+print("-" * 42)
+for r in test_results:
+    icon = icons[r["status"]]
+    ms_str = f"{r['ms']}ms" if r["ms"] > 0 else "-"
+    print(f"{r['name']:<20} {icon} {r['status']:<6} {ms_str:>10}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — String Formatting' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Modern format', en: 'Modern format' }, java: 'String.format("Hi %s", name)', python: 'f"Hi {name}"' },
+        { concept: { tr: 'Math içinde', en: 'Math in template' }, java: 'String.format("n=%d", n+1)', python: 'f"n={n+1}"' },
+        { concept: { tr: 'Decimal places', en: 'Decimal places' }, java: 'String.format("%.2f", pi)', python: 'f"{pi:.2f}"' },
+        { concept: { tr: 'Zero-padding', en: 'Zero-padding' }, java: 'String.format("%05d", 42)', python: 'f"{42:05d}"' },
+        { concept: { tr: 'Multi-line template', en: 'Multi-line template' }, java: 'String.format with \\n', python: 'f-string + triple quotes' },
+      ]},
+      { type: 'quiz', question: { tr: "f\"{0.856:.1%}\" ifadesi ne döner?", en: 'What does f"{0.856:.1%}" return?' }, options: [{ id: 'a', text: '85.6' }, { id: 'b', text: '0.856%' }, { id: 'c', text: '85.6%' }, { id: 'd', text: '86%' }], correct: 'c', explanation: { tr: ":.1% format specifier: sayıyı 100 ile çarpar, % ekler, 1 ondalık hane gösterir. 0.856 → 85.6%. Java'da String.format(\"%.1f%%\", 85.6) gerekir; f-string çok daha temiz.", en: ":.1% format specifier: multiplies by 100, adds %, shows 1 decimal. 0.856 → 85.6%. Java needs String.format(\"%.1f%%\", 85.6); f-string is much cleaner." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // W3Schools Topic 38 — File Handling
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'File Handling', difficulty: '🟡 Intermediate' },
+      { type: 'simple-box', emoji: '📁', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "Dosya işleme, Python ile bilgisayardaki dosyaları okumak ve yazmak. 'open()' fonksiyonu dosyayı açar, 'with' otomatik kapatır. QA'de test verilerini CSV'den okumak ve rapor kaydetmek için çok kullanılır.", en: "File handling means reading and writing files on your computer using Python. 'open()' opens a file, 'with' closes it automatically. In QA, heavily used for reading CSV test data and saving reports." } },
+      { type: 'code', language: 'python', code: `# Python File Handling — Read, Write, Append, Delete
+
+# WRITE — create or overwrite a file
+with open("test_results.txt", "w") as f:
+    f.write("Test Suite: Login\\n")
+    f.write("Status: PASS\\n")
+    f.write("Duration: 1.23s\\n")
+
+# READ — read all content at once
+with open("test_results.txt", "r") as f:
+    content = f.read()
+    print(content)
+
+# READ — line by line (memory efficient for large files)
+with open("test_results.txt", "r") as f:
+    for line in f:
+        print(line.strip())   # strip() removes trailing \\n
+
+# READ — all lines as a list
+with open("test_results.txt", "r") as f:
+    lines = f.readlines()     # ['Test Suite: Login\\n', ...]
+
+# APPEND — add to existing file without overwriting
+with open("test_results.txt", "a") as f:
+    f.write("\\nRun #2 added\\n")
+
+# WRITE CSV with csv module
+import csv
+results = [
+    ["login_test", "PASS", 234],
+    ["checkout_test", "FAIL", 891],
+]
+with open("results.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["Test", "Status", "Duration"])  # header
+    writer.writerows(results)
+
+# READ CSV
+with open("results.csv", "r") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row["Test"], row["Status"])
+
+# DELETE a file
+import os
+os.remove("test_results.txt")  # delete
+os.path.exists("test_results.txt")  # check existence` },
+      { type: 'editor', lang: 'python', defaultCode: `import csv, io
+
+# Simulate writing and reading CSV test data
+csv_content = io.StringIO()
+writer = csv.writer(csv_content)
+writer.writerow(["test_name", "status", "duration_ms"])
+writer.writerow(["test_login", "PASS", 234])
+writer.writerow(["test_checkout", "FAIL", 891])
+writer.writerow(["test_search", "PASS", 156])
+
+# Read it back
+csv_content.seek(0)
+reader = csv.DictReader(csv_content)
+
+passed = failed = 0
+for row in reader:
+    status = row["status"]
+    if status == "PASS":
+        passed += 1
+    else:
+        failed += 1
+    print(f"  {row['test_name']}: {status} ({row['duration_ms']}ms)")
+
+print(f"\\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — File Handling' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Dosya aç ve oku', en: 'Open and read file' }, java: 'Files.readString(Path.of("f.txt"))', python: 'open("f.txt").read() or with open()' },
+        { concept: { tr: 'Dosyaya yaz', en: 'Write to file' }, java: 'Files.writeString(path, content)', python: 'open("f.txt", "w").write(content)' },
+        { concept: { tr: 'Auto-close', en: 'Auto-close' }, java: 'try-with-resources', python: 'with open() as f:' },
+        { concept: { tr: 'CSV oku', en: 'Read CSV' }, java: 'OpenCSV library', python: 'csv.DictReader (built-in)' },
+        { concept: { tr: 'Dosya var mı?', en: 'File exists?' }, java: 'Files.exists(path)', python: 'os.path.exists("f.txt")' },
+      ]},
+      { type: 'quiz', question: { tr: "open(\"file.txt\", \"a\") modu ne yapar?", en: 'What does open("file.txt", "a") mode do?' }, options: [{ id: 'a', text: { tr: 'Dosyayı okur', en: 'Reads the file' } }, { id: 'b', text: { tr: 'Dosyayı siler ve yeniden oluşturur', en: 'Deletes and recreates the file' } }, { id: 'c', text: { tr: 'Dosyanın sonuna ekler (varsa siler, yoksa oluşturur)', en: 'Appends to end of file (creates if not exists)' } }, { id: 'd', text: { tr: 'Dosyayı sadece okuma modunda açar', en: 'Opens file in read-only mode' } }], correct: 'c', explanation: { tr: "\"a\" (append) modu: dosya varsa sonuna ekler, yoksa oluşturur. \"r\" okuma, \"w\" yazma (sıfırlar), \"a\" ekleme, \"x\" sadece yeni oluşturma (varsa hata). QA log dosyaları için \"a\" modu idealdir.", en: "\"a\" (append) mode: adds to end if exists, creates if not. \"r\" = read, \"w\" = write (overwrites), \"a\" = append, \"x\" = create only new (error if exists). \"a\" mode is ideal for QA log files." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // QA Topic — Dataclasses
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'Dataclasses (@dataclass)', difficulty: '🔴 Advanced' },
+      { type: 'simple-box', emoji: '🏗️', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "@dataclass, veri tutmak için class yazmayı kolaylaştıran bir dekoratör. Normalde __init__, __repr__, __eq__ metodlarını tek tek yazman gerekirdi — @dataclass bunları otomatik oluşturur. QA'de test verisi modellemek için mükemmel.", en: "@dataclass is a decorator that makes writing data-holding classes easy. Normally you'd write __init__, __repr__, __eq__ manually — @dataclass generates them automatically. Perfect for modeling test data in QA." } },
+      { type: 'code', language: 'python', code: `from dataclasses import dataclass, field
+from typing import List, Optional
+
+# Basic dataclass — auto-generates __init__, __repr__, __eq__
+@dataclass
+class TestResult:
+    name: str
+    status: str                # "PASS", "FAIL", "SKIP"
+    duration_ms: int
+    error_msg: Optional[str] = None   # optional, default None
+
+# Using it:
+t1 = TestResult("test_login", "PASS", 234)
+t2 = TestResult("test_checkout", "FAIL", 891, "AssertionError: expected 200, got 404")
+
+print(t1)    # TestResult(name='test_login', status='PASS', duration_ms=234, error_msg=None)
+print(t1 == TestResult("test_login", "PASS", 234))  # True — __eq__ auto-generated
+
+# Field with default_factory (for mutable defaults like lists)
+@dataclass
+class TestSuite:
+    name: str
+    browser: str = "chromium"
+    tests: List[TestResult] = field(default_factory=list)
+
+    def add(self, result: TestResult) -> None:
+        self.tests.append(result)
+
+    def pass_rate(self) -> float:
+        if not self.tests: return 0.0
+        passed = sum(1 for t in self.tests if t.status == "PASS")
+        return round(passed / len(self.tests) * 100, 1)
+
+suite = TestSuite("Login Suite")
+suite.add(t1)
+suite.add(t2)
+print(f"Pass rate: {suite.pass_rate()}%")  # 50.0%
+
+# frozen=True — makes dataclass immutable (like Java final class)
+@dataclass(frozen=True)
+class Config:
+    base_url: str
+    timeout_ms: int = 5000
+    headless: bool = True
+
+cfg = Config("https://automationexercise.com")
+# cfg.base_url = "other"  # ERROR: frozen dataclass!` },
+      { type: 'editor', lang: 'python', defaultCode: `from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class ApiTestCase:
+    name: str
+    method: str
+    endpoint: str
+    expected_status: int
+    tags: List[str] = field(default_factory=list)
+
+    def is_auth_required(self) -> bool:
+        return "auth" in self.tags
+
+    def __str__(self) -> str:
+        return f"[{self.method}] {self.endpoint} → {self.expected_status}"
+
+# Create test cases
+cases = [
+    ApiTestCase("Get users", "GET", "/api/users", 200, ["auth", "smoke"]),
+    ApiTestCase("Create user", "POST", "/api/users", 201, ["auth"]),
+    ApiTestCase("Login", "POST", "/api/login", 200),
+]
+
+for case in cases:
+    auth_label = "🔐" if case.is_auth_required() else "🌍"
+    print(f"{auth_label} {case}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Dataclasses' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'Veri sınıfı', en: 'Data class' }, java: 'record (Java 16+) or POJO with Lombok', python: '@dataclass' },
+        { concept: { tr: 'Constructor otomatik', en: 'Auto constructor' }, java: 'record auto / @AllArgsConstructor (Lombok)', python: '@dataclass auto __init__' },
+        { concept: { tr: 'equals() otomatik', en: 'Auto equals' }, java: 'record auto / @EqualsAndHashCode', python: '@dataclass auto __eq__' },
+        { concept: { tr: 'toString() otomatik', en: 'Auto toString' }, java: 'record auto / @ToString', python: '@dataclass auto __repr__' },
+        { concept: { tr: 'Immutable', en: 'Immutable' }, java: 'record (final fields)', python: '@dataclass(frozen=True)' },
+      ]},
+      { type: 'quiz', question: { tr: "@dataclass dekoratörü hangi metodları otomatik oluşturur?", en: 'Which methods does the @dataclass decorator auto-generate?' }, options: [{ id: 'a', text: 'Sadece __init__' }, { id: 'b', text: '__init__, __repr__ ve __eq__' }, { id: 'c', text: '__init__ ve __str__' }, { id: 'd', text: 'Sadece __repr__' }], correct: 'b', explanation: { tr: "@dataclass varsayılan olarak __init__ (constructor), __repr__ (print için string gösterimi) ve __eq__ (== operatörü) metodlarını otomatik oluşturur. frozen=True ile __hash__ da eklenir.", en: "@dataclass by default auto-generates __init__ (constructor), __repr__ (string representation for printing), and __eq__ (== operator). With frozen=True, __hash__ is also added." } },
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // QA Topic — argparse (CLI Arguments)
+      // ═══════════════════════════════════════════════════════════════════════
+      { type: 'heading', text: 'argparse — CLI Arguments', difficulty: '🔴 Advanced' },
+      { type: 'simple-box', emoji: '🖥️', title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }, content: { tr: "argparse, komut satırından programına parametre göndermeni sağlar. 'python run_tests.py --browser chromium --headless --env staging' gibi. QA scriptlerini esnek ve CI/CD ile uyumlu hale getirir.", en: "argparse lets you pass parameters to your script from the command line. Like 'python run_tests.py --browser chromium --headless --env staging'. Makes QA scripts flexible and CI/CD compatible." } },
+      { type: 'code', language: 'python', code: `import argparse
+
+# Create the argument parser
+parser = argparse.ArgumentParser(
+    description="QA Test Runner — runs Playwright tests with configurable options"
+)
+
+# Required positional argument
+parser.add_argument(
+    "env",
+    choices=["dev", "staging", "prod"],
+    help="Target environment to test against"
+)
+
+# Optional arguments with defaults
+parser.add_argument(
+    "--browser",
+    default="chromium",
+    choices=["chromium", "firefox", "webkit"],
+    help="Browser to run tests in (default: chromium)"
+)
+
+parser.add_argument(
+    "--workers",
+    type=int,
+    default=1,
+    help="Number of parallel workers (default: 1)"
+)
+
+parser.add_argument(
+    "--headless",
+    action="store_true",     # if flag present → True, absent → False
+    help="Run in headless mode (no browser window)"
+)
+
+parser.add_argument(
+    "--tags",
+    nargs="+",               # accepts 1 or more values: --tags smoke login
+    help="Test tags to run (e.g. --tags smoke regression)"
+)
+
+# Parse arguments
+# In a real script: args = parser.parse_args()
+# For demo, we parse a sample:
+args = parser.parse_args(["staging", "--browser", "firefox",
+                           "--workers", "4", "--headless",
+                           "--tags", "smoke", "login"])
+
+print(f"Environment: {args.env}")
+print(f"Browser:     {args.browser}")
+print(f"Workers:     {args.workers}")
+print(f"Headless:    {args.headless}")
+print(f"Tags:        {args.tags}")
+
+# Usage in test script:
+def run_tests(args):
+    base_urls = {
+        "dev":     "http://localhost:3000",
+        "staging": "https://staging.example.com",
+        "prod":    "https://example.com",
+    }
+    base_url = base_urls[args.env]
+    print(f"\\nRunning {args.workers} worker(s) against {base_url}")
+    print(f"Browser: {args.browser} | Headless: {args.headless}")
+
+run_tests(args)` },
+      { type: 'editor', lang: 'python', defaultCode: `import argparse
+
+# Simulate a test runner script
+parser = argparse.ArgumentParser(description="API Test Runner")
+
+parser.add_argument("--base-url", default="https://automationexercise.com",
+                    help="Base URL for API tests")
+parser.add_argument("--timeout", type=int, default=30,
+                    help="Request timeout in seconds")
+parser.add_argument("--verbose", action="store_true",
+                    help="Enable verbose output")
+parser.add_argument("--output", choices=["json", "html", "console"],
+                    default="console", help="Report output format")
+
+# Simulate running: python test_runner.py --verbose --output html
+args = parser.parse_args(["--verbose", "--output", "html", "--timeout", "60"])
+
+print("Test Runner Config:")
+print(f"  Base URL: {args.base_url}")
+print(f"  Timeout:  {args.timeout}s")
+print(f"  Verbose:  {args.verbose}")
+print(f"  Output:   {args.output}")` },
+      { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — CLI Arguments' }, columns: ['Java', 'Python'], rows: [
+        { concept: { tr: 'CLI parsing kütüphanesi', en: 'CLI parsing library' }, java: 'Apache Commons CLI or picocli', python: 'argparse (built-in, no install)' },
+        { concept: { tr: 'Argüman tanımlama', en: 'Define arguments' }, java: 'options.addOption("b", "browser", true, "desc")', python: 'parser.add_argument("--browser", ...)' },
+        { concept: { tr: 'Flag (boolean)', en: 'Boolean flag' }, java: 'hasOption("headless")', python: 'action="store_true"' },
+        { concept: { tr: 'Tip dönüşümü', en: 'Type conversion' }, java: 'Manual parseInt', python: 'type=int (automatic)' },
+        { concept: { tr: 'Yardım mesajı', en: 'Help message' }, java: 'Manual or HelpFormatter', python: '--help auto-generated' },
+      ]},
+      { type: 'quiz', question: { tr: "argparse'te action='store_true' ne işe yarar?", en: "What does action='store_true' do in argparse?" }, options: [{ id: 'a', text: { tr: 'Argümana "true" string değeri verir', en: 'Gives the argument the string "true"' } }, { id: 'b', text: { tr: 'Flag mevsa True, yoksa False değerini atar — değer gerektirmez', en: 'Sets to True when flag is present, False when absent — no value required' } }, { id: 'c', text: { tr: 'Zorunlu argüman yapar', en: 'Makes the argument required' } }, { id: 'd', text: { tr: 'Argümanı true tipine çevirir', en: 'Converts argument to true type' } }], correct: 'b', explanation: { tr: "store_true: --headless yazarsan args.headless = True, yazmazsan False. Değer yazman gerekmez — flag'in varlığı yeterli. --headless true yazmak yanlıştır. Java'daki boolean flag'lere eşdeğer.", en: "store_true: if --headless is present, args.headless = True; if absent, False. No value needed — just the flag's presence. Writing --headless true is wrong. Equivalent to boolean flags in Java." } },
     ],
   },
 
