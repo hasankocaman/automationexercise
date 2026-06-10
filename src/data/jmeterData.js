@@ -795,6 +795,135 @@ stage('Performance Test') {
             question: 'Q15: What is the Aggregate Report? What does each column mean?',
             answer: '# Samples: Total number of requests sent\nAverage: Mean response time (ms)\nMin: Fastest request\nMax: Slowest request\n90% Line: 90th percentile — 90% of requests were faster than this\n95% Line: 95th percentile\n99% Line: 99th percentile (catches most outliers)\nError %: Percentage of failed requests\nThroughput: Requests per second\nReceived KB/sec: Network bandwidth received\nSent KB/sec: Network bandwidth sent\n\nFocus on P90, P99, and Error% — these give the most meaningful picture of user experience.',
           },
+          {
+            type: 'error-dictionary',
+            framework: 'JMeter',
+            errors: [
+              {
+                error: 'java.net.ConnectException: Connection refused',
+                fullMessage: 'java.net.ConnectException: Connection refused: connect\nat org.apache.jmeter.protocol.http.sampler.HTTPHC4Impl.executeRequest',
+                cause: { tr: 'JMeter hedef sunucuya bağlanamıyor. Sunucu kapalı, yanlış port/host ayarlandı veya güvenlik duvarı bağlantıyı engelliyor.', en: 'JMeter cannot connect to the target server. The server is down, wrong host/port is configured, or a firewall is blocking the connection.' },
+                solution: { tr: '1) Sunucunun çalıştığını doğrulayın. 2) HTTP Request\'de Host ve Port değerlerini kontrol edin. 3) Tarayıcıdan URL\'e erişebildiğinizi test edin. 4) Güvenlik duvarı kurallarını kontrol edin.', en: '1) Verify the server is running. 2) Check Host and Port in HTTP Request. 3) Test the URL from a browser. 4) Check firewall rules.' },
+                codeWrong: `# Yanlış host/port — sunucu 8080'de dinliyor
+HTTP Request:
+  Server Name: localhost
+  Port: 3000  ← YANLIŞ`,
+                codeFixed: `# Doğru port
+HTTP Request:
+  Server Name: localhost
+  Port: 8080
+  Path: /api/users`
+              },
+              {
+                error: 'EXTRACTION_FAILED — Variable contains EXTRACTION_FAILED',
+                fullMessage: '${authToken} → EXTRACTION_FAILED\nJSON Extractor: No results for expression: $.data.token',
+                cause: { tr: 'JSON Extractor veya Regex Extractor belirtilen path/pattern ile yanıtta hiçbir değer bulamadı. Login başarısız olmuş, response yapısı değişmiş veya JSON path yanlış yazılmış.', en: 'JSON Extractor or Regex Extractor could not find a value matching the specified path/pattern in the response. Login failed, response structure changed, or JSON path is wrong.' },
+                solution: { tr: '1) View Results Tree ile gerçek yanıtı kontrol edin. 2) JSON path ifadesini doğrulayın (JSONPath online tester kullanın). 3) Önceki isteğin başarılı olduğundan emin olun. 4) Default value olarak EXTRACTION_FAILED yerine boş bırakın — ama assertion ekleyin.', en: '1) Check the actual response in View Results Tree. 2) Verify the JSON path expression (use an online JSONPath tester). 3) Ensure the previous request succeeded. 4) Leave Default Value empty but add an assertion to catch failures.' },
+                codeWrong: `# Yanlış JSON path — response yapısı farklı
+# Gerçek response: {"result": {"token": "abc"}}
+# Yanlış path:
+JSON Path: $.data.token  ← data anahtarı yok`,
+                codeFixed: `# Doğru JSON path
+JSON Path: $.result.token
+
+# Assertion ekle — extraction başarısız olursa test başarısız say
+Response Assertion:
+  Apply to: JMeter Variable: authToken
+  Pattern: EXTRACTION_FAILED
+  Not: ✓ (yoksa başarısız say)`
+              },
+              {
+                error: 'OutOfMemoryError: Java heap space',
+                fullMessage: 'java.lang.OutOfMemoryError: Java heap space\nat org.apache.jmeter.reporters.ResultCollector.sampleOccurred',
+                cause: { tr: 'JMeter\'ın JVM heap alanı doldu. Genellikle View Results Tree gibi çok fazla veri saklayan Listener\'lar büyük testlerde çalıştırıldığında olur.', en: 'JMeter\'s JVM heap space is exhausted. Usually caused by Listeners like View Results Tree storing too much data during large-scale tests.' },
+                solution: { tr: '1) View Results Tree\'yi devre dışı bırakın veya kaldırın — yalnızca debug için kullanın. 2) JMeter başlangıç heap boyutunu artırın: jmeter.bat/sh dosyasında -Xmx4g. 3) Büyük testlerde yalnızca Aggregate Report veya Summary Report kullanın.', en: '1) Disable or remove View Results Tree — use only during debug. 2) Increase JMeter heap: set -Xmx4g in jmeter.bat/sh. 3) For large tests, use only Aggregate Report or Summary Report.' },
+                codeWrong: `# Yanlış — büyük testte View Results Tree etkin
+Thread Group: 1000 users × 300 loops
+Listener: View Results Tree (tüm yanıtları RAM'de saklar) ← YANLIŞ`,
+                codeFixed: `# Doğru — büyük testlerde yalnızca verimli listener'lar
+Thread Group: 1000 users × 300 loops
+Listener: Aggregate Report      ← sadece istatistik tutar
+CLI flag: -e -o ./report        ← HTML raporu test sonrası üret
+
+# JVM heap'i artır (jmeter.bat/jmeter.sh):
+set HEAP=-Xms4g -Xmx4g`
+              },
+              {
+                error: 'Response code: Non HTTP response code — Connection timed out',
+                fullMessage: 'Response code: Non HTTP response code: org.apache.http.conn.ConnectTimeoutException\nResponse message: Non HTTP response message: Connect to api.example.com:443 timed out',
+                cause: { tr: 'Sunucu, JMeter\'ın beklediği süre içinde bağlantıyı kabul etmedi. Yüksek yükte sunucu kapasitesini aşıyor veya ağ gecikmesi çok yüksek.', en: 'The server did not accept the connection within JMeter\'s timeout window. Under heavy load the server may be at capacity, or network latency is too high.' },
+                solution: { tr: '1) Connection timeout\'u artırın: Advanced sekmesinde Connection Timeout. 2) Bu hatanın yüksek yükte çoğalıp çoğalmadığını kontrol edin — bu, sistemin kırılma noktasına işaret eder. 3) Ramp-up süresini uzatın.', en: '1) Increase the connection timeout in the Advanced tab of HTTP Request. 2) Check if this error multiplies under high load — it signals the system breaking point. 3) Increase ramp-up period.' },
+                codeWrong: `# Çok kısa timeout ve aşırı agresif ramp-up
+HTTP Request Advanced:
+  Connection Timeout: 1000ms
+Thread Group: 1000 users, Ramp-Up: 5s ← çok hızlı`,
+                codeFixed: `# Gerçekçi timeout ve kademeli ramp-up
+HTTP Request Advanced:
+  Connection Timeout: 10000ms
+  Response Timeout:   30000ms
+
+Thread Group:
+  Number of Users: 1000
+  Ramp-Up: 300s  ← 5 dakikada kademeli artış`
+              },
+              {
+                error: 'Test script did not run — FAILED: Assertion failed on variable',
+                fullMessage: 'Response code: 200\nAssertion failure message: Test failed: text expected to contain /dashboard',
+                cause: { tr: 'Response Assertion beklenen string\'i ya da pattern\'ı yanıtta bulamadı. URL doğru çalışıyor ama içerik beklenenin dışında — örneğin: login başarısız, hata mesajı döndü.', en: 'The Response Assertion could not find the expected string or pattern in the response. The URL works but content is wrong — e.g., login failed and an error page returned instead of the dashboard.' },
+                solution: { tr: '1) View Results Tree\'de gerçek response body\'yi inceleyin. 2) Assertion pattern\'ını güncellemeyi düşünün. 3) Bu istek öncesi adımların (login, token extraction) başarılı olduğundan emin olun.', en: '1) Inspect the actual response body in View Results Tree. 2) Consider updating the assertion pattern. 3) Ensure preceding steps (login, token extraction) succeeded.' },
+                codeWrong: `# Assertion başarısız — login başarısız ama fark edilmedi
+Response Assertion:
+  Response Field: Response Body
+  Pattern: Welcome to Dashboard
+  ← Login'de hata olduğu için "Invalid credentials" dönüyor`,
+                codeFixed: `# İki katmanlı doğrulama
+# 1) Status kodu assertion
+Response Assertion:
+  Response Code: 200
+
+# 2) Body assertion
+Response Assertion:
+  Pattern: Welcome to Dashboard
+
+# 3) Login isteğine de assertion ekle
+Response Assertion on Login:
+  Pattern: "token"  ← token yoksa login başarısız demektir`
+              },
+            ]
+          },
+          {
+            type: 'interview-questions',
+            topic: 'JMeter Advanced',
+            questions: [
+              { level: 'basic', q: { tr: 'JMeter\'da Sampler nedir? En az 5 türünü sayın.', en: 'What is a Sampler in JMeter? Name at least 5 types.' }, a: { tr: 'Sampler, isteği gerçekten gönderen ve yanıtı toplayan bileşendir. Türler: HTTP Request (en yaygın — HTTP/HTTPS), JDBC Request (veritabanı SQL sorguları), FTP Request (dosya yükleme/indirme), SMTP Sampler (e-posta testi), TCP Sampler (ham TCP iletişimi), JSR223 Sampler (Groovy/Python kodu çalıştır), Debug Sampler (değişkenleri debug için göster).', en: 'A Sampler is the component that sends a request and collects the response. Types: HTTP Request (most common — HTTP/HTTPS), JDBC Request (database SQL), FTP Request (file upload/download), SMTP Sampler (email testing), TCP Sampler (raw TCP), JSR223 Sampler (run Groovy/Python code), Debug Sampler (show variables for debugging).' } },
+              { level: 'intermediate', q: { tr: 'Correlation nedir ve nasıl uygulanır?', en: 'What is Correlation in JMeter and how is it implemented?' }, a: { tr: 'Correlation, sunucu yanıtlarından dinamik değerlerin (CSRF token, session ID, auth token) çıkarılması ve sonraki isteklerde kullanılmasıdır. Uygulanması: 1) Login isteğine JSON Extractor ekle, Reference Name: authToken, JSON Path: $.token. 2) Sonraki isteklerde ${authToken} kullan. Correlation olmadan her oturumda değişen dinamik değerler yüzünden testler başarısız olur.', en: 'Correlation is extracting dynamic values (CSRF token, session ID, auth token) from server responses and reusing them in subsequent requests. Implementation: 1) Add JSON Extractor to login request, Reference Name: authToken, JSON Path: $.token. 2) Use ${authToken} in subsequent requests. Without correlation, tests fail because dynamic values change per session.' } },
+              { level: 'advanced', q: { tr: 'JMeter\'ı Jenkins/CI CD ile nasıl entegre edersiniz?', en: 'How do you integrate JMeter with Jenkins/CI CD?' }, a: { tr: 'Seçenek 1: Jenkins Performance Plugin — .jtl dosyasını işaret eden post-build action ekle, hata oranı ve yanıt süresi eşiği belirle. Seçenek 2: Shell adımı — jmeter CLI çalıştır, çıkış kodunu kontrol et. Seçenek 3: GitHub Actions — actions/setup-java + JMeter kurulumu + CLI çalıştırma + HTML raporu artifact olarak yükle. Her durumda Non-GUI modda çalıştır.', en: 'Option 1: Jenkins Performance Plugin — add post-build action pointing to .jtl file, set error rate and response time thresholds. Option 2: Shell step — run jmeter CLI and check exit code. Option 3: GitHub Actions — actions/setup-java + JMeter install + CLI run + upload HTML report as artifact. Always run in Non-GUI mode.' } },
+            ]
+          },
+          {
+            type: 'quiz',
+            question: 'In JMeter, you send a login request and need to use the returned token in all subsequent requests. Which component extracts the token from the JSON response?',
+            options: [
+              'Response Assertion — validates the response content',
+              'JSON Extractor — extracts values from JSON responses using JSONPath',
+              'HTTP Cookie Manager — handles cookies automatically',
+              'CSV Data Set Config — reads data from CSV files',
+            ],
+            correct: 1,
+            explanation: 'JSON Extractor is a Post-Processor that reads a server response and extracts values using JSONPath expressions. Set Reference Name (e.g., authToken) and JSON Path (e.g., $.data.token). Then use ${authToken} in subsequent request headers.',
+          },
+          {
+            type: 'quiz',
+            question: 'A JMeter test shows: average response time 800ms but 99th percentile (P99) is 12,000ms. What does this indicate?',
+            options: [
+              'The test plan is configured incorrectly',
+              'The server performance is consistently good',
+              'Most users have good experience but 1% of requests are very slow — likely a tail latency issue',
+              'The Ramp-Up period is too short',
+            ],
+            correct: 2,
+            explanation: 'Average hides outliers. P99 = 12s means 1% of users wait 12 seconds — unacceptable for most apps. This is tail latency, often caused by GC pauses, database query variability, or thread pool exhaustion. Always look at P90 and P99 alongside the average.',
+          },
         ],
       },
     ],
@@ -1297,6 +1426,133 @@ jmeter -n -t test.jmx -l sonuclar.jtl -e -o ./html-raporu` },
           { type: 'qa', question: 'S6: Rapordaki en önemli metrikler nelerdir? Kabul edilebilir değerler nedir?', answer: 'Temel metrikler ve kabul edilebilir eşikler:\n\n• Ortalama Yanıt Süresi: Ortalama yanıt süresi. Web uygulamaları için hedef < 2000ms.\n• 90. Persentil (P90): Kullanıcıların %90\'ı bu yanıt süresini veya daha hızlısını alır. Hedef < 3000ms.\n• 99. Persentil (P99): Kullanıcıların %99\'u için en kötü durum. Hedef < 5000ms.\n• Hata Oranı %: Başarısız isteklerin yüzdesi. Sağlıklı sistemler için hedef < %1.\n• Throughput: Sistemin saniyede işlediği istek sayısı. Ne kadar yüksekse o kadar iyi.\n• Apdex Skoru: Kullanıcı memnuniyeti skoru (0-1). Memnun > 0.85, Tolere edebilir 0.5-0.85, Memnuniyetsiz < 0.5.' },
           { type: 'qa', question: 'S7: JMeter\'ı Jenkins/CI CD ile nasıl entegre edersiniz?', answer: 'Seçenek 1: Jenkins JMeter Eklentisi\n• Jenkins\'e "Performance Plugin" kur\n• .jtl sonuç dosyasına işaret eden "Publish Performance Test Result Report" post-build eylemi ekle\n• Eşikler belirle: hata oranı > X% veya ortalama yanıt > Yms ise build\'i başarısız say\n\nSeçenek 2: Shell/Bat adımı\n• "Execute Shell" build adımı kullan\n• JMeter CLI çalıştır ve çıkış kodunu kontrol et\n\nSeçenek 3: GitHub Actions\n• actions/setup-java kullan, JMeter\'ı indir, CLI çalıştır, HTML raporu artifact olarak yükle' },
           { type: 'qa', question: 'S8: Dağıtık test nedir? Ne zaman ihtiyaç duyulur?', answer: 'Dağıtık test, yükü koordineli olarak üretmek için birden fazla makine kullanır. Bir Controller makinesi birden fazla Worker (Injector) makinesini yönetir.\n\nNe zaman kullanılır:\n• Tek bir makine yeterli yük üretemiyor (örn. 5000+ kullanıcı gerekiyor)\n• Daha gerçekçi coğrafi kullanıcı dağılımı\n• Test makinesinde CPU/ağ kısıtlamaları var\n\nKural: İyi bir sunucu tek makinede ~300-500 HTTP thread\'i kaldırabilir. Daha fazlası için Worker ekle.' },
+          {
+            type: 'quiz',
+            question: "JMeter'da JSON yanıtından token çıkarmak için hangi bileşen kullanılır?",
+            options: [
+              'Response Assertion — yanıt içeriğini doğrular',
+              'JSON Extractor — JSONPath ile JSON yanıtlarından değer çıkarır',
+              'HTTP Cookie Manager — çerezleri otomatik yönetir',
+              'CSV Data Set Config — CSV dosyasından veri okur',
+            ],
+            correct: 1,
+            explanation: "JSON Extractor, sunucu yanıtını okuyarak JSONPath ifadeleriyle değer çıkaran bir Post-Processor'dır. Referans Adı (örn. authToken) ve JSON Path (örn. $.data.token) ayarlanır. Ardından ${authToken} sonraki istek başlıklarında kullanılır.",
+          },
+          {
+            type: 'quiz',
+            question: "JMeter testinde: ortalama yanıt süresi 800ms, ancak P99 12.000ms. Bu ne anlama gelir?",
+            options: [
+              'Test planı yanlış yapılandırılmış',
+              'Sunucu performansı tutarlı biçimde iyidir',
+              'Kullanıcıların çoğu iyi deneyim yaşıyor ama %1\'lik kesim çok yavaş yanıt alıyor — kuyruk gecikmesi sorunu',
+              'Ramp-Up süresi çok kısa',
+            ],
+            correct: 2,
+            explanation: "Ortalama, uç değerleri gizler. P99 = 12sn, kullanıcıların %1'inin 12 saniye beklediği anlamına gelir — çoğu uygulama için kabul edilemez. Bu kuyruk gecikmesidir; genellikle GC durakları, veritabanı sorgu değişkenliği veya thread havuzu tükenmesinden kaynaklanır. Ortalamanın yanı sıra her zaman P90 ve P99'a bakın.",
+          },
+          // JMeter interview-questions blokları
+          { type: 'interview-questions', topic: 'JMeter Fundamentals', questions: [
+            { level: 'basic', q: { tr: 'JMeter da Thread Group nedir ve parametreleri ne anlama gelir?', en: 'What is a Thread Group in JMeter and what do its parameters mean?' }, a: { tr: 'Thread Group, sanal kullanicilari (thread) tanimlayan ana bilestendir. Number of Threads = toplam sanal kullanici sayisi. Ramp-Up Period = tum kullanicilarin kac saniyede baslatilacagi (kademeli artis). Loop Count = her kullanicinin senaryoyu kac kez tekrarlayacagi. Duration = toplam test suresi (Loop Count yerine tercih edilir). 100 kullanici, 60 saniye ramp-up = saniyede ~1.67 yeni kullanici baslatilir.', en: 'Thread Group defines virtual users. Number of Threads = total virtual users. Ramp-Up Period = seconds to start all users (gradual). Loop Count = times each user repeats the scenario. Duration = total test time (preferred over Loop Count). 100 users, 60s ramp-up = ~1.67 new users start per second.' } },
+            { level: 'basic', q: { tr: 'Assertion nedir? Neden kullanilir?', en: 'What is an Assertion in JMeter? Why is it used?' }, a: { tr: 'Assertion, sunucu yanitinin dogru oldugunu dogrulayan bilestendir. Assertion olmadan JMeter hata sayfasi donse bile basari sayar. Response Code Assertion (200 bekleniyorsa 500 gelirse basarisiz), Duration Assertion (2000ms den uzunsa basarisiz), Response Body Assertion (belirli bir string icerikten beklenmiyorsa basarisiz) turlerindedir.', en: 'An Assertion validates that the server response is correct. Without assertions, JMeter marks error pages as success. Types: Response Code Assertion (fail if not 200), Duration Assertion (fail if > 2000ms), Response Body Assertion (fail if expected string missing).' } },
+            { level: 'basic', q: { tr: 'JMeter da Listener ne ise yarar? En cok kullanilan hangisidir?', en: 'What is a Listener in JMeter? Which is the most commonly used?' }, a: { tr: 'Listener, test sonuclarini toplayip goruntuler. Debug amacli View Results Tree (her istek/yaniti gosterir ama buyuk testlerde devre disi birakil). Yuk testleri icin Aggregate Report (Avg, Min, Max, P90, P99, Error%, Throughput). HTML Dashboard (-e -o flag ile CLI da) en kapsamli raporu uretir.', en: 'A Listener collects and displays test results. For debugging: View Results Tree (shows every request/response — disable for load tests). For load tests: Aggregate Report (Avg, Min, Max, P90, P99, Error%, Throughput). HTML Dashboard (with -e -o in CLI) produces the most comprehensive report.' } },
+            { level: 'intermediate', q: { tr: 'Parameterizasyon nedir? JMeter da hangi yontemler var?', en: 'What is parameterization? What methods are available in JMeter?' }, a: { tr: 'Parameterizasyon, her iterasyonda farkli veri degerleri kullanmaktir. CSV Data Set Config: buyuk datasetler icin CSV dosyasindan okur. User Defined Variables: test seviyesinde degisken tanimlar, CLI dan -J ile override edilebilir. Random fonksiyonlar: ${__Random(1,1000)}. Counter Config: sirasal ID ler icin artan sayac. JSR223/Groovy: programatik veri uretimi.', en: 'Parameterization is using different data values across iterations. CSV Data Set Config: reads from CSV for large datasets. User Defined Variables: test-level variables, can be overridden with -J from CLI. Random functions: ${__Random(1,1000)}. Counter Config: incrementing counter for sequential IDs. JSR223/Groovy: programmatic data generation.' } },
+            { level: 'intermediate', q: { tr: 'Korelasyon nedir? Neden gereklidir?', en: 'What is Correlation in JMeter? Why is it needed?' }, a: { tr: 'Korelasyon, sunucu yanitlarindan dinamik degerlerin (CSRF token, session ID, auth token) cikarilmasi ve sonraki isteklerde kullanilmasidir. Korelasyon olmadan her oturumda degisen degerler nedeniyle testler basarisiz olur. JSON Extractor veya Regular Expression Extractor ile token cikartilir, ${authToken} seklinde sonraki isteklerde kullanilir.', en: 'Correlation is extracting dynamic values (CSRF token, session ID, auth token) from server responses and using them in subsequent requests. Without correlation, tests fail because dynamic values change per session. Use JSON Extractor or Regex Extractor to capture, then use ${authToken} in subsequent requests.' } },
+            { level: 'advanced', q: { tr: 'Neden Non-GUI modda calistirmalisiniz? CLI komutu nedir?', en: 'Why should you run JMeter in Non-GUI mode? What is the CLI command?' }, a: { tr: 'GUI fazladan CPU ve bellek tuketir — test sonuclarini bozar ve uretilen yuku azaltir. 50 den fazla kullanici icin her zaman CLI kullanin. Temel komut: jmeter -n -t test.jmx -l results.jtl. HTML raporu ile: jmeter -n -t test.jmx -l results.jtl -e -o ./report. Property override: -Jusers=500 -Jduration=300.', en: 'GUI consumes extra CPU and memory — skews results and reduces generated load. Always use CLI for 50+ users. Basic command: jmeter -n -t test.jmx -l results.jtl. With HTML report: jmeter -n -t test.jmx -l results.jtl -e -o ./report. Property override: -Jusers=500 -Jduration=300.' } },
+            { level: 'advanced', q: { tr: 'Dagitik test nedir? Ne zaman gerekli olur?', en: 'What is Distributed Testing? When is it needed?' }, a: { tr: 'Dagitik test, birden fazla makine uzerinde koordineli yuk uretimi yapar. Controller makinesi Worker (Injector) makinelerini yonetir. Tek makine ~300-500 HTTP thread yukleyebilir; daha fazlasi icin worker ekle. Kurulum: her worker da jmeter-server calistir, controller da remote_hosts e IP leri ekle, -r flag ile calistir.', en: 'Distributed testing uses multiple machines to generate load in coordination. One Controller manages Worker (Injector) machines. A single machine handles ~300-500 HTTP threads; add workers for more. Setup: run jmeter-server on each worker, add their IPs to remote_hosts, run with -r flag.' } },
+          ]},
+          { type: 'interview-questions', topic: 'JMeter Advanced', questions: [
+            { level: 'basic', q: { tr: 'JMeter\'da Sampler nedir? En az 5 türünü sayın.', en: 'What is a Sampler in JMeter? Name at least 5 types.' }, a: { tr: 'Sampler, isteği gerçekten gönderen ve yanıtı toplayan bileşendir. Türler: HTTP Request (en yaygın), JDBC Request (veritabanı), FTP Request (dosya), SMTP Sampler (e-posta), TCP Sampler (ham TCP), JSR223 Sampler (Groovy kodu), Debug Sampler (debug için değişkenleri göster).', en: 'A Sampler sends a request and collects the response. Types: HTTP Request (most common), JDBC Request (database), FTP Request (file), SMTP Sampler (email), TCP Sampler (raw TCP), JSR223 Sampler (run Groovy code), Debug Sampler (show variables for debugging).' } },
+            { level: 'intermediate', q: { tr: 'Correlation (korelasyon) nedir ve nasıl uygulanır?', en: 'What is Correlation and how is it implemented?' }, a: { tr: 'Korelasyon, sunucu yanıtlarından dinamik değerlerin (CSRF token, session ID, auth token) çıkarılması ve sonraki isteklerde kullanılmasıdır. Uygulama: 1) Login isteğine JSON Extractor ekle, Reference Name: authToken, JSON Path: $.token. 2) Sonraki isteklerde ${authToken} kullan. Korelasyon olmadan her oturumda değişen değerler yüzünden testler başarısız olur.', en: 'Correlation extracts dynamic values (CSRF token, session ID, auth token) from server responses and reuses them in subsequent requests. Implementation: 1) Add JSON Extractor to login request, Reference Name: authToken, JSON Path: $.token. 2) Use ${authToken} in subsequent requests. Without correlation, tests fail because dynamic values change per session.' } },
+            { level: 'advanced', q: { tr: 'JMeter\'ı Jenkins/CI CD ile nasıl entegre edersiniz?', en: 'How do you integrate JMeter with Jenkins/CI CD?' }, a: { tr: 'Seçenek 1: Jenkins Performance Plugin — .jtl dosyasına işaret eden post-build action ekle, hata oranı ve yanıt süresi eşiği belirle. Seçenek 2: Shell adımı — jmeter CLI çalıştır ve çıkış kodunu kontrol et. Seçenek 3: GitHub Actions — actions/setup-java + JMeter kurulumu + CLI çalıştırma + HTML raporu artifact olarak yükle. Her durumda Non-GUI modda çalıştır.', en: 'Option 1: Jenkins Performance Plugin — post-build action pointing to .jtl file, set error rate/response time thresholds. Option 2: Shell step — run jmeter CLI and check exit code. Option 3: GitHub Actions — actions/setup-java + JMeter install + CLI run + upload HTML report as artifact. Always run in Non-GUI mode.' } },
+          ]},
+          {
+            type: 'error-dictionary',
+            framework: 'JMeter',
+            errors: [
+              {
+                error: 'java.net.ConnectException: Connection refused',
+                fullMessage: 'java.net.ConnectException: Connection refused: connect\nat org.apache.jmeter.protocol.http.sampler.HTTPHC4Impl.executeRequest',
+                cause: { tr: 'JMeter hedef sunucuya bağlanamıyor. Sunucu kapalı, yanlış port/host ayarlandı veya güvenlik duvarı bağlantıyı engelliyor.', en: 'JMeter cannot connect to the target server. The server is down, wrong host/port configured, or a firewall is blocking the connection.' },
+                solution: { tr: '1) Sunucunun çalıştığını doğrulayın. 2) HTTP Request\'de Host ve Port değerlerini kontrol edin. 3) URL\'e tarayıcıdan erişebildiğinizi test edin. 4) Güvenlik duvarı kurallarını kontrol edin.', en: '1) Verify the server is running. 2) Check Host and Port in the HTTP Request sampler. 3) Test the URL from a browser. 4) Check firewall rules.' },
+                codeWrong: `# Yanlış port — sunucu 8080'de dinliyor
+HTTP Request:
+  Server Name: localhost
+  Port: 3000  ← YANLIŞ`,
+                codeFixed: `# Doğru port
+HTTP Request:
+  Server Name: localhost
+  Port: 8080
+  Path: /api/users`
+              },
+              {
+                error: 'EXTRACTION_FAILED — Değişken EXTRACTION_FAILED içeriyor',
+                fullMessage: '${authToken} → EXTRACTION_FAILED\nJSON Extractor: No results for expression: $.data.token',
+                cause: { tr: 'JSON Extractor belirtilen path ile yanıtta hiçbir değer bulamadı. Login başarısız olmuş, response yapısı değişmiş veya JSON path yanlış yazılmış olabilir.', en: 'JSON Extractor could not find a value matching the JSON path in the response. Login may have failed, the response structure changed, or the JSON path is wrong.' },
+                solution: { tr: '1) View Results Tree ile gerçek yanıtı inceleyin. 2) JSON path ifadesini doğrulayın. 3) Önceki isteğin başarılı olduğunu kontrol edin. 4) Extraction başarısız olursa testi başarısız sayan bir assertion ekleyin.', en: '1) Inspect the actual response in View Results Tree. 2) Verify the JSON path expression. 3) Confirm the preceding request succeeded. 4) Add an assertion that fails the test if extraction fails.' },
+                codeWrong: `# Yanlış JSON path — yanıt yapısı farklı
+# Gerçek yanıt: {"result": {"token": "abc"}}
+# Yanlış path: $.data.token  ← "data" anahtarı yok`,
+                codeFixed: `# Doğru JSON path
+JSON Path: $.result.token
+
+# Ek assertion — extraction başarısız olursa testi durdur
+Response Assertion:
+  Apply to: JMeter Variable: authToken
+  Pattern: EXTRACTION_FAILED
+  Not: ✓`
+              },
+              {
+                error: 'OutOfMemoryError: Java heap space',
+                fullMessage: 'java.lang.OutOfMemoryError: Java heap space\nat org.apache.jmeter.reporters.ResultCollector.sampleOccurred',
+                cause: { tr: 'JMeter JVM heap alanı doldu. Büyük testlerde View Results Tree gibi tüm veriyi RAM\'de saklayan Listener\'lar kullanıldığında olur.', en: "JMeter's JVM heap space is exhausted. Usually caused by Listeners like View Results Tree storing all data in RAM during large-scale tests." },
+                solution: { tr: '1) View Results Tree\'yi devre dışı bırakın — yalnızca debug için kullanın. 2) jmeter.bat/sh dosyasında JVM heap\'i artırın: -Xmx4g. 3) Büyük testlerde yalnızca Aggregate Report veya Summary Report kullanın.', en: '1) Disable View Results Tree — use only during debugging. 2) Increase JVM heap in jmeter.bat/sh: -Xmx4g. 3) For large tests use only Aggregate Report or Summary Report.' },
+                codeWrong: `# Yanlış — büyük testte View Results Tree etkin
+1000 kullanıcı × 300 döngü + View Results Tree
+→ Tüm yanıtlar RAM'de saklanır → OOM`,
+                codeFixed: `# Doğru — büyük testlerde verimli listener'lar kullan
+Aggregate Report       ← sadece istatistik
+CLI: -e -o ./rapor    ← HTML rapor test sonrası
+
+# jmeter.bat / jmeter.sh:
+set HEAP=-Xms4g -Xmx4g`
+              },
+              {
+                error: 'Non HTTP response code: org.apache.http.conn.ConnectTimeoutException',
+                fullMessage: 'Response code: Non HTTP response code: org.apache.http.conn.ConnectTimeoutException\nResponse message: Connect to api.example.com:443 timed out',
+                cause: { tr: 'Bağlantı timeout\'u doldu — sunucu, JMeter\'ın beklediği süre içinde bağlantıyı kabul etmedi. Yüksek yük altında sunucu kapasitesini aşıyor.', en: 'Connection timeout exceeded — the server did not accept the connection within JMeter\'s timeout. Under heavy load the server may be at capacity.' },
+                solution: { tr: '1) HTTP Request Advanced sekmesinde Connection Timeout\'u artırın. 2) Bu hatanın yüksek yükte çoğalıp çoğalmadığını inceleyin — sistemin kırılma noktasını gösterir. 3) Ramp-up süresini uzatın.', en: '1) Increase Connection Timeout in the HTTP Request Advanced tab. 2) Check if this error multiplies under high load — it signals the system breaking point. 3) Increase ramp-up period.' },
+                codeWrong: `# Çok agresif ramp-up ve kısa timeout
+Connection Timeout: 1000ms
+Thread Group: 1000 kullanıcı, Ramp-Up: 5s`,
+                codeFixed: `# Gerçekçi ayarlar
+Connection Timeout: 10000ms
+Response Timeout:   30000ms
+Thread Group:
+  1000 kullanıcı
+  Ramp-Up: 300s  ← 5 dakikada kademeli artış`
+              },
+            ]
+          },
+          // JMeter Glossary
+          { type: 'glossary-section', terms: [
+            { term: 'Aggregate Report', definition: { tr: 'Her endpoint icin Avg, Min, Max, P90, P99, Error% ve Throughput gosteren JMeter Listener bileşeni.', en: 'A JMeter Listener that shows Avg, Min, Max, P90, P99, Error%, and Throughput per endpoint.' } },
+            { term: 'Apdex Score', definition: { tr: 'Kullanici memnuniyetini 0-1 skalasinda olcen performans metrigi. Tatmin edici (>0.85), Tolere edilebilir (0.5-0.85), Hayal kirikligi (<0.5).', en: 'A performance metric measuring user satisfaction on a 0-1 scale. Satisfied (>0.85), Tolerating (0.5-0.85), Frustrated (<0.5).' } },
+            { term: 'Assertion', definition: { tr: 'Sunucu yanitinin beklenen kosullari (status kodu, icerik, sure) karsilayip karsilamadigini dogrulayan JMeter bileseni.', en: 'A JMeter component that validates whether the server response meets expected conditions (status code, content, duration).' } },
+            { term: 'Correlation', definition: { tr: 'Sunucu yanitlarindan dinamik degerlerin (token, session ID) cikarilmasi ve sonraki isteklerde kullanilmasi sureci.', en: 'The process of extracting dynamic values (tokens, session IDs) from server responses and reusing them in subsequent requests.' } },
+            { term: 'CSV Data Set Config', definition: { tr: 'Bir CSV dosyasinden test verisi okuyan ve her sanal kullaniciya farkli satirlar atayan JMeter konfigurasyon oğesi.', en: 'A JMeter config element that reads test data from a CSV file and assigns different rows to each virtual user.' } },
+            { term: 'Endurance Testing', definition: { tr: 'Sistemin uzun sure boyunca (saatler/gunler) orta yukle calistirilarak bellek sikintilari ve yavas degisme tespit edilmesidir.', en: 'Running a system at moderate load for extended periods (hours/days) to detect memory leaks and slow degradation.' } },
+            { term: 'JSON Extractor', definition: { tr: 'JSON Path ifadelerini kullanarak sunucu yanitlarindan deger cikarip JMeter degiskenlerine atayan post-processor.', en: 'A post-processor that uses JSON Path expressions to extract values from server responses and store them as JMeter variables.' } },
+            { term: 'Load Testing', definition: { tr: 'Sistemin beklenen kullanici sayisi altindaki davranisini degerlendiren performans testi turu.', en: 'A type of performance test that evaluates a system behavior under expected user load.' } },
+            { term: 'Non-GUI Mode', definition: { tr: 'JMeter i grafik arayuz olmadan calistiran CLI modu. Gercek yuk testlerinde kullanilmalidir.', en: 'CLI mode that runs JMeter without the graphical interface. Must be used for real load tests.' } },
+            { term: 'Percentile (P90/P95/P99)', definition: { tr: 'Kullanicilarin %90/%95/%99 unun o yanit suresinde veya daha hizlisinda aldigi istatistiksel olcut.', en: 'A statistical measure indicating that 90%/95%/99% of users received that response time or faster.' } },
+            { term: 'Ramp-Up Period', definition: { tr: 'JMeter in tum thread leri kademeli olarak baslatmak icin harcadigi sure (saniye). Thundering herd etkisini onler.', en: 'The time (seconds) JMeter takes to gradually start all threads. Prevents the thundering herd effect.' } },
+            { term: 'Sampler', definition: { tr: 'Bir istek gonderen ve yaniti toplayan JMeter bileseni. En yaygin: HTTP Request Sampler.', en: 'A JMeter component that sends a request and collects the response. Most common: HTTP Request Sampler.' } },
+            { term: 'Spike Testing', definition: { tr: 'Ani ve buyuk bir trafik artisi simule ederek sistemin elastikligini test etme turu.', en: 'A type of performance test that simulates a sudden, large surge of traffic to test system elasticity.' } },
+            { term: 'Stress Testing', definition: { tr: 'Sistemin kapasitesinin otesine itilerek kirilma noktasinin ve arizalanma davranisinin belirlenmesi.', en: 'Pushing a system beyond its capacity limits to determine the breaking point and failure behavior.' } },
+            { term: 'Thread Group', definition: { tr: 'Sanal kullanicilari (thread), ramp-up suresini ve dongu sayisini tanimlayan temel JMeter bileseni.', en: 'The core JMeter component that defines virtual users (threads), ramp-up period, and loop count.' } },
+            { term: 'Throughput', definition: { tr: 'Sistemin birim zamanda isleyebildigi istek sayisi (istek/saniye). Kapasiteyi olcer.', en: 'The number of requests the system processes per unit time (requests/second). Measures capacity.' } },
+            { term: 'Timer', definition: { tr: 'Istekler arasinda gecikme ekleyen JMeter bileseni. Gercekci kullanici davranisini simule eder.', en: 'A JMeter component that adds delay between requests. Simulates realistic user think time.' } },
+          ]},
         ],
       },
     ],

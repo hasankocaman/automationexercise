@@ -363,6 +363,25 @@ SELECT * FROM test_results LIMIT 10 OFFSET 20;  -- rows 21-30 (page 3)
 SELECT DISTINCT environment FROM test_results;`,
         expected: `+----+----------------+--------+-------------+\n| id | test_name      | status | duration_ms |\n+----+----------------+--------+-------------+\n|  3 | Checkout Flow  | FAIL   |        5400 |\n|  5 | Search Feature | FAIL   |        8200 |\n+----+----------------+--------+-------------+`
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT, run_date TEXT);
+INSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging','2024-01-10');
+INSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging','2024-01-10');
+INSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod','2024-01-11');
+INSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod','2024-01-11');
+INSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging','2024-01-12');
+INSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging','2024-01-12');
+INSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod','2024-01-13');
+INSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging','2024-01-13');`,
+        defaultCode: `-- ▶ Çalıştır ve değiştir!
+SELECT * FROM test_results WHERE status = 'FAIL';
+
+-- Diğerlerini dene:
+-- SELECT test_name, duration_ms FROM test_results ORDER BY duration_ms DESC;
+-- SELECT DISTINCT environment FROM test_results;
+-- SELECT * FROM test_results WHERE duration_ms > 2000 AND status = 'PASS';
+-- SELECT COUNT(*) AS total FROM test_results;`
+      },
       { type: 'heading', text: 'UPDATE and DELETE', difficulty: '🟢 Beginner' },
       {
         type: 'code',
@@ -399,33 +418,21 @@ SELECT test_name, NULLIF(duration_ms, 0) AS duration
 FROM test_results;`,
       },
       { type: 'heading', text: 'Interactive Example: test_results Table', difficulty: '🟢 Beginner' },
-      {
-        type: 'code',
-        code: `-- Copy this into db-fiddle.com and run it!
--- Select MySQL 8.0 as the engine.
-
--- 1. Create the table:
-CREATE TABLE test_results (
-    id          INT PRIMARY KEY AUTO_INCREMENT,
-    test_name   VARCHAR(100) NOT NULL,
-    status      VARCHAR(10)  NOT NULL,
-    duration_ms INT DEFAULT 0
-);
-
--- 2. Insert test data:
-INSERT INTO test_results (test_name, status, duration_ms) VALUES
-    ('Login Test',      'PASS',  1200),
-    ('Checkout Flow',   'FAIL',  5400),
-    ('Signup Test',     'PASS',   890),
-    ('Profile Update',  'FAIL',  3100),
-    ('Search Feature',  'PASS',  2200),
-    ('Logout Test',     'SKIP',     0);
-
--- 3. Query it:
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');
+INSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');
+INSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');
+INSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');
+INSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');
+INSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');`,
+        defaultCode: `-- Tablo hazır! Sorguları dene:
 SELECT * FROM test_results ORDER BY duration_ms DESC;
-SELECT * FROM test_results WHERE status = 'FAIL';
-SELECT COUNT(*) AS total, status FROM test_results GROUP BY status;`,
-        expected: `+----+----------------+--------+\n| id | test_name      | status |\n+----+----------------+--------+\n|  2 | Checkout Flow  | FAIL   |\n|  4 | Profile Update | FAIL   |\n+----+----------------+--------+`
+
+-- Diğerlerini dene:
+-- SELECT * FROM test_results WHERE status = 'FAIL';
+-- SELECT COUNT(*) AS total, status FROM test_results GROUP BY status ORDER BY total DESC;
+-- SELECT test_name, duration_ms FROM test_results WHERE duration_ms > 1000;`
       },
       { type: 'heading', text: 'SQL Query Execution Order — The Secret Most Beginners Miss' },
       { type: 'text', content: 'SQL does NOT execute top-to-bottom like regular code. It follows a specific internal order. This is WHY you can\'t use SELECT aliases in WHERE, and WHY aggregate functions go in HAVING not WHERE.' },
@@ -636,6 +643,20 @@ DELETE FROM test_results WHERE environment = 'cleanup';`,
         note: 'SQL UPDATE and DELETE with WHERE can affect many rows in one statement. JPA needs individual entity loads for each row. In test automation, direct SQL cleanup is faster and more common.',
         note_en: 'SQL UPDATE and DELETE with WHERE can affect many rows in one statement. JPA needs individual entity loads for each row. In test automation, direct SQL cleanup is faster and more common.',
       },
+      // Quiz: ORDER BY
+      { type: 'quiz', question: { tr: 'SELECT sorgusu sonuçlarini siralamak icin hangi clause kullanilir?', en: 'Which clause is used to sort SELECT query results?' }, options: [{ id: 'a', text: 'GROUP BY' }, { id: 'b', text: 'ORDER BY' }, { id: 'c', text: 'SORT BY' }, { id: 'd', text: 'HAVING' }], correct: 'b', explanation: { tr: 'ORDER BY, sutun adi ve istege bagli ASC (artan) ya da DESC (azalan) yonuyle sonuclari siralar.', en: 'ORDER BY sorts results by a column name with optional ASC (ascending) or DESC (descending) direction.' } },
+      // Quiz: PRIMARY KEY
+      { type: 'quiz', question: { tr: 'Tablodaki her satiri benzersiz tanimlayan kisitlama hangisidir?', en: 'Which constraint uniquely identifies every row in a table?' }, options: [{ id: 'a', text: 'FOREIGN KEY' }, { id: 'b', text: 'UNIQUE' }, { id: 'c', text: 'PRIMARY KEY' }, { id: 'd', text: 'NOT NULL' }], correct: 'c', explanation: { tr: 'PRIMARY KEY, her satiri benzersiz tanimlar, NULL olamaz ve tekrar edemez. Her tabloda yalnizca bir tane olabilir.', en: 'PRIMARY KEY uniquely identifies each row, cannot be NULL, and must be unique. Only one per table is allowed.' } },
+      // Interview Questions: SQL Foundations
+      { type: 'interview-questions', topic: 'SQL Foundations', questions: [
+        { level: 'basic', q: { tr: 'SELECT * ile SELECT col1, col2 arasindaki fark nedir?', en: 'What is the difference between SELECT * and SELECT col1, col2?' }, a: { tr: 'SELECT * tum sutunlari dondurur — hizli sorgu icin uygun ama uretimde onerilmez: gereksiz veri aktarir, index kullanimini zorlastitir, sema degisikliginde beklenmedik sonuclar verebilir. SELECT col1, col2 sadece ihtiyac duydugunuz sutunlari getirir — daha hizli, daha guvenli.', en: 'SELECT * returns all columns — fine for quick exploration but not recommended in production: it transfers unnecessary data, can break covering indexes, and may cause issues when schema changes. SELECT col1, col2 fetches only what you need — faster and safer.' } },
+        { level: 'basic', q: { tr: 'WHERE clause olmadan UPDATE veya DELETE calistirirsaniz ne olur?', en: 'What happens if you run UPDATE or DELETE without a WHERE clause?' }, a: { tr: 'WHERE olmadan UPDATE veya DELETE tum satirlari etkiler. Bu cok ciddi bir hata olabilir. Her zaman once SELECT ile WHERE kosulunuzu test edin.', en: 'Without WHERE, UPDATE or DELETE affects EVERY row in the table. This can be catastrophic. Always test your WHERE condition with a SELECT first.' } },
+        { level: 'basic', q: { tr: 'NULL degeri nasil kontrol edersiniz?', en: 'How do you check for NULL values?' }, a: { tr: 'NULL icin ASLA = veya != kullanmayin. Dogru yontem: WHERE column IS NULL veya WHERE column IS NOT NULL. COALESCE(column, varsayilan) ise NULL yerine varsayilan deger dondurur.', en: 'NEVER use = or != for NULL. Correct: WHERE column IS NULL or WHERE column IS NOT NULL. COALESCE(column, default) returns a fallback value instead of NULL.' } },
+        { level: 'intermediate', q: { tr: 'PRIMARY KEY ile UNIQUE constraint arasindaki fark nedir?', en: 'What is the difference between PRIMARY KEY and UNIQUE constraint?' }, a: { tr: 'PRIMARY KEY = UNIQUE + NOT NULL + tablede yalnizca bir tane. UNIQUE constraint birden fazla olabilir, NULL degerlere izin verir. QA perspektifinden: email icin UNIQUE, id icin PRIMARY KEY kullanin.', en: 'PRIMARY KEY = UNIQUE + NOT NULL + only one per table. UNIQUE constraints can be multiple per table and typically allow NULL. QA perspective: use UNIQUE for email, PRIMARY KEY for id.' } },
+        { level: 'intermediate', q: { tr: 'LIKE operatoru wildcard karakterleri ne anlama gelir?', en: 'What do the % and _ wildcards mean in LIKE?' }, a: { tr: '% sifir veya daha fazla herhangi bir karakteri temsil eder. _ tam olarak bir karakteri temsil eder. Buyuk tablolarda LIKE aramasi index kullanamaz (ozellikle % ile basliyor ise) — yavaslayabilir.', en: '% matches zero or more characters. _ matches exactly one character. LIKE searches on large tables may not use indexes (especially with a leading %) — can be slow.' } },
+        { level: 'advanced', q: { tr: 'SQL query execution order nedir ve neden onemlidir?', en: 'What is SQL query execution order and why does it matter?' }, a: { tr: 'Yazma sirasi: SELECT->FROM->WHERE->GROUP BY->HAVING->ORDER BY. Calisma sirasi: FROM->JOIN->WHERE->GROUP BY->HAVING->SELECT->ORDER BY->LIMIT. Bu yuzden SELECT icindeki alias WHERE icinde kullanilamaz — WHERE, SELECT ten once calisir.', en: 'Writing order: SELECT->FROM->WHERE->GROUP BY->HAVING->ORDER BY. Execution order: FROM->JOIN->WHERE->GROUP BY->HAVING->SELECT->ORDER BY->LIMIT. That is why SELECT aliases cannot be used in WHERE — WHERE runs before SELECT.' } },
+        { level: 'advanced', q: { tr: 'Test otomasyonunda SQL i nasil kullanirsiniz?', en: 'How do you use SQL in test automation?' }, a: { tr: 'Test otomasyonunda SQL uc sekilde kullanilir: 1) Test verisi hazirlama — INSERT ile test kullanicilari olustur. 2) Backend dogrulama — UI aksiyonundan sonra DB sorgulayarak veri kaydedildi mi kontrol et. 3) Temizlik — DELETE ile her test sonrasi kirli veriyi sil.', en: 'SQL is used in test automation in three ways: 1) Test data setup — INSERT test users/products. 2) Backend validation — after a UI action, query DB to confirm data was saved. 3) Cleanup — DELETE dirty test data after each test.' } },
+      ]},
     ],
   },
 
@@ -657,6 +678,25 @@ SELECT MAX(duration_ms)         AS slowest_ms     FROM test_results;
 -- Round decimals:
 SELECT ROUND(AVG(duration_ms), 0) AS avg_ms FROM test_results;`,
         expected: `+-------------+\n| total_tests |\n+-------------+\n|           6 |\n+-------------+`
+      },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');
+INSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');
+INSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');
+INSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');
+INSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');
+INSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');
+INSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod');
+INSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging');`,
+        defaultCode: `-- Aggregate functions — çalıştır!
+SELECT COUNT(*) AS total_tests FROM test_results;
+
+-- Diğerlerini dene:
+-- SELECT SUM(duration_ms) AS total_ms FROM test_results;
+-- SELECT ROUND(AVG(duration_ms), 0) AS avg_ms FROM test_results;
+-- SELECT MIN(duration_ms) AS fastest, MAX(duration_ms) AS slowest FROM test_results;
+-- SELECT COUNT(*) AS failed FROM test_results WHERE status = 'FAIL';`
       },
       { type: 'heading', text: 'GROUP BY and HAVING', difficulty: '🟡 Intermediate' },
       { type: 'text', content: 'GROUP BY groups rows with the same value in a column. HAVING filters those groups (like WHERE but for aggregate results). You CANNOT use COUNT/SUM/etc. in a WHERE clause — use HAVING instead.' },
@@ -684,6 +724,26 @@ WHERE status = 'FAIL'        -- only FAIL rows
 GROUP BY test_name
 HAVING COUNT(*) > 2;         -- tests that failed more than 2 times`,
         expected: `+--------+-------+\n| status | count |\n+--------+-------+\n| PASS   |     3 |\n| FAIL   |     2 |\n| SKIP   |     1 |\n+--------+-------+`
+      },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');
+INSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');
+INSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');
+INSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');
+INSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');
+INSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');
+INSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod');
+INSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging');`,
+        defaultCode: `-- GROUP BY — statusa göre say
+SELECT status, COUNT(*) AS count
+FROM test_results
+GROUP BY status
+ORDER BY count DESC;
+
+-- Diğerlerini dene:
+-- SELECT environment, ROUND(AVG(duration_ms),0) AS avg_ms FROM test_results GROUP BY environment;
+-- SELECT test_name, COUNT(*) AS runs FROM test_results GROUP BY test_name HAVING COUNT(*) > 1;`
       },
       { type: 'heading', text: 'JOINs — Combining Tables', difficulty: '🟡 Intermediate' },
       { type: 'text', content: 'JOINs let you query data from multiple related tables in one go. Essential for any real-world database where data is split across tables.' },
@@ -718,6 +778,27 @@ JOIN projects p  ON b.project_id = p.id
 WHERE b.status = 'OPEN'
 ORDER BY p.name, t.name;`,
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT, email TEXT);
+CREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);
+INSERT INTO testers VALUES (1,'Alice','alice@qa.com'),(2,'Bob','bob@qa.com'),(3,'Carol','carol@qa.com');
+INSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');
+INSERT INTO bugs VALUES
+(1,'Login fails on Safari','OPEN','HIGH',1,1),
+(2,'Broken image on profile','CLOSED','LOW',1,1),
+(3,'API timeout on checkout','OPEN','HIGH',2,3),
+(4,'Wrong error message','OPEN','MEDIUM',2,2),
+(5,'Crash on empty search','OPEN','HIGH',3,1);`,
+        defaultCode: `-- INNER JOIN: testers ve bug'lar birleştir
+SELECT t.name AS tester, b.title AS bug, b.status
+FROM testers t
+INNER JOIN bugs b ON t.id = b.tester_id;
+
+-- Diğerlerini dene:
+-- SELECT t.name, COUNT(b.id) AS assigned_bugs FROM testers t LEFT JOIN bugs b ON t.id=b.tester_id GROUP BY t.id,t.name;
+-- SELECT t.name, p.name AS project, b.title FROM testers t JOIN bugs b ON t.id=b.tester_id JOIN projects p ON b.project_id=p.id WHERE b.status='OPEN';`
+      },
       { type: 'heading', text: 'Subqueries', difficulty: '🟡 Intermediate' },
       {
         type: 'code',
@@ -744,6 +825,26 @@ FROM (
 ) AS env_stats
 WHERE avg_ms > 2000;`,
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES
+(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),
+(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),
+(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),
+(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');
+CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, tester_id INTEGER);
+INSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');
+INSERT INTO bugs VALUES (1,'Login fails','OPEN',1),(2,'Broken image','CLOSED',1),(3,'API timeout','OPEN',2),(4,'Wrong msg','OPEN',2);`,
+        defaultCode: `-- Ortalamanın üzerindeki testler (scalar subquery):
+SELECT test_name, duration_ms
+FROM test_results
+WHERE duration_ms > (SELECT AVG(duration_ms) FROM test_results)
+ORDER BY duration_ms DESC;
+
+-- Diğerlerini dene:
+-- SELECT name FROM testers WHERE id IN (SELECT DISTINCT tester_id FROM bugs WHERE status='OPEN');`
+      },
       { type: 'heading', text: 'LIKE, BETWEEN, IN', difficulty: '🟡 Intermediate' },
       {
         type: 'code',
@@ -768,40 +869,45 @@ SELECT
 FROM test_results AS t
 WHERE t.status != 'SKIP';`,
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES
+(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),
+(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),
+(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),
+(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');`,
+        defaultCode: `-- LIKE: "Login" içeren testler
+SELECT test_name, status FROM test_results WHERE test_name LIKE '%Login%';
+
+-- Diğerlerini dene:
+-- SELECT * FROM test_results WHERE duration_ms BETWEEN 1000 AND 3000;
+-- SELECT * FROM test_results WHERE status IN ('FAIL','SKIP');
+-- SELECT test_name AS "Test Adı", duration_ms/1000.0 AS "Süre (sn)", status FROM test_results WHERE status != 'SKIP';`
+      },
       { type: 'heading', text: 'Bug Tracking DB — Interactive Example', difficulty: '🟡 Intermediate' },
-      {
-        type: 'code',
-        code: `-- Paste this into db-fiddle.com (MySQL 8.0)
-
-CREATE TABLE testers  (id INT PRIMARY KEY, name VARCHAR(50));
-CREATE TABLE projects (id INT PRIMARY KEY, name VARCHAR(50));
-CREATE TABLE bugs (
-    id         INT PRIMARY KEY AUTO_INCREMENT,
-    title      VARCHAR(100),
-    status     VARCHAR(20) DEFAULT 'OPEN',
-    priority   VARCHAR(10) DEFAULT 'MEDIUM',
-    tester_id  INT, project_id INT,
-    FOREIGN KEY (tester_id)  REFERENCES testers(id),
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-
-INSERT INTO testers  VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);
+INSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');
 INSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');
-INSERT INTO bugs (title, status, priority, tester_id, project_id) VALUES
-    ('Login fails on Safari',   'OPEN',   'HIGH',   1, 1),
-    ('Broken image on profile', 'CLOSED', 'LOW',    1, 1),
-    ('API timeout on checkout', 'OPEN',   'HIGH',   2, 3),
-    ('Wrong error message',     'OPEN',   'MEDIUM', 2, 2),
-    ('Crash on empty search',   'OPEN',   'HIGH',   3, 1);
-
--- Who has the most open bugs?
+INSERT INTO bugs VALUES
+(1,'Login fails on Safari','OPEN','HIGH',1,1),
+(2,'Broken image on profile','CLOSED','LOW',1,1),
+(3,'API timeout on checkout','OPEN','HIGH',2,3),
+(4,'Wrong error message','OPEN','MEDIUM',2,2),
+(5,'Crash on empty search','OPEN','HIGH',3,1);`,
+        defaultCode: `-- En fazla açık hata olan kişi kim?
 SELECT te.name, COUNT(*) AS open_bugs
 FROM testers te
 JOIN bugs b ON te.id = b.tester_id
 WHERE b.status = 'OPEN'
 GROUP BY te.id, te.name
-ORDER BY open_bugs DESC;`,
-        expected: `+-------+-----------+\n| name  | open_bugs |\n+-------+-----------+\n| Alice |         2 |\n| Bob   |         2 |\n| Carol |         1 |\n+-------+-----------+`
+ORDER BY open_bugs DESC;
+
+-- Diğerlerini dene:
+-- SELECT p.name AS project, COUNT(b.id) AS total_bugs FROM projects p LEFT JOIN bugs b ON p.id=b.project_id GROUP BY p.id,p.name;
+-- SELECT te.name, b.title, b.priority FROM testers te JOIN bugs b ON te.id=b.tester_id WHERE b.priority='HIGH';`
       },
       { type: 'heading', text: 'Visual JOIN Guide — See Exactly Which Rows Are Returned' },
       { type: 'text', content: 'The 4 diagrams below use the same data. Click "Eşleşmeleri Göster" to highlight matched rows, then "Sonucu Göster" to see the query result. This is the fastest way to truly understand JOINs.' },
@@ -986,6 +1092,21 @@ with conn:   # auto-commits on success, rolls back on error
     cursor.execute("UPDATE inventory SET qty=qty-1 ...")`,
         note: 'QA tip: wrap test data setup in a transaction and rollback after each test — keeps the DB clean without writing DELETE cleanup queries.',
       },
+      // Quiz: HAVING
+      { type: 'quiz', question: { tr: 'GROUP BY ile birlikte gruplanmis sonuclari filtreleyen clause hangisidir?', en: 'Which clause filters grouped results when used with GROUP BY?' }, options: [{ id: 'a', text: 'WHERE' }, { id: 'b', text: 'HAVING' }, { id: 'c', text: 'FILTER' }, { id: 'd', text: 'ORDER BY' }], correct: 'b', explanation: { tr: 'HAVING, aggregate fonksiyon sonuclarini (COUNT, SUM vb.) filtreler. WHERE ise satirlari gruplamadan once filtreler.', en: 'HAVING filters aggregate results (COUNT, SUM etc.). WHERE filters individual rows before grouping — you cannot use COUNT(*) in a WHERE clause.' } },
+      // Quiz: LEFT JOIN
+      { type: 'quiz', question: { tr: 'Hangi JOIN turu sol tablodan tum satirlari dondurur, sagda eslesme olmasa bile?', en: 'Which JOIN returns ALL rows from the left table, even with no match on the right?' }, options: [{ id: 'a', text: 'INNER JOIN' }, { id: 'b', text: 'CROSS JOIN' }, { id: 'c', text: 'RIGHT JOIN' }, { id: 'd', text: 'LEFT JOIN' }], correct: 'd', explanation: { tr: 'LEFT JOIN, sol tablodaki tum satirlari dondurur. Sag tabloda eslesme yoksa sag sutunlar NULL olur.', en: 'LEFT JOIN returns every row from the left table. If there is no match on the right, right-side columns come back as NULL.' } },
+      // Quiz: Correlated subquery
+      { type: 'quiz', question: { tr: 'Correlated subquery ile normal subquery arasindaki temel fark nedir?', en: 'What is the key difference between a correlated and a regular subquery?' }, options: [{ id: 'a', text: 'Correlated subquery sadece FROM clause\'da calisir' }, { id: 'b', text: 'Correlated subquery dis sorgunun her satiri icin bir kez calisir' }, { id: 'c', text: 'Normal subquery her zaman daha yavastir' }, { id: 'd', text: 'Aralarinda bir fark yoktur' }], correct: 'b', explanation: { tr: 'Correlated subquery, dis sorgunun bir sutununa referans verir ve dis sorgunun her satiri icin yeniden calisir. Mumkunse JOIN kullanin.', en: 'A correlated subquery references a column from the outer query and runs once per outer row — can be slow. Use a JOIN instead when possible.' } },
+      // Interview Questions: SQL Intermediate
+      { type: 'interview-questions', topic: 'SQL Intermediate', questions: [
+        { level: 'basic', q: { tr: 'Aggregate fonksiyonlari GROUP BY olmadan kullanabilir misiniz?', en: 'Can you use aggregate functions without GROUP BY?' }, a: { tr: 'Evet. GROUP BY olmadan aggregate TUM tabloyu tek bir grup olarak ele alir ve tek bir deger dondurur. SELECT COUNT(*) FROM test_results tum satir sayisini verir. GROUP BY ekleyince her grup icin ayri satir uretilir.', en: 'Yes. Without GROUP BY, aggregates treat the entire table as one group and return a single value. SELECT COUNT(*) FROM test_results gives total row count. Add GROUP BY to get one row per group.' } },
+        { level: 'basic', q: { tr: 'INNER JOIN ile LEFT JOIN ne zaman hangisini kullanmalisiniz?', en: 'When should you use INNER JOIN vs LEFT JOIN?' }, a: { tr: 'INNER JOIN: Her iki tabloda da eslesme zorunluysa. LEFT JOIN: Eslesme olmasa bile sol tablonun tum kayitlarini gormek istediginizde. QA da: yetim kayitlari bulmak icin LEFT JOIN + WHERE sag.id IS NULL kullanin.', en: 'INNER JOIN: Use when data must exist in both tables. LEFT JOIN: When you want all rows from the left table regardless of matches. In QA: use LEFT JOIN + WHERE right.id IS NULL to find orphaned records.' } },
+        { level: 'intermediate', q: { tr: 'Bir sorguda birden fazla JOIN kullanirken performansi nasil optimize edersiniz?', en: 'How do you optimize performance when using multiple JOINs?' }, a: { tr: '1. JOIN yapilan sutunlara (FK sutunlari) index ekle. 2. WHERE kosulunu erken filtrele. 3. Sadece gerekli sutunlari sec. 4. EXPLAIN ile sorgu planini incele. 5. Karmasik sorgular icin CTE kullan.', en: '1. Add indexes on JOIN columns (FK columns). 2. Filter early with WHERE. 3. Select only needed columns. 4. Use EXPLAIN to inspect the query plan. 5. Use CTEs for complex queries.' } },
+        { level: 'intermediate', q: { tr: 'Correlated subquery yi JOIN ile nasil yeniden yazarsiniz?', en: 'How would you rewrite a correlated subquery as a JOIN?' }, a: { tr: 'Correlated subquery: SELECT name, (SELECT COUNT(*) FROM bugs WHERE tester_id=t.id) AS cnt FROM testers t. JOIN versiyonu: SELECT t.name, COUNT(b.id) AS cnt FROM testers t LEFT JOIN bugs b ON t.id=b.tester_id GROUP BY t.id, t.name. JOIN cok daha hizlidir.', en: 'Correlated: SELECT name, (SELECT COUNT(*) FROM bugs WHERE tester_id=t.id) AS cnt FROM testers t. JOIN version: SELECT t.name, COUNT(b.id) AS cnt FROM testers t LEFT JOIN bugs b ON t.id=b.tester_id GROUP BY t.id, t.name. JOIN is much faster.' } },
+        { level: 'advanced', q: { tr: 'PreparedStatement neden onemlidir?', en: 'Why are parameterized queries important?' }, a: { tr: 'SQL Injection guvenligi icin kritiktir. Kullanici girdisini string birlestirme ile SQL e eklerseniz saldirgan tum verileri okuyabilir. Parametreli sorgularda degerler veri olarak islenir, asla SQL kodu olarak yorumlanamaz.', en: 'Critical for SQL injection security. If you concatenate user input into SQL strings, an attacker can read all data. With parameterized queries, values are always treated as data — never interpreted as SQL code.' } },
+        { level: 'advanced', q: { tr: 'Transaction rollback i test otomasyonunda nasil kullanirsiniz?', en: 'How do you use transaction rollback in test automation?' }, a: { tr: 'Her test oncesinde transaction baslat, test sonrasinda rollback yap — DB her zaman temiz kalir. Python da: conn.autocommit = False, test blogu, conn.rollback(). pytest fixture olarak yazilabilir. Bu yontem testleri bagimsiz kilar.', en: 'Start a transaction before each test and rollback at the end — DB stays clean. In Python: conn.autocommit = False, test block, conn.rollback(). Can be written as a pytest fixture. This makes tests independent.' } },
+      ]},
     ],
   },
 
@@ -1024,6 +1145,23 @@ SELECT run_date, new_tests,
        SUM(new_tests) OVER (ORDER BY run_date) AS cumulative_tests
 FROM daily_stats;`,
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES
+(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),
+(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),
+(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),
+(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');`,
+        defaultCode: `-- ROW_NUMBER, RANK, DENSE_RANK — window functions
+SELECT test_name, duration_ms,
+       ROW_NUMBER()  OVER (ORDER BY duration_ms DESC) AS rn,
+       RANK()        OVER (ORDER BY duration_ms DESC) AS rnk,
+       DENSE_RANK()  OVER (ORDER BY duration_ms DESC) AS dense_rnk
+FROM test_results;
+
+-- Diğerlerini dene:
+-- SELECT environment, test_name, duration_ms, RANK() OVER (PARTITION BY environment ORDER BY duration_ms DESC) AS rank_in_env FROM test_results;`
+      },
       { type: 'heading', text: 'CTEs — Common Table Expressions', difficulty: '🔴 Advanced' },
       {
         type: 'code',
@@ -1060,6 +1198,31 @@ WITH RECURSIVE org AS (
     JOIN org o ON e.manager_id = o.id
 )
 SELECT level, name FROM org ORDER BY level;`,
+      },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);
+INSERT INTO test_results VALUES
+(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),
+(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),
+(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),
+(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');`,
+        defaultCode: `-- CTE: başarısız testleri adımlara ayır
+WITH failed_tests AS (
+    SELECT test_name, COUNT(*) AS fail_count
+    FROM test_results
+    WHERE status = 'FAIL'
+    GROUP BY test_name
+),
+pass_times AS (
+    SELECT test_name, AVG(duration_ms) AS avg_ms
+    FROM test_results
+    WHERE status = 'PASS'
+    GROUP BY test_name
+)
+SELECT f.test_name, f.fail_count, ROUND(p.avg_ms,0) AS avg_pass_ms
+FROM failed_tests f
+LEFT JOIN pass_times p ON f.test_name = p.test_name
+ORDER BY f.fail_count DESC;`
       },
       { type: 'heading', text: 'Transactions — ACID Properties', difficulty: '🔴 Advanced' },
       {
@@ -1136,6 +1299,29 @@ GROUP BY tester;
 -- Drop a view:
 DROP VIEW active_failures;`,
       },
+      { type: 'editor', lang: 'sql',
+        schema: `CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);
+CREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);
+INSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');
+INSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');
+INSERT INTO bugs VALUES
+(1,'Login fails on Safari','OPEN','HIGH',1,1),
+(2,'Broken image on profile','CLOSED','LOW',1,1),
+(3,'API timeout on checkout','OPEN','HIGH',2,3),
+(4,'Wrong error message','OPEN','MEDIUM',2,2),
+(5,'Crash on empty search','OPEN','HIGH',3,1);`,
+        defaultCode: `-- VIEW oluştur
+CREATE VIEW active_failures AS
+    SELECT t.name AS tester, b.title, b.priority, p.name AS project
+    FROM bugs b
+    JOIN testers t  ON b.tester_id  = t.id
+    JOIN projects p ON b.project_id = p.id
+    WHERE b.status = 'OPEN';
+
+-- View'ı tablo gibi kullan:
+SELECT * FROM active_failures WHERE priority = 'HIGH';`
+      },
       { type: 'heading', text: 'SQL Injection & Parameterized Queries', difficulty: '🔴 Advanced' },
       {
         type: 'code',
@@ -1190,6 +1376,18 @@ cursor.execute(
         ],
         note: 'COMMIT makes all changes permanent. ROLLBACK undoes everything back to START TRANSACTION — like Ctrl+Z for the entire batch.',
       },
+      // Quiz: Window functions
+      { type: 'quiz', question: { tr: 'Window fonksiyonlarini GROUP BY dan ayiran temel ozellik nedir?', en: 'What is the key difference between window functions and GROUP BY?' }, options: [{ id: 'a', text: 'Window functions only work on dates' }, { id: 'b', text: 'Window functions collapse rows into groups' }, { id: 'c', text: 'Window functions calculate across rows without collapsing them' }, { id: 'd', text: 'GROUP BY is faster than window functions' }], correct: 'c', explanation: { tr: 'Window fonksiyonlari her satirin kimligini korur. GROUP BY satiri daraltir. ROW_NUMBER(), RANK(), SUM() OVER() satir bazli hesaplama yapar ama satir kaybolmaz.', en: 'Window functions keep each row identity — unlike GROUP BY which collapses rows. ROW_NUMBER(), RANK(), SUM() OVER() calculate per-row while keeping all rows visible.' } },
+      // Quiz: CTE
+      { type: 'quiz', question: { tr: 'CTE (Common Table Expression) icin hangi keyword kullanilir?', en: 'Which keyword is used to define a CTE?' }, options: [{ id: 'a', text: 'DEFINE' }, { id: 'b', text: 'TEMP' }, { id: 'c', text: 'WITH' }, { id: 'd', text: 'CREATE TEMP' }], correct: 'c', explanation: { tr: 'CTE, WITH keyword u ile tanimlanir: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. Karmasik sorgulari adlandirilmis adimlara boler.', en: 'A CTE starts with WITH: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. It breaks complex queries into named steps and improves readability.' } },
+      // Interview Questions: SQL Advanced
+      { type: 'interview-questions', topic: 'SQL Advanced', questions: [
+        { level: 'basic', q: { tr: 'Window fonksiyonu nedir? Basit bir ornek verin.', en: 'What is a window function? Give a simple example.' }, a: { tr: 'Window fonksiyonu, iliskili bir satir kumesi uzerinde hesaplama yapar ama GROUP BY nin aksine satirlari daraltmaz. Ornek: SELECT test_name, duration_ms, RANK() OVER (ORDER BY duration_ms DESC) AS rank FROM test_results — her test icin hem suresini hem siralamadaki yerini gosterir, satir sayisi degismez.', en: 'A window function performs a calculation over a set of related rows without collapsing them like GROUP BY. Example: SELECT test_name, duration_ms, RANK() OVER (ORDER BY duration_ms DESC) AS rank FROM test_results — shows each test with its duration AND its rank, row count stays the same.' } },
+        { level: 'basic', q: { tr: 'ACID nedir? Her harfi aciklayin.', en: 'What is ACID? Explain each letter.' }, a: { tr: 'Atomicity: Transaction icindeki tum islemler basarili olmali — biri basarisiz olursa hepsi geri alinir. Consistency: Transaction DB yi bir gecerli durumdan digerine tasir. Isolation: Es zamanli transaction lar birbirinin yarim kalmis degisikliklerini gormez. Durability: COMMIT ten sonra veriler sistem cokuslerde bile korunur.', en: 'Atomicity: All operations succeed or all are rolled back. Consistency: Transaction takes DB from one valid state to another. Isolation: Concurrent transactions do not see each other uncommitted changes. Durability: After COMMIT, data survives system crashes.' } },
+        { level: 'intermediate', q: { tr: 'RANK() ile DENSE_RANK() arasindaki fark nedir?', en: 'What is the difference between RANK() and DENSE_RANK()?' }, a: { tr: 'Ikisi de bagli satirlara ayni numarayi verir. Fark boslukturda: RANK() bagli satirlardan sonra bosluk birakir (1, 1, 3). DENSE_RANK() bosluk birakmaz (1, 1, 2). Top-N bulmak icin DENSE_RANK() daha guvenilirdir.', en: 'Both assign the same number to tied rows. RANK() leaves gaps after ties (1, 1, 3 — 2 is skipped). DENSE_RANK() has no gaps (1, 1, 2). For finding top-N only, DENSE_RANK() is more reliable.' } },
+        { level: 'advanced', q: { tr: 'View ile CTE arasindaki fark nedir?', en: 'What is the difference between a View and a CTE?' }, a: { tr: 'View: Veritabanina kalici olarak kaydedilen adlandirilmis sorgu. Birden fazla sorguda yeniden kullanilabilir. CTE: Yalnizca bir sorgu boyunca gecerli olan gecici adlandirilmis sonuc kumesi. Veritabanina kaydedilmez. Secim: Ayni sorguyu bircok uygulama genelinde tekrar kullanacaksaniz View; tek bir karmasik sorguyu sadelestirmek icin CTE.', en: 'View: A permanently saved named query in the database. Reusable across multiple queries. CTE: Temporary named result set that exists only for one query. Not saved to the database. Choice: View if reusing across multiple apps; CTE if simplifying a single complex query.' } },
+        { level: 'advanced', q: { tr: 'Yavas bir SQL sorgusunu nasil debug edersiniz?', en: 'How do you debug a slow SQL query?' }, a: { tr: '1. EXPLAIN ile sorgu planini incele — type=ALL goruyorsan kotu, type=ref veya index iyi. 2. NULL olan key sutununa bak. 3. WHERE/JOIN sutunlarina index ekle. 4. SELECT * kullaniyorsan sadece gerekli sutunlara dus. 5. Subquery varsa JOIN e donustur. 6. Her degisiklikten sonra EXPLAIN i tekrar calistir.', en: '1. Use EXPLAIN to inspect the query plan — type=ALL is bad, type=ref or index is good. 2. Look for NULL in the key column. 3. Add indexes on WHERE/JOIN columns. 4. Reduce SELECT * to only needed columns. 5. Convert subqueries to JOINs. 6. Re-run EXPLAIN after each change.' } },
+      ]},
     ],
   },
 
@@ -1650,6 +1848,138 @@ ORDER BY sprint, rank_in_sprint;`,
         ]
       },
       { type: 'tip', content: 'Bookmark db-fiddle.com for quick experiments. Always test your WHERE clause with a SELECT before running DELETE or UPDATE — one missing WHERE can wipe your entire table.' },
+      {
+        type: 'error-dictionary',
+        framework: 'SQL',
+        errors: [
+          {
+            error: 'UNIQUE constraint failed: table.column',
+            fullMessage: 'UNIQUE constraint failed: users.email',
+            cause: { tr: 'Aynı email/id gibi eşsiz (UNIQUE) kısıtlama olan bir sütuna tekrar eden değer eklemeye çalışıyorsunuz. PRIMARY KEY ihlali de aynı hatayı verir.', en: 'You are inserting a duplicate value into a column with a UNIQUE constraint (e.g., email, username). A PRIMARY KEY violation produces the same error.' },
+            solution: { tr: '1) INSERT IGNORE (MySQL) veya INSERT OR IGNORE (SQLite) kullanın. 2) ON CONFLICT DO NOTHING / DO UPDATE ekleyin. 3) INSERT öncesinde SELECT ile kontrol edin.', en: '1) Use INSERT IGNORE (MySQL) or INSERT OR IGNORE (SQLite). 2) Add ON CONFLICT DO NOTHING / DO UPDATE. 3) Check with SELECT before INSERT.' },
+            codeWrong: `-- YANLIŞ — tekrar eden email ekliyor
+INSERT INTO users (id, email) VALUES (1, 'a@test.com');
+INSERT INTO users (id, email) VALUES (2, 'a@test.com'); -- HATA`,
+            codeFixed: `-- DOĞRU — çakışmada güncelle (upsert)
+INSERT INTO users (id, email)
+VALUES (2, 'a@test.com')
+ON CONFLICT(email) DO UPDATE SET id = excluded.id;
+
+-- veya sadece yoksay:
+INSERT OR IGNORE INTO users (id, email) VALUES (2, 'a@test.com');`
+          },
+          {
+            error: 'FOREIGN KEY constraint failed',
+            fullMessage: 'FOREIGN KEY constraint failed',
+            cause: { tr: 'Parent tabloda olmayan bir değere referans veren kayıt eklemeye çalışıyorsunuz. Örneğin: var olmayan bir user_id ile order eklemek.', en: 'You are trying to insert a row that references a value that does not exist in the parent table. E.g., adding an order with a non-existent user_id.' },
+            solution: { tr: '1) Önce parent kaydı ekleyin. 2) PRAGMA foreign_keys = ON ile FK denetimini etkinleştirin (SQLite\'de varsayılan kapalı). 3) INSERT sırasını parent → child olarak düzenleyin.', en: '1) Insert the parent record first. 2) Enable FK checking: PRAGMA foreign_keys = ON (SQLite defaults to OFF). 3) Order INSERTs parent → child.' },
+            codeWrong: `-- YANLIŞ — users tablosunda id=999 yok
+INSERT INTO orders (id, user_id) VALUES (1, 999); -- HATA`,
+            codeFixed: `-- DOĞRU — önce parent'ı ekle
+INSERT INTO users (id, name) VALUES (999, 'Alice');
+INSERT INTO orders (id, user_id) VALUES (1, 999); -- OK
+
+-- SQLite'de FK denetimini etkinleştir:
+PRAGMA foreign_keys = ON;`
+          },
+          {
+            error: 'NOT NULL constraint failed: table.column',
+            fullMessage: 'NOT NULL constraint failed: employees.email',
+            cause: { tr: 'NOT NULL kısıtlamalı bir sütuna NULL değer eklemeye ya da bu sütunu INSERT sorgusunda atlamaya çalışıyorsunuz.', en: 'You are inserting NULL into a column with a NOT NULL constraint, or omitting a column that has no DEFAULT and is NOT NULL.' },
+            solution: { tr: '1) Sütun için değer sağlayın. 2) Sütuna DEFAULT değeri tanımlayın. 3) Şemayı gözden geçirin: o sütun gerçekten zorunlu mu?', en: '1) Provide a value for the column. 2) Add a DEFAULT to the column definition. 3) Review the schema — does that column really need to be required?' },
+            codeWrong: `-- YANLIŞ — email NOT NULL ama değer verilmedi
+INSERT INTO employees (id, name) VALUES (1, 'Bob'); -- HATA`,
+            codeFixed: `-- DOĞRU — tüm NOT NULL sütunlara değer ver
+INSERT INTO employees (id, name, email)
+VALUES (1, 'Bob', 'bob@company.com');
+
+-- veya default ekle:
+-- email TEXT NOT NULL DEFAULT 'unknown@company.com'`
+          },
+          {
+            error: "syntax error near '...'",
+            fullMessage: "near \"FORM\": syntax error",
+            cause: { tr: 'SQL yazım hatası: yanlış yazılmış keyword (FROM yerine FORM), virgül eksikliği, fazladan parantez veya rezerve kelime kullanımı.', en: 'SQL syntax mistake: misspelled keyword (FORM instead of FROM), missing comma, extra parenthesis, or using a reserved word as a column/table name.' },
+            solution: { tr: '1) Keyword yazımını kontrol edin. 2) SELECT listesinde virgülleri kontrol edin. 3) Rezerve kelimeler tablo/sütun adı olarak kullanılıyorsa backtick veya çift tırnak ile sarın.', en: '1) Check keyword spelling. 2) Check commas in the SELECT list. 3) If using reserved words as identifiers, wrap them in backticks or double quotes.' },
+            codeWrong: `-- YANLIŞ — FROM yerine FORM yazılmış
+SELECT name FORM users WHERE id = 1; -- syntax error`,
+            codeFixed: `-- DOĞRU — keyword doğru yazılmış
+SELECT name FROM users WHERE id = 1;
+
+-- Rezerve kelime kullanımı:
+SELECT \`order\`, \`select\` FROM my_table;  -- backtick ile sarılmış`
+          },
+          {
+            error: 'no such table: table_name',
+            fullMessage: 'no such table: test_results',
+            cause: { tr: 'Sorgu var olmayan bir tabloyu referans alıyor. Tablo henüz oluşturulmamış, yanlış yazılmış veya farklı bir veritabanı bağlantısında oluşturulmuş olabilir.', en: 'The query references a table that does not exist. The table may not have been created, misspelled, or created in a different database connection.' },
+            solution: { tr: '1) CREATE TABLE ile tabloyu oluşturun. 2) Tablo adının yazımını kontrol edin. 3) Doğru veritabanına bağlandığınızı doğrulayın. SQLite\'de: SELECT name FROM sqlite_master WHERE type=\'table\';', en: '1) Create the table with CREATE TABLE. 2) Check the table name spelling. 3) Verify you are connected to the correct database. In SQLite: SELECT name FROM sqlite_master WHERE type=\'table\';' },
+            codeWrong: `-- YANLIŞ — tablo henüz oluşturulmamış
+SELECT * FROM test_results; -- no such table`,
+            codeFixed: `-- DOĞRU — önce tabloyu oluştur
+CREATE TABLE IF NOT EXISTS test_results (
+  id      INTEGER PRIMARY KEY,
+  name    TEXT NOT NULL,
+  status  TEXT NOT NULL,
+  run_at  TEXT
+);
+SELECT * FROM test_results;`
+          },
+          {
+            error: 'ambiguous column name: column',
+            fullMessage: 'ambiguous column name: id',
+            cause: { tr: 'JOIN sorgusunda aynı sütun adı birden fazla tabloda bulunuyor ve hangi tablodan geldiği belirtilmemiş.', en: 'In a JOIN query, the same column name exists in multiple joined tables and it is not specified which table the column comes from.' },
+            solution: { tr: 'Tablo adı veya alias ile tam nitelendirme (qualification) kullanın: users.id veya u.id gibi.', en: 'Use full qualification with table name or alias: users.id or u.id.' },
+            codeWrong: `-- YANLIŞ — her iki tabloda da "id" var
+SELECT id, name FROM users JOIN orders ON users.id = orders.user_id;
+-- ambiguous column name: id`,
+            codeFixed: `-- DOĞRU — tablo adıyla nitelendir
+SELECT users.id, users.name, orders.id AS order_id
+FROM users
+JOIN orders ON users.id = orders.user_id;
+
+-- veya alias kullan:
+SELECT u.id, u.name, o.id AS order_id
+FROM users u
+JOIN orders o ON u.id = o.user_id;`
+          },
+          {
+            error: 'table has N columns but M values were supplied',
+            fullMessage: 'table users has 4 columns but 3 values were supplied',
+            cause: { tr: 'INSERT sorgusunda sütun listesi ile VALUES listesindeki eleman sayısı eşleşmiyor.', en: 'The number of columns listed in the INSERT does not match the number of values supplied in VALUES.' },
+            solution: { tr: 'INSERT\'te sütun listesini açıkça belirtin ve VALUES ile sayısının eşleştiğinden emin olun.', en: 'Explicitly list the column names in INSERT and ensure VALUES count matches.' },
+            codeWrong: `-- YANLIŞ — 4 sütun var ama 3 değer veriliyor
+-- Tablo: users (id, name, email, role)
+INSERT INTO users VALUES (1, 'Alice', 'alice@test.com'); -- HATA`,
+            codeFixed: `-- DOĞRU — sütun isimlerini açıkça belirt
+INSERT INTO users (id, name, email)
+VALUES (1, 'Alice', 'alice@test.com');
+-- role sütunu NULL alır (ya da DEFAULT değeri)`
+          },
+        ]
+      },
+      { type: 'glossary-section', terms: [
+        { term: 'Aggregate Function', definition: { tr: 'Birden fazla satiri tek bir ozet degere indirgeyen fonksiyon: COUNT, SUM, AVG, MIN, MAX.', en: 'A function that reduces multiple rows to a single summary value: COUNT, SUM, AVG, MIN, MAX.' } },
+        { term: 'AUTO_INCREMENT', definition: { tr: 'Her yeni satirda otomatik olarak artan tam sayi. MySQL terimi; SQLite de INTEGER PRIMARY KEY, PostgreSQL de SERIAL.', en: 'An integer that automatically increases for each new row. MySQL term; SQLite uses INTEGER PRIMARY KEY, PostgreSQL uses SERIAL.' } },
+        { term: 'CTE (Common Table Expression)', definition: { tr: 'WITH keyword u ile tanimlanan gecici adlandirilmis sorgu. Tek bir sorguda birden fazla kez referans alinabilir.', en: 'A temporary named query defined with the WITH keyword. Can be referenced multiple times within a single query.' } },
+        { term: 'COALESCE', definition: { tr: 'Arguman listesindeki ilk NULL olmayan degeri dondurur. NULL icin varsayilan deger saglamak icin kullanilir.', en: 'Returns the first non-NULL value in an argument list. Used to provide a fallback value for NULL.' } },
+        { term: 'Correlated Subquery', definition: { tr: 'Dis sorgunun bir sutununa referans veren alt sorgu. Dis sorgunun her satiri icin bir kez calisir — yavas olabilir.', en: 'A subquery that references a column from the outer query. Runs once per outer row — can be slow.' } },
+        { term: 'DDL', definition: { tr: 'Data Definition Language: CREATE, ALTER, DROP gibi sema yapisini degistiren SQL komutlari.', en: 'Data Definition Language: SQL commands that change schema structure, like CREATE, ALTER, DROP.' } },
+        { term: 'DML', definition: { tr: 'Data Manipulation Language: INSERT, UPDATE, DELETE, SELECT gibi veriyi degistiren SQL komutlari.', en: 'Data Manipulation Language: SQL commands that modify data, like INSERT, UPDATE, DELETE, SELECT.' } },
+        { term: 'EXPLAIN', definition: { tr: 'Bir sorgunun nasil yurutulegini gosteren komut. Sorgu plani, index kullanimi ve performans sorunlarini teshis etmek icin kullanilir.', en: 'A command that shows how a query will be executed. Used to diagnose query plans, index usage, and performance issues.' } },
+        { term: 'Foreign Key (FK)', definition: { tr: 'Baska bir tablonun Primary Key ini referans alan sutun. Tablolar arasi referans butunlugunu zorlar.', en: 'A column that references the Primary Key of another table. Enforces referential integrity between tables.' } },
+        { term: 'GROUP BY', definition: { tr: 'Bir sorgudaki satirlari belirtilen sutun degerlerine gore gruplandiran clause. Aggregate fonksiyonlarla birlikte kullanilir.', en: 'A clause that groups rows in a query by specified column values. Used with aggregate functions.' } },
+        { term: 'HAVING', definition: { tr: 'GROUP BY sonrasinda gruplari filtreleyen clause. Aggregate sonuclar uzerinde calisir — WHERE gibi ama gruplar icin.', en: 'A clause that filters groups after GROUP BY. Works on aggregate results — like WHERE but for groups.' } },
+        { term: 'Index', definition: { tr: 'Veri aramasini hizlandiran veritabani yapisi. WHERE, JOIN ve ORDER BY sorgularini optimize eder.', en: 'A database structure that speeds up data lookup. Optimizes WHERE, JOIN, and ORDER BY queries.' } },
+        { term: 'JOIN', definition: { tr: 'Paylasilan sutunlar araciligiyla iki veya daha fazla tablodan satirlari birlestiren SQL operasyonu.', en: 'A SQL operation that combines rows from two or more tables based on a shared column.' } },
+        { term: 'NULL', definition: { tr: 'Eksik veya bilinmeyen degeri temsil eden ozel isaretci. Sifir, bos string veya false tan farklidir. IS NULL ile kontrol edilir.', en: 'A special marker representing a missing or unknown value. Different from zero, empty string, or false. Checked with IS NULL.' } },
+        { term: 'Primary Key (PK)', definition: { tr: 'Bir tablodaki her satiri benzersiz olarak tanimlayan sutun veya sutun kombinasyonu. NULL olamaz ve tekrar edemez.', en: 'A column or combination of columns that uniquely identifies every row in a table. Cannot be NULL or duplicate.' } },
+        { term: 'Schema', definition: { tr: 'Veritabaninin yapisi: tablolar, sutunlar, tipler, kisitlamalar ve iliskiler. CREATE TABLE ifadeleri ile tanimlanir.', en: 'The structure of a database: tables, columns, types, constraints, and relationships. Defined by CREATE TABLE statements.' } },
+        { term: 'Subquery', definition: { tr: 'Baska bir SELECT ifadesinin icine yerlestirilmis SELECT ifadesi. WHERE, FROM veya SELECT clause larinda kullanilabilir.', en: 'A SELECT statement nested inside another SELECT statement. Can be used in WHERE, FROM, or SELECT clauses.' } },
+        { term: 'Transaction', definition: { tr: 'Tek bir birim olarak islenen SQL ifadeleri dizisi — ya tumu basarili olur ya da higbiri olmaz. ACID garantilerini saglar.', en: 'A sequence of SQL statements treated as a single unit — either all succeed or none do. Provides ACID guarantees.' } },
+        { term: 'View', definition: { tr: 'Kayitli SQL sorgu tarafindan tanimlanan sanal tablo. Bir tablo gibi sorgulanabilir ama veriyi kendisi saklamaz.', en: 'A virtual table defined by a stored SQL query. Can be queried like a table but does not store data itself.' } },
+        { term: 'Window Function', definition: { tr: 'GROUP BY nin aksine satirlari daraltmadan iliskili satirlar penceresi uzerinde hesaplama yapan fonksiyon. ROW_NUMBER, RANK, LAG gibi.', en: 'A function that performs calculations over a window of related rows without collapsing them like GROUP BY. Examples: ROW_NUMBER, RANK, LAG.' } },
+      ]},
     ],
   },
 ]
@@ -1805,13 +2135,15 @@ const trSections = [
       0: { text: 'CREATE TABLE — Yapıyı Tanımlama', difficulty: '🟢 Başlangıç' },
       2: { text: 'INSERT INTO — Veri Ekleme', difficulty: '🟢 Başlangıç' },
       4: { text: 'SELECT — Veri Okuma', difficulty: '🟢 Başlangıç' },
-      6: { text: 'UPDATE ve DELETE', difficulty: '🟢 Başlangıç' },
-      8: { content: 'UPDATE ve DELETE komutlarında MUTLAKA WHERE kullanın! WHERE olmadan tablodaki tüm satırlar etkilenir. Değiştirilecek satırları önce SELECT ile doğrulayın, ardından güncelleme veya silme işlemini yapın.' },
-      9: { text: 'NULL Değerleri', difficulty: '🟢 Başlangıç' },
-      11: { text: 'İnteraktif Örnek: test_results Tablosu', difficulty: '🟢 Başlangıç' },
-      13: { text: 'SQL Yürütme Sırası — Çoğu Yeni Başlayanın Kaçırdığı Sır' },
-      14: { content: "SQL, normal kod gibi yukarıdan aşağıya çalışmaz. Belirli bir dahili sıra izler. Bu yüzden WHERE içinde SELECT takma adları kullanamaz ve aggregate fonksiyonlar HAVING'e gider, WHERE'e değil." },
-      15: {
+      // index 6 = editor (SELECT editor) — no TR override needed
+      7: { text: 'UPDATE ve DELETE', difficulty: '🟢 Başlangıç' },
+      9: { content: 'UPDATE ve DELETE komutlarında MUTLAKA WHERE kullanın! WHERE olmadan tablodaki tüm satırlar etkilenir. Değiştirilecek satırları önce SELECT ile doğrulayın, ardından güncelleme veya silme işlemini yapın.' },
+      10: { text: 'NULL Değerleri', difficulty: '🟢 Başlangıç' },
+      12: { text: 'İnteraktif Örnek: test_results Tablosu', difficulty: '🟢 Başlangıç' },
+      // index 13 = editor (Interactive Example) — no TR override needed
+      14: { text: 'SQL Yürütme Sırası — Çoğu Yeni Başlayanın Kaçırdığı Sır' },
+      15: { content: "SQL, normal kod gibi yukarıdan aşağıya çalışmaz. Belirli bir dahili sıra izler. Bu yüzden WHERE içinde SELECT takma adları kullanamaz ve aggregate fonksiyonlar HAVING'e gider, WHERE'e değil." },
+      16: {
         title: 'SQL Cümle Değerlendirme Sırası (Adım Adım)',
         note: 'SELECT\'i en üste yazarsın ama neredeyse en son çalışır. Bu yüzden SELECT\'te tanımlanan takma adlar WHERE\'de kullanılamaz!',
         steps: [
@@ -1825,7 +2157,7 @@ const trSections = [
           { num: '8', label: 'LIMIT', desc: 'Dilimleme' },
         ],
       },
-      16: {
+      17: {
         title: 'Örnek Verimiz — test_results Tablosu',
         tables: [{
           name: 'test_results',
@@ -1847,9 +2179,9 @@ const trSections = [
         }],
         note: "Sarı satırlar = FAIL durumu. Dene: SELECT * FROM test_results WHERE status = 'FAIL' → 2. ve 4. satırları döndürür.",
       },
-      17: { text: 'NULL — En Yaygın SQL Hatası' },
-      18: { content: "NULL, 'değer yok / bilinmiyor' anlamına gelir — sıfır değil, boş string değil. NULL ile yapılan her karşılaştırma NULL döndürür (true veya false değil). Bu durum her SQL yeni başlayanının tökezlediği noktadır." },
-      19: {
+      18: { text: 'NULL — En Yaygın SQL Hatası' },
+      19: { content: "NULL, 'değer yok / bilinmiyor' anlamına gelir — sıfır değil, boş string değil. NULL ile yapılan her karşılaştırma NULL döndürür (true veya false değil). Bu durum her SQL yeni başlayanının tökezlediği noktadır." },
+      20: {
         left: {
           label: '❌ Yanlış — = NULL hiçbir zaman çalışmaz',
           code: `SELECT * FROM users WHERE email = NULL;
@@ -1867,7 +2199,7 @@ SELECT name, COALESCE(email, 'eposta yok') FROM users;`,
           note: "IS NULL ve IS NOT NULL her zaman doğru çalışır",
         },
       },
-      20: {
+      21: {
         question: "WHERE discount = NULL filtresi uyguladığında sorgu 0 satır döndürüyor. Neden?",
         options: [
           'Tabloda NULL indirim yok',
@@ -1878,24 +2210,24 @@ SELECT name, COALESCE(email, 'eposta yok') FROM users;`,
         correct: 1,
         explanation: "= veya != ile yapılan NULL karşılaştırmaları FALSE gibi davranır. Bunun yerine IS NULL veya IS NOT NULL kullanın. Bu, en yaygın SQL hatalarından biridir.",
       },
-      21: { text: '☕ Java Biliyorsan: Veritabanı Erişim Köprüsü' },
-      22: {
+      22: { text: '☕ Java Biliyorsan: Veritabanı Erişim Köprüsü' },
+      23: {
         topic: 'DB Bağlantısı (DriverManager vs sqlite3)',
         why: "Java, JDBC DriverManager ile URL + kimlik bilgileriyle bağlanır. Python, hafif sürücü modülleri kullanır (sqlite3 yerleşik, PostgreSQL için psycopg2). Bağlantı mantığı aynı — API farklı.",
         note: "Python sqlite3, Python'a yerleşik gelir — pip kurulumu gerekmez. MySQL: mysql-connector-python; PostgreSQL: psycopg2.",
       },
-      23: {
+      24: {
         topic: 'SELECT Çalıştırma → Sonuçları Okuma',
         why: "Java, rs.next() döngüsü ve sütun adıyla getter metodlar içeren ResultSet kullanır. Python'un cursor.fetchall() metodu basit bir demet listesi döndürür — çok daha az kod.",
         note: "cursor.fetchall() tüm satırları demet listesi olarak döndürür. cursor.fetchone() bir satır ya da None döndürür — rs.next() bir kez çağırmaya eşdeğer.",
       },
-      24: { text: '☕ Java Biliyorsan: DML Operasyonları Köprüsü' },
-      25: {
+      25: { text: '☕ Java Biliyorsan: DML Operasyonları Köprüsü' },
+      26: {
         topic: 'INSERT → JPA persist() vs SQL INSERT INTO',
         why: "Java kurumsal projelerinde büyük ihtimalle JPA/Hibernate (EntityManager.persist) ile nesne ekliyordunuz. SQL'de INSERT INTO doğrudan yazılır. İkisi de aynı SQL'i üretir — JPA sadece bunu sizin yerinize oluşturur.",
         note: "SQL INSERT açık ve güçlüdür — toplu insert'ler ve INSERT-SELECT'in JPA'da custom query olmadan karşılığı yoktur. Test otomasyonunda hız ve sadelik için doğrudan SQL tercih edilir.",
       },
-      26: {
+      27: {
         topic: 'UPDATE/DELETE → JPA merge()/remove() vs SQL',
         why: "JPA, UPDATE ve DELETE'i entity durum değişiklikleri üzerinden soyutlar. SQL doğrudan kontrol sağlar — WHERE ile tam olarak istediğiniz satırları güncelleyin/silin.",
         note: "SQL UPDATE ve DELETE, WHERE ile tek sorguda çok sayıda satırı etkileyebilir. JPA her satır için ayrı entity yükleme gerektirir. Test otomasyonunda temizleme için doğrudan SQL daha hızlı ve yaygındır.",
@@ -1906,25 +2238,31 @@ SELECT name, COALESCE(email, 'eposta yok') FROM users;`,
     title: '🟡 Seviye 2: Orta Seviye SQL',
     blocks: {
       0: { text: 'Aggregate (Toplama) Fonksiyonları', difficulty: '🟡 Orta Seviye' },
-      2: { text: 'GROUP BY ve HAVING', difficulty: '🟡 Orta Seviye' },
-      3: { content: 'GROUP BY, aynı değere sahip satırları gruplar. HAVING ise bu grupları filtreler — WHERE gibi ama aggregate sonuçları için. COUNT/SUM gibi fonksiyonları WHERE içinde kullanamazsınız; bunun için HAVING kullanın.' },
-      5: { text: "JOIN'ler — Tabloları Birleştirme", difficulty: '🟡 Orta Seviye' },
-      6: { content: "JOIN'ler, birden fazla ilişkili tablodan tek sorguda veri almanızı sağlar. Gerçek dünya veritabanlarında veriler tablolar arasında bölündüğünden JOIN'ler vazgeçilmezdir." },
-      8: { text: 'Alt Sorgular (Subquery)', difficulty: '🟡 Orta Seviye' },
-      10: { text: 'LIKE, BETWEEN, IN', difficulty: '🟡 Orta Seviye' },
-      12: { text: 'Bug Takip DB — İnteraktif Örnek', difficulty: '🟡 Orta Seviye' },
-      14: { text: 'Görsel JOIN Kılavuzu — Tam Olarak Hangi Satırların Döndüğünü Gör' },
-      15: { content: "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu." },
-      16: {
+      // index 2 = editor (Aggregate) — no TR override needed
+      3: { text: 'GROUP BY ve HAVING', difficulty: '🟡 Orta Seviye' },
+      4: { content: 'GROUP BY, aynı değere sahip satırları gruplar. HAVING ise bu grupları filtreler — WHERE gibi ama aggregate sonuçları için. COUNT/SUM gibi fonksiyonları WHERE içinde kullanamazsınız; bunun için HAVING kullanın.' },
+      // index 6 = editor (GROUP BY) — no TR override needed
+      7: { text: "JOIN'ler — Tabloları Birleştirme", difficulty: '🟡 Orta Seviye' },
+      8: { content: "JOIN'ler, birden fazla ilişkili tablodan tek sorguda veri almanızı sağlar. Gerçek dünya veritabanlarında veriler tablolar arasında bölündüğünden JOIN'ler vazgeçilmezdir." },
+      // index 10 = editor (JOINs) — no TR override needed
+      11: { text: 'Alt Sorgular (Subquery)', difficulty: '🟡 Orta Seviye' },
+      // index 13 = editor (Subqueries) — no TR override needed
+      14: { text: 'LIKE, BETWEEN, IN', difficulty: '🟡 Orta Seviye' },
+      // index 16 = editor (LIKE) — no TR override needed
+      17: { text: 'Bug Takip DB — İnteraktif Örnek', difficulty: '🟡 Orta Seviye' },
+      // index 18 = editor (Bug Tracking) — no TR override needed
+      19: { text: 'Görsel JOIN Kılavuzu — Tam Olarak Hangi Satırların Döndüğünü Gör' },
+      20: { content: "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu." },
+      21: {
         explanation: 'INNER JOIN, yalnızca HER İKİ tabloda da eşleşen satırları döndürür. Carol\'un hiç hatası yok — sonuçtan tamamen hariç tutulur.',
       },
-      17: {
+      22: {
         explanation: 'LEFT JOIN, SOL tablodan (testers) TÜM satırları döndürür, artı bugs\'dan eşleşmeleri. Carol bug_count=0 ile görünür — LEFT JOIN, "sıfır dahil her kullanıcı başına say" için mükemmeldir.',
       },
-      18: {
+      23: {
         explanation: 'RIGHT JOIN, SAĞ tablodan (bugs) TÜM satırları döndürür. Bug #4\'ün test uzmanı yok — hâlâ tester=NULL ile görünür. Nadiren kullanılır — çoğu geliştirici bunu tablolar yer değiştirilerek LEFT JOIN olarak yeniden yazar.',
       },
-      19: {
+      24: {
         left: {
           label: '❌ Yavaş — Her satır için alt sorgu',
           code: `SELECT name,
@@ -1944,19 +2282,19 @@ GROUP BY t.id, t.name;
           note: "LEFT JOIN: 0 hatalı durumları da doğru işler",
         },
       },
-      20: {
+      25: {
         question: 'Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?',
         options: ['INNER JOIN', 'CROSS JOIN', 'LEFT JOIN', 'RIGHT JOIN'],
         correct: 2,
         explanation: "LEFT JOIN (LEFT OUTER JOIN olarak da bilinir), sol tablodan her satırı döndürür. Sağ tabloda eşleşme yoksa NULL değerler görünür. \"Sıfır hataya sahip olanlar dahil tüm test uzmanları\" gibi durumlarda kullanılır.",
       },
-      21: { text: '☕ Java Biliyorsan: PreparedStatement ve Transaction Köprüsü' },
-      22: {
+      26: { text: '☕ Java Biliyorsan: PreparedStatement ve Transaction Köprüsü' },
+      27: {
         topic: "PreparedStatement → Parametreli Sorgu",
         why: "SQL Injection önleme! Java, PreparedStatement ile ? yer tutucuları kullanır. Python aynı konsepti uygular — %s (MySQL/PostgreSQL) veya ? (SQLite). Kullanıcı girdilerini asla SQL string'ine birleştirmeyin!",
         note: "Python psycopg2/MySQL %s kullanır. SQLite ? kullanır (Java gibi!). SQL değerleri için asla f-string veya + birleştirme kullanmayın — her zaman parametreli sorgu kullanın.",
       },
-      23: {
+      28: {
         topic: "Transaction Yönetimi (commit / rollback)",
         why: "Transaction'lar, hepsini-ya-da-hiçbirini değişiklikleri garanti eder — test verisi kurulumu için kritik. Java setAutoCommit(false) çağırır. Python sürücülerinde otomatik commit varsayılan olarak kapalıdır; siz commit() çağırırsınız.",
         note: "QA ipucu: test verisi kurulumunu transaction içine sarın ve her testin ardından geri alın — DELETE temizlik sorguları yazmadan DB'yi temiz tutar.",
@@ -1968,12 +2306,15 @@ GROUP BY t.id, t.name;
     blocks: {
       0: { text: 'Window (Pencere) Fonksiyonları', difficulty: '🔴 İleri' },
       1: { content: "Window fonksiyonları, GROUP BY'ın aksine satırları daraltmadan ilgili satırlar üzerinde hesaplamalar yapar. Her satır kendi sonucunu korurken komşu satırlar hakkında da bilgi alır." },
-      3: { text: 'CTE — Common Table Expressions (Ortak Tablo İfadeleri)', difficulty: '🔴 İleri' },
-      5: { text: "Transaction'lar — ACID Özellikleri", difficulty: '🔴 İleri' },
-      7: { text: "Index'ler — Sorguları Hızlandırma", difficulty: '🔴 İleri' },
-      9: { text: "View'lar (Görünümler)", difficulty: '🔴 İleri' },
-      11: { text: 'SQL Injection & Parametreli Sorgular', difficulty: '🔴 İleri' },
-      13: {
+      // index 3 = editor (Window Functions) — no TR override needed
+      4: { text: 'CTE — Common Table Expressions (Ortak Tablo İfadeleri)', difficulty: '🔴 İleri' },
+      // index 6 = editor (CTEs) — no TR override needed
+      7: { text: "Transaction'lar — ACID Özellikleri", difficulty: '🔴 İleri' },
+      9: { text: "Index'ler — Sorguları Hızlandırma", difficulty: '🔴 İleri' },
+      11: { text: "View'lar (Görünümler)", difficulty: '🔴 İleri' },
+      // index 13 = editor (Views) — no TR override needed
+      14: { text: 'SQL Injection & Parametreli Sorgular', difficulty: '🔴 İleri' },
+      16: {
         title: 'ACID Transaction Akışı — DB İçinde Neler Oluyor',
         note: 'ACID garantileri, test verinizin her zaman tutarlı bir durumda olduğu anlamına gelir — kısmi insert yok, işlemler arası phantom read yok.',
         steps: [
@@ -1983,7 +2324,7 @@ GROUP BY t.id, t.name;
           { num: 'D', label: 'Dayanıklılık', desc: 'Çökmeden sağ kaldı' },
         ],
       },
-      14: {
+      17: {
         title: 'Transaction Yaşam Döngüsü — Her SQL Komutu Ne Yapar',
         items: [
           { icon: '🚀', label: 'START TRANSACTION', desc: 'Atomik bloğu başlat' },
