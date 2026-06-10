@@ -17,17 +17,30 @@
 
 ---
 
-## Proje Özeti — Mevcut Durum (2026-06-10, 3. Oturum)
+## Proje Özeti — Mevcut Durum (2026-06-10, 4. Oturum)
 
 ```
 Route            Bileşen               W3Schools Kapsam        TR/EN    Durum
 /                HomePage              N/A                     ✅       ✅
 /python          PythonPage            40 konu (38+2 QA)       ✅       ✅
 /typescript      TypeScriptPage        16 konu (TAM)           ✅       ✅
-/sql             SQLPage               Tam + 11 editör         ✅       ✅ ← düzeltildi
+/sql             SQLPage               Tam + 11 editör         ✅       ✅
 /jmeter          JMeterPage            Tam                     ✅       ✅
 /test-frameworks TestFrameworksPage    N/A                     ✅       ✅
 ```
+
+### CONTENT_RULES.md Uyum Durumu (4. Oturum Sonrası)
+
+| Kural | Python | TypeScript | SQL | JMeter | Durum |
+|-------|--------|------------|-----|--------|-------|
+| Kural 2 — simple-box | ✅ | ✅ | ✅ | ✅ | TAM |
+| Kural 3 — kod yorumu | ✅ | ✅ | ✅ | ✅ | TAM |
+| Kural 4 — glossary-section | ✅ | ✅ | ✅ | ✅ | TAM |
+| Kural 5 — quiz | ✅ | ✅ | ✅ | ✅ (6 adet) | TAM |
+| Kural 6 — interview-questions | ✅ | ✅ (3 blok) | ✅ (3 blok) | ✅ (2 blok) | TAM |
+| Kural 7 — error-dictionary | ✅ Selenium+pytest | ✅ Playwright TS | ✅ SQL | ✅ JMeter | **4. oturumda tamamlandı** |
+
+> **Not:** CONTENT_RULES kural 7'de Playwright Python hatalarının pythonData.js'e de eklenmesi gerekiyor — mevcut Selenium+pytest var, Playwright Python eksik.
 
 ---
 
@@ -95,10 +108,10 @@ automationexercise/
 │   │   ├── LocatorGuide.jsx        ← Selenium vs Playwright locator rehberi
 │   │   └── Practice.jsx            ← Uygulama Bahçesi
 │   ├── data/
-│   │   ├── pythonData.js           ← 40 konu (38 W3S + 2 QA) | simple-box title temizlendi
-│   │   ├── typescriptData.js       ← 16 W3S konu + QA ek | simple-box title temizlendi
-│   │   ├── sqlData.js              ← 8 sekme | 11 SQL editör | TR indeksleri düzeltildi
-│   │   └── jmeterData.js           ← JMeter içerik (TR+EN)
+│   │   ├── pythonData.js           ← 40 konu | error-dict: Selenium+pytest ✅ | Playwright Python ❌
+│   │   ├── typescriptData.js       ← 16 W3S konu | error-dict: Playwright TS ✅ (4. oturum)
+│   │   ├── sqlData.js              ← 11 editör | error-dict: SQL ✅ (4. oturum)
+│   │   └── jmeterData.js           ← TR+EN | error-dict: JMeter ✅ (4. oturum) | 6 quiz | 2 interview blok
 │   ├── mocks/
 │   │   ├── browser.js              ← MSW worker kurulumu
 │   │   └── handlers.js             ← Books CRUD mock handler'ları
@@ -230,6 +243,12 @@ automationexercise/
 35 — interview-questions (bilingual)
 ```
 
+### QA Bölümü (sections[5]) — error-dictionary konumu
+```
+... (tüm POM, enum, fixture, interview-questions, java-compare blokları)
+Son blok → error-dictionary (Playwright TS, 6 hata) ← 4. oturumda eklendi
+```
+
 ---
 
 ## İçerik Kapsamı — Python (pythonData.js)
@@ -260,8 +279,12 @@ automationexercise/
 
 **QA Ek Konular (2):** Dataclasses, argparse
 
-### Sekme Yapısı (9 sekme)
-`Intro | Installation | Foundations | Intermediate | Advanced | QA Use Cases | Interview | Practice | Java→Python`
+### error-dictionary Durumu (pythonData.js)
+| Framework | Hata Sayısı | Durum |
+|-----------|-------------|-------|
+| Selenium | 10 hata | ✅ Mevcut |
+| pytest | 7 hata | ✅ Mevcut |
+| Playwright Python | 0 hata | ❌ **Eksik — eklenmeli** |
 
 ---
 
@@ -343,55 +366,52 @@ Orijinal → Güncel   İçerik
 14 → 17             visual Transaction lifecycle
 ```
 
----
-
-## Bu Oturumda Yapılanlar (3. Oturum — 2026-06-10)
-
-### 1. SQL Editör Blokları Tamamlandı (`sqlData.js`)
-Önceki oturumda yarım kalan SQL editör blokları tamamlandı. 11 editör bloğu artık tüm önemli SQL konularını kapsıyor.
-
-**Bu oturumda eklenen editörler:**
-| Konu | Değişiklik |
-|------|------------|
-| GROUP BY and HAVING | Yeni editör eklendi (test_results 8 satır, GROUP BY/HAVING örnekleri) |
-| JOINs — Combining Tables | Yeni editör eklendi (testers+bugs+projects şeması, INNER/LEFT/multi JOIN) |
-| Subqueries | Yeni editör eklendi (scalar subquery, IN subquery) |
-| LIKE, BETWEEN, IN | Yeni editör eklendi |
-| Bug Tracking DB — Interactive Example | MySQL `AUTO_INCREMENT`/`VARCHAR` statik kod bloğu → sql.js editörüyle değiştirildi |
-| Window Functions | Yeni editör eklendi (ROW_NUMBER, RANK, DENSE_RANK, PARTITION BY) |
-| CTEs | Yeni editör eklendi (WITH ifadesi, birden fazla CTE) |
-| Views | Yeni editör eklendi (CREATE VIEW, view'ı tablo gibi kullan) |
-
-**Tüm şemalar SQLite uyumlu:** `INTEGER PRIMARY KEY` (AUTO_INCREMENT değil), `TEXT` (VARCHAR değil).
+### sections[5] (Overview/Reference) — error-dictionary eklendi
+```
+Son bloklar (4. oturum sonrası):
+...
+tip (db-fiddle bookmark)
+error-dictionary (7 SQL hatası) ← 4. oturumda eklendi
+glossary-section
+```
 
 ---
 
-### 2. TR Override İndeks Hatası Düzeltildi (`sqlData.js`) ← KRİTİK FIX
-**Sorun:** `applyTr()` fonksiyonu blokları sıra numarasıyla override eder. Editör blokları eklenince sonraki tüm blokların sıra numaraları kaydı ama `trSections` içindeki override indeksleri güncellenmemişti. Sonuç: TR seçildiğinde SQL sayfasının büyük bölümü İngilizce kalıyordu.
+## jmeterData.js — Block Sayım Özeti
 
-**Düzeltme:**
-- `sections[2]` override'ları: indeks ≥ 6 için +1 güncellendi
-- `sections[3]` override'ları: 5 editör eklendiğinden değişken kayma hesaplanıp güncellendi
-- `sections[4]` override'ları: 3 editör eklendiğinden değişken kayma hesaplanıp güncellendi
-
-**Sonuç:** TR seçildiğinde SQL sayfasının tüm metin/başlık/quiz/tablo blokları artık doğru Türkçe gösteriyor.
-
----
-
-### 3. `simple-box` Title Alanı Temizlendi (`pythonData.js`, `typescriptData.js`)
-**Sorun:** CLAUDE.md kuralı — `simple-box` bloklarında `title` field OLMAMALI. Eski bloklar `title: { tr: 'Bunu 10 yaşındaki birine anlatalım:', en: 'Simply put:' }` içeriyordu.
-
-**Düzeltme:**
-- `pythonData.js`: 40 `simple-box` bloğundan `title` alanı kaldırıldı
-- `typescriptData.js`: 17 `simple-box` bloğundan `title` alanı kaldırıldı
-
-Not: `TopicPage.jsx` bu alanı zaten render etmiyordu (sessizce görmezden geliyordu), ancak veri dosyaları CLAUDE.md kuralına aykırıydı.
+| Block Tipi | EN section | TR section | Toplam |
+|------------|------------|------------|--------|
+| quiz | 3 | 3 | 6 |
+| interview-questions | 1 (JMeter Advanced) | 2 (Fundamentals + Advanced) | 3 |
+| error-dictionary | 1 (4 hata) | 1 (4 hata) | 2 blok |
+| glossary-section | 0 | 1 | 1 |
+| qa (soru-cevap) | 15 (Q1-Q15) | 8 (S1-S8) | 23 |
 
 ---
 
-### 4. Build Doğrulaması
-`npm run build` → hatasız ✅ (7.23s, 4 dosya)
-Tüm 4 veri dosyası Node.js `require()` ile syntax-clean doğrulandı ✅
+## Oturum Geçmişi Özeti
+
+### 1. Oturum (2026-06-09)
+- 5 route oluşturuldu (Python, TypeScript, SQL, JMeter, TestFrameworks)
+- W3Schools kapsamında kapsamlı içerik eklendi
+
+### 2. Oturum (2026-06-10)
+- WCAG AAA renk token sistemi (light + dark mode)
+- Smooth hover scale efekti
+- TestFrameworksPage + PlaywrightLangCompare eklendi
+- Python W3S topics 31-38 + TypeScript Definitely Typed eklendi
+- `.claude/` MD dosyaları oluşturuldu (CONTENT_RULES, UI_STANDARDS, TECH_SPEC vb.)
+
+### 3. Oturum (2026-06-10)
+- 11 SQL interaktif editör eklendi (GROUP BY, JOINs, Subqueries, Window Functions, CTEs, Views)
+- `sqlData.js` TR override indeks hataları düzeltildi (5 editör eklenince indeks kayması)
+- `simple-box` bloklarından `title` alanı kaldırıldı (pythonData.js 40 blok, typescriptData.js 17 blok)
+
+### 4. Oturum (2026-06-10)
+- `error-dictionary` eklendi: TypeScript (6 Playwright TS hatası), SQL (7 hata), JMeter (4 hata, EN+TR)
+- JMeter quiz sayısı 2 → 6'ya çıkarıldı
+- JMeter `interview-questions` 1 blok → 2 blok (Fundamentals + Advanced, EN+TR)
+- CONTENT_RULES kural 7 (error-dictionary) artık tüm sayfalarda karşılanıyor
 
 ---
 
@@ -405,39 +425,26 @@ Tüm 4 veri dosyası Node.js `require()` ile syntax-clean doğrulandı ✅
 
 ## Sıradaki Önerilen Adımlar
 
+### 🔴 Yüksek Öncelik
+1. **Playwright Python error-dictionary eksik** — `pythonData.js` QA bölümünde Selenium+pytest var ama Playwright Python hatası yok; CONTENT_RULES kural 7 tam karşılanmıyor
+   - Eklenmesi gereken hatalar: `TimeoutError (locator.click)`, `strict mode violation`, `page has been closed`, `net::ERR_CONNECTION_REFUSED`, `expect(locator).to_be_visible() timeout`
+
 ### 🟡 Orta Öncelik
-1. **Code splitting** — Vite `manualChunks` ile 1MB chunk'ı böl
-2. **Prism.js CSS override** — `pre[class*="language-"]` background rengini token sistemiyle uyumlu hale getir
-3. **Python QA hata sözlüğü genişletme** — Playwright Python hatalarını pythonData.js'e ekle (CONTENT_RULES kural 7 — mevcut Selenium+pytest var, Playwright Python eksik)
+2. **Code splitting** — Vite `manualChunks` ile 1 MB+ chunk'ı böl (pythonData + typescriptData + sqlData ayrı chunk olabilir)
+3. **Prism.js CSS override** — `pre[class*="language-"]` background rengini WCAG AAA token sistemiyle uyumlu hale getir (şu an Prism varsayılan koyu arka planı light mode'da uyumsuz görünüyor)
 
 ### 🟢 Düşük Öncelik
-4. **Python QA bölümü genişletme** — pytest/Selenium/Playwright içerik derinleştirme
-5. **JMeter editör blokları** — JMeter sayfasında hiç `editor` bloğu yok
+4. **Python QA bölümü derinleştirme** — pytest fixtures (scope/conftest), Selenium page object pattern, Playwright async/sync farkı
+5. **JMeter interaktif editör** — JMeter sayfasında hiç `editor` bloğu yok; test sonucu analiz simülasyonu eklenebilir
+6. **SQL konu taraması** — CONTENT_RULES'daki SQL listesinde bazı konular (SELF JOIN, UNION, EXISTS, ANY/ALL, SELECT INTO, INSERT INTO SELECT, CASE, Stored Procedures, Hosting, Data Types) henüz ayrı başlık olarak işlenmemiş olabilir
 
 ---
 
-## Bu Oturumda Yapılanlar (4. Oturum — 2026-06-10)
-
-### 1. TypeScript `error-dictionary` Eklendi (`typescriptData.js`)
-Playwright TypeScript için 6 yaygın hata senaryosu eklendi: TimeoutError (locator.click), strict mode violation (birden fazla element), page has been closed, net::ERR_CONNECTION_REFUSED, expect(locator).toBeVisible() timeout, TS2345 tip uyumsuzluğu. Her hata için: tam hata mesajı, neden/çözüm (tr+en), yanlış/doğru kod örneği.
-
-### 2. SQL `error-dictionary` Eklendi (`sqlData.js`)
-7 yaygın SQL/SQLite hatası eklendi: UNIQUE constraint failed, FOREIGN KEY constraint failed, NOT NULL constraint failed, syntax error near '...', no such table, ambiguous column name, wrong number of values. Glossary-section'dan hemen önce eklendi.
-
-### 3. JMeter `error-dictionary` + Ek Quiz + Ek Interview-Questions Eklendi (`jmeterData.js`)
-- **EN section:** 4 JMeter hatası (Connection refused, EXTRACTION_FAILED, OOM, ConnectTimeoutException) + 2 yeni quiz + `interview-questions` bloğu (JMeter Advanced, 3 soru)
-- **TR section:** Paralel Türkçe hata sözlüğü + 2 yeni quiz (JSON Extractor, P99 persentil) + yeni `interview-questions` bloğu (JMeter Advanced)
-
-### 4. Build Doğrulaması
-`npm run build` → başarılı ✅ (13.13s, 4 dosya, bilinen chunk uyarısı devam ediyor)
-
----
-
-## Commit Geçmişi (Son 7)
+## Commit Geçmişi (Son 8)
 
 | Hash | Tarih | Değişiklik |
 |------|-------|-----------|
-| yeni | 2026-06-10 | error-dictionary: TypeScript (Playwright TS) + SQL + JMeter; JMeter quiz+interview-questions |
+| `85c04ec` | 2026-06-10 | error-dictionary: TypeScript+SQL+JMeter; JMeter quiz (2→6) + interview-questions (1→2 blok) |
 | `bbb1fcc` | 2026-06-10 | Python W3S topics 31-38 + TypeScript Definitely Typed + repo cleanup |
 | `041a8be` | 2026-06-10 | WCAG AAA color system + typography tokens |
 | `abc8afc` | 2026-06-10 | Smooth hover scale sistemi |
@@ -448,14 +455,15 @@ Playwright TypeScript için 6 yaygın hata senaryosu eklendi: TimeoutError (loca
 
 ---
 
-## Bu Oturumda Değiştirilen Dosyalar (3. Oturum)
+## Bu Oturumda Değiştirilen Dosyalar (4. Oturum)
 
 | Dosya | Değişiklik |
 |-------|-----------|
-| `src/data/sqlData.js` | 8 yeni SQL editör bloğu eklendi; Bug Tracking DB statik kod → editöre çevrildi; `trSections` içindeki `applyTr` override indeksleri sections[2/3/4] için düzeltildi |
-| `src/data/pythonData.js` | 40 `simple-box` bloğundan `title` alanı kaldırıldı |
-| `src/data/typescriptData.js` | 17 `simple-box` bloğundan `title` alanı kaldırıldı |
+| `src/data/typescriptData.js` | `error-dictionary` (Playwright TS) eklendi — QA sections[5] bölümüne, son blok olarak |
+| `src/data/sqlData.js` | `error-dictionary` (7 SQL hatası) eklendi — `glossary-section` öncesine |
+| `src/data/jmeterData.js` | EN+TR: 4 JMeter `error-dictionary` + 4 yeni quiz (toplam 6) + `interview-questions` JMeter Advanced bloğu |
+| `SESSION_HISTORY.md` | Bu güncelleme |
 
 ---
 
-*Son güncelleme: 2026-06-10 (3. oturum) — Claude Sonnet 4.6 tarafından güncellendi*
+*Son güncelleme: 2026-06-10 (4. oturum) — Claude Sonnet 4.6 tarafından güncellendi*
