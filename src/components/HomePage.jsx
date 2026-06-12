@@ -186,6 +186,20 @@ function HomePage() {
                         >
                             {language === 'tr' ? '📮 Postman Öğren' : '📮 Learn Postman'}
                         </button>
+                        <button
+                            onClick={() => navigate('/jenkins')}
+                            data-testid="nav-jenkins"
+                            className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-blue-300 hover:bg-blue-900 hover:text-blue-200 hover:scale-102' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 hover:scale-102'}`}
+                        >
+                            {language === 'tr' ? '🔧 Jenkins Öğren' : '🔧 Learn Jenkins'}
+                        </button>
+                        <button
+                            onClick={() => navigate('/docker')}
+                            data-testid="nav-docker"
+                            className={`px-6 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-cyan-300 hover:bg-cyan-900 hover:text-cyan-200 hover:scale-102' : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:scale-102'}`}
+                        >
+                            {language === 'tr' ? '🐳 Docker Öğren' : '🐳 Learn Docker'}
+                        </button>
 
                         <div className={`w-px h-8 self-center mx-1 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
 

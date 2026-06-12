@@ -6,6 +6,8 @@ import TypeScriptPage from './components/TypeScriptPage'
 import PythonPage from './components/PythonPage'
 import TestFrameworksPage from './components/TestFrameworksPage'
 import PostmanPage from './components/PostmanPage'
+import JenkinsPage from './components/JenkinsPage'
+import DockerPage from './components/DockerPage'
 
 function App() {
     return (
@@ -17,6 +19,8 @@ function App() {
             <Route path="/python" element={<PythonPage />} />
             <Route path="/test-frameworks" element={<TestFrameworksPage />} />
             <Route path="/postman" element={<PostmanPage />} />
+            <Route path="/jenkins" element={<JenkinsPage />} />
+            <Route path="/docker" element={<DockerPage />} />
         </Routes>
     )
 }
