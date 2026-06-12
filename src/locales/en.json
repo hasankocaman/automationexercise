@@ -6,7 +6,8 @@
     "buttons": {
         "darkMode": "Dark Mode",
         "lightMode": "Light Mode",
-        "homeTooltip": "Back to top"
+        "homeTooltip": "Back to top",
+        "preparedBy": "Prepared by:"
     },
     "nav": {
         "basic": "📝 Basic Elements",

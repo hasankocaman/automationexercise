@@ -6,7 +6,8 @@
     "buttons": {
         "darkMode": "Karanlık Mod",
         "lightMode": "Aydınlık Mod",
-        "homeTooltip": "Sayfanın başına dön"
+        "homeTooltip": "Sayfanın başına dön",
+        "preparedBy": "Hazırlayan:"
     },
     "nav": {
         "basic": "📝 Temel Elementler",
