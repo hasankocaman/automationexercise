@@ -12,6 +12,7 @@ import RestAssuredPage from './components/RestAssuredPage'
 import KubernetesPage from './components/KubernetesPage'
 import KafkaPage from './components/KafkaPage'
 import AppiumPage from './components/AppiumPage'
+import PlaywrightPage from './components/PlaywrightPage'
 
 function App() {
     return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/kubernetes" element={<KubernetesPage />} />
             <Route path="/kafka" element={<KafkaPage />} />
             <Route path="/appium" element={<AppiumPage />} />
+            <Route path="/playwright" element={<PlaywrightPage />} />
         </Routes>
     )
 }

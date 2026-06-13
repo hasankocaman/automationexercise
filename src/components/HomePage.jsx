@@ -136,11 +136,11 @@ function HomePage() {
                             <span className="sm:hidden">Cypress</span>
                             <span className="hidden sm:inline">{language === 'tr' ? 'Cypress Öğren' : 'Learn Cypress'}</span>
                         </a>
-                        <a href="https://hasankocaman.github.io/teachPlaywright/"
+                        <button onClick={() => navigate('/playwright')}
                             className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                             <span className="sm:hidden">Playwright</span>
                             <span className="hidden sm:inline">{language === 'tr' ? 'Playwright Öğren' : 'Learn Playwright'}</span>
-                        </a>
+                        </button>
                         <a href="https://hasankocaman.github.io/boltJSTScompare/"
                             className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                             <span className="sm:hidden">JS↔TS</span>
