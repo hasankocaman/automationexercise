@@ -1,4 +1,4 @@
-// playwrightData.js — Playwright tam öğrenme sayfası
+﻿// playwrightData.js — Playwright tam öğrenme sayfası
 // 10 bölüm: Intro, Kurulum, Aksiyonlar, Locator, Wait, iframe/Alert, Dosya/Network, Gerçek Hayat, Hatalar, 50 Mülakat
 
 const s0 = {
@@ -2147,225 +2147,58 @@ const s9 = {
       },
       {
         type: 'interview-questions',
-        levels: [
-          {
-            level: 'Basic',
-            emoji: '🟢',
-            questions: [
-              {
-                q: 'Playwright nedir ve Selenium\'dan farkı nedir?',
-                a: 'Playwright, Microsoft\'un 2020\'de geliştirdiği modern tarayıcı otomasyon kütüphanesidir. TypeScript, JavaScript, Python, Java ve C# destekler. Selenium\'dan en önemli farkı: auto-wait mekanizması sayesinde elementlerin yüklenmesini otomatik bekler, explicit wait yazmak gerekmez. Aynı API ile Chromium, Firefox ve WebKit\'i kontrol edebilirsiniz. Selenium 4 ile WebDriver BiDi standardına geçilmiş olsa da Playwright\'ın developer experience\'ı hâlâ daha üstündür.',
-              },
-              {
-                q: 'Playwright kurulumu nasıl yapılır? (TypeScript için)',
-                a: 'npm init playwright@latest komutu çalıştırılır. Bu komut otomatik olarak @playwright/test paketini yükler, playwright.config.ts dosyasını oluşturur, tarayıcıları indirir (npx playwright install) ve örnek test dosyaları oluşturur. Ardından npx playwright test ile testler çalıştırılır.',
-              },
-              {
-                q: 'Playwright\'ta tarayıcı nasıl başlatılır ve kapatılır?',
-                a: 'Test framework kullanıldığında browser yönetimi otomatiktir. Manuel kullanımda: const browser = await playwright.chromium.launch(); const page = await browser.newPage(); ... await browser.close(); şeklinde yapılır. Java\'da: Browser browser = playwright.chromium().launch(); Page page = browser.newPage(); ... browser.close();',
-              },
-              {
-                q: 'page.goto() nedir ve nasıl kullanılır?',
-                a: 'page.goto(url) ile belirtilen URL\'ye gidilir. Varsayılan olarak networkidle veya load event\'ini bekler. Opsiyonel olarak waitUntil parametresi verilebilir: page.goto(url, { waitUntil: "networkidle" }). Java\'da: page.navigate("https://example.com");',
-              },
-              {
-                q: 'Playwright\'ta element nasıl bulunur? (locator stratejileri)',
-                a: 'Playwright önerilen locator stratejileri: 1) getByRole() — aria role ile bul (en iyi pratik), 2) getByText() — görünür metin ile bul, 3) getByLabel() — form label\'ı ile bul, 4) getByTestId() — data-testid attr ile bul, 5) locator(css/xpath) — CSS selector veya XPath ile bul. Selenium\'dan farkı: ID/class/xpath yerine anlam taşıyan locator\'lar tercih edilir.',
-              },
-              {
-                q: 'click(), fill(), type() metodları arasındaki fark nedir?',
-                a: 'fill() bir input\'u önce temizler, sonra değeri tek seferde yazar — hızlıdır ve production\'da tercih edilir. type() klavye tuşlarını birer birer simüle eder — key event\'leri dinleyen input\'lar için gereklidir. click() elementin tıklanabilir olmasını bekler, hover + focus + click yapar. Selenium\'da sendKeys() ile type() karşılaştırılabilir; fill() ise Playwright\'a özgü daha verimli bir metoddur.',
-              },
-              {
-                q: 'Playwright\'ta bekleme (wait) mekanizması nasıl çalışır?',
-                a: 'Playwright auto-wait özelliğine sahiptir: her aksiyon (click, fill, etc.) öncesinde element\'in visible, stable, enabled ve editable durumunu otomatik bekler. Bu nedenle Selenium\'daki gibi Thread.sleep() veya explicit WebDriverWait yazmak gerekmez. Ek bekleme gerekirse: await page.waitForURL(pattern), await locator.waitFor({ state: "visible" }), await page.waitForResponse(url) kullanılır.',
-              },
-              {
-                q: 'expect() ile assertion nasıl yapılır?',
-                a: 'Playwright\'ın built-in assertion kütüphanesi kullanılır: await expect(locator).toBeVisible() — element görünür mü?, await expect(locator).toHaveText("text") — içerik doğru mu?, await expect(page).toHaveURL(/pattern/) — URL doğru mu?, await expect(locator).toHaveCount(3) — element sayısı. Java\'da: assertThat(page.locator("#id")).isVisible(); Java\'daki JUnit assertEquals yerine bu assertion\'lar kullanılır.',
-              },
-              {
-                q: 'Playwright config dosyası (playwright.config.ts) nedir, ne içerir?',
-                a: 'Playwright\'ın merkezi konfigürasyon dosyasıdır. İçerebilecekleri: baseURL (tüm testlerde kullanılacak kök URL), timeout (global test timeout), retries (başarısız test yeniden deneme sayısı), workers (paralel test sayısı), projects (farklı tarayıcı/viewport kombinasyonları), reporter (console, html, junit), use (headless mode, screenshot, video kayıt ayarları). Maven\'daki pom.xml konfigürasyonuna benzer.',
-              },
-              {
-                q: 'Headless ve headed mod arasındaki fark nedir?',
-                a: 'Headless modda tarayıcı arayüzü olmadan çalışır — CI/CD ortamlarında tercih edilir, daha hızlıdır. Headed modda gerçek tarayıcı penceresi açılır — debug yaparken tercih edilir. Playwright\'ta: chromium.launch({ headless: false }) ile headed mod, headless: true (default) ile headless. Config\'de: use: { headless: false }.',
-              },
-              {
-                q: 'Screenshot nasıl alınır?',
-                a: 'page.screenshot({ path: "screenshot.png" }) ile tam sayfa dışı, page.screenshot({ path: "screenshot.png", fullPage: true }) ile tam sayfa screenshot alınır. Belirli bir element için: locator.screenshot({ path: "element.png" }). Config\'de: use: { screenshot: "on" } ile her test sonrası otomatik, "only-on-failure" ile sadece hata olduğunda alınabilir.',
-              },
-              {
-                q: 'Video kayıt nasıl yapılır?',
-                a: 'playwright.config.ts\'de use: { video: "on" } veya "retain-on-failure" ayarlanır. Testler çalıştıktan sonra test-results/ klasöründe video dosyaları oluşur. Manuel: const context = await browser.newContext({ recordVideo: { dir: "videos/" } }); ve context.close() çağrısında video kaydedilir.',
-              },
-              {
-                q: 'Playwright\'ta test nasıl çalıştırılır?',
-                a: 'npx playwright test — tüm testler, npx playwright test example.spec.ts — belirli dosya, npx playwright test --grep "login" — regex ile filtreleme, npx playwright test --headed — tarayıcıyla, npx playwright test --ui — Playwright UI mode (interaktif), npx playwright test --debug — Playwright Inspector ile adım adım. Java\'da: mvn test -Dtest=LoginTest.',
-              },
-              {
-                q: 'getByRole() neden en çok tercih edilen locator\'dır?',
-                a: 'getByRole() ARIA (Accessible Rich Internet Applications) standartlarına göre element arar. Bu sayede: 1) CSS class\'ı değişse bile test kırılmaz, 2) Accessibility ile uyumludur, 3) Kullanıcının gördüğü şeyi hedef alır. Örnek: page.getByRole("button", { name: "Submit" }) — "Submit" yazılı button\'u bulur. Selenium\'da By.cssSelector(".submit-btn") gibi CSS-bağımlı locator\'lar refactor\'a karşı kırılgandır.',
-              },
-              {
-                q: 'Playwright\'ta test raporu nasıl üretilir?',
-                a: 'npx playwright test --reporter=html komutu ile HTML rapor üretilir. npx playwright show-report ile tarayıcıda açılır. Config\'de: reporter: [["html", { open: "never" }], ["junit", { outputFile: "results.xml" }]] şeklinde birden fazla reporter aynı anda kullanılabilir. CI/CD\'de junit reporter ile Jenkins/GitLab entegrasyonu yapılır.',
-              },
-            ],
-          },
-          {
-            level: 'Intermediate',
-            emoji: '🟡',
-            questions: [
-              {
-                q: 'Page Object Model (POM) Playwright\'ta nasıl uygulanır?',
-                a: 'Her sayfa için bir class oluşturulur ve constructor\'a Page nesnesi alınır. Örnek: class LoginPage { constructor(page) { this.page = page; this.emailInput = page.locator("[data-qa=\'login-email\']"); } async login(email, pass) { await this.emailInput.fill(email); } }. Test dosyasında: const loginPage = new LoginPage(page); await loginPage.login(). Java\'daki POM pattern ile birebir aynıdır, sadece sözdizimi farklıdır.',
-              },
-              {
-                q: 'fixtures nedir ve nasıl kullanılır?',
-                a: 'Playwright\'ın test.extend() mekanizması ile özel fixture\'lar oluşturulur. Örnek: const test = base.extend({ loggedInPage: async ({ page }, use) => { await login(page); await use(page); } }); Bu sayede her testte tekrar tekrar login kodu yazmak yerine fixture inject edilir. Java\'daki @BeforeEach + @AfterEach döngüsüne benzer ama daha modüler ve composable\'dır.',
-              },
-              {
-                q: 'test.beforeEach, test.afterEach, test.beforeAll, test.afterAll ne zaman kullanılır?',
-                a: 'beforeEach: her test öncesinde çalışır (login, sayfa açma). afterEach: her test sonrasında (cleanup, screenshot). beforeAll: test suite başlamadan bir kez (DB seed, browser başlatma). afterAll: tüm testler bittikten sonra bir kez (browser kapatma, DB temizleme). Java\'daki @BeforeEach, @AfterEach, @BeforeAll, @AfterAll annotation\'larıyla birebir aynı amaçtadır.',
-              },
-              {
-                q: 'iframe içindeki elementlere nasıl erişilir?',
-                a: 'Selenium\'da driver.switchTo().frame() ile iframe\'e geçilir ve ardından normal element bulunurdu. Playwright\'ta frameLocator() kullanılır ve iframe\'e geçiş gerekmez: const frame = page.frameLocator(\'iframe[src*="payment"]\'); await frame.locator(\'#card-number\').fill(\'4111\'); Frame içindeki işlem bitince otomatik ana frame\'e dönülür — switchTo().defaultContent() yazmak gerekmez.',
-              },
-              {
-                q: 'Alert, Confirm ve Prompt dialoglarını nasıl handle edersiniz?',
-                a: 'Playwright\'ta dialog event\'i dinlenir: page.on("dialog", dialog => dialog.accept()); veya dialog.dismiss() reddeder, dialog.fill("text") prompt için değer girer. Önemli: event listener ÖNCE tanımlanmalı, tetikleyen aksiyon sonra yapılmalıdır. Selenium\'da driver.switchTo().alert().accept() kullanılırdı. Playwright\'ta switchTo() kavramı yoktur.',
-              },
-              {
-                q: 'Çoklu sayfa (multi-tab) ve yeni pencere nasıl yönetilir?',
-                a: 'context.waitForEvent("page") ile yeni açılan sayfayı yakalanır: const [newPage] = await Promise.all([context.waitForEvent("page"), page.getByText("Open Tab").click()]); await newPage.waitForLoadState(); await newPage.getByRole("button", { name: "Confirm" }).click(); Java\'da: Page newPage = context.waitForPage(() -> page.getByText("Open Tab").click()); Selenium\'daki driver.getWindowHandles() + driver.switchTo().window() yerine bu kullanılır.',
-              },
-              {
-                q: 'page.route() ile API interception nasıl yapılır?',
-                a: 'await page.route("**/api/products", route => route.fulfill({ status: 200, body: JSON.stringify([{id: 1, name: "Mock"}]) })); Bu kod /api/products URL\'sine gelen tüm istekleri yakalar ve sahte yanıt döndürür. route.continue() ile isteği değiştirerek gerçek sunucuya iletebilir, route.abort() ile tamamen engelleyebilirsiniz. Selenium\'da bu için BrowserMob Proxy gibi harici araç gerekiyordu.',
-              },
-              {
-                q: 'Playwright\'ta paralel test çalıştırma nasıl yapılır?',
-                a: 'playwright.config.ts\'de workers: 4 (ya da process.env.CI ? 2 : 4 gibi dinamik) ayarlanır. Aynı dosyadaki testler sıralı, farklı dosyalardakiler varsayılan olarak paralel çalışır. test.describe.parallel() ile aynı dosyadaki testleri paralel yapabilirsiniz. test.describe.serial() ile sıralı çalıştırmak zorunda olan testleri gruplayabilirsiniz. Java\'da JUnit 5\'in @Execution(ExecutionMode.CONCURRENT) annotation\'ına benzer.',
-              },
-              {
-                q: 'Playwright Trace Viewer nedir ve nasıl kullanılır?',
-                a: 'Trace Viewer, test sırasında yapılan her aksiyonu, network isteğini, screenshot\'ı ve console log\'unu kaydeder. Config\'de: use: { trace: "on-first-retry" } ile başarısız testlerde otomatik kayıt. npx playwright show-trace trace.zip ile görüntülenir. Her adımda ne olduğunu görmek için ideal — CI\'da hata ayıklarken çok değerlidir.',
-              },
-              {
-                q: 'locator.filter() nasıl kullanılır, ne işe yarar?',
-                a: 'Birden fazla elementi eşleştiren bir locator\'dan belirli koşulu sağlayanları filtreler. Örnek: page.locator(".product").filter({ hasText: "Nike" }) — sadece "Nike" içeren ürünleri bulur. .filter({ has: page.locator(".in-stock") }) — içinde belirli bir element olan elementleri bulur. Bu, Selenium\'da Java 8 stream filtresiyle WebElement listesi filtrelemeye benzer ama çok daha okunabilirdir.',
-              },
-              {
-                q: 'Playwright\'ta test data nasıl yönetilir?',
-                a: 'Birkaç yaklaşım: 1) fixtures klasöründe JSON/CSV test data, 2) faker veya @faker-js/faker ile random data üretimi, 3) API ile test data oluşturma (request fixture ile), 4) Database seed (beforeAll\'da). En iyi pratik: test\'ler birbirinden bağımsız, kendi data\'sını oluşturup sona temizler. Shared mutable data kullanan testler paralelde çakışır.',
-              },
-              {
-                q: 'Playwright\'ta authentication nasıl hızlandırılır?',
-                a: 'Her testte login yapmak yavaşlatır. Playwright\'ın önerisi: storageState. 1) setup projesi oluşturulur, burada login yapılıp storage state kaydedilir: await page.context().storageState({ path: "auth.json" }); 2) Diğer testler bu state\'i yükler: use: { storageState: "auth.json" }. Bu sayede login bir kez yapılır, cookie/localStorage tüm testlere aktarılır. Java\'da context.newContext(new Browser.NewContextOptions().setStorageStatePath(Paths.get("auth.json")));',
-              },
-              {
-                q: 'Screenshot ve visual regression testing nedir?',
-                a: 'expect(page).toHaveScreenshot("home.png") komutu ile referans screenshot alınır. Sonraki çalıştırmalarda pixel karşılaştırması yapılır. İlk çalıştırmada referans oluşturmak için: npx playwright test --update-snapshots. Uyumsuzluk threshold\'u: toHaveScreenshot({ maxDiffPixelRatio: 0.1 }). Playwright built-in visual testing için @playwright/test yeterli; Applitools gibi araç gerekmez.',
-              },
-              {
-                q: 'Soft assertions nedir, ne zaman kullanılır?',
-                a: 'Normal assertion başarısız olduğunda test durur. Soft assertion ile tüm kontroller yapılır, en sonda başarısız olanlar raporlanır. expect.soft(locator).toBeVisible() kullanımı: const softExpect = expect.configure({ soft: true }); ile de yapılabilir. Kullanım alanı: form validasyon testlerinde tüm hata mesajlarını tek geçişte kontrol etmek. Java\'daki SoftAssertions (AssertJ) ile aynı konsept.',
-              },
-              {
-                q: 'Playwright\'ta network request spy nasıl yapılır?',
-                a: 'page.on("request", callback) ve page.on("response", callback) event listener\'larıyla tüm network aktivitesi izlenir. Belirli bir isteği beklemek için: const [response] = await Promise.all([page.waitForResponse(r => r.url().includes("/api/data")), page.click("#load")]); const data = await response.json(); Bu sayede UI aksiyonu sonrası API\'den ne döndüğünü doğrulayabilirsiniz — backend entegrasyon testleri için çok değerlidir.',
-              },
-            ],
-          },
-          {
-            level: 'Advanced',
-            emoji: '🔴',
-            questions: [
-              {
-                q: 'BrowserContext nedir, Page\'den farkı nedir?',
-                a: 'BrowserContext, tarayıcı içinde izole bir oturum ortamıdır — farklı cookie, localStorage, session\'ları olan ayrı bir "profil" gibi düşünebilirsiniz. Bir Context içinde birden fazla Page (sekme) açılabilir. Kullanım örneği: iki farklı kullanıcıyı aynı anda test etmek için iki context açılır. browser.newContext() ile yeni context, context.newPage() ile sekme açılır. Java\'da Browser.NewContextOptions ile detaylı ayar yapılabilir (viewport, userAgent, geolocation, permissions vs.).',
-              },
-              {
-                q: 'Playwright\'ı CI/CD pipeline\'ına nasıl entegre edersiniz?',
-                a: 'GitHub Actions: npx playwright install --with-deps komutu önce tarayıcıları kurar, npx playwright test komutu testleri çalıştırır. workers: process.env.CI ? 2 : 4 ile CI\'da worker sayısı azaltılır. Artifacts için: upload-artifact ile test-results/ ve playwright-report/ klasörleri saklanır. Jenkins\'de: withCredentials + sh("npx playwright test --reporter=junit") ve JUnit report publish. Paralel çalıştırma için shardTotal ve shardIndex parametreleri kullanılır.',
-              },
-              {
-                q: 'Test sharding nedir, nasıl kullanılır?',
-                a: 'Büyük test suite\'lerini CI\'da paralel runner\'lara böler. Örnek: 100 test, 4 runner: Runner 1: npx playwright test --shard=1/4 (1-25), Runner 2: --shard=2/4 (26-50) vb. Sonra: npx playwright merge-reports blob-reports/ ile tek rapor birleştirilir. GitHub Actions matrix strategy ile kolayca kurulabilir. Java Maven\'da failsafe plugin ve fork count ile benzer parallelization yapılır.',
-              },
-              {
-                q: 'Component testing vs E2E testing — Playwright\'ta fark nedir?',
-                a: '@playwright/experimental-ct-react paketi ile React/Vue/Svelte komponentleri izole test edilir. E2E testler tüm uygulamayı gerçek tarayıcıda çalıştırırken, component testler sadece bir component\'i mount eder — çok daha hızlıdır. test.use({ component: ... }) ile mount yapılır: const component = await mount(<Button label="Click me" />); await expect(component).toContainText("Click me");',
-              },
-              {
-                q: 'Playwright\'ta request fixture (API testing) nasıl yapılır?',
-                a: 'Playwright built-in API testing desteğine sahiptir — Postman\'a gerek kalmaz. test içinde: const response = await request.post("/api/login", { data: { email, password } }); expect(response.status()).toBe(200); const body = await response.json(); Ayrıca APIRequestContext ile cookie\'leri taşıyarak authenticated API çağrıları yapabilirsiniz. baseURL: config\'den alınır. Java\'da: APIRequestContext request = playwright.request().newContext();',
-              },
-              {
-                q: 'Shadow DOM elementi nasıl handle edilir?',
-                a: 'Playwright locator\'ları otomatik olarak Shadow DOM\'u pierce (içine girer) eder — Selenium\'daki ((JavascriptExecutor)driver).executeScript("return arguments[0].shadowRoot", element) hack\'ine gerek yoktur. page.locator("custom-element >>> .inner-button").click() sözdizimi veya basitçe page.locator(".inner-button") ile Shadow DOM içindeki elementlere erişilebilir. Bu Playwright\'ın en büyük üstünlüklerinden biridir.',
-              },
-              {
-                q: 'Electron, mobile ve desktop uygulama testleri Playwright\'ta nasıl yapılır?',
-                a: 'Electron: electron: playwright.electron.launch({ executablePath: ... }) ile. Mobile emulation: use: { ...devices["iPhone 13"] } ile cihaz emülasyonu. Real device: Appium\'a bridge veya Mobile Playwright (beta). Desktop viewport: use: { viewport: { width: 1920, height: 1080 } }. devices listesi tüm popüler mobil cihazları içerir ve UserAgent + viewport otomatik ayarlanır.',
-              },
-              {
-                q: 'Playwright\'ta custom reporter nasıl yazılır?',
-                a: 'Reporter interface implement edilir: class MyReporter { onBegin(config, suite) {} onTestEnd(test, result) {} onEnd(result) {} }. module.exports = MyReporter ile export edilir. Config\'de: reporter: [["./my-reporter.js"]]. Kullanım alanı: Slack\'e bildirim göndermek, özel dashboard güncellemek, test sonuçlarını database\'e yazmak. Java\'da ITestListener (TestNG) veya JUnit Extension interface\'i ile yapılan şeyin Playwright karşılığıdır.',
-              },
-              {
-                q: 'Playwright\'ta performans metrikleri nasıl ölçülür?',
-                a: 'Web Vitals: const metrics = await page.evaluate(() => JSON.stringify(window.performance.timing)); veya PerformanceObserver ile LCP, FID, CLS ölçülebilir. cdpSession ile Chrome DevTools Protocol\'e erişim: const client = await page.context().newCDPSession(page); await client.send("Performance.enable"); const perf = await client.send("Performance.getMetrics"); Ayrıca request/response eventlerinden network timing bilgisi alınabilir.',
-              },
-              {
-                q: 'Playwright Test vs Playwright Core arasındaki fark nedir?',
-                a: '@playwright/test: test runner + assertion + fixture + reporter + parallelism ile tam framework\'tür. playwright: sadece core browser automation kütüphanesidir, test runner yoktur. @playwright/test her zaman tercih edilir çünkü fixtures (browser, page, context, request) otomatik yönetilir ve parallel/retry/reporting built-in olarak gelir. Core playwright mocha/jest gibi harici runner ile kullanılabilir ama @playwright/test daha ergonomiktir.',
-              },
-              {
-                q: 'Playwright\'ta geolocation, permissions ve clipboard nasıl test edilir?',
-                a: 'Geolocation: const context = await browser.newContext({ geolocation: { lat: 41.0082, lon: 28.9784 }, permissions: ["geolocation"] }); Kamera/mikrofon: permissions: ["camera", "microphone"]. Notification: permissions: ["notifications"]. Clipboard: await page.evaluate(() => navigator.clipboard.writeText("test")); Bu testler headless modda da çalışır çünkü Playwright tarayıcıya bu izinleri doğrudan verir — gerçek kullanıcı onayı gerekmez.',
-              },
-              {
-                q: 'Playwright kodunu debugging için en iyi araçlar nelerdir?',
-                a: '1) PWDEBUG=1 npx playwright test ile Playwright Inspector açılır — her adımda dur, locator öneri al. 2) await page.pause() ile test o noktada durur, manual devam edilir. 3) npx playwright test --ui ile görsel UI mode — tüm testleri, timeline\'ı, screenshot\'ları görür. 4) Trace Viewer: config\'de trace: "on" ile her aksiyonun kaydı. 5) page.on("console", msg => console.log(msg)) ile tarayıcı console\'u yakala. Java\'da aynı PWDEBUG env variable çalışır.',
-              },
-              {
-                q: 'Retry mekanizması nasıl çalışır? Flaky test nasıl azaltılır?',
-                a: 'Config\'de retries: 2 ile başarısız test 2 kez daha denenir. test.describe.configure({ retries: 3 }) ile sadece bir suite için. Flaky test nedenleri: 1) timing issues — auto-wait yerine explicit sleep kullanılmış, 2) test order dependency — testler birbirini etkiliyor, 3) shared state — paralel testler aynı data\'ya yazıyor, 4) environment issues — CI\'da kaynak yetersizliği. Çözüm: her test kendi data\'sını oluşturmalı, locator stability artırılmalı, workers sayısı azaltılmalı.',
-              },
-              {
-                q: 'Accessibility (a11y) testi Playwright ile nasıl yapılır?',
-                a: '@axe-core/playwright paketi ile: const accessibilityScanResults = await new AxeBuilder({ page }).analyze(); expect(accessibilityScanResults.violations).toEqual([]); Belirli kural setleri: .withRules(["color-contrast", "label"]). Belirli element: .include("#main-content"). Playwright built-in olarak da getByRole, getByLabel gibi accessibility-first locator\'lar kullanımını teşvik eder — bu hem testi hem ürünü daha erişilebilir yapar.',
-              },
-              {
-                q: 'Playwright\'ta web scraping ve data extraction nasıl yapılır? Test ile farkı nedir?',
-                a: 'Playwright test aracı olarak tasarlanmış olsa da web scraping için de kullanılabilir: const products = await page.locator(".product-name").allTextContents(); bir sayfadaki tüm ürün isimlerini array olarak döndürür. page.$$eval(".price", els => els.map(el => el.textContent)) alternatif. Scraping vs Test farkı: testler assertion yapar ve başarı/başarısızlık raporlar; scraping sadece veri çeker. Üretim scraping için playwright-extra + stealth plugin bot tespitini önler.',
-              },
-              {
-                q: 'Playwright ile TypeScript\'te generic type-safe Page Object nasıl yazılır?',
-                a: 'interface PageLocators { email: Locator; password: Locator; } class LoginPage { readonly locators: PageLocators; constructor(private page: Page) { this.locators = { email: page.locator("[data-qa=\'login-email\']"), password: page.locator("[data-qa=\'login-password\']") }; } async login(email: string, password: string): Promise<void> { await this.locators.email.fill(email); await this.locators.password.fill(password); } }. TypeScript tip güvenliği sayesinde IDE\'de autocomplete ve hata tespiti gelir — Java\'daki strongly-typed POM pattern\'ın TypeScript versiyonudur.',
-              },
-              {
-                q: 'Playwright Codegen nedir, production\'da kullanılır mı?',
-                a: 'npx playwright codegen https://example.com komutu ile tarayıcı açılır, kullanıcı aksiyonları otomatik olarak TypeScript/Python/Java/C# koduna dönüştürülür. Production kullanımı için önerilmez çünkü: 1) Genellikle CSS class\'ı veya kırılgan locator üretir, 2) POM pattern uygulamaz, 3) Assertion eklemez. Ancak locator keşfetmek ve prototip oluşturmak için çok hızlıdır — başlangıç noktası olarak kullanılıp manuel refine edilmelidir.',
-              },
-              {
-                q: 'Playwright ile Docker\'da test nasıl çalıştırılır?',
-                a: 'Microsoft\'un resmi Playwright Docker image\'ı: mcr.microsoft.com/playwright:v1.XX.X-focal. FROM mcr.microsoft.com/playwright:v1.44.0-focal; WORKDIR /app; COPY . .; RUN npm ci; CMD ["npx", "playwright", "test"]. Bu image tüm tarayıcı bağımlılıklarını içerir, ayrıca playwright install --with-deps yapmak gerekmez. Docker içinde headless:true (default) olmalıdır. Java için mcr.microsoft.com/playwright/java:v1.XX.X-focal image kullanılır.',
-              },
-              {
-                q: 'Playwright\'ta custom wait stratejisi nasıl yazılır?',
-                a: 'page.waitForFunction() ile JavaScript expression true olana kadar beklenebilir: await page.waitForFunction(() => window.dataLoaded === true, { timeout: 10000 }); Locator için: await locator.waitFor({ state: "visible", timeout: 15000 }); Poll + retry pattern: await expect(async () => { const count = await page.locator(".item").count(); expect(count).toBeGreaterThan(5); }).toPass({ timeout: 30000 }); toPass() ile async assertion\'ı polling ile çalıştırabilirsiniz — çok güçlü bir feature.',
-              },
-              {
-                q: '50. Soru: Playwright\'ı Selenium\'a tercih etmeniz veya etmemeniz için gerçek bir senaryoyu açıklayın.',
-                a: 'Tercih ederim: 1) Modern web uygulaması (SPA, React/Angular) — auto-wait ve smart locator\'lar ile çok az flaky test, 2) API mocking gereksinimi — page.route() ile Selenium\'daki harici proxy ihtiyacı yok, 3) Multi-browser — tek API ile Chrome+Firefox+Safari, 4) CI/CD hızı — paralel + sharding built-in. Tercih etmem: 1) Legacy IE/Edge desteği gerekiyorsa — Playwright IE desteklemez, 2) Mevcut büyük Selenium codebase — migration maliyeti, 3) C# ağırlıklı team Selenium ile daha rahatsa — ecosystem alışkanlığı. Gerçek senaryo: Fintech uygulamasında payment iframe testi — Selenium\'da 3 farklı driver.switchTo().frame() ve explicit wait gerekliydi, Playwright\'ta frameLocator() + auto-wait ile 3 satıra indi ve flaky test sıfırlandı.',
-              },
-            ],
-          },
+        topic: 'Playwright',
+        questions: [
+          { level: 'basic', q: 'Playwright nedir ve Selenium\'dan farkı nedir?', a: 'Playwright, Microsoft\'un 2020\'de geliştirdiği modern tarayıcı otomasyon kütüphanesidir. TypeScript, JavaScript, Python, Java ve C# destekler. En önemli farkı: auto-wait sayesinde elementlerin yüklenmesini otomatik bekler, explicit wait yazmak gerekmez. Tek API ile Chromium, Firefox ve WebKit kontrolü sağlar.' },
+          { level: 'basic', q: 'Playwright kurulumu nasıl yapılır? (TypeScript için)', a: 'npm init playwright@latest komutu çalıştırılır. @playwright/test paketi yüklenir, playwright.config.ts oluşturulur, tarayıcılar indirilir (npx playwright install), örnek test dosyaları oluşturulur. Ardından npx playwright test ile testler çalıştırılır.' },
+          { level: 'basic', q: 'Playwright\'ta tarayıcı nasıl başlatılır ve kapatılır?', a: 'Test framework\'te browser yönetimi otomatiktir. Manuel: const browser = await playwright.chromium.launch(); const page = await browser.newPage(); ... await browser.close(). Java\'da: Browser browser = playwright.chromium().launch(); Page page = browser.newPage(); ... browser.close();' },
+          { level: 'basic', q: 'page.goto() nedir ve nasıl kullanılır?', a: 'page.goto(url) ile belirtilen URL\'ye gidilir, varsayılan olarak load event\'ini bekler. Opsiyonel: page.goto(url, { waitUntil: "networkidle" }). Java\'da: page.navigate("https://example.com");' },
+          { level: 'basic', q: 'Playwright\'ta element nasıl bulunur?', a: 'Önerilen sıra: 1) getByRole() — aria role ile (en iyi pratik), 2) getByText() — görünür metin ile, 3) getByLabel() — form label ile, 4) getByTestId() — data-testid ile, 5) locator(css/xpath). Selenium\'dan farkı: ID/class/xpath yerine anlam taşıyan locator\'lar tercih edilir.' },
+          { level: 'basic', q: 'click(), fill(), type() metodları arasındaki fark nedir?', a: 'fill() inputu temizler sonra değeri tek seferde yazar — hızlıdır, production\'da tercih edilir. type() klavye tuşlarını birer birer simüle eder — key event dinleyen inputlar için gereklidir. click() elementin tıklanabilir olmasını bekler, hover+focus+click yapar.' },
+          { level: 'basic', q: 'Playwright\'ta auto-wait mekanizması nasıl çalışır?', a: 'Her aksiyon (click, fill vb.) öncesinde element\'in visible, stable, enabled ve editable durumunu otomatik bekler. Thread.sleep() veya explicit WebDriverWait yazmak gerekmez. Ek bekleme gerekirse: await page.waitForURL(pattern), await locator.waitFor({ state: "visible" }) kullanılır.' },
+          { level: 'basic', q: 'expect() ile assertion nasıl yapılır?', a: 'await expect(locator).toBeVisible() — görünür mü?, await expect(locator).toHaveText("text") — içerik doğru mu?, await expect(page).toHaveURL(/pattern/) — URL doğru mu?, await expect(locator).toHaveCount(3) — sayı. Java: assertThat(page.locator("#id")).isVisible();' },
+          { level: 'basic', q: 'playwright.config.ts nedir, ne içerir?', a: 'Merkezi konfigürasyon: baseURL, timeout, retries, workers, projects (tarayıcı/viewport), reporter (console/html/junit), use (headless, screenshot, video). Maven\'daki pom.xml\'e benzer.' },
+          { level: 'basic', q: 'Headless ve headed mod arasındaki fark nedir?', a: 'Headless: tarayıcı arayüzü yok — CI/CD\'de tercih edilir, hızlıdır. Headed: gerçek tarayıcı penceresi — debug için. chromium.launch({ headless: false }) headed, headless: true (default) headless. Config: use: { headless: false }.' },
+          { level: 'basic', q: 'Screenshot nasıl alınır?', a: 'page.screenshot({ path: "s.png" }) viewport; page.screenshot({ path: "s.png", fullPage: true }) tam sayfa. Element: locator.screenshot({ path: "el.png" }). Config: use: { screenshot: "on" } her test sonrası otomatik, "only-on-failure" sadece hata olunca.' },
+          { level: 'basic', q: 'Video kayıt nasıl yapılır?', a: 'Config\'de use: { video: "on" } veya "retain-on-failure". Testler sonrası test-results/ klasöründe video oluşur. Manuel: browser.newContext({ recordVideo: { dir: "videos/" } }) — context.close() ile kaydedilir.' },
+          { level: 'basic', q: 'Playwright\'ta test nasıl çalıştırılır?', a: 'npx playwright test — tüm testler; npx playwright test login.spec.ts — belirli dosya; --grep "login" — regex filtre; --headed — tarayıcıyla; --ui — interaktif UI mode; --debug — Playwright Inspector adım adım. Java: mvn test -Dtest=LoginTest.' },
+          { level: 'basic', q: 'getByRole() neden en çok tercih edilir?', a: 'ARIA standartlarına göre arar: 1) CSS class değişse test kırılmaz, 2) Accessibility uyumludur, 3) Kullanıcının gördüğünü hedefler. page.getByRole("button", { name: "Submit" }) butonu bulur. Selenium\'da By.cssSelector(".btn") kırılgandır.' },
+          { level: 'basic', q: 'Playwright\'ta test raporu nasıl üretilir?', a: 'npx playwright test --reporter=html ile HTML rapor üretilir. npx playwright show-report tarayıcıda açar. Config: reporter: [["html", { open: "never" }], ["junit", { outputFile: "results.xml" }]]. junit reporter Jenkins/GitLab entegrasyonu için kullanılır.' },
+          { level: 'intermediate', q: 'Page Object Model (POM) Playwright\'ta nasıl uygulanır?', a: 'Her sayfa için class, constructor\'a Page: class LoginPage { constructor(page) { this.emailInput = page.locator("[data-qa=\'login-email\']"); } async login(e, p) { await this.emailInput.fill(e); } }. Test\'te: const lp = new LoginPage(page); await lp.login(). Java POM ile birebir aynıdır.' },
+          { level: 'intermediate', q: 'fixtures nedir ve nasıl kullanılır?', a: 'test.extend() ile özel fixture: const test = base.extend({ loggedInPage: async ({ page }, use) => { await login(page); await use(page); } }); Her testte tekrar login yazmak yerine inject edilir. Java @BeforeEach+@AfterEach gibi ama daha modüler.' },
+          { level: 'intermediate', q: 'beforeEach, afterEach, beforeAll, afterAll ne zaman kullanılır?', a: 'beforeEach: her test öncesi (login, sayfa). afterEach: her test sonrası (cleanup). beforeAll: suite başında bir kez (DB seed). afterAll: tüm testler bitince (browser kapat). Java @BeforeEach, @AfterEach, @BeforeAll, @AfterAll annotation\'ları ile aynıdır.' },
+          { level: 'intermediate', q: 'iframe içindeki elementlere nasıl erişilir?', a: 'Selenium\'da driver.switchTo().frame(). Playwright\'ta frameLocator() — geçiş gerekmez: const frame = page.frameLocator(\'iframe[src*="payment"]\'); await frame.locator(\'#card-number\').fill(\'4111\'); İşlem sonrası otomatik ana frame\'e dönülür — switchTo().defaultContent() yazmak gerekmez.' },
+          { level: 'intermediate', q: 'Alert, Confirm ve Prompt dialoglarını nasıl handle edersiniz?', a: 'page.on("dialog", dialog => dialog.accept()) ile accept, dialog.dismiss() ile red, dialog.fill("text") ile prompt değeri. Listener ÖNCE tanımlanmalı, tetikleyici aksiyon sonra. Selenium: driver.switchTo().alert().accept(). Playwright\'ta switchTo() yoktur.' },
+          { level: 'intermediate', q: 'Çoklu sayfa (multi-tab) ve yeni pencere nasıl yönetilir?', a: 'const [newPage] = await Promise.all([context.waitForEvent("page"), page.getByText("Open Tab").click()]); await newPage.waitForLoadState(); Java: Page newPage = context.waitForPage(() -> page.click(loc)). Selenium driver.getWindowHandles() + switchTo().window() yerine.' },
+          { level: 'intermediate', q: 'page.route() ile API interception nasıl yapılır?', a: 'await page.route("**/api/products", route => route.fulfill({ status: 200, body: JSON.stringify([{id:1}]) })); İstekleri yakalar, sahte yanıt döndürür. route.continue() gerçek sunucuya iletir, route.abort() engeller. Selenium\'da BrowserMob Proxy gibi harici araç gerekirdi.' },
+          { level: 'intermediate', q: 'Playwright\'ta paralel test çalıştırma nasıl yapılır?', a: 'Config: workers: 4 (veya process.env.CI ? 2 : 4). Farklı dosyalar varsayılan paralel, aynı dosya sıralı. test.describe.parallel() aynı dosyada paralel, test.describe.serial() zorunda sıralı. Java JUnit 5 @Execution(ExecutionMode.CONCURRENT) gibi.' },
+          { level: 'intermediate', q: 'Playwright Trace Viewer nedir?', a: 'Her aksiyonu, network isteğini, screenshot ve console log\'u kaydeder. Config: use: { trace: "on-first-retry" }. npx playwright show-trace trace.zip ile görüntülenir. CI\'da hata ayıklamak için idealdir.' },
+          { level: 'intermediate', q: 'locator.filter() nasıl kullanılır?', a: 'page.locator(".product").filter({ hasText: "Nike" }) — sadece "Nike" içerenleri bulur. .filter({ has: page.locator(".in-stock") }) — içinde belirli element olanları. Java stream().filter() ile WebElement listesi filtrelemeye benzer ama okunabilirdir.' },
+          { level: 'intermediate', q: 'Playwright\'ta test data nasıl yönetilir?', a: '1) fixtures/ klasöründe JSON/CSV, 2) @faker-js/faker ile random data, 3) request fixture ile API\'den data, 4) beforeAll\'da DB seed. En iyi pratik: her test kendi datasını oluşturur ve temizler. Shared mutable data paralelde çakışır.' },
+          { level: 'intermediate', q: 'Authentication nasıl hızlandırılır?', a: 'storageState ile: 1) Login yapıp kaydet: await page.context().storageState({ path: "auth.json" }), 2) Testlerde yükle: use: { storageState: "auth.json" }. Login bir kez, cookie/localStorage tüm testlere. Java: Browser.NewContextOptions().setStorageStatePath(...).' },
+          { level: 'intermediate', q: 'Visual regression testing nedir?', a: 'expect(page).toHaveScreenshot("home.png") referans alır, sonraki çalıştırmalarda pixel karşılaştırır. Güncelleme: --update-snapshots. Threshold: toHaveScreenshot({ maxDiffPixelRatio: 0.1 }). Built-in — Applitools gerekmez.' },
+          { level: 'intermediate', q: 'Soft assertions nedir, ne zaman kullanılır?', a: 'Normal assertion başarısızlıkta testi durdurur. Soft: expect.soft(locator).toBeVisible() — tüm kontroller yapılır, sonda raporlanır. Form validasyonunda tüm hata mesajlarını tek geçişte kontrol etmek için idealdir. Java AssertJ SoftAssertions ile aynı konsept.' },
+          { level: 'intermediate', q: 'Network request spy nasıl yapılır?', a: 'page.on("request", cb) ve page.on("response", cb). Belirli istek beklemek: const [resp] = await Promise.all([page.waitForResponse(r => r.url().includes("/api/data")), page.click("#load")]); const data = await resp.json(); Backend entegrasyon testleri için çok değerlidir.' },
+          { level: 'advanced', q: 'BrowserContext nedir, Page\'den farkı nedir?', a: 'BrowserContext tarayıcı içinde izole oturum — kendi cookie, localStorage, session\'ına sahip ayrı "profil". Bir Context içinde birden fazla Page (sekme). Örnek: iki kullanıcıyı simüle için iki context. browser.newContext() ile context, context.newPage() ile sekme.' },
+          { level: 'advanced', q: 'Playwright\'ı CI/CD pipeline\'ına nasıl entegre edersiniz?', a: 'GitHub Actions: npx playwright install --with-deps, npx playwright test. workers: process.env.CI ? 2 : 4. Artifacts: upload-artifact ile test-results/ ve playwright-report/. Jenkins: sh("npx playwright test --reporter=junit") + JUnit publish. Paralel: --shard=N/M + matrix strategy.' },
+          { level: 'advanced', q: 'Test sharding nedir, nasıl kullanılır?', a: 'Büyük suite\'leri CI runner\'lara böler. 100 test, 4 runner: --shard=1/4, --shard=2/4 vb. Sonra: npx playwright merge-reports blob-reports/ tek rapor. GitHub Actions matrix strategy ile kurulur. Java Maven failsafe plugin fork count\'a benzer.' },
+          { level: 'advanced', q: 'Component testing vs E2E testing farkı nedir?', a: '@playwright/experimental-ct-react ile React/Vue komponentleri izole test edilir. E2E: tüm uygulama gerçek tarayıcıda. Component: sadece komponent mount edilir — çok daha hızlı. const comp = await mount(<Button label="OK" />); await expect(comp).toContainText("OK");' },
+          { level: 'advanced', q: 'request fixture ile API testing nasıl yapılır?', a: 'Built-in: const response = await request.post("/api/login", { data: { email, password } }); expect(response.status()).toBe(200); const body = await response.json(); APIRequestContext ile cookie taşıyarak authenticated çağrı. Java: playwright.request().newContext();' },
+          { level: 'advanced', q: 'Shadow DOM elementi nasıl handle edilir?', a: 'Playwright locator\'ları Shadow DOM\'u otomatik pierce eder — Selenium\'daki JavascriptExecutor hack\'ine gerek yoktur. page.locator(".inner-button") ile Shadow DOM içindeki elemente direkt erişilir. Playwright\'ın en büyük üstünlüklerinden biridir.' },
+          { level: 'advanced', q: 'Electron, mobile ve desktop uygulama testleri nasıl yapılır?', a: 'Electron: playwright.electron.launch({ executablePath }). Mobile emulation: use: { ...devices["iPhone 13"] } — UserAgent+viewport otomatik. Desktop: use: { viewport: { width: 1920, height: 1080 } }. Real device: Appium bridge veya Mobile Playwright (beta).' },
+          { level: 'advanced', q: 'Custom reporter nasıl yazılır?', a: 'class MyReporter { onBegin(c,s){} onTestEnd(t,r){} onEnd(r){} }. module.exports = MyReporter. Config: reporter: [["./my-reporter.js"]]. Kullanım: Slack bildirim, dashboard güncelleme, DB\'ye yazma. Java TestNG ITestListener veya JUnit Extension\'ın karşılığı.' },
+          { level: 'advanced', q: 'Performans metrikleri nasıl ölçülür?', a: 'Web Vitals: page.evaluate(() => JSON.stringify(window.performance.timing)). CDP Session: const client = await page.context().newCDPSession(page); await client.send("Performance.enable"); const perf = await client.send("Performance.getMetrics"). Network event\'lerinden timing bilgisi alınabilir.' },
+          { level: 'advanced', q: '@playwright/test vs playwright core farkı nedir?', a: '@playwright/test: test runner + assertion + fixture + reporter + parallelism — tam framework. playwright: sadece browser automation, test runner yok. @playwright/test daima tercih edilir: browser/page/context/request fixture\'ları otomatik yönetilir, parallel/retry/reporting built-in.' },
+          { level: 'advanced', q: 'Geolocation, permissions ve clipboard nasıl test edilir?', a: 'browser.newContext({ geolocation: { latitude: 41.0082, longitude: 28.9784 }, permissions: ["geolocation"] }). Kamera/mikrofon: ["camera","microphone"]. Bildirim: ["notifications"]. Headless modda da çalışır — Playwright izinleri doğrudan tarayıcıya verir.' },
+          { level: 'advanced', q: 'Debugging için en iyi araçlar nelerdir?', a: 'PWDEBUG=1 npx playwright test ile Inspector. await page.pause() ile test durur, manuel devam. npx playwright test --ui görsel mode. Trace Viewer: trace:"on". page.on("console", msg => console.log(msg)) tarayıcı console. Java\'da da PWDEBUG çalışır.' },
+          { level: 'advanced', q: 'Retry mekanizması ve flaky test azaltma?', a: 'Config: retries: 2. test.describe.configure({ retries: 3 }) suite için. Flaky nedenler: 1) sleep yerine auto-wait, 2) test order bağımlılığı, 3) shared state paralelde çakışma, 4) CI kaynak yetersizliği. Çözüm: her test kendi datasını oluşturur ve temizler.' },
+          { level: 'advanced', q: 'Accessibility (a11y) testi nasıl yapılır?', a: '@axe-core/playwright: const results = await new AxeBuilder({ page }).analyze(); expect(results.violations).toEqual([]). Kurallar: .withRules(["color-contrast"]). Element: .include("#main"). getByRole, getByLabel locator\'ları accessibility\'i de artırır.' },
+          { level: 'advanced', q: 'Web scraping Playwright ile nasıl yapılır?', a: 'const names = await page.locator(".product-name").allTextContents(); tüm isimleri array döndürür. page.$$eval(".price", els => els.map(el => el.textContent)) alternatif. Test vs Scraping: testler assertion yapar; scraping veri çeker. Üretimde playwright-extra + stealth bot tespitini önler.' },
+          { level: 'advanced', q: 'Type-safe Page Object TypeScript\'te nasıl yazılır?', a: 'interface PageLocators { email: Locator; password: Locator; } class LoginPage { readonly locators: PageLocators; constructor(private page: Page) { this.locators = { email: page.locator("[data-qa=\'login-email\']"), password: page.locator("[data-qa=\'login-password\']") }; } async login(e: string, p: string): Promise<void> { await this.locators.email.fill(e); } }' },
+          { level: 'advanced', q: 'Playwright Codegen nedir, production\'da kullanılır mı?', a: 'npx playwright codegen https://example.com ile aksiyonlar otomatik TS/Python/Java koduna dönüşür. Production için önerilmez: kırılgan CSS locator üretir, POM uygulamaz, assertion eklemez. Locator keşfi ve prototip için hızlıdır — başlangıç noktası olarak kullan, manuel refine et.' },
+          { level: 'advanced', q: 'Docker\'da test nasıl çalıştırılır?', a: 'mcr.microsoft.com/playwright:v1.44.0-focal resmi image. FROM mcr.microsoft.com/playwright:v1.44.0-focal; WORKDIR /app; COPY . .; RUN npm ci; CMD ["npx","playwright","test"]. Tüm tarayıcı bağımlılıkları dahil — ayrıca install gerekmez. Java: mcr.microsoft.com/playwright/java image.' },
+          { level: 'advanced', q: 'Custom wait stratejisi nasıl yazılır?', a: 'await page.waitForFunction(() => window.dataLoaded === true, { timeout: 10000 }); Locator: await locator.waitFor({ state: "visible", timeout: 15000 }); Poll+retry: await expect(async () => { const c = await page.locator(".item").count(); expect(c).toBeGreaterThan(5); }).toPass({ timeout: 30000 }); toPass() çok güçlü.' },
+          { level: 'advanced', q: 'Playwright\'ı Selenium\'a tercih etmeniz veya etmemeniz için gerçek senaryo?', a: 'Tercih ederim: 1) Modern SPA — auto-wait ile az flaky test, 2) API mocking — page.route() proxy ihtiyacı yok, 3) Multi-browser tek API, 4) CI/CD hızı. Tercih etmem: 1) IE desteği gerekiyorsa, 2) Büyük Selenium codebase. Gerçek: Fintech payment iframe — Selenium 3 switchTo()+explicit wait; Playwright frameLocator()+auto-wait 3 satır, sıfır flakiness.' },
         ],
       },
     ],
@@ -2379,150 +2212,54 @@ const s9 = {
       },
       {
         type: 'interview-questions',
-        levels: [
-          {
-            level: 'Basic',
-            emoji: '🟢',
-            questions: [
-              {
-                q: 'What is Playwright and how does it differ from Selenium?',
-                a: 'Playwright is a modern browser automation library developed by Microsoft in 2020. It supports TypeScript, JavaScript, Python, Java, and C#. The key difference from Selenium is its auto-wait mechanism — it automatically waits for elements to load before performing actions, eliminating the need for explicit waits. A single API controls Chromium, Firefox, and WebKit.',
-              },
-              {
-                q: 'How do you install Playwright for TypeScript?',
-                a: 'Run npm init playwright@latest — this automatically installs @playwright/test, creates playwright.config.ts, downloads browsers (npx playwright install), and generates example test files. Then run npx playwright test to execute tests.',
-              },
-              {
-                q: 'What are the recommended locator strategies in Playwright?',
-                a: 'In order of preference: 1) getByRole() — by aria role (best practice), 2) getByText() — by visible text, 3) getByLabel() — by form label, 4) getByTestId() — by data-testid attribute, 5) locator(css/xpath) — CSS selector or XPath. Unlike Selenium\'s ID/class/xpath-dependent locators, Playwright prefers semantic locators that mirror how users see the page.',
-              },
-              {
-                q: 'What is the difference between fill(), type(), and click()?',
-                a: 'fill() clears the input then types the value at once — fast and preferred in production. type() simulates keyboard key presses one by one — needed for inputs that listen to key events. click() waits for the element to be clickable, then performs hover + focus + click. fill() is analogous to Selenium\'s clear() + sendKeys() combined.',
-              },
-              {
-                q: 'How does Playwright\'s auto-wait mechanism work?',
-                a: 'Before each action (click, fill, etc.), Playwright automatically waits for the element to be visible, stable, enabled, and editable. This eliminates the need for Thread.sleep() or explicit WebDriverWait like in Selenium. For additional waits: page.waitForURL(pattern), locator.waitFor({ state: "visible" }), page.waitForResponse(url).',
-              },
-              {
-                q: 'How do you make assertions in Playwright?',
-                a: 'Playwright has a built-in assertion library: await expect(locator).toBeVisible(), await expect(locator).toHaveText("text"), await expect(page).toHaveURL(/pattern/), await expect(locator).toHaveCount(3). In Java: assertThat(page.locator("#id")).isVisible(). These replace JUnit assertEquals in Java tests.',
-              },
-              {
-                q: 'What does playwright.config.ts contain?',
-                a: 'The central configuration file for Playwright. It can include: baseURL (root URL for all tests), timeout (global test timeout), retries (retry count for failed tests), workers (parallel test count), projects (browser/viewport combinations), reporter (console, html, junit), use (headless mode, screenshot, video recording settings). Similar to Maven\'s pom.xml configuration.',
-              },
-              {
-                q: 'What is the difference between headless and headed mode?',
-                a: 'Headless mode runs without a browser UI — preferred in CI/CD environments, faster. Headed mode opens a real browser window — preferred when debugging. In Playwright: chromium.launch({ headless: false }) for headed, headless: true (default) for headless. In config: use: { headless: false }.',
-              },
-              {
-                q: 'How do you run Playwright tests?',
-                a: 'npx playwright test — all tests, npx playwright test example.spec.ts — specific file, npx playwright test --grep "login" — filter by regex, npx playwright test --headed — with browser, npx playwright test --ui — Playwright UI mode (interactive), npx playwright test --debug — step-by-step with Playwright Inspector. In Java: mvn test -Dtest=LoginTest.',
-              },
-              {
-                q: 'How do you take screenshots in Playwright?',
-                a: 'page.screenshot({ path: "screenshot.png" }) for viewport screenshot, page.screenshot({ path: "screenshot.png", fullPage: true }) for full page. For a specific element: locator.screenshot({ path: "element.png" }). In config: use: { screenshot: "on" } for auto-capture after every test, "only-on-failure" only on failure.',
-              },
-            ],
-          },
-          {
-            level: 'Intermediate',
-            emoji: '🟡',
-            questions: [
-              {
-                q: 'How do you implement Page Object Model (POM) in Playwright?',
-                a: 'Create a class for each page and pass the Page object in the constructor. Example: class LoginPage { constructor(page) { this.emailInput = page.locator("[data-qa=\'login-email\']"); } async login(email, pass) { await this.emailInput.fill(email); } }. In tests: const loginPage = new LoginPage(page); await loginPage.login(). Identical to the Java POM pattern, just different syntax.',
-              },
-              {
-                q: 'What are Playwright fixtures and how are they used?',
-                a: 'Custom fixtures are created with test.extend(): const test = base.extend({ loggedInPage: async ({ page }, use) => { await login(page); await use(page); } }); This injects the fixture into each test instead of repeating login code. Similar to @BeforeEach + @AfterEach in Java but more modular and composable.',
-              },
-              {
-                q: 'How do you handle iframes in Playwright?',
-                a: 'In Selenium you used driver.switchTo().frame() to enter an iframe. In Playwright, use frameLocator() without switching: const frame = page.frameLocator(\'iframe[src*="payment"]\'); await frame.locator(\'#card-number\').fill(\'4111\'); After the iframe interaction, you automatically return to the main frame — no switchTo().defaultContent() needed.',
-              },
-              {
-                q: 'How do you handle Alert, Confirm, and Prompt dialogs?',
-                a: 'Listen to the dialog event: page.on("dialog", dialog => dialog.accept()); or dialog.dismiss() to reject, dialog.fill("text") to enter a value for prompts. Important: the event listener must be registered BEFORE the action that triggers the dialog. In Selenium: driver.switchTo().alert().accept(). There is no switchTo() concept in Playwright.',
-              },
-              {
-                q: 'How do you manage multiple tabs and new windows?',
-                a: 'Use context.waitForEvent("page") to capture newly opened pages: const [newPage] = await Promise.all([context.waitForEvent("page"), page.getByText("Open Tab").click()]); await newPage.waitForLoadState(); await newPage.getByRole("button", { name: "Confirm" }).click(); Replaces Selenium\'s driver.getWindowHandles() + driver.switchTo().window().',
-              },
-              {
-                q: 'How do you intercept API calls with page.route()?',
-                a: 'await page.route("**/api/products", route => route.fulfill({ status: 200, body: JSON.stringify([{id:1, name:"Mock"}]) })); This intercepts all requests to /api/products and returns a fake response. route.continue() forwards a modified request to the real server; route.abort() blocks it entirely. In Selenium, this required an external tool like BrowserMob Proxy.',
-              },
-              {
-                q: 'How do you run Playwright tests in parallel?',
-                a: 'Set workers: 4 (or process.env.CI ? 2 : 4 dynamically) in playwright.config.ts. Tests in different files run in parallel by default; tests in the same file run sequentially. Use test.describe.parallel() for parallel within a file, test.describe.serial() for forced sequential. Similar to JUnit 5\'s @Execution(ExecutionMode.CONCURRENT).',
-              },
-              {
-                q: 'What is Playwright Trace Viewer?',
-                a: 'Trace Viewer records every action, network request, screenshot, and console log during a test. In config: use: { trace: "on-first-retry" } auto-records on first retry. View with: npx playwright show-trace trace.zip. Ideal for debugging CI failures — you see exactly what happened at each step without re-running locally.',
-              },
-              {
-                q: 'How do you speed up authentication in Playwright?',
-                a: 'Running login in every test is slow. Playwright recommends storageState: 1) Create a setup project, run login, save state: await page.context().storageState({ path: "auth.json" }); 2) Other tests load this state: use: { storageState: "auth.json" }. Login happens once, cookies/localStorage are shared across all tests. Java: context.newContext(new Browser.NewContextOptions().setStorageStatePath(Paths.get("auth.json")));',
-              },
-              {
-                q: 'What is visual regression testing in Playwright?',
-                a: 'expect(page).toHaveScreenshot("home.png") takes a reference screenshot. On subsequent runs, pixel comparison is performed. To create/update references: npx playwright test --update-snapshots. Set mismatch threshold: toHaveScreenshot({ maxDiffPixelRatio: 0.1 }). Playwright\'s built-in visual testing is sufficient; no need for tools like Applitools.',
-              },
-            ],
-          },
-          {
-            level: 'Advanced',
-            emoji: '🔴',
-            questions: [
-              {
-                q: 'What is BrowserContext and how does it differ from Page?',
-                a: 'BrowserContext is an isolated session environment within a browser — think of it as a separate "profile" with its own cookies, localStorage, and session. Multiple Pages (tabs) can be opened within one Context. Use case: open two contexts to simulate two different users simultaneously. browser.newContext() creates a new context, context.newPage() opens a tab within it.',
-              },
-              {
-                q: 'How do you integrate Playwright into a CI/CD pipeline?',
-                a: 'GitHub Actions: npx playwright install --with-deps installs browsers, npx playwright test runs tests. Set workers: process.env.CI ? 2 : 4. For artifacts: upload-artifact for test-results/ and playwright-report/. In Jenkins: sh("npx playwright test --reporter=junit") + JUnit report publish. For parallel: use --shard=N/M and GitHub Actions matrix strategy.',
-              },
-              {
-                q: 'What is test sharding in Playwright?',
-                a: 'Splits large test suites across parallel CI runners. Example: 100 tests on 4 runners: Runner 1: npx playwright test --shard=1/4 (tests 1-25), Runner 2: --shard=2/4, etc. Then: npx playwright merge-reports blob-reports/ combines into a single report. Easily set up with GitHub Actions matrix strategy. Analogous to Maven failsafe plugin fork count in Java.',
-              },
-              {
-                q: 'How does Playwright handle Shadow DOM?',
-                a: 'Playwright locators automatically pierce Shadow DOM — no need for the ((JavascriptExecutor)driver).executeScript("return arguments[0].shadowRoot", element) hack used in Selenium. page.locator(".inner-button") simply accesses elements inside Shadow DOM. This is one of Playwright\'s biggest advantages over Selenium.',
-              },
-              {
-                q: 'How do you write a custom reporter in Playwright?',
-                a: 'Implement the Reporter interface: class MyReporter { onBegin(config, suite) {} onTestEnd(test, result) {} onEnd(result) {} }. Export with module.exports = MyReporter. Add to config: reporter: [["./my-reporter.js"]]. Use cases: send Slack notifications, update custom dashboards, write test results to a database. Equivalent to ITestListener (TestNG) or JUnit Extension in Java.',
-              },
-              {
-                q: 'How do you use the Playwright request fixture for API testing?',
-                a: 'Playwright has built-in API testing support — no need for Postman or RestAssured. In a test: const response = await request.post("/api/login", { data: { email, password } }); expect(response.status()).toBe(200); const body = await response.json(); Use APIRequestContext to carry cookies for authenticated API calls. baseURL is taken from config. Java: APIRequestContext request = playwright.request().newContext();',
-              },
-              {
-                q: 'What is the toPass() assertion and when should you use it?',
-                a: 'toPass() polls an async assertion until it passes or times out: await expect(async () => { const count = await page.locator(".item").count(); expect(count).toBeGreaterThan(5); }).toPass({ timeout: 30000 }); Use it when the exact timing of a condition is unknown — e.g., waiting for a background job to populate a list. More powerful than waitForFunction() for complex assertions.',
-              },
-              {
-                q: 'How do you run Playwright tests in Docker?',
-                a: 'Use Microsoft\'s official Playwright Docker image: mcr.microsoft.com/playwright:v1.XX.X-focal. Dockerfile: FROM mcr.microsoft.com/playwright:v1.44.0-focal; WORKDIR /app; COPY . .; RUN npm ci; CMD ["npx", "playwright", "test"]. This image includes all browser dependencies — no need for playwright install --with-deps. Ensure headless: true (default) inside Docker. For Java: mcr.microsoft.com/playwright/java:v1.XX.X-focal.',
-              },
-              {
-                q: 'How do you test geolocation and browser permissions in Playwright?',
-                a: 'const context = await browser.newContext({ geolocation: { latitude: 41.0082, longitude: 28.9784 }, permissions: ["geolocation"] }); Camera/mic: permissions: ["camera", "microphone"]. Notifications: permissions: ["notifications"]. These work in headless mode because Playwright grants permissions directly to the browser — no real user approval needed.',
-              },
-              {
-                q: 'When would you choose Playwright over Selenium, and when not?',
-                a: 'Choose Playwright: 1) Modern SPA (React/Angular) — auto-wait minimizes flaky tests, 2) API mocking needed — page.route() eliminates external proxy, 3) Multi-browser in one API — Chrome+Firefox+Safari, 4) CI/CD speed — parallel + sharding built-in. Avoid Playwright: 1) IE support required — Playwright dropped IE, 2) Large existing Selenium codebase — migration cost, 3) Team deeply familiar with Selenium ecosystem. Real scenario: payment iframe test in a Fintech app — Selenium needed 3 driver.switchTo().frame() calls and explicit waits; Playwright reduced it to frameLocator() + auto-wait in 3 lines with zero flakiness.',
-              },
-            ],
-          },
+        topic: 'Playwright',
+        questions: [
+          { level: 'basic', q: 'What is Playwright and how does it differ from Selenium?', a: 'Playwright is a modern browser automation library by Microsoft (2020). Supports TypeScript, JavaScript, Python, Java, C#. Key difference: auto-wait automatically waits for elements to load, eliminating explicit waits. Single API controls Chromium, Firefox, and WebKit.' },
+          { level: 'basic', q: 'How do you install Playwright for TypeScript?', a: 'Run npm init playwright@latest — installs @playwright/test, creates playwright.config.ts, downloads browsers (npx playwright install), generates example tests. Then npx playwright test to execute.' },
+          { level: 'basic', q: 'How do you launch and close a browser in Playwright?', a: 'With test framework, browser management is automatic. Manually: const browser = await playwright.chromium.launch(); const page = await browser.newPage(); ... await browser.close(); Java: Browser browser = playwright.chromium().launch(); Page page = browser.newPage(); ... browser.close();' },
+          { level: 'basic', q: 'What is page.goto() and how is it used?', a: 'page.goto(url) navigates to the URL, waits for load event by default. Optional: page.goto(url, { waitUntil: "networkidle" }). Java: page.navigate("https://example.com");' },
+          { level: 'basic', q: 'What are the recommended locator strategies in Playwright?', a: 'In order: 1) getByRole() — aria role (best practice), 2) getByText() — visible text, 3) getByLabel() — form label, 4) getByTestId() — data-testid, 5) locator(css/xpath). Unlike Selenium\'s brittle CSS/XPath locators, Playwright prefers semantic ones.' },
+          { level: 'basic', q: 'What is the difference between fill(), type(), and click()?', a: 'fill() clears then types at once — fast, preferred in production. type() simulates key-by-key — needed for inputs with key listeners. click() waits for clickable state, does hover+focus+click. fill() ≈ Selenium clear() + sendKeys().' },
+          { level: 'basic', q: 'How does Playwright\'s auto-wait mechanism work?', a: 'Before each action (click, fill, etc.) Playwright auto-waits for element to be visible, stable, enabled, and editable — eliminating Thread.sleep() or WebDriverWait. For extra waits: page.waitForURL(pattern), locator.waitFor({ state: "visible" }), page.waitForResponse(url).' },
+          { level: 'basic', q: 'How do you make assertions in Playwright?', a: 'await expect(locator).toBeVisible(), await expect(locator).toHaveText("text"), await expect(page).toHaveURL(/pattern/), await expect(locator).toHaveCount(3). Java: assertThat(page.locator("#id")).isVisible(). Replaces JUnit assertEquals.' },
+          { level: 'basic', q: 'What does playwright.config.ts contain?', a: 'Central config: baseURL, timeout, retries, workers, projects (browser/viewport combos), reporter (console/html/junit), use (headless, screenshot, video). Similar to Maven\'s pom.xml.' },
+          { level: 'basic', q: 'What is the difference between headless and headed mode?', a: 'Headless: no browser UI — preferred in CI/CD, faster. Headed: real browser window — for debugging. chromium.launch({ headless: false }) for headed, true (default) for headless. Config: use: { headless: false }.' },
+          { level: 'basic', q: 'How do you take screenshots?', a: 'page.screenshot({ path: "s.png" }) for viewport; page.screenshot({ path: "s.png", fullPage: true }) for full page. Element: locator.screenshot({ path: "el.png" }). Config: use: { screenshot: "on" } after every test, "only-on-failure" for failures.' },
+          { level: 'basic', q: 'How do you record video in Playwright?', a: 'Config: use: { video: "on" } or "retain-on-failure". Videos saved in test-results/. Manually: browser.newContext({ recordVideo: { dir: "videos/" } }) — context.close() saves the video.' },
+          { level: 'basic', q: 'How do you run Playwright tests?', a: 'npx playwright test — all; npx playwright test login.spec.ts — specific file; --grep "login" — regex filter; --headed — with browser; --ui — interactive UI mode; --debug — Inspector step-by-step. Java: mvn test -Dtest=LoginTest.' },
+          { level: 'basic', q: 'Why is getByRole() the most preferred locator?', a: 'Uses ARIA standards: 1) CSS class changes don\'t break tests, 2) Accessibility-aligned, 3) Targets what users see. page.getByRole("button", { name: "Submit" }) finds Submit button. Selenium By.cssSelector(".btn") is brittle to refactoring.' },
+          { level: 'basic', q: 'How do you generate test reports?', a: 'npx playwright test --reporter=html generates HTML report. npx playwright show-report opens in browser. Config supports multiple: reporter: [["html"],["junit",{outputFile:"results.xml"}]]. JUnit reporter for Jenkins/GitLab integration.' },
+          { level: 'intermediate', q: 'How do you implement Page Object Model (POM) in Playwright?', a: 'Create class per page, pass Page in constructor: class LoginPage { constructor(page) { this.emailInput = page.locator("[data-qa=\'login-email\']"); } async login(e,p) { await this.emailInput.fill(e); } }. In tests: const lp = new LoginPage(page); await lp.login(). Identical to Java POM pattern.' },
+          { level: 'intermediate', q: 'What are Playwright fixtures and how are they used?', a: 'const test = base.extend({ loggedInPage: async ({ page }, use) => { await login(page); await use(page); } }); Injects fixture instead of repeating login. Similar to Java @BeforeEach + @AfterEach but more modular and composable.' },
+          { level: 'intermediate', q: 'When do you use beforeEach, afterEach, beforeAll, afterAll?', a: 'beforeEach: before each test (login, navigate). afterEach: after each (cleanup). beforeAll: once before all (DB seed). afterAll: once after all (browser close). Maps to Java @BeforeEach, @AfterEach, @BeforeAll, @AfterAll.' },
+          { level: 'intermediate', q: 'How do you handle iframes in Playwright?', a: 'Selenium: driver.switchTo().frame(). Playwright: frameLocator() — no switching: const frame = page.frameLocator(\'iframe[src*="payment"]\'); await frame.locator(\'#card-number\').fill(\'4111\'); Auto-returns to main frame after interaction — no switchTo().defaultContent() needed.' },
+          { level: 'intermediate', q: 'How do you handle Alert, Confirm, and Prompt dialogs?', a: 'page.on("dialog", dialog => dialog.accept()) to accept; dialog.dismiss() to reject; dialog.fill("text") for prompts. Listener must be registered BEFORE the triggering action. Selenium: driver.switchTo().alert().accept(). No switchTo() in Playwright.' },
+          { level: 'intermediate', q: 'How do you manage multiple tabs and new windows?', a: 'const [newPage] = await Promise.all([context.waitForEvent("page"), page.getByText("Open Tab").click()]); await newPage.waitForLoadState(); Java: Page newPage = context.waitForPage(() -> page.click(loc)). Replaces Selenium getWindowHandles() + switchTo().window().' },
+          { level: 'intermediate', q: 'How do you intercept API calls with page.route()?', a: 'await page.route("**/api/products", route => route.fulfill({ status: 200, body: JSON.stringify([{id:1}]) })); Intercepts matching requests, returns fake response. route.continue() forwards; route.abort() blocks. Selenium needed external tools like BrowserMob Proxy.' },
+          { level: 'intermediate', q: 'How do you run Playwright tests in parallel?', a: 'Config: workers: 4 (or process.env.CI ? 2 : 4). Files run parallel by default; same-file tests sequential. test.describe.parallel() for same-file parallel; test.describe.serial() for forced sequential. Like JUnit 5 @Execution(ExecutionMode.CONCURRENT).' },
+          { level: 'intermediate', q: 'What is Playwright Trace Viewer?', a: 'Records every action, network request, screenshot, console log. Config: use: { trace: "on-first-retry" }. View: npx playwright show-trace trace.zip. Ideal for debugging CI failures — see exactly what happened at each step without re-running locally.' },
+          { level: 'intermediate', q: 'How do you use locator.filter()?', a: 'page.locator(".product").filter({ hasText: "Nike" }) — only "Nike" items. .filter({ has: page.locator(".in-stock") }) — items with specific child element. Similar to Java stream().filter() on WebElement lists but far more readable.' },
+          { level: 'intermediate', q: 'How do you manage test data in Playwright?', a: '1) JSON/CSV in fixtures/, 2) @faker-js/faker for random data, 3) request fixture for API data, 4) DB seed in beforeAll. Best practice: each test creates and cleans its own data. Shared mutable data causes conflicts in parallel runs.' },
+          { level: 'intermediate', q: 'How do you speed up authentication in Playwright?', a: 'storageState: 1) Login once and save: await page.context().storageState({ path: "auth.json" }), 2) Tests load: use: { storageState: "auth.json" }. Login happens once, cookies/localStorage shared. Java: Browser.NewContextOptions().setStorageStatePath(...).' },
+          { level: 'intermediate', q: 'What is visual regression testing in Playwright?', a: 'expect(page).toHaveScreenshot("home.png") takes reference; subsequent runs do pixel comparison. Update: --update-snapshots. Threshold: toHaveScreenshot({ maxDiffPixelRatio: 0.1 }). Built-in — no Applitools needed.' },
+          { level: 'intermediate', q: 'What are soft assertions and when do you use them?', a: 'Normal assertion stops test on failure. Soft: expect.soft(locator).toBeVisible() — all checks run, failures reported at end. Use case: form validation, checking all error messages in one pass. Same as AssertJ SoftAssertions in Java.' },
+          { level: 'intermediate', q: 'How do you spy on network requests?', a: 'page.on("request", cb) and page.on("response", cb). Await specific request: const [resp] = await Promise.all([page.waitForResponse(r => r.url().includes("/api/data")), page.click("#load")]); const data = await resp.json(); Validates API response after UI actions.' },
+          { level: 'advanced', q: 'What is BrowserContext and how does it differ from Page?', a: 'BrowserContext is an isolated session — own cookies, localStorage, session, like a separate browser profile. Multiple Pages (tabs) open within one Context. Use case: two Contexts to simulate two users simultaneously. browser.newContext() creates context, context.newPage() opens tab.' },
+          { level: 'advanced', q: 'How do you integrate Playwright into a CI/CD pipeline?', a: 'GitHub Actions: npx playwright install --with-deps, npx playwright test. workers: process.env.CI ? 2 : 4. Artifacts: upload-artifact for test-results/ and playwright-report/. Jenkins: sh("npx playwright test --reporter=junit") + JUnit publish. Parallel: --shard=N/M + matrix strategy.' },
+          { level: 'advanced', q: 'What is test sharding in Playwright?', a: 'Splits large suites across CI runners: 100 tests, 4 runners → --shard=1/4, --shard=2/4, etc. Then: npx playwright merge-reports blob-reports/ to combine. GitHub Actions matrix strategy makes it easy. Analogous to Maven failsafe plugin fork count.' },
+          { level: 'advanced', q: 'How does Playwright handle Shadow DOM?', a: 'Playwright locators automatically pierce Shadow DOM — no need for Selenium\'s JavascriptExecutor hack. page.locator(".inner-button") directly accesses Shadow DOM elements. One of Playwright\'s biggest advantages over Selenium.' },
+          { level: 'advanced', q: 'How do you write a custom reporter?', a: 'class MyReporter { onBegin(c,s){} onTestEnd(t,r){} onEnd(r){} }. module.exports = MyReporter. Config: reporter:[["./my-reporter.js"]]. Use cases: Slack notifications, dashboard updates, DB writes. Equivalent to TestNG ITestListener or JUnit Extension in Java.' },
+          { level: 'advanced', q: 'How do you use the request fixture for API testing?', a: 'Built-in: const response = await request.post("/api/login", { data: { email, password } }); expect(response.status()).toBe(200); const body = await response.json(); APIRequestContext carries cookies for authenticated calls. Java: playwright.request().newContext();' },
+          { level: 'advanced', q: 'What is toPass() and when should you use it?', a: 'Polls async assertion until pass or timeout: await expect(async () => { const c = await page.locator(".item").count(); expect(c).toBeGreaterThan(5); }).toPass({ timeout: 30000 }); Use when exact timing is unknown — waiting for background jobs. More powerful than waitForFunction() for complex assertions.' },
+          { level: 'advanced', q: 'How do you run Playwright tests in Docker?', a: 'Use mcr.microsoft.com/playwright:v1.44.0-focal image. FROM mcr.microsoft.com/playwright:v1.44.0-focal; WORKDIR /app; COPY . .; RUN npm ci; CMD ["npx","playwright","test"]. All browser deps included — no playwright install needed. Java: mcr.microsoft.com/playwright/java image.' },
+          { level: 'advanced', q: 'How do you test geolocation and browser permissions?', a: 'browser.newContext({ geolocation: { latitude: 41.0082, longitude: 28.9784 }, permissions: ["geolocation"] }). Camera/mic: ["camera","microphone"]. Notifications: ["notifications"]. Works in headless — Playwright grants permissions directly to the browser.' },
+          { level: 'advanced', q: 'When would you choose Playwright over Selenium, and when not?', a: 'Choose Playwright: 1) Modern SPA — auto-wait minimizes flaky tests, 2) API mocking — page.route() eliminates proxy, 3) Multi-browser single API, 4) CI/CD speed — parallel+sharding built-in. Avoid: 1) IE required, 2) Large Selenium codebase — migration cost. Real: Fintech payment iframe — Selenium needed 3 switchTo() calls; Playwright: frameLocator()+auto-wait in 3 lines, zero flakiness.' },
         ],
       },
     ],
   },
 }
+
 
 export const playwrightData = {
   tr: {
