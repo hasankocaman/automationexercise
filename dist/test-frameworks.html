@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Test Frameworks — pytest · Selenium · Playwright</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #1e1e2e; --bg2: #2d2d3f; --bg3: #3a3a4f;
+  --accent: #7c3aed; --accent2: #6d28d9; --accent-glow: rgba(124,58,237,0.3);
+  --success: #10b981; --warn: #f59e0b; --error: #ef4444; --info: #3b82f6;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+  --border: rgba(255,255,255,0.08); --card: rgba(255,255,255,0.04);
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --sidebar-w: 220px; --toc-w: 200px;
+}
+[data-theme="light"] {
+  --bg: #f8fafc; --bg2: #ffffff; --bg3: #f1f5f9;
+  --text: #1e293b; --text2: #475569; --text3: #94a3b8;
+  --border: rgba(0,0,0,0.08); --card: rgba(0,0,0,0.03);
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+code,pre,kbd{font-family:'JetBrains Mono',monospace}
+
+/* ── PROGRESS BAR ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),#a855f7,var(--info));z-index:9999;transition:width .1s linear;width:0}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr var(--toc-w);min-height:100vh;max-width:1400px;margin:0 auto}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 0;border-right:1px solid var(--border)}
+.main{padding:48px 40px;min-width:0}
+.toc-sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:80px 16px 24px;border-left:1px solid var(--border)}
+
+/* ── SIDEBAR NAV ── */
+.sidebar-header{padding:0 20px 20px;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.nav-section{margin-bottom:4px}
+.nav-section-title{padding:6px 20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.nav-link{display:block;padding:7px 20px;font-size:.82rem;color:var(--text2);text-decoration:none;border-left:2px solid transparent;transition:all .2s}
+.nav-link:hover,.nav-link.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-glow);padding-left:24px}
+
+/* ── TOP CONTROLS ── */
+.top-controls{display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);font-size:.8rem;cursor:pointer;text-decoration:none;transition:all .2s}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.theme-toggle{margin-left:auto;padding:6px 14px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:.85rem;transition:all .2s}
+.theme-toggle:hover{border-color:var(--accent)}
+
+/* ── PAGE HERO ── */
+.hero{margin-bottom:40px}
+.hero h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--accent),#a855f7,var(--info));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.hero p{color:var(--text2);font-size:1.05rem;max-width:620px}
+
+/* ── FRAMEWORK TABS ── */
+.fw-tabs{display:flex;gap:4px;padding:6px;background:var(--bg2);border-radius:14px;margin-bottom:40px;border:1px solid var(--border);width:fit-content}
+.fw-tab{padding:10px 24px;border-radius:10px;border:none;background:transparent;color:var(--text2);font-size:.9rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:8px}
+.fw-tab.active{background:var(--accent);color:#fff;box-shadow:0 2px 12px var(--accent-glow)}
+.fw-tab:hover:not(.active){background:var(--card);color:var(--text)}
+.fw-content{display:none;animation:fadeInUp .35s ease}
+.fw-content.active{display:block}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ── SECTION ── */
+.section{margin-bottom:56px;opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s}
+.section.visible{opacity:1;transform:none}
+.section-anchor{display:block;height:80px;margin-top:-80px}
+.section h2{font-size:1.4rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.section h2::after{content:'';flex:1;height:1px;background:var(--border);margin-left:8px}
+.section h3{font-size:1.05rem;font-weight:600;margin:24px 0 12px;color:var(--text)}
+.section p{color:var(--text2);margin-bottom:12px}
+
+/* ── CODE BLOCK ── */
+.code-wrap{position:relative;margin:16px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.code-lang{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+.copy-btn{padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:.72rem;cursor:pointer;transition:all .2s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--success);color:var(--success);background:rgba(16,185,129,.1)}
+.code-wrap pre{margin:0!important;border-radius:0!important;background:var(--bg2)!important;padding:16px!important;font-size:.82rem!important;line-height:1.65!important;overflow-x:auto}
+.code-wrap pre code{font-size:.82rem!important}
+
+/* ── TERMINAL OUTPUT ── */
+.terminal{background:#1e2030;border-radius:12px;overflow:hidden;margin:16px 0;border:1px solid #3a3a4f}
+.terminal-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#252535;border-bottom:1px solid #3a3a4f}
+.term-dot{width:12px;height:12px;border-radius:50%}
+.term-title{font-size:.75rem;color:#94a3b8;margin-left:8px}
+.terminal-body{padding:16px;font-size:.8rem;line-height:1.7;color:#cbd5e1}
+.t-cmd{color:#e2e8f0}
+.t-pass{color:#6ee7b7}
+.t-fail{color:#fca5a5}
+.t-warn{color:#fde68a}
+.t-dim{color:#94a3b8}
+.t-acc{color:#c4b5fd}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:16px 0}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.card-icon{font-size:1.6rem;margin-bottom:10px}
+.card h4{font-size:.9rem;font-weight:600;margin-bottom:6px}
+.card p{font-size:.82rem;color:var(--text2)}
+
+/* ── CALLOUT ── */
+.callout{display:flex;gap:12px;padding:14px 16px;border-radius:10px;margin:16px 0;font-size:.85rem}
+.callout.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
+.callout.warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
+.callout.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
+.callout.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.callout-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.callout-body strong{display:block;margin-bottom:4px;font-weight:600}
+
+/* ── JAVA COMPARE ── */
+.java-cmp{border:1px solid rgba(245,158,11,.3);border-radius:12px;overflow:hidden;margin:20px 0}
+.java-cmp-header{background:rgba(245,158,11,.1);padding:10px 16px;font-size:.82rem;font-weight:600;color:#fcd34d;display:flex;align-items:center;gap:8px}
+.java-cmp-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.java-cmp-body .code-wrap{margin:0;border:none;border-radius:0}
+.java-cmp-body .code-wrap:first-child{border-right:1px solid var(--border)}
+.java-cmp-label{padding:6px 14px;font-size:.7rem;font-weight:600;background:var(--bg3);border-bottom:1px solid var(--border)}
+.java-cmp-note{padding:10px 16px;font-size:.8rem;color:var(--text2);border-top:1px solid var(--border);background:var(--card);grid-column:1/-1}
+
+/* ── FILE TREE ── */
+.file-tree{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.82rem;margin:16px 0}
+.tree-node{cursor:pointer;user-select:none}
+.tree-row{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:6px;transition:background .15s;line-height:1.5}
+.tree-row:hover{background:var(--card)}
+.tree-toggle{width:14px;text-align:center;font-size:.65rem;color:var(--text3);flex-shrink:0;transition:transform .2s}
+.tree-toggle.open{transform:rotate(90deg)}
+.tree-children{padding-left:20px;overflow:hidden;max-height:1000px;transition:max-height .3s ease}
+.tree-children.collapsed{max-height:0}
+.tree-icon{font-size:.85rem}
+.tree-name{color:var(--text)}
+.tree-name.dir{font-weight:500}
+.tree-name.py{color:#fbbf24}
+.tree-name.cfg{color:#94a3b8}
+.tree-name.txt{color:#94a3b8}
+.tree-name.badge{font-size:.65rem;padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:600}
+.badge-test{background:rgba(16,185,129,.2);color:#6ee7b7}
+.badge-conf{background:rgba(124,58,237,.2);color:#c4b5fd}
+.badge-main{background:rgba(59,130,246,.2);color:#93c5fd}
+
+/* ── COMPARISON TABLE ── */
+.cmp-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.82rem}
+.cmp-table th{padding:10px 14px;background:var(--bg3);font-weight:600;text-align:left;border-bottom:2px solid var(--border);color:var(--text2)}
+.cmp-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.cmp-table tr:hover td{background:var(--card)}
+.tick{color:var(--success);font-size:1rem}
+.cross{color:var(--error);font-size:1rem}
+.half{color:var(--warn);font-size:1rem}
+
+/* ── BAR CHART ── */
+.bar-chart{margin:20px 0}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:.82rem}
+.bar-label{width:160px;color:var(--text2);text-align:right;flex-shrink:0}
+.bar-track{flex:1;background:var(--bg3);border-radius:100px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;animation:barGrow .8s ease forwards;transform-origin:left}
+@keyframes barGrow{from{width:0!important}to{}}
+.bar-val{width:36px;font-size:.75rem;color:var(--text3)}
+
+/* ── LIFECYCLE DIAGRAM ── */
+.lifecycle{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;margin:24px 0;overflow-x:auto;padding:8px 0}
+.lc-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.lc-box{padding:10px 18px;border-radius:10px;font-size:.8rem;font-weight:600;border:2px solid transparent;transition:all .2s;cursor:default;text-align:center;min-width:90px}
+.lc-box:hover{transform:translateY(-3px)}
+.lc-setup{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
+.lc-test{background:rgba(124,58,237,.15);border-color:var(--accent);color:#c4b5fd}
+.lc-tear{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#fcd34d}
+.lc-rep{background:rgba(16,185,129,.15);border-color:var(--success);color:#6ee7b7}
+.lc-arrow{font-size:1.2rem;color:var(--text3);padding:0 4px;flex-shrink:0;align-self:center;margin-bottom:20px}
+.lc-sub{font-size:.7rem;color:var(--text3);text-align:center;max-width:90px}
+
+/* ── FIXTURE SCOPE ── */
+.scope-wrap{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.scope-row{display:flex;align-items:center;gap:12px}
+.scope-label{width:100px;font-size:.78rem;font-weight:600;text-align:right;flex-shrink:0}
+.scope-bar{height:28px;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:.75rem;font-weight:500;transition:all .2s;cursor:default}
+.scope-bar:hover{filter:brightness(1.15)}
+.sc-fn{background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#6ee7b7}
+.sc-cls{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd}
+.sc-mod{background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);color:#fcd34d}
+.sc-ses{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);color:#fca5a5}
+
+/* ── BADGE GRID ── */
+.badge-grid{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.action-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);font-size:.78rem;transition:all .2s}
+.action-badge:hover{border-color:var(--accent);background:var(--accent-glow);transform:translateY(-2px)}
+.action-badge .ab-icon{font-size:1rem}
+
+/* ── WAIT DIAGRAM ── */
+.wait-cmp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0}
+.wait-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.wait-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.wait-type{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.wait-good{color:var(--success)}
+.wait-bad{color:var(--error)}
+.wait-ok{color:var(--warn)}
+.wait-desc{font-size:.78rem;color:var(--text2)}
+
+/* ── SVG BROWSER MOCKUP ── */
+.browser-wrap{background:var(--bg2);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin:20px 0}
+.browser-bar{background:var(--bg3);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.browser-dots{display:flex;gap:5px}
+.browser-dot{width:10px;height:10px;border-radius:50%}
+.browser-url{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:.72rem;color:var(--text2);margin:0 8px}
+.browser-body{padding:0}
+
+/* ── PW FEATURES ── */
+.pw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.pw-feat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:all .2s;position:relative;overflow:hidden}
+.pw-feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#a855f7)}
+.pw-feat:hover{transform:translateY(-3px);border-color:var(--accent)}
+.pw-feat h4{font-size:.85rem;font-weight:600;margin-bottom:6px}
+.pw-feat p{font-size:.78rem;color:var(--text2)}
+
+/* ── MINI-TOC ── */
+.toc-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:10px}
+.toc-link{display:block;font-size:.75rem;color:var(--text3);text-decoration:none;padding:3px 0 3px 10px;border-left:2px solid transparent;transition:all .2s}
+.toc-link.active,.toc-link:hover{color:var(--accent);border-left-color:var(--accent)}
+
+/* ── RUN DEMO BTN ── */
+.run-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s}
+.run-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px var(--accent-glow)}
+.run-btn.running{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ── SECTION HEADER STICKY ── */
+.sticky-hdr{position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);background:rgba(30,30,46,.85);padding:8px 0;margin-bottom:20px}
+[data-theme="light"] .sticky-hdr{background:rgba(248,250,252,.85)}
+
+/* ── HAMBURGER (mobile) ── */
+.hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;padding:8px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);cursor:pointer;flex-direction:column;gap:4px}
+.hamburger span{display:block;width:20px;height:2px;background:var(--text);transition:all .2s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:98}
+
+/* ── INLINE BADGE ── */
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.72rem;font-weight:600;vertical-align:middle;margin:0 2px}
+.tag-py{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.tag-acc{background:rgba(124,58,237,.15);color:#c4b5fd;border:1px solid rgba(124,58,237,.3)}
+.tag-ok{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+.tag-err{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.toc-sidebar{display:none}.layout{grid-template-columns:var(--sidebar-w) 1fr}}
+@media(max-width:750px){
+  .layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;left:0;top:0;height:100vh;z-index:99;background:var(--bg);width:var(--sidebar-w)}
+  .sidebar.open{display:block}.hamburger{display:flex}.sidebar-overlay.open{display:block}
+  .main{padding:32px 20px}.java-cmp-body{grid-template-columns:1fr}.wait-cmp{grid-template-columns:1fr}
+}
+/* ── LANG ── */
+[data-lang="en"] .lang-tr{display:none}
+[data-lang="tr"] .lang-en{display:none}
+/* ── FLOATING HOME ── */
+#floating-home{position:fixed;bottom:28px;right:28px;width:50px;height:50px;border-radius:50%;background:var(--accent);border:2px solid rgba(255,255,255,.15);color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);z-index:1000;transition:transform .25s,box-shadow .25s,opacity .3s;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
+#floating-home.visible{opacity:1;pointer-events:auto}
+#floating-home:hover{transform:translateY(-4px) scale(1.12);box-shadow:0 8px 28px var(--accent-glow)}
+</style>
+</head>
+<body>
+
+<button id="floating-home" onclick="scrollToTop()" title="Sayfanın Başına Dön">🏠</button>
+<div id="progress-bar"></div>
+
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+
+<!-- ══ LEFT SIDEBAR ══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">Test Frameworks</div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">🧪 pytest</div>
+    <a class="nav-link" href="#pytest-what"><span class="lang-en">What is pytest?</span><span class="lang-tr">pytest Nedir?</span></a>
+    <a class="nav-link" href="#pytest-structure"><span class="lang-en">Project Structure</span><span class="lang-tr">Proje Yapısı</span></a>
+    <a class="nav-link" href="#pytest-basics"><span class="lang-en">First Test</span><span class="lang-tr">İlk Test</span></a>
+    <a class="nav-link" href="#pytest-assert">Assertions</a>
+    <a class="nav-link" href="#pytest-fixtures">Fixtures</a>
+    <a class="nav-link" href="#pytest-markers">Markers</a>
+    <a class="nav-link" href="#pytest-conftest">conftest.py</a>
+    <a class="nav-link" href="#pytest-run"><span class="lang-en">Running Tests</span><span class="lang-tr">Test Çalıştırma</span></a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">🌐 Selenium</div>
+    <a class="nav-link" href="#sel-what"><span class="lang-en">What is Selenium?</span><span class="lang-tr">Selenium Nedir?</span></a>
+    <a class="nav-link" href="#sel-setup"><span class="lang-en">Setup</span><span class="lang-tr">Kurulum</span></a>
+    <a class="nav-link" href="#sel-locators"><span class="lang-en">Locators</span><span class="lang-tr">Locator'lar</span></a>
+    <a class="nav-link" href="#sel-actions"><span class="lang-en">Actions</span><span class="lang-tr">Eylemler</span></a>
+    <a class="nav-link" href="#sel-waits"><span class="lang-en">Waits</span><span class="lang-tr">Bekleme</span></a>
+    <a class="nav-link" href="#sel-pom">Page Object Model</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">🎭 Playwright</div>
+    <a class="nav-link" href="#pw-what"><span class="lang-en">What is Playwright?</span><span class="lang-tr">Playwright Nedir?</span></a>
+    <a class="nav-link" href="#pw-setup"><span class="lang-en">Setup</span><span class="lang-tr">Kurulum</span></a>
+    <a class="nav-link" href="#pw-first"><span class="lang-en">First Test</span><span class="lang-tr">İlk Test</span></a>
+    <a class="nav-link" href="#pw-auto">Auto-Wait</a>
+    <a class="nav-link" href="#pw-network">Network &amp; Mocking</a>
+    <a class="nav-link" href="#pw-pom">POM Pattern</a>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main" id="main">
+  <div class="top-controls">
+    <button onclick="scrollToTop()" class="back-btn" title="Sayfanın Başına Git">🏠</button>
+    <a href="javascript:void(0)" onclick="goBack()" class="back-btn"><span class="lang-en">← Back</span><span class="lang-tr">← Geri</span></a>
+    <span style="color:var(--text3);font-size:.8rem" class="lang-en">Python Learning Platform</span>
+    <span style="color:var(--text3);font-size:.8rem" class="lang-tr">Python Öğrenme Platformu</span>
+    <button class="theme-toggle" onclick="applyLang(currentLang==='en'?'tr':'en')" id="langBtn">🌐 TR</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn"><span class="lang-en">☀️ Light Mode</span><span class="lang-tr">☀️ Açık Mod</span></button>
+  </div>
+
+  <div class="hero">
+    <h1><span class="lang-en">Python Test Frameworks</span><span class="lang-tr">Python Test Framework'leri</span></h1>
+    <p class="lang-en">A complete guide to pytest, Selenium WebDriver, and Playwright — with real-world examples, Java comparisons, and QA best practices.</p>
+    <p class="lang-tr">pytest, Selenium WebDriver ve Playwright için kapsamlı rehber — gerçek dünya örnekleri, Java karşılaştırmaları ve QA en iyi pratikleri.</p>
+  </div>
+
+  <!-- ── FRAMEWORK TABS ── -->
+  <div class="fw-tabs">
+    <button class="fw-tab active" onclick="switchTab('pytest',this)">🧪 pytest</button>
+    <button class="fw-tab" onclick="switchTab('selenium',this)">🌐 Selenium</button>
+    <button class="fw-tab" onclick="switchTab('playwright',this)">🎭 Playwright</button>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       TAB: PYTEST
+  ════════════════════════════════════════ -->
+  <div id="tab-pytest" class="fw-content active">
+
+    <!-- 1.1 What is pytest -->
+    <span class="section-anchor" id="pytest-what"></span>
+    <div class="section sticky-hdr"><h2>1.1 — <span class="lang-en">What is pytest?</span><span class="lang-tr">pytest Nedir?</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">pytest is Python's most popular test framework — it replaces the verbose
+      <code>unittest</code> with clean, readable tests that require no boilerplate classes.
+      It auto-discovers tests in any file matching <code>test_*.py</code> or <code>*_test.py</code>,
+      runs them in parallel with <code>pytest-xdist</code>, and generates beautiful HTML reports.</p>
+      <p class="lang-tr">pytest, Python'ın en popüler test framework'üdür — boilerplate sınıf gerektirmeyen temiz ve okunabilir testlerle verbose <code>unittest</code>'in yerini alır. <code>test_*.py</code> veya <code>*_test.py</code> ile eşleşen dosyalardaki testleri otomatik keşfeder, <code>pytest-xdist</code> ile paralel çalıştırır ve güzel HTML raporları üretir.</p>
+      <p class="lang-en">Unlike Java's JUnit where every test must live inside a class, pytest lets you write
+      a function and it just works — no <code>extends TestCase</code>, no <code>@Test</code> annotation.</p>
+      <p class="lang-tr">Java'nın JUnit'inden farklı olarak her testin bir sınıf içinde olması gerekmez; pytest ile sadece bir fonksiyon yazarsınız ve çalışır — <code>extends TestCase</code> yok, <code>@Test</code> annotation yok.</p>
+
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">⚡</div><h4><span class="lang-en">Zero Boilerplate</span><span class="lang-tr">Sıfır Şablon</span></h4><p><span class="lang-en">No class required. A plain <code>def test_*</code> function is a test.</span><span class="lang-tr">Sınıf gerekmiyor. Düz bir <code>def test_*</code> fonksiyonu test olarak çalışır.</span></p></div>
+        <div class="card"><div class="card-icon">🔌</div><h4><span class="lang-en">Rich Plugin Ecosystem</span><span class="lang-tr">Zengin Plugin Ekosistemi</span></h4><p>pytest-html, pytest-xdist, allure-pytest, pytest-cov, pytest-mock.</p></div>
+        <div class="card"><div class="card-icon">🪄</div><h4><span class="lang-en">Powerful Fixtures</span><span class="lang-tr">Güçlü Fixture'lar</span></h4><p><span class="lang-en">Dependency injection for setup/teardown. Better than JUnit @Before/@After.</span><span class="lang-tr">Setup/teardown için dependency injection. JUnit @Before/@After'dan daha güçlü.</span></p></div>
+        <div class="card"><div class="card-icon">📊</div><h4>Parametrize</h4><p><span class="lang-en">Data-driven tests with <code>@pytest.mark.parametrize</code>. No extra framework needed.</span><span class="lang-tr">Veri odaklı testler için <code>@pytest.mark.parametrize</code>. Ekstra framework gerekmez.</span></p></div>
+      </div>
+
+      <h3><span class="lang-en">Installation</span><span class="lang-tr">Kurulum</span></h3>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-bash">pip install pytest pytest-html pytest-xdist allure-pytest pytest-cov pytest-mock</code></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">☕</span>
+        <div class="callout-body"><strong class="lang-en">Java Developer Note</strong><strong class="lang-tr">Java Geliştirici Notu</strong>
+        <span class="lang-en">pytest = JUnit 5 + TestNG + Mockito combined. <code>@pytest.fixture</code> ≈ <code>@BeforeEach</code>, <code>@pytest.mark.parametrize</code> ≈ <code>@CsvSource</code>, and there's no need for <code>extends TestCase</code>.</span>
+        <span class="lang-tr">pytest = JUnit 5 + TestNG + Mockito bir arada. <code>@pytest.fixture</code> ≈ <code>@BeforeEach</code>, <code>@pytest.mark.parametrize</code> ≈ <code>@CsvSource</code>, <code>extends TestCase</code> yazmaya gerek yok.</span></div>
+      </div>
+    </div>
+
+    <!-- 1.2 Project Structure -->
+    <span class="section-anchor" id="pytest-structure"></span>
+    <div class="section sticky-hdr"><h2>1.2 — <span class="lang-en">Project Structure</span><span class="lang-tr">Proje Yapısı</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">A well-structured pytest project separates <strong>pages</strong>, <strong>tests</strong>, <strong>fixtures</strong>, and <strong>test data</strong>. Click folders to expand/collapse.</p>
+      <p class="lang-tr">İyi yapılandırılmış bir pytest projesi <strong>sayfaları</strong>, <strong>testleri</strong>, <strong>fixture</strong>'ları ve <strong>test verilerini</strong> ayırır. Klasörleri açıp kapatmak için tıklayın.</p>
+
+      <div class="file-tree" id="file-tree">
+        <div class="tree-node">
+          <div class="tree-row" onclick="toggleTree(this)">
+            <span class="tree-toggle open">▶</span>
+            <span class="tree-icon">📁</span>
+            <span class="tree-name dir">my-test-project/</span>
+          </div>
+          <div class="tree-children">
+
+            <div class="tree-node">
+              <div class="tree-row" onclick="toggleTree(this)">
+                <span class="tree-toggle open">▶</span>
+                <span class="tree-icon">📁</span>
+                <span class="tree-name dir">pages/</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">base_page.py</span><span class="tree-name badge badge-main">base</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">login_page.py</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">dashboard_page.py</span></div>
+              </div>
+            </div>
+
+            <div class="tree-node">
+              <div class="tree-row" onclick="toggleTree(this)">
+                <span class="tree-toggle open">▶</span>
+                <span class="tree-icon">📁</span>
+                <span class="tree-name dir">tests/</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">conftest.py</span><span class="tree-name badge badge-conf">fixtures</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">test_login.py</span><span class="tree-name badge badge-test">test</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">test_checkout.py</span><span class="tree-name badge badge-test">test</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">test_api.py</span><span class="tree-name badge badge-test">test</span></div>
+              </div>
+            </div>
+
+            <div class="tree-node">
+              <div class="tree-row" onclick="toggleTree(this)">
+                <span class="tree-toggle open">▶</span>
+                <span class="tree-icon">📁</span>
+                <span class="tree-name dir">test_data/</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">📄</span><span class="tree-name cfg">users.csv</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">📄</span><span class="tree-name cfg">test_cases.json</span></div>
+              </div>
+            </div>
+
+            <div class="tree-node">
+              <div class="tree-row" onclick="toggleTree(this)">
+                <span class="tree-toggle open">▶</span>
+                <span class="tree-icon">📁</span>
+                <span class="tree-name dir">utils/</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">api_client.py</span></div>
+                <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">🐍</span><span class="tree-name py">db_helper.py</span></div>
+              </div>
+            </div>
+
+            <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">⚙️</span><span class="tree-name cfg">pytest.ini</span><span class="tree-name badge badge-conf">config</span></div>
+            <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">⚙️</span><span class="tree-name cfg">requirements.txt</span></div>
+            <div class="tree-row"><span class="tree-toggle"></span><span class="tree-icon">⚙️</span><span class="tree-name cfg">.env</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>pytest.ini — <span class="lang-en">Configuration</span><span class="lang-tr">Yapılandırma</span></h3>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">ini</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-ini">[pytest]
+testpaths = tests
+python_files = test_*.py *_test.py
+python_classes = Test*
+python_functions = test_*
+addopts =
+    --html=reports/report.html
+    --self-contained-html
+    -v
+    --tb=short
+markers =
+    smoke: Quick sanity tests
+    regression: Full regression suite
+    api: API tests only</code></pre>
+      </div>
+    </div>
+
+    <!-- 1.3 First Test -->
+    <span class="section-anchor" id="pytest-basics"></span>
+    <div class="section sticky-hdr"><h2>1.3 — <span class="lang-en">First Test</span><span class="lang-tr">İlk Test</span></h2></div>
+    <div class="section visible">
+
+      <div class="java-cmp">
+        <div class="java-cmp-header">☕ Java vs Python — <span class="lang-en">Test Structure</span><span class="lang-tr">Test Yapısı</span></div>
+        <div class="java-cmp-body">
+          <div>
+            <div class="java-cmp-label">☕ Java (JUnit 5)</div>
+            <div class="code-wrap">
+              <pre><code class="language-java">import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LoginTest {
+    @Test
+    void testValidLogin() {
+        // Arrange
+        String user = "admin";
+        // Act
+        boolean result = login(user, "pass");
+        // Assert
+        assertTrue(result, "Login should succeed");
+    }
+}</code></pre>
+            </div>
+          </div>
+          <div>
+            <div class="java-cmp-label">🐍 Python (pytest)</div>
+            <div class="code-wrap">
+              <pre><code class="language-python">def test_valid_login():
+    # No class needed!
+    # Arrange
+    user = "admin"
+    # Act
+    result = login(user, "pass")
+    # Assert
+    assert result, "Login should succeed"
+
+# That's the whole file. No imports for basic tests.</code></pre>
+            </div>
+          </div>
+          <div class="java-cmp-note"><span class="lang-en">💡 No class, no imports, no annotations. pytest auto-discovers any function starting with <code>test_</code>. The <code>assert</code> keyword works natively — pytest rewrites it to give detailed failure messages.</span><span class="lang-tr">💡 Sınıf yok, import yok, annotation yok. pytest, <code>test_</code> ile başlayan her fonksiyonu otomatik keşfeder. <code>assert</code> anahtar kelimesi yerel çalışır — pytest onu ayrıntılı hata mesajları için yeniden yazar.</span></div>
+        </div>
+      </div>
+
+      <h3><span class="lang-en">Test Lifecycle</span><span class="lang-tr">Test Yaşam Döngüsü</span></h3>
+      <div class="lifecycle">
+        <div class="lc-step">
+          <div class="lc-box lc-setup">Setup<br><small>fixture</small></div>
+          <div class="lc-sub"><span class="lang-en">Browser launch, DB connect, auth token</span><span class="lang-tr">Tarayıcı açma, DB bağlantısı, auth token</span></div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-step">
+          <div class="lc-box lc-test"><span class="lang-en">Test Body</span><span class="lang-tr">Test Gövdesi</span><br><small>def test_*</small></div>
+          <div class="lc-sub"><span class="lang-en">Navigate, act, assert</span><span class="lang-tr">Gezin, işlem yap, doğrula</span></div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-step">
+          <div class="lc-box lc-tear">Teardown<br><small>after yield</small></div>
+          <div class="lc-sub"><span class="lang-en">Close browser, rollback DB</span><span class="lang-tr">Tarayıcıyı kapat, DB'yi geri al</span></div>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-step">
+          <div class="lc-box lc-rep">Report<br><small>html/allure</small></div>
+          <div class="lc-sub">pytest-html, Allure</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.4 Assertions -->
+    <span class="section-anchor" id="pytest-assert"></span>
+    <div class="section sticky-hdr"><h2>1.4 — Assertions</h2></div><!-- bilingual heading: Assertions is a universal software term -->
+    <div class="section visible">
+      <p class="lang-en">pytest rewrites plain <code>assert</code> statements to show detailed diffs on failure — no need for <code>assertEquals</code>, <code>assertThat</code>, or Hamcrest matchers.</p>
+      <p class="lang-tr">pytest, hata durumunda ayrıntılı farkları göstermek için düz <code>assert</code> ifadelerini yeniden yazar — <code>assertEquals</code>, <code>assertThat</code> veya Hamcrest matcher'larına gerek yok.</p>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python"># pytest assertions — plain Python, rich output on failure
+
+def test_assertions():
+    # Equality (assertEquals in Java)
+    assert result == "PASS"
+    assert count == 5
+
+    # Truthiness (assertTrue / assertFalse)
+    assert user.is_active
+    assert not user.is_banned
+
+    # Membership (contains / containsKey)
+    assert "admin" in roles
+    assert "error" not in response.text
+
+    # Type check (instanceof)
+    assert isinstance(result, list)
+
+    # Exception expected (assertThrows in JUnit 5)
+    import pytest
+    with pytest.raises(ValueError, match="invalid"):
+        parse_status("UNKNOWN")
+
+    # Approximate equality (float comparison)
+    assert response_time == pytest.approx(1.2, abs=0.1)
+
+    # Custom failure message
+    assert status == 200, f"Expected 200 but got {status}: {response.text}"</code></pre>
+      </div>
+
+      <h3><span class="lang-en">Failure Output Comparison</span><span class="lang-tr">Hata Çıktısı Karşılaştırması</span></h3>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="browser-dots"><div class="term-dot" style="background:#ef4444"></div><div class="term-dot" style="background:#f59e0b"></div><div class="term-dot" style="background:#10b981"></div></div>
+          <span class="term-title">pytest output</span>
+        </div>
+        <div class="terminal-body">
+<span class="t-cmd">$ pytest tests/test_login.py -v</span><br>
+<br>
+<span class="t-dim">FAILED</span> <span class="t-fail">tests/test_login.py::test_valid_login</span><br>
+<span class="t-dim">───────────────── FAILURES ─────────────────</span><br>
+<span class="t-fail">FAILED test_valid_login</span><br>
+<br>
+<span class="t-dim">    def test_valid_login():</span><br>
+<span class="t-dim">        result = {"status": "FAIL", "user": "admin"}</span><br>
+<span class="t-dim">&gt;       assert result["status"] == "PASS"</span><br>
+<span class="t-fail">E       AssertionError: assert 'FAIL' == 'PASS'</span><br>
+<span class="t-fail">E         - FAIL</span><br>
+<span class="t-fail">E         + PASS</span><br>
+<br>
+<span class="t-dim">1 failed, 3 passed in 0.12s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.5 Fixtures -->
+    <span class="section-anchor" id="pytest-fixtures"></span>
+    <div class="section sticky-hdr"><h2>1.5 — Fixtures</h2></div><!-- Fixtures = software term -->
+    <div class="section visible">
+      <p class="lang-en">Fixtures are pytest's dependency injection system. A fixture is a function decorated with <code>@pytest.fixture</code> that provides setup (and optional teardown via <code>yield</code>) to any test that declares it as a parameter.</p>
+      <p class="lang-tr">Fixture'lar, pytest'in bağımlılık enjeksiyon sistemidir. Fixture, parametre olarak bildiren herhangi bir teste setup (ve <code>yield</code> aracılığıyla isteğe bağlı teardown) sağlayan <code>@pytest.fixture</code> ile dekore edilmiş bir fonksiyondur.</p>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">import pytest
+from playwright.sync_api import sync_playwright
+
+@pytest.fixture(scope="session")
+def browser():
+    """Launch browser ONCE for all tests — expensive setup."""
+    with sync_playwright() as p:
+        b = p.chromium.launch(headless=True)
+        yield b          # ← tests run here
+        b.close()        # ← teardown after ALL tests
+
+@pytest.fixture(scope="function")
+def page(browser):
+    """Fresh page for EACH test — injects 'browser' automatically."""
+    context = browser.new_context(base_url="https://example.com")
+    pg = context.new_page()
+    yield pg             # ← test gets this
+    context.close()      # ← runs after each test
+
+@pytest.fixture
+def logged_in_page(page):
+    """Reuse 'page' fixture, add login step."""
+    page.goto("/login")
+    page.fill("#email", "admin@test.com")
+    page.fill("#password", "secret")
+    page.click("#submit")
+    return page          # no teardown needed here
+
+# ── Usage in test ──
+def test_dashboard_title(logged_in_page):
+    assert logged_in_page.title() == "Dashboard"
+
+def test_user_count(logged_in_page):
+    count = logged_in_page.locator(".user-row").count()
+    assert count > 0</code></pre>
+      </div>
+
+      <h3><span class="lang-en">Fixture Scope — Lifecycle Visualization</span><span class="lang-tr">Fixture Scope — Yaşam Döngüsü Görselleştirmesi</span></h3>
+      <div class="scope-wrap">
+        <div class="scope-row">
+          <div class="scope-label" style="color:var(--success)">function</div>
+          <div class="scope-bar sc-fn" style="width:100%"><span class="lang-en">Runs for EACH test — total isolation (default)</span><span class="lang-tr">Her test için çalışır — tam izolasyon (varsayılan)</span></div>
+        </div>
+        <div class="scope-row">
+          <div class="scope-label" style="color:var(--info)">class</div>
+          <div class="scope-bar sc-cls" style="width:75%"><span class="lang-en">Shared within a test class — setup once per class</span><span class="lang-tr">Test sınıfı içinde paylaşılır — sınıf başına bir kurulum</span></div>
+        </div>
+        <div class="scope-row">
+          <div class="scope-label" style="color:var(--warn)">module</div>
+          <div class="scope-bar sc-mod" style="width:50%"><span class="lang-en">Shared per .py file — one setup per file</span><span class="lang-tr">Python dosyası başına paylaşılır — dosya başına bir kurulum</span></div>
+        </div>
+        <div class="scope-row">
+          <div class="scope-label" style="color:var(--error)">session</div>
+          <div class="scope-bar sc-ses" style="width:25%"><span class="lang-en">Once per entire test run — use for browser/DB</span><span class="lang-tr">Tüm test çalışması boyunca bir kez — browser/DB için kullan</span></div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-body"><strong class="lang-en">Scope Mismatch Error</strong><strong class="lang-tr">Scope Uyuşmazlığı Hatası</strong>
+        <span class="lang-en">A <code>function</code>-scoped fixture CANNOT depend on a narrower scope fixture. A <code>session</code> fixture can depend on <code>session</code> or nothing — not on <code>function</code>.</span>
+        <span class="lang-tr">Bir <code>function</code> scope'lu fixture, daha dar kapsamlı bir fixture'a bağımlı OLAMAZ. Bir <code>session</code> fixture yalnızca <code>session</code>'a bağımlı olabilir — <code>function</code>'a değil.</span></div>
+      </div>
+    </div>
+
+    <!-- 1.6 Markers -->
+    <span class="section-anchor" id="pytest-markers"></span>
+    <div class="section sticky-hdr"><h2>1.6 — Markers &amp; Parametrize</h2></div><!-- software terms -->
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">import pytest
+
+# ── Custom markers (defined in pytest.ini) ──
+@pytest.mark.smoke
+def test_homepage_loads(page):
+    page.goto("/")
+    assert page.title() == "Home"
+
+@pytest.mark.regression
+@pytest.mark.slow
+def test_full_checkout_flow(logged_in_page):
+    ...
+
+# ── Skip / xfail ──
+@pytest.mark.skip(reason="Feature not implemented yet")
+def test_dark_mode():
+    ...
+
+@pytest.mark.xfail(reason="Known bug #123", strict=True)
+def test_payment_with_expired_card(page):
+    ...
+
+# ── Parametrize — Data-Driven Tests ──
+@pytest.mark.parametrize("email,password,expected", [
+    ("admin@test.com",  "admin123", True),
+    ("user@test.com",   "user123",  True),
+    ("wrong@test.com",  "badpass",  False),
+    ("",                "",         False),
+])
+def test_login_matrix(page, email, password, expected):
+    page.goto("/login")
+    page.fill("#email", email)
+    page.fill("#password", password)
+    page.click("#submit")
+    if expected:
+        assert page.url == "/dashboard"
+    else:
+        assert page.locator(".error").is_visible()
+
+# ── Run only smoke tests ──
+# pytest -m smoke
+# pytest -m "not slow"
+# pytest -m "smoke and regression"</code></pre>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar"><div class="browser-dots"><div class="term-dot" style="background:#ef4444"></div><div class="term-dot" style="background:#f59e0b"></div><div class="term-dot" style="background:#10b981"></div></div><span class="term-title">parametrize output</span></div>
+        <div class="terminal-body">
+<span class="t-cmd">$ pytest tests/test_login.py -v</span><br><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">test_login_matrix[admin@test.com-admin123-True]</span><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">test_login_matrix[user@test.com-user123-True]</span><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">test_login_matrix[wrong@test.com-badpass-False]</span><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">test_login_matrix[-empty-False]</span><br><br>
+<span class="t-pass">4 passed</span> <span class="t-dim">in 2.34s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.7 conftest -->
+    <span class="section-anchor" id="pytest-conftest"></span>
+    <div class="section sticky-hdr"><h2>1.7 — conftest.py</h2></div><!-- filename/software term -->
+    <div class="section visible">
+      <p class="lang-en"><code>conftest.py</code> is a special pytest file for shared fixtures. It's auto-discovered — no import needed. Fixtures defined here are available to all tests in the same directory and below.</p>
+      <p class="lang-tr"><code>conftest.py</code>, paylaşılan fixture'lar için özel bir pytest dosyasıdır. Otomatik keşfedilir — import gerekmiyor. Burada tanımlanan fixture'lar, aynı dizin ve alt dizinlerdeki tüm testler için kullanılabilir.</p>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python — tests/conftest.py</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">import pytest
+import os
+from playwright.sync_api import sync_playwright
+
+# ── Browser / Page ──
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    return {
+        **browser_context_args,
+        "base_url": os.getenv("BASE_URL", "http://localhost:3000"),
+        "viewport": {"width": 1280, "height": 720},
+        "record_video_dir": "videos/" if os.getenv("RECORD") else None,
+    }
+
+# ── Auth fixture ──
+@pytest.fixture(scope="session")
+def auth_token():
+    """Get JWT once for all tests — expensive API call."""
+    import requests
+    resp = requests.post("/api/auth/login", json={
+        "email": os.getenv("TEST_EMAIL"),
+        "password": os.getenv("TEST_PASS"),
+    })
+    return resp.json()["token"]
+
+# ── Screenshot on failure ──
+@pytest.fixture(autouse=True)
+def screenshot_on_fail(request, page):
+    yield
+    if request.node.rep_call.failed:
+        page.screenshot(path=f"screenshots/{request.node.name}.png")
+
+# ── Hook: mark test result ──
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, f"rep_{rep.when}", rep)</code></pre>
+      </div>
+    </div>
+
+    <!-- 1.8 Running Tests -->
+    <span class="section-anchor" id="pytest-run"></span>
+    <div class="section sticky-hdr"><h2>1.8 — <span class="lang-en">Running Tests</span><span class="lang-tr">Test Çalıştırma</span></h2></div>
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-bash"># Basic run
+pytest
+
+# Verbose output
+pytest -v
+
+# Run specific file
+pytest tests/test_login.py
+
+# Run specific test
+pytest tests/test_login.py::test_valid_login
+
+# Run by marker
+pytest -m smoke
+pytest -m "not slow"
+
+# Stop after first failure
+pytest -x
+
+# Parallel execution (pytest-xdist)
+pytest -n 4          # 4 workers
+pytest -n auto       # auto-detect CPU count
+
+# HTML report (pytest-html)
+pytest --html=report.html --self-contained-html
+
+# Coverage report
+pytest --cov=src --cov-report=html
+
+# Allure report
+pytest --alluredir=allure-results
+allure serve allure-results</code></pre>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar"><div class="browser-dots"><div class="term-dot" style="background:#ef4444"></div><div class="term-dot" style="background:#f59e0b"></div><div class="term-dot" style="background:#10b981"></div></div><span class="term-title">Full test run</span></div>
+        <div class="terminal-body">
+<span class="t-cmd">$ pytest -v --tb=short -m smoke</span><br><br>
+<span class="t-dim">=================== test session starts ===================</span><br>
+<span class="t-dim">platform linux -- Python 3.11.4, pytest-7.4.0</span><br>
+<span class="t-dim">collected 12 items / 8 deselected / 4 selected</span><br><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">tests/test_login.py::test_homepage_loads</span> <span class="t-dim">[0.12s]</span><br>
+<span class="t-pass">PASSED</span> <span class="t-dim">tests/test_login.py::test_valid_login</span> <span class="t-dim">[0.34s]</span><br>
+<span class="t-fail">FAILED</span> <span class="t-dim">tests/test_checkout.py::test_add_to_cart</span> <span class="t-dim">[1.23s]</span><br>
+<span class="t-warn">XFAIL</span> <span class="t-dim">tests/test_payment.py::test_expired_card</span> <span class="t-dim">[0.08s]</span><br><br>
+<span class="t-dim">─────────────── short test summary ────────────────</span><br>
+<span class="t-fail">FAILED</span> <span class="t-dim">tests/test_checkout.py::test_add_to_cart</span><br>
+<span class="t-fail">  AssertionError: Expected cart count 1, got 0</span><br><br>
+<span class="t-dim">========= </span><span class="t-fail">1 failed</span><span class="t-dim">, </span><span class="t-pass">2 passed</span><span class="t-dim">, </span><span class="t-warn">1 xfailed</span><span class="t-dim"> in 1.81s =========</span>
+        </div>
+      </div>
+
+      <!-- Framework comparison bar chart -->
+      <h3><span class="lang-en">Framework Comparison</span><span class="lang-tr">Framework Karşılaştırması</span></h3>
+      <div class="bar-chart" id="bar-chart">
+        <div class="bar-row"><span class="bar-label">pytest (Python)</span><div class="bar-track"><div class="bar-fill" style="width:95%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div><span class="bar-val">95</span></div>
+        <div class="bar-row"><span class="bar-label">JUnit 5 (Java)</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div><span class="bar-val">85</span></div>
+        <div class="bar-row"><span class="bar-label">unittest (Python)</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div></div><span class="bar-val">55</span></div>
+        <div class="bar-row"><span class="bar-label">nose2 (Python)</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:linear-gradient(90deg,#94a3b8,#cbd5e1)"></div></div><span class="bar-val">35</span></div>
+      </div>
+      <p style="font-size:.75rem;color:var(--text3);margin-top:-4px"><span class="lang-en">Scores based on: ecosystem, fixture system, parametrize support, reporting, plugin count</span><span class="lang-tr">Puanlar şuna göre: ekosistem, fixture sistemi, parametrize desteği, raporlama, plugin sayısı</span></p>
+    </div>
+
+  </div><!-- /tab-pytest -->
+
+  <!-- ════════════════════════════════════════
+       TAB: SELENIUM
+  ════════════════════════════════════════ -->
+  <div id="tab-selenium" class="fw-content">
+
+    <span class="section-anchor" id="sel-what"></span>
+    <div class="section sticky-hdr"><h2>2.1 — <span class="lang-en">What is Selenium?</span><span class="lang-tr">Selenium Nedir?</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">Selenium WebDriver is the gold standard for cross-browser UI automation since 2004. It controls a real browser via the WebDriver protocol — exactly what a user would do. Python's <code>selenium</code> library talks to ChromeDriver/GeckoDriver to send commands.</p>
+      <p class="lang-tr">Selenium WebDriver, 2004'ten beri çapraz tarayıcı UI otomasyonunun altın standardıdır. WebDriver protokolü aracılığıyla gerçek bir tarayıcıyı kontrol eder — tıpkı bir kullanıcının yapacağı gibi. Python'ın <code>selenium</code> kütüphanesi, komutlar göndermek için ChromeDriver/GeckoDriver ile iletişim kurar.</p>
+
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">🌍</div><h4>Cross-Browser</h4><p><span class="lang-en">Chrome, Firefox, Safari, Edge — same Python code, different driver.</span><span class="lang-tr">Chrome, Firefox, Safari, Edge — aynı Python kodu, farklı driver.</span></p></div>
+        <div class="card"><div class="card-icon">🏛️</div><h4><span class="lang-en">Industry Standard</span><span class="lang-tr">Endüstri Standardı</span></h4><p><span class="lang-en">Most QA teams know Selenium. Huge community, tons of resources.</span><span class="lang-tr">Çoğu QA ekibi Selenium bilir. Büyük topluluk, bol kaynak.</span></p></div>
+        <div class="card"><div class="card-icon">🔗</div><h4>pytest Integration</h4><p><span class="lang-en">Use pytest-selenium or manage WebDriver as a pytest fixture.</span><span class="lang-tr">pytest-selenium kullan ya da WebDriver'ı pytest fixture olarak yönet.</span></p></div>
+        <div class="card"><div class="card-icon">📦</div><h4>Selenium 4</h4><p><span class="lang-en">BiDi protocol, relative locators, native Chrome DevTools support.</span><span class="lang-tr">BiDi protokolü, relative locator'lar, yerel Chrome DevTools desteği.</span></p></div>
+      </div>
+
+      <!-- SVG Architecture Diagram -->
+      <h3><span class="lang-en">Architecture</span><span class="lang-tr">Mimari</span></h3>
+      <div class="browser-wrap">
+        <div class="browser-bar">
+          <div class="browser-dots"><div class="browser-dot" style="background:#ef4444"></div><div class="browser-dot" style="background:#f59e0b"></div><div class="browser-dot" style="background:#10b981"></div></div>
+          <div class="browser-url">Selenium WebDriver Architecture</div>
+        </div>
+        <svg width="100%" height="140" viewBox="0 0 800 140" style="background:var(--bg2);display:block;padding:16px 24px">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#7c3aed"/>
+            </marker>
+          </defs>
+          <!-- Test Script -->
+          <rect x="10" y="30" width="140" height="60" rx="10" fill="rgba(16,185,129,0.15)" stroke="#10b981" stroke-width="1.5"/>
+          <text x="80" y="56" text-anchor="middle" font-size="11" fill="#6ee7b7" font-family="JetBrains Mono">test_login.py</text>
+          <text x="80" y="74" text-anchor="middle" font-size="10" fill="#94a3b8">Python test</text>
+          <!-- Arrow -->
+          <line x1="155" y1="60" x2="200" y2="60" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr)"/>
+          <text x="177" y="54" text-anchor="middle" font-size="9" fill="#a855f7">WebDriver API</text>
+          <!-- WebDriver -->
+          <rect x="205" y="30" width="160" height="60" rx="10" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="285" y="56" text-anchor="middle" font-size="11" fill="#c4b5fd" font-family="JetBrains Mono">selenium.webdriver</text>
+          <text x="285" y="74" text-anchor="middle" font-size="10" fill="#94a3b8">Python library</text>
+          <!-- Arrow -->
+          <line x1="370" y1="60" x2="415" y2="60" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr)"/>
+          <text x="392" y="54" text-anchor="middle" font-size="9" fill="#a855f7">HTTP/W3C</text>
+          <!-- ChromeDriver -->
+          <rect x="420" y="30" width="160" height="60" rx="10" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="500" y="56" text-anchor="middle" font-size="11" fill="#93c5fd" font-family="JetBrains Mono">chromedriver</text>
+          <text x="500" y="74" text-anchor="middle" font-size="10" fill="#94a3b8">Driver binary</text>
+          <!-- Arrow -->
+          <line x1="585" y1="60" x2="630" y2="60" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr)"/>
+          <text x="607" y="54" text-anchor="middle" font-size="9" fill="#a855f7">DevTools</text>
+          <!-- Browser -->
+          <rect x="635" y="30" width="140" height="60" rx="10" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="705" y="56" text-anchor="middle" font-size="11" fill="#fcd34d" font-family="JetBrains Mono">Chrome</text>
+          <text x="705" y="74" text-anchor="middle" font-size="10" fill="#94a3b8">Real browser</text>
+        </svg>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="sel-setup"></span>
+    <div class="section sticky-hdr"><h2>2.2 — <span class="lang-en">Setup</span><span class="lang-tr">Kurulum</span></h2></div>
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-bash">pip install selenium webdriver-manager pytest</code></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python — conftest.py</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">import pytest
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+@pytest.fixture(scope="function")
+def driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--window-size=1280,720")
+    options.add_argument("--no-sandbox")
+
+    service = Service(ChromeDriverManager().install())
+    drv = webdriver.Chrome(service=service, options=options)
+    drv.implicitly_wait(10)  # default wait
+    yield drv
+    drv.quit()               # always closes browser</code></pre>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="sel-locators"></span>
+    <div class="section sticky-hdr"><h2>2.3 — <span class="lang-en">Locator Strategies</span><span class="lang-tr">Locator Stratejileri</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">Selenium can find elements 8 ways. Prefer <strong>ID &gt; CSS &gt; XPath</strong> in that order for stability.</p>
+      <p class="lang-tr">Selenium, elementleri 8 farklı şekilde bulabilir. Kararlılık için sırasıyla <strong>ID &gt; CSS &gt; XPath</strong> tercih edin.</p>
+
+      <div class="badge-grid">
+        <div class="action-badge"><span class="ab-icon">🆔</span> ID <span class="tag tag-ok"><span class="lang-en">Fastest</span><span class="lang-tr">En Hızlı</span></span></div>
+        <div class="action-badge"><span class="ab-icon">🎨</span> CSS Selector</div>
+        <div class="action-badge"><span class="ab-icon">🔖</span> XPath</div>
+        <div class="action-badge"><span class="ab-icon">🏷️</span> Name</div>
+        <div class="action-badge"><span class="ab-icon">🔗</span> Link Text</div>
+        <div class="action-badge"><span class="ab-icon">📌</span> Partial Link Text</div>
+        <div class="action-badge"><span class="ab-icon">🏗️</span> Tag Name</div>
+        <div class="action-badge"><span class="ab-icon">📍</span> Class Name</div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from selenium.webdriver.common.by import By
+
+# ── Preferred order ──
+el = driver.find_element(By.ID, "submit-btn")         # ✅ Best: unique, fast
+el = driver.find_element(By.CSS_SELECTOR, "#submit")  # ✅ Good: CSS power
+el = driver.find_element(By.CSS_SELECTOR, ".form .btn[type='submit']")
+el = driver.find_element(By.XPATH, "//button[@data-testid='submit']")
+
+# ── Multiple elements ──
+items = driver.find_elements(By.CSS_SELECTOR, "li.product")
+count = len(items)
+
+# ── Relative Locators (Selenium 4) ──
+from selenium.webdriver.support.relative_locator import locate_with
+
+password_label = driver.find_element(By.ID, "password-label")
+password_field = driver.find_element(
+    locate_with(By.TAG_NAME, "input").to_right_of(password_label)
+)
+
+# ── Bad practices to avoid ──
+# ❌ driver.find_element(By.XPATH, "/html/body/div[3]/form/input[2]")
+# ❌ driver.find_element(By.CLASS_NAME, "btn")  # class names change</code></pre>
+      </div>
+
+      <!-- SVG Browser mockup showing locator -->
+      <h3><span class="lang-en">Visual: Finding an Element</span><span class="lang-tr">Görsel: Eleman Bulma</span></h3>
+      <div class="browser-wrap">
+        <div class="browser-bar">
+          <div class="browser-dots"><div class="browser-dot" style="background:#ef4444"></div><div class="browser-dot" style="background:#f59e0b"></div><div class="browser-dot" style="background:#10b981"></div></div>
+          <div class="browser-url">https://example.com/login</div>
+        </div>
+        <svg width="100%" height="180" viewBox="0 0 700 180" style="background:var(--bg2);display:block">
+          <!-- Page bg -->
+          <rect x="0" y="0" width="700" height="180" fill="#1a1a2e"/>
+          <!-- Form card -->
+          <rect x="220" y="20" width="260" height="140" rx="12" fill="#2d2d3f" stroke="#3a3a4f" stroke-width="1"/>
+          <text x="350" y="45" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Login</text>
+          <!-- Email field -->
+          <rect x="240" y="55" width="220" height="28" rx="6" fill="#1e1e2e" stroke="#3a3a4f" stroke-width="1"/>
+          <text x="250" y="74" font-size="10" fill="#64748b">admin@test.com</text>
+          <!-- Password field -->
+          <rect x="240" y="90" width="220" height="28" rx="6" fill="#1e1e2e" stroke="#3a3a4f" stroke-width="1"/>
+          <text x="250" y="109" font-size="10" fill="#64748b">••••••••</text>
+          <!-- Submit button — highlighted -->
+          <rect x="240" y="126" width="220" height="24" rx="6" fill="#7c3aed" stroke="#a855f7" stroke-width="2"/>
+          <text x="350" y="143" text-anchor="middle" font-size="11" fill="#fff" font-weight="600" id="submit-btn">Submit</text>
+          <!-- Arrow from code to button -->
+          <path d="M 100,143 Q 170,143 235,138" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+          <!-- Code snippet -->
+          <rect x="10" y="120" width="200" height="34" rx="8" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="1"/>
+          <text x="20" y="135" font-size="9" fill="#fcd34d" font-family="JetBrains Mono">By.ID, "submit-btn"</text>
+          <text x="20" y="148" font-size="9" fill="#94a3b8">.click()</text>
+          <!-- Highlight ring on button -->
+          <rect x="237" y="123" width="226" height="30" rx="8" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3" opacity="0.8"/>
+        </svg>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="sel-actions"></span>
+    <div class="section sticky-hdr"><h2>2.4 — <span class="lang-en">Browser Actions</span><span class="lang-tr">Tarayıcı Eylemleri</span></h2></div>
+    <div class="section visible">
+      <div class="badge-grid">
+        <div class="action-badge"><span class="ab-icon">🖱️</span> click()</div>
+        <div class="action-badge"><span class="ab-icon">⌨️</span> send_keys()</div>
+        <div class="action-badge"><span class="ab-icon">🗑️</span> clear()</div>
+        <div class="action-badge"><span class="ab-icon">📜</span> scroll</div>
+        <div class="action-badge"><span class="ab-icon">🖱️🖱️</span> double_click</div>
+        <div class="action-badge"><span class="ab-icon">🖱️➡️</span> drag_and_drop</div>
+        <div class="action-badge"><span class="ab-icon">📸</span> screenshot</div>
+        <div class="action-badge"><span class="ab-icon">⬅️➡️</span> navigate</div>
+        <div class="action-badge"><span class="ab-icon">🪟</span> switch_to</div>
+        <div class="action-badge"><span class="ab-icon">💉</span> execute_script</div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
+# ── Basic actions ──
+driver.get("https://example.com/login")
+driver.find_element(By.ID, "email").send_keys("admin@test.com")
+driver.find_element(By.ID, "password").send_keys("secret")
+driver.find_element(By.ID, "submit").click()
+
+# ── Keyboard shortcuts ──
+field = driver.find_element(By.ID, "search")
+field.send_keys("pytest")
+field.send_keys(Keys.ENTER)                       # press Enter
+field.send_keys(Keys.CONTROL + "a")               # Ctrl+A
+
+# ── Advanced: ActionChains ──
+actions = ActionChains(driver)
+
+# Hover over element
+menu = driver.find_element(By.ID, "nav-menu")
+actions.move_to_element(menu).perform()
+
+# Drag and drop
+source = driver.find_element(By.ID, "drag-item")
+target = driver.find_element(By.ID, "drop-zone")
+actions.drag_and_drop(source, target).perform()
+
+# Double click
+actions.double_click(driver.find_element(By.ID, "item")).perform()
+
+# ── JavaScript execution ──
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+driver.execute_script("arguments[0].click();", element)  # bypass overlays
+
+# ── Screenshots ──
+driver.save_screenshot("screenshots/login_page.png")
+element.screenshot("screenshots/button.png")  # element-level</code></pre>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="sel-waits"></span>
+    <div class="section sticky-hdr"><h2>2.5 — <span class="lang-en">Waits</span><span class="lang-tr">Bekleme Stratejileri</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">Flaky tests almost always come from <strong>timing issues</strong>. Never use <code>time.sleep()</code> — use explicit waits.</p>
+      <p class="lang-tr">Kararsız testler neredeyse her zaman <strong>zamanlama sorunlarından</strong> kaynaklanır. <code>time.sleep()</code> asla kullanmayın — explicit wait kullanın.</p>
+
+      <div class="wait-cmp">
+        <div class="wait-card">
+          <div class="wait-type wait-bad">❌ Implicit Wait</div>
+          <div class="wait-desc"><span class="lang-en">Set once globally. WebDriver polls for N seconds before throwing NoSuchElement. Applies to ALL find_element calls — causes slow failures.</span><span class="lang-tr">Bir kez global olarak ayarlanır. WebDriver, NoSuchElement hatası vermeden önce N saniye boyunca yoklar. Tüm find_element çağrılarına uygulanır — yavaş hatalara neden olur.</span></div>
+          <div style="margin-top:8px;font-size:.75rem;color:var(--text3)"><code>driver.implicitly_wait(10)</code></div>
+        </div>
+        <div class="wait-card">
+          <div class="wait-type wait-ok">✅ Explicit Wait</div>
+          <div class="wait-desc"><span class="lang-en">Wait for a <em>specific condition</em> on a <em>specific element</em>. Most reliable. Use <code>WebDriverWait</code> with <code>expected_conditions</code>.</span><span class="lang-tr"><em>Belirli bir koşulun</em> <em>belirli bir elemanda</em> gerçekleşmesini bekle. En güvenilir yöntem. <code>WebDriverWait</code>'i <code>expected_conditions</code> ile kullan.</span></div>
+          <div style="margin-top:8px;font-size:.75rem;color:var(--text3)"><code>WebDriverWait(driver, 10).until(EC.clickable)</code></div>
+        </div>
+        <div class="wait-card">
+          <div class="wait-type wait-bad">⚠️ Fluent Wait</div>
+          <div class="wait-desc"><span class="lang-en">Explicit wait with custom poll interval and ignored exceptions. Useful for slow AJAX but adds complexity. Prefer explicit wait for most cases.</span><span class="lang-tr">Özel poll aralığı ve yoksayılan exception'larla explicit wait. Yavaş AJAX için kullanışlı ama karmaşıklık katar. Çoğu durumda explicit wait tercih edin.</span></div>
+          <div style="margin-top:8px;font-size:.75rem;color:var(--text3)"><code>WebDriverWait(driver,10,poll_frequency=.5)</code></div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+wait = WebDriverWait(driver, timeout=10)
+
+# ── Most common conditions ──
+el = wait.until(EC.presence_of_element_located((By.ID, "modal")))
+el = wait.until(EC.visibility_of_element_located((By.ID, "result")))
+el = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#submit")))
+wait.until(EC.url_contains("/dashboard"))
+wait.until(EC.title_is("Dashboard"))
+wait.until(EC.text_to_be_present_in_element((By.ID, "msg"), "Success"))
+
+# ── Wait for element to DISAPPEAR ──
+wait.until(EC.invisibility_of_element_located((By.ID, "loading-spinner")))
+
+# ── Custom wait condition ──
+def element_has_class(locator, cls):
+    def check(driver):
+        el = driver.find_element(*locator)
+        return cls in el.get_attribute("class")
+    return check
+
+wait.until(element_has_class((By.ID, "btn"), "active"))</code></pre>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="sel-pom"></span>
+    <div class="section sticky-hdr"><h2>2.6 — Page Object Model</h2></div><!-- POM is a universal design pattern term -->
+    <div class="section visible">
+      <p class="lang-en">POM separates locators and actions from test logic. One class per page. Tests become readable business flows — not brittle locator soup.</p>
+      <p class="lang-tr">POM, locator'ları ve aksiyonları test mantığından ayırır. Sayfa başına bir sınıf. Testler, kırılgan locator karmaşası yerine okunabilir iş akışlarına dönüşür.</p>
+
+      <div class="java-cmp">
+        <div class="java-cmp-header">☕ Java POM vs Python POM — <span class="lang-en">Same Pattern, Cleaner Syntax</span><span class="lang-tr">Aynı Desen, Daha Temiz Sözdizimi</span></div>
+        <div class="java-cmp-body">
+          <div>
+            <div class="java-cmp-label">☕ Java</div>
+            <div class="code-wrap"><pre><code class="language-java">public class LoginPage {
+    private WebDriver driver;
+
+    @FindBy(id = "email")
+    private WebElement emailField;
+
+    @FindBy(id = "submit")
+    private WebElement submitBtn;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    public void login(String email, String pass) {
+        emailField.sendKeys(email);
+        driver.findElement(By.id("password"))
+              .sendKeys(pass);
+        submitBtn.click();
+    }
+}</code></pre></div>
+          </div>
+          <div>
+            <div class="java-cmp-label">🐍 Python</div>
+            <div class="code-wrap"><pre><code class="language-python">from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class LoginPage:
+    EMAIL = (By.ID, "email")
+    PASSWORD = (By.ID, "password")
+    SUBMIT = (By.CSS_SELECTOR, "#submit")
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
+
+    def login(self, email: str, password: str):
+        self.wait.until(EC.element_to_be_clickable(
+            self.EMAIL)).send_keys(email)
+        self.driver.find_element(*self.PASSWORD).send_keys(password)
+        self.driver.find_element(*self.SUBMIT).click()
+        return DashboardPage(self.driver)  # chain pages
+</code></pre></div>
+          </div>
+          <div class="java-cmp-note"><span class="lang-en">💡 Python POM uses tuples for locators <code>(By.ID, "email")</code> instead of annotations. The <code>*</code> unpacks the tuple: <code>find_element(*self.EMAIL)</code> = <code>find_element(By.ID, "email")</code></span><span class="lang-tr">💡 Python POM, annotation yerine locator'lar için tuple kullanır <code>(By.ID, "email")</code>. <code>*</code> tuple'ı açar: <code>find_element(*self.EMAIL)</code> = <code>find_element(By.ID, "email")</code></span></div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python — tests/test_login.py</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">def test_valid_login(driver):
+    login_page = LoginPage(driver)
+    driver.get("https://example.com/login")
+
+    dashboard = login_page.login("admin@test.com", "secret")
+
+    assert dashboard.get_welcome_message() == "Welcome, Admin!"
+    assert dashboard.is_logged_in()
+
+def test_invalid_login(driver):
+    login_page = LoginPage(driver)
+    driver.get("https://example.com/login")
+    login_page.login("wrong@test.com", "badpass")
+
+    assert login_page.get_error_message() == "Invalid credentials"</code></pre>
+      </div>
+    </div>
+
+  </div><!-- /tab-selenium -->
+
+  <!-- ════════════════════════════════════════
+       TAB: PLAYWRIGHT
+  ════════════════════════════════════════ -->
+  <div id="tab-playwright" class="fw-content">
+
+    <span class="section-anchor" id="pw-what"></span>
+    <div class="section sticky-hdr"><h2>3.1 — <span class="lang-en">What is Playwright?</span><span class="lang-tr">Playwright Nedir?</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">Playwright is Microsoft's modern browser automation library (2020). Unlike Selenium's HTTP-based WebDriver, Playwright uses a direct WebSocket connection to browser DevTools — making it dramatically faster and more reliable, with built-in auto-waiting.</p>
+      <p class="lang-tr">Playwright, Microsoft'un modern tarayıcı otomasyon kütüphanesidir (2020). Selenium'un HTTP tabanlı WebDriver'ından farklı olarak, Playwright tarayıcı DevTools'a doğrudan WebSocket bağlantısı kullanır — bu da onu dramatik biçimde daha hızlı ve güvenilir kılar, yerleşik auto-wait ile.</p>
+
+      <div class="pw-grid">
+        <div class="pw-feat"><h4>⚡ Auto-Wait</h4><p><span class="lang-en">Every action waits automatically — no explicit waits needed for most cases.</span><span class="lang-tr">Her eylem otomatik olarak bekler — çoğu durumda explicit wait gerekmez.</span></p></div>
+        <div class="pw-feat"><h4>🌐 Cross-Browser</h4><p><span class="lang-en">Chromium, Firefox, and WebKit (Safari) — all bundled, no driver management.</span><span class="lang-tr">Chromium, Firefox ve WebKit (Safari) — hepsi dahil, driver yönetimi yok.</span></p></div>
+        <div class="pw-feat"><h4>📸 Trace Viewer</h4><p><span class="lang-en">Record a trace zip with screenshots, network, console, DOM snapshots.</span><span class="lang-tr">Ekran görüntüleri, network, konsol ve DOM snapshot'larıyla trace kaydı alın.</span></p></div>
+        <div class="pw-feat"><h4>🕸️ <span class="lang-en">Network Control</span><span class="lang-tr">Ağ Kontrolü</span></h4><p><span class="lang-en">Intercept, mock, block any HTTP request. API mocking built-in.</span><span class="lang-tr">Herhangi bir HTTP isteğini yakala, mock'la veya engelle. API mocking yerleşik.</span></p></div>
+        <div class="pw-feat"><h4>📱 <span class="lang-en">Mobile Emulation</span><span class="lang-tr">Mobil Emülasyon</span></h4><p><span class="lang-en">Emulate any device with correct viewport, touch events, user agent.</span><span class="lang-tr">Doğru viewport, dokunma olayları ve user agent ile herhangi bir cihazı emüle edin.</span></p></div>
+        <div class="pw-feat"><h4>🎭 <span class="lang-en">Multiple Contexts</span><span class="lang-tr">Çoklu Context'ler</span></h4><p><span class="lang-en">Isolated browser contexts = fast parallel tests with different auth states.</span><span class="lang-tr">İzole browser context'leri = farklı auth durumlarıyla hızlı paralel testler.</span></p></div>
+      </div>
+
+      <!-- Comparison table -->
+      <h3><span class="lang-en">Playwright vs Selenium</span><span class="lang-tr">Playwright ile Selenium Karşılaştırması</span></h3>
+      <table class="cmp-table">
+        <tr><th><span class="lang-en">Feature</span><span class="lang-tr">Özellik</span></th><th>🎭 Playwright</th><th>🌐 Selenium</th></tr>
+        <tr><td><span class="lang-en">Auto-waiting</span><span class="lang-tr">Otomatik Bekleme</span></td><td><span class="tick">✅</span> <span class="lang-en">Built-in</span><span class="lang-tr">Yerleşik</span></td><td><span class="cross">❌</span> <span class="lang-en">Manual waits</span><span class="lang-tr">Manuel bekleme</span></td></tr>
+        <tr><td><span class="lang-en">Driver management</span><span class="lang-tr">Driver Yönetimi</span></td><td><span class="tick">✅</span> <span class="lang-en">Bundled browsers</span><span class="lang-tr">Dahili tarayıcılar</span></td><td><span class="half">⚠️</span> webdriver-manager</td></tr>
+        <tr><td><span class="lang-en">Speed</span><span class="lang-tr">Hız</span></td><td><span class="tick">✅</span> <span class="lang-en">Faster (DevTools)</span><span class="lang-tr">Daha hızlı (DevTools)</span></td><td><span class="half">⚠️</span> <span class="lang-en">Slower (HTTP)</span><span class="lang-tr">Daha yavaş (HTTP)</span></td></tr>
+        <tr><td><span class="lang-en">Network mocking</span><span class="lang-tr">Ağ Mocklaması</span></td><td><span class="tick">✅</span> <span class="lang-en">Native</span><span class="lang-tr">Yerel</span></td><td><span class="cross">❌</span> <span class="lang-en">Proxy required</span><span class="lang-tr">Proxy gerekli</span></td></tr>
+        <tr><td><span class="lang-en">Parallel tests</span><span class="lang-tr">Paralel Testler</span></td><td><span class="tick">✅</span> Browser contexts</td><td><span class="half">⚠️</span> <span class="lang-en">Multiple processes</span><span class="lang-tr">Birden fazla süreç</span></td></tr>
+        <tr><td><span class="lang-en">Industry adoption</span><span class="lang-tr">Endüstri Benimsemesi</span></td><td><span class="half">⚠️</span> <span class="lang-en">Growing fast</span><span class="lang-tr">Hızla büyüyor</span></td><td><span class="tick">✅</span> <span class="lang-en">Dominant (legacy)</span><span class="lang-tr">Baskın (eski)</span></td></tr>
+        <tr><td><span class="lang-en">Mobile emulation</span><span class="lang-tr">Mobil Emülasyon</span></td><td><span class="tick">✅</span> <span class="lang-en">Built-in devices</span><span class="lang-tr">Dahili cihazlar</span></td><td><span class="half">⚠️</span> <span class="lang-en">Limited</span><span class="lang-tr">Sınırlı</span></td></tr>
+        <tr><td><span class="lang-en">Trace / debugging</span><span class="lang-tr">İzleme / Hata Ayıklama</span></td><td><span class="tick">✅</span> Trace Viewer</td><td><span class="cross">❌</span> <span class="lang-en">Screenshots only</span><span class="lang-tr">Yalnızca ekran görüntüsü</span></td></tr>
+      </table>
+    </div>
+
+    <span class="section-anchor" id="pw-setup"></span>
+    <div class="section sticky-hdr"><h2>3.2 — <span class="lang-en">Setup</span><span class="lang-tr">Kurulum</span></h2></div>
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-bash">pip install playwright pytest-playwright
+playwright install               # downloads Chromium, Firefox, WebKit
+playwright install chromium      # or just one browser</code></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">ini — pytest.ini</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-ini">[pytest]
+addopts = --browser chromium --headed
+base_url = https://example.com</code></pre>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="pw-first"></span>
+    <div class="section sticky-hdr"><h2>3.3 — <span class="lang-en">First Test</span><span class="lang-tr">İlk Test</span></h2></div>
+    <div class="section visible">
+      <div class="java-cmp">
+        <div class="java-cmp-header">☕ Java Playwright vs Python Playwright — <span class="lang-en">Comparison</span><span class="lang-tr">Karşılaştırma</span></div>
+        <div class="java-cmp-body">
+          <div>
+            <div class="java-cmp-label">☕ Java (Playwright for Java)</div>
+            <div class="code-wrap"><pre><code class="language-java">import com.microsoft.playwright.*;
+import com.microsoft.playwright.assertions.*;
+import org.junit.jupiter.api.*;
+
+class LoginTest {
+    Playwright pw;
+    Browser browser;
+    Page page;
+
+    @BeforeEach void setup() {
+        pw = Playwright.create();
+        browser = pw.chromium().launch();
+        page = browser.newPage();
+    }
+
+    @Test void testLogin() {
+        page.navigate("https://example.com/login");
+        page.fill("#email", "admin@test.com");
+        page.fill("#password", "secret");
+        page.click("#submit");
+        PlaywrightAssertions
+            .assertThat(page)
+            .hasURL("/dashboard");
+    }
+
+    @AfterEach void tearDown() {
+        browser.close(); pw.close();
+    }
+}</code></pre></div>
+          </div>
+          <div>
+            <div class="java-cmp-label">🐍 Python (pytest-playwright)</div>
+            <div class="code-wrap"><pre><code class="language-python">from playwright.sync_api import Page, expect
+
+def test_login(page: Page):
+    # No setup! pytest-playwright handles it
+    page.goto("/login")
+    page.fill("#email", "admin@test.com")
+    page.fill("#password", "secret")
+    page.click("#submit")
+
+    # Built-in assertions:
+    expect(page).to_have_url("/dashboard")
+    expect(page.locator("h1")).to_have_text("Welcome!")
+
+# Python needs ZERO setup code.
+# pytest-playwright injects 'page' fixture automatically.
+# Browser opens, test runs, browser closes — hands-free.</code></pre></div>
+          </div>
+          <div class="java-cmp-note"><span class="lang-en">💡 Python Playwright uses <code>sync_api</code> (no async/await needed). Java requires @BeforeEach/@AfterEach boilerplate; Python handles it via the built-in <code>page</code> fixture from pytest-playwright.</span><span class="lang-tr">💡 Python Playwright, <code>sync_api</code> kullanır (async/await gerekmez). Java, @BeforeEach/@AfterEach şablonu gerektirir; Python bunu pytest-playwright'ın yerleşik <code>page</code> fixture'ı aracılığıyla halleder.</span></div>
+        </div>
+      </div>
+
+      <div class="callout success">
+        <span class="callout-icon">🎯</span>
+        <div class="callout-body"><strong>expect() vs assert</strong>
+        <span class="lang-en">Playwright's <code>expect(locator).to_have_text("x")</code> retries the assertion for up to 5 seconds — it's an assertion WITH auto-wait built in. Plain <code>assert</code> checks once and fails immediately.</span>
+        <span class="lang-tr">Playwright'ın <code>expect(locator).to_have_text("x")</code> ifadesi 5 saniyeye kadar yeniden dener — yerleşik auto-wait içeren bir doğrulamadır. Düz <code>assert</code> ise bir kez kontrol edip hemen hata verir.</span></div>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="pw-auto"></span>
+    <div class="section sticky-hdr"><h2>3.4 — <span class="lang-en">Auto-Wait Mechanism</span><span class="lang-tr">Auto-Wait Mekanizması</span></h2></div>
+    <div class="section visible">
+      <p class="lang-en">Before every action, Playwright checks that the element is <strong>attached → visible → stable → enabled → not covered</strong>. No <code>WebDriverWait</code> needed for normal interactions.</p>
+      <p class="lang-tr">Her eylemden önce, Playwright elementin <strong>attached → visible → stable → enabled → not covered</strong> olduğunu kontrol eder. Normal etkileşimler için <code>WebDriverWait</code> gerekmez.</p>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from playwright.sync_api import Page, expect
+
+def test_checkout_flow(page: Page):
+    page.goto("/shop")
+
+    # ── Playwright auto-waits before each action ──
+    page.click(".add-to-cart")         # waits until button is clickable
+    page.click("#cart-icon")           # waits until visible
+    page.click("text=Proceed to Pay")  # text locator!
+
+    page.fill("#card-number", "4111111111111111")
+    page.select_option("#expiry-month", "12")
+    page.click("#pay-btn")
+
+    # ── Assertions with built-in retry ──
+    expect(page.locator(".order-confirmation")).to_be_visible()
+    expect(page.locator(".order-id")).to_have_text(r"ORD-\d{6}")
+
+    # ── Only use explicit waits for tricky cases ──
+    page.wait_for_url("**/confirmation")
+    page.wait_for_selector(".success-msg", state="visible")
+    page.wait_for_load_state("networkidle")
+
+    # ── When you NEED to wait for an element to be GONE ──
+    page.wait_for_selector("#loading-spinner", state="hidden")</code></pre>
+      </div>
+
+      <svg width="100%" height="100" viewBox="0 0 700 100" style="background:var(--bg2);border-radius:12px;border:1px solid var(--border);display:block;margin:16px 0">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#10b981"/>
+          </marker>
+        </defs>
+        <text x="350" y="22" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Inter">Playwright Auto-Wait Chain (runs before every action)</text>
+        <rect x="10" y="35" width="100" height="32" rx="8" fill="rgba(59,130,246,.2)" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="60" y="55" text-anchor="middle" font-size="9.5" fill="#93c5fd">Attached</text>
+        <line x1="115" y1="51" x2="135" y2="51" stroke="#10b981" stroke-width="2" marker-end="url(#arr2)"/>
+        <rect x="140" y="35" width="100" height="32" rx="8" fill="rgba(59,130,246,.2)" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="190" y="55" text-anchor="middle" font-size="9.5" fill="#93c5fd">Visible</text>
+        <line x1="245" y1="51" x2="265" y2="51" stroke="#10b981" stroke-width="2" marker-end="url(#arr2)"/>
+        <rect x="270" y="35" width="100" height="32" rx="8" fill="rgba(59,130,246,.2)" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="320" y="55" text-anchor="middle" font-size="9.5" fill="#93c5fd">Stable</text>
+        <line x1="375" y1="51" x2="395" y2="51" stroke="#10b981" stroke-width="2" marker-end="url(#arr2)"/>
+        <rect x="400" y="35" width="100" height="32" rx="8" fill="rgba(59,130,246,.2)" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="450" y="55" text-anchor="middle" font-size="9.5" fill="#93c5fd">Enabled</text>
+        <line x1="505" y1="51" x2="525" y2="51" stroke="#10b981" stroke-width="2" marker-end="url(#arr2)"/>
+        <rect x="530" y="35" width="100" height="32" rx="8" fill="rgba(16,185,129,.2)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="580" y="51" text-anchor="middle" font-size="9.5" fill="#6ee7b7">Not covered</text>
+        <text x="580" y="61" text-anchor="middle" font-size="9.5" fill="#6ee7b7">→ Action! ✅</text>
+        <text x="350" y="90" text-anchor="middle" font-size="9" fill="#64748b">Timeout 30s by default — configurable per-action</text>
+      </svg>
+    </div>
+
+    <span class="section-anchor" id="pw-network"></span>
+    <div class="section sticky-hdr"><h2>3.5 — Network &amp; API Mocking</h2></div><!-- technical term -->
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from playwright.sync_api import Page, Route
+import json
+
+def test_with_mocked_api(page: Page):
+    """Intercept API call and return fake data — no real backend needed."""
+
+    def handle_users(route: Route):
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps([
+                {"id": 1, "name": "Alice", "role": "admin"},
+                {"id": 2, "name": "Bob",   "role": "user"},
+            ])
+        )
+
+    page.route("**/api/users", handle_users)
+    page.goto("/users")
+
+    expect(page.locator(".user-row")).to_have_count(2)
+    expect(page.locator(".user-row").first).to_contain_text("Alice")
+
+def test_block_analytics(page: Page):
+    """Block tracking/analytics requests to speed up tests."""
+    page.route("**/*google-analytics*", lambda r: r.abort())
+    page.route("**/*hotjar*", lambda r: r.abort())
+    page.goto("/")
+
+def test_api_directly(page: Page):
+    """Use Playwright's APIRequestContext — no requests library needed."""
+    resp = page.request.post(
+        "https://api.example.com/login",
+        data={"email": "admin@test.com", "password": "secret"},
+    )
+    assert resp.ok
+    token = resp.json()["token"]
+    assert token.startswith("eyJ")</code></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div class="callout-body"><strong class="lang-en">Combined UI + API Testing</strong><strong class="lang-tr">UI + API Testi Birleştirme</strong>
+        <span class="lang-en">Use <code>page.request</code> to set up test data via API, then do UI assertions. This is 10x faster than navigating through the UI for setup steps.</span>
+        <span class="lang-tr">Test verilerini API üzerinden kurmak için <code>page.request</code> kullan, ardından UI doğrulamaları yap. Bu, setup adımları için UI üzerinden gezinmekten 10 kat daha hızlıdır.</span></div>
+      </div>
+    </div>
+
+    <span class="section-anchor" id="pw-pom"></span>
+    <div class="section sticky-hdr"><h2>3.6 — Page Object Model</h2></div><!-- POM is a universal design pattern term -->
+    <div class="section visible">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python — pages/login_page.py</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+        <pre><code class="language-python">from playwright.sync_api import Page, Locator, expect
+
+class LoginPage:
+    # ── Locators as properties ──
+    def __init__(self, page: Page):
+        self.page = page
+        self.email: Locator    = page.locator("#email")
+        self.password: Locator = page.locator("#password")
+        self.submit: Locator   = page.get_by_role("button", name="Sign In")
+        self.error: Locator    = page.locator(".error-message")
+
+    def navigate(self):
+        self.page.goto("/login")
+
+    def login(self, email: str, password: str) -> "DashboardPage":
+        self.email.fill(email)
+        self.password.fill(password)
+        self.submit.click()
+        return DashboardPage(self.page)
+
+    def expect_error(self, message: str):
+        expect(self.error).to_be_visible()
+        expect(self.error).to_have_text(message)
+
+
+class DashboardPage:
+    def __init__(self, page: Page):
+        self.page = page
+        self.welcome = page.locator("h1.welcome")
+        self.logout_btn = page.get_by_role("button", name="Logout")
+
+    def expect_loaded(self):
+        expect(self.page).to_have_url("/dashboard")
+        expect(self.welcome).to_be_visible()
+
+
+# ── Test using POM ──
+def test_login_success(page: Page):
+    lp = LoginPage(page)
+    lp.navigate()
+    dashboard = lp.login("admin@test.com", "secret")
+    dashboard.expect_loaded()
+
+def test_login_invalid(page: Page):
+    lp = LoginPage(page)
+    lp.navigate()
+    lp.login("wrong@example.com", "bad")
+    lp.expect_error("Invalid credentials")</code></pre>
+      </div>
+
+      <div class="callout success">
+        <span class="callout-icon">✨</span>
+        <div class="callout-body"><strong>get_by_role vs locator</strong>
+        <span class="lang-en">Prefer <code>get_by_role("button", name="Sign In")</code>, <code>get_by_label("Email")</code>, <code>get_by_placeholder("Enter email")</code> — these match the accessibility tree and are more resilient to CSS/DOM changes than ID or CSS selectors.</span>
+        <span class="lang-tr"><code>get_by_role("button", name="Sign In")</code>, <code>get_by_label("Email")</code>, <code>get_by_placeholder("Enter email")</code> tercih et — bunlar erişilebilirlik ağacıyla eşleşir ve ID/CSS selector'lara göre CSS/DOM değişikliklerine karşı daha dayanıklıdır.</span></div>
+      </div>
+
+      <!-- Final comparison bar chart -->
+      <h3><span class="lang-en">Framework Selection Guide</span><span class="lang-tr">Framework Seçim Rehberi</span></h3>
+      <table class="cmp-table">
+        <tr><th><span class="lang-en">Use Case</span><span class="lang-tr">Kullanım Senaryosu</span></th><th><span class="lang-en">Recommendation</span><span class="lang-tr">Öneri</span></th><th><span class="lang-en">Why</span><span class="lang-tr">Neden</span></th></tr>
+        <tr><td><span class="lang-en">New project, modern stack</span><span class="lang-tr">Yeni proje, modern stack</span></td><td>🎭 Playwright</td><td><span class="lang-en">Auto-wait, faster, better DX</span><span class="lang-tr">Otomatik bekleme, daha hızlı, daha iyi DX</span></td></tr>
+        <tr><td><span class="lang-en">Legacy project (Selenium already in use)</span><span class="lang-tr">Eski proje (Selenium zaten kullanımda)</span></td><td>🌐 Selenium</td><td><span class="lang-en">Migration cost not worth it</span><span class="lang-tr">Geçiş maliyeti buna değmez</span></td></tr>
+        <tr><td><span class="lang-en">Cross-browser incl. Safari</span><span class="lang-tr">Safari dahil çoklu tarayıcı</span></td><td>🎭 Playwright</td><td><span class="lang-en">WebKit bundled, no extra setup</span><span class="lang-tr">WebKit dahili, ekstra kurulum yok</span></td></tr>
+        <tr><td><span class="lang-en">Complex test data setup</span><span class="lang-tr">Karmaşık test verisi kurulumu</span></td><td>🧪 pytest + API</td><td><span class="lang-en">pytest fixtures + requests</span><span class="lang-tr">pytest fixture'ları + requests</span></td></tr>
+        <tr><td><span class="lang-en">API-only testing</span><span class="lang-tr">Yalnızca API testi</span></td><td>🧪 pytest + requests</td><td><span class="lang-en">No browser overhead needed</span><span class="lang-tr">Tarayıcı yükü gerekmez</span></td></tr>
+        <tr><td><span class="lang-en">Enterprise / Java team uses Selenium</span><span class="lang-tr">Kurumsal / Java ekibi Selenium kullanıyor</span></td><td>🌐 Selenium</td><td><span class="lang-en">Shared knowledge, tooling</span><span class="lang-tr">Ortak bilgi ve araçlar</span></td></tr>
+      </table>
+    </div>
+
+  </div><!-- /tab-playwright -->
+
+</main>
+
+<!-- ══ RIGHT TOC ══ -->
+<nav class="toc-sidebar" id="toc">
+  <div class="toc-title"><span class="lang-en">On this page</span><span class="lang-tr">Bu Sayfada</span></div>
+  <div id="toc-links"></div>
+</nav>
+
+</div><!-- /layout -->
+
+<!-- ══ SCRIPTS ══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ini.min.js"></script>
+<script>
+/* ── Language ── */
+let currentLang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('tfLang') || 'en';
+
+function scrollToTop() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goBack() {
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) {
+    window.location.href = './#/' + ref;
+  } else if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = './';
+  }
+}
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('tfLang', lang);
+  // CSS attribute selector does the visibility work — no inline style hacks
+  document.documentElement.dataset.lang = lang;
+  document.querySelectorAll('.copy-btn:not(.copied)').forEach(btn => {
+    btn.textContent = lang === 'tr' ? '📋 Kopyala' : '📋 Copy';
+  });
+  const langBtn = document.getElementById('langBtn');
+  if (langBtn) langBtn.textContent = lang === 'en' ? '🌐 TR' : '🌐 EN';
+  buildTOC();
+}
+
+/* ── Progress bar + floating home ── */
+window.addEventListener('scroll', () => {
+  const el = document.getElementById('progress-bar');
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  el.style.width = pct + '%';
+  const fh = document.getElementById('floating-home');
+  if (fh) fh.classList.toggle('visible', window.scrollY > 200);
+});
+
+/* ── Theme ── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.dataset.theme = next;
+  localStorage.setItem('tfTheme', next);
+  document.getElementById('themeBtn').innerHTML = isDark
+    ? '<span class="lang-en">🌙 Dark Mode</span><span class="lang-tr">🌙 Karanlık Mod</span>'
+    : '<span class="lang-en">☀️ Light Mode</span><span class="lang-tr">☀️ Açık Mod</span>';
+  applyLang(currentLang);
+}
+
+/* ── Tab switching ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.fw-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.fw-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  buildTOC();
+  updateNav();
+}
+
+/* ── Copy code ── */
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = currentLang === 'tr' ? '✅ Kopyalandı!' : '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = currentLang === 'tr' ? '📋 Kopyala' : '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── File tree ── */
+function toggleTree(row) {
+  const toggle = row.querySelector('.tree-toggle');
+  const parent = row.parentElement;
+  const children = parent.querySelector('.tree-children');
+  if (!children) return;
+  const isOpen = toggle.classList.contains('open');
+  toggle.classList.toggle('open', !isOpen);
+  children.classList.toggle('collapsed', isOpen);
+}
+
+/* ── Mobile sidebar ── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+
+/* ── Intersection Observer for fade-in ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+/* ── Active nav link on scroll ── */
+function updateNav() {
+  const links = document.querySelectorAll('.nav-link');
+  const anchors = [...document.querySelectorAll('.section-anchor')].filter(a => {
+    const tab = a.closest('.fw-content');
+    return !tab || tab.classList.contains('active');
+  });
+  const scrollY = window.scrollY + 120;
+  let current = '';
+  anchors.forEach(a => { if (a.offsetTop <= scrollY) current = a.id; });
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+  });
+  updateTOC(current);
+}
+window.addEventListener('scroll', updateNav);
+
+/* ── Build TOC ── */
+function buildTOC() {
+  const container = document.getElementById('toc-links');
+  container.innerHTML = '';
+  const activeTab = document.querySelector('.fw-content.active');
+  if (!activeTab) return;
+  activeTab.querySelectorAll('.section-anchor').forEach(a => {
+    const h2 = a.nextElementSibling?.querySelector('h2');
+    if (!h2) return;
+    const link = document.createElement('a');
+    link.className = 'toc-link';
+    link.href = '#' + a.id;
+    // innerText respects display:none — shows only the active lang text
+    link.textContent = (h2.innerText || h2.textContent).replace(/\s+/g, ' ').trim().replace(/\s*[─—]+\s*/g, ' — ').trim();
+    container.appendChild(link);
+  });
+}
+
+function updateTOC(current) {
+  document.querySelectorAll('.toc-link').forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+  });
+}
+
+/* ── Bar chart animation on scroll ── */
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach(b => {
+        b.style.animationPlayState = 'running';
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.bar-chart').forEach(c => {
+  c.querySelectorAll('.bar-fill').forEach(b => b.style.animationPlayState = 'paused');
+  barObserver.observe(c);
+});
+
+/* ── Init ── */
+const savedTheme = localStorage.getItem('tfTheme');
+if (savedTheme) {
+  document.documentElement.dataset.theme = savedTheme;
+  if (savedTheme === 'light') {
+    document.getElementById('themeBtn').innerHTML = '<span class="lang-en">🌙 Dark Mode</span><span class="lang-tr">🌙 Karanlık Mod</span>';
+  }
+}
+applyLang(currentLang); // sets data-lang attr + rebuilds TOC
+updateNav();
+</script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Otomasyon Araçları Karşılaştırması: Cypress vs Selenium vs Playwright</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    * {
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+      background-color: #fafafa;
+    }
+    body.dark-mode {
+      background-color: #111827;
+      color: #e5e7eb;
+    }
+    .header {
+      background: linear-gradient(to right, #4f46e5, #7c3aed);
+      padding: 2rem;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    body.dark-mode .header {
+      background: #1f2937;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .header-center {
+      flex: 1;
+      text-align: center;
+    }
+    .header-right {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: #4f46e5;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #4338ca;
+    }
+    .btn-secondary {
+      background: #374151;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    .btn-light {
+      background: white;
+      color: #1f2937;
+    }
+    .btn-light:hover {
+      background: #f3f4f6;
+    }
+    body.dark-mode .btn-light {
+      background: #374151;
+      color: white;
+    }
+    body.dark-mode .btn-light:hover {
+      background: #4b5563;
+    }
+    .btn-yellow {
+      background: #fbbf24;
+      color: #111827;
+    }
+    .btn-yellow:hover {
+      background: #f59e0b;
+    }
+    .home-icon {
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .home-icon:hover {
+      transform: scale(1.1);
+    }
+    .lang-toggle {
+      display: flex;
+      background: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    body.dark-mode .lang-toggle {
+      background: #374151;
+    }
+    .lang-btn {
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .lang-btn.active {
+      background: #4f46e5;
+      color: white;
+    }
+    .lang-btn:not(.active) {
+      background: transparent;
+      color: #1f2937;
+    }
+    body.dark-mode .lang-btn:not(.active) {
+      color: #e5e7eb;
+    }
+    .container {
+      padding: 2rem;
+    }
+    body.dark-mode .container {
+      background-color: #111827;
+    }
+    h1, h2, h3, h4 {
+      color: #2c3e50;
+    }
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode h4 {
+      color: #e5e7eb;
+    }
+    h1 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+    body.dark-mode h1 {
+      border-bottom-color: #60a5fa;
+    }
+    h2 {
+      margin-top: 2rem;
+      border-left: 4px solid #3498db;
+      padding-left: 0.75rem;
+    }
+    body.dark-mode h2 {
+      border-left-color: #60a5fa;
+    }
+    h3 {
+      margin-top: 1.5rem;
+      color: #2980b9;
+    }
+    body.dark-mode h3 {
+      color: #93c5fd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    body.dark-mode th,
+    body.dark-mode td {
+      border-color: #374151;
+    }
+    th {
+      background-color: #f1f1f1;
+    }
+    body.dark-mode th {
+      background-color: #374151;
+      color: #e5e7eb;
+    }
+    body.dark-mode td {
+      background-color: #1f2937;
+    }
+    pre {
+      background: #f8f8f8;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    body.dark-mode pre {
+      background: #1f2937;
+    }
+    code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.95em;
+    }
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      background-color: #fff8e1;
+      border-left: 4px solid #ffc107;
+      color: #5d4037;
+    }
+    body.dark-mode blockquote {
+      background-color: #78350f;
+      border-left-color: #fbbf24;
+      color: #fef3c7;
+    }
+    .note {
+      background-color: #e8f5e9;
+      padding: 1rem;
+      border-left: 4px solid #4caf50;
+      margin: 1.5rem 0;
+    }
+    body.dark-mode .note {
+      background-color: #064e3b;
+      border-left-color: #10b981;
+      color: #d1fae5;
+    }
+    ul {
+      color: #333;
+    }
+    body.dark-mode ul {
+      color: #e5e7eb;
+    }
+    a {
+      color: #3498db;
+    }
+    body.dark-mode a {
+      color: #60a5fa;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      .header-content {
+        flex-direction: column;
+      }
+      .header-left {
+        order: 1;
+      }
+      .header-center {
+        order: 2;
+      }
+      .header-right {
+        order: 3;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      td {
+        position: relative;
+        padding-left: 50%;
+        border: none;
+        border-bottom: 1px solid #eee;
+      }
+      body.dark-mode td {
+        border-bottom-color: #374151;
+      }
+      td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+      }
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <a href="/comparison.html" class="btn btn-primary" id="comparison-btn">Test Araçları Karşılaştırma</a>
+        <a href="https://hasankocaman.net" class="btn btn-secondary" id="website-btn">hasankocaman.net sayfasına dön</a>
+        <div class="home-icon" onclick="window.location.href='/'" title="Anasayfaya dön">🏠</div>
+      </div>
+      <div class="header-center">
+        <h1 style="margin: 0; font-size: 2rem;">🧪 Test Otomasyon Araçları Komut Karşılaştırması</h1>
+        <p style="margin: 0.5rem 0 0 0; font-size: 1rem; opacity: 0.9;">Cypress vs Selenium (WebDriver) vs Playwright</p>
+      </div>
+      <div class="header-right">
+        <div class="lang-toggle">
+          <button class="lang-btn" id="lang-en">ENG</button>
+          <button class="lang-btn active" id="lang-tr">TR</button>
+        </div>
+        <button class="btn btn-yellow" id="dark-mode-toggle">🌙 Karanlık Mod</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="content-tr">
+      <h2>📌 Genel Karşılaştırma Özeti</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Özellik / Senaryo</th>
+            <th>Cypress</th>
+            <th>Selenium (WebDriver + JS)</th>
+            <th>Playwright</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Dil Desteği</strong></td><td>JavaScript/TypeScript</td><td>Çoklu dil (JS, Python, Java, C# vs.)</td><td>JavaScript/TypeScript, Python, Java, C#</td></tr>
+          <tr><td><strong>Çalışma Ortamı</strong></td><td>Sadece Chromium-tabanlı (Electron, Chrome, Edge)</td><td>Tüm büyük tarayıcılar (IE dahil)</td><td>Chromium, WebKit, Firefox</td></tr>
+          <tr><td><strong>Mimari</strong></td><td>Same-origin policy'ye takılmaz; test kodu DOM ile aynı ortamda çalışır</td><td>Tarayıcı dışından WebDriver üzerinden kontrol</td><td>Modern, event-driven, doğrudan tarayıcı protokolüyle iletişim</td></tr>
+          <tr><td><strong>Kurulum Kolaylığı</strong></td><td>⭐⭐⭐⭐⭐ (<code>npm install cypress</code>)</td><td>⭐⭐⭐ (WebDriver Manager gerekli)</td><td>⭐⭐⭐⭐ (<code>npm init playwright@latest</code>)</td></tr>
+          <tr><td><strong>Wait Yönetimi</strong></td><td>Otomatik retry + assertion polling</td><td>Manuel <code>wait</code> veya <code>ExpectedConditions</code> zorunlu</td><td>Akıllı bekleme + explicit opsiyonlar</td></tr>
+          <tr><td><strong>Test Paralelizmi</strong></td><td>Ücretli (Dashboard) / Open-source sınırlı</td><td>Kolay (TestNG/JUnit/Grid ile)</td><td>Yerel olarak destekler</td></tr>
+          <tr><td><strong>Cross-Browser Test</strong></td><td>3 tarayıcı</td><td>Tüm tarayıcılar</td><td>3 motor (Chromium, WebKit, Firefox)</td></tr>
+          <tr><td><strong>API Testing</strong></td><td>Built-in (<code>cy.request</code>)</td><td>Harici kütüphane gerekli</td><td>Built-in (<code>APIRequestContext</code>)</td></tr>
+          <tr><td><strong>Network Mocking</strong></td><td><code>cy.intercept()</code></td><td>CDP ile karmaşık</td><td><code>page.route()</code></td></tr>
+          <tr><td><strong>Auto-wait</strong></td><td>✅</td><td>❌</td><td>✅</td></tr>
+          <tr><td><strong>Shadow DOM</strong></td><td>Plugin gerekli</td><td>Manuel</td><td>Otomatik piercing</td></tr>
+          <tr><td><strong>iFrame Desteği</strong></td><td>Zayıf (workaround gerekli)</td><td>İyi</td><td>Mükemmel</td></tr>
+          <tr><td><strong>Debugging</strong></td><td>Time-travel runner</td><td>IDE + log</td><td>Trace viewer + inspector</td></tr>
+          <tr><td><strong>CI/CD Entegrasyonu</strong></td><td>Kolay</td><td>İyi</td><td>Kolay</td></tr>
+        </tbody>
+      </table>
+
+      <h2>🔧 Detaylı Komut Karşılaştırmaları</h2>
+
+      <h3>1. Element Seçme ve Tıklama</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('#radio-button').click();</code></pre>
+
+      <h4>Selenium (JS)</h4>
+      <pre><code class="language-js">const element = await driver.findElement(By.id('radio-button'));
+await element.click();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#radio-button').click();</code></pre>
+
+      <blockquote>
+        💡 Playwright ve Cypress modern locator API'leri sunar; Selenium ise geleneksel WebDriver yaklaşımını kullanır.
+      </blockquote>
+
+      <h3>2. Radio Buton Seçimi</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('input[type="radio"][value="option1"]').check();</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">const radio = await driver.findElement(By.css('input[type="radio"][value="option1"]'));
+await radio.click();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('input[type="radio"][value="option1"]').check();</code></pre>
+
+      <div class="note">
+        ✅ <strong>Not:</strong> Cypress ve Playwright <code>check()</code> metoduyla radio/checkbox'u daha güvenli seçer.
+      </div>
+
+      <h3>3. Form Doldurma (Input Alanları)</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('#username').type('testuser');
+cy.get('#password').type('secret123{enter}');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.id('username')).sendKeys('testuser');
+await driver.findElement(By.id('password')).sendKeys('secret123', Key.RETURN);</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#username').fill('testuser');
+await page.locator('#password').press('Enter');</code></pre>
+
+      <div class="note">
+        💡 Playwright'ta <code>fill()</code> otomatik olarak önce input temizler, sonra yazar. Selenium'da bunu manuel yapmak gerekir.
+      </div>
+
+      <h3>4. Drag and Drop</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">// Plugin gerekli: cypress-drag-drop
+cy.get('#draggable').drag('#droppable');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">const actions = driver.actions({ bridge: true });
+await actions.dragAndDrop(draggable, droppable).perform();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#draggable').dragTo(page.locator('#droppable'));</code></pre>
+
+      <div class="note">
+        ✅ Playwright ve Selenium native drag-and-drop destekler; Cypress için eklenti veya workaround gerekir.
+      </div>
+
+      <h3>5. iFrame İşlemleri</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('iframe').then($iframe => {
+  const $body = $iframe.contents().find('body');
+  cy.wrap($body).find('button').click();
+});</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.switchTo().frame('iframe-id');
+await driver.findElement(By.id('inside-btn')).click();
+await driver.switchTo().defaultContent();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.frameLocator('iframe').locator('button').click();</code></pre>
+
+      <div class="note">
+        ✅ Playwright ve Selenium iframe'i doğal şekilde yönetir. Cypress zorluk çıkarır.
+      </div>
+
+      <h3>6. Alert Yönetimi</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.on('window:alert', (text) => {
+  expect(text).to.equal('Are you sure?');
+});
+cy.on('window:confirm', () => true);</code></pre>
+      <blockquote>❗ Gerçek alert kutularını kapatamaz; sadece olayları dinleyip stublar.</blockquote>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.id('alert-btn')).click();
+const alert = await driver.switchTo().alert();
+await alert.accept();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">page.on('dialog', async dialog => {
+  await dialog.accept();
+});
+await page.click('#alert-btn');</code></pre>
+
+      <div class="note">
+        ✅ Selenium ve Playwright gerçek alert'leri yönetebilir. Cypress sadece olay bazlı test yapar.
+      </div>
+
+      <h3>7. Dosya Yükleme</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('input[type="file"]').selectFile('sample.pdf');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.css('input[type="file"]'))
+  .sendKeys('/absolute/path/to/sample.pdf');</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.setInputFiles('input[type="file"]', 'sample.pdf');</code></pre>
+
+      <div class="note">
+        ✅ Playwright ve Selenium native destekler. Cypress için eklenti şart (v10+ ile artık built-in).
+      </div>
+
+      <h2>🏁 Sonuç ve Öneriler</h2>
+      <table>
+        <thead>
+          <tr><th>Senaryo</th><th>En İyi Araç</th><th>Neden?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Hızlı geliştirme, CI entegrasyonu, modern web</td>
+            <td><strong>Playwright</strong></td>
+            <td>Güçlü iframe/alert/drag-and-drop desteği, hızlı, cross-browser</td>
+          </tr>
+          <tr>
+            <td>Mevcut büyük ekip ve çoklu dil desteği</td>
+            <td><strong>Selenium</strong></td>
+            <td>En olgun ekosistem, her dile destek</td>
+          </tr>
+          <tr>
+            <td>Sadece Chrome + kolay debug + realtime runner</td>
+            <td><strong>Cypress</strong></td>
+            <td>Geliştirici deneyimi mükemmeldir, ancak sınırlı tarayıcı desteği ve bazı eksiklikler (iframe, native drag) vardır</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>📚 Ek Kaynaklar</h2>
+      <ul>
+        <li><a href="https://docs.cypress.io/" target="_blank">Cypress Documentation</a></li>
+        <li><a href="https://www.selenium.dev/documentation/webdriver/" target="_blank">Selenium WebDriver Guide</a></li>
+        <li><a href="https://playwright.dev/docs/intro" target="_blank">Playwright Documentation</a></li>
+      </ul>
+
+      <hr>
+      <p><em>Bu doküman, 30+ yaygın senaryoda üç aracın nasıl komut kullandığını sistematik şekilde karşılaştırır.</em></p>
+    </div>
+
+    <div id="content-en" class="hidden">
+      <h2>📌 General Comparison Overview</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature / Scenario</th>
+            <th>Cypress</th>
+            <th>Selenium (WebDriver + JS)</th>
+            <th>Playwright</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Language Support</strong></td><td>JavaScript/TypeScript</td><td>Multiple languages (JS, Python, Java, C# etc.)</td><td>JavaScript/TypeScript, Python, Java, C#</td></tr>
+          <tr><td><strong>Environment</strong></td><td>Chromium-based only (Electron, Chrome, Edge)</td><td>All major browsers (including IE)</td><td>Chromium, WebKit, Firefox</td></tr>
+          <tr><td><strong>Architecture</strong></td><td>Not limited by same-origin policy; test code runs in same environment as DOM</td><td>Controls via WebDriver from outside browser</td><td>Modern, event-driven, direct browser protocol communication</td></tr>
+          <tr><td><strong>Installation Ease</strong></td><td>⭐⭐⭐⭐⭐ (<code>npm install cypress</code>)</td><td>⭐⭐⭐ (WebDriver Manager required)</td><td>⭐⭐⭐⭐ (<code>npm init playwright@latest</code>)</td></tr>
+          <tr><td><strong>Wait Management</strong></td><td>Automatic retry + assertion polling</td><td>Manual <code>wait</code> or <code>ExpectedConditions</code> required</td><td>Smart waiting + explicit options</td></tr>
+          <tr><td><strong>Test Parallelism</strong></td><td>Paid (Dashboard) / Open-source limited</td><td>Easy (with TestNG/JUnit/Grid)</td><td>Native support</td></tr>
+          <tr><td><strong>Cross-Browser Test</strong></td><td>3 browsers</td><td>All browsers</td><td>3 engines (Chromium, WebKit, Firefox)</td></tr>
+          <tr><td><strong>API Testing</strong></td><td>Built-in (<code>cy.request</code>)</td><td>External library required</td><td>Built-in (<code>APIRequestContext</code>)</td></tr>
+          <tr><td><strong>Network Mocking</strong></td><td><code>cy.intercept()</code></td><td>Complex with CDP</td><td><code>page.route()</code></td></tr>
+          <tr><td><strong>Auto-wait</strong></td><td>✅</td><td>❌</td><td>✅</td></tr>
+          <tr><td><strong>Shadow DOM</strong></td><td>Plugin required</td><td>Manual</td><td>Automatic piercing</td></tr>
+          <tr><td><strong>iFrame Support</strong></td><td>Weak (workaround required)</td><td>Good</td><td>Excellent</td></tr>
+          <tr><td><strong>Debugging</strong></td><td>Time-travel runner</td><td>IDE + log</td><td>Trace viewer + inspector</td></tr>
+          <tr><td><strong>CI/CD Integration</strong></td><td>Easy</td><td>Good</td><td>Easy</td></tr>
+        </tbody>
+      </table>
+
+      <h2>🔧 Detailed Command Comparisons</h2>
+
+      <h3>1. Element Selection and Clicking</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('#radio-button').click();</code></pre>
+
+      <h4>Selenium (JS)</h4>
+      <pre><code class="language-js">const element = await driver.findElement(By.id('radio-button'));
+await element.click();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#radio-button').click();</code></pre>
+
+      <blockquote>
+        💡 Playwright and Cypress offer modern locator APIs; Selenium uses traditional WebDriver approach.
+      </blockquote>
+
+      <h3>2. Radio Button Selection</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('input[type="radio"][value="option1"]').check();</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">const radio = await driver.findElement(By.css('input[type="radio"][value="option1"]'));
+await radio.click();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('input[type="radio"][value="option1"]').check();</code></pre>
+
+      <div class="note">
+        ✅ <strong>Note:</strong> Cypress and Playwright select radio/checkbox more safely with <code>check()</code> method.
+      </div>
+
+      <h3>3. Form Filling (Input Fields)</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('#username').type('testuser');
+cy.get('#password').type('secret123{enter}');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.id('username')).sendKeys('testuser');
+await driver.findElement(By.id('password')).sendKeys('secret123', Key.RETURN);</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#username').fill('testuser');
+await page.locator('#password').press('Enter');</code></pre>
+
+      <div class="note">
+        💡 In Playwright, <code>fill()</code> automatically clears the input first, then writes. In Selenium, this must be done manually.
+      </div>
+
+      <h3>4. Drag and Drop</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">// Plugin required: cypress-drag-drop
+cy.get('#draggable').drag('#droppable');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">const actions = driver.actions({ bridge: true });
+await actions.dragAndDrop(draggable, droppable).perform();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.locator('#draggable').dragTo(page.locator('#droppable'));</code></pre>
+
+      <div class="note">
+        ✅ Playwright and Selenium support native drag-and-drop; Cypress requires plugin or workaround.
+      </div>
+
+      <h3>5. iFrame Operations</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('iframe').then($iframe => {
+  const $body = $iframe.contents().find('body');
+  cy.wrap($body).find('button').click();
+});</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.switchTo().frame('iframe-id');
+await driver.findElement(By.id('inside-btn')).click();
+await driver.switchTo().defaultContent();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.frameLocator('iframe').locator('button').click();</code></pre>
+
+      <div class="note">
+        ✅ Playwright and Selenium manage iframes naturally. Cypress causes difficulties.
+      </div>
+
+      <h3>6. Alert Management</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.on('window:alert', (text) => {
+  expect(text).to.equal('Are you sure?');
+});
+cy.on('window:confirm', () => true);</code></pre>
+      <blockquote>❗ Cannot close real alert boxes; only listens and stubs events.</blockquote>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.id('alert-btn')).click();
+const alert = await driver.switchTo().alert();
+await alert.accept();</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">page.on('dialog', async dialog => {
+  await dialog.accept();
+});
+await page.click('#alert-btn');</code></pre>
+
+      <div class="note">
+        ✅ Selenium and Playwright can manage real alerts. Cypress only does event-based testing.
+      </div>
+
+      <h3>7. File Upload</h3>
+      <h4>Cypress</h4>
+      <pre><code class="language-js">cy.get('input[type="file"]').selectFile('sample.pdf');</code></pre>
+
+      <h4>Selenium</h4>
+      <pre><code class="language-js">await driver.findElement(By.css('input[type="file"]'))
+  .sendKeys('/absolute/path/to/sample.pdf');</code></pre>
+
+      <h4>Playwright</h4>
+      <pre><code class="language-js">await page.setInputFiles('input[type="file"]', 'sample.pdf');</code></pre>
+
+      <div class="note">
+        ✅ Playwright and Selenium have native support. Cypress requires plugin (now built-in with v10+).
+      </div>
+
+      <h2>🏁 Conclusion and Recommendations</h2>
+      <table>
+        <thead>
+          <tr><th>Scenario</th><th>Best Tool</th><th>Why?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rapid development, CI integration, modern web</td>
+            <td><strong>Playwright</strong></td>
+            <td>Strong iframe/alert/drag-and-drop support, fast, cross-browser</td>
+          </tr>
+          <tr>
+            <td>Existing large team and multi-language support</td>
+            <td><strong>Selenium</strong></td>
+            <td>Most mature ecosystem, support for all languages</td>
+          </tr>
+          <tr>
+            <td>Chrome only + easy debug + realtime runner</td>
+            <td><strong>Cypress</strong></td>
+            <td>Developer experience is excellent, but limited browser support and some shortcomings (iframe, native drag) exist</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>📚 Additional Resources</h2>
+      <ul>
+        <li><a href="https://docs.cypress.io/" target="_blank">Cypress Documentation</a></li>
+        <li><a href="https://www.selenium.dev/documentation/webdriver/" target="_blank">Selenium WebDriver Guide</a></li>
+        <li><a href="https://playwright.dev/docs/intro" target="_blank">Playwright Documentation</a></li>
+      </ul>
+
+      <hr>
+      <p><em>This document systematically compares how three tools use commands in 30+ common scenarios.</em></p>
+    </div>
+  </div>
+
+  <script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+    
+    // Load dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode');
+    const isDarkMode = savedDarkMode !== null ? JSON.parse(savedDarkMode) : true;
+    
+    if (isDarkMode) {
+      body.classList.add('dark-mode');
+      darkModeToggle.textContent = '☀️ Light Mode';
+    } else {
+      darkModeToggle.textContent = '🌙 Dark Mode';
+    }
+    
+    darkModeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      const isNowDark = body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', JSON.stringify(isNowDark));
+      darkModeToggle.textContent = isNowDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+
+    // Language toggle
+    const langEnBtn = document.getElementById('lang-en');
+    const langTrBtn = document.getElementById('lang-tr');
+    const contentTr = document.getElementById('content-tr');
+    const contentEn = document.getElementById('content-en');
+    const comparisonBtn = document.getElementById('comparison-btn');
+    const websiteBtn = document.getElementById('website-btn');
+    
+    // Load language preference
+    const savedLang = localStorage.getItem('language') || 'tr';
+    
+    function setLanguage(lang) {
+      if (lang === 'en') {
+        contentTr.classList.add('hidden');
+        contentEn.classList.remove('hidden');
+        langEnBtn.classList.add('active');
+        langTrBtn.classList.remove('active');
+        comparisonBtn.textContent = 'Test Tools Comparison';
+        websiteBtn.textContent = 'back to hasankocaman.net';
+        document.title = 'Test Automation Tools Comparison: Cypress vs Selenium vs Playwright';
+      } else {
+        contentEn.classList.add('hidden');
+        contentTr.classList.remove('hidden');
+        langTrBtn.classList.add('active');
+        langEnBtn.classList.remove('active');
+        comparisonBtn.textContent = 'Test Araçları Karşılaştırma';
+        websiteBtn.textContent = 'hasankocaman.net sayfasına dön';
+        document.title = 'Test Otomasyon Araçları Karşılaştırması: Cypress vs Selenium vs Playwright';
+      }
+      localStorage.setItem('language', lang);
+    }
+    
+    setLanguage(savedLang);
+    
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    langTrBtn.addEventListener('click', () => setLanguage('tr'));
+
+    // Highlight code blocks
+    hljs.highlightAll();
+  </script>
+</body>
+</html>

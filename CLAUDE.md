@@ -155,7 +155,8 @@ npm run build
 - Yeni bileşen eklerken mevcut `*Page.jsx` yapısını taklit et.
 - İçerik değişikliği = `src/data/*Data.js` dosyasını düzenle, component'e dokunma.
 - Renk paleti (WCAG AAA token): light bg `#F8F5EE`, dark bg `#1A1816`, accent `#7c3aed`, success `#10b981`, warning `#f59e0b`, error `#ef4444`. Tam token sistemi `src/index.css`'de.
-- Her sayfada zorunlular: TR/ENG toggle (sağ üst), sticky tab bar (üst nav), home butonu (sağ alt fixed — HER ZAMAN görünür, 🏠 ikonu, sayfanın başına döner), scroll progress bar (en üst).
+- Her sayfada zorunlular: TR/ENG toggle (sağ üst), **dikey sidebar nav (sol — sekmeleri alt alta)**, home butonu (sağ alt fixed — HER ZAMAN görünür, 🏠 ikonu, sayfanın başına döner), scroll progress bar (en üst).
+- **Sekme navigasyonu (ZORUNLU):** Sekme içeren tüm sayfalarda sekmeler yatay (üst) değil, **dikey sidebar** (sol taraf, alt alta) olarak konumlanmalıdır. `TopicPage` bileşenindeki sidebar layout referans alınır: `flex-shrink-0 w-10 md:w-52 sticky top-3 rounded-xl`. Mobilde emoji-only, desktop'ta tam etiket gösterilir.
 - Kod bloğu = Prism.js highlight + copy butonu + satır yorumları zorunlu.
 - `simple-box` block: `title` field YOK, sadece `emoji` + `content` (bilingual). Günlük hayat benzetmesiyle basitçe açıkla, teknik terim kullanma.
 
@@ -180,6 +181,7 @@ npm run build
 - ❌ Java karşılaştırması yapmadan Python/TS konusu anlatma
 - ❌ W3Schools'daki bir konuyu atlama (Python/TS/SQL için)
 - ❌ Sayfayı ayrı HTML dosyasına çıkarma (React component kalmalı)
+- ❌ Sekmeleri yatay (üst nav bar) yapma — her zaman dikey sidebar kullan
 
 ---
 
