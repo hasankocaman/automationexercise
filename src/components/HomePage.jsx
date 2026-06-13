@@ -198,6 +198,11 @@ function HomePage() {
                             <span className="sm:hidden">🟠 Kafka</span>
                             <span className="hidden sm:inline">{language === 'tr' ? '🟠 Kafka Öğren' : '🟠 Learn Kafka'}</span>
                         </button>
+                        <button onClick={() => navigate('/appium')} data-testid="nav-appium"
+                            className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-green-300 hover:bg-green-900 hover:text-green-200' : 'bg-green-50 text-green-700 hover:bg-green-100'}`}>
+                            <span className="sm:hidden">📱 Appium</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '📱 Appium Öğren' : '📱 Learn Appium'}</span>
+                        </button>
 
                         {/* Ayırıcı */}
                         <div className={`w-full md:hidden h-px ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
