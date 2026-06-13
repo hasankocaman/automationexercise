@@ -6,6 +6,7 @@ import App from './App.jsx'
 import './index.css'
 import './dark-overrides.css'
 import { LanguageProvider } from './context/LanguageContext'
+import { ZoomProvider } from './context/ZoomContext'
 
 
 // import { worker } from './mocks/browser' // Removed to avoid duplicate import warning
@@ -41,9 +42,11 @@ enableMocking().catch(console.error).finally(() => {
     createRoot(document.getElementById('root')).render(
         <StrictMode>
             <HashRouter>
-                <LanguageProvider>
-                    <App />
-                </LanguageProvider>
+                <ZoomProvider>
+                    <LanguageProvider>
+                        <App />
+                    </LanguageProvider>
+                </ZoomProvider>
             </HashRouter>
         </StrictMode>,
     )

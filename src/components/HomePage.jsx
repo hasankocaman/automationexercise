@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import ZoomControls from './ZoomControls'
 import BasicElements from './BasicElements'
 import ComplexInteractions from './ComplexInteractions'
 import AdvancedScenarios from './AdvancedScenarios'
@@ -95,7 +96,7 @@ function HomePage() {
                                 {t('header.subtitle')}
                             </p>
                         </div>
-                        <div className="flex gap-1.5 md:gap-3 flex-shrink-0">
+                        <div className="flex gap-1.5 md:gap-3 flex-shrink-0 items-center">
                             <div className="flex bg-white rounded-lg overflow-hidden" data-testid="language-toggle">
                                 <button
                                     onClick={() => language === 'tr' && toggleLanguage()}
@@ -110,6 +111,7 @@ function HomePage() {
                                     TR
                                 </button>
                             </div>
+                            <ZoomControls darkMode={darkMode} />
                             <button
                                 onClick={() => setDarkMode(!darkMode)}
                                 data-testid="dark-mode-toggle"
@@ -185,6 +187,16 @@ function HomePage() {
                             className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-emerald-300 hover:bg-emerald-900 hover:text-emerald-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}>
                             <span className="sm:hidden">🧪 REST Assured</span>
                             <span className="hidden sm:inline">{language === 'tr' ? '🧪 REST Assured Öğren' : '🧪 Learn REST Assured'}</span>
+                        </button>
+                        <button onClick={() => navigate('/kubernetes')} data-testid="nav-kubernetes"
+                            className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-violet-300 hover:bg-violet-900 hover:text-violet-200' : 'bg-violet-50 text-violet-700 hover:bg-violet-100'}`}>
+                            <span className="sm:hidden">☸️ K8s</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '☸️ Kubernetes Öğren' : '☸️ Learn Kubernetes'}</span>
+                        </button>
+                        <button onClick={() => navigate('/kafka')} data-testid="nav-kafka"
+                            className={`px-2 py-1.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base whitespace-nowrap transition-all duration-300 ${darkMode ? 'bg-gray-700 text-orange-300 hover:bg-orange-900 hover:text-orange-200' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'}`}>
+                            <span className="sm:hidden">🟠 Kafka</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '🟠 Kafka Öğren' : '🟠 Learn Kafka'}</span>
                         </button>
 
                         {/* Ayırıcı */}

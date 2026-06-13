@@ -9,6 +9,8 @@ import PostmanPage from './components/PostmanPage'
 import JenkinsPage from './components/JenkinsPage'
 import DockerPage from './components/DockerPage'
 import RestAssuredPage from './components/RestAssuredPage'
+import KubernetesPage from './components/KubernetesPage'
+import KafkaPage from './components/KafkaPage'
 
 function App() {
     return (
@@ -23,6 +25,8 @@ function App() {
             <Route path="/jenkins" element={<JenkinsPage />} />
             <Route path="/docker" element={<DockerPage />} />
             <Route path="/rest-assured" element={<RestAssuredPage />} />
+            <Route path="/kubernetes" element={<KubernetesPage />} />
+            <Route path="/kafka" element={<KafkaPage />} />
         </Routes>
     )
 }

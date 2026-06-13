@@ -208,3 +208,43 @@ Tüm bileşenler iOS, Android (telefon + tablet) dahil her platformda web ile ay
 - `@media (max-width: 768px)` — input font-size, min touch target, pre max-width
 - `touch-action: manipulation` — tüm button/link'lere global
 - `overflow-x: hidden` — html/body'de tanımlı
+
+---
+
+## 12. Teknoloji Sayfaları İçerik Derinlik Kuralı (ZORUNLU)
+
+Her teknoloji sayfası (Docker, Jenkins, Kubernetes, Kafka, JMeter, Postman, REST Assured vb.) şu bölümleri **MUTLAKA** içermelidir:
+
+### Zorunlu Sekmeler
+
+| Sekme | İçerik |
+|-------|--------|
+| ⚙️ Kurulum / Installation | Windows + Mac + Linux için adım adım terminal komutları. Verification steps dahil. |
+| 🛠️ Gerçek Hayat / Real World | Birebir hands-on senaryo: "Bu komutu çalıştır → bu çıktıyı gör → şimdi bu adımı yap" |
+| 🔗 Ekosistem / Ecosystem | İlgili teknolojilerle ilişkisi, birlikte nasıl çalışırlar, hangi problemi birlikte çözerler |
+| 🚨 Yaygın Hatalar | Gerçek hata mesajları, nedenleri ve çözümleri (`error-dictionary` block tipi kullanılır) |
+| 💼 Mülakat Soruları | Basic / Intermediate / Advanced seviyelerinde — her soruya detaylı cevap |
+
+### Kurulum Bölümü Kuralları
+
+- Üç işletim sistemi için ayrı komutlar: Windows (winget/chocolatey/PowerShell), Mac (Homebrew), Linux (apt/yum/binary)
+- Her adımda beklenen çıktı gösterilmeli ("Output you should see:")
+- Verification step zorunlu: kurulumun başarılı olduğunu doğrulayan komut
+
+### Gerçek Hayat Bölümü Kuralları
+
+- End-to-end senaryo: "Gerçek bir e-ticaret / Spring Boot projesi" gibi somut context
+- Her adımda tam terminal komutu + açıklaması
+- Orta seviye bir QA mühendisinin bizzat takip edebileceği ayrıntı
+
+### Ekosistem Bölümü Kuralları
+
+- İlişki tablosu veya akış diyagramı zorunlu
+- En az 3 teknoloji ilişkisi ele alınmalı
+- Örnek: Docker ↔ Kubernetes ↔ Jenkins ↔ Kafka
+
+### Mülakat Soruları Kuralları
+
+- Minimum: 3 Basic + 3 Intermediate + 3 Advanced soru
+- Her soruya 3-5 cümle detaylı cevap
+- Cevaplarda Java karşılaştırması kullan (CLAUDE.md Kural 9)

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import ZoomControls from './ZoomControls'
 
 function TopicHeader({ darkMode, setDarkMode }) {
     const { language, t, toggleLanguage } = useLanguage()
@@ -20,7 +21,7 @@ function TopicHeader({ darkMode, setDarkMode }) {
                         {t('pages.backButton')}
                     </button>
 
-                    <div className="flex gap-1.5 md:gap-3">
+                    <div className="flex gap-1.5 md:gap-3 items-center">
                         <div className="flex bg-white rounded-lg overflow-hidden" data-testid="language-toggle">
                             <button
                                 onClick={() => language === 'tr' && toggleLanguage()}
@@ -35,6 +36,7 @@ function TopicHeader({ darkMode, setDarkMode }) {
                                 TR
                             </button>
                         </div>
+                        <ZoomControls darkMode={darkMode} />
                         <button
                             onClick={() => setDarkMode(!darkMode)}
                             data-testid="dark-mode-toggle"
