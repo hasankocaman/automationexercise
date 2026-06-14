@@ -14,6 +14,8 @@ import KafkaPage from './components/KafkaPage'
 import AppiumPage from './components/AppiumPage'
 import PlaywrightPage from './components/PlaywrightPage'
 import SeleniumPage from './components/SeleniumPage'
+import AWSPage from './components/AWSPage'
+import AzurePage from './components/AzurePage'
 
 function App() {
     return (
@@ -33,6 +35,8 @@ function App() {
             <Route path="/appium" element={<AppiumPage />} />
             <Route path="/playwright" element={<PlaywrightPage />} />
             <Route path="/selenium" element={<SeleniumPage />} />
+            <Route path="/aws" element={<AWSPage />} />
+            <Route path="/azure" element={<AzurePage />} />
         </Routes>
     )
 }

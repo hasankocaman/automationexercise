@@ -211,6 +211,14 @@ function HomePage() {
                             <span className="sm:hidden">🟠 Kafka</span>
                             <span className="hidden sm:inline">{language === 'tr' ? '🟠 Kafka Öğren' : '🟠 Learn Kafka'}</span>
                         </button>
+                        <button onClick={() => navigate('/aws')} data-testid="nav-aws" className={nb('orange')}>
+                            <span className="sm:hidden">☁️ AWS</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '☁️ AWS Öğren' : '☁️ Learn AWS'}</span>
+                        </button>
+                        <button onClick={() => navigate('/azure')} data-testid="nav-azure" className={nb('blue')}>
+                            <span className="sm:hidden">🔷 Azure</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '🔷 Azure Öğren' : '🔷 Learn Azure'}</span>
+                        </button>
                     </div>
 
                     {/* 5. Veritabanı */}
