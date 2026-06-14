@@ -26,15 +26,15 @@ function HomePage() {
     }, [darkMode])
 
     const sections = [
-        { id: 'basic',        name: t('nav.basic'),       shortName: '📝 Temel' },
+        { id: 'basic',        name: t('nav.basic'),       shortName: language === 'tr' ? '📝 Temel'   : '📝 Basic' },
         { id: 'locator-guide',name: t('nav.locatorGuide'),shortName: '🎯 Locator' },
-        { id: 'complex',      name: t('nav.complex'),     shortName: '🎯 Karmaşık' },
-        { id: 'advanced',     name: t('nav.advanced'),    shortName: '🚀 Gelişmiş' },
-        { id: 'table',        name: t('nav.table'),       shortName: '📊 Tablo' },
+        { id: 'complex',      name: t('nav.complex'),     shortName: language === 'tr' ? '🎯 Karmaşık': '🎯 Complex' },
+        { id: 'advanced',     name: t('nav.advanced'),    shortName: language === 'tr' ? '🚀 Gelişmiş': '🚀 Advanced' },
+        { id: 'table',        name: t('nav.table'),       shortName: language === 'tr' ? '📊 Tablo'   : '📊 Table' },
         { id: 'api',          name: t('nav.api'),         shortName: '🌐 API' },
-        { id: 'comparison',   name: t('nav.comparison'),  shortName: '🔍 Araçlar' },
-        { id: 'lang-compare', name: language === 'tr' ? '🔀 3 Dil Karşılaştır' : '🔀 3-Language Compare', shortName: '🔀 3 Dil' },
-        { id: 'practice',     name: t('nav.practice') || '🛠️ Uygulama Bahçesi', shortName: '🛠️ Pratik' },
+        { id: 'comparison',   name: t('nav.comparison'),  shortName: language === 'tr' ? '🔍 Araçlar' : '🔍 Tools' },
+        { id: 'lang-compare', name: language === 'tr' ? '🔀 3 Dil Karşılaştır' : '🔀 3-Language Compare', shortName: language === 'tr' ? '🔀 3 Dil' : '🔀 3 Lang' },
+        { id: 'practice',     name: t('nav.practice') || '🛠️ Uygulama Bahçesi', shortName: language === 'tr' ? '🛠️ Pratik' : '🛠️ Practice' },
     ]
 
     const renderSection = () => {
