@@ -3422,8 +3422,49 @@ Assert.assertEquals(violations.size(), 0, "Accessibility violations found!");` }
   },
 }
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-export const seleniumData = [s0, s1, s2, s3, s4, s5, s6, s7, s8, s9]
+// ─── EXPORT — TopicPage formatı: { tr: { hero, tabs, sections }, en: {...} } ──
+export const seleniumData = {
+  tr: {
+    hero: {
+      title: '🟢 Selenium WebDriver',
+      subtitle: 'Java · Python · TypeScript — Tam Öğrenme Kılavuzu',
+      intro: 'Selenium\'u sıfırdan öğren: kurulum, locators, aksiyonlar, wait stratejileri, frameler, gerçek hayat senaryoları ve 50 mülakat sorusu. Java, Python ve TypeScript\'te tüm örnekler.',
+    },
+    tabs: [
+      '🌐 Giriş',
+      '⚙️ Kurulum',
+      '🎯 Locators',
+      '⚡ Aksiyonlar',
+      '⏳ Wait',
+      '🪟 Frames & Alert',
+      '🛠️ Gerçek Hayat',
+      '🔗 Ekosistem',
+      '🚨 Yaygın Hatalar',
+      '💼 Mülakat Soruları',
+    ],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr],
+  },
+  en: {
+    hero: {
+      title: '🟢 Selenium WebDriver',
+      subtitle: 'Java · Python · TypeScript — Complete Learning Guide',
+      intro: 'Learn Selenium from scratch: installation, locators, actions, wait strategies, frames, real-world scenarios, and 50 interview questions. All examples in Java, Python, and TypeScript.',
+    },
+    tabs: [
+      '🌐 Introduction',
+      '⚙️ Installation',
+      '🎯 Locators',
+      '⚡ Actions',
+      '⏳ Wait Strategies',
+      '🪟 Frames & Alerts',
+      '🛠️ Real World',
+      '🔗 Ecosystem',
+      '🚨 Common Errors',
+      '💼 Interview Questions',
+    ],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en],
+  },
+}
 
 
 
