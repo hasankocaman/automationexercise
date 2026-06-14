@@ -182,6 +182,12 @@ npm run build
 - ❌ W3Schools'daki bir konuyu atlama (Python/TS/SQL için)
 - ❌ Sayfayı ayrı HTML dosyasına çıkarma (React component kalmalı)
 - ❌ Sekmeleri yatay (üst nav bar) yapma — her zaman dikey sidebar kullan
+- ❌ Ana sayfaya yeni kart/link ekleyip ayrı sayfa & route oluşturmama (Kural 13.1)
+- ❌ Her konunun ilk block'unu `simple-box` ile basit benzetmeden başlatmamak (Kural 13.2)
+- ❌ Kurulum bölümünü salt metin bırakma — görsel/animasyon zorunlu (Kural 13.3)
+- ❌ 50'den az mülakat sorusu yazmak — kesinlikle 50 soru (Kural 13.6)
+- ❌ Mülakat sorusunu "X nedir?" formatında salt tanım sorusu yazmak (Kural 13.6)
+- ❌ Animasyon için harici JS kütüphanesi eklemek — CSS-only tercih edilir (Kural 13.7)
 
 ---
 
@@ -248,3 +254,104 @@ Her teknoloji sayfası (Docker, Jenkins, Kubernetes, Kafka, JMeter, Postman, RES
 - Minimum: 3 Basic + 3 Intermediate + 3 Advanced soru
 - Her soruya 3-5 cümle detaylı cevap
 - Cevaplarda Java karşılaştırması kullan (CLAUDE.md Kural 9)
+
+---
+
+## 13. Yeni Teknoloji / Dil Ekleme Protokolü (ZORUNLU)
+
+Ana sayfaya yeni bir teknoloji veya programlama dili eklendiğinde aşağıdaki adımlar **eksiksiz** uygulanır.
+
+### 13.1 Sayfa & Route Oluşturma
+
+- Ana sayfaya her yeni kart/link eklendiğinde o teknoloji için **ayrı bir React component** (`src/components/<TechName>Page.jsx`) ve **ayrı bir route** (`src/App.jsx`'te `/<tech-name>`) oluşturulur.
+- İçerik `src/data/<techName>Data.js` dosyasında data-driven yapıda tutulur; component bu veriyi render eder.
+- Sidebar navigasyonu, TR/EN toggle ve scroll progress bar mevcut `TopicPage` bileşeni kalıbına uygun eklenir.
+
+### 13.2 "10 Yaşında Çocuğa Anlatım" Kuralı (ZORUNLU)
+
+Her konunun ilk block'u mutlaka `simple-box` tipi olmalı ve o teknolojiyi **hiç teknik terim kullanmadan**, günlük hayat benzetmesiyle açıklamalıdır.
+
+- Benzetme somut olmalı: "Docker, bir taşıma konteyneri gibidir — içine ne koyarsan koy, her limanda aynı şekilde açılır."
+- Ardından teknik tanıma geçilmeli, zıplama yapılmamalı.
+- Her sekmede en az 1 adet `simple-box` block'u olmalı.
+
+### 13.3 Kurulum Bölümü — Görsel & Animasyon Zorunluluğu
+
+Kurulum sekmesinde salt metin yetmez; şu öğeler **zorunlu**:
+
+| Öğe | Gereklilik |
+|-----|------------|
+| Adım adım numara listesi | Her işletim sistemi için ayrı |
+| `code` block + copy butonu | Her komut için |
+| Beklenen çıktı (`Output you should see:`) | Her adım sonrası |
+| Animasyonlu ilerleme göstergesi (CSS keyframe veya Tailwind animate) | Adımlar arasında görsel geçiş |
+| SVG / inline diyagram | Kurulum akışını gösteren şema |
+| Verification komutu | Kurulumun başarılı olduğunu doğrular |
+
+İşletim sistemi ayrımı şablonu:
+- **Windows:** winget / chocolatey / PowerShell
+- **macOS:** Homebrew (`brew install ...`)
+- **Linux:** apt / yum / binary download
+
+### 13.4 Gerçek Hayat Kullanımı & Karşılaştırma (ZORUNLU)
+
+Her teknoloji sayfasının "Gerçek Hayat" sekmesinde şunlar **mutlaka** yer alır:
+
+1. **Hangi ihtiyaca cevap verir?** — "Bu teknoloji olmadan hayat nasıl zordu?" sorusuna 2-3 cümle.
+2. **Gerçek dünya senaryosu** — Somut bir şirket/proje bağlamında (ör. "Bir e-ticaret sitesinde şöyle kullanılır…").
+3. **Rakip teknoloji karşılaştırması** — En az 2 alternatifle karşılaştırma tablosu:
+   - Avantajlar ✅
+   - Dezavantajlar ❌
+   - Hangi durumda tercih edilmeli?
+4. **Akış diyagramı** — Gerçek hayat entegrasyonunu gösteren SVG inline diyagram veya ASCII art.
+5. **Hands-on mini proje** — Okuyucunun kopyala-yapıştır yapıp çalıştırabileceği tam örnek.
+
+### 13.5 Sorun & Çözüm Bölümü — Görsel Zenginlik (ZORUNLU)
+
+"Yaygın Hatalar / Troubleshooting" sekmesi şunları kapsar:
+
+- `error-dictionary` block tipi kullanılır: gerçek hata mesajı → neden → çözüm adımları.
+- Her hata için:
+  - **Gerçek hata çıktısı** (terminal/log kopyası, `code` block içinde)
+  - **Sebebi** (animasyonlu açıklama veya SVG diyagram)
+  - **Adım adım çözüm** (numara listesi)
+  - **Sonuç doğrulama** komutu
+- Minimum **8 farklı gerçek hata senaryosu** yer almalı.
+- Her senaryoya inline SVG veya CSS animasyonla görsel destek ekle.
+
+### 13.6 Mülakat Soruları — 50 Soru Kuralı (ZORUNLU)
+
+Mülakat sekmesinde **kesinlikle 50 soru** yer alır. Dağılım:
+
+| Seviye | Adet | Odak |
+|--------|------|------|
+| Basic (Başlangıç) | 15 soru | Kurulum, temel kavramlar, ilk komutlar |
+| Intermediate (Orta) | 20 soru | Gerçek iş senaryoları, yaygın hatalar, best practice |
+| Advanced (İleri) | 15 soru | Mimari kararlar, performans, CI/CD entegrasyonu, edge case |
+
+**Soru yazım kuralları:**
+- ❌ "X nedir?" — salt tanım sorusu yasak.
+- ✅ "Bir production ortamında X ile şu sorunla karşılaştın, ne yaparsın?" — senaryo tabanlı.
+- ✅ Her soru gerçek iş hayatında karşılaşılabilecek, hands-on deneyim gerektiren türde olmalı.
+- Her soruya 3-6 cümle detaylı cevap (gerekirse kod örneği).
+- Cevaplarda Java karşılaştırması kullan (CLAUDE.md Kural 9).
+
+### 13.7 Görsel & Animasyon Zorunlulukları (Tüm Sekmeler)
+
+Her teknoloji sayfasında aşağıdaki görsel öğeler kullanılır:
+
+| Öğe | Uygulama |
+|-----|----------|
+| Inline SVG diyagramlar | Akış şemaları, mimari diyagramlar (dış dosya yasak) |
+| CSS keyframe animasyonları | `@keyframes fadeIn`, `slideIn`, `pulse` vb. — Tailwind `animate-*` class'ları |
+| Renkli badge / chip | Seviye göstergeleri (Basic/Intermediate/Advanced), durum etiketleri |
+| İlerleme çubukları | Kurulum adımları, konu ilerlemesi |
+| Tooltip / hover açıklaması | Teknik terimler üzerine gelindiğinde basit açıklama |
+| Karşılaştırma tablosu | Her "vs" senaryosunda zorunlu, renkli hücreler |
+| Kod bloğu + canlı editör | Her konuda en az 1 çalıştırılabilir örnek |
+| Animasyonlu `simple-box` | Giriş bölümünde dikkat çekici, renkli kutu |
+
+**Animasyon kullanım ilkesi:**
+- CSS-only animasyon tercih edilir (harici kütüphane ekleme).
+- `prefers-reduced-motion` media query'e uyulur (erişilebilirlik).
+- Tailwind `transition`, `duration-300`, `ease-in-out` kombinasyonu standart geçiş için yeterli.
