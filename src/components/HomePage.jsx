@@ -178,6 +178,10 @@ function HomePage() {
                             <span className="sm:hidden">🟢 Selenium</span>
                             <span className="hidden sm:inline">{language === 'tr' ? '🟢 Selenium Öğren' : '🟢 Learn Selenium'}</span>
                         </button>
+                        <button onClick={() => navigate('/browserstack')} data-testid="nav-browserstack" className={nb('orange')}>
+                            <span className="sm:hidden">☁️ BS</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '☁️ BrowserStack Öğren' : '☁️ Learn BrowserStack'}</span>
+                        </button>
                     </div>
 
                     {/* 3. Performans & API */}

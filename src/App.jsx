@@ -16,6 +16,7 @@ import PlaywrightPage from './components/PlaywrightPage'
 import SeleniumPage from './components/SeleniumPage'
 import AWSPage from './components/AWSPage'
 import AzurePage from './components/AzurePage'
+import BrowserStackPage from './components/BrowserStackPage'
 
 function App() {
     return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/selenium" element={<SeleniumPage />} />
             <Route path="/aws" element={<AWSPage />} />
             <Route path="/azure" element={<AzurePage />} />
+            <Route path="/browserstack" element={<BrowserStackPage />} />
         </Routes>
     )
 }

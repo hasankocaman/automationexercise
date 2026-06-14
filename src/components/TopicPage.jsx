@@ -446,10 +446,11 @@ function TableDiagram({ block, darkMode }) {
 }
 
 function FlowDiagram({ block, darkMode }) {
+    const { language } = useLanguage()
     const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
-            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
             <div className="flex flex-wrap items-center gap-1 justify-center">
                 {block.steps?.map((step, i) => (
                     <div key={i} className="flex items-center gap-1">
@@ -462,8 +463,8 @@ function FlowDiagram({ block, darkMode }) {
                                     {step.num}
                                 </div>
                             )}
-                            <div className="font-bold leading-tight">{step.label}</div>
-                            {step.desc && <div className={`mt-0.5 font-normal text-xs leading-tight ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{step.desc}</div>}
+                            <div className="font-bold leading-tight">{tx(step.label, language)}</div>
+                            {step.desc && <div className={`mt-0.5 font-normal text-xs leading-tight ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(step.desc, language)}</div>}
                         </div>
                         {i < block.steps.length - 1 && (
                             <span className={`text-lg font-bold ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>→</span>
@@ -634,6 +635,7 @@ function VisualBlock({ block, darkMode }) {
 }
 
 function CalloutBlock({ block, darkMode }) {
+    const { language } = useLanguage()
     const colorMap = {
         blue: { border: 'border-blue-400', bg: darkMode ? 'bg-blue-900/20' : 'bg-blue-50', text: darkMode ? 'text-blue-300' : 'text-blue-800', titleText: darkMode ? 'text-blue-200' : 'text-blue-900' },
         green: { border: 'border-green-400', bg: darkMode ? 'bg-green-900/20' : 'bg-green-50', text: darkMode ? 'text-green-300' : 'text-green-800', titleText: darkMode ? 'text-green-200' : 'text-green-900' },
@@ -645,8 +647,8 @@ function CalloutBlock({ block, darkMode }) {
     const c = colorMap[block.color] || colorMap.blue
     return (
         <div className={`mt-4 p-4 rounded-xl border-2 ${c.border} ${c.bg}`}>
-            {block.title && <div className={`font-bold text-sm mb-2 ${c.titleText}`}>{block.emoji || ''} {block.title}</div>}
-            <p className={`text-sm leading-relaxed ${c.text}`}>{block.content}</p>
+            {block.title && <div className={`font-bold text-sm mb-2 ${c.titleText}`}>{block.emoji || ''} {tx(block.title, language)}</div>}
+            <p className={`text-sm leading-relaxed ${c.text}`}>{tx(block.content, language)}</p>
         </div>
     )
 }
@@ -661,8 +663,8 @@ function JavaCompareBlock({ block, darkMode }) {
     const newCode = block.typescript || block.python || block.sql
     const langIcon = isTS ? '🔷' : isSQL ? '🗄️' : '🐍'
     const langLabel = isTS ? "TypeScript'te" : isSQL ? 'Python\'da (DB)' : "Python'da"
-    const whyText = isTr ? block.why : (block.why_en ?? block.why)
-    const noteText = isTr ? block.note : (block.note_en ?? block.note)
+    const whyText = typeof block.why === 'object' ? tx(block.why, language) : (isTr ? block.why : (block.why_en ?? block.why))
+    const noteText = typeof block.note === 'object' ? tx(block.note, language) : (isTr ? block.note : (block.note_en ?? block.note))
     const whyLabel = isTr ? '🤔 Neden?' : '🤔 Why?'
     return (
         <div className={`mt-6 rounded-xl border-2 overflow-hidden ${darkMode ? 'border-orange-700/60' : 'border-orange-300'}`}>
@@ -1151,7 +1153,7 @@ function renderBlock(block, i, darkMode, language = 'en') {
                     {block.items.map((item, j) => (
                         <div key={j} className={`flex items-start gap-3 p-3 rounded-lg text-sm ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-700'}`}>
                             <span className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-indigo-800 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>{j + 1}</span>
-                            <span className="leading-relaxed">{typeof item === 'string' ? item : <span><strong>{item.label}</strong>{item.desc && `: ${item.desc}`}</span>}</span>
+                            <span className="leading-relaxed">{typeof item === 'string' ? item : <span><strong>{tx(item.label, language)}</strong>{item.desc && `: ${tx(item.desc, language)}`}</span>}</span>
                         </div>
                     ))}
                 </div>
@@ -1174,13 +1176,13 @@ function renderBlock(block, i, darkMode, language = 'en') {
                     <table className={`w-full text-sm border-collapse rounded-xl overflow-hidden`}>
                         <thead>
                             <tr className={darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}>
-                                {block.headers.map((h, j) => <th key={j} className={`p-3 text-left font-semibold border-b ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{h}</th>)}
+                                {block.headers.map((h, j) => <th key={j} className={`p-3 text-left font-semibold border-b ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{tx(h, language)}</th>)}
                             </tr>
                         </thead>
                         <tbody>
                             {block.rows.map((row, j) => (
                                 <tr key={j} className={`border-b ${darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50'}`}>
-                                    {row.map((cell, k) => <td key={k} className={`p-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{cell}</td>)}
+                                    {row.map((cell, k) => <td key={k} className={`p-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{tx(cell, language)}</td>)}
                                 </tr>
                             ))}
                         </tbody>

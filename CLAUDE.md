@@ -355,3 +355,17 @@ Her teknoloji sayfasında aşağıdaki görsel öğeler kullanılır:
 - CSS-only animasyon tercih edilir (harici kütüphane ekleme).
 - `prefers-reduced-motion` media query'e uyulur (erişilebilirlik).
 - Tailwind `transition`, `duration-300`, `ease-in-out` kombinasyonu standart geçiş için yeterli.
+
+---
+
+## 14. Token Tasarrufu & Adım Adım Çalışma Protokolü (ZORUNLU)
+
+Büyük görevlerde (yeni teknoloji sayfası, kapsamlı içerik ekleme vb.) token israfını önlemek için **her zaman adım adım çalış**:
+
+1. **Görevi parçalara böl** — Her dosya veya bölüm ayrı bir adımdır. Tek seferde tüm içeriği yazmaya çalışma.
+2. **Her adımı tamamla, onay al** — Bir adım bitmeden bir sonrakine geçme. Kullanıcı yönlendirmesi gerekirse sor.
+3. **Data dosyalarını bölümler halinde yaz** — Büyük `*Data.js` dosyaları için önce Section 0-3, sonra Section 4-7 gibi parçalara ayır.
+4. **Tekrar okuma** — Daha önce okunan dosyaları tekrar okuma; konuşma bağlamından devam et.
+5. **Paralel araç çağrılarını** bağımsız işlemler için kullan (örn. aynı anda 2 dosya okuma), sıralı bağımlılığı olan işlemler için kullanma.
+
+**Bu kural her oturumda, her büyük görevde geçerlidir.**
