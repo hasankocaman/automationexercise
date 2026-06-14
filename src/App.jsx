@@ -13,6 +13,7 @@ import KubernetesPage from './components/KubernetesPage'
 import KafkaPage from './components/KafkaPage'
 import AppiumPage from './components/AppiumPage'
 import PlaywrightPage from './components/PlaywrightPage'
+import SeleniumPage from './components/SeleniumPage'
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/kafka" element={<KafkaPage />} />
             <Route path="/appium" element={<AppiumPage />} />
             <Route path="/playwright" element={<PlaywrightPage />} />
+            <Route path="/selenium" element={<SeleniumPage />} />
         </Routes>
     )
 }
