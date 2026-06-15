@@ -141,6 +141,10 @@ function HomePage() {
                     {/* 1. Programlama Dilleri */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
                         <CatLabel emoji="🐍" text={language === 'tr' ? 'Diller' : 'Languages'} />
+                        <button onClick={() => navigate('/java')} data-testid="nav-java" className={nb('orange')}>
+                            <span className="sm:hidden">☕ Java</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '☕ Java Öğren' : '☕ Learn Java'}</span>
+                        </button>
                         <button onClick={() => navigate('/python')} data-testid="nav-python" className={nb('yellow')}>
                             <span className="sm:hidden">🐍 Python</span>
                             <span className="hidden sm:inline">{t('python.navButton')}</span>
