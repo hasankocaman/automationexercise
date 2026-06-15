@@ -1076,6 +1076,270 @@ function QAItem({ question, answer, code, darkMode }) {
     )
 }
 
+// ─── SeleniumVisualBlock ──────────────────────────────────────────────────────
+
+function SeleniumVisualBlock({ block, darkMode, language }) {
+    const [activeStep, setActiveStep] = useState(0)
+    const isTr = language === 'tr'
+    const step = block.steps[activeStep]
+    const accent = block.color || '#7c3aed'
+
+    const DropdownVisual = ({ state }) => {
+        const opts = [
+            { value: 'tr', text: 'Türkiye' },
+            { value: 'us', text: 'USA' },
+            { value: 'de', text: 'Germany' },
+            { value: 'jp', text: 'Japan' },
+        ]
+        const selectedVal = step.selectedValue || 'tr'
+        return (
+            <div style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                <div style={{ marginBottom: 8, color: accent, fontWeight: 700 }}>{'<select id="country">'}</div>
+                <div style={{
+                    border: `2px solid ${accent}`,
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    maxWidth: 220,
+                    boxShadow: `0 0 12px ${accent}44`,
+                    transition: 'all 0.3s',
+                }}>
+                    {(state === 'wrap' ? [opts[0]] : opts).map((opt, idx) => (
+                        <div key={opt.value} style={{
+                            padding: '7px 14px',
+                            background: (state !== 'wrap' && (
+                                (state === 'byText' || state === 'byValue' || state === 'byIndex' || state === 'firstSelected' || state === 'getOptions')
+                                && opt.value === selectedVal && state !== 'getOptions'
+                            )) ? accent : (darkMode ? '#1f2937' : '#fff'),
+                            color: (state !== 'wrap' && opt.value === selectedVal && state !== 'getOptions')
+                                ? '#fff'
+                                : (darkMode ? '#d1d5db' : '#374151'),
+                            borderBottom: idx < (state === 'wrap' ? 0 : 3) ? `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` : 'none',
+                            transition: 'background 0.3s',
+                            fontWeight: opt.value === selectedVal ? 700 : 400,
+                        }}>
+                            {state === 'getOptions' ? `[${idx}] ${opt.text} (value="${opt.value}")` : opt.text}
+                        </div>
+                    ))}
+                </div>
+                {state === 'wrap' && (
+                    <div style={{ marginTop: 8, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 11 }}>
+                        → Select sınıfına sarılıyor...
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const AlertVisual = ({ state }) => {
+        const types = {
+            page: { bg: darkMode ? '#1f2937' : '#f3f4f6', border: '#6b7280', msg: isTr ? 'Sayfa yüklendi' : 'Page loaded', icon: '🌐' },
+            alert: { bg: '#fef3c7', border: '#f59e0b', msg: isTr ? 'Giriş başarılı!' : 'Login successful!', icon: '⚠️' },
+            confirm: { bg: '#fee2e2', border: '#ef4444', msg: isTr ? 'Sepeti temizlemek istediğinize emin misiniz?' : 'Are you sure you want to clear the cart?', icon: '❓', twoBtn: true },
+            prompt: { bg: '#ede9fe', border: '#8b5cf6', msg: isTr ? 'Kupon kodunu girin:' : 'Enter coupon code:', icon: '✏️', input: true },
+            accept: { bg: '#d1fae5', border: '#10b981', msg: 'OK ✓', icon: '✅' },
+            dismiss: { bg: '#fee2e2', border: '#ef4444', msg: isTr ? 'Cancel / İptal ✓' : 'Cancel ✓', icon: '❌' },
+        }
+        const t = types[state] || types['page']
+        const isOverlay = ['alert', 'confirm', 'prompt', 'accept', 'dismiss'].includes(state)
+        return (
+            <div style={{ position: 'relative', maxWidth: 280 }}>
+                <div style={{
+                    padding: '10px 16px',
+                    borderRadius: 8,
+                    background: darkMode ? '#1f2937' : '#f9fafb',
+                    border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`,
+                    color: darkMode ? '#9ca3af' : '#6b7280',
+                    fontSize: 12,
+                    marginBottom: isOverlay ? 8 : 0,
+                    opacity: isOverlay ? 0.4 : 1,
+                }}>
+                    🌐 {isTr ? 'Ana Sayfa İçeriği' : 'Main Page Content'}
+                </div>
+                {isOverlay && (
+                    <div style={{
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        background: t.bg,
+                        border: `2px solid ${t.border}`,
+                        boxShadow: `0 4px 20px ${t.border}44`,
+                        animation: 'fadeIn 0.3s ease',
+                        fontSize: 12,
+                    }}>
+                        <div style={{ fontWeight: 700, marginBottom: 6, color: '#1f2937' }}>{t.icon} {t.msg}</div>
+                        {t.input && (
+                            <input readOnly value="SAVE20" style={{
+                                border: `1px solid ${t.border}`,
+                                borderRadius: 4,
+                                padding: '4px 8px',
+                                width: '100%',
+                                marginBottom: 8,
+                                fontSize: 12,
+                                background: '#fff',
+                            }} />
+                        )}
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                            <button style={{ padding: '4px 14px', borderRadius: 4, background: t.border, color: '#fff', border: 'none', fontSize: 11, cursor: 'default' }}>OK</button>
+                            {t.twoBtn && <button style={{ padding: '4px 14px', borderRadius: 4, background: '#6b7280', color: '#fff', border: 'none', fontSize: 11, cursor: 'default' }}>{isTr ? 'İptal' : 'Cancel'}</button>}
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const IframeVisual = ({ state }) => {
+        const states = {
+            outer: { innerOpacity: 0.3, innerBorder: '#6b7280', innerLabel: '🚫 Erişim Yok', outerActive: true },
+            'switch-by-id': { innerOpacity: 0.6, innerBorder: accent, innerLabel: '⏳ Geçiş...', outerActive: false },
+            inner: { innerOpacity: 1, innerBorder: accent, innerLabel: '✅ Frame İçi', outerActive: false },
+            nested: { innerOpacity: 1, innerBorder: '#8b5cf6', innerLabel: '🔀 Nested', outerActive: false, nested: true },
+            back: { innerOpacity: 0.3, innerBorder: '#6b7280', innerLabel: '← Dış Sayfa', outerActive: true },
+            parent: { innerOpacity: 0.6, innerBorder: accent, innerLabel: '↑ Parent Frame', outerActive: false },
+        }
+        const s = states[state] || states['outer']
+        return (
+            <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
+                <div style={{
+                    padding: 10, borderRadius: 8,
+                    border: `2px solid ${s.outerActive ? accent : (darkMode ? '#374151' : '#d1d5db')}`,
+                    background: darkMode ? '#111827' : '#f9fafb',
+                    boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none',
+                    transition: 'all 0.3s',
+                }}>
+                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>
+                        {s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}
+                    </div>
+                    <div style={{
+                        padding: 8, borderRadius: 6,
+                        border: `2px solid ${s.innerBorder}`,
+                        background: darkMode ? '#1f2937' : '#fff',
+                        opacity: s.innerOpacity,
+                        boxShadow: s.innerOpacity === 1 ? `0 0 10px ${s.innerBorder}44` : 'none',
+                        transition: 'all 0.4s',
+                    }}>
+                        <div style={{ color: s.innerBorder, fontWeight: 700, marginBottom: s.nested ? 4 : 0 }}>
+                            🖼️ iframe.payment-frame — {s.innerLabel}
+                        </div>
+                        {s.nested && (
+                            <div style={{ padding: 6, border: `1px dashed #8b5cf6`, borderRadius: 4, marginTop: 4, color: '#8b5cf6', fontSize: 10 }}>
+                                🔲 iframe#captchaFrame (nested)
+                            </div>
+                        )}
+                        {s.innerOpacity === 1 && !s.nested && (
+                            <div style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 4 }}>
+                                💳 cardNumber · cvv · expiry
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const WindowVisual = ({ state }) => {
+        const wins = [
+            { id: 'main', label: isTr ? '🏠 Ana Pencere' : '🏠 Main Window', color: accent },
+            { id: 'popup', label: isTr ? '🆕 Popup / Sekme' : '🆕 Popup / Tab', color: '#10b981' },
+            { id: 'third', label: isTr ? '3️⃣ Üçüncü' : '3️⃣ Third', color: '#f59e0b' },
+        ]
+        const activeWins = {
+            single: ['main'],
+            'multiple': ['main', 'popup'],
+            'switch': ['popup'],
+            'new-tab': ['main', 'popup'],
+            'close': ['main'],
+            'handle-set': ['main', 'popup', 'third'],
+        }
+        const active = activeWins[state] || ['main']
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 240, fontFamily: 'monospace', fontSize: 11 }}>
+                {wins.slice(0, state === 'handle-set' ? 3 : state === 'single' || state === 'close' ? 1 : 2).map(w => (
+                    <div key={w.id} style={{
+                        padding: '7px 12px',
+                        borderRadius: 8,
+                        border: `2px solid ${active.includes(w.id) ? w.color : (darkMode ? '#374151' : '#d1d5db')}`,
+                        background: active.includes(w.id) ? (darkMode ? '#111827' : '#f9fafb') : (darkMode ? '#1f2937' : '#fff'),
+                        boxShadow: active.includes(w.id) ? `0 0 10px ${w.color}44` : 'none',
+                        color: active.includes(w.id) ? w.color : (darkMode ? '#6b7280' : '#9ca3af'),
+                        fontWeight: active.includes(w.id) ? 700 : 400,
+                        transition: 'all 0.3s',
+                    }}>
+                        {active.includes(w.id) ? '▶ ' : '  '}{w.label}
+                        {active.includes(w.id) && <span style={{ fontSize: 9, marginLeft: 6, opacity: 0.7 }}>← active</span>}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    const renderVisual = () => {
+        const vs = step.visualState
+        switch (block.concept) {
+            case 'dropdown': return <DropdownVisual state={vs} />
+            case 'alert':    return <AlertVisual state={vs} />
+            case 'iframe':   return <IframeVisual state={vs} />
+            case 'window':   return <WindowVisual state={vs} />
+            default: return null
+        }
+    }
+
+    return (
+        <div key={`sv-${block.concept}`} className={`mt-6 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`} style={{ boxShadow: `0 0 24px ${accent}22` }}>
+            {/* Header */}
+            <div style={{ background: accent }} className="px-4 py-3 flex items-center gap-3">
+                <span className="text-2xl">{block.icon}</span>
+                <span className="text-white font-bold text-sm md:text-base">{isTr ? block.title.tr : block.title.en}</span>
+            </div>
+
+            {/* Step tabs */}
+            <div className={`flex overflow-x-auto gap-1 px-3 py-2 border-b ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`} style={{ scrollbarWidth: 'none' }}>
+                {block.steps.map((s, idx) => (
+                    <button
+                        key={s.id}
+                        onClick={() => setActiveStep(idx)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                            activeStep === idx
+                                ? 'text-white shadow-md scale-105'
+                                : darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                        style={activeStep === idx ? { background: accent } : {}}
+                    >
+                        {isTr ? s.label : (s.labelEn || s.label)}
+                    </button>
+                ))}
+            </div>
+
+            {/* Body */}
+            <div className="p-4 md:p-5 grid md:grid-cols-2 gap-4 md:gap-6 items-start">
+                {/* Visual */}
+                <div className={`rounded-xl p-4 flex items-center justify-center min-h-[160px] ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`} style={{ border: `1px solid ${accent}44` }}>
+                    {renderVisual()}
+                </div>
+
+                {/* Text + Code */}
+                <div>
+                    <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? step.description.tr : step.description.en}
+                    </p>
+                    <CodeBlock code={step.code} language="java" darkMode={darkMode} />
+                    {step.tip && (
+                        <div className={`mt-3 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-yellow-300 border border-yellow-900' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>
+                            {isTr ? step.tip.tr : step.tip.en}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Step counter */}
+            <div className={`px-4 py-2 flex items-center justify-between border-t text-xs ${darkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}>
+                <button onClick={() => setActiveStep(Math.max(0, activeStep - 1))} disabled={activeStep === 0} className="px-3 py-1 rounded disabled:opacity-30 hover:opacity-80 transition" style={{ background: accent, color: '#fff' }}>← {isTr ? 'Önceki' : 'Prev'}</button>
+                <span>{activeStep + 1} / {block.steps.length}</span>
+                <button onClick={() => setActiveStep(Math.min(block.steps.length - 1, activeStep + 1))} disabled={activeStep === block.steps.length - 1} className="px-3 py-1 rounded disabled:opacity-30 hover:opacity-80 transition" style={{ background: accent, color: '#fff' }}>{isTr ? 'Sonraki' : 'Next'} →</button>
+            </div>
+        </div>
+    )
+}
+
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
 function renderBlock(block, i, darkMode, language = 'en') {
@@ -1339,6 +1603,9 @@ function renderBlock(block, i, darkMode, language = 'en') {
                     />
                 </div>
             )
+
+        case 'selenium-visual':
+            return <SeleniumVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null
