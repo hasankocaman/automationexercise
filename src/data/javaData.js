@@ -10351,6 +10351,2487 @@ public class EcommerceE2ETest {
   },
 }
 
+// ─── S-PLAYWRIGHT: PLAYWRIGHT JAVA ─────────────────────────────────────────
+const sPlaywright = {
+  tr: {
+    title: '🎭 Playwright Java — Adım Adım Kullanım',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎭',
+        content: 'Playwright\'ı akıllı bir dedektif asistan gibi düşün: "Bu butonu bul ve tıkla" dediğinde, o butonu bekler, hazır olana kadar otomatik bekler, sonra tıklar. Selenium\'da kendinin "Bekle şunu, sonra yap bunu" dermen gerekirdi. Playwright\'ta sadece "yap" dersin — o gerisini düşünür.',
+      },
+      { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
+      {
+        type: 'code', language: 'xml', label: 'pom.xml — Playwright Java',
+        code: `<dependencies>
+  <!-- Playwright Java (her şey dahil: Chrome, Firefox, WebKit) -->
+  <dependency>
+    <groupId>com.microsoft.playwright</groupId>
+    <artifactId>playwright</artifactId>
+    <version>1.44.0</version>
+  </dependency>
+
+  <!-- JUnit5 runner -->
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+
+<!-- Browser binary'lerini indir (ilk kez) -->
+<!-- mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install" -->`,
+      },
+      { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
+      {
+        type: 'code', language: 'java', label: 'Chromium / Firefox / WebKit başlatma',
+        code: `import com.microsoft.playwright.*;
+
+public class BrowserSetup {
+    public static void main(String[] args) {
+
+        // try-with-resources → otomatik kapanır (Java'da AutoCloseable gibi)
+        try (Playwright playwright = Playwright.create()) {
+
+            // ── Chromium (Chrome/Edge tabanlı) ──────────────────
+            Browser browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                    .setHeadless(false)         // görsel mod (geliştirme)
+                    .setSlowMo(100)             // her işlem arası 100ms bekle
+            );
+            // CI/CD için: .setHeadless(true)
+
+            // ── Firefox ─────────────────────────────────────────
+            // Browser browser = playwright.firefox().launch();
+
+            // ── WebKit (Safari) ─────────────────────────────────
+            // Browser browser = playwright.webkit().launch();
+
+            // BrowserContext → Page (Selenium'da WebDriver → window)
+            BrowserContext context = browser.newContext(
+                new Browser.NewContextOptions()
+                    .setViewportSize(1280, 720)
+                    .setLocale("tr-TR")
+            );
+            Page page = context.newPage();
+
+            page.navigate("https://automationexercise.com");
+            System.out.println("Başlık: " + page.title());
+            System.out.println("URL: " + page.url());
+
+            browser.close(); // context ve page'ler otomatik kapanır
+        }
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
+      {
+        type: 'code', language: 'java', label: 'Tüm navigasyon komutları',
+        code: `Page page = context.newPage();
+
+// URL aç — DOM yüklenene kadar otomatik bekler
+page.navigate("https://automationexercise.com");
+
+// navigate() seçenekleri
+page.navigate("https://google.com",
+    new Page.NavigateOptions()
+        .setWaitUntil(WaitUntilState.NETWORKIDLE) // ağ sessizleşene kadar bekle
+        .setTimeout(30000)                         // 30 saniye timeout
+);
+
+// Geri / İleri / Yenile — Selenium'da navigate().back() gibi
+page.goBack();
+page.goForward();
+page.reload();
+
+// Sayfa bilgileri
+String title  = page.title();        // "Automation Exercise"
+String url    = page.url();          // "https://..."
+String source = page.content();      // Tüm HTML (Selenium: getPageSource())
+
+// Popup / Yeni sekme bekle (Selenium'da getWindowHandles() yerine)
+Page popup = page.waitForPopup(() -> {
+    page.locator("#openPopupBtn").click();
+});
+System.out.println("Popup URL: " + popup.url());`,
+      },
+      { type: 'heading', text: { tr: 'Adım 4: Element Bulma — 8 Locator Stratejisi', en: 'Step 4: Element Locators — 8 Strategies' } },
+      {
+        type: 'simple-box',
+        emoji: '🔍',
+        content: {
+          tr: 'Playwright locator\'ları, Selenium\'un By.* metodlarından çok daha akıllıdır: element DOM\'a eklenene kadar otomatik bekler, ayrıca görünür ve enabled olmasını da bekler. Java\'da bir Future<WebElement> gibi — hazır olunca verir.',
+          en: 'Playwright locators are much smarter than Selenium\'s By.* methods: they auto-wait until the element is in the DOM and also wait for it to be visible and enabled. Like a Future<WebElement> in Java — gives it when ready.',
+        },
+      },
+      {
+        type: 'locator-visual',
+        codeLabel: 'Playwright (Java)',
+        htmlExample: `<form id="loginForm" class="login-form">
+
+  <label for="username">Kullanıcı Adı</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="E-posta"
+    data-testid="username-input"
+    aria-label="Email Address" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Giriş Yap
+  </button>
+
+  <a href="/forgot">Şifremi Unuttum</a>
+
+</form>`,
+        locators: [
+          {
+            id: 'by-role', label: 'getByRole()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
+            highlights: ['type="email"'],
+            code: `// Playwright'ın EN ÖNERİLEN locator'ı!
+Locator el = page.getByRole(
+    AriaRole.TEXTBOX,
+    new Page.GetByRoleOptions().setName("Email Address")
+);
+// role → HTML semantic rolü (button, textbox, checkbox...)
+// name → aria-label veya label metni`,
+            title: 'En Semantik — Erişilebilirlik Odaklı',
+            titleEn: 'Most Semantic — Accessibility-Focused',
+            explanation: 'HTML\'nin ARIA semantic rollerini hedefler. Kullanıcının sayfayı nasıl gördüğüne göre çalışır — HTML yapısı değişse bile test kırılmaz. Java\'da interface\'le programming gibi: implementasyon değişse kontrat bozulmaz. Playwright takımının 1. tercihi.',
+            explanationEn: 'Targets HTML ARIA semantic roles. Works based on how the user sees the page — tests don\'t break even if HTML structure changes. Like programming to an interface in Java: contract stays intact even if implementation changes. Playwright team\'s 1st recommendation.',
+            tip: '✅ EN ÖNERİLEN: getByRole() hem semantik hem kırılmaz. AriaRole.BUTTON, TEXTBOX, CHECKBOX, LINK, HEADING, LIST, LISTITEM...',
+            tipEn: '✅ MOST RECOMMENDED: getByRole() is both semantic and resilient. AriaRole.BUTTON, TEXTBOX, CHECKBOX, LINK, HEADING, LIST, LISTITEM...',
+            when: 'Element\'in ARIA rolü varsa — HER ZAMAN ilk tercih',
+            whenEn: 'When element has an ARIA role — ALWAYS first choice',
+          },
+          {
+            id: 'by-testid', label: 'getByTestId()', priority: 1, starRating: '⭐⭐⭐', color: '#06b6d4',
+            highlights: ['data-testid="username-input"'],
+            code: `// data-testid attribute'ü ile — test için tasarlanmış
+Locator el = page.getByTestId("username-input");
+
+// Varsayılan: data-testid attribute'ünü arar
+// playwright.config'de özelleştirilebilir:
+// use: { testIdAttribute: 'data-qa' }`,
+            title: 'Test için Tasarlanmış — En İyi Pratik',
+            titleEn: 'Designed for Testing — Best Practice',
+            explanation: 'data-testid özellikle QA için eklenir. Stil, class veya yapı değişse bile test bozulmaz. Selenium\'un By.cssSelector("[data-testid=\'...\']") ile aynı şey ama çok daha temiz sözdizimi.',
+            explanationEn: 'data-testid is added specifically for QA. Tests don\'t break even if styles, classes or structure change. Same as Selenium\'s By.cssSelector("[data-testid=\'...\']") but much cleaner syntax.',
+            tip: '✅ EN İYİ PRATİK: Tüm test elementlerine data-testid eklemesini geliştirici ekipten iste.',
+            tipEn: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements.',
+            when: 'data-testid varsa — getByRole() ile eşdeğer öncelik',
+            whenEn: 'When data-testid exists — equal priority with getByRole()',
+          },
+          {
+            id: 'by-label', label: 'getByLabel()', priority: 2, starRating: '⭐⭐⭐', color: '#3b82f6',
+            highlights: ['for="username"', 'Kullanıcı Adı'],
+            code: `// <label for="username">Kullanıcı Adı</label> ile eşleştirir
+Locator el = page.getByLabel("Kullanıcı Adı");
+
+// Kısmi eşleşme:
+Locator el2 = page.getByLabel("Kullanıcı", new Page.GetByLabelOptions().setExact(false));
+
+// Selenium'da bunu By ile yapamazsın!
+// label → input ilişkisini otomatik çözer`,
+            title: 'Form Alanları için Doğal Seçim',
+            titleEn: 'Natural Choice for Form Fields',
+            explanation: 'HTML label elementini bulur ve onun hedeflediği form input\'unu seçer. Selenium\'da bunu yapabilmek için XPath with following-sibling yazmak gerekirdi. Java\'da bir Builder pattern gibi — label adını bil, input\'u otomatik bul.',
+            explanationEn: 'Finds the HTML label element and selects the form input it targets. In Selenium, you\'d need XPath with following-sibling to do this. Like a Builder pattern in Java — know the label name, auto-find the input.',
+            tip: '✅ Login, kayıt, form sayfaları için ideal. Kullanıcının gördüğü label metnine göre eşleşir — HTML\'nin for/id bağlantısını otomatik çözer.',
+            tipEn: '✅ Ideal for login, registration, form pages. Matches by the label text the user sees — automatically resolves the HTML for/id connection.',
+            when: 'Form input\'unun ilişkili bir label\'ı varsa',
+            whenEn: 'When a form input has an associated label element',
+          },
+          {
+            id: 'by-placeholder', label: 'getByPlaceholder()', priority: 3, starRating: '⭐⭐', color: '#8b5cf6',
+            highlights: ['placeholder="E-posta"'],
+            code: `// placeholder attribute'ü ile eşleştirir
+Locator el = page.getByPlaceholder("E-posta");
+
+// Kısmi eşleşme (exact: false):
+Locator el2 = page.getByPlaceholder(
+    "E",
+    new Page.GetByPlaceholderOptions().setExact(false)
+);
+// Selenium'da: By.cssSelector("input[placeholder='E-posta']")`,
+            title: 'Placeholder Metni ile Eşleşme',
+            titleEn: 'Match by Placeholder Text',
+            explanation: 'Input elementinin placeholder attribute\'ünü hedefler. label yoksa veya placeholder daha okunaklıysa kullanılır. Selenium\'da By.cssSelector("input[placeholder=\'...\']") ile aynı ama daha temiz.',
+            explanationEn: 'Targets the placeholder attribute of input elements. Used when there\'s no label or placeholder is more readable. Same as By.cssSelector("input[placeholder=\'...\']") in Selenium but cleaner.',
+            tip: '⚠️ Placeholder metni i18n ile değişebilir. Mümkünse getByLabel() veya getByTestId() tercih et.',
+            tipEn: '⚠️ Placeholder text may change with i18n. Prefer getByLabel() or getByTestId() when possible.',
+            when: 'label yoksa ve placeholder sabit metinse',
+            whenEn: 'When no label exists and placeholder is static text',
+          },
+          {
+            id: 'by-text', label: 'getByText()', priority: 4, starRating: '⭐⭐', color: '#f59e0b',
+            highlights: ['Giriş Yap'],
+            code: `// Görünen metin içeriğine göre eşleştirir
+Locator btn = page.getByText("Giriş Yap");
+
+// Tam eşleşme (varsayılan):
+Locator exact = page.getByText("Giriş Yap", new Page.GetByTextOptions().setExact(true));
+
+// Kısmi eşleşme:
+Locator partial = page.getByText("Giriş", new Page.GetByTextOptions().setExact(false));
+
+// Selenium'da: By.xpath("//button[text()='Giriş Yap']")`,
+            title: 'Görünen Metin ile Eşleşme',
+            titleEn: 'Match by Visible Text',
+            explanation: 'Sayfadaki görünen metni hedefler. Buton, link, label, div — her tür element için çalışır. Selenium\'da linkText() sadece <a> için çalışırdı; getByText() tüm elementlerde çalışır.',
+            explanationEn: 'Targets visible text on the page. Works for any element type — button, link, label, div. In Selenium, linkText() only worked for <a>; getByText() works on all elements.',
+            tip: '⚠️ Dil değişince test kırılır. i18n uygulamalarında data-testid veya getByRole() tercih et.',
+            tipEn: '⚠️ Breaks when language changes. In i18n apps, prefer data-testid or getByRole().',
+            when: 'Statik metin içeren buton veya link için, dil değişmiyorsa',
+            whenEn: 'For buttons or links with static text when language won\'t change',
+          },
+          {
+            id: 'by-css-id', label: 'locator("#id")', priority: 2, starRating: '⭐⭐⭐', color: '#7c3aed',
+            highlights: ['id="username"'],
+            code: `// CSS selector — Selenium'da By.id() ve By.cssSelector() gibi
+Locator el = page.locator("#username");
+
+// data-testid ile aynı anda (chaining ile filtre):
+Locator el2 = page.locator("#loginForm").locator("#username");
+
+// Selenium karşılığı:
+// driver.findElement(By.id("username"))`,
+            title: 'CSS id Seçicisi — Hızlı ve Güvenilir',
+            titleEn: 'CSS id Selector — Fast and Reliable',
+            explanation: 'CSS sözdiziminde # id\'yi seçer. Selenium\'un By.id() ile aynı hızda çalışır. page.locator() CSS ve XPath her ikisini de destekler — Selenium\'daki gibi ayrı By metodları yok.',
+            explanationEn: 'In CSS syntax, # selects by id. Same speed as Selenium\'s By.id(). page.locator() supports both CSS and XPath — no separate By methods like in Selenium.',
+            tip: '✅ id varsa ve getByRole()/getByTestId() uygun değilse kullan. Selenium\'dan geçişte alışkanlık açısından kolay.',
+            tipEn: '✅ Use when id exists and getByRole()/getByTestId() are not appropriate. Easy for Selenium migrants by familiarity.',
+            when: 'getByRole() veya getByTestId() uygun değilse, id varsa',
+            whenEn: 'When getByRole() or getByTestId() is not appropriate and id exists',
+          },
+          {
+            id: 'by-css-combo', label: 'locator(css combo)', priority: 3, starRating: '⭐⭐', color: '#ec4899',
+            highlights: ['class="form-input"', 'name="email"'],
+            code: `// Tag + class + attribute kombinasyonu
+Locator el = page.locator("input.form-input[name='email']");
+
+// data-testid ile kombine (güçlü seçici):
+Locator el2 = page.locator("[data-testid='username-input'][type='email']");
+
+// Selenium karşılığı:
+// By.cssSelector("input.form-input[name='email']")`,
+            title: 'Kombine CSS — Spesifik & Güvenilir',
+            titleEn: 'Combined CSS — Specific & Reliable',
+            explanation: 'Tag, class ve attribute kombinasyonu. Selenium\'daki By.cssSelector() ile birebir aynı sözdizimi. Playwright\'ta ayrıca :has(), :text(), :near() gibi Playwright-özel pseudo-selectorlar da eklenebilir.',
+            explanationEn: 'Combination of tag, class and attributes. Exactly same syntax as Selenium\'s By.cssSelector(). Playwright additionally supports :has(), :text(), :near() pseudo-selectors.',
+            tip: '✅ Selenium\'dan geçişte CSS selector syntax aynı — syntax öğrenmene gerek yok. Playwright\'ın :has-text() gibi ek selector\'larını da öğren.',
+            tipEn: '✅ CSS selector syntax is identical when migrating from Selenium — no new syntax to learn. Also learn Playwright\'s extra selectors like :has-text().',
+            when: 'getByRole()/getByTestId() yoksa ve çoklu attribute filtresi gerekiyorsa',
+            whenEn: 'When getByRole()/getByTestId() unavailable and multi-attribute filtering is needed',
+          },
+          {
+            id: 'by-xpath', label: 'locator(xpath=)', priority: 8, starRating: '⭐', color: '#ef4444',
+            highlights: ['type="submit"'],
+            code: `// XPath — Playwright'ta "xpath=" prefix ile
+Locator btn = page.locator("xpath=//button[@type='submit']");
+
+// Metin ile XPath:
+Locator byText = page.locator("xpath=//button[text()='Giriş Yap']");
+
+// DOM ilişkisi:
+Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
+
+// NOT: getByText() XPath'ten çok daha iyidir — önce onu dene!`,
+            title: 'En Güçlü — Ama Son Çare',
+            titleEn: 'Most Powerful — But Last Resort',
+            explanation: 'Playwright\'ta XPath, "xpath=" prefix ile kullanılır. Selenium\'daki By.xpath() ile birebir aynı güç — parent/child/sibling ilişkilerini ifade edebilir. Yavaş ve kırılgandır; getByRole(), getByText() veya CSS daha iyi seçenektir.',
+            explanationEn: 'In Playwright, XPath is used with "xpath=" prefix. Exactly same power as Selenium\'s By.xpath() — can express parent/child/sibling relationships. Slow and brittle; getByRole(), getByText() or CSS are better options.',
+            tip: '⛔ Son tercih. Playwright\'ın kendi özel locator\'ları (getByRole, getByText vb.) çok daha güçlüdür. XPath\'i sadece başka locator çalışmıyorsa kullan.',
+            tipEn: '⛔ Last resort. Playwright\'s own locators (getByRole, getByText etc.) are much more powerful. Use XPath only when no other locator works.',
+            when: 'Hiçbir Playwright locator çalışmadığında — özellikle karmaşık DOM ilişkisi için',
+            whenEn: 'When no Playwright locator works — especially for complex DOM relationships',
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 5: Element İşlemleri', en: 'Step 5: Element Actions' } },
+      {
+        type: 'code', language: 'java', label: 'Tüm element işlemleri — fill, click, check, okuma',
+        code: `Locator input = page.locator("#username");
+
+// ── YAZMA / TIKLAMA ─────────────────────────────────
+input.fill("admin@example.com");      // Önce temizler sonra yazar (sendKeys'den üstün!)
+input.clear();                        // İçeriği temizle
+input.pressSequentially("abc");       // Karakter karakter yaz (masked input için)
+input.click();                        // Tıkla
+input.dblclick();                     // Çift tıkla
+
+// Özel tuşlar (Selenium'da sendKeys(Keys.ENTER) gibi)
+input.press("Enter");
+input.press("Tab");
+input.press("Control+A");             // Selenium'da keyDown(CONTROL) + sendKeys("a")
+
+// ── OKUMA ───────────────────────────────────────────
+String text       = input.textContent();        // Görünen metin
+String inputValue = input.inputValue();         // Input value (Selenium: getAttribute("value"))
+String cls        = input.getAttribute("class");
+String href       = page.locator("a").getAttribute("href");
+
+// ── DURUM KONTROLÜ ──────────────────────────────────
+boolean visible  = input.isVisible();   // Görünür mü?
+boolean enabled  = input.isEnabled();   // Aktif mi?
+boolean checked  = input.isChecked();   // Checkbox/Radio seçili mi?
+boolean disabled = input.isDisabled();  // Disabled mı?
+
+// ── CHECKBOX / RADIO ────────────────────────────────
+page.locator("#rememberMe").check();    // Selenium: click() ile toggle
+page.locator("#rememberMe").uncheck();
+
+// ── SELECT DROPDOWN ─────────────────────────────────
+// Selenium'da Select sınıfına sarmaları gerekirdi
+page.locator("#country").selectOption("TR");                 // value ile
+page.locator("#country").selectOption(new SelectOption().setLabel("Türkiye")); // metin ile
+page.locator("#country").selectOption(new SelectOption().setIndex(0));         // index ile`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'select-option',
+        color: '#f59e0b',
+        icon: '🔽',
+        title: { tr: 'selectOption() — İnteraktif Görsel Rehber', en: 'selectOption() — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'wrap', label: 'Locator', labelEn: 'Locator',
+            visualState: 'wrap',
+            description: { tr: 'Playwright\'ta Select dropdown için ayrı bir sınıfa sarma yok! Selenium\'da new Select(element) yapman gerekirdi. Playwright\'ta direkt locator üzerinden .selectOption() çağrırsın. Java\'da stream().filter() gibi — extra wrapper yok.', en: 'In Playwright, no wrapper class for Select dropdown! In Selenium you needed new Select(element). In Playwright, call .selectOption() directly on the locator. Like stream().filter() in Java — no extra wrapper.' },
+            code: `// Selenium'da:
+// Select dropdown = new Select(driver.findElement(By.id("country")));
+// dropdown.selectByValue("TR");
+
+// Playwright'ta — çok daha temiz:
+Locator country = page.locator("#country");
+
+// Artık direkt selectOption() çağırabilirsin
+country.selectOption("TR"); // value ile`,
+            tip: { tr: '✅ Playwright\'ta Select sınıfı yok — locator.selectOption() yeterli. Hem daha kısa hem daha okunabilir.', en: '✅ No Select class in Playwright — locator.selectOption() is enough. Shorter and more readable.' },
+          },
+          {
+            id: 'byValue', label: 'byValue', labelEn: 'byValue',
+            visualState: 'byValue', selectedValue: 'tr',
+            description: { tr: 'HTML\'deki value attribute değerine göre seçim — en güvenilir yöntem. Java\'da Map.get("TR") gibi: anahtarla direkt erişim. Selenium\'da dropdown.selectByValue("TR") ile aynı sonuç.', en: 'Select by HTML value attribute — most reliable method. Like Map.get("TR") in Java: direct key access. Same result as Selenium\'s dropdown.selectByValue("TR").' },
+            code: `// value attribute ile seç
+page.locator("#country").selectOption("tr");
+
+// Selenium'da:
+// dropdown.selectByValue("tr");
+
+// Seçimi doğrula
+String selectedVal = page.locator("#country").inputValue();
+assertEquals("tr", selectedVal);`,
+            tip: { tr: '✅ En güvenilir seçim yöntemi. Value attribute dil değişse de sabit kalır.', en: '✅ Most reliable selection method. Value attribute stays constant even if display language changes.' },
+          },
+          {
+            id: 'byText', label: 'byLabel', labelEn: 'byLabel',
+            visualState: 'byText', selectedValue: 'tr',
+            description: { tr: 'Görünen metin (label) ile seçim. Selenium\'da selectByVisibleText() ile aynı. Java\'da Map.getOrDefault gibi: metin eşleşmesi, case-sensitive.', en: 'Select by visible text (label). Same as Selenium\'s selectByVisibleText(). Like Map.getOrDefault in Java: text matching, case-sensitive.' },
+            code: `// Görünen metin ile seç
+page.locator("#country").selectOption(
+    new SelectOption().setLabel("Türkiye")
+);
+
+// Selenium'da:
+// dropdown.selectByVisibleText("Türkiye");
+
+// Seçili option'ı oku
+String text = page.locator("#country option:checked").textContent();`,
+            tip: { tr: '⚠️ Görünen metin i18n ile değişirse test kırılır. Mümkünse value ile seç.', en: '⚠️ Breaks if visible text changes with i18n. Prefer selecting by value when possible.' },
+          },
+          {
+            id: 'byIndex', label: 'byIndex', labelEn: 'byIndex',
+            visualState: 'byIndex', selectedValue: 'tr',
+            description: { tr: '0\'dan başlayan index ile seçim. Selenium\'da selectByIndex(0) ile aynı. En az güvenilir yöntem — yeni option eklenince indexler kayar.', en: 'Select by 0-based index. Same as Selenium\'s selectByIndex(0). Least reliable — indexes shift when new options are added.' },
+            code: `// 0'dan başlayan index ile seç
+page.locator("#country").selectOption(
+    new SelectOption().setIndex(0) // ilk option
+);
+
+// Selenium'da:
+// dropdown.selectByIndex(0);`,
+            tip: { tr: '⛔ Son tercih — sıra değişirse yanlış seçim. Sadece value/label mümkün değilse kullan.', en: '⛔ Last resort — wrong selection if order changes. Use only when value/label is not possible.' },
+          },
+          {
+            id: 'getOptions', label: 'tüm options', labelEn: 'all options',
+            visualState: 'getOptions',
+            description: { tr: 'Tüm option\'ları okuma. Playwright\'ta count() ve nth() ile tüm seçenekleri dolaşabiliriz. Selenium\'da getOptions() List<WebElement> döndürürdü.', en: 'Read all options. In Playwright, traverse all options with count() and nth(). Selenium\'s getOptions() returned List<WebElement>.' },
+            code: `Locator options = page.locator("#country option");
+int total = options.count();
+
+for (int i = 0; i < total; i++) {
+    String text  = options.nth(i).textContent();
+    String value = options.nth(i).getAttribute("value");
+    System.out.println(i + ": " + text + " [" + value + "]");
+}
+// 0: Türkiye [tr]
+// 1: USA [us]...`,
+            tip: { tr: '✅ count() + nth(i) kombinasyonu — Selenium\'un getOptions() List döngüsüne eşdeğer.', en: '✅ count() + nth(i) combination — equivalent to Selenium\'s getOptions() List loop.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 6: Auto-Wait — Playwright\'ın Süper Gücü', en: 'Step 6: Auto-Wait — Playwright\'s Superpower' } },
+      {
+        type: 'simple-box',
+        emoji: '⏱️',
+        content: {
+          tr: 'Selenium\'da yüklenmeyi bekleme sorumluluğu sende. Playwright\'ta bu sorumluluk otomatik: her locator işlemi öncesinde element DOM\'da mı, görünür mü, enabled mı diye kontrol eder. Sanki asistan her komutu "hazır olduğunda çalıştır" şeklinde kuyrukta tutuyor.',
+          en: 'In Selenium, the responsibility for waiting is yours. In Playwright, it\'s automatic: before each locator action, it checks if the element is in the DOM, visible, and enabled. Like an assistant queuing every command as "execute when ready."',
+        },
+      },
+      {
+        type: 'code', language: 'java', label: 'Auto-Wait karşılaştırma — Selenium vs Playwright',
+        code: `// ── SELENIUM: Her action için explicit wait zorunlu ──────────────────
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+WebElement loginBtn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("loginBtn"))
+);
+loginBtn.click();
+
+// Loading spinner kaybolana kadar bekle
+wait.until(ExpectedConditions.invisibilityOfElementLocated(
+    By.className("loading-spinner")
+));
+
+// URL değişene kadar bekle
+wait.until(ExpectedConditions.urlContains("/dashboard"));
+// ...Her adımda bunları tekrar yazmak zorunda!
+
+// ── PLAYWRIGHT: Hiçbir şey yazmana gerek yok ─────────────────────
+// Playwright otomatik olarak:
+// 1. Element DOM'da görünene kadar bekler
+// 2. Element görünür olana kadar bekler
+// 3. Element enabled olana kadar bekler
+// 4. Animasyonların bitmesini bekler
+// 5. SONRA işlemi yapar
+
+page.locator("#loginBtn").click(); // Yeterli! 30s auto-wait dahil
+
+// URL / sayfa bekleme (ihtiyaç olursa)
+page.waitForURL("**/dashboard");           // URL pattern bekle
+page.waitForLoadState(LoadState.NETWORKIDLE); // Ağ sessizleşene kadar
+page.locator(".loading-spinner").waitFor(   // Element kaybolana kadar
+    new Locator.WaitForOptions()
+        .setState(WaitForSelectorState.HIDDEN)
+);`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'auto-wait',
+        color: '#10b981',
+        icon: '⏱️',
+        title: { tr: 'Auto-Wait Mekanizması — Selenium vs Playwright', en: 'Auto-Wait Mechanism — Selenium vs Playwright' },
+        steps: [
+          {
+            id: 'selenium-way', label: 'Selenium Yolu', labelEn: 'Selenium Way',
+            visualState: 'selenium-way',
+            description: { tr: 'Selenium\'da her etkileşimden önce explicit wait zorunludur. WebDriverWait + ExpectedConditions yazman gerekir. Her action için tekrar tekrar yazarsın — bu hem zaman kaybı hem de test kırılganlığı demek.', en: 'In Selenium, explicit wait is mandatory before every interaction. You must write WebDriverWait + ExpectedConditions. You write this repeatedly for every action — wasteful and makes tests brittle.' },
+            code: `// Her action için tekrar yazılır!
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+// 1. action:
+wait.until(ExpectedConditions.elementToBeClickable(
+    By.id("loginBtn"))).click();
+
+// 2. action:
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("dashboard"))).getText();`,
+            tip: { tr: '⚠️ Selenium\'da implicit wait + explicit wait birlikte kullanma — beklenmedik davranışa yol açar.', en: '⚠️ Don\'t combine implicit wait + explicit wait in Selenium — causes unexpected behavior.' },
+          },
+          {
+            id: 'pw-way', label: 'Playwright Yolu', labelEn: 'Playwright Way',
+            visualState: 'pw-way',
+            description: { tr: 'Playwright\'ta extra wait kodu yazmana gerek yok. Her locator işlemi başlamadan önce Playwright kendi internal kontrol döngüsünü başlatır: element DOM\'da mı? Görünür mü? Enabled mı? Animasyon bitti mi?', en: 'In Playwright, no extra wait code needed. Before each locator action, Playwright starts its own internal retry loop: Is element in DOM? Is it visible? Is it enabled? Is animation finished?' },
+            code: `// Playwright'ta sadece bunu yaz:
+page.locator("#loginBtn").click();
+// Altında şunlar otomatik olur:
+// → element DOM'a eklendi mi? (actionability check)
+// → görünür mü? (not hidden)
+// → enabled mı? (not disabled)
+// → stable mı? (animasyon bitmedi)
+// Hepsi OK → CLICK!`,
+            tip: { tr: '✅ Playwright default 30 saniye bekler. page.setDefaultTimeout(60000) ile değiştirilebilir.', en: '✅ Playwright waits 30 seconds by default. Change with page.setDefaultTimeout(60000).' },
+          },
+          {
+            id: 'retry', label: 'Retry Döngüsü', labelEn: 'Retry Loop',
+            visualState: 'retry',
+            description: { tr: 'Playwright, element hazır değilse 100ms aralıklarla tekrar dener. Bu sayede flaky test sayısı dramatik biçimde düşer. Java\'da ScheduledExecutorService ile tekrarlayan görev gibi — ama çok daha akıllı.', en: 'If the element is not ready, Playwright retries every ~100ms. This dramatically reduces flaky test count. Like a ScheduledExecutorService with recurring tasks in Java — but much smarter.' },
+            code: `// Playwright iç döngüsü (simplified):
+// while (timeout not reached) {
+//   if (element is actionable) { DO ACTION; break; }
+//   wait 100ms;
+//   retry...
+// }
+// if (timeout) → TimeoutError
+
+// Özel timeout (sadece bu action için):
+page.locator("#slowBtn").click(
+    new Locator.ClickOptions().setTimeout(60000) // 60s
+);`,
+            tip: { tr: '✅ Polling interval yaklaşık 100ms. 30 saniyede yaklaşık 300 deneme. Bu yüzden Playwright testleri Selenium\'a göre çok daha az flaky.', en: '✅ Polling interval is approximately 100ms. About 300 attempts in 30 seconds. This is why Playwright tests are far less flaky than Selenium.' },
+          },
+          {
+            id: 'found', label: 'Element Hazır!', labelEn: 'Element Ready!',
+            visualState: 'found',
+            description: { tr: 'Element tüm actionability kontrollerini geçince işlem gerçekleşir. Başarı durumunu ayrıca doğrulamana gerek yok — action başarılıysa exception fırlatmaz.', en: 'When the element passes all actionability checks, the action is performed. No need to verify success separately — if the action succeeded, no exception is thrown.' },
+            code: `// Tüm actionability check'leri geçti → tıklandı
+page.locator("#loginBtn").click();
+// ^ Exception yoksa başarılı
+
+// Sonraki sayfada assertion:
+assertThat(page).hasURL("**/dashboard");
+assertThat(page.locator(".welcome")).isVisible();`,
+            tip: { tr: '✅ Playwright assertion\'ları da auto-wait içerir: assertThat(locator).isVisible() — element görünene kadar bekler, sonra assertion yapar.', en: '✅ Playwright assertions also have auto-wait: assertThat(locator).isVisible() — waits until element is visible, then asserts.' },
+          },
+          {
+            id: 'timeout', label: 'Timeout', labelEn: 'Timeout',
+            visualState: 'timeout',
+            description: { tr: '30 saniye içinde actionability sağlanamazsa TimeoutError fırlatılır. Selenium\'daki TimeoutException ile aynı konsept ama mesaj çok daha bilgi verici: hangi locator, hangi koşul başarısız olduğunu söyler.', en: 'If actionability cannot be achieved within 30 seconds, a TimeoutError is thrown. Same concept as Selenium\'s TimeoutException but the message is much more informative: tells you which locator and which condition failed.' },
+            code: `// TimeoutError mesajı:
+// "page.locator('#loginBtn') → timeout 30000ms exceeded
+//  waiting for locator('#loginBtn') to be visible"
+
+// Özel timeout ile:
+page.locator("#slowComponent").waitFor(
+    new Locator.WaitForOptions()
+        .setState(WaitForSelectorState.VISIBLE)
+        .setTimeout(60000)
+);`,
+            tip: { tr: '💡 TimeoutError aldığında: 1) Locator doğru mu? 2) Timeout yeterli mi? 3) Element condition (visible/enabled) doğru mu? Playwright\'ın hata mesajları detaylıdır.', en: '💡 On TimeoutError: 1) Is the locator correct? 2) Is timeout sufficient? 3) Is the element condition (visible/enabled) correct? Playwright\'s error messages are very detailed.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 7: Screenshot & page.evaluate()', en: 'Step 7: Screenshot & page.evaluate()' } },
+      {
+        type: 'code', language: 'java', label: 'Screenshot ve JavaScript işlemleri',
+        code: `import java.nio.file.Paths;
+
+// ── SCREENSHOT ───────────────────────────────────────
+// Tüm sayfa screenshot
+page.screenshot(new Page.ScreenshotOptions()
+    .setPath(Paths.get("target/screenshots/full-page.png"))
+    .setFullPage(true)    // tüm sayfayı yakala (scroll dahil)
+);
+
+// Element screenshot (Selenium 4'te de var)
+page.locator("#errorPanel").screenshot(
+    new Locator.ScreenshotOptions()
+        .setPath(Paths.get("target/screenshots/error-panel.png"))
+);
+
+// Byte array (Allure/raporlama için)
+byte[] bytes = page.screenshot();
+// Allure: Allure.addAttachment("screenshot", "image/png",
+//     new ByteArrayInputStream(bytes), ".png");
+
+// ── PAGE.EVALUATE() — JS EXECUTOR KARŞILIĞI ──────────
+// Selenium'da: ((JavascriptExecutor) driver).executeScript(...)
+// Playwright'ta: page.evaluate()
+
+// Sayfayı kaydır
+page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+page.evaluate("window.scrollBy(0, 500)");
+
+// Elemente kaydır
+page.locator("#footer").evaluate("el => el.scrollIntoView(true)");
+
+// Değer döndür
+String readyState = (String) page.evaluate("() => document.readyState");
+System.out.println(readyState); // "complete"
+
+// Element'e JS ile value set et (React controlled input)
+page.locator("#email").evaluate(
+    "el => { el.value = 'test@test.com'; el.dispatchEvent(new Event('input', {bubbles:true})); }"
+);`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'evaluate',
+        color: '#f59e0b',
+        icon: '⚡',
+        title: { tr: 'page.evaluate() — İnteraktif Görsel Rehber', en: 'page.evaluate() — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'idle', label: 'Neden evaluate?', labelEn: 'Why evaluate?',
+            visualState: 'idle',
+            description: { tr: 'page.evaluate(), Selenium\'un JavascriptExecutor\'ına karşılık gelir. Playwright\'ın ulaşamadığı yerlerde JS komutu çalıştırır. Java\'da native method gibi — JVM\'in yapamadığını işletim sistemine delege eder.', en: 'page.evaluate() is the counterpart to Selenium\'s JavascriptExecutor. Runs JS commands where Playwright can\'t reach. Like a native method in Java — delegates to the OS what the JVM cannot do.' },
+            code: `// Selenium JavascriptExecutor:
+// ((JavascriptExecutor) driver).executeScript("return document.readyState");
+
+// Playwright:
+String readyState = (String) page.evaluate(
+    "() => document.readyState"
+);
+// "complete" → sayfa tamamen yüklendi
+System.out.println(readyState);`,
+            tip: { tr: '✅ Playwright\'ın normal API\'si çoğu durumda yeterlidir. evaluate() sadece Playwright API\'sinin ulaşamadığı custom JS için.', en: '✅ Playwright\'s normal API is sufficient in most cases. evaluate() is only for custom JS that Playwright\'s API can\'t reach.' },
+          },
+          {
+            id: 'scrollTo', label: 'scrollTo', labelEn: 'scrollTo',
+            visualState: 'scrollTo',
+            description: { tr: 'Sayfayı belirli koordinata kaydırır. Selenium\'da js.executeScript("window.scrollTo(...)") ile aynı. Playwright\'ta çoğunlukla locator.scrollIntoViewIfNeeded() daha iyidir.', en: 'Scrolls to specific coordinates. Same as Selenium\'s js.executeScript("window.scrollTo(...)"). In Playwright, locator.scrollIntoViewIfNeeded() is usually better.' },
+            code: `// En alta kaydır
+page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+
+// Belirli koordinata kaydır
+page.evaluate("window.scrollTo(0, 800)");
+
+// En üste dön
+page.evaluate("window.scrollTo(0, 0)");
+
+// Playwright'ın native yöntemi (önerilen):
+page.locator("#target").scrollIntoViewIfNeeded();`,
+            tip: { tr: '✅ Lazy-load sayfalar için: evaluate scrollTo + locator count() ile yeni elementler yüklendiğini doğrula.', en: '✅ For lazy-load pages: evaluate scrollTo + locator count() to verify new elements loaded.' },
+          },
+          {
+            id: 'scrollBy', label: 'scrollBy', labelEn: 'scrollBy',
+            visualState: 'scrollBy',
+            description: { tr: 'Mevcut konumdan görece kaydırma. Selenium\'da js.executeScript("window.scrollBy(...)") ile birebir aynı. Infinite scroll test senaryolarında kullanılır.', en: 'Relative scroll from current position. Exactly same as Selenium\'s js.executeScript("window.scrollBy(...)"). Used in infinite scroll test scenarios.' },
+            code: `// 500px aşağı
+page.evaluate("window.scrollBy(0, 500)");
+
+// 200px yukarı
+page.evaluate("window.scrollBy(0, -200)");
+
+// Infinite scroll için tekrarlayan:
+for (int i = 0; i < 5; i++) {
+    page.evaluate("window.scrollBy(0, 500)");
+    page.waitForTimeout(300); // yüklenmesi için kısa bekle
+}`,
+            tip: { tr: '✅ waitForTimeout() Playwright\'ta Thread.sleep() yerine kullanılır. Ama mümkünse event bazlı bekleme tercih et.', en: '✅ waitForTimeout() replaces Thread.sleep() in Playwright. But prefer event-based waiting when possible.' },
+          },
+          {
+            id: 'evaluate', label: 'JS Return', labelEn: 'JS Return',
+            visualState: 'evaluate',
+            description: { tr: 'JS\'den değer döndürme. page.evaluate() bir Java Object döndürür — cast gerekebilir. Selenium\'da executeScript() Object döndürürdü; aynı pattern.', en: 'Return values from JS. page.evaluate() returns a Java Object — casting may be needed. Selenium\'s executeScript() also returned Object; same pattern.' },
+            code: `// Değer döndüren JS
+String title = (String) page.evaluate("() => document.title");
+Long count   = (Long)   page.evaluate("() => document.querySelectorAll('a').length");
+Boolean dark = (Boolean) page.evaluate("() => document.body.classList.contains('dark')");
+
+// Parametre geçirme (Selenium'da arguments[0] gibi)
+Object result = page.evaluate(
+    "el => el.getBoundingClientRect().top",
+    page.locator("#target")
+);`,
+            tip: { tr: '✅ evaluate() için arrow function syntax zorunlu: () => expr. Return keyword olmayan expression dönebilir. Java long → JS number otomatik cast.', en: '✅ Arrow function syntax required for evaluate(): () => expr. Expression without return keyword can return. Java long → JS number auto-cast.' },
+          },
+          {
+            id: 'fill', label: 'JS setValue', labelEn: 'JS setValue',
+            visualState: 'fill',
+            description: { tr: 'React controlled input\'larda normal fill() çalışmıyorsa JS ile value set etme. Selenium\'da arguments[0].value = ... ile aynı ama Playwright\'ta daha temiz syntax.', en: 'Setting value via JS when normal fill() doesn\'t work on React controlled inputs. Same as arguments[0].value = ... in Selenium but cleaner syntax in Playwright.' },
+            code: `// Normal fill() yeterli değilse (React controlled):
+page.locator("#email").evaluate("""
+    el => {
+        el.value = 'test@example.com';
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        el.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+""");
+
+// veya Playwright'ın kendi dispatchEvent metodu:
+page.locator("#email").fill("test@example.com");
+page.locator("#email").dispatchEvent("input");`,
+            tip: { tr: '⚠️ React/Vue controlled input\'larda dispatchEvent zorunlu. Yoksa state güncellenmez, submit\'te değer kaybolur.', en: '⚠️ dispatchEvent required for React/Vue controlled inputs. Otherwise state won\'t update and value is lost on submit.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 8: Actions Sınıfı (Hover, Drag-Drop, Klavye)', en: 'Step 8: Actions (Hover, Drag-Drop, Keyboard)' } },
+      {
+        type: 'code', language: 'java', label: 'Playwright Actions — hover, drag, keyboard',
+        code: `// ── HOVER ───────────────────────────────────────────
+// Selenium'da: new Actions(driver).moveToElement(el).perform()
+// Playwright'ta: locator.hover()
+page.locator("#navMenu").hover();
+// Alt menü görünür olana kadar auto-wait çalışır
+page.locator("#subItem").click();
+
+// ── ÇİFT TIKLAMA ────────────────────────────────────
+page.locator("td.editable").dblclick();
+
+// ── SAĞ TIKLAMA (Context Menu) ──────────────────────
+page.locator("[data-file='report.pdf']").click(
+    new Locator.ClickOptions().setButton(MouseButton.RIGHT)
+);
+page.locator("#ctxMenuDelete").click();
+
+// ── DRAG AND DROP ────────────────────────────────────
+page.locator("#draggable").dragTo(page.locator("#droppable"));
+// veya offset ile:
+page.locator("#draggable").dragTo(page.locator("#droppable"),
+    new Locator.DragToOptions().setTargetPosition(200, 0)
+);
+
+// ── KLAVYE KOMBİNASYONU ──────────────────────────────
+// Selenium'da: actions.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+page.locator("#editor").press("Control+A");
+page.locator("#editor").press("Delete");
+page.locator("#editor").fill("Yeni içerik");
+
+// Shift + Tıkla
+page.keyboard.down("Shift");
+page.locator("tr:nth-child(5)").click();
+page.keyboard.up("Shift");`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'pw-actions',
+        color: '#8b5cf6',
+        icon: '🖱️',
+        title: { tr: 'Actions — İnteraktif Görsel Rehber', en: 'Actions — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'hover', label: 'hover()', labelEn: 'hover()',
+            visualState: 'hover',
+            description: { tr: 'locator.hover() fare imlecini element üzerine taşır. Selenium\'da Actions.moveToElement() ile aynı. Playwright\'ta hover sonrası alt menü otomatik beklenir — WebDriverWait gerekmez.', en: 'locator.hover() moves the mouse cursor over the element. Same as Actions.moveToElement() in Selenium. After hover, Playwright auto-waits for sub-menus — no WebDriverWait needed.' },
+            code: `// Selenium:
+// new Actions(driver).moveToElement(navMenu).perform();
+// wait.until(ExpectedConditions.visibilityOf(subItem));
+
+// Playwright:
+page.locator("#navMenu").hover();
+// alt menü otomatik beklenir
+page.locator("#subItem").click();`,
+            tip: { tr: '✅ hover() sonrası explicit wait gerekmez — Playwright alt menüyü auto-wait eder.', en: '✅ No explicit wait needed after hover() — Playwright auto-waits for the sub-menu.' },
+          },
+          {
+            id: 'submenu', label: 'Sub-menu', labelEn: 'Sub-menu',
+            visualState: 'submenu',
+            description: { tr: 'Hover sonrası alt menü açıldı. Selenium\'da aksine Playwright\'ta context değişmez — alt menü elemanlarını normal locator ile bulursun. switchTo() yok.', en: 'Sub-menu is open after hover. Unlike Selenium, context doesn\'t change in Playwright — find sub-menu items with normal locators. No switchTo().' },
+            code: `// Alt menü açık — normal locator ile eriş
+page.locator("#productMenu li a").all().forEach(item ->
+    System.out.println(item.textContent())
+);
+// "Laptops", "Phones", "Tablets"
+
+page.getByText("Laptops").click();`,
+            tip: { tr: '✅ locator.all() → List<Locator>. Selenium\'un findElements() → List<WebElement> karşılığı.', en: '✅ locator.all() → List<Locator>. Equivalent to Selenium\'s findElements() → List<WebElement>.' },
+          },
+          {
+            id: 'dblclick', label: 'dblclick()', labelEn: 'dblclick()',
+            visualState: 'dblclick',
+            description: { tr: 'locator.dblclick() çift tıklama gönderir. Selenium\'da Actions.doubleClick() ile aynı. Editable cell, inline editor veya dosya açma için kullanılır.', en: 'locator.dblclick() sends a double-click. Same as Actions.doubleClick() in Selenium. Used for editable cells, inline editors, or file-opening.' },
+            code: `// Selenium: actions.doubleClick(cell).perform()
+page.locator("td.editable[data-col='price']").dblclick();
+
+// Edit modu açıldı
+page.locator("td.editable input").fill("299.99");
+page.locator("td.editable input").press("Enter");`,
+            tip: { tr: '✅ dblclick() ayrı DOM event (dblclick) tetikler — click() ile aynı değil. Editable grid\'lerde click çalışmazsa dblclick dene.', en: '✅ dblclick() fires separate DOM event (dblclick) — not same as click(). Try dblclick on editable grids when click doesn\'t work.' },
+          },
+          {
+            id: 'rightclick', label: 'rightClick', labelEn: 'rightClick',
+            visualState: 'rightclick',
+            description: { tr: 'Sağ tıklama, MouseButton.RIGHT ile yapılır. Selenium\'da contextClick() ile aynı. Uygulamaya özel context menu için kullanılır.', en: 'Right-click done with MouseButton.RIGHT. Same as Selenium\'s contextClick(). Used for application-specific context menus.' },
+            code: `// Selenium: actions.contextClick(el).perform()
+page.locator("[data-file='report.pdf']").click(
+    new Locator.ClickOptions().setButton(MouseButton.RIGHT)
+);
+
+page.locator("#ctxMenu [data-action='delete']").click();`,
+            tip: { tr: '⚠️ Browser\'ın native sağ-tık menüsü test edilemez — sadece DOM context menu\'lar.', en: '⚠️ Browser\'s native right-click menu cannot be tested — only DOM custom context menus.' },
+          },
+          {
+            id: 'drag', label: 'dragTo()', labelEn: 'dragTo()',
+            visualState: 'drag',
+            description: { tr: 'locator.dragTo(target) sürükle-bırak yapar. Selenium\'da Actions.dragAndDrop() ile aynı. HTML5 drag-drop event\'leri için Playwright çok daha güvenilirdir.', en: 'locator.dragTo(target) performs drag-and-drop. Same as Selenium\'s Actions.dragAndDrop(). Playwright is far more reliable for HTML5 drag-drop events.' },
+            code: `// Selenium: actions.dragAndDrop(source, target).perform()
+page.locator("#draggable").dragTo(page.locator("#droppable"));
+
+// Offset ile:
+page.locator("#draggable").dragTo(
+    page.locator("#droppable"),
+    new Locator.DragToOptions().setTargetPosition(200, 0)
+);`,
+            tip: { tr: '✅ Playwright\'ın dragTo() HTML5 drag-drop için Selenium\'dan çok daha güvenilir.', en: '✅ Playwright\'s dragTo() is much more reliable than Selenium for HTML5 drag-drop.' },
+          },
+          {
+            id: 'keyboard', label: 'Keyboard', labelEn: 'Keyboard',
+            visualState: 'keyboard',
+            description: { tr: 'Klavye kombinasyonları için locator.press() veya page.keyboard. Selenium\'da keyDown() + sendKeys() + keyUp() zinciri gerekirdi.', en: 'For keyboard combinations, use locator.press() or page.keyboard. Selenium required keyDown() + sendKeys() + keyUp() chain.' },
+            code: `// Selenium: actions.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+page.locator("#editor").press("Control+A");
+page.locator("#editor").press("Delete");
+page.locator("#editor").fill("New content here");
+
+// Shift+Click (multi-select):
+page.keyboard.down("Shift");
+page.locator("tr:nth-child(5)").click();
+page.keyboard.up("Shift");`,
+            tip: { tr: '✅ press() kombinasyon syntax: "Control+A", "Shift+Enter", "Alt+F4". Selenium\'dan çok daha temiz.', en: '✅ press() combination syntax: "Control+A", "Shift+Enter", "Alt+F4". Much cleaner than Selenium.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 9: Dialoglar (Alert/Confirm/Prompt)', en: 'Step 9: Dialogs (Alert/Confirm/Prompt)' } },
+      {
+        type: 'playwright-visual',
+        concept: 'dialog',
+        color: '#ef4444',
+        icon: '⚠️',
+        title: { tr: 'Dialog Yönetimi — İnteraktif Rehber', en: 'Dialog Management — Interactive Guide' },
+        steps: [
+          {
+            id: 'register', label: 'Handler Kaydet', labelEn: 'Register Handler',
+            visualState: 'register',
+            description: { tr: 'Playwright\'ta dialog yönetimi olay tabanlıdır. Selenium\'da switchTo().alert() ile dialog açıldıktan sonra müdahale ederdin. Playwright\'ta önce handler\'ı kaydet, sonra dialog\'u tetikle — Java\'da event listener kaydetmek gibi.', en: 'Dialog management in Playwright is event-based. In Selenium, you intervened after the dialog opened with switchTo().alert(). In Playwright, register the handler first, then trigger the dialog — like registering an event listener in Java.' },
+            code: `// Selenium'da:
+// driver.findElement(By.id("triggerBtn")).click();
+// wait.until(ExpectedConditions.alertIsPresent());
+// Alert alert = driver.switchTo().alert();
+// alert.accept();
+
+// Playwright'ta — event-based:
+// 1. Önce handler'ı kaydet
+page.onDialog(dialog -> {
+    System.out.println("Dialog: " + dialog.message());
+    dialog.accept(); // veya dialog.dismiss()
+});
+
+// 2. Sonra dialog'u tetikle
+page.locator("#triggerAlert").click();`,
+            tip: { tr: '✅ Handler, dialog açılmadan önce kayıt edilmelidir. Selenium\'un alertIsPresent() bekleme koşuluna gerek yok.', en: '✅ Handler must be registered before the dialog opens. No need for Selenium\'s alertIsPresent() wait condition.' },
+          },
+          {
+            id: 'dialog-fires', label: 'Dialog Açıldı', labelEn: 'Dialog Fires',
+            visualState: 'dialog-fires',
+            description: { tr: 'Tetiklenen dialog event handler\'a gelir. dialog.type() dialog tipini söyler: "alert", "confirm", "prompt", "beforeunload". Java\'da instanceof gibi: tipi kontrol et, ona göre davran.', en: 'The triggered dialog arrives at the event handler. dialog.type() tells the dialog type: "alert", "confirm", "prompt", "beforeunload". Like instanceof in Java: check the type, act accordingly.' },
+            code: `page.onDialog(dialog -> {
+    String type = dialog.type();    // "alert", "confirm", "prompt"
+    String msg  = dialog.message(); // Dialog metni
+
+    System.out.println(type + ": " + msg);
+
+    switch (type) {
+        case "confirm" -> dialog.accept();
+        case "prompt"  -> dialog.accept("SAVE20"); // input gönder
+        default        -> dialog.dismiss();
+    }
+});`,
+            tip: { tr: '✅ dialog.message() Selenium\'un alert.getText() karşılığı. dialog.type() ek bilgi — Selenium\'da yoktu.', en: '✅ dialog.message() is Selenium\'s alert.getText() equivalent. dialog.type() is extra info — not available in Selenium.' },
+          },
+          {
+            id: 'handle', label: 'accept()', labelEn: 'accept()',
+            visualState: 'handle',
+            description: { tr: 'dialog.accept() OK butonuna basar. Tüm dialog tipleri için çalışır — Selenium\'un alert.accept() ile aynı. prompt() için accept("değer") şeklinde input gönderilebilir.', en: 'dialog.accept() presses OK. Works for all dialog types — same as Selenium\'s alert.accept(). For prompt(), input can be sent as accept("value").' },
+            code: `// Simple alert — sadece accept
+page.onDialog(dialog -> dialog.accept());
+
+// Confirm — accept ile onayla
+page.onDialog(dialog -> dialog.accept());
+
+// Prompt — input ile accept
+page.onDialog(dialog -> dialog.accept("SAVE20"));
+
+// Sonra doğrula:
+assertThat(page).hasURL("**/success");`,
+            tip: { tr: '✅ accept() sonrası driver otomatik sayfaya döner — Selenium gibi ayrıca defaultContent() gerekmez.', en: '✅ After accept() driver automatically returns to page — no need for defaultContent() like Selenium.' },
+          },
+          {
+            id: 'dismiss', label: 'dismiss()', labelEn: 'dismiss()',
+            visualState: 'dismiss',
+            description: { tr: 'dialog.dismiss() Cancel butonuna basar. Selenium\'un alert.dismiss() ile aynı. confirm() ve prompt() için geçerli, alert() için accept() ile aynı sonucu verir.', en: 'dialog.dismiss() presses Cancel. Same as Selenium\'s alert.dismiss(). Valid for confirm() and prompt(); for alert(), same result as accept().' },
+            code: `// Sepet temizle butonuna tıkla → confirm
+page.onDialog(dialog -> dialog.dismiss()); // iptal et
+
+page.locator("#clearCart").click();
+
+// Sepet hala dolu olmalı
+assertThat(page.locator("#cartCount")).not().hasText("0");`,
+            tip: { tr: '✅ dismiss() test stratejisi: "vazgeçme" senaryolarını test et. Negative test senaryolarında kritik.', en: '✅ dismiss() test strategy: test "cancellation" scenarios. Critical for negative test scenarios.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 10: frameLocator() — iFrame İçinde Çalışma', en: 'Step 10: frameLocator() — Working Inside iFrames' } },
+      {
+        type: 'playwright-visual',
+        concept: 'frame-locator',
+        color: '#06b6d4',
+        icon: '🖼️',
+        title: { tr: 'frameLocator() — İnteraktif Rehber', en: 'frameLocator() — Interactive Guide' },
+        steps: [
+          {
+            id: 'outer', label: 'Dış Sayfa', labelEn: 'Outer Page',
+            visualState: 'outer',
+            description: { tr: 'Varsayılan context ana sayfadadır. iFrame\'in içine erişmek için Selenium\'da switchTo().frame() gerekir. Playwright\'ta ise frameLocator() ile context değişimi olmadan zincir kurulur.', en: 'Default context is the main page. In Selenium, switchTo().frame() is needed to access inside an iFrame. In Playwright, frameLocator() builds a chain without context switching.' },
+            code: `// Selenium'da bunu yapman gerekir:
+// WebElement iframe = driver.findElement(By.id("paymentFrame"));
+// driver.switchTo().frame(iframe);
+// driver.findElement(By.id("cardNumber")).sendKeys("...");
+// driver.switchTo().defaultContent(); // ← unutma!
+
+// Playwright'ta HİÇBİR context değişimi yok:
+// frameLocator ile direkt chain`,
+            tip: { tr: '⚠️ Playwright\'ta switchTo().frame() ve defaultContent() YOK — bunlara gerek kalmaz.', en: '⚠️ In Playwright there is NO switchTo().frame() or defaultContent() — you don\'t need them.' },
+          },
+          {
+            id: 'frame-locator', label: 'frameLocator()', labelEn: 'frameLocator()',
+            visualState: 'frame-locator',
+            description: { tr: 'page.frameLocator() ile frame\'i seç, sonra normal locator zinciri kur. switchTo() gerekmez, defaultContent() gerekmez — sanki iFrame yokmuş gibi çalışırsın. Java\'da Optional.map() zinciri gibi.', en: 'Select the frame with page.frameLocator(), then build a normal locator chain. No switchTo(), no defaultContent() — work as if there\'s no iFrame. Like Optional.map() chaining in Java.' },
+            code: `// Tek satırda: frameLocator → locator → action
+page.frameLocator("#paymentFrame")
+    .locator("#cardNumber")
+    .fill("4111 1111 1111 1111");
+
+// Selenium'da şunlar gerekirdi:
+// driver.switchTo().frame("paymentFrame");    ← gerekir
+// driver.findElement(By.id("cardNumber")).sendKeys(...);
+// driver.switchTo().defaultContent();          ← unutursan bug!`,
+            tip: { tr: '✅ frameLocator() bir LocatorHandle döndürür. Onun üzerinden her türlü locator metodu (getByRole, getByTestId...) kullanılabilir.', en: '✅ frameLocator() returns a FrameLocator. Any locator method (getByRole, getByTestId...) can be chained on it.' },
+          },
+          {
+            id: 'inner', label: 'Frame İçi', labelEn: 'Inside Frame',
+            visualState: 'inner',
+            description: { tr: 'frameLocator().locator() ile frame içindeki tüm elemanlara normal Playwright API ile erişebilirsin. getByRole, getByLabel, getByTestId — hepsi çalışır!', en: 'With frameLocator().locator() you can access all elements inside the frame with normal Playwright API. getByRole, getByLabel, getByTestId — all work!' },
+            code: `FrameLocator frame = page.frameLocator("#paymentFrame");
+
+// Tüm Playwright locator metodları çalışır!
+frame.getByLabel("Card Number").fill("4111 1111 1111 1111");
+frame.getByLabel("CVV").fill("123");
+frame.getByRole(AriaRole.BUTTON, new FrameLocator.GetByRoleOptions()
+    .setName("Pay")).click();
+
+// Nested iFrame (frame içinde frame):
+page.frameLocator("#outer").frameLocator("#inner")
+    .locator("#recaptchaBox").click();`,
+            tip: { tr: '✅ Nested iFrame için: page.frameLocator("#outer").frameLocator("#inner").locator(...) — her seviye için ayrı frameLocator() zinciri.', en: '✅ For nested iFrames: page.frameLocator("#outer").frameLocator("#inner").locator(...) — separate frameLocator() chain for each level.' },
+          },
+          {
+            id: 'back', label: 'Temiz Context', labelEn: 'Clean Context',
+            visualState: 'back',
+            description: { tr: 'frameLocator() zincirleme kullandığın için ana sayfaya dönmek için ekstra kod gerekmez. Selenium\'da defaultContent() unutulursa bug çıkardı. Playwright\'ta bu sorun yoktur.', en: 'Since you use frameLocator() chaining, no extra code is needed to return to the main page. In Selenium, forgetting defaultContent() caused bugs. In Playwright, this problem doesn\'t exist.' },
+            code: `// Frame işlemleri bitti — ekstra kod YOK
+page.frameLocator("#paymentFrame")
+    .locator("#payBtn").click();
+
+// Direkt ana sayfaya devam et — defaultContent() YOK
+page.locator("#orderConfirmation").waitFor(
+    new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE)
+);
+String orderNo = page.locator("#orderNumber").textContent();`,
+            tip: { tr: '✅ Playwright\'ta try-finally ile defaultContent() gerekmez — kodun çok daha temiz. Selenium\'daki yaygın "frame\'den çıkmayı unutma" bug\'ı artık yok.', en: '✅ No need for try-finally with defaultContent() in Playwright — code is much cleaner. The common Selenium bug of "forgetting to exit the frame" is gone.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 11: Çoklu Sayfa & Sekme Yönetimi', en: 'Step 11: Multi-Page & Tab Management' } },
+      {
+        type: 'playwright-visual',
+        concept: 'multi-page',
+        color: '#8b5cf6',
+        icon: '🪟',
+        title: { tr: 'Çoklu Sayfa — İnteraktif Rehber', en: 'Multi-Page — Interactive Guide' },
+        steps: [
+          {
+            id: 'single', label: 'Tek Sayfa', labelEn: 'Single Page',
+            visualState: 'single',
+            description: { tr: 'Başlangıçta tek sayfa. context.pages() tüm açık sayfaları List<Page> olarak döndürür — Selenium\'da getWindowHandles() Set<String> döndürürdü. Playwright\'ta her sayfa bir Page nesnesi, String ID değil.', en: 'Start with single page. context.pages() returns all open pages as List<Page> — Selenium\'s getWindowHandles() returned Set<String>. In Playwright, each page is a Page object, not a String ID.' },
+            code: `// context içindeki tüm açık sayfalar
+List<Page> pages = context.pages();
+System.out.println("Açık sayfa: " + pages.size()); // 1
+
+// Mevcut sayfa
+Page currentPage = pages.get(0);
+
+// Selenium'da:
+// String mainHandle = driver.getWindowHandle();
+// Set<String> all   = driver.getWindowHandles();`,
+            tip: { tr: '✅ Page nesnesi çok daha güçlü — String handle\'ın aksine direkt page.title(), page.url() gibi metodlar kullanılır.', en: '✅ Page object is much more powerful — unlike String handle, directly use methods like page.title(), page.url().' },
+          },
+          {
+            id: 'wait-popup', label: 'waitForPopup()', labelEn: 'waitForPopup()',
+            visualState: 'wait-popup',
+            description: { tr: 'Popup açıldığında yakalamak için waitForPopup() kullanılır. Selenium\'da getWindowHandles() ile tüm handle\'ları alıp yenisini bulmak gerekirdi. Playwright bunu tek satırda yapar.', en: 'Use waitForPopup() to catch popups when they open. In Selenium, you had to get all handles with getWindowHandles() and find the new one. Playwright does this in one line.' },
+            code: `// Selenium'da popup yakalamak:
+// String mainHandle = driver.getWindowHandle();
+// driver.findElement(By.id("openPopup")).click();
+// String popupHandle = driver.getWindowHandles()
+//     .stream().filter(h -> !h.equals(mainHandle)).findFirst().get();
+// driver.switchTo().window(popupHandle);
+
+// Playwright'ta:
+Page popup = page.waitForPopup(() -> {
+    page.locator("#openPopupBtn").click();
+});
+// popup artık ayrı bir Page nesnesi`,
+            tip: { tr: '✅ waitForPopup() atom yapısı: action ve bekleme birleşik. Selenium\'daki "click() sonrası handle loop" sorusu artık yok.', en: '✅ waitForPopup() is atomic: action and wait are combined. The Selenium "click() then handle loop" problem is gone.' },
+          },
+          {
+            id: 'new-page', label: 'context.newPage()', labelEn: 'context.newPage()',
+            visualState: 'new-page',
+            description: { tr: 'Programatik olarak yeni sayfa açma. Selenium\'da driver.switchTo().newWindow(WindowType.TAB) ile yapılırdı. Playwright\'ta context.newPage() çok daha temiz.', en: 'Open a new page programmatically. In Selenium this was done with driver.switchTo().newWindow(WindowType.TAB). In Playwright, context.newPage() is much cleaner.' },
+            code: `// Yeni sekme/sayfa aç
+Page secondPage = context.newPage();
+secondPage.navigate("https://admin.example.com");
+
+// Her iki sayfada da işlem yap
+page.locator("#mainAction").click();       // 1. sayfa
+secondPage.locator("#adminAction").click(); // 2. sayfa
+
+// Sayfa listesi
+System.out.println(context.pages().size()); // 2`,
+            tip: { tr: '✅ Her Page nesnesi bağımsız: kendi cookie\'si, kendi local storage\'ı. Selenium\'daki window handle yönetimi kabusu artık yok.', en: '✅ Each Page object is independent: its own cookies, own local storage. The Selenium window handle management nightmare is gone.' },
+          },
+          {
+            id: 'close', label: 'page.close()', labelEn: 'page.close()',
+            visualState: 'close',
+            description: { tr: 'Sayfayı kapat ve ana sayfaya dön. Selenium\'da driver.close() + switchTo().window(mainHandle) gerekir. Playwright\'ta sadece popup.close() — otomatik ana sayfaya geçiş yok ama Page nesneleri bağımsız.', en: 'Close page and return to main. Selenium required driver.close() + switchTo().window(mainHandle). In Playwright, just popup.close() — no automatic main page switch but Page objects are independent.' },
+            code: `// Popup işlemini bitir, kapat
+popup.locator("#closeBtn").click();
+popup.close();
+
+// Ana sayfada işleme devam et (zaten ana page nesnesi var)
+page.locator("#confirmOrder").click();
+
+// context.close() → tüm sayfaları kapatır
+// context.close();`,
+            tip: { tr: '✅ Playwright\'ta her sayfa Page nesnesi olduğundan switchTo() gerekmez. page ve popup nesneleri eş zamanlı kullanılabilir.', en: '✅ Since each page is a Page object in Playwright, switchTo() is not needed. page and popup objects can be used simultaneously.' },
+          },
+          {
+            id: 'context-pages', label: 'context.pages()', labelEn: 'context.pages()',
+            visualState: 'context-pages',
+            description: { tr: 'context.pages() tüm açık sayfa listesini döndürür. Selenium\'da getWindowHandles() String ID\'leri döndürür ve her geçiş için switchTo() gerekirdi. Playwright\'ta direkt page.title() vb. çağırırsın.', en: 'context.pages() returns the list of all open pages. Selenium\'s getWindowHandles() returned String IDs and switchTo() was needed for every switch. In Playwright, directly call page.title() etc.' },
+            code: `// Tüm açık sayfaları listele
+List<Page> allPages = context.pages();
+
+for (Page p : allPages) {
+    System.out.println(p.title() + " — " + p.url());
+}
+
+// Belirli bir sayfayı bul:
+Page adminPage = allPages.stream()
+    .filter(p -> p.url().contains("/admin"))
+    .findFirst().orElseThrow();
+adminPage.locator("#dashboard").click();`,
+            tip: { tr: '✅ context.pages() + Stream API: Java\'daki güçlü fonksiyonel programlama Playwright\'la çok iyi çalışır.', en: '✅ context.pages() + Stream API: Java\'s powerful functional programming works great with Playwright.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 12: BrowserContext — İzole Paralel Testler', en: 'Step 12: BrowserContext — Isolated Parallel Tests' } },
+      {
+        type: 'playwright-visual',
+        concept: 'browser-context',
+        color: '#0ea5e9',
+        icon: '🌐',
+        title: { tr: 'BrowserContext — İzole Test Ortamları', en: 'BrowserContext — Isolated Test Environments' },
+        steps: [
+          {
+            id: 'single', label: 'Tek Context', labelEn: 'Single Context',
+            visualState: 'single',
+            description: { tr: 'Playwright\'ta Browser → BrowserContext → Page hiyerarşisi vardır. Selenium\'da her WebDriver instance tek bir tarayıcı. Playwright\'ta tek browser\'dan izole context\'ler üretebilirsin.', en: 'Playwright has a Browser → BrowserContext → Page hierarchy. In Selenium, each WebDriver instance is a single browser. In Playwright, isolated contexts can be created from a single browser.' },
+            code: `Playwright playwright = Playwright.create();
+Browser browser = playwright.chromium().launch();
+
+// Tek context — tek kullanıcı oturumu
+BrowserContext context = browser.newContext();
+Page page = context.newPage();
+
+// Selenium'da: her test için yeni WebDriver
+// Playwright'ta: her test için yeni BrowserContext — çok daha hızlı!`,
+            tip: { tr: '✅ BrowserContext oluşturmak yeni WebDriver başlatmaktan 10x daha hızlıdır — test suite\'inin hızı dramatik artar.', en: '✅ Creating a BrowserContext is 10x faster than starting a new WebDriver — test suite speed increases dramatically.' },
+          },
+          {
+            id: 'new-context', label: 'newContext()', labelEn: 'newContext()',
+            visualState: 'new-context',
+            description: { tr: 'browser.newContext() ile izole bir kullanıcı oturumu oluşturulur. Her context kendi cookie\'sini, local storage\'ını ve sessionStorage\'ını taşır. Java\'da ThreadLocal<UserSession> gibi.', en: 'browser.newContext() creates an isolated user session. Each context carries its own cookies, local storage and sessionStorage. Like ThreadLocal<UserSession> in Java.' },
+            code: `// Admin oturumu
+BrowserContext adminCtx = browser.newContext(
+    new Browser.NewContextOptions()
+        .setStorageStatePath(Paths.get("admin-state.json"))
+);
+Page adminPage = adminCtx.newPage();
+adminPage.navigate("https://app.com/admin");
+
+// Müşteri oturumu
+BrowserContext customerCtx = browser.newContext();
+Page customerPage = customerCtx.newPage();
+customerPage.navigate("https://app.com/shop");`,
+            tip: { tr: '✅ storageStatePath ile login state kaydedebilirsin — her test başında login yapmak gerekmez. Çok büyük süre tasarrufu!', en: '✅ With storageStatePath you can save login state — no need to login at the start of every test. Huge time savings!' },
+          },
+          {
+            id: 'parallel', label: 'Paralel Test', labelEn: 'Parallel Tests',
+            visualState: 'parallel',
+            description: { tr: 'Farklı context\'lerde testler paralel çalışır — birbirini etkilemez. JUnit5 @Execution(CONCURRENT) ile birleştirildiğinde test süresi dramatik düşer. Selenium Grid\'e gerek kalmaz.', en: 'Tests in different contexts run in parallel — without affecting each other. Combined with JUnit5 @Execution(CONCURRENT), test duration drops dramatically. No need for Selenium Grid.' },
+            code: `// JUnit5 paralel test örneği
+@TestInstance(Lifecycle.PER_CLASS)
+@Execution(ExecutionMode.CONCURRENT)
+class ParallelTest {
+    static Browser browser;
+
+    @BeforeAll
+    static void setup() {
+        browser = Playwright.create().chromium().launch();
+    }
+
+    @Test
+    void adminTest() {
+        try (BrowserContext ctx = browser.newContext()) {
+            Page page = ctx.newPage();
+            // Admin senaryosu
+        }
+    }
+
+    @Test
+    void customerTest() {
+        try (BrowserContext ctx = browser.newContext()) {
+            Page page = ctx.newPage();
+            // Müşteri senaryosu — adminTest ile paralel!
+        }
+    }
+}`,
+            tip: { tr: '✅ Her context try-with-resources ile açılırsa test sonunda otomatik kapanır — memory leak yok.', en: '✅ If each context is opened with try-with-resources, it auto-closes after test — no memory leaks.' },
+          },
+          {
+            id: 'isolation', label: 'İzolasyon', labelEn: 'Isolation',
+            visualState: 'isolation',
+            description: { tr: 'Her context tamamen izole: cookie, localStorage, sessionStorage paylaşılmaz. Admin\'in login cookie\'si müşteri context\'ine geçmez. Java\'da ClassLoader izolasyonu gibi.', en: 'Each context is completely isolated: cookies, localStorage, sessionStorage are not shared. Admin\'s login cookie doesn\'t leak into customer context. Like ClassLoader isolation in Java.' },
+            code: `// Aynı site, farklı oturumlar:
+BrowserContext adminCtx    = browser.newContext();
+BrowserContext customerCtx = browser.newContext();
+BrowserContext guestCtx    = browser.newContext();
+
+Page adminPage    = adminCtx.newPage();    // admin cookie
+Page customerPage = customerCtx.newPage(); // customer cookie
+Page guestPage    = guestCtx.newPage();    // cookie yok
+
+// Üçü aynı anda farklı URL'lerde — tamamen izole!
+adminPage.navigate("https://app.com/admin");
+customerPage.navigate("https://app.com/orders");
+guestPage.navigate("https://app.com/home");`,
+            tip: { tr: '✅ Paralel E2E test senaryosu: admin sepete ürün koy → customer aynı anda ödeme yap → guest ana sayfada gez. Birbirini etkilemez.', en: '✅ Parallel E2E test scenario: admin add to cart → customer pay at same time → guest browse home. None affect each other.' },
+          },
+          {
+            id: 'close', label: 'Kapat', labelEn: 'Close',
+            visualState: 'close',
+            description: { tr: 'context.close() ile context ve içindeki tüm sayfalar kapatılır. browser.close() ile tüm context\'ler ve browser kapanır. Try-with-resources ile otomatik temizlik önerilir.', en: 'context.close() closes the context and all its pages. browser.close() closes all contexts and the browser. Try-with-resources for automatic cleanup is recommended.' },
+            code: `// Manuel kapat:
+adminCtx.close();     // → adminPage da kapanır
+customerCtx.close();
+
+// Otomatik (try-with-resources — önerilen):
+try (BrowserContext ctx = browser.newContext()) {
+    Page page = ctx.newPage();
+    // test işlemleri
+} // ctx.close() otomatik çağrılır
+
+// Playwright JUnit5 extension ile:
+// @ExtendWith(PlaywrightExtension.class)
+// her test için otomatik context + cleanup`,
+            tip: { tr: '✅ playwright-junit kullan: context lifecycle otomatik yönetilir. Her @Test metodunda temiz bir context garantilenir.', en: '✅ Use playwright-junit: context lifecycle managed automatically. A clean context is guaranteed for each @Test method.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 13: Trace Viewer — Görsel Test Kaydı', en: 'Step 13: Trace Viewer — Visual Test Recording' } },
+      {
+        type: 'playwright-visual',
+        concept: 'trace',
+        color: '#8b5cf6',
+        icon: '🎬',
+        title: { tr: 'Playwright Trace Viewer — İnteraktif Rehber', en: 'Playwright Trace Viewer — Interactive Guide' },
+        steps: [
+          {
+            id: 'record', label: 'Trace Kayıt', labelEn: 'Record Trace',
+            visualState: 'record',
+            description: { tr: 'Playwright, test sırasında her etkileşimi DOM snapshot\'ı, ağ trafiği ve console log\'larıyla birlikte kaydeder. Selenium\'da böyle bir özellik yoktu. Debug yaparken inanılmaz güçlüdür.', en: 'Playwright records every interaction during the test with DOM snapshots, network traffic and console logs. No such feature in Selenium. Incredibly powerful for debugging.' },
+            code: `// Trace başlat
+context.tracing().start(
+    new Tracing.StartOptions()
+        .setScreenshots(true)   // her action'da screenshot
+        .setSnapshots(true)     // DOM snapshot
+        .setSources(true)       // kaynak kod satırları
+);
+
+// Testler burada...
+
+// Trace kaydet
+context.tracing().stop(
+    new Tracing.StopOptions()
+        .setPath(Paths.get("target/trace.zip"))
+);`,
+            tip: { tr: '✅ Trace dosyası: screenshots + DOM snapshots + network + console + kaynak satırları. Test nerede neden başarısız oldu anında görülür.', en: '✅ Trace file: screenshots + DOM snapshots + network + console + source lines. Instantly see where and why the test failed.' },
+          },
+          {
+            id: 'screenshot', label: 'Screenshot', labelEn: 'Screenshot',
+            visualState: 'screenshot',
+            description: { tr: 'Test başarısız olduğunda otomatik screenshot alma. Selenium\'da bunu manuel olarak @AfterEach\'e eklermen gerekirdi. Playwright\'ta Tracing.StartOptions.setScreenshots(true) ile otomatik.', en: 'Automatically take screenshot when test fails. In Selenium, you had to add this manually in @AfterEach. In Playwright, automatic with Tracing.StartOptions.setScreenshots(true).' },
+            code: `// Her action'da otomatik screenshot (trace içinde)
+// Ayrıca: başarısız test için explict screenshot
+@AfterEach
+void tearDown(TestInfo testInfo) {
+    if (testInfo.getTags().contains("failed")) {
+        page.screenshot(new Page.ScreenshotOptions()
+            .setPath(Paths.get(
+                "target/screenshots/" + testInfo.getDisplayName() + ".png"
+            ))
+        );
+    }
+    context.tracing().stop(
+        new Tracing.StopOptions()
+            .setPath(Paths.get("target/traces/" + testInfo.getDisplayName() + ".zip"))
+    );
+}`,
+            tip: { tr: '✅ Screenshot + Trace birlikte kullan: screenshot "ne?" sorusunu cevaplar, trace "neden?" sorusunu.', en: '✅ Use Screenshot + Trace together: screenshot answers "what?", trace answers "why?".' },
+          },
+          {
+            id: 'video', label: 'Video Kayıt', labelEn: 'Video Recording',
+            visualState: 'video',
+            description: { tr: 'Tüm test seansını video olarak kaydetme. Selenium\'da sadece 3rd party araçlarla mümkündü. Playwright\'ta newContext() seçeneği olarak dahil.', en: 'Record the entire test session as video. In Selenium this was only possible with 3rd party tools. In Playwright, built-in as newContext() option.' },
+            code: `BrowserContext context = browser.newContext(
+    new Browser.NewContextOptions()
+        .setRecordVideoDir(Paths.get("target/videos/"))
+        .setRecordVideoSize(1280, 720)
+);
+
+Page page = context.newPage();
+// ...testler...
+
+// Video kaydetmek için context.close() şart
+context.close();
+// target/videos/xxx.webm dosyası oluşur`,
+            tip: { tr: '✅ Video debugging: sayfanın tam olarak nasıl göründüğünü, hangi animasyonların çalıştığını frame frame incele. CI/CD\'de test failure analizi için altın değerinde.', en: '✅ Video debugging: inspect frame by frame exactly how the page looked, which animations ran. Gold value for test failure analysis in CI/CD.' },
+          },
+          {
+            id: 'viewer', label: 'Trace Viewer', labelEn: 'Trace Viewer',
+            visualState: 'viewer',
+            description: { tr: 'Kaydedilen trace\'i Playwright\'ın kendi görsel aracında aç. Her action için DOM\'un tam snapshot\'ını, ağ isteklerini ve console log\'larını zaman çizelgesinde görebilirsin.', en: 'Open the recorded trace in Playwright\'s own visual tool. For each action, see a full DOM snapshot, network requests and console logs on a timeline.' },
+            code: `// Terminalde:
+// npx playwright show-trace target/trace.zip
+
+// Java'dan programatik:
+// Trace dosyasını artifact olarak kaydet
+// CI/CD pipeline'da:
+// - steps: npx playwright show-trace trace.zip
+//   (trace.pw.dev sitesinde de açılabilir)
+
+// Allure ile entegrasyon:
+byte[] traceBytes = Files.readAllBytes(Paths.get("trace.zip"));
+Allure.addAttachment("Playwright Trace",
+    "application/zip",
+    new ByteArrayInputStream(traceBytes),
+    ".zip"
+);`,
+            tip: { tr: '✅ trace.pw.dev: trace.zip dosyasını tarayıcıdan yükle, kurulum gerekmez. CI/CD artifact\'ından doğrudan analiz yapılabilir.', en: '✅ trace.pw.dev: upload trace.zip from browser, no installation needed. Can directly analyze from CI/CD artifacts.' },
+          },
+        ],
+      },
+    ],
+  },
+  en: {
+    title: '🎭 Playwright Java — Step by Step',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎭',
+        content: 'Think of Playwright as a smart detective assistant: when you say "find this button and click it," it waits for the button, automatically waits until it\'s ready, then clicks. With Selenium, you had to say "wait for this, then do that." With Playwright, you just say "do it" — it handles the rest.',
+      },
+      { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
+      {
+        type: 'code', language: 'xml', label: 'pom.xml — Playwright Java',
+        code: `<dependencies>
+  <!-- Playwright Java (everything included: Chrome, Firefox, WebKit) -->
+  <dependency>
+    <groupId>com.microsoft.playwright</groupId>
+    <artifactId>playwright</artifactId>
+    <version>1.44.0</version>
+  </dependency>
+
+  <!-- JUnit5 runner -->
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+
+<!-- Download browser binaries (first time only) -->
+<!-- mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install" -->`,
+      },
+      { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
+      {
+        type: 'code', language: 'java', label: 'Chromium / Firefox / WebKit launch',
+        code: `import com.microsoft.playwright.*;
+
+public class BrowserSetup {
+    public static void main(String[] args) {
+
+        // try-with-resources → auto-closes (like AutoCloseable in Java)
+        try (Playwright playwright = Playwright.create()) {
+
+            // ── Chromium (Chrome/Edge-based) ─────────────────────
+            Browser browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                    .setHeadless(false)         // visible mode (development)
+                    .setSlowMo(100)             // 100ms delay between actions
+            );
+            // For CI/CD: .setHeadless(true)
+
+            // ── Firefox ─────────────────────────────────────────
+            // Browser browser = playwright.firefox().launch();
+
+            // ── WebKit (Safari) ─────────────────────────────────
+            // Browser browser = playwright.webkit().launch();
+
+            // BrowserContext → Page (like WebDriver → window in Selenium)
+            BrowserContext context = browser.newContext(
+                new Browser.NewContextOptions()
+                    .setViewportSize(1280, 720)
+                    .setLocale("en-US")
+            );
+            Page page = context.newPage();
+
+            page.navigate("https://automationexercise.com");
+            System.out.println("Title: " + page.title());
+            System.out.println("URL: " + page.url());
+
+            browser.close(); // context and pages auto-close
+        }
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
+      {
+        type: 'code', language: 'java', label: 'All navigation commands',
+        code: `Page page = context.newPage();
+
+// Open URL — auto-waits until DOM is loaded
+page.navigate("https://automationexercise.com");
+
+// navigate() options
+page.navigate("https://google.com",
+    new Page.NavigateOptions()
+        .setWaitUntil(WaitUntilState.NETWORKIDLE) // wait until network is idle
+        .setTimeout(30000)                         // 30 second timeout
+);
+
+// Back / Forward / Reload — like navigate().back() in Selenium
+page.goBack();
+page.goForward();
+page.reload();
+
+// Page info
+String title  = page.title();        // "Automation Exercise"
+String url    = page.url();          // "https://..."
+String source = page.content();      // Full HTML (Selenium: getPageSource())
+
+// Wait for popup / new tab (replaces getWindowHandles() in Selenium)
+Page popup = page.waitForPopup(() -> {
+    page.locator("#openPopupBtn").click();
+});
+System.out.println("Popup URL: " + popup.url());`,
+      },
+      { type: 'heading', text: { tr: 'Adım 4: Element Bulma — 8 Locator Stratejisi', en: 'Step 4: Element Locators — 8 Strategies' } },
+      {
+        type: 'simple-box',
+        emoji: '🔍',
+        content: {
+          tr: 'Playwright locator\'ları, Selenium\'un By.* metodlarından çok daha akıllıdır: element DOM\'a eklenene kadar otomatik bekler, ayrıca görünür ve enabled olmasını da bekler. Java\'da bir Future<WebElement> gibi — hazır olunca verir.',
+          en: 'Playwright locators are much smarter than Selenium\'s By.* methods: they auto-wait until the element is in the DOM and also wait for it to be visible and enabled. Like a Future<WebElement> in Java — gives it when ready.',
+        },
+      },
+      {
+        type: 'locator-visual',
+        codeLabel: 'Playwright (Java)',
+        htmlExample: `<form id="loginForm" class="login-form">
+
+  <label for="username">Kullanıcı Adı</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="E-posta"
+    data-testid="username-input"
+    aria-label="Email Address" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Giriş Yap
+  </button>
+
+  <a href="/forgot">Şifremi Unuttum</a>
+
+</form>`,
+        locators: [
+          {
+            id: 'by-role', label: 'getByRole()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
+            highlights: ['type="email"'],
+            code: `// Playwright's MOST RECOMMENDED locator!
+Locator el = page.getByRole(
+    AriaRole.TEXTBOX,
+    new Page.GetByRoleOptions().setName("Email Address")
+);
+// role → HTML semantic role (button, textbox, checkbox...)
+// name → aria-label or label text`,
+            title: 'Most Semantic — Accessibility-Focused',
+            titleEn: 'Most Semantic — Accessibility-Focused',
+            explanation: 'Targets HTML ARIA semantic roles. Works based on how the user sees the page — tests don\'t break even if HTML structure changes. Like programming to an interface in Java: contract stays intact even if implementation changes. Playwright team\'s 1st recommendation.',
+            explanationEn: 'Targets HTML ARIA semantic roles. Works based on how the user sees the page — tests don\'t break even if HTML structure changes. Like programming to an interface in Java: contract stays intact even if implementation changes. Playwright team\'s 1st recommendation.',
+            tip: '✅ MOST RECOMMENDED: getByRole() is both semantic and resilient. AriaRole.BUTTON, TEXTBOX, CHECKBOX, LINK, HEADING...',
+            tipEn: '✅ MOST RECOMMENDED: getByRole() is both semantic and resilient. AriaRole.BUTTON, TEXTBOX, CHECKBOX, LINK, HEADING...',
+            when: 'When element has an ARIA role — ALWAYS first choice',
+            whenEn: 'When element has an ARIA role — ALWAYS first choice',
+          },
+          {
+            id: 'by-testid', label: 'getByTestId()', priority: 1, starRating: '⭐⭐⭐', color: '#06b6d4',
+            highlights: ['data-testid="username-input"'],
+            code: `// data-testid attribute — designed for testing
+Locator el = page.getByTestId("username-input");
+
+// Default: searches data-testid attribute
+// Customizable in playwright.config:
+// use: { testIdAttribute: 'data-qa' }`,
+            title: 'Designed for Testing — Best Practice',
+            titleEn: 'Designed for Testing — Best Practice',
+            explanation: 'data-testid is added specifically for QA. Tests don\'t break even if styles, classes or structure change. Same as Selenium\'s By.cssSelector("[data-testid=\'...\']") but much cleaner syntax.',
+            explanationEn: 'data-testid is added specifically for QA. Tests don\'t break even if styles, classes or structure change. Same as Selenium\'s By.cssSelector("[data-testid=\'...\']") but much cleaner syntax.',
+            tip: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements.',
+            tipEn: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements.',
+            when: 'When data-testid exists — equal priority with getByRole()',
+            whenEn: 'When data-testid exists — equal priority with getByRole()',
+          },
+          {
+            id: 'by-label', label: 'getByLabel()', priority: 2, starRating: '⭐⭐⭐', color: '#3b82f6',
+            highlights: ['for="username"', 'Kullanıcı Adı'],
+            code: `// Matches via <label for="username">Kullanıcı Adı</label>
+Locator el = page.getByLabel("Kullanıcı Adı");
+
+// Partial match:
+Locator el2 = page.getByLabel("Kullanıcı", new Page.GetByLabelOptions().setExact(false));
+
+// Can't do this with Selenium's By methods!
+// Automatically resolves the label → input relationship`,
+            title: 'Natural Choice for Form Fields',
+            titleEn: 'Natural Choice for Form Fields',
+            explanation: 'Finds the HTML label element and selects the form input it targets. In Selenium, you\'d need XPath with following-sibling to do this. Like a Builder pattern in Java — know the label name, auto-find the input.',
+            explanationEn: 'Finds the HTML label element and selects the form input it targets. In Selenium, you\'d need XPath with following-sibling to do this. Like a Builder pattern in Java — know the label name, auto-find the input.',
+            tip: '✅ Ideal for login, registration, form pages. Matches by the label text the user sees.',
+            tipEn: '✅ Ideal for login, registration, form pages. Matches by the label text the user sees.',
+            when: 'When a form input has an associated label element',
+            whenEn: 'When a form input has an associated label element',
+          },
+          {
+            id: 'by-placeholder', label: 'getByPlaceholder()', priority: 3, starRating: '⭐⭐', color: '#8b5cf6',
+            highlights: ['placeholder="E-posta"'],
+            code: `// Matches by placeholder attribute
+Locator el = page.getByPlaceholder("E-posta");
+
+// Partial match (exact: false):
+Locator el2 = page.getByPlaceholder(
+    "E",
+    new Page.GetByPlaceholderOptions().setExact(false)
+);
+// Selenium equiv: By.cssSelector("input[placeholder='E-posta']")`,
+            title: 'Match by Placeholder Text',
+            titleEn: 'Match by Placeholder Text',
+            explanation: 'Targets the placeholder attribute of input elements. Used when there\'s no label or placeholder is more readable. Same as By.cssSelector("input[placeholder=\'...\']") in Selenium but cleaner.',
+            explanationEn: 'Targets the placeholder attribute of input elements. Used when there\'s no label or placeholder is more readable. Same as By.cssSelector("input[placeholder=\'...\']") in Selenium but cleaner.',
+            tip: '⚠️ Placeholder text may change with i18n. Prefer getByLabel() or getByTestId() when possible.',
+            tipEn: '⚠️ Placeholder text may change with i18n. Prefer getByLabel() or getByTestId() when possible.',
+            when: 'When no label exists and placeholder is static text',
+            whenEn: 'When no label exists and placeholder is static text',
+          },
+          {
+            id: 'by-text', label: 'getByText()', priority: 4, starRating: '⭐⭐', color: '#f59e0b',
+            highlights: ['Giriş Yap'],
+            code: `// Matches by visible text content
+Locator btn = page.getByText("Giriş Yap");
+
+// Exact match (default):
+Locator exact = page.getByText("Giriş Yap", new Page.GetByTextOptions().setExact(true));
+
+// Partial match:
+Locator partial = page.getByText("Giriş", new Page.GetByTextOptions().setExact(false));
+
+// Selenium equiv: By.xpath("//button[text()='Giriş Yap']")`,
+            title: 'Match by Visible Text',
+            titleEn: 'Match by Visible Text',
+            explanation: 'Targets visible text on the page. Works for any element type — button, link, label, div. In Selenium, linkText() only worked for <a>; getByText() works on all elements.',
+            explanationEn: 'Targets visible text on the page. Works for any element type — button, link, label, div. In Selenium, linkText() only worked for <a>; getByText() works on all elements.',
+            tip: '⚠️ Breaks when language changes. In i18n apps, prefer data-testid or getByRole().',
+            tipEn: '⚠️ Breaks when language changes. In i18n apps, prefer data-testid or getByRole().',
+            when: 'For buttons or links with static text when language won\'t change',
+            whenEn: 'For buttons or links with static text when language won\'t change',
+          },
+          {
+            id: 'by-css-id', label: 'locator("#id")', priority: 2, starRating: '⭐⭐⭐', color: '#7c3aed',
+            highlights: ['id="username"'],
+            code: `// CSS selector — like By.id() and By.cssSelector() in Selenium
+Locator el = page.locator("#username");
+
+// Scoped locator (chaining):
+Locator el2 = page.locator("#loginForm").locator("#username");
+
+// Selenium equivalent:
+// driver.findElement(By.id("username"))`,
+            title: 'CSS id Selector — Fast and Reliable',
+            titleEn: 'CSS id Selector — Fast and Reliable',
+            explanation: 'In CSS syntax, # selects by id. Same speed as Selenium\'s By.id(). page.locator() supports both CSS and XPath — no separate By methods like in Selenium.',
+            explanationEn: 'In CSS syntax, # selects by id. Same speed as Selenium\'s By.id(). page.locator() supports both CSS and XPath — no separate By methods like in Selenium.',
+            tip: '✅ Use when id exists and getByRole()/getByTestId() are not appropriate. Easy for Selenium migrants.',
+            tipEn: '✅ Use when id exists and getByRole()/getByTestId() are not appropriate. Easy for Selenium migrants.',
+            when: 'When getByRole() or getByTestId() is not appropriate and id exists',
+            whenEn: 'When getByRole() or getByTestId() is not appropriate and id exists',
+          },
+          {
+            id: 'by-css-combo', label: 'locator(css combo)', priority: 3, starRating: '⭐⭐', color: '#ec4899',
+            highlights: ['class="form-input"', 'name="email"'],
+            code: `// Tag + class + attribute combination
+Locator el = page.locator("input.form-input[name='email']");
+
+// Combine with data-testid (powerful selector):
+Locator el2 = page.locator("[data-testid='username-input'][type='email']");
+
+// Selenium equivalent:
+// By.cssSelector("input.form-input[name='email']")`,
+            title: 'Combined CSS — Specific & Reliable',
+            titleEn: 'Combined CSS — Specific & Reliable',
+            explanation: 'Combination of tag, class and attributes. Exactly same syntax as Selenium\'s By.cssSelector(). Playwright also supports :has(), :text(), :near() pseudo-selectors.',
+            explanationEn: 'Combination of tag, class and attributes. Exactly same syntax as Selenium\'s By.cssSelector(). Playwright also supports :has(), :text(), :near() pseudo-selectors.',
+            tip: '✅ CSS selector syntax is identical when migrating from Selenium. Also learn Playwright\'s extra selectors like :has-text().',
+            tipEn: '✅ CSS selector syntax is identical when migrating from Selenium. Also learn Playwright\'s extra selectors like :has-text().',
+            when: 'When getByRole()/getByTestId() unavailable and multi-attribute filtering is needed',
+            whenEn: 'When getByRole()/getByTestId() unavailable and multi-attribute filtering is needed',
+          },
+          {
+            id: 'by-xpath', label: 'locator(xpath=)', priority: 8, starRating: '⭐', color: '#ef4444',
+            highlights: ['type="submit"'],
+            code: `// XPath — in Playwright use "xpath=" prefix
+Locator btn = page.locator("xpath=//button[@type='submit']");
+
+// By text with XPath:
+Locator byText = page.locator("xpath=//button[text()='Giriş Yap']");
+
+// DOM relationship:
+Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
+
+// NOTE: getByText() is much better than XPath — try it first!`,
+            title: 'Most Powerful — But Last Resort',
+            titleEn: 'Most Powerful — But Last Resort',
+            explanation: 'In Playwright, XPath is used with "xpath=" prefix. Exactly same power as Selenium\'s By.xpath(). Slow and brittle; getByRole(), getByText() or CSS are better options.',
+            explanationEn: 'In Playwright, XPath is used with "xpath=" prefix. Exactly same power as Selenium\'s By.xpath(). Slow and brittle; getByRole(), getByText() or CSS are better options.',
+            tip: '⛔ Last resort. Playwright\'s own locators (getByRole, getByText etc.) are much more powerful. Use XPath only when nothing else works.',
+            tipEn: '⛔ Last resort. Playwright\'s own locators (getByRole, getByText etc.) are much more powerful. Use XPath only when nothing else works.',
+            when: 'When no Playwright locator works — especially for complex DOM relationships',
+            whenEn: 'When no Playwright locator works — especially for complex DOM relationships',
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 5: Element İşlemleri', en: 'Step 5: Element Actions' } },
+      {
+        type: 'code', language: 'java', label: 'All element actions — fill, click, check, read',
+        code: `Locator input = page.locator("#username");
+
+// ── WRITE / CLICK ────────────────────────────────────
+input.fill("admin@example.com");      // Clear then fill (better than sendKeys!)
+input.clear();                        // Clear content
+input.pressSequentially("abc");       // Type char by char (for masked inputs)
+input.click();                        // Click
+input.dblclick();                     // Double click
+
+// Special keys (like sendKeys(Keys.ENTER) in Selenium)
+input.press("Enter");
+input.press("Tab");
+input.press("Control+A");             // Selenium: keyDown(CONTROL) + sendKeys("a")
+
+// ── READ ─────────────────────────────────────────────
+String text       = input.textContent();        // Visible text
+String inputValue = input.inputValue();         // Input value (Selenium: getAttribute("value"))
+String cls        = input.getAttribute("class");
+String href       = page.locator("a").getAttribute("href");
+
+// ── STATE CHECK ──────────────────────────────────────
+boolean visible  = input.isVisible();   // Is visible?
+boolean enabled  = input.isEnabled();   // Is active?
+boolean checked  = input.isChecked();   // Checkbox/Radio selected?
+boolean disabled = input.isDisabled();  // Is disabled?
+
+// ── CHECKBOX / RADIO ─────────────────────────────────
+page.locator("#rememberMe").check();    // Selenium: click() to toggle
+page.locator("#rememberMe").uncheck();
+
+// ── SELECT DROPDOWN ──────────────────────────────────
+// Selenium: had to wrap with Select class
+page.locator("#country").selectOption("TR");                 // by value
+page.locator("#country").selectOption(new SelectOption().setLabel("Turkey")); // by text
+page.locator("#country").selectOption(new SelectOption().setIndex(0));        // by index`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'select-option',
+        color: '#f59e0b',
+        icon: '🔽',
+        title: { tr: 'selectOption() — İnteraktif Görsel Rehber', en: 'selectOption() — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'wrap', label: 'Locator', labelEn: 'Locator',
+            visualState: 'wrap',
+            description: { tr: 'Playwright\'ta Select dropdown için ayrı bir sınıfa sarma yok! Selenium\'da new Select(element) yapman gerekirdi. Playwright\'ta direkt locator üzerinden .selectOption() çağrırsın.', en: 'No wrapper class for Select dropdown in Playwright! Selenium required new Select(element). In Playwright, call .selectOption() directly on the locator.' },
+            code: `// Selenium:
+// Select dropdown = new Select(driver.findElement(By.id("country")));
+// dropdown.selectByValue("TR");
+
+// Playwright — much cleaner:
+Locator country = page.locator("#country");
+country.selectOption("TR"); // value`,
+            tip: { tr: '✅ No Select class in Playwright — locator.selectOption() is enough. Shorter and more readable.', en: '✅ No Select class in Playwright — locator.selectOption() is enough. Shorter and more readable.' },
+          },
+          {
+            id: 'byValue', label: 'byValue', labelEn: 'byValue',
+            visualState: 'byValue', selectedValue: 'tr',
+            description: { tr: 'Select by HTML value attribute — most reliable. Like Map.get("TR") in Java: direct key access.', en: 'Select by HTML value attribute — most reliable. Like Map.get("TR") in Java: direct key access.' },
+            code: `page.locator("#country").selectOption("tr");
+
+// Selenium:
+// dropdown.selectByValue("tr");
+
+String selectedVal = page.locator("#country").inputValue();
+assertEquals("tr", selectedVal);`,
+            tip: { tr: '✅ Most reliable. Value attribute stays constant even if display language changes.', en: '✅ Most reliable. Value attribute stays constant even if display language changes.' },
+          },
+          {
+            id: 'byText', label: 'byLabel', labelEn: 'byLabel',
+            visualState: 'byText', selectedValue: 'tr',
+            description: { tr: 'Select by visible text (label). Same as Selenium\'s selectByVisibleText(). Case-sensitive.', en: 'Select by visible text (label). Same as Selenium\'s selectByVisibleText(). Case-sensitive.' },
+            code: `page.locator("#country").selectOption(
+    new SelectOption().setLabel("Turkey")
+);
+
+// Selenium:
+// dropdown.selectByVisibleText("Turkey");`,
+            tip: { tr: '⚠️ Breaks if visible text changes with i18n. Prefer selecting by value.', en: '⚠️ Breaks if visible text changes with i18n. Prefer selecting by value.' },
+          },
+          {
+            id: 'byIndex', label: 'byIndex', labelEn: 'byIndex',
+            visualState: 'byIndex', selectedValue: 'tr',
+            description: { tr: 'Select by 0-based index. Same as Selenium\'s selectByIndex(0). Least reliable.', en: 'Select by 0-based index. Same as Selenium\'s selectByIndex(0). Least reliable.' },
+            code: `page.locator("#country").selectOption(
+    new SelectOption().setIndex(0)
+);
+// Selenium: dropdown.selectByIndex(0);`,
+            tip: { tr: '⛔ Last resort — indexes shift when options are added.', en: '⛔ Last resort — indexes shift when options are added.' },
+          },
+          {
+            id: 'getOptions', label: 'all options', labelEn: 'all options',
+            visualState: 'getOptions',
+            description: { tr: 'Read all options with count() + nth(). Selenium\'s getOptions() returned List<WebElement>.', en: 'Read all options with count() + nth(). Selenium\'s getOptions() returned List<WebElement>.' },
+            code: `Locator options = page.locator("#country option");
+int total = options.count();
+for (int i = 0; i < total; i++) {
+    String text  = options.nth(i).textContent();
+    String value = options.nth(i).getAttribute("value");
+    System.out.println(i + ": " + text + " [" + value + "]");
+}`,
+            tip: { tr: '✅ count() + nth(i) — equivalent to Selenium\'s getOptions() List loop.', en: '✅ count() + nth(i) — equivalent to Selenium\'s getOptions() List loop.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 6: Auto-Wait — Playwright\'ın Süper Gücü', en: 'Step 6: Auto-Wait — Playwright\'s Superpower' } },
+      {
+        type: 'simple-box',
+        emoji: '⏱️',
+        content: {
+          tr: 'Selenium\'da yüklenmeyi bekleme sorumluluğu sende. Playwright\'ta bu sorumluluk otomatik: her locator işlemi öncesinde element DOM\'da mı, görünür mü, enabled mı diye kontrol eder.',
+          en: 'In Selenium, the responsibility for waiting is yours. In Playwright, it\'s automatic: before each locator action, it checks if the element is in the DOM, visible, and enabled.',
+        },
+      },
+      {
+        type: 'code', language: 'java', label: 'Auto-Wait comparison — Selenium vs Playwright',
+        code: `// ── SELENIUM: Explicit wait required for EVERY action ────────────
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+WebElement loginBtn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("loginBtn"))
+);
+loginBtn.click();
+wait.until(ExpectedConditions.invisibilityOfElementLocated(
+    By.className("loading-spinner")));
+wait.until(ExpectedConditions.urlContains("/dashboard"));
+// ...Must repeat for every step!
+
+// ── PLAYWRIGHT: Nothing extra to write ───────────────────────────
+// Playwright automatically:
+// 1. Waits until element appears in DOM
+// 2. Waits until element is visible
+// 3. Waits until element is enabled
+// 4. Waits for animations to finish
+// 5. THEN performs the action
+
+page.locator("#loginBtn").click(); // That's it! 30s auto-wait included
+
+// URL / page waiting (when needed)
+page.waitForURL("**/dashboard");
+page.waitForLoadState(LoadState.NETWORKIDLE);
+page.locator(".loading-spinner").waitFor(
+    new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN)
+);`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'auto-wait',
+        color: '#10b981',
+        icon: '⏱️',
+        title: { tr: 'Auto-Wait Mekanizması — Selenium vs Playwright', en: 'Auto-Wait Mechanism — Selenium vs Playwright' },
+        steps: [
+          {
+            id: 'selenium-way', label: 'Selenium Way', labelEn: 'Selenium Way',
+            visualState: 'selenium-way',
+            description: { tr: 'Selenium requires explicit wait before every interaction. Must write WebDriverWait + ExpectedConditions repeatedly.', en: 'Selenium requires explicit wait before every interaction. Must write WebDriverWait + ExpectedConditions repeatedly.' },
+            code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+wait.until(ExpectedConditions.elementToBeClickable(
+    By.id("loginBtn"))).click();
+
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("dashboard"))).getText();`,
+            tip: { tr: '⚠️ Don\'t combine implicit + explicit wait — causes unexpected behavior.', en: '⚠️ Don\'t combine implicit + explicit wait — causes unexpected behavior.' },
+          },
+          {
+            id: 'pw-way', label: 'Playwright Way', labelEn: 'Playwright Way',
+            visualState: 'pw-way',
+            description: { tr: 'No extra wait code in Playwright. Before each locator action, Playwright starts its internal retry loop automatically.', en: 'No extra wait code in Playwright. Before each locator action, Playwright starts its internal retry loop automatically.' },
+            code: `// Just this:
+page.locator("#loginBtn").click();
+// Internally:
+// → Is element in DOM?
+// → Is it visible?
+// → Is it enabled?
+// → Is animation finished?
+// All OK → CLICK!`,
+            tip: { tr: '✅ Default 30s timeout. Change with page.setDefaultTimeout(60000).', en: '✅ Default 30s timeout. Change with page.setDefaultTimeout(60000).' },
+          },
+          {
+            id: 'retry', label: 'Retry Loop', labelEn: 'Retry Loop',
+            visualState: 'retry',
+            description: { tr: 'If not ready, Playwright retries every ~100ms. This dramatically reduces flaky test count.', en: 'If not ready, Playwright retries every ~100ms. This dramatically reduces flaky test count.' },
+            code: `// Custom timeout (for this action only):
+page.locator("#slowBtn").click(
+    new Locator.ClickOptions().setTimeout(60000)
+);
+
+// Wait for specific state:
+page.locator(".spinner").waitFor(
+    new Locator.WaitForOptions()
+        .setState(WaitForSelectorState.HIDDEN)
+);`,
+            tip: { tr: '✅ ~300 retries in 30s. Far fewer flaky tests than Selenium.', en: '✅ ~300 retries in 30s. Far fewer flaky tests than Selenium.' },
+          },
+          {
+            id: 'found', label: 'Element Ready!', labelEn: 'Element Ready!',
+            visualState: 'found',
+            description: { tr: 'When element passes all actionability checks, action is performed. No exception = success.', en: 'When element passes all actionability checks, action is performed. No exception = success.' },
+            code: `page.locator("#loginBtn").click(); // success if no exception
+
+// Assertions also have auto-wait:
+assertThat(page).hasURL("**/dashboard");
+assertThat(page.locator(".welcome")).isVisible();`,
+            tip: { tr: '✅ Playwright assertions also auto-wait: assertThat(locator).isVisible() waits then asserts.', en: '✅ Playwright assertions also auto-wait: assertThat(locator).isVisible() waits then asserts.' },
+          },
+          {
+            id: 'timeout', label: 'Timeout', labelEn: 'Timeout',
+            visualState: 'timeout',
+            description: { tr: 'After 30s, TimeoutError is thrown with very informative message: which locator, which condition failed.', en: 'After 30s, TimeoutError is thrown with very informative message: which locator, which condition failed.' },
+            code: `// TimeoutError message:
+// "page.locator('#loginBtn') → timeout 30000ms exceeded
+//  waiting for locator('#loginBtn') to be visible"
+
+page.locator("#slowComponent").waitFor(
+    new Locator.WaitForOptions()
+        .setState(WaitForSelectorState.VISIBLE)
+        .setTimeout(60000)
+);`,
+            tip: { tr: '💡 On TimeoutError: 1) Correct locator? 2) Enough timeout? 3) Right condition? Playwright\'s error messages are very detailed.', en: '💡 On TimeoutError: 1) Correct locator? 2) Enough timeout? 3) Right condition? Playwright\'s error messages are very detailed.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 7: Screenshot & page.evaluate()', en: 'Step 7: Screenshot & page.evaluate()' } },
+      {
+        type: 'code', language: 'java', label: 'Screenshot and JavaScript operations',
+        code: `import java.nio.file.Paths;
+
+// ── SCREENSHOT ───────────────────────────────────────
+page.screenshot(new Page.ScreenshotOptions()
+    .setPath(Paths.get("target/screenshots/full-page.png"))
+    .setFullPage(true)
+);
+
+page.locator("#errorPanel").screenshot(
+    new Locator.ScreenshotOptions()
+        .setPath(Paths.get("target/screenshots/error-panel.png"))
+);
+
+byte[] bytes = page.screenshot();
+
+// ── PAGE.EVALUATE() — JS EXECUTOR EQUIVALENT ─────────
+// Selenium: ((JavascriptExecutor) driver).executeScript(...)
+// Playwright: page.evaluate()
+
+page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+page.evaluate("window.scrollBy(0, 500)");
+page.locator("#footer").evaluate("el => el.scrollIntoView(true)");
+
+String readyState = (String) page.evaluate("() => document.readyState");
+System.out.println(readyState); // "complete"
+
+page.locator("#email").evaluate(
+    "el => { el.value = 'test@test.com'; el.dispatchEvent(new Event('input', {bubbles:true})); }"
+);`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'evaluate',
+        color: '#f59e0b',
+        icon: '⚡',
+        title: { tr: 'page.evaluate() — İnteraktif Görsel Rehber', en: 'page.evaluate() — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'idle', label: 'Why evaluate?', labelEn: 'Why evaluate?',
+            visualState: 'idle',
+            description: { tr: 'page.evaluate() is the counterpart to Selenium\'s JavascriptExecutor. Runs JS where Playwright can\'t reach.', en: 'page.evaluate() is the counterpart to Selenium\'s JavascriptExecutor. Runs JS where Playwright can\'t reach.' },
+            code: `// Selenium:
+// ((JavascriptExecutor) driver).executeScript("return document.readyState");
+
+// Playwright:
+String readyState = (String) page.evaluate("() => document.readyState");
+System.out.println(readyState); // "complete"`,
+            tip: { tr: '✅ Playwright\'s normal API is enough most of the time. evaluate() only for custom JS.', en: '✅ Playwright\'s normal API is enough most of the time. evaluate() only for custom JS.' },
+          },
+          {
+            id: 'scrollTo', label: 'scrollTo', labelEn: 'scrollTo',
+            visualState: 'scrollTo',
+            description: { tr: 'Scroll to coordinates. Same as Selenium\'s js.executeScript("window.scrollTo(...)"). locator.scrollIntoViewIfNeeded() is usually better.', en: 'Scroll to coordinates. Same as Selenium\'s js.executeScript("window.scrollTo(...)"). locator.scrollIntoViewIfNeeded() is usually better.' },
+            code: `page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+page.evaluate("window.scrollTo(0, 800)");
+page.evaluate("window.scrollTo(0, 0)");
+
+// Playwright native (preferred):
+page.locator("#target").scrollIntoViewIfNeeded();`,
+            tip: { tr: '✅ For lazy-load: scrollTo + locator count() to verify new elements loaded.', en: '✅ For lazy-load: scrollTo + locator count() to verify new elements loaded.' },
+          },
+          {
+            id: 'scrollBy', label: 'scrollBy', labelEn: 'scrollBy',
+            visualState: 'scrollBy',
+            description: { tr: 'Relative scroll. Same as Selenium\'s js.executeScript("window.scrollBy(...)"). Good for infinite scroll scenarios.', en: 'Relative scroll. Same as Selenium\'s js.executeScript("window.scrollBy(...)"). Good for infinite scroll scenarios.' },
+            code: `page.evaluate("window.scrollBy(0, 500)");
+page.evaluate("window.scrollBy(0, -200)");
+
+for (int i = 0; i < 5; i++) {
+    page.evaluate("window.scrollBy(0, 500)");
+    page.waitForTimeout(300);
+}`,
+            tip: { tr: '✅ waitForTimeout() replaces Thread.sleep() in Playwright.', en: '✅ waitForTimeout() replaces Thread.sleep() in Playwright.' },
+          },
+          {
+            id: 'evaluate', label: 'JS Return', labelEn: 'JS Return',
+            visualState: 'evaluate',
+            description: { tr: 'Return values from JS. page.evaluate() returns Object — cast as needed. Same as Selenium\'s executeScript() Object return.', en: 'Return values from JS. page.evaluate() returns Object — cast as needed. Same as Selenium\'s executeScript() Object return.' },
+            code: `String title = (String) page.evaluate("() => document.title");
+Long count   = (Long)   page.evaluate("() => document.querySelectorAll('a').length");
+Boolean dark = (Boolean) page.evaluate("() => document.body.classList.contains('dark')");
+
+// Pass parameters (like arguments[0] in Selenium):
+Object result = page.evaluate("el => el.getBoundingClientRect().top", page.locator("#target"));`,
+            tip: { tr: '✅ Arrow function syntax required: () => expr. Java long → JS number auto-cast.', en: '✅ Arrow function syntax required: () => expr. Java long → JS number auto-cast.' },
+          },
+          {
+            id: 'fill', label: 'JS setValue', labelEn: 'JS setValue',
+            visualState: 'fill',
+            description: { tr: 'Set value via JS when normal fill() doesn\'t work on React controlled inputs. Same as arguments[0].value = ... in Selenium.', en: 'Set value via JS when normal fill() doesn\'t work on React controlled inputs. Same as arguments[0].value = ... in Selenium.' },
+            code: `page.locator("#email").evaluate("""
+    el => {
+        el.value = 'test@example.com';
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        el.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+""");`,
+            tip: { tr: '⚠️ dispatchEvent required for React/Vue controlled inputs.', en: '⚠️ dispatchEvent required for React/Vue controlled inputs.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 8: Actions (Hover, Drag-Drop, Keyboard)', en: 'Step 8: Actions (Hover, Drag-Drop, Keyboard)' } },
+      {
+        type: 'code', language: 'java', label: 'Playwright Actions — hover, drag, keyboard',
+        code: `// ── HOVER ───────────────────────────────────────────
+// Selenium: new Actions(driver).moveToElement(el).perform()
+// Playwright: locator.hover()
+page.locator("#navMenu").hover();
+// Sub-menu auto-waited — no WebDriverWait needed
+page.locator("#subItem").click();
+
+// ── DOUBLE CLICK ─────────────────────────────────────
+page.locator("td.editable").dblclick();
+
+// ── RIGHT CLICK (Context Menu) ──────────────────────
+page.locator("[data-file='report.pdf']").click(
+    new Locator.ClickOptions().setButton(MouseButton.RIGHT)
+);
+page.locator("#ctxMenuDelete").click();
+
+// ── DRAG AND DROP ────────────────────────────────────
+page.locator("#draggable").dragTo(page.locator("#droppable"));
+// Or with offset:
+page.locator("#draggable").dragTo(page.locator("#droppable"),
+    new Locator.DragToOptions().setTargetPosition(200, 0)
+);
+
+// ── KEYBOARD COMBINATION ─────────────────────────────
+// Selenium: actions.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+page.locator("#editor").press("Control+A");
+page.locator("#editor").press("Delete");
+page.locator("#editor").fill("New content");
+
+// Shift+Click
+page.keyboard.down("Shift");
+page.locator("tr:nth-child(5)").click();
+page.keyboard.up("Shift");`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'pw-actions',
+        color: '#8b5cf6',
+        icon: '🖱️',
+        title: { tr: 'Actions — Interactive Visual Guide', en: 'Actions — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'hover', label: 'hover()', labelEn: 'hover()',
+            visualState: 'hover',
+            description: { tr: 'locator.hover() moves the mouse cursor over the element. Same as Selenium\'s Actions.moveToElement(). After hover, Playwright auto-waits for sub-menus — no WebDriverWait needed.', en: 'locator.hover() moves the mouse cursor over the element. Same as Selenium\'s Actions.moveToElement(). After hover, Playwright auto-waits for sub-menus — no WebDriverWait needed.' },
+            code: `// Selenium:
+// new Actions(driver).moveToElement(navMenu).perform();
+// wait.until(ExpectedConditions.visibilityOf(subItem));
+
+// Playwright:
+page.locator("#navMenu").hover();
+// sub-menu auto-waited
+page.locator("#subItem").click();`,
+            tip: { tr: '✅ No explicit wait needed after hover() — Playwright auto-waits for the sub-menu.', en: '✅ No explicit wait needed after hover() — Playwright auto-waits for the sub-menu.' },
+          },
+          {
+            id: 'submenu', label: 'Sub-menu', labelEn: 'Sub-menu',
+            visualState: 'submenu',
+            description: { tr: 'Sub-menu is open after hover. Unlike Selenium, context doesn\'t change in Playwright — find sub-menu items with normal locators. No switchTo().', en: 'Sub-menu is open after hover. Unlike Selenium, context doesn\'t change in Playwright — find sub-menu items with normal locators. No switchTo().' },
+            code: `// Sub-menu open — access with normal locator
+page.locator("#productMenu li a").all().forEach(item ->
+    System.out.println(item.textContent())
+);
+// "Laptops", "Phones", "Tablets"
+
+page.getByText("Laptops").click();`,
+            tip: { tr: '✅ locator.all() → List<Locator>. Equivalent to Selenium\'s findElements() → List<WebElement>.', en: '✅ locator.all() → List<Locator>. Equivalent to Selenium\'s findElements() → List<WebElement>.' },
+          },
+          {
+            id: 'dblclick', label: 'dblclick()', labelEn: 'dblclick()',
+            visualState: 'dblclick',
+            description: { tr: 'locator.dblclick() sends a double-click. Same as Selenium\'s Actions.doubleClick(). Used for editable cells, inline editors, or file-opening.', en: 'locator.dblclick() sends a double-click. Same as Selenium\'s Actions.doubleClick(). Used for editable cells, inline editors, or file-opening.' },
+            code: `// Selenium: actions.doubleClick(cell).perform()
+page.locator("td.editable[data-col='price']").dblclick();
+
+// Edit mode opened
+page.locator("td.editable input").fill("299.99");
+page.locator("td.editable input").press("Enter");`,
+            tip: { tr: '✅ dblclick() fires a separate DOM event (dblclick) — not same as click(). Try dblclick on editable grids when click doesn\'t work.', en: '✅ dblclick() fires a separate DOM event (dblclick) — not same as click(). Try dblclick on editable grids when click doesn\'t work.' },
+          },
+          {
+            id: 'rightclick', label: 'rightClick', labelEn: 'rightClick',
+            visualState: 'rightclick',
+            description: { tr: 'Right-click done with MouseButton.RIGHT. Same as Selenium\'s contextClick(). Used for application-specific context menus.', en: 'Right-click done with MouseButton.RIGHT. Same as Selenium\'s contextClick(). Used for application-specific context menus.' },
+            code: `// Selenium: actions.contextClick(el).perform()
+page.locator("[data-file='report.pdf']").click(
+    new Locator.ClickOptions().setButton(MouseButton.RIGHT)
+);
+
+page.locator("#ctxMenu [data-action='delete']").click();`,
+            tip: { tr: '⚠️ Browser\'s native right-click menu cannot be tested — only DOM custom context menus.', en: '⚠️ Browser\'s native right-click menu cannot be tested — only DOM custom context menus.' },
+          },
+          {
+            id: 'drag', label: 'dragTo()', labelEn: 'dragTo()',
+            visualState: 'drag',
+            description: { tr: 'locator.dragTo(target) performs drag-and-drop. Same as Selenium\'s Actions.dragAndDrop(). Playwright is far more reliable for HTML5 drag-drop events.', en: 'locator.dragTo(target) performs drag-and-drop. Same as Selenium\'s Actions.dragAndDrop(). Playwright is far more reliable for HTML5 drag-drop events.' },
+            code: `// Selenium: actions.dragAndDrop(source, target).perform()
+page.locator("#draggable").dragTo(page.locator("#droppable"));
+
+// With offset:
+page.locator("#draggable").dragTo(
+    page.locator("#droppable"),
+    new Locator.DragToOptions().setTargetPosition(200, 0)
+);`,
+            tip: { tr: '✅ Playwright\'s dragTo() is much more reliable than Selenium for HTML5 drag-drop.', en: '✅ Playwright\'s dragTo() is much more reliable than Selenium for HTML5 drag-drop.' },
+          },
+          {
+            id: 'keyboard', label: 'Keyboard', labelEn: 'Keyboard',
+            visualState: 'keyboard',
+            description: { tr: 'For keyboard combinations, use locator.press() or page.keyboard. Selenium required keyDown() + sendKeys() + keyUp() chain.', en: 'For keyboard combinations, use locator.press() or page.keyboard. Selenium required keyDown() + sendKeys() + keyUp() chain.' },
+            code: `// Selenium: actions.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+page.locator("#editor").press("Control+A");
+page.locator("#editor").press("Delete");
+page.locator("#editor").fill("New content here");
+
+// Shift+Click (multi-select):
+page.keyboard.down("Shift");
+page.locator("tr:nth-child(5)").click();
+page.keyboard.up("Shift");`,
+            tip: { tr: '✅ press() combination syntax: "Control+A", "Shift+Enter", "Alt+F4". Much cleaner than Selenium.', en: '✅ press() combination syntax: "Control+A", "Shift+Enter", "Alt+F4". Much cleaner than Selenium.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 9: Dialogs (Alert/Confirm/Prompt)', en: 'Step 9: Dialogs (Alert/Confirm/Prompt)' } },
+      {
+        type: 'playwright-visual',
+        concept: 'dialog',
+        color: '#ef4444',
+        icon: '⚠️',
+        title: { tr: 'Dialog Management — Interactive Guide', en: 'Dialog Management — Interactive Guide' },
+        steps: [
+          {
+            id: 'register', label: 'Register Handler', labelEn: 'Register Handler',
+            visualState: 'register',
+            description: { tr: 'Dialog management in Playwright is event-based. In Selenium, you intervened after the dialog opened with switchTo().alert(). In Playwright, register the handler first, then trigger the dialog — like registering an event listener in Java.', en: 'Dialog management in Playwright is event-based. In Selenium, you intervened after the dialog opened with switchTo().alert(). In Playwright, register the handler first, then trigger the dialog — like registering an event listener in Java.' },
+            code: `// Selenium:
+// driver.findElement(By.id("triggerBtn")).click();
+// wait.until(ExpectedConditions.alertIsPresent());
+// Alert alert = driver.switchTo().alert();
+// alert.accept();
+
+// Playwright — event-based:
+// 1. Register handler FIRST
+page.onDialog(dialog -> {
+    System.out.println("Dialog: " + dialog.message());
+    dialog.accept(); // or dialog.dismiss()
+});
+
+// 2. Then trigger the dialog
+page.locator("#triggerAlert").click();`,
+            tip: { tr: '✅ Handler must be registered before the dialog opens. No need for Selenium\'s alertIsPresent() wait condition.', en: '✅ Handler must be registered before the dialog opens. No need for Selenium\'s alertIsPresent() wait condition.' },
+          },
+          {
+            id: 'dialog-fires', label: 'Dialog Fires', labelEn: 'Dialog Fires',
+            visualState: 'dialog-fires',
+            description: { tr: 'The triggered dialog arrives at the event handler. dialog.type() tells the dialog type: "alert", "confirm", "prompt", "beforeunload". Like instanceof in Java: check the type, act accordingly.', en: 'The triggered dialog arrives at the event handler. dialog.type() tells the dialog type: "alert", "confirm", "prompt", "beforeunload". Like instanceof in Java: check the type, act accordingly.' },
+            code: `page.onDialog(dialog -> {
+    String type = dialog.type();    // "alert", "confirm", "prompt"
+    String msg  = dialog.message(); // Dialog text
+
+    System.out.println(type + ": " + msg);
+
+    switch (type) {
+        case "confirm" -> dialog.accept();
+        case "prompt"  -> dialog.accept("SAVE20"); // send input
+        default        -> dialog.dismiss();
+    }
+});`,
+            tip: { tr: '✅ dialog.message() is Selenium\'s alert.getText() equivalent. dialog.type() is extra info — not available in Selenium.', en: '✅ dialog.message() is Selenium\'s alert.getText() equivalent. dialog.type() is extra info — not available in Selenium.' },
+          },
+          {
+            id: 'handle', label: 'accept()', labelEn: 'accept()',
+            visualState: 'handle',
+            description: { tr: 'dialog.accept() presses OK. Works for all dialog types — same as Selenium\'s alert.accept(). For prompt(), input can be sent as accept("value").', en: 'dialog.accept() presses OK. Works for all dialog types — same as Selenium\'s alert.accept(). For prompt(), input can be sent as accept("value").' },
+            code: `// Simple alert
+page.onDialog(dialog -> dialog.accept());
+
+// Confirm — accept to confirm
+page.onDialog(dialog -> dialog.accept());
+
+// Prompt — accept with input value
+page.onDialog(dialog -> dialog.accept("SAVE20"));
+
+// Then validate:
+assertThat(page).hasURL("**/success");`,
+            tip: { tr: '✅ After accept() driver automatically returns to page — no need for defaultContent() like Selenium.', en: '✅ After accept() driver automatically returns to page — no need for defaultContent() like Selenium.' },
+          },
+          {
+            id: 'dismiss', label: 'dismiss()', labelEn: 'dismiss()',
+            visualState: 'dismiss',
+            description: { tr: 'dialog.dismiss() presses Cancel. Same as Selenium\'s alert.dismiss(). Valid for confirm() and prompt(); for alert(), same result as accept().', en: 'dialog.dismiss() presses Cancel. Same as Selenium\'s alert.dismiss(). Valid for confirm() and prompt(); for alert(), same result as accept().' },
+            code: `// Click clear cart button → confirm
+page.onDialog(dialog -> dialog.dismiss()); // cancel
+
+page.locator("#clearCart").click();
+
+// Cart should still have items
+assertThat(page.locator("#cartCount")).not().hasText("0");`,
+            tip: { tr: '✅ dismiss() test strategy: test "cancellation" scenarios. Critical for negative test scenarios.', en: '✅ dismiss() test strategy: test "cancellation" scenarios. Critical for negative test scenarios.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 10: frameLocator() — Working Inside iFrames', en: 'Step 10: frameLocator() — Working Inside iFrames' } },
+      {
+        type: 'playwright-visual',
+        concept: 'frame-locator',
+        color: '#06b6d4',
+        icon: '🖼️',
+        title: { tr: 'frameLocator() — Interactive Guide', en: 'frameLocator() — Interactive Guide' },
+        steps: [
+          {
+            id: 'outer', label: 'Outer Page', labelEn: 'Outer Page',
+            visualState: 'outer',
+            description: { tr: 'Default context is the main page. In Selenium, switchTo().frame() is needed to access inside an iFrame. In Playwright, frameLocator() builds a chain without context switching.', en: 'Default context is the main page. In Selenium, switchTo().frame() is needed to access inside an iFrame. In Playwright, frameLocator() builds a chain without context switching.' },
+            code: `// Selenium required:
+// WebElement iframe = driver.findElement(By.id("paymentFrame"));
+// driver.switchTo().frame(iframe);
+// driver.findElement(By.id("cardNumber")).sendKeys("...");
+// driver.switchTo().defaultContent(); // ← easy to forget!
+
+// Playwright: NO context switching at all`,
+            tip: { tr: '⚠️ In Playwright there is NO switchTo().frame() or defaultContent() — you don\'t need them.', en: '⚠️ In Playwright there is NO switchTo().frame() or defaultContent() — you don\'t need them.' },
+          },
+          {
+            id: 'frame-locator', label: 'frameLocator()', labelEn: 'frameLocator()',
+            visualState: 'frame-locator',
+            description: { tr: 'Select the frame with page.frameLocator(), then build a normal locator chain. No switchTo(), no defaultContent() — work as if there\'s no iFrame. Like Optional.map() chaining in Java.', en: 'Select the frame with page.frameLocator(), then build a normal locator chain. No switchTo(), no defaultContent() — work as if there\'s no iFrame. Like Optional.map() chaining in Java.' },
+            code: `// One line: frameLocator → locator → action
+page.frameLocator("#paymentFrame")
+    .locator("#cardNumber")
+    .fill("4111 1111 1111 1111");
+
+// Selenium required:
+// driver.switchTo().frame("paymentFrame");    ← needed
+// driver.findElement(By.id("cardNumber")).sendKeys(...);
+// driver.switchTo().defaultContent();          ← forget = bug!`,
+            tip: { tr: '✅ frameLocator() returns a FrameLocator. Any locator method (getByRole, getByTestId...) can be chained on it.', en: '✅ frameLocator() returns a FrameLocator. Any locator method (getByRole, getByTestId...) can be chained on it.' },
+          },
+          {
+            id: 'inner', label: 'Inside Frame', labelEn: 'Inside Frame',
+            visualState: 'inner',
+            description: { tr: 'With frameLocator().locator() you can access all elements inside the frame with normal Playwright API. getByRole, getByLabel, getByTestId — all work!', en: 'With frameLocator().locator() you can access all elements inside the frame with normal Playwright API. getByRole, getByLabel, getByTestId — all work!' },
+            code: `FrameLocator frame = page.frameLocator("#paymentFrame");
+
+// All Playwright locator methods work!
+frame.getByLabel("Card Number").fill("4111 1111 1111 1111");
+frame.getByLabel("CVV").fill("123");
+frame.getByRole(AriaRole.BUTTON, new FrameLocator.GetByRoleOptions()
+    .setName("Pay")).click();
+
+// Nested iFrame (frame inside frame):
+page.frameLocator("#outer").frameLocator("#inner")
+    .locator("#recaptchaBox").click();`,
+            tip: { tr: '✅ For nested iFrames: page.frameLocator("#outer").frameLocator("#inner").locator(...) — separate frameLocator() chain for each level.', en: '✅ For nested iFrames: page.frameLocator("#outer").frameLocator("#inner").locator(...) — separate frameLocator() chain for each level.' },
+          },
+          {
+            id: 'back', label: 'Clean Context', labelEn: 'Clean Context',
+            visualState: 'back',
+            description: { tr: 'Since you use frameLocator() chaining, no extra code is needed to return to the main page. In Selenium, forgetting defaultContent() caused bugs. In Playwright, this problem doesn\'t exist.', en: 'Since you use frameLocator() chaining, no extra code is needed to return to the main page. In Selenium, forgetting defaultContent() caused bugs. In Playwright, this problem doesn\'t exist.' },
+            code: `// Frame operations done — NO extra code
+page.frameLocator("#paymentFrame")
+    .locator("#payBtn").click();
+
+// Continue directly on main page — NO defaultContent()
+page.locator("#orderConfirmation").waitFor(
+    new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE)
+);
+String orderNo = page.locator("#orderNumber").textContent();`,
+            tip: { tr: '✅ No need for try-finally with defaultContent() in Playwright — code is much cleaner. The common Selenium bug of "forgetting to exit the frame" is gone.', en: '✅ No need for try-finally with defaultContent() in Playwright — code is much cleaner. The common Selenium bug of "forgetting to exit the frame" is gone.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 11: Multi-Page & Tab Management', en: 'Step 11: Multi-Page & Tab Management' } },
+      {
+        type: 'playwright-visual',
+        concept: 'multi-page',
+        color: '#8b5cf6',
+        icon: '🪟',
+        title: { tr: 'Multi-Page — Interactive Guide', en: 'Multi-Page — Interactive Guide' },
+        steps: [
+          {
+            id: 'single', label: 'Single Page', labelEn: 'Single Page',
+            visualState: 'single',
+            description: { tr: 'Start with single page. context.pages() returns all open pages as List<Page> — Selenium\'s getWindowHandles() returned Set<String>. In Playwright, each page is a Page object, not a String ID.', en: 'Start with single page. context.pages() returns all open pages as List<Page> — Selenium\'s getWindowHandles() returned Set<String>. In Playwright, each page is a Page object, not a String ID.' },
+            code: `// All open pages in context
+List<Page> pages = context.pages();
+System.out.println("Open pages: " + pages.size()); // 1
+
+// Current page
+Page currentPage = pages.get(0);
+
+// Selenium:
+// String mainHandle = driver.getWindowHandle();
+// Set<String> all   = driver.getWindowHandles();`,
+            tip: { tr: '✅ Page object is much more powerful — unlike String handle, directly use methods like page.title(), page.url().', en: '✅ Page object is much more powerful — unlike String handle, directly use methods like page.title(), page.url().' },
+          },
+          {
+            id: 'wait-popup', label: 'waitForPopup()', labelEn: 'waitForPopup()',
+            visualState: 'wait-popup',
+            description: { tr: 'Use waitForPopup() to catch popups when they open. In Selenium, you had to get all handles with getWindowHandles() and find the new one. Playwright does this in one line.', en: 'Use waitForPopup() to catch popups when they open. In Selenium, you had to get all handles with getWindowHandles() and find the new one. Playwright does this in one line.' },
+            code: `// Selenium popup catching:
+// String mainHandle = driver.getWindowHandle();
+// driver.findElement(By.id("openPopup")).click();
+// String popupHandle = driver.getWindowHandles()
+//     .stream().filter(h -> !h.equals(mainHandle)).findFirst().get();
+// driver.switchTo().window(popupHandle);
+
+// Playwright:
+Page popup = page.waitForPopup(() -> {
+    page.locator("#openPopupBtn").click();
+});
+// popup is now a separate Page object`,
+            tip: { tr: '✅ waitForPopup() is atomic: action and wait are combined. The Selenium "click() then handle loop" problem is gone.', en: '✅ waitForPopup() is atomic: action and wait are combined. The Selenium "click() then handle loop" problem is gone.' },
+          },
+          {
+            id: 'new-page', label: 'context.newPage()', labelEn: 'context.newPage()',
+            visualState: 'new-page',
+            description: { tr: 'Open a new page programmatically. In Selenium this was done with driver.switchTo().newWindow(WindowType.TAB). In Playwright, context.newPage() is much cleaner.', en: 'Open a new page programmatically. In Selenium this was done with driver.switchTo().newWindow(WindowType.TAB). In Playwright, context.newPage() is much cleaner.' },
+            code: `// Open new tab/page
+Page secondPage = context.newPage();
+secondPage.navigate("https://admin.example.com");
+
+// Work on both pages
+page.locator("#mainAction").click();       // page 1
+secondPage.locator("#adminAction").click(); // page 2
+
+// Page count
+System.out.println(context.pages().size()); // 2`,
+            tip: { tr: '✅ Each Page object is independent: its own cookies, own local storage. The Selenium window handle management nightmare is gone.', en: '✅ Each Page object is independent: its own cookies, own local storage. The Selenium window handle management nightmare is gone.' },
+          },
+          {
+            id: 'close', label: 'page.close()', labelEn: 'page.close()',
+            visualState: 'close',
+            description: { tr: 'Close page and return to main. Selenium required driver.close() + switchTo().window(mainHandle). In Playwright, just popup.close() — no automatic main page switch but Page objects are independent.', en: 'Close page and return to main. Selenium required driver.close() + switchTo().window(mainHandle). In Playwright, just popup.close() — no automatic main page switch but Page objects are independent.' },
+            code: `// Finish popup operations, close
+popup.locator("#closeBtn").click();
+popup.close();
+
+// Continue on main page (already have main page object)
+page.locator("#confirmOrder").click();
+
+// context.close() → closes all pages
+// context.close();`,
+            tip: { tr: '✅ Since each page is a Page object in Playwright, switchTo() is not needed. page and popup objects can be used simultaneously.', en: '✅ Since each page is a Page object in Playwright, switchTo() is not needed. page and popup objects can be used simultaneously.' },
+          },
+          {
+            id: 'context-pages', label: 'context.pages()', labelEn: 'context.pages()',
+            visualState: 'context-pages',
+            description: { tr: 'context.pages() returns the list of all open pages. Selenium\'s getWindowHandles() returned String IDs and switchTo() was needed for every switch. In Playwright, directly call page.title() etc.', en: 'context.pages() returns the list of all open pages. Selenium\'s getWindowHandles() returned String IDs and switchTo() was needed for every switch. In Playwright, directly call page.title() etc.' },
+            code: `// List all open pages
+List<Page> allPages = context.pages();
+
+for (Page p : allPages) {
+    System.out.println(p.title() + " — " + p.url());
+}
+
+// Find a specific page:
+Page adminPage = allPages.stream()
+    .filter(p -> p.url().contains("/admin"))
+    .findFirst().orElseThrow();
+adminPage.locator("#dashboard").click();`,
+            tip: { tr: '✅ context.pages() + Stream API: Java\'s powerful functional programming works great with Playwright.', en: '✅ context.pages() + Stream API: Java\'s powerful functional programming works great with Playwright.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 12: BrowserContext — Isolated Parallel Tests', en: 'Step 12: BrowserContext — Isolated Parallel Tests' } },
+      {
+        type: 'playwright-visual',
+        concept: 'browser-context',
+        color: '#0ea5e9',
+        icon: '🌐',
+        title: { tr: 'BrowserContext — Isolated Test Environments', en: 'BrowserContext — Isolated Test Environments' },
+        steps: [
+          {
+            id: 'single', label: 'Single Context', labelEn: 'Single Context',
+            visualState: 'single',
+            description: { tr: 'Playwright has a Browser → BrowserContext → Page hierarchy. In Selenium, each WebDriver instance is a single browser. In Playwright, isolated contexts can be created from a single browser.', en: 'Playwright has a Browser → BrowserContext → Page hierarchy. In Selenium, each WebDriver instance is a single browser. In Playwright, isolated contexts can be created from a single browser.' },
+            code: `Playwright playwright = Playwright.create();
+Browser browser = playwright.chromium().launch();
+
+// Single context — single user session
+BrowserContext context = browser.newContext();
+Page page = context.newPage();
+
+// Selenium: new WebDriver() for each test
+// Playwright: new BrowserContext for each test — 10x faster!`,
+            tip: { tr: '✅ Creating a BrowserContext is 10x faster than starting a new WebDriver — test suite speed increases dramatically.', en: '✅ Creating a BrowserContext is 10x faster than starting a new WebDriver — test suite speed increases dramatically.' },
+          },
+          {
+            id: 'new-context', label: 'newContext()', labelEn: 'newContext()',
+            visualState: 'new-context',
+            description: { tr: 'browser.newContext() creates an isolated user session. Each context carries its own cookies, local storage and sessionStorage. Like ThreadLocal<UserSession> in Java.', en: 'browser.newContext() creates an isolated user session. Each context carries its own cookies, local storage and sessionStorage. Like ThreadLocal<UserSession> in Java.' },
+            code: `// Admin session
+BrowserContext adminCtx = browser.newContext(
+    new Browser.NewContextOptions()
+        .setStorageStatePath(Paths.get("admin-state.json"))
+);
+Page adminPage = adminCtx.newPage();
+adminPage.navigate("https://app.com/admin");
+
+// Customer session
+BrowserContext customerCtx = browser.newContext();
+Page customerPage = customerCtx.newPage();
+customerPage.navigate("https://app.com/shop");`,
+            tip: { tr: '✅ With storageStatePath you can save login state — no need to login at the start of every test. Huge time savings!', en: '✅ With storageStatePath you can save login state — no need to login at the start of every test. Huge time savings!' },
+          },
+          {
+            id: 'parallel', label: 'Parallel Tests', labelEn: 'Parallel Tests',
+            visualState: 'parallel',
+            description: { tr: 'Tests in different contexts run in parallel — without affecting each other. Combined with JUnit5 @Execution(CONCURRENT), test duration drops dramatically. No need for Selenium Grid.', en: 'Tests in different contexts run in parallel — without affecting each other. Combined with JUnit5 @Execution(CONCURRENT), test duration drops dramatically. No need for Selenium Grid.' },
+            code: `@TestInstance(Lifecycle.PER_CLASS)
+@Execution(ExecutionMode.CONCURRENT)
+class ParallelTest {
+    static Browser browser;
+
+    @BeforeAll
+    static void setup() {
+        browser = Playwright.create().chromium().launch();
+    }
+
+    @Test
+    void adminTest() {
+        try (BrowserContext ctx = browser.newContext()) {
+            Page page = ctx.newPage();
+            // Admin scenario
+        }
+    }
+
+    @Test
+    void customerTest() {
+        try (BrowserContext ctx = browser.newContext()) {
+            Page page = ctx.newPage();
+            // Customer scenario — runs parallel with adminTest!
+        }
+    }
+}`,
+            tip: { tr: '✅ If each context is opened with try-with-resources, it auto-closes after test — no memory leaks.', en: '✅ If each context is opened with try-with-resources, it auto-closes after test — no memory leaks.' },
+          },
+          {
+            id: 'isolation', label: 'Isolation', labelEn: 'Isolation',
+            visualState: 'isolation',
+            description: { tr: 'Each context is completely isolated: cookies, localStorage, sessionStorage are not shared. Admin\'s login cookie doesn\'t leak into customer context. Like ClassLoader isolation in Java.', en: 'Each context is completely isolated: cookies, localStorage, sessionStorage are not shared. Admin\'s login cookie doesn\'t leak into customer context. Like ClassLoader isolation in Java.' },
+            code: `// Same site, different sessions:
+BrowserContext adminCtx    = browser.newContext();
+BrowserContext customerCtx = browser.newContext();
+BrowserContext guestCtx    = browser.newContext();
+
+Page adminPage    = adminCtx.newPage();    // admin cookie
+Page customerPage = customerCtx.newPage(); // customer cookie
+Page guestPage    = guestCtx.newPage();    // no cookie
+
+// All three in different URLs at the same time — fully isolated!
+adminPage.navigate("https://app.com/admin");
+customerPage.navigate("https://app.com/orders");
+guestPage.navigate("https://app.com/home");`,
+            tip: { tr: '✅ Parallel E2E test scenario: admin add to cart → customer pay at same time → guest browse home. None affect each other.', en: '✅ Parallel E2E test scenario: admin add to cart → customer pay at same time → guest browse home. None affect each other.' },
+          },
+          {
+            id: 'close', label: 'Close', labelEn: 'Close',
+            visualState: 'close',
+            description: { tr: 'context.close() closes the context and all its pages. browser.close() closes all contexts and the browser. Try-with-resources for automatic cleanup is recommended.', en: 'context.close() closes the context and all its pages. browser.close() closes all contexts and the browser. Try-with-resources for automatic cleanup is recommended.' },
+            code: `// Manual close:
+adminCtx.close();     // → adminPage closes too
+customerCtx.close();
+
+// Automatic (try-with-resources — recommended):
+try (BrowserContext ctx = browser.newContext()) {
+    Page page = ctx.newPage();
+    // test operations
+} // ctx.close() called automatically
+
+// With Playwright JUnit5 extension:
+// @ExtendWith(PlaywrightExtension.class)
+// automatic context + cleanup for each test`,
+            tip: { tr: '✅ Use playwright-junit: context lifecycle managed automatically. A clean context is guaranteed for each @Test method.', en: '✅ Use playwright-junit: context lifecycle managed automatically. A clean context is guaranteed for each @Test method.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Step 13: Trace Viewer — Visual Test Recording', en: 'Step 13: Trace Viewer — Visual Test Recording' } },
+      {
+        type: 'playwright-visual',
+        concept: 'trace',
+        color: '#8b5cf6',
+        icon: '🎬',
+        title: { tr: 'Playwright Trace Viewer — Interactive Guide', en: 'Playwright Trace Viewer — Interactive Guide' },
+        steps: [
+          {
+            id: 'record', label: 'Record Trace', labelEn: 'Record Trace',
+            visualState: 'record',
+            description: { tr: 'Playwright records every interaction during the test with DOM snapshots, network traffic and console logs. No such feature in Selenium. Incredibly powerful for debugging.', en: 'Playwright records every interaction during the test with DOM snapshots, network traffic and console logs. No such feature in Selenium. Incredibly powerful for debugging.' },
+            code: `// Start trace
+context.tracing().start(
+    new Tracing.StartOptions()
+        .setScreenshots(true)   // screenshot on each action
+        .setSnapshots(true)     // DOM snapshot
+        .setSources(true)       // source code lines
+);
+
+// Tests here...
+
+// Save trace
+context.tracing().stop(
+    new Tracing.StopOptions()
+        .setPath(Paths.get("target/trace.zip"))
+);`,
+            tip: { tr: '✅ Trace file: screenshots + DOM snapshots + network + console + source lines. Instantly see where and why the test failed.', en: '✅ Trace file: screenshots + DOM snapshots + network + console + source lines. Instantly see where and why the test failed.' },
+          },
+          {
+            id: 'screenshot', label: 'Screenshot', labelEn: 'Screenshot',
+            visualState: 'screenshot',
+            description: { tr: 'Automatically take screenshot when test fails. In Selenium, you had to add this manually in @AfterEach. In Playwright, automatic with Tracing.StartOptions.setScreenshots(true).', en: 'Automatically take screenshot when test fails. In Selenium, you had to add this manually in @AfterEach. In Playwright, automatic with Tracing.StartOptions.setScreenshots(true).' },
+            code: `// Explicit screenshot on failure
+@AfterEach
+void tearDown(TestInfo testInfo) {
+    if (testInfo.getTags().contains("failed")) {
+        page.screenshot(new Page.ScreenshotOptions()
+            .setPath(Paths.get(
+                "target/screenshots/" + testInfo.getDisplayName() + ".png"
+            ))
+        );
+    }
+    context.tracing().stop(
+        new Tracing.StopOptions()
+            .setPath(Paths.get("target/traces/" + testInfo.getDisplayName() + ".zip"))
+    );
+}`,
+            tip: { tr: '✅ Use Screenshot + Trace together: screenshot answers "what?", trace answers "why?".', en: '✅ Use Screenshot + Trace together: screenshot answers "what?", trace answers "why?".' },
+          },
+          {
+            id: 'video', label: 'Video Recording', labelEn: 'Video Recording',
+            visualState: 'video',
+            description: { tr: 'Record the entire test session as video. In Selenium this was only possible with 3rd party tools. In Playwright, built-in as newContext() option.', en: 'Record the entire test session as video. In Selenium this was only possible with 3rd party tools. In Playwright, built-in as newContext() option.' },
+            code: `BrowserContext context = browser.newContext(
+    new Browser.NewContextOptions()
+        .setRecordVideoDir(Paths.get("target/videos/"))
+        .setRecordVideoSize(1280, 720)
+);
+
+Page page = context.newPage();
+// ...tests...
+
+// context.close() is required to save video
+context.close();
+// target/videos/xxx.webm is created`,
+            tip: { tr: '✅ Video debugging: inspect frame by frame exactly how the page looked, which animations ran. Gold value for test failure analysis in CI/CD.', en: '✅ Video debugging: inspect frame by frame exactly how the page looked, which animations ran. Gold value for test failure analysis in CI/CD.' },
+          },
+          {
+            id: 'viewer', label: 'Trace Viewer', labelEn: 'Trace Viewer',
+            visualState: 'viewer',
+            description: { tr: 'Open the recorded trace in Playwright\'s own visual tool. For each action, see a full DOM snapshot, network requests and console logs on a timeline.', en: 'Open the recorded trace in Playwright\'s own visual tool. For each action, see a full DOM snapshot, network requests and console logs on a timeline.' },
+            code: `// In terminal:
+// npx playwright show-trace target/trace.zip
+
+// With Allure integration:
+byte[] traceBytes = Files.readAllBytes(Paths.get("trace.zip"));
+Allure.addAttachment("Playwright Trace",
+    "application/zip",
+    new ByteArrayInputStream(traceBytes),
+    ".zip"
+);
+
+// CI/CD artifact analysis:
+// Upload trace.zip → open at trace.pw.dev (no install needed)`,
+            tip: { tr: '✅ trace.pw.dev: upload trace.zip from browser, no installation needed. Can directly analyze from CI/CD artifacts.', en: '✅ trace.pw.dev: upload trace.zip from browser, no installation needed. Can directly analyze from CI/CD artifacts.' },
+          },
+        ],
+      },
+    ],
+  },
+}
+
 // ─── S-FILEIO: FILE HANDLING, ITERATOR, GENERICS, THREADS ──────────────────
 const sFileIO = {
   tr: {
@@ -11009,8 +13490,8 @@ export const javaData = {
   tr: {
     hero: {
       title: '☕ Java — QA Mühendisi Rehberi',
-      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · REST Assured',
-      intro: 'Java\'yı QA perspektifinden öğren: temel sözdiziminden production-grade altyapıya, Cucumber BDD\'den Selenium adım adım kullanımına, 50 mülakat sorusuyla hazır ol.',
+      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · Playwright · REST Assured',
+      intro: 'Java\'yı QA perspektifinden öğren: temel sözdiziminden production-grade altyapıya, Cucumber BDD\'den Selenium ve Playwright adım adım kullanımına, 50 mülakat sorusuyla hazır ol.',
     },
     tabs: [
       '☕ Giriş',
@@ -11025,19 +13506,20 @@ export const javaData = {
       '🧪 Test Frameworkleri',
       '🥒 Cucumber',
       '🌐 Selenium',
+      '🎭 Playwright',
       '🛠️ Gerçek Hayat',
       '🔗 Ekosistem',
       '🚨 Yaygın Hatalar',
       '📁 File & Threads',
       '💼 Mülakat Soruları',
     ],
-    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr],
+    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr],
   },
   en: {
     hero: {
       title: '☕ Java — QA Engineer\'s Guide',
-      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · REST Assured',
-      intro: 'Learn Java from a QA perspective: basic syntax to production-grade infrastructure, BDD with Cucumber, step-by-step Selenium, ready with 50 interview questions.',
+      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · Playwright · REST Assured',
+      intro: 'Learn Java from a QA perspective: basic syntax to production-grade infrastructure, BDD with Cucumber, step-by-step Selenium & Playwright, ready with 50 interview questions.',
     },
     tabs: [
       '☕ Introduction',
@@ -11052,13 +13534,14 @@ export const javaData = {
       '🧪 Test Frameworks',
       '🥒 Cucumber',
       '🌐 Selenium',
+      '🎭 Playwright',
       '🛠️ Real World',
       '🔗 Ecosystem',
       '🚨 Common Errors',
       '📁 File & Threads',
       '💼 Interview Questions',
     ],
-    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en],
+    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en],
   },
 }
 

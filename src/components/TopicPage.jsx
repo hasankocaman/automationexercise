@@ -1144,7 +1144,7 @@ function LocatorVisualBlock({ block, darkMode, language }) {
 
                 {/* Code + tip + when */}
                 <div>
-                    <div className={`text-xs font-semibold mb-2 uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Java</div>
+                    <div className={`text-xs font-semibold mb-2 uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.codeLabel || 'Java'}</div>
                     <CodeBlock code={loc.code} language="java" darkMode={darkMode} />
                     {(loc.when || loc.whenEn) && (
                         <div className={`mt-3 px-3 py-2 rounded-lg text-xs ${darkMode ? 'bg-indigo-900/40 text-indigo-300 border border-indigo-800' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
@@ -1584,6 +1584,288 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── PlaywrightVisualBlock ────────────────────────────────────────────────────
+
+function PlaywrightVisualBlock({ block, darkMode, language }) {
+    const [activeStep, setActiveStep] = useState(0)
+    const isTr = language === 'tr'
+    const step = block.steps[activeStep]
+    const accent = block.color || '#0ea5e9'
+
+    const AutoWaitVisual = ({ state }) => {
+        const phases = [
+            { id: 'check', label: isTr ? 'Element Kontrol' : 'Check Element' },
+            { id: 'retry', label: isTr ? 'Tekrar Dene' : 'Retry' },
+            { id: 'found', label: isTr ? 'Bulundu!' : 'Found!' },
+        ]
+        const showPhases = { 'selenium-way': [], 'pw-way': ['check'], retry: ['check', 'retry'], found: ['check', 'retry', 'found'], timeout: ['check', 'retry'] }
+        const active = showPhases[state] || []
+        if (state === 'selenium-way') {
+            return (
+                <div style={{ fontFamily: 'monospace', fontSize: 11, maxWidth: 280 }}>
+                    <div style={{ color: '#ef4444', fontWeight: 700, marginBottom: 8 }}>⚠️ Selenium: Manuel Bekleme</div>
+                    {[
+                        'WebDriverWait(driver, 30)',
+                        'ExpectedConditions.visibilityOf(...)',
+                        '.until(...) → element bul',
+                        'Her action için tekrar yaz!',
+                    ].map((txt, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 3 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 3 ? '#ef4444' : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
+                            <span>{['1️⃣','2️⃣','3️⃣','⛔'][idx]}</span><span>{txt}</span>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+        return (
+            <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
+                <div style={{ color: accent, fontWeight: 700, marginBottom: 8 }}>✅ Playwright: Auto-Wait</div>
+                {phases.map((phase, idx) => {
+                    const isActive = active.includes(phase.id)
+                    const isTimeout = state === 'timeout' && phase.id === 'retry'
+                    const phaseColor = phase.id === 'found' ? '#10b981' : isTimeout ? '#ef4444' : accent
+                    return (
+                        <div key={phase.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isActive ? phaseColor : (darkMode ? '#374151' : '#e5e7eb'), color: isActive ? '#fff' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 12, flexShrink: 0, boxShadow: isActive ? `0 0 8px ${phaseColor}66` : 'none', transition: 'all 0.4s' }}>
+                                {phase.id === 'found' ? '✓' : isTimeout ? '✗' : idx + 1}
+                            </div>
+                            <div style={{ flex: 1, padding: '4px 8px', borderRadius: 5, background: isActive ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), border: `1px solid ${isActive ? phaseColor : (darkMode ? '#374151' : '#e5e7eb')}`, color: isActive ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#6b7280' : '#9ca3af'), transition: 'all 0.4s' }}>
+                                {phase.label}
+                                {isActive && <span style={{ marginLeft: 6, fontSize: 9, color: phaseColor }}>{phase.id === 'check' ? '→ bekle' : phase.id === 'retry' ? (isTimeout ? '30s → TimeoutError!' : '← tekrar') : '← hazır!'}</span>}
+                            </div>
+                        </div>
+                    )
+                })}
+                {state === 'found' && <div style={{ marginTop: 6, color: '#10b981', fontWeight: 700, fontSize: 11 }}>✅ {isTr ? 'Extra kod yazmana gerek yok!' : 'No extra code needed!'}</div>}
+                {state === 'timeout' && <div style={{ marginTop: 6, color: '#ef4444', fontSize: 11 }}>⏱️ TimeoutError: 30s içinde bulunamadı</div>}
+            </div>
+        )
+    }
+
+    const SelectOptionVisual = ({ state }) => {
+        const opts = [{ value: 'tr', text: 'Türkiye' }, { value: 'us', text: 'USA' }, { value: 'de', text: 'Germany' }, { value: 'jp', text: 'Japan' }]
+        const selectedVal = step.selectedValue || 'tr'
+        return (
+            <div style={{ fontFamily: 'monospace', fontSize: 12 }}>
+                <div style={{ marginBottom: 8, color: accent, fontWeight: 700, fontSize: 11 }}>{'page.locator("#country")'}</div>
+                <div style={{ border: `2px solid ${accent}`, borderRadius: 8, overflow: 'hidden', maxWidth: 220, boxShadow: `0 0 12px ${accent}44`, transition: 'all 0.3s' }}>
+                    {(state === 'wrap' ? [opts[0]] : opts).map((opt, idx) => (
+                        <div key={opt.value} style={{ padding: '7px 14px', background: (state !== 'wrap' && opt.value === selectedVal && state !== 'getOptions') ? accent : (darkMode ? '#1f2937' : '#fff'), color: (state !== 'wrap' && opt.value === selectedVal && state !== 'getOptions') ? '#fff' : (darkMode ? '#d1d5db' : '#374151'), borderBottom: idx < (state === 'wrap' ? 0 : 3) ? `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` : 'none', transition: 'background 0.3s', fontWeight: opt.value === selectedVal ? 700 : 400 }}>
+                            {state === 'getOptions' ? `[${idx}] ${opt.text}` : opt.text}
+                        </div>
+                    ))}
+                </div>
+                {state === 'wrap' && <div style={{ marginTop: 8, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 11 }}>→ .selectOption() çağrılıyor...</div>}
+            </div>
+        )
+    }
+
+    const DialogVisual = ({ state }) => {
+        const dialogTypes = {
+            register: { bg: darkMode ? '#1f2937' : '#f9fafb', label: isTr ? 'onDialog event handler bekleniyor' : 'Waiting for onDialog event', icon: '📋', border: darkMode ? '#374151' : '#e5e7eb' },
+            'dialog-fires': { bg: '#fef3c7', label: isTr ? 'Dialog tetiklendi!' : 'Dialog fired!', icon: '⚠️', border: '#f59e0b' },
+            handle: { bg: '#d1fae5', label: 'accept() veya dismiss()', icon: '✅', border: '#10b981' },
+            dismiss: { bg: '#fee2e2', label: 'dismiss() → iptal', icon: '❌', border: '#ef4444' },
+        }
+        const d = dialogTypes[state] || dialogTypes['register']
+        return (
+            <div style={{ position: 'relative', maxWidth: 280 }}>
+                <div style={{ padding: '10px 16px', borderRadius: 8, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 12, marginBottom: 8, opacity: state !== 'register' ? 0.4 : 1 }}>
+                    🌐 {isTr ? 'Ana Sayfa İçeriği' : 'Main Page Content'}
+                </div>
+                {state === 'register' ? (
+                    <div style={{ padding: '8px 12px', borderRadius: 8, background: `${accent}11`, border: `1px dashed ${accent}`, fontSize: 11, color: accent }}>
+                        <span style={{ fontWeight: 700 }}>page.onDialog(dialog -&gt; {'{'}</span><br />
+                        <span style={{ marginLeft: 16, color: darkMode ? '#9ca3af' : '#6b7280' }}>dialog.accept();</span><br />
+                        <span style={{ fontWeight: 700 }}>{'}'})</span>
+                    </div>
+                ) : (
+                    <div style={{ padding: '12px 16px', borderRadius: 8, background: d.bg, border: `2px solid ${d.border}`, boxShadow: `0 4px 20px ${d.border}44`, animation: 'fadeIn 0.3s ease', fontSize: 12 }}>
+                        <div style={{ fontWeight: 700, marginBottom: 6, color: '#1f2937' }}>{d.icon} {d.label}</div>
+                        <div style={{ color: '#6b7280', fontSize: 11 }}>{state === 'handle' ? '→ dialog.accept()' : state === 'dismiss' ? '→ dialog.dismiss()' : 'type: alert | confirm | prompt'}</div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const FrameLocatorVisual = ({ state }) => {
+        const states = { outer: { innerOpacity: 0.3, innerBorder: '#6b7280', innerLabel: '🚫 erişim yok', outerActive: true }, 'frame-locator': { innerOpacity: 0.6, innerBorder: accent, innerLabel: '⏳ frameLocator("#f")', outerActive: false }, inner: { innerOpacity: 1, innerBorder: accent, innerLabel: '✅ .locator() çalışır', outerActive: false }, back: { innerOpacity: 0.3, innerBorder: '#6b7280', innerLabel: '← dış sayfa', outerActive: true } }
+        const s = states[state] || states['outer']
+        return (
+            <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
+                <div style={{ padding: 10, borderRadius: 8, border: `2px solid ${s.outerActive ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#111827' : '#f9fafb', boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none', transition: 'all 0.3s' }}>
+                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>{s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}</div>
+                    <div style={{ padding: 8, borderRadius: 6, border: `2px solid ${s.innerBorder}`, background: darkMode ? '#1f2937' : '#fff', opacity: s.innerOpacity, boxShadow: s.innerOpacity === 1 ? `0 0 10px ${s.innerBorder}44` : 'none', transition: 'all 0.4s' }}>
+                        <div style={{ color: s.innerBorder, fontWeight: 700 }}>🖼️ iframe#payment — {s.innerLabel}</div>
+                        {s.innerOpacity === 1 && <div style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 4 }}>💳 frameLocator → locator chain</div>}
+                    </div>
+                </div>
+                {state === 'inner' && <div style={{ marginTop: 6, fontSize: 10, color: '#10b981' }}>✅ switchTo() gerekmez — chain yeterli!</div>}
+            </div>
+        )
+    }
+
+    const MultiPageVisual = ({ state }) => {
+        const pages = [{ id: 'main', label: '🏠 Main Page', color: accent }, { id: 'popup', label: '🆕 Popup / New Tab', color: '#10b981' }, { id: 'third', label: '3️⃣ Third Page', color: '#f59e0b' }]
+        const activePagesMap = { single: ['main'], 'wait-popup': ['main', 'popup'], 'new-page': ['main', 'popup'], close: ['main'], 'context-pages': ['main', 'popup', 'third'] }
+        const active = activePagesMap[state] || ['main']
+        const showCount = state === 'context-pages' ? 3 : (state === 'single' || state === 'close') ? 1 : 2
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 240, fontFamily: 'monospace', fontSize: 11 }}>
+                {pages.slice(0, showCount).map(p => (
+                    <div key={p.id} style={{ padding: '7px 12px', borderRadius: 8, border: `2px solid ${active.includes(p.id) ? p.color : (darkMode ? '#374151' : '#d1d5db')}`, background: active.includes(p.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#fff'), boxShadow: active.includes(p.id) ? `0 0 10px ${p.color}44` : 'none', color: active.includes(p.id) ? p.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(p.id) ? 700 : 400, transition: 'all 0.3s' }}>
+                        {active.includes(p.id) ? '▶ ' : '  '}{p.label}{active.includes(p.id) && <span style={{ fontSize: 9, marginLeft: 6, opacity: 0.7 }}>← active</span>}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    const PwActionsVisual = ({ state }) => {
+        const cursor = { position: 'absolute', fontSize: 18, transition: 'all 0.5s cubic-bezier(.4,0,.2,1)', pointerEvents: 'none' }
+        const positions = { idle: { top: '50%', left: '50%' }, hover: { top: '28%', left: '50%' }, submenu: { top: '50%', left: '65%' }, dblclick: { top: '50%', left: '50%' }, rightclick: { top: '50%', left: '50%' }, drag: { top: '50%', left: '60%' }, keyboard: { top: '50%', left: '50%' } }
+        const pos = positions[state] || positions['idle']
+        return (
+            <div style={{ position: 'relative', width: 220, height: 160, margin: '0 auto' }}>
+                <div style={{ position: 'absolute', top: 16, left: 0, right: 0, background: accent, borderRadius: 8, padding: '8px 14px', display: 'flex', gap: 16, alignItems: 'center' }}>
+                    {['Home', 'Products', 'About'].map(m => (
+                        <span key={m} style={{ color: '#fff', fontSize: 11, fontWeight: m === 'Products' ? 700 : 400, padding: '2px 6px', borderRadius: 4, background: (state === 'hover' || state === 'submenu') && m === 'Products' ? 'rgba(255,255,255,0.2)' : 'transparent', transition: 'background 0.3s' }}>{m}</span>
+                    ))}
+                </div>
+                {state === 'submenu' && <div style={{ position: 'absolute', top: 50, left: 80, background: darkMode ? '#1f2937' : '#fff', border: `2px solid ${accent}`, borderRadius: 6, padding: '4px 0', boxShadow: `0 4px 16px ${accent}44`, animation: 'fadeIn 0.2s ease', zIndex: 10 }}>{['Laptops', 'Phones', 'Tablets'].map(s => <div key={s} style={{ padding: '4px 14px', fontSize: 11, color: darkMode ? '#e5e7eb' : '#374151' }}>{s}</div>)}</div>}
+                {state === 'drag' && <div style={{ position: 'absolute', top: 80, left: 0, right: 0, display: 'flex', gap: 24, justifyContent: 'center', alignItems: 'center' }}><div style={{ width: 48, height: 36, borderRadius: 6, background: `${accent}bb`, border: `2px dashed ${accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700, transform: 'translateX(20px)', transition: 'transform 0.5s' }}>DRAG</div><span style={{ color: accent, fontWeight: 700 }}>→</span><div style={{ width: 56, height: 40, borderRadius: 6, border: `2px solid ${accent}`, background: `${accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: accent, fontWeight: 700 }}>DROP</div></div>}
+                {state === 'keyboard' && <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>{['Control', 'A', '→', 'Del'].map(k => <div key={k} style={{ padding: '4px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: accent, color: '#fff', boxShadow: `0 2px 0 ${accent}88`, animation: 'pulse 1s infinite' }}>{k}</div>)}</div>}
+                {state === 'dblclick' && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}><div style={{ width: 50, height: 50, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out', opacity: 0.6 }} /><div style={{ width: 30, height: 30, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out 0.15s', opacity: 0.4, position: 'absolute', top: 10, left: 10 }} /></div>}
+                {state === 'rightclick' && <div style={{ position: 'absolute', top: 60, left: 80, background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 6, padding: '4px 0', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', animation: 'fadeIn 0.2s ease', minWidth: 90 }}>{['✂️ Cut', '📋 Copy', '🗑️ Delete'].map(m => <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? '#ef4444' : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>)}</div>}
+                {state !== 'drag' && state !== 'keyboard' && <div style={{ ...cursor, ...pos, transform: 'translate(-50%,-50%)' }}>🖱️</div>}
+            </div>
+        )
+    }
+
+    const EvaluateVisual = ({ state }) => {
+        const scrollPct = { idle: 0, scrollTo: 85, scrollBy: 40, scrollIntoView: 70, evaluate: 0, fill: 0 }
+        const pct = scrollPct[state] ?? 0
+        return (
+            <div style={{ position: 'relative', width: 200, margin: '0 auto' }}>
+                <div style={{ borderRadius: 8, border: `2px solid ${accent}`, overflow: 'hidden', background: darkMode ? '#111827' : '#f9fafb' }}>
+                    <div style={{ background: accent, padding: '4px 10px', fontSize: 10, color: '#fff' }}>⚡ page.evaluate()</div>
+                    <div style={{ height: 70, overflow: 'hidden', position: 'relative' }}>
+                        <div style={{ transform: `translateY(-${pct}%)`, transition: 'transform 0.5s ease', padding: 8 }}>
+                            {['🏠 Header', '📦 Section 1', '🛒 Section 2', '📧 Footer'].map((s, idx) => (
+                                <div key={idx} style={{ padding: '6px 8px', borderRadius: 4, marginBottom: 4, fontSize: 10, background: (state === 'scrollIntoView' && idx === 3) ? `${accent}33` : (darkMode ? '#1f2937' : '#fff'), border: `1px solid ${(state === 'scrollIntoView' && idx === 3) ? accent : (darkMode ? '#374151' : '#e5e7eb')}`, color: darkMode ? '#d1d5db' : '#374151', fontWeight: (state === 'scrollIntoView' && idx === 3) ? 700 : 400, boxShadow: (state === 'evaluate' && idx === 0) ? `0 0 8px ${accent}88` : 'none', transition: 'all 0.4s' }}>
+                                    {state === 'evaluate' && idx === 0 ? `${s} ← evaluate!` : s}{state === 'fill' && idx === 1 ? ' → test@test.com' : ''}
+                                </div>
+                            ))}
+                        </div>
+                        {pct > 0 && <div style={{ position: 'absolute', right: 2, top: `${(pct / 100) * 60}%`, width: 3, height: 20, background: accent, borderRadius: 2, transition: 'top 0.5s ease' }} />}
+                    </div>
+                </div>
+                <div style={{ marginTop: 8, textAlign: 'center', fontSize: 11, color: accent, fontWeight: 700 }}>
+                    {state === 'idle' ? '⚡ Ready' : state === 'scrollTo' ? 'window.scrollTo(0, body.scrollHeight)' : state === 'scrollBy' ? 'window.scrollBy(0, 500)' : state === 'scrollIntoView' ? 'scrollIntoView(true)' : state === 'evaluate' ? 'page.evaluate(fn)' : 'page.evaluate(el => el.value=...)'}
+                </div>
+            </div>
+        )
+    }
+
+    const BrowserContextVisual = ({ state }) => {
+        const contexts = [{ id: 'ctx1', label: '👤 Admin Session', color: accent }, { id: 'ctx2', label: '🛒 Customer', color: '#10b981' }, { id: 'ctx3', label: '🔍 Guest', color: '#f59e0b' }]
+        const activeCtx = { single: ['ctx1'], 'new-context': ['ctx1', 'ctx2'], parallel: ['ctx1', 'ctx2', 'ctx3'], isolation: ['ctx1', 'ctx2', 'ctx3'], close: ['ctx1'] }
+        const active = activeCtx[state] || ['ctx1']
+        const showCount = (state === 'parallel' || state === 'isolation') ? 3 : (state === 'single' || state === 'close') ? 1 : 2
+        return (
+            <div style={{ fontFamily: 'monospace', fontSize: 11, maxWidth: 260 }}>
+                <div style={{ textAlign: 'center', marginBottom: 8, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 10 }}>🌐 browser (tek proses)</div>
+                <div style={{ border: `2px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 10, padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {contexts.slice(0, showCount).map(ctx => (
+                        <div key={ctx.id} style={{ padding: '6px 10px', borderRadius: 6, border: `2px solid ${active.includes(ctx.id) ? ctx.color : (darkMode ? '#374151' : '#e5e7eb')}`, background: active.includes(ctx.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), color: active.includes(ctx.id) ? ctx.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(ctx.id) ? 700 : 400, boxShadow: active.includes(ctx.id) ? `0 0 8px ${ctx.color}44` : 'none', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {ctx.label}{active.includes(ctx.id) && state === 'isolation' && <span style={{ marginLeft: 'auto', fontSize: 9, background: `${ctx.color}22`, padding: '2px 5px', borderRadius: 3 }}>🍪 isolated</span>}
+                        </div>
+                    ))}
+                </div>
+                {state === 'parallel' && <div style={{ marginTop: 8, color: '#10b981', fontSize: 10, textAlign: 'center' }}>⚡ {isTr ? '3 context paralel çalışıyor' : '3 contexts running in parallel'}</div>}
+            </div>
+        )
+    }
+
+    const TraceVisual = ({ state }) => {
+        const events = [{ icon: '🌐', label: 'navigate', color: '#3b82f6' }, { icon: '🖱️', label: 'click', color: accent }, { icon: '⌨️', label: 'fill', color: '#10b981' }, { icon: '✅', label: 'assert', color: '#8b5cf6' }]
+        const activeCount = { idle: 0, record: 2, screenshot: 3, video: 4, viewer: 4 }
+        const count = activeCount[state] || 0
+        return (
+            <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
+                {(state === 'screenshot') && <div style={{ marginBottom: 8, padding: '6px 10px', borderRadius: 6, background: '#fee2e2', border: '1px solid #ef4444', fontSize: 10, color: '#ef4444' }}>📸 screenshot-on-failure.png</div>}
+                {(state === 'video') && <div style={{ marginBottom: 8, padding: '6px 10px', borderRadius: 6, background: '#fef3c7', border: '1px solid #f59e0b', fontSize: 10, color: '#92400e' }}>🎥 video.webm kaydediliyor...</div>}
+                {(state === 'viewer') && <div style={{ marginBottom: 8, padding: '6px 10px', borderRadius: 6, background: `${accent}11`, border: `1px solid ${accent}`, fontSize: 10, color: accent }}>🎭 trace.zip → Trace Viewer</div>}
+                <div style={{ background: darkMode ? '#111827' : '#f8fafc', border: `2px solid ${accent}`, borderRadius: 8, padding: 10 }}>
+                    <div style={{ color: accent, fontWeight: 700, marginBottom: 8, fontSize: 10 }}>📊 {isTr ? 'Test İzleme' : 'Trace Timeline'}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {events.map((e, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <div style={{ width: 6, height: 6, borderRadius: '50%', background: idx < count ? e.color : (darkMode ? '#374151' : '#d1d5db'), transition: 'background 0.3s', flexShrink: 0 }} />
+                                <div style={{ flex: 1, height: 18, borderRadius: 3, overflow: 'hidden', background: darkMode ? '#1f2937' : '#e5e7eb' }}>
+                                    <div style={{ height: '100%', borderRadius: 3, transition: 'width 0.5s ease', width: idx < count ? `${(idx + 1) * 22}%` : '0%', background: idx < count ? e.color : 'transparent', display: 'flex', alignItems: 'center', paddingLeft: 6, fontSize: 9, color: '#fff', fontWeight: 700 }}>
+                                        {idx < count ? `${e.icon} ${e.label}` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                {state === 'viewer' && <div style={{ marginTop: 8, fontSize: 10, color: '#10b981', textAlign: 'center' }}>✅ npx playwright show-trace trace.zip</div>}
+            </div>
+        )
+    }
+
+    const renderVisual = () => {
+        const vs = step.visualState
+        switch (block.concept) {
+            case 'auto-wait':       return <AutoWaitVisual state={vs} />
+            case 'select-option':   return <SelectOptionVisual state={vs} />
+            case 'dialog':          return <DialogVisual state={vs} />
+            case 'frame-locator':   return <FrameLocatorVisual state={vs} />
+            case 'multi-page':      return <MultiPageVisual state={vs} />
+            case 'pw-actions':      return <PwActionsVisual state={vs} />
+            case 'evaluate':        return <EvaluateVisual state={vs} />
+            case 'browser-context': return <BrowserContextVisual state={vs} />
+            case 'trace':           return <TraceVisual state={vs} />
+            default: return null
+        }
+    }
+
+    return (
+        <div className={`mt-6 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`} style={{ boxShadow: `0 0 24px ${accent}22` }}>
+            <div style={{ background: `linear-gradient(135deg, ${accent}, #818cf8)` }} className="px-4 py-3 flex items-center gap-3">
+                <span className="text-2xl">{block.icon}</span>
+                <span className="text-white font-bold text-sm md:text-base">{isTr ? block.title.tr : block.title.en}</span>
+                <span className="ml-auto text-xs font-mono text-white/60">Playwright Java</span>
+            </div>
+            <div className={`flex overflow-x-auto gap-1 px-3 py-2 border-b ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`} style={{ scrollbarWidth: 'none' }}>
+                {block.steps.map((s, idx) => (
+                    <button key={s.id} onClick={() => setActiveStep(idx)} className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap ${activeStep === idx ? 'text-white shadow-md scale-105' : darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`} style={activeStep === idx ? { background: accent } : {}}>
+                        {isTr ? s.label : (s.labelEn || s.label)}
+                    </button>
+                ))}
+            </div>
+            <div className="p-4 md:p-5 grid md:grid-cols-2 gap-4 md:gap-6 items-start">
+                <div className={`rounded-xl p-4 flex items-center justify-center min-h-[160px] ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`} style={{ border: `1px solid ${accent}44` }}>
+                    {renderVisual()}
+                </div>
+                <div>
+                    <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{isTr ? step.description.tr : step.description.en}</p>
+                    <CodeBlock code={step.code} language="java" darkMode={darkMode} />
+                    {step.tip && <div className={`mt-3 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-yellow-300 border border-yellow-900' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>{isTr ? step.tip.tr : step.tip.en}</div>}
+                </div>
+            </div>
+            <div className={`px-4 py-2 flex items-center justify-between border-t text-xs ${darkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400'}`}>
+                <button onClick={() => setActiveStep(Math.max(0, activeStep - 1))} disabled={activeStep === 0} className="px-3 py-1 rounded disabled:opacity-30 hover:opacity-80 transition" style={{ background: accent, color: '#fff' }}>← {isTr ? 'Önceki' : 'Prev'}</button>
+                <span>{activeStep + 1} / {block.steps.length}</span>
+                <button onClick={() => setActiveStep(Math.min(block.steps.length - 1, activeStep + 1))} disabled={activeStep === block.steps.length - 1} className="px-3 py-1 rounded disabled:opacity-30 hover:opacity-80 transition" style={{ background: accent, color: '#fff' }}>{isTr ? 'Sonraki' : 'Next'} →</button>
+            </div>
+        </div>
+    )
+}
+
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
 function renderBlock(block, i, darkMode, language = 'en') {
@@ -1853,6 +2135,9 @@ function renderBlock(block, i, darkMode, language = 'en') {
 
         case 'selenium-visual':
             return <SeleniumVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'playwright-visual':
+            return <PlaywrightVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null
