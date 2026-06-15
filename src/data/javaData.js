@@ -9235,6 +9235,137 @@ js.executeScript("arguments[0].value='test@example.com';",
 String state = (String) js.executeScript("return document.readyState");
 System.out.println("Sayfa: " + state); // "complete"`,
       },
+      {
+        type: 'selenium-visual',
+        concept: 'js-executor',
+        color: '#f59e0b',
+        icon: '⚡',
+        title: { tr: 'JavaScript Executor — İnteraktif Görsel Rehber', en: 'JavaScript Executor — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'idle', label: 'Neden JS?', labelEn: 'Why JS?',
+            visualState: 'idle',
+            description: { tr: 'JavascriptExecutor, Selenium\'un ulaşamadığı yerlerde JS komutu çalıştırır. Java\'da native method gibi — JVM\'in yapamadığını işletim sistemine delege eder. Selenium click çalışmıyorsa, scroll gerekirken veya değer doğrudan set edilecekse kullanılır.', en: 'JavascriptExecutor runs JS commands where Selenium cannot reach. Like a native method in Java — delegates to the OS what the JVM cannot do. Use when Selenium click fails, scrolling is needed, or a value must be set directly.' },
+            code: `import org.openqa.selenium.JavascriptExecutor;
+
+// Driver'ı JavascriptExecutor'a cast et
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+// Sayfa hazır mı kontrol et
+String readyState = (String) js.executeScript(
+    "return document.readyState"
+);
+// "complete" → sayfa tamamen yüklendi
+System.out.println(readyState); // "complete"`,
+            tip: { tr: '✅ JavascriptExecutor standart WebDriver arayüzünün bir parçası — tüm tarayıcılarda çalışır. Cast işlemi tehlikeli değil: ChromeDriver/FirefoxDriver hepsi bu interface\'i implement eder.', en: '✅ JavascriptExecutor is part of the standard WebDriver interface — works in all browsers. The cast is safe: ChromeDriver/FirefoxDriver all implement this interface.' },
+          },
+          {
+            id: 'scrollTo', label: 'scrollTo', labelEn: 'scrollTo',
+            visualState: 'scrollTo',
+            description: { tr: 'Sayfayı belirli koordinata kaydırır. window.scrollTo(x, y) ile JS\'in kendi scroll API\'sini kullanıyoruz. document.body.scrollHeight sayfanın toplam yüksekliğini verir — en alta kaydırmak için kullanılır.', en: 'Scrolls the page to specific coordinates. We use JS\'s own scroll API with window.scrollTo(x, y). document.body.scrollHeight gives total page height — use it to scroll to the bottom.' },
+            code: `JavascriptExecutor js = (JavascriptExecutor) driver;
+
+// En alta kaydır
+js.executeScript(
+    "window.scrollTo(0, document.body.scrollHeight)"
+);
+
+// Belirli koordinata kaydır
+js.executeScript("window.scrollTo(0, 800)");
+
+// En üste dön
+js.executeScript("window.scrollTo(0, 0)");`,
+            tip: { tr: '✅ Lazy-load sayfalar için zorunlu: sayfa altına inmeden görseller yüklenmez. scrollTo ile önce yükle, sonra test et.', en: '✅ Essential for lazy-load pages: images don\'t load until scrolled into view. Use scrollTo to load first, then test.' },
+          },
+          {
+            id: 'scrollBy', label: 'scrollBy', labelEn: 'scrollBy',
+            visualState: 'scrollBy',
+            description: { tr: 'Mevcut konumdan görece kaydırma. scrollTo\'nun aksine sayfanın nerede olduğunu bilmene gerek yok — sadece "500px aşağı git" dersin. Java\'da list.add() vs absolute set gibi: biri görece, biri mutlak.', en: 'Relative scroll from the current position. Unlike scrollTo, you don\'t need to know where the page is — just say "go 500px down". Like list.add() vs absolute set in Java: one relative, one absolute.' },
+            code: `// Mevcut konumdan 500px aşağı
+js.executeScript("window.scrollBy(0, 500)");
+
+// 200px yukarı
+js.executeScript("window.scrollBy(0, -200)");
+
+// Yatay kaydırma (carousel için)
+js.executeScript("window.scrollBy(300, 0)");
+
+// Yavaş scroll (daha doğal)
+// for(int i=0; i<5; i++) {
+//   js.executeScript("window.scrollBy(0, 200)");
+//   Thread.sleep(100);
+// }`,
+            tip: { tr: '✅ Infinite scroll sayfalar için ideal: sürekli scrollBy(0, 500) çağrıları ile yeni içerik yüklenebilir. Her çağrıdan sonra yeni elementlerin yüklendiğini explicit wait ile doğrula.', en: '✅ Ideal for infinite scroll pages: repeated scrollBy(0, 500) calls trigger new content loading. Verify new elements are loaded with explicit wait after each call.' },
+          },
+          {
+            id: 'scrollIntoView', label: 'scrollIntoView', labelEn: 'scrollIntoView',
+            visualState: 'scrollIntoView',
+            description: { tr: 'Belirli bir elementi görünür alana kaydırır. Koordinat hesaplamak yerine "şu elemanı göster" dersin — tarayıcı kendisi scroll eder. Viewport dışındaki element ile etkileşim öncesi zorunludur.', en: 'Scrolls a specific element into the visible viewport. Instead of calculating coordinates, you say "show me this element" — the browser scrolls itself. Required before interacting with off-screen elements.' },
+            code: `WebElement footer = driver.findElement(
+    By.id("footerNewsletter")
+);
+
+// Footer'ı viewport'a getir
+js.executeScript(
+    "arguments[0].scrollIntoView(true);",
+    footer
+);
+
+// Elementın görünür olduğunu doğrula
+assertTrue(footer.isDisplayed());
+
+// Şimdi güvenle tıkla
+footer.findElement(By.name("email"))
+      .sendKeys("test@example.com");`,
+            tip: { tr: '✅ scrollIntoView(true) elemanı en üste hizalar, scrollIntoView(false) en alta. Viewport ortasına getirmek için scrollIntoView({block:"center"}) kullan.', en: '✅ scrollIntoView(true) aligns element to the top, scrollIntoView(false) to the bottom. Use scrollIntoView({block:"center"}) to center in viewport.' },
+          },
+          {
+            id: 'jsClick', label: 'JS Click', labelEn: 'JS Click',
+            visualState: 'jsClick',
+            description: { tr: 'Selenium\'un normal click() metodunun çalışmadığı durumlarda JS ile tıklama. Overlay, z-index sorunu veya görünmez element için son çare. Java\'da reflection ile private metod çağırmak gibi — güçlü ama dikkatli kullan.', en: 'Click via JS when Selenium\'s normal click() doesn\'t work. Last resort for overlay, z-index issues or invisible elements. Like calling a private method via reflection in Java — powerful but use carefully.' },
+            code: `WebElement btn = driver.findElement(
+    By.cssSelector(".submit-btn")
+);
+
+// Normal click ÇALIŞMIYORSA bu denenir:
+// ElementClickInterceptedException → başka element üstte
+// ElementNotInteractableException → görünmüyor
+
+// JS ile doğrudan DOM event tetikle
+js.executeScript("arguments[0].click();", btn);
+
+// Veya: scrollIntoView + JS click kombini
+js.executeScript(
+    "arguments[0].scrollIntoView(true); arguments[0].click();",
+    btn
+);`,
+            tip: { tr: '⚠️ JS click, gerçek kullanıcı davranışını simüle etmez — hover event\'leri tetiklenmez. Önce normal click, çalışmazsa scrollIntoView + normal click, sonra JS click.', en: '⚠️ JS click does not simulate real user behavior — hover events are not triggered. Try normal click first, then scrollIntoView + normal click, then JS click as last resort.' },
+          },
+          {
+            id: 'setValue', label: 'setValue', labelEn: 'setValue',
+            visualState: 'setValue',
+            description: { tr: 'Input değerini doğrudan DOM\'a yazar — sendKeys() gibi klavye simüle etmez. React/Angular gibi controlled component\'lerde bazen çalışmaz (onInput event tetiklemez). Autocomplete, masked input veya readonly alan için kullanılır.', en: 'Writes a value directly to the DOM — does not simulate keyboard like sendKeys(). Sometimes doesn\'t work in controlled components (React/Angular) as it doesn\'t trigger onInput. Used for autocomplete, masked inputs or readonly fields.' },
+            code: `WebElement emailInput = driver.findElement(
+    By.id("email")
+);
+
+// DOM'a doğrudan yaz (keyboard event yok)
+js.executeScript(
+    "arguments[0].value='test@example.com';",
+    emailInput
+);
+
+// React gibi controlled component'lerde
+// input event'i de tetiklenmeli:
+js.executeScript("""
+    arguments[0].value = 'test@example.com';
+    arguments[0].dispatchEvent(new Event('input', {bubbles:true}));
+    arguments[0].dispatchEvent(new Event('change', {bubbles:true}));
+    """, emailInput);`,
+            tip: { tr: '⚠️ React controlled input\'larda js.value= yetmez — dispatchEvent ile change/input event\'i tetikle. Yoksa React state güncellenmez ve form submit\'te değer kaybolur.', en: '⚠️ In React controlled inputs, js.value= is not enough — trigger change/input event with dispatchEvent. Otherwise React state doesn\'t update and value is lost on form submit.' },
+          },
+        ],
+      },
       { type: 'heading', text: { tr: 'Adım 8: Actions Sınıfı (Hover, Drag-Drop, Sağ Tık)', en: 'Step 8: Actions Class' } },
       {
         type: 'code', language: 'java', label: 'Actions — gelişmiş mouse & keyboard işlemleri',
@@ -9278,6 +9409,143 @@ actions.moveToElement(navMenu)
        .pause(Duration.ofMillis(300))
        .click()
        .perform();`,
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'actions',
+        color: '#8b5cf6',
+        icon: '🖱️',
+        title: { tr: 'Actions Sınıfı — İnteraktif Görsel Rehber', en: 'Actions Class — Interactive Visual Guide' },
+        steps: [
+          {
+            id: 'hover', label: 'Hover', labelEn: 'Hover',
+            visualState: 'hover',
+            description: { tr: 'moveToElement() fare imlecini elementin üzerine taşır — tıklamaz, sadece üzerine gelir. Java\'da bir metodun içine adım atmadan önce kapının önünde durmak gibi. Hover ile açılan alt menüler için zorunludur.', en: 'moveToElement() moves the mouse cursor over an element — it does not click, just hovers. Like standing in front of a door before stepping inside in Java. Essential for dropdown menus that open on hover.' },
+            code: `Actions actions = new Actions(driver);
+WebElement navMenu = driver.findElement(By.id("navMenu"));
+
+// Mouse'u üzerine taşı (tıklamıyor!)
+actions.moveToElement(navMenu).perform();
+
+// Alt menü görünene kadar bekle
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("subItem")
+));
+
+// Şimdi alt menü elemanına tıkla
+driver.findElement(By.id("subItem")).click();`,
+            tip: { tr: '⚠️ moveToElement() sonrası mutlaka explicit wait kullan — alt menü animate ile açılabilir. Thread.sleep() KULLANMA.', en: '⚠️ Always use explicit wait after moveToElement() — the sub-menu may animate open. DO NOT use Thread.sleep().' },
+          },
+          {
+            id: 'submenu', label: 'Sub-menu', labelEn: 'Sub-menu',
+            visualState: 'submenu',
+            description: { tr: 'Hover sonrası alt menü açıldı. Driver artık hem ana menüyü hem alt menüyü görebilir. Alt menü elemanını bulmak için normal findElement() yeterlidir — context değişmez (iframe gibi değil).', en: 'After hovering, the sub-menu is now open. The driver can see both the main menu and sub-menu. Normal findElement() is sufficient to locate sub-menu items — context does not change (unlike iframes).' },
+            code: `// Alt menü açıkken tüm seçenekleri listele
+List<WebElement> subItems = driver.findElements(
+    By.cssSelector("#productMenu > li > a")
+);
+
+subItems.forEach(item ->
+    System.out.println(item.getText())
+);
+// "Laptops", "Phones", "Tablets"
+
+// Belirli seçeneğe tıkla
+driver.findElement(By.linkText("Laptops")).click();`,
+            tip: { tr: '✅ Alt menü JS ile açılıyorsa (hover event) Actions gerekir. CSS :hover ile açılıyorsa bazen sadece findElement + click yeterlidir.', en: '✅ If the sub-menu opens via a JS event (hover), Actions is required. If it opens via CSS :hover, sometimes just findElement + click is sufficient.' },
+          },
+          {
+            id: 'dblclick', label: 'doubleClick', labelEn: 'doubleClick',
+            visualState: 'dblclick',
+            description: { tr: 'İki hızlı tıklama gönderir. Genellikle editable cell\'leri, inline editor\'ları veya dosya açmayı tetikler. Java\'da click().click() ile aynı değildir — tarayıcı çift tıklamayı özel bir olay olarak tanır.', en: 'Sends two rapid clicks. Typically triggers editable cells, inline editors, or file-opening. Not the same as click().click() in Java — the browser recognizes a double-click as a special event.' },
+            code: `// Editable tablo hücresi — çift tıkla
+WebElement cell = driver.findElement(
+    By.cssSelector("td.editable[data-col='price']")
+);
+
+actions.doubleClick(cell).perform();
+
+// Düzenleme modu açıldı — input görünür olana bekle
+WebElement input = wait.until(
+    ExpectedConditions.visibilityOf(
+        cell.findElement(By.tagName("input"))
+    )
+);
+input.clear();
+input.sendKeys("299.99");
+input.sendKeys(Keys.ENTER);`,
+            tip: { tr: '✅ doubleClick, tek click\'ten farklı bir DOM event\'i tetikler (dblclick). Editable grid\'lerde click çalışmazsa doubleClick dene.', en: '✅ doubleClick fires a different DOM event (dblclick) than a single click. If click doesn\'t work on editable grids, try doubleClick.' },
+          },
+          {
+            id: 'rightclick', label: 'contextClick', labelEn: 'contextClick',
+            visualState: 'rightclick',
+            description: { tr: 'Sağ tıklama — context menu (bağlam menüsü) açar. Java\'da MouseEvent.BUTTON3 gibi. Tarayıcının varsayılan sağ-tık menüsü değil, uygulamaya özel context menu için kullanılır.', en: 'Right-click — opens the context menu. Like MouseEvent.BUTTON3 in Java. Used for application-specific context menus, not the browser\'s built-in right-click menu.' },
+            code: `// Dosyaya sağ tıkla → context menü aç
+WebElement fileItem = driver.findElement(
+    By.cssSelector("[data-file='report.pdf']")
+);
+
+actions.contextClick(fileItem).perform();
+
+// Context menü belirene kadar bekle
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("ctxMenu")
+));
+
+// Menü öğesine tıkla
+driver.findElement(By.cssSelector("#ctxMenu [data-action='delete']"))
+      .click();`,
+            tip: { tr: '⚠️ Browser\'ın varsayılan sağ-tık menüsünü Selenium ile test edemezsin — sadece DOM\'daki custom context menu\'ları test edilebilir.', en: '⚠️ You cannot test the browser\'s native right-click menu with Selenium — only custom context menus in the DOM are testable.' },
+          },
+          {
+            id: 'drag', label: 'dragAndDrop', labelEn: 'dragAndDrop',
+            visualState: 'drag',
+            description: { tr: 'Bir elementi tutup başka bir yere bırakma. Java\'da List.remove() + List.add() kadar mantıklı ama mouse ile. HTML5 drag-drop event\'leri için bazen JS injection gerekebilir — Actions yetmeyebilir.', en: 'Picking up an element and dropping it somewhere else. Makes as much sense as List.remove() + List.add() in Java but with the mouse. For HTML5 drag-drop events, JS injection may sometimes be needed — Actions might not be enough.' },
+            code: `WebElement source = driver.findElement(
+    By.id("draggable")
+);
+WebElement target = driver.findElement(
+    By.id("droppable")
+);
+
+// Yöntem 1: dragAndDrop (en kolay)
+actions.dragAndDrop(source, target).perform();
+
+// Yöntem 2: offset ile (1. yöntem çalışmazsa)
+actions.clickAndHold(source)
+       .moveByOffset(200, 0) // 200px sağa
+       .release()
+       .perform();
+
+// Yöntem 3: JS injection (HTML5 drag-drop için)
+// ((JavascriptExecutor)driver).executeScript(
+//     dragDropScript, source, target);`,
+            tip: { tr: '⚠️ HTML5 drag-drop (React DnD, SortableJS) bazen Actions ile çalışmaz — JS injection gerekebilir. Önce Actions dene, çalışmazsa offset, sonra JS.', en: '⚠️ HTML5 drag-drop (React DnD, SortableJS) sometimes doesn\'t work with Actions — JS injection may be needed. Try Actions first, then offset, then JS.' },
+          },
+          {
+            id: 'keyboard', label: 'Keyboard', labelEn: 'Keyboard',
+            visualState: 'keyboard',
+            description: { tr: 'Klavye kombinasyonları: Ctrl+A, Ctrl+C, Shift+Click vb. Java\'da Robot sınıfı gibi ama tarayıcı context\'inde. keyDown() tuşu basılı tutar, keyUp() bırakır — bu şekilde Ctrl+A gibi kombinasyonlar oluşturulur.', en: 'Keyboard combinations: Ctrl+A, Ctrl+C, Shift+Click etc. Like the Robot class in Java but in browser context. keyDown() holds a key, keyUp() releases — this is how combinations like Ctrl+A are created.' },
+            code: `WebElement textArea = driver.findElement(
+    By.id("editor")
+);
+
+// Ctrl+A → Sil → Yeni metin
+actions.click(textArea)
+       .keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+       .sendKeys(Keys.DELETE)
+       .sendKeys("Yeni içerik buraya")
+       .perform();
+
+// Shift+Tıkla — çoklu seçim (tablo satırları)
+WebElement firstRow = driver.findElement(By.cssSelector("tr:nth-child(1)"));
+WebElement lastRow  = driver.findElement(By.cssSelector("tr:nth-child(5)"));
+actions.click(firstRow)
+       .keyDown(Keys.SHIFT).click(lastRow).keyUp(Keys.SHIFT)
+       .perform();`,
+            tip: { tr: '✅ keyDown → sendKeys → keyUp sıralaması kritik. keyUp unutulursa Ctrl basılı kalır ve sonraki işlemler beklenmedik davranır.', en: '✅ keyDown → sendKeys → keyUp order is critical. If keyUp is forgotten, Ctrl stays pressed and subsequent operations behave unexpectedly.' },
+          },
+        ],
       },
       { type: 'heading', text: { tr: 'Adım 9: Alerts, iFrames ve Çoklu Pencere', en: 'Step 9: Alerts, iFrames, Multiple Windows' } },
       {

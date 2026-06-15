@@ -32,8 +32,6 @@ function HomePage() {
         { id: 'advanced',     name: t('nav.advanced'),    shortName: language === 'tr' ? '🚀 Gelişmiş': '🚀 Advanced' },
         { id: 'table',        name: t('nav.table'),       shortName: language === 'tr' ? '📊 Tablo'   : '📊 Table' },
         { id: 'api',          name: t('nav.api'),         shortName: '🌐 API' },
-        { id: 'comparison',   name: t('nav.comparison'),  shortName: language === 'tr' ? '🔍 Araçlar' : '🔍 Tools' },
-        { id: 'lang-compare', name: language === 'tr' ? '🔀 3 Dil Karşılaştır' : '🔀 3-Language Compare', shortName: language === 'tr' ? '🔀 3 Dil' : '🔀 3 Lang' },
         { id: 'practice',     name: t('nav.practice') || '🛠️ Uygulama Bahçesi', shortName: language === 'tr' ? '🛠️ Pratik' : '🛠️ Practice' },
     ]
 
@@ -157,6 +155,10 @@ function HomePage() {
                             <span className="sm:hidden">JS↔TS</span>
                             <span className="hidden sm:inline">{language === 'tr' ? 'JavaScript ve TypeScript Karşılaştırma' : 'JS vs TypeScript'}</span>
                         </a>
+                        <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>
+                            <span className="sm:hidden">🔀 3 Dil</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '🔀 3 Dil Karşılaştır' : '🔀 3-Language Compare'}</span>
+                        </button>
                     </div>
 
                     {/* 2. Test Otomasyon Araçları */}
@@ -185,6 +187,10 @@ function HomePage() {
                         <button onClick={() => navigate('/browserstack')} data-testid="nav-browserstack" className={nb('orange')}>
                             <span className="sm:hidden">☁️ BS</span>
                             <span className="hidden sm:inline">{language === 'tr' ? '☁️ BrowserStack Öğren' : '☁️ Learn BrowserStack'}</span>
+                        </button>
+                        <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>
+                            <span className="sm:hidden">🔍 Karşılaştır</span>
+                            <span className="hidden sm:inline">{language === 'tr' ? '🔍 Araçları Karşılaştır' : '🔍 Compare Tools'}</span>
                         </button>
                     </div>
 

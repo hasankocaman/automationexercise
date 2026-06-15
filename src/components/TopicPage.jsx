@@ -1076,6 +1076,92 @@ function QAItem({ question, answer, code, darkMode }) {
     )
 }
 
+// ─── LocatorVisualBlock ───────────────────────────────────────────────────────
+
+function LocatorVisualBlock({ block, darkMode, language }) {
+    const [activeIdx, setActiveIdx] = useState(0)
+    const isTr = language === 'tr'
+    const loc = block.locators[activeIdx]
+
+    const highlightHtml = (html, highlights) => {
+        if (!highlights || highlights.length === 0) return html
+        let result = html
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+        highlights.forEach(h => {
+            const escaped = h.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            result = result.replace(
+                new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                `<mark style="background:${loc.color}33;color:${loc.color};border-radius:3px;padding:0 2px;font-weight:700">${escaped}</mark>`
+            )
+        })
+        return result
+    }
+
+    return (
+        <div className={`mt-6 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+            {/* Tab bar */}
+            <div className={`flex overflow-x-auto gap-1 px-3 py-2 border-b ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`} style={{ scrollbarWidth: 'none' }}>
+                {block.locators.map((l, idx) => (
+                    <button
+                        key={l.id}
+                        onClick={() => setActiveIdx(idx)}
+                        className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap border ${
+                            activeIdx === idx
+                                ? 'text-white shadow-md scale-105 border-transparent'
+                                : darkMode ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                        }`}
+                        style={activeIdx === idx ? { background: l.color } : {}}
+                    >
+                        {l.label}
+                        <span className="ml-1 text-[10px]">{l.starRating}</span>
+                    </button>
+                ))}
+            </div>
+
+            <div className="p-4 md:p-5 grid md:grid-cols-2 gap-4 md:gap-6">
+                {/* HTML Preview */}
+                <div>
+                    <div className={`text-xs font-semibold mb-2 uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>HTML</div>
+                    <pre
+                        className={`text-xs leading-relaxed p-3 rounded-xl overflow-x-auto ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-700'}`}
+                        style={{ border: `2px solid ${loc.color}44`, fontFamily: 'JetBrains Mono, monospace' }}
+                        dangerouslySetInnerHTML={{ __html: highlightHtml(block.htmlExample, loc.highlights) }}
+                    />
+                    <div className={`mt-3 flex flex-wrap gap-2`}>
+                        <span className={`px-2 py-1 rounded text-xs font-bold`} style={{ background: loc.color + '22', color: loc.color }}>
+                            Priority #{loc.priority}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
+                            {isTr ? (loc.title || '') : (loc.titleEn || loc.title || '')}
+                        </span>
+                    </div>
+                    <div className={`mt-3 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-700'}`}>
+                        {isTr ? (loc.explanation || '') : (loc.explanationEn || loc.explanation || '')}
+                    </div>
+                </div>
+
+                {/* Code + tip + when */}
+                <div>
+                    <div className={`text-xs font-semibold mb-2 uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Java</div>
+                    <CodeBlock code={loc.code} language="java" darkMode={darkMode} />
+                    {(loc.when || loc.whenEn) && (
+                        <div className={`mt-3 px-3 py-2 rounded-lg text-xs ${darkMode ? 'bg-indigo-900/40 text-indigo-300 border border-indigo-800' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
+                            <span className="font-bold">📌 {isTr ? 'Ne zaman?' : 'When?'}</span> {isTr ? (loc.when || '') : (loc.whenEn || loc.when || '')}
+                        </div>
+                    )}
+                    {(loc.tip || loc.tipEn) && (
+                        <div className={`mt-2 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-yellow-300 border border-yellow-900' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>
+                            {isTr ? (loc.tip || '') : (loc.tipEn || loc.tip || '')}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── SeleniumVisualBlock ──────────────────────────────────────────────────────
 
 function SeleniumVisualBlock({ block, darkMode, language }) {
@@ -1272,13 +1358,171 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
         )
     }
 
+    const ActionsVisual = ({ state }) => {
+        const cursor = { position: 'absolute', fontSize: 18, transition: 'all 0.5s cubic-bezier(.4,0,.2,1)', pointerEvents: 'none' }
+        const positions = {
+            idle:       { top: '50%', left: '50%' },
+            hover:      { top: '28%', left: '50%' },
+            submenu:    { top: '50%', left: '65%' },
+            dblclick:   { top: '50%', left: '50%' },
+            rightclick: { top: '50%', left: '50%' },
+            drag:       { top: '50%', left: '60%' },
+            keyboard:   { top: '50%', left: '50%' },
+        }
+        const pos = positions[state] || positions['idle']
+        return (
+            <div style={{ position: 'relative', width: 220, height: 160, margin: '0 auto' }}>
+                {/* Nav bar simulation */}
+                <div style={{
+                    position: 'absolute', top: 16, left: 0, right: 0,
+                    background: accent, borderRadius: 8, padding: '8px 14px',
+                    display: 'flex', gap: 16, alignItems: 'center',
+                }}>
+                    {['Home', 'Products', 'About'].map(m => (
+                        <span key={m} style={{
+                            color: '#fff', fontSize: 11, fontWeight: m === 'Products' ? 700 : 400,
+                            padding: '2px 6px', borderRadius: 4,
+                            background: (state === 'hover' || state === 'submenu') && m === 'Products' ? 'rgba(255,255,255,0.2)' : 'transparent',
+                            transition: 'background 0.3s',
+                        }}>{m}</span>
+                    ))}
+                </div>
+                {/* Submenu */}
+                {(state === 'submenu') && (
+                    <div style={{
+                        position: 'absolute', top: 50, left: 80,
+                        background: darkMode ? '#1f2937' : '#fff',
+                        border: `2px solid ${accent}`,
+                        borderRadius: 6, padding: '4px 0',
+                        boxShadow: `0 4px 16px ${accent}44`,
+                        animation: 'fadeIn 0.2s ease',
+                        zIndex: 10,
+                    }}>
+                        {['Laptops', 'Phones', 'Tablets'].map(s => (
+                            <div key={s} style={{ padding: '4px 14px', fontSize: 11, color: darkMode ? '#e5e7eb' : '#374151' }}>{s}</div>
+                        ))}
+                    </div>
+                )}
+                {/* Draggable / droppable */}
+                {(state === 'drag') && (
+                    <div style={{ position: 'absolute', top: 80, left: 0, right: 0, display: 'flex', gap: 24, justifyContent: 'center', alignItems: 'center' }}>
+                        <div style={{ width: 48, height: 36, borderRadius: 6, background: `${accent}bb`, border: `2px dashed ${accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700, transform: 'translateX(20px)', transition: 'transform 0.5s' }}>DRAG</div>
+                        <span style={{ color: accent, fontWeight: 700 }}>→</span>
+                        <div style={{ width: 56, height: 40, borderRadius: 6, border: `2px solid ${accent}`, background: `${accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: accent, fontWeight: 700 }}>DROP</div>
+                    </div>
+                )}
+                {/* Keyboard */}
+                {state === 'keyboard' && (
+                    <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+                        {['Ctrl', 'A', '→', 'Del'].map(k => (
+                            <div key={k} style={{
+                                padding: '4px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                                background: accent, color: '#fff',
+                                boxShadow: `0 2px 0 ${accent}88`,
+                                animation: 'pulse 1s infinite',
+                            }}>{k}</div>
+                        ))}
+                    </div>
+                )}
+                {/* Double click ripple */}
+                {state === 'dblclick' && (
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}>
+                        <div style={{ width: 50, height: 50, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out', opacity: 0.6 }} />
+                        <div style={{ width: 30, height: 30, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out 0.15s', opacity: 0.4, position: 'absolute', top: 10, left: 10 }} />
+                    </div>
+                )}
+                {/* Right-click context menu */}
+                {state === 'rightclick' && (
+                    <div style={{
+                        position: 'absolute', top: 60, left: 80,
+                        background: darkMode ? '#1f2937' : '#fff',
+                        border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`,
+                        borderRadius: 6, padding: '4px 0',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                        animation: 'fadeIn 0.2s ease',
+                        minWidth: 90,
+                    }}>
+                        {['✂️ Cut', '📋 Copy', '🗑️ Delete'].map(m => (
+                            <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? '#ef4444' : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>
+                        ))}
+                    </div>
+                )}
+                {/* Cursor */}
+                {state !== 'drag' && state !== 'keyboard' && (
+                    <div style={{ ...cursor, ...pos, transform: 'translate(-50%,-50%)' }}>🖱️</div>
+                )}
+            </div>
+        )
+    }
+
+    const JSExecutorVisual = ({ state }) => {
+        const pageH = 180
+        const visibleH = 70
+        const scrollPct = { idle: 0, scrollTo: 85, scrollBy: 40, scrollIntoView: 70, jsClick: 0, setValue: 0 }
+        const pct = scrollPct[state] ?? 0
+        return (
+            <div style={{ position: 'relative', width: 200, margin: '0 auto' }}>
+                {/* Browser frame */}
+                <div style={{ borderRadius: 8, border: `2px solid ${accent}`, overflow: 'hidden', background: darkMode ? '#111827' : '#f9fafb' }}>
+                    {/* URL bar */}
+                    <div style={{ background: accent, padding: '4px 10px', fontSize: 10, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>⚡ JS Executor</span>
+                    </div>
+                    {/* Scrollable page */}
+                    <div style={{ height: visibleH, overflow: 'hidden', position: 'relative' }}>
+                        <div style={{
+                            transform: `translateY(-${pct}%)`,
+                            transition: 'transform 0.5s ease',
+                            padding: 8,
+                        }}>
+                            {/* Page sections */}
+                            {['🏠 Header', '📦 Section 1', '🛒 Section 2', '📧 Footer'].map((s, idx) => (
+                                <div key={idx} style={{
+                                    padding: '6px 8px', borderRadius: 4, marginBottom: 4, fontSize: 10,
+                                    background: (state === 'scrollIntoView' && idx === 3) ? `${accent}33` : (darkMode ? '#1f2937' : '#fff'),
+                                    border: `1px solid ${(state === 'scrollIntoView' && idx === 3) ? accent : (darkMode ? '#374151' : '#e5e7eb')}`,
+                                    color: darkMode ? '#d1d5db' : '#374151',
+                                    fontWeight: (state === 'scrollIntoView' && idx === 3) ? 700 : 400,
+                                    boxShadow: (state === 'jsClick' && idx === 0) ? `0 0 8px ${accent}88` : 'none',
+                                    transition: 'all 0.4s',
+                                }}>
+                                    {state === 'jsClick' && idx === 0 ? `${s} ← JS click!` : s}
+                                    {state === 'setValue' && idx === 1 ? ' → test@test.com' : ''}
+                                </div>
+                            ))}
+                        </div>
+                        {/* Scroll indicator */}
+                        {pct > 0 && (
+                            <div style={{
+                                position: 'absolute', right: 2, top: `${(pct / 100) * 60}%`,
+                                width: 3, height: 20, background: accent, borderRadius: 2,
+                                transition: 'top 0.5s ease',
+                            }} />
+                        )}
+                    </div>
+                </div>
+                {/* Label */}
+                <div style={{ marginTop: 8, textAlign: 'center', fontSize: 11, color: accent, fontWeight: 700 }}>
+                    {state === 'idle' ? (isTr ? '⚡ Hazır' : '⚡ Ready') :
+                     state === 'scrollTo' ? 'scrollTo(0, body.scrollHeight)' :
+                     state === 'scrollBy' ? 'scrollBy(0, 500)' :
+                     state === 'scrollIntoView' ? 'scrollIntoView(true)' :
+                     state === 'jsClick' ? 'arguments[0].click()' :
+                     state === 'setValue' ? 'arguments[0].value=...' : ''}
+                </div>
+            </div>
+        )
+    }
+
     const renderVisual = () => {
         const vs = step.visualState
         switch (block.concept) {
-            case 'dropdown': return <DropdownVisual state={vs} />
-            case 'alert':    return <AlertVisual state={vs} />
-            case 'iframe':   return <IframeVisual state={vs} />
-            case 'window':   return <WindowVisual state={vs} />
+            case 'dropdown':    return <DropdownVisual state={vs} />
+            case 'alert':       return <AlertVisual state={vs} />
+            case 'iframe':      return <IframeVisual state={vs} />
+            case 'window':      return <WindowVisual state={vs} />
+            case 'actions':     return <ActionsVisual state={vs} />
+            case 'js-executor': return <JSExecutorVisual state={vs} />
             default: return null
         }
     }
@@ -1603,6 +1847,9 @@ function renderBlock(block, i, darkMode, language = 'en') {
                     />
                 </div>
             )
+
+        case 'locator-visual':
+            return <LocatorVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'selenium-visual':
             return <SeleniumVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
