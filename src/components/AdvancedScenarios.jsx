@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import DOMInspector from './DOMInspector'
 
 function AdvancedScenarios({ darkMode }) {
     const { t } = useLanguage()
+    const containerRef = useRef(null)
     const [dynamicContent, setDynamicContent] = useState(null)
     const [scrollItems, setScrollItems] = useState(Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`))
     const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -89,7 +91,7 @@ function AdvancedScenarios({ darkMode }) {
     }
 
     return (
-        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`} ref={containerRef}>
             <h2 className={`section-title ${darkMode ? 'text-white' : 'text-gray-800'}`} data-testid="advanced-scenarios-title">
                 {t('advanced.title')}
             </h2>
@@ -205,6 +207,8 @@ function AdvancedScenarios({ darkMode }) {
                     </p>
                 </div>
             </div>
+
+            <DOMInspector containerRef={containerRef} darkMode={darkMode} />
         </div>
     )
 }

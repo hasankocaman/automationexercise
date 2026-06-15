@@ -1476,6 +1476,64 @@ const s4 = {
           ['Fluent Wait', 'Explicit wait + polling interval + ignore exceptions', 'Karmaşık async senaryolarda', '✅ İleri seviye'],
         ],
       },
+      {
+        type: 'simulation',
+        icon: '⏳',
+        color: '#7c3aed',
+        title: { tr: 'Implicit Wait — Canlı Demo', en: 'Implicit Wait — Live Demo' },
+        scenario: 'implicit-wait',
+        description: {
+          tr: 'Sol tarafta "Element Bul" butonlarına tıklayarak Implicit Wait\'in etkisini canlı görün. Sağda zaman çizelgesi gerçek zamanlı güncellenir.',
+          en: 'Click the "Find Element" buttons on the left to see Implicit Wait in action. The timeline on the right updates in real time.',
+        },
+        code: `// Java — Implicit Wait kurulumu
+WebDriver driver = new ChromeDriver();
+
+// Bir kez ayarla, tüm findElement için geçerli
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+driver.get("https://example.com");
+
+// Bu satır, element yoksa 10sn ye kadar bekler; sonra hata verir
+WebElement btn = driver.findElement(By.id("submitBtn")); // 0-10s bekler
+btn.click();
+
+// Python eşdeğeri:
+// driver.implicitly_wait(10)
+// driver.find_element(By.ID, "submitBtn")`,
+        language: 'java',
+      },
+      {
+        type: 'simulation',
+        icon: '✅',
+        color: '#059669',
+        title: { tr: 'Explicit Wait — WebDriverWait Simülasyonu', en: 'Explicit Wait — WebDriverWait Simulation' },
+        scenario: 'explicit-wait',
+        description: {
+          tr: '"Veriyi Yükle" butonuna tıkla → Spinner görünür → WebDriverWait element\'i bekler → #result DOM\'a gelir → Test devam eder. Sağda DOM ağacı canlı değişir.',
+          en: 'Click "Load Data" → Spinner appears → WebDriverWait polls for element → #result enters DOM → Test continues. Watch the DOM tree update on the right.',
+        },
+        code: `// Java — Explicit Wait (En İyi Yöntem)
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+// Butona tıkla → API isteği gönderilir
+driver.findElement(By.id("load-btn")).click();
+
+// Sadece #result görünür olana kadar bekle (max 10s)
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("result"))
+);
+
+// Python eşdeğeri:
+// wait = WebDriverWait(driver, 10)
+// result = wait.until(EC.visibility_of_element_located((By.ID, "result")))
+
+System.out.println("Ürün: " + result.getText());`,
+        language: 'java',
+      },
       { type: 'heading', text: '1. Implicit Wait — Global Bekleme' },
       {
         type: 'code', language: 'java',
@@ -1836,6 +1894,72 @@ await confirm.dismiss();`,
       },
       { type: 'heading', text: '2. iframe Yönetimi' },
       {
+        type: 'simulation',
+        icon: '🖼️',
+        color: '#f59e0b',
+        title: { tr: 'iframe Nerede? — Sayfa İçinde Tespit Et!', en: 'Where Is the iframe? — Detect on Page!' },
+        scenario: 'iframe-detection',
+        description: {
+          tr: '"iframe\'leri Tara" → sayfadaki tüm iframe\'ler sarı/mavi kenarlıkla vurgulanır, "📌 iframe[0]" etiketi belirir. Ardından "switchTo().frame(0)" ile içine gir ve Selenium\'un artık iframe\'i gördüğünü izle.',
+          en: 'Click "Scan for iframes" → all iframes get highlighted with colored borders and "📌 iframe[0]" labels. Then enter with "switchTo().frame(0)" and watch Selenium now seeing inside.',
+        },
+        code: `// ─── ADIM 1: Sayfadaki iframe sayısını öğren ───────────────────────
+List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
+System.out.println("Toplam iframe: " + iframes.size()); // → 2
+
+// ─── ADIM 2: Index ile iframe'e geç (0'dan başlar) ───────────────
+driver.switchTo().frame(0);               // ← Stripe ödeme formu
+// Artık iframe içindeki elementleri bulabilirsin!
+driver.findElement(By.id("card-number")).sendKeys("4242 4242 4242 4242");
+
+// ─── ADIM 3: Ana sayfaya geri dön ────────────────────────────────
+driver.switchTo().defaultContent();       // ← ZORUNLU! Unutma!
+
+// ─── ALTERNATİF: Name/ID ile geç ────────────────────────────────
+driver.switchTo().frame("paymentFrame");  // name="paymentFrame"
+
+// ─── Python eşdeğeri ─────────────────────────────────────────────
+// iframes = driver.find_elements(By.TAG_NAME, "iframe")
+// driver.switch_to.frame(0)
+// driver.switch_to.default_content()`,
+        language: 'java',
+      },
+      {
+        type: 'simulation',
+        icon: '🕶️',
+        color: '#7c3aed',
+        title: { tr: 'Shadow DOM — X-Ray Gözlüğüyle Gör!', en: 'Shadow DOM — See With X-Ray Vision!' },
+        scenario: 'shadow-dom-xray',
+        description: {
+          tr: '"Normal findElement()" → NoSuchElementException! Çünkü şifre kutusu gizli bir Shadow DOM içinde. "X-Ray + shadowRoot" ile perdeyi kaldır, gizli DOM\'u aç ve elementi bul.',
+          en: 'Click "Normal findElement()" → NoSuchElementException! The password field hides inside Shadow DOM. Use "X-Ray + shadowRoot" to pierce through and find it.',
+        },
+        code: `// ─── NORMAL YÖNTEM — BAŞARISIZ ──────────────────────────────────
+// driver.findElement(By.id("pwd"))  ← NoSuchElementException!
+// Shadow DOM içindeki elemente direkt erişilemez!
+
+// ─── DOĞRU YÖNTEM: Selenium 4 + getShadowRoot() ──────────────────
+// Adım 1: Shadow Host'u bul (normal DOM'da)
+WebElement shadowHost = driver.findElement(By.cssSelector("my-password-input"));
+
+// Adım 2: Shadow Root'u al (perdeyi kaldır)
+SearchContext shadowRoot = shadowHost.getShadowRoot();
+
+// Adım 3: Shadow Root içinde elementi bul
+WebElement pwdInput = shadowRoot.findElement(By.cssSelector("input#pwd"));
+pwdInput.sendKeys("myPassword123");
+
+// ─── Eski Yöntem (Selenium 3 / JS Executor) ──────────────────────
+// WebElement shadowRoot = (WebElement) ((JavascriptExecutor) driver)
+//     .executeScript("return arguments[0].shadowRoot", shadowHost);
+
+// ─── Python — Selenium 4 ──────────────────────────────────────────
+// shadow_host = driver.find_element(By.CSS_SELECTOR, "my-password-input")
+// shadow_root = shadow_host.shadow_root   # Selenium 4
+// pwd = shadow_root.find_element(By.CSS_SELECTOR, "input#pwd")`,
+        language: 'java',
+      },
+      {
         type: 'callout', color: 'purple', emoji: '🖼️',
         title: 'iframe Nedir?',
         content: 'iframe (Inline Frame), sayfa içinde başka bir HTML belgesi gömülü olması durumudur. Reklam blokları, ödeme formları (Stripe, PayPal), video embed\'leri genellikle iframe içindedir. Selenium\'un iframe içine "geçmesi" gerekir, yoksa element bulunamaz.',
@@ -2035,6 +2159,36 @@ driver.delete_all_cookies()`,
         ],
         correct: 'c',
         explanation: { tr: 'driver.switchTo().defaultContent() (Java), driver.switch_to.default_content() (Python) — ana sayfa bağlamına döner. parentFrame() ise bir üst iframe\'e döner (iç içe iframe durumunda). Testi bitirince her zaman defaultContent() çağırın.', en: 'driver.switchTo().defaultContent() returns to the top-level page context. parentFrame() goes one level up (for nested iframes). Always call defaultContent() when finished with an iframe.' },
+      },
+      {
+        type: 'simulation',
+        icon: '🕶️',
+        color: '#7c3aed',
+        title: { tr: 'Shadow DOM — İnteraktif Keşif', en: 'Shadow DOM — Interactive Explorer' },
+        scenario: 'shadow-dom',
+        description: {
+          tr: 'Sağdaki adım butonlarına tıklayarak Shadow DOM\'un katmanlarını keşfet: önce Host element\'i bul, sonra Shadow Root\'u aç, son olarak hedef elementi yakala.',
+          en: 'Click the step buttons to explore Shadow DOM layers: find the Host element, pierce the Shadow Root, then locate the target element inside.',
+        },
+        code: `// Selenium 4 — Shadow DOM Erişimi
+WebElement shadowHost = driver.findElement(By.cssSelector("my-custom-button"));
+
+// getShadowRoot() → Selenium 4 ile gelen özellik
+SearchContext shadowRoot = shadowHost.getShadowRoot();
+
+// Shadow root içindeki elementi bul
+WebElement innerBtn = shadowRoot.findElement(By.cssSelector(".inner-btn"));
+innerBtn.click();
+
+// Eski yöntem (Selenium 3 / JS):
+// WebElement shadowRoot = (WebElement) ((JavascriptExecutor) driver)
+//     .executeScript("return arguments[0].shadowRoot", shadowHost);
+// WebElement innerBtn = shadowRoot.findElement(By.cssSelector(".inner-btn"));
+
+// Python — Selenium 4:
+// shadow_root = shadow_host.shadow_root
+// inner_btn = shadow_root.find_element(By.CSS_SELECTOR, ".inner-btn")`,
+        language: 'java',
       },
     ],
   },

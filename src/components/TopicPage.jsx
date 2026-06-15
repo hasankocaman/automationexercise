@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import { useLocation } from 'react-router-dom'
 import TopicHeader from './TopicHeader'
 
 // ─── CodeBlock ────────────────────────────────────────────────────────────────
@@ -1866,6 +1867,772 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── SimulationBlock ──────────────────────────────────────────────────────────
+
+function SimulationBlock({ block, darkMode, language }) {
+    const [simState, setSimState] = useState('idle')
+    const [isRunning, setIsRunning] = useState(false)
+    const isTr = language === 'tr'
+    const accent = block.color || '#7c3aed'
+    const timersRef = useRef([])
+
+    const resetSim = () => {
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        setIsRunning(false)
+        setSimState('idle')
+    }
+
+    const runSteps = (steps) => {
+        if (isRunning) return
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        setIsRunning(true)
+        setSimState('idle')
+        let cumDelay = 0
+        steps.forEach(([state, delay], idx) => {
+            cumDelay += delay
+            const t = setTimeout(() => {
+                setSimState(state)
+                if (idx === steps.length - 1) setIsRunning(false)
+            }, cumDelay)
+            timersRef.current.push(t)
+        })
+    }
+
+    // === EXPLICIT WAIT PLAYGROUND ===
+    const renderExplicitWaitPlayground = () => {
+        const showSpinner = ['clicking', 'loading'].includes(simState)
+        const showResult = ['found', 'done'].includes(simState)
+        const btnLabel =
+            simState === 'idle'     ? (isTr ? '▶ Veriyi Yükle' : '▶ Load Data') :
+            simState === 'clicking' ? (isTr ? '⏳ İstek Gönderildi...' : '⏳ Request Sent...') :
+            simState === 'loading'  ? (isTr ? '⏳ Yükleniyor...' : '⏳ Loading...') :
+            simState === 'found'    ? '✅ Tamamlandı!' :
+                                      (isTr ? '🔄 Tekrar Dene' : '🔄 Try Again')
+        const btnDisabled = ['clicking', 'loading', 'found'].includes(simState)
+        return (
+            <div>
+                <div style={{ border: `2px solid ${accent}33`, borderRadius: 10, overflow: 'hidden', maxWidth: 300 }}>
+                    <div style={{ background: accent, padding: '5px 10px', fontSize: 10, color: '#fff', display: 'flex', gap: 6 }}>
+                        <span>🌐</span><span>shop.example.com/api/products</span>
+                    </div>
+                    <div style={{ padding: 14, minHeight: 130, background: darkMode ? '#111827' : '#ffffff' }}>
+                        <button
+                            onClick={() => {
+                                if (simState === 'idle' || simState === 'done') {
+                                    runSteps([['clicking', 50], ['loading', 1500], ['found', 600], ['done', 1200]])
+                                }
+                            }}
+                            disabled={btnDisabled}
+                            style={{
+                                display: 'block', width: '100%', padding: '8px 14px',
+                                borderRadius: 6, border: 'none',
+                                cursor: btnDisabled ? 'not-allowed' : 'pointer',
+                                background: showResult ? '#10b981' : btnDisabled ? '#6b7280' : accent,
+                                color: '#fff', fontWeight: 700, fontSize: 12, transition: 'background 0.4s',
+                            }}
+                        >
+                            {btnLabel}
+                        </button>
+                        {showSpinner && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, justifyContent: 'center' }}>
+                                <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${accent}33`, borderTopColor: accent, animation: 'simSpin 0.7s linear infinite' }} />
+                                <span style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280' }}>
+                                    {isTr ? 'Sunucudan yanıt bekleniyor...' : 'Waiting for server response...'}
+                                </span>
+                            </div>
+                        )}
+                        {showSpinner && (
+                            <div style={{ marginTop: 8, fontSize: 10, textAlign: 'center', color: accent, fontWeight: 600, animation: 'simPulse 1.2s ease infinite' }}>
+                                {isTr ? '⏱️ WebDriverWait bekliyor... (max 10s)' : '⏱️ WebDriverWait polling... (max 10s)'}
+                            </div>
+                        )}
+                        {showResult && (
+                            <div style={{ marginTop: 12, padding: '8px 10px', borderRadius: 6, background: darkMode ? '#064e3b' : '#ecfdf5', border: '1.5px solid #10b981', animation: 'simFadeUp 0.4s ease', fontSize: 10, color: darkMode ? '#6ee7b7' : '#065f46', fontFamily: 'monospace' }}>
+                                <div style={{ fontWeight: 700, marginBottom: 2 }}>{'<div id="result">'}</div>
+                                <div style={{ paddingLeft: 12 }}>{'{ name: "MacBook", price: 2499 }'}</div>
+                                <div>{'</div>'}</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div style={{ marginTop: 6, textAlign: 'right' }}>
+                    <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
+                </div>
+            </div>
+        )
+    }
+
+    // === IMPLICIT WAIT PLAYGROUND ===
+    const renderImplicitWaitPlayground = () => {
+        const isNoFail = simState === 'no-fail'
+        const isWithRetry = simState === 'with-retry'
+        const isWithFound = simState === 'with-found'
+        return (
+            <div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxWidth: 320 }}>
+                    <div style={{ border: '1.5px solid #ef444444', borderRadius: 8, overflow: 'hidden' }}>
+                        <div style={{ background: '#ef4444', padding: '4px 8px', fontSize: 9, color: '#fff', fontWeight: 700 }}>❌ Without Wait</div>
+                        <div style={{ padding: 8, background: darkMode ? '#1f2937' : '#fff', minHeight: 90 }}>
+                            <div style={{ fontSize: 9, color: darkMode ? '#9ca3af' : '#6b7280', marginBottom: 6 }}>
+                                {isTr ? 'Element henüz DOM\'da yok...' : 'Element not in DOM yet...'}
+                            </div>
+                            <button
+                                onClick={() => { if (!isRunning) runSteps([['no-fail', 200]]) }}
+                                disabled={isRunning}
+                                style={{ width: '100%', padding: '5px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', fontSize: 10, cursor: isRunning ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                            >
+                                {isTr ? 'Element Bul' : 'Find Element'}
+                            </button>
+                            {isNoFail && (
+                                <div style={{ marginTop: 6, fontSize: 9, color: '#ef4444', fontFamily: 'monospace', animation: 'simFadeUp 0.3s', lineHeight: 1.5 }}>
+                                    NoSuchElementException!<br/>Element not found
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div style={{ border: '1.5px solid #10b98144', borderRadius: 8, overflow: 'hidden' }}>
+                        <div style={{ background: '#10b981', padding: '4px 8px', fontSize: 9, color: '#fff', fontWeight: 700 }}>✅ Implicit Wait</div>
+                        <div style={{ padding: 8, background: darkMode ? '#1f2937' : '#fff', minHeight: 90 }}>
+                            <div style={{ fontSize: 9, color: darkMode ? '#9ca3af' : '#6b7280', marginBottom: 6, fontFamily: 'monospace' }}>
+                                implicitly_wait(10)
+                            </div>
+                            <button
+                                onClick={() => { if (!isRunning) runSteps([['with-retry', 400], ['with-found', 1400]]) }}
+                                disabled={isRunning}
+                                style={{ width: '100%', padding: '5px', borderRadius: 4, border: 'none', background: '#10b981', color: '#fff', fontSize: 10, cursor: isRunning ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                            >
+                                {isTr ? 'Element Bul' : 'Find Element'}
+                            </button>
+                            {isWithRetry && (
+                                <div style={{ marginTop: 6, fontSize: 9, color: accent, fontFamily: 'monospace', animation: 'simFadeUp 0.3s simPulse 1s' }}>
+                                    🔄 {isTr ? 'DOM\'u tekrar tarıyor...' : 'Retrying DOM search...'}
+                                </div>
+                            )}
+                            {isWithFound && (
+                                <div style={{ marginTop: 6, fontSize: 9, color: '#10b981', fontFamily: 'monospace', animation: 'simFadeUp 0.3s', lineHeight: 1.5 }}>
+                                    ✅ Element found!<br/>{'<button id="submit">'}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div style={{ marginTop: 6, textAlign: 'right' }}>
+                    <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
+                </div>
+            </div>
+        )
+    }
+
+    // === IFRAME DETECTION PLAYGROUND ===
+    const renderIframeDetectionPlayground = () => {
+        const phase = simState
+        const isScanning  = phase === 'scanning'
+        const isFound     = ['found','switching','inside'].includes(phase)
+        const isSwitching = phase === 'switching'
+        const isInside    = phase === 'inside'
+
+        const iframes = [
+            { id: 'iframe[0]', label: isTr ? '💳 Ödeme Formu' : '💳 Payment Form', color: '#f59e0b', desc: isTr ? 'Stripe / PayPal embed' : 'Stripe / PayPal embed' },
+            { id: 'iframe[1]', label: isTr ? '🎬 Video Player' : '🎬 Video Player', color: '#3b82f6', desc: 'YouTube embed' },
+        ]
+
+        return (
+            <div style={{ maxWidth: 340 }}>
+                {/* Browser chrome */}
+                <div style={{ borderRadius: 10, border: `2px solid ${accent}44`, overflow: 'hidden' }}>
+                    {/* Address bar */}
+                    <div style={{ background: '#1e293b', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            {['#ef4444','#f59e0b','#22c55e'].map(c => <div key={c} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />)}
+                        </div>
+                        <div style={{ flex: 1, background: '#334155', borderRadius: 4, padding: '2px 8px', fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
+                            https://shop.example.com/checkout
+                        </div>
+                    </div>
+
+                    {/* Page content */}
+                    <div style={{ background: darkMode ? '#111827' : '#f8fafc', padding: 10, minHeight: 200, position: 'relative' }}>
+                        {/* Normal page elements */}
+                        <div style={{ fontSize: 10, color: darkMode ? '#6b7280' : '#9ca3af', marginBottom: 8, fontWeight: 600 }}>
+                            🏪 {isTr ? 'Ürün Özeti — Normal DOM' : 'Order Summary — Normal DOM'}
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                            {[isTr ? '📦 Ürün: MacBook Pro' : '📦 Product: MacBook Pro', isTr ? '💰 Fiyat: $2499' : '💰 Price: $2499'].map((t, i) => (
+                                <div key={i} style={{ flex: 1, padding: '4px 6px', borderRadius: 4, background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, fontSize: 9, color: darkMode ? '#d1d5db' : '#374151' }}>{t}</div>
+                            ))}
+                        </div>
+
+                        {/* iframes embedded in page */}
+                        {iframes.map((fr, idx) => {
+                            const isActive = isFound && !isInside
+                            const isActiveFrame = isInside && idx === 0
+                            return (
+                                <div key={fr.id} style={{
+                                    marginBottom: 6, borderRadius: 6, overflow: 'hidden',
+                                    border: `2px ${isActive || isActiveFrame ? 'solid' : 'dashed'} ${isActive || isActiveFrame ? fr.color : (darkMode ? '#374151' : '#d1d5db')}`,
+                                    animation: isActive ? `simPulse 1.2s ease infinite` : 'none',
+                                    transition: 'border 0.4s, box-shadow 0.4s',
+                                    boxShadow: isActiveFrame ? `0 0 16px ${fr.color}88` : isActive ? `0 0 8px ${fr.color}44` : 'none',
+                                    position: 'relative',
+                                }}>
+                                    {/* iframe label badge */}
+                                    {(isFound || isInside) && (
+                                        <div style={{
+                                            position: 'absolute', top: -1, left: 4,
+                                            background: isActiveFrame ? fr.color : (darkMode ? '#1f2937' : '#fff'),
+                                            border: `1px solid ${fr.color}`,
+                                            borderRadius: '0 0 4px 4px', padding: '1px 6px', fontSize: 8, fontWeight: 700,
+                                            color: isActiveFrame ? '#fff' : fr.color, zIndex: 10,
+                                            animation: isActiveFrame ? 'none' : 'simFadeUp 0.3s',
+                                        }}>
+                                            {isActiveFrame ? `✅ ${isTr ? 'İçindesin!' : 'You\'re inside!'}` : `📌 ${fr.id}`}
+                                        </div>
+                                    )}
+                                    <div style={{ padding: '10px 8px', background: darkMode ? '#0f172a' : '#fff', fontSize: 9 }}>
+                                        <div style={{ color: fr.color, fontWeight: 700, marginBottom: 3 }}>{fr.label}</div>
+                                        <div style={{ color: darkMode ? '#6b7280' : '#9ca3af' }}>{fr.desc}</div>
+                                        {isActiveFrame && (
+                                            <div style={{ marginTop: 4, padding: '3px 6px', background: '#10b98122', border: '1px solid #10b981', borderRadius: 3, color: '#10b981', fontSize: 8, animation: 'simFadeUp 0.3s' }}>
+                                                {isTr ? '👁 Selenium burdayım görüyor!' : '👁 Selenium can see me now!'}
+                                            </div>
+                                        )}
+                                        {isScanning && (
+                                            <div style={{ marginTop: 3, fontSize: 8, color: darkMode ? '#374151' : '#e5e7eb' }}>
+                                                {isTr ? 'tarıyor...' : 'scanning...'}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+
+                        {/* Scanning overlay */}
+                        {isScanning && (
+                            <div style={{ position: 'absolute', inset: 0, background: `${accent}08`, animation: 'simPulse 0.6s ease infinite', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ color: accent, fontWeight: 700, fontSize: 10, background: darkMode ? '#111827' : '#fff', padding: '4px 10px', borderRadius: 6, border: `1px solid ${accent}44` }}>
+                                    🔍 {isTr ? 'DOM tarıyor...' : 'Scanning DOM...'}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Control buttons */}
+                <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => runSteps([['scanning', 100], ['found', 800]])}
+                        disabled={isRunning}
+                        style={{ flex: 1, padding: '6px 8px', borderRadius: 5, border: 'none', cursor: isRunning ? 'not-allowed' : 'pointer', background: accent, color: '#fff', fontSize: 10, fontWeight: 700 }}
+                    >
+                        🔍 {isTr ? 'iframe\'leri Tara' : 'Scan for iframes'}
+                    </button>
+                    <button
+                        onClick={() => runSteps([['scanning', 50], ['found', 600], ['switching', 400], ['inside', 600]])}
+                        disabled={isRunning}
+                        style={{ flex: 1, padding: '6px 8px', borderRadius: 5, border: 'none', cursor: isRunning ? 'not-allowed' : 'pointer', background: '#059669', color: '#fff', fontSize: 10, fontWeight: 700 }}
+                    >
+                        ↩ {isTr ? 'switchTo().frame(0)' : 'switchTo().frame(0)'}
+                    </button>
+                </div>
+                <div style={{ marginTop: 4, textAlign: 'right' }}>
+                    <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
+                </div>
+            </div>
+        )
+    }
+
+    // === SHADOW DOM X-RAY PLAYGROUND ===
+    const renderShadowDomXrayPlayground = () => {
+        const phase = simState
+        const isNormal    = phase === 'idle' || phase === 'normal'
+        const isFailing   = phase === 'fail'
+        const isXray      = phase === 'xray'
+        const isExposed   = phase === 'exposed'
+        const isPierced   = phase === 'pierced'
+        const showShadow  = isXray || isExposed || isPierced
+
+        return (
+            <div style={{ maxWidth: 320 }}>
+                {/* The "web component" on the page */}
+                <div style={{ borderRadius: 10, border: `2px solid ${accent}44`, overflow: 'hidden' }}>
+                    <div style={{ background: '#1e293b', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            {['#ef4444','#f59e0b','#22c55e'].map(c => <div key={c} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />)}
+                        </div>
+                        <div style={{ flex: 1, background: '#334155', borderRadius: 4, padding: '2px 8px', fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
+                            https://app.example.com/login
+                        </div>
+                    </div>
+
+                    <div style={{ background: darkMode ? '#111827' : '#f8fafc', padding: 12, minHeight: 180 }}>
+                        {/* Normal looking page */}
+                        <div style={{ fontSize: 10, color: darkMode ? '#6b7280' : '#9ca3af', marginBottom: 8 }}>
+                            {isTr ? '🔐 Giriş Formu' : '🔐 Login Form'}
+                        </div>
+
+                        {/* Username - normal DOM */}
+                        <div style={{ marginBottom: 6 }}>
+                            <div style={{ fontSize: 9, color: darkMode ? '#9ca3af' : '#6b7280', marginBottom: 2 }}>
+                                {isTr ? 'Kullanıcı Adı (normal DOM):' : 'Username (normal DOM):'}
+                            </div>
+                            <div style={{ padding: '5px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: darkMode ? '#1f2937' : '#fff', fontSize: 10, color: darkMode ? '#d1d5db' : '#374151' }}>
+                                <input placeholder="admin" style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 10, color: 'inherit', width: '100%' }} readOnly />
+                            </div>
+                        </div>
+
+                        {/* Password - inside Shadow DOM (the web component) */}
+                        <div style={{ marginBottom: 8, position: 'relative' }}>
+                            <div style={{ fontSize: 9, marginBottom: 2, color: isFailing ? '#ef4444' : (showShadow ? '#a78bfa' : (darkMode ? '#9ca3af' : '#6b7280')) }}>
+                                {showShadow ? (isTr ? '🕶 Shadow DOM içinde (X-Ray görüşü):' : '🕶 Inside Shadow DOM (X-Ray view):') :
+                                 isFailing  ? (isTr ? '❌ Bu element bulunamıyor — Shadow DOM içinde!' : '❌ Cannot find this — it\'s inside Shadow DOM!') :
+                                              (isTr ? 'Şifre (<my-password-input> web component):' : 'Password (<my-password-input> web component):')}
+                            </div>
+
+                            {/* The web component wrapper */}
+                            <div style={{
+                                borderRadius: 6, border: `2px ${showShadow ? 'solid' : 'dashed'} ${showShadow ? '#a78bfa' : isFailing ? '#ef4444' : (darkMode ? '#374151' : '#d1d5db')}`,
+                                overflow: 'hidden', transition: 'all 0.4s',
+                                boxShadow: showShadow ? '0 0 14px #a78bfa44' : isFailing ? '0 0 8px #ef444444' : 'none',
+                            }}>
+                                {/* Shadow host label */}
+                                <div style={{ background: showShadow ? '#a78bfa22' : (darkMode ? '#1f2937' : '#f1f5f9'), padding: '3px 6px', fontSize: 8, color: showShadow ? '#a78bfa' : (darkMode ? '#6b7280' : '#9ca3af'), fontFamily: 'monospace', borderBottom: `1px solid ${showShadow ? '#a78bfa33' : (darkMode ? '#374151' : '#e5e7eb')}` }}>
+                                    {'<my-password-input>'}
+                                    {showShadow && <span style={{ marginLeft: 6, color: '#f59e0b', fontWeight: 700 }}>← Shadow Host</span>}
+                                    {isFailing && <span style={{ marginLeft: 6, color: '#ef4444' }}>← findElement() buraya giremiyor!</span>}
+                                </div>
+
+                                {/* Shadow root (only visible in xray mode) */}
+                                {showShadow && (
+                                    <div style={{ animation: 'simFadeUp 0.4s', padding: '4px 6px', background: darkMode ? '#0f172a' : '#faf5ff' }}>
+                                        <div style={{ fontSize: 8, color: '#a78bfa', fontFamily: 'monospace', marginBottom: 3 }}>
+                                            #shadow-root (open)
+                                        </div>
+                                        <div style={{ paddingLeft: 12, fontSize: 8, fontFamily: 'monospace' }}>
+                                            <div style={{ color: darkMode ? '#6b7280' : '#9ca3af' }}>{'<style> ... </style>'}</div>
+                                            <div style={{
+                                                marginTop: 3, padding: '3px 6px',
+                                                borderRadius: 3,
+                                                border: `1px solid ${isPierced ? '#10b981' : '#a78bfa'}44`,
+                                                background: isPierced ? '#10b98122' : '#a78bfa11',
+                                                color: isPierced ? '#10b981' : (darkMode ? '#d1d5db' : '#374151'),
+                                                fontWeight: isPierced ? 700 : 400,
+                                                transition: 'all 0.4s',
+                                            }}>
+                                                {'<input type="password" id="pwd">'}
+                                                {isPierced && <span style={{ color: '#10b981', marginLeft: 4, fontSize: 7 }}>← BULUNDU ✅</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Normal looking input (opaque when not xray) */}
+                                {!showShadow && (
+                                    <div style={{ padding: '5px 8px', background: darkMode ? '#1f2937' : '#fff' }}>
+                                        <input type="password" placeholder="••••••••" style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 10, color: darkMode ? '#d1d5db' : '#374151', width: '100%' }} readOnly />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Failure indicator */}
+                            {isFailing && (
+                                <div style={{ marginTop: 4, fontSize: 9, color: '#ef4444', animation: 'simFadeUp 0.3s', fontFamily: 'monospace' }}>
+                                    NoSuchElementException: Unable to locate element: #pwd
+                                </div>
+                            )}
+
+                            {/* Success indicator */}
+                            {isPierced && (
+                                <div style={{ marginTop: 4, fontSize: 9, color: '#10b981', animation: 'simFadeUp 0.3s', fontFamily: 'monospace' }}>
+                                    ✅ {isTr ? 'shadowRoot.findElement() → bulundu!' : 'shadowRoot.findElement() → found!'}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Login button - normal DOM */}
+                        <div style={{ padding: '6px', borderRadius: 4, background: accent, textAlign: 'center', fontSize: 10, color: '#fff', fontWeight: 700 }}>
+                            {isTr ? 'Giriş Yap' : 'Sign In'}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Controls */}
+                <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => runSteps([['fail', 300]])}
+                        disabled={isRunning}
+                        style={{ flex: 1, padding: '5px 6px', borderRadius: 5, border: 'none', cursor: isRunning ? 'not-allowed' : 'pointer', background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 700 }}
+                    >
+                        ❌ {isTr ? 'Normal findElement()' : 'Normal findElement()'}
+                    </button>
+                    <button
+                        onClick={() => runSteps([['xray', 200], ['exposed', 500], ['pierced', 600]])}
+                        disabled={isRunning}
+                        style={{ flex: 1, padding: '5px 6px', borderRadius: 5, border: 'none', cursor: isRunning ? 'not-allowed' : 'pointer', background: '#7c3aed', color: '#fff', fontSize: 9, fontWeight: 700 }}
+                    >
+                        🕶 {isTr ? 'X-Ray + shadowRoot' : 'X-Ray + shadowRoot'}
+                    </button>
+                </div>
+                <div style={{ marginTop: 4, textAlign: 'right' }}>
+                    <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
+                </div>
+            </div>
+        )
+    }
+
+    // === SHADOW DOM PLAYGROUND ===
+    const renderShadowDomPlayground = () => {
+        const showRoot = simState === 'root' || simState === 'target'
+        const showTarget = simState === 'target'
+        return (
+            <div style={{ maxWidth: 300 }}>
+                <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 2, padding: '10px 14px', borderRadius: 8, background: darkMode ? '#111827' : '#f8fafc', border: `1px solid ${accent}33`, minHeight: 110 }}>
+                    <div style={{ color: darkMode ? '#60a5fa' : '#2563eb' }}>{'<my-custom-button>'}</div>
+                    <div style={{ paddingLeft: 14, color: (simState === 'host' || showRoot) ? accent : (darkMode ? '#4b5563' : '#9ca3af'), fontWeight: simState === 'host' ? 700 : 400, transition: 'all 0.3s' }}>
+                        {'  #shadow-root (open)'}
+                        {simState === 'host' && <span style={{ color: '#f59e0b', fontSize: 9, marginLeft: 4 }}>← .shadowRoot</span>}
+                    </div>
+                    {showRoot && (
+                        <div style={{ animation: 'simFadeUp 0.3s' }}>
+                            <div style={{ paddingLeft: 28, color: darkMode ? '#a78bfa' : '#7c3aed' }}>{'  <style>...</style>'}</div>
+                            <div style={{
+                                paddingLeft: 28,
+                                color: showTarget ? '#10b981' : (darkMode ? '#d1d5db' : '#374151'),
+                                fontWeight: showTarget ? 700 : 400,
+                                background: showTarget ? (darkMode ? '#064e3b' : '#ecfdf5') : 'transparent',
+                                padding: showTarget ? '1px 4px' : '0 0 0 28px',
+                                borderRadius: showTarget ? 3 : 0,
+                                transition: 'all 0.4s',
+                            }}>
+                                {'  <button class="inner-btn">Click Me</button>'}
+                                {showTarget && <span style={{ color: '#10b981', fontSize: 9, marginLeft: 4 }}>← FOUND ✅</span>}
+                            </div>
+                        </div>
+                    )}
+                    <div style={{ color: darkMode ? '#60a5fa' : '#2563eb' }}>{'</my-custom-button>'}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+                    {[
+                        { id: 'host',   label: isTr ? '1. Host Bul' : '1. Find Host' },
+                        { id: 'root',   label: isTr ? '2. Root Aç' : '2. Pierce Root' },
+                        { id: 'target', label: isTr ? '3. Element Bul!' : '3. Find Target!' },
+                    ].map(step => (
+                        <button
+                            key={step.id}
+                            onClick={() => {
+                                if (!isRunning) {
+                                    const order = ['host', 'root', 'target']
+                                    const upTo = order.slice(0, order.indexOf(step.id) + 1).map(s => [s, 500])
+                                    runSteps(upTo)
+                                }
+                            }}
+                            style={{
+                                padding: '5px 10px', borderRadius: 5, border: 'none',
+                                cursor: isRunning ? 'not-allowed' : 'pointer',
+                                background: simState === step.id ? accent : (darkMode ? '#374151' : '#f1f5f9'),
+                                color: simState === step.id ? '#fff' : (darkMode ? '#9ca3af' : '#6b7280'),
+                                fontSize: 10, fontWeight: 600, transition: 'all 0.3s'
+                            }}
+                        >
+                            {step.label}
+                        </button>
+                    ))}
+                </div>
+                <div style={{ marginTop: 6, textAlign: 'right' }}>
+                    <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
+                </div>
+            </div>
+        )
+    }
+
+    // === DOM VISUALIZER (right pane) ===
+    const renderDomVisualizer = () => {
+        if (block.scenario === 'explicit-wait') {
+            const nodes = [
+                { tag: '<div id="app">', level: 0, state: 'normal' },
+                { tag: '  <button id="load-btn">', level: 1, state: ['found','done'].includes(simState) ? 'success' : ['clicking','loading'].includes(simState) ? 'active' : 'normal' },
+                { tag: '  <div id="spinner">', level: 1, state: ['clicking','loading'].includes(simState) ? 'active' : 'hidden' },
+                { tag: '  <div id="result">', level: 1, state: ['found','done'].includes(simState) ? 'found' : 'hidden' },
+                { tag: '</div>', level: 0, state: 'normal' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 1.9 }}>
+                        {nodes.map((n, idx) => {
+                            const col = n.state === 'found' ? '#10b981' : n.state === 'success' ? '#10b981' : n.state === 'active' ? accent : n.state === 'hidden' ? (darkMode ? '#374151' : '#d1d5db') : (darkMode ? '#9ca3af' : '#6b7280')
+                            const bg = n.state === 'found' ? (darkMode ? '#064e3b44' : '#ecfdf544') : n.state === 'active' ? `${accent}22` : 'transparent'
+                            return (
+                                <div key={idx} style={{ paddingLeft: n.level * 14 + 4, paddingRight: 4, paddingTop: 2, paddingBottom: 2, color: col, background: bg, borderRadius: 3, border: (n.state === 'found' || n.state === 'active') ? `1px solid ${n.state === 'found' ? '#10b981' : accent}44` : '1px solid transparent', transition: 'all 0.4s ease', fontWeight: n.state === 'found' ? 700 : 400 }}>
+                                    {n.tag}
+                                    {n.state === 'hidden' && <span style={{ opacity: 0.5, fontSize: 9, marginLeft: 4 }}>{isTr ? '(gizli)' : '(hidden)'}</span>}
+                                    {n.state === 'found' && <span style={{ fontSize: 9, marginLeft: 4 }}>← WebDriverWait ✅</span>}
+                                    {n.state === 'active' && <span style={{ fontSize: 9, marginLeft: 4, animation: 'simPulse 1s ease infinite' }}>← {isTr ? 'bekleniyor...' : 'polling...'}</span>}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, fontSize: 10, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'monospace' }}>
+                        <div style={{ color: accent, fontWeight: 700, marginBottom: 3, fontFamily: 'sans-serif' }}>{isTr ? '🤖 Test Engine:' : '🤖 Test Engine:'}</div>
+                        <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', lineHeight: 1.6 }}>
+                            {simState === 'idle'     ? (isTr ? '⏸ Hazır — Butona tıkla!' : '⏸ Ready — Click the button!') :
+                             simState === 'clicking' ? 'driver.findElement("load-btn").click()' :
+                             simState === 'loading'  ? 'WebDriverWait(driver, 10)\n.until(EC.visibility_of(result))' :
+                             simState === 'found'    ? '✅ Element found! Test continues.' :
+                                                       '✅ Test passed!'}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'implicit-wait') {
+            const isNoFail = simState === 'no-fail'
+            const isWithRetry = simState === 'with-retry'
+            const isWithFound = simState === 'with-found'
+            return (
+                <div style={{ fontSize: 10, fontFamily: 'monospace' }}>
+                    <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginBottom: 8, fontFamily: 'sans-serif' }}>
+                        {isTr ? '⏱ Zaman Çizelgesi' : '⏱ Timeline'}
+                    </div>
+                    {[
+                        { t: '0s',   label: 'findElement() çağrıldı', active: simState !== 'idle' },
+                        { t: '~0s',  label: isNoFail ? 'NoSuchElementException! ❌' : isWithRetry || isWithFound ? 'DOM tarıyor... 🔄' : '—', error: isNoFail, active: isNoFail || isWithRetry || isWithFound },
+                        { t: '~2s',  label: isWithFound ? 'Element bulundu! ✅' : '—', success: isWithFound, active: isWithFound },
+                    ].map((item, idx) => (
+                        <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
+                            <div style={{ width: 28, flexShrink: 0, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, paddingTop: 3 }}>{item.t}</div>
+                            <div style={{ flex: 1, padding: '3px 7px', borderRadius: 4, background: item.error ? '#ef444422' : item.success ? '#10b98122' : (item.active ? `${accent}22` : 'transparent'), border: `1px solid ${item.error ? '#ef4444' : item.success ? '#10b981' : (item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'))}44`, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#9ca3af' : '#6b7280'), opacity: item.active ? 1 : 0.4, transition: 'all 0.4s' }}>
+                                {item.label}
+                            </div>
+                        </div>
+                    ))}
+                    <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'sans-serif' }}>
+                        <div style={{ color: accent, fontWeight: 700 }}>{isTr ? '📖 Fark Nedir?' : '📖 Key Difference:'}</div>
+                        <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.5 }}>
+                            {isTr ? 'Implicit Wait, tüm findElement() çağrılarına global uygulanır. Koşul bazlı değil, sadece süre bazlıdır.' : 'Implicit Wait applies globally to all findElement() calls. Time-based only, not condition-based.'}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'iframe-detection') {
+            const phase = simState
+            const isFound    = ['found','switching','inside'].includes(phase)
+            const isSwitching = phase === 'switching'
+            const isInside   = phase === 'inside'
+            return (
+                <div style={{ fontSize: 10, fontFamily: 'monospace' }}>
+                    <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginBottom: 8 }}>
+                        {isTr ? '🗂 DOM Ağacı — iframe Konumları' : '🗂 DOM Tree — iframe Locations'}
+                    </div>
+                    {/* DOM tree */}
+                    {[
+                        { tag: '<html>', level: 0 },
+                        { tag: '  <body>', level: 1 },
+                        { tag: '    <div id="app">  ← Normal DOM', level: 2, normal: true },
+                        { tag: '    <iframe src="stripe.com">  ← 💳 iframe[0]', level: 2, color: '#f59e0b', active: isFound, found: isInside },
+                        { tag: '    <iframe src="youtube.com"> ← 🎬 iframe[1]', level: 2, color: '#3b82f6', active: isFound && !isInside },
+                        { tag: '  </body>', level: 1 },
+                    ].map((n, idx) => (
+                        <div key={idx} style={{
+                            paddingLeft: n.level * 10 + 3, paddingRight: 3, paddingTop: 2, paddingBottom: 2,
+                            borderRadius: 3, marginBottom: 2,
+                            background: n.found ? '#10b98122' : n.active ? `${n.color || accent}22` : 'transparent',
+                            border: (n.active || n.found) ? `1px solid ${n.found ? '#10b981' : n.color || accent}44` : '1px solid transparent',
+                            color: n.found ? '#10b981' : n.active ? (n.color || accent) : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : (darkMode ? '#9ca3af' : '#6b7280'),
+                            fontWeight: (n.active || n.found) ? 700 : 400,
+                            transition: 'all 0.4s',
+                        }}>
+                            {n.tag}
+                            {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>← driver burada şimdi!</span>}
+                        </div>
+                    ))}
+
+                    {/* Status messages */}
+                    <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'sans-serif' }}>
+                        <div style={{ color: accent, fontWeight: 700 }}>{isTr ? '🤖 Driver Durumu:' : '🤖 Driver Status:'}</div>
+                        <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.6 }}>
+                            {phase === 'idle'      ? (isTr ? '⏸ Hazır — Tarama başlatılmadı' : '⏸ Ready — No scan yet') :
+                             phase === 'scanning'  ? (isTr ? '🔍 driver.findElements(By.tagName("iframe"))' : '🔍 driver.findElements(By.tagName("iframe"))') :
+                             phase === 'found'     ? (isTr ? '✅ 2 iframe bulundu!\niframe[0]: Stripe, iframe[1]: YouTube' : '✅ 2 iframes found!\niframe[0]: Stripe, iframe[1]: YouTube') :
+                             phase === 'switching' ? 'driver.switchTo().frame(0)' :
+                             (isTr ? '✅ İçindeyiz! iframe[0] context\'i aktif.\nArtık iframe içindeki elementleri bulabiliriz.' : '✅ Inside! iframe[0] context active.\nNow we can find elements inside the iframe.')}
+                        </div>
+                    </div>
+
+                    {/* Key insight */}
+                    {isInside && (
+                        <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#10b98122', border: '1px solid #10b98144', animation: 'simFadeUp 0.4s', fontFamily: 'sans-serif' }}>
+                            <div style={{ color: '#10b981', fontWeight: 700, marginBottom: 3 }}>💡 {isTr ? 'Altın Kural:' : 'Golden Rule:'}</div>
+                            <div style={{ color: darkMode ? '#6ee7b7' : '#065f46', fontSize: 9, lineHeight: 1.5 }}>
+                                {isTr ? 'İşin bitince mutlaka switchTo().defaultContent() çağır! Yoksa diğer elementler "not found" verir.' : 'Always call switchTo().defaultContent() when done! Otherwise other elements give "not found".'}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'shadow-dom-xray') {
+            const phase = simState
+            const isFailing  = phase === 'fail'
+            const isXray     = phase === 'xray'
+            const isExposed  = phase === 'exposed'
+            const isPierced  = phase === 'pierced'
+            return (
+                <div style={{ fontSize: 10, fontFamily: 'monospace' }}>
+                    <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginBottom: 8 }}>
+                        {isTr ? '🔬 Shadow DOM Katmanları' : '🔬 Shadow DOM Layers'}
+                    </div>
+
+                    {[
+                        { tag: '<body>', level: 0 },
+                        { tag: '  <input id="username">', level: 1, normal: true, desc: isTr ? '← Normal DOM ✅' : '← Normal DOM ✅' },
+                        { tag: '  <my-password-input>', level: 1, host: true },
+                        { tag: '    #shadow-root (open)', level: 2, root: true, show: isXray || isExposed || isPierced },
+                        { tag: '      <style>...</style>', level: 3, inner: true, show: isExposed || isPierced },
+                        { tag: '      <input id="pwd">', level: 3, target: true, show: isExposed || isPierced, found: isPierced },
+                        { tag: '  </my-password-input>', level: 1, host: true },
+                    ].filter(n => n.show !== false).map((n, idx) => (
+                        <div key={idx} style={{
+                            paddingLeft: n.level * 12 + 3, paddingRight: 3, paddingTop: 2, paddingBottom: 2,
+                            borderRadius: 3, marginBottom: 2,
+                            animation: (n.root || n.inner || n.target) ? 'simFadeUp 0.3s' : 'none',
+                            background: n.found ? '#10b98122' : n.root ? '#a78bfa11' : n.target ? '#a78bfa11' : 'transparent',
+                            border: n.found ? '1px solid #10b98144' : (n.root || n.target) ? '1px solid #a78bfa33' : '1px solid transparent',
+                            color: n.found ? '#10b981' : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : n.host ? (isFailing ? '#ef4444' : '#a78bfa') : n.root ? '#f59e0b' : n.target ? (darkMode ? '#d1d5db' : '#374151') : (darkMode ? '#6b7280' : '#9ca3af'),
+                            fontWeight: (n.found || n.root) ? 700 : 400,
+                            transition: 'all 0.4s',
+                        }}>
+                            {n.tag}
+                            {n.normal && <span style={{ opacity: 0.7 }}> {n.desc}</span>}
+                            {n.host && isFailing && <span style={{ color: '#ef4444', marginLeft: 4, fontSize: 9 }}>← girilemiyor!</span>}
+                            {n.host && isXray && <span style={{ color: '#f59e0b', marginLeft: 4, fontSize: 9 }}>← .shadowRoot</span>}
+                            {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>← getShadowRoot().findElement() ✅</span>}
+                        </div>
+                    ))}
+
+                    {/* Status */}
+                    <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa'}33`, fontFamily: 'sans-serif' }}>
+                        <div style={{ color: isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa', fontWeight: 700 }}>
+                            {isFailing ? '❌ Hata:' : isPierced ? '✅ Başarı:' : '🕶 X-Ray Modu:'}
+                        </div>
+                        <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.6 }}>
+                            {phase === 'idle'     ? (isTr ? '⏸ Hazır. Bir yöntem seç.' : '⏸ Ready. Choose a method.') :
+                             isFailing            ? 'NoSuchElementException:\ndriver.findElement(By.id("pwd"))\n→ Shadow DOM içindeki elemente erişilemiyor!' :
+                             isXray               ? (isTr ? 'shadowHost.getShadowRoot() çağrıldı...' : 'shadowHost.getShadowRoot() called...') :
+                             isExposed            ? (isTr ? '#shadow-root açıldı! İçerideki elementler görünür.' : '#shadow-root open! Inner elements visible.') :
+                             (isTr ? 'shadowRoot.findElement(By.css("input#pwd")) → ✅' : 'shadowRoot.findElement(By.css("input#pwd")) → ✅')}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'shadow-dom') {
+            return (
+                <div style={{ fontSize: 10, fontFamily: 'monospace' }}>
+                    <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginBottom: 8 }}>
+                        {isTr ? '🔬 DOM Erişim Katmanları' : '🔬 DOM Access Layers'}
+                    </div>
+                    {[
+                        { label: 'Document', desc: 'querySelector() — normal DOM', active: true, layer: 0 },
+                        { label: 'Shadow Host', desc: '<my-custom-button>', active: simState === 'host' || simState === 'root' || simState === 'target', layer: 1 },
+                        { label: 'Shadow Root', desc: '.shadowRoot property', active: simState === 'root' || simState === 'target', layer: 2 },
+                        { label: 'Target Element', desc: '.inner-btn → CLICK ✅', active: simState === 'target', layer: 3, success: simState === 'target' },
+                    ].map((item, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                            <span style={{ color: item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'), paddingLeft: item.layer * 10, flexShrink: 0 }}>{idx > 0 ? '↳' : '▸'}</span>
+                            <div style={{ flex: 1, padding: '3px 8px', borderRadius: 4, background: item.success ? '#10b98122' : (item.active ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb')), border: `1px solid ${item.success ? '#10b981' : item.active ? accent : (darkMode ? '#374151' : '#e5e7eb')}44`, color: item.success ? '#10b981' : (item.active ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#4b5563' : '#9ca3af')), fontWeight: item.active ? 600 : 400, transition: 'all 0.4s' }}>
+                                <span style={{ fontWeight: 700 }}>{item.label}</span>
+                                <span style={{ opacity: 0.7, marginLeft: 4 }}>— {item.desc}</span>
+                            </div>
+                        </div>
+                    ))}
+                    {simState === 'target' && (
+                        <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#10b98122', border: '1px solid #10b98144', color: '#10b981', animation: 'simFadeUp 0.4s', fontFamily: 'sans-serif', fontSize: 10 }}>
+                            ✅ {isTr ? 'Shadow DOM başarıyla geçildi! Element bulundu.' : 'Shadow DOM pierced! Element found and clicked.'}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        return null
+    }
+
+    const title = (block.title && typeof block.title === 'object')
+        ? (isTr ? block.title.tr : block.title.en)
+        : (block.title || '')
+
+    return (
+        <div className={`mt-6 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}
+             style={{ boxShadow: `0 0 20px ${accent}18` }}>
+            <style>{`
+                @keyframes simSpin { to { transform: rotate(360deg); } }
+                @keyframes simFadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+                @keyframes simPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+                @media (prefers-reduced-motion: reduce) { .sim-animate { animation: none !important; } }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ background: accent }} className="px-4 py-3 flex items-center gap-3">
+                <span className="text-2xl">{block.icon || '🧪'}</span>
+                <div>
+                    <div className="text-white font-bold text-sm">{title}</div>
+                    <div className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                        {isTr ? 'İnteraktif Simülasyon — Gör, Anla, Dene!' : 'Interactive Simulation — See, Understand, Try!'}
+                    </div>
+                </div>
+                <span className="ml-auto text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full hidden md:block">🧪 Live Sim</span>
+            </div>
+
+            {/* Description */}
+            {block.description && (
+                <div className={`px-4 py-2.5 text-sm border-b ${darkMode ? 'border-gray-700 text-gray-300 bg-gray-800' : 'border-gray-200 text-gray-600 bg-gray-50'}`}>
+                    {isTr ? block.description.tr : block.description.en}
+                </div>
+            )}
+
+            {/* Body: split layout */}
+            <div className="grid md:grid-cols-2">
+                {/* Left: Playground */}
+                <div className={`p-4 border-b md:border-b-0 md:border-r ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-wider mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        🎮 {isTr ? 'Canlı Demo Alanı' : 'Live Playground'}
+                    </div>
+                    {block.scenario === 'explicit-wait'     && renderExplicitWaitPlayground()}
+                    {block.scenario === 'implicit-wait'     && renderImplicitWaitPlayground()}
+                    {block.scenario === 'shadow-dom'        && renderShadowDomPlayground()}
+                    {block.scenario === 'iframe-detection'  && renderIframeDetectionPlayground()}
+                    {block.scenario === 'shadow-dom-xray'   && renderShadowDomXrayPlayground()}
+                </div>
+
+                {/* Right: DOM Visualizer */}
+                <div className={`p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-wider mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        🔬 {isTr ? 'DOM & Otomasyon Durumu' : 'DOM & Automation State'}
+                    </div>
+                    {renderDomVisualizer()}
+                </div>
+            </div>
+
+            {/* Code block */}
+            {block.code && (
+                <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className={`px-4 py-2 flex items-center gap-2 text-xs ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
+                        <span>💻</span>
+                        <span className="font-semibold">{isTr ? 'Otomasyon Kodu — Bu Senaryoyu Test Et' : 'Automation Code — Test This Scenario'}</span>
+                    </div>
+                    <CodeBlock code={block.code} language={block.language || 'java'} darkMode={darkMode} />
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
 function renderBlock(block, i, darkMode, language = 'en') {
@@ -2139,6 +2906,9 @@ function renderBlock(block, i, darkMode, language = 'en') {
         case 'playwright-visual':
             return <PlaywrightVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
 
+        case 'simulation':
+            return <SimulationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
         default:
             return null
     }
@@ -2148,11 +2918,20 @@ function renderBlock(block, i, darkMode, language = 'en') {
 
 function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const { language } = useLanguage()
+    const location = useLocation()
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
         return saved !== null ? JSON.parse(saved) : true
     })
-    const [activeTab, setActiveTab] = useState(0)
+    const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
+    const [completedTabs, setCompletedTabs] = useState(() => {
+        try {
+            const d = data['tr'] || data['en']
+            const key = (d?.hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+            const saved = localStorage.getItem(`progress_${key}`)
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
@@ -2165,6 +2944,15 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
 
     const content = data[language] || data['en']
     const { hero, tabs, sections } = content
+    const pageKey = (hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+    const completedCount = Object.values(completedTabs).filter(Boolean).length
+
+    const toggleTabComplete = (tabIndex, e) => {
+        e.stopPropagation()
+        const updated = { ...completedTabs, [tabIndex]: !completedTabs[tabIndex] }
+        setCompletedTabs(updated)
+        try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updated)) } catch {}
+    }
 
     return (
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : bgLight}`}>
@@ -2188,6 +2976,20 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
 
                     {/* Vertical Sidebar Tabs */}
                     <div className={`flex-shrink-0 w-10 md:w-52 self-start sticky top-3 rounded-xl p-1 md:p-2 shadow-md ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200'}`}>
+                        {/* Progress counter — desktop only */}
+                        {completedCount > 0 && (
+                            <div className="hidden md:block mb-2 px-2">
+                                <div className={`text-xs font-semibold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {completedCount}/{tabs.length} tamamlandı
+                                </div>
+                                <div className={`h-1.5 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                                    <div
+                                        className="h-full rounded-full bg-green-500 transition-all duration-500"
+                                        style={{ width: `${(completedCount / tabs.length) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
                         <div className="flex flex-col gap-0.5 md:gap-1">
                             {tabs.map((tab, i) => (
                                 <button
@@ -2201,10 +3003,32 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                             : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
                                         } px-1.5 py-2 md:px-3 md:py-2.5`}
                                 >
-                                    {/* Mobile: emoji only */}
-                                    <span className="md:hidden text-base text-center block leading-none">{[...tab][0]}</span>
-                                    {/* Desktop: full label */}
-                                    <span className="hidden md:block text-xs leading-snug">{tab}</span>
+                                    {/* Mobile: emoji + green dot if completed */}
+                                    <span className="md:hidden text-base text-center block leading-none relative">
+                                        {[...tab][0]}
+                                        {completedTabs[i] && (
+                                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-white" />
+                                        )}
+                                    </span>
+                                    {/* Desktop: label + completion toggle */}
+                                    <span className="hidden md:flex items-center justify-between gap-1 text-xs leading-snug">
+                                        <span className="flex-1 truncate">{tab}</span>
+                                        <span
+                                            role="checkbox"
+                                            aria-checked={!!completedTabs[i]}
+                                            onClick={(e) => toggleTabComplete(i, e)}
+                                            title={completedTabs[i] ? 'Tamamlandı — kaldır' : 'Tamamlandı işaretle'}
+                                            className={`flex-shrink-0 w-4 h-4 rounded border transition-all cursor-pointer flex items-center justify-center ${
+                                                completedTabs[i]
+                                                    ? 'bg-green-500 border-green-500 text-white'
+                                                    : darkMode
+                                                        ? 'border-gray-600 hover:border-green-400'
+                                                        : 'border-gray-300 hover:border-green-500'
+                                            }`}
+                                        >
+                                            {completedTabs[i] && <span className="text-white leading-none" style={{ fontSize: '10px' }}>✓</span>}
+                                        </span>
+                                    </span>
                                 </button>
                             ))}
                         </div>

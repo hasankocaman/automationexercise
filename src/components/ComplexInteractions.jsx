@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import DOMInspector from './DOMInspector'
 
 function ComplexInteractions({ darkMode }) {
     const { t } = useLanguage()
+    const containerRef = useRef(null)
     const [draggedItem, setDraggedItem] = useState(null)
     const [zone1Items, setZone1Items] = useState(['Item A', 'Item B', 'Item C'])
     const [zone2Items, setZone2Items] = useState(['Item X', 'Item Y'])
@@ -54,7 +56,7 @@ function ComplexInteractions({ darkMode }) {
     }
 
     return (
-        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`} ref={containerRef}>
             <h2 className={`section-title ${darkMode ? 'text-white' : 'text-gray-800'}`} data-testid="complex-interactions-title">
                 {t('complex.title')}
             </h2>
@@ -279,6 +281,8 @@ function ComplexInteractions({ darkMode }) {
                     title="Test Iframe"
                 />
             </div>
+
+            <DOMInspector containerRef={containerRef} darkMode={darkMode} />
         </div>
     )
 }

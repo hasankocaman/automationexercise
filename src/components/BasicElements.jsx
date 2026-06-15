@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import DOMInspector from './DOMInspector'
 
 function BasicElements({ darkMode }) {
     const { t } = useLanguage()
+    const containerRef = useRef(null)
     const [dynamicOptions, setDynamicOptions] = useState([])
     const [formData, setFormData] = useState({
         textInput: '',
@@ -40,7 +42,7 @@ function BasicElements({ darkMode }) {
     }
 
     return (
-        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <div className={`section-card ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`} ref={containerRef}>
             <h2 className={`section-title ${darkMode ? 'text-white' : 'text-gray-800'}`} data-testid="basic-elements-title">
                 {t('basic.title')}
             </h2>
@@ -242,6 +244,8 @@ function BasicElements({ darkMode }) {
                     <p><strong>{t('basic.dynamicDropdownLabel')}</strong> {formData.dynamicDropdown || t('basic.noneSelected')}</p>
                 </div>
             </div>
+
+            <DOMInspector containerRef={containerRef} darkMode={darkMode} />
         </div>
     )
 }
