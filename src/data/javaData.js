@@ -1,0 +1,10796 @@
+// javaData.js — Java QA Öğrenme Sayfası
+
+// ─── S0: GİRİŞ ────────────────────────────────────────────────────────────────
+const s0 = {
+  tr: {
+    title: '☕ Java Nedir? Neden QA\'da Kullanılır?',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '☕',
+        content: 'Java\'yı bir "evrensel tercüman" gibi düşün. Türkçe yazdığın bir mektubu, dünyanın her yerindeki insanlar kendi dillerinde okuyabiliyor. Java da böyle: bir kere kod yaz, JVM sayesinde Windows\'ta, Mac\'te, Linux\'ta — her yerde çalışır. "Write Once, Run Anywhere" sloganı buradan geliyor.',
+      },
+      {
+        type: 'text',
+        content: 'Java, 1995 yılında Sun Microsystems tarafından geliştirilen, nesne yönelimli (OOP), platform bağımsız, statik tipli bir programlama dilidir. QA dünyasında en çok tercih edilen dildir: Selenium WebDriver\'ın ilk desteği Java\'ya verilmiştir, REST Assured Java ile yazılmıştır, TestNG ve JUnit5 Java ekosisteminin ürünüdür.',
+      },
+      {
+        type: 'visual', variant: 'flow', title: 'Java Çalışma Akışı',
+        steps: [
+          { num: 1, label: 'Kaynak Kod', desc: '.java dosyası', highlight: true },
+          { num: 2, label: 'Derleyici (javac)', desc: 'Bytecode\'a dönüştürür' },
+          { num: 3, label: 'Bytecode', desc: '.class dosyası', highlight: true },
+          { num: 4, label: 'JVM', desc: 'Platform spesifik' },
+          { num: 5, label: 'Çalışma (Run)', desc: 'Windows/Mac/Linux', highlight: true },
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'JDK, JRE, JVM Farkı', en: 'JDK, JRE, JVM Difference' },
+      },
+      {
+        type: 'table',
+        headers: ['Bileşen', 'Ne İçerir?', 'Kim Kullanır?'],
+        rows: [
+          ['JDK (Java Development Kit)', 'JRE + Derleyici (javac) + Araçlar (javadoc, jar)', 'Geliştiriciler & QA mühendisleri'],
+          ['JRE (Java Runtime Environment)', 'JVM + Sınıf kütüphaneleri', 'Son kullanıcılar (sadece çalıştırmak için)'],
+          ['JVM (Java Virtual Machine)', 'Bytecode yorumlayıcı + GC + JIT', 'JRE içinde otomatik gelir'],
+        ],
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '💡',
+        title: 'QA için hangisi gerekli?',
+        content: 'Test projelerini yazmak ve çalıştırmak için JDK yeterlidir. JDK kurduğunda içinde JRE ve JVM de gelir. Ayrıca Maven veya Gradle gibi bir build tool kurman gerekir.',
+      },
+      {
+        type: 'heading', text: { tr: 'Java\'nın QA\'da Yeri', en: 'Java\'s Place in QA' },
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+          { icon: '🌐', label: 'Selenium WebDriver', desc: 'En olgun Java binding\'e sahip. Java topluluğu en büyük.' },
+          { icon: '🧪', label: 'JUnit5 & TestNG', desc: 'Test runner\'lar Java\'da doğdu. Tüm CI/CD araçlarıyla entegre.' },
+          { icon: '📡', label: 'REST Assured', desc: 'Java\'ya özel REST API test kütüphanesi. BDD stili assertionlar.' },
+          { icon: '📊', label: 'Allure Report', desc: 'Java projelerinde en kolay kurulum ve en zengin raporlama.' },
+          { icon: '🏗️', label: 'Maven / Gradle', desc: 'Bağımlılık yönetimi ve build automation için endüstri standardı.' },
+          { icon: '📱', label: 'Appium', desc: 'Mobil otomasyon için Java API\'si en kapsamlı ve belgelenmiş.' },
+        ],
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },
+        options: [
+          { id: 'a', text: 'JVM' },
+          { id: 'b', text: 'javac (Java Compiler)' },
+          { id: 'c', text: 'Maven' },
+          { id: 'd', text: 'JRE' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'javac, Java derleyicisidir. .java uzantılı kaynak kodu alır ve JVM\'nin çalıştırabileceği .class (bytecode) dosyasına dönüştürür. JVM ise bu bytecode\'u çalışma zamanında yorumlar/çalıştırır.', en: 'javac is the Java compiler. It takes .java source files and converts them to .class (bytecode) files that the JVM can execute. The JVM then interprets/runs this bytecode at runtime.' },
+      },
+    ],
+  },
+  en: {
+    title: '☕ What is Java? Why Use It in QA?',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '☕',
+        content: 'Think of Java as a "universal translator." A letter you write in English can be read by people everywhere in their own context. Java works the same way: write code once, and thanks to the JVM, it runs on Windows, Mac, Linux — everywhere. That\'s where the "Write Once, Run Anywhere" slogan comes from.',
+      },
+      {
+        type: 'text',
+        content: 'Java is an object-oriented, platform-independent, statically typed programming language developed by Sun Microsystems in 1995. It is the most preferred language in the QA world: Selenium WebDriver\'s first support was for Java, REST Assured is written in Java, and TestNG and JUnit5 are products of the Java ecosystem.',
+      },
+      {
+        type: 'visual', variant: 'flow', title: 'Java Execution Flow',
+        steps: [
+          { num: 1, label: 'Source Code', desc: '.java file', highlight: true },
+          { num: 2, label: 'Compiler (javac)', desc: 'Converts to bytecode' },
+          { num: 3, label: 'Bytecode', desc: '.class file', highlight: true },
+          { num: 4, label: 'JVM', desc: 'Platform specific' },
+          { num: 5, label: 'Execution', desc: 'Windows/Mac/Linux', highlight: true },
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'JDK, JRE, JVM Farkı', en: 'JDK, JRE, JVM Difference' },
+      },
+      {
+        type: 'table',
+        headers: ['Component', 'Contents', 'Who Uses It?'],
+        rows: [
+          ['JDK (Java Development Kit)', 'JRE + Compiler (javac) + Tools (javadoc, jar)', 'Developers & QA engineers'],
+          ['JRE (Java Runtime Environment)', 'JVM + Class libraries', 'End users (run only)'],
+          ['JVM (Java Virtual Machine)', 'Bytecode interpreter + GC + JIT', 'Included automatically in JRE'],
+        ],
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '💡',
+        title: 'Which one do you need for QA?',
+        content: 'JDK is sufficient to write and run test projects. When you install JDK, JRE and JVM come with it. You also need a build tool like Maven or Gradle.',
+      },
+      {
+        type: 'heading', text: { tr: 'Java\'nın QA\'da Yeri', en: 'Java\'s Place in QA' },
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+          { icon: '🌐', label: 'Selenium WebDriver', desc: 'Most mature Java binding. Largest Java community.' },
+          { icon: '🧪', label: 'JUnit5 & TestNG', desc: 'Test runners born in Java. Integrated with all CI/CD tools.' },
+          { icon: '📡', label: 'REST Assured', desc: 'Java-specific REST API testing library. BDD-style assertions.' },
+          { icon: '📊', label: 'Allure Report', desc: 'Easiest setup and richest reporting in Java projects.' },
+          { icon: '🏗️', label: 'Maven / Gradle', desc: 'Industry standard for dependency management and build automation.' },
+          { icon: '📱', label: 'Appium', desc: 'Java API for mobile automation is most comprehensive and documented.' },
+        ],
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },
+        options: [
+          { id: 'a', text: 'JVM' },
+          { id: 'b', text: 'javac (Java Compiler)' },
+          { id: 'c', text: 'Maven' },
+          { id: 'd', text: 'JRE' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'javac, Java derleyicisidir.', en: 'javac is the Java compiler. It takes .java source files and converts them to .class (bytecode) files that the JVM can execute.' },
+      },
+    ],
+  },
+}
+
+// ─── S1: KURULUM ──────────────────────────────────────────────────────────────
+const s1 = {
+  tr: {
+    title: '⚙️ Java Kurulumu (JDK + Maven)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📦',
+        content: 'Java kurmak, araba kullanmayı öğrenmek için önce bir araba almak gibidir. JDK "araba", Maven ise "yakıt istasyonu" gibidir — proje bağımlılıklarını otomatik indirir, derler ve çalıştırır. İkisini de kurman gerekir.',
+      },
+      {
+        type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'Windows — winget ile JDK 21 kurulumu',
+        code: `# JDK 21 (LTS) kur
+winget install --id EclipseAdoptium.Temurin.21.JDK
+
+# Alternatif: Oracle JDK
+winget install --id Oracle.JDK.21
+
+# Maven kur
+winget install --id Apache.Maven`,
+      },
+      {
+        type: 'callout', color: 'yellow', emoji: '⚠️',
+        title: 'Output you should see:',
+        content: 'Found Eclipse Temurin JDK 21 ... Successfully installed',
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'JAVA_HOME Environment Variable (PowerShell)',
+        code: `# JAVA_HOME ayarla (yönetici olarak çalıştır)
+[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.x", "Machine")
+$env:PATH += ";$env:JAVA_HOME\\bin"
+
+# Doğrulama
+java -version
+javac -version
+mvn -version`,
+      },
+      {
+        type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'macOS — Homebrew ile kurulum',
+        code: `# Homebrew yoksa önce kur
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# JDK 21 kur (Temurin — açık kaynak, ücretsiz)
+brew install --cask temurin@21
+
+# Maven kur
+brew install maven
+
+# JAVA_HOME ayarla (~/.zshrc veya ~/.bash_profile)
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 21)' >> ~/.zshrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
+source ~/.zshrc
+
+# Doğrulama
+java -version
+mvn -version`,
+      },
+      {
+        type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Ubuntu/Debian',
+        code: `# Paket listesini güncelle
+sudo apt update
+
+# JDK 21 kur
+sudo apt install -y openjdk-21-jdk
+
+# JAVA_HOME ayarla
+echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+# Maven kur
+sudo apt install -y maven
+
+# Doğrulama
+java -version
+mvn --version`,
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'CentOS/RHEL/Fedora',
+        code: `# JDK 21 kur
+sudo dnf install -y java-21-openjdk-devel
+
+# Maven kur
+sudo dnf install -y maven
+
+# Doğrulama
+java -version
+mvn -version`,
+      },
+      {
+        type: 'heading', text: { tr: '✅ Verification — Kurulum Doğrulama', en: '✅ Verification — Confirm Installation' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Tüm platformlar — doğrulama komutları',
+        code: `java -version
+# Beklenen çıktı:
+# openjdk version "21.0.x" ...
+
+javac -version
+# Beklenen çıktı:
+# javac 21.0.x
+
+mvn -version
+# Beklenen çıktı:
+# Apache Maven 3.9.x
+# Java version: 21.0.x`,
+      },
+      {
+        type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Maven Quickstart Projesi Oluştur',
+        code: `mvn archetype:generate \\
+  -DgroupId=com.qa.learn \\
+  -DartifactId=java-qa-project \\
+  -DarchetypeArtifactId=maven-archetype-quickstart \\
+  -DarchetypeVersion=1.4 \\
+  -DinteractiveMode=false
+
+cd java-qa-project
+mvn test`,
+      },
+      {
+        type: 'callout', color: 'green', emoji: '✅',
+        title: 'Output you should see:',
+        content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
+      },
+    ],
+  },
+  en: {
+    title: '⚙️ Java Installation (JDK + Maven)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📦',
+        content: 'Installing Java is like buying a car before you can drive. The JDK is the "car" and Maven is the "gas station" — it automatically downloads dependencies, compiles, and runs your project. You need to install both.',
+      },
+      {
+        type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'Windows — Install JDK 21 with winget',
+        code: `# Install JDK 21 (LTS)
+winget install --id EclipseAdoptium.Temurin.21.JDK
+
+# Alternative: Oracle JDK
+winget install --id Oracle.JDK.21
+
+# Install Maven
+winget install --id Apache.Maven`,
+      },
+      {
+        type: 'callout', color: 'yellow', emoji: '⚠️',
+        title: 'Output you should see:',
+        content: 'Found Eclipse Temurin JDK 21 ... Successfully installed',
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'Set JAVA_HOME (Run as Administrator)',
+        code: `[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.x", "Machine")
+$env:PATH += ";$env:JAVA_HOME\\bin"
+
+# Verify
+java -version
+javac -version
+mvn -version`,
+      },
+      {
+        type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'macOS — Install with Homebrew',
+        code: `brew install --cask temurin@21
+brew install maven
+
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 21)' >> ~/.zshrc
+source ~/.zshrc
+
+java -version
+mvn -version`,
+      },
+      {
+        type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Ubuntu/Debian',
+        code: `sudo apt update && sudo apt install -y openjdk-21-jdk maven
+echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
+source ~/.bashrc
+java -version && mvn --version`,
+      },
+      {
+        type: 'heading', text: { tr: '✅ Verification', en: '✅ Verification' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'All platforms — verify commands',
+        code: `java -version
+# Expected: openjdk version "21.0.x"
+
+javac -version
+# Expected: javac 21.0.x
+
+mvn -version
+# Expected: Apache Maven 3.9.x, Java version: 21.0.x`,
+      },
+      {
+        type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Create Maven Quickstart Project',
+        code: `mvn archetype:generate \\
+  -DgroupId=com.qa.learn \\
+  -DartifactId=java-qa-project \\
+  -DarchetypeArtifactId=maven-archetype-quickstart \\
+  -DarchetypeVersion=1.4 \\
+  -DinteractiveMode=false
+
+cd java-qa-project && mvn test`,
+      },
+      {
+        type: 'callout', color: 'green', emoji: '✅',
+        title: 'Output you should see:',
+        content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
+      },
+    ],
+  },
+}
+
+// ─── S2: OOP & COLLECTIONS ────────────────────────────────────────────────────
+const s2 = {
+  tr: {
+    title: '🏗️ OOP & Collections',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧱',
+        content: 'OOP\'yi LEGO seti gibi düşün. Her LEGO parçası (class) kendi içinde tamamdır — rengi, şekli, yapısı var. Parçaları birbirine takarak (composition) büyük yapılar oluşturuyorsun. Collections ise bu parçaları sakladığın kutu.',
+      },
+      {
+        type: 'heading', text: { tr: 'Class & Object', en: 'Class & Object' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Class tanımı ve Object oluşturma',
+        code: `// Class — şablon / blueprint
+public class TestUser {
+    // Fields (instance variables)
+    private String username;
+    private String email;
+    private int age;
+
+    // Constructor
+    public TestUser(String username, String email, int age) {
+        this.username = username;
+        this.email   = email;
+        this.age     = age;
+    }
+
+    // Getter & Setter
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    // toString — @Override
+    @Override
+    public String toString() {
+        return "TestUser{username='" + username + "', email='" + email + "'}";
+    }
+}
+
+// Object oluşturma
+TestUser user1 = new TestUser("admin", "admin@test.com", 30);
+TestUser user2 = new TestUser("qa_user", "qa@test.com", 25);
+System.out.println(user1); // TestUser{username='admin', email='admin@test.com'}`,
+      },
+      {
+        type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
+      },
+      {
+        type: 'table',
+        headers: ['Özellik', 'Interface', 'Abstract Class'],
+        rows: [
+          ['Çoklu kalıtım', '✅ implements birden fazla', '❌ sadece 1 extend'],
+          ['Constructor', '❌ yok', '✅ var'],
+          ['Default method', '✅ Java 8+ (default)', '✅ normal method'],
+          ['Field', 'sadece public static final', 'her türlü field'],
+          ['QA\'da kullanım', 'Page Object, BasePage contract', 'Ortak setup/teardown'],
+        ],
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Interface — Page Object pattern\'de kullanım',
+        code: `// Interface — sözleşme tanımlar
+public interface PageActions {
+    void open();
+    boolean isLoaded();
+    void waitForElement(String locator);
+}
+
+// Abstract Class — ortak davranış
+public abstract class BasePage implements PageActions {
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // Ortak metod — alt sınıflar kullanabilir
+    public void waitForElement(String locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(locator)));
+    }
+}
+
+// Concrete class — abstract class'tan türer
+public class LoginPage extends BasePage {
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    @Override
+    public void open() { driver.get("https://example.com/login"); }
+
+    @Override
+    public boolean isLoaded() {
+        return driver.findElement(By.id("loginForm")).isDisplayed();
+    }
+}`,
+      },
+      {
+        type: 'heading', text: { tr: 'Java Collections — QA\'da En Çok Kullanılanlar', en: 'Java Collections — Most Used in QA' },
+      },
+      {
+        type: 'visual', variant: 'boxes',
+        title: 'Collections Hiyerarşisi',
+        items: [
+          { icon: '📦', label: 'Collection', desc: 'Temel arayüz', highlight: true },
+          { arrow: true },
+          { icon: '📋', label: 'List', desc: 'ArrayList, LinkedList' },
+          { arrow: true },
+          { icon: '🔷', label: 'Set', desc: 'HashSet, TreeSet' },
+          { arrow: true },
+          { icon: '🗺️', label: 'Map', desc: 'HashMap, LinkedHashMap' },
+        ],
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'ArrayList — Test verisi saklamak için',
+        code: `import java.util.*;
+
+// ArrayList — sıralı, tekrarlı, dinamik dizi
+List<String> testUrls = new ArrayList<>();
+testUrls.add("https://example.com/home");
+testUrls.add("https://example.com/login");
+testUrls.add("https://example.com/products");
+
+// Döngü ile her URL'yi test et
+for (String url : testUrls) {
+    driver.get(url);
+    assertEquals(200, getStatusCode(url));
+}
+
+// Lambda ile filtreleme (Java 8+)
+List<String> loginPages = testUrls.stream()
+    .filter(url -> url.contains("login"))
+    .collect(Collectors.toList());`,
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'HashMap — Test data çiftleri için',
+        code: `// HashMap — key-value çiftleri, QA'da login data için ideal
+Map<String, String> testCredentials = new HashMap<>();
+testCredentials.put("admin", "admin123");
+testCredentials.put("user", "user456");
+testCredentials.put("readonly", "readonly789");
+
+// Entry ile döngü
+for (Map.Entry<String, String> entry : testCredentials.entrySet()) {
+    loginPage.login(entry.getKey(), entry.getValue());
+    assertTrue(dashboard.isLoaded(), "Login failed for: " + entry.getKey());
+    loginPage.logout();
+}
+
+// Belirli key al
+String adminPass = testCredentials.get("admin"); // "admin123"
+boolean hasAdmin = testCredentials.containsKey("admin"); // true`,
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Generics — Type-safe koleksiyonlar',
+        code: `// Generics — compile time'da tip güvenliği
+public class TestDataProvider<T> {
+    private List<T> data = new ArrayList<>();
+
+    public void add(T item) { data.add(item); }
+    public T get(int index)  { return data.get(index); }
+    public int size()         { return data.size(); }
+}
+
+// Kullanım — herhangi bir tipte çalışır
+TestDataProvider<String> usernames = new TestDataProvider<>();
+usernames.add("admin");
+usernames.add("user1");
+
+TestDataProvider<Integer> userIds = new TestDataProvider<>();
+userIds.add(1001);
+userIds.add(1002);`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'HashMap ile LinkedHashMap arasındaki temel fark nedir?', en: 'What is the key difference between HashMap and LinkedHashMap?' },
+        options: [
+          { id: 'a', text: 'HashMap thread-safe\'dir' },
+          { id: 'b', text: 'LinkedHashMap insertion order\'ı korur, HashMap korumaz' },
+          { id: 'c', text: 'LinkedHashMap daha hızlıdır' },
+          { id: 'd', text: 'HashMap null key kabul etmez' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'LinkedHashMap, ekleme sırasını (insertion order) korur — test loglarında ve raporlarda adım sırasını görmek istediğinizde kullanışlıdır. HashMap ise sırayı garanti etmez ama genellikle daha hafiftir.', en: 'LinkedHashMap preserves insertion order — useful when you want to see step order in test logs and reports. HashMap doesn\'t guarantee order but is generally lighter.' },
+      },
+    ],
+  },
+  en: {
+    title: '🏗️ OOP & Collections',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧱',
+        content: 'Think of OOP as a LEGO set. Each LEGO piece (class) is complete in itself — it has color, shape, structure. You connect pieces (composition) to build large structures. Collections is the box where you store these pieces.',
+      },
+      {
+        type: 'heading', text: { tr: 'Class & Object', en: 'Class & Object' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Class definition and Object creation',
+        code: `public class TestUser {
+    private String username;
+    private String email;
+    private int age;
+
+    public TestUser(String username, String email, int age) {
+        this.username = username;
+        this.email   = email;
+        this.age     = age;
+    }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    @Override
+    public String toString() {
+        return "TestUser{username='" + username + "', email='" + email + "'}";
+    }
+}
+
+TestUser user1 = new TestUser("admin", "admin@test.com", 30);
+System.out.println(user1);`,
+      },
+      {
+        type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
+      },
+      {
+        type: 'table',
+        headers: ['Feature', 'Interface', 'Abstract Class'],
+        rows: [
+          ['Multiple inheritance', '✅ implements multiple', '❌ only 1 extend'],
+          ['Constructor', '❌ none', '✅ yes'],
+          ['Default method', '✅ Java 8+ (default)', '✅ normal method'],
+          ['Fields', 'public static final only', 'any type of field'],
+          ['QA usage', 'Page Object, BasePage contract', 'Common setup/teardown'],
+        ],
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Interface — Usage in Page Object pattern',
+        code: `public interface PageActions {
+    void open();
+    boolean isLoaded();
+    void waitForElement(String locator);
+}
+
+public abstract class BasePage implements PageActions {
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void waitForElement(String locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(locator)));
+    }
+}`,
+      },
+      {
+        type: 'heading', text: { tr: 'Java Collections — QA\'da En Çok Kullanılanlar', en: 'Java Collections — Most Used in QA' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'ArrayList — For storing test data',
+        code: `List<String> testUrls = new ArrayList<>();
+testUrls.add("https://example.com/home");
+testUrls.add("https://example.com/login");
+
+for (String url : testUrls) {
+    driver.get(url);
+    assertEquals(200, getStatusCode(url));
+}`,
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'HashMap — For test data pairs',
+        code: `Map<String, String> credentials = new HashMap<>();
+credentials.put("admin", "admin123");
+credentials.put("user", "user456");
+
+for (Map.Entry<String, String> entry : credentials.entrySet()) {
+    loginPage.login(entry.getKey(), entry.getValue());
+    assertTrue(dashboard.isLoaded());
+    loginPage.logout();
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'HashMap ile LinkedHashMap arasındaki temel fark nedir?', en: 'What is the key difference between HashMap and LinkedHashMap?' },
+        options: [
+          { id: 'a', text: 'HashMap is thread-safe' },
+          { id: 'b', text: 'LinkedHashMap preserves insertion order, HashMap does not' },
+          { id: 'c', text: 'LinkedHashMap is faster' },
+          { id: 'd', text: 'HashMap does not accept null keys' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'LinkedHashMap ekleme sırasını korur.', en: 'LinkedHashMap preserves insertion order — useful when you want to see step order in test logs and reports. HashMap doesn\'t guarantee order.' },
+      },
+    ],
+  },
+}
+
+// ─── S3: JUNIT5 & TESTNG ─────────────────────────────────────────────────────
+const s3 = {
+  tr: {
+    title: '🧪 JUnit5 & TestNG — Test Framework\'leri',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧪',
+        content: 'JUnit5 ve TestNG\'yi iki farklı banka gibi düşün. Her ikisi de işini yapıyor — para yatırıp çekebiliyorsun. Ama biri belki daha fazla şube açmış (TestNG\'nin daha fazla annotation\'ı var), diğeri daha modern ve hızlı büyüyor (JUnit5 modüler yapı). Hangisini seçeceğin işvereninin tercihine göre değişir.',
+      },
+      {
+        type: 'table',
+        headers: ['Özellik', 'JUnit5', 'TestNG'],
+        rows: [
+          ['Test annotation', '@Test', '@Test'],
+          ['Before all', '@BeforeAll', '@BeforeSuite / @BeforeClass'],
+          ['Before each', '@BeforeEach', '@BeforeMethod'],
+          ['After each', '@AfterEach', '@AfterMethod'],
+          ['After all', '@AfterAll', '@AfterSuite / @AfterClass'],
+          ['Parametrize', '@ParameterizedTest + @ValueSource', '@DataProvider'],
+          ['Grouping', '@Tag', '@Groups'],
+          ['Parallel', '@Execution(CONCURRENT)', 'testng.xml parallel attribute'],
+          ['Soft asserts', '3. parti (AssertJ)', 'SoftAssert built-in'],
+          ['Selenium ile?', 'JUnit5 + Selenium yaygın', 'TestNG + Selenium çok yaygın'],
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'JUnit5 Temel Annotationlar', en: 'JUnit5 Core Annotations' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'JUnit5 — Temel yapı',
+        code: `import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@DisplayName("Login Sayfası Testleri")
+class LoginTest {
+
+    static WebDriver driver;
+
+    @BeforeAll
+    static void setupClass() {
+        // Tüm testlerden önce bir kez çalışır
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @BeforeEach
+    void setUp() {
+        // Her test metodundan önce çalışır
+        driver.get("https://example.com/login");
+    }
+
+    @Test
+    @DisplayName("Geçerli kullanıcı ile giriş yapılabilmeli")
+    void validLoginShouldSucceed() {
+        driver.findElement(By.id("username")).sendKeys("admin");
+        driver.findElement(By.id("password")).sendKeys("admin123");
+        driver.findElement(By.id("loginBtn")).click();
+
+        String currentUrl = driver.getCurrentUrl();
+        assertTrue(currentUrl.contains("/dashboard"),
+            "Login sonrası dashboard'a yönlendirilmeli");
+    }
+
+    @Test
+    @DisplayName("Yanlış şifreyle giriş reddedilmeli")
+    void invalidPasswordShouldFail() {
+        driver.findElement(By.id("username")).sendKeys("admin");
+        driver.findElement(By.id("password")).sendKeys("wrongpass");
+        driver.findElement(By.id("loginBtn")).click();
+
+        String errorMsg = driver.findElement(By.className("error-msg")).getText();
+        assertEquals("Invalid credentials", errorMsg);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "null"})
+    @DisplayName("Boş kullanıcı adı ile giriş yapılamamalı")
+    void emptyUsernameShouldFail(String username) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("loginBtn")).click();
+        assertTrue(driver.findElement(By.className("error")).isDisplayed());
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Her test metodundan sonra çalışır
+        driver.manage().deleteAllCookies();
+    }
+
+    @AfterAll
+    static void tearDownClass() {
+        // Tüm testlerden sonra bir kez çalışır
+        if (driver != null) driver.quit();
+    }
+}`,
+      },
+      {
+        type: 'heading', text: { tr: 'TestNG Temel Annotationlar', en: 'TestNG Core Annotations' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'TestNG — Temel yapı',
+        code: `import org.testng.annotations.*;
+import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
+
+public class LoginTest {
+
+    WebDriver driver;
+
+    @BeforeSuite
+    public void globalSetup() {
+        System.out.println("Test Suite başlıyor...");
+    }
+
+    @BeforeClass
+    public void setupClass() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        driver.get("https://example.com/login");
+    }
+
+    @Test(priority = 1, description = "Geçerli giriş testi")
+    public void validLogin() {
+        driver.findElement(By.id("username")).sendKeys("admin");
+        driver.findElement(By.id("password")).sendKeys("admin123");
+        driver.findElement(By.id("loginBtn")).click();
+        Assert.assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+    }
+
+    @Test(priority = 2)
+    @Parameters({"username", "password"})  // testng.xml'den parametre
+    public void parameterizedLogin(String username, String password) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.id("loginBtn")).click();
+    }
+
+    @Test
+    @DataProvider(name = "invalidCredentials")
+    // dataProvider kullanan @Test için:
+    public void invalidLoginWithDataProvider(String username, String password) {
+        SoftAssert soft = new SoftAssert();
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.id("loginBtn")).click();
+        soft.assertTrue(driver.findElement(By.className("error")).isDisplayed());
+        soft.assertAll();
+    }
+
+    @DataProvider(name = "invalidCredentials")
+    public Object[][] invalidCredentials() {
+        return new Object[][] {
+            {"",      "admin123"},
+            {"admin", ""},
+            {"wrong", "wrong"},
+        };
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        driver.manage().deleteAllCookies();
+    }
+
+    @AfterClass
+    public void tearDownClass() {
+        if (driver != null) driver.quit();
+    }
+}`,
+      },
+      {
+        type: 'heading', text: { tr: 'pom.xml — Maven Bağımlılıkları', en: 'pom.xml — Maven Dependencies' },
+      },
+      {
+        type: 'code', language: 'xml',
+        label: 'pom.xml — JUnit5 + Selenium bağımlılıkları',
+        code: `<dependencies>
+    <!-- JUnit 5 -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Selenium WebDriver -->
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.20.0</version>
+    </dependency>
+
+    <!-- WebDriverManager — driver otomatik indir -->
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>5.8.0</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+        </plugin>
+    </plugins>
+</build>`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'TestNG\'de her test metodundan önce çalışan annotation hangisidir?', en: 'Which TestNG annotation runs before each test method?' },
+        options: [
+          { id: 'a', text: '@BeforeAll' },
+          { id: 'b', text: '@BeforeClass' },
+          { id: 'c', text: '@BeforeMethod' },
+          { id: 'd', text: '@BeforeTest' },
+        ],
+        correct: 'c',
+        explanation: { tr: '@BeforeMethod her test metodundan önce çalışır — JUnit5\'teki @BeforeEach karşılığıdır. @BeforeClass sınıftaki tüm testlerden önce bir kez çalışır (JUnit5\'te @BeforeAll). @BeforeTest ise testng.xml\'deki <test> tag\'inden öncedir.', en: '@BeforeMethod runs before each test method — it is the equivalent of @BeforeEach in JUnit5. @BeforeClass runs once before all tests in the class (@BeforeAll in JUnit5). @BeforeTest runs before the <test> tag in testng.xml.' },
+      },
+    ],
+  },
+  en: {
+    title: '🧪 JUnit5 & TestNG — Test Frameworks',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧪',
+        content: 'Think of JUnit5 and TestNG as two different banks. Both get the job done. But one has more branches open (TestNG has more annotations), while the other is more modern and growing faster (JUnit5 with modular architecture). Which you choose depends on your employer\'s preference.',
+      },
+      {
+        type: 'table',
+        headers: ['Feature', 'JUnit5', 'TestNG'],
+        rows: [
+          ['Test annotation', '@Test', '@Test'],
+          ['Before all', '@BeforeAll', '@BeforeSuite / @BeforeClass'],
+          ['Before each', '@BeforeEach', '@BeforeMethod'],
+          ['After each', '@AfterEach', '@AfterMethod'],
+          ['After all', '@AfterAll', '@AfterSuite / @AfterClass'],
+          ['Parameterize', '@ParameterizedTest + @ValueSource', '@DataProvider'],
+          ['Grouping', '@Tag', '@Groups'],
+          ['Parallel', '@Execution(CONCURRENT)', 'testng.xml parallel attr'],
+          ['Soft asserts', '3rd party (AssertJ)', 'SoftAssert built-in'],
+          ['With Selenium?', 'JUnit5 + Selenium common', 'TestNG + Selenium very common'],
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'JUnit5 Temel Annotationlar', en: 'JUnit5 Core Annotations' },
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'JUnit5 — Basic structure',
+        code: `import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@DisplayName("Login Page Tests")
+class LoginTest {
+
+    static WebDriver driver;
+
+    @BeforeAll
+    static void setupClass() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @BeforeEach
+    void setUp() {
+        driver.get("https://example.com/login");
+    }
+
+    @Test
+    @DisplayName("Valid user should be able to login")
+    void validLoginShouldSucceed() {
+        driver.findElement(By.id("username")).sendKeys("admin");
+        driver.findElement(By.id("password")).sendKeys("admin123");
+        driver.findElement(By.id("loginBtn")).click();
+        assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "null"})
+    void emptyUsernameShouldFail(String username) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("loginBtn")).click();
+        assertTrue(driver.findElement(By.className("error")).isDisplayed());
+    }
+
+    @AfterAll
+    static void tearDownClass() {
+        if (driver != null) driver.quit();
+    }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'TestNG\'de her test metodundan önce çalışan annotation hangisidir?', en: 'Which TestNG annotation runs before each test method?' },
+        options: [
+          { id: 'a', text: '@BeforeAll' },
+          { id: 'b', text: '@BeforeClass' },
+          { id: 'c', text: '@BeforeMethod' },
+          { id: 'd', text: '@BeforeTest' },
+        ],
+        correct: 'c',
+        explanation: { tr: '@BeforeMethod her test metodundan önce çalışır.', en: '@BeforeMethod runs before each test method — the equivalent of @BeforeEach in JUnit5.' },
+      },
+    ],
+  },
+}
+
+// ─── S4: GERÇEK HAYAT ─────────────────────────────────────────────────────────
+const s4 = {
+  tr: {
+    title: '🛠️ Gerçek Hayat — E-Ticaret QA Projesi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🛠️',
+        content: 'Gerçek bir QA işini düşün: e-ticaret sitesi, günde 10.000 kullanıcı. Her deploy öncesi login, ürün arama, sepete ekleme testlerini elle yapmak imkansız. Java + Selenium + JUnit5 ile 3 dakikada otomatik çalıştırırsın.',
+      },
+      {
+        type: 'heading', text: { tr: 'Proje Yapısı — Maven Page Object Model', en: 'Project Structure — Maven POM' },
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Dizin yapısı',
+        code: `java-qa-project/
+├── pom.xml
+└── src/
+    ├── main/java/com/qa/
+    │   ├── base/BasePage.java
+    │   ├── pages/LoginPage.java
+    │   └── utils/DriverFactory.java
+    └── test/java/com/qa/
+        ├── tests/LoginTest.java
+        └── testng.xml`,
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'DriverFactory.java — ThreadLocal ile thread-safe driver',
+        code: `import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class DriverFactory {
+    private static ThreadLocal<WebDriver> pool = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (pool.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions opts = new ChromeOptions();
+            opts.addArguments("--start-maximized");
+            pool.set(new ChromeDriver(opts));
+        }
+        return pool.get();
+    }
+
+    public static void quitDriver() {
+        if (pool.get() != null) { pool.get().quit(); pool.remove(); }
+    }
+}`,
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'LoginPage.java — Page Object',
+        code: `public class LoginPage extends BasePage {
+    private final By usernameInput = By.id("username");
+    private final By passwordInput = By.id("password");
+    private final By loginButton   = By.id("loginBtn");
+    private final By errorMessage  = By.className("error-msg");
+
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    public void open() { driver.get(ConfigReader.get("base.url") + "/login"); }
+    public boolean isLoaded() { return isElementVisible(loginButton); }
+
+    public void login(String username, String password) {
+        open();
+        type(usernameInput, username);
+        type(passwordInput, password);
+        click(loginButton);
+    }
+
+    public String getErrorMessage() { return getText(errorMessage); }
+}`,
+      },
+      {
+        type: 'heading', text: { tr: 'Rakip Karşılaştırması', en: 'Competitor Comparison' },
+      },
+      {
+        type: 'table',
+        headers: ['Özellik', 'Java', 'Python', 'TypeScript'],
+        rows: [
+          ['Tip güvenliği', '✅ Statik', '❌ Dinamik', '✅ Statik'],
+          ['Selenium desteği', '✅ En olgun', '✅ Çok iyi', '⚠️ İyi'],
+          ['REST API testi', '✅ REST Assured', '✅ requests', '✅ Playwright API'],
+          ['CI/CD', '✅ Her araç', '✅ Her araç', '✅ Her araç'],
+          ['Şirket tercihi', 'Kurumsal', 'Startup/Data', 'Frontend odaklı'],
+        ],
+      },
+    ],
+  },
+  en: {
+    title: '🛠️ Real World — E-Commerce QA Project',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🛠️',
+        content: 'Think of a real QA job: e-commerce site with 10,000 users/day. Running login, search, cart tests manually before every deploy is impossible. With Java + Selenium + JUnit5, run all tests automatically in 3 minutes.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'DriverFactory.java — ThreadLocal thread-safe driver',
+        code: `public class DriverFactory {
+    private static ThreadLocal<WebDriver> pool = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (pool.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            pool.set(new ChromeDriver(new ChromeOptions().addArguments("--start-maximized")));
+        }
+        return pool.get();
+    }
+
+    public static void quitDriver() {
+        if (pool.get() != null) { pool.get().quit(); pool.remove(); }
+    }
+}`,
+      },
+      {
+        type: 'table',
+        headers: ['Feature', 'Java', 'Python', 'TypeScript'],
+        rows: [
+          ['Type safety', '✅ Static', '❌ Dynamic', '✅ Static'],
+          ['Selenium', '✅ Most mature', '✅ Very good', '⚠️ Good'],
+          ['REST API', '✅ REST Assured', '✅ requests', '✅ Playwright API'],
+          ['Company preference', 'Enterprise', 'Startup/Data', 'Frontend-focused'],
+        ],
+      },
+    ],
+  },
+}
+
+// ─── S5: EKOSİSTEM ────────────────────────────────────────────────────────────
+const s5 = {
+  tr: {
+    title: '🔗 Java QA Ekosistemi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔗',
+        content: 'Java ekosistemini bir şehir gibi düşün. JDK yollar ve elektrik, Maven lojistik şirket, Selenium araç, TestNG trafik kuralları, Allure şehir haritası. Hepsi bir arada çalışarak seni iş hayatına hazırlar.',
+      },
+      {
+        type: 'visual', variant: 'flow', title: 'Java QA Ekosistemi',
+        steps: [
+          { num: 1, label: 'JDK 21', desc: 'Temel platform', highlight: true },
+          { num: 2, label: 'Maven/Gradle', desc: 'Build & deps' },
+          { num: 3, label: 'Selenium/Appium', desc: 'Web & Mobile', highlight: true },
+          { num: 4, label: 'JUnit5/TestNG', desc: 'Test runner' },
+          { num: 5, label: 'Allure', desc: 'Raporlama', highlight: true },
+          { num: 6, label: 'Jenkins/GH Actions', desc: 'CI/CD' },
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'Önemli Kütüphaneler', en: 'Important Libraries' },
+      },
+      {
+        type: 'table',
+        headers: ['Kütüphane', 'Ne İşe Yarar?', 'Maven groupId'],
+        rows: [
+          ['Selenium WebDriver 4', 'Web otomasyon', 'org.seleniumhq.selenium'],
+          ['Appium Java Client', 'Mobil otomasyon', 'io.appium'],
+          ['REST Assured', 'API testi', 'io.rest-assured'],
+          ['JUnit5', 'Test runner', 'org.junit.jupiter'],
+          ['TestNG', 'Test runner (alt)', 'org.testng'],
+          ['WebDriverManager', 'Driver otomatik indir', 'io.github.bonigarcia'],
+          ['Allure', 'Zengin HTML rapor', 'io.qameta.allure'],
+          ['Datafaker', 'Test verisi üretimi', 'net.datafaker'],
+          ['AssertJ', 'Fluent assertions', 'org.assertj'],
+          ['Apache POI', 'Excel okuma/yazma', 'org.apache.poi'],
+        ],
+      },
+      {
+        type: 'heading', text: { tr: 'Maven vs Gradle', en: 'Maven vs Gradle' },
+      },
+      {
+        type: 'table',
+        headers: ['Özellik', 'Maven', 'Gradle'],
+        rows: [
+          ['Konfig dili', 'XML (pom.xml)', 'Groovy/Kotlin DSL'],
+          ['Hız', '⚠️ Yavaş', '✅ Incremental build'],
+          ['Ekosistem', '✅ Çok büyük', '✅ Android zorunlu'],
+          ['Okunabilirlik', '⚠️ Verbose XML', '✅ Kısa DSL'],
+          ['QA\'da tercih', '✅ Yaygın', '✅ Android testleri'],
+        ],
+      },
+      {
+        type: 'code', language: 'xml',
+        label: 'pom.xml — Tam QA projesi bağımlılıkları',
+        code: `<properties>
+    <selenium.version>4.20.0</selenium.version>
+    <junit5.version>5.10.2</junit5.version>
+</properties>
+<dependencies>
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>\${selenium.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>5.8.0</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>\${junit5.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>5.4.0</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.qameta.allure</groupId>
+        <artifactId>allure-junit5</artifactId>
+        <version>2.27.0</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.25.3</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>net.datafaker</groupId>
+        <artifactId>datafaker</artifactId>
+        <version>2.2.2</version>
+    </dependency>
+</dependencies>`,
+      },
+    ],
+  },
+  en: {
+    title: '🔗 Java QA Ecosystem',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔗',
+        content: 'Think of the Java ecosystem as a city. JDK is roads and electricity, Maven is logistics, Selenium is the vehicle, TestNG is traffic rules, Allure is the city map. Together they prepare you for professional QA work.',
+      },
+      {
+        type: 'visual', variant: 'flow', title: 'Java QA Ecosystem',
+        steps: [
+          { num: 1, label: 'JDK 21', desc: 'Base platform', highlight: true },
+          { num: 2, label: 'Maven/Gradle', desc: 'Build & deps' },
+          { num: 3, label: 'Selenium/Appium', desc: 'Web & Mobile', highlight: true },
+          { num: 4, label: 'JUnit5/TestNG', desc: 'Test runner' },
+          { num: 5, label: 'Allure', desc: 'Reporting', highlight: true },
+          { num: 6, label: 'Jenkins/GH Actions', desc: 'CI/CD' },
+        ],
+      },
+      {
+        type: 'table',
+        headers: ['Library', 'Purpose', 'Maven groupId'],
+        rows: [
+          ['Selenium WebDriver 4', 'Web automation', 'org.seleniumhq.selenium'],
+          ['REST Assured', 'API testing', 'io.rest-assured'],
+          ['JUnit5', 'Test runner', 'org.junit.jupiter'],
+          ['TestNG', 'Test runner (alt)', 'org.testng'],
+          ['WebDriverManager', 'Auto driver download', 'io.github.bonigarcia'],
+          ['Allure', 'Rich HTML report', 'io.qameta.allure'],
+          ['AssertJ', 'Fluent assertions', 'org.assertj'],
+          ['Datafaker', 'Test data generation', 'net.datafaker'],
+        ],
+      },
+    ],
+  },
+}
+
+
+// ─── S6: YAYGIN HATALAR ───────────────────────────────────────────────────────
+const s6 = {
+  tr: {
+    title: '🚨 Yaygın Java QA Hataları',
+    blocks: [
+      { type: 'simple-box', emoji: '🚨', content: 'Her hata mesajının bir imzası var. Doktor gibi: ateş varsa enfeksiyon olabilir. Hata mesajını oku, imzayı tanı, çözümü uygula.' },
+      { type: 'heading', text: { tr: '1. NoSuchElementException', en: '1. NoSuchElementException' } },
+      { type: 'code', language: 'bash', label: 'Hata', code: `org.openqa.selenium.NoSuchElementException: 
+Unable to locate element: {"method":"id","selector":"loginBtn"}` },
+      { type: 'callout', color: 'red', emoji: '❌', title: 'Sebep', content: 'Element DOM\'da yok, yanlış locator, sayfa yüklenmemiş veya iframe içinde.' },
+      { type: 'code', language: 'java', label: 'Çözüm', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn")));
+btn.click();` },
+      { type: 'heading', text: { tr: '2. StaleElementReferenceException', en: '2. StaleElementReferenceException' } },
+      { type: 'callout', color: 'red', emoji: '❌', title: 'Sebep', content: 'Elementi bulduktan sonra sayfa refresh oldu veya DOM güncellendi — referans geçersiz.' },
+      { type: 'code', language: 'java', label: 'Çözüm — Retry pattern', code: `public void clickWithRetry(By locator, int max) {
+    for (int i = 0; i < max; i++) {
+        try { driver.findElement(locator).click(); return; }
+        catch (StaleElementReferenceException e) { if (i==max-1) throw e; }
+    }
+}` },
+      { type: 'heading', text: { tr: '3. ElementNotInteractableException', en: '3. ElementNotInteractableException' } },
+      { type: 'code', language: 'java', label: 'Çözüm — JavaScript ile tıkla', code: `WebElement el = driver.findElement(By.id("hiddenBtn"));
+((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", el);
+((JavascriptExecutor)driver).executeScript("arguments[0].click();", el);` },
+      { type: 'heading', text: { tr: '4. TimeoutException', en: '4. TimeoutException' } },
+      { type: 'code', language: 'bash', label: 'Hata', code: `org.openqa.selenium.TimeoutException: 
+Expected condition failed: waiting for element (tried for 10 second(s))` },
+      { type: 'code', language: 'java', label: 'Çözüm', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));` },
+      { type: 'heading', text: { tr: '5. NullPointerException — driver null', en: '5. NullPointerException — driver null' } },
+      { type: 'code', language: 'java', label: 'Çözüm', code: `public class LoginPage {
+    WebDriver driver;
+    public LoginPage(WebDriver driver) {
+        this.driver = Objects.requireNonNull(driver, "Driver cannot be null");
+    }
+}` },
+      { type: 'heading', text: { tr: '6. WebDriverException — ChromeDriver uyumsuzluğu', en: '6. WebDriverException — ChromeDriver mismatch' } },
+      { type: 'code', language: 'bash', label: 'Hata', code: `This version of ChromeDriver only supports Chrome 114
+Current browser version is 124.0.6367.207` },
+      { type: 'code', language: 'java', label: 'Çözüm', code: `WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver();` },
+      { type: 'heading', text: { tr: '7. AssertionError — Trailing whitespace', en: '7. AssertionError — Trailing whitespace' } },
+      { type: 'code', language: 'java', label: 'Çözüm', code: `assertEquals("Welcome, Admin!", element.getText().trim());
+assertThat(element.getText().trim()).isEqualTo("Welcome, Admin!");` },
+      { type: 'heading', text: { tr: '8. Maven dependency çakışması', en: '8. Maven dependency conflict' } },
+      { type: 'code', language: 'bash', label: 'Tanı', code: `mvn dependency:tree | grep selenium
+# pom.xml'de <properties><selenium.version>4.20.0</selenium.version></properties>` },
+    ],
+  },
+  en: {
+    title: '🚨 Common Java QA Errors',
+    blocks: [
+      { type: 'simple-box', emoji: '🚨', content: 'Each error has a "signature." Like a doctor: fever could mean infection. Read the error message, recognize the signature, apply the solution.' },
+      { type: 'heading', text: { en: '1. NoSuchElementException' } },
+      { type: 'code', language: 'java', label: 'Solution', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();` },
+      { type: 'heading', text: { en: '2. StaleElementReferenceException' } },
+      { type: 'code', language: 'java', label: 'Solution — Retry pattern', code: `public void clickWithRetry(By l, int max) {
+    for (int i=0; i<max; i++) {
+        try { driver.findElement(l).click(); return; }
+        catch (StaleElementReferenceException e) { if(i==max-1) throw e; }
+    }
+}` },
+      { type: 'heading', text: { en: '6. WebDriverException — ChromeDriver mismatch' } },
+      { type: 'code', language: 'java', label: 'Solution', code: `WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver();` },
+    ],
+  },
+}
+
+// ─── S7: MÜLAKAT SORULARI ─────────────────────────────────────────────────────
+// Shared questions array — used in both TR and EN sections (bilingual q/a fields)
+const _s7Q = [
+        // ── BASIC 1-15 ──────────────────────────────────────────────────────────
+        {
+          level: 'basic',
+          q: { tr: 'Maven\'da BUILD FAILURE görüyorsun — ilk hangi adımı atarsın ve neden?', en: 'You see BUILD FAILURE in Maven — what is your first step and why?' },
+          a: {
+            tr: 'İlk iş terminal çıktısında "Tests run: X, Failures: Y, Errors: Z" satırını bulmak. Failures sayısı > 0 ise assertion hatası var demektir; yani test çalıştı ama beklenen değerle gerçek değer uyuşmadı. Errors > 0 ise test başlamadan önce bir setup problemi var (örn. driver başlatılamadı, dosya bulunamadı). Surefire-reports klasöründeki XML ya da TXT dosyaları her test için ayrı yığın izini içerir; asıl kök nedeni oradan okursun. CI ortamında bu klasörü artifact olarak sakla ki daha sonra analiz edebilelim.',
+            en: 'First, find the "Tests run: X, Failures: Y, Errors: Z" line in the terminal output. Failures > 0 means an assertion error — the test ran but expected vs actual values didn\'t match. Errors > 0 means a setup problem before the test even started (e.g. driver couldn\'t be created, file not found). The XML or TXT files in target/surefire-reports contain a separate stack trace for each test — read the root cause from there. In CI, save this folder as an artifact for later analysis.',
+          },
+          code: {
+            tr: `// Surefire raporu kontrol akışı
+// 1. Terminal: "BUILD FAILURE" görünce...
+// mvn test → target/surefire-reports/*.txt
+
+// 2. Failure örneği (assertion hatası)
+// Tests run: 5, Failures: 2, Errors: 0
+// → LoginTest.validUser — expected:<200> but was:<401>
+
+// 3. Error örneği (setup hatası)
+// Tests run: 5, Failures: 0, Errors: 3
+// → SessionNotCreatedException: Chrome version mismatch
+
+// 4. Belirli testi tekrar çalıştır:
+// mvn test -Dtest=LoginTest#validUser -X   (-X = debug modu)
+
+// 5. Sadece failed testleri retry et:
+// mvn test -Dsurefire.rerunFailingTestsCount=2`,
+            en: `// Surefire report flow
+// 1. When you see "BUILD FAILURE" in terminal...
+// mvn test → target/surefire-reports/*.txt
+
+// 2. Failure example (assertion error)
+// Tests run: 5, Failures: 2, Errors: 0
+// → LoginTest.validUser — expected:<200> but was:<401>
+
+// 3. Error example (setup error)
+// Tests run: 5, Failures: 0, Errors: 3
+// → SessionNotCreatedException: Chrome version mismatch
+
+// 4. Run a specific test again:
+// mvn test -Dtest=LoginTest#validUser -X   (-X = debug mode)
+
+// 5. Retry only failed tests:
+// mvn test -Dsurefire.rerunFailingTestsCount=2`,
+          },
+          analogy: {
+            tr: 'Kod derleme hatası almak tıpkı yemek tarifi kitabında "adım 3\'te hata" demesi gibi — kitabın o sayfasını açıp tam olarak hangi satırda ne yanlış gittiğini okumak gerekir. Surefire raporu da o sayfa gibidir.',
+            en: 'A build failure is like a recipe book saying "error at step 3" — you need to open that page and read exactly which line went wrong. The surefire report is that page.',
+          },
+          keyPoints: [
+            { tr: 'Failures = assertion hatası (test çalıştı, sonuç yanlış)', en: 'Failures = assertion error (test ran, wrong result)' },
+            { tr: 'Errors = setup/teardown hatası (test hiç çalışmadı)', en: 'Errors = setup/teardown error (test never ran)' },
+            { tr: 'target/surefire-reports/*.txt kök nedeni verir', en: 'target/surefire-reports/*.txt gives root cause' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "İlk BUILD FAILURE\'da doğrudan surefire-reports\'a giderim. Failures ile Errors arasındaki farkı bilerek doğru yere odaklanırım — assertion hatasında test mantığına, Error\'da environment\'a bakarım."',
+            en: 'Say in interview: "On first BUILD FAILURE I go straight to surefire-reports. Knowing the difference between Failures and Errors lets me focus on the right place — test logic for Failures, environment for Errors."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: '@BeforeAll ile @BeforeEach arasındaki fark nedir? WebDriver başlatmak için hangisini seçersin ve neden?', en: 'What is the difference between @BeforeAll and @BeforeEach? Which do you choose for WebDriver setup and why?' },
+          a: {
+            tr: '@BeforeAll, tüm test metodları çalışmadan önce yalnızca bir kez çağrılır ve static olmalıdır (JUnit5\'te). @BeforeEach ise her test metodundan önce ayrı ayrı çalışır. Eğer WebDriver\'ı @BeforeEach\'te başlatırsanız her test için yeni bir tarayıcı penceresi açılır — bu izolasyon sağlar ama süresi uzar. @BeforeAll\'da başlatırsanız aynı tarayıcı oturumu tüm testlerde paylaşılır, dolayısıyla hız artar fakat testler arasındaki yan etkiler de artar. Tercih senaryoya bağlı: bağımsız testler için @BeforeEach, hız öncelikliyse @BeforeAll + @AfterAll kombinasyonu. TestNG\'de karşılıkları @BeforeClass ve @BeforeMethod\'tur.',
+            en: '@BeforeAll is called exactly once before all test methods and must be static in JUnit5. @BeforeEach runs before every single test method. Using @BeforeEach for WebDriver gives full isolation (new browser per test) but is slower. @BeforeAll shares one browser session across all tests — faster but side-effects can leak between tests. Choose @BeforeEach for independent tests, @BeforeAll when speed is priority. TestNG equivalents: @BeforeClass and @BeforeMethod.',
+          },
+          code: {
+            tr: `// JUnit5 örneği — @BeforeAll ile paylaşımlı driver
+class LoginTest {
+    static WebDriver driver;   // static zorunlu
+    static WebDriverWait wait;
+
+    @BeforeAll
+    static void setupAll() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();           // bir kez açılır
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @BeforeEach
+    void goToLoginPage() {
+        driver.get("https://example.com/login"); // her testte ana sayfaya dön
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        if (driver != null) driver.quit();   // bir kez kapatılır
+    }
+}`,
+            en: `// JUnit5 example — shared driver with @BeforeAll
+class LoginTest {
+    static WebDriver driver;   // must be static
+    static WebDriverWait wait;
+
+    @BeforeAll
+    static void setupAll() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();           // opened once
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @BeforeEach
+    void goToLoginPage() {
+        driver.get("https://example.com/login"); // navigate back each test
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        if (driver != null) driver.quit();   // closed once
+    }
+}`,
+          },
+          analogy: {
+            tr: '@BeforeAll bir şirkette toplantı odasını sabah bir kez açmak gibidir — herkes aynı odayı kullanır. @BeforeEach ise her toplantı öncesi odayı temizlemek gibi — daha temiz ama zaman alır.',
+            en: '@BeforeAll is like opening the meeting room once in the morning — everyone shares it. @BeforeEach is like cleaning the room before each meeting — cleaner but time-consuming.',
+          },
+          keyPoints: [
+            { tr: '@BeforeAll: 1 kez, static zorunlu, paylaşımlı durum riski var', en: '@BeforeAll: once, must be static, risk of shared state' },
+            { tr: '@BeforeEach: her test için, tam izolasyon, yavaş ama güvenli', en: '@BeforeEach: per test, full isolation, slow but safe' },
+            { tr: 'Paralel testte @BeforeEach + ThreadLocal kombinasyonu ideal', en: 'For parallel tests: @BeforeEach + ThreadLocal is ideal' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Smoke suite\'de @BeforeAll tercih ederim — hız kritik. Regression\'da @BeforeEach kullanırım çünkü testlerin birbirini etkilememesi önemli."',
+            en: 'Say in interview: "For smoke suites I prefer @BeforeAll — speed is critical. For regression I use @BeforeEach because test isolation matters."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Selenium testinde NullPointerException alıyorsun — bunun olası nedenleri ve önleme yöntemleri neler?', en: 'You get NullPointerException in a Selenium test — what are the likely causes and how do you prevent them?' },
+          a: {
+            tr: 'NPE\'nin en sık nedeni WebDriver referansının null olmasıdır: @BeforeAll/@BeforeEach doğru çalışmamışsa driver null kalır. İkinci yaygın neden, findElement\'in null döneceğini sanmak — oysa null dönmez, NoSuchElementException fırlatır; ama getText() sonucunu null ile karşılaştırırsanız risk oluşur. Üçüncü neden: Optional kullanmadan dönen objelere doğrudan erişmek. Çözüm olarak constructor injection, Objects.requireNonNull() ve Optional<T> kullanılır. Java 14+ ile metin açıklayıcı NullPointerException mesajları gelir, debug kolaylaşır.',
+            en: 'The most common cause is a null WebDriver reference: if @BeforeAll/@BeforeEach doesn\'t execute correctly, driver remains null. Second common cause: assuming findElement returns null — it doesn\'t, it throws NoSuchElementException; but comparing getText() result to null is risky. Third: accessing returned objects directly without Optional. Solutions: constructor injection, Objects.requireNonNull(), and Optional<T>. Java 14+ gives helpful NPE messages making debugging easier.',
+          },
+          code: {
+            tr: `// ❌ Kötü — NPE'ye açık
+class LoginPage {
+    WebDriver driver; // null olabilir
+
+    void login(String user, String pass) {
+        driver.findElement(By.id("user")).sendKeys(user); // NPE!
+    }
+}
+
+// ✅ İyi — constructor injection + null kontrol
+class LoginPage {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    LoginPage(WebDriver driver) {
+        this.driver = Objects.requireNonNull(driver, "driver null olamaz");
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // Optional ile güvenli getText
+    Optional<String> getErrorMessage() {
+        try {
+            return Optional.of(
+                driver.findElement(By.id("error")).getText()
+            );
+        } catch (NoSuchElementException e) {
+            return Optional.empty();
+        }
+    }
+}`,
+            en: `// ❌ Bad — prone to NPE
+class LoginPage {
+    WebDriver driver; // can be null
+
+    void login(String user, String pass) {
+        driver.findElement(By.id("user")).sendKeys(user); // NPE!
+    }
+}
+
+// ✅ Good — constructor injection + null check
+class LoginPage {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    LoginPage(WebDriver driver) {
+        this.driver = Objects.requireNonNull(driver, "driver cannot be null");
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // Safe getText with Optional
+    Optional<String> getErrorMessage() {
+        try {
+            return Optional.of(
+                driver.findElement(By.id("error")).getText()
+            );
+        } catch (NoSuchElementException e) {
+            return Optional.empty();
+        }
+    }
+}`,
+          },
+          analogy: {
+            tr: 'NPE, boş bir sürahi\'den su dökmeye çalışmak gibidir. Java\'da final + constructor ile sürahiyi doldurmadan nesneyi var edemezsiniz — bu Java\'nın güvenli yol gösterme mekanizmasıdır.',
+            en: 'NPE is like trying to pour water from an empty jug. With final + constructor in Java, you can\'t create the object without filling the jug first — that\'s Java\'s safe guardrail.',
+          },
+          keyPoints: [
+            { tr: 'Constructor injection: driver null ise nesne hiç oluşturulmaz', en: 'Constructor injection: if driver is null, object is never created' },
+            { tr: 'Objects.requireNonNull() hata mesajını erken ve net verir', en: 'Objects.requireNonNull() gives early, clear error messages' },
+            { tr: 'Java 14+ NPE mesajları hangi değişkenin null olduğunu söyler', en: 'Java 14+ NPE messages tell you exactly which variable is null' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Projemdeki tüm Page Object\'lere constructor injection uyguladım. Driver null gelirse test setup\'ta fail eder — production koduna ulaşmaz. Bunu Objects.requireNonNull ile garantilerim."',
+            en: 'Say in interview: "I applied constructor injection to all Page Objects. If driver is null, the test fails at setup — never reaches production code. I guarantee this with Objects.requireNonNull."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Test bazen geçiyor bazen geçmiyor (flaky) — nedenleri ve sistematik çözümü nedir?', en: 'Test passes sometimes, fails sometimes (flaky) — what are the causes and systematic solution?' },
+          a: {
+            tr: 'Flaky testin en sık nedeni timing sorunlarıdır: sayfa yüklenmeden findElement çağrısı yapmak. Buna ek olarak test bağımlılığı (bir test diğerinin bıraktığı duruma güveniyor), environment farklılıkları (CI vs local), ve AJAX/animasyon bitmeden etkileşim sayılabilir. Çözüm birden fazla katmanlıdır: explicit WebDriverWait + ExpectedConditions kullan, implicit wait\'i 0\'a çek (ikisi bir arada kötü), test izolasyonu sağla, ve flaky testleri @Tag("flaky") ile işaretle. CI geçmişini 30 günlük analiz edip hangi testlerin en çok sallandığını ölç.',
+            en: 'The most common cause of flaky tests is timing: calling findElement before the page has loaded. Other causes include test dependency (one test relies on state left by another), environment differences (CI vs local), and interacting before AJAX/animations complete. Solution is multi-layered: use explicit WebDriverWait + ExpectedConditions, set implicit wait to 0 (mixing both is bad), ensure test isolation, and tag flaky tests with @Tag("flaky"). Analyze 30-day CI history to measure which tests flake most.',
+          },
+          code: {
+            tr: `// ❌ Kötü — timing hatası
+driver.get("https://shop.com");
+driver.findElement(By.id("productList")).click(); // henüz yüklenmemiş olabilir!
+
+// ✅ İyi — explicit wait ile güvenli
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Element görünür ve tıklanabilir olana kadar bekle
+WebElement productList = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("productList"))
+);
+productList.click();
+
+// AJAX tamamlanmasını bekle (JS ile)
+wait.until(d -> {
+    JavascriptExecutor js = (JavascriptExecutor) d;
+    return js.executeScript("return document.readyState").equals("complete");
+});
+
+// ⚙️ KRİTİK: implicit + explicit birlikte kullanma!
+driver.manage().timeouts().implicitlyWait(Duration.ZERO); // 0 yap`,
+            en: `// ❌ Bad — timing error
+driver.get("https://shop.com");
+driver.findElement(By.id("productList")).click(); // may not be loaded yet!
+
+// ✅ Good — safe with explicit wait
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Wait until element is visible and clickable
+WebElement productList = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("productList"))
+);
+productList.click();
+
+// Wait for AJAX completion (via JS)
+wait.until(d -> {
+    JavascriptExecutor js = (JavascriptExecutor) d;
+    return js.executeScript("return document.readyState").equals("complete");
+});
+
+// ⚙️ CRITICAL: do not mix implicit + explicit wait!
+driver.manage().timeouts().implicitlyWait(Duration.ZERO); // set to 0`,
+          },
+          analogy: {
+            tr: 'Flaky test, kırmızı ışıkta bazen geçen trafik gibidir — çoğunlukla geçiyor ama ara sıra kaza oluyor. Explicit wait ise yeşil ışığı görmeden hareket etmemek gibidir.',
+            en: 'A flaky test is like sometimes running a red light — usually fine but occasionally crashes. Explicit wait is like not moving until you see green.',
+          },
+          keyPoints: [
+            { tr: 'implicit + explicit wait birlikte kullanmak öngörülemeyen davranışa yol açar', en: 'Mixing implicit + explicit wait causes unpredictable behavior' },
+            { tr: '@Tag("flaky") ile izole et, retry ekle, ama kök nedeni çöz', en: 'Isolate with @Tag("flaky"), add retry, but fix the root cause' },
+            { tr: 'Test izolasyonu: her test kendi verisini oluşturmalı ve temizlemeli', en: 'Test isolation: each test must create and clean its own data' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Flaky testleri doğrudan silmem ya da yoksaymam. Önce kategorilendirim (timing/bağımlılık/environment), sonra kök nedenini giderip CI geçmiş analiziyle düzeldiğini doğrularım."',
+            en: 'Say in interview: "I don\'t just delete or ignore flaky tests. I categorize them (timing/dependency/environment), fix the root cause, and verify the fix via CI history analysis."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Test senaryolarında List ve Set\'in farklı kullanım alanlarını örnek vererek açıkla.', en: 'Explain with examples how List and Set are used differently in test scenarios.' },
+          a: {
+            tr: 'List, sıralı ve mükerrer elemanlara izin veren bir collection\'dır — dropdown seçeneklerini sırasıyla almak veya bir sayfadaki tüm hata mesajlarını toplamak için kullanılır. Set ise benzersiz elemanlar içerir ve tekrar eden değerleri otomatik filtreler — bir sayfadaki tüm linklerin unique olup olmadığını kontrol etmek için idealdir. Stream API ile List\'ten Set\'e dönüşüm çok kolaydır. Özellikle tablo verilerini okurken List, unique değer doğrulamada Set tercih edilir.',
+            en: 'List is ordered and allows duplicates — use it to get dropdown options in order or collect all error messages. Set contains unique elements and auto-filters duplicates — ideal for checking that all page links are unique. Converting List to Set via Stream API is easy. Use List when reading tabular data, Set when validating uniqueness.',
+          },
+          code: {
+            tr: `// List kullanım örneği — dropdown seçeneklerini sıralı al
+Select dropdown = new Select(driver.findElement(By.id("country")));
+List<WebElement> options = dropdown.getOptions();
+List<String> optionTexts = options.stream()
+    .map(WebElement::getText)
+    .collect(Collectors.toList());
+// ["Turkey", "Germany", "USA", ...]
+
+// Set kullanım örneği — sayfadaki unique linkleri bul
+List<WebElement> links = driver.findElements(By.tagName("a"));
+Set<String> uniqueHrefs = links.stream()
+    .map(el -> el.getAttribute("href"))
+    .filter(Objects::nonNull)
+    .collect(Collectors.toSet()); // tekrar edenler otomatik düşer
+
+// Assertion: tüm linkler unique mi?
+assertEquals(links.size(), uniqueHrefs.size(), "Duplicate link var!");
+
+// LinkedHashSet ile hem unique hem sıralı
+Set<String> orderedUnique = new LinkedHashSet<>(optionTexts);`,
+            en: `// List example — get dropdown options in order
+Select dropdown = new Select(driver.findElement(By.id("country")));
+List<WebElement> options = dropdown.getOptions();
+List<String> optionTexts = options.stream()
+    .map(WebElement::getText)
+    .collect(Collectors.toList());
+// ["Turkey", "Germany", "USA", ...]
+
+// Set example — find unique links on page
+List<WebElement> links = driver.findElements(By.tagName("a"));
+Set<String> uniqueHrefs = links.stream()
+    .map(el -> el.getAttribute("href"))
+    .filter(Objects::nonNull)
+    .collect(Collectors.toSet()); // duplicates automatically removed
+
+// Assertion: are all links unique?
+assertEquals(links.size(), uniqueHrefs.size(), "Duplicate link found!");
+
+// LinkedHashSet: unique and ordered
+Set<String> orderedUnique = new LinkedHashSet<>(optionTexts);`,
+          },
+          analogy: {
+            tr: 'List bir sıra numaralı bilet gibidir — aynı numara iki kez olabilir ve sıra önemlidir. Set ise parmak izi gibidir — her biri benzersiz olmak zorundadır.',
+            en: 'List is like numbered tickets — the same number can appear twice and order matters. Set is like fingerprints — each one must be unique.',
+          },
+          keyPoints: [
+            { tr: 'List: sıra önemli veya mükerrer değer bekleniyor', en: 'List: order matters or duplicates are expected' },
+            { tr: 'Set: benzersizlik testi yaparken, uniqueness assertion\'da', en: 'Set: when testing uniqueness or doing uniqueness assertions' },
+            { tr: 'LinkedHashSet: sırayı koruyarak unique list ister', en: 'LinkedHashSet: unique list while preserving insertion order' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Bir sayfadaki ürün ID\'lerinin unique olduğunu doğrulamak için List\'i Set\'e çevirip size karşılaştırması yaptım — bu pattern\'i gerçek projede kullandım."',
+            en: 'Say in interview: "To verify product IDs on a page are unique, I converted the List to a Set and compared sizes — I used this pattern in a real project."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'pom.xml\'de scope="test" ne anlama gelir ve hangi bağımlılıklar bu scope\'ta olmalıdır?', en: 'What does scope="test" in pom.xml mean, and which dependencies should use this scope?' },
+          a: {
+            tr: 'scope="test" ile işaretlenmiş bağımlılıklar sadece test derleme ve çalıştırma sürecinde classpath\'e eklenir; production JAR\'ına dahil edilmez. Bu, production bundle\'ının gereksiz kütüphanelerle şişmesini önler ve uygulama güvenliğini artırır. JUnit5, TestNG, Mockito, WebDriverManager, REST Assured gibi kütüphaneler bu scope\'ta tanımlanmalıdır. Eğer scope belirtilmezse varsayılan "compile" olur ve bu kütüphaneler production JAR\'ına girer — bu hem güvenlik riski hem de boyut sorunudur.',
+            en: 'Dependencies marked scope="test" are only added to the classpath during test compilation and execution; they are not included in the production JAR. This prevents the production bundle from bloating with unnecessary libraries and improves security. JUnit5, TestNG, Mockito, WebDriverManager, REST Assured should all use this scope. If scope is omitted, it defaults to "compile" and these libraries end up in the production JAR — a security risk and size problem.',
+          },
+          code: {
+            tr: `<!-- pom.xml — doğru scope kullanımı -->
+<dependencies>
+    <!-- Test için: scope="test" -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>  <!-- sadece test classpath'inde -->
+    </dependency>
+
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>5.7.0</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Production için: scope yok (compile) -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <!-- scope belirtilmemiş = compile = production JAR'a girer -->
+    </dependency>
+</dependencies>`,
+            en: `<!-- pom.xml — correct scope usage -->
+<dependencies>
+    <!-- For tests: scope="test" -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>  <!-- test classpath only -->
+    </dependency>
+
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>5.7.0</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- For production: no scope (compile) -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <!-- no scope = compile = included in production JAR -->
+    </dependency>
+</dependencies>`,
+          },
+          analogy: {
+            tr: 'scope="test" tıpkı bir futbol sahasındaki antrenman topu gibidir — sadece pratik sırasında kullanılır, maçta sahaya çıkmaz. Production dağıtımına dahil edilmez.',
+            en: 'scope="test" is like a training ball on a football pitch — only used during practice, never brought out for the match. It doesn\'t go into production.',
+          },
+          keyPoints: [
+            { tr: 'scope="test" → production JAR\'ına girmez, güvenli', en: 'scope="test" → not included in production JAR, secure' },
+            { tr: 'scope="compile" (default) → her yerde kullanılır', en: 'scope="compile" (default) → available everywhere' },
+            { tr: 'scope="provided" → runtime\'da container sağlar (Servlet API)', en: 'scope="provided" → container provides at runtime (Servlet API)' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "pom.xml\'de her bağımlılığın scope\'unu bilinçli seçerim. Test kütüphaneleri her zaman scope=test — production JAR boyutunu ve saldırı yüzeyini minimize etmek için."',
+            en: 'Say in interview: "I consciously choose the scope for every dependency in pom.xml. Test libraries always get scope=test — to minimize production JAR size and attack surface."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'WebDriverManager neden kullanılır? Manuel ChromeDriver yönetimine göre avantajları nelerdir?', en: 'Why use WebDriverManager? What are its advantages over manual ChromeDriver management?' },
+          a: {
+            tr: 'Chrome her birkaç haftada bir güncellenir ve her Chrome versiyonu için uygun ChromeDriver versiyonu farklıdır. Manuel yönetimde her geliştirici kendi makinesine uygun ChromeDriver binary\'sini indirip path\'e eklemek zorundadır — bu, CI/CD sunucularında ve farklı işletim sistemlerinde sürekli bir bakım yükü oluşturur. WebDriverManager, sisteme kurulu Chrome versiyonunu otomatik detect eder, uygun ChromeDriver\'ı indirir ve konfigüre eder. Docker ve GitHub Actions gibi CI ortamlarında ekstra adım gerekmez. Ayrıca Firefox, Edge, Safari gibi diğer tarayıcıları da yönetir.',
+            en: 'Chrome updates every few weeks and each Chrome version requires a different ChromeDriver version. With manual management every developer must download the correct ChromeDriver binary and add it to PATH — this creates constant maintenance overhead on CI/CD servers and different operating systems. WebDriverManager automatically detects the installed Chrome version, downloads the matching ChromeDriver, and configures it. No extra step needed in CI environments like Docker or GitHub Actions. It also manages Firefox, Edge, and Safari.',
+          },
+          code: {
+            tr: `// ❌ Manuel — her makinede farklı, bakım yükü
+System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver"); // platform bağımlı!
+WebDriver driver = new ChromeDriver();
+
+// ✅ WebDriverManager — tek satır, her yerde çalışır
+WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver();
+
+// Diğer tarayıcılar
+WebDriverManager.firefoxdriver().setup();
+WebDriverManager.edgedriver().setup();
+
+// CI/CD'de headless
+ChromeOptions opts = new ChromeOptions();
+opts.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver(opts);`,
+            en: `// ❌ Manual — different on each machine, maintenance overhead
+System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver"); // platform-dependent!
+WebDriver driver = new ChromeDriver();
+
+// ✅ WebDriverManager — one line, works everywhere
+WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver();
+
+// Other browsers
+WebDriverManager.firefoxdriver().setup();
+WebDriverManager.edgedriver().setup();
+
+// Headless mode for CI/CD
+ChromeOptions opts = new ChromeOptions();
+opts.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+WebDriverManager.chromedriver().setup();
+WebDriver driver = new ChromeDriver(opts);`,
+          },
+          analogy: {
+            tr: 'WebDriverManager, Java\'daki Maven bağımlılık yönetimi gibidir — doğru versiyonu bul, indir, kullanıma hazır et. Manuel ChromeDriver yönetimi ise her kütüphane için JAR\'ı elle indirmek gibidir.',
+            en: 'WebDriverManager is like Maven dependency management in Java — find the right version, download it, make it ready to use. Manual ChromeDriver management is like downloading every JAR by hand.',
+          },
+          keyPoints: [
+            { tr: 'Otomatik versiyon eşleşmesi — Chrome güncellenince ChromeDriver\'ı da günceller', en: 'Automatic version matching — updates ChromeDriver when Chrome updates' },
+            { tr: 'CI/CD\'de extra step yok — Docker image\'larda da çalışır', en: 'No extra step in CI/CD — works in Docker images too' },
+            { tr: 'Chrome, Firefox, Edge, Safari, Opera\'yı destekler', en: 'Supports Chrome, Firefox, Edge, Safari, Opera' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "WebDriverManager olmadan CI\'da her ChromeDriver güncellemesini manuel yönetmek zorunda kaldık — bu ciddi zaman kaybıydı. WebDriverManager ile bu sorunu tamamen ortadan kaldırdık."',
+            en: 'Say in interview: "Without WebDriverManager we had to manually manage every ChromeDriver update in CI — a significant time waste. WebDriverManager eliminated this problem entirely."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'final keyword test projesinde nerede ve neden kullanılır?', en: 'Where and why is the final keyword used in test projects?' },
+          a: {
+            tr: 'final değişken bir kez atandıktan sonra değiştirilemez. Test projesinde üç kritik yerde kullanılır: (1) Page Object locatorları — bir kez tanımlanır, testten teste değişmez; (2) sabitler — BASE_URL, TIMEOUT gibi değerler; (3) bağımlılık referansları — driver, wait gibi nesneler yanlışlıkla null atanmasın diye. final kullanmak hem kod güvenliğini artırır hem de IDE\'nin "bu değer değişti" uyarısını etkinleştirir. Parallel testlerde final field\'lar thread-safe\'dir.',
+            en: 'A final variable cannot be changed after assignment. In test projects it is used in three critical places: (1) Page Object locators — defined once, never changed test to test; (2) constants — values like BASE_URL, TIMEOUT; (3) dependency references — objects like driver, wait so they can\'t accidentally be set to null. Using final improves code safety and enables IDE warnings if the value is accidentally changed. Final fields are thread-safe in parallel tests.',
+          },
+          code: {
+            tr: `// Page Object — final locatorlar
+public class LoginPage {
+    // ✅ final: yanlışlıkla locator değiştirilemez
+    private final By usernameField = By.id("username");
+    private final By passwordField = By.id("password");
+    private final By loginButton   = By.cssSelector("button[type='submit']");
+
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver; // final: bir kez atanır, null'a çekilemez
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void login(String user, String pass) {
+        driver.findElement(usernameField).sendKeys(user);
+        driver.findElement(passwordField).sendKeys(pass);
+        driver.findElement(loginButton).click();
+    }
+}
+
+// Sabitler sınıfı
+public final class TestConstants {
+    private TestConstants() {} // instantiation engeli
+
+    public static final String BASE_URL  = "https://myapp.com";
+    public static final int    TIMEOUT   = 15;
+    public static final String ADMIN_USER = "admin@test.com";
+}`,
+            en: `// Page Object — final locators
+public class LoginPage {
+    // ✅ final: locator cannot be accidentally changed
+    private final By usernameField = By.id("username");
+    private final By passwordField = By.id("password");
+    private final By loginButton   = By.cssSelector("button[type='submit']");
+
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver; // final: assigned once, cannot be set to null
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void login(String user, String pass) {
+        driver.findElement(usernameField).sendKeys(user);
+        driver.findElement(passwordField).sendKeys(pass);
+        driver.findElement(loginButton).click();
+    }
+}
+
+// Constants class
+public final class TestConstants {
+    private TestConstants() {} // prevent instantiation
+
+    public static final String BASE_URL   = "https://myapp.com";
+    public static final int    TIMEOUT    = 15;
+    public static final String ADMIN_USER = "admin@test.com";
+}`,
+          },
+          analogy: {
+            tr: 'final, bir Java programındaki sabit mürekkepli kalemdir — bir kez yazdın mı, silerek değiştiremezsin. Java\'daki const kavramının güçlü versiyonudur ve derleme zamanında güvence sağlar.',
+            en: 'final is like a permanent marker in a Java program — once written, you can\'t erase and change it. It\'s Java\'s strong version of const and provides compile-time guarantees.',
+          },
+          keyPoints: [
+            { tr: 'final field → constructor\'da atanmalı, sonra değiştirilemez', en: 'final field → must be assigned in constructor, cannot change after' },
+            { tr: 'static final = derleme zamanı sabiti, JVM optimize eder', en: 'static final = compile-time constant, JVM optimizes it' },
+            { tr: 'Parallel testlerde final field\'lar thread-safe\'dir', en: 'final fields are thread-safe in parallel tests' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Tüm Page Object locatorlarımı final tanımlarım. Bu, testin çalışırken locator\'ın yanlışlıkla değiştirildiği senaryoları imkansız kılar — defensive programming."',
+            en: 'Say in interview: "I declare all Page Object locators as final. This makes it impossible for a locator to be accidentally changed during test execution — defensive programming."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Thread.sleep() yerine neden WebDriverWait kullanılmalı? Gerçek bir test üzerinden açıkla.', en: 'Why should WebDriverWait be used instead of Thread.sleep()? Explain with a real test example.' },
+          a: {
+            tr: 'Thread.sleep(3000) yazdığınızda test her koşulda tam 3 saniye bekler — element 200ms\'de yüklense bile. Yüzlerce test için bu sabit beklemeler birleştiğinde toplam süre dramatik artar. WebDriverWait ise bir koşulu maksimum N saniye boyunca polling yapar; koşul sağlanınca hemen devam eder. Sonuç olarak WebDriverWait hem hızlıdır (koşul erken sağlanırsa) hem de güvenlidir (koşul hiç sağlanmazsa anlamlı TimeoutException fırlatır). Ayrıca Thread.sleep() InterruptedException fırlatır ve checked exception olarak yönetilmesi gerekir.',
+            en: 'When you write Thread.sleep(3000), the test always waits exactly 3 seconds — even if the element loaded in 200ms. With hundreds of tests, these fixed waits add up dramatically. WebDriverWait polls a condition for up to N seconds; it continues immediately when the condition is met. As a result WebDriverWait is both faster (if condition is met early) and safer (throws meaningful TimeoutException if never met). Also Thread.sleep() throws InterruptedException which must be handled as a checked exception.',
+          },
+          code: {
+            tr: `// ❌ Kötü — Thread.sleep
+driver.get("https://shop.com/checkout");
+Thread.sleep(3000); // her zaman 3 sn bekler — element 100ms'de gelse bile!
+driver.findElement(By.id("orderConfirm")).click();
+
+// ✅ İyi — WebDriverWait
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Element görünür olur olmaz devam eder (100ms'de gelse 100ms bekler)
+WebElement confirmBtn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("orderConfirm"))
+);
+confirmBtn.click();
+
+// Custom condition — belirli metni bekle
+wait.until(d ->
+    d.findElement(By.id("status")).getText().contains("Confirmed")
+);
+
+// Fluent wait — polling aralığı ayarlanabilir
+Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(500))
+    .ignoring(StaleElementReferenceException.class);`,
+            en: `// ❌ Bad — Thread.sleep
+driver.get("https://shop.com/checkout");
+Thread.sleep(3000); // always waits 3s — even if element loads in 100ms!
+driver.findElement(By.id("orderConfirm")).click();
+
+// ✅ Good — WebDriverWait
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Continues as soon as element is visible (waits only 100ms if loaded that fast)
+WebElement confirmBtn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("orderConfirm"))
+);
+confirmBtn.click();
+
+// Custom condition — wait for specific text
+wait.until(d ->
+    d.findElement(By.id("status")).getText().contains("Confirmed")
+);
+
+// Fluent wait — configurable polling interval
+Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(500))
+    .ignoring(StaleElementReferenceException.class);`,
+          },
+          analogy: {
+            tr: 'Thread.sleep() yemek pişirirken "10 dakika sonra bak" demek gibidir. WebDriverWait ise mutfak alarmı kurmak gibidir — yemek hazır olunca hemen uyarır, daha fazla beklemeye gerek yok.',
+            en: 'Thread.sleep() is like saying "check the food after 10 minutes." WebDriverWait is like setting a kitchen timer — it alerts you the moment the food is ready, no extra waiting.',
+          },
+          keyPoints: [
+            { tr: 'WebDriverWait: koşul sağlanınca devam eder, zaman israfı yok', en: 'WebDriverWait: continues when condition met, no wasted time' },
+            { tr: 'Thread.sleep() her zaman tam süreyi bekler + InterruptedException', en: 'Thread.sleep() always waits full duration + InterruptedException' },
+            { tr: 'FluentWait ile polling aralığı ve ignore edilecek exception ayarlanır', en: 'FluentWait lets you configure polling interval and ignored exceptions' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "200 testlik bir suite\'de her teste Thread.sleep(3000) koysaydık toplam 600 saniye = 10 dakika sabit bekleme olurdu. WebDriverWait ile bu süreyi 2-3 dakikaya indirdik."',
+            en: 'Say in interview: "With 200 tests, if each had Thread.sleep(3000), that\'s 600 seconds = 10 minutes of fixed waiting. With WebDriverWait we reduced this to 2-3 minutes."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: '@DataProvider ile @Parameters arasındaki fark nedir? Data-driven testing için hangisi tercih edilmeli?', en: 'What is the difference between @DataProvider and @Parameters? Which is preferred for data-driven testing?' },
+          a: {
+            tr: '@Parameters, testng.xml dosyasından statik değerler alır — bu değerler sadece XML\'i düzenleyerek değiştirilebilir ve runtime\'da programatik olarak üretilemez. @DataProvider ise bir Java metodu aracılığıyla Object[][] formatında test verisi döndürür; her satır ayrı bir test çalışması olarak execute edilir. @DataProvider dinamik ve programatiktir: veritabanından, Excel\'den veya Faker ile üretilmiş verilerle çalışabilir. Gerçek data-driven testing için @DataProvider çok daha güçlüdür. Ayrıca @DataProvider parallel="true" ile eşzamanlı çalıştırılabilir.',
+            en: '@Parameters reads static values from testng.xml — these can only be changed by editing the XML and cannot be generated programmatically at runtime. @DataProvider returns test data as Object[][] from a Java method; each row executes as a separate test run. @DataProvider is dynamic and programmatic: it can work with data from a database, Excel, or Faker-generated values. For real data-driven testing @DataProvider is far more powerful. It also supports parallel="true" for concurrent execution.',
+          },
+          code: {
+            tr: `// @Parameters — statik, testng.xml'den
+// testng.xml: <parameter name="browser" value="chrome"/>
+@Test
+@Parameters("browser")
+public void crossBrowserTest(String browser) {
+    System.out.println("Browser: " + browser); // sadece "chrome" gelir
+}
+
+// @DataProvider — dinamik, programatik
+@DataProvider(name = "loginData", parallel = true)
+public Object[][] getLoginData() {
+    return new Object[][] {
+        { "admin@test.com",  "Admin123!", true  }, // geçerli kullanıcı
+        { "wrong@test.com",  "wrong",     false }, // geçersiz
+        { "",                "pass",      false }, // boş email
+        { "user@test.com",   "User456!",  true  }, // başka geçerli
+    };
+}
+
+@Test(dataProvider = "loginData")
+public void loginTest(String email, String pass, boolean shouldSucceed) {
+    loginPage.login(email, pass);
+    if (shouldSucceed) {
+        assertTrue(homePage.isLoaded());
+    } else {
+        assertTrue(loginPage.hasError());
+    }
+}
+// → 4 satır = 4 ayrı test çalışması`,
+            en: `// @Parameters — static, from testng.xml
+// testng.xml: <parameter name="browser" value="chrome"/>
+@Test
+@Parameters("browser")
+public void crossBrowserTest(String browser) {
+    System.out.println("Browser: " + browser); // only "chrome" comes in
+}
+
+// @DataProvider — dynamic, programmatic
+@DataProvider(name = "loginData", parallel = true)
+public Object[][] getLoginData() {
+    return new Object[][] {
+        { "admin@test.com",  "Admin123!", true  }, // valid user
+        { "wrong@test.com",  "wrong",     false }, // invalid
+        { "",                "pass",      false }, // empty email
+        { "user@test.com",   "User456!",  true  }, // another valid
+    };
+}
+
+@Test(dataProvider = "loginData")
+public void loginTest(String email, String pass, boolean shouldSucceed) {
+    loginPage.login(email, pass);
+    if (shouldSucceed) {
+        assertTrue(homePage.isLoaded());
+    } else {
+        assertTrue(loginPage.hasError());
+    }
+}
+// → 4 rows = 4 separate test executions`,
+          },
+          analogy: {
+            tr: '@Parameters, bir restoranda menüden tek yemek seçmek gibidir — sabit seçenek. @DataProvider ise şef\'in listeden gelen tüm siparişleri tek tek pişirmesi gibidir — her satır ayrı bir yemek.',
+            en: '@Parameters is like choosing one fixed dish from a menu — static choice. @DataProvider is like the chef cooking every item on an order list individually — each row is a separate dish.',
+          },
+          keyPoints: [
+            { tr: '@DataProvider: Object[][] döndürür, her satır ayrı test instance\'ı', en: '@DataProvider: returns Object[][], each row is a separate test instance' },
+            { tr: '@Parameters: testng.xml\'den okunur, compile-time sabit', en: '@Parameters: read from testng.xml, compile-time fixed' },
+            { tr: '@DataProvider(parallel=true) ile testler eşzamanlı çalışır', en: '@DataProvider(parallel=true) runs tests concurrently' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "@DataProvider\'ı Apache POI ile birleştirerek Excel\'den okunan 50 farklı kullanıcı datasıyla login testimi çalıştırdım. Her satır ayrı bir test olduğundan hangi verinin başarısız olduğunu rapordan direkt gördüm."',
+            en: 'Say in interview: "I combined @DataProvider with Apache POI to run my login test with 50 user data rows from Excel. Since each row is a separate test, I could see directly in the report which data failed."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'equals() ile == farkı Selenium testlerinde neden kritik önem taşır?', en: 'Why is the difference between equals() and == critical in Selenium tests?' },
+          a: {
+            tr: '== operatörü Java\'da referans eşitliğini kontrol eder — iki değişkenin bellekte aynı nesneyi gösterip göstermediğini sınar. equals() ise nesnenin içeriğini karşılaştırır. Selenium\'da driver.findElement(...).getText() her çağrıda yeni bir String nesnesi döndürür; bu nesne == ile test edilirse her zaman false döner çünkü farklı referanslardır. Doğru yol: assertEquals("Login", btn.getText()) — JUnit/TestNG\'nin assertEquals() metodu içeride equals() kullanır. Bu hata özellikle mülakatlarda String karşılaştırmalarında sıkça sorulur.',
+            en: 'The == operator in Java checks reference equality — whether two variables point to the same object in memory. equals() compares the content of the object. In Selenium, driver.findElement(...).getText() returns a new String object each call; testing it with == will always return false because they are different references. The correct way: assertEquals("Login", btn.getText()) — JUnit/TestNG\'s assertEquals() uses equals() internally. This mistake is frequently tested in interviews regarding String comparisons.',
+          },
+          code: {
+            tr: `// ❌ YANLIŞ — her zaman false döner (farklı String referansı)
+WebElement btn = driver.findElement(By.id("loginBtn"));
+if (btn.getText() == "Login") {         // BUG! referans karşılaştırma
+    System.out.println("Buton doğru");  // ASLA buraya gelmez
+}
+
+// ✅ DOĞRU — içerik karşılaştırma
+// Yol 1: equals()
+assertTrue(btn.getText().equals("Login"));
+
+// Yol 2: JUnit5 assertEquals (önerilen, hata mesajı daha açıklayıcı)
+assertEquals("Login", btn.getText());
+// Hata mesajı: expected:<Login> but was:<Sign In>
+
+// Yol 3: equalsIgnoreCase (büyük/küçük harf duyarsız)
+assertTrue(btn.getText().equalsIgnoreCase("login"));
+
+// ✅ String interning özel durumu (genelde kullanma)
+String a = "Login";
+String b = "Login";
+System.out.println(a == b); // true (string pool'dan aynı referans)
+// Ama: getText() string pool'dan gelmez → == güvensiz`,
+            en: `// ❌ WRONG — always returns false (different String reference)
+WebElement btn = driver.findElement(By.id("loginBtn"));
+if (btn.getText() == "Login") {         // BUG! reference comparison
+    System.out.println("Button correct"); // NEVER reaches here
+}
+
+// ✅ CORRECT — content comparison
+// Option 1: equals()
+assertTrue(btn.getText().equals("Login"));
+
+// Option 2: JUnit5 assertEquals (recommended, clearer error message)
+assertEquals("Login", btn.getText());
+// Error message: expected:<Login> but was:<Sign In>
+
+// Option 3: equalsIgnoreCase (case-insensitive)
+assertTrue(btn.getText().equalsIgnoreCase("login"));
+
+// ✅ String interning special case (avoid using this)
+String a = "Login";
+String b = "Login";
+System.out.println(a == b); // true (same reference from string pool)
+// But: getText() does not come from the pool → == is unsafe`,
+          },
+          analogy: {
+            tr: '== iki evin adres numarasının aynı olup olmadığını kontrol eder. equals() ise iki evin içindeki eşyaların aynı olup olmadığını kontrol eder. Selenium\'da getText() her çağrıda farklı adrese taşınmış aynı eşyaları döndürür.',
+            en: '== checks if two houses have the same address. equals() checks if the furniture inside two houses is the same. In Selenium, getText() returns the same furniture moved to a different address each call.',
+          },
+          keyPoints: [
+            { tr: '== referans karşılaştırma, equals() içerik karşılaştırma', en: '== compares references, equals() compares content' },
+            { tr: 'getText() her çağrıda yeni String nesnesi döner → == asla kullanma', en: 'getText() returns new String each call → never use ==' },
+            { tr: 'assertEquals hata mesajı daha açıklayıcı: expected vs actual', en: 'assertEquals gives clearer error: expected vs actual' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Testlerde String karşılaştırmalarında daima assertEquals() kullanırım — JUnit\'in assert metodları zaten equals() kullanır ve hata mesajı expected/actual farkını açıkça gösterir."',
+            en: 'Say in interview: "In tests I always use assertEquals() for String comparisons — JUnit\'s assert methods use equals() internally and the error message clearly shows expected vs actual."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'config.properties dosyasından test verisi nasıl okunur? CI/CD\'de nasıl yönetilir?', en: 'How is test data read from config.properties? How is it managed in CI/CD?' },
+          a: {
+            tr: 'Java\'nın standart Properties sınıfı key-value formatındaki .properties dosyalarını okuyabilir. Test projesinde tipik olarak Singleton ConfigReader pattern\'i kullanılır: sınıf ilk kez yüklendiğinde dosyayı okur, sonraki çağrılarda cached değeri döndürür. CI/CD ortamında ortam değişkenleri (environment variables) .properties dosyasına göre öncelikli olmalıdır — bu sayede hassas bilgiler (şifreler, API key\'ler) source code\'a girmez. System.getenv() ile env var kontrol edilir, yoksa properties\'den okunur.',
+            en: 'Java\'s standard Properties class can read .properties files in key-value format. Test projects typically use the Singleton ConfigReader pattern: it reads the file when the class first loads and returns cached values on subsequent calls. In CI/CD, environment variables must take priority over the .properties file — this way sensitive data (passwords, API keys) never enters source code. Check env vars with System.getenv(), fall back to properties.',
+          },
+          code: {
+            tr: `// config.properties (src/test/resources/)
+// base.url=https://staging.myapp.com
+// browser=chrome
+// implicit.wait=10
+
+// Singleton ConfigReader
+public class ConfigReader {
+    private static final Properties props = new Properties();
+
+    static {
+        try (InputStream in = ConfigReader.class
+                .getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            props.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException("config.properties bulunamadı!", e);
+        }
+    }
+
+    // env var → properties fallback
+    public static String get(String key) {
+        String envVal = System.getenv(key.toUpperCase().replace(".", "_"));
+        return envVal != null ? envVal : props.getProperty(key);
+    }
+
+    public static String getBaseUrl() { return get("base.url"); }
+    public static int    getTimeout() { return Integer.parseInt(get("implicit.wait")); }
+}
+
+// Kullanım
+driver.get(ConfigReader.getBaseUrl()); // CI'da env var öncelikli`,
+            en: `// config.properties (src/test/resources/)
+// base.url=https://staging.myapp.com
+// browser=chrome
+// implicit.wait=10
+
+// Singleton ConfigReader
+public class ConfigReader {
+    private static final Properties props = new Properties();
+
+    static {
+        try (InputStream in = ConfigReader.class
+                .getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            props.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException("config.properties not found!", e);
+        }
+    }
+
+    // env var → properties fallback
+    public static String get(String key) {
+        String envVal = System.getenv(key.toUpperCase().replace(".", "_"));
+        return envVal != null ? envVal : props.getProperty(key);
+    }
+
+    public static String getBaseUrl() { return get("base.url"); }
+    public static int    getTimeout() { return Integer.parseInt(get("implicit.wait")); }
+}
+
+// Usage
+driver.get(ConfigReader.getBaseUrl()); // env var takes priority in CI`,
+          },
+          analogy: {
+            tr: 'ConfigReader tıpkı bir şirkette telefon rehberi gibidir — bir kez oluşturulur, herkes aynı kaynaktan okur. CI ortamında env var, rehberin üzerindeki yapışkanlı not gibidir — eski bilginin önüne geçer.',
+            en: 'ConfigReader is like a company phone directory — created once, everyone reads from the same source. In CI, env var is like a sticky note on the directory — it overrides the old information.',
+          },
+          keyPoints: [
+            { tr: 'Singleton pattern: dosya bir kez okunur, cache\'de tutulur', en: 'Singleton pattern: file read once, cached for all calls' },
+            { tr: 'CI\'da şifreler env var olarak verilmeli — .properties\'de asla', en: 'In CI, passwords go as env vars — never in .properties' },
+            { tr: 'getResourceAsStream classpath\'ten okur, path hardcode gerekmez', en: 'getResourceAsStream reads from classpath, no hardcoded path needed' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "BASE_URL\'i hem local hem CI\'da çalışacak şekilde env var → properties fallback ile yönetiyorum. Hassas değerler Jenkins secrets veya GitHub Actions secrets\'ta — config dosyasında asla şifre yok."',
+            en: 'Say in interview: "I manage BASE_URL with env var → properties fallback so it works both locally and in CI. Sensitive values are in Jenkins secrets or GitHub Actions secrets — never in the config file."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Selenium\'da sayfanın tam olarak yüklendiğini nasıl doğrularsın? Farklı yaklaşımları karşılaştır.', en: 'How do you verify a page has fully loaded in Selenium? Compare different approaches.' },
+          a: {
+            tr: 'Sayfa yüklenme kontrolü için birden fazla yaklaşım vardır. En temel yöntem JavaScript\'in document.readyState değerini "complete" olarak kontrol etmektir — ancak bu sadece DOM\'un hazır olduğunu gösterir, AJAX çağrıları tamamlanmış olmayabilir. İkinci yöntem, sayfanın önemli bir elementinin WebDriverWait ile beklenmesidir — bu hem sayfa yüklemesini hem de UI hazırlığını aynı anda kontrol eder. AJAX-heavy uygulamalarda jQuery.active === 0 veya custom JS kontrolleri gerekebilir. Page Object\'e isLoaded() metodu eklemek en iyi pratiktir.',
+            en: 'There are multiple approaches for page load verification. The most basic is checking JavaScript\'s document.readyState value as "complete" — but this only confirms the DOM is ready, AJAX calls may not be complete. Second method is waiting for a key element with WebDriverWait — this simultaneously checks page load and UI readiness. AJAX-heavy apps may need jQuery.active === 0 or custom JS checks. Adding an isLoaded() method to Page Objects is the best practice.',
+          },
+          code: {
+            tr: `// Yöntem 1: document.readyState (temel)
+wait.until(d -> ((JavascriptExecutor) d)
+    .executeScript("return document.readyState")
+    .equals("complete"));
+
+// Yöntem 2: Belirli element bekleme (önerilen)
+// → Hem sayfa yüklemesini hem UI hazırlığını kontrol eder
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("dashboardHeader")
+));
+
+// Yöntem 3: jQuery AJAX bekleme
+wait.until(d -> {
+    JavascriptExecutor js = (JavascriptExecutor) d;
+    try {
+        return (Long) js.executeScript("return jQuery.active") == 0;
+    } catch (Exception e) {
+        return true; // jQuery yoksa geç
+    }
+});
+
+// ✅ En iyi pratik — Page Object'e isLoaded() ekle
+public class DashboardPage {
+    public boolean isLoaded() {
+        try {
+            return wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.id("dashboardHeader")))
+                .isDisplayed();
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
+}`,
+            en: `// Method 1: document.readyState (basic)
+wait.until(d -> ((JavascriptExecutor) d)
+    .executeScript("return document.readyState")
+    .equals("complete"));
+
+// Method 2: Wait for specific element (recommended)
+// → Checks both page load and UI readiness
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("dashboardHeader")
+));
+
+// Method 3: jQuery AJAX wait
+wait.until(d -> {
+    JavascriptExecutor js = (JavascriptExecutor) d;
+    try {
+        return (Long) js.executeScript("return jQuery.active") == 0;
+    } catch (Exception e) {
+        return true; // skip if jQuery not present
+    }
+});
+
+// ✅ Best practice — add isLoaded() to Page Object
+public class DashboardPage {
+    public boolean isLoaded() {
+        try {
+            return wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.id("dashboardHeader")))
+                .isDisplayed();
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Bir restoranda kapıdan girmek (DOM ready) ile masaya oturup menüyü görmek (element görünür) farklı anlara karşılık gelir. document.readyState kapıdan girdiğini söyler, WebDriverWait ise masanın hazır olduğunu doğrular.',
+            en: 'Entering a restaurant (DOM ready) vs sitting at a table and seeing the menu (element visible) are different moments. document.readyState tells you the door is open, WebDriverWait confirms the table is ready.',
+          },
+          keyPoints: [
+            { tr: 'document.readyState="complete" yalnızca DOM yüklenmesini gösterir', en: 'document.readyState="complete" only shows DOM loaded' },
+            { tr: 'AJAX uygulamalarda element bekleme daha güvenilirdir', en: 'For AJAX apps, waiting for elements is more reliable' },
+            { tr: 'isLoaded() metodu Page Object\'i self-verifying yapar', en: 'isLoaded() method makes Page Objects self-verifying' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Her Page Object\'ime isLoaded() metodu ekliyorum. Bu metot o sayfanın önemli elementinin görünür olup olmadığını kontrol eder. Test navigasyon sonrası hep bu metodu çağırır — readyState\'e güvenmek yerine iş mantığına uygun bekleme yapıyorum."',
+            en: 'Say in interview: "I add an isLoaded() method to every Page Object. This method checks if the page\'s key element is visible. Tests always call this after navigation — I wait based on business logic rather than trusting readyState."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Maven\'da belirli bir test sınıfı veya metodunu nasıl çalıştırırsın? Hangi parametreler kullanılır?', en: 'How do you run a specific test class or method in Maven? What parameters are used?' },
+          a: {
+            tr: 'Maven Surefire Plugin, -Dtest parametresi ile belirli testlerin çalıştırılmasını destekler. Sınıf adı, metod adı, wildcard pattern ve TestNG group\'u belirtilebilir. Bu özellik özellikle bir testi debug ederken veya CI pipeline\'da sadece belirli bir modülün testlerini çalıştırmak istediğinizde değerlidir. Maven 3+\'ta birden fazla test sınıfı virgülle ayrılarak verilebilir. TestNG kullananlar için -Dgroups ile smoke/regression gibi etiketler de kullanılabilir.',
+            en: 'Maven Surefire Plugin supports running specific tests via the -Dtest parameter. You can specify class name, method name, wildcard pattern, and TestNG group. This is especially valuable when debugging a test or when you want to run only a specific module\'s tests in a CI pipeline. In Maven 3+ multiple test classes can be given comma-separated. TestNG users can also use -Dgroups for tags like smoke/regression.',
+          },
+          code: {
+            tr: `# Belirli sınıf
+mvn test -Dtest=LoginTest
+
+# Belirli metod
+mvn test -Dtest=LoginTest#validUserLogin
+
+# Wildcard — Login ile başlayan tüm sınıflar
+mvn test -Dtest="Login*"
+
+# Birden fazla sınıf
+mvn test -Dtest="LoginTest,CartTest,CheckoutTest"
+
+# TestNG groups
+mvn test -Dgroups=smoke
+mvn test -Dgroups="smoke,sanity"
+
+# Belirli suiteXml
+mvn test -DsuiteXmlFile=testng-smoke.xml
+
+# Debug modu (detaylı log)
+mvn test -Dtest=LoginTest -X
+
+# Testi atla (sadece build)
+mvn package -DskipTests`,
+            en: `# Specific class
+mvn test -Dtest=LoginTest
+
+# Specific method
+mvn test -Dtest=LoginTest#validUserLogin
+
+# Wildcard — all classes starting with Login
+mvn test -Dtest="Login*"
+
+# Multiple classes
+mvn test -Dtest="LoginTest,CartTest,CheckoutTest"
+
+# TestNG groups
+mvn test -Dgroups=smoke
+mvn test -Dgroups="smoke,sanity"
+
+# Specific suiteXml
+mvn test -DsuiteXmlFile=testng-smoke.xml
+
+# Debug mode (verbose log)
+mvn test -Dtest=LoginTest -X
+
+# Skip tests (build only)
+mvn package -DskipTests`,
+          },
+          analogy: {
+            tr: '-Dtest parametresi, bir kütüphanede sadece belirli kitabı aramak gibidir — tüm rafları taramak yerine direkt o rafa gidersin. CI\'da da tüm suite yerine sadece değişen bölümün testlerini çalıştırmak süreyi kısaltır.',
+            en: 'The -Dtest parameter is like searching for a specific book in a library — going straight to that shelf instead of scanning all aisles. In CI, running only the tests for the changed module cuts down time.',
+          },
+          keyPoints: [
+            { tr: '-Dtest=ClassName#methodName — sınıf + metod seviyesinde', en: '-Dtest=ClassName#methodName — class + method level' },
+            { tr: '-DskipTests build eder ama çalıştırmaz', en: '-DskipTests builds but does not run tests' },
+            { tr: '-Dgroups=smoke sadece o grupla etiketli testleri çalıştırır', en: '-Dgroups=smoke runs only tests tagged with that group' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "CI pipeline\'da commit bazlı smoke testleri çalıştırmak için mvn test -Dgroups=smoke kullanıyoruz. Gece regression\'da ise -DsuiteXmlFile=full-regression.xml. Bu şekilde hem hız hem kapsam dengesini kuruyoruz."',
+            en: 'Say in interview: "In our CI pipeline we use mvn test -Dgroups=smoke for per-commit smoke tests. For nightly regression we use -DsuiteXmlFile=full-regression.xml. This balances speed and coverage."',
+          },
+        },
+        {
+          level: 'basic',
+          q: { tr: 'Java test projesinde try-catch ne zaman kullanılmalı, ne zaman kullanılmamalı?', en: 'When should try-catch be used in a Java test project, and when should it not be?' },
+          a: {
+            tr: 'try-catch\'in yanlış yerde kullanımı bir testin başarısız olması gereken senaryoda yeşil geçmesine yol açabilir — bu en tehlikeli durumdur. Kullanılması gereken durumlar: opsiyonel bir elementin varlığını kontrol etmek (NoSuchElementException bekleniyor), checked exception zorunluluğu (FileInputStream, Properties.load gibi), ve cleanup kodunda (finally bloğu). Kullanılmaması gereken durumlar: assertion hataları yutmak, test flow\'unun ana yolundaki beklenmedik hatalar, ve exception\'ı log\'layıp devam etmek (exception\'ı yutma antipattern\'i). finally bloğu driver.quit() için idealdir çünkü test başarısız olsa bile çalışır.',
+            en: 'Using try-catch in the wrong place can make a test that should fail pass green — this is the most dangerous situation. When to use: checking for optional elements (NoSuchElementException expected), mandatory checked exceptions (FileInputStream, Properties.load), and in cleanup code (finally block). When NOT to use: swallowing assertion errors, unexpected errors in the main test flow, and logging the exception then continuing (exception swallowing anti-pattern). The finally block is ideal for driver.quit() because it runs even when the test fails.',
+          },
+          code: {
+            tr: `// ✅ DOĞRU KULLANIM 1: Opsiyonel element kontrolü
+public boolean isCookieBannerVisible() {
+    try {
+        driver.findElement(By.id("cookieBanner"));
+        return true;
+    } catch (NoSuchElementException e) {
+        return false; // banner yoksa false döner, hata değil
+    }
+}
+
+// ✅ DOĞRU KULLANIM 2: Checked exception zorunluluğu
+@BeforeAll
+static void setup() throws IOException { // veya try-catch
+    Properties props = new Properties();
+    try (InputStream in = new FileInputStream("config.properties")) {
+        props.load(in);
+    } // IOException için try-catch veya throws
+}
+
+// ✅ DOĞRU KULLANIM 3: finally ile cleanup
+@AfterEach
+void tearDown() {
+    if (driver != null) {
+        driver.quit(); // test fail olsa bile çalışır
+    }
+}
+
+// ❌ YANLIŞ — exception yutma (anti-pattern)
+@Test
+void loginTest() {
+    try {
+        loginPage.login("user", "pass");
+        assertEquals("Dashboard", driver.getTitle());
+    } catch (Exception e) {
+        // exception yutuldu! test yanlışlıkla yeşil geçer
+        System.out.println("Hata: " + e.getMessage());
+    }
+}`,
+            en: `// ✅ CORRECT USE 1: Checking optional element
+public boolean isCookieBannerVisible() {
+    try {
+        driver.findElement(By.id("cookieBanner"));
+        return true;
+    } catch (NoSuchElementException e) {
+        return false; // no banner = false, not an error
+    }
+}
+
+// ✅ CORRECT USE 2: Mandatory checked exception
+@BeforeAll
+static void setup() throws IOException { // or try-catch
+    Properties props = new Properties();
+    try (InputStream in = new FileInputStream("config.properties")) {
+        props.load(in);
+    } // IOException requires try-catch or throws
+}
+
+// ✅ CORRECT USE 3: Cleanup with finally
+@AfterEach
+void tearDown() {
+    if (driver != null) {
+        driver.quit(); // runs even when test fails
+    }
+}
+
+// ❌ WRONG — exception swallowing (anti-pattern)
+@Test
+void loginTest() {
+    try {
+        loginPage.login("user", "pass");
+        assertEquals("Dashboard", driver.getTitle());
+    } catch (Exception e) {
+        // exception swallowed! test incorrectly passes green
+        System.out.println("Error: " + e.getMessage());
+    }
+}`,
+          },
+          analogy: {
+            tr: 'try-catch, bir kapının anahtar deliğine bakmak gibidir — içeride biri var mı yok mu? kontrol edersin. Ama kapıdan girip içerideki yangını fark edip görmezden gelmek (exception yutmak) tehlikelidir — yangın raporlanmalıdır.',
+            en: 'try-catch is like peering through a keyhole — checking if someone is inside. But entering and ignoring the fire inside (swallowing exceptions) is dangerous — the fire must be reported.',
+          },
+          keyPoints: [
+            { tr: 'Exception yutma en tehlikeli antipattern — fail etmesi gereken test geçer', en: 'Swallowing exceptions is the most dangerous anti-pattern — failing tests pass' },
+            { tr: 'finally bloğu her koşulda (başarı/başarısızlık) çalışır', en: 'finally block runs in all cases (success/failure)' },
+            { tr: 'Opsiyonel element kontrolünde NoSuchElementException beklenir', en: 'NoSuchElementException is expected when checking optional elements' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Test ana flow\'unda exception catch edip devam etmem. Catch etmek zorunda kalırsam mutlaka rethrow ederim: catch(Exception e) { throw new RuntimeException(e); } — test hata mesajını saklamamalı."',
+            en: 'Say in interview: "I never catch an exception in the main test flow and continue. If I must catch, I always rethrow: catch(Exception e) { throw new RuntimeException(e); } — tests must never hide error messages."',
+          },
+        },
+        // ── INTERMEDIATE 16-35 ──────────────────────────────────────────────────
+        {
+          level: 'intermediate',
+          q: { tr: 'BasePage sınıfını nasıl tasarlarsın? Hangi metodlar ve sorumluluklar içermeli?', en: 'How do you design a BasePage class? What methods and responsibilities should it contain?' },
+          a: {
+            tr: 'BasePage, tüm Page Object\'lerin kalıtım aldığı soyut (abstract) üst sınıftır ve iki temel sorumluluğu vardır: ortak driver/wait referanslarını tutmak ve tüm sayfalarda ihtiyaç duyulan utility metodları sağlamak. Constructor\'ı protected yaparak dışarıdan doğrudan instantiation engellenir. click(), type(), getText(), isVisible() gibi wrapper metodlar WebDriverException hatalarını merkezi olarak yakalar — her alt sınıfın ayrı try-catch yazmasına gerek kalmaz. abstract open() ve abstract isLoaded() metodları her Page Object\'in kendi URL\'ini ve yükleme kontrolünü tanımlamasını zorunlu kılar. Parallel testler için driver ThreadLocal üzerinden alınmalıdır.',
+            en: 'BasePage is the abstract parent class all Page Objects extend, with two core responsibilities: holding shared driver/wait references and providing utility methods needed on all pages. Making the constructor protected prevents direct instantiation from outside. Wrapper methods like click(), type(), getText(), isVisible() catch WebDriverExceptions centrally — child classes don\'t need individual try-catch. abstract open() and abstract isLoaded() force each Page Object to define its own URL and load check. For parallel tests, driver should be retrieved via ThreadLocal.',
+          },
+          code: {
+            tr: `public abstract class BasePage {
+    protected final WebDriver driver;
+    protected final WebDriverWait wait;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = Objects.requireNonNull(driver);
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Subclass'ın tanımlaması zorunlu
+    public abstract void open();
+    public abstract boolean isLoaded();
+
+    // Merkezi utility metodlar
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+
+    protected void type(By locator, String text) {
+        WebElement el = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(locator));
+        el.clear();
+        el.sendKeys(text);
+    }
+
+    protected String getText(By locator) {
+        return wait.until(
+            ExpectedConditions.visibilityOfElementLocated(locator)).getText();
+    }
+
+    protected boolean isVisible(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+}
+
+// Alt sınıf örneği
+public class LoginPage extends BasePage {
+    private final By emailField = By.id("email");
+    private final By passField  = By.id("password");
+    private final By loginBtn   = By.cssSelector("button[type=submit]");
+
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    @Override public void open()         { driver.get(ConfigReader.getBaseUrl() + "/login"); }
+    @Override public boolean isLoaded()  { return isVisible(emailField); }
+
+    public void login(String email, String pass) {
+        type(emailField, email);
+        type(passField, pass);
+        click(loginBtn);
+    }
+}`,
+            en: `public abstract class BasePage {
+    protected final WebDriver driver;
+    protected final WebDriverWait wait;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = Objects.requireNonNull(driver);
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Subclasses must implement
+    public abstract void open();
+    public abstract boolean isLoaded();
+
+    // Central utility methods
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+
+    protected void type(By locator, String text) {
+        WebElement el = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(locator));
+        el.clear();
+        el.sendKeys(text);
+    }
+
+    protected String getText(By locator) {
+        return wait.until(
+            ExpectedConditions.visibilityOfElementLocated(locator)).getText();
+    }
+
+    protected boolean isVisible(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+}
+
+// Subclass example
+public class LoginPage extends BasePage {
+    private final By emailField = By.id("email");
+    private final By passField  = By.id("password");
+    private final By loginBtn   = By.cssSelector("button[type=submit]");
+
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    @Override public void open()         { driver.get(ConfigReader.getBaseUrl() + "/login"); }
+    @Override public boolean isLoaded()  { return isVisible(emailField); }
+
+    public void login(String email, String pass) {
+        type(emailField, email);
+        type(passField, pass);
+        click(loginBtn);
+    }
+}`,
+          },
+          analogy: {
+            tr: 'BasePage, Java\'daki Object sınıfı gibidir — herkes ondan kalıtım alır, ortak metodlar orada tanımlanır. Fark şu: BasePage\'i sen tasarlarsın ve hangi metodların zorunlu olduğuna sen karar verirsin.',
+            en: 'BasePage is like Java\'s Object class — everyone inherits from it and common methods are defined there. The difference: you design BasePage and decide which methods are mandatory.',
+          },
+          keyPoints: [
+            { tr: 'abstract zorunlu metodlar: open() ve isLoaded() — her sayfa kendi URL/kontrolünü tanımlar', en: 'abstract required methods: open() and isLoaded() — each page defines its own URL/check' },
+            { tr: 'protected utility metodlar: merkezi hata yönetimi sağlar', en: 'protected utility methods: provide centralized error handling' },
+            { tr: 'Parallel testlerde driver = DriverFactory.getDriver() şeklinde ThreadLocal\'dan alın', en: 'In parallel tests: driver = DriverFactory.getDriver() from ThreadLocal' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "BasePage\'imi abstract yaptım ve iki abstract metod zorunlu: open() ve isLoaded(). Bu, her Page Object\'in hem URL\'ini tanımlamasını hem de yüklendiğini doğrulayabilmesini garanti eder. Test metodları bu metotları çağırır — driver.get() direkt kullanılmaz."',
+            en: 'Say in interview: "I made BasePage abstract with two mandatory abstract methods: open() and isLoaded(). This guarantees every Page Object defines both its URL and its load check. Test methods call these — driver.get() is never called directly."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'WebDriver neden ThreadLocal\'da tutulmalı? Yanlış kullanım ne tür hatalara yol açar?', en: 'Why should WebDriver be stored in ThreadLocal? What bugs does incorrect usage cause?' },
+          a: {
+            tr: 'Parallel test çalıştırıldığında birden fazla thread aynı anda farklı tarayıcı oturumlarını yönetir. Eğer driver static bir field\'da tutulursa tüm thread\'ler aynı driver örneğini paylaşır; Thread A\'nın açtığı sayfaya Thread B müdahale eder — bu cross-contamination olarak adlandırılır ve test sonuçları güvenilmez hale gelir. ThreadLocal, her thread\'e kendi driver örneğini verir ve thread\'ler arası izolasyonu sağlar. Kritik nokta: test bittikten sonra driver.quit() ve ThreadLocal.remove() birlikte çağrılmalıdır; remove() yapılmazsa thread pool ortamında eski driver referansı sızdırılır ve memory leak oluşur.',
+            en: 'When tests run in parallel, multiple threads simultaneously manage different browser sessions. If driver is stored in a static field, all threads share the same driver instance; Thread B interferes with the page Thread A opened — called cross-contamination — making test results unreliable. ThreadLocal gives each thread its own driver instance, ensuring inter-thread isolation. Critical point: after a test ends, driver.quit() and ThreadLocal.remove() must be called together; without remove(), in a thread pool environment the old driver reference leaks causing a memory leak.',
+          },
+          code: {
+            tr: `// ❌ YANLIŞ — static driver, parallel'de cross-contamination
+public class DriverFactory {
+    private static WebDriver driver; // TÜM THREAD PAYLAŞIR!
+
+    public static WebDriver getDriver() {
+        if (driver == null) {
+            driver = new ChromeDriver(); // Thread A ve B aynı driver'ı alır!
+        }
+        return driver;
+    }
+}
+
+// ✅ DOĞRU — ThreadLocal, her thread kendi driver'ını alır
+public class DriverFactory {
+    private static final ThreadLocal<WebDriver> tl = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (tl.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            tl.set(new ChromeDriver());
+        }
+        return tl.get(); // bu thread'e ait driver döner
+    }
+
+    public static void quitDriver() {
+        if (tl.get() != null) {
+            tl.get().quit();  // tarayıcıyı kapat
+            tl.remove();      // referansı temizle — MEMORY LEAK önler!
+        }
+    }
+}
+
+// Test sınıfında kullanım
+@AfterEach
+void tearDown() {
+    DriverFactory.quitDriver(); // quit + remove birlikte
+}`,
+            en: `// ❌ WRONG — static driver causes cross-contamination in parallel tests
+public class DriverFactory {
+    private static WebDriver driver; // ALL THREADS SHARE THIS!
+
+    public static WebDriver getDriver() {
+        if (driver == null) {
+            driver = new ChromeDriver(); // Thread A and B get the same driver!
+        }
+        return driver;
+    }
+}
+
+// ✅ CORRECT — ThreadLocal gives each thread its own driver
+public class DriverFactory {
+    private static final ThreadLocal<WebDriver> tl = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (tl.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            tl.set(new ChromeDriver());
+        }
+        return tl.get(); // returns the driver belonging to this thread
+    }
+
+    public static void quitDriver() {
+        if (tl.get() != null) {
+            tl.get().quit();  // close the browser
+            tl.remove();      // clear reference — prevents MEMORY LEAK!
+        }
+    }
+}
+
+// Usage in test class
+@AfterEach
+void tearDown() {
+    DriverFactory.quitDriver(); // quit + remove always together
+}`,
+          },
+          analogy: {
+            tr: 'ThreadLocal, her çalışana kendi masasını vermek gibidir. Static driver ise herkesin aynı masayı paylaşması — biri masayı düzenlerken diğeri de o masayı kullanmaya çalışırsa kaos çıkar.',
+            en: 'ThreadLocal is like giving each employee their own desk. Static driver is everyone sharing one desk — chaos when one person rearranges it while another tries to use it.',
+          },
+          keyPoints: [
+            { tr: 'ThreadLocal: her thread kendi driver\'ını görür, izolasyon tam', en: 'ThreadLocal: each thread sees its own driver, full isolation' },
+            { tr: 'remove() zorunlu: thread pool\'da eski driver referansı sızmasını önler', en: 'remove() is mandatory: prevents old driver reference leaking in thread pools' },
+            { tr: 'Static driver = parallel testlerde kesin hata kaynağı', en: 'Static driver = guaranteed bug source in parallel tests' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "İlk parallel test denemesinde static driver kullandım — testler birbirinin sayfasını açıyordu. ThreadLocal\'a geçtikten sonra çakışmalar tamamen durdu. remove() yapmayı unutunca da memory leak yaşadım, o yüzden quit+remove her zaman birlikte."',
+            en: 'Say in interview: "In our first parallel attempt we used static driver — tests were opening each other\'s pages. After switching to ThreadLocal, conflicts completely stopped. I also learned about memory leaks when I forgot remove(), so quit+remove always together."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'REST Assured ile API testinde status code, response body ve JSON schema nasıl doğrulanır?', en: 'How do you verify status code, response body, and JSON schema in a REST Assured API test?' },
+          a: {
+            tr: 'REST Assured, given-when-then BDD yapısıyla okunabilir API testleri yazmayı sağlar. given() bloğunda request parametreleri (header, body, auth) kurulur; when() bloğunda HTTP metodu ve endpoint çağrılır; then() bloğunda yanıt doğrulanır. statusCode(), body() ve header() metodlarıyla assertion yapılır. body() içinde Hamcrest matcher\'ları (equalTo, notNullValue, hasSize, greaterThan) kullanılır. JSON schema doğrulaması için jsonSchemaValidator() plugin\'i son derece güçlüdür — schema.json dosyası ile tüm response yapısı tek satırda doğrulanır.',
+            en: 'REST Assured enables readable API tests with given-when-then BDD structure. given() sets up request parameters (headers, body, auth); when() calls the HTTP method and endpoint; then() validates the response. Assertions use statusCode(), body(), and header() methods. body() uses Hamcrest matchers (equalTo, notNullValue, hasSize, greaterThan). JSON schema validation with the jsonSchemaValidator() plugin is very powerful — a single line validates the entire response structure against a schema.json file.',
+          },
+          code: {
+            tr: `// 1. Temel GET testi
+Response response = given()
+    .baseUri("https://api.myapp.com")
+    .header("Authorization", "Bearer " + token)
+    .queryParam("page", 1)
+.when()
+    .get("/users")
+.then()
+    .statusCode(200)
+    .body("data.size()", greaterThan(0))
+    .body("data[0].email", notNullValue())
+    .extract().response();
+
+// 2. POST testi — body gönder + doğrula
+String requestBody = """
+    { "name": "Ali", "email": "ali@test.com", "role": "qa" }
+    """;
+
+given()
+    .contentType(ContentType.JSON)
+    .body(requestBody)
+.when()
+    .post("/users")
+.then()
+    .statusCode(201)
+    .body("id",    notNullValue())
+    .body("email", equalTo("ali@test.com"))
+    .header("Location", containsString("/users/"));
+
+// 3. JSON Schema doğrulama
+given()
+    .get("/users/1")
+.then()
+    .statusCode(200)
+    .body(matchesJsonSchemaInClasspath("schemas/user-schema.json"));
+// → user-schema.json tüm alanların tipini ve zorunluluğunu doğrular`,
+            en: `// 1. Basic GET test
+Response response = given()
+    .baseUri("https://api.myapp.com")
+    .header("Authorization", "Bearer " + token)
+    .queryParam("page", 1)
+.when()
+    .get("/users")
+.then()
+    .statusCode(200)
+    .body("data.size()", greaterThan(0))
+    .body("data[0].email", notNullValue())
+    .extract().response();
+
+// 2. POST test — send body + verify
+String requestBody = """
+    { "name": "Ali", "email": "ali@test.com", "role": "qa" }
+    """;
+
+given()
+    .contentType(ContentType.JSON)
+    .body(requestBody)
+.when()
+    .post("/users")
+.then()
+    .statusCode(201)
+    .body("id",    notNullValue())
+    .body("email", equalTo("ali@test.com"))
+    .header("Location", containsString("/users/"));
+
+// 3. JSON Schema validation
+given()
+    .get("/users/1")
+.then()
+    .statusCode(200)
+    .body(matchesJsonSchemaInClasspath("schemas/user-schema.json"));
+// → user-schema.json validates type and required status of all fields`,
+          },
+          analogy: {
+            tr: 'REST Assured, bir API\'ye mektup yazıp cevabı kontrol etmek gibidir. given() zarfı hazırlar, when() mektubu gönderir, then() gelen cevabın doğru içeriğe sahip olduğunu kontrol eder.',
+            en: 'REST Assured is like writing a letter to an API and checking the reply. given() prepares the envelope, when() sends the letter, then() verifies the reply has the correct content.',
+          },
+          keyPoints: [
+            { tr: 'given-when-then yapısı testi hem okunabilir hem bakımı kolay kılar', en: 'given-when-then structure makes tests readable and maintainable' },
+            { tr: 'Hamcrest matcher\'lar: equalTo, notNullValue, hasSize, containsString', en: 'Hamcrest matchers: equalTo, notNullValue, hasSize, containsString' },
+            { tr: 'jsonSchemaValidator tek satırda tüm response yapısını doğrular', en: 'jsonSchemaValidator validates the entire response structure in one line' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "REST Assured\'da sadece statusCode ve basit body kontrolüyle yetinmem. JSON schema validasyonu ekliyorum — böylece response contract değişirse test otomatik yakalanır. Bu özellikle microservice\'ler arası sözleşme testinde kritik."',
+            en: 'Say in interview: "I don\'t stop at just statusCode and basic body checks in REST Assured. I add JSON schema validation — so if the response contract changes, the test catches it automatically. This is especially critical for contract testing between microservices."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Allure raporu için test adımları ve ek bilgiler nasıl tanımlanır? Neden önemlidir?', en: 'How do you define test steps and additional information for Allure reports? Why does it matter?' },
+          a: {
+            tr: 'Allure, @Step, @Description, @Severity ve @Epic/@Feature/@Story annotation\'larıyla zengin raporlama sağlar. @Step("Login sayfasını aç") annotation\'ı bir metoda eklendiğinde Allure raporu bu adımı zaman damgasıyla sıralı olarak gösterir — böylece test başarısız olduğunda hangi adımda durduğu açıkça görülür. Allure.addAttachment() ile screenshot, log veya JSON response rapora eklenir. @Severity(SeverityLevel.CRITICAL) ile test önceliği belirlenir. Bu bilgiler sadece raporlama değil, ekip içi iletişim ve hata ayıklama için kritiktir.',
+            en: 'Allure provides rich reporting via @Step, @Description, @Severity, and @Epic/@Feature/@Story annotations. Adding @Step("Open login page") to a method makes Allure display this step sequentially with timestamps — so when a test fails, it\'s clearly visible which step it stopped at. Allure.addAttachment() adds screenshots, logs, or JSON responses to the report. @Severity(SeverityLevel.CRITICAL) sets test priority. This information is critical not just for reporting but for team communication and debugging.',
+          },
+          code: {
+            tr: `// Page Object'te @Step kullanımı
+public class LoginPage extends BasePage {
+
+    @Step("Login sayfasına git")
+    public void open() {
+        driver.get(ConfigReader.getBaseUrl() + "/login");
+    }
+
+    @Step("Kullanıcı adı '{email}' ile giriş yap")  // parametre gösterimi
+    public void login(String email, String password) {
+        type(emailField, email);
+        type(passField,  password);
+        click(loginBtn);
+    }
+}
+
+// Test sınıfında zengin annotation'lar
+@Epic("Kullanıcı Yönetimi")
+@Feature("Login")
+class LoginTest {
+
+    @Test
+    @Story("Geçerli kullanıcı girişi")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Geçerli email/şifre ile kullanıcı dashboard'a yönlendirilmeli")
+    void validLoginRedirectsToDashboard() {
+        loginPage.open();
+        loginPage.login("admin@test.com", "Admin123!");
+        assertTrue(dashboardPage.isLoaded());
+    }
+}
+
+// TestWatcher ile başarısızlıkta screenshot
+class AllureScreenshotExtension implements TestWatcher {
+    @Override
+    public void testFailed(ExtensionContext ctx, Throwable cause) {
+        TakesScreenshot ts = (TakesScreenshot) DriverFactory.getDriver();
+        byte[] screenshot  = ts.getScreenshotAs(OutputType.BYTES);
+        Allure.addAttachment("Failure Screenshot", "image/png",
+            new ByteArrayInputStream(screenshot), "png");
+    }
+}`,
+            en: `// @Step usage in Page Object
+public class LoginPage extends BasePage {
+
+    @Step("Navigate to login page")
+    public void open() {
+        driver.get(ConfigReader.getBaseUrl() + "/login");
+    }
+
+    @Step("Login with username '{email}'")  // parameter display
+    public void login(String email, String password) {
+        type(emailField, email);
+        type(passField,  password);
+        click(loginBtn);
+    }
+}
+
+// Rich annotations in test class
+@Epic("User Management")
+@Feature("Login")
+class LoginTest {
+
+    @Test
+    @Story("Valid user login")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("User should be redirected to dashboard with valid email/password")
+    void validLoginRedirectsToDashboard() {
+        loginPage.open();
+        loginPage.login("admin@test.com", "Admin123!");
+        assertTrue(dashboardPage.isLoaded());
+    }
+}
+
+// Screenshot on failure with TestWatcher
+class AllureScreenshotExtension implements TestWatcher {
+    @Override
+    public void testFailed(ExtensionContext ctx, Throwable cause) {
+        TakesScreenshot ts = (TakesScreenshot) DriverFactory.getDriver();
+        byte[] screenshot  = ts.getScreenshotAs(OutputType.BYTES);
+        Allure.addAttachment("Failure Screenshot", "image/png",
+            new ByteArrayInputStream(screenshot), "png");
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Allure raporu, test filminin kamera kaydı gibidir. @Step her sahneyi, screenshot\'lar ise perde aralarını kaydeder. Hata olduğunda filmi o kareye sarıp "işte tam burada bozuldu" diyebilirsin.',
+            en: 'An Allure report is like a camera recording of the test film. @Step records each scene, screenshots capture the scene breaks. When there\'s an error, you rewind to that frame and say "it broke exactly here."',
+          },
+          keyPoints: [
+            { tr: '@Step parametreleri destekler: @Step("Login: \'{email}\'")', en: '@Step supports parameters: @Step("Login: \'{email}\'")', },
+            { tr: '@Epic/@Feature/@Story hiyerarşik raporlama sağlar', en: '@Epic/@Feature/@Story provides hierarchical reporting' },
+            { tr: 'Allure.addAttachment() — screenshot, log, JSON rapora eklenir', en: 'Allure.addAttachment() — screenshots, logs, JSON added to report' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Allure\'da yalnızca @Step kullanmakla kalmam. Başarısızlıkta otomatik screenshot alıp rapora ekliyorum. Böylece CI\'da hata olduğunda sayfanın tam o andaki görüntüsünü rapordan görebiliyoruz."',
+            en: 'Say in interview: "I don\'t just use @Step in Allure. I automatically capture a screenshot on failure and attach it to the report. This way, when a CI failure happens, we can see the exact page state from the report."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'TestNG groups özelliği CI/CD pipeline\'ında nasıl stratejik kullanılır?', en: 'How is TestNG\'s groups feature used strategically in a CI/CD pipeline?' },
+          a: {
+            tr: 'TestNG groups ile testler smoke, sanity, regression, integration gibi kategorilere ayrılır. Her kategorinin çalışma zamanı ve kapsamı farklıdır: smoke testler her commit\'te çalışır ve 5 dakika içinde tamamlanır (kritik yol kontrolü), regression testler ise gece build\'ında çalışır ve 45-60 dakika sürebilir. Bu strateji CI pipeline\'ının hem hızlı geri bildirim hem de kapsamlı kapsam dengesini kurmasını sağlar. testng.xml dosyasında groups ile include/exclude yapılır, mvn ile -Dgroups=smoke veya -DsuiteXmlFile=smoke-suite.xml parametreleri kullanılır.',
+            en: 'TestNG groups divides tests into categories like smoke, sanity, regression, integration. Each category has different runtime and coverage: smoke tests run on every commit and complete within 5 minutes (critical path check), while regression runs in the nightly build and may take 45-60 minutes. This strategy lets the CI pipeline balance fast feedback with comprehensive coverage. Include/exclude in testng.xml via groups, run with mvn -Dgroups=smoke or -DsuiteXmlFile=smoke-suite.xml.',
+          },
+          code: {
+            tr: `// Test sınıfında group tanımlama
+@Test(groups = {"smoke", "login"})
+void validLoginTest() { ... }
+
+@Test(groups = {"regression", "login"})
+void loginWithExpiredPasswordTest() { ... }
+
+@Test(groups = {"smoke", "cart"})
+void addToCartTest() { ... }
+
+// smoke-suite.xml — her commit çalışır (hızlı)
+/*
+<suite name="Smoke" verbose="1" parallel="tests" thread-count="4">
+  <test name="Smoke Tests">
+    <groups>
+      <run>
+        <include name="smoke"/>
+        <exclude name="slow"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="com.myapp.tests"/>
+    </packages>
+  </test>
+</suite>
+*/
+
+// Jenkins Declarative Pipeline
+/*
+pipeline {
+  stages {
+    stage('Smoke — Her Commit') {
+      steps { sh 'mvn test -DsuiteXmlFile=smoke-suite.xml' }
+    }
+    stage('Regression — Gece') {
+      when { cron('0 22 * * *') }  // gece 22:00
+      steps { sh 'mvn test -DsuiteXmlFile=regression-suite.xml' }
+    }
+  }
+}
+*/`,
+            en: `// Defining groups in test class
+@Test(groups = {"smoke", "login"})
+void validLoginTest() { ... }
+
+@Test(groups = {"regression", "login"})
+void loginWithExpiredPasswordTest() { ... }
+
+@Test(groups = {"smoke", "cart"})
+void addToCartTest() { ... }
+
+// smoke-suite.xml — runs on every commit (fast)
+/*
+<suite name="Smoke" verbose="1" parallel="tests" thread-count="4">
+  <test name="Smoke Tests">
+    <groups>
+      <run>
+        <include name="smoke"/>
+        <exclude name="slow"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="com.myapp.tests"/>
+    </packages>
+  </test>
+</suite>
+*/
+
+// Jenkins Declarative Pipeline
+/*
+pipeline {
+  stages {
+    stage('Smoke — Every Commit') {
+      steps { sh 'mvn test -DsuiteXmlFile=smoke-suite.xml' }
+    }
+    stage('Regression — Nightly') {
+      when { cron('0 22 * * *') }  // 10 PM nightly
+      steps { sh 'mvn test -DsuiteXmlFile=regression-suite.xml' }
+    }
+  }
+}
+*/`,
+          },
+          analogy: {
+            tr: 'TestNG groups, bir hastanenin triage sistemi gibidir. Acil vakalar (smoke) hemen görülür, rutin kontroller (regression) sıraya alınır. Her ikisi de önemlidir ama öncelikleri farklıdır.',
+            en: 'TestNG groups is like a hospital triage system. Emergency cases (smoke) are seen immediately, routine checks (regression) are scheduled. Both matter but with different priorities.',
+          },
+          keyPoints: [
+            { tr: 'Smoke: < 5 dk, her commit, kritik yol', en: 'Smoke: < 5 min, every commit, critical path' },
+            { tr: 'Regression: 45-60 dk, gece build, tam kapsam', en: 'Regression: 45-60 min, nightly build, full coverage' },
+            { tr: 'testng.xml include/exclude ile esnek grup kontrolü', en: 'testng.xml include/exclude for flexible group control' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Ekibimizde PR açıldığında smoke suite otomatik tetikleniyor — 5 dakikada kritik yol kontrolü. Gece regression çalışıyor, sabah raporu görüyoruz. Bu stratejiyle hem hız hem güveni aynı anda sağlıyoruz."',
+            en: 'Say in interview: "On our team, smoke suite triggers automatically when a PR is opened — critical path check in 5 minutes. Regression runs nightly, we see the report in the morning. This strategy gives us both speed and confidence simultaneously."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Stream API\'yi Selenium test projesinde nasıl kullanırsın? Somut örnekler ver.', en: 'How do you use Stream API in a Selenium test project? Give concrete examples.' },
+          a: {
+            tr: 'Java 8\'le gelen Stream API, koleksiyon işlemlerini fonksiyonel tarzda yazmanıza olanak tanır. Selenium\'da en yaygın kullanım alanları şunlardır: WebElement listesinden metin veya attribute çıkarmak, belirli kritere uyan elementleri filtrelemek, tablodaki header satırını atlamak (skip(1)), ve unique değerleri Set\'e toplamak. Stream API ayrıca test veri hazırlamada ve assertion\'larda da kullanılır. orElseThrow() ile null safety sağlanır. Parallel stream ile büyük koleksiyonların hızlı işlenmesi mümkündür ancak Selenium WebElement\'ler thread-safe olmadığından UI testlerinde dikkatli kullanılmalıdır.',
+            en: 'The Stream API introduced in Java 8 lets you write collection operations in a functional style. Most common uses in Selenium: extracting text or attributes from WebElement lists, filtering elements matching criteria, skipping header rows in tables (skip(1)), and collecting unique values to a Set. Stream API is also used in test data preparation and assertions. orElseThrow() provides null safety. Parallel streams can speed up large collection processing but use cautiously in UI tests since WebElements are not thread-safe.',
+          },
+          code: {
+            tr: `// 1. Element listesinden metin çıkar
+List<WebElement> rows = driver.findElements(By.cssSelector("table tbody tr"));
+List<String> productNames = rows.stream()
+    .map(row -> row.findElement(By.cssSelector("td:first-child")).getText())
+    .collect(Collectors.toList());
+
+// 2. Fiyatı belirli değerin üstünde olanları filtrele
+List<String> expensiveProducts = rows.stream()
+    .filter(row -> {
+        String priceText = row.findElement(By.cssSelector("td.price")).getText();
+        double price = Double.parseDouble(priceText.replace("₺", "").trim());
+        return price > 500.0;
+    })
+    .map(row -> row.findElement(By.cssSelector("td.name")).getText())
+    .collect(Collectors.toList());
+
+// 3. Tablo header'ını atla + unique değer topla
+List<WebElement> allRows = driver.findElements(By.tagName("tr"));
+Set<String> uniqueCategories = allRows.stream()
+    .skip(1) // header satırını atla
+    .map(r -> r.findElement(By.cssSelector("td.category")).getText())
+    .collect(Collectors.toSet());
+
+// 4. Belirli metni içeren elementi bul
+Optional<WebElement> targetProduct = rows.stream()
+    .filter(r -> r.getText().contains("Laptop"))
+    .findFirst();
+
+targetProduct.orElseThrow(() ->
+    new AssertionError("Laptop ürünü listede bulunamadı!"))
+    .click();`,
+            en: `// 1. Extract text from element list
+List<WebElement> rows = driver.findElements(By.cssSelector("table tbody tr"));
+List<String> productNames = rows.stream()
+    .map(row -> row.findElement(By.cssSelector("td:first-child")).getText())
+    .collect(Collectors.toList());
+
+// 2. Filter products above a price threshold
+List<String> expensiveProducts = rows.stream()
+    .filter(row -> {
+        String priceText = row.findElement(By.cssSelector("td.price")).getText();
+        double price = Double.parseDouble(priceText.replace("$", "").trim());
+        return price > 500.0;
+    })
+    .map(row -> row.findElement(By.cssSelector("td.name")).getText())
+    .collect(Collectors.toList());
+
+// 3. Skip table header + collect unique values
+List<WebElement> allRows = driver.findElements(By.tagName("tr"));
+Set<String> uniqueCategories = allRows.stream()
+    .skip(1) // skip header row
+    .map(r -> r.findElement(By.cssSelector("td.category")).getText())
+    .collect(Collectors.toSet());
+
+// 4. Find element containing specific text
+Optional<WebElement> targetProduct = rows.stream()
+    .filter(r -> r.getText().contains("Laptop"))
+    .findFirst();
+
+targetProduct.orElseThrow(() ->
+    new AssertionError("Laptop product not found in list!"))
+    .click();`,
+          },
+          analogy: {
+            tr: 'Stream API, bir fabrika bant sistemi gibidir. filter() kalite kontrolü yapar, map() ürünü dönüştürür, collect() kutuya doldurur. Her adım birinden sonrakine geçer, yan etkisi olmaz.',
+            en: 'Stream API is like a factory conveyor belt. filter() does quality control, map() transforms the product, collect() boxes it up. Each step flows to the next with no side effects.',
+          },
+          keyPoints: [
+            { tr: 'map(): her elementi başka bir tipe dönüştür (WebElement→String)', en: 'map(): transform each element to another type (WebElement→String)' },
+            { tr: 'filter(): kritere uyan elementleri seç', en: 'filter(): select elements matching criteria' },
+            { tr: 'findFirst().orElseThrow(): null-safe arama', en: 'findFirst().orElseThrow(): null-safe search' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Tablodaki tüm ürün fiyatlarını Stream ile çekip, belirli aralıkta olanları filtreledim ve bunları @DataProvider\'a besleyerek veri bazlı test yazdım — Stream API olmadan bu işlem çok daha karmaşık olurdu."',
+            en: 'Say in interview: "I used Stream to extract all product prices from a table, filtered those in a specific range, and fed them into @DataProvider for data-driven tests — without Stream API this would have been much more complex."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Selenium Grid ile cross-browser ve cross-platform testi nasıl kurarsın?', en: 'How do you set up cross-browser and cross-platform testing with Selenium Grid?' },
+          a: {
+            tr: 'Selenium Grid, testlerin merkezi bir Hub üzerinden farklı Node\'lara (makinelere) dağıtılmasını sağlar. Selenium 4 ile Grid mimarisi sadeleşti: Hub ve Node ayrı başlatmak yerine tek komutla Standalone modda çalışır. Test kodu, RemoteWebDriver\'ı Hub URL\'iyle başlatır ve Capabilities ile hangi tarayıcıda çalışacağını belirtir. TestNG\'de parallel="tests" ile aynı anda farklı tarayıcılarda çalıştırılır. Bulut alternatifleri BrowserStack ve Sauce Labs, yüzlerce tarayıcı/OS kombinasyonunu sunar — kendi Grid kurmanıza gerek yoktur.',
+            en: 'Selenium Grid distributes tests from a central Hub to different Nodes (machines). With Selenium 4 the Grid architecture simplified: instead of starting Hub and Node separately, it runs in Standalone mode with one command. Test code initializes RemoteWebDriver with the Hub URL and specifies the target browser via Capabilities. TestNG\'s parallel="tests" runs on different browsers simultaneously. Cloud alternatives BrowserStack and Sauce Labs offer hundreds of browser/OS combinations — no need to set up your own Grid.',
+          },
+          code: {
+            tr: `// Grid başlatma (Selenium 4 Standalone)
+// java -jar selenium-server-4.x.jar standalone
+// → http://localhost:4444/ui/ (Grid UI)
+
+// Test kodu — RemoteWebDriver
+public class CrossBrowserTest {
+
+    @Test(dataProvider = "browsers")
+    void productPageTest(String browser) throws MalformedURLException {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setBrowserName(browser); // "chrome" | "firefox" | "edge"
+
+        WebDriver driver = new RemoteWebDriver(
+            new URL("http://localhost:4444"),
+            caps
+        );
+
+        driver.get("https://myshop.com");
+        assertEquals("Shop", driver.getTitle());
+        driver.quit();
+    }
+
+    @DataProvider(name = "browsers", parallel = true)
+    Object[][] getBrowsers() {
+        return new Object[][] {
+            {"chrome"},
+            {"firefox"},
+            {"edge"}
+        };
+    }
+}
+
+// testng.xml — paralel browser
+/*
+<suite name="CrossBrowser" parallel="tests" thread-count="3">
+  <test name="Chrome">  <parameter name="browser" value="chrome"/>  </test>
+  <test name="Firefox"> <parameter name="browser" value="firefox"/> </test>
+</suite>
+*/`,
+            en: `// Start Grid (Selenium 4 Standalone)
+// java -jar selenium-server-4.x.jar standalone
+// → http://localhost:4444/ui/ (Grid UI)
+
+// Test code — RemoteWebDriver
+public class CrossBrowserTest {
+
+    @Test(dataProvider = "browsers")
+    void productPageTest(String browser) throws MalformedURLException {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setBrowserName(browser); // "chrome" | "firefox" | "edge"
+
+        WebDriver driver = new RemoteWebDriver(
+            new URL("http://localhost:4444"),
+            caps
+        );
+
+        driver.get("https://myshop.com");
+        assertEquals("Shop", driver.getTitle());
+        driver.quit();
+    }
+
+    @DataProvider(name = "browsers", parallel = true)
+    Object[][] getBrowsers() {
+        return new Object[][] {
+            {"chrome"},
+            {"firefox"},
+            {"edge"}
+        };
+    }
+}
+
+// testng.xml — parallel browsers
+/*
+<suite name="CrossBrowser" parallel="tests" thread-count="3">
+  <test name="Chrome">  <parameter name="browser" value="chrome"/>  </test>
+  <test name="Firefox"> <parameter name="browser" value="firefox"/> </test>
+</suite>
+*/`,
+          },
+          analogy: {
+            tr: 'Selenium Grid, bir restoran zincirinin merkezi mutfağı gibidir. Sipariş gelir (test), merkez dağıtır (Hub), her şube kendi mutfağında pişirir (Node). Sonuçlar merkeze raporlanır.',
+            en: 'Selenium Grid is like a restaurant chain\'s central kitchen. Orders come in (tests), the center distributes (Hub), each branch cooks in its own kitchen (Node). Results are reported to the center.',
+          },
+          keyPoints: [
+            { tr: 'Selenium 4 Grid: tek komutla Standalone — Hub/Node ayrımı yok', en: 'Selenium 4 Grid: single command Standalone — no separate Hub/Node' },
+            { tr: 'RemoteWebDriver + Capabilities: hangi browser/OS belirt', en: 'RemoteWebDriver + Capabilities: specify which browser/OS' },
+            { tr: 'BrowserStack/Sauce Labs: kendi Grid kurmadan 2000+ kombinasyon', en: 'BrowserStack/Sauce Labs: 2000+ combinations without your own Grid' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Küçük ekiplerde BrowserStack tercih ederim — Grid bakımı olmadan 3000+ browser/OS kombinasyonuna erişiyoruz. Büyük ekiplerde ise kendi Grid kurarak maliyeti azalttık."',
+            en: 'Say in interview: "For small teams I prefer BrowserStack — access to 3000+ browser/OS combinations without Grid maintenance. For larger teams we set up our own Grid to reduce costs."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Datafaker ile test verisi nasıl üretilir? Neden sabit test verisi kullanmak sorunludur?', en: 'How is test data generated with Datafaker? Why is using fixed test data problematic?' },
+          a: {
+            tr: 'Sabit test verisi (örneğin her testte "test@test.com") birden fazla sorun doğurur: testler birbirinin datasını bozabilir, parallel çalışmada unique constraint ihlali olabilir, ve veri birikimi database\'i kirletir. Datafaker her çalışmada gerçekçi ve unique veri üretir — ad, email, IBAN, adres, telefon, kredi kartı gibi domain-specific veriler lokale göre ayarlanabilir. Java\'da io.github.datafaker:datafaker bağımlılığıyla kullanılır. @DataProvider ile birleştirildiğinde her test farklı verilerle çalışır.',
+            en: 'Fixed test data (e.g. "test@test.com" every time) creates multiple problems: tests can corrupt each other\'s data, parallel runs may cause unique constraint violations, and accumulated data pollutes the database. Datafaker generates realistic and unique data each run — names, emails, IBANs, addresses, phones, credit cards are locale-configurable. Used in Java with io.github.datafaker:datafaker dependency. Combined with @DataProvider, each test runs with different data.',
+          },
+          code: {
+            tr: `// pom.xml
+/*
+<dependency>
+    <groupId>net.datafaker</groupId>
+    <artifactId>datafaker</artifactId>
+    <version>2.1.0</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+// Test sınıfı — Datafaker kullanımı
+class RegistrationTest {
+    private final Faker faker = new Faker(new Locale("tr")); // Türkçe locale
+
+    @Test
+    void newUserCanRegister() {
+        String email    = faker.internet().emailAddress();   // abc123@example.com
+        String name     = faker.name().fullName();           // Ali Yılmaz
+        String phone    = faker.phoneNumber().cellPhone();   // 555-123-4567
+        String password = faker.internet().password(8, 20, true, true); // güçlü şifre
+
+        registrationPage.fillForm(name, email, phone, password);
+        registrationPage.submit();
+
+        assertTrue(confirmationPage.isLoaded(),
+            "Kayıt başarısız. Email: " + email); // başarısızlıkta email log'da görünür
+    }
+
+    // Domain-specific veri
+    @Test
+    void paymentWithValidCard() {
+        String cardNumber = faker.finance().creditCard(); // 4532 xxxx xxxx xxxx
+        String iban       = faker.finance().iban("TR");   // TR00 xxxx ...
+
+        paymentPage.enterCard(cardNumber);
+        paymentPage.submit();
+        assertTrue(successPage.isLoaded());
+    }
+}`,
+            en: `// pom.xml
+/*
+<dependency>
+    <groupId>net.datafaker</groupId>
+    <artifactId>datafaker</artifactId>
+    <version>2.1.0</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+// Test class — Datafaker usage
+class RegistrationTest {
+    private final Faker faker = new Faker(new Locale("en")); // English locale
+
+    @Test
+    void newUserCanRegister() {
+        String email    = faker.internet().emailAddress();   // abc123@example.com
+        String name     = faker.name().fullName();           // John Smith
+        String phone    = faker.phoneNumber().cellPhone();   // 555-123-4567
+        String password = faker.internet().password(8, 20, true, true); // strong password
+
+        registrationPage.fillForm(name, email, phone, password);
+        registrationPage.submit();
+
+        assertTrue(confirmationPage.isLoaded(),
+            "Registration failed. Email: " + email); // email visible in logs on failure
+    }
+
+    // Domain-specific data
+    @Test
+    void paymentWithValidCard() {
+        String cardNumber = faker.finance().creditCard(); // 4532 xxxx xxxx xxxx
+        String iban       = faker.finance().iban("US");   // US00 xxxx ...
+
+        paymentPage.enterCard(cardNumber);
+        paymentPage.submit();
+        assertTrue(successPage.isLoaded());
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Datafaker, sonsuz sahte kimlik kartı basan bir makine gibidir. Her koşuda gerçekçi görünen, ama sistemin bilmediği yeni bir kimlik üretir — conflict yok, kirlilik yok.',
+            en: 'Datafaker is like a machine that prints endless fake ID cards. Each run produces a realistic-looking identity the system hasn\'t seen — no conflicts, no pollution.',
+          },
+          keyPoints: [
+            { tr: 'Sabit veri → parallel testlerde unique constraint çakışması', en: 'Fixed data → unique constraint collisions in parallel tests' },
+            { tr: 'Faker locale desteği: Türkçe/İngilizce/Almanca isim ve adres', en: 'Faker locale support: Turkish/English/German names and addresses' },
+            { tr: 'Başarısızlıkta üretilen veriyi log\'a yaz — reproducibility için', en: 'Log generated data on failure — for reproducibility' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Her testte sabit email kullandığımızda parallel çalışmada unique constraint hatası alıyorduk. Datafaker ile her thread kendi unique email\'ini üretince problem çözüldü. Artık test database\'imiz de temiz kalıyor."',
+            en: 'Say in interview: "With fixed emails in every test we got unique constraint errors in parallel runs. When each thread generates its own unique email with Datafaker, the problem was solved. Our test database stays clean too."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Interface mi, abstract class mı? Test projesinde hangisini ne zaman tercih edersin?', en: 'Interface or abstract class? Which do you prefer in a test project and when?' },
+          a: {
+            tr: 'Interface ve abstract class arasındaki tercih, kullanım senaryosuna bağlıdır. Interface "ne yapabilir" sorusunu cevaplar ve çoklu kalıtıma izin verir — birden fazla reporter türü (EmailReporter, SlackReporter) aynı interface\'i implement edebilir. Abstract class ise "ne içerir" sorusunu cevaplar ve ortak state (driver, wait) ile somut metodlar barındırabilir — BasePage bunun klasik örneğidir. Test projesinde kural şudur: ortak state ve davranış paylaşımı için abstract class, sözleşme tanımlamak ve çoklu kalıtım için interface. Java 8+ ile interface\'e default metodlar eklenebildiğinden sınır biraz bulanıklaştı.',
+            en: 'The choice between interface and abstract class depends on the scenario. An interface answers "what can it do" and allows multiple inheritance — multiple reporter types (EmailReporter, SlackReporter) can implement the same interface. An abstract class answers "what does it contain" and can hold shared state (driver, wait) plus concrete methods — BasePage is the classic example. Rule in test projects: use abstract class for shared state and behavior, use interface for defining contracts and multiple inheritance. Since Java 8+ interfaces support default methods, the line has blurred somewhat.',
+          },
+          code: {
+            tr: `// Interface — sözleşme + çoklu kalıtım
+public interface TestReporter {
+    void reportPass(String testName);
+    void reportFail(String testName, Throwable cause);
+
+    // Java 8+ default metod
+    default String formatMessage(String testName, String status) {
+        return "[" + LocalDateTime.now() + "] " + testName + " → " + status;
+    }
+}
+
+// Birden fazla implement
+public class SlackReporter implements TestReporter {
+    @Override public void reportPass(String testName) {
+        slackClient.send(formatMessage(testName, "✅ PASS"));
+    }
+    @Override public void reportFail(String testName, Throwable cause) {
+        slackClient.send(formatMessage(testName, "❌ FAIL: " + cause.getMessage()));
+    }
+}
+
+// Abstract class — ortak state + zorunlu metod
+public abstract class BasePage {
+    protected final WebDriver driver;   // ortak state — interface'de olamaz
+    protected final WebDriverWait wait;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Zorunlu — her subclass kendi URL'ini tanımlar
+    public abstract void open();
+    public abstract boolean isLoaded();
+
+    // Somut ortak davranış
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+}`,
+            en: `// Interface — contract + multiple inheritance
+public interface TestReporter {
+    void reportPass(String testName);
+    void reportFail(String testName, Throwable cause);
+
+    // Java 8+ default method
+    default String formatMessage(String testName, String status) {
+        return "[" + LocalDateTime.now() + "] " + testName + " → " + status;
+    }
+}
+
+// Multiple implementations
+public class SlackReporter implements TestReporter {
+    @Override public void reportPass(String testName) {
+        slackClient.send(formatMessage(testName, "✅ PASS"));
+    }
+    @Override public void reportFail(String testName, Throwable cause) {
+        slackClient.send(formatMessage(testName, "❌ FAIL: " + cause.getMessage()));
+    }
+}
+
+// Abstract class — shared state + required methods
+public abstract class BasePage {
+    protected final WebDriver driver;   // shared state — not possible in interface
+    protected final WebDriverWait wait;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    // Required — each subclass defines its own URL
+    public abstract void open();
+    public abstract boolean isLoaded();
+
+    // Concrete shared behavior
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Interface, iş ilanındaki "gereksinimler" listesi gibidir — ne yapabilmesi gerektiğini söyler. Abstract class ise o işin eğitim kılavuzu gibidir — nasıl yapılacağını ve ortak araçları sağlar.',
+            en: 'Interface is like a job listing\'s requirements — what it must be able to do. Abstract class is like the training manual — how to do it and the shared tools.',
+          },
+          keyPoints: [
+            { tr: 'Interface: çoklu kalıtım, sözleşme, default metod (Java 8+)', en: 'Interface: multiple inheritance, contract, default methods (Java 8+)' },
+            { tr: 'Abstract class: ortak state, constructor, somut metodlar', en: 'Abstract class: shared state, constructor, concrete methods' },
+            { tr: 'BasePage → abstract class; Reporter → interface', en: 'BasePage → abstract class; Reporter → interface' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Reporter sınıflarım için interface seçtim — Email, Slack ve Teams reporter aynı interface\'i implement eder, test framework hangisini kullanacağını runtime\'da belirler. BasePage ise abstract class — driver state paylaşmak zorunda."',
+            en: 'Say in interview: "For my reporter classes I chose interface — Email, Slack and Teams reporters implement the same interface, the test framework decides at runtime which to use. BasePage is abstract class — it must share driver state."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Log4j2\'yi test projesine nasıl entegre edersin? Hangi log seviyeleri nerede kullanılır?', en: 'How do you integrate Log4j2 into a test project? Which log levels are used where?' },
+          a: {
+            tr: 'Test projesinde loglama, sadece konsola yazmak değil; CI raporlarında, Allure\'da ve hata analizinde kritik bilgi sağlamaktır. Log4j2 ile her sınıf kendi Logger\'ını oluşturur. Geliştirme ortamında DEBUG seviyesi kullanılır — tüm detaylar görünür. CI/CD\'de ise yalnızca WARN ve ERROR logları saklanır — noise azalır. Allure entegrasyonuyla loglar test raporuna eklenir. log4j2.xml konfigürasyon dosyasıyla her appender (konsol, dosya, Allure) ayrı ayrı yapılandırılır.',
+            en: 'Logging in test projects isn\'t just writing to console; it provides critical information in CI reports, Allure, and error analysis. With Log4j2 each class creates its own Logger. In development, DEBUG level is used — all details visible. In CI/CD only WARN and ERROR logs are kept — reduced noise. Allure integration adds logs to test reports. The log4j2.xml configuration file configures each appender (console, file, Allure) separately.',
+          },
+          code: {
+            tr: `// log4j2.xml (src/test/resources/)
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <File name="FileLog" fileName="target/test.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileLog"/>
+        </Root>
+    </Loggers>
+</Configuration>
+*/
+
+// Sınıfta kullanım
+public class LoginPage extends BasePage {
+    private static final Logger log = LogManager.getLogger(LoginPage.class);
+
+    public void login(String email, String password) {
+        log.info("Login denemesi: {}", email);         // INFO: kim login
+        log.debug("Şifre uzunluğu: {}", password.length()); // DEBUG: detay
+        try {
+            type(emailField, email);
+            type(passField,  password);
+            click(loginBtn);
+            log.info("Login başarılı: {}", email);
+        } catch (Exception e) {
+            log.error("Login başarısız! Email: {}, Hata: {}", email, e.getMessage(), e);
+            throw e; // yutma — test fail etmeli
+        }
+    }
+}`,
+            en: `// log4j2.xml (src/test/resources/)
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <File name="FileLog" fileName="target/test.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileLog"/>
+        </Root>
+    </Loggers>
+</Configuration>
+*/
+
+// Usage in class
+public class LoginPage extends BasePage {
+    private static final Logger log = LogManager.getLogger(LoginPage.class);
+
+    public void login(String email, String password) {
+        log.info("Login attempt: {}", email);         // INFO: who is logging in
+        log.debug("Password length: {}", password.length()); // DEBUG: detail
+        try {
+            type(emailField, email);
+            type(passField,  password);
+            click(loginBtn);
+            log.info("Login successful: {}", email);
+        } catch (Exception e) {
+            log.error("Login failed! Email: {}, Error: {}", email, e.getMessage(), e);
+            throw e; // don't swallow — test must fail
+        }
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Log seviyeleri, bir geminin sinyal fenerlerine benzer. DEBUG zayıf mavi ışık (geliştirici görür), INFO yeşil (normal durum), WARN sarı (dikkat), ERROR kırmızı (kurtarma gerekebilir).',
+            en: 'Log levels are like a ship\'s signal lights. DEBUG is faint blue (developer sees), INFO is green (normal state), WARN is yellow (attention), ERROR is red (rescue may be needed).',
+          },
+          keyPoints: [
+            { tr: 'DEBUG: geliştirme ortamında, CI\'da kapalı', en: 'DEBUG: in development, off in CI' },
+            { tr: 'INFO: test akışı takibi, hangi adım çalıştı', en: 'INFO: test flow tracking, which step ran' },
+            { tr: 'ERROR: hata loglanır ve test yeniden fırlatılır — yutulmaz', en: 'ERROR: error logged and re-thrown — never swallowed' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Log4j2\'yi hem konsol hem dosya hem Allure appender\'ı ile yapılandırdım. CI\'da level=WARN — sadece önemli mesajlar. Geliştirmede level=DEBUG. Allure entegrasyonuyla test raporu içinde de loglar görünüyor."',
+            en: 'Say in interview: "I configured Log4j2 with console, file, and Allure appenders. In CI level=WARN — only important messages. In development level=DEBUG. With Allure integration, logs are visible inside test reports."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Jenkins Declarative Pipeline\'da Java Selenium testleri nasıl çalıştırılır? Nelere dikkat edilmeli?', en: 'How are Java Selenium tests run in a Jenkins Declarative Pipeline? What should be considered?' },
+          a: {
+            tr: 'Jenkins Declarative Pipeline, Jenkinsfile ile kodlanır ve her adım açıkça tanımlanır. Selenium testleri için kritik noktalar şunlardır: CI ortamında headless mode zorunludur (ekran yok), Maven ve Java versiyonu tool ile yönetilir, post { always {} } bloğu ile test sonuçları test başarısız olsa bile JUnit XML formatında yayınlanır. Allure plugin ile zengin HTML rapor oluşturulur. Paralel branch\'ler ile farklı browser veya ortamlarda eşzamanlı çalıştırma mümkündür. Hassas veriler Jenkins Credentials ile inject edilir.',
+            en: 'Jenkins Declarative Pipeline is written as code in a Jenkinsfile with each step explicitly defined. Critical points for Selenium tests: headless mode is mandatory in CI (no display), Maven and Java version are managed via tool, the post { always {} } block publishes test results in JUnit XML format even when tests fail. The Allure plugin creates rich HTML reports. Parallel branches enable simultaneous runs on different browsers or environments. Sensitive data is injected via Jenkins Credentials.',
+          },
+          code: {
+            tr: `// Jenkinsfile — Declarative Pipeline
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+        jdk   'JDK-21'
+    }
+
+    environment {
+        BASE_URL    = credentials('staging-base-url')    // Jenkins secret
+        HEADLESS    = 'true'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+
+        stage('Smoke Tests') {
+            steps {
+                sh 'mvn clean test -DsuiteXmlFile=smoke.xml -Dheadless=\${HEADLESS}'
+            }
+        }
+
+        stage('Regression — Paralel') {
+            parallel {
+                stage('Chrome') {
+                    steps { sh 'mvn test -DsuiteXmlFile=regression.xml -Dbrowser=chrome' }
+                }
+                stage('Firefox') {
+                    steps { sh 'mvn test -DsuiteXmlFile=regression.xml -Dbrowser=firefox' }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Test başarısız olsa da sonuçları yayınla
+            junit 'target/surefire-reports/*.xml'
+            allure includeProperties: false,
+                   results: [[path: 'target/allure-results']]
+        }
+        failure {
+            emailext to: 'qa-team@company.com',
+                     subject: "❌ Test Başarısız: \${env.JOB_NAME}",
+                     body:    "Build: \${env.BUILD_URL}"
+        }
+    }
+}`,
+            en: `// Jenkinsfile — Declarative Pipeline
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+        jdk   'JDK-21'
+    }
+
+    environment {
+        BASE_URL    = credentials('staging-base-url')    // Jenkins secret
+        HEADLESS    = 'true'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+
+        stage('Smoke Tests') {
+            steps {
+                sh 'mvn clean test -DsuiteXmlFile=smoke.xml -Dheadless=\${HEADLESS}'
+            }
+        }
+
+        stage('Regression — Parallel') {
+            parallel {
+                stage('Chrome') {
+                    steps { sh 'mvn test -DsuiteXmlFile=regression.xml -Dbrowser=chrome' }
+                }
+                stage('Firefox') {
+                    steps { sh 'mvn test -DsuiteXmlFile=regression.xml -Dbrowser=firefox' }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Publish results even when tests fail
+            junit 'target/surefire-reports/*.xml'
+            allure includeProperties: false,
+                   results: [[path: 'target/allure-results']]
+        }
+        failure {
+            emailext to: 'qa-team@company.com',
+                     subject: "❌ Test Failed: \${env.JOB_NAME}",
+                     body:    "Build: \${env.BUILD_URL}"
+        }
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Jenkins Pipeline, bir fabrika üretim hattının kontrol sistemi gibidir. Her stage bir istasyondur, hata olduğunda hat durur ama raporlama (post.always) her koşulda devam eder — ürünün kalite kartı mutlaka doldurulur.',
+            en: 'Jenkins Pipeline is like a factory production line\'s control system. Each stage is a station; when there\'s an error the line stops but reporting (post.always) continues regardless — the quality card is always filled.',
+          },
+          keyPoints: [
+            { tr: 'post.always: test fail olsa bile JUnit XML ve Allure yayınlanır', en: 'post.always: JUnit XML and Allure published even when tests fail' },
+            { tr: 'CI\'da headless mode zorunlu: -Dheadless=true', en: 'Headless mode mandatory in CI: -Dheadless=true' },
+            { tr: 'Jenkins Credentials: şifreler kaynak koduna girmez', en: 'Jenkins Credentials: passwords never enter source code' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Jenkinsfile\'ı her zaman post.always bloğuyla yapılandırıyorum — test başarısız olsa bile Allure raporu yayınlanıyor. Ekip, CI\'da hata olduğunda direkt rapora bakabiliyor, logu taramak zorunda kalmıyor."',
+            en: 'Say in interview: "I always configure Jenkinsfile with post.always block — Allure report is published even when tests fail. When there\'s a CI error, the team can look directly at the report, no need to search through logs."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Yavaş çalışan bir test suite\'ini nasıl hızlandırırsın? Hangi adımları sırayla atarsın?', en: 'How do you speed up a slow-running test suite? What steps do you take in order?' },
+          a: {
+            tr: 'Hızlandırma çalışmasına önce ölçümle başlanır — neyin yavaş olduğunu bilmeden optimize etmeye çalışmak boşa harcar. Surefire raporlarından en uzun süren testler belirlenir. Sonra şu adımlar sırayla uygulanır: (1) Headless mode — tarayıcı arayüzü CI\'da %30-40 zaman alır; (2) Paralel çalışma — TestNG thread-count veya Maven forkCount ile; (3) Tarayıcı yeniden kullanma — @BeforeAll ile suite başında bir kez aç; (4) Katmanlı koşturma — hızlı unit testler önce, yavaş E2E sonra; (5) Driver pool — N sınırlı driver ile tüm testleri rotate et.',
+            en: 'Speed optimization starts with measurement — trying to optimize without knowing what\'s slow wastes effort. Use surefire reports to identify the longest-running tests. Then apply these steps in order: (1) Headless mode — browser UI takes 30-40% of time in CI; (2) Parallel execution — TestNG thread-count or Maven forkCount; (3) Browser reuse — open once at suite start with @BeforeAll; (4) Layered execution — fast unit tests first, slow E2E last; (5) Driver pool — rotate all tests through N limited drivers.',
+          },
+          code: {
+            tr: `// Adım 1: Ölç — hangi test en yavaş?
+// target/surefire-reports/*.txt içindeki süreler
+
+// Adım 2: Headless mode
+ChromeOptions opts = new ChromeOptions();
+opts.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+driver = new ChromeDriver(opts); // ~%35 hız kazancı
+
+// Adım 3: Maven paralel fork
+// pom.xml
+/*
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.2.5</version>
+    <configuration>
+        <forkCount>4</forkCount>        ← 4 paralel JVM
+        <reuseForks>true</reuseForks>
+    </configuration>
+</plugin>
+*/
+
+// Adım 4: TestNG paralel thread
+/*
+<suite name="FastSuite" parallel="methods" thread-count="8">
+*/
+
+// Adım 5: @BeforeAll browser reuse (izolasyon riski var, bilinçli kullan)
+@BeforeAll
+static void setupSuite() {
+    WebDriverManager.chromedriver().setup();
+    driver = new ChromeDriver(headlessOptions()); // 1 kez aç
+}
+
+// Basit benchmark
+long start = System.currentTimeMillis();
+// ... test kodu
+long duration = System.currentTimeMillis() - start;
+System.out.printf("Test süresi: %d ms%n", duration);`,
+            en: `// Step 1: Measure — which test is slowest?
+// Durations in target/surefire-reports/*.txt
+
+// Step 2: Headless mode
+ChromeOptions opts = new ChromeOptions();
+opts.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+driver = new ChromeDriver(opts); // ~35% speed gain
+
+// Step 3: Maven parallel forks
+// pom.xml
+/*
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.2.5</version>
+    <configuration>
+        <forkCount>4</forkCount>        ← 4 parallel JVMs
+        <reuseForks>true</reuseForks>
+    </configuration>
+</plugin>
+*/
+
+// Step 4: TestNG parallel threads
+/*
+<suite name="FastSuite" parallel="methods" thread-count="8">
+*/
+
+// Step 5: @BeforeAll browser reuse (isolation risk — use consciously)
+@BeforeAll
+static void setupSuite() {
+    WebDriverManager.chromedriver().setup();
+    driver = new ChromeDriver(headlessOptions()); // open once
+}
+
+// Simple benchmark
+long start = System.currentTimeMillis();
+// ... test code
+long duration = System.currentTimeMillis() - start;
+System.out.printf("Test duration: %d ms%n", duration);`,
+          },
+          analogy: {
+            tr: 'Test suite hızlandırma, bir şehirde trafik akışını iyileştirmeye benzer. Önce hangi kavşakta tıkanıklık var ölçersin (profiling), sonra yol genişletirsin (paralel), ışıkları optimize edersin (headless), alternatif yollar açarsın (katmanlı koşturma).',
+            en: 'Speeding up a test suite is like improving traffic flow in a city. First measure which intersection is clogged (profiling), then widen the road (parallel), optimize lights (headless), open alternative routes (layered execution).',
+          },
+          keyPoints: [
+            { tr: 'Headless mode: UI olmadan %30-40 hız kazancı', en: 'Headless mode: 30-40% speed gain without UI' },
+            { tr: 'Paralel çalışma: forkCount=4 ile 4x potansiyel hız', en: 'Parallel execution: forkCount=4 for 4x potential speed' },
+            { tr: 'Önce ölç, sonra optimize — kör optimizasyon zaman kaybettirir', en: 'Measure first, then optimize — blind optimization wastes time' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "500 testlik suite\'imiz 45 dakika sürüyordu. Headless + parallel (forkCount=4) ile 12 dakikaya indirdik. Kritik adım ölçmekti — Allure raporu hangi testlerin en uzun sürdüğünü gösterdi."',
+            en: 'Say in interview: "Our 500-test suite took 45 minutes. With headless + parallel (forkCount=4) we reduced it to 12 minutes. The critical step was measuring — the Allure report showed which tests took longest."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Lambda expression\'lar Selenium ve WebDriverWait\'te nasıl kullanılır?', en: 'How are lambda expressions used with Selenium and WebDriverWait?' },
+          a: {
+            tr: 'Lambda expression\'lar, anonim sınıf yazmak yerine fonksiyonel interface\'leri kısa ve okunabilir şekilde implement etmenizi sağlar. WebDriverWait\'in until() metodu Function<WebDriver, T> parametresi alır — bu lambda ile kolayca doldurulur. ExpectedConditions ile karşılanamayan özel koşullar (custom conditions) için lambda ideal seçenektir: belirli bir metnin içeriği, element sayısı, JavaScript değeri gibi. Stream API\'de de WebElement\'leri dönüştürmek ve filtrelemek için lambda kullanılır. Method reference (::) daha da kısa yazım sağlar.',
+            en: 'Lambda expressions let you implement functional interfaces concisely and readably without writing anonymous classes. WebDriverWait\'s until() method takes a Function<WebDriver, T> parameter — easily filled with a lambda. Lambdas are ideal for custom conditions not covered by ExpectedConditions: specific text content, element count, JavaScript values. Lambdas are also used in Stream API to transform and filter WebElements. Method references (::) provide even shorter syntax.',
+          },
+          code: {
+            tr: `// 1. Özel WebDriverWait koşulu
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Belirli metin bekleme
+wait.until(d ->
+    d.findElement(By.id("status")).getText().contains("Onaylandı")
+);
+
+// Element sayısı bekleme
+wait.until(d ->
+    d.findElements(By.cssSelector("table tbody tr")).size() > 5
+);
+
+// JavaScript değeri bekleme
+wait.until(d ->
+    ((JavascriptExecutor) d)
+        .executeScript("return window.appState.loaded")
+        .equals(true)
+);
+
+// 2. Stream + Lambda — WebElement işleme
+List<WebElement> rows = driver.findElements(By.cssSelector("tr.product-row"));
+
+// Method reference ile kısa yazım
+List<String> names = rows.stream()
+    .map(WebElement::getText)         // :: method reference
+    .collect(Collectors.toList());
+
+// Lambda ile karmaşık dönüşüm
+Map<String, Double> priceMap = rows.stream()
+    .collect(Collectors.toMap(
+        row -> row.findElement(By.cssSelector(".name")).getText(),    // anahtar
+        row -> Double.parseDouble(                                    // değer
+            row.findElement(By.cssSelector(".price"))
+               .getText().replace("₺", "").trim())
+    ));`,
+            en: `// 1. Custom WebDriverWait condition
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+// Wait for specific text
+wait.until(d ->
+    d.findElement(By.id("status")).getText().contains("Approved")
+);
+
+// Wait for element count
+wait.until(d ->
+    d.findElements(By.cssSelector("table tbody tr")).size() > 5
+);
+
+// Wait for JavaScript value
+wait.until(d ->
+    ((JavascriptExecutor) d)
+        .executeScript("return window.appState.loaded")
+        .equals(true)
+);
+
+// 2. Stream + Lambda — WebElement processing
+List<WebElement> rows = driver.findElements(By.cssSelector("tr.product-row"));
+
+// Short syntax with method reference
+List<String> names = rows.stream()
+    .map(WebElement::getText)         // :: method reference
+    .collect(Collectors.toList());
+
+// Complex transformation with lambda
+Map<String, Double> priceMap = rows.stream()
+    .collect(Collectors.toMap(
+        row -> row.findElement(By.cssSelector(".name")).getText(),    // key
+        row -> Double.parseDouble(                                    // value
+            row.findElement(By.cssSelector(".price"))
+               .getText().replace("$", "").trim())
+    ));`,
+          },
+          analogy: {
+            tr: 'Lambda expression, Java\'da "bir defaya mahsus küçük araç" gibidir. Büyük bir fabrika (sınıf) kurmak yerine, tek iş için pratik bir el aleti (lambda) kullanırsın.',
+            en: 'A lambda expression is like a "one-time small tool" in Java. Instead of building a full factory (class), you use a handy hand tool (lambda) for a single job.',
+          },
+          keyPoints: [
+            { tr: 'until(d -> ...) ExpectedConditions\'ın karşılamadığı koşullar için', en: 'until(d -> ...) for conditions not covered by ExpectedConditions' },
+            { tr: 'Method reference (::) lambda\'nın daha kısa hali', en: 'Method reference (::) is an even shorter form of lambda' },
+            { tr: 'Stream + lambda: WebElement listesini dönüştür/filtrele', en: 'Stream + lambda: transform/filter WebElement lists' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "wait.until() ile özel koşullar için lambda kullanıyorum. Örneğin ödeme sayfasında sipariş ID\'si DOM\'a yazılana kadar bekliyordum: wait.until(d -> !d.findElement(By.id(\'orderId\')).getText().isEmpty()). ExpectedConditions bunu doğrudan desteklemiyor."',
+            en: 'Say in interview: "I use lambdas for custom conditions with wait.until(). For example, on the payment page I waited until the order ID appeared in the DOM: wait.until(d -> !d.findElement(By.id(\'orderId\')).getText().isEmpty()). ExpectedConditions doesn\'t directly support this."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Test başarısız olduğunda otomatik screenshot nasıl alınır ve Allure raporuna nasıl eklenir?', en: 'How do you automatically capture a screenshot on test failure and add it to the Allure report?' },
+          a: {
+            tr: 'Başarısızlık anında ekran görüntüsü almak, sorunun tam olarak nerede oluştuğunu görsel olarak belgelemek için kritiktir. JUnit5\'te TestWatcher extension\'ı implement edilir ve testFailed() metodu override edilir. TestNG\'de @AfterMethod ile ITestResult.FAILURE durumu kontrol edilir. Screenshot alındıktan sonra Allure.addAttachment() ile rapora eklenir. Bu mekanizma merkezi olarak kurulmalı — her test sınıfında tekrar yazılmamalı. JUnit5\'te @ExtendWith ile tüm sınıflara uygulanabilir.',
+            en: 'Capturing a screenshot on failure is critical for visually documenting exactly where the problem occurred. In JUnit5, the TestWatcher extension is implemented and testFailed() overridden. In TestNG, check ITestResult.FAILURE status with @AfterMethod. After capturing, the screenshot is added to the report with Allure.addAttachment(). This mechanism must be set up centrally — not repeated in every test class. In JUnit5 it can be applied to all classes with @ExtendWith.',
+          },
+          code: {
+            tr: `// JUnit5 — TestWatcher extension (merkezi)
+public class ScreenshotOnFailureExtension implements TestWatcher {
+
+    @Override
+    public void testFailed(ExtensionContext ctx, Throwable cause) {
+        WebDriver driver = DriverFactory.getDriver();
+        if (driver instanceof TakesScreenshot ts) {  // Java 16+ pattern matching
+            byte[] screenshot = ts.getScreenshotAs(OutputType.BYTES);
+
+            // Allure raporuna ekle
+            Allure.addAttachment(
+                "Failure Screenshot — " + ctx.getDisplayName(),
+                "image/png",
+                new ByteArrayInputStream(screenshot),
+                ".png"
+            );
+
+            // Dosyaya da kaydet (opsiyonel)
+            String fileName = "target/screenshots/" +
+                ctx.getTestMethod().map(Method::getName).orElse("unknown") +
+                "_" + System.currentTimeMillis() + ".png";
+            try { Files.write(Path.of(fileName), screenshot); }
+            catch (IOException e) { /* log */ }
+        }
+    }
+}
+
+// Tüm testlere uygula
+@ExtendWith(ScreenshotOnFailureExtension.class)
+public abstract class BaseTest {
+    // Tüm test sınıfları bu abstract sınıfı extends eder
+}
+
+// TestNG versiyonu
+public class TestNGListener implements ITestListener {
+    @Override
+    public void onTestFailure(ITestResult result) {
+        WebDriver driver = DriverFactory.getDriver();
+        byte[] screenshot = ((TakesScreenshot) driver)
+            .getScreenshotAs(OutputType.BYTES);
+        Allure.addAttachment("Screenshot", "image/png",
+            new ByteArrayInputStream(screenshot), ".png");
+    }
+}`,
+            en: `// JUnit5 — TestWatcher extension (centralized)
+public class ScreenshotOnFailureExtension implements TestWatcher {
+
+    @Override
+    public void testFailed(ExtensionContext ctx, Throwable cause) {
+        WebDriver driver = DriverFactory.getDriver();
+        if (driver instanceof TakesScreenshot ts) {  // Java 16+ pattern matching
+            byte[] screenshot = ts.getScreenshotAs(OutputType.BYTES);
+
+            // Add to Allure report
+            Allure.addAttachment(
+                "Failure Screenshot — " + ctx.getDisplayName(),
+                "image/png",
+                new ByteArrayInputStream(screenshot),
+                ".png"
+            );
+
+            // Also save to file (optional)
+            String fileName = "target/screenshots/" +
+                ctx.getTestMethod().map(Method::getName).orElse("unknown") +
+                "_" + System.currentTimeMillis() + ".png";
+            try { Files.write(Path.of(fileName), screenshot); }
+            catch (IOException e) { /* log */ }
+        }
+    }
+}
+
+// Apply to all tests
+@ExtendWith(ScreenshotOnFailureExtension.class)
+public abstract class BaseTest {
+    // All test classes extend this abstract class
+}
+
+// TestNG version
+public class TestNGListener implements ITestListener {
+    @Override
+    public void onTestFailure(ITestResult result) {
+        WebDriver driver = DriverFactory.getDriver();
+        byte[] screenshot = ((TakesScreenshot) driver)
+            .getScreenshotAs(OutputType.BYTES);
+        Allure.addAttachment("Screenshot", "image/png",
+            new ByteArrayInputStream(screenshot), ".png");
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Otomatik screenshot, bir güvenlik kamerasının hareket algıladığında kayıt başlatması gibidir. Her zaman kayıt yapmaz (performans), sadece olay anında belgeye alır.',
+            en: 'Automatic screenshot is like a security camera starting to record when it detects motion. It doesn\'t record constantly (performance), only documents the moment of the event.',
+          },
+          keyPoints: [
+            { tr: 'TestWatcher.testFailed(): JUnit5\'te merkezi screenshot çözümü', en: 'TestWatcher.testFailed(): centralized screenshot solution in JUnit5' },
+            { tr: 'Allure.addAttachment(): screenshot rapora gömülür, dosya aramak gerekmez', en: 'Allure.addAttachment(): screenshot embedded in report, no file search needed' },
+            { tr: 'abstract BaseTest + @ExtendWith: tüm testlere otomatik uygulanır', en: 'abstract BaseTest + @ExtendWith: automatically applied to all tests' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Screenshot\'ı her test sınıfına yazmak yerine TestWatcher extension\'a taşıdım. @ExtendWith ile BaseTest\'e uyguladım — 50 test sınıfının hiçbiri screenshot kodunu bilmek zorunda değil. CI\'da hata olduğunda Allure raporunu açıyoruz, screenshot direkt orada."',
+            en: 'Say in interview: "Instead of writing screenshot code in every test class, I moved it to a TestWatcher extension. Applied to BaseTest with @ExtendWith — none of my 50 test classes need to know about screenshots. When there\'s a CI failure, we open the Allure report and the screenshot is right there."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Apache POI ile Excel\'den test verisi nasıl okunur? @DataProvider ile nasıl birleştirilir?', en: 'How is test data read from Excel with Apache POI? How is it combined with @DataProvider?' },
+          a: {
+            tr: 'Apache POI, Java\'da Excel (.xlsx) ve eski Excel (.xls) dosyalarını okuyup yazmanıza olanak tanır. Test otomasyonunda en yaygın kullanım: test verisi (kullanıcı bilgileri, ürün ID\'leri, beklenen sonuçlar) Excel\'de tutulur, DataProvider bu veriyi okuyarak test metoduna sağlar. Bu yaklaşım teknik olmayan ekip üyelerinin test verisini düzenlemesine olanak tanır — kod değişikliği gerekmez. Workbook → Sheet → Row → Cell hiyerarşisiyle veri okunur. Boş hücre ve tip dönüşüm kontrolü önemlidir.',
+            en: 'Apache POI lets you read and write Excel (.xlsx) and older Excel (.xls) files in Java. Most common use in test automation: test data (user info, product IDs, expected results) stored in Excel, DataProvider reads this data and supplies it to the test method. This approach lets non-technical team members update test data — no code changes needed. Data is read through the Workbook → Sheet → Row → Cell hierarchy. Checking for empty cells and type conversion is important.',
+          },
+          code: {
+            tr: `// pom.xml — Apache POI bağımlılık
+/*
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.5</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+// Excel okuyucu utility
+public class ExcelReader {
+    public static Object[][] readTestData(String filePath, String sheetName)
+            throws IOException {
+        try (Workbook wb = WorkbookFactory.create(new File(filePath))) {
+            Sheet sheet = wb.getSheet(sheetName);
+            int rowCount = sheet.getLastRowNum(); // 0-based: son satır index
+
+            // Satır sayısı - 1 (header hariç) x sütun sayısı
+            int colCount = sheet.getRow(0).getLastCellNum();
+            Object[][] data = new Object[rowCount][colCount];
+
+            for (int r = 1; r <= rowCount; r++) { // 0. satır = header
+                Row row = sheet.getRow(r);
+                for (int c = 0; c < colCount; c++) {
+                    Cell cell = row.getCell(c);
+                    if (cell == null) {
+                        data[r - 1][c] = "";
+                    } else {
+                        data[r - 1][c] = switch (cell.getCellType()) {
+                            case STRING  -> cell.getStringCellValue().trim();
+                            case NUMERIC -> String.valueOf((int) cell.getNumericCellValue());
+                            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+                            default      -> "";
+                        };
+                    }
+                }
+            }
+            return data;
+        }
+    }
+}
+
+// TestNG DataProvider ile kullanım
+// login-data.xlsx: | email            | password  | expectedResult |
+//                  | admin@test.com   | Admin123! | dashboard      |
+//                  | wrong@test.com   | wrong     | error          |
+
+@DataProvider(name = "loginFromExcel")
+Object[][] getLoginData() throws IOException {
+    return ExcelReader.readTestData(
+        "src/test/resources/testdata/login-data.xlsx", "LoginSheet"
+    );
+}
+
+@Test(dataProvider = "loginFromExcel")
+void loginTest(String email, String pass, String expected) {
+    loginPage.login(email, pass);
+    assertEquals(expected, loginPage.getCurrentPage());
+}`,
+            en: `// pom.xml — Apache POI dependency
+/*
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.5</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+// Excel reader utility
+public class ExcelReader {
+    public static Object[][] readTestData(String filePath, String sheetName)
+            throws IOException {
+        try (Workbook wb = WorkbookFactory.create(new File(filePath))) {
+            Sheet sheet = wb.getSheet(sheetName);
+            int rowCount = sheet.getLastRowNum(); // 0-based: last row index
+
+            // Row count - 1 (excluding header) x column count
+            int colCount = sheet.getRow(0).getLastCellNum();
+            Object[][] data = new Object[rowCount][colCount];
+
+            for (int r = 1; r <= rowCount; r++) { // row 0 = header
+                Row row = sheet.getRow(r);
+                for (int c = 0; c < colCount; c++) {
+                    Cell cell = row.getCell(c);
+                    if (cell == null) {
+                        data[r - 1][c] = "";
+                    } else {
+                        data[r - 1][c] = switch (cell.getCellType()) {
+                            case STRING  -> cell.getStringCellValue().trim();
+                            case NUMERIC -> String.valueOf((int) cell.getNumericCellValue());
+                            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+                            default      -> "";
+                        };
+                    }
+                }
+            }
+            return data;
+        }
+    }
+}
+
+// Usage with TestNG DataProvider
+// login-data.xlsx: | email            | password  | expectedResult |
+//                  | admin@test.com   | Admin123! | dashboard      |
+//                  | wrong@test.com   | wrong     | error          |
+
+@DataProvider(name = "loginFromExcel")
+Object[][] getLoginData() throws IOException {
+    return ExcelReader.readTestData(
+        "src/test/resources/testdata/login-data.xlsx", "LoginSheet"
+    );
+}
+
+@Test(dataProvider = "loginFromExcel")
+void loginTest(String email, String pass, String expected) {
+    loginPage.login(email, pass);
+    assertEquals(expected, loginPage.getCurrentPage());
+}`,
+          },
+          analogy: {
+            tr: 'Excel DataProvider kombinasyonu, bir kütüphanecinin katalog kartlarından kitap sipariş listesi çıkarması gibidir. Katalog (Excel) değişir, kütüphaneci (DataProvider) her zaman güncel listeyi sunar.',
+            en: 'Excel + DataProvider combination is like a librarian pulling an order list from catalog cards. The catalog (Excel) changes, the librarian (DataProvider) always serves the current list.',
+          },
+          keyPoints: [
+            { tr: 'WorkbookFactory.create(): .xlsx ve .xls her ikisini destekler', en: 'WorkbookFactory.create(): supports both .xlsx and .xls' },
+            { tr: 'Header satırını atla: row 0 = header, row 1\'den başla', en: 'Skip header row: row 0 = header, start from row 1' },
+            { tr: 'Cell tipi kontrolü: STRING/NUMERIC/BOOLEAN ayrı okunur', en: 'Cell type check: STRING/NUMERIC/BOOLEAN read differently' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Excel okuyucuyu generic yazdım — sheet adı parametre, dönüş Object[][]. Böylece tüm data providerlar aynı utility\'yi kullanıyor. QA analistler test datasını Excel\'de düzenleyebiliyor, koda dokunmalarına gerek yok."',
+            en: 'Say in interview: "I wrote a generic Excel reader — sheet name as parameter, returns Object[][]. All data providers use the same utility. QA analysts can edit test data in Excel without touching the code."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Enum test projesinde nasıl kullanılır? Magic string problemini nasıl çözer?', en: 'How is enum used in test projects? How does it solve the magic string problem?' },
+          a: {
+            tr: 'Enum, sınırlı ve bilinen değer kümesini type-safe biçimde temsil eder. Test projesinde en sık kullanım alanları: tarayıcı tipi (CHROME, FIREFOX, EDGE), ortam (DEV, QA, STAGING, PROD), test öncelik seviyesi (LOW, MEDIUM, HIGH, CRITICAL), ve Selenium Select metodları. Magic string — sabit değerlerin string olarak kullanımı — yazım hatalarına ve refactoring zorluğuna yol açar; enum bunu ortadan kaldırır. Enum metodlar (getBaseUrl(), getDbConnection()) ile konfigürasyon mantığı enum içinde kapsüllenebilir.',
+            en: 'Enum represents a limited, known set of values in a type-safe way. Most common uses in test projects: browser type (CHROME, FIREFOX, EDGE), environment (DEV, QA, STAGING, PROD), test priority level (LOW, MEDIUM, HIGH, CRITICAL), and Selenium Select methods. Magic strings — using fixed values as strings — lead to typos and refactoring difficulties; enum eliminates this. Configuration logic can be encapsulated inside the enum with methods (getBaseUrl(), getDbConnection()).',
+          },
+          code: {
+            tr: `// Ortam enum — konfigürasyon dahil
+public enum Environment {
+    DEV     ("https://dev.myapp.com",     "dev-db:5432/devdb"),
+    QA      ("https://qa.myapp.com",      "qa-db:5432/qadb"),
+    STAGING ("https://staging.myapp.com", "staging-db:5432/stagingdb"),
+    PROD    ("https://myapp.com",         "prod-db:5432/proddb");
+
+    private final String baseUrl;
+    private final String dbUrl;
+
+    Environment(String baseUrl, String dbUrl) {
+        this.baseUrl = baseUrl;
+        this.dbUrl   = dbUrl;
+    }
+
+    public String getBaseUrl() { return baseUrl; }
+    public String getDbUrl()   { return dbUrl;   }
+
+    // String'den enum (testng.xml parametresinden)
+    public static Environment fromString(String env) {
+        return valueOf(env.toUpperCase());
+    }
+}
+
+// Browser enum
+public enum Browser {
+    CHROME, FIREFOX, EDGE, SAFARI;
+
+    public WebDriver createDriver() {
+        return switch (this) {
+            case CHROME  -> { WebDriverManager.chromedriver().setup();  yield new ChromeDriver(); }
+            case FIREFOX -> { WebDriverManager.firefoxdriver().setup(); yield new FirefoxDriver(); }
+            case EDGE    -> { WebDriverManager.edgedriver().setup();    yield new EdgeDriver(); }
+            default      -> throw new IllegalArgumentException("Desteklenmeyen: " + this);
+        };
+    }
+}
+
+// Kullanım — type-safe, magic string yok
+Environment env     = Environment.fromString(System.getProperty("env", "QA"));
+Browser     browser = Browser.valueOf(System.getProperty("browser", "CHROME"));
+
+driver.get(env.getBaseUrl()); // ✅
+// driver.get("https://qa.myapp.com"); // ❌ magic string`,
+            en: `// Environment enum — with configuration
+public enum Environment {
+    DEV     ("https://dev.myapp.com",     "dev-db:5432/devdb"),
+    QA      ("https://qa.myapp.com",      "qa-db:5432/qadb"),
+    STAGING ("https://staging.myapp.com", "staging-db:5432/stagingdb"),
+    PROD    ("https://myapp.com",         "prod-db:5432/proddb");
+
+    private final String baseUrl;
+    private final String dbUrl;
+
+    Environment(String baseUrl, String dbUrl) {
+        this.baseUrl = baseUrl;
+        this.dbUrl   = dbUrl;
+    }
+
+    public String getBaseUrl() { return baseUrl; }
+    public String getDbUrl()   { return dbUrl;   }
+
+    // String to enum conversion (from testng.xml parameter)
+    public static Environment fromString(String env) {
+        return valueOf(env.toUpperCase());
+    }
+}
+
+// Browser enum
+public enum Browser {
+    CHROME, FIREFOX, EDGE, SAFARI;
+
+    public WebDriver createDriver() {
+        return switch (this) {
+            case CHROME  -> { WebDriverManager.chromedriver().setup();  yield new ChromeDriver(); }
+            case FIREFOX -> { WebDriverManager.firefoxdriver().setup(); yield new FirefoxDriver(); }
+            case EDGE    -> { WebDriverManager.edgedriver().setup();    yield new EdgeDriver(); }
+            default      -> throw new IllegalArgumentException("Unsupported: " + this);
+        };
+    }
+}
+
+// Usage — type-safe, no magic strings
+Environment env     = Environment.fromString(System.getProperty("env", "QA"));
+Browser     browser = Browser.valueOf(System.getProperty("browser", "CHROME"));
+
+driver.get(env.getBaseUrl()); // ✅
+// driver.get("https://qa.myapp.com"); // ❌ magic string`,
+          },
+          analogy: {
+            tr: 'Enum, bir şirketin organizasyon şeması gibidir. "IT departmanı" yerine "Department.IT" kullanırsın — yazım hatası imkansız, mevcut departmanlar bellidir, yenisi eklemek merkezden yapılır.',
+            en: 'Enum is like a company\'s organizational chart. Instead of "IT department", you use "Department.IT" — typos are impossible, existing departments are known, adding a new one is done centrally.',
+          },
+          keyPoints: [
+            { tr: 'Magic string eliminasyonu: yazım hatası derleme zamanında yakalanır', en: 'Magic string elimination: typos caught at compile time' },
+            { tr: 'Enum içinde metod: konfigürasyon mantığını enum\'a kapsülle', en: 'Methods in enum: encapsulate configuration logic inside' },
+            { tr: 'valueOf() ile string→enum dönüşümü (testng.xml parametresinden)', en: 'valueOf() for string→enum conversion (from testng.xml parameter)' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Ortam seçimini string yerine Environment enum ile yönetiyorum. testng.xml\'de -Denv=STAGING parametresi gelince Environment.fromString(\"STAGING\") ile enum\'a çeviriyorum — yanlış ortam adı yazılırsa IllegalArgumentException ile hemen yakalanıyor."',
+            en: 'Say in interview: "I manage environment selection with Environment enum instead of strings. When -Denv=STAGING comes from testng.xml, I convert it with Environment.fromString(\"STAGING\") — if the wrong environment name is typed, it\'s caught immediately with IllegalArgumentException."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'TestNG ITestListener nasıl implement edilir ve ne tür otomasyonlar sağlar?', en: 'How do you implement TestNG ITestListener and what automations does it enable?' },
+          a: {
+            tr: 'ITestListener, test yaşam döngüsü olaylarına hook eklemenizi sağlayan bir interface\'dir. onTestStart(), onTestSuccess(), onTestFailure(), onTestSkipped() metodlarını override ederek her olay için özel davranış tanımlanır. En yaygın kullanımlar: başarısızlıkta screenshot alma ve Allure\'a ekleme, Slack/Teams bildirimi gönderme, JIRA\'da otomatik bug açma, ve detaylı log yazma. testng.xml\'de <listeners> ile kayıt edilir veya @Listeners annotation\'ı ile sınıf bazında uygulanır. Listener, test sınıfından tamamen ayrı — separation of concerns.',
+            en: 'ITestListener is an interface that lets you add hooks to test lifecycle events. Override onTestStart(), onTestSuccess(), onTestFailure(), onTestSkipped() to define custom behavior for each event. Most common uses: capturing screenshots on failure and adding to Allure, sending Slack/Teams notifications, automatically opening JIRA bugs, and detailed logging. Registered in testng.xml via <listeners> or applied class-by-class with @Listeners annotation. Listener is completely separate from test class — separation of concerns.',
+          },
+          code: {
+            tr: `// ITestListener implementasyonu
+public class TestLifecycleListener implements ITestListener {
+
+    @Override
+    public void onTestStart(ITestResult result) {
+        String testName = result.getMethod().getMethodName();
+        LogManager.getLogger(getClass())
+            .info("▶ TEST BAŞLADI: {}", testName);
+    }
+
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        LogManager.getLogger(getClass())
+            .info("✅ BAŞARILI: {}", result.getMethod().getMethodName());
+    }
+
+    @Override
+    public void onTestFailure(ITestResult result) {
+        String testName = result.getMethod().getMethodName();
+
+        // 1. Screenshot al → Allure'a ekle
+        WebDriver driver = DriverFactory.getDriver();
+        if (driver != null) {
+            byte[] screenshot = ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.BYTES);
+            Allure.addAttachment("Screenshot: " + testName,
+                "image/png", new ByteArrayInputStream(screenshot), ".png");
+        }
+
+        // 2. Slack bildir (opsiyonel)
+        // slackClient.send("❌ " + testName + " BAŞARISIZ: "
+        //     + result.getThrowable().getMessage());
+
+        LogManager.getLogger(getClass())
+            .error("❌ BAŞARISIZ: {} → {}",
+                testName, result.getThrowable().getMessage());
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult result) {
+        LogManager.getLogger(getClass())
+            .warn("⏭ ATLANDI: {}", result.getMethod().getMethodName());
+    }
+}
+
+// testng.xml kaydı
+/*
+<suite name="MySuite">
+    <listeners>
+        <listener class-name="com.myapp.listeners.TestLifecycleListener"/>
+    </listeners>
+    <test name="Regression"> ... </test>
+</suite>
+*/`,
+            en: `// ITestListener implementation
+public class TestLifecycleListener implements ITestListener {
+
+    @Override
+    public void onTestStart(ITestResult result) {
+        String testName = result.getMethod().getMethodName();
+        LogManager.getLogger(getClass())
+            .info("▶ TEST STARTED: {}", testName);
+    }
+
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        LogManager.getLogger(getClass())
+            .info("✅ PASSED: {}", result.getMethod().getMethodName());
+    }
+
+    @Override
+    public void onTestFailure(ITestResult result) {
+        String testName = result.getMethod().getMethodName();
+
+        // 1. Take screenshot → add to Allure
+        WebDriver driver = DriverFactory.getDriver();
+        if (driver != null) {
+            byte[] screenshot = ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.BYTES);
+            Allure.addAttachment("Screenshot: " + testName,
+                "image/png", new ByteArrayInputStream(screenshot), ".png");
+        }
+
+        // 2. Notify Slack (optional)
+        // slackClient.send("❌ " + testName + " FAILED: "
+        //     + result.getThrowable().getMessage());
+
+        LogManager.getLogger(getClass())
+            .error("❌ FAILED: {} → {}",
+                testName, result.getThrowable().getMessage());
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult result) {
+        LogManager.getLogger(getClass())
+            .warn("⏭ SKIPPED: {}", result.getMethod().getMethodName());
+    }
+}
+
+// testng.xml registration
+/*
+<suite name="MySuite">
+    <listeners>
+        <listener class-name="com.myapp.listeners.TestLifecycleListener"/>
+    </listeners>
+    <test name="Regression"> ... </test>
+</suite>
+*/`,
+          },
+          analogy: {
+            tr: 'ITestListener, bir maçtaki hakemler gibidir — maçı oynamazlar ama her önemli olayı (gol, sarı kart) kaydeder ve kurallara göre aksiyon alırlar. Test sınıfı maçı oynar, Listener hakemlik yapar.',
+            en: 'ITestListener is like the referees in a match — they don\'t play but record every important event (goal, yellow card) and take action according to rules. The test class plays the match, the Listener referees.',
+          },
+          keyPoints: [
+            { tr: 'Separation of concerns: test mantığı ve raporlama mantığı ayrı', en: 'Separation of concerns: test logic and reporting logic separated' },
+            { tr: 'testng.xml\'de merkezi kayıt: tüm testlere otomatik uygulanır', en: 'Central registration in testng.xml: automatically applied to all tests' },
+            { tr: 'ITestListener vs @AfterMethod: Listener global, @AfterMethod sınıf bazında', en: 'ITestListener vs @AfterMethod: Listener is global, @AfterMethod is class-scoped' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "ITestListener ile her test başarısızlığında otomatik screenshot alıp Allure\'a ekliyorum. @AfterMethod yerine Listener kullandım çünkü bu davranışı tek bir yerde tanımlamak istedim — 30 test sınıfında tekrar yazmak değil."',
+            en: 'Say in interview: "With ITestListener I automatically capture a screenshot and add it to Allure on every test failure. I used Listener instead of @AfterMethod because I wanted to define this behavior in one place — not repeat it in 30 test classes."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'GitHub Actions\'ta Java Selenium testleri nasıl çalıştırılır? Workflow YAML nasıl yapılandırılır?', en: 'How do you run Java Selenium tests in GitHub Actions? How is the workflow YAML configured?' },
+          a: {
+            tr: 'GitHub Actions, GitHub reposuna entegre ücretsiz CI/CD platformudur. Java Selenium testleri için temel adımlar şunlardır: ubuntu-latest runner üzerinde çalışır, actions/setup-java@v4 ile JDK kurulur, Chrome için apt ile google-chrome-stable kurulup headless mode etkinleştirilir, maven komutu ile testler çalıştırılır, ve artifact upload ile test raporları saklanır. Hassas bilgiler (BASE_URL, API key) GitHub Secrets üzerinden inject edilir. Pull Request\'te otomatik tetikleme ve branch koruma kuralları ile birlikte kullanılır.',
+            en: 'GitHub Actions is a free CI/CD platform integrated into GitHub repos. Key steps for Java Selenium tests: runs on ubuntu-latest runner, JDK installed with actions/setup-java@v4, Chrome installed via apt with google-chrome-stable and headless mode enabled, tests run with maven command, test reports saved with artifact upload. Sensitive info (BASE_URL, API key) injected via GitHub Secrets. Used with automatic triggering on Pull Requests and branch protection rules.',
+          },
+          code: {
+            tr: `# .github/workflows/selenium-tests.yml
+name: Selenium Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 22 * * *'  # Her gece 22:00 regression
+
+jobs:
+  selenium-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 21 Kur
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'  # Maven cache — hız kazancı
+
+      - name: Chrome Kur
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+
+      - name: Testleri Çalıştır
+        env:
+          BASE_URL:  \${{ secrets.STAGING_BASE_URL }}   # GitHub Secret
+          DB_PASS:   \${{ secrets.DB_PASSWORD }}
+          HEADLESS:  'true'
+        run: mvn clean test -DsuiteXmlFile=smoke.xml -Dheadless=$HEADLESS
+
+      - name: Test Raporunu Yükle
+        if: always()  # Başarısız olsa da yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results/
+
+      - name: JUnit Sonuçlarını Yayınla
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name:    'Selenium Tests'
+          path:    'target/surefire-reports/*.xml'
+          reporter: 'java-junit'`,
+            en: `# .github/workflows/selenium-tests.yml
+name: Selenium Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 22 * * *'  # Nightly regression at 22:00
+
+jobs:
+  selenium-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'  # Maven cache — speed gain
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+
+      - name: Run Tests
+        env:
+          BASE_URL:  \${{ secrets.STAGING_BASE_URL }}   # GitHub Secret
+          DB_PASS:   \${{ secrets.DB_PASSWORD }}
+          HEADLESS:  'true'
+        run: mvn clean test -DsuiteXmlFile=smoke.xml -Dheadless=$HEADLESS
+
+      - name: Upload Test Report
+        if: always()  # Upload even when tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results/
+
+      - name: Publish JUnit Results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name:    'Selenium Tests'
+          path:    'target/surefire-reports/*.xml'
+          reporter: 'java-junit'`,
+          },
+          analogy: {
+            tr: 'GitHub Actions workflow, bir aşçının tarif kartı gibidir — her adım sırayla yazılıdır, hangi malzeme (JDK, Chrome) gerektiği bellidir, ne zaman yapılacağı (push, PR, schedule) tanımlanmıştır.',
+            en: 'A GitHub Actions workflow is like a chef\'s recipe card — each step is written in order, what ingredients (JDK, Chrome) are needed is clear, and when to do it (push, PR, schedule) is defined.',
+          },
+          keyPoints: [
+            { tr: 'if: always() — test fail olsa da artifact yüklenir', en: 'if: always() — artifacts uploaded even when tests fail' },
+            { tr: 'GitHub Secrets: şifreler env var olarak inject edilir', en: 'GitHub Secrets: passwords injected as env vars' },
+            { tr: 'cache: maven — bağımlılıklar cache\'lenince build hızlanır', en: 'cache: maven — dependencies cached for faster builds' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "GitHub Actions workflow\'umu PR tetikleyicili kurdum — her PR\'da smoke suite otomatik çalışıyor. main branch\'i koruyan bir kural da ekledim: testler geçmeden merge edilemiyor."',
+            en: 'Say in interview: "I set up my GitHub Actions workflow with PR trigger — smoke suite runs automatically on every PR. I also added a branch protection rule: tests must pass before merging to main."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Page Object Model (POM) neden kullanılır? Doğru POM tasarımının yanlış tasarımdan farkı nedir?', en: 'Why is Page Object Model used? What is the difference between correct and incorrect POM design?' },
+          a: {
+            tr: 'POM, UI test kodunu iki katmana ayırır: (1) Page Object katmanı — sayfanın element locatorları ve üzerinde yapılabilecek aksiyonlar, (2) Test katmanı — iş senaryosunun adımları. Bu ayrımın en büyük faydası bakım kolaylığıdır: bir butonun ID\'si değiştiğinde sadece Page Object güncellenir, tüm testler otomatik düzelir. Yanlış POM tasarımı: driver.findElement() çağrılarını test sınıfına yazmak, locatorları magic string olarak tekrarlamak, assertion\'ları Page Object\'e koymak. Doğru POM: Page Object yalnızca UI etkileşimi yapar, assertion test sınıfındadır.',
+            en: 'POM divides UI test code into two layers: (1) Page Object layer — element locators and actions that can be performed on the page, (2) Test layer — the steps of the business scenario. The biggest benefit is maintainability: if a button\'s ID changes, only the Page Object is updated and all tests automatically fixed. Incorrect POM design: writing driver.findElement() calls in test classes, repeating locators as magic strings, putting assertions in Page Objects. Correct POM: Page Object only handles UI interaction, assertions are in the test class.',
+          },
+          code: {
+            tr: `// ❌ YANLIŞ POM — locator test sınıfında
+class LoginTest {
+    @Test
+    void testLogin() {
+        driver.findElement(By.id("email")).sendKeys("user@test.com");  // ❌
+        driver.findElement(By.id("password")).sendKeys("pass");         // ❌
+        driver.findElement(By.cssSelector("button[type='submit']")).click(); // ❌
+        assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+        // Email ID değişirse: tüm test sınıflarını güncelle
+    }
+}
+
+// ✅ DOĞRU POM — locator Page Object'te
+public class LoginPage extends BasePage {
+    private final By emailField = By.id("email");
+    private final By passField  = By.id("password");
+    private final By submitBtn  = By.cssSelector("button[type='submit']");
+    private final By errorMsg   = By.id("errorMessage");
+
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    // Eylemler Page Object'te — assertion değil!
+    public void login(String email, String password) {
+        type(emailField, email);
+        type(passField,  password);
+        click(submitBtn);
+    }
+
+    public String getErrorMessage() {
+        return getText(errorMsg);
+    }
+}
+
+// Test sınıfı — sadece senaryo + assertion
+class LoginTest extends BaseTest {
+    @Test
+    void validLoginRedirectsToDashboard() {
+        loginPage.open();
+        loginPage.login("user@test.com", "password123");
+
+        // Assertion test sınıfında
+        assertTrue(dashboardPage.isLoaded(), "Dashboard yüklenmeli");
+    }
+
+    @Test
+    void invalidLoginShowsError() {
+        loginPage.open();
+        loginPage.login("bad@test.com", "wrong");
+
+        // Page Object assertion döndürmez, veriyi sağlar
+        assertEquals("Geçersiz email veya şifre", loginPage.getErrorMessage());
+    }
+}`,
+            en: `// ❌ INCORRECT POM — locator in test class
+class LoginTest {
+    @Test
+    void testLogin() {
+        driver.findElement(By.id("email")).sendKeys("user@test.com");  // ❌
+        driver.findElement(By.id("password")).sendKeys("pass");         // ❌
+        driver.findElement(By.cssSelector("button[type='submit']")).click(); // ❌
+        assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+        // If email ID changes: update all test classes
+    }
+}
+
+// ✅ CORRECT POM — locator in Page Object
+public class LoginPage extends BasePage {
+    private final By emailField = By.id("email");
+    private final By passField  = By.id("password");
+    private final By submitBtn  = By.cssSelector("button[type='submit']");
+    private final By errorMsg   = By.id("errorMessage");
+
+    public LoginPage(WebDriver driver) { super(driver); }
+
+    // Actions in Page Object — not assertions!
+    public void login(String email, String password) {
+        type(emailField, email);
+        type(passField,  password);
+        click(submitBtn);
+    }
+
+    public String getErrorMessage() {
+        return getText(errorMsg);
+    }
+}
+
+// Test class — only scenario + assertion
+class LoginTest extends BaseTest {
+    @Test
+    void validLoginRedirectsToDashboard() {
+        loginPage.open();
+        loginPage.login("user@test.com", "password123");
+
+        // Assertion in test class
+        assertTrue(dashboardPage.isLoaded(), "Dashboard should load");
+    }
+
+    @Test
+    void invalidLoginShowsError() {
+        loginPage.open();
+        loginPage.login("bad@test.com", "wrong");
+
+        // Page Object returns data, not assertions
+        assertEquals("Invalid email or password", loginPage.getErrorMessage());
+    }
+}`,
+          },
+          analogy: {
+            tr: 'POM, bir ev planı gibidir. Page Object — binanın planı (kapılar, pencereler nerede). Test — orada ne yapılacağı (kahvaltı yapılacak, oturma odası kullanılacak). Plan değişirse sadece planı güncelle, günlük rutini değil.',
+            en: 'POM is like a building plan. Page Object — where the doors and windows are. Test — what happens there (breakfast, living room). If the plan changes, update only the plan, not the daily routine.',
+          },
+          keyPoints: [
+            { tr: 'Page Object: locator + aksiyon, assertion YOK', en: 'Page Object: locator + action, NO assertion' },
+            { tr: 'Test sınıfı: senaryo akışı + assertion', en: 'Test class: scenario flow + assertion' },
+            { tr: 'Locator değişirse: 1 yer güncelleme, yüzlerce test otomatik düzelen', en: 'Locator changes: 1 place to update, hundreds of tests auto-fixed' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "POM kuralım: Page Object assertion döndürmez, veri döndürür. Assertion sadece test sınıfında. Bu ayrım sayesinde aynı Page Object\'i farklı senaryolarda farklı assertionlarla kullanabiliyorum."',
+            en: 'Say in interview: "My POM rule: Page Object doesn\'t return assertions, it returns data. Assertions only in test class. This separation lets me use the same Page Object with different assertions in different scenarios."',
+          },
+        },
+        {
+          level: 'intermediate',
+          q: { tr: 'Selenium testlerinde retry (yeniden deneme) mekanizması nasıl implement edilir?', en: 'How is a retry mechanism implemented in Selenium tests?' },
+          a: {
+            tr: 'Retry mekanizması flaky testlerin otomatik olarak tekrar denenmesini sağlar. Ancak bu bir bant-aid çözümdür — kök nedeni düzeltmek asıl hedeftir. JUnit5\'te RepeatedTest veya custom Extension ile; TestNG\'de IRetryAnalyzer interface\'i ile implement edilir. Retry en fazla 2-3 kez yapılmalıdır — daha fazlası pipeline süresini uzatır ve sorunun üstünü örter. Retry edilen testler ayrıca raporlanmalı (flaky olarak işaretlenmiş), böylece kök neden analizi yapılabilir. Maven Surefire Plugin\'de -Dsurefire.rerunFailingTestsCount=2 ile de basit retry yapılabilir.',
+            en: 'Retry mechanism automatically re-runs flaky tests. However this is a band-aid solution — fixing the root cause is the real goal. Implemented with RepeatedTest or custom Extension in JUnit5; with IRetryAnalyzer interface in TestNG. Retry should happen at most 2-3 times — more extends pipeline time and masks the problem. Retried tests should be separately reported (marked as flaky) so root cause analysis can be done. Simple retry also available with Maven Surefire Plugin via -Dsurefire.rerunFailingTestsCount=2.',
+          },
+          code: {
+            tr: `// TestNG — IRetryAnalyzer
+public class RetryAnalyzer implements IRetryAnalyzer {
+    private int count   = 0;
+    private static final int MAX_RETRY = 2; // maksimum 2 kez dene
+
+    @Override
+    public boolean retry(ITestResult result) {
+        if (count < MAX_RETRY) {
+            count++;
+            LogManager.getLogger(getClass())
+                .warn("⟳ Retry #{}: {}", count,
+                    result.getMethod().getMethodName());
+            return true;  // tekrar dene
+        }
+        return false;     // artık deneme
+    }
+}
+
+// Test metoduna bağla
+@Test(retryAnalyzer = RetryAnalyzer.class)
+void checkoutFlowTest() { ... }
+
+// Tüm testlere global uygula — IAnnotationTransformer
+public class RetryTransformer implements IAnnotationTransformer {
+    @Override
+    public void transform(ITestAnnotation annotation,
+                          Class testClass, Constructor ctor, Method method) {
+        annotation.setRetryAnalyzer(RetryAnalyzer.class); // tümüne
+    }
+}
+// testng.xml: <listener class-name="...RetryTransformer"/>
+
+// JUnit5 — @RepeatedTest
+@RepeatedTest(value = 3, failureThreshold = 1)
+// failureThreshold=1: 1 başarı yeterliyse geç
+void flakyPaymentTest(RepetitionInfo info) {
+    System.out.println("Deneme: " + info.getCurrentRepetition());
+    paymentPage.completeCheckout();
+    assertTrue(confirmationPage.isLoaded());
+}
+
+// Maven Surefire — basit yaklaşım
+// mvn test -Dsurefire.rerunFailingTestsCount=2`,
+            en: `// TestNG — IRetryAnalyzer
+public class RetryAnalyzer implements IRetryAnalyzer {
+    private int count   = 0;
+    private static final int MAX_RETRY = 2; // maximum 2 retries
+
+    @Override
+    public boolean retry(ITestResult result) {
+        if (count < MAX_RETRY) {
+            count++;
+            LogManager.getLogger(getClass())
+                .warn("⟳ Retry #{}: {}", count,
+                    result.getMethod().getMethodName());
+            return true;  // retry
+        }
+        return false;     // no more retries
+    }
+}
+
+// Attach to test method
+@Test(retryAnalyzer = RetryAnalyzer.class)
+void checkoutFlowTest() { ... }
+
+// Apply globally to all tests — IAnnotationTransformer
+public class RetryTransformer implements IAnnotationTransformer {
+    @Override
+    public void transform(ITestAnnotation annotation,
+                          Class testClass, Constructor ctor, Method method) {
+        annotation.setRetryAnalyzer(RetryAnalyzer.class); // for all
+    }
+}
+// testng.xml: <listener class-name="...RetryTransformer"/>
+
+// JUnit5 — @RepeatedTest
+@RepeatedTest(value = 3, failureThreshold = 1)
+// failureThreshold=1: pass if 1 success is enough
+void flakyPaymentTest(RepetitionInfo info) {
+    System.out.println("Attempt: " + info.getCurrentRepetition());
+    paymentPage.completeCheckout();
+    assertTrue(confirmationPage.isLoaded());
+}
+
+// Maven Surefire — simple approach
+// mvn test -Dsurefire.rerunFailingTestsCount=2`,
+          },
+          analogy: {
+            tr: 'Retry mekanizması, internet bağlantısı kesilince otomatik yeniden bağlanan bir VPN istemcisi gibidir. Geçici kesintilere karşı dayanıklılık sağlar, ama internet altyapısını düzeltmez.',
+            en: 'Retry mechanism is like a VPN client that automatically reconnects when the connection drops. It provides resilience against temporary interruptions but doesn\'t fix the internet infrastructure.',
+          },
+          keyPoints: [
+            { tr: 'Retry kök nedenin çözümü değil, geçici çözüm', en: 'Retry is not the root cause fix, it\'s a temporary workaround' },
+            { tr: 'MAX_RETRY=2-3: daha fazla pipeline\'ı uzatır ve sorunu maskeler', en: 'MAX_RETRY=2-3: more extends pipeline and masks the problem' },
+            { tr: 'Retry\'lanan testler flaky olarak işaretlenmeli — analiz için', en: 'Retried tests should be marked as flaky — for analysis' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Retry mekanizmasını ekledim ama paralel izleme de kurdum: hangi test kaç kez retry edildi raporda görünüyor. Aylık retry sayısı yüksek olan testler kök neden analizi listesine alınıyor. Retry eklendikten 2 hafta sonra 3 flaky testi tamamen düzelttik."',
+            en: 'Say in interview: "I added retry but also set up parallel monitoring: which test was retried how many times is visible in the report. Tests with high monthly retry counts go on the root cause analysis list. 2 weeks after adding retry we fixed 3 flaky tests completely."',
+          },
+        },
+        // ── ADVANCED 36-50 ──────────────────────────────────────────────────────
+        {
+          level: 'advanced',
+          q: { tr: 'Flaky testlere sistematik ve profesyonel bir yaklaşım nasıl kurulur?', en: 'How do you establish a systematic and professional approach to flaky tests?' },
+          a: {
+            tr: 'Flaky test yönetimi bir kere düzeltmekten ibaret değil; süregelen bir süreç gerektirir. İlk adım kategorilendirmedir: Timing (AJAX bitmeden etkileşim), Test bağımlılığı (test sırasına bağımlılık), Environment (CI vs local fark), JS async (animasyon/lazy-load). Her kategorinin farklı çözümü vardır. Sonra her flaky test @Tag("flaky") veya @Disabled ile izole edilmeli, retry eklenmeli ama kök neden analizi yapılmalıdır. 30 günlük CI geçmişi analiz edilerek en çok sallanan testler önceliklendirilir. Deterministic locatorlar, explicit wait ve tam test izolasyonu kalıcı çözümdür.',
+            en: 'Flaky test management isn\'t a one-time fix; it requires an ongoing process. First step is categorization: Timing (interaction before AJAX completes), Test dependency (depending on test order), Environment (CI vs local difference), JS async (animation/lazy-load). Each category has different solutions. Then each flaky test should be isolated with @Tag("flaky") or @Disabled, retry added, but root cause analysis performed. Analyzing 30-day CI history prioritizes the most frequently flaking tests. Deterministic locators, explicit wait, and full test isolation are the permanent fix.',
+          },
+          code: {
+            tr: `// Flaky test yönetim süreci
+
+// 1. Kategorilendirme + etiketleme
+@Test
+@Tag("flaky")
+@Tag("timing")  // hangi kategoride?
+@Disabled("JIRA-1234: AJAX race condition — explicit wait eklenecek")
+void checkoutFlowTest() { ... }
+
+// 2. Timing fix — en sık neden
+// ❌ Kötü: AJAX bitmeden
+driver.findElement(By.id("totalPrice")).getText(); // "₺0" döner!
+
+// ✅ İyi: Fiyat hesaplandıktan sonra
+wait.until(d -> {
+    String price = d.findElement(By.id("totalPrice")).getText();
+    return !price.equals("₺0") && !price.isEmpty();
+});
+
+// 3. Test izolasyonu — state paylaşımı engeli
+@BeforeEach
+void createFreshTestData() {
+    // Her test kendi verisini oluşturur — başkasına bağımlı değil
+    testUser = userApi.createUser(faker.internet().emailAddress());
+}
+
+@AfterEach
+void cleanupTestData() {
+    if (testUser != null) userApi.deleteUser(testUser.getId());
+}
+
+// 4. CI geçmişi analizi
+// mvn test -Dsurefire.rerunFailingTestsCount=3 ile retry etkinleştir
+// target/surefire-reports klasöründe hangi test kaç kez fail etti izle
+// → Aylık flaky analiz raporu ekibe paylaş`,
+            en: `// Flaky test management process
+
+// 1. Categorization + tagging
+@Test
+@Tag("flaky")
+@Tag("timing")  // which category?
+@Disabled("JIRA-1234: AJAX race condition — explicit wait to be added")
+void checkoutFlowTest() { ... }
+
+// 2. Timing fix — most common cause
+// ❌ Bad: interaction before AJAX completes
+driver.findElement(By.id("totalPrice")).getText(); // returns "$0"!
+
+// ✅ Good: after price is calculated
+wait.until(d -> {
+    String price = d.findElement(By.id("totalPrice")).getText();
+    return !price.equals("$0") && !price.isEmpty();
+});
+
+// 3. Test isolation — prevent state sharing
+@BeforeEach
+void createFreshTestData() {
+    // Each test creates its own data — not dependent on others
+    testUser = userApi.createUser(faker.internet().emailAddress());
+}
+
+@AfterEach
+void cleanupTestData() {
+    if (testUser != null) userApi.deleteUser(testUser.getId());
+}
+
+// 4. CI history analysis
+// Enable retry: mvn test -Dsurefire.rerunFailingTestsCount=3
+// Track how many times each test failed in target/surefire-reports
+// → Share monthly flaky analysis report with team`,
+          },
+          analogy: {
+            tr: 'Flaky test yönetimi, bir şehrin trafik kazaları azaltma programı gibidir. Tek bir kazayı düzeltmek yeterli değil; yüksek riskli kavşakları (kategorilendirme), tekrarlayan sebepleri (kök neden) ve kalıcı çözümleri (altyapı iyileştirme) ele almak gerekir.',
+            en: 'Flaky test management is like a city\'s traffic accident reduction program. Fixing one accident isn\'t enough; you need to address high-risk intersections (categorization), recurring causes (root cause), and permanent fixes (infrastructure improvement).',
+          },
+          keyPoints: [
+            { tr: 'Kategoriler: Timing / Bağımlılık / Environment / JS async', en: 'Categories: Timing / Dependency / Environment / JS async' },
+            { tr: '@Tag("flaky") + CI geçmişi: hangi test ne sıklıkta sallanıyor?', en: '@Tag("flaky") + CI history: which test flakes how often?' },
+            { tr: 'Retry bant-aid, kök neden analizi kalıcı çözüm', en: 'Retry is a band-aid, root cause analysis is the permanent fix' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Flaky testleri üç aşamada yönetiyorum: Tespit (CI geçmişi), İzole etme (@Tag + @Disabled), Sistematik düzeltme (kategoriye göre çözüm). Düzeltilip düzeltilmediği 2 haftalık CI geçmişiyle doğrulanıyor. Bu süreç sayesinde flaky test oranımızı %15\'ten %2\'ye indirdik."',
+            en: 'Say in interview: "I manage flaky tests in three phases: Detection (CI history), Isolation (@Tag + @Disabled), Systematic fix (solution by category). Whether fixed is verified by 2-week CI history. Through this process we reduced our flaky test rate from 15% to 2%."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Java Selenium test projesinde memory leak nasıl oluşur ve nasıl önlenir?', en: 'How does a memory leak occur in a Java Selenium test project and how is it prevented?' },
+          a: {
+            tr: 'Test projelerinde memory leak\'in en sık üç nedeni vardır: (1) driver.quit() çağrılmaması — tarayıcı process\'i arka planda çalışmaya devam eder; (2) ThreadLocal.remove() unutulması — thread pool ortamında (örn. TestNG parallel) thread yeniden kullanıldığında eski driver referansı hala ThreadLocal\'da yaşar; (3) static WebElement tutmak — sayfa yenilendikten sonra stale reference olur ama GC tarafından temizlenemeyen bağlantılar oluşabilir. Önlemler: try-finally bloğu ile quit+remove garantilenmeli, @AfterEach içinde DriverFactory.quitDriver() çağrılmalı, ve JVM\'e -XX:+HeapDumpOnOutOfMemoryError flag\'i eklenmeli. VisualVM ile heap analizi yapılabilir.',
+            en: 'The three most common memory leak causes in test projects: (1) Not calling driver.quit() — browser process continues running in background; (2) Forgetting ThreadLocal.remove() — in thread pool environments (e.g. TestNG parallel), when a thread is reused, the old driver reference still lives in ThreadLocal; (3) Holding static WebElements — after page refresh creates stale references that can\'t be cleaned by GC due to lingering connections. Prevention: guarantee quit+remove with try-finally, call DriverFactory.quitDriver() in @AfterEach, add -XX:+HeapDumpOnOutOfMemoryError JVM flag. VisualVM can be used for heap analysis.',
+          },
+          code: {
+            tr: `// ❌ LEAK 1: driver.quit() unutmak
+static WebDriver driver = new ChromeDriver(); // global
+// Test sonrası quit() çağrılmazsa: Chrome process arka planda çalışır
+// 100 test = 100 zombie Chrome process = OutOfMemoryError
+
+// ❌ LEAK 2: ThreadLocal.remove() unutmak
+ThreadLocal<WebDriver> tl = new ThreadLocal<>();
+tl.set(new ChromeDriver());
+tl.get().quit();
+// tl.remove() eksik! → thread pool'da thread recycled, eski referans yaşar
+
+// ✅ ÇÖZÜM — guaranteed cleanup
+public class DriverFactory {
+    private static final ThreadLocal<WebDriver> TL = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (TL.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            TL.set(new ChromeDriver());
+        }
+        return TL.get();
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = TL.get();
+        if (driver != null) {
+            try {
+                driver.quit();      // tarayıcıyı kapat
+            } finally {
+                TL.remove();        // referansı temizle — her koşulda
+            }
+        }
+    }
+}
+
+// Test sınıfı
+@AfterEach
+void tearDown() {
+    DriverFactory.quitDriver(); // try-finally içinde quit+remove
+}
+
+// JVM flag — heap dump on OOM
+// -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.hprof
+// → Eclipse MAT ile analiz edilir`,
+            en: `// ❌ LEAK 1: forgetting driver.quit()
+static WebDriver driver = new ChromeDriver(); // global
+// If quit() isn't called after test: Chrome process runs in background
+// 100 tests = 100 zombie Chrome processes = OutOfMemoryError
+
+// ❌ LEAK 2: forgetting ThreadLocal.remove()
+ThreadLocal<WebDriver> tl = new ThreadLocal<>();
+tl.set(new ChromeDriver());
+tl.get().quit();
+// tl.remove() missing! → thread recycled in thread pool, old reference persists
+
+// ✅ SOLUTION — guaranteed cleanup
+public class DriverFactory {
+    private static final ThreadLocal<WebDriver> TL = new ThreadLocal<>();
+
+    public static WebDriver getDriver() {
+        if (TL.get() == null) {
+            WebDriverManager.chromedriver().setup();
+            TL.set(new ChromeDriver());
+        }
+        return TL.get();
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = TL.get();
+        if (driver != null) {
+            try {
+                driver.quit();      // close the browser
+            } finally {
+                TL.remove();        // clear reference — in all cases
+            }
+        }
+    }
+}
+
+// Test class
+@AfterEach
+void tearDown() {
+    DriverFactory.quitDriver(); // quit+remove inside try-finally
+}
+
+// JVM flag — heap dump on OOM
+// -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.hprof
+// → analyze with Eclipse MAT`,
+          },
+          analogy: {
+            tr: 'driver.quit() yapmamak, her kullandığın arabayı park edip anahtarı bırakmak ama motoru kapatmamak gibidir. Zamanla tüm araçların motorları çalışıyor olur ve yakıt (bellek) tükenir.',
+            en: 'Not calling driver.quit() is like parking every car you use and leaving the key but not turning off the engine. Eventually all cars have running engines and fuel (memory) runs out.',
+          },
+          keyPoints: [
+            { tr: 'quit() + remove() birlikte, finally içinde — her koşulda çalışır', en: 'quit() + remove() together, inside finally — runs in all cases' },
+            { tr: 'Thread pool: remove() olmadan eski driver bir sonraki testte kullanılır', en: 'Thread pool: without remove() old driver is used in next test' },
+            { tr: '-XX:+HeapDumpOnOutOfMemoryError: OOM hatası heap\'i dosyaya yazar', en: '-XX:+HeapDumpOnOutOfMemoryError: OOM writes heap to file for analysis' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Projemin ilk versiyonunda 200 testten sonra OutOfMemoryError alıyorduk. VisualVM analizi ThreadLocal.remove() eksikliğini gösterdi. Düzeltme sonrası 2000 test sorunsuz çalıştı. Bu nedenle DriverFactory\'nin quitDriver() metodu her zaman try-finally kullanır."',
+            en: 'Say in interview: "In the first version of my project we got OutOfMemoryError after 200 tests. VisualVM analysis revealed missing ThreadLocal.remove(). After the fix, 2000 tests ran without issues. That\'s why DriverFactory\'s quitDriver() method always uses try-finally."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Microservices mimarisinde E2E test stratejisi nasıl kurulur? Hangi araçlar kullanılır?', en: 'How do you build an E2E test strategy in a microservices architecture? What tools are used?' },
+          a: {
+            tr: 'Microservices mimarisinde geleneksel E2E testleri zorlaşır çünkü her servis bağımsız dağıtılır ve testler için tüm servislerin ayakta olması gerekir. Katmanlı strateji şöyledir: (1) Unit testler — her serviste bağımsız; (2) Contract testler (Pact) — servisler arası sözleşme garantisi; (3) Integration testler — WireMock ile bağımlı servisleri mock\'layarak tek servis test; (4) E2E testler — gerçek kullanıcı akışı, Testcontainers veya Docker Compose ile full stack. Bu strateji hem hız (contract testler saniyeler alır) hem güven (E2E gerçek akışı test eder) sağlar.',
+            en: 'Traditional E2E tests become difficult in microservices because each service deploys independently and all services must be running for tests. Layered strategy: (1) Unit tests — independent per service; (2) Contract tests (Pact) — inter-service contract guarantee; (3) Integration tests — test single service with WireMock mocking dependent services; (4) E2E tests — real user flow, full stack with Testcontainers or Docker Compose. This strategy provides both speed (contract tests take seconds) and confidence (E2E tests real flows).',
+          },
+          code: {
+            tr: `// Katmanlı test stratejisi
+
+// 1. Contract Test — Pact (Consumer tarafı)
+@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "user-service")
+class OrderServiceConsumerTest {
+
+    @Pact(consumer = "order-service")
+    RequestResponsePact getUserPact(PactDslWithProvider builder) {
+        return builder
+            .given("user 123 exists")
+            .uponReceiving("get user 123")
+                .path("/users/123").method("GET")
+            .willRespondWith()
+                .status(200)
+                .body(new PactDslJsonBody()
+                    .integerType("id", 123)
+                    .stringType("email", "user@test.com"))
+            .toPact();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "getUserPact")
+    void orderServiceCanFetchUser(MockServer mockServer) {
+        // order-service, user-service'i mock server üzerinden çağırır
+        UserClient client = new UserClient(mockServer.getUrl());
+        User user = client.getUser(123);
+        assertEquals("user@test.com", user.getEmail());
+    }
+}
+
+// 2. Integration Test — WireMock ile bağımlı servis mock
+@WireMockTest
+class OrderServiceIntegrationTest {
+
+    @Test
+    void createOrderWithValidUser(WireMockRuntimeInfo wmRuntimeInfo) {
+        // Bağımlı user-service'i mock'la
+        stubFor(get("/users/123")
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withBody("{\"id\":123,\"email\":\"user@test.com\"}")));
+
+        // order-service'i gerçekten test et
+        orderService.createOrder(123, "PRODUCT_001");
+        verify(getRequestedFor(urlEqualTo("/users/123")));
+    }
+}
+
+// 3. E2E — Testcontainers ile full stack
+@Testcontainers
+class CheckoutFlowE2ETest {
+
+    @Container
+    static DockerComposeContainer<?> compose =
+        new DockerComposeContainer<>(new File("docker-compose.test.yml"))
+            .withExposedService("frontend", 3000)
+            .withExposedService("api-gateway", 8080);
+
+    @Test
+    void userCanCompleteCheckout() {
+        String frontendUrl = "http://localhost:" +
+            compose.getServicePort("frontend", 3000);
+        // Selenium ile gerçek browser testi
+    }
+}`,
+            en: `// Layered test strategy
+
+// 1. Contract Test — Pact (Consumer side)
+@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "user-service")
+class OrderServiceConsumerTest {
+
+    @Pact(consumer = "order-service")
+    RequestResponsePact getUserPact(PactDslWithProvider builder) {
+        return builder
+            .given("user 123 exists")
+            .uponReceiving("get user 123")
+                .path("/users/123").method("GET")
+            .willRespondWith()
+                .status(200)
+                .body(new PactDslJsonBody()
+                    .integerType("id", 123)
+                    .stringType("email", "user@test.com"))
+            .toPact();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "getUserPact")
+    void orderServiceCanFetchUser(MockServer mockServer) {
+        // order-service calls user-service through mock server
+        UserClient client = new UserClient(mockServer.getUrl());
+        User user = client.getUser(123);
+        assertEquals("user@test.com", user.getEmail());
+    }
+}
+
+// 2. Integration Test — mock dependent service with WireMock
+@WireMockTest
+class OrderServiceIntegrationTest {
+
+    @Test
+    void createOrderWithValidUser(WireMockRuntimeInfo wmRuntimeInfo) {
+        // Mock the dependent user-service
+        stubFor(get("/users/123")
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withBody("{\"id\":123,\"email\":\"user@test.com\"}")));
+
+        // Actually test the order-service
+        orderService.createOrder(123, "PRODUCT_001");
+        verify(getRequestedFor(urlEqualTo("/users/123")));
+    }
+}
+
+// 3. E2E — full stack with Testcontainers
+@Testcontainers
+class CheckoutFlowE2ETest {
+
+    @Container
+    static DockerComposeContainer<?> compose =
+        new DockerComposeContainer<>(new File("docker-compose.test.yml"))
+            .withExposedService("frontend", 3000)
+            .withExposedService("api-gateway", 8080);
+
+    @Test
+    void userCanCompleteCheckout() {
+        String frontendUrl = "http://localhost:" +
+            compose.getServicePort("frontend", 3000);
+        // Real browser test with Selenium
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Microservices test stratejisi, bir şehir elektrik sistemini test etmek gibidir. Her evin kendi sigorta testleri (unit), transformatörler arası bağlantı testleri (contract), mahalle bazlı yük testleri (integration) ve tüm şehir genelinde kriz senaryosu (E2E) ayrı ayrı test edilir.',
+            en: 'A microservices test strategy is like testing a city\'s electrical system. Each house has its own fuse tests (unit), transformer connection tests (contract), neighborhood load tests (integration), and a city-wide crisis scenario (E2E) — each tested separately.',
+          },
+          keyPoints: [
+            { tr: 'Contract test (Pact): servis değişikliği tüketiciyi bozar mı — saniyeler', en: 'Contract test (Pact): does service change break consumers — takes seconds' },
+            { tr: 'WireMock: bağımlı servisi mock\'la, tek servisi izole test et', en: 'WireMock: mock dependent service, test single service in isolation' },
+            { tr: 'Testcontainers: full stack Docker Compose ile gerçek E2E', en: 'Testcontainers: full stack Docker Compose for real E2E' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Microservices\'de E2E testleri son çaredir — yavaş ve kırılgan. Önce contract testlerle servislerin birbirleriyle konuşabildiğini garanti ediyorum. Sadece gerçek kullanıcı senaryolarını E2E\'ye taşıyorum."',
+            en: 'Say in interview: "In microservices, E2E tests are the last resort — slow and brittle. First I guarantee services can talk to each other with contract tests. Only real user scenarios get promoted to E2E."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Java 21 Virtual Threads test otomasyonunu nasıl etkiler? Ne zaman kullanmalısın?', en: 'How do Java 21 Virtual Threads affect test automation? When should you use them?' },
+          a: {
+            tr: 'Java 21 Virtual Thread\'ler, OS thread\'lerine bağlı olmayan hafif thread\'lerdir ve binlerce eşzamanlı thread oluşturabilirsiniz. Test otomasyonunda en büyük fayda API testlerindedir: Executors.newVirtualThreadPerTaskExecutor() ile yüzlerce REST API çağrısı aynı anda yapılabilir. Selenium WebDriver testlerinde fayda sınırlıdır çünkü tarayıcı process\'ler Platform Thread\'leri tükettirmemektedir, asıl darboğaz browser kaynaklarıdır. JUnit5 5.11+ native virtual thread desteğine sahiptir. Platform thread pool ayarlaması gerekmez — JVM otomatik yönetir.',
+            en: 'Java 21 Virtual Threads are lightweight threads not bound to OS threads, allowing thousands of concurrent threads. The biggest benefit in test automation is for API tests: hundreds of REST API calls can be made simultaneously with Executors.newVirtualThreadPerTaskExecutor(). Benefits are limited for Selenium WebDriver tests because browser processes are the bottleneck, not Platform Threads. JUnit5 5.11+ has native virtual thread support. No Platform thread pool tuning needed — JVM manages automatically.',
+          },
+          code: {
+            tr: `// Virtual Thread ile paralel API testi
+// Java 21 — pom.xml: <java.version>21</java.version>
+
+// 1. Virtual Thread Executor ile yüksek concurrency API testi
+List<String> userIds = List.of("u1","u2","u3","u4","u5", /* ... 1000 */);
+
+try (ExecutorService vte = Executors.newVirtualThreadPerTaskExecutor()) {
+    List<Future<ApiResponse>> futures = userIds.stream()
+        .map(id -> vte.submit(() -> {
+            // Her çağrı ayrı virtual thread'de — OS thread'i bloklamaz
+            return given().get("/users/" + id).as(ApiResponse.class);
+        }))
+        .collect(Collectors.toList());
+
+    List<ApiResponse> results = futures.stream()
+        .map(f -> {
+            try { return f.get(30, TimeUnit.SECONDS); }
+            catch (Exception e) { throw new RuntimeException(e); }
+        })
+        .collect(Collectors.toList());
+
+    assertEquals(userIds.size(), results.stream()
+        .filter(r -> r.statusCode() == 200).count());
+}
+
+// 2. JUnit5 5.11+ ile virtual thread
+@Test
+@Execution(ExecutionMode.CONCURRENT) // JUnit5 5.11+ virtual thread desteği
+void concurrentApiTest() {
+    // Virtual thread üzerinde çalışır
+    given().get("/health").then().statusCode(200);
+}
+
+// 3. Selenium'da virtual thread (sınırlı fayda)
+// Darboğaz: browser process (platform thread değil)
+// → Selenium Grid veya BrowserStack daha etkili`,
+            en: `// Parallel API testing with Virtual Threads
+// Java 21 — pom.xml: <java.version>21</java.version>
+
+// 1. High concurrency API testing with Virtual Thread Executor
+List<String> userIds = List.of("u1","u2","u3","u4","u5", /* ... 1000 */);
+
+try (ExecutorService vte = Executors.newVirtualThreadPerTaskExecutor()) {
+    List<Future<ApiResponse>> futures = userIds.stream()
+        .map(id -> vte.submit(() -> {
+            // Each call in separate virtual thread — doesn't block OS thread
+            return given().get("/users/" + id).as(ApiResponse.class);
+        }))
+        .collect(Collectors.toList());
+
+    List<ApiResponse> results = futures.stream()
+        .map(f -> {
+            try { return f.get(30, TimeUnit.SECONDS); }
+            catch (Exception e) { throw new RuntimeException(e); }
+        })
+        .collect(Collectors.toList());
+
+    assertEquals(userIds.size(), results.stream()
+        .filter(r -> r.statusCode() == 200).count());
+}
+
+// 2. Virtual thread with JUnit5 5.11+
+@Test
+@Execution(ExecutionMode.CONCURRENT) // JUnit5 5.11+ virtual thread support
+void concurrentApiTest() {
+    // Runs on virtual thread
+    given().get("/health").then().statusCode(200);
+}
+
+// 3. Virtual threads in Selenium (limited benefit)
+// Bottleneck: browser process (not platform thread)
+// → Selenium Grid or BrowserStack is more effective`,
+          },
+          analogy: {
+            tr: 'Virtual Thread, bir call center\'daki müşteri temsilcilerini temsil eder. Geleneksel thread\'ler tam zamanlı çalışan; virtual thread\'ler ise gerçek insan olmadan, ses dosyası oynatan bot gibidir — binlercesi aynı anda çalışabilir ama asıl darboğaz hat sayısıdır (browser/OS).',
+            en: 'Virtual Threads represent call center agents. Traditional threads are full-time employees; virtual threads are bots playing voice files — thousands can run simultaneously, but the real bottleneck is the line count (browser/OS).',
+          },
+          keyPoints: [
+            { tr: 'API testleri: virtual thread ile yüzlerce paralel istek — ideal', en: 'API tests: hundreds of parallel requests with virtual thread — ideal' },
+            { tr: 'Selenium E2E: darboğaz browser, virtual thread katkısı sınırlı', en: 'Selenium E2E: bottleneck is browser, virtual thread benefit is limited' },
+            { tr: 'JVM otomatik yönetir — Platform thread pool ayarı gerekmez', en: 'JVM manages automatically — no Platform thread pool tuning needed' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Virtual Thread\'leri REST Assured API testlerinde kullandım. 500 paralel API çağrısı geleneksel thread pool\'da 45 saniye sürerken Virtual Thread ile 4 saniyeye düştü. Selenium testlerinde ise fayda görmedim — asıl darboğaz tarayıcı process\'leriydi."',
+            en: 'Say in interview: "I used Virtual Threads in REST Assured API tests. 500 parallel API calls that took 45 seconds with a traditional thread pool dropped to 4 seconds with Virtual Threads. I didn\'t see benefit in Selenium tests — the real bottleneck was browser processes."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'SOLID prensipleri test projesinde nasıl uygulanır? Her prensip için somut örnek ver.', en: 'How are SOLID principles applied in a test project? Give a concrete example for each principle.' },
+          a: {
+            tr: 'SOLID prensipleri test kodunu bakımı kolay, genişletilebilir ve güvenilir yapar. SRP (Tek Sorumluluk): LoginPage sadece UI etkileşimi, Reporter sadece raporlama — her sınıf tek iş. OCP (Açık/Kapalı): yeni tarayıcı eklemek mevcut kodu değiştirmez, yeni sınıf ekler. LSP (Liskov): BasePage\'den kalıtım alan her Page Object, BasePage yerine kullanılabilir. ISP (Interface Ayrıştırma): küçük özelleşmiş interface\'ler — Clickable, Typeable ayrı. DIP (Dependency Inversion): test sınıfı somut driver yerine interface üzerinden çalışır. Constructor injection bunların hepsini bir arada uygular.',
+            en: 'SOLID principles make test code maintainable, extensible, and reliable. SRP (Single Responsibility): LoginPage only handles UI interaction, Reporter only reporting — each class does one thing. OCP (Open/Closed): adding a new browser doesn\'t modify existing code, adds a new class. LSP (Liskov): every Page Object inheriting from BasePage can be used in place of BasePage. ISP (Interface Segregation): small specialized interfaces — Clickable, Typeable separate. DIP (Dependency Inversion): test class works through an interface rather than a concrete driver. Constructor injection applies all of them together.',
+          },
+          code: {
+            tr: `// S — Single Responsibility
+// ❌ LoginPage hem UI etkileşimi hem DB doğrulama yapıyor
+// ✅ LoginPage: sadece UI — DB kontrolü ayrı servis
+
+// O — Open/Closed: değiştirme yok, genişletme var
+interface BrowserFactory { WebDriver create(); }
+class ChromeFactory implements BrowserFactory {
+    public WebDriver create() {
+        WebDriverManager.chromedriver().setup(); return new ChromeDriver();
+    }
+}
+class FirefoxFactory implements BrowserFactory {
+    public WebDriver create() {
+        WebDriverManager.firefoxdriver().setup(); return new FirefoxDriver();
+    }
+}
+// Yeni browser = yeni class, mevcut kod değişmez ✅
+
+// L — Liskov Substitution
+public abstract class BasePage { abstract boolean isLoaded(); }
+public class LoginPage extends BasePage {
+    public boolean isLoaded() { return isVisible(By.id("email")); }
+}
+// LoginPage her yerde BasePage yerine kullanılabilir ✅
+
+// I — Interface Segregation
+interface Clickable  { void click(By locator); }
+interface Typeable   { void type(By locator, String text); }
+interface Verifiable { boolean isVisible(By locator); }
+
+// Sadece ihtiyacı olan interface'i implement et
+class ReadOnlyPage implements Verifiable { /* click yok! */ }
+class InteractivePage implements Clickable, Typeable, Verifiable { }
+
+// D — Dependency Inversion
+// Test sınıfı somut sınıfa bağımlı değil, interface'e bağımlı
+class OrderTest {
+    private final PaymentService payment; // interface
+
+    OrderTest(PaymentService payment) { // constructor injection
+        this.payment = payment;
+    }
+
+    @Test void completeOrder() {
+        payment.charge(100.0); // gerçek veya mock, test bilmez
+    }
+}`,
+            en: `// S — Single Responsibility
+// ❌ LoginPage handles both UI interaction AND DB validation
+// ✅ LoginPage: UI only — DB check is a separate service
+
+// O — Open/Closed: extend, don't modify
+interface BrowserFactory { WebDriver create(); }
+class ChromeFactory implements BrowserFactory {
+    public WebDriver create() {
+        WebDriverManager.chromedriver().setup(); return new ChromeDriver();
+    }
+}
+class FirefoxFactory implements BrowserFactory {
+    public WebDriver create() {
+        WebDriverManager.firefoxdriver().setup(); return new FirefoxDriver();
+    }
+}
+// New browser = new class, existing code unchanged ✅
+
+// L — Liskov Substitution
+public abstract class BasePage { abstract boolean isLoaded(); }
+public class LoginPage extends BasePage {
+    public boolean isLoaded() { return isVisible(By.id("email")); }
+}
+// LoginPage can be used anywhere BasePage is expected ✅
+
+// I — Interface Segregation
+interface Clickable  { void click(By locator); }
+interface Typeable   { void type(By locator, String text); }
+interface Verifiable { boolean isVisible(By locator); }
+
+// Implement only the interface you need
+class ReadOnlyPage implements Verifiable { /* no click! */ }
+class InteractivePage implements Clickable, Typeable, Verifiable { }
+
+// D — Dependency Inversion
+// Test class depends on interface, not concrete class
+class OrderTest {
+    private final PaymentService payment; // interface
+
+    OrderTest(PaymentService payment) { // constructor injection
+        this.payment = payment;
+    }
+
+    @Test void completeOrder() {
+        payment.charge(100.0); // real or mock, test doesn't know
+    }
+}`,
+          },
+          analogy: {
+            tr: 'SOLID, iyi bir alet çantasının tasarım ilkeleridir. Her alet tek iş yapar (SRP), yeni alet eklemek mevcut aletleri değiştirmez (OCP), tornavida yerine tornavida kullanılabilir (LSP), küçük tutacaklı aletler özelleşmiş (ISP), ve her alet standart tutacağa uymak zorunda (DIP).',
+            en: 'SOLID is the design principles of a good toolbox. Each tool does one job (SRP), adding a new tool doesn\'t change existing ones (OCP), any screwdriver can replace another (LSP), small specialized handles (ISP), and each tool must fit the standard holder (DIP).',
+          },
+          keyPoints: [
+            { tr: 'SRP: sınıf değişme nedeni 1 tane — UI değişti, reporter değişmedi', en: 'SRP: class has 1 reason to change — UI changed, reporter unchanged' },
+            { tr: 'OCP: yeni browser = yeni class, switch-case değil', en: 'OCP: new browser = new class, not switch-case' },
+            { tr: 'DIP: constructor injection — test, implementasyona değil sözleşmeye bağlı', en: 'DIP: constructor injection — test depends on contract, not implementation' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Test projemdeki en önemli SOLID prensibi DIP. Tüm Page Object\'lerim constructor injection ile driver alıyor. Bu sayede test sınıfı, ChromeDriver mı RemoteWebDriver mı kullandığını bilmiyor — DriverFactory hallediyor."',
+            en: 'Say in interview: "The most important SOLID principle in my test project is DIP. All my Page Objects receive the driver via constructor injection. This way test classes don\'t know if ChromeDriver or RemoteWebDriver is used — DriverFactory handles it."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Testcontainers ile veritabanı integration testi nasıl yapılır? Neden production-benzeri ortam önemlidir?', en: 'How do you run database integration tests with Testcontainers? Why is a production-like environment important?' },
+          a: {
+            tr: 'Geleneksel yaklaşımda integration testleri paylaşılan bir test veritabanına bağlanır — bu testlerin birbirini bozmasına ve CI\'da güvenilmez sonuçlara yol açar. H2 gibi in-memory veritabanları ise gerçek PostgreSQL davranışını tam yansıtmaz. Testcontainers, her test çalışmasında gerçek bir PostgreSQL (veya MySQL, Redis, Kafka) container\'ı başlatır ve test bitince yok eder. Bu tam izolasyon ve production-benzeri ortam sağlar. @Container annotation\'ı JUnit lifecycle ile entegre olur — container test sınıfı yaşarken ayakta, biter bitmez kapatılır. Flyway veya Liquibase ile schema migration da test kapsamına alınır.',
+            en: 'In the traditional approach, integration tests connect to a shared test database — tests corrupt each other and CI results become unreliable. In-memory databases like H2 don\'t fully replicate real PostgreSQL behavior. Testcontainers starts a real PostgreSQL (or MySQL, Redis, Kafka) container for each test run and destroys it when done. This provides full isolation and a production-like environment. The @Container annotation integrates with JUnit lifecycle — container stays up while the test class runs, shut down when done. Schema migration with Flyway or Liquibase is also included in test coverage.',
+          },
+          code: {
+            tr: `// pom.xml
+/*
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>1.19.6</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>1.19.6</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+@Testcontainers  // JUnit5 extension aktif
+class UserRepositoryTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres =
+        new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+            // Her test sınıfı için taze container!
+
+    private UserRepository userRepo;
+
+    @BeforeAll
+    static void applySchema() {
+        // Flyway ile migration uygula — production ile aynı schema
+        Flyway.configure()
+            .dataSource(postgres.getJdbcUrl(),
+                        postgres.getUsername(),
+                        postgres.getPassword())
+            .load()
+            .migrate();
+    }
+
+    @BeforeEach
+    void setup() {
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl(postgres.getJdbcUrl());
+        ds.setUsername(postgres.getUsername());
+        ds.setPassword(postgres.getPassword());
+        userRepo = new UserRepository(ds);
+    }
+
+    @Test
+    void savedUserCanBeRetrieved() {
+        User user = new User("ali@test.com", "Ali Yılmaz");
+        long id = userRepo.save(user);
+
+        Optional<User> found = userRepo.findById(id);
+        assertTrue(found.isPresent());
+        assertEquals("ali@test.com", found.get().getEmail());
+    }
+
+    @Test
+    void duplicateEmailThrowsException() {
+        userRepo.save(new User("dup@test.com", "User1"));
+        assertThrows(DataIntegrityViolationException.class, () ->
+            userRepo.save(new User("dup@test.com", "User2")) // UNIQUE constraint
+        );
+    }
+}`,
+            en: `// pom.xml
+/*
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>1.19.6</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>1.19.6</version>
+    <scope>test</scope>
+</dependency>
+*/
+
+@Testcontainers  // JUnit5 extension active
+class UserRepositoryTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres =
+        new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+            // Fresh container for each test class!
+
+    private UserRepository userRepo;
+
+    @BeforeAll
+    static void applySchema() {
+        // Apply migration with Flyway — same schema as production
+        Flyway.configure()
+            .dataSource(postgres.getJdbcUrl(),
+                        postgres.getUsername(),
+                        postgres.getPassword())
+            .load()
+            .migrate();
+    }
+
+    @BeforeEach
+    void setup() {
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl(postgres.getJdbcUrl());
+        ds.setUsername(postgres.getUsername());
+        ds.setPassword(postgres.getPassword());
+        userRepo = new UserRepository(ds);
+    }
+
+    @Test
+    void savedUserCanBeRetrieved() {
+        User user = new User("alice@test.com", "Alice Smith");
+        long id = userRepo.save(user);
+
+        Optional<User> found = userRepo.findById(id);
+        assertTrue(found.isPresent());
+        assertEquals("alice@test.com", found.get().getEmail());
+    }
+
+    @Test
+    void duplicateEmailThrowsException() {
+        userRepo.save(new User("dup@test.com", "User1"));
+        assertThrows(DataIntegrityViolationException.class, () ->
+            userRepo.save(new User("dup@test.com", "User2")) // UNIQUE constraint
+        );
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Testcontainers, her test için tek kullanımlık steril bir laboratuvar açmak gibidir. H2 gerçek olmayan plastik model, paylaşılan test DB kirlenmiş ortamdır. Testcontainers gerçek malzemeyle steril ortam sunar.',
+            en: 'Testcontainers is like opening a sterile single-use laboratory for each test. H2 is a fake plastic model, a shared test DB is a contaminated environment. Testcontainers provides a real material with a sterile environment.',
+          },
+          keyPoints: [
+            { tr: 'Gerçek PostgreSQL container: H2\'nin desteklemediği özellikler test edilir', en: 'Real PostgreSQL container: tests features H2 doesn\'t support' },
+            { tr: '@Container static: sınıf başına 1 container — testler paylaşır', en: '@Container static: 1 container per class — tests share it' },
+            { tr: 'Flyway entegrasyonu: migration\'lar da test kapsamında', en: 'Flyway integration: migrations also under test coverage' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "H2 ile çalışan testlerimiz production\'da başarısız oluyordu çünkü PostgreSQL\'e özgü JSON operatörleri H2\'de desteklenmiyordu. Testcontainers\'a geçince bu tür uyumsuzlukları CI\'da yakalamaya başladık."',
+            en: 'Say in interview: "Tests that passed with H2 were failing in production because PostgreSQL-specific JSON operators aren\'t supported in H2. After switching to Testcontainers we started catching these incompatibilities in CI."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Generics ile type-safe test utility sınıfları nasıl tasarlanır?', en: 'How do you design type-safe test utility classes with generics?' },
+          a: {
+            tr: 'Generics, aynı mantığı farklı tipler için tekrar yazmak zorunda kalmadan yeniden kullanılabilir utility\'ler oluşturmanıza olanak tanır. Test projelerinde üç yaygın kullanım alanı vardır: (1) API response wrapper\'ı — ApiResponse<T> ile tip güvenli JSON parse; (2) Test data builder — TestDataBuilder<T> ile fluent API ile nesne oluşturma; (3) Excel/DB reader — DataTableReader<T extends TestData> ile tip güvenli veri okuma. Bounded wildcard (<T extends SomeClass>) ile tip kısıtlaması yapılır. Bu yaklaşım kod tekrarını azaltır ve compile-time type safety sağlar.',
+            en: 'Generics let you create reusable utilities without rewriting the same logic for different types. Three common uses in test projects: (1) API response wrapper — type-safe JSON parsing with ApiResponse<T>; (2) Test data builder — object creation with fluent API using TestDataBuilder<T>; (3) Excel/DB reader — type-safe data reading with DataTableReader<T extends TestData>. Type constraints with bounded wildcards (<T extends SomeClass>). This approach reduces code repetition and provides compile-time type safety.',
+          },
+          code: {
+            tr: `// 1. Generic API Response Wrapper
+public class ApiResponse<T> {
+    private final int    statusCode;
+    private final T      body;
+    private final String rawJson;
+
+    // Private constructor — static factory method
+    private ApiResponse(int statusCode, T body, String rawJson) {
+        this.statusCode = statusCode;
+        this.body       = body;
+        this.rawJson    = rawJson;
+    }
+
+    public static <T> ApiResponse<T> of(Response response, Class<T> clazz) {
+        T parsed = response.as(clazz);
+        return new ApiResponse<>(response.getStatusCode(), parsed,
+            response.getBody().asString());
+    }
+
+    public T getBody()       { return body; }
+    public int getStatus()   { return statusCode; }
+    public boolean isOk()    { return statusCode >= 200 && statusCode < 300; }
+}
+
+// Kullanım — tip güvenli
+ApiResponse<User> response = ApiResponse.of(
+    given().get("/users/1"), User.class
+);
+assertTrue(response.isOk());
+assertEquals("user@test.com", response.getBody().getEmail());
+
+// 2. Generic Test Data Builder — fluent API
+public class TestDataBuilder<T> {
+    private final T instance;
+
+    public TestDataBuilder(Supplier<T> supplier) {
+        this.instance = supplier.get();
+    }
+
+    public TestDataBuilder<T> with(Consumer<T> modifier) {
+        modifier.accept(instance);
+        return this; // fluent — zincirleme
+    }
+
+    public T build() { return instance; }
+}
+
+// Kullanım
+User user = new TestDataBuilder<>(User::new)
+    .with(u -> u.setEmail(faker.internet().emailAddress()))
+    .with(u -> u.setName(faker.name().fullName()))
+    .with(u -> u.setRole("QA_ENGINEER"))
+    .build();`,
+            en: `// 1. Generic API Response Wrapper
+public class ApiResponse<T> {
+    private final int    statusCode;
+    private final T      body;
+    private final String rawJson;
+
+    // Private constructor — static factory method
+    private ApiResponse(int statusCode, T body, String rawJson) {
+        this.statusCode = statusCode;
+        this.body       = body;
+        this.rawJson    = rawJson;
+    }
+
+    public static <T> ApiResponse<T> of(Response response, Class<T> clazz) {
+        T parsed = response.as(clazz);
+        return new ApiResponse<>(response.getStatusCode(), parsed,
+            response.getBody().asString());
+    }
+
+    public T getBody()       { return body; }
+    public int getStatus()   { return statusCode; }
+    public boolean isOk()    { return statusCode >= 200 && statusCode < 300; }
+}
+
+// Usage — type safe
+ApiResponse<User> response = ApiResponse.of(
+    given().get("/users/1"), User.class
+);
+assertTrue(response.isOk());
+assertEquals("user@test.com", response.getBody().getEmail());
+
+// 2. Generic Test Data Builder — fluent API
+public class TestDataBuilder<T> {
+    private final T instance;
+
+    public TestDataBuilder(Supplier<T> supplier) {
+        this.instance = supplier.get();
+    }
+
+    public TestDataBuilder<T> with(Consumer<T> modifier) {
+        modifier.accept(instance);
+        return this; // fluent — chaining
+    }
+
+    public T build() { return instance; }
+}
+
+// Usage
+User user = new TestDataBuilder<>(User::new)
+    .with(u -> u.setEmail(faker.internet().emailAddress()))
+    .with(u -> u.setName(faker.name().fullName()))
+    .with(u -> u.setRole("QA_ENGINEER"))
+    .build();`,
+          },
+          analogy: {
+            tr: 'Generics, LEGO\'nun standart delik sistemi gibidir. Her parça (tip) farklı şekil ve renkte olabilir ama aynı bağlantı mekanizmasını (Generic API) kullanır. Farklı LEGO setleri için aynı el aletini kullanırsın.',
+            en: 'Generics are like LEGO\'s standard hole system. Each piece (type) can be different shapes and colors but uses the same connection mechanism (Generic API). You use the same hand tool for different LEGO sets.',
+          },
+          keyPoints: [
+            { tr: 'ApiResponse<T>: aynı wrapper, farklı response tipleri', en: 'ApiResponse<T>: same wrapper, different response types' },
+            { tr: 'TestDataBuilder<T>: fluent API ile herhangi bir nesne oluştur', en: 'TestDataBuilder<T>: build any object with fluent API' },
+            { tr: 'Bounded wildcard <T extends X>: sadece doğru tipleri kabul et', en: 'Bounded wildcard <T extends X>: accept only correct types' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Generic ApiResponse wrapper\'ım sayesinde User, Product, Order response\'larının hepsini aynı utility ile parse ediyorum. Tip güvenliği compile-time\'da — runtime ClassCastException yok."',
+            en: 'Say in interview: "With my generic ApiResponse wrapper I parse User, Product, and Order responses all with the same utility. Type safety is at compile-time — no runtime ClassCastException."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Appium ile Android ve iOS için ortak Page Object nasıl tasarlanır?', en: 'How do you design a shared Page Object for both Android and iOS with Appium?' },
+          a: {
+            tr: 'Android ve iOS\'un UI bileşenleri ve locator stratejileri farklıdır — @AndroidFindBy XPath/resource-id kullanırken @iOSXCUITFindBy erişilebilirlik ID\'si kullanır. Ortak Page Object için Appium\'un PageFactory\'si kullanılır: aynı field\'a hem @AndroidFindBy hem @iOSXCUITFindBy annotation\'ı eklenir, PageFactory.initElements() platform\'a göre doğru locator\'ı seçer. DriverFactory platform kontrolü yaparak doğru driver\'ı döndürür. Ortak aksiyonlar (tap, type, swipe) BaseMobilePage\'de tutulur, platform-specific davranışlar override edilir.',
+            en: 'Android and iOS have different UI components and locator strategies — @AndroidFindBy uses XPath/resource-id while @iOSXCUITFindBy uses accessibility IDs. For shared Page Objects, use Appium\'s PageFactory: add both @AndroidFindBy and @iOSXCUITFindBy annotations to the same field, PageFactory.initElements() selects the correct locator based on platform. DriverFactory returns the correct driver with platform checking. Common actions (tap, type, swipe) are kept in BaseMobilePage, platform-specific behaviors are overridden.',
+          },
+          code: {
+            tr: `// Ortak mobil Page Object
+public class LoginMobilePage extends BaseMobilePage {
+
+    // Aynı field — her iki platform annotation
+    @AndroidFindBy(id = "com.myapp:id/emailInput")
+    @iOSXCUITFindBy(accessibility = "emailField")
+    private MobileElement emailField;
+
+    @AndroidFindBy(id = "com.myapp:id/passwordInput")
+    @iOSXCUITFindBy(accessibility = "passwordField")
+    private MobileElement passwordField;
+
+    @AndroidFindBy(id = "com.myapp:id/loginButton")
+    @iOSXCUITFindBy(accessibility = "loginButton")
+    private MobileElement loginButton;
+
+    public LoginMobilePage(AppiumDriver driver) {
+        super(driver);
+        // Platform'a göre doğru locator seçilir
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+    }
+
+    public void login(String email, String password) {
+        emailField.clear();
+        emailField.sendKeys(email);
+        passwordField.sendKeys(password);
+        loginButton.click();
+    }
+}
+
+// BaseMobilePage — platform-agnostic utility
+public abstract class BaseMobilePage {
+    protected final AppiumDriver driver;
+    protected final WebDriverWait wait;
+
+    protected BaseMobilePage(AppiumDriver driver) {
+        this.driver = Objects.requireNonNull(driver);
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    protected void swipeUp() {
+        // Platform kontrolü gerekirse:
+        if (driver instanceof AndroidDriver) {
+            // Android swipe
+        } else {
+            // iOS swipe
+        }
+    }
+}
+
+// DriverFactory — platform kararı
+public static AppiumDriver createDriver(Platform platform) {
+    return switch (platform) {
+        case ANDROID -> new AndroidDriver(appiumUrl, androidCaps());
+        case IOS     -> new IOSDriver(appiumUrl, iosCaps());
+    };
+}`,
+            en: `// Shared mobile Page Object
+public class LoginMobilePage extends BaseMobilePage {
+
+    // Same field — both platform annotations
+    @AndroidFindBy(id = "com.myapp:id/emailInput")
+    @iOSXCUITFindBy(accessibility = "emailField")
+    private MobileElement emailField;
+
+    @AndroidFindBy(id = "com.myapp:id/passwordInput")
+    @iOSXCUITFindBy(accessibility = "passwordField")
+    private MobileElement passwordField;
+
+    @AndroidFindBy(id = "com.myapp:id/loginButton")
+    @iOSXCUITFindBy(accessibility = "loginButton")
+    private MobileElement loginButton;
+
+    public LoginMobilePage(AppiumDriver driver) {
+        super(driver);
+        // Correct locator selected based on platform
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+    }
+
+    public void login(String email, String password) {
+        emailField.clear();
+        emailField.sendKeys(email);
+        passwordField.sendKeys(password);
+        loginButton.click();
+    }
+}
+
+// BaseMobilePage — platform-agnostic utility
+public abstract class BaseMobilePage {
+    protected final AppiumDriver driver;
+    protected final WebDriverWait wait;
+
+    protected BaseMobilePage(AppiumDriver driver) {
+        this.driver = Objects.requireNonNull(driver);
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    protected void swipeUp() {
+        // Platform check if needed:
+        if (driver instanceof AndroidDriver) {
+            // Android swipe
+        } else {
+            // iOS swipe
+        }
+    }
+}
+
+// DriverFactory — platform decision
+public static AppiumDriver createDriver(Platform platform) {
+    return switch (platform) {
+        case ANDROID -> new AndroidDriver(appiumUrl, androidCaps());
+        case IOS     -> new IOSDriver(appiumUrl, iosCaps());
+    };
+}`,
+          },
+          analogy: {
+            tr: 'Ortak Appium Page Object, iki dilde de geçerli olan uluslararası bir form gibidir. Formun yapısı aynı (alanlar), ama dil işaretleme sistemi farklı (annotation). Okuyan kişi (PageFactory) hangi dili bildiğine göre doğru alanı okur.',
+            en: 'A shared Appium Page Object is like an international form valid in two languages. The form structure is the same (fields) but the language marking system differs (annotation). The reader (PageFactory) reads the correct field based on what language it knows.',
+          },
+          keyPoints: [
+            { tr: '@AndroidFindBy + @iOSXCUITFindBy: aynı field, platform seçer', en: '@AndroidFindBy + @iOSXCUITFindBy: same field, platform selects' },
+            { tr: 'PageFactory.initElements(AppiumFieldDecorator): kritik — element\'leri platforma bağlar', en: 'PageFactory.initElements(AppiumFieldDecorator): critical — binds elements to platform' },
+            { tr: 'DriverFactory platform kontrolü ile Android/iOS driver döndürür', en: 'DriverFactory returns Android/iOS driver based on platform check' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Android ve iOS için iki ayrı Page Object yazmak yerine ortak Page Object tasarladım. @AndroidFindBy ve @iOSXCUITFindBy aynı field\'da — PageFactory doğru locator\'ı seçiyor. Bakım yükü yarıya indi."',
+            en: 'Say in interview: "Instead of writing two separate Page Objects for Android and iOS, I designed a shared one. @AndroidFindBy and @iOSXCUITFindBy on the same field — PageFactory picks the right locator. Maintenance burden halved."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Pact contract testing nedir ve Java projesinde nasıl uygulanır?', en: 'What is Pact contract testing and how is it implemented in a Java project?' },
+          a: {
+            tr: 'Contract testing, servisler arası sözleşmelerin (API kontratları) her iki tarafça doğrulandığını garanti eden bir test yaklaşımıdır. Pact Framework\'ü bu için kullanılır: Consumer (istemci servis) beklediği yanıt formatını tanımlayan bir Pact dosyası üretir ve bu dosya Pact Broker\'a yüklenir. Provider (sağlayıcı servis) Pact Broker\'dan bu dosyayı indirip gerçek servisiyle doğrular. Böylece provider\'daki bir değişiklik consumer\'ı bozacaksa "can I deploy" kontrolü ile CI\'da dağıtım engellenir. E2E testlerin yüzde seksenini karşılar, sadece saniyeler alır.',
+            en: 'Contract testing is a test approach that guarantees the contracts (API contracts) between services are verified by both sides. The Pact Framework is used: Consumer (client service) produces a Pact file defining the expected response format and uploads it to the Pact Broker. Provider (provider service) downloads this file from the Pact Broker and verifies it against the real service. This way, if a provider change would break a consumer, the "can I deploy" check in CI blocks the deployment. Covers 80% of E2E test needs, takes only seconds.',
+          },
+          code: {
+            tr: `// Consumer Tarafı (order-service, user-service'i çağırıyor)
+@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "user-service", port = "8080")
+class OrderServicePactConsumerTest {
+
+    @Pact(consumer = "order-service")
+    RequestResponsePact getUserByIdPact(PactDslWithProvider builder) {
+        return builder
+            .given("user with id 123 exists")
+            .uponReceiving("GET user by id")
+                .method("GET")
+                .path("/users/123")
+                .headers("Accept", "application/json")
+            .willRespondWith()
+                .status(200)
+                .headers(Map.of("Content-Type", "application/json"))
+                .body(new PactDslJsonBody()
+                    .integerType("id",    123)
+                    .stringType("email",  "user@test.com")
+                    .stringType("name",   "Ali Yılmaz")
+                    .booleanType("active", true))
+            .toPact();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "getUserByIdPact")
+    void orderServiceFetchesUserSuccessfully(MockServer mockServer) {
+        UserClient client = new UserClient(mockServer.getUrl());
+        User user = client.getUser(123);
+
+        assertNotNull(user);
+        assertEquals("user@test.com", user.getEmail());
+        // Pact dosyası üretildi: target/pacts/order-service-user-service.json
+    }
+}
+
+// Provider Tarafı (user-service, pact'ı doğruluyor)
+@Provider("user-service")
+@PactBroker(url = "http://pact-broker:9292")
+class UserServicePactProviderTest {
+
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void verifyPacts(PactVerificationContext ctx) {
+        ctx.verifyInteraction(); // gerçek servisi test eder
+    }
+
+    @State("user with id 123 exists")
+    void setupUser123() {
+        // Test datası hazırla
+        userRepository.save(new User(123, "user@test.com", "Ali Yılmaz"));
+    }
+}`,
+            en: `// Consumer Side (order-service calling user-service)
+@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "user-service", port = "8080")
+class OrderServicePactConsumerTest {
+
+    @Pact(consumer = "order-service")
+    RequestResponsePact getUserByIdPact(PactDslWithProvider builder) {
+        return builder
+            .given("user with id 123 exists")
+            .uponReceiving("GET user by id")
+                .method("GET")
+                .path("/users/123")
+                .headers("Accept", "application/json")
+            .willRespondWith()
+                .status(200)
+                .headers(Map.of("Content-Type", "application/json"))
+                .body(new PactDslJsonBody()
+                    .integerType("id",    123)
+                    .stringType("email",  "user@test.com")
+                    .stringType("name",   "John Smith")
+                    .booleanType("active", true))
+            .toPact();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "getUserByIdPact")
+    void orderServiceFetchesUserSuccessfully(MockServer mockServer) {
+        UserClient client = new UserClient(mockServer.getUrl());
+        User user = client.getUser(123);
+
+        assertNotNull(user);
+        assertEquals("user@test.com", user.getEmail());
+        // Pact file generated: target/pacts/order-service-user-service.json
+    }
+}
+
+// Provider Side (user-service verifying the pact)
+@Provider("user-service")
+@PactBroker(url = "http://pact-broker:9292")
+class UserServicePactProviderTest {
+
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void verifyPacts(PactVerificationContext ctx) {
+        ctx.verifyInteraction(); // tests the real service
+    }
+
+    @State("user with id 123 exists")
+    void setupUser123() {
+        // Prepare test data
+        userRepository.save(new User(123, "user@test.com", "John Smith"));
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Pact contract testing, iki ülke arasındaki ticaret anlaşması gibidir. İthalatçı (consumer) ne istediğini belgeler, ihracatçı (provider) o belgeye göre doğrulama yapar. Bir ülke kuralları değiştirirse diğeri CI\'da anında haberdar olur.',
+            en: 'Pact contract testing is like a trade agreement between two countries. The importer (consumer) documents what it wants, the exporter (provider) verifies against that document. If one country changes the rules, the other is immediately notified in CI.',
+          },
+          keyPoints: [
+            { tr: 'Consumer: Pact dosyası üretir, Provider: Pact Broker\'dan doğrular', en: 'Consumer: generates Pact file, Provider: verifies from Pact Broker' },
+            { tr: '"can I deploy": provider değişikliği consumer\'ı bozarsa CI durur', en: '"can I deploy": CI stops if provider change would break consumer' },
+            { tr: 'E2E\'nin %80\'ini saniyeler içinde karşılar', en: 'Covers 80% of E2E needs in seconds' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Microservices projemizde Pact\'ı 15 consumer-provider çifti için uyguladık. Her deploy öncesi "can I deploy" komutu çalışıyor — provider değişikliği consumer\'ı bozacaksa pipeline durduruyor. Bu kontrol sayesinde production\'da sıfır API uyumsuzluk yaşıyoruz."',
+            en: 'Say in interview: "We implemented Pact for 15 consumer-provider pairs in our microservices project. "can I deploy" runs before every deploy — if a provider change would break a consumer, the pipeline stops. Zero API incompatibilities in production thanks to this check."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Maven\'da dependency (bağımlılık) çakışması nasıl tespit edilir ve çözülür?', en: 'How do you detect and resolve dependency conflicts in Maven?' },
+          a: {
+            tr: 'Maven\'da farklı bağımlılıklar aynı kütüphanenin farklı versiyonlarını gerektirebilir — bu sınıf yükleme hataları (NoSuchMethodError, ClassNotFoundException) oluşturabilir. Tespit için mvn dependency:tree komutu kullanılır ve çakışan versiyonlar belirlenir. Çözüm stratejileri: (1) pom.xml\'de explicit versiyon tanımlama; (2) <dependencyManagement> bölümü ile proje genelinde versiyon kontrolü; (3) sorunlu transitive bağımlılığı <exclusion> ile çıkarma; (4) BOM (Bill of Materials) import etme — selenium-java-bom tüm Selenium bileşenlerinin uyumlu versiyonlarını bir arada yönetir.',
+            en: 'Different dependencies in Maven can require different versions of the same library — this can cause class loading errors (NoSuchMethodError, ClassNotFoundException). Use mvn dependency:tree to detect conflicting versions. Resolution strategies: (1) defining explicit version in pom.xml; (2) <dependencyManagement> for project-wide version control; (3) removing problematic transitive dependency with <exclusion>; (4) importing a BOM (Bill of Materials) — selenium-java-bom manages compatible versions of all Selenium components together.',
+          },
+          code: {
+            tr: `# 1. Çakışma tespiti
+mvn dependency:tree -Dverbose | grep -i "conflict\|omitted"
+# "omitted for conflict with X.Y.Z" — çakışan bağımlılık
+
+# 2. Analiz: hangi bağımlılık hangi versiyonu getiriyor?
+mvn dependency:tree -Dincludes=org.slf4j
+
+# pom.xml — çözüm stratejileri
+
+# Strateji 1: Explicit versiyon (en basit)
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.17.0</version>  <!-- Explicit — çakışma kazanır -->
+</dependency>
+
+# Strateji 2: dependencyManagement — merkezi versiyon yönetimi
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.12</version>  <!-- TÜM bağımlılıklar bu versiyonu kullanır -->
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+# Strateji 3: Exclusion — sorunlu transitive bağımlılık çıkar
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+# Strateji 4: BOM import (önerilen)
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-bom</artifactId>
+            <version>4.20.0</version>
+            <type>pom</type>
+            <scope>import</scope>  <!-- tüm Selenium bileşenleri uyumlu -->
+        </dependency>
+    </dependencies>
+</dependencyManagement>`,
+            en: `# 1. Detect conflicts
+mvn dependency:tree -Dverbose | grep -i "conflict\|omitted"
+# "omitted for conflict with X.Y.Z" — conflicting dependency
+
+# 2. Analyze: which dependency brings which version?
+mvn dependency:tree -Dincludes=org.slf4j
+
+# pom.xml — resolution strategies
+
+# Strategy 1: Explicit version (simplest)
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.17.0</version>  <!-- Explicit — wins the conflict -->
+</dependency>
+
+# Strategy 2: dependencyManagement — central version management
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.12</version>  <!-- ALL dependencies use this version -->
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+# Strategy 3: Exclusion — remove problematic transitive dependency
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+# Strategy 4: BOM import (recommended)
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-bom</artifactId>
+            <version>4.20.0</version>
+            <type>pom</type>
+            <scope>import</scope>  <!-- all Selenium components compatible -->
+        </dependency>
+    </dependencies>
+</dependencyManagement>`,
+          },
+          analogy: {
+            tr: 'Dependency çakışması, bir ev inşaatında iki farklı yüklenicinin birbirini tutmayan malzeme listesi getirmesi gibidir. dependencyManagement ise baş mimar olarak tüm malzeme listesini merkezi kontrol altına alır.',
+            en: 'Dependency conflict is like two contractors on a building site bringing incompatible material lists. dependencyManagement is the head architect taking central control of all material lists.',
+          },
+          keyPoints: [
+            { tr: 'mvn dependency:tree: çakışan versiyonları gösterir', en: 'mvn dependency:tree: shows conflicting versions' },
+            { tr: '<dependencyManagement>: tüm modüller aynı versiyonu kullanır', en: '<dependencyManagement>: all modules use the same version' },
+            { tr: 'BOM import: Selenium/Spring ekosistemi için önerilen yöntem', en: 'BOM import: recommended method for Selenium/Spring ecosystem' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Projede Selenium versiyonunu yükseltince ClassNotFoundException aldık. mvn dependency:tree ile gördük ki rest-assured\'ın getirdiği eski Jackson versiyonu çakışıyordu. BOM import ile tek seferde tüm Selenium bileşenlerini uyumlu versiyona çektik."',
+            en: 'Say in interview: "When upgrading Selenium in the project we got ClassNotFoundException. mvn dependency:tree showed an old Jackson version from rest-assured was conflicting. BOM import aligned all Selenium components to compatible versions in one step."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'OWASP ZAP güvenlik taraması Java test projesine nasıl entegre edilir?', en: 'How do you integrate OWASP ZAP security scanning into a Java test project?' },
+          a: {
+            tr: 'OWASP ZAP (Zed Attack Proxy), açık kaynaklı bir web uygulama güvenlik tarayıcısıdır. Java test projesine iki şekilde entegre edilir: (1) ZAP API istemcisi — ZAP daemon modunda çalışırken Java API\'si üzerinden tarama başlatılır; (2) Selenium proxy olarak — tüm Selenium trafiği ZAP üzerinden geçer ve pasif tarama yapılır. Aktif tarama (SQL injection, XSS testleri) için api.ascan.scan() çağrılır ve tarama tamamlanınca (status=100) alert\'ler kontrol edilir. HIGH riskli alert varsa test fail edilir. CI\'da ZAP Docker image\'ı ile pipeline\'a entegre edilir.',
+            en: 'OWASP ZAP (Zed Attack Proxy) is an open-source web application security scanner. Two ways to integrate into Java test projects: (1) ZAP API client — start scan via Java API while ZAP runs in daemon mode; (2) As a Selenium proxy — all Selenium traffic passes through ZAP for passive scanning. For active scanning (SQL injection, XSS tests), call api.ascan.scan() and check alerts when scanning completes (status=100). Fail the test if HIGH risk alerts exist. In CI, integrate into pipeline with ZAP Docker image.',
+          },
+          code: {
+            tr: `// ZAP Java API entegrasyonu
+// pom.xml: <artifactId>zap-clientapi</artifactId>
+
+public class ZapSecurityTest {
+    private static final ClientApi ZAP = new ClientApi("localhost", 8080);
+
+    @BeforeAll
+    static void startZapAndSpider() throws Exception {
+        // 1. ZAP Spider — sitedeki tüm sayfaları keşfet
+        ApiResponse spiderResp = ZAP.spider.scan(
+            "https://staging.myapp.com", null, null, null, null);
+        String spiderId = ((ApiResponseElement) spiderResp).getValue();
+
+        // Spider tamamlanana kadar bekle
+        while (true) {
+            Thread.sleep(1000);
+            int progress = Integer.parseInt(
+                ((ApiResponseElement) ZAP.spider.status(spiderId)).getValue());
+            if (progress >= 100) break;
+        }
+    }
+
+    @Test
+    void activeScanFindsNoHighRiskAlerts() throws Exception {
+        // 2. Aktif tarama başlat (SQL injection, XSS...)
+        ApiResponse scanResp = ZAP.ascan.scan(
+            "https://staging.myapp.com", "True", "False", null, null, null);
+        String scanId = ((ApiResponseElement) scanResp).getValue();
+
+        // Tarama tamamlanana bekle
+        while (Integer.parseInt(
+            ((ApiResponseElement) ZAP.ascan.status(scanId)).getValue()) < 100) {
+            Thread.sleep(2000);
+        }
+
+        // 3. Alert'leri kontrol et
+        ApiResponseList alerts = (ApiResponseList) ZAP.core.alerts(
+            "https://staging.myapp.com", null, null);
+
+        long highRiskAlerts = alerts.getItems().stream()
+            .filter(a -> ((ApiResponseSet) a).getValue("risk").equals("High"))
+            .count();
+
+        assertEquals(0, highRiskAlerts,
+            "HIGH risk güvenlik açığı tespit edildi! ZAP raporunu incele.");
+    }
+}
+
+# CI pipeline (Docker)
+# docker run -d -p 8080:8080 ghcr.io/zaproxy/zaproxy:stable
+#     zap.sh -daemon -host 0.0.0.0 -port 8080
+#     -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+# mvn test -Dtest=ZapSecurityTest`,
+            en: `// ZAP Java API integration
+// pom.xml: <artifactId>zap-clientapi</artifactId>
+
+public class ZapSecurityTest {
+    private static final ClientApi ZAP = new ClientApi("localhost", 8080);
+
+    @BeforeAll
+    static void startZapAndSpider() throws Exception {
+        // 1. ZAP Spider — discover all pages on the site
+        ApiResponse spiderResp = ZAP.spider.scan(
+            "https://staging.myapp.com", null, null, null, null);
+        String spiderId = ((ApiResponseElement) spiderResp).getValue();
+
+        // Wait until spider completes
+        while (true) {
+            Thread.sleep(1000);
+            int progress = Integer.parseInt(
+                ((ApiResponseElement) ZAP.spider.status(spiderId)).getValue());
+            if (progress >= 100) break;
+        }
+    }
+
+    @Test
+    void activeScanFindsNoHighRiskAlerts() throws Exception {
+        // 2. Start active scan (SQL injection, XSS...)
+        ApiResponse scanResp = ZAP.ascan.scan(
+            "https://staging.myapp.com", "True", "False", null, null, null);
+        String scanId = ((ApiResponseElement) scanResp).getValue();
+
+        // Wait until scan completes
+        while (Integer.parseInt(
+            ((ApiResponseElement) ZAP.ascan.status(scanId)).getValue()) < 100) {
+            Thread.sleep(2000);
+        }
+
+        // 3. Check alerts
+        ApiResponseList alerts = (ApiResponseList) ZAP.core.alerts(
+            "https://staging.myapp.com", null, null);
+
+        long highRiskAlerts = alerts.getItems().stream()
+            .filter(a -> ((ApiResponseSet) a).getValue("risk").equals("High"))
+            .count();
+
+        assertEquals(0, highRiskAlerts,
+            "HIGH risk vulnerability detected! Review ZAP report.");
+    }
+}
+
+# CI pipeline (Docker)
+# docker run -d -p 8080:8080 ghcr.io/zaproxy/zaproxy:stable
+#     zap.sh -daemon -host 0.0.0.0 -port 8080
+#     -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+# mvn test -Dtest=ZapSecurityTest`,
+          },
+          analogy: {
+            tr: 'ZAP entegrasyonu, bir bina inşa edilirken güvenlik denetçisinin her katı tamamlandıkça kontrol etmesi gibidir. Tüm bina bitmeden önce elektrik, yangın güvenliği kontrol edilir — bina açıldıktan sonra değil.',
+            en: 'ZAP integration is like a safety inspector checking each floor as a building is constructed. Electrical and fire safety is checked before the building is complete — not after it opens.',
+          },
+          keyPoints: [
+            { tr: 'Pasif tarama: Selenium trafiği ZAP proxy üzerinden geçer, zero cost', en: 'Passive scanning: Selenium traffic through ZAP proxy, zero cost' },
+            { tr: 'Aktif tarama: SQL injection, XSS otomatik test', en: 'Active scanning: SQL injection, XSS automatically tested' },
+            { tr: 'HIGH risk alert: test fail et, ekibi uyar — güvenlik gate', en: 'HIGH risk alert: fail test, alert team — security gate' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "ZAP\'ı Selenium testleriyle birleştirdim. Fonksiyonel test çalışırken ZAP pasif tarama yapıyor — ekstra maliyet yok. Haftada bir aktif tarama da çalışıyor. Bu hybrid yaklaşım hem hız hem güvenliği birlikte sağlıyor."',
+            en: 'Say in interview: "I combined ZAP with Selenium tests. While functional tests run, ZAP does passive scanning — zero extra cost. Active scanning also runs weekly. This hybrid approach provides both speed and security together."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'QA lider olarak yeni bir proje için test altyapısı kararları nasıl alınır?', en: 'As a QA lead, how do you make test infrastructure decisions for a new project?' },
+          a: {
+            tr: 'Test altyapısı kararları teknik değil stratejik kararlardır — ekip büyüklüğü, proje türü, CI/CD olgunluğu ve bakım kapasitesi göz önünde bulundurulur. Karar çerçevesi şöyledir: (1) Framework seçimi: Java projesi için JUnit5 (annotation zenginliği, extension mekanizması) veya TestNG (gruplar, paralel, listener) — ikisi birbirini dışlamaz; (2) Build tool: Maven yaygın ekosistem, Gradle esneklik; (3) Raporlama: Allure en zengin, ExtentReport daha basit; (4) CI: GitHub Actions küçük ekip, Jenkins büyük ekip; (5) Kapsam oranı: %70 unit + %20 integration + %10 E2E piramidi; (6) PR standartları: yeni özellik = yeni test zorunlu.',
+            en: 'Test infrastructure decisions are strategic, not just technical — team size, project type, CI/CD maturity, and maintenance capacity are considered. Decision framework: (1) Framework: JUnit5 (annotation richness, extension mechanism) or TestNG (groups, parallel, listeners) for Java projects — both can coexist; (2) Build tool: Maven for wide ecosystem, Gradle for flexibility; (3) Reporting: Allure for richest, ExtentReport simpler; (4) CI: GitHub Actions for small teams, Jenkins for large; (5) Coverage ratio: 70% unit + 20% integration + 10% E2E pyramid; (6) PR standards: new feature = new test mandatory.',
+          },
+          code: {
+            tr: `// Karar matrisi — proje başlangıcında değerlendir
+
+/*
+┌─────────────────────────────────────────────────────────────────┐
+│ KARAR               │ SEÇENEK A          │ SEÇENEK B           │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Test Framework      │ JUnit5 ✅ (önerilen)│ TestNG              │
+│                     │ Extension var       │ Groups/parallel güç  │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Raporlama           │ Allure ✅           │ ExtentReport        │
+│                     │ Ekosistem zengin    │ Daha basit kurulum  │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ CI/CD               │ GitHub Actions ✅  │ Jenkins             │
+│                     │ Küçük ekip, ücretsiz│ Büyük ekip, esneklik│
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ UI Framework        │ Selenium ✅         │ Playwright          │
+│                     │ Geniş ekosistem    │ Modern, async hızlı  │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Test Piramidi       │ %70 Unit           │ %20 Integrasyon     │
+│                     │ Hızlı feedback     │ %10 E2E             │
+└─────────────────────┴────────────────────┴─────────────────────┘
+*/
+
+// Katman oranı kararı
+// mvn test -pl unit-tests    → her commit (30 saniye)
+// mvn test -pl integration   → her PR (5 dakika)
+// mvn test -pl e2e           → gece build (45 dakika)
+
+// PR standartları — CLAUDE.md veya CONTRIBUTING.md
+// ✅ Her yeni özellik: en az 1 unit + 1 integration test
+// ✅ Bug fix: test önce yazılır (TDD), sonra fix
+// ✅ Code review: test coverage %80 altına düşürme
+// ✅ Flaky test commit: @Tag("flaky") + JIRA ticket`,
+            en: `// Decision matrix — evaluate at project start
+
+/*
+┌────────────────────────────────────────────────────────────────┐
+│ DECISION            │ OPTION A           │ OPTION B            │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Test Framework      │ JUnit5 ✅ (rec.)   │ TestNG              │
+│                     │ Extension support   │ Groups/parallel     │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Reporting           │ Allure ✅           │ ExtentReport        │
+│                     │ Rich ecosystem     │ Simpler setup        │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ CI/CD               │ GitHub Actions ✅  │ Jenkins             │
+│                     │ Small team, free   │ Large team, flexible │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ UI Framework        │ Selenium ✅         │ Playwright          │
+│                     │ Wide ecosystem     │ Modern, fast async   │
+├─────────────────────┼────────────────────┼─────────────────────┤
+│ Test Pyramid        │ 70% Unit           │ 20% Integration     │
+│                     │ Fast feedback      │ 10% E2E             │
+└─────────────────────┴────────────────────┴─────────────────────┘
+*/
+
+// Layer ratio decision
+// mvn test -pl unit-tests    → every commit (30 seconds)
+// mvn test -pl integration   → every PR (5 minutes)
+// mvn test -pl e2e           → nightly build (45 minutes)
+
+// PR standards — CLAUDE.md or CONTRIBUTING.md
+// ✅ Every new feature: at least 1 unit + 1 integration test
+// ✅ Bug fix: test written first (TDD), then fix
+// ✅ Code review: do not drop test coverage below 80%
+// ✅ Flaky test commit: @Tag("flaky") + JIRA ticket`,
+          },
+          analogy: {
+            tr: 'QA lider kararları, bir şehir planlamacısının kararları gibidir. Metro hattı mı (Selenium, kararlı ama yavaş), otobüs mı (Playwright, esnek), bisiklet yolu mu (unit test, hızlı)? Şehrin büyüklüğüne ve bütçesine göre doğru mix bulunur.',
+            en: 'QA lead decisions are like a city planner\'s decisions. Metro line (Selenium, stable but slow), bus (Playwright, flexible), or bike lane (unit test, fast)? The right mix is found based on city size and budget.',
+          },
+          keyPoints: [
+            { tr: 'Test piramidi: %70 unit, %20 integration, %10 E2E', en: 'Test pyramid: 70% unit, 20% integration, 10% E2E' },
+            { tr: 'Framework seçimi ekip bilgisine göre: herkes JUnit5 biliyorsa JUnit5', en: 'Framework based on team knowledge: if everyone knows JUnit5, use JUnit5' },
+            { tr: 'PR standardı: yeni özellik = yeni test — kural değil kültür', en: 'PR standard: new feature = new test — not a rule, a culture' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "QA lider olarak ilk aldığım karar test piramidi oranıydı: %70 unit, %20 integration, %10 E2E. Bu oran hem hız hem güveni optimize ediyor. İkinci karar: yeni özellik gerektiren her PR\'da en az 1 test zorunlu — bu kuralı code review checklist\'ine ekledim."',
+            en: 'Say in interview: "The first decision I made as QA lead was the test pyramid ratio: 70% unit, 20% integration, 10% E2E. This ratio optimizes both speed and confidence. Second decision: every PR requiring a new feature must have at least 1 test — I added this rule to the code review checklist."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Immutable test data nesneleri neden önemlidir ve Java\'da nasıl tasarlanır?', en: 'Why are immutable test data objects important and how are they designed in Java?' },
+          a: {
+            tr: 'Parallel testlerde mutable (değiştirilebilir) test nesneleri ciddi bir risktir: Thread A nesnenin bir alanını değiştirirken Thread B aynı nesneyi okuyor olabilir — race condition ve belirsiz test sonuçları oluşur. Immutable nesneler bir kez oluşturulur ve hiç değiştirilemez; thread-safe\'dir. Java 16+ ile gelen record keyword\'ü, immutable veri sınıfları için mükemmeldir: tüm alanlar final, constructor, equals/hashCode/toString otomatik üretilir. Değişiklik gerektiğinde yeni nesne oluşturulur (wither pattern). Builder pattern ile fluent API\'de immutable nesne oluşturulur.',
+            en: 'Mutable (changeable) test objects in parallel tests are a serious risk: Thread A might be changing a field while Thread B reads the same object — race condition and unpredictable test results. Immutable objects are created once and never changed; they are thread-safe. The record keyword introduced in Java 16+ is perfect for immutable data classes: all fields are final, constructor, equals/hashCode/toString automatically generated. When a change is needed, a new object is created (wither pattern). Immutable objects are created with fluent API using Builder pattern.',
+          },
+          code: {
+            tr: `// Java 16+ record — otomatik immutable
+public record TestUser(
+    String email,
+    String name,
+    String role,
+    boolean active
+) {
+    // Compact constructor — validation
+    public TestUser {
+        Objects.requireNonNull(email, "email zorunlu");
+        if (!email.contains("@")) throw new IllegalArgumentException("Geçersiz email");
+    }
+
+    // Wither pattern — değiştirmek için yeni nesne
+    public TestUser withRole(String newRole) {
+        return new TestUser(email, name, newRole, active);
+    }
+
+    public TestUser withActive(boolean newActive) {
+        return new TestUser(email, name, role, newActive);
+    }
+}
+
+// Kullanım — parallel testlerde thread-safe
+@DataProvider(parallel = true)
+Object[][] getTestUsers() {
+    TestUser adminBase = new TestUser("admin@test.com", "Admin", "ADMIN", true);
+    return new Object[][] {
+        { adminBase },                          // aktif admin
+        { adminBase.withActive(false) },        // pasif admin — yeni nesne
+        { adminBase.withRole("READ_ONLY") },    // read-only admin — yeni nesne
+    };
+}
+
+@Test(dataProvider = "getTestUsers")
+void userPermissionTest(TestUser user) {
+    // user değiştirilemez — thread-safe
+    loginPage.login(user.email(), user.role());
+    // user.setRole("HACKER") → derleme hatası! field final
+}
+
+// Builder pattern ile karmaşık nesne
+public static class TestUserBuilder {
+    private String email = new Faker().internet().emailAddress();
+    private String name  = new Faker().name().fullName();
+    private String role  = "VIEWER";
+
+    public TestUserBuilder email(String e) { this.email = e; return this; }
+    public TestUserBuilder role(String r)  { this.role  = r; return this; }
+    public TestUser build() { return new TestUser(email, name, role, true); }
+}`,
+            en: `// Java 16+ record — automatically immutable
+public record TestUser(
+    String email,
+    String name,
+    String role,
+    boolean active
+) {
+    // Compact constructor — validation
+    public TestUser {
+        Objects.requireNonNull(email, "email is required");
+        if (!email.contains("@")) throw new IllegalArgumentException("Invalid email");
+    }
+
+    // Wither pattern — create new object to change a field
+    public TestUser withRole(String newRole) {
+        return new TestUser(email, name, newRole, active);
+    }
+
+    public TestUser withActive(boolean newActive) {
+        return new TestUser(email, name, role, newActive);
+    }
+}
+
+// Usage — thread-safe in parallel tests
+@DataProvider(parallel = true)
+Object[][] getTestUsers() {
+    TestUser adminBase = new TestUser("admin@test.com", "Admin", "ADMIN", true);
+    return new Object[][] {
+        { adminBase },                          // active admin
+        { adminBase.withActive(false) },        // inactive admin — new object
+        { adminBase.withRole("READ_ONLY") },    // read-only admin — new object
+    };
+}
+
+@Test(dataProvider = "getTestUsers")
+void userPermissionTest(TestUser user) {
+    // user is immutable — thread-safe
+    loginPage.login(user.email(), user.role());
+    // user.setRole("HACKER") → compile error! field is final
+}
+
+// Complex object with Builder pattern
+public static class TestUserBuilder {
+    private String email = new Faker().internet().emailAddress();
+    private String name  = new Faker().name().fullName();
+    private String role  = "VIEWER";
+
+    public TestUserBuilder email(String e) { this.email = e; return this; }
+    public TestUserBuilder role(String r)  { this.role  = r; return this; }
+    public TestUser build() { return new TestUser(email, name, role, true); }
+}`,
+          },
+          analogy: {
+            tr: 'Immutable nesne, bir kez basılmış sertifika gibidir. Üzerine bir şey yazamazsın — değiştirmek istersen yeni sertifika çıkartırsın. Paralel testlerde herkes kendi sertifikasına bakar, kimse diğerinin sertifikasını değiştiremez.',
+            en: 'An immutable object is like a printed certificate. You can\'t write on it — if you want to change it, you print a new one. In parallel tests everyone looks at their own certificate, nobody can change anyone else\'s.',
+          },
+          keyPoints: [
+            { tr: 'record: Java 16+ immutable sınıf, tek satır tanım', en: 'record: Java 16+ immutable class, single line definition' },
+            { tr: 'Wither pattern: değiştirmek için yeni nesne — orijinal korunur', en: 'Wither pattern: new object to change — original preserved' },
+            { tr: 'Thread-safe: parallel testlerde race condition yok', en: 'Thread-safe: no race condition in parallel tests' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Parallel testlere geçtiğimizde bazı testler birbirinin test datasını bozuyordu. TestUser sınıfımı Java record\'a çevirdim — immutable, thread-safe. Artık bir test datasını değiştirmek için wither pattern kullanıyoruz: yeni nesne, orijinal bozulmaz."',
+            en: 'Say in interview: "When we moved to parallel tests, some tests were corrupting each other\'s test data. I converted my TestUser class to a Java record — immutable, thread-safe. Now to change test data we use the wither pattern: new object, original unchanged."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Mutation testing nedir ve neden önemlidir?', en: 'What is mutation testing and why is it important?' },
+          a: {
+            tr: 'Mutation testing, test suite\'in kalitesini ölçmek için kaynak koda küçük değişiklikler (mutantlar) ekler ve testlerin bu değişiklikleri yakalayıp yakalayamadığını kontrol eder. Bir mutant test tarafından yakalanırsa (test fail olursa) mutant "killed" olur. Yakalanmazsa mutant "survived" olur — bu, test coverage\'ın yüksek olsa bile test mantığının yetersiz olduğunu gösterir. PIT (Pitest) Java için en popüler mutation testing aracıdır. QA\'da: mutation score %80+ hedeflenir; survived mutantlar incelenerek eksik test senaryoları eklenir.',
+            en: 'Mutation testing measures test suite quality by introducing small code changes (mutants) and checking if tests detect them. A mutant caught by a test (test fails) is "killed." An undetected mutant "survived" — indicating weak test logic even with high coverage. PIT (Pitest) is the most popular Java mutation testing tool. In QA: target mutation score of 80%+; review survived mutants to add missing test scenarios.',
+          },
+          code: {
+            tr: `// pitest-maven plugin
+<plugin>
+  <groupId>org.pitest</groupId>
+  <artifactId>pitest-maven</artifactId>
+  <version>1.15.0</version>
+  <configuration>
+    <targetClasses><param>com.myapp.*</param></targetClasses>
+    <targetTests><param>com.myapp.*Test</param></targetTests>
+    <mutationThreshold>80</mutationThreshold> <!-- %80 altında build fail -->
+  </configuration>
+</plugin>
+
+// mvn org.pitest:pitest-maven:mutationCoverage
+// Çıktı: >> Generated 150 mutations Killed 128 (85%) Survived 22`,
+            en: `// pitest-maven plugin
+<plugin>
+  <groupId>org.pitest</groupId>
+  <artifactId>pitest-maven</artifactId>
+  <version>1.15.0</version>
+  <configuration>
+    <targetClasses><param>com.myapp.*</param></targetClasses>
+    <targetTests><param>com.myapp.*Test</param></targetTests>
+    <mutationThreshold>80</mutationThreshold> <!-- build fails below 80% -->
+  </configuration>
+</plugin>
+
+// mvn org.pitest:pitest-maven:mutationCoverage
+// Output: >> Generated 150 mutations Killed 128 (85%) Survived 22`,
+          },
+          analogy: {
+            tr: 'Mutation testing, bir güvenlik sisteminin test edilmesi gibidir — kapıyı açık bırakırsanız alarm çalıyor mu? Çalmazsa sistem çalışıyor görünür ama aslında yetersizdir.',
+            en: 'Mutation testing is like testing a security system — if you leave the door open, does the alarm go off? If not, the system appears to work but is actually inadequate.',
+          },
+          keyPoints: [
+            { tr: 'Mutation score = killed / total mutants × 100', en: 'Mutation score = killed / total mutants × 100' },
+            { tr: 'Survived mutants = eksik test senaryoları', en: 'Survived mutants = missing test scenarios' },
+            { tr: 'PIT (Pitest) Java için standart araç', en: 'PIT (Pitest) is the standard Java tool' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Coverage %90 olsa bile mutation testing ile test mantığındaki boşlukları tespit ettim. Survived mutantları inceleyerek 12 eksik edge case ekledim."',
+            en: 'Say in interview: "Even with 90% coverage, I used mutation testing to find gaps in test logic. I reviewed survived mutants and added 12 missing edge cases."',
+          },
+        },
+        {
+          level: 'advanced',
+          q: { tr: 'Singleton DriverFactory parallel testlerde neden sorunludur? Thread-safe çözümü nasıl tasarlanır?', en: 'Why is a Singleton DriverFactory problematic in parallel tests? How do you design a thread-safe solution?' },
+          a: {
+            tr: 'Klasik Singleton pattern\'de sadece bir nesne örneği vardır ve tüm çağrıcılar bu örneği paylaşır. WebDriver için bu, tüm parallel thread\'lerin aynı tarayıcı oturumunu paylaşmasına yol açar — Thread A login sayfasını açarken Thread B checkout\'u açmaya çalışır, sonuçlar tamamen öngörülemez hale gelir (cross-contamination). Çözüm ThreadLocal Singleton\'dır: her thread kendi driver instance\'ını alır. getInstance() çağrıldığında ThreadLocal\'da değer yoksa yeni driver oluşturulur, varsa aynısı döndürülür. Test bittikten sonra quit() ve remove() birlikte çağrılmalıdır.',
+            en: 'In classic Singleton pattern there is only one object instance and all callers share it. For WebDriver this means all parallel threads share the same browser session — Thread A opens the login page while Thread B tries to open checkout, results become completely unpredictable (cross-contamination). Solution is ThreadLocal Singleton: each thread gets its own driver instance. When getInstance() is called, if ThreadLocal has no value a new driver is created, otherwise the same is returned. After the test, quit() and remove() must be called together.',
+          },
+          code: {
+            tr: `// ❌ KLASİK SINGLETON — parallel'de cross-contamination
+public class BadDriverFactory {
+    private static WebDriver instance; // TÜM THREAD'LER PAYLAŞIR!
+
+    public static WebDriver getInstance() {
+        if (instance == null) {
+            instance = new ChromeDriver(); // race condition var!
+        }
+        return instance;
+    }
+}
+// Thread A: instance = Chrome(login sayfası)
+// Thread B: instance aynı Chrome! checkout açmaya çalışıyor
+// → Her iki test de fail eder
+
+// ✅ THREADLOCAL SINGLETON — her thread kendi driver'ı
+public final class DriverFactory {
+    // Her thread için ayrı storage
+    private static final ThreadLocal<WebDriver> DRIVERS =
+        new ThreadLocal<>();
+
+    private DriverFactory() {} // instantiation engeli
+
+    public static WebDriver getDriver() {
+        if (DRIVERS.get() == null) {
+            // Bu thread için ilk kez — yeni driver oluştur
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions opts = new ChromeOptions();
+            if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
+                opts.addArguments("--headless", "--no-sandbox");
+            }
+            DRIVERS.set(new ChromeDriver(opts));
+        }
+        return DRIVERS.get(); // Bu thread'e özgü driver
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVERS.get();
+        if (driver != null) {
+            try {
+                driver.quit();    // tarayıcıyı kapat
+            } finally {
+                DRIVERS.remove(); // ThreadLocal temizle — MEMORY LEAK önler
+            }
+        }
+    }
+}
+
+// BaseTest — tüm testler extend eder
+public abstract class BaseTest {
+    protected WebDriver driver;
+
+    @BeforeEach
+    void initDriver() {
+        driver = DriverFactory.getDriver(); // bu thread'e ait
+        driver.manage().timeouts()
+            .implicitlyWait(Duration.ZERO); // explicit wait için 0
+    }
+
+    @AfterEach
+    void quitDriver() {
+        DriverFactory.quitDriver(); // quit + remove
+    }
+}`,
+            en: `// ❌ CLASSIC SINGLETON — cross-contamination in parallel tests
+public class BadDriverFactory {
+    private static WebDriver instance; // ALL THREADS SHARE THIS!
+
+    public static WebDriver getInstance() {
+        if (instance == null) {
+            instance = new ChromeDriver(); // race condition!
+        }
+        return instance;
+    }
+}
+// Thread A: instance = Chrome(login page)
+// Thread B: same Chrome instance! tries to open checkout
+// → Both tests fail
+
+// ✅ THREADLOCAL SINGLETON — each thread has its own driver
+public final class DriverFactory {
+    // Separate storage for each thread
+    private static final ThreadLocal<WebDriver> DRIVERS =
+        new ThreadLocal<>();
+
+    private DriverFactory() {} // prevent instantiation
+
+    public static WebDriver getDriver() {
+        if (DRIVERS.get() == null) {
+            // First call for this thread — create new driver
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions opts = new ChromeOptions();
+            if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
+                opts.addArguments("--headless", "--no-sandbox");
+            }
+            DRIVERS.set(new ChromeDriver(opts));
+        }
+        return DRIVERS.get(); // driver unique to this thread
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVERS.get();
+        if (driver != null) {
+            try {
+                driver.quit();    // close the browser
+            } finally {
+                DRIVERS.remove(); // clean ThreadLocal — prevents MEMORY LEAK
+            }
+        }
+    }
+}
+
+// BaseTest — all tests extend this
+public abstract class BaseTest {
+    protected WebDriver driver;
+
+    @BeforeEach
+    void initDriver() {
+        driver = DriverFactory.getDriver(); // belongs to this thread
+        driver.manage().timeouts()
+            .implicitlyWait(Duration.ZERO); // 0 for explicit wait
+    }
+
+    @AfterEach
+    void quitDriver() {
+        DriverFactory.quitDriver(); // quit + remove
+    }
+}`,
+          },
+          analogy: {
+            tr: 'Klasik Singleton driver, bir şirketteki tek araba gibidir — herkes sırayla kullanır. ThreadLocal Singleton ise her çalışana kendi arabası vermek gibidir. Paralel çalışmada ikinci seçenek tek mantıklı olandır.',
+            en: 'A classic Singleton driver is like one shared company car — everyone uses it in turns. ThreadLocal Singleton is giving each employee their own car. In parallel work, the second option is the only logical one.',
+          },
+          keyPoints: [
+            { tr: 'Klasik Singleton: tek instance, tüm thread paylaşır → cross-contamination', en: 'Classic Singleton: one instance, all threads share → cross-contamination' },
+            { tr: 'ThreadLocal Singleton: her thread kendi driver\'ı, tam izolasyon', en: 'ThreadLocal Singleton: each thread its own driver, full isolation' },
+            { tr: 'quitDriver()=quit()+remove(): her ikisi zorunlu, finally içinde', en: 'quitDriver()=quit()+remove(): both mandatory, inside finally' },
+          ],
+          tip: {
+            tr: 'Mülakata şunu söyle: "Parallel test mimarimde DriverFactory ThreadLocal Singleton kullanıyor. Singleton mi ThreadLocal mı sorusu gelirse: Singleton tüm problemi, ThreadLocal her thread için ayrı instance. quitDriver() her zaman try-finally içinde — thread pool memory leak\'ini önler."',
+            en: 'Say in interview: "My parallel test architecture uses ThreadLocal Singleton in DriverFactory. If asked Singleton vs ThreadLocal: Singleton is one for all, ThreadLocal is one per thread. quitDriver() always inside try-finally — prevents thread pool memory leaks."',
+          },
+        },
+]
+const s7 = {
+  tr: {
+    title: '💼 Java QA Mülakat Soruları (50 Soru)',
+    blocks: [
+      { type: 'simple-box', emoji: '💼', content: 'Bu sorular gerçek mülakatlarda soruldu. Senaryo bazlı — her cevabı kendi projenle ilişkilendir. Önce anla, sonra anlat. Her soru için Java analoji, kod örneği ve mülakat notu içerir.' },
+      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q },
+    ],
+  },
+  en: {
+    title: '💼 Java QA Interview Questions (50 Questions)',
+    blocks: [
+      { type: 'simple-box', emoji: '💼', content: 'Real interview questions in scenario-based format — each answer includes Java analogy, code example, and interview tip. Understand first, then explain.' },
+      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q },
+    ],
+  },
+}
+
+// ─── S-A: TEMEL SÖZDİZİMİ ────────────────────────────────────────────────────
+const sA = {
+  tr: {
+    title: '📝 Temel Sözdizimi — Variables, Data Types, Operators',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📝',
+        content: 'Java\'da bir program yazmak tıpkı bir yemek tarifi yazmak gibi: önce malzemeleri (değişkenler) tanımlarsın, sonra ne yapılacağını (operatörler) belirtirsin. Bilgisayar da bu tarifi adım adım uygular.',
+      },
+      { type: 'heading', text: { tr: 'Java Sözdizimi — Merhaba Dünya!', en: 'Java Syntax — Hello World!' } },
+      {
+        type: 'code', language: 'java', label: 'İlk Java programı',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Bu satır çalışır — // ile başlayan satırlar YORUM (comment)
+        System.out.println("Merhaba Dünya!"); // println = yazdır + yeni satır
+        System.out.print("Yan yana ");       // print = sadece yazdır
+        System.out.print("çıktı");
+    }
+}`,
+        expected: `Merhaba Dünya!\nYan yana çıktı`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Temel Sözdizimi',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // Kendi mesajını yaz:
+        System.out.println("Java öğreniyorum!");
+        System.out.println("Bugün: Temel Sözdizimi");
+    }
+}`,
+        height: '160px',
+      },
+      { type: 'heading', text: { tr: 'Değişkenler (Variables)', en: 'Variables' } },
+      {
+        type: 'text',
+        content: 'Java statik tipli bir dildir: her değişken bildirilirken tipi belirtilmelidir. Java 11\'den itibaren `var` ile tip çıkarımı da yapılabilir ama `var` yalnızca local scope\'da geçerlidir.',
+      },
+      {
+        type: 'code', language: 'java', label: 'Değişken tipleri ve bildirimi',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Primitive tipler
+        int age = 25;               // tam sayı (-2^31 ile 2^31-1)
+        long bigNum = 9_000_000L;   // büyük tam sayı (L suffix)
+        double price = 19.99;       // ondalıklı sayı (64-bit)
+        float tax = 0.18f;          // ondalıklı sayı (32-bit, f suffix)
+        char grade = 'A';           // tek karakter (tek tırnak!)
+        boolean isActive = true;    // true / false
+        byte smallNum = 127;        // -128 ile 127
+
+        // Non-primitive (nesne) tipler
+        String name = "Java";       // metin (çift tırnak!)
+        int[] nums = {1, 2, 3};     // dizi
+
+        // Java 11+ var (tip çıkarımı — sadece local)
+        var city = "İstanbul";      // compiler String olduğunu anlar
+
+        // Sabit (Constant) — değiştirilemez
+        final double PI = 3.14159;
+
+        System.out.println("Ad: " + name + ", Yaş: " + age);
+        System.out.println("PI = " + PI);
+    }
+}`,
+        expected: `Ad: Java, Yaş: 25\nPI = 3.14159`,
+      },
+      {
+        type: 'table',
+        headers: ['Tip', 'Boyut', 'Değer Aralığı', 'Örnek'],
+        rows: [
+          ['byte', '1 byte', '-128 to 127', 'byte b = 100'],
+          ['short', '2 bytes', '-32,768 to 32,767', 'short s = 30000'],
+          ['int', '4 bytes', '-2^31 to 2^31-1', 'int x = 42'],
+          ['long', '8 bytes', '-2^63 to 2^63-1', 'long l = 100L'],
+          ['float', '4 bytes', '~6-7 decimal digits', 'float f = 3.14f'],
+          ['double', '8 bytes', '~15 decimal digits', 'double d = 3.14'],
+          ['char', '2 bytes', 'Unicode (0 to 65535)', "char c = 'A'"],
+          ['boolean', '1 bit', 'true/false', 'boolean ok = true'],
+        ],
+      },
+      { type: 'heading', text: { tr: 'Type Casting (Tip Dönüşümü)', en: 'Type Casting' } },
+      {
+        type: 'code', language: 'java', label: 'Widening (otomatik) ve Narrowing (zorunlu) casting',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // WIDENING — küçükten büyüğe, otomatik (bilgi kaybı yok)
+        // byte → short → int → long → float → double
+        int myInt = 9;
+        double myDouble = myInt;  // otomatik: int → double
+        System.out.println("int: " + myInt);       // 9
+        System.out.println("double: " + myDouble); // 9.0
+
+        // NARROWING — büyükten küçüğe, zorunlu cast (bilgi kaybı olabilir!)
+        double pi = 9.99;
+        int piInt = (int) pi;  // (int) = zorunlu cast
+        System.out.println("double: " + pi);       // 9.99
+        System.out.println("int (truncated): " + piInt); // 9 (ondalık kesildi!)
+
+        // String → int
+        String numStr = "42";
+        int parsed = Integer.parseInt(numStr);
+        System.out.println("Parsed: " + parsed + 1); // 43
+
+        // int → String
+        String fromInt = String.valueOf(100);
+        System.out.println("String: " + fromInt);
+    }
+}`,
+        expected: `int: 9\ndouble: 9.0\ndouble: 9.99\nint (truncated): 9\nParsed: 43\nString: 100`,
+      },
+      { type: 'heading', text: { tr: 'Operatörler (Operators)', en: 'Operators' } },
+      {
+        type: 'code', language: 'java', label: 'Tüm Java operatörleri',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // ARİTMETİK operatörler
+        int a = 10, b = 3;
+        System.out.println(a + b);   // 13
+        System.out.println(a - b);   // 7
+        System.out.println(a * b);   // 30
+        System.out.println(a / b);   // 3 (tam bölme! 3.33 değil)
+        System.out.println(a % b);   // 1 (kalan — modulo)
+        System.out.println(a++);     // 10 (önce kullan, sonra artır)
+        System.out.println(++b);     // 4 (önce artır, sonra kullan)
+
+        // ATAMA operatörleri
+        int x = 5;
+        x += 3;  System.out.println(x); // 8  (x = x + 3)
+        x -= 2;  System.out.println(x); // 6  (x = x - 2)
+        x *= 4;  System.out.println(x); // 24 (x = x * 4)
+        x /= 6;  System.out.println(x); // 4  (x = x / 6)
+        x %= 3;  System.out.println(x); // 1  (x = x % 3)
+
+        // KARŞILAŞTIRMA operatörleri
+        System.out.println(5 == 5); // true
+        System.out.println(5 != 3); // true
+        System.out.println(5 > 3);  // true
+        System.out.println(5 < 3);  // false
+        System.out.println(5 >= 5); // true
+        System.out.println(5 <= 4); // false
+
+        // MANTIKSAL operatörler
+        boolean t = true, f = false;
+        System.out.println(t && f); // false (AND)
+        System.out.println(t || f); // true  (OR)
+        System.out.println(!t);     // false (NOT)
+    }
+}`,
+        expected: `13\n7\n30\n3\n1\n10\n4\n8\n6\n24\n4\n1\ntrue\ntrue\ntrue\nfalse\ntrue\nfalse\nfalse\ntrue\nfalse`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Operatör pratiği',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // İki sayı gir ve tüm aritmetik işlemleri yap:
+        int x = 15, y = 4;
+        System.out.println("Toplam: " + (x + y));
+        System.out.println("Fark: " + (x - y));
+        System.out.println("Çarpım: " + (x * y));
+        System.out.println("Bölüm: " + (x / y));
+        System.out.println("Kalan: " + (x % y));
+        
+        // Burayı değiştir ve çalıştır!
+    }
+}`,
+        height: '200px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da 10 / 3 ifadesinin sonucu nedir?', en: 'What is the result of 10 / 3 in Java?' },
+        options: [
+          { id: 'a', text: '3.33' },
+          { id: 'b', text: '3' },
+          { id: 'c', text: '3.0' },
+          { id: 'd', text: '1' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Java\'da int / int = int (tam sayı bölmesi). Sonuç 3\'tür; 3.33 değil. Ondalık sonuç için en az bir taraf double olmalı: 10.0 / 3 → 3.3333...', en: 'In Java, int / int = int (integer division). Result is 3, not 3.33. For decimal result, at least one side must be double: 10.0 / 3 → 3.3333...' },
+      },
+    ],
+  },
+  en: {
+    title: '📝 Java Syntax — Variables, Data Types, Operators',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📝',
+        content: 'Writing a Java program is like writing a recipe: first define ingredients (variables), then specify what to do (operators). The computer executes the recipe step by step.',
+      },
+      { type: 'heading', text: { en: 'Java Syntax — Hello World!' } },
+      {
+        type: 'code', language: 'java', label: 'First Java program',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Comments start with // — ignored by compiler
+        System.out.println("Hello World!"); // println = print + newline
+        System.out.print("Side by ");       // print = no newline
+        System.out.print("side");
+    }
+}`,
+        expected: `Hello World!\nSide by side`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Basic Syntax',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Learning Java!");
+        System.out.println("Topic: Basic Syntax");
+    }
+}`,
+        height: '160px',
+      },
+      { type: 'heading', text: { en: 'Variables & Data Types' } },
+      {
+        type: 'code', language: 'java', label: 'Variable types and declaration',
+        code: `public class Main {
+    public static void main(String[] args) {
+        int age = 25;
+        long bigNum = 9_000_000L;
+        double price = 19.99;
+        float tax = 0.18f;
+        char grade = 'A';
+        boolean isActive = true;
+        String name = "Java";
+        final double PI = 3.14159; // constant
+
+        var city = "Istanbul"; // Java 11+ type inference
+
+        System.out.println("Name: " + name + ", Age: " + age);
+        System.out.println("PI = " + PI);
+    }
+}`,
+        expected: `Name: Java, Age: 25\nPI = 3.14159`,
+      },
+      { type: 'heading', text: { en: 'Type Casting' } },
+      {
+        type: 'code', language: 'java', label: 'Widening (automatic) and Narrowing (forced) casting',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // WIDENING — small to large, automatic
+        int myInt = 9;
+        double myDouble = myInt; // int → double automatically
+        System.out.println("double: " + myDouble); // 9.0
+
+        // NARROWING — large to small, must cast explicitly
+        double pi = 9.99;
+        int piInt = (int) pi; // decimal truncated!
+        System.out.println("int: " + piInt); // 9
+
+        // String to int
+        int parsed = Integer.parseInt("42");
+        System.out.println("Parsed: " + parsed);
+    }
+}`,
+        expected: `double: 9.0\nint: 9\nParsed: 42`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Operators Practice',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        int x = 15, y = 4;
+        System.out.println("Sum: " + (x + y));
+        System.out.println("Difference: " + (x - y));
+        System.out.println("Product: " + (x * y));
+        System.out.println("Quotient: " + (x / y));
+        System.out.println("Remainder: " + (x % y));
+    }
+}`,
+        height: '200px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'What is the result of 10 / 3 in Java?' },
+        options: [
+          { id: 'a', text: '3.33' },
+          { id: 'b', text: '3' },
+          { id: 'c', text: '3.0' },
+          { id: 'd', text: '1' },
+        ],
+        correct: 'b',
+        explanation: { en: 'In Java, int / int = int (integer division). Result is 3, not 3.33. For decimal, use 10.0 / 3 → 3.3333...' },
+      },
+    ],
+  },
+}
+
+// ─── S-B: STRINGS & MATH ──────────────────────────────────────────────────────
+const sB = {
+  tr: {
+    title: '🔤 Strings & Math — Metin ve Matematik',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔤',
+        content: 'String\'i bir kelime zinciri gibi düşün — harfleri bir ipe dizdik. Java\'da String nesneleri değiştirilemez (immutable): bir kez oluşturulunca bellekte değişmez, yeni bir string oluşturulur. Bu nedenle çok fazla string birleştirmesi yapıyorsan StringBuilder kullan.',
+      },
+      { type: 'heading', text: { tr: 'String Metotları', en: 'String Methods' } },
+      {
+        type: 'code', language: 'java', label: 'En önemli String metotları',
+        code: `public class Main {
+    public static void main(String[] args) {
+        String s = "  Hello, Java World!  ";
+
+        // Uzunluk
+        System.out.println(s.length());          // 22
+
+        // Büyük/küçük harf
+        System.out.println(s.toUpperCase());     // "  HELLO, JAVA WORLD!  "
+        System.out.println(s.toLowerCase());     // "  hello, java world!  "
+
+        // Boşluk temizle
+        System.out.println(s.trim());            // "Hello, Java World!"
+        System.out.println(s.strip());           // Java 11+ (Unicode-aware)
+
+        // Arama
+        System.out.println(s.contains("Java")); // true
+        System.out.println(s.indexOf("Java"));  // 9
+        System.out.println(s.startsWith("  H")); // true
+        System.out.println(s.endsWith("!  "));   // true
+
+        // Değiştirme
+        System.out.println(s.replace("Java", "Python")); // " Hello, Python World! "
+        System.out.println(s.replaceAll("\\s+", "_"));   // boşlukları _ ile değiştir
+
+        // Parçalama
+        String csv = "admin,user,guest";
+        String[] parts = csv.split(",");
+        for (String p : parts) System.out.println(p);
+
+        // Karşılaştırma
+        String a = "hello", b = "hello";
+        System.out.println(a.equals(b));          // true (içerik karşılaştır)
+        System.out.println(a.equalsIgnoreCase("HELLO")); // true
+
+        // Substring
+        System.out.println("Hello".substring(1, 4)); // "ell"
+        System.out.println("Hello".charAt(0));        // 'H'
+
+        // Java 11+ metodlar
+        System.out.println("  ".isBlank());   // true
+        System.out.println("a\nb\nc".lines().count()); // 3
+        System.out.println("ha".repeat(3));   // "hahaha"
+    }
+}`,
+        expected: `22\n  HELLO, JAVA WORLD!  \n  hello, java world!  \nHello, Java World!\nHello, Java World!\ntrue\n9\ntrue\ntrue\n  Hello, Python World!  \n__Hello,_Java_World!__\nadmin\nuser\nguest\ntrue\ntrue\nell\nH\ntrue\n3\nhahaha`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'String metot deneyi',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        String isim = "  Ahmet Yılmaz  ";
+        
+        // 1. Baş ve sondaki boşlukları temizle
+        String temiz = isim.trim();
+        System.out.println("Temizlenmiş: " + temiz);
+        
+        // 2. Büyük harfe çevir
+        System.out.println("Büyük: " + temiz.toUpperCase());
+        
+        // 3. İçinde "Yılmaz" var mı?
+        System.out.println("Yılmaz içeriyor mu? " + temiz.contains("Yılmaz"));
+        
+        // 4. Kaç karakter?
+        System.out.println("Uzunluk: " + temiz.length());
+        
+        // Kendi deneyin buraya ekleyin:
+    }
+}`,
+        height: '220px',
+      },
+      { type: 'heading', text: { tr: 'StringBuilder — Verimli Metin Birleştirme', en: 'StringBuilder — Efficient String Concatenation' } },
+      {
+        type: 'code', language: 'java', label: 'StringBuilder vs String + (performance)',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // ❌ YANLIŞ — döngüde String birleştirme (her adımda yeni nesne)
+        String result = "";
+        for (int i = 0; i < 5; i++) {
+            result += i + ", "; // bellekte 5 ayrı String nesnesi
+        }
+        System.out.println(result);
+
+        // ✅ DOĞRU — StringBuilder (tek nesne, append ile uzar)
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            sb.append(i).append(", ");
+        }
+        System.out.println(sb.toString());
+
+        // StringBuilder metotları
+        StringBuilder x = new StringBuilder("Hello");
+        x.append(" World");     // ekler
+        x.insert(5, ",");       // araya ekler
+        x.reverse();            // ters çevirir
+        x.delete(0, 3);         // karakter siler
+        System.out.println(x);
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Math Sınıfı', en: 'Math Class' } },
+      {
+        type: 'code', language: 'java', label: 'java.lang.Math metotları',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Temel matematik
+        System.out.println(Math.abs(-5));      // 5 (mutlak değer)
+        System.out.println(Math.max(10, 20));  // 20
+        System.out.println(Math.min(10, 20));  // 10
+        System.out.println(Math.pow(2, 10));   // 1024.0 (2^10)
+        System.out.println(Math.sqrt(144));    // 12.0 (kare kök)
+        System.out.println(Math.cbrt(27));     // 3.0 (küp kök)
+
+        // Yuvarlama
+        System.out.println(Math.round(9.4));   // 9
+        System.out.println(Math.round(9.5));   // 10
+        System.out.println(Math.ceil(9.1));    // 10.0 (yukarı yuvarla)
+        System.out.println(Math.floor(9.9));   // 9.0 (aşağı yuvarla)
+
+        // Logaritma ve trigonometri
+        System.out.println(Math.log(Math.E));  // 1.0
+        System.out.println(Math.log10(1000));  // 3.0
+        System.out.println(Math.PI);           // 3.14159...
+
+        // Rastgele sayı (0.0 ile 1.0 arasında)
+        double r = Math.random();
+        System.out.println("Random: " + r);
+
+        // 1-100 arası rastgele int
+        int dice = (int)(Math.random() * 100) + 1;
+        System.out.println("Dice: " + dice);
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Boolean Mantığı', en: 'Booleans' } },
+      {
+        type: 'code', language: 'java', label: 'Boolean değişkenler ve operatörler',
+        code: `public class Main {
+    public static void main(String[] args) {
+        boolean isJavaFun = true;
+        boolean isFishTasty = false;
+
+        // Mantıksal operatörler
+        System.out.println(isJavaFun && isFishTasty); // false (AND)
+        System.out.println(isJavaFun || isFishTasty); // true  (OR)
+        System.out.println(!isJavaFun);                // false (NOT)
+
+        // Karşılaştırmalar boolean üretir
+        int x = 10;
+        System.out.println(x > 9);  // true
+        System.out.println(x == 15); // false
+        System.out.println(x != 0);  // true
+
+        // Boolean expression
+        int age = 20;
+        boolean canVote = (age >= 18);
+        System.out.println("Oy kullanabilir mi? " + canVote); // true
+    }
+}`,
+        expected: `false\ntrue\nfalse\ntrue\nfalse\ntrue\nOy kullanabilir mi? true`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'String ve Math pratiği',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // Bir üçgenin alanını hesapla: alan = taban * yükseklik / 2
+        double taban = 6.0, yukseklik = 4.0;
+        double alan = (taban * yukseklik) / 2;
+        System.out.println("Alan: " + alan);
+        
+        // Hipotenüs: Math.sqrt(a*a + b*b)
+        double a = 3, b = 4;
+        double hipotenus = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        System.out.println("Hipotenüs: " + hipotenus);
+        
+        // Kendi hesabını ekle:
+    }
+}`,
+        height: '220px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da iki String\'i içerik açısından karşılaştırmak için hangi metot kullanılmalıdır?', en: 'Which method should be used to compare two String values in Java?' },
+        options: [
+          { id: 'a', text: '==' },
+          { id: 'b', text: '.equals()' },
+          { id: 'c', text: '.compare()' },
+          { id: 'd', text: '.match()' },
+        ],
+        correct: 'b',
+        explanation: { tr: '== referans eşitliğini karşılaştırır (iki nesne aynı bellekte mi). .equals() içerik eşitliğini karşılaştırır. String karşılaştırmasında HER ZAMAN .equals() veya .equalsIgnoreCase() kullanın.', en: '== compares references (same memory location?). .equals() compares content. ALWAYS use .equals() or .equalsIgnoreCase() for String comparison.' },
+      },
+    ],
+  },
+  en: {
+    title: '🔤 Strings & Math',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔤',
+        content: 'Think of a String as a chain of characters — letters threaded on a rope. Java Strings are immutable: once created, they cannot be changed in memory. Use StringBuilder for heavy concatenation.',
+      },
+      { type: 'heading', text: { en: 'String Methods' } },
+      {
+        type: 'code', language: 'java', label: 'Most important String methods',
+        code: `public class Main {
+    public static void main(String[] args) {
+        String s = "  Hello, Java World!  ";
+        System.out.println(s.length());          // 22
+        System.out.println(s.toUpperCase());
+        System.out.println(s.trim());
+        System.out.println(s.contains("Java"));  // true
+        System.out.println(s.indexOf("Java"));   // 9
+        System.out.println(s.replace("Java", "Python"));
+        System.out.println("hello".equals("hello")); // true
+        System.out.println("Hello".substring(1, 4)); // "ell"
+        System.out.println("ha".repeat(3));          // "hahaha"
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'String Practice',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        String name = "  John Doe  ";
+        System.out.println("Trimmed: " + name.trim());
+        System.out.println("Upper: " + name.trim().toUpperCase());
+        System.out.println("Contains 'Doe'? " + name.contains("Doe"));
+        System.out.println("Length: " + name.trim().length());
+    }
+}`,
+        height: '200px',
+      },
+      { type: 'heading', text: { en: 'Math Class' } },
+      {
+        type: 'code', language: 'java', label: 'java.lang.Math methods',
+        code: `public class Main {
+    public static void main(String[] args) {
+        System.out.println(Math.abs(-5));     // 5
+        System.out.println(Math.max(10, 20)); // 20
+        System.out.println(Math.pow(2, 10));  // 1024.0
+        System.out.println(Math.sqrt(144));   // 12.0
+        System.out.println(Math.round(9.7));  // 10
+        System.out.println(Math.PI);          // 3.14159...
+        int dice = (int)(Math.random() * 6) + 1;
+        System.out.println("Dice: " + dice);
+    }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { en: 'Which method compares String content in Java?' },
+        options: [
+          { id: 'a', text: '==' },
+          { id: 'b', text: '.equals()' },
+          { id: 'c', text: '.compare()' },
+          { id: 'd', text: '.match()' },
+        ],
+        correct: 'b',
+        explanation: { en: '== compares references. .equals() compares content. Always use .equals() for String comparison in Java.' },
+      },
+    ],
+  },
+}
+
+// ─── S-C: AKIŞ KONTROLÜ ───────────────────────────────────────────────────────
+const sC = {
+  tr: {
+    title: '🔀 Akış Kontrolü — If/Else, Switch, Döngüler',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔀',
+        content: 'Akış kontrolü, programın karar verme mekanizmasıdır. Tıpkı GPS gibi: "Sola mı döneyim, düz mü gideyim?" — if/else karar verir. "Her kavşakta kontrol et" — döngü tekrar eder.',
+      },
+      { type: 'heading', text: { tr: 'if / else if / else', en: 'if / else if / else' } },
+      {
+        type: 'code', language: 'java', label: 'if-else yapısı',
+        code: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+
+        if (score >= 90) {
+            System.out.println("AA");
+        } else if (score >= 80) {
+            System.out.println("BA");
+        } else if (score >= 70) {
+            System.out.println("BB");
+        } else if (score >= 60) {
+            System.out.println("CB");
+        } else {
+            System.out.println("FF");
+        }
+
+        // Kısa if (tek satır — sadece basit durumlar için)
+        int time = 22;
+        String greeting = (time < 18) ? "Günaydın!" : "İyi akşamlar!";
+        System.out.println(greeting);
+
+        // Ternary (üçlü operatör)
+        int a = 5, b = 10;
+        int bigger = (a > b) ? a : b;
+        System.out.println("Büyük olan: " + bigger);
+    }
+}`,
+        expected: `BB\nİyi akşamlar!\nBüyük olan: 10`,
+      },
+      { type: 'heading', text: { tr: 'switch Statement', en: 'switch Statement' } },
+      {
+        type: 'code', language: 'java', label: 'switch ve switch expression (Java 14+)',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Geleneksel switch
+        int day = 3;
+        switch (day) {
+            case 1: System.out.println("Pazartesi"); break;
+            case 2: System.out.println("Salı"); break;
+            case 3: System.out.println("Çarşamba"); break;
+            case 4: System.out.println("Perşembe"); break;
+            case 5: System.out.println("Cuma"); break;
+            default: System.out.println("Hafta Sonu");
+        }
+
+        // Java 14+ switch expression (modern)
+        String dayName = switch (day) {
+            case 1 -> "Pazartesi";
+            case 2 -> "Salı";
+            case 3 -> "Çarşamba";
+            case 4 -> "Perşembe";
+            case 5 -> "Cuma";
+            default -> "Hafta Sonu";
+        };
+        System.out.println(dayName);
+
+        // String switch
+        String browser = "Chrome";
+        switch (browser) {
+            case "Chrome": System.out.println("Google tarayıcısı"); break;
+            case "Firefox": System.out.println("Mozilla tarayıcısı"); break;
+            default: System.out.println("Diğer tarayıcı");
+        }
+    }
+}`,
+        expected: `Çarşamba\nÇarşamba\nGoogle tarayıcısı`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Switch pratiği — dene!',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // Tarayıcı adına göre driver URL döndüren switch
+        String browser = "Firefox"; // Chrome, Firefox veya Edge dene!
+
+        // Modern switch expression (Java 14+)
+        String driverUrl = switch (browser) {
+            case "Chrome"  -> "chromedriver.exe";
+            case "Firefox" -> "geckodriver.exe";
+            case "Edge"    -> "msedgedriver.exe";
+            default        -> throw new IllegalArgumentException("Bilinmeyen: " + browser);
+        };
+
+        System.out.println(browser + " → " + driverUrl);
+
+        // HTTP status kodu açıklama
+        int status = 404;
+        String desc = switch (status) {
+            case 200 -> "OK — Başarılı";
+            case 201 -> "Created — Oluşturuldu";
+            case 400 -> "Bad Request";
+            case 401 -> "Unauthorized";
+            case 403 -> "Forbidden";
+            case 404 -> "Not Found";
+            case 500 -> "Internal Server Error";
+            default  -> "Bilinmeyen status: " + status;
+        };
+        System.out.println(status + " → " + desc);
+    }
+}`,
+        height: '260px',
+      },
+      { type: 'heading', text: { tr: 'while ve do-while Döngüleri', en: 'while and do-while Loops' } },
+      {
+        type: 'code', language: 'java', label: 'while ve do-while',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // while — koşul başta kontrol edilir
+        int i = 1;
+        while (i <= 5) {
+            System.out.print(i + " ");
+            i++;
+        }
+        System.out.println(); // yeni satır
+
+        // do-while — kod önce çalışır, koşul sonra kontrol edilir
+        // En az 1 kez çalışması garantidir!
+        int j = 1;
+        do {
+            System.out.print(j + " ");
+            j++;
+        } while (j <= 5);
+        System.out.println();
+
+        // Sonsuz döngü ve break
+        int count = 0;
+        while (true) {
+            count++;
+            if (count == 3) break; // döngüden çık
+        }
+        System.out.println("Count: " + count);
+    }
+}`,
+        expected: `1 2 3 4 5 \n1 2 3 4 5 \nCount: 3`,
+      },
+      { type: 'heading', text: { tr: 'for ve for-each Döngüleri', en: 'for and for-each Loops' } },
+      {
+        type: 'code', language: 'java', label: 'for, for-each, nested loops, break/continue',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // Klasik for döngüsü
+        for (int i = 1; i <= 5; i++) {
+            System.out.print(i + " ");
+        }
+        System.out.println();
+
+        // Azalan for
+        for (int i = 5; i >= 1; i--) {
+            System.out.print(i + " ");
+        }
+        System.out.println();
+
+        // For-each (gelişmiş for) — array veya collection için
+        String[] fruits = {"Elma", "Armut", "Kiraz"};
+        for (String fruit : fruits) {
+            System.out.println(fruit);
+        }
+
+        // break — döngüden çık
+        for (int k = 0; k < 10; k++) {
+            if (k == 5) break;
+            System.out.print(k + " ");
+        }
+        System.out.println();
+
+        // continue — bu adımı atla, devam et
+        for (int k = 0; k < 10; k++) {
+            if (k % 2 == 0) continue; // çift sayıları atla
+            System.out.print(k + " ");
+        }
+        System.out.println();
+
+        // İç içe döngü (nested loop)
+        for (int row = 1; row <= 3; row++) {
+            for (int col = 1; col <= 3; col++) {
+                System.out.print(row * col + "\t");
+            }
+            System.out.println();
+        }
+    }
+}`,
+        expected: `1 2 3 4 5 \n5 4 3 2 1 \nElma\nArmut\nKiraz\n0 1 2 3 4 \n1 3 5 7 9 \n1\t2\t3\t\n2\t4\t6\t\n3\t6\t9\t`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Döngü pratiği',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // Görev 1: 1'den 10'a kadar çift sayıları yazdır
+        System.out.println("Çift sayılar:");
+        for (int i = 1; i <= 10; i++) {
+            if (i % 2 == 0) {
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println();
+        
+        // Görev 2: FizzBuzz — 1'den 20'ye kadar
+        // 3'e bölünebiliyorsa "Fizz", 5'e bölünebiliyorsa "Buzz", ikisine de bölünebiliyorsa "FizzBuzz"
+        for (int i = 1; i <= 20; i++) {
+            if (i % 15 == 0) System.out.print("FizzBuzz ");
+            else if (i % 3 == 0) System.out.print("Fizz ");
+            else if (i % 5 == 0) System.out.print("Buzz ");
+            else System.out.print(i + " ");
+        }
+    }
+}`,
+        height: '280px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'do-while ile while döngüsü arasındaki temel fark nedir?', en: 'What is the key difference between do-while and while loops?' },
+        options: [
+          { id: 'a', text: 'do-while daha hızlıdır' },
+          { id: 'b', text: 'do-while koşul false olsa bile en az 1 kez çalışır' },
+          { id: 'c', text: 'while daha modern bir yapıdır' },
+          { id: 'd', text: 'do-while sadece sayısal döngüler için kullanılır' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'do-while: önce bloğu çalıştırır, sonra koşulu kontrol eder → garantili en az 1 çalışma. while: önce koşulu kontrol eder → koşul baştan false ise hiç çalışmaz. QA\'da: kullanıcı şifre girişi gibi "en az bir kez dene" senaryoları için do-while kullanılır.', en: 'do-while: executes block first, then checks condition → guaranteed at least 1 execution. while: checks condition first → may never execute if condition is false. QA: use do-while for "retry at least once" scenarios like user password input.' },
+      },
+    ],
+  },
+  en: {
+    title: '🔀 Control Flow — If/Else, Switch, Loops',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔀',
+        content: 'Control flow is the program\'s decision-making mechanism. Like a GPS: "Turn left or go straight?" — if/else decides. "Check at every junction" — loops repeat.',
+      },
+      { type: 'heading', text: { en: 'if / else if / else' } },
+      {
+        type: 'code', language: 'java', label: 'if-else structure',
+        code: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+        if (score >= 90) System.out.println("A");
+        else if (score >= 80) System.out.println("B");
+        else if (score >= 70) System.out.println("C");
+        else System.out.println("F");
+
+        // Ternary
+        int time = 22;
+        String greeting = (time < 18) ? "Good day!" : "Good evening!";
+        System.out.println(greeting);
+    }
+}`,
+        expected: `C\nGood evening!`,
+      },
+      { type: 'heading', text: { en: 'for and for-each Loops' } },
+      {
+        type: 'code', language: 'java', label: 'Loops',
+        code: `public class Main {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 5; i++) System.out.print(i + " ");
+        System.out.println();
+
+        String[] fruits = {"Apple", "Banana", "Cherry"};
+        for (String fruit : fruits) System.out.println(fruit);
+
+        // break and continue
+        for (int k = 0; k < 10; k++) {
+            if (k % 2 == 0) continue;
+            if (k == 7) break;
+            System.out.print(k + " ");
+        }
+    }
+}`,
+        expected: `1 2 3 4 5 \nApple\nBanana\nCherry\n1 3 5 `,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Loop Practice',
+        defaultCode: `public class Main {
+    public static void main(String[] args) {
+        // FizzBuzz 1-20
+        for (int i = 1; i <= 20; i++) {
+            if (i % 15 == 0) System.out.print("FizzBuzz ");
+            else if (i % 3 == 0) System.out.print("Fizz ");
+            else if (i % 5 == 0) System.out.print("Buzz ");
+            else System.out.print(i + " ");
+        }
+    }
+}`,
+        height: '200px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'What is the key difference between do-while and while?' },
+        options: [
+          { id: 'a', text: 'do-while is faster' },
+          { id: 'b', text: 'do-while executes at least once even if condition is false' },
+          { id: 'c', text: 'while is more modern' },
+          { id: 'd', text: 'do-while only works with numbers' },
+        ],
+        correct: 'b',
+        explanation: { en: 'do-while: runs block first, then checks condition → guaranteed at least 1 execution. while: checks condition first → may never run.' },
+      },
+    ],
+  },
+}
+
+// ─── S-D: ARRAYS ──────────────────────────────────────────────────────────────
+const sD = {
+  tr: {
+    title: '📦 Arrays — Diziler',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📦',
+        content: 'Array\'i bir otopark gibi düşün: her otopark yeri (index) numaralıdır ve sadece bir araba (değer) alır. 0\'dan başlar! 5 yerli bir otopark: [0], [1], [2], [3], [4]. Doluluğu baştan belirlenir, sonra değiştirilemez.',
+      },
+      { type: 'heading', text: { tr: 'Tek Boyutlu Dizi', en: 'One-Dimensional Array' } },
+      {
+        type: 'code', language: 'java', label: 'Array tanımlama, erişim, döngü',
+        code: `import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        // Array tanımlama — yöntem 1
+        int[] nums = {10, 20, 30, 40, 50};
+
+        // Array tanımlama — yöntem 2
+        String[] fruits = new String[3];
+        fruits[0] = "Elma";
+        fruits[1] = "Armut";
+        fruits[2] = "Kiraz";
+
+        // Elemanlara erişim
+        System.out.println(nums[0]);   // 10 (ilk eleman)
+        System.out.println(nums[4]);   // 50 (son eleman)
+        System.out.println(nums.length); // 5 (uzunluk — metod değil, field!)
+
+        // Eleman güncelle
+        nums[2] = 99;
+
+        // for-each ile döngü
+        for (int n : nums) {
+            System.out.print(n + " ");
+        }
+        System.out.println();
+
+        // Arrays utility
+        System.out.println(Arrays.toString(nums));  // [10, 20, 99, 40, 50]
+        Arrays.sort(nums);                          // sıralama
+        System.out.println(Arrays.toString(nums));  // [10, 20, 40, 50, 99]
+
+        int idx = Arrays.binarySearch(nums, 40);   // binary search (sıralı dizi)
+        System.out.println("40 index: " + idx);
+
+        // Arrays.copyOf
+        int[] copy = Arrays.copyOf(nums, 3);        // ilk 3 elemanı kopyala
+        System.out.println(Arrays.toString(copy));  // [10, 20, 40]
+    }
+}`,
+        expected: `10\n50\n5\n10 20 99 40 50 \n[10, 20, 99, 40, 50]\n[10, 20, 40, 50, 99]\n40 index: 2\n[10, 20, 40]`,
+      },
+      { type: 'heading', text: { tr: 'Çok Boyutlu Dizi (2D Array)', en: 'Multi-dimensional Arrays' } },
+      {
+        type: 'code', language: 'java', label: '2D Array (matris)',
+        code: `import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        // 2D Array tanımlama — 3 satır, 3 sütun
+        int[][] matrix = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        // Elemana erişim: [satır][sütun]
+        System.out.println(matrix[0][0]); // 1 (sol-üst)
+        System.out.println(matrix[1][2]); // 6 (2. satır, 3. sütun)
+        System.out.println(matrix[2][2]); // 9 (sağ-alt)
+
+        // 2D döngü
+        for (int[] row : matrix) {
+            for (int val : row) {
+                System.out.print(val + "\t");
+            }
+            System.out.println();
+        }
+
+        // Boyut bilgisi
+        System.out.println("Satır: " + matrix.length);       // 3
+        System.out.println("Sütun: " + matrix[0].length);    // 3
+    }
+}`,
+        expected: `1\n6\n9\n1\t2\t3\t\n4\t5\t6\t\n7\t8\t9\t\nSatır: 3\nSütun: 3`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Array pratiği',
+        defaultCode: `import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        // Görev: Bir not dizisinin ortalamasını bul
+        double[] notlar = {85.5, 92.0, 78.0, 95.5, 88.0};
+        
+        double toplam = 0;
+        for (double not : notlar) {
+            toplam += not;
+        }
+        double ortalama = toplam / notlar.length;
+        System.out.println("Ortalama: " + ortalama);
+        
+        // En yüksek notu bul
+        Arrays.sort(notlar);
+        System.out.println("En yüksek: " + notlar[notlar.length - 1]);
+        System.out.println("En düşük: " + notlar[0]);
+        
+        // Kendi deneyin:
+    }
+}`,
+        height: '240px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da 5 elemanlı bir array\'de son elemana erişmek için hangi index kullanılır?', en: 'To access the last element of a 5-element Java array, which index do you use?' },
+        options: [
+          { id: 'a', text: '5' },
+          { id: 'b', text: '4' },
+          { id: 'c', text: '-1' },
+          { id: 'd', text: 'length' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Java dizileri 0\'dan başlar. 5 elemanlı dizinin indexleri: 0, 1, 2, 3, 4. Son eleman array[array.length - 1] = array[4]. array[5] → ArrayIndexOutOfBoundsException!', en: 'Java arrays start at index 0. A 5-element array has indices 0, 1, 2, 3, 4. Last element: array[array.length - 1] = array[4]. array[5] → ArrayIndexOutOfBoundsException!' },
+      },
+    ],
+  },
+  en: {
+    title: '📦 Arrays',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📦',
+        content: 'Think of an array like a numbered parking lot: each spot (index) has a number starting from 0, and holds one value. Size is fixed at creation.',
+      },
+      { type: 'heading', text: { en: 'One-Dimensional Array' } },
+      {
+        type: 'code', language: 'java', label: 'Array basics',
+        code: `import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] nums = {10, 20, 30, 40, 50};
+        System.out.println(nums[0]);       // 10
+        System.out.println(nums.length);   // 5
+        
+        for (int n : nums) System.out.print(n + " ");
+        System.out.println();
+        
+        Arrays.sort(nums);
+        System.out.println(Arrays.toString(nums));
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Array Practice',
+        defaultCode: `import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        double[] grades = {85.5, 92.0, 78.0, 95.5, 88.0};
+        double sum = 0;
+        for (double g : grades) sum += g;
+        System.out.println("Average: " + (sum / grades.length));
+        
+        Arrays.sort(grades);
+        System.out.println("Max: " + grades[grades.length - 1]);
+        System.out.println("Min: " + grades[0]);
+    }
+}`,
+        height: '220px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'Last element index of a 5-element Java array?' },
+        options: [
+          { id: 'a', text: '5' },
+          { id: 'b', text: '4' },
+          { id: 'c', text: '-1' },
+          { id: 'd', text: 'length' },
+        ],
+        correct: 'b',
+        explanation: { en: 'Java arrays start at 0. 5-element array has indices 0,1,2,3,4. Last: array[4] or array[array.length-1].' },
+      },
+    ],
+  },
+}
+
+// ─── S-E: METHODS ─────────────────────────────────────────────────────────────
+const sE = {
+  tr: {
+    title: '🔧 Methods — Metodlar & Scanner (User Input)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔧',
+        content: 'Method\'u bir kısa yol tuşu gibi düşün: "Ctrl+S" bastığında aynı birkaç adım her seferinde otomatik yapılır. Metot da böyle: bir kere yaz, istediğin kadar çağır. Kod tekrarını önler ve okunabilirliği artırır.',
+      },
+      { type: 'heading', text: { tr: 'Metot Tanımlama ve Çağırma', en: 'Method Definition and Calling' } },
+      {
+        type: 'code', language: 'java', label: 'Metot yapısı — parametreler ve return',
+        code: `public class Main {
+
+    // Dönüş değersiz metot (void)
+    static void greet(String name) {
+        System.out.println("Merhaba, " + name + "!");
+    }
+
+    // Dönüş değerli metot
+    static int add(int a, int b) {
+        return a + b;
+    }
+
+    // Çoklu parametre, varsayılan hesaplama
+    static double calculateBMI(double weight, double height) {
+        return weight / (height * height);
+    }
+
+    // Recursive (özyinelemeli) metot
+    static int factorial(int n) {
+        if (n <= 1) return 1;
+        return n * factorial(n - 1); // kendini çağırır
+    }
+
+    public static void main(String[] args) {
+        greet("Java");           // Merhaba, Java!
+        greet("World");          // Merhaba, World!
+
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result); // 8
+
+        double bmi = calculateBMI(70, 1.75);
+        System.out.printf("BMI: %.2f%n", bmi);   // BMI: 22.86
+
+        System.out.println("5! = " + factorial(5)); // 120
+    }
+}`,
+        expected: `Merhaba, Java!\nMerhaba, World!\n5 + 3 = 8\nBMI: 22.86\n5! = 120`,
+      },
+      { type: 'heading', text: { tr: 'Method Overloading — Metot Aşırı Yükleme', en: 'Method Overloading' } },
+      {
+        type: 'code', language: 'java', label: 'Overloading — aynı isim, farklı parametreler',
+        code: `public class Main {
+    // Aynı isimli metodlar — parametre sayısı/tipi farklı
+    static int multiply(int a, int b) {
+        return a * b;
+    }
+    static double multiply(double a, double b) {
+        return a * b;
+    }
+    static int multiply(int a, int b, int c) {
+        return a * b * c;
+    }
+
+    // QA'da overloading örneği: farklı assertion metodları
+    static void assertElement(String id) {
+        System.out.println("ID ile bulunuyor: " + id);
+    }
+    static void assertElement(String id, int timeout) {
+        System.out.println("ID: " + id + ", timeout: " + timeout + "s");
+    }
+    static void assertElement(String id, String text) {
+        System.out.println("ID: " + id + " text'i içermeli: " + text);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(multiply(2, 3));      // 6 (int)
+        System.out.println(multiply(2.5, 3.0));  // 7.5 (double)
+        System.out.println(multiply(2, 3, 4));   // 24 (3 param)
+
+        assertElement("loginBtn");
+        assertElement("loginBtn", 10);
+        assertElement("loginBtn", "Giriş Yap");
+    }
+}`,
+        expected: `6\n7.5\n24\nID ile bulunuyor: loginBtn\nID: loginBtn, timeout: 10s\nID: loginBtn text'i içermeli: Giriş Yap`,
+      },
+      { type: 'heading', text: { tr: 'Scanner — Kullanıcıdan Girdi Alma', en: 'Scanner — User Input' } },
+      {
+        type: 'code', language: 'java', label: 'java.util.Scanner kullanımı',
+        code: `import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Adınızı girin: ");
+        String name = sc.nextLine();    // metin okur (boşluk dahil)
+
+        System.out.print("Yaşınızı girin: ");
+        int age = sc.nextInt();         // tam sayı okur
+
+        System.out.print("Kilonuzu girin (kg): ");
+        double weight = sc.nextDouble(); // ondalıklı sayı okur
+
+        System.out.println("\\nMerhaba " + name + "!");
+        System.out.println("Yaşınız: " + age);
+        System.out.printf("Kilonuz: %.1f kg%n", weight);
+
+        sc.close(); // Scanner'ı kapat
+
+        // NOT: Simülatörde çalıştıramazsınız (System.in gerekli)
+        // Aşağıdaki örnek sabit değerlerle çalışır:
+        System.out.println("--- Sabit değer örneği ---");
+        String testUser = "Ahmet";
+        int testAge = 25;
+        System.out.println("Kullanıcı: " + testUser + ", Yaş: " + testAge);
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Metot pratiği',
+        defaultCode: `public class Main {
+    
+    // Asal sayı kontrolü
+    static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i <= Math.sqrt(n); i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+    
+    // Fibonacci dizisi
+    static int fibonacci(int n) {
+        if (n <= 1) return n;
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+    
+    public static void main(String[] args) {
+        // 1'den 20'ye kadar asal sayıları bul
+        System.out.println("Asal sayılar (1-20):");
+        for (int i = 2; i <= 20; i++) {
+            if (isPrime(i)) System.out.print(i + " ");
+        }
+        System.out.println();
+        
+        // İlk 10 Fibonacci sayısı
+        System.out.println("Fibonacci:");
+        for (int i = 0; i < 10; i++) {
+            System.out.print(fibonacci(i) + " ");
+        }
+    }
+}`,
+        height: '300px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Method overloading nedir?', en: 'What is method overloading?' },
+        options: [
+          { id: 'a', text: 'Bir metodu başka bir sınıftan miras almak' },
+          { id: 'b', text: 'Aynı isimde farklı parametreli birden fazla metot tanımlamak' },
+          { id: 'c', text: 'Bir metodu @Override ile geçersiz kılmak' },
+          { id: 'd', text: 'static metot tanımlamak' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Method overloading: aynı sınıfta aynı isimli ama farklı parametre (sayı, tip, sıra) metotlar. Compiler hangi versiyonu çağıracağını parametreye göre belirler. Overriding\'den farklıdır: overriding alt sınıfta miras alınan metodu yeniden tanımlamaktır.', en: 'Method overloading: same class, same method name, different parameters (count, type, order). Compiler determines which version to call based on parameters. Different from overriding (redefining inherited method in subclass).' },
+      },
+    ],
+  },
+  en: {
+    title: '🔧 Methods & Scanner (User Input)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔧',
+        content: 'Think of a method like a keyboard shortcut: "Ctrl+S" triggers the same sequence every time. Write once, call many times. Prevents code repetition.',
+      },
+      { type: 'heading', text: { en: 'Method Definition and Calling' } },
+      {
+        type: 'code', language: 'java', label: 'Method structure',
+        code: `public class Main {
+    static void greet(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+    static int add(int a, int b) { return a + b; }
+    static int factorial(int n) {
+        return (n <= 1) ? 1 : n * factorial(n - 1);
+    }
+
+    public static void main(String[] args) {
+        greet("Java");
+        System.out.println("5 + 3 = " + add(5, 3));
+        System.out.println("5! = " + factorial(5));
+    }
+}`,
+        expected: `Hello, Java!\n5 + 3 = 8\n5! = 120`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Method Practice',
+        defaultCode: `public class Main {
+    static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i <= Math.sqrt(n); i++)
+            if (n % i == 0) return false;
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        System.out.print("Primes (1-30): ");
+        for (int i = 2; i <= 30; i++)
+            if (isPrime(i)) System.out.print(i + " ");
+    }
+}`,
+        height: '220px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'What is method overloading?' },
+        options: [
+          { id: 'a', text: 'Inheriting a method from another class' },
+          { id: 'b', text: 'Defining multiple methods with the same name but different parameters' },
+          { id: 'c', text: 'Overriding a method with @Override' },
+          { id: 'd', text: 'Declaring a static method' },
+        ],
+        correct: 'b',
+        explanation: { en: 'Overloading: same class, same name, different parameters (count, type, order). Different from overriding (redefining an inherited method in a subclass).' },
+      },
+    ],
+  },
+}
+
+// ─── S-F: ADVANCED OOP + EXCEPTIONS + LAMBDA ─────────────────────────────────
+const sF = {
+  tr: {
+    title: '🎯 Advanced OOP — Enum, Date/Time, Exceptions, Lambda',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎯',
+        content: 'Enum\'u trafik ışığı gibi düşün: sadece 3 seçenek var — KIRMIZI, SARI, YEŞİL. Başka şey olamaz. Exceptions ise otoyoldaki kaza gibi: normal akış bozulur, hata yönetimi devreye girer. Lambda ise kısayol yöntemi — tek satırda fonksiyon.',
+      },
+      { type: 'heading', text: { tr: 'Enums — Sabit Değer Kümeleri', en: 'Enums' } },
+      {
+        type: 'code', language: 'java', label: 'Enum tanımlama ve kullanma',
+        code: `public class Main {
+
+    // Enum — sabit değer kümesi
+    enum Day {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    }
+
+    // Metodlu Enum (QA'da çok kullanılır: Browser tipi, Environment)
+    enum Browser {
+        CHROME("chrome"), FIREFOX("firefox"), EDGE("edge");
+
+        private final String driverName;
+        Browser(String driverName) { this.driverName = driverName; }
+        public String getDriverName() { return driverName; }
+    }
+
+    enum Environment {
+        DEV("https://dev.example.com"),
+        QA("https://qa.example.com"),
+        PROD("https://prod.example.com");
+
+        private final String url;
+        Environment(String url) { this.url = url; }
+        public String getUrl() { return url; }
+    }
+
+    public static void main(String[] args) {
+        Day today = Day.WEDNESDAY;
+        System.out.println("Bugün: " + today);
+
+        // switch ile enum
+        switch (today) {
+            case SATURDAY:
+            case SUNDAY:
+                System.out.println("Hafta sonu!"); break;
+            default:
+                System.out.println("İş günü");
+        }
+
+        // Enum metodları
+        System.out.println(today.name());     // "WEDNESDAY"
+        System.out.println(today.ordinal());  // 2 (0'dan sayılır)
+
+        // Enum array
+        for (Day d : Day.values()) System.out.print(d + " ");
+        System.out.println();
+
+        // QA Enum kullanımı
+        Browser b = Browser.CHROME;
+        System.out.println("Driver: " + b.getDriverName());
+
+        Environment env = Environment.QA;
+        System.out.println("URL: " + env.getUrl());
+    }
+}`,
+        expected: `Bugün: WEDNESDAY\nİş günü\nWEDNESDAY\n2\nMONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY \nDriver: chrome\nURL: https://qa.example.com`,
+      },
+      { type: 'heading', text: { tr: 'Date / Time (Java 8+ LocalDate)', en: 'Date / Time (Java 8+ LocalDate)' } },
+      {
+        type: 'code', language: 'java', label: 'java.time API — modern tarih/saat',
+        code: `import java.time.*;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+        // Tarih
+        LocalDate today = LocalDate.now();
+        System.out.println("Bugün: " + today); // 2024-01-15
+
+        LocalDate tomorrow = today.plusDays(1);
+        System.out.println("Yarın: " + tomorrow);
+
+        // Saat
+        LocalTime now = LocalTime.now();
+        System.out.println("Şimdi: " + now);
+
+        // Tarih + Saat
+        LocalDateTime dt = LocalDateTime.now();
+        System.out.println("DateTime: " + dt);
+
+        // Formatlama
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        System.out.println("Formatli: " + dt.format(fmt));
+
+        // Belirli tarih oluşturma
+        LocalDate birthday = LocalDate.of(1990, 6, 15);
+        System.out.println("Doğum: " + birthday);
+
+        // Karşılaştırma
+        System.out.println(today.isAfter(birthday));  // true
+        System.out.println(today.isBefore(tomorrow)); // true
+
+        // Fark hesaplama
+        long days = java.time.temporal.ChronoUnit.DAYS.between(birthday, today);
+        System.out.println("Gün farkı: " + days);
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Exceptions — İstisna Yönetimi', en: 'Exceptions — Exception Handling' } },
+      {
+        type: 'code', language: 'java', label: 'try-catch-finally ve custom exception',
+        code: `public class Main {
+
+    // Özel exception sınıfı
+    static class InvalidAgeException extends RuntimeException {
+        public InvalidAgeException(String message) {
+            super(message);
+        }
+    }
+
+    static void validateAge(int age) {
+        if (age < 0 || age > 150) {
+            throw new InvalidAgeException("Geçersiz yaş: " + age);
+        }
+        System.out.println("Yaş geçerli: " + age);
+    }
+
+    public static void main(String[] args) {
+        // try-catch-finally
+        try {
+            int[] arr = {1, 2, 3};
+            System.out.println(arr[10]); // ArrayIndexOutOfBoundsException
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Dizi sınırı aşıldı: " + e.getMessage());
+        } finally {
+            System.out.println("finally her zaman çalışır!");
+        }
+
+        // Çoklu catch
+        try {
+            String s = null;
+            System.out.println(s.length()); // NullPointerException
+        } catch (NullPointerException e) {
+            System.out.println("Null referans: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Genel hata: " + e.getMessage());
+        }
+
+        // Custom exception
+        try {
+            validateAge(25);
+            validateAge(-5);
+        } catch (InvalidAgeException e) {
+            System.out.println("Hata: " + e.getMessage());
+        }
+
+        // try-with-resources (Java 7+) — otomatik kapanır
+        // try (Scanner sc = new Scanner(System.in)) { ... }
+
+        // Multi-catch (Java 7+)
+        try {
+            Object obj = "text";
+            Integer n = (Integer) obj; // ClassCastException
+        } catch (ClassCastException | IllegalArgumentException e) {
+            System.out.println("Cast veya argüman hatası: " + e.getClass().getSimpleName());
+        }
+    }
+}`,
+        expected: `Dizi sınırı aşıldı: Index 10 out of bounds for length 3\nfinally her zaman çalışır!\nNull referans: Cannot invoke "String.length()" because "s" is null\nYaş geçerli: 25\nHata: Geçersiz yaş: -5\nCast veya argüman hatası: ClassCastException`,
+      },
+      { type: 'heading', text: { tr: 'Lambda Expressions & Functional Interface', en: 'Lambda Expressions' } },
+      {
+        type: 'code', language: 'java', label: 'Lambda ifadeleri ve Stream API',
+        code: `import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Lambda — anonim fonksiyon kısayolu
+        // Syntax: (parametre) -> {gövde}
+
+        // Eski yol (anonim sınıf)
+        Runnable r1 = new Runnable() {
+            public void run() { System.out.println("Eski yol"); }
+        };
+
+        // Lambda ile
+        Runnable r2 = () -> System.out.println("Lambda!");
+        r1.run();
+        r2.run();
+
+        // Functional interface örnekleri
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        System.out.println(isEven.test(4));  // true
+        System.out.println(isEven.test(7));  // false
+
+        Function<String, Integer> strLen = s -> s.length();
+        System.out.println(strLen.apply("Java"));   // 4
+
+        Consumer<String> printer = s -> System.out.println(">> " + s);
+        printer.accept("Lambda consumer");
+
+        // Stream API — koleksiyonlarla lambda
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        // Filtrele + topla
+        int sumOfEvens = numbers.stream()
+            .filter(n -> n % 2 == 0)
+            .mapToInt(Integer::intValue)
+            .sum();
+        System.out.println("Çift sayılar toplamı: " + sumOfEvens); // 30
+
+        // Map + collect
+        List<String> doubled = numbers.stream()
+            .filter(n -> n <= 5)
+            .map(n -> n + " -> " + (n * 2))
+            .collect(Collectors.toList());
+        doubled.forEach(System.out::println);
+
+        // Method reference — ::
+        List<String> names = Arrays.asList("Ahmet", "Mehmet", "Ayşe");
+        names.forEach(System.out::println); // method reference
+    }
+}`,
+        expected: `Eski yol\nLambda!\ntrue\nfalse\n4\n>> Lambda consumer\nÇift sayılar toplamı: 30\n1 -> 2\n2 -> 4\n3 -> 6\n4 -> 8\n5 -> 10\nAhmet\nMehmet\nAyşe`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Exception & Lambda pratiği',
+        defaultCode: `import java.util.*;
+import java.util.stream.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Görev 1: Exception yakalamayı dene
+        try {
+            int result = 10 / 0;  // ArithmeticException
+            System.out.println(result);
+        } catch (ArithmeticException e) {
+            System.out.println("Sıfıra bölme hatası: " + e.getMessage());
+        }
+        
+        // Görev 2: Stream API ile kelime listesi
+        List<String> words = Arrays.asList("java", "python", "typescript", "sql", "selenium");
+        
+        // 6 harften uzun kelimeleri büyük harfe çevir ve listele
+        words.stream()
+            .filter(w -> w.length() > 6)
+            .map(String::toUpperCase)
+            .sorted()
+            .forEach(System.out::println);
+    }
+}`,
+        height: '280px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'finally bloğu ne zaman çalışır?', en: 'When does the finally block execute?' },
+        options: [
+          { id: 'a', text: 'Sadece exception fırlatıldığında' },
+          { id: 'b', text: 'Sadece exception fırlatılmadığında' },
+          { id: 'c', text: 'Her durumda — exception olsun ya da olmasın' },
+          { id: 'd', text: 'Sadece try bloğu başarılı olduğunda' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'finally bloğu HER ZAMAN çalışır: try başarılı olsa da, catch yakalasa da. Exception yeniden fırlatılsa bile çalışır. QA\'da driver.quit() ve dosya kapatma işlemleri finally\'de yapılır — test fail etse bile kaynaklar serbest bırakılır.', en: 'The finally block ALWAYS executes: whether try succeeds or catch catches. Even if exception is rethrown. In QA: driver.quit() and file close operations go in finally — resources released even if test fails.' },
+      },
+    ],
+  },
+  en: {
+    title: '🎯 Advanced OOP — Enum, Date/Time, Exceptions, Lambda',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎯',
+        content: 'Think of Enum like a traffic light: only 3 options — RED, YELLOW, GREEN. Nothing else. Exceptions are like accidents on the highway: normal flow is disrupted, error handling kicks in. Lambda is a shorthand method — function in one line.',
+      },
+      { type: 'heading', text: { en: 'Enums' } },
+      {
+        type: 'code', language: 'java', label: 'Enum definition and usage',
+        code: `public class Main {
+    enum Browser {
+        CHROME("chrome"), FIREFOX("firefox"), EDGE("edge");
+        private final String driver;
+        Browser(String driver) { this.driver = driver; }
+        public String getDriver() { return driver; }
+    }
+
+    enum Environment {
+        DEV("https://dev.example.com"), QA("https://qa.example.com");
+        private final String url;
+        Environment(String url) { this.url = url; }
+        public String getUrl() { return url; }
+    }
+
+    public static void main(String[] args) {
+        Browser b = Browser.CHROME;
+        System.out.println("Driver: " + b.getDriver());
+        System.out.println("URL: " + Environment.QA.getUrl());
+        for (Browser br : Browser.values()) System.out.print(br + " ");
+    }
+}`,
+      },
+      { type: 'heading', text: { en: 'Exceptions — try-catch-finally' } },
+      {
+        type: 'code', language: 'java', label: 'Exception handling',
+        code: `public class Main {
+    static class InvalidAgeException extends RuntimeException {
+        public InvalidAgeException(String msg) { super(msg); }
+    }
+
+    public static void main(String[] args) {
+        try {
+            int[] arr = {1, 2, 3};
+            System.out.println(arr[10]); // throws!
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Caught: " + e.getMessage());
+        } finally {
+            System.out.println("finally always runs!");
+        }
+
+        try {
+            throw new InvalidAgeException("Age -5 is invalid");
+        } catch (InvalidAgeException e) {
+            System.out.println("Custom: " + e.getMessage());
+        }
+    }
+}`,
+      },
+      { type: 'heading', text: { en: 'Lambda Expressions & Stream API' } },
+      {
+        type: 'code', language: 'java', label: 'Lambda and Stream',
+        code: `import java.util.*;
+import java.util.stream.*;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+        
+        int sumEvens = nums.stream()
+            .filter(n -> n % 2 == 0)
+            .mapToInt(Integer::intValue).sum();
+        System.out.println("Sum of evens: " + sumEvens);
+
+        List<String> names = Arrays.asList("Alice","Bob","Charlie","Dave");
+        names.stream()
+            .filter(n -> n.length() > 3)
+            .map(String::toUpperCase)
+            .sorted()
+            .forEach(System.out::println);
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Exception & Lambda Practice',
+        defaultCode: `import java.util.*;
+import java.util.stream.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            int result = 10 / 0;
+        } catch (ArithmeticException e) {
+            System.out.println("Caught: " + e.getMessage());
+        } finally {
+            System.out.println("Finally runs!");
+        }
+        
+        List<String> langs = Arrays.asList("java","python","typescript","sql");
+        langs.stream()
+            .filter(l -> l.length() > 4)
+            .map(String::toUpperCase)
+            .forEach(System.out::println);
+    }
+}`,
+        height: '260px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'When does the finally block execute?' },
+        options: [
+          { id: 'a', text: 'Only when exception is thrown' },
+          { id: 'b', text: 'Only when no exception is thrown' },
+          { id: 'c', text: 'Always — whether exception occurs or not' },
+          { id: 'd', text: 'Only when try succeeds' },
+        ],
+        correct: 'c',
+        explanation: { en: 'finally ALWAYS executes. Perfect for cleanup: driver.quit(), closing files, releasing resources — even if the test fails.' },
+      },
+    ],
+  },
+}
+
+// ─── S-CUCUMBER: BDD & CUCUMBER ──────────────────────────────────────────────
+const sCucumber = {
+  tr: {
+    title: '🥒 Cucumber — BDD & Gherkin ile Test Otomasyonu',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🥒',
+        content: 'Cucumber\'ı bir çeviri servisi gibi düşün: iş analisti "Kullanıcı giriş yapmalı" yazıyor, QA mühendisi bu cümleyi otomatik teste çeviriyor. Herkes aynı Gherkin dilini konuşuyor. Java\'da JUnit5 veya TestNG runner\'ı ile birlikte çalışır — ikisi de desteklenir.',
+      },
+      {
+        type: 'table',
+        headers: ['Özellik', 'JUnit5', 'TestNG', 'Cucumber'],
+        rows: [
+          ['Amaç', 'Unit/Integration test', 'Test suite yönetimi', 'BDD — İş senaryosu odaklı'],
+          ['Test dili', 'Java', 'Java', 'Gherkin (Given/When/Then) + Java'],
+          ['Kim okur?', 'Developer / QA', 'Developer / QA', 'Developer + QA + PO + Analist'],
+          ['Runner', 'Kendi içinde', 'Kendi içinde', 'JUnit5 veya TestNG runner kullanır'],
+          ['Feature file', 'Yok', 'Yok', '.feature uzantılı Gherkin dosyası'],
+          ['Data-driven', '@ParameterizedTest', '@DataProvider', 'Scenario Outline + Examples'],
+        ],
+      },
+      { type: 'heading', text: { tr: 'Gherkin Sözdizimi — Feature Dosyası', en: 'Gherkin Syntax — Feature File' } },
+      {
+        type: 'code', language: 'gherkin', label: 'login.feature — Gherkin örneği',
+        code: `# src/test/resources/features/login.feature
+Feature: Kullanıcı Giriş İşlemleri
+  Bir kullanıcı olarak platforma güvenli şekilde giriş yapabilmeliyim
+
+  Background:
+    Given tarayıcı açık ve login sayfasında
+
+  @smoke @critical
+  Scenario: Geçerli kullanıcı ile başarılı giriş
+    When "admin" kullanıcı adı ve "admin123" şifresiyle giriş yapar
+    Then dashboard sayfasına yönlendirilmeli
+    And hoş geldiniz mesajı görünmeli
+
+  @regression @negative
+  Scenario: Yanlış şifre ile giriş reddedilmeli
+    When "admin" kullanıcı adı ve "yanlis" şifresiyle giriş yapar
+    Then "Geçersiz kullanıcı adı veya şifre" hata mesajı görünmeli
+
+  Scenario Outline: Çoklu kullanıcı data-driven testi
+    When "<username>" kullanıcı adı ve "<password>" şifresiyle giriş yapar
+    Then sonuç "<result>" olmalı
+
+    Examples:
+      | username | password | result  |
+      | admin    | admin123 | SUCCESS |
+      | user1    | pass1    | SUCCESS |
+      | wrong    | wrong123 | FAILURE |`,
+      },
+      { type: 'heading', text: { tr: 'Step Definitions — Gherkin → Java', en: 'Step Definitions' } },
+      {
+        type: 'code', language: 'java', label: 'LoginSteps.java — Step Definitions',
+        code: `package com.qa.steps;
+
+import io.cucumber.java.en.*;
+import io.cucumber.java.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class LoginSteps {
+
+    WebDriver driver;
+
+    @Given("tarayıcı açık ve login sayfasında")
+    public void browserIsOpen() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://example.com/login");
+    }
+
+    // {string} = tırnak içindeki değeri parametre olarak alır
+    @When("{string} kullanıcı adı ve {string} şifresiyle giriş yapar")
+    public void userLogsInWith(String username, String password) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.id("loginBtn")).click();
+    }
+
+    @Then("dashboard sayfasına yönlendirilmeli")
+    public void shouldBeOnDashboard() {
+        assertTrue(driver.getCurrentUrl().contains("/dashboard"),
+            "URL '/dashboard' içermeli");
+    }
+
+    @Then("hoş geldiniz mesajı görünmeli")
+    public void welcomeMessageVisible() {
+        assertTrue(driver.findElement(By.id("welcome")).isDisplayed());
+    }
+
+    @Then("{string} hata mesajı görünmeli")
+    public void errorMessageShouldBe(String expectedMsg) {
+        String actual = driver.findElement(By.className("error-msg")).getText();
+        assertEquals(expectedMsg, actual);
+    }
+
+    @Then("sonuç {string} olmalı")
+    public void resultShouldBe(String result) {
+        if ("SUCCESS".equals(result))
+            assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+        else
+            assertTrue(driver.findElement(By.className("error-msg")).isDisplayed());
+    }
+
+    @After
+    public void tearDown(Scenario scenario) {
+        if (scenario.isFailed() && driver != null) {
+            byte[] screenshot = ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.BYTES);
+            scenario.attach(screenshot, "image/png", "failure");
+        }
+        if (driver != null) driver.quit();
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'pom.xml — Cucumber + JUnit5 + TestNG', en: 'pom.xml — Dependencies' } },
+      {
+        type: 'code', language: 'xml', label: 'pom.xml — Tüm Cucumber bağımlılıkları',
+        code: `<dependencyManagement>
+  <dependencies>
+    <!-- Cucumber BOM — tüm modüller için tek versiyon -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-bom</artifactId>
+      <version>7.15.0</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<dependencies>
+  <!-- Cucumber Java core (step definitions) -->
+  <dependency>
+    <groupId>io.cucumber</groupId>
+    <artifactId>cucumber-java</artifactId>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- JUnit5 + Cucumber entegrasyonu -->
+  <dependency>
+    <groupId>io.cucumber</groupId>
+    <artifactId>cucumber-junit-platform-engine</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.platform</groupId>
+    <artifactId>junit-platform-suite</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- TestNG + Cucumber entegrasyonu (JUnit5 yerine) -->
+  <dependency>
+    <groupId>io.cucumber</groupId>
+    <artifactId>cucumber-testng</artifactId>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- Selenium + WebDriverManager -->
+  <dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.20.0</version>
+  </dependency>
+  <dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.8.0</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>`,
+      },
+      { type: 'heading', text: { tr: 'JUnit5 + Cucumber Runner', en: 'JUnit5 + Cucumber Runner' } },
+      {
+        type: 'code', language: 'java', label: 'RunCucumberTest.java — JUnit5 Suite Runner',
+        code: `package com.qa.runner;
+
+import org.junit.platform.suite.api.*;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")          // src/test/resources/features klasörü
+@ConfigurationParameter(
+    key = "cucumber.plugin",
+    value = "pretty, html:target/cucumber-reports/report.html, json:target/cucumber.json"
+)
+@ConfigurationParameter(key = "cucumber.publish.quiet", value = "true")
+// Tag filtresi (isteğe bağlı):
+// @ConfigurationParameter(key = "cucumber.filter.tags", value = "@smoke")
+public class RunCucumberTest {
+    // Bu sınıf boş kalır — @Suite annotation yeterlidir
+}
+
+// Çalıştırma komutları:
+// Tümü : mvn test -Dtest=RunCucumberTest
+// Smoke: mvn test -Dtest=RunCucumberTest -Dcucumber.filter.tags="@smoke"
+// Hariç: mvn test -Dtest=RunCucumberTest -Dcucumber.filter.tags="not @wip"`,
+      },
+      { type: 'heading', text: { tr: 'TestNG + Cucumber Runner', en: 'TestNG + Cucumber Runner' } },
+      {
+        type: 'code', language: 'java', label: 'TestNGCucumberRunner.java — AbstractTestNGCucumberTests',
+        code: `package com.qa.runner;
+
+import io.cucumber.testng.AbstractTestNGCucumberTests;
+import io.cucumber.testng.CucumberOptions;
+import org.testng.annotations.DataProvider;
+
+@CucumberOptions(
+    features  = "src/test/resources/features",
+    glue      = {"com.qa.steps", "com.qa.hooks"},   // step + hook package'ları
+    plugin    = {
+        "pretty",
+        "html:target/cucumber-reports/report.html",
+        "json:target/cucumber-reports/cucumber.json",
+        "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+    },
+    tags      = "@regression",      // hangi tag'leri çalıştır
+    monochrome = true
+)
+public class TestNGCucumberRunner extends AbstractTestNGCucumberTests {
+
+    // Parallel çalışma için — her Scenario ayrı thread'de
+    @Override
+    @DataProvider(parallel = true)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
+}
+
+// testng.xml'de:
+// <test name="Cucumber Tests">
+//   <classes><class name="com.qa.runner.TestNGCucumberRunner"/></classes>
+// </test>`,
+      },
+      { type: 'heading', text: { tr: 'Cucumber Hooks — @Before & @After', en: 'Cucumber Hooks' } },
+      {
+        type: 'code', language: 'java', label: 'Hooks.java — Senaryo öncesi/sonrası işlemler',
+        code: `package com.qa.hooks;
+
+import io.cucumber.java.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import java.time.Duration;
+
+public class Hooks {
+
+    // Her senaryodan önce — Browser aç
+    @Before(order = 1)
+    public void setUp(Scenario scenario) {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--start-maximized");
+        // opts.addArguments("--headless=new"); // CI için headless
+        DriverContext.setDriver(new ChromeDriver(opts));
+        DriverContext.getDriver().manage().timeouts()
+            .implicitlyWait(Duration.ofSeconds(0)); // Explicit wait tercih
+        System.out.println("▶ Senaryo: " + scenario.getName());
+    }
+
+    // Sadece @slow tag'li senaryolar için ek timeout
+    @Before(value = "@slow", order = 2)
+    public void slowSetup() {
+        DriverContext.getDriver().manage().timeouts()
+            .pageLoadTimeout(Duration.ofSeconds(60));
+    }
+
+    // Her senaryodan sonra — Browser kapat, hata varsa screenshot
+    @After(order = 1)
+    public void tearDown(Scenario scenario) {
+        WebDriver driver = DriverContext.getDriver();
+        if (driver != null) {
+            if (scenario.isFailed()) {
+                byte[] ss = ((TakesScreenshot) driver)
+                    .getScreenshotAs(OutputType.BYTES);
+                scenario.attach(ss, "image/png", "failure-screenshot");
+                System.out.println("❌ FAIL: " + scenario.getName());
+            } else {
+                System.out.println("✅ PASS: " + scenario.getName());
+            }
+            driver.quit();
+            DriverContext.remove();
+        }
+    }
+}
+
+// DriverContext — ThreadLocal ile thread-safe driver yönetimi
+class DriverContext {
+    private static final ThreadLocal<WebDriver> tl = new ThreadLocal<>();
+    public static void setDriver(WebDriver d) { tl.set(d); }
+    public static WebDriver getDriver()       { return tl.get(); }
+    public static void remove()               { tl.remove(); }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Cucumber Data Tables — Tablo Verisi', en: 'Cucumber Data Tables' } },
+      {
+        type: 'code', language: 'gherkin', label: 'Data Table — Gherkin + Java implementasyonu',
+        code: `# Feature dosyasında Data Table
+Scenario: Çoklu ürün sepete ekleme
+  Given aşağıdaki ürünler mevcut:
+    | ürün adı      | adet | fiyat |
+    | Blue Top      | 2    | 29.99 |
+    | Men Tshirt    | 1    | 15.00 |
+    | Grey Bodysuit | 3    | 45.00 |
+  When tüm ürünleri sepete ekliyorum
+  Then sepet toplamı "194.97" olmalı`,
+      },
+      {
+        type: 'code', language: 'java', label: 'Data Table — Java Step Definition',
+        code: `import io.cucumber.java.en.*;
+import io.cucumber.datatable.DataTable;
+import java.util.List;
+import java.util.Map;
+
+public class CartSteps {
+
+    @Given("aşağıdaki ürünler mevcut:")
+    public void productsAreAvailable(DataTable dataTable) {
+        // Tablo verisi — her satır bir Map (kolon adı → değer)
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+
+        for (Map<String, String> row : rows) {
+            String name  = row.get("ürün adı");
+            int qty      = Integer.parseInt(row.get("adet"));
+            double price = Double.parseDouble(row.get("fiyat"));
+            System.out.printf("Ürün: %s | Adet: %d | Fiyat: %.2f%n", name, qty, price);
+        }
+    }
+
+    @When("tüm ürünleri sepete ekliyorum")
+    public void addAllToCart() {
+        // Selenium ile sepete ekle
+        System.out.println("Sepete ekleniyor...");
+    }
+
+    @Then("sepet toplamı {string} olmalı")
+    public void cartTotalShouldBe(String expectedTotal) {
+        String actual = driver.findElement(By.id("cartTotal")).getText();
+        assertEquals(expectedTotal, actual);
+    }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Cucumber\'da "Scenario Outline" ne işe yarar?', en: 'What does "Scenario Outline" do in Cucumber?' },
+        options: [
+          { id: 'a', text: 'Testleri parallel çalıştırır' },
+          { id: 'b', text: 'Aynı senaryoyu farklı test verileriyle çalıştırır (data-driven)' },
+          { id: 'c', text: 'Cucumber\'ı TestNG ile entegre eder' },
+          { id: 'd', text: '@Before ve @After hook\'larını tanımlar' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Scenario Outline + Examples tablosu, aynı testi farklı verilerle çalıştıran parametrik test yapısıdır. Java\'daki @DataProvider (TestNG) veya @ParameterizedTest (JUnit5) eşdeğeridir. Examples tablosundaki her satır ayrı bir Scenario instance\'ı olarak çalışır.', en: 'Scenario Outline + Examples table runs the same test with different data sets — the parametric (data-driven) structure. Equivalent to @DataProvider in TestNG or @ParameterizedTest in JUnit5. Each Examples row runs as a separate Scenario instance.' },
+      },
+    ],
+  },
+  en: {
+    title: '🥒 Cucumber — BDD & Gherkin Test Automation',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🥒',
+        content: 'Think of Cucumber as a translation service: the business analyst writes "User should log in," the QA engineer converts that sentence into an automated test. Everyone speaks the same Gherkin language. In Java, it works with a JUnit5 or TestNG runner — both are supported.',
+      },
+      {
+        type: 'table',
+        headers: ['Feature', 'JUnit5', 'TestNG', 'Cucumber'],
+        rows: [
+          ['Purpose', 'Unit/Integration test', 'Suite management', 'BDD — Business scenario focused'],
+          ['Test language', 'Java', 'Java', 'Gherkin (Given/When/Then) + Java'],
+          ['Who reads it', 'Dev/QA', 'Dev/QA', 'Dev + QA + PO + Analyst'],
+          ['Runner', 'Built-in', 'Built-in', 'Uses JUnit5 or TestNG runner'],
+          ['Feature file', 'None', 'None', '.feature file (Gherkin)'],
+          ['Data-driven', '@ParameterizedTest', '@DataProvider', 'Scenario Outline + Examples'],
+        ],
+      },
+      { type: 'heading', text: { en: 'Gherkin Syntax — Feature File' } },
+      {
+        type: 'code', language: 'gherkin', label: 'login.feature — Gherkin example',
+        code: `Feature: User Login
+  As a user I should be able to login securely
+
+  Background:
+    Given browser is open on the login page
+
+  @smoke @critical
+  Scenario: Successful login with valid credentials
+    When logs in with username "admin" and password "admin123"
+    Then should be redirected to dashboard
+    And welcome message should be visible
+
+  @regression @negative
+  Scenario: Invalid password should be rejected
+    When logs in with username "admin" and password "wrong"
+    Then error message "Invalid username or password" should appear
+
+  Scenario Outline: Data-driven multi-user test
+    When logs in with username "<username>" and password "<password>"
+    Then result should be "<result>"
+
+    Examples:
+      | username | password | result  |
+      | admin    | admin123 | SUCCESS |
+      | user1    | pass1    | SUCCESS |
+      | wrong    | wrong123 | FAILURE |`,
+      },
+      { type: 'heading', text: { en: 'Step Definitions — Gherkin → Java' } },
+      {
+        type: 'code', language: 'java', label: 'LoginSteps.java — Step Definitions',
+        code: `package com.qa.steps;
+
+import io.cucumber.java.en.*;
+import io.cucumber.java.*;
+import org.openqa.selenium.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class LoginSteps {
+
+    WebDriver driver;
+
+    @Given("browser is open on the login page")
+    public void browserIsOpen() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://example.com/login");
+    }
+
+    @When("logs in with username {string} and password {string}")
+    public void userLogsIn(String username, String password) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        driver.findElement(By.id("password")).sendKeys(password);
+        driver.findElement(By.id("loginBtn")).click();
+    }
+
+    @Then("should be redirected to dashboard")
+    public void onDashboard() {
+        assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+    }
+
+    @Then("error message {string} should appear")
+    public void errorMessage(String msg) {
+        assertEquals(msg, driver.findElement(By.className("error-msg")).getText());
+    }
+
+    @Then("result should be {string}")
+    public void resultShouldBe(String result) {
+        if ("SUCCESS".equals(result))
+            assertTrue(driver.getCurrentUrl().contains("/dashboard"));
+        else
+            assertTrue(driver.findElement(By.className("error-msg")).isDisplayed());
+    }
+
+    @After
+    public void tearDown(Scenario scenario) {
+        if (scenario.isFailed() && driver != null)
+            scenario.attach(((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES),
+                "image/png", "failure");
+        if (driver != null) driver.quit();
+    }
+}`,
+      },
+      { type: 'heading', text: { en: 'JUnit5 + Cucumber Runner' } },
+      {
+        type: 'code', language: 'java', label: 'RunCucumberTest.java',
+        code: `package com.qa.runner;
+
+import org.junit.platform.suite.api.*;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")
+@ConfigurationParameter(
+    key   = "cucumber.plugin",
+    value = "pretty, html:target/cucumber-reports/report.html"
+)
+public class RunCucumberTest {}
+
+// Run all: mvn test -Dtest=RunCucumberTest
+// Run smoke only: mvn test -Dtest=RunCucumberTest -Dcucumber.filter.tags="@smoke"`,
+      },
+      { type: 'heading', text: { en: 'TestNG + Cucumber Runner' } },
+      {
+        type: 'code', language: 'java', label: 'TestNGCucumberRunner.java',
+        code: `package com.qa.runner;
+
+import io.cucumber.testng.*;
+import org.testng.annotations.DataProvider;
+
+@CucumberOptions(
+    features  = "src/test/resources/features",
+    glue      = {"com.qa.steps", "com.qa.hooks"},
+    plugin    = {"pretty", "html:target/cucumber-reports/report.html"},
+    tags      = "@regression"
+)
+public class TestNGCucumberRunner extends AbstractTestNGCucumberTests {
+
+    @Override
+    @DataProvider(parallel = true)  // Parallel scenario execution
+    public Object[][] scenarios() { return super.scenarios(); }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { en: 'What does "Scenario Outline" do in Cucumber?' },
+        options: [
+          { id: 'a', text: 'Runs tests in parallel' },
+          { id: 'b', text: 'Runs the same scenario with different data sets (data-driven)' },
+          { id: 'c', text: 'Integrates Cucumber with TestNG' },
+          { id: 'd', text: 'Defines @Before and @After hooks' },
+        ],
+        correct: 'b',
+        explanation: { en: 'Scenario Outline + Examples table is the parametric (data-driven) structure — same test, different data. Equivalent to @DataProvider in TestNG or @ParameterizedTest in JUnit5. Each Examples row runs as a separate Scenario instance.' },
+      },
+    ],
+  },
+}
+
+// ─── S-SELENIUM: ADIM ADIM SELENIUM ──────────────────────────────────────────
+const sSelenium = {
+  tr: {
+    title: '🌐 Selenium WebDriver — Adım Adım Kullanım',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🌐',
+        content: 'Selenium WebDriver\'ı bir robot gibi düşün: "Şu butona tıkla, bu kutuya yaz, yüklenmesini bekle." Java\'da bu komutları yazıyorsun, robot tarayıcıda çalıştırıyor. Selenium 4, Java\'nın en olgun test kütüphanesidir: Chrome, Firefox, Edge, Safari — hepsini destekler.',
+      },
+      { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
+      {
+        type: 'code', language: 'xml', label: 'pom.xml — Selenium 4 + WebDriverManager',
+        code: `<dependencies>
+  <!-- Selenium WebDriver 4 -->
+  <dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.20.0</version>
+  </dependency>
+
+  <!-- WebDriverManager — driver binary otomatik indir -->
+  <dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.8.0</version>
+    <scope>test</scope>
+  </dependency>
+
+  <!-- JUnit5 runner -->
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>`,
+      },
+      { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
+      {
+        type: 'code', language: 'java', label: 'Chrome / Firefox / Edge başlatma',
+        code: `import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.*;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import java.time.Duration;
+
+public class BrowserSetup {
+    public static void main(String[] args) {
+
+        // ── Chrome (en yaygın) ──────────────────────────────
+        WebDriverManager.chromedriver().setup(); // driver binary otomatik
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--start-maximized");
+        opts.addArguments("--disable-notifications");
+        opts.addArguments("--disable-extensions");
+        // CI/CD için headless:
+        // opts.addArguments("--headless=new");
+        WebDriver driver = new ChromeDriver(opts);
+
+        // ── Firefox ─────────────────────────────────────────
+        // WebDriverManager.firefoxdriver().setup();
+        // WebDriver driver = new FirefoxDriver();
+
+        // ── Edge ────────────────────────────────────────────
+        // WebDriverManager.edgedriver().setup();
+        // WebDriver driver = new EdgeDriver();
+
+        // Timeout ayarları
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        // Implicit wait — dikkatli kullan, explicit wait tercih et
+        // driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+        // Pencere kontrolü
+        driver.manage().window().maximize();
+
+        System.out.println("Başlık: " + driver.getTitle());
+        System.out.println("URL: " + driver.getCurrentUrl());
+
+        driver.quit(); // !! Her zaman kapat — finally bloğunda!
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
+      {
+        type: 'code', language: 'java', label: 'Tüm navigasyon komutları',
+        code: `WebDriver driver = /* ... */;
+
+// URL aç (sayfa tam yüklenene kadar bekler)
+driver.get("https://automationexercise.com");
+
+// navigate() ile aynı şey — daha fazla seçenek sunar
+driver.navigate().to("https://google.com");
+driver.navigate().back();       // ← Geri (tarayıcı geri butonu)
+driver.navigate().forward();    // → İleri
+driver.navigate().refresh();    // ↺ Yenile (F5)
+
+// Sayfa bilgileri
+String title   = driver.getTitle();          // "Automation Exercise"
+String url     = driver.getCurrentUrl();     // "https://..."
+String source  = driver.getPageSource();     // Tüm HTML
+
+// Pencere handle'ları (çoklu sekme/popup için)
+String mainWin  = driver.getWindowHandle();      // Mevcut pencere ID
+Set<String> all = driver.getWindowHandles();     // Tüm açık pencereler
+
+// Başka pencereye geç
+for (String win : all) {
+    if (!win.equals(mainWin)) {
+        driver.switchTo().window(win);
+        break;
+    }
+}
+driver.switchTo().window(mainWin); // Ana pencereye dön`,
+      },
+      { type: 'heading', text: { tr: 'Adım 4: Element Bulma — 8 Locator Stratejisi', en: 'Step 4: Element Locators — 8 By Strategies' } },
+      {
+        type: 'simple-box',
+        emoji: '🔍',
+        content: {
+          tr: 'Locator, otomasyon kodunuzun sayfadaki bir elementi "tanımlama yöntemi"dir. Tıpkı bir kütüphanede kitabı rafta bulmak gibi — raf numarasıyla (id) gidersen en hızlı, "kapağı kırmızı" (class) dersen risk var çünkü birden fazla kırmızı kapak olabilir.',
+          en: 'A locator is the method your automation code uses to "identify" an element on the page — like finding a book in a library. Going by shelf number (id) is fastest; searching by "red cover" (class) is risky because multiple red covers may exist.',
+        },
+      },
+      {
+        type: 'locator-visual',
+        htmlExample: `<form id="loginForm" class="login-form">
+
+  <label for="username">Kullanıcı Adı</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="E-posta"
+    data-testid="username-input" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Giriş Yap
+  </button>
+
+  <a href="/forgot">Şifremi Unuttum</a>
+
+</form>`,
+        locators: [
+          {
+            id: 'by-id', label: 'By.id()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
+            highlights: ['id="username"'],
+            code: `WebElement el = driver.findElement(By.id("username"));
+// En hızlı: tarayıcılar id aramasını optimize eder`,
+            title: 'En Hızlı & En Güvenilir',
+            titleEn: 'Fastest & Most Reliable',
+            explanation: 'HTML\'deki id attribute\'ünü direkt hedefler. Tarayıcılar id aramasını optimize ettiği için en hızlı locator\'dır. Her sayfada id benzersiz olmalıdır — tıpkı Java\'da final bir sabit gibi.',
+            explanationEn: 'Directly targets the id attribute. Browsers optimize id lookups, making this the fastest locator. id must be unique per page — like a final constant in Java.',
+            tip: '✅ Her zaman ilk tercih. id yoksa geliştiriciden eklemesini iste. QA test otomasyonunda "by id" kuralı standarttır.',
+            tipEn: '✅ Always first choice. If no id, request the dev team to add one. "By id" is QA automation standard.',
+            when: 'Element\'in id attribute\'ü varsa — HER ZAMAN kullan',
+            whenEn: 'When element has an id attribute — ALWAYS use it first',
+          },
+          {
+            id: 'by-data-testid', label: '[data-testid]', priority: 1, starRating: '⭐⭐⭐', color: '#06b6d4',
+            highlights: ['data-testid="username-input"'],
+            code: `WebElement el = driver.findElement(
+    By.cssSelector("[data-testid='username-input']")
+);
+// veya: By.cssSelector("[data-qa='username']")`,
+            title: 'Test için Tasarlanmış — En İyi Pratik',
+            titleEn: 'Designed for Testing — Best Practice',
+            explanation: 'data-testid özellikle QA için eklenir. Stil, id veya class değişse bile test bozulmaz. React / Vue / Angular projelerinde endüstri standardıdır — Java\'da interface gibi: implementasyon değişse kontrat bozulmaz.',
+            explanationEn: 'data-testid is added specifically for QA. Tests don\'t break even if styles, ids or classes change. Industry standard in React/Vue/Angular — like an interface in Java: contract stays intact even if implementation changes.',
+            tip: '✅ EN İYİ PRATİK: Tüm test elementlerine data-testid eklemesini ekipten iste. Uzun vadede en kararlı locator.',
+            tipEn: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements. Most stable locator long-term.',
+            when: 'data-testid varsa id\'den bile önce tercih et',
+            whenEn: 'When data-testid exists, prefer it even over id',
+          },
+          {
+            id: 'by-name', label: 'By.name()', priority: 3, starRating: '⭐⭐', color: '#3b82f6',
+            highlights: ['name="email"'],
+            code: `WebElement el = driver.findElement(By.name("email"));
+// Form submit'te backend'e gönderilen alan adı
+// Java'da Map.get("email") gibi düşün`,
+            title: 'Form Elementleri için Doğal Seçim',
+            titleEn: 'Natural Choice for Form Elements',
+            explanation: 'HTML form elementlerindeki name attribute\'ünü hedefler. Login, kayıt, arama formlarında çok yaygındır — backend\'e POST edilirken bu isim kullanılır. Java\'da HTTP parametresinin adı gibi.',
+            explanationEn: 'Targets the name attribute on HTML form elements. Common in login, register, search forms — same as the field name POSTed to the backend. Like HTTP parameter names in Java.',
+            tip: '✅ id yoksa form alanları için 2. seçenek. Sayfada aynı name\'den birden fazla olabilir — dikkatli ol.',
+            tipEn: '✅ Second choice for form fields when no id. Multiple elements may share the same name — be careful.',
+            when: 'id yoksa form input / select / textarea için',
+            whenEn: 'For form input, select, textarea when no id exists',
+          },
+          {
+            id: 'by-class', label: 'By.className()', priority: 5, starRating: '⭐', color: '#f59e0b',
+            highlights: ['class="form-input"'],
+            code: `// DİKKAT: birden fazla element dönebilir!
+List<WebElement> els =
+    driver.findElements(By.className("form-input"));
+WebElement first = els.get(0); // ilkini al`,
+            title: 'Dikkat: Genellikle Birden Fazla Eşleşir',
+            titleEn: 'Warning: Usually Matches Multiple Elements',
+            explanation: 'CSS class adını hedefler. Aynı class genellikle birden fazla elementte kullanılır — findElement() sayfadaki ilkini, findElements() hepsini getirir. Java\'da List.get(0) gibi: emin olmadıkça riskli.',
+            explanationEn: 'Targets a CSS class name. The same class is usually used on multiple elements — findElement() returns the first, findElements() returns all. Like List.get(0) in Java: risky unless you\'re certain.',
+            tip: '⚠️ Tek bir class adı alır — "form-input" yaz, "form-input btn" değil. Unique olmayan class için cssSelector combo tercih et.',
+            tipEn: '⚠️ Takes a single class name — write "form-input" not "form-input btn". Prefer cssSelector combo for non-unique classes.',
+            when: 'Sayfada tam olarak TEK bir elementi olan class için',
+            whenEn: 'Only when the class matches exactly one element on the page',
+          },
+          {
+            id: 'by-css-id', label: 'cssSelector #id', priority: 2, starRating: '⭐⭐⭐', color: '#8b5cf6',
+            highlights: ['id="loginBtn"'],
+            code: `// # = id seçicisi (CSS sözdizimi)
+WebElement btn =
+    driver.findElement(By.cssSelector("#loginBtn"));
+// Kondisyon ekle: #loginBtn[disabled]
+// Bu By.id("loginBtn")'in üst kümesidir`,
+            title: 'CSS id Seçicisi — By.id() ile Eşdeğer',
+            titleEn: 'CSS id Selector — Equivalent to By.id()',
+            explanation: 'CSS sözdiziminde # id\'yi seçer. By.id() ile aynı hızda çalışır. Farkı: cssSelector başka attribute\'larla kombinlenebilir. Java\'da method overloading gibi — aynı temel, farklı parametreler.',
+            explanationEn: 'In CSS syntax, # selects by id. Same speed as By.id(). Difference: cssSelector can combine with other attributes. Like method overloading in Java — same base, different parameters.',
+            tip: '✅ By.id() ile aynı hız — ama cssSelector ekstra filtre ekleyebilir: #loginBtn[type="submit"] gibi.',
+            tipEn: '✅ Same speed as By.id() — but cssSelector can add extra filters: #loginBtn[type="submit"] etc.',
+            when: 'id ile birlikte başka attribute da kontrol etmek gerektiğinde',
+            whenEn: 'When checking id along with additional attribute constraints',
+          },
+          {
+            id: 'by-css-combo', label: 'cssSelector combo', priority: 2, starRating: '⭐⭐⭐', color: '#7c3aed',
+            highlights: ['class="form-input"', 'name="email"'],
+            code: `// Tag + class + attribute kombinasyonu:
+WebElement el = driver.findElement(
+    By.cssSelector("input.form-input[name='email']")
+);
+// input → tag  |  .form-input → class  |  [name='email'] → attr`,
+            title: 'Kombine CSS — Çok Spesifik & Güvenilir',
+            titleEn: 'Combined CSS — Very Specific & Reliable',
+            explanation: 'Tag adı, class ve attribute\'ları tek selector\'da birleştirir. Yanlış element seçme riski minimumdur. Java\'da birden fazla koşul ile HashMap.entrySet() filtrelemek gibi — ne kadar çok kriter, o kadar özgün.',
+            explanationEn: 'Combines tag name, class and attributes in one selector. Minimal risk of wrong element selection. Like filtering HashMap.entrySet() with multiple conditions in Java — more criteria, more unique.',
+            tip: '✅ data-testid yoksa bu form tercih edilir. Tag + class + attribute kombinasyonu hem güvenilir hem okunabilir.',
+            tipEn: '✅ Preferred when data-testid is not available. Tag + class + attribute is both reliable and readable.',
+            when: 'Benzersizlik için birden fazla attribute birleştirmek gerektiğinde',
+            whenEn: 'When combining multiple attributes for uniqueness is required',
+          },
+          {
+            id: 'by-linktext', label: 'By.linkText()', priority: 6, starRating: '⭐', color: '#ec4899',
+            highlights: ['Şifremi Unuttum'],
+            code: `// Sadece <a> tag'i için çalışır!
+WebElement link =
+    driver.findElement(By.linkText("Şifremi Unuttum"));
+
+// Kısmi metin eşleşmesi:
+WebElement part =
+    driver.findElement(By.partialLinkText("Şifrem"));`,
+            title: 'Yalnızca <a> Linkleri — Büyük/Küçük Harf Duyarlı',
+            titleEn: 'Only <a> Links — Case Sensitive',
+            explanation: 'Sadece <a> (anchor) elementlerinin görünen metnini hedefler. Büyük/küçük harf duyarlıdır. Metin değişirse veya çok dilli uygulama ise test kırılır. Java\'da String.equals() kadar kesin eşleşme ister.',
+            explanationEn: 'Only targets visible text of <a> anchor elements. Case-sensitive. Breaks if text changes or if the app is multilingual. Requires exact match like String.equals() in Java.',
+            tip: '⚠️ Sadece link elementleri. Dil desteği olan uygulamalarda bu locator testleri kırabilir — href veya data-testid tercih et.',
+            tipEn: '⚠️ Links only. In multilingual apps this locator breaks tests — prefer href attribute or data-testid.',
+            when: 'Yalnızca statik metin içeren <a> linkleri için',
+            whenEn: 'Only for <a> link elements with static, non-translated text',
+          },
+          {
+            id: 'by-xpath', label: 'By.xpath()', priority: 8, starRating: '⭐', color: '#ef4444',
+            highlights: ['type="submit"'],
+            code: `// Attribute ile:
+driver.findElement(
+    By.xpath("//button[@type='submit']"));
+
+// Metin ile:
+driver.findElement(
+    By.xpath("//button[text()='Giriş Yap']"));
+
+// Axis — DOM ilişkisi (en güçlü):
+driver.findElement(
+    By.xpath("//label[@for='username']/following-sibling::input"));`,
+            title: 'En Güçlü — Ama Son Çare',
+            titleEn: 'Most Powerful — But Last Resort',
+            explanation: 'XML yol ifadelerini kullanır. Parent/child/sibling/ancestor gibi karmaşık DOM ilişkilerini ifade edebilir. En yavaş locator — sayfa yapısı değişince kolayca kırılır. Java\'da reflection gibi: çok güçlü ama kullan-diyince düşün.',
+            explanationEn: 'Uses XML path expressions. Can express complex DOM relationships (parent/child/sibling/ancestor). Slowest locator — breaks easily when page structure changes. Like reflection in Java: very powerful but think before using.',
+            tip: '⛔ Son tercih. Aynı şey cssSelector ile yapılabiliyorsa xpath kullanma. Kaçınılmaz: shadow DOM, iframe içi, karmaşık DOM ilişkisi.',
+            tipEn: '⛔ Last resort. If achievable with cssSelector, avoid xpath. Unavoidable: shadow DOM, inside iframes, complex DOM relationships.',
+            when: 'Başka hiçbir locator çalışmadığında — özellikle DOM ilişkisi gerektiğinde',
+            whenEn: 'Only when no other locator works — especially for DOM relationship navigation',
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 5: Element İşlemleri', en: 'Step 5: Element Actions' } },
+      {
+        type: 'code', language: 'java', label: 'Tüm element işlemleri — yazma, tıklama, okuma',
+        code: `WebElement el = driver.findElement(By.id("username"));
+
+// ── YAZMA / TIKLAMA ─────────────────────────────────
+el.sendKeys("admin@example.com");           // Metin gir
+el.clear();                                 // İçeriği temizle
+el.sendKeys(Keys.chord(Keys.CONTROL, "a")); // Ctrl+A ile tümünü seç
+el.click();                                 // Tıkla
+el.submit();                                // Form submit (input/button)
+
+// Özel tuşlar
+el.sendKeys(Keys.ENTER);
+el.sendKeys(Keys.TAB);
+el.sendKeys(Keys.BACK_SPACE);
+
+// ── OKUMA ───────────────────────────────────────────
+String text  = el.getText();                     // Görünen metin
+String val   = el.getAttribute("value");         // Input değeri
+String cls   = el.getAttribute("class");         // CSS class
+String href  = el.getAttribute("href");          // Link URL
+
+// ── DURUM KONTROLÜ ──────────────────────────────────
+boolean visible  = el.isDisplayed(); // Görünür mü? (display:none değil)
+boolean enabled  = el.isEnabled();   // Aktif mi? (disabled değil)
+boolean selected = el.isSelected();  // Checkbox/Radio seçili mi?
+
+// ── SELECT DROPDOWN ─────────────────────────────────
+import org.openqa.selenium.support.ui.Select;
+Select dropdown = new Select(driver.findElement(By.id("country")));
+dropdown.selectByVisibleText("Türkiye");         // Görünen text
+dropdown.selectByValue("TR");                    // value attribute
+dropdown.selectByIndex(0);                       // Index (0'dan)
+String selected = dropdown.getFirstSelectedOption().getText();
+List<WebElement> opts = dropdown.getOptions();   // Tüm seçenekler
+
+System.out.println("Seçili: " + selected + " | Görünür: " + visible);`,
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'dropdown',
+        color: '#f59e0b',
+        icon: '🔽',
+        title: { tr: 'Select Dropdown — Adım Adım İnteraktif Rehber', en: 'Select Dropdown — Step-by-Step Interactive Guide' },
+        steps: [
+          {
+            id: 'wrap', label: 'Select Wrap', labelEn: 'Select Wrap',
+            visualState: 'wrap',
+            description: { tr: 'WebElement olarak bulunan <select> elemanını Select sınıfına sarıyoruz. Java\'daki ArrayList\'i Collections.sort() ile sarmak gibi — temel WebElement üzerine dropdown-spesifik yetenekler ekliyoruz.', en: 'We wrap the <select> WebElement with the Select class — like wrapping an ArrayList with Collections.sort() in Java — adding dropdown-specific capabilities on top of the basic WebElement.' },
+            code: `import org.openqa.selenium.support.ui.Select;
+
+// Önce WebElement olarak bul
+WebElement el = driver.findElement(By.id("country"));
+
+// Select sınıfına sar — artık dropdown metodları kullanılabilir
+Select dropdown = new Select(el);
+
+// Çoklu seçime izin veriyor mu? (multiple attribute)
+boolean isMulti = dropdown.isMultiple();`,
+            tip: { tr: '✅ Select sınıfı sadece <select> elementi için çalışır. Custom dropdown\'lar (ul/li ile yapılmış) için farklı strateji gerekir.', en: '✅ Select class only works for native <select> elements. Custom dropdowns (built with ul/li) require a different strategy.' },
+          },
+          {
+            id: 'byText', label: 'byVisibleText', labelEn: 'byVisibleText',
+            visualState: 'byText', selectedValue: 'tr',
+            description: { tr: 'Kullanıcının gördüğü metne göre seçim. Java\'da List.stream().filter(s -> s.equals("Türkiye")).findFirst() gibi — tam metin eşleşmesi gerekir, büyük/küçük harf duyarlıdır.', en: 'Select by the text the user sees. Like List.stream().filter(s -> s.equals("Turkey")).findFirst() in Java — requires exact text match, case-sensitive.' },
+            code: `// Kullanıcının gördüğü GÖRÜNEN metin ile seç
+dropdown.selectByVisibleText("Türkiye");
+
+// Dikkat: Büyük/küçük harf duyarlı!
+// "türkiye" veya "TÜRKİYE" çalışmaz — tam "Türkiye" yaz
+
+// Seçili option'ı oku
+String secili = dropdown.getFirstSelectedOption().getText();
+System.out.println(secili); // "Türkiye"`,
+            tip: { tr: '⚠️ Görünen metin değişirse (i18n, A/B test) test kırılır. Mümkünse selectByValue() tercih et — value attribute genellikle daha stabil.', en: '⚠️ Breaks if visible text changes (i18n, A/B testing). Prefer selectByValue() when possible — value attribute is usually more stable.' },
+          },
+          {
+            id: 'byValue', label: 'byValue', labelEn: 'byValue',
+            visualState: 'byValue', selectedValue: 'tr',
+            description: { tr: 'HTML\'deki value attribute değerine göre seçim — HTML\'de <option value="TR">Türkiye</option>. Java\'da Map.get("TR") gibi doğrudan anahtar ile erişim.', en: 'Select by the HTML value attribute — like <option value="TR">Turkey</option>. Like Map.get("TR") in Java — direct key access, not text search.' },
+            code: `// value attribute'ü ile seç (HTML'deki value="tr")
+dropdown.selectByValue("tr");
+
+// HTML'de şöyle görünür:
+// <option value="tr">Türkiye</option>
+// <option value="us">USA</option>
+
+// Value genellikle backend'e gönderilen asıl veri
+String val = dropdown.getFirstSelectedOption().getAttribute("value");
+System.out.println(val); // "tr"`,
+            tip: { tr: '✅ En güvenilir seçim yöntemi. Value attribute metinden bağımsızdır — dil değişse de value "TR" kalır.', en: '✅ Most reliable selection method. Value attribute is independent of display text — even if language changes, value "TR" stays constant.' },
+          },
+          {
+            id: 'byIndex', label: 'byIndex', labelEn: 'byIndex',
+            visualState: 'byIndex', selectedValue: 'tr',
+            description: { tr: '0\'dan başlayan index ile seçim — Java\'da List.get(0) gibi. En az güvenilir yöntem: yeni bir ülke listeye eklenirse tüm indexler kayar.', en: 'Select by 0-based index — like List.get(0) in Java. Least reliable: if a new country is added to the list, all indexes shift.' },
+            code: `// 0'dan başlayan index ile seç (ilk option = 0)
+dropdown.selectByIndex(0); // "Türkiye" (listedeki ilk)
+dropdown.selectByIndex(2); // "Germany" (0,1,2)
+
+// Tüm option sayısı
+int total = dropdown.getOptions().size();
+System.out.println("Toplam: " + total); // 4`,
+            tip: { tr: '⛔ Son tercih — UI\'da sıra değişirse index yanlış elementi seçer. Sadece selectByValue/Text mümkün değilse kullan.', en: '⛔ Last resort — if the order in UI changes, index selects the wrong element. Use only when selectByValue/Text is not possible.' },
+          },
+          {
+            id: 'firstSelected', label: 'getSelected', labelEn: 'getSelected',
+            visualState: 'firstSelected', selectedValue: 'us',
+            description: { tr: 'Şu anda seçili option\'ı okuma. Java\'da List.stream().filter(isSelected).findFirst() gibi. Seçimin doğru yapıldığını assertion ile doğrulamak için kullanılır.', en: 'Read the currently selected option. Like List.stream().filter(isSelected).findFirst() in Java. Used to verify the selection was made correctly with assertions.' },
+            code: `// Seçili option'ı al
+WebElement selected = dropdown.getFirstSelectedOption();
+
+String text = selected.getText();              // "USA"
+String value = selected.getAttribute("value"); // "us"
+
+// JUnit assertion ile doğrula
+assertEquals("USA", text);
+assertEquals("us", value);`,
+            tip: { tr: '✅ Test sonunda her zaman assertion ekle: selectByValue("us") sonrası assertEquals("USA", dropdown.getFirstSelectedOption().getText())', en: '✅ Always add an assertion after selection: after selectByValue("us"), assert assertEquals("USA", dropdown.getFirstSelectedOption().getText())' },
+          },
+          {
+            id: 'getOptions', label: 'getOptions()', labelEn: 'getOptions()',
+            visualState: 'getOptions',
+            description: { tr: 'Tüm option\'ları List<WebElement> olarak döndürür. Java\'da List<String> almak gibi — tüm seçenekleri döngüyle dolaşabilirsin. Dinamik dropdown\'ları test etmek için kullanılır.', en: 'Returns all options as List<WebElement>. Like getting a List<String> in Java — you can loop through all choices. Used to test dynamic dropdowns that load options from the API.' },
+            code: `// Tüm option'ları al
+List<WebElement> options = dropdown.getOptions();
+
+// Her option'ı yazdır (index ile)
+for (int i = 0; i < options.size(); i++) {
+    System.out.println(i + ": " + options.get(i).getText()
+        + " [value=" + options.get(i).getAttribute("value") + "]");
+}
+// 0: Türkiye [value=tr]
+// 1: USA [value=us]
+// ...`,
+            tip: { tr: '✅ Dropdown test stratejisi: önce getOptions() ile listeyi doğrula (beklenen sayı var mı?), sonra selectByValue() ile seçim yap.', en: '✅ Dropdown test strategy: first verify the list with getOptions() (expected count?), then make selection with selectByValue().' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 6: Bekleme Stratejileri (Waits)', en: 'Step 6: Wait Strategies' } },
+      {
+        type: 'code', language: 'java', label: 'Implicit Wait vs Explicit Wait vs Fluent Wait',
+        code: `import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+
+// ── 1. IMPLICIT WAIT ────────────────────────────────
+// Tüm findElement'ler için global bekleme (10 saniyeye kadar dener)
+// !! Explicit wait ile aynı anda KULLANMA — beklenmedik davranış çıkar
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+// ── 2. EXPLICIT WAIT (ÖNERİLEN) ─────────────────────
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+// Element görünür olana kadar bekle
+WebElement loginBtn = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("loginBtn"))
+);
+
+// Element tıklanabilir olana kadar bekle (görünür + enabled)
+WebElement btn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.cssSelector(".submit-btn"))
+);
+
+// URL belirli text içerene kadar bekle
+wait.until(ExpectedConditions.urlContains("/dashboard"));
+
+// Belirli metin görünene kadar bekle
+wait.until(ExpectedConditions.textToBePresentInElement(
+    driver.findElement(By.id("toast")), "Başarıyla kaydedildi"
+));
+
+// Loading spinner kaybolana kadar bekle
+wait.until(ExpectedConditions.invisibilityOfElementLocated(
+    By.className("loading-spinner")
+));
+
+// ── 3. FLUENT WAIT ──────────────────────────────────
+// Polling interval + ignore edilen exception ile custom bekleme
+Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+    .withTimeout(Duration.ofSeconds(30))
+    .pollingEvery(Duration.ofMillis(500))   // 500ms'de bir kontrol et
+    .ignoring(NoSuchElementException.class); // element yoksa ignore
+
+WebElement el = fluentWait.until(driver ->
+    driver.findElement(By.id("dynamicElement"))
+);
+System.out.println("Bulundu: " + el.getText());`,
+      },
+      { type: 'heading', text: { tr: 'Adım 7: Screenshot & JavaScript Executor', en: 'Step 7: Screenshot & JS Executor' } },
+      {
+        type: 'code', language: 'java', label: 'Screenshot ve JavaScript işlemleri',
+        code: `import org.openqa.selenium.*;
+import java.io.*;
+import java.nio.file.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
+// ── SCREENSHOT ───────────────────────────────────────
+TakesScreenshot ts = (TakesScreenshot) driver;
+
+// Dosyaya kaydet
+String stamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+File src = ts.getScreenshotAs(OutputType.FILE);
+Files.copy(src.toPath(),
+    Paths.get("target/screenshots/ss_" + stamp + ".png"),
+    StandardCopyOption.REPLACE_EXISTING);
+
+// Byte array — JUnit/TestNG/Cucumber raporu için
+byte[] bytes = ts.getScreenshotAs(OutputType.BYTES);
+// Allure: Allure.addAttachment("SS", new ByteArrayInputStream(bytes))
+// Cucumber: scenario.attach(bytes, "image/png", "screenshot")
+
+// Selenium 4: Sadece element screenshot
+File elSs = driver.findElement(By.id("errorPanel"))
+    .getScreenshotAs(OutputType.FILE);
+
+// ── JAVASCRIPT EXECUTOR ──────────────────────────────
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+// Sayfayı kaydır
+js.executeScript("window.scrollTo(0, document.body.scrollHeight)"); // en alta
+js.executeScript("window.scrollBy(0, 500)");                        // 500px aşağı
+
+// Elemente kaydır
+WebElement footer = driver.findElement(By.id("footer"));
+js.executeScript("arguments[0].scrollIntoView(true);", footer);
+
+// Elemente JS ile tıkla (Selenium click çalışmadığında)
+js.executeScript("arguments[0].click();", footer);
+
+// Input değeri doğrudan set et
+js.executeScript("arguments[0].value='test@example.com';",
+    driver.findElement(By.id("email")));
+
+// readyState kontrolü
+String state = (String) js.executeScript("return document.readyState");
+System.out.println("Sayfa: " + state); // "complete"`,
+      },
+      { type: 'heading', text: { tr: 'Adım 8: Actions Sınıfı (Hover, Drag-Drop, Sağ Tık)', en: 'Step 8: Actions Class' } },
+      {
+        type: 'code', language: 'java', label: 'Actions — gelişmiş mouse & keyboard işlemleri',
+        code: `import org.openqa.selenium.interactions.Actions;
+
+Actions actions = new Actions(driver);
+
+// ── HOVER (Mouse Over) ──────────────────────────────
+WebElement navMenu = driver.findElement(By.id("navMenu"));
+actions.moveToElement(navMenu).perform();
+// Alt menü görünür olana kadar bekle, sonra tıkla
+wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("subItem")));
+driver.findElement(By.id("subItem")).click();
+
+// ── ÇİFT TIKLAMA ────────────────────────────────────
+actions.doubleClick(driver.findElement(By.id("editableCell"))).perform();
+
+// ── SAĞ TIKLAMA (Context Menu) ──────────────────────
+actions.contextClick(driver.findElement(By.id("fileItem"))).perform();
+// Context menü öğesini seç
+driver.findElement(By.id("ctxMenuDelete")).click();
+
+// ── DRAG AND DROP ────────────────────────────────────
+WebElement source = driver.findElement(By.id("draggable"));
+WebElement target = driver.findElement(By.id("droppable"));
+actions.dragAndDrop(source, target).perform();
+
+// Koordinat ile sürükleme (drag-drop çalışmazsa offset dene):
+// actions.clickAndHold(source).moveByOffset(200, 0).release().perform();
+
+// ── KLAVYE KOMBİNASYONU ──────────────────────────────
+WebElement textArea = driver.findElement(By.id("content"));
+actions.click(textArea)
+       .keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL) // Ctrl+A
+       .sendKeys(Keys.DELETE)                                    // Sil
+       .sendKeys("Yeni metin")                                   // Yaz
+       .perform();
+
+// ── ZİNCİRLEME (Method Chaining) ─────────────────────
+actions.moveToElement(navMenu)
+       .pause(Duration.ofMillis(300))
+       .click()
+       .perform();`,
+      },
+      { type: 'heading', text: { tr: 'Adım 9: Alerts, iFrames ve Çoklu Pencere', en: 'Step 9: Alerts, iFrames, Multiple Windows' } },
+      {
+        type: 'selenium-visual',
+        concept: 'alert',
+        color: '#ef4444',
+        icon: '⚠️',
+        title: { tr: 'Browser Alert / Confirm / Prompt — İnteraktif Rehber', en: 'Browser Alert / Confirm / Prompt — Interactive Guide' },
+        steps: [
+          {
+            id: 'page', label: 'Tetikle', labelEn: 'Trigger',
+            visualState: 'page',
+            description: { tr: 'Alert, browser\'ın sayfanın önüne çıkardığı yerleşik bir diyalogdur. Açıldığında sayfa etkileşimi tamamen bloke olur. Önce alert\'in belirgin olmasını beklememiz gerekir.', en: 'An alert is a built-in browser dialog that appears over the page. It completely blocks page interaction when open. We must first wait for the alert to be present.' },
+            code: `import org.openqa.selenium.Alert;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+// Alert tetikle (test sayfasında bir butona tıklayarak)
+driver.findElement(By.id("triggerAlert")).click();
+
+// Alert belirene kadar bekle (zorunlu!)
+wait.until(ExpectedConditions.alertIsPresent());
+
+// Alert nesnesini al
+Alert alert = driver.switchTo().alert();`,
+            tip: { tr: '⚠️ alertIsPresent() olmadan doğrudan switchTo().alert() çağırırsan NoAlertPresentException alırsın. Her zaman önce bekle!', en: '⚠️ Calling switchTo().alert() without alertIsPresent() throws NoAlertPresentException. Always wait first!' },
+          },
+          {
+            id: 'alert', label: 'alert()', labelEn: 'alert()',
+            visualState: 'alert',
+            description: { tr: 'En basit alert tipi — sadece mesaj + OK butonu. Java\'da System.exit() gibi: kullanıcıya bir şey bildiriyor ve sadece devam etmesine izin veriyor. dismiss() çalışmaz — sadece accept() var.', en: 'Simplest alert type — just a message + OK button. Like System.exit() in Java: informing the user and only allowing them to continue. dismiss() does not work — only accept() is available.' },
+            code: `// Simple alert — sadece OK var, Cancel yok
+Alert alert = driver.switchTo().alert();
+
+// Mesajı oku
+String msg = alert.getText(); // "Giriş başarılı!"
+
+// OK'a bas → alert kapanır
+alert.accept();
+
+// Sonra sayfada işleme devam et
+wait.until(ExpectedConditions.urlContains("/dashboard"));`,
+            tip: { tr: '✅ alert() için sadece accept() kullan. dismiss() bazı tarayıcılarda çalışır ama standart değildir — simple alert\'te sadece OK var.', en: '✅ For alert(), only use accept(). dismiss() works in some browsers but is not standard — simple alerts only have OK.' },
+          },
+          {
+            id: 'confirm', label: 'confirm()', labelEn: 'confirm()',
+            visualState: 'confirm',
+            description: { tr: 'İki seçenek sunan onay diyaloğu — OK (evet) ve Cancel (hayır). Java\'da boolean dönen bir metod gibi: accept() = true, dismiss() = false. Test senaryosu: "Sil" butonuna tıkla → confirm → onay ver veya reddet.', en: 'A confirmation dialog with two choices — OK (yes) and Cancel (no). Like a boolean-returning method in Java: accept() = true, dismiss() = false. Test scenario: click Delete → confirm dialog → accept or dismiss.' },
+            code: `// confirm() → hem OK hem Cancel var
+Alert confirm = driver.switchTo().alert();
+
+String question = confirm.getText();
+// "Sepeti temizlemek istediğinize emin misiniz?"
+
+// OK'a bas (silmeyi onayla)
+confirm.accept();
+
+// VEYA Cancel'a bas (iptal et)
+// confirm.dismiss();`,
+            tip: { tr: '✅ Test stratejisi: bir test accept() ile onayla, bir test dismiss() ile iptal et — her iki dal da test edilmiş olur.', en: '✅ Test strategy: one test confirms with accept(), another cancels with dismiss() — both branches get tested.' },
+          },
+          {
+            id: 'prompt', label: 'prompt()', labelEn: 'prompt()',
+            visualState: 'prompt',
+            description: { tr: 'Kullanıcıdan metin girişi isteyen diyalog. Java\'da Scanner.nextLine() ile kullanıcıdan input almak gibi. sendKeys() ile metin girilir, accept() ile gönderilir.', en: 'A dialog requesting text input from the user. Like Scanner.nextLine() in Java — reading user input. sendKeys() enters the text, accept() submits it.' },
+            code: `// prompt() → metin girişi + OK/Cancel
+Alert prompt = driver.switchTo().alert();
+
+// Mevcut metni oku (varsa default değer)
+String defaultVal = prompt.getText();
+// "Kupon kodunu girin:"
+
+// Metin gir
+prompt.sendKeys("SAVE20");
+
+// OK'a bas → sendKeys değeri gönderilir
+prompt.accept();
+
+// VEYA iptal et (metin gönderilmez)
+// prompt.dismiss();`,
+            tip: { tr: '⚠️ sendKeys() çağrısı zorunludur — yoksa prompt boş gönderilir. getText() prompt mesajını döndürür, input değerini değil.', en: '⚠️ sendKeys() call is required — otherwise prompt submits empty. getText() returns the prompt message, not the input value.' },
+          },
+          {
+            id: 'accept', label: 'accept()', labelEn: 'accept()',
+            visualState: 'accept',
+            description: { tr: 'OK butonuna basmak. Tüm alert tipleri için çalışır. Java\'da bir metodu "evet" ile tamamlamak gibi. Alert kapandıktan sonra driver otomatik olarak ana sayfaya döner.', en: 'Presses the OK button. Works for all alert types. Like completing a method with "yes" in Java. After the alert closes, the driver automatically returns to the main page.' },
+            code: `Alert alert = driver.switchTo().alert();
+
+// OK butonuna bas
+alert.accept(); // ← alert kapanır
+
+// Alert kapandıktan sonra sayfayla devam et
+String currentUrl = driver.getCurrentUrl();
+assertTrue(currentUrl.contains("/success"));`,
+            tip: { tr: '✅ accept() çağrısı sonrası alert kapanır ve driver otomatik olarak sayfaya döner — ayrıca switchTo().defaultContent() çağırman gerekmez.', en: '✅ After accept(), the alert closes and the driver automatically returns to the page — you do not need to call switchTo().defaultContent() separately.' },
+          },
+          {
+            id: 'dismiss', label: 'dismiss()', labelEn: 'dismiss()',
+            visualState: 'dismiss',
+            description: { tr: 'Cancel butonuna basmak. confirm() ve prompt() için geçerlidir — simple alert\'te etkisi accept() ile aynıdır. Java\'da bir exception\'ı yakalayıp işlemi iptal etmek gibi.', en: 'Presses the Cancel button. Valid for confirm() and prompt() — for simple alert(), has same effect as accept(). Like catching an exception and canceling the operation in Java.' },
+            code: `Alert confirm = driver.switchTo().alert();
+
+// Cancel butonuna bas
+confirm.dismiss(); // ← alert kapanır, işlem iptal
+
+// Sepet hala dolu olmalı
+WebElement cartCount = driver.findElement(By.id("cartCount"));
+assertNotEquals("0", cartCount.getText());`,
+            tip: { tr: '✅ dismiss() test stratejisi: "vazgeçme" senaryolarını test et. Kullanıcı iptal ettiğinde sistem doğru davranıyor mu? Bu negative test senaryolarında kritik.', en: '✅ dismiss() test strategy: test "cancellation" scenarios. Does the system behave correctly when the user cancels? Critical for negative test scenarios.' },
+          },
+        ],
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'iframe',
+        color: '#06b6d4',
+        icon: '🖼️',
+        title: { tr: 'iFrame Switching — İnteraktif Rehber', en: 'iFrame Switching — Interactive Guide' },
+        steps: [
+          {
+            id: 'outer', label: 'Dış Sayfa', labelEn: 'Outer Page',
+            visualState: 'outer',
+            description: { tr: 'Varsayılan driver context\'i ana sayfadadır. iFrame\'i sadece bir WebElement olarak görür — içine erişemez. Java\'da farklı bir ClassLoader\'a sahip modül gibi: doğrudan erişim için özel switchTo() gerekir.', en: 'Default driver context is the main page. It sees the iFrame only as a WebElement — cannot access its contents. Like a module with a different ClassLoader in Java: special switchTo() is needed for direct access.' },
+            code: `// Driver başlangıçta ana sayfada (outer context)
+driver.get("https://shop.com/checkout");
+
+// iFrame elementini BULABİLİRSİN
+WebElement frame = driver.findElement(
+    By.cssSelector("iframe.payment-frame")
+);
+
+// AMA iFrame içindeki elementi BULAMAZSIN!
+// driver.findElement(By.id("cardNumber")) → NoSuchElementException!`,
+            tip: { tr: '⚠️ iFrame içindeki elementlere erişmeden önce mutlaka switchTo().frame() çağrılmalıdır. Yoksa NoSuchElementException alırsın.', en: '⚠️ switchTo().frame() must be called before accessing elements inside an iFrame. Otherwise you get NoSuchElementException.' },
+          },
+          {
+            id: 'switch-by-id', label: 'switchTo()', labelEn: 'switchTo()',
+            visualState: 'switch-by-id',
+            description: { tr: 'switchTo().frame() ile driver context\'ini iFrame\'e taşıyoruz. Üç farklı overload var: ID/Name, Index, ve WebElement. En güvenilir olanı WebElement overload\'u — DOM\'daki iframe elementini referans alır.', en: 'We move the driver context into the iFrame with switchTo().frame(). Three overloads: ID/Name, Index, and WebElement. Most reliable is the WebElement overload — references the iframe element in the DOM.' },
+            code: `// 3 farklı switchTo() yöntemi:
+
+// 1. ID veya name attribute ile (en yaygın)
+driver.switchTo().frame("paymentFrame");
+
+// 2. Sayfa sırasına göre index ile (0'dan başlar)
+driver.switchTo().frame(0);
+
+// 3. WebElement ile (en güvenilir)
+WebElement iframe = driver.findElement(
+    By.cssSelector("iframe.payment-frame")
+);
+driver.switchTo().frame(iframe); // ← önerilen`,
+            tip: { tr: '✅ WebElement overload en güvenilir: iframe\'in id/name attribute\'ü değişse bile eleman CSS selector ile bulunur. Index overload — sıra değişirse yanlış frame.', en: '✅ WebElement overload is most reliable: even if the iframe id/name attribute changes, the element is found by CSS selector. Index overload — breaks if order changes.' },
+          },
+          {
+            id: 'inner', label: 'Frame İçi', labelEn: 'Inside Frame',
+            visualState: 'inner',
+            description: { tr: 'Driver context artık iFrame içinde. Tüm findElement() çağrıları artık sadece bu frame\'in DOM\'unu tarar — sanki ana sayfa bu frame\'miş gibi. Java\'da farklı bir namespace\'e girmek gibi.', en: 'Driver context is now inside the iFrame. All findElement() calls now only search this frame\'s DOM — as if the main page were this frame. Like entering a different namespace in Java.' },
+            code: `// switchTo().frame() sonrası — artık iFrame içindeyiz!
+// findElement artık SADECE frame içini tarar
+
+driver.findElement(By.id("cardNumber"))
+    .sendKeys("4111 1111 1111 1111");
+driver.findElement(By.id("cvv"))
+    .sendKeys("123");
+driver.findElement(By.id("expiry"))
+    .sendKeys("12/26");
+
+// Frame içinde WebDriverWait da çalışır
+wait.until(ExpectedConditions.elementToBeClickable(
+    By.id("payBtn"))).click();`,
+            tip: { tr: '✅ Frame içinde tüm normal Selenium metodları çalışır: click(), sendKeys(), findElements(), waits vb. Farklı bir şey yoktur — sadece context değişmiştir.', en: '✅ All normal Selenium methods work inside the frame: click(), sendKeys(), findElements(), waits, etc. Nothing different — only the context has changed.' },
+          },
+          {
+            id: 'nested', label: 'Nested Frame', labelEn: 'Nested Frame',
+            visualState: 'nested',
+            description: { tr: 'Frame içinde frame. Her iç frame\'e girmek için ayrı switchTo() gerekir. Java\'da iç içe synchronized bloklar gibi — her girişte bağlamı yönetmek gerekir.', en: 'Frame within a frame. Each inner frame requires a separate switchTo(). Like nested synchronized blocks in Java — context management is required for each entry.' },
+            code: `// İlk frame'e geç
+driver.switchTo().frame("paymentFrame");
+
+// Birinci frame içindeyiz — ama içinde başka bir frame var
+// captcha frame'e geç (payment frame'in içindeki)
+driver.switchTo().frame("captchaFrame");
+
+// Şimdi en derin frame'deyiz
+driver.findElement(By.id("recaptchaBox")).click();
+
+// Bir üst frame'e dön (parentFrame)
+driver.switchTo().parentFrame();
+// Şimdi paymentFrame'deyiz tekrar`,
+            tip: { tr: '⚠️ Nested frame\'lerde defaultContent() en dışa götürür (tüm frame\'leri çıkar). parentFrame() sadece bir üste çıkar. Hangi context\'te olduğunu takip et.', en: '⚠️ In nested frames, defaultContent() goes all the way out (exits all frames). parentFrame() goes up just one level. Track which context you\'re in.' },
+          },
+          {
+            id: 'back', label: 'defaultContent()', labelEn: 'defaultContent()',
+            visualState: 'back',
+            description: { tr: 'switchTo().defaultContent() ile driver context\'i ana sayfaya (outer page) geri döndürürüz — iç içe kaç frame olursa olsun tek çağrıda çıkar. Frame işlemleri bittiğinde her zaman çağrılmalıdır.', en: 'switchTo().defaultContent() returns the driver context to the main page (outer page) — exits all frames in one call regardless of how deeply nested. Always call it after frame operations are done.' },
+            code: `// Frame içinde işlemi bitirdik
+driver.findElement(By.id("payBtn")).click();
+
+// Ana sayfaya dön — TÜM frame'lerden çıkar
+driver.switchTo().defaultContent();
+
+// Artık ana sayfadaki elementlere erişebiliriz
+wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.id("orderConfirmation")));
+
+String orderNo = driver.findElement(
+    By.id("orderNumber")).getText();`,
+            tip: { tr: '✅ Her zaman try-finally ile frame\'den çık: try { frame işlemleri } finally { driver.switchTo().defaultContent(); } — exception olsa bile temiz context.', en: '✅ Always exit the frame with try-finally: try { frame operations } finally { driver.switchTo().defaultContent(); } — clean context even on exception.' },
+          },
+          {
+            id: 'parent', label: 'parentFrame()', labelEn: 'parentFrame()',
+            visualState: 'parent',
+            description: { tr: 'switchTo().parentFrame() sadece bir üst frame\'e çıkar — defaultContent() gibi tüm framelardan çıkmaz. Nested frame\'lerde kademeli çıkış için kullanılır. Java\'da super.method() çağrısı gibi — bir üst seviyeye gider.', en: 'switchTo().parentFrame() goes up only one frame level — unlike defaultContent() which exits all frames. Used for stepwise exit in nested frames. Like super.method() in Java — goes up exactly one level.' },
+            code: `// 3 seviye derinlik: main → paymentFrame → captchaFrame
+
+driver.switchTo().frame("paymentFrame");
+driver.switchTo().frame("captchaFrame");
+// Şimdi captchaFrame'deyiz (en derin)
+
+// Bir üst çıkar → paymentFrame
+driver.switchTo().parentFrame();
+
+// Bir üst daha → main page (defaultContent ile aynı)
+driver.switchTo().parentFrame();
+// ÜST YOK → main page'deyiz
+
+// VEYA direkt ana sayfaya: defaultContent()
+// driver.switchTo().defaultContent();`,
+            tip: { tr: '✅ 2-3 derinlikli nested frame\'lerde parentFrame() daha kontrollü. Kaç seviye derinlikte olduğundan emin değilsen defaultContent() kullan — her zaman ana sayfaya götürür.', en: '✅ parentFrame() is more controlled for 2-3 level nested frames. If unsure how deep you are, use defaultContent() — always goes to the main page.' },
+          },
+        ],
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'window',
+        color: '#8b5cf6',
+        icon: '🪟',
+        title: { tr: 'Çoklu Pencere & Sekme Yönetimi — İnteraktif Rehber', en: 'Multi-Window & Tab Management — Interactive Guide' },
+        steps: [
+          {
+            id: 'single', label: 'getHandle()', labelEn: 'getHandle()',
+            visualState: 'single',
+            description: { tr: 'Başlangıçta tek pencere. getWindowHandle() mevcut pencereyi temsil eden benzersiz bir String ID döndürür — Java\'da Thread.currentThread().getId() gibi. Bu ID\'yi kaydetmeli ve geri dönüş için kullanmalısın.', en: 'Start with a single window. getWindowHandle() returns a unique String ID representing the current window — like Thread.currentThread().getId() in Java. Save this ID for returning later.' },
+            code: `// Mevcut (ana) pencere handle'ını kaydet
+String mainHandle = driver.getWindowHandle();
+System.out.println("Ana: " + mainHandle); // "CDw0..."
+
+// Mevcut tüm pencereleri al (şimdilik sadece 1)
+Set<String> handles = driver.getWindowHandles();
+System.out.println("Pencere sayısı: " + handles.size()); // 1`,
+            tip: { tr: '✅ Ana pencere handle\'ını her zaman test başında kaydet — geri dönmek için gerekecek. İnternette "string handle" olarak aranır — benzersiz bir UUID benzeri değerdir.', en: '✅ Always save the main window handle at the start of the test — you\'ll need it to return. Unique UUID-like string per window.' },
+          },
+          {
+            id: 'handles', label: 'getHandles()', labelEn: 'getHandles()',
+            visualState: 'handles',
+            description: { tr: 'Yeni pencere/popup açıldıktan sonra getWindowHandles() artık 2 (veya daha fazla) handle döndürür. Java\'da Set<String> — sıralı değil, her çalıştırmada farklı sıra olabilir. Ana pencereyi bildiğimiz için farkı bulabiliriz.', en: 'After a new window/popup opens, getWindowHandles() now returns 2 (or more) handles. Java Set<String> — unordered, different order each run. Since we know the main handle, we can find the difference.' },
+            code: `// Yeni pencere açıldı (ör. "Yeni Sekmede Aç" linki tıklandı)
+driver.findElement(By.linkText("Ürün Detayı")).click();
+
+// Şimdi 2 handle var
+Set<String> allHandles = driver.getWindowHandles();
+System.out.println("Sayı: " + allHandles.size()); // 2
+
+// Yeni pencere handle'ı = mainHandle dışındaki
+String newHandle = allHandles.stream()
+    .filter(h -> !h.equals(mainHandle))
+    .findFirst().orElseThrow();`,
+            tip: { tr: '✅ Set\'ten yeni handle\'ı bulmak için stream().filter() kullan. forEach ile döngü yerine functional yaklaşım daha okunabilir.', en: '✅ Use stream().filter() to find the new handle from the Set. Functional approach is more readable than forEach loop.' },
+          },
+          {
+            id: 'switched', label: 'switchTo()', labelEn: 'switchTo()',
+            visualState: 'switched',
+            description: { tr: 'switchTo().window(handle) ile yeni pencereye geçiyoruz. Artık tüm driver komutları yeni pencereye uygulanır. Java\'da farklı bir Thread\'in context\'ine geçmek gibi — ThreadLocal değiştirildi.', en: 'We switch to the new window with switchTo().window(handle). All driver commands now apply to the new window. Like switching to a different Thread\'s context in Java — ThreadLocal changed.' },
+            code: `// Yeni pencereye geç
+driver.switchTo().window(newHandle);
+
+// Artık yeni penceredeyiz — URL doğrula
+wait.until(ExpectedConditions.urlContains("/product/"));
+String productTitle = driver.findElement(
+    By.cssSelector("h1.product-title")).getText();
+System.out.println("Ürün: " + productTitle);
+
+// Yeni pencerede istediğin işlemi yap
+driver.findElement(By.id("addToCart")).click();`,
+            tip: { tr: '✅ switchTo().window() sonrası yeni URL\'in yüklenmesini wait ile bekle. Hemen findElement() çağırırsan StaleElementReferenceException alabilirsin.', en: '✅ After switchTo().window(), wait for the new URL to load. Immediately calling findElement() may throw StaleElementReferenceException.' },
+          },
+          {
+            id: 'back', label: 'Geri Dön', labelEn: 'Switch Back',
+            visualState: 'back',
+            description: { tr: 'İşimiz bitince ana pencereye geri dönüyoruz. Opsiyonel olarak yeni pencereyi kapatıp (close()) ana pencereye geçebiliriz. Java\'da ExecutorService.shutdown() gibi — açtığın kaynakları temizle.', en: 'When done, we return to the main window. Optionally close the new window (close()) and switch back to main. Like ExecutorService.shutdown() in Java — clean up what you opened.' },
+            code: `// Yeni pencereyi kapat (opsiyonel)
+driver.close(); // Sadece aktif (yeni) pencereyi kapatır
+
+// Ana pencereye geri dön — ZORUNLU!
+driver.switchTo().window(mainHandle);
+
+// Artık ana penceredeyiz — işleme devam et
+wait.until(ExpectedConditions.urlContains("/shop"));
+String cartCount = driver.findElement(
+    By.id("cartCount")).getText();
+assertEquals("1", cartCount);`,
+            tip: { tr: '⚠️ driver.close() sadece aktif pencereyi kapatır — driver\'ı kapatmaz. Ana pencereye geçmeden close() çağırırsan WebDriverException alırsın!', en: '⚠️ driver.close() only closes the active window — not the driver. Calling close() without switching to main first throws WebDriverException!' },
+          },
+          {
+            id: 'new-tab', label: 'Selenium 4 Tab', labelEn: 'Selenium 4 Tab',
+            visualState: 'new-tab',
+            description: { tr: 'Selenium 4 ile yeni sekme veya pencereyi programatik olarak açabiliyoruz — JavaScript hack\'ine gerek yok. WindowType.TAB = yeni sekme, WindowType.WINDOW = yeni pencere. Java\'da ExecutorService.submit() ile yeni thread açmak gibi.', en: 'With Selenium 4, we can programmatically open a new tab or window — no JavaScript hack needed. WindowType.TAB = new tab, WindowType.WINDOW = new window. Like ExecutorService.submit() opening a new thread in Java.' },
+            code: `import org.openqa.selenium.WindowType;
+
+// Selenium 4: Yeni sekme aç ve geç (tek satırda!)
+driver.switchTo().newWindow(WindowType.TAB);
+
+// Yeni sekmede URL'e git
+driver.get("https://other-site.com/product");
+
+String newTabTitle = driver.getTitle();
+System.out.println("Yeni sekme: " + newTabTitle);
+
+// Yeni pencere açmak için:
+// driver.switchTo().newWindow(WindowType.WINDOW);`,
+            tip: { tr: '✅ Selenium 4\'ün en güzel özelliklerinden biri. newWindow() otomatik olarak yeni pencereye/sekmeye geçer — ayrıca switchTo().window() çağırman gerekmez.', en: '✅ One of Selenium 4\'s nicest features. newWindow() automatically switches to the new window/tab — no need for a separate switchTo().window() call.' },
+          },
+        ],
+      },
+      { type: 'heading', text: { tr: 'Adım 10: Tam E2E Test — automationexercise.com', en: 'Step 10: Complete E2E Test' } },
+      {
+        type: 'code', language: 'java', label: 'E2E Testi — Login → Ürün Ara → Sepete Ekle → Doğrula',
+        code: `import org.junit.jupiter.api.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.*;
+import org.openqa.selenium.support.ui.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.*;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class EcommerceE2ETest {
+
+    static WebDriver driver;
+    static WebDriverWait wait;
+    static final String BASE = "https://automationexercise.com";
+
+    @BeforeAll
+    static void setup() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--start-maximized", "--disable-notifications");
+        driver = new ChromeDriver(opts);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    @Test @Order(1) @DisplayName("1. Ana sayfayı aç ve doğrula")
+    void openHomePage() {
+        driver.get(BASE);
+        wait.until(ExpectedConditions.titleContains("Automation Exercise"));
+        assertTrue(driver.getTitle().contains("Automation Exercise"));
+        System.out.println("✅ Ana sayfa: " + driver.getTitle());
+    }
+
+    @Test @Order(2) @DisplayName("2. Login sayfasına git ve giriş yap")
+    void login() {
+        driver.findElement(By.cssSelector("a[href='/login']")).click();
+        wait.until(ExpectedConditions.urlContains("/login"));
+
+        driver.findElement(By.cssSelector("[data-qa='login-email']"))
+              .sendKeys("testuser@example.com");
+        driver.findElement(By.cssSelector("[data-qa='login-password']"))
+              .sendKeys("TestPass123");
+        driver.findElement(By.cssSelector("[data-qa='login-button']")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+            By.cssSelector("a[href='/logout']")));
+        assertTrue(driver.findElement(By.cssSelector("a[href='/logout']")).isDisplayed());
+        System.out.println("✅ Giriş başarılı");
+    }
+
+    @Test @Order(3) @DisplayName("3. Ürün sayfasında arama yap")
+    void searchProduct() {
+        driver.findElement(By.cssSelector("a[href='/products']")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search_product")));
+
+        driver.findElement(By.id("search_product")).sendKeys("Blue Top");
+        driver.findElement(By.id("submit_search")).click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.cssSelector(".product-image-wrapper")));
+        List<WebElement> products = driver.findElements(
+            By.cssSelector(".product-image-wrapper"));
+        assertFalse(products.isEmpty(), "Ürün listesi boş olmamalı");
+        System.out.println("✅ " + products.size() + " ürün bulundu");
+    }
+
+    @Test @Order(4) @DisplayName("4. İlk ürünü sepete ekle")
+    void addToCart() {
+        List<WebElement> addBtns = driver.findElements(
+            By.cssSelector(".add-to-cart"));
+        assertFalse(addBtns.isEmpty(), "Sepete ekle butonu olmalı");
+        addBtns.get(0).click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.cssSelector(".modal-content")));
+        assertTrue(driver.findElement(By.cssSelector(".modal-content")).isDisplayed());
+
+        // "Continue Shopping" tıkla
+        driver.findElement(By.cssSelector("button[data-dismiss='modal']")).click();
+        System.out.println("✅ Ürün sepete eklendi");
+    }
+
+    @AfterAll
+    static void teardown() {
+        if (driver != null) driver.quit();
+        System.out.println("✅ Tarayıcı kapatıldı");
+    }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Explicit wait ile implicit wait arasındaki temel fark nedir?', en: 'Main difference between explicit and implicit wait?' },
+        options: [
+          { id: 'a', text: 'Explicit wait daha yavaştır, implicit wait daha hızlı' },
+          { id: 'b', text: 'Implicit wait, belirli bir koşulun gerçekleşmesini bekler' },
+          { id: 'c', text: 'Explicit wait belirli bir koşul gerçekleşene kadar bekler; implicit wait tüm findElement\'ler için global timeout tanımlar' },
+          { id: 'd', text: 'Thread.sleep() ile aynıdır, sadece sözdizimi farklı' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'Explicit wait (WebDriverWait + ExpectedConditions), belirli bir koşul yerine gelene kadar döngüsel olarak kontrol eder — önerilen yaklaşımdır. Implicit wait ise tüm findElement çağrıları için global bir max timeout süresi tanımlar. İkisini birlikte kullanmak beklenmedik gecikmelere yol açar. Thread.sleep() ise koşulsuz olarak N saniye bekler — Selenium ile kullanılmamalıdır.', en: 'Explicit wait (WebDriverWait + ExpectedConditions) polls until a specific condition is met — the recommended approach. Implicit wait defines a global max timeout for all findElement calls. Mixing both causes unpredictable delays. Thread.sleep() unconditionally waits N seconds — avoid it with Selenium.' },
+      },
+    ],
+  },
+  en: {
+    title: '🌐 Selenium WebDriver — Step by Step',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🌐',
+        content: 'Think of Selenium WebDriver as a robot: "Click that button, type in this field, wait for the page." You write the commands in Java, the robot runs them in the browser. Selenium 4 is the most mature Java test library: Chrome, Firefox, Edge, Safari — all supported.',
+      },
+      { type: 'heading', text: { en: 'Step 1: Maven Setup' } },
+      {
+        type: 'code', language: 'xml', label: 'pom.xml — Selenium 4 + WebDriverManager',
+        code: `<dependencies>
+  <dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.20.0</version>
+  </dependency>
+  <dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.8.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>`,
+      },
+      { type: 'heading', text: { en: 'Steps 2-3: Browser Launch & Navigation' } },
+      {
+        type: 'code', language: 'java', label: 'Browser setup and navigation commands',
+        code: `WebDriverManager.chromedriver().setup();
+ChromeOptions opts = new ChromeOptions();
+opts.addArguments("--start-maximized");
+// opts.addArguments("--headless=new"); // for CI
+WebDriver driver = new ChromeDriver(opts);
+
+// Navigation
+driver.get("https://automationexercise.com");
+driver.navigate().back();
+driver.navigate().forward();
+driver.navigate().refresh();
+
+// Page info
+System.out.println(driver.getTitle());
+System.out.println(driver.getCurrentUrl());
+
+driver.quit(); // always in finally!`,
+      },
+      { type: 'heading', text: { en: 'Step 4: Finding Elements — 8 By Strategies' } },
+      {
+        type: 'simple-box',
+        emoji: '🔍',
+        content: {
+          en: 'A locator is how your automation code identifies an element on the page — like finding a book in a library. Going by shelf number (id) is fastest; searching by "red cover" (class) is risky because multiple red covers may exist.',
+          tr: 'Locator, otomasyon kodunuzun sayfadaki bir elementi tanımlama yöntemidir. Kütüphanede kitabı raf numarasıyla (id) bulmak en hızlısı; "kırmızı kapaklı" (class) ile aramak riskli çünkü birden fazla kırmızı kapak olabilir.',
+        },
+      },
+      {
+        type: 'locator-visual',
+        htmlExample: `<form id="loginForm" class="login-form">
+
+  <label for="username">Kullanıcı Adı</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="E-posta"
+    data-testid="username-input" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Giriş Yap
+  </button>
+
+  <a href="/forgot">Şifremi Unuttum</a>
+
+</form>`,
+        locators: [
+          {
+            id: 'by-id', label: 'By.id()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
+            highlights: ['id="username"'],
+            code: `WebElement el = driver.findElement(By.id("username"));
+// Fastest: browsers optimize id lookups`,
+            title: 'En Hızlı & En Güvenilir',
+            titleEn: 'Fastest & Most Reliable',
+            explanation: 'Directly targets the id attribute. Browsers optimize id lookups, making this the fastest locator. id must be unique per page — like a final constant in Java.',
+            explanationEn: 'Directly targets the id attribute. Browsers optimize id lookups, making this the fastest locator. id must be unique per page — like a final constant in Java.',
+            tip: '✅ Always first choice. If no id, request the dev team to add one. "By id" is QA automation standard.',
+            tipEn: '✅ Always first choice. If no id, request the dev team to add one. "By id" is QA automation standard.',
+            when: 'Element\'in id attribute\'ü varsa — HER ZAMAN kullan',
+            whenEn: 'When element has an id attribute — ALWAYS use it first',
+          },
+          {
+            id: 'by-data-testid', label: '[data-testid]', priority: 1, starRating: '⭐⭐⭐', color: '#06b6d4',
+            highlights: ['data-testid="username-input"'],
+            code: `WebElement el = driver.findElement(
+    By.cssSelector("[data-testid='username-input']")
+);
+// or: By.cssSelector("[data-qa='username']")`,
+            title: 'Test için Tasarlanmış — En İyi Pratik',
+            titleEn: 'Designed for Testing — Best Practice',
+            explanation: 'data-testid is added specifically for QA. Tests don\'t break even if styles, ids or classes change. Industry standard in React/Vue/Angular — like an interface in Java: contract stays intact even if implementation changes.',
+            explanationEn: 'data-testid is added specifically for QA. Tests don\'t break even if styles, ids or classes change. Industry standard in React/Vue/Angular — like an interface in Java: contract stays intact even if implementation changes.',
+            tip: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements. Most stable locator long-term.',
+            tipEn: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements. Most stable locator long-term.',
+            when: 'data-testid varsa id\'den bile önce tercih et',
+            whenEn: 'When data-testid exists, prefer it even over id',
+          },
+          {
+            id: 'by-name', label: 'By.name()', priority: 3, starRating: '⭐⭐', color: '#3b82f6',
+            highlights: ['name="email"'],
+            code: `WebElement el = driver.findElement(By.name("email"));
+// This is the field name submitted to the backend
+// Think: like an HTTP request parameter name`,
+            title: 'Form Elementleri için Doğal Seçim',
+            titleEn: 'Natural Choice for Form Elements',
+            explanation: 'Targets the name attribute on HTML form elements. Common in login, register, search forms — same as the field name POSTed to the backend. Like HTTP parameter names in Java.',
+            explanationEn: 'Targets the name attribute on HTML form elements. Common in login, register, search forms — same as the field name POSTed to the backend. Like HTTP parameter names in Java.',
+            tip: '✅ Second choice for form fields when no id. Multiple elements may share the same name — be careful.',
+            tipEn: '✅ Second choice for form fields when no id. Multiple elements may share the same name — be careful.',
+            when: 'id yoksa form input / select / textarea için',
+            whenEn: 'For form input, select, textarea when no id exists',
+          },
+          {
+            id: 'by-class', label: 'By.className()', priority: 5, starRating: '⭐', color: '#f59e0b',
+            highlights: ['class="form-input"'],
+            code: `// WARNING: may return multiple elements!
+List<WebElement> els =
+    driver.findElements(By.className("form-input"));
+WebElement first = els.get(0);`,
+            title: 'Dikkat: Genellikle Birden Fazla Eşleşir',
+            titleEn: 'Warning: Usually Matches Multiple Elements',
+            explanation: 'Targets a CSS class name. The same class is usually used on multiple elements — findElement() returns the first, findElements() returns all. Like List.get(0) in Java: risky unless you\'re certain.',
+            explanationEn: 'Targets a CSS class name. The same class is usually used on multiple elements — findElement() returns the first, findElements() returns all. Like List.get(0) in Java: risky unless you\'re certain.',
+            tip: '⚠️ Takes a single class name — write "form-input" not "form-input btn". Prefer cssSelector combo for non-unique classes.',
+            tipEn: '⚠️ Takes a single class name — write "form-input" not "form-input btn". Prefer cssSelector combo for non-unique classes.',
+            when: 'Sayfada tam olarak TEK bir elementi olan class için',
+            whenEn: 'Only when the class matches exactly one element on the page',
+          },
+          {
+            id: 'by-css-id', label: 'cssSelector #id', priority: 2, starRating: '⭐⭐⭐', color: '#8b5cf6',
+            highlights: ['id="loginBtn"'],
+            code: `// # = id selector (CSS syntax)
+WebElement btn =
+    driver.findElement(By.cssSelector("#loginBtn"));
+// Can add conditions: #loginBtn[disabled]
+// Superset of By.id() — same speed, more options`,
+            title: 'CSS id Seçicisi — By.id() ile Eşdeğer',
+            titleEn: 'CSS id Selector — Equivalent to By.id()',
+            explanation: 'In CSS syntax, # selects by id. Same speed as By.id(). Difference: cssSelector can combine with other attributes. Like method overloading in Java — same base, different parameters.',
+            explanationEn: 'In CSS syntax, # selects by id. Same speed as By.id(). Difference: cssSelector can combine with other attributes. Like method overloading in Java — same base, different parameters.',
+            tip: '✅ Same speed as By.id() — but cssSelector can add extra filters: #loginBtn[type="submit"] etc.',
+            tipEn: '✅ Same speed as By.id() — but cssSelector can add extra filters: #loginBtn[type="submit"] etc.',
+            when: 'id ile birlikte başka attribute da kontrol etmek gerektiğinde',
+            whenEn: 'When checking id along with additional attribute constraints',
+          },
+          {
+            id: 'by-css-combo', label: 'cssSelector combo', priority: 2, starRating: '⭐⭐⭐', color: '#7c3aed',
+            highlights: ['class="form-input"', 'name="email"'],
+            code: `// Tag + class + attribute combination:
+WebElement el = driver.findElement(
+    By.cssSelector("input.form-input[name='email']")
+);
+// input → tag  |  .form-input → class  |  [name='email'] → attr`,
+            title: 'Kombine CSS — Çok Spesifik & Güvenilir',
+            titleEn: 'Combined CSS — Very Specific & Reliable',
+            explanation: 'Combines tag name, class and attributes in one selector. Minimal risk of wrong element selection. Like filtering HashMap.entrySet() with multiple conditions in Java — more criteria, more unique.',
+            explanationEn: 'Combines tag name, class and attributes in one selector. Minimal risk of wrong element selection. Like filtering HashMap.entrySet() with multiple conditions in Java — more criteria, more unique.',
+            tip: '✅ Preferred when data-testid is not available. Tag + class + attribute is both reliable and readable.',
+            tipEn: '✅ Preferred when data-testid is not available. Tag + class + attribute is both reliable and readable.',
+            when: 'Benzersizlik için birden fazla attribute birleştirmek gerektiğinde',
+            whenEn: 'When combining multiple attributes for uniqueness is required',
+          },
+          {
+            id: 'by-linktext', label: 'By.linkText()', priority: 6, starRating: '⭐', color: '#ec4899',
+            highlights: ['Şifremi Unuttum'],
+            code: `// Only works for <a> tags!
+WebElement link =
+    driver.findElement(By.linkText("Şifremi Unuttum"));
+
+// Partial text match:
+WebElement part =
+    driver.findElement(By.partialLinkText("Şifrem"));`,
+            title: 'Yalnızca <a> Linkleri — Büyük/Küçük Harf Duyarlı',
+            titleEn: 'Only <a> Links — Case Sensitive',
+            explanation: 'Only targets visible text of <a> anchor elements. Case-sensitive. Breaks if text changes or if the app is multilingual. Requires exact match like String.equals() in Java.',
+            explanationEn: 'Only targets visible text of <a> anchor elements. Case-sensitive. Breaks if text changes or if the app is multilingual. Requires exact match like String.equals() in Java.',
+            tip: '⚠️ Links only. In multilingual apps this locator breaks tests — prefer href attribute or data-testid.',
+            tipEn: '⚠️ Links only. In multilingual apps this locator breaks tests — prefer href attribute or data-testid.',
+            when: 'Yalnızca statik metin içeren <a> linkleri için',
+            whenEn: 'Only for <a> link elements with static, non-translated text',
+          },
+          {
+            id: 'by-xpath', label: 'By.xpath()', priority: 8, starRating: '⭐', color: '#ef4444',
+            highlights: ['type="submit"'],
+            code: `// By attribute:
+driver.findElement(
+    By.xpath("//button[@type='submit']"));
+
+// By text:
+driver.findElement(
+    By.xpath("//button[text()='Giriş Yap']"));
+
+// Axis — DOM relationship (most powerful):
+driver.findElement(
+    By.xpath("//label[@for='username']/following-sibling::input"));`,
+            title: 'En Güçlü — Ama Son Çare',
+            titleEn: 'Most Powerful — But Last Resort',
+            explanation: 'Uses XML path expressions. Can express complex DOM relationships (parent/child/sibling/ancestor). Slowest locator — breaks easily when page structure changes. Like reflection in Java: very powerful but think before using.',
+            explanationEn: 'Uses XML path expressions. Can express complex DOM relationships (parent/child/sibling/ancestor). Slowest locator — breaks easily when page structure changes. Like reflection in Java: very powerful but think before using.',
+            tip: '⛔ Last resort. If achievable with cssSelector, avoid xpath. Unavoidable: shadow DOM, inside iframes, complex DOM relationships.',
+            tipEn: '⛔ Last resort. If achievable with cssSelector, avoid xpath. Unavoidable: shadow DOM, inside iframes, complex DOM relationships.',
+            when: 'Başka hiçbir locator çalışmadığında — özellikle DOM ilişkisi gerektiğinde',
+            whenEn: 'Only when no other locator works — especially for DOM relationship navigation',
+          },
+        ],
+      },
+      { type: 'heading', text: { en: 'Steps 5-8: Actions, Waits, Screenshot, JS, Actions Class' } },
+      {
+        type: 'code', language: 'java', label: 'Complete Selenium reference',
+        code: `// ── ELEMENT ACTIONS ─────────────────────────────────
+el.click();                      el.sendKeys("text");
+el.clear();                      el.submit();
+el.getText();                    el.getAttribute("value");
+el.isDisplayed();                el.isEnabled();
+el.isSelected();
+
+// ── SELECT ───────────────────────────────────────────
+Select sel = new Select(driver.findElement(By.id("country")));
+sel.selectByVisibleText("Turkey");
+sel.selectByValue("TR");
+sel.getFirstSelectedOption().getText();
+
+// ── EXPLICIT WAIT (RECOMMENDED) ──────────────────────
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btn")));
+wait.until(ExpectedConditions.elementToBeClickable(By.id("btn")));
+wait.until(ExpectedConditions.urlContains("/dashboard"));
+wait.until(ExpectedConditions.invisibilityOfElementLocated(By.className("spinner")));
+
+// ── SCREENSHOT ───────────────────────────────────────
+byte[] bytes = ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+
+// ── JAVASCRIPT ───────────────────────────────────────
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].click();", el);
+js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+String title = (String) js.executeScript("return document.title");
+
+// ── ACTIONS CLASS ────────────────────────────────────
+Actions actions = new Actions(driver);
+actions.moveToElement(menu).perform();           // hover
+actions.doubleClick(el).perform();               // double click
+actions.contextClick(el).perform();              // right click
+actions.dragAndDrop(source, target).perform();   // drag & drop`,
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'dropdown',
+        color: '#f59e0b',
+        icon: '🔽',
+        title: { en: 'Select Dropdown — Step-by-Step Interactive Guide', tr: 'Select Dropdown — Adım Adım İnteraktif Rehber' },
+        steps: [
+          { id: 'wrap', label: 'Select Wrap', labelEn: 'Select Wrap', visualState: 'wrap', description: { en: 'Wrap the <select> WebElement with the Select class — like wrapping an ArrayList with Collections.sort() in Java — adding dropdown-specific capabilities on top of the basic WebElement.', tr: 'WebElement olarak bulunan <select> elemanını Select sınıfına sarıyoruz.' }, code: `import org.openqa.selenium.support.ui.Select;\n\nWebElement el = driver.findElement(By.id("country"));\nSelect dropdown = new Select(el);\n\nboolean isMulti = dropdown.isMultiple();`, tip: { en: '✅ Select class only works for native <select> elements. Custom dropdowns (built with ul/li) require a different strategy.', tr: '✅ Select sınıfı sadece <select> elementi için çalışır.' } },
+          { id: 'byText', label: 'byVisibleText', labelEn: 'byVisibleText', visualState: 'byText', selectedValue: 'tr', description: { en: 'Select by the text the user sees. Like List.stream().filter(s -> s.equals("Turkey")).findFirst() in Java — requires exact text match, case-sensitive.', tr: 'Kullanıcının gördüğü metne göre seçim.' }, code: `dropdown.selectByVisibleText("Türkiye");\n\n// Case-sensitive! "türkiye" won't work\nString selected = dropdown.getFirstSelectedOption().getText();\nSystem.out.println(selected); // "Türkiye"`, tip: { en: '⚠️ Breaks if visible text changes (i18n, A/B testing). Prefer selectByValue() — value attribute is usually more stable.', tr: '⚠️ Görünen metin değişirse test kırılır.' } },
+          { id: 'byValue', label: 'byValue', labelEn: 'byValue', visualState: 'byValue', selectedValue: 'tr', description: { en: 'Select by the HTML value attribute — like <option value="TR">Turkey</option>. Like Map.get("TR") in Java — direct key access, not text search.', tr: 'HTML value attribute değerine göre seçim.' }, code: `dropdown.selectByValue("tr");\n// <option value="tr">Türkiye</option>\n\nString val = dropdown.getFirstSelectedOption().getAttribute("value");\nSystem.out.println(val); // "tr"`, tip: { en: '✅ Most reliable selection method. Value attribute is independent of display text — stays constant even if language changes.', tr: '✅ En güvenilir seçim yöntemi.' } },
+          { id: 'byIndex', label: 'byIndex', labelEn: 'byIndex', visualState: 'byIndex', selectedValue: 'tr', description: { en: 'Select by 0-based index — like List.get(0) in Java. Least reliable: if a new country is added to the list, all indexes shift.', tr: '0\'dan başlayan index ile seçim.' }, code: `dropdown.selectByIndex(0); // "Türkiye" (first)\ndropdown.selectByIndex(2); // "Germany"\n\nint total = dropdown.getOptions().size();\nSystem.out.println("Total: " + total); // 4`, tip: { en: '⛔ Last resort — if UI order changes, index selects wrong element. Use only when selectByValue/Text is not possible.', tr: '⛔ Son tercih — UI sırası değişirse yanlış element.' } },
+          { id: 'firstSelected', label: 'getSelected', labelEn: 'getSelected', visualState: 'firstSelected', selectedValue: 'us', description: { en: 'Read the currently selected option — like List.stream().filter(isSelected).findFirst() in Java. Used to verify the selection was made correctly with assertions.', tr: 'Şu anda seçili option\'ı okuma.' }, code: `WebElement selected = dropdown.getFirstSelectedOption();\n\nString text = selected.getText();\nString value = selected.getAttribute("value");\n\nassertEquals("USA", text);\nassertEquals("us", value);`, tip: { en: '✅ Always add assertion after selection: assertEquals("USA", dropdown.getFirstSelectedOption().getText())', tr: '✅ Seçim sonrası her zaman assertion ekle.' } },
+          { id: 'getOptions', label: 'getOptions()', labelEn: 'getOptions()', visualState: 'getOptions', description: { en: 'Returns all options as List<WebElement>. Like getting a List<String> in Java. Used to test dynamic dropdowns that load options from the API.', tr: 'Tüm option\'ları List<WebElement> olarak döndürür.' }, code: `List<WebElement> options = dropdown.getOptions();\n\nfor (int i = 0; i < options.size(); i++) {\n    System.out.println(i + ": " + options.get(i).getText()\n        + " [value=" + options.get(i).getAttribute("value") + "]");\n}`, tip: { en: '✅ Dropdown test strategy: verify the list with getOptions() first (expected count?), then make selection with selectByValue().', tr: '✅ Önce getOptions() ile listeyi doğrula, sonra selectByValue() ile seçim yap.' } },
+        ],
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'alert',
+        color: '#ef4444',
+        icon: '⚠️',
+        title: { en: 'Browser Alert / Confirm / Prompt — Interactive Guide', tr: 'Browser Alert / Confirm / Prompt — İnteraktif Rehber' },
+        steps: [
+          { id: 'page', label: 'Tetikle', labelEn: 'Trigger', visualState: 'page', description: { en: 'An alert is a built-in browser dialog that appears over the page. It completely blocks page interaction. We must wait for it to be present before interacting.', tr: 'Alert, browser\'ın sayfanın önüne çıkardığı yerleşik bir diyalogdur.' }, code: `import org.openqa.selenium.Alert;\n\ndriver.findElement(By.id("triggerAlert")).click();\n\n// Wait for alert\nwait.until(ExpectedConditions.alertIsPresent());\n\nAlert alert = driver.switchTo().alert();`, tip: { en: '⚠️ Always call alertIsPresent() first — calling switchTo().alert() without it throws NoAlertPresentException.', tr: '⚠️ Her zaman önce alertIsPresent() bekle!' } },
+          { id: 'alert', label: 'alert()', labelEn: 'alert()', visualState: 'alert', description: { en: 'Simplest alert type — just a message + OK button. Like System.exit() in Java. dismiss() does not work here — only accept() is available.', tr: 'En basit alert tipi — sadece mesaj + OK butonu.' }, code: `Alert alert = driver.switchTo().alert();\n\nString msg = alert.getText(); // "Login successful!"\n\nalert.accept(); // Press OK → alert closes\n\nwait.until(ExpectedConditions.urlContains("/dashboard"));`, tip: { en: '✅ For simple alert(), only use accept(). dismiss() is not standard for alerts — only OK button exists.', tr: '✅ alert() için sadece accept() kullan.' } },
+          { id: 'confirm', label: 'confirm()', labelEn: 'confirm()', visualState: 'confirm', description: { en: 'A confirmation dialog with two choices — OK (yes) and Cancel (no). Like a boolean-returning method in Java: accept() = true, dismiss() = false.', tr: 'İki seçenek sunan onay diyaloğu.' }, code: `Alert confirm = driver.switchTo().alert();\n\nString question = confirm.getText();\n\n// Press OK (confirm the action)\nconfirm.accept();\n\n// OR press Cancel (cancel the action)\n// confirm.dismiss();`, tip: { en: '✅ Test strategy: one test confirms with accept(), another cancels with dismiss() — both branches get tested.', tr: '✅ İki test: biri accept(), biri dismiss() — her iki dal test edilir.' } },
+          { id: 'prompt', label: 'prompt()', labelEn: 'prompt()', visualState: 'prompt', description: { en: 'A dialog requesting text input from the user. Like Scanner.nextLine() in Java — reading user input. sendKeys() enters the text, accept() submits it.', tr: 'Kullanıcıdan metin girişi isteyen diyalog.' }, code: `Alert prompt = driver.switchTo().alert();\n\nString message = prompt.getText();\n// "Enter coupon code:"\n\nprompt.sendKeys("SAVE20");\n\nprompt.accept(); // Submit with OK\n// prompt.dismiss(); // Cancel (text not sent)`, tip: { en: '⚠️ sendKeys() is required — otherwise prompt submits empty. getText() returns the prompt message, not the typed input.', tr: '⚠️ sendKeys() zorunludur — yoksa prompt boş gönderilir.' } },
+          { id: 'accept', label: 'accept()', labelEn: 'accept()', visualState: 'accept', description: { en: 'Presses the OK button. Works for all alert types. After the alert closes, the driver automatically returns to the main page — no need to call defaultContent().', tr: 'OK butonuna basmak. Tüm alert tipleri için çalışır.' }, code: `Alert alert = driver.switchTo().alert();\nalert.accept(); // ← alert closes\n\n// Driver automatically back on page\nString url = driver.getCurrentUrl();\nassertTrue(url.contains("/success"));`, tip: { en: '✅ After accept(), alert closes and driver returns to page automatically — no switchTo().defaultContent() needed.', tr: '✅ accept() sonrası alert kapanır, driver sayafaya döner.' } },
+          { id: 'dismiss', label: 'dismiss()', labelEn: 'dismiss()', visualState: 'dismiss', description: { en: 'Presses the Cancel button. Valid for confirm() and prompt(). Like catching an exception and canceling the operation in Java. Negative test scenarios — what happens when user cancels?', tr: 'Cancel butonuna basmak.' }, code: `Alert confirm = driver.switchTo().alert();\n\nconfirm.dismiss(); // Press Cancel\n\n// Cart should still have items\nWebElement count = driver.findElement(By.id("cartCount"));\nassertNotEquals("0", count.getText());`, tip: { en: '✅ dismiss() test strategy: verify negative path — does system behave correctly when user cancels? Critical for negative test scenarios.', tr: '✅ Negative test: kullanıcı iptal ettiğinde sistem doğru davranıyor mu?' } },
+        ],
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'iframe',
+        color: '#06b6d4',
+        icon: '🖼️',
+        title: { en: 'iFrame Switching — Interactive Guide', tr: 'iFrame Switching — İnteraktif Rehber' },
+        steps: [
+          { id: 'outer', label: 'Dış Sayfa', labelEn: 'Outer Page', visualState: 'outer', description: { en: 'Default driver context is the main page. It sees the iFrame only as a WebElement — cannot access its contents. Like a module with a different ClassLoader in Java: special switchTo() needed.', tr: 'Varsayılan driver context\'i ana sayfadadır.' }, code: `driver.get("https://shop.com/checkout");\n\n// Can FIND the iframe element\nWebElement frame = driver.findElement(\n    By.cssSelector("iframe.payment-frame")\n);\n\n// But CANNOT access elements inside it!\n// → NoSuchElementException!`, tip: { en: '⚠️ Always call switchTo().frame() before accessing elements inside an iFrame — otherwise NoSuchElementException.', tr: '⚠️ iFrame içine girmeden önce switchTo().frame() çağır.' } },
+          { id: 'switch-by-id', label: 'switchTo()', labelEn: 'switchTo()', visualState: 'switch-by-id', description: { en: 'Move the driver context into the iFrame with switchTo().frame(). Three overloads: ID/Name, Index, and WebElement. WebElement overload is most reliable.', tr: 'switchTo().frame() ile driver context\'ini iFrame\'e taşıyoruz.' }, code: `// 3 overloads:\n\n// 1. By id or name attribute\ndriver.switchTo().frame("paymentFrame");\n\n// 2. By page order (0-indexed)\ndriver.switchTo().frame(0);\n\n// 3. By WebElement (recommended)\nWebElement iframe = driver.findElement(\n    By.cssSelector("iframe.payment-frame")\n);\ndriver.switchTo().frame(iframe);`, tip: { en: '✅ WebElement overload is most reliable: even if iframe id/name changes, found by CSS selector. Index overload breaks if order changes.', tr: '✅ WebElement overload en güvenilir.' } },
+          { id: 'inner', label: 'Frame İçi', labelEn: 'Inside Frame', visualState: 'inner', description: { en: 'Driver context is now inside the iFrame. All findElement() calls now only search this frame\'s DOM. Like entering a different namespace in Java.', tr: 'Driver context artık iFrame içinde.' }, code: `// After switchTo().frame() — we're inside!\ndriver.findElement(By.id("cardNumber"))\n    .sendKeys("4111 1111 1111 1111");\ndriver.findElement(By.id("cvv"))\n    .sendKeys("123");\n\n// Waits work inside frames too\nwait.until(ExpectedConditions.elementToBeClickable(\n    By.id("payBtn"))).click();`, tip: { en: '✅ All normal Selenium methods work inside the frame — click(), sendKeys(), findElements(), waits, etc. Only the context has changed.', tr: '✅ Frame içinde tüm normal Selenium metodları çalışır.' } },
+          { id: 'nested', label: 'Nested Frame', labelEn: 'Nested Frame', visualState: 'nested', description: { en: 'Frame within a frame. Each inner frame requires a separate switchTo(). Like nested synchronized blocks in Java.', tr: 'Frame içinde frame.' }, code: `driver.switchTo().frame("paymentFrame");\n\n// Inside payment frame → another frame here\ndriver.switchTo().frame("captchaFrame");\n\n// Now in deepest frame\ndriver.findElement(By.id("recaptchaBox")).click();\n\n// Go up one level (parentFrame)\ndriver.switchTo().parentFrame();`, tip: { en: '⚠️ defaultContent() goes all the way out. parentFrame() goes up one level. Track which context you\'re in.', tr: '⚠️ defaultContent() en dışa çıkar, parentFrame() bir üste.' } },
+          { id: 'back', label: 'defaultContent()', labelEn: 'defaultContent()', visualState: 'back', description: { en: 'switchTo().defaultContent() returns the driver to the main page — exits all frames in one call. Always call it after frame operations are done.', tr: 'switchTo().defaultContent() driver\'ı ana sayfaya döndürür.' }, code: `// Done with frame operations\ndriver.findElement(By.id("payBtn")).click();\n\n// Return to main page\ndriver.switchTo().defaultContent();\n\n// Now access main page elements\nwait.until(ExpectedConditions.visibilityOfElementLocated(\n    By.id("orderConfirmation")));\nString orderNo = driver.findElement(\n    By.id("orderNumber")).getText();`, tip: { en: '✅ Best practice: use try-finally: try { frame ops } finally { driver.switchTo().defaultContent(); }', tr: '✅ try-finally ile her zaman frame\'den temiz çık.' } },
+          { id: 'parent', label: 'parentFrame()', labelEn: 'parentFrame()', visualState: 'parent', description: { en: 'switchTo().parentFrame() goes up exactly one frame level — unlike defaultContent() which exits all. Like super.method() in Java — goes up exactly one level.', tr: 'switchTo().parentFrame() sadece bir üst frame\'e çıkar.' }, code: `// 3 levels: main → paymentFrame → captchaFrame\n\ndriver.switchTo().frame("paymentFrame");\ndriver.switchTo().frame("captchaFrame");\n// Now in captchaFrame (deepest)\n\n// Up one level → paymentFrame\ndriver.switchTo().parentFrame();\n\n// Up one more → main page\ndriver.switchTo().parentFrame();`, tip: { en: '✅ parentFrame() is more controlled for 2-3 level nesting. Unsure how deep? Use defaultContent() — always goes to main page.', tr: '✅ 2-3 derinlikte parentFrame() daha kontrollü. Emin değilsen defaultContent() kullan.' } },
+        ],
+      },
+      {
+        type: 'selenium-visual',
+        concept: 'window',
+        color: '#8b5cf6',
+        icon: '🪟',
+        title: { en: 'Multi-Window & Tab Management — Interactive Guide', tr: 'Çoklu Pencere & Sekme Yönetimi — İnteraktif Rehber' },
+        steps: [
+          { id: 'single', label: 'getHandle()', labelEn: 'getHandle()', visualState: 'single', description: { en: 'Start with a single window. getWindowHandle() returns a unique String ID. Save it for returning later — like Thread.currentThread().getId() in Java.', tr: 'Başlangıçta tek pencere.' }, code: `String mainHandle = driver.getWindowHandle();\nSystem.out.println("Main: " + mainHandle); // "CDw0..."\n\nSet<String> handles = driver.getWindowHandles();\nSystem.out.println("Count: " + handles.size()); // 1`, tip: { en: '✅ Always save the main window handle at the start of the test — you\'ll need it to return.', tr: '✅ Test başında ana handle\'ı her zaman kaydet.' } },
+          { id: 'handles', label: 'getHandles()', labelEn: 'getHandles()', visualState: 'handles', description: { en: 'After a new window/popup opens, getWindowHandles() returns 2+ handles. Java Set<String> — unordered. Find the new one by filtering out the main handle.', tr: 'Yeni pencere açıldıktan sonra getWindowHandles() 2 handle döndürür.' }, code: `driver.findElement(By.linkText("Product Detail")).click();\n\nSet<String> allHandles = driver.getWindowHandles();\nSystem.out.println("Count: " + allHandles.size()); // 2\n\nString newHandle = allHandles.stream()\n    .filter(h -> !h.equals(mainHandle))\n    .findFirst().orElseThrow();`, tip: { en: '✅ Use stream().filter() to find the new handle from the Set — more readable than forEach loop.', tr: '✅ stream().filter() ile yeni handle\'ı bul.' } },
+          { id: 'switched', label: 'switchTo()', labelEn: 'switchTo()', visualState: 'switched', description: { en: 'Switch to the new window with switchTo().window(handle). All driver commands now apply to the new window. Like switching to a different Thread\'s context in Java.', tr: 'switchTo().window(handle) ile yeni pencereye geçiyoruz.' }, code: `driver.switchTo().window(newHandle);\n\n// Now we're in the new window\nwait.until(ExpectedConditions.urlContains("/product/"));\nString title = driver.findElement(\n    By.cssSelector("h1.product-title")).getText();\n\ndriver.findElement(By.id("addToCart")).click();`, tip: { en: '✅ After switchTo().window(), wait for the new URL to load before accessing elements.', tr: '✅ switchTo() sonrası yeni URL\'i bekle.' } },
+          { id: 'back', label: 'Geri Dön', labelEn: 'Switch Back', visualState: 'back', description: { en: 'Return to the main window. Optionally close the new window first with close(). Like ExecutorService.shutdown() in Java — clean up what you opened.', tr: 'İşimiz bitince ana pencereye geri dönüyoruz.' }, code: `// Optionally close the new window\ndriver.close(); // closes only active window\n\n// Return to main — REQUIRED!\ndriver.switchTo().window(mainHandle);\n\n// Now on main page\nwait.until(ExpectedConditions.urlContains("/shop"));\nassertEquals("1", driver.findElement(\n    By.id("cartCount")).getText());`, tip: { en: '⚠️ driver.close() closes only the active window. Without switching back to main first, you lose the driver connection!', tr: '⚠️ driver.close() sadece aktif pencereyi kapatır — ana pencereye geç yoksa driver bağlantısı kopar!' } },
+          { id: 'new-tab', label: 'Selenium 4 Tab', labelEn: 'Selenium 4 Tab', visualState: 'new-tab', description: { en: 'Selenium 4 can programmatically open a new tab or window — no JavaScript needed. WindowType.TAB = new tab, WindowType.WINDOW = new window.', tr: 'Selenium 4 ile yeni sekme programatik olarak açılabilir.' }, code: `import org.openqa.selenium.WindowType;\n\n// Open new tab AND switch to it\ndriver.switchTo().newWindow(WindowType.TAB);\n\ndriver.get("https://other-site.com/product");\nSystem.out.println(driver.getTitle());\n\n// New window:\n// driver.switchTo().newWindow(WindowType.WINDOW);`, tip: { en: '✅ Selenium 4: newWindow() automatically switches to the new tab — no separate switchTo().window() call needed.', tr: '✅ Selenium 4: newWindow() otomatik yeni sekmeye geçer.' } },
+        ],
+      },
+      { type: 'heading', text: { en: 'Step 9: Complete E2E Test Example' } },
+      {
+        type: 'code', language: 'java', label: 'E2E Test — Login → Search → Add to Cart',
+        code: `@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class EcommerceE2ETest {
+
+    static WebDriver driver;
+    static WebDriverWait wait;
+
+    @BeforeAll
+    static void setup() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver(new ChromeOptions()
+            .addArguments("--start-maximized"));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    @Test @Order(1) void openHomePage() {
+        driver.get("https://automationexercise.com");
+        wait.until(ExpectedConditions.titleContains("Automation Exercise"));
+        assertTrue(driver.getTitle().contains("Automation Exercise"));
+    }
+
+    @Test @Order(2) void searchProduct() {
+        driver.findElement(By.cssSelector("a[href='/products']")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search_product")));
+        driver.findElement(By.id("search_product")).sendKeys("Blue Top");
+        driver.findElement(By.id("submit_search")).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.cssSelector(".product-image-wrapper")));
+        assertFalse(driver.findElements(By.cssSelector(".product-image-wrapper")).isEmpty());
+    }
+
+    @AfterAll
+    static void teardown() { if (driver != null) driver.quit(); }
+}`,
+      },
+      {
+        type: 'quiz',
+        question: { en: 'What is the recommended locator priority in Selenium?' },
+        options: [
+          { id: 'a', text: 'xpath > cssSelector > id > name' },
+          { id: 'b', text: 'id > cssSelector > name > xpath (last resort)' },
+          { id: 'c', text: 'className > tagName > id > xpath' },
+          { id: 'd', text: 'linkText > partialLinkText > id > cssSelector' },
+        ],
+        correct: 'b',
+        explanation: { en: 'id is the fastest and most reliable locator — unique in the DOM. cssSelector is second fastest and supports attribute selectors (data-testid). xpath is the most powerful but slowest — use only when nothing else works. Avoid tagName and className as primary locators since they often return multiple elements.' },
+      },
+    ],
+  },
+}
+
+// ─── S-FILEIO: FILE HANDLING, ITERATOR, GENERICS, THREADS ──────────────────
+const sFileIO = {
+  tr: {
+    title: '📁 File Handling, Iterator, Generics & Threads',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📁',
+        content: 'Dosya işlemleri tıpkı bir kasadan belge çıkarıp koymak gibi: önce kasayı aç, belgeyi yaz, oku, işin bitince kapat. Iterator ise bir kitaplıktaki kitapları sırayla gösteren tur rehberi — koleksiyonu manuel döngü olmadan gezer. Generics ise "her tür için çalışan kalıp" — tek kod, tüm tipler.',
+      },
+      { type: 'heading', text: { tr: 'File Oluşturma ve Yazma', en: 'File Creation and Writing' } },
+      {
+        type: 'code', language: 'java', label: 'java.nio.file.Files — modern dosya API',
+        code: `import java.nio.file.*;
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // ── DOSYA OLUŞTURMA ──────────────────────────────
+        Path path = Paths.get("test-data.txt");
+
+        // Dosya yoksa oluştur
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+            System.out.println("Dosya oluşturuldu: " + path.toAbsolutePath());
+        }
+
+        // ── YAZMA ────────────────────────────────────────
+        // Tüm içeriği yaz (varsa üzerine yazar)
+        List<String> lines = Arrays.asList(
+            "username=admin",
+            "password=admin123",
+            "base.url=https://example.com"
+        );
+        Files.write(path, lines, StandardCharsets.UTF_8);
+
+        // Tek satır yaz (Java 11+)
+        Files.writeString(path, "yeni içerik\\n", StandardOpenOption.APPEND);
+
+        // BufferedWriter ile yaz (büyük dosyalar için verimli)
+        try (BufferedWriter bw = Files.newBufferedWriter(path,
+                StandardOpenOption.APPEND)) {
+            bw.write("Ek satır 1");
+            bw.newLine();
+            bw.write("Ek satır 2");
+        }
+        System.out.println("Yazma tamamlandı");
+    }
+}`,
+        expected: `Dosya oluşturuldu: ...\nYazma tamamlandı`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'File yazma pratiği',
+        defaultCode: `import java.nio.file.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Path path = Paths.get("testfile.txt");
+
+        // Dosyaya 3 satır yaz
+        List<String> lines = Arrays.asList(
+            "Java öğreniyorum",
+            "Selenium kullanıyorum",
+            "QA mühendisiyim"
+        );
+        Files.write(path, lines);
+        System.out.println("Yazıldı!");
+
+        // Geri oku ve yazdır
+        List<String> readBack = Files.readAllLines(path);
+        for (String line : readBack) {
+            System.out.println(">> " + line);
+        }
+    }
+}`,
+        height: '230px',
+      },
+      { type: 'heading', text: { tr: 'File Okuma', en: 'File Reading' } },
+      {
+        type: 'code', language: 'java', label: 'Files.readAllLines, BufferedReader',
+        code: `import java.nio.file.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        Path path = Paths.get("config.properties");
+
+        // ── TÜM SATIRLAR (küçük dosyalar için) ───────────
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        for (String line : lines) {
+            System.out.println(line);
+        }
+
+        // ── TAM İÇERİK (Java 11+) ────────────────────────
+        String content = Files.readString(path);
+        System.out.println("İçerik:\\n" + content);
+
+        // ── BÜYÜK DOSYALAR İÇİN — BufferedReader ─────────
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            String line;
+            int lineNum = 1;
+            while ((line = br.readLine()) != null) {
+                System.out.printf("%d: %s%n", lineNum++, line);
+            }
+        }
+
+        // ── PROPERTIES DOSYASI OKUMA ──────────────────────
+        // (QA'da config.properties okumak için çok kullanılır)
+        Properties props = new Properties();
+        try (InputStream is = new FileInputStream("config.properties")) {
+            props.load(is);
+        }
+        String baseUrl = props.getProperty("base.url");
+        System.out.println("Base URL: " + baseUrl);
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'File Kontrol, Silme ve Taşıma', en: 'File Check, Delete, Move' } },
+      {
+        type: 'code', language: 'java', label: 'Files utility metodları',
+        code: `import java.nio.file.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        Path file = Paths.get("data.txt");
+        Path dir  = Paths.get("reports");
+
+        // ── KONTROL ──────────────────────────────────────
+        System.out.println(Files.exists(file));          // var mı?
+        System.out.println(Files.isDirectory(dir));      // klasör mü?
+        System.out.println(Files.isReadable(file));      // okunabilir mi?
+        System.out.println(Files.size(file));            // byte cinsinden boyut
+
+        // ── SİLME ────────────────────────────────────────
+        Files.deleteIfExists(file);  // yoksa hata vermez
+        // Files.delete(file);       // yoksa NoSuchFileException
+
+        // ── KOPYALAMA ────────────────────────────────────
+        Files.copy(file, Paths.get("backup.txt"),
+            StandardCopyOption.REPLACE_EXISTING);
+
+        // ── TAŞIMA / YENİDEN ADLANDIRMA ──────────────────
+        Files.move(file, Paths.get("new_name.txt"),
+            StandardCopyOption.REPLACE_EXISTING);
+
+        // ── KLASÖRLERİ YÖNETİM ───────────────────────────
+        Files.createDirectories(dir);       // iç içe klasör oluştur
+        Files.createTempFile("test", ".log"); // geçici dosya
+
+        System.out.println("İşlem tamamlandı");
+    }
+}`,
+      },
+      { type: 'heading', text: { tr: 'Iterator — Koleksiyon Gezici', en: 'Iterator' } },
+      {
+        type: 'code', language: 'java', label: 'Iterator ile List ve Map gezme',
+        code: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // ── LIST ITERATOR ────────────────────────────────
+        List<String> browsers = new ArrayList<>(
+            Arrays.asList("Chrome", "Firefox", "Safari", "Edge")
+        );
+
+        Iterator<String> it = browsers.iterator();
+        while (it.hasNext()) {
+            String browser = it.next();
+            if (browser.equals("Safari")) {
+                it.remove(); // ConcurrentModificationException olmadan sil!
+                System.out.println("Safari kaldırıldı");
+            } else {
+                System.out.println("Tarayıcı: " + browser);
+            }
+        }
+
+        // ── MAP ITERATOR (entrySet) ──────────────────────
+        Map<String, Integer> scores = new LinkedHashMap<>();
+        scores.put("Test A", 95);
+        scores.put("Test B", 87);
+        scores.put("Test C", 92);
+
+        Iterator<Map.Entry<String, Integer>> mapIt = scores.entrySet().iterator();
+        while (mapIt.hasNext()) {
+            Map.Entry<String, Integer> entry = mapIt.next();
+            System.out.printf("%s → %d%n", entry.getKey(), entry.getValue());
+            if (entry.getValue() < 90) {
+                mapIt.remove(); // Test B kaldırılır
+            }
+        }
+        System.out.println("Kalan: " + scores);
+
+        // ── LİSTİTERATOR — geri ileri gezme ─────────────
+        ListIterator<String> listIt = browsers.listIterator();
+        while (listIt.hasNext()) {
+            String b = listIt.next();
+            listIt.set(b.toUpperCase()); // Yerinde değiştir
+        }
+        System.out.println("Büyük harf: " + browsers);
+    }
+}`,
+        expected: `Tarayıcı: Chrome\nTarayıcı: Firefox\nSafari kaldırıldı\nTarayıcı: Edge\nTest A → 95\nTest B → 87\nTest C → 92\nKalan: {Test A=95, Test C=92}\nBüyük harf: [CHROME, FIREFOX, EDGE]`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Iterator pratiği',
+        defaultCode: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> numbers = new ArrayList<>(
+            Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        );
+
+        // Iterator ile çift sayıları listeden kaldır
+        Iterator<Integer> it = numbers.iterator();
+        while (it.hasNext()) {
+            int n = it.next();
+            if (n % 2 == 0) {
+                it.remove();
+            }
+        }
+        System.out.println("Tek sayılar: " + numbers);
+    }
+}`,
+        height: '200px',
+      },
+      { type: 'heading', text: { tr: 'Wrapper Classes — Primitive Tip Sarmalayıcıları', en: 'Wrapper Classes' } },
+      {
+        type: 'code', language: 'java', label: 'Integer, Double, Boolean, Character',
+        code: `public class Main {
+    public static void main(String[] args) {
+        // ── AUTOBOXING / UNBOXING ──────────────────────
+        int primitive = 42;
+        Integer wrapped = primitive;     // autoboxing (otomatik)
+        int back = wrapped;              // unboxing (otomatik)
+
+        // ── INTEGER METODLARI ─────────────────────────
+        System.out.println(Integer.MAX_VALUE);        // 2147483647
+        System.out.println(Integer.MIN_VALUE);        // -2147483648
+        System.out.println(Integer.parseInt("123"));  // String → int
+        System.out.println(Integer.toBinaryString(10)); // "1010"
+        System.out.println(Integer.toHexString(255)); // "ff"
+        System.out.println(Integer.compare(5, 10));   // -1 (5 < 10)
+
+        // ── DOUBLE ────────────────────────────────────
+        System.out.println(Double.parseDouble("3.14")); // 3.14
+        System.out.println(Double.isNaN(0.0 / 0.0));    // true
+        System.out.println(Double.isInfinite(1.0 / 0)); // true
+        System.out.println(Double.MAX_VALUE);
+
+        // ── BOOLEAN ───────────────────────────────────
+        System.out.println(Boolean.parseBoolean("true"));  // true
+        System.out.println(Boolean.parseBoolean("TRUE"));  // true
+        System.out.println(Boolean.parseBoolean("1"));     // false! (sadece "true")
+
+        // ── CHARACTER ─────────────────────────────────
+        System.out.println(Character.isLetter('A'));    // true
+        System.out.println(Character.isDigit('5'));     // true
+        System.out.println(Character.isWhitespace(' ')); // true
+        System.out.println(Character.toUpperCase('a')); // A
+        System.out.println(Character.toLowerCase('Z')); // z
+    }
+}`,
+        expected: `2147483647\n-2147483648\n123\n1010\nff\n-1\n3.14\ntrue\ntrue\n9.223372036854776E18\ntrue\ntrue\nfalse\ntrue\ntrue\ntrue\nA\nz`,
+      },
+      { type: 'heading', text: { tr: 'Generics — Tip-Güvenli Genel Programlama', en: 'Generics' } },
+      {
+        type: 'code', language: 'java', label: 'Generic sınıf ve metot — QA örneği ile',
+        code: `import java.util.*;
+
+// Generic sınıf: T herhangi bir tip olabilir
+class ApiResponse<T> {
+    private int statusCode;
+    private T body;
+    private String message;
+
+    public ApiResponse(int statusCode, T body, String message) {
+        this.statusCode = statusCode;
+        this.body = body;
+        this.message = message;
+    }
+
+    public int getStatusCode() { return statusCode; }
+    public T getBody() { return body; }
+    public String getMessage() { return message; }
+    public boolean isSuccess() { return statusCode >= 200 && statusCode < 300; }
+}
+
+public class Main {
+
+    // Generic metot
+    static <T> void printList(List<T> list) {
+        for (T item : list) System.out.print(item + " ");
+        System.out.println();
+    }
+
+    // Bounded generic (sadece Number ve alt tipleri kabul eder)
+    static <T extends Number> double sum(List<T> numbers) {
+        return numbers.stream().mapToDouble(Number::doubleValue).sum();
+    }
+
+    public static void main(String[] args) {
+        // String body ile API response
+        ApiResponse<String> strResp = new ApiResponse<>(200, "Login successful", "OK");
+        System.out.println(strResp.getStatusCode() + ": " + strResp.getBody());
+        System.out.println("Başarılı: " + strResp.isSuccess());
+
+        // Integer body ile
+        ApiResponse<Integer> intResp = new ApiResponse<>(201, 42, "Created");
+        System.out.println("ID: " + intResp.getBody());
+
+        // Generic metot
+        printList(Arrays.asList("Selenium", "JUnit5", "TestNG", "Cucumber"));
+        printList(Arrays.asList(1, 2, 3, 4, 5));
+
+        // Bounded generic
+        System.out.println("Toplam: " + sum(Arrays.asList(1.5, 2.5, 3.0))); // 7.0
+    }
+}`,
+        expected: `200: Login successful\nBaşarılı: true\nID: 42\nSelenium JUnit5 TestNG Cucumber \n1 2 3 4 5 \nToplam: 7.0`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Generics pratiği',
+        defaultCode: `import java.util.*;
+
+// Generic Stack (Yığın) sınıfı
+class Stack<T> {
+    private List<T> items = new ArrayList<>();
+
+    public void push(T item) { items.add(item); }
+    public T pop() {
+        if (items.isEmpty()) throw new RuntimeException("Stack boş!");
+        return items.remove(items.size() - 1);
+    }
+    public T peek() { return items.get(items.size() - 1); }
+    public int size() { return items.size(); }
+    public boolean isEmpty() { return items.isEmpty(); }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Stack<String> stack = new Stack<>();
+        stack.push("Selenium");
+        stack.push("JUnit5");
+        stack.push("Cucumber");
+
+        System.out.println("Boyut: " + stack.size());
+        System.out.println("Üstteki: " + stack.peek());
+        System.out.println("Çıkarılan: " + stack.pop());
+        System.out.println("Yeni üst: " + stack.peek());
+    }
+}`,
+        height: '270px',
+      },
+      { type: 'heading', text: { tr: 'Threads — Çok İş Parçacıklı Programlama', en: 'Threads' } },
+      {
+        type: 'code', language: 'java', label: 'Thread, Runnable ve ExecutorService',
+        code: `import java.util.concurrent.*;
+
+public class Main {
+
+    // ── 1. Thread sınıfını extend et ─────────────────
+    static class WorkerThread extends Thread {
+        private String name;
+        WorkerThread(String name) { this.name = name; }
+
+        @Override
+        public void run() {
+            System.out.println(name + " çalışıyor: " + Thread.currentThread().getName());
+        }
+    }
+
+    // ── 2. Runnable interface implement et ────────────
+    static class PrintTask implements Runnable {
+        private String msg;
+        PrintTask(String msg) { this.msg = msg; }
+
+        @Override
+        public void run() {
+            System.out.println("Görev: " + msg);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        // Thread sınıfından
+        WorkerThread t1 = new WorkerThread("Thread-1");
+        WorkerThread t2 = new WorkerThread("Thread-2");
+        t1.start();
+        t2.start();
+        t1.join(); // t1 bitene kadar bekle
+        t2.join();
+
+        // Lambda ile Runnable
+        Thread t3 = new Thread(() -> System.out.println("Lambda thread"));
+        t3.start();
+        t3.join();
+
+        // ExecutorService — thread pool (QA'da parallel test için)
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+        for (int i = 1; i <= 5; i++) {
+            final int taskNum = i;
+            pool.submit(() -> System.out.println("Test " + taskNum + " çalışıyor"));
+        }
+        pool.shutdown();
+        pool.awaitTermination(10, TimeUnit.SECONDS);
+        System.out.println("Tüm görevler tamamlandı");
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'Thread pratiği',
+        defaultCode: `import java.util.concurrent.*;
+
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        // 3 thread oluştur, her biri 1-10 arası sayıları yazdırsın
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+
+        for (int t = 1; t <= 3; t++) {
+            final int threadId = t;
+            pool.submit(() -> {
+                for (int i = 1; i <= 5; i++) {
+                    System.out.printf("Thread-%d: %d%n", threadId, i);
+                }
+            });
+        }
+
+        pool.shutdown();
+        pool.awaitTermination(5, TimeUnit.SECONDS);
+        System.out.println("Bitti!");
+    }
+}`,
+        height: '220px',
+      },
+      { type: 'heading', text: { tr: 'RegEx — Düzenli İfadeler', en: 'RegEx — Regular Expressions' } },
+      {
+        type: 'code', language: 'java', label: 'Pattern ve Matcher — QA ile doğrulama',
+        code: `import java.util.regex.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // ── TEMEL DESEN EŞLEŞMESI ─────────────────────
+        String email = "test@example.com";
+        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$";
+        System.out.println(email.matches(emailPattern)); // true
+
+        // ── PATTERN ve MATCHER ────────────────────────
+        Pattern p = Pattern.compile("\\\\d{3}-\\\\d{3}-\\\\d{4}"); // Telefon: 555-123-4567
+        Matcher m = p.matcher("Beni 555-123-4567 ara veya 666-777-8888");
+
+        while (m.find()) {
+            System.out.println("Bulundu: " + m.group() + " (pozisyon " + m.start() + ")");
+        }
+
+        // ── GRUPLAMA ─────────────────────────────────
+        Pattern dateP = Pattern.compile("(\\\\d{4})-(\\\\d{2})-(\\\\d{2})");
+        Matcher dateM = dateP.matcher("Tarih: 2024-06-15");
+        if (dateM.find()) {
+            System.out.println("Yıl: " + dateM.group(1));
+            System.out.println("Ay: " + dateM.group(2));
+            System.out.println("Gün: " + dateM.group(3));
+        }
+
+        // ── REPLACE ───────────────────────────────────
+        String text = "Java Java Java";
+        String replaced = text.replaceAll("Java", "Python");
+        System.out.println(replaced); // Python Python Python
+
+        // ── SPLIT ────────────────────────────────────
+        String csv = "admin,test123,ROLE_ADMIN";
+        String[] parts = csv.split(",");
+        for (String part : parts) System.out.println(part);
+
+        // QA kullanım: API response doğrulama
+        String apiDate = "2024-01-15T10:30:00Z";
+        System.out.println(apiDate.matches("\\\\d{4}-\\\\d{2}-\\\\d{2}T\\\\d{2}:\\\\d{2}:\\\\d{2}Z"));
+    }
+}`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'RegEx pratiği',
+        defaultCode: `import java.util.regex.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Email, telefon ve URL doğrulama
+        String[] inputs = {
+            "test@example.com",
+            "gecersiz-email",
+            "555-123-4567",
+            "1234",
+            "https://www.google.com",
+            "not-a-url"
+        };
+
+        String emailRegex = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$";
+        String phoneRegex = "\\d{3}-\\d{3}-\\d{4}";
+        String urlRegex = "https?://[\\w.-]+\\.[a-zA-Z]{2,}.*";
+
+        for (String input : inputs) {
+            String type = input.matches(emailRegex) ? "EMAIL" :
+                          input.matches(phoneRegex) ? "PHONE" :
+                          input.matches(urlRegex)   ? "URL" : "UNKNOWN";
+            System.out.println(input + " → " + type);
+        }
+    }
+}`,
+        height: '260px',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da Iterator kullanmanın for-each döngüsüne göre önemli avantajı nedir?', en: 'Key advantage of Iterator over for-each loop?' },
+        options: [
+          { id: 'a', text: 'Iterator daha hızlıdır' },
+          { id: 'b', text: 'Iterator, döngü sırasında güvenli eleman silmeye izin verir (it.remove())' },
+          { id: 'c', text: 'Iterator sadece Map için kullanılır' },
+          { id: 'd', text: 'Iterator paralel çalışmayı destekler' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'for-each döngüsünde koleksiyon üzerinde değişiklik (silme/ekleme) yapmak ConcurrentModificationException fırlatır. Iterator\'ün it.remove() metodu ise döngü sırasında güvenli silmeye olanak tanır. Java Collections Framework\'te bu pattern çok sık kullanılır: Selenium testlerinde stale element listesini temizlemek, null element kaldırmak gibi.', en: 'Modifying a collection during a for-each loop (add/remove) throws ConcurrentModificationException. Iterator\'s it.remove() enables safe removal during iteration. This pattern is common in Java: cleaning stale element lists, removing nulls, filtering during traversal.' },
+      },
+    ],
+  },
+  en: {
+    title: '📁 File Handling, Iterator, Generics & Threads',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📁',
+        content: 'File operations are like putting documents in and out of a safe: open the safe (Files.createFile), write the document (Files.write), read it (Files.readAllLines), close when done. Iterator is like a tour guide through a library — visits each item in a collection without a manual loop. Generics is "one template, all types."',
+      },
+      { type: 'heading', text: { en: 'File Write & Read' } },
+      {
+        type: 'code', language: 'java', label: 'Files API — write, read, check, delete',
+        code: `import java.nio.file.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Path path = Paths.get("test-data.txt");
+
+        // Write
+        Files.write(path, Arrays.asList("line1", "line2", "line3"));
+        Files.writeString(path, "\\nextra", StandardOpenOption.APPEND); // Java 11+
+
+        // Read
+        List<String> lines = Files.readAllLines(path);
+        lines.forEach(System.out::println);
+        String all = Files.readString(path);     // Java 11+
+
+        // Check & Delete
+        System.out.println(Files.exists(path));
+        System.out.println(Files.size(path));
+        Files.deleteIfExists(path);
+        System.out.println(Files.exists(path));  // false
+
+        // Properties (common in QA config reading)
+        Properties props = new Properties();
+        props.load(new java.io.FileInputStream("config.properties"));
+        String baseUrl = props.getProperty("base.url");
+    }
+}`,
+      },
+      { type: 'heading', text: { en: 'Iterator' } },
+      {
+        type: 'code', language: 'java', label: 'Iterator — safe removal during iteration',
+        code: `List<String> list = new ArrayList<>(Arrays.asList("a","b","c","d"));
+Iterator<String> it = list.iterator();
+while (it.hasNext()) {
+    String s = it.next();
+    if (s.equals("b")) it.remove(); // Safe! No ConcurrentModificationException
+}
+System.out.println(list); // [a, c, d]
+
+// Map iteration
+Map<String, Integer> map = new HashMap<>();
+map.put("A", 1); map.put("B", 2); map.put("C", 3);
+Iterator<Map.Entry<String, Integer>> mapIt = map.entrySet().iterator();
+while (mapIt.hasNext()) {
+    Map.Entry<String, Integer> e = mapIt.next();
+    if (e.getValue() < 2) mapIt.remove();
+}
+System.out.println(map); // {B=2, C=3}`,
+      },
+      { type: 'heading', text: { en: 'Generics & Threads' } },
+      {
+        type: 'code', language: 'java', label: 'Generics and basic Thread usage',
+        code: `// Generics — type-safe container
+class ApiResponse<T> {
+    private final int status;
+    private final T body;
+    ApiResponse(int status, T body) { this.status = status; this.body = body; }
+    public T getBody() { return body; }
+    public boolean isSuccess() { return status >= 200 && status < 300; }
+}
+
+// Thread — parallel task execution
+ExecutorService pool = Executors.newFixedThreadPool(4);
+for (int i = 1; i <= 4; i++) {
+    final int taskId = i;
+    pool.submit(() -> System.out.println("Task " + taskId + " running"));
+}
+pool.shutdown();
+pool.awaitTermination(10, TimeUnit.SECONDS);
+
+// RegEx
+Pattern p = Pattern.compile("\\\\d{4}-\\\\d{2}-\\\\d{2}");
+Matcher m = p.matcher("Date: 2024-06-15");
+if (m.find()) System.out.println("Found date: " + m.group()); // 2024-06-15`,
+      },
+      {
+        type: 'editor', lang: 'java', label: 'File & Iterator practice',
+        defaultCode: `import java.nio.file.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Write test data
+        Path p = Paths.get("browsers.txt");
+        Files.write(p, Arrays.asList("Chrome", "Firefox", "Edge", "Safari"));
+
+        // Read and filter with Iterator
+        List<String> browsers = new ArrayList<>(Files.readAllLines(p));
+        Iterator<String> it = browsers.iterator();
+        while (it.hasNext()) {
+            String b = it.next();
+            if (!b.equals("Chrome") && !b.equals("Firefox")) {
+                it.remove(); // remove others
+            }
+        }
+        System.out.println("Supported: " + browsers);
+        Files.deleteIfExists(p);
+    }
+}`,
+        height: '220px',
+      },
+      {
+        type: 'quiz',
+        question: { en: 'Why use Iterator instead of for-each when modifying a collection?' },
+        options: [
+          { id: 'a', text: 'Iterator is faster' },
+          { id: 'b', text: 'it.remove() allows safe removal without ConcurrentModificationException' },
+          { id: 'c', text: 'Iterator only works with Maps' },
+          { id: 'd', text: 'Iterator supports parallel execution' },
+        ],
+        correct: 'b',
+        explanation: { en: 'Removing elements inside a for-each loop throws ConcurrentModificationException. Iterator\'s it.remove() is the safe, designed way to delete during traversal. This is a frequent pattern in QA: cleaning null WebElements, removing processed items, filtering results in place.' },
+      },
+    ],
+  },
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+export const javaData = {
+  tr: {
+    hero: {
+      title: '☕ Java — QA Mühendisi Rehberi',
+      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · REST Assured',
+      intro: 'Java\'yı QA perspektifinden öğren: temel sözdiziminden production-grade altyapıya, Cucumber BDD\'den Selenium adım adım kullanımına, 50 mülakat sorusuyla hazır ol.',
+    },
+    tabs: [
+      '☕ Giriş',
+      '⚙️ Kurulum',
+      '📝 Temel Sözdizimi',
+      '🔤 Strings & Math',
+      '🔀 Akış Kontrolü',
+      '📦 Arrays',
+      '🔧 Methods',
+      '🏗️ OOP & Collections',
+      '🎯 Advanced OOP',
+      '🧪 Test Frameworkleri',
+      '🥒 Cucumber',
+      '🌐 Selenium',
+      '🛠️ Gerçek Hayat',
+      '🔗 Ekosistem',
+      '🚨 Yaygın Hatalar',
+      '📁 File & Threads',
+      '💼 Mülakat Soruları',
+    ],
+    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr],
+  },
+  en: {
+    hero: {
+      title: '☕ Java — QA Engineer\'s Guide',
+      subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · REST Assured',
+      intro: 'Learn Java from a QA perspective: basic syntax to production-grade infrastructure, BDD with Cucumber, step-by-step Selenium, ready with 50 interview questions.',
+    },
+    tabs: [
+      '☕ Introduction',
+      '⚙️ Installation',
+      '📝 Basic Syntax',
+      '🔤 Strings & Math',
+      '🔀 Control Flow',
+      '📦 Arrays',
+      '🔧 Methods',
+      '🏗️ OOP & Collections',
+      '🎯 Advanced OOP',
+      '🧪 Test Frameworks',
+      '🥒 Cucumber',
+      '🌐 Selenium',
+      '🛠️ Real World',
+      '🔗 Ecosystem',
+      '🚨 Common Errors',
+      '📁 File & Threads',
+      '💼 Interview Questions',
+    ],
+    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en],
+  },
+}
+
