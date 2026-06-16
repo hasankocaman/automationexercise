@@ -1245,7 +1245,10 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
                                 key={j}
                                 question={tx(q.q, language)}
                                 answer={tx(q.a, language)}
-                                code={q.code}
+                                code={tx(q.code, language)}
+                                analogy={tx(q.analogy, language)}
+                                keyPoints={q.keyPoints}
+                                tip={tx(q.tip, language)}
                                 darkMode={darkMode}
                             />
                         ))}
@@ -1317,8 +1320,11 @@ function ErrorDictionaryBlock({ block, darkMode, hideHeading = false }) {
 
 // ─── QAItem ───────────────────────────────────────────────────────────────────
 
-function QAItem({ question, answer, code, darkMode }) {
+function QAItem({ question, answer, code, analogy, keyPoints, tip, darkMode }) {
     const [open, setOpen] = useState(false)
+    const { language } = useLanguage()
+    const resolvedKeyPoints = keyPoints?.map(point => tx(point, language)).filter(Boolean) || []
+
     return (
         <div className={`rounded-xl border overflow-hidden mb-3 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
             <button
@@ -1331,7 +1337,29 @@ function QAItem({ question, answer, code, darkMode }) {
             {open && (
                 <div className={`p-4 border-t text-sm ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-gray-100 text-gray-600'}`}>
                     <p className="leading-relaxed whitespace-pre-line">{answer}</p>
-                    {code && <CodeBlock code={code} darkMode={darkMode} />}
+                    {resolvedKeyPoints.length > 0 && (
+                        <ul className={`mt-4 space-y-2 rounded-lg border p-3 ${darkMode ? 'border-blue-900/50 bg-blue-950/20 text-blue-100' : 'border-blue-200 bg-blue-50 text-blue-900'}`}>
+                            {resolvedKeyPoints.map((point, i) => (
+                                <li key={i} className="flex gap-2 leading-relaxed">
+                                    <span className={darkMode ? 'text-blue-300' : 'text-blue-600'}>•</span>
+                                    <span>{point}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {analogy && (
+                        <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-amber-900/50 bg-amber-950/20 text-amber-100' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                            <span className="font-semibold">{language === 'tr' ? 'Java analoji: ' : 'Java analogy: '}</span>
+                            {analogy}
+                        </div>
+                    )}
+                    {code && <CodeBlock code={code} language="java" darkMode={darkMode} />}
+                    {tip && (
+                        <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-green-900/50 bg-green-950/20 text-green-100' : 'border-green-200 bg-green-50 text-green-900'}`}>
+                            <span className="font-semibold">{language === 'tr' ? 'Mülakat notu: ' : 'Interview note: '}</span>
+                            {tip}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
