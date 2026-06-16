@@ -1,6 +1,11 @@
-# NEXT SESSION — Devam Noktası
+# NEXT SESSION — Devam Noktası (TEK Güncel Durum Dosyası)
 
-> Bu dosyayı oturum başında oku, kullanıcıdan tekrar açıklama isteme.
+> Bu dosyayı `CLAUDE.md`'den hemen sonra, her oturum başında oku.
+> Kullanıcıdan tekrar açıklama isteme. Bu dosya hem **içerik/feature**
+> hem **SEO/routing/deploy** durumunu tek yerde takip eder — `codexSeo.md`
+> artık sadece SEO'nun kalıcı kural/mimari referansıdır, durum günlüğü
+> değildir. Git commit hash gibi anlık bilgiler SADECE burada yazılır,
+> `CLAUDE.md`/`AGENTS.md`/`codexSeo.md`'ye yazılmaz (bkz. `CLAUDE.md` Bölüm 0).
 
 ---
 
@@ -36,20 +41,43 @@
 
 ---
 
-## ⚠️ GIT DURUMU & PARALEL SEO ÇALIŞMASI (2026-06-17 itibarıyla doğrulandı)
+## ⚠️ GÜNCEL DURUM — GIT, SEO, STRAY DOSYALAR (2026-06-17 itibarıyla doğrulandı)
 
-**Bu bölüm önemli — her oturum başında oku.** Bu repoda Claude (bu dosya) dışında başka bir araç (muhtemelen Codex — `codexSeo.md` onun çalışma notu) paralel olarak SEO/routing altyapısı üzerinde çalışıyor. İki çalışma akışı birbirinden habersiz ilerliyordu, bu oturumda durum netleştirildi:
+**Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
-- **Gerçek son local commit:** `129b8e3` (bu dosyanın üstündeki "Bu Oturumda Tamamlananlar" kayıtları). Bundan önce `e6d1dd9 chore: strengthen SEO redirects and guardrails` var.
-- **origin/main'in 2 commit ilerisindeyiz** (`e6d1dd9` + `129b8e3`), **henüz push edilmedi**. Push kararı kullanıcıya ait, otomatik push yapma.
-- **SEO/routing overhaul gerçek ve zaten commit'li** (önceki oturumda bu yanlışlıkla "stray/çakışan dosya" diye işaretlenmişti — o değerlendirme hatalıydı, düzeltiliyor): `BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi `git status` temiz, hepsi committed. `App.jsx`'te gerçekten 20 route + 20 `React.lazy()` import var (grep ile doğrulandı). Detaylar `codexSeo.md`'de.
-- **Hâlâ gerçekten stray/uncommitted olanlar** (bunlara dokunulmadı, kullanıcı kararı bekleniyor): paralel bir TSX rewrite (`src/App.tsx`, `src/main.tsx` [.tsx, .jsx'ten ayrı], `src/sections/`, `src/components/Header.tsx`, `Navigation.tsx`, `CodeBlock.tsx`, `FeatureCard.tsx`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyor, kullanılmıyor) ve ~25 adet tek-seferlik `.mjs` içerik script'i + `documents/` klasörü.
-- **`CLAUDE.md` ve `codexSeo.md`'de doğru ama commit edilmemiş değişiklikler var**: CLAUDE.md artık doğru şekilde 20 route listeliyor (eski 5-route Türkçe içerik yerine ASCII İngilizce/Türkçe karışık yeni içerik) ama bu hâlâ sadece working tree'de, commit'e alınmamış. Kullanıcı bu oturumda bilinçli olarak "şimdilik dokunma" dedi — bir sonraki oturumda tekrar sorulmalı, hâlâ çözülmemişse.
-- **Bu dosyanın (NEXT_SESSION.md) "Build Durumu" bölümündeki "Son production commit: 779ccc7" notu çok eskiydi** — gerçek son commit artık yukarıda yazılı, "Build Durumu" bölümü de güncellendi.
+### Git durumu
+- **Son local commit:** `c33a0e2 docs: reconcile NEXT_SESSION.md with actual git state and parallel SEO work`. Öncesi: `129b8e3` (Postman/Docker/Jenkins içerik + duplicate heading fix), `e6d1dd9` (SEO redirect/guard).
+- **origin/main'in 3 commit ilerisindeyiz**, henüz push edilmedi. Push kararı kullanıcıya ait, otomatik push yapma.
+- CLAUDE.md/AGENTS.md/codexSeo.md'nin anayasa-birleştirme değişiklikleri (2026-06-17, 3. kısım — bu dosyanın altındaki kayıt) henüz commit edilmedi, kullanıcı onayı bekleniyor.
 
-> **Özet kural:** Bu dosya içerik/feature işlerini takip eder, `codexSeo.md` SEO/routing işlerini takip eder. İkisi birbirine referans vermeli; biri diğerini gereksiz kılmaz.
+### SEO/routing altyapısı — gerçek ve commit'li
+Önceki bir oturumda bu yanlışlıkla "stray/çakışan dosya" diye işaretlenmişti — o değerlendirme hatalıydı. Gerçekte: `BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi `git status` temiz, hepsi committed. `App.jsx`'te gerçekten 20 route + 20 `React.lazy()` import var (grep ile doğrulandı). Mimari detayları artık `codexSeo.md`'de (kalıcı referans olarak).
+
+**SEO canlı doğrulama durumu (en son doğrulandığında):**
+- `https://learnqa.dev/robots.txt` ve `/sitemap.xml` canlıda 200 dönüyor.
+- Temiz URL yapısı canlıda çalışıyor (`/selenium`, `/test-frameworks`, `/java-document` doğrulandı).
+- `/test-frameworks` eski standalone HTML gölgelemesinden kurtarıldı, zengin static fallback canlıda görüldü.
+- **Henüz canlıda doğrulanmamış (push beklediği için):** `e6d1dd9` ile eklenen `/test-frameworks.html → /test-frameworks` ve `/comparison.html → /test-frameworks` 301 redirect'leri, ve genişletilmiş `check-seo.mjs` shadow-dosya guard'ı. Push sonrası bu ikisi tekrar kontrol edilmeli.
+- **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
+
+### Hâlâ gerçekten stray/uncommitted olanlar
+Bunlara dokunulmadı, kullanıcı kararı bekleniyor: paralel bir TSX rewrite (`src/App.tsx`, `src/main.tsx` [.tsx, .jsx'ten ayrı], `src/sections/`, `src/components/Header.tsx`, `Navigation.tsx`, `CodeBlock.tsx`, `FeatureCard.tsx`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyor, kullanılmıyor), ~25 adet tek-seferlik `.mjs` içerik script'i, ve kök dizindeki `documents/JavaNotesForProfessionals.md` (doğrulandı: `public/documents/JavaNotesForProfessionals.md` ile byte-byte aynı, tamamen gereksiz duplikasyon — silinebilir).
 
 ---
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 3. kısım — anayasa birleştirme)
+
+Kullanıcı, CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md arasında sürekli çelişki ve kafa karışıklığı olduğunu belirtti, dört dosyayı tek bir tutarlı sisteme oturtmamı istedi. Yapılanlar:
+
+| Görev | Durum |
+|-------|-------|
+| **`CLAUDE.md` tam "anayasa" olarak yeniden yazıldı**: 20 route, tam Türkçe diyakritik (eski ASCII Codex versiyonu yerine), Bölüm 0'da net "Dosya Haritası" (hangi konuda hangi dosyaya bakılacağı), **mülakat soruları için KESİN KURAL** (min 50 soru: 15 Basic + 20 Intermediate + 15 Advanced — Bölüm 10), "ilk block her zaman simple-box, teknik terimsiz" kuralı geri getirildi, "Sık Yapılan Hatalar" kısa listesi geri getirildi. Kalıcı kural dosyalarına commit hash/anlık durum yazılmaması kuralı eklendi (Bölüm 0 + 11). | ✅ |
+| **`AGENTS.md` ince pointer'a dönüştürüldü**: Artık içerik taşımıyor, sadece "kurallar için CLAUDE.md'ye bak" diyor. Çift bakım riski ortadan kalktı. | ✅ |
+| **`codexSeo.md` durum günlüğünden kalıcı referansa dönüştürüldü**: Tarihli "Son Durum 2026-06-17" / "Güncel Çalışma Notu 2026-06-16" gibi durum-günlüğü bölümleri çıkarıldı (içerikleri bu dosyaya taşındı — yukarıdaki "GÜNCEL DURUM" bölümü). Geriye SEO mimarisinin nasıl çalıştığı (13 maddelik kalıcı referans), GSC checklist'i, uzun kuyruk SEO stratejisi, marka/ranking stratejisi kaldı — hepsi zamana bağlı olmayan, tekrar kullanılabilir kurallar. | ✅ |
+| **`NEXT_SESSION.md` (bu dosya) tek "güncel durum" dosyası haline getirildi**: codexSeo.md'den çıkarılan SEO canlı doğrulama durumu + push bekleyen iş listesi buraya taşındı ("GÜNCEL DURUM" bölümü). Kendi kendini geçersiz kılan "son commit: X" tekrarları tek bir yere indirildi. | ✅ |
+| Dört dosya arası çapraz referanslar kontrol edildi: CLAUDE.md ↔ AGENTS.md ↔ codexSeo.md ↔ NEXT_SESSION.md, sarkan/yanlış pointer yok. | ✅ |
+
+> **Henüz commit edilmedi** — kullanıcı onayı bekleniyor. Detay için yukarıdaki "GÜNCEL DURUM" bölümüne bak.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 2. kısım — bug fix)
 
@@ -210,7 +238,7 @@ SimulationBlock({ block, darkMode, language })
 - ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, bkz. `codexSeo.md`)
 - ✅ Netlify'da canlı: https://learnqa.dev
 - ⚠️ `javaData` chunk hâlâ ~639KB tek başına büyük (route-based code splitting sayesinde ana bundle ~235KB'a indi, kritik değil)
-- **Son local commit: `129b8e3`** (origin/main'in 2 commit ilerisinde — `e6d1dd9` + `129b8e3` henüz push edilmedi, bkz. yukarıdaki "GIT DURUMU" notu)
+- Güncel commit/push durumu için bu dosyanın en üstündeki **"GÜNCEL DURUM"** bölümüne bak (tek kaynak — burada tekrar edilmiyor).
 
 ---
 

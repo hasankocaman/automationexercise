@@ -1,407 +1,297 @@
-# CLAUDE.md — QA Learning Platform
+# CLAUDE.md — QA Learning Platform (Proje Anayasası)
 
-> **OTURUM BAŞLANGIÇ PROTOKOLÜ:**  
-> Her yeni oturumda önce bu dosyayı, sonra aşağıda listelenen diğer MD  
-> dosyalarını sırayla oku. Kullanıcıdan tekrar açıklama isteme — cevap bu dosyalarda.
+> **OTURUM BAŞLANGIÇ PROTOKOLÜ**
+> Her yeni oturumda önce bu dosyayı oku. Bu dosya **kalıcı kuralları** içerir —
+> commit hash, "şu an ne yapıyoruz" gibi anlık bilgi **burada asla tutulmaz**,
+> onun için `.claude/NEXT_SESSION.md` var. Aşağıdaki "Dosya Haritası" bölümü
+> hangi konuda hangi dosyaya bakacağını gösterir. Kullanıcıdan proje hakkında
+> aynı bilgiyi tekrar isteme — cevap bu dosyalarda ve kodun kendisinde.
+
+**Misyon:** Kullanıcı dostu, kaliteli ve zengin içerikli; Google aramalarında
+QA/test otomasyonu sorgularında öne çıkan bir web uygulaması inşa etmek.
+İçerik derinliği ve SEO, eşit öncelikli iki temel hedeftir — biri diğeri
+pahasına feda edilmez.
+
+---
+
+## 0. Dosya Haritası — Hangi Konuda Hangi Dosyaya Bak
+
+Bu proje birden fazla AI aracıyla (Claude Code, Codex) geliştiriliyor.
+Çelişki ve kafa karışıklığını önlemek için **tek kaynak ilkesi** geçerlidir:
+
+| Dosya | İçerdiği Şey | Ne Zaman Oku |
+|-------|--------------|--------------|
+| **`CLAUDE.md`** (bu dosya) | Kalıcı proje kuralları, mimari, route haritası, içerik kuralları. Anayasa. | Her oturum başında, ilk. |
+| **`AGENTS.md`** | Sadece `CLAUDE.md`'ye yönlendiren kısa pointer (Codex için). | Codex bunu okur; içerik burada değil orada. |
+| **`.claude/NEXT_SESSION.md`** | **TEK güncel durum dosyası.** Son yapılanlar, sıradaki görevler, git/deploy durumu, SEO durumu — hepsi burada, tarihli. | `CLAUDE.md`'den hemen sonra, her oturumda. |
+| **`codexSeo.md`** | SEO kurallarının ve mimarisinin **kalıcı** referansı (nasıl çalışır, hangi script ne yapar, GSC checklist, uzun vadeli SEO stratejisi). Anlık durum/yapılacaklar listesi **burada değil**, `NEXT_SESSION.md`'de. | SEO/routing/metadata işi yaparken. |
+| **`DEPLOY.md`** | Netlify/GitHub Pages yayın adımları, Google Search Console kurulum adımları. | Yayın veya GSC işlerinde. |
+| **`.claude/CONTENT_RULES.md`** | İçerik yazım kuralları: block formatları, mülakat sorusu formatı, hata sözlüğü formatı, kurulum formatı. | İçerik yazarken, W3Schools kapsam kontrolü yaparken. |
+| **`.claude/UI_STANDARDS.md`** | Görsel/animasyon/renk standartları. | UI bileşeni eklerken. |
+| **`.claude/TECH_SPEC.md`** | Editör, toggle, localStorage, performans teknik gereksinimleri. | Etkileşimli editör/teknik altyapı işlerinde. |
+| **`.claude/QA_FRAMEWORK_SPEC.md`** | pytest/Selenium/Playwright derinlik kuralları. | Test framework içeriği yazarken. |
+| **`.claude/COMPONENT_LIBRARY.md`** | Tekrar kullanılan bileşenler. | Yeni bileşen eklerken. |
+| **`.claude/INTERVIEW_TEMPLATE.md`** | Mülakat soruları şablonu. | Mülakat sekmesi yazarken. |
+| **`.claude/JAVA_COMPARISON.md`** | Java ↔ Python/TS karşılaştırma kuralları. | Python/TS anlatırken. |
+
+**Kural:** Bu dosyalardan biri diğeriyle çelişiyorsa, en güncel olanı değil,
+**bu dosyanın (CLAUDE.md) tanımladığı sorumluluk alanına uygun olanı** doğru
+kabul et — yani SEO sorusu varsa `codexSeo.md`, güncel durum sorusu varsa
+`NEXT_SESSION.md` otoritedir. **`NEXT_SESSION.md` hariç** hiçbir kalıcı kural
+dosyasına (CLAUDE.md, AGENTS.md, codexSeo.md, `.claude/CONTENT_RULES.md` gibi
+diğer `.claude/*.md` kural dosyaları) commit hash veya "şu an X yapıldı, push
+bekliyor" gibi anlık bilgi yazma — bu bilgi yazıldığı an
+güncelliğini yitirir. Anlık durum sadece `NEXT_SESSION.md`'dedir.
 
 ---
 
 ## 1. Proje Özeti
 
-Bu proje, QA mühendisleri için sıfırdan mülakat seviyesine kadar götüren,  
-self-contained bir öğrenme platformudur. React + Vite ile yazılmıştır.
+Bu proje, QA mühendislerini sıfırdan mülakat seviyesine taşımayı hedefleyen,
+self-contained bir React + Vite öğrenme platformudur.
 
-**5 ana route:**
-- `/jmeter` — JMeter yük testi
-- `/python` — Python (W3Schools genişliğinde) + pytest/Selenium/Playwright
-- `/sql` — SQL (W3Schools genişliğinde) + sql.js etkileşimli editör
-- `/typescript` — TypeScript (W3Schools genişliğinde) + Playwright TS
-- `/test-frameworks` — pytest · Selenium · Playwright karşılaştırma (PythonPage'den bağlantılı)
+**Marka ve domain:**
+- Site markası: `LearnQA.dev`
+- Ürün adı: `QA Learning Platform`
+- Production URL: `https://learnqa.dev`
 
-**Hedef kullanıcı:** Core Java bilen, Python/TS öğrenmek isteyen QA mühendisi.  
-Anlatımlarda HER ZAMAN Java analogisi kullan. ("Java'da X şöyle yapılır, Python'da ise...")
+**Hedef kullanıcı:**
+- Core Java biliyor (Collections dahil)
+- Python ve TypeScript öğreniyor
+- QA automation, API testing, DevOps ve cloud test pratiklerine odaklanıyor
+- Anlatım dili: Türkçe açıklama + İngilizce teknik terimler (terimler
+  Türkçeleştirilmez: `fixture`, `locator`, `assertion`, `selector`, `CI/CD`
+  gibi terimler aynen kalır)
+- Python/TypeScript/QA anlatımlarında Java analojisi **zorunlu**
+  ("Java'da X şöyle yapılır, burada ise...")
 
 ---
 
-## 2. Teknik Stack
+## 2. Güncel Route Haritası
+
+Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
+
+- `/` — Home / automation playground
+- `/selenium` — Selenium WebDriver
+- `/playwright` — Playwright
+- `/python` — Python + pytest/Selenium/Playwright
+- `/typescript` — TypeScript + Playwright TS
+- `/sql` — SQL + interactive practice
+- `/java` — Java for QA Automation
+- `/jmeter` — JMeter performance testing
+- `/postman` — Postman API testing
+- `/rest-assured` — REST Assured Java API testing
+- `/docker` — Docker for QA
+- `/jenkins` — Jenkins CI/CD
+- `/kubernetes` — Kubernetes for QA
+- `/kafka` — Kafka for QA
+- `/appium` — Appium mobile testing
+- `/browserstack` — BrowserStack cloud testing
+- `/aws` — AWS for QA
+- `/azure` — Azure / Azure DevOps for QA
+- `/test-frameworks` — pytest, Selenium, Playwright karşılaştırma
+- `/java-document` — Java reference document reader
+
+**Routing:**
+- `src/main.jsx` → `BrowserRouter` kullanır.
+- Eski `/#/...` URL'ler `history.replaceState` ile temiz path'lere taşınır.
+- Netlify SPA fallback ve legacy redirect'ler `netlify.toml`'da tanımlıdır.
+- Yeni route eklenirse: `App.jsx`'e route + `React.lazy` import, `src/utils/seo.js`'e `ROUTE_SEO` girişi, gerekirse `scripts/generate-static-routes.mjs`'e static fallback içeriği eklenir.
+
+---
+
+## 3. Teknik Stack
 
 | Katman | Teknoloji |
 |--------|-----------|
-| Framework | React 18 (JSX) |
+| Framework | React 18 |
 | Build | Vite 5 |
-| Routing | react-router-dom v6 |
+| Routing | react-router-dom, `BrowserRouter` |
 | Styling | Tailwind CSS + custom CSS |
+| SEO | route metadata + generated sitemap/robots + static route HTML shell'ler |
 | Etkileşimli Python | Pyodide (CDN) |
 | Etkileşimli SQL | sql.js (WebAssembly) |
-| Etkileşimli TS | TypeScript → Babel transpile → eval |
+| Etkileşimli TypeScript | Babel standalone transpile + eval sandbox |
 | Syntax highlight | Prism.js (CDN) |
-| Font | Inter (UI), JetBrains Mono (kod) — Google Fonts CDN |
-| State yönetimi | React useState/useContext, localStorage |
+| Font | Inter, Plus Jakarta Sans, JetBrains Mono — Google Fonts CDN |
+| State yönetimi | React state/context + localStorage |
+| API mock | MSW |
 
 ---
 
-## 3. Proje Klasör Yapısı
+## 4. Proje Klasör Yapısı
 
-```
+```text
 automationexercise/
-├── CLAUDE.md                        ← (bu dosya) her oturumda oku
-├── index.html                       ← HTML entry (Google Fonts + Prism.js CDN burada)
+├── CLAUDE.md                 ← bu dosya, anayasa
+├── AGENTS.md                 ← Codex için CLAUDE.md'ye pointer
+├── codexSeo.md                ← SEO kuralları/mimarisi referansı
+├── DEPLOY.md                  ← yayın/GSC adımları
+├── index.html
+├── netlify.toml
+├── package.json
 ├── .claude/
-│   ├── CONTENT_RULES.md             ← içerik yazım kuralları
-│   ├── UI_STANDARDS.md              ← görsel/animasyon standartları
-│   ├── TECH_SPEC.md                 ← teknik gereksinimler (editör, toggle, localStorage)
-│   ├── QA_FRAMEWORK_SPEC.md         ← pytest/Selenium/Playwright derinlik kuralları
-│   ├── COMPONENT_LIBRARY.md         ← tekrar kullanılan bileşenler (HTML/CSS/JS)
-│   ├── INTERVIEW_TEMPLATE.md        ← mülakat soruları şablonu
-│   └── JAVA_COMPARISON.md           ← Java ↔ Python/TS karşılaştırma kuralları
+│   ├── NEXT_SESSION.md        ← TEK güncel durum dosyası
+│   ├── CONTENT_RULES.md
+│   ├── UI_STANDARDS.md
+│   ├── TECH_SPEC.md
+│   ├── QA_FRAMEWORK_SPEC.md
+│   ├── COMPONENT_LIBRARY.md
+│   ├── INTERVIEW_TEMPLATE.md
+│   └── JAVA_COMPARISON.md
+├── public/
+│   ├── robots.txt
+│   ├── sitemap.xml
+│   ├── favicon.svg
+│   ├── site.webmanifest
+│   └── documents/
+│       ├── JavaNotesForProfessionals.md
+│       └── JavaNotesForProfessionals_tr.md
+├── scripts/
+│   ├── check-seo.mjs
+│   ├── generate-seo-files.mjs
+│   ├── generate-static-routes.mjs
+│   └── check-dist-seo.mjs
 ├── src/
-│   ├── App.jsx                      ← Route tanımları (5 route)
-│   ├── main.jsx                     ← React entry point (MSW mock + SEO dostu BrowserRouter)
-│   ├── index.css                    ← Tailwind base + global styles
-│   ├── dark-overrides.css           ← Dark mode CSS overrides
-│   ├── context/
-│   │   └── LanguageContext.jsx      ← TR/ENG global state (localStorage key: 'language', default: 'tr')
-│   ├── locales/
-│   │   ├── en.json                  ← İngilizce çeviriler (t() fonksiyonu için)
-│   │   └── tr.json                  ← Türkçe çeviriler
+│   ├── App.jsx
+│   ├── main.jsx
+│   ├── index.css
+│   ├── dark-overrides.css
+│   ├── context/            ← LanguageContext, ZoomContext
 │   ├── components/
-│   │   ├── HomePage.jsx             ← Ana sayfa (automation playground)
-│   │   ├── TopicHeader.jsx          ← Topic sayfaları ortak header (geri butonu + dil toggle)
-│   │   ├── TopicPage.jsx            ← Tüm topic sayfalarını render eden wrapper
-│   │   ├── JMeterPage.jsx           ← /jmeter route
-│   │   ├── PythonPage.jsx           ← /python route
-│   │   ├── SQLPage.jsx              ← /sql route
-│   │   ├── TypeScriptPage.jsx       ← /typescript route
-│   │   ├── TestFrameworksPage.jsx   ← /test-frameworks route (pytest·Selenium·Playwright)
-│   │   ├── FrameworkComparison.jsx  ← Cypress/Selenium/Playwright karşılaştırma tablosu
-│   │   ├── PlaywrightLangCompare.jsx← Playwright JS/TS/Python 3 dil karşılaştırma
-│   │   ├── BasicElements.jsx        ← Ana sayfa: temel form elementleri (Selenium practice)
-│   │   ├── ComplexInteractions.jsx  ← Ana sayfa: drag-drop, modal, iframe
-│   │   ├── AdvancedScenarios.jsx    ← Ana sayfa: Shadow DOM, dynamic content, file upload
-│   │   ├── DataTable.jsx            ← Ana sayfa: sort/search/paginate tablo
-│   │   ├── APISimulation.jsx        ← Ana sayfa: API mock (MSW) + SwaggerDocs wrapper
-│   │   ├── SwaggerDocs.jsx          ← APISimulation içinde kullanılan Swagger UI benzeri panel
-│   │   ├── LocatorGuide.jsx         ← Ana sayfa: Selenium vs Playwright locator rehberi
-│   │   └── Practice.jsx             ← Ana sayfa: Uygulama Bahçesi
-│   ├── data/
-│   │   ├── pythonData.js            ← Python içerik (9 tab, TR+EN)
-│   │   ├── typescriptData.js        ← TS içerik (9 tab, TR+EN)
-│   │   ├── sqlData.js               ← SQL içerik (TR+EN)
-│   │   └── jmeterData.js            ← JMeter içerik (TR+EN)
+│   ├── data/                ← *Data.js, asıl içerik burada
 │   ├── mocks/
-│   │   ├── browser.js               ← MSW browser worker kurulumu
-│   │   └── handlers.js              ← API mock handler'ları (Books CRUD)
-│   └── utils/
-│       └── api-spec.js              ← Swagger/API endpoint tanımları
-└── dist/                            ← Build çıktısı (git'e ekleme)
+│   └── utils/                ← seo.js, api-spec.js
+└── dist/                     ← build çıktısı, elle düzenleme
 ```
 
 ---
 
-## 4. Mimari Karar Notları
+## 5. Mimari Kararlar
 
-- **Data-driven yaklaşım:** İçerik `*Data.js` dosyalarında obje dizisi olarak tutulur.  
-  Component bu veriyi render eder. Yeni konu eklemek = data dosyasına yeni obje eklemek.
-- **Block sistemi:** Her konu `blocks` dizisi içerir. Block tipleri:  
-  `text | code | heading | grid | table | quiz | editor | diagram | comparison | glossary | error-dict | interview-questions`
-- **Dil sistemi:** `LanguageContext` global state tutar (`tr` | `en`).  
-  Her block'un `tr` ve `en` varyantı olabilir. Kod bloğu asla değişmez.
-- **Etkileşimli editör:** `editor` tipli block'lar Pyodide/sql.js/Babel kullanır.  
-  Her editör kendi sandbox'ında çalışır, global state'i kirletmez.
-
----
-
-## 5. İçerik Genişlik Kuralı (ZORUNLU)
-
-Python, TypeScript **ve SQL** sayfaları W3Schools'daki TÜM konuları kapsamalıdır.  
-Eksik konu bırakılamaz. Detaylar: `.claude/CONTENT_RULES.md`
+- **Data-driven içerik:** Teknoloji sayfalarında asıl içerik `src/data/*Data.js` dosyalarındadır. İçerik değişikliği = data dosyasını düzenle, component'e dokunma.
+- **Ortak render yapısı:** `TopicPage.jsx` üzerinden ilerler; her sayfa `blocks` dizisi render eder (`text | code | heading | grid | table | quiz | editor | diagram | comparison | glossary | error-dictionary | interview-questions | simple-box | visual | callout | locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline`).
+- **Dil sistemi:** `LanguageContext` global state tutar (`tr` | `en`). Her block'un `tr`/`en` varyantı olabilir; kod bloğu asla değişmez.
+- **Route metadata:** `src/utils/seo.js` içindedir (`SITE_URL`, `DEFAULT_SEO`, `ROUTE_SEO`, `getSeoForPath`, `canonicalUrl`).
+- **Runtime SEO güncellemesi:** `src/components/SeoMeta.jsx` route değiştikçe title/description/canonical/OG/Twitter günceller.
+- **Static SEO shell üretimi:** Build sırasında her route için `robots.txt`, `sitemap.xml` ve crawl edilebilir static HTML shell üretilir (`scripts/generate-static-routes.mjs`). Detay: `codexSeo.md`.
+- **`/java-document`** sayfası `public/documents/` altındaki markdown dosyalarını okuyup client tarafında parse eder.
+- **Etkileşimli editör:** Her editör kendi sandbox'ında çalışır, global state'i kirletmez.
 
 ---
 
-## 6. Diğer MD Dosyaları — Okuma Sırası
+## 6. SEO ve Yayın Kuralları (Zorunlu)
 
-Aşağıdaki dosyaları bu sırayla oku. Göreve göre ilgili dosyaya odaklan:
+SEO altyapısı bu projede **zorunludur**, opsiyonel değildir — misyonun yarısı bu.
 
-| # | Dosya | Ne Zaman Kritik |
-|---|-------|-----------------|
-| 1 | `.claude/CONTENT_RULES.md` | İçerik yazarken, W3Schools kapsam kontrolü yaparken |
-| 2 | `.claude/UI_STANDARDS.md` | UI bileşeni eklerken, renk/font/animasyon kararı verirken |
-| 3 | `.claude/TECH_SPEC.md` | Editör, toggle, localStorage, performans konularında |
-| 4 | `.claude/QA_FRAMEWORK_SPEC.md` | pytest/Selenium/Playwright bölümü yazarken |
-| 5 | `.claude/COMPONENT_LIBRARY.md` | Tekrar kullanılacak bileşen eklerken |
-| 6 | `.claude/INTERVIEW_TEMPLATE.md` | Mülakat sorusu bölümü yazarken |
-| 7 | `.claude/JAVA_COMPARISON.md` | Python/TS anlatırken Java karşılaştırması yaparken |
+- Temiz URL kullan: `/selenium`, asla `/#/selenium` değil.
+- Her route için `src/utils/seo.js` içinde metadata olmalı; title `LearnQA.dev` içermeli, description 80–180 karakter aralığında olmalı, canonical `https://learnqa.dev/...` formatında olmalı.
+- Build zinciri (`npm run build`) SEO kontrollerini geçmelidir: `check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo`.
+- Eski standalone `.html` dosyaları React route'larını gölgelememeli; gölgeleyen bir legacy `.html` URL varsa `netlify.toml`'da explicit 301 redirect ile korunmalı.
+- İçerik SEO'su: her sayfa tek bir ana arama niyetini hedeflemeli (örn. "Selenium WebDriver tutorial for QA engineers"); sadece araç ismi değil, problem odaklı başlıklar da üretilmeli (wait strategies, Page Object Model, API testing gibi).
+- SEO kuralları, script'lerin ne yaptığı, Google Search Console checklist'i ve uzun vadeli SEO stratejisi için **`codexSeo.md`'ye bak** — burada tekrar edilmez.
 
 ---
 
-## 7. Bu Projeye Yeni Başlarken Yap
+## 7. Dil ve localStorage
 
-```bash
-# 1. Bağımlılıkları yükle
-npm install
-
-# 2. Dev server başlat
-npm run dev
-# → http://localhost:5173
-
-# 3. Build (production)
-npm run build
-```
+- `LanguageContext.jsx` → localStorage key: `language`, değerler `tr`/`en`, default `tr`.
+- Dark mode → localStorage key: `darkMode`.
+- Tamamlama/progress gibi ek state'lerde mevcut kodun kullandığı key'leri takip et, yenisini icat etme.
 
 ---
 
 ## 8. Kodlama Kuralları
 
-- Yeni bileşen eklerken mevcut `*Page.jsx` yapısını taklit et.
-- İçerik değişikliği = `src/data/*Data.js` dosyasını düzenle, component'e dokunma.
-- Renk paleti (WCAG AAA token): light bg `#F8F5EE`, dark bg `#1A1816`, accent `#7c3aed`, success `#10b981`, warning `#f59e0b`, error `#ef4444`. Tam token sistemi `src/index.css`'de.
-- Her sayfada zorunlular: TR/ENG toggle (sağ üst), **dikey sidebar nav (sol — sekmeleri alt alta)**, home butonu (sağ alt fixed — HER ZAMAN görünür, 🏠 ikonu, sayfanın başına döner), scroll progress bar (en üst).
-- **Sekme navigasyonu (ZORUNLU):** Sekme içeren tüm sayfalarda sekmeler yatay (üst) değil, **dikey sidebar** (sol taraf, alt alta) olarak konumlanmalıdır. `TopicPage` bileşenindeki sidebar layout referans alınır: `flex-shrink-0 w-10 md:w-52 sticky top-3 rounded-xl`. Mobilde emoji-only, desktop'ta tam etiket gösterilir.
-- Kod bloğu = Prism.js highlight + copy butonu + satır yorumları zorunlu.
-- `simple-box` block: `title` field YOK, sadece `emoji` + `content` (bilingual). Günlük hayat benzetmesiyle basitçe açıkla, teknik terim kullanma.
+- Yeni bileşen eklerken mevcut `*Page.jsx` ve `TopicPage.jsx` kalıplarını taklit et.
+- İçerik değişikliği mümkünse sadece `src/data/*Data.js` dosyasında kalmalı.
+- Yeni teknoloji route'u eklenirse: ayrı component, ayrı route, ayrı data dosyası ve SEO metadata birlikte eklenir (Bölüm 2).
+- Sekmeli sayfalarda yatay tab bar değil, **sol dikey sidebar** kullan (`TopicPage` referans).
+- Her sayfada zorunlu: dil toggle (sağ üst), scroll progress bar, fixed home butonu (sağ alt, 🏠).
+- Kod blokları Prism highlight + copy button ile gösterilir, satır yorumları zorunlu.
+- Dışa bağımlı görsel dosyası ekleme; diyagram gerekiyorsa inline SVG veya CSS kullan.
+- `simple-box` block formatında `title` field kullanma; sadece `emoji` + bilingual `content`.
 
 ---
 
-## 9. Kullanıcı Profili
+## 9. İçerik Kapsam Kuralları
 
-- Core Java biliyor (Collections dahil)
-- Python ve TypeScript öğreniyor
-- QA mühendisi perspektifinden öğreniyor
-- Her anlatımda Java analoji ZORUNLU: "Java'da nasıl?" → "Burada nasıl?"
-- Dil: Türkçe açıklama + İngilizce teknik terimler (çevrilmez)
-
----
-
-## 10. Sık Yapılan Hatalar — Yapma
-
-- ❌ `*Data.js` dışında içerik hardcode etme
-- ❌ Dış görsel dosyası kullan (SVG inline olmalı)
-- ❌ Teknik terimi Türkçeye çevirme ("fixture" → "fikstür" değil, "fixture" kalır)
-- ❌ Editör olmadan kod bloğu bırakma (her kodun denenebilir editörü olmalı)
-- ❌ Java karşılaştırması yapmadan Python/TS konusu anlatma
-- ❌ W3Schools'daki bir konuyu atlama (Python/TS/SQL için)
-- ❌ Sayfayı ayrı HTML dosyasına çıkarma (React component kalmalı)
-- ❌ Sekmeleri yatay (üst nav bar) yapma — her zaman dikey sidebar kullan
-- ❌ Ana sayfaya yeni kart/link ekleyip ayrı sayfa & route oluşturmama (Kural 13.1)
-- ❌ Her konunun ilk block'unu `simple-box` ile basit benzetmeden başlatmamak (Kural 13.2)
-- ❌ Kurulum bölümünü salt metin bırakma — görsel/animasyon zorunlu (Kural 13.3)
-- ❌ 50'den az mülakat sorusu yazmak — kesinlikle 50 soru (Kural 13.6)
-- ❌ Mülakat sorusunu "X nedir?" formatında salt tanım sorusu yazmak (Kural 13.6)
-- ❌ Animasyon için harici JS kütüphanesi eklemek — CSS-only tercih edilir (Kural 13.7)
+- Python, TypeScript ve SQL sayfaları W3Schools kapsamındaki konuları **eksiksiz** kapsamalıdır.
+- Her teknoloji sayfası şu sekimleri içermelidir: **Kurulum/Installation, Gerçek Hayat/Real World, Ekosistem/Ecosystem, Yaygın Hatalar/Troubleshooting, Mülakat Soruları/Interview Questions.**
+- **Her konunun ilk block'u mutlaka `simple-box` olmalı** ve teknolojiyi hiç teknik terim kullanmadan, günlük hayat benzetmesiyle açıklamalı (10 yaşındaki birine anlatır gibi). Ardından teknik tanıma geçilir, zıplama yapılmaz.
+- Kurulum sekmesinde Windows/macOS/Linux komutları + her adım sonrası beklenen çıktı + verification komutu zorunlu.
+- Gerçek hata mesajları için `error-dictionary` block'u kullanılır, minimum 8 farklı gerçek hata senaryosu.
+- Her sekmede en az 1 inline SVG/CSS-only animasyon, badge/progress, karşılaştırma tablosu.
 
 ---
 
-## 11. Mobile Responsive Kuralları (ZORUNLU)
+## 10. KESİN KURAL — Mülakat Soruları (Esnek Değildir)
 
-Tüm bileşenler iOS, Android (telefon + tablet) dahil her platformda web ile aynı kalitede görüntülenmelidir.
-
-### Temel Kurallar
-
-- **Responsive padding/margin:** `px-3 py-2 md:px-6 md:py-4` örüntüsünü takip et. Mobilde büyük padding kullanma.
-- **Responsive font:** Başlıklar için `text-xl md:text-4xl`, alt başlıklar `text-sm md:text-xl`.
-- **Nav scroll:** Çok sayıda button içeren navlar mobilde `overflow-x-auto scrollbar-hide` ile yatay kaydırılabilir olmalı, `flex-wrap` ile alt satıra taşmamalı.
-- **Touch target:** Her buton ve link min `36px` yüksekliğinde olmalı (WCAG 2.5.5).
-- **iOS input:** `input`, `select`, `textarea` — `font-size: 16px` zorunlu (iOS zoom bug önlenir).
-- **Horizontal overflow:** `html, body { overflow-x: hidden }` global kural — yatay kaydırma olmamalı.
-- **Dark mode button:** Mobilde (`< md`) ikon-only göster, label `hidden md:inline`.
-- **Kod blokları:** `overflow-x-auto` ile horizontal scroll, `max-width: 100%`.
-- **Grid:** `grid-cols-N` kullanırken mobil breakpoint ekle: `grid-cols-1 md:grid-cols-2`.
-- **Touch action:** `touch-action: manipulation` — butonlarda 300ms gecikme engeli.
-
-### `index.css`'de Mevcut Mobile Altyapı
-
-- `.scrollbar-hide` — scrollbar gizleme utility class'ı
-- `@media (max-width: 768px)` — input font-size, min touch target, pre max-width
-- `touch-action: manipulation` — tüm button/link'lere global
-- `overflow-x: hidden` — html/body'de tanımlı
-
----
-
-## 12. Teknoloji Sayfaları İçerik Derinlik Kuralı (ZORUNLU)
-
-Her teknoloji sayfası (Docker, Jenkins, Kubernetes, Kafka, JMeter, Postman, REST Assured vb.) şu bölümleri **MUTLAKA** içermelidir:
-
-### Zorunlu Sekmeler
-
-| Sekme | İçerik |
-|-------|--------|
-| ⚙️ Kurulum / Installation | Windows + Mac + Linux için adım adım terminal komutları. Verification steps dahil. |
-| 🛠️ Gerçek Hayat / Real World | Birebir hands-on senaryo: "Bu komutu çalıştır → bu çıktıyı gör → şimdi bu adımı yap" |
-| 🔗 Ekosistem / Ecosystem | İlgili teknolojilerle ilişkisi, birlikte nasıl çalışırlar, hangi problemi birlikte çözerler |
-| 🚨 Yaygın Hatalar | Gerçek hata mesajları, nedenleri ve çözümleri (`error-dictionary` block tipi kullanılır) |
-| 💼 Mülakat Soruları | Basic / Intermediate / Advanced seviyelerinde — her soruya detaylı cevap |
-
-### Kurulum Bölümü Kuralları
-
-- Üç işletim sistemi için ayrı komutlar: Windows (winget/chocolatey/PowerShell), Mac (Homebrew), Linux (apt/yum/binary)
-- Her adımda beklenen çıktı gösterilmeli ("Output you should see:")
-- Verification step zorunlu: kurulumun başarılı olduğunu doğrulayan komut
-
-### Gerçek Hayat Bölümü Kuralları
-
-- End-to-end senaryo: "Gerçek bir e-ticaret / Spring Boot projesi" gibi somut context
-- Her adımda tam terminal komutu + açıklaması
-- Orta seviye bir QA mühendisinin bizzat takip edebileceği ayrıntı
-
-### Ekosistem Bölümü Kuralları
-
-- İlişki tablosu veya akış diyagramı zorunlu
-- En az 3 teknoloji ilişkisi ele alınmalı
-- Örnek: Docker ↔ Kubernetes ↔ Jenkins ↔ Kafka
-
-### Mülakat Soruları Kuralları
-
-- Minimum: 3 Basic + 3 Intermediate + 3 Advanced soru
-- Her soruya 3-5 cümle detaylı cevap
-- Cevaplarda Java karşılaştırması kullan (CLAUDE.md Kural 9)
-
----
-
-## 13. Yeni Teknoloji / Dil Ekleme Protokolü (ZORUNLU)
-
-Ana sayfaya yeni bir teknoloji veya programlama dili eklendiğinde aşağıdaki adımlar **eksiksiz** uygulanır.
-
-### 13.1 Sayfa & Route Oluşturma
-
-- Ana sayfaya her yeni kart/link eklendiğinde o teknoloji için **ayrı bir React component** (`src/components/<TechName>Page.jsx`) ve **ayrı bir route** (`src/App.jsx`'te `/<tech-name>`) oluşturulur.
-- İçerik `src/data/<techName>Data.js` dosyasında data-driven yapıda tutulur; component bu veriyi render eder.
-- Sidebar navigasyonu, TR/EN toggle ve scroll progress bar mevcut `TopicPage` bileşeni kalıbına uygun eklenir.
-
-### 13.2 "10 Yaşında Çocuğa Anlatım" Kuralı (ZORUNLU)
-
-Her konunun ilk block'u mutlaka `simple-box` tipi olmalı ve o teknolojiyi **hiç teknik terim kullanmadan**, günlük hayat benzetmesiyle açıklamalıdır.
-
-- Benzetme somut olmalı: "Docker, bir taşıma konteyneri gibidir — içine ne koyarsan koy, her limanda aynı şekilde açılır."
-- Ardından teknik tanıma geçilmeli, zıplama yapılmamalı.
-- Her sekmede en az 1 adet `simple-box` block'u olmalı.
-
-### 13.3 Kurulum Bölümü — Görsel & Animasyon Zorunluluğu
-
-Kurulum sekmesinde salt metin yetmez; şu öğeler **zorunlu**:
-
-| Öğe | Gereklilik |
-|-----|------------|
-| Adım adım numara listesi | Her işletim sistemi için ayrı |
-| `code` block + copy butonu | Her komut için |
-| Beklenen çıktı (`Output you should see:`) | Her adım sonrası |
-| Animasyonlu ilerleme göstergesi (CSS keyframe veya Tailwind animate) | Adımlar arasında görsel geçiş |
-| SVG / inline diyagram | Kurulum akışını gösteren şema |
-| Verification komutu | Kurulumun başarılı olduğunu doğrular |
-
-İşletim sistemi ayrımı şablonu:
-- **Windows:** winget / chocolatey / PowerShell
-- **macOS:** Homebrew (`brew install ...`)
-- **Linux:** apt / yum / binary download
-
-### 13.4 Gerçek Hayat Kullanımı & Karşılaştırma (ZORUNLU)
-
-Her teknoloji sayfasının "Gerçek Hayat" sekmesinde şunlar **mutlaka** yer alır:
-
-1. **Hangi ihtiyaca cevap verir?** — "Bu teknoloji olmadan hayat nasıl zordu?" sorusuna 2-3 cümle.
-2. **Gerçek dünya senaryosu** — Somut bir şirket/proje bağlamında (ör. "Bir e-ticaret sitesinde şöyle kullanılır…").
-3. **Rakip teknoloji karşılaştırması** — En az 2 alternatifle karşılaştırma tablosu:
-   - Avantajlar ✅
-   - Dezavantajlar ❌
-   - Hangi durumda tercih edilmeli?
-4. **Akış diyagramı** — Gerçek hayat entegrasyonunu gösteren SVG inline diyagram veya ASCII art.
-5. **Hands-on mini proje** — Okuyucunun kopyala-yapıştır yapıp çalıştırabileceği tam örnek.
-
-### 13.5 Sorun & Çözüm Bölümü — Görsel Zenginlik (ZORUNLU)
-
-"Yaygın Hatalar / Troubleshooting" sekmesi şunları kapsar:
-
-- `error-dictionary` block tipi kullanılır: gerçek hata mesajı → neden → çözüm adımları.
-- Her hata için:
-  - **Gerçek hata çıktısı** (terminal/log kopyası, `code` block içinde)
-  - **Sebebi** (animasyonlu açıklama veya SVG diyagram)
-  - **Adım adım çözüm** (numara listesi)
-  - **Sonuç doğrulama** komutu
-- Minimum **8 farklı gerçek hata senaryosu** yer almalı.
-- Her senaryoya inline SVG veya CSS animasyonla görsel destek ekle.
-
-### 13.6 Mülakat Soruları — 50 Soru Kuralı (ZORUNLU)
-
-Mülakat sekmesinde **kesinlikle 50 soru** yer alır. Dağılım:
+Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 
 | Seviye | Adet | Odak |
 |--------|------|------|
-| Basic (Başlangıç) | 15 soru | Kurulum, temel kavramlar, ilk komutlar |
-| Intermediate (Orta) | 20 soru | Gerçek iş senaryoları, yaygın hatalar, best practice |
-| Advanced (İleri) | 15 soru | Mimari kararlar, performans, CI/CD entegrasyonu, edge case |
+| Basic | 15 | Kurulum, temel kavramlar |
+| Intermediate | 20 | Gerçek iş senaryoları, yaygın hatalar, best practice |
+| Advanced | 15 | Mimari kararlar, performans, CI/CD entegrasyonu |
 
-**Soru yazım kuralları:**
-- ❌ "X nedir?" — salt tanım sorusu yasak.
-- ✅ "Bir production ortamında X ile şu sorunla karşılaştın, ne yaparsın?" — senaryo tabanlı.
-- ✅ Her soru gerçek iş hayatında karşılaşılabilecek, hands-on deneyim gerektiren türde olmalı.
-- Her soruya 3-6 cümle detaylı cevap (gerekirse kod örneği).
-- Cevaplarda Java karşılaştırması kullan (CLAUDE.md Kural 9).
-
-### 13.7 Görsel & Animasyon Zorunlulukları (Tüm Sekmeler)
-
-Her teknoloji sayfasında aşağıdaki görsel öğeler kullanılır:
-
-| Öğe | Uygulama |
-|-----|----------|
-| Inline SVG diyagramlar | Akış şemaları, mimari diyagramlar (dış dosya yasak) |
-| CSS keyframe animasyonları | `@keyframes fadeIn`, `slideIn`, `pulse` vb. — Tailwind `animate-*` class'ları |
-| Renkli badge / chip | Seviye göstergeleri (Basic/Intermediate/Advanced), durum etiketleri |
-| İlerleme çubukları | Kurulum adımları, konu ilerlemesi |
-| Tooltip / hover açıklaması | Teknik terimler üzerine gelindiğinde basit açıklama |
-| Karşılaştırma tablosu | Her "vs" senaryosunda zorunlu, renkli hücreler |
-| Kod bloğu + canlı editör | Her konuda en az 1 çalıştırılabilir örnek |
-| Animasyonlu `simple-box` | Giriş bölümünde dikkat çekici, renkli kutu |
-
-**Animasyon kullanım ilkesi:**
-- CSS-only animasyon tercih edilir (harici kütüphane ekleme).
-- `prefers-reduced-motion` media query'e uyulur (erişilebilirlik).
-- Tailwind `transition`, `duration-300`, `ease-in-out` kombinasyonu standart geçiş için yeterli.
+- ❌ "X nedir?" tarzı salt tanım sorusu yasak.
+- ✅ "Production'da X ile şu sorunla karşılaştın, ne yaparsın?" tarzı senaryo tabanlı sorular.
+- Her soruya 3–6 cümle detaylı cevap (gerekirse kod örneği), Java karşılaştırması içermeli.
+- Format detayı: `.claude/CONTENT_RULES.md` Kural 6, `.claude/INTERVIEW_TEMPLATE.md`.
 
 ---
 
-## 14. SEO & Yayın Stratejisi (ZORUNLU)
+## 11. Sık Yapılan Hatalar — Yapma
 
-learnqa.dev canlı yayında olan bir eğitim sitesidir. Google aramalarında görünürlük için her teknik değişiklik SEO etkisi düşünülerek yapılır.
-
-### 14.1 URL ve Routing Kuralları
-
-- Public sayfalar hash URL ile yayınlanmamalıdır. `/#/selenium` yerine `/selenium`, `/#/python` yerine `/python` kullanılmalıdır.
-- Yeni route eklenirken temiz path kullanılmalı ve sitemap'e eklenmelidir.
-- React tarafında SEO hedefi için `BrowserRouter` tercih edilir. Host tarafında SPA fallback yapılandırması yapılır.
-- İç linkler crawl edilebilir gerçek `href` veya React Router `Link` path'i üretmelidir.
-
-### 14.2 Metadata Kuralları
-
-- Her önemli sayfanın kendine özgü `<title>`, meta description ve canonical URL değeri olmalıdır.
-- Ana marka adı `QA Learning Platform` / `LearnQA.dev` olarak tutarlı kullanılmalıdır; eski `Automation Exercise` veya `Automation Testing Playground` marka adı UI metadata içinde kullanılmaz.
-- Sosyal paylaşım için Open Graph ve Twitter card metadata eklenmelidir.
-
-### 14.3 Sitemap ve Robots
-
-- `public/robots.txt` bulunmalı ve `https://learnqa.dev/sitemap.xml` adresini göstermelidir.
-- `public/sitemap.xml` içinde ana sayfa ve tüm public teknoloji route'ları listelenmelidir.
-- Yeni public route eklenirse sitemap aynı değişiklikte güncellenir.
-
-### 14.4 Static / Pre-render Hedefi
-
-- Uzun vadeli hedef, Google'ın JavaScript render kuyruğuna bağımlılığını azaltmak için önemli eğitim sayfalarını static/pre-render HTML olarak sunmaktır.
-- İlk aşamada metadata, temiz URL, sitemap ve robots uygulanır; sonraki aşamada route bazlı pre-render/SSG planlanır.
-
-### 14.5 İçerik SEO Kuralları
-
-- Her teknoloji sayfası tek bir ana arama niyetini hedeflemelidir: örn. "Selenium WebDriver tutorial for QA engineers", "SQL for QA engineers", "Playwright Java Python TypeScript tutorial".
-- Sayfa başlıkları teknik terimleri İngilizce bırakmalı, açıklamalar QA mühendisi arama niyetine göre yazılmalıdır.
-- Yeni içerik yazarken sadece araç ismi değil, problem odaklı arama başlıkları da üretilmelidir: wait strategies, interview questions, Page Object Model, API testing, CI/CD pipeline gibi.
+- ❌ `*Data.js` dışında içerik hardcode etme.
+- ❌ Dış görsel dosyası kullanma (SVG inline olmalı).
+- ❌ Teknik terimi Türkçeye çevirme.
+- ❌ Editör/canlı örnek olmadan kod bloğu bırakma.
+- ❌ Java karşılaştırması yapmadan Python/TS konusu anlatma.
+- ❌ W3Schools'daki bir konuyu atlama (Python/TS/SQL).
+- ❌ Sekmeleri yatay nav bar yapma — her zaman dikey sidebar.
+- ❌ 50'den az mülakat sorusu yazmak (Bölüm 10).
+- ❌ Kalıcı kural dosyalarına (bu dosya, AGENTS.md, codexSeo.md, `NEXT_SESSION.md` hariç diğer `.claude/*.md` dosyaları) commit hash veya anlık durum yazmak — bu bilgi sadece `NEXT_SESSION.md`'dedir.
 
 ---
 
-## 15. Token Tasarrufu & Adım Adım Çalışma Protokolü (ZORUNLU)
+## 12. Mobile Responsive Kuralları
 
-Büyük görevlerde (yeni teknoloji sayfası, kapsamlı içerik ekleme vb.) token israfını önlemek için **her zaman adım adım çalış**:
+- Mobilde büyük padding kullanma: `px-3 py-2 md:px-6 md:py-4` örüntüsü.
+- Buton/link minimum 36px touch target (WCAG 2.5.5).
+- `input`/`select`/`textarea` font-size mobilde 16px (iOS zoom bug önlenir).
+- Kod blokları `overflow-x-auto` ile taşabilir olmalı.
+- Grid'lerde mobil breakpoint: `grid-cols-1 md:grid-cols-2`.
+- `html, body { overflow-x: hidden }` — yatay kaydırma olmamalı.
+- Dark mode butonu mobilde (`<md`) icon-only olabilir.
 
-1. **Görevi parçalara böl** — Her dosya veya bölüm ayrı bir adımdır. Tek seferde tüm içeriği yazmaya çalışma.
-2. **Her adımı tamamla, onay al** — Bir adım bitmeden bir sonrakine geçme. Kullanıcı yönlendirmesi gerekirse sor.
-3. **Data dosyalarını bölümler halinde yaz** — Büyük `*Data.js` dosyaları için önce Section 0-3, sonra Section 4-7 gibi parçalara ayır.
-4. **Tekrar okuma** — Daha önce okunan dosyaları tekrar okuma; konuşma bağlamından devam et.
-5. **Paralel araç çağrılarını** bağımsız işlemler için kullan (örn. aynı anda 2 dosya okuma), sıralı bağımlılığı olan işlemler için kullanma.
+---
 
-**Bu kural her oturumda, her büyük görevde geçerlidir.**
+## 13. Büyük Görevlerde Çalışma Protokolü
+
+- Görevi dosya/bölüm bazında parçalara ayır, tek seferde her şeyi yazmaya çalışma.
+- Daha önce okunan dosyaları tekrar okuma; konuşma bağlamından devam et.
+- Önce mevcut pattern'i oku, sonra küçük ve doğrudan değişiklik yap.
+- Her adımdan sonra `npm run build` veya ilgili kontrol komutunu çalıştır.
+- Bağımsız işlemler için paralel araç çağrısı kullan, sıralı bağımlılığı olanlarda kullanma.
+- Canlı deploy / Google Search Console gibi credential gerektiren işlerde kod tarafını hazırla, kullanıcıya net manuel adımları ver (bkz. `DEPLOY.md`).
+
+---
+
+## 14. Bilinen Uyarılar
+
+- `javaData` chunk'ı büyüktür (~640KB); build uyarısı verebilir ama production build'i bozmaz.
+- Browserslist/caniuse-lite eski veri uyarısı görülebilir; build'i bozmaz.
+- `dist/` build çıktısıdır; gereksiz elle düzenleme yapma.
+- Çalışma ağacında kullanıcıya ait uncommitted değişiklikler olabilir; izin olmadan geri alma veya silme — `NEXT_SESSION.md`'deki güncel listeye bak.
+
+---
+
+## 15. Kullanıcı Profili Hatırlatması
+
+- Core Java biliyor, QA mühendisi perspektifinden öğreniyor.
+- Her anlatımda Java analojisi zorunlu.
+- Türkçe açıklama + İngilizce teknik terimler.
+- **Görsel + animasyon önceliklidir** — metin secondary.
+- Token kısıtı varsa adım adım, onay alarak devam et (Bölüm 13).
