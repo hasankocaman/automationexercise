@@ -36,6 +36,21 @@
 
 ---
 
+## ⚠️ GIT DURUMU & PARALEL SEO ÇALIŞMASI (2026-06-17 itibarıyla doğrulandı)
+
+**Bu bölüm önemli — her oturum başında oku.** Bu repoda Claude (bu dosya) dışında başka bir araç (muhtemelen Codex — `codexSeo.md` onun çalışma notu) paralel olarak SEO/routing altyapısı üzerinde çalışıyor. İki çalışma akışı birbirinden habersiz ilerliyordu, bu oturumda durum netleştirildi:
+
+- **Gerçek son local commit:** `129b8e3` (bu dosyanın üstündeki "Bu Oturumda Tamamlananlar" kayıtları). Bundan önce `e6d1dd9 chore: strengthen SEO redirects and guardrails` var.
+- **origin/main'in 2 commit ilerisindeyiz** (`e6d1dd9` + `129b8e3`), **henüz push edilmedi**. Push kararı kullanıcıya ait, otomatik push yapma.
+- **SEO/routing overhaul gerçek ve zaten commit'li** (önceki oturumda bu yanlışlıkla "stray/çakışan dosya" diye işaretlenmişti — o değerlendirme hatalıydı, düzeltiliyor): `BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi `git status` temiz, hepsi committed. `App.jsx`'te gerçekten 20 route + 20 `React.lazy()` import var (grep ile doğrulandı). Detaylar `codexSeo.md`'de.
+- **Hâlâ gerçekten stray/uncommitted olanlar** (bunlara dokunulmadı, kullanıcı kararı bekleniyor): paralel bir TSX rewrite (`src/App.tsx`, `src/main.tsx` [.tsx, .jsx'ten ayrı], `src/sections/`, `src/components/Header.tsx`, `Navigation.tsx`, `CodeBlock.tsx`, `FeatureCard.tsx`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyor, kullanılmıyor) ve ~25 adet tek-seferlik `.mjs` içerik script'i + `documents/` klasörü.
+- **`CLAUDE.md` ve `codexSeo.md`'de doğru ama commit edilmemiş değişiklikler var**: CLAUDE.md artık doğru şekilde 20 route listeliyor (eski 5-route Türkçe içerik yerine ASCII İngilizce/Türkçe karışık yeni içerik) ama bu hâlâ sadece working tree'de, commit'e alınmamış. Kullanıcı bu oturumda bilinçli olarak "şimdilik dokunma" dedi — bir sonraki oturumda tekrar sorulmalı, hâlâ çözülmemişse.
+- **Bu dosyanın (NEXT_SESSION.md) "Build Durumu" bölümündeki "Son production commit: 779ccc7" notu çok eskiydi** — gerçek son commit artık yukarıda yazılı, "Build Durumu" bölümü de güncellendi.
+
+> **Özet kural:** Bu dosya içerik/feature işlerini takip eder, `codexSeo.md` SEO/routing işlerini takip eder. İkisi birbirine referans vermeli; biri diğerini gereksiz kılmaz.
+
+---
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 2. kısım — bug fix)
 
 | Görev | Durum |
@@ -192,10 +207,10 @@ SimulationBlock({ block, darkMode, language })
 | `jmeter-load-test` | jmeter -n -t → launching→rampup→firing→aggregating→done terminal + Aggregate Report tablosu | jmeterData.js (Gerçek Hayat) |
 
 ### Build Durumu
-- ✅ `npm run build` başarılı
+- ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, bkz. `codexSeo.md`)
 - ✅ Netlify'da canlı: https://learnqa.dev
-- ⚠️ Bundle 3.4MB (chunk uyarısı var, kritik değil)
-- Son production commit: `779ccc7`
+- ⚠️ `javaData` chunk hâlâ ~639KB tek başına büyük (route-based code splitting sayesinde ana bundle ~235KB'a indi, kritik değil)
+- **Son local commit: `129b8e3`** (origin/main'in 2 commit ilerisinde — `e6d1dd9` + `129b8e3` henüz push edilmedi, bkz. yukarıdaki "GIT DURUMU" notu)
 
 ---
 
