@@ -4123,6 +4123,53 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === VITEST RUNNER PLAYGROUND ===
+    const renderVitestRunnerPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle', 'collecting', 't1', 't2', 't3', 'done']
+        const cur = order.indexOf(s)
+        const VT = { bg: '#1a1a1a', border: '#2e2e2e', text: '#e4e4e4', muted: '#6b7280', green: '#a9d233' }
+        const tests = [
+            { id: 't1', name: 'formats whole dollars' },
+            { id: 't2', name: 'formats cents correctly' },
+            { id: 't3', name: 'throws on negative input' },
+        ]
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 320 }}>
+                <div style={{ background: VT.bg, borderRadius: '10px 10px 0 0', border: `1px solid ${VT.border}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${VT.border}`, background: '#141414' }}>
+                        <span style={{ fontSize: 10 }}>🏃</span>
+                        <span style={{ fontSize: 9, color: VT.muted }}>formatPrice.test.ts</span>
+                        <button
+                            onClick={() => canStart && runSteps([['collecting', 300], ['t1', 500], ['t2', 400], ['t3', 400], ['done', 400]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', background: !canStart ? VT.muted : VT.green, color: '#1a1a1a', border: 'none', borderRadius: 4, padding: '3px 10px', fontSize: 9, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ npx vitest run' : s === 'done' ? '▶ Run Again' : '⏳ Running...'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '10px 12px', fontSize: 10.5, lineHeight: 1.9, minHeight: 130, color: VT.text }}>
+                        {s === 'idle' && <div style={{ color: VT.muted }}>$ npx vitest run</div>}
+                        {cur >= order.indexOf('collecting') && <div style={{ color: VT.muted }}>✓ Collected 1 test file, 3 tests</div>}
+                        {tests.map((t) => {
+                            const tIdx = order.indexOf(t.id)
+                            if (tIdx > cur) return null
+                            return <div key={t.id} style={{ color: VT.green }}>✓ {t.name}</div>
+                        })}
+                        {s === 'done' && (
+                            <div style={{ marginTop: 6, color: VT.green, fontWeight: 700 }}>
+                                <div>Test Files  1 passed (1)</div>
+                                <div>Tests  3 passed (3)</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: '#141414', border: `1px solid ${VT.border}`, color: VT.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 Reset</button>}
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'explicit-wait') {
@@ -5015,6 +5062,50 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'vitest-runner') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'collecting', 't1', 't2', 't3', 'done']
+            const cur = order.indexOf(s)
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Test Özeti' : 'Test Summary'}
+                    </div>
+                    {cur < order.indexOf('done') && <div style={{ fontSize: 9.5, color: subtext }}>{isTr ? 'Bekleniyor...' : 'Waiting...'}</div>}
+                    {cur >= order.indexOf('done') && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 10 }}>
+                            <div style={{ padding: '6px', borderRadius: 6, textAlign: 'center', background: '#a9d23318', border: '1px solid #a9d23355' }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#729b1e' }}>3/3</div>
+                                <div style={{ fontSize: 8.5, color: '#729b1e' }}>{isTr ? 'Geçti' : 'Passed'}</div>
+                            </div>
+                            <div style={{ padding: '6px', borderRadius: 6, textAlign: 'center', background: nodeBg }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: subtext }}>1</div>
+                                <div style={{ fontSize: 8.5, color: subtext }}>{isTr ? 'Dosya' : 'File'}</div>
+                            </div>
+                            <div style={{ padding: '6px', borderRadius: 6, textAlign: 'center', background: nodeBg }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: subtext }}>312ms</div>
+                                <div style={{ fontSize: 8.5, color: subtext }}>{isTr ? 'Süre' : 'Duration'}</div>
+                            </div>
+                        </div>
+                    )}
+                    {cur >= order.indexOf('done') && (
+                        <div style={{ padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ fontFamily: 'sans-serif', fontSize: 9, color: subtext, fontWeight: 700, marginBottom: 4 }}>📁 coverage/index.html</div>
+                            <div style={{ fontFamily: 'monospace', color: '#10b981' }}>
+                                {isTr ? 'oluşturuldu' : 'generated'} <span style={{ color: subtext }}>— % Stmts: 100, % Funcs: 100</span>
+                            </div>
+                        </div>
+                    )}
+                    {s === 'done' && <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'Tüm testler geçti!' : 'All tests passed!'}</div>}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                        ☕ {isTr ? "Java'da mvn test çalıştırınca Surefire raporu target/surefire-reports altına düşer; burada Vitest coverage/ klasörüne HTML rapor üretir — aynı fikir." : "In Java, mvn test drops a Surefire report under target/surefire-reports; here Vitest generates an HTML report under coverage/ — same idea."}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -5078,6 +5169,7 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'browserstack-cloud-run' && renderBrowserstackCloudRunPlayground()}
                     {block.scenario === 'aws-codepipeline' && renderAwsCodepipelinePlayground()}
                     {block.scenario === 'azure-devops-pipeline' && renderAzureDevopsPipelinePlayground()}
+                    {block.scenario === 'vitest-runner' && renderVitestRunnerPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

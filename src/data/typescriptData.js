@@ -3376,6 +3376,124 @@ test("login works", async ({ page }) => {
       ]},
     ],
   },
+  // ─────────────────────────────────────────────
+  // SECTION 9 — Test Runners (Vitest / Jest)
+  // ─────────────────────────────────────────────
+  {
+    title: "Test Runners — Vitest & Unit Testing",
+    blocks: [
+      // 0
+      { type: "simple-box", emoji: "🏃", content: {
+        tr: "Vitest, bir öğretmenin tüm öğrenci ödevlerini hızlıca tek tek kontrol edip yanına ✅ veya ❌ yazması gibidir. Her test dosyası bir ödev kağıdıdır; Vitest hepsini saniyeler içinde tarar ve hangisinin doğru hangisinin yanlış olduğunu renkli olarak gösterir.",
+        en: "Vitest is like a teacher quickly checking every student's homework and marking it ✅ or ❌. Each test file is a homework sheet; Vitest scans them all in seconds and shows, in color, which ones are right and which are wrong.",
+      } },
+      // 1
+      { type: "heading", content: "Vitest: The Vite-Native Test Runner" },
+      // 2
+      {
+        type: "text",
+        content:
+          "Playwright Test already ships its own test runner for end-to-end browser tests — you don't need Vitest for that. But the moment you write a plain TypeScript helper function (a price formatter, a data parser, a custom wait utility), you want to unit test that function in isolation, without spinning up a browser. That's where Vitest comes in: a fast, Jest-compatible test runner built on top of Vite, with zero-config TypeScript support. Jest is the older, more established alternative — same API shape (describe, it, expect), slower startup, and requires ts-jest to understand TypeScript out of the box.",
+      },
+      // 3
+      {
+        type: "code",
+        language: "typescript",
+        code: `// utils/formatPrice.ts — a plain helper, no browser needed
+export function formatPrice(cents: number): string {
+  if (cents < 0) throw new Error('Price cannot be negative');
+  return \`$\${(cents / 100).toFixed(2)}\`;
+}
+
+// utils/formatPrice.test.ts — Vitest unit test
+import { describe, it, expect } from 'vitest';
+import { formatPrice } from './formatPrice';
+
+describe('formatPrice', () => {
+  it('formats whole dollars', () => {
+    expect(formatPrice(1000)).toBe('$10.00');
+  });
+
+  it('formats cents correctly', () => {
+    expect(formatPrice(99)).toBe('$0.99');
+  });
+
+  it('throws on negative input', () => {
+    expect(() => formatPrice(-50)).toThrow('Price cannot be negative');
+  });
+});
+
+// Run it:
+// npx vitest run`,
+      },
+      // 4
+      {
+        type: 'simulation',
+        icon: '🏃',
+        color: '#729b1e',
+        title: { en: 'Vitest — Live Unit Test Run', tr: 'Vitest — Canlı Unit Test Çalıştırma' },
+        scenario: 'vitest-runner',
+        description: {
+          en: 'Click "▶ npx vitest run": watch Vitest collect the test file, execute every "it()" block, and report a pass/fail summary plus a coverage report — the same flow your terminal shows in a real project.',
+          tr: '"▶ npx vitest run" butonuna bas: Vitest\'in test dosyasını topladığını, her "it()" bloğunu çalıştırdığını ve bir pass/fail özeti ile coverage raporu verdiğini izle — gerçek bir projede terminalinde gördüğün akışın birebir aynısı.',
+        },
+        code: `// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: 'node',
+    coverage: { reporter: ['text', 'html'] },
+  },
+});
+
+// package.json
+// "scripts": { "test:unit": "vitest run --coverage" }`,
+      },
+      // 5
+      {
+        type: "java-compare",
+        topic: "Unit Test Runner: JUnit vs Vitest",
+        why: "JUnit is the standard unit test runner in Java, almost always paired with Maven Surefire to produce CI reports. Vitest plays the exact same role for plain TypeScript functions — fast, isolated, no browser needed.",
+        why_en: "JUnit is the standard unit test runner in Java, almost always paired with Maven Surefire to produce CI reports. Vitest plays the exact same role for plain TypeScript functions — fast, isolated, no browser needed.",
+        java: `// Java — JUnit 5
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class FormatPriceTest {
+    @Test
+    void formatsWholeDollars() {
+        assertEquals("$10.00", PriceUtil.format(1000));
+    }
+
+    @Test
+    void throwsOnNegativeInput() {
+        assertThrows(IllegalArgumentException.class,
+            () -> PriceUtil.format(-50));
+    }
+}
+
+// mvn test → target/surefire-reports/*.xml`,
+        typescript: `// TypeScript — Vitest
+import { describe, it, expect } from 'vitest';
+import { formatPrice } from './formatPrice';
+
+describe('formatPrice', () => {
+  it('formats whole dollars', () => {
+    expect(formatPrice(1000)).toBe('$10.00');
+  });
+
+  it('throws on negative input', () => {
+    expect(() => formatPrice(-50)).toThrow();
+  });
+});
+
+// npx vitest run --coverage → coverage/index.html`,
+        note: "The @Test annotation in Java maps almost 1-to-1 to Vitest's it()/test() — both isolate one behavior per function, both fail loudly with a stack trace, and both plug into CI as a separate step from your end-to-end (Playwright/Selenium) suite.",
+        note_en: "The @Test annotation in Java maps almost 1-to-1 to Vitest's it()/test() — both isolate one behavior per function, both fail loudly with a stack trace, and both plug into CI as a separate step from your end-to-end (Playwright/Selenium) suite.",
+      },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3818,6 +3936,18 @@ test('login', async ({ loginPage }) => {
       },
     },
   }),
+  applyTr(sections[9], {
+    title: "Test Runner'lar — Vitest & Unit Test",
+    blocks: {
+      1: { content: "Vitest: Vite-Native Test Runner" },
+      2: { content: "Playwright Test zaten kendi test runner'ı ile geliyor — uçtan uca tarayıcı testleri için Vitest'e ihtiyacın yok. Ama düz bir TypeScript yardımcı fonksiyonu yazdığın an (bir fiyat formatlayıcı, bir veri parser'ı, özel bir wait utility'si), o fonksiyonu tarayıcı açmadan, izole şekilde unit test etmek istersin. İşte burada Vitest devreye girer: Vite üzerine kurulu, hızlı, Jest-uyumlu bir test runner — sıfır konfigürasyonla TypeScript desteği sunar. Jest ise daha eski, daha köklü alternatiftir — aynı API şekli (describe, it, expect), daha yavaş başlangıç, ve TypeScript'i anlaması için ts-jest gerektirir." },
+      5: {
+        topic: "Unit Test Runner: JUnit vs Vitest",
+        why: "Java'da JUnit standart unit test runner'ıdır, neredeyse her zaman CI raporları üretmek için Maven Surefire ile birlikte kullanılır. Vitest, düz TypeScript fonksiyonları için tam olarak aynı rolü oynar — hızlı, izole, tarayıcı gerekmez.",
+        note: "Java'daki @Test anotasyonu, Vitest'in it()/test() fonksiyonuna neredeyse birebir karşılık gelir — ikisi de fonksiyon başına tek bir davranışı izole eder, ikisi de stack trace ile gürültülü şekilde başarısız olur, ve ikisi de CI'da uçtan uca (Playwright/Selenium) paketinden ayrı bir adım olarak çalışır.",
+      },
+    }
+  }),
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3843,6 +3973,7 @@ const trTabs = [
   "💼 Mülakat",
   "📝 Pratik & Referans",
   "☕ Java → TS",
+  "🏃 Test Runner'lar",
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3866,6 +3997,7 @@ export const typescriptData = {
       "💼 Interview Q&A",
       "📝 Practice & Reference",
       "☕ Java → TS",
+      "🏃 Test Runners",
     ],
     sections,
   },
