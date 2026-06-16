@@ -3772,6 +3772,141 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === APPIUM ELEMENT DETECTION PLAYGROUND ===
+    const renderAppiumElementDetectionPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle', 'connecting', 'scanning', 'tree-built', 'selected', 'locator-ready', 'done']
+        const cur = order.indexOf(s)
+        const AI = { bgDark: '#13141b', border: '#2d3047', text: '#a6accd', muted: '#585e79', purple: '#7c3aed', green: '#17c784', yellow: '#ffd66e' }
+        const treeItems = [
+            { indent: 0, tag: 'FrameLayout', resource: '' },
+            { indent: 1, tag: '↳ LinearLayout', resource: '' },
+            { indent: 2, tag: '↳ TextView', resource: 'text="Welcome Back"' },
+            { indent: 2, tag: '↳ EditText', resource: 'resource-id="et_email"', highlight: true },
+            { indent: 2, tag: '↳ EditText', resource: 'resource-id="et_password"' },
+            { indent: 2, tag: '↳ Button', resource: 'resource-id="btn_login"' },
+        ]
+        return (
+            <div style={{ fontFamily: 'monospace', maxWidth: 310 }}>
+                <div style={{ background: AI.bgDark, borderRadius: '10px 10px 0 0', overflow: 'hidden' }}>
+                    <div style={{ background: '#13141b', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: `1px solid ${AI.border}` }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57', display: 'inline-block' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#FFBD2E', display: 'inline-block' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#28CA42', display: 'inline-block' }} />
+                        <span style={{ fontSize: 9, color: AI.muted, marginLeft: 6 }}>Appium Inspector 3.x</span>
+                        <button
+                            onClick={() => canStart && runSteps([['connecting', 300], ['scanning', 900], ['tree-built', 1000], ['selected', 800], ['locator-ready', 700], ['done', 400]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', background: !canStart ? AI.muted : AI.purple, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 10px', fontSize: 9, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed', boxShadow: canStart && s === 'idle' ? `0 0 8px ${AI.purple}55` : 'none' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ Tara' : '▶ Scan') : s === 'done' ? (isTr ? '▶ Tekrar' : '▶ Again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '8px 10px', minHeight: 140 }}>
+                        {s === 'idle' && <div style={{ fontSize: 9, color: AI.muted, textAlign: 'center', paddingTop: 20 }}>{isTr ? 'Uygulamayı taramak için ▶ butonuna bas' : 'Press ▶ to scan the app'}</div>}
+                        {s === 'connecting' && <div style={{ fontSize: 9, color: AI.yellow, animation: 'simPulse 0.8s ease infinite' }}>⏳ {isTr ? 'Appium Server\'a bağlanılıyor... ws://127.0.0.1:4723' : 'Connecting to Appium Server... ws://127.0.0.1:4723'}</div>}
+                        {s === 'scanning' && (
+                            <div>
+                                <div style={{ fontSize: 9, color: AI.green, marginBottom: 6 }}>🔍 {isTr ? 'Ekran taranıyor (screenshot + source XML)...' : 'Scanning screen (screenshot + source XML)...'}</div>
+                                <div style={{ display: 'flex', gap: 3 }}>
+                                    {[1, 2, 3, 4, 5].map(i => (
+                                        <div key={i} style={{ height: 4, flex: 1, background: AI.purple, borderRadius: 2, opacity: 0.2 + i * 0.16, animation: `simPulse ${0.5 + i * 0.1}s ease infinite` }} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {cur >= order.indexOf('tree-built') && (
+                            <div>
+                                <div style={{ fontSize: 8, color: AI.muted, marginBottom: 4 }}>📱 {isTr ? 'Source XML — Element Ağacı:' : 'Source XML — Element Tree:'}</div>
+                                {treeItems.map((item, idx) => {
+                                    const isHighlighted = cur >= order.indexOf('selected') && item.highlight
+                                    return (
+                                        <div key={idx} style={{ paddingLeft: item.indent * 10 + 4, paddingTop: 2, paddingBottom: 2, fontSize: 8, color: isHighlighted ? AI.green : AI.text, background: isHighlighted ? `${AI.green}18` : 'transparent', border: `1px solid ${isHighlighted ? AI.green : 'transparent'}44`, borderRadius: 3, marginBottom: 1, fontWeight: isHighlighted ? 700 : 400, transition: 'all 0.3s', animation: isHighlighted ? 'simFadeUp 0.3s' : undefined }}>
+                                            {item.tag}
+                                            {item.resource && <span style={{ color: isHighlighted ? AI.yellow : AI.muted, marginLeft: 4 }}>{item.resource}</span>}
+                                            {isHighlighted && <span style={{ color: AI.green, marginLeft: 4 }}>← 🎯</span>}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                        {cur >= order.indexOf('locator-ready') && (
+                            <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: `${AI.purple}18`, border: `1px solid ${AI.purple}44`, animation: 'simFadeUp 0.4s' }}>
+                                <div style={{ fontSize: 8, color: AI.purple, fontWeight: 700, marginBottom: 3 }}>✅ {isTr ? 'Locator Önerisi:' : 'Locator Suggestion:'}</div>
+                                <div style={{ fontSize: 8.5, color: AI.text, lineHeight: 1.7 }}>
+                                    <div><span style={{ color: AI.green }}>Strategy:</span> ID</div>
+                                    <div><span style={{ color: AI.green }}>Value:</span> <span style={{ color: AI.yellow }}>com.example:id/et_email</span></div>
+                                    <div><span style={{ color: AI.muted }}>Alt:</span> accessibility-id → "Email input"</div>
+                                </div>
+                            </div>
+                        )}
+                        {s === 'done' && <div style={{ marginTop: 6, fontSize: 8.5, color: AI.green, fontWeight: 700 }}>✅ {isTr ? 'Element bulundu! Kodu kopyala → teste yapıştır.' : 'Element found! Copy code → paste into test.'}</div>}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: AI.bgDark, border: `1px solid ${AI.border}`, color: AI.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === APPIUM SWIPE PLAYGROUND ===
+    const renderAppiumSwipePlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle', 'touch-start', 'swiping', 'scrolled', 'new-item', 'done']
+        const cur = order.indexOf(s)
+        const PH = { bg: '#0f172a', border: '#1e293b', text: '#e2e8f0', muted: '#64748b', accent: '#7c3aed', green: '#10b981' }
+        const products = [
+            { name: isTr ? 'Ürün A — Kablosuz Kulaklık' : 'Product A — Wireless Headphones', price: '$89.99', rating: '⭐⭐⭐⭐' },
+            { name: isTr ? 'Ürün B — Akıllı Saat' : 'Product B — Smart Watch', price: '$299.99', rating: '⭐⭐⭐⭐⭐' },
+            { name: isTr ? 'Ürün C — USB Hub' : 'Product C — USB Hub', price: '$45.00', rating: '⭐⭐⭐' },
+            { name: isTr ? 'Ürün D — Mekanik Klavye' : 'Product D — Mechanical Keyboard', price: '$149.00', rating: '⭐⭐⭐⭐⭐' },
+            { name: isTr ? 'Ürün E — Webcam 4K' : 'Product E — 4K Webcam', price: '$199.00', rating: '⭐⭐⭐⭐' },
+        ]
+        const offset = cur >= order.indexOf('scrolled') ? 2 : 0
+        return (
+            <div style={{ fontFamily: 'monospace', maxWidth: 310 }}>
+                <div style={{ background: PH.bg, borderRadius: 16, border: `2px solid ${PH.border}`, overflow: 'hidden' }}>
+                    <div style={{ background: '#0a0f1c', padding: '4px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 8, color: PH.muted }}>9:41 AM</span>
+                        <span style={{ width: 30, height: 4, background: PH.border, borderRadius: 99 }} />
+                        <span style={{ fontSize: 8, color: PH.muted }}>🔋 98%</span>
+                    </div>
+                    <div style={{ background: PH.accent, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 12 }}>🛒</span>
+                        <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, fontFamily: 'sans-serif' }}>ShopApp</span>
+                        <button onClick={() => canStart && runSteps([['touch-start', 300], ['swiping', 600], ['scrolled', 500], ['new-item', 700], ['done', 400]])} disabled={!canStart} style={{ marginLeft: 'auto', background: !canStart ? PH.muted : '#fff', color: !canStart ? '#fff' : PH.accent, border: 'none', borderRadius: 4, padding: '2px 8px', fontSize: 8, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed', fontFamily: 'sans-serif' }}>
+                            {s === 'idle' ? '▶ Swipe' : s === 'done' ? '▶ Again' : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '4px 0', minHeight: 120, overflow: 'hidden', position: 'relative' }}>
+                        {products.slice(offset, offset + 3).map((p, i) => (
+                            <div key={`${offset}-${i}`} style={{ padding: '6px 10px', borderBottom: `1px solid ${PH.border}`, background: i === 0 && cur >= order.indexOf('new-item') ? `${PH.green}18` : 'transparent', transition: 'background 0.4s', animation: i === 0 && cur >= order.indexOf('new-item') ? 'simFadeUp 0.4s' : undefined }}>
+                                <div style={{ fontSize: 9, color: PH.text, fontFamily: 'sans-serif' }}>{p.name}</div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                                    <span style={{ fontSize: 8, color: PH.accent, fontWeight: 700 }}>{p.price}</span>
+                                    <span style={{ fontSize: 8, color: PH.muted }}>{p.rating}</span>
+                                </div>
+                            </div>
+                        ))}
+                        {(s === 'touch-start' || s === 'swiping') && (
+                            <div style={{ position: 'absolute', right: 16, bottom: s === 'touch-start' ? 10 : 80, width: 18, height: 18, borderRadius: '50%', background: `${PH.accent}cc`, border: `2px solid ${PH.accent}`, transition: 'bottom 0.6s ease-in-out', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>👆</div>
+                        )}
+                    </div>
+                    <div style={{ padding: '4px 10px', background: '#0a0f1c', fontSize: 8.5, color: s === 'done' ? PH.green : PH.muted, fontFamily: 'sans-serif' }}>
+                        {s === 'idle' ? (isTr ? 'Yukarı kaydırmak için ▶ bas' : 'Press ▶ to swipe up') :
+                            s === 'touch-start' ? (isTr ? '👆 Dokunma başladı (startY: 1600)' : '👆 Touch started (startY: 1600)') :
+                                s === 'swiping' ? (isTr ? '⬆️ Kaydırılıyor... (endY: 400)' : '⬆️ Swiping... (endY: 400)') :
+                                    s === 'scrolled' ? (isTr ? '📜 Liste kaydırıldı!' : '📜 List scrolled!') :
+                                        s === 'new-item' ? (isTr ? '✨ Yeni ürünler görünüyor!' : '✨ New items visible!') :
+                                            (isTr ? '✅ Swipe tamamlandı!' : '✅ Swipe complete!')}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', marginTop: 4, padding: '5px', background: PH.bg, border: `1px solid ${PH.border}`, color: PH.muted, fontSize: 9, cursor: 'pointer', borderRadius: 8 }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'explicit-wait') {
@@ -4414,6 +4549,109 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'appium-element-detection') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'connecting', 'scanning', 'tree-built', 'selected', 'locator-ready', 'done']
+            const cur = order.indexOf(s)
+            const caps = [
+                { key: '"platformName"', val: '"Android"' },
+                { key: '"deviceName"', val: '"Pixel_7_API34"' },
+                { key: '"appium:app"', val: '"path/to/app.apk"' },
+                { key: '"appium:automationName"', val: '"UiAutomator2"' },
+                { key: '"appium:appPackage"', val: '"com.example.app"', highlight: true },
+                { key: '"appium:appActivity"', val: '".LoginActivity"', highlight: true },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Desired Capabilities</div>
+                    <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 9.5, lineHeight: 1.9, marginBottom: 10 }}>
+                        <div style={{ color: '#f59e0b' }}>{'{'}</div>
+                        {caps.map((cap, i) => {
+                            const active = s !== 'idle' && cap.highlight && cur >= order.indexOf('tree-built')
+                            return (
+                                <div key={i} style={{ paddingLeft: 10, color: active ? '#7c3aed' : (darkMode ? '#a6accd' : '#374151'), fontWeight: active ? 700 : 400, transition: 'color 0.4s' }}>
+                                    <span style={{ color: active ? '#ffd66e' : '#10b981' }}>{cap.key}</span>
+                                    <span style={{ color: subtext }}>{': '}</span>
+                                    <span style={{ color: '#ef4444' }}>{cap.val}</span>
+                                </div>
+                            )
+                        })}
+                        <div style={{ color: '#f59e0b' }}>{'}'}</div>
+                    </div>
+                    {cur >= order.indexOf('selected') && (
+                        <div style={{ padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ color: '#7c3aed', fontWeight: 700, marginBottom: 4, fontFamily: 'sans-serif', fontSize: 9 }}>🎯 {isTr ? 'Seçili Element:' : 'Selected Element:'}</div>
+                            <div style={{ fontFamily: 'monospace', lineHeight: 1.8 }}>
+                                <div style={{ color: subtext }}>bounds: <span style={{ color: '#f59e0b' }}>[0,420][1080,560]</span></div>
+                                <div style={{ color: subtext }}>resource-id: <span style={{ color: '#10b981' }}>com.example:id/et_email</span></div>
+                                <div style={{ color: subtext }}>content-desc: <span style={{ color: '#3b82f6' }}>"Email input"</span></div>
+                                <div style={{ color: subtext }}>enabled: <span style={{ color: '#f59e0b' }}>true</span></div>
+                            </div>
+                        </div>
+                    )}
+                    {s !== 'idle' && (
+                        <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                            ☕ {isTr ? 'Java\'da AppiumBy.id() tıpkı Selenium\'un By.id() gibidir — aynı API, farklı platform.' : 'Java: AppiumBy.id() works just like Selenium\'s By.id() — same API, different platform.'}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'appium-swipe') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'touch-start', 'swiping', 'scrolled', 'new-item', 'done']
+            const cur = order.indexOf(s)
+            const events = [
+                { state: 'touch-start', text: '.pointerDown(540, 1600)', color: '#f59e0b' },
+                { state: 'swiping', text: '.move(540, 1200)', color: '#7c3aed' },
+                { state: 'swiping', text: '.move(540, 800)', color: '#7c3aed' },
+                { state: 'scrolled', text: '.pointerUp(540, 400)', color: '#10b981' },
+                { state: 'done', text: '.perform()  ✅', color: '#10b981' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>W3C Actions API</div>
+                    <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 9.5, lineHeight: 1.9, marginBottom: 10 }}>
+                        {s === 'idle' && <div style={{ color: subtext }}>{isTr ? '// ▶ Swipe\'a bas...' : '// Press ▶ Swipe...'}</div>}
+                        {cur >= order.indexOf('touch-start') && (
+                            <div style={{ color: '#3b82f6' }}>new PointerInput(<span style={{ color: '#10b981' }}>"finger"</span>)</div>
+                        )}
+                        {events.map((ev, i) => {
+                            const evIdx = order.indexOf(ev.state)
+                            const show = evIdx <= cur && s !== 'idle'
+                            return show ? (
+                                <div key={i} style={{ paddingLeft: 8, color: ev.color, animation: evIdx === cur ? 'simFadeUp 0.3s' : undefined }}>{ev.text}</div>
+                            ) : null
+                        })}
+                    </div>
+                    {cur >= order.indexOf('touch-start') && (
+                        <div style={{ padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ fontFamily: 'sans-serif', fontSize: 9, color: subtext, fontWeight: 700, marginBottom: 4 }}>📐 {isTr ? 'Ekran Koordinatları:' : 'Screen Coordinates:'}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'monospace', fontSize: 9 }}>
+                                <span style={{ color: '#f59e0b' }}>startY: 1600</span>
+                                <span style={{ color: subtext }}>→</span>
+                                <span style={{ color: '#10b981' }}>endY: 400</span>
+                            </div>
+                            <div style={{ marginTop: 6, position: 'relative', height: 50, background: darkMode ? '#0f172a' : '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', width: 2, height: '100%', background: `${accent}33` }} />
+                                <div style={{ position: 'absolute', left: '50%', bottom: 6, transform: 'translateX(-50%)', width: 10, height: 10, borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 6px #f59e0b88' }} />
+                                {cur >= order.indexOf('scrolled') && <div style={{ position: 'absolute', left: '50%', top: 6, transform: 'translateX(-50%)', width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b98188', animation: 'simFadeUp 0.4s' }} />}
+                            </div>
+                        </div>
+                    )}
+                    {s === 'done' && <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'Liste 2 ürün kaydırıldı!' : 'List scrolled by 2 items!'}</div>}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                        ☕ {isTr ? 'Java\'da Actions.clickAndHold().moveByOffset() ≈ Appium PointerInput.move() — aynı W3C protokolü.' : 'Java Actions.clickAndHold().moveByOffset() ≈ Appium PointerInput.move() — same W3C protocol.'}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -4472,6 +4710,8 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'shadow-dom' && renderShadowDomPlayground()}
                     {block.scenario === 'iframe-detection' && renderIframeDetectionPlayground()}
                     {block.scenario === 'shadow-dom-xray' && renderShadowDomXrayPlayground()}
+                    {block.scenario === 'appium-element-detection' && renderAppiumElementDetectionPlayground()}
+                    {block.scenario === 'appium-swipe' && renderAppiumSwipePlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

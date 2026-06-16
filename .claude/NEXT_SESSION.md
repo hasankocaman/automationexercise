@@ -36,6 +36,16 @@
 
 ---
 
+## ✅ Bu Oturumda Tamamlananlar (2026-06-16, 2. kısım)
+
+| Görev | Commit | Durum |
+|-------|--------|-------|
+| Appium sayfasına simülasyon eklendi: `appium-element-detection` (Locator & POM sekmesi) — Appium Inspector arayüzü, element ağacı tarama, locator önerisi | — | ✅ |
+| Appium sayfasına simülasyon eklendi: `appium-swipe` (Gerçek Senaryo sekmesi) — mobil ekran, W3C Actions API ile swipe gesture | — | ✅ |
+| Playwright ile görsel doğrulama yapıldı (her iki simülasyon screenshot'ta doğru render oluyor, console hatası yok) | — | ✅ |
+
+---
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-16)
 
 | Görev | Commit | Durum |
@@ -70,11 +80,10 @@
 
 ## 📋 Sıradaki Görevler (Öncelik Sırasıyla)
 
-1. **Appium sayfasına simülasyon** — Mobile element detection, tap/swipe aksiyonları (gerçek Appium Desktop arayüzü)
-2. **BrowserStack sayfasına simülasyon** — Local test → Cloud browser akışı (gerçek BrowserStack Automate arayüzü)
-3. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
-4. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
-5. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
+1. **BrowserStack sayfasına simülasyon** — Local test → Cloud browser akışı (gerçek BrowserStack Automate arayüzü)
+2. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
+3. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
+4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
 
 ---
 
@@ -126,6 +135,8 @@ SimulationBlock({ block, darkMode, language })
 | `jenkins-pipeline` | Checkout → Build → Test → SonarQube → Deploy | jenkinsData.js |
 | `kafka-flow` | Producer → partition routing → broker → consumer | kafkaData.js |
 | `rest-assured-chain` | given() → when() → then() → assertions | restAssuredData.js |
+| `appium-element-detection` | Appium Inspector tarama → element ağacı → locator önerisi | appiumData.js s3 (Locator & POM) |
+| `appium-swipe` | W3C Actions pointerDown→move→pointerUp → liste kayar | appiumData.js s4 (Gerçek Senaryo) |
 
 ### Build Durumu
 - ✅ `npm run build` başarılı

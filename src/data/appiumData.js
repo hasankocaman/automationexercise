@@ -1577,6 +1577,37 @@ describe('Login Akışı', () => {
           },
         ],
       },
+      {
+        type: 'simulation',
+        icon: '🔍',
+        color: '#7c3aed',
+        title: { tr: 'Appium Inspector — Canlı Element Tespiti', en: 'Appium Inspector — Live Element Detection' },
+        scenario: 'appium-element-detection',
+        description: {
+          tr: '"▶ Tara" butonuna bas: Appium Inspector uygulamayı tararken element ağacının (source XML) nasıl oluştuğunu canlı izle, sonra önerilen locator\'ı gör.',
+          en: 'Click "▶ Scan": watch the element tree (source XML) build live as Appium Inspector scans the app, then see the suggested locator.',
+        },
+        code: `// Java — Appium ile element bulma (öncelik sırasıyla)
+AppiumDriver driver = new AndroidDriver(
+    new URL("http://127.0.0.1:4723"), capabilities);
+
+// 1) resource-id (en hızlı, en güvenilir)
+WebElement email = driver.findElement(
+    AppiumBy.id("com.example:id/et_email"));
+
+// 2) accessibility id (TalkBack için de gerekli)
+WebElement search = driver.findElement(
+    AppiumBy.accessibilityId("Search products"));
+
+// 3) UIAutomator2 selector (native Android API)
+WebElement addBtn = driver.findElement(
+    AppiumBy.androidUIAutomator(
+        "new UiSelector().text(\\"Add to Cart\\")"));
+
+// 4) XPath — yalnızca son çare (en yavaş, en kırılgan)
+WebElement title = driver.findElement(
+    AppiumBy.xpath("//android.widget.TextView[@text='Login']"));`,
+      },
     ],
   },
   en: {
@@ -1943,6 +1974,37 @@ describe('Login Flow', () => {
             a: 'Options for dynamic IDs: 1) textContains() or textMatches(): new UiSelector().textContains("Add"). 2) By index: new UiSelector().className("Button").instance(0). 3) Parent-child relationship: XPath //LinearLayout[.//TextView[@text="Product"]]/Button. 4) Use AccessibilityId (usually more stable). Best solution: ask the developer to add stable IDs or content-desc.',
           },
         ],
+      },
+      {
+        type: 'simulation',
+        icon: '🔍',
+        color: '#7c3aed',
+        title: { tr: 'Appium Inspector — Canlı Element Tespiti', en: 'Appium Inspector — Live Element Detection' },
+        scenario: 'appium-element-detection',
+        description: {
+          tr: '"▶ Tara" butonuna bas: Appium Inspector uygulamayı tararken element ağacının (source XML) nasıl oluştuğunu canlı izle, sonra önerilen locator\'ı gör.',
+          en: 'Click "▶ Scan": watch the element tree (source XML) build live as Appium Inspector scans the app, then see the suggested locator.',
+        },
+        code: `// Java — finding elements with Appium (priority order)
+AppiumDriver driver = new AndroidDriver(
+    new URL("http://127.0.0.1:4723"), capabilities);
+
+// 1) resource-id (fastest, most reliable)
+WebElement email = driver.findElement(
+    AppiumBy.id("com.example:id/et_email"));
+
+// 2) accessibility id (also needed for TalkBack)
+WebElement search = driver.findElement(
+    AppiumBy.accessibilityId("Search products"));
+
+// 3) UIAutomator2 selector (native Android API)
+WebElement addBtn = driver.findElement(
+    AppiumBy.androidUIAutomator(
+        "new UiSelector().text(\\"Add to Cart\\")"));
+
+// 4) XPath — last resort only (slowest, most brittle)
+WebElement title = driver.findElement(
+    AppiumBy.xpath("//android.widget.TextView[@text='Login']"));`,
       },
     ],
   },
@@ -2311,6 +2373,32 @@ driver.context("NATIVE_APP"); // Native'e dön`,
           },
         ],
       },
+      {
+        type: 'simulation',
+        icon: '👆',
+        color: '#3b82f6',
+        title: { tr: 'Mobil Swipe — Touch Action Simülasyonu', en: 'Mobile Swipe — Touch Action Simulation' },
+        scenario: 'appium-swipe',
+        description: {
+          tr: '"▶ Swipe" butonuna bas ve W3C Actions API\'nin parmak dokunuşunu (pointerDown → move → pointerUp) nasıl koordinatlara çevirip listeyi kaydırdığını izle.',
+          en: 'Click "▶ Swipe" and watch how the W3C Actions API turns a finger touch (pointerDown → move → pointerUp) into coordinates that scroll the list.',
+        },
+        code: `// Java — W3C Actions API ile Swipe (Appium 3.x)
+PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+Sequence swipe = new Sequence(finger, 0);
+
+swipe.addAction(finger.createPointerMove(
+    Duration.ZERO, PointerInput.Origin.viewport(), 540, 1600));
+swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+swipe.addAction(finger.createPointerMove(
+    Duration.ofMillis(600), PointerInput.Origin.viewport(), 540, 400));
+swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+driver.perform(Collections.singletonList(swipe));
+
+// Kısayol: W3C tabanlı yardımcı metod
+// new TouchAction(driver).press(...).waitAction(...).moveTo(...).release().perform(); // ESKİ API, artık kullanılmıyor`,
+      },
     ],
   },
   en: {
@@ -2673,6 +2761,32 @@ driver.context("NATIVE_APP"); // Back to native`,
             a: 'CI/CD considerations: 1) Start headless emulator: emulator -avd Pixel_7 -no-window -no-snapshot. 2) Start Appium server in background and verify it\'s ready. 3) Prevent port conflicts with --port flag. 4) Add reporting tools like Allure/Extent. 5) For test parallelization use multiple emulators or cloud device farm (BrowserStack, Sauce Labs). 6) Fetch test data from DB, avoid hardcoding.',
           },
         ],
+      },
+      {
+        type: 'simulation',
+        icon: '👆',
+        color: '#3b82f6',
+        title: { tr: 'Mobil Swipe — Touch Action Simülasyonu', en: 'Mobile Swipe — Touch Action Simulation' },
+        scenario: 'appium-swipe',
+        description: {
+          tr: '"▶ Swipe" butonuna bas ve W3C Actions API\'nin parmak dokunuşunu (pointerDown → move → pointerUp) nasıl koordinatlara çevirip listeyi kaydırdığını izle.',
+          en: 'Click "▶ Swipe" and watch how the W3C Actions API turns a finger touch (pointerDown → move → pointerUp) into coordinates that scroll the list.',
+        },
+        code: `// Java — Swipe with W3C Actions API (Appium 3.x)
+PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+Sequence swipe = new Sequence(finger, 0);
+
+swipe.addAction(finger.createPointerMove(
+    Duration.ZERO, PointerInput.Origin.viewport(), 540, 1600));
+swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+swipe.addAction(finger.createPointerMove(
+    Duration.ofMillis(600), PointerInput.Origin.viewport(), 540, 400));
+swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+driver.perform(Collections.singletonList(swipe));
+
+// Shortcut: old TouchAction API is deprecated, use W3C Actions instead
+// new TouchAction(driver).press(...).waitAction(...).moveTo(...).release().perform(); // DEPRECATED`,
       },
     ],
   },
