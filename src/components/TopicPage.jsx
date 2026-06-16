@@ -231,6 +231,7 @@ function QuizBlock({ block, darkMode, language = 'en', onQuizCorrect }) {
 // ─── ComparisonBlock ──────────────────────────────────────────────────────────
 
 function ComparisonBlock({ block, darkMode, language = 'en' }) {
+    const { t } = useLanguage()
     // Table-style comparison: { title, columns, rows: [{concept, java, python, typescript}] }
     if (block.columns && block.rows) {
         const cols = block.columns
@@ -550,7 +551,7 @@ function PyramidDiagram({ block, darkMode }) {
     )
 }
 
-function DataStructureDiagram({ block, darkMode }) {
+function DataStructureDiagram({ block, darkMode, language }) {
     const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
 
     if (block.dataType === 'list') {
@@ -637,14 +638,14 @@ function DataStructureDiagram({ block, darkMode }) {
     return null
 }
 
-function VisualBlock({ block, darkMode }) {
+function VisualBlock({ block, darkMode, language }) {
     switch (block.variant) {
         case 'join': return <JoinDiagram block={block} darkMode={darkMode} language={language} />
         case 'table': return <TableDiagram block={block} darkMode={darkMode} />
         case 'flow': return <FlowDiagram block={block} darkMode={darkMode} />
         case 'boxes': return <BoxesDiagram block={block} darkMode={darkMode} />
         case 'pyramid': return <PyramidDiagram block={block} darkMode={darkMode} />
-        case 'data-structure': return <DataStructureDiagram block={block} darkMode={darkMode} />
+        case 'data-structure': return <DataStructureDiagram block={block} darkMode={darkMode} language={language} />
         default: return null
     }
 }
@@ -677,7 +678,9 @@ function JavaCompareBlock({ block, darkMode }) {
     const isSQL = !!block.sql
     const newCode = block.typescript || block.python || block.sql
     const langIcon = isTS ? '🔷' : isSQL ? '🗄️' : '🐍'
-    const langLabel = isTS ? "TypeScript'te" : isSQL ? 'Python\'da (DB)' : "Python'da"
+    const langLabel = isTr
+        ? (isTS ? "TypeScript'te" : isSQL ? "Python'da (DB)" : "Python'da")
+        : (isTS ? 'in TypeScript' : isSQL ? 'in Python (DB)' : 'in Python')
     const whyText = typeof block.why === 'object' ? tx(block.why, language) : (isTr ? block.why : (block.why_en ?? block.why))
     const noteText = typeof block.note === 'object' ? tx(block.note, language) : (isTr ? block.note : (block.note_en ?? block.note))
     const whyLabel = isTr ? '🤔 Neden?' : '🤔 Why?'
@@ -696,7 +699,7 @@ function JavaCompareBlock({ block, darkMode }) {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2">
                 <div className={`border-r ${darkMode ? 'border-gray-700' : 'border-orange-200'}`}>
-                    <div className={`px-3 py-1.5 text-xs font-bold ${darkMode ? 'bg-yellow-900/25 text-yellow-300' : 'bg-yellow-100 text-yellow-800'}`}>☕ Java'da</div>
+                    <div className={`px-3 py-1.5 text-xs font-bold ${darkMode ? 'bg-yellow-900/25 text-yellow-300' : 'bg-yellow-100 text-yellow-800'}`}>☕ {isTr ? "Java'da" : 'in Java'}</div>
                     <div className="bg-slate-800 p-3 min-h-[80px]">
                         <pre className="font-mono text-xs text-amber-200 overflow-x-auto leading-relaxed">{(block.java || '').trim()}</pre>
                     </div>
@@ -2740,7 +2743,7 @@ pm.test("per_page is 6", () => {
                                     position: 'relative',
                                 }}
                             >
-                                {isDone ? '✅ Tıklandı!' : isExecuting ? (isTr ? '⚡ Tıklanıyor...' : '⚡ Clicking...') : canStart ? (isTr ? '🛒 Sepete Ekle' : '🛒 Add to Cart') : (isTr ? '⏳ Check\'ler...' : '⏳ Checking...')}
+                                {isDone ? (isTr ? '✅ Tıklandı!' : '✅ Clicked!') : isExecuting ? (isTr ? '⚡ Tıklanıyor...' : '⚡ Clicking...') : canStart ? (isTr ? '🛒 Sepete Ekle' : '🛒 Add to Cart') : (isTr ? '⏳ Check\'ler...' : '⏳ Checking...')}
                             </button>
 
                             {/* Playwright pointer indicator */}
@@ -3882,10 +3885,10 @@ pm.test("per_page is 6", () => {
             const steps = [
                 { states: ['clicking'], label: `driver.getWindowHandle()`, color: '#f59e0b', extra: `// → "${handles[0]}"` },
                 { states: ['collecting'], label: `driver.getWindowHandles()`, color: '#f59e0b', extra: `// → {${handles[0]}, ${handles[1]}}` },
-                { states: ['switching', 'new-tab-open'], label: `switchTo().window("${handles[1]}")`, color: accent, extra: `// yeni sekmeye geç` },
-                { states: ['in-new'], label: `driver.getTitle()`, color: '#3b82f6', extra: `// → "API Dokümantasyonu"` },
-                { states: ['closing'], label: `driver.close()`, color: '#ef4444', extra: `// yeni sekmeyi kapat` },
-                { states: ['back-main', 'done'], label: `switchTo().window("${handles[0]}")`, color: '#10b981', extra: `// ana sekmeye dön` },
+                { states: ['switching', 'new-tab-open'], label: `switchTo().window("${handles[1]}")`, color: accent, extra: isTr ? `// yeni sekmeye geç` : `// switch to the new tab` },
+                { states: ['in-new'], label: `driver.getTitle()`, color: '#3b82f6', extra: isTr ? `// → "API Dokümantasyonu"` : `// → "API Documentation"` },
+                { states: ['closing'], label: `driver.close()`, color: '#ef4444', extra: isTr ? `// yeni sekmeyi kapat` : `// close the new tab` },
+                { states: ['back-main', 'done'], label: `switchTo().window("${handles[0]}")`, color: '#10b981', extra: isTr ? `// ana sekmeye dön` : `// return to the main tab` },
             ]
             const activeStates = ['clicking', 'collecting', 'switching', 'new-tab-open', 'in-new', 'closing', 'back-main', 'done']
             const curIdx = activeStates.indexOf(s)
@@ -3921,7 +3924,7 @@ pm.test("per_page is 6", () => {
             const nodeText = darkMode ? '#f3f4f6' : '#1f2937'
 
             const steps = [
-                { states: ['alert-open', 'alert-done'], code: `Alert alert = wait.until(\n  alertIsPresent());\nalert.getText(); // → "Kayıt..."`, icon: '⚠️', label: isTr ? 'Alert' : 'Alert' },
+                { states: ['alert-open', 'alert-done'], code: isTr ? `Alert alert = wait.until(\n  alertIsPresent());\nalert.getText(); // → "Kayıt..."` : `Alert alert = wait.until(\n  alertIsPresent());\nalert.getText(); // → "Record..."`, icon: '⚠️', label: isTr ? 'Alert' : 'Alert' },
                 { states: ['confirm-open', 'confirm-ok', 'confirm-cancel'], code: `Alert confirm = wait.until(\n  alertIsPresent());\nconfirm.accept();   // OK\n// confirm.dismiss(); // Cancel`, icon: '❓', label: isTr ? 'Confirm' : 'Confirm' },
                 { states: ['prompt-open', 'prompt-done', 'done'], code: `Alert prompt = wait.until(\n  alertIsPresent());\nprompt.sendKeys("testuser");\nprompt.accept();`, icon: '📝', label: 'Prompt' },
             ]
@@ -4060,7 +4063,7 @@ pm.test("per_page is 6", () => {
                             transition: 'all 0.4s',
                         }}>
                             {n.tag}
-                            {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>← driver burada şimdi!</span>}
+                            {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>{isTr ? '← driver burada şimdi!' : '← driver is here now!'}</span>}
                         </div>
                     ))}
 
@@ -4131,11 +4134,11 @@ pm.test("per_page is 6", () => {
                     {/* Status */}
                     <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa'}33`, fontFamily: 'sans-serif' }}>
                         <div style={{ color: isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa', fontWeight: 700 }}>
-                            {isFailing ? '❌ Hata:' : isPierced ? '✅ Başarı:' : '🕶 X-Ray Modu:'}
+                            {isFailing ? (isTr ? '❌ Hata:' : '❌ Error:') : isPierced ? (isTr ? '✅ Başarı:' : '✅ Success:') : (isTr ? '🕶 X-Ray Modu:' : '🕶 X-Ray Mode:')}
                         </div>
                         <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.6 }}>
                             {phase === 'idle' ? (isTr ? '⏸ Hazır. Bir yöntem seç.' : '⏸ Ready. Choose a method.') :
-                                isFailing ? 'NoSuchElementException:\ndriver.findElement(By.id("pwd"))\n→ Shadow DOM içindeki elemente erişilemiyor!' :
+                                isFailing ? (isTr ? 'NoSuchElementException:\ndriver.findElement(By.id("pwd"))\n→ Shadow DOM içindeki elemente erişilemiyor!' : 'NoSuchElementException:\ndriver.findElement(By.id("pwd"))\n→ Cannot access the element inside Shadow DOM!') :
                                     isXray ? (isTr ? 'shadowHost.getShadowRoot() çağrıldı...' : 'shadowHost.getShadowRoot() called...') :
                                         isExposed ? (isTr ? '#shadow-root açıldı! İçerideki elementler görünür.' : '#shadow-root open! Inner elements visible.') :
                                             (isTr ? 'shadowRoot.findElement(By.css("input#pwd")) → ✅' : 'shadowRoot.findElement(By.css("input#pwd")) → ✅')}
@@ -4284,7 +4287,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
                     <CodeBlock code={block.code ?? block.content} language={block.language} darkMode={darkMode} />
                     {block.expected && (
                         <div className={`mt-1 p-3 rounded-b-lg font-mono text-xs border-l-4 border-emerald-500 ${darkMode ? 'bg-gray-900 text-emerald-400' : 'bg-emerald-50 text-emerald-800'}`}>
-                            <div className={`text-xs font-sans mb-1 ${darkMode ? 'opacity-50' : 'opacity-60'}`}>▶ Beklenen Çıktı:</div>
+                            <div className={`text-xs font-sans mb-1 ${darkMode ? 'opacity-50' : 'opacity-60'}`}>{language === 'tr' ? '▶ Beklenen Çıktı:' : '▶ Expected Output:'}</div>
                             <pre className="whitespace-pre-wrap">{block.expected}</pre>
                         </div>
                     )}
@@ -4381,7 +4384,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
         case 'quiz':
             return <QuizBlock key={i} block={block} darkMode={darkMode} language={language} onQuizCorrect={onQuizCorrect} />
         case 'visual':
-            return <VisualBlock key={i} block={block} darkMode={darkMode} />
+            return <VisualBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'callout':
             return <CalloutBlock key={i} block={block} darkMode={darkMode} />
         case 'java-compare':
@@ -4629,7 +4632,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                         {completedCount > 0 && (
                             <div className="hidden md:block mb-2 px-2">
                                 <div className={`text-xs font-semibold mb-1 flex items-center justify-between ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    <span>{completedCount}/{tabs.length} tamamlandı</span>
+                                    <span>{completedCount}/{tabs.length} {language === 'tr' ? 'tamamlandı' : 'completed'}</span>
                                     {Object.keys(quizVerifiedTabs).length > 0 && (
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${darkMode ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
                                             🧠 {Object.keys(quizVerifiedTabs).length} quiz
@@ -4674,7 +4677,11 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                             role="checkbox"
                                             aria-checked={!!completedTabs[i]}
                                             onClick={(e) => toggleTabComplete(i, e)}
-                                            title={quizVerifiedTabs[i] ? 'Quiz doğru cevaplandı ✓' : completedTabs[i] ? 'Tamamlandı — kaldır' : 'Tamamlandı işaretle'}
+                                            title={quizVerifiedTabs[i]
+                                                ? (language === 'tr' ? 'Quiz doğru cevaplandı ✓' : 'Quiz answered correctly ✓')
+                                                : completedTabs[i]
+                                                    ? (language === 'tr' ? 'Tamamlandı — kaldır' : 'Completed — remove')
+                                                    : (language === 'tr' ? 'Tamamlandı işaretle' : 'Mark completed')}
                                             className={`flex-shrink-0 w-4 h-4 rounded border transition-all cursor-pointer flex items-center justify-center ${completedTabs[i]
                                                 ? quizVerifiedTabs[i]
                                                     ? 'bg-purple-500 border-purple-500 text-white'

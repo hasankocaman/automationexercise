@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FrameworkComparison from './FrameworkComparison'
 import PlaywrightLangCompare from './PlaywrightLangCompare'
+import PythonFrameworksTab from './PythonFrameworksTab'
 import { useLanguage } from '../context/LanguageContext'
 
 function ScrollProgressBar() {
@@ -47,6 +48,7 @@ function TestFrameworksPage() {
     const sections = [
         { emoji: '🔍', label: 'Framework Karşılaştırma', labelEn: 'Framework Comparison' },
         { emoji: '🎭', label: 'Playwright Dil Karşılaştırma', labelEn: 'Playwright Language Compare' },
+        { emoji: '🐍', label: 'Python Frameworks', labelEn: 'Python Frameworks' },
     ]
 
     const gradient = 'from-purple-600 to-indigo-600'
@@ -158,6 +160,7 @@ function TestFrameworksPage() {
                             </h2>
                             {activeSection === 0 && <FrameworkComparison darkMode={darkMode} />}
                             {activeSection === 1 && <PlaywrightLangCompare darkMode={darkMode} />}
+                            {activeSection === 2 && <PythonFrameworksTab darkMode={darkMode} language={language} />}
                         </div>
 
                         {/* Pagination */}

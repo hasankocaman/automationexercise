@@ -12,10 +12,7 @@ const translations = {
 const getDefaultLanguage = () => {
     const saved = localStorage.getItem('language')
     if (saved === 'tr' || saved === 'en') return saved
-    if (typeof navigator !== 'undefined') {
-        return navigator.language?.startsWith('tr') ? 'tr' : 'en'
-    }
-    return 'en'
+    return 'tr'
 }
 
 export function LanguageProvider({ children }) {
