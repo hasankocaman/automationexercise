@@ -2,7 +2,7 @@
     "header": {
         "title": "🧭 QA Learning Platform",
         "subtitle": "Python, SQL, otomasyon araçları ve DevOps konularını QA odaklı yollarla öğren",
-        "back": "Automation Exercise ana sayfasına geri dön",
+        "back": "QA Learning Platform ana sayfasına geri dön",
         "language": "Dil",
         "toggleLanguage": "Dili değiştir",
         "theme": {
@@ -374,7 +374,7 @@
         }
     },
     "pages": {
-        "backButton": "← Automation Exercise Ana Sayfasına Dön"
+        "backButton": "← QA Learning Platform Ana Sayfasına Dön"
     },
     "jmeter": {
         "navButton": "⚡ JMeter",

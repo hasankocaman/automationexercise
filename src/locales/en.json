@@ -2,7 +2,7 @@
     "header": {
         "title": "🧭 QA Learning Platform",
         "subtitle": "Learn Python, SQL, automation tools, and DevOps with hands-on QA paths",
-        "back": "Back to Automation Exercise main page",
+        "back": "Back to QA Learning Platform main page",
         "language": "Language",
         "toggleLanguage": "Toggle language",
         "theme": {
@@ -374,7 +374,7 @@
         }
     },
     "pages": {
-        "backButton": "← Back to Automation Exercise Main Page"
+        "backButton": "← Back to QA Learning Platform Main Page"
     },
     "jmeter": {
         "navButton": "⚡ JMeter",

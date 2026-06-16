@@ -3063,7 +3063,7 @@ const s8 = {
         content: 'Selenium öğrenirken herkes aynı hataları yapar. Bu bölüm en sık karşılaşılan 10 hatayı ve çözümlerini içerir — copy-paste yapıp gerçek hata mesajınızla karşılaştırabilirsiniz.',
       },
       {
-        type: 'error-dict',
+        type: 'error-dictionary',
         framework: 'Selenium WebDriver',
         errors: [
           {
@@ -3169,7 +3169,7 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
         content: 'Everyone hits the same errors when learning Selenium. This section covers the 10 most common errors with real error messages and solutions — copy-paste to match your error.',
       },
       {
-        type: 'error-dict',
+        type: 'error-dictionary',
         framework: 'Selenium WebDriver',
         errors: [
           {

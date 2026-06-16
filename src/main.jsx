@@ -13,7 +13,7 @@ import { ZoomProvider } from './context/ZoomContext'
 
 
 async function enableMocking() {
-    // In this specific project (Automation Testing Playground), we WANT the mock simulation
+    // In this specific project (QA Learning Platform), we WANT the mock simulation
     // to work in production (GitHub Pages) as well.
     // So we remove the !import.meta.env.DEV check.
 

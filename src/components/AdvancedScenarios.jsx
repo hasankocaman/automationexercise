@@ -80,7 +80,7 @@ function AdvancedScenarios({ darkMode }) {
     }
 
     const handleFileDownload = () => {
-        const content = 'This is a sample file for download testing.\nAutomation Testing Playground\nDate: ' + new Date().toLocaleString()
+        const content = 'This is a sample file for download testing.\nQA Learning Platform\nDate: ' + new Date().toLocaleString()
         const blob = new Blob([content], { type: 'text/plain' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
