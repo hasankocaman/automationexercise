@@ -34,6 +34,7 @@ function HomePage() {
     const [searchResults, setSearchResults] = useState([])
     const searchInputRef = useRef(null)
     const practiceSectionRef = useRef(null)
+    const contentSectionRef = useRef(null)
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
@@ -390,7 +391,7 @@ function HomePage() {
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
-                                <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>⚖️ Karşılaştır</button>
+                                <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
                             </div>
                         </div>
 
@@ -455,7 +456,7 @@ function HomePage() {
             </nav>
 
             {/* Main Content */}
-            <main className="container mx-auto px-3 py-4 md:px-6 md:py-8">
+            <main ref={contentSectionRef} className="container mx-auto px-3 py-4 md:px-6 md:py-8">
                 <div className="animate-fadeIn">
                     {renderSection()}
                 </div>
