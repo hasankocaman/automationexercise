@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Redirect to learnqa.dev
 
 on:
   push:
@@ -9,9 +9,6 @@ permissions:
   pages: write
   id-token: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy:
     environment:
@@ -19,18 +16,27 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: npm install
-      - name: Fix vite permissions
-        run: chmod +x node_modules/.bin/vite
-      - name: Build
-        run: npm run build
+      - name: Create redirect page
+        run: |
+          mkdir -p dist
+          cat > dist/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="tr">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0; url=https://learnqa.dev">
+            <title>learnqa.dev</title>
+            <script>window.location.replace('https://learnqa.dev');</script>
+            <style>
+              body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1A1816; color: #fff; }
+              a { color: #7c3aed; }
+            </style>
+          </head>
+          <body>
+            <p>Yönlendiriliyor → <a href="https://learnqa.dev">learnqa.dev</a></p>
+          </body>
+          </html>
+          EOF
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
