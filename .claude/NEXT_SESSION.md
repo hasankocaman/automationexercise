@@ -43,6 +43,8 @@
 | Appium sayfasına simülasyon eklendi: `appium-element-detection` (Locator & POM sekmesi) — Appium Inspector arayüzü, element ağacı tarama, locator önerisi | — | ✅ |
 | Appium sayfasına simülasyon eklendi: `appium-swipe` (Gerçek Senaryo sekmesi) — mobil ekran, W3C Actions API ile swipe gesture | — | ✅ |
 | Playwright ile görsel doğrulama yapıldı (her iki simülasyon screenshot'ta doğru render oluyor, console hatası yok) | — | ✅ |
+| BrowserStack sayfasına simülasyon eklendi: `browserstack-cloud-run` (Selenium Entegrasyonu sekmesi) — local terminal → BrowserStack Hub → Automate Dashboard akışı | — | ✅ |
+| Playwright ile BrowserStack simülasyonu doğrulandı (terminal log animasyonu + dashboard session kartı doğru render oluyor, console hatası yok) | — | ✅ |
 
 ---
 
@@ -80,10 +82,9 @@
 
 ## 📋 Sıradaki Görevler (Öncelik Sırasıyla)
 
-1. **BrowserStack sayfasına simülasyon** — Local test → Cloud browser akışı (gerçek BrowserStack Automate arayüzü)
-2. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
-3. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
-4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
+1. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
+2. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
+3. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
 
 ---
 
@@ -137,6 +138,7 @@ SimulationBlock({ block, darkMode, language })
 | `rest-assured-chain` | given() → when() → then() → assertions | restAssuredData.js |
 | `appium-element-detection` | Appium Inspector tarama → element ağacı → locator önerisi | appiumData.js s3 (Locator & POM) |
 | `appium-swipe` | W3C Actions pointerDown→move→pointerUp → liste kayar | appiumData.js s4 (Gerçek Senaryo) |
+| `browserstack-cloud-run` | Local pytest terminal → Hub bağlantısı → Automate Dashboard session kartı | browserstackData.js s2 (Selenium Entegrasyonu) |
 
 ### Build Durumu
 - ✅ `npm run build` başarılı

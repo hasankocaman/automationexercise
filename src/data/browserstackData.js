@@ -512,7 +512,30 @@ driver = webdriver.Remote(
         tr: 'BrowserStack, testin geçip geçmediğini kendisi bilemez. Test kodunuzda driver.execute_script("browserstack_executor: {action: setSessionStatus, arguments: {status: passed/failed}}") ile sonucu bildirmeniz gerekir. SDK kullanırsanız bu otomatik yapılır.',
         en: 'BrowserStack cannot determine whether a test passed or failed on its own. You need to report the result in your test code via driver.execute_script("browserstack_executor: {action: setSessionStatus, arguments: {status: passed/failed}}"). If you use the SDK, this is done automatically.'
       }
-    }
+    },
+    {
+      type: 'simulation',
+      icon: '☁️',
+      color: '#fc6620',
+      title: { tr: 'Local Test → Cloud Browser — Canlı Akış', en: 'Local Test → Cloud Browser — Live Flow' },
+      scenario: 'browserstack-cloud-run',
+      description: {
+        tr: '"▶ Testi Çalıştır" butonuna bas: yerel terminalde başlayan pytest komutunun BrowserStack Hub\'a bağlanıp gerçek bulut tarayıcısında nasıl çalıştığını ve Automate Dashboard\'da oturumun nasıl belirdiğini izle.',
+        en: 'Click "▶ Run Test": watch a pytest command that starts in your local terminal connect to the BrowserStack Hub, run on a real cloud browser, and appear as a live session on the Automate Dashboard.',
+      },
+      code: `# Terminal — local makinende çalıştır
+browserstack-sdk pytest test_login.py -v
+
+# Arka planda olan biten:
+# 1) SDK, WebDriver oluşturmayı intercept eder
+# 2) RemoteWebDriver, hub.browserstack.com'a HTTPS ile bağlanır
+# 3) BrowserStack, capability'lere göre gerçek bir
+#    Chrome 122 / Windows 11 instance'ı ayağa kaldırır (provisioning)
+# 4) Test komutları (click, sendKeys...) o uzak tarayıcıda çalışır
+# 5) Video + network log + console log kaydedilir
+# 6) execute_script("browserstack_executor: ...") ile
+#    Pass/Fail durumu Dashboard'a bildirilir`,
+    },
   ]
 }
 

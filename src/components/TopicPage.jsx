@@ -3907,6 +3907,50 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === BROWSERSTACK LOCAL → CLOUD PLAYGROUND ===
+    const renderBrowserstackCloudRunPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle', 'starting', 'connecting', 'provisioning', 'running', 'done']
+        const cur = order.indexOf(s)
+        const BS = { bgDark: '#0d1117', border: '#21262d', text: '#c9d1d9', muted: '#6e7681', orange: '#fc6620', green: '#3fb950', yellow: '#d29922' }
+        const lines = [
+            { minState: 'starting', text: '$ browserstack-sdk pytest test_login.py -v', color: BS.text },
+            { minState: 'connecting', text: (isTr ? '→ hub.browserstack.com bağlanıyor...' : '→ Connecting to hub.browserstack.com...'), color: BS.yellow },
+            { minState: 'provisioning', text: '→ Session created: a1b2c3d4', color: BS.muted },
+            { minState: 'provisioning', text: '→ Provisioning: Chrome 122 / Windows 11', color: BS.orange },
+            { minState: 'running', text: (isTr ? '→ test_login_page ... ÇALIŞIYOR' : '→ test_login_page ... RUNNING'), color: BS.yellow },
+            { minState: 'done', text: (isTr ? '✓ test_login_page GEÇTİ (4.2s)' : '✓ test_login_page PASSED (4.2s)'), color: BS.green },
+        ]
+        return (
+            <div style={{ fontFamily: 'monospace', maxWidth: 310 }}>
+                <div style={{ background: BS.bgDark, borderRadius: '10px 10px 0 0', overflow: 'hidden' }}>
+                    <div style={{ background: '#161b22', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: `1px solid ${BS.border}` }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57', display: 'inline-block' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#FFBD2E', display: 'inline-block' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#28CA42', display: 'inline-block' }} />
+                        <span style={{ fontSize: 9, color: BS.muted, marginLeft: 6 }}>Terminal — local</span>
+                        <button
+                            onClick={() => canStart && runSteps([['starting', 300], ['connecting', 700], ['provisioning', 900], ['running', 1000], ['done', 700]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', background: !canStart ? BS.muted : BS.orange, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 10px', fontSize: 9, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ Testi Çalıştır' : '▶ Run Test') : s === 'done' ? (isTr ? '▶ Tekrar' : '▶ Again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '8px 10px', minHeight: 130 }}>
+                        {s === 'idle' && <div style={{ fontSize: 9, color: BS.muted }}>{isTr ? 'Yerel testi buluta göndermek için ▶ butonuna bas' : 'Press ▶ to send the local test to the cloud'}</div>}
+                        {lines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                            return show ? <div key={i} style={{ fontSize: 9, color: ln.color, marginBottom: 3 }}>{ln.text}</div> : null
+                        })}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: BS.bgDark, border: `1px solid ${BS.border}`, color: BS.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'explicit-wait') {
@@ -4652,6 +4696,59 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'browserstack-cloud-run') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'starting', 'connecting', 'provisioning', 'running', 'done']
+            const cur = order.indexOf(s)
+            const statusInfo =
+                cur < order.indexOf('provisioning') ? { label: isTr ? 'Bekleniyor' : 'Queued', color: subtext } :
+                    cur < order.indexOf('done') ? { label: isTr ? 'Çalışıyor' : 'Running', color: '#f59e0b' } :
+                        { label: isTr ? 'Geçti ✓' : 'Passed ✓', color: '#10b981' }
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        BrowserStack Automate Dashboard
+                    </div>
+                    {cur < order.indexOf('provisioning') ? (
+                        <div style={{ padding: '14px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, textAlign: 'center' }}>
+                            {isTr ? 'Henüz oturum yok — testi başlat' : 'No session yet — start the test'}
+                        </div>
+                    ) : (
+                        <div style={{ padding: 10, borderRadius: 8, background: darkMode ? '#0f172a' : '#fff', border: `1px solid ${darkMode ? '#1f2937' : '#e5e7eb'}`, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, color: darkMode ? '#f3f4f6' : '#111827' }}>test_login_page</span>
+                                <span style={{ fontSize: 9, fontWeight: 700, color: statusInfo.color, padding: '2px 8px', borderRadius: 99, background: `${statusInfo.color}18` }}>{statusInfo.label}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 10, fontSize: 9, color: subtext, marginBottom: 6 }}>
+                                <span>🌐 Chrome 122</span>
+                                <span>🖥️ Windows 11</span>
+                            </div>
+                            <div style={{ fontSize: 9, color: subtext, marginBottom: 6 }}>
+                                Session: <span style={{ color: '#fc6620' }}>a1b2c3d4</span>
+                            </div>
+                            {cur >= order.indexOf('running') && (
+                                <div style={{ height: 50, borderRadius: 6, background: darkMode ? '#1f2937' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: subtext, marginBottom: 6 }}>
+                                    {cur >= order.indexOf('done') ? '🎥 ' + (isTr ? 'Video kaydı hazır' : 'Video recording ready') : '📡 ' + (isTr ? 'Canlı akış...' : 'Live streaming...')}
+                                </div>
+                            )}
+                            {cur >= order.indexOf('done') && (
+                                <div style={{ fontSize: 9, color: '#10b981', fontWeight: 700 }}>
+                                    ✅ {isTr ? 'Süre: 4.2s — Network log + Console log kaydedildi' : 'Duration: 4.2s — Network log + Console log saved'}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {s !== 'idle' && (
+                        <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                            ☕ {isTr ? 'Java\'da Selenium Grid\'de RemoteWebDriver ile bağlandığınız hub, burada hub.browserstack.com\'dur — aynı protokol.' : 'In Java, the hub you connect to via RemoteWebDriver on Selenium Grid is hub.browserstack.com here — same protocol.'}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -4712,6 +4809,7 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'shadow-dom-xray' && renderShadowDomXrayPlayground()}
                     {block.scenario === 'appium-element-detection' && renderAppiumElementDetectionPlayground()}
                     {block.scenario === 'appium-swipe' && renderAppiumSwipePlayground()}
+                    {block.scenario === 'browserstack-cloud-run' && renderBrowserstackCloudRunPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}
