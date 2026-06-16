@@ -1064,6 +1064,38 @@ const source = await driver.findElement(By.id('dragSource'));
 const target = await driver.findElement(By.id('dropTarget'));
 await actions.dragAndDrop(source, target).perform();`,
       },
+      {
+        type: 'simulation',
+        icon: '🖱️',
+        color: '#7c3aed',
+        title: { tr: 'Drag & Drop — Canlı Simülasyon', en: 'Drag & Drop — Live Simulation' },
+        scenario: 'drag-drop',
+        description: {
+          tr: '"▶ Sürükle!" butonuna tıkla ve dragstart → drag → dragenter → dragover → drop → dragend event zincirini canlı izle. Sağ panelde DOM olayları ateşleniyor.',
+          en: 'Click "▶ Drag!" and watch the dragstart → drag → dragenter → dragover → drop → dragend event chain fire in real time. DOM events light up on the right.',
+        },
+        code: `// Java — Drag & Drop (Actions API)
+import org.openqa.selenium.interactions.Actions;
+
+WebDriver driver  = new ChromeDriver();
+Actions   actions = new Actions(driver);
+
+WebElement source = driver.findElement(By.id("dragSource"));
+WebElement target = driver.findElement(By.id("dropTarget"));
+
+// Yöntem 1: Direkt dragAndDrop
+actions.dragAndDrop(source, target).perform();
+
+// Yöntem 2: Manuel adımlar (bazı siteler için)
+actions.clickAndHold(source)     // kaynak üzerinde fareyi bas
+       .moveToElement(target)    // hedefe sür
+       .release()                // bırak
+       .perform();
+
+// Python eşdeğeri:
+// ActionChains(driver).drag_and_drop(source, target).perform()`,
+        language: 'java',
+      },
       { type: 'heading', text: '4. JavaScript Executor' },
       {
         type: 'code', language: 'java',
@@ -1477,6 +1509,40 @@ const s4 = {
         ],
       },
       {
+        type: 'animated-timeline',
+        title: { tr: 'Wait Türleri — Zaman Çizelgesi Animasyonu', en: 'Wait Types — Animated Timeline' },
+        description: {
+          tr: '▶ Oynat\'a bas: üç farklı wait stratejisinin aynı koşulda (element DOM\'a giriyor) ne kadar farklı süre harcadığını canlı gör. Barlar gerçek zamanlama oranıyla dolar.',
+          en: '▶ Press Play: watch how three wait strategies perform under the same condition (element entering DOM). Bars fill proportionally to real durations.',
+        },
+        tracks: [
+          {
+            label: 'Thread.sleep(5s)',
+            labelEn: 'Thread.sleep(5s)',
+            duration: 5000,
+            color: '#ef4444',
+            badge: { tr: '❌ Her zaman 5s bekler — element 1.8s\'de hazır olsa bile', en: '❌ Always waits 5s — even if element is ready at 1.8s' },
+            detail: { tr: 'Sabit, koşulsuz bekleme. Test süresini gereksiz uzatır.', en: 'Fixed, unconditional sleep. Bloats test suite time.' },
+          },
+          {
+            label: 'Implicit Wait (max 10s)',
+            labelEn: 'Implicit Wait (max 10s)',
+            duration: 2300,
+            color: '#f59e0b',
+            badge: { tr: '⚠️ ~2.3s — element gelince durur ama tüm findElement\'leri etkiler', en: '⚠️ ~2.3s — stops when element arrives, but affects every findElement' },
+            detail: { tr: 'Global timeout. Başka elementler için yavaşlatıcı olabilir.', en: 'Global timeout. Can slow down unrelated lookups.' },
+          },
+          {
+            label: 'Explicit Wait (visibility koşulu)',
+            labelEn: 'Explicit Wait (visibility condition)',
+            duration: 1800,
+            color: '#10b981',
+            badge: { tr: '✅ ~1.8s — tam koşul sağlanınca durur, sadece bu element için', en: '✅ ~1.8s — stops exactly when condition met, scoped to this element' },
+            detail: { tr: 'En verimli yöntem. Sadece ihtiyaç duyulan noktada bekler.', en: 'Most efficient. Waits only where needed.' },
+          },
+        ],
+      },
+      {
         type: 'simulation',
         icon: '⏳',
         color: '#7c3aed',
@@ -1762,6 +1828,40 @@ result = wait.until(
           ['Fluent Wait', 'Explicit + polling interval + ignore exceptions', 'Complex async scenarios', '✅ Advanced'],
         ],
       },
+      {
+        type: 'animated-timeline',
+        title: { tr: 'Wait Türleri — Zaman Çizelgesi Animasyonu', en: 'Wait Types — Animated Timeline' },
+        description: {
+          tr: '▶ Oynat\'a bas: üç farklı wait stratejisinin aynı koşulda ne kadar farklı süre harcadığını canlı gör.',
+          en: '▶ Press Play: watch how three wait strategies perform under the same condition (element entering DOM). Bars fill proportionally to real durations.',
+        },
+        tracks: [
+          {
+            label: 'Thread.sleep(5s)',
+            labelEn: 'Thread.sleep(5s)',
+            duration: 5000,
+            color: '#ef4444',
+            badge: { tr: '❌ Her zaman 5s bekler', en: '❌ Always waits 5s — even if element is ready at 1.8s' },
+            detail: { tr: 'Sabit, koşulsuz bekleme.', en: 'Fixed, unconditional sleep. Bloats test suite time.' },
+          },
+          {
+            label: 'Implicit Wait (max 10s)',
+            labelEn: 'Implicit Wait (max 10s)',
+            duration: 2300,
+            color: '#f59e0b',
+            badge: { tr: '⚠️ ~2.3s — element gelince durur', en: '⚠️ ~2.3s — stops when element arrives, but affects every findElement' },
+            detail: { tr: 'Global timeout.', en: 'Global timeout. Can slow down unrelated lookups.' },
+          },
+          {
+            label: 'Explicit Wait (visibility condition)',
+            labelEn: 'Explicit Wait (visibility condition)',
+            duration: 1800,
+            color: '#10b981',
+            badge: { tr: '✅ ~1.8s — tam koşul sağlanınca durur', en: '✅ ~1.8s — stops exactly when condition met, scoped to this element' },
+            detail: { tr: 'En verimli yöntem.', en: 'Most efficient. Waits only where needed.' },
+          },
+        ],
+      },
       { type: 'heading', text: '1. Implicit Wait' },
       {
         type: 'code', language: 'java',
@@ -1891,6 +1991,42 @@ await alert.accept();
 await (await driver.findElement(By.id('confirmBtn'))).click();
 const confirm = await driver.wait(until.alertIsPresent(), 10000);
 await confirm.dismiss();`,
+      },
+      {
+        type: 'simulation',
+        icon: '🪟',
+        color: '#3b82f6',
+        title: { tr: 'Alert / Confirm / Prompt — İnteraktif Simülasyon', en: 'Alert / Confirm / Prompt — Interactive Simulation' },
+        scenario: 'alert-sim',
+        description: {
+          tr: 'Sol panelde 3 butona tıklayarak window.alert(), window.confirm() ve window.prompt() dialog\'larını simüle et. Sağ panelde Selenium\'un her dialog için hangi kodu çalıştırdığını canlı izle.',
+          en: 'Click the 3 buttons on the left to simulate window.alert(), window.confirm() and window.prompt() dialogs. Watch the Selenium code light up on the right in real time.',
+        },
+        code: `// Java — Tüm Alert Türleri
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+// 1. window.alert() — sadece OK butonu
+driver.findElement(By.id("alertBtn")).click();
+Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+String msg = alert.getText();         // "Kayıt tamamlandı!"
+alert.accept();                       // OK tıklar
+
+// 2. window.confirm() — OK veya Cancel
+driver.findElement(By.id("confirmBtn")).click();
+Alert confirm = wait.until(ExpectedConditions.alertIsPresent());
+confirm.accept();                     // OK → true döner
+// confirm.dismiss();                 // Cancel → false döner
+
+// 3. window.prompt() — metin girişi
+driver.findElement(By.id("promptBtn")).click();
+Alert prompt = wait.until(ExpectedConditions.alertIsPresent());
+prompt.sendKeys("testuser");          // input'a yaz
+prompt.accept();                      // OK → "testuser" döner
+
+// Python eşdeğerleri:
+// alert = wait.until(EC.alert_is_present())
+// alert.accept() / alert.dismiss() / alert.send_keys("text")`,
+        language: 'java',
       },
       { type: 'heading', text: '2. iframe Yönetimi' },
       {
@@ -2107,6 +2243,42 @@ await driver.close();
 
 // Ana pencereye dön
 await driver.switchTo().window(mainWindow);`,
+      },
+      {
+        type: 'simulation',
+        icon: '🗂️',
+        color: '#3b82f6',
+        title: { tr: 'Multiple Windows — Pencere/Sekme Geçişi', en: 'Multiple Windows — Tab/Window Switching' },
+        scenario: 'multi-window',
+        description: {
+          tr: '"Yeni Sekme Aç" butonuna tıkla ve Selenium\'un getWindowHandles() ile tüm sekmeleri nasıl algılayıp switchTo().window() ile geçtiğini adım adım izle.',
+          en: 'Click "Open New Tab" and watch how Selenium detects all tabs with getWindowHandles() then switches with switchTo().window() step by step.',
+        },
+        code: `// Java — Multiple Window/Tab Yönetimi
+// Adım 1: Ana pencere handle'ını kaydet (ZORUNLU!)
+String mainWindow = driver.getWindowHandle();
+
+// Adım 2: Yeni sekme açan linke tıkla
+driver.findElement(By.id("newTabLink")).click();
+
+// Adım 3: Tüm handle'ları al — {CDwindow-001, CDwindow-002}
+Set<String> allHandles = driver.getWindowHandles();
+
+// Adım 4: Yeni sekmeye geç
+for (String handle : allHandles) {
+    if (!handle.equals(mainWindow)) {
+        driver.switchTo().window(handle);   // ← yeni sekme
+        break;
+    }
+}
+
+// Adım 5: Yeni sekmede çalış
+System.out.println(driver.getTitle()); // yeni sekme başlığı
+driver.close();                        // yeni sekmeyi kapat
+
+// Adım 6: Ana sekmeye dön (ZORUNLU — yoksa NoSuchWindowException!)
+driver.switchTo().window(mainWindow);`,
+        language: 'java',
       },
       { type: 'heading', text: '4. Cookie Yönetimi' },
       {

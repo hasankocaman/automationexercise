@@ -1091,6 +1091,50 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             emoji: '🏭',
             content: 'Jenkins Pipeline, bir fabrika montaj hattı gibidir. Her "stage" bir iş istasyonudur (Build, Test, Deploy). Parçalar sırayla geçer ve bir istasyon başarısız olursa hat durur, ekip uyarılır. Bu montaj hattını Jenkinsfile adlı bir dosyada kod olarak yazarsın.',
           },
+          {
+            type: 'simulation',
+            icon: '🔧',
+            color: '#ef4444',
+            title: { tr: 'CI/CD Pipeline — Canlı Simülasyon', en: 'CI/CD Pipeline — Live Simulation' },
+            scenario: 'jenkins-pipeline',
+            description: {
+              tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
+              en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+            },
+            code: `// Jenkinsfile — Declarative Pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { git branch: 'main', url: 'https://github.com/org/repo.git' }
+        }
+        stage('Build') {
+            steps { sh 'mvn clean package -DskipTests' }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { sh 'mvn sonar:sonar' }
+                waitForQualityGate abortPipeline: true
+            }
+        }
+        stage('Deploy') {
+            when { branch 'main' }
+            steps { sh './scripts/deploy-staging.sh' }
+        }
+    }
+    post {
+        success { slackSend color: 'good', message: "✅ Build #\${BUILD_NUMBER} başarılı" }
+        failure { slackSend color: 'danger', message: "❌ Build #\${BUILD_NUMBER} başarısız!" }
+    }
+}`,
+            language: 'groovy',
+          },
           { type: 'heading', text: 'Freestyle Job vs Declarative Pipeline' },
           {
             type: 'table',

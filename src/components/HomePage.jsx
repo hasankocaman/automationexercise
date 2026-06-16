@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { search as searchContent } from '../utils/searchIndex'
 import ZoomControls from './ZoomControls'
 import BasicElements from './BasicElements'
 import ComplexInteractions from './ComplexInteractions'
@@ -20,10 +21,45 @@ function HomePage() {
         const saved = localStorage.getItem('darkMode')
         return saved !== null ? JSON.parse(saved) : true
     })
+    const [searchOpen, setSearchOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [searchResults, setSearchResults] = useState([])
+    const searchInputRef = useRef(null)
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
     }, [darkMode])
+
+    // Debounced search
+    useEffect(() => {
+        if (searchQuery.trim().length < 2) { setSearchResults([]); return }
+        const timer = setTimeout(() => {
+            setSearchResults(searchContent(searchQuery))
+        }, 250)
+        return () => clearTimeout(timer)
+    }, [searchQuery])
+
+    // ESC closes modal
+    useEffect(() => {
+        const handler = (e) => { if (e.key === 'Escape') setSearchOpen(false) }
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
+    }, [])
+
+    // Auto-focus input when modal opens
+    useEffect(() => {
+        if (searchOpen && searchInputRef.current) {
+            setTimeout(() => searchInputRef.current?.focus(), 50)
+        } else if (!searchOpen) {
+            setSearchQuery('')
+            setSearchResults([])
+        }
+    }, [searchOpen])
+
+    const handleSearchNavigate = (route, tabIndex) => {
+        setSearchOpen(false)
+        navigate(route, { state: { openTab: tabIndex } })
+    }
 
     const sections = [
         { id: 'basic',        name: t('nav.basic'),       shortName: language === 'tr' ? '📝 Temel'   : '📝 Basic' },
@@ -101,6 +137,14 @@ function HomePage() {
                             </p>
                         </div>
                         <div className="flex gap-1.5 md:gap-3 flex-shrink-0 items-center">
+                            {/* Search button */}
+                            <button
+                                onClick={() => setSearchOpen(true)}
+                                title="Konularda ara (Ctrl+K)"
+                                className={`px-2 md:px-3 py-1 md:py-2 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 flex items-center gap-1 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white/20 text-white hover:bg-white/30'}`}
+                            >
+                                🔍 <span className="hidden md:inline">Ara</span>
+                            </button>
                             <div className="flex bg-white rounded-lg overflow-hidden" data-testid="language-toggle">
                                 <button
                                     onClick={() => language === 'tr' && toggleLanguage()}
@@ -128,6 +172,68 @@ function HomePage() {
                     </div>
                 </div>
             </header>
+
+            {/* Search Modal */}
+            {searchOpen && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-start justify-center pt-20 px-4"
+                    style={{ background: 'rgba(0,0,0,0.75)' }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setSearchOpen(false) }}
+                >
+                    <div className={`w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        {/* Search input */}
+                        <div className={`flex items-center gap-3 p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <span className="text-xl flex-shrink-0">🔍</span>
+                            <input
+                                ref={searchInputRef}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={language === 'tr' ? 'Tüm konularda ara... (ör: token, assertion, dockerfile)' : 'Search all topics... (e.g. token, assertion, dockerfile)'}
+                                className={`flex-1 outline-none text-sm md:text-base bg-transparent ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-800 placeholder-gray-400'}`}
+                                style={{ fontSize: '16px' }}
+                            />
+                            <button
+                                onClick={() => setSearchOpen(false)}
+                                className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm transition-colors ${darkMode ? 'text-gray-400 hover:bg-gray-700 hover:text-white' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'}`}
+                            >✕</button>
+                        </div>
+
+                        {/* Results */}
+                        {searchResults.length > 0 && (
+                            <div className="max-h-96 overflow-y-auto">
+                                {searchResults.map((r, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => handleSearchNavigate(r.route, r.tabIndex)}
+                                        className={`w-full text-left px-4 py-3 border-b transition-colors ${darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100 hover:bg-indigo-50'}`}
+                                    >
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className={`font-bold text-xs md:text-sm ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{r.pageName}</span>
+                                            <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>›</span>
+                                            <span className={`text-xs truncate ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{r.tabName}</span>
+                                        </div>
+                                        <p className={`text-xs line-clamp-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{r.snippet}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* No results */}
+                        {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                            <div className={`p-8 text-center text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                {language === 'tr' ? '🔍 Sonuç bulunamadı' : '🔍 No results found'}
+                            </div>
+                        )}
+
+                        {/* Hint when empty */}
+                        {searchQuery.trim().length < 2 && (
+                            <div className={`p-4 text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>
+                                {language === 'tr' ? 'En az 2 karakter gir' : 'Type at least 2 characters'} · ESC {language === 'tr' ? 'ile kapat' : 'to close'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Navigation — Categorized */}
             <nav

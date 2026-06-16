@@ -1089,6 +1089,34 @@ def test_waits(page: Page):
     expect(page.locator("#count")).to_have_text("3")`,
       },
       {
+        type: 'simulation',
+        icon: '⚡',
+        color: '#10b981',
+        title: { tr: 'Auto-Wait — Playwright Aksiyondan Önce Ne Kontrol Eder?', en: 'Auto-Wait — What Does Playwright Check Before Acting?' },
+        scenario: 'pw-autowait',
+        description: {
+          tr: '"▶ Butona Tıkla" → Playwright tıklamadan önce 5 actionability check\'i sırayla yapar. Tüm checkler yeşil olunca gerçek tıklama gerçekleşir. Sağda hangi check\'in şu an yapıldığını izle.',
+          en: '▶ Click the button → Playwright runs 5 actionability checks before clicking. Only when all pass does the real click happen. Watch which check is running on the right.',
+        },
+        code: `// TypeScript — Auto-Wait örneği
+// Tek satır — Playwright ARKAPLANda bunu yapar:
+await page.getByRole('button', { name: 'Sepete Ekle' }).click();
+
+// ↑ Bu satır şunları otomatik kontrol eder:
+// 1. Element DOM'da var mı?          → attached
+// 2. Element görünür mü?             → visible
+// 3. Element animasyondan çıktı mı?  → stable
+// 4. Pointer eventleri alıyor mu?    → receives events
+// 5. Element enabled mi?             → enabled
+
+// Timeout aşılırsa: TimeoutError fırlatır
+// Default timeout: 30 saniye (playwright.config.ts'de ayarlanır)
+
+// Java eşdeğeri (aynı auto-wait geçerli):
+// page.getByRole(AriaRole.BUTTON, ...).click(); // no extra wait needed`,
+        language: 'typescript',
+      },
+      {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir spinner\'ın kaybolmasını beklemek için hangi kod kullanılır?', en: 'Which code waits for a spinner to disappear in Playwright?' },
         options: [

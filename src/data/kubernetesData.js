@@ -2043,6 +2043,49 @@ kubectl delete deployment hello-nginx # Temizlik`,
       {
         title: '📦 Temel Kubernetes Kavramları',
         blocks: [
+          {
+            type: 'simulation',
+            icon: '☸️',
+            color: '#7c3aed',
+            title: { tr: 'kubectl apply → Pod Running — Cluster Yolculuğu', en: 'kubectl apply → Pod Running — Cluster Journey' },
+            scenario: 'k8s-pod',
+            description: {
+              tr: '"▶ kubectl apply" butonuna bas: YAML dosyasının kubectl\'den API Server\'a, etcd\'ye, Scheduler\'a ve Node\'a uzanan yolculuğunu adım adım izle. Java\'daki deploy pipeline analojisi sağda.',
+              en: 'Press "▶ kubectl apply": watch the YAML journey from kubectl to API Server, etcd, Scheduler and Node step by step. Java deploy pipeline analogy on the right.',
+            },
+            code: `# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx
+spec:
+  replicas: 2          # 2 pod replica
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+# Uygula:
+kubectl apply -f deployment.yaml
+# → deployment.apps/my-nginx created
+
+# Durumunu izle:
+kubectl rollout status deployment/my-nginx
+# → deployment "my-nginx" successfully rolled out
+
+kubectl get pods
+# → my-nginx-6d8f9   1/1   Running   0`,
+            language: 'yaml',
+          },
           { type: 'heading', text: 'Pod — En Küçük Birim' },
           {
             type: 'simple-box',

@@ -1130,6 +1130,38 @@ pm.test("Status OK", function() {       // open
               ['DELETE', 'Kaynağı sil', '❌', 'DELETE /users/42', 'DELETE WHERE id=42'],
             ],
           },
+          {
+            type: 'simulation',
+            icon: '📮',
+            color: '#f97316',
+            title: { tr: 'HTTP İstek-Yanıt Döngüsü — Canlı Simülasyon', en: 'HTTP Request-Response Cycle — Live Simulation' },
+            scenario: 'api-request',
+            description: {
+              tr: '"Send" butonuna tıkla: GET isteğinin sunucuya yolculuğunu, sunucunun işleyişini ve Postman test assertion\'larının çalışmasını adım adım izle.',
+              en: 'Click "Send": watch the GET request travel to the server, the server process it, and Postman test assertions run — step by step.',
+            },
+            code: `// Postman Test Script (Tests sekmesi)
+// Bu kod her istekten sonra otomatik çalışır
+
+pm.test("Status 200 OK", () => {
+  pm.response.to.have.status(200);
+});
+
+pm.test("Response time < 500ms", () => {
+  pm.expect(pm.response.responseTime).to.be.below(500);
+});
+
+pm.test("User id correct", () => {
+  const body = pm.response.json();
+  pm.expect(body.id).to.eql(42);
+});
+
+pm.test("Status is active", () => {
+  const body = pm.response.json();
+  pm.expect(body.status).to.eql("active");
+});`,
+            language: 'javascript',
+          },
           { type: 'heading', text: 'HTTP Durum Kodları' },
           {
             type: 'visual', variant: 'pyramid',

@@ -1867,6 +1867,136 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── AnimatedTimelineBlock ────────────────────────────────────────────────────
+
+function AnimatedTimelineBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [phase, setPhase] = useState('idle') // idle | going | done
+    const timerRef = useRef(null)
+
+    const tracks = block.tracks || []
+    const maxDuration = Math.max(...tracks.map(t => t.duration), 1)
+    const VISUAL_MS = 4200
+
+    const title = block.title ? (isTr ? block.title.tr : block.title.en) : ''
+    const description = block.description ? (isTr ? block.description.tr : block.description.en) : ''
+
+    const play = () => {
+        if (phase === 'going') return
+        clearTimeout(timerRef.current)
+        setPhase('idle')
+        timerRef.current = setTimeout(() => {
+            setPhase('going')
+            timerRef.current = setTimeout(() => setPhase('done'), VISUAL_MS + 300)
+        }, 80)
+    }
+
+    const reset = () => {
+        clearTimeout(timerRef.current)
+        setPhase('idle')
+    }
+
+    useEffect(() => () => clearTimeout(timerRef.current), [])
+
+    const bg = darkMode ? '#1f2937' : '#f9fafb'
+    const border = darkMode ? '#374151' : '#e5e7eb'
+    const text = darkMode ? '#f3f4f6' : '#111827'
+    const subtext = darkMode ? '#9ca3af' : '#6b7280'
+    const trackBg = darkMode ? '#374151' : '#e5e7eb'
+
+    return (
+        <div style={{ background: bg, border: `1.5px solid ${border}`, borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
+            {title && (
+                <div style={{ fontWeight: 700, fontSize: 16, color: text, marginBottom: 6 }}>📊 {title}</div>
+            )}
+            {description && (
+                <div style={{ fontSize: 13, color: subtext, marginBottom: 18, lineHeight: 1.6 }}>{description}</div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 22 }}>
+                {tracks.map((track, i) => {
+                    const visualDuration = Math.round((track.duration / maxDuration) * VISUAL_MS)
+                    const atFull = phase === 'going' || phase === 'done'
+                    const barWidth = phase === 'idle' ? '0%' : atFull ? '100%' : '0%'
+                    const transStyle = phase === 'going'
+                        ? `width ${visualDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
+                        : 'none'
+                    const label = isTr ? (track.label || track.labelEn || '') : (track.labelEn || track.label || '')
+                    const badge = track.badge ? (isTr ? track.badge.tr : track.badge.en) : ''
+                    const detail = track.detail ? (isTr ? track.detail.tr : track.detail.en) : ''
+
+                    return (
+                        <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                                <span style={{ fontWeight: 600, fontSize: 13, color: text }}>{label}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: track.color, marginLeft: 8, flexShrink: 0 }}>
+                                    {(track.duration / 1000).toFixed(1)}s
+                                </span>
+                            </div>
+                            <div style={{ background: trackBg, borderRadius: 8, height: 30, overflow: 'hidden', position: 'relative' }}>
+                                <div style={{
+                                    position: 'absolute', top: 0, left: 0,
+                                    height: '100%', width: barWidth,
+                                    background: `linear-gradient(90deg, ${track.color}cc, ${track.color})`,
+                                    borderRadius: 8,
+                                    transition: transStyle,
+                                    display: 'flex', alignItems: 'center', paddingLeft: 10,
+                                }}>
+                                    {(phase === 'done' || phase === 'going') && (
+                                        <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, opacity: 0.9, whiteSpace: 'nowrap' }}>
+                                            {(track.duration / 1000).toFixed(1)}s
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            {badge && (
+                                <div style={{ fontSize: 11, color: subtext, marginTop: 4, lineHeight: 1.4 }}>
+                                    {badge}
+                                    {detail ? <span style={{ opacity: 0.75 }}> — {detail}</span> : null}
+                                </div>
+                            )}
+                        </div>
+                    )
+                })}
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                    onClick={play}
+                    disabled={phase === 'going'}
+                    style={{
+                        padding: '8px 22px', borderRadius: 8, border: 'none',
+                        background: phase === 'going' ? '#6b7280' : '#7c3aed',
+                        color: '#fff', fontWeight: 700, fontSize: 13,
+                        cursor: phase === 'going' ? 'not-allowed' : 'pointer',
+                        transition: 'background 0.2s',
+                    }}
+                >
+                    {phase === 'going' ? (isTr ? '⏳ Çalışıyor...' : '⏳ Running...') : phase === 'done' ? (isTr ? '▶ Tekrar Oynat' : '▶ Play Again') : (isTr ? '▶ Oynat' : '▶ Play')}
+                </button>
+                {phase !== 'idle' && (
+                    <button
+                        onClick={reset}
+                        style={{
+                            padding: '8px 14px', borderRadius: 8,
+                            border: `1.5px solid ${border}`,
+                            background: 'transparent', color: text,
+                            fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                        }}
+                    >
+                        {isTr ? '🔄 Sıfırla' : '🔄 Reset'}
+                    </button>
+                )}
+                {phase === 'done' && (
+                    <span style={{ fontSize: 12, color: '#10b981', fontWeight: 700 }}>
+                        ✅ {isTr ? 'Explicit Wait en hızlı bitti!' : 'Explicit Wait finished first!'}
+                    </span>
+                )}
+            </div>
+        </div>
+    )
+}
+
 // ─── SimulationBlock ──────────────────────────────────────────────────────────
 
 function SimulationBlock({ block, darkMode, language }) {
@@ -1898,6 +2028,831 @@ function SimulationBlock({ block, darkMode, language }) {
             }, cumDelay)
             timersRef.current.push(t)
         })
+    }
+
+    // === REST ASSURED CHAIN PLAYGROUND — IntelliJ Test Runner ===
+    const renderRestAssuredPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle','given','when','sending','then','asserting','done']
+        const cur = order.indexOf(s)
+        const isActive  = (key) => order.indexOf(key) === cur
+        const isDoneKey = (key) => order.indexOf(key) < cur && s !== 'idle'
+
+        // IntelliJ IDEA dark theme
+        const IJ = {
+            bg:'#1e1f22', bgDark:'#17191d', border:'#2d2f31',
+            text:'#bcbcbc', muted:'#6c7078',
+            green:'#4CAF50', string:'#6A8759', keyword:'#CC7832', method:'#FFC66D',
+        }
+        const lineCol = (key, def) => isActive(key) ? '#f0f0f0' : isDoneKey(key) ? def : IJ.muted + '55'
+
+        return (
+            <div style={{ fontFamily:'JetBrains Mono, monospace', maxWidth:310 }}>
+                {/* IntelliJ window bar */}
+                <div style={{ background:IJ.bgDark, borderRadius:'10px 10px 0 0', padding:'6px 10px', display:'flex', alignItems:'center', gap:8, borderBottom:`1px solid ${IJ.border}` }}>
+                    <span style={{ fontSize:10 }}>☕</span>
+                    <span style={{ fontSize:9, color:IJ.text }}>UserApiTest.java — IntelliJ IDEA</span>
+                    <button
+                        onClick={() => canStart && runSteps([['given',100],['when',700],['sending',600],['then',900],['asserting',700],['done',500]])}
+                        disabled={!canStart}
+                        style={{ marginLeft:'auto', background:!canStart?IJ.muted:IJ.green, color:'#fff', border:'none', borderRadius:4, padding:'3px 12px', fontSize:9, fontWeight:700, cursor:canStart?'pointer':'not-allowed', boxShadow:canStart&&s==='idle'?`0 0 8px ${IJ.green}55`:'none' }}
+                    >
+                        {s==='idle'?'▶ Run Test':s==='done'?'▶ Run Again':'⏳ Running...'}
+                    </button>
+                </div>
+
+                {/* Split: left test tree + right code */}
+                <div style={{ display:'flex', background:IJ.bg, minHeight:155 }}>
+                    {/* Left: test tree */}
+                    <div style={{ width:82, borderRight:`1px solid ${IJ.border}`, padding:'8px 6px', fontSize:8 }}>
+                        <div style={{ color:IJ.muted, marginBottom:6, fontSize:7, fontWeight:700, letterSpacing:0.5 }}>TEST RUNNER</div>
+                        <div style={{ color:s==='done'?IJ.green:IJ.text }}>
+                            {s==='done'?'✓':s!=='idle'?'⏳':'▾'} UserApiTest
+                        </div>
+                        <div style={{ paddingLeft:10, marginTop:3, marginLeft:8, borderLeft:`1.5px solid ${s==='done'?IJ.green:IJ.border}`, color:s==='done'?IJ.green:s!=='idle'?IJ.text:IJ.muted }}>
+                            {s==='done'?'✓ ':s!=='idle'?'▶ ':'  '}getUsers()
+                        </div>
+                        {s==='done' && (
+                            <div style={{ marginTop:8, fontSize:7, color:IJ.green, lineHeight:1.7 }}>
+                                <div>✓ 5 assertions</div>
+                                <div style={{ color:IJ.muted }}>0.8s total</div>
+                            </div>
+                        )}
+                        {s!=='idle'&&s!=='done' && (
+                            <div style={{ marginTop:8 }}>
+                                {['given','when','then','asserting'].map(k => (
+                                    <div key={k} style={{ fontSize:7, color:isDoneKey(k)?IJ.green:isActive(k)?'#f59e0b':IJ.muted, lineHeight:1.8 }}>
+                                        {isDoneKey(k)?'✓ ':isActive(k)?'→ ':'  '}{k}()
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right: code panel */}
+                    <div style={{ flex:1, padding:'8px 10px', fontSize:8.5, lineHeight:1.9, overflow:'hidden' }}>
+                        {/* given() block */}
+                        <div style={{ background:isActive('given')?'#3b82f618':'transparent', borderLeft:isActive('given')?'2px solid #3b82f6':'2px solid transparent', paddingLeft:4, transition:'all 0.3s', borderRadius:'0 3px 3px 0' }}>
+                            <span style={{ color:lineCol('given',IJ.keyword) }}>given()</span>
+                        </div>
+                        <div style={{ paddingLeft:12, fontSize:8, color:isDoneKey('given')?IJ.muted:IJ.muted+'33' }}>
+                            .<span style={{ color:isDoneKey('given')?IJ.method:IJ.muted+'33' }}>baseUri</span>(<span style={{ color:isDoneKey('given')?IJ.string:IJ.muted+'22' }}>"https://reqres.in"</span>)
+                        </div>
+                        <div style={{ paddingLeft:12, fontSize:8, color:isDoneKey('given')?IJ.muted:IJ.muted+'22' }}>
+                            .<span style={{ color:isDoneKey('given')?IJ.method:IJ.muted+'22' }}>contentType</span>(<span style={{ color:isDoneKey('given')?IJ.string:IJ.muted+'11' }}>"application/json"</span>)
+                        </div>
+                        {/* when() block */}
+                        <div style={{ background:isActive('when')||isActive('sending')?'#f59e0b18':'transparent', borderLeft:isActive('when')||isActive('sending')?'2px solid #f59e0b':'2px solid transparent', paddingLeft:4, transition:'all 0.3s', borderRadius:'0 3px 3px 0', marginTop:2 }}>
+                            <span style={{ color:lineCol('when',IJ.keyword) }}>.when()</span>
+                        </div>
+                        <div style={{ paddingLeft:12, fontSize:8, color:isDoneKey('when')||isActive('sending')?'#f97316':IJ.muted+'22' }}>
+                            .<span style={{ color:isDoneKey('when')||isActive('sending')?IJ.method:IJ.muted+'22' }}>get</span>(<span style={{ color:isDoneKey('when')||isActive('sending')?IJ.string:IJ.muted+'11' }}>"/api/users?page=2"</span>)
+                        </div>
+                        {/* then() block */}
+                        <div style={{ background:isActive('then')||isActive('asserting')?'#10b98118':'transparent', borderLeft:isActive('then')||isActive('asserting')?'2px solid #10b981':'2px solid transparent', paddingLeft:4, transition:'all 0.3s', borderRadius:'0 3px 3px 0', marginTop:2 }}>
+                            <span style={{ color:lineCol('then',IJ.keyword) }}>.then()</span>
+                        </div>
+                        {['.statusCode(200)','.body("page", equalTo(2))','.body("data", hasSize(6))','.body("data[0].email", containsString("@"))'].map((a,i) => (
+                            <div key={i} style={{ paddingLeft:12, fontSize:8, color:isActive('asserting')||isDoneKey('asserting')?IJ.green:IJ.muted+'22', transition:'color 0.4s' }}>
+                                {isActive('asserting')||isDoneKey('asserting')?'✓ ':''}{a}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Bottom: test results bar */}
+                <div style={{ background:s==='done'?'#0a2d1a':IJ.bgDark, borderTop:`1px solid ${IJ.border}`, padding:'5px 10px', display:'flex', alignItems:'center', gap:10, borderRadius:'0 0 10px 10px', transition:'background 0.5s' }}>
+                    {s==='idle' && <span style={{ fontSize:8, color:IJ.muted }}>{isTr?'▶ Run Test butonuna tıkla':'▶ Click Run Test to start'}</span>}
+                    {s!=='idle'&&s!=='done' && <span style={{ fontSize:8, color:'#f59e0b' }}>⏳ {isTr?'Test çalışıyor...':'Test running...'}</span>}
+                    {s==='done' && <span style={{ color:IJ.green, fontWeight:700, fontSize:9 }}>✓ 1 test passed | 5 assertions | 0.8s</span>}
+                    {s!=='idle' && <button onClick={resetSim} style={{ marginLeft:'auto', background:'transparent', border:`1px solid ${IJ.border}`, color:IJ.muted, borderRadius:4, padding:'2px 8px', fontSize:8, cursor:'pointer' }}>🔄</button>}
+                </div>
+            </div>
+        )
+    }
+
+    // === JENKINS PIPELINE PLAYGROUND — Jenkins Blue Ocean UI ===
+    const renderJenkinsPipelinePlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const stages = [
+            { key:'checkout', label:'Checkout', icon:'⬇', color:'#4a9eff', time:'2s' },
+            { key:'build',    label:'Build',    icon:'🔨', color:'#f5a623', time:'45s' },
+            { key:'test',     label:'Test',     icon:'🧪', color:'#a55af4', time:'90s' },
+            { key:'analyze',  label:'Sonar',    icon:'🔍', color:'#00b8d4', time:'32s' },
+            { key:'deploy',   label:'Deploy',   icon:'🚀', color:'#36c96e', time:'28s' },
+        ]
+        const order = ['idle','checkout','build','test','analyze','deploy','done']
+        const cur = order.indexOf(s)
+
+        const JK = { bg:'#1a1a2e', bgDark:'#0f0f1c', header:'#0d0d1a', border:'#2a2a4a', text:'#ccd6f6', muted:'#667080', green:'#36c96e' }
+
+        const logLines = [
+            { minState:'checkout', text:'[Checkout] git clone https://github.com/org/app.git', color:'#4a9eff' },
+            { minState:'checkout', text:'[Checkout] → Checking out branch: main ✓', color:JK.muted },
+            { minState:'build',    text:'[Build] mvn clean package -DskipTests', color:'#f5a623' },
+            { minState:'build',    text:'[Build] → BUILD SUCCESS in 45s ✓', color:JK.green },
+            { minState:'test',     text:'[Test] Running 247 tests...', color:'#a55af4' },
+            { minState:'test',     text:'[Test] Tests: 247 run, 0 failures, 0 errors ✓', color:JK.green },
+            { minState:'analyze',  text:'[Sonar] Uploading analysis to SonarQube...', color:'#00b8d4' },
+            { minState:'analyze',  text:'[Sonar] Quality Gate: ✅ PASSED (Coverage: 84%) ✓', color:JK.green },
+            { minState:'deploy',   text:'[Deploy] kubectl apply -f deploy/staging.yaml', color:JK.green },
+            { minState:'done',     text:'[Deploy] Health check: ✅ OK → Finished: SUCCESS', color:JK.green },
+        ]
+
+        return (
+            <div style={{ fontFamily:'Inter, system-ui, sans-serif', maxWidth:310 }}>
+                {/* Jenkins header bar */}
+                <div style={{ background:JK.header, borderRadius:'10px 10px 0 0', padding:'7px 12px', display:'flex', alignItems:'center', gap:8, borderBottom:`1px solid ${JK.border}` }}>
+                    <span style={{ fontSize:14 }}>🔧</span>
+                    <div>
+                        <div style={{ fontSize:9, color:JK.text, fontWeight:700 }}>my-spring-app / main</div>
+                        <div style={{ fontSize:8, color:JK.muted }}>Build {s==='idle'?'#47 (last: ✅)':'#48 '+(s==='done'?'✅ SUCCESS':'⏳ Running...')}</div>
+                    </div>
+                    <button
+                        onClick={() => canStart && runSteps([['checkout',100],['build',1200],['test',1200],['analyze',1000],['deploy',1000],['done',500]])}
+                        disabled={!canStart}
+                        style={{ marginLeft:'auto', background:!canStart?JK.muted:s==='done'?JK.green:'#ef4444', color:'#fff', border:'none', borderRadius:5, padding:'4px 12px', fontSize:10, fontWeight:700, cursor:canStart?'pointer':'not-allowed', boxShadow:canStart&&s==='idle'?'0 0 10px rgba(239,68,68,0.5)':'none' }}
+                    >
+                        {s==='idle'?'▶ Build':s==='done'?'▶ Rebuild':'⏳'}
+                    </button>
+                </div>
+
+                {/* Pipeline stages — Blue Ocean circles */}
+                <div style={{ background:JK.bg, padding:'16px 10px 10px' }}>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        {stages.map((st, i) => {
+                            const stIdx = order.indexOf(st.key)
+                            const isAct = stIdx === cur
+                            const isDn  = stIdx < cur && s !== 'idle'
+                            const connDone = i < stages.length-1 && order.indexOf(stages[i+1].key) <= cur && s!=='idle'
+                            return (
+                                <div key={i} style={{ display:'flex', alignItems:'center' }}>
+                                    <div style={{ textAlign:'center', minWidth:48 }}>
+                                        {isAct && <div style={{ fontSize:7, color:st.color, marginBottom:2, fontWeight:700 }} className="animate-pulse">● RUNNING</div>}
+                                        {isDn  && <div style={{ fontSize:7, color:JK.green, marginBottom:2 }}>✓ {st.time}</div>}
+                                        {!isAct&&!isDn && <div style={{ fontSize:7, color:'transparent', marginBottom:2 }}>·</div>}
+                                        <div style={{ width:34, height:34, borderRadius:'50%', margin:'0 auto 4px', display:'flex', alignItems:'center', justifyContent:'center', background:isDn?`${JK.green}22`:isAct?`${st.color}22`:`${JK.muted}11`, border:`2.5px solid ${isDn?JK.green:isAct?st.color:JK.border}`, fontSize:14, boxShadow:isAct?`0 0 14px ${st.color}55`:'none', transition:'all 0.5s' }}>
+                                            {isDn?'✓':isAct?'⏳':st.icon}
+                                        </div>
+                                        <div style={{ fontSize:8, fontWeight:700, color:isDn?JK.green:isAct?st.color:JK.muted }}>{st.label}</div>
+                                    </div>
+                                    {i < stages.length-1 && <div style={{ width:14, height:2, background:connDone?JK.green:JK.border, flexShrink:0, transition:'background 0.5s' }}/>}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {s==='idle' && (
+                        <div style={{ textAlign:'center', marginTop:6 }}>
+                            <span style={{ fontSize:8, background:'#ef444422', color:'#ef4444', padding:'2px 8px', borderRadius:4, fontWeight:700 }} className="animate-pulse">
+                                ↑ {isTr?'▶ Build butonuna tıkla':'▶ Click Build to start'}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Console output */}
+                    <div style={{ background:'#0d0d18', borderRadius:6, padding:'8px 10px', marginTop:10, minHeight:70, maxHeight:110, overflow:'hidden' }}>
+                        <div style={{ fontSize:8, color:JK.muted, marginBottom:3 }}>Console Output</div>
+                        {s==='idle' && <span style={{ fontSize:8, color:JK.muted }}>{isTr?'Pipeline başlatmak için Build\'e bas...':'Press Build to start pipeline...'}</span>}
+                        {logLines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s!=='idle'
+                            return show ? <div key={i} style={{ fontSize:8, color:ln.color, lineHeight:1.7, fontFamily:'monospace' }}>{ln.text}</div> : null
+                        })}
+                    </div>
+                </div>
+
+                {s!=='idle' && <button onClick={resetSim} style={{ display:'block', width:'100%', padding:'5px', background:JK.bgDark, border:`1px solid ${JK.border}`, color:JK.muted, fontSize:9, cursor:'pointer', borderRadius:'0 0 10px 10px' }}>🔄 {isTr?'Sıfırla':'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === KAFKA PRODUCER/CONSUMER PLAYGROUND — Confluent Control Center UI ===
+    const renderKafkaPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle','producing','partitioned','broker-store','consuming','done']
+        const cur = order.indexOf(s)
+        const isProducing = s === 'producing'
+        const isPartition = s === 'partitioned'
+        const isBroker    = s === 'broker-store'
+        const isConsuming = ['consuming','done'].includes(s)
+        const isDone      = s === 'done'
+
+        const KF = { bg:'#1c1c1c', bgDark:'#141414', panel:'#242424', border:'#333', text:'#e0e0e0', muted:'#888', orange:'#E87722', green:'#4CAF50', blue:'#2196F3' }
+
+        const messages = [
+            { offset:44, key:'kullanici-123', value:'{"siparisId":"SIP-458"}', ts:'14:23:12' },
+            { offset:43, key:'kullanici-456', value:'{"siparisId":"SIP-457"}', ts:'14:23:08' },
+            { offset:42, key:'kullanici-123', value:'{"siparisId":"SIP-456"}', ts:'14:22:55' },
+        ]
+
+        return (
+            <div style={{ fontFamily:'Inter, system-ui, sans-serif', maxWidth:310 }}>
+                {/* Confluent header */}
+                <div style={{ background:KF.bgDark, borderRadius:'10px 10px 0 0', padding:'7px 12px', display:'flex', alignItems:'center', gap:8, borderBottom:`1px solid ${KF.border}` }}>
+                    <div style={{ width:20, height:20, borderRadius:'50%', background:KF.orange, display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, color:'#fff', fontWeight:700 }}>K</div>
+                    <span style={{ fontSize:10, color:KF.text, fontWeight:700 }}>Confluent Control Center</span>
+                    <div style={{ marginLeft:'auto', fontSize:8, padding:'2px 8px', borderRadius:3, background:isConsuming?'#4CAF5022':isProducing||isPartition||isBroker?'#E8772222':'#33333366', color:isConsuming?KF.green:isProducing||isPartition||isBroker?KF.orange:KF.muted, fontWeight:700 }}>
+                        {isConsuming?'● Active':isProducing||isPartition||isBroker?'● Producing':'● Idle'}
+                    </div>
+                </div>
+
+                {/* Main: sidebar + content */}
+                <div style={{ display:'flex', background:KF.bg }}>
+                    {/* Left: Topics + Consumer Groups */}
+                    <div style={{ width:90, borderRight:`1px solid ${KF.border}`, padding:'8px 0' }}>
+                        <div style={{ fontSize:7.5, color:KF.muted, padding:'0 8px', marginBottom:4, fontWeight:700, letterSpacing:0.5 }}>TOPICS</div>
+                        {['siparisler','users','payments'].map(topic => {
+                            const sel = topic === 'siparisler'
+                            return (
+                                <div key={topic} style={{ padding:'5px 8px', fontSize:8.5, background:sel?`${KF.orange}22`:'transparent', borderLeft:sel?`2.5px solid ${KF.orange}`:'2.5px solid transparent', color:sel?KF.orange:KF.muted, fontWeight:sel?700:400, cursor:'default' }}>
+                                    {topic}
+                                    {sel && <div style={{ fontSize:7, color:KF.muted }}>{isBroker||isConsuming?'● msgs: 44':isProducing||isPartition?'→ incoming...':'● msgs: 42'}</div>}
+                                </div>
+                            )
+                        })}
+                        <div style={{ borderTop:`1px solid ${KF.border}`, marginTop:6, padding:'6px 8px 0' }}>
+                            <div style={{ fontSize:7, color:KF.muted, fontWeight:700, letterSpacing:0.5, marginBottom:4 }}>CONSUMER GROUPS</div>
+                            <div style={{ fontSize:8, color:isConsuming?KF.green:KF.muted }}>
+                                siparis-service
+                                {isConsuming && <div style={{ fontSize:7, color:KF.green }}>lag: 0 ✓</div>}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Topic detail */}
+                    <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
+                        {/* Partition tabs */}
+                        <div style={{ display:'flex', borderBottom:`1px solid ${KF.border}`, background:KF.panel, padding:'6px 8px 0', alignItems:'center', gap:8 }}>
+                            <span style={{ fontSize:9, color:KF.text, marginRight:4 }}>siparisler</span>
+                            {['P0','P1','P2','P3'].map((p,i) => (
+                                <div key={p} style={{ padding:'3px 7px', fontSize:8, color:(isPartition||isBroker||isConsuming)&&i===1?KF.orange:KF.muted, borderBottom:(isPartition||isBroker||isConsuming)&&i===1?`1.5px solid ${KF.orange}`:'1.5px solid transparent', cursor:'default' }}>{p}</div>
+                            ))}
+                        </div>
+                        {/* Annotation for partition */}
+                        {(isPartition||isBroker) && (
+                            <div style={{ fontSize:7.5, color:KF.orange, padding:'3px 8px', background:`${KF.orange}11` }}>
+                                ↑ {isTr?'Mesaj P1\'e yönlendirildi (hash("kullanici-123") % 4 = 1)':'Message routed to P1 (hash("kullanici-123") % 4 = 1)'}
+                            </div>
+                        )}
+
+                        {/* Message list */}
+                        <div style={{ padding:'6px 8px', flex:1 }}>
+                            <div style={{ display:'grid', gridTemplateColumns:'24px 66px 1fr 36px', gap:4, fontSize:7, color:KF.muted, marginBottom:4, fontWeight:700 }}>
+                                <div>OFF</div><div>KEY</div><div>VALUE</div><div>TIME</div>
+                            </div>
+                            {messages.map((msg, i) => {
+                                const isNew = i===0 && (isBroker||isConsuming)
+                                return (
+                                    <div key={i} style={{ display:'grid', gridTemplateColumns:'24px 66px 1fr 36px', gap:4, fontSize:7.5, padding:'3px 0', borderBottom:`1px solid ${KF.border}`, opacity:i===0?1:(isBroker||isConsuming)?0.7:s==='idle'?0.3:0.5, background:isNew?`${KF.orange}11`:'transparent', transition:'all 0.4s' }}>
+                                        <div style={{ color:isNew?KF.orange:KF.muted }}>{msg.offset}</div>
+                                        <div style={{ color:KF.blue, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{msg.key}</div>
+                                        <div style={{ color:isConsuming&&i===0?KF.green:KF.text, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{i===0&&isProducing?'⏳ incoming...':msg.value}</div>
+                                        <div style={{ color:KF.muted }}>{msg.ts}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        {/* Produce/status bar */}
+                        <div style={{ padding:'6px 8px', borderTop:`1px solid ${KF.border}`, background:KF.panel }}>
+                            {s==='idle' && (
+                                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                                    <span style={{ fontSize:8, color:KF.muted }}>{isTr?'Mesaj üret:':'Produce msg:'}</span>
+                                    <button onClick={() => canStart && runSteps([['producing',100],['partitioned',800],['broker-store',800],['consuming',900],['done',600]])} style={{ background:KF.orange, color:'#fff', border:'none', borderRadius:4, padding:'3px 12px', fontSize:9, fontWeight:700, cursor:'pointer', boxShadow:`0 0 8px ${KF.orange}66` }} className="animate-pulse">▶ Produce</button>
+                                    <span style={{ fontSize:7, color:KF.muted }}>← {isTr?'tıkla':'click'}</span>
+                                </div>
+                            )}
+                            {s!=='idle'&&!isDone && <div style={{ fontSize:8, color:KF.orange }}>{isProducing&&'📤 Mesaj gönderiliyor...'}{isPartition&&'🗂️ Partition routing: P1 (hash mod 4)'}{isBroker&&'💾 Broker\'da saklıyor — offset: 44'}{isConsuming&&'📥 siparis-service okuyor — offset: 44'}</div>}
+                            {isDone && <div style={{ fontSize:8, color:KF.green }}>✅ {isTr?'Mesaj başarıyla iletildi! Consumer offset güncellendi.':'Message delivered! Consumer offset updated.'}</div>}
+                        </div>
+                    </div>
+                </div>
+
+                {s!=='idle' && <button onClick={resetSim} style={{ display:'block', width:'100%', padding:'5px', background:KF.bgDark, border:`1px solid ${KF.border}`, color:KF.muted, fontSize:9, cursor:'pointer', borderRadius:'0 0 10px 10px' }}>🔄 {isTr?'Sıfırla':'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === DOCKER LIFECYCLE PLAYGROUND — Docker Desktop UI ===
+    const renderDockerLifecyclePlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle','pulling','pulled','running','exec','stopping','done']
+        const cur = order.indexOf(s)
+        const isPulling  = ['pulling','pulled'].includes(s)
+        const isRunning  = ['running','exec'].includes(s)
+        const isStopping = s === 'stopping'
+        const isDone     = s === 'done'
+
+        const DK = { bg:'#1d2a3a', bgDark:'#0f1c2e', sidebar:'#162032', border:'#1e3a5c', text:'#c8d6e5', muted:'#5b7a9c', blue:'#1D63ED', green:'#00c853', red:'#ef4444', yellow:'#f59e0b' }
+
+        const termLines = [
+            { minState:'pulling',  text:'$ docker pull nginx:latest', color:'#f0f6fc' },
+            { minState:'pulling',  text:'  latest: Pulling from library/nginx...', color:DK.muted },
+            { minState:'pulled',   text:'  ✅ Status: Downloaded newer image for nginx:latest', color:DK.green },
+            { minState:'running',  text:'$ docker run -d -p 8080:80 --name my-nginx nginx', color:'#f0f6fc' },
+            { minState:'running',  text:'  a1b2c3d4e5f6 (container ID)', color:'#a78bfa' },
+            { minState:'exec',     text:'$ docker exec -it my-nginx bash', color:'#f0f6fc' },
+            { minState:'exec',     text:'  root@a1b2c3d4:/# ls /usr/share/nginx/html', color:DK.green },
+            { minState:'stopping', text:'$ docker stop my-nginx', color:'#f0f6fc' },
+            { minState:'done',     text:'  my-nginx (Exited 0)', color:'#ef4444' },
+        ]
+
+        const cStatus = isDone?{dot:'🔴',text:'Exited (0)',color:DK.red}:isStopping?{dot:'🟡',text:'Stopping...',color:DK.yellow}:isRunning?{dot:'🟢',text:'Up 2 minutes',color:DK.green}:isPulling?{dot:'⚪',text:'Pulling image...',color:DK.muted}:{dot:'⚫',text:'Not started',color:DK.muted}
+
+        return (
+            <div style={{ fontFamily:'Inter, system-ui, sans-serif', maxWidth:310 }}>
+                <div style={{ background:DK.bgDark, borderRadius:'10px 10px 0 0', display:'flex' }}>
+                    {/* Left sidebar */}
+                    <div style={{ width:46, background:DK.sidebar, borderRadius:'10px 0 0 0', borderRight:`1px solid ${DK.border}`, display:'flex', flexDirection:'column', alignItems:'center', padding:'10px 0', gap:8 }}>
+                        <span style={{ fontSize:18 }}>🐳</span>
+                        {[['📦','Containers'],['🖼️','Images'],['🗂️','Volumes'],['🔌','Extensions']].map(([icon, label], i) => (
+                            <div key={label} title={label} style={{ width:34, height:30, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:5, fontSize:13, cursor:'default', background:i===0?`${DK.blue}33`:'transparent', borderLeft:i===0?`2px solid ${DK.blue}`:'2px solid transparent' }}>{icon}</div>
+                        ))}
+                    </div>
+
+                    {/* Main panel */}
+                    <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
+                        {/* Header */}
+                        <div style={{ padding:'8px 10px', borderBottom:`1px solid ${DK.border}`, display:'flex', alignItems:'center', gap:8 }}>
+                            <span style={{ fontSize:10, color:DK.text, fontWeight:700 }}>Containers</span>
+                            <button
+                                onClick={() => canStart && runSteps([['pulling',100],['pulled',1800],['running',800],['exec',1500],['stopping',1500],['done',600]])}
+                                disabled={!canStart}
+                                style={{ marginLeft:'auto', background:!canStart?DK.muted:DK.blue, color:'#fff', border:'none', borderRadius:5, padding:'4px 10px', fontSize:9, fontWeight:700, cursor:canStart?'pointer':'not-allowed', boxShadow:canStart&&s==='idle'?`0 0 10px ${DK.blue}66`:'none' }}
+                            >
+                                {s==='idle'?'▶ Run Demo':s==='done'?'▶ Again':'⏳'}
+                            </button>
+                        </div>
+
+                        {/* Container row — appears when running */}
+                        {(isRunning||isStopping||isDone) && (
+                            <div style={{ padding:'8px 10px', borderBottom:`1px solid ${DK.border}`, background:isRunning?`${DK.green}0a`:isStopping?`${DK.yellow}0a`:'#ef444408', transition:'background 0.4s' }}>
+                                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                                    <span style={{ fontSize:10 }}>{cStatus.dot}</span>
+                                    <div style={{ flex:1 }}>
+                                        <div style={{ fontSize:10, color:DK.text, fontWeight:700 }}>my-nginx</div>
+                                        <div style={{ fontSize:8, color:DK.muted }}>nginx:latest · Port: 8080→80</div>
+                                    </div>
+                                    <span style={{ fontSize:8, color:cStatus.color, fontWeight:700 }}>{cStatus.text}</span>
+                                    {isRunning && (
+                                        <div style={{ display:'flex', gap:3 }}>
+                                            <span style={{ fontSize:8, background:'#ef444422', color:'#ef4444', padding:'2px 6px', borderRadius:3 }}>Stop</span>
+                                            <span style={{ fontSize:8, background:DK.border, color:DK.muted, padding:'2px 6px', borderRadius:3 }}>Logs</span>
+                                        </div>
+                                    )}
+                                </div>
+                                {isRunning && <div style={{ fontSize:7, color:DK.blue, marginTop:3 }}>↑ {isTr?'STATUS göstergesi':'STATUS indicator'} · <span style={{ color:DK.muted }}>Port: host:8080 → container:80</span></div>}
+                            </div>
+                        )}
+
+                        {/* Pull progress */}
+                        {isPulling && (
+                            <div style={{ padding:'8px 10px' }}>
+                                <div style={{ fontSize:9, color:DK.yellow, marginBottom:4 }}>📥 {isTr?'nginx:latest indiriliyor...':'Pulling nginx:latest...'}</div>
+                                <div style={{ height:3, background:DK.border, borderRadius:2 }}>
+                                    <div style={{ height:'100%', borderRadius:2, background:DK.blue, width:s==='pulled'?'100%':'65%', transition:'width 1.5s ease-in-out' }}/>
+                                </div>
+                                {s==='pulled' && <div style={{ fontSize:8, color:DK.green, marginTop:3 }}>✅ {isTr?'Image indirildi!':'Image pulled!'}</div>}
+                            </div>
+                        )}
+
+                        {/* Terminal log */}
+                        <div style={{ background:'#0a1628', padding:'6px 8px', fontFamily:'monospace', minHeight:55, maxHeight:80, overflow:'hidden' }}>
+                            {termLines.map((ln, i) => {
+                                const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                                return show ? <div key={i} style={{ fontSize:8, color:ln.color, lineHeight:1.7 }}>{ln.text}</div> : null
+                            })}
+                            {s==='idle' && <span style={{ fontSize:8, color:DK.muted }}>$ {isTr?'Demo\'yu başlatmak için ▶ Run Demo\'ya bas':'Click ▶ Run Demo to start'}</span>}
+                        </div>
+                    </div>
+                </div>
+
+                {s!=='idle' && <button onClick={resetSim} style={{ display:'block', width:'100%', padding:'5px', background:DK.bgDark, border:`1px solid ${DK.border}`, color:DK.muted, fontSize:9, cursor:'pointer', borderRadius:'0 0 10px 10px' }}>🔄 {isTr?'Sıfırla':'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === API REQUEST (POSTMAN) PLAYGROUND — Postman Desktop UI ===
+    const renderApiRequestPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle','building','sending','server-proc','responding','testing','done']
+        const cur = order.indexOf(s)
+        const isSending  = ['building','sending'].includes(s)
+        const isProc     = s === 'server-proc'
+        const isResp     = ['responding','testing','done'].includes(s)
+        const isTesting  = ['testing','done'].includes(s)
+
+        // Postman color scheme
+        const PM = { bg:'#242424', bgDark:'#1c1c1c', bgDarker:'#141414', border:'#3d3d3d', text:'#e8e8e8', muted:'#8d8d8d', orange:'#FF6C37', green:'#49CC90', green2:'#22C55E' }
+
+        return (
+            <div style={{ fontFamily:'Inter, system-ui, sans-serif', maxWidth:310 }}>
+                {/* macOS window chrome */}
+                <div style={{ background:PM.bgDarker, borderRadius:'10px 10px 0 0', padding:'7px 12px', display:'flex', alignItems:'center', gap:6, borderBottom:`1px solid ${PM.border}` }}>
+                    <span style={{ width:10,height:10,borderRadius:'50%',background:'#FF5F57',display:'inline-block'}}/>
+                    <span style={{ width:10,height:10,borderRadius:'50%',background:'#FFBD2E',display:'inline-block'}}/>
+                    <span style={{ width:10,height:10,borderRadius:'50%',background:'#28CA42',display:'inline-block'}}/>
+                    <span style={{ fontSize:9, color:PM.muted, marginLeft:8 }}>📮 Postman</span>
+                </div>
+
+                {/* Sidebar + main */}
+                <div style={{ display:'flex', background:PM.bg }}>
+                    {/* Sidebar */}
+                    <div style={{ width:46, borderRight:`1px solid ${PM.border}`, padding:'8px 0', display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
+                        {[['📋','Collections'],['🌍','Environments'],['📜','History']].map(([icon, label]) => (
+                            <div key={label} title={label} style={{ width:34,height:32,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:5,cursor:'default',fontSize:14,background:label==='Collections'?PM.border:'transparent' }}>{icon}</div>
+                        ))}
+                    </div>
+
+                    {/* Request panel */}
+                    <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
+                        {/* Tab bar */}
+                        <div style={{ padding:'5px 8px 0', borderBottom:`1px solid ${PM.border}`, background:PM.bgDark }}>
+                            <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:PM.bg, borderRadius:'5px 5px 0 0', padding:'4px 10px', fontSize:9, color:PM.text }}>
+                                <span style={{ color:PM.green, fontWeight:700 }}>GET</span>
+                                <span style={{ color:PM.muted }}>reqres.in/api/users</span>
+                                <span style={{ color:'#555' }}>✕</span>
+                            </div>
+                        </div>
+
+                        {/* Request bar */}
+                        <div style={{ padding:'8px 10px 6px', background:PM.bg }}>
+                            {s==='idle' && (
+                                <div style={{ marginBottom:4, display:'flex', gap:6, alignItems:'center' }}>
+                                    <span style={{ fontSize:7.5, color:PM.muted }}>① Method</span>
+                                    <span style={{ flex:1, fontSize:7.5, color:PM.muted }}>② URL Gir</span>
+                                    <span style={{ fontSize:7.5, background:PM.orange, color:'#fff', padding:'1px 6px', borderRadius:3, fontWeight:700 }} className="animate-pulse">③ Send →</span>
+                                </div>
+                            )}
+                            <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                                <div style={{ background:`${PM.green}22`, color:PM.green, border:`1px solid ${PM.green}44`, padding:'5px 10px', borderRadius:5, fontSize:11, fontWeight:700, flexShrink:0 }}>GET ▾</div>
+                                <div style={{ flex:1, background:PM.bgDark, border:`1px solid ${isResp?PM.green:isSending||isProc?PM.orange:PM.border}`, borderRadius:5, padding:'5px 8px', fontSize:9, color:PM.muted, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'border-color 0.3s' }}>
+                                    https://reqres.in/api/users?page=2
+                                    {(isSending||isProc) && <span style={{ color:PM.orange, marginLeft:4 }}>●</span>}
+                                </div>
+                                <button
+                                    onClick={() => canStart && runSteps([['building',100],['sending',700],['server-proc',1000],['responding',700],['testing',700],['done',500]])}
+                                    disabled={!canStart}
+                                    style={{ background:isResp?PM.green2:PM.orange, color:'#fff', border:'none', borderRadius:5, padding:'5px 16px', fontSize:11, fontWeight:700, cursor:canStart?'pointer':'not-allowed', flexShrink:0, transition:'background 0.4s', boxShadow:canStart&&s==='idle'?`0 0 12px ${PM.orange}66`:'none' }}
+                                >
+                                    {isSending||isProc?'⏳':isResp?'✓ Sent':'Send'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Tabs: Params/Auth/Headers/Body/Tests */}
+                        <div style={{ display:'flex', borderBottom:`1px solid ${PM.border}`, background:PM.bg, paddingLeft:10 }}>
+                            {['Params','Auth','Headers','Body','Tests'].map(tab => {
+                                const isTests = tab === 'Tests'
+                                const active  = isTests && isTesting
+                                const alert   = isTests && !isTesting
+                                return (
+                                    <div key={tab} style={{ padding:'5px 9px', fontSize:9, fontWeight:600, color:active?PM.orange:alert?'#f59e0b':PM.muted, borderBottom:active?`2px solid ${PM.orange}`:alert?'2px solid #f59e0b44':'2px solid transparent', cursor:'default', position:'relative' }}>
+                                        {tab}
+                                        {isTests&&!isTesting && <span style={{ position:'absolute', top:3, right:2, width:5, height:5, borderRadius:'50%', background:'#f59e0b', display:'inline-block' }} className="animate-pulse"/>}
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        {/* Tests tab content (when testing) */}
+                        {isTesting && (
+                            <div style={{ background:'#1a1a1a', padding:'7px 10px', borderBottom:`1px solid ${PM.border}` }}>
+                                <div style={{ fontSize:7.5, color:PM.muted, marginBottom:3 }}>Tests — {isTr?'Yanıt doğrulama scripti':'Response validation script'}</div>
+                                <pre style={{ margin:0, fontSize:8, color:'#98d3a5', lineHeight:1.6, fontFamily:'monospace' }}>{`pm.test("Status 200", () => {
+  pm.response.to.have.status(200);
+});
+pm.test("per_page is 6", () => {
+  pm.expect(pm.response.json()
+    .per_page).to.eql(6);
+});`}</pre>
+                            </div>
+                        )}
+
+                        {/* Loading states */}
+                        {(isSending||isProc) && (
+                            <div style={{ padding:'14px 10px', textAlign:'center', background:PM.bgDark }}>
+                                <div style={{ fontSize:10, color:PM.orange, marginBottom:3 }}>{isSending?'📤 Request sending...':'⚙️ Server processing...'}</div>
+                                <div style={{ fontSize:8, color:PM.muted }}>{isSending?'TCP handshake → TLS → HTTP/1.1 GET':'Auth middleware → Controller → DB query'}</div>
+                            </div>
+                        )}
+
+                        {/* Response panel */}
+                        {isResp && (
+                            <div style={{ background:PM.bgDark }}>
+                                <div style={{ display:'flex', gap:10, padding:'6px 10px', borderBottom:`1px solid ${PM.border}`, alignItems:'center' }}>
+                                    <span style={{ fontSize:11, fontWeight:700, color:PM.green }}>● 200 OK</span>
+                                    <span style={{ fontSize:9, color:PM.muted }}>157 ms</span>
+                                    <span style={{ fontSize:9, color:PM.muted }}>1.4 KB</span>
+                                    <div style={{ display:'flex', gap:0, marginLeft:'auto' }}>
+                                        {['Body','Headers','Test Results'].map(t => (
+                                            <div key={t} style={{ padding:'2px 7px', fontSize:8, color:t==='Test Results'&&isTesting?PM.orange:PM.muted, borderBottom:t==='Test Results'&&isTesting?`1.5px solid ${PM.orange}`:'1.5px solid transparent', cursor:'default' }}>{t}</div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div style={{ padding:'7px 10px' }}>
+                                    <pre style={{ margin:0, fontSize:8.5, lineHeight:1.6, fontFamily:'monospace', color:'#a9b7c6' }}>{`{
+  "page": 2, "per_page": 6, "total": 12,
+  "data": [
+    { "id": 7, "email": "michael.lawson@reqres.in",
+      "first_name": "Michael" },
+    { "id": 8, "email": "lindsay.ferguson@reqres.in",
+      "first_name": "Lindsay" }
+  ]
+}`}</pre>
+                                </div>
+                                {isTesting && (
+                                    <div style={{ borderTop:`1px solid ${PM.border}`, padding:'6px 10px' }}>
+                                        <div style={{ fontSize:9, color:PM.muted, marginBottom:3 }}>Test Results — <span style={{ color:PM.green }}>2 / 2 passed</span></div>
+                                        {['✓ Status 200','✓ per_page is 6'].map((t,i) => (
+                                            <div key={i} style={{ fontSize:9, color:PM.green, fontFamily:'monospace' }}>{t}</div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {s==='idle' && (
+                            <div style={{ padding:'20px', textAlign:'center', color:PM.muted, fontSize:10, background:PM.bgDark }}>
+                                {isTr?'Yukarıdaki Send butonuna tıkla':'Click the Send button above'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {s!=='idle' && <button onClick={resetSim} style={{ display:'block', width:'100%', padding:'6px', border:`1px solid ${PM.border}`, background:PM.bgDarker, color:PM.muted, fontSize:10, cursor:'pointer', borderRadius:'0 0 10px 10px' }}>🔄 {isTr?'Sıfırla':'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === K8S POD LIFECYCLE PLAYGROUND — kubectl Terminal + Dashboard ===
+    const renderK8sPodPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle','kubectl','api','etcd','scheduler','pulling','running','done']
+        const cur = order.indexOf(s)
+
+        // K8s blue theme
+        const K8S = { bg:'#0d1117', bgDark:'#090d13', border:'#1e3a5c', text:'#c9d1d9', muted:'#586069', blue:'#326CE5', green:'#56d364', yellow:'#e3b341' }
+
+        const cmdLines = [
+            { minState:'kubectl',   text:'$ kubectl apply -f deployment.yaml',         result:'deployment.apps/my-nginx created', rc:K8S.green },
+            { minState:'api',       text:'  → API Server: manifest validated ✓',       result:'ResourceQuota check passed', rc:K8S.muted },
+            { minState:'etcd',      text:'  → etcd: desired state persisted ✓',        result:'Revision: 1 stored', rc:K8S.muted },
+            { minState:'scheduler', text:'  → Scheduler: best node selected ✓',        result:'Assigned: node-1 (2 cores free)', rc:K8S.yellow },
+            { minState:'pulling',   text:'  → kubelet: pulling image ✓',               result:'nginx:latest (70.2 MB) pulled', rc:K8S.muted },
+            { minState:'running',   text:'$ kubectl get pods -n production',            result:'', rc:K8S.text },
+        ]
+
+        return (
+            <div style={{ fontFamily:'monospace', maxWidth:310 }}>
+                {/* Terminal window */}
+                <div style={{ background:K8S.bgDark, borderRadius:'10px 10px 0 0', overflow:'hidden' }}>
+                    {/* Window chrome */}
+                    <div style={{ background:'#161b22', padding:'6px 10px', display:'flex', alignItems:'center', gap:6, borderBottom:`1px solid ${K8S.border}` }}>
+                        <span style={{ width:10,height:10,borderRadius:'50%',background:'#FF5F57',display:'inline-block'}}/>
+                        <span style={{ width:10,height:10,borderRadius:'50%',background:'#FFBD2E',display:'inline-block'}}/>
+                        <span style={{ width:10,height:10,borderRadius:'50%',background:'#28CA42',display:'inline-block'}}/>
+                        <span style={{ fontSize:9, color:K8S.muted, marginLeft:6 }}>Terminal — kubectl @ production</span>
+                        <button
+                            onClick={() => canStart && runSteps([['kubectl',100],['api',700],['etcd',700],['scheduler',800],['pulling',900],['running',800],['done',600]])}
+                            disabled={!canStart}
+                            style={{ marginLeft:'auto', background:!canStart?K8S.muted:K8S.blue, color:'#fff', border:'none', borderRadius:4, padding:'3px 10px', fontSize:9, fontWeight:700, cursor:canStart?'pointer':'not-allowed', boxShadow:canStart&&s==='idle'?`0 0 8px ${K8S.blue}55`:'none' }}
+                        >
+                            {s==='idle'?'▶ kubectl apply':s==='done'?'▶ Again':'⏳'}
+                        </button>
+                    </div>
+
+                    {/* Terminal content */}
+                    <div style={{ padding:'8px 10px', minHeight:110 }}>
+                        {s==='idle' && <span style={{ fontSize:9, color:K8S.muted }}>{isTr?'kubectl apply komutunu çalıştırmak için ▶ butonuna bas':'Press ▶ to run kubectl apply'}</span>}
+
+                        {cmdLines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                            return show ? (
+                                <div key={i} style={{ marginBottom:2 }}>
+                                    <div style={{ fontSize:9, color:K8S.text, lineHeight:1.7 }}>{ln.text}</div>
+                                    {ln.result && <div style={{ fontSize:8, color:ln.rc, paddingLeft:4 }}>{ln.result}</div>}
+                                </div>
+                            ) : null
+                        })}
+
+                        {/* Pod status table — appears on 'running' */}
+                        {cur >= order.indexOf('running') && (
+                            <div style={{ marginTop:4, borderTop:`1px solid ${K8S.border}`, paddingTop:6 }}>
+                                <div style={{ display:'grid', gridTemplateColumns:'1fr 50px 60px 50px 36px', gap:4, fontSize:7.5, color:K8S.muted, fontWeight:700, padding:'2px 0', marginBottom:3 }}>
+                                    <div>NAME</div><div>READY</div><div>STATUS</div><div>RESTARTS</div><div>AGE</div>
+                                </div>
+                                <div style={{ display:'grid', gridTemplateColumns:'1fr 50px 60px 50px 36px', gap:4, fontSize:8, padding:'3px 0', color:K8S.text }}>
+                                    <div style={{ color:K8S.blue }}>my-nginx-6d8f9</div>
+                                    <div style={{ color:K8S.green }}>1/1</div>
+                                    <div><span style={{ background:`${K8S.green}22`, color:K8S.green, padding:'1px 5px', borderRadius:3, fontSize:7.5 }}>Running</span></div>
+                                    <div style={{ color:K8S.muted }}>0</div>
+                                    <div style={{ color:K8S.muted }}>12s</div>
+                                </div>
+                                <div style={{ fontSize:7.5, color:K8S.blue, marginTop:4 }}>↑ {isTr?'Pod STATUS: Running = container sağlıklı çalışıyor':'Pod STATUS: Running = container is healthy'}</div>
+                            </div>
+                        )}
+
+                        {s==='done' && (
+                            <div style={{ marginTop:6, fontSize:8.5, color:K8S.green, fontWeight:700 }}>
+                                ✅ {isTr?'Deployment başarılı! Service port 80 → 8080 yönlendiriyor.':'Deployment successful! Service routing port 80 → 8080.'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {s!=='idle' && <button onClick={resetSim} style={{ display:'block', width:'100%', padding:'5px', background:K8S.bgDark, border:`1px solid ${K8S.border}`, color:K8S.muted, fontSize:9, cursor:'pointer', borderRadius:'0 0 10px 10px' }}>🔄 {isTr?'Sıfırla':'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === PLAYWRIGHT AUTO-WAIT PLAYGROUND ===
+    const renderPwAutoWaitPlayground = () => {
+        const s = simState
+        const checks = [
+            { key: 'c-dom',     label: 'attached to DOM?',       passState: 'c-visible' },
+            { key: 'c-visible', label: 'visible?',               passState: 'c-stable' },
+            { key: 'c-stable',  label: 'not animating (stable)?',passState: 'c-events' },
+            { key: 'c-events',  label: 'receives pointer events?',passState: 'c-enabled' },
+            { key: 'c-enabled', label: 'enabled?',               passState: 'executing' },
+        ]
+        const stateOrder = ['idle','c-dom','c-visible','c-stable','c-events','c-enabled','executing','done']
+        const curIdx = stateOrder.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const isDone = s === 'done'
+        const isExecuting = s === 'executing'
+
+        const btnBg = isDone || isExecuting ? '#10b981' : s !== 'idle' ? '#f59e0b' : accent
+
+        return (
+            <div>
+                {/* Mini browser */}
+                <div style={{ border: `2px solid ${accent}44`, borderRadius: 10, overflow: 'hidden', maxWidth: 260 }}>
+                    <div style={{ background: '#1d4ed8', padding: '5px 10px', fontSize: 10, color: '#fff', display: 'flex', gap: 6 }}>
+                        <span>🌐</span><span>shop.example.com/product</span>
+                    </div>
+                    <div style={{ padding: 16, minHeight: 90, background: darkMode ? '#111827' : '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                        <div style={{ fontSize: 11, color: darkMode ? '#9ca3af' : '#6b7280' }}>
+                            🛍️ {isTr ? 'Premium Kulaklık — ₺1299' : 'Premium Headphone — $89'}
+                        </div>
+                        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                            {/* The target button */}
+                            <button
+                                onClick={() => {
+                                    if (!canStart) return
+                                    runSteps([['c-dom',50],['c-visible',500],['c-stable',500],['c-events',500],['c-enabled',500],['executing',500],['done',800]])
+                                }}
+                                disabled={!canStart}
+                                style={{
+                                    padding: '8px 20px', borderRadius: 8, border: 'none',
+                                    background: btnBg,
+                                    color: '#fff', fontWeight: 700, fontSize: 12,
+                                    cursor: canStart ? 'pointer' : 'default',
+                                    transition: 'background 0.3s',
+                                    position: 'relative',
+                                }}
+                            >
+                                {isDone ? '✅ Tıklandı!' : isExecuting ? (isTr ? '⚡ Tıklanıyor...' : '⚡ Clicking...') : canStart ? (isTr ? '🛒 Sepete Ekle' : '🛒 Add to Cart') : (isTr ? '⏳ Check\'ler...' : '⏳ Checking...')}
+                            </button>
+
+                            {/* Playwright pointer indicator */}
+                            {s !== 'idle' && !isDone && (
+                                <div style={{
+                                    position: 'absolute', right: -10, top: -10,
+                                    fontSize: 18,
+                                    filter: isExecuting ? 'none' : 'grayscale(1)',
+                                    transition: 'filter 0.3s',
+                                }}>🖱️</div>
+                            )}
+                        </div>
+
+                        {isDone && (
+                            <div style={{ fontSize: 10, color: '#10b981', fontWeight: 700 }}>
+                                {isTr ? 'Ürün sepete eklendi!' : 'Item added to cart!'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {s !== 'idle' && (
+                    <button onClick={resetSim} style={{ marginTop: 8, padding: '5px 12px', borderRadius: 6, border: `1.5px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: 'transparent', color: darkMode ? '#f3f4f6' : '#111827', fontSize: 10, cursor: 'pointer' }}>
+                        {isTr ? '🔄 Sıfırla' : '🔄 Reset'}
+                    </button>
+                )}
+                {s === 'idle' && (
+                    <div style={{ marginTop: 6, fontSize: 10, color: darkMode ? '#6b7280' : '#9ca3af' }}>
+                        {isTr ? '↑ "Sepete Ekle" butonuna tıkla → auto-wait başlar' : '↑ Click "Add to Cart" → auto-wait begins'}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    // === MULTI-WINDOW PLAYGROUND ===
+    const renderMultiWindowPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const handleMain = 'CDwindow-a1b2'
+        const handleNew  = 'CDwindow-c3d4'
+        const inNew = ['new-tab-open','in-new','closing'].includes(s)
+        const windowClosed = ['closing','back-main','done'].includes(s)
+        const backMain = ['back-main','done'].includes(s)
+
+        const steps = [
+            { key: 'clicking', label: isTr ? '① Link\'e tıkla' : '① Click link',            done: ['clicking','collecting','switching','new-tab-open','in-new','closing','back-main','done'] },
+            { key: 'collecting', label: isTr ? '② getWindowHandles()' : '② getWindowHandles()',   done: ['collecting','switching','new-tab-open','in-new','closing','back-main','done'] },
+            { key: 'switching', label: isTr ? '③ switchTo().window()' : '③ switchTo().window()',   done: ['switching','new-tab-open','in-new','closing','back-main','done'] },
+            { key: 'in-new',    label: isTr ? '④ Yeni sekmede çalış' : '④ Work in new tab',        done: ['in-new','closing','back-main','done'] },
+            { key: 'closing',   label: isTr ? '⑤ driver.close()' : '⑤ driver.close()',             done: ['closing','back-main','done'] },
+            { key: 'back-main', label: isTr ? '⑥ switchTo(mainWindow)' : '⑥ switchTo(mainWindow)', done: ['back-main','done'] },
+        ]
+
+        const tabBg = (active, current) => {
+            if (current) return accent
+            if (active) return darkMode ? '#374151' : '#e5e7eb'
+            return 'transparent'
+        }
+
+        return (
+            <div>
+                {/* Tab bar */}
+                <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                    {[
+                        { label: '🏠 Main Tab', handle: handleMain, active: !inNew || backMain, closed: false },
+                        { label: '📄 New Tab', handle: handleNew, active: inNew && !windowClosed, closed: windowClosed },
+                    ].map((tab, i) => (
+                        <div key={i} style={{
+                            padding: '4px 12px', borderRadius: '6px 6px 0 0', fontSize: 10, fontWeight: 700,
+                            background: tab.closed ? (darkMode ? '#374151' : '#e5e7eb') : tab.active ? accent : (darkMode ? '#1f2937' : '#f9fafb'),
+                            color: tab.closed ? '#6b7280' : tab.active ? '#fff' : (darkMode ? '#9ca3af' : '#6b7280'),
+                            textDecoration: tab.closed ? 'line-through' : 'none',
+                            transition: 'all 0.3s',
+                        }}>
+                            {tab.label}
+                            <span style={{ fontSize: 8, marginLeft: 4, opacity: 0.7 }}>{tab.handle}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Browser viewport */}
+                <div style={{ border: `2px solid ${accent}44`, borderRadius: '0 8px 8px 8px', overflow: 'hidden', maxWidth: 280 }}>
+                    <div style={{ background: accent, padding: '5px 10px', fontSize: 10, color: '#fff', display: 'flex', gap: 6 }}>
+                        <span>🌐</span>
+                        <span>{inNew && !windowClosed ? 'docs.example.com' : 'shop.example.com'}</span>
+                    </div>
+                    <div style={{ padding: 12, minHeight: 80, background: darkMode ? '#111827' : '#fff', transition: 'all 0.3s' }}>
+                        {canStart && (
+                            <a style={{ color: accent, fontSize: 11, textDecoration: 'underline', cursor: 'pointer' }} onClick={() => runSteps([
+                                ['clicking',50],['collecting',600],['switching',600],['new-tab-open',50],['in-new',600],['closing',600],['back-main',600],['done',800]
+                            ])}>
+                                🔗 {isTr ? 'Belgeleri Aç (yeni sekmede)' : 'Open Docs (new tab)'}
+                            </a>
+                        )}
+                        {inNew && !windowClosed && (
+                            <div style={{ fontSize: 11, color: darkMode ? '#f3f4f6' : '#111827' }}>
+                                <div style={{ fontWeight: 700, marginBottom: 4 }}>📄 API Dokümantasyonu</div>
+                                <div style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280' }}>docs.example.com/api/v2</div>
+                            </div>
+                        )}
+                        {(s === 'closing' || backMain) && (
+                            <a style={{ color: accent, fontSize: 11, textDecoration: 'underline' }}>
+                                🔗 {isTr ? 'Belgeleri Aç (yeni sekmede)' : 'Open Docs (new tab)'}
+                            </a>
+                        )}
+                    </div>
+                </div>
+
+                {/* Step progress */}
+                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {steps.map((st, i) => {
+                        const done = st.done.includes(s) && s !== 'idle'
+                        return (
+                            <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 10 }}>
+                                <span style={{ color: done ? '#10b981' : (darkMode ? '#4b5563' : '#d1d5db'), transition: 'color 0.3s' }}>{done ? '✓' : '○'}</span>
+                                <span style={{ color: done ? (darkMode ? '#f3f4f6' : '#111827') : (darkMode ? '#6b7280' : '#9ca3af'), transition: 'color 0.3s' }}>{st.label}</span>
+                            </div>
+                        )
+                    })}
+                </div>
+
+                {s !== 'idle' && (
+                    <button onClick={resetSim} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 7, border: `1.5px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: 'transparent', color: darkMode ? '#f3f4f6' : '#111827', fontSize: 11, cursor: 'pointer' }}>
+                        {isTr ? '🔄 Sıfırla' : '🔄 Reset'}
+                    </button>
+                )}
+                {s === 'idle' && (
+                    <div style={{ marginTop: 6, fontSize: 10, color: darkMode ? '#6b7280' : '#9ca3af' }}>
+                        {isTr ? '↑ Linke tıkla ve pencere geçişini izle' : '↑ Click the link and watch window switching'}
+                    </div>
+                )}
+            </div>
+        )
     }
 
     // === EXPLICIT WAIT PLAYGROUND ===
@@ -1960,6 +2915,215 @@ function SimulationBlock({ block, darkMode, language }) {
                 <div style={{ marginTop: 6, textAlign: 'right' }}>
                     <button onClick={resetSim} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: 'transparent', color: darkMode ? '#6b7280' : '#9ca3af', cursor: 'pointer' }}>↺ Reset</button>
                 </div>
+            </div>
+        )
+    }
+
+    // === DRAG & DROP PLAYGROUND ===
+    const renderDragDropPlayground = () => {
+        const isPicking  = simState === 'picking'
+        const isDragging = ['dragging', 'over'].includes(simState)
+        const isOver     = simState === 'over'
+        const isDropped  = ['dropped', 'done'].includes(simState)
+        const canStart   = simState === 'idle' || simState === 'done'
+
+        const btnLabel =
+            simState === 'idle'                           ? (isTr ? '▶ Sürükle!' : '▶ Drag!') :
+            simState === 'picking'                        ? (isTr ? '✋ Yakalandı...' : '✋ Grabbed...') :
+            ['dragging', 'over'].includes(simState)       ? (isTr ? '🌀 Sürükleniyor...' : '🌀 Dragging...') :
+            simState === 'dropped'                        ? (isTr ? '✅ Bırakıldı!' : '✅ Dropped!') :
+                                                            (isTr ? '🔄 Tekrar' : '🔄 Replay')
+
+        return (
+            <div>
+                <div style={{ position: 'relative', height: 120, marginBottom: 10 }}>
+                    {/* Source box */}
+                    {!isDropped && (
+                        <div style={{
+                            position: 'absolute', left: 8, top: 28,
+                            width: 88, height: 64,
+                            background: isPicking || isDragging ? accent : (darkMode ? '#4b5563' : '#6b7280'),
+                            color: '#fff', borderRadius: 8,
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 11, fontWeight: 700, gap: 3,
+                            boxShadow: isPicking ? `0 8px 20px ${accent}55` : isDragging ? `0 14px 32px ${accent}66` : 'none',
+                            transform: isPicking ? 'scale(1.06) translateY(-4px)' : isDragging ? 'translateX(125px) translateY(-10px) scale(1.05)' : 'scale(1)',
+                            transition: isPicking
+                                ? 'transform 0.2s ease, box-shadow 0.2s'
+                                : isDragging
+                                    ? 'transform 0.85s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s'
+                                    : 'none',
+                            zIndex: 10, cursor: canStart ? 'grab' : 'default',
+                        }}>
+                            <span style={{ fontSize: 22 }}>📦</span>
+                            <span>{isTr ? 'Kaynak' : 'Source'}</span>
+                        </div>
+                    )}
+
+                    {/* Arrow hint */}
+                    {simState === 'idle' && (
+                        <div style={{ position: 'absolute', left: 104, top: 52, color: '#9ca3af', fontSize: 20 }}>→</div>
+                    )}
+
+                    {/* Target / Drop Zone */}
+                    <div style={{
+                        position: 'absolute', right: 8, top: 18,
+                        width: 110, height: 84,
+                        border: `2px dashed ${isOver ? accent : isDropped ? '#10b981' : '#6b7280'}`,
+                        borderRadius: 8,
+                        background: isDropped ? '#10b98120' : isOver ? `${accent}18` : 'transparent',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11, fontWeight: 700, gap: 3,
+                        color: isDropped ? '#10b981' : '#9ca3af',
+                        transition: 'border-color 0.3s, background 0.3s',
+                    }}>
+                        {isDropped ? (
+                            <>
+                                <span style={{ fontSize: 22 }}>📦</span>
+                                <span>✅ {isTr ? 'Bırakıldı!' : 'Dropped!'}</span>
+                            </>
+                        ) : (
+                            <>
+                                <span style={{ fontSize: 22 }}>🎯</span>
+                                <span>Drop Zone</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                        onClick={() => canStart && runSteps([['picking',50],['dragging',400],['over',850],['dropped',300],['done',1000]])}
+                        disabled={!canStart}
+                        style={{
+                            padding: '7px 18px', borderRadius: 7, border: 'none',
+                            background: !canStart ? '#6b7280' : accent,
+                            color: '#fff', fontWeight: 700, fontSize: 12,
+                            cursor: !canStart ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
+                        }}
+                    >{btnLabel}</button>
+                    {simState !== 'idle' && (
+                        <button onClick={resetSim} style={{ padding: '7px 14px', borderRadius: 7, border: `1.5px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: 'transparent', color: darkMode ? '#f3f4f6' : '#111827', fontSize: 12, cursor: 'pointer' }}>
+                            {isTr ? '🔄 Sıfırla' : '🔄 Reset'}
+                        </button>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
+    // === ALERT / CONFIRM / PROMPT PLAYGROUND ===
+    const renderAlertSimPlayground = () => {
+        const sched = (state, delay) => {
+            const t = setTimeout(() => setSimState(state), delay)
+            timersRef.current.push(t)
+        }
+
+        const isAlertOpen   = simState === 'alert-open'
+        const isAlertDone   = simState === 'alert-done'
+        const isConfirmOpen = simState === 'confirm-open'
+        const isConfirmOk   = simState === 'confirm-ok'
+        const isConfirmCxl  = simState === 'confirm-cancel'
+        const isPromptOpen  = simState === 'prompt-open'
+        const isPromptDone  = simState === 'prompt-done'
+        const isDone        = simState === 'done'
+
+        const showDialog    = isAlertOpen || isConfirmOpen || isPromptOpen
+        const pageBg        = darkMode ? '#111827' : '#ffffff'
+        const dialogBg      = darkMode ? '#1f2937' : '#f9fafb'
+        const dialogBorder  = darkMode ? '#4b5563' : '#d1d5db'
+        const textMain      = darkMode ? '#f3f4f6' : '#111827'
+        const subtext       = darkMode ? '#9ca3af' : '#6b7280'
+
+        const btnStyle = (bg) => ({
+            padding: '5px 16px', borderRadius: 5, border: 'none',
+            background: bg, color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer',
+        })
+
+        const dialogTitle =
+            isAlertOpen   ? (isTr ? '⚠️ Sayfa Şunu Söylüyor:' : '⚠️ This page says:') :
+            isConfirmOpen ? (isTr ? '❓ Onaylıyor musunuz?' : '❓ Are you sure?') :
+            isPromptOpen  ? (isTr ? '📝 Değer Girin:' : '📝 Enter a value:') : ''
+
+        const dialogMsg =
+            isAlertOpen   ? (isTr ? 'Kayıt başarıyla tamamlandı!' : 'Record saved successfully!') :
+            isConfirmOpen ? (isTr ? 'Bu öğeyi silmek istiyor musunuz?' : 'Do you want to delete this item?') :
+            isPromptOpen  ? (isTr ? 'Kullanıcı adınızı girin:' : 'Enter your username:') : ''
+
+        const resultMsg =
+            isAlertDone   ? '✅ alert.accept()' :
+            isConfirmOk   ? '✅ confirm.accept()' :
+            isConfirmCxl  ? '❌ confirm.dismiss()' :
+            isPromptDone  ? '✅ prompt.sendKeys("testuser") → accept()' : ''
+
+        return (
+            <div>
+                {/* Mini browser */}
+                <div style={{ border: `2px solid ${accent}44`, borderRadius: 10, overflow: 'hidden', maxWidth: 290, position: 'relative' }}>
+                    <div style={{ background: accent, padding: '5px 10px', fontSize: 10, color: '#fff', display: 'flex', gap: 6 }}>
+                        <span>🌐</span><span>shop.example.com/checkout</span>
+                    </div>
+                    <div style={{ padding: 14, minHeight: 100, background: pageBg, position: 'relative' }}>
+                        {(simState === 'idle' || isDone) && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                                <button onClick={() => setSimState('alert-open')}   style={{ ...btnStyle('#7c3aed'), textAlign: 'left' }}>⚠️ window.alert()</button>
+                                <button onClick={() => setSimState('confirm-open')} style={{ ...btnStyle('#f59e0b'), textAlign: 'left' }}>❓ window.confirm()</button>
+                                <button onClick={() => setSimState('prompt-open')}  style={{ ...btnStyle('#3b82f6'), textAlign: 'left' }}>📝 window.prompt()</button>
+                            </div>
+                        )}
+                        {(isAlertDone || isConfirmOk || isConfirmCxl || isPromptDone) && (
+                            <div style={{ textAlign: 'center', padding: 16, color: isConfirmCxl ? '#ef4444' : '#10b981', fontSize: 12, fontWeight: 700 }}>
+                                {resultMsg}
+                            </div>
+                        )}
+
+                        {/* Dialog overlay */}
+                        {showDialog && (
+                            <div style={{
+                                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                                background: '#00000066', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                zIndex: 20,
+                            }}>
+                                <div style={{ background: dialogBg, border: `1px solid ${dialogBorder}`, borderRadius: 8, padding: 14, width: 200, boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: textMain, marginBottom: 6 }}>{dialogTitle}</div>
+                                    <div style={{ fontSize: 11, color: subtext, marginBottom: 10 }}>{dialogMsg}</div>
+                                    {isPromptOpen && (
+                                        <input defaultValue="testuser" style={{
+                                            width: '100%', padding: '4px 8px', borderRadius: 5, fontSize: 11,
+                                            border: `1px solid ${dialogBorder}`, background: pageBg, color: textMain,
+                                            marginBottom: 10, boxSizing: 'border-box',
+                                        }} readOnly />
+                                    )}
+                                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                                        {isConfirmOpen && (
+                                            <button onClick={() => { setSimState('confirm-cancel'); sched('prompt-open', 700) }} style={{ ...btnStyle('#6b7280') }}>
+                                                {isTr ? 'İptal' : 'Cancel'}
+                                            </button>
+                                        )}
+                                        <button onClick={() => {
+                                            if (isAlertOpen)   { setSimState('alert-done');   sched('confirm-open', 800) }
+                                            if (isConfirmOpen) { setSimState('confirm-ok');   sched('prompt-open',  700) }
+                                            if (isPromptOpen)  { setSimState('prompt-done');  sched('done', 700) }
+                                        }} style={{ ...btnStyle('#10b981') }}>
+                                            OK
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {isDone && (
+                    <button onClick={resetSim} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 7, border: `1.5px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: 'transparent', color: darkMode ? '#f3f4f6' : '#111827', fontSize: 11, cursor: 'pointer' }}>
+                        {isTr ? '🔄 Tekrar Dene' : '🔄 Try Again'}
+                    </button>
+                )}
+                {simState === 'idle' && (
+                    <div style={{ marginTop: 8, fontSize: 10, color: darkMode ? '#6b7280' : '#9ca3af' }}>
+                        {isTr ? '↑ Bir butona tıkla ve dialog simülasyonunu başlat' : '↑ Click a button to trigger the dialog simulation'}
+                    </div>
+                )}
             </div>
         )
     }
@@ -2386,6 +3550,432 @@ function SimulationBlock({ block, darkMode, language }) {
             )
         }
 
+        if (block.scenario === 'rest-assured-chain') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','given','when','sending','then','asserting','done']
+            const cur = order.indexOf(s)
+
+            const codeLines = [
+                { minState:'given',     text:`given()`, color:'#3b82f6', indent:0 },
+                { minState:'given',     text:`.baseUri("https://reqres.in")`, color:subtext, indent:4 },
+                { minState:'given',     text:`.queryParam("page", 2)`, color:subtext, indent:4 },
+                { minState:'when',      text:`.when()`, color:'#f59e0b', indent:0 },
+                { minState:'sending',   text:`.get("/api/users")`, color:'#f97316', indent:4 },
+                { minState:'then',      text:`.then()`, color:'#7c3aed', indent:0 },
+                { minState:'asserting', text:`.statusCode(200)`, color:'#10b981', indent:4 },
+                { minState:'asserting', text:`.body("page", equalTo(2))`, color:'#10b981', indent:4 },
+                { minState:'asserting', text:`.body("data", hasSize(6))`, color:'#10b981', indent:4 },
+            ]
+            const vs = `// Postman Test:\npm.test("Status 200", () => {\n  pm.response.to.have.status(200);\n});\n// → pm.test() ≈ .then().statusCode(200)`
+
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:6, textTransform:'uppercase', letterSpacing:1 }}>
+                        {isTr ? 'Çalışan Kod' : 'Executing Code'}
+                    </div>
+                    <div style={{ padding:'8px 10px', borderRadius:6, background: darkMode?'#0f172a':'#fff', fontFamily:'monospace', fontSize:10, lineHeight:1.7, marginBottom:10 }}>
+                        {codeLines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                            return show ? (
+                                <div key={i} style={{ paddingLeft: ln.indent, color: ln.color, transition:'color 0.3s' }}>{ln.text}</div>
+                            ) : (
+                                <div key={i} style={{ paddingLeft: ln.indent, color: darkMode?'#374151':'#e5e7eb', fontSize:9 }}>{'  ·'}</div>
+                            )
+                        })}
+                    </div>
+                    {['asserting','done'].includes(s) && (
+                        <div style={{ padding:'6px 8px', borderRadius:6, background:nodeBg, fontSize:9.5, color:subtext, fontFamily:'monospace', lineHeight:1.6 }}>
+                            <pre style={{ margin:0, color:subtext }}>{vs}</pre>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'jenkins-pipeline') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','checkout','build','test','analyze','deploy','done']
+            const cur = order.indexOf(s)
+            const stages = [
+                { key:'checkout', label:'Checkout SCM', icon:'📥', color:'#3b82f6' },
+                { key:'build',    label:'Build',        icon:'🔨', color:'#f59e0b' },
+                { key:'test',     label:'Test',         icon:'🧪', color:'#7c3aed' },
+                { key:'analyze',  label:'SonarQube',   icon:'🔍', color:'#06b6d4' },
+                { key:'deploy',   label:'Deploy',      icon:'🚀', color:'#10b981' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:8, textTransform:'uppercase', letterSpacing:1 }}>Jenkinsfile Stages</div>
+                    <div style={{ padding:'8px 10px', borderRadius:6, background: darkMode?'#0f172a':'#fff', fontFamily:'monospace', fontSize:10, lineHeight:1.8 }}>
+                        <div style={{ color:'#f59e0b' }}>pipeline {'{'}</div>
+                        <div style={{ paddingLeft:12, color:'#6b7280' }}>agent any</div>
+                        <div style={{ paddingLeft:12, color:'#f59e0b' }}>stages {'{'}</div>
+                        {stages.map((st,i) => {
+                            const stIdx = order.indexOf(st.key)
+                            const active = stIdx === cur
+                            const done   = stIdx < cur && s !== 'idle'
+                            return (
+                                <div key={i} style={{ paddingLeft:24, transition:'opacity 0.3s', opacity: s==='idle' ? 0.4 : 1 }}>
+                                    <span style={{ color: done ? '#10b981' : active ? st.color : subtext, fontWeight: active ? 700 : 400, transition:'color 0.3s' }}>
+                                        {done ? '✅ ' : active ? '⏳ ' : '  '}stage('{st.label}')
+                                    </span>
+                                </div>
+                            )
+                        })}
+                        <div style={{ paddingLeft:12, color:'#f59e0b' }}>{'}'}</div>
+                        <div style={{ color:'#f59e0b' }}>{'}'}</div>
+                    </div>
+                    {s === 'done' && (
+                        <div style={{ marginTop:8, padding:'6px 8px', borderRadius:6, background:'#10b98118', border:'1px solid #10b981', fontSize:10, color:'#10b981', fontWeight:700 }}>
+                            🎉 Build #47 — SUCCESS — {isTr ? '3 dakika 22 saniye' : '3 minutes 22 seconds'}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'kafka-flow') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','producing','partitioned','broker-store','consuming','done']
+            const cur = order.indexOf(s)
+            const isConsuming = ['consuming','done'].includes(s)
+
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:8, textTransform:'uppercase', letterSpacing:1 }}>
+                        {isTr ? 'Kafka Kavramları' : 'Kafka Concepts'}
+                    </div>
+                    {[
+                        { states:['producing'],                      label: isTr?'Producer.send(record)':'Producer.send(record)',      icon:'📤', color:'#f97316' },
+                        { states:['partitioned'],                    label: isTr?'hash(key) % 3 = partition 1':'hash(key) % 3 = partition 1', icon:'🔀', color:'#f59e0b' },
+                        { states:['broker-store'],                   label: isTr?'Broker: diske yaz (offset=42)':'Broker: write to disk (offset=42)', icon:'💾', color:'#3b82f6' },
+                        { states:['consuming','done'],               label: isTr?'consumer.poll() → offset 42':'consumer.poll() → offset 42', icon:'📥', color:'#10b981' },
+                        { states:['done'],                           label: isTr?'commitSync() → offset 43\'e ilerle':'commitSync() → advance to offset 43', icon:'✅', color:'#10b981' },
+                    ].map((item,i) => {
+                        const active = item.states.includes(s) && s!=='idle'
+                        const done   = item.states.every(st => order.indexOf(st) < cur) && s!=='idle'
+                        return (
+                            <div key={i} style={{ display:'flex', gap:8, alignItems:'center', padding:'4px 8px', borderRadius:6, background: active ? `${item.color}22` : done ? nodeBg : 'transparent', marginBottom:3, transition:'all 0.3s' }}>
+                                <span style={{ fontSize:13, opacity: done||active?1:0.2 }}>{done?'✅':item.icon}</span>
+                                <code style={{ fontSize:9.5, color: active?item.color:done?subtext:(darkMode?'#4b5563':'#d1d5db'), fontWeight: active?700:400, transition:'color 0.3s' }}>{item.label}</code>
+                            </div>
+                        )
+                    })}
+                    <div style={{ marginTop:8, padding:'6px 8px', borderRadius:6, background:nodeBg, fontSize:9.5, color:subtext, lineHeight:1.6 }}>
+                        {isTr ? '☕ Java\'da Kafka ≈ BlockingQueue ama network üzerinden ve dayanıklı' : '☕ Kafka ≈ Java BlockingQueue but over network and durable'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'docker-lifecycle') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','pulling','pulled','running','exec','stopping','done']
+            const cur = order.indexOf(s)
+            const info = [
+                { label: 'Container ID', value: cur >= order.indexOf('running') ? 'a1b2c3d4e5f6' : '—', color: '#7c3aed' },
+                { label: 'Image',        value: cur >= order.indexOf('pulled')  ? 'nginx:latest' : '—' },
+                { label: 'Status',       value: cur < order.indexOf('running') ? (s==='idle'?'—':'Pulling...') : ['running','exec'].includes(s) ? 'Up' : s==='stopping' ? 'Stopping...' : 'Exited (0)',
+                                         color: ['running','exec'].includes(s) ? '#10b981' : s==='stopping' ? '#f59e0b' : s==='done' ? '#ef4444' : undefined },
+                { label: 'Ports',        value: cur >= order.indexOf('running') ? '0.0.0.0:8080→80/tcp' : '—', color: '#3b82f6' },
+                { label: 'Name',         value: cur >= order.indexOf('running') ? 'my-nginx' : '—' },
+            ]
+            const javaNote = isTr ? 'Java\'da class = Image, new MyClass() = docker run (Container)' : 'Java: class = Image, new MyClass() = docker run (Container)'
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:8, textTransform:'uppercase', letterSpacing:1 }}>docker ps çıktısı</div>
+                    {info.map((row,i) => (
+                        <div key={i} style={{ display:'flex', gap:8, padding:'3px 0', borderBottom:`1px solid ${darkMode?'#1f2937':'#f3f4f6'}` }}>
+                            <span style={{ fontSize:10, color:subtext, width:90, flexShrink:0 }}>{row.label}</span>
+                            <span style={{ fontSize:10, color: row.color || (darkMode?'#f3f4f6':'#111827'), fontWeight: row.color ? 700 : 400 }}>{row.value}</span>
+                        </div>
+                    ))}
+                    <div style={{ marginTop:10, padding:'8px 10px', borderRadius:6, background:nodeBg, fontSize:10, color:subtext, lineHeight:1.6 }}>
+                        ☕ {javaNote}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'api-request') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','building','sending','server-proc','responding','testing','done']
+            const cur = order.indexOf(s)
+
+            const flow = [
+                { key:'building',   icon:'📝', label: isTr ? 'İstek hazırlandı (method + headers + body)' : 'Request built (method + headers + body)', color:'#7c3aed' },
+                { key:'sending',    icon:'📤', label: isTr ? 'TCP → TLS → HTTP → Sunucuya yolculuk' : 'TCP → TLS → HTTP → Journey to server', color:'#f59e0b' },
+                { key:'server-proc',icon:'⚙️', label: isTr ? 'Auth middleware → Controller → DB' : 'Auth middleware → Controller → DB', color:'#a855f7' },
+                { key:'responding', icon:'📥', label: isTr ? '200 OK + JSON body geri geldi' : '200 OK + JSON body returned', color:'#10b981' },
+                { key:'testing',    icon:'🧪', label: isTr ? 'pm.test() assertion\'ları çalışıyor' : 'pm.test() assertions running', color:'#3b82f6' },
+                { key:'done',       icon:'✅', label: isTr ? 'Tüm testler geçti!' : 'All tests passed!', color:'#10b981' },
+            ]
+
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:8, textTransform:'uppercase', letterSpacing:1 }}>
+                        {isTr ? 'HTTP İstek-Yanıt Akışı' : 'HTTP Request-Response Flow'}
+                    </div>
+                    {flow.map((f,i) => {
+                        const fIdx = order.indexOf(f.key)
+                        const active = fIdx === cur
+                        const done   = fIdx < cur && s !== 'idle'
+                        return (
+                            <div key={i} style={{ display:'flex', gap:8, alignItems:'center', padding:'5px 8px', borderRadius:6, background: active ? `${f.color}22` : done ? nodeBg : 'transparent', marginBottom:3, transition:'all 0.3s' }}>
+                                <span style={{ fontSize:14, opacity: done||active ? 1 : 0.2 }}>{done ? '✅' : f.icon}</span>
+                                <span style={{ fontSize:10, color: active ? f.color : done ? subtext : (darkMode?'#4b5563':'#d1d5db'), fontWeight: active ? 700 : 400, transition:'color 0.3s' }}>{f.label}</span>
+                            </div>
+                        )
+                    })}
+                    {s !== 'idle' && s !== 'building' && (
+                        <div style={{ marginTop:8, padding:'6px 8px', borderRadius:6, background:nodeBg, fontFamily:'monospace', fontSize:9.5, color:subtext }}>
+                            {isTr ? 'Postman Test Kodu:' : 'Postman Test Code:'}<br/>
+                            <span style={{ color:'#10b981' }}>{'pm.test("Status 200", () => {'}</span><br/>
+                            <span style={{ color:'#f3f4f6', paddingLeft:10 }}>{'pm.response.to.have.status(200);'}</span><br/>
+                            <span style={{ color:'#10b981' }}>{'})'}</span>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'k8s-pod') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle','kubectl','api','etcd','scheduler','pulling','running','done']
+            const cur = order.indexOf(s)
+
+            const isRunning = ['running','done'].includes(s)
+            const components = [
+                { key:'kubectl',   label:'kubectl CLI',   icon:'⌨️', desc: isTr?'YAML dosyasını okur':'Reads YAML file', color:'#f9fafb' },
+                { key:'api',       label:'API Server',    icon:'🔑', desc: isTr?'Doğrulama + kabul':'Validation + auth', color:'#a78bfa' },
+                { key:'etcd',      label:'etcd',          icon:'💾', desc: isTr?'İstenen durumu kaydet':'Store desired state', color:'#60a5fa' },
+                { key:'scheduler', label:'Scheduler',     icon:'📅', desc: isTr?'Node seç':'Pick a node', color:'#f59e0b' },
+                { key:'pulling',   label:'Node kubelet',  icon:'📥', desc: isTr?'Image çek':'Pull image', color:'#fb923c' },
+                { key:'running',   label:'Pod',           icon:'🐳', desc: isTr?'Container çalışıyor':'Container running', color:'#10b981' },
+            ]
+
+            return (
+                <div>
+                    <div style={{ fontSize:10, color:subtext, marginBottom:8, textTransform:'uppercase', letterSpacing:1 }}>
+                        {isTr ? 'Cluster Bileşenleri' : 'Cluster Components'}
+                    </div>
+                    {components.map((c,i) => {
+                        const cIdx = order.indexOf(c.key)
+                        const active = cIdx === cur
+                        const done   = cIdx < cur && s !== 'idle'
+                        return (
+                            <div key={i} style={{ display:'flex', gap:8, alignItems:'center', padding:'4px 8px', borderRadius:6, background: active ? `${c.color}22` : done ? nodeBg : 'transparent', marginBottom:3, border: `1.5px solid ${active ? c.color : 'transparent'}`, transition:'all 0.4s' }}>
+                                <span style={{ fontSize:13, opacity: done||active?1:0.2, flexShrink:0 }}>{done?'✅':c.icon}</span>
+                                <div>
+                                    <div style={{ fontSize:10, fontWeight:700, color: active ? c.color : done ? (darkMode?'#d1d5db':'#374151') : subtext, transition:'color 0.3s' }}>{c.label}</div>
+                                    <div style={{ fontSize:9, color:subtext }}>{c.desc}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                    {isRunning && (
+                        <div style={{ marginTop:8, padding:'6px 10px', borderRadius:6, background:'#10b98118', border:'1px solid #10b981', fontSize:10 }}>
+                            <div style={{ color:'#10b981', fontWeight:700 }}>kubectl get pods</div>
+                            <div style={{ color:'#d1fae5', fontFamily:'monospace', fontSize:9.5 }}>
+                                NAME               READY  STATUS   RESTARTS<br/>
+                                my-nginx-6d8f9     1/1    Running  0
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'pw-autowait') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const s = simState
+            const stateOrder = ['idle','c-dom','c-visible','c-stable','c-events','c-enabled','executing','done']
+            const curIdx = stateOrder.indexOf(s)
+            const checks = [
+                { key: 'c-dom',     label: isTr ? 'DOM\'a ekli (attached)?' : 'Attached to DOM?',         col: '#f59e0b' },
+                { key: 'c-visible', label: isTr ? 'Görünür (visible)?'       : 'Visible?',                 col: '#f59e0b' },
+                { key: 'c-stable',  label: isTr ? 'Stabil (animasyon yok)?'  : 'Stable (not animating)?',  col: '#f59e0b' },
+                { key: 'c-events',  label: isTr ? 'Pointer event alıyor?'    : 'Receives pointer events?',  col: '#f59e0b' },
+                { key: 'c-enabled', label: isTr ? 'Enabled mi?'              : 'Is enabled?',              col: '#f59e0b' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        {isTr ? 'Actionability Checks' : 'Actionability Checks'}
+                    </div>
+                    {checks.map((ch, i) => {
+                        const checkIdx = stateOrder.indexOf(ch.key)
+                        const isPending = curIdx === checkIdx && s !== 'idle'
+                        const isPassed  = curIdx > checkIdx && s !== 'idle'
+                        return (
+                            <div key={i} style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '5px 8px', borderRadius: 6, marginBottom: 3,
+                                background: isPassed ? '#10b98118' : isPending ? '#f59e0b18' : 'transparent',
+                                transition: 'background 0.3s',
+                            }}>
+                                <span style={{ fontSize: 13, minWidth: 16, textAlign: 'center', transition: 'all 0.3s' }}>
+                                    {isPassed ? '✅' : isPending ? '🔍' : '○'}
+                                </span>
+                                <span style={{ fontSize: 11, color: isPassed ? '#10b981' : isPending ? '#f59e0b' : subtext, fontWeight: isPassed || isPending ? 700 : 400, transition: 'color 0.3s' }}>
+                                    {ch.label}
+                                </span>
+                            </div>
+                        )
+                    })}
+                    <div style={{ marginTop: 10, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext }}>
+                        {s === 'idle' && <span>{isTr ? 'Henüz başlamadı...' : 'Not started yet...'}</span>}
+                        {s.startsWith('c-') && <span style={{ color: '#f59e0b' }}>⏳ {isTr ? 'Polling (her 100ms kontrol)...' : 'Polling (checking every 100ms)...'}</span>}
+                        {s === 'executing' && <span style={{ color: '#10b981', fontWeight: 700 }}>⚡ {isTr ? 'Tüm checkler geçti → click() yürütülüyor' : 'All checks passed → executing click()'}</span>}
+                        {s === 'done' && <span style={{ color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'click() tamamlandı! (ekstra wait yazılmadı)' : 'click() complete! (no extra wait needed)'}</span>}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'multi-window') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const nodeText = darkMode ? '#f3f4f6' : '#1f2937'
+            const s = simState
+            const handles = ['CDwindow-a1b2','CDwindow-c3d4']
+            const mainActive  = !['new-tab-open','in-new','closing'].includes(s) || ['back-main','done'].includes(s)
+            const newActive   = ['new-tab-open','in-new','closing'].includes(s)
+            const newClosed   = ['closing','back-main','done'].includes(s)
+            const steps = [
+                { states: ['clicking'],                         label: `driver.getWindowHandle()`, color: '#f59e0b', extra: `// → "${handles[0]}"` },
+                { states: ['collecting'],                       label: `driver.getWindowHandles()`, color: '#f59e0b', extra: `// → {${handles[0]}, ${handles[1]}}` },
+                { states: ['switching','new-tab-open'],         label: `switchTo().window("${handles[1]}")`, color: accent, extra: `// yeni sekmeye geç` },
+                { states: ['in-new'],                          label: `driver.getTitle()`, color: '#3b82f6', extra: `// → "API Dokümantasyonu"` },
+                { states: ['closing'],                          label: `driver.close()`, color: '#ef4444', extra: `// yeni sekmeyi kapat` },
+                { states: ['back-main','done'],                 label: `switchTo().window("${handles[0]}")`, color: '#10b981', extra: `// ana sekmeye dön` },
+            ]
+            const activeStates = ['clicking','collecting','switching','new-tab-open','in-new','closing','back-main','done']
+            const curIdx = activeStates.indexOf(s)
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        {isTr ? 'Çalışan Komut' : 'Current Command'}
+                    </div>
+                    {steps.map((st, i) => {
+                        const active = st.states.some(ss => activeStates.indexOf(ss) <= curIdx && s !== 'idle')
+                        return (
+                            <div key={i} style={{ marginBottom: 4, padding: '5px 8px', borderRadius: 6, background: active ? `${st.color}20` : nodeBg, transition: 'all 0.3s' }}>
+                                <code style={{ fontSize: 10, color: active ? st.color : subtext, fontWeight: active ? 700 : 400, display: 'block' }}>{st.label}</code>
+                                <code style={{ fontSize: 9, color: subtext, opacity: active ? 1 : 0.4 }}>{st.extra}</code>
+                            </div>
+                        )
+                    })}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontFamily: 'monospace', fontSize: 9.5, lineHeight: 1.8, color: nodeText }}>
+                        <div>WindowHandles set:</div>
+                        {handles.map((h, i) => (
+                            <div key={i} style={{ paddingLeft: 10, color: (i === 0 ? !newActive || ['back-main','done'].includes(s) : newActive) ? accent : subtext, transition: 'color 0.3s' }}>
+                                {i === 0 ? '🏠' : newClosed ? '❌' : '📄'} "{h}" {i === 0 ? (isTr ? '← main' : '← main') : (newClosed ? (isTr ? '(kapatıldı)' : '(closed)') : '')}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'alert-sim') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const nodeText = darkMode ? '#f3f4f6' : '#1f2937'
+
+            const steps = [
+                { states: ['alert-open','alert-done'],                   code: `Alert alert = wait.until(\n  alertIsPresent());\nalert.getText(); // → "Kayıt..."`, icon: '⚠️', label: isTr ? 'Alert' : 'Alert' },
+                { states: ['confirm-open','confirm-ok','confirm-cancel'], code: `Alert confirm = wait.until(\n  alertIsPresent());\nconfirm.accept();   // OK\n// confirm.dismiss(); // Cancel`, icon: '❓', label: isTr ? 'Confirm' : 'Confirm' },
+                { states: ['prompt-open','prompt-done','done'],           code: `Alert prompt = wait.until(\n  alertIsPresent());\nprompt.sendKeys("testuser");\nprompt.accept();`, icon: '📝', label: 'Prompt' },
+            ]
+            const resultNote =
+                simState === 'confirm-cancel' ? (isTr ? '→ dismiss() → İptal edildi' : '→ dismiss() → Cancelled') :
+                simState === 'confirm-ok'     ? (isTr ? '→ accept() → Onaylandı' : '→ accept() → Confirmed') :
+                simState === 'prompt-done' || simState === 'done' ? (isTr ? '→ "testuser" girildi + accept()' : '→ "testuser" typed + accept()') : ''
+
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        {isTr ? 'Selenium Kodu — Şu An' : 'Selenium Code — Current Step'}
+                    </div>
+                    {steps.map((step, i) => {
+                        const active = step.states.includes(simState)
+                        return (
+                            <div key={i} style={{ marginBottom: 8, padding: '8px 10px', borderRadius: 8, background: active ? `${accent}22` : nodeBg, border: `1.5px solid ${active ? accent : 'transparent'}`, transition: 'all 0.3s' }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: active ? accent : subtext, marginBottom: 4 }}>{step.icon} {step.label}</div>
+                                <pre style={{ fontSize: 9.5, margin: 0, color: active ? nodeText : subtext, lineHeight: 1.5, opacity: active ? 1 : 0.5, fontFamily: 'monospace' }}>{step.code}</pre>
+                            </div>
+                        )
+                    })}
+                    {resultNote && (
+                        <div style={{ fontSize: 11, color: '#10b981', fontWeight: 700, marginTop: 6, padding: '4px 8px', background: '#10b98118', borderRadius: 6 }}>
+                            {resultNote}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
+        if (block.scenario === 'drag-drop') {
+            const stateOrder = ['idle','picking','dragging','over','dropped','done']
+            const curIdx = stateOrder.indexOf(simState)
+            const evts = [
+                { state: 'picking',  ev: 'dragstart',  el: 'dragSource', color: accent },
+                { state: 'dragging', ev: 'drag',       el: 'dragSource', color: accent },
+                { state: 'over',     ev: 'dragenter',  el: 'dropTarget', color: '#f59e0b' },
+                { state: 'over',     ev: 'dragover',   el: 'dropTarget', color: '#f59e0b' },
+                { state: 'dropped',  ev: 'drop',       el: 'dropTarget', color: '#10b981' },
+                { state: 'done',     ev: 'dragend',    el: 'dragSource', color: '#6b7280' },
+            ]
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg  = darkMode ? '#1f2937' : '#f3f4f6'
+            const nodeText = darkMode ? '#f3f4f6' : '#1f2937'
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        {isTr ? 'DOM Olayları (Events)' : 'DOM Events fired'}
+                    </div>
+                    {evts.map((e, i) => {
+                        const fired = simState !== 'idle' && stateOrder.indexOf(e.state) <= curIdx
+                        return (
+                            <div key={i} style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '4px 8px', borderRadius: 6,
+                                background: fired ? `${e.color}22` : 'transparent',
+                                marginBottom: 3, transition: 'background 0.3s',
+                            }}>
+                                <span style={{ fontSize: 12, opacity: fired ? 1 : 0.25 }}>{fired ? '🔥' : '○'}</span>
+                                <code style={{ fontSize: 11, color: fired ? e.color : subtext, fontWeight: fired ? 700 : 400, transition: 'color 0.3s' }}>{e.ev}</code>
+                                <span style={{ fontSize: 10, color: subtext }}>→ #{e.el}</span>
+                            </div>
+                        )
+                    })}
+                    <div style={{ marginTop: 12, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontFamily: 'monospace', fontSize: 10, lineHeight: 1.7 }}>
+                        <span style={{ color: '#f59e0b' }}>&lt;div </span>
+                        <span style={{ color: nodeText }}>id="dragSource" </span>
+                        <span style={{ color: simState !== 'idle' ? '#10b981' : '#ef4444', fontWeight: 700 }}>draggable="true"</span>
+                        <span style={{ color: '#f59e0b' }}>&gt;</span>
+                        <div style={{ paddingLeft: 14, color: subtext, fontSize: 10 }}>
+                            {isTr ? '/* zorunlu attribute */' : '/* required attribute */'}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
         if (block.scenario === 'implicit-wait') {
             const isNoFail = simState === 'no-fail'
             const isWithRetry = simState === 'with-retry'
@@ -2605,6 +4195,16 @@ function SimulationBlock({ block, darkMode, language }) {
                     </div>
                     {block.scenario === 'explicit-wait'     && renderExplicitWaitPlayground()}
                     {block.scenario === 'implicit-wait'     && renderImplicitWaitPlayground()}
+                    {block.scenario === 'drag-drop'         && renderDragDropPlayground()}
+                    {block.scenario === 'alert-sim'         && renderAlertSimPlayground()}
+                    {block.scenario === 'multi-window'      && renderMultiWindowPlayground()}
+                    {block.scenario === 'pw-autowait'       && renderPwAutoWaitPlayground()}
+                    {block.scenario === 'rest-assured-chain' && renderRestAssuredPlayground()}
+                    {block.scenario === 'jenkins-pipeline'  && renderJenkinsPipelinePlayground()}
+                    {block.scenario === 'kafka-flow'        && renderKafkaPlayground()}
+                    {block.scenario === 'docker-lifecycle'  && renderDockerLifecyclePlayground()}
+                    {block.scenario === 'api-request'       && renderApiRequestPlayground()}
+                    {block.scenario === 'k8s-pod'           && renderK8sPodPlayground()}
                     {block.scenario === 'shadow-dom'        && renderShadowDomPlayground()}
                     {block.scenario === 'iframe-detection'  && renderIframeDetectionPlayground()}
                     {block.scenario === 'shadow-dom-xray'   && renderShadowDomXrayPlayground()}
@@ -2908,6 +4508,9 @@ function renderBlock(block, i, darkMode, language = 'en') {
 
         case 'simulation':
             return <SimulationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'animated-timeline':
+            return <AnimatedTimelineBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

@@ -1713,6 +1713,37 @@ services:
       {
         title: '📡 Producer & Consumer',
         blocks: [
+          {
+            type: 'simulation',
+            icon: '🟠',
+            color: '#f97316',
+            title: { tr: 'Kafka Mesaj Akışı — Producer → Broker → Consumer', en: 'Kafka Message Flow — Producer → Broker → Consumer' },
+            scenario: 'kafka-flow',
+            description: {
+              tr: '"▶ Mesaj Gönder" butonuna bas: Mesajın Producer\'dan partition\'a, broker\'a ve Consumer\'a olan yolculuğunu canlı izle. Sağda her adımın Kafka kodu gösterilir.',
+              en: 'Press "▶ Mesaj Gönder": watch the message journey from Producer to partition, broker, and Consumer. The right panel shows the Kafka code for each step.',
+            },
+            code: `// Java — Producer mesaj gönder
+ProducerRecord<String, String> record = new ProducerRecord<>(
+    "siparisler",           // topic
+    "kullanici-123",        // key → partition belirler
+    "{\"siparisId\":\"SIP-456\"}" // value
+);
+producer.send(record);     // → Partition 1, Offset 42
+
+// Java — Consumer mesaj oku
+ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+for (ConsumerRecord<String, String> r : records) {
+    System.out.println("topic=" + r.topic() +
+        ", partition=" + r.partition() +
+        ", offset=" + r.offset() +
+        ", key=" + r.key() +
+        ", value=" + r.value());
+    // siparisIsleme(r.value()); → İş mantığı burada
+}
+consumer.commitSync(); // Offset'i ilerlet: 42 → 43`,
+            language: 'java',
+          },
           { type: 'heading', text: 'Producer — Mesaj Yazma' },
           {
             type: 'simple-box',

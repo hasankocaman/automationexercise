@@ -459,6 +459,38 @@ public class ConfigReader {
         },
       },
       {
+        type: 'simulation',
+        icon: '🧪',
+        color: '#10b981',
+        title: { tr: 'given/when/then — REST Assured Zinciri Canlı', en: 'given/when/then — REST Assured Chain Live' },
+        scenario: 'rest-assured-chain',
+        description: {
+          tr: '"▶ Testi Çalıştır" butonuna bas: given() → when() → then() zincirinin adım adım nasıl çalıştığını, isteğin gönderilişini ve assertion\'ların koşmasını izle.',
+          en: 'Press "▶ Testi Çalıştır": watch the given() → when() → then() chain execute, the request being sent, and assertions running step by step.',
+        },
+        code: `// Java — REST Assured given/when/then zinciri
+@Test
+void getUser_shouldReturn200_withValidData() {
+    given()                                    // ① Kurulum
+        .baseUri("https://reqres.in")
+        .header("Content-Type", "application/json")
+        .queryParam("page", 2)
+    .when()                                    // ② Eylem
+        .get("/api/users")
+    .then()                                    // ③ Doğrulama
+        .statusCode(200)
+        .body("page", equalTo(2))
+        .body("data", hasSize(6))
+        .body("data[0].email", containsString("@"))
+        .time(lessThan(5000L));
+
+// Postman ile karşılaştırma:
+// given() = Postman "Pre-request Script + Headers"
+// when()  = Postman "Send" butonu
+// then()  = Postman "Tests" sekmesi (pm.test)`,
+        language: 'java',
+      },
+      {
         type: 'heading',
         text: { tr: 'GET — Sayfalı Kullanıcı Listesi', en: 'GET — Paginated User List' },
       },
@@ -1608,92 +1640,409 @@ Scenario: Create user with POST
         type: 'interview-questions',
         topic: 'REST Assured',
         questions: [
+          // ── BASIC (15) ───────────────────────────────────────────────────────
           {
             level: 'basic',
             q: { tr: 'REST Assured nedir ve ne için kullanılır?', en: 'What is REST Assured and what is it used for?' },
             a: {
-              tr: 'REST Assured, Java ile REST API testleri yazmak için kullanılan açık kaynak DSL kütüphanesidir. given().when().then() sözdizimi ile HTTP istekleri gönderir, Hamcrest matchers ile doğrular. CI/CD pipeline\'ına native entegre olur.',
-              en: 'REST Assured is an open-source DSL library for writing REST API tests in Java. It sends HTTP requests with given().when().then() syntax and verifies responses with Hamcrest matchers. It integrates natively with CI/CD pipelines.',
+              tr: 'REST Assured, Java ile REST API testleri yazmak için kullanılan açık kaynak DSL kütüphanesidir. given().when().then() sözdizimi ile HTTP istekleri gönderir, Hamcrest matchers ile doğrular. Java ekibindeki QA\'nın Postman yerine tercih etmesi gereken araçtır — çünkü testler Maven/Gradle\'a entegre olur ve CI/CD pipeline\'ında otomatik çalışır.',
+              en: 'REST Assured is an open-source DSL library for writing REST API tests in Java. It sends HTTP requests with given().when().then() syntax and verifies with Hamcrest matchers. It is the Java QA\'s alternative to Postman — tests integrate with Maven/Gradle and run automatically in CI/CD pipelines.',
             },
           },
           {
             level: 'basic',
             q: { tr: 'given(), when(), then() bloklarının görevleri nelerdir?', en: 'What are the roles of given(), when(), and then()?' },
             a: {
-              tr: 'given(): Request ön koşulları — headers, params, body, auth. when(): HTTP metodu ve URL. then(): Response doğrulama — statusCode, body, header, time. BDD stilinden gelir.',
-              en: 'given(): request pre-conditions — headers, params, body, auth. when(): HTTP method and URL. then(): response verification — statusCode, body, header, time. Comes from BDD style.',
+              tr: 'given(): Request ön koşulları — headers, params, body, auth. when(): HTTP metodu ve URL. then(): Response doğrulama — statusCode, body, header, time. BDD stilinden gelir; Java\'daki @Arrange/@Act/@Assert pattern\'ine birebir karşılık gelir.',
+              en: 'given(): request pre-conditions — headers, params, body, auth. when(): HTTP method and URL. then(): response verification — statusCode, body, header, time. Comes from BDD style; directly mirrors the @Arrange/@Act/@Assert pattern in Java testing.',
             },
           },
           {
             level: 'basic',
             q: { tr: 'POJO neden önemlidir?', en: 'Why are POJOs important?' },
             a: {
-              tr: 'String JSON\'da typo yapsan runtime\'da patlar. POJO ile tip güvenliği ve IDE desteği kazanırsın. Jackson otomatik serialize/deserialize yapar.',
-              en: 'A typo in String JSON blows up at runtime. With a POJO you get type safety and IDE support. Jackson handles serialization/deserialization automatically.',
+              tr: 'String JSON\'da typo yapsan runtime\'da patlar, IDE de uyarmaz. POJO ile tip güvenliği ve otomatik tamamlama kazanırsın. Jackson otomatik serialize/deserialize yapar. Java\'da Map<String,Object> yerine güçlü tip kullanan bir sınıf yazman gibi düşün — aynı mantık, aynı kazanç.',
+              en: 'A typo in raw String JSON blows up at runtime with no IDE warning. With a POJO you get compile-time type safety and autocompletion. Jackson handles serialization/deserialization automatically. Think of it like using a strongly-typed class in Java instead of Map<String,Object> — same principle, same benefit.',
             },
           },
           {
             level: 'basic',
             q: { tr: '@JsonIgnoreProperties(ignoreUnknown = true) ne zaman kullanılır?', en: 'When should @JsonIgnoreProperties(ignoreUnknown = true) be used?' },
             a: {
-              tr: 'Her response POJO\'suna eklenmeli. API yeni alan eklediğinde UnrecognizedPropertyException\'ı önler.',
-              en: 'It should be added to every response POJO. It prevents UnrecognizedPropertyException when the API adds a new field.',
+              tr: 'Her response POJO\'suna eklenmeli. API yeni alan eklediğinde UnrecognizedPropertyException fırlatmasını önler. Geliştiricinin response\'a yeni bir field eklemesi senin testini kırmamalı — bu annotation o korumayı sağlar.',
+              en: 'It should be added to every response POJO. It prevents UnrecognizedPropertyException when the API adds a new field. A developer adding a new response field should not break your test — this annotation provides that protection.',
             },
           },
           {
             level: 'basic',
-            q: { tr: 'BaseTest neden kullanılır?', en: 'Why is a BaseTest class used?' },
+            q: { tr: 'BaseTest sınıfı neden kullanılır ve ne içermelidir?', en: 'Why is a BaseTest class used and what should it contain?' },
             a: {
-              tr: 'RequestSpecification\'ı bir kez kurar. Tüm testler extends ile miras alır. DRY prensibini uygular.',
-              en: 'It configures the RequestSpecification once. All test classes inherit it via extends. Applies the DRY principle.',
+              tr: 'RequestSpecification\'ı (baseUri, headers, auth) bir kez kurar; tüm test sınıfları extends ile miras alır. DRY prensibini uygular — baseUrl\'i 200 yerde değiştirmek yerine tek yerden değiştirirsin. @BeforeAll\'da RestAssured.requestSpecification atanır. Java\'daki abstract base test sınıfı kalıbıyla birebir aynıdır.',
+              en: 'It configures RequestSpecification (baseUri, headers, auth) once; all test classes inherit it via extends. Applies the DRY principle — change the baseUrl in one place instead of 200 places. Assign in @BeforeAll via RestAssured.requestSpecification. Identical to the abstract base test class pattern in Java.',
             },
           },
+          {
+            level: 'basic',
+            q: { tr: 'pom.xml\'e REST Assured eklemek için hangi dependency\'ler gereklidir?', en: 'Which dependencies are required to add REST Assured to pom.xml?' },
+            a: {
+              tr: 'Minimum: io.rest-assured:rest-assured (core), io.rest-assured:json-path (JSON path desteği), com.fasterxml.jackson.core:jackson-databind (POJO serialize/deserialize). JUnit5 kullanıyorsan junit-jupiter de zorunlu. maven-surefire-plugin 3.x da gerekir — mvn test komutu REST Assured testlerini bu plugin üzerinden çalıştırır.',
+              en: 'Minimum: io.rest-assured:rest-assured (core), io.rest-assured:json-path (JSON path support), com.fasterxml.jackson.core:jackson-databind (POJO serialization). If using JUnit5, junit-jupiter is also required. maven-surefire-plugin 3.x is needed — the mvn test command runs REST Assured tests through this plugin.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'statusCode() ile body() assert\'ini aynı anda kullanabilir misiniz?', en: 'Can you assert statusCode() and body() at the same time?' },
+            a: {
+              tr: 'Evet, then() bloğu zincir (fluent) API\'dir. then().statusCode(200).body("name", equalTo("Alice")).body("age", greaterThan(18)) şeklinde tek satırda birden fazla assertion yazılabilir. Java\'daki method chaining kalıbıyla aynı prensip. Her assertion bağımsız değerlendirilir; ilk başarısız olan testi durdurur.',
+              en: 'Yes, the then() block is a fluent API. You can chain multiple assertions: then().statusCode(200).body("name", equalTo("Alice")).body("age", greaterThan(18)) in a single statement. Same principle as method chaining in Java. Each assertion is evaluated independently; the first failure stops the test.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Bir response header\'ı nasıl doğrularsınız?', en: 'How do you verify a response header?' },
+            a: {
+              tr: 'then().header("Content-Type", "application/json") veya then().header("Content-Type", containsString("json")) kullanılır. Birden fazla header için .headers() method\'u hem Map hem de vararg kabul eder. Java\'da HashMap ile doğrulama yapıyormuşsun gibi düşün — burada REST Assured bunu daha okunabilir hale getirir.',
+              en: 'Use then().header("Content-Type", "application/json") or then().header("Content-Type", containsString("json")). For multiple headers, .headers() accepts both a Map and varargs. Think of it like checking a HashMap in Java — REST Assured makes it more readable.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Query parameter ve path parameter arasındaki fark nedir ve REST Assured\'da nasıl kullanılır?', en: 'What is the difference between query and path parameters in REST Assured?' },
+            a: {
+              tr: 'Path parameter URL\'nin parçasıdır: /users/{id} — given().pathParam("id", 42).when().get("/users/{id}"). Query parameter URL\'nin sonuna eklenir: /users?page=2 — given().queryParam("page", 2). Java\'da String.format ile URL oluşturmak yerine REST Assured bunları tip-safe şekilde yönetir.',
+              en: 'Path parameter is part of the URL: /users/{id} — given().pathParam("id", 42).when().get("/users/{id}"). Query parameter is appended to the URL: /users?page=2 — given().queryParam("page", 2). Instead of building URLs with String.format in Java, REST Assured manages these in a type-safe way.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Basic Authentication gerektiren bir endpoint\'i REST Assured ile nasıl test edersiniz?', en: 'How do you test an endpoint requiring Basic Authentication with REST Assured?' },
+            a: {
+              tr: 'given().auth().basic("username", "password") — REST Assured credentials\'ı Base64 encode edip Authorization header\'ına otomatik ekler. Preemptive auth için given().auth().preemptive().basic(...) kullanılır — sunucu 401 döndürmeden önce credentials gönderir. BaseTest\'e taşıyarak tüm testlerde yeniden kullanılır.',
+              en: 'Use given().auth().basic("username", "password") — REST Assured Base64-encodes credentials and adds the Authorization header automatically. For preemptive auth use given().auth().preemptive().basic(...) — sends credentials before the server challenges with 401. Move to BaseTest to reuse across all tests.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Response body\'de belirli bir string olup olmadığını nasıl kontrol edersiniz?', en: 'How do you check if a response body contains a specific string?' },
+            a: {
+              tr: 'then().body(containsString("Alice")) — Hamcrest\'in containsString() matcher\'ını kullanır. JSON path ile daha spesifik: then().body("data.name", containsString("Ali")). Tam eşleşme için equalTo(), kısmi için containsString(), büyük/küçük harf duyarsız için containsStringIgnoringCase(). Java\'daki String.contains() metodunun assertion versiyonu olarak düşünebilirsin.',
+              en: 'Use then().body(containsString("Alice")) — uses Hamcrest\'s containsString() matcher. More specific with JSON path: then().body("data.name", containsString("Ali")). Use equalTo() for exact match, containsString() for partial, containsStringIgnoringCase() for case-insensitive. Think of it as the assertion version of Java\'s String.contains() method.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Response süresini (response time) nasıl assert edersiniz?', en: 'How do you assert response time in REST Assured?' },
+            a: {
+              tr: 'then().time(lessThan(2000L)) — ms cinsinden, Hamcrest matcher\'ı kullanır. SLA testleri için idealdir: "API 2 saniyenin altında cevap vermeli" gibi. Daha okunabilir: then().time(lessThan(2L), TimeUnit.SECONDS). Performance regression testi için her sprint\'te bu threshold\'ı kontrol etmek good practice\'tir.',
+              en: 'Use then().time(lessThan(2000L)) — in milliseconds, uses Hamcrest matcher. Ideal for SLA tests: "API must respond in under 2 seconds." More readable: then().time(lessThan(2L), TimeUnit.SECONDS). Checking this threshold every sprint is good practice for performance regression testing.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'SSL/HTTPS sertifika hatası alıyorsunuz — ne yaparsınız?', en: 'You are getting an SSL/HTTPS certificate error — what do you do?' },
+            a: {
+              tr: 'Test ortamında self-signed sertifika varsa given().relaxedHTTPSValidation() kullanılır — tüm SSL doğrulamalarını bypass eder. Production\'da ASLA kullanma; yalnızca dev/staging için. BaseTest\'e eklenirse tüm testler için otomatik aktif olur. Java\'da SSLContext.getInstance("TLS") ile trust-all yapılandırması ile aynı amacı çok daha kısa kodla sağlar.',
+              en: 'If the test environment has a self-signed certificate, use given().relaxedHTTPSValidation() — bypasses all SSL validation. NEVER use in production; only for dev/staging. Add to BaseTest for it to apply to all tests. Same purpose as configuring a trust-all SSLContext in Java, achieved with far less code.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'Response body\'yi JSON olarak parse etmek ile String olarak almak arasındaki fark nedir?', en: 'What is the difference between parsing the response body as JSON vs getting it as a String?' },
+            a: {
+              tr: 'String olarak: extract().body().asString() — ham metin, JSON path kullanamaz. JSON olarak: extract().body().as(MyPojo.class) veya .jsonPath().get("field") — tip-safe erişim. String yalnızca debug veya regex gerektiren durumlarda kullanılır; normal testlerde JSON path veya POJO tercih edilir. Java\'da ham byte[] yerine typed nesne kullanmak gibi.',
+              en: 'As String: extract().body().asString() — raw text, no JSON path possible. As JSON: extract().body().as(MyPojo.class) or .jsonPath().get("field") — type-safe access. Use String only for debugging or regex scenarios; prefer JSON path or POJO in normal tests. Like using a typed object instead of raw byte[] in Java.',
+            },
+          },
+          {
+            level: 'basic',
+            q: { tr: 'REST Assured\'da log() ne zaman açılmalıdır?', en: 'When should log() be enabled in REST Assured?' },
+            a: {
+              tr: 'Debug sırasında: given().log().all() — tüm request\'i loglar. then().log().all() — tüm response\'u loglar. CI/CD\'de sadece hata durumunda: then().log().ifError() veya .log().ifValidationFails() — çıktı kirliliğini önler. Java\'daki logger.debug() / logger.error() ayrımı gibi; production\'da verbose loglama kapatılır.',
+              en: 'During debugging: given().log().all() — logs the full request. then().log().all() — logs the full response. In CI/CD, log only on failure: then().log().ifError() or .log().ifValidationFails() — avoids output noise. Like logger.debug() vs logger.error() in Java; verbose logging is turned off in production.',
+            },
+          },
+
+          // ── INTERMEDIATE (20) ────────────────────────────────────────────────
           {
             level: 'intermediate',
             q: { tr: 'extract().path() ile extract().body().as() farkı nedir?', en: 'What is the difference between extract().path() and extract().body().as()?' },
             a: {
-              tr: '.path() tek bir değeri primitive olarak alır. .as(Class) tüm body\'yi POJO\'ya dönüştürür — birden fazla alana erişmek için kullanılır.',
-              en: '.path() extracts a single value as a primitive. .as(Class) converts the entire body to a POJO — use it when you need access to multiple fields.',
+              tr: '.path("id") tek bir değeri primitive olarak alır — String, Integer, List<String> döner. .body().as(UserPojo.class) tüm body\'yi POJO\'ya dönüştürür. Birden fazla alana erişmek istiyorsan POJO daha temiz. .path() ise hızlı bir değer çekip başka istekte kullanmak için idealdir.',
+              en: '.path("id") extracts a single value as a primitive — returns String, Integer, or List<String>. .body().as(UserPojo.class) converts the entire body to a POJO. Use POJO when accessing multiple fields. .path() is ideal for quickly extracting one value to use in a subsequent request.',
             },
           },
           {
             level: 'intermediate',
             q: { tr: 'Flaky testlerle nasıl başa çıkılır?', en: 'How do you deal with flaky tests?' },
             a: {
-              tr: 'En yaygın sebep async işlem. Çözüm: Awaitility ile polling. Thread.sleep kullanma — sabit bekler, güvenilir değil.',
-              en: 'The most common cause is an async operation. Fix: use Awaitility for polling. Avoid Thread.sleep — it waits a fixed amount and is unreliable.',
+              tr: 'En yaygın sebep async işlem. Çözüm: Awaitility ile polling — Thread.sleep kullanma. Awaitility.await().atMost(10, SECONDS).until(() -> getStatus().equals("DONE")). Diğer sebepler: shared test data (test izolasyonu ile çöz), race condition (ThreadLocal ile çöz), network timeout (timeout değerini artır).',
+              en: 'The most common cause is an async operation. Fix: use Awaitility for polling — avoid Thread.sleep. Awaitility.await().atMost(10, SECONDS).until(() -> getStatus().equals("DONE")). Other causes: shared test data (fix with test isolation), race condition (fix with ThreadLocal), network timeout (increase timeout value).',
             },
           },
           {
             level: 'intermediate',
-            q: { tr: 'JSON Schema Validation ne sağlar?', en: 'What does JSON Schema Validation provide?' },
+            q: { tr: 'JSON Schema Validation ne sağlar ve nasıl implement edilir?', en: 'What does JSON Schema Validation provide and how is it implemented?' },
             a: {
-              tr: 'Response yapısını (zorunlu alanlar, tipler, formatlar) tek satırda doğrular. Contract testing için idealdir.',
-              en: 'It validates the response structure (required fields, types, formats) in a single line. Ideal for contract testing in microservice architectures.',
+              tr: 'Response yapısını (zorunlu alanlar, tipler, formatlar) tek satırda doğrular. Geliştiricinin "id" alanını silmesi veya String yerine Integer döndürmesi gibi breaking değişiklikler anında yakalanır. Kullanım: then().body(matchesJsonSchemaInClasspath("schema/user-schema.json")). Şemayı src/test/resources/schema/ altına koy. Java\'da Hibernate Validator ile sınıf düzeyinde doğrulama gibi, burada API contract düzeyinde doğrulama yapılır.',
+              en: 'Validates response structure (required fields, types, formats) in one line. Catches breaking changes like a developer removing the "id" field or returning Integer instead of String. Usage: then().body(matchesJsonSchemaInClasspath("schema/user-schema.json")). Place schemas under src/test/resources/schema/. Like Hibernate Validator at the class level in Java, here it validates at the API contract level.',
             },
           },
+          {
+            level: 'intermediate',
+            q: { tr: 'RequestSpecification ve ResponseSpecification\'ı neden ve nasıl oluşturursunuz?', en: 'Why and how do you create RequestSpecification and ResponseSpecification?' },
+            a: {
+              tr: 'RequestSpecification: tekrar eden header/auth/baseUri\'yi tek yerde tanımlar. RequestSpecBuilder builder = new RequestSpecBuilder(); builder.setBaseUri("https://api.example.com").addHeader("Accept","application/json"); RequestSpecification spec = builder.build(). ResponseSpecification ise beklenen status ve header\'ları merkezi yönetir: ResponseSpecBuilder\'da setStatusCode(200).expectHeader(...). Her iki spec BaseTest\'te static olarak tutulur, testler given(reqSpec).when()...then(resSpec) ile kullanır.',
+              en: 'RequestSpecification defines repeated headers/auth/baseUri in one place. RequestSpecBuilder builder = new RequestSpecBuilder(); builder.setBaseUri("https://api.example.com").addHeader("Accept","application/json"); RequestSpecification spec = builder.build(). ResponseSpecification centralises expected status and headers: setStatusCode(200).expectHeader(...) in ResponseSpecBuilder. Keep both specs as statics in BaseTest; tests use given(reqSpec).when()...then(resSpec).',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Bearer token authentication ile korunan bir endpoint\'i nasıl test edersiniz?', en: 'How do you test a Bearer token protected endpoint?' },
+            a: {
+              tr: 'Önce token al: String token = given().body(credentials).post("/auth/login").then().extract().path("token"). Sonra kullan: given().header("Authorization", "Bearer " + token).when().get("/profile"). BaseTest\'te @BeforeAll içinde token al, static değişkende tut. Token expire süresi varsa Filter ile auto-refresh implement et. Java\'daki ThreadLocal<String> token pattern\'ı ile aynı yaklaşım.',
+              en: 'First get the token: String token = given().body(credentials).post("/auth/login").then().extract().path("token"). Then use it: given().header("Authorization", "Bearer " + token).when().get("/profile"). Get the token in @BeforeAll in BaseTest and store in a static variable. If the token has an expiry, implement auto-refresh with a Filter. Same approach as ThreadLocal<String> token pattern in Java.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Test chaining: POST /login\'den dönen token\'ı ve ID\'yi bir sonraki istekte nasıl kullanırsınız?', en: 'Test chaining: how do you use the token and ID from POST /login in the next request?' },
+            a: {
+              tr: 'extract().response() ile tüm response\'u al: Response loginResponse = given()...post("/login").then().extract().response(). Ardından: String token = loginResponse.path("token"); int userId = loginResponse.path("userId"). Sonraki istekte: given().header("Authorization","Bearer "+token).get("/users/"+userId). Java\'da bir metodu çağırıp dönüş değerini bir sonraki metoda parametre geçirmekle birebir aynı — sadece HTTP katmanında.',
+              en: 'Extract the full response with extract().response(): Response loginResponse = given()...post("/login").then().extract().response(). Then: String token = loginResponse.path("token"); int userId = loginResponse.path("userId"). In the next request: given().header("Authorization","Bearer "+token).get("/users/"+userId). Exactly the same as calling a method in Java and passing the return value as a parameter to the next method — just at the HTTP layer.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Multipart/form-data ile dosya yükleme endpoint\'ini nasıl test edersiniz?', en: 'How do you test a file upload endpoint with multipart/form-data?' },
+            a: {
+              tr: 'given().contentType("multipart/form-data").multiPart("file", new File("src/test/resources/test.pdf")).multiPart("description", "QA report").when().post("/upload"). Sunucunun multipart header\'ını beklediğini doğrula; yanlış content-type ile 400 alırsın. Java\'da HttpEntity ile multipart body oluşturmak gibi ama REST Assured bunu builder pattern ile basitleştirir.',
+              en: 'given().contentType("multipart/form-data").multiPart("file", new File("src/test/resources/test.pdf")).multiPart("description", "QA report").when().post("/upload"). Verify the server expects the multipart header; wrong content-type returns 400. Like building a multipart HttpEntity in Java, but REST Assured simplifies it with a builder pattern.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Response body\'deki bir List alanını nasıl assert edersiniz?', en: 'How do you assert a List field in the response body?' },
+            a: {
+              tr: 'then().body("data", hasSize(5)) — listenin boyutunu kontrol eder. .body("data.name", hasItems("Alice","Bob")) — listedeki belirli elemanları kontrol eder. .body("data[0].id", equalTo(1)) — ilk elemanın ID\'sini kontrol eder. .body("data.findAll{it.age > 18}.size()", equalTo(3)) — Groovy GPath ile filtreleme. Java\'da Stream.filter().count() ile yapılanı JSON path\'de tek satırda yaparsın.',
+              en: 'then().body("data", hasSize(5)) — checks list size. .body("data.name", hasItems("Alice","Bob")) — checks specific elements. .body("data[0].id", equalTo(1)) — checks the first element\'s ID. .body("data.findAll{it.age > 18}.size()", equalTo(3)) — filter with Groovy GPath. What you\'d do with Stream.filter().count() in Java, done in one line with JSON path.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Derin iç içe geçmiş JSON\'da bir alanı nasıl doğrularsınız?', en: 'How do you verify a deeply nested field in JSON?' },
+            a: {
+              tr: 'Nokta notasyonu: then().body("data.address.city", equalTo("Istanbul")). Dizi içinde iç içe: then().body("orders[0].items[1].productName", equalTo("Laptop")). Wildcard: then().body("orders.items.productName.flatten()", hasItem("Laptop")) — tüm sipariş içindeki tüm ürün adlarını düzleştirir. Java\'daki JsonPath kütüphanesi veya ObjectMapper ile aynı kavram, ama REST Assured assert ile birleştirerek tek satır yapar.',
+              en: 'Dot notation: then().body("data.address.city", equalTo("Istanbul")). Nested in array: then().body("orders[0].items[1].productName", equalTo("Laptop")). Wildcard: then().body("orders.items.productName.flatten()", hasItem("Laptop")) — flattens all product names across all orders. Same concept as JsonPath library or ObjectMapper in Java, but REST Assured combines assertion into a single line.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Cookie tabanlı authentication gerektiren bir API nasıl test edilir?', en: 'How do you test an API that uses cookie-based authentication?' },
+            a: {
+              tr: 'Login isteğinden cookie\'yi al: Response login = given().body(creds).post("/login"). Sonraki istekte: given().cookies(login.cookies()).get("/dashboard"). Cookie değerini manuel eklemek için: given().cookie("sessionId", "abc123"). RestAssured.config(config().sessionConfig(new SessionConfig().sessionIdName("JSESSIONID"))) ile session yönetimi yapılandırılabilir. Java\'daki HttpSession yönetimine benzer mantık.',
+              en: 'Get the cookie from the login response: Response login = given().body(creds).post("/login"). In the next request: given().cookies(login.cookies()).get("/dashboard"). To add a cookie manually: given().cookie("sessionId", "abc123"). Configure session management with RestAssured.config(config().sessionConfig(new SessionConfig().sessionIdName("JSESSIONID"))). Similar logic to HttpSession management in Java.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'REST Assured Filter interface\'i ne işe yarar?', en: 'What is the REST Assured Filter interface used for?' },
+            a: {
+              tr: 'Filter, her request/response döngüsüne müdahale eden interceptor\'dır — Java\'daki Servlet Filter veya Spring\'in OncePerRequestFilter\'ına karşılık gelir. Filter implements Filter { public Response filter(FilterableRequestSpec req, FilterableResponseSpec res, FilterContext ctx) { /* manipüle et */ return ctx.next(req, res); } }. Kullanım alanları: token auto-refresh, request loglama, rate limiting, 5xx hatalarında retry, güvenlik header\'ı ekleme.',
+              en: 'A Filter is an interceptor for every request/response cycle — equivalent to a Servlet Filter or Spring\'s OncePerRequestFilter in Java. Implement: class MyFilter implements Filter { public Response filter(FilterableRequestSpec req, FilterableResponseSpec res, FilterContext ctx) { /* manipulate */ return ctx.next(req, res); } }. Use cases: token auto-refresh, request logging, rate limiting, retry on 5xx, adding security headers.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'XML response döndüren bir endpoint\'i REST Assured ile nasıl test edersiniz?', en: 'How do you test an XML response endpoint with REST Assured?' },
+            a: {
+              tr: 'REST Assured XML\'i de destekler. then().body("users.user[0].name", equalTo("Alice")) — XPath benzeri GPath sözdizimi. Content-Type kontrolü: then().contentType(ContentType.XML). JAXB ile POJO\'ya dönüştürmek için: given().accept("application/xml")...extract().body().as(UserList.class). JSON kadar yaygın değil ama legacy SOAP API\'leri veya bazı RSS feed servisleri için gerekli.',
+              en: 'REST Assured supports XML as well. then().body("users.user[0].name", equalTo("Alice")) — XPath-like GPath syntax. Content-Type check: then().contentType(ContentType.XML). To convert to POJO with JAXB: given().accept("application/xml")...extract().body().as(UserList.class). Less common than JSON but needed for legacy SOAP APIs or some RSS feed services.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Environment-based configuration (dev/staging/prod) nasıl yönetilir?', en: 'How do you manage environment-based configuration (dev/staging/prod)?' },
+            a: {
+              tr: 'src/test/resources/ altında config.properties, config-staging.properties, config-prod.properties dosyaları oluştur. Maven profilleri ile çalışma zamanında seç: mvn test -P staging. ConfigReader sınıfı System.getProperty("env","dev") ile aktif profili okur. CI/CD\'de: jenkins mvn test -Denv=staging. Java\'daki Spring Profile veya @ActiveProfiles ile aynı mantık — farklı ortam için farklı konfigürasyon.',
+              en: 'Create config.properties, config-staging.properties, config-prod.properties under src/test/resources/. Select at runtime using Maven profiles: mvn test -P staging. A ConfigReader class reads the active profile with System.getProperty("env","dev"). In CI/CD: mvn test -Denv=staging. Same logic as Spring Profiles or @ActiveProfiles in Java — different configuration for different environments.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Bir endpoint 202 Accepted döndürüyor ve işlem async tamamlanıyor. Bu durumu nasıl test edersiniz?', en: 'An endpoint returns 202 Accepted and the operation completes asynchronously. How do you test this?' },
+            a: {
+              tr: '202 döndükten sonra polling: String jobId = given().post("/export").then().statusCode(202).extract().path("jobId"). Ardından Awaitility ile bekle: Awaitility.await().atMost(30, SECONDS).pollInterval(2, SECONDS).until(() -> given().get("/jobs/"+jobId).then().extract().path("status").equals("COMPLETED")). Son olarak sonucu doğrula: given().get("/jobs/"+jobId+"/result").then().statusCode(200). Thread.sleep(30000) ile bekleme yapmak anti-pattern\'dır.',
+              en: 'After the 202 response, poll: String jobId = given().post("/export").then().statusCode(202).extract().path("jobId"). Then wait with Awaitility: Awaitility.await().atMost(30, SECONDS).pollInterval(2, SECONDS).until(() -> given().get("/jobs/"+jobId).then().extract().path("status").equals("COMPLETED")). Finally verify the result: given().get("/jobs/"+jobId+"/result").then().statusCode(200). Using Thread.sleep(30000) is an anti-pattern.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Allure Report ile REST Assured entegrasyonu nasıl yapılır?', en: 'How do you integrate Allure Report with REST Assured?' },
+            a: {
+              tr: 'pom.xml\'e allure-rest-assured dependency\'si ekle. Sonra: RestAssured.filters(new AllureRestAssured()) — bu filter her request/response\'u Allure\'a otomatik loglar. @Step annotation\'ı ile test adımlarını işaretle. mvn allure:serve ile raporları görüntüle. CI\'da mvn allure:report ile HTML rapor üret. Java\'daki @ExtendWith(AllureJunit5Extension.class) ile birlikte kullanılır.',
+              en: 'Add the allure-rest-assured dependency to pom.xml. Then: RestAssured.filters(new AllureRestAssured()) — this filter automatically logs every request/response to Allure. Mark test steps with @Step annotation. View reports with mvn allure:serve. Generate HTML reports in CI with mvn allure:report. Used together with @ExtendWith(AllureJunit5Extension.class) in Java.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Soft assertion ne zaman tercih edilir ve REST Assured\'da nasıl uygulanır?', en: 'When is soft assertion preferred and how is it applied in REST Assured?' },
+            a: {
+              tr: 'Normal assertion ilk hata bulunca durur; soft assertion tüm hataları toplar. Kullanım: SoftAssertions softly = new SoftAssertions(); softly.assertThat(response.statusCode()).isEqualTo(200); softly.assertThat(response.path("name")).isEqualTo("Alice"); softly.assertAll(). Tercih edildiği durum: tek bir API yanıtında birden fazla alanı kontrol etmek istiyorsun ve hangi alanların hatalı olduğunu tek test çalışmasında görmek istiyorsun.',
+              en: 'Normal assertions stop at the first failure; soft assertions collect all failures. Usage: SoftAssertions softly = new SoftAssertions(); softly.assertThat(response.statusCode()).isEqualTo(200); softly.assertThat(response.path("name")).isEqualTo("Alice"); softly.assertAll(). Use when: checking multiple fields in a single API response and you want to see all failing fields in a single test run.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'REST Assured ile pagination testi nasıl yapılır?', en: 'How do you test pagination with REST Assured?' },
+            a: {
+              tr: 'Temel: page ve size query parametre ile her sayfayı ayrı test et. given().queryParam("page",1).queryParam("size",10).get("/users").then().body("data",hasSize(10)).body("totalPages",greaterThan(1)). Sınır değerleri: son sayfa, boş sayfa (page=999), negatif page (400 beklenir). Links validation: HATEOAS API\'lerde response body\'deki "next" ve "prev" link\'lerini doğrula. Tüm sayfaları döngüyle dolaşıp toplam kayıt sayısını doğrulayan integration testi de yazılabilir.',
+              en: 'Basic: test each page with page and size query params. given().queryParam("page",1).queryParam("size",10).get("/users").then().body("data",hasSize(10)).body("totalPages",greaterThan(1)). Boundary values: last page, empty page (page=999), negative page (expects 400). Links validation: verify "next" and "prev" links in the response body for HATEOAS APIs. Can also write an integration test that loops through all pages and verifies total record count.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Test verisi hazırlama ve temizleme (setup/teardown) stratejiniz nedir?', en: 'What is your test data setup/teardown strategy?' },
+            a: {
+              tr: '@BeforeEach\'de API üzerinden test verisi oluştur (DB\'ye direkt yazma, bağımlılık yaratır). Oluşturulan ID\'yi instance değişkende tut. @AfterEach\'de aynı API\'yi kullanarak sil. UUID ile benzersiz data: "testUser_" + UUID.randomUUID(). Paralel testlerde ThreadLocal kullan. Builder pattern ile test data factory oluştur: UserBuilder.aUser().withName("Test").build(). Java\'daki @BeforeEach/@AfterEach JUnit5 lifecycle\'ı ile birebir aynı — REST Assured sadece HTTP katmanını ekler.',
+              en: '@BeforeEach: create test data via API (writing directly to DB creates a dependency). Store created IDs in instance variables. @AfterEach: delete using the same API. Unique data with UUID: "testUser_" + UUID.randomUUID(). Use ThreadLocal in parallel tests. Create a test data factory with builder pattern: UserBuilder.aUser().withName("Test").build(). Identical to @BeforeEach/@AfterEach JUnit5 lifecycle in Java — REST Assured just adds the HTTP layer.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'OAuth2 flow\'u REST Assured ile nasıl test edersiniz?', en: 'How do you test an OAuth2 flow with REST Assured?' },
+            a: {
+              tr: 'Client Credentials flow: given().auth().oauth2(getAccessToken()).get("/resource"). getAccessToken() metodu: given().formParam("grant_type","client_credentials").formParam("client_id","...").formParam("client_secret","...").post("/oauth/token").then().extract().path("access_token"). Authorization Code flow ise browser redirect içerdiğinden REST Assured ile tam olarak test edilemez — sadece token endpoint\'i ve resource endpoint test edilir. Token expire testini ayrıca yaz.',
+              en: 'Client Credentials flow: given().auth().oauth2(getAccessToken()).get("/resource"). The getAccessToken() method: given().formParam("grant_type","client_credentials").formParam("client_id","...").formParam("client_secret","...").post("/oauth/token").then().extract().path("access_token"). Authorization Code flow cannot be fully tested with REST Assured because it involves a browser redirect — test only the token endpoint and resource endpoint. Write a separate test for token expiry.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: { tr: 'Bir ekipte REST Assured projesi nasıl yapılandırılmalıdır?', en: 'How should a REST Assured project be structured for a team?' },
+            a: {
+              tr: 'src/test/java/ altında: base/ (BaseTest, ConfigReader), model/ (request/response POJO\'lar), api/ (endpoint wrapper sınıfları — UserApi, OrderApi gibi), tests/ (test sınıfları), utils/ (JwtUtil, TestDataFactory). src/test/resources/ altında: config dosyaları, JSON schema dosyaları, test fixture JSON\'lar. Bu yapı, Java\'daki Page Object Model\'in API katmanındaki karşılığıdır — endpoint wrapper\'lar page object\'e, test sınıfları test script\'e karşılık gelir.',
+              en: 'Under src/test/java/: base/ (BaseTest, ConfigReader), model/ (request/response POJOs), api/ (endpoint wrapper classes — UserApi, OrderApi), tests/ (test classes), utils/ (JwtUtil, TestDataFactory). Under src/test/resources/: config files, JSON schema files, test fixture JSONs. This structure is the API-layer equivalent of the Page Object Model in Java — endpoint wrappers map to page objects, test classes to test scripts.',
+            },
+          },
+
+          // ── ADVANCED (15) ────────────────────────────────────────────────────
           {
             level: 'advanced',
             q: { tr: 'Token auto-refresh nasıl implement edilir?', en: 'How do you implement token auto-refresh?' },
             a: {
-              tr: 'REST Assured Filter arayüzünü implement et. filter() içinde: token süresi dolduysa yenile, header\'a ekle. 401 alınca da yenile ve tekrar dene.',
-              en: 'Implement the REST Assured Filter interface. In filter(): refresh if expired, add to header. On 401, refresh and retry. Add globally via RestAssured.filters().',
+              tr: 'REST Assured Filter arayüzünü implement et. filter() içinde: token süresi dolduysa yenile, header\'a ekle. 401 alınca da yenile ve isteği tekrar gönder (ctx.next()). RestAssured.filters(new TokenRefreshFilter()) ile global ekle. Java\'daki Servlet Filter mantığı — her istek bu interceptor\'dan geçer.',
+              en: 'Implement the REST Assured Filter interface. In filter(): refresh if expired, add to header. On 401, refresh and retry with ctx.next(). Add globally via RestAssured.filters(new TokenRefreshFilter()). Servlet Filter logic in Java — every request passes through this interceptor.',
             },
           },
           {
             level: 'advanced',
             q: { tr: 'Paralel testlerde test izolasyonu nasıl sağlanır?', en: 'How do you ensure test isolation in parallel tests?' },
             a: {
-              tr: '(1) UUID/timestamp ile benzersiz test verisi. (2) Static değişken yerine ThreadLocal. (3) @AfterEach\'de oluşturulan kaynakları sil.',
-              en: '(1) Unique test data with UUID/timestamp. (2) ThreadLocal instead of static variables. (3) Delete created resources in @AfterEach.',
+              tr: '(1) UUID/timestamp ile benzersiz test verisi — statik paylaşım yok. (2) Static değişken yerine ThreadLocal — her thread kendi token\'ını taşır. (3) @AfterEach\'de oluşturulan kaynakları sil. (4) pom.xml\'de maven-surefire-plugin parallel=methods forkCount=2. Test verisi çakışması en yaygın sorun; UUID ile her testin kendi benzersiz kullanıcısı/siparişi olur.',
+              en: '(1) Unique test data with UUID/timestamp — no static sharing. (2) ThreadLocal instead of static variables — each thread carries its own token. (3) Delete created resources in @AfterEach. (4) In pom.xml: maven-surefire-plugin parallel=methods forkCount=2. Test data collision is the most common problem; UUID ensures each test has its own unique user/order.',
             },
           },
           {
             level: 'advanced',
             q: { tr: 'Postman collection\'ını REST Assured\'a nasıl migrate edersiniz?', en: 'How would you migrate a Postman collection to REST Assured?' },
             a: {
-              tr: '(1) Folder → test sınıfı. (2) Request → @Test metodu. (3) baseUrl → BaseTest/ConfigReader. (4) Environment variables → properties dosyaları. (5) Tests scripts → .then().body(). (6) Collection Runner → mvn test.',
-              en: '(1) Folder → test class. (2) Request → @Test method. (3) baseUrl → BaseTest/ConfigReader. (4) Environment variables → properties files. (5) Tests scripts → .then().body(). (6) Collection Runner → mvn test.',
+              tr: '(1) Folder → test sınıfı. (2) Request → @Test metodu. (3) baseUrl → BaseTest/ConfigReader. (4) Environment variables → properties dosyaları. (5) Tests scripts → .then().body(). (6) Collection Runner → mvn test. Pre-request script\'ler @BeforeEach\'e dönüşür. Newman CLI\'dan Maven Surefire\'a geçiş, CI/CD entegrasyonu için çok daha güçlü bir altyapı sağlar.',
+              en: '(1) Folder → test class. (2) Request → @Test method. (3) baseUrl → BaseTest/ConfigReader. (4) Environment variables → properties files. (5) Tests scripts → .then().body(). (6) Collection Runner → mvn test. Pre-request scripts become @BeforeEach. Moving from Newman CLI to Maven Surefire provides a much stronger CI/CD integration infrastructure.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Consumer-driven contract testing Pact framework ile nasıl implement edilir?', en: 'How do you implement consumer-driven contract testing with Pact?' },
+            a: {
+              tr: 'Consumer (frontend/başka microservice) beklediği API kontratını Pact dosyasına yazar. Provider (backend) bu kontratı REST Assured ile doğrular. @PactTestFor(providerName="UserService") ile provider testi: given(pactContext).get("/users/1").then().statusCode(200).body("id",equalTo(1)). Pact Broker\'da tüm kontratlar merkezi tutulur; her deployment\'ta "can I deploy?" kontrolü yapılır. Monolitten microservice\'e geçişte kritik güvenlik ağı.',
+              en: 'The consumer (frontend/another microservice) writes the expected API contract to a Pact file. The provider (backend) verifies this contract with REST Assured. @PactTestFor(providerName="UserService") for the provider test: given(pactContext).get("/users/1").then().statusCode(200).body("id",equalTo(1)). All contracts are stored centrally in Pact Broker; a "can I deploy?" check runs on every deployment. Critical safety net when moving from monolith to microservices.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Microservice mimarisinde REST Assured ile API test stratejisi nasıl kurulur?', en: 'How do you build an API test strategy for microservices with REST Assured?' },
+            a: {
+              tr: '3 katmanlı strateji: (1) Unit — her servis kendi kontratını test eder (Pact). (2) Integration — servisler arası gerçek HTTP akışı (Testcontainers ile Docker\'da servisleri ayağa kaldır). (3) E2E — tam kullanıcı senaryosu. Her microservice\'e ayrı REST Assured modülü; shared-lib\'de ortak BaseTest ve POJO\'lar. Mock server (WireMock) ile bağımlı servisleri izole et. CI\'da her servis kendi testlerini bağımsız çalıştırır.',
+              en: '3-layer strategy: (1) Unit — each service tests its own contract (Pact). (2) Integration — real HTTP flow between services (spin services up in Docker with Testcontainers). (3) E2E — full user scenario. A separate REST Assured module per microservice; common BaseTest and POJOs in a shared-lib. Isolate dependent services with a mock server (WireMock). In CI, each service runs its own tests independently.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Rate limiting mekanizmasını REST Assured ile nasıl test edersiniz?', en: 'How do you test a rate limiting mechanism with REST Assured?' },
+            a: {
+              tr: 'Rate limit genellikle N istek / dakikadır. Test: döngüde N+1 istek gönder, N\'inciye kadar 200 bekle, N+1\'incide 429 (Too Many Requests) bekle. then().statusCode(429).header("Retry-After", notNullValue()). Paralel gönderim için ExecutorService ile çoklu thread\'den eş zamanlı istek. Sonuçları ListenableFuture ile topla. Rate limit window sıfırlanmasını test etmek için: window süresini bekle (Awaitility), sonra yeniden istek gönder.',
+              en: 'Rate limit is typically N requests per minute. Test: send N+1 requests in a loop, expect 200 up to N, expect 429 (Too Many Requests) on N+1. then().statusCode(429).header("Retry-After", notNullValue()). For concurrent sending: use ExecutorService to send simultaneous requests from multiple threads. Collect results with ListenableFuture. To test rate limit window reset: wait for the window to expire (Awaitility), then send again.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Retry mekanizması için REST Assured Filter nasıl implement edilir?', en: 'How do you implement a retry mechanism using a REST Assured Filter?' },
+            a: {
+              tr: 'public class RetryFilter implements Filter { private final int maxRetries; public Response filter(req, res, ctx) { Response response = ctx.next(req,res); int retries = 0; while ((response.statusCode()==503 || response.statusCode()==429) && retries < maxRetries) { Thread.sleep(exponentialBackoff(retries)); response = ctx.next(req,res); retries++; } return response; } }. Exponential backoff: 1s, 2s, 4s, 8s. Jitter ekle (rastgele +/- 100ms) thundering herd önlemek için. RestAssured.filters(new RetryFilter(3)) ile global uygula.',
+              en: 'public class RetryFilter implements Filter { private final int maxRetries; public Response filter(req, res, ctx) { Response response = ctx.next(req,res); int retries = 0; while ((response.statusCode()==503 || response.statusCode()==429) && retries < maxRetries) { Thread.sleep(exponentialBackoff(retries)); response = ctx.next(req,res); retries++; } return response; } }. Exponential backoff: 1s, 2s, 4s, 8s. Add jitter (random +/- 100ms) to prevent thundering herd. Apply globally with RestAssured.filters(new RetryFilter(3)).',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'GraphQL API\'leri REST Assured ile nasıl test edersiniz?', en: 'How do you test GraphQL APIs with REST Assured?' },
+            a: {
+              tr: 'GraphQL tek endpoint\'dir (POST /graphql). Body\'de query string gönderilir: given().contentType("application/json").body("{ \\"query\\": \\"{ users { id name email } }\\" }").post("/graphql").then().statusCode(200).body("data.users", hasSize(greaterThan(0))).body("errors", nullValue()). Mutation testi: { \\"query\\": \\"mutation { createUser(name:\\"Alice\\") { id } }\\" }. GraphQL hataları HTTP 200 ile döner — errors field\'ını her zaman kontrol et. Variables için body\'de "variables" key\'ini de dahil et.',
+              en: 'GraphQL has a single endpoint (POST /graphql). Send a query string in the body: given().contentType("application/json").body("{ \\"query\\": \\"{ users { id name email } }\\" }").post("/graphql").then().statusCode(200).body("data.users", hasSize(greaterThan(0))).body("errors", nullValue()). Mutation test: { \\"query\\": \\"mutation { createUser(name:\\"Alice\\") { id } }\\" }. GraphQL errors return with HTTP 200 — always check the errors field. Include the "variables" key in the body for parameterized queries.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'CI/CD pipeline\'da REST Assured testleri nasıl çalıştırılır ve raporlanır?', en: 'How are REST Assured tests run and reported in a CI/CD pipeline?' },
+            a: {
+              tr: 'Jenkins/GitHub Actions: mvn test -Denv=staging -Dsurefire.failIfNoSpecifiedTests=false. Maven Surefire XML raporları hedef konumda üretilir; Jenkins JUnit Publisher bu XML\'leri okur. Allure için: mvn allure:report → HTML rapor. Başarısızlıkta build fail — exit code 1. Paralel çalışma: mvn test -T 4 veya Surefire\'da forkCount=2 reuseForks=false. Environment değişkenleri Jenkins Credentials ile güvenli enjekte edilir. Test sonuçlarına Slack notification: Post-build Action + Slack notifier plugin.',
+              en: 'Jenkins/GitHub Actions: mvn test -Denv=staging -Dsurefire.failIfNoSpecifiedTests=false. Maven Surefire produces XML reports at the target location; Jenkins JUnit Publisher reads these XMLs. For Allure: mvn allure:report → HTML report. Build fails on test failure — exit code 1. Parallel execution: mvn test -T 4 or forkCount=2 reuseForks=false in Surefire. Environment variables are injected securely via Jenkins Credentials. Slack notifications on results: Post-build Action + Slack notifier plugin.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Test data factory pattern REST Assured projesinde nasıl uygulanır?', en: 'How do you apply the test data factory pattern in a REST Assured project?' },
+            a: {
+              tr: 'Builder pattern: class UserRequestBuilder { private String name="test_"+UUID.randomUUID(); private String email=name+"@test.com"; private String role="USER"; public UserRequestBuilder withRole(String r){this.role=r; return this;} public UserRequest build(){return new UserRequest(name,email,role);} }. Kullanım: UserRequest admin = new UserRequestBuilder().withRole("ADMIN").build(). Presets: UserRequestBuilder.aDefaultUser(), .anAdminUser(), .anInactiveUser(). Bu factory\'nin sağladığı: veri değişince tek yer güncellenir; tüm testlerde tutarlı baseline data.',
+              en: 'Builder pattern: class UserRequestBuilder { private String name="test_"+UUID.randomUUID(); private String email=name+"@test.com"; private String role="USER"; public UserRequestBuilder withRole(String r){this.role=r; return this;} public UserRequest build(){return new UserRequest(name,email,role);} }. Usage: UserRequest admin = new UserRequestBuilder().withRole("ADMIN").build(). Presets: UserRequestBuilder.aDefaultUser(), .anAdminUser(), .anInactiveUser(). What this factory provides: one place to update when data changes; consistent baseline data across all tests.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Performance regression testing: API response time SLA\'larını otomatik doğrulama', en: 'Performance regression testing: automatically verifying API response time SLAs' },
+            a: {
+              tr: 'Her kritik endpoint için SLA tanımla (ör: /users < 300ms, /search < 1000ms). Her test sonunda assert et: then().time(lessThan(300L)). Trend için: her test çalışmasında response time\'ı CSV\'ye yaz, Grafana\'da görselleştir. Percentile testi için JMeter\'la birlikte kullan (REST Assured p99 ölçemez). Regression testi: main\'e merge öncesi CI\'da SLA testi çalış. SLA ihlalinde build fail — bu, API performans gerilmesini production\'a çıkmadan önce yakalar.',
+              en: 'Define an SLA for each critical endpoint (e.g., /users < 300ms, /search < 1000ms). Assert after each test: then().time(lessThan(300L)). For trends: write response time to CSV on each test run, visualize in Grafana. For percentile testing, use JMeter alongside (REST Assured cannot measure p99). Regression test: run the SLA test in CI before merging to main. Build fails on SLA breach — this catches API performance regressions before they reach production.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Security testing: API seviyesinde SQL injection ve XSS girişimlerini nasıl test edersiniz?', en: 'Security testing: how do you test SQL injection and XSS attempts at the API level?' },
+            a: {
+              tr: 'SQL injection: given().queryParam("id","1 OR 1=1").get("/users").then().statusCode(400) — uygulama 400 veya boş döndürmeli, 200+data ASLA döndürmemeli. XSS: given().body(new UserRequest("<script>alert(1)</script>")).post("/users").then().body("name",not(containsString("<script>"))). Path traversal: GET /files?name=../../etc/passwd → 400 beklenir. Her input validation edge case\'ini test et. OWASP Top 10 API Security checklist\'i referans al. Bu testler güvenlik duvarının arkasında da çalışmalı — WAF\'ı bypass eden iç saldırı senaryolarını yakalar.',
+              en: 'SQL injection: given().queryParam("id","1 OR 1=1").get("/users").then().statusCode(400) — app must return 400 or empty, NEVER 200+data. XSS: given().body(new UserRequest("<script>alert(1)</script>")).post("/users").then().body("name",not(containsString("<script>"))). Path traversal: GET /files?name=../../etc/passwd → expect 400. Test every input validation edge case. Reference the OWASP Top 10 API Security checklist. These tests should also run behind the firewall — they catch internal attack scenarios that bypass the WAF.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'API versioning test stratejisi: v1 ve v2\'yi aynı anda nasıl kapsarsınız?', en: 'API versioning test strategy: how do you cover v1 and v2 simultaneously?' },
+            a: {
+              tr: 'Her version için ayrı RequestSpecification: v1Spec (baseUri=/api/v1), v2Spec (baseUri=/api/v2). Test sınıflarını parametrize et: @ParameterizedTest ile her testi hem v1 hem v2 için çalıştır. Backward compatibility: v1 endpoint\'leri v2 deploy sonrasında da çalışmalı — v1 smoke test suite\'i her deployment sonrası çalıştır. Breaking change detection: v1 response şemasını JSON Schema\'ya sabitle, v2 deploy sonrası v1 şema testini çalıştır. Deprecation schedule\'ı test planına yansıt.',
+              en: 'Separate RequestSpecification per version: v1Spec (baseUri=/api/v1), v2Spec (baseUri=/api/v2). Parameterize test classes: run each test for both v1 and v2 with @ParameterizedTest. Backward compatibility: v1 endpoints must work after v2 deployment — run v1 smoke test suite after every deployment. Breaking change detection: pin v1 response schema to a JSON Schema file, run v1 schema test after v2 deployment. Reflect the deprecation schedule in the test plan.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'WireMock ile bağımlı servisleri izole ederek REST Assured testleri nasıl yazılır?', en: 'How do you write REST Assured tests by isolating dependent services with WireMock?' },
+            a: {
+              tr: 'WireMock sunucu ayağa kaldır: WireMockServer wireMock = new WireMockServer(8089); wireMock.start(). Stub tanımla: wireMock.stubFor(get(urlEqualTo("/payment/status")).willReturn(aResponse().withStatus(200).withBody("{\"status\":\"SUCCESS\"}")). RestAssured\'ı WireMock\'a yönlendir: RestAssured.baseURI="http://localhost:8089". @BeforeAll/@AfterAll ile başlat/durdur. Avantaj: ödeme servisi, e-posta servisi gibi dış bağımlılıklar olmadan servisini test edersin. Java\'daki Mockito ile aynı konsept — ama HTTP katmanında mock yapılır.',
+              en: 'Start a WireMock server: WireMockServer wireMock = new WireMockServer(8089); wireMock.start(). Define a stub: wireMock.stubFor(get(urlEqualTo("/payment/status")).willReturn(aResponse().withStatus(200).withBody("{\"status\":\"SUCCESS\"}")). Point REST Assured to WireMock: RestAssured.baseURI="http://localhost:8089". Start/stop with @BeforeAll/@AfterAll. Benefit: test your service without external dependencies like payment or email services. Same concept as Mockito in Java — but mocking at the HTTP layer.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: { tr: 'Production benzeri yük altında REST Assured testlerinin güvenilirliğini nasıl sağlarsınız?', en: 'How do you ensure REST Assured test reliability under production-like load?' },
+            a: {
+              tr: 'REST Assured yük testi için tasarlanmamıştır (bunu JMeter yapar). Ama yük altında güvenilirlik için: (1) Connection pool konfigürasyonu — RestAssured.config(config().httpClient(httpClientConfig().setParam("http.conn-mgr.max-total-connections",100))). (2) Timeout\'lar — connectTimeout ve socketTimeout\'u açıkça set et. (3) Idempotent test verisi — tekrar çalıştırılabilir (yeniden çalıştırılabilirlik). (4) Retry filter ile transient 503/429\'ları atla. (5) Test izolasyonu — her test bağımsız, shared state yok. Bu 5 kural REST Assured\'ı CI/CD\'de kararlı kılar.',
+              en: 'REST Assured is not designed for load testing (that\'s JMeter\'s job). But for reliability under production-like load: (1) Connection pool config — RestAssured.config(config().httpClient(httpClientConfig().setParam("http.conn-mgr.max-total-connections",100))). (2) Timeouts — explicitly set connectTimeout and socketTimeout. (3) Idempotent test data — re-runnable. (4) Retry filter to skip transient 503/429s. (5) Test isolation — every test is independent, no shared state. These 5 rules make REST Assured stable in CI/CD.',
             },
           },
         ],

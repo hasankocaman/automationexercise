@@ -18,6 +18,7 @@ import AWSPage from './components/AWSPage'
 import AzurePage from './components/AzurePage'
 import BrowserStackPage from './components/BrowserStackPage'
 import JavaPage from './components/JavaPage'
+import JavaDocPage from './components/JavaDocPage'
 
 function App() {
     return (
@@ -41,6 +42,7 @@ function App() {
             <Route path="/azure" element={<AzurePage />} />
             <Route path="/browserstack" element={<BrowserStackPage />} />
             <Route path="/java" element={<JavaPage />} />
+            <Route path="/java-document" element={<JavaDocPage />} />
         </Routes>
     )
 }
