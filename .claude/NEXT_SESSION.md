@@ -46,24 +46,32 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `c33a0e2 docs: reconcile NEXT_SESSION.md with actual git state and parallel SEO work`. Öncesi: `129b8e3` (Postman/Docker/Jenkins içerik + duplicate heading fix), `e6d1dd9` (SEO redirect/guard).
-- **origin/main'in 3 commit ilerisindeyiz**, henüz push edilmedi. Push kararı kullanıcıya ait, otomatik push yapma.
-- CLAUDE.md/AGENTS.md/codexSeo.md'nin anayasa-birleştirme değişiklikleri (2026-06-17, 3. kısım — bu dosyanın altındaki kayıt) henüz commit edilmedi, kullanıcı onayı bekleniyor.
+- **Son local commit:** `755f81a fix: Java interview question accordion crashing on open`. **Push edildi** (`86d6a6b..755f81a`, kullanıcı talimatıyla) — local ve origin/main artık senkron.
+- Push edilen commit zinciri: `e6d1dd9` (SEO redirect/guard) → `129b8e3` (Postman/Docker/Jenkins içerik + duplicate heading fix) → `c33a0e2` (NEXT_SESSION.md reconcile) → `f3c98b2` (CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md anayasa birleştirme) → `755f81a` (Java mülakat sorusu açılmama bug fix — kök neden: `q.code` javaData.js'te bilingual `{tr,en}` obje, `CodeBlock`'a string yerine obje gidip render'da çöküyordu; Codex tarafından TopicPage.jsx'te düzeltildi, ben devraldım/doğruladım/commit+push ettim).
+- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev` üzerinde Java sayfası mülakat sekmesi ve yeni SEO redirect'leri (`/test-frameworks.html`, `/comparison.html`) canlıda tekrar doğrulanmalı.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
-Önceki bir oturumda bu yanlışlıkla "stray/çakışan dosya" diye işaretlenmişti — o değerlendirme hatalıydı. Gerçekte: `BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi `git status` temiz, hepsi committed. `App.jsx`'te gerçekten 20 route + 20 `React.lazy()` import var (grep ile doğrulandı). Mimari detayları artık `codexSeo.md`'de (kalıcı referans olarak).
+`BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi committed ve artık push'lu. `App.jsx`'te 20 route + 20 `React.lazy()` import var. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
 
-**SEO canlı doğrulama durumu (en son doğrulandığında):**
-- `https://learnqa.dev/robots.txt` ve `/sitemap.xml` canlıda 200 dönüyor.
-- Temiz URL yapısı canlıda çalışıyor (`/selenium`, `/test-frameworks`, `/java-document` doğrulandı).
-- `/test-frameworks` eski standalone HTML gölgelemesinden kurtarıldı, zengin static fallback canlıda görüldü.
-- **Henüz canlıda doğrulanmamış (push beklediği için):** `e6d1dd9` ile eklenen `/test-frameworks.html → /test-frameworks` ve `/comparison.html → /test-frameworks` 301 redirect'leri, ve genişletilmiş `check-seo.mjs` shadow-dosya guard'ı. Push sonrası bu ikisi tekrar kontrol edilmeli.
+**SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
+- `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
+- `https://learnqa.dev/test-frameworks.html` → `/test-frameworks` 301 ile yönleniyor mu? (`e6d1dd9`'da eklendi, ilk kez bu push ile canlıya çıkıyor)
+- `https://learnqa.dev/comparison.html` → `/test-frameworks` 301 ile yönleniyor mu? (aynı şekilde ilk kez canlıya çıkıyor)
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Hâlâ gerçekten stray/uncommitted olanlar
 Bunlara dokunulmadı, kullanıcı kararı bekleniyor: paralel bir TSX rewrite (`src/App.tsx`, `src/main.tsx` [.tsx, .jsx'ten ayrı], `src/sections/`, `src/components/Header.tsx`, `Navigation.tsx`, `CodeBlock.tsx`, `FeatureCard.tsx`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyor, kullanılmıyor), ~25 adet tek-seferlik `.mjs` içerik script'i, ve kök dizindeki `documents/JavaNotesForProfessionals.md` (doğrulandı: `public/documents/JavaNotesForProfessionals.md` ile byte-byte aynı, tamamen gereksiz duplikasyon — silinebilir).
 
 ---
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 4. kısım — Java mülakat fix + push)
+
+| Görev | Durum |
+|-------|-------|
+| Kullanıcı "Java mülakat soruları açılmıyordu, Codex düzeltti" dedi. Kontrol edildi: Codex, `src/components/TopicPage.jsx`'te `InterviewQuestionsBlock`/`QAItem`'ı gerçek zamanlı (uncommitted) düzenlemişti. Kök neden doğrulandı: `javaData.js`'teki mülakat sorularında `code:` alanı bilingual `{tr, en}` obje, eski kod bunu `tx()` ile çözmeden direkt `CodeBlock`'a veriyordu → kod örneği olan bir soru açılınca render çöküyordu. | ✅ |
+| Fix: `code={tx(q.code, language)}`. Ayrıca `javaData.js`'te zaten var olan ama hiç render edilmeyen `analogy`/`keyPoints`/`tip` alanları da `QAItem`'a bağlandı (Java analoji kutusu, key points listesi, mülakat notu). | ✅ |
+| `npm run build` + Playwright ile `/java` → Mülakat sekmesi → "Maven" sorusu açıldı, kod bloğu + cevap doğru render oluyor, console hatası yok. | ✅ |
+| Commit edildi (`755f81a`) ve kullanıcı talimatıyla **push edildi** (`86d6a6b..755f81a`, 5 commit: SEO redirect/guard, içerik gap'leri, NEXT_SESSION reconcile, anayasa birleştirme, bu fix). Netlify otomatik deploy tetiklendi. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 3. kısım — anayasa birleştirme)
 
@@ -77,7 +85,7 @@ Kullanıcı, CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md arasında sürekli 
 | **`NEXT_SESSION.md` (bu dosya) tek "güncel durum" dosyası haline getirildi**: codexSeo.md'den çıkarılan SEO canlı doğrulama durumu + push bekleyen iş listesi buraya taşındı ("GÜNCEL DURUM" bölümü). Kendi kendini geçersiz kılan "son commit: X" tekrarları tek bir yere indirildi. | ✅ |
 | Dört dosya arası çapraz referanslar kontrol edildi: CLAUDE.md ↔ AGENTS.md ↔ codexSeo.md ↔ NEXT_SESSION.md, sarkan/yanlış pointer yok. | ✅ |
 
-> **Henüz commit edilmedi** — kullanıcı onayı bekleniyor. Detay için yukarıdaki "GÜNCEL DURUM" bölümüne bak.
+> Commit edildi (`f3c98b2`) ve push edildi. Detay için yukarıdaki "GÜNCEL DURUM" bölümüne bak.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 2. kısım — bug fix)
 
