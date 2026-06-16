@@ -38,20 +38,78 @@ function blockText(block, language = 'en') {
         str(block.text, language),
         str(block.content, language),
         str(block.title, language),
+        str(block.description, language),
+        str(block.label, language),
+        str(block.heading, language),
+        str(block.note, language),
+        str(block.subtitle, language),
+        // raw code strings (language-agnostic)
+        typeof block.code === 'string' ? block.code : '',
+        typeof block.initialCode === 'string' ? block.initialCode : '',
+        typeof block.java === 'string' ? block.java : '',
+        typeof block.tree === 'string' ? block.tree : '',
     ]
+    // questions / interview-questions
     if (Array.isArray(block.questions)) {
         block.questions.forEach(q => {
             parts.push(str(q.q, language))
             parts.push(str(q.a, language))
+            parts.push(str(q.question, language))
+            parts.push(str(q.answer, language))
         })
     }
+    // glossary terms
     if (Array.isArray(block.terms)) {
         block.terms.forEach(t => {
             parts.push(str(t.term, language))
             parts.push(str(t.definition, language))
         })
     }
-    if (Array.isArray(block.headers)) parts.push(block.headers.map(header => str(header, language)).join(' '))
+    // table headers + rows
+    if (Array.isArray(block.headers)) parts.push(block.headers.map(h => str(h, language)).join(' '))
+    if (Array.isArray(block.rows)) {
+        block.rows.forEach(row => {
+            if (Array.isArray(row)) row.forEach(cell => parts.push(str(cell, language)))
+            else parts.push(str(row, language))
+        })
+    }
+    // grid / card items
+    if (Array.isArray(block.items)) {
+        block.items.forEach(item => {
+            if (typeof item === 'string') { parts.push(item); return }
+            parts.push(str(item.title, language))
+            parts.push(str(item.content, language))
+            parts.push(str(item.label, language))
+            parts.push(str(item.description, language))
+            parts.push(str(item.text, language))
+            if (typeof item.code === 'string') parts.push(item.code)
+        })
+    }
+    // comparison block sides
+    if (Array.isArray(block.sides)) {
+        block.sides.forEach(side => {
+            parts.push(str(side.label, language))
+            parts.push(str(side.note, language))
+            if (typeof side.code === 'string') parts.push(side.code)
+        })
+    }
+    // error-dictionary entries
+    if (Array.isArray(block.errors)) {
+        block.errors.forEach(err => {
+            parts.push(str(err.title, language))
+            parts.push(str(err.message, language))
+            parts.push(str(err.cause, language))
+            parts.push(str(err.solution, language))
+            if (typeof err.fullMessage === 'string') parts.push(err.fullMessage)
+        })
+    }
+    // steps arrays
+    if (Array.isArray(block.steps)) {
+        block.steps.forEach(step => {
+            parts.push(str(step.title || step.label || step, language))
+            parts.push(str(step.content || step.description, language))
+        })
+    }
     return parts.filter(Boolean).join(' ')
 }
 
@@ -138,19 +196,34 @@ export function search(query, language = 'en', limit = 12) {
     if (!query || query.trim().length < 2) return []
     const q = query.trim().toLowerCase()
     const index = getSearchIndex(language)
-    const results = []
+    const scored = []
 
     for (const entry of index) {
-        if (entry.fullText.toLowerCase().includes(q)) {
-            results.push({
-                route: entry.route,
-                pageName: entry.pageName,
-                tabName: entry.tabName,
-                tabIndex: entry.tabIndex,
-                snippet: snippet(entry.fullText, query.trim()),
-            })
-        }
-        if (results.length >= limit) break
+        const text = entry.fullText.toLowerCase()
+        const tabLower = entry.tabName.toLowerCase()
+        const pageLower = entry.pageName.toLowerCase()
+
+        if (!text.includes(q)) continue
+
+        // relevance: tab name match scores highest, page name next, then content
+        let score = 0
+        if (tabLower.includes(q)) score += 100
+        if (pageLower.includes(q)) score += 50
+        // count occurrences in full text for tiebreak
+        let pos = 0, count = 0
+        while ((pos = text.indexOf(q, pos)) !== -1) { count++; pos++ }
+        score += Math.min(count, 20)
+
+        scored.push({
+            route: entry.route,
+            pageName: entry.pageName,
+            tabName: entry.tabName,
+            tabIndex: entry.tabIndex,
+            snippet: snippet(entry.fullText, query.trim()),
+            score,
+        })
     }
-    return results
+
+    scored.sort((a, b) => b.score - a.score)
+    return scored.slice(0, limit).map(({ score: _s, ...rest }) => rest)
 }
