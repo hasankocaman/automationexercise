@@ -33,6 +33,7 @@ function HomePage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState([])
     const searchInputRef = useRef(null)
+    const practiceSectionRef = useRef(null)
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
@@ -119,7 +120,12 @@ function HomePage() {
             description: t('home.path.practice.description'),
             action: t('home.path.practice.action'),
             color: darkMode ? 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30' : 'from-emerald-50 to-teal-50 border-emerald-200',
-            onClick: () => setActiveSection('practice'),
+            onClick: () => {
+                setActiveSection('practice')
+                setTimeout(() => {
+                    practiceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }, 50)
+            },
         },
     ]
 
@@ -353,6 +359,7 @@ function HomePage() {
 
             {/* Navigation — Category Cards Grid */}
             <nav
+                ref={practiceSectionRef}
                 className={`transition-colors duration-300 border-b ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
                 data-testid="main-navigation"
             >
