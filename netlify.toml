@@ -3,6 +3,18 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/test-frameworks.html"
+  to = "/test-frameworks"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/comparison.html"
+  to = "/test-frameworks"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

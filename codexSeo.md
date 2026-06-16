@@ -2,11 +2,12 @@
 
 ## Guncel Calisma Notu - 2026-06-16
 
+Son durum: SEO altyapisinin teknik kismi canli sitede dogrulandi. `/test-frameworks`
+icin eski standalone HTML golgelemesi giderildi ve `/java-document` zengin fallback'i
+canliya geçti.
+
 Bu oturumda yapilan ek duzeltmeler:
 
-- Commit hazirlik notu: Canli `/test-frameworks` kontrolunde eski `public/test-frameworks.html`
-  dosyasinin hala servis edildigi goruldu. Bu nedenle silme degisikligi commit/push icine mutlaka
-  alinmali.
 - `AGENTS.md` gercek proje durumuna gore yenilendi:
   - `.Codex` yerine guncel `.claude` klasoru yazildi.
   - 5 route bilgisi yerine guncel 20 route listesi yazildi.
@@ -20,6 +21,10 @@ Bu oturumda yapilan ek duzeltmeler:
   - `public/documents/JavaNotesForProfessionals.md` build sirasinda okunuyor.
   - Ilk chapter basliklari static HTML shell icine crawl edilebilir olarak yaziliyor.
   - TOC satirlarindaki nokta/sayfa indeksleri filtreleniyor.
+- `public/test-frameworks.html` eski standalone HTML oldugu ve `/test-frameworks`
+  React route'unu/SEO shell'ini golgeledigi icin kaldirildi.
+- Build sonrasi `dist/test-frameworks.html` artik uretilmiyor; sadece
+  `dist/test-frameworks/index.html` kaliyor.
 
 Dogrulama:
 
@@ -31,21 +36,153 @@ Dogrulama:
 - Yerel `dist/test-frameworks/index.html` icinde yeni framework fallback basliklari goruldu.
 - Yerel `dist/java-document/index.html` icinde temiz chapter basliklari goruldu.
 
-Canli site kontrolu:
+Canli site kontrolu - push sonrasi:
 
 - `https://learnqa.dev/robots.txt` 200 dondu.
 - `https://learnqa.dev/sitemap.xml` 200 dondu.
-- `https://learnqa.dev/selenium`, `/playwright`, `/python`, `/sql` 301 ile slash'li URL'ye gidip 200 dondu.
-- Canonical URL'ler slash'siz temiz URL olarak goruldu.
-- Canli `/test-frameworks` henuz eski title/fallback durumunda gorundu; yeni fallback icin bu commit/deployment yayinlanmali.
-- Sonradan yapilan fix: `public/test-frameworks.html` eski standalone HTML oldugu ve `/test-frameworks`
-  React route'unu/SEO shell'ini golgeledigi icin kaldirildi. Build sonrasi `dist/test-frameworks.html`
-  artik uretilmiyor; sadece `dist/test-frameworks/index.html` kaliyor.
+- `https://learnqa.dev/test-frameworks` 301 ile `https://learnqa.dev/test-frameworks/`
+  adresine gidip 200 dondu.
+- `/test-frameworks/` title dogru: `Pytest vs Selenium vs Playwright Comparison | LearnQA.dev`.
+- `/test-frameworks/` canonical dogru: `https://learnqa.dev/test-frameworks`.
+- `/test-frameworks/` icinde `data-seo-fallback="true"` goruldu.
+- `/test-frameworks/` icinde yeni `Playwright Language Comparison` fallback'i goruldu.
+- Eski `Python Test Frameworks` title'i artik `/test-frameworks` route'unda gorunmuyor.
+- `https://learnqa.dev/java-document/` 200 dondu.
+- `/java-document/` canonical dogru: `https://learnqa.dev/java-document`.
+- `/java-document/` icinde `data-seo-fallback="true"` goruldu.
+- `/java-document/` icinde `Chapter 1: Getting started with Java Language` fallback'i goruldu.
+- `https://learnqa.dev/selenium` 301 ile slash'li URL'ye gidip 200 dondu; title,
+  canonical ve fallback dogru goruldu.
+- Not: `https://learnqa.dev/test-frameworks.html` artik eski dosyayi servis etmiyor,
+  Netlify SPA fallback ile ana shell'e dusuyor. Ileride bu URL icin 301 redirect eklenebilir.
 
 Google Search Console:
 
 - Kod tarafinda yapilacaklar hazir.
 - GSC domain property, DNS verification, sitemap submission ve URL Inspection islemleri hesap yetkisi gerektirdigi icin manuel yapilacak.
+
+Google gorunurluk notu:
+
+- Kullanici Google'da `learnqa` aramasi yaptiginda siteyi ilk 6 sayfada gormedigini bildirdi.
+- Bu, su an tek basina teknik SEO hatasi anlamina gelmez. Google icin sira genelde:
+  1. Crawl: Siteyi kesfeder.
+  2. Index: Sayfalari dizine alir.
+  3. Rank: Marka veya konu sorgularinda siralamaya baslar.
+- Teknik SEO temelimiz artik canli sitede dogrulandi; fakat index/ranking icin Search Console,
+  dis link, marka sinyali, icerik otoritesi ve zaman gerekir.
+- Hemen kontrol edilecek sorgular:
+  - `site:learnqa.dev`
+  - `learnqa.dev`
+  - `"LearnQA.dev"`
+  - `"QA Learning Platform" "LearnQA.dev"`
+- Eger `site:learnqa.dev` hic sonuc vermiyorsa oncelik GSC setup + sitemap submission + URL Inspection.
+- Eger `site:learnqa.dev` sonuc veriyor ama `learnqa` vermiyorsa sorun index degil, ranking/brand authority
+  sinyallerinin zayif olmasidir.
+
+Kalan eksikler ve oncelikli sonraki adimlar:
+
+1. Google Search Console kurulumu tamamlanmali.
+   - `learnqa.dev` domain property olarak eklenmeli.
+   - DNS TXT verification yapilmali.
+   - `https://learnqa.dev/sitemap.xml` sitemap olarak gonderilmeli.
+   - Ana sayfa, `/selenium`, `/playwright`, `/python`, `/sql`, `/java`,
+     `/test-frameworks`, `/java-document` icin URL Inspection calistirilmali.
+   - Onemli sayfalarda `Request Indexing` yapilmali.
+2. Eski `.html` URL'ler icin Netlify 301 redirect dusunulmeli.
+   - Ornek: `/test-frameworks.html` -> `/test-frameworks`.
+   - Varsa diger eski standalone HTML dosyalari taranmali.
+   - Bu, duplicate/yanlis canonical riskini azaltir.
+3. Dil bazli SEO mimarisi planlanmali.
+   - Su anda dil localStorage ile degisiyor; Google icin TR/EN ayri URL degil.
+   - Orta vadede `/tr/...` ve `/en/...` route yapisi + `hreflang` daha saglikli olur.
+   - Bu buyuk mimari degisiklik oldugu icin ayri planlanmali.
+4. Uzun kuyruk SEO landing sayfalari dusunulmeli.
+   - Ornek: `/selenium-waits`, `/playwright-locators`, `/sql-joins-for-testers`,
+     `/pytest-fixtures`, `/rest-assured-authentication`.
+   - Bu sayfalar spesifik arama niyetlerine hitap eder.
+5. Performance ve bundle optimizasyonu devam etmeli.
+   - `javaData` chunk'i buyuk; build uyarisi normal ama iyilestirilebilir.
+   - Java document/data parcalama veya route ici lazy content yukleme dusunulebilir.
+   - `caniuse-lite` / Browserslist verisi guncellenebilir.
+6. Dokuman kalitesi temizligi yapilmali.
+   - `DEPLOY.md` eski bolumlerinde encoding bozukluklari var.
+   - Eski `.Codex` referanslari baska dosyalarda kaldiysa `.claude` olarak guncellenmeli.
+7. SEO check kapsami genisletilebilir.
+   - `check-dist-seo.mjs`, eski `.html` shadow dosyalarini yakalayacak ek kontrol
+     ekleyebilir.
+   - Ornek: `public/<route>.html` varsa build'i fail ettirmek.
+   - Bu, `/test-frameworks.html` gibi sorunlarin tekrarini engeller.
+
+Kucuk parcalara bolunmus uygulama plani:
+
+Asama 1 - Dokumantasyon ve durum kaydi:
+- `codexSeo.md` icine son Google gorunurluk durumu, canli teknik dogrulama ve kalan eksikler yazildi.
+- Durum: Bu asama tamamlandi.
+
+Asama 2 - Eski `.html` URL redirectleri:
+- `netlify.toml` icine eski standalone URL'ler icin 301 redirect eklenecek.
+- Ilk aday: `/test-frameworks.html` -> `/test-frameworks`.
+- Sonra build/canli kontrol yapilacak.
+- Durum: Tamamlandi.
+- Eklenen redirectler:
+  - `/test-frameworks.html` -> `/test-frameworks` 301
+  - `/comparison.html` -> `/test-frameworks` 301
+- Redirectler SPA fallback'ten once tanimlandi.
+- `npm run build` basarili calisti; SEO ve dist SEO kontrolleri gecti.
+
+Asama 3 - Build guard:
+- `scripts/check-seo.mjs` veya yeni kucuk bir script ile `public/<route>.html` shadow dosyalari yakalanacak.
+- Build zincirine eklenirse ayni sorun tekrar production'a cikmadan yakalanir.
+- Durum: Tamamlandi.
+- `scripts/check-seo.mjs` genisletildi:
+  - `public/<route>.html` dosyasi React route'unu golgeliyorsa build fail eder.
+  - `public/*.html` dosyasi varsa ve Netlify'da explicit redirect yoksa build fail eder.
+  - `comparison.html` public icinde kaldigi icin redirect kontrolu ile korunuyor.
+- `npm run build` basarili calisti; yeni guard mevcut durumda hata vermedi.
+
+Asama 4 - GSC manuel aksiyon listesi:
+- GSC kurulum adimlari DEPLOY veya SEO notunda checklist haline getirilecek.
+- Kullanici GSC ekraninda uygulayacak; kod tarafinda credential gerektiren bir is yapilmayacak.
+- Durum: Dokumantasyon olarak tamamlandi; uygulama kullanici/GSC hesabi gerektirir.
+- Google Search Console checklist:
+  1. `learnqa.dev` domain property olarak ekle.
+  2. DNS TXT verification kaydini domain DNS paneline ekle.
+  3. Verification tamamlaninca `https://learnqa.dev/sitemap.xml` sitemap'ini gonder.
+  4. URL Inspection ile su URL'leri tek tek kontrol et:
+     - `https://learnqa.dev/`
+     - `https://learnqa.dev/selenium`
+     - `https://learnqa.dev/playwright`
+     - `https://learnqa.dev/python`
+     - `https://learnqa.dev/sql`
+     - `https://learnqa.dev/java`
+     - `https://learnqa.dev/test-frameworks`
+     - `https://learnqa.dev/java-document`
+  5. Her kritik URL icin `Request Indexing` yap.
+  6. Coverage/Pages raporunda `Discovered - currently not indexed`, `Crawled - currently not indexed`,
+     `Duplicate without user-selected canonical` gibi durumlari izle.
+  7. Sitemap status `Success` olana kadar tekrar kontrol et.
+
+Asama 5 - Marka/ranking sinyali:
+- README, GitHub repo description, sosyal/profil linkleri ve varsa dis kaynaklardan `https://learnqa.dev`
+  linkleri guclendirilecek.
+- Uzun kuyruk SEO sayfalari icin ayri plan cikacak.
+- Durum: Plan tamamlandi; uygulama kismen hesap/dis platform erisimi gerektirir.
+- Oncelikli marka/ranking aksiyonlari:
+  1. GitHub repo `About` alanina website olarak `https://learnqa.dev` ekle.
+  2. GitHub repo description icinde `LearnQA.dev` ve `QA Learning Platform` ifadelerini kullan.
+  3. README ust bolumune canli site linki ve kisa marka aciklamasi ekle. Durum: Tamamlandi.
+  4. Kisisel GitHub profil, LinkedIn veya portfolyo sayfasindan `https://learnqa.dev` linki ver.
+  5. Ilk uzun kuyruk sayfa adaylari icin ayri issue/plan ac:
+     - Selenium waits
+     - Playwright locators
+     - SQL joins for testers
+     - pytest fixtures
+     - REST Assured authentication
+  6. Marka sorgusu icin duzenli kontrol:
+     - `site:learnqa.dev`
+     - `learnqa.dev`
+     - `"LearnQA.dev"`
+     - `"QA Learning Platform" "LearnQA.dev"`
 
 ---
 

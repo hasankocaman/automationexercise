@@ -1,5 +1,8 @@
 # 🧪 Automation Testing Playground
 
+**Live site:** https://learnqa.dev  
+**Brand:** LearnQA.dev - QA Learning Platform for test automation engineers.
+
 A comprehensive, modern single-page web application designed as a practice playground for automation testers using **Selenium**, **Cypress**, and **Playwright**.
 
 ## 🎯 Features
