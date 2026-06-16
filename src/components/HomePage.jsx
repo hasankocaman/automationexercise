@@ -378,6 +378,7 @@ function HomePage() {
                                 <Link to="/java" data-testid="nav-java" className={nb('orange')}>☕ Java</Link>
                                 <Link to="/python" data-testid="nav-python" className={nb('yellow')}>🐍 Python</Link>
                                 <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
+                                <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
                                 <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
                                 <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>🔀 3 Dil</button>
                             </div>
@@ -425,7 +426,6 @@ function HomePage() {
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
                                 <Link to="/aws" data-testid="nav-aws" className={nb('orange')}>☁️ AWS</Link>
                                 <Link to="/azure" data-testid="nav-azure" className={nb('blue')}>🔷 Azure</Link>
-                                <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
                             </div>
                         </div>
 
