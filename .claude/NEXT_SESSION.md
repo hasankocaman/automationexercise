@@ -13,7 +13,49 @@
 
 ---
 
-## ✅ Tüm Oturumlarda Tamamlananlar (2026-06-16)
+## 🌐 CANLI DEPLOYMENT BİLGİLERİ (2026-06-16)
+
+| Alan | Değer |
+|------|-------|
+| **Canlı URL** | https://learnqa.dev |
+| **Hosting** | Netlify (ücretsiz tier, private repo destekler) |
+| **Netlify subdomain** | https://sprightly-cactus-c9482b.netlify.app |
+| **Domain registrar** | Porkbun — yenileme $12.87/yıl (2027-06-16) |
+| **GitHub repo** | https://github.com/hasankocaman/automationexercise (public) |
+| **Eski URL** | https://hasankocaman.github.io/automationexercise/ → learnqa.dev'e yönlendirir |
+
+### Deploy Akışı
+- `git push origin main` → Netlify otomatik build + deploy eder (~18 saniye)
+- GitHub Pages: sadece `learnqa.dev`'e yönlendiren tek HTML sayfası yayınlar
+- `DEPLOY.md` dosyasında tüm kurulum adımları belgelenmiştir
+
+### Kritik Yapılandırma
+- `vite.config.js` → `base: '/'` (Netlify için, GitHub Pages'den değiştirildi)
+- `netlify.toml` → build config + SPA redirect kuralı
+- `.github/workflows/deploy.yml` → artık sadece redirect HTML deploy eder (build yok)
+
+---
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-16)
+
+| Görev | Commit | Durum |
+|-------|--------|-------|
+| Crash bug fix: `VisualBlock` + `DataStructureDiagram` missing `language` prop | — | ✅ |
+| Crash bug fix: `ComparisonBlock` missing `useLanguage()` hook | — | ✅ |
+| `LanguageContext` default dil 'tr' olarak sabitlendi (browser detection kaldırıldı) | — | ✅ |
+| Python sayfası boş sekme sorunu çözüldü (ComparisonBlock ReferenceError) | — | ✅ |
+| `PythonFrameworksTab.jsx` oluşturuldu (pytest + Robot Framework, 950+ satır) | — | ✅ |
+| `TestFrameworksPage.jsx` güncellendi — "🐍 Python Frameworks" sekmesi eklendi | — | ✅ |
+| EN modunda "Java Biliyorsan" Türkçe kalıyordu → `JavaBox` + `JavaCompareBlock` düzeltildi | — | ✅ |
+| `src/utils/searchIndex.js` git'e eklendi (CI build crash root cause) | `c41507e` | ✅ |
+| `netlify.toml` + `vite.config.js` base path Netlify için düzenlendi | `99c283c` | ✅ |
+| `DEPLOY.md` oluşturuldu — tüm deploy adımları belgelendi | `6110035` | ✅ |
+| GitHub Pages → redirect to learnqa.dev (workflow güncellendi) | `779ccc7` | ✅ |
+| **learnqa.dev canlıya alındı** | — | ✅ |
+
+---
+
+## ✅ Önceki Oturumlarda Tamamlananlar (2026-06-16 ve öncesi)
 
 | Özellik | Dosya | Durum |
 |---------|-------|-------|
@@ -22,64 +64,17 @@
 | Playwright: pw-autowait (5 actionability check) | `playwrightData.js` | ✅ |
 | Docker, Postman, K8s, Jenkins, Kafka, REST Assured simülasyonları | data dosyaları | ✅ |
 | **6 playground gerçek araç arayüzüne dönüştürüldü** (Postman, Blue Ocean, Confluent, Docker Desktop, kubectl, IntelliJ) | `TopicPage.jsx` | ✅ |
-
-### `simulation` Block — Mevcut Senaryolar
-
-| Scenario ID | Açıklama | Konum |
-|-------------|----------|-------|
-| `implicit-wait` | Without/With wait karşılaştırması, timeline | Selenium → Wait sekmesi |
-| `explicit-wait` | Spinner → DOM değişimi → element bulundu | Selenium → Wait sekmesi |
-| `shadow-dom` | Adım adım host/root/target keşfi | Selenium → Frames sekmesi (eski) |
-| `iframe-detection` | Sayfa taraması → iframe vurgulama → switchTo | Selenium → Frames sekmesi |
-| `shadow-dom-xray` | findElement() hata → X-Ray → shadowRoot pierce | Selenium → Frames sekmesi |
+| JavaDocPage ENG modunda 181 bölüm başlığı İngilizce | `javaData.js` | ✅ |
 
 ---
 
 ## 📋 Sıradaki Görevler (Öncelik Sırasıyla)
 
-### ✅ ~~Öncelik 1 — `animated-timeline` Block Tipi~~ — TAMAMLANDI
-### ✅ ~~Öncelik 2 — Daha Fazla Selenium Konusuna Simulation Ekle~~ — TAMAMLANDI
-
-| Senaryo | ID | Sekme | Durum |
-|---------|-----|-------|-------|
-| Drag & Drop event zinciri | `drag-drop` | Aksiyonlar (s3) | ✅ |
-| Alert / Confirm / Prompt (interaktif) | `alert-sim` | Frames s5 TR | ✅ |
-| Multiple Windows / Tab switching | `multi-window` | Frames s5 TR | ✅ |
-
-### 🔴 Öncelik 1 (Yeni) — Playwright Sayfasına Simulation Blokları Ekle
-
-### ✅ ~~Öncelik 2 (Eski 3) — Playwright Sayfasına Simulation Blokları Ekle~~ — TAMAMLANDI
-
-`pw-autowait` simülasyonu eklendi: playwrightData.js Wait sekmesi TR+EN. Kullanıcı "Sepete Ekle"'ye tıklar → 5 actionability check (attached/visible/stable/events/enabled) sırayla ışıklanır → click() yürütülür.
-
-### ✅ ~~Öncelik 1 (Yeni) — Diğer Sayfalar~~ — TAMAMLANDI
-
-| Senaryo | ID | Dosya | Durum |
-|---------|-----|-------|-------|
-| Docker container lifecycle | `docker-lifecycle` | dockerData.js | ✅ |
-| Postman API request/response + tests | `api-request` | postmanData.js | ✅ |
-| K8s kubectl apply → Pod Running | `k8s-pod` | kubernetesData.js | ✅ |
-| Jenkins CI/CD Pipeline stages | `jenkins-pipeline` | jenkinsData.js | ✅ |
-| Kafka Producer → Broker → Consumer | `kafka-flow` | kafkaData.js | ✅ |
-| REST Assured given/when/then chain | `rest-assured-chain` | restAssuredData.js | ✅ |
-
-### ✅ Tamamlanan (Bu Oturum — Gerçek Araç Arayüzü Redesign)
-
-| Playground | Yeni Görünüm | Durum |
-|------------|--------------|-------|
-| `api-request` (Postman) | Postman Desktop: sidebar + method/URL/Send + Params/Body/Tests tabs + response panel | ✅ |
-| `jenkins-pipeline` | Jenkins Blue Ocean: daire stage'ler + glow efekti + console output | ✅ |
-| `kafka-flow` | Confluent Control Center: topic list + partition tabs + message browser | ✅ |
-| `docker-lifecycle` | Docker Desktop: sidebar icons + container row + pull progress + terminal | ✅ |
-| `k8s-pod` | kubectl terminal + pod status table (NAME/READY/STATUS/RESTARTS/AGE) | ✅ |
-| `rest-assured-chain` | IntelliJ IDEA: test tree + code panel + results bar | ✅ |
-
-### 🔴 Sıradaki Görevler
-
 1. **Appium sayfasına simülasyon** — Mobile element detection, tap/swipe aksiyonları (gerçek Appium Desktop arayüzü)
 2. **BrowserStack sayfasına simülasyon** — Local test → Cloud browser akışı (gerçek BrowserStack Automate arayüzü)
 3. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
 4. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
+5. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
 
 ---
 
@@ -93,8 +88,11 @@ locator-visual | selenium-visual | playwright-visual | simulation | animated-tim
 ```
 
 ### Önemli Dosyalar
-- `src/components/TopicPage.jsx` — `SimulationBlock` fonksiyonu satır ~1870 civarında. `renderBlock` büyük switch içinde `case 'simulation':` var.
-- `src/data/seleniumData.js` — Wait sekmesi (s4 objesi) ve Frames sekmesi (s5 objesi) içinde simulation block'lar mevcut.
+- `src/components/TopicPage.jsx` — `SimulationBlock` ~1870. satır, `renderBlock` switch içinde `case 'simulation':` var
+- `src/components/PythonFrameworksTab.jsx` — pytest + Robot Framework detaylı içerik (yeni dosya)
+- `src/utils/searchIndex.js` — global arama indeksi, tüm *Data.js dosyalarını import eder
+- `netlify.toml` — Netlify build config + SPA redirect
+- `DEPLOY.md` — tam deploy dokümantasyonu
 
 ### `SimulationBlock` Mimarisi
 ```
@@ -130,9 +128,10 @@ SimulationBlock({ block, darkMode, language })
 | `rest-assured-chain` | given() → when() → then() → assertions | restAssuredData.js |
 
 ### Build Durumu
-- ✅ `npm run build` başarılı (son kontrol: 2026-06-16, playground UI redesign sonrası)
-- ⚠️ Bundle 3.4MB (chunk uyarısı var, kritik değil — code splitting yapılabilir ama zorunlu değil)
-- Son commit: `5423023` — 6 playground gerçek araç UI'ına dönüştürüldü
+- ✅ `npm run build` başarılı
+- ✅ Netlify'da canlı: https://learnqa.dev
+- ⚠️ Bundle 3.4MB (chunk uyarısı var, kritik değil)
+- Son production commit: `779ccc7`
 
 ---
 
