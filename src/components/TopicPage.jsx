@@ -4170,6 +4170,75 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === JMETER LOAD TEST PLAYGROUND — Non-GUI CLI terminal ===
+    const renderJmeterLoadTestPlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const order = ['idle', 'launching', 'rampup', 'firing', 'aggregating', 'done']
+        const cur = order.indexOf(s)
+        const JM = { bg: '#1b1410', bgDark: '#120d0a', border: '#3a2a1a', text: '#e8dfd3', muted: '#8a7560', orange: '#f5a623', green: '#36c96e', red: '#ef4444' }
+        const requests = [
+            { text: 'GET  /api/products       → 200 (142ms)', color: JM.green },
+            { text: 'POST /api/cart/add       → 200 (210ms)', color: JM.green },
+            { text: 'POST /api/checkout       → 200 (980ms)', color: JM.orange },
+            { text: 'GET  /api/payment/status → 500 (12ms)', color: JM.red },
+        ]
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 320 }}>
+                <div style={{ background: JM.bg, borderRadius: '10px 10px 0 0', border: `1px solid ${JM.border}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${JM.border}`, background: JM.bgDark }}>
+                        <span style={{ fontSize: 10 }}>⚡</span>
+                        <span style={{ fontSize: 9, color: JM.muted }}>checkout_load.jmx — Non-GUI</span>
+                        <button
+                            onClick={() => canStart && runSteps([['launching', 300], ['rampup', 800], ['firing', 1200], ['aggregating', 600], ['done', 400]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', background: !canStart ? JM.muted : JM.orange, color: '#1b1410', border: 'none', borderRadius: 4, padding: '3px 10px', fontSize: 9, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ jmeter -n -t' : s === 'done' ? '▶ Run Again' : '⏳ Running...'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '10px 12px', fontSize: 9.5, lineHeight: 1.85, minHeight: 165, color: JM.text }}>
+                        {s === 'idle' && <div style={{ color: JM.muted }}>$ jmeter -n -t checkout_load.jmx -l results.jtl -e -o report/</div>}
+                        {cur >= order.indexOf('launching') && <div style={{ color: JM.muted }}>Creating summariser &lt;summary&gt;</div>}
+                        {cur >= order.indexOf('launching') && <div style={{ color: JM.muted }}>Created the tree successfully using checkout_load.jmx</div>}
+                        {cur >= order.indexOf('rampup') && (
+                            <div style={{ marginTop: 4 }}>
+                                <div style={{ color: JM.orange }}>Starting the test — Thread Group: 50 users, Ramp-Up 30s</div>
+                                <div style={{ display: 'flex', gap: 3, marginTop: 4, flexWrap: 'wrap' }}>
+                                    {Array.from({ length: 10 }).map((_, idx) => (
+                                        <span key={idx} className="sim-animate" style={{
+                                            width: 9, height: 9, borderRadius: '50%',
+                                            background: cur >= order.indexOf('rampup') ? JM.orange : JM.border,
+                                            opacity: cur >= order.indexOf('rampup') ? 1 : 0.2,
+                                            animation: cur === order.indexOf('rampup') ? `simFadeUp 0.4s ease both` : 'none',
+                                            animationDelay: `${idx * 70}ms`,
+                                            transition: 'background 0.3s, opacity 0.3s',
+                                        }} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {cur >= order.indexOf('firing') && (
+                            <div style={{ marginTop: 6 }}>
+                                {requests.map((r, i) => <div key={i} style={{ color: r.color }}>{r.text}</div>)}
+                            </div>
+                        )}
+                        {cur >= order.indexOf('aggregating') && cur < order.indexOf('done') && (
+                            <div style={{ marginTop: 6, color: JM.muted }} className="animate-pulse">⏳ Generating dashboard...</div>
+                        )}
+                        {s === 'done' && (
+                            <div style={{ marginTop: 6, color: JM.green, fontWeight: 700 }}>
+                                Tidying up ... ... Done :-)<br />
+                                ✅ report/index.html generated
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: JM.bgDark, border: `1px solid ${JM.border}`, color: JM.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 Reset</button>}
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'explicit-wait') {
@@ -5106,6 +5175,62 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'jmeter-load-test') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'launching', 'rampup', 'firing', 'aggregating', 'done']
+            const cur = order.indexOf(s)
+            const isFinal = cur >= order.indexOf('aggregating')
+            const rows = [
+                { label: '# Samples', value: '3,000' },
+                { label: isTr ? 'Ortalama' : 'Average', value: '842 ms' },
+                { label: 'Min', value: '88 ms' },
+                { label: 'Max', value: '4,210 ms' },
+                { label: '90%', value: '1,980 ms' },
+                { label: '95%', value: '2,640 ms' },
+                { label: '99%', value: '4,050 ms' },
+                { label: isTr ? 'Hata %' : 'Error %', value: '0.8%' },
+                { label: 'Throughput', value: '24.6/sec' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 Aggregate Report
+                    </div>
+                    <div style={{ borderRadius: 6, overflow: 'hidden', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                        {rows.map((row, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 8px', fontSize: 9.5, background: i % 2 === 0 ? nodeBg : 'transparent', fontFamily: 'monospace' }}>
+                                <span style={{ color: subtext }}>{row.label}</span>
+                                <span style={{ color: isFinal ? (row.label.includes('%') && row.value === '0.8%' ? '#f59e0b' : '#10b981') : subtext, fontWeight: isFinal ? 700 : 400, opacity: isFinal ? 1 : 0.3, transition: 'opacity 0.4s' }}>
+                                    {isFinal ? row.value : '—'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                    {cur >= order.indexOf('rampup') && cur < order.indexOf('aggregating') && (
+                        <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }} className="animate-pulse">
+                            ⏳ {isTr ? '50 sanal kullanıcı isteklerini gönderiyor...' : '50 virtual users sending requests...'}
+                        </div>
+                    )}
+                    {s === 'done' && (
+                        <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ fontFamily: 'sans-serif', fontSize: 9, color: subtext, fontWeight: 700, marginBottom: 4 }}>📁 report/index.html</div>
+                            <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 28 }}>
+                                {[40, 65, 30, 90, 55, 70, 20].map((h, i) => (
+                                    <div key={i} style={{ width: 8, height: `${h}%`, background: '#f5a623', borderRadius: '2px 2px 0 0' }} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {s === 'done' && <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'Test tamamlandı — rapor üretildi!' : 'Test completed — report generated!'}</div>}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                        ☕ {isTr ? "Java'da bir Gatling/JUnit yük testinden sonra konsolda yüzdelik (percentile) tablosunu okumak gibi — burada Aggregate Report aynı P90/P99 mantığını JMeter'ın CLI + HTML dashboard'unda gösteriyor." : "Like reading the percentile table in console output after a Gatling/JUnit load test in Java — here the Aggregate Report shows the same P90/P99 logic in JMeter's CLI + HTML dashboard."}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -5170,6 +5295,7 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'aws-codepipeline' && renderAwsCodepipelinePlayground()}
                     {block.scenario === 'azure-devops-pipeline' && renderAzureDevopsPipelinePlayground()}
                     {block.scenario === 'vitest-runner' && renderVitestRunnerPlayground()}
+                    {block.scenario === 'jmeter-load-test' && renderJmeterLoadTestPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

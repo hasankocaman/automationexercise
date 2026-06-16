@@ -5,7 +5,7 @@ export const jmeterData = {
       subtitle: 'Performance & Load Testing Tool',
       intro: 'Learn how to measure, analyse, and improve the performance of your web applications and APIs from scratch — no prior knowledge required.',
     },
-    tabs: ['🎯 Introduction', '📦 Installation', '📚 Intermediate', '🚀 Advanced', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '📦 Installation', '📚 Intermediate', '🚀 Advanced', '🛠️ Real World', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── 0. INTRODUCTION ──────────────────────────────────────────────────
       {
@@ -677,7 +677,160 @@ HTML Dashboard (-e -o)
         ],
       },
 
-      // ── 4. INTERVIEW Q&A ─────────────────────────────────────────────────
+      // ── 4. REAL WORLD ─────────────────────────────────────────────────────
+      {
+        title: '🛠️ Real World Usage',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Running a JMeter load test before a big sale is like a fire drill for a building — you don't want to discover the exits are too narrow during a real fire. You find and fix the bottlenecks while nobody's order (or job) depends on it." },
+          { type: 'heading', text: 'What Need Does This Fill? Life Without Load Testing' },
+          { type: 'text', content: "Without load testing, the first time your system meets real concurrent traffic is in production — usually the worst possible moment (Black Friday, a viral post, a marketing blast). A checkout that responds in 200ms for 1 user can become an 8-second timeout for 500 concurrent users, because of database connection pool exhaustion, thread starvation, or an N+1 query that only shows up under load. Functional tests (Selenium, pytest) never catch this — they only ever run with 1 user." },
+          { type: 'heading', text: 'Real-World Scenario: E-commerce Flash Sale' },
+          { type: 'text', content: "A mid-size e-commerce company (Spring Boot backend + React frontend — sound familiar?) is launching a flash sale email to 200,000 subscribers. Marketing expects 2,000 people to click within the first 10 minutes. The QA team is asked: 'Will checkout survive this?'" },
+          {
+            type: 'steps',
+            items: [
+              'Record the critical user journey: login → browse product → add to cart → checkout (via HTTP(S) Test Script Recorder or by hand with HTTP Request samplers)',
+              'Build a Thread Group: 500 users, 60s ramp-up, representing the expected 10-minute spike compressed for testing',
+              'Add CSV Data Set Config with 500 unique test accounts so each virtual user has its own session — testing with 1 shared account would hide row-locking bugs',
+              'Run in Non-GUI mode against a staging environment sized like production: jmeter -n -t flashsale.jmx -l results.jtl -e -o report/',
+              'First run: Aggregate Report shows P99 = 14,000ms and 12% errors on /api/checkout — the database connection pool (default size 10) is exhausted',
+              'Fix: increase HikariCP pool size to 50, add a Redis cache in front of the product-price lookup that was hitting the DB on every request',
+              'Re-run the exact same test plan — P99 drops to 1,800ms, errors drop to 0.2% — now it is safe to send the campaign',
+            ]
+          },
+          { type: 'heading', text: 'Comparing JMeter to Alternatives — Real-World Trade-offs' },
+          {
+            type: 'table',
+            headers: ['Tool', 'Advantages ✅', 'Disadvantages ❌', 'Choose it when...'],
+            rows: [
+              ['JMeter', 'No-code GUI for building tests, 600+ protocols, huge community, free', 'Heavier resource usage, XML-based .jmx files are not great for code review/diffs', 'Your team has QA engineers without strong coding skills, or you need non-HTTP protocols (JDBC, JMS, FTP)'],
+              ['k6', 'Test-as-code (JavaScript), lightweight, excellent CI/CD output, built for developers', 'No built-in GUI for test building, smaller protocol support', 'Your team is developer-heavy and wants load tests to live in the same repo as the app, reviewed like any other code'],
+              ['Locust', 'Python-based, very easy to write complex user behavior logic, distributed by default', 'Smaller ecosystem of plugins/listeners than JMeter', 'Your team already writes Python (pytest) and wants performance tests in the same language'],
+            ]
+          },
+          { type: 'heading', text: 'Real-World Integration Flow' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'How a Load Test Actually Reaches Production Decisions',
+            steps: [
+              { num: '1', label: 'Write .jmx', desc: 'QA builds test plan in GUI' },
+              { num: '2', label: 'Commit to repo', desc: 'tests/performance/flashsale.jmx' },
+              { num: '3', label: 'CI triggers nightly', desc: 'GitHub Actions / Jenkins cron', highlight: true },
+              { num: '4', label: 'Run Non-GUI', desc: 'jmeter -n -t ... -l results.jtl' },
+              { num: '5', label: 'Compare to baseline', desc: 'Is P99 worse than last week?' },
+              { num: '6', label: 'Alert or pass', desc: 'Slack message if regression found', highlight: true },
+            ],
+            note: 'This is exactly the same pipeline shape as functional CI — only the assertion changed from "did it work" to "was it fast enough."',
+          },
+          {
+            type: 'simulation',
+            scenario: 'jmeter-load-test',
+            icon: '⚡',
+            color: '#f5a623',
+            title: { en: 'Running the Flash-Sale Load Test', tr: 'Flaş İndirim Yük Testini Çalıştırma' },
+            description: { en: 'Click ▶ to run the checkout load test in Non-GUI mode and watch the Aggregate Report build live, just like a CI pipeline would.', tr: '▶ butonuna tıklayarak checkout yük testini Non-GUI modda çalıştır ve bir CI pipeline\'ında olduğu gibi Aggregate Report\'un canlı oluşmasını izle.' },
+            code: `# Full CI/CD-ready non-GUI load test run
+jmeter -n -t flashsale.jmx \\
+       -l results.jtl \\
+       -e -o report/ \\
+       -Jusers=500 \\
+       -Jrampup=60 \\
+       -Jduration=300
+
+# Exit code 0 only means "the test plan executed" — NOT "it passed"!
+# Real pass/fail comes from parsing results.jtl or the HTML report:
+ERROR_RATE=$(grep -c ',false,' results.jtl || true)
+if [ "$ERROR_RATE" -gt 0 ]; then
+  echo "Load test found failures — blocking the campaign send"
+  exit 1
+fi`,
+            language: 'bash',
+          },
+          { type: 'heading', text: 'Hands-On Mini Project — Try It Yourself' },
+          { type: 'text', content: 'Copy this into a fresh JMeter Test Plan to load test a free public API and see real percentile data in under 5 minutes.' },
+          {
+            type: 'code', code: `# 1. Thread Group: 20 threads, 10s ramp-up, 1 loop
+# 2. HTTP Request Sampler:
+#    Method: GET
+#    Server: jsonplaceholder.typicode.com
+#    Path:   /posts
+
+# 3. Response Assertion: Response Code = 200
+
+# 4. Run from CLI:
+jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
+
+# 5. Open report/index.html — look at the "APDEX" and
+#    "Response Times Over Time" charts. With only 20 users
+#    against a free public API you should see near-zero errors
+#    and a P99 close to the average — that is what a HEALTHY
+#    system looks like under modest load.`
+          },
+        ],
+      },
+
+      // ── 5. ECOSYSTEM ──────────────────────────────────────────────────────
+      {
+        title: '🔗 Ecosystem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "JMeter rarely works alone — think of it like a thermometer. The thermometer (JMeter) measures the temperature, but you still need someone to take the reading on a schedule (Jenkins/CI), write it on a chart over time (Grafana), and put the thermometer in a box you can ship anywhere (Docker)." },
+          { type: 'heading', text: 'How JMeter Fits Into the Bigger Picture' },
+          { type: 'text', content: 'On its own, JMeter is just a tool that runs once and produces a results file. Its real value in a QA pipeline comes from being wired into three other systems: a CI/CD tool that runs it automatically and on a schedule, a container runtime that makes it portable and distributable, and a time-series dashboard that turns one-off results into trend lines you can alert on.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'JMeter Ecosystem — Who Talks to Whom',
+            items: [
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'triggers JMeter on schedule or on PR' },
+              { arrow: true },
+              { icon: '🐳', label: 'JMeter (in Docker)', desc: 'runs the .jmx test plan, Non-GUI' },
+              { arrow: true },
+              { icon: '📄', label: 'results.jtl', desc: 'raw results file' },
+              { arrow: true },
+              { icon: '📈', label: 'InfluxDB + Grafana', desc: 'stores & visualizes trends over time', highlight: true },
+            ],
+            note: 'Each tool does one job well — JMeter generates load, Jenkins schedules it, Docker makes it portable, Grafana shows the trend.',
+          },
+          { type: 'heading', text: 'Three Key Relationships' },
+          {
+            type: 'table',
+            headers: ['Technology', 'Relationship with JMeter', 'Problem Solved Together'],
+            rows: [
+              ['Jenkins / GitHub Actions', 'CI tool calls `jmeter -n -t ...` as a build step, on a cron schedule or before merging', 'Performance regressions are caught automatically instead of relying on someone remembering to run a manual load test'],
+              ['Docker', 'JMeter ships as a container image (e.g. `justb4/jmeter`) so every CI runner uses the exact same JMeter version and plugins', 'No more "works on my machine" — the load generator itself becomes reproducible, just like the app it is testing'],
+              ['Grafana + InfluxDB', 'A JMeter Backend Listener streams live metrics into InfluxDB; Grafana queries InfluxDB to render real-time dashboards', 'Turns a single .jtl file from one run into a historical trend line — "is P99 getting worse release over release?"'],
+              ['Kubernetes', 'JMeter worker pods can be scaled horizontally as a Kubernetes Job/Deployment for distributed testing', 'A single machine cannot generate enough load for very large tests (5,000+ users); k8s makes spinning up dozens of injectors trivial'],
+            ]
+          },
+          { type: 'heading', text: 'JMeter + Grafana Real-Time Dashboard (Backend Listener)' },
+          { type: 'text', content: 'Instead of waiting until the test ends to see results, a Backend Listener streams every sample to InfluxDB as the test runs, so Grafana shows live throughput and response times.' },
+          {
+            type: 'code', code: `# Add a Backend Listener to your Thread Group:
+#   Backend Listener implementation: InfluxdbBackendListenerClient
+#   influxdbUrl: http://localhost:8086/write?db=jmeter
+#   application: checkout-loadtest
+#   measurement: jmeter
+
+# Then in Grafana, add an InfluxDB data source pointing at the
+# same database, and import JMeter dashboard ID 5496 from
+# grafana.com/dashboards — you get live RPS, error rate and
+# response-time percentile graphs while the test is still running.`
+          },
+          { type: 'heading', text: 'JMeter in Docker' },
+          {
+            type: 'code', code: `# Run a load test without installing JMeter locally:
+docker run --rm -v $(pwd):/tests justb4/jmeter \\
+  -n -t /tests/flashsale.jmx \\
+  -l /tests/results.jtl \\
+  -e -o /tests/report
+
+# Same command every CI runner, every developer machine —
+# zero "which JMeter version do you have?" debugging.`
+          },
+          { type: 'tip', content: 'In a real pipeline these four pieces compose: GitHub Actions triggers a Docker container running JMeter on a schedule, results stream to InfluxDB via a Backend Listener, and Grafana alerts the team in Slack if P99 crosses a threshold — fully automated performance regression detection.' },
+        ],
+      },
+
+      // ── 6. INTERVIEW Q&A ─────────────────────────────────────────────────
       {
         title: '💼 JMeter Interview Questions & Answers',
         blocks: [
@@ -941,7 +1094,7 @@ Response Assertion on Login:
       subtitle: 'Performans ve Yük Testi Aracı',
       intro: 'Sıfırdan başlayarak web uygulamalarınızın ve API\'lerinizin performansını nasıl ölçeceğinizi, analiz edeceğinizi ve iyileştireceğinizi öğrenin — ön bilgi gerekmez.',
     },
-    tabs: ['🎯 Giriş', '📦 Kurulum', '📚 Orta Seviye', '🚀 İleri Seviye', '💼 Mülakat Soruları'],
+    tabs: ['🎯 Giriş', '📦 Kurulum', '📚 Orta Seviye', '🚀 İleri Seviye', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '💼 Mülakat Soruları'],
     sections: [
       {
         title: '🎯 JMeter ve Performans Testi Nedir?',
@@ -1414,6 +1567,161 @@ HTML Dashboard (-e -o)
           },
         ],
       },
+      // ── 4. GERÇEK HAYAT ───────────────────────────────────────────────────
+      {
+        title: '🛠️ Gerçek Hayat Kullanımı',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Büyük bir indirim öncesi JMeter ile yük testi çalıştırmak, bir bina için yangın tatbikatı yapmak gibidir — çıkışların dar olduğunu gerçek bir yangında keşfetmek istemezsin. Kimsenin siparişi (ya da işi) buna bağlı değilken darboğazları bulup düzeltirsin." },
+          { type: 'heading', text: 'Hangi İhtiyaca Cevap Verir? Yük Testi Olmadan Hayat' },
+          { type: 'text', content: "Yük testi olmadan, sisteminizin gerçek eş zamanlı trafikle ilk karşılaşması production'da olur — genellikle en kötü zamanda (Kara Cuma, viral bir paylaşım, pazarlama e-postası). 1 kullanıcı için 200ms'de yanıt veren checkout, 500 eş zamanlı kullanıcıda 8 saniyelik timeout'a dönüşebilir — veritabanı connection pool tükenmesi, thread starvation veya yalnızca yük altında ortaya çıkan bir N+1 sorgu yüzünden. Fonksiyonel testler (Selenium, pytest) bunu asla yakalamaz — her zaman 1 kullanıcıyla çalışırlar." },
+          { type: 'heading', text: 'Gerçek Dünya Senaryosu: E-ticaret Flaş İndirimi' },
+          { type: 'text', content: "Orta ölçekli bir e-ticaret şirketi (Spring Boot backend + React frontend — tanıdık geldi mi?) 200.000 aboneye flaş indirim e-postası gönderiyor. Pazarlama ekibi ilk 10 dakikada 2.000 kişinin tıklayacağını öngörüyor. QA ekibine soruluyor: 'Checkout buna dayanır mı?'" },
+          {
+            type: 'steps',
+            items: [
+              'Kritik kullanıcı yolculuğunu kaydet: giriş → ürüne bak → sepete ekle → ödeme (HTTP(S) Test Script Recorder ile veya elle HTTP Request sampler ekleyerek)',
+              'Thread Group oluştur: 500 kullanıcı, 60sn ramp-up — beklenen 10 dakikalık ani trafiği test için sıkıştırarak temsil eder',
+              '500 benzersiz test hesabıyla CSV Data Set Config ekle, böylece her sanal kullanıcının kendi oturumu olur — 1 paylaşılan hesapla test etmek satır kilitleme (row-locking) hatalarını gizler',
+              'Production büyüklüğündeki bir staging ortamına karşı Non-GUI modda çalıştır: jmeter -n -t flashsale.jmx -l results.jtl -e -o report/',
+              'İlk çalıştırma: Aggregate Report, /api/checkout için P99 = 14.000ms ve %12 hata gösteriyor — veritabanı connection pool (varsayılan boyut 10) tükenmiş',
+              'Düzeltme: HikariCP pool boyutunu 50\'ye çıkar, her istekte veritabanına giden ürün fiyat sorgusunun önüne bir Redis cache ekle',
+              'Aynı test planını tekrar çalıştır — P99, 1.800ms\'e düşer, hatalar %0.2\'ye iner — artık kampanyayı göndermek güvenli',
+            ]
+          },
+          { type: 'heading', text: 'JMeter\'ı Alternatiflerle Karşılaştırma — Gerçek Dünya Trade-off\'ları' },
+          {
+            type: 'table',
+            headers: ['Araç', 'Avantajlar ✅', 'Dezavantajlar ❌', 'Ne zaman tercih et...'],
+            rows: [
+              ['JMeter', 'Test oluşturmak için kod yazmadan GUI, 600+ protokol, büyük topluluk, ücretsiz', 'Daha ağır kaynak kullanımı, XML tabanlı .jmx dosyaları kod incelemesi/diff için pek uygun değil', 'Ekibinizde güçlü kodlama becerisi olmayan QA mühendisleri var, veya HTTP olmayan protokollere (JDBC, JMS, FTP) ihtiyacınız var'],
+              ['k6', 'Test-as-code (JavaScript), hafif, mükemmel CI/CD çıktısı, geliştiriciler için tasarlanmış', 'Test oluşturmak için yerleşik GUI yok, daha küçük protokol desteği', 'Ekibiniz ağırlıklı geliştiricilerden oluşuyor ve yük testlerinin uygulamayla aynı repoda, diğer kod gibi incelenmesini istiyorsunuz'],
+              ['Locust', 'Python tabanlı, karmaşık kullanıcı davranış mantığını yazmak çok kolay, varsayılan olarak dağıtık', 'JMeter\'a göre daha küçük eklenti/listener ekosistemi', 'Ekibiniz zaten Python (pytest) yazıyor ve performans testlerini aynı dilde istiyor'],
+            ]
+          },
+          { type: 'heading', text: 'Gerçek Dünya Entegrasyon Akışı' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'Bir Yük Testi Gerçekte Production Kararlarına Nasıl Ulaşır?',
+            steps: [
+              { num: '1', label: '.jmx yaz', desc: 'QA, GUI\'de test planı oluşturur' },
+              { num: '2', label: 'Repo\'ya commit et', desc: 'tests/performance/flashsale.jmx' },
+              { num: '3', label: 'CI gece tetikler', desc: 'GitHub Actions / Jenkins cron', highlight: true },
+              { num: '4', label: 'Non-GUI çalıştır', desc: 'jmeter -n -t ... -l results.jtl' },
+              { num: '5', label: 'Baseline ile karşılaştır', desc: 'P99 geçen haftadan kötü mü?' },
+              { num: '6', label: 'Uyar ya da geç', desc: 'Regresyon bulunursa Slack mesajı', highlight: true },
+            ],
+            note: 'Bu, fonksiyonel CI ile tamamen aynı pipeline şeklidir — yalnızca assertion "çalıştı mı"dan "yeterince hızlı mıydı"ya değişti.',
+          },
+          {
+            type: 'simulation',
+            scenario: 'jmeter-load-test',
+            icon: '⚡',
+            color: '#f5a623',
+            title: { en: 'Running the Flash-Sale Load Test', tr: 'Flaş İndirim Yük Testini Çalıştırma' },
+            description: { en: 'Click ▶ to run the checkout load test in Non-GUI mode and watch the Aggregate Report build live, just like a CI pipeline would.', tr: '▶ butonuna tıklayarak checkout yük testini Non-GUI modda çalıştır ve bir CI pipeline\'ında olduğu gibi Aggregate Report\'un canlı oluşmasını izle.' },
+            code: `# CI/CD'ye hazır tam non-GUI yük testi çalıştırması
+jmeter -n -t flashsale.jmx \\
+       -l results.jtl \\
+       -e -o report/ \\
+       -Jusers=500 \\
+       -Jrampup=60 \\
+       -Jduration=300
+
+# Exit code 0 yalnızca "test planı çalıştı" demektir — "geçti" değil!
+# Gerçek başarı/başarısızlık results.jtl veya HTML rapordan çıkarılır:
+ERROR_RATE=$(grep -c ',false,' results.jtl || true)
+if [ "$ERROR_RATE" -gt 0 ]; then
+  echo "Yük testi hata buldu — kampanya gönderimi engelleniyor"
+  exit 1
+fi`,
+            language: 'bash',
+          },
+          { type: 'heading', text: 'Uygulamalı Mini Proje — Kendin Dene' },
+          { type: 'text', content: 'Bunu yeni bir JMeter Test Planına kopyala, ücretsiz bir public API\'yi yük testine tabi tut ve 5 dakikadan kısa sürede gerçek persentil verisini gör.' },
+          {
+            type: 'code', code: `# 1. Thread Group: 20 thread, 10sn ramp-up, 1 döngü
+# 2. HTTP Request Sampler:
+#    Metot: GET
+#    Sunucu: jsonplaceholder.typicode.com
+#    Yol:    /posts
+
+# 3. Response Assertion: Response Code = 200
+
+# 4. CLI'dan çalıştır:
+jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
+
+# 5. report/index.html'i aç — "APDEX" ve "Response Times Over
+#    Time" grafiklerine bak. Ücretsiz bir public API'ye karşı
+#    yalnızca 20 kullanıcıyla neredeyse sıfır hata ve ortalamaya
+#    yakın bir P99 görmelisin — SAĞLIKLI bir sistem makul yük
+#    altında böyle görünür.`
+          },
+        ],
+      },
+
+      // ── 5. EKOSİSTEM ──────────────────────────────────────────────────────
+      {
+        title: '🔗 Ekosistem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "JMeter nadiren tek başına çalışır — bir termometre gibi düşün. Termometre (JMeter) sıcaklığı ölçer, ama yine de birinin bunu belirli bir programda okuması (Jenkins/CI), zaman içinde bir grafiğe işlemesi (Grafana) ve termometreyi her yere gönderilebilecek bir kutuya koyması gerekir (Docker)." },
+          { type: 'heading', text: 'JMeter Büyük Resme Nasıl Oturur?' },
+          { type: 'text', content: 'Tek başına JMeter, bir kez çalışıp bir sonuç dosyası üreten bir araçtır. QA pipeline\'ındaki gerçek değeri, üç başka sisteme bağlanmasından gelir: onu otomatik ve belirli bir programda çalıştıran bir CI/CD aracı, onu taşınabilir ve dağıtılabilir yapan bir konteyner çalışma zamanı, ve tek seferlik sonuçları uyarı verebileceğiniz trend çizgilerine dönüştüren bir zaman serisi dashboard\'u.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'JMeter Ekosistemi — Kim Kiminle Konuşur',
+            items: [
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'JMeter\'ı programlı veya PR\'da tetikler' },
+              { arrow: true },
+              { icon: '🐳', label: 'JMeter (Docker içinde)', desc: '.jmx test planını Non-GUI çalıştırır' },
+              { arrow: true },
+              { icon: '📄', label: 'results.jtl', desc: 'ham sonuç dosyası' },
+              { arrow: true },
+              { icon: '📈', label: 'InfluxDB + Grafana', desc: 'trendleri zaman içinde saklar ve görselleştirir', highlight: true },
+            ],
+            note: 'Her araç bir işi iyi yapar — JMeter yük üretir, Jenkins programlar, Docker taşınabilir kılar, Grafana trendi gösterir.',
+          },
+          { type: 'heading', text: 'Üç Temel İlişki' },
+          {
+            type: 'table',
+            headers: ['Teknoloji', 'JMeter ile İlişkisi', 'Birlikte Çözülen Sorun'],
+            rows: [
+              ['Jenkins / GitHub Actions', 'CI aracı, bir cron programında veya merge öncesi `jmeter -n -t ...`\'ı bir build adımı olarak çağırır', 'Birinin manuel yük testi çalıştırmayı hatırlamasına güvenmek yerine performans regresyonları otomatik yakalanır'],
+              ['Docker', 'JMeter bir konteyner imajı olarak gönderilir (örn. `justb4/jmeter`), böylece her CI runner aynı JMeter sürümünü ve eklentilerini kullanır', 'Artık "bende çalışıyor" yok — yük üreticinin kendisi de test ettiği uygulama gibi tekrarlanabilir hale gelir'],
+              ['Grafana + InfluxDB', 'Bir JMeter Backend Listener canlı metrikleri InfluxDB\'ye akıtır; Grafana, gerçek zamanlı dashboard\'lar oluşturmak için InfluxDB\'yi sorgular', 'Tek bir çalıştırmadan gelen tek bir .jtl dosyasını tarihsel bir trend çizgisine dönüştürür — "P99, sürümden sürüme kötüleşiyor mu?"'],
+              ['Kubernetes', 'JMeter worker pod\'ları, dağıtık test için bir Kubernetes Job/Deployment olarak yatay ölçeklenebilir', 'Tek bir makine çok büyük testler için (5.000+ kullanıcı) yeterli yük üretemez; k8s, düzinelerce injector başlatmayı kolaylaştırır'],
+            ]
+          },
+          { type: 'heading', text: 'JMeter + Grafana Gerçek Zamanlı Dashboard (Backend Listener)' },
+          { type: 'text', content: 'Sonuçları görmek için testin bitmesini beklemek yerine, bir Backend Listener her örneği test çalışırken InfluxDB\'ye akıtır, böylece Grafana canlı throughput ve yanıt sürelerini gösterir.' },
+          {
+            type: 'code', code: `# Thread Group'una bir Backend Listener ekle:
+#   Backend Listener implementation: InfluxdbBackendListenerClient
+#   influxdbUrl: http://localhost:8086/write?db=jmeter
+#   application: checkout-loadtest
+#   measurement: jmeter
+
+# Sonra Grafana'da, aynı veritabanını gösteren bir InfluxDB
+# data source ekle ve grafana.com/dashboards'tan JMeter
+# dashboard ID 5496'yı içe aktar — test hâlâ çalışırken
+# canlı RPS, hata oranı ve yanıt süresi persentil grafikleri
+# elde edersin.`
+          },
+          { type: 'heading', text: 'Docker İçinde JMeter' },
+          {
+            type: 'code', code: `# Yerelde JMeter kurmadan yük testi çalıştır:
+docker run --rm -v $(pwd):/tests justb4/jmeter \\
+  -n -t /tests/flashsale.jmx \\
+  -l /tests/results.jtl \\
+  -e -o /tests/report
+
+# Her CI runner'da, her geliştirici makinesinde aynı komut —
+# "sende hangi JMeter sürümü var?" hata ayıklaması sıfır.`
+          },
+          { type: 'tip', content: 'Gerçek bir pipeline\'da bu dört parça birleşir: GitHub Actions, belirli bir programda JMeter çalıştıran bir Docker konteynerini tetikler, sonuçlar bir Backend Listener ile InfluxDB\'ye akar ve P99 bir eşiği aşarsa Grafana ekibi Slack\'te uyarır — tamamen otomatik performans regresyon tespiti.' },
+        ],
+      },
+
+      // ── 6. INTERVIEW Q&A ─────────────────────────────────────────────────
       {
         title: '💼 JMeter Mülakat Soruları ve Cevapları',
         blocks: [
