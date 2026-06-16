@@ -233,42 +233,42 @@ function HomePage() {
 
             {/* Header */}
             <header className={`shadow-2xl transition-colors duration-300 sticky top-0 z-50 ${darkMode ? 'bg-gray-800' : 'bg-gradient-to-r from-indigo-600 to-purple-600'}`}>
-                <div className="container mx-auto px-3 py-3 md:px-6 md:py-6">
-                    <div className="flex justify-between items-center gap-2">
+                <div className="container mx-auto px-3 py-2 md:px-6 md:py-4">
+                    <div className="flex justify-between items-center gap-2 flex-wrap">
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                             title={t('buttons.homeTooltip')}
-                            className={`text-2xl md:text-4xl hover:scale-110 transition-transform duration-200 cursor-pointer flex-shrink-0 ${darkMode ? 'hover:text-yellow-400' : 'hover:text-yellow-300'}`}
+                            className={`text-2xl md:text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer flex-shrink-0 ${darkMode ? 'hover:text-yellow-400' : 'hover:text-yellow-300'}`}
                         >
                             🏠
                         </button>
-                        <div className="flex-1 text-center min-w-0">
-                            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold leading-tight text-white" data-testid="main-title">
+                        <div className="flex-1 text-center min-w-0 overflow-hidden">
+                            <h1 className="text-base sm:text-xl md:text-3xl font-bold leading-tight text-white truncate" data-testid="main-title">
                                 {t('header.title')}
                             </h1>
-                            <p className={`text-xs md:text-lg hidden sm:block mt-0.5 ${darkMode ? 'text-gray-300' : 'text-indigo-100'}`}>
+                            <p className={`text-xs hidden sm:block mt-0.5 ${darkMode ? 'text-gray-300' : 'text-indigo-100'}`}>
                                 {t('header.subtitle')}
                             </p>
                         </div>
-                        <div className="flex gap-1.5 md:gap-3 flex-shrink-0 items-center">
+                        <div className="flex gap-1 md:gap-1.5 flex-shrink-0 items-center flex-wrap justify-end">
                             {/* Search button */}
                             <button
                                 onClick={() => setSearchOpen(true)}
                                 title={t('search.tooltip')}
-                                className={`px-2 md:px-3 py-1 md:py-2 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 flex items-center gap-1 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white/20 text-white hover:bg-white/30'}`}
+                                className={`px-2 py-1 md:py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 flex items-center gap-1 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white/20 text-white hover:bg-white/30'}`}
                             >
-                                🔍 <span className="hidden md:inline">{t('buttons.search')}</span>
+                                🔍 <span className="hidden lg:inline">{t('buttons.search')}</span>
                             </button>
                             <div className="flex bg-white rounded-lg overflow-hidden" data-testid="language-toggle">
                                 <button
                                     onClick={() => language === 'tr' && toggleLanguage()}
-                                    className={`px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm font-semibold transition-all duration-300 ${language === 'en' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+                                    className={`px-2 md:px-3 py-1 md:py-1.5 text-xs font-semibold transition-all duration-300 ${language === 'en' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
                                 >
                                     ENG
                                 </button>
                                 <button
                                     onClick={() => language === 'en' && toggleLanguage()}
-                                    className={`px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm font-semibold transition-all duration-300 ${language === 'tr' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+                                    className={`px-2 md:px-3 py-1 md:py-1.5 text-xs font-semibold transition-all duration-300 ${language === 'tr' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
                                 >
                                     TR
                                 </button>
@@ -277,10 +277,10 @@ function HomePage() {
                             <button
                                 onClick={() => setDarkMode(!darkMode)}
                                 data-testid="dark-mode-toggle"
-                                className={`px-2 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 ${darkMode ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-300' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+                                className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 ${darkMode ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-300' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
                             >
-                                {darkMode ? '☀️ ' : '🌙 '}
-                                <span className="hidden md:inline">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
+                                {darkMode ? '☀️' : '🌙'}
+                                <span className="hidden md:inline ml-1">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
                             </button>
                         </div>
                     </div>
@@ -351,140 +351,104 @@ function HomePage() {
 
             {renderLearningIntro()}
 
-            {/* Navigation — Categorized */}
+            {/* Navigation — Category Cards Grid */}
             <nav
-                className={`shadow-md transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white border-b border-gray-200'}`}
+                className={`transition-colors duration-300 border-b ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
                 data-testid="main-navigation"
             >
-                <div className="container mx-auto px-2 md:px-6 py-2 md:py-3 space-y-1.5 md:space-y-2">
+                <div className="container mx-auto px-3 md:px-6 py-4 md:py-5">
 
-                    {/* 1. Programlama Dilleri */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🐍" text={t('home.category.languages')} />
-                        <Link to="/java" data-testid="nav-java" className={nb('orange')}>
-                            <span className="sm:hidden">☕ Java</span>
-                            <span className="hidden sm:inline">{t('home.learnJava')}</span>
-                        </Link>
-                        <Link to="/python" data-testid="nav-python" className={nb('yellow')}>
-                            <span className="sm:hidden">🐍 Python</span>
-                            <span className="hidden sm:inline">{t('python.navButton')}</span>
-                        </Link>
-                        <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>
-                            <span className="sm:hidden">💻 TS</span>
-                            <span className="hidden sm:inline">{t('typescript.navButton')}</span>
-                        </Link>
-                        <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>
-                            <span className="sm:hidden">JS↔TS</span>
-                            <span className="hidden sm:inline">{t('home.jsTsCompare')}</span>
-                        </a>
-                        <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>
-                            <span className="sm:hidden">🔀 3 Dil</span>
-                            <span className="hidden sm:inline">{t('home.compare3Lang')}</span>
-                        </button>
+                    {/* Category grid — 2 cols on sm, 3 on md, 4 on lg */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
+
+                        {/* 1. Programlama Dilleri */}
+                        <div className={`rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-indigo-100 shadow-sm'}`}>
+                            <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-indigo-900/40 border-gray-700' : 'bg-indigo-50 border-indigo-100'}`}>
+                                <span className="text-sm">🐍</span>
+                                <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>{t('home.category.languages')}</span>
+                            </div>
+                            <div className="p-2 flex flex-wrap gap-1">
+                                <Link to="/java" data-testid="nav-java" className={nb('orange')}>☕ Java</Link>
+                                <Link to="/python" data-testid="nav-python" className={nb('yellow')}>🐍 Python</Link>
+                                <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
+                                <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
+                                <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>🔀 3 Dil</button>
+                            </div>
+                        </div>
+
+                        {/* 2. Test Otomasyon */}
+                        <div className={`rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-emerald-100 shadow-sm'}`}>
+                            <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-emerald-900/30 border-gray-700' : 'bg-emerald-50 border-emerald-100'}`}>
+                                <span className="text-sm">🧪</span>
+                                <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{t('home.category.testTools')}</span>
+                            </div>
+                            <div className="p-2 flex flex-wrap gap-1">
+                                <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>🟢 Selenium</Link>
+                                <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
+                                <a href="https://hasankocaman.github.io/teach-Cypress/" className={nb('purple')}>Cypress</a>
+                                <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
+                                <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
+                                <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
+                                <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>⚖️ Karşılaştır</button>
+                            </div>
+                        </div>
+
+                        {/* 3. API & Performans */}
+                        <div className={`rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-orange-100 shadow-sm'}`}>
+                            <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-orange-900/30 border-gray-700' : 'bg-orange-50 border-orange-100'}`}>
+                                <span className="text-sm">⚡</span>
+                                <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-orange-300' : 'text-orange-700'}`}>{t('home.category.performanceApi')}</span>
+                            </div>
+                            <div className="p-2 flex flex-wrap gap-1">
+                                <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>📊 JMeter</Link>
+                                <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>📮 Postman</Link>
+                            </div>
+                        </div>
+
+                        {/* 4. DevOps & Cloud */}
+                        <div className={`rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-cyan-100 shadow-sm'}`}>
+                            <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-cyan-900/30 border-gray-700' : 'bg-cyan-50 border-cyan-100'}`}>
+                                <span className="text-sm">🛠️</span>
+                                <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-cyan-300' : 'text-cyan-700'}`}>{t('home.category.devOps')}</span>
+                            </div>
+                            <div className="p-2 flex flex-wrap gap-1">
+                                <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>🐳 Docker</Link>
+                                <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
+                                <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
+                                <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
+                                <Link to="/aws" data-testid="nav-aws" className={nb('orange')}>☁️ AWS</Link>
+                                <Link to="/azure" data-testid="nav-azure" className={nb('blue')}>🔷 Azure</Link>
+                                <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {/* 2. Test Otomasyon Araçları */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🧪" text={t('home.category.testTools')} />
-                        <a href="https://hasankocaman.github.io/teach-Cypress/" className={nb('purple')}>
-                            <span className="sm:hidden">Cypress</span>
-                            <span className="hidden sm:inline">{t('home.learnCypress')}</span>
-                        </a>
-                        <Link to="/playwright" className={nb('purple')}>
-                            <span className="sm:hidden">Playwright</span>
-                            <span className="hidden sm:inline">{t('home.learnPlaywright')}</span>
-                        </Link>
-                        <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>
-                            <span className="sm:hidden">🧪 REST</span>
-                            <span className="hidden sm:inline">{t('home.learnRestAssured')}</span>
-                        </Link>
-                        <Link to="/appium" data-testid="nav-appium" className={nb('green')}>
-                            <span className="sm:hidden">📱 Appium</span>
-                            <span className="hidden sm:inline">{t('home.learnAppium')}</span>
-                        </Link>
-                        <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>
-                            <span className="sm:hidden">🟢 Selenium</span>
-                            <span className="hidden sm:inline">{t('home.learnSelenium')}</span>
-                        </Link>
-                        <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>
-                            <span className="sm:hidden">☁️ BS</span>
-                            <span className="hidden sm:inline">{t('home.learnBrowserStack')}</span>
-                        </Link>
-                        <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>
-                            <span className="sm:hidden">{t('home.compare')}</span>
-                            <span className="hidden sm:inline">{t('home.compareTools')}</span>
-                        </button>
-                    </div>
-
-                    {/* 3. Performans & API */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="⚡" text={t('home.category.performanceApi')} />
-                        <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>
-                            {t('jmeter.navButton')}
-                        </Link>
-                        <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>
-                            <span className="sm:hidden">📮 Postman</span>
-                            <span className="hidden sm:inline">{t('home.learnPostman')}</span>
-                        </Link>
-                    </div>
-
-                    {/* 4. DevOps & Altyapı */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🛠️" text={t('home.category.devOps')} />
-                        <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>
-                            <span className="sm:hidden">🐳 Docker</span>
-                            <span className="hidden sm:inline">{t('home.learnDocker')}</span>
-                        </Link>
-                        <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>
-                            <span className="sm:hidden">🔧 Jenkins</span>
-                            <span className="hidden sm:inline">{t('home.learnJenkins')}</span>
-                        </Link>
-                        <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>
-                            <span className="sm:hidden">☸️ K8s</span>
-                            <span className="hidden sm:inline">{t('home.learnKubernetes')}</span>
-                        </Link>
-                        <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>
-                            <span className="sm:hidden">🟠 Kafka</span>
-                            <span className="hidden sm:inline">{t('home.learnKafka')}</span>
-                        </Link>
-                        <Link to="/aws" data-testid="nav-aws" className={nb('orange')}>
-                            <span className="sm:hidden">☁️ AWS</span>
-                            <span className="hidden sm:inline">{t('home.learnAWS')}</span>
-                        </Link>
-                        <Link to="/azure" data-testid="nav-azure" className={nb('blue')}>
-                            <span className="sm:hidden">🔷 Azure</span>
-                            <span className="hidden sm:inline">{t('home.learnAzure')}</span>
-                        </Link>
-                    </div>
-
-                    {/* 5. Veritabanı */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🗄️" text={t('home.category.database')} />
-                        <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>
-                            {t('sql.navButton')}
-                        </Link>
-                    </div>
-
-                    {/* 6. Pratik Alan */}
-                    <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🎯" text={t('home.category.practice')} />
-                        {sections.map((section) => (
-                            <button
-                                key={section.id}
-                                onClick={() => setActiveSection(section.id)}
-                                data-testid={`nav-${section.id}`}
-                                className={`px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-semibold text-xs md:text-sm whitespace-nowrap border
-                                    transition-all duration-200 hover:scale-105 hover:shadow-md ${activeSection === section.id
-                                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-105 border-transparent'
-                                        : darkMode
-                                            ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-indigo-900/70 hover:text-indigo-100 hover:border-indigo-700'
-                                            : 'bg-white border-gray-200 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 hover:border-indigo-300'
+                    {/* Practice Area — full width below */}
+                    <div className={`mt-3 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-purple-100 shadow-sm'}`}>
+                        <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-purple-900/30 border-gray-700' : 'bg-purple-50 border-purple-100'}`}>
+                            <span className="text-sm">🎯</span>
+                            <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>{t('home.category.practice')}</span>
+                        </div>
+                        <div className="p-2 flex flex-wrap gap-1">
+                            {sections.map((section) => (
+                                <button
+                                    key={section.id}
+                                    onClick={() => setActiveSection(section.id)}
+                                    data-testid={`nav-${section.id}`}
+                                    className={`px-2.5 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap border transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                                        activeSection === section.id
+                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-105 border-transparent'
+                                            : darkMode
+                                                ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-purple-900/70 hover:text-purple-100 hover:border-purple-700'
+                                                : 'bg-white border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-400'
                                     }`}
-                            >
-                                <span className="sm:hidden">{section.shortName}</span>
-                                <span className="hidden sm:inline">{section.name}</span>
-                            </button>
-                        ))}
+                                >
+                                    <span className="sm:hidden">{section.shortName}</span>
+                                    <span className="hidden sm:inline">{section.name}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                 </div>
@@ -498,25 +462,148 @@ function HomePage() {
             </main>
 
             {/* Footer */}
-            <footer className="bg-gray-800 text-white py-6 mt-8 md:mt-12">
-                <div className="container mx-auto px-4 md:px-6 text-center">
-                    <p className="text-gray-300" data-testid="footer-text">
-                        {t('footer.text')}
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                        {t('footer.hint')}
-                    </p>
-                    <div className="mt-4 flex items-center justify-center gap-2 text-sm">
-                        <span className="text-gray-400">{t('buttons.preparedBy')}</span>
-                        <a
-                            href="https://www.linkedin.com/in/hasankocaman/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
-                            Hasan Kocaman
-                        </a>
+            <footer className="bg-gray-900 text-white mt-10 md:mt-16">
+                {/* Main footer content */}
+                <div className="container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
+
+                        {/* Brand Column */}
+                        <div className="col-span-2 md:col-span-1">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-2xl">🎓</span>
+                                <span className="text-lg font-bold text-white">LearnQA.dev</span>
+                            </div>
+                            <p className="text-gray-400 text-xs leading-relaxed mb-4" data-testid="footer-text">
+                                {t('footer.text')}
+                            </p>
+                            <div className="flex gap-2">
+                                <a
+                                    href="https://www.linkedin.com/in/hasankocaman/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 transition-colors duration-200"
+                                    title="LinkedIn"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+                                </a>
+                                <a
+                                    href="https://github.com/hasankocaman"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors duration-200"
+                                    title="GitHub"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Diller */}
+                        <div>
+                            <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-1.5">
+                                <span>🐍</span> {language === 'tr' ? 'Diller' : 'Languages'}
+                            </h3>
+                            <ul className="space-y-1.5">
+                                {[
+                                    { to: '/java', label: '☕ Java' },
+                                    { to: '/python', label: '🐍 Python' },
+                                    { to: '/typescript', label: '💻 TypeScript' },
+                                    { to: '/sql', label: '🗄️ SQL' },
+                                ].map(({ to, label }) => (
+                                    <li key={to}>
+                                        <Link to={to} className="text-gray-400 hover:text-white text-xs transition-colors duration-200 flex items-center gap-1">
+                                            {label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Test Araçları */}
+                        <div>
+                            <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-1.5">
+                                <span>🧪</span> {language === 'tr' ? 'Test Araçları' : 'Test Tools'}
+                            </h3>
+                            <ul className="space-y-1.5">
+                                {[
+                                    { to: '/selenium', label: '🟢 Selenium' },
+                                    { to: '/playwright', label: '🎭 Playwright' },
+                                    { to: '/appium', label: '📱 Appium' },
+                                    { to: '/rest-assured', label: '🧪 REST Assured' },
+                                    { to: '/postman', label: '📮 Postman' },
+                                    { to: '/jmeter', label: '📊 JMeter' },
+                                    { to: '/browserstack', label: '☁️ BrowserStack' },
+                                    { to: '/test-frameworks', label: '⚖️ Framework Karş.' },
+                                ].map(({ to, label }) => (
+                                    <li key={to}>
+                                        <Link to={to} className="text-gray-400 hover:text-white text-xs transition-colors duration-200">
+                                            {label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* DevOps & Cloud */}
+                        <div>
+                            <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-1.5">
+                                <span>🛠️</span> DevOps & Cloud
+                            </h3>
+                            <ul className="space-y-1.5">
+                                {[
+                                    { to: '/docker', label: '🐳 Docker' },
+                                    { to: '/jenkins', label: '🔧 Jenkins' },
+                                    { to: '/kubernetes', label: '☸️ Kubernetes' },
+                                    { to: '/kafka', label: '🟠 Kafka' },
+                                    { to: '/aws', label: '☁️ AWS' },
+                                    { to: '/azure', label: '🔷 Azure' },
+                                ].map(({ to, label }) => (
+                                    <li key={to}>
+                                        <Link to={to} className="text-gray-400 hover:text-white text-xs transition-colors duration-200">
+                                            {label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="mt-4 pt-4 border-t border-gray-700">
+                                <p className="text-gray-500 text-[11px] leading-relaxed">{t('footer.hint')}</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* Stats Bar */}
+                    <div className={`rounded-xl p-3 md:p-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 ${darkMode ? 'bg-gray-800' : 'bg-gray-800'}`}>
+                        {[
+                            { num: '20+', label: language === 'tr' ? 'Teknoloji' : 'Technologies' },
+                            { num: '1000+', label: language === 'tr' ? 'Mülakat Sorusu' : 'Interview Q&A' },
+                            { num: '100%', label: language === 'tr' ? 'Ücretsiz' : 'Free to Use' },
+                            { num: '4', label: language === 'tr' ? 'Etkileşimli Editör' : 'Live Editors' },
+                        ].map(({ num, label }) => (
+                            <div key={label} className="text-center">
+                                <div className="text-lg md:text-xl font-bold text-indigo-400">{num}</div>
+                                <div className="text-gray-400 text-[11px] mt-0.5">{label}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Bottom bar */}
+                    <div className="border-t border-gray-700 pt-5 flex flex-col md:flex-row items-center justify-between gap-3">
+                        <p className="text-gray-500 text-xs">
+                            © 2025 LearnQA.dev — {language === 'tr' ? 'QA mühendisleri için özgürce kullanılabilir' : 'Free for QA engineers'}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                            <span className="text-gray-500">{t('buttons.preparedBy')}</span>
+                            <a
+                                href="https://www.linkedin.com/in/hasankocaman/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+                                Hasan Kocaman
+                            </a>
+                        </div>
                     </div>
                 </div>
             </footer>
