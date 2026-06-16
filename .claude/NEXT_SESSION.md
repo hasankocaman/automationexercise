@@ -50,8 +50,8 @@
 | Playwright ile AWS + Azure simülasyonları doğrulandı (her iki simülasyon screenshot'ta doğru render oluyor, console hatası yok) | — | ✅ |
 | `PythonFrameworksTab.jsx`'e `PytestRunnerSim` eklendi (pytest sekmesi, "🎬 Canlı pytest Runner") — `▶ pytest -v` butonu 5 test_login.py testini sırayla çalıştırır, 1 tanesi kasıtlı AssertionError ile FAILED olur, sağ panelde Passed/Failed sayaç + traceback + pytest-html raporu gösterilir | `c78ceb5` | ✅ |
 | Playwright ile pytest runner simülasyonu doğrulandı (4 passed/1 failed doğru render oluyor, console hatası yok) | — | ✅ |
-| `typescriptData.js`'e yeni 10. tab/section eklendi: "🏃 Test Runners" (Vitest & Unit Testing) — Vitest açıklaması, formatPrice.ts/test.ts kod örneği, `vitest-runner` simülasyonu, JUnit vs Vitest java-compare bloğu | — | ✅ |
-| `TopicPage.jsx`'e `vitest-runner` scenario eklendi: `renderVitestRunnerPlayground` (3 testi sırayla PASSED yapan terminal UI) + DOM visualizer (Passed/Dosya/Süre sayaçları, coverage/index.html paneli, Java Surefire karşılaştırması) | — | ✅ |
+| `typescriptData.js`'e yeni 10. tab/section eklendi: "🏃 Test Runners" (Vitest & Unit Testing) — Vitest açıklaması, formatPrice.ts/test.ts kod örneği, `vitest-runner` simülasyonu, JUnit vs Vitest java-compare bloğu | `04c2416` | ✅ |
+| `TopicPage.jsx`'e `vitest-runner` scenario eklendi: `renderVitestRunnerPlayground` (3 testi sırayla PASSED yapan terminal UI) + DOM visualizer (Passed/Dosya/Süre sayaçları, coverage/index.html paneli, Java Surefire karşılaştırması) | `04c2416` | ✅ |
 | Playwright ile vitest runner simülasyonu doğrulandı (3/3 passed doğru render oluyor, console hatası yok) | — | ✅ |
 
 ---
@@ -90,9 +90,23 @@
 
 ## 📋 Sıradaki Görevler (Öncelik Sırasıyla)
 
-1. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var (özellikle javaData.js 639KB), code splitting yapılabilir (zorunlu değil)
+> 2026-06-16 tarihinde tüm proje üzerinde bir eksik-konu denetimi yapıldı (`grep` ile her `*Data.js` dosyasında `simulation` block sayısı + tab listeleri karşılaştırıldı). Sonuçlar aşağıda, öncelik sırasına göre.
 
-> Not: "Python/TypeScript sayfalarına simülasyon — pytest/vitest runner arayüzü" görevi tamamlandı (her iki yarı da bitti). Backlog'da başka zorunlu görev kalmadı.
+1. **JMeter sayfası — CLAUDE.md Section 12 eksiklikleri (en kritik eksik):**
+   - Sadece 5 sekme var: Introduction, Installation, Intermediate, Advanced, Interview Q&A.
+   - **🛠️ Real World / Gerçek Hayat** sekmesi YOK.
+   - **🔗 Ecosystem / Ekosistem** sekmesi YOK.
+   - **0 adet `simulation` block** — projede simülasyonu olmayan tek "tech" sayfası (diğer tüm tech sayfalarında en az 1 simülasyon var).
+   - Hata sözlüğü (`error-dictionary`) var ama ayrı bir "🚨 Yaygın Hatalar" sekmesi değil, mevcut sekmelerin içine gömülü.
+2. **Docker / Jenkins / Postman — kısmi Section 12 eksikliği:**
+   - Docker: ayrı bir **Ecosystem** sekmesi yok (Core Commands kısmen real-world'ü karşılıyor).
+   - Jenkins: ayrı **Ecosystem** ve **Real World** sekmesi yok (QA Integration kısmen karşılıyor).
+   - Postman: **Real World**, **Ecosystem**, **Common Errors** sekmelerinin hiçbiri yok.
+   - REST Assured: Ecosystem yerine "🆆 Araç Karşılaştırması" var — kabul edilebilir, düşük öncelik.
+3. **Python / SQL / Java sayfalarında hiç `simulation` (Gör-Anla-Dene) block'u yok** — Selenium(8), Appium(4), AWS/Azure(2), diğerleri(1) ile karşılaştırıldığında bu 3 sayfa platformun "aktif felsefesi"nin dışında kalıyor. (Not: Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış bir pytest runner var ama bu `pythonData.js`'in kendi `simulation` sistemini kullanmıyor, ayrı bir component.)
+4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var (özellikle javaData.js 639KB), code splitting yapılabilir (zorunlu değil)
+
+> Not: "Python/TypeScript sayfalarına simülasyon — pytest/vitest runner arayüzü" görevi tamamlandı (her iki yarı da bitti).
 
 ---
 
