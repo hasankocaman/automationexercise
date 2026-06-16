@@ -2,10 +2,37 @@
 <html lang="en" translate="no">
   <head>
     <meta charset="UTF-8" />
+    <!-- Theme bootstrap: apply dark/light class BEFORE any CSS is computed to prevent FOCT -->
+    <script>
+      (function(){try{var s=localStorage.getItem('darkMode');var d=s!==null?JSON.parse(s):true;if(d){document.documentElement.classList.add('dark-mode');document.documentElement.classList.remove('light-mode-forced');}else{document.documentElement.classList.add('light-mode-forced');document.documentElement.classList.remove('dark-mode');}}catch(e){}})();
+    </script>
     <meta name="google" content="notranslate" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7c3aed" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Learning Platform</title>
+    <title>QA Learning Platform for Test Automation Engineers | LearnQA.dev</title>
+    <meta name="description" content="Learn Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools with hands-on QA engineering lessons, quizzes and interview practice." />
+    <link rel="canonical" href="https://learnqa.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="QA Learning Platform for Test Automation Engineers | LearnQA.dev" />
+    <meta property="og:description" content="Learn Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools with hands-on QA engineering lessons, quizzes and interview practice." />
+    <meta property="og:url" content="https://learnqa.dev/" />
+    <meta property="og:site_name" content="LearnQA.dev" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="QA Learning Platform for Test Automation Engineers | LearnQA.dev" />
+    <meta name="twitter:description" content="Learn Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools with hands-on QA engineering lessons, quizzes and interview practice." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "LearnQA.dev",
+        "alternateName": "QA Learning Platform",
+        "url": "https://learnqa.dev/",
+        "description": "Hands-on QA learning platform for Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools.",
+        "inLanguage": ["en", "tr"]
+      }
+    </script>
     <!-- Google Fonts: Inter (UI) + JetBrains Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

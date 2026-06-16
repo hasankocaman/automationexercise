@@ -23,7 +23,7 @@ function CodeBlock({ code, language, darkMode }) {
                     {language}
                 </div>
             )}
-            <pre className={`p-4 rounded-lg font-mono text-xs overflow-x-auto leading-relaxed bg-slate-800 text-slate-100 border border-slate-600 ${language ? 'pt-8' : ''} ${prismLang ? `language-${prismLang}` : ''}`} style={{ background: '#1e2030' }}>
+            <pre className={`p-4 rounded-lg font-mono text-xs overflow-x-auto leading-relaxed border border-gray-700 ${language ? 'pt-8' : ''} ${prismLang ? `language-${prismLang}` : ''}`} style={{ background: '#0d1117', color: '#e6edf3' }}>
                 <code ref={codeRef} className={prismLang ? `language-${prismLang}` : ''}>{(code || '').trim()}</code>
             </pre>
             <button
@@ -187,13 +187,13 @@ function QuizBlock({ block, darkMode, language = 'en', onQuizCorrect }) {
                             onClick={() => !submitted && setSelected(opt.id)}
                             className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-200 border-2 ${submitted
                                 ? isCorrectOpt
-                                    ? 'bg-green-500/20 border-green-500 text-green-300 font-semibold'
+                                    ? darkMode ? 'bg-green-500/20 border-green-500 text-green-300 font-semibold' : 'bg-green-50 border-green-500 text-green-800 font-semibold'
                                     : isSelected && !isCorrectOpt
-                                        ? 'bg-red-500/20 border-red-500 text-red-300'
-                                        : darkMode ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-white border-gray-200 text-gray-400'
+                                        ? darkMode ? 'bg-red-500/20 border-red-500 text-red-300' : 'bg-red-50 border-red-500 text-red-700'
+                                        : darkMode ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-white border-gray-200 text-gray-500'
                                 : isSelected
                                     ? darkMode ? 'bg-indigo-800 border-indigo-500 text-indigo-200' : 'bg-indigo-100 border-indigo-400 text-indigo-800'
-                                    : darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600 hover:border-gray-500' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+                                    : darkMode ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600 hover:border-gray-500' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                                 }`}
                         >
                             <span className="font-mono font-bold mr-2">{opt.id?.toUpperCase() || String.fromCharCode(65 + i)}.</span>
@@ -292,8 +292,8 @@ function ComparisonBlock({ block, darkMode, language = 'en' }) {
                         <div className={`px-4 py-2 text-sm font-bold ${isLeft ? (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-600') : (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600')}`}>
                             {tx(side.label, language)}
                         </div>
-                        <div className="bg-slate-800 p-4">
-                            <pre className="font-mono text-xs text-slate-100 overflow-x-auto leading-relaxed whitespace-pre-wrap">{side.code}</pre>
+                        <div className="p-4" style={{ background: '#0d1117' }}>
+                            <pre className="font-mono text-xs overflow-x-auto leading-relaxed whitespace-pre-wrap" style={{ color: '#e6edf3' }}>{side.code}</pre>
                         </div>
                         {side.note && (
                             <div className={`px-4 py-2 text-xs ${isLeft ? (darkMode ? 'text-red-400 bg-red-900/10' : 'text-red-600 bg-red-50') : (darkMode ? 'text-green-400 bg-green-900/10' : 'text-green-600 bg-green-50')}`}>
@@ -1037,7 +1037,7 @@ function ErrorDictionaryBlock({ block, darkMode }) {
                             ❌ {err.error}
                         </div>
                         {err.fullMessage && (
-                            <div className={`px-4 py-2 text-xs font-mono border-b ${darkMode ? 'bg-gray-900 text-gray-500 border-gray-800' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                            <div className={`px-4 py-2 text-xs font-mono border-b ${darkMode ? 'bg-gray-900 text-gray-400 border-gray-800' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
                                 {err.fullMessage}
                             </div>
                         )}
@@ -4492,17 +4492,17 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
 
         case 'file-tree':
             return (
-                <div key={i} className={`mt-4 rounded-xl border overflow-hidden ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div key={i} className={`mt-4 rounded-xl border overflow-hidden ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
                     {block.title && (
-                        <div className={`px-4 py-2.5 text-sm font-semibold ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                        <div className="px-4 py-2.5 text-sm font-semibold bg-gray-800 text-gray-100 flex items-center gap-2 border-b border-gray-700">
                             📁 {tx(block.title, language)}
                         </div>
                     )}
-                    <div className="bg-slate-900 p-4 overflow-x-auto">
-                        <pre className="font-mono text-xs text-slate-300 leading-relaxed whitespace-pre">{block.tree}</pre>
+                    <div className="bg-gray-950 p-4 overflow-x-auto" style={{ background: '#0d1117' }}>
+                        <pre className="font-mono text-xs leading-relaxed whitespace-pre" style={{ color: '#e6edf3' }}>{block.tree}</pre>
                     </div>
                     {block.note && (
-                        <div className={`px-4 py-2 text-xs italic border-t ${darkMode ? 'bg-gray-800 text-gray-500 border-gray-700' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+                        <div className={`px-4 py-2 text-xs italic border-t ${darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-100 text-gray-600 border-gray-300'}`}>
                             💡 {tx(block.note, language)}
                         </div>
                     )}

@@ -346,3 +346,4 @@ html.light-mode-forced body {
 .dark-mode .hover\:bg-gray-100:hover {
   background-color: var(--bg-inset) !important;
 }
+
