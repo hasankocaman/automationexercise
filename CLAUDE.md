@@ -26,6 +26,7 @@ Bu proje birden fazla AI aracıyla (Claude Code, Codex) geliştiriliyor.
 | **`.claude/NEXT_SESSION.md`** | **TEK güncel durum dosyası.** Son yapılanlar, sıradaki görevler, git/deploy durumu, SEO durumu — hepsi burada, tarihli. | `CLAUDE.md`'den hemen sonra, her oturumda. |
 | **`codexSeo.md`** | SEO kurallarının ve mimarisinin **kalıcı** referansı (nasıl çalışır, hangi script ne yapar, GSC checklist, uzun vadeli SEO stratejisi). Anlık durum/yapılacaklar listesi **burada değil**, `NEXT_SESSION.md`'de. | SEO/routing/metadata işi yaparken. |
 | **`DEPLOY.md`** | Netlify/GitHub Pages yayın adımları, Google Search Console kurulum adımları. | Yayın veya GSC işlerinde. |
+| **`promptkurallar.md`** | Kullanıcının (Hasan) AI araçlarına (Claude Code, Codex) nasıl prompt yazacağına dair rehber — bu dosyaların kuralı değil, kullanıcının iş akışı kuralı. | Kullanıcı nasıl prompt yazacağını sorduğunda. |
 | **`.claude/CONTENT_RULES.md`** | İçerik yazım kuralları: block formatları, mülakat sorusu formatı, hata sözlüğü formatı, kurulum formatı. | İçerik yazarken, W3Schools kapsam kontrolü yaparken. |
 | **`.claude/UI_STANDARDS.md`** | Görsel/animasyon/renk standartları. | UI bileşeni eklerken. |
 | **`.claude/TECH_SPEC.md`** | Editör, toggle, localStorage, performans teknik gereksinimleri. | Etkileşimli editör/teknik altyapı işlerinde. |
@@ -127,6 +128,7 @@ automationexercise/
 ├── AGENTS.md                 ← Codex için CLAUDE.md'ye pointer
 ├── codexSeo.md                ← SEO kuralları/mimarisi referansı
 ├── DEPLOY.md                  ← yayın/GSC adımları
+├── promptkurallar.md          ← kullanıcının AI araçlarına prompt yazma rehberi
 ├── index.html
 ├── netlify.toml
 ├── package.json
