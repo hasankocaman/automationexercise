@@ -1,9 +1,123 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
+const codeCommentTranslations = [
+    [/browser binaries indir/g, 'download browser binaries'],
+    [/HTML rapor/g, 'HTML report'],
+    [/Allure entegrasyonu/g, 'Allure integration'],
+    [/mock\/stub desteği/g, 'mock/stub support'],
+    [/Shared fixtures \(driver, base_url vb\.\)/g, 'Shared fixtures (driver, base_url, etc.)'],
+    [/pytest otomatik bulur/g, 'pytest auto-discovers it'],
+    [/Selenium gerektirmeyen API testleri/g, 'API tests that do not require Selenium'],
+    [/Test verisi/g, 'Test data'],
+    [/Oluşturulan raporlar \(git'e ekleme\)/g, 'Generated reports (do not commit to git)'],
+    [/Markers \(smoke, regression gibi\)/g, 'Markers (smoke, regression, etc.)'],
+    [/her test için yeni driver \(default\)/g, 'new driver for each test (default)'],
+    [/aynı sınıf içindeki testler paylaşır/g, 'tests in the same class share it'],
+    [/aynı dosyadaki testler paylaşır/g, 'tests in the same file share it'],
+    [/tüm test oturumu boyunca tek driver/g, 'one driver for the whole test session'],
+    [/CI\/CD için/g, 'for CI/CD'],
+    [/Java'daki @AfterMethod buradan sonrası/g, 'Java @AfterMethod equivalent starts after this'],
+    [/Tüm testlerde kullanılan base URL/g, 'Base URL used in all tests'],
+    [/Login yapılmış driver — bağımlı fixture/g, 'Logged-in driver - dependent fixture'],
+    [/Kullanımı:/g, 'Usage:'],
+    [/ID ile/g, 'By ID'],
+    [/CSS Selector ile \(en önerilen\)/g, 'By CSS selector (recommended)'],
+    [/XPath ile \(dinamik yapılar için\)/g, 'By XPath (for dynamic structures)'],
+    [/Birden fazla element/g, 'Multiple elements'],
+    [/Locate stratejisi seçimi/g, 'Locator strategy selection'],
+    [/varsa en hızlı ve en güvenli/g, 'fastest and safest when available'],
+    [/esnek, hızlı, okunabilir/g, 'flexible, fast, readable'],
+    [/karmaşık DOM için; yavaş, kırılgan/g, 'for complex DOM; slower and fragile'],
+    [/birden fazla class olunca sorun çıkarır/g, 'breaks when multiple classes exist'],
+    [/Yanlış — sabit bekleme, CI'da yavaş\/güvensiz/g, 'Wrong - fixed wait, slow/unsafe in CI'],
+    [/Implicit Wait — driver seviyesinde global bekleme/g, 'Implicit wait - global driver-level wait'],
+    [/conftest\.py'de bir kez set et/g, 'set once in conftest.py'],
+    [/10 saniye maksimum bekler/g, 'waits up to 10 seconds'],
+    [/Explicit Wait — belirli bir condition için bekle/g, 'Explicit wait - wait for a specific condition'],
+    [/Element görünür olana kadar bekle/g, 'Wait until element is visible'],
+    [/Element tıklanabilir olana kadar bekle/g, 'Wait until element is clickable'],
+    [/URL değişene kadar bekle/g, 'Wait until URL changes'],
+    [/Text görünene kadar bekle/g, 'Wait until text appears'],
+    [/Alert açılana kadar bekle/g, 'Wait until alert appears'],
+    [/Element kaybolana kadar bekle \(loading spinner\)/g, 'Wait until element disappears (loading spinner)'],
+    [/iframe'e geçiş yöntemleri/g, 'Ways to switch to an iframe'],
+    [/Index ile \(sayfadaki sırasına göre\)/g, 'By index (page order)'],
+    [/Name veya ID ile/g, 'By name or ID'],
+    [/WebElement ile \(en güvenilir yöntem\)/g, 'By WebElement (most reliable method)'],
+    [/iframe içinde normal işlem yap/g, 'Perform normal actions inside the iframe'],
+    [/Ana sayfaya geri dön \(ZORUNLU!\)/g, 'Return to the main page (required!)'],
+    [/İç içe iframe \(nested iframe\)/g, 'Nested iframe'],
+    [/outer içindeki inner'a geç/g, 'switch to inner inside outer'],
+    [/\.\.\. işlemler \.\.\./g, '... actions ...'],
+    [/direkt ana sayfaya dön/g, 'return directly to main page'],
+    [/Fixture ile temiz kullanım/g, 'Clean usage with a fixture'],
+    [/with bloğu ile otomatik giriş\/çıkış/g, 'automatic enter/exit with a with block'],
+    [/Shadow DOM'a erişim — JavaScript ile/g, 'Access Shadow DOM with JavaScript'],
+    [/Shadow host'un shadow root'unu döndürür/g, "Returns the shadow host's shadow root"],
+    [/Örnek:/g, 'Example:'],
+    [/Shadow host elementini bul/g, 'Find the shadow host element'],
+    [/Shadow root içinde element bul \(CSS selector ile\)/g, 'Find an element inside shadow root (with CSS selector)'],
+    [/Shadow root içindeki elementi bul/g, 'Find the element inside shadow root'],
+    [/İç içe Shadow DOM/g, 'Nested Shadow DOM'],
+    [/Kullanım: shadow1 > shadow2 > hedef element/g, 'Usage: shadow1 > shadow2 > target element'],
+    [/Bazı sürümlerde doğrudan CSS piercing desteklenir:/g, 'Some versions support direct CSS piercing:'],
+    [/Bu sözdizimi tüm tarayıcılarda çalışmaz, JS yolu daha güvenli/g, 'This syntax does not work in every browser; the JS path is safer'],
+    [/Tüm testleri çalıştır/g, 'Run all tests'],
+    [/Belirli dosya/g, 'Specific file'],
+    [/Belirli test fonksiyonu/g, 'Specific test function'],
+    [/Temel kurulum/g, 'Basic install'],
+    [/Web otomasyon \(Selenium tabanlı\)/g, 'Web automation (Selenium-based)'],
+    [/API testi/g, 'API testing'],
+    [/SeleniumLibrary için ChromeDriver gerekir/g, 'SeleniumLibrary needs ChromeDriver'],
+    [/webdriver-manager ile otomatik yönet:/g, 'manage it automatically with webdriver-manager:'],
+    [/Paylaşılan keyword'ler/g, 'Shared keywords'],
+    [/Login'e özel keyword'ler/g, 'Login-specific keywords'],
+    [/Değişkenler \(URL, kullanıcılar vb\.\)/g, 'Variables (URL, users, etc.)'],
+    [/Python ile yazılan custom keyword'ler/g, 'Custom keywords written in Python'],
+    [/robot otomatik oluşturur/g, 'robot creates this automatically'],
+    [/Geçerli kullanıcı giriş yapabilmeli/g, 'Valid user should be able to log in'],
+    [/Geçersiz kullanıcı hata mesajı görmeli/g, 'Invalid user should see an error message'],
+    [/ID \(id: prefix isteğe bağlı — Robot otomatik dener\)/g, 'ID (id: prefix optional - Robot tries automatically)'],
+    [/id veya name olarak arar/g, 'tries id or name'],
+    [/Data attribute \(çok kullanışlı\)/g, 'Data attribute (very useful)'],
+    [/nth-child ile tablo satırı/g, 'table row with nth-child'],
+    [/iframe'e geç — index, name, id veya locator ile/g, 'switch to iframe - by index, name, id, or locator'],
+    [/veya: Select Frame/g, 'or: Select Frame'],
+    [/ilk iframe, index ile/g, 'first iframe, by index'],
+    [/Ana sayfaya geri dön — zorunlu!/g, 'Return to main page - required!'],
+    [/Devam et/g, 'Continue'],
+    [/Dış iframe/g, 'Outer iframe'],
+    [/İç iframe/g, 'Inner iframe'],
+    [/Direkt ana sayfaya dön/g, 'Return directly to main page'],
+    [/JavaScript ile shadow root'a eriş/g, 'Access shadow root with JavaScript'],
+    [/Shadow root içindeki elementi JavaScript ile bul ve tıkla/g, 'Find and click the element inside shadow root with JavaScript'],
+    [/Elementi görünür alana kaydırır/g, 'Scrolls the element into view'],
+    [/Tek dosyayı çalıştır/g, 'Run a single file'],
+    [/Tüm test klasörünü çalıştır/g, 'Run the whole test folder'],
+    [/Tag ile filtrele \(sadece smoke testleri\)/g, 'Filter by tag (smoke tests only)'],
+    [/Tag hariç tut/g, 'Exclude a tag'],
+    [/Özel rapor klasörü/g, 'Custom report folder'],
+    [/Paralel \(pabot — pip install robotframework-pabot\)/g, 'Parallel (pabot - pip install robotframework-pabot)'],
+    [/Belirli test case/g, 'Specific test case'],
+    [/Variables override \(CI\/CD için\)/g, 'Override variables (for CI/CD)'],
+]
+
+function localizeCodeComments(code, language) {
+    if (language === 'tr') return code
+    return codeCommentTranslations.reduce(
+        (translated, [pattern, replacement]) => translated.replace(pattern, replacement),
+        code
+    )
+}
+
 function Code({ children, lang = 'python' }) {
+    const { language } = useLanguage()
     const [copied, setCopied] = useState(false)
+    const code = localizeCodeComments(String(children ?? ''), language).trim()
+
     return (
         <div className="relative group mt-3">
             {lang && (
@@ -13,10 +127,10 @@ function Code({ children, lang = 'python' }) {
             )}
             <pre className="p-4 pt-8 rounded-lg font-mono text-xs overflow-x-auto leading-relaxed border border-slate-600"
                 style={{ background: '#1e2030', color: '#c0caf5' }}>
-                {children.trim()}
+                {code}
             </pre>
             <button
-                onClick={() => { navigator.clipboard.writeText(children.trim()); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
+                onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
                 className="absolute top-2 right-2 px-2 py-1 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 {copied ? '✅ Copied' : '📋 Copy'}
@@ -52,6 +166,134 @@ function JavaBox({ darkMode, tr, children }) {
                 ☕ {tr ? 'Java Biliyorsan' : 'If You Know Java'}
             </div>
             <div className={`text-sm leading-relaxed ${darkMode ? 'text-yellow-200' : 'text-yellow-900'}`}>{children}</div>
+        </div>
+    )
+}
+
+// ─── LIVE PYTEST RUNNER SIMULATION ────────────────────────────────────────────
+
+function PytestRunnerSim({ darkMode, tr }) {
+    const [phase, setPhase] = useState('idle')
+    const timersRef = useRef([])
+
+    const order = ['idle', 'collecting', 't1', 't2', 't3', 't4', 't5', 'done']
+    const cur = order.indexOf(phase)
+    const canStart = phase === 'idle' || phase === 'done'
+
+    const tests = [
+        { id: 't1', name: 'test_valid_login', pass: true, pct: 20 },
+        { id: 't2', name: 'test_invalid_login', pass: true, pct: 40 },
+        { id: 't3', name: "test_login_validation[--pass-required]", pass: true, pct: 60 },
+        { id: 't4', name: "test_login_validation[notanemail-pass-invalid]", pass: false, pct: 80 },
+        { id: 't5', name: "test_login_validation[valid@test.com--required]", pass: true, pct: 100 },
+    ]
+
+    const run = () => {
+        if (!canStart) return
+        timersRef.current.forEach(clearTimeout)
+        setPhase('collecting')
+        let delay = 500
+        const steps = [['t1', 700], ['t2', 450], ['t3', 450], ['t4', 600], ['t5', 450], ['done', 400]]
+        timersRef.current = steps.map(([st, d]) => {
+            delay += d
+            return setTimeout(() => setPhase(st), delay)
+        })
+    }
+    const reset = () => {
+        timersRef.current.forEach(clearTimeout)
+        setPhase('idle')
+    }
+
+    const PT = { bg: '#1e2030', border: '#3b3f58', text: '#c0caf5', muted: '#6b7394', green: '#9ece6a', red: '#f7768e', yellow: '#e0af68' }
+    const passedSoFar = tests.filter(t => order.indexOf(t.id) <= cur && phase !== 'idle' && phase !== 'collecting' && t.pass).length
+    const failedSoFar = tests.filter(t => order.indexOf(t.id) <= cur && phase !== 'idle' && phase !== 'collecting' && !t.pass).length
+
+    return (
+        <div className="grid md:grid-cols-2 gap-4 mt-3">
+            {/* Left: terminal */}
+            <div style={{ background: PT.bg, borderRadius: 10, border: `1px solid ${PT.border}`, overflow: 'hidden', fontFamily: 'monospace' }}>
+                <div style={{ padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${PT.border}`, background: '#16182a' }}>
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#f7768e', display: 'inline-block' }} />
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#e0af68', display: 'inline-block' }} />
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#9ece6a', display: 'inline-block' }} />
+                    <span style={{ fontSize: 10, color: PT.muted, marginLeft: 4 }}>Terminal</span>
+                    <button
+                        onClick={run}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? PT.muted : '#9ece6a', color: '#1e2030', border: 'none', borderRadius: 5, padding: '3px 10px', fontSize: 10, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                    >
+                        {phase === 'idle' ? '▶ pytest -v' : phase === 'done' ? '▶ ' + (tr ? 'Tekrar' : 'Again') : '⏳'}
+                    </button>
+                </div>
+                <div style={{ padding: '10px 12px', fontSize: 10.5, lineHeight: 1.9, minHeight: 170 }}>
+                    {phase === 'idle' && <div style={{ color: PT.muted }}>{tr ? '$ Çalıştırmak için ▶ pytest -v\'ye bas' : '$ Press ▶ pytest -v to run'}</div>}
+                    {cur >= order.indexOf('collecting') && (
+                        <div style={{ color: PT.text }}>$ pytest tests/test_login.py -v</div>
+                    )}
+                    {cur >= order.indexOf('collecting') && (
+                        <div style={{ color: PT.muted, marginTop: 2 }}>===== test session starts ===== {'\n'}collected 5 items</div>
+                    )}
+                    {tests.map((t) => {
+                        const tIdx = order.indexOf(t.id)
+                        if (tIdx > cur) return null
+                        return (
+                            <div key={t.id} style={{ color: t.pass ? PT.green : PT.red, marginTop: 2 }}>
+                                {t.name} {t.pass ? 'PASSED' : 'FAILED'} <span style={{ color: PT.muted }}>[{t.pct}%]</span>
+                            </div>
+                        )
+                    })}
+                    {phase === 'done' && (
+                        <div style={{ marginTop: 8, color: failedSoFar > 0 ? PT.yellow : PT.green, fontWeight: 700 }}>
+                            ===== {failedSoFar} failed, {passedSoFar} passed in 2.34s =====
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Right: results panel */}
+            <div style={{ padding: 12, borderRadius: 10, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, background: darkMode ? '#111827' : '#f9fafb' }}>
+                <div className={`text-xs font-bold uppercase tracking-wider mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    📊 {tr ? 'Test Sonuçları' : 'Test Results'}
+                </div>
+                {phase === 'idle' && (
+                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{tr ? 'Henüz test çalışmadı.' : 'No tests run yet.'}</div>
+                )}
+                {cur >= order.indexOf('collecting') && (
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="p-2 rounded-lg text-center" style={{ background: '#9ece6a18', border: '1px solid #9ece6a55' }}>
+                            <div className="text-lg font-bold" style={{ color: '#5fa83f' }}>{passedSoFar}</div>
+                            <div className="text-[10px]" style={{ color: '#5fa83f' }}>{tr ? 'Geçti' : 'Passed'}</div>
+                        </div>
+                        <div className="p-2 rounded-lg text-center" style={{ background: '#f7768e18', border: '1px solid #f7768e55' }}>
+                            <div className="text-lg font-bold" style={{ color: '#c2475c' }}>{failedSoFar}</div>
+                            <div className="text-[10px]" style={{ color: '#c2475c' }}>{tr ? 'Kaldı' : 'Failed'}</div>
+                        </div>
+                    </div>
+                )}
+                {cur >= order.indexOf('t4') && (
+                    <div className="p-2.5 rounded-lg mb-3" style={{ background: darkMode ? '#3b0d14' : '#fef2f2', border: '1px solid #f7768e55' }}>
+                        <div className="text-[10px] font-bold mb-1" style={{ color: '#c2475c' }}>
+                            ❌ AssertionError — test_login_validation[notanemail-pass-invalid]
+                        </div>
+                        <pre className="text-[9.5px] font-mono whitespace-pre-wrap" style={{ color: darkMode ? '#fca5a5' : '#991b1b' }}>
+{`assert 'invalid' in page.error_message().lower()
+AssertionError: expected substring 'invalid'
+not found in 'please enter a valid email'`}
+                        </pre>
+                    </div>
+                )}
+                {phase === 'done' && (
+                    <div className="p-2.5 rounded-lg" style={{ background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                        <div className={`text-[10px] font-bold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>📄 pytest-html</div>
+                        <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>reports/report.html <span style={{ color: '#5fa83f' }}>{tr ? 'oluşturuldu' : 'generated'}</span></div>
+                    </div>
+                )}
+                {phase !== 'idle' && (
+                    <button onClick={reset} className={`mt-3 w-full text-xs py-1.5 rounded-lg border ${darkMode ? 'border-gray-700 text-gray-400 hover:bg-gray-800' : 'border-gray-200 text-gray-500 hover:bg-gray-100'}`}>
+                        🔄 {tr ? 'Sıfırla' : 'Reset'}
+                    </button>
+                )}
+            </div>
         </div>
     )
 }
@@ -452,6 +694,15 @@ pytest tests/test_login.py::test_valid_login
 
 # Verbose + stop on first failure
 pytest -v -x`}</Code>
+            </Section>
+
+            <Section title={tr ? '🎬 Canlı pytest Runner' : '🎬 Live pytest Runner'} darkMode={darkMode}>
+                <p className={`text-sm leading-relaxed mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {tr
+                        ? 'Yukarıdaki test_login.py dosyasının gerçekten çalıştığını izle: "▶ pytest -v" butonuna bas, 5 test sırayla çalışsın, biri (kasıtlı olarak) kırmızı bir AssertionError versin. Java\'da Maven Surefire/JUnit raporunun konsola bastığı PASS/FAIL satırlarının birebir aynısı — burada pytest -v yapıyor.'
+                        : 'Watch the test_login.py file above actually run: click "▶ pytest -v", 5 tests execute in order, and one (deliberately) fails with a red AssertionError. Same idea as the PASS/FAIL lines a Java Maven Surefire/JUnit report prints to console — here pytest -v does it.'}
+                </p>
+                <PytestRunnerSim darkMode={darkMode} tr={tr} />
             </Section>
         </div>
     )
