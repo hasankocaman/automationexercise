@@ -241,13 +241,6 @@ function HomePage() {
             <header className={`shadow-2xl transition-colors duration-300 sticky top-0 z-50 ${darkMode ? 'bg-gray-800' : 'bg-gradient-to-r from-indigo-600 to-purple-600'}`}>
                 <div className="container mx-auto px-3 py-2 md:px-6 md:py-4">
                     <div className="flex justify-between items-center gap-2 flex-wrap">
-                        <button
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            title={t('buttons.homeTooltip')}
-                            className={`text-2xl md:text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer flex-shrink-0 ${darkMode ? 'hover:text-yellow-400' : 'hover:text-yellow-300'}`}
-                        >
-                            🏠
-                        </button>
                         <div className="flex-1 text-center min-w-0 overflow-hidden">
                             <h1 className="text-base sm:text-xl md:text-3xl font-bold leading-tight text-white truncate" data-testid="main-title">
                                 {t('header.title')}
