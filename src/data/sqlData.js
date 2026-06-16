@@ -3,6 +3,7 @@ const sections = [
   {
     title: '🎯 What is SQL & Why Does Every QA Engineer Need It?',
     blocks: [
+      { type: 'simple-box', emoji: '🗃️', content: { tr: "SQL, veritabanına 'benim için şunu bul' demek gibi. Kütüphaneciye hangi kitapları istediğini söylemek gibi. Test ettiğin uygulamanın arkasında her zaman bir veritabanı vardır — SQL ile UI'nın gösterdiklerini değil, gerçekte ne olduğunu görebilirsin.", en: "SQL is how you talk to a database — like telling a librarian exactly which books you want. Every app you test has a database behind it. SQL lets you see what actually happened, not just what the UI shows." } },
       { type: 'heading', text: 'What is a Database?' },
       { type: 'text', content: 'A database is an organized collection of structured data stored electronically. Think of it as a super-powered spreadsheet that can store millions of rows, link related data together, and answer complex questions in milliseconds. Every app you test stores its data somewhere — that somewhere is almost always a database.' },
       { type: 'heading', text: 'What is SQL?' },
@@ -96,6 +97,7 @@ const sections = [
   {
     title: '📦 Setting Up Your SQL Environment',
     blocks: [
+      { type: 'simple-box', emoji: '🛠️', content: { tr: "SQL kurulumu, Java'da IDE kurmaya benzer — bir kere yaparsın, sonra sadece yazarsın. SQLite için sunucu bile gerekmez; tüm veritabanın tek bir dosyada durur. Online editörlerle tarayıcıdan da başlayabilirsin.", en: "Setting up SQL is like installing an IDE for Java — do it once, then just write. SQLite needs no server at all; your entire database lives in a single file. You can even start with an online editor right in your browser." } },
       { type: 'heading', text: 'Option A: Zero-Install Online Editors (Start Here)' },
       {
         type: 'list', icon: '🌐',
@@ -290,6 +292,7 @@ import psycopg2
   {
     title: '🟢 Level 1: SQL Foundations',
     blocks: [
+      { type: 'simple-box', emoji: '📖', content: { tr: "SQL komutları İngilizce cümle gibi okunur: SELECT = 'getir', FROM = 'nereden', WHERE = 'koşulsa'. Java'da bir listeyi for döngüsüyle taradın. SQL'de sadece ne istediğini tarif edersin — veritabanı nasıl bulacağını kendi bilir.", en: "SQL reads like plain English: SELECT = 'give me', FROM = 'from this table', WHERE = 'only if'. In Java you'd loop through a list manually. In SQL you describe what you want and the database figures out how to find it." } },
       { type: 'heading', text: 'CREATE TABLE — Defining Structure', difficulty: '🟢 Beginner' },
       {
         type: 'code',
@@ -664,6 +667,7 @@ DELETE FROM test_results WHERE environment = 'cleanup';`,
   {
     title: '🟡 Level 2: Intermediate SQL',
     blocks: [
+      { type: 'simple-box', emoji: '🔗', content: { tr: "JOIN, iki tabloyu ortak bir sütuna göre birleştirmek — iki Excel dosyasını müşteri numarasına göre yan yana koymak gibi. Java'da bunu iki liste üzerinde iç içe for döngüsüyle yapardın. SQL'de tek satırda JOIN yazarsın.", en: "JOIN means connecting two tables on a shared column — like merging two Excel sheets by customer ID. In Java you'd use nested for loops over two lists. In SQL you write JOIN in one line and the database does the rest." } },
       { type: 'heading', text: 'Aggregate Functions', difficulty: '🟡 Intermediate' },
       {
         type: 'code',
@@ -1114,6 +1118,7 @@ with conn:   # auto-commits on success, rolls back on error
   {
     title: '🔴 Level 3: Advanced SQL',
     blocks: [
+      { type: 'simple-box', emoji: '🪟', content: { tr: "Window fonksiyonu, GROUP BY'ın yaptığını yapar ama satırları yutmaz. GROUP BY 100 satırı 3 gruba indirger. Window fonksiyon 100 satırı korur ve her birine hesaplama ekler — Java'da Streams + Map kombinasyonu gibi ama çok daha kısa.", en: "A window function does what GROUP BY does but keeps all rows. GROUP BY collapses 100 rows into 3 groups. A window function keeps all 100 rows and adds calculations per row — like Java Streams + Map combined, but in a fraction of the code." } },
       { type: 'heading', text: 'Window Functions', difficulty: '🔴 Advanced' },
       { type: 'text', content: 'Window functions perform calculations across a "window" of related rows WITHOUT collapsing them like GROUP BY does. Each row gets its own result while also knowing about surrounding rows.' },
       {
@@ -1395,6 +1400,7 @@ cursor.execute(
   {
     title: '🧪 SQL for QA — Real Testing Scenarios',
     blocks: [
+      { type: 'simple-box', emoji: '🧪', content: { tr: "QA olarak SQL'i iki kritik anda kullanırsın: testten önce INSERT ile veri hazırla, testten sonra SELECT ile doğrula. UI 'işlem başarılı' dese bile, veritabanında gerçekte ne kaydedildiğini SQL ile kontrol edersin.", en: "As a QA engineer, SQL serves you in two key moments: INSERT test data before the test runs, SELECT to verify results after. Even if the UI says 'success', SQL tells you what was actually written to the database." } },
       { type: 'heading', text: 'Use Case 1: Find All Failed Tests in Last 7 Days' },
       {
         type: 'code',
@@ -1542,6 +1548,7 @@ EXPLAIN ANALYZE SELECT * FROM test_results WHERE status = 'FAIL';`,
   {
     title: '💼 SQL Interview Questions & Answers',
     blocks: [
+      { type: 'simple-box', emoji: '💼', content: { tr: "SQL mülakatında 'JOIN nedir?' sorusu değil, 'Production'da şu hata var, nasıl araştırırsın?' sorusu sorulur. Bu bölüm senaryo bazlı sorulara hazırlar — tanım değil, pratik deneyim.", en: "SQL interviews don't ask 'what is JOIN?' — they ask 'there's a bug in production, how do you investigate it with SQL?' This section prepares you for scenario-based questions that require hands-on experience, not just definitions." } },
       { type: 'text', content: 'Click each question to expand the model answer. Includes code examples.' },
       { type: 'subheading', text: '🟢 Basic Questions' },
       { type: 'qa', question: 'Q1: What is the difference between WHERE and HAVING?',
@@ -1743,6 +1750,7 @@ EXPLAIN SELECT ...  -- Now shows type=ref, using indexes` },
   {
     title: '📝 Practice Exercises & Quick Reference',
     blocks: [
+      { type: 'simple-box', emoji: '🏋️', content: { tr: "SQL öğrenmek, yüzmeyi kitaptan öğrenmek gibi değil — suya girmek gerekir. Editörü aç, kodu çalıştır, hata al, düzelt. Her alıştırmayı önce kendin çözmeye çalış, sonra çözümü gör.", en: "Learning SQL from reading alone is like learning to swim from a book — you have to get in the water. Open the editor, run the query, make errors, fix them. Try each exercise yourself first, then check the solution." } },
       { type: 'heading', text: 'Practice Exercises' },
       {
         type: 'exercise',
@@ -1985,10 +1993,11 @@ VALUES (1, 'Alice', 'alice@test.com');
 ]
 
 function applyTr(enSection, overrides) {
+  const offset = overrides.blockOffset || 0
   return {
     title: overrides.title ?? enSection.title,
     blocks: enSection.blocks.map((block, i) => {
-      const o = overrides.blocks?.[i]
+      const o = overrides.blocks?.[i - offset]
       if (!o) return block
       return { ...block, ...o }
     })
@@ -1998,6 +2007,7 @@ function applyTr(enSection, overrides) {
 const trSections = [
   applyTr(sections[0], {
     title: '🎯 SQL Nedir & Her QA Mühendisi Neden Bilmeli?',
+    blockOffset: 1,
     blocks: {
       0: { text: 'Veritabanı Nedir?' },
       1: { content: 'Veritabanı, elektronik ortamda depolanan yapılandırılmış veri koleksiyonudur. Milyonlarca satır saklayan, ilgili verileri birbirine bağlayan ve karmaşık sorulara milisaniyeler içinde yanıt veren güçlü bir spreadsheet gibi düşünebilirsiniz. Test ettiğiniz her uygulamanın verileri neredeyse her zaman bir veritabanında saklanır.' },
@@ -2081,6 +2091,7 @@ const trSections = [
   }),
   applyTr(sections[1], {
     title: '📦 SQL Ortamınızı Kurma',
+    blockOffset: 1,
     blocks: {
       0: { text: 'Seçenek A: Kurulum Gerektirmeyen Çevrimiçi Editörler (Buradan Başlayın)' },
       1: { items: [
@@ -2131,6 +2142,7 @@ const trSections = [
   }),
   applyTr(sections[2], {
     title: '🟢 Seviye 1: SQL Temelleri',
+    blockOffset: 1,
     blocks: {
       0: { text: 'CREATE TABLE — Yapıyı Tanımlama', difficulty: '🟢 Başlangıç' },
       2: { text: 'INSERT INTO — Veri Ekleme', difficulty: '🟢 Başlangıç' },
@@ -2236,6 +2248,7 @@ SELECT name, COALESCE(email, 'eposta yok') FROM users;`,
   }),
   applyTr(sections[3], {
     title: '🟡 Seviye 2: Orta Seviye SQL',
+    blockOffset: 1,
     blocks: {
       0: { text: 'Aggregate (Toplama) Fonksiyonları', difficulty: '🟡 Orta Seviye' },
       // index 2 = editor (Aggregate) — no TR override needed
@@ -2303,6 +2316,7 @@ GROUP BY t.id, t.name;
   }),
   applyTr(sections[4], {
     title: '🔴 Seviye 3: İleri Seviye SQL',
+    blockOffset: 1,
     blocks: {
       0: { text: 'Window (Pencere) Fonksiyonları', difficulty: '🔴 İleri' },
       1: { content: "Window fonksiyonları, GROUP BY'ın aksine satırları daraltmadan ilgili satırlar üzerinde hesaplamalar yapar. Her satır kendi sonucunu korurken komşu satırlar hakkında da bilgi alır." },
@@ -2339,7 +2353,7 @@ GROUP BY t.id, t.name;
       },
     }
   }),
-  applyTr(sections[5], {
+  applyTr(sections[5], { blockOffset: 1,
     title: '🧪 QA için SQL — Gerçek Test Senaryoları',
     blocks: {
       0: { text: 'Senaryo 1: Son 7 Günde Başarısız Olan Testleri Bul' },
@@ -2352,6 +2366,7 @@ GROUP BY t.id, t.name;
   }),
   applyTr(sections[6], {
     title: '💼 SQL Mülakat Soruları & Cevapları',
+    blockOffset: 1,
     blocks: {
       0: { content: 'Model cevabı görmek için her soruya tıklayın. Kod örnekleri içerir.' },
       1: { text: '🟢 Temel Sorular' },
@@ -2376,6 +2391,7 @@ GROUP BY t.id, t.name;
   }),
   applyTr(sections[7], {
     title: '📝 Pratik Alıştırmalar & Hızlı Referans',
+    blockOffset: 1,
     blocks: {
       0: { text: 'Pratik Alıştırmalar' },
       1: {

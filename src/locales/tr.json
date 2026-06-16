@@ -1,13 +1,27 @@
 {
     "header": {
-        "title": "🧪 Automation Testing Playground",
-        "subtitle": "Selenium, Cypress ve Playwright ile otomasyon pratiği yapın"
+        "title": "🧭 QA Learning Platform",
+        "subtitle": "Python, SQL, otomasyon araçları ve DevOps konularını QA odaklı yollarla öğren",
+        "back": "Automation Exercise ana sayfasına geri dön",
+        "language": "Dil",
+        "toggleLanguage": "Dili değiştir",
+        "theme": {
+            "dark": "Karanlık moda geç",
+            "light": "Aydınlık moda geç"
+        }
     },
     "buttons": {
         "darkMode": "Karanlık Mod",
         "lightMode": "Aydınlık Mod",
         "homeTooltip": "Sayfanın başına dön",
+        "search": "Ara",
         "preparedBy": "Hazırlayan:"
+    },
+    "search": {
+        "tooltip": "Konularda ara (Ctrl+K)",
+        "placeholder": "Tüm konularda ara... (ör: token, assertion, dockerfile)",
+        "noResults": "🔍 Sonuç bulunamadı",
+        "hint": "En az 2 karakter gir · ESC ile kapat"
     },
     "nav": {
         "basic": "📝 Temel Elementler",
@@ -18,6 +32,75 @@
         "api": "🌐 API Simülasyonu",
         "comparison": "🔍 Test Araçları Karşılaştırma",
         "practice": "🛠️ Uygulama Bahçesi"
+    },
+    "home": {
+        "section": {
+            "basicShort": "📝 Temel",
+            "locatorShort": "🎯 Locator",
+            "complexShort": "🎯 Karmaşık",
+            "advancedShort": "🚀 Gelişmiş",
+            "tableShort": "📊 Tablo",
+            "apiShort": "🌐 API",
+            "practiceShort": "🛠️ Pratik"
+        },
+        "category": {
+            "languages": "Diller",
+            "testTools": "Test Araçları",
+            "performanceApi": "Performans & API",
+            "devOps": "DevOps",
+            "database": "Veritabanı",
+            "practice": "Practice Lab"
+        },
+        "heroBadge": "Buradan başla",
+        "heroTitle": "Bir öğrenme yolu seç, mülakata hazır QA becerileri geliştir.",
+        "heroText": "Bu platform Java bilen bir QA mühendisini pratik Python, SQL, Selenium, Playwright, API testi, CI/CD ve gerçek mülakat senaryolarına taşır. Konuyu oku, Java ile karşılaştır, örneği çalıştır, sonra gerçek UI elementleri üzerinde pratik yap.",
+        "heroChip": {
+            "java": "Java analojileri",
+            "handsOn": "Hands-on pratik",
+            "interview": "Mülakat hazırlığı"
+        },
+        "path": {
+            "javaToPython": {
+                "title": "Java → Python QA",
+                "badge": "⭐ Önerilen başlangıç",
+                "description": "Core Java biliyorsan buradan başla. Her adımda Java karşılaştırmasıyla Python test otomasyonunu öğren.",
+                "action": "Python yolunu aç"
+            },
+            "automation": {
+                "title": "UI & API Automation",
+                "description": "Selenium, Playwright, REST Assured. Locator, wait ve gerçek browser test kalıplarını öğren.",
+                "action": "Selenium yolunu aç"
+            },
+            "devops": {
+                "title": "DevOps & CI/CD",
+                "description": "Docker, Jenkins, Kubernetes, Kafka — otomasyonu gerçek pipeline'lara entegre et.",
+                "action": "Docker yolunu aç"
+            },
+            "practice": {
+                "title": "Practice Lab",
+                "description": "Gerçek UI elementleri: form, tablo, modal, API, Shadow DOM, dosya yükleme.",
+                "action": "Pratiğe başla"
+            }
+        },
+        "heroRecommended": "Java biliyorsan Python yolundan başla — her kavram bir Java karşılaştırmasıyla anlatılır.",
+        "learnJava": "☕ Java Öğren",
+        "jsTsCompare": "JavaScript ve TypeScript Karşılaştırma",
+        "compare3Lang": "🔀 3 Dil Karşılaştır",
+        "learnCypress": "Cypress Öğren",
+        "learnPlaywright": "Playwright Öğren",
+        "learnRestAssured": "🧪 REST Assured Öğren",
+        "learnAppium": "📱 Appium Öğren",
+        "learnSelenium": "🟢 Selenium Öğren",
+        "learnBrowserStack": "☁️ BrowserStack Öğren",
+        "compare": "🔍 Karşılaştır",
+        "compareTools": "🔍 Araçları Karşılaştır",
+        "learnPostman": "📮 Postman Öğren",
+        "learnDocker": "🐳 Docker Öğren",
+        "learnJenkins": "🔧 Jenkins Öğren",
+        "learnKubernetes": "☸️ Kubernetes Öğren",
+        "learnKafka": "🟠 Kafka Öğren",
+        "learnAWS": "☁️ AWS Öğren",
+        "learnAzure": "🔷 Azure Öğren"
     },
     "footer": {
         "text": "Otomasyon Test Mühendisleri İçin Hazırlandı • Tüm elementlerin benzersiz test ID'leri var",
@@ -181,6 +264,33 @@
         "seleniumStrength": "Olgun, esnek, geniş dil ve tarayıcı desteği",
         "playwrightStrength": "Modern, hızlı, güçlü API ve network kontrolü",
         "finalAdvice": "Proje gereksinimlerinize, ekibinizin becerilerine ve test kapsamınıza göre en uygun aracı seçin."
+    },
+    "javaBanner": {
+        "subtitle": "Profesyonel Başvuru Kütüphanesi",
+        "title": "Java® Notes for Professionals Kitabı",
+        "description": "900+ sayfalık profesyonel Java ipuçları, detaylı kod örnekleri ve konu anlatımları (Arama ve Çeviri Desteği)",
+        "tagJavaSE": "☕ Java SE",
+        "tagChapters": "📚 100+ Bölüm",
+        "tagSearch": "🔍 Arama Desteği",
+        "tagIndex": "🌐 EN / TR İndeks"
+    },
+    "topic": {
+        "showHint": "💡 İpucu Göster",
+        "hideHint": "🙈 İpucunu Gizle",
+        "showSolution": "👁 Çözümü Göster",
+        "hideSolution": "🙈 Çözümü Gizle",
+        "quiz": {
+            "title": "Hızlı Quiz",
+            "checkAnswer": "Cevabı Kontrol Et",
+            "correctPrefix": "🎉 Doğru! ",
+            "incorrectPrefix": "💡 Yanlış — "
+        },
+        "comparison": {
+            "concept": "Kavram"
+        },
+        "postmanDescription": "Postman'da böyle yapılır → REST Assured karşılığı göster",
+        "postmanShow": "▼ Göster",
+        "postmanHide": "▲ Gizle"
     },
     "locator": {
         "title": "🎯 Selenium vs Playwright Locator Rehberi",
@@ -429,20 +539,30 @@
         "tables": {
             "title": "📊 Tablo Yapıları",
             "static": "Statik Tablo",
-            "pagination": "Sayfalamalı Tablo"
+            "pagination": "Sayfalamalı Tablo",
+            "staticBadge": "STATİK",
+            "paginationBadge": "SAYFALAMA",
+            "previous": "Önceki",
+            "page": "Sayfa",
+            "of": "/",
+            "next": "Sonraki"
         },
         "files": {
             "title": "📁 Dosya İşlemleri",
             "single": "Tekli Dosya Yükle",
-            "multiple": "Çoklu Dosya Yükle"
+            "multiple": "Çoklu Dosya Yükle",
+            "uploadedFiles": "Yüklenen Dosyalar:"
         },
         "interactions": {
             "title": "🖱️ Etkileşimli Araçlar",
             "slider": "Sürgü (Slider)",
+            "valueLabel": "Değer",
             "dragDrop": "Sürükle ve Bırak",
             "doubleClick": "Çift Tıklama",
+            "clickTwice": "2 kez tıkla",
             "dragMe": "Beni Sürükle",
             "dropHere": "Buraya Bırak",
+            "success": "Başarılı!",
             "doubleClickResult": "Çift tıklandı!"
         }
     }

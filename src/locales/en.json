@@ -1,13 +1,27 @@
 {
     "header": {
-        "title": "🧪 Automation Testing Playground",
-        "subtitle": "Practice automation with Selenium, Cypress, and Playwright"
+        "title": "🧭 QA Learning Platform",
+        "subtitle": "Learn Python, SQL, automation tools, and DevOps with hands-on QA paths",
+        "back": "Back to Automation Exercise main page",
+        "language": "Language",
+        "toggleLanguage": "Toggle language",
+        "theme": {
+            "dark": "Switch to dark theme",
+            "light": "Switch to light theme"
+        }
     },
     "buttons": {
         "darkMode": "Dark Mode",
         "lightMode": "Light Mode",
         "homeTooltip": "Back to top",
+        "search": "Search",
         "preparedBy": "Prepared by:"
+    },
+    "search": {
+        "tooltip": "Search topics (Ctrl+K)",
+        "placeholder": "Search all topics... (e.g. token, assertion, dockerfile)",
+        "noResults": "🔍 No results found",
+        "hint": "Type at least 2 characters · ESC to close"
     },
     "nav": {
         "basic": "📝 Basic Elements",
@@ -18,6 +32,75 @@
         "api": "🌐 API Simulation",
         "comparison": "🔍 Test Tools Comparison",
         "practice": "🛠️ Practice Playground"
+    },
+    "home": {
+        "section": {
+            "basicShort": "📝 Basic",
+            "locatorShort": "🎯 Locator",
+            "complexShort": "🎯 Complex",
+            "advancedShort": "🚀 Advanced",
+            "tableShort": "📊 Table",
+            "apiShort": "🌐 API",
+            "practiceShort": "🛠️ Practice"
+        },
+        "category": {
+            "languages": "Languages",
+            "testTools": "Test Tools",
+            "performanceApi": "Performance & API",
+            "devOps": "DevOps",
+            "database": "Database",
+            "practice": "Practice Lab"
+        },
+        "heroBadge": "Start here",
+        "heroTitle": "Choose a learning path and build interview-ready QA skills.",
+        "heroText": "This platform takes a QA engineer from Java knowledge to practical Python, SQL, Selenium, Playwright, API testing, CI/CD, and real interview scenarios. Read the concept, compare it with Java, run examples, then practice on real UI elements.",
+        "heroChip": {
+            "java": "Java analogies",
+            "handsOn": "Hands-on practice",
+            "interview": "Interview prep"
+        },
+        "path": {
+            "javaToPython": {
+                "title": "Java → Python QA",
+                "badge": "⭐ Recommended start",
+                "description": "Know Core Java? Start here. Learn Python test automation with familiar Java comparisons at every step.",
+                "action": "Open Python path"
+            },
+            "automation": {
+                "title": "UI & API Automation",
+                "description": "Master Selenium, Playwright, REST Assured. Learn locators, waits, and real browser testing patterns.",
+                "action": "Open Selenium path"
+            },
+            "devops": {
+                "title": "DevOps & CI/CD",
+                "description": "Docker, Jenkins, Kubernetes, Kafka — integrate automation into real pipelines.",
+                "action": "Open Docker path"
+            },
+            "practice": {
+                "title": "Practice Lab",
+                "description": "Real UI elements: forms, tables, modals, APIs, Shadow DOM, file upload.",
+                "action": "Start practicing"
+            }
+        },
+        "heroRecommended": "If you know Java, start with the Python path — every concept explained with a Java comparison.",
+        "learnJava": "☕ Learn Java",
+        "jsTsCompare": "JS vs TypeScript",
+        "compare3Lang": "🔀 3-Language Compare",
+        "learnCypress": "Learn Cypress",
+        "learnPlaywright": "Learn Playwright",
+        "learnRestAssured": "🧪 Learn REST Assured",
+        "learnAppium": "📱 Learn Appium",
+        "learnSelenium": "🟢 Learn Selenium",
+        "learnBrowserStack": "☁️ Learn BrowserStack",
+        "compare": "🔍 Compare",
+        "compareTools": "🔍 Compare Tools",
+        "learnPostman": "📮 Learn Postman",
+        "learnDocker": "🐳 Learn Docker",
+        "learnJenkins": "🔧 Learn Jenkins",
+        "learnKubernetes": "☸️ Learn Kubernetes",
+        "learnKafka": "🟠 Learn Kafka",
+        "learnAWS": "☁️ Learn AWS",
+        "learnAzure": "🔷 Learn Azure"
     },
     "footer": {
         "text": "Created for Automation Testers • All elements have unique test IDs",
@@ -181,6 +264,33 @@
         "seleniumStrength": "Mature, flexible, wide language and browser support",
         "playwrightStrength": "Modern, fast, powerful API and network control",
         "finalAdvice": "Choose the most suitable tool according to your project requirements, team skills, and test scope."
+    },
+    "javaBanner": {
+        "subtitle": "Professional Reference Library",
+        "title": "Java® Notes for Professionals Book",
+        "description": "900+ pages of professional Java tips, detailed code examples, and explanations (Search & Translation support)",
+        "tagJavaSE": "☕ Java SE",
+        "tagChapters": "📚 100+ Chapters",
+        "tagSearch": "🔍 Search Support",
+        "tagIndex": "🌐 EN / TR Index"
+    },
+    "topic": {
+        "showHint": "💡 Show Hint",
+        "hideHint": "🙈 Hide Hint",
+        "showSolution": "👁 Show Solution",
+        "hideSolution": "🙈 Hide Solution",
+        "quiz": {
+            "title": "Quick Quiz",
+            "checkAnswer": "Check Answer",
+            "correctPrefix": "🎉 Correct! ",
+            "incorrectPrefix": "💡 Incorrect — "
+        },
+        "comparison": {
+            "concept": "Concept"
+        },
+        "postmanDescription": "How it's done in Postman → Show REST Assured equivalent",
+        "postmanShow": "▼ Show",
+        "postmanHide": "▲ Hide"
     },
     "locator": {
         "title": "🎯 Selenium vs Playwright Locator Guide",
@@ -429,20 +539,30 @@
         "tables": {
             "title": "📊 Table Structures",
             "static": "Static Table",
-            "pagination": "Pagination Table"
+            "pagination": "Pagination Table",
+            "staticBadge": "STATIC",
+            "paginationBadge": "PAGINATION",
+            "previous": "Previous",
+            "page": "Page",
+            "of": "of",
+            "next": "Next"
         },
         "files": {
             "title": "📁 File Operations",
             "single": "Single File Upload",
-            "multiple": "Multiple File Upload"
+            "multiple": "Multiple File Upload",
+            "uploadedFiles": "Uploaded Files:"
         },
         "interactions": {
             "title": "🖱️ Interactive Tools",
             "slider": "Slider",
+            "valueLabel": "Value",
             "dragDrop": "Drag and Drop",
             "doubleClick": "Double Click",
+            "clickTwice": "Click x2",
             "dragMe": "Drag Me",
             "dropHere": "Drop Here",
+            "success": "Success!",
             "doubleClickResult": "Double clicked!"
         }
     }

@@ -34,10 +34,10 @@ function HomePage() {
     useEffect(() => {
         if (searchQuery.trim().length < 2) { setSearchResults([]); return }
         const timer = setTimeout(() => {
-            setSearchResults(searchContent(searchQuery))
+            setSearchResults(searchContent(searchQuery, language))
         }, 250)
         return () => clearTimeout(timer)
-    }, [searchQuery])
+    }, [searchQuery, language])
 
     // ESC closes modal
     useEffect(() => {
@@ -62,35 +62,71 @@ function HomePage() {
     }
 
     const sections = [
-        { id: 'basic',        name: t('nav.basic'),       shortName: language === 'tr' ? '📝 Temel'   : '📝 Basic' },
-        { id: 'locator-guide',name: t('nav.locatorGuide'),shortName: '🎯 Locator' },
-        { id: 'complex',      name: t('nav.complex'),     shortName: language === 'tr' ? '🎯 Karmaşık': '🎯 Complex' },
-        { id: 'advanced',     name: t('nav.advanced'),    shortName: language === 'tr' ? '🚀 Gelişmiş': '🚀 Advanced' },
-        { id: 'table',        name: t('nav.table'),       shortName: language === 'tr' ? '📊 Tablo'   : '📊 Table' },
-        { id: 'api',          name: t('nav.api'),         shortName: '🌐 API' },
-        { id: 'practice',     name: t('nav.practice') || '🛠️ Uygulama Bahçesi', shortName: language === 'tr' ? '🛠️ Pratik' : '🛠️ Practice' },
+        { id: 'basic', name: t('nav.basic'), shortName: t('home.section.basicShort') },
+        { id: 'locator-guide', name: t('nav.locatorGuide'), shortName: t('home.section.locatorShort') },
+        { id: 'complex', name: t('nav.complex'), shortName: t('home.section.complexShort') },
+        { id: 'advanced', name: t('nav.advanced'), shortName: t('home.section.advancedShort') },
+        { id: 'table', name: t('nav.table'), shortName: t('home.section.tableShort') },
+        { id: 'api', name: t('nav.api'), shortName: t('home.section.apiShort') },
+        { id: 'practice', name: t('nav.practice') || '🛠️ Practice Playground', shortName: t('home.section.practiceShort') },
+    ]
+
+    const learningPaths = [
+        {
+            icon: '☕',
+            title: t('home.path.javaToPython.title'),
+            badge: t('home.path.javaToPython.badge'),
+            description: t('home.path.javaToPython.description'),
+            action: t('home.path.javaToPython.action'),
+            color: darkMode ? 'from-yellow-500/20 to-emerald-500/20 border-yellow-500/40' : 'from-yellow-50 to-emerald-50 border-yellow-300',
+            badgeColor: darkMode ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40' : 'bg-yellow-100 text-yellow-800 border border-yellow-300',
+            onClick: () => navigate('/python'),
+        },
+        {
+            icon: '🧪',
+            title: t('home.path.automation.title'),
+            description: t('home.path.automation.description'),
+            action: t('home.path.automation.action'),
+            color: darkMode ? 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30' : 'from-indigo-50 to-purple-50 border-indigo-200',
+            onClick: () => navigate('/selenium'),
+        },
+        {
+            icon: '🛠️',
+            title: t('home.path.devops.title'),
+            description: t('home.path.devops.description'),
+            action: t('home.path.devops.action'),
+            color: darkMode ? 'from-cyan-500/20 to-blue-500/20 border-cyan-500/30' : 'from-cyan-50 to-blue-50 border-cyan-200',
+            onClick: () => navigate('/docker'),
+        },
+        {
+            icon: '🎯',
+            title: t('home.path.practice.title'),
+            description: t('home.path.practice.description'),
+            action: t('home.path.practice.action'),
+            color: darkMode ? 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30' : 'from-emerald-50 to-teal-50 border-emerald-200',
+            onClick: () => setActiveSection('practice'),
+        },
     ]
 
     const renderSection = () => {
         switch (activeSection) {
-            case 'basic':         return <BasicElements darkMode={darkMode} />
+            case 'basic': return <BasicElements darkMode={darkMode} />
             case 'locator-guide': return <LocatorGuide darkMode={darkMode} />
-            case 'complex':       return <ComplexInteractions darkMode={darkMode} />
-            case 'advanced':      return <AdvancedScenarios darkMode={darkMode} />
-            case 'table':         return <DataTable darkMode={darkMode} />
-            case 'api':           return <APISimulation darkMode={darkMode} />
-            case 'comparison':    return <FrameworkComparison darkMode={darkMode} />
-            case 'lang-compare':  return <PlaywrightLangCompare darkMode={darkMode} />
-            case 'practice':      return <Practice darkMode={darkMode} onHomeClick={() => setActiveSection('basic')} />
-            default:              return <BasicElements darkMode={darkMode} />
+            case 'complex': return <ComplexInteractions darkMode={darkMode} />
+            case 'advanced': return <AdvancedScenarios darkMode={darkMode} />
+            case 'table': return <DataTable darkMode={darkMode} />
+            case 'api': return <APISimulation darkMode={darkMode} />
+            case 'comparison': return <FrameworkComparison darkMode={darkMode} />
+            case 'lang-compare': return <PlaywrightLangCompare darkMode={darkMode} />
+            case 'practice': return <Practice darkMode={darkMode} onHomeClick={() => setActiveSection('basic')} />
+            default: return <BasicElements darkMode={darkMode} />
         }
     }
 
     // Category label badge
     const CatLabel = ({ emoji, text }) => (
-        <span className={`inline-flex items-center gap-1 text-xs font-bold whitespace-nowrap select-none px-2 py-1 rounded-md mr-0.5 ${
-            darkMode ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-100'
-        }`}>
+        <span className={`inline-flex items-center gap-1 text-xs font-bold whitespace-nowrap select-none px-2 py-1 rounded-md mr-0.5 ${darkMode ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-100'
+            }`}>
             {emoji} {text}
         </span>
     )
@@ -98,21 +134,80 @@ function HomePage() {
     // Colored nav button class generator
     const nb = (color) => {
         const palettes = {
-            yellow:  darkMode ? 'text-yellow-300 hover:bg-yellow-900/70 hover:text-yellow-100 hover:border-yellow-700' : 'text-yellow-700 hover:bg-yellow-100 hover:border-yellow-300',
-            indigo:  darkMode ? 'text-indigo-300 hover:bg-indigo-900/70 hover:text-indigo-100 hover:border-indigo-700' : 'text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300',
-            blue:    darkMode ? 'text-blue-300 hover:bg-blue-900/70 hover:text-blue-100 hover:border-blue-700'         : 'text-blue-700 hover:bg-blue-100 hover:border-blue-300',
-            purple:  darkMode ? 'text-purple-300 hover:bg-purple-900/70 hover:text-purple-100 hover:border-purple-700' : 'text-purple-700 hover:bg-purple-100 hover:border-purple-300',
+            yellow: darkMode ? 'text-yellow-300 hover:bg-yellow-900/70 hover:text-yellow-100 hover:border-yellow-700' : 'text-yellow-700 hover:bg-yellow-100 hover:border-yellow-300',
+            indigo: darkMode ? 'text-indigo-300 hover:bg-indigo-900/70 hover:text-indigo-100 hover:border-indigo-700' : 'text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300',
+            blue: darkMode ? 'text-blue-300 hover:bg-blue-900/70 hover:text-blue-100 hover:border-blue-700' : 'text-blue-700 hover:bg-blue-100 hover:border-blue-300',
+            purple: darkMode ? 'text-purple-300 hover:bg-purple-900/70 hover:text-purple-100 hover:border-purple-700' : 'text-purple-700 hover:bg-purple-100 hover:border-purple-300',
             emerald: darkMode ? 'text-emerald-300 hover:bg-emerald-900/70 hover:text-emerald-100 hover:border-emerald-700' : 'text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300',
-            green:   darkMode ? 'text-green-300 hover:bg-green-900/70 hover:text-green-100 hover:border-green-700'     : 'text-green-700 hover:bg-green-100 hover:border-green-300',
-            orange:  darkMode ? 'text-orange-300 hover:bg-orange-900/70 hover:text-orange-100 hover:border-orange-700' : 'text-orange-700 hover:bg-orange-100 hover:border-orange-300',
-            cyan:    darkMode ? 'text-cyan-300 hover:bg-cyan-900/70 hover:text-cyan-100 hover:border-cyan-700'         : 'text-cyan-700 hover:bg-cyan-100 hover:border-cyan-300',
-            violet:  darkMode ? 'text-violet-300 hover:bg-violet-900/70 hover:text-violet-100 hover:border-violet-700' : 'text-violet-700 hover:bg-violet-100 hover:border-violet-300',
+            green: darkMode ? 'text-green-300 hover:bg-green-900/70 hover:text-green-100 hover:border-green-700' : 'text-green-700 hover:bg-green-100 hover:border-green-300',
+            orange: darkMode ? 'text-orange-300 hover:bg-orange-900/70 hover:text-orange-100 hover:border-orange-700' : 'text-orange-700 hover:bg-orange-100 hover:border-orange-300',
+            cyan: darkMode ? 'text-cyan-300 hover:bg-cyan-900/70 hover:text-cyan-100 hover:border-cyan-700' : 'text-cyan-700 hover:bg-cyan-100 hover:border-cyan-300',
+            violet: darkMode ? 'text-violet-300 hover:bg-violet-900/70 hover:text-violet-100 hover:border-violet-700' : 'text-violet-700 hover:bg-violet-100 hover:border-violet-300',
         }
         return `px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-semibold text-xs md:text-sm whitespace-nowrap
             transition-all duration-200 hover:scale-105 hover:shadow-md border
             ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}
             ${palettes[color] || ''}`
     }
+
+    const renderLearningIntro = () => (
+        <section className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+            <div className={`rounded-2xl border p-4 md:p-6 shadow-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.4fr] gap-4 md:gap-6 items-stretch">
+                    <div className="flex flex-col justify-center">
+                        <div className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-3 ${darkMode ? 'bg-purple-900/40 text-purple-200 border border-purple-700' : 'bg-purple-50 text-purple-700 border border-purple-200'}`}>
+                            <span>🎯</span>
+                            <span>{t('home.heroBadge')}</span>
+                        </div>
+                        <h2 className={`text-xl md:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {t('home.heroTitle')}
+                        </h2>
+                        <p className={`mt-3 text-sm md:text-base leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            {t('home.heroText')}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                            {[t('home.heroChip.java'), t('home.heroChip.handsOn'), t('home.heroChip.interview')].map((chip) => (
+                                <span key={chip} className={`rounded-full px-3 py-1 ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                                    {chip}
+                                </span>
+                            ))}
+                        </div>
+                        <p className={`mt-3 text-xs leading-relaxed italic border-l-2 pl-3 ${darkMode ? 'text-yellow-300/80 border-yellow-500/50' : 'text-yellow-700 border-yellow-400'}`}>
+                            {t('home.heroRecommended')}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        {learningPaths.map((path) => (
+                            <button
+                                key={path.title}
+                                onClick={path.onClick}
+                                className={`group text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg`}
+                            >
+                                {path.badge && (
+                                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 ${path.badgeColor}`}>
+                                        {path.badge}
+                                    </span>
+                                )}
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="text-xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
+                                    <h3 className={`text-xs md:text-sm font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {path.title}
+                                    </h3>
+                                </div>
+                                <p className={`text-[11px] leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    {path.description}
+                                </p>
+                                <div className={`mt-2 text-[11px] font-bold ${darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
+                                    {path.action} →
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
 
     return (
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50'}`}>
@@ -140,10 +235,10 @@ function HomePage() {
                             {/* Search button */}
                             <button
                                 onClick={() => setSearchOpen(true)}
-                                title="Konularda ara (Ctrl+K)"
+                                title={t('search.tooltip')}
                                 className={`px-2 md:px-3 py-1 md:py-2 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 flex items-center gap-1 ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white/20 text-white hover:bg-white/30'}`}
                             >
-                                🔍 <span className="hidden md:inline">Ara</span>
+                                🔍 <span className="hidden md:inline">{t('buttons.search')}</span>
                             </button>
                             <div className="flex bg-white rounded-lg overflow-hidden" data-testid="language-toggle">
                                 <button
@@ -188,7 +283,7 @@ function HomePage() {
                                 ref={searchInputRef}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={language === 'tr' ? 'Tüm konularda ara... (ör: token, assertion, dockerfile)' : 'Search all topics... (e.g. token, assertion, dockerfile)'}
+                                placeholder={t('search.placeholder')}
                                 className={`flex-1 outline-none text-sm md:text-base bg-transparent ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-800 placeholder-gray-400'}`}
                                 style={{ fontSize: '16px' }}
                             />
@@ -221,19 +316,21 @@ function HomePage() {
                         {/* No results */}
                         {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
                             <div className={`p-8 text-center text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                {language === 'tr' ? '🔍 Sonuç bulunamadı' : '🔍 No results found'}
+                                {t('search.noResults')}
                             </div>
                         )}
 
                         {/* Hint when empty */}
                         {searchQuery.trim().length < 2 && (
                             <div className={`p-4 text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>
-                                {language === 'tr' ? 'En az 2 karakter gir' : 'Type at least 2 characters'} · ESC {language === 'tr' ? 'ile kapat' : 'to close'}
+                                {t('search.hint')}
                             </div>
                         )}
                     </div>
                 </div>
             )}
+
+            {renderLearningIntro()}
 
             {/* Navigation — Categorized */}
             <nav
@@ -244,10 +341,10 @@ function HomePage() {
 
                     {/* 1. Programlama Dilleri */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🐍" text={language === 'tr' ? 'Diller' : 'Languages'} />
+                        <CatLabel emoji="🐍" text={t('home.category.languages')} />
                         <button onClick={() => navigate('/java')} data-testid="nav-java" className={nb('orange')}>
                             <span className="sm:hidden">☕ Java</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '☕ Java Öğren' : '☕ Learn Java'}</span>
+                            <span className="hidden sm:inline">{t('home.learnJava')}</span>
                         </button>
                         <button onClick={() => navigate('/python')} data-testid="nav-python" className={nb('yellow')}>
                             <span className="sm:hidden">🐍 Python</span>
@@ -259,91 +356,91 @@ function HomePage() {
                         </button>
                         <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>
                             <span className="sm:hidden">JS↔TS</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? 'JavaScript ve TypeScript Karşılaştırma' : 'JS vs TypeScript'}</span>
+                            <span className="hidden sm:inline">{t('home.jsTsCompare')}</span>
                         </a>
                         <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>
                             <span className="sm:hidden">🔀 3 Dil</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🔀 3 Dil Karşılaştır' : '🔀 3-Language Compare'}</span>
+                            <span className="hidden sm:inline">{t('home.compare3Lang')}</span>
                         </button>
                     </div>
 
                     {/* 2. Test Otomasyon Araçları */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🧪" text={language === 'tr' ? 'Test Araçları' : 'Test Tools'} />
+                        <CatLabel emoji="🧪" text={t('home.category.testTools')} />
                         <a href="https://hasankocaman.github.io/teach-Cypress/" className={nb('purple')}>
                             <span className="sm:hidden">Cypress</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? 'Cypress Öğren' : 'Learn Cypress'}</span>
+                            <span className="hidden sm:inline">{t('home.learnCypress')}</span>
                         </a>
                         <button onClick={() => navigate('/playwright')} className={nb('purple')}>
                             <span className="sm:hidden">Playwright</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? 'Playwright Öğren' : 'Learn Playwright'}</span>
+                            <span className="hidden sm:inline">{t('home.learnPlaywright')}</span>
                         </button>
                         <button onClick={() => navigate('/rest-assured')} data-testid="nav-rest-assured" className={nb('emerald')}>
                             <span className="sm:hidden">🧪 REST</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🧪 REST Assured Öğren' : '🧪 Learn REST Assured'}</span>
+                            <span className="hidden sm:inline">{t('home.learnRestAssured')}</span>
                         </button>
                         <button onClick={() => navigate('/appium')} data-testid="nav-appium" className={nb('green')}>
                             <span className="sm:hidden">📱 Appium</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '📱 Appium Öğren' : '📱 Learn Appium'}</span>
+                            <span className="hidden sm:inline">{t('home.learnAppium')}</span>
                         </button>
                         <button onClick={() => navigate('/selenium')} data-testid="nav-selenium" className={nb('emerald')}>
                             <span className="sm:hidden">🟢 Selenium</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🟢 Selenium Öğren' : '🟢 Learn Selenium'}</span>
+                            <span className="hidden sm:inline">{t('home.learnSelenium')}</span>
                         </button>
                         <button onClick={() => navigate('/browserstack')} data-testid="nav-browserstack" className={nb('orange')}>
                             <span className="sm:hidden">☁️ BS</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '☁️ BrowserStack Öğren' : '☁️ Learn BrowserStack'}</span>
+                            <span className="hidden sm:inline">{t('home.learnBrowserStack')}</span>
                         </button>
                         <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>
-                            <span className="sm:hidden">🔍 Karşılaştır</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🔍 Araçları Karşılaştır' : '🔍 Compare Tools'}</span>
+                            <span className="sm:hidden">{t('home.compare')}</span>
+                            <span className="hidden sm:inline">{t('home.compareTools')}</span>
                         </button>
                     </div>
 
                     {/* 3. Performans & API */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="⚡" text={language === 'tr' ? 'Performans & API' : 'Performance & API'} />
+                        <CatLabel emoji="⚡" text={t('home.category.performanceApi')} />
                         <button onClick={() => navigate('/jmeter')} data-testid="nav-jmeter" className={nb('orange')}>
                             {t('jmeter.navButton')}
                         </button>
                         <button onClick={() => navigate('/postman')} data-testid="nav-postman" className={nb('orange')}>
                             <span className="sm:hidden">📮 Postman</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '📮 Postman Öğren' : '📮 Learn Postman'}</span>
+                            <span className="hidden sm:inline">{t('home.learnPostman')}</span>
                         </button>
                     </div>
 
                     {/* 4. DevOps & Altyapı */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🛠️" text="DevOps" />
+                        <CatLabel emoji="🛠️" text={t('home.category.devOps')} />
                         <button onClick={() => navigate('/docker')} data-testid="nav-docker" className={nb('cyan')}>
                             <span className="sm:hidden">🐳 Docker</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🐳 Docker Öğren' : '🐳 Learn Docker'}</span>
+                            <span className="hidden sm:inline">{t('home.learnDocker')}</span>
                         </button>
                         <button onClick={() => navigate('/jenkins')} data-testid="nav-jenkins" className={nb('blue')}>
                             <span className="sm:hidden">🔧 Jenkins</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🔧 Jenkins Öğren' : '🔧 Learn Jenkins'}</span>
+                            <span className="hidden sm:inline">{t('home.learnJenkins')}</span>
                         </button>
                         <button onClick={() => navigate('/kubernetes')} data-testid="nav-kubernetes" className={nb('violet')}>
                             <span className="sm:hidden">☸️ K8s</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '☸️ Kubernetes Öğren' : '☸️ Learn Kubernetes'}</span>
+                            <span className="hidden sm:inline">{t('home.learnKubernetes')}</span>
                         </button>
                         <button onClick={() => navigate('/kafka')} data-testid="nav-kafka" className={nb('orange')}>
                             <span className="sm:hidden">🟠 Kafka</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🟠 Kafka Öğren' : '🟠 Learn Kafka'}</span>
+                            <span className="hidden sm:inline">{t('home.learnKafka')}</span>
                         </button>
                         <button onClick={() => navigate('/aws')} data-testid="nav-aws" className={nb('orange')}>
                             <span className="sm:hidden">☁️ AWS</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '☁️ AWS Öğren' : '☁️ Learn AWS'}</span>
+                            <span className="hidden sm:inline">{t('home.learnAWS')}</span>
                         </button>
                         <button onClick={() => navigate('/azure')} data-testid="nav-azure" className={nb('blue')}>
                             <span className="sm:hidden">🔷 Azure</span>
-                            <span className="hidden sm:inline">{language === 'tr' ? '🔷 Azure Öğren' : '🔷 Learn Azure'}</span>
+                            <span className="hidden sm:inline">{t('home.learnAzure')}</span>
                         </button>
                     </div>
 
                     {/* 5. Veritabanı */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🗄️" text={language === 'tr' ? 'Veritabanı' : 'Database'} />
+                        <CatLabel emoji="🗄️" text={t('home.category.database')} />
                         <button onClick={() => navigate('/sql')} data-testid="nav-sql" className={nb('blue')}>
                             {t('sql.navButton')}
                         </button>
@@ -351,15 +448,14 @@ function HomePage() {
 
                     {/* 6. Pratik Alan */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
-                        <CatLabel emoji="🎯" text={language === 'tr' ? 'Pratik Alan' : 'Practice'} />
+                        <CatLabel emoji="🎯" text={t('home.category.practice')} />
                         {sections.map((section) => (
                             <button
                                 key={section.id}
                                 onClick={() => setActiveSection(section.id)}
                                 data-testid={`nav-${section.id}`}
                                 className={`px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-semibold text-xs md:text-sm whitespace-nowrap border
-                                    transition-all duration-200 hover:scale-105 hover:shadow-md ${
-                                    activeSection === section.id
+                                    transition-all duration-200 hover:scale-105 hover:shadow-md ${activeSection === section.id
                                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-105 border-transparent'
                                         : darkMode
                                             ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-indigo-900/70 hover:text-indigo-100 hover:border-indigo-700'
@@ -399,7 +495,7 @@ function HomePage() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                             Hasan Kocaman
                         </a>
                     </div>
@@ -415,7 +511,7 @@ function HomePage() {
                 className="fixed bottom-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full shadow-lg text-xs font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 style={{ background: '#0A66C2', color: '#fff' }}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                 <span>{t('buttons.preparedBy')}&nbsp;</span>
                 <span>Hasan Kocaman</span>
             </a>
@@ -423,7 +519,7 @@ function HomePage() {
             {/* Fixed Home Button */}
             <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                title={t('buttons.homeTooltip') || 'Başa dön'}
+                title={t('buttons.homeTooltip') || 'Back to top'}
                 style={{
                     position: 'fixed', bottom: '16px', right: '16px',
                     width: '44px', height: '44px', borderRadius: '50%',

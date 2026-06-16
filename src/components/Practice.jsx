@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 
 function Practice({ darkMode, onHomeClick }) {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
+    const isTr = language === 'tr'
 
     // Logging helper
     const logAction = (type, message) => {
-        const timestamp = new Date().toLocaleTimeString('tr-TR')
+        const timestamp = new Date().toLocaleTimeString(isTr ? 'tr-TR' : 'en-US')
         console.log(`[${timestamp}] [${type.toUpperCase()}] ${message}`)
     }
 
@@ -27,8 +28,8 @@ function Practice({ darkMode, onHomeClick }) {
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
     useEffect(() => {
-        logInfo("Uygulama Bahçesi (Practice Playground) Başlatıldı")
-        logInfo("Test Tanıtım Bloğu: Bu sayfa UI otomasyon testleri için çeşitli senaryolar barındırır.")
+        logInfo(isTr ? 'Uygulama Bahçesi (Practice Playground) başlatıldı' : 'Practice Playground initialized')
+        logInfo(isTr ? 'Test tanıtım bloğu: Bu sayfa UI otomasyon testleri için çeşitli senaryolar barındırır.' : 'Test intro block: This page contains various UI automation scenarios.')
     }, [])
 
     const logInfo = (msg) => logAction('info', msg)
@@ -36,7 +37,7 @@ function Practice({ darkMode, onHomeClick }) {
 
     const handleInputChange = (field, value) => {
         setPersonalInfo(prev => ({ ...prev, [field]: value }))
-        logStep(`Kişisel Bilgi güncellendi: ${field} = ${value}`)
+        logStep(isTr ? `Kişisel bilgi güncellendi: ${field} = ${value}` : `Personal info updated: ${field} = ${value}`)
     }
 
     const handleSelectionChange = (field, value) => {
@@ -45,14 +46,14 @@ function Practice({ darkMode, onHomeClick }) {
                 ? selections.days.filter(d => d !== value)
                 : [...selections.days, value]
             setSelections(prev => ({ ...prev, days: newDays }))
-            logStep(`Gün seçimi güncellendi: ${newDays.join(', ')}`)
+            logStep(isTr ? `Gün seçimi güncellendi: ${newDays.join(', ')}` : `Day selection updated: ${newDays.join(', ')}`)
         } else if (field === 'colors') {
             const options = Array.from(value).map(opt => opt.value)
             setSelections(prev => ({ ...prev, colors: options }))
-            logStep(`Renk seçimi güncellendi: ${options.join(', ')}`)
+            logStep(isTr ? `Renk seçimi güncellendi: ${options.join(', ')}` : `Color selection updated: ${options.join(', ')}`)
         } else {
             setSelections(prev => ({ ...prev, [field]: value }))
-            logStep(`${field} seçimi güncellendi: ${value}`)
+            logStep(isTr ? `${field} seçimi güncellendi: ${value}` : `${field} selection updated: ${value}`)
         }
     }
 
@@ -78,24 +79,24 @@ function Practice({ darkMode, onHomeClick }) {
     const handleFileUpload = (e, isMulti) => {
         const uploaded = Array.from(e.target.files)
         setFiles(prev => isMulti ? [...prev, ...uploaded] : uploaded)
-        logStep(`${isMulti ? 'Çoklu' : 'Tekli'} dosya yüklendi: ${uploaded.map(f => f.name).join(', ')}`)
+        logStep(`${isTr ? (isMulti ? 'Çoklu' : 'Tekli') : (isMulti ? 'Multiple' : 'Single')} file uploaded: ${uploaded.map(f => f.name).join(', ')}`)
     }
 
     const handleDragStart = (e) => {
         setIsDragged(true)
-        logStep("Sürükleme işlemi başladı")
+        logStep(isTr ? 'Sürükleme işlemi başladı' : 'Drag operation started')
     }
 
     const handleDrop = (e) => {
         e.preventDefault()
         setIsDropped(true)
         setIsDragged(false)
-        logStep("Öğe başarıyla bırakıldı (Drop)")
+        logStep(isTr ? 'Öğe başarıyla bırakıldı (Drop)' : 'Item dropped successfully')
     }
 
     const handleDoubleClick = () => {
         setDcActive(true)
-        logStep("Çift tıklama tetiklendi")
+        logStep(isTr ? 'Çift tıklama tetiklendi' : 'Double click triggered')
         setTimeout(() => setDcActive(false), 2000)
     }
 
@@ -272,7 +273,7 @@ function Practice({ darkMode, onHomeClick }) {
                                 value={dates.standard}
                                 onChange={(e) => {
                                     setDates({ ...dates, standard: e.target.value })
-                                    logStep(`Standart tarih seçildi: ${e.target.value}`)
+                                    logStep(isTr ? `Standart tarih seçildi: ${e.target.value}` : `Standard date selected: ${e.target.value}`)
                                 }}
                             />
                         </div>
@@ -306,7 +307,7 @@ function Practice({ darkMode, onHomeClick }) {
                         {/* Slider */}
                         <div>
                             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                {t('practice.interactions.slider')} [Value: {sliderValue}]
+                                {t('practice.interactions.slider')} [{t('practice.interactions.valueLabel')}: {sliderValue}]
                             </label>
                             <input
                                 type="range"
@@ -315,7 +316,7 @@ function Practice({ darkMode, onHomeClick }) {
                                 value={sliderValue}
                                 onChange={(e) => {
                                     setSliderValue(e.target.value)
-                                    logStep(`Slider değeri değişti: ${e.target.value}`)
+                                    logStep(isTr ? `Slider değeri değişti: ${e.target.value}` : `Slider value changed: ${e.target.value}`)
                                 }}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />
@@ -342,7 +343,7 @@ function Practice({ darkMode, onHomeClick }) {
                                         data-testid="droppable"
                                         className={`w-24 h-24 border-2 border-dashed rounded flex items-center justify-center text-xs text-center p-2 transition-all ${isDropped ? 'bg-green-100 border-green-500 text-green-700' : darkMode ? 'border-gray-600 text-gray-500' : 'border-gray-300 text-gray-400'}`}
                                     >
-                                        {isDropped ? '✅ Success!' : t('practice.interactions.dropHere')}
+                                        {isDropped ? `✅ ${t('practice.interactions.success')}` : t('practice.interactions.dropHere')}
                                     </div>
                                 </div>
                             </div>
@@ -355,7 +356,7 @@ function Practice({ darkMode, onHomeClick }) {
                                     data-testid="double-click"
                                     className={`px-4 py-2 rounded-lg font-bold transition-all transform active:scale-95 ${dcActive ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
                                 >
-                                    {dcActive ? t('practice.interactions.doubleClickResult') : 'Click x2'}
+                                    {dcActive ? t('practice.interactions.doubleClickResult') : t('practice.interactions.clickTwice')}
                                 </button>
                             </div>
                         </div>
@@ -371,7 +372,7 @@ function Practice({ darkMode, onHomeClick }) {
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                         {/* Static Table */}
                         <div>
-                            <p className={`text-sm font-bold mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600 opacity-70'}`}>[STATIK] {t('practice.tables.static')}</p>
+                            <p className={`text-sm font-bold mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600 opacity-70'}`}>[{t('practice.tables.staticBadge')}] {t('practice.tables.static')}</p>
                             <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                                 <table className="w-full text-sm text-left" data-testid="static-table">
                                     <thead className={`${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>
@@ -398,7 +399,7 @@ function Practice({ darkMode, onHomeClick }) {
 
                         {/* Paginated Table */}
                         <div>
-                            <p className={`text-sm font-bold mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600 opacity-70'}`}>[PAGINATION] {t('practice.tables.pagination')}</p>
+                            <p className={`text-sm font-bold mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600 opacity-70'}`}>[{t('practice.tables.paginationBadge')}] {t('practice.tables.pagination')}</p>
                             <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                                 <table className="w-full text-sm text-left" data-testid="pagination-table">
                                     <thead className={`${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'}`}>
@@ -424,23 +425,23 @@ function Practice({ darkMode, onHomeClick }) {
                                 <button
                                     onClick={() => {
                                         setCurrentPage(p => Math.max(1, p - 1))
-                                        logStep(`Tablo sayfa değiştirildi: ${currentPage - 1}`)
+                                        logStep(isTr ? `Tablo sayfa değiştirildi: ${currentPage - 1}` : `Table page changed: ${currentPage - 1}`)
                                     }}
                                     disabled={currentPage === 1}
                                     className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded disabled:opacity-50 text-xs"
                                 >
-                                    Previous
+                                    {t('practice.tables.previous')}
                                 </button>
-                                <span className="text-xs font-medium">Page {currentPage} of {totalPages}</span>
+                                <span className="text-xs font-medium">{t('practice.tables.page')} {currentPage} {t('practice.tables.of')} {totalPages}</span>
                                 <button
                                     onClick={() => {
                                         setCurrentPage(p => Math.min(totalPages, p + 1))
-                                        logStep(`Tablo sayfa değiştirildi: ${currentPage + 1}`)
+                                        logStep(isTr ? `Tablo sayfa değiştirildi: ${currentPage + 1}` : `Table page changed: ${currentPage + 1}`)
                                     }}
                                     disabled={currentPage === totalPages}
                                     className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded disabled:opacity-50 text-xs"
                                 >
-                                    Next
+                                    {t('practice.tables.next')}
                                 </button>
                             </div>
                         </div>
@@ -476,7 +477,7 @@ function Practice({ darkMode, onHomeClick }) {
                     </div>
                     {files.length > 0 && (
                         <div className="mt-4 p-4 rounded bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                            <p className="text-xs font-bold mb-2 uppercase text-gray-400">Yüklenen Dosyalar:</p>
+                            <p className="text-xs font-bold mb-2 uppercase text-gray-400">{t('practice.files.uploadedFiles')}</p>
                             <ul className="text-xs space-y-1">
                                 {files.map((f, i) => (
                                     <li key={i} className="flex items-center gap-2 text-blue-600 dark:text-blue-400">

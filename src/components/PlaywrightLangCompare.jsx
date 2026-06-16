@@ -97,7 +97,7 @@ def test_get_users():
     assert len(data["users"]) > 0
     assert data["users"][0]["email"].endswith("@example.com")
 
-# Playwright ile (APIRequestContext):
+# With Playwright (APIRequestContext):
 def test_api_playwright(page):
     resp = page.request.get(
         "https://api.example.com/users",
@@ -125,7 +125,7 @@ class UserApiTest {
     }
 }
 
-// Playwright for Java ile:
+// With Playwright for Java:
 @Test void testApiPlaywright() {
     APIResponse resp = page.request().get(
         "https://api.example.com/users",
@@ -395,9 +395,9 @@ def page(browser: Browser):
     )
     page = context.new_page()
     yield page
-    context.close()  # context kapatınca video kaydedilir
+    context.close()  # video is saved when the context closes
 
-# Her test otomatik temiz page alır
+# Each test gets a fresh page automatically
 def test_something(page: Page):
     page.goto("/dashboard")
     ...`,
@@ -463,8 +463,8 @@ export const test = base.extend<{ loginPage: LoginPage }>({
     loginPage: async ({ page }, use) => {
         const lp = new LoginPage(page);
         await lp.navigate();
-        await use(lp);       // test çalışır
-        // (teardown varsa buraya)
+        await use(lp);       // test runs here
+        // teardown goes here if needed
     },
 });`,
 

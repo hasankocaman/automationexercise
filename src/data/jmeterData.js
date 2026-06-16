@@ -11,6 +11,7 @@ export const jmeterData = {
       {
         title: '🎯 What is JMeter and Performance Testing?',
         blocks: [
+          { type: 'simple-box', emoji: '⚡', content: "JMeter simulates thousands of users hitting your website at the same time — like organizing 10,000 people to press a button simultaneously without actually needing those people. Java-based (just like you!), free, and the industry standard for load testing." },
           { type: 'text', content: 'Imagine your website works perfectly when only 5 people are using it. But what happens when 10,000 users visit at the same time — say during a flash sale? Does it crash? Slow down? This is exactly what performance testing answers.' },
           { type: 'text', content: 'Performance testing is the process of evaluating a system\'s speed, stability, and scalability under different load conditions. It is NOT about finding bugs in functionality — it\'s about finding how the system BEHAVES under load.' },
           { type: 'heading', text: 'Types of Performance Tests' },
@@ -127,6 +128,7 @@ export const jmeterData = {
       {
         title: '📦 Installation & First Launch',
         blocks: [
+          { type: 'simple-box', emoji: '📦', content: "Installing JMeter is like installing a Java IDE — install Java first, then download JMeter, extract the zip, and double-click to launch. No wizard, no installer. Since you know Java, you already have the hardest prerequisite." },
           { type: 'text', content: 'JMeter is a Java application, so Java must be installed first. The installation is simple: download, extract, run. No "install wizard" required.' },
           { type: 'heading', text: 'Step 1: Install Java (JDK 8+)' },
           { type: 'text', content: 'JMeter 5.x requires Java 8 or higher. Java 11 or 17 LTS is recommended.' },
@@ -196,6 +198,7 @@ echo $JAVA_HOME`
       {
         title: '📚 Core Concepts & Building Your First Test',
         blocks: [
+          { type: 'simple-box', emoji: '📚', content: "A JMeter test plan is like a script for actors. Thread Group = how many actors and when they start. Sampler = what each actor does (press a button, call an API). Listener = the director watching and recording results. Learn these three and you can build any test." },
           { type: 'text', content: 'JMeter tests are organized in a hierarchy. Understanding this hierarchy is the foundation of everything else.' },
           { type: 'heading', text: 'Test Plan Hierarchy' },
           {
@@ -423,6 +426,7 @@ diana,pass4
       {
         title: '🚀 Advanced JMeter',
         blocks: [
+          { type: 'simple-box', emoji: '🚀', content: "Advanced JMeter is about running tests without the GUI (faster, CI/CD-ready), distributing load across multiple machines, and extracting dynamic tokens from responses. Think of it as going from manual gear-shifting to autopilot." },
           { type: 'heading', text: 'Non-GUI Mode (CLI) — For Real Tests' },
           { type: 'text', content: 'Never run load tests in the JMeter GUI. The GUI consumes extra CPU and memory, which affects test results. For any real performance test, use the command line (Non-GUI mode).' },
           {
@@ -677,6 +681,7 @@ HTML Dashboard (-e -o)
       {
         title: '💼 JMeter Interview Questions & Answers',
         blocks: [
+          { type: 'simple-box', emoji: '💼', content: "JMeter interviews don't ask 'what is Thread Group?' — they ask 'your test shows P99=12s but average=300ms, what does that mean and what do you do?' This section prepares you for metrics-interpretation and architecture questions, not just definitions." },
           { type: 'text', content: 'These are the most frequently asked JMeter interview questions. Click each question to see the detailed answer.' },
           {
             type: 'qa',
@@ -941,6 +946,7 @@ Response Assertion on Login:
       {
         title: '🎯 JMeter ve Performans Testi Nedir?',
         blocks: [
+          { type: 'simple-box', emoji: '⚡', content: "JMeter, 10.000 kullanıcıyı aynı anda simüle eder — gerçekten 10.000 kişi bulmadan hepsini aynı anda butona bastırmak gibi. Java tabanlı (tıpkı senin gibi!), ücretsiz ve yük testi için endüstri standardı." },
           { type: 'text', content: 'Web siteniz sadece 5 kişi kullanırken mükemmel çalışıyor. Peki aynı anda 10.000 kişi ziyaret ettiğinde ne olur — mesela indirim kampanyası sırasında? Çöküyor mu? Yavaşlıyor mu? Performans testi tam olarak buna cevap verir.' },
           { type: 'text', content: 'Performans testi, bir sistemin farklı yük koşulları altında hız, kararlılık ve ölçeklenebilirlik açısından değerlendirilmesi sürecidir. Fonksiyonel hata bulmakla değil, sistemin yük altındaki DAVRANIŞIYLA ilgilenir.' },
           { type: 'heading', text: 'Performans Testi Türleri' },
@@ -1055,6 +1061,7 @@ Response Assertion on Login:
       {
         title: '📦 Kurulum ve İlk Başlatma',
         blocks: [
+          { type: 'simple-box', emoji: '📦', content: "JMeter kurmak, Java IDE kurmak gibi — önce Java kur, sonra JMeter'ı indir, zip'i aç ve çalıştır. Sihirbaz yok, installer yok. Java bildiğin için en zor gereksinimi zaten karşılıyorsun." },
           { type: 'text', content: 'JMeter bir Java uygulamasıdır, bu nedenle önce Java kurulu olmalıdır. Kurulum basittir: indir, çıkart, çalıştır. "Kurulum sihirbazı" gerekmez.' },
           { type: 'heading', text: 'Adım 1: Java Kurulumu (JDK 8+)' },
           { type: 'text', content: 'JMeter 5.x için Java 8 veya üstü gereklidir. Java 11 veya 17 LTS önerilir.' },
@@ -1107,6 +1114,7 @@ echo $JAVA_HOME`
       {
         title: '📚 Temel Kavramlar ve İlk Testini Oluşturma',
         blocks: [
+          { type: 'simple-box', emoji: '📚', content: "JMeter test planı, aktörlere verilen bir senaryo gibi. Thread Group = kaç aktör, ne zaman sahneye çıkıyor. Sampler = her aktörün yaptığı iş (butona bas, API çağır). Listener = direktörün sonuçları izlediği ekran. Bu üçünü öğren, her testi yazabilirsin." },
           { type: 'text', content: 'JMeter testleri bir hiyerarşide düzenlenir. Bu hiyerarşiyi anlamak her şeyin temelidir.' },
           { type: 'heading', text: 'Test Planı Hiyerarşisi' },
           {
@@ -1275,6 +1283,7 @@ ayse,sifre3
       {
         title: '🚀 İleri Seviye JMeter',
         blocks: [
+          { type: 'simple-box', emoji: '🚀', content: "İleri seviye JMeter; GUI olmadan çalıştırmak (daha hızlı, CI/CD uyumlu), yükü birden fazla makineye dağıtmak ve sunucu yanıtlarından dinamik token çıkarmak demek. Manuel vites değiştirmekten otopilota geçiş gibi." },
           { type: 'heading', text: 'Non-GUI Modu (CLI) — Gerçek Testler İçin' },
           { type: 'text', content: 'Yük testlerini asla JMeter GUI\'sinde çalıştırma. GUI ekstra CPU ve bellek tüketir, bu da test sonuçlarını etkiler. Gerçek performans testleri için komut satırını (Non-GUI modu) kullan.' },
           {
@@ -1408,6 +1417,7 @@ HTML Dashboard (-e -o)
       {
         title: '💼 JMeter Mülakat Soruları ve Cevapları',
         blocks: [
+          { type: 'simple-box', emoji: '💼', content: "JMeter mülakatında 'Thread Group nedir?' sorusu değil, 'Testinde P99=12s ama ortalama=300ms çıkıyor, bu ne anlama gelir, ne yaparsın?' sorusu sorulur. Bu bölüm tanım değil, metrik yorumlama ve mimari sorularına hazırlar." },
           { type: 'text', content: 'En sık sorulan JMeter mülakat soruları. Her soruya tıklayarak detaylı cevabı görebilirsiniz.' },
           { type: 'qa', question: 'S1: JMeter nedir? Ne için kullanılır? Hangi protokolleri destekler?', answer: 'Apache JMeter, açık kaynaklı Java tabanlı bir performans test aracıdır. Web uygulamalarının, API\'lerin ve servislerin yük altındaki performansını ölçmek için kullanılır.\n\nTemel kullanım alanları:\n• Yük testi: Birden fazla eş zamanlı kullanıcıyı simüle etme\n• Performans testi: Yanıt sürelerini ve throughput\'u ölçme\n• Stres testi: Kırılma noktasını bulma\n• API testi: REST ve SOAP servislerini test etme\n\nDesteklenen protokoller: HTTP/HTTPS, FTP, JDBC (veritabanı), LDAP, SMTP, TCP, JMS, WebSocket (eklenti ile)' },
           { type: 'qa', question: 'S2: Yük Testi, Stres Testi ve Spike Testi arasındaki fark nedir?', answer: 'Yük Testi: Sistemin beklenen (normal ve yoğun) yük koşulları altında test edilmesidir. Amaç: Performansın SLA\'ları karşıladığını doğrulamak (örn. 1000 kullanıcı için yanıt süresi < 2sn).\n\nStres Testi: Sistemi kapasitesinin ötesine çöküne kadar kasıtlı olarak iter. Amaç: Kırılma noktasını bulmak ve arıza davranışını anlamak.\n\nSpike Testi: Kısa süreliğine çok büyük yük uygular, sonra kaldırır. Amaç: Ani trafik artışlarını kaldırıp kaldıramadığını doğrulamak (örn. haber viral oldu, flaş indirim başladı).' },

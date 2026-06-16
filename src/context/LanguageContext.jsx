@@ -9,25 +9,35 @@ const translations = {
     tr
 }
 
+const getDefaultLanguage = () => {
+    const saved = localStorage.getItem('language')
+    if (saved === 'tr' || saved === 'en') return saved
+    if (typeof navigator !== 'undefined') {
+        return navigator.language?.startsWith('tr') ? 'tr' : 'en'
+    }
+    return 'en'
+}
+
 export function LanguageProvider({ children }) {
-    const [language, setLanguage] = useState(() => {
-        const saved = localStorage.getItem('language')
-        return saved || 'tr'
-    })
+    const [language, setLanguage] = useState(getDefaultLanguage)
 
     useEffect(() => {
         localStorage.setItem('language', language)
     }, [language])
 
-    const t = (key) => {
-        const keys = key.split('.')
-        let value = translations[language]
+    const t = (key, defaultValue) => {
+        const getValue = (locale) => {
+            const keys = key.split('.')
+            let value = translations[locale]
 
-        for (const k of keys) {
-            value = value?.[k]
+            for (const k of keys) {
+                value = value?.[k]
+            }
+
+            return value
         }
 
-        return value || key
+        return getValue(language) ?? getValue('en') ?? getValue('tr') ?? defaultValue ?? key
     }
 
     const toggleLanguage = () => {
