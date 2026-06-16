@@ -3,18 +3,237 @@ import { useLanguage } from '../context/LanguageContext'
 import { useLocation } from 'react-router-dom'
 import TopicHeader from './TopicHeader'
 
+const codeCommentTranslations = [
+    [/Chrome options oluştur/gi, 'Create Chrome options'],
+    [/BrowserStack W3C capability'leri/gi, 'BrowserStack W3C capabilities'],
+    [/BS kullanıcı adı/gi, 'BS username'],
+    [/BS erişim anahtarı/gi, 'BS access key'],
+    [/Tarayıcı: Chrome\/Firefox\/Safari\/Edge/gi, 'Browser: Chrome/Firefox/Safari/Edge'],
+    [/Sürüm: "latest" veya "120\.0"/gi, 'Version: "latest" or "120.0"'],
+    [/OS sürümü/gi, 'OS version'],
+    [/Dashboard'da görünecek isim/gi, 'Name shown in the dashboard'],
+    [/Dashboard'da görünecek build adı/gi, 'Build name shown in the dashboard'],
+    [/Dashboard'da görünür/gi, 'Visible in the dashboard'],
+    [/Proje adı/gi, 'Project name'],
+    [/BS'e gönder/gi, 'Send to BS'],
+    [/Test URL'ine git/gi, 'Open the test URL'],
+    [/Siteye git/gi, 'Open the site'],
+    [/Sayfa başlığını yazdır/gi, 'Print the page title'],
+    [/Başlığı al/gi, 'Read the title'],
+    [/Başlık yanlış/gi, 'Wrong title'],
+    [/Oturumu kapat/gi, 'Close the session'],
+    [/BS Dashboard'dan al/gi, 'Get from BS Dashboard'],
+    [/1\. tarayıcı/gi, '1st browser'],
+    [/2\. tarayıcı \(paralel çalışır\)/gi, '2nd browser (runs in parallel)'],
+    [/3\. tarayıcı/gi, '3rd browser'],
+    [/Her OS'te kaç paralel test/gi, 'Parallel tests per OS'],
+    [/Localhost test için true yap/gi, 'Set true for localhost testing'],
+    [/Proje kökünde oluştur/gi, 'Create at the project root'],
+    [/Python kodunda kullanım/gi, 'Usage in Python code'],
+    [/Normal Selenium import/gi, 'Regular Selenium import'],
+    [/SDK bu oluşturma sürecini otomatik yönetir/gi, 'The SDK manages this creation process automatically'],
+    [/Normal Chrome options/gi, 'Regular Chrome options'],
+    [/Yerel ChromeDriver gibi görünür/gi, 'Looks like local ChromeDriver'],
+    [/Testi çalıştır/gi, 'Run the test'],
+    [/Temizlik yap/gi, 'Clean up'],
+    [/Login sayfası başlık kontrolü/gi, 'Login page title check'],
+    [/Doğrula/gi, 'Assert'],
+    [/browserstack\.yml dosyasının bulunduğu dizinde çalıştır/gi, 'Run in the directory that contains browserstack.yml'],
+    [/Paralel çalıştırmak için/gi, 'To run in parallel'],
+    [/BrowserStack RemoteWebDriver oluşturan factory fonksiyon/gi, 'Factory function that creates BrowserStack RemoteWebDriver'],
+    [/Env'den oku/gi, 'Read from env'],
+    [/Ağ loglarını kaydet/gi, 'Record network logs'],
+    [/Sadece hataları logla/gi, 'Log only errors'],
+    [/Video kaydı aç/gi, 'Enable video recording'],
+    [/Son sürüm Chrome/gi, 'Latest Chrome version'],
+    [/BS özelliklerini ekle/gi, 'Add BS capabilities'],
+    [/Kullanım/gi, 'Usage'],
+    [/Pass\/Fail işaretlemeli driver fixture/gi, 'Driver fixture with pass/fail reporting'],
+    [/driver kurulumu/gi, 'driver setup'],
+    [/Test bitti — sonucu BrowserStack'e bildir/gi, 'Test finished - report the result to BrowserStack'],
+    [/Hata mesajı/gi, 'Error message'],
+    [/JavaScript executor ile BS API'yi çağır/gi, 'Call the BS API via JavaScript executor'],
+    [/pytest hook — test sonucunu fixture'a taşı/gi, 'pytest hook - move test result into the fixture'],
+    [/request\.node\.rep_call'u doldur/gi, 'Populate request.node.rep_call'],
+    [/aynı mantık/gi, 'same logic'],
+    [/Playwright destekli/gi, 'Playwright-supported'],
+    [/Safari engine \(sadece BS'te\)/gi, 'Safari engine (BS only)'],
+    [/Firefox engine/gi, 'Firefox engine'],
+    [/Playwright olduğunu belirt/gi, 'Declare this is Playwright'],
+    [/Playwright sürümü/gi, 'Playwright version'],
+    [/E-ticaret ürün arama testi/gi, 'E-commerce product search test'],
+    [/Ana sayfaya git/gi, 'Open the home page'],
+    [/Arama kutusunu doldur/gi, 'Fill the search box'],
+    [/Ara butonuna tıkla/gi, 'Click the search button'],
+    [/Sonuçların yüklenmesini bekle/gi, 'Wait for results to load'],
+    [/İlk ürüne tıkla/gi, 'Click the first product'],
+    [/Ürün detay sayfasında olduğumuzu doğrula/gi, 'Assert we are on the product detail page'],
+    [/Sepete ekleme testi/gi, 'Add-to-cart test'],
+    [/Sepette 1 ürün/gi, '1 item in the cart'],
+    [/Tüm testleri BS'te çalıştır/gi, 'Run all tests on BS'],
+    [/Belirli bir test dosyasını çalıştır/gi, 'Run a specific test file'],
+    [/Kodu çek/gi, 'Check out the code'],
+    [/Bağımlılıkları yükle/gi, 'Install dependencies'],
+    [/Snapshot al — Percy karşılaştırır/gi, 'Take a snapshot - Percy compares it'],
+    [/YANLIŞ/gi, 'WRONG'],
+    [/DOĞRU/gi, 'FIXED'],
+    [/Yanlış/gi, 'Wrong'],
+    [/Doğru/gi, 'Correct'],
+    [/Sabit kodlanmış ve yanlış key/gi, 'Hardcoded and wrong key'],
+    [/Env'den al/gi, 'Read from env'],
+    [/Yanlış OS adı/gi, 'Wrong OS name'],
+    [/Doğru format/gi, 'Correct format'],
+    [/BS Capabilities Generator'dan alınan değer/gi, 'Value from BS Capabilities Generator'],
+    [/Limit aşımı/gi, 'Limit exceeded'],
+    [/Free plan için/gi, 'For the free plan'],
+    [/Paid plan'da daha yüksek değer girebilirsin/gi, 'You can use a higher value on a paid plan'],
+    [/Uzun sleep test'i dondurur/gi, 'Long sleep freezes the test'],
+    [/90s limit aşıldı, BS session'ı keser/gi, '90s limit exceeded; BS ends the session'],
+    [/Explicit wait kullan/gi, 'Use explicit wait'],
+    [/Max 30s bekle/gi, 'Wait max 30s'],
+    [/Local açık ama binary yok/gi, 'Local is enabled but the binary is missing'],
+    [/Binary çalışmazsa bağlantı hatası/gi, 'Connection error if the binary is not running'],
+    [/Terminal 2 \(binary çalışınca\)/gi, 'Terminal 2 (after the binary starts)'],
+    [/Sabit isim — 60 gün sonra silinir/gi, 'Fixed name - deleted after 60 days'],
+    [/Sertifika kabulü eksik/gi, 'Certificate acceptance is missing'],
+    [/Self-signed sertifikayı kabul et/gi, 'Accept the self-signed certificate'],
+    [/Lokal tünel üzerinden git/gi, 'Go through the local tunnel'],
+    [/Sunucu 8080'de dinliyor/gi, 'Server is listening on 8080'],
+    [/Yanlış host\/port/gi, 'Wrong host/port'],
+    [/Doğru port/gi, 'Correct port'],
+    [/Yanlış JSON path/gi, 'Wrong JSON path'],
+    [/response yapısı farklı/gi, 'response shape is different'],
+    [/Gerçek response/gi, 'Actual response'],
+    [/Doğru JSON path/gi, 'Correct JSON path'],
+    [/Assertion ekle/gi, 'Add assertion'],
+    [/extraction başarısız olursa test başarısız say/gi, 'fail the test if extraction fails'],
+    [/büyük testte View Results Tree etkin/gi, 'View Results Tree enabled in a large test'],
+    [/büyük testlerde yalnızca verimli listener'lar/gi, 'only efficient listeners in large tests'],
+    [/JVM heap'i artır/gi, 'Increase JVM heap'],
+    [/Çok kısa timeout ve aşırı agresif ramp-up/gi, 'Timeout too short and ramp-up too aggressive'],
+    [/Gerçekçi timeout ve kademeli ramp-up/gi, 'Realistic timeout and gradual ramp-up'],
+    [/Assertion başarısız/gi, 'Assertion failed'],
+    [/login başarısız ama fark edilmedi/gi, 'login failed but was not detected'],
+    [/İki katmanlı doğrulama/gi, 'Two-layer validation'],
+    [/Login isteğine de assertion ekle/gi, 'Add an assertion to the login request too'],
+    [/Kurulum/gi, 'Setup'],
+    [/Doğrulama/gi, 'Assertion'],
+    [/Postman ile karşılaştırma/gi, 'Comparison with Postman'],
+    [/tekrar eden email ekliyor/gi, 'inserts a duplicate email'],
+    [/çakışmada güncelle \(upsert\)/gi, 'update on conflict (upsert)'],
+    [/veya sadece yoksay/gi, 'or simply ignore'],
+    [/users tablosunda id=999 yok/gi, 'id=999 does not exist in users'],
+    [/önce parent'ı ekle/gi, 'insert the parent first'],
+    [/SQLite'de FK denetimini etkinleştir/gi, 'enable FK checks in SQLite'],
+    [/email NOT NULL ama değer verilmedi/gi, 'email is NOT NULL but no value was provided'],
+    [/tüm NOT NULL sütunlara değer ver/gi, 'provide values for all NOT NULL columns'],
+    [/veya default ekle/gi, 'or add a default'],
+    [/FROM yerine FORM yazılmış/gi, 'FORM was typed instead of FROM'],
+    [/keyword doğru yazılmış/gi, 'keyword spelled correctly'],
+    [/Rezerve kelime kullanımı/gi, 'Reserved word usage'],
+    [/backtick ile sarılmış/gi, 'wrapped with backticks'],
+    [/tablo henüz oluşturulmamış/gi, 'table has not been created yet'],
+    [/önce tabloyu oluştur/gi, 'create the table first'],
+    [/her iki tabloda da "id" var/gi, '"id" exists in both tables'],
+    [/tablo adıyla nitelendir/gi, 'qualify with table name'],
+    [/veya alias kullan/gi, 'or use an alias'],
+    [/4 sütun var ama 3 değer veriliyor/gi, '4 columns exist but 3 values are supplied'],
+    [/sütun isimlerini açıkça belirt/gi, 'explicitly list column names'],
+    [/role sütunu NULL alır \(ya da DEFAULT değeri\)/gi, 'role column receives NULL (or DEFAULT value)'],
+    [/genel CSS selector, değişime açık/gi, 'generic CSS selector, fragile to changes'],
+    [/data-testid ile stabil locator/gi, 'stable locator with data-testid'],
+    [/veya rol \+ isim ile/gi, 'or by role + name'],
+    [/çok genel, birden fazla eşleşiyor/gi, 'too broad, matches multiple elements'],
+    [/etiket ile spesifik element/gi, 'specific element by label'],
+    [/veya nth\(\) ile belirli indeks/gi, 'or a specific index with nth()'],
+    [/page'i manuel kapatıp sonra kullanmaya çalışmak/gi, 'manually closing page and then trying to use it'],
+    [/fixture'lar sayfa ömrünü yönetir/gi, 'fixtures manage the page lifecycle'],
+    [/page otomatik açılır ve test sonunda kapatılır/gi, 'page opens automatically and closes at the end of the test'],
+    [/page burada otomatik kapanır/gi, 'page closes automatically here'],
+    [/uygulama başlamadan test çalışıyor/gi, 'test runs before the app starts'],
+    [/uygulamayı başlat/gi, 'start the app'],
+    [/hazır olana dek bekle/gi, 'wait until ready'],
+    [/aksiyon tamamlanmadan assertion/gi, 'assertion before the action finishes'],
+    [/çok hızlı/gi, 'too fast'],
+    [/yeterli timeout ile bekle/gi, 'wait with enough timeout'],
+    [/veya response bekliyorsan/gi, 'or if you are waiting for a response'],
+    [/string enum yerine geçirilemiyor/gi, 'cannot be passed instead of string enum'],
+    [/TS2345 hatası/gi, 'TS2345 error'],
+    [/enum değeri kullan/gi, 'use the enum value'],
+    [/veya dışarıdan gelen string'i cast et/gi, 'or cast the external string'],
+    [/dikkatli kullan — doğrulama ekle/gi, 'use carefully - add validation'],
+    [/Başlık yanlış/gi, 'Wrong title'],
+    [/Ürün detay sayfasında olduğumuzu Assert/gi, 'Assert we are on the product detail page'],
+    [/BS bağlantısı/gi, 'BS connection'],
+    [/Sabit kodlanmış ve Wrong key/gi, 'Hardcoded and wrong key'],
+    [/Wrong OS adı/gi, 'Wrong OS name'],
+    [/Wrong! "OS X" olmalı/gi, 'Wrong! Should be "OS X"'],
+    [/İki katmanlı Assertma/gi, 'Two-layer validation'],
+    [/Login isteğine de Add assertion/gi, 'Add an assertion to the login request too'],
+    [/keyword FIXED yazılmış/gi, 'keyword spelled correctly'],
+    [/Rezerve kelime Usageı/gi, 'Reserved word usage'],
+    [/Tablo:/gi, 'Table:'],
+    [/HATA/gi, 'ERROR'],
+    [/Assertma/gi, 'validation'],
+    [/Usageı/gi, 'usage'],
+    [/dikkatli kullan — validation ekle/gi, 'use carefully - add validation'],
+    [/Kullanıcı Adı/gi, 'Username'],
+    [/Giriş Yap/gi, 'Login'],
+    [/Türkiye/gi, 'Turkey'],
+    [/türkiye/gi, 'turkey'],
+    [/Başlık yanlış/gi, 'Wrong title'],
+    [/Ürün ara\.\.\./gi, 'Search product...'],
+    [/name="Ara"/gi, 'name="Search"'],
+    [/Sepete Ekle/gi, 'Add to Cart'],
+    [/Şifremi Unuttum/gi, 'Forgot Password'],
+    [/Şifrem/gi, 'Password'],
+    [/Kullanıcı/gi, 'User'],
+    [/Giriş/gi, 'Login'],
+    [/data anahtarı yok/gi, 'data key does not exist'],
+    [/Not: ✓ \(yoksa başarısız say\)/gi, 'Note: ✓ (otherwise mark failed)'],
+    [/tüm yanıtları RAM'de saklar/gi, 'stores all responses in RAM'],
+    [/HTML raporu test sonrası üret/gi, 'generate HTML report after the test'],
+    [/5 dakikada kademeli artış/gi, 'gradual increase over 5 minutes'],
+    [/Login'de ERROR olduğu için "Invalid credentials" dönüyor/gi, 'Login has ERROR, so "Invalid credentials" is returned'],
+    [/token yoksa login başarısız demektir/gi, 'missing token means login failed'],
+    [/Build grubu/gi, 'Build group'],
+    [/BS hub URL'i/gi, 'BS hub URL'],
+]
+
+function translateCodeComment(comment) {
+    return codeCommentTranslations.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), comment)
+}
+
+function localizeCodeComments(code, language) {
+    if (language !== 'en' || typeof code !== 'string') return code
+    return code.split('\n').map(line => {
+        const markerMatch = line.match(/(#|\/\/|--)/)
+        if (!markerMatch) return translateCodeComment(line)
+        const markerIndex = markerMatch.index
+        const before = line.slice(0, markerIndex + markerMatch[0].length)
+        const after = line.slice(markerIndex + markerMatch[0].length)
+        return translateCodeComment(before) + translateCodeComment(after)
+    }).join('\n')
+}
+
+function getLocalizedCode(code, language) {
+    return localizeCodeComments(code || '', language)
+}
+
 // ─── CodeBlock ────────────────────────────────────────────────────────────────
 
 function CodeBlock({ code, language, darkMode }) {
+    const { language: pageLanguage } = useLanguage()
     const [copied, setCopied] = useState(false)
     const codeRef = useRef(null)
     const prismLang = language ? language.toLowerCase().replace(/[\s/().]/g, '') : ''
+    const localizedCode = getLocalizedCode(code, pageLanguage)
 
     useEffect(() => {
         if (codeRef.current && window.Prism) {
             window.Prism.highlightElement(codeRef.current)
         }
-    })
+    }, [localizedCode])
 
     return (
         <div className="relative mt-3 group">
@@ -24,10 +243,10 @@ function CodeBlock({ code, language, darkMode }) {
                 </div>
             )}
             <pre className={`p-4 rounded-lg font-mono text-xs overflow-x-auto leading-relaxed border border-gray-700 ${language ? 'pt-8' : ''} ${prismLang ? `language-${prismLang}` : ''}`} style={{ background: '#0d1117', color: '#e6edf3' }}>
-                <code ref={codeRef} className={prismLang ? `language-${prismLang}` : ''}>{(code || '').trim()}</code>
+                <code ref={codeRef} className={prismLang ? `language-${prismLang}` : ''}>{localizedCode.trim()}</code>
             </pre>
             <button
-                onClick={() => { navigator.clipboard.writeText((code || '').trim()); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
+                onClick={() => { navigator.clipboard.writeText(localizedCode.trim()); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
                 className="absolute top-2 right-2 px-2 py-1 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 {copied ? '✅ Copied' : '📋 Copy'}
@@ -140,7 +359,7 @@ function PostmanCompareBlock({ block, darkMode, language }) {
                                         <span>☕</span> REST Assured (Java)
                                     </div>
                                     <div className="overflow-x-auto" style={{ background: '#1a1b26' }}>
-                                        <pre className="font-mono text-xs leading-relaxed whitespace-pre p-4 m-0" style={{ background: '#1a1b26', color: '#c0caf5' }}>{comp.restAssured}</pre>
+                                        <pre className="font-mono text-xs leading-relaxed whitespace-pre p-4 m-0" style={{ background: '#1a1b26', color: '#c0caf5' }}>{getLocalizedCode(comp.restAssured, language)}</pre>
                                     </div>
                                 </div>
                             </div>
@@ -723,7 +942,9 @@ function JavaCompareBlock({ block, darkMode }) {
 // ─── PyodideEditor ────────────────────────────────────────────────────────────
 
 function PyodideEditor({ defaultCode, height = '180px' }) {
-    const [code, setCode] = useState(defaultCode || '')
+    const { language } = useLanguage()
+    const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
     const [loading, setLoading] = useState(false)
     const [pyReady, setPyReady] = useState(!!window._pyodideInstance)
@@ -738,6 +959,10 @@ function PyodideEditor({ defaultCode, height = '180px' }) {
         s.onload = () => window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' }).then(py => { window._pyodideInstance = py; pyRef.current = py; setPyReady(true) })
         document.head.appendChild(s)
     }, [])
+
+    useEffect(() => {
+        setCode(localizedDefaultCode)
+    }, [localizedDefaultCode])
 
     const run = async () => {
         if (!pyRef.current) return
@@ -767,7 +992,9 @@ function PyodideEditor({ defaultCode, height = '180px' }) {
 // ─── TSEditor ─────────────────────────────────────────────────────────────────
 
 function TSEditor({ defaultCode, height = '180px' }) {
-    const [code, setCode] = useState(defaultCode || '')
+    const { language } = useLanguage()
+    const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
     const [babelReady, setBabelReady] = useState(!!window.Babel)
 
@@ -778,6 +1005,10 @@ function TSEditor({ defaultCode, height = '180px' }) {
         s.onload = () => setBabelReady(true)
         document.head.appendChild(s)
     }, [])
+
+    useEffect(() => {
+        setCode(localizedDefaultCode)
+    }, [localizedDefaultCode])
 
     const run = () => {
         setOutput('')
@@ -805,7 +1036,9 @@ function TSEditor({ defaultCode, height = '180px' }) {
 // ─── SQLEditor ────────────────────────────────────────────────────────────────
 
 function SQLEditor({ defaultCode, schema, height = '120px' }) {
-    const [code, setCode] = useState(defaultCode || '')
+    const { language } = useLanguage()
+    const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
     const [ready, setReady] = useState(!!window._sqlJsInstance)
 
@@ -827,6 +1060,10 @@ function SQLEditor({ defaultCode, schema, height = '120px' }) {
         }
         document.head.appendChild(s)
     }, [])
+
+    useEffect(() => {
+        setCode(localizedDefaultCode)
+    }, [localizedDefaultCode])
 
     const run = () => {
         if (!window._sqlJsInstance) return
