@@ -43,6 +43,95 @@ function textValue(value) {
     return ''
 }
 
+function testFrameworksContent() {
+    return {
+        title: 'Pytest vs Selenium vs Playwright Comparison',
+        intro: 'Compare pytest, Selenium and Playwright from a QA automation perspective, including when to use each framework, language trade-offs, locator strategy, waits, reporting, CI usage and Java-friendly migration guidance.',
+        topics: [
+            {
+                title: 'Framework Comparison',
+                snippets: [
+                    'Understand where pytest, Selenium and Playwright fit in a real QA stack: test runner, browser automation, API validation, reporting and CI/CD execution.',
+                    'Use the comparison to decide whether a project needs Selenium ecosystem coverage, Playwright auto-waiting and modern locators, or pytest fixture-driven test organization.',
+                ],
+            },
+            {
+                title: 'Playwright Language Comparison',
+                snippets: [
+                    'Compare Playwright examples across TypeScript, Python and Java so QA engineers can map familiar Java patterns to modern browser automation APIs.',
+                    'Learn differences in async/await, assertions, locator syntax, fixtures and page object design across supported languages.',
+                ],
+            },
+            {
+                title: 'Python Frameworks',
+                snippets: [
+                    'Explore pytest, Selenium and Playwright in Python with project structure, fixtures, setup and teardown, browser actions, waits and common automation failures.',
+                    'Connect pytest concepts to JUnit/TestNG habits: test discovery, parametrization, markers, fixtures, assertions and report generation.',
+                ],
+            },
+        ],
+    }
+}
+
+function cleanDocumentLine(line) {
+    return line
+        .replace(/\*\*/g, '')
+        .replace(/\\(!|\[|\]|=|\+|>|<|-|&|'|")/g, '$1')
+        .trim()
+}
+
+async function javaDocumentContent() {
+    const docPath = join(rootDir, 'public', 'documents', 'JavaNotesForProfessionals.md')
+
+    try {
+        const text = await readFile(docPath, 'utf8')
+        const chapters = []
+
+        for (const line of text.split('\n')) {
+            const cleaned = cleanDocumentLine(line)
+            if (cleaned.includes('...')) continue
+
+            const match = cleaned.match(/^Chapter\s+(\d+)\s*:\s*(.+)$/i)
+            if (!match) continue
+
+            chapters.push({
+                number: Number(match[1]),
+                title: match[2].trim(),
+            })
+
+            if (chapters.length >= 12) break
+        }
+
+        return {
+            title: 'Java Reference Guide for QA Automation',
+            intro: 'Browse a Java reference tailored for QA automation engineers, with searchable chapters, bilingual navigation, copyable Java examples and topics that map back to Selenium, API testing and interview preparation.',
+            topics: chapters.map((chapter) => ({
+                title: `Chapter ${chapter.number}: ${chapter.title}`,
+                snippets: [
+                    'Review Java syntax, object-oriented design, collections, exceptions, concurrency and testing-related patterns from a QA automation point of view.',
+                ],
+            })),
+        }
+    } catch (error) {
+        console.warn(`Could not load Java document SEO content: ${error.message}`)
+        return {
+            title: 'Java Reference Guide for QA Automation',
+            intro: 'Search and study Java reference material for QA automation, including collections, OOP, exceptions, concurrency, unit testing and practical Selenium/API automation concepts.',
+            topics: [
+                { title: 'Java Language Basics', snippets: ['Core syntax, types, strings, arrays and control flow for QA engineers using Java automation tools.'] },
+                { title: 'Collections and OOP', snippets: ['Lists, sets, maps, classes, interfaces, inheritance and generics for reliable automation code.'] },
+                { title: 'Exceptions and Testing', snippets: ['Exception handling, assertions, unit testing and debugging patterns used in Java QA projects.'] },
+            ],
+        }
+    }
+}
+
+async function specialRouteContent(seo) {
+    if (seo.path === '/test-frameworks') return testFrameworksContent()
+    if (seo.path === '/java-document') return javaDocumentContent()
+    return null
+}
+
 function snippetFromBlock(block) {
     if (!block || typeof block !== 'object') return ''
     if (['code', 'editor', 'visual', 'diagram', 'table'].includes(block.type)) return ''
@@ -50,6 +139,9 @@ function snippetFromBlock(block) {
 }
 
 async function routeContent(seo) {
+    const specialContent = await specialRouteContent(seo)
+    if (specialContent) return specialContent
+
     const config = DATA_MODULES[seo.path]
     if (!config) return null
 
