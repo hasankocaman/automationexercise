@@ -311,7 +311,7 @@ function ComparisonBlock({ block, darkMode, language = 'en' }) {
 
 function JoinDiagram({ block, darkMode, language = 'en' }) {
     const [step, setStep] = useState(0)
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     const matchRow = darkMode ? 'bg-green-900/50 text-green-300 border-green-700' : 'bg-green-100 text-green-800 border-green-300'
     const nullRow = darkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700 italic' : 'bg-blue-50 text-blue-600 border-blue-200 italic'
     const noRow = darkMode ? 'bg-gray-800 text-gray-500 border-gray-700 opacity-40' : 'bg-gray-100 text-gray-400 border-gray-200 opacity-50'
@@ -418,7 +418,7 @@ function JoinDiagram({ block, darkMode, language = 'en' }) {
 }
 
 function TableDiagram({ block, darkMode }) {
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg} overflow-x-auto`}>
             {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
@@ -463,7 +463,7 @@ function TableDiagram({ block, darkMode }) {
 
 function FlowDiagram({ block, darkMode }) {
     const { language } = useLanguage()
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
             {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
@@ -494,7 +494,7 @@ function FlowDiagram({ block, darkMode }) {
 }
 
 function BoxesDiagram({ block, darkMode }) {
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
             {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
@@ -530,7 +530,7 @@ function PyramidDiagram({ block, darkMode }) {
         indigo: darkMode ? 'bg-indigo-900/60 border-indigo-600 text-indigo-300' : 'bg-indigo-100 border-indigo-400 text-indigo-800',
         orange: darkMode ? 'bg-orange-900/60 border-orange-600 text-orange-300' : 'bg-orange-100 border-orange-400 text-orange-800',
     }
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-5 rounded-xl border ${bg}`}>
             {block.title && <div className={`text-sm font-bold mb-4 text-center ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
@@ -552,7 +552,7 @@ function PyramidDiagram({ block, darkMode }) {
 }
 
 function DataStructureDiagram({ block, darkMode, language }) {
-    const bg = darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'
+    const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
 
     if (block.dataType === 'list') {
         return (
@@ -1082,7 +1082,7 @@ function QAItem({ question, answer, code, darkMode }) {
         <div className={`rounded-xl border overflow-hidden mb-3 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
             <button
                 onClick={() => setOpen(!open)}
-                className={`w-full flex justify-between items-start text-left p-4 font-semibold text-sm transition-colors ${darkMode ? 'bg-gray-750 text-white hover:bg-gray-700' : 'bg-gray-50 text-gray-800 hover:bg-gray-100'}`}
+                className={`w-full flex justify-between items-start text-left p-4 font-semibold text-sm transition-colors ${darkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-gray-50 text-gray-800 hover:bg-gray-100'}`}
             >
                 <span className="flex-1 pr-4">{question}</span>
                 <span className={`text-2xl font-light transition-transform duration-300 flex-shrink-0 ${open ? 'rotate-45' : ''}`}>+</span>
@@ -4346,7 +4346,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
             return (
                 <div key={i} className={`mt-4 grid grid-cols-1 md:grid-cols-${block.cols || 2} gap-3`}>
                     {block.items.map((item, j) => (
-                        <div key={j} className={`p-4 rounded-xl border text-sm ${darkMode ? 'bg-gray-750 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                        <div key={j} className={`p-4 rounded-xl border text-sm ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                             {item.icon && <div className="text-2xl mb-2">{item.icon}</div>}
                             <div className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(item.label, language)}</div>
                             {item.desc && <div className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{tx(item.desc, language)}</div>}
@@ -4445,7 +4445,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {block.terms?.map((item, j) => (
-                            <div key={j} className={`p-3 rounded-lg border ${darkMode ? 'bg-gray-750 border-gray-700' : 'bg-white border-gray-200'}`}>
+                            <div key={j} className={`p-3 rounded-lg border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                                 <div className={`font-mono font-bold text-sm mb-1 ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>{item.term}</div>
                                 <p className={`text-xs leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {tx(item.definition, language)}
@@ -4551,7 +4551,15 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const location = useLocation()
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
-        return saved !== null ? JSON.parse(saved) : true
+        const isDark = saved !== null ? JSON.parse(saved) : true
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
+        return isDark
     })
     const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
     const [completedTabs, setCompletedTabs] = useState(() => {
@@ -4574,6 +4582,13 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
         window.scrollTo(0, 0)
+        if (darkMode) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
     }, [darkMode])
 
     useEffect(() => {

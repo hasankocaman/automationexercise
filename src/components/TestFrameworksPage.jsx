@@ -30,7 +30,15 @@ function ScrollProgressBar() {
 function TestFrameworksPage() {
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
-        return saved !== null ? JSON.parse(saved) : true
+        const isDark = saved !== null ? JSON.parse(saved) : true
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
+        return isDark
     })
     const [activeSection, setActiveSection] = useState(0)
     const { language, toggleLanguage } = useLanguage()
@@ -39,6 +47,13 @@ function TestFrameworksPage() {
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
         window.scrollTo(0, 0)
+        if (darkMode) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
     }, [darkMode])
 
     useEffect(() => {

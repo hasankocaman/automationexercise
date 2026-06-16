@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { search as searchContent } from '../utils/searchIndex'
 import ZoomControls from './ZoomControls'
@@ -19,7 +19,15 @@ function HomePage() {
     const [activeSection, setActiveSection] = useState('basic')
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
-        return saved !== null ? JSON.parse(saved) : true
+        const isDark = saved !== null ? JSON.parse(saved) : true
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
+        return isDark
     })
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -28,6 +36,13 @@ function HomePage() {
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
+        if (darkMode) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
     }, [darkMode])
 
     // Debounced search
@@ -80,7 +95,7 @@ function HomePage() {
             action: t('home.path.javaToPython.action'),
             color: darkMode ? 'from-yellow-500/20 to-emerald-500/20 border-yellow-500/40' : 'from-yellow-50 to-emerald-50 border-yellow-300',
             badgeColor: darkMode ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40' : 'bg-yellow-100 text-yellow-800 border border-yellow-300',
-            onClick: () => navigate('/python'),
+            route: '/python',
         },
         {
             icon: '🧪',
@@ -88,7 +103,7 @@ function HomePage() {
             description: t('home.path.automation.description'),
             action: t('home.path.automation.action'),
             color: darkMode ? 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30' : 'from-indigo-50 to-purple-50 border-indigo-200',
-            onClick: () => navigate('/selenium'),
+            route: '/selenium',
         },
         {
             icon: '🛠️',
@@ -96,7 +111,7 @@ function HomePage() {
             description: t('home.path.devops.description'),
             action: t('home.path.devops.action'),
             color: darkMode ? 'from-cyan-500/20 to-blue-500/20 border-cyan-500/30' : 'from-cyan-50 to-blue-50 border-cyan-200',
-            onClick: () => navigate('/docker'),
+            route: '/docker',
         },
         {
             icon: '🎯',
@@ -178,9 +193,13 @@ function HomePage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        {learningPaths.map((path) => (
-                            <button
+                        {learningPaths.map((path) => {
+                            const CardTag = path.route ? Link : 'button'
+                            const cardProps = path.route ? { to: path.route } : { type: 'button' }
+                            return (
+                            <CardTag
                                 key={path.title}
+                                {...cardProps}
                                 onClick={path.onClick}
                                 className={`group text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg`}
                             >
@@ -201,8 +220,8 @@ function HomePage() {
                                 <div className={`mt-2 text-[11px] font-bold ${darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
                                     {path.action} →
                                 </div>
-                            </button>
-                        ))}
+                            </CardTag>
+                        )})}
                     </div>
                 </div>
             </div>
@@ -342,18 +361,18 @@ function HomePage() {
                     {/* 1. Programlama Dilleri */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
                         <CatLabel emoji="🐍" text={t('home.category.languages')} />
-                        <button onClick={() => navigate('/java')} data-testid="nav-java" className={nb('orange')}>
+                        <Link to="/java" data-testid="nav-java" className={nb('orange')}>
                             <span className="sm:hidden">☕ Java</span>
                             <span className="hidden sm:inline">{t('home.learnJava')}</span>
-                        </button>
-                        <button onClick={() => navigate('/python')} data-testid="nav-python" className={nb('yellow')}>
+                        </Link>
+                        <Link to="/python" data-testid="nav-python" className={nb('yellow')}>
                             <span className="sm:hidden">🐍 Python</span>
                             <span className="hidden sm:inline">{t('python.navButton')}</span>
-                        </button>
-                        <button onClick={() => navigate('/typescript')} data-testid="nav-typescript" className={nb('indigo')}>
+                        </Link>
+                        <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>
                             <span className="sm:hidden">💻 TS</span>
                             <span className="hidden sm:inline">{t('typescript.navButton')}</span>
-                        </button>
+                        </Link>
                         <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>
                             <span className="sm:hidden">JS↔TS</span>
                             <span className="hidden sm:inline">{t('home.jsTsCompare')}</span>
@@ -371,26 +390,26 @@ function HomePage() {
                             <span className="sm:hidden">Cypress</span>
                             <span className="hidden sm:inline">{t('home.learnCypress')}</span>
                         </a>
-                        <button onClick={() => navigate('/playwright')} className={nb('purple')}>
+                        <Link to="/playwright" className={nb('purple')}>
                             <span className="sm:hidden">Playwright</span>
                             <span className="hidden sm:inline">{t('home.learnPlaywright')}</span>
-                        </button>
-                        <button onClick={() => navigate('/rest-assured')} data-testid="nav-rest-assured" className={nb('emerald')}>
+                        </Link>
+                        <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>
                             <span className="sm:hidden">🧪 REST</span>
                             <span className="hidden sm:inline">{t('home.learnRestAssured')}</span>
-                        </button>
-                        <button onClick={() => navigate('/appium')} data-testid="nav-appium" className={nb('green')}>
+                        </Link>
+                        <Link to="/appium" data-testid="nav-appium" className={nb('green')}>
                             <span className="sm:hidden">📱 Appium</span>
                             <span className="hidden sm:inline">{t('home.learnAppium')}</span>
-                        </button>
-                        <button onClick={() => navigate('/selenium')} data-testid="nav-selenium" className={nb('emerald')}>
+                        </Link>
+                        <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>
                             <span className="sm:hidden">🟢 Selenium</span>
                             <span className="hidden sm:inline">{t('home.learnSelenium')}</span>
-                        </button>
-                        <button onClick={() => navigate('/browserstack')} data-testid="nav-browserstack" className={nb('orange')}>
+                        </Link>
+                        <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>
                             <span className="sm:hidden">☁️ BS</span>
                             <span className="hidden sm:inline">{t('home.learnBrowserStack')}</span>
-                        </button>
+                        </Link>
                         <button onClick={() => setActiveSection('comparison')} className={nb('violet')}>
                             <span className="sm:hidden">{t('home.compare')}</span>
                             <span className="hidden sm:inline">{t('home.compareTools')}</span>
@@ -400,50 +419,50 @@ function HomePage() {
                     {/* 3. Performans & API */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
                         <CatLabel emoji="⚡" text={t('home.category.performanceApi')} />
-                        <button onClick={() => navigate('/jmeter')} data-testid="nav-jmeter" className={nb('orange')}>
+                        <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>
                             {t('jmeter.navButton')}
-                        </button>
-                        <button onClick={() => navigate('/postman')} data-testid="nav-postman" className={nb('orange')}>
+                        </Link>
+                        <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>
                             <span className="sm:hidden">📮 Postman</span>
                             <span className="hidden sm:inline">{t('home.learnPostman')}</span>
-                        </button>
+                        </Link>
                     </div>
 
                     {/* 4. DevOps & Altyapı */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
                         <CatLabel emoji="🛠️" text={t('home.category.devOps')} />
-                        <button onClick={() => navigate('/docker')} data-testid="nav-docker" className={nb('cyan')}>
+                        <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>
                             <span className="sm:hidden">🐳 Docker</span>
                             <span className="hidden sm:inline">{t('home.learnDocker')}</span>
-                        </button>
-                        <button onClick={() => navigate('/jenkins')} data-testid="nav-jenkins" className={nb('blue')}>
+                        </Link>
+                        <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>
                             <span className="sm:hidden">🔧 Jenkins</span>
                             <span className="hidden sm:inline">{t('home.learnJenkins')}</span>
-                        </button>
-                        <button onClick={() => navigate('/kubernetes')} data-testid="nav-kubernetes" className={nb('violet')}>
+                        </Link>
+                        <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>
                             <span className="sm:hidden">☸️ K8s</span>
                             <span className="hidden sm:inline">{t('home.learnKubernetes')}</span>
-                        </button>
-                        <button onClick={() => navigate('/kafka')} data-testid="nav-kafka" className={nb('orange')}>
+                        </Link>
+                        <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>
                             <span className="sm:hidden">🟠 Kafka</span>
                             <span className="hidden sm:inline">{t('home.learnKafka')}</span>
-                        </button>
-                        <button onClick={() => navigate('/aws')} data-testid="nav-aws" className={nb('orange')}>
+                        </Link>
+                        <Link to="/aws" data-testid="nav-aws" className={nb('orange')}>
                             <span className="sm:hidden">☁️ AWS</span>
                             <span className="hidden sm:inline">{t('home.learnAWS')}</span>
-                        </button>
-                        <button onClick={() => navigate('/azure')} data-testid="nav-azure" className={nb('blue')}>
+                        </Link>
+                        <Link to="/azure" data-testid="nav-azure" className={nb('blue')}>
                             <span className="sm:hidden">🔷 Azure</span>
                             <span className="hidden sm:inline">{t('home.learnAzure')}</span>
-                        </button>
+                        </Link>
                     </div>
 
                     {/* 5. Veritabanı */}
                     <div className="flex flex-wrap gap-1 md:gap-1.5 items-center">
                         <CatLabel emoji="🗄️" text={t('home.category.database')} />
-                        <button onClick={() => navigate('/sql')} data-testid="nav-sql" className={nb('blue')}>
+                        <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>
                             {t('sql.navButton')}
-                        </button>
+                        </Link>
                     </div>
 
                     {/* 6. Pratik Alan */}

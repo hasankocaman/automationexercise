@@ -16,6 +16,18 @@
   color: var(--text-primary);
 }
 
+/* html.dark-mode: body background ve tüm sayfa CSS var'larının doğru uygulanması */
+html.dark-mode body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
+/* html.light-mode-forced: OS karanlık modu geçersiz kıl — light mod zorlanır */
+html.light-mode-forced body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+
 /* ── Section cards ─────────────────────────────────────────────── */
 .dark-mode .section-card {
   background-color: var(--bg-surface) !important;

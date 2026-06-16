@@ -503,7 +503,15 @@ function groupLinesIntoBlocks(lines) {
 export default function JavaDocPage() {
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
-        return saved !== null ? JSON.parse(saved) : true
+        const isDark = saved !== null ? JSON.parse(saved) : true
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
+        return isDark
     })
     const { language, t, toggleLanguage } = useLanguage()
     const navigate = useNavigate()
@@ -536,6 +544,13 @@ export default function JavaDocPage() {
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
+        if (darkMode) {
+            document.documentElement.classList.add('dark-mode')
+            document.documentElement.classList.remove('light-mode-forced')
+        } else {
+            document.documentElement.classList.remove('dark-mode')
+            document.documentElement.classList.add('light-mode-forced')
+        }
     }, [darkMode])
 
     // Load both files once on mount
