@@ -8,7 +8,7 @@ export const jenkinsData = {
       subtitle: 'Continuous Integration & Continuous Delivery',
       intro: 'Master Jenkins from zero to interview level. Automate your builds, run tests on every commit, integrate with JMeter/Selenium/Playwright, and deliver software faster and with confidence.',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '🔁 Pipeline', '🧪 QA Integration', '🚀 Advanced', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '🔁 Pipeline', '🧪 QA Integration', '🚀 Advanced', '🛠️ Real World', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
       {
@@ -785,7 +785,122 @@ stage('Flaky Tests') {
         ],
       },
 
-      // ── SECTION 5: INTERVIEW Q&A ───────────────────────────────────────────
+      // ── SECTION 5: REAL WORLD ───────────────────────────────────────────────
+      {
+        title: '🛠️ Real World Usage',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Jenkins is like a factory assembly-line foreman — the moment a new part (commit) arrives, the foreman automatically routes it through inspection (build), quality control (tests), and packaging (deploy), without anyone needing to push it by hand." },
+          { type: 'heading', text: 'What Need Does This Fill? Life Without Jenkins' },
+          { type: 'text', content: "Without a CI/CD server, every build and test run is a manual ritual: a developer pulls the latest code, runs the build locally, runs the test suite locally (if they remember to), and only then merges. Bugs slip through because 'it worked on my machine' is unverifiable, and nobody runs the full regression suite before every merge because it takes too long to do by hand. Jenkins automates this so every single commit gets built and tested the same way, every time, with no human skipping a step under deadline pressure." },
+          { type: 'heading', text: 'Real-World Scenario: Spring Boot + React Monorepo' },
+          { type: 'text', content: "A team ships a Spring Boot backend and a React frontend from the same monorepo. The QA lead is asked: 'Set up a pipeline so that every pull request is automatically built, tested, and a preview environment is available for manual review — before any human merges it.'" },
+          {
+            type: 'steps',
+            items: [
+              'Create a Jenkinsfile in the repo root with stages: Checkout → Backend Build (Maven) → Frontend Build (npm) → Unit Tests (JUnit + Jest, run in parallel) → Selenium E2E (against a docker-compose stack) → SonarQube scan → Deploy to preview',
+              'Configure a GitHub webhook so Jenkins triggers automatically on every PR open/update — no manual "Build Now" click needed',
+              'Use the parallel { } directive to run backend and frontend unit tests simultaneously, cutting pipeline time from 12 minutes to 5',
+              'Add a Selenium stage that spins up the full stack via docker-compose, runs the E2E suite against it, and tears it down — catching integration bugs unit tests cannot see',
+              'Publish JUnit XML + Allure HTML report as build artifacts so any reviewer can click into exactly which test failed and why',
+              'Configure the PR status check: Jenkins reports pending/success/failure directly on the GitHub PR, blocking the merge button until the pipeline is green',
+              'First real catch: a frontend change broke an API contract the backend test suite didn\'t check — the E2E stage failed, the PR was blocked, and the bug never reached main',
+            ]
+          },
+          { type: 'heading', text: 'Comparing Jenkins to Alternatives — Real-World Trade-offs' },
+          {
+            type: 'table',
+            headers: ['Tool', 'Advantages ✅', 'Disadvantages ❌', 'Choose it when...'],
+            rows: [
+              ['Jenkins', 'Free, self-hosted (full control), 1800+ plugins, works with any language/stack', 'You manage the server (upgrades, security patches), Groovy DSL has a learning curve', 'Your org needs on-prem/self-hosted CI, complex custom pipelines, or has a huge legacy plugin ecosystem already in place'],
+              ['GitHub Actions', 'Zero infrastructure to manage, lives next to the code, huge marketplace of pre-built actions', 'Vendor lock-in to GitHub, can get expensive at high build volume', 'Your repo already lives on GitHub and you want the fastest path to CI with no server maintenance'],
+              ['GitLab CI', 'Built into GitLab, excellent built-in Docker registry and Kubernetes integration', 'Best experience requires using GitLab end-to-end', 'Your org is already standardized on GitLab for source control and wants one unified tool'],
+            ]
+          },
+          { type: 'heading', text: 'Real-World Integration Flow' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'How a Jenkins Pipeline Actually Reaches a Merge Decision',
+            steps: [
+              { num: '1', label: 'Dev opens PR', desc: 'git push origin feature-branch' },
+              { num: '2', label: 'Webhook fires', desc: 'GitHub notifies Jenkins instantly', highlight: true },
+              { num: '3', label: 'Pipeline runs', desc: 'Build → Test → Selenium E2E → Scan' },
+              { num: '4', label: 'Status posted', desc: 'Green check or red X on the PR' },
+              { num: '5', label: 'Reviewer decides', desc: 'Merge button only enabled if green', highlight: true },
+              { num: '6', label: 'Deploy stage', desc: 'On merge to main: auto-deploy to staging' },
+            ],
+            note: 'No human ever runs the test suite by hand — the pipeline is the gatekeeper for every single merge.',
+          },
+          { type: 'heading', text: 'Hands-On Mini Project — Try It Yourself' },
+          { type: 'text', content: 'Paste this into a Jenkinsfile in any small repo with a package.json to see a real multi-stage pipeline run.' },
+          {
+            type: 'code', code: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Install') {
+            steps { sh 'npm install' }
+        }
+        stage('Test') {
+            steps { sh 'npm test -- --reporters=default --reporters=jest-junit' }
+        }
+        stage('Build') {
+            steps { sh 'npm run build' }
+        }
+    }
+    post {
+        always {
+            junit 'junit.xml'
+        }
+    }
+}
+// Push this file, create a Jenkins Pipeline job pointing at the repo,
+// click "Build Now" — watch each stage light up green/red in real time.`
+          },
+        ],
+      },
+
+      // ── SECTION 6: ECOSYSTEM ────────────────────────────────────────────────
+      {
+        title: '🔗 Ecosystem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "Jenkins on its own is like a conductor with no orchestra — it knows when to start the music, but it needs Docker to provide the instruments (consistent environments), Git to provide the sheet music (the source of truth), and Slack to tell the audience how the performance went." },
+          { type: 'heading', text: 'How Jenkins Fits Into the Bigger Picture' },
+          { type: 'text', content: 'On its own, Jenkins is an orchestrator — it does not build, test, or deploy anything itself, it calls out to other tools to do that work on a trigger. Its real value comes from being wired into a version control system that triggers it, a container runtime that gives every build a clean reproducible environment, a code quality scanner that gates merges on more than just "tests passed," and a notification system that closes the loop back to humans.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Jenkins Ecosystem — Who Talks to Whom',
+            items: [
+              { icon: '🐙', label: 'Git / GitHub', desc: 'webhook triggers Jenkins on push/PR' },
+              { arrow: true },
+              { icon: '🔧', label: 'Jenkins', desc: 'orchestrates the pipeline stages' },
+              { arrow: true },
+              { icon: '🐳', label: 'Docker', desc: 'provides clean, reproducible build agents', highlight: true },
+              { arrow: true },
+              { icon: '🔍', label: 'SonarQube', desc: 'gates merges on code quality/coverage' },
+              { arrow: true },
+              { icon: '💬', label: 'Slack / Email', desc: 'notifies the team of pass/fail', highlight: true },
+            ],
+            note: 'Each tool does one job well — Git triggers, Jenkins orchestrates, Docker isolates, SonarQube gates, Slack notifies.',
+          },
+          { type: 'heading', text: 'Three Key Relationships' },
+          {
+            type: 'table',
+            headers: ['Relationship', 'How They Work Together', 'What Problem It Solves'],
+            rows: [
+              ['Jenkins ↔ Git/GitHub', 'A webhook fires on every push/PR, triggering the pipeline automatically with zero manual clicks', 'Removes the human bottleneck — nobody can forget to run the tests before merging'],
+              ['Jenkins ↔ Docker', 'Each pipeline run spins up fresh containers as build agents, guaranteeing the same Node/Java/Python version every time', 'Eliminates "works on my machine" — the CI environment is identical for every single build'],
+              ['Jenkins ↔ Kubernetes', 'Jenkins can deploy the built Docker image directly to a K8s cluster as the final pipeline stage (kubectl apply)', 'Connects "code merged" to "code running in staging/production" without a manual deploy step'],
+              ['Jenkins ↔ SonarQube', 'A pipeline stage runs a SonarQube scan and the Quality Gate decides pass/fail before allowing merge', 'Blocks not just broken code but code with new vulnerabilities, duplication, or dropping test coverage'],
+            ]
+          },
+          { type: 'heading', text: 'Where Jenkins Sits Next to Other QA/DevOps Tools' },
+          { type: 'text', content: 'In a typical pipeline: Git triggers Jenkins → Jenkins spins up a Docker container to build the app → runs unit tests, then Selenium/Playwright E2E tests inside another container → SonarQube scans for quality gates → on success, Jenkins pushes the image to a registry and triggers a Kubernetes deploy → Slack announces the result. QA engineers most often touch Jenkins when adding or debugging the test stages of this pipeline.' },
+        ],
+      },
+
+      // ── SECTION 7: INTERVIEW Q&A ───────────────────────────────────────────
       {
         title: '💼 Jenkins Interview Questions',
         blocks: [
@@ -887,7 +1002,7 @@ stage('Flaky Tests') {
       subtitle: 'Sürekli Entegrasyon ve Sürekli Dağıtım',
       intro: 'Jenkins\'i sıfırdan mülakat seviyesine taşı. Her commit\'te build\'leri otomatikleştir, QA araçlarınla entegre et ve yazılımı daha hızlı ve güvenle teslim et.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '🔁 Pipeline', '🧪 QA Entegrasyonu', '🚀 İleri Seviye', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '🔁 Pipeline', '🧪 QA Entegrasyonu', '🚀 İleri Seviye', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────
       {
@@ -1662,7 +1777,123 @@ stage('Flaky Testler') {
         ],
       },
 
-      // ── SECTION 5: INTERVIEW Q&A (TR) ─────────────────────────────────────
+      // ── SECTION 5: GERÇEK HAYAT ─────────────────────────────────────────────
+      {
+        title: '🛠️ Gerçek Hayat',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Jenkins, bir fabrika montaj hattı ustabaşı gibidir — yeni bir parça (commit) geldiği anda, ustabaşı onu otomatik olarak muayeneden (build), kalite kontrolden (test) ve paketlemeden (deploy) geçirir, kimsenin elle itmesine gerek kalmadan." },
+          { type: 'heading', text: 'Hangi İhtiyaca Cevap Verir? Jenkins Olmadan Hayat Nasıl Zordu' },
+          { type: 'text', content: "CI/CD sunucusu olmadan, her build ve test çalıştırması manuel bir ayindir: geliştirici en güncel kodu çeker, build\'i lokalde çalıştırır, test süitini lokalde çalıştırır (hatırlarsa) ve ancak ondan sonra merge eder. 'Benim makinemde çalışıyor' doğrulanamaz olduğu için hatalar sızar, ve elle yapması çok uzun sürdüğü için her merge öncesi kimse tam regresyon süitini çalıştırmaz. Jenkins bunu otomatikleştirir — böylece her tek commit her seferinde aynı şekilde build edilir ve test edilir, deadline baskısı altında hiçbir insan bir adımı atlayamaz." },
+          { type: 'heading', text: 'Gerçek Senaryo: Spring Boot + React Monorepo' },
+          { type: 'text', content: "Bir ekip aynı monorepo\'dan bir Spring Boot backend ve bir React frontend\'i ship ediyor. QA lead\'e şu görev veriliyor: 'Her pull request\'in otomatik olarak build edilip test edildiği ve hiçbir insan merge etmeden önce manuel review için bir preview ortamının hazır olduğu bir pipeline kur.'" },
+          {
+            type: 'steps',
+            items: [
+              'Repo köküne şu stage\'leri içeren bir Jenkinsfile oluştur: Checkout → Backend Build (Maven) → Frontend Build (npm) → Unit Tests (JUnit + Jest, paralel çalışır) → Selenium E2E (docker-compose stack\'ine karşı) → SonarQube scan → Preview\'a Deploy',
+              'Her PR açıldığında/güncellendiğinde Jenkins\'in otomatik tetiklenmesi için bir GitHub webhook\'u yapılandır — elle "Build Now" tıklamasına gerek yok',
+              'Backend ve frontend unit testlerini eş zamanlı çalıştırmak için parallel { } directive\'ini kullan, pipeline süresini 12 dakikadan 5 dakikaya indir',
+              'docker-compose ile tüm stack\'i ayağa kaldıran, E2E süitini ona karşı çalıştıran ve sonra söken bir Selenium stage\'i ekle — unit testlerin göremediği entegrasyon hatalarını yakala',
+              'Herhangi bir reviewer\'ın tam olarak hangi testin neden başarısız olduğuna tıklayabilmesi için JUnit XML + Allure HTML raporunu build artifact olarak yayınla',
+              'PR status check\'i yapılandır: Jenkins doğrudan GitHub PR\'ında pending/success/failure raporlar, pipeline yeşil olana kadar merge butonunu engeller',
+              'İlk gerçek yakalama: bir frontend değişikliği backend test süitinin kontrol etmediği bir API sözleşmesini bozdu — E2E stage\'i başarısız oldu, PR engellendi ve hata asla main\'e ulaşmadı',
+            ]
+          },
+          { type: 'heading', text: 'Jenkins\'i Alternatiflerle Karşılaştırma — Gerçek Hayat Trade-off\'ları' },
+          {
+            type: 'table',
+            headers: ['Araç', 'Avantajlar ✅', 'Dezavantajlar ❌', 'Ne zaman tercih edilmeli?'],
+            rows: [
+              ['Jenkins', 'Ücretsiz, self-hosted (tam kontrol), 1800+ plugin, herhangi bir dil/stack ile çalışır', 'Sunucuyu sen yönetirsin (upgrade, güvenlik yaması), Groovy DSL\'in öğrenme eğrisi var', 'Organizasyon on-prem/self-hosted CI, karmaşık özel pipeline\'lar gerektiriyorsa veya zaten büyük bir legacy plugin ekosistemi varsa'],
+              ['GitHub Actions', 'Yönetilecek sıfır altyapı, kodun yanında yaşar, hazır action\'lardan oluşan büyük bir marketplace', 'GitHub\'a vendor lock-in, yüksek build hacminde pahalılaşabilir', 'Repo zaten GitHub\'da yaşıyorsa ve sunucu bakımı olmadan en hızlı CI yoluna ihtiyaç varsa'],
+              ['GitLab CI', 'GitLab\'a yerleşik, mükemmel yerleşik Docker registry ve Kubernetes entegrasyonu', 'En iyi deneyim için uçtan uca GitLab kullanmak gerekir', 'Organizasyon zaten kaynak kontrolü için GitLab\'da standartlaşmışsa ve tek bir birleşik araç istiyorsa'],
+            ]
+          },
+          { type: 'heading', text: 'Gerçek Hayat Entegrasyon Akışı' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'Bir Jenkins Pipeline\'ı Gerçekten Nasıl Bir Merge Kararına Ulaşır',
+            steps: [
+              { num: '1', label: 'Dev PR açar', desc: 'git push origin feature-branch' },
+              { num: '2', label: 'Webhook tetiklenir', desc: 'GitHub Jenkins\'i anında bilgilendirir', highlight: true },
+              { num: '3', label: 'Pipeline çalışır', desc: 'Build → Test → Selenium E2E → Scan' },
+              { num: '4', label: 'Status gönderilir', desc: 'PR\'da yeşil tik veya kırmızı X' },
+              { num: '5', label: 'Reviewer karar verir', desc: 'Merge butonu sadece yeşilse aktif', highlight: true },
+              { num: '6', label: 'Deploy stage', desc: 'main\'e merge\'de: staging\'e otomatik deploy' },
+            ],
+            note: 'Hiçbir insan test süitini elle çalıştırmaz — pipeline her tek merge için kapı bekçisidir.',
+          },
+          { type: 'heading', text: 'Uygulamalı Mini Proje — Kendin Dene' },
+          { type: 'text', content: 'Gerçek bir çok aşamalı pipeline\'ın çalıştığını görmek için bunu package.json olan herhangi bir küçük repo\'da bir Jenkinsfile\'a yapıştır.' },
+          {
+            type: 'code', code: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Install') {
+            steps { sh 'npm install' }
+        }
+        stage('Test') {
+            steps { sh 'npm test -- --reporters=default --reporters=jest-junit' }
+        }
+        stage('Build') {
+            steps { sh 'npm run build' }
+        }
+    }
+    post {
+        always {
+            junit 'junit.xml'
+        }
+    }
+}
+// Bu dosyayı push et, repo'yu işaret eden bir Jenkins Pipeline job'u
+// oluştur, "Build Now"a tıkla — her stage'in gerçek zamanlı olarak
+// yeşil/kırmızı yandığını izle.`
+          },
+        ],
+      },
+
+      // ── SECTION 6: EKOSİSTEM ────────────────────────────────────────────────
+      {
+        title: '🔗 Ekosistem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "Tek başına Jenkins, orkestrası olmayan bir şef gibidir — müziğin ne zaman başlayacağını bilir ama enstrümanları sağlaması için Docker'a (tutarlı ortamlar), notaları sağlaması için Git'e (tek doğruluk kaynağı), ve seyirciye performansın nasıl geçtiğini söylemesi için Slack'e ihtiyacı vardır." },
+          { type: 'heading', text: 'Jenkins Büyük Resme Nasıl Uyuyor' },
+          { type: 'text', content: 'Tek başına Jenkins bir orkestratördür — kendisi hiçbir şey build etmez, test etmez veya deploy etmez, bu işi yapması için bir tetikleyici üzerine diğer araçları çağırır. Gerçek değeri onu tetikleyen bir versiyon kontrol sistemine, her build\'e temiz ve tekrarlanabilir bir ortam veren bir container runtime\'a, merge\'leri sadece "testler geçti" den fazlasıyla kapılayan bir kod kalite tarayıcısına ve döngüyü insanlara geri kapatan bir bildirim sistemine bağlanmasından gelir.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Jenkins Ekosistemi — Kim Kiminle Konuşuyor',
+            items: [
+              { icon: '🐙', label: 'Git / GitHub', desc: 'push/PR\'da webhook Jenkins\'i tetikler' },
+              { arrow: true },
+              { icon: '🔧', label: 'Jenkins', desc: 'pipeline aşamalarını orkestre eder' },
+              { arrow: true },
+              { icon: '🐳', label: 'Docker', desc: 'temiz, tekrarlanabilir build agent\'ları sağlar', highlight: true },
+              { arrow: true },
+              { icon: '🔍', label: 'SonarQube', desc: 'merge\'leri kod kalitesi/coverage ile kapılar' },
+              { arrow: true },
+              { icon: '💬', label: 'Slack / Email', desc: 'ekibe pass/fail bildirir', highlight: true },
+            ],
+            note: 'Her araç kendi işini iyi yapar — Git tetikler, Jenkins orkestre eder, Docker izole eder, SonarQube kapılar, Slack bildirir.',
+          },
+          { type: 'heading', text: 'Üç Temel İlişki' },
+          {
+            type: 'table',
+            headers: ['İlişki', 'Nasıl Birlikte Çalışırlar', 'Hangi Sorunu Çözer'],
+            rows: [
+              ['Jenkins ↔ Git/GitHub', 'Her push/PR\'da bir webhook tetiklenir, pipeline\'ı sıfır manuel tıklamayla otomatik başlatır', 'İnsan darboğazını ortadan kaldırır — kimse merge öncesi testleri çalıştırmayı unutamaz'],
+              ['Jenkins ↔ Docker', 'Her pipeline çalıştırması build agent olarak taze container\'lar başlatır, her seferinde aynı Node/Java/Python sürümünü garanti eder', '"Benim makinemde çalışıyor" sorununu ortadan kaldırır — CI ortamı her tek build için aynıdır'],
+              ['Jenkins ↔ Kubernetes', 'Jenkins build edilen Docker image\'ını pipeline\'ın son aşaması olarak doğrudan bir K8s cluster\'ına deploy edebilir (kubectl apply)', '"Kod merge edildi" ile "kod staging/production\'da çalışıyor" arasını manuel bir deploy adımı olmadan bağlar'],
+              ['Jenkins ↔ SonarQube', 'Bir pipeline aşaması bir SonarQube taraması çalıştırır ve Quality Gate merge\'e izin vermeden önce pass/fail karar verir', 'Sadece bozuk kodu değil, yeni güvenlik açığı, kod tekrarı veya düşen test coverage\'ı olan kodu da engeller'],
+            ]
+          },
+          { type: 'heading', text: 'Jenkins Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
+          { type: 'text', content: 'Tipik bir pipeline\'da: Git Jenkins\'i tetikler → Jenkins uygulamayı build etmek için bir Docker container başlatır → unit testleri, ardından başka bir container içinde Selenium/Playwright E2E testlerini çalıştırır → SonarQube kalite kapıları için tarar → başarılı olursa Jenkins image\'ı bir registry\'e push eder ve bir Kubernetes deploy\'u tetikler → Slack sonucu duyurur. QA mühendisleri Jenkins\'e en çok bu pipeline\'ın test aşamalarını eklerken veya debug ederken dokunur.' },
+        ],
+      },
+
+      // ── SECTION 7: INTERVIEW Q&A (TR) ─────────────────────────────────────
       {
         title: '💼 Jenkins Mülakat Soruları',
         blocks: [

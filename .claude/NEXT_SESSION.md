@@ -36,6 +36,28 @@
 
 ---
 
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 2. kısım — bug fix)
+
+| Görev | Durum |
+|-------|-------|
+| **Bug fix: Mülakat Soruları / Hata Sözlüğü başlık tekrarı** — Kullanıcı Docker sayfasında "Docker Mülakat Soruları" (sayfa H2) ile "Docker — Mülakat Soruları" (block içi H4) aynı anda göründüğünü bildirdi (screenshot). Kök neden: `InterviewQuestionsBlock` ve `ErrorDictionaryBlock` her zaman kendi iç başlığını render ediyordu, section title zaten aynı şeyi söylese bile. | ✅ |
+| **Çözüm**: `TopicPage.jsx`'teki `renderBlock()` fonksiyonuna `sectionTitle` parametresi eklendi (çağrı noktası: `sections[activeTab]?.blocks?.map(...)`). `interview-questions` block'u artık section title `mülakat`/`interview` içeriyorsa kendi başlığını gizliyor; `error-dictionary` block'u section title `sözlüğü`/`dictionary` içeriyorsa kendi başlığını gizliyor. Appium'daki konu-içi gömülü mini mülakat recap'leri (section title farklıysa) etkilenmedi — hâlâ kendi başlığını gösteriyor (istenen davranış). | ✅ |
+| Etkilenen sayfalar doğrulandı: Docker, Jenkins, Postman (Mülakat S&C sekmeleri — artık tekrar yok), Appium (50 Soruluk mega-tab'da 3x tekrar düzeldi, konu-içi recap'ler bozulmadı), Playwright (Hata Sözlüğü sekmesi — artık tekrar yok), Postman Yaygın Hatalar (literal tekrar olmadığı için block başlığı doğru şekilde kaldı) | ✅ |
+| `npm run build` + Playwright ile canlı tarayıcıda tüm senaryolar doğrulandı — console/page hatası yok | ✅ |
+
+> Bu mekanizma artık otomatik — yeni dedicated "💼 Interview Q&A" veya "🚨 Error Dictionary" tab eklerken block içi başlığı manuel gizlemeye gerek yok.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17)
+
+| Görev | Durum |
+|-------|-------|
+| **Postman sayfası — CLAUDE.md Section 12 eksiklikleri tamamlandı**: 🛠️ Real World, 🔗 Ecosystem, 🚨 Common Errors sekmeleri eklendi (EN+TR, postmanData.js'in fully-separate en/tr mimarisine uygun). Real World: mikroservis sipariş akışı senaryosu (Auth→Catalog→Cart→Orders, collection variable chaining), Postman vs curl vs REST Assured karşılaştırma tablosu, hands-on mini proje (jsonplaceholder.typicode.com 2-istek zinciri). Ecosystem: Newman/Git/CI-CD/Mock Server ilişki tablosu + boxes akış diyagramı. Common Errors: error-dictionary block, 8 yeni hata senaryosu (401, timeout, JSON parse, undefined variable, pre-request ReferenceError, Newman 429, body not received, CORS) — mevcut Test Automation sekmesindeki 4 hatadan farklı. | ✅ |
+| **Docker sayfası — Ecosystem sekmesi eklendi** (EN+TR): Jenkins/Docker/Registry/Kubernetes/Monitoring boxes diyagramı, 4 ilişki tablosu (CI, K8s, Registry, Selenium Grid) | ✅ |
+| **Jenkins sayfası — Real World + Ecosystem sekmeleri eklendi** (EN+TR): Real World: Spring Boot+React monorepo PR pipeline senaryosu (parallel test, Selenium E2E stage, SonarQube gate), Jenkins vs GitHub Actions vs GitLab CI tablosu, hands-on Jenkinsfile mini proje. Ecosystem: Git/Docker/SonarQube/Slack ilişki tablosu + boxes diyagramı | ✅ |
+| `npm run build` ile her üç dosya (postmanData.js, dockerData.js, jenkinsData.js) syntax doğrulandı, Playwright ile canlı tarayıcıda her yeni sekme TR+EN modda tıklanıp screenshot alındı — console/page hatası yok | ✅ |
+
+> Bu oturumda repoda NEXT_SESSION.md'de bahsedilmeyen, başka bir oturum/araçtan (muhtemelen Codex — tracked codexSeo.md dosyası mevcut) kalan committed olmamış dosyalar bulundu: paralel bir TSX rewrite (src/App.tsx, src/main.tsx, src/sections/, yeni Header.tsx/Navigation.tsx — mevcut JSX mimarisiyle çakışıyor) ve ~25 adet tek-seferlik .mjs içerik scripti + documents/ klasörü. Kullanıcı talimatıyla bu dosyalara dokunulmadı, görmezden gelinip NEXT_SESSION.md önceliklerine devam edildi. Bir sonraki oturumda bu dosyaların hâlâ orada olup olmadığı kontrol edilmeli ve kullanıcıya tekrar sorulmalı.
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-16, 3. kısım)
 
 | Görev | Commit | Durum |
@@ -104,12 +126,9 @@
 
 1. ~~**JMeter sayfası — CLAUDE.md Section 12 eksiklikleri**~~ ✅ **TAMAMLANDI (2026-06-16, 3. kısım)** — Real World + Ecosystem sekmeleri ve `jmeter-load-test` simülasyonu eklendi.
    - Hata sözlüğü (`error-dictionary`) hâlâ ayrı bir "🚨 Yaygın Hatalar" sekmesi değil, mevcut sekmelerin içine gömülü — düşük öncelikli kalan eksik.
-2. **Docker / Jenkins / Postman — kısmi Section 12 eksikliği:**
-   - Docker: ayrı bir **Ecosystem** sekmesi yok (Core Commands kısmen real-world'ü karşılıyor).
-   - Jenkins: ayrı **Ecosystem** ve **Real World** sekmesi yok (QA Integration kısmen karşılıyor).
-   - Postman: **Real World**, **Ecosystem**, **Common Errors** sekmelerinin hiçbiri yok.
-   - REST Assured: Ecosystem yerine "🆆 Araç Karşılaştırması" var — kabul edilebilir, düşük öncelik.
-3. **Python / SQL / Java sayfalarında hiç `simulation` (Gör-Anla-Dene) block'u yok** — Selenium(8), Appium(4), AWS/Azure(2), diğerleri(1) ile karşılaştırıldığında bu 3 sayfa platformun "aktif felsefesi"nin dışında kalıyor. (Not: Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış bir pytest runner var ama bu `pythonData.js`'in kendi `simulation` sistemini kullanmıyor, ayrı bir component.)
+2. ~~**Docker / Jenkins / Postman — kısmi Section 12 eksikliği**~~ ✅ **TAMAMLANDI (2026-06-17)** — Postman: Real World+Ecosystem+Common Errors; Docker: Ecosystem; Jenkins: Real World+Ecosystem.
+   - REST Assured: Ecosystem yerine "🆆 Araç Karşılaştırması" var — kabul edilebilir, düşük öncelik (dokunulmadı).
+3. **Python / SQL / Java sayfalarında hiç `simulation` (Gör-Anla-Dene) block'u yok** — Selenium(8), Appium(4), AWS/Azure(2), diğerleri(1) ile karşılaştırıldığında bu 3 sayfa platformun "aktif felsefesi"nin dışında kalıyor. (Not: Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış bir pytest runner var ama bu `pythonData.js`'in kendi `simulation` sistemini kullanmıyor, ayrı bir component.) **← Bir sonraki oturumun önceliği bu.**
 4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var (özellikle javaData.js 639KB), code splitting yapılabilir (zorunlu değil)
 
 > Not: "Python/TypeScript sayfalarına simülasyon — pytest/vitest runner arayüzü" görevi tamamlandı (her iki yarı da bitti).

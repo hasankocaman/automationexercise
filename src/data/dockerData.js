@@ -8,7 +8,7 @@ export const dockerData = {
       subtitle: 'Containerization for Developers & QA Engineers',
       intro: 'Master Docker from zero to interview level. Learn how to containerize your test environments, run Selenium Grid and Playwright in Docker, and ensure "it works on my machine" becomes "it works everywhere."',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '📦 Core Commands', '🗂️ Dockerfile & Compose', '🧪 QA Use Cases', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '📦 Core Commands', '🗂️ Dockerfile & Compose', '🧪 QA Use Cases', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
       {
@@ -769,7 +769,46 @@ options.add_argument('--disable-dev-shm-usage')`,
         ],
       },
 
-      // ── SECTION 5: INTERVIEW Q&A ───────────────────────────────────────────
+      // ── SECTION 5: ECOSYSTEM ────────────────────────────────────────────────
+      {
+        title: '🔗 Ecosystem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "A single Docker container is like one shipping container on a truck — useful, but the real power shows up at the port: cranes that load/unload automatically (Kubernetes), a dispatcher that decides which ship goes where (Jenkins/CI), and a logbook tracking every container that ever passed through (a registry like Docker Hub)." },
+          { type: 'heading', text: 'How Docker Fits Into the Bigger Picture' },
+          { type: 'text', content: 'On its own, Docker builds and runs one container on one machine. Its real value in a QA/DevOps pipeline comes from being wired into four other systems: a CI/CD tool that builds and tests images on every push, a registry that stores and versions those images, an orchestrator that runs many containers reliably across machines, and a message broker or database that the containerized app talks to at runtime.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Docker Ecosystem — Who Talks to Whom',
+            items: [
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'builds image on every push' },
+              { arrow: true },
+              { icon: '🐳', label: 'docker build / push', desc: 'creates and tags the image' },
+              { arrow: true },
+              { icon: '📦', label: 'Docker Hub / ECR / GCR', desc: 'stores versioned images', highlight: true },
+              { arrow: true },
+              { icon: '☸️', label: 'Kubernetes', desc: 'pulls the image, runs N replicas' },
+              { arrow: true },
+              { icon: '📈', label: 'Prometheus / Grafana', desc: 'monitors running containers', highlight: true },
+            ],
+            note: 'Each tool does one job well — Docker packages, CI builds, a registry stores, Kubernetes orchestrates, monitoring observes.',
+          },
+          { type: 'heading', text: 'Three Key Relationships' },
+          {
+            type: 'table',
+            headers: ['Relationship', 'How They Work Together', 'What Problem It Solves'],
+            rows: [
+              ['Docker ↔ Jenkins/CI', 'A pipeline stage runs `docker build` and `docker push` after tests pass, tagging the image with the commit SHA', 'Every commit produces a traceable, reproducible artifact instead of "works on my machine"'],
+              ['Docker ↔ Kubernetes', 'K8s pulls images from a registry and schedules them as Pods across a cluster, restarting them if they crash', 'Turns a single container into a self-healing, horizontally scalable service'],
+              ['Docker ↔ Registry (Docker Hub/ECR)', 'Images are pushed once and pulled by any machine with credentials — dev laptop, CI runner, or production node', 'Removes the need to rebuild the same image on every environment; guarantees byte-identical artifacts'],
+              ['Docker ↔ Selenium Grid', 'Selenium/Playwright nodes run as containers (selenium/standalone-chrome), spun up fresh for every test run', 'Eliminates "dirty browser state" between test runs and lets QA scale parallel test execution horizontally'],
+            ]
+          },
+          { type: 'heading', text: 'Where Docker Sits Next to Other QA/DevOps Tools' },
+          { type: 'text', content: 'In a typical pipeline: Jenkins triggers the build → Docker packages the app and test runner into images → the test image runs against a docker-compose stack (app + DB + Selenium Grid, all containerized) → on success, Docker pushes the production image to a registry → Kubernetes deploys it. QA engineers interact with Docker most directly when running Selenium Grid in containers or spinning up disposable test environments with docker-compose.' },
+        ],
+      },
+
+      // ── SECTION 6: INTERVIEW Q&A ───────────────────────────────────────────
       {
         title: '💼 Docker Interview Questions',
         blocks: [
@@ -881,7 +920,7 @@ options.add_argument('--disable-dev-shm-usage')`,
       subtitle: 'Developer ve QA Mühendisleri İçin Containerization',
       intro: 'Docker\'ı sıfırdan mülakat seviyesine taşı. Test ortamlarını containerize et, Selenium Grid ve Playwright\'ı Docker\'da çalıştır ve "bende çalışıyor" sorununu "her yerde çalışıyor" çözümüne dönüştür.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '📦 Temel Komutlar', '🗂️ Dockerfile & Compose', '🧪 QA Kullanımı', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '📦 Temel Komutlar', '🗂️ Dockerfile & Compose', '🧪 QA Kullanımı', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────
       {
@@ -1618,7 +1657,46 @@ options.add_argument('--disable-dev-shm-usage')`,
         ],
       },
 
-      // ── SECTION 5: INTERVIEW Q&A (TR) ─────────────────────────────────────
+      // ── SECTION 5: EKOSİSTEM ────────────────────────────────────────────────
+      {
+        title: '🔗 Ekosistem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "Tek bir Docker container'ı, bir kamyondaki tek bir konteyner gibidir — kullanışlıdır ama gerçek güç limanda ortaya çıkar: otomatik yükleme/boşaltma yapan vinçler (Kubernetes), hangi geminin nereye gideceğine karar veren bir dispeçer (Jenkins/CI), ve oradan geçen her container'ı kayıt altına alan bir defter (Docker Hub gibi bir registry)." },
+          { type: 'heading', text: 'Docker Büyük Resme Nasıl Uyuyor' },
+          { type: 'text', content: 'Tek başına Docker, tek bir makinede tek bir container build edip çalıştırır. QA/DevOps pipeline\'ındaki gerçek değeri dört sisteme bağlanmasından gelir: her push\'ta image build edip test eden bir CI/CD aracı, bu image\'ları saklayıp versiyonlayan bir registry, container\'ları makineler arasında güvenilir şekilde çalıştıran bir orkestratör, ve containerized uygulamanın çalışma zamanında konuştuğu bir mesaj broker\'ı veya veritabanı.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Docker Ekosistemi — Kim Kiminle Konuşuyor',
+            items: [
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'her push\'ta image build eder' },
+              { arrow: true },
+              { icon: '🐳', label: 'docker build / push', desc: 'image\'ı oluşturur ve etiketler' },
+              { arrow: true },
+              { icon: '📦', label: 'Docker Hub / ECR / GCR', desc: 'versiyonlanmış image\'ları saklar', highlight: true },
+              { arrow: true },
+              { icon: '☸️', label: 'Kubernetes', desc: 'image\'ı çeker, N replika çalıştırır' },
+              { arrow: true },
+              { icon: '📈', label: 'Prometheus / Grafana', desc: 'çalışan container\'ları izler', highlight: true },
+            ],
+            note: 'Her araç kendi işini iyi yapar — Docker paketler, CI build eder, registry saklar, Kubernetes orkestre eder, monitoring izler.',
+          },
+          { type: 'heading', text: 'Üç Temel İlişki' },
+          {
+            type: 'table',
+            headers: ['İlişki', 'Nasıl Birlikte Çalışırlar', 'Hangi Sorunu Çözer'],
+            rows: [
+              ['Docker ↔ Jenkins/CI', 'Testler geçtikten sonra bir pipeline aşaması `docker build` ve `docker push` çalıştırır, image\'ı commit SHA\'sıyla etiketler', 'Her commit "benim makinemde çalışıyor" yerine izlenebilir, tekrarlanabilir bir artifact üretir'],
+              ['Docker ↔ Kubernetes', 'K8s registry\'den image çeker ve cluster genelinde Pod olarak zamanlar, çökerse yeniden başlatır', 'Tek bir container\'ı kendi kendini onaran, yatay ölçeklenebilir bir servise dönüştürür'],
+              ['Docker ↔ Registry (Docker Hub/ECR)', 'Image\'lar bir kez push edilir, kimlik bilgisi olan herhangi bir makine tarafından çekilebilir — dev laptop, CI runner veya production node', 'Her ortamda aynı image\'ı yeniden build etme ihtiyacını ortadan kaldırır; byte-identical artifact garanti eder'],
+              ['Docker ↔ Selenium Grid', 'Selenium/Playwright node\'ları container olarak çalışır (selenium/standalone-chrome), her test çalıştırmasında sıfırdan başlatılır', '"Kirli browser state\'i" testler arası ortadan kaldırır, QA\'nın paralel test çalıştırmasını yatay olarak ölçeklemesini sağlar'],
+            ]
+          },
+          { type: 'heading', text: 'Docker Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
+          { type: 'text', content: 'Tipik bir pipeline\'da: Jenkins build\'i tetikler → Docker uygulamayı ve test runner\'ı image\'lara paketler → test image\'ı bir docker-compose stack\'ine (uygulama + DB + Selenium Grid, hepsi containerized) karşı çalışır → başarılı olursa Docker production image\'ını bir registry\'e push eder → Kubernetes deploy eder. QA mühendisleri Docker ile en doğrudan Selenium Grid\'i container\'larda çalıştırırken veya docker-compose ile atılabilir test ortamları kurarken etkileşime girer.' },
+        ],
+      },
+
+      // ── SECTION 6: INTERVIEW Q&A (TR) ─────────────────────────────────────
       {
         title: '💼 Docker Mülakat Soruları',
         blocks: [

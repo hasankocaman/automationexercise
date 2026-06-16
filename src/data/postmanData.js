@@ -373,7 +373,7 @@ export const postmanData = {
       subtitle: 'API Testing & Collaboration Platform',
       intro: 'From zero to interview-level Postman mastery. Learn to send requests, write automated test scripts, manage environments, chain requests, run collections with Newman, and integrate into CI/CD pipelines — with real QA scenarios throughout.',
     },
-    tabs: ['🎯 Introduction', '📦 Installation', '📚 Core Concepts', '🔥 Test Automation', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '📦 Installation', '📚 Core Concepts', '🔥 Test Automation', '🛠️ Real World', '🔗 Ecosystem', '🚨 Common Errors', '💼 Interview Q&A'],
     sections: [
       // ── 0. INTRODUCTION ──────────────────────────────────────────────────
       {
@@ -1031,7 +1031,224 @@ pm.test("Status OK", function() {       // open
         ],
       },
 
-      // ── 4. INTERVIEW Q&A ────────────────────────────────────────────────
+      // ── 4. REAL WORLD ─────────────────────────────────────────────────────
+      {
+        title: '🛠️ Real World Usage',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Postman is like a universal TV remote for APIs — instead of building a separate clicker (code) for every device (endpoint), you point one remote at anything and press a button. Before sending it to the actual living room (production), you check every channel works." },
+          { type: 'heading', text: 'What Need Does This Fill? Life Without Postman' },
+          { type: 'text', content: "Without Postman, testing an API meant either waiting for a frontend to be built (so you could click through a UI) or writing throwaway curl commands / Java HttpClient snippets by hand for every single endpoint. Headers, auth tokens, and request bodies had to be retyped every time, and there was no easy way to chain 'login, then use that token in the next 5 requests.' Postman replaces all of that with a reusable, shareable, scriptable client — the API equivalent of a Selenium IDE for browsers." },
+          { type: 'heading', text: 'Real-World Scenario: Microservices Order Flow' },
+          { type: 'text', content: "A mid-size e-commerce company has 4 microservices: Auth, Catalog, Cart, and Orders. A new QA engineer joins and is asked: 'Before the frontend team finishes the checkout UI, verify the entire backend order flow works end-to-end.'" },
+          {
+            type: 'steps',
+            items: [
+              'Create a Postman Collection "Order Flow E2E" with 4 folders matching the 4 services',
+              'Request 1 — POST /auth/login: save the returned JWT into a collection variable using pm.collectionVariables.set("token", pm.response.json().token) in the Tests tab',
+              'Request 2 — GET /catalog/products: add Authorization: Bearer {{token}} to the headers, write a test asserting pm.response.json().length > 0',
+              'Request 3 — POST /cart/add: send {{token}} + a productId captured from Request 2\'s response, chaining data between requests automatically',
+              'Request 4 — POST /orders/checkout: the final step — assert response.status === "CONFIRMED" and the order total matches cart total',
+              'Run the whole folder with Collection Runner — all 4 requests execute in sequence, each test result shown pass/fail',
+              'Export the collection + environment as JSON, commit to tests/postman/ in Git, and wire Newman into the CI pipeline so this E2E check runs on every backend PR — long before the frontend exists',
+            ]
+          },
+          { type: 'heading', text: 'Comparing Postman to Alternatives — Real-World Trade-offs' },
+          {
+            type: 'table',
+            headers: ['Tool', 'Advantages ✅', 'Disadvantages ❌', 'Choose it when...'],
+            rows: [
+              ['Postman', 'No-code GUI, chaining via collection variables, huge ecosystem (mock servers, monitors), Newman for CI', 'GUI-first workflow can drift from version control if not exported regularly', 'Your team wants fast exploratory testing AND a path to CI automation without writing a full code framework'],
+              ['curl / raw HTTP', 'Zero setup, scriptable in any shell, great for one-off debugging', 'No built-in chaining, no test assertions, painful to maintain a suite of requests', 'You need a single quick request from a terminal, not a reusable suite'],
+              ['REST Assured (Java)', 'Full programming language power, fits naturally into a Java/Maven test suite, easy to integrate with JUnit/TestNG', 'Requires writing Java code for every request — slower for exploratory testing', 'Your team is Java-heavy and wants API tests living in the same repo/language as the app code'],
+            ]
+          },
+          { type: 'heading', text: 'Real-World Integration Flow' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'How a Postman Collection Actually Reaches Production Decisions',
+            steps: [
+              { num: '1', label: 'Build Collection', desc: 'QA chains requests in Postman GUI' },
+              { num: '2', label: 'Export JSON', desc: 'tests/postman/order-flow.json' },
+              { num: '3', label: 'Commit to Git', desc: 'versioned alongside app code', highlight: true },
+              { num: '4', label: 'CI runs Newman', desc: 'newman run order-flow.json -e prod.json' },
+              { num: '5', label: 'JUnit report', desc: '--reporter-junit feeds CI dashboard' },
+              { num: '6', label: 'Pass/Fail gate', desc: 'Build blocked if any pm.test() fails', highlight: true },
+            ],
+            note: 'This is the same pipeline shape as a Selenium regression suite — only the layer being tested moved from UI to HTTP.',
+          },
+          { type: 'heading', text: 'Hands-On Mini Project — Try It Yourself' },
+          { type: 'text', content: 'Build this 2-request chain against a free public API to see variable-passing between requests in under 5 minutes.' },
+          {
+            type: 'code', code: `// Request 1: GET https://jsonplaceholder.typicode.com/users/1
+// Tests tab:
+pm.test("Status is 200", () => pm.response.to.have.status(200));
+pm.collectionVariables.set("userId", pm.response.json().id);
+pm.collectionVariables.set("userEmail", pm.response.json().email);
+
+// Request 2: GET https://jsonplaceholder.typicode.com/posts?userId={{userId}}
+// Tests tab:
+pm.test("Status is 200", () => pm.response.to.have.status(200));
+pm.test("All posts belong to chained userId", () => {
+    const posts = pm.response.json();
+    posts.forEach(p => pm.expect(p.userId).to.eql(
+        parseInt(pm.collectionVariables.get("userId"))
+    ));
+});
+
+// Run both with Collection Runner — Request 2 automatically uses
+// the userId captured from Request 1's response. No manual copy-paste.`
+          },
+        ],
+      },
+
+      // ── 5. ECOSYSTEM ──────────────────────────────────────────────────────
+      {
+        title: '🔗 Ecosystem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "Postman alone is like a phone with no SIM card — great for typing messages, but it needs a network to actually deliver them anywhere. Newman is the SIM card that lets your collections run outside the Postman app, and CI/CD is the cell tower that triggers calls automatically." },
+          { type: 'heading', text: 'How Postman Fits Into the Bigger Picture' },
+          { type: 'text', content: 'On its own, Postman is a manual tool — someone has to click "Send". Its real value in a QA pipeline comes from being wired into three other systems: Newman (the CLI runner that removes the GUI dependency), a CI/CD tool that triggers Newman automatically on every push, and Git for version-controlling the collection JSON itself alongside the application code it tests.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Postman Ecosystem — Who Talks to Whom',
+            items: [
+              { icon: '📮', label: 'Postman GUI', desc: 'build & debug collection interactively' },
+              { arrow: true },
+              { icon: '📄', label: 'Export collection.json', desc: 'committed to Git, versioned with the app' },
+              { arrow: true },
+              { icon: '⚡', label: 'Newman (CLI)', desc: 'runs the same collection headlessly' },
+              { arrow: true },
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'triggers Newman on every PR/push', highlight: true },
+              { arrow: true },
+              { icon: '📊', label: 'JUnit/HTML report', desc: 'pass/fail gate + Slack alert', highlight: true },
+            ],
+            note: 'Each tool does one job well — Postman authors, Newman executes, Git versions, CI/CD schedules and gates.',
+          },
+          { type: 'heading', text: 'Three Key Relationships' },
+          {
+            type: 'table',
+            headers: ['Relationship', 'How They Work Together', 'What Problem It Solves'],
+            rows: [
+              ['Postman ↔ Newman', 'Same collection.json file runs in both — GUI for authoring/debugging, Newman for unattended execution', 'Avoids writing the suite twice: once for humans, once for automation'],
+              ['Postman ↔ Git', 'Collections + environments exported as JSON, committed next to the API source code', 'Version history, code review on test changes, rollback if a bad assertion is merged'],
+              ['Newman ↔ CI/CD (Jenkins/GH Actions)', 'A pipeline stage runs `newman run` after every deploy to staging, fails the build on any failed pm.test()', 'Catches API regressions before they reach production, without a human clicking Send'],
+              ['Postman ↔ Mock Servers', 'Postman can spin up a mock server from the same collection so frontend devs can build against it before the real backend exists', 'Decouples frontend and backend development timelines'],
+            ]
+          },
+          { type: 'heading', text: 'Where Postman Sits Next to Other QA Tools' },
+          { type: 'text', content: 'A Selenium/Playwright suite tests the UI; a Postman/Newman suite tests the API layer underneath it. Both typically run as separate stages in the same CI pipeline — API tests usually run first because they are faster and catch backend bugs before spending time on slower UI tests that depend on that same backend.' },
+        ],
+      },
+
+      // ── 6. COMMON ERRORS ────────────────────────────────────────────────────
+      {
+        title: '🚨 Common Errors',
+        blocks: [
+          { type: 'simple-box', emoji: '🚨', content: 'Every Postman error message is a clue, not a dead end — like a doctor reading symptoms. A 401 means "who are you?", a CORS error means "wrong door", and a timeout means "nobody answered the phone." Learn to read the symptom and you skip straight to the cure.' },
+          { type: 'heading', text: 'Real Errors You Will Hit — and How to Fix Them' },
+          {
+            type: 'error-dictionary',
+            framework: 'Postman',
+            errors: [
+              {
+                error: '401 Unauthorized',
+                fullMessage: '{ "error": "Unauthorized", "message": "Invalid or missing token" }',
+                cause: { tr: 'Authorization header eksik, token süresi dolmuş veya yanlış formatta gönderilmiş.', en: 'Authorization header is missing, the token expired, or it was sent in the wrong format.' },
+                solution: { tr: '1) Headers sekmesinde Authorization: Bearer {{token}} olduğunu doğrula. 2) Token\'ın güncel login isteğinden geldiğini kontrol et. 3) Token süresini kontrol et (JWT exp claim).', en: '1) Verify Headers tab has Authorization: Bearer {{token}}. 2) Confirm the token came from a fresh login request. 3) Check token expiry (JWT exp claim).' },
+                codeWrong: `// Missing Authorization header
+GET https://api.example.com/orders
+// 401 Unauthorized`,
+                codeFixed: `// Add header after a successful login request
+Authorization: Bearer {{token}}
+GET https://api.example.com/orders
+// 200 OK`,
+              },
+              {
+                error: 'Could not get response — timeout',
+                fullMessage: 'Error: connect ETIMEDOUT / "Could not get any response"',
+                cause: { tr: 'Sunucu yanıt vermiyor (yanlış URL, sunucu kapalı, firewall engelliyor veya çok yavaş çalışıyor).', en: 'Server is not responding — wrong URL, server is down, firewall blocking, or server is too slow.' },
+                solution: { tr: '1) URL\'yi tarayıcıda dene. 2) VPN/firewall kapatıp tekrar dene. 3) Settings → General → Request timeout süresini artır.', en: '1) Try the URL in a browser. 2) Disable VPN/firewall and retry. 3) Increase Settings → General → Request timeout.' },
+                codeWrong: `GET https://staging-api-typo.example.com/health
+// Error: Could not get any response`,
+                codeFixed: `GET https://staging-api.example.com/health
+// 200 OK — typo in subdomain was the cause`,
+              },
+              {
+                error: 'JSON parse error in Tests',
+                fullMessage: 'SyntaxError: Unexpected token < in JSON at position 0',
+                cause: { tr: 'pm.response.json() çağrılıyor ama sunucu JSON yerine HTML (örn. 500 hata sayfası) döndürüyor.', en: 'pm.response.json() is called, but the server returned HTML (e.g. a 500 error page) instead of JSON.' },
+                solution: { tr: '1) Response body\'i önce Postman Body sekmesinde gözle kontrol et. 2) Status code\'u logla — muhtemelen 500/502 dönüyor. 3) JSON parse etmeden önce status kontrolü ekle.', en: '1) First eyeball the response body in the Body tab. 2) Log the status code — likely a 500/502. 3) Guard the JSON parse behind a status check.' },
+                codeWrong: `pm.test("Check name", () => {
+    pm.expect(pm.response.json().name).to.eql("Ada");
+    // crashes if server returned an HTML error page
+});`,
+                codeFixed: `pm.test("Status is 200 before parsing", () => {
+    pm.response.to.have.status(200);
+    pm.expect(pm.response.json().name).to.eql("Ada");
+});`,
+              },
+              {
+                error: 'Variable shows as literal {{baseUrl}} in URL',
+                fullMessage: 'Request sent to literal string: https://{{baseUrl}}/users',
+                cause: { tr: 'Doğru Environment seçilmemiş veya değişken o environment\'ta tanımlı değil.', en: 'The correct Environment is not selected in the top-right dropdown, or the variable is not defined in it.' },
+                solution: { tr: '1) Sağ üstteki Environment dropdown\'ında "No Environment" değil doğru ortamın seçili olduğunu doğrula. 2) Environment\'ı aç, baseUrl değişkeninin tanımlı olduğunu kontrol et.', en: '1) Confirm the top-right Environment dropdown is not "No Environment" — pick the right one. 2) Open the environment and verify baseUrl is actually defined there.' },
+                codeWrong: `// No environment selected (dropdown shows "No Environment")
+GET https://{{baseUrl}}/users
+// sent literally, fails to resolve`,
+                codeFixed: `// "Dev" environment selected, baseUrl = api-dev.example.com
+GET https://{{baseUrl}}/users
+// resolves to https://api-dev.example.com/users`,
+              },
+              {
+                error: 'ReferenceError in Pre-request Script',
+                fullMessage: 'ReferenceError: pm is not defined',
+                cause: { tr: 'Script Pre-request Script sekmesi yerine yanlışlıkla Tests sekmesine yazılmış, ya da sandbox dışı bir API kullanılıyor.', en: 'Script was pasted into the wrong tab (Tests instead of Pre-request Script), or a non-sandbox API is being used.' },
+                solution: { tr: '1) Script\'in doğru sekmede olduğunu kontrol et. 2) Sadece pm.* sandbox API\'lerini kullan (require, fetch gibi Node API\'leri çalışmaz).', en: '1) Verify the script is in the correct tab. 2) Only use pm.* sandbox APIs — Node APIs like require or fetch are not available.' },
+                codeWrong: `// Pasted in wrong tab, or using unsupported API
+const fetch = require('node-fetch'); // not available in sandbox`,
+                codeFixed: `// Pre-request Script tab, sandbox-safe
+pm.environment.set("timestamp", Date.now());`,
+              },
+              {
+                error: 'Newman build fails: 429 Too Many Requests',
+                fullMessage: 'AssertionError: expected response to have status code 200 but got 429',
+                cause: { tr: 'Hedef API rate limiting uyguluyor; CI çok hızlı ardışık istek gönderiyor.', en: 'The target API enforces rate limiting and CI is firing requests too fast back-to-back.' },
+                solution: { tr: '1) Newman çalıştırmasına --delay-request 500 ekle. 2) Test ortamında rate limit\'i artırmayı backend ekibinden iste. 3) Paralel collection çalıştırmalarını sınırla.', en: '1) Add --delay-request 500 to the Newman run. 2) Ask backend to raise the rate limit for the test environment. 3) Limit parallel collection runs in CI.' },
+                codeWrong: `newman run collection.json -e ci.json
+// 429 errors midway through the run`,
+                codeFixed: `newman run collection.json -e ci.json --delay-request 500
+// requests spaced 500ms apart — no more 429s`,
+              },
+              {
+                error: 'Body data not received by server',
+                fullMessage: 'Server logs: req.body is undefined / empty object {}',
+                cause: { tr: 'Body sekmesinde "raw / JSON" yerine yanlış format seçilmiş, veya Content-Type header body ile uyuşmuyor.', en: 'Wrong format selected in the Body tab (e.g. "raw / Text" instead of "raw / JSON"), or Content-Type header mismatches the actual body.' },
+                solution: { tr: '1) Body tab → raw → sağdaki dropdown\'dan JSON seç (otomatik Content-Type ekler). 2) Headers\'ta manuel eklenmiş yanlış Content-Type varsa sil.', en: '1) Body tab → raw → select JSON from the right-side dropdown (auto-sets Content-Type). 2) Remove any manually-added conflicting Content-Type header.' },
+                codeWrong: `// Body tab set to "Text" instead of "JSON"
+{"name": "Ada"}
+// Server receives: req.body === undefined`,
+                codeFixed: `// Body tab set to raw → JSON (Content-Type: application/json auto-added)
+{"name": "Ada"}
+// Server receives: req.body === { name: "Ada" }`,
+              },
+              {
+                error: 'CORS error (in Postman sandbox/embedded contexts)',
+                fullMessage: 'Access to fetch has been blocked by CORS policy',
+                cause: { tr: 'Postman Desktop uygulaması normalde CORS\'tan etkilenmez, ama Postman Web veya bir tarayıcı tabanlı mock server kullanırken sunucu Access-Control-Allow-Origin header\'ı döndürmüyor.', en: 'The Postman Desktop app normally bypasses CORS, but Postman Web or a browser-based mock-server flow fails when the server does not return an Access-Control-Allow-Origin header.' },
+                solution: { tr: '1) Mümkünse Postman Desktop uygulamasına geç (CORS bypass edilir). 2) Backend\'e CORS header eklenmesini iste. 3) Geçici çözüm: Postman\'ın yerleşik proxy/agent özelliğini kullan.', en: '1) Switch to Postman Desktop where possible (bypasses CORS). 2) Ask backend to add CORS headers. 3) Workaround: use Postman\'s built-in proxy/agent feature.' },
+                codeWrong: `// Postman Web, server has no CORS headers
+GET https://api.example.com/data
+// blocked by browser CORS policy`,
+                codeFixed: `// Switched to Postman Desktop app — no browser sandbox restrictions
+GET https://api.example.com/data
+// 200 OK`,
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── 7. INTERVIEW Q&A ────────────────────────────────────────────────
       {
         title: '💼 Interview Questions',
         blocks: [
@@ -1087,7 +1304,7 @@ pm.test("Status OK", function() {       // open
       subtitle: 'API Test ve İşbirliği Platformu',
       intro: 'Sıfırdan mülakat seviyesine Postman uzmanlığı. İstek göndermeyi, otomatik test yazmayı, ortamları yönetmeyi, Newman ile CI/CD\'ye entegre etmeyi gerçek QA senaryolarıyla öğren.',
     },
-    tabs: ['🎯 Giriş', '📦 Kurulum', '📚 Temel Kavramlar', '🔥 Test Otomasyonu', '💼 Mülakat Q&A'],
+    tabs: ['🎯 Giriş', '📦 Kurulum', '📚 Temel Kavramlar', '🔥 Test Otomasyonu', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '🚨 Yaygın Hatalar', '💼 Mülakat Q&A'],
     sections: [
       // ── 0. GİRİŞ ─────────────────────────────────────────────────────────
       {
@@ -1777,7 +1994,225 @@ pm.test("Durum OK", function() {       // aç
         ],
       },
 
-      // ── 4. MÜLAKAT Q&A ────────────────────────────────────────────────────
+      // ── 4. GERÇEK HAYAT ─────────────────────────────────────────────────────
+      {
+        title: '🛠️ Gerçek Hayat',
+        blocks: [
+          { type: 'simple-box', emoji: '🛠️', content: "Postman, API'ler için evrensel bir TV kumandası gibidir — her cihaz (endpoint) için ayrı bir kumanda (kod) yazmak yerine, tek bir kumandayı her şeye doğrultup düğmeye basarsın. Gerçek salona (production) göndermeden önce her kanalın çalıştığını kontrol edersin." },
+          { type: 'heading', text: 'Hangi İhtiyaca Cevap Verir? Postman Olmadan Hayat Nasıl Zordu' },
+          { type: 'text', content: "Postman olmadan bir API'yi test etmek ya frontend'in bitmesini bekleyip UI üzerinden tıklamak ya da her endpoint için elle atılabilir curl komutları / Java HttpClient kod parçacıkları yazmak demekti. Header'lar, auth token'ları ve request body'leri her seferinde yeniden yazılırdı, 'önce login ol, sonra o token'ı sonraki 5 istekte kullan' gibi bir zincirleme yapmanın kolay bir yolu yoktu. Postman bunların hepsini yeniden kullanılabilir, paylaşılabilir, scriptlenebilir bir client ile değiştirir — tarayıcılar için Selenium IDE'nin API karşılığı gibidir." },
+          { type: 'heading', text: 'Gerçek Senaryo: Mikroservis Sipariş Akışı' },
+          { type: 'text', content: "Orta ölçekli bir e-ticaret şirketinin 4 mikroservisi var: Auth, Catalog, Cart ve Orders. Yeni bir QA mühendisi işe başlıyor ve şu görevi alıyor: 'Frontend ekibi checkout UI'ını bitirmeden önce, backend'deki tüm sipariş akışının uçtan uca çalıştığını doğrula.'" },
+          {
+            type: 'steps',
+            items: [
+              '4 servise karşılık gelen 4 klasörlü "Order Flow E2E" adlı bir Postman Collection oluştur',
+              'İstek 1 — POST /auth/login: dönen JWT\'yi Tests sekmesinde pm.collectionVariables.set("token", pm.response.json().token) ile collection değişkenine kaydet',
+              'İstek 2 — GET /catalog/products: header\'lara Authorization: Bearer {{token}} ekle, pm.response.json().length > 0 doğrulayan bir test yaz',
+              'İstek 3 — POST /cart/add: {{token}} + İstek 2\'nin yanıtından alınan bir productId gönder, istekler arası veriyi otomatik zincirle',
+              'İstek 4 — POST /orders/checkout: son adım — response.status === "CONFIRMED" ve sipariş toplamının sepet toplamıyla eşleştiğini doğrula',
+              'Tüm klasörü Collection Runner ile çalıştır — 4 istek sırayla çalışır, her test sonucu pass/fail olarak görünür',
+              'Collection + environment\'ı JSON olarak export et, Git\'teki tests/postman/ klasörüne commit et, Newman\'ı CI pipeline\'ına bağla — böylece bu E2E kontrol her backend PR\'ında, frontend daha var olmadan önce çalışır',
+            ]
+          },
+          { type: 'heading', text: 'Postman\'i Alternatiflerle Karşılaştırma — Gerçek Hayat Trade-off\'ları' },
+          {
+            type: 'table',
+            headers: ['Araç', 'Avantajlar ✅', 'Dezavantajlar ❌', 'Ne zaman tercih edilmeli?'],
+            rows: [
+              ['Postman', 'Kod gerektirmeyen GUI, collection değişkenleriyle zincirleme, geniş ekosistem (mock server, monitor), CI için Newman', 'GUI-öncelikli iş akışı düzenli export edilmezse version control\'den kopabilir', 'Ekip hızlı keşif testi VE tam bir kod framework\'ü yazmadan CI otomasyonuna geçiş istiyorsa'],
+              ['curl / ham HTTP', 'Sıfır kurulum, herhangi bir shell\'de scriptlenebilir, tek seferlik debug için harika', 'Yerleşik zincirleme yok, test assertion\'ı yok, bir istek süitini sürdürmek zahmetli', 'Terminalden tek ve hızlı bir istek gerekiyorsa, yeniden kullanılabilir bir süit değil'],
+              ['REST Assured (Java)', 'Tam programlama dili gücü, Java/Maven test süitine doğal şekilde uyar, JUnit/TestNG ile kolay entegrasyon', 'Her istek için Java kodu yazmak gerekir — keşif testi için daha yavaş', 'Ekip Java ağırlıklıysa ve API testlerinin uygulama koduyla aynı repo/dilde yaşamasını istiyorsa'],
+            ]
+          },
+          { type: 'heading', text: 'Gerçek Hayat Entegrasyon Akışı' },
+          {
+            type: 'visual', variant: 'flow',
+            title: 'Bir Postman Collection\'ı Gerçekten Nasıl Production Kararlarına Ulaşır',
+            steps: [
+              { num: '1', label: 'Collection Oluştur', desc: 'QA, Postman GUI\'sinde istekleri zincirler' },
+              { num: '2', label: 'JSON Export Et', desc: 'tests/postman/order-flow.json' },
+              { num: '3', label: 'Git\'e Commit Et', desc: 'uygulama koduyla birlikte versiyonlanır', highlight: true },
+              { num: '4', label: 'CI Newman Çalıştırır', desc: 'newman run order-flow.json -e prod.json' },
+              { num: '5', label: 'JUnit Raporu', desc: '--reporter-junit CI dashboard\'unu besler' },
+              { num: '6', label: 'Pass/Fail Kapısı', desc: 'Herhangi bir pm.test() başarısız olursa build durur', highlight: true },
+            ],
+            note: 'Bu, bir Selenium regresyon süitiyle aynı pipeline şeklidir — yalnızca test edilen katman UI\'dan HTTP\'ye değişti.',
+          },
+          { type: 'heading', text: 'Uygulamalı Mini Proje — Kendin Dene' },
+          { type: 'text', content: 'İstekler arası değişken aktarımını 5 dakikadan kısa sürede görmek için bu 2 istekli zinciri ücretsiz bir public API\'ye karşı kur.' },
+          {
+            type: 'code', code: `// İstek 1: GET https://jsonplaceholder.typicode.com/users/1
+// Tests sekmesi:
+pm.test("Status 200", () => pm.response.to.have.status(200));
+pm.collectionVariables.set("userId", pm.response.json().id);
+pm.collectionVariables.set("userEmail", pm.response.json().email);
+
+// İstek 2: GET https://jsonplaceholder.typicode.com/posts?userId={{userId}}
+// Tests sekmesi:
+pm.test("Status 200", () => pm.response.to.have.status(200));
+pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
+    const posts = pm.response.json();
+    posts.forEach(p => pm.expect(p.userId).to.eql(
+        parseInt(pm.collectionVariables.get("userId"))
+    ));
+});
+
+// Her ikisini de Collection Runner ile çalıştır — İstek 2 otomatik
+// olarak İstek 1'in yanıtından yakalanan userId'yi kullanır. Elle
+// kopyala-yapıştır gerekmez.`
+          },
+        ],
+      },
+
+      // ── 5. EKOSİSTEM ──────────────────────────────────────────────────────
+      {
+        title: '🔗 Ekosistem',
+        blocks: [
+          { type: 'simple-box', emoji: '🔗', content: "Tek başına Postman, SIM kartı olmayan bir telefon gibidir — mesaj yazmak için harika ama bir şeyi gerçekten ulaştırmak için ağa ihtiyacı vardır. Newman, collection'larının Postman uygulaması dışında çalışmasını sağlayan SIM karttır; CI/CD ise çağrıları otomatik tetikleyen baz istasyonudur." },
+          { type: 'heading', text: 'Postman Büyük Resme Nasıl Uyuyor' },
+          { type: 'text', content: 'Tek başına Postman manuel bir araçtır — birinin "Send"e tıklaması gerekir. QA pipeline\'ındaki gerçek değeri üç sisteme bağlanmasından gelir: GUI bağımlılığını ortadan kaldıran CLI çalıştırıcısı Newman, her push\'ta Newman\'ı otomatik tetikleyen bir CI/CD aracı, ve collection JSON\'unun test ettiği uygulama koduyla birlikte versiyonlanmasını sağlayan Git.' },
+          {
+            type: 'visual', variant: 'boxes',
+            title: 'Postman Ekosistemi — Kim Kiminle Konuşuyor',
+            items: [
+              { icon: '📮', label: 'Postman GUI', desc: 'collection\'ı interaktif olarak kur ve debug et' },
+              { arrow: true },
+              { icon: '📄', label: 'collection.json export', desc: 'Git\'e commit edilir, uygulamayla versiyonlanır' },
+              { arrow: true },
+              { icon: '⚡', label: 'Newman (CLI)', desc: 'aynı collection\'ı headless çalıştırır' },
+              { arrow: true },
+              { icon: '🔧', label: 'Jenkins / GitHub Actions', desc: 'her PR/push\'ta Newman\'ı tetikler', highlight: true },
+              { arrow: true },
+              { icon: '📊', label: 'JUnit/HTML rapor', desc: 'pass/fail kapısı + Slack uyarısı', highlight: true },
+            ],
+            note: 'Her araç kendi işini iyi yapar — Postman yazar, Newman çalıştırır, Git versiyonlar, CI/CD zamanlar ve kapı görevi görür.',
+          },
+          { type: 'heading', text: 'Üç Temel İlişki' },
+          {
+            type: 'table',
+            headers: ['İlişki', 'Nasıl Birlikte Çalışırlar', 'Hangi Sorunu Çözer'],
+            rows: [
+              ['Postman ↔ Newman', 'Aynı collection.json dosyası ikisinde de çalışır — GUI yazma/debug için, Newman gözetimsiz çalıştırma için', 'Süiti iki kez yazmaktan kaçınır: biri insanlar için, biri otomasyon için'],
+              ['Postman ↔ Git', 'Collection + environment\'lar JSON olarak export edilir, API kaynak koduyla birlikte commit edilir', 'Versiyon geçmişi, test değişikliklerinde code review, kötü bir assertion merge edilirse rollback'],
+              ['Newman ↔ CI/CD (Jenkins/GH Actions)', 'Bir pipeline aşaması staging\'e her deploy sonrası `newman run` çalıştırır, başarısız pm.test() olursa build\'i durdurur', 'Bir insan Send\'e tıklamadan API regresyonlarını production\'a ulaşmadan yakalar'],
+              ['Postman ↔ Mock Sunucular', 'Postman aynı collection\'dan bir mock server başlatabilir, böylece frontend ekibi gerçek backend var olmadan önce ona karşı geliştirme yapabilir', 'Frontend ve backend geliştirme zaman çizelgelerini birbirinden ayırır'],
+            ]
+          },
+          { type: 'heading', text: 'Postman Diğer QA Araçları Yanında Nerede Duruyor' },
+          { type: 'text', content: 'Selenium/Playwright süiti UI\'ı test eder; Postman/Newman süiti altındaki API katmanını test eder. İkisi de tipik olarak aynı CI pipeline\'ında ayrı aşamalar olarak çalışır — API testleri genellikle önce çalışır çünkü daha hızlıdır ve aynı backend\'e bağımlı olan daha yavaş UI testlerine zaman harcamadan önce backend hatalarını yakalar.' },
+        ],
+      },
+
+      // ── 6. YAYGIN HATALAR ────────────────────────────────────────────────────
+      {
+        title: '🚨 Yaygın Hatalar',
+        blocks: [
+          { type: 'simple-box', emoji: '🚨', content: 'Her Postman hata mesajı bir çıkmaz sokak değil, bir ipucudur — tıpkı bir doktorun semptomları okuması gibi. 401 "sen kimsin?" demektir, CORS hatası "yanlış kapı" demektir, timeout ise "kimse telefona cevap vermedi" demektir. Semptomu okumayı öğren, doğrudan çözüme atla.' },
+          { type: 'heading', text: 'Karşılaşacağın Gerçek Hatalar ve Çözümleri' },
+          {
+            type: 'error-dictionary',
+            framework: 'Postman',
+            errors: [
+              {
+                error: '401 Unauthorized',
+                fullMessage: '{ "error": "Unauthorized", "message": "Invalid or missing token" }',
+                cause: { tr: 'Authorization header eksik, token süresi dolmuş veya yanlış formatta gönderilmiş.', en: 'Authorization header is missing, the token expired, or it was sent in the wrong format.' },
+                solution: { tr: '1) Headers sekmesinde Authorization: Bearer {{token}} olduğunu doğrula. 2) Token\'ın güncel login isteğinden geldiğini kontrol et. 3) Token süresini kontrol et (JWT exp claim).', en: '1) Verify Headers tab has Authorization: Bearer {{token}}. 2) Confirm the token came from a fresh login request. 3) Check token expiry (JWT exp claim).' },
+                codeWrong: `// Authorization header eksik
+GET https://api.example.com/orders
+// 401 Unauthorized`,
+                codeFixed: `// Başarılı bir login isteğinden sonra header ekle
+Authorization: Bearer {{token}}
+GET https://api.example.com/orders
+// 200 OK`,
+              },
+              {
+                error: 'Could not get response — timeout',
+                fullMessage: 'Error: connect ETIMEDOUT / "Could not get any response"',
+                cause: { tr: 'Sunucu yanıt vermiyor (yanlış URL, sunucu kapalı, firewall engelliyor veya çok yavaş çalışıyor).', en: 'Server is not responding — wrong URL, server is down, firewall blocking, or server is too slow.' },
+                solution: { tr: '1) URL\'yi tarayıcıda dene. 2) VPN/firewall kapatıp tekrar dene. 3) Settings → General → Request timeout süresini artır.', en: '1) Try the URL in a browser. 2) Disable VPN/firewall and retry. 3) Increase Settings → General → Request timeout.' },
+                codeWrong: `GET https://staging-api-typo.example.com/health
+// Hata: Could not get any response`,
+                codeFixed: `GET https://staging-api.example.com/health
+// 200 OK — sorun subdomain'deki yazım hatasıydı`,
+              },
+              {
+                error: 'Tests\'te JSON parse hatası',
+                fullMessage: 'SyntaxError: Unexpected token < in JSON at position 0',
+                cause: { tr: 'pm.response.json() çağrılıyor ama sunucu JSON yerine HTML (örn. 500 hata sayfası) döndürüyor.', en: 'pm.response.json() is called, but the server returned HTML (e.g. a 500 error page) instead of JSON.' },
+                solution: { tr: '1) Response body\'i önce Postman Body sekmesinde gözle kontrol et. 2) Status code\'u logla — muhtemelen 500/502 dönüyor. 3) JSON parse etmeden önce status kontrolü ekle.', en: '1) First eyeball the response body in the Body tab. 2) Log the status code — likely a 500/502. 3) Guard the JSON parse behind a status check.' },
+                codeWrong: `pm.test("Check name", () => {
+    pm.expect(pm.response.json().name).to.eql("Ada");
+    // sunucu HTML hata sayfası dönerse çöker
+});`,
+                codeFixed: `pm.test("Parse etmeden once status 200 kontrol et", () => {
+    pm.response.to.have.status(200);
+    pm.expect(pm.response.json().name).to.eql("Ada");
+});`,
+              },
+              {
+                error: 'URL\'de değişken literal {{baseUrl}} olarak görünüyor',
+                fullMessage: 'Request sent to literal string: https://{{baseUrl}}/users',
+                cause: { tr: 'Doğru Environment seçilmemiş veya değişken o environment\'ta tanımlı değil.', en: 'The correct Environment is not selected in the top-right dropdown, or the variable is not defined in it.' },
+                solution: { tr: '1) Sağ üstteki Environment dropdown\'ında "No Environment" değil doğru ortamın seçili olduğunu doğrula. 2) Environment\'ı aç, baseUrl değişkeninin tanımlı olduğunu kontrol et.', en: '1) Confirm the top-right Environment dropdown is not "No Environment" — pick the right one. 2) Open the environment and verify baseUrl is actually defined there.' },
+                codeWrong: `// Hiçbir environment seçili değil (dropdown "No Environment" gösteriyor)
+GET https://{{baseUrl}}/users
+// literal olarak gönderilir, çözümlenemez`,
+                codeFixed: `// "Dev" environment seçili, baseUrl = api-dev.example.com
+GET https://{{baseUrl}}/users
+// https://api-dev.example.com/users olarak çözümlenir`,
+              },
+              {
+                error: 'Pre-request Script\'te ReferenceError',
+                fullMessage: 'ReferenceError: pm is not defined',
+                cause: { tr: 'Script Pre-request Script sekmesi yerine yanlışlıkla Tests sekmesine yazılmış, ya da sandbox dışı bir API kullanılıyor.', en: 'Script was pasted into the wrong tab (Tests instead of Pre-request Script), or a non-sandbox API is being used.' },
+                solution: { tr: '1) Script\'in doğru sekmede olduğunu kontrol et. 2) Sadece pm.* sandbox API\'lerini kullan (require, fetch gibi Node API\'leri çalışmaz).', en: '1) Verify the script is in the correct tab. 2) Only use pm.* sandbox APIs — Node APIs like require or fetch are not available.' },
+                codeWrong: `// Yanlış sekmeye yapıştırılmış, veya desteklenmeyen API kullanılmış
+const fetch = require('node-fetch'); // sandbox'ta mevcut değil`,
+                codeFixed: `// Pre-request Script sekmesi, sandbox-güvenli
+pm.environment.set("timestamp", Date.now());`,
+              },
+              {
+                error: 'Newman build başarısız: 429 Too Many Requests',
+                fullMessage: 'AssertionError: expected response to have status code 200 but got 429',
+                cause: { tr: 'Hedef API rate limiting uyguluyor; CI çok hızlı ardışık istek gönderiyor.', en: 'The target API enforces rate limiting and CI is firing requests too fast back-to-back.' },
+                solution: { tr: '1) Newman çalıştırmasına --delay-request 500 ekle. 2) Test ortamında rate limit\'i artırmayı backend ekibinden iste. 3) Paralel collection çalıştırmalarını sınırla.', en: '1) Add --delay-request 500 to the Newman run. 2) Ask backend to raise the rate limit for the test environment. 3) Limit parallel collection runs in CI.' },
+                codeWrong: `newman run collection.json -e ci.json
+// çalışma ortasında 429 hataları`,
+                codeFixed: `newman run collection.json -e ci.json --delay-request 500
+// istekler 500ms aralıklarla — artık 429 yok`,
+              },
+              {
+                error: 'Body verisi sunucuya ulaşmıyor',
+                fullMessage: 'Server logs: req.body is undefined / empty object {}',
+                cause: { tr: 'Body sekmesinde "raw / JSON" yerine yanlış format seçilmiş, veya Content-Type header body ile uyuşmuyor.', en: 'Wrong format selected in the Body tab (e.g. "raw / Text" instead of "raw / JSON"), or Content-Type header mismatches the actual body.' },
+                solution: { tr: '1) Body tab → raw → sağdaki dropdown\'dan JSON seç (otomatik Content-Type ekler). 2) Headers\'ta manuel eklenmiş yanlış Content-Type varsa sil.', en: '1) Body tab → raw → select JSON from the right-side dropdown (auto-sets Content-Type). 2) Remove any manually-added conflicting Content-Type header.' },
+                codeWrong: `// Body sekmesi "Text" olarak ayarlı, "JSON" değil
+{"name": "Ada"}
+// Sunucu alır: req.body === undefined`,
+                codeFixed: `// Body sekmesi raw → JSON (Content-Type: application/json otomatik eklenir)
+{"name": "Ada"}
+// Sunucu alır: req.body === { name: "Ada" }`,
+              },
+              {
+                error: 'CORS hatası (Postman sandbox/embedded bağlamlarında)',
+                fullMessage: 'Access to fetch has been blocked by CORS policy',
+                cause: { tr: 'Postman Desktop uygulaması normalde CORS\'tan etkilenmez, ama Postman Web veya bir tarayıcı tabanlı mock server kullanırken sunucu Access-Control-Allow-Origin header\'ı döndürmüyor.', en: 'The Postman Desktop app normally bypasses CORS, but Postman Web or a browser-based mock-server flow fails when the server does not return an Access-Control-Allow-Origin header.' },
+                solution: { tr: '1) Mümkünse Postman Desktop uygulamasına geç (CORS bypass edilir). 2) Backend\'e CORS header eklenmesini iste. 3) Geçici çözüm: Postman\'ın yerleşik proxy/agent özelliğini kullan.', en: '1) Switch to Postman Desktop where possible (bypasses CORS). 2) Ask backend to add CORS headers. 3) Workaround: use Postman\'s built-in proxy/agent feature.' },
+                codeWrong: `// Postman Web, sunucuda CORS header yok
+GET https://api.example.com/data
+// tarayıcı CORS politikasınca engellendi`,
+                codeFixed: `// Postman Desktop uygulamasına geçildi — tarayıcı sandbox kısıtlaması yok
+GET https://api.example.com/data
+// 200 OK`,
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── 7. MÜLAKAT Q&A ────────────────────────────────────────────────────
       {
         title: '💼 Mülakat Soruları',
         blocks: [

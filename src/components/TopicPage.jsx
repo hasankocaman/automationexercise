@@ -1215,7 +1215,7 @@ function QuizFillBlock({ block, darkMode }) {
 
 // ─── InterviewQuestionsBlock ──────────────────────────────────────────────────
 
-function InterviewQuestionsBlock({ block, darkMode }) {
+function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const levelConfig = {
@@ -1225,12 +1225,14 @@ function InterviewQuestionsBlock({ block, darkMode }) {
     }
     return (
         <div className="mt-6">
-            <div className={`flex items-center gap-2 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                <span className="text-xl">💼</span>
-                <h4 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {block.topic} — {isTr ? 'Mülakat Soruları' : 'Interview Questions'}
-                </h4>
-            </div>
+            {!hideHeading && (
+                <div className={`flex items-center gap-2 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <span className="text-xl">💼</span>
+                    <h4 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        {block.topic} — {isTr ? 'Mülakat Soruları' : 'Interview Questions'}
+                    </h4>
+                </div>
+            )}
             {['basic', 'intermediate', 'advanced'].map(level => {
                 const qs = block.questions?.filter(q => q.level === level)
                 if (!qs?.length) return null
@@ -1256,17 +1258,19 @@ function InterviewQuestionsBlock({ block, darkMode }) {
 
 // ─── ErrorDictionaryBlock ─────────────────────────────────────────────────────
 
-function ErrorDictionaryBlock({ block, darkMode }) {
+function ErrorDictionaryBlock({ block, darkMode, hideHeading = false }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     return (
         <div className="mt-6">
-            <div className={`flex items-center gap-2 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                <span className="text-xl">🚨</span>
-                <h4 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {block.framework} — {isTr ? 'Hata Sözlüğü' : 'Error Dictionary'}
-                </h4>
-            </div>
+            {!hideHeading && (
+                <div className={`flex items-center gap-2 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <span className="text-xl">🚨</span>
+                    <h4 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        {block.framework} — {isTr ? 'Hata Sözlüğü' : 'Error Dictionary'}
+                    </h4>
+                </div>
+            )}
             <div className="space-y-4">
                 {block.errors?.map((err, j) => (
                     <div key={j} className={`rounded-xl border overflow-hidden ${darkMode ? 'border-red-900/50' : 'border-red-200'}`}>
@@ -5323,7 +5327,7 @@ pm.test("per_page is 6", () => {
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
+function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '') {
     const textCls = `text-sm leading-relaxed mt-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`
     const h3Cls = `text-xl font-bold mt-8 mb-3 pb-2 border-b ${darkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'}`
     const h4Cls = `text-base font-semibold mt-5 mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`
@@ -5517,11 +5521,17 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
                 </div>
             )
 
-        case 'interview-questions':
-            return <InterviewQuestionsBlock key={i} block={block} darkMode={darkMode} />
+        case 'interview-questions': {
+            const sectionTitleStr = (typeof sectionTitle === 'string' ? sectionTitle : '').toLowerCase()
+            const hideHeading = sectionTitleStr.includes('mülakat') || sectionTitleStr.includes('interview')
+            return <InterviewQuestionsBlock key={i} block={block} darkMode={darkMode} hideHeading={hideHeading} />
+        }
 
-        case 'error-dictionary':
-            return <ErrorDictionaryBlock key={i} block={block} darkMode={darkMode} />
+        case 'error-dictionary': {
+            const sectionTitleStr = (typeof sectionTitle === 'string' ? sectionTitle : '').toLowerCase()
+            const hideHeading = sectionTitleStr.includes('sözlüğü') || sectionTitleStr.includes('dictionary')
+            return <ErrorDictionaryBlock key={i} block={block} darkMode={darkMode} hideHeading={hideHeading} />
+        }
 
         case 'quiz-fill':
             return <QuizFillBlock key={i} block={block} darkMode={darkMode} />
@@ -5783,7 +5793,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                             <h2 className={`text-xl md:text-2xl font-bold mb-4 md:mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                                 {tx(sections[activeTab]?.title, language)}
                             </h2>
-                            {sections[activeTab]?.blocks?.map((block, i) => renderBlock(block, i, darkMode, language, handleQuizCorrect))}
+                            {sections[activeTab]?.blocks?.map((block, i) => renderBlock(block, i, darkMode, language, handleQuizCorrect, tx(sections[activeTab]?.title, language)))}
                         </div>
 
                         {/* Pagination */}
