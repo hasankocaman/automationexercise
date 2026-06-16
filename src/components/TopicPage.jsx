@@ -139,8 +139,8 @@ function PostmanCompareBlock({ block, darkMode, language }) {
                                     <div className="px-4 py-2 text-xs font-bold flex items-center gap-2" style={{ background: '#1a1b26', color: '#7aa2f7' }}>
                                         <span>☕</span> REST Assured (Java)
                                     </div>
-                                    <div className="p-4 overflow-x-auto" style={{ background: '#1a1b26' }}>
-                                        <pre className="font-mono text-xs leading-relaxed whitespace-pre" style={{ color: '#c0caf5' }}>{comp.restAssured}</pre>
+                                    <div className="overflow-x-auto" style={{ background: '#1a1b26' }}>
+                                        <pre className="font-mono text-xs leading-relaxed whitespace-pre p-4 m-0" style={{ background: '#1a1b26', color: '#c0caf5' }}>{comp.restAssured}</pre>
                                     </div>
                                 </div>
                             </div>
@@ -292,8 +292,8 @@ function ComparisonBlock({ block, darkMode, language = 'en' }) {
                         <div className={`px-4 py-2 text-sm font-bold ${isLeft ? (darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-600') : (darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600')}`}>
                             {tx(side.label, language)}
                         </div>
-                        <div className="p-4" style={{ background: '#0d1117' }}>
-                            <pre className="font-mono text-xs overflow-x-auto leading-relaxed whitespace-pre-wrap" style={{ color: '#e6edf3' }}>{side.code}</pre>
+                        <div style={{ background: '#0d1117' }}>
+                            <pre className="font-mono text-xs overflow-x-auto leading-relaxed whitespace-pre-wrap p-4 m-0" style={{ background: '#0d1117', color: '#e6edf3' }}>{side.code}</pre>
                         </div>
                         {side.note && (
                             <div className={`px-4 py-2 text-xs ${isLeft ? (darkMode ? 'text-red-400 bg-red-900/10' : 'text-red-600 bg-red-50') : (darkMode ? 'text-green-400 bg-green-900/10' : 'text-green-600 bg-green-50')}`}>
@@ -4498,8 +4498,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect) {
                             📁 {tx(block.title, language)}
                         </div>
                     )}
-                    <div className="bg-gray-950 p-4 overflow-x-auto" style={{ background: '#0d1117' }}>
-                        <pre className="font-mono text-xs leading-relaxed whitespace-pre" style={{ color: '#e6edf3' }}>{block.tree}</pre>
+                    <div style={{ background: '#0d1117' }}>
+                        <pre className="font-mono text-xs leading-relaxed whitespace-pre overflow-x-auto p-4 m-0" style={{ background: '#0d1117', color: '#e6edf3' }}>{block.tree}</pre>
                     </div>
                     {block.note && (
                         <div className={`px-4 py-2 text-xs italic border-t ${darkMode ? 'bg-gray-800 text-gray-400 border-gray-700' : 'bg-gray-100 text-gray-600 border-gray-300'}`}>

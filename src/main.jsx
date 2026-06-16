@@ -1,13 +1,22 @@
 import React from 'react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HashRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 import './dark-overrides.css'
 import { LanguageProvider } from './context/LanguageContext'
 import { ZoomProvider } from './context/ZoomContext'
 
+function migrateLegacyHashRoute() {
+    const hashPath = window.location.hash
+    if (!hashPath.startsWith('#/')) return
+
+    const cleanPath = hashPath.slice(1)
+    window.history.replaceState(null, '', cleanPath)
+}
+
+migrateLegacyHashRoute()
 
 // import { worker } from './mocks/browser' // Removed to avoid duplicate import warning
 
@@ -41,13 +50,13 @@ async function enableMocking() {
 enableMocking().catch(console.error).finally(() => {
     createRoot(document.getElementById('root')).render(
         <StrictMode>
-            <HashRouter>
+            <BrowserRouter>
                 <ZoomProvider>
                     <LanguageProvider>
                         <App />
                     </LanguageProvider>
                 </ZoomProvider>
-            </HashRouter>
+            </BrowserRouter>
         </StrictMode>,
     )
 })

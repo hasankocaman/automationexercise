@@ -1,12 +1,15 @@
 {
-  "name": "automation-testing-playground",
+  "name": "learnqa-dev",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "A comprehensive practice playground for automation testers (Selenium, Cypress, Playwright)",
+  "description": "QA Learning Platform for Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "node scripts/check-seo.mjs && node scripts/generate-seo-files.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "seo:check": "node scripts/check-seo.mjs",
+    "seo:check-dist": "node scripts/check-dist-seo.mjs",
+    "seo:files": "node scripts/generate-seo-files.mjs",
     "preview": "vite preview",
     "test:e2e": "playwright test"
   },

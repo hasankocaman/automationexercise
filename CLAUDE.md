@@ -56,7 +56,7 @@ automationexercise/
 │   └── JAVA_COMPARISON.md           ← Java ↔ Python/TS karşılaştırma kuralları
 ├── src/
 │   ├── App.jsx                      ← Route tanımları (5 route)
-│   ├── main.jsx                     ← React entry point (MSW mock + HashRouter)
+│   ├── main.jsx                     ← React entry point (MSW mock + SEO dostu BrowserRouter)
 │   ├── index.css                    ← Tailwind base + global styles
 │   ├── dark-overrides.css           ← Dark mode CSS overrides
 │   ├── context/
@@ -358,7 +358,43 @@ Her teknoloji sayfasında aşağıdaki görsel öğeler kullanılır:
 
 ---
 
-## 14. Token Tasarrufu & Adım Adım Çalışma Protokolü (ZORUNLU)
+## 14. SEO & Yayın Stratejisi (ZORUNLU)
+
+learnqa.dev canlı yayında olan bir eğitim sitesidir. Google aramalarında görünürlük için her teknik değişiklik SEO etkisi düşünülerek yapılır.
+
+### 14.1 URL ve Routing Kuralları
+
+- Public sayfalar hash URL ile yayınlanmamalıdır. `/#/selenium` yerine `/selenium`, `/#/python` yerine `/python` kullanılmalıdır.
+- Yeni route eklenirken temiz path kullanılmalı ve sitemap'e eklenmelidir.
+- React tarafında SEO hedefi için `BrowserRouter` tercih edilir. Host tarafında SPA fallback yapılandırması yapılır.
+- İç linkler crawl edilebilir gerçek `href` veya React Router `Link` path'i üretmelidir.
+
+### 14.2 Metadata Kuralları
+
+- Her önemli sayfanın kendine özgü `<title>`, meta description ve canonical URL değeri olmalıdır.
+- Ana marka adı `QA Learning Platform` / `LearnQA.dev` olarak tutarlı kullanılmalıdır; eski `Automation Exercise` veya `Automation Testing Playground` marka adı UI metadata içinde kullanılmaz.
+- Sosyal paylaşım için Open Graph ve Twitter card metadata eklenmelidir.
+
+### 14.3 Sitemap ve Robots
+
+- `public/robots.txt` bulunmalı ve `https://learnqa.dev/sitemap.xml` adresini göstermelidir.
+- `public/sitemap.xml` içinde ana sayfa ve tüm public teknoloji route'ları listelenmelidir.
+- Yeni public route eklenirse sitemap aynı değişiklikte güncellenir.
+
+### 14.4 Static / Pre-render Hedefi
+
+- Uzun vadeli hedef, Google'ın JavaScript render kuyruğuna bağımlılığını azaltmak için önemli eğitim sayfalarını static/pre-render HTML olarak sunmaktır.
+- İlk aşamada metadata, temiz URL, sitemap ve robots uygulanır; sonraki aşamada route bazlı pre-render/SSG planlanır.
+
+### 14.5 İçerik SEO Kuralları
+
+- Her teknoloji sayfası tek bir ana arama niyetini hedeflemelidir: örn. "Selenium WebDriver tutorial for QA engineers", "SQL for QA engineers", "Playwright Java Python TypeScript tutorial".
+- Sayfa başlıkları teknik terimleri İngilizce bırakmalı, açıklamalar QA mühendisi arama niyetine göre yazılmalıdır.
+- Yeni içerik yazarken sadece araç ismi değil, problem odaklı arama başlıkları da üretilmelidir: wait strategies, interview questions, Page Object Model, API testing, CI/CD pipeline gibi.
+
+---
+
+## 15. Token Tasarrufu & Adım Adım Çalışma Protokolü (ZORUNLU)
 
 Büyük görevlerde (yeni teknoloji sayfası, kapsamlı içerik ekleme vb.) token israfını önlemek için **her zaman adım adım çalış**:
 

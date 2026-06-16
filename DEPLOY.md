@@ -116,3 +116,44 @@ git push origin main
 | GitHub repo | https://github.com/hasankocaman/automationexercise |
 | Domain registrar | Porkbun — yenileme $12.87/yıl (2027-06-16) |
 | SSL | Let's Encrypt — otomatik yenilenir |
+---
+
+## 8. SEO Yayin Kontrol Listesi
+
+Her production deploy'dan sonra su kontrolleri yap:
+
+1. `https://learnqa.dev/robots.txt` aciliyor mu?
+2. `https://learnqa.dev/sitemap.xml` icinde tum ana sayfalar var mi?
+3. Temiz URL'ler dogrudan aciliyor mu?
+   - `https://learnqa.dev/selenium`
+   - `https://learnqa.dev/playwright`
+   - `https://learnqa.dev/python`
+   - `https://learnqa.dev/sql`
+4. Eski hash URL kullanan biri `https://learnqa.dev/#/selenium` acarsa otomatik `https://learnqa.dev/selenium` adresine tasiniyor mu?
+5. Sayfa kaynaginda route'a ozel `title`, `description`, `canonical`, `WebPage` ve `BreadcrumbList` var mi?
+
+Google Search Console'da bir kez yapilacaklar:
+
+1. Domain property olarak `learnqa.dev` ekle.
+2. DNS dogrulamasini tamamla.
+3. `Sitemaps` ekraninda `https://learnqa.dev/sitemap.xml` gonder.
+4. `URL Inspection` ile ana sayfa ve en onemli sayfalari tek tek kontrol et:
+   - `https://learnqa.dev/`
+   - `https://learnqa.dev/selenium`
+   - `https://learnqa.dev/playwright`
+   - `https://learnqa.dev/python`
+   - `https://learnqa.dev/sql`
+5. Her kritik URL icin `Request indexing` kullan.
+
+SEO build korumasi:
+
+```bash
+npm run build
+```
+
+Bu komut artik sunlari otomatik kontrol eder:
+
+- React route'lari ile SEO metadata listesi eslesiyor mu?
+- `robots.txt` ve `sitemap.xml` uretiliyor mu?
+- Her route icin statik HTML shell uretiliyor mu?
+- Her uretilen HTML'de `title`, `description`, `canonical`, fallback metin ve structured data var mi?
