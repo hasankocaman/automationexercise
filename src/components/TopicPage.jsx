@@ -2483,6 +2483,178 @@ function SimulationBlock({ block, darkMode, language }) {
         )
     }
 
+    // === AWS CODEPIPELINE PLAYGROUND ===
+    const renderAwsCodepipelinePlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const stages = [
+            { key: 'source', label: 'Source', icon: '📥', color: '#f7931e', time: '1s' },
+            { key: 'install', label: 'Install', icon: '📦', color: '#ec7211', time: '12s' },
+            { key: 'test', label: 'Test', icon: '🧪', color: '#a855f7', time: '38s' },
+            { key: 'deploy', label: 'Upload', icon: '☁️', color: '#10b981', time: '4s' },
+        ]
+        const order = ['idle', 'source', 'install', 'test', 'deploy', 'done']
+        const cur = order.indexOf(s)
+        const AW = { bg: '#0d1b2a', bgDark: '#08131d', header: '#16242f', border: '#1f3142', text: '#cbd5e1', muted: '#64748b', green: '#10b981' }
+        const logLines = [
+            { minState: 'source', text: '[Source] git push origin main → commit a1c9f3e', color: '#f7931e' },
+            { minState: 'install', text: '[Install] npm ci && npx playwright install --with-deps chromium', color: '#ec7211' },
+            { minState: 'install', text: '[Install] → done in 12s ✓', color: AW.green },
+            { minState: 'test', text: '[Test] npx playwright test --reporter=html', color: '#a855f7' },
+            { minState: 'test', text: '[Test] 86 passed, 0 failed ✓', color: AW.green },
+            { minState: 'deploy', text: '[Deploy] aws s3 sync playwright-report/ s3://my-qa-reports/latest/', color: AW.green },
+            { minState: 'done', text: '[Deploy] → Upload complete → Pipeline: SUCCESS ✓', color: AW.green },
+        ]
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 310 }}>
+                <div style={{ background: AW.header, borderRadius: '10px 10px 0 0', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${AW.border}` }}>
+                    <span style={{ fontSize: 14 }}>☁️</span>
+                    <div>
+                        <div style={{ fontSize: 9, color: AW.text, fontWeight: 700 }}>qa-test-pipeline</div>
+                        <div style={{ fontSize: 8, color: AW.muted }}>{s === 'idle' ? (isTr ? 'Son çalışma: ✅ Başarılı' : 'Last run: ✅ Succeeded') : s === 'done' ? (isTr ? '✅ Başarılı' : '✅ Succeeded') : (isTr ? '⏳ Çalışıyor...' : '⏳ In progress...')}</div>
+                    </div>
+                    <button
+                        onClick={() => canStart && runSteps([['source', 200], ['install', 900], ['test', 1200], ['deploy', 800], ['done', 500]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? AW.muted : '#ec7211', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 12px', fontSize: 10, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed', boxShadow: canStart && s === 'idle' ? '0 0 10px rgba(236,114,17,0.5)' : 'none' }}
+                    >
+                        {s === 'idle' ? (isTr ? '▶ git push' : '▶ git push') : s === 'done' ? '▶ Again' : '⏳'}
+                    </button>
+                </div>
+
+                <div style={{ background: AW.bg, padding: '16px 10px 10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {stages.map((st, i) => {
+                            const stIdx = order.indexOf(st.key)
+                            const isAct = stIdx === cur
+                            const isDn = stIdx < cur && s !== 'idle'
+                            const connDone = i < stages.length - 1 && order.indexOf(stages[i + 1].key) <= cur && s !== 'idle'
+                            return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <div style={{ textAlign: 'center', minWidth: 48 }}>
+                                        {isAct && <div style={{ fontSize: 7, color: st.color, marginBottom: 2, fontWeight: 700 }} className="animate-pulse">● RUNNING</div>}
+                                        {isDn && <div style={{ fontSize: 7, color: AW.green, marginBottom: 2 }}>✓ {st.time}</div>}
+                                        {!isAct && !isDn && <div style={{ fontSize: 7, color: 'transparent', marginBottom: 2 }}>·</div>}
+                                        <div style={{ width: 34, height: 34, borderRadius: '50%', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isDn ? `${AW.green}22` : isAct ? `${st.color}22` : `${AW.muted}11`, border: `2.5px solid ${isDn ? AW.green : isAct ? st.color : AW.border}`, fontSize: 14, boxShadow: isAct ? `0 0 14px ${st.color}55` : 'none', transition: 'all 0.5s' }}>
+                                            {isDn ? '✓' : isAct ? '⏳' : st.icon}
+                                        </div>
+                                        <div style={{ fontSize: 8, fontWeight: 700, color: isDn ? AW.green : isAct ? st.color : AW.muted }}>{st.label}</div>
+                                    </div>
+                                    {i < stages.length - 1 && <div style={{ width: 14, height: 2, background: connDone ? AW.green : AW.border, flexShrink: 0, transition: 'background 0.5s' }} />}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {s === 'idle' && (
+                        <div style={{ textAlign: 'center', marginTop: 6 }}>
+                            <span style={{ fontSize: 8, background: '#ec721122', color: '#ec7211', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }} className="animate-pulse">
+                                ↑ {isTr ? '▶ git push butonuna tıkla' : '▶ Click git push to start'}
+                            </span>
+                        </div>
+                    )}
+
+                    <div style={{ background: AW.bgDark, borderRadius: 6, padding: '8px 10px', marginTop: 10, minHeight: 70, maxHeight: 110, overflow: 'hidden' }}>
+                        <div style={{ fontSize: 8, color: AW.muted, marginBottom: 3 }}>CodeBuild Logs</div>
+                        {s === 'idle' && <span style={{ fontSize: 8, color: AW.muted }}>{isTr ? 'Pipeline başlatmak için git push\'a bas...' : 'Press git push to start the pipeline...'}</span>}
+                        {logLines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                            return show ? <div key={i} style={{ fontSize: 8, color: ln.color, lineHeight: 1.7, fontFamily: 'monospace' }}>{ln.text}</div> : null
+                        })}
+                    </div>
+                </div>
+
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: AW.bgDark, border: `1px solid ${AW.border}`, color: AW.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === AZURE DEVOPS PIPELINE PLAYGROUND ===
+    const renderAzureDevopsPipelinePlayground = () => {
+        const s = simState
+        const canStart = s === 'idle' || s === 'done'
+        const stages = [
+            { key: 'source', label: 'Trigger', icon: '📥', color: '#0078d4', time: '1s' },
+            { key: 'install', label: 'Install', icon: '📦', color: '#5c2d91', time: '14s' },
+            { key: 'test', label: 'Test', icon: '🧪', color: '#a855f7', time: '36s' },
+            { key: 'publish', label: 'Publish', icon: '📤', color: '#10b981', time: '5s' },
+        ]
+        const order = ['idle', 'source', 'install', 'test', 'publish', 'done']
+        const cur = order.indexOf(s)
+        const AZ = { bg: '#10182a', bgDark: '#0a0f1c', header: '#152238', border: '#1f3252', text: '#cbd5e1', muted: '#64748b', blue: '#0078d4', green: '#10b981' }
+        const logLines = [
+            { minState: 'source', text: '[Trigger] push → main @ a1c9f3e — pipeline queued', color: '#0078d4' },
+            { minState: 'install', text: '[Install] NodeTool@0 → Node.js 18.x ready', color: '#5c2d91' },
+            { minState: 'install', text: '[Install] npm ci && playwright install --with-deps ✓', color: AZ.green },
+            { minState: 'test', text: '[Test] npx playwright test --reporter=html,junit', color: '#a855f7' },
+            { minState: 'test', text: '[Test] 86 passed, 0 failed ✓', color: AZ.green },
+            { minState: 'publish', text: '[Publish] PublishTestResults@2 → JUnit results ✓', color: AZ.green },
+            { minState: 'done', text: '[Publish] PublishPipelineArtifact@1 → playwright-html-report ✓', color: AZ.green },
+        ]
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 310 }}>
+                <div style={{ background: AZ.header, borderRadius: '10px 10px 0 0', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${AZ.border}` }}>
+                    <span style={{ fontSize: 14 }}>🔷</span>
+                    <div>
+                        <div style={{ fontSize: 9, color: AZ.text, fontWeight: 700 }}>qa-pipeline / Run #142</div>
+                        <div style={{ fontSize: 8, color: AZ.muted }}>{s === 'idle' ? (isTr ? 'Son çalışma: ✅ Başarılı' : 'Last run: ✅ Succeeded') : s === 'done' ? (isTr ? '✅ Başarılı' : '✅ Succeeded') : (isTr ? '⏳ Çalışıyor...' : '⏳ In progress...')}</div>
+                    </div>
+                    <button
+                        onClick={() => canStart && runSteps([['source', 200], ['install', 1000], ['test', 1200], ['publish', 800], ['done', 500]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? AZ.muted : AZ.blue, color: '#fff', border: 'none', borderRadius: 5, padding: '4px 12px', fontSize: 10, fontWeight: 700, cursor: canStart ? 'pointer' : 'not-allowed', boxShadow: canStart && s === 'idle' ? '0 0 10px rgba(0,120,212,0.5)' : 'none' }}
+                    >
+                        {s === 'idle' ? '▶ git push' : s === 'done' ? '▶ Again' : '⏳'}
+                    </button>
+                </div>
+
+                <div style={{ background: AZ.bg, padding: '16px 10px 10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {stages.map((st, i) => {
+                            const stIdx = order.indexOf(st.key)
+                            const isAct = stIdx === cur
+                            const isDn = stIdx < cur && s !== 'idle'
+                            const connDone = i < stages.length - 1 && order.indexOf(stages[i + 1].key) <= cur && s !== 'idle'
+                            return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <div style={{ textAlign: 'center', minWidth: 48 }}>
+                                        {isAct && <div style={{ fontSize: 7, color: st.color, marginBottom: 2, fontWeight: 700 }} className="animate-pulse">● RUNNING</div>}
+                                        {isDn && <div style={{ fontSize: 7, color: AZ.green, marginBottom: 2 }}>✓ {st.time}</div>}
+                                        {!isAct && !isDn && <div style={{ fontSize: 7, color: 'transparent', marginBottom: 2 }}>·</div>}
+                                        <div style={{ width: 34, height: 34, borderRadius: '50%', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isDn ? `${AZ.green}22` : isAct ? `${st.color}22` : `${AZ.muted}11`, border: `2.5px solid ${isDn ? AZ.green : isAct ? st.color : AZ.border}`, fontSize: 14, boxShadow: isAct ? `0 0 14px ${st.color}55` : 'none', transition: 'all 0.5s' }}>
+                                            {isDn ? '✓' : isAct ? '⏳' : st.icon}
+                                        </div>
+                                        <div style={{ fontSize: 8, fontWeight: 700, color: isDn ? AZ.green : isAct ? st.color : AZ.muted }}>{st.label}</div>
+                                    </div>
+                                    {i < stages.length - 1 && <div style={{ width: 14, height: 2, background: connDone ? AZ.green : AZ.border, flexShrink: 0, transition: 'background 0.5s' }} />}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {s === 'idle' && (
+                        <div style={{ textAlign: 'center', marginTop: 6 }}>
+                            <span style={{ fontSize: 8, background: '#0078d422', color: '#0078d4', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }} className="animate-pulse">
+                                ↑ {isTr ? '▶ git push butonuna tıkla' : '▶ Click git push to start'}
+                            </span>
+                        </div>
+                    )}
+
+                    <div style={{ background: AZ.bgDark, borderRadius: 6, padding: '8px 10px', marginTop: 10, minHeight: 70, maxHeight: 110, overflow: 'hidden' }}>
+                        <div style={{ fontSize: 8, color: AZ.muted, marginBottom: 3 }}>Pipeline Logs</div>
+                        {s === 'idle' && <span style={{ fontSize: 8, color: AZ.muted }}>{isTr ? 'Pipeline başlatmak için git push\'a bas...' : 'Press git push to start the pipeline...'}</span>}
+                        {logLines.map((ln, i) => {
+                            const show = order.indexOf(ln.minState) <= cur && s !== 'idle'
+                            return show ? <div key={i} style={{ fontSize: 8, color: ln.color, lineHeight: 1.7, fontFamily: 'monospace' }}>{ln.text}</div> : null
+                        })}
+                    </div>
+                </div>
+
+                {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: AZ.bgDark, border: `1px solid ${AZ.border}`, color: AZ.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
     // === KAFKA PRODUCER/CONSUMER PLAYGROUND — Confluent Control Center UI ===
     const renderKafkaPlayground = () => {
         const s = simState
@@ -4749,6 +4921,100 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'aws-codepipeline') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'source', 'install', 'test', 'deploy', 'done']
+            const cur = order.indexOf(s)
+            const cwLines = [
+                { state: 'source', text: 'CodePipeline: state changed to STARTED' },
+                { state: 'install', text: 'CodeBuild: phase INSTALL → IN_PROGRESS' },
+                { state: 'test', text: 'CodeBuild: phase BUILD → IN_PROGRESS' },
+                { state: 'deploy', text: 'CodeBuild: phase POST_BUILD → IN_PROGRESS' },
+                { state: 'done', text: 'CodePipeline: state changed to SUCCEEDED' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        CloudWatch & S3
+                    </div>
+                    <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 9, lineHeight: 1.9, marginBottom: 10, minHeight: 80 }}>
+                        {s === 'idle' && <div style={{ color: subtext }}>{isTr ? '// CloudWatch log akışı bekleniyor...' : '// Waiting for CloudWatch log stream...'}</div>}
+                        {cwLines.map((ln, i) => {
+                            const show = order.indexOf(ln.state) <= cur && s !== 'idle'
+                            return show ? (
+                                <div key={i} style={{ color: order.indexOf(ln.state) === cur ? '#ec7211' : subtext, animation: order.indexOf(ln.state) === cur ? 'simFadeUp 0.3s' : undefined }}>{ln.text}</div>
+                            ) : null
+                        })}
+                    </div>
+                    {cur >= order.indexOf('deploy') && (
+                        <div style={{ padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ fontFamily: 'sans-serif', fontSize: 9, color: subtext, fontWeight: 700, marginBottom: 4 }}>🪣 {isTr ? 'S3 Bucket: my-qa-reports' : 'S3 Bucket: my-qa-reports'}</div>
+                            <div style={{ fontFamily: 'monospace', color: '#10b981' }}>
+                                latest/index.html <span style={{ color: subtext }}>(248 KB)</span>
+                            </div>
+                        </div>
+                    )}
+                    {s === 'done' && <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'Pipeline başarıyla tamamlandı!' : 'Pipeline completed successfully!'}</div>}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                        ☕ {isTr ? 'Java\'da Jenkinsfile içindeki stage bloklarını nasıl tanımlıyorsan, AWS\'te de aynısını buildspec.yml içindeki phases ile tanımlarsın.' : 'Just like you define stage blocks in a Jenkinsfile in Java projects, AWS uses the phases section in buildspec.yml for the same purpose.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'azure-devops-pipeline') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const order = ['idle', 'source', 'install', 'test', 'publish', 'done']
+            const cur = order.indexOf(s)
+            const tasks = [
+                { state: 'source', text: 'Trigger', },
+                { state: 'install', text: 'NodeTool@0' },
+                { state: 'install', text: 'npm ci / playwright install' },
+                { state: 'test', text: 'playwright test' },
+                { state: 'publish', text: 'PublishTestResults@2' },
+                { state: 'done', text: 'PublishPipelineArtifact@1' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        Azure Pipelines — Run #142
+                    </div>
+                    <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontSize: 9.5, marginBottom: 10, minHeight: 90 }}>
+                        {s === 'idle' && <div style={{ color: subtext }}>{isTr ? 'Henüz task çalışmadı — pipeline\'ı tetikle' : 'No tasks run yet — trigger the pipeline'}</div>}
+                        {tasks.map((t, i) => {
+                            const tIdx = order.indexOf(t.state)
+                            const dn = tIdx < cur && s !== 'idle'
+                            const act = tIdx === cur
+                            if (s === 'idle') return null
+                            if (tIdx > cur) return null
+                            return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', color: dn ? '#10b981' : act ? '#0078d4' : subtext, animation: act ? 'simFadeUp 0.3s' : undefined }}>
+                                    <span>{dn ? '✓' : act ? '⏳' : '○'}</span>
+                                    <span style={{ fontFamily: 'monospace' }}>{t.text}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {cur >= order.indexOf('done') && (
+                        <div style={{ padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
+                            <div style={{ fontFamily: 'sans-serif', fontSize: 9, color: subtext, fontWeight: 700, marginBottom: 4 }}>📦 {isTr ? 'Pipeline Artifacts' : 'Pipeline Artifacts'}</div>
+                            <div style={{ fontFamily: 'monospace', color: '#10b981' }}>
+                                playwright-html-report <span style={{ color: subtext }}>(312 KB)</span>
+                            </div>
+                        </div>
+                    )}
+                    {s === 'done' && <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>✅ {isTr ? 'Pipeline başarıyla tamamlandı!' : 'Pipeline completed successfully!'}</div>}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9, color: subtext }}>
+                        ☕ {isTr ? 'Java\'da Jenkins\'in Maven Surefire/JUnit raporlarını okuması gibi, PublishTestResults@2 task\'ı da JUnit XML çıktısını okuyup Azure DevOps arayüzünde gösterir.' : 'Just like Jenkins reads Maven Surefire/JUnit reports in Java projects, the PublishTestResults@2 task reads the JUnit XML output and displays it in the Azure DevOps UI.'}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -4810,6 +5076,8 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'appium-element-detection' && renderAppiumElementDetectionPlayground()}
                     {block.scenario === 'appium-swipe' && renderAppiumSwipePlayground()}
                     {block.scenario === 'browserstack-cloud-run' && renderBrowserstackCloudRunPlayground()}
+                    {block.scenario === 'aws-codepipeline' && renderAwsCodepipelinePlayground()}
+                    {block.scenario === 'azure-devops-pipeline' && renderAzureDevopsPipelinePlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

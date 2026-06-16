@@ -45,6 +45,9 @@
 | Playwright ile görsel doğrulama yapıldı (her iki simülasyon screenshot'ta doğru render oluyor, console hatası yok) | — | ✅ |
 | BrowserStack sayfasına simülasyon eklendi: `browserstack-cloud-run` (Selenium Entegrasyonu sekmesi) — local terminal → BrowserStack Hub → Automate Dashboard akışı | — | ✅ |
 | Playwright ile BrowserStack simülasyonu doğrulandı (terminal log animasyonu + dashboard session kartı doğru render oluyor, console hatası yok) | — | ✅ |
+| AWS sayfasına simülasyon eklendi: `aws-codepipeline` (Gerçek Hayat sekmesi) — git push → CodeBuild aşamaları → CloudWatch log → S3 bucket akışı | — | ✅ |
+| Azure sayfasına simülasyon eklendi: `azure-devops-pipeline` (Gerçek Hayat sekmesi) — git push → Azure Pipelines task'ları → Pipeline Artifacts akışı | — | ✅ |
+| Playwright ile AWS + Azure simülasyonları doğrulandı (her iki simülasyon screenshot'ta doğru render oluyor, console hatası yok) | — | ✅ |
 
 ---
 
@@ -82,9 +85,8 @@
 
 ## 📋 Sıradaki Görevler (Öncelik Sırasıyla)
 
-1. **AWS/Azure sayfalarına simülasyon** — CI/CD pipeline akışı
-2. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
-3. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
+1. **Python/TypeScript sayfalarına simülasyon** — pytest/vitest runner arayüzü
+2. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var, code splitting yapılabilir (zorunlu değil)
 
 ---
 
@@ -139,6 +141,8 @@ SimulationBlock({ block, darkMode, language })
 | `appium-element-detection` | Appium Inspector tarama → element ağacı → locator önerisi | appiumData.js s3 (Locator & POM) |
 | `appium-swipe` | W3C Actions pointerDown→move→pointerUp → liste kayar | appiumData.js s4 (Gerçek Senaryo) |
 | `browserstack-cloud-run` | Local pytest terminal → Hub bağlantısı → Automate Dashboard session kartı | browserstackData.js s2 (Selenium Entegrasyonu) |
+| `aws-codepipeline` | git push → Source/Install/Test/Upload aşamaları → CloudWatch log → S3 bucket | awsData.js (Gerçek Hayat) |
+| `azure-devops-pipeline` | git push → Trigger/Install/Test/Publish aşamaları → task listesi → Pipeline Artifacts | azureData.js (Gerçek Hayat) |
 
 ### Build Durumu
 - ✅ `npm run build` başarılı

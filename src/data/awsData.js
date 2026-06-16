@@ -338,6 +338,26 @@ artifacts:
   files:
     - playwright-report/**/*`,
           },
+          {
+            type: 'simulation',
+            icon: '☁️',
+            color: '#ec7211',
+            title: { en: 'AWS CodePipeline — CI/CD in Action', tr: 'AWS CodePipeline — CI/CD Canlı Akış' },
+            scenario: 'aws-codepipeline',
+            description: {
+              en: 'Click "▶ git push": watch CodePipeline pick up the commit, run CodeBuild through install → test → upload, and stream live logs to CloudWatch while the report lands in S3.',
+              tr: '"▶ git push" butonuna bas: CodePipeline\'ın commit\'i yakalayıp CodeBuild ile install → test → upload adımlarını çalıştırdığını ve CloudWatch\'a canlı log akıttığını, raporun S3\'e düştüğünü izle.',
+            },
+            code: `# buildspec.yml — triggered on every git push
+version: 0.2
+phases:
+  install:
+    commands: [npm ci, npx playwright install --with-deps chromium]
+  build:
+    commands: [npx playwright test --reporter=html]
+  post_build:
+    commands: [aws s3 sync playwright-report/ s3://my-qa-reports/latest/]`,
+          },
           { type: 'heading', text: 'AWS vs Alternatives for QA' },
           {
             type: 'table',
@@ -1062,6 +1082,26 @@ phases:
     commands:
       - aws s3 sync playwright-report/ s3://my-qa-reports/latest/
       - echo "Rapor S3'e yüklendi"`,
+          },
+          {
+            type: 'simulation',
+            icon: '☁️',
+            color: '#ec7211',
+            title: { en: 'AWS CodePipeline — CI/CD in Action', tr: 'AWS CodePipeline — CI/CD Canlı Akış' },
+            scenario: 'aws-codepipeline',
+            description: {
+              en: 'Click "▶ git push": watch CodePipeline pick up the commit, run CodeBuild through install → test → upload, and stream live logs to CloudWatch while the report lands in S3.',
+              tr: '"▶ git push" butonuna bas: CodePipeline\'ın commit\'i yakalayıp CodeBuild ile install → test → upload adımlarını çalıştırdığını ve CloudWatch\'a canlı log akıttığını, raporun S3\'e düştüğünü izle.',
+            },
+            code: `# buildspec.yml — her git push'ta tetiklenir
+version: 0.2
+phases:
+  install:
+    commands: [npm ci, npx playwright install --with-deps chromium]
+  build:
+    commands: [npx playwright test --reporter=html]
+  post_build:
+    commands: [aws s3 sync playwright-report/ s3://my-qa-reports/latest/]`,
           },
           { type: 'heading', text: 'QA için AWS vs Alternatifler' },
           {

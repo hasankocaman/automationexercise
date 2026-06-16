@@ -304,6 +304,29 @@ steps:
       artifact: 'playwright-html-report'
     displayName: 'Upload HTML report'`,
           },
+          {
+            type: 'simulation',
+            icon: '🔷',
+            color: '#0078d4',
+            title: { en: 'Azure DevOps Pipeline — CI/CD in Action', tr: 'Azure DevOps Pipeline — CI/CD Canlı Akış' },
+            scenario: 'azure-devops-pipeline',
+            description: {
+              en: 'Click "▶ git push": watch the Microsoft-hosted agent pick up the commit, install Node, run Playwright, publish JUnit results, and upload the HTML report as a pipeline artifact.',
+              tr: '"▶ git push" butonuna bas: Microsoft-hosted agent\'ın commit\'i yakalayıp Node kurduğunu, Playwright\'i çalıştırdığını, JUnit sonuçlarını yayımladığını ve HTML raporunu pipeline artifact olarak yüklediğini izle.',
+            },
+            code: `# azure-pipelines.yml — triggered on every push to main
+trigger: [main]
+pool: { vmImage: 'ubuntu-latest' }
+steps:
+  - task: NodeTool@0
+    inputs: { versionSpec: '18.x' }
+  - script: npm ci && npx playwright install --with-deps chromium
+  - script: npx playwright test --reporter=html,junit
+  - task: PublishTestResults@2
+    inputs: { testResultsFormat: 'JUnit', testResultsFiles: 'test-results/*.xml' }
+  - task: PublishPipelineArtifact@1
+    inputs: { targetPath: 'playwright-report', artifact: 'playwright-html-report' }`,
+          },
           { type: 'heading', text: 'Scenario: Selenium Grid on Azure VMs' },
           {
             type: 'code', language: 'bash',
@@ -1087,6 +1110,29 @@ steps:
       targetPath: 'playwright-report'
       artifact: 'playwright-html-report'
     displayName: 'HTML raporu yükle'`,
+          },
+          {
+            type: 'simulation',
+            icon: '🔷',
+            color: '#0078d4',
+            title: { en: 'Azure DevOps Pipeline — CI/CD in Action', tr: 'Azure DevOps Pipeline — CI/CD Canlı Akış' },
+            scenario: 'azure-devops-pipeline',
+            description: {
+              en: 'Click "▶ git push": watch the Microsoft-hosted agent pick up the commit, install Node, run Playwright, publish JUnit results, and upload the HTML report as a pipeline artifact.',
+              tr: '"▶ git push" butonuna bas: Microsoft-hosted agent\'ın commit\'i yakalayıp Node kurduğunu, Playwright\'i çalıştırdığını, JUnit sonuçlarını yayımladığını ve HTML raporunu pipeline artifact olarak yüklediğini izle.',
+            },
+            code: `# azure-pipelines.yml — main'e her push'ta tetiklenir
+trigger: [main]
+pool: { vmImage: 'ubuntu-latest' }
+steps:
+  - task: NodeTool@0
+    inputs: { versionSpec: '18.x' }
+  - script: npm ci && npx playwright install --with-deps chromium
+  - script: npx playwright test --reporter=html,junit
+  - task: PublishTestResults@2
+    inputs: { testResultsFormat: 'JUnit', testResultsFiles: 'test-results/*.xml' }
+  - task: PublishPipelineArtifact@1
+    inputs: { targetPath: 'playwright-report', artifact: 'playwright-html-report' }`,
           },
           { type: 'heading', text: 'Senaryo: Azure VM\'de Selenium Grid' },
           {
