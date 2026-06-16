@@ -13,20 +13,15 @@
 
 ---
 
-## ✅ Bu Oturumda Tamamlananlar (2026-06-16 — 2. Oturum)
+## ✅ Tüm Oturumlarda Tamamlananlar (2026-06-16)
 
 | Özellik | Dosya | Durum |
 |---------|-------|-------|
-| `SimulationBlock` component | `TopicPage.jsx` | ✅ Tamamlandı |
-| `case 'simulation':` renderBlock | `TopicPage.jsx` | ✅ Tamamlandı |
-| Implicit Wait canlı demo | `seleniumData.js` | ✅ Tamamlandı |
-| Explicit Wait canlı demo | `seleniumData.js` | ✅ Tamamlandı |
-| **iframe tespiti + animasyon** | `seleniumData.js` | ✅ Tamamlandı |
-| **Shadow DOM X-Ray simülasyonu** | `seleniumData.js` | ✅ Tamamlandı |
-| Shadow DOM adım adım explorer | `seleniumData.js` | ✅ Tamamlandı |
-| **`AnimatedTimelineBlock` component** | `TopicPage.jsx` | ✅ Tamamlandı |
-| **`case 'animated-timeline':` renderBlock** | `TopicPage.jsx` | ✅ Tamamlandı |
-| **Wait zaman çizelgesi animasyonu** | `seleniumData.js` s4 (TR+EN) | ✅ Tamamlandı |
+| `SimulationBlock` component + `animated-timeline` block tipi | `TopicPage.jsx` | ✅ |
+| Selenium: implicit/explicit wait, drag-drop, alert-sim, multi-window, iframe, shadow-dom | `seleniumData.js` | ✅ |
+| Playwright: pw-autowait (5 actionability check) | `playwrightData.js` | ✅ |
+| Docker, Postman, K8s, Jenkins, Kafka, REST Assured simülasyonları | data dosyaları | ✅ |
+| **6 playground gerçek araç arayüzüne dönüştürüldü** (Postman, Blue Ocean, Confluent, Docker Desktop, kubectl, IntelliJ) | `TopicPage.jsx` | ✅ |
 
 ### `simulation` Block — Mevcut Senaryolar
 
@@ -94,7 +89,7 @@
 ```
 text | code | heading | grid | table | quiz | editor | diagram | comparison |
 glossary | error-dict | interview-questions | simple-box | visual | callout |
-locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline (YAPILACAK)
+locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline
 ```
 
 ### Önemli Dosyalar
@@ -135,8 +130,9 @@ SimulationBlock({ block, darkMode, language })
 | `rest-assured-chain` | given() → when() → then() → assertions | restAssuredData.js |
 
 ### Build Durumu
-- ✅ `npm run build` başarılı (son kontrol: 2026-06-16, 3. oturum)
+- ✅ `npm run build` başarılı (son kontrol: 2026-06-16, playground UI redesign sonrası)
 - ⚠️ Bundle 3.4MB (chunk uyarısı var, kritik değil — code splitting yapılabilir ama zorunlu değil)
+- Son commit: `5423023` — 6 playground gerçek araç UI'ına dönüştürüldü
 
 ---
 
