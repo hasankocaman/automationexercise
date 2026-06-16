@@ -550,22 +550,22 @@ pip install webdriver-manager`}</Code>
                 <Code lang="robot">{`*** Settings ***
 Library           SeleniumLibrary
 Resource          ../resources/common.resource
-Suite Setup       Open Browser    ${BASE_URL}    Chrome
+Suite Setup       Open Browser    \${BASE_URL}    Chrome
 Suite Teardown    Close All Browsers
-Test Setup        Go To    ${BASE_URL}/home
+Test Setup        Go To    \${BASE_URL}/home
 
 *** Variables ***
-${BASE_URL}       https://automationexercise.com
-${BROWSER}        Chrome
-${TIMEOUT}        15s
-${VALID_EMAIL}    test@qa.com
-${VALID_PASS}     Admin123!
+\${BASE_URL}       https://automationexercise.com
+\${BROWSER}        Chrome
+\${TIMEOUT}        15s
+\${VALID_EMAIL}    test@qa.com
+\${VALID_PASS}     Admin123!
 
 *** Test Cases ***
 TC001 - Valid Login Should Redirect To Dashboard
     [Documentation]    Geçerli kullanıcı giriş yapabilmeli
     [Tags]    smoke    login
-    Login User    ${VALID_EMAIL}    ${VALID_PASS}
+    Login User    \${VALID_EMAIL}    \${VALID_PASS}
     Location Should Contain    dashboard
     Page Should Contain    Logged in as
 
@@ -577,10 +577,10 @@ TC002 - Invalid Login Shows Error Message
 
 *** Keywords ***
 Login User
-    [Arguments]    ${email}    ${password}
-    Go To    ${BASE_URL}/login
-    Input Text       css:[data-qa='login-email']     ${email}
-    Input Password   css:[data-qa='login-password']  ${password}
+    [Arguments]    \${email}    \${password}
+    Go To    \${BASE_URL}/login
+    Input Text       css:[data-qa='login-email']     \${email}
+    Input Password   css:[data-qa='login-password']  \${password}
     Click Button     css:[data-qa='login-button']`}</Code>
             </Section>
 
@@ -656,28 +656,28 @@ Library    SeleniumLibrary
 
 *** Keywords ***
 Click Shadow DOM Element
-    [Arguments]    ${host_selector}    ${inner_selector}
+    [Arguments]    \${host_selector}    \${inner_selector}
     # JavaScript ile shadow root'a eriş
-    ${shadow_root}=    Execute JavaScript
-    ...    return document.querySelector('${host_selector}').shadowRoot
+    \${shadow_root}=    Execute JavaScript
+    ...    return document.querySelector('\${host_selector}').shadowRoot
 
     # Shadow root içindeki elementi JavaScript ile bul ve tıkla
     Execute JavaScript
-    ...    document.querySelector('${host_selector}')
-    ...    .shadowRoot.querySelector('${inner_selector}').click()
+    ...    document.querySelector('\${host_selector}')
+    ...    .shadowRoot.querySelector('\${inner_selector}').click()
 
 Get Shadow DOM Text
-    [Arguments]    ${host_selector}    ${inner_selector}
-    ${text}=    Execute JavaScript
-    ...    return document.querySelector('${host_selector}')
-    ...    .shadowRoot.querySelector('${inner_selector}').textContent
-    [Return]    ${text}
+    [Arguments]    \${host_selector}    \${inner_selector}
+    \${text}=    Execute JavaScript
+    ...    return document.querySelector('\${host_selector}')
+    ...    .shadowRoot.querySelector('\${inner_selector}').textContent
+    [Return]    \${text}
 
 *** Test Cases ***
 TC - Shadow DOM Interaction
     Click Shadow DOM Element    my-app    #submit-button
-    ${result}=    Get Shadow DOM Text    my-result    .status-text
-    Should Be Equal    ${result}    Success`}</Code>
+    \${result}=    Get Shadow DOM Text    my-result    .status-text
+    Should Be Equal    \${result}    Success`}</Code>
             </Section>
 
             {/* custom keyword in Python */}
@@ -719,12 +719,12 @@ Library    ../libraries/CustomLib.py
 
 *** Test Cases ***
 TC - Use Custom Keyword
-    ${el}=    Get Shadow Root Element
+    \${el}=    Get Shadow Root Element
     ...    css:my-app    css:#inner-button
-    Click Element    ${el}
+    Click Element    \${el}
 
-    ${data}=    Read JSON Test Data    data/users.json
-    Log    ${data['admin']['email']}`}</Code>
+    \${data}=    Read JSON Test Data    data/users.json
+    Log    \${data['admin']['email']}`}</Code>
             </Section>
 
             {/* Running */}
