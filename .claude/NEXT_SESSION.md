@@ -46,9 +46,9 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `755f81a fix: Java interview question accordion crashing on open`. **Push edildi** (`86d6a6b..755f81a`, kullanıcı talimatıyla) — local ve origin/main artık senkron.
-- Push edilen commit zinciri: `e6d1dd9` (SEO redirect/guard) → `129b8e3` (Postman/Docker/Jenkins içerik + duplicate heading fix) → `c33a0e2` (NEXT_SESSION.md reconcile) → `f3c98b2` (CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md anayasa birleştirme) → `755f81a` (Java mülakat sorusu açılmama bug fix — kök neden: `q.code` javaData.js'te bilingual `{tr,en}` obje, `CodeBlock`'a string yerine obje gidip render'da çöküyordu; Codex tarafından TopicPage.jsx'te düzeltildi, ben devraldım/doğruladım/commit+push ettim).
-- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev` üzerinde Java sayfası mülakat sekmesi ve yeni SEO redirect'leri (`/test-frameworks.html`, `/comparison.html`) canlıda tekrar doğrulanmalı.
+- **Son local commit:** `fb9e3b0 feat: add Software Testing intro page with Site Map tab, fix tab-switch scroll jump`. **Push edildi** — local ve origin/main senkron.
+- Push edilen commit zinciri (son oturum): `755f81a` (Java mülakat fix) → `fb9e3b0` (bu oturum — `/what-is-testing` sayfası + 2 yeni sekme: Web/Mobil/Süreçler ve Site Haritası, `link-grid` block tipi, header/footer Site Haritası linki, sekme-değişince-scroll-zıplaması bug fix, ana sayfa "3 Dil" scroll fix, kart CSS polish — detay yukarıdaki "7. kısım" tablosunda).
+- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev/what-is-testing` canlıda doğrulanmalı (6 sekme, Site Haritası linkleri, header/footer butonları).
 
 ### SEO/routing altyapısı — gerçek ve commit'li
 `BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi committed ve artık push'lu. `App.jsx`'te 20 route + 20 `React.lazy()` import var. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
