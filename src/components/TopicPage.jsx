@@ -1118,6 +1118,261 @@ const tx = (val, lang) => {
     return val[lang] || val.en || val.tr || ''
 }
 
+const isCypressInterviewItem = (question, answer, topic = '') => {
+    const haystack = `${topic} ${question || ''} ${answer || ''}`.toLowerCase()
+    return haystack.includes('cypress')
+}
+
+const includesAny = (text, terms = []) => terms.some(term => text.includes(term))
+
+const guide = (analogyTr, analogyEn, keyPointsTr, keyPointsEn, tipTr, tipEn) => ({
+    analogy: { tr: analogyTr, en: analogyEn },
+    keyPoints: keyPointsTr.map((item, index) => ({ tr: item, en: keyPointsEn[index] || keyPointsEn[0] || item })),
+    tip: { tr: tipTr, en: tipEn },
+})
+
+const levelGuide = (
+    analogyTr,
+    analogyEn,
+    understandTr,
+    understandEn,
+    juniorTr,
+    juniorEn,
+    middleTr,
+    middleEn,
+    seniorTr,
+    seniorEn,
+    tipTr,
+    tipEn,
+) => guide(
+    analogyTr,
+    analogyEn,
+    [
+        `Sorunun özü: ${understandTr}`,
+        `Junior cevap: ${juniorTr}`,
+        `Middle cevap: ${middleTr}`,
+        `Senior cevap: ${seniorTr}`,
+    ],
+    [
+        `Core of the question: ${understandEn}`,
+        `Junior answer: ${juniorEn}`,
+        `Mid-level answer: ${middleEn}`,
+        `Senior answer: ${seniorEn}`,
+    ],
+    tipTr,
+    tipEn,
+)
+
+const buildTechnologyGuide = (question, answer, topic) => {
+    const haystack = `${topic} ${question} ${answer}`.toLowerCase()
+
+    if (includesAny(haystack, ['postman'])) {
+        if (includesAny(haystack, ['postman nedir', 'what is postman and why'])) {
+            return levelGuide(
+                'Bu soru Java tarafinda neden once Postman ya da curl ile endpointi deneriz sorusuna benzer. Kod yazmadan davranisi gormek, sonra otomasyona tasimak daha saglikli bir akistir.',
+                'This is like asking why Java teams often hit an endpoint with Postman or curl before writing automation. Seeing behavior first and automating second is usually a healthier flow.',
+                'Arac tanimindan cok, QA icin neden degerli oldugunu aciklaman bekleniyor.',
+                'They expect you to explain why it matters for QA, not just define the tool.',
+                'Postman ile request gonderip responseu hizli kontrol ettigimi soylerim.',
+                'I would say I use Postman to send requests and quickly inspect responses.',
+                'Environment, collection ve tekrar kullanilabilir test akislarini da isin icine katarim.',
+                'I would bring in environments, collections, and reusable test flows.',
+                'Postmani ekip ici paylasilan, smoke kontrole uygun ve CIya tasinabilir bir API test varligi olarak konumlarim.',
+                'I would position Postman as a shared API testing asset that is good for smoke checks and can move into CI.',
+                'Gercek hayat ornegi: UI hazir degilken login APIsini Postman ile once dener, token akisini netlestirir, sonra bu akisi otomasyona tasirsin.',
+                'Real-life example: when the UI is not ready, you validate the login API in Postman first, understand the token flow, then move that flow into automation.'
+            )
+        }
+        if (includesAny(haystack, ['get, post, put, patch', 'difference between get, post, put, patch, and delete'])) {
+            return levelGuide(
+                'Bu soru Java tarafinda bir objeyi okumak, bastan yazmak ya da sadece belli fieldlarini guncellemek arasindaki farki dogru secmeye benzer.',
+                'This is like choosing in Java whether you are reading an object, replacing it fully, or updating only selected fields.',
+                'Burada senden sadece ezber degil, her methodun sistem davranisini nasil etkiledigini bilmen bekleniyor.',
+                'They want more than memorization here; they want to know whether you understand how each method changes system behavior.',
+                'GET okur, POST olusturur, PUT tam gunceller, PATCH kismi gunceller, DELETE siler derim.',
+                'I would say GET reads, POST creates, PUT fully updates, PATCH partially updates, and DELETE removes.',
+                'Buna idempotency eklerim; ayni cagrinin ikinci kez atilmasi sonucu degistiriyor mu diye dusunurum.',
+                'I would add idempotency and think about whether sending the same call again changes the result.',
+                'Gercek riskten bahsederim: yanlis PUT kullanimi eksik fieldlari silebilir, yanlis POST tekrari duplicate kayit uretebilir.',
+                'I would talk about real risk: a bad PUT can wipe missing fields, and a repeated POST can create duplicate records.',
+                'Gercek hayat ornegi: profil guncellemede sadece telefon degisiyorsa PATCH daha guvenli olabilir; tum kaydi yeniden yolluyorsan PUT daha anlamlidir.',
+                'Real-life example: if only the phone number changes in a profile update, PATCH may be safer; if you send the whole record again, PUT is more meaningful.'
+            )
+        }
+        if (includesAny(haystack, ['koleksiyon nedir', 'what is a collection'])) {
+            return levelGuide(
+                'Bu soru Java tarafinda tek tek test methodlari yazmak yerine ilgili testleri ayni test sinifinda toplama fikrine benzer.',
+                'This is like grouping related test methods into one test class in Java instead of scattering them everywhere.',
+                'Sorunun odagi, Collectionin sadece klasor olmadigini; tekrar kullanilabilir test paketi oldugunu gormektir.',
+                'The core is understanding that a Collection is not just a folder, but a reusable test package.',
+                'Ilgili requestleri tek yerde toplarim ve tekrar tekrar elle kurmam gerekmez derim.',
+                'I would say it keeps related requests together so I do not rebuild them manually every time.',
+                'Buna ortak auth, ortak degisken ve sirali calistirma kolayligini eklerim.',
+                'I would add shared auth, shared variables, and easy ordered execution.',
+                'Bunun ekip standardi, versiyonlama ve regression giris noktasi oldugunu soylerim.',
+                'I would say it becomes a team standard, a versioned asset, and an entry point for regression.',
+                'Gercek hayat ornegi: User API, Auth API ve Order API icin ayri folderlar tutup release oncesi sadece ilgili koleksiyonu kosturursun.',
+                'Real-life example: keep separate folders for User, Auth, and Order APIs, then run only the relevant collection before a release.'
+            )
+        }
+        if (includesAny(haystack, ['durum kod', 'status code'])) {
+            return levelGuide(
+                'Bu soru yalnizca hangi kodun ne anlama geldigi degil, dogru davranisi dogru kodla eslestirip eslestiremedigini olcer.',
+                'This question is not only about what each status code means, but whether you can match expected behavior to the correct code.',
+                '200, 201, 204, 400, 401, 403, 404 gibi temel kodlari soylerim.',
+                'I would mention core codes like 200, 201, 204, 400, 401, 403, and 404.',
+                'Buna neden eklerim: create endpointi 201 donmeli, silme basarisi 204 olabilir, auth sorunu 401 veya 403 olabilir.',
+                'I would add the why: a create endpoint should return 201, a successful delete may return 204, and auth problems may be 401 or 403.',
+                'Status codeu tek basina yeterli gormem; body, hata mesaji ve contract beklentisiyle birlikte degerlendiririm.',
+                'I would not treat the status code alone as enough; I would evaluate it together with body, error message, and contract expectation.',
+                'Gercek hayat ornegi: create user istegi 200 donuyor ama bodyde olusan kayit yoksa ben bunu yine bug olarak acarim.',
+                'Real-life example: if create user returns 200 but the body shows no created record, I would still raise it as a bug.'
+            )
+        }
+        if (includesAny(haystack, ['json body', 'json body nasil', 'content-type'])) {
+            return levelGuide(
+                'Bu soru sadece hangi tabi tiklayacagini degil, serverin bekledigi payload turunu anlayip anlamadigini sorar.',
+                'This is not only about which tab you click; it asks whether you understand the payload type the server expects.',
+                'Body raw JSON secilir ve gecerli JSON gonderilir derim.',
+                'I would say choose raw JSON in the Body and send valid JSON.',
+                'Buna header bilgisini eklerim: server JSON bekliyorsa Content-Type dogru olmali.',
+                'I would add header awareness: if the server expects JSON, the Content-Type must be correct.',
+                'Yanlis payload seciminin 400 ya da 415 uretecegini, bazen problemin body degil format beklentisi oldugunu da soylerim.',
+                'I would mention that the wrong payload format can cause 400 or 415, and sometimes the problem is not the data but the format expectation.',
+                'Gercek hayat ornegi: backend XML bekliyorsa body dogru görünse bile JSON gonderdigin icin test bosuna fail olur.',
+                'Real-life example: if the backend expects XML, your test can fail even when the body content looks correct because you sent JSON.'
+            )
+        }
+        if (includesAny(haystack, ['request chaining', 'veri aktar', 'dynamic at runtime', 'pre-request script', 'test script', 'expiring auth token', 'environment, collection, and global variables'])) {
+            return levelGuide(
+                'Bu grup sorularin ortak noktasi su: tek bir requesti degil, akisin durumunu nasil yonettigini anlamak ister.',
+                'The common point of these questions is this: they want to know how you manage state across a flow, not just a single request.',
+                'Bir response tan deger alip diger requestte kullandigimi net anlatirim.',
+                'I clearly explain that I take a value from one response and use it in another request.',
+                'Hangi degiskenin hangi scope ta tutuldugunu ve pre-request ile tests sorumluluk ayrimini soylerim.',
+                'I explain which scope stores which variable, and I separate pre-request responsibility from tests responsibility.',
+                'Token refresh, veri temizligi ve paralel kosuda veri carpisma riskini de yonetirim.',
+                'I also manage token refresh, cleanup, and data collision risk in parallel runs.',
+                'Gercek hayat ornegi: login istegi token uretir, token collection ya da environment variable a yazilir, sonraki order istegi bu tokenla gider; token suresi biterse pre-request yeniler.',
+                'Real-life example: the login request creates a token, it is stored in a collection or environment variable, the next order call uses it, and pre-request refreshes it if expired.'
+            )
+        }
+        if (includesAny(haystack, ['newman', 'html report', 'ci/cd', 'multiple environments simultaneously', 'suite run faster', 'kubernetes or docker environment', 'monitoring'])) {
+            return levelGuide(
+                'Bu sorular Postmandan tek kullanicilik GUI araci gibi degil, ekibin calistirabildigi otomasyon varligi gibi dusunup dusunmedigini olcer.',
+                'These questions measure whether you see Postman not as a solo GUI tool, but as an automation asset the whole team can run.',
+                'Koleksiyonu komut satirindan kosturabildigimi ve fail olursa sonucu gordugumu soylerim.',
+                'I say I can run the collection from the command line and see whether it fails.',
+                'Environment dosyalari, rapor uretimi ve pipeline entegrasyonu eklerim.',
+                'I add environment files, report generation, and pipeline integration.',
+                'Paralel kosu, smoke vs regression ayrimi, container icinde temiz kosu ve alerting mantigini kurarim.',
+                'I build parallel runs, smoke vs regression separation, clean containerized execution, and alerting logic.',
+                'Gercek hayat ornegi: her PR da smoke koleksiyonu Newman ile kosar, gece full regression ayri jobda calisir, HTML rapor artifact olarak saklanir.',
+                'Real-life example: run the smoke collection with Newman on every PR, run full regression in a separate nightly job, and archive the HTML report as an artifact.'
+            )
+        }
+        if (includesAny(haystack, ['json field', 'pm.response', 'response headers', 'json schema', 'contract testing'])) {
+            return levelGuide(
+                'Bu sorularin odagi, sadece 200 geldi mi degil; response un dogru veri, dogru tip ve dogru sozlesmeyle donup donmedigidir.',
+                'The focus here is not just whether the API returned 200, but whether the response came back with the right data, types, and contract.',
+                'Belirli fieldi, headeri veya statusu kontrol ettigimi soylerim.',
+                'I say I check a specific field, header, or status.',
+                'Type, required field, security header ve response time gibi ikinci katman kontrolleri eklerim.',
+                'I add second-layer checks like types, required fields, security headers, and response time.',
+                'Contract koruma mantigini kurarim: field adi degisince ya da tip kayinca test hemen alarm vermeli derim.',
+                'I frame it as contract protection: if a field name changes or a type drifts, the test should alert immediately.',
+                'Gercek hayat ornegi: frontend email alanini bekliyorsa backend bunu sessizce kaldirdiginda schema testi manuel QA baslamadan issue yakalar.',
+                'Real-life example: if the frontend expects an email field and the backend silently removes it, schema checks catch the issue before manual QA even starts.'
+            )
+        }
+        if (includesAny(haystack, ['bearer token', 'basic auth', 'api key', 'authorization tab', 'security testing'])) {
+            return levelGuide(
+                'Bu sorular gercekten authu anlayip anlamadigini olcer; sadece tokeni nereye yapistirdigini degil, hangi riskleri test ettigini de gormek ister.',
+                'These questions test whether you actually understand authentication, not just where to paste a token but which risks you validate.',
+                'Tokeni dogru yerde kullanir, auth yoksa 401 bekledigimi soylerim.',
+                'I use the token correctly and say I expect 401 when auth is missing.',
+                'Bearer, Basic ve API Key farkini; 401 ile 403 ayrimini ve collection seviyesinde auth kalitimini anlatirim.',
+                'I explain Bearer vs Basic vs API Key, the difference between 401 and 403, and inherited auth at collection level.',
+                'Expired token, wrong user token, IDOR, rate limit ve mass assignment gibi gercek guvenlik senaryolarini da dahil ederim.',
+                'I include real security scenarios such as expired tokens, wrong-user tokens, IDOR, rate limiting, and mass assignment.',
+                'Gercek hayat ornegi: kullanici kendi siparisini gorebiliyor ama baska userId ile ayni endpoint calisiyorsa bu sadece auth degil authorization bugidir.',
+                'Real-life example: if a user can view their own order but also access another userId on the same endpoint, that is not just auth but an authorization bug.'
+            )
+        }
+        if (includesAny(haystack, ['data-driven', 'test verisini nasil hazirlarsin', 'retry mekanizmasi'])) {
+            return levelGuide(
+                'Bu sorular bir testi tek seferlik deneme olmaktan cikarip, tekrar kosulabilir ve kontrollu hale nasil getirdigini sorar.',
+                'These questions ask how you make tests repeatable and controlled instead of one-off experiments.',
+                'Farkli datalarla ayni requesti tekrar calistirabildigimi soylerim.',
+                'I say I can rerun the same request with different datasets.',
+                'CSV/JSON veri dosyasi, setup-teardown ve unique test data ihtiyacini eklerim.',
+                'I add CSV or JSON data files, setup-teardown, and the need for unique test data.',
+                'Retryyi dikkatli kullanirim; flaky sistemi gizlemek icin degil, gercekten eventual consistency varsa kontrollu bekleme icin derim.',
+                'I use retries carefully, not to hide a flaky system but to manage real eventual consistency in a controlled way.',
+                'Gercek hayat ornegi: register endpointini 50 farkli email ile denersin; ayni emaili tekrar yollarsan test senaryosu degil kirli test verisi sorunu uretirsin.',
+                'Real-life example: you validate a register endpoint with 50 different emails; if you keep reusing the same email, you create dirty test data rather than a meaningful scenario.'
+            )
+        }
+        if (includesAny(haystack, ['coverage', 'test coverage', 'snake_case', 'openapi', 'swagger', 'versioning', 'change management'])) {
+            return levelGuide(
+                'Bu sorularin ortak temi, APIyi sadece calisiyor mu diye degil, sozlesme ve degisim etkisi acisindan okuyup okumadigindir.',
+                'The shared theme of these questions is whether you evaluate the API not only as working or not, but through contract and change impact.',
+                'Happy path ve temel negatif senaryolari dusundugumu soylerim.',
+                'I say I cover the happy path and basic negative scenarios.',
+                'Boundary, auth matrix, spec import, field degisimi etkisi ve regression ihtiyacini eklerim.',
+                'I add boundary cases, auth matrix, spec import, field-change impact, and the need for regression.',
+                'Versionlama, backward compatibility ve degisikligin frontend ya da baska servislerde olusturacagi zincir etkisini yonetirim.',
+                'I manage versioning, backward compatibility, and the chain impact that a change creates for the frontend or other services.',
+                'Gercek hayat ornegi: /users response unda firstName alanini first_name yapmak sadece assertion degisikligi degil; mobil app, web ve raporlama servislerini de etkileyen bir contract degisimidir.',
+                'Real-life example: changing firstName to first_name in /users is not just an assertion update; it is a contract change affecting web, mobile, and reporting consumers.'
+            )
+        }
+        if (includesAny(haystack, ['microservices', 'large teams', 'save yaparken', 'graph', 'graphql'])) {
+            return levelGuide(
+                'Bu sorular aracin kendisinden cok, onu buyuyen bir urun ve ekip yapisinda duzenli kullanip kullanamadigini olcer.',
+                'These questions measure less the tool itself and more whether you can use it in an organized way inside a growing product and team.',
+                'Requesti dogru isimlendirir, dogru yere kaydeder ve temel akisi takip ederim.',
+                'I name requests clearly, save them in the right place, and follow the basic flow.',
+                'Servis bazli klasorleme, ortak scriptler ve farkli API stillerine gore dogru duzen kurarim.',
+                'I organize by service, share scripts, and structure things properly for different API styles.',
+                'Koleksiyon bakimi, onboarding, ownership, smoke ve integration ayrimi gibi ekip olgunlugu konularini yonetirim.',
+                'I handle team maturity topics like collection maintenance, onboarding, ownership, and smoke vs integration separation.',
+                'Gercek hayat ornegi: Auth, User ve Order servisleri ayri koleksiyonlarda durur; GraphQL servisinde ise 200 gelse bile errors alanini ayrica kontrol edersin.',
+                'Real-life example: Auth, User, and Order services live in separate collections; for a GraphQL service, even a 200 response still requires checking the errors field.'
+            )
+        }
+        return null
+    }
+
+    return null
+}
+
+const getInterviewEnhancements = ({ q, topic, language }) => {
+    const topicText = tx(topic, language)
+    const question = tx(q.q, language)
+    const answer = tx(q.a, language)
+    if (isCypressInterviewItem(question, answer, topicText)) {
+        return {
+            analogy: '',
+            keyPoints: [],
+            tip: '',
+        }
+    }
+    if (q.analogy || q.keyPoints || q.tip) {
+        return {
+            analogy: tx(q.analogy, language),
+            keyPoints: q.keyPoints || [],
+            tip: tx(q.tip, language),
+        }
+    }
+    const generatedGuide = buildTechnologyGuide(question, answer, topicText)
+    return {
+        analogy: tx(generatedGuide?.analogy, language),
+        keyPoints: generatedGuide?.keyPoints || [],
+        tip: tx(generatedGuide?.tip, language),
+    }
+}
+
 // ─── ScrollProgressBar ────────────────────────────────────────────────────────
 
 function ScrollProgressBar() {
@@ -1240,18 +1495,21 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
                 return (
                     <div key={level} className="mb-5">
                         <div className={`text-xs font-bold uppercase tracking-wide mb-3 ${cfg.color}`}>{cfg.label}</div>
-                        {qs.map((q, j) => (
-                            <QAItem
-                                key={j}
-                                question={tx(q.q, language)}
-                                answer={tx(q.a, language)}
-                                code={tx(q.code, language)}
-                                analogy={tx(q.analogy, language)}
-                                keyPoints={q.keyPoints}
-                                tip={tx(q.tip, language)}
-                                darkMode={darkMode}
-                            />
-                        ))}
+                        {qs.map((q, j) => {
+                            const enhancements = getInterviewEnhancements({ q, topic: block.topic, language })
+                            return (
+                                <QAItem
+                                    key={j}
+                                    question={tx(q.q, language)}
+                                    answer={tx(q.a, language)}
+                                    code={tx(q.code, language)}
+                                    analogy={enhancements.analogy}
+                                    keyPoints={enhancements.keyPoints}
+                                    tip={enhancements.tip}
+                                    darkMode={darkMode}
+                                />
+                            )
+                        })}
                     </div>
                 )
             })}

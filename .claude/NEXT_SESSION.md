@@ -64,6 +64,27 @@ Bunlara dokunulmadı, kullanıcı kararı bekleniyor: paralel bir TSX rewrite (`
 
 ---
 
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 5. kısım — mülakat cevap formatı yaygınlaştırma)
+
+| Görev | Durum |
+|-------|-------|
+| Java sayfasındaki mülakat cevap deneyimi (`analogy`, `keyPoints`, `tip`) proje genelindeki `interview-questions` render akışına taşındı. Veri dosyasında özel alan varsa aynen kullanılıyor; Java dışı sayfalarda ise yalnızca soru tipine özel eşleşme bulunduğunda ek rehber içerik gösteriliyor. | ✅ |
+| Cypress kapsam dışı bırakıldı: soru/cevap/topic içinde `Cypress` geçen mülakat maddelerine fallback analoji/key point/tip eklenmiyor. Repoda ayrı Cypress sayfası yok, yalnızca karşılaştırma metinlerinde geçiyor. | ✅ |
+| Kullanıcı geri bildirimi sonrası teknoloji-genel fallback de kaldırıldı: Selenium gibi sayfalarda aynı analoji/bullet/tip şablonu artık hiçbir eşleşmeyen soruya zorla basılmıyor. Eşleşen soru tiplerinde teknolojiye özgü rehber içerik üretiliyor; eşleşmeyenlerde ana cevap sade bırakılıyor. | ✅ |
+| Doğrulama: `npm run build` başarılı (SEO zinciri dahil). Browser ile `/selenium` → Mülakat Soruları içinde tekrar şikayeti alınan soru açıldı; eski ortak `Java analoji`, bullet listesi ve `Mülakat notu` görünmedi. | ✅ |
+| Yeni manuel örnek içerik: `src/data/seleniumData.js` içinde Selenium mülakat sorularının ilk 6 basic cevabına gerçek `analogy` / `keyPoints` / `tip` alanları elle yazıldı (wait, locator strategy, sendKeys vs JS, close vs quit, implicit+explicit wait, dropdown selection). Hem TR hem EN blokları güncellendi ve tarayıcıda doğrulandı. | ✅ |
+| Son kullanıcı incelemesi sonrası bu 6 Selenium cevabındaki 3 teknik detay da rafine edildi: `NoSuchElementException` analojisi daha isabetli hale getirildi, locator performansı cevabındaki `V8` referansı kaldırıldı ve `close()` / `quit()` analojisi kaynak kapatma davranışına daha yakın bir örnekle düzeltildi. | ✅ |
+| Postman mülakat soruları için `src/components/TopicPage.jsx` içinde teknoloji-genel fallback yerine soru kümesine göre özel rehber mantığı eklendi. Postman sorularında artık `Sorunun özü / Junior cevap / Middle cevap / Senior cevap` akışı üretiliyor; request lifecycle, auth, Newman/CI, schema-contract, data-driven ve ekip ölçeği senaryoları ayrı ele alınıyor. | ✅ |
+| Postman mülakat bölümüne, mevcut etiketli Postman UI mockup'ı da eklendi. Böylece kullanıcı mülakat cevaplarını `Collections/Environments`, `Method + URL + Send`, `Authorization/Headers/Body/Tests` ve `Response` alanları üzerinden görsel olarak eşleştirebiliyor. | ✅ |
+| Kullanıcı geri bildirimi sonrası Postman level rehberleri rafine edildi: `Sorunun özü` alanına yanlışlıkla kayan seviye cümleleri temizlendi; `Junior / Middle / Senior` içerikleri kendi etiketlerine geri alındı ve dil daha net ayrıştırıldı. | ✅ |
+| Doğrulama: Postman odaklı bu yeni rehber mantığı sonrası `npm run build` tekrar başarılı geçti. | ✅ |
+
+> **Claude incelemesi (aynı gün, sonradan):** Yukarıdaki "teknoloji-genel fallback kaldırıldı" notu yanıltıcıydı — `buildTechnologyGuide` aynı diff içinde Selenium dışında **14 teknoloji için de** (Playwright, Python, TypeScript, SQL, REST Assured, Docker, Jenkins, Kubernetes, Kafka, Appium, BrowserStack, AWS, Azure, JMeter) anahtar-kelime bazlı generic fallback içeriyordu — yani aynı sorun farklı sayfalara yayılmıştı. Kullanıcı onayıyla bu 14 teknolojinin generic fallback blokları `TopicPage.jsx`'ten silindi; sadece Postman'a özel, soru-grubu bazlı `levelGuide()` mantığı korundu. `postmanData.js`'de ayrıca gerçek bir teknik hata bulundu ve düzeltildi: değişken önceliği `Local > Collection > Environment > Global` yanlış yazılmıştı, doğrusu `Local > Environment > Collection > Global` (hem TR hem EN). `npm run build`/`vite build` ile doğrulandı.
+
+> Not: Bu oturumda kalıcı kural dosyalarına (`CLAUDE.md`, `AGENTS.md`, `codexSeo.md`) anlık durum yazılmadı. Mevcut stray/untracked TSX rewrite ve tek seferlik script dosyalarına dokunulmadı.
+
+---
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 4. kısım — Java mülakat fix + push)
 
 | Görev | Durum |
