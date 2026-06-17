@@ -46,24 +46,24 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `fb9e3b0 feat: add Software Testing intro page with Site Map tab, fix tab-switch scroll jump`. **Push edildi** — local commit ile origin/main senkron, fakat çalışma ağacında uncommitted `/algorithms`, `/advanced-algorithms`, `/manual-testing` (başka bir oturum/araçtan) ve bu oturumda eklenen `/cypress` route/data değişiklikleri var.
-- Push edilen commit zinciri (son oturum): `755f81a` (Java mülakat fix) → `fb9e3b0` (bu oturum — `/what-is-testing` sayfası + 2 yeni sekme: Web/Mobil/Süreçler ve Site Haritası, `link-grid` block tipi, header/footer Site Haritası linki, sekme-değişince-scroll-zıplaması bug fix, ana sayfa "3 Dil" scroll fix, kart CSS polish — detay yukarıdaki "7. kısım" tablosunda).
-- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev/what-is-testing` canlıda doğrulanmalı (6 sekme, Site Haritası linkleri, header/footer butonları).
-- **Bu oturumun (10. kısım) uncommitted kaynak değişiklikleri:** Yeni `/cypress` route — `src/components/CypressPage.jsx`, `src/data/cypressData.js` (yeni dosyalar), `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/TopicPage.jsx` (iki yeni block: `drag-order` ve `cypress-time-travel` simulation scenario) düzenlendi. Detay aşağıdaki "10. kısım" tablosunda.
-- **Bu oturumda dokunulmayan ama çalışma ağacında duran başka bir oturum/aracın değişiklikleri:** `/algorithms`, `/advanced-algorithms`, `/manual-testing` (`src/components/AlgorithmsPage.jsx`, `AdvancedAlgorithmsPage.jsx`, `ManualTestingPage.jsx`, ilgili data dosyaları, `src/locales/*.json`, `src/components/HomePage.jsx`) — bunlar bu oturum başlamadan önce zaten uncommitted olarak vardı, hiçbiri silinmedi/değiştirilmedi. `npm run build` tracked build çıktısı `dist/index.html` ve `public/sitemap.xml`'i değiştirdi; `dist/` build çıktısı olduğu için commit kararı kullanıcıya bırakılmalı.
+- **Son local commit:** `7f526fd feat: add Cypress page, beginner/advanced Algorithms pages, and Manual Testing workshop`. Kullanıcı onayıyla commit edilip **push edildi** — local ve origin/main senkron.
+- Bu commit, Codex'in önceki bir oturumda ürettiği `/algorithms` (`AlgorithmsPage.jsx`, `beginnerAlgorithmsData.js`), `/advanced-algorithms` (`AdvancedAlgorithmsPage.jsx`, `algorithmsData.js`) ve `/manual-testing` (`ManualTestingPage.jsx`, `manualTestingData.js`, locale girişleri) sayfalarıyla, Claude Code'un bu oturumda ürettiği `/cypress` sayfasını (10. kısım, aşağıda) TEK commit'te birleştirdi — kullanıcı "sorun yoksa NEXT_SESSION.md güncelle, commit ve push" dedi, ayrı ayrı commit istemedi.
+- Push edilen commit zinciri (önceki oturum): `755f81a` (Java mülakat fix) → `fb9e3b0` (`/what-is-testing` sayfası + Site Haritası) → `7f526fd` (bu oturum — Cypress + Algorithms + Manual Testing, detay yukarıda).
+- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev/cypress`, `/algorithms`, `/advanced-algorithms`, `/manual-testing` canlıda doğrulanmalı.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
-`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. Çalışma ağacında `/algorithms`, `/advanced-algorithms` ve bu oturumda eklenen `/manual-testing` route'u uncommitted olarak `App.jsx`, `src/utils/seo.js`, `scripts/generate-static-routes.mjs`, `public/sitemap.xml` ve `src/utils/searchIndex.js` zincirine bağlı. `npm run build` artık **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
+`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları artık `7f526fd` ile `App.jsx`, `src/utils/seo.js`, `scripts/generate-static-routes.mjs`, `public/sitemap.xml` ve `src/utils/searchIndex.js` zincirine commit'li/push'lu şekilde bağlı. `npm run build` **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
 
 **SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
 - `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
-- `https://learnqa.dev/test-frameworks.html` → `/test-frameworks` 301 ile yönleniyor mu? (`e6d1dd9`'da eklendi, ilk kez bu push ile canlıya çıkıyor)
-- `https://learnqa.dev/comparison.html` → `/test-frameworks` 301 ile yönleniyor mu? (aynı şekilde ilk kez canlıya çıkıyor)
+- `https://learnqa.dev/cypress`, `/algorithms`, `/advanced-algorithms`, `/manual-testing` canlıda doğru render oluyor mu? (ilk kez bu push ile canlıya çıkıyor)
+- `https://learnqa.dev/test-frameworks.html` → `/test-frameworks` 301 ile yönleniyor mu? (`e6d1dd9`'da eklendi)
+- `https://learnqa.dev/comparison.html` → `/test-frameworks` 301 ile yönleniyor mu?
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
-Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. Bu oturum sonunda beklenen uncommitted fark `/algorithms` başlangıç sayfası, `/advanced-algorithms` ileri seviye sayfası ve SEO/home entegrasyonu kaynaklıdır; ayrıca `.claude/settings.local.json` hâlâ yerel/untracked görünüyor ve dokunulmadı.
+Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık `7f526fd` ile commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı).
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 10. kısım — Cypress sayfası, drag-order block, time-travel simülasyonu)
 
@@ -81,7 +81,7 @@
 > **Yeni dosyalar:** `src/components/CypressPage.jsx`, `src/data/cypressData.js`.
 > **Düzenlenen paylaşılan dosyalar:** `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/TopicPage.jsx` (sadece ekleme — mevcut block/scenario'lara dokunulmadı).
 > **Bug fix (kullanıcı tespit etti):** `HomePage.jsx`'teki "Test Araçları" kartında Cypress butonu hâlâ eski bağımsız siteye (`https://hasankocaman.github.io/teach-Cypress/`, `<a href>`) gidiyordu — yeni `/cypress` sayfası eklenmesine rağmen bu link güncellenmemişti. `<Link to="/cypress" data-testid="nav-cypress">🌲 Cypress</Link>` olarak düzeltildi, diğer dahili linklerin (Selenium, Playwright, REST Assured) kalıbına uyduruldu. `npm run build` tekrar başarılı (25 route).
-> **Sıradaki olası iş:** Kullanıcı onayıyla commit edilirse, bu oturumdan önce zaten uncommitted duran `/algorithms`, `/advanced-algorithms`, `/manual-testing` değişiklikleriyle birlikte mi yoksa ayrı mı commit edileceğine kullanıcı karar vermeli — bu dosyalara bu oturumda dokunulmadı.
+> **Commit/push (sonradan eklendi):** Kullanıcı "Codex manuel test ve algoritma sayfalarını da geliştirdi, sorun yoksa NEXT_SESSION.md güncelle, commit ve push" dedi. Tüm çalışma ağacı (Cypress + Algorithms + Manual Testing) `7f526fd` tek commit'inde birleştirilip push edildi — kullanıcı ayrı commit istemedi.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 9. kısım — Manuel test interaktif öğrenme sayfası)
 
