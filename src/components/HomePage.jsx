@@ -90,6 +90,18 @@ function HomePage() {
 
     const learningPaths = [
         {
+            icon: '🛡️',
+            title: t('home.path.whatIsTesting.title'),
+            badge: t('home.path.whatIsTesting.badge'),
+            description: t('home.path.whatIsTesting.description'),
+            action: t('home.path.whatIsTesting.action'),
+            color: darkMode ? 'from-violet-500/20 to-fuchsia-500/20 border-violet-500/40' : 'from-violet-50 to-fuchsia-50 border-violet-300',
+            badgeColor: darkMode ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' : 'bg-violet-100 text-violet-800 border border-violet-300',
+            route: '/what-is-testing',
+            gridClass: 'col-span-2',
+            featured: true,
+        },
+        {
             icon: '☕',
             title: t('home.path.javaToPython.title'),
             badge: t('home.path.javaToPython.badge'),
@@ -208,23 +220,23 @@ function HomePage() {
                                 key={path.title}
                                 {...cardProps}
                                 onClick={path.onClick}
-                                className={`group text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg`}
+                                className={`group text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-300 ease-out hover:shadow-xl ${path.featured ? 'hover:-translate-y-1.5 hover:scale-[1.06]' : 'hover:-translate-y-1'} ${path.gridClass || ''}`}
                             >
                                 {path.badge && (
-                                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 ${path.badgeColor}`}>
+                                    <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-2 ${path.badgeColor}`}>
                                         {path.badge}
                                     </span>
                                 )}
                                 <div className="flex items-center gap-2 mb-1.5">
-                                    <span className="text-xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
-                                    <h3 className={`text-xs md:text-sm font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
+                                    <h3 className={`text-sm md:text-base font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                         {path.title}
                                     </h3>
                                 </div>
-                                <p className={`text-[11px] leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                                     {path.description}
                                 </p>
-                                <div className={`mt-2 text-[11px] font-bold ${darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
+                                <div className={`mt-2 text-xs md:text-sm font-bold ${darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
                                     {path.action} →
                                 </div>
                             </CardTag>
@@ -251,6 +263,14 @@ function HomePage() {
                             </p>
                         </div>
                         <div className="flex gap-1 md:gap-1.5 flex-shrink-0 items-center flex-wrap justify-end">
+                            {/* Site Map button */}
+                            <button
+                                onClick={() => navigate('/what-is-testing', { state: { openTab: 5 } })}
+                                title={t('header.siteMap')}
+                                className={`px-2 py-1 md:py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1 border border-transparent transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 hover:backdrop-blur-md hover:shadow-[0_8px_24px_rgba(168,85,247,0.35)] ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-white/20 text-white'}`}
+                            >
+                                🗺️ <span className="hidden lg:inline">{t('header.siteMap')}</span>
+                            </button>
                             {/* Search button */}
                             <button
                                 onClick={() => setSearchOpen(true)}
@@ -374,7 +394,7 @@ function HomePage() {
                                 <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
                                 <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
                                 <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
-                                <button onClick={() => setActiveSection('lang-compare')} className={nb('violet')}>🔀 3 Dil</button>
+                                <button onClick={() => { setActiveSection('lang-compare'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>🔀 3 Dil</button>
                             </div>
                         </div>
 
@@ -385,6 +405,7 @@ function HomePage() {
                                 <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{t('home.category.testTools')}</span>
                             </div>
                             <div className="p-2 flex flex-wrap gap-1">
+                                <Link to="/what-is-testing" className={nb('violet')}>{t('home.learnTesting')}</Link>
                                 <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>🟢 Selenium</Link>
                                 <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
                                 <a href="https://hasankocaman.github.io/teach-Cypress/" className={nb('purple')}>Cypress</a>
@@ -585,18 +606,13 @@ function HomePage() {
                         <p className="text-gray-500 text-xs">
                             © 2025 LearnQA.dev — {language === 'tr' ? 'QA mühendisleri için özgürce kullanılabilir' : 'Free for QA engineers'}
                         </p>
-                        <div className="flex items-center gap-2 text-xs">
-                            <span className="text-gray-500">{t('buttons.preparedBy')}</span>
-                            <a
-                                href="https://www.linkedin.com/in/hasankocaman/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
-                                Hasan Kocaman
-                            </a>
-                        </div>
+                        <Link
+                            to="/what-is-testing"
+                            state={{ openTab: 5 }}
+                            className="inline-flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-semibold transition-colors duration-200"
+                        >
+                            🗺️ {t('header.siteMap')}
+                        </Link>
                     </div>
                 </div>
             </footer>

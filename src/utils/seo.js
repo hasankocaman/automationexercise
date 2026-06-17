@@ -103,6 +103,11 @@ export const ROUTE_SEO = [
         title: 'Java Reference Guide for QA Automation | LearnQA.dev',
         description: 'Explore a practical Java reference for QA automation engineers, including collections, OOP, exceptions, concurrency and testing patterns.',
     },
+    {
+        path: '/what-is-testing',
+        title: 'Introduction to Software Testing & QA Fundamentals | LearnQA.dev',
+        description: 'Learn software testing fundamentals, ISTQB testing principles, QA vs QC, SDET roles, and concrete examples of why testing is crucial in software development.',
+    },
 ]
 
 export function getSeoForPath(pathname) {

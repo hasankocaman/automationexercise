@@ -5,6 +5,7 @@
         "back": "QA Learning Platform ana sayfasına geri dön",
         "language": "Dil",
         "toggleLanguage": "Dili değiştir",
+        "siteMap": "Site Haritası",
         "theme": {
             "dark": "Karanlık moda geç",
             "light": "Aydınlık moda geç"
@@ -60,6 +61,12 @@
             "interview": "Mülakat hazırlığı"
         },
         "path": {
+            "whatIsTesting": {
+                "title": "🛡️ Yazılım Testi Nedir?",
+                "badge": "🌱 SIFIRDAN BAŞLAYANLAR İÇİN",
+                "description": "Yazılım testi nedir, amaç nedir, firmalara faydası nedir? QA ne demektir, SDET ne demektir? Somut örneklerle öğrenin.",
+                "action": "Yazılım Testini Öğren"
+            },
             "javaToPython": {
                 "title": "Java → Python QA",
                 "badge": "⭐ Önerilen başlangıç",
@@ -83,6 +90,7 @@
             }
         },
         "heroRecommended": "Java biliyorsan Python yolundan başla — her kavram bir Java karşılaştırmasıyla anlatılır.",
+        "learnTesting": "🛡️ Test Nedir?",
         "learnJava": "☕ Java Öğren",
         "jsTsCompare": "JavaScript ve TypeScript Karşılaştırma",
         "compare3Lang": "🔀 3 Dil Karşılaştır",

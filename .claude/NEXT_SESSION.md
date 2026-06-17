@@ -62,6 +62,36 @@
 ### Hâlâ gerçekten stray/uncommitted olanlar
 Bunlara dokunulmadı, kullanıcı kararı bekleniyor: paralel bir TSX rewrite (`src/App.tsx`, `src/main.tsx` [.tsx, .jsx'ten ayrı], `src/sections/`, `src/components/Header.tsx`, `Navigation.tsx`, `CodeBlock.tsx`, `FeatureCard.tsx`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyor, kullanılmıyor), ~25 adet tek-seferlik `.mjs` içerik script'i, ve kök dizindeki `documents/JavaNotesForProfessionals.md` (doğrulandı: `public/documents/JavaNotesForProfessionals.md` ile byte-byte aynı, tamamen gereksiz duplikasyon — silinebilir).
 
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 7. kısım — Antigravity incelemesi + Site Haritası + UX/CSS düzeltmeleri)
+
+> Bu oturum, Antigravity IDE'nin önceki kısımda (6. kısım) ürettiği `/what-is-testing` sayfasının Claude Code tarafından denetlenmesiyle başladı, sonra kullanıcı talepleriyle genişledi.
+
+| Görev | Durum |
+|-------|-------|
+| **Antigravity denetimi:** `/what-is-testing` sayfası diff'leri, build zinciri ve `t()` çeviri çağrıları satır satır incelendi. 1 gerçek bug bulundu: `HomePage.jsx`'teki küçük "Test Araçları" linki `t('learnTesting')` çağırıyordu ama gerçek key yolu `home.learnTesting` idi — `t()` eşleşme bulamayınca anahtarın kendisini döndürdüğü için buton TR/EN fark etmeksizin ekranda düz "learnTesting" yazıyordu. `t('home.learnTesting')` olarak düzeltildi. | ✅ |
+| **WhatIsTestingPage'e 2 yeni sekme eklendi:** "🌐 Web, Mobil & Süreçler" (UI/Backend/Database/API katmanları restoran analojisiyle, Web testi, Mobil test — Native/Hybrid/Mobil Web tablosu, DevOps döngüsü, Agile vs Waterfall tablosu, geliştirme takımı rolleri — 7 kart, SDLC aşamaları) ve "🗺️ Site Haritası" (kategori bazlı gerçek tıklanabilir kartlar: UI/Web, API, Database, Mobil, Performans & Bulut, DevOps/CI-CD, Diller, Karşılaştırma). `src/data/whatIsTestingData.js`'e eklendi. | ✅ |
+| **Yeni block tipi: `link-grid`** (`TopicPage.jsx`) — block içeriğinden gerçek bir route'a `react-router-dom` `Link` ile navigasyon yapabilen ilk block tipi. Site Haritası sekmesi bunu kullanıyor. | ✅ |
+| **Site Haritası linki header + footer'a eklendi:** Header'da sabit "🗺️ Site Haritası" butonu, footer alt çubuğunda aynı link — ikisi de `navigate('/what-is-testing', { state: { openTab: 5 } })` ile mevcut `openTab` deep-link mekanizmasını (arama sonuçlarının kullandığı sistem) kullanarak doğrudan Site Haritası sekmesini açıyor. | ✅ |
+| **Kategori düzeltmesi:** Kullanıcı geri bildirimiyle, Site Haritası'nda JMeter ve BrowserStack'in "DevOps, CI/CD & Cloud" altında yanlış durduğu fark edildi — ayrı bir "⚡ Performans & Bulut Test Çalıştırma" başlığına taşındı. | ✅ |
+| **Footer temizliği:** Kullanıcı talebiyle footer'ın en alt çubuğundaki "Hazırlayan: Hasan Kocaman" LinkedIn linki kaldırıldı (yerine Site Haritası linki kondu). Marka kutusundaki ve sol-alt sabit (fixed) LinkedIn rozetlerine dokunulmadı — talep sadece "footer en altta" olanı kapsıyordu. | ✅ |
+| **UX bug fix — sekme değişince sayfa başına zıplama:** `TopicPage.jsx`'te her `activeTab` değişiminde `window.scrollTo({top:0})` çalışıyordu; kullanıcı içerik okurken başka bir sekmeye geçtiğinde hero banner'a geri zıplayıp tekrar aşağı kaydırmak zorunda kalıyordu. Artık sadece **ilk sayfa yüklemesinde** mutlak başa scroll oluyor (`isInitialTabRender` ref ile ayrıştırıldı); sekme değişiminde ise sidebar+içerik bloğu (`tabsLayoutRef`) viewport'un tepesine geliyor, hero banner atlanıyor. | ✅ |
+| **UX bug fix — Ana sayfa "🔀 3 Dil" butonu:** Bu buton `activeSection` state'ini değiştiriyordu ama "⚖️ Karşılaştır" butonunun aksine içerik alanına scroll yapmıyordu; karşılaştırma içeriği sayfanın çok aşağısında render olduğu için kullanıcı göremiyordu. Aynı `contentSectionRef.current?.scrollIntoView(...)` çağrısı eklendi. | ✅ |
+| **CSS/UI polish (ana sayfa):** 4 öğrenme yolu kartındaki tutarsız küçük font boyutları büyütüldü/standartlaştırıldı (`text-xs/sm` → `text-sm/base` başlık, `text-[11px]` → `text-xs/sm` açıklama, ikon `text-xl`→`text-2xl`). "Yazılım Testi Nedir?" kartına diğerlerinden daha belirgin hover efekti eklendi (`hover:scale-[1.06] hover:-translate-y-1.5`) — ilginç tespit: projede zaten kullanılmayan bir `--hover-scale-lg: 1.06` CSS değişkeni tanımlıydı (`index.css`), seçilen değer onunla birebir örtüştü. Header'daki Site Haritası butonuna glassmorphism hover eklendi (`backdrop-blur-md`, `bg-white/10`, mor glow `box-shadow`). | ✅ |
+| **Doğrulama:** Tüm değişiklikler `npm run build` (SEO zinciri dahil, 21 route) ile ve Playwright headless Chromium üzerinden canlı tarayıcı testleriyle (scroll davranışı, hover transform/backdrop-filter computed style, sayfa navigasyonu) doğrulandı. Geçici test script'leri/screenshot'lar temizlendi, repoya commit edilmedi. | ✅ |
+
+> **Yeni dosyalar:** `src/components/WhatIsTestingPage.jsx`, `src/data/whatIsTestingData.js`.
+> Stray/uncommitted dosyalara (aşağıdaki bölüm) bu oturumda da dokunulmadı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 6. kısım — Yazılım Testi Tanıtım Sayfası)
+
+| Görev | Durum |
+|-------|-------|
+| **Yeni Route ve Sayfa:** `/what-is-testing` route'u ve `WhatIsTestingPage` component'i oluşturuldu. Uygulama ve SEO altyapısına bağlandı. | ✅ |
+| **Bilingual İçerik (whatIsTestingData.js):** Giriş & Neden (somut Knight Capital, Ariane 5, Therac-25 felaketleri), ISTQB Temelleri (7 test ilkesi, seviyeler, statik vs dinamik), QA vs QC vs Testing, ve SDET & Otomasyon kavramlarını açıklayan detaylı TR/EN veri dosyası hazırlandı. | ✅ |
+| **Ana Sayfa Entegrasyonu:** İlk defa gelen kullanıcıların doğrudan test temellerine ulaşabilmesi için HomePage hero kısmının üstüne `col-span-2` genişliğinde "Yazılım Testi Nedir? (Sıfırdan Başla)" kartı eklendi. Ayrıca "Test Otomasyon" kategorisi altına direct link eklendi. | ✅ |
+| **Bug Fix (Bilingual Diagram Crash):** `BoxesDiagram`, `TableDiagram`, `FlowDiagram`, `PyramidDiagram` ve `DataStructureDiagram` bileşenlerinde dile bağlı `{tr, en}` nesneleri doğrudan React düğümü olarak basıldığı için oluşan sayfa çökmesi, bu bileşenlerin tüm metin alanlarına `tx()` yerelleştirme fonksiyonu eklenerek düzeltildi. | ✅ |
+| **Doğrulama:** `npm run build` ile SEO kontrolleri ve static shell route oluşturma zinciri başarıyla tamamlandı. | ✅ |
+
 ---
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 5. kısım — mülakat cevap formatı yaygınlaştırma)

@@ -22,6 +22,7 @@ const AzurePage = lazy(() => import('./components/AzurePage'))
 const BrowserStackPage = lazy(() => import('./components/BrowserStackPage'))
 const JavaPage = lazy(() => import('./components/JavaPage'))
 const JavaDocPage = lazy(() => import('./components/JavaDocPage'))
+const WhatIsTestingPage = lazy(() => import('./components/WhatIsTestingPage'))
 
 function RouteFallback() {
     return (
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/browserstack" element={<BrowserStackPage />} />
                     <Route path="/java" element={<JavaPage />} />
                     <Route path="/java-document" element={<JavaDocPage />} />
+                    <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
                 </Routes>
             </Suspense>
         </>

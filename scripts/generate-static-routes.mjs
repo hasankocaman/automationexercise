@@ -26,6 +26,7 @@ const DATA_MODULES = {
     '/browserstack': { file: '../src/data/browserstackData.js', exportName: 'browserstackData' },
     '/aws': { file: '../src/data/awsData.js', exportName: 'awsData' },
     '/azure': { file: '../src/data/azureData.js', exportName: 'azureData' },
+    '/what-is-testing': { file: '../src/data/whatIsTestingData.js', exportName: 'whatIsTestingData' },
 }
 
 function escapeHtml(value) {

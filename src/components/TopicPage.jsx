@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import TopicHeader from './TopicHeader'
 
 const codeCommentTranslations = [
@@ -637,15 +637,16 @@ function JoinDiagram({ block, darkMode, language = 'en' }) {
 }
 
 function TableDiagram({ block, darkMode }) {
+    const { language } = useLanguage()
     const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg} overflow-x-auto`}>
-            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
             <div className="flex flex-wrap gap-6 items-start">
                 {block.tables?.map((table, t) => (
                     <div key={t} className="flex-shrink-0">
                         <div className={`text-xs font-bold px-3 py-1.5 rounded-t-lg text-center ${darkMode ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-600 text-white'}`}>
-                            📋 {table.name}
+                            📋 {tx(table.name, language)}
                         </div>
                         <table className="text-xs border-collapse">
                             <thead>
@@ -654,8 +655,8 @@ function TableDiagram({ block, darkMode }) {
                                         <th key={c} className={`px-3 py-1.5 border text-left whitespace-nowrap ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-gray-100 border-gray-300 text-gray-700'}`}>
                                             {col.pk && <span className="mr-1">🔑</span>}
                                             {col.fk && <span className="mr-1">🔗</span>}
-                                            {typeof col === 'string' ? col : col.name}
-                                            {col.type && <span className={`ml-1 font-normal text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>({col.type})</span>}
+                                            {typeof col === 'string' ? col : tx(col.name, language)}
+                                            {col.type && <span className={`ml-1 font-normal text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>({tx(col.type, language)})</span>}
                                         </th>
                                     ))}
                                 </tr>
@@ -665,7 +666,7 @@ function TableDiagram({ block, darkMode }) {
                                     <tr key={r} className={row.highlighted ? (darkMode ? 'bg-yellow-900/30' : 'bg-yellow-50') : ''}>
                                         {row.cells?.map((cell, c) => (
                                             <td key={c} className={`px-3 py-1.5 border font-mono ${darkMode ? 'border-gray-600 text-gray-300' : 'border-gray-200 text-gray-600'}`}>
-                                                {cell === null ? <span className="opacity-40 italic">NULL</span> : String(cell)}
+                                                {cell === null ? <span className="opacity-40 italic">NULL</span> : tx(cell, language)}
                                             </td>
                                         ))}
                                     </tr>
@@ -675,7 +676,7 @@ function TableDiagram({ block, darkMode }) {
                     </div>
                 ))}
             </div>
-            {block.note && <p className={`mt-3 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+            {block.note && <p className={`mt-3 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
         </div>
     )
 }
@@ -707,16 +708,17 @@ function FlowDiagram({ block, darkMode }) {
                     </div>
                 ))}
             </div>
-            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
         </div>
     )
 }
 
 function BoxesDiagram({ block, darkMode }) {
+    const { language } = useLanguage()
     const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
-            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+            {block.title && <div className={`text-sm font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
             <div className="flex flex-wrap items-center gap-2 justify-center">
                 {block.items?.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -728,19 +730,20 @@ function BoxesDiagram({ block, darkMode }) {
                                 : (darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300')
                                 }`}>
                                 {item.icon && <div className="text-xl mb-1">{item.icon}</div>}
-                                <div className={`font-bold text-xs ${darkMode ? 'text-white' : 'text-gray-800'}`}>{item.label}</div>
-                                {item.desc && <div className={`text-xs mt-1 leading-tight ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.desc}</div>}
+                                <div className={`font-bold text-xs ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(item.label, language)}</div>
+                                {item.desc && <div className={`text-xs mt-1 leading-tight ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(item.desc, language)}</div>}
                             </div>
                         )}
                     </div>
                 ))}
             </div>
-            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
         </div>
     )
 }
 
 function PyramidDiagram({ block, darkMode }) {
+    const { language } = useLanguage()
     const colorMap = {
         green: darkMode ? 'bg-green-900/60 border-green-600 text-green-300' : 'bg-green-100 border-green-400 text-green-800',
         yellow: darkMode ? 'bg-yellow-900/60 border-yellow-600 text-yellow-300' : 'bg-yellow-100 border-yellow-400 text-yellow-800',
@@ -752,20 +755,20 @@ function PyramidDiagram({ block, darkMode }) {
     const bg = darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
     return (
         <div className={`mt-5 p-5 rounded-xl border ${bg}`}>
-            {block.title && <div className={`text-sm font-bold mb-4 text-center ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+            {block.title && <div className={`text-sm font-bold mb-4 text-center ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
             <div className="flex flex-col items-center gap-2">
                 {block.levels?.map((level, i) => {
                     const pct = 28 + (block.levels.length - 1 - i) * 18
                     return (
                         <div key={i} className={`px-4 py-2.5 rounded-xl border-2 text-center text-sm transition-all ${colorMap[level.color] || colorMap.blue}`}
                             style={{ width: `${Math.min(100, pct)}%` }}>
-                            <div className="font-bold">{level.label}</div>
-                            {level.desc && <div className="text-xs opacity-80 mt-0.5">{level.desc}</div>}
+                            <div className="font-bold">{tx(level.label, language)}</div>
+                            {level.desc && <div className="text-xs opacity-80 mt-0.5">{tx(level.desc, language)}</div>}
                         </div>
                     )
                 })}
             </div>
-            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+            {block.note && <p className={`mt-3 text-xs text-center italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
         </div>
     )
 }
@@ -776,18 +779,18 @@ function DataStructureDiagram({ block, darkMode, language }) {
     if (block.dataType === 'list') {
         return (
             <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
-                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
                 <div className="flex items-stretch overflow-x-auto">
                     {block.items?.map((item, i) => (
                         <div key={i} className="flex items-stretch">
                             <div className={`flex flex-col items-center border-2 ${item.highlighted ? (darkMode ? 'border-yellow-400 bg-yellow-900/30' : 'border-yellow-400 bg-yellow-50') : (darkMode ? 'border-gray-500 bg-gray-700' : 'border-gray-300 bg-white')}`}>
-                                <div className={`px-4 py-2.5 text-sm font-mono font-bold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>{String(item.value)}</div>
+                                <div className={`px-4 py-2.5 text-sm font-mono font-bold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>{tx(item.value, language)}</div>
                                 <div className={`px-2 py-0.5 text-xs border-t w-full text-center ${darkMode ? 'border-gray-600 text-indigo-400 bg-gray-800' : 'border-gray-300 text-indigo-600 bg-gray-50'}`}>[{i}]</div>
                             </div>
                         </div>
                     ))}
                 </div>
-                {block.note && <p className={`mt-2 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+                {block.note && <p className={`mt-2 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
             </div>
         )
     }
@@ -795,20 +798,20 @@ function DataStructureDiagram({ block, darkMode, language }) {
     if (block.dataType === 'dict') {
         return (
             <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
-                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
                 <div className="inline-flex flex-col gap-0 rounded-lg overflow-hidden border border-gray-600">
                     {block.items?.map((item, i) => (
                         <div key={i} className={`flex border-b last:border-b-0 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
                             <div className={`px-4 py-2 font-mono text-xs font-bold border-r min-w-[120px] ${darkMode ? 'bg-indigo-900/40 border-gray-600 text-indigo-300' : 'bg-indigo-50 border-gray-200 text-indigo-700'}`}>
-                                "{item.key}"
+                                "{tx(item.key, language)}"
                             </div>
                             <div className={`px-4 py-2 font-mono text-xs ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-700'}`}>
-                                {typeof item.value === 'string' ? `"${item.value}"` : String(item.value)}
+                                {typeof item.value === 'string' ? `"${item.value}"` : tx(item.value, language)}
                             </div>
                         </div>
                     ))}
                 </div>
-                {block.note && <p className={`mt-2 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+                {block.note && <p className={`mt-2 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
             </div>
         )
     }
@@ -816,18 +819,18 @@ function DataStructureDiagram({ block, darkMode, language }) {
     if (block.dataType === 'set') {
         return (
             <div className={`mt-5 p-4 rounded-xl border ${bg}`}>
-                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</div>}
+                {block.title && <div className={`text-sm font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</div>}
                 <div className="flex flex-wrap items-center gap-2">
                     <span className={`text-2xl font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{'{'}</span>
                     {block.items?.map((item, i) => (
                         <div key={i} className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold border-2 ${darkMode ? 'border-orange-500 bg-orange-900/30 text-orange-300' : 'border-orange-400 bg-orange-50 text-orange-700'}`}>
-                            {String(item.value)}
+                            {tx(item.value, language)}
                         </div>
                     ))}
                     <span className={`text-2xl font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{'}'}</span>
                 </div>
                 <p className={`mt-2 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{language === 'tr' ? '⚡ Sıra yoktur · Her eleman benzersizdir · Hızlı üyelik kontrolü' : '⚡ Unordered · Each element is unique · Fast membership checks'}</p>
-                {block.note && <p className={`mt-1 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.note}</p>}
+                {block.note && <p className={`mt-1 text-xs italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.note, language)}</p>}
             </div>
         )
     }
@@ -5653,13 +5656,13 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'info':
             return (
                 <div key={i} className={`mt-4 p-4 rounded-lg border-l-4 border-blue-500 text-sm ${darkMode ? 'bg-blue-900/20 text-blue-300' : 'bg-blue-50 text-blue-800'}`}>
-                    ℹ️ {block.content}
+                    ℹ️ {tx(block.content, language)}
                 </div>
             )
         case 'warning':
             return (
                 <div key={i} className={`mt-4 p-4 rounded-lg border-l-4 border-yellow-500 text-sm ${darkMode ? 'bg-yellow-900/20 text-yellow-300' : 'bg-yellow-50 text-yellow-800'}`}>
-                    ⚠️ <strong>Dikkat: </strong>{block.content}
+                    ⚠️ <strong>{language === 'tr' ? 'Dikkat: ' : 'Warning: '}</strong>{tx(block.content, language)}
                 </div>
             )
         case 'divider':
@@ -5667,14 +5670,14 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'list':
             return (
                 <div key={i} className="mt-4">
-                    {block.title && <p className={`text-sm font-semibold mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{block.title}</p>}
+                    {block.title && <p className={`text-sm font-semibold mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{tx(block.title, language)}</p>}
                     <ul className="space-y-2">
                         {block.items.map((item, j) => (
                             <li key={j} className={`flex items-start gap-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                                 <span className={`mt-0.5 flex-shrink-0 ${bulletColor}`}>{block.icon || '▸'}</span>
-                                {typeof item === 'string' ? item : (
-                                    <span><strong className={darkMode ? 'text-white' : 'text-gray-800'}>{item.label}</strong>
-                                        {item.desc && <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}> — {item.desc}</span>}
+                                {typeof item === 'string' ? tx(item, language) : (
+                                    <span><strong className={darkMode ? 'text-white' : 'text-gray-800'}>{tx(item.label, language)}</strong>
+                                        {item.desc && <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}> — {tx(item.desc, language)}</span>}
                                     </span>
                                 )}
                             </li>
@@ -5702,6 +5705,27 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                             <div className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(item.label, language)}</div>
                             {item.desc && <div className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{tx(item.desc, language)}</div>}
                         </div>
+                    ))}
+                </div>
+            )
+        case 'link-grid':
+            return (
+                <div key={i} className={`mt-4 grid grid-cols-1 md:grid-cols-${block.cols || 2} gap-3`}>
+                    {block.items.map((item, j) => (
+                        <Link
+                            key={j}
+                            to={item.route}
+                            className={`group flex items-start gap-3 p-4 rounded-xl border text-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${darkMode ? 'bg-gray-800 border-gray-600 hover:border-indigo-500' : 'bg-gray-50 border-gray-200 hover:border-indigo-400'}`}
+                        >
+                            {item.icon && <div className="text-2xl flex-shrink-0">{item.icon}</div>}
+                            <div className="min-w-0 flex-1">
+                                <div className={`font-bold mb-1 flex items-center gap-1.5 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                    {tx(item.label, language)}
+                                    <span className={`transition-transform group-hover:translate-x-1 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>→</span>
+                                </div>
+                                {item.desc && <div className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{tx(item.desc, language)}</div>}
+                            </div>
+                        </Link>
                     ))}
                 </div>
             )
@@ -5919,6 +5943,8 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
         return isDark
     })
     const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
+    const isInitialTabRender = useRef(true)
+    const tabsLayoutRef = useRef(null)
     const [completedTabs, setCompletedTabs] = useState(() => {
         try {
             const d = data['tr'] || data['en']
@@ -5949,7 +5975,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     }, [darkMode])
 
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        if (isInitialTabRender.current) {
+            isInitialTabRender.current = false
+            window.scrollTo({ top: 0, behavior: 'auto' })
+            return
+        }
+        // Tab switches scroll to the tab list itself, not the page top —
+        // otherwise every click re-shows the hero banner the user already scrolled past.
+        tabsLayoutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, [activeTab])
 
     const content = data[language] || data['en']
@@ -5996,7 +6029,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                 {extraBanner}
 
                 {/* Sidebar + Content layout */}
-                <div className="flex gap-3 md:gap-5 items-start">
+                <div ref={tabsLayoutRef} className="flex gap-3 md:gap-5 items-start">
 
                     {/* Vertical Sidebar Tabs */}
                     <div className={`flex-shrink-0 w-10 md:w-52 self-start sticky top-3 rounded-xl p-1 md:p-2 shadow-md ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200'}`}>

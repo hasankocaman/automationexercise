@@ -5,6 +5,7 @@
         "back": "Back to QA Learning Platform main page",
         "language": "Language",
         "toggleLanguage": "Toggle language",
+        "siteMap": "Site Map",
         "theme": {
             "dark": "Switch to dark theme",
             "light": "Switch to light theme"
@@ -60,6 +61,12 @@
             "interview": "Interview prep"
         },
         "path": {
+            "whatIsTesting": {
+                "title": "🛡️ What is Software Testing?",
+                "badge": "🌱 FOR BEGINNERS",
+                "description": "What is software testing? What is the purpose and benefits for companies? What does QA mean? What does SDET mean? Learn with concrete examples.",
+                "action": "Learn Software Testing"
+            },
             "javaToPython": {
                 "title": "Java → Python QA",
                 "badge": "⭐ Recommended start",
@@ -83,6 +90,7 @@
             }
         },
         "heroRecommended": "If you know Java, start with the Python path — every concept explained with a Java comparison.",
+        "learnTesting": "🛡️ What is Testing?",
         "learnJava": "☕ Learn Java",
         "jsTsCompare": "JS vs TypeScript",
         "compare3Lang": "🔀 3-Language Compare",
