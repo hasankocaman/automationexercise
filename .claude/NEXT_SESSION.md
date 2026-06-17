@@ -80,7 +80,7 @@
 
 > **Yeni içerik:** `src/data/beginnerAlgorithmsData.js` içine `questions` dizisi (tr+en, 50+50 soru). **Yeni component'ler:** `QuestionBank`, `QuestionItem`, `LEVEL_COLOR` (`AlgorithmsPage.jsx` içinde).
 > **HomePage.jsx** ayrı bir oturumdan miras kalan roadmap-groups değişikliğini + bu oturumda yapılan bug fix'i (mojibake ok + ölü kod temizliği) içeriyor.
-> Commit/push durumu için bu bölümün hemen üstündeki commit hash'e bakılmalı (sonraki oturumda eklenecek).
+> **Commit edildi ve push edildi: `797aa6d`** (`3a52170..797aa6d`). Netlify otomatik deploy tetiklendi, bir sonraki oturumda `https://learnqa.dev/algorithms` ve ana sayfa canlıda doğrulanmalı.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 10. kısım — Cypress sayfası, drag-order block, time-travel simülasyonu)
 
