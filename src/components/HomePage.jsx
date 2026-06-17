@@ -98,7 +98,9 @@ function HomePage() {
             color: darkMode ? 'from-violet-500/20 to-fuchsia-500/20 border-violet-500/40' : 'from-violet-50 to-fuchsia-50 border-violet-300',
             badgeColor: darkMode ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' : 'bg-violet-100 text-violet-800 border border-violet-300',
             route: '/what-is-testing',
-            gridClass: 'col-span-2',
+            step: '01',
+            stage: 'start',
+            gridClass: 'md:col-span-2 xl:col-span-3',
             featured: true,
         },
         {
@@ -110,6 +112,8 @@ function HomePage() {
             color: darkMode ? 'from-sky-500/20 to-emerald-500/20 border-sky-500/40' : 'from-sky-50 to-emerald-50 border-sky-300',
             badgeColor: darkMode ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' : 'bg-sky-100 text-sky-800 border border-sky-300',
             route: '/manual-testing',
+            step: '02',
+            stage: 'foundation',
         },
         {
             icon: '🧠',
@@ -120,6 +124,8 @@ function HomePage() {
             color: darkMode ? 'from-cyan-500/20 to-amber-500/20 border-cyan-500/40' : 'from-cyan-50 to-amber-50 border-cyan-300',
             badgeColor: darkMode ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-cyan-100 text-cyan-800 border border-cyan-300',
             route: '/algorithms',
+            step: '03',
+            stage: 'foundation',
             glassHover: true,
         },
         {
@@ -131,6 +137,8 @@ function HomePage() {
             color: darkMode ? 'from-yellow-500/20 to-emerald-500/20 border-yellow-500/40' : 'from-yellow-50 to-emerald-50 border-yellow-300',
             badgeColor: darkMode ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40' : 'bg-yellow-100 text-yellow-800 border border-yellow-300',
             route: '/python',
+            step: '04',
+            stage: 'foundation',
         },
         {
             icon: '🧪',
@@ -139,6 +147,8 @@ function HomePage() {
             action: t('home.path.automation.action'),
             color: darkMode ? 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30' : 'from-indigo-50 to-purple-50 border-indigo-200',
             route: '/selenium',
+            step: '05',
+            stage: 'automation',
         },
         {
             icon: '🛠️',
@@ -147,6 +157,8 @@ function HomePage() {
             action: t('home.path.devops.action'),
             color: darkMode ? 'from-cyan-500/20 to-blue-500/20 border-cyan-500/30' : 'from-cyan-50 to-blue-50 border-cyan-200',
             route: '/docker',
+            step: '06',
+            stage: 'work',
         },
         {
             icon: '🎯',
@@ -154,12 +166,47 @@ function HomePage() {
             description: t('home.path.practice.description'),
             action: t('home.path.practice.action'),
             color: darkMode ? 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30' : 'from-emerald-50 to-teal-50 border-emerald-200',
+            step: '07',
+            stage: 'practice',
             onClick: () => {
                 setActiveSection('practice')
                 setTimeout(() => {
                     practiceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }, 50)
             },
+        },
+    ]
+
+    const roadmapGroups = [
+        {
+            id: 'start',
+            title: language === 'tr' ? '1. Başlangıç' : '1. Start',
+            subtitle: language === 'tr' ? 'Önce test mantığını netleştir.' : 'Start by making the testing mindset clear.',
+            columns: 'grid-cols-1',
+        },
+        {
+            id: 'foundation',
+            title: language === 'tr' ? '2. Temel pratik' : '2. Core practice',
+            subtitle: language === 'tr' ? 'Test case, algoritma ve Java analojili Python temeli.' : 'Test cases, algorithms, and Java-backed Python basics.',
+            columns: 'grid-cols-1 md:grid-cols-3',
+        },
+        {
+            id: 'automation',
+            title: language === 'tr' ? '3. Automation yolu' : '3. Automation path',
+            subtitle: language === 'tr' ? 'UI ve API automation tarafına kontrollü geçiş.' : 'Move into UI and API automation with structure.',
+            columns: 'grid-cols-1 md:grid-cols-2',
+        },
+        {
+            id: 'work',
+            title: language === 'tr' ? '4. Gerçek iş ortamı' : '4. Real work setup',
+            subtitle: language === 'tr' ? 'CI/CD, container ve ekip akışlarını öğren.' : 'Learn CI/CD, containers, and team workflows.',
+            columns: 'grid-cols-1 md:grid-cols-2',
+        },
+        {
+            id: 'practice',
+            title: language === 'tr' ? '5. Practice Lab' : '5. Practice Lab',
+            subtitle: language === 'tr' ? 'Gerçek UI elementleriyle öğrendiklerini uygula.' : 'Apply what you learn on real UI elements.',
+            columns: 'grid-cols-1',
         },
     ]
 
@@ -205,24 +252,71 @@ function HomePage() {
             ${palettes[color] || ''}`
     }
 
+    const renderPathCard = (path) => {
+        const CardTag = path.route ? Link : 'button'
+        const cardProps = path.route ? { to: path.route } : { type: 'button' }
+
+        return (
+            <CardTag
+                key={path.title}
+                {...cardProps}
+                onClick={path.onClick}
+                className={`group relative min-h-[168px] overflow-hidden text-left rounded-xl border bg-gradient-to-br ${path.color} p-3.5 md:p-4 transition-all duration-300 ease-out hover:shadow-xl ${path.glassHover ? 'hover:-translate-y-2 hover:scale-[1.03] hover:border-white/40 hover:bg-white/15 hover:backdrop-blur-xl hover:shadow-[0_24px_55px_rgba(34,211,238,0.28)]' : path.featured ? 'hover:-translate-y-1.5 hover:scale-[1.02]' : 'hover:-translate-y-1'} ${path.gridClass || ''}`}
+                style={path.glassHover ? { backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' } : undefined}
+            >
+                {path.glassHover && (
+                    <>
+                        <span className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[rgba(255,255,255,0.12)] opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100" />
+                        <span className="pointer-events-none absolute -left-20 top-[-35%] z-0 h-[170%] w-16 rotate-12 bg-white/35 blur-xl transition-transform duration-700 ease-out group-hover:translate-x-[430%]" />
+                        <span className="pointer-events-none absolute inset-x-4 bottom-0 z-0 h-px bg-gradient-to-r from-transparent via-cyan-200/80 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    </>
+                )}
+                <div className="relative z-10 mb-3 flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-black ${darkMode ? 'bg-white/10 text-white' : 'bg-white/80 text-gray-800'}`}>
+                            {path.step}
+                        </span>
+                        {path.badge && (
+                            <span className={`min-w-0 truncate text-xs font-bold px-2.5 py-1 rounded-full ${path.badgeColor}`}>
+                                {path.badge}
+                            </span>
+                        )}
+                    </div>
+                    <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
+                </div>
+                <h3 className={`relative z-10 text-base md:text-lg font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {path.title}
+                </h3>
+                <p className={`relative z-10 mt-2 text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {path.description}
+                </p>
+                <div className={`relative z-10 mt-3 text-xs md:text-sm font-bold ${path.glassHover ? darkMode ? 'text-cyan-100' : 'text-cyan-800' : darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
+                    {path.action} →
+                </div>
+            </CardTag>
+        )
+    }
+
     const renderLearningIntro = () => (
         <section className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
             <div className={`rounded-2xl border p-4 md:p-6 shadow-xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.4fr] gap-4 md:gap-6 items-stretch">
-                    <div className="flex flex-col justify-center">
-                        <div className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-3 ${darkMode ? 'bg-purple-900/40 text-purple-200 border border-purple-700' : 'bg-purple-50 text-purple-700 border border-purple-200'}`}>
-                            <span>🎯</span>
-                            <span>{t('home.heroBadge')}</span>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)] lg:items-end">
+                    <div>
+                        <div className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-bold mb-3 ${darkMode ? 'bg-purple-900/40 text-purple-200 border border-purple-700' : 'bg-purple-50 text-purple-700 border border-purple-200'}`}>
+                            {t('home.heroBadge')}
                         </div>
-                        <h2 className={`text-xl md:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <h2 className={`max-w-3xl text-xl md:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             {t('home.heroTitle')}
                         </h2>
-                        <p className={`mt-3 text-sm md:text-base leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`mt-3 max-w-3xl text-sm md:text-base leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                             {t('home.heroText')}
                         </p>
-                        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                    </div>
+
+                    <div className={`rounded-xl border p-3 ${darkMode ? 'bg-gray-900/60 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                        <div className="flex flex-wrap gap-2 text-xs font-semibold">
                             {[t('home.heroChip.java'), t('home.heroChip.handsOn'), t('home.heroChip.interview')].map((chip) => (
-                                <span key={chip} className={`rounded-full px-3 py-1 ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                                <span key={chip} className={`rounded-full px-3 py-1 ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-white text-gray-700 border border-gray-200'}`}>
                                     {chip}
                                 </span>
                             ))}
@@ -231,46 +325,27 @@ function HomePage() {
                             {t('home.heroRecommended')}
                         </p>
                     </div>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        {learningPaths.map((path) => {
-                            const CardTag = path.route ? Link : 'button'
-                            const cardProps = path.route ? { to: path.route } : { type: 'button' }
-                            return (
-                            <CardTag
-                                key={path.title}
-                                {...cardProps}
-                                onClick={path.onClick}
-                                className={`group relative overflow-hidden text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-300 ease-out hover:shadow-xl ${path.glassHover ? 'hover:-translate-y-2 hover:scale-[1.11] hover:border-white/40 hover:bg-white/15 hover:backdrop-blur-xl hover:shadow-[0_24px_55px_rgba(34,211,238,0.38)]' : path.featured ? 'hover:-translate-y-1.5 hover:scale-[1.06]' : 'hover:-translate-y-1'} ${path.gridClass || ''}`}
-                                style={path.glassHover ? { backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' } : undefined}
-                            >
-                                {path.glassHover && (
-                                    <>
-                                        <span className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[rgba(255,255,255,0.12)] opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100" />
-                                        <span className="pointer-events-none absolute -left-20 top-[-35%] z-0 h-[170%] w-16 rotate-12 bg-white/35 blur-xl transition-transform duration-700 ease-out group-hover:translate-x-[430%]" />
-                                        <span className="pointer-events-none absolute inset-x-4 bottom-0 z-0 h-px bg-gradient-to-r from-transparent via-cyan-200/80 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                    </>
-                                )}
-                                {path.badge && (
-                                    <span className={`relative z-10 inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-2 ${path.badgeColor}`}>
-                                        {path.badge}
-                                    </span>
-                                )}
-                                <div className="relative z-10 flex items-center gap-2 mb-1.5">
-                                    <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
-                                    <h3 className={`text-sm md:text-base font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        {path.title}
+                <div className="mt-5 space-y-5">
+                    {roadmapGroups.map((group) => {
+                        const items = learningPaths.filter((path) => path.stage === group.id)
+                        return (
+                            <div key={group.id}>
+                                <div className="mb-2 max-w-3xl">
+                                    <h3 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {group.title}
                                     </h3>
+                                    <p className={`mt-1 text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        {group.subtitle}
+                                    </p>
                                 </div>
-                                <p className={`relative z-10 text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                    {path.description}
-                                </p>
-                                <div className={`relative z-10 mt-2 text-xs md:text-sm font-bold ${path.glassHover ? darkMode ? 'text-cyan-100' : 'text-cyan-800' : darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
-                                    {path.action} →
+                                <div className={`grid ${group.columns} gap-3`}>
+                                    {items.map(renderPathCard)}
                                 </div>
-                            </CardTag>
-                        )})}
-                    </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </section>

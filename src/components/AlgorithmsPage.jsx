@@ -386,6 +386,95 @@ function GameBlock({ lesson, labels, darkMode }) {
     )
 }
 
+const LEVEL_COLOR = {
+    easy: { text: 'text-emerald-300', border: 'border-emerald-500/40', bg: 'bg-emerald-500/10' },
+    medium: { text: 'text-amber-300', border: 'border-amber-500/40', bg: 'bg-amber-500/10' },
+    hard: { text: 'text-rose-300', border: 'border-rose-500/40', bg: 'bg-rose-500/10' },
+}
+
+function QuestionItem({ item, index, labels, darkMode, open, onToggle }) {
+    const level = LEVEL_COLOR[item.level]
+    const levelLabel = item.level === 'easy' ? labels.levelEasy : item.level === 'medium' ? labels.levelMedium : labels.levelHard
+
+    return (
+        <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/70' : 'border-slate-200 bg-slate-50'}`}>
+            <div className="flex flex-wrap items-start gap-2">
+                <span className={`inline-flex min-h-7 shrink-0 items-center rounded-lg border px-2 text-[11px] font-black uppercase tracking-wide ${level.text} ${level.border} ${level.bg}`}>
+                    {levelLabel}
+                </span>
+                <div className={`flex-1 text-sm font-bold leading-relaxed ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+                    {index + 1}. {item.q}
+                </div>
+            </div>
+            <button
+                onClick={onToggle}
+                className="mt-3 min-h-9 rounded-lg bg-cyan-600 px-3 text-xs font-black text-white transition hover:bg-cyan-500"
+            >
+                {open ? labels.hideAnswer : labels.showAnswer}
+            </button>
+            {open && (
+                <div className={`mt-3 rounded-lg border-l-4 p-3 text-sm leading-relaxed ${darkMode ? 'bg-cyan-500/10 text-cyan-100' : 'bg-cyan-50 text-cyan-900'}`} style={{ borderColor: '#06b6d4' }}>
+                    <div className="mb-1 text-[11px] font-black uppercase tracking-wide">{labels.answerLabel}</div>
+                    {item.a}
+                </div>
+            )}
+        </div>
+    )
+}
+
+function QuestionBank({ data, darkMode }) {
+    const [openId, setOpenId] = useState(null)
+    const labels = data.page
+    const groups = [
+        { level: 'easy', title: labels.levelEasy },
+        { level: 'medium', title: labels.levelMedium },
+        { level: 'hard', title: labels.levelHard },
+    ]
+
+    return (
+        <section id="practice-questions" className="scroll-mt-24">
+            <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/90' : 'border-slate-200 bg-white'}`}>
+                <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{labels.questionsTitle}</h2>
+                <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{labels.questionsSubtitle}</p>
+                {data.questionsIntro && (
+                    <p className={`mt-3 rounded-lg border-l-4 p-3 text-sm leading-relaxed ${darkMode ? 'bg-amber-500/10 text-amber-100' : 'bg-amber-50 text-amber-900'}`} style={{ borderColor: '#f59e0b' }}>
+                        {data.questionsIntro}
+                    </p>
+                )}
+
+                {groups.map(group => {
+                    const items = data.questions.filter(item => item.level === group.level)
+                    const level = LEVEL_COLOR[group.level]
+                    return (
+                        <div key={group.level} className="mt-6">
+                            <div className={`mb-3 inline-flex min-h-8 items-center rounded-lg border px-3 text-xs font-black uppercase tracking-wide ${level.text} ${level.border} ${level.bg}`}>
+                                {group.title} ({items.length})
+                            </div>
+                            <div className="grid gap-3">
+                                {items.map((item) => {
+                                    const globalIndex = data.questions.indexOf(item)
+                                    const id = `${group.level}-${globalIndex}`
+                                    return (
+                                        <QuestionItem
+                                            key={id}
+                                            item={item}
+                                            index={globalIndex}
+                                            labels={labels}
+                                            darkMode={darkMode}
+                                            open={openId === id}
+                                            onToggle={() => setOpenId(openId === id ? null : id)}
+                                        />
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </section>
+    )
+}
+
 function LessonCard({ lesson, labels, darkMode }) {
     return (
         <section id={lesson.id} className="scroll-mt-24">
@@ -509,6 +598,12 @@ function AlgorithmsPage() {
                                     </button>
                                 ))}
                             </div>
+                            <button
+                                onClick={() => navTo('practice-questions')}
+                                className={`mt-2 min-h-10 w-full rounded-lg border px-3 text-left text-sm font-bold transition-all ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
+                            >
+                                {data.page.questionsNav}
+                            </button>
                             <Link to="/advanced-algorithms" className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/10 px-3 text-sm font-black text-cyan-200 transition hover:scale-105">
                                 {data.hero.advancedLabel}
                             </Link>
@@ -519,6 +614,8 @@ function AlgorithmsPage() {
                         {data.lessons.map(lesson => (
                             <LessonCard key={lesson.id} lesson={lesson} labels={data.page} darkMode={darkMode} />
                         ))}
+
+                        <QuestionBank data={data} darkMode={darkMode} />
 
                         <section className={`rounded-lg border p-4 md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
                             <h2 className={`text-xl font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.page.glossaryTitle}</h2>
