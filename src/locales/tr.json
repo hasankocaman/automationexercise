@@ -67,6 +67,18 @@
                 "description": "Yazılım testi nedir, amaç nedir, firmalara faydası nedir? QA ne demektir, SDET ne demektir? Somut örneklerle öğrenin.",
                 "action": "Yazılım Testini Öğren"
             },
+            "manualTesting": {
+                "title": "🧭 Manuel Test Atölyesi",
+                "badge": "🎯 GÖR, DENE, RAPORLA",
+                "description": "Test case, exploratory test, bug report, severity ve regression kararlarını gerçek hayat örnekleri ve mini oyunlarla öğren.",
+                "action": "Manuel testi öğren"
+            },
+            "algorithms": {
+                "title": "🧠 Algoritma Temeli",
+                "badge": "🌱 KODDAN ÖNCE MANTIK",
+                "description": "Hiç yazılım bilmeden algoritma mantığını; sıra, karar, tekrar, hafıza ve hata bulma oyunlarıyla öğren.",
+                "action": "Sıfırdan algoritma öğren"
+            },
             "javaToPython": {
                 "title": "Java → Python QA",
                 "badge": "⭐ Önerilen başlangıç",
@@ -91,6 +103,8 @@
         },
         "heroRecommended": "Java biliyorsan Python yolundan başla — her kavram bir Java karşılaştırmasıyla anlatılır.",
         "learnTesting": "🛡️ Test Nedir?",
+        "learnManualTesting": "🧭 Manuel Test",
+        "learnAlgorithms": "🧠 Algoritma Temeli",
         "learnJava": "☕ Java Öğren",
         "jsTsCompare": "JavaScript ve TypeScript Karşılaştırma",
         "compare3Lang": "🔀 3 Dil Karşılaştır",

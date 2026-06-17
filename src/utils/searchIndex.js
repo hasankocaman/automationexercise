@@ -6,6 +6,7 @@ import { restAssuredData } from '../data/restAssuredData'
 import { dockerData } from '../data/dockerData'
 import { seleniumData } from '../data/seleniumData'
 import { playwrightData } from '../data/playwrightData'
+import { cypressData } from '../data/cypressData'
 import { pythonData } from '../data/pythonData'
 import { typescriptData } from '../data/typescriptData'
 import { sqlData } from '../data/sqlData'
@@ -18,6 +19,9 @@ import { appiumData } from '../data/appiumData'
 import { browserstackData } from '../data/browserstackData'
 import { awsData } from '../data/awsData'
 import { azureData } from '../data/azureData'
+import { algorithmsData } from '../data/algorithmsData'
+import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
+import { manualTestingData } from '../data/manualTestingData'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -114,7 +118,24 @@ function blockText(block, language = 'en') {
 }
 
 function sectionText(section, language = 'en') {
-    const parts = [str(section.title, language)]
+    const parts = [
+        str(section.title, language),
+        str(section.shortTitle, language),
+        str(section.analogy, language),
+        str(section.why, language),
+        str(section.game?.title, language),
+        str(section.game?.prompt, language),
+        str(section.game?.success, language),
+    ]
+    if (Array.isArray(section.game?.items)) {
+        section.game.items.forEach(item => parts.push(str(item.text || item.label, language)))
+    }
+    if (Array.isArray(section.game?.options)) {
+        section.game.options.forEach(option => {
+            parts.push(str(option.label, language))
+            parts.push(str(option.output, language))
+        })
+    }
     if (Array.isArray(section.blocks)) {
         section.blocks.forEach(b => parts.push(blockText(b, language)))
     }
@@ -144,7 +165,7 @@ function getContentByLanguage(dataObj, language = 'en') {
 function buildEntries(dataObj, route, pageName, language = 'en') {
     const entries = []
     const content = getContentByLanguage(dataObj, language)
-    const sections = Array.isArray(content) ? content : content?.sections
+    const sections = Array.isArray(content) ? content : content?.sections || content?.lessons
     const tabs = content?.tabs || []
     if (!Array.isArray(sections)) return entries
 
@@ -164,6 +185,7 @@ const ALL_DATA = [
     { data: dockerData, route: '/docker', name: 'Docker' },
     { data: seleniumData, route: '/selenium', name: 'Selenium' },
     { data: playwrightData, route: '/playwright', name: 'Playwright' },
+    { data: cypressData, route: '/cypress', name: 'Cypress' },
     { data: pythonData, route: '/python', name: 'Python' },
     { data: typescriptData, route: '/typescript', name: 'TypeScript' },
     { data: sqlData, route: '/sql', name: 'SQL' },
@@ -176,6 +198,9 @@ const ALL_DATA = [
     { data: browserstackData, route: '/browserstack', name: 'BrowserStack' },
     { data: awsData, route: '/aws', name: 'AWS' },
     { data: azureData, route: '/azure', name: 'Azure' },
+    { data: manualTestingData, route: '/manual-testing', name: 'Manual Testing' },
+    { data: beginnerAlgorithmsData, route: '/algorithms', name: 'Algorithms' },
+    { data: algorithmsData, route: '/advanced-algorithms', name: 'Advanced Algorithms' },
 ]
 
 const indexCache = new Map()

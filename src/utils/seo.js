@@ -19,6 +19,11 @@ export const ROUTE_SEO = [
         description: 'Master Playwright for modern QA automation with TypeScript, Java and Python examples, auto-waiting, locators, API testing and real interview scenarios.',
     },
     {
+        path: '/cypress',
+        title: 'Cypress Tutorial for QA Automation Engineers | LearnQA.dev',
+        description: 'Learn Cypress end-to-end testing with JavaScript/TypeScript examples, time-travel debugging, network stubbing, custom commands and interview questions.',
+    },
+    {
         path: '/python',
         title: 'Python for QA Engineers: Pytest, Selenium and Playwright | LearnQA.dev',
         description: 'Learn Python from the ground up for QA automation, including pytest, Selenium, Playwright, test data handling and Java-friendly explanations.',
@@ -107,6 +112,21 @@ export const ROUTE_SEO = [
         path: '/what-is-testing',
         title: 'Introduction to Software Testing & QA Fundamentals | LearnQA.dev',
         description: 'Learn software testing fundamentals, ISTQB testing principles, QA vs QC, SDET roles, and concrete examples of why testing is crucial in software development.',
+    },
+    {
+        path: '/manual-testing',
+        title: 'Manual Testing Tutorial with Interactive QA Practice | LearnQA.dev',
+        description: 'Learn manual testing with visual QA examples, test cases, exploratory testing, bug reports, severity, regression practice and interactive exercises.',
+    },
+    {
+        path: '/algorithms',
+        title: 'Algorithms for Beginners Before Programming | LearnQA.dev',
+        description: 'Learn algorithmic thinking before coding with simple recipes, input-output, decisions, loops, memory, debugging, flowcharts and visual games.',
+    },
+    {
+        path: '/advanced-algorithms',
+        title: 'Advanced Algorithms for QA Engineers | LearnQA.dev',
+        description: 'Practice advanced QA algorithms with visual sorting, binary search, graph traversal, state machines and complexity labs for test automation.',
     },
 ]
 

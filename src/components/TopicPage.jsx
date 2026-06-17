@@ -2545,6 +2545,148 @@ function AnimatedTimelineBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── DragOrderBlock ───────────────────────────────────────────────────────────
+// Drag-and-drop (or tap-to-swap, for touch) a scrambled list of command cards
+// back into the order in `block.items` — used to teach command chaining hands-on.
+
+function shuffleKeepingScrambled(items) {
+    const arr = [...items]
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+            ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    if (arr.length > 1 && arr.every((it, i) => it.id === items[i].id)) {
+        [arr[0], arr[1]] = [arr[1], arr[0]]
+    }
+    return arr
+}
+
+function DragOrderBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const items = block.items || []
+    const [order, setOrder] = useState(() => shuffleKeepingScrambled(items))
+    const [selectedId, setSelectedId] = useState(null)
+    const dragIdRef = useRef(null)
+    const [checked, setChecked] = useState(false)
+    const [isCorrect, setIsCorrect] = useState(false)
+
+    const title = block.title ? tx(block.title, language) : ''
+    const instruction = block.instruction ? tx(block.instruction, language) : ''
+    const accent = darkMode ? '#34d399' : '#059669'
+
+    const swapIds = (idA, idB) => {
+        if (idA === idB) return
+        setOrder(prev => {
+            const next = [...prev]
+            const a = next.findIndex(it => it.id === idA)
+            const b = next.findIndex(it => it.id === idB)
+            if (a === -1 || b === -1) return prev
+                ;[next[a], next[b]] = [next[b], next[a]]
+            return next
+        })
+        setChecked(false)
+    }
+
+    const handleCardClick = (id) => {
+        if (checked && isCorrect) return
+        if (selectedId === null) { setSelectedId(id); return }
+        if (selectedId === id) { setSelectedId(null); return }
+        swapIds(selectedId, id)
+        setSelectedId(null)
+    }
+
+    const handleCheck = () => {
+        const correct = order.every((it, i) => it.id === items[i]?.id)
+        setIsCorrect(correct)
+        setChecked(true)
+    }
+
+    const handleShuffle = () => {
+        setOrder(shuffleKeepingScrambled(items))
+        setChecked(false)
+        setIsCorrect(false)
+        setSelectedId(null)
+    }
+
+    return (
+        <div className={`mt-6 rounded-xl border-2 overflow-hidden ${darkMode ? 'border-emerald-700/60 bg-gray-900' : 'border-emerald-300 bg-emerald-50/40'}`}>
+            <div className={`px-4 py-3 flex items-center gap-3 ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-100'}`}>
+                <span className="text-2xl flex-shrink-0">🧩</span>
+                <div>
+                    <div className={`font-bold text-sm ${darkMode ? 'text-emerald-300' : 'text-emerald-800'}`}>
+                        {title || (isTr ? 'Komutları Doğru Sıraya Diz' : 'Drag the Commands Into Order')}
+                    </div>
+                    <div className={`text-xs mt-0.5 ${darkMode ? 'text-emerald-400/70' : 'text-emerald-700/80'}`}>
+                        {instruction || (isTr ? 'Kartları sürükle bırak ya da sırayla iki karta dokunarak yer değiştir.' : 'Drag and drop the cards, or tap two cards one after another to swap them.')}
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-4 space-y-2">
+                {order.map((it, idx) => {
+                    const correctHere = checked && it.id === items[idx]?.id
+                    const wrongHere = checked && it.id !== items[idx]?.id
+                    const isSelected = selectedId === it.id
+                    return (
+                        <div
+                            key={it.id}
+                            draggable
+                            onDragStart={() => { dragIdRef.current = it.id }}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => { e.preventDefault(); if (dragIdRef.current) swapIds(dragIdRef.current, it.id); dragIdRef.current = null }}
+                            onClick={() => handleCardClick(it.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(it.id) } }}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 12,
+                                minHeight: 48, padding: '10px 14px', borderRadius: 10,
+                                cursor: 'grab', userSelect: 'none',
+                                border: `2px solid ${correctHere ? '#10b981' : wrongHere ? '#ef4444' : isSelected ? accent : (darkMode ? '#374151' : '#d1d5db')}`,
+                                background: correctHere ? (darkMode ? '#10b98122' : '#ecfdf5') : wrongHere ? (darkMode ? '#ef444422' : '#fef2f2') : isSelected ? `${accent}22` : (darkMode ? '#1f2937' : '#ffffff'),
+                                transition: 'background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+                                boxShadow: isSelected ? `0 0 0 3px ${accent}33` : 'none',
+                            }}
+                        >
+                            <span style={{ fontSize: 16, opacity: 0.5 }}>⠿</span>
+                            <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'}`}>{idx + 1}</span>
+                            <code className={`text-xs md:text-sm font-mono flex-1 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{it.code}</code>
+                            {it.label && <span className={`text-xs hidden md:block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{tx(it.label, language)}</span>}
+                            {correctHere && <span className="text-emerald-500 flex-shrink-0">✓</span>}
+                            {wrongHere && <span className="text-red-500 flex-shrink-0">✗</span>}
+                        </div>
+                    )
+                })}
+            </div>
+
+            <div className="px-4 pb-4 flex flex-wrap items-center gap-3">
+                <button onClick={handleCheck} className="px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-transform active:scale-95" style={{ background: accent, minHeight: 40 }}>
+                    ✅ {isTr ? 'Sırayı Kontrol Et' : 'Check Order'}
+                </button>
+                <button onClick={handleShuffle} className={`px-4 py-2.5 rounded-lg text-sm font-semibold border ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-800' : 'border-gray-300 text-gray-600 hover:bg-gray-100'}`} style={{ minHeight: 40 }}>
+                    🔀 {isTr ? 'Karıştır' : 'Shuffle'}
+                </button>
+                {checked && (
+                    <span className={`text-sm font-bold ${isCorrect ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {isCorrect
+                            ? (isTr ? '🎉 Doğru! Tam bir Cypress testi kurdun.' : '🎉 Correct! You just assembled a full Cypress test.')
+                            : (isTr ? '❌ Sıra yanlış — kırmızı kartları tekrar dene.' : '❌ Order is wrong — retry the red cards.')}
+                    </span>
+                )}
+            </div>
+
+            {checked && isCorrect && block.successCode && (
+                <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className={`px-4 py-2 text-xs font-semibold ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
+                        💻 {isTr ? 'Tamamlanan Test' : 'Completed Test'}
+                    </div>
+                    <CodeBlock code={block.successCode} language="javascript" darkMode={darkMode} />
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ─── SimulationBlock ──────────────────────────────────────────────────────────
 
 function SimulationBlock({ block, darkMode, language }) {
@@ -4532,6 +4674,71 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === CYPRESS TIME-TRAVEL PLAYGROUND — Cypress Test Runner command log ===
+    const renderCypressTimeTravelPlayground = () => {
+        const order = ['idle', 'visit', 'getEmail', 'typeEmail', 'getPassword', 'typePassword', 'click', 'assert', 'done']
+        const cur = order.indexOf(simState)
+        const canTimeTravel = !isRunning && simState !== 'idle'
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const commands = [
+            { key: 'visit', text: "cy.visit('/login')" },
+            { key: 'getEmail', text: "cy.get('[data-cy=email]')" },
+            { key: 'typeEmail', text: ".type('user@test.com')" },
+            { key: 'getPassword', text: "cy.get('[data-cy=password]')" },
+            { key: 'typePassword', text: ".type('••••••••')" },
+            { key: 'click', text: "cy.get('[data-cy=submit]').click()" },
+            { key: 'assert', text: "cy.url().should('include', '/dashboard')" },
+        ]
+        const jumpTo = (key) => { if (canTimeTravel) setSimState(key) }
+
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 320 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 10 }}>🟢</span>
+                    <span style={{ fontSize: 9, color: CY.text }}>login.cy.js — Cypress Test Runner</span>
+                    <button
+                        onClick={() => !isRunning && runSteps([['visit', 300], ['getEmail', 500], ['typeEmail', 600], ['getPassword', 500], ['typePassword', 600], ['click', 500], ['assert', 700], ['done', 300]])}
+                        disabled={isRunning}
+                        style={{ marginLeft: 'auto', background: isRunning ? CY.muted : CY.green, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 12px', fontSize: 9, fontWeight: 700, cursor: isRunning ? 'not-allowed' : 'pointer', boxShadow: !isRunning && simState === 'idle' ? `0 0 8px ${CY.green}55` : 'none' }}
+                    >
+                        {isRunning ? '⏳...' : simState === 'idle' ? '▶ Run' : '🔄 Run Again'}
+                    </button>
+                </div>
+                <div style={{ background: CY.bg, padding: '8px 4px', borderRadius: '0 0 10px 10px' }}>
+                    {commands.map((c, idx) => {
+                        const stateIdx = order.indexOf(c.key)
+                        const isPast = cur >= stateIdx
+                        const isActive = simState === c.key
+                        return (
+                            <div
+                                key={c.key}
+                                onClick={() => jumpTo(c.key)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px',
+                                    borderRadius: 4, marginBottom: 1,
+                                    background: isActive ? `${CY.green}22` : 'transparent',
+                                    borderLeft: `2px solid ${isActive ? CY.green : 'transparent'}`,
+                                    cursor: canTimeTravel ? 'pointer' : 'default',
+                                    opacity: isPast ? 1 : 0.3,
+                                    transition: 'opacity 0.3s, background 0.3s',
+                                }}
+                            >
+                                <span style={{ fontSize: 9, color: isPast ? CY.green : CY.muted, width: 12, flexShrink: 0 }}>{isPast ? '✓' : idx + 1}</span>
+                                <code style={{ fontSize: 9.5, color: isActive ? '#fff' : CY.text }}>{c.text}</code>
+                            </div>
+                        )
+                    })}
+                    {canTimeTravel && (
+                        <div style={{ marginTop: 6, padding: '5px 8px', fontSize: 8.5, color: CY.muted, lineHeight: 1.4 }}>
+                            🕐 {isTr ? 'Geçmiş bir komuta tıkla — o anda DOM nasıldı gör!' : 'Click a past command — see what the DOM looked like then!'}
+                        </div>
+                    )}
+                </div>
+                {simState !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'explicit-wait') {
@@ -5524,6 +5731,64 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'cypress-time-travel') {
+            const order = ['idle', 'visit', 'getEmail', 'typeEmail', 'getPassword', 'typePassword', 'click', 'assert', 'done']
+            const s = simState
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const screenBg = darkMode ? '#0f172a' : '#f8fafc'
+            const emailVal = cur >= order.indexOf('typeEmail') ? 'user@test.com' : ''
+            const pwdVal = cur >= order.indexOf('typePassword') ? '••••••••' : ''
+            const emailHighlighted = s === 'getEmail' || s === 'typeEmail'
+            const pwdHighlighted = s === 'getPassword' || s === 'typePassword'
+            const btnPressed = s === 'click'
+            const onDashboard = cur >= order.indexOf('assert')
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📸 {isTr ? 'Zaman Yolculuğu Anlık Görüntüsü' : 'Time-Travel Snapshot'}
+                    </div>
+                    <div style={{ border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 8, overflow: 'hidden' }}>
+                        <div style={{ background: darkMode ? '#1f2937' : '#e5e7eb', padding: '4px 8px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b' }} />
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
+                            <span style={{ fontSize: 8, marginLeft: 6, color: subtext, fontFamily: 'monospace' }}>{onDashboard ? 'myapp.com/dashboard' : 'myapp.com/login'}</span>
+                        </div>
+                        <div style={{ background: screenBg, padding: 16, minHeight: 150 }}>
+                            {s === 'idle' && <div style={{ fontSize: 10, color: subtext, textAlign: 'center', paddingTop: 40 }}>{isTr ? "▶ Run'a bas, test başlasın" : '▶ Click Run to start the test'}</div>}
+                            {!onDashboard && s !== 'idle' && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#f3f4f6' : '#111827', marginBottom: 4 }}>🔐 {isTr ? 'Giriş Yap' : 'Login'}</div>
+                                    <div style={{ padding: '6px 8px', borderRadius: 6, fontSize: 9.5, fontFamily: 'monospace', border: `1.5px solid ${emailHighlighted ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#e5e7eb' : '#111827', boxShadow: emailHighlighted ? `0 0 0 3px ${accent}33` : 'none', transition: 'all 0.3s' }}>
+                                        {emailVal || (isTr ? 'e-posta' : 'email')}
+                                    </div>
+                                    <div style={{ padding: '6px 8px', borderRadius: 6, fontSize: 9.5, fontFamily: 'monospace', border: `1.5px solid ${pwdHighlighted ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#e5e7eb' : '#111827', boxShadow: pwdHighlighted ? `0 0 0 3px ${accent}33` : 'none', transition: 'all 0.3s' }}>
+                                        {pwdVal || (isTr ? 'şifre' : 'password')}
+                                    </div>
+                                    <div style={{ marginTop: 4, padding: '6px 0', textAlign: 'center', borderRadius: 6, fontSize: 9.5, fontWeight: 700, color: '#fff', background: btnPressed ? '#059669' : accent, transform: btnPressed ? 'scale(0.96)' : 'scale(1)', transition: 'all 0.2s' }}>
+                                        {isTr ? 'Giriş Yap' : 'Log In'}
+                                    </div>
+                                </div>
+                            )}
+                            {onDashboard && (
+                                <div style={{ textAlign: 'center', animation: 'simFadeUp 0.4s' }}>
+                                    <div style={{ fontSize: 20 }}>🎉</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', marginTop: 4 }}>{isTr ? 'Dashboard\'a Hoş Geldin!' : 'Welcome to the Dashboard!'}</div>
+                                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 9, color: '#10b981', fontWeight: 700 }}>
+                                        ✓ cy.url().should('include', '/dashboard')
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f3f4f6', fontSize: 9, color: subtext, lineHeight: 1.5 }}>
+                        ☕ {isTr ? "Selenium'da geçmişe dönüp DOM'u tekrar görmek imkansızdır — testi yeniden Debug modunda çalıştırman gerekir. Cypress her komutun anlık görüntüsünü otomatik saklar, command log'da tıklayıp anında geri sarabilirsin." : "In Selenium there's no way to rewind and see a past DOM state — you'd have to re-run the test in debug mode. Cypress automatically snapshots every command, so clicking the log instantly rewinds the app."}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -5589,6 +5854,7 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'azure-devops-pipeline' && renderAzureDevopsPipelinePlayground()}
                     {block.scenario === 'vitest-runner' && renderVitestRunnerPlayground()}
                     {block.scenario === 'jmeter-load-test' && renderJmeterLoadTestPlayground()}
+                    {block.scenario === 'cypress-time-travel' && renderCypressTimeTravelPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}
@@ -5919,6 +6185,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'animated-timeline':
             return <AnimatedTimelineBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'drag-order':
+            return <DragOrderBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

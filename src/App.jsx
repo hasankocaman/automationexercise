@@ -16,6 +16,7 @@ const KubernetesPage = lazy(() => import('./components/KubernetesPage'))
 const KafkaPage = lazy(() => import('./components/KafkaPage'))
 const AppiumPage = lazy(() => import('./components/AppiumPage'))
 const PlaywrightPage = lazy(() => import('./components/PlaywrightPage'))
+const CypressPage = lazy(() => import('./components/CypressPage'))
 const SeleniumPage = lazy(() => import('./components/SeleniumPage'))
 const AWSPage = lazy(() => import('./components/AWSPage'))
 const AzurePage = lazy(() => import('./components/AzurePage'))
@@ -23,6 +24,9 @@ const BrowserStackPage = lazy(() => import('./components/BrowserStackPage'))
 const JavaPage = lazy(() => import('./components/JavaPage'))
 const JavaDocPage = lazy(() => import('./components/JavaDocPage'))
 const WhatIsTestingPage = lazy(() => import('./components/WhatIsTestingPage'))
+const ManualTestingPage = lazy(() => import('./components/ManualTestingPage'))
+const AlgorithmsPage = lazy(() => import('./components/AlgorithmsPage'))
+const AdvancedAlgorithmsPage = lazy(() => import('./components/AdvancedAlgorithmsPage'))
 
 function RouteFallback() {
     return (
@@ -52,6 +56,7 @@ function App() {
                     <Route path="/kafka" element={<KafkaPage />} />
                     <Route path="/appium" element={<AppiumPage />} />
                     <Route path="/playwright" element={<PlaywrightPage />} />
+                    <Route path="/cypress" element={<CypressPage />} />
                     <Route path="/selenium" element={<SeleniumPage />} />
                     <Route path="/aws" element={<AWSPage />} />
                     <Route path="/azure" element={<AzurePage />} />
@@ -59,6 +64,9 @@ function App() {
                     <Route path="/java" element={<JavaPage />} />
                     <Route path="/java-document" element={<JavaDocPage />} />
                     <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
+                    <Route path="/manual-testing" element={<ManualTestingPage />} />
+                    <Route path="/algorithms" element={<AlgorithmsPage />} />
+                    <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
                 </Routes>
             </Suspense>
         </>

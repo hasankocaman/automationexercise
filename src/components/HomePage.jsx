@@ -102,6 +102,27 @@ function HomePage() {
             featured: true,
         },
         {
+            icon: '🧭',
+            title: t('home.path.manualTesting.title'),
+            badge: t('home.path.manualTesting.badge'),
+            description: t('home.path.manualTesting.description'),
+            action: t('home.path.manualTesting.action'),
+            color: darkMode ? 'from-sky-500/20 to-emerald-500/20 border-sky-500/40' : 'from-sky-50 to-emerald-50 border-sky-300',
+            badgeColor: darkMode ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' : 'bg-sky-100 text-sky-800 border border-sky-300',
+            route: '/manual-testing',
+        },
+        {
+            icon: '🧠',
+            title: t('home.path.algorithms.title'),
+            badge: t('home.path.algorithms.badge'),
+            description: t('home.path.algorithms.description'),
+            action: t('home.path.algorithms.action'),
+            color: darkMode ? 'from-cyan-500/20 to-amber-500/20 border-cyan-500/40' : 'from-cyan-50 to-amber-50 border-cyan-300',
+            badgeColor: darkMode ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-cyan-100 text-cyan-800 border border-cyan-300',
+            route: '/algorithms',
+            glassHover: true,
+        },
+        {
             icon: '☕',
             title: t('home.path.javaToPython.title'),
             badge: t('home.path.javaToPython.badge'),
@@ -220,23 +241,31 @@ function HomePage() {
                                 key={path.title}
                                 {...cardProps}
                                 onClick={path.onClick}
-                                className={`group text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-300 ease-out hover:shadow-xl ${path.featured ? 'hover:-translate-y-1.5 hover:scale-[1.06]' : 'hover:-translate-y-1'} ${path.gridClass || ''}`}
+                                className={`group relative overflow-hidden text-left rounded-xl border bg-gradient-to-br ${path.color} p-3 md:p-4 transition-all duration-300 ease-out hover:shadow-xl ${path.glassHover ? 'hover:-translate-y-2 hover:scale-[1.11] hover:border-white/40 hover:bg-white/15 hover:backdrop-blur-xl hover:shadow-[0_24px_55px_rgba(34,211,238,0.38)]' : path.featured ? 'hover:-translate-y-1.5 hover:scale-[1.06]' : 'hover:-translate-y-1'} ${path.gridClass || ''}`}
+                                style={path.glassHover ? { backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' } : undefined}
                             >
+                                {path.glassHover && (
+                                    <>
+                                        <span className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[rgba(255,255,255,0.12)] opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100" />
+                                        <span className="pointer-events-none absolute -left-20 top-[-35%] z-0 h-[170%] w-16 rotate-12 bg-white/35 blur-xl transition-transform duration-700 ease-out group-hover:translate-x-[430%]" />
+                                        <span className="pointer-events-none absolute inset-x-4 bottom-0 z-0 h-px bg-gradient-to-r from-transparent via-cyan-200/80 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    </>
+                                )}
                                 {path.badge && (
-                                    <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-2 ${path.badgeColor}`}>
+                                    <span className={`relative z-10 inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-2 ${path.badgeColor}`}>
                                         {path.badge}
                                     </span>
                                 )}
-                                <div className="flex items-center gap-2 mb-1.5">
+                                <div className="relative z-10 flex items-center gap-2 mb-1.5">
                                     <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{path.icon}</span>
                                     <h3 className={`text-sm md:text-base font-bold leading-snug ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                         {path.title}
                                     </h3>
                                 </div>
-                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                <p className={`relative z-10 text-xs md:text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                                     {path.description}
                                 </p>
-                                <div className={`mt-2 text-xs md:text-sm font-bold ${darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
+                                <div className={`relative z-10 mt-2 text-xs md:text-sm font-bold ${path.glassHover ? darkMode ? 'text-cyan-100' : 'text-cyan-800' : darkMode ? 'text-purple-200' : 'text-purple-700'}`}>
                                     {path.action} →
                                 </div>
                             </CardTag>
@@ -393,6 +422,14 @@ function HomePage() {
                                 <Link to="/python" data-testid="nav-python" className={nb('yellow')}>🐍 Python</Link>
                                 <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
                                 <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
+                                <Link
+                                    to="/algorithms"
+                                    data-testid="nav-algorithms"
+                                    className={`${nb('violet')} hover:scale-125 hover:backdrop-blur-xl hover:bg-white/20 hover:border-white/40 hover:shadow-[0_12px_32px_rgba(34,211,238,0.35)]`}
+                                    style={{ backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
+                                >
+                                    {t('home.learnAlgorithms')}
+                                </Link>
                                 <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
                                 <button onClick={() => { setActiveSection('lang-compare'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>🔀 3 Dil</button>
                             </div>
@@ -406,9 +443,10 @@ function HomePage() {
                             </div>
                             <div className="p-2 flex flex-wrap gap-1">
                                 <Link to="/what-is-testing" className={nb('violet')}>{t('home.learnTesting')}</Link>
+                                <Link to="/manual-testing" data-testid="nav-manual-testing" className={nb('blue')}>{t('home.learnManualTesting')}</Link>
                                 <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>🟢 Selenium</Link>
                                 <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
-                                <a href="https://hasankocaman.github.io/teach-Cypress/" className={nb('purple')}>Cypress</a>
+                                <Link to="/cypress" data-testid="nav-cypress" className={nb('purple')}>🌲 Cypress</Link>
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
@@ -523,6 +561,7 @@ function HomePage() {
                                     { to: '/python', label: '🐍 Python' },
                                     { to: '/typescript', label: '💻 TypeScript' },
                                     { to: '/sql', label: '🗄️ SQL' },
+                                    { to: '/algorithms', label: '🧠 Algorithms' },
                                 ].map(({ to, label }) => (
                                     <li key={to}>
                                         <Link to={to} className="text-gray-400 hover:text-white text-xs transition-colors duration-200 flex items-center gap-1">
@@ -541,6 +580,7 @@ function HomePage() {
                             <ul className="space-y-1.5">
                                 {[
                                     { to: '/selenium', label: '🟢 Selenium' },
+                                    { to: '/manual-testing', label: language === 'tr' ? '🧭 Manuel Test' : '🧭 Manual Testing' },
                                     { to: '/playwright', label: '🎭 Playwright' },
                                     { to: '/appium', label: '📱 Appium' },
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
@@ -589,7 +629,7 @@ function HomePage() {
                     {/* Stats Bar */}
                     <div className={`rounded-xl p-3 md:p-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 ${darkMode ? 'bg-gray-800' : 'bg-gray-800'}`}>
                         {[
-                            { num: '20+', label: language === 'tr' ? 'Teknoloji' : 'Technologies' },
+                            { num: '22+', label: language === 'tr' ? 'Teknoloji' : 'Technologies' },
                             { num: '1000+', label: language === 'tr' ? 'Mülakat Sorusu' : 'Interview Q&A' },
                             { num: '100%', label: language === 'tr' ? 'Ücretsiz' : 'Free to Use' },
                             { num: '4', label: language === 'tr' ? 'Etkileşimli Editör' : 'Live Editors' },

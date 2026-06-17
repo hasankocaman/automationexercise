@@ -46,12 +46,15 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `fb9e3b0 feat: add Software Testing intro page with Site Map tab, fix tab-switch scroll jump`. **Push edildi** — local ve origin/main senkron.
+- **Son local commit:** `fb9e3b0 feat: add Software Testing intro page with Site Map tab, fix tab-switch scroll jump`. **Push edildi** — local commit ile origin/main senkron, fakat çalışma ağacında uncommitted `/algorithms`, `/advanced-algorithms`, `/manual-testing` (başka bir oturum/araçtan) ve bu oturumda eklenen `/cypress` route/data değişiklikleri var.
 - Push edilen commit zinciri (son oturum): `755f81a` (Java mülakat fix) → `fb9e3b0` (bu oturum — `/what-is-testing` sayfası + 2 yeni sekme: Web/Mobil/Süreçler ve Site Haritası, `link-grid` block tipi, header/footer Site Haritası linki, sekme-değişince-scroll-zıplaması bug fix, ana sayfa "3 Dil" scroll fix, kart CSS polish — detay yukarıdaki "7. kısım" tablosunda).
 - Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev/what-is-testing` canlıda doğrulanmalı (6 sekme, Site Haritası linkleri, header/footer butonları).
+- **Bu oturumun (10. kısım) uncommitted kaynak değişiklikleri:** Yeni `/cypress` route — `src/components/CypressPage.jsx`, `src/data/cypressData.js` (yeni dosyalar), `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/TopicPage.jsx` (iki yeni block: `drag-order` ve `cypress-time-travel` simulation scenario) düzenlendi. Detay aşağıdaki "10. kısım" tablosunda.
+- **Bu oturumda dokunulmayan ama çalışma ağacında duran başka bir oturum/aracın değişiklikleri:** `/algorithms`, `/advanced-algorithms`, `/manual-testing` (`src/components/AlgorithmsPage.jsx`, `AdvancedAlgorithmsPage.jsx`, `ManualTestingPage.jsx`, ilgili data dosyaları, `src/locales/*.json`, `src/components/HomePage.jsx`) — bunlar bu oturum başlamadan önce zaten uncommitted olarak vardı, hiçbiri silinmedi/değiştirilmedi. `npm run build` tracked build çıktısı `dist/index.html` ve `public/sitemap.xml`'i değiştirdi; `dist/` build çıktısı olduğu için commit kararı kullanıcıya bırakılmalı.
+- **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
-`BrowserRouter` (`src/main.jsx`), `src/utils/seo.js`, `src/components/SeoMeta.jsx`, `scripts/generate-static-routes.mjs`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` — hepsi committed ve artık push'lu. `App.jsx`'te 20 route + 20 `React.lazy()` import var. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
+`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. Çalışma ağacında `/algorithms`, `/advanced-algorithms` ve bu oturumda eklenen `/manual-testing` route'u uncommitted olarak `App.jsx`, `src/utils/seo.js`, `scripts/generate-static-routes.mjs`, `public/sitemap.xml` ve `src/utils/searchIndex.js` zincirine bağlı. `npm run build` artık **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
 
 **SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
 - `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
@@ -59,8 +62,55 @@
 - `https://learnqa.dev/comparison.html` → `/test-frameworks` 301 ile yönleniyor mu? (aynı şekilde ilk kez canlıya çıkıyor)
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
-### Stray/uncommitted dosyalar — temizlendi (2026-06-17, 7. kısım sonunda)
-Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya kullanıcı onayıyla silindi: paralel TSX rewrite (`src/App.tsx`, `src/main.tsx`, `src/components/Header.tsx`/`Navigation.tsx`/`CodeBlock.tsx`/`FeatureCard.tsx` + ilgili `.css`'ler, `src/sections/`, `src/hooks/`, `src/i18n/`, `src/styles/`, `tsconfig*.json` — mevcut JSX mimarisiyle çakışıyordu, gerçek giriş noktası hep `src/main.jsx` olmuştu), 31 adet kök dizindeki tek-seferlik `.mjs`/`.js` içerik script'i (`fix_*`, `enrich_*`, `check_*`, `debug_*`, `scan_*`, `count_*`...), ve kök dizindeki `documents/` klasörü (`JavaNotesForProfessionals.md` — `public/documents/`'taki ile byte-byte aynıydı). Hepsi untracked olduğu için silme git'te görünmüyor/commit gerektirmiyor; `npm run build` silme sonrası tekrar doğrulandı, hiçbir şey bozulmadı. Artık çalışma ağacı temiz — yeni bir oturumda bu notu tekrar görürsen bir şey ters gitmiş demektir.
+### Stray/uncommitted dosyalar
+Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. Bu oturum sonunda beklenen uncommitted fark `/algorithms` başlangıç sayfası, `/advanced-algorithms` ileri seviye sayfası ve SEO/home entegrasyonu kaynaklıdır; ayrıca `.claude/settings.local.json` hâlâ yerel/untracked görünüyor ve dokunulmadı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 10. kısım — Cypress sayfası, drag-order block, time-travel simülasyonu)
+
+| Görev | Durum |
+|-------|-------|
+| **Oturum başlangıcı:** `CLAUDE.md` ve `.claude/NEXT_SESSION.md` okundu, kullanıcıya güncel durum özetlendi. Kullanıcı yeni bir Cypress sayfası istedi: örnekler, görseller, animasyonlar, gerekirse drag-and-drop ile aktif öğrenme, gerçek hayat örnekleri. | ✅ |
+| **Yeni route ve sayfa:** `/cypress` eklendi — `src/components/CypressPage.jsx` (Playwright sayfası kalıbını taklit eder), `src/data/cypressData.js` (yeni dosya, ~1850 satır). `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs` ilgili girişlerle güncellendi. | ✅ |
+| **İçerik kapsamı — 11 sekme (TR+EN ayrı yazıldı):** Cypress Nedir/Mimari, Kurulum, Temel Komutlar & Selector, Aksiyonlar & Drag-Drop, Zaman Yolculuğu & Retry-ability, Network & cy.intercept(), Gerçek Hayat, Ekosistem, Cypress vs Selenium vs Playwright, Yaygın Hatalar (10 hata, `error-dictionary`), 50 Mülakat Sorusu (15 Basic + 20 Intermediate + 15 Advanced, CLAUDE.md Bölüm 10 kuralına uygun, her cevapta Java karşılaştırması inline). | ✅ |
+| **Yeni interaktif block tipi: `drag-order`** (`TopicPage.jsx`, yeni `DragOrderBlock` komponenti) — kullanıcı native HTML5 drag-and-drop VEYA tıkla-değiştir (touch-uyumlu) ile karışık komut kartlarını doğru sıraya diziyor; "Sırayı Kontrol Et" ile satır satır doğru/yanlış geri bildirim, doğru olunca tamamlanan kod bloğu gösteriliyor. Aksiyonlar sekmesinde Cypress login testi kurma alıştırması olarak kullanıldı — kullanıcının "drag and drop ile aktif öğrenme" talebini doğrudan karşılıyor. | ✅ |
+| **Yeni `simulation` senaryosu: `cypress-time-travel`** (`TopicPage.jsx`, `renderCypressTimeTravelPlayground` + `renderDomVisualizer` case) — Cypress Test Runner command log'unu taklit eden bir "▶ Run" düğmesi, adım adım yeşil tikleyen komutlar ve test bitince geçmiş bir komuta tıklayınca sağdaki mini-browser panelinin o anki DOM durumuna ("time travel") geri sarması. Cypress'in en ayırt edici özelliğini gerçekten interaktif gösteriyor. | ✅ |
+| **`drag-drop` senaryosu yeniden kullanıldı:** Selenium sayfasındaki mevcut generic `drag-drop` DOM-event simülasyonu, Cypress'in native HTML5 drag-and-drop ile yaşadığı gerçek bir sorunu (sentetik event tetikleme, `.trigger()`/`cypress-real-events` çözümü) anlatmak için Aksiyonlar sekmesinde tekrar kullanıldı — yeni bileşen yazmadan gerçek bir Cypress gotcha'sını gösterdi. | ✅ |
+| **Doğrulama — `npm run build`:** `check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo` zinciri 25 route için başarıyla geçti, `cypressData` ayrı bir chunk olarak (~140KB) doğru code-split edildi. | ✅ |
+| **Doğrulama — tarayıcı (Playwright script, `@playwright/test` zaten devDependency):** `npm run dev` ile dev server başlatıldı, `/cypress` ziyaret edildi: 0 console/page hatası. Drag-order alıştırmasında iki kart değiştirilip "Sırayı Kontrol Et"e basıldı — yanlış sıra kırmızı X ile doğru tespit edildi. Zaman Yolculuğu sekmesinde "▶ Run" tıklanıp simülasyon sonuna kadar izlendi (7/7 komut yeşil tik), sonra `cy.visit('/login')` satırına tıklanarak time-travel test edildi — sağ panel dashboard'dan login formuna doğru şekilde geri sardı. Dil değiştirme (TR→ENG) doğrulandı, içerik tam İngilizce render oluyor. Geçici doğrulama script'leri ve screenshot'lar temizlendi, repoya commit edilmedi. | ✅ |
+
+> **Yeni dosyalar:** `src/components/CypressPage.jsx`, `src/data/cypressData.js`.
+> **Düzenlenen paylaşılan dosyalar:** `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/TopicPage.jsx` (sadece ekleme — mevcut block/scenario'lara dokunulmadı).
+> **Bug fix (kullanıcı tespit etti):** `HomePage.jsx`'teki "Test Araçları" kartında Cypress butonu hâlâ eski bağımsız siteye (`https://hasankocaman.github.io/teach-Cypress/`, `<a href>`) gidiyordu — yeni `/cypress` sayfası eklenmesine rağmen bu link güncellenmemişti. `<Link to="/cypress" data-testid="nav-cypress">🌲 Cypress</Link>` olarak düzeltildi, diğer dahili linklerin (Selenium, Playwright, REST Assured) kalıbına uyduruldu. `npm run build` tekrar başarılı (25 route).
+> **Sıradaki olası iş:** Kullanıcı onayıyla commit edilirse, bu oturumdan önce zaten uncommitted duran `/algorithms`, `/advanced-algorithms`, `/manual-testing` değişiklikleriyle birlikte mi yoksa ayrı mı commit edileceğine kullanıcı karar vermeli — bu dosyalara bu oturumda dokunulmadı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 9. kısım — Manuel test interaktif öğrenme sayfası)
+
+| Görev | Durum |
+|-------|-------|
+| **Oturum başlangıcı:** `CLAUDE.md` ve `.claude/NEXT_SESSION.md` okundu. Güncel durum özetlendi: canlı site Netlify'da, son push `fb9e3b0`, çalışma ağacında önceki `/algorithms` ve `/advanced-algorithms` değişiklikleri ile yerel/untracked dosyalar var. Kalıcı kural dosyalarına (`CLAUDE.md`, `AGENTS.md`, `codexSeo.md`) anlık durum yazılmadı. | ✅ |
+| **Yeni route ve sayfa:** `/manual-testing` route'u eklendi. `src/components/ManualTestingPage.jsx` özel interaktif sayfa olarak oluşturuldu; içerik `src/data/manualTestingData.js` içinde TR/EN ayrı tutuluyor. | ✅ |
+| **İçerik kapsamı:** Manuel test bakış açısı, test case yazımı, exploratory testing, bug report, severity/priority etkisi ve regression/smoke kararları gerçek hayat örnekleriyle anlatıldı. Her derste Java analojisi var: JUnit Arrange/Act/Assert, stack trace, exception impact, test suite/regression benzetmeleri. | ✅ |
+| **Görsel ve aktif öğrenme:** Observe → Compare → Report → Retest akış animasyonu, checkout/bug/severity görselleri, risk checklist oyunu, login test case sıralama drag/drop + yukarı/aşağı kontrolleri, risk rotası seçimi, bug report tamamlama, severity kartlarını kolonlara taşıma/seçme ve final mini quiz eklendi. | ✅ |
+| **Ana sayfa entegrasyonu:** HomePage öğrenme yolu kartlarına "Manuel Test Atölyesi / Manual Testing Workshop" kartı eklendi. Test Araçları kategorisine `/manual-testing` linki eklendi, footer Test Araçları listesi ve teknoloji sayacı 22+ olarak güncellendi. | ✅ |
+| **SEO/search/static entegrasyonu:** `src/utils/seo.js` içine `/manual-testing` metadata eklendi; `src/utils/searchIndex.js` ve `scripts/generate-static-routes.mjs` yeni data dosyasını okuyacak şekilde bağlandı. `public/sitemap.xml` build ile 25 route'a güncellendi. | ✅ |
+| **Bug fix:** Browser doğrulamasında `Maximum update depth exceeded` uyarısı yakalandı. Oyun tamamlanma callback'i idempotent hale getirildi ve effect bağımlılıkları düzeltilerek tekrar eden state update döngüsü kaldırıldı. | ✅ |
+| **UI düzeltmesi:** Kullanıcı geri bildirimiyle `/manual-testing` sağ alt home butonu geçici `H` metninden diğer sayfalardaki gibi `🏠` ikonuna çevrildi. | ✅ |
+| **Doğrulama:** `npm run build` iki kez başarıyla geçti: `check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo`, toplam 25 route. Bilinen uyarılar devam ediyor: eski Browserslist/caniuse-lite verisi ve büyük `javaData` chunk uyarısı. | ✅ |
+| **Browser doğrulaması:** In-app Browser ile `/manual-testing` doğrulandı. Desktop: doğru SEO title/description, 6 ders, 6 nav butonu, yatay taşma yok. Checklist oyunu tamamlanınca ilerleme 1/6 oldu; severity kartları doğru sınıflandırılınca ilerleme 2/6 oldu. Fresh console error/warn yok. Mobil 390px viewport'ta 6 ders/6 nav render oldu, yatay taşma yok. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 8. kısım — Algoritmalar görsel öğrenme sayfası)
+
+| Görev | Durum |
+|-------|-------|
+| **Oturum başlangıcı:** `CLAUDE.md`, `.claude/NEXT_SESSION.md`, içerik/UI kuralları ve SEO mimarisi okundu. Güncel durum özeti kullanıcıya verildi: son push `fb9e3b0`, canlı site Netlify'da, önceki ana iş `/what-is-testing`, GSC/deploy canlı doğrulamaları hâlâ manuel/hesap yetkisi gerektiriyor. | ✅ |
+| **Route ayrımı:** `/algorithms` artık sıfırdan algoritma temeli sayfası. Önceki gelişmiş QA algoritma atölyesi korunarak `src/components/AdvancedAlgorithmsPage.jsx` adıyla `/advanced-algorithms` route'una taşındı. Yeni başlangıç içeriği `src/data/beginnerAlgorithmsData.js`, ileri seviye içerik `src/data/algorithmsData.js` kaynaklarını kullanıyor. | ✅ |
+| **Başlangıç seviyesi içerik ve etkileşim:** `/algorithms` hiç yazılım bilmeyen kullanıcı için 7 basit dersten oluşuyor: tarif/sıra, input-process-output, karar, loop, hafıza/variable, debug ve flowchart. Anlatım basit analojilerle kuruldu; her dersin görseli ve küçük oyunu var. | ✅ |
+| **Görsel öğrenme oyunları:** Tost sırası kartları sürükle-bırak + yukarı/aşağı kontrolleriyle taşınabiliyor; input makinesi doğru girdiyi seçtiriyor; karar oyunu hava durumuna göre output üretiyor; loop oyunu 5 yıldızı yakıyor; memory oyunu skor kutusunu güncelliyor; debug oyunu yanlış adımı bulduruyor; flowchart oyunu eksik kutuyu seçtiriyor. | ✅ |
+| **Ana sayfa entegrasyonu:** HomePage algoritma kartı ve Diller kategorisindeki `/algorithms` linki başlangıç seviyesine göre yeniden metinlendi (`Algoritma Temeli` / `Algorithm Basics`). Önceki glassmorphism hover polish korunuyor. Footer Diller listesi `/algorithms` linkini koruyor. | ✅ |
+| **SEO/search/static entegrasyonu:** `/algorithms` beginner metadata ve `beginnerAlgorithmsData.js`; `/advanced-algorithms` advanced metadata ve `algorithmsData.js` ile bağlandı. Global arama indeksi iki route'u ayrı indeksliyor, static fallback üretici `lessons` tabanlı beginner içeriği de okuyabiliyor. Kalıcı kural dosyalarına (`CLAUDE.md`, `AGENTS.md`, `codexSeo.md`) anlık durum veya commit hash yazılmadı. | ✅ |
+| **Doğrulama:** `npm run build` başarıyla geçti: `check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo`, toplam 23 route. Bilinen uyarılar devam ediyor: eski Browserslist/caniuse-lite verisi ve büyük `javaData` chunk uyarısı. | ✅ |
+| **Browser doğrulaması:** In-app Browser ile `/algorithms`, `/advanced-algorithms` ve ana sayfa doğrulandı. `/algorithms`: 7 ders, 3 advanced link, 4 draggable kart, doğru SEO title/description, console error yok, yatay taşma yok; makine, loop, debug, flowchart ve sıralama hareketi çalıştı. `/advanced-algorithms`: 6 bölüm, 5 sorting kartı, binary/complexity içerikleri ve yeni SEO metadata doğru. Mobil 390px viewport'ta `/algorithms` 7 ders/4 draggable kartla render oldu, yatay taşma yok. | ✅ |
+| **Algoritma butonu hover polish:** Kullanıcı talebiyle ana sayfadaki büyük Algoritmalar öğrenme kartına `hover:scale-[1.11]`, glassmorphism overlay, `backdrop-blur`, şeffaf arka plan, ince border, cyan glow shadow ve akan highlight efekti eklendi. Diller bölümündeki küçük `/algorithms` linkine de daha güçlü `hover:scale-125`, glass blur ve yumuşak shadow verildi. `npm run build` tekrar başarılı; CSSOM'da ilgili Tailwind hover kuralları doğrulandı. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 7. kısım — Antigravity incelemesi + Site Haritası + UX/CSS düzeltmeleri)
 
@@ -244,7 +294,8 @@ Kullanıcı, CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md arasında sürekli 
 ```
 text | code | heading | grid | table | quiz | editor | diagram | comparison |
 glossary | error-dict | interview-questions | simple-box | visual | callout |
-locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline
+locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline |
+drag-order (YENİ — 2026-06-17, 10. kısım: sürükle-bırak/tıkla-değiştir sıralama alıştırması)
 ```
 
 ### Önemli Dosyalar
@@ -293,9 +344,10 @@ SimulationBlock({ block, darkMode, language })
 | `azure-devops-pipeline` | git push → Trigger/Install/Test/Publish aşamaları → task listesi → Pipeline Artifacts | azureData.js (Gerçek Hayat) |
 | `vitest-runner` | npx vitest run → 3 test sırayla PASSED → coverage raporu paneli | typescriptData.js s9 (Test Runners) |
 | `jmeter-load-test` | jmeter -n -t → launching→rampup→firing→aggregating→done terminal + Aggregate Report tablosu | jmeterData.js (Gerçek Hayat) |
+| `cypress-time-travel` | ▶ Run → command log adım adım yeşil tikleniyor → geçmiş komuta tıkla → sağ panel o anki DOM snapshot'ına geri sarıyor | cypressData.js s4 (Zaman Yolculuğu) |
 
 ### Build Durumu
-- ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, bkz. `codexSeo.md`)
+- ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, güncel toplam 25 route; bkz. `codexSeo.md`)
 - ✅ Netlify'da canlı: https://learnqa.dev
 - ⚠️ `javaData` chunk hâlâ ~639KB tek başına büyük (route-based code splitting sayesinde ana bundle ~235KB'a indi, kritik değil)
 - Güncel commit/push durumu için bu dosyanın en üstündeki **"GÜNCEL DURUM"** bölümüne bak (tek kaynak — burada tekrar edilmiyor).

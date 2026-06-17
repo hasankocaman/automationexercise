@@ -1,0 +1,515 @@
+import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import TopicHeader from './TopicHeader'
+import { useLanguage } from '../context/LanguageContext'
+import { manualTestingData } from '../data/manualTestingData'
+
+function ScrollProgressBar() {
+    const [progress, setProgress] = useState(0)
+
+    useEffect(() => {
+        const update = () => {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+            const max = Math.max(1, scrollHeight - clientHeight)
+            setProgress(Math.min(100, Math.max(0, (scrollTop / max) * 100)))
+        }
+        update()
+        window.addEventListener('scroll', update, { passive: true })
+        return () => window.removeEventListener('scroll', update)
+    }, [])
+
+    return (
+        <div className="fixed left-0 right-0 top-0 z-[9999] h-[3px] bg-transparent">
+            <div className="h-full transition-[width] duration-100" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #0ea5e9, #22c55e, #f59e0b, #ef4444)' }} />
+        </div>
+    )
+}
+
+function useDarkModeState() {
+    const [darkMode, setDarkMode] = useState(() => {
+        const saved = localStorage.getItem('darkMode')
+        const isDark = saved !== null ? JSON.parse(saved) : true
+        document.documentElement.classList.toggle('dark-mode', isDark)
+        document.documentElement.classList.toggle('light-mode-forced', !isDark)
+        return isDark
+    })
+
+    useEffect(() => {
+        localStorage.setItem('darkMode', JSON.stringify(darkMode))
+        document.documentElement.classList.toggle('dark-mode', darkMode)
+        document.documentElement.classList.toggle('light-mode-forced', !darkMode)
+    }, [darkMode])
+
+    return [darkMode, setDarkMode]
+}
+
+function FlowVisual({ labels, darkMode }) {
+    const steps = [
+        { key: 'observe', color: '#0ea5e9' },
+        { key: 'compare', color: '#22c55e' },
+        { key: 'report', color: '#f59e0b' },
+        { key: 'retest', color: '#ef4444' },
+    ]
+
+    return (
+        <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-white'}`}>
+            <div className="grid gap-3 sm:grid-cols-4">
+                {steps.map((step, index) => (
+                    <div key={step.key} className="relative">
+                        <div className="flex min-h-24 flex-col items-center justify-center rounded-lg border px-3 text-center shadow-lg" style={{ borderColor: `${step.color}66`, background: `${step.color}18` }}>
+                            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg text-sm font-black text-white" style={{ background: step.color }}>{index + 1}</div>
+                            <div className={`text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{labels.flow[step.key]}</div>
+                        </div>
+                        {index < steps.length - 1 && <div className="absolute -right-2 top-1/2 hidden h-1 w-4 -translate-y-1/2 rounded-full bg-slate-400 sm:block" />}
+                    </div>
+                ))}
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-700/30">
+                <div className="h-full w-3/4 animate-pulse rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 to-rose-400" />
+            </div>
+        </div>
+    )
+}
+
+function ScenarioVisual({ lesson, darkMode }) {
+    const panel = darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-slate-50 text-slate-700'
+
+    if (lesson.id === 'bug-report') {
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="grid gap-3 md:grid-cols-[1fr_1fr]">
+                    <div className="rounded-lg border border-rose-400/40 bg-rose-500/10 p-3">
+                        <div className="text-xs font-black text-rose-300">Actual</div>
+                        <div className="mt-2 h-28 rounded-lg border border-rose-400/50 bg-slate-950 p-3">
+                            <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-rose-300 border-t-transparent" />
+                        </div>
+                    </div>
+                    <div className="rounded-lg border border-emerald-400/40 bg-emerald-500/10 p-3">
+                        <div className="text-xs font-black text-emerald-300">Evidence</div>
+                        <div className="mt-2 space-y-2 font-mono text-xs">
+                            <div>device: Pixel 8</div>
+                            <div>version: 2.8.1</div>
+                            <div>steps: cart - pay - blank</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (lesson.id === 'severity') {
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="grid gap-3 md:grid-cols-3">
+                    {['Critical', 'Major', 'Minor'].map((title, index) => (
+                        <div key={title} className="min-h-24 rounded-lg border p-3 text-center" style={{ borderColor: ['#ef444466', '#f59e0b66', '#22c55e66'][index], background: ['#ef444418', '#f59e0b18', '#22c55e18'][index] }}>
+                            <div className="text-sm font-black">{title}</div>
+                            <div className="mt-3 h-2 animate-pulse rounded-full" style={{ background: ['#ef4444', '#f59e0b', '#22c55e'][index] }} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className={`rounded-lg border p-4 ${panel}`}>
+            <div className="relative mx-auto max-w-md rounded-lg border border-sky-400/40 bg-sky-500/10 p-4">
+                <div className="grid gap-3">
+                    <div className="h-3 w-1/2 rounded-full bg-sky-300/70" />
+                    <div className="grid grid-cols-3 gap-2">
+                        <div className="h-16 rounded-lg bg-emerald-400/30" />
+                        <div className="h-16 rounded-lg bg-amber-400/30" />
+                        <div className="h-16 rounded-lg bg-rose-400/30" />
+                    </div>
+                    <div className="h-10 rounded-lg bg-sky-500 shadow-lg shadow-sky-500/30" />
+                </div>
+                <div className="absolute right-4 top-4 h-4 w-4 animate-ping rounded-full bg-rose-400" />
+            </div>
+        </div>
+    )
+}
+
+function Result({ show, solved, success, labels }) {
+    if (!show) return null
+    return (
+        <div className={`mt-3 rounded-lg border px-3 py-2 text-sm font-black ${solved ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+            {solved ? success : labels.wrong}
+        </div>
+    )
+}
+
+function ChecklistGame({ lesson, labels, onComplete }) {
+    const [selected, setSelected] = useState([])
+    const [checked, setChecked] = useState(false)
+    const required = lesson.game.required
+    const solved = selected.length === required.length && required.every(id => selected.includes(id))
+
+    useEffect(() => {
+        if (checked && solved) onComplete()
+    }, [checked, solved])
+
+    const toggle = (id) => {
+        setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id])
+        setChecked(false)
+    }
+
+    return (
+        <div>
+            <p className="text-sm opacity-80">{lesson.game.prompt}</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {lesson.game.options.map(option => (
+                    <button key={option.id} onClick={() => toggle(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected.includes(option.id) ? 'border-sky-400 bg-sky-500/15 text-sky-200' : 'border-slate-700 bg-slate-950 text-slate-200'}`}>
+                        {option.label}
+                    </button>
+                ))}
+            </div>
+            <button onClick={() => setChecked(true)} className="mt-3 min-h-10 rounded-lg bg-sky-600 px-4 text-sm font-black text-white">{labels.check}</button>
+            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} />
+        </div>
+    )
+}
+
+function SequenceGame({ lesson, labels, onComplete }) {
+    const [items, setItems] = useState(lesson.game.items)
+    const [dragIndex, setDragIndex] = useState(null)
+    const [checked, setChecked] = useState(false)
+    const solved = items.every((item, index) => item.id === lesson.game.expected[index])
+
+    useEffect(() => {
+        setItems(lesson.game.items)
+        setChecked(false)
+    }, [lesson])
+
+    useEffect(() => {
+        if (checked && solved) onComplete()
+    }, [checked, solved])
+
+    const reorder = (from, to) => {
+        if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return
+        const next = [...items]
+        const [item] = next.splice(from, 1)
+        next.splice(to, 0, item)
+        setItems(next)
+        setChecked(false)
+    }
+
+    return (
+        <div>
+            <p className="text-sm opacity-80">{lesson.game.prompt}</p>
+            <div className="mt-3 grid gap-2">
+                {items.map((item, index) => (
+                    <div
+                        key={item.id}
+                        draggable
+                        onDragStart={() => setDragIndex(index)}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                            if (dragIndex !== null) reorder(dragIndex, index)
+                            setDragIndex(null)
+                        }}
+                        onDragEnd={() => setDragIndex(null)}
+                        className={`flex cursor-grab items-center gap-2 rounded-lg border border-slate-700 bg-slate-950 p-3 text-slate-200 transition active:cursor-grabbing ${dragIndex === index ? 'scale-[1.02] border-emerald-400 opacity-80' : ''}`}
+                    >
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-black text-white" style={{ background: lesson.color }}>{index + 1}</div>
+                        <div className="min-w-0 flex-1 text-sm font-bold">{item.text}</div>
+                        <button onClick={() => reorder(index, index - 1)} disabled={index === 0} className="min-h-9 rounded-lg bg-slate-700 px-2 text-xs font-bold text-white disabled:opacity-30">{labels.moveUp}</button>
+                        <button onClick={() => reorder(index, index + 1)} disabled={index === items.length - 1} className="min-h-9 rounded-lg bg-slate-700 px-2 text-xs font-bold text-white disabled:opacity-30">{labels.moveDown}</button>
+                    </div>
+                ))}
+            </div>
+            <button onClick={() => setChecked(true)} className="mt-3 min-h-10 rounded-lg bg-emerald-600 px-4 text-sm font-black text-white">{labels.check}</button>
+            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} />
+        </div>
+    )
+}
+
+function ChoiceGame({ lesson, labels, onComplete }) {
+    const [selected, setSelected] = useState(null)
+    const picked = lesson.game.options.find(option => option.id === selected)
+    const solved = selected === lesson.game.correct
+
+    useEffect(() => {
+        if (solved) onComplete()
+    }, [solved])
+
+    return (
+        <div>
+            <p className="text-sm opacity-80">{lesson.game.prompt}</p>
+            <div className="mt-3 grid gap-2">
+                {lesson.game.options.map(option => (
+                    <button key={option.id} onClick={() => setSelected(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected === option.id ? 'border-amber-400 bg-amber-500/15 text-amber-200' : 'border-slate-700 bg-slate-950 text-slate-200'}`}>
+                        {option.label}
+                    </button>
+                ))}
+            </div>
+            {picked && (
+                <div className={`mt-3 rounded-lg border p-3 text-sm font-bold ${solved ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                    {picked.output || (solved ? lesson.game.success : labels.wrong)}
+                </div>
+            )}
+        </div>
+    )
+}
+
+function SeverityGame({ lesson, labels, onComplete }) {
+    const [assignments, setAssignments] = useState({})
+    const [dragId, setDragId] = useState(null)
+    const columns = ['critical', 'major', 'minor']
+    const solved = lesson.game.cards.every(card => assignments[card.id] === card.severity)
+
+    useEffect(() => {
+        if (solved) onComplete()
+    }, [solved])
+
+    const assign = (cardId, column) => setAssignments(current => ({ ...current, [cardId]: column }))
+    const cardsFor = (column) => lesson.game.cards.filter(card => (assignments[card.id] || 'backlog') === column)
+
+    return (
+        <div>
+            <p className="text-sm opacity-80">{lesson.game.prompt}</p>
+            <div className="mt-3 rounded-lg border border-slate-700 bg-slate-950 p-3">
+                <div className="mb-2 text-xs font-black text-slate-400">Backlog</div>
+                <div className="grid gap-2 md:grid-cols-3">
+                    {cardsFor('backlog').map(card => (
+                        <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} />
+                    ))}
+                </div>
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+                {columns.map(column => (
+                    <div
+                        key={column}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                            if (dragId) assign(dragId, column)
+                            setDragId(null)
+                        }}
+                        className="min-h-36 rounded-lg border border-dashed border-slate-600 bg-slate-950/70 p-3"
+                    >
+                        <div className="mb-2 text-sm font-black text-white">{labels.columns[column]}</div>
+                        <div className="grid gap-2">
+                            {cardsFor(column).map(card => (
+                                <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} />
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {solved && <div className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black text-emerald-300">{lesson.game.success}</div>}
+        </div>
+    )
+}
+
+function DefectCard({ card, labels, onDragStart, onAssign }) {
+    return (
+        <div draggable onDragStart={() => onDragStart(card.id)} className="cursor-grab rounded-lg border border-violet-400/40 bg-violet-500/10 p-3 text-sm font-bold text-violet-100 active:cursor-grabbing">
+            <div>{card.label}</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+                {Object.keys(labels.columns).map(column => (
+                    <button key={column} onClick={() => onAssign(card.id, column)} className="min-h-8 rounded-md bg-slate-800 px-2 text-[11px] font-black text-slate-200 hover:bg-slate-700">
+                        {labels.columns[column]}
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function GameBlock({ lesson, labels, onComplete }) {
+    const props = { lesson, labels, onComplete }
+
+    return (
+        <div className="rounded-lg border border-slate-700 bg-slate-900/90 p-4">
+            <div className="mb-3 text-sm font-black" style={{ color: lesson.color }}>{lesson.game.title}</div>
+            {lesson.game.type === 'checklist' && <ChecklistGame {...props} />}
+            {lesson.game.type === 'sequence' && <SequenceGame {...props} />}
+            {['map', 'bug', 'quiz'].includes(lesson.game.type) && <ChoiceGame {...props} />}
+            {lesson.game.type === 'severity' && <SeverityGame {...props} />}
+        </div>
+    )
+}
+
+function LessonCard({ lesson, labels, darkMode, complete, onComplete }) {
+    return (
+        <section id={lesson.id} className="scroll-mt-24">
+            <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/95' : 'border-slate-200 bg-white'}`}>
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-black uppercase text-white" style={{ background: lesson.color }}>
+                        {lesson.shortTitle}
+                    </span>
+                    {complete && (
+                        <span className="inline-flex min-h-9 items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 text-xs font-black text-emerald-300">
+                            {labels.complete}
+                        </span>
+                    )}
+                </div>
+                <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{lesson.title}</h2>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+                    <div className="grid gap-4">
+                        <InfoBox label={labels.learn} text={lesson.analogy} color={lesson.color} darkMode={darkMode} />
+                        <InfoBox label={labels.javaBridge} text={lesson.why} color="#f59e0b" darkMode={darkMode} />
+                        <InfoBox label={labels.realLife} text={lesson.realLife} color="#22c55e" darkMode={darkMode} />
+                    </div>
+                    <div className="grid gap-4">
+                        <ScenarioVisual lesson={lesson} darkMode={darkMode} />
+                        <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} />
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+function InfoBox({ label, text, color, darkMode }) {
+    return (
+        <div className={`rounded-lg border-l-4 p-4 text-sm leading-relaxed ${darkMode ? 'bg-slate-950 text-slate-300' : 'bg-slate-50 text-slate-700'}`} style={{ borderColor: color }}>
+            <div className="mb-1 text-xs font-black uppercase" style={{ color }}>{label}</div>
+            {text}
+        </div>
+    )
+}
+
+function FinalQuiz({ quiz, labels, darkMode }) {
+    const [answers, setAnswers] = useState({})
+    const score = quiz.filter((item, index) => answers[index] === item.answer).length
+
+    return (
+        <section className={`rounded-lg border p-4 md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+            <h2 className={`text-xl font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{labels.quizTitle}</h2>
+            <div className="mt-4 grid gap-3">
+                {quiz.map((item, index) => (
+                    <div key={item.question} className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
+                        <div className={`text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{index + 1}. {item.question}</div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {item.options.map(option => (
+                                <button key={option} onClick={() => setAnswers(current => ({ ...current, [index]: option }))} className={`min-h-10 rounded-lg px-3 text-sm font-black transition ${answers[index] === option ? 'bg-sky-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                        {answers[index] && <div className={`mt-3 text-sm font-bold ${answers[index] === item.answer ? 'text-emerald-300' : 'text-amber-300'}`}>{item.feedback}</div>}
+                    </div>
+                ))}
+            </div>
+            <div className="mt-4 rounded-lg border border-sky-400/40 bg-sky-500/10 p-3 text-sm font-black text-sky-200">
+                {labels.result}: {score}/{quiz.length}
+            </div>
+        </section>
+    )
+}
+
+function ManualTestingPage() {
+    const { language } = useLanguage()
+    const [darkMode, setDarkMode] = useDarkModeState()
+    const data = manualTestingData[language] || manualTestingData.tr
+    const [activeId, setActiveId] = useState(data.lessons[0].id)
+    const [completed, setCompleted] = useState({})
+    const lessonIds = useMemo(() => data.lessons.map(lesson => lesson.id), [data.lessons])
+    const completionCount = data.lessons.filter(lesson => completed[lesson.id]).length
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => entries.forEach(entry => {
+                if (entry.isIntersecting) setActiveId(entry.target.id)
+            }),
+            { rootMargin: '-25% 0px -65% 0px' }
+        )
+        lessonIds.forEach(id => {
+            const node = document.getElementById(id)
+            if (node) observer.observe(node)
+        })
+        return () => observer.disconnect()
+    }, [lessonIds])
+
+    const navTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+    return (
+        <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-slate-950 text-slate-100' : 'bg-gradient-to-br from-sky-50 via-white to-emerald-50 text-slate-900'}`}>
+            <ScrollProgressBar />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+
+            <main className="mx-auto max-w-7xl px-3 py-5 md:px-6 md:py-8">
+                <section className={`overflow-hidden rounded-lg border p-4 shadow-xl md:p-7 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+                    <div className="grid gap-6 lg:grid-cols-[1fr_460px] lg:items-center">
+                        <div>
+                            <div className="inline-flex min-h-9 items-center rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 text-xs font-black uppercase text-sky-300">
+                                {data.hero.eyebrow}
+                            </div>
+                            <h1 className={`mt-4 text-3xl font-black leading-tight md:text-5xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.hero.title}</h1>
+                            <p className={`mt-4 max-w-3xl text-base leading-relaxed md:text-lg ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{data.hero.subtitle}</p>
+                            <p className={`mt-3 max-w-3xl text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{data.hero.intro}</p>
+                            <button onClick={() => navTo(data.lessons[0].id)} className="mt-5 min-h-11 rounded-lg bg-sky-600 px-4 text-sm font-black text-white shadow-lg shadow-sky-600/20 transition hover:scale-105 hover:bg-sky-500">
+                                {data.hero.cta}
+                            </button>
+                        </div>
+                        <div>
+                            <FlowVisual labels={data.ui} darkMode={darkMode} />
+                            <div className={`mt-4 rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
+                                <div className="flex items-center justify-between gap-3 text-sm font-black">
+                                    <span>{data.ui.progressLabel}</span>
+                                    <span>{completionCount}/{data.lessons.length}</span>
+                                </div>
+                                <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-700/30">
+                                    <div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-emerald-400 transition-[width]" style={{ width: `${(completionCount / data.lessons.length) * 100}%` }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div className="mt-6 grid gap-5 lg:grid-cols-[250px_1fr]">
+                    <aside className="lg:sticky lg:top-24 lg:self-start">
+                        <nav className={`rounded-lg border p-3 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`} aria-label={data.ui.navTitle}>
+                            <div className={`mb-3 text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.ui.navTitle}</div>
+                            <div className="grid gap-2">
+                                {data.lessons.map(lesson => (
+                                    <button
+                                        key={lesson.id}
+                                        onClick={() => navTo(lesson.id)}
+                                        className={`min-h-10 rounded-lg border px-3 text-left text-sm font-bold transition-all ${activeId === lesson.id ? 'text-white' : darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
+                                        style={activeId === lesson.id ? { background: lesson.color, borderColor: lesson.color } : {}}
+                                    >
+                                        {lesson.shortTitle}
+                                    </button>
+                                ))}
+                            </div>
+                            <Link to="/what-is-testing" className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-violet-400/40 bg-violet-500/10 px-3 text-sm font-black text-violet-200 transition hover:scale-105">
+                                {data.ui.qaBasics}
+                            </Link>
+                        </nav>
+                    </aside>
+
+                    <div className="grid gap-6">
+                        {data.lessons.map(lesson => (
+                            <LessonCard
+                                key={lesson.id}
+                                lesson={lesson}
+                                labels={data.ui}
+                                darkMode={darkMode}
+                                complete={Boolean(completed[lesson.id])}
+                                onComplete={() => setCompleted(current => current[lesson.id] ? current : { ...current, [lesson.id]: true })}
+                            />
+                        ))}
+                        <FinalQuiz quiz={data.quiz} labels={data.ui} darkMode={darkMode} />
+                    </div>
+                </div>
+            </main>
+
+            <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                title={language === 'tr' ? 'Sayfanin basina don' : 'Back to top'}
+                className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-sky-600 text-xl text-white shadow-lg shadow-sky-600/30 transition hover:scale-110 hover:bg-sky-500"
+            >
+                🏠
+            </button>
+        </div>
+    )
+}
+
+export default ManualTestingPage

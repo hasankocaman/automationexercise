@@ -11,6 +11,7 @@ const indexPath = join(distDir, 'index.html')
 const DATA_MODULES = {
     '/selenium': { file: '../src/data/seleniumData.js', exportName: 'seleniumData' },
     '/playwright': { file: '../src/data/playwrightData.js', exportName: 'playwrightData' },
+    '/cypress': { file: '../src/data/cypressData.js', exportName: 'cypressData' },
     '/python': { file: '../src/data/pythonData.js', exportName: 'pythonData' },
     '/typescript': { file: '../src/data/typescriptData.js', exportName: 'typescriptData' },
     '/sql': { file: '../src/data/sqlData.js', exportName: 'sqlData' },
@@ -27,6 +28,9 @@ const DATA_MODULES = {
     '/aws': { file: '../src/data/awsData.js', exportName: 'awsData' },
     '/azure': { file: '../src/data/azureData.js', exportName: 'azureData' },
     '/what-is-testing': { file: '../src/data/whatIsTestingData.js', exportName: 'whatIsTestingData' },
+    '/manual-testing': { file: '../src/data/manualTestingData.js', exportName: 'manualTestingData' },
+    '/algorithms': { file: '../src/data/beginnerAlgorithmsData.js', exportName: 'beginnerAlgorithmsData' },
+    '/advanced-algorithms': { file: '../src/data/algorithmsData.js', exportName: 'algorithmsData' },
 }
 
 function escapeHtml(value) {
@@ -139,6 +143,15 @@ function snippetFromBlock(block) {
     return textValue(block.content || block.text || block.title || block.question || block.description)
 }
 
+function snippetsFromLesson(lesson) {
+    return [
+        textValue(lesson.analogy),
+        textValue(lesson.why),
+        textValue(lesson.game?.title),
+        textValue(lesson.game?.prompt),
+    ].filter(Boolean).slice(0, 2)
+}
+
 async function routeContent(seo) {
     const specialContent = await specialRouteContent(seo)
     if (specialContent) return specialContent
@@ -154,10 +167,14 @@ async function routeContent(seo) {
 
         const hero = content.hero || {}
         const sections = Array.isArray(content.sections) ? content.sections : []
-        const topics = sections
-            .map((section, index) => ({
-                title: section.title || content.tabs?.[index] || '',
-                snippets: (section.blocks || []).map(snippetFromBlock).filter(Boolean).slice(0, 2),
+        const lessons = Array.isArray(content.lessons) ? content.lessons : []
+        const topicSource = sections.length ? sections : lessons
+        const topics = topicSource
+            .map((item, index) => ({
+                title: item.title || content.tabs?.[index] || '',
+                snippets: Array.isArray(item.blocks)
+                    ? item.blocks.map(snippetFromBlock).filter(Boolean).slice(0, 2)
+                    : snippetsFromLesson(item),
             }))
             .filter((item) => item.title)
             .slice(0, 8)

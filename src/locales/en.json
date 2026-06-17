@@ -67,6 +67,18 @@
                 "description": "What is software testing? What is the purpose and benefits for companies? What does QA mean? What does SDET mean? Learn with concrete examples.",
                 "action": "Learn Software Testing"
             },
+            "manualTesting": {
+                "title": "🧭 Manual Testing Workshop",
+                "badge": "🎯 SEE, TRY, REPORT",
+                "description": "Learn test cases, exploratory testing, bug reports, severity and regression decisions with real examples and mini games.",
+                "action": "Learn manual testing"
+            },
+            "algorithms": {
+                "title": "🧠 Algorithm Basics",
+                "badge": "🌱 LOGIC BEFORE CODE",
+                "description": "Learn algorithmic thinking with no programming background through order, decision, loop, memory and debugging games.",
+                "action": "Learn algorithms from zero"
+            },
             "javaToPython": {
                 "title": "Java → Python QA",
                 "badge": "⭐ Recommended start",
@@ -91,6 +103,8 @@
         },
         "heroRecommended": "If you know Java, start with the Python path — every concept explained with a Java comparison.",
         "learnTesting": "🛡️ What is Testing?",
+        "learnManualTesting": "🧭 Manual Testing",
+        "learnAlgorithms": "🧠 Algorithm Basics",
         "learnJava": "☕ Learn Java",
         "jsTsCompare": "JS vs TypeScript",
         "compare3Lang": "🔀 3-Language Compare",
