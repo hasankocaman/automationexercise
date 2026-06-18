@@ -24,6 +24,26 @@ const s0 = {
         ],
       },
       {
+        type: 'simulation',
+        scenario: 'java-compile-run',
+        icon: '☕',
+        color: '#f97316',
+        title: { tr: 'Java Kodunun Yolculuğu: .java → bytecode → JVM', en: 'Java Code Journey: .java → bytecode → JVM' },
+        description: {
+          tr: 'Not dosyasındaki Codes → JDK → Binary → İşlem şemasını canlı gör: kaynak kod compiler tarafından bytecode olur, JVM de bunu çalıştırıp output üretir.',
+          en: 'Watch the notes-style Codes → JDK → Binary → Run flow live: source code becomes bytecode through the compiler, then the JVM executes it and produces output.',
+        },
+        language: 'bash',
+        code: `# 1) Kaynak kodu derle
+javac Main.java
+
+# 2) JVM ile çalıştır
+java Main
+
+# Beklenen output
+Merhaba QA!`,
+      },
+      {
         type: 'heading', text: { tr: 'JDK, JRE, JVM Farkı', en: 'JDK, JRE, JVM Difference' },
       },
       {
@@ -90,6 +110,26 @@ const s0 = {
         ],
       },
       {
+        type: 'simulation',
+        scenario: 'java-compile-run',
+        icon: '☕',
+        color: '#f97316',
+        title: { tr: 'Java Kodunun Yolculuğu: .java → bytecode → JVM', en: 'Java Code Journey: .java → bytecode → JVM' },
+        description: {
+          tr: 'Not dosyasındaki Codes → JDK → Binary → İşlem şemasını canlı gör: kaynak kod compiler tarafından bytecode olur, JVM de bunu çalıştırıp output üretir.',
+          en: 'Watch the notes-style Codes → JDK → Binary → Run flow live: source code becomes bytecode through the compiler, then the JVM executes it and produces output.',
+        },
+        language: 'bash',
+        code: `# 1) Compile source code
+javac Main.java
+
+# 2) Run with JVM
+java Main
+
+# Expected output
+Hello QA!`,
+      },
+      {
         type: 'heading', text: { tr: 'JDK, JRE, JVM Farkı', en: 'JDK, JRE, JVM Difference' },
       },
       {
@@ -136,14 +176,548 @@ const s0 = {
   },
 }
 
+const javaSetupWorkshop = {
+  tr: [
+      {
+        type: 'heading', text: { tr: '🧪 JDK Kurulduktan Sonra: İlk .java Dosyasını javac ile Çalıştır', en: '🧪 After Installing the JDK: Run Your First .java File with javac' },
+      },
+      {
+        type: 'text',
+        content: 'JDK kurulduktan sonra iki ana komutun olur: `javac` ve `java`. `javac Main.java` kaynak kodu derleyip `Main.class` üretir. `java Main` ise o class dosyasını JVM üzerinde çalıştırır. Yani sıra her zaman şudur: dosyayı yaz → derle → çalıştır → outputu gör.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'Elle Java Çalıştırma Sırası',
+        steps: [
+          { num: 1, label: 'Klasör aç', desc: 'java-lab', highlight: true },
+          { num: 2, label: 'Main.java yaz', desc: 'public class Main' },
+          { num: 3, label: 'javac Main.java', desc: 'compile' },
+          { num: 4, label: 'Main.class oluşur', desc: 'bytecode', highlight: true },
+          { num: 5, label: 'java Main', desc: 'run' },
+          { num: 6, label: 'Console output', desc: 'Merhaba Java!', highlight: true },
+        ],
+        note: 'Dosya adı Main.java ise public class adı da Main olmalı. javac komutunda .java yazılır, java komutunda .java yazılmaz.',
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-javac-workshop',
+        icon: '🧪',
+        color: '#f97316',
+        title: { tr: 'Terminalde javac Atölyesi', en: 'Terminal javac Workshop' },
+        description: {
+          tr: 'Klasör açma, Main.java oluşturma, javac ile derleme, Main.class dosyasını görme ve java Main ile çalıştırma akışını adım adım izle.',
+          en: 'Watch the full flow: create a folder, create Main.java, compile with javac, see Main.class, and run it with java Main.',
+        },
+        language: 'powershell',
+        code: `mkdir java-lab
+cd java-lab
+notepad Main.java
+
+javac Main.java
+dir
+java Main`,
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'Windows — Main.java dosyasını oluştur ve çalıştır',
+        code: `# 1) Çalışma klasörü oluştur
+mkdir C:\\java-lab
+cd C:\\java-lab
+
+# 2) Dosyayı aç
+notepad Main.java
+
+# 3) Notepad içine bunu yaz ve kaydet:
+# public class Main {
+#     public static void main(String[] args) {
+#         System.out.println("Merhaba Java!");
+#     }
+# }
+
+# 4) Derle: .java uzantısı burada yazılır
+javac Main.java
+
+# 5) Main.class oluştu mu kontrol et
+dir
+
+# 6) Çalıştır: burada .java veya .class yazılmaz
+java Main
+
+# Beklenen çıktı:
+# Merhaba Java!`,
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'macOS/Linux — Main.java dosyasını oluştur ve çalıştır',
+        code: `mkdir -p ~/java-lab
+cd ~/java-lab
+
+cat > Main.java <<'EOF'
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Merhaba Java!");
+    }
+}
+EOF
+
+javac Main.java
+ls
+java Main
+
+# Beklenen çıktı:
+# Merhaba Java!`,
+      },
+      {
+        type: 'callout', color: 'yellow', emoji: '⚠️',
+        title: 'İlk gün en çok yapılan 4 hata',
+        content: '`javac Main.java` yerine `java Main.java` yazmak; `java Main` yerine `java Main.class` yazmak; dosya adını `main.java` yapıp class adını `Main` bırakmak; `System.out.println(...)` satırının sonuna `;` koymamak.',
+      },
+      {
+        type: 'java-practice',
+        icon: '✍️',
+        title: { tr: 'Kendin Yaz: Main Method ve Semicolon Alışkanlığı', en: 'Write It Yourself: Main Method and Semicolon Habit' },
+        intro: {
+          tr: 'Aşağıdaki eksik iskeleti tamamla. Her komut satırının sonuna ; koy. Sonra kontrol et.',
+          en: 'Complete the skeleton below. End every statement with ;, then check it.',
+        },
+        starterCode: {
+          tr: `public class Main {
+    // Buraya main method yaz:
+
+        System.out.println("Merhaba Java")
+    }
+}`,
+          en: `public class Main {
+    // Write the main method here:
+
+        System.out.println("Hello Java")
+    }
+}`,
+        },
+        height: 250,
+      },
+      {
+        type: 'heading', text: { tr: '💻 IDE Nedir? Hangi Çeşitleri Vardır?', en: '💻 What Is an IDE? What Types Exist?' },
+      },
+      {
+        type: 'text',
+        content: 'IDE (Integrated Development Environment), kod yazma masasıdır. Notepad sadece yazdırır; IDE ise proje klasörünü gösterir, hatalı satırı işaretler, JDK seçtirir, Run butonuyla `javac` ve `java` komutlarını arka planda çağırır. Yani IDE sihir yapmaz; terminalde elle yaptığın işleri düzenli bir arayüzle kolaylaştırır.',
+      },
+      {
+        type: 'table',
+        headers: ['Araç türü', 'Örnek', 'Ne zaman kullanılır?'],
+        rows: [
+          ['Basit text editor', 'Notepad, VS Code temel hali', 'İlk `javac` mantığını anlamak için'],
+          ['Klasik Java IDE', 'IntelliJ IDEA, Eclipse, NetBeans', 'Java class, package, run/debug, Maven projeleri için'],
+          ['Online IDE', 'Replit, Gitpod benzeri araçlar', 'Kendi bilgisayarında kurulum yapmadan kısa deneme için'],
+          ['AI destekli IDE/editor', 'Cursor, Windsurf, Copilot destekli IDE', 'Temeller oturduktan sonra hız kazanmak için'],
+        ],
+      },
+      {
+        type: 'callout', color: 'orange', emoji: '🧠',
+        title: 'Öğrenme aşamasında neden Cursor gibi AI destekli IDE ile başlamıyoruz?',
+        content: 'Çünkü ilk hedef hızlı kod üretmek değil, Java iskeletini zihne ve parmaklara yerleştirmek: `class`, `main`, `{}`, `;`, hata mesajı okuma, Run/Debug farkı. AI IDE erken açılırsa doğru görünen kodu üretir ama sen neden doğru olduğunu hissetmezsin. 2-3 hafta sonra, temel syntax ve hata okuma refleksi oluşunca AI destekli editor hızlandırıcı olarak çok faydalıdır.',
+      },
+      {
+        type: 'heading', text: { tr: '🧠 IntelliJ IDEA Nasıl İndirilir ve Kurulur?', en: '🧠 How to Download and Install IntelliJ IDEA' },
+      },
+      {
+        type: 'text',
+        content: 'Güncel JetBrains modelinde IntelliJ IDEA tek ürün olarak indiriliyor; temel kullanım ücretsiz devam edebilir, gelişmiş Ultimate özellikler abonelikle açılır. Öğrenme için ücretsiz IntelliJ IDEA yeterlidir. Kurulumda iki temiz yol var: JetBrains Toolbox App ile kurmak veya doğrudan IntelliJ IDEA installer indirmek. Toolbox, güncelleme ve farklı JetBrains ürünlerini yönetmek için daha rahattır.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'IntelliJ Kurulum ve İlk Proje Akışı',
+        steps: [
+          { num: 1, label: 'JDK kur', desc: 'java/javac çalışıyor' },
+          { num: 2, label: 'IntelliJ indir', desc: 'jetbrains.com/idea/download', highlight: true },
+          { num: 3, label: 'New Project', desc: 'Java seç' },
+          { num: 4, label: 'JDK 21 seç', desc: 'SDK alanı' },
+          { num: 5, label: 'Main class aç', desc: 'src → New → Java Class' },
+          { num: 6, label: 'Run', desc: 'yeşil üçgen', highlight: true },
+        ],
+      },
+      {
+        type: 'code', language: 'text',
+        label: 'IntelliJ IDEA — adım adım kurulum checklist',
+        code: `1) https://www.jetbrains.com/idea/download/ adresine git.
+2) IntelliJ IDEA indir. Öğrenme için ücretsiz kullanım yeterlidir.
+3) Windows: .exe dosyasını çalıştır, wizard adımlarını geç.
+   Önerilen seçenekler:
+   - Desktop shortcut: işaretleyebilirsin
+   - Add launchers dir to PATH: şart değil
+   - Open Folder as Project: işaretlemek kullanışlı
+   - .java dosyalarını IntelliJ ile ilişkilendir: işaretleyebilirsin
+4) macOS: .dmg dosyasını aç, IntelliJ IDEA'yı Applications içine sürükle.
+5) Linux: Toolbox kullan veya .tar.gz dosyasını temiz bir klasöre aç.
+6) İlk açılışta tema/keymap seç; plugin kurma ekranında şimdilik ekstra plugin şart değil.
+7) New Project → Java → JDK 21 seç → Create.`,
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-intellij-project',
+        icon: '🧠',
+        color: '#7c3aed',
+        title: { tr: 'IntelliJ’de İlk Java Projesi', en: 'First Java Project in IntelliJ' },
+        description: {
+          tr: 'IntelliJ içinde New Project açma, JDK seçme, src altında Main.java class oluşturma, main method yazma ve Run ile console output görme akışını izle.',
+          en: 'Watch how to create a new project, select the JDK, create Main.java under src, write the main method, and run it.',
+        },
+        code: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Merhaba IntelliJ!");
+    }
+}`,
+      },
+      {
+        type: 'java-practice',
+        icon: '🧠',
+        title: { tr: 'IntelliJ Öncesi Kas Hafızası: Main.java Sen Yaz', en: 'Before IntelliJ Autocomplete: You Write Main.java' },
+        intro: {
+          tr: 'IntelliJ `psvm` veya `main` kısayolu verebilir ama önce bunu kendin yaz. Eksik parantez ve semicolon hatalarını bilerek yakala.',
+          en: 'IntelliJ can generate this with `psvm` or `main`, but write it yourself first. Catch missing braces and semicolons intentionally.',
+        },
+        starterCode: {
+          tr: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("IntelliJ olmadan da yazabiliyorum");
+    }
+}`,
+          en: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("I can write this without autocomplete");
+    }
+}`,
+        },
+        height: 230,
+      },
+      {
+        type: 'heading', text: { tr: '📦 Maven Nedir? Ne Zaman Kurmalıyım?', en: '📦 What Is Maven? When Should I Install It?' },
+      },
+      {
+        type: 'text',
+        content: 'Maven, Java projesinin proje yöneticisidir. İlk gün `javac` ile tek dosyayı elle derlemek en doğru öğrenme yoludur. Birden fazla class, JUnit testleri, Selenium/REST Assured gibi dış kütüphaneler, raporlar veya CI/CD gerektiğinde Maven’e geçilir. Maven `pom.xml` dosyasını okur, gerekli dependencyleri indirir, compile/test/package adımlarını standart sırayla çalıştırır.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'javac → IntelliJ → Maven Öğrenme Sırası',
+        steps: [
+          { num: 1, label: 'javac', desc: 'tek dosya, compiler mantığı', highlight: true },
+          { num: 2, label: 'IntelliJ', desc: 'proje ve debug alışkanlığı' },
+          { num: 3, label: 'Maven', desc: 'dependency + test + package', highlight: true },
+          { num: 4, label: 'JUnit/Selenium', desc: 'QA automation altyapısı' },
+        ],
+        note: 'Maven ilk satır Java öğrenmek için değil, proje büyüdüğünde düzeni korumak için gereklidir.',
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Maven kurulum ve doğrulama',
+        code: `# Windows
+winget install --id Apache.Maven
+
+# macOS
+brew install maven
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install -y maven
+
+# Doğrula
+mvn -version
+
+# Beklenen çıktı:
+# Apache Maven 3.9.x
+# Java version: 21.0.x`,
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-maven-lifecycle',
+        icon: '📦',
+        color: '#2563eb',
+        title: { tr: 'Maven Lifecycle: pom.xml → compile → test → package', en: 'Maven Lifecycle: pom.xml → compile → test → package' },
+        description: {
+          tr: 'Maven’in tek komutla dependency planını okumasını, Java kodunu derlemesini, JUnit testlerini çalıştırmasını ve target klasörüne paket üretmesini izle.',
+          en: 'Watch Maven read the dependency plan, compile Java code, run JUnit tests, and produce a package under target.',
+        },
+        language: 'bash',
+        code: `mvn package
+
+# Maven sırayla şunları yapar:
+# validate → compile → test → package`,
+      },
+  ],
+  en: [
+      {
+        type: 'heading', text: { en: '🧪 After Installing the JDK: Run Your First .java File with javac' },
+      },
+      {
+        type: 'text',
+        content: 'After installing the JDK, you get two core commands: `javac` and `java`. `javac Main.java` compiles source code and creates `Main.class`. `java Main` runs that class on the JVM. The order is always: write the file → compile → run → inspect output.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'Manual Java Run Order',
+        steps: [
+          { num: 1, label: 'Create folder', desc: 'java-lab', highlight: true },
+          { num: 2, label: 'Write Main.java', desc: 'public class Main' },
+          { num: 3, label: 'javac Main.java', desc: 'compile' },
+          { num: 4, label: 'Main.class appears', desc: 'bytecode', highlight: true },
+          { num: 5, label: 'java Main', desc: 'run' },
+          { num: 6, label: 'Console output', desc: 'Hello Java!', highlight: true },
+        ],
+        note: 'If the file is Main.java, the public class must be Main. Use .java with javac; do not use .java or .class with java Main.',
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-javac-workshop',
+        icon: '🧪',
+        color: '#f97316',
+        title: { tr: 'Terminalde javac Atölyesi', en: 'Terminal javac Workshop' },
+        description: {
+          tr: 'Klasör açma, Main.java oluşturma, javac ile derleme, Main.class dosyasını görme ve java Main ile çalıştırma akışını adım adım izle.',
+          en: 'Watch the full flow: create a folder, create Main.java, compile with javac, see Main.class, and run it with java Main.',
+        },
+        language: 'powershell',
+        code: `mkdir java-lab
+cd java-lab
+notepad Main.java
+
+javac Main.java
+dir
+java Main`,
+      },
+      {
+        type: 'code', language: 'powershell',
+        label: 'Windows — create and run Main.java',
+        code: `mkdir C:\\java-lab
+cd C:\\java-lab
+
+notepad Main.java
+
+# Save this inside Main.java:
+# public class Main {
+#     public static void main(String[] args) {
+#         System.out.println("Hello Java!");
+#     }
+# }
+
+javac Main.java
+dir
+java Main
+
+# Expected:
+# Hello Java!`,
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'macOS/Linux — create and run Main.java',
+        code: `mkdir -p ~/java-lab
+cd ~/java-lab
+
+cat > Main.java <<'EOF'
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello Java!");
+    }
+}
+EOF
+
+javac Main.java
+ls
+java Main
+
+# Expected:
+# Hello Java!`,
+      },
+      {
+        type: 'callout', color: 'yellow', emoji: '⚠️',
+        title: 'Top 4 first-day mistakes',
+        content: 'Typing `java Main.java` instead of `javac Main.java`; typing `java Main.class` instead of `java Main`; naming the file `main.java` while the class is `Main`; forgetting the `;` after `System.out.println(...)`.',
+      },
+      {
+        type: 'java-practice',
+        icon: '✍️',
+        title: { tr: 'Kendin Yaz: Main Method ve Semicolon Alışkanlığı', en: 'Write It Yourself: Main Method and Semicolon Habit' },
+        intro: {
+          tr: 'Aşağıdaki eksik iskeleti tamamla. Her komut satırının sonuna ; koy. Sonra kontrol et.',
+          en: 'Complete the skeleton below. End every statement with ;, then check it.',
+        },
+        starterCode: {
+          tr: `public class Main {
+    // Buraya main method yaz:
+
+        System.out.println("Merhaba Java")
+    }
+}`,
+          en: `public class Main {
+    // Write the main method here:
+
+        System.out.println("Hello Java")
+    }
+}`,
+        },
+        height: 250,
+      },
+      {
+        type: 'heading', text: { en: '💻 What Is an IDE? What Types Exist?' },
+      },
+      {
+        type: 'text',
+        content: 'An IDE (Integrated Development Environment) is a coding workbench. Notepad only lets you type; an IDE shows the project folder, highlights mistakes, lets you select a JDK, and calls `javac` and `java` behind the Run button. It does not perform magic; it organizes the manual terminal steps into a friendlier interface.',
+      },
+      {
+        type: 'table',
+        headers: ['Tool type', 'Examples', 'When to use it'],
+        rows: [
+          ['Plain text editor', 'Notepad, basic VS Code', 'To understand the first `javac` flow'],
+          ['Classic Java IDE', 'IntelliJ IDEA, Eclipse, NetBeans', 'Java classes, packages, run/debug, Maven projects'],
+          ['Online IDE', 'Replit, Gitpod-like tools', 'Short experiments without local setup'],
+          ['AI-assisted IDE/editor', 'Cursor, Windsurf, Copilot-enabled IDEs', 'To speed up after the basics are solid'],
+        ],
+      },
+      {
+        type: 'callout', color: 'orange', emoji: '🧠',
+        title: 'Why not start with an AI IDE such as Cursor?',
+        content: 'Because the first goal is not fast code generation; it is building muscle memory for `class`, `main`, `{}`, `;`, reading errors, and understanding Run vs Debug. If AI writes too much too early, code may look correct while the reason stays invisible. After 2-3 weeks of basic syntax and error reading, AI-assisted editors become excellent accelerators.',
+      },
+      {
+        type: 'heading', text: { en: '🧠 How to Download and Install IntelliJ IDEA' },
+      },
+      {
+        type: 'text',
+        content: 'In JetBrains’ current model, IntelliJ IDEA is downloaded as a unified product. Core usage can continue for free; advanced Ultimate features require a subscription. Free IntelliJ IDEA usage is enough for learning Java. You can install it through JetBrains Toolbox App or a direct installer; Toolbox is more comfortable for updates and multiple JetBrains tools.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'IntelliJ Install and First Project Flow',
+        steps: [
+          { num: 1, label: 'Install JDK', desc: 'java/javac work' },
+          { num: 2, label: 'Download IntelliJ', desc: 'jetbrains.com/idea/download', highlight: true },
+          { num: 3, label: 'New Project', desc: 'choose Java' },
+          { num: 4, label: 'Select JDK 21', desc: 'SDK field' },
+          { num: 5, label: 'Create Main class', desc: 'src → New → Java Class' },
+          { num: 6, label: 'Run', desc: 'green triangle', highlight: true },
+        ],
+      },
+      {
+        type: 'code', language: 'text',
+        label: 'IntelliJ IDEA — step-by-step install checklist',
+        code: `1) Go to https://www.jetbrains.com/idea/download/
+2) Download IntelliJ IDEA. Free usage is enough for learning.
+3) Windows: run the .exe installer and follow the wizard.
+   Useful options:
+   - Desktop shortcut: optional
+   - Add launchers dir to PATH: optional
+   - Open Folder as Project: useful
+   - Associate .java files: useful
+4) macOS: open the .dmg and drag IntelliJ IDEA to Applications.
+5) Linux: use Toolbox or extract the .tar.gz to a clean folder.
+6) On first launch, choose theme/keymap. Extra plugins are not required yet.
+7) New Project → Java → select JDK 21 → Create.`,
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-intellij-project',
+        icon: '🧠',
+        color: '#7c3aed',
+        title: { tr: 'IntelliJ’de İlk Java Projesi', en: 'First Java Project in IntelliJ' },
+        description: {
+          tr: 'IntelliJ içinde New Project açma, JDK seçme, src altında Main.java class oluşturma, main method yazma ve Run ile console output görme akışını izle.',
+          en: 'Watch how to create a new project, select the JDK, create Main.java under src, write the main method, and run it.',
+        },
+        code: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello IntelliJ!");
+    }
+}`,
+      },
+      {
+        type: 'java-practice',
+        icon: '🧠',
+        title: { tr: 'IntelliJ Öncesi Kas Hafızası: Main.java Sen Yaz', en: 'Before IntelliJ Autocomplete: You Write Main.java' },
+        intro: {
+          tr: 'IntelliJ `psvm` veya `main` kısayolu verebilir ama önce bunu kendin yaz. Eksik parantez ve semicolon hatalarını bilerek yakala.',
+          en: 'IntelliJ can generate this with `psvm` or `main`, but write it yourself first. Catch missing braces and semicolons intentionally.',
+        },
+        starterCode: {
+          tr: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("IntelliJ olmadan da yazabiliyorum");
+    }
+}`,
+          en: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("I can write this without autocomplete");
+    }
+}`,
+        },
+        height: 230,
+      },
+      {
+        type: 'heading', text: { en: '📦 What Is Maven? When Should I Install It?' },
+      },
+      {
+        type: 'text',
+        content: 'Maven is the project manager for Java. On day one, compiling one file with `javac` is the right learning path. Move to Maven when you have multiple classes, JUnit tests, external libraries such as Selenium/REST Assured, reports, or CI/CD. Maven reads `pom.xml`, downloads dependencies, and runs compile/test/package in a standard order.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'javac → IntelliJ → Maven Learning Order',
+        steps: [
+          { num: 1, label: 'javac', desc: 'single file, compiler logic', highlight: true },
+          { num: 2, label: 'IntelliJ', desc: 'project and debug habits' },
+          { num: 3, label: 'Maven', desc: 'dependency + test + package', highlight: true },
+          { num: 4, label: 'JUnit/Selenium', desc: 'QA automation base' },
+        ],
+        note: 'Maven is not required for your first line of Java; it becomes essential when the project grows.',
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Install and verify Maven',
+        code: `# Windows
+winget install --id Apache.Maven
+
+# macOS
+brew install maven
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install -y maven
+
+# Verify
+mvn -version
+
+# Expected:
+# Apache Maven 3.9.x
+# Java version: 21.0.x`,
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-maven-lifecycle',
+        icon: '📦',
+        color: '#2563eb',
+        title: { tr: 'Maven Lifecycle: pom.xml → compile → test → package', en: 'Maven Lifecycle: pom.xml → compile → test → package' },
+        description: {
+          tr: 'Maven’in tek komutla dependency planını okumasını, Java kodunu derlemesini, JUnit testlerini çalıştırmasını ve target klasörüne paket üretmesini izle.',
+          en: 'Watch Maven read the dependency plan, compile Java code, run JUnit tests, and produce a package under target.',
+        },
+        language: 'bash',
+        code: `mvn package
+
+# Maven runs:
+# validate → compile → test → package`,
+      },
+  ],
+}
+
 // ─── S1: KURULUM ──────────────────────────────────────────────────────────────
 const s1 = {
   tr: {
-    title: '⚙️ Java Kurulumu (JDK + Maven)',
+    title: '⚙️ Java Kurulumu ve İlk Proje',
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'Java kurmak, araba kullanmayı öğrenmek için önce bir araba almak gibidir. JDK "araba", Maven ise "yakıt istasyonu" gibidir — proje bağımlılıklarını otomatik indirir, derler ve çalıştırır. İkisini de kurman gerekir.',
+        content: 'Java öğrenme sırası basittir: önce JDK kurulur, sonra `javac` ile tek dosya elle derlenir, ardından IntelliJ gibi bir IDE ile proje yazma alışkanlığı kazanılır. Maven ise ilk gün şart değildir; proje büyüyüp dependency, test ve paketleme ihtiyacı başladığında devreye girer.',
       },
       {
         type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
@@ -157,8 +731,7 @@ winget install --id EclipseAdoptium.Temurin.21.JDK
 # Alternatif: Oracle JDK
 winget install --id Oracle.JDK.21
 
-# Maven kur
-winget install --id Apache.Maven`,
+# Maven'i şimdilik kurmak zorunda değilsin; aşağıdaki Maven bölümünde ayrıntılı anlatılıyor.`,
       },
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
@@ -174,8 +747,7 @@ $env:PATH += ";$env:JAVA_HOME\\bin"
 
 # Doğrulama
 java -version
-javac -version
-mvn -version`,
+javac -version`,
       },
       {
         type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
@@ -189,9 +761,6 @@ mvn -version`,
 # JDK 21 kur (Temurin — açık kaynak, ücretsiz)
 brew install --cask temurin@21
 
-# Maven kur
-brew install maven
-
 # JAVA_HOME ayarla (~/.zshrc veya ~/.bash_profile)
 echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 21)' >> ~/.zshrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
@@ -199,7 +768,7 @@ source ~/.zshrc
 
 # Doğrulama
 java -version
-mvn -version`,
+javac -version`,
       },
       {
         type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
@@ -218,12 +787,9 @@ echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 
-# Maven kur
-sudo apt install -y maven
-
 # Doğrulama
 java -version
-mvn --version`,
+javac -version`,
       },
       {
         type: 'code', language: 'bash',
@@ -231,12 +797,9 @@ mvn --version`,
         code: `# JDK 21 kur
 sudo dnf install -y java-21-openjdk-devel
 
-# Maven kur
-sudo dnf install -y maven
-
 # Doğrulama
 java -version
-mvn -version`,
+javac -version`,
       },
       {
         type: 'heading', text: { tr: '✅ Verification — Kurulum Doğrulama', en: '✅ Verification — Confirm Installation' },
@@ -250,13 +813,9 @@ mvn -version`,
 
 javac -version
 # Beklenen çıktı:
-# javac 21.0.x
-
-mvn -version
-# Beklenen çıktı:
-# Apache Maven 3.9.x
-# Java version: 21.0.x`,
+# javac 21.0.x`,
       },
+      ...javaSetupWorkshop.tr,
       {
         type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
       },
@@ -281,11 +840,11 @@ mvn test`,
     ],
   },
   en: {
-    title: '⚙️ Java Installation (JDK + Maven)',
+    title: '⚙️ Java Installation and First Project',
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'Installing Java is like buying a car before you can drive. The JDK is the "car" and Maven is the "gas station" — it automatically downloads dependencies, compiles, and runs your project. You need to install both.',
+        content: 'The Java learning order is simple: install the JDK first, compile one file manually with `javac`, then use an IDE such as IntelliJ to build project habits. Maven is not required on day one; it becomes useful when you need dependencies, tests, and packaging.',
       },
       {
         type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
@@ -299,8 +858,7 @@ winget install --id EclipseAdoptium.Temurin.21.JDK
 # Alternative: Oracle JDK
 winget install --id Oracle.JDK.21
 
-# Install Maven
-winget install --id Apache.Maven`,
+# You do not need Maven yet; the Maven section below explains when and how to install it.`,
       },
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
@@ -315,8 +873,7 @@ $env:PATH += ";$env:JAVA_HOME\\bin"
 
 # Verify
 java -version
-javac -version
-mvn -version`,
+javac -version`,
       },
       {
         type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
@@ -325,13 +882,12 @@ mvn -version`,
         type: 'code', language: 'bash',
         label: 'macOS — Install with Homebrew',
         code: `brew install --cask temurin@21
-brew install maven
 
 echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 21)' >> ~/.zshrc
 source ~/.zshrc
 
 java -version
-mvn -version`,
+javac -version`,
       },
       {
         type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
@@ -339,10 +895,10 @@ mvn -version`,
       {
         type: 'code', language: 'bash',
         label: 'Ubuntu/Debian',
-        code: `sudo apt update && sudo apt install -y openjdk-21-jdk maven
+        code: `sudo apt update && sudo apt install -y openjdk-21-jdk
 echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
 source ~/.bashrc
-java -version && mvn --version`,
+java -version && javac -version`,
       },
       {
         type: 'heading', text: { tr: '✅ Verification', en: '✅ Verification' },
@@ -354,11 +910,9 @@ java -version && mvn --version`,
 # Expected: openjdk version "21.0.x"
 
 javac -version
-# Expected: javac 21.0.x
-
-mvn -version
-# Expected: Apache Maven 3.9.x, Java version: 21.0.x`,
+# Expected: javac 21.0.x`,
       },
+      ...javaSetupWorkshop.en,
       {
         type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
       },
@@ -391,6 +945,19 @@ const s2 = {
       {
         type: 'simple-box', emoji: '🧱',
         content: 'OOP\'yi LEGO seti gibi düşün. Her LEGO parçası (class) kendi içinde tamamdır — rengi, şekli, yapısı var. Parçaları birbirine takarak (composition) büyük yapılar oluşturuyorsun. Collections ise bu parçaları sakladığın kutu.',
+      },
+      {
+        type: 'visual', variant: 'boxes',
+        title: 'Class → Object → Kullanım',
+        items: [
+          { icon: '🏗️', label: 'Class', desc: 'Object kalıbı', highlight: true },
+          { arrow: true },
+          { icon: '🧾', label: 'Fields', desc: 'username, email, age' },
+          { icon: '⚙️', label: 'Methods', desc: 'open(), login(), logout()' },
+          { arrow: true },
+          { icon: '🧍', label: 'Object', desc: 'new TestUser(...)', highlight: true },
+        ],
+        note: 'Pasif özellik = field, aktif davranış = method. QA Page Object modelinde aynı mantık kullanılır.',
       },
       {
         type: 'heading', text: { tr: 'Class & Object', en: 'Class & Object' },
@@ -580,6 +1147,19 @@ userIds.add(1002);`,
       {
         type: 'simple-box', emoji: '🧱',
         content: 'Think of OOP as a LEGO set. Each LEGO piece (class) is complete in itself — it has color, shape, structure. You connect pieces (composition) to build large structures. Collections is the box where you store these pieces.',
+      },
+      {
+        type: 'visual', variant: 'boxes',
+        title: 'Class → Object → Usage',
+        items: [
+          { icon: '🏗️', label: 'Class', desc: 'Object blueprint', highlight: true },
+          { arrow: true },
+          { icon: '🧾', label: 'Fields', desc: 'username, email, age' },
+          { icon: '⚙️', label: 'Methods', desc: 'open(), login(), logout()' },
+          { arrow: true },
+          { icon: '🧍', label: 'Object', desc: 'new TestUser(...)', highlight: true },
+        ],
+        note: 'Passive property = field, active behavior = method. QA Page Object models use the same idea.',
       },
       {
         type: 'heading', text: { tr: 'Class & Object', en: 'Class & Object' },
@@ -6501,6 +7081,20 @@ const sA = {
         type: 'simple-box', emoji: '📝',
         content: 'Java\'da bir program yazmak tıpkı bir yemek tarifi yazmak gibi: önce malzemeleri (değişkenler) tanımlarsın, sonra ne yapılacağını (operatörler) belirtirsin. Bilgisayar da bu tarifi adım adım uygular.',
       },
+      {
+        type: 'visual', variant: 'boxes',
+        title: 'Java Programı = Tarif Kartı',
+        items: [
+          { icon: '📄', label: 'class', desc: 'Tarifin adı ve dış kabı', highlight: true },
+          { arrow: true },
+          { icon: '🚪', label: 'main()', desc: 'Programın giriş kapısı' },
+          { arrow: true },
+          { icon: '🧂', label: 'statements', desc: 'Adım adım komutlar' },
+          { arrow: true },
+          { icon: '🖥️', label: 'output', desc: 'Console sonucu', highlight: true },
+        ],
+        note: 'Not dosyasındaki class/body/main method parçalama yöntemi burada görsel akışa çevrildi.',
+      },
       { type: 'heading', text: { tr: 'Java Sözdizimi — Merhaba Dünya!', en: 'Java Syntax — Hello World!' } },
       {
         type: 'code', language: 'java', label: 'İlk Java programı',
@@ -6529,6 +7123,24 @@ const sA = {
       {
         type: 'text',
         content: 'Java statik tipli bir dildir: her değişken bildirilirken tipi belirtilmelidir. Java 11\'den itibaren `var` ile tip çıkarımı da yapılabilir ama `var` yalnızca local scope\'da geçerlidir.',
+      },
+      {
+        type: 'simulation',
+        scenario: 'java-stack-heap',
+        icon: '🧠',
+        color: '#2563eb',
+        title: { tr: 'Variable Bellekte Nasıl Yaşar?', en: 'How Variables Live in Memory' },
+        description: {
+          tr: 'Primitive değer stack tarafında doğrudan durur; String gibi object tiplerinde stack sadece adresi tutar, object heap tarafındadır.',
+          en: 'Primitive values live directly on the stack; object types like String use a stack reference that points to the real object on the heap.',
+        },
+        code: `int score = 75;
+String name = "admin";
+
+score = score + 5;
+
+System.out.println(score); // 80
+System.out.println(name);  // admin`,
       },
       {
         type: 'code', language: 'java', label: 'Değişken tipleri ve bildirimi',
@@ -6681,6 +7293,20 @@ const sA = {
         type: 'simple-box', emoji: '📝',
         content: 'Writing a Java program is like writing a recipe: first define ingredients (variables), then specify what to do (operators). The computer executes the recipe step by step.',
       },
+      {
+        type: 'visual', variant: 'boxes',
+        title: 'Java Program = Recipe Card',
+        items: [
+          { icon: '📄', label: 'class', desc: 'Name and outer container', highlight: true },
+          { arrow: true },
+          { icon: '🚪', label: 'main()', desc: 'Program entry point' },
+          { arrow: true },
+          { icon: '🧂', label: 'statements', desc: 'Step-by-step commands' },
+          { arrow: true },
+          { icon: '🖥️', label: 'output', desc: 'Console result', highlight: true },
+        ],
+        note: 'The notes break class/body/main method into visible parts; this turns that pattern into a visual flow.',
+      },
       { type: 'heading', text: { en: 'Java Syntax — Hello World!' } },
       {
         type: 'code', language: 'java', label: 'First Java program',
@@ -6705,6 +7331,24 @@ const sA = {
         height: '160px',
       },
       { type: 'heading', text: { en: 'Variables & Data Types' } },
+      {
+        type: 'simulation',
+        scenario: 'java-stack-heap',
+        icon: '🧠',
+        color: '#2563eb',
+        title: { tr: 'Variable Bellekte Nasıl Yaşar?', en: 'How Variables Live in Memory' },
+        description: {
+          tr: 'Primitive değer stack tarafında doğrudan durur; String gibi object tiplerinde stack sadece adresi tutar, object heap tarafındadır.',
+          en: 'Primitive values live directly on the stack; object types like String use a stack reference that points to the real object on the heap.',
+        },
+        code: `int score = 75;
+String name = "admin";
+
+score = score + 5;
+
+System.out.println(score); // 80
+System.out.println(name);  // admin`,
+      },
       {
         type: 'code', language: 'java', label: 'Variable types and declaration',
         code: `public class Main {
@@ -7095,6 +7739,30 @@ const sC = {
 }`,
         expected: `BB\nİyi akşamlar!\nBüyük olan: 10`,
       },
+      {
+        type: 'simulation',
+        scenario: 'java-branch-runner',
+        icon: '🔀',
+        color: '#0891b2',
+        title: { tr: 'if/else Merdiveni Canlı Çalışsın', en: 'Run the if/else Ladder Live' },
+        description: {
+          tr: 'Notlardaki Scanner + if örneklerini QA bakışıyla gör: kullanıcıdan gelen score değişkeni sırayla koşullardan geçer, ilk true branch output üretir.',
+          en: 'See the Scanner + if examples from a QA perspective: the incoming score value moves through conditions, and the first true branch produces output.',
+        },
+        code: `int score = 75;
+
+if (score >= 90) {
+    System.out.println("AA");
+} else if (score >= 80) {
+    System.out.println("BA");
+} else if (score >= 70) {
+    System.out.println("BB");
+} else {
+    System.out.println("FF");
+}
+
+// Output: BB`,
+      },
       { type: 'heading', text: { tr: 'switch Statement', en: 'switch Statement' } },
       {
         type: 'code', language: 'java', label: 'switch ve switch expression (Java 14+)',
@@ -7313,6 +7981,30 @@ const sC = {
 }`,
         expected: `C\nGood evening!`,
       },
+      {
+        type: 'simulation',
+        scenario: 'java-branch-runner',
+        icon: '🔀',
+        color: '#0891b2',
+        title: { tr: 'if/else Merdiveni Canlı Çalışsın', en: 'Run the if/else Ladder Live' },
+        description: {
+          tr: 'Notlardaki Scanner + if örneklerini QA bakışıyla gör: kullanıcıdan gelen score değişkeni sırayla koşullardan geçer, ilk true branch output üretir.',
+          en: 'See the Scanner + if examples from a QA perspective: the incoming score value moves through conditions, and the first true branch produces output.',
+        },
+        code: `int score = 75;
+
+if (score >= 90) {
+    System.out.println("AA");
+} else if (score >= 80) {
+    System.out.println("BA");
+} else if (score >= 70) {
+    System.out.println("BB");
+} else {
+    System.out.println("FF");
+}
+
+// Output: BB`,
+      },
       { type: 'heading', text: { en: 'for and for-each Loops' } },
       {
         type: 'code', language: 'java', label: 'Loops',
@@ -7373,6 +8065,20 @@ const sD = {
       {
         type: 'simple-box', emoji: '📦',
         content: 'Array\'i bir otopark gibi düşün: her otopark yeri (index) numaralıdır ve sadece bir araba (değer) alır. 0\'dan başlar! 5 yerli bir otopark: [0], [1], [2], [3], [4]. Doluluğu baştan belirlenir, sonra değiştirilemez.',
+      },
+      {
+        type: 'visual',
+        variant: 'data-structure',
+        dataType: 'list',
+        title: 'Array Park Yeri Modeli',
+        items: [
+          { value: '10' },
+          { value: '20' },
+          { value: '30', highlighted: true },
+          { value: '40' },
+          { value: '50' },
+        ],
+        note: 'nums[2] üçüncü kutudur. Java array indexleri 0 ile başlar; nums[5] bu dizide yoktur.',
       },
       { type: 'heading', text: { tr: 'Tek Boyutlu Dizi', en: 'One-Dimensional Array' } },
       {
@@ -7500,6 +8206,20 @@ public class Main {
         type: 'simple-box', emoji: '📦',
         content: 'Think of an array like a numbered parking lot: each spot (index) has a number starting from 0, and holds one value. Size is fixed at creation.',
       },
+      {
+        type: 'visual',
+        variant: 'data-structure',
+        dataType: 'list',
+        title: 'Array Parking Lot Model',
+        items: [
+          { value: '10' },
+          { value: '20' },
+          { value: '30', highlighted: true },
+          { value: '40' },
+          { value: '50' },
+        ],
+        note: 'nums[2] is the third box. Java array indices start at 0; nums[5] does not exist in this array.',
+      },
       { type: 'heading', text: { en: 'One-Dimensional Array' } },
       {
         type: 'code', language: 'java', label: 'Array basics',
@@ -7561,6 +8281,18 @@ const sE = {
       {
         type: 'simple-box', emoji: '🔧',
         content: 'Method\'u bir kısa yol tuşu gibi düşün: "Ctrl+S" bastığında aynı birkaç adım her seferinde otomatik yapılır. Metot da böyle: bir kere yaz, istediğin kadar çağır. Kod tekrarını önler ve okunabilirliği artırır.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'Method Çağrısı Nasıl Akar?',
+        steps: [
+          { num: 1, label: 'Argument', desc: 'add(5, 3)', highlight: true },
+          { num: 2, label: 'Parameter', desc: 'a=5, b=3' },
+          { num: 3, label: 'Body', desc: 'a + b hesaplanır' },
+          { num: 4, label: 'return', desc: '8 geri döner', highlight: true },
+          { num: 5, label: 'Caller', desc: 'result = 8' },
+        ],
+        note: 'Notlardaki public int myFirstMethod() parçalama mantığı burada çağrı akışı olarak gösteriliyor.',
       },
       { type: 'heading', text: { tr: 'Metot Tanımlama ve Çağırma', en: 'Method Definition and Calling' } },
       {
@@ -7730,6 +8462,18 @@ public class Main {
       {
         type: 'simple-box', emoji: '🔧',
         content: 'Think of a method like a keyboard shortcut: "Ctrl+S" triggers the same sequence every time. Write once, call many times. Prevents code repetition.',
+      },
+      {
+        type: 'visual', variant: 'flow',
+        title: 'How a Method Call Flows',
+        steps: [
+          { num: 1, label: 'Argument', desc: 'add(5, 3)', highlight: true },
+          { num: 2, label: 'Parameter', desc: 'a=5, b=3' },
+          { num: 3, label: 'Body', desc: 'a + b is calculated' },
+          { num: 4, label: 'return', desc: '8 comes back', highlight: true },
+          { num: 5, label: 'Caller', desc: 'result = 8' },
+        ],
+        note: 'The notes split public int myFirstMethod() into visible parts; this shows the runtime call flow.',
       },
       { type: 'heading', text: { en: 'Method Definition and Calling' } },
       {

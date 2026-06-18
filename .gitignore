@@ -5,6 +5,9 @@ dist/
 .DS_Store
 .env
 
+# Local study notes - must never be committed
+Documents/_Java notlar.md
+
 # Debug / verification screenshots
 verify_*.png
 v_*.png

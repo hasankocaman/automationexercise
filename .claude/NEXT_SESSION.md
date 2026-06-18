@@ -41,20 +41,19 @@
 
 ---
 
-## ⚠️ GÜNCEL DURUM — GIT, SEO, STRAY DOSYALAR (2026-06-17 itibarıyla doğrulandı)
+## ⚠️ GÜNCEL DURUM — GIT, SEO, STRAY DOSYALAR (2026-06-18 itibarıyla doğrulandı)
 
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `7f526fd feat: add Cypress page, beginner/advanced Algorithms pages, and Manual Testing workshop`. Kullanıcı onayıyla commit edilip **push edildi** — local ve origin/main senkron.
-- Bu commit, Codex'in önceki bir oturumda ürettiği `/algorithms` (`AlgorithmsPage.jsx`, `beginnerAlgorithmsData.js`), `/advanced-algorithms` (`AdvancedAlgorithmsPage.jsx`, `algorithmsData.js`) ve `/manual-testing` (`ManualTestingPage.jsx`, `manualTestingData.js`, locale girişleri) sayfalarıyla, Claude Code'un bu oturumda ürettiği `/cypress` sayfasını (10. kısım, aşağıda) TEK commit'te birleştirdi — kullanıcı "sorun yoksa NEXT_SESSION.md güncelle, commit ve push" dedi, ayrı ayrı commit istemedi.
-- Push edilen commit zinciri (önceki oturum): `755f81a` (Java mülakat fix) → `fb9e3b0` (`/what-is-testing` sayfası + Site Haritası) → `7f526fd` (bu oturum — Cypress + Algorithms + Manual Testing, detay yukarıda).
-- Netlify otomatik build tetiklendi (~18sn) — bir sonraki oturumda `https://learnqa.dev/cypress`, `/algorithms`, `/advanced-algorithms`, `/manual-testing` canlıda doğrulanmalı.
+- **Son local commit:** `20323a5 docs: note GitHub Pages redirect workflow artifact-conflict issue, trigger fresh run`.
+- Bu oturumda commit/push yapılmadı. Çalışma ağacında bekleyen değişiklikler: `.gitignore`, `CLAUDE.md`, `.claude/NEXT_SESSION.md`, `src/components/TopicPage.jsx`, `src/data/javaData.js`.
+- `Documents/_Java notlar.md` yerel çalışma notudur; `.gitignore` içinde `Documents/_Java notlar.md` olarak ignore ediliyor ve `git check-ignore -v -- "Documents/_Java notlar.md"` ile doğrulandı. Her commit/stage öncesi bu kural tekrar kontrol edilmeli.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
 - **Bilinen GitHub Actions uyarısı (`.github/workflows/deploy.yml` — "Redirect to learnqa.dev"):** Bu workflow sadece `learnqa.dev`'e yönlendiren kozmetik bir GitHub Pages sayfası deploy ediyor, gerçek site Netlify'da ve bundan etkilenmiyor. İki commit art arda push edilirse ("Deployment request failed ... due to in progress deployment") veya aynı run birden fazla kez "Re-run jobs" ile tekrar çalıştırılırsa ("Multiple artifacts named github-pages... Artifact count is 3") hata alınabilir — ikisi de zararsız, fonksiyonel etkisi yok. Çözüm: aynı run'ı tekrar tekrar re-run etmek yerine yeni bir push ile temiz bir run tetiklemek (workflow sadece `on: push` ile tetikleniyor, `workflow_dispatch` yok).
 
 ### SEO/routing altyapısı — gerçek ve commit'li
-`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları artık `7f526fd` ile `App.jsx`, `src/utils/seo.js`, `scripts/generate-static-routes.mjs`, `public/sitemap.xml` ve `src/utils/searchIndex.js` zincirine commit'li/push'lu şekilde bağlı. `npm run build` **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
+`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları `7f526fd` ile; algoritma soru bankası ve HomePage roadmap fix'i `797aa6d` ile commit'li/push'lu. `npm run build` **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
 
 **SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
 - `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
@@ -64,7 +63,44 @@
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
-Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık `7f526fd` ile commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı).
+Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` bilinçli olarak ignore edilen yerel not dosyasıdır ve stray/untracked iş listesine alınmamalı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 3. kısım — Codex'in Java Kurulum çalışmasının review'ı + küçük UX fix)
+
+| Görev | Durum |
+|-------|-------|
+| **Review:** Codex'in önceki kısımda yaptığı Java Kurulum sekmesi işi (`javac` atölyesi, IDE/IntelliJ anlatımı, Maven lifecycle, `java-practice` try-it-yourself alanları, `.gitignore`/`CLAUDE.md` kuralı) Playwright ile tarayıcıda fiilen test edilerek doğrulandı: 3 simülasyon çalıştırıldı (animasyon + console output doğru), 2 `java-practice` alanı hem hatalı hem doğru kodla test edildi, EN/TR ve dark mode geçişlerinde layout/console hatası yok, `npm run build` 25 route için temiz geçti. | ✅ |
+| **Bulunan küçük UX kusuru düzeltildi:** `JavaPracticeBlock` (`TopicPage.jsx`) içinde satır sonu `;` eksikse hem "Satır X: ; ile bitmeli" hatası hem de ayrı "şimdilik sadece println(...); formatını çalıştırıyorum" uyarısı aynı anda çıkıyordu (tekrarlı mesaj). `else if` koşuluna `line.endsWith(';')` eklenerek format uyarısı sadece satır zaten `;` ile bitip başka bir nedenle eşleşmediğinde gösteriliyor artık. | ✅ |
+| **Doğrulama:** `npm run build` tekrar başarılı; Playwright ile starter kod (`Merhaba Java")` — kasıtlı eksik `;`) üzerinde "Kontrol Et"e basıldı, sadece eksik-semicolon hatası göründü, format uyarısı tekrar etmedi. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 2. kısım — Java Kurulum sekmesi: javac, IntelliJ, Maven atölyesi)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü netleştirdi:** Java anlatımı daha adım adım olmalı; önce JDK sonrası `javac` ile `.java` dosyası nasıl derlenir/çalıştırılır, sonra IDE/IntelliJ, en sonda Maven anlatılmalı. Öğrenci kendi `main` metodunu yazabilmeli, `;` alışkanlığı kazanmalı. | ✅ |
+| **Kurulum sekmesi yeniden kurgulandı:** `src/data/javaData.js` içinde `s1` başlığı `Java Kurulumu ve İlk Proje` oldu. Eski “JDK + Maven’i hemen kur” akışı düzeltildi: JDK → `javac` → IntelliJ → Maven öğrenme sırası yazıldı. Maven kurulum komutları ilk JDK kurulumundan çıkarıldı, Maven bölümü en sona taşındı. | ✅ |
+| **Yeni içerik paketi:** `javaSetupWorkshop` eklendi ve TR/EN Kurulum sekmesine bağlandı. Kapsam: `javac Main.java` vs `java Main`, Windows/macOS/Linux adım adım `Main.java` oluşturma, ilk gün yapılan hatalar, IDE türleri, Cursor gibi AI IDE ile neden erken başlanmaması gerektiği, IntelliJ IDEA indirme/kurulum/ilk proje/class/main/run adımları, Maven’in ne zaman gerekli olduğu ve `mvn package` lifecycle akışı. | ✅ |
+| **Yeni interaktif block tipi:** `java-practice` eklendi (`TopicPage.jsx`). Kullanıcı `textarea` içinde `public class Main`, `public static void main(String[] args)`, süslü parantez dengesi ve satır sonu `;` kontrolü alıyor. Basit `System.out.println("...");` çıktısını console preview olarak gösteriyor. Kurulum sekmesinde iki pratik alan var: eksik `main`/`;` düzeltme ve IntelliJ autocomplete öncesi kas hafızası. | ✅ |
+| **Yeni simülasyonlar:** `java-javac-workshop` (klasör → Main.java → `javac` → Main.class → `java Main`), `java-intellij-project` (IntelliJ download/new project/JDK/src/class/main/run), `java-maven-lifecycle` (`pom.xml` → compile → test → package → BUILD SUCCESS) eklendi. Her biri sağ panel DOM/state görselleştiricisine bağlandı. | ✅ |
+| **Resmi kaynak kontrolü:** IntelliJ anlatımı güncel JetBrains dokümanlarına göre yazıldı: IntelliJ IDEA artık unified product modeliyle geliyor; core kullanım ücretsiz devam edebiliyor, Ultimate özellikleri abonelik/trial ile açılıyor; Java development için IDE içindeki runtime ayrı, standalone JDK gerekiyor; Toolbox App önerilen kurulum yoludur. | ✅ |
+| **Doğrulama:** `npm run build` iki kez başarılı (25 route SEO/static chain). Bilinen uyarılar: eski Browserslist/caniuse-lite ve büyüyen `javaData` chunk. `dist/index.html` build hash değişikliği kaynak dışı olduğu için manuel geri alındı, diff’te bırakılmadı. | ✅ |
+| **Browser doğrulaması:** In-app Browser ile `http://127.0.0.1:5173/java` Kurulum sekmesi doğrulandı. EN/TR başlıklar, `javac workshop`, `IDE flow`, `mvn package`, iki `java-practice` alanı render oldu. Üç animasyon çalıştırıldı: `Hello Java!`, `Main.class`, `Hello IntelliJ!`, `BUILD SUCCESS` görüldü. `java-practice` eksik `main` ve `;` hatasını yakaladı; doğru kodla `Looks ready to run` + console çıktısı verdi. Mobil 390px viewport Kurulum sekmesinde yatay taşma 0, iki textarea render oldu. Console error/warn yok. | ✅ |
+
+> Bu oturumda commit/push yapılmadı. Bekleyen değişiklikler: `.gitignore`, `CLAUDE.md`, `.claude/NEXT_SESSION.md`, `src/components/TopicPage.jsx`, `src/data/javaData.js`. `Documents/_Java notlar.md` için `git -c core.excludesfile= check-ignore -v "Documents/_Java notlar.md"` doğrulandı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18 — Java sayfasına görsel/animasyonlu anlatım + yerel not ignore kuralı)
+
+| Görev | Durum |
+|-------|-------|
+| **Oturum başlangıcı:** `CLAUDE.md` ve `.claude/NEXT_SESSION.md` okundu. Güncel durum özeti: gerçek son local commit `20323a5`, canlı site Netlify'da, önceki aktif teknik açık Python/SQL/Java sayfalarında `simulation` eksikliğiydi. | ✅ |
+| **Yerel Java notu incelendi:** `Documents/_Java notlar.md` yaklaşık 313KB; ilk 7 ders Java giriş/OOP, variables, data types, Scanner, wrapper/string pratikleri ve if/else akışını kalın metin + gömülü görsel referanslarıyla anlatıyor. Yöntem: önce gündelik benzetme/görsel şema, sonra syntax parçalama, sonra örnek. Bu yöntem `/java` sayfasına uygulandı; not dosyası repoya alınmadı. | ✅ |
+| **Git ignore kuralı:** `.gitignore` içine `Documents/_Java notlar.md` eklendi. `CLAUDE.md` Bölüm 8'e kalıcı kural yazıldı: bu dosya asla git tarafından takip edilmeyecek; her commit/stage öncesi `.gitignore` ve `git status --short` ile kontrol edilecek. `git check-ignore -v -- "Documents/_Java notlar.md"` doğrulandı. | ✅ |
+| **Java sayfası — yeni simülasyonlar:** `TopicPage.jsx` içine üç Java scenario eklendi: `java-compile-run` (.java → javac → .class → JVM → output), `java-stack-heap` (primitive stack value + String heap object), `java-branch-runner` (score=75 için if/else decision ladder). Sağ panelde her scenario için DOM/state görselleştirici eklendi. | ✅ |
+| **Java içeriği — görsel anlatım:** `src/data/javaData.js` içine TR/EN bloklar eklendi. Giriş sekmesine compile/run simülasyonu; Temel Sözdizimi sekmesine recipe-card visual + stack/heap simülasyonu; Akış Kontrolü sekmesine decision runner; Arrays sekmesine index görseli; Methods sekmesine method call flow; OOP & Collections sekmesine class → fields/methods → object diyagramı eklendi. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (SEO check → generate SEO files → Vite build → static route shells → dist SEO check, 25 route). Bilinen uyarılar aynı: eski Browserslist/caniuse-lite verisi ve büyük `javaData` chunk uyarısı. | ✅ |
+| **Browser doğrulaması:** In-app Browser ile `http://localhost:5173/java` reload edildi. Giriş sekmesinde `▶ javac + java` çalıştırıldı, `Merhaba QA!` ve JVM state'i görüldü. Temel Sözdizimi sekmesinde `▶ allocate` çalıştırıldı, `score = 80` ve `#A1: "admin"` görüldü. Akış Kontrolü sekmesinde `▶ karar ver` çalıştırıldı, `score >= 70 true` ve `System.out.println("BB");` görüldü. EN modda `Run the if/else Ladder Live` ve `Evaluation Order` doğrulandı. Console error/warn yok. | ✅ |
+
+> Bu oturumda commit/push yapılmadı. Bekleyen değişiklikler: `.gitignore`, `CLAUDE.md`, `.claude/NEXT_SESSION.md`, `src/components/TopicPage.jsx`, `src/data/javaData.js`. `dist/index.html` build hash değişikliği kaynak dışı olduğu için geri alındı.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-17, 11. kısım — /algorithms sayfasına 50 soruluk pratik soru bankası)
 
@@ -299,7 +335,7 @@ Kullanıcı, CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md arasında sürekli 
    - Hata sözlüğü (`error-dictionary`) hâlâ ayrı bir "🚨 Yaygın Hatalar" sekmesi değil, mevcut sekmelerin içine gömülü — düşük öncelikli kalan eksik.
 2. ~~**Docker / Jenkins / Postman — kısmi Section 12 eksikliği**~~ ✅ **TAMAMLANDI (2026-06-17)** — Postman: Real World+Ecosystem+Common Errors; Docker: Ecosystem; Jenkins: Real World+Ecosystem.
    - REST Assured: Ecosystem yerine "🆆 Araç Karşılaştırması" var — kabul edilebilir, düşük öncelik (dokunulmadı).
-3. **Python / SQL / Java sayfalarında hiç `simulation` (Gör-Anla-Dene) block'u yok** — Selenium(8), Appium(4), AWS/Azure(2), diğerleri(1) ile karşılaştırıldığında bu 3 sayfa platformun "aktif felsefesi"nin dışında kalıyor. (Not: Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış bir pytest runner var ama bu `pythonData.js`'in kendi `simulation` sistemini kullanmıyor, ayrı bir component.) **← Bir sonraki oturumun önceliği bu.**
+3. **Python / SQL sayfalarında hâlâ `simulation` (Gör-Anla-Dene) block'u yok** — Java tarafı 2026-06-18 oturumlarında 6 `simulation` + 1 `java-practice` block tipiyle güçlendirildi (`java-compile-run`, `java-stack-heap`, `java-branch-runner`, `java-javac-workshop`, `java-intellij-project`, `java-maven-lifecycle`). Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış pytest runner var ama `pythonData.js`'in kendi `simulation` sistemini kullanmıyor; SQL'de de `simulation` yok. **← Bir sonraki oturumun önceliği Python/SQL.**
 4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var (özellikle javaData.js 639KB), code splitting yapılabilir (zorunlu değil)
 
 > Not: "Python/TypeScript sayfalarına simülasyon — pytest/vitest runner arayüzü" görevi tamamlandı (her iki yarı da bitti).
@@ -314,6 +350,7 @@ text | code | heading | grid | table | quiz | editor | diagram | comparison |
 glossary | error-dict | interview-questions | simple-box | visual | callout |
 locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline |
 drag-order (YENİ — 2026-06-17, 10. kısım: sürükle-bırak/tıkla-değiştir sıralama alıştırması)
+java-practice (YENİ — 2026-06-18, 2. kısım: Java main method + semicolon kontrol alanı)
 ```
 
 ### Önemli Dosyalar
@@ -355,6 +392,12 @@ SimulationBlock({ block, darkMode, language })
 | `jenkins-pipeline` | Checkout → Build → Test → SonarQube → Deploy | jenkinsData.js |
 | `kafka-flow` | Producer → partition routing → broker → consumer | kafkaData.js |
 | `rest-assured-chain` | given() → when() → then() → assertions | restAssuredData.js |
+| `java-compile-run` | .java kaynak kod → javac → .class bytecode → JVM → console output | javaData.js s0 (Giriş) |
+| `java-stack-heap` | int primitive value stack'te, String reference stack'te, object heap'te gösterilir | javaData.js sA (Temel Sözdizimi) |
+| `java-branch-runner` | score=75 için if/else ladder koşulları sırayla değerlendirilir, ilk true branch output üretir | javaData.js sC (Akış Kontrolü) |
+| `java-javac-workshop` | JDK sonrası terminal akışı: klasör aç → Main.java yaz → `javac Main.java` → Main.class → `java Main` | javaData.js s1 (Kurulum) |
+| `java-intellij-project` | IntelliJ IDEA indirme/ilk proje/JDK seçimi/src/Main.java/main method/Run akışı | javaData.js s1 (Kurulum) |
+| `java-maven-lifecycle` | Maven `pom.xml` → compile → test → package → BUILD SUCCESS lifecycle animasyonu | javaData.js s1 (Kurulum) |
 | `appium-element-detection` | Appium Inspector tarama → element ağacı → locator önerisi | appiumData.js s3 (Locator & POM) |
 | `appium-swipe` | W3C Actions pointerDown→move→pointerUp → liste kayar | appiumData.js s4 (Gerçek Senaryo) |
 | `browserstack-cloud-run` | Local pytest terminal → Hub bağlantısı → Automate Dashboard session kartı | browserstackData.js s2 (Selenium Entegrasyonu) |
@@ -367,7 +410,7 @@ SimulationBlock({ block, darkMode, language })
 ### Build Durumu
 - ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, güncel toplam 25 route; bkz. `codexSeo.md`)
 - ✅ Netlify'da canlı: https://learnqa.dev
-- ⚠️ `javaData` chunk hâlâ ~639KB tek başına büyük (route-based code splitting sayesinde ana bundle ~235KB'a indi, kritik değil)
+- ⚠️ `javaData` chunk hâlâ ~665KB tek başına büyük (route-based code splitting sayesinde ana bundle ~239KB civarında, kritik değil)
 - Güncel commit/push durumu için bu dosyanın en üstündeki **"GÜNCEL DURUM"** bölümüne bak (tek kaynak — burada tekrar edilmiyor).
 
 ---

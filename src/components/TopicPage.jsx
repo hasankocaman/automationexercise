@@ -1113,6 +1113,151 @@ function SQLEditor({ defaultCode, schema, height = '120px' }) {
     )
 }
 
+// ─── JavaPracticeBlock ───────────────────────────────────────────────────────
+
+function JavaPracticeBlock({ block, darkMode, language }) {
+    const starter = tx(block.starterCode || block.defaultCode || '', language)
+    const [code, setCode] = useState(starter)
+    const [result, setResult] = useState(null)
+
+    useEffect(() => {
+        setCode(starter)
+        setResult(null)
+    }, [starter])
+
+    const runCheck = () => {
+        const lines = code.split(/\r?\n/)
+        const errors = []
+        const warnings = []
+        const outputParts = []
+        const checks = [
+            {
+                id: 'class',
+                label: language === 'tr' ? 'class adı Main mi?' : 'Is the class named Main?',
+                ok: /public\s+class\s+Main\b/.test(code),
+            },
+            {
+                id: 'main',
+                label: language === 'tr' ? 'main method doğru yazıldı mı?' : 'Is the main method written correctly?',
+                ok: /public\s+static\s+void\s+main\s*\(\s*String\s*\[\]\s+args\s*\)/.test(code),
+            },
+        ]
+
+        const openCount = (code.match(/\{/g) || []).length
+        const closeCount = (code.match(/\}/g) || []).length
+        checks.push({
+            id: 'braces',
+            label: language === 'tr' ? 'Süslü parantezler dengeli mi?' : 'Are curly braces balanced?',
+            ok: openCount === closeCount && openCount >= 2,
+        })
+
+        lines.forEach((raw, idx) => {
+            const line = raw.trim()
+            if (!line || line.startsWith('//')) return
+            const noSemicolonNeeded =
+                line.endsWith('{') ||
+                line.endsWith('}') ||
+                /^public\s+class\b/.test(line) ||
+                /^public\s+static\s+void\s+main\b/.test(line)
+            if (!noSemicolonNeeded && !line.endsWith(';')) {
+                errors.push(language === 'tr'
+                    ? `Satır ${idx + 1}: Bu satır büyük ihtimalle ; ile bitmeli.`
+                    : `Line ${idx + 1}: This line probably needs a semicolon.`)
+            }
+
+            const printMatch = line.match(/^System\.out\.(println|print)\s*\(\s*"([^"]*)"\s*\)\s*;$/)
+            if (printMatch) {
+                outputParts.push({ type: printMatch[1], value: printMatch[2] })
+            } else if (line.endsWith(';') && line.includes('System.out.print')) {
+                warnings.push(language === 'tr'
+                    ? `Satır ${idx + 1}: Şimdilik sadece System.out.println("metin"); formatını çalıştırıyorum.`
+                    : `Line ${idx + 1}: For now I only run System.out.println("text"); style statements.`)
+            }
+        })
+
+        checks.forEach(check => {
+            if (!check.ok) errors.push(check.label)
+        })
+
+        let output = ''
+        outputParts.forEach(part => {
+            output += part.value
+            if (part.type === 'println') output += '\n'
+        })
+        if (!outputParts.length) {
+            warnings.push(language === 'tr'
+                ? 'Henüz ekrana yazdırılacak System.out.println("..."); satırı bulamadım.'
+                : 'I did not find a System.out.println("..."); line to preview yet.')
+        }
+
+        setResult({ checks, errors, warnings, output: output.trimEnd() })
+    }
+
+    const isOk = result && result.errors.length === 0
+    const title = tx(block.title, language) || (language === 'tr' ? 'Kendin Dene' : 'Try It Yourself')
+    const intro = tx(block.intro, language)
+
+    return (
+        <div className={`mt-5 rounded-xl border overflow-hidden ${darkMode ? 'border-orange-700 bg-gray-900' : 'border-orange-200 bg-white'}`}>
+            <div className={`px-4 py-3 flex items-center gap-3 ${darkMode ? 'bg-orange-950/60' : 'bg-orange-50'}`}>
+                <span className="text-xl">{block.icon || '☕'}</span>
+                <div>
+                    <div className={`text-sm font-bold ${darkMode ? 'text-orange-200' : 'text-orange-900'}`}>{title}</div>
+                    {intro && <div className={`text-xs mt-0.5 ${darkMode ? 'text-orange-300/80' : 'text-orange-700'}`}>{intro}</div>}
+                </div>
+                <button
+                    onClick={runCheck}
+                    className="ml-auto rounded-md px-3 py-1.5 text-xs font-bold"
+                    style={{ background: '#f97316', color: '#fff', minHeight: 36 }}
+                >
+                    {language === 'tr' ? '▶ Kontrol Et' : '▶ Check'}
+                </button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr]">
+                <textarea
+                    value={code}
+                    onChange={e => setCode(e.target.value)}
+                    spellCheck={false}
+                    style={{ minHeight: block.height || 260, background: '#111827', color: '#fed7aa', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, lineHeight: 1.65, border: 'none', outline: 'none', resize: 'vertical', padding: '16px', boxSizing: 'border-box' }}
+                />
+                <div className={`p-4 border-t lg:border-t-0 lg:border-l ${darkMode ? 'border-gray-700 bg-gray-950' : 'border-orange-100 bg-orange-50/50'}`}>
+                    {!result && (
+                        <div className={`text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {language === 'tr'
+                                ? 'Main methodu kendin yaz, her komut satırının sonuna ; koy, sonra kontrol et. Burada amaç otomatik cevap almak değil, Java iskeletini kas hafızasına almak.'
+                                : 'Write the main method yourself, end each statement with ;, then check it. The goal is muscle memory for the Java skeleton, not auto-completion.'}
+                        </div>
+                    )}
+                    {result && (
+                        <div className="space-y-3">
+                            <div className={`rounded-lg border p-3 text-sm font-bold ${isOk ? (darkMode ? 'border-green-700 bg-green-950/30 text-green-200' : 'border-green-300 bg-green-50 text-green-800') : (darkMode ? 'border-red-700 bg-red-950/30 text-red-200' : 'border-red-300 bg-red-50 text-red-800')}`}>
+                                {isOk ? (language === 'tr' ? '✅ Çalıştırmaya hazır görünüyor' : '✅ Looks ready to run') : (language === 'tr' ? '❌ Önce şu hataları düzelt' : '❌ Fix these first')}
+                            </div>
+                            <div className="space-y-1">
+                                {result.checks.map(check => (
+                                    <div key={check.id} className={`text-xs ${check.ok ? (darkMode ? 'text-green-300' : 'text-green-700') : (darkMode ? 'text-red-300' : 'text-red-700')}`}>
+                                        {check.ok ? '✓' : '×'} {check.label}
+                                    </div>
+                                ))}
+                            </div>
+                            {result.errors.map((err, i) => (
+                                <div key={i} className={`text-xs rounded-md px-3 py-2 ${darkMode ? 'bg-red-950/40 text-red-200' : 'bg-red-50 text-red-700'}`}>{err}</div>
+                            ))}
+                            {result.warnings.map((warn, i) => (
+                                <div key={i} className={`text-xs rounded-md px-3 py-2 ${darkMode ? 'bg-yellow-950/40 text-yellow-200' : 'bg-yellow-50 text-yellow-800'}`}>{warn}</div>
+                            ))}
+                            <div>
+                                <div className={`text-xs font-bold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Console</div>
+                                <pre className={`rounded-lg p-3 text-xs min-h-[70px] whitespace-pre-wrap ${darkMode ? 'bg-black text-green-300' : 'bg-slate-900 text-green-300'}`}>{result.output || (language === 'tr' ? '(çıktı yok)' : '(no output)')}</pre>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── Bilingual content helper ─────────────────────────────────────────────────
 
 const tx = (val, lang) => {
@@ -2718,6 +2863,386 @@ function SimulationBlock({ block, darkMode, language }) {
             }, cumDelay)
             timersRef.current.push(t)
         })
+    }
+
+    const renderJavaCompileRunPlayground = () => {
+        const s = simState
+        const order = ['idle', 'source', 'compile', 'bytecode', 'jvm', 'output']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'output'
+        const isActive = (key) => order.indexOf(key) === cur
+        const isDone = (key) => order.indexOf(key) < cur && s !== 'idle'
+        const steps = [
+            { key: 'source', label: 'Main.java', desc: isTr ? 'İnsan diline yakın kaynak kod' : 'Human-readable source code', icon: '📝' },
+            { key: 'compile', label: 'javac', desc: isTr ? 'Compiler syntax kontrol eder' : 'Compiler checks syntax', icon: '⚙️' },
+            { key: 'bytecode', label: 'Main.class', desc: isTr ? 'JVM için bytecode' : 'Bytecode for JVM', icon: '🔢' },
+            { key: 'jvm', label: 'JVM', desc: isTr ? 'İşletim sisteminde çalıştırır' : 'Runs on the operating system', icon: '☕' },
+            { key: 'output', label: 'Console', desc: isTr ? 'Sonuç görünür' : 'Result appears', icon: '🖥️' },
+        ]
+        const terminalLines = [
+            { show: cur >= 1, text: '$ javac Main.java', color: '#f59e0b' },
+            { show: cur >= 2, text: isTr ? '✓ syntax OK, bytecode üretiliyor...' : '✓ syntax OK, generating bytecode...', color: '#22c55e' },
+            { show: cur >= 3, text: '$ java Main', color: '#f59e0b' },
+            { show: cur >= 4, text: isTr ? 'JVM bytecode okuyup işletim sistemine uygun çalıştırıyor...' : 'JVM reads bytecode and runs it for this OS...', color: '#38bdf8' },
+            { show: cur >= 5, text: isTr ? 'Merhaba QA!' : 'Hello QA!', color: '#22c55e' },
+        ]
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: '#111827', color: '#e5e7eb', borderRadius: 12, overflow: 'hidden', border: '1px solid #374151' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#1f2937', borderBottom: '1px solid #374151' }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700 }}>Java Lab</span>
+                        <button
+                            onClick={() => canStart && runSteps([['source', 120], ['compile', 650], ['bytecode', 650], ['jvm', 650], ['output', 650]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 800, color: '#111827', background: canStart ? '#fbbf24' : '#6b7280', cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ javac + java' : s === 'output' ? (isTr ? '▶ tekrar çalıştır' : '▶ run again') : (isTr ? '⏳ çalışıyor' : '⏳ running')}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+                        {steps.map((step, i) => (
+                            <div key={step.key} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8, alignItems: 'center' }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'grid', placeItems: 'center', background: isActive(step.key) ? '#f97316' : isDone(step.key) ? '#166534' : '#374151', boxShadow: isActive(step.key) ? '0 0 16px rgba(249,115,22,0.65)' : 'none', transition: 'all .35s' }} className={isActive(step.key) ? 'sim-animate' : ''}>
+                                    {isDone(step.key) ? '✓' : step.icon}
+                                </div>
+                                <div style={{ border: `1px solid ${isActive(step.key) ? '#fb923c' : '#374151'}`, background: isActive(step.key) ? '#431407' : '#111827', borderRadius: 8, padding: '7px 9px', transition: 'all .35s' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 800, color: isActive(step.key) ? '#fed7aa' : '#f9fafb' }}>{step.label}</div>
+                                    <div style={{ fontSize: 10, color: '#9ca3af' }}>{step.desc}</div>
+                                </div>
+                                {i < steps.length - 1 && <div style={{ gridColumn: '1 / 2', width: 2, height: 10, background: isDone(steps[i + 1].key) || isActive(steps[i + 1].key) ? '#f97316' : '#374151', margin: '-2px auto' }} />}
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ background: '#020617', padding: '9px 12px', minHeight: 92, borderTop: '1px solid #374151', fontFamily: 'JetBrains Mono, monospace' }}>
+                        {s === 'idle' && <div style={{ color: '#64748b', fontSize: 11 }}>{isTr ? 'Komutları görmek için çalıştır.' : 'Run to watch the commands.'}</div>}
+                        {terminalLines.map((line, i) => line.show ? (
+                            <div key={i} style={{ color: line.color, fontSize: 10.5, lineHeight: 1.7, animation: 'simFadeUp .25s ease-out' }}>{line.text}</div>
+                        ) : null)}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #374151', background: '#111827', color: '#9ca3af', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderJavaMemoryPlayground = () => {
+        const s = simState
+        const order = ['idle', 'declare', 'primitive', 'reference', 'heap', 'update', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const active = (key) => order.indexOf(key) === cur
+        const done = (key) => order.indexOf(key) < cur && s !== 'idle'
+        const lineColor = (key) => active(key) ? '#fbbf24' : done(key) ? '#86efac' : '#64748b'
+
+        return (
+            <div style={{ maxWidth: 360, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧠</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>Stack / Heap Watch</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'Variable bellekte nereye gider?' : 'Where does each variable live?'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['declare', 100], ['primitive', 650], ['reference', 700], ['heap', 700], ['update', 700], ['done', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#22c55e' : '#475569', color: '#052e16', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ allocate' : s === 'done' ? '▶ again' : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: 10 }}>
+                        <div style={{ border: '1px solid #475569', borderRadius: 10, padding: 8, background: '#020617' }}>
+                            <div style={{ color: '#93c5fd', fontSize: 11, fontWeight: 800, marginBottom: 8 }}>STACK</div>
+                            <div style={{ color: lineColor('primitive'), fontFamily: 'JetBrains Mono, monospace', fontSize: 10, marginBottom: 6 }}>int score = {done('update') || active('update') || s === 'done' ? '80' : done('primitive') || active('primitive') ? '75' : '...'}</div>
+                            <div style={{ color: lineColor('reference'), fontFamily: 'JetBrains Mono, monospace', fontSize: 10 }}>String name → {done('reference') || active('reference') || cur >= 3 ? '#A1' : '...'}</div>
+                        </div>
+                        <div style={{ border: '1px solid #475569', borderRadius: 10, padding: 8, background: '#020617' }}>
+                            <div style={{ color: '#fdba74', fontSize: 11, fontWeight: 800, marginBottom: 8 }}>HEAP</div>
+                            <div style={{ minHeight: 44, border: `1px dashed ${done('heap') || active('heap') || cur >= 4 ? '#fb923c' : '#334155'}`, borderRadius: 8, padding: 7, color: done('heap') || active('heap') || cur >= 4 ? '#fed7aa' : '#475569', fontSize: 10, transition: 'all .35s' }}>
+                                #A1: "admin"
+                                <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 3 }}>{isTr ? 'String object burada saklanır' : 'String object lives here'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ padding: '0 10px 10px', fontFamily: 'JetBrains Mono, monospace' }}>
+                        {[
+                            ['declare', 'int score; String name;'],
+                            ['primitive', 'score = 75;        // value stack içinde'],
+                            ['reference', 'name = "admin";    // reference stack içinde'],
+                            ['heap', '"admin" object heap içinde oluşur'],
+                            ['update', 'score = score + 5;   // stack value değişir'],
+                        ].map(([key, text]) => (
+                            <div key={key} style={{ color: lineColor(key), fontSize: 10, lineHeight: 1.7 }}>{active(key) ? '➜ ' : done(key) ? '✓ ' : '  '}{text}</div>
+                        ))}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderJavaBranchPlayground = () => {
+        const s = simState
+        const order = ['idle', 'input', 'scanner', 'compare90', 'compare80', 'compare70', 'output']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'output'
+        const active = (key) => order.indexOf(key) === cur
+        const passed = (key) => order.indexOf(key) < cur && s !== 'idle'
+        const rows = [
+            { key: 'compare90', text: 'score >= 90', result: 'false' },
+            { key: 'compare80', text: 'score >= 80', result: 'false' },
+            { key: 'compare70', text: 'score >= 70', result: 'true', hit: true },
+        ]
+
+        return (
+            <div style={{ maxWidth: 360, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, border: '1px solid #334155', overflow: 'hidden', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 10px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔀</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>if/else Decision Runner</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>score = 75</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['input', 100], ['scanner', 600], ['compare90', 650], ['compare80', 650], ['compare70', 650], ['output', 600]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#38bdf8' : '#475569', color: '#082f49', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ karar ver' : '▶ decide') : s === 'output' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '82px 1fr', gap: 8, marginBottom: 10 }}>
+                            <div style={{ borderRadius: 10, background: active('input') || passed('input') ? '#0e7490' : '#1e293b', color: '#cffafe', padding: 8, textAlign: 'center', fontSize: 11, fontWeight: 800, transition: 'all .35s' }}>{isTr ? 'Input' : 'Input'}<br /><span style={{ fontFamily: 'JetBrains Mono, monospace' }}>75</span></div>
+                            <div style={{ borderRadius: 10, background: active('scanner') || passed('scanner') ? '#155e75' : '#1e293b', color: '#cffafe', padding: 8, fontSize: 11, transition: 'all .35s' }}>
+                                <b>Scanner</b><br /><span style={{ color: '#94a3b8' }}>{isTr ? 'metni int score değişkenine koyar' : 'puts the value into int score'}</span>
+                            </div>
+                        </div>
+                        <div style={{ display: 'grid', gap: 7 }}>
+                            {rows.map(row => {
+                                const rowDone = passed(row.key) || active(row.key) || (row.hit && s === 'output')
+                                const color = row.hit && rowDone ? '#22c55e' : rowDone ? '#ef4444' : '#475569'
+                                return (
+                                    <div key={row.key} style={{ display: 'grid', gridTemplateColumns: '1fr 56px', gap: 7, alignItems: 'center' }}>
+                                        <div style={{ border: `1px solid ${active(row.key) ? color : '#334155'}`, background: active(row.key) ? `${color}22` : '#020617', color: rowDone ? '#f8fafc' : '#64748b', borderRadius: 8, padding: '7px 9px', fontFamily: 'JetBrains Mono, monospace', fontSize: 10 }}>
+                                            {row.text}
+                                        </div>
+                                        <div style={{ borderRadius: 8, background: rowDone ? color : '#1e293b', color: rowDone ? '#fff' : '#64748b', textAlign: 'center', padding: '7px 0', fontSize: 10, fontWeight: 800 }}>{rowDone ? row.result : '?'}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, borderRadius: 10, background: s === 'output' ? '#052e16' : '#020617', border: `1px solid ${s === 'output' ? '#22c55e' : '#334155'}`, padding: 9, color: s === 'output' ? '#86efac' : '#64748b', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', transition: 'all .35s' }}>
+                            {s === 'output' ? 'System.out.println("BB");' : isTr ? 'Çıktı bekleniyor...' : 'Waiting for output...'}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderJavaJavacWorkshopPlayground = () => {
+        const s = simState
+        const order = ['idle', 'folder', 'file', 'compile', 'classfile', 'run', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const isActive = key => order.indexOf(key) === cur
+        const isDone = key => order.indexOf(key) < cur && s !== 'idle'
+        const files = [
+            { key: 'file', name: 'Main.java', icon: '☕', color: '#f97316' },
+            { key: 'classfile', name: 'Main.class', icon: '🔢', color: '#22c55e' },
+        ]
+        const terminal = [
+            ['folder', 'mkdir java-lab', '#38bdf8'],
+            ['folder', 'cd java-lab', '#38bdf8'],
+            ['file', 'notepad Main.java', '#fbbf24'],
+            ['compile', 'javac Main.java', '#f97316'],
+            ['classfile', isTr ? 'dir  →  Main.java  Main.class' : 'ls  →  Main.java  Main.class', '#22c55e'],
+            ['run', 'java Main', '#a78bfa'],
+            ['done', isTr ? 'Merhaba Java!' : 'Hello Java!', '#22c55e'],
+        ]
+        return (
+            <div style={{ maxWidth: 380, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧪</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>Terminal javac lab</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>Main.java → javac → Main.class → java Main</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['folder', 150], ['file', 750], ['compile', 900], ['classfile', 700], ['run', 750], ['done', 550]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#f97316' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ javac atölyesi' : '▶ javac workshop') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 11, display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            {files.map(file => {
+                                const visible = isDone(file.key) || isActive(file.key) || (file.key === 'classfile' && cur >= order.indexOf('classfile'))
+                                return (
+                                    <div key={file.key} style={{ border: `1px solid ${visible ? file.color : '#334155'}`, borderRadius: 10, padding: 10, background: visible ? `${file.color}18` : '#020617', color: visible ? '#f8fafc' : '#64748b', minHeight: 72, transition: 'all .35s' }}>
+                                        <div style={{ fontSize: 22 }}>{visible ? file.icon : '◻'}</div>
+                                        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 800 }}>{file.name}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9 }}>{file.key === 'file' ? (isTr ? 'sen yazarsın' : 'you write it') : (isTr ? 'compiler üretir' : 'compiler creates it')}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 126, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Başlatınca komutları sırayla izle.' : 'Start to watch each command.'}</div>}
+                            {terminal.map(([state, text, color], i) => {
+                                const show = order.indexOf(state) <= cur && s !== 'idle'
+                                return show ? <div key={i} style={{ color, fontSize: 10.5, lineHeight: 1.75, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div> : null
+                            })}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderJavaIntellijProjectPlayground = () => {
+        const s = simState
+        const order = ['idle', 'download', 'newProject', 'sdk', 'src', 'class', 'main', 'run', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const tree = [
+            ['newProject', 'java-first-project'],
+            ['src', 'src'],
+            ['class', 'Main.java'],
+            ['main', 'main(String[] args)'],
+        ]
+        return (
+            <div style={{ maxWidth: 390, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#1e1f22' }}>
+                    <div style={{ padding: '8px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#2b2d30', borderBottom: '1px solid #3f4248' }}>
+                        <span style={{ fontSize: 17 }}>🧠</span>
+                        <div>
+                            <div style={{ color: '#f4f4f5', fontSize: 12, fontWeight: 800 }}>IntelliJ IDEA first project</div>
+                            <div style={{ color: '#9ca3af', fontSize: 10 }}>{isTr ? 'New Project → Class → main → Run' : 'New Project → Class → main → Run'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['download', 150], ['newProject', 800], ['sdk', 700], ['src', 650], ['class', 650], ['main', 700], ['run', 700], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#7c3aed' : '#4b5563', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ IDE akışı' : '▶ IDE flow') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '115px 1fr', minHeight: 210 }}>
+                        <div style={{ borderRight: '1px solid #3f4248', padding: 9, background: '#25272b' }}>
+                            <div style={{ color: '#9ca3af', fontSize: 9, fontWeight: 800, marginBottom: 8 }}>PROJECT</div>
+                            {tree.map(([key, label], i) => {
+                                const visible = done(key) || active(key) || (key === 'main' && cur >= order.indexOf('main'))
+                                return visible ? (
+                                    <div key={key} style={{ paddingLeft: i * 10, color: active(key) ? '#c4b5fd' : '#d1d5db', fontSize: 10, lineHeight: 1.9, fontFamily: 'JetBrains Mono, monospace' }}>
+                                        {i === 0 ? '▾' : i === 3 ? '  ' : '▸'} {label}
+                                    </div>
+                                ) : null
+                            })}
+                        </div>
+                        <div style={{ padding: 10 }}>
+                            <div style={{ display: 'grid', gap: 7 }}>
+                                {[
+                                    ['download', isTr ? 'IntelliJ IDEA indir ve kur' : 'Download and install IntelliJ IDEA'],
+                                    ['newProject', isTr ? 'New Project: java-first-project' : 'New Project: java-first-project'],
+                                    ['sdk', isTr ? 'JDK 21 seçili mi kontrol et' : 'Check that JDK 21 is selected'],
+                                    ['src', isTr ? 'src klasörünü aç' : 'Open the src folder'],
+                                    ['class', isTr ? 'New Java Class: Main' : 'New Java Class: Main'],
+                                    ['main', isTr ? 'main method yaz veya psvm kısayolunu kullan' : 'Write main method or use the psvm shortcut'],
+                                    ['run', isTr ? 'Yeşil Run butonuna bas' : 'Click the green Run button'],
+                                    ['done', isTr ? 'Console output göründü' : 'Console output appears'],
+                                ].map(([key, label], i) => {
+                                    const isA = active(key)
+                                    const isD = done(key) || (key === 'done' && s === 'done')
+                                    return (
+                                        <div key={key} style={{ border: `1px solid ${isA ? '#a78bfa' : isD ? '#22c55e' : '#3f4248'}`, background: isA ? '#4c1d951f' : '#111827', borderRadius: 8, padding: '7px 9px', color: isD ? '#bbf7d0' : isA ? '#ddd6fe' : '#6b7280', fontSize: 10.5, transition: 'all .35s' }}>
+                                            {isD ? '✓' : isA ? '→' : i + 1} {label}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <div style={{ marginTop: 9, borderRadius: 8, background: '#0b1020', padding: 8, minHeight: 42, color: s === 'done' ? '#86efac' : '#64748b', fontFamily: 'JetBrains Mono, monospace', fontSize: 10 }}>
+                                {s === 'done' ? (isTr ? 'Merhaba IntelliJ!' : 'Hello IntelliJ!') : isTr ? 'Console bekliyor...' : 'Console waiting...'}
+                            </div>
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #3f4248', background: '#2b2d30', color: '#9ca3af', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderJavaMavenLifecyclePlayground = () => {
+        const s = simState
+        const order = ['idle', 'pom', 'compile', 'test', 'package', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const phases = [
+            ['pom', 'pom.xml', isTr ? 'bağımlılık planı okunur' : 'dependency plan is read'],
+            ['compile', 'compile', isTr ? 'src/main/java derlenir' : 'src/main/java is compiled'],
+            ['test', 'test', isTr ? 'JUnit testleri çalışır' : 'JUnit tests run'],
+            ['package', 'package', isTr ? 'target/*.jar üretilir' : 'target/*.jar is created'],
+        ]
+        return (
+            <div style={{ maxWidth: 380, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📦</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>Maven lifecycle</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>mvn test / mvn package</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['pom', 150], ['compile', 750], ['test', 900], ['package', 750], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#2563eb' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ mvn package' : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 11 }}>
+                            {phases.map(([key, label], i) => {
+                                const idx = order.indexOf(key)
+                                const isD = idx < cur && s !== 'idle'
+                                const isA = idx === cur
+                                return (
+                                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                        <div style={{ width: 58, minHeight: 58, borderRadius: 12, display: 'grid', placeItems: 'center', textAlign: 'center', border: `2px solid ${isD ? '#22c55e' : isA ? '#60a5fa' : '#334155'}`, background: isD ? '#052e16' : isA ? '#1e3a8a55' : '#020617', color: isD ? '#86efac' : isA ? '#bfdbfe' : '#64748b', fontSize: 9.5, fontWeight: 800, transition: 'all .35s' }}>
+                                            {isD ? '✓ ' : isA ? '⏳ ' : ''}{label}
+                                        </div>
+                                        {i < phases.length - 1 && <div style={{ width: 12, height: 2, background: order.indexOf(phases[i + 1][0]) <= cur ? '#22c55e' : '#334155' }} />}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 96, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>$ mvn package</div>}
+                            {phases.map(([key, label, desc]) => order.indexOf(key) <= cur && s !== 'idle' ? (
+                                <div key={key} style={{ color: order.indexOf(key) === cur ? '#60a5fa' : '#22c55e', fontSize: 10.5, lineHeight: 1.75 }}>
+                                    [{label}] {desc} {order.indexOf(key) < cur ? '✓' : '...'}
+                                </div>
+                            ) : null)}
+                            {s === 'done' && <div style={{ color: '#22c55e', fontSize: 10.5, lineHeight: 1.75 }}>BUILD SUCCESS → target/java-first-project.jar</div>}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
     }
 
     // === REST ASSURED CHAIN PLAYGROUND — IntelliJ Test Runner ===
@@ -4741,6 +5266,232 @@ pm.test("per_page is 6", () => {
 
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
+        if (block.scenario === 'java-compile-run') {
+            const s = simState
+            const order = ['idle', 'source', 'compile', 'bytecode', 'jvm', 'output']
+            const cur = order.indexOf(s)
+            const nodes = [
+                { key: 'source', label: 'Source', value: 'Main.java' },
+                { key: 'compile', label: 'Compiler', value: 'javac' },
+                { key: 'bytecode', label: 'Bytecode', value: 'Main.class' },
+                { key: 'jvm', label: 'Runtime', value: 'JVM' },
+                { key: 'output', label: 'Output', value: isTr ? 'Merhaba QA!' : 'Hello QA!' },
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Java kodu doğrudan çalışmaz; önce bytecode olur, sonra JVM o bytecodeu çalıştırır.' : 'Java source does not run directly; it becomes bytecode first, then the JVM executes that bytecode.'}
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                        {nodes.map((node, i) => {
+                            const active = order.indexOf(node.key) === cur
+                            const done = order.indexOf(node.key) < cur && s !== 'idle'
+                            return (
+                                <div key={node.key} className={`rounded-lg border p-3 transition-all ${active
+                                    ? (darkMode ? 'border-orange-400 bg-orange-900/25' : 'border-orange-400 bg-orange-50')
+                                    : done
+                                        ? (darkMode ? 'border-green-600 bg-green-900/15' : 'border-green-300 bg-green-50')
+                                        : (darkMode ? 'border-gray-700 bg-gray-900/60' : 'border-gray-200 bg-gray-50')
+                                    }`}>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${done ? 'bg-green-500 text-white' : active ? 'bg-orange-500 text-white animate-pulse' : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>{done ? '✓' : i + 1}</span>
+                                        <div>
+                                            <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{node.label}</div>
+                                            <div className={`text-xs font-mono ${active ? (darkMode ? 'text-orange-200' : 'text-orange-800') : darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{node.value}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-orange-800 bg-orange-950/30 text-orange-200' : 'border-orange-200 bg-orange-50 text-orange-800'}`}>
+                        {isTr ? 'Notlardaki "Codes → JDK → Binary → İşlem" şemasının modern karşılığı: .java → javac → .class → JVM → output.' : 'Modern version of the notes flow: .java → javac → .class → JVM → output.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'java-stack-heap') {
+            const s = simState
+            const cur = ['idle', 'declare', 'primitive', 'reference', 'heap', 'update', 'done'].indexOf(s)
+            return (
+                <div className="space-y-4">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Primitive value doğrudan stack tarafında tutulur. Object için stack sadece adresi tutar; gerçek object heap tarafındadır.' : 'A primitive value is stored directly on the stack. For an object, the stack stores a reference; the real object is on the heap.'}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className={`rounded-xl border p-3 ${darkMode ? 'border-blue-700 bg-blue-950/30' : 'border-blue-200 bg-blue-50'}`}>
+                            <div className={`text-xs font-bold mb-2 ${darkMode ? 'text-blue-200' : 'text-blue-800'}`}>STACK</div>
+                            <div className={`rounded border p-2 text-xs font-mono mb-2 ${cur >= 2 ? (darkMode ? 'border-green-600 text-green-200 bg-green-950/30' : 'border-green-300 text-green-800 bg-green-50') : (darkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400')}`}>
+                                score = {cur >= 5 ? '80' : cur >= 2 ? '75' : '?'}
+                            </div>
+                            <div className={`rounded border p-2 text-xs font-mono ${cur >= 3 ? (darkMode ? 'border-orange-600 text-orange-200 bg-orange-950/30' : 'border-orange-300 text-orange-800 bg-orange-50') : (darkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400')}`}>
+                                name → {cur >= 3 ? '#A1' : '?'}
+                            </div>
+                        </div>
+                        <div className={`rounded-xl border p-3 ${darkMode ? 'border-orange-700 bg-orange-950/30' : 'border-orange-200 bg-orange-50'}`}>
+                            <div className={`text-xs font-bold mb-2 ${darkMode ? 'text-orange-200' : 'text-orange-800'}`}>HEAP</div>
+                            <div className={`rounded border p-2 text-xs font-mono min-h-[70px] ${cur >= 4 ? (darkMode ? 'border-orange-500 text-orange-100 bg-orange-900/30' : 'border-orange-300 text-orange-800 bg-white') : (darkMode ? 'border-gray-700 text-gray-500' : 'border-gray-200 text-gray-400')}`}>
+                                {cur >= 4 ? '#A1: "admin"' : isTr ? 'Object bekleniyor' : 'Waiting for object'}
+                            </div>
+                        </div>
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'QA tarafında bu model özellikle String karşılaştırması, null reference ve mutable/immutable davranışlarını anlamayı kolaylaştırır.' : 'In QA, this model makes String comparison, null references, and mutable/immutable behavior easier to reason about.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'java-branch-runner') {
+            const s = simState
+            const order = ['idle', 'input', 'scanner', 'compare90', 'compare80', 'compare70', 'output']
+            const cur = order.indexOf(s)
+            const checks = [
+                ['compare90', 'score >= 90', 'false'],
+                ['compare80', 'score >= 80', 'false'],
+                ['compare70', 'score >= 70', 'true'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'if/else merdiveni yukarıdan aşağı iner. İlk true bulunduğunda o blok çalışır ve aşağıdaki bloklar atlanır.' : 'An if/else ladder is evaluated from top to bottom. The first true condition runs, and the rest are skipped.'}
+                    </div>
+                    <div className={`rounded-xl border p-3 ${darkMode ? 'border-gray-700 bg-gray-900/60' : 'border-gray-200 bg-gray-50'}`}>
+                        <div className={`text-xs font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{isTr ? 'Değerlendirme Sırası' : 'Evaluation Order'}</div>
+                        {checks.map(([key, expr, result]) => {
+                            const active = order.indexOf(key) === cur
+                            const done = order.indexOf(key) < cur || (key === 'compare70' && s === 'output')
+                            const truthy = result === 'true' && done
+                            return (
+                                <div key={key} className={`flex items-center gap-2 rounded-lg px-3 py-2 mb-2 text-xs font-mono transition-all ${active
+                                    ? (darkMode ? 'bg-cyan-900/35 text-cyan-100' : 'bg-cyan-50 text-cyan-800')
+                                    : done
+                                        ? truthy
+                                            ? (darkMode ? 'bg-green-900/30 text-green-200' : 'bg-green-50 text-green-800')
+                                            : (darkMode ? 'bg-red-900/20 text-red-200' : 'bg-red-50 text-red-700')
+                                        : (darkMode ? 'bg-gray-800 text-gray-500' : 'bg-white text-gray-400')
+                                    }`}>
+                                    <span>{done ? (truthy ? '✓' : '×') : active ? '→' : '·'}</span>
+                                    <span className="flex-1">{expr}</span>
+                                    <span>{done ? result : '?'}</span>
+                                </div>
+                            )
+                        })}
+                        <div className={`rounded-lg px-3 py-2 text-xs font-mono ${s === 'output' ? (darkMode ? 'bg-green-900/30 text-green-200' : 'bg-green-50 text-green-800') : (darkMode ? 'bg-gray-800 text-gray-500' : 'bg-white text-gray-400')}`}>
+                            {s === 'output' ? 'print("BB")' : isTr ? 'çıktı henüz yok' : 'no output yet'}
+                        </div>
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-cyan-800 bg-cyan-950/30 text-cyan-200' : 'border-cyan-200 bg-cyan-50 text-cyan-800'}`}>
+                        {isTr ? 'Not dosyasındaki Scanner + if örneklerinin test otomasyonundaki karşılığı: input al, koşulu değerlendir, doğru branch için assertion yaz.' : 'QA version of Scanner + if examples: read input, evaluate the condition, then assert the correct branch.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'java-javac-workshop') {
+            const s = simState
+            const order = ['idle', 'folder', 'file', 'compile', 'classfile', 'run', 'done']
+            const cur = order.indexOf(s)
+            const cards = [
+                ['folder', 'java-lab/', isTr ? 'Çalışma klasörü' : 'Working folder'],
+                ['file', 'Main.java', isTr ? 'Senin yazdığın kaynak kod' : 'Source code you write'],
+                ['classfile', 'Main.class', isTr ? 'javac tarafından üretilen bytecode' : 'Bytecode generated by javac'],
+                ['run', 'java Main', isTr ? 'JVM Main.class dosyasını çalıştırır' : 'JVM runs Main.class'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Önemli ayrım: javac dosyayı çalıştırmaz, derler. java komutu ise oluşan .class dosyasını çalıştırır.' : 'Important split: javac does not run the file; it compiles it. The java command runs the generated .class file.'}
+                    </div>
+                    {cards.map(([key, title, desc]) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active
+                                ? (darkMode ? 'border-orange-500 bg-orange-950/30' : 'border-orange-300 bg-orange-50')
+                                : done
+                                    ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50')
+                                    : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')
+                                }`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : '·'} {title}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-orange-800 bg-orange-950/30 text-orange-200' : 'border-orange-200 bg-orange-50 text-orange-800'}`}>
+                        {isTr ? 'Dosya adı ve class adı aynı olmalı: public class Main yazdıysan dosya Main.java olmalı.' : 'File name and class name must match: if you write public class Main, the file must be Main.java.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'java-intellij-project') {
+            const s = simState
+            const order = ['idle', 'download', 'newProject', 'sdk', 'src', 'class', 'main', 'run', 'done']
+            const cur = order.indexOf(s)
+            const settings = [
+                ['download', isTr ? 'Kurulum' : 'Install', isTr ? 'Toolbox veya installer ile IntelliJ IDEA' : 'IntelliJ IDEA via Toolbox or installer'],
+                ['sdk', 'SDK/JDK', 'JDK 21'],
+                ['class', 'Class', 'Main.java'],
+                ['main', 'Entry point', 'public static void main(String[] args)'],
+                ['done', 'Console', isTr ? 'Merhaba IntelliJ!' : 'Hello IntelliJ!'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'IDE, dosyaları düzenleyen, hataları gösteren ve Run butonuyla komutları senin yerine çağıran çalışma masasıdır.' : 'An IDE is a workbench that edits files, shows mistakes, and calls the commands for you through Run buttons.'}
+                    </div>
+                    {settings.map(([key, label, value]) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`flex items-center gap-3 rounded-lg border p-3 ${ready ? (darkMode ? 'border-violet-700 bg-violet-950/25' : 'border-violet-200 bg-violet-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${ready ? 'bg-violet-600 text-white' : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>{ready ? '✓' : '·'}</span>
+                                <div>
+                                    <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{label}</div>
+                                    <div className={`text-xs font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-yellow-800 bg-yellow-950/30 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        {isTr ? 'Öğrenirken auto-complete ve AI önerilerini azalt: önce parmakların class, main, ; ve {} ritmini öğrensin.' : 'While learning, reduce auto-complete and AI suggestions: first let your hands learn class, main, ; and {} rhythm.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'java-maven-lifecycle') {
+            const s = simState
+            const order = ['idle', 'pom', 'compile', 'test', 'package', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['pom', 'pom.xml', isTr ? 'Bağımlılık ve plugin listesi' : 'Dependencies and plugins'],
+                ['compile', 'target/classes', isTr ? 'Derlenmiş .class dosyaları' : 'Compiled .class files'],
+                ['test', 'target/surefire-reports', isTr ? 'JUnit test raporları' : 'JUnit test reports'],
+                ['package', 'target/*.jar', isTr ? 'Paylaşılabilir paket' : 'Shareable package'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Maven, büyüyen Java projelerinde javac komutlarını, kütüphane indirmeyi ve test çalıştırmayı tek düzenli lifecycle altında toplar.' : 'Maven gathers javac commands, dependency downloads, and test execution under one lifecycle for growing Java projects.'}
+                    </div>
+                    {rows.map(([key, label, desc]) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${ready ? (darkMode ? 'border-blue-700 bg-blue-950/25' : 'border-blue-200 bg-blue-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold font-mono ${ready ? (darkMode ? 'text-blue-200' : 'text-blue-800') : darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{ready ? '✓ ' : '· '}{label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'İlk gün javac yeterli. Birden fazla class, test kütüphanesi veya Selenium/JUnit bağımlılığı gerektiğinde Maven’e geç.' : 'On day one, javac is enough. Move to Maven when you need multiple classes, test libraries, or Selenium/JUnit dependencies.'}
+                    </div>
+                </div>
+            )
+        }
+
         if (block.scenario === 'explicit-wait') {
             const nodes = [
                 { tag: '<div id="app">', level: 0, state: 'normal' },
@@ -5832,6 +6583,12 @@ pm.test("per_page is 6", () => {
                     <div className={`text-xs font-semibold uppercase tracking-wider mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                         🎮 {isTr ? 'Canlı Demo Alanı' : 'Live Playground'}
                     </div>
+                    {block.scenario === 'java-compile-run' && renderJavaCompileRunPlayground()}
+                    {block.scenario === 'java-stack-heap' && renderJavaMemoryPlayground()}
+                    {block.scenario === 'java-branch-runner' && renderJavaBranchPlayground()}
+                    {block.scenario === 'java-javac-workshop' && renderJavaJavacWorkshopPlayground()}
+                    {block.scenario === 'java-intellij-project' && renderJavaIntellijProjectPlayground()}
+                    {block.scenario === 'java-maven-lifecycle' && renderJavaMavenLifecyclePlayground()}
                     {block.scenario === 'explicit-wait' && renderExplicitWaitPlayground()}
                     {block.scenario === 'implicit-wait' && renderImplicitWaitPlayground()}
                     {block.scenario === 'drag-drop' && renderDragDropPlayground()}
@@ -6040,6 +6797,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             if (block.lang === 'sql')
                 return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} />
             return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
+        case 'java-practice':
+            return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         // ── New block types ────────────────────────────────────────────────────
 
