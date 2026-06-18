@@ -128,6 +128,11 @@ export const ROUTE_SEO = [
         title: 'Advanced Algorithms for QA Engineers | LearnQA.dev',
         description: 'Practice advanced QA algorithms with visual sorting, binary search, graph traversal, state machines and complexity labs for test automation.',
     },
+    {
+        path: '/qa-mentor',
+        title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı | LearnQA.dev',
+        description: 'QA mühendisliği yolculuğunu planla. Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş zihin haritası ve öğrenme yolu oluştur.',
+    },
 ]
 
 export function getSeoForPath(pathname) {

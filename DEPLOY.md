@@ -68,7 +68,13 @@ GitHub'da:
 
 ## 4. DNS Ayarları
 
-Domain'in authoritative DNS'i nerede yönetiliyorsa kayıtlar orada girilmelidir. Şu anda nameserver'lar hâlâ Netlify DNS'te olabilir; bu durumda kayıtları Netlify DNS panelinden düzenle veya nameserver'ları Porkbun'a geri alıp kayıtları Porkbun'da gir.
+Domain'in authoritative DNS'i nerede yönetiliyorsa kayıtlar orada girilmelidir.
+
+> NOT: Şu anda `learnqa.dev` için authoritative nameserver'lar Netlify/NS1 (`dns1.p01.nsone.net`, `dns2.p01.nsone.net`, `dns3.p01.nsone.net`, `dns4.p01.nsone.net`) şeklinde gözüküyor. Bu durumda GitHub Actions ve Pages deploy doğru olsa bile domain hâlâ Netlify üzerinden servis ediliyor.
+>
+> Bu durumda iki seçenek vardır:
+> 1. Netlify DNS paneline girin ve `learnqa.dev` için GitHub Pages A kayıtlarını ekleyin.
+> 2. Nameserver'ları Porkbun'a geri verin ve Porkbun DNS üzerinde GitHub Pages A kayıtlarını tanımlayın.
 
 ### Apex domain için A kayıtları
 
@@ -94,6 +100,8 @@ GitHub Pages tarafında sadece apex domain (`learnqa.dev`) kullanılıyorsa www 
 ### Eski Netlify kayıtları
 
 Netlify'a ait apex, ALIAS, ANAME veya CNAME kayıtları GitHub Pages kayıtlarıyla çakışmamalıdır. DNS'te aynı host için çakışan kayıtlar varsa temizlenmelidir.
+
+> Eğer nameserver'lar Netlify DNS üzerinde kalacaksa, `learnqa.dev` için mevcut Netlify DNS kaydını GitHub Pages A kayıtları ile değiştirin. `learnqa.dev` için Netlify IP'leri (`35.157.26.135`, `63.176.8.218`) yerine GitHub Pages IP'lerini kullanın.
 
 ---
 

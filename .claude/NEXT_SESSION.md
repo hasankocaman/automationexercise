@@ -65,6 +65,15 @@
 ### Stray/uncommitted dosyalar
 Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` bilinçli olarak ignore edilen yerel not dosyasıdır ve stray/untracked iş listesine alınmamalı.
 
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 5. kısım — QA Mentor AI Düzeltmeleri ve Entegrasyonu)
+
+| Görev | Durum |
+|-------|-------|
+| **Java + Playwright Zihin Haritası Düzeltmesi (MAP_C2):** TypeScript düğümü ana yoldan kaldırıldı, Playwright doğrudan Java sonrası aşama olarak konumlandırıldı ve sonraki düğüm ID'leri (REST Assured, SQL, Jenkins, Docker, AWS, Kubernetes) sırayla yeniden numaralandırıldı. | ✅ |
+| **Zihin Haritalarına Bonus Eklemeleri:** Tüm zihin haritalarının (`MAP_A`, `MAP_B`, `MAP_B_SEL`, `MAP_C1`, `MAP_C2`) "Ekstra Gelişim Dalları (Opsiyonel)" bölümüne bonus olarak `Appium`, `BrowserStack` ve `JMeter` eklendi. | ✅ |
+| **Java + Playwright Mentor Notu:** `MAP_C2` mentor notundaki TypeScript referansı kaldırıldı, Java otomasyoncuları için Appium mobil otomasyon ve JMeter performans testi önerileri eklendi. | ✅ |
+| **Doğrulama ve Build:** `npm run build` komutu başarıyla çalıştırıldı. 26 route için SEO kontrolleri, sitemap/robots dosya üretimleri, Vite prod build'i, 26 statik HTML shell üretimi ve dist SEO kontrolleri başarıyla tamamlandı. | ✅ |
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 4. kısım — GitHub Pages gerçek deploy'a geçiş)
 
 | Görev | Durum |
@@ -76,7 +85,15 @@
 | **Dokümantasyon:** `DEPLOY.md` GitHub Pages + DNS A kayıtları + Pages ayarları ile yeniden yazıldı. `CLAUDE.md` ve `codexSeo.md` kalıcı mimari olarak GitHub Pages static route shell modeline güncellendi; commit hash/anlık durum yazılmadı. | ✅ |
 | **Doğrulama:** `npm run build` başarılı (25 route SEO/static shell chain). `dist/CNAME`, `dist/java/index.html` ve `dist/comparison.html` redirect içeriği doğrulandı. | ✅ |
 
-> Canlıya geçiş için push sonrası GitHub repo Settings → Pages → Source: GitHub Actions ve Custom domain `learnqa.dev` kontrol edilmeli. DNS'te `learnqa.dev` apex A kayıtları GitHub Pages IP'lerine yönlenmeli; Netlify DNS kayıtları çakışıyorsa temizlenmeli.
+> Canlıya geçiş için push sonrası GitHub repo Settings → Pages → Source: GitHub Actions ve Custom domain `learnqa.dev` kontrol edilmeli.
+>
+> **Güncel sorun:** `learnqa.dev` şu anda Netlify/NS1 `dns1.p01.nsone.net` gibi Netlify DNS nameserver'ları üzerinden çözülüyor. Bu yüzden site, GitHub Pages'e deploy olsa bile hala Netlify edge üzerinden yayınlanıyor.
+>
+> Çözüm yolları:
+> 1. Netlify DNS paneli üzerinden `learnqa.dev` için GitHub Pages A kayıtlarını ekleyin.
+> 2. Ya da domain nameserver'larını Porkbun'a geri verin ve Porkbun DNS üzerinde GitHub Pages A kayıtlarını tanımlayın.
+>
+> Doğrulama için: `Resolve-DnsName learnqa.dev -Type NS` ve `nslookup -type=A learnqa.dev 8.8.8.8` komutlarını kullanarak nameserver ve A kayıtlarını kontrol edin.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 3. kısım — Codex'in Java Kurulum çalışmasının review'ı + küçük UX fix)
 

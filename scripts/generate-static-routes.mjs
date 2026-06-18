@@ -31,6 +31,7 @@ const DATA_MODULES = {
     '/manual-testing': { file: '../src/data/manualTestingData.js', exportName: 'manualTestingData' },
     '/algorithms': { file: '../src/data/beginnerAlgorithmsData.js', exportName: 'beginnerAlgorithmsData' },
     '/advanced-algorithms': { file: '../src/data/algorithmsData.js', exportName: 'algorithmsData' },
+    '/qa-mentor': { file: '../src/data/qaMentorData.js', exportName: null },
 }
 
 function escapeHtml(value) {
@@ -134,6 +135,16 @@ async function javaDocumentContent() {
 async function specialRouteContent(seo) {
     if (seo.path === '/test-frameworks') return testFrameworksContent()
     if (seo.path === '/java-document') return javaDocumentContent()
+    if (seo.path === '/qa-mentor') return {
+        title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı',
+        intro: 'Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş bir QA kariyer zihin haritası oluştur. Sıfırdan başlayanlar için Algoritma → Manuel Test → Java → Selenium yolundan, deneyimli geliştiriciler için Java+Playwright veya Python/TypeScript yoluna kadar 4 farklı kişiselleştirilmiş harita.',
+        topics: [
+            { title: 'Sıfırdan QA Mühendisi (MAP A)', snippets: ['Yazılım geçmişi olmadan başlayanlar için 11 adımlı yol: Algoritma, Manuel Test, Java, Selenium, Postman, REST Assured, Jenkins, AWS, Docker, Kubernetes, Kafka.'] },
+            { title: 'Java + Selenium Yolu (MAP C1)', snippets: ['Yazılım geçmişi olan ve klasik sektör stack\'ini öğrenmek isteyen QA mühendisleri için: Java, Selenium, REST Assured, Jenkins, Docker, AWS, Kubernetes.'] },
+            { title: 'Java + Playwright Yolu (MAP C2)', snippets: ['Modern QA automation için: Java, Playwright, TypeScript, REST Assured, Jenkins, Docker, AWS, Kubernetes ve opsiyonel Cypress/Azure DevOps.'] },
+            { title: 'Python / TypeScript Yolu (MAP B)', snippets: ['Python ve TypeScript ile modern otomasyon: pytest, Playwright, Postman, SQL, Jenkins, Docker, AWS ve opsiyonel Selenium/Cypress/BrowserStack.'] },
+        ],
+    }
     return null
 }
 
