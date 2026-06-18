@@ -25,15 +25,15 @@ temelini güçlendirmek ve korumak. Ana hedefler:
 ### 1. CLAUDE.md SEO kuralları
 `CLAUDE.md` Bölüm 6'da SEO ve yayın stratejisi kuralları tanımlıdır (temiz URL, metadata zorunluluğu, robots/sitemap, build zinciri).
 
-### 2. BrowserRouter
-`src/main.jsx` routing `HashRouter` değil `BrowserRouter` kullanır. Eski hash URL'ler (`/#/selenium`) `history.replaceState` ile temiz path'lere (`/selenium`) taşınır. Netlify SPA fallback `netlify.toml`'da tanımlıdır:
+### 2. BrowserRouter + GitHub Pages static route shells
+`src/main.jsx` routing `HashRouter` değil `BrowserRouter` kullanır. Eski hash URL'ler (`/#/selenium`) `history.replaceState` ile temiz path'lere (`/selenium`) taşınır.
 
-```toml
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-```
+Production deploy GitHub Pages üzerinden yapılır. GitHub Pages, Netlify tarzı `/* -> index.html` server fallback sağlamadığı için build zinciri her route için statik HTML shell üretir:
+
+- `vite build` ana assetleri üretir.
+- `scripts/generate-static-routes.mjs` `/java`, `/selenium`, `/python` gibi route klasörlerine `index.html` yazar.
+- GitHub Pages workflow'u bilinmeyen client-side path'ler için `dist/index.html` dosyasını `dist/404.html` olarak kopyalar.
+- Legacy `.html` URL gerekiyorsa `public/*.html` içinde hafif canonical redirect dosyası olarak tutulur.
 
 ### 3. Route bazlı SEO metadata
 `src/utils/seo.js` içeriği:
@@ -98,7 +98,7 @@ Ek script: `npm run seo:check-dist`
 - Her route için metadata zorunlu, title `LearnQA.dev` içermeli.
 - `robots.txt` ve `sitemap.xml` build öncesi otomatik üretilir.
 - Her route için crawl edilebilir static HTML shell üretilir.
-- Eski standalone `.html` dosyaları React route'larını gölgelememeli; gölgeliyorsa `netlify.toml`'da explicit 301 redirect ile korunur.
+- Eski standalone `.html` dosyaları React route'larını gölgelememeli; gerekiyorsa `public/*.html` içinde hafif canonical redirect dosyası olarak korunur.
 - İçerik SEO'su: her sayfa tek bir ana arama niyetini hedeflemeli, problem odaklı başlıklar da üretilmeli (wait strategies, Page Object Model, API testing gibi).
 
 ---

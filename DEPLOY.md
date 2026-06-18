@@ -1,20 +1,27 @@
-# Deploy Adımları — learnqa.dev
+# Deploy Adımları - learnqa.dev
 
-## Hosting: Netlify + Porkbun (Custom Domain)
+## Hosting: GitHub Pages + Porkbun Custom Domain
+
+`learnqa.dev` production yayını GitHub Pages üzerinden yapılır. Netlify hesabında kredi bittiğinde production deploy durduğu için gerçek build yayını GitHub Actions + GitHub Pages akışına taşındı.
 
 ---
 
 ## 1. Ön Koşullar
 
-- GitHub repo: `hasankocaman/automationexercise` (private)
-- Domain: `learnqa.dev` — Porkbun'dan satın alındı
-- Hosting: Netlify (ücretsiz tier)
+- GitHub repo: `hasankocaman/automationexercise`
+- Domain: `learnqa.dev` - Porkbun'dan satın alındı
+- Build komutu: `npm run build`
+- Publish klasörü: `dist`
+- Custom domain dosyası: `public/CNAME`
 
 ---
 
-## 2. Proje Hazırlığı (Bir Kez Yapıldı)
+## 2. Proje Hazırlığı
 
-### `vite.config.js` — Base path `/` olmalı
+### `vite.config.js`
+
+Custom domain root'tan yayın yaptığı için base path `/` olmalıdır.
+
 ```js
 export default defineConfig({
   base: '/',
@@ -22,68 +29,75 @@ export default defineConfig({
   server: { port: 5173, open: true }
 })
 ```
-> Dikkat: GitHub Pages için `/automationexercise/` kullanılıyordu. Netlify root'tan serve ettiği için `/` olmalı.
 
-### `netlify.toml` — Proje kökünde bulunmalı
-```toml
-[build]
-  command = "npm run build"
-  publish = "dist"
+### GitHub Pages workflow
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+`.github/workflows/deploy.yml` gerçek siteyi build eder:
+
+1. Repo checkout
+2. Node.js 20 setup
+3. `npm ci`
+4. `npm run build`
+5. `dist/index.html` dosyasını `dist/404.html` olarak kopyalar
+6. `dist` artifact'ini GitHub Pages'e deploy eder
+
+`workflow_dispatch` açık olduğu için GitHub Actions ekranından manuel deploy da tetiklenebilir.
+
+### Custom domain
+
+`public/CNAME` dosyası şu içeriği taşır:
+
+```txt
+learnqa.dev
 ```
-> `[[redirects]]` kuralı olmadan React Router sayfa yenilemelerinde 404 verir.
+
+Vite build sırasında bu dosya `dist/CNAME` olarak kopyalanır ve GitHub Pages custom domain ayarını korur.
 
 ---
 
-## 3. Netlify'da Site Kurulumu (Bir Kez Yapıldı)
+## 3. GitHub Repo Ayarları
 
-1. [netlify.com](https://netlify.com) → **Sign up / Login** → GitHub ile giriş
-2. **Add new site → Import an existing project → GitHub**
-3. `automationexercise` reposunu seç
-4. Build ayarları `netlify.toml` sayesinde otomatik gelir → **Deploy site**
-5. İlk deploy ~18 saniyede tamamlandı
+GitHub'da:
 
----
-
-## 4. Domain Bağlama (Bir Kez Yapıldı)
-
-### Netlify tarafı
-1. **Domain management → Add custom domain** → `learnqa.dev`
-2. `learnqa.dev` → **Options → Set up Netlify DNS**
-3. Netlify'ın nameserver adreslerini not al:
-   ```
-   dns1.p01.nsone.net
-   dns2.p01.nsone.net
-   dns3.p01.nsone.net
-   dns4.p01.nsone.net
-   ```
-4. **Done** butonuna bas
-
-### Porkbun tarafı
-1. [porkbun.com](https://porkbun.com) → giriş → **Domain Management → learnqa.dev → Details**
-2. **NAMESERVERS** bölümündeki düzenleme ikonuna tıkla
-3. Porkbun'un varsayılan nameserver'larını sil:
-   ```
-   curitiba.ns.porkbun.com
-   fortaleza.ns.porkbun.com
-   maceio.ns.porkbun.com
-   salvador.ns.porkbun.com
-   ```
-4. Netlify nameserver'larını gir (yukarıdaki 4 adres)
-5. Kaydet
-
-### DNS yayılması
-- Süre: 5 dakika – 2 saat (genellikle ~30 dakika)
-- Tamamlandığında Netlify otomatik SSL sertifikası alır (Let's Encrypt)
-- Test: `https://learnqa.dev` tarayıcıda aç
+1. Repo -> **Settings** -> **Pages**
+2. **Source**: GitHub Actions
+3. **Custom domain**: `learnqa.dev`
+4. DNS doğrulandıktan sonra **Enforce HTTPS** aktif edilmeli
 
 ---
 
-## 5. Sonraki Deploy'lar (Her Güncellemede)
+## 4. DNS Ayarları
+
+Domain'in authoritative DNS'i nerede yönetiliyorsa kayıtlar orada girilmelidir. Şu anda nameserver'lar hâlâ Netlify DNS'te olabilir; bu durumda kayıtları Netlify DNS panelinden düzenle veya nameserver'ları Porkbun'a geri alıp kayıtları Porkbun'da gir.
+
+### Apex domain için A kayıtları
+
+`learnqa.dev` için şu dört A kaydı olmalı:
+
+```txt
+185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153
+```
+
+### www için CNAME
+
+`www.learnqa.dev` kullanılacaksa:
+
+```txt
+www CNAME hasankocaman.github.io
+```
+
+GitHub Pages tarafında sadece apex domain (`learnqa.dev`) kullanılıyorsa www zorunlu değildir.
+
+### Eski Netlify kayıtları
+
+Netlify'a ait apex, ALIAS, ANAME veya CNAME kayıtları GitHub Pages kayıtlarıyla çakışmamalıdır. DNS'te aynı host için çakışan kayıtlar varsa temizlenmelidir.
+
+---
+
+## 5. Sonraki Deploy'lar
 
 ```bash
 git add .
@@ -91,7 +105,13 @@ git commit -m "feat: ..."
 git push origin main
 ```
 
-`main` branch'e push yapıldığında Netlify **otomatik olarak** yeni deploy başlatır. Manuel işlem gerekmez.
+`main` branch'e push yapılınca GitHub Actions otomatik olarak production deploy başlatır.
+
+Manuel deploy için:
+
+1. GitHub -> Actions
+2. **Deploy LearnQA.dev to GitHub Pages**
+3. **Run workflow**
 
 ---
 
@@ -99,61 +119,48 @@ git push origin main
 
 | Hata | Sebep | Çözüm |
 |------|-------|-------|
-| `ModuleLoader.handleInvalidResolvedId` | CI'da import edilen dosya git'e eklenmemiş | `git add <dosya> && git push` |
-| `Get Pages site failed` | GitHub Pages, private repo'da ücretsiz çalışmaz | Netlify kullan |
-| `Pending DNS verification` | Nameserver'lar henüz yayılmadı | 30-60 dakika bekle |
-| `Could not provision SSL` | DNS yayılmadan önce SSL denendi | DNS doğrulandıktan sonra Netlify otomatik alır |
-| Sayfa yenilemede 404 | `netlify.toml` redirect kuralı eksik | `[[redirects]]` kuralını kontrol et |
+| Canlı site eski kalıyor | GitHub Actions deploy tamamlanmamış veya DNS hâlâ Netlify'a bakıyor | Actions deploy sonucunu ve DNS A kayıtlarını kontrol et |
+| `/java` açılıyor ama bazı direkt URL'ler 404 | Route shell veya fallback eksik | `npm run build` çıktısında static route shell üretimini kontrol et; workflow `dist/404.html` üretir |
+| `Get Pages site failed` | Repo Pages ayarı GitHub Actions değil veya Pages kapalı | Settings -> Pages -> Source: GitHub Actions |
+| `CNAME already taken` | Domain başka Pages sitesine bağlı | Eski Pages custom domain ayarını kaldır veya GitHub domain verification yap |
+| HTTPS aktifleşmiyor | DNS yayılmamış veya çakışan kayıt var | DNS kayıtlarını düzelt, 30-60 dakika bekle, sonra Enforce HTTPS dene |
+| Eski `/comparison.html` görünür | Legacy HTML React route'u gölgeliyor | `public/comparison.html` hafif redirect dosyası olmalı |
 
 ---
 
-## 7. Önemli Bilgiler
+## 7. SEO Yayın Kontrol Listesi
 
-| Alan | Değer |
-|------|-------|
-| Canlı URL | https://learnqa.dev |
-| Netlify subdomain | https://sprightly-cactus-c9482b.netlify.app |
-| GitHub repo | https://github.com/hasankocaman/automationexercise |
-| Domain registrar | Porkbun — yenileme $12.87/yıl (2027-06-16) |
-| SSL | Let's Encrypt — otomatik yenilenir |
----
+Her production deploy'dan sonra:
 
-## 8. SEO Yayin Kontrol Listesi
-
-Her production deploy'dan sonra su kontrolleri yap:
-
-1. `https://learnqa.dev/robots.txt` aciliyor mu?
-2. `https://learnqa.dev/sitemap.xml` icinde tum ana sayfalar var mi?
-3. Temiz URL'ler dogrudan aciliyor mu?
+1. `https://learnqa.dev/robots.txt` açılıyor mu?
+2. `https://learnqa.dev/sitemap.xml` içinde tüm ana sayfalar var mı?
+3. Temiz URL'ler doğrudan açılıyor mu?
    - `https://learnqa.dev/selenium`
    - `https://learnqa.dev/playwright`
    - `https://learnqa.dev/python`
    - `https://learnqa.dev/sql`
-4. Eski hash URL kullanan biri `https://learnqa.dev/#/selenium` acarsa otomatik `https://learnqa.dev/selenium` adresine tasiniyor mu?
-5. Sayfa kaynaginda route'a ozel `title`, `description`, `canonical`, `WebPage` ve `BreadcrumbList` var mi?
+   - `https://learnqa.dev/java`
+4. Eski hash URL kullanan biri `https://learnqa.dev/#/selenium` açarsa otomatik `https://learnqa.dev/selenium` adresine taşınıyor mu?
+5. Legacy `https://learnqa.dev/comparison.html` yeni `/test-frameworks` route'una gidiyor mu?
+6. Sayfa kaynağında route'a özel `title`, `description`, `canonical`, `WebPage` ve `BreadcrumbList` var mı?
 
-Google Search Console'da bir kez yapilacaklar:
+Google Search Console'da bir kez yapılacaklar:
 
 1. Domain property olarak `learnqa.dev` ekle.
-2. DNS dogrulamasini tamamla.
-3. `Sitemaps` ekraninda `https://learnqa.dev/sitemap.xml` gonder.
-4. `URL Inspection` ile ana sayfa ve en onemli sayfalari tek tek kontrol et:
-   - `https://learnqa.dev/`
-   - `https://learnqa.dev/selenium`
-   - `https://learnqa.dev/playwright`
-   - `https://learnqa.dev/python`
-   - `https://learnqa.dev/sql`
-5. Her kritik URL icin `Request indexing` kullan.
+2. DNS doğrulamasını tamamla.
+3. `Sitemaps` ekranında `https://learnqa.dev/sitemap.xml` gönder.
+4. `URL Inspection` ile ana sayfa ve en önemli sayfaları tek tek kontrol et.
+5. Her kritik URL için `Request indexing` kullan.
 
-SEO build korumasi:
+SEO build koruması:
 
 ```bash
 npm run build
 ```
 
-Bu komut artik sunlari otomatik kontrol eder:
+Bu komut şunları otomatik kontrol eder:
 
-- React route'lari ile SEO metadata listesi eslesiyor mu?
-- `robots.txt` ve `sitemap.xml` uretiliyor mu?
-- Her route icin statik HTML shell uretiliyor mu?
-- Her uretilen HTML'de `title`, `description`, `canonical`, fallback metin ve structured data var mi?
+- React route'ları ile SEO metadata listesi eşleşiyor mu?
+- `robots.txt` ve `sitemap.xml` üretiliyor mu?
+- Her route için statik HTML shell üretiliyor mu?
+- Her üretilen HTML'de `title`, `description`, `canonical`, fallback metin ve structured data var mı?

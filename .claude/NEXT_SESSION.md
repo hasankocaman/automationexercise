@@ -18,26 +18,27 @@
 
 ---
 
-## 🌐 CANLI DEPLOYMENT BİLGİLERİ (2026-06-16)
+## 🌐 CANLI DEPLOYMENT BİLGİLERİ (2026-06-18)
 
 | Alan | Değer |
 |------|-------|
 | **Canlı URL** | https://learnqa.dev |
-| **Hosting** | Netlify (ücretsiz tier, private repo destekler) |
-| **Netlify subdomain** | https://sprightly-cactus-c9482b.netlify.app |
+| **Hosting** | GitHub Pages (GitHub Actions ile gerçek `npm run build` deploy) |
+| **Eski Netlify subdomain** | https://sprightly-cactus-c9482b.netlify.app (Netlify kredisi bittiği için production deploy devre dışı kalabilir) |
 | **Domain registrar** | Porkbun — yenileme $12.87/yıl (2027-06-16) |
 | **GitHub repo** | https://github.com/hasankocaman/automationexercise (public) |
-| **Eski URL** | https://hasankocaman.github.io/automationexercise/ → learnqa.dev'e yönlendirir |
+| **GitHub Pages URL** | https://hasankocaman.github.io/automationexercise/ (custom domain `learnqa.dev` ile yayın hedefi) |
 
 ### Deploy Akışı
-- `git push origin main` → Netlify otomatik build + deploy eder (~18 saniye)
-- GitHub Pages: sadece `learnqa.dev`'e yönlendiren tek HTML sayfası yayınlar
-- `DEPLOY.md` dosyasında tüm kurulum adımları belgelenmiştir
+- `git push origin main` → GitHub Actions `Deploy LearnQA.dev to GitHub Pages` workflow'unu çalıştırır.
+- Workflow: checkout → Node 20 → `npm ci` → `npm run build` → `dist/404.html` fallback → Pages artifact upload → GitHub Pages deploy.
+- `DEPLOY.md` dosyasında GitHub Pages + DNS kurulum adımları belgelenmiştir.
 
 ### Kritik Yapılandırma
-- `vite.config.js` → `base: '/'` (Netlify için, GitHub Pages'den değiştirildi)
-- `netlify.toml` → build config + SPA redirect kuralı
-- `.github/workflows/deploy.yml` → artık sadece redirect HTML deploy eder (build yok)
+- `vite.config.js` → `base: '/'` (custom domain root yayını için)
+- `public/CNAME` → `learnqa.dev`
+- `.github/workflows/deploy.yml` → gerçek Vite build'i GitHub Pages'e deploy eder
+- GitHub Pages'te Netlify tarzı server fallback yoktur; `scripts/generate-static-routes.mjs` route shell'leri üretir ve workflow `dist/index.html` dosyasını `dist/404.html` olarak kopyalar.
 
 ---
 
@@ -50,7 +51,7 @@
 - Bu commit, Codex'in Java Kurulum sekmesi işini (javac/IntelliJ/Maven atölyeleri, `java-practice` alanları, `.gitignore`/`CLAUDE.md` kuralı) ve Claude Code'un bu işi review edip `JavaPracticeBlock` içindeki tekrarlı uyarı kusurunu düzeltmesini TEK commit'te birleştirdi.
 - `Documents/_Java notlar.md` yerel çalışma notudur; `.gitignore` içinde `Documents/_Java notlar.md` olarak ignore ediliyor ve `git check-ignore -v -- "Documents/_Java notlar.md"` ile doğrulandı. Her commit/stage öncesi bu kural tekrar kontrol edilmeli.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
-- **Bilinen GitHub Actions uyarısı (`.github/workflows/deploy.yml` — "Redirect to learnqa.dev"):** Bu workflow sadece `learnqa.dev`'e yönlendiren kozmetik bir GitHub Pages sayfası deploy ediyor, gerçek site Netlify'da ve bundan etkilenmiyor. İki commit art arda push edilirse ("Deployment request failed ... due to in progress deployment") veya aynı run birden fazla kez "Re-run jobs" ile tekrar çalıştırılırsa ("Multiple artifacts named github-pages... Artifact count is 3") hata alınabilir — ikisi de zararsız, fonksiyonel etkisi yok. Çözüm: aynı run'ı tekrar tekrar re-run etmek yerine yeni bir push ile temiz bir run tetiklemek (workflow sadece `on: push` ile tetikleniyor, `workflow_dispatch` yok).
+- **GitHub Pages deploy notu:** `.github/workflows/deploy.yml` artık redirect HTML değil, gerçek `npm run build` çıktısını yayınlar. `concurrency.group: pages` aynı anda birden fazla Pages deploy çakışmasını azaltır. `workflow_dispatch` açık olduğu için Actions ekranından manuel deploy tetiklenebilir.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
 `BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları `7f526fd` ile; algoritma soru bankası ve HomePage roadmap fix'i `797aa6d` ile commit'li/push'lu. `npm run build` **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
@@ -58,12 +59,24 @@
 **SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
 - `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
 - `https://learnqa.dev/cypress`, `/algorithms`, `/advanced-algorithms`, `/manual-testing` canlıda doğru render oluyor mu? (ilk kez bu push ile canlıya çıkıyor)
-- `https://learnqa.dev/test-frameworks.html` → `/test-frameworks` 301 ile yönleniyor mu? (`e6d1dd9`'da eklendi)
-- `https://learnqa.dev/comparison.html` → `/test-frameworks` 301 ile yönleniyor mu?
+- `https://learnqa.dev/comparison.html` → `/test-frameworks` client-side redirect ile gidiyor mu? (GitHub Pages server 301 sağlamaz)
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
 Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` bilinçli olarak ignore edilen yerel not dosyasıdır ve stray/untracked iş listesine alınmamalı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 4. kısım — GitHub Pages gerçek deploy'a geçiş)
+
+| Görev | Durum |
+|-------|-------|
+| **Kök neden:** Netlify dashboard'da kredi bittiği için production deploy ve Agent Runner devre dışı görünüyordu; GitHub push doğru olsa bile `learnqa.dev` eski Netlify build'inde kalıyordu. | ✅ |
+| **Workflow değişikliği:** `.github/workflows/deploy.yml` redirect HTML üretmek yerine gerçek siteyi build/deploy eder hale getirildi: checkout, Node 20, `npm ci`, `npm run build`, `dist/404.html` fallback, `actions/upload-pages-artifact`, `actions/deploy-pages`. `workflow_dispatch` ve Pages concurrency eklendi. | ✅ |
+| **Custom domain:** `public/CNAME` eklendi (`learnqa.dev`). GitHub Pages artifact'i içinde `dist/CNAME` oluştuğu build ile doğrulandı. | ✅ |
+| **Legacy HTML temizliği:** `public/comparison.html` eski standalone büyük sayfa olmaktan çıkarılıp `/test-frameworks` canonical/client redirect dosyasına dönüştürüldü. `dist/comparison.html` build çıktısı da aynı redirect'i yansıtıyor. `public/test-frameworks.html` eklenmedi; SEO guard React route'u gölgelediği için doğru model bu değil. | ✅ |
+| **Dokümantasyon:** `DEPLOY.md` GitHub Pages + DNS A kayıtları + Pages ayarları ile yeniden yazıldı. `CLAUDE.md` ve `codexSeo.md` kalıcı mimari olarak GitHub Pages static route shell modeline güncellendi; commit hash/anlık durum yazılmadı. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (25 route SEO/static shell chain). `dist/CNAME`, `dist/java/index.html` ve `dist/comparison.html` redirect içeriği doğrulandı. | ✅ |
+
+> Canlıya geçiş için push sonrası GitHub repo Settings → Pages → Source: GitHub Actions ve Custom domain `learnqa.dev` kontrol edilmeli. DNS'te `learnqa.dev` apex A kayıtları GitHub Pages IP'lerine yönlenmeli; Netlify DNS kayıtları çakışıyorsa temizlenmeli.
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 3. kısım — Codex'in Java Kurulum çalışmasının review'ı + küçük UX fix)
 
@@ -409,7 +422,7 @@ SimulationBlock({ block, darkMode, language })
 
 ### Build Durumu
 - ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, güncel toplam 25 route; bkz. `codexSeo.md`)
-- ✅ Netlify'da canlı: https://learnqa.dev
+- ✅ Production hedefi: GitHub Pages custom domain `https://learnqa.dev`
 - ⚠️ `javaData` chunk hâlâ ~665KB tek başına büyük (route-based code splitting sayesinde ana bundle ~239KB civarında, kritik değil)
 - Güncel commit/push durumu için bu dosyanın en üstündeki **"GÜNCEL DURUM"** bölümüne bak (tek kaynak — burada tekrar edilmiyor).
 
