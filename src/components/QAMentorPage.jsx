@@ -373,6 +373,21 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart }) {
     )
 }
 
+// ─── Resolve Dialog Key ──────────────────────────────────────────────────────
+function resolveDialogKey(key, dialog) {
+    if (!key) return ''
+    const parts = key.split('.')
+    let current = dialog
+    for (const part of parts) {
+        if (current && current[part] !== undefined) {
+            current = current[part]
+        } else {
+            return key // fallback
+        }
+    }
+    return current
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 function QAMentorPage() {
     const { language } = useLanguage()
@@ -394,13 +409,13 @@ function QAMentorPage() {
     }, [messages, isTyping, showOptions])
 
     // Add a bot message with typing delay
-    const addBotMessage = useCallback((text, delay = 600) => {
+    const addBotMessage = useCallback((key, delay = 600) => {
         return new Promise(resolve => {
             setIsTyping(true)
             setShowOptions(false)
             setTimeout(() => {
                 setIsTyping(false)
-                setMessages(prev => [...prev, { id: Date.now() + Math.random(), isBot: true, text, visible: false }])
+                setMessages(prev => [...prev, { id: Date.now() + Math.random(), isBot: true, key, visible: false }])
                 // Trigger visibility after mount
                 setTimeout(() => {
                     setMessages(prev => prev.map((m, i) => i === prev.length - 1 ? { ...m, visible: true } : m))
@@ -411,26 +426,26 @@ function QAMentorPage() {
     }, [])
 
     // Add a user message
-    const addUserMessage = useCallback((text) => {
-        setMessages(prev => [...prev, { id: Date.now() + Math.random(), isBot: false, text, visible: true }])
+    const addUserMessage = useCallback((key) => {
+        setMessages(prev => [...prev, { id: Date.now() + Math.random(), isBot: false, key, visible: true }])
     }, [])
 
     // Initialize
     useEffect(() => {
         let cancelled = false
         const init = async () => {
-            await addBotMessage(dialog.welcome.bot, 800)
+            await addBotMessage('welcome.bot', 800)
             if (cancelled) return
-            await addBotMessage(dialog.welcome.bot2, 900)
+            await addBotMessage('welcome.bot2', 900)
             if (cancelled) return
-            await addBotMessage(dialog.step1.bot, 700)
+            await addBotMessage('step1.bot', 700)
             if (cancelled) return
             setShowOptions(true)
         }
         init()
         return () => { cancelled = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lang])
+    }, [])
 
     // Restart — reset everything
     const handleRestart = useCallback(() => {
@@ -443,67 +458,67 @@ function QAMentorPage() {
         // Re-trigger init
         let cancelled = false
         const init = async () => {
-            await addBotMessage(dialog.welcome.bot, 800)
+            await addBotMessage('welcome.bot', 800)
             if (cancelled) return
-            await addBotMessage(dialog.welcome.bot2, 900)
+            await addBotMessage('welcome.bot2', 900)
             if (cancelled) return
-            await addBotMessage(dialog.step1.bot, 700)
+            await addBotMessage('step1.bot', 700)
             if (cancelled) return
             setShowOptions(true)
         }
         init()
         return () => { cancelled = true }
-    }, [dialog, addBotMessage])
+    }, [addBotMessage])
 
     // Handle option selection
     const handleOption = useCallback(async (option) => {
         setShowOptions(false)
-        addUserMessage(dialog.userChoice[option.id])
+        addUserMessage(`userChoice.${option.id}`)
         setChoices(prev => [...prev, option.id])
 
         if (option.id === 'A') {
             // → Sıfırdan, direkt MAP_A
-            await addBotMessage(dialog.mapReady, 900)
+            await addBotMessage('mapReady', 900)
             setSelectedMap(ALL_MAPS.map_a)
             setStep(MENTOR_STEPS.MAP_A)
         } else if (option.id === 'B') {
             // → Yazılım geçmişi var, sor: Java mı?
-            await addBotMessage(dialog.step2.bot, 900)
+            await addBotMessage('step2.bot', 900)
             setStep(MENTOR_STEPS.STEP_2)
             setShowOptions(true)
         } else if (option.id === 'B1') {
             // → Java ile başlamak istiyor, sor: Selenium mi Playwright mı?
-            await addBotMessage(dialog.step3.bot, 900)
+            await addBotMessage('step3.bot', 900)
             setStep(MENTOR_STEPS.STEP_3)
             setShowOptions(true)
         } else if (option.id === 'B2') {
             // → Python/TS yolu — önce Selenium sorusu
-            await addBotMessage(dialog.stepBSelenium.bot, 900)
+            await addBotMessage('stepBSelenium.bot', 900)
             setStep(MENTOR_STEPS.STEP_B_SELENIUM)
             setShowOptions(true)
         } else if (option.id === 'B_SEL_YES') {
             // → Python/TS + Selenium dahil
-            await addBotMessage(dialog.mapReady, 900)
+            await addBotMessage('mapReady', 900)
             setSelectedMap(ALL_MAPS.map_b_sel)
             setStep(MENTOR_STEPS.MAP_B_SEL)
         } else if (option.id === 'B_SEL_NO') {
             // → Playwright vs Cypress tanıtımı, ardından MAP_B
-            await addBotMessage(dialog.playwrightCypressCompare.bot, 1200)
-            await addBotMessage(dialog.mapReady, 700)
+            await addBotMessage('playwrightCypressCompare.bot', 1200)
+            await addBotMessage('mapReady', 700)
             setSelectedMap(ALL_MAPS.map_b)
             setStep(MENTOR_STEPS.MAP_B)
         } else if (option.id === 'C1') {
             // → Java + Selenium
-            await addBotMessage(dialog.mapReady, 900)
+            await addBotMessage('mapReady', 900)
             setSelectedMap(ALL_MAPS.map_c1)
             setStep(MENTOR_STEPS.MAP_C1)
         } else if (option.id === 'C2') {
             // → Java + Playwright
-            await addBotMessage(dialog.mapReady, 900)
+            await addBotMessage('mapReady', 900)
             setSelectedMap(ALL_MAPS.map_c2)
             setStep(MENTOR_STEPS.MAP_C2)
         }
-    }, [dialog, addBotMessage, addUserMessage])
+    }, [addBotMessage, addUserMessage])
 
     const isMapStep = [
         MENTOR_STEPS.MAP_A,
@@ -617,7 +632,7 @@ function QAMentorPage() {
                         {messages.map(m => (
                             <ChatBubble
                                 key={m.id}
-                                message={m.text}
+                                message={resolveDialogKey(m.key, dialog)}
                                 isBot={m.isBot}
                                 darkMode={darkMode}
                                 visible={m.visible}
