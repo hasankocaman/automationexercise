@@ -46,8 +46,8 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `20323a5 docs: note GitHub Pages redirect workflow artifact-conflict issue, trigger fresh run`.
-- Bu oturumda commit/push yapılmadı. Çalışma ağacında bekleyen değişiklikler: `.gitignore`, `CLAUDE.md`, `.claude/NEXT_SESSION.md`, `src/components/TopicPage.jsx`, `src/data/javaData.js`.
+- **Son local commit:** `0e3c0a7 feat: rebuild Java setup tab around javac->IntelliJ->Maven flow, add interactive try-it-yourself blocks`. Kullanıcı onayıyla commit edilip **push edildi** — local ve origin/main senkron.
+- Bu commit, Codex'in Java Kurulum sekmesi işini (javac/IntelliJ/Maven atölyeleri, `java-practice` alanları, `.gitignore`/`CLAUDE.md` kuralı) ve Claude Code'un bu işi review edip `JavaPracticeBlock` içindeki tekrarlı uyarı kusurunu düzeltmesini TEK commit'te birleştirdi.
 - `Documents/_Java notlar.md` yerel çalışma notudur; `.gitignore` içinde `Documents/_Java notlar.md` olarak ignore ediliyor ve `git check-ignore -v -- "Documents/_Java notlar.md"` ile doğrulandı. Her commit/stage öncesi bu kural tekrar kontrol edilmeli.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
 - **Bilinen GitHub Actions uyarısı (`.github/workflows/deploy.yml` — "Redirect to learnqa.dev"):** Bu workflow sadece `learnqa.dev`'e yönlendiren kozmetik bir GitHub Pages sayfası deploy ediyor, gerçek site Netlify'da ve bundan etkilenmiyor. İki commit art arda push edilirse ("Deployment request failed ... due to in progress deployment") veya aynı run birden fazla kez "Re-run jobs" ile tekrar çalıştırılırsa ("Multiple artifacts named github-pages... Artifact count is 3") hata alınabilir — ikisi de zararsız, fonksiyonel etkisi yok. Çözüm: aynı run'ı tekrar tekrar re-run etmek yerine yeni bir push ile temiz bir run tetiklemek (workflow sadece `on: push` ile tetikleniyor, `workflow_dispatch` yok).
