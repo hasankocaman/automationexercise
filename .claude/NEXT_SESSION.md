@@ -47,8 +47,10 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Son local commit:** `0e3c0a7 feat: rebuild Java setup tab around javac->IntelliJ->Maven flow, add interactive try-it-yourself blocks`. Kullanıcı onayıyla commit edilip **push edildi** — local ve origin/main senkron.
-- Bu commit, Codex'in Java Kurulum sekmesi işini (javac/IntelliJ/Maven atölyeleri, `java-practice` alanları, `.gitignore`/`CLAUDE.md` kuralı) ve Claude Code'un bu işi review edip `JavaPracticeBlock` içindeki tekrarlı uyarı kusurunu düzeltmesini TEK commit'te birleştirdi.
+- **Yerel Commit'ler (Push Bekliyor):**
+  - `522864b` feat(homepage): remove old learning intro section and paths
+  - `4f8f98c` fix(qa-mentor): translate chat bubbles dynamically on language toggle and fix duplication
+  - `5c9b46a` feat: integrate QA Mentor AI path builder, remove TS from Java+Playwright, and add Appium/JMeter/BrowserStack bonuses
 - `Documents/_Java notlar.md` yerel çalışma notudur; `.gitignore` içinde `Documents/_Java notlar.md` olarak ignore ediliyor ve `git check-ignore -v -- "Documents/_Java notlar.md"` ile doğrulandı. Her commit/stage öncesi bu kural tekrar kontrol edilmeli.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
 - **GitHub Pages deploy notu:** `.github/workflows/deploy.yml` artık redirect HTML değil, gerçek `npm run build` çıktısını yayınlar. `concurrency.group: pages` aynı anda birden fazla Pages deploy çakışmasını azaltır. `workflow_dispatch` açık olduğu için Actions ekranından manuel deploy tetiklenebilir.
@@ -72,6 +74,8 @@
 | **Java + Playwright Zihin Haritası Düzeltmesi (MAP_C2):** TypeScript düğümü ana yoldan kaldırıldı, Playwright doğrudan Java sonrası aşama olarak konumlandırıldı ve sonraki düğüm ID'leri (REST Assured, SQL, Jenkins, Docker, AWS, Kubernetes) sırayla yeniden numaralandırıldı. | ✅ |
 | **Zihin Haritalarına Bonus Eklemeleri:** Tüm zihin haritalarının (`MAP_A`, `MAP_B`, `MAP_B_SEL`, `MAP_C1`, `MAP_C2`) "Ekstra Gelişim Dalları (Opsiyonel)" bölümüne bonus olarak `Appium`, `BrowserStack` ve `JMeter` eklendi. | ✅ |
 | **Java + Playwright Mentor Notu:** `MAP_C2` mentor notundaki TypeScript referansı kaldırıldı, Java otomasyoncuları için Appium mobil otomasyon ve JMeter performans testi önerileri eklendi. | ✅ |
+| **Dinamik Dil Çevirisi (QA Mentor):** Chat state yapısı ham string yerine translation key bazlı olacak şekilde refaktör edildi. Dil değiştiğinde geçmişteki tüm chat balonlarının anında yeni dile çevrilmesi sağlandı ve karşılama mesajlarının yinelenmesi engellendi. | ✅ |
+| **Giriş Yol Haritasının Temizlenmesi:** Anasayfadaki eski "Choose a learning path..." (Yol Haritası Giriş) kartı ve aşama listeleri (`learningPaths`, `roadmapGroups`, `renderPathCard` ve `renderLearningIntro`) kod tabanından tamamen temizlendi. | ✅ |
 | **Doğrulama ve Build:** `npm run build` komutu başarıyla çalıştırıldı. 26 route için SEO kontrolleri, sitemap/robots dosya üretimleri, Vite prod build'i, 26 statik HTML shell üretimi ve dist SEO kontrolleri başarıyla tamamlandı. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 4. kısım — GitHub Pages gerçek deploy'a geçiş)
