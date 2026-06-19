@@ -703,6 +703,14 @@ export default function GitDocPage() {
                 </div>
             </header>
 
+            <div className={`w-full border-b px-4 py-2.5 text-center ${darkMode ? 'bg-amber-500/15 border-amber-400/30' : 'bg-amber-100 border-amber-300'}`}>
+                <span className="animate-pulse inline-flex items-center gap-2 text-xs md:text-sm font-bold text-amber-500">
+                    🚧 {language === 'tr'
+                        ? 'Bu sayfa geliştirme aşamasındadır — içerik ve çeviriler güncelleniyor.'
+                        : 'This page is under development — content and translations are being updated.'}
+                </span>
+            </div>
+
             <div className="container mx-auto px-4 py-6 max-w-7xl">
                 <div className="flex gap-6 items-start relative">
                     
