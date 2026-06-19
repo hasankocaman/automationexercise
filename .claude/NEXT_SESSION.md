@@ -65,9 +65,19 @@
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
-- **Bu oturumda (27. kısım) değiştirilen dosyalar:** `src/data/seleniumData.js`, `src/components/TopicPage.jsx` — `/selenium` sayfasının modernizasyonu ve yeni canlı simülasyonların eklenmesi.
-- **Önceki oturumlardan kalan yerel değişiklikler:** `src/data/cypressData.js`, `src/data/gitGithubData.js`, `src/data/javaData.js`, `src/data/sqlData.js`, `src/components/GitDocPage.jsx`, `dist/index.html` vb. uncommitted değişiklikler çalışma ağacında durmaktadır.
+- **Bu oturumda (28. kısım) değiştirilen dosyalar:** `src/data/whatIsTestingData.js` — Site haritası (Site Map) sekmesinin projedeki tüm sayfaları (Cypress, Git/GitHub, Linux, Test Temelleri, Manuel Test, Algoritmalar, İleri Algoritmalar, QA Mentor) içerecek şekilde güncellenmesi.
+- **Önceki oturumlardan kalan yerel değişiklikler:** `src/data/seleniumData.js`, `src/components/TopicPage.jsx`, `src/data/cypressData.js`, `src/data/gitGithubData.js`, `src/data/javaData.js`, `src/data/sqlData.js`, `src/components/GitDocPage.jsx`, `dist/index.html` vb. uncommitted değişiklikler çalışma ağacında durmaktadır.
 - Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` ignore edilen yerel not dosyasıdır.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 28. kısım — Site Haritası (Sitemap) Güncellemesi)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** `http://localhost:5173/what-is-testing` sayfasındaki site haritası incelenecek ve projemizdeki her uygulama (sayfa/route) site haritasına eklenecektir. Hepsi hakkında kısa kısa Türkçe ve İngilizce tanıtımlar yazılacaktır. | ✅ |
+| **Site Haritası Geliştirmesi (`src/data/whatIsTestingData.js`):** Projedeki tüm 29 route/sayfa taranarak site haritasında eksik olan 8 sayfa tespit edildi: `Cypress` (/cypress), `Git & GitHub` (/git-github), `Linux Temelleri` (/linux), `Yazılım Testi & QA Temelleri` (/what-is-testing), `Manuel Test Temelleri` (/manual-testing), `Temel Algoritmalar` (/algorithms), `İleri Seviye Algoritmalar` (/advanced-algorithms) ve `QA Mentor (AI)` (/qa-mentor). | ✅ |
+| **Yeni Kategorizasyon ve Kapsam:** Site haritası tamamen yeniden yapılandırılarak 11 mantıksal kategoriye bölündü: 🛡️ Test Temelleri & Manuel Test, 🎨 UI / Web Test Otomasyonu (Cypress eklendi), 🔌 API Testi, 🗄️ Database Testi, 📱 Mobil Test, ⚡ Performans & Bulut Test Çalıştırma, 🐳 DevOps, CI/CD & Cloud (Git & GitHub ve Linux eklendi), 💻 Programlama Dilleri, 🧩 Algoritmalar & Problem Çözme (Temel ve İleri algoritmalar eklendi), 🗺️ Kariyer & Rehberlik (QA Mentor eklendi) ve 📚 Karşılaştırma & Referans. | ✅ |
+| **İki Dilli Tanıtımlar (TR/EN):** Eklenen her uygulama için `tr` ve `en` dillerinde kısa, açıklayıcı tanıtım metinleri yazıldı. UI grid kolon genişlikleri uyumlu hale getirildi (Cypress eklenince UI grid 3 sütun yapıldı). | ✅ |
+| **Doğrulama:** `npm run build` komutu çalıştırıldı. Rota sayısı 29 olarak doğrulandı. SEO kontrolleri (`check-seo` ve `check-dist-seo`), Vite derlemesi ve statik HTML shell üretimi (`generate-static-routes`) başarıyla tamamlandı. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 27. kısım — Selenium sayfası: selenium.dev ile eksik konu kapatma)
 

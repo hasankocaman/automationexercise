@@ -756,14 +756,27 @@ const sections = [
       },
       {
         type: 'heading',
-        text: { tr: '🎨 UI / Web Test Otomasyonu', en: '🎨 UI / Web Test Automation' }
+        text: { tr: '🛡️ Test Temelleri & Manuel Test', en: '🛡️ Testing Fundamentals & Manual Testing' }
       },
       {
         type: 'link-grid',
         cols: 2,
         items: [
+          { icon: '🛡️', route: '/what-is-testing', label: { tr: 'Yazılım Testi & QA Temelleri', en: 'Software Testing & QA Fundamentals' }, desc: { tr: 'Yazılım testi nedir, neden test yapılır, ISTQB temel prensipleri, QA vs QC ve SDET rolleri.', en: 'What is software testing, why we test, ISTQB core principles, QA vs QC, and SDET roles.' } },
+          { icon: '✍️', route: '/manual-testing', label: { tr: 'Manuel Test Temelleri', en: 'Manual Testing Fundamentals' }, desc: { tr: 'Test senaryosu (test case) yazımı, hata (bug) raporlama, test tasarım teknikleri ve Agile QA süreçleri.', en: 'Writing test cases, reporting bugs, test design techniques, and Agile QA processes.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '🎨 UI / Web Test Otomasyonu', en: '🎨 UI / Web Test Automation' }
+      },
+      {
+        type: 'link-grid',
+        cols: 3,
+        items: [
           { icon: '🟢', route: '/selenium', label: { tr: 'Selenium WebDriver', en: 'Selenium WebDriver' }, desc: { tr: "En yaygın web otomasyon aracı: locator stratejileri, wait'ler, gerçek senaryolar ve 50+ mülakat sorusu.", en: 'The most widely used web automation tool: locator strategies, waits, real scenarios, and 50+ interview questions.' } },
-          { icon: '🎭', route: '/playwright', label: { tr: 'Playwright', en: 'Playwright' }, desc: { tr: 'Modern, hızlı ve otomatik bekleyen (auto-wait) yeni nesil web test aracı.', en: 'A modern, fast, auto-waiting next-generation web testing tool.' } }
+          { icon: '🎭', route: '/playwright', label: { tr: 'Playwright', en: 'Playwright' }, desc: { tr: 'Modern, hızlı ve otomatik bekleyen (auto-wait) yeni nesil web test aracı.', en: 'A modern, fast, auto-waiting next-generation web testing tool.' } },
+          { icon: '🌲', route: '/cypress', label: { tr: 'Cypress', en: 'Cypress' }, desc: { tr: 'Modern frontend test aracı: test izolasyonu, time-travel, intercepting ve Selector Playground.', en: 'Modern frontend testing tool: test isolation, time-travel debugging, network intercepting, and Selector Playground.' } }
         ]
       },
       {
@@ -820,6 +833,8 @@ const sections = [
         type: 'link-grid',
         cols: 2,
         items: [
+          { icon: '🐙', route: '/git-github', label: { tr: 'Git & GitHub', en: 'Git & GitHub' }, desc: { tr: 'Versiyon kontrol temelleri, branch yönetimi, conflict çözümü ve GitHub Actions ile Pages arayüz rehberi.', en: 'Version control fundamentals, branch management, conflict resolution, and GitHub Actions/Pages UI guide.' } },
+          { icon: '🐧', route: '/linux', label: { tr: 'Linux Temelleri', en: 'Linux Fundamentals' }, desc: { tr: 'Dosya sistemi, izinler (chmod), metin işleme (pipe/grep), süreç yönetimi ve QA için Linux senaryoları.', en: 'File system, permissions (chmod), text processing (pipes/grep), process management, and QA Linux scenarios.' } },
           { icon: '🐳', route: '/docker', label: { tr: 'Docker', en: 'Docker' }, desc: { tr: 'Container, image, Selenium Grid ve test ortamlarını izole şekilde ayağa kaldırma.', en: 'Containers, images, Selenium Grid, and spinning up isolated test environments.' } },
           { icon: '🔧', route: '/jenkins', label: { tr: 'Jenkins', en: 'Jenkins' }, desc: { tr: 'Pipeline, build aşamaları, test raporları ve otomatik tetiklenen CI/CD akışları.', en: 'Pipelines, build stages, test reports, and automatically triggered CI/CD flows.' } },
           { icon: '☸️', route: '/kubernetes', label: { tr: 'Kubernetes', en: 'Kubernetes' }, desc: { tr: 'Pod, deployment, service kavramları ve kubectl ile test ortamı yönetimi.', en: 'Pods, deployments, services, and managing test environments with kubectl.' } },
@@ -839,6 +854,29 @@ const sections = [
           { icon: '☕', route: '/java', label: { tr: 'Java', en: 'Java' }, desc: { tr: 'Selenium/REST Assured otomasyonu ve mülakatlar için Java temelleri.', en: 'Java fundamentals for Selenium/REST Assured automation and interviews.' } },
           { icon: '🐍', route: '/python', label: { tr: 'Python', en: 'Python' }, desc: { tr: 'pytest, Selenium ve Playwright ile sıfırdan Python otomasyonu.', en: 'Python automation from scratch with pytest, Selenium, and Playwright.' } },
           { icon: '🔷', route: '/typescript', label: { tr: 'TypeScript', en: 'TypeScript' }, desc: { tr: 'Playwright TS ile tip güvenli (type-safe) test otomasyonu.', en: 'Type-safe test automation with Playwright TS.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '🧩 Algoritmalar & Problem Çözme', en: '🧩 Algorithms & Problem Solving' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '🧠', route: '/algorithms', label: { tr: 'Temel Algoritmalar', en: 'Basic Algorithms' }, desc: { tr: 'QA mülakatlarında sıkça sorulan algoritma soruları, dizi/sicim işlemleri ve interaktif soru bankası.', en: 'Algorithm questions frequently asked in QA interviews, array/string operations, and interactive question bank.' } },
+          { icon: '🚀', route: '/advanced-algorithms', label: { tr: 'İleri Seviye Algoritmalar', en: 'Advanced Algorithms' }, desc: { tr: 'Arama ve sıralama algoritmaları, karmaşıklık analizi (Big O) ve gelişmiş problem çözme pratikleri.', en: 'Search and sort algorithms, complexity analysis (Big O), and advanced problem solving practices.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '🗺️ Kariyer & Rehberlik', en: '🗺️ Career & Guidance' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '🗺️', route: '/qa-mentor', label: { tr: 'QA Mentor (AI)', en: 'QA Mentor (AI)' }, desc: { tr: 'AI destekli kariyer yol haritası oluşturucu: Manuel, Otomasyon veya DevOps yönelimli kişisel planlar.', en: 'AI-backed career roadmap builder: personalized plans tailored for Manual, Automation, or DevOps paths.' } }
         ]
       },
       {
