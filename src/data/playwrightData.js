@@ -1,5 +1,7 @@
 ﻿// playwrightData.js — Playwright tam öğrenme sayfası
-// 10 bölüm: Intro, Kurulum, Aksiyonlar, Locator, Wait, iframe/Alert, Dosya/Network, Gerçek Hayat, Hatalar, 50 Mülakat
+// 18 bölüm: Intro, Kurulum, Aksiyonlar, Locator, Wait, Assertions, Test Organizasyonu & Fixtures,
+// Page Object Model, iframe/Alert, Dosya/Network, Debugging & Trace, Codegen, Playwright MCP,
+// Paralel/CI-CD, Auth & Session, Gerçek Hayat, Hatalar, 50 Mülakat
 
 const s0 = {
   tr: {
@@ -2289,6 +2291,2322 @@ const s9 = {
 }
 
 
+// ─── YENİ SEKMELER (2026-06-19) — CosmoCode "Getting Started" serisiyle kıyaslanan eksikler ───
+// Eksik bulunan konular: Assertions, Test Organization, Fixtures, Page Object Model,
+// Debugging/Traces/CI-CD, Auth & Sessions. Aşağıda 5 yeni sekme olarak eklendi.
+
+const s10 = {
+  tr: {
+    title: '✅ Doğru Assertion Yazımı (expect)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🚪',
+        content: 'Bir bina girişindeki güvenlik görevlisini düşün: kart okutmadan içeri almaz ama kapıda dikilip "olmadı, çık" demez — kartı okutana kadar (en fazla 5 saniye) bekler, sonra kontrol eder. Playwright\'ın expect() fonksiyonu tam böyle çalışır: koşul doğru olana kadar arka planda tekrar tekrar kontrol eder, vazgeçmeden önce birkaç saniye şans verir.',
+      },
+      {
+        type: 'text',
+        content: 'expect(), Playwright\'ın assertion (doğrulama) fonksiyonudur. Ama JUnit\'teki assertEquals() veya Selenium projelerinde kullandığın klasik assert\'lerden farklı çalışır: bir locator üzerinde çağrılan "web-first" assertion\'lar (toBeVisible(), toHaveText() gibi) varsayılan olarak 5 saniye boyunca otomatik tekrar dener (auto-retry). Koşul anında doğru değilse hemen patlamaz, sayfa state\'i değişene kadar bekler.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'JUnit\'te Assert.assertEquals("Beklenen", element.getText()) yazdığında, o satır çalıştığı an element\'in text\'i o değilse test ANINDA patlar — element\'in metni 200ms sonra doğru olacak olsa bile. Playwright\'ta await expect(locator).toHaveText("Beklenen") yazarsan, Playwright o metni 5 saniye boyunca tekrar tekrar okur; metin 200ms sonra doğru olursa test geçer. AssertJ\'nin await().atMost(5, SECONDS).until(...) (Awaitility) yazdığın senaryoyu built-in olarak düşün.',
+      },
+      { type: 'heading', text: 'Web-First Assertion vs Generic Assertion' },
+      {
+        type: 'table',
+        headers: ['Tür', 'Örnek', 'Auto-retry?', 'Ne zaman kullan'],
+        rows: [
+          ['Locator-based (web-first)', 'expect(locator).toBeVisible()', '✅ 5s tekrar dener', 'DOM/element durumu kontrolü'],
+          ['Page-based', 'expect(page).toHaveURL(/dashboard/)', '✅ 5s tekrar dener', 'Navigasyon/URL/title kontrolü'],
+          ['Generic (value-based)', 'expect(count).toBe(5)', '❌ Anında kontrol', 'Düz JS değeri (sayı, string, obje)'],
+        ],
+      },
+      {
+        type: 'text',
+        content: 'En sık kullanılan web-first assertion\'lar: toBeVisible() / toBeHidden(), toHaveText() / toContainText(), toHaveValue(), toBeChecked(), toBeEnabled() / toBeDisabled(), toHaveAttribute(), toHaveClass(), toHaveCSS(), toHaveCount(), toHaveURL(), toHaveTitle(). Her birinin başına .not. koyarak tersini doğrulayabilirsin: expect(locator).not.toBeVisible().',
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'assertion-retry',
+        icon: '✅',
+        title: { tr: 'expect() Nasıl Tekrar Dener (Auto-Retry)', en: 'How expect() Auto-Retries' },
+        steps: [
+          {
+            id: 'fail-fast', label: 'Klasik Assert (JUnit)', labelEn: 'Classic Assert (JUnit)', visualState: 'fail-fast',
+            description: { tr: 'assertEquals çalıştığı anki DOM\'a bakar. Spinner hâlâ dönüyorsa ya da metin henüz güncellenmediyse test anında FAIL olur.', en: 'assertEquals looks at the DOM at the exact instant it runs. If a spinner is still spinning or the text hasn\'t updated yet, the test FAILS immediately.' },
+            code: `// Selenium + JUnit\nAssert.assertEquals(\n  "Sipariş Onaylandı",\n  successMsg.getText()\n); // ❌ Mesaj 300ms sonra geliyorsa burada patlar`,
+            tip: { tr: '300ms sonra doğru olacak bir şeyi anında kontrol etmek "flaky test"in en yaygın nedenidir.', en: 'Checking something that will be correct in 300ms, right now, is the most common cause of flaky tests.' },
+          },
+          {
+            id: 'checking', label: 'Playwright — Kontrol Ediyor', labelEn: 'Playwright — Checking', visualState: 'pw-way',
+            description: { tr: 'await expect(locator).toHaveText(...) çağrıldığı an Playwright ilk kontrolü yapar. Henüz doğru değilse hata fırlatmaz, polling döngüsüne girer.', en: 'The moment await expect(locator).toHaveText(...) runs, Playwright performs the first check. If it\'s not correct yet, it doesn\'t throw — it enters a polling loop.' },
+            code: `await expect(\n  page.getByText('Sipariş Onaylandı')\n).toBeVisible();\n// İlk kontrol: henüz görünmüyor → bekle`,
+          },
+          {
+            id: 'retry', label: 'Tekrar Deniyor (Polling)', labelEn: 'Retrying (Polling)', visualState: 'retry',
+            description: { tr: 'Playwright her ~100ms\'de bir koşulu yeniden kontrol eder. Bu, sayfa state\'i değişene (spinner kaybolup mesaj görününceye) kadar sessizce devam eder — sen hiçbir ekstra kod yazmazsın.', en: 'Playwright re-checks the condition roughly every ~100ms. This silently continues until the page state changes (spinner disappears, message appears) — you write zero extra code for this.' },
+            code: `// Arka planda otomatik:\n// check (t=0ms) → false\n// check (t=100ms) → false\n// check (t=300ms) → true ✅`,
+          },
+          {
+            id: 'passed', label: 'Koşul Doğru → Geçti', labelEn: 'Condition True → Passed', visualState: 'found',
+            description: { tr: 'Koşul 5 saniyeden önce doğru olduğu an assertion anında geçer ve bir sonraki satıra devam edilir. Toplam bekleme süresi sadece gerçekten gereken süre kadar — sabit Thread.sleep(5000) gibi gereksiz bekleme yok.', en: 'The moment the condition becomes true (before the 5s budget runs out), the assertion passes immediately and execution moves to the next line. The total wait is exactly as long as needed — no wasted fixed Thread.sleep(5000).' },
+            code: `await expect(\n  page.getByText('Sipariş Onaylandı')\n).toBeVisible();\n// ✅ 280ms sonra geçti, devam!`,
+          },
+          {
+            id: 'timeout', label: 'Hiç Doğru Olmazsa → Timeout', labelEn: 'Never True → Timeout', visualState: 'timeout',
+            description: { tr: 'Koşul 5 saniye boyunca hiç doğru olmazsa Playwright TimeoutError fırlatır ve hata mesajına son denenen DOM durumunu da ekler — bu yüzden hata mesajları Selenium\'a göre çok daha açıklayıcıdır.', en: 'If the condition is never true within the 5-second budget, Playwright throws a TimeoutError and includes the last-seen DOM state in the error message — which is why Playwright\'s failure messages are far more descriptive than Selenium\'s.' },
+            code: `// 5000ms boyunca hep false\n// → TimeoutError: \n//   expect(locator).toBeVisible()\n//   Locator: getByText('Sipariş Onaylandı')\n//   Expected: visible\n//   Received: <element not found>`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Soft Assertion & Özel Timeout' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// Soft assertion: hata olsa da test devam eder, sonunda hepsi raporlanır
+test('form validation — tüm hata mesajlarını göster', async ({ page }) => {
+  await page.getByRole('button', { name: 'Gönder' }).click();
+
+  await expect.soft(page.getByText('E-posta zorunludur')).toBeVisible();
+  await expect.soft(page.getByText('Şifre zorunludur')).toBeVisible();
+  await expect.soft(page.getByText('Ad zorunludur')).toBeVisible();
+  // Üçü de kontrol edilir; biri fail olsa diğerleri de çalışır.
+  // Test sonunda kaç soft assertion fail oldu, hepsi tek raporda görünür.
+});
+
+// Tek assertion için özel timeout (varsayılan: 5000ms)
+await expect(page.getByText('Rapor Hazır')).toBeVisible({ timeout: 30000 });
+
+// Global config (playwright.config.ts)
+export default defineConfig({
+  expect: { timeout: 10000 },
+});`,
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+          { icon: '👁️', label: 'toBeVisible() / toBeHidden()', desc: 'Element görünür mü, gizli mi?' },
+          { icon: '📝', label: 'toHaveText() / toContainText()', desc: 'Tam metin veya içeren metin kontrolü.' },
+          { icon: '🔢', label: 'toHaveValue()', desc: 'Input/textarea\'nın güncel değeri.' },
+          { icon: '☑️', label: 'toBeChecked()', desc: 'Checkbox/radio işaretli mi?' },
+          { icon: '🔓', label: 'toBeEnabled() / toBeDisabled()', desc: 'Buton tıklanabilir mi?' },
+          { icon: '🔢', label: 'toHaveCount()', desc: 'Eşleşen eleman sayısı (örn. 5 ürün kartı).' },
+          { icon: '🔗', label: 'toHaveURL()', desc: 'Sayfanın güncel adresi (regex destekli).' },
+          { icon: '🏷️', label: 'toHaveTitle()', desc: 'Sayfa <title> içeriği.' },
+          { icon: '🚫', label: '.not. ile tersi', desc: 'expect(x).not.toBeVisible() gibi her assertion\'ın tersi yazılabilir.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Checkout Akışı İçin Doğru Assertion Sırası', en: 'Try It Yourself — Correct Assertion Order for a Checkout Flow' },
+        intro: { tr: 'Bir "sepeti onayla" akışı için doğru sırayla expect() satırlarını yaz: önce buton tıklanabilir mi kontrol et, tıkla, sonra başarı mesajını ve yeni URL\'i doğrula.', en: 'Write the expect() lines in the correct order for a "confirm cart" flow: first check the button is clickable, click it, then verify the success message and the new URL.' },
+        starterCommands: {
+          tr: `await expect(page.getByRole('button', { name: 'Onayla' })).toBeEnabled();
+await page.getByRole('button', { name: 'Onayla' }).click();
+await expect(page.getByText('Siparişiniz Alındı')).toBeVisible();
+await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
+          en: `await expect(page.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+await page.getByRole('button', { name: 'Confirm' }).click();
+await expect(page.getByText('Order Received')).toBeVisible();
+await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
+        },
+        expectedSteps: [
+          { pattern: 'toBeEnabled', label: { tr: '1) Butonun tıklanabilir olduğunu doğrula', en: '1) Verify the button is enabled' }, example: "await expect(button).toBeEnabled();" },
+          { pattern: '\\.click\\(', label: { tr: '2) Butona tıkla', en: '2) Click the button' }, example: 'await button.click();' },
+          { pattern: 'toBeVisible', label: { tr: '3) Başarı mesajının göründüğünü doğrula', en: '3) Verify the success message is visible' }, example: 'await expect(msg).toBeVisible();' },
+          { pattern: 'toHaveURL', label: { tr: '4) Yeni URL\'e geçildiğini doğrula', en: '4) Verify the URL changed' }, example: 'await expect(page).toHaveURL(/confirmed/);' },
+        ],
+        dangerousPatterns: [
+          { pattern: 'waitForTimeout', label: { tr: 'waitForTimeout(...) sabit bekleme demektir — auto-retry assertion varken buna gerek yok ve testi yavaşlatır/flaky yapar.', en: 'waitForTimeout(...) is a fixed sleep — unnecessary with auto-retry assertions, and it slows tests down / makes them flaky.' } },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Buton kontrolü → tıkla → mesaj doğrulama → URL doğrulama. Her expect() kendi içinde otomatik tekrar deniyor, ekstra sleep yazmana gerek yok.', en: '✅ Correct order! Check button → click → verify message → verify URL. Each expect() auto-retries on its own — no extra sleep needed.' },
+        retryOutput: { tr: '❌ Sıra veya adım eksik. 4 adımı da doğru sırada yazdığından emin ol.', en: '❌ Order or a step is missing. Make sure all 4 steps are present in the right order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Aşağıdakilerden hangisi auto-retry YAPMAZ?', en: 'Which of the following does NOT auto-retry?' },
+        options: [
+          { id: 'a', text: 'expect(locator).toBeVisible()' },
+          { id: 'b', text: 'expect(page).toHaveURL(/dashboard/)' },
+          { id: 'c', text: 'expect(orderCount).toBe(5)  // orderCount bir number değişkeni' },
+          { id: 'd', text: 'expect(locator).toHaveText("Tamam")' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'Generic (value-based) assertion\'lar — düz bir JS değeri (number, string, object) üzerinde çalışanlar — anında kontrol eder, retry yapmaz. Web-first assertion\'lar (locator veya page üzerinde çalışanlar) 5 saniye boyunca tekrar dener.', en: 'Generic (value-based) assertions — the ones operating on a plain JS value (number, string, object) — check instantly and never retry. Web-first assertions (the ones operating on a locator or page) retry for up to 5 seconds.' },
+      },
+    ],
+  },
+  en: {
+    title: '✅ Writing Good Assertions (expect)',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🚪',
+        content: 'Think of a security guard at a building entrance: he won\'t let you in without a badge, but he also won\'t just stand there shouting "no" once — he gives you a few seconds (up to 5) to scan your badge before deciding. Playwright\'s expect() works exactly like that: it quietly re-checks a condition in the background until it\'s true, giving it a few seconds before giving up.',
+      },
+      {
+        type: 'text',
+        content: 'expect() is Playwright\'s assertion function. But it works differently from JUnit\'s assertEquals() or the classic asserts you might have used in Selenium projects: "web-first" assertions called on a locator (like toBeVisible(), toHaveText()) auto-retry for 5 seconds by default. If the condition isn\'t true the instant it\'s checked, it doesn\'t blow up right away — it waits until the page state changes.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'In JUnit, Assert.assertEquals("Expected", element.getText()) fails the INSTANT that line runs if the element\'s text isn\'t that value yet — even if the text would be correct 200ms later. In Playwright, await expect(locator).toHaveText("Expected") re-reads that text for up to 5 seconds; if it becomes correct after 200ms, the test passes. Think of it as a built-in version of the Awaitility pattern: await().atMost(5, SECONDS).until(...).',
+      },
+      { type: 'heading', text: 'Web-First Assertions vs Generic Assertions' },
+      {
+        type: 'table',
+        headers: ['Type', 'Example', 'Auto-retry?', 'When to use'],
+        rows: [
+          ['Locator-based (web-first)', 'expect(locator).toBeVisible()', '✅ retries for 5s', 'Checking DOM/element state'],
+          ['Page-based', 'expect(page).toHaveURL(/dashboard/)', '✅ retries for 5s', 'Checking navigation/URL/title'],
+          ['Generic (value-based)', 'expect(count).toBe(5)', '❌ checked instantly', 'Plain JS values (number, string, object)'],
+        ],
+      },
+      {
+        type: 'text',
+        content: 'The most common web-first assertions: toBeVisible() / toBeHidden(), toHaveText() / toContainText(), toHaveValue(), toBeChecked(), toBeEnabled() / toBeDisabled(), toHaveAttribute(), toHaveClass(), toHaveCSS(), toHaveCount(), toHaveURL(), toHaveTitle(). Prefix any of them with .not. to assert the opposite: expect(locator).not.toBeVisible().',
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'assertion-retry',
+        icon: '✅',
+        title: { tr: 'expect() Nasıl Tekrar Dener (Auto-Retry)', en: 'How expect() Auto-Retries' },
+        steps: [
+          {
+            id: 'fail-fast', label: 'Classic Assert (JUnit)', labelEn: 'Classic Assert (JUnit)', visualState: 'fail-fast',
+            description: { tr: 'assertEquals çalıştığı anki DOM\'a bakar. Spinner hâlâ dönüyorsa ya da metin henüz güncellenmediyse test anında FAIL olur.', en: 'assertEquals looks at the DOM at the exact instant it runs. If a spinner is still spinning or the text hasn\'t updated yet, the test FAILS immediately.' },
+            code: `// Selenium + JUnit\nAssert.assertEquals(\n  "Order Confirmed",\n  successMsg.getText()\n); // ❌ Fails here if the message arrives 300ms later`,
+            tip: { tr: '300ms sonra doğru olacak bir şeyi anında kontrol etmek "flaky test"in en yaygın nedenidir.', en: 'Checking something that will be correct in 300ms, right now, is the most common cause of flaky tests.' },
+          },
+          {
+            id: 'checking', label: 'Playwright — Checking', labelEn: 'Playwright — Checking', visualState: 'pw-way',
+            description: { tr: 'await expect(locator).toHaveText(...) çağrıldığı an Playwright ilk kontrolü yapar. Henüz doğru değilse hata fırlatmaz, polling döngüsüne girer.', en: 'The moment await expect(locator).toHaveText(...) runs, Playwright performs the first check. If it\'s not correct yet, it doesn\'t throw — it enters a polling loop.' },
+            code: `await expect(\n  page.getByText('Order Confirmed')\n).toBeVisible();\n// First check: not visible yet → wait`,
+          },
+          {
+            id: 'retry', label: 'Retrying (Polling)', labelEn: 'Retrying (Polling)', visualState: 'retry',
+            description: { tr: 'Playwright her ~100ms\'de bir koşulu yeniden kontrol eder. Bu, sayfa state\'i değişene kadar sessizce devam eder — sen hiçbir ekstra kod yazmazsın.', en: 'Playwright re-checks the condition roughly every ~100ms. This silently continues until the page state changes (spinner disappears, message appears) — you write zero extra code for this.' },
+            code: `// Automatic in the background:\n// check (t=0ms) → false\n// check (t=100ms) → false\n// check (t=300ms) → true ✅`,
+          },
+          {
+            id: 'passed', label: 'Condition True → Passed', labelEn: 'Condition True → Passed', visualState: 'found',
+            description: { tr: 'Koşul 5 saniyeden önce doğru olduğu an assertion anında geçer ve bir sonraki satıra devam edilir.', en: 'The moment the condition becomes true (before the 5s budget runs out), the assertion passes immediately and execution moves to the next line. The total wait is exactly as long as needed — no wasted fixed Thread.sleep(5000).' },
+            code: `await expect(\n  page.getByText('Order Confirmed')\n).toBeVisible();\n// ✅ Passed after 280ms, continue!`,
+          },
+          {
+            id: 'timeout', label: 'Never True → Timeout', labelEn: 'Never True → Timeout', visualState: 'timeout',
+            description: { tr: 'Koşul 5 saniye boyunca hiç doğru olmazsa Playwright TimeoutError fırlatır ve son denenen DOM durumunu hata mesajına ekler.', en: 'If the condition is never true within the 5-second budget, Playwright throws a TimeoutError and includes the last-seen DOM state in the error message — which is why Playwright\'s failure messages are far more descriptive than Selenium\'s.' },
+            code: `// false for the full 5000ms\n// → TimeoutError:\n//   expect(locator).toBeVisible()\n//   Locator: getByText('Order Confirmed')\n//   Expected: visible\n//   Received: <element not found>`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Soft Assertions & Custom Timeouts' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// Soft assertion: test keeps running even on failure, all failures reported at the end
+test('form validation — show all error messages', async ({ page }) => {
+  await page.getByRole('button', { name: 'Submit' }).click();
+
+  await expect.soft(page.getByText('Email is required')).toBeVisible();
+  await expect.soft(page.getByText('Password is required')).toBeVisible();
+  await expect.soft(page.getByText('Name is required')).toBeVisible();
+  // All three are checked; one failing doesn't stop the others.
+  // The final report shows how many soft assertions failed in one place.
+});
+
+// Custom timeout for one assertion (default: 5000ms)
+await expect(page.getByText('Report Ready')).toBeVisible({ timeout: 30000 });
+
+// Global config (playwright.config.ts)
+export default defineConfig({
+  expect: { timeout: 10000 },
+});`,
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+          { icon: '👁️', label: 'toBeVisible() / toBeHidden()', desc: 'Is the element visible or hidden?' },
+          { icon: '📝', label: 'toHaveText() / toContainText()', desc: 'Exact text or substring match.' },
+          { icon: '🔢', label: 'toHaveValue()', desc: 'Current value of an input/textarea.' },
+          { icon: '☑️', label: 'toBeChecked()', desc: 'Is a checkbox/radio checked?' },
+          { icon: '🔓', label: 'toBeEnabled() / toBeDisabled()', desc: 'Is the button clickable?' },
+          { icon: '🔢', label: 'toHaveCount()', desc: 'Number of matching elements (e.g. 5 product cards).' },
+          { icon: '🔗', label: 'toHaveURL()', desc: 'The page\'s current address (regex supported).' },
+          { icon: '🏷️', label: 'toHaveTitle()', desc: 'The page <title> content.' },
+          { icon: '🚫', label: 'Negate with .not.', desc: 'Any assertion can be inverted: expect(x).not.toBeVisible().' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Checkout Akışı İçin Doğru Assertion Sırası', en: 'Try It Yourself — Correct Assertion Order for a Checkout Flow' },
+        intro: { tr: 'Bir "sepeti onayla" akışı için doğru sırayla expect() satırlarını yaz.', en: 'Write the expect() lines in the correct order for a "confirm cart" flow: first check the button is clickable, click it, then verify the success message and the new URL.' },
+        starterCommands: {
+          tr: `await expect(page.getByRole('button', { name: 'Onayla' })).toBeEnabled();
+await page.getByRole('button', { name: 'Onayla' }).click();
+await expect(page.getByText('Siparişiniz Alındı')).toBeVisible();
+await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
+          en: `await expect(page.getByRole('button', { name: 'Confirm' })).toBeEnabled();
+await page.getByRole('button', { name: 'Confirm' }).click();
+await expect(page.getByText('Order Received')).toBeVisible();
+await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
+        },
+        expectedSteps: [
+          { pattern: 'toBeEnabled', label: { tr: '1) Butonun tıklanabilir olduğunu doğrula', en: '1) Verify the button is enabled' }, example: "await expect(button).toBeEnabled();" },
+          { pattern: '\\.click\\(', label: { tr: '2) Butona tıkla', en: '2) Click the button' }, example: 'await button.click();' },
+          { pattern: 'toBeVisible', label: { tr: '3) Başarı mesajının göründüğünü doğrula', en: '3) Verify the success message is visible' }, example: 'await expect(msg).toBeVisible();' },
+          { pattern: 'toHaveURL', label: { tr: '4) Yeni URL\'e geçildiğini doğrula', en: '4) Verify the URL changed' }, example: 'await expect(page).toHaveURL(/confirmed/);' },
+        ],
+        dangerousPatterns: [
+          { pattern: 'waitForTimeout', label: { tr: 'waitForTimeout(...) sabit bekleme demektir — auto-retry assertion varken buna gerek yok ve testi yavaşlatır/flaky yapar.', en: 'waitForTimeout(...) is a fixed sleep — unnecessary with auto-retry assertions, and it slows tests down / makes them flaky.' } },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Buton kontrolü → tıkla → mesaj doğrulama → URL doğrulama.', en: '✅ Correct order! Check button → click → verify message → verify URL. Each expect() auto-retries on its own — no extra sleep needed.' },
+        retryOutput: { tr: '❌ Sıra veya adım eksik.', en: '❌ Order or a step is missing. Make sure all 4 steps are present in the right order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Aşağıdakilerden hangisi auto-retry YAPMAZ?', en: 'Which of the following does NOT auto-retry?' },
+        options: [
+          { id: 'a', text: 'expect(locator).toBeVisible()' },
+          { id: 'b', text: 'expect(page).toHaveURL(/dashboard/)' },
+          { id: 'c', text: 'expect(orderCount).toBe(5)  // orderCount is a plain number variable' },
+          { id: 'd', text: 'expect(locator).toHaveText("OK")' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'Generic (value-based) assertion\'lar anında kontrol eder, retry yapmaz. Web-first assertion\'lar (locator/page üzerinde) 5 saniye boyunca tekrar dener.', en: 'Generic (value-based) assertions check instantly and never retry. Web-first assertions (on a locator or page) retry for up to 5 seconds.' },
+      },
+    ],
+  },
+}
+
+const s11 = {
+  tr: {
+    title: '🗂️ Test Organizasyonu & Fixtures',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧰',
+        content: 'Her testin en başında "önce giriş yap, sonra sepete ürün ekle" gibi hazırlık adımları tekrar tekrar yazmak, her yemek tarifinin başında "önce mutfağı kur, ocağı yak, tencereyi al" diye yeniden anlatmaya benzer. Fixture\'lar, mutfağı senin için önceden kurup hazır teslim eden bir komi gibidir — sen sadece "loggedInPage" istersin, Playwright login işini arkada halleder ve sana hazır sayfayı verir.',
+      },
+      {
+        type: 'text',
+        content: 'Test organizasyonu iki ana parçadan oluşur: (1) testleri test.describe() ile mantıklı gruplara ayırmak ve beforeEach/afterEach gibi hook\'larla ortak hazırlık/temizlik kodu yazmak, (2) fixture\'lar ile bu hazırlık kodunu "dependency injection" şeklinde testlere otomatik enjekte etmek. İkisi birlikte, yüzlerce testte tekrar eden kodu sıfıra indirir.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'test.describe() bir JUnit @Nested test class\'ı gibidir. test.beforeEach() / afterEach() → JUnit @BeforeEach / @AfterEach. test.beforeAll() / afterAll() → @BeforeAll / @AfterAll (ama bunlar { browser } alır, { page } almaz — page testler arası paylaşılmaz). Fixture\'lar ise Spring\'in @Autowired dependency injection\'ına benzer: ihtiyacın olan şeyi parametre olarak istersin, çerçeve onu sana hazır verir — new LoginPage(driver) diye manuel oluşturmazsın.',
+      },
+      { type: 'heading', text: 'Testin Anatomisi — Arrange / Act / Assert' },
+      {
+        type: 'code', language: 'typescript',
+        code: `import { test, expect } from '@playwright/test';
+
+test('giriş başarılı olursa dashboard\\'a yönlendirir', async ({ page }) => {
+  // Arrange — hazırlık
+  await page.goto('/login');
+
+  // Act — eylem
+  await page.getByLabel('E-posta').fill('kullanici@example.com');
+  await page.getByLabel('Şifre').fill('sifre123');
+  await page.getByRole('button', { name: 'Giriş Yap' }).click();
+
+  // Assert — doğrulama
+  await expect(page).toHaveURL('/dashboard');
+  await expect(page.getByText('Tekrar hoş geldin')).toBeVisible();
+});`,
+      },
+      { type: 'heading', text: 'describe ile Gruplama + Hook\'lar' },
+      {
+        type: 'code', language: 'typescript',
+        code: `test.describe('Dashboard', () => {
+  test.beforeEach(async ({ page }) => {
+    // Bu grup içindeki HER testten önce çalışır
+    await page.goto('/login');
+    await page.getByLabel('E-posta').fill('kullanici@example.com');
+    await page.getByLabel('Şifre').fill('sifre123');
+    await page.getByRole('button', { name: 'Giriş Yap' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  });
+
+  test('hoş geldin mesajını gösterir', async ({ page }) => {
+    await expect(page.getByText('Tekrar hoş geldin')).toBeVisible();
+  });
+
+  test('son siparişleri listeler', async ({ page }) => {
+    await expect(page.getByRole('list', { name: 'Son Siparişler' })).toBeVisible();
+  });
+});`,
+      },
+      {
+        type: 'table',
+        headers: ['Kontrol', 'Ne işe yarar', 'Java karşılığı'],
+        rows: [
+          ['test.skip(...)', 'Testi şimdilik atla (henüz hazır değil)', '@Disabled'],
+          ['test.only(...)', 'Geliştirme sırasında SADECE bu testi çalıştır', '@Tag ile filtreleme'],
+          ['test.fail(...)', 'Bilinen bug — test FAIL ederse PASS sayılır', '@Disabled + JIRA linki yerine canlı takip'],
+          ['test.slow(...)', 'Timeout\'u 3\'e katla (yavaş bir işlem için)', '@Timeout artırımı'],
+          ['test.describe.serial(...)', 'Bu gruptaki testler sırayla ve birbirine bağımlı çalışır', '@TestMethodOrder'],
+          ['npx playwright test --grep @smoke', '"@smoke" etiketli testleri çalıştır', '@Tag("smoke") + Maven profile'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '⚠️',
+        title: 'Test Isolation — Testler Birbirine Güvenmemeli',
+        content: '"create product" testi çalışmadan "edit product" testi başarısız oluyorsa, bu iki test BİRBİRİNE BAĞIMLI demektir — paralel çalıştığında veya sırası değiştiğinde patlar. Her test kendi verisini kendisi oluşturmalı (self-contained). Playwright her teste otomatik olarak taze bir browser context/page verir — bu, yanlışlıkla state paylaşmanı bir nebze önler ama test verisi (DB kaydı, oluşturulan ürün) hâlâ senin sorumluluğundadır.',
+      },
+      { type: 'heading', text: 'Fixture\'lar — Dependency Injection' },
+      {
+        type: 'text',
+        content: '{ page } yazdığında page\'in nereden geldiğini sormazsın — Playwright onu sana hazır verir. Bu bir fixture\'dır. Built-in fixture\'lar: page (taze sayfa), context (page\'in ait olduğu browser context — cookie/oturum paylaşımı için), browser (yeni context\'ler açmak için), request (UI olmadan API çağrısı için), browserName (chromium/firefox/webkit ayrımı için).',
+      },
+      {
+        type: 'code', language: 'typescript',
+        code: `// fixtures.ts — kendi fixture'ını tanımla
+import { test as base } from '@playwright/test';
+
+type MyFixtures = { loggedInPage: import('@playwright/test').Page };
+
+export const test = base.extend<MyFixtures>({
+  loggedInPage: async ({ page }, use) => {
+    // SETUP — test başlamadan önce
+    await page.goto('/login');
+    await page.getByLabel('E-posta').fill('kullanici@example.com');
+    await page.getByLabel('Şifre').fill('sifre123');
+    await page.getByRole('button', { name: 'Giriş Yap' }).click();
+    await page.waitForURL('/dashboard');
+
+    await use(page); // ← testin kendisi burada çalışır
+
+    // TEARDOWN — test bittikten sonra (use() satırından sonrası)
+    await page.goto('/logout');
+  },
+});
+export { expect } from '@playwright/test';
+
+// test dosyasında:
+import { test, expect } from './fixtures';
+test('dashboard zaten giriş yapılmış geliyor', async ({ loggedInPage }) => {
+  await expect(loggedInPage.getByText('Tekrar hoş geldin')).toBeVisible();
+  // login kodu burada YOK — fixture hallediyor
+});`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'fixture-di',
+        icon: '🧩',
+        title: { tr: 'Fixture Dependency Injection Akışı', en: 'Fixture Dependency Injection Flow' },
+        steps: [
+          {
+            id: 'request', label: 'Test İmzasında İste', labelEn: 'Request in Test Signature', visualState: 'request',
+            description: { tr: 'Test fonksiyonu parametre olarak { loggedInPage } ister. Henüz hiçbir login kodu çalışmadı — sadece "buna ihtiyacım var" denildi.', en: 'The test function asks for { loggedInPage } as a parameter. No login code has run yet — it just says "I need this".' },
+            code: `test('...', async ({ loggedInPage }) => {\n  // henüz çalışmadı\n});`,
+          },
+          {
+            id: 'setup', label: 'Fixture Setup Çalışır', labelEn: 'Fixture Setup Runs', visualState: 'setup',
+            description: { tr: 'Playwright loggedInPage fixture\'ının setup kodunu (login adımları) otomatik çalıştırır — test kodu bunu görmez.', en: 'Playwright automatically runs the loggedInPage fixture\'s setup code (the login steps) — the test code never sees this.' },
+            code: `await page.goto('/login');\nawait page.getByLabel('E-posta').fill(...);\n...`,
+          },
+          {
+            id: 'inject', label: 'use() ile Enjekte Edilir', labelEn: 'Injected via use()', visualState: 'inject',
+            description: { tr: 'await use(page) çağrıldığında, artık login olmuş page objesi test fonksiyonuna parametre olarak geçer.', en: 'When await use(page) is called, the now-logged-in page object is passed into the test function as its parameter.' },
+            code: `test('...', async ({ loggedInPage }) => {\n  // loggedInPage = giriş yapılmış page\n});`,
+          },
+          {
+            id: 'teardown', label: 'Test Biter → Teardown', labelEn: 'Test Ends → Teardown', visualState: 'teardown',
+            description: { tr: 'Test fonksiyonu bittiğinde, use() satırından sonraki kod (teardown) otomatik çalışır — örn. logout.', en: 'When the test function finishes, the code after the use() line (teardown) runs automatically — e.g. logout.' },
+            code: `await use(page);\n// ↓ test bitince buradan devam\nawait page.goto('/logout');`,
+          },
+        ],
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🌐', label: 'Test Scope (varsayılan)', desc: 'Her test için yeni bir fixture örneği oluşturulur.' },
+          { icon: '👷', label: 'Worker Scope', desc: '{ scope: "worker" } — aynı worker\'daki tüm testler tek bir örneği paylaşır (örn. DB bağlantısı).' },
+          { icon: '🤖', label: 'Auto Fixture', desc: '{ auto: true } — test parametresinde istenmese bile her testte otomatik çalışır (örn. console log dinleyici).' },
+          { icon: '🔗', label: 'Birleştirme', desc: 'Bir fixture başka bir fixture\'a bağımlı olabilir: loggedInPage, testUser fixture\'ını kullanabilir.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — beforeEach + Test Sırası', en: 'Try It Yourself — beforeEach + Test Order' },
+        intro: { tr: 'Bir test.describe() bloğu içinde önce beforeEach ile login yap, sonra iki testi sırayla yaz, en sonda describe.serial işaretlemesini ekle.', en: 'Inside a test.describe() block, first log in with beforeEach, then write two tests in order, and finally add the describe.serial marker.' },
+        starterCommands: {
+          tr: `test.describe('Dashboard', () => {
+test.beforeEach(async ({ page }) => { await page.goto('/login'); });
+test('hoş geldin mesajı görünür', async ({ page }) => {});
+test('son siparişler listelenir', async ({ page }) => {});
+test.describe.configure({ mode: 'serial' });`,
+          en: `test.describe('Dashboard', () => {
+test.beforeEach(async ({ page }) => { await page.goto('/login'); });
+test('shows welcome message', async ({ page }) => {});
+test('lists recent orders', async ({ page }) => {});
+test.describe.configure({ mode: 'serial' });`,
+        },
+        expectedSteps: [
+          { pattern: 'test\\.describe\\(', label: { tr: '1) test.describe ile grupla', en: '1) Group with test.describe' }, example: "test.describe('Dashboard', () => {...})" },
+          { pattern: 'beforeEach', label: { tr: '2) beforeEach ile login adımını yaz', en: '2) Write the login step in beforeEach' }, example: 'test.beforeEach(async ({ page }) => {...})' },
+          { pattern: "test\\('", label: { tr: '3) En az bir test ekle', en: '3) Add at least one test' }, example: "test('...', async ({ page }) => {...})" },
+          { pattern: 'mode.*serial|describe\\.serial', label: { tr: '4) Gerekirse serial mode belirt', en: '4) Specify serial mode if needed' }, example: "test.describe.configure({ mode: 'serial' });" },
+        ],
+        successOutput: { tr: '✅ Doğru yapı! Login mantığı tek bir yerde (beforeEach), her test sadece kendi davranışına odaklanıyor.', en: '✅ Correct structure! Login logic lives in one place (beforeEach), each test focuses only on its own behavior.' },
+        retryOutput: { tr: '❌ Eksik adım var — describe, beforeEach ve en az bir test gerekli.', en: '❌ A step is missing — you need describe, beforeEach, and at least one test.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'test.beforeAll() içinde { page } yerine neden { browser } kullanılır?', en: 'Why does test.beforeAll() use { browser } instead of { page }?' },
+        options: [
+          { id: 'a', text: 'page fixture sadece her test için ayrı oluşturulur, beforeAll\'da paylaşılan bir page yoktur' },
+          { id: 'b', text: 'browser daha hızlı çalışır' },
+          { id: 'c', text: 'page fixture\'ı sadece TypeScript\'te çalışır' },
+          { id: 'd', text: 'Hiçbir fark yoktur, ikisi de aynı şeydir' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'page fixture test-scoped\'dır — her test için sıfırdan oluşturulur ve testler arası izolasyonu garanti eder. beforeAll bir kere çalıştığı için page fixture\'ı orada anlamlı değildir; bunun yerine browser fixture verilir, gerekirse browser.newPage() ile manuel sayfa açılır.', en: 'The page fixture is test-scoped — it\'s created fresh for every single test to guarantee isolation. Since beforeAll runs only once, the page fixture doesn\'t make sense there; instead the browser fixture is provided, and you can manually open a page with browser.newPage() if needed.' },
+      },
+    ],
+  },
+  en: {
+    title: '🗂️ Test Organization & Fixtures',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🧰',
+        content: 'Re-typing "first log in, then add an item to the cart" at the top of every single test is like re-explaining "first set up the kitchen, light the stove, grab a pot" at the start of every recipe. Fixtures are like a sous-chef who sets up the kitchen for you ahead of time — you just ask for "loggedInPage", and Playwright handles the login in the background and hands you the ready-to-use page.',
+      },
+      {
+        type: 'text',
+        content: 'Test organization has two main pieces: (1) grouping tests into logical groups with test.describe() and writing shared setup/teardown code with hooks like beforeEach/afterEach, and (2) using fixtures to inject that setup code into tests automatically as "dependency injection". Together, they reduce repeated code across hundreds of tests to near zero.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'test.describe() is like a JUnit @Nested test class. test.beforeEach() / afterEach() → JUnit @BeforeEach / @AfterEach. test.beforeAll() / afterAll() → @BeforeAll / @AfterAll (but these receive { browser }, not { page } — page is never shared between tests). Fixtures are similar to Spring\'s @Autowired dependency injection: you ask for what you need as a parameter, and the framework hands it to you ready-made — you don\'t manually do new LoginPage(driver).',
+      },
+      { type: 'heading', text: 'The Anatomy of a Test — Arrange / Act / Assert' },
+      {
+        type: 'code', language: 'typescript',
+        code: `import { test, expect } from '@playwright/test';
+
+test('successful login redirects to dashboard', async ({ page }) => {
+  // Arrange — set up
+  await page.goto('/login');
+
+  // Act — do the thing
+  await page.getByLabel('Email').fill('user@example.com');
+  await page.getByLabel('Password').fill('password123');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // Assert — verify
+  await expect(page).toHaveURL('/dashboard');
+  await expect(page.getByText('Welcome back')).toBeVisible();
+});`,
+      },
+      { type: 'heading', text: 'Grouping with describe + Hooks' },
+      {
+        type: 'code', language: 'typescript',
+        code: `test.describe('Dashboard', () => {
+  test.beforeEach(async ({ page }) => {
+    // Runs before EVERY test in this group
+    await page.goto('/login');
+    await page.getByLabel('Email').fill('user@example.com');
+    await page.getByLabel('Password').fill('password123');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  });
+
+  test('shows welcome message', async ({ page }) => {
+    await expect(page.getByText('Welcome back')).toBeVisible();
+  });
+
+  test('lists recent orders', async ({ page }) => {
+    await expect(page.getByRole('list', { name: 'Recent Orders' })).toBeVisible();
+  });
+});`,
+      },
+      {
+        type: 'table',
+        headers: ['Control', 'What it does', 'Java equivalent'],
+        rows: [
+          ['test.skip(...)', 'Skip the test for now (not ready yet)', '@Disabled'],
+          ['test.only(...)', 'Run ONLY this test while developing', 'Filtering with @Tag'],
+          ['test.fail(...)', 'Known bug — test passes if it FAILS', '@Disabled + tracking via a live ticket instead'],
+          ['test.slow(...)', 'Triples the timeout (for a slow operation)', 'Increasing @Timeout'],
+          ['test.describe.serial(...)', 'Tests in this group run in order and depend on each other', '@TestMethodOrder'],
+          ['npx playwright test --grep @smoke', 'Run only tests tagged "@smoke"', '@Tag("smoke") + a Maven profile'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '⚠️',
+        title: 'Test Isolation — Tests Must Not Trust Each Other',
+        content: 'If "edit product" fails whenever "create product" hasn\'t run, those two tests are COUPLED — they\'ll break under parallel execution or if the order changes. Each test should create its own data (self-contained). Playwright gives every test a fresh browser context/page automatically — that prevents accidental state sharing, but test data (DB rows, created products) is still your responsibility.',
+      },
+      { type: 'heading', text: 'Fixtures — Dependency Injection' },
+      {
+        type: 'text',
+        content: 'When you write { page }, you never ask where page comes from — Playwright hands it to you ready-made. That\'s a fixture. Built-in fixtures: page (a fresh page), context (the browser context the page belongs to — for sharing cookies/sessions), browser (for opening new contexts), request (for calling APIs without a UI), browserName (to branch logic for chromium/firefox/webkit).',
+      },
+      {
+        type: 'code', language: 'typescript',
+        code: `// fixtures.ts — define your own fixture
+import { test as base } from '@playwright/test';
+
+type MyFixtures = { loggedInPage: import('@playwright/test').Page };
+
+export const test = base.extend<MyFixtures>({
+  loggedInPage: async ({ page }, use) => {
+    // SETUP — before the test starts
+    await page.goto('/login');
+    await page.getByLabel('Email').fill('user@example.com');
+    await page.getByLabel('Password').fill('password123');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.waitForURL('/dashboard');
+
+    await use(page); // ← the test itself runs here
+
+    // TEARDOWN — after the test finishes (code after use())
+    await page.goto('/logout');
+  },
+});
+export { expect } from '@playwright/test';
+
+// in a test file:
+import { test, expect } from './fixtures';
+test('dashboard arrives already logged in', async ({ loggedInPage }) => {
+  await expect(loggedInPage.getByText('Welcome back')).toBeVisible();
+  // no login code here — the fixture handles it
+});`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'fixture-di',
+        icon: '🧩',
+        title: { tr: 'Fixture Dependency Injection Akışı', en: 'Fixture Dependency Injection Flow' },
+        steps: [
+          {
+            id: 'request', label: 'Request in Test Signature', labelEn: 'Request in Test Signature', visualState: 'request',
+            description: { tr: 'Test fonksiyonu parametre olarak { loggedInPage } ister. Henüz hiçbir login kodu çalışmadı.', en: 'The test function asks for { loggedInPage } as a parameter. No login code has run yet — it just says "I need this".' },
+            code: `test('...', async ({ loggedInPage }) => {\n  // hasn't run yet\n});`,
+          },
+          {
+            id: 'setup', label: 'Fixture Setup Runs', labelEn: 'Fixture Setup Runs', visualState: 'setup',
+            description: { tr: 'Playwright loggedInPage fixture\'ının setup kodunu otomatik çalıştırır.', en: 'Playwright automatically runs the loggedInPage fixture\'s setup code (the login steps) — the test code never sees this.' },
+            code: `await page.goto('/login');\nawait page.getByLabel('Email').fill(...);\n...`,
+          },
+          {
+            id: 'inject', label: 'Injected via use()', labelEn: 'Injected via use()', visualState: 'inject',
+            description: { tr: 'await use(page) çağrıldığında, login olmuş page objesi test fonksiyonuna geçer.', en: 'When await use(page) is called, the now-logged-in page object is passed into the test function as its parameter.' },
+            code: `test('...', async ({ loggedInPage }) => {\n  // loggedInPage = already logged in\n});`,
+          },
+          {
+            id: 'teardown', label: 'Test Ends → Teardown', labelEn: 'Test Ends → Teardown', visualState: 'teardown',
+            description: { tr: 'Test fonksiyonu bittiğinde, use() satırından sonraki kod (teardown) otomatik çalışır.', en: 'When the test function finishes, the code after the use() line (teardown) runs automatically — e.g. logout.' },
+            code: `await use(page);\n// ↓ continues here after the test ends\nawait page.goto('/logout');`,
+          },
+        ],
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🌐', label: 'Test Scope (default)', desc: 'A new fixture instance is created for every test.' },
+          { icon: '👷', label: 'Worker Scope', desc: '{ scope: "worker" } — all tests in the same worker share a single instance (e.g. a DB connection).' },
+          { icon: '🤖', label: 'Auto Fixture', desc: '{ auto: true } — runs automatically on every test even if not requested as a parameter (e.g. a console log listener).' },
+          { icon: '🔗', label: 'Composition', desc: 'A fixture can depend on another fixture: loggedInPage can use the testUser fixture.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — beforeEach + Test Sırası', en: 'Try It Yourself — beforeEach + Test Order' },
+        intro: { tr: 'Bir test.describe() bloğu içinde önce beforeEach ile login yap, sonra iki testi sırayla yaz, en sonda describe.serial işaretlemesini ekle.', en: 'Inside a test.describe() block, first log in with beforeEach, then write two tests in order, and finally add the describe.serial marker.' },
+        starterCommands: {
+          tr: `test.describe('Dashboard', () => {
+test.beforeEach(async ({ page }) => { await page.goto('/login'); });
+test('hoş geldin mesajı görünür', async ({ page }) => {});
+test('son siparişler listelenir', async ({ page }) => {});
+test.describe.configure({ mode: 'serial' });`,
+          en: `test.describe('Dashboard', () => {
+test.beforeEach(async ({ page }) => { await page.goto('/login'); });
+test('shows welcome message', async ({ page }) => {});
+test('lists recent orders', async ({ page }) => {});
+test.describe.configure({ mode: 'serial' });`,
+        },
+        expectedSteps: [
+          { pattern: 'test\\.describe\\(', label: { tr: '1) test.describe ile grupla', en: '1) Group with test.describe' }, example: "test.describe('Dashboard', () => {...})" },
+          { pattern: 'beforeEach', label: { tr: '2) beforeEach ile login adımını yaz', en: '2) Write the login step in beforeEach' }, example: 'test.beforeEach(async ({ page }) => {...})' },
+          { pattern: "test\\('", label: { tr: '3) En az bir test ekle', en: '3) Add at least one test' }, example: "test('...', async ({ page }) => {...})" },
+          { pattern: 'mode.*serial|describe\\.serial', label: { tr: '4) Gerekirse serial mode belirt', en: '4) Specify serial mode if needed' }, example: "test.describe.configure({ mode: 'serial' });" },
+        ],
+        successOutput: { tr: '✅ Doğru yapı!', en: '✅ Correct structure! Login logic lives in one place (beforeEach), each test focuses only on its own behavior.' },
+        retryOutput: { tr: '❌ Eksik adım var.', en: '❌ A step is missing — you need describe, beforeEach, and at least one test.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'test.beforeAll() içinde { page } yerine neden { browser } kullanılır?', en: 'Why does test.beforeAll() use { browser } instead of { page }?' },
+        options: [
+          { id: 'a', text: 'page is created fresh per test, there\'s no shared page available in beforeAll' },
+          { id: 'b', text: 'browser runs faster' },
+          { id: 'c', text: 'The page fixture only works in TypeScript' },
+          { id: 'd', text: 'There is no difference, they are the same thing' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'page fixture test-scoped\'dır ve testler arası izolasyonu garanti eder. beforeAll bir kere çalıştığı için page fixture\'ı orada anlamlı değildir.', en: 'The page fixture is test-scoped — it\'s created fresh for every single test to guarantee isolation. Since beforeAll runs only once, the page fixture doesn\'t make sense there; instead the browser fixture is provided, and you can manually open a page with browser.newPage() if needed.' },
+      },
+    ],
+  },
+}
+
+const s12 = {
+  tr: {
+    title: '📦 Page Object Model — Doğru Yapılışı',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🏠',
+        content: 'Login sayfasının kapısının nerede olduğunu 50 farklı arkadaşına 50 kere ayrı ayrı tarif etmek yerine, tek bir kroki çizip herkese o krokiyi gösterirsin — kapı yeri değişirse tek krokiyi güncellersin, 50 arkadaşına tekrar tarif etmen gerekmez. Page Object Model (POM) tam bunu yapar: bir sayfanın elemanlarını ve eylemlerini TEK bir sınıfta toplar, testler o sınıfı kullanır.',
+      },
+      {
+        type: 'text',
+        content: 'POM olmadan: 20 farklı test dosyasında aynı login locator\'ları ve aynı login adımları kopyalanır. Login butonu "Giriş Yap" yerine "Oturum Aç" olarak değiştiğinde, 20 dosyayı tek tek düzeltmen gerekir. POM ile: locator ve login mantığı LoginPage sınıfında bir kere yazılır; buton metni değiştiğinde sadece o sınıfı güncellersin, tüm testler otomatik düzelir.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'Bu, Selenium projelerinde yazdığın "Page Object" sınıflarıyla %100 aynı tasarım deseni — @FindBy ile alan tanımlayıp login() metodu yazdığın LoginPage class\'ını hatırla. Playwright\'ta @FindBy yerine constructor içinde page.getByRole(...) ile locator tanımlarsın; PageFactory.initElements() gibi ekstra bir başlatma adımına gerek yoktur, locator\'lar "lazy" çalışır (gerçek arama, kullanıldığı anda olur).',
+      },
+      { type: 'heading', text: 'İlk Page Object\'in' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// pages/LoginPage.ts
+import { Page, Locator } from '@playwright/test';
+
+export class LoginPage {
+  readonly page: Page;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+  readonly errorMessage: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.emailInput = page.getByLabel('E-posta');
+    this.passwordInput = page.getByLabel('Şifre');
+    this.signInButton = page.getByRole('button', { name: 'Giriş Yap' });
+    this.errorMessage = page.getByRole('alert');
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.signInButton.click();
+  }
+}
+
+// tests/login.spec.ts
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+
+test('başarılı giriş dashboard\\'a yönlendirir', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('kullanici@example.com', 'sifre123');
+  await expect(page).toHaveURL('/dashboard');
+});
+
+test('yanlış şifre hata mesajı gösterir', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('kullanici@example.com', 'yanlissifre');
+  await expect(loginPage.errorMessage).toHaveText('Geçersiz kimlik bilgileri');
+});`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'pom-flow',
+        icon: '📦',
+        title: { tr: 'POM Olmadan vs POM ile', en: 'Without POM vs With POM' },
+        steps: [
+          {
+            id: 'no-pom', label: 'POM Yok — Kod Tekrarı', labelEn: 'No POM — Duplicated Code', visualState: 'no-pom',
+            description: { tr: '20 test dosyasının her birinde aynı email/password locator\'ları ve aynı login adımları ayrı ayrı yazılmış. Buton metni değişirse 20 dosya elle düzeltilmeli.', en: '20 test files each have the same email/password locators and the same login steps copy-pasted. If the button text changes, all 20 files need manual fixing.' },
+            code: `// login.spec.ts\npage.getByLabel('E-posta').fill(...)\n// checkout.spec.ts\npage.getByLabel('E-posta').fill(...)\n// profile.spec.ts\npage.getByLabel('E-posta').fill(...)\n// ...17 dosya daha 😱`,
+          },
+          {
+            id: 'extract', label: 'LoginPage Sınıfına Taşı', labelEn: 'Extract into LoginPage Class', visualState: 'extract',
+            description: { tr: 'Tekrar eden locator + login mantığı TEK bir LoginPage sınıfına taşınır. Artık "tek doğru kaynak" (single source of truth) var.', en: 'The duplicated locator + login logic is moved into ONE LoginPage class. Now there\'s a single source of truth.' },
+            code: `class LoginPage {\n  emailInput = page.getByLabel('E-posta');\n  async login(e, p) { ... }\n}`,
+          },
+          {
+            id: 'reuse', label: '20 Test Aynı Sınıfı Kullanır', labelEn: '20 Tests Reuse the Same Class', visualState: 'reuse',
+            description: { tr: 'Her test dosyası new LoginPage(page) yapıp loginPage.login(...) çağırır. Locator tanımı artık sadece bir yerde.', en: 'Every test file does new LoginPage(page) and calls loginPage.login(...). The locator definition now lives in exactly one place.' },
+            code: `const loginPage = new LoginPage(page);\nawait loginPage.login(email, pass);`,
+          },
+          {
+            id: 'change', label: 'UI Değişti → Tek Yer Düzelt', labelEn: 'UI Changes → Fix One Place', visualState: 'change',
+            description: { tr: '"Giriş Yap" butonu "Oturum Aç" oldu. Sadece LoginPage.ts içindeki bir satırı değiştirirsin — 20 test dosyasına dokunmazsın, hepsi otomatik düzelir.', en: 'The "Sign in" button becomes "Log in". You change exactly one line in LoginPage.ts — you never touch the 20 test files, they all just work.' },
+            code: `// LoginPage.ts — TEK satır değişti\nsignInButton = page.getByRole('button',\n  { name: 'Oturum Aç' }); // ✅`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'En İyi Pratikler' },
+      {
+        type: 'table',
+        headers: ['Kural', 'Neden'],
+        rows: [
+          ['Eylemleri expose et, implementasyonu değil', 'login(email, pass) yaz; emailInput\'u dışarıya açıp testte .fill() çağırma — iç yapı değişirse test kırılır'],
+          ['Navigasyon yapan metot, yeni Page Object döndürsün', 'async login(): Promise<DashboardPage> { ...; return new DashboardPage(this.page); } → zincirleme kullanım mümkün olur'],
+          ['Assertion\'ları Page Object\'in İÇİNE yazma', 'Page Object veri ve eylem sağlar; doğrulamayı test kendisi yapar — farklı testler farklı assertion isteyebilir'],
+          ['Dinamik locator\'lar için metot kullan', 'productCard(name) gibi parametre alan bir metot yaz; statik locator\'lar property olarak kalsın'],
+          ['Tekrarlayan UI parçaları (navbar, modal) için Component Object yaz', 'NavBar sınıfı ProductsPage içine inject edilebilir, kod tekrarını önler'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🤔',
+        title: 'POM Her Zaman Gerekli mi?',
+        content: 'Hayır. Tek seferlik bir keşif testi yazıyorsan, UI hâlâ hızla değişiyorsa ya da sayfa çok basitse (1-2 eleman) POM ekstra karmaşıklık katar. Kural: "Önce POM olmadan başla, kod tekrarını fark ettiğin anda çıkar (extract)." Erken POM yazmak, henüz şekillenmemiş bir UI için yanlış bir abstraction oluşturabilir.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — LoginPage Sınıfını Doğru Kullan', en: 'Try It Yourself — Use the LoginPage Class Correctly' },
+        intro: { tr: 'Bir testte LoginPage sınıfını doğru sırayla kullan: önce instance oluştur, sayfaya git, login ol, sonra assertion yaz.', en: 'Use the LoginPage class correctly in a test: first create an instance, navigate, log in, then assert.' },
+        starterCommands: {
+          tr: `const loginPage = new LoginPage(page);
+await loginPage.goto();
+await loginPage.login('kullanici@example.com', 'sifre123');
+await expect(page).toHaveURL('/dashboard');`,
+          en: `const loginPage = new LoginPage(page);
+await loginPage.goto();
+await loginPage.login('user@example.com', 'password123');
+await expect(page).toHaveURL('/dashboard');`,
+        },
+        expectedSteps: [
+          { pattern: 'new LoginPage', label: { tr: '1) LoginPage instance\'ı oluştur', en: '1) Create a LoginPage instance' }, example: 'const loginPage = new LoginPage(page);' },
+          { pattern: '\\.goto\\(', label: { tr: '2) Sayfaya git', en: '2) Navigate to the page' }, example: 'await loginPage.goto();' },
+          { pattern: '\\.login\\(', label: { tr: '3) login() metodunu çağır', en: '3) Call the login() method' }, example: "await loginPage.login(email, pass);" },
+          { pattern: 'expect\\(', label: { tr: '4) Sonucu test içinde doğrula', en: '4) Assert the result in the test' }, example: "await expect(page).toHaveURL('/dashboard');" },
+        ],
+        successOutput: { tr: '✅ Doğru kullanım! Locator/login mantığı LoginPage\'de, assertion testin kendisinde — sorumluluklar net ayrılmış.', en: '✅ Correct usage! Locator/login logic lives in LoginPage, the assertion lives in the test — responsibilities are cleanly separated.' },
+        retryOutput: { tr: '❌ Bir adım eksik veya sırası yanlış.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Page Object sınıfının içine assertion (expect) yazmamak neden önerilir?', en: 'Why is it recommended NOT to put assertions (expect) inside a Page Object class?' },
+        options: [
+          { id: 'a', text: 'Playwright Page Object içinde expect() çalıştırmaya izin vermez' },
+          { id: 'b', text: 'Farklı testler aynı eylemden sonra farklı şeyler doğrulamak isteyebilir; Page Object veri/eylem sağlamalı, doğrulama testin sorumluluğunda olmalı' },
+          { id: 'c', text: 'Assertion\'lar sadece test dosyasının en üstünde tanımlanabilir' },
+          { id: 'd', text: 'Performans nedeniyle assertion\'lar Page Object\'i yavaşlatır' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Page Object\'ler "ne yapılabilir ve hangi veri var" sağlar (eylemler + locator\'lar). "Bu sonucun doğru olup olmadığı" testin bağlamına göre değişir — bu yüzden esnekliği korumak için assertion testte kalmalı.', en: 'Page Objects provide "what can be done and what data exists" (actions + locators). "Whether this result is correct" depends on the test\'s context — so assertions should stay in the test to preserve flexibility.' },
+      },
+    ],
+  },
+  en: {
+    title: '📦 Page Object Model Done Right',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🏠',
+        content: 'Instead of describing where the login page\'s door is to 50 different friends, 50 separate times, you draw one map and show that same map to everyone — if the door moves, you update one map instead of re-explaining it 50 times. The Page Object Model (POM) does exactly this: it gathers a page\'s elements and actions into ONE class, and tests use that class.',
+      },
+      {
+        type: 'text',
+        content: 'Without POM: the same login locators and login steps get copy-pasted across 20 test files. When the login button changes from "Sign in" to "Log in", you have to fix 20 files one by one. With POM: the locator and login logic are written once in a LoginPage class; when the button text changes, you update that one class, and every test automatically works again.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'This is the exact same design pattern as the "Page Object" classes you wrote in Selenium projects — remember the LoginPage class with @FindBy fields and a login() method? In Playwright, instead of @FindBy you define locators in the constructor with page.getByRole(...); there\'s no extra initialization step like PageFactory.initElements() — locators are "lazy" (the actual lookup happens only when used).',
+      },
+      { type: 'heading', text: 'Creating Your First Page Object' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// pages/LoginPage.ts
+import { Page, Locator } from '@playwright/test';
+
+export class LoginPage {
+  readonly page: Page;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+  readonly errorMessage: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Password');
+    this.signInButton = page.getByRole('button', { name: 'Sign in' });
+    this.errorMessage = page.getByRole('alert');
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.signInButton.click();
+  }
+}
+
+// tests/login.spec.ts
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+
+test('successful login redirects to dashboard', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('user@example.com', 'password123');
+  await expect(page).toHaveURL('/dashboard');
+});
+
+test('wrong password shows an error message', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login('user@example.com', 'wrongpassword');
+  await expect(loginPage.errorMessage).toHaveText('Invalid credentials');
+});`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'pom-flow',
+        icon: '📦',
+        title: { tr: 'POM Olmadan vs POM ile', en: 'Without POM vs With POM' },
+        steps: [
+          {
+            id: 'no-pom', label: 'No POM — Duplicated Code', labelEn: 'No POM — Duplicated Code', visualState: 'no-pom',
+            description: { tr: '20 test dosyasının her birinde aynı email/password locator\'ları ayrı ayrı yazılmış.', en: '20 test files each have the same email/password locators and the same login steps copy-pasted. If the button text changes, all 20 files need manual fixing.' },
+            code: `// login.spec.ts\npage.getByLabel('Email').fill(...)\n// checkout.spec.ts\npage.getByLabel('Email').fill(...)\n// profile.spec.ts\npage.getByLabel('Email').fill(...)\n// ...17 more files 😱`,
+          },
+          {
+            id: 'extract', label: 'Extract into LoginPage Class', labelEn: 'Extract into LoginPage Class', visualState: 'extract',
+            description: { tr: 'Tekrar eden locator + login mantığı TEK bir LoginPage sınıfına taşınır.', en: 'The duplicated locator + login logic is moved into ONE LoginPage class. Now there\'s a single source of truth.' },
+            code: `class LoginPage {\n  emailInput = page.getByLabel('Email');\n  async login(e, p) { ... }\n}`,
+          },
+          {
+            id: 'reuse', label: '20 Tests Reuse the Same Class', labelEn: '20 Tests Reuse the Same Class', visualState: 'reuse',
+            description: { tr: 'Her test dosyası new LoginPage(page) yapıp loginPage.login(...) çağırır.', en: 'Every test file does new LoginPage(page) and calls loginPage.login(...). The locator definition now lives in exactly one place.' },
+            code: `const loginPage = new LoginPage(page);\nawait loginPage.login(email, pass);`,
+          },
+          {
+            id: 'change', label: 'UI Changes → Fix One Place', labelEn: 'UI Changes → Fix One Place', visualState: 'change',
+            description: { tr: '"Giriş Yap" butonu "Oturum Aç" oldu. Sadece LoginPage.ts içindeki bir satırı değiştirirsin.', en: 'The "Sign in" button becomes "Log in". You change exactly one line in LoginPage.ts — you never touch the 20 test files, they all just work.' },
+            code: `// LoginPage.ts — ONE line changed\nsignInButton = page.getByRole('button',\n  { name: 'Log in' }); // ✅`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Best Practices' },
+      {
+        type: 'table',
+        headers: ['Rule', 'Why'],
+        rows: [
+          ['Expose actions, not implementation', 'Write login(email, pass); don\'t expose emailInput and call .fill() in the test — internal changes would break tests'],
+          ['Methods that navigate should return a new Page Object', 'async login(): Promise<DashboardPage> { ...; return new DashboardPage(this.page); } → enables chaining'],
+          ['Don\'t put assertions INSIDE the Page Object', 'Page Objects provide data and actions; the test itself should verify — different tests may need different assertions'],
+          ['Use methods for dynamic locators', 'Write a method that takes a parameter, like productCard(name); keep static locators as properties'],
+          ['Write Component Objects for repeated UI pieces (navbar, modal)', 'A NavBar class can be injected into ProductsPage, avoiding duplication'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🤔',
+        title: 'Is POM Always Necessary?',
+        content: 'No. If you\'re writing a one-off exploratory test, the UI is still changing rapidly, or the page is very simple (1-2 elements), POM adds unnecessary complexity. The rule of thumb: "Start without page objects. Extract them when you notice duplication." Writing POM too early can lock in the wrong abstraction for a UI that hasn\'t settled yet.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — LoginPage Sınıfını Doğru Kullan', en: 'Try It Yourself — Use the LoginPage Class Correctly' },
+        intro: { tr: 'Bir testte LoginPage sınıfını doğru sırayla kullan.', en: 'Use the LoginPage class correctly in a test: first create an instance, navigate, log in, then assert.' },
+        starterCommands: {
+          tr: `const loginPage = new LoginPage(page);
+await loginPage.goto();
+await loginPage.login('kullanici@example.com', 'sifre123');
+await expect(page).toHaveURL('/dashboard');`,
+          en: `const loginPage = new LoginPage(page);
+await loginPage.goto();
+await loginPage.login('user@example.com', 'password123');
+await expect(page).toHaveURL('/dashboard');`,
+        },
+        expectedSteps: [
+          { pattern: 'new LoginPage', label: { tr: '1) LoginPage instance\'ı oluştur', en: '1) Create a LoginPage instance' }, example: 'const loginPage = new LoginPage(page);' },
+          { pattern: '\\.goto\\(', label: { tr: '2) Sayfaya git', en: '2) Navigate to the page' }, example: 'await loginPage.goto();' },
+          { pattern: '\\.login\\(', label: { tr: '3) login() metodunu çağır', en: '3) Call the login() method' }, example: "await loginPage.login(email, pass);" },
+          { pattern: 'expect\\(', label: { tr: '4) Sonucu test içinde doğrula', en: '4) Assert the result in the test' }, example: "await expect(page).toHaveURL('/dashboard');" },
+        ],
+        successOutput: { tr: '✅ Doğru kullanım!', en: '✅ Correct usage! Locator/login logic lives in LoginPage, the assertion lives in the test — responsibilities are cleanly separated.' },
+        retryOutput: { tr: '❌ Bir adım eksik veya sırası yanlış.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Page Object sınıfının içine assertion (expect) yazmamak neden önerilir?', en: 'Why is it recommended NOT to put assertions (expect) inside a Page Object class?' },
+        options: [
+          { id: 'a', text: 'Playwright does not allow calling expect() inside a Page Object' },
+          { id: 'b', text: 'Different tests may want to verify different things after the same action; the Page Object should provide data/actions, while verification stays the test\'s responsibility' },
+          { id: 'c', text: 'Assertions can only be defined at the top of a test file' },
+          { id: 'd', text: 'Assertions slow down the Page Object for performance reasons' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Page Object\'ler "ne yapılabilir ve hangi veri var" sağlar. Sonucun doğru olup olmadığı testin bağlamına göre değişir.', en: 'Page Objects provide "what can be done and what data exists" (actions + locators). "Whether this result is correct" depends on the test\'s context — so assertions should stay in the test to preserve flexibility.' },
+      },
+    ],
+  },
+}
+
+const s13 = {
+  tr: {
+    title: '🐞 Debugging — UI Mode & Trace Viewer',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎥',
+        content: 'Bir maç hakemi anlık bir kararı tartışmalı bulduğunda VAR\'a (Video Asistan Hakem) bakar — olayı yavaşlatıp, farklı açılardan, adım adım izler. Playwright\'ın Trace Viewer\'ı testin VAR kaydı gibidir: test CI\'da sabah 3\'te patladıysa, sen orada olmasan da, neyin ne zaman olduğunu adım adım, ekran görüntüsüyle birlikte tekrar izleyebilirsin.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium\'da bir test CI\'da fail olduğunda elinde genelde sadece bir stack trace ve belki bir log satırı olur — "neden" sorusuna cevap vermek için testi local\'de tekrar tekrar çalıştırman gerekir. Playwright\'ta bunun için üç farklı araç var: UI Mode (testi canlı, adım adım gözlemleme), Trace Viewer (geçmişe dönük "zaman yolculuğu" — kayıttan tekrar izleme) ve screenshot/video (statik kanıt).',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'Selenium projelerinde flaky bir test CI\'da patladığında elinde TestNG/Allure raporundaki bir stack trace ve en fazla manuel eklediğin bir ekran görüntüsü olurdu — "tam o anda DOM neye benziyordu" sorusunun cevabı genelde yoktu. Playwright\'ın trace.zip dosyası, o anki TÜM DOM snapshot\'ını, network isteklerini, console loglarını ve her adımın ekran görüntüsünü saklar — local\'de hiç koşturmadan "zaman yolculuğu" yaparsın.',
+      },
+      { type: 'heading', text: 'Hızlı Debug Komutları' },
+      {
+        type: 'table',
+        headers: ['Komut', 'Ne yapar'],
+        rows: [
+          ['npx playwright test --debug', 'Inspector açılır, test adım adım duraklatılabilir, Pick Locator ile elemana tıklayıp locator üretebilirsin'],
+          ['npx playwright test --ui', 'UI Mode — testleri görsel arayüzden çalıştır, timeline\'da gezin, "time travel" ile her adımdaki DOM\'u gör'],
+          ['npx playwright test --headed', 'Tarayıcı görünür şekilde çalışır (headless değil)'],
+          ['npx playwright test --headed --slowmo=500', 'Her aksiyon arasına 500ms yavaşlatma ekler — gözle takip etmek için'],
+          ['page.pause()', 'Kod içinde bu satıra gelince Inspector açılır, oradan devam/adım adım ilerletebilirsin'],
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'ui-mode',
+        icon: '🖥️',
+        title: { tr: 'Playwright UI Mode — Gerçek Arayüz', en: 'Playwright UI Mode — The Real Interface' },
+        steps: [
+          {
+            id: 'launch', label: 'UI Mode Açılıyor', labelEn: 'Launching UI Mode', visualState: 'launch',
+            description: { tr: 'npx playwright test --ui komutu, sol tarafta tüm test dosyalarının ağaç görünümünü, ortada bir önizleme alanını içeren ayrı bir pencere açar.', en: 'The command npx playwright test --ui opens a dedicated window with a tree view of all test files on the left and a preview area in the middle.' },
+            code: `$ npx playwright test --ui`,
+          },
+          {
+            id: 'run', label: 'Test Çalıştırılıyor', labelEn: 'Running a Test', visualState: 'run',
+            description: { tr: 'Bir teste tıkladığında, her adım (goto, fill, click, expect) sırayla yeşil ✓ veya kırmızı ✗ ile işaretlenerek listelenir; testin canlı browser görüntüsü ortada akar.', en: 'Clicking a test lists every step (goto, fill, click, expect) one by one, marking each green ✓ or red ✗; the live browser view streams in the middle.' },
+            code: `▶ login.spec.ts > successful login\n  ✓ goto('/login')\n  ✓ fill('Email')\n  ⏳ click('Sign in')`,
+          },
+          {
+            id: 'timetravel', label: 'Time Travel — Adıma Tıkla', labelEn: 'Time Travel — Click a Step', visualState: 'timetravel',
+            description: { tr: 'Geçmişteki herhangi bir adıma tıkladığında, sayfanın O ANDAKİ tam görünümü (DOM snapshot) anında gösterilir — testi yeniden çalıştırmana gerek yok.', en: 'Clicking any past step instantly shows the page\'s exact appearance (DOM snapshot) AT THAT MOMENT — no need to re-run the test.' },
+            code: `// 3. adıma tıkla → o anki DOM görünür\n✓ fill('Email') ← buraya tıklandı\n  📸 snapshot anında gösterilir`,
+          },
+          {
+            id: 'fail', label: 'Hata Anını İncele', labelEn: 'Inspect the Failure', visualState: 'fail',
+            description: { tr: 'Bir adım kırmızı ✗ ise, sağ panelde tam hata mesajı, "Expected vs Received" karşılaştırması ve o anki DOM\'un ekran görüntüsü birlikte görünür.', en: 'When a step is red ✗, the right panel shows the full error message, an "Expected vs Received" comparison, and a screenshot of the DOM at that moment — all together.' },
+            code: `✗ expect(locator).toBeVisible()\n  Expected: visible\n  Received: <element not found>\n  📸 [hata anı ekran görüntüsü]`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Trace Viewer — Geçmişe Dönük Tam Kayıt' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// playwright.config.ts
+export default defineConfig({
+  use: {
+    trace: 'on-first-retry',   // CI için ideal: sadece retry'da kaydet
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+});
+
+// Kaydedilen trace'i incele:
+// npx playwright show-trace test-results/login-chromium/trace.zip`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'trace',
+        icon: '📊',
+        title: { tr: 'Trace Kaydı — Adım Adım', en: 'Trace Recording — Step by Step' },
+        steps: [
+          { id: 'record', label: 'Kayıt Başladı', labelEn: 'Recording Started', visualState: 'record', description: { tr: 'context.tracing.start() (veya config\'teki trace ayarı) ile her action, network isteği ve DOM snapshot kaydedilmeye başlar.', en: 'context.tracing.start() (or the trace config) begins recording every action, network request, and DOM snapshot.' }, code: `await context.tracing.start({\n  screenshots: true, snapshots: true\n});` },
+          { id: 'screenshot', label: 'Hata → Screenshot', labelEn: 'Failure → Screenshot', visualState: 'screenshot', description: { tr: 'screenshot: "only-on-failure" ayarıyla sadece test fail olduğunda bir ekran görüntüsü otomatik kaydedilir — diskte yer kaplamadan.', en: 'With screenshot: "only-on-failure", a screenshot is automatically captured only when the test fails — without wasting disk space.' }, code: `screenshot: 'only-on-failure'` },
+          { id: 'video', label: 'Video Kaydı', labelEn: 'Video Recording', visualState: 'video', description: { tr: 'video: "retain-on-failure" tüm testi kaydeder ama test PASS olursa videoyu otomatik siler — sadece fail olanlar saklanır.', en: 'video: "retain-on-failure" records the whole test but auto-deletes the video if the test passes — only failures are kept.' }, code: `video: 'retain-on-failure'` },
+          { id: 'viewer', label: 'show-trace ile Aç', labelEn: 'Open with show-trace', visualState: 'viewer', description: { tr: 'npx playwright show-trace trace.zip ile timeline, network sekmesi, console logları ve kaynak kod satırı tek ekranda açılır.', en: 'npx playwright show-trace trace.zip opens the timeline, network tab, console logs, and source code line all on one screen.' }, code: `$ npx playwright show-trace trace.zip` },
+        ],
+      },
+      {
+        type: 'table',
+        headers: ['Strateji', 'trace', 'screenshot', 'video', 'Ne zaman'],
+        rows: [
+          ['CI (önerilen)', 'on-first-retry', 'only-on-failure', 'retain-on-failure', 'Disk/zaman israfı olmadan yeterli kanıt'],
+          ['Lokal geliştirme', 'off (UI Mode kullan)', 'off', 'off', 'UI Mode zaten canlı görüntü sağlıyor'],
+          ['Kritik release smoke', 'on', 'on', 'on', 'Stakeholder\'a gösterim / tam kanıt arşivi'],
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Debug Sırasını Doğru Kur', en: 'Try It Yourself — Build the Right Debug Sequence' },
+        intro: { tr: 'CI\'da fail eden bir testi incelemek için doğru sırayı kur: önce raporu indir, sonra trace.zip\'i aç, ardından UI Mode\'da yeniden çalıştır.', en: 'Build the right sequence to investigate a test that failed in CI: download the report first, then open trace.zip, then re-run it in UI Mode.' },
+        starterCommands: {
+          tr: `npx playwright show-report
+npx playwright show-trace test-results/login-chromium/trace.zip
+npx playwright test login.spec.ts --ui`,
+          en: `npx playwright show-report
+npx playwright show-trace test-results/login-chromium/trace.zip
+npx playwright test login.spec.ts --ui`,
+        },
+        expectedSteps: [
+          { pattern: 'show-report', label: { tr: '1) HTML raporunu aç', en: '1) Open the HTML report' }, example: 'npx playwright show-report' },
+          { pattern: 'show-trace', label: { tr: '2) İlgili trace.zip\'i aç', en: '2) Open the relevant trace.zip' }, example: 'npx playwright show-trace trace.zip' },
+          { pattern: '--ui', label: { tr: '3) UI Mode\'da yeniden çalıştır', en: '3) Re-run it in UI Mode' }, example: 'npx playwright test --ui' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Önce kanıtı (rapor+trace) incele, sonra gerekirse canlı UI Mode\'da tekrar üret.', en: '✅ Correct order! Inspect the evidence (report+trace) first, then reproduce live in UI Mode if needed.' },
+        retryOutput: { tr: '❌ Adım eksik veya sırası ters.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'CI\'da neden video: "on" yerine genellikle video: "retain-on-failure" tercih edilir?', en: 'Why is video: "retain-on-failure" usually preferred over video: "on" in CI?' },
+        options: [
+          { id: 'a', text: 'retain-on-failure videoyu sadece test fail olursa saklar; PASS olan binlerce testin videosunu diskte tutmak gereksiz yer/maliyet yaratır' },
+          { id: 'b', text: '"on" ayarı geçersizdir' },
+          { id: 'c', text: 'retain-on-failure daha yüksek çözünürlükte kayıt yapar' },
+          { id: 'd', text: 'Hiçbir fark yoktur' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Yüzlerce/binlerce PASS testin videosunu saklamak depolama maliyeti ve artifact upload süresini ciddi şekilde artırır. retain-on-failure sadece gerçekten incelemen gereken (fail olan) testlerin videosunu tutar.', en: 'Keeping videos for hundreds or thousands of passing tests seriously increases storage cost and artifact upload time. retain-on-failure keeps videos only for the tests you actually need to investigate (the failing ones).' },
+      },
+    ],
+  },
+  en: {
+    title: '🐞 Debugging — UI Mode & Trace Viewer',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎥',
+        content: 'When a referee finds a live call too close to decide, they check VAR (Video Assistant Referee) — slowing the moment down, watching it from different angles, step by step. Playwright\'s Trace Viewer is exactly that VAR recording for a test: if a test failed in CI at 3 AM and you weren\'t there, you can still watch step by step, with screenshots, exactly what happened.',
+      },
+      {
+        type: 'text',
+        content: 'In Selenium, when a test fails in CI you usually have only a stack trace and maybe one log line — answering "why" often means re-running the test locally over and over. Playwright gives you three dedicated tools for this: UI Mode (watch a test live, step by step), Trace Viewer (a recorded "time travel" replay after the fact), and screenshots/video (static evidence).',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'In Selenium projects, when a flaky test failed in CI, you usually had a stack trace in the TestNG/Allure report and maybe a manually-added screenshot — "what did the DOM actually look like at that exact moment" usually had no answer. Playwright\'s trace.zip stores the ENTIRE DOM snapshot, network requests, console logs, and a screenshot of every step at that moment — letting you "time travel" without re-running anything locally.',
+      },
+      { type: 'heading', text: 'Quick Debug Commands' },
+      {
+        type: 'table',
+        headers: ['Command', 'What it does'],
+        rows: [
+          ['npx playwright test --debug', 'Opens the Inspector — pause step by step, use Pick Locator to click an element and generate its locator'],
+          ['npx playwright test --ui', 'UI Mode — run tests from a visual interface, scrub the timeline, "time travel" to see the DOM at any step'],
+          ['npx playwright test --headed', 'Runs the browser visibly (not headless)'],
+          ['npx playwright test --headed --slowmo=500', 'Adds a 500ms delay between actions — for watching with your own eyes'],
+          ['page.pause()', 'Opens the Inspector right when execution reaches this line; resume or step from there'],
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'ui-mode',
+        icon: '🖥️',
+        title: { tr: 'Playwright UI Mode — Gerçek Arayüz', en: 'Playwright UI Mode — The Real Interface' },
+        steps: [
+          {
+            id: 'launch', label: 'Launching UI Mode', labelEn: 'Launching UI Mode', visualState: 'launch',
+            description: { tr: 'npx playwright test --ui komutu, sol tarafta tüm test dosyalarının ağaç görünümünü, ortada bir önizleme alanını içeren ayrı bir pencere açar.', en: 'The command npx playwright test --ui opens a dedicated window with a tree view of all test files on the left and a preview area in the middle.' },
+            code: `$ npx playwright test --ui`,
+          },
+          {
+            id: 'run', label: 'Running a Test', labelEn: 'Running a Test', visualState: 'run',
+            description: { tr: 'Bir teste tıkladığında, her adım sırayla yeşil ✓ veya kırmızı ✗ ile işaretlenerek listelenir.', en: 'Clicking a test lists every step (goto, fill, click, expect) one by one, marking each green ✓ or red ✗; the live browser view streams in the middle.' },
+            code: `▶ login.spec.ts > successful login\n  ✓ goto('/login')\n  ✓ fill('Email')\n  ⏳ click('Sign in')`,
+          },
+          {
+            id: 'timetravel', label: 'Time Travel — Click a Step', labelEn: 'Time Travel — Click a Step', visualState: 'timetravel',
+            description: { tr: 'Geçmişteki herhangi bir adıma tıkladığında, sayfanın o anki tam görünümü anında gösterilir.', en: 'Clicking any past step instantly shows the page\'s exact appearance (DOM snapshot) AT THAT MOMENT — no need to re-run the test.' },
+            code: `// click step 3 → that exact DOM appears\n✓ fill('Email') ← clicked here\n  📸 snapshot shown instantly`,
+          },
+          {
+            id: 'fail', label: 'Inspect the Failure', labelEn: 'Inspect the Failure', visualState: 'fail',
+            description: { tr: 'Bir adım kırmızı ✗ ise, sağ panelde tam hata mesajı ve "Expected vs Received" karşılaştırması görünür.', en: 'When a step is red ✗, the right panel shows the full error message, an "Expected vs Received" comparison, and a screenshot of the DOM at that moment — all together.' },
+            code: `✗ expect(locator).toBeVisible()\n  Expected: visible\n  Received: <element not found>\n  📸 [screenshot at failure]`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Trace Viewer — A Full Historical Record' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// playwright.config.ts
+export default defineConfig({
+  use: {
+    trace: 'on-first-retry',   // ideal for CI: record only on retry
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+});
+
+// Inspect a recorded trace:
+// npx playwright show-trace test-results/login-chromium/trace.zip`,
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'trace',
+        icon: '📊',
+        title: { tr: 'Trace Kaydı — Adım Adım', en: 'Trace Recording — Step by Step' },
+        steps: [
+          { id: 'record', label: 'Recording Started', labelEn: 'Recording Started', visualState: 'record', description: { tr: 'context.tracing.start() ile her action, network isteği ve DOM snapshot kaydedilmeye başlar.', en: 'context.tracing.start() (or the trace config) begins recording every action, network request, and DOM snapshot.' }, code: `await context.tracing.start({\n  screenshots: true, snapshots: true\n});` },
+          { id: 'screenshot', label: 'Failure → Screenshot', labelEn: 'Failure → Screenshot', visualState: 'screenshot', description: { tr: 'screenshot: "only-on-failure" ayarıyla sadece test fail olduğunda bir ekran görüntüsü otomatik kaydedilir.', en: 'With screenshot: "only-on-failure", a screenshot is automatically captured only when the test fails — without wasting disk space.' }, code: `screenshot: 'only-on-failure'` },
+          { id: 'video', label: 'Video Recording', labelEn: 'Video Recording', visualState: 'video', description: { tr: 'video: "retain-on-failure" tüm testi kaydeder ama test PASS olursa videoyu otomatik siler.', en: 'video: "retain-on-failure" records the whole test but auto-deletes the video if the test passes — only failures are kept.' }, code: `video: 'retain-on-failure'` },
+          { id: 'viewer', label: 'Open with show-trace', labelEn: 'Open with show-trace', visualState: 'viewer', description: { tr: 'npx playwright show-trace trace.zip ile timeline, network sekmesi, console logları tek ekranda açılır.', en: 'npx playwright show-trace trace.zip opens the timeline, network tab, console logs, and source code line all on one screen.' }, code: `$ npx playwright show-trace trace.zip` },
+        ],
+      },
+      {
+        type: 'table',
+        headers: ['Strategy', 'trace', 'screenshot', 'video', 'When'],
+        rows: [
+          ['CI (recommended)', 'on-first-retry', 'only-on-failure', 'retain-on-failure', 'Enough evidence without wasting disk/time'],
+          ['Local development', 'off (use UI Mode)', 'off', 'off', 'UI Mode already gives you live visibility'],
+          ['Critical release smoke', 'on', 'on', 'on', 'Stakeholder demos / a full evidence archive'],
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Debug Sırasını Doğru Kur', en: 'Try It Yourself — Build the Right Debug Sequence' },
+        intro: { tr: 'CI\'da fail eden bir testi incelemek için doğru sırayı kur.', en: 'Build the right sequence to investigate a test that failed in CI: download the report first, then open trace.zip, then re-run it in UI Mode.' },
+        starterCommands: {
+          tr: `npx playwright show-report
+npx playwright show-trace test-results/login-chromium/trace.zip
+npx playwright test login.spec.ts --ui`,
+          en: `npx playwright show-report
+npx playwright show-trace test-results/login-chromium/trace.zip
+npx playwright test login.spec.ts --ui`,
+        },
+        expectedSteps: [
+          { pattern: 'show-report', label: { tr: '1) HTML raporunu aç', en: '1) Open the HTML report' }, example: 'npx playwright show-report' },
+          { pattern: 'show-trace', label: { tr: '2) İlgili trace.zip\'i aç', en: '2) Open the relevant trace.zip' }, example: 'npx playwright show-trace trace.zip' },
+          { pattern: '--ui', label: { tr: '3) UI Mode\'da yeniden çalıştır', en: '3) Re-run it in UI Mode' }, example: 'npx playwright test --ui' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! Inspect the evidence (report+trace) first, then reproduce live in UI Mode if needed.' },
+        retryOutput: { tr: '❌ Adım eksik veya sırası ters.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'CI\'da neden video: "on" yerine genellikle video: "retain-on-failure" tercih edilir?', en: 'Why is video: "retain-on-failure" usually preferred over video: "on" in CI?' },
+        options: [
+          { id: 'a', text: 'retain-on-failure keeps the video only if the test fails; storing video for thousands of passing tests wastes disk and money for no reason' },
+          { id: 'b', text: 'The "on" setting is invalid' },
+          { id: 'c', text: 'retain-on-failure records at a higher resolution' },
+          { id: 'd', text: 'There is no difference' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Yüzlerce/binlerce PASS testin videosunu saklamak depolama maliyeti ve artifact upload süresini ciddi şekilde artırır.', en: 'Keeping videos for hundreds or thousands of passing tests seriously increases storage cost and artifact upload time. retain-on-failure keeps videos only for the tests you actually need to investigate (the failing ones).' },
+      },
+    ],
+  },
+}
+
+const s14 = {
+  tr: {
+    title: '⚡ Paralel · Cross-Browser · CI/CD',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🏎️',
+        content: '1 kasiyerli bir markette 100 müşteriyi tek tek sıraya dizmek yerine, 4 kasa açıp müşterileri 4 sıraya bölersin — toplam bekleme süresi yaklaşık 4\'e bölünür. Playwright\'ın "workers"ı tam bunu yapar: 100 testi 1 worker\'da sırayla değil, 4 worker\'da paralel çalıştırır. "Cross-browser" ise aynı 100 testi 3 farklı markette (Chrome, Firefox, Safari motorları) aynı anda denetlemek gibidir.',
+      },
+      {
+        type: 'text',
+        content: '30 dakika süren bir test paketi her commit\'te göz ardı edilir; 3 dakika süren bir paket her commit\'te koşulur. Bunu sağlayan iki mekanizma var: (1) paralel worker\'lar — testleri birden fazla CPU çekirdeğine bölmek, (2) sharding — testleri birden fazla CI makinesine bölmek. CI/CD entegrasyonu da bunları otomatik tetikleyen pipeline\'dır.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'workers ayarı, Maven Surefire/Failsafe plugin\'inin forkCount + parallel="methods" ayarına karşılık gelir. test.describe.serial() → JUnit 5\'in @TestMethodOrder ile sıralı zorunlu testleri. --shard=1/4 → CI\'da matrix build\'lerle testleri makineler arası bölmenin Playwright\'taki built-in karşılığı (Selenium Grid\'de bunu manuel kurman gerekirdi).',
+      },
+      { type: 'heading', text: 'Paralel Çalışma — Worker Ayarları' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// playwright.config.ts
+export default defineConfig({
+  fullyParallel: true,          // aynı dosyadaki testler de paralelleşsin
+  workers: process.env.CI ? 2 : undefined, // CI'da 2, lokalde yarı çekirdek (default)
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
+});
+
+// Bağımlı (sıralı) bir grup — checkout adımları birbirine bağlı
+test.describe.serial('sıralı ödeme akışı', () => {
+  test('1. sepete ekle', async ({ page }) => { /* ... */ });
+  test('2. teslimat bilgisi gir', async ({ page }) => { /* ... */ });
+  test('3. ödemeyi tamamla', async ({ page }) => { /* ... */ });
+  // Biri fail olursa kalanlar otomatik skip edilir
+});`,
+      },
+      {
+        type: 'animated-timeline',
+        title: { tr: '⏱️ Serial vs Paralel (4 Worker) — Aynı 4 Test Dosyası', en: '⏱️ Serial vs Parallel (4 Workers) — the Same 4 Test Files' },
+        description: { tr: 'Her dosya ~8 saniye sürüyor. Tek worker\'da sırayla çalıştığında toplam süre toplanır; 4 worker\'da paralel çalıştığında en uzun dosya kadar sürer.', en: 'Each file takes ~8 seconds. Running serially on one worker, the times add up; running in parallel on 4 workers, it only takes as long as the slowest single file.' },
+        tracks: [
+          { label: 'Serial — workers: 1', labelEn: 'Serial — workers: 1', duration: 32000, color: '#ef4444', badge: { tr: '32s', en: '32s' }, detail: { tr: '4 dosya × 8s, sırayla', en: '4 files × 8s, one after another' } },
+          { label: 'Paralel — workers: 4', labelEn: 'Parallel — workers: 4', duration: 8500, color: '#10b981', badge: { tr: '8.5s', en: '8.5s' }, detail: { tr: '4 dosya aynı anda, en uzunu kadar sürer', en: '4 files run simultaneously, takes as long as the slowest one' } },
+        ],
+      },
+      { type: 'heading', text: 'Cross-Browser & Mobil Emulation' },
+      {
+        type: 'table',
+        headers: ['Motor', 'Gerçek tarayıcı', 'Komut'],
+        rows: [
+          ['chromium', 'Chrome, Edge', 'npx playwright test --project=chromium'],
+          ['firefox', 'Firefox (Gecko)', 'npx playwright test --project=firefox'],
+          ['webkit', 'Safari (macOS/iOS)', 'npx playwright test --project=webkit'],
+        ],
+      },
+      {
+        type: 'code', language: 'typescript',
+        code: `// Mobil emulation — gerçek cihaz profilleri
+projects: [
+  { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
+  { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
+  { name: 'iPad', use: { ...devices['iPad Pro 11'] } },
+],
+
+// Sadece bir tarayıcıda bilinen sorun varsa
+test.skip(browserName === 'webkit', 'Safari\\'de henüz desteklenmiyor — bkz. JIRA-482');`,
+      },
+      { type: 'heading', text: 'GitHub Actions ile CI/CD' },
+      {
+        type: 'code', language: 'yaml',
+        code: `# .github/workflows/playwright.yml
+name: Playwright Tests
+on: [push, pull_request]
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]   # 4 makineye böl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test --shard=\${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: \${{ !cancelled() }}
+        with:
+          name: playwright-report-\${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 7`,
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🔀', label: '--shard=1/4 ... 4/4', desc: 'Test paketini 4 CI makinesine böler; 20dk\'lık paket ~5dk\'ya iner.' },
+          { icon: '🔐', label: 'GitHub Secrets', desc: 'Şifre/token gibi bilgiler ${{ secrets.X }} ile workflow\'a, process.env.X ile koda enjekte edilir.' },
+          { icon: '🌐', label: 'webServer ayarı', desc: 'playwright.config.ts içinde webServer: { command: "npm start", url: "..." } ile Playwright önce uygulamanı başlatır, sonra testi koşar.' },
+          { icon: '📦', label: 'Resmi Docker image', desc: 'mcr.microsoft.com/playwright:v1.4x — tüm tarayıcılar/dependency\'ler kurulu gelir, playwright install gerekmez.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — CI Workflow Adımlarını Doğru Sırala', en: 'Try It Yourself — Order the CI Workflow Steps Correctly' },
+        intro: { tr: 'Bir GitHub Actions workflow\'unun doğru adım sırasını yaz: checkout, kurulum, browser indirme, test çalıştırma, artifact yükleme.', en: 'Write the correct step order for a GitHub Actions workflow: checkout, install, install browsers, run tests, upload artifacts.' },
+        starterCommands: {
+          tr: `actions/checkout@v4
+npm ci
+npx playwright install --with-deps
+npx playwright test
+actions/upload-artifact@v4`,
+          en: `actions/checkout@v4
+npm ci
+npx playwright install --with-deps
+npx playwright test
+actions/upload-artifact@v4`,
+        },
+        expectedSteps: [
+          { pattern: 'checkout', label: { tr: '1) Kodu checkout et', en: '1) Check out the code' }, example: 'actions/checkout@v4' },
+          { pattern: 'npm ci', label: { tr: '2) Bağımlılıkları kur', en: '2) Install dependencies' }, example: 'npm ci' },
+          { pattern: 'playwright install', label: { tr: '3) Tarayıcıları kur', en: '3) Install browsers' }, example: 'npx playwright install --with-deps' },
+          { pattern: 'playwright test', label: { tr: '4) Testleri çalıştır', en: '4) Run the tests' }, example: 'npx playwright test' },
+          { pattern: 'upload-artifact', label: { tr: '5) Raporu artifact olarak yükle', en: '5) Upload the report as an artifact' }, example: 'actions/upload-artifact@v4' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Bu sıra olmadan (örn. browser kurmadan test çalıştırmak) pipeline patlar.', en: '✅ Correct order! Without this exact order (e.g. running tests before installing browsers), the pipeline breaks.' },
+        retryOutput: { tr: '❌ Sıra yanlış veya bir adım eksik.', en: '❌ Wrong order or a step is missing.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: '--shard=1/4 ne işe yarar?', en: 'What does --shard=1/4 do?' },
+        options: [
+          { id: 'a', text: 'Testleri 4 kat hızlandırır, hiçbir ek makine gerekmez' },
+          { id: 'b', text: 'Test paketinin 1/4\'lük dilimini bu makinede çalıştırır; diğer dilimler ayrı CI job\'larında (2/4, 3/4, 4/4) paralel koşar' },
+          { id: 'c', text: 'Sadece ilk 4 testi çalıştırır' },
+          { id: 'd', text: 'Testleri 4 farklı tarayıcıda art arda çalıştırır' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Sharding, BÜYÜK bir test paketini CI\'da birden fazla MAKİNEYE (job) böler — her job sadece kendi diliminden sorumludur. Bu, paralel worker\'lardan (aynı makinedeki CPU çekirdekleri) farklıdır; ikisi birlikte kullanılır.', en: 'Sharding splits a LARGE test suite across multiple CI MACHINES (jobs) — each job is only responsible for its own slice. This is different from parallel workers (CPU cores on the same machine); the two are typically combined.' },
+      },
+    ],
+  },
+  en: {
+    title: '⚡ Parallel · Cross-Browser · CI/CD',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🏎️',
+        content: 'Instead of putting 100 customers through a single checkout lane, a store opens 4 lanes and splits the customers across them — the total wait time roughly divides by 4. Playwright\'s "workers" do exactly this: instead of running 100 tests sequentially on 1 worker, it runs them in parallel across 4 workers. "Cross-browser" is like inspecting the same 100 customers across 3 different stores (the Chrome, Firefox, and Safari engines) at the same time.',
+      },
+      {
+        type: 'text',
+        content: 'A test suite that takes 30 minutes gets ignored on every commit; one that takes 3 minutes gets run on every commit. Two mechanisms make this possible: (1) parallel workers — splitting tests across multiple CPU cores, and (2) sharding — splitting tests across multiple CI machines. CI/CD integration is the pipeline that triggers all of this automatically.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'The workers setting corresponds to Maven Surefire/Failsafe\'s forkCount + parallel="methods" setting. test.describe.serial() → JUnit 5\'s @TestMethodOrder for tests that must run in order. --shard=1/4 → Playwright\'s built-in equivalent of splitting tests across machines via CI matrix builds (something you had to set up manually with Selenium Grid).',
+      },
+      { type: 'heading', text: 'Parallel Execution — Worker Settings' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// playwright.config.ts
+export default defineConfig({
+  fullyParallel: true,          // parallelize tests within the same file too
+  workers: process.env.CI ? 2 : undefined, // 2 in CI, half the cores locally (default)
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
+});
+
+// A dependent (serial) group — checkout steps depend on each other
+test.describe.serial('sequential checkout flow', () => {
+  test('1. add to cart', async ({ page }) => { /* ... */ });
+  test('2. enter shipping info', async ({ page }) => { /* ... */ });
+  test('3. complete payment', async ({ page }) => { /* ... */ });
+  // If one fails, the rest are automatically skipped
+});`,
+      },
+      {
+        type: 'animated-timeline',
+        title: { tr: '⏱️ Serial vs Paralel (4 Worker) — Aynı 4 Test Dosyası', en: '⏱️ Serial vs Parallel (4 Workers) — the Same 4 Test Files' },
+        description: { tr: 'Her dosya ~8 saniye sürüyor. Tek worker\'da sırayla çalıştığında toplam süre toplanır.', en: 'Each file takes ~8 seconds. Running serially on one worker, the times add up; running in parallel on 4 workers, it only takes as long as the slowest single file.' },
+        tracks: [
+          { label: 'Serial — workers: 1', labelEn: 'Serial — workers: 1', duration: 32000, color: '#ef4444', badge: { tr: '32s', en: '32s' }, detail: { tr: '4 dosya × 8s, sırayla', en: '4 files × 8s, one after another' } },
+          { label: 'Paralel — workers: 4', labelEn: 'Parallel — workers: 4', duration: 8500, color: '#10b981', badge: { tr: '8.5s', en: '8.5s' }, detail: { tr: '4 dosya aynı anda, en uzunu kadar sürer', en: '4 files run simultaneously, takes as long as the slowest one' } },
+        ],
+      },
+      { type: 'heading', text: 'Cross-Browser & Mobile Emulation' },
+      {
+        type: 'table',
+        headers: ['Engine', 'Real browser', 'Command'],
+        rows: [
+          ['chromium', 'Chrome, Edge', 'npx playwright test --project=chromium'],
+          ['firefox', 'Firefox (Gecko)', 'npx playwright test --project=firefox'],
+          ['webkit', 'Safari (macOS/iOS)', 'npx playwright test --project=webkit'],
+        ],
+      },
+      {
+        type: 'code', language: 'typescript',
+        code: `// Mobile emulation — real device profiles
+projects: [
+  { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
+  { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
+  { name: 'iPad', use: { ...devices['iPad Pro 11'] } },
+],
+
+// Skip a test only when a browser has a known issue
+test.skip(browserName === 'webkit', 'Not supported in Safari yet — see JIRA-482');`,
+      },
+      { type: 'heading', text: 'CI/CD with GitHub Actions' },
+      {
+        type: 'code', language: 'yaml',
+        code: `# .github/workflows/playwright.yml
+name: Playwright Tests
+on: [push, pull_request]
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]   # split across 4 machines
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test --shard=\${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: \${{ !cancelled() }}
+        with:
+          name: playwright-report-\${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 7`,
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🔀', label: '--shard=1/4 ... 4/4', desc: 'Splits the suite across 4 CI machines; a 20-minute suite drops to ~5 minutes.' },
+          { icon: '🔐', label: 'GitHub Secrets', desc: 'Sensitive values are injected into the workflow with ${{ secrets.X }} and into code with process.env.X.' },
+          { icon: '🌐', label: 'webServer setting', desc: 'In playwright.config.ts, webServer: { command: "npm start", url: "..." } makes Playwright start your app first, then run tests.' },
+          { icon: '📦', label: 'Official Docker image', desc: 'mcr.microsoft.com/playwright:v1.4x — comes with all browsers/dependencies pre-installed, no playwright install needed.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — CI Workflow Adımlarını Doğru Sırala', en: 'Try It Yourself — Order the CI Workflow Steps Correctly' },
+        intro: { tr: 'Bir GitHub Actions workflow\'unun doğru adım sırasını yaz.', en: 'Write the correct step order for a GitHub Actions workflow: checkout, install, install browsers, run tests, upload artifacts.' },
+        starterCommands: {
+          tr: `actions/checkout@v4
+npm ci
+npx playwright install --with-deps
+npx playwright test
+actions/upload-artifact@v4`,
+          en: `actions/checkout@v4
+npm ci
+npx playwright install --with-deps
+npx playwright test
+actions/upload-artifact@v4`,
+        },
+        expectedSteps: [
+          { pattern: 'checkout', label: { tr: '1) Kodu checkout et', en: '1) Check out the code' }, example: 'actions/checkout@v4' },
+          { pattern: 'npm ci', label: { tr: '2) Bağımlılıkları kur', en: '2) Install dependencies' }, example: 'npm ci' },
+          { pattern: 'playwright install', label: { tr: '3) Tarayıcıları kur', en: '3) Install browsers' }, example: 'npx playwright install --with-deps' },
+          { pattern: 'playwright test', label: { tr: '4) Testleri çalıştır', en: '4) Run the tests' }, example: 'npx playwright test' },
+          { pattern: 'upload-artifact', label: { tr: '5) Raporu artifact olarak yükle', en: '5) Upload the report as an artifact' }, example: 'actions/upload-artifact@v4' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! Without this exact order (e.g. running tests before installing browsers), the pipeline breaks.' },
+        retryOutput: { tr: '❌ Sıra yanlış veya bir adım eksik.', en: '❌ Wrong order or a step is missing.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: '--shard=1/4 ne işe yarar?', en: 'What does --shard=1/4 do?' },
+        options: [
+          { id: 'a', text: 'It makes tests run 4x faster on a single machine, no extra machines needed' },
+          { id: 'b', text: 'It runs 1/4 of the suite on this machine; the other slices (2/4, 3/4, 4/4) run in parallel in separate CI jobs' },
+          { id: 'c', text: 'It only runs the first 4 tests' },
+          { id: 'd', text: 'It runs the tests on 4 different browsers one after another' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Sharding, BÜYÜK bir test paketini CI\'da birden fazla MAKİNEYE böler. Bu, paralel worker\'lardan farklıdır; ikisi birlikte kullanılır.', en: 'Sharding splits a LARGE test suite across multiple CI MACHINES (jobs) — each job is only responsible for its own slice. This is different from parallel workers (CPU cores on the same machine); the two are typically combined.' },
+      },
+    ],
+  },
+}
+
+const s15 = {
+  tr: {
+    title: '🔐 Auth & Session Yönetimi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎫',
+        content: 'Bir konsere her girişte yeniden bilet almak yerine, bir kere bilet alıp bileği rengini gösterip her seferinde kapıdan geçersin. storageState tam bu bileğin görevini görür: bir kere login olup o oturumu (cookie + localStorage) bir dosyaya kaydedersin, sonraki tüm testler o dosyayı gösterip "zaten girişliyim" diyerek doğrudan içeri girer.',
+      },
+      {
+        type: 'text',
+        content: 'Her testin başında UI\'dan login olmak (email yaz, şifre yaz, butona tıkla, dashboard\'u bekle) yavaştır ve kırılgandır: 2 saniyelik bir login\'i 100 testte tekrarlarsan 200 saniye boşa gider, login ekranındaki herhangi bir küçük UI değişikliği TÜM testleri kırabilir. Çözüm: login\'i SADECE BİR KERE test et (ayrı bir "login akışı" test grubunda), sonra diğer tüm testler için oturumu storageState ile sakla ve yeniden kullan.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'Bu, Selenium\'da bazı projelerde yaptığın "login\'i API\'den yap, sonra cookie\'yi driver.manage().addCookie() ile enjekte et" hack\'inin resmî, built-in versiyonudur. storageState({ path: "auth.json" }) → context.addCookies(...) + localStorage enjeksiyonunu birlikte, tek dosyada saklar. playwright.config.ts içindeki projects + dependencies yapısı, TestNG\'deki @BeforeSuite ile bir kere login olup session\'ı tüm sınıflara yaymaya benzer ama dosya tabanlı ve paralel-güvenlidir.',
+      },
+      { type: 'heading', text: 'Login Akışını Bir Kere, İyice Test Et' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// auth.spec.ts — login mantığının KENDİSİ burada, sadece burada test edilir
+test.describe('Login', () => {
+  test('doğru bilgilerle dashboard\\'a yönlendirir', async ({ page }) => { /* ... */ });
+  test('yanlış şifre hata gösterir', async ({ page }) => { /* ... */ });
+  test('çıkış yapınca oturum temizlenir', async ({ page }) => { /* ... */ });
+});
+// Diğer 100 test dosyası BİR DAHA login UI'ını test ETMEZ — storageState kullanır.`,
+      },
+      { type: 'heading', text: '3 Adımda storageState Kurulumu' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// 1) tests/auth.setup.ts — login yap, oturumu kaydet
+import { test as setup } from '@playwright/test';
+setup('authenticate', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('E-posta').fill('kullanici@example.com');
+  await page.getByLabel('Şifre').fill('sifre123');
+  await page.getByRole('button', { name: 'Giriş Yap' }).click();
+  await page.waitForURL('/dashboard');
+  await page.context().storageState({ path: '.auth/user.json' });
+});
+
+// 2) playwright.config.ts — setup'ı bağımlılık yap
+export default defineConfig({
+  projects: [
+    { name: 'setup', testMatch: /.*\\.setup\\.ts/ },
+    {
+      name: 'tests',
+      dependencies: ['setup'],          // önce setup çalışır
+      use: { storageState: '.auth/user.json' }, // sonra bu oturum yüklenir
+    },
+  ],
+});
+
+// 3) .gitignore — oturum dosyasını commit ETME
+// .auth/`,
+      },
+      {
+        type: 'animated-timeline',
+        title: { tr: '⏱️ Her Testte UI Login vs storageState', en: '⏱️ UI Login Every Test vs storageState' },
+        description: { tr: '100 test için: her testte UI\'dan login olmak vs bir kere login + 100 test için anında hazır oturum.', en: 'For 100 tests: logging in via the UI every single time vs logging in once + an instantly-ready session for all 100 tests.' },
+        tracks: [
+          { label: 'Her testte UI login (100 test × 2s)', labelEn: 'UI login every test (100 × 2s)', duration: 20000, color: '#ef4444', badge: { tr: '~200s toplam', en: '~200s total' }, detail: { tr: 'Login UI\'daki tek bir küçük değişiklik 100 testi de kırabilir', en: 'One small login UI change can break all 100 tests' } },
+          { label: 'storageState (1 login + 100 anında)', labelEn: 'storageState (1 login + 100 instant)', duration: 2200, color: '#10b981', badge: { tr: '~2s toplam', en: '~2s total' }, detail: { tr: 'Login mantığı sadece auth.spec.ts\'de test edilir/kırılır', en: 'Login logic is tested/breaks in exactly one place: auth.spec.ts' } },
+        ],
+      },
+      { type: 'heading', text: 'Çoklu Rol (Admin / Customer / Guest)' },
+      {
+        type: 'table',
+        headers: ['Proje', 'storageState', 'Kullanım'],
+        rows: [
+          ['admin-tests', '.auth/admin.json', 'Admin paneli, kullanıcı yönetimi testleri'],
+          ['customer-tests', '.auth/customer.json', 'Sepet, ödeme, profil testleri'],
+          ['guest-tests', '(storageState yok)', 'Login olmadan erişilen genel sayfalar'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🔑',
+        title: 'API ile Login — Daha da Hızlı',
+        content: 'UI\'dan login yerine doğrudan request.post("/api/login", { data: { email, password } }) çağırıp dönen token\'ı cookie/localStorage olarak set edebilirsin. UI\'ya hiç dokunmadığı için saniyenin altında çalışır. MFA/2FA için: test ortamında MFA\'yı kapatmak, MFA\'sız özel bir test kullanıcısı kullanmak veya otpauth gibi bir kütüphaneyle TOTP kodu üretmek üç yaygın çözümdür.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — storageState Kurulum Sırası', en: 'Try It Yourself — storageState Setup Order' },
+        intro: { tr: 'Bir setup test dosyasında doğru sırayı yaz: login ol, dashboard\'u bekle, oturumu kaydet.', en: 'Write the correct order in a setup test file: log in, wait for the dashboard, save the session.' },
+        starterCommands: {
+          tr: `await page.goto('/login');
+await page.getByLabel('E-posta').fill('kullanici@example.com');
+await page.getByRole('button', { name: 'Giriş Yap' }).click();
+await page.waitForURL('/dashboard');
+await page.context().storageState({ path: '.auth/user.json' });`,
+          en: `await page.goto('/login');
+await page.getByLabel('Email').fill('user@example.com');
+await page.getByRole('button', { name: 'Sign in' }).click();
+await page.waitForURL('/dashboard');
+await page.context().storageState({ path: '.auth/user.json' });`,
+        },
+        expectedSteps: [
+          { pattern: "goto\\('/login'\\)", label: { tr: '1) Login sayfasına git', en: '1) Navigate to the login page' }, example: "await page.goto('/login');" },
+          { pattern: '\\.fill\\(', label: { tr: '2) Bilgileri doldur', en: '2) Fill in the credentials' }, example: "await page.getByLabel('Email').fill(...);" },
+          { pattern: '\\.click\\(', label: { tr: '3) Giriş butonuna tıkla', en: '3) Click the sign-in button' }, example: "await page.getByRole('button').click();" },
+          { pattern: 'waitForURL', label: { tr: '4) Dashboard\'a yönlendirmeyi bekle', en: '4) Wait for the dashboard redirect' }, example: "await page.waitForURL('/dashboard');" },
+          { pattern: 'storageState', label: { tr: '5) Oturumu dosyaya kaydet', en: '5) Save the session to a file' }, example: "await page.context().storageState({ path: '...' });" },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! storageState dosyası şimdi diğer tüm projeler tarafından kullanılabilir.', en: '✅ Correct order! The storageState file can now be used by every other project.' },
+        retryOutput: { tr: '❌ Sıra yanlış veya adım eksik — özellikle storageState kaydı en sonda olmalı.', en: '❌ Wrong order or a step is missing — storageState must be saved last.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'storageState dosyasını .gitignore\'a eklemek neden önemlidir?', en: 'Why is it important to add the storageState file to .gitignore?' },
+        options: [
+          { id: 'a', text: 'Dosya çok büyük olduğu için repo şişer' },
+          { id: 'b', text: 'İçinde gerçek oturum cookie\'leri/token\'ları vardır — commit edilirse bu kimlik bilgileri repo geçmişinde sızar ve başkası tarafından kullanılabilir' },
+          { id: 'c', text: 'Git .json dosyalarını desteklemez' },
+          { id: 'd', text: 'CI bu dosyayı otomatik silmek için arar' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'storageState dosyası gerçek bir oturumun cookie/localStorage verisini içerir — bu, kullanıcı adı/şifreden farksız bir kimlik bilgisidir. Git geçmişine girerse, dosya silinse bile geçmiş commit\'lerde kalır ve güvenlik riski oluşturur.', en: 'The storageState file contains a real session\'s cookie/localStorage data — that\'s just as sensitive as a username/password. If it lands in git history, it stays in old commits even after deletion, creating a security risk.' },
+      },
+    ],
+  },
+  en: {
+    title: '🔐 Handling Auth & Sessions',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎫',
+        content: 'Instead of buying a new ticket every time you re-enter a concert, you buy one ticket, get a wristband, and just show it at the gate each time. storageState plays exactly that role: you log in once, save that session (cookies + localStorage) to a file, and every later test just presents that file and walks straight in, already logged in.',
+      },
+      {
+        type: 'text',
+        content: 'Logging in through the UI at the start of every test (type email, type password, click the button, wait for the dashboard) is slow and fragile: a 2-second login repeated across 100 tests wastes 200 seconds, and any small UI change on the login screen can break ALL of them. The fix: test login ONLY ONCE (in a dedicated "login flow" test group), then save and reuse that session via storageState for every other test.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'This is the official, built-in version of a hack you may have done in Selenium — "log in via the API, then inject the cookie with driver.manage().addCookie()". storageState({ path: "auth.json" }) stores the equivalent of context.addCookies(...) plus localStorage injection together, in one file. The projects + dependencies structure in playwright.config.ts is similar to logging in once in a TestNG @BeforeSuite and sharing the session across all classes, but file-based and parallel-safe.',
+      },
+      { type: 'heading', text: 'Test the Login Flow Once, Thoroughly' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// auth.spec.ts — the login logic ITSELF is tested here, and only here
+test.describe('Login', () => {
+  test('successful login redirects to dashboard', async ({ page }) => { /* ... */ });
+  test('invalid credentials shows error', async ({ page }) => { /* ... */ });
+  test('logout clears the session', async ({ page }) => { /* ... */ });
+});
+// The other 100 test files NEVER test the login UI again — they use storageState.`,
+      },
+      { type: 'heading', text: 'storageState Setup in 3 Steps' },
+      {
+        type: 'code', language: 'typescript',
+        code: `// 1) tests/auth.setup.ts — log in, save the session
+import { test as setup } from '@playwright/test';
+setup('authenticate', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Email').fill('user@example.com');
+  await page.getByLabel('Password').fill('password123');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.waitForURL('/dashboard');
+  await page.context().storageState({ path: '.auth/user.json' });
+});
+
+// 2) playwright.config.ts — make setup a dependency
+export default defineConfig({
+  projects: [
+    { name: 'setup', testMatch: /.*\\.setup\\.ts/ },
+    {
+      name: 'tests',
+      dependencies: ['setup'],          // setup runs first
+      use: { storageState: '.auth/user.json' }, // then this session is loaded
+    },
+  ],
+});
+
+// 3) .gitignore — DO NOT commit the session file
+// .auth/`,
+      },
+      {
+        type: 'animated-timeline',
+        title: { tr: '⏱️ Her Testte UI Login vs storageState', en: '⏱️ UI Login Every Test vs storageState' },
+        description: { tr: '100 test için: her testte UI\'dan login olmak vs bir kere login + 100 test için anında hazır oturum.', en: 'For 100 tests: logging in via the UI every single time vs logging in once + an instantly-ready session for all 100 tests.' },
+        tracks: [
+          { label: 'Serial — UI login every test (100 × 2s)', labelEn: 'UI login every test (100 × 2s)', duration: 20000, color: '#ef4444', badge: { tr: '~200s toplam', en: '~200s total' }, detail: { tr: 'Login UI\'daki tek bir küçük değişiklik 100 testi de kırabilir', en: 'One small login UI change can break all 100 tests' } },
+          { label: 'storageState (1 login + 100 instant)', labelEn: 'storageState (1 login + 100 instant)', duration: 2200, color: '#10b981', badge: { tr: '~2s toplam', en: '~2s total' }, detail: { tr: 'Login mantığı sadece auth.spec.ts\'de test edilir/kırılır', en: 'Login logic is tested/breaks in exactly one place: auth.spec.ts' } },
+        ],
+      },
+      { type: 'heading', text: 'Multiple Roles (Admin / Customer / Guest)' },
+      {
+        type: 'table',
+        headers: ['Project', 'storageState', 'Used for'],
+        rows: [
+          ['admin-tests', '.auth/admin.json', 'Admin panel, user management tests'],
+          ['customer-tests', '.auth/customer.json', 'Cart, checkout, profile tests'],
+          ['guest-tests', '(no storageState)', 'Public pages accessed without logging in'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🔑',
+        title: 'API-Based Login — Even Faster',
+        content: 'Instead of logging in via the UI, you can call request.post("/api/login", { data: { email, password } }) directly and set the returned token as a cookie/localStorage value. Since it never touches the UI, it runs in well under a second. For MFA/2FA, three common solutions: disable MFA in the test environment, use a dedicated test user without MFA, or generate a TOTP code with a library like otpauth.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — storageState Kurulum Sırası', en: 'Try It Yourself — storageState Setup Order' },
+        intro: { tr: 'Bir setup test dosyasında doğru sırayı yaz.', en: 'Write the correct order in a setup test file: log in, wait for the dashboard, save the session.' },
+        starterCommands: {
+          tr: `await page.goto('/login');
+await page.getByLabel('E-posta').fill('kullanici@example.com');
+await page.getByRole('button', { name: 'Giriş Yap' }).click();
+await page.waitForURL('/dashboard');
+await page.context().storageState({ path: '.auth/user.json' });`,
+          en: `await page.goto('/login');
+await page.getByLabel('Email').fill('user@example.com');
+await page.getByRole('button', { name: 'Sign in' }).click();
+await page.waitForURL('/dashboard');
+await page.context().storageState({ path: '.auth/user.json' });`,
+        },
+        expectedSteps: [
+          { pattern: "goto\\('/login'\\)", label: { tr: '1) Login sayfasına git', en: '1) Navigate to the login page' }, example: "await page.goto('/login');" },
+          { pattern: '\\.fill\\(', label: { tr: '2) Bilgileri doldur', en: '2) Fill in the credentials' }, example: "await page.getByLabel('Email').fill(...);" },
+          { pattern: '\\.click\\(', label: { tr: '3) Giriş butonuna tıkla', en: '3) Click the sign-in button' }, example: "await page.getByRole('button').click();" },
+          { pattern: 'waitForURL', label: { tr: '4) Dashboard\'a yönlendirmeyi bekle', en: '4) Wait for the dashboard redirect' }, example: "await page.waitForURL('/dashboard');" },
+          { pattern: 'storageState', label: { tr: '5) Oturumu dosyaya kaydet', en: '5) Save the session to a file' }, example: "await page.context().storageState({ path: '...' });" },
+        ],
+        successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! The storageState file can now be used by every other project.' },
+        retryOutput: { tr: '❌ Sıra yanlış veya adım eksik.', en: '❌ Wrong order or a step is missing — storageState must be saved last.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'storageState dosyasını .gitignore\'a eklemek neden önemlidir?', en: 'Why is it important to add the storageState file to .gitignore?' },
+        options: [
+          { id: 'a', text: 'The file is too large and bloats the repo' },
+          { id: 'b', text: 'It contains real session cookies/tokens — committing it leaks credentials into the repo history where anyone could reuse them' },
+          { id: 'c', text: 'Git does not support .json files' },
+          { id: 'd', text: 'CI looks for this file to delete it automatically' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'storageState dosyası gerçek bir oturumun cookie/localStorage verisini içerir — bu bir kimlik bilgisidir. Git geçmişine girerse, dosya silinse bile geçmiş commit\'lerde kalır.', en: 'The storageState file contains a real session\'s cookie/localStorage data — that\'s just as sensitive as a username/password. If it lands in git history, it stays in old commits even after deletion, creating a security risk.' },
+      },
+    ],
+  },
+}
+
+// ─── YENİ SEKMELER (2026-06-19, devam) — Codegen & Playwright MCP ───
+
+const s16 = {
+  tr: {
+    title: '🎬 Codegen — Kodu Senin Yerine Yazdır',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎙️',
+        content: 'Sesli not uygulamasını düşün: sen konuşursun, o senin yerine yazıya döker. npx playwright codegen de tam böyle çalışır — sen tarayıcıda normal bir kullanıcı gibi tıklar, yazar, seçim yaparsın; Playwright arkanda durup her hareketini izler ve gerçek zamanlı olarak çalışan Playwright kodunu senin için yazar.',
+      },
+      {
+        type: 'text',
+        content: 'npx playwright codegen <url> komutu İKİ pencere açar: (1) gerçek bir tarayıcı penceresi — burada normal kullanıcı gibi gezinirsin, (2) Playwright Inspector penceresi — burada attığın her adımın karşılığı olan kod satırı CANLI olarak belirir. İşin bitince o kodu kopyalayıp test dosyana yapıştırırsın; genelde küçük rötuşlarla (locator önceliklendirme, assertion ekleme) production-ready hâle gelir.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'Bu, Selenium IDE\'nin (tarayıcı eklentisi olarak kayıt yapıp Java/diğer dillerde kod export eden araç) Playwright\'taki built-in, komut satırından çalışan, dış eklenti gerektirmeyen versiyonudur. Fark: Selenium IDE genelde CSS/XPath üretirken, Playwright codegen öncelik sırasına göre getByRole/getByLabel gibi dayanıklı locator\'lar üretir — bu yüzden çıkan kod genelde Selenium IDE çıktısından daha az kırılgandır.',
+      },
+      { type: 'heading', text: 'Komutlar ve Seçenekler' },
+      {
+        type: 'table',
+        headers: ['Komut', 'Ne yapar'],
+        rows: [
+          ['npx playwright codegen', 'Boş bir sayfayla codegen başlatır'],
+          ['npx playwright codegen https://example.com', 'Belirtilen URL ile başlatır'],
+          ['npx playwright codegen --target=python https://example.com', 'Python kodu üretir (varsayılan: JavaScript/TypeScript)'],
+          ['npx playwright codegen --target=java https://example.com', 'Java (Selenium\'dan geçenler için en tanıdık çıktı)'],
+          ['npx playwright codegen --device="iPhone 13" https://example.com', 'Mobil cihaz emülasyonuyla başlatır'],
+          ['npx playwright codegen --viewport-size=1280,720 https://example.com', 'Özel pencere boyutuyla başlatır'],
+          ['npx playwright codegen --save-storage=auth.json https://example.com', 'Sonunda login session\'ı dosyaya kaydeder (storageState için)'],
+          ['npx playwright codegen --load-storage=auth.json https://example.com', 'Kayıtlı bir oturumla (zaten login) başlatır'],
+          ['npx playwright codegen -o login.spec.ts https://example.com', 'Üretilen kodu doğrudan bir dosyaya yazar'],
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'codegen-flow',
+        icon: '🎬',
+        title: { tr: 'Codegen Çalışırken — Gerçek Pencere Akışı', en: 'Codegen in Action — the Real Window Flow' },
+        steps: [
+          {
+            id: 'launch', label: 'Codegen Başlatıldı', labelEn: 'Codegen Launched', visualState: 'launch',
+            description: { tr: 'Komut çalıştırıldığında iki pencere açılır: gerçek tarayıcı + boş bir Playwright Inspector paneli. Inspector\'da "Record" (kayıt) açık, dil seçici (JavaScript/Python/Java/C#) görünür.', en: 'Running the command opens two windows: a real browser + an empty Playwright Inspector panel. "Record" is on, and a language picker (JavaScript/Python/Java/C#) is visible.' },
+            code: `$ npx playwright codegen https://example.com/login`,
+          },
+          {
+            id: 'recording', label: 'Tıkla, Yaz — Kod Anında Belirir', labelEn: 'Click, Type — Code Appears Instantly', visualState: 'recording',
+            description: { tr: 'E-posta kutusuna tıklayıp yazınca .fill(...) satırı belirir; "Giriş Yap" butonuna tıklayınca .click() satırı eklenir. Sen hiçbir kod yazmıyorsun — sadece normal kullanıcı gibi geziniyorsun.', en: 'Clicking and typing in the email box produces a .fill(...) line; clicking "Sign in" adds a .click() line. You write zero code — you just browse like a normal user.' },
+            code: `await page.getByLabel('E-posta').click();\nawait page.getByLabel('E-posta').fill('kullanici@example.com');\nawait page.getByRole('button', { name: 'Giriş Yap' }).click();`,
+          },
+          {
+            id: 'assert', label: 'Assertion Ekle (Pick Locator)', labelEn: 'Add an Assertion (Pick Locator)', visualState: 'assert',
+            description: { tr: 'Inspector\'daki "Assert visibility" butonuna basıp sayfada bir elemana tıklarsan, otomatik bir expect(...).toBeVisible() satırı eklenir — assertion\'ları da elle yazmana gerek kalmaz.', en: 'Clicking the "Assert visibility" button in the Inspector and then clicking an element on the page adds an automatic expect(...).toBeVisible() line — you don\'t even have to hand-write assertions.' },
+            code: `await expect(\n  page.getByText('Tekrar hoş geldin')\n).toBeVisible();`,
+          },
+          {
+            id: 'save', label: 'Kopyala / Kaydet', labelEn: 'Copy / Save', visualState: 'save',
+            description: { tr: 'İşin bitince "Copy" butonuyla tüm kodu panoya alır, test dosyana yapıştırırsın. -o login.spec.ts ile baştan bir dosyaya yazdırman da mümkün.', en: 'When you\'re done, the "Copy" button puts all the code on your clipboard to paste into your test file. You can also have it write straight to a file from the start with -o login.spec.ts.' },
+            code: `// Panoya kopyalandı ✅\n// login.spec.ts içine yapıştır`,
+          },
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '⚠️',
+        title: 'Codegen Bir Başlangıç Noktasıdır, Bitmiş Test Değil',
+        content: 'Codegen çıktısı genelde çalışır ama kör kör güvenme: (1) bazen gereksiz tıklamalar/duplicate satırlar kaydeder — temizle. (2) Otomatik üretilen locator bazen .first() gerektiren belirsiz bir eşleşme olabilir — kontrol et. (3) Login gibi tekrar eden akışları her test dosyasında yeniden kaydetme — bir kere kaydet, Page Object\'e veya fixture\'a taşı (bkz. önceki sekmeler). (4) --save-storage ile kaydedilen oturum dosyasını ASLA git\'e commit etme.',
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🔍', label: 'Hızlı keşif', desc: 'Bilmediğin bir sayfada hangi locator\'ın doğru çalıştığını anında görürsün.' },
+          { icon: '🎯', label: 'Doğru locator önerisi', desc: 'getByRole/getByLabel öncelikli üretir — elle yazsan bulman zaman alacak locator\'ları saniyede üretir.' },
+          { icon: '🔐', label: 'Auth akışı kaydetme', desc: '--save-storage ile login\'i bir kere kaydedip storageState olarak diğer testlerde kullanırsın.' },
+          { icon: '🌐', label: 'Çok dilli çıktı', desc: 'Aynı kaydı --target ile JS/TS, Python, Java veya C# kodu olarak alabilirsin.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Codegen ile Auth Kaydı Doğru Sıra', en: 'Try It Yourself — Correct Order for Recording Auth with Codegen' },
+        intro: { tr: 'Bir login akışını kaydedip storageState olarak kaydetmenin doğru komut sırasını yaz.', en: 'Write the correct command order for recording a login flow and saving it as storageState.' },
+        starterCommands: {
+          tr: `npx playwright codegen --save-storage=auth.json https://example.com/login
+# Tarayıcıda login ol, pencereyi kapat
+npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
+          en: `npx playwright codegen --save-storage=auth.json https://example.com/login
+# log in in the browser, close the window
+npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
+        },
+        expectedSteps: [
+          { pattern: 'save-storage', label: { tr: '1) --save-storage ile codegen başlat', en: '1) Start codegen with --save-storage' }, example: 'npx playwright codegen --save-storage=auth.json <url>' },
+          { pattern: 'load-storage', label: { tr: '2) --load-storage ile kayıtlı oturumu kullan', en: '2) Use the saved session with --load-storage' }, example: 'npx playwright codegen --load-storage=auth.json <url>' },
+        ],
+        dangerousPatterns: [
+          { pattern: 'git add.*auth\\.json|git commit.*auth\\.json', label: { tr: 'auth.json gerçek oturum verisi içerir — asla commit etme, .gitignore\'a ekle.', en: 'auth.json contains real session data — never commit it, add it to .gitignore.' } },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Önce oturumu kaydet, sonra her codegen/test çalışmasında o dosyayı yükleyip login\'i tekrarlama.', en: '✅ Correct order! Save the session once, then load that file in every later codegen/test run instead of logging in again.' },
+        retryOutput: { tr: '❌ Sıra yanlış — önce save-storage, sonra load-storage gelmeli.', en: '❌ Wrong order — save-storage must come before load-storage.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Codegen ile üretilen kodu test dosyasına koymadan önce neden gözden geçirmek gerekir?', en: 'Why should you review codegen-generated code before putting it in a test file?' },
+        options: [
+          { id: 'a', text: 'Codegen kod üretmez, sadece ekran görüntüsü alır' },
+          { id: 'b', text: 'Üretilen kod genelde çalışır ama gereksiz/duplicate satırlar, belirsiz locator eşleşmeleri veya tekrar eden login bloklarını içerebilir — bunlar temizlenip Page Object/fixture\'a taşınmalı' },
+          { id: 'c', text: 'Codegen sadece Chrome\'da çalışır, diğer tarayıcılarda kod hatalı olur' },
+          { id: 'd', text: 'Üretilen kod asla çalışmaz, sadece referans amaçlıdır' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Codegen mükemmel bir başlangıç noktasıdır ama bir "ham taslak"tır — production kalitesine getirmek için temizlik, locator kontrolü ve tekrar eden mantığın (login gibi) Page Object/fixture\'a çıkarılması gerekir.', en: 'Codegen is an excellent starting point but it\'s a "rough draft" — getting it to production quality requires cleanup, locator review, and extracting repeated logic (like login) into a Page Object/fixture.' },
+      },
+    ],
+  },
+  en: {
+    title: '🎬 Codegen — Let It Write the Code for You',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎙️',
+        content: 'Think of a voice-to-text app: you talk, it writes it down for you. npx playwright codegen works exactly like that — you click, type, and select things in the browser like a normal user; Playwright stands behind you, watches every move, and writes the real, working Playwright code for you in real time.',
+      },
+      {
+        type: 'text',
+        content: 'The command npx playwright codegen <url> opens TWO windows: (1) a real browser window — where you browse like a normal user, and (2) a Playwright Inspector window — where the code line matching every step you take appears LIVE. When you\'re done, you copy that code into your test file; with a few small touch-ups (locator priority, adding assertions) it\'s usually production-ready.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'This is the built-in, command-line, no-extension-required version of Selenium IDE (the browser extension that records actions and exports Java/other-language code). The difference: Selenium IDE usually generates CSS/XPath, while Playwright codegen prioritizes durable locators like getByRole/getByLabel — so the resulting code is usually less brittle than Selenium IDE\'s output.',
+      },
+      { type: 'heading', text: 'Commands and Options' },
+      {
+        type: 'table',
+        headers: ['Command', 'What it does'],
+        rows: [
+          ['npx playwright codegen', 'Starts codegen with a blank page'],
+          ['npx playwright codegen https://example.com', 'Starts with the given URL'],
+          ['npx playwright codegen --target=python https://example.com', 'Generates Python code (default: JavaScript/TypeScript)'],
+          ['npx playwright codegen --target=java https://example.com', 'Java (the most familiar output for Selenium veterans)'],
+          ['npx playwright codegen --device="iPhone 13" https://example.com', 'Starts with mobile device emulation'],
+          ['npx playwright codegen --viewport-size=1280,720 https://example.com', 'Starts with a custom window size'],
+          ['npx playwright codegen --save-storage=auth.json https://example.com', 'Saves the login session to a file at the end (for storageState)'],
+          ['npx playwright codegen --load-storage=auth.json https://example.com', 'Starts with a saved session (already logged in)'],
+          ['npx playwright codegen -o login.spec.ts https://example.com', 'Writes the generated code straight to a file'],
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'codegen-flow',
+        icon: '🎬',
+        title: { tr: 'Codegen Çalışırken — Gerçek Pencere Akışı', en: 'Codegen in Action — the Real Window Flow' },
+        steps: [
+          {
+            id: 'launch', label: 'Codegen Launched', labelEn: 'Codegen Launched', visualState: 'launch',
+            description: { tr: 'Komut çalıştırıldığında iki pencere açılır: gerçek tarayıcı + boş bir Playwright Inspector paneli.', en: 'Running the command opens two windows: a real browser + an empty Playwright Inspector panel. "Record" is on, and a language picker (JavaScript/Python/Java/C#) is visible.' },
+            code: `$ npx playwright codegen https://example.com/login`,
+          },
+          {
+            id: 'recording', label: 'Click, Type — Code Appears Instantly', labelEn: 'Click, Type — Code Appears Instantly', visualState: 'recording',
+            description: { tr: 'E-posta kutusuna tıklayıp yazınca .fill(...) satırı belirir; butona tıklayınca .click() satırı eklenir.', en: 'Clicking and typing in the email box produces a .fill(...) line; clicking "Sign in" adds a .click() line. You write zero code — you just browse like a normal user.' },
+            code: `await page.getByLabel('Email').click();\nawait page.getByLabel('Email').fill('user@example.com');\nawait page.getByRole('button', { name: 'Sign in' }).click();`,
+          },
+          {
+            id: 'assert', label: 'Add an Assertion (Pick Locator)', labelEn: 'Add an Assertion (Pick Locator)', visualState: 'assert',
+            description: { tr: '"Assert visibility" butonuna basıp bir elemana tıklarsan, otomatik bir expect(...).toBeVisible() satırı eklenir.', en: 'Clicking the "Assert visibility" button in the Inspector and then clicking an element on the page adds an automatic expect(...).toBeVisible() line — you don\'t even have to hand-write assertions.' },
+            code: `await expect(\n  page.getByText('Welcome back')\n).toBeVisible();`,
+          },
+          {
+            id: 'save', label: 'Copy / Save', labelEn: 'Copy / Save', visualState: 'save',
+            description: { tr: 'İşin bitince "Copy" butonuyla tüm kodu panoya alır, test dosyana yapıştırırsın.', en: 'When you\'re done, the "Copy" button puts all the code on your clipboard to paste into your test file. You can also have it write straight to a file from the start with -o login.spec.ts.' },
+            code: `// Copied to clipboard ✅\n// paste into login.spec.ts`,
+          },
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '⚠️',
+        title: 'Codegen Is a Starting Point, Not a Finished Test',
+        content: 'Codegen output usually works, but don\'t trust it blindly: (1) it sometimes records unnecessary clicks/duplicate lines — clean them up. (2) An auto-generated locator can sometimes be an ambiguous match needing .first() — check it. (3) Don\'t re-record repeated flows like login in every test file — record it once, move it into a Page Object or fixture (see earlier tabs). (4) NEVER commit the session file saved by --save-storage to git.',
+      },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🔍', label: 'Fast exploration', desc: 'Instantly see which locator actually works on a page you don\'t know yet.' },
+          { icon: '🎯', label: 'Good locator suggestions', desc: 'Prioritizes getByRole/getByLabel — it produces in a second the locators that would take you a while to find by hand.' },
+          { icon: '🔐', label: 'Recording an auth flow', desc: 'With --save-storage, record login once and reuse it as storageState in other tests.' },
+          { icon: '🌐', label: 'Multi-language output', desc: 'Take the same recording as JS/TS, Python, Java, or C# code with --target.' },
+        ],
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Codegen ile Auth Kaydı Doğru Sıra', en: 'Try It Yourself — Correct Order for Recording Auth with Codegen' },
+        intro: { tr: 'Bir login akışını kaydedip storageState olarak kaydetmenin doğru komut sırasını yaz.', en: 'Write the correct command order for recording a login flow and saving it as storageState.' },
+        starterCommands: {
+          tr: `npx playwright codegen --save-storage=auth.json https://example.com/login
+# Tarayıcıda login ol, pencereyi kapat
+npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
+          en: `npx playwright codegen --save-storage=auth.json https://example.com/login
+# log in in the browser, close the window
+npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
+        },
+        expectedSteps: [
+          { pattern: 'save-storage', label: { tr: '1) --save-storage ile codegen başlat', en: '1) Start codegen with --save-storage' }, example: 'npx playwright codegen --save-storage=auth.json <url>' },
+          { pattern: 'load-storage', label: { tr: '2) --load-storage ile kayıtlı oturumu kullan', en: '2) Use the saved session with --load-storage' }, example: 'npx playwright codegen --load-storage=auth.json <url>' },
+        ],
+        dangerousPatterns: [
+          { pattern: 'git add.*auth\\.json|git commit.*auth\\.json', label: { tr: 'auth.json gerçek oturum verisi içerir — asla commit etme, .gitignore\'a ekle.', en: 'auth.json contains real session data — never commit it, add it to .gitignore.' } },
+        ],
+        successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! Save the session once, then load that file in every later codegen/test run instead of logging in again.' },
+        retryOutput: { tr: '❌ Sıra yanlış.', en: '❌ Wrong order — save-storage must come before load-storage.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Codegen ile üretilen kodu test dosyasına koymadan önce neden gözden geçirmek gerekir?', en: 'Why should you review codegen-generated code before putting it in a test file?' },
+        options: [
+          { id: 'a', text: 'Codegen doesn\'t generate code at all, it only takes screenshots' },
+          { id: 'b', text: 'The generated code usually works but may contain unnecessary/duplicate lines, ambiguous locator matches, or repeated login blocks — these should be cleaned up and moved into a Page Object/fixture' },
+          { id: 'c', text: 'Codegen only works in Chrome, code is broken in other browsers' },
+          { id: 'd', text: 'The generated code never actually works, it\'s for reference only' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Codegen mükemmel bir başlangıç noktasıdır ama bir "ham taslak"tır — production kalitesine getirmek için temizlik ve refactor gerekir.', en: 'Codegen is an excellent starting point but it\'s a "rough draft" — getting it to production quality requires cleanup, locator review, and extracting repeated logic (like login) into a Page Object/fixture.' },
+      },
+    ],
+  },
+}
+
+const s17 = {
+  tr: {
+    title: '🔌 Playwright MCP — AI Agent\'lara Tarayıcı Yeteneği',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🗺️',
+        content: 'Bir taksi şoförüne "Taksim Meydanı\'na git" dersin — sokak sokak "300 metre düz git, sonra sağa dön" diye tarif etmen gerekmez, çünkü şoförün kafasında zaten şehrin haritası var. Playwright MCP de AI\'a tam bunu sağlar: "şu siteye gir, giriş yap" dediğinde AI, ekran görüntüsüne bakıp piksel piksel koordinat hesaplamak zorunda kalmaz — sayfanın "iskelet haritasını" (accessibility tree) okur ve doğru elemana doğrudan gider.',
+      },
+      {
+        type: 'text',
+        content: 'MCP (Model Context Protocol), bir AI modelinin dış araçlarla (dosya sistemi, veritabanı, tarayıcı, API\'ler) konuşmasını standartlaştıran açık bir protokoldür. Playwright MCP, Microsoft\'un resmi olarak yayınladığı bir MCP sunucusudur (npm paketi: @playwright/mcp) ve AI istemcilerine (Claude, Cursor, VS Code Copilot gibi) gerçek bir tarayıcıyı kontrol etme yeteneği "tool" (araç) olarak sağlar — browser_navigate, browser_click, browser_type gibi.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java Biliyorsan:',
+        content: 'MCP sunucusunu, Selenium Grid\'in bir node\'unun WebDriver komutlarını HTTP üzerinden dış istemcilere sunmasına benzet — fark, burada istemci bir insan değil bir AI modelidir ve protokol (JSON-RPC tabanlı MCP) özellikle AI araç çağrısı için tasarlanmıştır. "Snapshot mode", sayfanın DOM\'unu System.out.println(driver.getPageSource()) yerine, Selenium\'un Accessibility API\'sine benzer şekilde yapılandırılmış (rol + isim + ref) bir ağaç olarak AI\'a verir — AI piksel koordinatı değil, "ref=e3" gibi kararlı bir referans kullanarak tıklar.',
+      },
+      { type: 'heading', text: 'Temel Özellikler' },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🌳', label: 'Accessibility-tree tabanlı', desc: 'Ekran görüntüsü + görüntü tanıma modeli gerekmez; sayfa yapılandırılmış (rol/isim/ref) veri olarak okunur — hızlı ve deterministik.' },
+          { icon: '🧰', label: 'Geniş tool seti', desc: 'browser_navigate, browser_click, browser_type, browser_snapshot, browser_take_screenshot, browser_select_option, browser_file_upload, browser_handle_dialog, browser_wait_for, browser_tabs, browser_network_requests, browser_console_messages...' },
+          { icon: '👁️', label: 'Snapshot mode vs Vision mode', desc: 'Varsayılan: accessibility snapshot (metin tabanlı, hızlı). Vision mode: ekran görüntüsü + koordinat tabanlı tıklama — görsel modeller için.' },
+          { icon: '🔒', label: 'İzole / kalıcı profil', desc: '--isolated ile her oturum sıfırdan (gizli sekme gibi); --user-data-dir ile login durumu kalıcı tutulabilir.' },
+          { icon: '🌐', label: 'Çok motorlu', desc: '--browser ile chromium, firefox, webkit veya msedge seçilebilir; --headless ile arka planda çalıştırılabilir.' },
+          { icon: '🔐', label: 'Origin kısıtlama', desc: '--allowed-origins / --blocked-origins ile AI\'ın hangi sitelere gidebileceği sınırlanabilir — güvenlik için önemli.' },
+        ],
+      },
+      { type: 'heading', text: 'Mimari — Bir İstek Nasıl İşlenir?' },
+      {
+        type: 'visual', variant: 'flow', title: { tr: 'AI İsteğinden Tarayıcı Aksiyonuna', en: 'From AI Request to Browser Action' },
+        steps: [
+          { num: 1, label: 'Kullanıcı', desc: 'Doğal dilde istek', highlight: true },
+          { num: 2, label: 'AI Model', desc: 'Claude / Cursor / Copilot', highlight: false },
+          { num: 3, label: 'MCP Protokolü', desc: 'JSON-RPC (stdio/HTTP)', highlight: false },
+          { num: 4, label: 'Playwright MCP Server', desc: '@playwright/mcp', highlight: true },
+          { num: 5, label: 'Gerçek Tarayıcı', desc: 'Chromium/Firefox/WebKit', highlight: true },
+          { num: 6, label: 'Sonuç', desc: 'Snapshot/screenshot → AI\'a', highlight: false },
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'mcp-flow',
+        icon: '🔌',
+        title: { tr: 'MCP Tool-Calling Döngüsü — Adım Adım', en: 'The MCP Tool-Calling Loop — Step by Step' },
+        steps: [
+          {
+            id: 'prompt', label: 'Kullanıcı İsteği', labelEn: 'User Prompt', visualState: 'prompt',
+            description: { tr: 'Kullanıcı doğal dilde bir görev tanımlar. AI, bu görevi tamamlamak için hangi browser_* tool\'unu çağıracağına karar verir.', en: 'The user describes a task in natural language. The AI decides which browser_* tool to call to accomplish it.' },
+            code: `Kullanıcı: "example.com'a git ve\nbaşlığı söyle"`,
+          },
+          {
+            id: 'tool-call', label: 'AI Tool Çağırır', labelEn: 'AI Calls a Tool', visualState: 'tool-call',
+            description: { tr: 'AI, MCP protokolü üzerinden browser_navigate({ url: ... }) çağrısı yapar. Bu çağrı MCP server\'a iletilir, server gerçek tarayıcıyı (yoksa) başlatıp URL\'e gider.', en: 'The AI makes a browser_navigate({ url: ... }) call over the MCP protocol. The call reaches the MCP server, which launches the real browser (if needed) and navigates to the URL.' },
+            code: `browser_navigate({\n  url: "https://example.com"\n})`,
+          },
+          {
+            id: 'snapshot', label: 'Accessibility Snapshot Döner', labelEn: 'Accessibility Snapshot Returns', visualState: 'snapshot',
+            description: { tr: 'AI sayfayı "görmek" için browser_snapshot çağırır. Server, ekran görüntüsü DEĞİL, yapılandırılmış bir ağaç döner: her elemanın rolü, ismi ve kararlı bir "ref" kimliği.', en: 'The AI calls browser_snapshot to "see" the page. The server returns NOT a screenshot, but a structured tree: every element\'s role, name, and a stable "ref" id.' },
+            code: `- heading "Example Domain" [ref=e1]\n- link "More information..." [ref=e2]`,
+          },
+          {
+            id: 'result', label: 'Ref ile Aksiyon → Sonuç', labelEn: 'Action via Ref → Result', visualState: 'result',
+            description: { tr: 'AI artık piksel koordinatı tahmin etmez — doğrudan browser_click({ ref: "e2" }) çağırır. Aksiyon tamamlanır, sonuç AI\'a döner, AI kullanıcıya doğal dilde cevap verir.', en: 'The AI never has to guess pixel coordinates — it calls browser_click({ ref: "e2" }) directly. The action completes, the result returns to the AI, and the AI answers the user in natural language.' },
+            code: `browser_click({ ref: "e2" })\n// ✅ AI: "Başlık: Example Domain"`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Kurulum — Adım Adım' },
+      {
+        type: 'text',
+        content: 'Önkoşul: Node.js 18+ kurulu olmalı (npx ile aynı şekilde gelir). Global bir kurulum GEREKMEZ — npx, paketi her çalıştığında ihtiyaç olursa indirir.',
+      },
+      {
+        type: 'installation',
+        title: { tr: '1) Önce komut satırından dene', en: '1) Test it from the command line first' },
+        steps: [
+          { cmd: 'npx @playwright/mcp@latest --help', explanation: { tr: 'Global kurulum gerekmez — npx paketi gerektiğinde indirir. Çıktıda --browser, --headless, --isolated gibi flag listesini görmelisin.', en: 'No global install needed — npx downloads the package on demand. The output should list flags like --browser, --headless, --isolated.' } },
+          { cmd: 'npx @playwright/mcp@latest --version', explanation: { tr: 'Sürüm numarasını yazdırır — paketin doğru indirildiğini doğrular.', en: 'Prints the version number — confirms the package downloaded correctly.' } },
+        ],
+      },
+      {
+        type: 'code', language: 'json',
+        code: `// 2) Claude Desktop için config dosyasına ekle
+// macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+// Windows: %APPDATA%\\Claude\\claude_desktop_config.json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+
+// 3) Claude Code için (proje veya kullanıcı seviyesinde) — terminalden:
+// $ claude mcp add playwright npx @playwright/mcp@latest
+// veya .mcp.json içine elle aynı bloğu ekle.
+
+// 4) İstemciyi (Claude Desktop / Claude Code / Cursor) yeniden başlat.
+// 5) Araç (tool) listesinde browser_navigate, browser_click, browser_snapshot
+//    gibi isimlerin göründüğünü doğrula.
+// 6) İlk komutu dene: "https://example.com adresine git, sayfa başlığını söyle."`,
+      },
+      {
+        type: 'table',
+        headers: ['Flag', 'Ne işe yarar'],
+        rows: [
+          ['--browser=firefox', 'chromium yerine firefox/webkit/msedge motorunu kullan'],
+          ['--headless', 'Tarayıcıyı görünmeden (arka planda) çalıştır'],
+          ['--device="iPhone 13"', 'Mobil cihaz emülasyonu ile başlat'],
+          ['--isolated', 'Her oturumu sıfırdan başlat (gizli sekme gibi, kalıcı login yok)'],
+          ['--user-data-dir=./profile', 'Login/cookie durumunu oturumlar arası kalıcı tut'],
+          ['--allowed-origins=https://example.com', 'AI\'ın yalnızca belirtilen origin\'lere gidebilmesini sağla'],
+          ['--save-trace', 'Oturumu Playwright trace olarak kaydet (sonradan incelemek için)'],
+          ['--vision', 'Accessibility snapshot yerine ekran görüntüsü + koordinat tabanlı mod'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🛡️',
+        title: 'Güvenlik — AI\'a Gerçek Tarayıcı Vermek Risklidir',
+        content: 'Playwright MCP\'ye bağlı bir AI, gerçek formlara veri girebilir, gerçek butonlara (silme, satın alma, gönder) tıklayabilir. (1) --allowed-origins ile AI\'ı sadece test/staging ortamına kilitle. (2) Gerçek production ödeme/silme akışlarında AI\'ı insan onayı olmadan serbest bırakma. (3) --user-data-dir kullanıyorsan, o profildeki gerçek oturumların (kişisel e-posta, banka vb.) AI tarafından da erişilebilir olduğunu unutma — test için ayrı, izole bir profil kullan.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Doğru Kurulum Sırası', en: 'Try It Yourself — the Correct Setup Order' },
+        intro: { tr: 'Playwright MCP\'yi bir AI istemcisine bağlamanın doğru sırasını yaz: önce komut satırından dene, sonra config\'e ekle, sonra istemciyi yeniden başlat, sonra ilk komutu ver.', en: 'Write the correct order for connecting Playwright MCP to an AI client: test from the command line first, then add it to the config, then restart the client, then try your first command.' },
+        starterCommands: {
+          tr: `npx @playwright/mcp@latest --help
+claude mcp add playwright npx @playwright/mcp@latest
+# Claude Code'u yeniden başlat
+# "https://example.com'a git ve başlığı söyle" yaz`,
+          en: `npx @playwright/mcp@latest --help
+claude mcp add playwright npx @playwright/mcp@latest
+# restart Claude Code
+# type "go to https://example.com and tell me the title"`,
+        },
+        expectedSteps: [
+          { pattern: '--help', label: { tr: '1) Paketin çalıştığını komut satırından doğrula', en: '1) Verify the package works from the command line' }, example: 'npx @playwright/mcp@latest --help' },
+          { pattern: 'mcp add', label: { tr: '2) İstemciye MCP server\'ı ekle', en: '2) Add the MCP server to the client' }, example: 'claude mcp add playwright npx @playwright/mcp@latest' },
+          { pattern: 'yeniden başlat|restart', label: { tr: '3) İstemciyi yeniden başlat', en: '3) Restart the client' }, example: '# restart the client' },
+          { pattern: "git|tell me|söyle|adresine", label: { tr: '4) İlk doğal dil komutunu dene', en: '4) Try your first natural-language command' }, example: '"go to ... and tell me ..."' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra! Önce paketin çalıştığını doğrulamak, config hatalarını (yanlış komut/path) erkenden yakalamanı sağlar.', en: '✅ Correct order! Verifying the package works first catches config mistakes (wrong command/path) early.' },
+        retryOutput: { tr: '❌ Bir adım eksik veya sırası yanlış.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Playwright MCP\'nin varsayılan "snapshot mode"u, görüntü tanıma (vision) moduna göre neden genelde daha hızlı ve güvenilirdir?', en: 'Why is Playwright MCP\'s default "snapshot mode" usually faster and more reliable than vision mode?' },
+        options: [
+          { id: 'a', text: 'Snapshot mode internet bağlantısı gerektirmez' },
+          { id: 'b', text: 'Snapshot mode, sayfayı yapılandırılmış (rol/isim/ref) veri olarak verir; AI piksel koordinatı tahmin etmek veya bir görüntü modelini çalıştırmak zorunda kalmaz — doğrudan ref ile kararlı bir elemana gider' },
+          { id: 'c', text: 'Vision mode sadece mobil cihazlarda çalışır' },
+          { id: 'd', text: 'İkisi arasında performans farkı yoktur' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Accessibility tree, sayfanın anlamsal yapısını (buton, link, textbox + isimleri) doğrudan verir. AI bu yapıdaki "ref" kimliğini kullanarak hatasız tıklar — ekran görüntüsünden piksel koordinatı çıkarmaya (ve bunun için ayrı bir görsel modele) gerek kalmaz.', en: 'The accessibility tree gives the page\'s semantic structure (buttons, links, textboxes + their names) directly. The AI clicks reliably using the "ref" id in that structure — no need to infer pixel coordinates from a screenshot (and no need for a separate vision model to do it).' },
+      },
+    ],
+  },
+  en: {
+    title: '🔌 Playwright MCP — Giving AI Agents Browser Powers',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🗺️',
+        content: 'You tell a taxi driver "take me to Times Square" — you don\'t need to describe "go straight 300 meters, then turn right," because the driver already has the city map in their head. Playwright MCP gives an AI exactly that: when you say "go to this site and log in," the AI doesn\'t have to stare at a screenshot and guess pixel coordinates — it reads the page\'s "skeleton map" (the accessibility tree) and goes straight to the right element.',
+      },
+      {
+        type: 'text',
+        content: 'MCP (Model Context Protocol) is an open protocol that standardizes how an AI model talks to external tools (file systems, databases, browsers, APIs). Playwright MCP is the official MCP server published by Microsoft (npm package: @playwright/mcp), and it gives AI clients (Claude, Cursor, VS Code Copilot, etc.) the ability to control a real browser as a set of "tools" — browser_navigate, browser_click, browser_type, and so on.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'If You Know Java:',
+        content: 'Think of the MCP server like a Selenium Grid node exposing WebDriver commands over HTTP to outside clients — the difference is the client here is an AI model, not a human, and the protocol (JSON-RPC-based MCP) is purpose-built for AI tool calling. "Snapshot mode" gives the AI the page\'s DOM not as System.out.println(driver.getPageSource()), but as a structured tree (role + name + ref) similar to Selenium\'s Accessibility API — the AI clicks using a stable reference like "ref=e3", not a pixel coordinate.',
+      },
+      { type: 'heading', text: 'Key Features' },
+      {
+        type: 'grid', cols: 2,
+        items: [
+          { icon: '🌳', label: 'Accessibility-tree based', desc: 'No screenshots or vision models needed; the page is read as structured (role/name/ref) data — fast and deterministic.' },
+          { icon: '🧰', label: 'Wide tool set', desc: 'browser_navigate, browser_click, browser_type, browser_snapshot, browser_take_screenshot, browser_select_option, browser_file_upload, browser_handle_dialog, browser_wait_for, browser_tabs, browser_network_requests, browser_console_messages...' },
+          { icon: '👁️', label: 'Snapshot mode vs Vision mode', desc: 'Default: accessibility snapshot (text-based, fast). Vision mode: screenshot + coordinate-based clicking — for vision-capable models.' },
+          { icon: '🔒', label: 'Isolated / persistent profile', desc: 'With --isolated, every session starts fresh (like incognito); with --user-data-dir, login state can persist.' },
+          { icon: '🌐', label: 'Multi-engine', desc: 'Choose chromium, firefox, webkit, or msedge with --browser; run in the background with --headless.' },
+          { icon: '🔐', label: 'Origin restriction', desc: 'With --allowed-origins / --blocked-origins, limit which sites the AI is allowed to reach — important for security.' },
+        ],
+      },
+      { type: 'heading', text: 'Architecture — How a Request Gets Handled' },
+      {
+        type: 'visual', variant: 'flow', title: { tr: 'AI İsteğinden Tarayıcı Aksiyonuna', en: 'From AI Request to Browser Action' },
+        steps: [
+          { num: 1, label: 'User', desc: 'Natural-language request', highlight: true },
+          { num: 2, label: 'AI Model', desc: 'Claude / Cursor / Copilot', highlight: false },
+          { num: 3, label: 'MCP Protocol', desc: 'JSON-RPC (stdio/HTTP)', highlight: false },
+          { num: 4, label: 'Playwright MCP Server', desc: '@playwright/mcp', highlight: true },
+          { num: 5, label: 'Real Browser', desc: 'Chromium/Firefox/WebKit', highlight: true },
+          { num: 6, label: 'Result', desc: 'Snapshot/screenshot → back to AI', highlight: false },
+        ],
+      },
+      {
+        type: 'playwright-visual',
+        concept: 'mcp-flow',
+        icon: '🔌',
+        title: { tr: 'MCP Tool-Calling Döngüsü — Adım Adım', en: 'The MCP Tool-Calling Loop — Step by Step' },
+        steps: [
+          {
+            id: 'prompt', label: 'User Prompt', labelEn: 'User Prompt', visualState: 'prompt',
+            description: { tr: 'Kullanıcı doğal dilde bir görev tanımlar. AI, bu görevi tamamlamak için hangi browser_* tool\'unu çağıracağına karar verir.', en: 'The user describes a task in natural language. The AI decides which browser_* tool to call to accomplish it.' },
+            code: `User: "go to example.com and\ntell me the title"`,
+          },
+          {
+            id: 'tool-call', label: 'AI Calls a Tool', labelEn: 'AI Calls a Tool', visualState: 'tool-call',
+            description: { tr: 'AI, MCP protokolü üzerinden browser_navigate({ url: ... }) çağrısı yapar. Bu çağrı MCP server\'a iletilir, server gerçek tarayıcıyı başlatıp URL\'e gider.', en: 'The AI makes a browser_navigate({ url: ... }) call over the MCP protocol. The call reaches the MCP server, which launches the real browser (if needed) and navigates to the URL.' },
+            code: `browser_navigate({\n  url: "https://example.com"\n})`,
+          },
+          {
+            id: 'snapshot', label: 'Accessibility Snapshot Returns', labelEn: 'Accessibility Snapshot Returns', visualState: 'snapshot',
+            description: { tr: 'AI sayfayı "görmek" için browser_snapshot çağırır. Server, ekran görüntüsü DEĞİL, yapılandırılmış bir ağaç döner.', en: 'The AI calls browser_snapshot to "see" the page. The server returns NOT a screenshot, but a structured tree: every element\'s role, name, and a stable "ref" id.' },
+            code: `- heading "Example Domain" [ref=e1]\n- link "More information..." [ref=e2]`,
+          },
+          {
+            id: 'result', label: 'Action via Ref → Result', labelEn: 'Action via Ref → Result', visualState: 'result',
+            description: { tr: 'AI artık piksel koordinatı tahmin etmez — doğrudan browser_click({ ref: "e2" }) çağırır.', en: 'The AI never has to guess pixel coordinates — it calls browser_click({ ref: "e2" }) directly. The action completes, the result returns to the AI, and the AI answers the user in natural language.' },
+            code: `browser_click({ ref: "e2" })\n// ✅ AI: "Title: Example Domain"`,
+          },
+        ],
+      },
+      { type: 'heading', text: 'Installation — Step by Step' },
+      {
+        type: 'text',
+        content: 'Prerequisite: Node.js 18+ must be installed (npx comes with it). A global install is NOT required — npx downloads the package on demand whenever it runs.',
+      },
+      {
+        type: 'installation',
+        title: { tr: '1) Önce komut satırından dene', en: '1) Test it from the command line first' },
+        steps: [
+          { cmd: 'npx @playwright/mcp@latest --help', explanation: { tr: 'Global kurulum gerekmez — npx paketi gerektiğinde indirir.', en: 'No global install needed — npx downloads the package on demand. The output should list flags like --browser, --headless, --isolated.' } },
+          { cmd: 'npx @playwright/mcp@latest --version', explanation: { tr: 'Sürüm numarasını yazdırır.', en: 'Prints the version number — confirms the package downloaded correctly.' } },
+        ],
+      },
+      {
+        type: 'code', language: 'json',
+        code: `// 2) Add to the config file for Claude Desktop
+// macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+// Windows: %APPDATA%\\Claude\\claude_desktop_config.json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+
+// 3) For Claude Code (user- or project-level) — from the terminal:
+// $ claude mcp add playwright npx @playwright/mcp@latest
+// or add the same block by hand to .mcp.json.
+
+// 4) Restart the client (Claude Desktop / Claude Code / Cursor).
+// 5) Verify names like browser_navigate, browser_click, browser_snapshot
+//    show up in the tool list.
+// 6) Try your first command: "Go to https://example.com and tell me the page title."`,
+      },
+      {
+        type: 'table',
+        headers: ['Flag', 'What it does'],
+        rows: [
+          ['--browser=firefox', 'Use the firefox/webkit/msedge engine instead of chromium'],
+          ['--headless', 'Run the browser without a visible window (in the background)'],
+          ['--device="iPhone 13"', 'Start with mobile device emulation'],
+          ['--isolated', 'Start every session fresh (like incognito, no persistent login)'],
+          ['--user-data-dir=./profile', 'Keep login/cookie state persistent across sessions'],
+          ['--allowed-origins=https://example.com', 'Restrict which origins the AI is allowed to navigate to'],
+          ['--save-trace', 'Record the session as a Playwright trace (for later inspection)'],
+          ['--vision', 'Use screenshot + coordinate-based mode instead of accessibility snapshots'],
+        ],
+      },
+      {
+        type: 'callout', color: 'amber', emoji: '🛡️',
+        title: 'Security — Giving an AI a Real Browser Is Risky',
+        content: 'An AI connected to Playwright MCP can fill in real forms and click real buttons (delete, purchase, submit). (1) Use --allowed-origins to lock the AI to a test/staging environment only. (2) Don\'t let the AI loose on real production payment/delete flows without human approval. (3) If you use --user-data-dir, remember the AI can also access whatever real sessions (personal email, banking, etc.) are logged into that profile — use a separate, isolated profile for testing.',
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Kendin Dene — Doğru Kurulum Sırası', en: 'Try It Yourself — the Correct Setup Order' },
+        intro: { tr: 'Playwright MCP\'yi bir AI istemcisine bağlamanın doğru sırasını yaz.', en: 'Write the correct order for connecting Playwright MCP to an AI client: test from the command line first, then add it to the config, then restart the client, then try your first command.' },
+        starterCommands: {
+          tr: `npx @playwright/mcp@latest --help
+claude mcp add playwright npx @playwright/mcp@latest
+# Claude Code'u yeniden başlat
+# "https://example.com'a git ve başlığı söyle" yaz`,
+          en: `npx @playwright/mcp@latest --help
+claude mcp add playwright npx @playwright/mcp@latest
+# restart Claude Code
+# type "go to https://example.com and tell me the title"`,
+        },
+        expectedSteps: [
+          { pattern: '--help', label: { tr: '1) Paketin çalıştığını komut satırından doğrula', en: '1) Verify the package works from the command line' }, example: 'npx @playwright/mcp@latest --help' },
+          { pattern: 'mcp add', label: { tr: '2) İstemciye MCP server\'ı ekle', en: '2) Add the MCP server to the client' }, example: 'claude mcp add playwright npx @playwright/mcp@latest' },
+          { pattern: 'yeniden başlat|restart', label: { tr: '3) İstemciyi yeniden başlat', en: '3) Restart the client' }, example: '# restart the client' },
+          { pattern: "git|tell me|söyle|adresine", label: { tr: '4) İlk doğal dil komutunu dene', en: '4) Try your first natural-language command' }, example: '"go to ... and tell me ..."' },
+        ],
+        successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! Verifying the package works first catches config mistakes (wrong command/path) early.' },
+        retryOutput: { tr: '❌ Bir adım eksik veya sırası yanlış.', en: '❌ A step is missing or out of order.' },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Playwright MCP\'nin varsayılan "snapshot mode"u, görüntü tanıma (vision) moduna göre neden genelde daha hızlı ve güvenilirdir?', en: 'Why is Playwright MCP\'s default "snapshot mode" usually faster and more reliable than vision mode?' },
+        options: [
+          { id: 'a', text: 'Snapshot mode doesn\'t require an internet connection' },
+          { id: 'b', text: 'Snapshot mode gives the page as structured (role/name/ref) data; the AI never has to guess pixel coordinates or run a vision model — it goes straight to a stable element via its ref' },
+          { id: 'c', text: 'Vision mode only works on mobile devices' },
+          { id: 'd', text: 'There is no performance difference between the two' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Accessibility tree, sayfanın anlamsal yapısını doğrudan verir. AI bu yapıdaki "ref" kimliğini kullanarak hatasız tıklar — ekran görüntüsünden piksel koordinatı çıkarmaya gerek kalmaz.', en: 'The accessibility tree gives the page\'s semantic structure (buttons, links, textboxes + their names) directly. The AI clicks reliably using the "ref" id in that structure — no need to infer pixel coordinates from a screenshot (and no need for a separate vision model to do it).' },
+      },
+    ],
+  },
+}
+
 export const playwrightData = {
   tr: {
     hero: {
@@ -2302,13 +4620,21 @@ export const playwrightData = {
       '🖱️ Temel Aksiyonlar',
       '🎯 Locator Stratejileri',
       '⏳ Bekleme & Wait',
+      '✅ Assertions',
+      '🗂️ Test Organizasyonu',
+      '📦 Page Object Model',
       '🖼️ iframe · Alert · Popup',
       '📁 Dosya · Network · API',
+      '🐞 Debugging & Trace',
+      '🎬 Codegen',
+      '🔌 Playwright MCP',
+      '⚡ Paralel & CI/CD',
+      '🔐 Auth & Session',
       '🌍 Gerçek Hayat',
       '🚨 Yaygın Hatalar',
       '💼 50 Mülakat Sorusu',
     ],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s10.tr, s11.tr, s12.tr, s5.tr, s6.tr, s13.tr, s16.tr, s17.tr, s14.tr, s15.tr, s7.tr, s8.tr, s9.tr],
   },
   en: {
     hero: {
@@ -2322,12 +4648,20 @@ export const playwrightData = {
       '🖱️ Basic Actions',
       '🎯 Locator Strategies',
       '⏳ Wait Mechanisms',
+      '✅ Assertions',
+      '🗂️ Test Organization',
+      '📦 Page Object Model',
       '🖼️ iframe · Alert · Popup',
       '📁 File · Network · API',
+      '🐞 Debugging & Trace',
+      '🎬 Codegen',
+      '🔌 Playwright MCP',
+      '⚡ Parallel & CI/CD',
+      '🔐 Auth & Sessions',
       '🌍 Real World',
       '🚨 Common Errors',
       '💼 50 Interview Questions',
     ],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s10.en, s11.en, s12.en, s5.en, s6.en, s13.en, s16.en, s17.en, s14.en, s15.en, s7.en, s8.en, s9.en],
   },
 }
