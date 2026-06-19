@@ -47,12 +47,16 @@
 **Bu bölüm önemli — her oturum başında oku, üstüne yaz/güncelle.**
 
 ### Git durumu
-- **Yerel Commit'ler (Push Bekliyor):**
-  - `522864b` feat(homepage): remove old learning intro section and paths
-  - `4f8f98c` fix(qa-mentor): translate chat bubbles dynamically on language toggle and fix duplication
-  - `5c9b46a` feat: integrate QA Mentor AI path builder, remove TS from Java+Playwright, and add Appium/JMeter/BrowserStack bonuses
+- **Branch durumu:** `git status -sb` çıktısı `main...origin/main` gösteriyor; şu an ahead/behind işareti yok.
+- **Son görülen commit'ler:**
+  - `8ec78fa` feat(sitemap): add all missing applications and pages to site map
+  - `f570de5` feat(selenium): modernize page with BiDi, Virtual Auth, IDE, and Grid 4
+  - `7b7a204` feat(playwright): add 8 new tabs covering assertions, test org, POM, debugging, codegen, MCP, parallel/CI-CD, and auth
+  - `8f298ac` feat(git-github): add .gitignore practice sections
+  - `516622d` feat(qa-mentor): add Git-GitHub, Linux bonus and Linux recommendation to all roadmaps
 - `Documents/_Java notlar.md` yerel çalışma notudur; `.gitignore` içinde `Documents/_Java notlar.md` olarak ignore ediliyor ve `git check-ignore -v -- "Documents/_Java notlar.md"` ile doğrulandı. Her commit/stage öncesi bu kural tekrar kontrol edilmeli.
 - **Dokunulmayan yerel dosya:** `.claude/settings.local.json` untracked görünüyor; bu oturumda dokunulmadı.
+- **Git uyarısı:** `git status` ve `git check-ignore` sırasında `C:\Users\1/.config/git/ignore` için `Permission denied` uyarısı görünüyor; komutların ana çıktısını bozmadı.
 - **GitHub Pages deploy notu:** `.github/workflows/deploy.yml` artık redirect HTML değil, gerçek `npm run build` çıktısını yayınlar. `concurrency.group: pages` aynı anda birden fazla Pages deploy çakışmasını azaltır. `workflow_dispatch` açık olduğu için Actions ekranından manuel deploy tetiklenebilir.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
@@ -65,9 +69,21 @@
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
-- **Bu oturumda (28. kısım) değiştirilen dosyalar:** `src/data/whatIsTestingData.js` — Site haritası (Site Map) sekmesinin projedeki tüm sayfaları (Cypress, Git/GitHub, Linux, Test Temelleri, Manuel Test, Algoritmalar, İleri Algoritmalar, QA Mentor) içerecek şekilde güncellenmesi.
-- **Önceki oturumlardan kalan yerel değişiklikler:** `src/data/seleniumData.js`, `src/components/TopicPage.jsx`, `src/data/cypressData.js`, `src/data/gitGithubData.js`, `src/data/javaData.js`, `src/data/sqlData.js`, `src/components/GitDocPage.jsx`, `dist/index.html` vb. uncommitted değişiklikler çalışma ağacında durmaktadır.
-- Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` ignore edilen yerel not dosyasıdır.
+- **Şu anki `git status --short`:** `M .claude/NEXT_SESSION.md`, `M dist/index.html`, `M src/data/cypressData.js`, `?? .claude/settings.local.json`.
+- **Bu oturumda bilinçli güncellenen dosya:** `.claude/NEXT_SESSION.md` — Git/GitHub Pull Request sekmesi doğrulama kaydı ve scenario envanteri.
+- **Build kaynaklı dosya:** `dist/index.html` `npm run build` sonrası değişmiş görünüyor; build çıktısı olduğu için stage/commit öncesi özellikle kontrol edilmeli.
+- **Dokunulmayan yerel değişiklik:** `src/data/cypressData.js` bu turda düzenlenmedi; önceki/kullanıcı değişikliği olarak korunmalı.
+- **Untracked yerel ayar dosyası:** `.claude/settings.local.json` dokunulmadı. `Documents/_Java notlar.md` ignore edilen yerel not dosyasıdır.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 29. kısım — Git/GitHub Pull Request sekmesi)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** `http://localhost:5173/git-github` adresinde `GitHub Akışı` sekmesinin hemen altına `Pull Request` sekmesi eklenecek; GitHub'da Pull Request nedir, nasıl açılır, code review nasıl yapılır, approve/request changes kararları ne anlama gelir, conflict PR içinde/localde nasıl çözülür gibi konular gerçek GitHub arayüzüne benzeyen görseller, animasyonlar ve try-it-yourself pratikleriyle anlatılacaktır. | ✅ |
+| **Sekme ve içerik yerleşimi:** `src/data/gitGithubData.js` içinde TR/EN tab listesine `🧾 Pull Request` sekmesi `🐙 GitHub Akışı/GitHub Workflow` ile `🚀 Actions` arasına yerleştirildi. TR ve EN içerik 12 tab / 12 section olarak eşleşiyor. Pull Request bölümü `simple-box`, GitHub UI simülasyonları, amaç/risk tabloları, code review açıklaması, conflict çözüm akışı, uyarı kutuları, quiz ve 3 adet `git-practice` alanı içeriyor. | ✅ |
+| **Görsel/animasyon geliştirmesi:** `src/components/TopicPage.jsx` içinde iki yeni gerçek GitHub arayüzü benzeri simülasyon bağlandı: `github-pull-request-ui-tour` ve `github-pr-review-conflict-ui`. İlk simülasyon Pull requests tabı → New pull request → base/compare → Create pull request → Conversation/Files changed/Checks → Merge pull request akışını gösteriyor. İkinci simülasyon Files changed → line comment → Review changes → Request changes → conflict → local çözüm → test → push → Approved/Required checks/No conflicts → Merge pull request akışını gösteriyor. | ✅ |
+| **Try-it-yourself:** Üç pratik alanı eklendi/doğrulandı: PR açma ekranındaki doğru sıra (`Pull requests tab`, `New pull request`, `base: main`, `compare: feature/...`, title/description/reviewer/checks), code review approve sırası (`Files changed`, line comment, review, Approve, Submit review) ve conflict'i localde güvenli çözme sırası (`git fetch origin`, `git switch feature/...`, `git merge origin/main`, dosyayı düzelt, test, `git add`, `git commit`, `git push`). Kullanıcı butona basınca başarı çıktısını görüyor. | ✅ |
+| **Doğrulama:** `node` import kontrolüyle TR/EN tab ve section sayıları, Pull Request index'i, iki scenario ve 3 practice doğrulandı. `npm run build` başarıyla geçti (29 route SEO check + sitemap/robots + Vite build + static route shell + dist SEO). In-app Browser ile `/git-github` üzerinde PR sekmesi açıldı; ilk animasyonda `Files changed`, `Review changes`, `Checks`, `qa-lead ✓`, `Pull request successfully merged and closed`, `Merge pull request` göründü; ikinci animasyonda `Request changes`, `Approved`, `Required checks passed`, `No conflicts`, `Merge pull request` doğrulandı. Üç try-it-yourself alanı çalıştırıldı ve `PR hazır: base main`, `Review tamam`, `Conflict güvenli çözüldü` çıktılarını verdi. 390px mobil kontrolde PR sekmesi ikon-only `🧾` olarak açıldı, gerçek yatay scroll oluşmadı (`scrollX` 0), console error/warn yok. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 28. kısım — Site Haritası (Sitemap) Güncellemesi)
 
@@ -718,6 +734,8 @@ SimulationBlock({ block, darkMode, language })
 | `git-merge-lab` | `origin/main` güncellemelerinin feature branch içine merge edilmesini ve testle kanıtlanmasını gösterir | gitGithubData.js (Branching) |
 | `git-conflict-lab` | conflict marker → final dosya → test → `git add` → continue akışıyla conflict çözmeyi gösterir | gitGithubData.js (Branching) |
 | `github-pr-flow` | feature branch → commit → push → Pull Request → review → checks → merge akışı | gitGithubData.js (GitHub Akışı) |
+| `github-pull-request-ui-tour` | GitHub Pull Request arayüzünü gösterir: Pull requests tabı → New pull request → base/compare → Create pull request → Conversation/Files changed/Checks → Merge pull request | gitGithubData.js (Pull Request) |
+| `github-pr-review-conflict-ui` | Code review ve conflict akışını gösterir: Files changed → line comment → Request changes → conflict → local çözüm/test/push → Approved/Required checks/No conflicts → Merge pull request | gitGithubData.js (Pull Request) |
 | `github-actions-ui-tour` | GitHub Actions arayüzünü gösterir: Actions tabı → workflow listesi → run satırı → failed logs → artifact → rerun | gitGithubData.js (Actions) |
 | `github-pages-settings-ui` | GitHub Settings → Pages arayüzünü gösterir: source, custom domain, DNS check, Enforce HTTPS ve Visit site | gitGithubData.js (Pages) |
 | `github-repo-settings-tour` | Repository Settings turu: collaborator, visibility, branch protection, secret ve Pages source kontrolleri | gitGithubData.js (Pages) |
