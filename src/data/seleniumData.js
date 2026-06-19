@@ -3053,8 +3053,843 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
   },
 }
 
-// ─── S8: YAYGIN HATALAR ───────────────────────────────────────────────────────
+// ─── S8: CDP & BIDI ──────────────────────────────────────────────────────────
 const s8 = {
+  tr: {
+    title: '🌐 Chrome DevTools (CDP) & WebDriver BiDi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📡',
+        content: 'Selenium 4\'e kadar test kodumuz tarayıcıya sadece "şuna tıkla, bunu yaz" diyordu ve tarayıcıdan anlık haber alamıyordu. WebDriver BiDi (çift yönlü telsiz gibi) ve CDP sayesinde artık tarayıcının iç dünyasını (konsol hataları, ağ istekleri, konum bilgisi) canlı dinleyip kontrol edebiliyoruz.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium 4 ile birlikte tarayıcıyla çift yönlü iletişim kurabilen WebSocket tabanlı W3C WebDriver BiDi protokolü ve Chrome DevTools Protokolü (CDP) entegrasyonu gelmiştir. Bu sayede test kodumuz tarayıcıdaki olayları anlık olarak dinleyebilir, ağ isteklerini manipüle edebilir ve tarayıcı davranışlarını değiştirebilir.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'Java ile BiDi & CDP Kullanımı:',
+        content: 'Java\'da CDP için `driver.getDevTools()` üzerinden session başlatılır. BiDi için ise `LogInspector` veya `NetworkInterceptor` gibi üst seviye sınıflar kullanılarak WebSocket bağlantısı yönetilir. Bu, Playwright\'ın en güçlü yönü olan event-driven yapıyı Selenium\'a kazandırır.',
+      },
+      {
+        type: 'heading', text: '1. Console Log & JS Exception Dinleme'
+      },
+      {
+        type: 'text',
+        content: 'Tarayıcıda oluşan JavaScript hatalarını veya `console.log` çıktılarını gerçek zamanlı yakalamak için Selenium 4 BiDi `LogInspector` kullanılır. Bu, UI testleri çalışırken arka planda sinsi JS hatalarının yakalanmasını sağlar.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Console Log Dinleme',
+        code: `import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v125.log.Log;
+
+ChromeDriver driver = new ChromeDriver();
+DevTools devTools = driver.getDevTools();
+devTools.createSession();
+
+// CDP ile konsol loglarını dinle
+devTools.send(Log.enable());
+devTools.addListener(Log.entryAdded(), logEntry -> {
+    System.out.println("Console Log: " + logEntry.getText());
+    System.out.println("Level: " + logEntry.getLevel());
+});
+
+driver.get("https://example.com");`,
+      },
+      {
+        type: 'heading', text: '2. Network Interception (API Mocking)'
+      },
+      {
+        type: 'text',
+        content: 'NetworkInterceptor yardımıyla tarayıcıdan giden HTTP istekleri ve gelen yanıtlar durdurulabilir (intercept). Bu sayede API\'leri taklit edebilir (mock), giden header\'ları değiştirebilir veya Basic Authentication pencerelerini otomatik geçebiliriz.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — API Mocking (NetworkInterceptor)',
+        code: `import org.openqa.selenium.devtools.NetworkInterceptor;
+import org.openqa.selenium.remote.http.Route;
+import org.openqa.selenium.remote.http.HttpResponse;
+import static org.openqa.selenium.remote.http.Contents.utf8String;
+
+// API isteğini yakala ve mock yanıt dön
+try (NetworkInterceptor interceptor = new NetworkInterceptor(
+        driver,
+        Route.matching(req -> req.getUri().contains("/api/user"))
+             .to(() -> req -> new HttpResponse()
+                 .setStatus(200)
+                 .addHeader("Content-Type", "application/json")
+                 .setContent(utf8String("{\\"name\\": \\"Mocked User\\", \\"role\\": \\"QA\\"}"))))) {
+
+    driver.get("https://example.com/profile");
+    // Sayfada mock verilerin göründüğünü doğrula
+}`,
+      },
+      {
+        type: 'heading', text: '3. Geolocation & Device Emulation'
+      },
+      {
+        type: 'text',
+        content: 'CDP komutları doğrudan çalıştırılarak tarayıcının GPS konumu değiştirilebilir (Geolocation Override) veya farklı mobil cihaz ekran boyutları simüle edilebilir (Device Emulation).',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Konum Değiştirme (CDP)',
+        code: `import java.util.Map;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+ChromeDriver driver = new ChromeDriver();
+// Paris koordinatları
+Map<String, Object> coordinates = Map.of(
+    "latitude", 48.8566,
+    "longitude", 2.3522,
+    "accuracy", 1
+);
+
+driver.executeCdpCommand("Emulation.setGeolocationOverride", coordinates);
+driver.get("https://www.google.com/maps");`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-bidi-cdp',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumBidiPractice',
+        title: { tr: 'Pratik: CDP ile Console Listener Ekle', en: 'Practice: Add Console Listener with CDP' },
+        description: {
+            tr: 'Selenium 4 Java projesinde CDP ile console loglarını dinlemek için komutları doğru sıraya koyun.',
+            en: 'Order the commands to listen to console logs using CDP in a Selenium 4 Java project.'
+        },
+        steps: [
+            { code: 'ChromeDriver driver = new ChromeDriver();', desc: { tr: 'Tarayıcıyı başlat', en: 'Start the browser' } },
+            { code: 'DevTools devTools = driver.getDevTools();', desc: { tr: 'DevTools nesnesini al', en: 'Get DevTools object' } },
+            { code: 'devTools.createSession();', desc: { tr: 'CDP oturumu oluştur', en: 'Create CDP session' } },
+            { code: 'devTools.send(Log.enable());', desc: { tr: 'Log dinlemeyi aktif et', en: 'Enable log listening' } },
+            { code: 'devTools.addListener(Log.entryAdded(), entry -> System.out.println(entry.getText()));', desc: { tr: 'Log eklenme olayını dinle', en: 'Add listener for log entry' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! CDP console listener\'ı başarıyla kurdunuz. Artık tarayıcıdaki tüm JS hataları test raporunuza eklenecektir.',
+            en: '✓ Congratulations! You successfully set up the CDP console listener. All JS errors in the browser will now be captured in your test report.'
+        }
+      }
+    ],
+  },
+  en: {
+    title: '🌐 Chrome DevTools (CDP) & WebDriver BiDi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📡',
+        content: 'Before Selenium 4, our test code could only tell the browser "click this, type that" without hearing back in real time. Thanks to WebDriver BiDi (like a two-way radio) and CDP, we can now listen to and control the browser\'s internal state (console errors, network requests, geolocation) dynamically.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium 4 introduces the W3C WebDriver BiDi protocol and Chrome DevTools Protocol (CDP) integrations, allowing bidirectional WebSocket communication. This enables your test code to listen to browser events, intercept network requests, and modify browser behaviors in real time.',
+      },
+      {
+        type: 'callout', color: 'blue', emoji: '☕',
+        title: 'CDP & BiDi in Java:',
+        content: 'In Java, CDP sessions are initialized via `driver.getDevTools()`. For BiDi, high-level helper classes like `LogInspector` or `NetworkInterceptor` manage the WebSocket connection automatically, closing the gap with Playwright\'s event-driven architecture.',
+      },
+      {
+        type: 'heading', text: '1. Console Log & JS Exception Listening'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Console Log Listener',
+        code: `import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v125.log.Log;
+
+ChromeDriver driver = new ChromeDriver();
+DevTools devTools = driver.getDevTools();
+devTools.createSession();
+
+devTools.send(Log.enable());
+devTools.addListener(Log.entryAdded(), logEntry -> {
+    System.out.println("Console Log: " + logEntry.getText());
+    System.out.println("Level: " + logEntry.getLevel());
+});
+
+driver.get("https://example.com");`,
+      },
+      {
+        type: 'heading', text: '2. Network Interception (API Mocking)'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — API Mocking with NetworkInterceptor',
+        code: `import org.openqa.selenium.devtools.NetworkInterceptor;
+import org.openqa.selenium.remote.http.Route;
+import org.openqa.selenium.remote.http.HttpResponse;
+import static org.openqa.selenium.remote.http.Contents.utf8String;
+
+try (NetworkInterceptor interceptor = new NetworkInterceptor(
+        driver,
+        Route.matching(req -> req.getUri().contains("/api/user"))
+             .to(() -> req -> new HttpResponse()
+                 .setStatus(200)
+                 .addHeader("Content-Type", "application/json")
+                 .setContent(utf8String("{\\"name\\": \\"Mocked User\\", \\"role\\": \\"QA\\"}"))))) {
+
+    driver.get("https://example.com/profile");
+}`,
+      },
+      {
+        type: 'heading', text: '3. Geolocation & Device Emulation'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Override Geolocation via CDP',
+        code: `import java.util.Map;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+Map<String, Object> coordinates = Map.of(
+    "latitude", 48.8566,
+    "longitude", 2.3522,
+    "accuracy", 1
+);
+
+driver.executeCdpCommand("Emulation.setGeolocationOverride", coordinates);
+driver.get("https://www.google.com/maps");`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-bidi-cdp',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumBidiPractice',
+        title: { tr: 'Pratik: CDP ile Console Listener Ekle', en: 'Practice: Add Console Listener with CDP' },
+        description: {
+            tr: 'Selenium 4 Java projesinde CDP ile console loglarını dinlemek için komutları doğru sıraya koyun.',
+            en: 'Order the commands to listen to console logs using CDP in a Selenium 4 Java project.'
+        },
+        steps: [
+            { code: 'ChromeDriver driver = new ChromeDriver();', desc: { tr: 'Tarayıcıyı başlat', en: 'Start the browser' } },
+            { code: 'DevTools devTools = driver.getDevTools();', desc: { tr: 'DevTools nesnesini al', en: 'Get DevTools object' } },
+            { code: 'devTools.createSession();', desc: { tr: 'CDP oturumu oluştur', en: 'Create CDP session' } },
+            { code: 'devTools.send(Log.enable());', desc: { tr: 'Log dinlemeyi aktif et', en: 'Enable log listening' } },
+            { code: 'devTools.addListener(Log.entryAdded(), entry -> System.out.println(entry.getText()));', desc: { tr: 'Log eklenme olayını dinle', en: 'Add listener for log entry' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! CDP console listener\'ı başarıyla kurdunuz. Artık tarayıcıdaki tüm JS hataları test raporunuza eklenecektir.',
+            en: '✓ Congratulations! You successfully set up the CDP console listener. All JS errors in the browser will now be captured in your test report.'
+        }
+      }
+    ],
+  },
+}
+
+// ─── S9: VIRTUAL AUTHENTICATOR & ADVANCED FEATURES ───────────────────────────
+const s9 = {
+  tr: {
+    title: '🔐 Sanal Auth & Gelişmiş Özellikler',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔑',
+        content: 'Biyometrik parmak izi okuyucuları veya USB güvenlik anahtarlarını (Passkey) Selenium testinde nasıl kullanırsınız? Gerçek bir insan gibi parmak izi basamayacağımıza göre, Selenium 4 bize sanal bir doğrulayıcı (Virtual Authenticator) oluşturup şifresiz giriş senaryolarını test etme imkanı sunar.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium 4, WebAuthn (Passkeys, FIDO2) testlerini desteklemek için Virtual Authenticator API sunar. Ayrıca tarayıcı pencerelerini PDF olarak kaydetmeyi sağlayan Print API\'si ve hassas mouse-wheel/stylus eylemleri için Pen & Wheel Actions API\'si bu sürümle gelen diğer gelişmiş özelliklerdir.',
+      },
+      {
+        type: 'heading', text: '1. Virtual Authenticator (WebAuthn / Passkeys)'
+      },
+      {
+        type: 'text',
+        content: 'Sanal bir kimlik doğrulayıcı ekleyerek iki adımlı güvenlik (2FA) veya Passkey giriş akışlarını simüle edebiliriz. Java\'da `HasVirtualAuthenticator` arayüzü ile yönetilir.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Virtual Authenticator Kurulumu',
+        code: `import org.openqa.selenium.virtualauthenticator.HasVirtualAuthenticator;
+import org.openqa.selenium.virtualauthenticator.VirtualAuthenticator;
+import org.openqa.selenium.virtualauthenticator.VirtualAuthenticatorOptions;
+
+HasVirtualAuthenticator authDriver = (HasVirtualAuthenticator) driver;
+VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions();
+options.setProtocol(VirtualAuthenticatorOptions.Protocol.CTAP2)
+       .setTransport(VirtualAuthenticatorOptions.Transport.USB)
+       .setHasUserVerification(true)
+       .setIsUserVerified(true);
+
+// Sanal kimlik doğrulayıcı oluştur
+VirtualAuthenticator authenticator = authDriver.addVirtualAuthenticator(options);
+
+driver.get("https://webauthn.io");
+// Passkey kaydı ve giriş işlemlerini yap...
+authDriver.removeVirtualAuthenticator(authenticator);`,
+      },
+      {
+        type: 'heading', text: '2. Print Page (Headless PDF Kaydetme)'
+      },
+      {
+        type: 'text',
+        content: 'Fatura, makbuz veya rapor sayfalarını PDF formatında yazdırmak ve doğrulamak için `PrintsPage` arayüzü kullanılır. Bu özellik tarayıcının headless (ekransız) modda çalışmasını gerektirir.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Sayfayı PDF Olarak Kaydetme',
+        code: `import org.openqa.selenium.print.PrintOptions;
+import org.openqa.selenium.PrintsPage;
+import org.openqa.selenium.Pdf;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+// Headless modda ChromeOptions ayarlanmalıdır!
+PrintsPage printer = (PrintsPage) driver;
+PrintOptions printOptions = new PrintOptions();
+printOptions.setPageRanges("1-2"); // Sadece ilk iki sayfayı yazdır
+
+Pdf pdf = printer.print(printOptions);
+Files.write(Paths.get("fatura.pdf"), Base64.getDecoder().decode(pdf.getContent()));`,
+      },
+      {
+        type: 'heading', text: '3. Pen & Wheel Actions (Hassas Kaydırma)'
+      },
+      {
+        type: 'text',
+        content: 'Actions API ile artık farenin tekerleğini (scroll wheel) veya dijital kalemi (pen/stylus) simüle edebilirsiniz. Belirli bir piksel miktarında veya elemente göre scroll işlemleri yapılabilir.',
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Wheel Scroll & Pen Input',
+        code: `import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.WheelInput;
+
+// Sayfayı bir elementten itibaren 200 piksel aşağı kaydır
+WheelInput.ScrollOrigin scrollOrigin = WheelInput.ScrollOrigin.fromElement(footerElement);
+new Actions(driver)
+    .scrollFromOrigin(scrollOrigin, 0, 200)
+    .perform();`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-virtual-auth',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumVirtualAuthPractice',
+        title: { tr: 'Pratik: Sayfa PDF Çıktısı Alma', en: 'Practice: Get Page PDF Output' },
+        description: {
+            tr: 'Selenium 4 projesinde bir web sayfasını PDF olarak kaydetmek için adımları doğru sıraya koyun.',
+            en: 'Order the steps to print a web page to PDF in a Selenium 4 project.'
+        },
+        steps: [
+            { code: 'PrintsPage printer = (PrintsPage) driver;', desc: { tr: 'Sürücüyü PrintsPage tipine cast et', en: 'Cast driver to PrintsPage' } },
+            { code: 'PrintOptions options = new PrintOptions();', desc: { tr: 'Yazdırma seçeneklerini oluştur', en: 'Create PrintOptions' } },
+            { code: 'options.setPageRanges("1");', desc: { tr: 'İlk sayfayı basmak için filtre koy', en: 'Set range to print first page' } },
+            { code: 'Pdf pdf = printer.print(options);', desc: { tr: 'PDF çıktısı üret', en: 'Generate PDF output' } },
+            { code: 'Files.write(Paths.get("test.pdf"), Base64.getDecoder().decode(pdf.getContent()));', desc: { tr: 'PDF dosyasını diske yaz', en: 'Write PDF to disk' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Print API adımlarını başarıyla sıraladınız. Artık fatura sayfalarını otomatik test edebilirsiniz.',
+            en: '✓ Congratulations! You correctly ordered the Print API steps. You can now test invoice pages automatically.'
+        }
+      }
+    ],
+  },
+  en: {
+    title: '🔐 Virtual Authenticator & Advanced Features',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔑',
+        content: 'How do you test biometric fingerprint scanners or USB security keys (Passkeys) in a Selenium test? Since we can\'t press a physical fingerprint reader on a CI server, Selenium 4 allows us to add a Virtual Authenticator to mock these passwordless login flows.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium 4 introduces the Virtual Authenticator API to support WebAuthn (Passkeys, FIDO2) testing. It also features a new Print API for saving pages as PDFs, and Pen & Wheel Actions for advanced stylus and scroll-wheel gestures.',
+      },
+      {
+        type: 'heading', text: '1. Virtual Authenticator (WebAuthn / Passkeys)'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Setting up a Virtual Authenticator',
+        code: `import org.openqa.selenium.virtualauthenticator.HasVirtualAuthenticator;
+import org.openqa.selenium.virtualauthenticator.VirtualAuthenticator;
+import org.openqa.selenium.virtualauthenticator.VirtualAuthenticatorOptions;
+
+HasVirtualAuthenticator authDriver = (HasVirtualAuthenticator) driver;
+VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions();
+options.setProtocol(VirtualAuthenticatorOptions.Protocol.CTAP2)
+       .setTransport(VirtualAuthenticatorOptions.Transport.USB)
+       .setHasUserVerification(true)
+       .setIsUserVerified(true);
+
+VirtualAuthenticator authenticator = authDriver.addVirtualAuthenticator(options);
+driver.get("https://webauthn.io");
+// Perform passkey registration/login tests...
+authDriver.removeVirtualAuthenticator(authenticator);`,
+      },
+      {
+        type: 'heading', text: '2. Print Page (Headless PDF Export)'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Saving Page to PDF',
+        code: `import org.openqa.selenium.print.PrintOptions;
+import org.openqa.selenium.PrintsPage;
+import org.openqa.selenium.Pdf;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+// Note: Requires headless mode configuration in ChromeOptions!
+PrintsPage printer = (PrintsPage) driver;
+PrintOptions printOptions = new PrintOptions();
+printOptions.setPageRanges("1-2");
+
+Pdf pdf = printer.print(printOptions);
+Files.write(Paths.get("invoice.pdf"), Base64.getDecoder().decode(pdf.getContent()));`,
+      },
+      {
+        type: 'heading', text: '3. Pen & Wheel Actions (Precise Scrolling)'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — Wheel Scroll Gestures',
+        code: `import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.WheelInput;
+
+WheelInput.ScrollOrigin scrollOrigin = WheelInput.ScrollOrigin.fromElement(footerElement);
+new Actions(driver)
+    .scrollFromOrigin(scrollOrigin, 0, 200)
+    .perform();`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-virtual-auth',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumVirtualAuthPractice',
+        title: { tr: 'Pratik: Sayfa PDF Çıktısı Alma', en: 'Practice: Get Page PDF Output' },
+        description: {
+            tr: 'Selenium 4 projesinde bir web sayfasını PDF olarak kaydetmek için adımları doğru sıraya koyun.',
+            en: 'Order the steps to print a web page to PDF in a Selenium 4 project.'
+        },
+        steps: [
+            { code: 'PrintsPage printer = (PrintsPage) driver;', desc: { tr: 'Sürücüyü PrintsPage tipine cast et', en: 'Cast driver to PrintsPage' } },
+            { code: 'PrintOptions options = new PrintOptions();', desc: { tr: 'Yazdırma seçeneklerini oluştur', en: 'Create PrintOptions' } },
+            { code: 'options.setPageRanges("1");', desc: { tr: 'İlk sayfayı basmak için filtre koy', en: 'Set range to print first page' } },
+            { code: 'Pdf pdf = printer.print(options);', desc: { tr: 'PDF çıktısı üret', en: 'Generate PDF output' } },
+            { code: 'Files.write(Paths.get("test.pdf"), Base64.getDecoder().decode(pdf.getContent()));', desc: { tr: 'PDF dosyasını diske yaz', en: 'Write PDF to disk' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Print API adımlarını başarıyla sıraladınız. Artık fatura sayfalarını otomatik test edebilirsiniz.',
+            en: '✓ Congratulations! You correctly ordered the Print API steps. You can now test invoice pages automatically.'
+        }
+      }
+    ],
+  },
+}
+
+// ─── S10: SELENIUM IDE ───────────────────────────────────────────────────────
+const s10 = {
+  tr: {
+    title: '🖥️ Selenium IDE — Kayıt & Oynatmanın Ötesi',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎥',
+        content: 'Selenium IDE, test yazmayı bilmeyenlerin kullandığı basit bir tarayıcı eklentisinden ibaret değildir. Kayıt & oynatmanın ötesinde, içinde if-else koşulları, döngüler kurabilir, testleri komut satırından paralel çalıştırabilir ve bunları doğrudan Java JUnit koduna dönüştürebilirsiniz.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium IDE, Chrome ve Firefox eklentisi olarak hızlı prototipleme sağlayan bir araçtır. Komut-Hedef-Değer yapısıyla çalışır. Gelişmiş control flow (koşul ve döngüler) desteğine sahiptir ve testlerin `.side` formatında kaydedilip çalıştırılmasına izin verir.',
+      },
+      {
+        type: 'heading', text: '1. Selenium IDE Komut Yapısı'
+      },
+      {
+        type: 'table',
+        headers: ['Komut', 'Hedef (Target)', 'Değer (Value)', 'Açıklama'],
+        rows: [
+            ['open', '/login', '', 'Belirtilen URL\'i açar.'],
+            ['click', 'id=submit-btn', '', 'Elemente tıklar.'],
+            ['type', 'name=email', 'qa@example.com', 'Metin alanına veri yazar.'],
+            ['assertText', 'css=.title', 'Dashboard', 'Metnin eşleştiğini doğrular (fail durumunda durur).'],
+            ['verifyElementPresent', 'id=logo', '', 'Elementin sayfada olduğunu kontrol eder (durmaz).'],
+        ],
+      },
+      {
+        type: 'heading', text: '2. Control Flow (Koşul ve Döngüler)'
+      },
+      {
+        type: 'text',
+        content: 'IDE içinde `if`, `else if`, `else`, `end` komutlarıyla koşullu dallanmalar yapabilir; `times`, `while`, `forEach` ile tekrarlayan döngü testleri kurgulayabilirsiniz. Bu özellik, karmaşık senaryoları kod yazmadan çözmeyi kolaylaştırır.',
+      },
+      {
+        type: 'heading', text: '3. Command Line Runner (selenium-side-runner)'
+      },
+      {
+        type: 'text',
+        content: 'Kaydedilen `.side` test dosyalarını Node.js tabanlı `selenium-side-runner` yardımıyla Jenkins üzerinde veya yerelde headless (ekransız) ve paralel olarak çalıştırabilirsiniz.',
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Terminal — Command Line Runner Kurulum ve Çalıştırma',
+        code: `# Eklenti ve runner\'ı npm ile kur
+npm install -g selenium-side-runner
+npm install -g chromedriver
+
+# Test dosyasını paralel 4 thread ile çalıştır
+selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
+      },
+      {
+        type: 'heading', text: '4. Kod Olarak Dışa Aktarma (Code Export)'
+      },
+      {
+        type: 'text',
+        content: 'IDE\'de kaydettiğiniz adımları sağ tıklayıp "Export" diyerek Java (JUnit/TestNG), Python (pytest) veya JavaScript formatında temiz bir WebDriver koduna dönüştürebilirsiniz. Bu, POM mimarisine başlarken şablon kod oluşturmak için mükemmeldir.',
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-ide-flow',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumIdePractice',
+        title: { tr: 'Pratik: Selenium IDE Control Flow', en: 'Practice: Selenium IDE Control Flow' },
+        description: {
+            tr: 'Selenium IDE içinde bir if-else koşullu doğrulama akışı oluşturmak için komutları doğru sıraya koyun.',
+            en: 'Order the commands to create an if-else validation flow in Selenium IDE.'
+        },
+        steps: [
+            { code: 'open | /dashboard', desc: { tr: 'Dashboard sayfasını aç', en: 'Open dashboard page' } },
+            { code: 'if | ${isLoggedIn} === true', desc: { tr: 'Eğer giriş başarılı ise koşulunu aç', en: 'Open if condition' } },
+            { code: 'assertText | css=.username | QA Admin', desc: { tr: 'Kullanıcı adını doğrula', en: 'Verify username' } },
+            { code: 'else', desc: { tr: 'Giriş yapılmadıysa', en: 'Else condition' } },
+            { code: 'assertElementPresent | id=login-button', desc: { tr: 'Giriş butonunun orada olduğunu doğrula', en: 'Verify login button present' } },
+            { code: 'end', desc: { tr: 'Koşulu kapat', en: 'End condition' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Selenium IDE control flow mantığını doğru şekilde kurdunuz. IDE artık sadece kayıt cihazı değil!',
+            en: '✓ Congratulations! You correctly set up the Selenium IDE control flow. The IDE is no longer just a recorder!'
+        }
+      }
+    ],
+  },
+  en: {
+    title: '🖥️ Selenium IDE — Beyond Record & Playback',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎥',
+        content: 'Selenium IDE is not just a simple recorder for non-technical users. Beyond recording, it supports conditional execution (if-else), loops, running tests in parallel via CLI, and exporting steps directly to clean JUnit/TestNG Java code.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium IDE is a Chrome/Firefox extension enabling fast prototyping. Using a Command-Target-Value structure, it features advanced control flows and exports code formats like Java, Python, and JavaScript.',
+      },
+      {
+        type: 'heading', text: '1. Selenium IDE Command Structure'
+      },
+      {
+        type: 'table',
+        headers: ['Command', 'Target', 'Value', 'Description'],
+        rows: [
+            ['open', '/login', '', 'Opens the specified URL.'],
+            ['click', 'id=submit-btn', '', 'Clicks on the element.'],
+            ['type', 'name=email', 'qa@example.com', 'Types text into input field.'],
+            ['assertText', 'css=.title', 'Dashboard', 'Asserts text matches (fails immediately if false).'],
+            ['verifyElementPresent', 'id=logo', '', 'Verifies element is present (doesn\'t stop test execution).'],
+        ],
+      },
+      {
+        type: 'heading', text: '2. Control Flow (Conditions & Loops)'
+      },
+      {
+        type: 'text',
+        content: 'Inside the IDE, you can create conditional branches using `if`, `else if`, `else`, `end` commands, and repeating loops with `times`, `while`, and `forEach` without writing a single line of script.',
+      },
+      {
+        type: 'heading', text: '3. Command Line Runner (selenium-side-runner)'
+      },
+      {
+        type: 'code', language: 'bash',
+        label: 'Terminal — Runner Setup & Execution',
+        code: `# Install via npm globally
+npm install -g selenium-side-runner
+npm install -g chromedriver
+
+# Run side file in parallel with 4 workers
+selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
+      },
+      {
+        type: 'heading', text: '4. Code Export capabilities'
+      },
+      {
+        type: 'text',
+        content: 'You can right-click any suite in the IDE and choose "Export" to export your test scripts into Java (JUnit/TestNG), Python (pytest), or JavaScript code. This creates excellent boilerplate template code to start with.',
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-ide-flow',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumIdePractice',
+        title: { tr: 'Pratik: Selenium IDE Control Flow', en: 'Practice: Selenium IDE Control Flow' },
+        description: {
+            tr: 'Selenium IDE içinde bir if-else koşullu doğrulama akışı oluşturmak için komutları doğru sıraya koyun.',
+            en: 'Order the commands to create an if-else validation flow in Selenium IDE.'
+        },
+        steps: [
+            { code: 'open | /dashboard', desc: { tr: 'Dashboard sayfasını aç', en: 'Open dashboard page' } },
+            { code: 'if | ${isLoggedIn} === true', desc: { tr: 'Eğer giriş başarılı ise koşulunu aç', en: 'Open if condition' } },
+            { code: 'assertText | css=.username | QA Admin', desc: { tr: 'Kullanıcı adını doğrula', en: 'Verify username' } },
+            { code: 'else', desc: { tr: 'Giriş yapılmadıysa', en: 'Else condition' } },
+            { code: 'assertElementPresent | id=login-button', desc: { tr: 'Giriş butonunun orada olduğunu doğrula', en: 'Verify login button present' } },
+            { code: 'end', desc: { tr: 'Koşulu kapat', en: 'End condition' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Selenium IDE control flow mantığını doğru şekilde kurdunuz. IDE artık sadece kayıt cihazı değil!',
+            en: '✓ Congratulations! You correctly set up the Selenium IDE control flow. The IDE is no longer just a recorder!'
+        }
+      }
+    ],
+  },
+}
+
+// ─── S11: SELENIUM GRID 4 ────────────────────────────────────────────────────
+const s11 = {
+  tr: {
+    title: '🌐 Selenium Grid 4 & Dağıtık Otomasyon',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🚢',
+        content: '100 adet testi tek bir bilgisayarda sırayla çalıştırmak saatler sürer. Selenium Grid 4, testleri bir limandaki konteynerler gibi farklı işletim sistemleri (Linux, Windows, macOS) ve tarayıcılara (Chrome, Firefox, Safari) paralel olarak dağıtıp saniyeler içinde koşturan filo komutanıdır.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium Grid 4, testleri farklı makinelerde (Nodes) paralel olarak çalıştırmayı sağlayan dağıtık bir altyapıdır. Hub/Node modelinin ötesine geçerek mikroservis mimarisine kavuşmuştur. Docker ve Kubernetes entegrasyonu sayesinde dinamik olarak browser ayağa kaldırıp kapatabilir.',
+      },
+      {
+        type: 'heading', text: '1. Grid 4 Mikroservis Mimarisi'
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+            { icon: '🚦', label: 'Router', desc: 'İsteklerin giriş noktasıdır. Gelen test taleplerini doğru bileşenlere yönlendirir.' },
+            { icon: '🗂️', label: 'Distributor', desc: 'Kuyruktaki istekleri alır ve uygun özelliklere sahip boş Node\'lara dağıtır.' },
+            { icon: '🗺️', label: 'Session Map', desc: 'Hangi test session\'ının hangi Node üzerinde çalıştığı eşleşmesini tutar.' },
+            { icon: '📥', label: 'Session Queue', desc: 'Aynı anda çalışamayacak kadar çok test geldiğinde istekleri kuyrukta bekletir.' },
+            { icon: '🚌', label: 'Event Bus', desc: 'Bileşenlerin asenkron olarak haberleştiği WebSocket tabanlı mesaj hattıdır.' },
+            { icon: '💻', label: 'Node', desc: 'Testlerin üzerinde koştuğu, tarayıcılara ev sahipliği yapan gerçek veya sanal makinedir.' },
+        ],
+      },
+      {
+        type: 'heading', text: '2. Grid Çalışma Modları'
+      },
+      {
+        type: 'table',
+        headers: ['Mod', 'Nasıl Çalışır?', 'Kullanım Amacı'],
+        rows: [
+            ['Standalone', 'Tüm bileşenler tek bir JAR dosyasında, tek proseste çalışır.', 'Yerel denemeler, küçük ölçekli testler.'],
+            ['Hub & Node', 'Bileşenler Hub (Router/Distributor vb.) ve Node olarak ikiye bölünür.', 'Orta ölçekli ekipler, birkaç fiziksel makine.'],
+            ['Distributed', '6 bileşenin tamamı ayrı sunucularda veya Docker\'da mikroservis olarak ayağa kalkar.', 'Büyük ölçekli bulut altyapıları, yüksek paralel yükler.'],
+        ],
+      },
+      {
+        type: 'heading', text: '3. Docker & Dynamic Grid Kurulumu'
+      },
+      {
+        type: 'text',
+        content: 'Dynamic Grid modu, test isteği geldiğinde Docker daemon\'a bağlanıp anında temiz bir Chrome/Firefox konteyneri oluşturur, testi çalıştırır ve test bittiğinde bu konteyneri imha eder. Bu, kaynak israfını ve "flaky" testleri tamamen önler.',
+      },
+      {
+        type: 'code', language: 'yaml',
+        label: 'docker-compose.yml — Selenium Grid 4 Hub & Node Altyapısı',
+        code: `version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub:4.25.0
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+
+  chrome-node:
+    image: selenium/node-chrome:4.25.0
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=4`,
+      },
+      {
+        type: 'heading', text: '4. RemoteWebDriver ile Grid\'e Bağlanma'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — RemoteWebDriver İle Grid\'de Çalıştırma',
+        code: `import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import java.net.URL;
+
+ChromeOptions options = new ChromeOptions();
+// Grid 4 standardı olarak capabilities options ile gönderilir
+options.setPlatformName("LINUX");
+options.setBrowserVersion("125.0");
+
+WebDriver driver = new RemoteWebDriver(
+    new URL("http://localhost:4444/wd/hub"), 
+    options
+);
+
+driver.get("https://learnqa.dev");
+driver.quit();`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-grid-architecture',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumGridPractice',
+        title: { tr: 'Pratik: RemoteWebDriver Grid Bağlantısı', en: 'Practice: RemoteWebDriver Grid Connection' },
+        description: {
+            tr: 'Bir Java automation projesinde testleri Selenium Grid üzerinde çalıştırmak için komutları doğru sıraya koyun.',
+            en: 'Order the commands to run tests on Selenium Grid using RemoteWebDriver in a Java project.'
+        },
+        steps: [
+            { code: 'ChromeOptions options = new ChromeOptions();', desc: { tr: 'Tarayıcı seçeneklerini tanımla', en: 'Define browser options' } },
+            { code: 'options.setPlatformName("Linux");', desc: { tr: 'Çalıştırılacak platform işletim sistemini seç', en: 'Set execution platform OS' } },
+            { code: 'URL gridUrl = new URL("http://localhost:4444/wd/hub");', desc: { tr: 'Selenium Grid URL adresini tanımla', en: 'Define Selenium Grid URL' } },
+            { code: 'WebDriver driver = new RemoteWebDriver(gridUrl, options);', desc: { tr: 'RemoteWebDriver ile oturumu başlat', en: 'Start session with RemoteWebDriver' } },
+            { code: 'driver.get("https://learnqa.dev");', desc: { tr: 'Test adımlarını koştur', en: 'Run test steps' } },
+            { code: 'driver.quit();', desc: { tr: 'Oturumu kapat ve kaynakları temizle', en: 'Close session and clean resources' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Grid üzerinde RemoteWebDriver oturumu açma adımlarını başarıyla sıraladınız. Artık paralel testlere hazırsınız.',
+            en: '✓ Congratulations! You correctly ordered the RemoteWebDriver session steps on the Grid. You are ready for parallel testing.'
+        }
+      }
+    ],
+  },
+  en: {
+    title: '🌐 Selenium Grid 4 & Distributed Automation',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🚢',
+        content: 'Running 100 E2E tests on a single machine sequentially takes hours. Selenium Grid 4 distributes tests across various OS platforms (Linux, Windows, macOS) and browsers (Chrome, Firefox, Safari) in parallel like shipping containers at a port, completing runs in seconds.',
+      },
+      {
+        type: 'text',
+        content: 'Selenium Grid 4 is a distributed execution infrastructure. Redesigned into a microservices architecture, it supports scalable parallel executions and Docker/Kubernetes dynamic browser containerization.',
+      },
+      {
+        type: 'heading', text: '1. Grid 4 Microservices Architecture'
+      },
+      {
+        type: 'grid', cols: 3,
+        items: [
+            { icon: '🚦', label: 'Router', desc: 'The single entry point. Routes incoming test requests to correct components.' },
+            { icon: '🗂️', label: 'Distributor', desc: 'Receives pending requests from the queue and assigns them to free Nodes.' },
+            { icon: '🗺️', label: 'Session Map', desc: 'Tracks which test session is executing on which physical/virtual Node.' },
+            { icon: '📥', label: 'Session Queue', desc: 'Queues up incoming requests if execution limits are saturated.' },
+            { icon: '🚌', label: 'Event Bus', desc: 'A WebSocket-based communication line where Grid components talk asynchronously.' },
+            { icon: '💻', label: 'Node', desc: 'The execution host hosting actual browsers and executing driver instructions.' },
+        ],
+      },
+      {
+        type: 'heading', text: '2. Grid Execution Modes'
+      },
+      {
+        type: 'table',
+        headers: ['Mode', 'How It Works?', 'Best Used For'],
+        rows: [
+            ['Standalone', 'All components run inside a single process from a single JAR file.', 'Local testing and quick experiments.'],
+            ['Hub & Node', 'Split into a central Hub process (Router/Distributor) and one or more Nodes.', 'Medium-scale teams using dedicated execution hosts.'],
+            ['Distributed', 'All 6 microservice components run as completely isolated processes/containers.', 'Large enterprise setups running massive parallel test loads.'],
+        ],
+      },
+      {
+        type: 'heading', text: '3. Docker & Dynamic Grid'
+      },
+      {
+        type: 'text',
+        content: 'In Dynamic Grid mode, the Distributor connects directly to a Docker daemon. When a test request arrives, it spins up a fresh, clean browser container, executes the test, and immediately destroys it upon completion, preventing cross-test pollution.',
+      },
+      {
+        type: 'code', language: 'yaml',
+        label: 'docker-compose.yml — Selenium Grid 4 Hub & Node Setup',
+        code: `version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub:4.25.0
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+
+  chrome-node:
+    image: selenium/node-chrome:4.25.0
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=4`,
+      },
+      {
+        type: 'heading', text: '4. RemoteWebDriver Code Integration'
+      },
+      {
+        type: 'code', language: 'java',
+        label: 'Java — RemoteWebDriver Grid Connection',
+        code: `import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import java.net.URL;
+
+ChromeOptions options = new ChromeOptions();
+options.setPlatformName("LINUX");
+options.setBrowserVersion("125.0");
+
+WebDriver driver = new RemoteWebDriver(
+    new URL("http://localhost:4444/wd/hub"), 
+    options
+);
+
+driver.get("https://learnqa.dev");
+driver.quit();`,
+      },
+      {
+        type: 'visual', variant: 'simulation',
+        scenario: 'selenium-grid-architecture',
+      },
+      {
+        type: 'git-practice',
+        practiceId: 'seleniumGridPractice',
+        title: { tr: 'Pratik: RemoteWebDriver Grid Bağlantısı', en: 'Practice: RemoteWebDriver Grid Connection' },
+        description: {
+            tr: 'Bir Java automation projesinde testleri Selenium Grid üzerinde çalıştırmak için komutları doğru sıraya koyun.',
+            en: 'Order the commands to run tests on Selenium Grid using RemoteWebDriver in a Java project.'
+        },
+        steps: [
+            { code: 'ChromeOptions options = new ChromeOptions();', desc: { tr: 'Tarayıcı seçeneklerini tanımla', en: 'Define browser options' } },
+            { code: 'options.setPlatformName("Linux");', desc: { tr: 'Çalıştırılacak platform işletim sistemini seç', en: 'Set execution platform OS' } },
+            { code: 'URL gridUrl = new URL("http://localhost:4444/wd/hub");', desc: { tr: 'Selenium Grid URL adresini tanımla', en: 'Define Selenium Grid URL' } },
+            { code: 'WebDriver driver = new RemoteWebDriver(gridUrl, options);', desc: { tr: 'RemoteWebDriver ile oturumu başlat', en: 'Start session with RemoteWebDriver' } },
+            { code: 'driver.get("https://learnqa.dev");', desc: { tr: 'Test adımlarını koştur', en: 'Run test steps' } },
+            { code: 'driver.quit();', desc: { tr: 'Oturumu kapat ve kaynakları temizle', en: 'Close session and clean resources' } },
+        ],
+        successMessage: {
+            tr: '✓ Tebrikler! Grid üzerinde RemoteWebDriver oturumu açma adımlarını başarıyla sıraladınız. Artık paralel testlere hazırsınız.',
+            en: '✓ Congratulations! You correctly ordered the RemoteWebDriver session steps on the Grid. You are ready for parallel testing.'
+        }
+      }
+    ],
+  },
+}
+
+// ─── S12: YAYGIN HATALAR (Eski S8) ───────────────────────────────────────────
+const s12 = {
   tr: {
     title: '🚨 Yaygın Hatalar & Çözümleri',
     blocks: [
@@ -3232,8 +4067,8 @@ el.click();`,
   },
 }
 
-// ─── S9: MÜLAKAT SORULARI (50 SORU) ──────────────────────────────────────────
-const s9 = {
+// ─── S13: MÜLAKAT SORULARI (50 SORU) (Eski S9) ───────────────────────────────
+const s13 = {
   tr: {
     title: '💼 Mülakat Soruları — 50 Soru (Basic/Intermediate/Advanced)',
     blocks: [
@@ -4090,7 +4925,7 @@ export const seleniumData = {
     hero: {
       title: '🟢 Selenium WebDriver',
       subtitle: 'Java · Python · TypeScript — Tam Öğrenme Kılavuzu',
-      intro: 'Selenium\'u sıfırdan öğren: kurulum, locators, aksiyonlar, wait stratejileri, frameler, gerçek hayat senaryoları ve 50 mülakat sorusu. Java, Python ve TypeScript\'te tüm örnekler.',
+      intro: 'Selenium\'u sıfırdan öğren: kurulum, locators, aksiyonlar, wait stratejileri, frameler, CDP & BiDi, sanal doğrulayıcılar, Selenium IDE, Grid 4, yaygın hatalar ve 50 mülakat sorusu.',
     },
     tabs: [
       '🌐 Giriş',
@@ -4101,16 +4936,20 @@ export const seleniumData = {
       '🪟 Frames & Alert',
       '🛠️ Gerçek Hayat',
       '🔗 Ekosistem',
+      '🌐 CDP & BiDi',
+      '🔐 Sanal Auth & PDF',
+      '🖥️ Selenium IDE',
+      '🌐 Grid 4 & Dağıtık',
       '🚨 Yaygın Hatalar',
       '💼 Mülakat Soruları',
     ],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr, s11.tr, s12.tr, s13.tr],
   },
   en: {
     hero: {
       title: '🟢 Selenium WebDriver',
       subtitle: 'Java · Python · TypeScript — Complete Learning Guide',
-      intro: 'Learn Selenium from scratch: installation, locators, actions, wait strategies, frames, real-world scenarios, and 50 interview questions. All examples in Java, Python, and TypeScript.',
+      intro: 'Learn Selenium from scratch: installation, locators, actions, wait strategies, frames, CDP & BiDi, virtual authenticators, Selenium IDE, Grid 4, common errors, and 50 interview questions.',
     },
     tabs: [
       '🌐 Introduction',
@@ -4121,10 +4960,14 @@ export const seleniumData = {
       '🪟 Frames & Alerts',
       '🛠️ Real World',
       '🔗 Ecosystem',
+      '🌐 CDP & BiDi',
+      '🔐 Virtual Auth & PDF',
+      '🖥️ Selenium IDE',
+      '🌐 Grid 4 & Distributed',
       '🚨 Common Errors',
       '💼 Interview Questions',
     ],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en, s10.en, s11.en, s12.en, s13.en],
   },
 }
 

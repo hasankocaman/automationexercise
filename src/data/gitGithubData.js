@@ -660,6 +660,148 @@ git push -u origin feature/login-tests`,
   },
 }
 
+const githubPrOpenUiPractice = {
+  type: 'git-practice',
+  icon: '🧾',
+  title: { tr: 'Try It Yourself: GitHub arayüzünden PR aç', en: 'Try It Yourself: Open a PR from the GitHub UI' },
+  intro: {
+    tr: 'Feature branch GitHub’a push edildikten sonra Pull Request ekranında hangi alanları hangi sırayla dolduracağını dene.',
+    en: 'After a feature branch is pushed to GitHub, practice which Pull Request UI fields to fill in order.',
+  },
+  starterCommands: {
+    tr: `Pull requests tab
+New pull request
+base: main
+compare: feature/login-tests
+Create pull request
+Add PR title
+Fill description with test evidence
+Request reviewer
+Create pull request`,
+    en: `Pull requests tab
+New pull request
+base: main
+compare: feature/login-tests
+Create pull request
+Add PR title
+Fill description with test evidence
+Request reviewer
+Create pull request`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Repository üst menüsünden Pull requests tabına gir', en: 'Open the Pull requests tab from the repository nav' }, pattern: '^Pull requests tab$', example: 'Pull requests tab' },
+    { label: { tr: 'Yeni PR başlat', en: 'Start a new PR' }, pattern: '^New pull request$', example: 'New pull request' },
+    { label: { tr: 'Hedef branch main olmalı', en: 'Target branch should be main' }, pattern: '^base:\\s*main$', example: 'base: main' },
+    { label: { tr: 'Karşılaştırılacak branch feature branch olmalı', en: 'Compare branch should be the feature branch' }, pattern: '^compare:\\s*feature\\/login-tests$', example: 'compare: feature/login-tests' },
+    { label: { tr: 'Compare ekranından PR formuna geç', en: 'Open the PR form from compare view' }, pattern: '^Create pull request$', example: 'Create pull request' },
+    { label: { tr: 'Başlık değişikliğin amacını söylemeli', en: 'Title should state the intent' }, pattern: '^Add PR title$', example: 'Add PR title' },
+    { label: { tr: 'Açıklamaya test kanıtını yaz', en: 'Put test evidence in the description' }, pattern: '^Fill description with test evidence$', example: 'Fill description with test evidence' },
+    { label: { tr: 'Doğru reviewer seç', en: 'Request the right reviewer' }, pattern: '^Request reviewer$', example: 'Request reviewer' },
+    { label: { tr: 'PR’ı oluştur', en: 'Create the PR' }, pattern: '^Create pull request$', example: 'Create pull request' },
+  ],
+  successOutput: {
+    tr: 'PR hazır: base main, compare feature/login-tests, açıklama test kanıtı içeriyor ve reviewer istendi.',
+    en: 'PR ready: base main, compare feature/login-tests, description includes test evidence and reviewer was requested.',
+  },
+  retryOutput: {
+    tr: 'Sıra eksik. Önce Pull requests → New pull request → base/compare seçimi, sonra PR title, description, reviewer ve Create pull request.',
+    en: 'Order is incomplete. Use Pull requests → New pull request → base/compare first, then title, description, reviewer and Create pull request.',
+  },
+}
+
+const githubPrReviewPractice = {
+  type: 'git-practice',
+  icon: '👀',
+  title: { tr: 'Try It Yourself: Code review yap ve karar ver', en: 'Try It Yourself: Review code and make a decision' },
+  intro: {
+    tr: 'Files changed ekranında yorum yaz, review başlat, sonra Approve veya Request changes kararını bilinçli ver.',
+    en: 'In Files changed, leave a comment, start a review, then choose Approve or Request changes intentionally.',
+  },
+  starterCommands: {
+    tr: `Files changed tab
+Open tests/login.spec.js
+Add line comment
+Start a review
+Review changes
+Choose Approve
+Submit review`,
+    en: `Files changed tab
+Open tests/login.spec.js
+Add line comment
+Start a review
+Review changes
+Choose Approve
+Submit review`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Diff ekranını aç', en: 'Open the diff screen' }, pattern: '^Files changed tab$', example: 'Files changed tab' },
+    { label: { tr: 'İlgili dosyayı incele', en: 'Inspect the relevant file' }, pattern: '^Open tests\\/login\\.spec\\.js$', example: 'Open tests/login.spec.js' },
+    { label: { tr: 'Satır yorumu ekle', en: 'Add a line comment' }, pattern: '^Add line comment$', example: 'Add line comment' },
+    { label: { tr: 'Yorumları review paketine al', en: 'Start a review package' }, pattern: '^Start a review$', example: 'Start a review' },
+    { label: { tr: 'Review karar penceresini aç', en: 'Open the review decision dialog' }, pattern: '^Review changes$', example: 'Review changes' },
+    { label: { tr: 'Bu örnekte onay ver', en: 'Approve in this example' }, pattern: '^Choose Approve$', example: 'Choose Approve' },
+    { label: { tr: 'Review kararını gönder', en: 'Submit the review decision' }, pattern: '^Submit review$', example: 'Submit review' },
+  ],
+  successOutput: {
+    tr: 'Review tamam: dosya okundu, satır yorumu yazıldı, Approve kararı submit edildi. Request changes gerektiğinde aynı ekranda bloklayıcı karar verilir.',
+    en: 'Review complete: file inspected, line comment added, Approve submitted. When needed, Request changes is the blocking decision in the same dialog.',
+  },
+  retryOutput: {
+    tr: 'Review sırası eksik. Önce Files changed içinde diff oku, sonra yorum, Review changes, karar ve Submit review.',
+    en: 'Review order is incomplete. First read the diff in Files changed, then comment, Review changes, decision and Submit review.',
+  },
+}
+
+const githubPrConflictPractice = {
+  type: 'git-practice',
+  icon: '🧯',
+  title: { tr: 'Try It Yourself: PR conflict’i lokal çöz', en: 'Try It Yourself: Resolve a PR conflict locally' },
+  intro: {
+    tr: 'PR GitHub’da conflict gösterdiğinde güvenli iş akışı genellikle local branch’te main’i merge edip testle kanıtladıktan sonra push etmektir.',
+    en: 'When GitHub shows a PR conflict, the safe workflow is usually to merge main locally into your branch, prove it with tests, then push.',
+  },
+  starterCommands: {
+    tr: `git fetch origin
+git switch feature/login-tests
+git merge origin/main
+code tests/login.spec.js
+npm test -- login.spec.js
+git add tests/login.spec.js
+git commit -m "fix: resolve PR conflict"
+git push`,
+    en: `git fetch origin
+git switch feature/login-tests
+git merge origin/main
+code tests/login.spec.js
+npm test -- login.spec.js
+git add tests/login.spec.js
+git commit -m "fix: resolve PR conflict"
+git push`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Remote main bilgisini indir', en: 'Fetch remote main knowledge' }, pattern: '^git fetch\\s+origin$', example: 'git fetch origin' },
+    { label: { tr: 'PR branch’ine geç', en: 'Switch to the PR branch' }, pattern: '^git switch\\s+feature\\/login-tests$', example: 'git switch feature/login-tests' },
+    { label: { tr: 'main’i kendi branch’ine uygula', en: 'Merge main into your branch' }, pattern: '^git merge\\s+origin\\/main$', example: 'git merge origin/main' },
+    { label: { tr: 'Conflict dosyasını editörde aç', en: 'Open the conflicted file in the editor' }, pattern: '^code\\s+tests\\/login\\.spec\\.js$', example: 'code tests/login.spec.js' },
+    { label: { tr: 'Çözümü testle kanıtla', en: 'Prove the resolution with a test' }, pattern: '^npm test\\s+--\\s+login\\.spec\\.js$', example: 'npm test -- login.spec.js' },
+    { label: { tr: 'Resolved dosyayı Git’e bildir', en: 'Tell Git the file is resolved' }, pattern: '^git add\\s+tests\\/login\\.spec\\.js$', example: 'git add tests/login.spec.js' },
+    { label: { tr: 'Conflict fix commit’i oluştur', en: 'Create the conflict fix commit' }, pattern: '^git commit\\s+-m\\s+["\']fix:.+["\']$', example: 'git commit -m "fix: resolve PR conflict"' },
+    { label: { tr: 'PR branch’ini GitHub’a güncelle', en: 'Push the updated PR branch' }, pattern: '^git push$', example: 'git push' },
+  ],
+  successOutput: {
+    tr: 'Conflict güvenli çözüldü: main lokal merge edildi, dosya bilinçli düzenlendi, test geçti ve PR branch’i GitHub’da güncellendi.',
+    en: 'Conflict resolved safely: main merged locally, file edited intentionally, test passed and the PR branch updated on GitHub.',
+  },
+  retryOutput: {
+    tr: 'Sıra eksik. Conflict çözümünde fetch → switch → merge → edit → test → add → commit → push akışı korunmalı.',
+    en: 'Order is incomplete. Conflict resolution should stay fetch → switch → merge → edit → test → add → commit → push.',
+  },
+  dangerousPatterns: [
+    { pattern: '\\bgit\\s+reset\\s+--hard\\b', label: { tr: 'Conflict anında `reset --hard` kaydedilmemiş işi silebilir. Önce durumunu anla ve gerekirse backup branch aç.', en: '`reset --hard` during a conflict can delete uncommitted work. Inspect state and create a backup branch if needed.' } },
+    { pattern: '\\bgit\\s+push\\s+--force\\b', label: { tr: 'PR conflict çözmek için force push normalde gerekmez; takım branch’ini ezebilirsin.', en: 'Force push is normally not needed to solve a PR conflict; it can overwrite team work.' } },
+  ],
+}
+
 const gitRecoveryPractice = {
   type: 'git-practice',
   icon: '🧯',
@@ -846,25 +988,55 @@ const gitignoreCreatePractice = {
     en: 'In a Node + Java QA project, make sure generated folders are never seen by Git in the first place.',
   },
   starterCommands: {
-    tr: `# .gitignore dosyasını oluştur ve doldur\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env" >> .gitignore\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
-    en: `# Create and fill the .gitignore file\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env" >> .gitignore\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
+    tr: `# .gitignore dosyasını oluştur ve doldur\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env*" >> .gitignore\necho "!.env.example" >> .gitignore\ngit check-ignore -v .env\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
+    en: `# Create and fill the .gitignore file\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env*" >> .gitignore\necho "!.env.example" >> .gitignore\ngit check-ignore -v .env\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
   },
   expectedSteps: [
     { label: { tr: 'Boş .gitignore dosyasını oluştur', en: 'Create an empty .gitignore file' }, pattern: '^touch\\s+\\.gitignore$', example: 'touch .gitignore' },
     { label: { tr: 'node_modules/ kuralını ekle', en: 'Add the node_modules/ rule' }, pattern: '^echo\\s+["\']node_modules/?["\']\\s*>>\\s*\\.gitignore$', example: 'echo "node_modules/" >> .gitignore' },
     { label: { tr: 'target/ kuralını ekle (Maven build çıktısı)', en: 'Add the target/ rule (Maven build output)' }, pattern: '^echo\\s+["\']target/?["\']\\s*>>\\s*\\.gitignore$', example: 'echo "target/" >> .gitignore' },
-    { label: { tr: '.env kuralını ekle (secret dosya)', en: 'Add the .env rule (secret file)' }, pattern: '^echo\\s+["\']\\.env["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env" >> .gitignore' },
+    { label: { tr: '.env* kuralını ekle (secret dosyalar)', en: 'Add the .env* rule (secret files)' }, pattern: '^echo\\s+["\']\\.env\\*["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env*" >> .gitignore' },
+    { label: { tr: '.env.example dosyasını tekrar dahil et', en: 'Re-include the .env.example file' }, pattern: '^echo\\s+["\']!\\.env\\.example["\']\\s*>>\\s*\\.gitignore$', example: 'echo "!.env.example" >> .gitignore' },
+    { label: { tr: 'Kural gerçekten çalışıyor mu kontrol et', en: 'Verify the rule actually matches' }, pattern: '^git check-ignore\\s+-v\\s+\\.env$', example: 'git check-ignore -v .env' },
     { label: { tr: '.gitignore dosyasının kendisini commit et', en: 'Commit the .gitignore file itself' }, pattern: '^git add\\s+\\.gitignore$', example: 'git add .gitignore' },
     { label: { tr: 'Anlamlı mesajla kaydet', en: 'Save with a meaningful message' }, pattern: '^git commit\\s+-m\\s+["\'].+["\']$', example: 'git commit -m "chore: add .gitignore"' },
     { label: { tr: 'node_modules/, target/ ve .env artık görünmüyor mu kontrol et', en: 'Verify node_modules/, target/ and .env no longer show up' }, pattern: '^git status$', example: 'git status' },
   ],
   successOutput: {
-    tr: 'On branch feature/qa-setup\nnothing to commit, working tree clean\n(node_modules/, target/ ve .env artık git status çıktısında hiç görünmüyor.)',
-    en: 'On branch feature/qa-setup\nnothing to commit, working tree clean\n(node_modules/, target/ and .env never show up in git status anymore.)',
+    tr: '.gitignore:3:.env*  .env\nOn branch feature/qa-setup\nnothing to commit, working tree clean\n(.env ignore edildi, .env.example ise takım için commit edilebilir örnek dosya olarak kalır.)',
+    en: '.gitignore:3:.env*  .env\nOn branch feature/qa-setup\nnothing to commit, working tree clean\n(.env is ignored, while .env.example stays commit-ready as the team sample file.)',
   },
   retryOutput: {
-    tr: 'Sıra: önce dosyayı oluştur, kuralları ekle, .gitignore\'ı commit et, sonra status ile doğrula.',
-    en: 'Order: create the file first, add the rules, commit .gitignore itself, then verify with status.',
+    tr: 'Sıra: önce dosyayı oluştur, ignore kurallarını ekle, .env.example için exception koy, git check-ignore -v ile kanıtla, .gitignore\'ı commit et ve status ile doğrula.',
+    en: 'Order: create the file first, add ignore rules, add the .env.example exception, prove it with git check-ignore -v, commit .gitignore itself, then verify with status.',
+  },
+}
+
+const gitignoreVerifyPractice = {
+  type: 'git-practice',
+  icon: '🔎',
+  title: { tr: 'Try It Yourself: Hangi kuralın çalıştığını kanıtla', en: 'Try It Yourself: Prove which rule is active' },
+  intro: {
+    tr: 'Bir dosyanın neden görünmediğini tahmin etme; Git’e hangi .gitignore satırının eşleştiğini gösterterek öğren.',
+    en: 'Do not guess why a file is hidden; ask Git to show which .gitignore line matched it.',
+  },
+  starterCommands: {
+    tr: `git check-ignore -v .env\ngit check-ignore -v node_modules/\ngit status --ignored --short\ngit status --short`,
+    en: `git check-ignore -v .env\ngit check-ignore -v node_modules/\ngit status --ignored --short\ngit status --short`,
+  },
+  expectedSteps: [
+    { label: { tr: '.env hangi satırdan ignore ediliyor gör', en: 'See which line ignores .env' }, pattern: '^git check-ignore\\s+-v\\s+\\.env$', example: 'git check-ignore -v .env' },
+    { label: { tr: 'node_modules/ hangi satırdan ignore ediliyor gör', en: 'See which line ignores node_modules/' }, pattern: '^git check-ignore\\s+-v\\s+node_modules/?$', example: 'git check-ignore -v node_modules/' },
+    { label: { tr: 'Ignored dosyaları ayrıca listele', en: 'List ignored files explicitly' }, pattern: '^git status\\s+--ignored\\s+--short$', example: 'git status --ignored --short' },
+    { label: { tr: 'Normal status ile farkı gör', en: 'Compare with normal status' }, pattern: '^git status\\s+--short$', example: 'git status --short' },
+  ],
+  successOutput: {
+    tr: '.gitignore:3:.env*  .env\n.gitignore:1:node_modules/  node_modules/\n!! .env\n!! node_modules/\nNormal `git status --short` içinde bu dosyalar görünmez.',
+    en: '.gitignore:3:.env*  .env\n.gitignore:1:node_modules/  node_modules/\n!! .env\n!! node_modules/\nThese files do not appear in normal `git status --short` output.',
+  },
+  retryOutput: {
+    tr: 'Önce `git check-ignore -v` ile hangi kuralın eşleştiğini kanıtla, sonra `git status --ignored --short` ile ignored dosyaları özellikle görünür yap.',
+    en: 'First prove the matching rule with `git check-ignore -v`, then make ignored files visible with `git status --ignored --short`.',
   },
 }
 
@@ -877,23 +1049,122 @@ const gitignoreRescuePractice = {
     en: 'The .env file was committed by mistake in an early commit. Adding it to .gitignore alone is not enough — apply the real rescue flow.',
   },
   starterCommands: {
-    tr: `# .env hâlâ tracked, önce .gitignore'a ekle\necho ".env" >> .gitignore\ngit rm --cached .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
-    en: `# .env is still tracked, first add it to .gitignore\necho ".env" >> .gitignore\ngit rm --cached .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
+    tr: `# .env hâlâ tracked, önce .gitignore'a ekle\necho ".env*" >> .gitignore\necho "!.env.example" >> .gitignore\ngit rm --cached .env\ngit check-ignore -v .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
+    en: `# .env is still tracked, first add it to .gitignore\necho ".env*" >> .gitignore\necho "!.env.example" >> .gitignore\ngit rm --cached .env\ngit check-ignore -v .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
   },
   expectedSteps: [
-    { label: { tr: '.env kuralını .gitignore\'a ekle', en: 'Add the .env rule to .gitignore' }, pattern: '^echo\\s+["\']\\.env["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env" >> .gitignore' },
+    { label: { tr: '.env* kuralını .gitignore\'a ekle', en: 'Add the .env* rule to .gitignore' }, pattern: '^echo\\s+["\']\\.env\\*["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env*" >> .gitignore' },
+    { label: { tr: '.env.example dosyasını güvenli örnek olarak bırak', en: 'Keep .env.example as the safe sample' }, pattern: '^echo\\s+["\']!\\.env\\.example["\']\\s*>>\\s*\\.gitignore$', example: 'echo "!.env.example" >> .gitignore' },
     { label: { tr: 'Dosyayı sadece Git takibinden çıkar (diskten silme!)', en: 'Stop tracking the file only (do not delete it from disk!)' }, pattern: '^git rm\\s+--cached\\s+\\.env$', example: 'git rm --cached .env' },
+    { label: { tr: 'Yeni kuralın .env dosyasını yakaladığını doğrula', en: 'Verify the new rule catches .env' }, pattern: '^git check-ignore\\s+-v\\s+\\.env$', example: 'git check-ignore -v .env' },
     { label: { tr: 'Güncellenen .gitignore\'ı stage et', en: 'Stage the updated .gitignore' }, pattern: '^git add\\s+\\.gitignore$', example: 'git add .gitignore' },
     { label: { tr: 'Düzeltmeyi anlamlı mesajla kaydet', en: 'Save the fix with a meaningful message' }, pattern: '^git commit\\s+-m\\s+["\'].+["\']$', example: 'git commit -m "fix: stop tracking .env secret file"' },
     { label: { tr: '.env artık untracked mi doğrula', en: 'Verify .env is now untracked' }, pattern: '^git status$', example: 'git status' },
   ],
   successOutput: {
-    tr: 'On branch main\nnothing to commit, working tree clean\n(.env diskte duruyor, ama artık Git tarafından izlenmiyor ve bir daha asla push edilmeyecek.)',
-    en: 'On branch main\nnothing to commit, working tree clean\n(.env still exists on disk, but Git no longer tracks it and it will never be pushed again.)',
+    tr: '.gitignore:1:.env*  .env\nOn branch main\nnothing to commit, working tree clean\n(.env diskte duruyor, artık Git izlemiyor. Eğer secret daha önce push edildiyse token/key mutlaka rotate edilmelidir.)',
+    en: '.gitignore:1:.env*  .env\nOn branch main\nnothing to commit, working tree clean\n(.env still exists on disk, Git no longer tracks it. If the secret was already pushed, the token/key must be rotated.)',
   },
   retryOutput: {
-    tr: 'Sıra: önce .gitignore\'a kuralı ekle, sonra git rm --cached ile takibi durdur, sonra commit et, sonra doğrula. git rm --cached dosyayı diskten silmez, sadece Git\'in takibinden çıkarır.',
-    en: 'Order: add the rule to .gitignore first, then stop tracking with git rm --cached, then commit, then verify. git rm --cached never deletes the file from disk — it only removes it from Git tracking.',
+    tr: 'Sıra: önce .gitignore\'a kuralı ekle, .env.example exception koy, git rm --cached ile takibi durdur, git check-ignore -v ile kanıtla, sonra commit et ve doğrula. `git rm --cached` dosyayı diskten silmez.',
+    en: 'Order: add the rule to .gitignore, add the .env.example exception, stop tracking with git rm --cached, prove it with git check-ignore -v, then commit and verify. `git rm --cached` does not delete the file from disk.',
+  },
+  dangerousPatterns: [
+    { pattern: '^git\\s+rm\\s+\\.env$', label: { tr: '`git rm .env` dosyayı diskten de siler. Burada amaç sadece Git takibini durdurmak; `git rm --cached .env` kullan.', en: '`git rm .env` also deletes the file from disk. The goal here is only to stop Git tracking; use `git rm --cached .env`.' } },
+    { pattern: '^git\\s+add\\s+\\.env$', label: { tr: '`git add .env` secret dosyasını tekrar stage eder. Secret dosyalar commit edilmez.', en: '`git add .env` stages the secret file again. Secret files must not be committed.' } },
+    { pattern: '(API_KEY|PASSWORD|TOKEN|SECRET)=', label: { tr: 'Gerçek secret değerini alıştırma alanına veya repoya yazma; örnek değer kullan.', en: 'Do not paste a real secret value into the practice area or repo; use a sample value.' } },
+  ],
+}
+
+const githubActionsUiPractice = {
+  type: 'git-practice',
+  icon: '🚀',
+  title: { tr: 'Try It Yourself: Actions arayüzünde güvenli run incele', en: 'Try It Yourself: Inspect a safe Actions run' },
+  intro: {
+    tr: 'GitHub Actions ekranında nereye tıklayacağını sıraya koy: workflow seç, run aç, log/artifact kontrol et, gerekirse güvenli tekrar çalıştır.',
+    en: 'Order the GitHub Actions UI steps: choose a workflow, open a run, inspect logs/artifacts, and rerun safely if needed.',
+  },
+  starterCommands: {
+    tr: `Actions tab\nAll workflows\nDeploy LearnQA.dev to GitHub Pages\nOpen latest run\nCheck failed job logs\nDownload artifact\nRe-run failed jobs`,
+    en: `Actions tab\nAll workflows\nDeploy LearnQA.dev to GitHub Pages\nOpen latest run\nCheck failed job logs\nDownload artifact\nRe-run failed jobs`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Repository üst menüsünden Actions tabına gir', en: 'Open the Actions tab from the repository top nav' }, pattern: '^Actions tab$', example: 'Actions tab' },
+    { label: { tr: 'Sol tarafta All workflows görünümünü seç', en: 'Select All workflows in the left sidebar' }, pattern: '^All workflows$', example: 'All workflows' },
+    { label: { tr: 'İlgili workflow adını seç', en: 'Choose the relevant workflow name' }, pattern: '^Deploy LearnQA\\.dev to GitHub Pages$', example: 'Deploy LearnQA.dev to GitHub Pages' },
+    { label: { tr: 'En güncel workflow run satırını aç', en: 'Open the latest workflow run row' }, pattern: '^Open latest run$', example: 'Open latest run' },
+    { label: { tr: 'Önce failed job loglarını oku', en: 'Read failed job logs first' }, pattern: '^Check failed job logs$', example: 'Check failed job logs' },
+    { label: { tr: 'Rapor/artifact indir', en: 'Download the report/artifact' }, pattern: '^Download artifact$', example: 'Download artifact' },
+    { label: { tr: 'Gerekirse sadece failed jobları tekrar çalıştır', en: 'Rerun only failed jobs if needed' }, pattern: '^Re-run failed jobs$', example: 'Re-run failed jobs' },
+  ],
+  successOutput: {
+    tr: 'Doğru arayüz akışı: workflow seçildi, run açıldı, log ve artifact incelendi. Re-run kararını artık kanıta göre veriyorsun.',
+    en: 'Correct UI flow: workflow selected, run opened, logs and artifacts inspected. Rerun decisions are now evidence-based.',
+  },
+  retryOutput: {
+    tr: 'Sıra eksik: önce Actions tabına gir, workflow/run seç, log ve artifact kanıtını oku, en son re-run kararı ver.',
+    en: 'Order is incomplete: open Actions, choose workflow/run, inspect logs and artifacts, and decide on rerun last.',
+  },
+}
+
+const githubPagesUiPractice = {
+  type: 'git-practice',
+  icon: '🌐',
+  title: { tr: 'Try It Yourself: Pages ayarını güvenli sırayla yap', en: 'Try It Yourself: Configure Pages in a safe order' },
+  intro: {
+    tr: 'GitHub Pages ekranında yayın kaynağı, custom domain ve HTTPS ayarlarını doğru sırayla yapmayı dene.',
+    en: 'Practice the correct order for source, custom domain and HTTPS on the GitHub Pages settings screen.',
+  },
+  starterCommands: {
+    tr: `Settings tab\nPages menu\nSource: GitHub Actions\nCustom domain: learnqa.dev\nSave domain\nEnforce HTTPS\nVisit site`,
+    en: `Settings tab\nPages menu\nSource: GitHub Actions\nCustom domain: learnqa.dev\nSave domain\nEnforce HTTPS\nVisit site`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Repository üst menüsünden Settings tabına gir', en: 'Open the Settings tab from the repository top nav' }, pattern: '^Settings tab$', example: 'Settings tab' },
+    { label: { tr: 'Sol menüden Pages seç', en: 'Choose Pages in the left menu' }, pattern: '^Pages menu$', example: 'Pages menu' },
+    { label: { tr: 'Source olarak GitHub Actions seç', en: 'Choose GitHub Actions as the source' }, pattern: '^Source:\\s*GitHub Actions$', example: 'Source: GitHub Actions' },
+    { label: { tr: 'Custom domain alanını doldur', en: 'Fill the custom domain field' }, pattern: '^Custom domain:\\s*[a-z0-9.-]+\\.[a-z]{2,}$', example: 'Custom domain: learnqa.dev' },
+    { label: { tr: 'Domain ayarını kaydet', en: 'Save the domain setting' }, pattern: '^Save domain$', example: 'Save domain' },
+    { label: { tr: 'HTTPS zorlamasını aç', en: 'Enable Enforce HTTPS' }, pattern: '^Enforce HTTPS$', example: 'Enforce HTTPS' },
+    { label: { tr: 'Canlı siteyi Visit site ile kontrol et', en: 'Verify the live site with Visit site' }, pattern: '^Visit site$', example: 'Visit site' },
+  ],
+  successOutput: {
+    tr: 'Pages ayarı güvenli: kaynak GitHub Actions, domain kaydedildi, HTTPS açık ve canlı site kontrol edildi.',
+    en: 'Pages setup is safe: source is GitHub Actions, domain saved, HTTPS enabled and live site verified.',
+  },
+  retryOutput: {
+    tr: 'Sıra eksik: önce Settings → Pages, sonra source, domain, save, HTTPS ve en son Visit site kontrolü.',
+    en: 'Order is incomplete: first Settings → Pages, then source, domain, save, HTTPS and finally Visit site.',
+  },
+}
+
+const githubSettingsPractice = {
+  type: 'git-practice',
+  icon: '⚙️',
+  title: { tr: 'Try It Yourself: Settings içinde doğru güvenlik sırası', en: 'Try It Yourself: Safe order inside Settings' },
+  intro: {
+    tr: 'Repo Settings içinde collaborator, visibility, branch protection ve secret ayarlarını hangi sırayla kontrol edeceğini dene.',
+    en: 'Practice the order for checking collaborators, visibility, branch protection and secrets inside repo Settings.',
+  },
+  starterCommands: {
+    tr: `Settings tab\nCollaborators: Add people\nGeneral: Change visibility\nBranches: Add branch protection rule\nSecrets and variables: Actions\nPages: Check deployment source`,
+    en: `Settings tab\nCollaborators: Add people\nGeneral: Change visibility\nBranches: Add branch protection rule\nSecrets and variables: Actions\nPages: Check deployment source`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Settings tabına gir', en: 'Open the Settings tab' }, pattern: '^Settings tab$', example: 'Settings tab' },
+    { label: { tr: 'Collaborators ile kişiyi davet et', en: 'Invite a teammate from Collaborators' }, pattern: '^Collaborators:\\s*Add people$', example: 'Collaborators: Add people' },
+    { label: { tr: 'General içinde public/private görünürlüğü kontrol et', en: 'Check public/private visibility in General' }, pattern: '^General:\\s*Change visibility$', example: 'General: Change visibility' },
+    { label: { tr: 'Branches altında main koruması ekle', en: 'Add main protection under Branches' }, pattern: '^Branches:\\s*Add branch protection rule$', example: 'Branches: Add branch protection rule' },
+    { label: { tr: 'Actions secret alanını kontrol et', en: 'Check the Actions secrets area' }, pattern: '^Secrets and variables:\\s*Actions$', example: 'Secrets and variables: Actions' },
+    { label: { tr: 'Pages yayın kaynağını kontrol et', en: 'Check the Pages deployment source' }, pattern: '^Pages:\\s*Check deployment source$', example: 'Pages: Check deployment source' },
+  ],
+  successOutput: {
+    tr: 'Settings turu tamam: erişim, görünürlük, branch protection, secret ve Pages source güvenli sırayla kontrol edildi.',
+    en: 'Settings tour complete: access, visibility, branch protection, secrets and Pages source were checked in a safe order.',
+  },
+  retryOutput: {
+    tr: 'Sıra eksik: Settings → Collaborators → General visibility → Branches protection → Secrets → Pages source şeklinde ilerle.',
+    en: 'Order is incomplete: use Settings → Collaborators → General visibility → Branches protection → Secrets → Pages source.',
   },
 }
 
@@ -904,7 +1175,7 @@ export const gitGithubData = {
       subtitle: 'Version Control, Collaboration, CI/CD and Pages for QA Engineers',
       intro: 'Learn Git and GitHub visually: snapshots, branches, pull requests, Actions, Pages deployment, production safety rules and hands-on command practice.',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Workflow', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Workflow', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
     sections: [
       {
         title: '🎯 What are Git and GitHub?',
@@ -1342,6 +1613,125 @@ export const gitGithubData = {
         ],
       },
       {
+        title: '🚫 .gitignore: Keep the Right Files Out of Git',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🗄️',
+            content: 'Imagine your desk has a couple of drawers with a sticky note that says "never photograph this drawer." Every time you take a memory-photo of your desk, those drawers are skipped automatically — they still exist, you just never see them in the picture. The .gitignore file is exactly that sticky note for your project folder.',
+          },
+          {
+            type: 'heading',
+            text: 'Purpose: why does .gitignore exist?',
+          },
+          {
+            type: 'text',
+            content: 'The .gitignore file tells Git which files and folders to never track: build output, downloaded dependencies, IDE settings, OS junk files, logs, and secrets. It is a shared, committed file, so the whole team ignores the same things automatically without remembering it by hand. Java analogy: a Maven project never commits the target folder with compiled class files and generated jars, only pom.xml and source files are version-controlled. The same idea applies to the node_modules folder in a JavaScript project — you commit the recipe, package.json, not the generated result.',
+          },
+          {
+            type: 'heading',
+            text: 'First decision: commit it or ignore it?',
+          },
+          {
+            type: 'grid',
+            cols: 3,
+            items: [
+              { icon: '✅', label: 'Commit', desc: 'Source code, tests, README, package.json, pom.xml, lockfiles, Dockerfile, CI workflow files, and safe sample configs such as .env.example.' },
+              { icon: '🚫', label: 'Ignore', desc: 'Generated output, downloaded dependencies, local reports, screenshots/videos, logs, IDE cache, OS junk, and real secret files such as .env.' },
+              { icon: '🔎', label: 'Prove it', desc: 'Use git status to see normal files, git status --ignored --short to see ignored files, and git check-ignore -v <file> to see the exact matching rule.' },
+            ],
+          },
+          {
+            type: 'simulation',
+            scenario: 'gitignore-create-and-match',
+            icon: '🚫',
+            color: '#dc2626',
+            title: { en: 'Create a .gitignore and watch it filter files', tr: '.gitignore oluştur ve dosyaları filtrelemesini izle' },
+            description: { en: 'Watch how Git automatically skips matching files and folders from git status once a pattern exists.', tr: 'Bir desen eklendiğinde Git’in eşleşen dosya ve klasörleri git status’tan nasıl otomatik atladığını izle.' },
+          },
+          {
+            type: 'heading',
+            text: 'How to create it: Git Bash, IntelliJ and other IDEs',
+          },
+          {
+            type: 'table',
+            headers: ['Method', 'Steps', 'Notes'],
+            rows: [
+              ['Git Bash / macOS / Linux terminal', '`touch .gitignore` then `code .gitignore`, `nano .gitignore`, or `notepad .gitignore` on Windows Git Bash', 'Fastest path when you already use Git Bash or a Unix-like terminal'],
+              ['Windows CMD', '`type nul > .gitignore` then `notepad .gitignore`', 'Useful when you opened CMD from the Explorer address bar'],
+              ['PowerShell', '`New-Item .gitignore -ItemType File` then `notepad .gitignore`', 'Works in Windows Terminal, VS Code terminal and PowerShell'],
+              ['IntelliJ IDEA', 'Right-click a file/folder → Git → Add to .gitignore, or New → File named `.gitignore` in the project root', 'IntelliJ can also offer to ignore build folders automatically when it detects them'],
+              ['VS Code', 'New File in Explorer, name it `.gitignore`; the optional "gitignore" extension can generate templates by language', 'No built-in generator without an extension'],
+              ['Template website', 'Visit github.com/github/gitignore or gitignore.io, pick your stack (Java, Maven, Node...), paste the result', 'Best starting point for a brand-new project'],
+            ],
+          },
+          {
+            type: 'text',
+            content: 'Where it goes: almost always at the project root, right next to package.json or pom.xml. Git also supports a .gitignore file inside any subfolder — rules in a nested .gitignore only apply to that folder and below, and the closest .gitignore wins for a given file. For ignore rules that are personal and should never be shared with the team, use a global ignore file instead, configured once with git config --global core.excludesFile, or the repository-local file at .git/info/exclude, which is never committed.',
+          },
+          {
+            type: 'heading',
+            text: 'What is inside: pattern syntax',
+          },
+          {
+            type: 'table',
+            headers: ['Pattern', 'Meaning', 'Example'],
+            rows: [
+              ['`# comment`', 'Lines starting with # are ignored by Git, used for notes', '`# build output`'],
+              ['`*.log`', 'Wildcard — ignores every file with this extension, anywhere', 'ignores app.log, error.log'],
+              ['`node_modules/`', 'Trailing slash — matches a folder only, not a file with that name', 'ignores the whole dependency folder'],
+              ['`/dist`', 'Leading slash — matches only at the project root, not in subfolders', 'ignores root dist/, not src/dist/'],
+              ['`**/temp`', 'Double star — matches temp at any folder depth', 'ignores temp/, a/temp/, a/b/temp/'],
+              ['`!important.log`', 'Negation — re-includes a file an earlier pattern excluded', 'keeps important.log even if *.log is ignored'],
+              ['`.env*` + `!.env.example`', 'Ignore real environment files but keep the safe example file', '.env is ignored, .env.example can be committed'],
+            ],
+          },
+          {
+            type: 'code',
+            label: 'A realistic .gitignore for a QA automation project',
+            language: 'bash',
+            code: `# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\ntarget/\n\n# Test reports and artifacts\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\nscreenshots/*.png\nreports/\n\n# Environment and secrets\n.env*\n!.env.example\n\n# IDE and local machine files\n.idea/\n.vscode/\n*.iml\n\n# OS files\n.DS_Store\nThumbs.db\n\n# Logs and temp files\n*.log\nnpm-debug.log*\n*.tmp\n*.swp`,
+          },
+          {
+            type: 'warning',
+            content: 'Real-world trap: if a file was already committed before it was added to .gitignore, Git keeps tracking it — the rule only affects files that are not tracked yet. You must run `git rm --cached <file>` to stop tracking it (the file stays on disk), then commit. If a real token/password was already pushed, .gitignore does not erase it from history: revoke or rotate the secret immediately, then decide with the team whether history cleanup is needed.',
+          },
+          {
+            type: 'simulation',
+            scenario: 'gitignore-already-tracked-fix',
+            icon: '🆘',
+            color: '#b45309',
+            title: { en: 'The most common .gitignore mistake — and the real fix', tr: 'En yaygın .gitignore hatası — ve gerçek düzeltme' },
+            description: { en: 'See why adding an already-committed file to .gitignore is not enough, and what git rm --cached actually does.', tr: 'Zaten commit edilmiş bir dosyayı .gitignore’a eklemenin neden yetmediğini ve git rm --cached’in gerçekte ne yaptığını gör.' },
+          },
+          gitignoreCreatePractice,
+          gitignoreVerifyPractice,
+          gitignoreRescuePractice,
+          {
+            type: 'grid',
+            cols: 2,
+            items: [
+              { icon: '🚫', label: '.gitignore', desc: 'A shared text file of patterns that tells Git which untracked files and folders to never stage automatically.' },
+              { icon: '🗂️', label: 'Location', desc: 'Project root for team-wide rules; nested folders for scoped rules; a global file for personal-only rules.' },
+              { icon: '☕', label: 'Java analogy', desc: 'Just like Maven never versions the target folder, .gitignore keeps generated and machine-specific files out of history.' },
+              { icon: '🧪', label: 'QA value', desc: 'Keeps test reports, screenshots, videos and secrets out of the shared repo, so diffs stay readable and credentials stay safe.' },
+            ],
+          },
+          {
+            type: 'quiz',
+            question: 'A teammate just added node_modules/ to .gitignore, but it was already committed weeks ago and still shows up in every diff. What is the correct fix?',
+            options: [
+              { id: 'a', text: 'Nothing — .gitignore removes it automatically on the next commit' },
+              { id: 'b', text: 'Delete the node_modules folder from disk so Git forgets about it' },
+              { id: 'c', text: 'Run git rm --cached -r node_modules, then commit the change' },
+              { id: 'd', text: 'Rename .gitignore to .gitignore.txt and back' },
+            ],
+            correct: 'c',
+            explanation: '.gitignore only affects files Git is not already tracking. To stop tracking something committed before, use git rm --cached (add -r for folders) and commit — this removes it from future tracking without deleting it from disk.',
+          },
+        ],
+      },
+      {
         title: '🌿 Branching, Merge, Rebase and Conflicts',
         blocks: [
           {
@@ -1655,6 +2045,107 @@ git push -u origin feature/login-tests
         ],
       },
       {
+        title: '🧾 Pull Request: Open, Review, Approve, Request Changes and Resolve Conflicts',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧾',
+            content: 'A Pull Request is a controlled discussion before code enters main. It shows the diff, explains the reason, runs checks, collects review decisions and keeps a clear audit trail.',
+          },
+          {
+            type: 'simulation',
+            scenario: 'github-pull-request-ui-tour',
+            icon: '🧾',
+            color: '#2563eb',
+            title: { en: 'GitHub Pull Request screen tour: compare, create, review and merge', tr: 'GitHub Pull Request ekran turu: compare, create, review ve merge' },
+            description: { en: 'Walk through a GitHub-like PR interface: Pull requests tab, compare branches, Create pull request form, Conversation, Files changed, review decision, checks and merge button.', tr: 'GitHub benzeri PR arayüzünü gez: Pull requests tabı, branch karşılaştırma, Create pull request formu, Conversation, Files changed, review kararı, checks ve merge butonu.' },
+          },
+          {
+            type: 'heading',
+            text: 'What is a Pull Request really for?',
+          },
+          {
+            type: 'table',
+            headers: ['PR area', 'Purpose', 'Real-work rule'],
+            rows: [
+              ['Pull requests tab', 'Lists open/closed PRs and starts a new PR', 'Do not merge work that nobody can review'],
+              ['base / compare', 'base is the target branch, compare is your feature branch', 'Usually base is main and compare is feature/...'],
+              ['PR title', 'A short intent statement', 'Prefer "test: add login regression checks" over vague text'],
+              ['Description', 'Explains what changed, why, how it was tested and links issues', 'Include test evidence, screenshots, reports or risk notes'],
+              ['Conversation tab', 'Discussion, timeline, CI summary and merge box live here', 'A reviewer should understand the story without asking in chat'],
+              ['Files changed tab', 'Line-by-line diff review area', 'Review behavior, tests and hidden side effects, not only syntax'],
+              ['Review changes', 'Submit Comment, Approve or Request changes', 'Approve means merge-ready from your perspective; Request changes blocks merge'],
+              ['Checks', 'Actions status for tests/build/lint', 'Green review is not enough if required checks are red'],
+              ['Merge pull request', 'Combines approved PR into main', 'Only merge after approvals, green checks and no unresolved conversations'],
+            ],
+          },
+          githubPrOpenUiPractice,
+          {
+            type: 'heading',
+            text: 'How code review works',
+          },
+          {
+            type: 'simulation',
+            scenario: 'github-pr-review-conflict-ui',
+            icon: '👀',
+            color: '#7c3aed',
+            title: { en: 'Review, approve, request changes and conflict screen', tr: 'Review, approve, request changes ve conflict ekranı' },
+            description: { en: 'See the real GitHub review shape: Files changed, line comment, Start a review, Review changes, Approve/Request changes, merge blocked by conflict, local conflict fix and green merge box.', tr: 'Gerçek GitHub review şeklini gör: Files changed, satır yorumu, Start a review, Review changes, Approve/Request changes, conflict yüzünden merge blocked, lokal conflict fix ve yeşil merge kutusu.' },
+          },
+          {
+            type: 'table',
+            headers: ['Review decision', 'What it means', 'When to use it'],
+            rows: [
+              ['Comment', 'Leaves feedback without approving or blocking', 'Question, optional suggestion, documentation note'],
+              ['Approve', 'Reviewer accepts the change from their perspective', 'Behavior is clear, tests are enough, no blocking issue remains'],
+              ['Request changes', 'Blocks merge until author fixes the issue', 'Bug risk, missing test, unsafe secret, broken contract, unclear design'],
+              ['Dismiss review', 'Admin/maintainer removes a stale review decision', 'Use rarely and explain why; never hide real risk'],
+              ['Resolve conversation', 'Marks a review thread as handled', 'Only after the comment was answered or fixed'],
+            ],
+          },
+          githubPrReviewPractice,
+          {
+            type: 'heading',
+            text: 'Can PR conflicts be resolved?',
+          },
+          {
+            type: 'text',
+            content: 'Yes. GitHub can sometimes offer a web conflict editor for simple text conflicts, but real QA work is safer locally because you can run tests. The normal flow is: fetch the latest main, switch to your PR branch, merge origin/main, edit conflict markers, run the relevant test, commit the fix and push. The PR updates automatically.',
+          },
+          githubPrConflictPractice,
+          {
+            type: 'warning',
+            content: 'Real-work danger: do not click Merge pull request just because GitHub lets you. Check unresolved conversations, required checks, requested changes, test evidence, branch freshness and deployment risk first.',
+          },
+          {
+            type: 'code',
+            label: 'PR author checklist before asking for review',
+            language: 'bash',
+            code: `git status
+npm test -- login.spec.js
+git push -u origin feature/login-tests
+# On GitHub:
+# 1. Open Pull requests → New pull request
+# 2. base: main, compare: feature/login-tests
+# 3. Write title + description + test evidence
+# 4. Request reviewer
+# 5. Wait for checks and review`,
+          },
+          {
+            type: 'quiz',
+            question: 'A reviewer finds a missing negative login test that can let a bug reach main. Which review decision is correct?',
+            options: [
+              { id: 'a', text: 'Approve, because the code compiles' },
+              { id: 'b', text: 'Comment only, because tests are optional' },
+              { id: 'c', text: 'Request changes and explain the missing test' },
+              { id: 'd', text: 'Merge pull request immediately' },
+            ],
+            correct: 'c',
+            explanation: 'A missing test that can let a real bug through is blocking feedback. Request changes keeps the PR out of main until the risk is handled.',
+          },
+        ],
+      },
+      {
         title: '🚀 GitHub Actions for QA: CI, Reports, Matrix and Secrets',
         blocks: [
           {
@@ -1662,6 +2153,35 @@ git push -u origin feature/login-tests
             emoji: '🏭',
             content: 'GitHub Actions is like a factory line. Every time code arrives, machines install dependencies, run tests, build the app and publish reports without asking your laptop.',
           },
+          {
+            type: 'simulation',
+            scenario: 'github-actions-ui-tour',
+            icon: '🚀',
+            color: '#2563eb',
+            title: { en: 'GitHub Actions screen tour: buttons, runs and reports', tr: 'GitHub Actions ekran turu: butonlar, run’lar ve raporlar' },
+            description: { en: 'Walk through the real GitHub Actions interface shape: top Actions tab, New workflow, workflow list, run rows, filters, logs, artifacts and rerun controls.', tr: 'Gerçek GitHub Actions arayüz şeklini gez: üst Actions tabı, New workflow, workflow listesi, run satırları, filter, loglar, artifact ve rerun kontrolleri.' },
+          },
+          {
+            type: 'heading',
+            text: 'What do the Actions screen buttons do?',
+          },
+          {
+            type: 'table',
+            headers: ['UI area', 'What it does', 'When a QA engineer uses it'],
+            rows: [
+              ['Actions top tab', 'Opens CI/CD runs for the repository', 'Check whether a PR or main deploy passed'],
+              ['New workflow', 'Creates a new workflow file under `.github/workflows/` from a template or blank YAML', 'Add first CI, Playwright, Maven or Pages deploy workflow'],
+              ['All workflows', 'Shows runs from every workflow together', 'See the newest failures without guessing the workflow name'],
+              ['Workflow name in sidebar', 'Filters runs to one workflow', 'Open only "Deploy site" or only "QA Checks"'],
+              ['Filter workflow runs', 'Search/filter by text', 'Find a commit, branch, actor or failed run quickly'],
+              ['Run row', 'Opens one workflow execution', 'Read jobs, logs, annotations and artifacts'],
+              ['Green/red status icon', 'Shows success/failure/cancelled state', 'Know if the quality gate passed before merge/deploy'],
+              ['Three-dot menu / rerun controls', 'Rerun all jobs or failed jobs', 'Use after flaky infrastructure or after fixing environment problems'],
+              ['Artifacts', 'Download saved reports, screenshots and traces', 'Debug failed browser/API tests without reproducing locally'],
+              ['Caches / Runners / Usage metrics', 'Management tools for speed, runner health and cost/usage visibility', 'Investigate slow CI, stale cache or runner capacity problems'],
+            ],
+          },
+          githubActionsUiPractice,
           {
             type: 'simulation',
             scenario: 'github-actions-pages',
@@ -1734,6 +2254,56 @@ jobs:
             emoji: '🏡',
             content: 'GitHub Pages is like giving your built website a public address. It can serve ready-made files, but it will not run a backend kitchen behind the door.',
           },
+          {
+            type: 'simulation',
+            scenario: 'github-pages-settings-ui',
+            icon: '🌐',
+            color: '#0ea5e9',
+            title: { en: 'GitHub Pages settings screen: source, domain, HTTPS and live site', tr: 'GitHub Pages Settings ekranı: source, domain, HTTPS ve canlı site' },
+            description: { en: 'See where Pages lives inside Settings and what Visit site, Unpublish site, Source, Custom domain, Save, Remove and Enforce HTTPS do.', tr: 'Pages’in Settings içinde nerede olduğunu ve Visit site, Unpublish site, Source, Custom domain, Save, Remove, Enforce HTTPS kontrollerinin ne yaptığını gör.' },
+          },
+          {
+            type: 'heading',
+            text: 'What do the Pages screen controls do?',
+          },
+          {
+            type: 'table',
+            headers: ['Control', 'Purpose', 'Be careful about'],
+            rows: [
+              ['Your site is live at', 'Shows the current public Pages URL', 'If this URL is wrong, DNS or source may be wrong'],
+              ['Visit site', 'Opens the live published site', 'Always verify after deploy, not only after local build'],
+              ['Unpublish site', 'Stops serving the Pages site', 'Dangerous on production docs/portfolio sites'],
+              ['Source dropdown', 'Chooses Branch deploy or GitHub Actions deploy', 'Wrong source can publish old or empty files'],
+              ['Custom domain field', 'Connects a domain such as learnqa.dev', 'DNS must match GitHub Pages requirements'],
+              ['Save / Remove', 'Persists or removes custom domain', 'Removing may break production URL'],
+              ['DNS check status', 'Shows whether GitHub can verify DNS', 'Wait and verify before assuming deploy is broken'],
+              ['Enforce HTTPS', 'Forces secure HTTPS access', 'Keep enabled after DNS/certificate are ready'],
+            ],
+          },
+          githubPagesUiPractice,
+          {
+            type: 'simulation',
+            scenario: 'github-repo-settings-tour',
+            icon: '⚙️',
+            color: '#64748b',
+            title: { en: 'Repository Settings tour: collaborators, visibility, branch rules and secrets', tr: 'Repository Settings turu: collaborator, visibility, branch rule ve secret' },
+            description: { en: 'Learn what the Settings tab is for: add collaborators, switch public/private, protect main, manage Actions permissions, secrets, webhooks, environments and Pages.', tr: 'Settings tabının ne işe yaradığını öğren: collaborator ekle, public/private değiştir, main’i koru, Actions permission, secret, webhook, environment ve Pages ayarlarını yönet.' },
+          },
+          {
+            type: 'table',
+            headers: ['Settings area', 'What you can do there', 'Real-work warning'],
+            rows: [
+              ['General', 'Rename repo, change description, default branch, features, visibility and Danger Zone actions', 'Changing visibility or deleting a repo affects every teammate'],
+              ['Collaborators', 'Invite people and manage access', 'Give the lowest role that still lets the person work'],
+              ['Branches / Rules', 'Protect main, require PR reviews and required checks', 'Without rules, direct push can bypass QA evidence'],
+              ['Actions', 'Allow/disable Actions, set workflow permissions and runner rules', 'Do not grant write token permissions to every workflow by default'],
+              ['Secrets and variables', 'Store tokens and config for workflows', 'Never paste secrets into YAML or logs'],
+              ['Webhooks', 'Notify external services on GitHub events', 'Wrong endpoint can leak event payloads'],
+              ['Environments', 'Add deployment environments, approvals and environment secrets', 'Production deploys should often require approval'],
+              ['Pages', 'Configure static hosting source, domain and HTTPS', 'Publishing wrong source can expose old or private build output'],
+            ],
+          },
+          githubSettingsPractice,
           {
             type: 'code',
             label: 'Pages deploy workflow for a Vite app',
@@ -1900,7 +2470,7 @@ git push origin feature/my-branch   # Push only your branch`,
       subtitle: 'QA mühendisleri için version control, takım akışı, CI/CD ve Pages',
       intro: 'Git ve GitHub’ı görsel öğren: snapshot, branch, pull request, GitHub Actions, Pages deploy, gerçek iş güvenliği ve komut alıştırmaları.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Akışı', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Akışı', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
     sections: [
       {
         title: '🎯 Git ve GitHub nedir?',
@@ -2338,6 +2908,125 @@ git push origin feature/my-branch   # Push only your branch`,
         ],
       },
       {
+        title: '🚫 .gitignore: Doğru Dosyaları Git Dışında Tut',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🗄️',
+            content: 'Masanda üzerine "bu çekmecenin asla fotoğrafını çekme" notu yapıştırılmış birkaç çekmece olduğunu düşün. Masanın hafıza fotoğrafını her çektiğinde o çekmeceler otomatik atlanır — hâlâ oradalar, sadece resme hiç girmezler. .gitignore dosyası, proje klasörün için tam olarak bu yapışkan nottur.',
+          },
+          {
+            type: 'heading',
+            text: 'Amaç: .gitignore neden var?',
+          },
+          {
+            type: 'text',
+            content: '.gitignore dosyası Git\'e hangi dosya ve klasörleri asla takip etmemesi gerektiğini söyler: build çıktısı, indirilen bağımlılıklar, IDE ayarları, OS çöp dosyaları, loglar ve secret\'lar. Paylaşılan ve commit edilen bir dosyadır, böylece tüm takım aynı şeyleri elle hatırlamadan otomatik olarak yok sayar. Java analojisi: bir Maven projesi derlenmiş class dosyalarını ve oluşturulan jar\'ları içeren target klasörünü asla commit etmez, sadece pom.xml ve kaynak dosyalar version control\'dedir. Aynı mantık JavaScript projesindeki node_modules klasörü için de geçerlidir — üretilen sonucu değil, tarifi yani package.json\'ı commit edersin.',
+          },
+          {
+            type: 'heading',
+            text: 'İlk karar: commit mi ignore mu?',
+          },
+          {
+            type: 'grid',
+            cols: 3,
+            items: [
+              { icon: '✅', label: 'Commit et', desc: 'Source code, testler, README, package.json, pom.xml, lockfile dosyaları, Dockerfile, CI workflow dosyaları ve .env.example gibi güvenli örnek config dosyaları.' },
+              { icon: '🚫', label: 'Ignore et', desc: 'Generated output, indirilen dependency klasörleri, local raporlar, screenshot/video çıktıları, loglar, IDE cache dosyaları, OS çöp dosyaları ve gerçek secret içeren .env dosyaları.' },
+              { icon: '🔎', label: 'Kanıtla', desc: 'Normal dosyaları görmek için git status, ignored dosyaları görmek için git status --ignored --short, eşleşen kuralı görmek için git check-ignore -v <dosya> kullan.' },
+            ],
+          },
+          {
+            type: 'simulation',
+            scenario: 'gitignore-create-and-match',
+            icon: '🚫',
+            color: '#dc2626',
+            title: { en: 'Create a .gitignore and watch it filter files', tr: '.gitignore oluştur ve dosyaları filtrelemesini izle' },
+            description: { en: 'Watch how Git automatically skips matching files and folders from git status once a pattern exists.', tr: 'Bir desen eklendiğinde Git’in eşleşen dosya ve klasörleri git status’tan nasıl otomatik atladığını izle.' },
+          },
+          {
+            type: 'heading',
+            text: 'Nasıl Oluşturulur: Git Bash, IntelliJ ve Diğer IDE\'ler',
+          },
+          {
+            type: 'table',
+            headers: ['Yöntem', 'Adımlar', 'Not'],
+            rows: [
+              ['Git Bash / macOS / Linux terminal', '`touch .gitignore` ile oluştur, sonra `code .gitignore`, `nano .gitignore` veya Windows Git Bash içinde `notepad .gitignore` ile düzenle', 'Git Bash veya Unix-like terminal kullanıyorsan en hızlı yol'],
+              ['Windows CMD', '`type nul > .gitignore` ile oluştur, sonra `notepad .gitignore` ile düzenle', 'Explorer adres çubuğuna `cmd` yazıp açtığın terminal için pratik'],
+              ['PowerShell', '`New-Item .gitignore -ItemType File` ile oluştur, sonra `notepad .gitignore` ile düzenle', 'Windows Terminal, VS Code terminal ve PowerShell içinde çalışır'],
+              ['IntelliJ IDEA', 'Bir dosya/klasöre sağ tık → Git → Add to .gitignore, veya proje köküne New → File ile `.gitignore` adında dosya aç', 'IntelliJ build klasörlerini algılayıp otomatik yok saymayı da önerebilir'],
+              ['VS Code', 'Explorer\'da New File ile `.gitignore` adında dosya oluştur; opsiyonel "gitignore" eklentisi dile göre şablon üretebilir', 'Eklenti yoksa hazır şablon üretici dahili değildir'],
+              ['Şablon sitesi', 'github.com/github/gitignore veya gitignore.io adresine git, stack\'ini seç (Java, Maven, Node...), sonucu yapıştır', 'Sıfırdan bir proje için en iyi başlangıç noktası'],
+            ],
+          },
+          {
+            type: 'text',
+            content: 'Nereye konur: hemen hemen her zaman proje kök dizinine, package.json veya pom.xml\'in yanına. Git ayrıca herhangi bir alt klasör içinde de bir .gitignore dosyasını destekler — iç içe (nested) bir .gitignore içindeki kurallar sadece o klasör ve altı için geçerlidir, belirli bir dosya için en yakın .gitignore kazanır. Kişisel olan ve takımla asla paylaşılmaması gereken yok sayma kuralları için ise global bir ignore dosyası kullanılır; bu, git config --global core.excludesFile ile bir kez ayarlanır, ya da repository-local ve hiçbir zaman commit edilmeyen .git/info/exclude dosyası kullanılır.',
+          },
+          {
+            type: 'heading',
+            text: 'İçeriğinde Neler Bulunur: Pattern Söz Dizimi',
+          },
+          {
+            type: 'table',
+            headers: ['Pattern', 'Anlamı', 'Örnek'],
+            rows: [
+              ['`# yorum`', '# ile başlayan satırlar Git tarafından yok sayılır, not almak için kullanılır', '`# build çıktısı`'],
+              ['`*.log`', 'Wildcard — bu uzantıya sahip her dosyayı, her yerde yok sayar', 'app.log, error.log dosyalarını yok sayar'],
+              ['`node_modules/`', 'Sondaki slash — sadece klasörle eşleşir, aynı adlı bir dosyayla değil', 'tüm bağımlılık klasörünü yok sayar'],
+              ['`/dist`', 'Baştaki slash — sadece proje kökünde eşleşir, alt klasörlerde değil', 'kök dist/\'i yok sayar, src/dist/\'i değil'],
+              ['`**/temp`', 'Çift yıldız — temp\'i her klasör derinliğinde eşleştirir', 'temp/, a/temp/, a/b/temp/\'i yok sayar'],
+              ['`!important.log`', 'Negation — önceki bir pattern\'in dışladığı dosyayı geri dahil eder', '*.log yok sayılsa da important.log\'u korur'],
+              ['`.env*` + `!.env.example`', 'Gerçek environment dosyalarını ignore eder ama güvenli örnek dosyayı geri dahil eder', '.env ignore edilir, .env.example commit edilebilir'],
+            ],
+          },
+          {
+            type: 'code',
+            label: 'QA automation projesi için gerçekçi bir .gitignore',
+            language: 'bash',
+            code: `# Bağımlılıklar\nnode_modules/\n\n# Build çıktısı\ndist/\nbuild/\ntarget/\n\n# Test rapor ve artifact\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\nscreenshots/*.png\nreports/\n\n# Ortam ve secret\n.env*\n!.env.example\n\n# IDE ve local makine dosyaları\n.idea/\n.vscode/\n*.iml\n\n# OS dosyaları\n.DS_Store\nThumbs.db\n\n# Log ve geçici dosyalar\n*.log\nnpm-debug.log*\n*.tmp\n*.swp`,
+          },
+          {
+            type: 'warning',
+            content: 'Gerçek iş tuzağı: bir dosya .gitignore\'a eklenmeden önce zaten commit edilmişse, Git onu takip etmeye devam eder — kural sadece henüz takip edilmeyen dosyaları etkiler. Takibi durdurmak için `git rm --cached <dosya>` çalıştırmalısın (dosya diskte kalır), sonra commit et. Eğer gerçek token/şifre daha önce push edildiyse .gitignore bunu history\'den silmez: secret hemen revoke/rotate edilmeli, history cleanup gerekip gerekmediğine takımla karar verilmelidir.',
+          },
+          {
+            type: 'simulation',
+            scenario: 'gitignore-already-tracked-fix',
+            icon: '🆘',
+            color: '#b45309',
+            title: { en: 'The most common .gitignore mistake — and the real fix', tr: 'En yaygın .gitignore hatası — ve gerçek düzeltme' },
+            description: { en: 'See why adding an already-committed file to .gitignore is not enough, and what git rm --cached actually does.', tr: 'Zaten commit edilmiş bir dosyayı .gitignore’a eklemenin neden yetmediğini ve git rm --cached’in gerçekte ne yaptığını gör.' },
+          },
+          gitignoreCreatePractice,
+          gitignoreVerifyPractice,
+          gitignoreRescuePractice,
+          {
+            type: 'grid',
+            cols: 2,
+            items: [
+              { icon: '🚫', label: '.gitignore', desc: 'Git\'e hangi takip edilmeyen dosya ve klasörleri asla otomatik stage etmemesi gerektiğini söyleyen, paylaşılan bir pattern dosyası.' },
+              { icon: '🗂️', label: 'Konum', desc: 'Takım çapındaki kurallar için proje kökü; sınırlı kurallar için iç içe klasörler; sadece kişisel kurallar için global dosya.' },
+              { icon: '☕', label: 'Java analojisi', desc: 'Maven\'in target klasörünü asla version control\'e almaması gibi, .gitignore da üretilen ve makineye özgü dosyaları geçmişten uzak tutar.' },
+              { icon: '🧪', label: 'QA değeri', desc: 'Test raporlarını, screenshot\'ları, videoları ve secret\'ları paylaşılan repodan uzak tutar; diff\'ler okunabilir, credential\'lar güvende kalır.' },
+            ],
+          },
+          {
+            type: 'quiz',
+            question: 'Bir takım arkadaşın node_modules/\'u .gitignore\'a az önce ekledi, ama bu klasör haftalar önce zaten commit edilmiş ve hâlâ her diff\'te görünüyor. Doğru düzeltme nedir?',
+            options: [
+              { id: 'a', text: 'Hiçbir şey — .gitignore bir sonraki commit\'te onu otomatik kaldırır' },
+              { id: 'b', text: 'node_modules klasörünü diskten sil, böylece Git onu unutur' },
+              { id: 'c', text: 'git rm --cached -r node_modules çalıştır, sonra değişikliği commit et' },
+              { id: 'd', text: '.gitignore\'ı .gitignore.txt yapıp tekrar .gitignore\'a çevir' },
+            ],
+            correct: 'c',
+            explanation: '.gitignore sadece Git\'in henüz takip etmediği dosyaları etkiler. Daha önce commit edilmiş bir şeyin takibini durdurmak için git rm --cached (klasörler için -r ekleyerek) kullanılır ve commit edilir — bu, dosyayı diskten silmeden gelecekteki takipten çıkarır.',
+          },
+        ],
+      },
+      {
         title: '🌿 Branch, Merge, Rebase ve Conflict',
         blocks: [
           {
@@ -2651,6 +3340,107 @@ git push -u origin feature/login-tests
         ],
       },
       {
+        title: '🧾 Pull Request: Açma, Review, Onay, Ret ve Conflict Çözümü',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧾',
+            content: 'Pull Request, kodun main branch’e girmeden önce kontrollü şekilde konuşulduğu kalite kapısıdır. Diff’i gösterir, değişikliğin nedenini anlatır, testleri koşturur, reviewer kararını toplar ve geriye okunabilir bir kayıt bırakır.',
+          },
+          {
+            type: 'simulation',
+            scenario: 'github-pull-request-ui-tour',
+            icon: '🧾',
+            color: '#2563eb',
+            title: { en: 'GitHub Pull Request screen tour: compare, create, review and merge', tr: 'GitHub Pull Request ekran turu: compare, create, review ve merge' },
+            description: { en: 'Walk through a GitHub-like PR interface: Pull requests tab, compare branches, Create pull request form, Conversation, Files changed, review decision, checks and merge button.', tr: 'GitHub benzeri PR arayüzünü gez: Pull requests tabı, branch karşılaştırma, Create pull request formu, Conversation, Files changed, review kararı, checks ve merge butonu.' },
+          },
+          {
+            type: 'heading',
+            text: 'Pull Request aslında ne işe yarar?',
+          },
+          {
+            type: 'table',
+            headers: ['PR alanı', 'Amacı', 'Gerçek iş kuralı'],
+            rows: [
+              ['Pull requests tab', 'Açık/kapalı PR listesini gösterir ve yeni PR başlatır', 'Kimsenin review edemediği işi main’e alma'],
+              ['base / compare', 'base hedef branch, compare senin feature branch’indir', 'Çoğu takımda base main, compare feature/... olur'],
+              ['PR title', 'Değişikliğin niyetini kısa söyler', 'Belirsiz başlık yerine "test: add login regression checks" gibi net yaz'],
+              ['Description', 'Ne değişti, neden değişti, nasıl test edildi ve hangi issue bağlı anlatır', 'Test kanıtı, screenshot, report veya risk notu ekle'],
+              ['Conversation tab', 'Tartışma, timeline, CI özeti ve merge kutusu burada görünür', 'Reviewer chat sormadan PR hikayesini anlayabilmeli'],
+              ['Files changed tab', 'Satır satır diff review alanıdır', 'Sadece syntax değil davranış, test ve yan etki oku'],
+              ['Review changes', 'Comment, Approve veya Request changes kararı gönderir', 'Approve merge-ready demektir; Request changes merge’i bloklar'],
+              ['Checks', 'Actions test/build/lint durumunu gösterir', 'Review yeşil olsa bile required checks kırmızıysa merge etme'],
+              ['Merge pull request', 'Onaylı PR’ı main’e birleştirir', 'Approval, yeşil checks ve unresolved conversation kontrolünden sonra kullan'],
+            ],
+          },
+          githubPrOpenUiPractice,
+          {
+            type: 'heading',
+            text: 'Code review nasıl yapılır?',
+          },
+          {
+            type: 'simulation',
+            scenario: 'github-pr-review-conflict-ui',
+            icon: '👀',
+            color: '#7c3aed',
+            title: { en: 'Review, approve, request changes and conflict screen', tr: 'Review, approve, request changes ve conflict ekranı' },
+            description: { en: 'See the real GitHub review shape: Files changed, line comment, Start a review, Review changes, Approve/Request changes, merge blocked by conflict, local conflict fix and green merge box.', tr: 'Gerçek GitHub review şeklini gör: Files changed, satır yorumu, Start a review, Review changes, Approve/Request changes, conflict yüzünden merge blocked, lokal conflict fix ve yeşil merge kutusu.' },
+          },
+          {
+            type: 'table',
+            headers: ['Review kararı', 'Anlamı', 'Ne zaman kullanılır?'],
+            rows: [
+              ['Comment', 'Onaylamadan veya bloklamadan feedback bırakır', 'Soru, opsiyonel öneri, dokümantasyon notu'],
+              ['Approve', 'Reviewer kendi açısından değişikliği kabul eder', 'Davranış net, test yeterli, bloklayıcı risk kalmadıysa'],
+              ['Request changes', 'Author düzeltmeden merge’i bloklar', 'Bug riski, eksik test, unsafe secret, bozulan contract, belirsiz tasarım varsa'],
+              ['Dismiss review', 'Admin/maintainer eski review kararını kaldırır', 'Nadiren kullanılır; gerçek riski saklamak için kullanılmaz'],
+              ['Resolve conversation', 'Review thread’inin ele alındığını işaretler', 'Yorum cevaplandı veya düzeltildiyse'],
+            ],
+          },
+          githubPrReviewPractice,
+          {
+            type: 'heading',
+            text: 'PR conflict çözülebilir mi?',
+          },
+          {
+            type: 'text',
+            content: 'Evet. GitHub bazı basit text conflict’leri web editörüyle çözmeyi teklif edebilir; ama QA işinde güvenli yol çoğu zaman lokalde çözmektir çünkü test çalıştırabilirsin. Normal akış: güncel main bilgisini al, PR branch’ine geç, origin/main’i branch’ine merge et, conflict markerları bilinçli düzenle, ilgili testi çalıştır, fix commit’i at ve push et. PR GitHub’da otomatik güncellenir.',
+          },
+          githubPrConflictPractice,
+          {
+            type: 'warning',
+            content: 'Gerçek iş tehlikesi: GitHub Merge pull request butonunu gösteriyor diye hemen basma. Önce unresolved conversation, required checks, requested changes, test kanıtı, branch güncelliği ve deploy riskini kontrol et.',
+          },
+          {
+            type: 'code',
+            label: 'Review istemeden önce PR author checklist',
+            language: 'bash',
+            code: `git status
+npm test -- login.spec.js
+git push -u origin feature/login-tests
+# GitHub'da:
+# 1. Pull requests → New pull request
+# 2. base: main, compare: feature/login-tests
+# 3. Title + description + test evidence yaz
+# 4. Reviewer iste
+# 5. Checks ve review sonucunu bekle`,
+          },
+          {
+            type: 'quiz',
+            question: 'Reviewer, main’e bug kaçırabilecek eksik bir negatif login testi buldu. Doğru review kararı hangisidir?',
+            options: [
+              { id: 'a', text: 'Kod compile olduğu için Approve' },
+              { id: 'b', text: 'Testler opsiyonel olduğu için sadece Comment' },
+              { id: 'c', text: 'Eksik testi açıklayıp Request changes' },
+              { id: 'd', text: 'Hemen Merge pull request' },
+            ],
+            correct: 'c',
+            explanation: 'Gerçek bug riski doğurabilecek eksik test bloklayıcı feedback’tir. Request changes, risk çözülene kadar PR’ın main’e girmesini engeller.',
+          },
+        ],
+      },
+      {
         title: '🚀 QA için GitHub Actions: CI, Report, Matrix ve Secrets',
         blocks: [
           {
@@ -2658,6 +3448,35 @@ git push -u origin feature/login-tests
             emoji: '🏭',
             content: 'GitHub Actions fabrika hattı gibidir. Kod geldiği anda makineler dependency kurar, testleri çalıştırır, build alır ve raporları yayınlar; senin laptopına güvenmez.',
           },
+          {
+            type: 'simulation',
+            scenario: 'github-actions-ui-tour',
+            icon: '🚀',
+            color: '#2563eb',
+            title: { en: 'GitHub Actions screen tour: buttons, runs and reports', tr: 'GitHub Actions ekran turu: butonlar, run’lar ve raporlar' },
+            description: { en: 'Walk through the real GitHub Actions interface shape: top Actions tab, New workflow, workflow list, run rows, filters, logs, artifacts and rerun controls.', tr: 'Gerçek GitHub Actions arayüz şeklini gez: üst Actions tabı, New workflow, workflow listesi, run satırları, filter, loglar, artifact ve rerun kontrolleri.' },
+          },
+          {
+            type: 'heading',
+            text: 'Actions ekranındaki butonlar ne işe yarar?',
+          },
+          {
+            type: 'table',
+            headers: ['UI alanı', 'Ne işe yarar?', 'QA mühendisi ne zaman kullanır?'],
+            rows: [
+              ['Üst menüde Actions', 'Repository CI/CD run’larını açar', 'PR veya main deploy geçti mi kontrol etmek için'],
+              ['New workflow', '`.github/workflows/` altına template veya boş YAML ile yeni workflow oluşturur', 'İlk CI, Playwright, Maven veya Pages deploy workflow’u eklemek için'],
+              ['All workflows', 'Tüm workflow run’larını tek listede gösterir', 'En yeni fail durumunu workflow adı tahmin etmeden görmek için'],
+              ['Sol menüde workflow adı', 'Run listesini tek workflow’a filtreler', 'Sadece "Deploy site" veya sadece "QA Checks" açmak için'],
+              ['Filter workflow runs', 'Run listesini metinle filtreler', 'Commit, branch, actor veya failed run hızlı bulmak için'],
+              ['Run satırı', 'Tek workflow çalışmasını açar', 'Job, log, annotation ve artifact okumak için'],
+              ['Yeşil/kırmızı status icon', 'Success/failure/cancelled durumunu gösterir', 'Merge/deploy öncesi kalite kapısı geçti mi görmek için'],
+              ['Üç nokta / rerun kontrolleri', 'Tüm jobları veya sadece failed jobları tekrar çalıştırır', 'Flaky altyapı veya environment düzeltmesi sonrası kullanılır'],
+              ['Artifacts', 'Kaydedilen report, screenshot ve trace dosyalarını indirir', 'Fail olan browser/API testini lokal reproduce etmeden anlamak için'],
+              ['Caches / Runners / Usage metrics', 'Hız, runner sağlığı ve kullanım/maliyet görünürlüğü sağlar', 'Yavaş CI, stale cache veya runner kapasitesi sorunlarında'],
+            ],
+          },
+          githubActionsUiPractice,
           {
             type: 'simulation',
             scenario: 'github-actions-pages',
@@ -2730,6 +3549,56 @@ jobs:
             emoji: '🏡',
             content: 'GitHub Pages, build edilmiş web sitene halka açık bir adres vermek gibidir. Hazır dosyaları servis eder ama kapının arkasında backend mutfağı çalıştırmaz.',
           },
+          {
+            type: 'simulation',
+            scenario: 'github-pages-settings-ui',
+            icon: '🌐',
+            color: '#0ea5e9',
+            title: { en: 'GitHub Pages settings screen: source, domain, HTTPS and live site', tr: 'GitHub Pages Settings ekranı: source, domain, HTTPS ve canlı site' },
+            description: { en: 'See where Pages lives inside Settings and what Visit site, Unpublish site, Source, Custom domain, Save, Remove and Enforce HTTPS do.', tr: 'Pages’in Settings içinde nerede olduğunu ve Visit site, Unpublish site, Source, Custom domain, Save, Remove, Enforce HTTPS kontrollerinin ne yaptığını gör.' },
+          },
+          {
+            type: 'heading',
+            text: 'Pages ekranındaki kontroller ne işe yarar?',
+          },
+          {
+            type: 'table',
+            headers: ['Kontrol', 'Amacı', 'Dikkat edilmesi gereken'],
+            rows: [
+              ['Your site is live at', 'Güncel public Pages URL’ini gösterir', 'URL yanlışsa DNS veya source yanlış olabilir'],
+              ['Visit site', 'Canlı yayınlanan siteyi açar', 'Sadece local build’e değil, deploy sonrası canlıya da bak'],
+              ['Unpublish site', 'Pages yayını durdurur', 'Production doküman/portfolio sitesinde tehlikelidir'],
+              ['Source dropdown', 'Branch deploy mu GitHub Actions deploy mu seçer', 'Yanlış source eski veya boş dosyaları yayınlayabilir'],
+              ['Custom domain alanı', 'learnqa.dev gibi domain bağlar', 'DNS GitHub Pages gereksinimleriyle uyumlu olmalı'],
+              ['Save / Remove', 'Custom domain kaydeder veya kaldırır', 'Remove production URL’i bozabilir'],
+              ['DNS check status', 'GitHub DNS’i doğrulayabiliyor mu gösterir', 'Deploy bozuk sanmadan önce bekle ve kontrol et'],
+              ['Enforce HTTPS', 'Siteyi HTTPS üzerinden zorlar', 'DNS/certificate hazır olunca açık tut'],
+            ],
+          },
+          githubPagesUiPractice,
+          {
+            type: 'simulation',
+            scenario: 'github-repo-settings-tour',
+            icon: '⚙️',
+            color: '#64748b',
+            title: { en: 'Repository Settings tour: collaborators, visibility, branch rules and secrets', tr: 'Repository Settings turu: collaborator, visibility, branch rule ve secret' },
+            description: { en: 'Learn what the Settings tab is for: add collaborators, switch public/private, protect main, manage Actions permissions, secrets, webhooks, environments and Pages.', tr: 'Settings tabının ne işe yaradığını öğren: collaborator ekle, public/private değiştir, main’i koru, Actions permission, secret, webhook, environment ve Pages ayarlarını yönet.' },
+          },
+          {
+            type: 'table',
+            headers: ['Settings alanı', 'Burada ne yapılır?', 'Gerçek iş uyarısı'],
+            rows: [
+              ['General', 'Repo adı, açıklama, default branch, özellikler, visibility ve Danger Zone işlemleri', 'Visibility değiştirmek veya repo silmek tüm takımı etkiler'],
+              ['Collaborators', 'Kişi davet edilir ve access yönetilir', 'Kişiye çalışması için gereken en düşük rol verilmeli'],
+              ['Branches / Rules', 'main korunur, PR review ve required checks zorunlu yapılır', 'Rules yoksa direct push QA kanıtını bypass eder'],
+              ['Actions', 'Actions aç/kapat, workflow permission ve runner kuralları', 'Her workflow’a varsayılan write token vermemek gerekir'],
+              ['Secrets and variables', 'Workflow token/config değerleri saklanır', 'Secret asla YAML veya log içine yazılmaz'],
+              ['Webhooks', 'GitHub event’leri dış servislere gönderilir', 'Yanlış endpoint event payload sızdırabilir'],
+              ['Environments', 'Deploy environment, approval ve environment secret tanımlanır', 'Production deploy çoğu zaman approval istemelidir'],
+              ['Pages', 'Static hosting source, domain ve HTTPS ayarlanır', 'Yanlış source eski veya private build output yayınlayabilir'],
+            ],
+          },
+          githubSettingsPractice,
           {
             type: 'code',
             label: 'Vite app için Pages deploy workflow',

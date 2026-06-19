@@ -1543,6 +1543,1805 @@ const s10 = {
   },
 }
 
+const s11 = {
+  tr: {
+    title: '🗂️ Test Yazma & Organizasyon',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📚',
+        content: 'Bir test dosyasını bir kitap gibi düşün: describe() bir BÖLÜM başlığıdır, it() o bölümün içindeki bir SAYFA/olaydır. before()/after() bölüme başlarken ve biterken bir kez yapılan ritüellerdir (ışığı aç/kapat); beforeEach()/afterEach() ise her sayfayı okumadan önce/sonra tekrar eden küçük alışkanlıklardır (yer imini koy/kaldır).',
+      },
+      {
+        type: 'text',
+        content: 'Cypress, test yapısı için Mocha\'nın describe/context/it arayüzünü kullanır. describe() ve context() birebir aynıdır, sadece okunabilirlik için ikisi de vardır. Her it() (veya specify()) bağımsız bir test senaryosudur — CLAUDE.md\'deki "her test bağımsız çalışabilmeli" kuralı Cypress\'in resmi dokümantasyonunda da birebir aynı cümleyle geçer.',
+      },
+      {
+        type: 'code', label: 'describe / it / 4 Hook',
+        language: 'javascript',
+        code: `describe('Sepet Sayfası', () => {
+  before(() => cy.task('db:seed'))        // TÜM testlerden önce 1 KEZ
+  beforeEach(() => cy.visit('/cart'))      // HER testten önce
+  afterEach(() => cy.clearCookies())       // HER testten sonra
+  after(() => cy.task('db:teardown'))      // TÜM testlerden sonra 1 KEZ
+
+  it('ürün sepete eklenir', () => { /* ... */ })
+  it('ürün sepetten çıkarılır', () => { /* ... */ })
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Hook', 'Ne zaman çalışır', 'describe başına kaç kez (2 it() ile)'],
+        rows: [
+          ['before()', 'İlk testten önce', '1 kez'],
+          ['beforeEach()', 'Her testten önce', '2 kez'],
+          ['it()', 'Asıl test gövdesi', '2 kez'],
+          ['afterEach()', 'Her testten sonra', '2 kez'],
+          ['after()', 'Son testten sonra', '1 kez'],
+        ],
+      },
+      {
+        type: 'code', label: '.only ve .skip — geliştirme sırasında odaklanma',
+        language: 'javascript',
+        code: `it.only('sadece bu test çalışsın', () => { /* ... */ })  // diğer testler atlanır
+it.skip('bu test şimdilik atlansın', () => { /* ... */ })  // bilinen bug, TODO vb.
+// UYARI: .only commit'te kalırsa CI'da diğer TÜM testler sessizce atlanır!`,
+      },
+      {
+        type: 'code', label: 'Custom Command — Cypress.Commands.add()',
+        language: 'javascript',
+        code: `// cypress/support/commands.js
+Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})
+
+// herhangi bir .cy.js dosyasında
+beforeEach(() => cy.login('qa_user', 'Secret123'))`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'JUnit 5 Hook Anotasyonları vs Cypress Hook Fonksiyonları',
+        java: `@BeforeAll static void seedDb() { /* 1 kez */ }
+@BeforeEach void visitCart() { /* her @Test'ten önce */ }
+@Test void addsItem() { /* ... */ }
+@AfterEach void clearCookies() { /* her @Test'ten sonra */ }
+@AfterAll static void teardown() { /* 1 kez */ }`,
+        typescript: `before(() => cy.task('db:seed'))       // 1 kez
+beforeEach(() => cy.visit('/cart'))     // her it()'ten önce
+it('adds item', () => { /* ... */ })
+afterEach(() => cy.clearCookies())      // her it()'ten sonra
+after(() => cy.task('db:teardown'))     // 1 kez`,
+        why: { tr: 'JUnit 5\'te @BeforeAll/@AfterAll static olmak ZORUNDADIR çünkü sınıf instance\'ından önce çalışır. Cypress\'te before()/after() için böyle bir kısıtlama yoktur ama mantık birebir aynıdır: ikisi de "bütün test grubu için bir kez" çalışır.', en: 'In JUnit 5, @BeforeAll/@AfterAll MUST be static because they run before any class instance exists. Cypress\'s before()/after() have no such restriction, but the logic is identical: both run "once for the whole test group".' },
+        note: { tr: 'Custom command (Cypress.Commands.add) Java dünyasındaki bir "test yardımcı sınıfı" (TestUtils.login()) gibidir — tekrar eden adımları tek bir çağrıya sıkıştırır.', en: 'A custom command (Cypress.Commands.add) is like a Java "test helper class" (TestUtils.login()) — it compresses repeated steps into a single call.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-test-structure',
+        color: '#10b981',
+        title: { tr: 'Hook Çalışma Sırası — Canlı İzle', en: 'Hook Execution Order — Watch Live' },
+        description: { tr: 'İki it() olan bir describe bloğunu çalıştır, hangi hook\'un kaç kez ve hangi sırada tetiklendiğini command log\'da gör.', en: 'Run a describe block with two it()s and watch in the command log which hook fires how many times and in what order.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🗂️',
+        title: { tr: 'Try It Yourself: Hook sırasını doğru diz', en: 'Try It Yourself: Arrange the hooks in the right order' },
+        intro: {
+          tr: 'Aşağıdaki satırlar karışık sırada. Bunları gerçek bir Cypress dosyasında çalışacakları doğru sıraya (before → beforeEach → it → afterEach → after) diz.',
+          en: 'The lines below are in a shuffled order. Arrange them into the order they would actually run in a real Cypress file (before → beforeEach → it → afterEach → after).',
+        },
+        starterCommands: {
+          tr: `after(() => cy.task('db:teardown'))
+it('sepet sayfası açılır', () => { cy.contains('Sepet') })
+beforeEach(() => cy.visit('/cart'))
+afterEach(() => cy.clearCookies())
+before(() => cy.task('db:seed'))`,
+          en: `after(() => cy.task('db:teardown'))
+it('loads the cart page', () => { cy.contains('Cart') })
+beforeEach(() => cy.visit('/cart'))
+afterEach(() => cy.clearCookies())
+before(() => cy.task('db:seed'))`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Tüm testlerden önce 1 kez çalışacak hazırlığı yaz', en: 'Write the one-time setup before all tests' }, pattern: '^before\\(', example: "before(() => cy.task('db:seed'))" },
+          { label: { tr: 'Her testten önce çalışacak hazırlığı yaz', en: 'Write the setup that runs before every test' }, pattern: '^beforeEach\\(', example: "beforeEach(() => cy.visit('/cart'))" },
+          { label: { tr: 'Asıl testi yaz', en: 'Write the actual test' }, pattern: '^it\\(', example: "it('...', () => {...})" },
+          { label: { tr: 'Her testten sonra çalışacak temizliği yaz', en: 'Write the cleanup that runs after every test' }, pattern: '^afterEach\\(', example: "afterEach(() => cy.clearCookies())" },
+          { label: { tr: 'Tüm testlerden sonra 1 kez çalışacak temizliği yaz', en: 'Write the one-time cleanup after all tests' }, pattern: '^after\\(', example: "after(() => cy.task('db:teardown'))" },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: before() → beforeEach() → it() → afterEach() → after(). Bu sıra her describe bloğu için sabittir, kaç it() olursa olsun beforeEach/afterEach her birinin etrafını sarar.',
+          en: 'Correct order: before() → beforeEach() → it() → afterEach() → after(). This order is fixed for every describe block — no matter how many it()s exist, beforeEach/afterEach wrap each one.',
+        },
+        retryOutput: {
+          tr: 'Sıra eksik veya yanlış. before/after sadece 1 kez, beforeEach/afterEach her testin etrafında çalışır — bunları birbirine karıştırma.',
+          en: 'The order is missing or wrong. before/after run only once, beforeEach/afterEach wrap every test — don\'t mix them up.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: '3 it() içeren bir describe bloğunda beforeEach() kaç kez çalışır?', en: 'In a describe block with 3 it()s, how many times does beforeEach() run?' },
+        options: [
+          { id: 'a', text: '1 kez' },
+          { id: 'b', text: '3 kez' },
+          { id: 'c', text: '0 kez, beforeEach otomatik çalışmaz' },
+          { id: 'd', text: '6 kez' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'beforeEach() ismiyle de belirtildiği gibi HER it()\'ten önce çalışır — 3 test varsa 3 kez tetiklenir. before() ise sadece 1 kez, ilk testten önce çalışır.',
+          en: 'As its name says, beforeEach() runs before EVERY it() — with 3 tests it fires 3 times. before(), in contrast, runs only once, before the first test.',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🗂️ Writing & Organizing Tests',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📚',
+        content: "Think of a test file like a book: describe() is a CHAPTER title, it() is a PAGE/event inside that chapter. before()/after() are rituals done once at the start and end of the chapter (turn the light on/off); beforeEach()/afterEach() are small habits repeated before/after reading every page (place/remove a bookmark).",
+      },
+      {
+        type: 'text',
+        content: "Cypress uses Mocha's describe/context/it interface for test structure. describe() and context() are identical — both exist purely for readability. Every it() (or specify()) is an independent test scenario — the rule \"every test must be able to run independently\" appears word-for-word in Cypress's official documentation too.",
+      },
+      {
+        type: 'code', label: 'describe / it / 4 Hooks',
+        language: 'javascript',
+        code: `describe('Cart Page', () => {
+  before(() => cy.task('db:seed'))        // ONCE before ALL tests
+  beforeEach(() => cy.visit('/cart'))      // before EVERY test
+  afterEach(() => cy.clearCookies())       // after EVERY test
+  after(() => cy.task('db:teardown'))      // ONCE after ALL tests
+
+  it('adds item to cart', () => { /* ... */ })
+  it('removes item from cart', () => { /* ... */ })
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Hook', 'When it runs', 'Times per describe (with 2 it()s)'],
+        rows: [
+          ['before()', 'Before the first test', 'Once'],
+          ['beforeEach()', 'Before every test', 'Twice'],
+          ['it()', 'The actual test body', 'Twice'],
+          ['afterEach()', 'After every test', 'Twice'],
+          ['after()', 'After the last test', 'Once'],
+        ],
+      },
+      {
+        type: 'code', label: '.only and .skip — focusing during development',
+        language: 'javascript',
+        code: `it.only('only this test runs', () => { /* ... */ })  // other tests are skipped
+it.skip('skip this for now', () => { /* ... */ })  // known bug, TODO, etc.
+// WARNING: if .only is left in a commit, ALL other tests silently skip in CI!`,
+      },
+      {
+        type: 'code', label: 'Custom Command — Cypress.Commands.add()',
+        language: 'javascript',
+        code: `// cypress/support/commands.js
+Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})
+
+// in any .cy.js file
+beforeEach(() => cy.login('qa_user', 'Secret123'))`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'JUnit 5 Hook Annotations vs Cypress Hook Functions',
+        java: `@BeforeAll static void seedDb() { /* once */ }
+@BeforeEach void visitCart() { /* before every @Test */ }
+@Test void addsItem() { /* ... */ }
+@AfterEach void clearCookies() { /* after every @Test */ }
+@AfterAll static void teardown() { /* once */ }`,
+        typescript: `before(() => cy.task('db:seed'))       // once
+beforeEach(() => cy.visit('/cart'))     // before every it()
+it('adds item', () => { /* ... */ })
+afterEach(() => cy.clearCookies())      // after every it()
+after(() => cy.task('db:teardown'))     // once`,
+        why: { tr: 'JUnit 5\'te @BeforeAll/@AfterAll static olmak ZORUNDADIR çünkü sınıf instance\'ından önce çalışır. Cypress\'te before()/after() için böyle bir kısıtlama yoktur ama mantık birebir aynıdır: ikisi de "bütün test grubu için bir kez" çalışır.', en: "In JUnit 5, @BeforeAll/@AfterAll MUST be static because they run before any class instance exists. Cypress's before()/after() have no such restriction, but the logic is identical: both run \"once for the whole test group\"." },
+        note: { tr: 'Custom command (Cypress.Commands.add) Java dünyasındaki bir "test yardımcı sınıfı" (TestUtils.login()) gibidir.', en: 'A custom command (Cypress.Commands.add) is like a Java "test helper class" (TestUtils.login()) — it compresses repeated steps into a single call.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-test-structure',
+        color: '#10b981',
+        title: { tr: 'Hook Çalışma Sırası — Canlı İzle', en: 'Hook Execution Order — Watch Live' },
+        description: { tr: 'İki it() olan bir describe bloğunu çalıştır, hangi hook\'un kaç kez ve hangi sırada tetiklendiğini command log\'da gör.', en: 'Run a describe block with two it()s and watch in the command log which hook fires how many times and in what order.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🗂️',
+        title: { tr: 'Try It Yourself: Hook sırasını doğru diz', en: 'Try It Yourself: Arrange the hooks in the right order' },
+        intro: {
+          tr: 'Aşağıdaki satırlar karışık sırada. Bunları gerçek bir Cypress dosyasında çalışacakları doğru sıraya (before → beforeEach → it → afterEach → after) diz.',
+          en: 'The lines below are in a shuffled order. Arrange them into the order they would actually run in a real Cypress file (before → beforeEach → it → afterEach → after).',
+        },
+        starterCommands: {
+          tr: `after(() => cy.task('db:teardown'))
+it('sepet sayfası açılır', () => { cy.contains('Sepet') })
+beforeEach(() => cy.visit('/cart'))
+afterEach(() => cy.clearCookies())
+before(() => cy.task('db:seed'))`,
+          en: `after(() => cy.task('db:teardown'))
+it('loads the cart page', () => { cy.contains('Cart') })
+beforeEach(() => cy.visit('/cart'))
+afterEach(() => cy.clearCookies())
+before(() => cy.task('db:seed'))`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Tüm testlerden önce 1 kez çalışacak hazırlığı yaz', en: 'Write the one-time setup before all tests' }, pattern: '^before\\(', example: "before(() => cy.task('db:seed'))" },
+          { label: { tr: 'Her testten önce çalışacak hazırlığı yaz', en: 'Write the setup that runs before every test' }, pattern: '^beforeEach\\(', example: "beforeEach(() => cy.visit('/cart'))" },
+          { label: { tr: 'Asıl testi yaz', en: 'Write the actual test' }, pattern: '^it\\(', example: "it('...', () => {...})" },
+          { label: { tr: 'Her testten sonra çalışacak temizliği yaz', en: 'Write the cleanup that runs after every test' }, pattern: '^afterEach\\(', example: "afterEach(() => cy.clearCookies())" },
+          { label: { tr: 'Tüm testlerden sonra 1 kez çalışacak temizliği yaz', en: 'Write the one-time cleanup after all tests' }, pattern: '^after\\(', example: "after(() => cy.task('db:teardown'))" },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: before() → beforeEach() → it() → afterEach() → after().',
+          en: 'Correct order: before() → beforeEach() → it() → afterEach() → after(). This order is fixed for every describe block — no matter how many it()s exist, beforeEach/afterEach wrap each one.',
+        },
+        retryOutput: {
+          tr: 'Sıra eksik veya yanlış. before/after sadece 1 kez, beforeEach/afterEach her testin etrafında çalışır.',
+          en: "The order is missing or wrong. before/after run only once, beforeEach/afterEach wrap every test — don't mix them up.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: '3 it() içeren bir describe bloğunda beforeEach() kaç kez çalışır?', en: 'In a describe block with 3 it()s, how many times does beforeEach() run?' },
+        options: [
+          { id: 'a', text: 'Once' },
+          { id: 'b', text: '3 times' },
+          { id: 'c', text: "0 times, beforeEach doesn't run automatically" },
+          { id: 'd', text: '6 times' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'beforeEach() ismiyle de belirtildiği gibi HER it()\'ten önce çalışır — 3 test varsa 3 kez tetiklenir.',
+          en: "As its name says, beforeEach() runs before EVERY it() — with 3 tests it fires 3 times. before(), in contrast, runs only once, before the first test.",
+        },
+      },
+    ],
+  },
+}
+
+const s12 = {
+  tr: {
+    title: '🔗 Variables, Aliases & Test Isolation',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📝',
+        content: 'Bir alias (.as()), bir post-it nota benzer: o anki bir bilgiyi yapışkan nota yazıp panoya yapıştırırsın (.as(\'users\')), sonra istediğin an panodan okursun (cy.get(\'@users\')). Test Isolation ise her testten önce masanı tertemiz bir şekilde sıfırlaman gibidir — önceki testin not kağıtları, kahve fincanı (cookie/localStorage) hiçbiri kalmaz.',
+      },
+      {
+        type: 'text',
+        content: 'Cypress komutları asenkrondur, bu yüzden bir komutun sonucunu doğrudan bir değişkene atayamazsın (const email = cy.get(...) ÇALIŞMAZ, çünkü cy.get() henüz bir değer değil bir komut nesnesi döndürür). Sonuca ulaşmak için ya .then() içindeki closure\'ı ya da .as() ile oluşturulan alias\'ı kullanırsın.',
+      },
+      {
+        type: 'code', label: '.then() ile closure — bir kerelik erişim',
+        language: 'javascript',
+        code: `cy.get('button').then(($btn) => {
+  const text = $btn.text()           // o anki DOM değerine erişim
+  cy.get('form').submit()
+  cy.get('button').should(($btn2) => {
+    expect($btn2.text()).not.to.eq(text)   // önceki değerle karşılaştır
+  })
+})`,
+      },
+      {
+        type: 'code', label: '.as() ile alias — tekrar kullanılabilir referans',
+        language: 'javascript',
+        code: `beforeEach(() => {
+  cy.fixture('users.json').as('users')   // alias HER testten önce sıfırlanır
+})
+
+it('ilk kullanıcının adını gösterir', function () {
+  cy.get('header').should('contain', this.users[0].name)
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Yöntem', 'Davranış', 'Ne zaman kullan'],
+        rows: [
+          ['this.alias', 'Statik anlık görüntü — bir kez okunur', 'fixture verisi gibi sabit veriler için'],
+          ["cy.get('@alias')", 'Sorguyu YENİDEN çalıştırır, taze sonuç döner', 'DOM elementi gibi değişebilen şeyler için'],
+          ['.then(($el) => {...})', 'Closure içinde bir kerelik erişim, retry-ability YOK', 'Anlık bir okuma/hesaplama yapmak için'],
+        ],
+      },
+      {
+        type: 'text',
+        content: 'Test Isolation, Cypress\'in varsayılan davranışıdır: her testten önce tarayıcı about:blank\'e gider, tüm cookie/localStorage/sessionStorage temizlenir, alias\'lar/stub\'lar/spy\'lar/clock mock\'ları sıfırlanır. Bu, bir testin diğerini gizlice etkilemesini (flaky test\'lerin en sık nedeni) engeller.',
+      },
+      {
+        type: 'code', label: 'cy.session() — login\'i testler arasında cache\'le',
+        language: 'javascript',
+        code: `// cypress/support/commands.js
+Cypress.Commands.add('login', (username, password) => {
+  cy.session([username, password], () => {
+    cy.visit('/login')
+    cy.get('[data-cy=username]').type(username)
+    cy.get('[data-cy=password]').type(password)
+    cy.get('form').contains('Log In').click()
+  })
+})
+
+// her spec'te
+beforeEach(() => {
+  cy.login('qa_user', 'Secret123')   // 1. test: gerçekten login olur
+  cy.visit('/dashboard')              // 2. test: cache'den anında geri yüklenir
+})`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'Paylaşılan State Riski (TestNG/JUnit) vs Cypress Test Isolation',
+        java: `// JUnit'te dikkatli olmazsan:
+static List<String> sharedCart = new ArrayList<>();  // testler arasında SIZAR
+@Test void test1() { sharedCart.add("item1"); }
+@Test void test2() { /* sharedCart hâlâ item1 içerir! */ }`,
+        typescript: `// Cypress'te varsayılan olarak:
+it('test 1', () => { cy.window().then(w => w.cart = ['item1']) })
+it('test 2', () => {
+  // cookie/localStorage/sessionStorage otomatik temizlendi
+  // window.cart artık YOK — sızıntı imkansız
+})`,
+        why: { tr: 'JUnit/TestNG\'de static/shared değişkenler dikkatsizce kullanılırsa testler arasında state sızar ve testler birbirine bağımlı hale gelir. Cypress bu riski mimari seviyede ortadan kaldırır: her testten önce ZORUNLU olarak about:blank\'e gidip tarayıcı context\'ini sıfırlar.', en: 'In JUnit/TestNG, careless use of static/shared variables leaks state between tests and makes them interdependent. Cypress removes this risk at the architecture level: before every test it FORCIBLY visits about:blank and resets the browser context.' },
+        note: { tr: 'Test isolation performans için kapatılabilir (testIsolation: false) ama bu, JUnit\'teki paylaşılan state riskini geri getirir — sadece bilinçli ve kontrollü senaryolarda kullan.', en: 'Test isolation can be disabled for performance (testIsolation: false), but this brings back the same shared-state risk as JUnit — only use it in deliberate, controlled scenarios.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-session-cache',
+        color: '#a78bfa',
+        title: { tr: 'cy.session() — Login Cache Canlı İzle', en: 'cy.session() — Watch Login Caching Live' },
+        description: { tr: 'İlk test gerçekten login olur ve session\'ı kaydeder; ikinci test login formunu hiç doldurmadan doğrudan dashboard\'a "zıplar".', en: 'The first test really logs in and saves the session; the second test "jumps" straight to the dashboard without ever filling the login form.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🔗',
+        title: { tr: 'Try It Yourself: Alias + session akışını doğru diz', en: 'Try It Yourself: Arrange the alias + session flow' },
+        intro: {
+          tr: 'Bir kullanıcı verisini fixture\'dan alias\'la, sonra login\'i session ile cache\'leyen doğru akışı sırala.',
+          en: 'Sequence the correct flow that aliases a user fixture and then caches the login with a session.',
+        },
+        starterCommands: {
+          tr: `cy.visit('/dashboard')
+cy.login('qa_user', 'Secret123')
+cy.fixture('users.json').as('users')
+cy.get('header').should('contain', this.users[0].name)`,
+          en: `cy.visit('/dashboard')
+cy.login('qa_user', 'Secret123')
+cy.fixture('users.json').as('users')
+cy.get('header').should('contain', this.users[0].name)`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Önce fixture verisini alias\'la', en: 'First alias the fixture data' }, pattern: "^cy\\.fixture\\(", example: "cy.fixture('users.json').as('users')" },
+          { label: { tr: 'Login\'i session ile çağır (cache\'lenir veya geri yüklenir)', en: 'Call login with session (gets cached or restored)' }, pattern: '^cy\\.login\\(', example: "cy.login('qa_user', 'Secret123')" },
+          { label: { tr: 'Sonra hedef sayfayı ziyaret et', en: 'Then visit the target page' }, pattern: '^cy\\.visit\\(', example: "cy.visit('/dashboard')" },
+          { label: { tr: 'Son olarak alias\'lanan veriyle assertion yap', en: 'Finally assert using the aliased data' }, pattern: '^cy\\.get\\(', example: "cy.get('header').should(...)" },
+        ],
+        successOutput: {
+          tr: 'Doğru akış: fixture alias\'landı, login session ile cache\'lendi/geri yüklendi, sayfa ziyaret edildi, alias\'lanan veriyle doğrulama yapıldı.',
+          en: 'Correct flow: fixture aliased, login cached/restored via session, page visited, assertion made using the aliased data.',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — alias ve login, sayfayı ziyaret etmeden ve assertion yapmadan ÖNCE hazır olmalı.',
+          en: 'Order is wrong — the alias and login must be ready BEFORE visiting the page and asserting.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.session() ikinci testte ne yapar?', en: 'What does cy.session() do on the second test?' },
+        options: [
+          { id: 'a', text: 'Login formunu yine doldurur ama daha hızlı yapar' },
+          { id: 'b', text: 'Cache\'lenen tarayıcı context\'ini (cookie/localStorage) geri yükler, login adımlarını tekrar çalıştırmaz' },
+          { id: 'c', text: 'Testi otomatik olarak atlar (skip)' },
+          { id: 'd', text: 'Sadece localStorage\'ı temizler' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'cy.session() aynı parametrelerle (örn. aynı username/password) tekrar çağrıldığında, login fonksiyonunu YENİDEN çalıştırmaz — daha önce kaydedilen tarayıcı context\'ini (cookie, localStorage, sessionStorage) anında geri yükler.',
+          en: 'When cy.session() is called again with the same parameters (e.g. the same username/password), it does NOT re-run the login function — it instantly restores the previously saved browser context (cookies, localStorage, sessionStorage).',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🔗 Variables, Aliases & Test Isolation',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '📝',
+        content: "An alias (.as()) is like a sticky note: you write down a piece of information and stick it on a board (.as('users')), then read it back from the board whenever you need it (cy.get('@users')). Test Isolation is like wiping your desk completely clean before every test — none of the previous test's notes or coffee cups (cookies/localStorage) are left behind.",
+      },
+      {
+        type: 'text',
+        content: "Cypress commands are asynchronous, so you can't assign a command's result directly to a variable (const email = cy.get(...) does NOT work, because cy.get() returns a command object, not a value, at that point). To access the result you use either a closure inside .then(), or an alias created with .as().",
+      },
+      {
+        type: 'code', label: '.then() closure — one-time access',
+        language: 'javascript',
+        code: `cy.get('button').then(($btn) => {
+  const text = $btn.text()           // access the current DOM value
+  cy.get('form').submit()
+  cy.get('button').should(($btn2) => {
+    expect($btn2.text()).not.to.eq(text)   // compare against the previous value
+  })
+})`,
+      },
+      {
+        type: 'code', label: '.as() alias — reusable reference',
+        language: 'javascript',
+        code: `beforeEach(() => {
+  cy.fixture('users.json').as('users')   // aliases reset before EVERY test
+})
+
+it('shows the first user\\'s name', function () {
+  cy.get('header').should('contain', this.users[0].name)
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Method', 'Behavior', 'When to use'],
+        rows: [
+          ['this.alias', 'A static snapshot — read once', 'Fixed data, like fixture content'],
+          ["cy.get('@alias')", 'RE-RUNS the query, returns a fresh result', 'Things that can change, like DOM elements'],
+          ['.then(($el) => {...})', 'One-time access inside a closure, NO retry-ability', 'A one-off read/calculation'],
+        ],
+      },
+      {
+        type: 'text',
+        content: "Test Isolation is Cypress's default behavior: before every test the browser visits about:blank, all cookies/localStorage/sessionStorage are cleared, and aliases/stubs/spies/clock mocks are reset. This prevents one test from secretly affecting another — the most common cause of flaky tests.",
+      },
+      {
+        type: 'code', label: 'cy.session() — cache login across tests',
+        language: 'javascript',
+        code: `// cypress/support/commands.js
+Cypress.Commands.add('login', (username, password) => {
+  cy.session([username, password], () => {
+    cy.visit('/login')
+    cy.get('[data-cy=username]').type(username)
+    cy.get('[data-cy=password]').type(password)
+    cy.get('form').contains('Log In').click()
+  })
+})
+
+// in every spec
+beforeEach(() => {
+  cy.login('qa_user', 'Secret123')   // test 1: really logs in
+  cy.visit('/dashboard')              // test 2: instantly restored from cache
+})`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'Shared State Risk (TestNG/JUnit) vs Cypress Test Isolation',
+        java: `// In JUnit, if you're not careful:
+static List<String> sharedCart = new ArrayList<>();  // LEAKS between tests
+@Test void test1() { sharedCart.add("item1"); }
+@Test void test2() { /* sharedCart still contains item1! */ }`,
+        typescript: `// In Cypress, by default:
+it('test 1', () => { cy.window().then(w => w.cart = ['item1']) })
+it('test 2', () => {
+  // cookies/localStorage/sessionStorage were auto-cleared
+  // window.cart is GONE — leaking is impossible
+})`,
+        why: { tr: "JUnit/TestNG'de static/shared değişkenler dikkatsizce kullanılırsa testler arasında state sızar ve testler birbirine bağımlı hale gelir. Cypress bu riski mimari seviyede ortadan kaldırır.", en: "In JUnit/TestNG, careless use of static/shared variables leaks state between tests and makes them interdependent. Cypress removes this risk at the architecture level: before every test it FORCIBLY visits about:blank and resets the browser context." },
+        note: { tr: "Test isolation performans için kapatılabilir (testIsolation: false) ama bu, JUnit'teki paylaşılan state riskini geri getirir.", en: 'Test isolation can be disabled for performance (testIsolation: false), but this brings back the same shared-state risk as JUnit — only use it in deliberate, controlled scenarios.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-session-cache',
+        color: '#a78bfa',
+        title: { tr: 'cy.session() — Login Cache Canlı İzle', en: 'cy.session() — Watch Login Caching Live' },
+        description: { tr: 'İlk test gerçekten login olur ve session\'ı kaydeder; ikinci test login formunu hiç doldurmadan doğrudan dashboard\'a "zıplar".', en: 'The first test really logs in and saves the session; the second test "jumps" straight to the dashboard without ever filling the login form.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🔗',
+        title: { tr: 'Try It Yourself: Alias + session akışını doğru diz', en: 'Try It Yourself: Arrange the alias + session flow' },
+        intro: {
+          tr: "Bir kullanıcı verisini fixture'dan alias'la, sonra login'i session ile cache'leyen doğru akışı sırala.",
+          en: 'Sequence the correct flow that aliases a user fixture and then caches the login with a session.',
+        },
+        starterCommands: {
+          tr: `cy.visit('/dashboard')
+cy.login('qa_user', 'Secret123')
+cy.fixture('users.json').as('users')
+cy.get('header').should('contain', this.users[0].name)`,
+          en: `cy.visit('/dashboard')
+cy.login('qa_user', 'Secret123')
+cy.fixture('users.json').as('users')
+cy.get('header').should('contain', this.users[0].name)`,
+        },
+        expectedSteps: [
+          { label: { tr: "Önce fixture verisini alias'la", en: 'First alias the fixture data' }, pattern: '^cy\\.fixture\\(', example: "cy.fixture('users.json').as('users')" },
+          { label: { tr: "Login'i session ile çağır (cache'lenir veya geri yüklenir)", en: 'Call login with session (gets cached or restored)' }, pattern: '^cy\\.login\\(', example: "cy.login('qa_user', 'Secret123')" },
+          { label: { tr: 'Sonra hedef sayfayı ziyaret et', en: 'Then visit the target page' }, pattern: '^cy\\.visit\\(', example: "cy.visit('/dashboard')" },
+          { label: { tr: "Son olarak alias'lanan veriyle assertion yap", en: 'Finally assert using the aliased data' }, pattern: '^cy\\.get\\(', example: "cy.get('header').should(...)" },
+        ],
+        successOutput: {
+          tr: "Doğru akış: fixture alias'landı, login session ile cache'lendi/geri yüklendi, sayfa ziyaret edildi, alias'lanan veriyle doğrulama yapıldı.",
+          en: 'Correct flow: fixture aliased, login cached/restored via session, page visited, assertion made using the aliased data.',
+        },
+        retryOutput: {
+          tr: "Sıra yanlış — alias ve login, sayfayı ziyaret etmeden ve assertion yapmadan ÖNCE hazır olmalı.",
+          en: 'Order is wrong — the alias and login must be ready BEFORE visiting the page and asserting.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.session() ikinci testte ne yapar?', en: 'What does cy.session() do on the second test?' },
+        options: [
+          { id: 'a', text: 'It fills the login form again, just faster' },
+          { id: 'b', text: 'It restores the cached browser context (cookies/localStorage) without re-running the login steps' },
+          { id: 'c', text: 'It automatically skips the test' },
+          { id: 'd', text: 'It only clears localStorage' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "cy.session() aynı parametrelerle tekrar çağrıldığında, login fonksiyonunu YENİDEN çalıştırmaz — daha önce kaydedilen tarayıcı context'ini anında geri yükler.",
+          en: "When cy.session() is called again with the same parameters, it does NOT re-run the login function — it instantly restores the previously saved browser context.",
+        },
+      },
+    ],
+  },
+}
+
+const s13 = {
+  tr: {
+    title: '🧩 Component Testing',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔧',
+        content: 'Bütün arabayı pist üzerinde test etmek yerine, direksiyonu tezgaha bağlayıp tek başına test ettiğini düşün: motor, şanzıman, yol — hiçbiri gerekmez, sadece direksiyon doğru dönüyor mu diye bakarsın. Component Testing, tüm uygulamayı (server, router, diğer sayfalar) açmadan SADECE bir tek React/Vue/Angular bileşenini gerçek bir tarayıcıda izole olarak çalıştırmaktır.',
+      },
+      {
+        type: 'text',
+        content: 'cy.mount() komutu, component\'i gerçek bir tarayıcıda (jsdom gibi sahte bir DOM\'da değil) render eder. Bu yüzden Cypress dokümantasyonunun da belirttiği gibi, "component\'leri kullanıcıların göreceği şekilde test edersin" — render gerçek, retry-ability ve auto-wait built-in, waitFor() veya act() yazmana gerek yoktur.',
+      },
+      {
+        type: 'code', label: 'cy.mount() — React Counter Örneği',
+        language: 'javascript',
+        code: `import Counter from './Counter'
+
+describe('<Counter />', () => {
+  it('artı butonuna tıklayınca sayaç artar', () => {
+    cy.mount(<Counter />)
+    cy.get('[data-cy=increment]').click()
+    cy.get('[data-cy=count]').should('have.text', '1')
+  })
+
+  it('onChange event\\'ini doğru değerle tetikler', () => {
+    const onChangeSpy = cy.spy().as('onChangeSpy')
+    cy.mount(<Counter onChange={onChangeSpy} />)
+    cy.get('[data-cy=increment]').click()
+    cy.get('@onChangeSpy').should('have.been.calledWith', 1)
+  })
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['', 'E2E Testing (cy.visit)', 'Component Testing (cy.mount)'],
+        rows: [
+          ['Kapsam', 'Tüm uygulama + server + router', 'Sadece tek bir component'],
+          ['Sunucu gerekir mi?', '✅ Evet, backend çalışmalı', '❌ Hayır, sadece bundler (Vite/Webpack)'],
+          ['Hız', 'Daha yavaş — gerçek navigasyon', 'Çok hızlı — anında render'],
+          ['En iyi kullanım', 'Kullanıcı akışları, entegrasyon', 'Tek bir bileşenin tüm prop/state varyasyonları'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'JUnit + Mockito İzole Servis Testi vs cy.mount() İzole Component Testi',
+        java: `@ExtendWith(MockitoExtension.class)
+class CartServiceTest {
+  @Mock PaymentGateway gateway;   // tüm Spring context'i AYAĞA KALKMAZ
+  @InjectMocks CartService cartService;
+
+  @Test void appliesDiscount() {
+    when(gateway.isValid(any())).thenReturn(true);
+    assertEquals(90, cartService.applyDiscount(100));
+  }
+}`,
+        typescript: `describe('<DiscountBadge />', () => {
+  it('applies discount visually', () => {
+    cy.mount(<DiscountBadge price={100} discount={10} />)
+    // tüm React app/router AYAĞA KALKMAZ, sadece bu component
+    cy.get('[data-cy=final-price]').should('have.text', '90')
+  })
+})`,
+        why: { tr: 'Mockito\'da @Mock ile dış bağımlılıkları (PaymentGateway) sahteleştirip sadece CartService\'i izole edersin — tüm Spring context\'ini ayağa kaldırmadan. cy.mount() de aynı felsefeyle, tüm React/Vue uygulamasını açmadan tek bir component\'i izole eder.', en: 'In Mockito, @Mock fakes out external dependencies (PaymentGateway) so you isolate just CartService — without booting the whole Spring context. cy.mount() follows the same philosophy, isolating a single component without launching the entire React/Vue app.' },
+        note: { tr: 'Component Testing, E2E testlerin YERİNE geçmez — ikisi birbirini tamamlar: component testleri hızlı/izole birim doğrulaması, E2E testleri gerçek kullanıcı akışı doğrulaması yapar.', en: "Component Testing doesn't REPLACE E2E tests — they complement each other: component tests give fast/isolated unit-level verification, E2E tests verify real user flows." },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-component-mount',
+        color: '#10b981',
+        title: { tr: 'cy.mount() — İzole Component Render', en: 'cy.mount() — Isolated Component Render' },
+        description: { tr: 'Run\'a bas: SADECE Counter component\'i (tüm sayfa değil) gerçek tarayıcıda render olur, tıklanınca sayaç artar ve spy çağrısı doğrulanır.', en: 'Click Run: ONLY the Counter component (not the whole page) renders in a real browser, the counter increments on click, and the spy call is verified.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🧩',
+        title: { tr: 'Try It Yourself: Component testing kurulum sırası', en: 'Try It Yourself: Component testing setup order' },
+        intro: {
+          tr: 'cypress open komutundan component testi çalıştırmaya kadar olan adımları doğru sıraya diz.',
+          en: 'Arrange the steps from running cypress open to actually running a component test, in the right order.',
+        },
+        starterCommands: {
+          tr: `cy.mount(<Counter />) ile ilk component testini yaz
+Cypress otomatik olarak React/Vue/Angular'ı algılar
+npx cypress open komutunu çalıştır
+"Component Testing" seçeneğini seç
+Önerilen bağımlılıkları (adapter) kur`,
+          en: `Write the first component test with cy.mount(<Counter />)
+Cypress auto-detects React/Vue/Angular
+Run npx cypress open
+Choose the "Component Testing" option
+Install the suggested dependencies (adapter)`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Cypress\'i aç', en: 'Open Cypress' }, pattern: 'cypress open', example: 'npx cypress open' },
+          { label: { tr: 'Component Testing\'i seç', en: 'Choose Component Testing' }, pattern: 'component testing', example: 'Select "Component Testing"' },
+          { label: { tr: 'Framework otomatik algılansın', en: 'Let the framework auto-detect' }, pattern: 'algılar|detect', example: 'React/Vue/Angular auto-detected' },
+          { label: { tr: 'Bağımlılıkları kur', en: 'Install dependencies' }, pattern: 'bağımlılık|dependenc', example: 'Install adapter dependencies' },
+          { label: { tr: 'İlk component testini yaz', en: 'Write the first component test' }, pattern: 'cy\\.mount', example: 'cy.mount(<Counter />)' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: Cypress aç → Component Testing seç → framework algılansın → bağımlılıkları kur → cy.mount() ile test yaz.',
+          en: 'Correct order: open Cypress → choose Component Testing → let it auto-detect the framework → install dependencies → write a test with cy.mount().',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — kurulum sihirbazı bitmeden cy.mount() yazmaya çalışmak hataya yol açar.',
+          en: 'Order is wrong — trying to write cy.mount() before the setup wizard finishes leads to errors.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.mount() ile cy.visit() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.mount() and cy.visit()?' },
+        options: [
+          { id: 'a', text: 'cy.mount() sadece mobilde çalışır' },
+          { id: 'b', text: 'cy.mount() tek bir component\'i izole render eder, cy.visit() tüm uygulamayı (server dahil) açar' },
+          { id: 'c', text: 'İkisi de aynı şeyi yapar, isim farkı vardır' },
+          { id: 'd', text: 'cy.mount() sadece API testleri için kullanılır' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'cy.mount(), Component Testing\'in temel komutudur: bir tek component\'i bağımsız olarak render eder, backend gerektirmez. cy.visit() ise E2E testte tüm uygulamayı (sunucu, router, tüm sayfa) gerçek bir URL üzerinden açar.',
+          en: 'cy.mount() is the core Component Testing command: it renders a single component independently, with no backend required. cy.visit() in E2E testing loads the entire app (server, router, full page) via a real URL.',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🧩 Component Testing',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔧',
+        content: "Instead of testing a whole car on a track, imagine bolting just the steering wheel to a workbench and testing it alone: no engine, no transmission, no road needed — you only check if the wheel turns correctly. Component Testing means running ONLY a single React/Vue/Angular component in isolation, in a real browser, without launching the entire app (server, router, other pages).",
+      },
+      {
+        type: 'text',
+        content: "The cy.mount() command renders the component in a real browser (not a fake DOM like jsdom). As Cypress's own docs put it, \"you test components exactly as they will behave for your users\" — rendering is real, retry-ability and auto-waiting are built-in, and you never need to write waitFor() or act().",
+      },
+      {
+        type: 'code', label: 'cy.mount() — React Counter Example',
+        language: 'javascript',
+        code: `import Counter from './Counter'
+
+describe('<Counter />', () => {
+  it('increments counter on button click', () => {
+    cy.mount(<Counter />)
+    cy.get('[data-cy=increment]').click()
+    cy.get('[data-cy=count]').should('have.text', '1')
+  })
+
+  it('fires onChange event with the new value', () => {
+    const onChangeSpy = cy.spy().as('onChangeSpy')
+    cy.mount(<Counter onChange={onChangeSpy} />)
+    cy.get('[data-cy=increment]').click()
+    cy.get('@onChangeSpy').should('have.been.calledWith', 1)
+  })
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['', 'E2E Testing (cy.visit)', 'Component Testing (cy.mount)'],
+        rows: [
+          ['Scope', 'Whole app + server + router', 'A single component only'],
+          ['Server required?', '✅ Yes, backend must be running', '❌ No, just a bundler (Vite/Webpack)'],
+          ['Speed', 'Slower — real navigation', 'Very fast — instant render'],
+          ['Best for', 'User flows, integration', 'All prop/state variations of one component'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'JUnit + Mockito Isolated Service Test vs cy.mount() Isolated Component Test',
+        java: `@ExtendWith(MockitoExtension.class)
+class CartServiceTest {
+  @Mock PaymentGateway gateway;   // the WHOLE Spring context does NOT boot
+  @InjectMocks CartService cartService;
+
+  @Test void appliesDiscount() {
+    when(gateway.isValid(any())).thenReturn(true);
+    assertEquals(90, cartService.applyDiscount(100));
+  }
+}`,
+        typescript: `describe('<DiscountBadge />', () => {
+  it('applies discount visually', () => {
+    cy.mount(<DiscountBadge price={100} discount={10} />)
+    // the whole React app/router does NOT boot, only this component
+    cy.get('[data-cy=final-price]').should('have.text', '90')
+  })
+})`,
+        why: { tr: "Mockito'da @Mock ile dış bağımlılıkları sahteleştirip sadece CartService'i izole edersin. cy.mount() de aynı felsefeyle, tüm React/Vue uygulamasını açmadan tek bir component'i izole eder.", en: 'In Mockito, @Mock fakes out external dependencies (PaymentGateway) so you isolate just CartService — without booting the whole Spring context. cy.mount() follows the same philosophy, isolating a single component without launching the entire React/Vue app.' },
+        note: { tr: "Component Testing, E2E testlerin YERİNE geçmez — ikisi birbirini tamamlar.", en: "Component Testing doesn't REPLACE E2E tests — they complement each other: component tests give fast/isolated unit-level verification, E2E tests verify real user flows." },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-component-mount',
+        color: '#10b981',
+        title: { tr: 'cy.mount() — İzole Component Render', en: 'cy.mount() — Isolated Component Render' },
+        description: { tr: 'Run\'a bas: SADECE Counter component\'i (tüm sayfa değil) gerçek tarayıcıda render olur, tıklanınca sayaç artar ve spy çağrısı doğrulanır.', en: 'Click Run: ONLY the Counter component (not the whole page) renders in a real browser, the counter increments on click, and the spy call is verified.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🧩',
+        title: { tr: 'Try It Yourself: Component testing kurulum sırası', en: 'Try It Yourself: Component testing setup order' },
+        intro: {
+          tr: 'cypress open komutundan component testi çalıştırmaya kadar olan adımları doğru sıraya diz.',
+          en: 'Arrange the steps from running cypress open to actually running a component test, in the right order.',
+        },
+        starterCommands: {
+          tr: `cy.mount(<Counter />) ile ilk component testini yaz
+Cypress otomatik olarak React/Vue/Angular'ı algılar
+npx cypress open komutunu çalıştır
+"Component Testing" seçeneğini seç
+Önerilen bağımlılıkları (adapter) kur`,
+          en: `Write the first component test with cy.mount(<Counter />)
+Cypress auto-detects React/Vue/Angular
+Run npx cypress open
+Choose the "Component Testing" option
+Install the suggested dependencies (adapter)`,
+        },
+        expectedSteps: [
+          { label: { tr: "Cypress'i aç", en: 'Open Cypress' }, pattern: 'cypress open', example: 'npx cypress open' },
+          { label: { tr: "Component Testing'i seç", en: 'Choose Component Testing' }, pattern: 'component testing', example: 'Select "Component Testing"' },
+          { label: { tr: 'Framework otomatik algılansın', en: 'Let the framework auto-detect' }, pattern: 'algılar|detect', example: 'React/Vue/Angular auto-detected' },
+          { label: { tr: 'Bağımlılıkları kur', en: 'Install dependencies' }, pattern: 'bağımlılık|dependenc', example: 'Install adapter dependencies' },
+          { label: { tr: 'İlk component testini yaz', en: 'Write the first component test' }, pattern: 'cy\\.mount', example: 'cy.mount(<Counter />)' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: Cypress aç → Component Testing seç → framework algılansın → bağımlılıkları kur → cy.mount() ile test yaz.',
+          en: 'Correct order: open Cypress → choose Component Testing → let it auto-detect the framework → install dependencies → write a test with cy.mount().',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — kurulum sihirbazı bitmeden cy.mount() yazmaya çalışmak hataya yol açar.',
+          en: 'Order is wrong — trying to write cy.mount() before the setup wizard finishes leads to errors.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.mount() ile cy.visit() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.mount() and cy.visit()?' },
+        options: [
+          { id: 'a', text: 'cy.mount() only works on mobile' },
+          { id: 'b', text: 'cy.mount() renders a single component in isolation, cy.visit() loads the whole app including the server' },
+          { id: 'c', text: 'They do the same thing, just with a different name' },
+          { id: 'd', text: 'cy.mount() is only used for API testing' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "cy.mount(), Component Testing'in temel komutudur: bir tek component'i bağımsız olarak render eder. cy.visit() ise E2E testte tüm uygulamayı gerçek bir URL üzerinden açar.",
+          en: "cy.mount() is the core Component Testing command: it renders a single component independently, with no backend required. cy.visit() in E2E testing loads the entire app (server, router, full page) via a real URL.",
+        },
+      },
+    ],
+  },
+}
+
+const s14 = {
+  tr: {
+    title: '🎭 Stubs, Spies, Clock & Fixtures',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎭',
+        content: 'cy.stub(), bir filmdeki DUBLÖR gibidir: orijinal aktör (gerçek fonksiyon) yerine geçer ve sahneyi senin istediğin gibi oynar (sahte cevap döner). cy.spy() ise gizli bir KAMERA gibidir: orijinal aktör normal oynamaya devam eder ama sen her hareketini (her çağrısını, hangi parametrelerle) kayda alırsın.',
+      },
+      {
+        type: 'text',
+        content: 'cy.stub(), bir fonksiyonun davranışını DEĞİŞTİRİR — gerçek kodu çalıştırmadan sahte bir cevap döndürür ya da hata fırlatır. cy.spy() ise fonksiyonun orijinal davranışını KORUR, sadece çağrıldığını ve hangi argümanlarla çağrıldığını izler. Bu ayrım Mockito\'daki mock() vs spy() ayrımının birebir aynısıdır.',
+      },
+      {
+        type: 'code', label: 'cy.stub() — sahte cevap / hata',
+        language: 'javascript',
+        code: `cy.stub(paymentApi, 'charge').returns({ success: true })
+cy.stub(paymentApi, 'charge').rejects(new Error('Gateway timeout'))
+// gerçek ödeme servisi HİÇ çağrılmaz, test kontrollü senaryoyu test eder`,
+      },
+      {
+        type: 'code', label: 'cy.spy() — orijinal davranışı koru, çağrıyı izle',
+        language: 'javascript',
+        code: `cy.spy(user, 'updateEmail')
+cy.get('[data-cy=save]').click()
+cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')
+// updateEmail gerçekten çalıştı, AMA çağrı bilgisi de kaydedildi`,
+      },
+      {
+        type: 'code', label: 'cy.clock() / cy.tick() — sahte zaman',
+        language: 'javascript',
+        code: `cy.clock()                     // gerçek zamanı dondur
+cy.visit('/dashboard')         // setTimeout(loadStats, 5000) tetiklenir ama BEKLEMEZ
+cy.tick(5000)                  // sahte saati 5000ms ileri al
+cy.contains('İstatistikler yüklendi').should('be.visible')
+cy.clock().invoke('restore')   // gerçek zamana geri dön`,
+      },
+      {
+        type: 'code', label: 'cy.fixture() — statik test verisi',
+        language: 'javascript',
+        code: `cy.fixture('users.json').then((users) => {
+  cy.intercept('GET', '/api/users', { body: users })
+})
+// cypress/fixtures/users.json içindeki sahte veri API yanıtı gibi kullanılır`,
+      },
+      {
+        type: 'table',
+        headers: ['Araç', 'Ne yapar', 'Ne zaman kullan'],
+        rows: [
+          ['cy.stub()', 'Davranışı değiştirir, sahte cevap/hata döner', 'Dış servisi (ödeme, 3. parti API) kontrollü test etmek için'],
+          ['cy.spy()', 'Orijinal davranışı korur, çağrıları izler', "Bir fonksiyonun doğru parametrelerle çağrıldığını doğrulamak için"],
+          ['cy.clock()/.tick()', 'Zamanı dondurur/ileri alır', 'setTimeout/setInterval/debounce/throttle test etmek için'],
+          ['cy.fixture()', 'JSON/dosya sabit veri okur', 'cy.intercept() ile birlikte sahte API yanıtı vermek için'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'Mockito mock()/spy() vs Cypress stub()/spy()',
+        java: `PaymentGateway gateway = Mockito.mock(PaymentGateway.class);
+when(gateway.charge(any())).thenReturn(new Result(true));  // stub gibi
+
+UserService realService = new UserService();
+UserService spyService = Mockito.spy(realService);          // spy
+verify(spyService).updateEmail("new@test.com");`,
+        typescript: `cy.stub(paymentApi, 'charge').returns({ success: true })   // mock() gibi
+
+cy.spy(user, 'updateEmail')                                  // spy()
+cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')`,
+        why: { tr: 'Mockito.mock() orijinal davranışı tamamen siler, sahte bir nesne oluşturur — cy.stub() aynı işi yapar. Mockito.spy() ise gerçek nesneyi sarmalar ve çağrıları izlerken orijinal davranışı korur — cy.spy() de birebir aynı mantıkla çalışır.', en: 'Mockito.mock() completely replaces the original behavior with a fake object — cy.stub() does the same job. Mockito.spy() wraps the real object and tracks calls while preserving the original behavior — cy.spy() works with the exact same logic.' },
+        note: { tr: 'Thread.sleep() ile gerçek zaman beklemek yerine cy.clock()/cy.tick() sahte bir zaman makinesi kurar — bu, Java\'da bir zaman kütüphanesini (örn. Clock.fixed()) enjekte etmenin testteki karşılığıdır.', en: "Instead of really waiting with Thread.sleep(), cy.clock()/cy.tick() build a fake time machine — this is the test-world equivalent of injecting a fixed time library (e.g. Clock.fixed()) in Java." },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-stub-clock',
+        color: '#f59e0b',
+        title: { tr: 'cy.clock() + cy.tick() — Zamanı Anında Atla', en: 'cy.clock() + cy.tick() — Skip Time Instantly' },
+        description: { tr: '5 saniyelik bir setTimeout\'u gerçekten beklemeden, sahte saati ileri alarak anında tetikle.', en: 'Trigger a 5-second setTimeout instantly by fast-forwarding the fake clock, without really waiting.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Try It Yourself: stub/spy/clock akışını doğru diz', en: 'Try It Yourself: Arrange the stub/spy/clock flow' },
+        intro: {
+          tr: 'Ödeme servisini stub\'la, kullanıcı güncellemesini spy\'la ve zamanı sahte saatle ileri al — doğru sırayı bul.',
+          en: 'Stub the payment service, spy on the user update, and fast-forward time with the fake clock — find the right order.',
+        },
+        starterCommands: {
+          tr: `cy.tick(5000)
+cy.clock()
+cy.spy(user, 'updateEmail')
+cy.stub(paymentApi, 'charge').returns({ success: true })`,
+          en: `cy.tick(5000)
+cy.clock()
+cy.spy(user, 'updateEmail')
+cy.stub(paymentApi, 'charge').returns({ success: true })`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Önce dış servisi stub\'la', en: 'First stub the external service' }, pattern: '^cy\\.stub\\(', example: "cy.stub(paymentApi, 'charge')..." },
+          { label: { tr: 'İzlenecek fonksiyona spy koy', en: 'Spy on the function to track' }, pattern: '^cy\\.spy\\(', example: "cy.spy(user, 'updateEmail')" },
+          { label: { tr: 'Sahte saati başlat', en: 'Start the fake clock' }, pattern: '^cy\\.clock\\(', example: 'cy.clock()' },
+          { label: { tr: 'Saati ileri al', en: 'Fast-forward the clock' }, pattern: '^cy\\.tick\\(', example: 'cy.tick(5000)' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: stub → spy → clock başlat → tick ile ileri al. cy.clock() her zaman cy.tick()\'ten ÖNCE çağrılmalı.',
+          en: 'Correct order: stub → spy → start clock → tick forward. cy.clock() must always be called BEFORE cy.tick().',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — cy.tick() çağırmadan önce cy.clock() ile saati başlatmadıysan hata alırsın.',
+          en: "Order is wrong — calling cy.tick() before starting the clock with cy.clock() throws an error.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.stub() ile cy.spy() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.stub() and cy.spy()?' },
+        options: [
+          { id: 'a', text: 'İkisi de aynı şeyi yapar' },
+          { id: 'b', text: 'stub() davranışı DEĞİŞTİRİR (sahte cevap döner), spy() orijinal davranışı KORUYUP sadece çağrıları izler' },
+          { id: 'c', text: 'stub() sadece API çağrıları için, spy() sadece DOM olayları için kullanılır' },
+          { id: 'd', text: 'spy() asenkron, stub() senkrondur' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'cy.stub() bir fonksiyonun gerçek çalışmasını tamamen ENGELLER ve senin verdiğin sahte cevabı/hatayı döner. cy.spy() ise fonksiyonun gerçek çalışmasına izin verir, sadece hangi parametrelerle ve kaç kez çağrıldığını kaydeder.',
+          en: 'cy.stub() completely PREVENTS a function from really running and returns the fake response/error you provide. cy.spy() lets the function run normally, just recording which arguments it was called with and how many times.',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🎭 Stubs, Spies, Clock & Fixtures',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎭',
+        content: "cy.stub() is like a STUNT DOUBLE in a movie: it stands in for the original actor (the real function) and plays the scene however you tell it to (returns a fake response). cy.spy() is like a hidden CAMERA: the original actor keeps performing normally, but you record every move it makes (every call, with what arguments).",
+      },
+      {
+        type: 'text',
+        content: "cy.stub() CHANGES a function's behavior — it returns a fake response or throws an error without running the real code. cy.spy() PRESERVES the function's original behavior, only tracking that it was called and with which arguments. This distinction is exactly the same as Mockito's mock() vs spy().",
+      },
+      {
+        type: 'code', label: 'cy.stub() — fake response / error',
+        language: 'javascript',
+        code: `cy.stub(paymentApi, 'charge').returns({ success: true })
+cy.stub(paymentApi, 'charge').rejects(new Error('Gateway timeout'))
+// the real payment service is NEVER called, you test a controlled scenario`,
+      },
+      {
+        type: 'code', label: 'cy.spy() — keep original behavior, track the call',
+        language: 'javascript',
+        code: `cy.spy(user, 'updateEmail')
+cy.get('[data-cy=save]').click()
+cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')
+// updateEmail really ran, BUT the call info was also recorded`,
+      },
+      {
+        type: 'code', label: 'cy.clock() / cy.tick() — fake time',
+        language: 'javascript',
+        code: `cy.clock()                     // freeze real time
+cy.visit('/dashboard')         // setTimeout(loadStats, 5000) is scheduled but does NOT wait
+cy.tick(5000)                  // fast-forward the fake clock by 5000ms
+cy.contains('Stats loaded').should('be.visible')
+cy.clock().invoke('restore')   // go back to real time`,
+      },
+      {
+        type: 'code', label: 'cy.fixture() — static test data',
+        language: 'javascript',
+        code: `cy.fixture('users.json').then((users) => {
+  cy.intercept('GET', '/api/users', { body: users })
+})
+// the fake data in cypress/fixtures/users.json is used as the API response`,
+      },
+      {
+        type: 'table',
+        headers: ['Tool', 'What it does', 'When to use'],
+        rows: [
+          ['cy.stub()', 'Changes behavior, returns a fake response/error', 'Controlled testing of an external service (payment, 3rd-party API)'],
+          ['cy.spy()', 'Preserves original behavior, tracks calls', 'Verifying a function was called with the right arguments'],
+          ['cy.clock()/.tick()', 'Freezes/fast-forwards time', 'Testing setTimeout/setInterval/debounce/throttle'],
+          ['cy.fixture()', 'Reads static JSON/file data', 'Providing a fake API response together with cy.intercept()'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'Mockito mock()/spy() vs Cypress stub()/spy()',
+        java: `PaymentGateway gateway = Mockito.mock(PaymentGateway.class);
+when(gateway.charge(any())).thenReturn(new Result(true));  // like a stub
+
+UserService realService = new UserService();
+UserService spyService = Mockito.spy(realService);          // spy
+verify(spyService).updateEmail("new@test.com");`,
+        typescript: `cy.stub(paymentApi, 'charge').returns({ success: true })   // like mock()
+
+cy.spy(user, 'updateEmail')                                  // spy()
+cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')`,
+        why: { tr: "Mockito.mock() orijinal davranışı tamamen siler, sahte bir nesne oluşturur — cy.stub() aynı işi yapar. Mockito.spy() ise gerçek nesneyi sarmalar.", en: 'Mockito.mock() completely replaces the original behavior with a fake object — cy.stub() does the same job. Mockito.spy() wraps the real object and tracks calls while preserving the original behavior — cy.spy() works with the exact same logic.' },
+        note: { tr: "Thread.sleep() ile gerçek zaman beklemek yerine cy.clock()/cy.tick() sahte bir zaman makinesi kurar.", en: "Instead of really waiting with Thread.sleep(), cy.clock()/cy.tick() build a fake time machine — this is the test-world equivalent of injecting a fixed time library (e.g. Clock.fixed()) in Java." },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-stub-clock',
+        color: '#f59e0b',
+        title: { tr: 'cy.clock() + cy.tick() — Zamanı Anında Atla', en: 'cy.clock() + cy.tick() — Skip Time Instantly' },
+        description: { tr: '5 saniyelik bir setTimeout\'u gerçekten beklemeden, sahte saati ileri alarak anında tetikle.', en: 'Trigger a 5-second setTimeout instantly by fast-forwarding the fake clock, without really waiting.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🎭',
+        title: { tr: 'Try It Yourself: stub/spy/clock akışını doğru diz', en: 'Try It Yourself: Arrange the stub/spy/clock flow' },
+        intro: {
+          tr: "Ödeme servisini stub'la, kullanıcı güncellemesini spy'la ve zamanı sahte saatle ileri al — doğru sırayı bul.",
+          en: 'Stub the payment service, spy on the user update, and fast-forward time with the fake clock — find the right order.',
+        },
+        starterCommands: {
+          tr: `cy.tick(5000)
+cy.clock()
+cy.spy(user, 'updateEmail')
+cy.stub(paymentApi, 'charge').returns({ success: true })`,
+          en: `cy.tick(5000)
+cy.clock()
+cy.spy(user, 'updateEmail')
+cy.stub(paymentApi, 'charge').returns({ success: true })`,
+        },
+        expectedSteps: [
+          { label: { tr: "Önce dış servisi stub'la", en: 'First stub the external service' }, pattern: '^cy\\.stub\\(', example: "cy.stub(paymentApi, 'charge')..." },
+          { label: { tr: 'İzlenecek fonksiyona spy koy', en: 'Spy on the function to track' }, pattern: '^cy\\.spy\\(', example: "cy.spy(user, 'updateEmail')" },
+          { label: { tr: 'Sahte saati başlat', en: 'Start the fake clock' }, pattern: '^cy\\.clock\\(', example: 'cy.clock()' },
+          { label: { tr: 'Saati ileri al', en: 'Fast-forward the clock' }, pattern: '^cy\\.tick\\(', example: 'cy.tick(5000)' },
+        ],
+        successOutput: {
+          tr: "Doğru sıra: stub → spy → clock başlat → tick ile ileri al.",
+          en: 'Correct order: stub → spy → start clock → tick forward. cy.clock() must always be called BEFORE cy.tick().',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — cy.tick() çağırmadan önce cy.clock() ile saati başlatmadıysan hata alırsın.',
+          en: "Order is wrong — calling cy.tick() before starting the clock with cy.clock() throws an error.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cy.stub() ile cy.spy() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.stub() and cy.spy()?' },
+        options: [
+          { id: 'a', text: 'They do the same thing' },
+          { id: 'b', text: 'stub() CHANGES behavior (returns a fake response), spy() PRESERVES original behavior and only tracks calls' },
+          { id: 'c', text: 'stub() is only for API calls, spy() is only for DOM events' },
+          { id: 'd', text: 'spy() is asynchronous, stub() is synchronous' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'cy.stub() bir fonksiyonun gerçek çalışmasını tamamen ENGELLER. cy.spy() ise fonksiyonun gerçek çalışmasına izin verir, sadece çağrıyı kaydeder.',
+          en: 'cy.stub() completely PREVENTS a function from really running and returns the fake response/error you provide. cy.spy() lets the function run normally, just recording which arguments it was called with and how many times.',
+        },
+      },
+    ],
+  },
+}
+
+const s15 = {
+  tr: {
+    title: '🐞 Debugging & Selector Playground',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔍',
+        content: 'Bir dedektif gibi düşün: cy.pause(), olay yerinde donup her ipucunu tek tek incelemektir. cy.debug(), eldivenle tuttuğun kanıtı (DOM elementini) doğrudan büyüteç altına (DevTools console\'a) koymaktır. Selector Playground ise dedektifin parmak izi tarama cihazıdır — bir şeye dokunur dokunmaz, onu tekilce tanımlayan "parmak izini" (selector\'ı) anında verir.',
+      },
+      {
+        type: 'text',
+        content: 'Cypress\'in en büyük debugging avantajı, her komuttan sonra otomatik DOM snapshot\'ı almasıdır — bu yüzden çoğu zaman ekstra log/debug kodu YAZMADAN, sadece Command Log\'da geçmiş bir adıma tıklayarak (time-travel) neyin yanlış gittiğini görürsün. Ekstra araçlar gerektiğinde ise cy.debug(), cy.pause() ve Selector Playground devreye girer.',
+      },
+      {
+        type: 'code', label: 'cy.debug() ve cy.pause()',
+        language: 'javascript',
+        code: `cy.get('[data-cy=total]').debug()
+// → DevTools console'a "Current subject" olarak $total jQuery elementini yazar
+
+cy.get('[data-cy=checkout]').click()
+cy.pause()
+// → test burada DURUR, "Resume" tuşuna basana kadar DOM'u serbestçe incele
+cy.get('[data-cy=confirmation]').should('be.visible')`,
+      },
+      {
+        type: 'code', label: 'debugger ile .then() içinde breakpoint',
+        language: 'javascript',
+        code: `cy.get('[data-cy=price]').then(($el) => {
+  debugger   // DevTools açıksa burada gerçek bir breakpoint olur
+  const price = parseFloat($el.text())
+  expect(price).to.be.greaterThan(0)
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Araç', 'Ne işe yarar', 'Ne zaman kullan'],
+        rows: [
+          ['Time-Travel (Command Log)', 'Her komutun otomatik DOM snapshot\'ı', 'İlk başvurulacak yer — ekstra kod yazmadan geçmişi gör'],
+          ['cy.debug()', 'O anki subject\'i DevTools console\'a yazar', 'Bir elementin/değerin o anki halini hızlıca incelemek için'],
+          ['cy.pause()', 'Testi tamamen durdurur, adım adım ilerletirsin', 'Karmaşık bir akışı yavaşça izlemek için'],
+          ['Selector Playground (🎯)', 'Tıkladığın elemanın en iyi selector\'ını ve eşleşme sayısını gösterir', 'Doğru/kırılmaz selector bulmak için'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'System.out.println / Breakpoint Debugging vs Cypress Time-Travel',
+        java: `// IntelliJ'de breakpoint koyup Debug modunda çalıştırırsın
+System.out.println("price = " + price);  // veya
+// Debugger: Step Over / Step Into ile değişkenleri incelersin`,
+        typescript: `// Cypress'te genelde EKSTRA kod yazmadan:
+// Command Log'da geçmiş bir adıma tıkla → o anki DOM otomatik geri gelir
+cy.get('[data-cy=price]').debug()   // gerektiğinde DevTools'a yaz`,
+        why: { tr: 'Java\'da debug yapmak için kodu DURDURMAN (breakpoint) veya ekstra println satırları eklemen gerekir. Cypress\'te test zaten her adımda bir "snapshot" bıraktığı için, çoğu debugging ekstra kod yazmadan Command Log\'da geriye tıklayarak yapılır — bu "time-travel debugging" Selenium/Java dünyasında YOKTUR.', en: "In Java, debugging requires STOPPING the code (a breakpoint) or adding extra println lines. In Cypress, since the test already leaves a \"snapshot\" at every step, most debugging happens by clicking backward in the Command Log without writing extra code — this \"time-travel debugging\" doesn't exist in the Selenium/Java world." },
+        note: { tr: 'CI\'da flaky bir test mi var? Cypress Cloud\'un "Test Replay" özelliği, testi CI\'da TAM OLARAK çalıştığı haliyle tekrar oynatır — local\'de tekrar üretmeye çalışmak yerine doğrudan CI çalışmasını izlersin.', en: 'Got a flaky test in CI? Cypress Cloud\'s "Test Replay" feature replays the test EXACTLY as it ran in CI — instead of trying to reproduce it locally, you watch the actual CI run directly.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-selector-playground',
+        color: '#f59e0b',
+        title: { tr: 'Selector Playground — Gerçek Cypress Aracı', en: 'Selector Playground — The Real Cypress Tool' },
+        description: { tr: 'Mini bir uygulama önizlemesinde bir elemana tıkla, Cypress\'in önerdiği en iyi selector\'ı ve kaç eşleşme bulduğunu canlı gör.', en: 'Click an element in the mini app preview and see live which selector Cypress recommends and how many matches it found.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🐞',
+        title: { tr: 'Try It Yourself: Doğru debugging sırası', en: 'Try It Yourself: The right debugging order' },
+        intro: {
+          tr: 'Flaky/başarısız bir testte uygulanacak doğru debugging adımlarını sırala — rastgele kod eklemek yerine sistematik ilerle.',
+          en: 'Sequence the correct debugging steps for a flaky/failing test — proceed systematically instead of adding random code.',
+        },
+        starterCommands: {
+          tr: `cy.debug() veya cy.pause() ekle, DOM'u canlı incele
+Hata mesajını ve hangi komutta patladığını oku
+Command Log'da hatadan önceki adımlara tıkla (time-travel)
+Sorunu düzelt, debug/pause satırlarını KALDIR
+Testi tekrar çalıştırıp doğrula`,
+          en: `Add cy.debug() or cy.pause(), inspect the DOM live
+Read the error message and which command it failed on
+Click the steps before the failure in the Command Log (time-travel)
+Fix the issue, REMOVE the debug/pause lines
+Re-run the test to confirm`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Önce hata mesajını oku', en: 'First read the error message' }, pattern: 'hata mesaj|error message', example: 'Read the error message' },
+          { label: { tr: 'Command Log\'da time-travel yap', en: 'Time-travel in the Command Log' }, pattern: 'time-travel|command log', example: 'Click previous steps in the log' },
+          { label: { tr: 'Gerekirse debug/pause ekle', en: 'Add debug/pause if needed' }, pattern: 'debug\\(\\)|pause\\(\\)', example: 'cy.debug() / cy.pause()' },
+          { label: { tr: 'Sorunu düzelt ve debug satırlarını kaldır', en: 'Fix the issue and remove debug lines' }, pattern: 'kaldır|remove', example: 'Remove debug/pause lines' },
+          { label: { tr: 'Testi tekrar çalıştır', en: 'Re-run the test' }, pattern: 'tekrar çalış|re-run', example: 'Run the test again' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: önce hatayı oku → time-travel ile geçmişi incele → gerekirse debug/pause ekle → düzelt ve debug kodunu kaldır → tekrar çalıştır.',
+          en: 'Correct order: read the error first → inspect history via time-travel → add debug/pause if needed → fix and remove the debug code → re-run.',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — debug/pause satırlarını commit\'te bırakmak veya hatayı okumadan rastgele kod eklemek zaman kaybettirir.',
+          en: 'Order is wrong — leaving debug/pause lines in a commit, or adding random code without reading the error, wastes time.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Selector Playground bir elemana tıklandığında ne gösterir?', en: 'What does the Selector Playground show when you click an element?' },
+        options: [
+          { id: 'a', text: 'Elementin sadece rengini' },
+          { id: 'b', text: 'Cypress\'in önerdiği en iyi selector\'ı ve sayfada kaç eşleşme bulduğunu' },
+          { id: 'c', text: 'Elementin network isteğini' },
+          { id: 'd', text: 'Sadece elementin XPath\'ini' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Selector Playground, tıkladığın elemanı analiz eder ve en güvenilir selector önerisini (varsa data-cy, yoksa diğer öznitelikler) kaç eşleşme bulduğu bilgisiyle birlikte gösterir — 1 eşleşme idealdir, daha fazlası kırılgan bir selector\'a işaret eder.',
+          en: 'The Selector Playground analyzes the element you clicked and shows the most reliable selector suggestion (data-cy if available, otherwise other attributes) along with how many matches it found — 1 match is ideal, more than that signals a fragile selector.',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🐞 Debugging & Selector Playground',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🔍',
+        content: "Think like a detective: cy.pause() freezes the scene so you can examine every clue one by one. cy.debug() puts the evidence you're holding (the DOM element) directly under a magnifying glass (the DevTools console). The Selector Playground is the detective's fingerprint scanner — the moment you touch something, it instantly gives you the \"fingerprint\" (selector) that uniquely identifies it.",
+      },
+      {
+        type: 'text',
+        content: "Cypress's biggest debugging advantage is that it automatically snapshots the DOM after every command — so most of the time, WITHOUT writing extra log/debug code, you can just click a past step in the Command Log (time-travel) to see what went wrong. When extra tools are needed, cy.debug(), cy.pause(), and the Selector Playground come into play.",
+      },
+      {
+        type: 'code', label: 'cy.debug() and cy.pause()',
+        language: 'javascript',
+        code: `cy.get('[data-cy=total]').debug()
+// → prints the $total jQuery element to DevTools console as "Current subject"
+
+cy.get('[data-cy=checkout]').click()
+cy.pause()
+// → the test STOPS here, freely inspect the DOM until you click "Resume"
+cy.get('[data-cy=confirmation]').should('be.visible')`,
+      },
+      {
+        type: 'code', label: 'A breakpoint inside .then() with debugger',
+        language: 'javascript',
+        code: `cy.get('[data-cy=price]').then(($el) => {
+  debugger   // becomes a real breakpoint if DevTools is open
+  const price = parseFloat($el.text())
+  expect(price).to.be.greaterThan(0)
+})`,
+      },
+      {
+        type: 'table',
+        headers: ['Tool', 'What it does', 'When to use'],
+        rows: [
+          ['Time-Travel (Command Log)', 'Automatic DOM snapshot for every command', 'The first place to look — see the past without writing extra code'],
+          ['cy.debug()', 'Prints the current subject to the DevTools console', 'Quickly inspecting the current state of an element/value'],
+          ['cy.pause()', 'Fully stops the test, step through it manually', 'Slowly watching a complex flow'],
+          ['Selector Playground (🎯)', 'Shows the best selector and match count for the clicked element', 'Finding a correct, non-brittle selector'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'System.out.println / Breakpoint Debugging vs Cypress Time-Travel',
+        java: `// In IntelliJ you set a breakpoint and run in Debug mode
+System.out.println("price = " + price);  // or
+// Debugger: inspect variables with Step Over / Step Into`,
+        typescript: `// In Cypress, usually WITHOUT extra code:
+// click a past step in the Command Log → the DOM at that moment comes back automatically
+cy.get('[data-cy=price]').debug()   // log to DevTools when needed`,
+        why: { tr: "Java'da debug yapmak için kodu DURDURMAN veya ekstra println satırları eklemen gerekir. Cypress'te test zaten her adımda bir snapshot bıraktığı için, çoğu debugging Command Log'da geriye tıklayarak yapılır.", en: "In Java, debugging requires STOPPING the code (a breakpoint) or adding extra println lines. In Cypress, since the test already leaves a \"snapshot\" at every step, most debugging happens by clicking backward in the Command Log without writing extra code — this \"time-travel debugging\" doesn't exist in the Selenium/Java world." },
+        note: { tr: 'CI\'da flaky bir test mi var? Cypress Cloud\'un "Test Replay" özelliği testi CI\'da tam olarak çalıştığı haliyle tekrar oynatır.', en: 'Got a flaky test in CI? Cypress Cloud\'s "Test Replay" feature replays the test EXACTLY as it ran in CI — instead of trying to reproduce it locally, you watch the actual CI run directly.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-selector-playground',
+        color: '#f59e0b',
+        title: { tr: 'Selector Playground — Gerçek Cypress Aracı', en: 'Selector Playground — The Real Cypress Tool' },
+        description: { tr: 'Mini bir uygulama önizlemesinde bir elemana tıkla, Cypress\'in önerdiği en iyi selector\'ı ve kaç eşleşme bulduğunu canlı gör.', en: 'Click an element in the mini app preview and see live which selector Cypress recommends and how many matches it found.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🐞',
+        title: { tr: 'Try It Yourself: Doğru debugging sırası', en: 'Try It Yourself: The right debugging order' },
+        intro: {
+          tr: 'Flaky/başarısız bir testte uygulanacak doğru debugging adımlarını sırala.',
+          en: 'Sequence the correct debugging steps for a flaky/failing test — proceed systematically instead of adding random code.',
+        },
+        starterCommands: {
+          tr: `cy.debug() veya cy.pause() ekle, DOM'u canlı incele
+Hata mesajını ve hangi komutta patladığını oku
+Command Log'da hatadan önceki adımlara tıkla (time-travel)
+Sorunu düzelt, debug/pause satırlarını KALDIR
+Testi tekrar çalıştırıp doğrula`,
+          en: `Add cy.debug() or cy.pause(), inspect the DOM live
+Read the error message and which command it failed on
+Click the steps before the failure in the Command Log (time-travel)
+Fix the issue, REMOVE the debug/pause lines
+Re-run the test to confirm`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Önce hata mesajını oku', en: 'First read the error message' }, pattern: 'hata mesaj|error message', example: 'Read the error message' },
+          { label: { tr: "Command Log'da time-travel yap", en: 'Time-travel in the Command Log' }, pattern: 'time-travel|command log', example: 'Click previous steps in the log' },
+          { label: { tr: 'Gerekirse debug/pause ekle', en: 'Add debug/pause if needed' }, pattern: 'debug\\(\\)|pause\\(\\)', example: 'cy.debug() / cy.pause()' },
+          { label: { tr: 'Sorunu düzelt ve debug satırlarını kaldır', en: 'Fix the issue and remove debug lines' }, pattern: 'kaldır|remove', example: 'Remove debug/pause lines' },
+          { label: { tr: 'Testi tekrar çalıştır', en: 'Re-run the test' }, pattern: 'tekrar çalış|re-run', example: 'Run the test again' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: önce hatayı oku → time-travel ile geçmişi incele → gerekirse debug/pause ekle → düzelt ve debug kodunu kaldır → tekrar çalıştır.',
+          en: 'Correct order: read the error first → inspect history via time-travel → add debug/pause if needed → fix and remove the debug code → re-run.',
+        },
+        retryOutput: {
+          tr: "Sıra yanlış — debug/pause satırlarını commit'te bırakmak zaman kaybettirir.",
+          en: 'Order is wrong — leaving debug/pause lines in a commit, or adding random code without reading the error, wastes time.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Selector Playground bir elemana tıklandığında ne gösterir?', en: 'What does the Selector Playground show when you click an element?' },
+        options: [
+          { id: 'a', text: "Only the element's color" },
+          { id: 'b', text: "Cypress's recommended best selector and how many matches it found on the page" },
+          { id: 'c', text: "The element's network request" },
+          { id: 'd', text: "Only the element's XPath" },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Selector Playground, tıkladığın elemanı analiz eder ve en güvenilir selector önerisini kaç eşleşme bulduğu bilgisiyle birlikte gösterir.',
+          en: 'The Selector Playground analyzes the element you clicked and shows the most reliable selector suggestion along with how many matches it found — 1 match is ideal, more than that signals a fragile selector.',
+        },
+      },
+    ],
+  },
+}
+
+const s16 = {
+  tr: {
+    title: '⚙️ CI/CD & Cross Browser Testing',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎻',
+        content: 'Bir orkestra şefini düşün: tek bir kemancıyı dinlemek yerine, 3 farklı enstrüman grubunu (Chrome, Firefox, Edge) AYNI ANDA çalıştırır ve hepsinin uyumlu çaldığından emin olur. CI/CD\'de cypress run, testlerini "konser günü" (her push/PR\'da) otomatik ve paralel olarak farklı tarayıcılarda çalıştıran şeftir.',
+      },
+      {
+        type: 'text',
+        content: 'cypress open interaktif Test Runner\'ı açar — geliştirme sırasında kullanılır. cypress run ise headless (görünmez tarayıcı) modda çalışır ve CI ortamları için tasarlanmıştır. --browser bayrağıyla hangi tarayıcıda çalışacağı seçilir: chrome, firefox, edge veya electron (varsayılan).',
+      },
+      {
+        type: 'code', label: 'GitHub Actions — temel Cypress workflow',
+        language: 'yaml',
+        code: `# .github/workflows/cypress.yml
+name: Cypress Tests
+on: push
+jobs:
+  cypress-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cypress-io/github-action@v7
+        with:
+          build: npm run build
+          start: npm start`,
+      },
+      {
+        type: 'code', label: 'Cross Browser Matrix — 3 tarayıcıda paralel',
+        language: 'yaml',
+        code: `strategy:
+  matrix:
+    browser: [chrome, firefox, edge]
+steps:
+  - uses: cypress-io/github-action@v7
+    with:
+      browser: \${{ matrix.browser }}
+      record: true        # Cypress Cloud'a kaydet
+      parallel: true       # birden çok job arasında testleri böl
+      group: 'UI-\${{ matrix.browser }}'`,
+      },
+      {
+        type: 'table',
+        headers: ['Komut/Kavram', 'Açıklama', 'Ne zaman kullanılır'],
+        rows: [
+          ['cypress open', 'İnteraktif Test Runner', 'Yerel geliştirme sırasında'],
+          ['cypress run', 'Headless, script edilebilir çalıştırma', 'CI/CD pipeline\'ında'],
+          ['--browser chrome/firefox/edge', 'Hedef tarayıcıyı seçer', 'Cross-browser doğrulama gerektiğinde'],
+          ['parallel: true + matrix', 'Testleri birden fazla job\'a böler', 'Test süresini kısaltmak için (büyük test suite)'],
+          ['record: true', 'Sonuçları Cypress Cloud\'a gönderir', 'Flaky test analizi, PR check, geçmiş raporlar için'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'Maven Surefire Paralel Çalıştırma vs Cypress Parallel/Matrix',
+        java: `<!-- pom.xml -->
+<plugin>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <configuration>
+    <parallel>methods</parallel>
+    <forkCount>4</forkCount>     <!-- 4 JVM process paralel -->
+  </configuration>
+</plugin>`,
+        typescript: `# .github/workflows/cypress.yml
+strategy:
+  matrix:
+    containers: [1, 2, 3, 4]   # 4 ayrı CI job paralel
+steps:
+  - uses: cypress-io/github-action@v7
+    with: { record: true, parallel: true }`,
+        why: { tr: 'Maven Surefire\'da forkCount ile aynı makinede birden fazla JVM process\'i paralel çalıştırırsın. Cypress\'te paralelleştirme CI seviyesinde olur — her "container" ayrı bir CI job\'ıdır ve Cypress Cloud, hangi test dosyasının hangi job\'a gideceğini akıllıca dengeler (load balancing).', en: 'In Maven Surefire, forkCount runs multiple JVM processes in parallel on the same machine. In Cypress, parallelization happens at the CI level — each "container" is a separate CI job, and Cypress Cloud intelligently load-balances which spec file goes to which job.' },
+        note: { tr: 'group parametresi, farklı tarayıcı/job\'ların sonuçlarını Cypress Cloud\'da TEK bir raporda birleştirir — Maven\'daki test raporu agregasyonunun (Surefire reports merge) karşılığıdır.', en: "The group parameter merges results from different browsers/jobs into a SINGLE report in Cypress Cloud — the equivalent of merging Surefire test reports in Maven." },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-ci-pipeline',
+        color: '#10b981',
+        title: { tr: 'GitHub Actions — 3 Tarayıcıda Paralel Run', en: 'GitHub Actions — Parallel Run Across 3 Browsers' },
+        description: { tr: 'Bir push\'un checkout → install → Chrome/Firefox/Edge\'de paralel cypress run → Cypress Cloud kaydı akışını canlı izle.', en: 'Watch a push trigger checkout → install → parallel cypress run on Chrome/Firefox/Edge → Cypress Cloud recording, live.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '⚙️',
+        title: { tr: 'Try It Yourself: CI pipeline adımlarını doğru diz', en: 'Try It Yourself: Arrange the CI pipeline steps' },
+        intro: {
+          tr: 'Bir push olayından Cypress Cloud raporuna kadar olan CI adımlarını doğru sıraya diz.',
+          en: 'Arrange the CI steps from a push event to the Cypress Cloud report, in the right order.',
+        },
+        starterCommands: {
+          tr: `cypress-io/github-action ile cypress run --browser chrome/firefox/edge çalıştır
+git push ile workflow tetiklenir
+actions/checkout ile kodu indir
+record: true ile Cypress Cloud'a sonuçları gönder
+npm ci ile bağımlılıkları kur`,
+          en: `Run cypress run --browser chrome/firefox/edge via cypress-io/github-action
+git push triggers the workflow
+Download the code with actions/checkout
+Send results to Cypress Cloud with record: true
+Install dependencies with npm ci`,
+        },
+        expectedSteps: [
+          { label: { tr: 'Workflow\'u tetikle', en: 'Trigger the workflow' }, pattern: 'push|trigger', example: 'git push' },
+          { label: { tr: 'Kodu checkout et', en: 'Checkout the code' }, pattern: 'checkout', example: 'actions/checkout@v6' },
+          { label: { tr: 'Bağımlılıkları kur', en: 'Install dependencies' }, pattern: 'npm ci|bağımlılık', example: 'npm ci' },
+          { label: { tr: 'Cypress\'i tarayıcı bayrağıyla çalıştır', en: 'Run Cypress with the browser flag' }, pattern: 'cypress run|--browser', example: 'cypress run --browser chrome' },
+          { label: { tr: 'Sonuçları Cypress Cloud\'a kaydet', en: 'Record results to Cypress Cloud' }, pattern: 'record|cloud', example: 'record: true' },
+        ],
+        successOutput: {
+          tr: 'Doğru sıra: push tetikler → checkout → bağımlılıkları kur → cypress run --browser ile çalıştır → Cypress Cloud\'a kaydet.',
+          en: 'Correct order: push triggers → checkout → install dependencies → run cypress run --browser → record to Cypress Cloud.',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — checkout/bağımlılık kurulumu olmadan cypress run çalıştırmaya çalışmak CI\'da hata verir.',
+          en: 'Order is wrong — trying to run cypress run without checkout/dependency install fails in CI.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cypress run --browser firefox komutu CI\'da ne yapar?', en: 'What does cypress run --browser firefox do in CI?' },
+        options: [
+          { id: 'a', text: 'İnteraktif Test Runner\'ı Firefox\'ta açar' },
+          { id: 'b', text: 'Testleri Firefox\'ta headless modda, script edilebilir şekilde çalıştırır' },
+          { id: 'c', text: 'Sadece Firefox eklentilerini test eder' },
+          { id: 'd', text: 'Testleri yavaşlatır' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '--browser bayrağı, cypress run\'ın hangi tarayıcı motorunu headless modda kullanacağını belirler. cypress open\'ın aksine, cypress run CI/CD ortamları için tasarlanmıştır ve interaktif arayüz açmaz.',
+          en: "The --browser flag tells cypress run which browser engine to use in headless mode. Unlike cypress open, cypress run is designed for CI/CD environments and doesn't open an interactive UI.",
+        },
+      },
+    ],
+  },
+  en: {
+    title: '⚙️ CI/CD & Cross Browser Testing',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🎻',
+        content: 'Think of a conductor: instead of listening to a single violinist, they run 3 different instrument groups (Chrome, Firefox, Edge) AT THE SAME TIME and make sure they all play in tune. In CI/CD, cypress run is the conductor that automatically and in parallel runs your tests across different browsers on "concert day" (every push/PR).',
+      },
+      {
+        type: 'text',
+        content: "cypress open launches the interactive Test Runner — used during development. cypress run runs in headless mode (no visible browser) and is designed for CI environments. The --browser flag picks which browser to run: chrome, firefox, edge, or electron (the default).",
+      },
+      {
+        type: 'code', label: 'GitHub Actions — basic Cypress workflow',
+        language: 'yaml',
+        code: `# .github/workflows/cypress.yml
+name: Cypress Tests
+on: push
+jobs:
+  cypress-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cypress-io/github-action@v7
+        with:
+          build: npm run build
+          start: npm start`,
+      },
+      {
+        type: 'code', label: 'Cross Browser Matrix — parallel across 3 browsers',
+        language: 'yaml',
+        code: `strategy:
+  matrix:
+    browser: [chrome, firefox, edge]
+steps:
+  - uses: cypress-io/github-action@v7
+    with:
+      browser: \${{ matrix.browser }}
+      record: true        # record to Cypress Cloud
+      parallel: true       # split tests across multiple jobs
+      group: 'UI-\${{ matrix.browser }}'`,
+      },
+      {
+        type: 'table',
+        headers: ['Command/Concept', 'Description', 'When to use'],
+        rows: [
+          ['cypress open', 'Interactive Test Runner', 'During local development'],
+          ['cypress run', 'Headless, scriptable execution', 'In a CI/CD pipeline'],
+          ['--browser chrome/firefox/edge', 'Picks the target browser', 'When cross-browser verification is needed'],
+          ['parallel: true + matrix', 'Splits tests across multiple jobs', 'Shortening test time (large suite)'],
+          ['record: true', 'Sends results to Cypress Cloud', 'Flaky test analysis, PR checks, historical reports'],
+        ],
+      },
+      {
+        type: 'java-compare',
+        topic: 'Maven Surefire Parallel Execution vs Cypress Parallel/Matrix',
+        java: `<!-- pom.xml -->
+<plugin>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <configuration>
+    <parallel>methods</parallel>
+    <forkCount>4</forkCount>     <!-- 4 parallel JVM processes -->
+  </configuration>
+</plugin>`,
+        typescript: `# .github/workflows/cypress.yml
+strategy:
+  matrix:
+    containers: [1, 2, 3, 4]   # 4 separate parallel CI jobs
+steps:
+  - uses: cypress-io/github-action@v7
+    with: { record: true, parallel: true }`,
+        why: { tr: "Maven Surefire'da forkCount ile aynı makinede birden fazla JVM process'i paralel çalıştırırsın. Cypress'te paralelleştirme CI seviyesinde olur.", en: 'In Maven Surefire, forkCount runs multiple JVM processes in parallel on the same machine. In Cypress, parallelization happens at the CI level — each "container" is a separate CI job, and Cypress Cloud intelligently load-balances which spec file goes to which job.' },
+        note: { tr: "group parametresi, farklı tarayıcı/job'ların sonuçlarını Cypress Cloud'da TEK bir raporda birleştirir.", en: 'The group parameter merges results from different browsers/jobs into a SINGLE report in Cypress Cloud — the equivalent of merging Surefire test reports in Maven.' },
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-ci-pipeline',
+        color: '#10b981',
+        title: { tr: 'GitHub Actions — 3 Tarayıcıda Paralel Run', en: 'GitHub Actions — Parallel Run Across 3 Browsers' },
+        description: { tr: 'Bir push\'un checkout → install → Chrome/Firefox/Edge\'de paralel cypress run → Cypress Cloud kaydı akışını canlı izle.', en: 'Watch a push trigger checkout → install → parallel cypress run on Chrome/Firefox/Edge → Cypress Cloud recording, live.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '⚙️',
+        title: { tr: 'Try It Yourself: CI pipeline adımlarını doğru diz', en: 'Try It Yourself: Arrange the CI pipeline steps' },
+        intro: {
+          tr: 'Bir push olayından Cypress Cloud raporuna kadar olan CI adımlarını doğru sıraya diz.',
+          en: 'Arrange the CI steps from a push event to the Cypress Cloud report, in the right order.',
+        },
+        starterCommands: {
+          tr: `cypress-io/github-action ile cypress run --browser chrome/firefox/edge çalıştır
+git push ile workflow tetiklenir
+actions/checkout ile kodu indir
+record: true ile Cypress Cloud'a sonuçları gönder
+npm ci ile bağımlılıkları kur`,
+          en: `Run cypress run --browser chrome/firefox/edge via cypress-io/github-action
+git push triggers the workflow
+Download the code with actions/checkout
+Send results to Cypress Cloud with record: true
+Install dependencies with npm ci`,
+        },
+        expectedSteps: [
+          { label: { tr: "Workflow'u tetikle", en: 'Trigger the workflow' }, pattern: 'push|trigger', example: 'git push' },
+          { label: { tr: 'Kodu checkout et', en: 'Checkout the code' }, pattern: 'checkout', example: 'actions/checkout@v6' },
+          { label: { tr: 'Bağımlılıkları kur', en: 'Install dependencies' }, pattern: 'npm ci|bağımlılık', example: 'npm ci' },
+          { label: { tr: "Cypress'i tarayıcı bayrağıyla çalıştır", en: 'Run Cypress with the browser flag' }, pattern: 'cypress run|--browser', example: 'cypress run --browser chrome' },
+          { label: { tr: "Sonuçları Cypress Cloud'a kaydet", en: 'Record results to Cypress Cloud' }, pattern: 'record|cloud', example: 'record: true' },
+        ],
+        successOutput: {
+          tr: "Doğru sıra: push tetikler → checkout → bağımlılıkları kur → cypress run --browser ile çalıştır → Cypress Cloud'a kaydet.",
+          en: 'Correct order: push triggers → checkout → install dependencies → run cypress run --browser → record to Cypress Cloud.',
+        },
+        retryOutput: {
+          tr: "Sıra yanlış — checkout/bağımlılık kurulumu olmadan cypress run çalıştırmaya çalışmak CI'da hata verir.",
+          en: 'Order is wrong — trying to run cypress run without checkout/dependency install fails in CI.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'cypress run --browser firefox komutu CI\'da ne yapar?', en: 'What does cypress run --browser firefox do in CI?' },
+        options: [
+          { id: 'a', text: 'Opens the interactive Test Runner in Firefox' },
+          { id: 'b', text: 'Runs tests headlessly in Firefox, in a scriptable way' },
+          { id: 'c', text: 'Only tests Firefox extensions' },
+          { id: 'd', text: 'Slows down the tests' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "--browser bayrağı, cypress run'ın hangi tarayıcı motorunu headless modda kullanacağını belirler.",
+          en: "The --browser flag tells cypress run which browser engine to use in headless mode. Unlike cypress open, cypress run is designed for CI/CD environments and doesn't open an interactive UI.",
+        },
+      },
+    ],
+  },
+}
+
+const s17 = {
+  tr: {
+    title: '🦄 Sadece Cypress\'te Olan Özellikler',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🦄',
+        content: 'Selenium ve Playwright sana bir bıçak verir (CSS3/XPath selector\'lar). Cypress ise gerçek bir İsviçre çakısı verir: çünkü Cypress\'in motoru aslında jQuery\'dir — bu yüzden jQuery\'nin onlarca yıllık özel "süper güçlerini" (pseudo-class\'lar, .invoke(), .its()) hiçbir ek kütüphane kurmadan, doğrudan cy.get() içinde kullanırsın.',
+      },
+      {
+        type: 'text',
+        content: 'Cypress\'in test kodunu tarayıcının içinde, gerçek jQuery kütüphanesi üzerinde çalıştırması, ona Selenium ve Playwright\'ta birebir KARŞILIĞI OLMAYAN bazı özellikler kazandırır. Bunların en somut örneği: cy.get() içine yazdığın selector string\'i, CSS3 standardının değil, jQuery\'nin Sizzle selector motorunun kurallarına göre çalışır.',
+      },
+      {
+        type: 'code', label: 'jQuery Pseudo-Class\'ları — CSS3\'te YOK, sadece Cypress\'te var',
+        language: 'javascript',
+        code: `cy.get('li:first')                    // listenin ilk elemanı
+cy.get('li:last')                      // listenin son elemanı
+cy.get('li:visible')                   // SADECE görünen elemanlar
+cy.get('li:contains("Cherry")')        // metne göre ara — CSS3'te YOK
+cy.get('li:eq(2)')                     // index 2 (zero-based) — CSS3'te YOK
+cy.get('input:checked')                // işaretli checkbox/radio`,
+      },
+      {
+        type: 'table',
+        headers: ['Selector Özelliği', 'Selenium', 'Playwright', 'Cypress'],
+        rows: [
+          [':contains("text")', '❌ Yok, XPath\'e geçmen gerekir', '❌ Yok, kendi text= sözdizimi var', '✅ jQuery\'den doğrudan, tek satır CSS'],
+          [':eq(n) / :first / :last', '❌ CSS3\'te yok', '🟡 .first()/.last()/.nth() metodu (farklı API)', '✅ Doğrudan selector string içinde'],
+          [':visible / :hidden', '❌ isDisplayed() ile manuel filtre', '🟡 Kendi :visible\'ı var (farklı motor)', '✅ jQuery\'nin normalize ettiği davranış'],
+          ['.invoke() / .its()', '❌ Yok', '❌ Yok', '✅ jQuery metodunu/property\'sini zincirde çağırma'],
+        ],
+      },
+      {
+        type: 'code', label: '.invoke() ve .its() — jQuery metodunu/property\'sini zincirde çağır',
+        language: 'javascript',
+        code: `cy.get('a').invoke('attr', 'href').should('include', '/dashboard')
+cy.get('input').invoke('val').should('eq', 'merhaba')
+cy.get('ul li').its('length').should('be.gte', 3)
+cy.window().its('localStorage').invoke('getItem', 'token').should('exist')`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'Selenium\'da Metne Göre Arama (XPath) vs Cypress jQuery Selector',
+        java: `// Selenium'da CSS'te :contains() YOK, XPath'e geçmek ZORUNDASIN:
+WebElement el = driver.findElement(
+  By.xpath("//li[contains(text(),'Cherry')]")
+);
+// Tek bir özellik için ayrı bir sorgu dili öğrenmen gerekti`,
+        typescript: `// Cypress'te aynı CSS sözdizimi içinde, tek satır:
+cy.get('li:contains("Cherry")').should('be.visible')
+// Ekstra dil/sözdizimi YOK — jQuery zaten cy.get()'in içinde`,
+        why: { tr: 'Selenium\'un CSS3 selector motoru W3C standardını takip eder ve :contains() pseudo-class\'ı CSS3 standardında YOKTUR — bu yüzden Selenium\'da metne göre arama için XPath\'e geçmen gerekir. Cypress\'in motoru gerçek jQuery olduğu için, jQuery\'nin 2006\'dan beri sahip olduğu bu özelliği bedavaya kazanırsın.', en: "Selenium's CSS3 selector engine follows the W3C standard, and the :contains() pseudo-class does NOT exist in the CSS3 spec — so in Selenium you must switch to XPath to search by text. Because Cypress's engine is literally jQuery, you get this feature (which jQuery has had since 2006) for free." },
+        note: { tr: 'Playwright da text içeriğine göre arama sunar (getByText, :text(), :has-text()) ama bunlar jQuery\'nin Sizzle motorundan FARKLI, Playwright\'a özel bir sözdizimidir — yani "aynı jQuery pseudo-class\'ları" değildir, paralel ama ayrı bir çözümdür.', en: "Playwright also offers text-based searching (getByText, :text(), :has-text()) but these use a DIFFERENT syntax from jQuery's Sizzle engine — they're a parallel but separate solution, not \"the same jQuery pseudo-classes\"." },
+      },
+      {
+        type: 'text',
+        content: 'İkinci Cypress-özel özellik: **Cypress Studio**. Bu, Test Runner\'ın İÇİNDEN, çalışan bir teste tıklayarak yeni adım/assertion EKLEYEBİLDİĞİN bir görsel kayıt aracıdır. "New Test" veya Command Log\'da bir teste sağ tıklayıp "Edit in Studio" seçince, uygulamada yaptığın her tıklama/yazma otomatik olarak Cypress komutuna çevrilir ve mevcut test dosyasına eklenir; AI katmanı da DOM\'daki değişikliklere göre anlamlı assertion önerir.',
+      },
+      {
+        type: 'table',
+        headers: ['Araç', 'Ne yapar', 'Sınırı'],
+        rows: [
+          ['Cypress Studio', 'Test Runner içinden, ÇALIŞAN/MEVCUT bir teste tıklayarak adım ekler', 'Sadece Cypress\'te var; ayrı bir uygulama açmana gerek yok'],
+          ['Playwright Codegen', 'npx playwright codegen ile YENİ ve AYRI bir script üretir', 'Mevcut bir test dosyasına canlı ekleme yapamaz, ayrı bir terminal komutu gerekir'],
+          ['Selenium IDE', 'Tarayıcı eklentisi olarak ayrı bir kayıt aracı', 'Gerçek bir Selenium/Java projesiyle entegre değildir, ayrı bir üründür'],
+        ],
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-jquery-selectors',
+        color: '#10b981',
+        title: { tr: 'jQuery Pseudo-Class\'ları — Canlı Dene', en: 'jQuery Pseudo-Classes — Try Live' },
+        description: { tr: 'Bir pseudo-class butonuna tıkla, hangi elemanların eşleştiğini ve bunun Selenium/Playwright\'ta neye karşılık geldiğini canlı gör.', en: 'Click a pseudo-class button and see live which elements match, plus what the Selenium/Playwright equivalent would be.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🦄',
+        title: { tr: 'Try It Yourself: Selector öncelik sırasını doğru diz', en: 'Try It Yourself: Arrange the selector priority order' },
+        intro: {
+          tr: 'Aşağıdaki 4 selector stratejisini EN GÜVENİLİR\'den EN KIRILGAN\'a doğru sırala — jQuery pseudo-class\'ları güçlüdür ama her biri aynı risk seviyesinde değildir.',
+          en: 'Sort the 4 selector strategies below from MOST RELIABLE to MOST FRAGILE — jQuery pseudo-classes are powerful, but not all of them carry the same risk.',
+        },
+        starterCommands: {
+          tr: `cy.get('li:eq(2)').click()
+cy.get('input:checked').should('have.length', 1)
+cy.get('li:contains("Cherry")').click()
+cy.get('[data-cy=cherry-item]').click()`,
+          en: `cy.get('li:eq(2)').click()
+cy.get('input:checked').should('have.length', 1)
+cy.get('li:contains("Cherry")').click()
+cy.get('[data-cy=cherry-item]').click()`,
+        },
+        expectedSteps: [
+          { label: { tr: 'En güvenli: özel test attribute\'u', en: 'Most reliable: a dedicated test attribute' }, pattern: '\\[data-cy=', example: "cy.get('[data-cy=cherry-item]')" },
+          { label: { tr: 'İkinci: görünür metne göre arama (i18n\'de dikkat)', en: 'Second: search by visible text (careful with i18n)' }, pattern: ':contains\\(', example: "cy.get('li:contains(\"Cherry\")')" },
+          { label: { tr: 'Üçüncü: state\'e dayalı pseudo-class', en: 'Third: a state-based pseudo-class' }, pattern: ':checked', example: "cy.get('input:checked')" },
+          { label: { tr: 'En kırılgan: index\'e dayalı seçim — SON ÇARE', en: 'Most fragile: index-based selection — LAST RESORT' }, pattern: ':eq\\(', example: "cy.get('li:eq(2)')" },
+        ],
+        successOutput: {
+          tr: 'Doğru öncelik: data-cy (en güvenli) → :contains() (metne dayalı) → :checked gibi state pseudo-class\'ları → :eq()/:first/:last (indekse dayalı, EN KIRILGAN — liste sırası değişirse test bozulur).',
+          en: 'Correct priority: data-cy (most reliable) → :contains() (text-based) → state pseudo-classes like :checked → :eq()/:first/:last (index-based, MOST FRAGILE — breaks if the list order changes).',
+        },
+        retryOutput: {
+          tr: 'Sıra yanlış — jQuery pseudo-class\'ları güçlü bir özellik olsa da, :eq()/:first/:last her zaman SON ÇARE olmalı; ilk tercih hep data-cy gibi özel bir test attribute\'u olmalı.',
+          en: "Order is wrong — even though jQuery pseudo-classes are powerful, :eq()/:first/:last should always be the LAST RESORT; the first choice should always be a dedicated test attribute like data-cy.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Aşağıdakilerden hangisi CSS3 standardında YOKTUR ama Cypress\'te (jQuery sayesinde) doğrudan çalışır?', en: 'Which of the following does NOT exist in the CSS3 standard but works directly in Cypress (thanks to jQuery)?' },
+        options: [
+          { id: 'a', text: ':hover' },
+          { id: 'b', text: ':contains()' },
+          { id: 'c', text: ':focus' },
+          { id: 'd', text: ':nth-child()' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: ':hover, :focus ve :nth-child() CSS3 standardının BİR PARÇASIDIR — Selenium\'da da CSS selector olarak kullanılabilirler. :contains() ise SADECE jQuery/Sizzle motoruna özeldir, CSS3 spesifikasyonunda yoktur — bu yüzden Selenium\'da bunun yerine XPath\'e geçmen gerekir, Cypress\'te ise cy.get() içinde doğrudan çalışır.',
+          en: ':hover, :focus, and :nth-child() ARE PART of the CSS3 standard — they can be used as CSS selectors in Selenium too. :contains(), however, is jQuery/Sizzle-engine-only and does not exist in the CSS3 spec — so in Selenium you must switch to XPath instead, while in Cypress it works directly inside cy.get().',
+        },
+      },
+    ],
+  },
+  en: {
+    title: '🦄 Cypress-Only Superpowers',
+    blocks: [
+      {
+        type: 'simple-box', emoji: '🦄',
+        content: "Selenium and Playwright hand you a knife (CSS3/XPath selectors). Cypress hands you an actual Swiss Army knife: because Cypress's engine is literally jQuery, you get decades of jQuery's special \"superpowers\" (pseudo-classes, .invoke(), .its()) directly inside cy.get(), with zero extra libraries to install.",
+      },
+      {
+        type: 'text',
+        content: "Because Cypress runs test code inside the browser, on top of the real jQuery library, it gains some features that have NO direct equivalent in Selenium or Playwright. The clearest example: the selector string you write inside cy.get() follows jQuery's Sizzle selector engine rules, not the CSS3 standard.",
+      },
+      {
+        type: 'code', label: "jQuery Pseudo-Classes — don't exist in CSS3, only in Cypress",
+        language: 'javascript',
+        code: `cy.get('li:first')                    // the first item in the list
+cy.get('li:last')                      // the last item in the list
+cy.get('li:visible')                   // ONLY the visible items
+cy.get('li:contains("Cherry")')        // search by text — does NOT exist in CSS3
+cy.get('li:eq(2)')                     // index 2 (zero-based) — does NOT exist in CSS3
+cy.get('input:checked')                // a checked checkbox/radio`,
+      },
+      {
+        type: 'table',
+        headers: ['Selector Feature', 'Selenium', 'Playwright', 'Cypress'],
+        rows: [
+          [':contains("text")', "❌ None, you must switch to XPath", "❌ None, has its own text= syntax", "✅ Directly from jQuery, one line of CSS"],
+          [':eq(n) / :first / :last', '❌ Not in CSS3', '🟡 .first()/.last()/.nth() method (different API)', '✅ Directly inside the selector string'],
+          [':visible / :hidden', '❌ Manual filtering with isDisplayed()', "🟡 Has its own :visible (different engine)", "✅ jQuery's normalized behavior"],
+          ['.invoke() / .its()', '❌ None', '❌ None', "✅ Chain-call a jQuery method/property"],
+        ],
+      },
+      {
+        type: 'code', label: '.invoke() and .its() — chain-call a jQuery method/property',
+        language: 'javascript',
+        code: `cy.get('a').invoke('attr', 'href').should('include', '/dashboard')
+cy.get('input').invoke('val').should('eq', 'hello')
+cy.get('ul li').its('length').should('be.gte', 3)
+cy.window().its('localStorage').invoke('getItem', 'token').should('exist')`,
+      },
+      {
+        type: 'java-compare',
+        topic: 'Searching by Text in Selenium (XPath) vs Cypress jQuery Selector',
+        java: `// In Selenium, CSS has NO :contains(), you MUST switch to XPath:
+WebElement el = driver.findElement(
+  By.xpath("//li[contains(text(),'Cherry')]")
+);
+// You had to learn a separate query language for one feature`,
+        typescript: `// In Cypress, the same CSS syntax, one line:
+cy.get('li:contains("Cherry")').should('be.visible')
+// NO extra language/syntax needed — jQuery is already inside cy.get()`,
+        why: { tr: "Selenium'un CSS3 selector motoru W3C standardını takip eder ve :contains() pseudo-class'ı CSS3 standardında YOKTUR. Cypress'in motoru gerçek jQuery olduğu için, jQuery'nin 2006'dan beri sahip olduğu bu özelliği bedavaya kazanırsın.", en: "Selenium's CSS3 selector engine follows the W3C standard, and the :contains() pseudo-class does NOT exist in the CSS3 spec — so in Selenium you must switch to XPath to search by text. Because Cypress's engine is literally jQuery, you get this feature (which jQuery has had since 2006) for free." },
+        note: { tr: "Playwright da text içeriğine göre arama sunar (getByText, :text(), :has-text()) ama bunlar jQuery'nin Sizzle motorundan FARKLI, Playwright'a özel bir sözdizimidir.", en: "Playwright also offers text-based searching (getByText, :text(), :has-text()) but these use a DIFFERENT syntax from jQuery's Sizzle engine — they're a parallel but separate solution, not \"the same jQuery pseudo-classes\"." },
+      },
+      {
+        type: 'text',
+        content: 'The second Cypress-only feature: **Cypress Studio**. This is a visual recording tool that lets you ADD new steps/assertions to a RUNNING test FROM WITHIN the Test Runner itself. Click "New Test", or right-click a test in the Command Log and choose "Edit in Studio" — every click/type you make in the app is automatically translated into a Cypress command and appended to the existing test file; an AI layer also suggests meaningful assertions based on what changed in the DOM.',
+      },
+      {
+        type: 'table',
+        headers: ['Tool', 'What it does', 'Limitation'],
+        rows: [
+          ['Cypress Studio', 'Adds steps to a RUNNING/EXISTING test, from inside the Test Runner', 'Only exists in Cypress; no separate app to launch'],
+          ['Playwright Codegen', 'Generates a NEW, SEPARATE script via npx playwright codegen', "Can't live-append to an existing test file, needs a separate terminal command"],
+          ['Selenium IDE', 'A separate recorder, distributed as a browser extension', 'Not integrated with a real Selenium/Java project — a separate product'],
+        ],
+      },
+      {
+        type: 'simulation',
+        scenario: 'cypress-jquery-selectors',
+        color: '#10b981',
+        title: { tr: 'jQuery Pseudo-Class\'ları — Canlı Dene', en: 'jQuery Pseudo-Classes — Try Live' },
+        description: { tr: 'Bir pseudo-class butonuna tıkla, hangi elemanların eşleştiğini ve bunun Selenium/Playwright\'ta neye karşılık geldiğini canlı gör.', en: 'Click a pseudo-class button and see live which elements match, plus what the Selenium/Playwright equivalent would be.' },
+      },
+      {
+        type: 'git-practice',
+        icon: '🦄',
+        title: { tr: 'Try It Yourself: Selector öncelik sırasını doğru diz', en: 'Try It Yourself: Arrange the selector priority order' },
+        intro: {
+          tr: 'Aşağıdaki 4 selector stratejisini EN GÜVENİLİR\'den EN KIRILGAN\'a doğru sırala.',
+          en: 'Sort the 4 selector strategies below from MOST RELIABLE to MOST FRAGILE — jQuery pseudo-classes are powerful, but not all of them carry the same risk.',
+        },
+        starterCommands: {
+          tr: `cy.get('li:eq(2)').click()
+cy.get('input:checked').should('have.length', 1)
+cy.get('li:contains("Cherry")').click()
+cy.get('[data-cy=cherry-item]').click()`,
+          en: `cy.get('li:eq(2)').click()
+cy.get('input:checked').should('have.length', 1)
+cy.get('li:contains("Cherry")').click()
+cy.get('[data-cy=cherry-item]').click()`,
+        },
+        expectedSteps: [
+          { label: { tr: 'En güvenli: özel test attribute\'u', en: 'Most reliable: a dedicated test attribute' }, pattern: '\\[data-cy=', example: "cy.get('[data-cy=cherry-item]')" },
+          { label: { tr: "İkinci: görünür metne göre arama (i18n'de dikkat)", en: 'Second: search by visible text (careful with i18n)' }, pattern: ':contains\\(', example: "cy.get('li:contains(\"Cherry\")')" },
+          { label: { tr: "Üçüncü: state'e dayalı pseudo-class", en: 'Third: a state-based pseudo-class' }, pattern: ':checked', example: "cy.get('input:checked')" },
+          { label: { tr: "En kırılgan: index'e dayalı seçim — SON ÇARE", en: 'Most fragile: index-based selection — LAST RESORT' }, pattern: ':eq\\(', example: "cy.get('li:eq(2)')" },
+        ],
+        successOutput: {
+          tr: "Doğru öncelik: data-cy (en güvenli) → :contains() → :checked gibi state pseudo-class'ları → :eq()/:first/:last (EN KIRILGAN).",
+          en: 'Correct priority: data-cy (most reliable) → :contains() (text-based) → state pseudo-classes like :checked → :eq()/:first/:last (index-based, MOST FRAGILE — breaks if the list order changes).',
+        },
+        retryOutput: {
+          tr: "Sıra yanlış — :eq()/:first/:last her zaman SON ÇARE olmalı; ilk tercih hep data-cy gibi özel bir test attribute'u olmalı.",
+          en: "Order is wrong — even though jQuery pseudo-classes are powerful, :eq()/:first/:last should always be the LAST RESORT; the first choice should always be a dedicated test attribute like data-cy.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Aşağıdakilerden hangisi CSS3 standardında YOKTUR ama Cypress\'te (jQuery sayesinde) doğrudan çalışır?', en: 'Which of the following does NOT exist in the CSS3 standard but works directly in Cypress (thanks to jQuery)?' },
+        options: [
+          { id: 'a', text: ':hover' },
+          { id: 'b', text: ':contains()' },
+          { id: 'c', text: ':focus' },
+          { id: 'd', text: ':nth-child()' },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: ':hover, :focus ve :nth-child() CSS3 standardının BİR PARÇASIDIR. :contains() ise SADECE jQuery/Sizzle motoruna özeldir, CSS3 spesifikasyonunda yoktur.',
+          en: ':hover, :focus, and :nth-child() ARE PART of the CSS3 standard — they can be used as CSS selectors in Selenium too. :contains(), however, is jQuery/Sizzle-engine-only and does not exist in the CSS3 spec — so in Selenium you must switch to XPath instead, while in Cypress it works directly inside cy.get().',
+        },
+      },
+    ],
+  },
+}
+
 export const cypressData = {
   tr: {
     hero: {
@@ -1550,8 +3349,8 @@ export const cypressData = {
       subtitle: 'JavaScript/TypeScript ile öğren, Selenium ve Playwright ile karşılaştır',
       intro: 'Cypress, test kodunu tarayıcının içinde çalıştıran, time-travel debugging ve otomatik retry-ability sunan modern bir E2E test framework\'üdür. Network stubbing, component testing ve gerçek zamanlı görsel geri bildirimle QA mühendislerinin en sevdiği araçlardan biridir.',
     },
-    tabs: ['🌲 Cypress Nedir?', '⚙️ Kurulum', '🖱️ Temel Komutlar', '🧩 Aksiyonlar & Drag-Drop', '🕐 Zaman Yolculuğu', '🌐 Network & Intercept', '🌍 Gerçek Hayat', '🔗 Ekosistem', '🆚 Karşılaştırma', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr],
+    tabs: ['🌲 Cypress Nedir?', '⚙️ Kurulum', '🖱️ Temel Komutlar', '🧩 Aksiyonlar & Drag-Drop', '🕐 Zaman Yolculuğu', '🌐 Network & Intercept', '🗂️ Test Organizasyonu', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Sadece Cypress\'te', '🌍 Gerçek Hayat', '🔗 Ekosistem', '🆚 Karşılaştırma', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s11.tr, s12.tr, s13.tr, s14.tr, s15.tr, s16.tr, s17.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr],
   },
   en: {
     hero: {
@@ -1559,7 +3358,7 @@ export const cypressData = {
       subtitle: 'Learn with JavaScript/TypeScript, compare with Selenium and Playwright',
       intro: 'Cypress is a modern E2E testing framework that runs test code inside the browser, offering time-travel debugging and automatic retry-ability. With network stubbing, component testing and real-time visual feedback, it is one of QA engineers\' favorite tools.',
     },
-    tabs: ['🌲 What is Cypress?', '⚙️ Installation', '🖱️ Basic Commands', '🧩 Actions & Drag-Drop', '🕐 Time Travel', '🌐 Network & Intercept', '🌍 Real World', '🔗 Ecosystem', '🆚 Comparison', '🚨 Common Errors', '💼 50 Interview Questions'],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en, s10.en],
+    tabs: ['🌲 What is Cypress?', '⚙️ Installation', '🖱️ Basic Commands', '🧩 Actions & Drag-Drop', '🕐 Time Travel', '🌐 Network & Intercept', '🗂️ Test Organization', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Cypress-Only', '🌍 Real World', '🔗 Ecosystem', '🆚 Comparison', '🚨 Common Errors', '💼 50 Interview Questions'],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s11.en, s12.en, s13.en, s14.en, s15.en, s16.en, s17.en, s6.en, s7.en, s8.en, s9.en, s10.en],
   },
 }

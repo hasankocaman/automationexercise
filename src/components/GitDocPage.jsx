@@ -124,7 +124,7 @@ const CHAPTER_TRANSLATIONS = {
     "Browsing the history": "Geçmişi İncelemek (git log)",
     "Working with Remotes": "Uzak Depolarla (Remotes) Çalışmak",
     "Staging": "Staging Area (Geçici Kabul Alanı)",
-    "Ignoring Files and Folders": "Dosya ve Klasörleri Yoksaymak (.gitignore)",
+    "Ignoring Files and Folders": "Dosya ve Klasörleri Yok Saymak (.gitignore)",
     "Git Di": "Git Farkları (git diff)",
     "Undoing": "Değişiklikleri Geri Almak (Undo)",
     "Merging": "Dalları Birleştirmek (Merging)",

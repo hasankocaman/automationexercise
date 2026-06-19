@@ -8011,6 +8011,629 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    // === CYPRESS: Test Yazma & Organizasyon — hook execution order log ===
+    const renderCypressTestStructurePlayground = () => {
+        const order = ['idle', 'before', 'be1', 'it1', 'ae1', 'be2', 'it2', 'ae2', 'after']
+        const s = simState
+        const cur = order.indexOf(s)
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const canStart = s === 'idle' || s === 'after'
+        const log = [
+            { key: 'before', text: 'before()', color: '#a78bfa' },
+            { key: 'be1', text: 'beforeEach() → cy.visit("/cart")', color: '#38bdf8' },
+            { key: 'it1', text: "✓ it('adds item to cart')", color: CY.green },
+            { key: 'ae1', text: 'afterEach() → cy.clearCookies()', color: '#38bdf8' },
+            { key: 'be2', text: 'beforeEach() → cy.visit("/cart")', color: '#38bdf8' },
+            { key: 'it2', text: "✓ it('removes item from cart')", color: CY.green },
+            { key: 'ae2', text: 'afterEach() → cy.clearCookies()', color: '#38bdf8' },
+            { key: 'after', text: 'after()', color: '#a78bfa' },
+        ]
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 340 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 10 }}>🟢</span>
+                    <span style={{ fontSize: 9, color: CY.text }}>cart.cy.js — Cypress Test Runner</span>
+                    <button
+                        onClick={() => canStart && runSteps([['before', 300], ['be1', 500], ['it1', 600], ['ae1', 500], ['be2', 500], ['it2', 600], ['ae2', 500], ['after', 400]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? CY.muted : CY.green, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 12px', fontSize: 9, fontWeight: 700, cursor: !canStart ? 'not-allowed' : 'pointer' }}
+                    >
+                        {s === 'idle' ? '▶ Run' : s === 'after' ? '🔄 Run Again' : '⏳...'}
+                    </button>
+                </div>
+                <div style={{ background: CY.bg, padding: '8px 6px', borderRadius: '0 0 10px 10px', minHeight: 190 }}>
+                    {log.map((row) => {
+                        const idx = order.indexOf(row.key)
+                        const show = idx <= cur && s !== 'idle'
+                        return (
+                            <div key={row.key} style={{ padding: '3px 6px', marginBottom: 1, opacity: show ? 1 : 0.15, animation: show ? 'simFadeUp 0.25s ease-out' : 'none', transition: 'opacity 0.3s' }}>
+                                <code style={{ fontSize: 9.5, color: show ? row.color : CY.muted }}>{row.text}</code>
+                            </div>
+                        )
+                    })}
+                    {s === 'idle' && <div style={{ fontSize: 9, color: CY.muted, padding: '6px' }}>{isTr ? "▶ Run'a bas, hook sırasını izle" : '▶ Click Run to watch the hook order'}</div>}
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
+    // === CYPRESS: Aliases & Test Isolation — cy.session() cache across two tests ===
+    const renderCypressSessionCachePlayground = () => {
+        const order = ['idle', 't1visit', 't1type', 't1click', 't1saved', 't2restore', 't2dashboard']
+        const s = simState
+        const cur = order.indexOf(s)
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const canStart = s === 'idle' || s === 't2dashboard'
+        const log = [
+            { key: 't1visit', text: "Test 1: cy.visit('/login')", color: '#38bdf8' },
+            { key: 't1type', text: '.type(email).type(pwd)', color: '#38bdf8' },
+            { key: 't1click', text: '.click() → login submit', color: '#38bdf8' },
+            { key: 't1saved', text: '💾 cy.session() saved', color: '#a78bfa' },
+            { key: 't2restore', text: '— Test 2: cy.session() → ♻️ restored', color: '#a78bfa' },
+            { key: 't2dashboard', text: '✓ already on /dashboard', color: CY.green },
+        ]
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 340 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 10 }}>🟢</span>
+                    <span style={{ fontSize: 9, color: CY.text }}>auth.cy.js — Cypress Test Runner</span>
+                    <button
+                        onClick={() => canStart && runSteps([['t1visit', 300], ['t1type', 600], ['t1click', 500], ['t1saved', 500], ['t2restore', 700], ['t2dashboard', 400]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? CY.muted : CY.green, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 12px', fontSize: 9, fontWeight: 700, cursor: !canStart ? 'not-allowed' : 'pointer' }}
+                    >
+                        {s === 'idle' ? '▶ Run' : s === 't2dashboard' ? '🔄 Run Again' : '⏳...'}
+                    </button>
+                </div>
+                <div style={{ background: CY.bg, padding: '8px 6px', borderRadius: '0 0 10px 10px', minHeight: 170 }}>
+                    {log.map((row) => {
+                        const idx = order.indexOf(row.key)
+                        const show = idx <= cur && s !== 'idle'
+                        return (
+                            <div key={row.key} style={{ padding: '4px 6px', marginBottom: 1, opacity: show ? 1 : 0.15, animation: show ? 'simFadeUp 0.25s ease-out' : 'none' }}>
+                                <code style={{ fontSize: 9.5, color: show ? row.color : CY.muted }}>{row.text}</code>
+                            </div>
+                        )
+                    })}
+                    {s === 'idle' && <div style={{ fontSize: 9, color: CY.muted, padding: '6px' }}>{isTr ? "▶ Run'a bas — 2 test arka arkaya çalışsın" : '▶ Click Run — watch 2 tests run back to back'}</div>}
+                    {s === 't2dashboard' && (
+                        <div style={{ marginTop: 6, padding: '5px 8px', fontSize: 8.5, color: '#a78bfa', lineHeight: 1.4 }}>
+                            ⚡ {isTr ? 'Test 2 login formunu HİÇ doldurmadı — session cache\'den geri yüklendi.' : 'Test 2 never filled the login form — it was restored from the session cache.'}
+                        </div>
+                    )}
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
+    // === CYPRESS: Component Testing — cy.mount() isolated render ===
+    const renderCypressComponentMountPlayground = () => {
+        const order = ['idle', 'mount', 'click', 'spy']
+        const s = simState
+        const cur = order.indexOf(s)
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const canStart = s === 'idle' || s === 'spy'
+        const mounted = cur >= order.indexOf('mount')
+        const clicked = cur >= order.indexOf('click')
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 320 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 10 }}>🟢</span>
+                    <span style={{ fontSize: 9, color: CY.text }}>Counter.cy.jsx — Component Testing</span>
+                    <button
+                        onClick={() => canStart && runSteps([['mount', 300], ['click', 800], ['spy', 600]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? CY.muted : CY.green, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 12px', fontSize: 9, fontWeight: 700, cursor: !canStart ? 'not-allowed' : 'pointer' }}
+                    >
+                        {s === 'idle' ? '▶ Run' : s === 'spy' ? '🔄 Run Again' : '⏳...'}
+                    </button>
+                </div>
+                <div style={{ background: CY.bg, padding: 14, borderRadius: '0 0 10px 10px', minHeight: 170, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <code style={{ fontSize: 8.5, color: CY.muted }}>cy.mount(&lt;Counter onChange={'{spy}'} /&gt;)</code>
+                    {mounted ? (
+                        <div style={{ border: `1.5px solid ${CY.green}`, borderRadius: 10, padding: '12px 18px', background: '#fff', display: 'flex', alignItems: 'center', gap: 12, animation: 'simFadeUp 0.3s' }}>
+                            <button style={{ width: 26, height: 26, borderRadius: 6, border: '1px solid #d1d5db', background: '#f3f4f6', fontWeight: 800 }}>−</button>
+                            <span style={{ fontSize: 16, fontWeight: 800, color: '#111827', minWidth: 18, textAlign: 'center' }}>{clicked ? 1 : 0}</span>
+                            <button style={{ width: 26, height: 26, borderRadius: 6, border: 'none', background: clicked ? '#059669' : CY.green, color: '#fff', fontWeight: 800, transform: s === 'click' ? 'scale(0.9)' : 'scale(1)', transition: 'all .2s' }}>+</button>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: 9, color: CY.muted, textAlign: 'center' }}>{isTr ? "▶ Run'a bas — SADECE bu component render olsun" : '▶ Click Run — mount ONLY this component'}</div>
+                    )}
+                    {cur >= order.indexOf('spy') && (
+                        <div style={{ fontSize: 8.5, color: '#a78bfa', fontFamily: 'monospace' }}>✓ onChangeSpy.should('have.been.calledWith', 1)</div>
+                    )}
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
+    // === CYPRESS: Stubs, Spies & Clock — virtual clock skipping a 5s setTimeout ===
+    const renderCypressStubClockPlayground = () => {
+        const order = ['idle', 'clockstart', 'loading', 'tick', 'loaded']
+        const s = simState
+        const cur = order.indexOf(s)
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const canStart = s === 'idle' || s === 'loaded'
+        const log = [
+            { key: 'clockstart', text: 'cy.clock()  // ⏸ saat dondu', color: '#a78bfa' },
+            { key: 'loading', text: 'setTimeout(showData, 5000)', color: '#38bdf8' },
+            { key: 'tick', text: 'cy.tick(5000)  // ⏩ +5000ms', color: '#f59e0b' },
+            { key: 'loaded', text: "✓ cy.contains('Loaded!')", color: CY.green },
+        ]
+        return (
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', maxWidth: 330 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 10 }}>🟢</span>
+                    <span style={{ fontSize: 9, color: CY.text }}>clock.cy.js — Cypress Test Runner</span>
+                    <button
+                        onClick={() => canStart && runSteps([['clockstart', 300], ['loading', 600], ['tick', 700], ['loaded', 500]])}
+                        disabled={!canStart}
+                        style={{ marginLeft: 'auto', background: !canStart ? CY.muted : CY.green, color: '#fff', border: 'none', borderRadius: 4, padding: '3px 12px', fontSize: 9, fontWeight: 700, cursor: !canStart ? 'not-allowed' : 'pointer' }}
+                    >
+                        {s === 'idle' ? '▶ Run' : s === 'loaded' ? '🔄 Run Again' : '⏳...'}
+                    </button>
+                </div>
+                <div style={{ background: CY.bg, padding: '8px 6px', borderRadius: '0 0 10px 10px', minHeight: 150 }}>
+                    {log.map((row) => {
+                        const idx = order.indexOf(row.key)
+                        const show = idx <= cur && s !== 'idle'
+                        return (
+                            <div key={row.key} style={{ padding: '4px 6px', opacity: show ? 1 : 0.15, animation: show ? 'simFadeUp 0.25s ease-out' : 'none' }}>
+                                <code style={{ fontSize: 9.5, color: show ? row.color : CY.muted }}>{row.text}</code>
+                            </div>
+                        )
+                    })}
+                    {s === 'idle' && <div style={{ fontSize: 9, color: CY.muted, padding: '6px' }}>{isTr ? "▶ Run'a bas — 5 saniyeyi anında atla" : '▶ Click Run — skip 5 real seconds instantly'}</div>}
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
+    // === CYPRESS: Debugging — real Selector Playground crosshair tool ===
+    const renderCypressSelectorPlaygroundPlayground = () => {
+        const s = simState
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const targets = {
+            btn: { best: '[data-cy=submit]', match: '1' },
+            input: { best: '[data-cy=email]', match: '1' },
+            header: { best: 'h1.welcome-title', match: '3' },
+        }
+        const sel = targets[s]
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 330 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 12 }}>🎯</span>
+                    <span style={{ fontSize: 9, color: CY.text, fontFamily: 'JetBrains Mono, monospace' }}>{isTr ? 'Selector Playground' : 'Selector Playground'}</span>
+                </div>
+                <div style={{ background: CY.bg, padding: 14, borderRadius: '0 0 10px 10px' }}>
+                    <div style={{ fontSize: 8.5, color: CY.muted, marginBottom: 8 }}>{isTr ? 'Bir elemana tıkla:' : 'Click an element:'}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#fff', borderRadius: 8, padding: 10 }}>
+                        <div onClick={() => setSimState('header')} style={{ cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#111827', padding: 4, outline: s === 'header' ? '2px solid #f59e0b' : 'none', borderRadius: 4 }}>{isTr ? 'Hoş Geldin' : 'Welcome'}</div>
+                        <div onClick={() => setSimState('input')} style={{ cursor: 'pointer', fontSize: 10, color: '#6b7280', border: '1px solid #d1d5db', borderRadius: 6, padding: '5px 8px', outline: s === 'input' ? '2px solid #f59e0b' : 'none' }}>{isTr ? 'e-posta@ornek.com' : 'email@example.com'}</div>
+                        <div onClick={() => setSimState('btn')} style={{ cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#fff', background: '#10b981', borderRadius: 6, padding: '6px 0', textAlign: 'center', outline: s === 'btn' ? '2px solid #f59e0b' : 'none' }}>{isTr ? 'Giriş Yap' : 'Log In'}</div>
+                    </div>
+                    <div style={{ marginTop: 10, background: CY.bgDark, borderRadius: 6, padding: '6px 8px', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+                        {sel ? (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                <code style={{ fontSize: 9.5, color: '#f59e0b' }}>cy.get('{sel.best}')</code>
+                                <span style={{ fontSize: 8, color: sel.match === '1' ? CY.green : '#ef4444', fontWeight: 700 }}>{sel.match} {isTr ? 'eşleşme' : (sel.match === '1' ? 'match' : 'matches')}</span>
+                            </div>
+                        ) : (
+                            <div style={{ fontSize: 8.5, color: CY.muted }}>{isTr ? 'henüz seçim yok' : 'no selection yet'}</div>
+                        )}
+                    </div>
+                </div>
+                {s !== 'idle' && <button onClick={resetSim} style={{ marginTop: 8, padding: '5px', width: '100%', background: 'transparent', border: `1px solid ${CY.border}`, color: CY.muted, fontSize: 9, cursor: 'pointer', borderRadius: 6 }}>↺ Reset</button>}
+            </div>
+        )
+    }
+
+    // === CYPRESS: CI/CD & Cross Browser — GitHub Actions matrix run ===
+    const renderCypressCiPipelinePlayground = () => {
+        const order = ['idle', 'checkout', 'install', 'chrome', 'firefox', 'edge', 'cloud']
+        const s = simState
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'cloud'
+        const browsers = [
+            { key: 'chrome', label: 'chrome', icon: '🟢' },
+            { key: 'firefox', label: 'firefox', icon: '🟠' },
+            { key: 'edge', label: 'edge', icon: '🔵' },
+        ]
+        return (
+            <div style={{ maxWidth: 340, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 16 }}>⚙️</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 11.5, fontWeight: 800 }}>cypress-run.yml</div>
+                            <div style={{ color: '#94a3b8', fontSize: 9.5 }}>GitHub Actions — 3 {isTr ? 'paralel tarayıcı' : 'parallel browsers'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['checkout', 250], ['install', 500], ['chrome', 700], ['firefox', 700], ['edge', 700], ['cloud', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#10b981' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ çalıştır' : '▶ run') : s === 'cloud' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 11, display: 'grid', gap: 6 }}>
+                        <div style={{ fontSize: 9.5, fontFamily: 'monospace', color: cur >= order.indexOf('checkout') ? '#22c55e' : '#475569' }}>{cur >= order.indexOf('checkout') ? '✓' : '○'} actions/checkout@v6</div>
+                        <div style={{ fontSize: 9.5, fontFamily: 'monospace', color: cur >= order.indexOf('install') ? '#22c55e' : '#475569' }}>{cur >= order.indexOf('install') ? '✓' : '○'} npm ci</div>
+                        {browsers.map(b => {
+                            const idx = order.indexOf(b.key)
+                            const active = s === b.key
+                            return (
+                                <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 9.5, fontFamily: 'monospace', color: cur > idx ? '#22c55e' : active ? '#f59e0b' : '#475569' }}>
+                                    <span>{cur > idx ? '✓' : active ? '⏳' : '○'}</span>
+                                    <span>cypress run --browser {b.label} {b.icon}</span>
+                                </div>
+                            )
+                        })}
+                        <div style={{ fontSize: 9.5, fontFamily: 'monospace', color: cur >= order.indexOf('cloud') ? '#a78bfa' : '#475569' }}>{cur >= order.indexOf('cloud') ? '✓' : '○'} ☁️ {isTr ? "Cypress Cloud'a kaydedildi" : 'recorded to Cypress Cloud'}</div>
+                    </div>
+                    {s === 'cloud' && (
+                        <div style={{ margin: '0 11px 11px', padding: '8px 10px', borderRadius: 8, background: '#10b98118', border: '1px solid #10b981', fontSize: 9.5, color: '#10b981', fontWeight: 700 }}>
+                            ✅ {isTr ? "3 tarayıcı, 0 hata — PR'a otomatik check yazıldı." : '3 browsers, 0 failures — PR check posted automatically.'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    // === CYPRESS: jQuery-powered pseudo-class selectors — exclusive vs Selenium/Playwright ===
+    const renderCypressJqSelectorsPlayground = () => {
+        const s = simState
+        const CY = { bg: '#1e1e1e', bgDark: '#161616', border: '#2d2d2d', text: '#d4d4d4', muted: '#6e6e6e', green: '#10b981' }
+        const items = [
+            { id: 0, label: 'Apple', hidden: false, checked: false },
+            { id: 1, label: 'Banana', hidden: true, checked: false },
+            { id: 2, label: 'Cherry', hidden: false, checked: false },
+            { id: 3, label: 'Date', hidden: false, checked: true },
+            { id: 4, label: 'Elderberry', hidden: false, checked: false },
+        ]
+        const pseudos = [
+            { key: 'first', tag: ':first', code: 'li:first', matches: [0] },
+            { key: 'last', tag: ':last', code: 'li:last', matches: [4] },
+            { key: 'visible', tag: ':visible', code: 'li:visible', matches: [0, 2, 3, 4] },
+            { key: 'contains', tag: ':contains()', code: 'li:contains("Cherry")', matches: [2] },
+            { key: 'eq2', tag: ':eq(2)', code: 'li:eq(2)', matches: [2] },
+            { key: 'checked', tag: ':checked', code: 'input:checked', matches: [3] },
+        ]
+        const active = pseudos.find(p => p.key === s)
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 340 }}>
+                <div style={{ background: CY.bgDark, borderRadius: '10px 10px 0 0', padding: '6px 10px', borderBottom: `1px solid ${CY.border}` }}>
+                    <span style={{ fontSize: 9, color: CY.text, fontFamily: 'JetBrains Mono, monospace' }}>fruit-list.cy.js — jQuery Selectors</span>
+                </div>
+                <div style={{ background: CY.bg, padding: 10, borderRadius: '0 0 10px 10px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+                        {pseudos.map(p => (
+                            <button key={p.key} onClick={() => setSimState(p.key)} style={{ fontSize: 8.5, fontFamily: 'monospace', padding: '3px 7px', borderRadius: 5, border: `1px solid ${s === p.key ? CY.green : CY.border}`, background: s === p.key ? `${CY.green}22` : 'transparent', color: s === p.key ? CY.green : CY.muted, cursor: 'pointer' }}>
+                                {p.tag}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ background: '#fff', borderRadius: 8, padding: 8, display: 'grid', gap: 4 }}>
+                        {items.map(it => {
+                            const isMatch = active && active.matches.includes(it.id)
+                            return (
+                                <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px', borderRadius: 5, background: isMatch ? '#10b98122' : 'transparent', outline: isMatch ? '2px solid #10b981' : 'none', opacity: it.hidden ? 0.35 : 1, transition: 'all .25s' }}>
+                                    {it.checked && <span style={{ fontSize: 11 }}>☑️</span>}
+                                    <span style={{ fontSize: 10.5, color: '#111827', textDecoration: it.hidden ? 'line-through' : 'none' }}>{it.label}</span>
+                                    {it.hidden && <span style={{ fontSize: 7.5, color: '#94a3b8', marginLeft: 'auto' }}>display:none</span>}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div style={{ marginTop: 8, background: CY.bgDark, borderRadius: 6, padding: '6px 8px' }}>
+                        {active ? (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <code style={{ fontSize: 9.5, color: '#f59e0b' }}>cy.get('{active.code}')</code>
+                                <span style={{ fontSize: 8, color: CY.green, fontWeight: 700 }}>{active.matches.length} {isTr ? 'eşleşme' : (active.matches.length === 1 ? 'match' : 'matches')}</span>
+                            </div>
+                        ) : (
+                            <div style={{ fontSize: 8.5, color: CY.muted }}>{isTr ? 'Yukarıdan bir pseudo-class seç' : 'Pick a pseudo-class above'}</div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSeleniumBidiCdpPlayground = () => {
+        const s = simState
+        const subtext = darkMode ? '#9ca3af' : '#6b7280'
+        const isDark = darkMode
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: isDark ? '#1e293b' : '#f8fafc', border: `1px solid ${isDark ? '#475569' : '#cbd5e1'}`, borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12, overflowX: 'auto', paddingBottom: 4 }}>
+                        <button onClick={() => setSimState('console-error')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'console-error' ? '#ef4444' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'console-error' ? '#ef444422' : 'transparent', color: s === 'console-error' ? '#ef4444' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🚨 {isTr ? 'Console Listener' : 'Console Listener'}
+                        </button>
+                        <button onClick={() => setSimState('mock-network')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'mock-network' ? '#3b82f6' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'mock-network' ? '#3b82f622' : 'transparent', color: s === 'mock-network' ? '#3b82f6' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🌐 {isTr ? 'Network Mock' : 'Network Mock'}
+                        </button>
+                        <button onClick={() => setSimState('paris-geo')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'paris-geo' ? '#10b981' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'paris-geo' ? '#10b98122' : 'transparent', color: s === 'paris-geo' ? '#10b981' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            📍 {isTr ? 'Geo (Paris)' : 'Geo (Paris)'}
+                        </button>
+                    </div>
+
+                    <div style={{ background: '#090d16', borderRadius: 8, padding: 10, minHeight: 140, border: '1px solid #1e293b' }}>
+                        <div style={{ display: 'flex', gap: 4, alignItems: 'center', borderBottom: '1px solid #1e293b', paddingBottom: 6, marginBottom: 8 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#ef4444' }} />
+                            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#f59e0b' }} />
+                            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#22c55e' }} />
+                            <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#64748b', marginLeft: 6 }}>Chrome Simulator</span>
+                        </div>
+
+                        {s === 'idle' && (
+                            <div style={{ color: '#475569', fontSize: 10.5, textAlign: 'center', paddingTop: 30 }}>
+                                {isTr ? 'Yukarıdan bir test senaryosu seçin.' : 'Select a test scenario above.'}
+                            </div>
+                        )}
+
+                        {s === 'console-error' && (
+                            <div style={{ animation: 'simFadeUp 0.3s' }}>
+                                <div style={{ fontSize: 10, color: '#ef4444', fontFamily: 'monospace', lineHeight: 1.5, background: '#ef444415', padding: 8, borderRadius: 4, borderLeft: '3px solid #ef4444' }}>
+                                    ❌ Uncaught TypeError: Cannot read properties of undefined (reading 'click')<br />
+                                    <span style={{ color: '#64748b' }}>at login.js:42:18</span>
+                                </div>
+                                <div style={{ marginTop: 10, fontSize: 10, color: '#34d399', fontFamily: 'monospace' }}>
+                                    [Java DevTools] {isTr ? 'LogEntry yakalandı!' : 'LogEntry captured!'}<br />
+                                    ➜ Log: "TypeError: Cannot read properties..."
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'mock-network' && (
+                            <div style={{ animation: 'simFadeUp 0.3s', color: '#e2e8f0', fontSize: 10.5 }}>
+                                <div style={{ padding: 6, background: '#1e293b', borderRadius: 4, display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <span style={{ color: '#94a3b8' }}>API Request:</span>
+                                    <span style={{ fontFamily: 'monospace', color: '#f59e0b' }}>GET /api/user</span>
+                                </div>
+                                <div style={{ border: '1px solid #334155', borderRadius: 6, padding: 8, background: '#111827' }}>
+                                    <div style={{ fontWeight: 700, color: '#38bdf8' }}>{isTr ? 'Profil Sayfası (Mocked)' : 'Profile Page (Mocked)'}</div>
+                                    <div style={{ marginTop: 4 }}>{isTr ? 'Ad Soyad: Mocked User' : 'Full Name: Mocked User'}</div>
+                                    <div style={{ color: '#10b981' }}>{isTr ? 'Rol: Lead QA Engineer' : 'Role: Lead QA Engineer'}</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'paris-geo' && (
+                            <div style={{ animation: 'simFadeUp 0.3s', color: '#e2e8f0', fontSize: 10.5 }}>
+                                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8 }}>
+                                    <span style={{ fontSize: 16 }}>🗺️</span>
+                                    <span style={{ fontWeight: 700 }}>Google Maps Simulator</span>
+                                </div>
+                                <div style={{ background: '#1e293b', padding: 8, borderRadius: 6, border: '1px solid #3b82f6' }}>
+                                    <div style={{ color: '#38bdf8', fontWeight: 700 }}>📍 Paris, France</div>
+                                    <div style={{ fontSize: 9.5, color: '#94a3b8', marginTop: 2 }}>
+                                        Latitude: 48.8566 | Longitude: 2.3522
+                                    </div>
+                                    <div style={{ fontSize: 9, color: '#10b981', marginTop: 4 }}>
+                                        ✓ {isTr ? 'Konum emülasyonu başarıyla uygulandı.' : 'Location emulation successfully applied.'}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSeleniumVirtualAuthPlayground = () => {
+        const s = simState
+        const isDark = darkMode
+        const subtext = darkMode ? '#9ca3af' : '#6b7280'
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: isDark ? '#1e293b' : '#f8fafc', border: `1px solid ${isDark ? '#475569' : '#cbd5e1'}`, borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12, overflowX: 'auto', paddingBottom: 4 }}>
+                        <button onClick={() => setSimState('add-auth')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'add-auth' ? '#a78bfa' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'add-auth' ? '#a78bfa22' : 'transparent', color: s === 'add-auth' ? '#a78bfa' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🔑 Passkey (WebAuthn)
+                        </button>
+                        <button onClick={() => setSimState('print-pdf')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'print-pdf' ? '#f59e0b' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'print-pdf' ? '#f59e0b22' : 'transparent', color: s === 'print-pdf' ? '#f59e0b' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            📄 Print PDF
+                        </button>
+                        <button onClick={() => setSimState('scroll-wheel')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'scroll-wheel' ? '#10b981' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'scroll-wheel' ? '#10b98122' : 'transparent', color: s === 'scroll-wheel' ? '#10b981' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🖱️ Wheel Scroll
+                        </button>
+                    </div>
+
+                    <div style={{ background: '#090d16', borderRadius: 8, padding: 10, minHeight: 140, border: '1px solid #1e293b', position: 'relative', overflow: 'hidden' }}>
+                        {s === 'idle' && (
+                            <div style={{ color: '#475569', fontSize: 10.5, textAlign: 'center', paddingTop: 30 }}>
+                                {isTr ? 'Gelişmiş API senaryosunu seçin.' : 'Select an advanced API scenario.'}
+                            </div>
+                        )}
+
+                        {s === 'add-auth' && (
+                            <div style={{ animation: 'simFadeUp 0.3s', color: '#e2e8f0', fontSize: 10.5 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#a78bfa', fontWeight: 700, marginBottom: 8 }}>
+                                    <span>🔑</span>
+                                    <span>Virtual Authenticator API</span>
+                                </div>
+                                <div style={{ border: '1px solid #334155', borderRadius: 6, padding: 8, background: '#111827' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, marginBottom: 4 }}>
+                                        <span style={{ color: '#94a3b8' }}>Protocol:</span>
+                                        <span style={{ color: '#a78bfa', fontFamily: 'monospace' }}>CTAP2 / USB</span>
+                                    </div>
+                                    <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, fontWeight: 700 }}>
+                                        <span style={{ fontSize: 11 }}>✓</span>
+                                        <span>{isTr ? 'Parmak izi / Biyometrik onay başarılı!' : 'Fingerprint / Biometric verified!'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'print-pdf' && (
+                            <div style={{ animation: 'simFadeUp 0.3s', color: '#e2e8f0', fontSize: 10.5 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f59e0b', fontWeight: 700, marginBottom: 8 }}>
+                                    <span>📄</span>
+                                    <span>driver.print(printOptions)</span>
+                                </div>
+                                <div style={{ border: '1px solid #f59e0b44', borderRadius: 6, padding: 8, background: '#ffffff', color: '#111827' }}>
+                                    <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: 4, fontWeight: 700, fontSize: 9, textTransform: 'uppercase', color: '#64748b' }}>Fatura / Invoice</div>
+                                    <div style={{ marginTop: 4, fontSize: 10 }}>Total Due: <b>$120.00</b></div>
+                                    <div style={{ fontSize: 9, color: '#64748b' }}>Page Range: 1-1</div>
+                                </div>
+                                <div style={{ marginTop: 6, color: '#10b981', fontSize: 9.5, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <span style={{ animation: 'simPulse 1s infinite' }}>📥</span>
+                                    <span>{isTr ? 'fatura.pdf kaydedildi (156 KB)' : 'invoice.pdf saved (156 KB)'}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'scroll-wheel' && (
+                            <div style={{ animation: 'simFadeUp 0.3s', color: '#e2e8f0', fontSize: 10.5 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#10b981', fontWeight: 700, marginBottom: 8 }}>
+                                    <span>🖱️</span>
+                                    <span>Actions Wheel API</span>
+                                </div>
+                                <div style={{ border: '1px solid #1e293b', borderRadius: 6, padding: 8, background: '#111827', height: 80, overflowY: 'hidden', position: 'relative' }}>
+                                    <div style={{ transform: 'translateY(-20px)', transition: 'transform 1.5s ease-in-out', animation: 'simScrollDown 3s infinite alternate', fontSize: 9.5, color: '#94a3b8', lineHeight: 1.6 }}>
+                                        Header Section<br />
+                                        Main Content Area<br />
+                                        Middle Banner<br />
+                                        <b style={{ color: '#10b981' }}>📍 Footer Element (Target)</b><br />
+                                        Bottom Links
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSeleniumIdeFlowPlayground = () => {
+        const s = simState
+        const isDark = darkMode
+        const subtext = darkMode ? '#9ca3af' : '#6b7280'
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: isDark ? '#1e293b' : '#f8fafc', border: `1px solid ${isDark ? '#475569' : '#cbd5e1'}`, borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                        <button onClick={() => setSimState('recording')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'recording' ? '#ef4444' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'recording' ? '#ef444422' : 'transparent', color: s === 'recording' ? '#ef4444' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🔴 {isTr ? 'Kaydet (REC)' : 'Record (REC)'}
+                        </button>
+                        <button onClick={() => setSimState('control-flow')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'control-flow' ? '#3b82f6' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'control-flow' ? '#3b82f622' : 'transparent', color: s === 'control-flow' ? '#3b82f6' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            🔀 {isTr ? 'Control Flow' : 'Control Flow'}
+                        </button>
+                        <button onClick={() => setSimState('export-code')} style={{ fontSize: 9.5, padding: '5px 9px', borderRadius: 6, border: `1px solid ${s === 'export-code' ? '#f59e0b' : (isDark ? '#475569' : '#cbd5e1')}`, background: s === 'export-code' ? '#f59e0b22' : 'transparent', color: s === 'export-code' ? '#f59e0b' : subtext, cursor: 'pointer', fontWeight: 700 }}>
+                            📤 {isTr ? 'Export Java' : 'Export Java'}
+                        </button>
+                    </div>
+
+                    <div style={{ background: '#090d16', borderRadius: 8, padding: 10, minHeight: 140, border: '1px solid #1e293b' }}>
+                        {s === 'idle' && (
+                            <div style={{ color: '#475569', fontSize: 10.5, textAlign: 'center', paddingTop: 30 }}>
+                                {isTr ? 'Selenium IDE adımlarını başlatın.' : 'Start Selenium IDE steps.'}
+                            </div>
+                        )}
+
+                        {s === 'recording' && (
+                            <div style={{ animation: 'simFadeUp 0.3s' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 9.5, marginBottom: 8 }}>
+                                    <span style={{ width: 8, height: 8, borderRadius: 999, background: '#ef4444', animation: 'simPulse 1s infinite' }} />
+                                    <span>RECORDING USER ACTIONS...</span>
+                                </div>
+                                <div style={{ fontSize: 9.5, color: '#94a3b8', fontFamily: 'monospace', display: 'grid', gap: 4 }}>
+                                    <div>➜ Click input[name="email"]</div>
+                                    <div style={{ color: '#22c55e' }}>➜ Type email: "qa@example.com"</div>
+                                    <div>➜ Click button[type="submit"]</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'control-flow' && (
+                            <div style={{ animation: 'simFadeUp 0.3s' }}>
+                                <div style={{ color: '#3b82f6', fontWeight: 700, fontSize: 9.5, marginBottom: 8 }}>
+                                    🔄 IDE Commands (Control Flow)
+                                </div>
+                                <div style={{ fontSize: 9.5, fontFamily: 'monospace', color: '#e2e8f0', display: 'grid', gap: 3 }}>
+                                    <div style={{ color: '#60a5fa' }}>1. open | /dashboard</div>
+                                    <div style={{ color: '#fb923c' }}>2. if | ${isLoggedIn} === true</div>
+                                    <div style={{ color: '#a78bfa', paddingLeft: 10 }}>3. assertText | css=.username | QA Admin</div>
+                                    <div style={{ color: '#fb923c' }}>4. else</div>
+                                    <div style={{ color: '#a78bfa', paddingLeft: 10 }}>5. assertElementPresent | id=login-btn</div>
+                                    <div style={{ color: '#fb923c' }}>6. end</div>
+                                </div>
+                            </div>
+                        )}
+
+                        {s === 'export-code' && (
+                            <div style={{ animation: 'simFadeUp 0.3s' }}>
+                                <div style={{ color: '#f59e0b', fontWeight: 700, fontSize: 9.5, marginBottom: 8 }}>
+                                    ☕ Exported JUnit 5 Test Code
+                                </div>
+                                <div style={{ fontSize: 8.5, fontFamily: 'monospace', color: '#a7f3d0', maxHeight: 96, overflowY: 'auto', background: '#111827', padding: 6, borderRadius: 4 }}>
+                                    {`@Test\npublic void testLogin() {\n  driver.get("https://example.com/dashboard");\n  if (isLoggedIn) {\n    assertEquals(driver.findElement(By.cssSelector(".username")).getText(), "QA Admin");\n  } else {\n    assertTrue(driver.findElement(By.id("login-btn")).isDisplayed());\n  }\n}`}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSeleniumGridArchitecturePlayground = () => {
+        const s = simState
+        const isDark = darkMode
+        const order = ['idle', 'router', 'distributor', 'docker', 'session-map', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const isActive = (key) => s === key
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: isDark ? '#1e293b' : '#f8fafc', border: `1px solid ${isDark ? '#475569' : '#cbd5e1'}`, borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#f8fafc' : '#111827' }}>Grid 4 Parallel Flow</span>
+                        <button onClick={() => canStart && runSteps([['router', 200], ['distributor', 800], ['docker', 1000], ['session-map', 800], ['done', 500]])} disabled={!canStart} style={{ border: 0, borderRadius: 6, padding: '5px 10px', fontSize: 10.5, fontWeight: 800, color: '#0f294a', background: canStart ? '#38bdf8' : '#6b7280', cursor: canStart ? 'pointer' : 'not-allowed' }}>
+                            {s === 'idle' ? '▶ Start Test' : s === 'done' ? '▶ Run Again' : '⏳ Running'}
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, position: 'relative' }}>
+                        {/* Router Box */}
+                        <div style={{ border: `1px solid ${isActive('router') ? '#38bdf8' : '#334155'}`, background: isActive('router') ? '#082f49' : '#0f172a', borderRadius: 8, padding: 8, textAlign: 'center', transition: 'all 0.3s', boxShadow: isActive('router') ? '0 0 10px #38bdf8' : 'none' }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#f8fafc' }}>🚦 Router</div>
+                            <div style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>Port 4444</div>
+                        </div>
+
+                        {/* Distributor Box */}
+                        <div style={{ border: `1px solid ${isActive('distributor') ? '#fb923c' : '#334155'}`, background: isActive('distributor') ? '#431407' : '#0f172a', borderRadius: 8, padding: 8, textAlign: 'center', transition: 'all 0.3s', boxShadow: isActive('distributor') ? '0 0 10px #fb923c' : 'none' }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#f8fafc' }}>🗂️ Distributor</div>
+                            <div style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>Matches request</div>
+                        </div>
+
+                        {/* Session Map Box */}
+                        <div style={{ border: `1px solid ${isActive('session-map') ? '#a78bfa' : '#334155'}`, background: isActive('session-map') ? '#2e1065' : '#0f172a', borderRadius: 8, padding: 8, textAlign: 'center', transition: 'all 0.3s', boxShadow: isActive('session-map') ? '0 0 10px #a78bfa' : 'none' }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#f8fafc' }}>🗺️ Session Map</div>
+                            <div style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>Saves Node IP</div>
+                        </div>
+
+                        {/* Dynamic Docker Node */}
+                        <div style={{ border: `1px solid ${isActive('docker') || s === 'done' ? '#10b981' : '#334155'}`, background: isActive('docker') || s === 'done' ? '#064e3b' : '#0f172a', borderRadius: 8, padding: 8, textAlign: 'center', transition: 'all 0.3s', boxShadow: isActive('docker') ? '0 0 10px #10b981' : 'none' }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#f8fafc' }}>🐳 Docker Node</div>
+                            <div style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>{s === 'done' ? '✓ Container Destroyed' : isActive('docker') ? '⏳ Spinning Container' : 'Idle'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'git-snapshot-story') {
@@ -10363,6 +10986,461 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'cypress-test-structure') {
+            const order = ['idle', 'before', 'be1', 'it1', 'ae1', 'be2', 'it2', 'ae2', 'after']
+            const cur = order.indexOf(simState)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const counts = [
+                { label: 'before()', count: cur >= order.indexOf('before') ? 1 : 0, max: 1 },
+                { label: 'beforeEach()', count: [order.indexOf('be1'), order.indexOf('be2')].filter(i => cur >= i).length, max: 2 },
+                { label: 'it()', count: [order.indexOf('it1'), order.indexOf('it2')].filter(i => cur >= i).length, max: 2 },
+                { label: 'afterEach()', count: [order.indexOf('ae1'), order.indexOf('ae2')].filter(i => cur >= i).length, max: 2 },
+                { label: 'after()', count: cur >= order.indexOf('after') ? 1 : 0, max: 1 },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Hook çalışma sayacı' : 'Hook execution counter'}</div>
+                    {counts.map((c, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${darkMode ? '#1f2937' : '#f3f4f6'}` }}>
+                            <code style={{ fontSize: 10.5, color: darkMode ? '#e5e7eb' : '#111827' }}>{c.label}</code>
+                            <span style={{ fontSize: 10.5, fontWeight: 800, color: c.count === c.max && c.count > 0 ? '#10b981' : subtext }}>{c.count} / {c.max}</span>
+                        </div>
+                    ))}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "JUnit 5'te @BeforeAll/@AfterAll static ve sınıf başına 1 kez çalışır — Cypress'te before()/after() de aynı şekilde describe bloğu için 1 kez çalışır. @BeforeEach/@AfterEach her test metodundan önce/sonra çalışır — beforeEach()/afterEach() de her it() için aynısını yapar." : "In JUnit 5, @BeforeAll/@AfterAll are static and run once per class — Cypress's before()/after() do the same once per describe block. @BeforeEach/@AfterEach run before/after every test method — beforeEach()/afterEach() do the same for every it()."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-session-cache') {
+            const order = ['idle', 't1visit', 't1type', 't1click', 't1saved', 't2restore', 't2dashboard']
+            const cur = order.indexOf(simState)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const sessionSaved = cur >= order.indexOf('t1saved')
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Session Cache Durumu' : 'Session Cache State'}</div>
+                    <div style={{ border: `1.5px solid ${sessionSaved ? '#a78bfa' : (darkMode ? '#374151' : '#d1d5db')}`, borderRadius: 8, padding: 10, background: sessionSaved ? '#a78bfa18' : 'transparent', transition: 'all .3s' }}>
+                        <div style={{ fontSize: 10.5, fontWeight: 800, color: sessionSaved ? '#a78bfa' : subtext }}>cy.session(['user','pass123'], fn)</div>
+                        <div style={{ fontSize: 9.5, color: subtext, marginTop: 4 }}>{sessionSaved ? (isTr ? "✓ cookie + localStorage cache'lendi" : '✓ cookies + localStorage cached') : (isTr ? 'henüz boş' : 'still empty')}</div>
+                    </div>
+                    <div style={{ marginTop: 10, display: 'grid', gap: 4 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5 }}>
+                            <code style={{ fontWeight: 700, color: darkMode ? '#e5e7eb' : '#111827' }}>this.alias</code>
+                            <span style={{ color: subtext }}>{isTr ? 'statik anlık görüntü' : 'static snapshot'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5 }}>
+                            <code style={{ fontWeight: 700, color: darkMode ? '#e5e7eb' : '#111827' }}>cy.get('@alias')</code>
+                            <span style={{ color: subtext }}>{isTr ? 'sorguyu tekrar çalıştırır' : 're-runs the query'}</span>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "Selenium'da her testten önce login'i tekrar yapmamak için genelde kendi cache mekanizmanı (cookie inject, @BeforeClass) yazarsın. cy.session() bunu built-in yapar: aynı login parametreleriyle çağrılırsa testi tekrar çalıştırmaz, sadece tarayıcı context'ini geri yükler." : "In Selenium you usually write your own caching mechanism (cookie injection, @BeforeClass) to avoid re-logging-in before every test. cy.session() does this built-in: if called with the same login params, it skips re-running and just restores the browser context."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-component-mount') {
+            const order = ['idle', 'mount', 'click', 'spy']
+            const cur = order.indexOf(simState)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>E2E vs Component Testing</div>
+                    <div style={{ display: 'grid', gap: 6 }}>
+                        <div style={{ border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 8, padding: 8 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#e5e7eb' : '#111827' }}>🌍 cy.visit()</div>
+                            <div style={{ fontSize: 9, color: subtext }}>{isTr ? 'TÜM uygulamayı açar — server, router, tüm sayfa.' : 'Loads the WHOLE app — server, router, full page.'}</div>
+                        </div>
+                        <div style={{ border: `1.5px solid ${cur >= order.indexOf('mount') ? '#10b981' : (darkMode ? '#374151' : '#e5e7eb')}`, borderRadius: 8, padding: 8, background: cur >= order.indexOf('mount') ? '#10b98118' : 'transparent', transition: 'all .3s' }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#e5e7eb' : '#111827' }}>🧩 cy.mount()</div>
+                            <div style={{ fontSize: 9, color: subtext }}>{isTr ? 'SADECE bu component\'i izole render eder — server gerekmez.' : 'Renders ONLY this component in isolation — no server needed.'}</div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "JUnit + Mockito'da bir servis sınıfını tüm Spring context'ini ayağa kaldırmadan izole test edersin (@ExtendWith(MockitoExtension.class)). cy.mount() de aynı felsefeyle, tüm React/Vue uygulamasını açmadan tek bir component'i gerçek tarayıcıda izole test eder." : "In JUnit + Mockito you test a service class in isolation without booting the whole Spring context (@ExtendWith(MockitoExtension.class)). cy.mount() follows the same philosophy — testing a single component in a real browser without launching the entire React/Vue app."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-stub-clock') {
+            const order = ['idle', 'clockstart', 'loading', 'tick', 'loaded']
+            const cur = order.indexOf(simState)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const ticked = cur >= order.indexOf('tick')
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Gerçek zaman vs Cypress saati' : 'Real time vs Cypress clock'}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 8 }}>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: 18 }}>⏱️</div>
+                            <div style={{ fontSize: 8, color: subtext }}>{isTr ? 'gerçek saat' : 'real clock'}</div>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: '#ef4444' }}>{isTr ? 'donduruldu' : 'frozen'}</div>
+                        </div>
+                        <div style={{ fontSize: 14, color: subtext }}>→</div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: 18 }}>{ticked ? '⚡' : '🌀'}</div>
+                            <div style={{ fontSize: 8, color: subtext }}>cy.tick(5000)</div>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: ticked ? '#10b981' : subtext }}>{ticked ? '+5000ms' : '+0ms'}</div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? 'Java testlerinde setTimeout benzeri davranışı test etmek için genelde Thread.sleep() ile gerçekten beklersin (yavaş, flaky). cy.clock() + cy.tick() sahte bir saat kurar — gerçekte 5 saniye geçmeden uygulamanın "5 saniye sonra" davranışını anında tetikler.' : 'In Java tests you usually call Thread.sleep() to really wait out a setTimeout-like delay (slow, flaky). cy.clock() + cy.tick() install a fake clock — it triggers the app\'s "5 seconds later" behavior instantly, without waiting 5 real seconds.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-selector-playground') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const tips = {
+                btn: { tr: '✅ data-cy ile tekil ve kararlı — en iyi pratik.', en: '✅ Unique and stable via data-cy — best practice.' },
+                input: { tr: "✅ data-cy ile tekil — input değer/placeholder değişse bile kırılmaz.", en: '✅ Unique via data-cy — survives value/placeholder changes.' },
+                header: { tr: '⚠️ h1.welcome-title sayfada 3 yerde eşleşiyor — Cypress ilkini alır, bu kırılgan ve belirsizdir.', en: '⚠️ h1.welcome-title matches 3 places on the page — Cypress takes the first one, which is fragile and ambiguous.' },
+            }
+            const current = simState !== 'idle' ? tips[simState] : null
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Seçilen Elemanın Analizi' : 'Selected Element Analysis'}</div>
+                    {current ? (
+                        <div style={{ padding: 10, borderRadius: 8, background: nodeBg, fontSize: 10.5, color: darkMode ? '#e5e7eb' : '#111827', lineHeight: 1.6 }}>{isTr ? current.tr : current.en}</div>
+                    ) : (
+                        <div style={{ fontSize: 10, color: subtext }}>{isTr ? 'Solda bir elemana tıkla.' : 'Click an element on the left.'}</div>
+                    )}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "Selenium'da \"doğru selector\"ı bulmak için sık sık tarayıcı DevTools'ta manuel deneme yaparsın. Cypress Selector Playground bunu Test Runner'ın içine gömer: tıkla, en iyi selector'ı ve kaç eşleşme olduğunu anında gör, kopyala-yapıştır." : "In Selenium, finding the \"right selector\" usually means manual trial-and-error in browser DevTools. Cypress's Selector Playground embeds this right inside the Test Runner: click, instantly see the best selector and how many matches it has, then copy-paste."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-ci-pipeline') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>cypress open vs cypress run</div>
+                    <div style={{ display: 'grid', gap: 6 }}>
+                        <div style={{ border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 8, padding: 8 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#e5e7eb' : '#111827' }}>🖥️ cypress open</div>
+                            <div style={{ fontSize: 9, color: subtext }}>{isTr ? 'İnteraktif Test Runner — geliştirirken kullanılır.' : 'Interactive Test Runner — used while developing.'}</div>
+                        </div>
+                        <div style={{ border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 8, padding: 8 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#e5e7eb' : '#111827' }}>🤖 cypress run --browser X</div>
+                            <div style={{ fontSize: 9, color: subtext }}>{isTr ? 'Headless, CI\'da kullanılır. --browser ile chrome/firefox/edge seçilir.' : 'Headless, used in CI. --browser picks chrome/firefox/edge.'}</div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "Maven Surefire'da <parallel>methods</parallel> ve forkCount ile JUnit testlerini paralel koşturursun. Cypress'te ise her tarayıcı/grup ayrı bir CI job'ı (matrix strategy) olarak paralel çalışır ve sonuçlar Cypress Cloud'da tek bir raporda birleşir." : "In Maven Surefire you parallelize JUnit tests with <parallel>methods</parallel> and forkCount. In Cypress, each browser/group runs as a separate CI job (matrix strategy) in parallel, and results merge into a single Cypress Cloud report."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'cypress-jquery-selectors') {
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const equivalents = {
+                first: { tr: 'Selenium: driver.findElements(By.tagName("li")).get(0) yazman gerekir — CSS3\'te :first yoktur.', en: 'Selenium: you must write driver.findElements(By.tagName("li")).get(0) — CSS3 has no :first.' },
+                last: { tr: "Selenium: listenin boyutunu alıp son indekse erişmen gerekir. Playwright: locator.last() metodunu kullanırsın (farklı sözdizimi).", en: 'Selenium: you must get the list size and access the last index. Playwright: you use the locator.last() method (different syntax).' },
+                visible: { tr: "Selenium: isDisplayed() ile her elemanı tek tek kontrol edip filtrelersin. Playwright'ın kendi :visible'ı var ama jQuery'nin Sizzle motoruyla aynı değildir.", en: "Selenium: you check isDisplayed() on each element and filter manually. Playwright has its own :visible but it isn't the same engine as jQuery's Sizzle." },
+                contains: { tr: 'Selenium: CSS\'te :contains() YOKTUR, XPath\'e geçmen gerekir (//li[contains(text(),"Cherry")]). Cypress\'te aynı satırda CSS gibi yazılır.', en: 'Selenium: CSS has NO :contains(), you must switch to XPath (//li[contains(text(),"Cherry")]). In Cypress it\'s written like plain CSS on the same line.' },
+                eq2: { tr: ":eq(n) CSS3 standardında yoktur — sadece jQuery/Sizzle'da var. Cypress bunu doğrudan miras alır.", en: ":eq(n) doesn't exist in the CSS3 standard — it's a jQuery/Sizzle-only feature. Cypress inherits it directly." },
+                checked: { tr: ":checked CSS3'te VARDIR ama tarayıcı motoruna göre tutarsız davranabilir; jQuery'nin normalize edilmiş versiyonu Cypress'te garantilidir.", en: ":checked exists in CSS3 but can behave inconsistently across browser engines; jQuery's normalized version is guaranteed in Cypress." },
+            }
+            const current = simState !== 'idle' ? equivalents[simState] : null
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Diğer araçlarda bu nasıl yapılır?' : 'How would other tools do this?'}</div>
+                    {current ? (
+                        <div style={{ padding: 10, borderRadius: 8, background: nodeBg, fontSize: 10.5, color: darkMode ? '#e5e7eb' : '#111827', lineHeight: 1.6 }}>{isTr ? current.tr : current.en}</div>
+                    ) : (
+                        <div style={{ fontSize: 10, color: subtext }}>{isTr ? 'Solda bir pseudo-class seç.' : 'Pick a pseudo-class on the left.'}</div>
+                    )}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? "Cypress'in sorgu motoru gerçekten jQuery'dir (Sizzle selector engine) — bu yüzden jQuery'nin TÜM pseudo-class'larını hiçbir ek kütüphane gerekmeden cy.get() içinde kullanabilirsin. Bu, Selenium'un saf CSS3/XPath motorunda ve Playwright'ın kendi (farklı sözdizimli) selector motorunda YOKTUR." : "Cypress's query engine is literally jQuery (the Sizzle selector engine) — so you can use ALL of jQuery's pseudo-classes inside cy.get() with zero extra libraries. This does NOT exist in Selenium's plain CSS3/XPath engine or in Playwright's own (differently-syntaxed) selector engine."}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'selenium-bidi-cdp') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const details = {
+                'console-error': {
+                    title: isTr ? 'BiDi Console Listener' : 'BiDi Console Listener',
+                    desc: isTr 
+                        ? 'BiDi (Bidirectional) protokolü sayesinde WebSocket bağlantısı üzerinden tarayıcıdaki JavaScript hataları anlık olarak dinlenir. HTTP polling yapılmasına gerek kalmaz.'
+                        : 'Using the Bidirectional protocol over WebSockets, JavaScript console errors in the browser are captured in real-time without HTTP polling.',
+                    why: isTr
+                        ? 'Geleneksel WebDriver\'da logları almak için test sonunda driver.manage().logs() ile toplu çekim yapılırdı. BiDi ise olay odaklı (event-driven) çalışır.'
+                        : 'Traditional WebDriver polled driver.manage().logs() at the end of the test. BiDi works event-driven in real-time.'
+                },
+                'mock-network': {
+                    title: isTr ? 'CDP/BiDi Network Mocking' : 'CDP/BiDi Network Mocking',
+                    desc: isTr
+                        ? 'Ağ katmanına müdahale edilerek belirli URL istekleri yakalanır ve API sunucusuna gitmeden sahte (mock) JSON cevabı enjekte edilir.'
+                        : 'By intercepting the network layer, requests to specific URLs are blocked and custom mock JSON responses are injected before hitting the API server.',
+                    why: isTr
+                        ? 'Mocking sayesinde backend servisleri hazır olmasa bile frontend testleri izole olarak koşulabilir. Testler hızlanır ve dış bağımlılıklar kalkar.'
+                        : 'Mocking allows frontend tests to run in isolation even if backend services are down, speeding up execution and eliminating flakiness.'
+                },
+                'paris-geo': {
+                    title: isTr ? 'Emulate Geolocation' : 'Emulate Geolocation',
+                    desc: isTr
+                        ? 'Chrome DevTools Protocol (CDP) veya BiDi üzerinden enlem (latitude) ve boylam (longitude) değerleri tarayıcıya gönderilerek GPS konumu simüle edilir.'
+                        : 'Through CDP/BiDi commands, latitude and longitude coordinates are sent to the browser to simulate physical GPS location.',
+                    why: isTr
+                        ? 'Uygulamanın lokasyon bazlı özelliklerini (para birimi, dil, yakın bayiler vb.) dünyanın her yerindeymiş gibi test etmenizi sağlar.'
+                        : 'Enables testing location-based features (currency, language, nearby stores) as if the browser is physically located anywhere in the world.'
+                }
+            }
+            const current = details[s]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Protokol Analizi (BiDi & CDP)' : 'Protocol Analysis (BiDi & CDP)'}
+                    </div>
+                    {current ? (
+                        <div style={{ animation: 'simFadeUp 0.3s' }}>
+                            <div style={{ padding: 10, borderRadius: 8, background: nodeBg, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#38bdf8' : '#0284c7', marginBottom: 4 }}>
+                                    {current.title}
+                                </div>
+                                <div style={{ fontSize: 10, color: darkMode ? '#e2e8f0' : '#374151', lineHeight: 1.4, marginBottom: 8 }}>
+                                    {current.desc}
+                                </div>
+                                <div style={{ fontSize: 9.5, color: subtext, borderTop: `1px solid ${darkMode ? '#4b5563' : '#cbd5e1'}`, paddingTop: 6 }}>
+                                    💡 <b>{isTr ? 'Neden Güçlü:' : 'Why it\'s powerful:'}</b> {current.why}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: 10, color: subtext }}>
+                            {isTr ? 'Soldan bir CDP/BiDi senaryosu seçin.' : 'Select a CDP/BiDi scenario on the left.'}
+                        </div>
+                    )}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.5 }}>
+                        ☕ <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr 
+                            ? 'BiDi, Java\'daki Observer Pattern (Event Listeners) gibi çalışırken; geleneksel HTTP WebDriver ise sürekli bir veritabanını sorgulayan (Polling) verimsiz bir döngüye benzer.'
+                            : 'BiDi works like Java\'s Observer Pattern (Event Listeners), whereas traditional HTTP WebDriver is like repeatedly polling a database in a loop.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'selenium-virtual-auth') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const details = {
+                'add-auth': {
+                    title: 'WebAuthn / Passkeys Simülatörü',
+                    desc: isTr
+                        ? 'Şifresiz giriş sistemlerini test etmek için fiziksel USB güvenlik anahtarı veya parmak izi okuyucu yerine geçecek sanal bir kimlik doğrulayıcı (Virtual Authenticator) oluşturulur.'
+                        : 'To test passwordless login systems, a virtual authenticator is created to simulate physical USB security keys or biometric fingerprint readers.',
+                    why: isTr
+                        ? 'Fiziksel donanımları otomatize etmek imkansızdır. Sanal kimlik doğrulayıcı ile CTAP2/U2F protokol seviyesinde basarılı/basarısız senaryolar simüle edilebilir.'
+                        : 'Automating physical hardware is impossible. Virtual authenticators let you simulate success/failure scenarios at the CTAP2/U2F protocol level.'
+                },
+                'print-pdf': {
+                    title: 'Headless Print API',
+                    desc: isTr
+                        ? 'Tarayıcıyı headless (arayüzsüz) modda çalıştırırken sayfanın PDF çıktısı alınır. Sayfa yapısı, kenar boşlukları ve arka plan grafikleri özelleştirilebilir.'
+                        : 'Prints the page to a PDF file while running the browser in headless mode. Page orientation, margins, and background graphics can be customized.',
+                    why: isTr
+                        ? 'Faturalar, makbuzlar veya rapor sayfalarının PDF halinin tasarım doğruluğunu ve içerik tutarlılığını test etmeyi sağlar.'
+                        : 'Allows verifying the layout and content consistency of generated invoices, receipts, or PDF report pages.'
+                },
+                'scroll-wheel': {
+                    title: 'WheelInput (Mouse Tekerleği)',
+                    desc: isTr
+                        ? 'Selenium 4 ile gelen WheelInput sınıfı, sayfanın belirli bir noktasından (Scroll Origin) itibaren piksel bazında hassas kaydırma yapmayı sağlar.'
+                        : 'The WheelInput class introduced in Selenium 4 allows precise pixel-based scrolling from a specific point on the page (Scroll Origin).',
+                    why: isTr
+                        ? 'Sonsuz kaydırma (infinite scroll) sayfalarını veya elementlerin view-port dışındaki alanlarını tam kullanıcı hareketi gibi test etmeye yarar.'
+                        : 'Useful for testing infinite-scroll pages or bringing off-screen elements into view exactly like real user wheel movements.'
+                }
+            }
+            const current = details[s]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Gelişmiş API Detayları' : 'Advanced API Details'}
+                    </div>
+                    {current ? (
+                        <div style={{ animation: 'simFadeUp 0.3s' }}>
+                            <div style={{ padding: 10, borderRadius: 8, background: nodeBg, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#a78bfa' : '#7c3aed', marginBottom: 4 }}>
+                                    {current.title}
+                                </div>
+                                <div style={{ fontSize: 10, color: darkMode ? '#e2e8f0' : '#374151', lineHeight: 1.4, marginBottom: 8 }}>
+                                    {current.desc}
+                                </div>
+                                <div style={{ fontSize: 9.5, color: subtext, borderTop: `1px solid ${darkMode ? '#4b5563' : '#cbd5e1'}`, paddingTop: 6 }}>
+                                    💡 <b>{isTr ? 'Neden Gerekli:' : 'Why it\'s needed:'}</b> {current.why}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: 10, color: subtext }}>
+                            {isTr ? 'Soldan gelişmiş bir senaryo seçin.' : 'Select an advanced scenario on the left.'}
+                        </div>
+                    )}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.5 }}>
+                        ☕ <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr 
+                            ? 'Virtual Authenticator, Java birim testlerinde veritabanına erişmek yerine Mockito ile Mock nesneler yaratmaya benzer — testleri izole eder.'
+                            : 'Virtual Authenticator is like using Mockito to mock database connections in Java unit tests — keeping the tests fast and isolated.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'selenium-ide-flow') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const details = {
+                'recording': {
+                    title: isTr ? 'Kayıt Yapısı (SIDE)' : 'Recording Structure (SIDE)',
+                    desc: isTr
+                        ? 'Selenium IDE, tarayıcıda gerçekleştirdiğiniz her hareketi Command (komut), Target (hedef selector) ve Value (değer) üçlüsü halinde kaydeder.'
+                        : 'Selenium IDE records every browser action as a triplet: Command, Target (selector), and Value.',
+                    why: isTr
+                        ? 'Otomasyona yeni başlayanlar için hızlıca locator ve komut yapısını anlamaya yarar. Üretilen .side dosyası JSON formatındadır.'
+                        : 'Helps beginners quickly understand locators and command syntax. The generated .side files are saved in standard JSON format.'
+                },
+                'control-flow': {
+                    title: isTr ? 'Koşullu Yapılar & Döngüler' : 'Control Flow & Loops',
+                    desc: isTr
+                        ? 'Kayıt-oynatmanın ötesinde, IDE içinde if/else, while, times gibi kontrol mekanizmaları tanımlanarak dinamik akışlar oluşturulabilir.'
+                        : 'Beyond record-and-play, control structures like if/else, while, and times can be added within the IDE to build dynamic test flows.',
+                    why: isTr
+                        ? 'Testlerin dinamik verilerle veya sayfa durumlarına göre farklı dallara sapmasına izin verir. Kod yazma ihtiyacını azaltır.'
+                        : 'Allows tests to branch based on page state or dynamic data, reducing the need for writing custom framework code.'
+                },
+                'export-code': {
+                    title: isTr ? 'Kod İhracı (Java/JUnit)' : 'Code Export (Java/JUnit)',
+                    desc: isTr
+                        ? 'IDE üzerinde hazırlanan senaryolar, tek tıkla Java (JUnit/TestNG), Python, C# veya JavaScript kodlarına dönüştürülüp framework\'e aktarılabilir.'
+                        : 'Scenarios created in the IDE can be exported with one click into structured Java (JUnit/TestNG), Python, C#, or JavaScript code.',
+                    why: isTr
+                        ? 'Kayıtla başlanan basit bir senaryoyu, profesyonel Page Object Model mimarisindeki kod tabanına taşımak için harika bir köprüdür.'
+                        : 'Serves as a great bridge to move a recorded simple script into a professional Page Object Model test framework.'
+                }
+            }
+            const current = details[s]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Selenium IDE Detayları' : 'Selenium IDE Details'}
+                    </div>
+                    {current ? (
+                        <div style={{ animation: 'simFadeUp 0.3s' }}>
+                            <div style={{ padding: 10, borderRadius: 8, background: nodeBg, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#fb923c' : '#ea580c', marginBottom: 4 }}>
+                                    {current.title}
+                                </div>
+                                <div style={{ fontSize: 10, color: darkMode ? '#e2e8f0' : '#374151', lineHeight: 1.4, marginBottom: 8 }}>
+                                    {current.desc}
+                                </div>
+                                <div style={{ fontSize: 9.5, color: subtext, borderTop: `1px solid ${darkMode ? '#4b5563' : '#cbd5e1'}`, paddingTop: 6 }}>
+                                    💡 <b>{isTr ? 'Neden Önemli:' : 'Why it\'s important:'}</b> {current.why}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ fontSize: 10, color: subtext }}>
+                            {isTr ? 'Soldan bir Selenium IDE senaryosu seçin.' : 'Select a Selenium IDE scenario on the left.'}
+                        </div>
+                    )}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.5 }}>
+                        ☕ <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr
+                            ? 'Selenium IDE\'den kod ihracı, IntelliJ IDEA veya Eclipse\'in hazır şablon kod (boilerplate) üretmesine benzer — sizi sıfırdan kurulum zahmetinden kurtarır.'
+                            : 'Exporting code from Selenium IDE is like using IntelliJ or Eclipse template generators to instantly create boilerplate test classes.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'selenium-grid-architecture') {
+            const s = simState
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const details = {
+                'idle': {
+                    title: isTr ? 'Bekleme Modu' : 'Idle Mode',
+                    desc: isTr ? 'Test isteklerinin Router\'a gönderilmeye hazır olduğu aşamadır.' : 'The stage where test requests are ready to be sent to the Router.'
+                },
+                'router': {
+                    title: '🚦 Router (Yönlendirici)',
+                    desc: isTr
+                        ? 'Grid\'in tek giriş noktasıdır (varsayılan Port 4444). Gelen tüm HTTP veya WebSocket isteklerini karşılar ve ilgili mikro servise yönlendirir.'
+                        : 'The single entry point of the Grid (default Port 4444). Intercepts all incoming HTTP/WebSocket requests and routes them to the correct service.'
+                },
+                'distributor': {
+                    title: '🗂️ Distributor (Dağıtıcı)',
+                    desc: isTr
+                        ? 'Yeni oturum isteklerini alır. Mevcut Node\'ların kapasitelerini ve işletim sistemi/tarayıcı eşleşmelerini kontrol ederek en uygun Node\'a atama yapar.'
+                        : 'Accepts new session requests. Inspects node capacities and OS/browser matches to assign the request to the most suitable Node.'
+                },
+                'docker': {
+                    title: '🐳 Docker / Dynamic Node',
+                    desc: isTr
+                        ? 'Selenium Grid 4, ihtiyaç anında Docker API üzerinden yepyeni ve temiz bir tarayıcı konteyneri (container) ayağa kaldırabilir.'
+                        : 'Selenium Grid 4 can dynamically spin up brand new, clean browser containers via Docker API on-demand.'
+                },
+                'session-map': {
+                    title: '🗺️ Session Map (Oturum Haritası)',
+                    desc: isTr
+                        ? 'Hangi Session ID\'nin hangi Node (IP:Port) üzerinde koştuğunu hafızasında (veya Redis üzerinde) tutan anahtarlama mekanizmasıdır.'
+                        : 'A key-value lookup (in-memory or Redis) storing which Session ID maps to which Node physical IP and Port address.'
+                },
+                'done': {
+                    title: '✓ Test Tamamlandı',
+                    desc: isTr
+                        ? 'Test sona erdiğinde oturum sonlandırılır. Dynamic Grid yapısında Docker konteyneri otomatik yok edilir (destroyed) ve kaynaklar boşa çıkar.'
+                        : 'When the test finishes, the session ends. In a dynamic Grid setup, the Docker container is automatically destroyed to free up host resources.'
+                }
+            }
+            const current = details[s] || details['idle']
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Grid 4 Mikro Servis Mimarisi' : 'Grid 4 Microservice Architecture'}
+                    </div>
+                    <div style={{ animation: 'simFadeUp 0.3s' }}>
+                        <div style={{ padding: 10, borderRadius: 8, background: nodeBg, border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#38bdf8' : '#0284c7', marginBottom: 4 }}>
+                                {current.title}
+                            </div>
+                            <div style={{ fontSize: 10, color: darkMode ? '#e2e8f0' : '#374151', lineHeight: 1.4, marginBottom: 8 }}>
+                                {current.desc}
+                            </div>
+                            <div style={{ fontSize: 9, color: subtext, borderTop: `1px solid ${darkMode ? '#4b5563' : '#cbd5e1'}`, paddingTop: 6 }}>
+                                🔗 {isTr ? 'Grid 4 ile gelen ana yenilik, Hub/Node yerine tamamen mikro servis mimarisine geçilmiş olmasıdır.' : 'The main innovation in Grid 4 is the transition from monolithic Hub/Node to a fully decentralized microservices architecture.'}
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.5 }}>
+                        ☕ <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr
+                            ? 'Router bir API Gateway (örneğin Spring Cloud Gateway), Session Map bir Redis önbelleği, Docker Node\'lar ise Kubernetes Pod\'ları gibi dinamik kaynak dağıtımı yapar.'
+                            : 'Router acts like an API Gateway (e.g. Spring Cloud Gateway), Session Map is like a Redis cache, and Docker Nodes are like Kubernetes Pods dynamically allocating resources.'}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -10407,6 +11485,10 @@ pm.test("per_page is 6", () => {
                         🎮 {isTr ? 'Canlı Demo Alanı' : 'Live Playground'}
                     </div>
                     {block.scenario === 'java-compile-run' && renderJavaCompileRunPlayground()}
+                    {block.scenario === 'selenium-bidi-cdp' && renderSeleniumBidiCdpPlayground()}
+                    {block.scenario === 'selenium-virtual-auth' && renderSeleniumVirtualAuthPlayground()}
+                    {block.scenario === 'selenium-ide-flow' && renderSeleniumIdeFlowPlayground()}
+                    {block.scenario === 'selenium-grid-architecture' && renderSeleniumGridArchitecturePlayground()}
                     {block.scenario === 'java-stack-heap' && renderJavaMemoryPlayground()}
                     {block.scenario === 'java-branch-runner' && renderJavaBranchPlayground()}
                     {block.scenario === 'java-javac-workshop' && renderJavaJavacWorkshopPlayground()}
@@ -10467,6 +11549,13 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'git-revert-vs-reset' && renderGitRevertVsResetPlayground()}
                     {block.scenario === 'linux-terminal-basics' && renderLinuxTerminalBasicsPlayground()}
                     {block.scenario === 'linux-permissions-lab' && renderLinuxPermissionsLabPlayground()}
+                    {block.scenario === 'cypress-test-structure' && renderCypressTestStructurePlayground()}
+                    {block.scenario === 'cypress-session-cache' && renderCypressSessionCachePlayground()}
+                    {block.scenario === 'cypress-component-mount' && renderCypressComponentMountPlayground()}
+                    {block.scenario === 'cypress-stub-clock' && renderCypressStubClockPlayground()}
+                    {block.scenario === 'cypress-selector-playground' && renderCypressSelectorPlaygroundPlayground()}
+                    {block.scenario === 'cypress-ci-pipeline' && renderCypressCiPipelinePlayground()}
+                    {block.scenario === 'cypress-jquery-selectors' && renderCypressJqSelectorsPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

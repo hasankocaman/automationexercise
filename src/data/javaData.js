@@ -2202,7 +2202,7 @@ driver.manage().timeouts().implicitlyWait(Duration.ZERO); // set to 0`,
             { tr: 'Test izolasyonu: her test kendi verisini oluşturmalı ve temizlemeli', en: 'Test isolation: each test must create and clean its own data' },
           ],
           tip: {
-            tr: 'Mülakata şunu söyle: "Flaky testleri doğrudan silmem ya da yoksaymam. Önce kategorilendirim (timing/bağımlılık/environment), sonra kök nedenini giderip CI geçmiş analiziyle düzeldiğini doğrularım."',
+            tr: 'Mülakata şunu söyle: "Flaky testleri doğrudan silmem ya da yok saymam. Önce kategorilendirim (timing/bağımlılık/environment), sonra kök nedenini giderip CI geçmiş analiziyle düzeldiğini doğrularım."',
             en: 'Say in interview: "I don\'t just delete or ignore flaky tests. I categorize them (timing/dependency/environment), fix the root cause, and verify the fix via CI history analysis."',
           },
         },

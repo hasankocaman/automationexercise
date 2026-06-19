@@ -1873,7 +1873,7 @@ INSERT INTO users (id, email)
 VALUES (2, 'a@test.com')
 ON CONFLICT(email) DO UPDATE SET id = excluded.id;
 
--- veya sadece yoksay:
+-- veya sadece yok say:
 INSERT OR IGNORE INTO users (id, email) VALUES (2, 'a@test.com');`
           },
           {
