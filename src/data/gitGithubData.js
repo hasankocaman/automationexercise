@@ -837,6 +837,66 @@ const gitSafeUndoPractice = {
   },
 }
 
+const gitignoreCreatePractice = {
+  type: 'git-practice',
+  icon: '🚫',
+  title: { tr: 'Try It Yourself: İlk .gitignore dosyanı oluştur', en: 'Try It Yourself: Create your first .gitignore' },
+  intro: {
+    tr: 'Bir Node + Java QA projesinde, henüz hiç commit edilmemiş üretilen klasörleri Git\'in hiç görmemesini sağla.',
+    en: 'In a Node + Java QA project, make sure generated folders are never seen by Git in the first place.',
+  },
+  starterCommands: {
+    tr: `# .gitignore dosyasını oluştur ve doldur\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env" >> .gitignore\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
+    en: `# Create and fill the .gitignore file\ntouch .gitignore\necho "node_modules/" >> .gitignore\necho "target/" >> .gitignore\necho ".env" >> .gitignore\ngit add .gitignore\ngit commit -m "chore: add .gitignore"\ngit status`,
+  },
+  expectedSteps: [
+    { label: { tr: 'Boş .gitignore dosyasını oluştur', en: 'Create an empty .gitignore file' }, pattern: '^touch\\s+\\.gitignore$', example: 'touch .gitignore' },
+    { label: { tr: 'node_modules/ kuralını ekle', en: 'Add the node_modules/ rule' }, pattern: '^echo\\s+["\']node_modules/?["\']\\s*>>\\s*\\.gitignore$', example: 'echo "node_modules/" >> .gitignore' },
+    { label: { tr: 'target/ kuralını ekle (Maven build çıktısı)', en: 'Add the target/ rule (Maven build output)' }, pattern: '^echo\\s+["\']target/?["\']\\s*>>\\s*\\.gitignore$', example: 'echo "target/" >> .gitignore' },
+    { label: { tr: '.env kuralını ekle (secret dosya)', en: 'Add the .env rule (secret file)' }, pattern: '^echo\\s+["\']\\.env["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env" >> .gitignore' },
+    { label: { tr: '.gitignore dosyasının kendisini commit et', en: 'Commit the .gitignore file itself' }, pattern: '^git add\\s+\\.gitignore$', example: 'git add .gitignore' },
+    { label: { tr: 'Anlamlı mesajla kaydet', en: 'Save with a meaningful message' }, pattern: '^git commit\\s+-m\\s+["\'].+["\']$', example: 'git commit -m "chore: add .gitignore"' },
+    { label: { tr: 'node_modules/, target/ ve .env artık görünmüyor mu kontrol et', en: 'Verify node_modules/, target/ and .env no longer show up' }, pattern: '^git status$', example: 'git status' },
+  ],
+  successOutput: {
+    tr: 'On branch feature/qa-setup\nnothing to commit, working tree clean\n(node_modules/, target/ ve .env artık git status çıktısında hiç görünmüyor.)',
+    en: 'On branch feature/qa-setup\nnothing to commit, working tree clean\n(node_modules/, target/ and .env never show up in git status anymore.)',
+  },
+  retryOutput: {
+    tr: 'Sıra: önce dosyayı oluştur, kuralları ekle, .gitignore\'ı commit et, sonra status ile doğrula.',
+    en: 'Order: create the file first, add the rules, commit .gitignore itself, then verify with status.',
+  },
+}
+
+const gitignoreRescuePractice = {
+  type: 'git-practice',
+  icon: '🆘',
+  title: { tr: 'Try It Yourself: Zaten takip edilen .env dosyasını kurtar', en: 'Try It Yourself: Rescue an already-tracked .env file' },
+  intro: {
+    tr: '.env dosyası yanlışlıkla ilk commit\'te gitmiş. .gitignore\'a eklemek tek başına yetmez — gerçek kurtarma akışını uygula.',
+    en: 'The .env file was committed by mistake in an early commit. Adding it to .gitignore alone is not enough — apply the real rescue flow.',
+  },
+  starterCommands: {
+    tr: `# .env hâlâ tracked, önce .gitignore'a ekle\necho ".env" >> .gitignore\ngit rm --cached .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
+    en: `# .env is still tracked, first add it to .gitignore\necho ".env" >> .gitignore\ngit rm --cached .env\ngit add .gitignore\ngit commit -m "fix: stop tracking .env secret file"\ngit status`,
+  },
+  expectedSteps: [
+    { label: { tr: '.env kuralını .gitignore\'a ekle', en: 'Add the .env rule to .gitignore' }, pattern: '^echo\\s+["\']\\.env["\']\\s*>>\\s*\\.gitignore$', example: 'echo ".env" >> .gitignore' },
+    { label: { tr: 'Dosyayı sadece Git takibinden çıkar (diskten silme!)', en: 'Stop tracking the file only (do not delete it from disk!)' }, pattern: '^git rm\\s+--cached\\s+\\.env$', example: 'git rm --cached .env' },
+    { label: { tr: 'Güncellenen .gitignore\'ı stage et', en: 'Stage the updated .gitignore' }, pattern: '^git add\\s+\\.gitignore$', example: 'git add .gitignore' },
+    { label: { tr: 'Düzeltmeyi anlamlı mesajla kaydet', en: 'Save the fix with a meaningful message' }, pattern: '^git commit\\s+-m\\s+["\'].+["\']$', example: 'git commit -m "fix: stop tracking .env secret file"' },
+    { label: { tr: '.env artık untracked mi doğrula', en: 'Verify .env is now untracked' }, pattern: '^git status$', example: 'git status' },
+  ],
+  successOutput: {
+    tr: 'On branch main\nnothing to commit, working tree clean\n(.env diskte duruyor, ama artık Git tarafından izlenmiyor ve bir daha asla push edilmeyecek.)',
+    en: 'On branch main\nnothing to commit, working tree clean\n(.env still exists on disk, but Git no longer tracks it and it will never be pushed again.)',
+  },
+  retryOutput: {
+    tr: 'Sıra: önce .gitignore\'a kuralı ekle, sonra git rm --cached ile takibi durdur, sonra commit et, sonra doğrula. git rm --cached dosyayı diskten silmez, sadece Git\'in takibinden çıkarır.',
+    en: 'Order: add the rule to .gitignore first, then stop tracking with git rm --cached, then commit, then verify. git rm --cached never deletes the file from disk — it only removes it from Git tracking.',
+  },
+}
+
 export const gitGithubData = {
   en: {
     hero: {
@@ -844,7 +904,7 @@ export const gitGithubData = {
       subtitle: 'Version Control, Collaboration, CI/CD and Pages for QA Engineers',
       intro: 'Learn Git and GitHub visually: snapshots, branches, pull requests, Actions, Pages deployment, production safety rules and hands-on command practice.',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🌿 Branching', '🐙 GitHub Workflow', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Workflow', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
     sections: [
       {
         title: '🎯 What are Git and GitHub?',
@@ -1278,20 +1338,6 @@ export const gitGithubData = {
             color: '#b45309',
             title: { en: 'Commit Timeline: HEAD, branches and hashes', tr: 'Commit Zaman Çizelgesi: HEAD, branch ve hash' },
             description: { en: 'See how `git log --oneline --graph` output maps to a visual commit chain with HEAD and branch pointers.', tr: '`git log --oneline --graph` çıktısının HEAD ve branch pointer ile commit zincirine nasıl karşılık geldiğini gör.' },
-          },
-          {
-            type: 'heading',
-            text: '.gitignore: keep generated files out of Git',
-          },
-          {
-            type: 'code',
-            label: 'Example .gitignore for a QA automation project',
-            language: 'bash',
-            code: `# Dependencies\nnode_modules/\n\n# Build output\ndist/\ntarget/\n\n# Test reports and artifacts\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\n\n# Environment and secrets\n.env\n.env.local\n\n# IDE settings\n.idea/\n.vscode/\n*.iml\n\n# OS files\n.DS_Store\nThumbs.db\n\n# Logs\n*.log\nnpm-debug.log*`,
-          },
-          {
-            type: 'warning',
-            content: 'Once a file is committed, adding it to `.gitignore` does not remove it from history. Use `git rm --cached filename` to stop tracking it, then commit. The file stays on disk but Git stops watching it.',
           },
         ],
       },
@@ -1854,7 +1900,7 @@ git push origin feature/my-branch   # Push only your branch`,
       subtitle: 'QA mühendisleri için version control, takım akışı, CI/CD ve Pages',
       intro: 'Git ve GitHub’ı görsel öğren: snapshot, branch, pull request, GitHub Actions, Pages deploy, gerçek iş güvenliği ve komut alıştırmaları.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🌿 Branching', '🐙 GitHub Akışı', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Akışı', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
     sections: [
       {
         title: '🎯 Git ve GitHub nedir?',
@@ -2288,20 +2334,6 @@ git push origin feature/my-branch   # Push only your branch`,
             color: '#b45309',
             title: { en: 'Commit Timeline: HEAD, branches and hashes', tr: 'Commit Zaman Çizelgesi: HEAD, branch ve hash' },
             description: { en: 'See how log output maps to a visual commit chain.', tr: 'Log çıktısının commit zincirine nasıl karşılık geldiğini gör.' },
-          },
-          {
-            type: 'heading',
-            text: '.gitignore: üretilen dosyaları Git dışında tut',
-          },
-          {
-            type: 'code',
-            label: 'QA automation projesi için örnek .gitignore',
-            language: 'bash',
-            code: `# Bağımlılıklar\nnode_modules/\n\n# Build çıktısı\ndist/\ntarget/\n\n# Test rapor ve artifact\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\n\n# Ortam ve secret\n.env\n.env.local\n\n# IDE ayarları\n.idea/\n.vscode/\n*.iml\n\n# OS dosyaları\n.DS_Store\nThumbs.db\n\n# Loglar\n*.log\nnpm-debug.log*`,
-          },
-          {
-            type: 'warning',
-            content: 'Bir dosya commit edildikten sonra `.gitignore`\'a eklemek onu history\'den silmez. `git rm --cached dosyaadi` ile takibi durdur, sonra commit et. Dosya diskte kalır ama Git artık izlemez.',
           },
         ],
       },
