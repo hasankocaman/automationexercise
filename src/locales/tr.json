@@ -296,6 +296,16 @@
         "tagSearch": "🔍 Arama Desteği",
         "tagIndex": "🌐 EN / TR İndeks"
     },
+    "gitBanner": {
+        "subtitle": "Profesyonel Başvuru Kütüphanesi",
+        "title": "Git® Notes for Professionals Kitabı",
+        "description": "100+ sayfalık profesyonel Git ipuçları, detaylı kod örnekleri ve konu anlatımları (Arama ve Çeviri Desteği)",
+        "tagGit": "🐙 Git & GitHub",
+        "tagChapters": "📚 60+ Bölüm",
+        "tagSearch": "🔍 Arama Desteği",
+        "tagIndex": "🌐 EN / TR İndeks",
+        "tagWip": "🚧 Geliştirme Aşamasında"
+    },
     "topic": {
         "showHint": "💡 İpucu Göster",
         "hideHint": "🙈 İpucunu Gizle",

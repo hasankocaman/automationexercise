@@ -296,6 +296,16 @@
         "tagSearch": "🔍 Search Support",
         "tagIndex": "🌐 EN / TR Index"
     },
+    "gitBanner": {
+        "subtitle": "Professional Reference Library",
+        "title": "Git® Notes for Professionals Book",
+        "description": "100+ pages of professional Git hints, detailed code examples, and explanations (Search & Translation support)",
+        "tagGit": "🐙 Git & GitHub",
+        "tagChapters": "📚 60+ Chapters",
+        "tagSearch": "🔍 Search Support",
+        "tagIndex": "🌐 EN / TR Index",
+        "tagWip": "🚧 Under Development"
+    },
     "topic": {
         "showHint": "💡 Show Hint",
         "hideHint": "🙈 Hide Hint",
