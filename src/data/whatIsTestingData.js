@@ -847,10 +847,11 @@ const sections = [
       },
       {
         type: 'link-grid',
-        cols: 2,
+        cols: 3,
         items: [
           { icon: '⚖️', route: '/test-frameworks', label: { tr: 'pytest vs Selenium vs Playwright', en: 'pytest vs Selenium vs Playwright' }, desc: { tr: 'Üç framework\'ün güçlü/zayıf yönlerini ve ne zaman hangisinin seçileceğini karşılaştırma.', en: 'Compare the strengths, trade-offs, and when to choose each of the three frameworks.' } },
-          { icon: '📖', route: '/java-document', label: { tr: 'Java Referans Dokümanı', en: 'Java Reference Document' }, desc: { tr: 'Collections, OOP, exception ve concurrency konularını kapsayan aranabilir Java rehberi.', en: 'A searchable Java reference covering collections, OOP, exceptions, and concurrency.' } }
+          { icon: '📖', route: '/java-document', label: { tr: 'Java Referans Dokümanı', en: 'Java Reference Document' }, desc: { tr: 'Collections, OOP, exception ve concurrency konularını kapsayan aranabilir Java rehberi.', en: 'A searchable Java reference covering collections, OOP, exceptions, and concurrency.' } },
+          { icon: '🐙', route: '/git-document', label: { tr: 'Git Referans Dokümanı', en: 'Git Reference Document' }, desc: { tr: 'Git kurulumu, hesap açma, branching, conflict ve gelişmiş Git konularını içeren rehber.', en: 'A searchable Git reference covering installation, account creation, branching, conflict resolution, and advanced Git concepts.' } }
         ]
       }
     ]

@@ -152,6 +152,27 @@ const SQL_NODE = (id) => ({
     isMain: true,
 })
 
+// Git & GitHub node
+const GIT_GITHUB_NODE = (id) => ({
+    id,
+    emoji: '🔀',
+    title: { tr: 'Git & GitHub', en: 'Git & GitHub' },
+    desc: { tr: 'Versiyon kontrolü, branching, pull request, takım çalışması', en: 'Version control, branching, pull requests, collaboration' },
+    route: '/git-github',
+    color: '#059669',
+    glow: 'rgba(5,150,105,0.4)',
+    isMain: true,
+})
+
+// Linux bonus node
+const LINUX_BONUS_NODE = {
+    emoji: '🐧',
+    title: { tr: 'Linux', en: 'Linux' },
+    desc: { tr: 'Temel komutlar, dosya izinleri, log analizi, bash scripting', en: 'Basic commands, file permissions, log analysis, bash scripting' },
+    route: '/linux',
+    color: '#ea580c',
+}
+
 // ─── MAP_A: Tamamen sıfırdan başlayanlar ───────────────────────────────────
 export const MAP_A = {
     id: 'map_a',
@@ -189,8 +210,9 @@ export const MAP_A = {
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
         },
+        GIT_GITHUB_NODE(4),
         {
-            id: 4,
+            id: 5,
             emoji: '🔵',
             title: { tr: 'Selenium', en: 'Selenium' },
             desc: { tr: 'WebDriver, locator, wait stratejileri', en: 'WebDriver, locators, wait strategies' },
@@ -200,7 +222,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 5,
+            id: 6,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, request, assertion, Newman', en: 'REST API, requests, assertions, Newman' },
@@ -209,9 +231,9 @@ export const MAP_A = {
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
         },
-        SQL_NODE(6),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
+        SQL_NODE(7),
         {
-            id: 7,
+            id: 8,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java tabanlı API otomasyon framework\'ü', en: 'Java-based API automation framework' },
@@ -221,7 +243,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, build, test trigger', en: 'CI/CD pipeline, build, test triggers' },
@@ -231,7 +253,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test ortamı, EC2, S3, Lambda', en: 'Cloud test environment, EC2, S3, Lambda' },
@@ -241,7 +263,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Container, image, compose, Selenium Grid', en: 'Containers, images, compose, Selenium Grid' },
@@ -251,7 +273,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 11,
+            id: 12,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Orchestration, pod, deployment, scale', en: 'Orchestration, pods, deployments, scaling' },
@@ -261,7 +283,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 12,
+            id: 13,
             emoji: '📡',
             title: { tr: 'Kafka', en: 'Kafka' },
             desc: { tr: 'Event-driven mimari, consumer, producer test', en: 'Event-driven architecture, consumer/producer testing' },
@@ -272,6 +294,7 @@ export const MAP_A = {
         },
     ],
     extras: [
+        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -299,12 +322,16 @@ export const MAP_A = {
 
 Önce **mantığını** kur (Algoritma), sonra **test refleksini** geliştir (Manuel Test), ardından **Java** ile kod yazmayı öğren. Selenium ile UI otomasyona geçtiğinde zaten sağlam bir temel üzerinde olacaksın. **SQL** ise seni çoğu QA mühendisinden ayıran kritik bir beceri — veritabanı doğrulaması yapmadan tam bir test süreci yürütemezsin.
 
-REST Assured ile Java üzerinden API testini kapattıktan sonra Jenkins → AWS → Docker → Kubernetes → Kafka zinciri seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪`,
+REST Assured ile Java üzerinden API testini kapattıktan sonra Jenkins → AWS → Docker → Kubernetes → Kafka zinciri seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪
+
+💡 **Tavsiye:** Jenkins, Docker veya Kubernetes aşamalarına geçmeden önce, altyapıyı daha iyi anlamak için **Linux** sayfamıza da mutlaka bakmanı öneririm.`,
         en: `**You're on the right path!** Starting QA engineering without a software background is completely possible — and this sequence is the proven fastest way to get there.
 
 First build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing), then learn to write code with **Java**. When you move to Selenium for UI automation, you'll already have a solid foundation. **SQL** is a critical skill that separates you from most QA engineers — you can't run a complete test process without database validation.
 
-After covering API testing with REST Assured, the Jenkins → AWS → Docker → Kubernetes → Kafka chain will turn you into a real **SDET (Software Development Engineer in Test)** profile. 💪`,
+After covering API testing with REST Assured, the Jenkins → AWS → Docker → Kubernetes → Kafka chain will turn you into a real **SDET (Software Development Engineer in Test)** profile. 💪
+
+💡 **Tip:** Before moving on to Jenkins, Docker, or Kubernetes, I highly recommend checking out our **Linux** page to build a better understanding of the underlying system.`,
     },
 }
 
@@ -335,8 +362,9 @@ export const MAP_B = {
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
         },
+        GIT_GITHUB_NODE(3),
         {
-            id: 3,
+            id: 4,
             emoji: '🎭',
             title: { tr: 'Playwright', en: 'Playwright' },
             desc: { tr: 'Modern UI otomasyon, auto-wait, API test, Trace Viewer', en: 'Modern UI automation, auto-wait, API testing, Trace Viewer' },
@@ -346,7 +374,7 @@ export const MAP_B = {
             isMain: true,
         },
         {
-            id: 4,
+            id: 5,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, environment, Newman/CI', en: 'REST API, environments, Newman/CI' },
@@ -355,9 +383,9 @@ export const MAP_B = {
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
         },
-        SQL_NODE(5),   // ← SQL: Postman'dan sonra
+        SQL_NODE(6),   // ← SQL: Postman'dan sonra
         {
-            id: 6,
+            id: 7,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
@@ -367,7 +395,7 @@ export const MAP_B = {
             isMain: true,
         },
         {
-            id: 7,
+            id: 8,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Test ortamı containerize etme', en: 'Containerizing test environments' },
@@ -377,7 +405,7 @@ export const MAP_B = {
             isMain: true,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -388,6 +416,7 @@ export const MAP_B = {
         },
     ],
     extras: [
+        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -429,12 +458,16 @@ export const MAP_B = {
 
 **Playwright**'ı tavsiye etmemizin nedeni: Hem Python hem TypeScript'i mükemmel destekler, **auto-wait** ile flaky test sorunu minimuma iner, **Trace Viewer** ile hataları video/screenshot/network üzerinden debug edebilirsin ve büyük kurumsal projelerde giderek artan talep görüyor.
 
-**SQL** bilgisi seni çoğu QA mühendisinden ayırır — veri doğrulaması olmadan tam bir test süreci yürütülemez. Jenkins → Docker → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀`,
+**SQL** bilgisi seni çoğu QA mühendisinden ayıran kritik bir beceri — veri doğrulaması olmadan tam bir test süreci yürütülemez. Jenkins → Docker → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀
+
+💡 **Tavsiye:** Jenkins veya Docker gibi DevOps araçlarına geçmeden önce **Linux** sayfamıza da bakmanı tavsiye ederim.`,
         en: `**Excellent choice!** The Python + TypeScript + Playwright combination equips you with the most modern QA stack in the industry.
 
 Why we recommend **Playwright**: It perfectly supports both Python and TypeScript, **auto-wait** minimizes flaky test issues, **Trace Viewer** lets you debug failures via video/screenshot/network recordings, and it's seeing increasing demand in large enterprise projects.
 
-**SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. The Jenkins → Docker → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀`,
+**SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. The Jenkins → Docker → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀
+
+💡 **Tip:** Before diving into DevOps tools like Jenkins or Docker, I highly suggest taking a look at our **Linux** page first.`,
     },
 }
 
@@ -465,8 +498,9 @@ export const MAP_B_SEL = {
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
         },
+        GIT_GITHUB_NODE(3),
         {
-            id: 3,
+            id: 4,
             emoji: '🔵',
             title: { tr: 'Selenium', en: 'Selenium' },
             desc: { tr: 'WebDriver Python, POM, locator, wait — sektör klasiği', en: 'Selenium Python/TS, POM, locators, waits — industry classic' },
@@ -476,7 +510,7 @@ export const MAP_B_SEL = {
             isMain: true,
         },
         {
-            id: 4,
+            id: 5,
             emoji: '🎭',
             title: { tr: 'Playwright', en: 'Playwright' },
             desc: { tr: 'Modern UI otomasyon, auto-wait, API test', en: 'Modern UI automation, auto-wait, API testing' },
@@ -486,7 +520,7 @@ export const MAP_B_SEL = {
             isMain: true,
         },
         {
-            id: 5,
+            id: 6,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, environment, Newman/CI', en: 'REST API, environments, Newman/CI' },
@@ -495,9 +529,9 @@ export const MAP_B_SEL = {
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
         },
-        SQL_NODE(6),   // ← SQL: Postman'dan sonra
+        SQL_NODE(7),   // ← SQL: Postman'dan sonra
         {
-            id: 7,
+            id: 8,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
@@ -507,7 +541,7 @@ export const MAP_B_SEL = {
             isMain: true,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Selenium Grid + Playwright containerize', en: 'Selenium Grid + Playwright containerization' },
@@ -517,7 +551,7 @@ export const MAP_B_SEL = {
             isMain: true,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -528,6 +562,7 @@ export const MAP_B_SEL = {
         },
     ],
     extras: [
+        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -569,12 +604,16 @@ export const MAP_B_SEL = {
 
 Selenium ile Python'un birlikteliği kurumsal projelerde hâlâ yaygın — özellikle legacy test altyapılarında vazgeçilmez. **Playwright** ise onu tamamlıyor: auto-wait, trace viewer ve paralel çalıştırma ile modern projelerin gözdesi. İki aracı da bilen biri olarak "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranacaksın.
 
-**SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. Jenkins → Docker → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆`,
+**SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. Jenkins → Docker → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆
+
+💡 **Tavsiye:** Jenkins veya Docker aşamalarından önce **Linux** sayfamıza göz atman, sunucu ortamlarını kavramana büyük katkı sağlar.`,
         en: `**A powerful choice!** As a QA engineer who knows both **Selenium** and **Playwright**, you'll appeal to a very wide job pool.
 
 Selenium's combination with Python is still common in enterprise projects — especially indispensable in legacy test infrastructures. **Playwright** complements it: the darling of modern projects with auto-wait, trace viewer, and parallel execution. Knowing both, you'll be specifically sought out for "Selenium to Playwright migration" projects.
 
-**SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. The Jenkins → Docker → AWS chain lets you move everything into a CI/CD environment. 🏆`,
+**SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. The Jenkins → Docker → AWS chain lets you move everything into a CI/CD environment. 🏆
+
+💡 **Tip:** Before stepping into Jenkins or Docker, checking out our **Linux** page will help you understand server environments much better.`,
     },
 }
 
@@ -595,8 +634,9 @@ export const MAP_C1 = {
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
         },
+        GIT_GITHUB_NODE(2),
         {
-            id: 2,
+            id: 3,
             emoji: '🔵',
             title: { tr: 'Selenium', en: 'Selenium' },
             desc: { tr: 'WebDriver, POM, locator, wait stratejileri', en: 'WebDriver, POM, locators, wait strategies' },
@@ -606,7 +646,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 3,
+            id: 4,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'API test, collection, environment', en: 'API testing, collections, environments' },
@@ -615,9 +655,9 @@ export const MAP_C1 = {
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
         },
-        SQL_NODE(4),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
+        SQL_NODE(5),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
         {
-            id: 5,
+            id: 6,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java API otomasyon, schema validation', en: 'Java API automation, schema validation' },
@@ -627,7 +667,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 6,
+            id: 7,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, Maven/Gradle entegrasyonu', en: 'CI/CD pipelines, Maven/Gradle integration' },
@@ -637,7 +677,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 7,
+            id: 8,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Selenium Grid containerize, test izolasyonu', en: 'Selenium Grid containerization, test isolation' },
@@ -647,7 +687,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud ölçekli test çalıştırma ortamı', en: 'Cloud-scale test execution environment' },
@@ -657,7 +697,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed test execution, pod yönetimi', en: 'Distributed test execution, pod management' },
@@ -668,6 +708,7 @@ export const MAP_C1 = {
         },
     ],
     extras: [
+        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -702,12 +743,16 @@ export const MAP_C1 = {
 
 Yazılım geçmişin varsa **Java**'ya adaptasyon çok hızlı olacak. Selenium ile **Page Object Model (POM)** öğrendiğinde test kodunu maintainable tutmanın gerçek anlamını kavrayacaksın. **SQL** ise seni rakiplerinden ayıran kritik beceri — Postman ile API testi yaparken bile veritabanındaki gerçek veriye bakman gerekiyor.
 
-REST Assured ile Java üzerinden API testini kapattığında UI + API testini tek dilde yöneteceksin. Jenkins → Docker → AWS → Kubernetes zinciri seni tam **DevOps-aware SDET** profiline götürür. 🏆`,
+REST Assured ile Java üzerinden API testini kapattığında UI + API testini tek dilde yöneteceksin. Jenkins → Docker → AWS → Kubernetes zinciri seni tam **DevOps-aware SDET** profiline götürür. 🏆
+
+💡 **Tavsiye:** Jenkins, Docker veya Kubernetes konularına geçmeden önce **Linux** sayfamızı incelemeni tavsiye ederim.`,
         en: `**A classic but powerful choice!** The Java + Selenium stack is still the most widely used combination in the industry — the vast majority of large enterprise companies work in this ecosystem.
 
 If you have a software background, **Java** adaptation will be very quick. Learning the **Page Object Model (POM)** with Selenium will make you truly understand what maintainable test code means. **SQL** is the critical skill that separates you from competitors — even when API testing with Postman, you often need to check the actual data in the database.
 
-When you complete API testing with REST Assured, you'll manage UI + API testing in a single language. The Jenkins → Docker → AWS → Kubernetes chain takes you to a full **DevOps-aware SDET** profile. 🏆`,
+When you complete API testing with REST Assured, you'll manage UI + API testing in a single language. The Jenkins → Docker → AWS → Kubernetes chain takes you to a full **DevOps-aware SDET** profile. 🏆
+
+💡 **Tip:** Before working with Jenkins, Docker, or Kubernetes, I highly recommend visiting our **Linux** page.`,
     },
 }
 
@@ -728,8 +773,9 @@ export const MAP_C2 = {
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
         },
+        GIT_GITHUB_NODE(2),
         {
-            id: 2,
+            id: 3,
             emoji: '🎭',
             title: { tr: 'Playwright', en: 'Playwright' },
             desc: { tr: 'Modern UI otomasyon, auto-wait, trace viewer', en: 'Modern UI automation, auto-wait, trace viewer' },
@@ -739,7 +785,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         {
-            id: 3,
+            id: 4,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java tabanlı API otomasyon + Playwright API test', en: 'Java-based API automation + Playwright API testing' },
@@ -748,9 +794,9 @@ export const MAP_C2 = {
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
         },
-        SQL_NODE(4),   // ← SQL: REST Assured'dan sonra
+        SQL_NODE(5),   // ← SQL: REST Assured'dan sonra
         {
-            id: 5,
+            id: 6,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD, paralel Playwright test koşusu', en: 'CI/CD, parallel Playwright test runs' },
@@ -760,7 +806,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         {
-            id: 6,
+            id: 7,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Playwright containerize, headless test ortamı', en: 'Playwright containerization, headless test env' },
@@ -770,7 +816,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         {
-            id: 7,
+            id: 8,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Serverless test çalıştırma, cloud altyapı', en: 'Serverless test execution, cloud infrastructure' },
@@ -780,7 +826,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed Playwright koşusu, pod scaling', en: 'Distributed Playwright runs, pod scaling' },
@@ -791,6 +837,7 @@ export const MAP_C2 = {
         },
     ],
     extras: [
+        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -832,12 +879,16 @@ export const MAP_C2 = {
 
 Playwright'ın **auto-wait** mekanizması Selenium'un flaky test sorunlarını büyük ölçüde ortadan kaldırıyor. **Trace Viewer** ile test hatalarını video/screenshot/network kaydı üzerinden debug edebileceksin — hiçbir Selenium suite'inde bu out-of-the-box gelmiyor.
 
-**SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. **Appium** ile Java bilgini mobil otomasyona taşıyabilir, **JMeter** ile performans testini de kapabilirsin. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟`,
+**SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. **Appium** ile Java bilgini mobil otomasyona taşıyabilir, **JMeter** ile performans testini de kapabilirsin. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟
+
+💡 **Tavsiye:** Jenkins, Docker veya Kubernetes gibi DevOps/altyapı araçlarından önce **Linux** sayfasına göz atmak işini çok kolaylaştıracaktır.`,
         en: `**An excellent future-oriented choice!** The Java + Playwright combination merges enterprise power with modern speed.
 
 Playwright's **auto-wait** mechanism largely eliminates Selenium's flaky test problems. With **Trace Viewer**, you'll debug failures via video/screenshot/network recordings — nothing comes out-of-the-box like this in Selenium suites.
 
-**SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. With **Appium** you can apply your Java knowledge to mobile automation, and with **JMeter** you can cover performance testing too. Companies doing "Playwright migration" projects will specifically seek you out. 🌟`,
+**SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. With **Appium** you can apply your Java knowledge to mobile automation, and with **JMeter** you can cover performance testing too. Companies doing "Playwright migration" projects will specifically seek you out. 🌟
+
+💡 **Tip:** Before exploring DevOps/infrastructure tools like Jenkins, Docker, or Kubernetes, reading through our **Linux** page will make things much easier.`,
     },
 }
 

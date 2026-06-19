@@ -18,6 +18,7 @@ const priorities = {
     '/aws': '0.7',
     '/azure': '0.7',
     '/java-document': '0.7',
+    '/git-document': '0.7',
 }
 
 function sitemapUrl(seo) {
