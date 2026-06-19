@@ -89,6 +89,16 @@ export const ROUTE_SEO = [
         description: 'Learn BrowserStack for Selenium, Playwright and Appium cloud testing with capabilities, local testing, CI integration and debugging.',
     },
     {
+        path: '/git-github',
+        title: 'Git and GitHub Tutorial for QA Engineers | LearnQA.dev',
+        description: 'Learn Git and GitHub with visual workflows, branch strategy, pull requests, GitHub Actions, Pages deployment, safety rules and hands-on command practice.',
+    },
+    {
+        path: '/linux',
+        title: 'Linux Command Line Tutorial for QA Engineers | LearnQA.dev',
+        description: 'Learn Linux for QA automation: filesystem navigation, permissions, pipes, processes, bash scripting, CI agent debugging and common errors.',
+    },
+    {
         path: '/aws',
         title: 'AWS for QA Engineers and Test Automation | LearnQA.dev',
         description: 'Learn AWS services useful for QA automation, cloud test environments, CI pipelines, storage, monitoring and scalable test execution.',
@@ -107,6 +117,11 @@ export const ROUTE_SEO = [
         path: '/java-document',
         title: 'Java Reference Guide for QA Automation | LearnQA.dev',
         description: 'Explore a practical Java reference for QA automation engineers, including collections, OOP, exceptions, concurrency and testing patterns.',
+    },
+    {
+        path: '/git-document',
+        title: 'Git & GitHub Reference Guide for QA Automation | LearnQA.dev',
+        description: 'Explore a practical Git & GitHub reference for QA automation engineers, including installation, accounts, branching, conflict resolution, stashing, and rebasing.',
     },
     {
         path: '/what-is-testing',

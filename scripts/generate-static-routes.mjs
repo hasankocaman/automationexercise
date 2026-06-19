@@ -25,6 +25,8 @@ const DATA_MODULES = {
     '/kafka': { file: '../src/data/kafkaData.js', exportName: 'kafkaData' },
     '/appium': { file: '../src/data/appiumData.js', exportName: 'appiumData' },
     '/browserstack': { file: '../src/data/browserstackData.js', exportName: 'browserstackData' },
+    '/git-github': { file: '../src/data/gitGithubData.js', exportName: 'gitGithubData' },
+    '/linux': { file: '../src/data/linuxData.js', exportName: 'linuxData' },
     '/aws': { file: '../src/data/awsData.js', exportName: 'awsData' },
     '/azure': { file: '../src/data/azureData.js', exportName: 'azureData' },
     '/what-is-testing': { file: '../src/data/whatIsTestingData.js', exportName: 'whatIsTestingData' },
@@ -132,9 +134,56 @@ async function javaDocumentContent() {
     }
 }
 
+async function gitDocumentContent() {
+    const docPath = join(rootDir, 'public', 'documents', 'GitNotesForProfessionals.md')
+
+    try {
+        const text = await readFile(docPath, 'utf8')
+        const chapters = []
+
+        for (const line of text.split('\n')) {
+            const cleaned = cleanDocumentLine(line)
+            if (cleaned.includes('...')) continue
+
+            const match = cleaned.match(/^Chapter\s+(\d+)\s*:\s*(.+)$/i)
+            if (!match) continue
+
+            chapters.push({
+                number: Number(match[1]),
+                title: match[2].trim(),
+            })
+
+            if (chapters.length >= 12) break
+        }
+
+        return {
+            title: 'Git & GitHub Reference Guide for QA Automation',
+            intro: 'Browse a Git and GitHub reference book tailored for QA automation engineers, featuring searchable chapters, bilingual translation, copyable command examples and detailed setups for SSH and credentials.',
+            topics: chapters.map((chapter) => ({
+                title: `Chapter ${chapter.number}: ${chapter.title}`,
+                snippets: [
+                    'Review Git history, staging, committing, remote configuration, branching, conflict resolution, stashing, rebasing, and GitHub collaboration workflows.',
+                ],
+            })),
+        }
+    } catch (error) {
+        console.warn(`Could not load Git document SEO content: ${error.message}`)
+        return {
+            title: 'Git & GitHub Reference Guide for QA Automation',
+            intro: 'Search and study Git & GitHub reference material for QA automation, including installation, accounts, branching, conflicts, stashing, rebasing and remote workflows.',
+            topics: [
+                { title: 'Getting Started and Config', snippets: ['Git installation, credentials setup, GitHub account registration, and SSH key configurations.'] },
+                { title: 'Remotes and Staging', snippets: ['Working with remote URLs, staging, unstaging, committing, pushing and pulling.'] },
+                { title: 'Branching and Conflicts', snippets: ['Managing branches, merge operations, resolving merge conflicts, and interactive rebasing.'] },
+            ],
+        }
+    }
+}
+
 async function specialRouteContent(seo) {
     if (seo.path === '/test-frameworks') return testFrameworksContent()
     if (seo.path === '/java-document') return javaDocumentContent()
+    if (seo.path === '/git-document') return gitDocumentContent()
     if (seo.path === '/qa-mentor') return {
         title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı',
         intro: 'Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş bir QA kariyer zihin haritası oluştur. Sıfırdan başlayanlar için Algoritma → Manuel Test → Java → Selenium yolundan, deneyimli geliştiriciler için Java+Playwright veya Python/TypeScript yoluna kadar 4 farklı kişiselleştirilmiş harita.',

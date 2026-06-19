@@ -21,8 +21,11 @@ const SeleniumPage = lazy(() => import('./components/SeleniumPage'))
 const AWSPage = lazy(() => import('./components/AWSPage'))
 const AzurePage = lazy(() => import('./components/AzurePage'))
 const BrowserStackPage = lazy(() => import('./components/BrowserStackPage'))
+const GitGithubPage = lazy(() => import('./components/GitGithubPage'))
+const LinuxPage = lazy(() => import('./components/LinuxPage'))
 const JavaPage = lazy(() => import('./components/JavaPage'))
 const JavaDocPage = lazy(() => import('./components/JavaDocPage'))
+const GitDocPage = lazy(() => import('./components/GitDocPage'))
 const WhatIsTestingPage = lazy(() => import('./components/WhatIsTestingPage'))
 const ManualTestingPage = lazy(() => import('./components/ManualTestingPage'))
 const AlgorithmsPage = lazy(() => import('./components/AlgorithmsPage'))
@@ -62,8 +65,11 @@ function App() {
                     <Route path="/aws" element={<AWSPage />} />
                     <Route path="/azure" element={<AzurePage />} />
                     <Route path="/browserstack" element={<BrowserStackPage />} />
+                    <Route path="/git-github" element={<GitGithubPage />} />
+                    <Route path="/linux" element={<LinuxPage />} />
                     <Route path="/java" element={<JavaPage />} />
                     <Route path="/java-document" element={<JavaDocPage />} />
+                    <Route path="/git-document" element={<GitDocPage />} />
                     <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
                     <Route path="/manual-testing" element={<ManualTestingPage />} />
                     <Route path="/algorithms" element={<AlgorithmsPage />} />

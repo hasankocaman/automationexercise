@@ -17,6 +17,8 @@ import { jenkinsData } from '../data/jenkinsData'
 import { kafkaData } from '../data/kafkaData'
 import { appiumData } from '../data/appiumData'
 import { browserstackData } from '../data/browserstackData'
+import { gitGithubData } from '../data/gitGithubData'
+import { linuxData } from '../data/linuxData'
 import { awsData } from '../data/awsData'
 import { azureData } from '../data/azureData'
 import { algorithmsData } from '../data/algorithmsData'
@@ -196,6 +198,8 @@ const ALL_DATA = [
     { data: kafkaData, route: '/kafka', name: 'Kafka' },
     { data: appiumData, route: '/appium', name: 'Appium' },
     { data: browserstackData, route: '/browserstack', name: 'BrowserStack' },
+    { data: gitGithubData, route: '/git-github', name: 'Git & GitHub' },
+    { data: linuxData, route: '/linux', name: 'Linux' },
     { data: awsData, route: '/aws', name: 'AWS' },
     { data: azureData, route: '/azure', name: 'Azure' },
     { data: manualTestingData, route: '/manual-testing', name: 'Manual Testing' },

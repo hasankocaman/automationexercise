@@ -2832,6 +2832,130 @@ function DragOrderBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── GitPracticeBlock ────────────────────────────────────────────────────────
+
+function GitPracticeBlock({ block, darkMode, language }) {
+    const starter = tx(block.starterCommands || block.defaultCommands || '', language)
+    const [commands, setCommands] = useState(starter)
+    const [result, setResult] = useState(null)
+
+    useEffect(() => {
+        setCommands(starter)
+        setResult(null)
+    }, [starter])
+
+    const normalizeLine = (line) => line
+        .trim()
+        .replace(/^\$\s*/, '')
+        .replace(/\s+/g, ' ')
+
+    const runCheck = () => {
+        const lines = commands
+            .split(/\r?\n/)
+            .map(normalizeLine)
+            .filter(line => line && !line.startsWith('#') && !line.startsWith('//'))
+
+        const expected = block.expectedSteps || []
+        let searchStart = 0
+        const checks = expected.map((step) => {
+            const re = new RegExp(step.pattern, 'i')
+            const foundIndex = lines.findIndex((line, idx) => idx >= searchStart && re.test(line))
+            const ok = foundIndex !== -1
+            if (ok) searchStart = foundIndex + 1
+            return {
+                label: tx(step.label, language),
+                ok,
+                example: step.example,
+            }
+        })
+
+        const dangerPatterns = block.dangerousPatterns || [
+            { pattern: '\\bgit\\s+reset\\s+--hard\\b', label: { tr: 'git reset --hard çalışma alanındaki kaydedilmemiş değişiklikleri siler.', en: 'git reset --hard discards uncommitted work in the working tree.' } },
+            { pattern: '\\bgit\\s+push\\s+--force\\b', label: { tr: 'git push --force ortak branch geçmişini ezebilir; işte --force-with-lease tercih edilir.', en: 'git push --force can overwrite shared history; prefer --force-with-lease at work.' } },
+            { pattern: '\\bgit\\s+clean\\s+-f', label: { tr: 'git clean -f untracked dosyaları siler; önce git clean -n ile prova yap.', en: 'git clean -f deletes untracked files; preview with git clean -n first.' } },
+        ]
+        const warnings = []
+        lines.forEach((line, index) => {
+            dangerPatterns.forEach(item => {
+                if (new RegExp(item.pattern, 'i').test(line)) {
+                    warnings.push(`${language === 'tr' ? 'Satır' : 'Line'} ${index + 1}: ${tx(item.label, language)}`)
+                }
+            })
+        })
+
+        const missing = checks.filter(check => !check.ok)
+        setResult({
+            ok: missing.length === 0,
+            checks,
+            warnings,
+            output: missing.length === 0
+                ? tx(block.successOutput, language)
+                : tx(block.retryOutput, language),
+        })
+    }
+
+    const title = tx(block.title, language) || (language === 'tr' ? 'Kendin Dene' : 'Try It Yourself')
+    const intro = tx(block.intro, language)
+
+    return (
+        <div className={`mt-5 rounded-xl border overflow-hidden ${darkMode ? 'border-emerald-700 bg-gray-900' : 'border-emerald-200 bg-white'}`}>
+            <div className={`px-4 py-3 flex flex-wrap items-center gap-3 ${darkMode ? 'bg-emerald-950/60' : 'bg-emerald-50'}`}>
+                <span className="text-xl">{block.icon || '🔀'}</span>
+                <div className="min-w-0 flex-1">
+                    <div className={`text-sm font-bold ${darkMode ? 'text-emerald-200' : 'text-emerald-900'}`}>{title}</div>
+                    {intro && <div className={`text-xs mt-0.5 ${darkMode ? 'text-emerald-300/80' : 'text-emerald-700'}`}>{intro}</div>}
+                </div>
+                <button
+                    onClick={runCheck}
+                    className="rounded-md px-3 py-1.5 text-xs font-bold"
+                    style={{ background: '#059669', color: '#fff', minHeight: 36 }}
+                >
+                    {language === 'tr' ? '▶ Komutları Kontrol Et' : '▶ Check Commands'}
+                </button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr]">
+                <textarea
+                    value={commands}
+                    onChange={e => setCommands(e.target.value)}
+                    spellCheck={false}
+                    style={{ minHeight: block.height || 250, background: '#0f172a', color: '#bbf7d0', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, lineHeight: 1.65, border: 'none', outline: 'none', resize: 'vertical', padding: '16px', boxSizing: 'border-box' }}
+                />
+                <div className={`p-4 border-t lg:border-t-0 lg:border-l ${darkMode ? 'border-gray-700 bg-gray-950' : 'border-emerald-100 bg-emerald-50/50'}`}>
+                    {!result && (
+                        <div className={`text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {tx(block.help, language) || (language === 'tr'
+                                ? 'Komutları gerçek terminalde çalıştırmadan önce burada sıraya koy. Bu alan repo değiştirmez; sadece akışı kontrol eder.'
+                                : 'Arrange the commands here before running them in a real terminal. This area does not change a repository; it only checks the flow.')}
+                        </div>
+                    )}
+                    {result && (
+                        <div className="space-y-3">
+                            <div className={`rounded-lg border p-3 text-sm font-bold ${result.ok ? (darkMode ? 'border-green-700 bg-green-950/30 text-green-200' : 'border-green-300 bg-green-50 text-green-800') : (darkMode ? 'border-red-700 bg-red-950/30 text-red-200' : 'border-red-300 bg-red-50 text-red-800')}`}>
+                                {result.ok ? (language === 'tr' ? '✅ Akış iş hayatı için güvenli görünüyor' : '✅ Flow looks safe for real work') : (language === 'tr' ? '❌ Sırada eksik veya hatalı adımlar var' : '❌ Some required steps are missing or out of order')}
+                            </div>
+                            <div className="space-y-1">
+                                {result.checks.map((check, idx) => (
+                                    <div key={idx} className={`text-xs ${check.ok ? (darkMode ? 'text-green-300' : 'text-green-700') : (darkMode ? 'text-red-300' : 'text-red-700')}`}>
+                                        {check.ok ? '✓' : '×'} {check.label}
+                                        {!check.ok && check.example && <span className="font-mono opacity-70"> — {check.example}</span>}
+                                    </div>
+                                ))}
+                            </div>
+                            {result.warnings.map((warning, idx) => (
+                                <div key={idx} className={`text-xs rounded-md px-3 py-2 ${darkMode ? 'bg-yellow-950/40 text-yellow-200' : 'bg-yellow-50 text-yellow-800'}`}>⚠️ {warning}</div>
+                            ))}
+                            <div>
+                                <div className={`text-xs font-bold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Terminal Preview</div>
+                                <pre className={`rounded-lg p-3 text-xs min-h-[74px] whitespace-pre-wrap ${darkMode ? 'bg-black text-green-300' : 'bg-slate-900 text-green-300'}`}>{result.output || (language === 'tr' ? 'Komut akışı kontrol edildi.' : 'Command flow checked.')}</pre>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── SimulationBlock ──────────────────────────────────────────────────────────
 
 function SimulationBlock({ block, darkMode, language }) {
@@ -3237,6 +3361,1188 @@ function SimulationBlock({ block, darkMode, language }) {
                                 </div>
                             ) : null)}
                             {s === 'done' && <div style={{ color: '#22c55e', fontSize: 10.5, lineHeight: 1.75 }}>BUILD SUCCESS → target/java-first-project.jar</div>}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitSnapshotStoryPlayground = () => {
+        const s = simState
+        const order = ['idle', 'folder', 'change', 'snapshot', 'compare', 'restore']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'restore'
+        const visible = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const snapshots = [
+            ['v1', isTr ? 'Sabah' : 'Morning', 'Login test OK', '#22c55e'],
+            ['v2', isTr ? 'Öğlen' : 'Noon', isTr ? 'Yeni assertion' : 'New assertion', '#38bdf8'],
+            ['v3', isTr ? 'Akşam' : 'Evening', isTr ? 'Hata bulundu' : 'Bug found', '#f97316'],
+        ]
+        return (
+            <div style={{ maxWidth: 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📸</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Git = proje hafızası' : 'Git = project memory'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'klasör → değişiklik → snapshot → geri dönüş' : 'folder → change → snapshot → restore'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['folder', 150], ['change', 750], ['snapshot', 800], ['compare', 850], ['restore', 750]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#059669' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ hikayeyi oynat' : '▶ play story') : s === 'restore' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 34px 1fr', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+                            <div style={{ border: `1px solid ${visible('folder') ? '#34d399' : '#334155'}`, background: visible('folder') ? '#064e3b55' : '#020617', borderRadius: 10, padding: 10, minHeight: 96, color: visible('folder') ? '#d1fae5' : '#64748b', transition: 'all .35s' }}>
+                                <div style={{ fontSize: 22 }}>📁</div>
+                                <div style={{ fontSize: 11, fontWeight: 800 }}>qa-project</div>
+                                <div style={{ fontSize: 9, lineHeight: 1.7, fontFamily: 'JetBrains Mono, monospace' }}>
+                                    <div>login.spec.js</div>
+                                    <div>README.md</div>
+                                    <div>{visible('change') ? (isTr ? '+ yeni kontrol' : '+ new check') : isTr ? 'dosyalar hazır' : 'files ready'}</div>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'center', color: active('snapshot') ? '#34d399' : '#64748b', fontSize: 22 }} className={active('snapshot') ? 'sim-animate' : ''}>→</div>
+                            <div style={{ border: `1px solid ${visible('snapshot') ? '#38bdf8' : '#334155'}`, background: visible('snapshot') ? '#082f4955' : '#020617', borderRadius: 10, padding: 10, minHeight: 96, transition: 'all .35s' }}>
+                                <div style={{ color: visible('snapshot') ? '#bae6fd' : '#64748b', fontSize: 11, fontWeight: 800 }}>{isTr ? 'Snapshot rafı' : 'Snapshot shelf'}</div>
+                                <div style={{ display: 'grid', gap: 5, marginTop: 8 }}>
+                                    {snapshots.map(([key, label, text, color], idx) => {
+                                        const show = visible('snapshot') && (idx === 0 || cur >= order.indexOf('compare') || (idx === 1 && cur >= order.indexOf('snapshot')))
+                                        return (
+                                            <div key={key} style={{ border: `1px solid ${show ? color : '#334155'}`, background: show ? `${color}22` : '#0f172a', borderRadius: 7, padding: '5px 7px', color: show ? '#f8fafc' : '#475569', fontSize: 9.5, transition: 'all .35s' }}>
+                                                <strong>{label}</strong> · {show ? text : '---'}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${visible('compare') ? '#fbbf24' : '#334155'}`, background: visible('compare') ? '#451a0355' : '#020617', borderRadius: 9, padding: 9, color: visible('compare') ? '#fde68a' : '#64748b' }}>
+                                <div style={{ fontSize: 10, fontWeight: 800 }}>{isTr ? 'Karşılaştır' : 'Compare'}</div>
+                                <div style={{ fontSize: 9, marginTop: 4 }}>{isTr ? 'Ne değiştiğini yan yana görürsün.' : 'You see what changed side by side.'}</div>
+                            </div>
+                            <div style={{ border: `1px solid ${visible('restore') ? '#22c55e' : '#334155'}`, background: visible('restore') ? '#052e1655' : '#020617', borderRadius: 9, padding: 9, color: visible('restore') ? '#bbf7d0' : '#64748b' }}>
+                                <div style={{ fontSize: 10, fontWeight: 800 }}>{isTr ? 'Geri dönebil' : 'Restore safely'}</div>
+                                <div style={{ fontSize: 9, marginTop: 4 }}>{isTr ? 'Bozulan yolu eski güvenli noktadan anlarsın.' : 'You can reason from an older safe point.'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGithubCollaborationPlayground = () => {
+        const s = simState
+        const order = ['idle', 'local', 'upload', 'review', 'checks', 'merge', 'publish']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'publish'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const columns = [
+            ['local', isTr ? 'Senin bilgisayarın' : 'Your laptop', isTr ? 'Branch üzerinde çalışırsın' : 'You work on a branch', '💻'],
+            ['review', 'Pull Request', isTr ? 'Takım değişikliği görür' : 'The team sees the change', '📝'],
+            ['checks', 'Actions', isTr ? 'Testler otomatik koşar' : 'Tests run automatically', '✅'],
+            ['merge', 'main', isTr ? 'Onaylı iş birleşir' : 'Approved work is merged', '🔒'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🌐</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'GitHub = takım meydanı' : 'GitHub = team workspace'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>branch → PR → checks → main</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['local', 150], ['upload', 650], ['review', 850], ['checks', 850], ['merge', 750], ['publish', 600]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#2563eb' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ GitHub’u gör' : '▶ see GitHub') : s === 'publish' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                            {columns.map(([key, title, desc, icon], idx) => {
+                                const isReached = reached(key) || (key === 'review' && s === 'upload')
+                                const isActive = active(key) || (key === 'review' && s === 'upload')
+                                return (
+                                    <div key={key} style={{ display: 'grid', gridTemplateColumns: '34px 1fr', gap: 9, alignItems: 'center' }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isReached ? '#1d4ed8' : '#334155', color: '#fff', boxShadow: isActive ? '0 0 16px rgba(59,130,246,.55)' : 'none', transition: 'all .35s' }} className={isActive ? 'sim-animate' : ''}>{isReached ? icon : idx + 1}</div>
+                                        <div style={{ border: `1px solid ${isActive ? '#60a5fa' : isReached ? '#2563eb' : '#334155'}`, background: isReached ? '#1e3a8a33' : '#020617', borderRadius: 9, padding: '8px 10px', transition: 'all .35s' }}>
+                                            <div style={{ color: isReached ? '#dbeafe' : '#64748b', fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                            <div style={{ color: isReached ? '#bfdbfe' : '#64748b', fontSize: 9.5 }}>{desc}</div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, border: '1px solid #334155', background: '#020617', borderRadius: 9, padding: 10, color: s === 'publish' ? '#86efac' : '#94a3b8', fontSize: 10.5, lineHeight: 1.55 }}>
+                            {s === 'publish'
+                                ? (isTr ? 'Sonuç: Değişiklik görünür, test edilmiş ve onaylanmış şekilde ortak main’e girer.' : 'Result: the change enters main visibly, tested and approved.')
+                                : (isTr ? 'GitHub tek başına komut değildir; review, kalite kapısı ve takım hafızasıdır.' : 'GitHub is not just commands; it is review, quality gate and team memory.')}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitConceptOrderPlayground = () => {
+        const s = simState
+        const order = ['idle', 'init', 'status', 'add', 'commit', 'origin', 'pushMain', 'branch', 'pushBranch', 'sync', 'conflict', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const steps = [
+            ['init', 'git init', isTr ? 'Git bu klasörü takip etmeye başlar.' : 'Git starts tracking this folder.'],
+            ['status', 'git status', isTr ? 'Önce Git ne görüyor anlarsın.' : 'First you see what Git sees.'],
+            ['add', 'git add', isTr ? 'Commit’e girecek dosyayı seçersin.' : 'You choose what enters the commit.'],
+            ['commit', 'git commit', isTr ? 'Local snapshot kalıcı olur.' : 'The local snapshot becomes permanent.'],
+            ['origin', 'remote origin', isTr ? 'GitHub repo adresi bağlanır.' : 'The GitHub repo URL is connected.'],
+            ['pushMain', 'push main', isTr ? 'main GitHub’a ilk kez gider.' : 'main goes to GitHub first.'],
+            ['branch', 'feature branch', isTr ? 'main dışında güvenli yol açılır.' : 'A safe path outside main is created.'],
+            ['pushBranch', 'push feature', isTr ? 'Branch GitHub’da görünür olur.' : 'The branch becomes visible on GitHub.'],
+            ['sync', 'fetch + merge', isTr ? 'Remote değişiklikler locale alınır.' : 'Remote changes are brought local.'],
+            ['conflict', 'conflict', isTr ? 'Aynı yer değiştiyse localde çözülür.' : 'If the same area changed, solve it locally.'],
+        ]
+        const terminal = [
+            ['init', 'git init', '#2dd4bf'],
+            ['status', 'git status', '#38bdf8'],
+            ['add', 'git add README.md', '#fbbf24'],
+            ['commit', 'git commit -m "chore: initial snapshot"', '#22c55e'],
+            ['origin', 'git remote add origin https://github.com/hasankocaman/deneme2.git', '#60a5fa'],
+            ['pushMain', 'git push -u origin main', '#a78bfa'],
+            ['branch', 'git switch -c feature/login-tests', '#34d399'],
+            ['pushBranch', 'git push -u origin feature/login-tests', '#22c55e'],
+            ['sync', 'git fetch origin', '#f59e0b'],
+            ['sync', 'git merge origin/main   # pull = fetch + merge', '#f59e0b'],
+            ['conflict', isTr ? '# conflict: dosyayı düzelt -> test et -> git add -> continue' : '# conflict: edit file -> test -> git add -> continue', '#fb7185'],
+        ]
+        return (
+            <div style={{ maxWidth: 470, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧭</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Git/GitHub sıra haritası' : 'Git/GitHub order map'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'neden -> komut -> sonuç' : 'why -> command -> result'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['init', 180], ['status', 650], ['add', 700], ['commit', 760], ['origin', 760], ['pushMain', 760], ['branch', 760], ['pushBranch', 760], ['sync', 850], ['conflict', 760], ['done', 420]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0f766e' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ sırayı göster' : '▶ show order') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 46px 1fr', gap: 8, alignItems: 'stretch' }}>
+                            <div style={{ border: `1px solid ${reached('init') ? '#2dd4bf' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('init') ? '#042f2e' : '#020617' }}>
+                                <div style={{ color: '#99f6e4', fontSize: 10, fontWeight: 900 }}>LOCAL</div>
+                                <div style={{ color: reached('init') ? '#ccfbf1' : '#64748b', fontSize: 12, fontWeight: 900, marginTop: 6 }}>qa-project/</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 5, marginTop: 8 }}>
+                                    {[
+                                        ['init', '.git'],
+                                        ['add', 'stage'],
+                                        ['commit', 'C1'],
+                                    ].map(([key, label]) => (
+                                        <div key={key} style={{ border: `1px solid ${reached(key) ? '#14b8a6' : '#334155'}`, borderRadius: 7, padding: '5px 3px', color: reached(key) ? '#ccfbf1' : '#64748b', background: reached(key) ? '#0f766e55' : '#0f172a', fontSize: 9, textAlign: 'center', fontWeight: 800 }}>
+                                            {label}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ color: reached('branch') ? '#86efac' : '#64748b', fontSize: 9.5, marginTop: 8 }}>{reached('branch') ? 'feature/login-tests' : (isTr ? 'önce main üzerinde başlar' : 'starts on main first')}</div>
+                            </div>
+
+                            <div style={{ display: 'grid', placeItems: 'center' }}>
+                                <div className={active('origin') || active('pushMain') || active('pushBranch') || active('sync') ? 'sim-animate' : ''} style={{ width: 38, height: 38, borderRadius: 999, display: 'grid', placeItems: 'center', background: active('sync') ? '#f59e0b' : reached('origin') ? '#0ea5e9' : '#1e293b', color: '#fff', fontSize: 16, boxShadow: active('origin') || active('pushMain') || active('pushBranch') || active('sync') ? '0 0 18px rgba(20,184,166,.65)' : 'none', transition: 'all .35s' }}>
+                                    {active('sync') ? '↙' : '↗'}
+                                </div>
+                            </div>
+
+                            <div style={{ border: `1px solid ${reached('pushMain') ? '#60a5fa' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('pushMain') ? '#172554' : '#020617' }}>
+                                <div style={{ color: '#bfdbfe', fontSize: 10, fontWeight: 900 }}>GITHUB</div>
+                                <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+                                    <div style={{ border: `1px solid ${reached('pushMain') ? '#60a5fa' : '#334155'}`, borderRadius: 8, padding: 7, color: reached('pushMain') ? '#dbeafe' : '#64748b', background: reached('pushMain') ? '#1d4ed855' : '#0f172a', fontSize: 10, fontWeight: 900 }}>origin/main</div>
+                                    <div style={{ border: `1px solid ${reached('pushBranch') ? '#22c55e' : '#334155'}`, borderRadius: 8, padding: 7, color: reached('pushBranch') ? '#dcfce7' : '#64748b', background: reached('pushBranch') ? '#15803d55' : '#0f172a', fontSize: 10, fontWeight: 900 }}>origin/feature/login-tests</div>
+                                </div>
+                                <div style={{ color: reached('pushBranch') ? '#86efac' : '#64748b', fontSize: 9.5, marginTop: 8 }}>{isTr ? 'PR için remote branch gerekir' : 'A PR needs a remote branch'}</div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 7 }}>
+                            {steps.map(([key, title, desc], index) => {
+                                const isActive = active(key)
+                                const isDone = reached(key)
+                                return (
+                                    <div key={key} style={{ border: `1px solid ${isActive ? '#2dd4bf' : isDone ? '#0f766e' : '#334155'}`, borderRadius: 9, padding: 8, background: isActive ? '#134e4a' : isDone ? '#042f2e' : '#020617', transition: 'all .3s' }}>
+                                        <div style={{ color: isDone ? '#ccfbf1' : '#64748b', fontSize: 9, fontWeight: 900 }}>{isDone ? '✓' : index + 1} {title}</div>
+                                        <div style={{ color: isDone ? '#99f6e4' : '#64748b', fontSize: 8.5, marginTop: 4, lineHeight: 1.35 }}>{desc}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${reached('sync') ? '#f59e0b' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('sync') ? '#451a0355' : '#020617' }}>
+                                <div style={{ color: '#fde68a', fontSize: 10, fontWeight: 900 }}>fetch + merge</div>
+                                <div style={{ color: reached('sync') ? '#fcd34d' : '#64748b', fontSize: 9, marginTop: 5 }}>{isTr ? 'Önce indir, sonra uygula.' : 'Download first, apply second.'}</div>
+                            </div>
+                            <div style={{ border: `1px solid ${reached('sync') ? '#f59e0b' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('sync') ? '#451a0355' : '#020617' }}>
+                                <div style={{ color: '#fde68a', fontSize: 10, fontWeight: 900 }}>pull</div>
+                                <div style={{ color: reached('sync') ? '#fcd34d' : '#64748b', fontSize: 9, marginTop: 5 }}>{isTr ? 'Fetch + merge tek komut.' : 'Fetch + merge in one command.'}</div>
+                            </div>
+                        </div>
+
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 118, fontFamily: 'JetBrains Mono, monospace', overflow: 'hidden' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Animasyonu başlat: hangi komut hangi amaçla gelir gör.' : 'Start the animation to see why each command comes next.'}</div>}
+                            {terminal.map(([state, text, color], i) => (order.indexOf(state) <= cur && s !== 'idle')
+                                ? <div key={i} style={{ color, fontSize: 9.6, lineHeight: 1.65, animation: 'simFadeUp .25s ease-out', wordBreak: 'break-word' }}>$ {text}</div>
+                                : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitTerminalShellMapPlayground = () => {
+        const s = simState
+        const order = ['idle', 'type', 'shell', 'git', 'repo', 'output']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'output'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const layers = [
+            ['type', '⌨️', isTr ? 'Terminal penceresi' : 'Terminal window', isTr ? 'Komutu yazdığın görsel alan' : 'The visual place where you type'],
+            ['shell', '⚙️', 'Shell', isTr ? 'Komutu yorumlayan motor' : 'The engine that interprets the command'],
+            ['git', '🔧', 'Git', isTr ? '`git status` isteğini çalıştıran program' : 'The program that runs `git status`'],
+            ['repo', '📁', '.git', isTr ? 'Repo bilgisini okur' : 'Repository metadata is read'],
+            ['output', '✅', isTr ? 'Çıktı' : 'Output', isTr ? 'Sonuç terminalde görünür' : 'Result appears in the terminal'],
+        ]
+        const terminal = [
+            ['type', '$ git status'],
+            ['shell', isTr ? 'Git Bash komutu shell içinde yorumluyor...' : 'Git Bash is interpreting the command...'],
+            ['git', isTr ? 'git.exe repository durumunu soruyor...' : 'git.exe is checking repository state...'],
+            ['repo', isTr ? '.git klasörü ve working tree okunuyor...' : '.git folder and working tree are being read...'],
+            ['output', 'On branch main\nnothing to commit, working tree clean'],
+        ]
+        return (
+            <div style={{ maxWidth: 430, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#020617' }}>
+                    <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#0f172a', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🖥️</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Komut yolculuğu' : 'Command journey'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>terminal → shell → git → repo → output</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['type', 150], ['shell', 650], ['git', 700], ['repo', 700], ['output', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0ea5e9' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ komutu izle' : '▶ trace command') : s === 'output' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        {layers.map(([key, icon, title, desc]) => {
+                            const isA = active(key)
+                            const isD = done(key)
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#38bdf8' : isD ? '#22c55e' : '#334155'}`, background: isA ? '#082f4955' : isD ? '#052e1655' : '#0f172a', borderRadius: 10, padding: 10, display: 'grid', gridTemplateColumns: '34px 1fr auto', alignItems: 'center', gap: 9, transition: 'all .35s' }}>
+                                    <div className={isA ? 'sim-animate' : ''} style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isA ? '#0284c7' : isD ? '#16a34a' : '#334155', color: '#fff' }}>{isD ? '✓' : icon}</div>
+                                    <div>
+                                        <div style={{ color: isA || isD ? '#f8fafc' : '#cbd5e1', fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                    </div>
+                                    <div style={{ color: isA ? '#7dd3fc' : isD ? '#86efac' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace' }}>{isA ? 'active' : isD ? 'done' : 'waiting'}</div>
+                                </div>
+                            )
+                        })}
+                        <div style={{ borderRadius: 10, border: '1px solid #1e293b', background: '#020617', padding: 10, fontFamily: 'JetBrains Mono, monospace', minHeight: 108 }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10.5 }}>{isTr ? 'Başlatınca `git status` komutunun arka planda nereye gittiğini göreceksin.' : 'Start to see where `git status` goes behind the scenes.'}</div>}
+                            {terminal.map(([key, line]) => (order.indexOf(key) <= cur && s !== 'idle') ? (
+                                <div key={key} style={{ color: key === 'output' ? '#86efac' : '#bae6fd', fontSize: 10.5, whiteSpace: 'pre-wrap', marginBottom: 5 }}>{line}</div>
+                            ) : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#0f172a', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitTerminalInstallUsePlayground = () => {
+        const s = simState
+        const order = ['idle', 'download', 'install', 'open', 'verify', 'ide']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'ide'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const cards = [
+            ['download', '⬇️', isTr ? 'İndir' : 'Download', isTr ? 'Windows: Git for Windows; macOS/Linux: package manager' : 'Windows: Git for Windows; macOS/Linux: package manager'],
+            ['install', '🧰', isTr ? 'Kur' : 'Install', isTr ? 'Başlangıçta güvenli varsayılan seçeneklerle ilerle' : 'Use beginner-friendly defaults at first'],
+            ['open', '🖥️', isTr ? 'Aç' : 'Open', isTr ? 'Git Bash, PowerShell, Terminal veya IDE Terminal aç' : 'Open Git Bash, PowerShell, Terminal or IDE Terminal'],
+            ['verify', '✅', isTr ? 'Doğrula' : 'Verify', '`git --version`'],
+            ['ide', '🧑‍💻', isTr ? 'Projede kullan' : 'Use in project', isTr ? 'VS Code/IntelliJ terminalinde doğru klasörü kontrol et' : 'Check the right folder in VS Code/IntelliJ terminal'],
+        ]
+        const terminal = [
+            ['download', isTr ? 'Windows: git-scm.com → Git for Windows' : 'Windows: git-scm.com → Git for Windows'],
+            ['install', isTr ? 'Kurulumdan sonra Git Bash menüde görünür' : 'After install, Git Bash appears in the Start menu'],
+            ['open', '$ pwd\n/c/Users/hasan/Desktop'],
+            ['verify', '$ git --version\ngit version 2.x.x'],
+            ['ide', isTr ? 'VS Code → Terminal → New Terminal → Git Bash seç' : 'VS Code → Terminal → New Terminal → choose Git Bash'],
+        ]
+        return (
+            <div style={{ maxWidth: 430, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #14532d', background: '#052e16' }}>
+                    <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#064e3b', borderBottom: '1px solid #166534' }}>
+                        <span style={{ fontSize: 18 }}>🧭</span>
+                        <div>
+                            <div style={{ color: '#ecfdf5', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Güvenli ilk kurulum turu' : 'Safe first setup tour'}</div>
+                            <div style={{ color: '#a7f3d0', fontSize: 10 }}>{isTr ? 'indir → kur → aç → doğrula → projede kullan' : 'download → install → open → verify → use in project'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['download', 150], ['install', 700], ['open', 700], ['verify', 800], ['ide', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#10b981' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ kurulum turu' : '▶ setup tour') : s === 'ide' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        {cards.map(([key, icon, title, desc]) => {
+                            const isA = active(key)
+                            const isD = done(key)
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#34d399' : isD ? '#22c55e' : '#166534'}`, background: isA ? '#064e3b' : isD ? '#052e16' : '#022c22', borderRadius: 10, padding: 10, display: 'grid', gridTemplateColumns: '34px 1fr', gap: 9, alignItems: 'center', transition: 'all .35s' }}>
+                                    <div className={isA ? 'sim-animate' : ''} style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isA ? '#10b981' : isD ? '#16a34a' : '#14532d', color: '#fff' }}>{isD ? '✓' : icon}</div>
+                                    <div>
+                                        <div style={{ color: '#ecfdf5', fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                        <div style={{ color: '#a7f3d0', fontSize: 9.5 }}>{desc}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        <div style={{ borderRadius: 10, border: '1px solid #166534', background: '#020617', padding: 10, minHeight: 92, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#6ee7b7', fontSize: 10.5 }}>{isTr ? 'Başlatınca Git Bash ve terminal kurulum yolunu görsel olarak takip edeceksin.' : 'Start to follow the Git Bash and terminal setup path visually.'}</div>}
+                            {terminal.map(([key, line]) => (order.indexOf(key) <= cur && s !== 'idle') ? (
+                                <div key={key} style={{ color: key === 'verify' ? '#86efac' : '#d1fae5', fontSize: 10.5, whiteSpace: 'pre-wrap', marginBottom: 5 }}>{line}</div>
+                            ) : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #166534', background: '#064e3b', color: '#a7f3d0', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitBashOpenFolderPlayground = () => {
+        const s = simState
+        const order = ['idle', 'folder', 'cmdAddress', 'cmdOpen', 'bashMenu', 'bashOpen', 'ide']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'ide'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const fileRows = [
+            ['folder', '📁', isTr ? 'Proje klasörü' : 'Project folder', 'C:\\Users\\Hasan\\Desktop\\qa-project'],
+            ['cmdAddress', '⌨️', isTr ? 'Adres çubuğuna yaz' : 'Type in address bar', 'cmd'],
+            ['cmdOpen', '⚫', 'CMD', 'C:\\Users\\Hasan\\Desktop\\qa-project>'],
+            ['bashMenu', '🖱️', isTr ? 'Sağ tık menüsü' : 'Right-click menu', 'Git Bash Here'],
+            ['bashOpen', '🟩', 'Git Bash', 'hasan@pc MINGW64 ~/Desktop/qa-project'],
+            ['ide', '🧑‍💻', isTr ? 'IDE terminali' : 'IDE terminal', 'Terminal > New Terminal > Git Bash'],
+        ]
+        const terminal = [
+            ['folder', isTr ? 'Explorer: qa-project klasörü açık' : 'Explorer: qa-project folder is open'],
+            ['cmdAddress', isTr ? 'Adres çubuğu: cmd yazıldı, Enter basıldı' : 'Address bar: typed cmd, pressed Enter'],
+            ['cmdOpen', 'C:\\Users\\Hasan\\Desktop\\qa-project> dir\nREADME.md  tests  package.json'],
+            ['bashMenu', isTr ? 'Boş alana sağ tık: Git Bash Here seçildi' : 'Right-click empty area: Git Bash Here selected'],
+            ['bashOpen', '$ pwd\n/c/Users/Hasan/Desktop/qa-project\n$ ls\nREADME.md  tests  package.json'],
+            ['ide', isTr ? 'VS Code terminali aynı proje klasöründe açıldı' : 'VS Code terminal opened in the same project folder'],
+        ]
+        return (
+            <div style={{ maxWidth: 440, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #166534', background: '#052e16' }}>
+                    <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#064e3b', borderBottom: '1px solid #166534' }}>
+                        <span style={{ fontSize: 18 }}>🗂️</span>
+                        <div>
+                            <div style={{ color: '#ecfdf5', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Klasörde terminal açma' : 'Open terminal in folder'}</div>
+                            <div style={{ color: '#a7f3d0', fontSize: 10 }}>Explorer → cmd / Git Bash Here / IDE Terminal</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['folder', 150], ['cmdAddress', 650], ['cmdOpen', 800], ['bashMenu', 750], ['bashOpen', 850], ['ide', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#22c55e' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ açılışı göster' : '▶ show opening') : s === 'ide' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        {fileRows.map(([key, icon, title, value]) => {
+                            const isA = active(key)
+                            const isD = done(key)
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#86efac' : isD ? '#22c55e' : '#166534'}`, background: isA ? '#064e3b' : isD ? '#052e16' : '#022c22', borderRadius: 10, padding: 10, display: 'grid', gridTemplateColumns: '34px 1fr', gap: 9, alignItems: 'center', transition: 'all .35s' }}>
+                                    <div className={isA ? 'sim-animate' : ''} style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isA ? '#22c55e' : isD ? '#16a34a' : '#14532d', color: '#fff' }}>{isD ? '✓' : icon}</div>
+                                    <div style={{ minWidth: 0 }}>
+                                        <div style={{ color: '#ecfdf5', fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                        <div style={{ color: '#a7f3d0', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-word' }}>{value}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        <div style={{ borderRadius: 10, border: '1px solid #166534', background: '#020617', padding: 10, minHeight: 128, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#6ee7b7', fontSize: 10.5 }}>{isTr ? 'Başlatınca aynı klasörde CMD ve Git Bash açmanın farkını göreceksin.' : 'Start to see CMD and Git Bash opening in the same folder.'}</div>}
+                            {terminal.map(([key, line]) => (order.indexOf(key) <= cur && s !== 'idle') ? (
+                                <div key={key} style={{ color: key === 'cmdOpen' ? '#cbd5e1' : key === 'bashOpen' ? '#86efac' : '#d1fae5', fontSize: 10.5, whiteSpace: 'pre-wrap', marginBottom: 6 }}>{line}</div>
+                            ) : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #166534', background: '#064e3b', color: '#a7f3d0', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitBashCommandRunnerPlayground = () => {
+        const s = simState
+        const order = ['idle', 'pwd', 'ls', 'cd', 'mkdir', 'file', 'ipconfig', 'git']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'git'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const commands = [
+            ['pwd', 'pwd', '/c/Users/Hasan/Desktop/qa-project', isTr ? 'Neredeyim?' : 'Where am I?'],
+            ['ls', 'ls', 'README.md  tests  package.json', isTr ? 'Burada ne var?' : 'What is here?'],
+            ['cd', 'cd tests\npwd\ncd ..', '/c/Users/Hasan/Desktop/qa-project/tests\n/c/Users/Hasan/Desktop/qa-project', isTr ? 'Klasöre gir ve geri dön' : 'Enter folder and go back'],
+            ['mkdir', 'mkdir terminal-demo\nls', 'README.md  tests  package.json  terminal-demo', isTr ? 'Klasör oluştur' : 'Create a folder'],
+            ['file', 'touch notes.txt\necho "ilk terminal notum" > notes.txt\ncat notes.txt', isTr ? 'ilk terminal notum' : 'my first terminal note', isTr ? 'Dosya oluştur, yaz, oku' : 'Create, write, read'],
+            ['ipconfig', 'ipconfig', 'IPv4 Address . . . . . . . . . . : 192.168.1.24\nDefault Gateway . . . . . . . . : 192.168.1.1', isTr ? 'Ağ bilgisini gör' : 'See network info'],
+            ['git', 'git --version', 'git version 2.x.x', isTr ? 'Git erişilebilir mi?' : 'Is Git reachable?'],
+        ]
+        return (
+            <div style={{ maxWidth: 440, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #075985', background: '#082f49' }}>
+                    <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#0c4a6e', borderBottom: '1px solid #075985' }}>
+                        <span style={{ fontSize: 18 }}>⌨️</span>
+                        <div>
+                            <div style={{ color: '#f0f9ff', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Komut yaz, sonucu oku' : 'Type command, read output'}</div>
+                            <div style={{ color: '#bae6fd', fontSize: 10 }}>pwd / ls / cd / mkdir / touch / ipconfig / git</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['pwd', 150], ['ls', 650], ['cd', 800], ['mkdir', 800], ['file', 900], ['ipconfig', 900], ['git', 750]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0ea5e9' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ komut turu' : '▶ command tour') : s === 'git' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 9 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 7 }}>
+                            {commands.map(([key, cmd, output, label]) => {
+                                const isA = active(key)
+                                const isD = done(key)
+                                return (
+                                    <div key={key} style={{ border: `1px solid ${isA ? '#38bdf8' : isD ? '#22c55e' : '#075985'}`, background: isA ? '#0c4a6e' : isD ? '#052e16' : '#0f172a', borderRadius: 9, padding: 8, transition: 'all .35s' }}>
+                                        <div style={{ color: isA || isD ? '#f0f9ff' : '#7dd3fc', fontSize: 9.5, fontWeight: 900 }}>{isD ? '✓' : isA ? '→' : '•'} {label}</div>
+                                        <div style={{ color: '#bae6fd', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', marginTop: 4, wordBreak: 'break-word' }}>{cmd.split('\n')[0]}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ borderRadius: 10, border: '1px solid #075985', background: '#020617', padding: 10, minHeight: 170, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#7dd3fc', fontSize: 10.5 }}>{isTr ? 'Başlatınca her komutun yazılışını ve beklenen çıktısını göreceksin.' : 'Start to see each command and expected output.'}</div>}
+                            {commands.map(([key, cmd, output]) => (order.indexOf(key) <= cur && s !== 'idle') ? (
+                                <div key={key} style={{ marginBottom: 8 }}>
+                                    <div style={{ color: '#38bdf8', fontSize: 10.5, whiteSpace: 'pre-wrap' }}>$ {cmd}</div>
+                                    <div style={{ color: '#86efac', fontSize: 10.5, whiteSpace: 'pre-wrap', paddingLeft: 8 }}>{output}</div>
+                                </div>
+                            ) : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #075985', background: '#0c4a6e', color: '#bae6fd', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitInstallOsPlayground = () => {
+        const s = simState
+        const order = ['idle', 'windows', 'mac', 'linux', 'verify', 'identity']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'identity'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const osCards = [
+            ['windows', 'Windows', isTr ? 'Git for Windows / winget' : 'Git for Windows / winget', '⊞'],
+            ['mac', 'macOS', isTr ? 'Homebrew veya installer' : 'Homebrew or installer', '⌘'],
+            ['linux', 'Linux', isTr ? 'apt, dnf veya pacman' : 'apt, dnf or pacman', 'L'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧰</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Kurulum haritası' : 'Installation map'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'önce işletim sistemi, sonra doğrulama' : 'OS first, then verification'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['windows', 150], ['mac', 700], ['linux', 700], ['verify', 800], ['identity', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#f97316' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ kurulum turu' : '▶ install tour') : s === 'identity' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                            {osCards.map(([key, title, desc, icon]) => {
+                                const isA = active(key)
+                                const isD = done(key)
+                                return (
+                                    <div key={key} style={{ border: `1px solid ${isA ? '#fb923c' : isD ? '#22c55e' : '#334155'}`, background: isA ? '#43140755' : isD ? '#052e1655' : '#020617', borderRadius: 10, padding: 10, display: 'grid', gridTemplateColumns: '34px 1fr auto', gap: 9, alignItems: 'center', transition: 'all .35s' }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isA ? '#f97316' : isD ? '#16a34a' : '#334155', color: '#fff', fontWeight: 900 }} className={isA ? 'sim-animate' : ''}>{isD ? '✓' : icon}</div>
+                                        <div>
+                                            <div style={{ color: isA || isD ? '#ffedd5' : '#cbd5e1', fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                            <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                        </div>
+                                        <div style={{ color: isA ? '#fed7aa' : isD ? '#bbf7d0' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace' }}>{isA ? 'installing' : isD ? 'ready' : 'waiting'}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${cur >= order.indexOf('verify') ? '#38bdf8' : '#334155'}`, background: cur >= order.indexOf('verify') ? '#082f4955' : '#020617', borderRadius: 9, padding: 9 }}>
+                                <div style={{ color: cur >= order.indexOf('verify') ? '#bae6fd' : '#64748b', fontSize: 10, fontWeight: 800 }}>git --version</div>
+                                <div style={{ color: cur >= order.indexOf('verify') ? '#7dd3fc' : '#64748b', fontSize: 9, marginTop: 4 }}>{isTr ? 'Git gerçekten kuruldu mu?' : 'Is Git really installed?'}</div>
+                            </div>
+                            <div style={{ border: `1px solid ${cur >= order.indexOf('identity') ? '#a78bfa' : '#334155'}`, background: cur >= order.indexOf('identity') ? '#4c1d9555' : '#020617', borderRadius: 9, padding: 9 }}>
+                                <div style={{ color: cur >= order.indexOf('identity') ? '#ddd6fe' : '#64748b', fontSize: 10, fontWeight: 800 }}>name + email</div>
+                                <div style={{ color: cur >= order.indexOf('identity') ? '#c4b5fd' : '#64748b', fontSize: 9, marginTop: 4 }}>{isTr ? 'Commit kimliği ayarlanır.' : 'Commit identity is configured.'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitThreeAreasPlayground = () => {
+        const s = simState
+        const order = ['idle', 'edit', 'stage', 'commit', 'push', 'remote']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'remote'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const zones = [
+            ['edit', isTr ? 'Working tree' : 'Working tree', isTr ? 'Dosyayı değiştirirsin' : 'You edit files', 'README.md'],
+            ['stage', 'Staging area', isTr ? 'Commit sepetine koyarsın' : 'You add changes to the commit basket', 'git add README.md'],
+            ['commit', 'Local repository', isTr ? 'Kalıcı snapshot alırsın' : 'You save a local snapshot', 'git commit'],
+            ['remote', 'GitHub remote', isTr ? 'Takımla paylaşırsın' : 'You share with the team', 'git push'],
+        ]
+        const terminal = [
+            ['edit', 'echo "# qa-notes" > README.md', '#38bdf8'],
+            ['stage', 'git add README.md', '#fbbf24'],
+            ['commit', 'git commit -m "docs: add qa notes"', '#22c55e'],
+            ['push', 'git push origin feature/qa-notes', '#a78bfa'],
+            ['remote', isTr ? 'GitHub: branch güncellendi' : 'GitHub: branch updated', '#22c55e'],
+        ]
+        return (
+            <div style={{ maxWidth: 390, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔀</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>Git snapshot lab</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>edit → add → commit → push</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['edit', 150], ['stage', 750], ['commit', 850], ['push', 750], ['remote', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#059669' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ snapshot al' : '▶ make snapshot') : s === 'remote' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 9 }}>
+                        {zones.map(([key, label, desc, command]) => {
+                            const isA = active(key) || (key === 'remote' && s === 'push')
+                            const isD = done(key) || (key === 'remote' && s === 'remote')
+                            return (
+                                <div key={key} style={{ display: 'grid', gridTemplateColumns: '34px 1fr', gap: 9, alignItems: 'center' }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isD ? '#065f46' : isA ? '#047857' : '#334155', color: '#ecfdf5', boxShadow: isA ? '0 0 16px rgba(16,185,129,.55)' : 'none', transition: 'all .35s' }} className={isA ? 'sim-animate' : ''}>
+                                        {isD ? '✓' : isA ? '→' : '·'}
+                                    </div>
+                                    <div style={{ border: `1px solid ${isA ? '#34d399' : isD ? '#10b981' : '#334155'}`, background: isA ? '#064e3b55' : '#020617', borderRadius: 9, padding: '8px 10px', transition: 'all .35s' }}>
+                                        <div style={{ color: isA || isD ? '#d1fae5' : '#cbd5e1', fontSize: 11.5, fontWeight: 800 }}>{label}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                        <div style={{ color: isA || isD ? '#6ee7b7' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', marginTop: 3 }}>{command}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 90, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Akışı başlatınca Git komutları sırayla görünür.' : 'Start to watch Git commands in order.'}</div>}
+                            {terminal.map(([state, text, color], i) => {
+                                const show = order.indexOf(state) <= cur && s !== 'idle'
+                                return show ? <div key={i} style={{ color, fontSize: 10.5, lineHeight: 1.7, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div> : null
+                            })}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitRemoteOriginSetupPlayground = () => {
+        const s = simState
+        const order = ['idle', 'commit', 'remote', 'list', 'push', 'credential', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const terminal = [
+            ['commit', 'git log --oneline --max-count=1', '#a78bfa'],
+            ['remote', 'git remote add origin https://github.com/hasankocaman/deneme2.git', '#38bdf8'],
+            ['list', 'git remote -v', '#fbbf24'],
+            ['push', 'git push -u origin main', '#22c55e'],
+            ['credential', isTr ? '# GitHub login isterse credential manager oturumu hatirlar' : '# if GitHub asks for login, credential manager remembers the session', '#94a3b8'],
+            ['done', isTr ? '# sonraki sefer: git push' : '# next time: git push', '#38bdf8'],
+        ]
+        const listCommands = [
+            ['git remote', isTr ? 'Sadece isim: origin' : 'Name only: origin'],
+            ['git remote -v', isTr ? 'fetch + push URL' : 'fetch + push URL'],
+            ['git remote --verbose', isTr ? '-v ile ayni detay' : 'same detail as -v'],
+        ]
+        return (
+            <div style={{ maxWidth: 450, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔗</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'origin remote baglama' : 'origin remote setup'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'commit -> origin -> remote -v -> push -u' : 'commit -> origin -> remote -v -> push -u'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['commit', 200], ['remote', 850], ['list', 750], ['push', 850], ['credential', 650], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#2563eb' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ bagla' : '▶ connect') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 46px 1fr', gap: 8, alignItems: 'center' }}>
+                            <div style={{ border: `1px solid ${reached('commit') ? '#a78bfa' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('commit') ? '#4c1d9555' : '#020617', minHeight: 112 }}>
+                                <div style={{ color: '#ddd6fe', fontSize: 10, fontWeight: 900 }}>LOCAL REPO</div>
+                                <div style={{ display: 'flex', gap: 5, marginTop: 8, alignItems: 'center' }}>
+                                    {['W', 'S', 'C1'].map((item, index) => (
+                                        <div key={item} style={{ width: item === 'C1' ? 34 : 27, height: 27, borderRadius: 999, display: 'grid', placeItems: 'center', background: reached('commit') ? (item === 'C1' ? '#7c3aed' : '#334155') : '#1e293b', color: reached('commit') ? '#fff' : '#64748b', fontSize: 10, fontWeight: 900, boxShadow: active('commit') && item === 'C1' ? '0 0 18px rgba(167,139,250,.65)' : 'none' }}>
+                                            {item}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ color: '#94a3b8', fontSize: 10, marginTop: 8 }}>{isTr ? 'En az 1 commit olmadan anlamli push yoktur.' : 'Without at least 1 commit, there is nothing meaningful to push.'}</div>
+                            </div>
+
+                            <div style={{ display: 'grid', placeItems: 'center' }}>
+                                <div className={active('remote') || active('push') ? 'sim-animate' : ''} style={{ width: 38, height: 38, borderRadius: 999, display: 'grid', placeItems: 'center', background: reached('push') ? '#16a34a' : active('remote') ? '#2563eb' : '#1e293b', color: '#fff', fontSize: 16, boxShadow: active('remote') || active('push') ? '0 0 18px rgba(59,130,246,.65)' : 'none', transition: 'all .35s' }}>
+                                    →
+                                </div>
+                            </div>
+
+                            <div style={{ border: `1px solid ${reached('push') ? '#22c55e' : reached('remote') ? '#38bdf8' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('push') ? '#052e1655' : reached('remote') ? '#082f4955' : '#020617', minHeight: 112 }}>
+                                <div style={{ color: reached('push') ? '#bbf7d0' : '#bfdbfe', fontSize: 10, fontWeight: 900 }}>GITHUB / origin</div>
+                                <div style={{ color: reached('remote') ? '#e0f2fe' : '#64748b', fontSize: 12, fontWeight: 900, marginTop: 7 }}>hasankocaman/deneme2</div>
+                                <div style={{ color: '#94a3b8', fontSize: 10, marginTop: 6 }}>{isTr ? 'origin sadece adres bagidir; upload ilk push ile olur.' : 'origin is only the address link; upload happens on push.'}</div>
+                                <div style={{ color: reached('push') ? '#86efac' : '#475569', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 7 }}>origin/main</div>
+                            </div>
+                        </div>
+
+                        <div style={{ border: `1px solid ${reached('remote') ? '#38bdf8' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('remote') ? '#082f4955' : '#020617' }}>
+                            <div style={{ color: '#bfdbfe', fontSize: 10, fontWeight: 900 }}>{isTr ? '1) Repo adresini origin olarak tanit' : '1) Register the repo URL as origin'}</div>
+                            <div style={{ color: reached('remote') ? '#dbeafe' : '#64748b', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 5, wordBreak: 'break-all' }}>git remote add origin https://github.com/hasankocaman/deneme2.git</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 7 }}>
+                            {listCommands.map(([cmd, desc]) => (
+                                <div key={cmd} style={{ border: `1px solid ${reached('list') ? '#f59e0b' : '#334155'}`, borderRadius: 9, padding: 8, background: reached('list') ? '#451a0355' : '#020617' }}>
+                                    <div style={{ color: reached('list') ? '#fde68a' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>{cmd}</div>
+                                    <div style={{ color: reached('list') ? '#fcd34d' : '#64748b', fontSize: 8.5, marginTop: 4 }}>{desc}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${reached('push') ? '#22c55e' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('push') ? '#052e1655' : '#020617' }}>
+                                <div style={{ color: '#bbf7d0', fontSize: 10, fontWeight: 900 }}>{isTr ? '2) Ilk push upstream kurar' : '2) First push sets upstream'}</div>
+                                <div style={{ color: reached('push') ? '#dcfce7' : '#64748b', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 5 }}>git push -u origin main</div>
+                                <div style={{ color: '#94a3b8', fontSize: 8.5, marginTop: 5 }}>{isTr ? 'Eski repo master ise main yerine master yaz.' : 'If the old repo uses master, replace main with master.'}</div>
+                            </div>
+                            <div style={{ border: `1px solid ${reached('credential') ? '#a78bfa' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('credential') ? '#4c1d9555' : '#020617' }}>
+                                <div style={{ color: '#ddd6fe', fontSize: 10, fontWeight: 900 }}>{isTr ? 'Login guvenligi' : 'Login safety'}</div>
+                                <div style={{ color: reached('credential') ? '#ddd6fe' : '#64748b', fontSize: 9.2, marginTop: 5 }}>{isTr ? 'Windows Credential Manager, macOS Keychain oturumu saklayabilir.' : 'Windows Credential Manager or macOS Keychain may store the session.'}</div>
+                                <div style={{ color: '#fca5a5', fontSize: 8.5, marginTop: 5 }}>{isTr ? 'Tokeni URL icine yazma.' : 'Do not put tokens in URLs.'}</div>
+                            </div>
+                        </div>
+
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 118, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Animasyonu baslat: local repo GitHub repo ile nasil eslesiyor gor.' : 'Start the animation to see the local repo connect to GitHub.'}</div>}
+                            {terminal.map(([state, text, color], i) => (order.indexOf(state) <= cur && s !== 'idle')
+                                ? <div key={i} style={{ color, fontSize: 10, lineHeight: 1.65, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div>
+                                : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitBranchLabPlayground = () => {
+        const s = simState
+        const order = ['idle', 'list', 'create', 'switch', 'rename', 'work', 'commit', 'push', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const mainReady = cur >= order.indexOf('list')
+        const branchReady = cur >= order.indexOf('create')
+        const switchReady = cur >= order.indexOf('switch')
+        const renameReady = cur >= order.indexOf('rename')
+        const workReady = cur >= order.indexOf('work')
+        const commitReady = cur >= order.indexOf('commit')
+        const pushReady = cur >= order.indexOf('push')
+        const commands = [
+            ['list', 'git branch', '#38bdf8'],
+            ['create', 'git branch hasan', '#fbbf24'],
+            ['switch', 'git switch hasan', '#60a5fa'],
+            ['rename', 'git branch -m feature/hasan', '#c084fc'],
+            ['work', isTr ? '# tests/checkout.spec.js düzenlenir' : '# edit tests/checkout.spec.js', '#c084fc'],
+            ['commit', 'git add tests/checkout.spec.js', '#22c55e'],
+            ['commit', 'git commit -m "test: cover checkout tax"', '#22c55e'],
+            ['push', 'git push -u origin feature/hasan', '#60a5fa'],
+        ]
+        return (
+            <div style={{ maxWidth: 430, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🌿</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Branch komut haritası' : 'Branch command map'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>git branch → hasan → rename → upstream</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['list', 150], ['create', 700], ['switch', 700], ['rename', 750], ['work', 750], ['commit', 850], ['push', 800], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#16a34a' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ branch dene' : '▶ try branch') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ border: '1px solid #334155', borderRadius: 10, background: '#020617', padding: 12, overflow: 'hidden' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: 10, alignItems: 'center', marginBottom: 12 }}>
+                                <div style={{ color: '#94a3b8', fontSize: 10, fontWeight: 800 }}>main</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 28px 1fr 28px', alignItems: 'center' }}>
+                                    {['M1', 'line', 'M2', 'line', 'M3'].map((item, idx) => item === 'line'
+                                        ? <div key={idx} style={{ height: 3, background: mainReady ? '#22c55e' : '#334155', transition: 'all .35s' }} />
+                                        : <div key={idx} style={{ width: 28, height: 28, borderRadius: 999, display: 'grid', placeItems: 'center', background: mainReady ? '#16a34a' : '#334155', color: '#fff', fontSize: 10, fontWeight: 900 }} className={active('list') ? 'sim-animate' : ''}>{item}</div>)}
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr', gap: 10, alignItems: 'center' }}>
+                                <div style={{ color: branchReady ? '#bbf7d0' : '#64748b', fontSize: 10, fontWeight: 800 }}>{renameReady ? 'feature/hasan' : 'hasan'}</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 28px 1fr 28px', alignItems: 'center' }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: 999, display: 'grid', placeItems: 'center', background: branchReady ? '#15803d' : '#1e293b', color: branchReady ? '#fff' : '#64748b', fontSize: 10, fontWeight: 900 }} className={active('create') ? 'sim-animate' : ''}>B</div>
+                                    <div style={{ height: 3, background: switchReady ? '#60a5fa' : '#334155', transition: 'all .35s' }} />
+                                    <div style={{ width: 28, height: 28, borderRadius: 999, display: 'grid', placeItems: 'center', background: renameReady ? '#7c3aed' : switchReady ? '#2563eb' : '#1e293b', color: switchReady ? '#fff' : '#64748b', fontSize: 10, fontWeight: 900 }} className={active('switch') || active('rename') ? 'sim-animate' : ''}>{renameReady ? 'R' : 'S'}</div>
+                                    <div style={{ height: 3, background: commitReady ? '#22c55e' : '#334155', transition: 'all .35s' }} />
+                                    <div style={{ width: 28, height: 28, borderRadius: 999, display: 'grid', placeItems: 'center', background: commitReady ? '#16a34a' : '#1e293b', color: commitReady ? '#fff' : '#64748b', fontSize: 10, fontWeight: 900 }} className={active('commit') ? 'sim-animate' : ''}>C</div>
+                                </div>
+                            </div>
+                            <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                <div style={{ border: `1px solid ${branchReady ? '#22c55e' : '#334155'}`, borderRadius: 9, padding: 8, background: branchReady ? '#052e1655' : '#020617', color: branchReady ? '#bbf7d0' : '#64748b', fontSize: 10 }}>
+                                    {isTr ? '`git branch hasan` yeni branch oluşturur ama seni hâlâ main üzerinde bırakır.' : '`git branch hasan` creates a new branch but keeps you on main.'}
+                                </div>
+                                <div style={{ border: `1px solid ${pushReady ? '#60a5fa' : '#334155'}`, borderRadius: 9, padding: 8, background: pushReady ? '#1d4ed833' : '#020617', color: pushReady ? '#bfdbfe' : '#64748b', fontSize: 10 }}>
+                                    {isTr ? '`git push -u` sonraki push/pull hedefini hatırlatır.' : '`git push -u` remembers the next push/pull target.'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 102, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Animasyonu başlat: her branch komutunun repo üzerinde ne değiştirdiğini gör.' : 'Start the animation to see what each branch command changes in the repo.'}</div>}
+                            {commands.map(([state, text, color], i) => (order.indexOf(state) <= cur && s !== 'idle')
+                                ? <div key={i} style={{ color, fontSize: 10.5, lineHeight: 1.65, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div>
+                                : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitRemoteBranchPublishPlayground = () => {
+        const s = simState
+        const order = ['idle', 'switch', 'publish', 'remote', 'verify', 'next', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const terminal = [
+            ['switch', 'git switch hasan', '#60a5fa'],
+            ['publish', 'git push -u origin hasan', '#22c55e'],
+            ['publish', '# alternative: git push -u https://github.com/hasankocaman/deneme2.git hasan', '#94a3b8'],
+            ['verify', 'git branch -vv', '#fbbf24'],
+            ['next', 'git push', '#38bdf8'],
+        ]
+        return (
+            <div style={{ maxWidth: 450, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🚀</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Remote branch publish' : 'Remote branch publish'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'bir kez push -u -> sonra git push' : 'push -u once -> then git push'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['switch', 200], ['publish', 850], ['remote', 850], ['verify', 700], ['next', 650], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0284c7' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ remote aç' : '▶ publish') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 52px 1fr', gap: 8, alignItems: 'center' }}>
+                            <div style={{ border: `1px solid ${reached('switch') ? '#38bdf8' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('switch') ? '#082f4955' : '#020617', minHeight: 96 }}>
+                                <div style={{ color: '#bfdbfe', fontSize: 10, fontWeight: 900 }}>LOCAL</div>
+                                <div style={{ color: reached('switch') ? '#e0f2fe' : '#64748b', fontSize: 13, fontWeight: 900, marginTop: 6 }}>hasan</div>
+                                <div style={{ color: '#94a3b8', fontSize: 10, marginTop: 5 }}>{isTr ? 'Senin bilgisayarındaki branch' : 'Branch on your laptop'}</div>
+                                <div style={{ color: reached('switch') ? '#38bdf8' : '#475569', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 7 }}>git switch hasan</div>
+                            </div>
+
+                            <div style={{ display: 'grid', placeItems: 'center' }}>
+                                <div className={active('publish') || active('remote') ? 'sim-animate' : ''} style={{ width: 44, height: 44, borderRadius: 999, display: 'grid', placeItems: 'center', background: reached('remote') ? '#0369a1' : active('publish') ? '#0ea5e9' : '#1e293b', color: '#fff', fontSize: 18, boxShadow: active('publish') ? '0 0 18px rgba(14,165,233,.65)' : 'none', transition: 'all .35s' }}>
+                                    →
+                                </div>
+                            </div>
+
+                            <div style={{ border: `1px solid ${reached('remote') ? '#22c55e' : '#334155'}`, borderRadius: 10, padding: 10, background: reached('remote') ? '#052e1655' : '#020617', minHeight: 96 }}>
+                                <div style={{ color: '#bbf7d0', fontSize: 10, fontWeight: 900 }}>GITHUB / ORIGIN</div>
+                                <div style={{ color: reached('remote') ? '#dcfce7' : '#64748b', fontSize: 13, fontWeight: 900, marginTop: 6 }}>origin/hasan</div>
+                                <div style={{ color: '#94a3b8', fontSize: 10, marginTop: 5 }}>{isTr ? 'Remote branch ilk kez oluşur' : 'Remote branch is created once'}</div>
+                                <div style={{ color: reached('verify') ? '#fbbf24' : '#475569', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 7 }}>git branch -vv</div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${active('publish') || reached('remote') ? '#22c55e' : '#334155'}`, borderRadius: 9, padding: 9, background: active('publish') || reached('remote') ? '#052e1655' : '#020617' }}>
+                                <div style={{ color: '#bbf7d0', fontSize: 10, fontWeight: 900 }}>{isTr ? 'Yöntem 1: origin' : 'Method 1: origin'}</div>
+                                <div style={{ color: '#d1fae5', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 5 }}>git push -u origin hasan</div>
+                            </div>
+                            <div style={{ border: `1px solid ${active('publish') || reached('remote') ? '#38bdf8' : '#334155'}`, borderRadius: 9, padding: 9, background: active('publish') || reached('remote') ? '#082f4955' : '#020617' }}>
+                                <div style={{ color: '#bfdbfe', fontSize: 10, fontWeight: 900 }}>{isTr ? 'Yöntem 2: repo URL' : 'Method 2: repo URL'}</div>
+                                <div style={{ color: '#dbeafe', fontSize: 9.5, fontFamily: 'JetBrains Mono, monospace', marginTop: 5, wordBreak: 'break-all' }}>git push -u https://github.com/hasankocaman/deneme2.git hasan</div>
+                            </div>
+                        </div>
+
+                        <div style={{ border: `1px solid ${reached('next') ? '#38bdf8' : '#334155'}`, borderRadius: 9, padding: 9, background: reached('next') ? '#082f4955' : '#020617', color: reached('next') ? '#dbeafe' : '#94a3b8', fontSize: 10.5 }}>
+                            {isTr ? 'Upstream bağlandıktan sonra o branch üzerindeyken uzun komut yok: sadece `git push`.' : 'After upstream is connected, while you are on that branch, no long command is needed: just `git push`.'}
+                        </div>
+
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 104, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Animasyonu başlat: local branch GitHub’da remote branch’e nasıl dönüşüyor gör.' : 'Start the animation to see a local branch become a GitHub remote branch.'}</div>}
+                            {terminal.map(([state, text, color], i) => (order.indexOf(state) <= cur && s !== 'idle')
+                                ? <div key={i} style={{ color, fontSize: 10, lineHeight: 1.65, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div>
+                                : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitMergeLabPlayground = () => {
+        const s = simState
+        const order = ['idle', 'fetch', 'switch', 'merge', 'test', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const steps = [
+            ['fetch', 'git fetch origin', isTr ? 'Remote main nerede, önce onu öğren.' : 'First learn where remote main is.'],
+            ['switch', 'git switch feature/checkout-tests', isTr ? 'Merge hedefi çalıştığın branch olur.' : 'The merge target is your current branch.'],
+            ['merge', 'git merge origin/main', isTr ? 'main değişiklikleri feature branch içine alınır.' : 'main changes are brought into your feature branch.'],
+            ['test', 'npm test -- checkout', isTr ? 'Birleşmiş davranış kanıtlanır.' : 'The merged behavior is proven.'],
+        ]
+        return (
+            <div style={{ maxWidth: 430, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔁</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Merge laboratuvarı' : 'Merge lab'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>main updates → feature branch</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['fetch', 150], ['switch', 650], ['merge', 900], ['test', 850], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#2563eb' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ merge yap' : '▶ merge') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 42px 1fr', gap: 8, alignItems: 'stretch' }}>
+                            <div style={{ border: `1px solid ${reached('fetch') ? '#38bdf8' : '#334155'}`, background: reached('fetch') ? '#082f4955' : '#020617', borderRadius: 10, padding: 10 }}>
+                                <div style={{ color: reached('fetch') ? '#bae6fd' : '#64748b', fontSize: 10, fontWeight: 900 }}>origin/main</div>
+                                <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+                                    {['M1', 'M2', '+M3'].map((label, i) => (
+                                        <div key={label} style={{ width: 32, height: 32, borderRadius: 999, display: 'grid', placeItems: 'center', background: i === 2 && reached('fetch') ? '#0284c7' : '#334155', color: i === 2 && reached('fetch') ? '#e0f2fe' : '#94a3b8', fontSize: 9, fontWeight: 900 }}>{label}</div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', placeItems: 'center', color: reached('merge') ? '#60a5fa' : '#475569', fontSize: 24 }} className={active('merge') ? 'sim-animate' : ''}>→</div>
+                            <div style={{ border: `1px solid ${reached('merge') ? '#22c55e' : reached('switch') ? '#a78bfa' : '#334155'}`, background: reached('merge') ? '#052e1655' : reached('switch') ? '#4c1d9555' : '#020617', borderRadius: 10, padding: 10 }}>
+                                <div style={{ color: reached('merge') ? '#bbf7d0' : reached('switch') ? '#ddd6fe' : '#64748b', fontSize: 10, fontWeight: 900 }}>feature/checkout-tests</div>
+                                <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                    {['M1', 'F1', reached('merge') ? 'M3' : null, reached('merge') ? 'merge' : null].filter(Boolean).map((label) => (
+                                        <div key={label} style={{ minWidth: 32, height: 32, borderRadius: label === 'merge' ? 9 : 999, padding: label === 'merge' ? '0 7px' : 0, display: 'grid', placeItems: 'center', background: label === 'merge' ? '#16a34a' : '#334155', color: label === 'merge' ? '#fff' : '#cbd5e1', fontSize: 9, fontWeight: 900 }}>{label}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, display: 'grid', gap: 7 }}>
+                            {steps.map(([key, cmd, desc], idx) => {
+                                const isA = active(key)
+                                const isR = reached(key)
+                                return (
+                                    <div key={key} style={{ border: `1px solid ${isA ? '#60a5fa' : isR ? '#22c55e' : '#334155'}`, background: isA ? '#1d4ed833' : isR ? '#052e1633' : '#020617', borderRadius: 8, padding: '8px 9px', transition: 'all .35s' }}>
+                                        <div style={{ color: isR ? '#dbeafe' : '#64748b', fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 800 }}>{isR ? '✓' : idx + 1} {cmd}</div>
+                                        <div style={{ color: isR ? '#bfdbfe' : '#64748b', fontSize: 9.5, marginTop: 2 }}>{desc}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, borderRadius: 9, padding: 10, background: '#020617', color: reached('test') ? '#86efac' : '#94a3b8', fontSize: 10.5, lineHeight: 1.55 }}>
+                            {reached('test')
+                                ? (isTr ? 'Temiz merge bitmiş sayılmaz; test geçmeden PR güvenli değildir.' : 'A clean merge is not enough; the PR is not safe until tests pass.')
+                                : (isTr ? 'Merge, iki commit hikayesini davranış olarak birleştirme işidir.' : 'Merge means combining two commit stories into one behavior.')}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitConflictLabPlayground = () => {
+        const s = simState
+        const order = ['idle', 'pull', 'conflict', 'open', 'resolve', 'test', 'add', 'continue', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const active = key => order.indexOf(key) === cur
+        const lines = [
+            ['pull', 'git pull --rebase origin main', '#38bdf8'],
+            ['conflict', 'CONFLICT (content): tests/login.spec.js', '#fb7185'],
+            ['open', 'code tests/login.spec.js', '#fbbf24'],
+            ['resolve', isTr ? '# markerlar silinir, final davranış yazılır' : '# remove markers, write final behavior', '#c084fc'],
+            ['test', 'npm test -- login.spec.js', '#22c55e'],
+            ['add', 'git add tests/login.spec.js', '#22c55e'],
+            ['continue', 'git rebase --continue', '#60a5fa'],
+        ]
+        const markerVisible = reached('conflict') && !reached('resolve')
+        return (
+            <div style={{ maxWidth: 430, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧯</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Conflict çözüm laboratuvarı' : 'Conflict resolver lab'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>status → markers → test → continue</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['pull', 150], ['conflict', 750], ['open', 800], ['resolve', 1000], ['test', 850], ['add', 650], ['continue', 650], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#dc2626' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ conflict çöz' : '▶ resolve') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${markerVisible ? '#fb7185' : reached('resolve') ? '#22c55e' : '#334155'}`, background: '#020617', borderRadius: 10, overflow: 'hidden' }}>
+                                <div style={{ padding: '7px 9px', borderBottom: '1px solid #334155', color: markerVisible ? '#fecdd3' : reached('resolve') ? '#bbf7d0' : '#94a3b8', fontSize: 10, fontWeight: 900 }}>tests/login.spec.js</div>
+                                <pre style={{ margin: 0, padding: 10, color: '#cbd5e1', fontSize: 10, lineHeight: 1.45, fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>{markerVisible
+                                    ? `<<<<<<< HEAD\nassertLoginError(\"Email required\")\n=======\nassertLoginError(\"Password required\")\n>>>>>>> feature/login-tests`
+                                    : reached('resolve')
+                                        ? `assertLoginError(\"Email required\")\nassertLoginError(\"Password required\")`
+                                        : (isTr ? 'Conflict markerları burada görünecek.' : 'Conflict markers will appear here.')}</pre>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                <div style={{ border: `1px solid ${reached('resolve') ? '#22c55e' : '#334155'}`, borderRadius: 9, padding: 8, background: reached('resolve') ? '#052e1655' : '#020617', color: reached('resolve') ? '#bbf7d0' : '#64748b', fontSize: 10 }}>
+                                    {isTr ? 'Doğru çözüm: iki davranışı da anlamlı şekilde birleştir.' : 'Right fix: combine both behaviors intentionally.'}
+                                </div>
+                                <div style={{ border: `1px solid ${reached('test') ? '#22c55e' : '#334155'}`, borderRadius: 9, padding: 8, background: reached('test') ? '#052e1655' : '#020617', color: reached('test') ? '#bbf7d0' : '#64748b', fontSize: 10 }}>
+                                    {isTr ? 'Marker silmek yetmez; testle kanıtla.' : 'Removing markers is not enough; prove it with tests.'}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 10, background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 112, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Conflict panik değil; sıralı bir dosya birleştirme işidir.' : 'A conflict is not panic; it is an ordered file-merge task.'}</div>}
+                            {lines.map(([state, text, color], i) => (order.indexOf(state) <= cur && s !== 'idle')
+                                ? <div key={i} style={{ color, fontSize: 10.5, lineHeight: 1.65, animation: 'simFadeUp .25s ease-out' }}>$ {text}</div>
+                                : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>↺ reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGithubPrFlowPlayground = () => {
+        const s = simState
+        const order = ['idle', 'branch', 'commit', 'push', 'pr', 'review', 'checks', 'merge', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const items = [
+            ['branch', isTr ? 'Yeni branch aç' : 'Create branch', 'feature/login-tests'],
+            ['commit', isTr ? 'Küçük commitler yap' : 'Make small commits', 'test: cover login errors'],
+            ['push', isTr ? 'Branch GitHub’a gider' : 'Branch goes to GitHub', 'origin/feature/login-tests'],
+            ['pr', 'Pull Request', isTr ? 'Açıklama + reviewer' : 'Description + reviewer'],
+            ['review', isTr ? 'Code review' : 'Code review', isTr ? 'yorum, suggestion, approve' : 'comments, suggestions, approve'],
+            ['checks', 'CI checks', isTr ? 'unit + e2e + lint' : 'unit + e2e + lint'],
+            ['merge', isTr ? 'Merge to main' : 'Merge to main', isTr ? 'korumalı main güncellenir' : 'protected main is updated'],
+        ]
+        const stateReached = key => order.indexOf(key) <= cur && s !== 'idle'
+        return (
+            <div style={{ maxWidth: 395, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🐙</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>GitHub PR board</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>branch → PR → review → merge</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['branch', 150], ['commit', 650], ['push', 650], ['pr', 700], ['review', 850], ['checks', 800], ['merge', 700], ['done', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#2563eb' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ PR akışı' : '▶ PR flow') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 7 }}>
+                            {items.map(([key, title, detail], idx) => {
+                                const reached = stateReached(key)
+                                const active = order.indexOf(key) === cur
+                                return (
+                                    <div key={key} style={{ border: `1px solid ${active ? '#60a5fa' : reached ? '#22c55e' : '#334155'}`, background: active ? '#1d4ed833' : reached ? '#052e1633' : '#020617', borderRadius: 9, padding: '8px 10px', color: reached ? '#dcfce7' : active ? '#dbeafe' : '#64748b', transition: 'all .35s' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{ width: 23, height: 23, borderRadius: 999, display: 'grid', placeItems: 'center', background: reached ? '#16a34a' : active ? '#2563eb' : '#334155', color: '#fff', fontSize: 10, fontWeight: 800 }}>{reached ? '✓' : idx + 1}</span>
+                                            <div>
+                                                <div style={{ fontSize: 11.5, fontWeight: 800 }}>{title}</div>
+                                                <div style={{ fontSize: 9.5, color: reached || active ? '#bfdbfe' : '#64748b', fontFamily: 'JetBrains Mono, monospace' }}>{detail}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, borderRadius: 9, padding: 10, background: '#020617', color: s === 'done' ? '#86efac' : '#94a3b8', fontSize: 10.5, lineHeight: 1.55 }}>
+                            {s === 'done'
+                                ? (isTr ? 'main branch güncellendi; herkes yeni main üzerinden pull alabilir.' : 'main branch is updated; the team can pull the new main.')
+                                : (isTr ? 'PR açmadan main’e doğrudan push yapmak review ve CI kontrolünü atlatır.' : 'Pushing directly to main skips review and CI protection.')}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGithubActionsPagesPlayground = () => {
+        const s = simState
+        const order = ['idle', 'push', 'trigger', 'checkout', 'install', 'test', 'build', 'artifact', 'deploy', 'live']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'live'
+        const jobs = [
+            ['trigger', 'on: push', isTr ? 'main branch değişti' : 'main branch changed'],
+            ['checkout', 'actions/checkout', isTr ? 'repo runner’a iner' : 'repo is checked out'],
+            ['install', 'npm ci', isTr ? 'lockfile ile bağımlılık' : 'dependencies from lockfile'],
+            ['test', 'npm test', isTr ? 'test ve lint kapısı' : 'test and lint gate'],
+            ['build', 'npm run build', isTr ? 'dist klasörü oluşur' : 'dist folder is created'],
+            ['artifact', 'upload-pages-artifact', isTr ? 'Pages artifact hazırlanır' : 'Pages artifact is prepared'],
+            ['deploy', 'deploy-pages', isTr ? 'GitHub Pages yayınlar' : 'GitHub Pages publishes'],
+        ]
+        const ready = key => order.indexOf(key) <= cur && s !== 'idle'
+        return (
+            <div style={{ maxWidth: 405, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🚀</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>Actions → Pages</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>push → workflow → deploy</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['push', 120], ['trigger', 650], ['checkout', 600], ['install', 700], ['test', 750], ['build', 750], ['artifact', 650], ['deploy', 700], ['live', 450]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#7c3aed' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ deploy et' : '▶ deploy') : s === 'live' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gap: 6 }}>
+                            {jobs.map(([key, title, desc]) => {
+                                const isReady = ready(key)
+                                const active = order.indexOf(key) === cur
+                                return (
+                                    <div key={key} style={{ display: 'grid', gridTemplateColumns: '88px 1fr', gap: 8, alignItems: 'center' }}>
+                                        <div style={{ color: active ? '#ddd6fe' : isReady ? '#bbf7d0' : '#64748b', fontFamily: 'JetBrains Mono, monospace', fontSize: 9.5, fontWeight: 800 }}>{isReady ? '✓' : active ? '→' : '·'} {title}</div>
+                                        <div style={{ height: 10, borderRadius: 999, background: '#020617', overflow: 'hidden', border: '1px solid #334155' }}>
+                                            <div style={{ width: isReady ? '100%' : active ? '55%' : '0%', height: '100%', background: active ? '#a78bfa' : '#22c55e', transition: 'width .35s' }} />
+                                        </div>
+                                        <div style={{ gridColumn: '2 / 3', marginTop: -3, color: active || isReady ? '#cbd5e1' : '#64748b', fontSize: 9 }}>{desc}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: '1px solid #334155', borderRadius: 9, padding: 9, background: '#020617' }}>
+                                <div style={{ color: '#94a3b8', fontSize: 9, fontWeight: 800 }}>permissions</div>
+                                <div style={{ color: cur >= order.indexOf('deploy') ? '#86efac' : '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}>pages: write</div>
+                            </div>
+                            <div style={{ border: '1px solid #334155', borderRadius: 9, padding: 9, background: '#020617' }}>
+                                <div style={{ color: '#94a3b8', fontSize: 9, fontWeight: 800 }}>site</div>
+                                <div style={{ color: s === 'live' ? '#86efac' : '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}>{s === 'live' ? 'learnqa.dev' : 'waiting...'}</div>
+                            </div>
                         </div>
                     </div>
                     {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
@@ -5264,8 +6570,858 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    const renderGithubAccountRepoSetupPlayground = () => {
+        const s = simState
+        const order = ['idle', 'signup', 'verify', 'newrepo', 'settings', 'url']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'url'
+        const active = key => order.indexOf(key) === cur
+        const done = key => order.indexOf(key) < cur && s !== 'idle'
+        const steps = [
+            ['signup', isTr ? 'Kayıt ol' : 'Sign Up', isTr ? 'github.com → Sign Up tıkla' : 'github.com → Click Sign Up', '🌐'],
+            ['verify', isTr ? 'Doğrula' : 'Verify', isTr ? 'Email, şifre, kullanıcı adı gir → Email doğrula' : 'Enter email, password, username → Verify email', '✉️'],
+            ['newrepo', isTr ? 'Yeni Repo' : 'New Repo', isTr ? "'+' → 'New repository' → İsim gir" : "'+' → 'New repository' → Enter name", '📦'],
+            ['settings', isTr ? 'Ayarlar' : 'Settings', isTr ? 'Public/Private seç, README ekleme (git init kullanacaksan)' : 'Choose Public/Private, DO NOT check Add README (if using git init locally)', '⚙️'],
+            ['url', 'URL', isTr ? "'Create repository' tıkla → HTTPS URL kopyala" : "Click 'Create repository' → Copy HTTPS URL", '🔗'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🐙</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'GitHub Hesap + Repo' : 'GitHub Account + Repo'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'hesap aç → repo oluştur → URL al' : 'sign up → create repo → get URL'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['signup', 150], ['verify', 800], ['newrepo', 800], ['settings', 800], ['url', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#8b5cf6' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ başlat' : '▶ start') : s === 'url' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+                        {steps.map(([key, label, desc, icon]) => {
+                            const isA = active(key)
+                            const isD = done(key)
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#a78bfa' : isD ? '#22c55e' : '#334155'}`, background: isA ? '#4c1d9555' : isD ? '#052e1655' : '#020617', borderRadius: 10, padding: 10, display: 'grid', gridTemplateColumns: '34px 1fr auto', gap: 9, alignItems: 'center', transition: 'all .35s' }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: isA ? '#8b5cf6' : isD ? '#16a34a' : '#334155', color: '#fff', fontSize: 14 }} className={isA ? 'sim-animate' : ''}>{isD ? '✓' : icon}</div>
+                                    <div>
+                                        <div style={{ color: isA || isD ? '#ede9fe' : '#cbd5e1', fontSize: 11.5, fontWeight: 800 }}>{label}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                    </div>
+                                    <div style={{ color: isA ? '#c4b5fd' : isD ? '#bbf7d0' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace' }}>{isA ? 'active' : isD ? 'done' : 'waiting'}</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {s === 'url' && (
+                        <div style={{ margin: '0 12px 12px', padding: '8px 10px', borderRadius: 8, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>
+                            ✅ {isTr ? 'Hesap + repo hazır. URL kopyalandı. Artık `git remote add origin` ile bağlayabilirsin.' : 'Account + repo ready. URL copied. Now connect with `git remote add origin`.'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitCloneVsInitPlayground = () => {
+        const s = simState
+        const order = ['idle', 'left', 'right', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const leftSteps = [
+            'git init',
+            'git add .',
+            'git commit -m "first commit"',
+            'git remote add origin URL',
+            'git push -u origin main',
+        ]
+        const rightSteps = [
+            'git clone URL',
+            'cd project-folder',
+            'git status',
+            'git branch -a',
+            isTr ? '→ çalışmaya hazır' : '→ ready to work',
+        ]
+        return (
+            <div style={{ maxWidth: 420, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔀</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>git init vs git clone</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'sıfırdan mı, takıma mı katılıyorsun?' : 'starting fresh or joining a team?'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['left', 150], ['right', 1200], ['done', 1200]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0ea5e9' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ karşılaştır' : '▶ compare') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <div style={{ border: `1px solid ${cur >= order.indexOf('left') && s !== 'idle' ? '#38bdf8' : '#334155'}`, background: cur >= order.indexOf('left') && s !== 'idle' ? '#082f4955' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s' }}>
+                            <div style={{ color: '#7dd3fc', fontSize: 11, fontWeight: 800, marginBottom: 8 }}>🆕 {isTr ? 'Sıfırdan başla' : 'Starting from scratch'}</div>
+                            {leftSteps.map((step, i) => (
+                                <div key={i} style={{ color: cur >= order.indexOf('left') && s !== 'idle' ? '#bae6fd' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', padding: '3px 0', opacity: cur >= order.indexOf('left') && s !== 'idle' ? 1 : 0.4, transition: 'opacity 0.4s', animation: cur >= order.indexOf('left') && s !== 'idle' ? 'simFadeUp 0.3s ease-out' : 'none' }}>$ {step}</div>
+                            ))}
+                        </div>
+                        <div style={{ border: `1px solid ${cur >= order.indexOf('right') ? '#a78bfa' : '#334155'}`, background: cur >= order.indexOf('right') ? '#4c1d9555' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s' }}>
+                            <div style={{ color: '#c4b5fd', fontSize: 11, fontWeight: 800, marginBottom: 8 }}>👥 {isTr ? 'Takıma katıl' : 'Joining a team'}</div>
+                            {rightSteps.map((step, i) => (
+                                <div key={i} style={{ color: cur >= order.indexOf('right') ? '#ddd6fe' : '#64748b', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', padding: '3px 0', opacity: cur >= order.indexOf('right') ? 1 : 0.4, transition: 'opacity 0.4s', animation: cur >= order.indexOf('right') ? 'simFadeUp 0.3s ease-out' : 'none' }}>$ {step}</div>
+                            ))}
+                        </div>
+                    </div>
+                    {s === 'done' && (
+                        <div style={{ margin: '0 12px 12px', padding: '8px 10px', borderRadius: 8, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>
+                            ✅ {isTr ? 'Her iki yol da aynı sonucu verir: çalışır bir Git repository.' : 'Both paths lead to the same result: a working Git repository.'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitDotFolderPlayground = () => {
+        const s = simState
+        const order = ['idle', 'init', 'objects', 'refs', 'head', 'config']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'config'
+        const treeItems = [
+            ['init', '.git/', isTr ? 'Gizli klasör — Git\'in beyni' : 'Hidden folder — Git\'s brain', '📁'],
+            ['objects', '.git/objects/', isTr ? 'Tüm commit, tree ve blob verisi' : 'Stores all commit, tree and blob data', '🗃️'],
+            ['refs', '.git/refs/', isTr ? 'Branch ve tag pointer\'ları' : 'Branch and tag pointers', '🏷️'],
+            ['head', '.git/HEAD', isTr ? 'Şu anki branch\'i gösterir' : 'Points to current branch', '👆'],
+            ['config', '.git/config', isTr ? 'Repo ayarları (remote URL vb.)' : 'Repository settings (remote URLs, etc)', '⚙️'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔍</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>.git/ {isTr ? 'klasör yapısı' : 'folder structure'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'gizli klasörün içinde ne var?' : 'what\'s inside the hidden folder?'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['init', 150], ['objects', 700], ['refs', 700], ['head', 700], ['config', 700]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#f59e0b' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ keşfet' : '▶ explore') : s === 'config' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 6 }}>
+                        {treeItems.map(([key, path, desc, icon], i) => {
+                            const isA = order.indexOf(key) === cur
+                            const isD = order.indexOf(key) < cur && s !== 'idle'
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#fbbf24' : isD ? '#22c55e' : '#334155'}`, background: isA ? '#78350f55' : isD ? '#052e1655' : '#020617', borderRadius: 10, padding: '8px 10px', display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8, alignItems: 'center', transition: 'all .35s', paddingLeft: i === 0 ? 10 : 24 }}>
+                                    <div style={{ fontSize: 14 }} className={isA ? 'sim-animate' : ''}>{isD ? '✓' : icon}</div>
+                                    <div>
+                                        <div style={{ color: isA || isD ? '#fef3c7' : '#cbd5e1', fontSize: 11, fontWeight: 800, fontFamily: 'JetBrains Mono, monospace' }}>{path}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {s === 'config' && (
+                        <div style={{ margin: '0 12px 12px', padding: '8px 10px', borderRadius: 8, background: '#ef444418', border: '1px solid #ef4444', fontSize: 10, color: '#ef4444', fontWeight: 700 }}>
+                            ⚠️ {isTr ? '.git/ klasörünü silersen TÜM geçmiş sonsuza dek kaybolur!' : 'Delete .git/ and ALL history is gone forever!'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitDiffReaderPlayground = () => {
+        const s = simState
+        const order = ['idle', 'header', 'removed', 'added', 'context', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const lines = [
+            { key: 'header', type: 'header', text: 'diff --git a/tests/login.spec.js b/tests/login.spec.js' },
+            { key: 'header', type: 'header', text: '@@ -5,3 +5,3 @@' },
+            { key: 'context', type: 'context', text: "  it('should verify login', () => {" },
+            { key: 'removed', type: 'removed', text: "-    cy.get('#email').type('admin@test.com')" },
+            { key: 'added', type: 'added', text: "+    cy.get('[data-testid=\"email\"]').type('admin@test.com')" },
+            { key: 'removed', type: 'removed', text: "-    cy.get('.submit-btn').click()" },
+            { key: 'added', type: 'added', text: "+    cy.get('[data-testid=\"submit\"]').click()" },
+            { key: 'context', type: 'context', text: "     cy.url().should('include', '/dashboard')" },
+        ]
+        const getColor = (type) => {
+            if (type === 'removed') return { bg: '#7f1d1d33', color: '#fca5a5', border: '#991b1b' }
+            if (type === 'added') return { bg: '#14532d33', color: '#86efac', border: '#166534' }
+            if (type === 'header') return { bg: '#1e3a5f33', color: '#93c5fd', border: '#1e40af' }
+            return { bg: 'transparent', color: '#9ca3af', border: 'transparent' }
+        }
+        return (
+            <div style={{ maxWidth: 420, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📊</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>git diff {isTr ? 'okuma' : 'reader'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'farkları renklere göre oku' : 'read changes by color'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['header', 150], ['removed', 600], ['added', 600], ['context', 600], ['done', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#059669' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ diff oku' : '▶ read diff') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: '10px 12px', background: '#020617', fontFamily: 'JetBrains Mono, monospace' }}>
+                        {lines.map((line, i) => {
+                            const showKey = line.key
+                            const visible = order.indexOf(showKey) <= cur && s !== 'idle'
+                            const isActive = showKey === s
+                            const colors = getColor(line.type)
+                            return (
+                                <div key={i} style={{ padding: '2px 6px', fontSize: 9.5, background: visible ? colors.bg : 'transparent', color: visible ? colors.color : '#475569', borderLeft: `2px solid ${visible && isActive ? colors.border : 'transparent'}`, opacity: visible ? 1 : 0.3, transition: 'all 0.35s', animation: isActive ? 'simFadeUp 0.3s ease-out' : 'none', whiteSpace: 'pre', overflowX: 'auto' }}>
+                                    {line.text}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {s === 'done' && (
+                        <div style={{ margin: '10px 12px 12px', padding: '8px 10px', borderRadius: 8, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>
+                            ✅ {isTr ? 'Kırmızı = silinen, yeşil = eklenen, gri = bağlam satırı.' : 'Red = removed, green = added, gray = context line.'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitLogTimelinePlayground = () => {
+        const s = simState
+        const order = ['idle', 'c1', 'c2', 'c3', 'head', 'branch']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'branch'
+        const commits = [
+            ['c3', 'a1b2c3d', '(HEAD → feature/login)', isTr ? 'test: giriş kontrollerini ekle' : 'test: add login checks', '#a78bfa'],
+            ['c2', 'e4f5g6h', '', isTr ? 'fix: selector güncelle' : 'fix: update selector', '#38bdf8'],
+            ['c1', 'i7j8k9l', '(origin/main, main)', isTr ? 'chore: ilk snapshot' : 'chore: initial snapshot', '#22c55e'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📜</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>git log {isTr ? 'zaman çizelgesi' : 'timeline'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'commit geçmişini anla' : 'understand commit history'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['c1', 150], ['c2', 700], ['c3', 700], ['head', 700], ['branch', 700]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#a78bfa' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ log oku' : '▶ read log') : s === 'branch' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 0 }}>
+                        {commits.map(([key, hash, label, msg, color], i) => {
+                            const visible = order.indexOf(key) <= cur && s !== 'idle'
+                            const isA = key === s
+                            return (
+                                <div key={key} style={{ display: 'flex', gap: 10, opacity: visible ? 1 : 0.2, transition: 'opacity 0.4s' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20 }}>
+                                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: visible ? color : '#334155', border: `2px solid ${visible ? color : '#475569'}`, boxShadow: isA ? `0 0 10px ${color}55` : 'none', transition: 'all .35s' }} />
+                                        {i < commits.length - 1 && <div style={{ width: 2, flex: 1, background: '#334155', minHeight: 20 }} />}
+                                    </div>
+                                    <div style={{ paddingBottom: 12 }}>
+                                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                                            <span style={{ color: '#fbbf24', fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>{hash}</span>
+                                            {label && cur >= order.indexOf('head') && <span style={{ color: '#10b981', fontSize: 8.5, fontFamily: 'JetBrains Mono, monospace', background: '#10b98118', padding: '1px 5px', borderRadius: 4 }}>{label}</span>}
+                                        </div>
+                                        <div style={{ color: '#cbd5e1', fontSize: 10, marginTop: 2 }}>{msg}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {cur >= order.indexOf('branch') && (
+                        <div style={{ margin: '0 12px 12px', padding: '8px 10px', borderRadius: 8, background: '#a78bfa18', border: '1px solid #a78bfa', fontSize: 9.5, color: '#c4b5fd' }}>
+                            💡 {isTr ? 'hash = benzersiz ID, HEAD = şu an buradasın, branch etiketleri hangi dalların bu commit\'e baktığını gösterir.' : 'hash = unique ID, HEAD = where you are now, branch labels show which branches point here.'}
+                        </div>
+                    )}
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitStashFlowPlayground = () => {
+        const s = simState
+        const order = ['idle', 'working', 'stash', 'switch', 'return', 'pop']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'pop'
+        const hasChangesInTree = s === 'working' || s === 'pop'
+        const shelfHasItems = cur >= order.indexOf('stash') && cur < order.indexOf('pop')
+        const currentBranch = (s === 'switch') ? 'main' : 'feature/login'
+        const steps = [
+            ['working', '📝', isTr ? 'login.spec.js düzenliyorsun' : 'Editing login.spec.js', isTr ? 'feature/login dalında değişiklikler var' : 'Changes on feature/login branch'],
+            ['stash', '📦', 'git stash', isTr ? 'Değişiklikler rafa kalktı, working tree temiz' : 'Changes moved to shelf, working tree is clean'],
+            ['switch', '🔀', 'git switch main', isTr ? 'main dalındasın, raf hâlâ dolu' : 'You\'re on main now, shelf still holds your work'],
+            ['return', '🔙', 'git switch feature/login', isTr ? 'Kendi dalına döndün, raf hâlâ orada' : 'Back on your branch, shelf still there'],
+            ['pop', '📤', 'git stash pop', isTr ? 'Değişiklikler raftan working tree\'ye döndü' : 'Changes return from shelf to working tree'],
+        ]
+        return (
+            <div style={{ maxWidth: 410, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📦</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>git stash {isTr ? 'akışı' : 'flow'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'değişiklikleri rafa koy, sonra geri al' : 'shelve changes, then retrieve them'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['working', 150], ['stash', 900], ['switch', 900], ['return', 900], ['pop', 900]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#f59e0b' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ başlat' : '▶ start') : s === 'pop' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ border: `1px solid ${hasChangesInTree ? '#fbbf24' : '#334155'}`, background: hasChangesInTree ? '#78350f44' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s', textAlign: 'center' }}>
+                                <div style={{ fontSize: 20 }}>📝</div>
+                                <div style={{ color: '#fef3c7', fontSize: 10, fontWeight: 800, marginTop: 4 }}>Working Tree</div>
+                                <div style={{ color: hasChangesInTree ? '#fbbf24' : '#64748b', fontSize: 9, marginTop: 2 }}>{hasChangesInTree ? (isTr ? 'değişiklik var' : 'has changes') : (isTr ? 'temiz' : 'clean')}</div>
+                            </div>
+                            <div style={{ border: `1px solid ${shelfHasItems ? '#a78bfa' : '#334155'}`, background: shelfHasItems ? '#4c1d9544' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s', textAlign: 'center' }}>
+                                <div style={{ fontSize: 20 }}>📦</div>
+                                <div style={{ color: '#ede9fe', fontSize: 10, fontWeight: 800, marginTop: 4 }}>Stash Shelf</div>
+                                <div style={{ color: shelfHasItems ? '#a78bfa' : '#64748b', fontSize: 9, marginTop: 2 }}>{shelfHasItems ? (isTr ? 'dolu' : 'has items') : (isTr ? 'boş' : 'empty')}</div>
+                            </div>
+                        </div>
+                        {s !== 'idle' && (
+                            <div style={{ background: '#020617', borderRadius: 8, padding: '6px 10px', border: '1px solid #334155' }}>
+                                <div style={{ color: '#94a3b8', fontSize: 9, marginBottom: 4 }}>🌿 branch: <span style={{ color: '#22c55e', fontWeight: 700 }}>{currentBranch}</span></div>
+                            </div>
+                        )}
+                        {steps.map(([key, icon, label, desc]) => {
+                            const isA = order.indexOf(key) === cur
+                            const isD = order.indexOf(key) < cur && s !== 'idle'
+                            return (
+                                <div key={key} style={{ border: `1px solid ${isA ? '#fbbf24' : isD ? '#22c55e' : '#334155'}`, background: isA ? '#78350f44' : isD ? '#052e1644' : '#020617', borderRadius: 10, padding: '8px 10px', display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8, alignItems: 'center', transition: 'all .35s' }}>
+                                    <div style={{ fontSize: 14 }} className={isA ? 'sim-animate' : ''}>{isD ? '✓' : icon}</div>
+                                    <div>
+                                        <div style={{ color: isA || isD ? '#fef3c7' : '#cbd5e1', fontSize: 11, fontWeight: 800, fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
+                                        <div style={{ color: '#94a3b8', fontSize: 9.5 }}>{desc}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitRevertVsResetPlayground = () => {
+        const s = simState
+        const order = ['idle', 'commits', 'revert', 'revert-done', 'reset', 'reset-done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'reset-done'
+        const showCommits = cur >= order.indexOf('commits')
+        const showRevert = cur >= order.indexOf('revert')
+        const showRevertDone = cur >= order.indexOf('revert-done')
+        const showReset = cur >= order.indexOf('reset')
+        const showResetDone = cur >= order.indexOf('reset-done')
+        const commitStyle = (label, color, gone) => ({
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: '50%',
+            background: gone ? '#1e293b' : color,
+            color: gone ? '#475569' : '#fff',
+            fontSize: 11, fontWeight: 900,
+            border: gone ? '2px dashed #475569' : `2px solid ${color}`,
+            textDecoration: gone ? 'line-through' : 'none',
+            transition: 'all .35s',
+        })
+        return (
+            <div style={{ maxWidth: 420, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>⏪</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>revert vs reset</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>{isTr ? 'güvenli geri alma vs tehlikeli silme' : 'safe undo vs dangerous erase'}</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['commits', 150], ['revert', 800], ['revert-done', 800], ['reset', 800], ['reset-done', 800]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#ef4444' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ karşılaştır' : '▶ compare') : s === 'reset-done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        {showCommits && (
+                            <div style={{ padding: '8px 10px', borderRadius: 10, background: '#020617', border: '1px solid #334155', textAlign: 'center' }}>
+                                <div style={{ color: '#94a3b8', fontSize: 9, marginBottom: 6 }}>{isTr ? 'Başlangıç durumu' : 'Initial state'}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                    <div style={commitStyle('A', '#22c55e', false)}>A</div>
+                                    <span style={{ color: '#475569' }}>→</span>
+                                    <div style={commitStyle('B', '#3b82f6', false)}>B</div>
+                                    <span style={{ color: '#475569' }}>→</span>
+                                    <div style={commitStyle('C', '#ef4444', false)}>C</div>
+                                    <span style={{ color: '#ef4444', fontSize: 8 }}>🐛</span>
+                                </div>
+                            </div>
+                        )}
+                        <div style={{ border: `1px solid ${showRevert ? '#22c55e' : '#334155'}`, background: showRevert ? '#052e1644' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s' }}>
+                            <div style={{ color: '#86efac', fontSize: 11, fontWeight: 800, marginBottom: 6 }}>✅ {isTr ? 'Güvenli: git revert' : 'Safe: git revert'}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <div style={commitStyle('A', '#22c55e', false)}>A</div>
+                                <span style={{ color: '#475569' }}>→</span>
+                                <div style={commitStyle('B', '#3b82f6', false)}>B</div>
+                                <span style={{ color: '#475569' }}>→</span>
+                                <div style={commitStyle('C', '#ef4444', false)}>C</div>
+                                <span style={{ color: '#475569' }}>→</span>
+                                <div style={{ ...commitStyle('D', '#10b981', false), opacity: showRevertDone ? 1 : 0.2, transition: 'opacity .4s' }}>D</div>
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: 9, marginTop: 6, textAlign: 'center' }}>
+                                {isTr ? 'Geçmiş korunur, C\'yi geri alan yeni D commit\'i eklenir' : 'History preserved, new commit D undoes C'}
+                            </div>
+                        </div>
+                        <div style={{ border: `1px solid ${showReset ? '#ef4444' : '#334155'}`, background: showReset ? '#7f1d1d44' : '#020617', borderRadius: 10, padding: 10, transition: 'all .35s' }}>
+                            <div style={{ color: '#fca5a5', fontSize: 11, fontWeight: 800, marginBottom: 6 }}>⛔ {isTr ? 'Tehlikeli: git reset --hard' : 'Dangerous: git reset --hard'}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <div style={commitStyle('A', '#22c55e', false)}>A</div>
+                                <span style={{ color: '#475569' }}>→</span>
+                                <div style={commitStyle('B', '#3b82f6', false)}>B</div>
+                                {!showResetDone && <><span style={{ color: '#475569' }}>→</span><div style={commitStyle('C', '#ef4444', false)}>C</div></>}
+                                {showResetDone && <span style={{ color: '#ef4444', fontSize: 9, marginLeft: 8 }}>💀 C {isTr ? 'silindi' : 'GONE'}</span>}
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: 9, marginTop: 6, textAlign: 'center' }}>
+                                {isTr ? 'C tamamen silindi, geçmiş kısaldı — push edilmişse çok tehlikeli!' : 'C is GONE, history shortened — very dangerous if already pushed!'}
+                            </div>
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderLinuxTerminalBasicsPlayground = () => {
+        const s = simState
+        const order = ['idle', 'pwd', 'ls', 'cd', 'ls2', 'cat', 'grep', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const path = cur >= order.indexOf('cd') ? '/home/qa/projects' : '/home/qa'
+        const terminal = [
+            ['pwd', 'pwd', '#38bdf8', '/home/qa'],
+            ['ls', 'ls', '#38bdf8', 'projects/  readme.txt'],
+            ['cd', 'cd projects', '#fbbf24', ''],
+            ['ls2', 'ls', '#38bdf8', 'app.py  tests/  requirements.txt'],
+            ['cat', 'cat ../readme.txt', '#a78bfa', isTr ? 'QA otomasyon ortamına hoş geldin.' : 'Welcome to the QA automation environment.'],
+            ['grep', 'cat ../readme.txt | grep QA', '#f97316', isTr ? 'QA otomasyon ortamına hoş geldin.' : 'Welcome to the QA automation environment.'],
+            ['done', '', '#22c55e', isTr ? '✅ Navigasyon ve pipe tamamlandı' : '✅ Navigation and pipe complete'],
+        ]
+        return (
+            <div style={{ maxWidth: 380, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>📁</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Dizin gezintisi' : 'Filesystem navigation'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>pwd → ls → cd → cat → grep</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['pwd', 150], ['ls', 650], ['cd', 700], ['ls2', 650], ['cat', 700], ['grep', 750], ['done', 550]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#0ea5e9' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ başlat' : '▶ start') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 11, display: 'grid', gap: 10 }}>
+                        <div style={{ background: '#020617', border: '1px solid #334155', borderRadius: 9, padding: '7px 10px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#38bdf8', fontWeight: 700 }}>
+                            📍 {path}
+                        </div>
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 150, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Başlatınca komutları sırayla izle.' : 'Start to watch each command.'}</div>}
+                            {terminal.map(([state, cmd, color, out], i) => {
+                                const show = order.indexOf(state) <= cur && s !== 'idle'
+                                if (!show) return null
+                                return (
+                                    <div key={i} style={{ animation: 'simFadeUp .25s ease-out', marginBottom: 4 }}>
+                                        {cmd && <div style={{ color, fontSize: 10.5, lineHeight: 1.6 }}>$ {cmd}</div>}
+                                        {out && <div style={{ color: '#cbd5e1', fontSize: 10, paddingLeft: 10, lineHeight: 1.6 }}>{out}</div>}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderLinuxPermissionsLabPlayground = () => {
+        const s = simState
+        const order = ['idle', 'lsl', 'denied', 'chmod', 'lsl2', 'success']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'success'
+        const hasExec = cur >= order.indexOf('chmod')
+        const terminal = [
+            ['lsl', 'ls -l deploy.sh', '#38bdf8', '-rw-r--r-- 1 qa qa 412 deploy.sh'],
+            ['denied', './deploy.sh', '#fbbf24', 'bash: ./deploy.sh: Permission denied'],
+            ['chmod', 'chmod +x deploy.sh', '#f97316', ''],
+            ['lsl2', 'ls -l deploy.sh', '#38bdf8', '-rwxr--r-- 1 qa qa 412 deploy.sh'],
+            ['success', './deploy.sh', '#22c55e', isTr ? 'Test ortamı deploy ediliyor...' : 'Deploying test environment...'],
+        ]
+        return (
+            <div style={{ maxWidth: 380, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔐</span>
+                        <div>
+                            <div style={{ color: '#f8fafc', fontSize: 12, fontWeight: 800 }}>{isTr ? 'Permission denied atölyesi' : 'Permission denied workshop'}</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>ls -l → chmod +x → ./deploy.sh</div>
+                        </div>
+                        <button
+                            onClick={() => canStart && runSteps([['lsl', 150], ['denied', 700], ['chmod', 800], ['lsl2', 650], ['success', 700]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', background: canStart ? '#f97316' : '#475569', color: '#fff', fontSize: 11, fontWeight: 800, cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? (isTr ? '▶ çalıştır' : '▶ run') : s === 'success' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 11, display: 'grid', gap: 10 }}>
+                        <div style={{ border: `1px solid ${hasExec ? '#22c55e' : '#334155'}`, borderRadius: 10, padding: 10, background: hasExec ? '#052e1644' : '#020617', transition: 'all .35s' }}>
+                            <div style={{ display: 'flex', gap: 6, fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 800 }}>
+                                <span style={{ color: '#94a3b8' }}>-rw</span>
+                                <span style={{ color: hasExec ? '#22c55e' : '#475569' }}>{hasExec ? 'x' : '-'}</span>
+                                <span style={{ color: '#94a3b8' }}>r--</span>
+                                <span style={{ color: '#475569' }}>-</span>
+                                <span style={{ color: '#94a3b8' }}>r--</span>
+                                <span style={{ color: '#475569' }}>-</span>
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: 9, marginTop: 4 }}>{isTr ? 'deploy.sh dosya izinleri (owner | group | other)' : 'deploy.sh permissions (owner | group | other)'}</div>
+                        </div>
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 110, fontFamily: 'JetBrains Mono, monospace' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Çalıştırınca akışı izle.' : 'Run to watch the flow.'}</div>}
+                            {terminal.map(([state, cmd, color, out], i) => {
+                                const show = order.indexOf(state) <= cur && s !== 'idle'
+                                if (!show) return null
+                                return (
+                                    <div key={i} style={{ animation: 'simFadeUp .25s ease-out', marginBottom: 4 }}>
+                                        {cmd && <div style={{ color, fontSize: 10.5, lineHeight: 1.6 }}>$ {cmd}</div>}
+                                        {out && <div style={{ color: state === 'denied' ? '#fca5a5' : '#cbd5e1', fontSize: 10, paddingLeft: 10, lineHeight: 1.6 }}>{out}</div>}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
+        if (block.scenario === 'git-snapshot-story') {
+            const s = simState
+            const order = ['idle', 'folder', 'change', 'snapshot', 'compare', 'restore']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['folder', isTr ? 'Proje klasörü' : 'Project folder', isTr ? 'Dosyaların günlük çalışma hali' : 'The everyday working state of files'],
+                ['change', isTr ? 'Değişiklik' : 'Change', isTr ? 'Bir test, README veya config değişir' : 'A test, README or config changes'],
+                ['snapshot', 'Snapshot', isTr ? 'Git o anı isimli bir kayıt gibi saklar' : 'Git stores that moment as a named record'],
+                ['compare', isTr ? 'Karşılaştırma' : 'Comparison', isTr ? 'Eski ve yeni hali yan yana görürsün' : 'You compare old and new states side by side'],
+                ['restore', isTr ? 'Güvenli dönüş' : 'Safe recovery', isTr ? 'Nerede bozulduğunu anlayıp geri dönebilirsin' : 'You can reason about where it broke and recover'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Bu bölümde komut ezberi yok. Önce Git’in yaptığı işi anlamalısın: değişiklikleri takip eder, anlamlı anları saklar ve sana geçmişle bugünü karşılaştırma gücü verir.' : 'No command memorization here. First understand what Git does: it tracks changes, stores meaningful moments, and lets you compare past and present.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active
+                                ? (darkMode ? 'border-emerald-500 bg-emerald-950/30' : 'border-emerald-300 bg-emerald-50')
+                                : done
+                                    ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50')
+                                    : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')
+                                }`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                        {isTr ? 'Java analojisi: debug sırasında object state nasıl önemliyse, Git’te commit de projenin state kaydıdır.' : 'Java analogy: just as object state matters during debugging, a Git commit is a recorded project state.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'github-collaboration-story') {
+            const s = simState
+            const order = ['idle', 'local', 'upload', 'review', 'checks', 'merge', 'publish']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['local', isTr ? 'Kendi branch’in' : 'Your branch', isTr ? 'Kendi alanında çalışırsın' : 'You work in your own space'],
+                ['review', 'Pull Request', isTr ? 'Takım ne değiştiğini görür' : 'The team sees what changed'],
+                ['checks', 'Actions checks', isTr ? 'Testler otomatik kanıt üretir' : 'Tests produce automatic evidence'],
+                ['merge', 'main', isTr ? 'Sadece onaylı iş ana hatta girer' : 'Only approved work enters the main line'],
+                ['publish', isTr ? 'Paylaşılan sonuç' : 'Shared result', isTr ? 'Herkes aynı güvenli geçmişi görür' : 'Everyone sees the same safe history'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'GitHub’ın değeri sadece dosya saklamak değildir. Değişiklik görünür olur, tartışılır, otomatik testten geçer ve sonra ortak alana alınır.' : 'GitHub is not valuable merely because it stores files. A change becomes visible, discussed, automatically tested, and then accepted into the shared space.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`flex items-start gap-3 rounded-lg border p-3 ${active ? (darkMode ? 'border-blue-600 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${ready ? 'bg-green-600 text-white' : active ? 'bg-blue-600 text-white' : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>{ready ? '✓' : i + 1}</span>
+                                <div>
+                                    <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{label}</div>
+                                    <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'QA bakışı: PR, otomasyon testinin neden eklendiğini ve hangi riski kapattığını görünür yapar.' : 'QA view: a PR makes it visible why an automation test was added and which risk it covers.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-concept-order-map') {
+            const s = simState
+            const order = ['idle', 'init', 'status', 'add', 'commit', 'origin', 'pushMain', 'branch', 'pushBranch', 'sync', 'conflict', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['init', 'git init', isTr ? 'Amaç: bulunduğun klasörü Git repository yapar.' : 'Purpose: turns the current folder into a Git repository.', isTr ? 'Atlanırsa Git klasörü takip etmez.' : 'If skipped, Git does not track the folder.'],
+                ['status', 'git status', isTr ? 'Amaç: ne değişti, ne stage edildi, hangi branch’tesin görürsün.' : 'Purpose: shows what changed, what is staged, and which branch you are on.', isTr ? 'Atlanırsa yanlış dosyayı commit edebilirsin.' : 'If skipped, you may commit the wrong files.'],
+                ['add', 'git add', isTr ? 'Amaç: bir sonraki commit’e girecek dosyaları seçer.' : 'Purpose: selects files for the next commit.', isTr ? 'Atlanırsa commit boş kalabilir.' : 'If skipped, the commit may have nothing to save.'],
+                ['commit', 'git commit', isTr ? 'Amaç: localde kalıcı snapshot oluşturur.' : 'Purpose: creates a permanent local snapshot.', isTr ? 'Atlanırsa push/review için kayıt oluşmaz.' : 'If skipped, there is no record to push or review.'],
+                ['origin', 'remote origin', isTr ? 'Amaç: local repo’ya GitHub adresini öğretir.' : 'Purpose: teaches the local repo the GitHub URL.', isTr ? 'Atlanırsa Git push/pull hedefini bilmez.' : 'If skipped, Git does not know the push/pull target.'],
+                ['pushMain', 'push main', isTr ? 'Amaç: ana branch’i GitHub’a ilk kez yollar ve upstream kurar.' : 'Purpose: sends the main branch to GitHub and sets upstream.', isTr ? 'Atlanırsa GitHub repo boş kalır.' : 'If skipped, the GitHub repo remains empty.'],
+                ['branch', 'feature branch', isTr ? 'Amaç: main’i bozmadan ayrı çalışma alanı açar.' : 'Purpose: creates a separate work area without touching main.', isTr ? 'Atlanırsa ana branch üzerinde riskli çalışırsın.' : 'If skipped, you work directly on the risky main branch.'],
+                ['pushBranch', 'push feature', isTr ? 'Amaç: local feature branch’i GitHub’da görünür yapar.' : 'Purpose: makes the local feature branch visible on GitHub.', isTr ? 'Atlanırsa PR/review açılamaz.' : 'If skipped, a PR/review cannot be opened.'],
+                ['sync', 'fetch / merge / pull', isTr ? 'Amaç: GitHub’daki güncel işi locale alır. Pull = fetch + merge.' : 'Purpose: brings current GitHub work into local. Pull = fetch + merge.', isTr ? 'Atlanırsa local branch geride kalır.' : 'If skipped, your local branch falls behind.'],
+                ['conflict', 'conflict', isTr ? 'Amaç: Git karar veremediğinde final doğru içeriği localde sen seçersin.' : 'Purpose: when Git cannot decide, you choose the final correct local content.', isTr ? 'Çözülmezse marker’lar kalır ve test/build bozulur.' : 'If unresolved, markers remain and tests/builds break.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Bu harita komut ezberi değil, düşünme sırasıdır. Yeni local projede `git init` ile başlarsın; GitHub’da var olan repo için ise önce `git clone` yaparsın.' : 'This map is not command memorization; it is thinking order. For a new local project, start with `git init`; for an existing GitHub repo, start with `git clone`.'}
+                    </div>
+                    {rows.map(([key, label, purpose, risk], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-teal-500 bg-teal-950/30' : 'border-teal-300 bg-teal-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{purpose}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-amber-200' : 'text-amber-700'}`}>{risk}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-red-800 bg-red-950/30 text-red-200' : 'border-red-200 bg-red-50 text-red-800'}`}>
+                        {isTr ? 'Gerçek iş kuralı: conflict GitHub’da sihirli şekilde çözülmez. Dosyayı localde aç, final doğru davranışı yaz, test et, `git add` ile resolved işaretle, sonra merge/rebase devam komutunu çalıştır.' : 'Real work rule: conflicts are not magically solved on GitHub. Open the file locally, write the final correct behavior, test it, mark resolved with `git add`, then continue the merge/rebase.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-terminal-shell-map') {
+            const s = simState
+            const order = ['idle', 'type', 'shell', 'git', 'repo', 'output']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['type', isTr ? 'Terminal penceresi' : 'Terminal window', isTr ? 'Komutu yazdığın ekrandır. VS Code Terminal, Git Bash penceresi veya macOS Terminal bu katmandır.' : 'This is the screen where you type. VS Code Terminal, a Git Bash window, or macOS Terminal are this layer.'],
+                ['shell', 'Shell', isTr ? 'Komutu yorumlayan motordur. Git Bash, PowerShell, CMD, bash veya zsh burada devreye girer.' : 'This is the engine interpreting the command. Git Bash, PowerShell, CMD, bash, or zsh operate here.'],
+                ['git', 'Git', isTr ? '`git status` içindeki `git`, shell tarafından Git programına gönderilir.' : 'The `git` part of `git status` is handed from the shell to the Git program.'],
+                ['repo', '.git', isTr ? 'Git repo bilgisini, branch durumunu ve working tree değişikliklerini okur.' : 'Git reads repository metadata, branch state, and working tree changes.'],
+                ['output', isTr ? 'Çıktı' : 'Output', isTr ? 'Sonuç tekrar terminal penceresinde görünür. Kullanıcı ne olduğunu buradan anlar.' : 'The result returns to the terminal window. The user understands what happened from this output.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Yeni başlayan için en önemli ayrım: terminal gördüğün pencere, shell komutu çalıştıran motor, Git ise version control programıdır.' : 'The most important beginner distinction: terminal is the visible window, shell is the engine running commands, and Git is the version control program.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-sky-500 bg-sky-950/30' : 'border-sky-300 bg-sky-50') : done ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-sky-800 bg-sky-950/30 text-sky-200' : 'border-sky-200 bg-sky-50 text-sky-800'}`}>
+                        {isTr ? 'Kural: hata alınca önce “doğru klasörde miyim?” diye `pwd` ile bak, sonra Git komutunu tekrar düşün.' : 'Rule: when you get an error, first ask “am I in the right folder?” with `pwd`, then rethink the Git command.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-terminal-install-use') {
+            const s = simState
+            const order = ['idle', 'download', 'install', 'open', 'verify', 'ide']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['download', isTr ? 'İndir' : 'Download', isTr ? 'Windows için Git for Windows; macOS/Linux için package manager yolunu seç.' : 'Choose Git for Windows on Windows; package-manager path on macOS/Linux.'],
+                ['install', isTr ? 'Kur' : 'Install', isTr ? 'İlk öğrenmede varsayılan seçenekler yeterlidir; Git Bash Windows’ta bu kurulumla gelir.' : 'For first learning, defaults are enough; Git Bash arrives with this install on Windows.'],
+                ['open', isTr ? 'Aç' : 'Open', isTr ? 'Git Bash, PowerShell, macOS Terminal, Linux terminal veya IDE terminal açabilirsin.' : 'You can open Git Bash, PowerShell, macOS Terminal, Linux terminal, or an IDE terminal.'],
+                ['verify', isTr ? 'Doğrula' : 'Verify', isTr ? '`git --version` çıktısı görmeden gerçek projede Git kullanmaya başlama.' : 'Do not start using Git in a real project until `git --version` prints output.'],
+                ['ide', isTr ? 'Projede kullan' : 'Use in project', isTr ? 'VS Code/IntelliJ terminalinde aktif klasör proje klasörü mü kontrol et.' : 'In VS Code/IntelliJ terminal, check whether the active folder is the project folder.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Kurulum öğretimi komut ezberi değildir. Önce doğru aracı indir, aç, sonra Git’in gerçekten çalıştığını kanıtla.' : 'Installation learning is not command memorization. Download the right tool, open it, then prove Git really works.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-emerald-500 bg-emerald-950/30' : 'border-emerald-300 bg-emerald-50') : done ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                        {isTr ? 'Güvenli ilk test: `pwd` ile konumu gör, `git --version` ile kurulumu doğrula, sonra proje klasöründe `git status` çalıştır.' : 'Safe first test: use `pwd` for location, `git --version` for installation, then run `git status` in the project folder.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-bash-open-folder') {
+            const s = simState
+            const order = ['idle', 'folder', 'cmdAddress', 'cmdOpen', 'bashMenu', 'bashOpen', 'ide']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['folder', isTr ? 'Proje klasörünü aç' : 'Open project folder', isTr ? 'Önce Windows Explorer içinde çalışacağın klasörü açarsın. Amaç terminalin yanlış yerde başlamamasıdır.' : 'First open the folder you will work in inside Windows Explorer. The goal is to avoid starting the terminal in the wrong place.'],
+                ['cmdAddress', isTr ? 'Adres çubuğuna `cmd` yaz' : 'Type `cmd` in address bar', isTr ? 'Adres çubuğuna `cmd` yazıp Enter’a basarsan CMD doğrudan bu klasörde açılır.' : 'If you type `cmd` in the address bar and press Enter, CMD opens directly in this folder.'],
+                ['cmdOpen', isTr ? 'CMD sonucu' : 'CMD result', isTr ? 'Prompt `C:\\...\\qa-project>` gibi görünür. Bu, terminalin proje klasöründe olduğunu kanıtlar.' : 'The prompt looks like `C:\\...\\qa-project>`. This proves the terminal is inside the project folder.'],
+                ['bashMenu', isTr ? 'Git Bash Here seç' : 'Choose Git Bash Here', isTr ? 'Klasör içinde boş alana sağ tıklayıp Git Bash Here seçersin. Windows 11’de önce Show more options gerekebilir.' : 'Right-click an empty area in the folder and choose Git Bash Here. On Windows 11 you may need Show more options first.'],
+                ['bashOpen', isTr ? 'Git Bash sonucu' : 'Git Bash result', isTr ? 'Prompt `~/Desktop/qa-project` gibi görünür. `pwd` ve `ls` ile doğru yerde olduğunu kontrol edersin.' : 'The prompt looks like `~/Desktop/qa-project`. Check location with `pwd` and contents with `ls`.'],
+                ['ide', isTr ? 'IDE terminali' : 'IDE terminal', isTr ? 'VS Code veya IntelliJ terminali de aynı klasörde açılabilir. Komut yazmadan önce aktif klasörü kontrol et.' : 'VS Code or IntelliJ terminal can also open in the same folder. Check the active folder before typing commands.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Bu bölüm sadece terminali doğru klasörde açmaya odaklanır. Doğru klasör yoksa doğru komut da yanlış yere çalışır.' : 'This section focuses only on opening the terminal in the right folder. Without the right folder, even the right command runs in the wrong place.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-green-800 bg-green-950/30 text-green-200' : 'border-green-200 bg-green-50 text-green-800'}`}>
+                        {isTr ? 'Mini kontrol: terminal açılınca önce `pwd` veya CMD’de prompt satırına bak. Klasör doğruysa komut yazmaya başla.' : 'Mini check: when the terminal opens, first look at `pwd` or the CMD prompt. If the folder is correct, start typing commands.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-bash-command-runner') {
+            const s = simState
+            const order = ['idle', 'pwd', 'ls', 'cd', 'mkdir', 'file', 'ipconfig', 'git']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['pwd', '`pwd`', isTr ? 'Bulunduğun klasörün tam yolunu gösterir. Yanlış yerdeysen sonraki komutları çalıştırma.' : 'Shows the full path of the current folder. If it is wrong, do not run the next commands.'],
+                ['ls', '`ls` / `dir`', isTr ? 'Dosya ve klasörleri listeler. Git Bash’te `ls`, CMD’de `dir` sık kullanılır.' : 'Lists files and folders. `ls` is common in Git Bash; `dir` is common in CMD.'],
+                ['cd', '`cd`', isTr ? '`cd tests` klasöre girer, `cd ..` bir üst klasöre döner. Terminal kullanmanın en temel hareketidir.' : '`cd tests` enters a folder, `cd ..` returns one level up. This is the basic terminal movement.'],
+                ['mkdir', '`mkdir`', isTr ? 'Yeni klasör oluşturur. Komut sonrası `ls` ile gerçekten oluştuğunu gör.' : 'Creates a new folder. Use `ls` afterward to see that it really exists.'],
+                ['file', '`touch` / `echo` / `cat`', isTr ? 'Git Bash’te dosya oluşturur, içine yazar ve içeriği okursun. CMD’de okuma için `type` kullanılır.' : 'In Git Bash you create a file, write into it, and read it. In CMD, use `type` to read.'],
+                ['ipconfig', '`ipconfig`', isTr ? 'Git komutu değildir. Windows ağ bilgisini terminalde görürsün; IPv4 ve gateway gibi satırlar çıkar.' : 'This is not a Git command. It shows Windows network info such as IPv4 and gateway.'],
+                ['git', '`git --version`', isTr ? 'Git’in bu terminalden çalıştığını doğrular. Çıktı yoksa PATH veya kurulum problemi olabilir.' : 'Confirms Git runs from this terminal. If there is no output, PATH or installation may be wrong.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Bu bölüm sadece komut yazma ve sonucu okuma alışkanlığına odaklanır. Her komuttan sonra ekranda ne değiştiğine bak.' : 'This section focuses only on typing commands and reading output. After each command, look at what changed on screen.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-sky-500 bg-sky-950/30' : 'border-sky-300 bg-sky-50') : done ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-sky-800 bg-sky-950/30 text-sky-200' : 'border-sky-200 bg-sky-50 text-sky-800'}`}>
+                        {isTr ? 'Alışkanlık: önce konumu gör, sonra klasör hareketi yap, sonra sonucu oku. Terminal öğrenmenin özü budur.' : 'Habit: first see location, then move folders, then read the result. That is the core of learning the terminal.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-install-os-setup') {
+            const s = simState
+            const order = ['idle', 'windows', 'mac', 'linux', 'verify', 'identity']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['windows', 'Windows', 'winget / Git for Windows'],
+                ['mac', 'macOS', 'Homebrew / installer'],
+                ['linux', 'Linux', 'apt / dnf / pacman'],
+                ['verify', 'Verify', 'git --version'],
+                ['identity', 'Identity', 'user.name + user.email'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Kurulumda sıra basit: kendi işletim sistemini seç, Git’in gerçekten geldiğini doğrula, sonra commit kimliğini ayarla.' : 'Installation order is simple: choose your operating system, verify Git is really installed, then configure commit identity.'}
+                    </div>
+                    {rows.map(([key, label, value], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-orange-500 bg-orange-950/30' : 'border-orange-300 bg-orange-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-orange-800 bg-orange-950/30 text-orange-200' : 'border-orange-200 bg-orange-50 text-orange-800'}`}>
+                        {isTr ? 'Önemli: kurulum komutunu ezberleme. Önce hangi işletim sisteminde olduğunu ve doğrulama çıktısını anlamalısın.' : 'Important: do not memorize the install command first. Understand your OS path and the verification output.'}
+                    </div>
+                </div>
+            )
+        }
+
         if (block.scenario === 'java-compile-run') {
             const s = simState
             const order = ['idle', 'source', 'compile', 'bytecode', 'jvm', 'output']
@@ -5487,6 +7643,281 @@ pm.test("per_page is 6", () => {
                     })}
                     <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
                         {isTr ? 'İlk gün javac yeterli. Birden fazla class, test kütüphanesi veya Selenium/JUnit bağımlılığı gerektiğinde Maven’e geç.' : 'On day one, javac is enough. Move to Maven when you need multiple classes, test libraries, or Selenium/JUnit dependencies.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-three-areas') {
+            const s = simState
+            const order = ['idle', 'edit', 'stage', 'commit', 'push', 'remote']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['edit', 'Working tree', isTr ? 'Değişen ama henüz seçilmeyen dosyalar' : 'Changed files not selected yet'],
+                ['stage', 'Staging area', isTr ? 'Bir sonraki commit’e girecek değişiklikler' : 'Changes prepared for the next commit'],
+                ['commit', 'Local repo', isTr ? 'Senin bilgisayarındaki snapshot geçmişi' : 'Snapshot history on your machine'],
+                ['remote', 'origin/GitHub', isTr ? 'Takımın paylaştığı uzak depo' : 'Shared remote repository for the team'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Git bir dosya paylaşma aracı değil, snapshot geçmişi tutan bir zaman makinesidir. Java’daki object state gibi: hangi anda hangi state vardı, commit onu saklar.' : 'Git is not just a file-sharing tool; it is a time machine for snapshots. Like Java object state: a commit stores what the project looked like at one moment.'}
+                    </div>
+                    {rows.map(([key, label, desc]) => {
+                        const active = order.indexOf(key) === cur || (key === 'remote' && s === 'push')
+                        const ready = order.indexOf(key) < cur || (key === 'remote' && s === 'remote')
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active
+                                ? (darkMode ? 'border-emerald-500 bg-emerald-950/30' : 'border-emerald-300 bg-emerald-50')
+                                : ready
+                                    ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50')
+                                    : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')
+                                }`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : '·'} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                        {isTr ? 'Kural: commit küçük ve anlamlı, push paylaşım noktasıdır. Commit etmeden push edecek bir şey yoktur.' : 'Rule: commit is a small meaningful snapshot; push is the sharing point. Without a commit, there is nothing useful to push.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-remote-origin-setup') {
+            const s = simState
+            const order = ['idle', 'commit', 'remote', 'list', 'push', 'credential', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['commit', isTr ? 'Önce local commit olmalı' : 'A local commit must exist first', isTr ? 'GitHub’a upload edilecek şey commit snapshotıdır; commit yoksa anlamlı push yoktur.' : 'The thing uploaded to GitHub is a commit snapshot; without a commit, there is nothing meaningful to push.'],
+                ['remote', isTr ? 'origin GitHub adresidir' : 'origin is the GitHub address', isTr ? '`git remote add origin [REMOTE_URL]` sadece bağlantı kurar; dosyaları tek başına upload etmez.' : '`git remote add origin [REMOTE_URL]` only creates the connection; it does not upload files by itself.'],
+                ['list', isTr ? 'Remote listesi kontrol edilir' : 'Remote list is inspected', isTr ? '`git remote` isimleri, `git remote -v` ve `git remote --verbose` fetch/push URL’lerini gösterir.' : '`git remote` shows names; `git remote -v` and `git remote --verbose` show fetch/push URLs.'],
+                ['push', isTr ? 'İlk push upstream kurar' : 'First push sets upstream', isTr ? '`git push -u origin main` main branch’i GitHub’a gönderir ve sonraki push/pull hedefini hatırlatır.' : '`git push -u origin main` sends main to GitHub and remembers the target for future push/pull.'],
+                ['credential', isTr ? 'Login güvenli saklanır' : 'Login is stored safely', isTr ? 'GitHub login isterse Windows Credential Manager veya macOS Keychain oturumu saklayabilir. Token/şifreyi URL’ye yazma.' : 'If GitHub asks for login, Windows Credential Manager or macOS Keychain may store the session. Do not put tokens/passwords in URLs.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Bu akış yeni bir local repo ile GitHub’daki boş repo arasında ilk köprüyü kurar. Branch publish konusundan farkı: burada önce `origin` adresini tanıtırsın.' : 'This flow builds the first bridge between a new local repo and an empty GitHub repo. Difference from branch publish: here you first register the `origin` address.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-blue-500 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-yellow-800 bg-yellow-950/30 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        {isTr ? 'Modern GitHub reposu genelde `main` kullanır. Eski eğitimlerde `master` görebilirsin; gerçek branch adın neyse push komutunda onu yaz.' : 'Modern GitHub repos usually use `main`. Older tutorials may show `master`; use the actual branch name in your push command.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-branch-lab') {
+            const s = simState
+            const order = ['idle', 'list', 'create', 'switch', 'rename', 'work', 'commit', 'push', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['list', isTr ? 'Local branch listelenir' : 'Local branches are listed', isTr ? '`git branch` sadece local branch’leri gösterir; yıldız aktif branch’i işaret eder.' : '`git branch` only lists local branches; the star marks the active branch.'],
+                ['create', isTr ? 'Branch oluşturulur' : 'Branch is created', isTr ? '`git branch hasan` yeni branch oluşturur ama bulunduğun branch değişmez.' : '`git branch hasan` creates a new branch, but your current branch does not change.'],
+                ['switch', isTr ? 'Branch değiştirilir' : 'Branch is switched', isTr ? '`git switch hasan` veya eski kullanımda `git checkout hasan` seni o branch’e geçirir.' : '`git switch hasan`, or older `git checkout hasan`, moves you onto that branch.'],
+                ['rename', isTr ? 'Branch adı değiştirilir' : 'Branch is renamed', isTr ? '`git branch -m feature/hasan` aktif local branch adını değiştirir. Aktif olmayan için `git branch -m old_name new_name` kullanılır.' : '`git branch -m feature/hasan` renames the active local branch. For another branch, use `git branch -m old_name new_name`.'],
+                ['work', isTr ? 'Odaklı değişiklik' : 'Focused change', isTr ? 'Tek konu: örneğin sadece checkout testleri. Büyük torba PR yapma.' : 'One topic only, for example checkout tests. Avoid bag-of-everything PRs.'],
+                ['commit', isTr ? 'Küçük snapshot' : 'Small snapshot', isTr ? 'Commit mesajı davranışı anlatmalı; sadece “fix” yazmak review’u zorlaştırır.' : 'The commit message should describe behavior; plain “fix” makes review harder.'],
+                ['push', isTr ? 'Upstream kurulur' : 'Upstream is set', isTr ? '`-u origin branch` sonraki push/pull hedefini branch’e bağlar.' : '`-u origin branch` binds future push/pull to that branch.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Branch komutlarını tek tek düşün: bazıları sadece gösterir, bazıları oluşturur, bazıları bulunduğun branch’i değiştirir. En büyük karışıklık genelde `git branch hasan` ile `git switch hasan` farkını bilmemekten gelir.' : 'Think about branch commands one by one: some only show state, some create a branch, and some change your current branch. The common confusion is the difference between `git branch hasan` and `git switch hasan`.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-green-800 bg-green-950/30 text-green-200' : 'border-green-200 bg-green-50 text-green-800'}`}>
+                        {isTr ? 'Java analojisi: public API’yi bozmadan önce private bir methodda deneme yapmak gibi; branch main’i koruyan deneme alanıdır.' : 'Java analogy: like experimenting in a private method before exposing a public API; a branch protects main while you work.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-remote-branch-publish') {
+            const s = simState
+            const order = ['idle', 'switch', 'publish', 'remote', 'verify', 'next', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['switch', isTr ? 'Doğru local branch seçilir' : 'Correct local branch is selected', isTr ? '`git switch hasan` ile paylaşmak istediğin branch üzerinde olduğundan emin olursun.' : '`git switch hasan` makes sure you are on the branch you want to share.'],
+                ['publish', isTr ? 'İlk publish yöntemi seçilir' : 'First-publish method is chosen', isTr ? 'Ya `git push -u origin hasan` ya da direkt repo URL yöntemi kullanılır; ikisini birden her seferinde yapma.' : 'Use either `git push -u origin hasan` or the direct repo URL method; do not run both every time.'],
+                ['remote', isTr ? 'Remote branch oluşur' : 'Remote branch is created', isTr ? 'GitHub tarafında `origin/hasan` görünür hale gelir.' : '`origin/hasan` becomes visible on GitHub.'],
+                ['verify', isTr ? 'Upstream kontrol edilir' : 'Upstream is verified', isTr ? '`git branch -vv`, local branch’in hangi remote branch’i takip ettiğini gösterir.' : '`git branch -vv` shows which remote branch the local branch tracks.'],
+                ['next', isTr ? 'Sonraki push kısalır' : 'Future push becomes short', isTr ? 'Upstream bağlandıysa aynı branch üzerindeyken sadece `git push` yeterlidir.' : 'After upstream is connected, plain `git push` is enough while you are on the branch.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Remote branch, local branch’in GitHub tarafındaki karşılığıdır. İlk kez oluştururken uzun ve açık komut kullanırsın; bağlantı kurulduktan sonra Git hedefi hatırlar.' : 'A remote branch is the GitHub-side counterpart of your local branch. The first publish uses a long explicit command; after the connection is set, Git remembers the target.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-sky-500 bg-sky-950/30' : 'border-sky-300 bg-sky-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-yellow-800 bg-yellow-950/30 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        {isTr ? 'Dikkat: remote branch açma komutunu sadece ilk seferde kullan. Sonraki commitlerden sonra aynı branch üzerindeysen normal `git push` yeterlidir.' : 'Warning: use the remote branch creation command only the first time. After later commits, if you are still on the same branch, normal `git push` is enough.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-merge-lab') {
+            const s = simState
+            const order = ['idle', 'fetch', 'switch', 'merge', 'test', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['fetch', isTr ? 'Remote bilgisi tazelenir' : 'Remote knowledge refreshes', isTr ? '`fetch` dosyanı değiştirmez; sadece origin/main nerede onu öğrenir.' : '`fetch` does not change your files; it only learns where origin/main is.'],
+                ['switch', isTr ? 'Hedef branch seçilir' : 'Target branch is chosen', isTr ? 'Merge her zaman bulunduğun branch’in içine yapılır.' : 'A merge always applies into the branch you are currently on.'],
+                ['merge', isTr ? 'İki hikaye birleşir' : 'Two stories combine', isTr ? 'Git ortak atayı bulur, iki tarafın commitlerini yeni state’e taşır.' : 'Git finds the common ancestor and combines both sides into a new state.'],
+                ['test', isTr ? 'Davranış kanıtlanır' : 'Behavior is proven', isTr ? 'Temiz merge bile bug üretebilir; test sonucu gerçek güvence verir.' : 'Even a clean merge can create bugs; tests provide real confidence.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Merge, “dosyaları üst üste koymak” değildir. İki commit geçmişini tek çalışma davranışına çevirir. Bu yüzden merge sonrası test çalıştırmak şarttır.' : 'Merge is not simply stacking files. It converts two commit histories into one working behavior, so tests after merge are mandatory.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-blue-500 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : done ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'Gerçek iş kuralı: PR öncesi branch’ini güncelle, testleri koştur, sonra reviewer’dan davranışa bakmasını iste.' : 'Real work rule: update your branch before PR, run tests, then ask the reviewer to inspect behavior.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-conflict-lab') {
+            const s = simState
+            const order = ['idle', 'pull', 'conflict', 'open', 'resolve', 'test', 'add', 'continue', 'done']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['pull', isTr ? 'Güncel main alınır' : 'Current main is pulled', isTr ? 'Conflict genellikle senin branch’in main’den uzak kaldığında görünür.' : 'Conflicts often show up when your branch has drifted from main.'],
+                ['conflict', isTr ? 'Git karar veremez' : 'Git cannot decide', isTr ? 'Aynı satır veya aynı davranış iki tarafta farklı değişmiştir.' : 'The same line or behavior changed differently on both sides.'],
+                ['open', isTr ? 'Markerlar okunur' : 'Markers are read', isTr ? '`<<<<<<<`, `=======`, `>>>>>>>` sadece işaret; çözüm senin mantığında.' : '`<<<<<<<`, `=======`, `>>>>>>>` are markers; the solution is your logic.'],
+                ['resolve', isTr ? 'Final davranış yazılır' : 'Final behavior is written', isTr ? 'Sadece bir tarafı seçmek zorunda değilsin; çoğu zaman iki niyeti birleştirirsin.' : 'You do not have to pick one side; often you combine both intentions.'],
+                ['test', isTr ? 'Test ile kanıtlanır' : 'Proven by test', isTr ? 'Conflict marker silindi diye iş bitmez; login akışı gerçekten çalışmalı.' : 'Removing markers is not enough; the login flow must actually work.'],
+                ['add', isTr ? 'Resolved işaretlenir' : 'Marked resolved', isTr ? '`git add` burada dosyayı stage etmekten fazlasını yapar: conflict çözüldü der.' : '`git add` does more than stage here: it tells Git the conflict is resolved.'],
+                ['continue', isTr ? 'Merge/rebase tamamlanır' : 'Merge/rebase completes', isTr ? 'Hangi operasyonu başlattıysan onun devam komutunu kullan.' : 'Use the continuation command for the operation you started.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Conflict kötü Git kullanımı demek değildir; Git’in “bu davranış kararını insan vermeli” demesidir. Panik yerine sırayla dosya, niyet, test ve devam adımı düşünülür.' : 'A conflict does not mean you used Git badly; it means Git needs a human behavior decision. Think file, intent, test, and continuation in order.'}
+                    </div>
+                    {rows.map(([key, label, desc], i) => {
+                        const active = order.indexOf(key) === cur
+                        const done = order.indexOf(key) < cur && s !== 'idle'
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-red-500 bg-red-950/30' : 'border-red-300 bg-red-50') : done ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-red-800 bg-red-950/30 text-red-200' : 'border-red-200 bg-red-50 text-red-800'}`}>
+                        {isTr ? 'Tehlike: conflict çözmeden `--abort`, `reset --hard` veya force push kullanma. Önce `git status` ve gerekirse yedek branch.' : 'Danger: do not reach for `--abort`, `reset --hard`, or force push before understanding the conflict. Check `git status` and create a backup branch if needed.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'github-pr-flow') {
+            const s = simState
+            const order = ['idle', 'branch', 'commit', 'push', 'pr', 'review', 'checks', 'merge', 'done']
+            const cur = order.indexOf(s)
+            const cards = [
+                ['branch', 'feature branch', isTr ? 'main kirlenmez' : 'main stays clean'],
+                ['pr', 'Pull Request', isTr ? 'tartışma ve görünür diff' : 'discussion and visible diff'],
+                ['review', 'Review', isTr ? 'ikinci göz hatayı erken yakalar' : 'second pair of eyes catches issues early'],
+                ['checks', 'Actions checks', isTr ? 'otomasyon kapısı' : 'automation gate'],
+                ['merge', 'main', isTr ? 'onaylı değişiklik birleşir' : 'approved change is merged'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'GitHub iş akışında branch kişisel çalışma alanıdır, PR ise takımın ortak kalite kapısıdır. Java’da private method içinde denediğin şeyi public API’ye çıkarmadan önce review almak gibi düşünebilirsin.' : 'In a GitHub workflow, a branch is your personal workspace and a PR is the team quality gate. Think of it like reviewing code before exposing it through a Java public API.'}
+                    </div>
+                    {cards.map(([key, label, desc]) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`flex items-center gap-3 rounded-lg border p-3 ${active ? (darkMode ? 'border-blue-600 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${ready ? 'bg-green-600 text-white' : active ? 'bg-blue-600 text-white' : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>{ready ? '✓' : active ? '→' : '·'}</span>
+                                <div>
+                                    <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{label}</div>
+                                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'Koruma kuralı: main branch’e doğrudan push kapalı, PR review + passing checks zorunlu olmalı.' : 'Protection rule: direct push to main should be disabled; PR review and passing checks should be required.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'github-actions-pages') {
+            const s = simState
+            const order = ['idle', 'push', 'trigger', 'checkout', 'install', 'test', 'build', 'artifact', 'deploy', 'live']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['trigger', 'workflow_dispatch / push', isTr ? 'workflow ne zaman başlar' : 'when the workflow starts'],
+                ['checkout', 'checkout', isTr ? 'kod runner’a iner' : 'code lands on the runner'],
+                ['install', 'npm ci', isTr ? 'temiz bağımlılık kurulumu' : 'clean dependency install'],
+                ['test', 'quality gate', isTr ? 'test başarısızsa deploy yok' : 'failed tests stop deploy'],
+                ['build', 'dist/', isTr ? 'yayınlanacak statik dosyalar' : 'static files to publish'],
+                ['deploy', 'Pages deployment', isTr ? 'artifact GitHub Pages’e gider' : 'artifact goes to GitHub Pages'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'GitHub Actions YAML dosyası bir CI/CD tarifi gibidir: ne zaman çalışacak, hangi makinede çalışacak, hangi adımları koşacak. Java’daki Maven lifecycle gibi, adımlar sırayla başarısız olursa zincir durur.' : 'A GitHub Actions YAML file is a CI/CD recipe: when to run, which machine to use, and which steps to execute. Like the Maven lifecycle in Java, a failed step stops the chain.'}
+                    </div>
+                    {rows.map(([key, label, desc]) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-violet-600 bg-violet-950/30' : 'border-violet-300 bg-violet-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold font-mono ${ready ? (darkMode ? 'text-green-200' : 'text-green-800') : active ? (darkMode ? 'text-violet-200' : 'text-violet-800') : darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{ready ? '✓ ' : active ? '→ ' : '· '}{label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-yellow-800 bg-yellow-950/30 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        {isTr ? 'Pages deploy için repository Settings → Pages tarafında kaynak GitHub Actions seçilmeli; custom domain kullanıyorsan CNAME build çıktısında bulunmalı.' : 'For Pages deployment, repository Settings → Pages should use GitHub Actions as the source; for a custom domain, CNAME must be included in the build output.'}
                     </div>
                 </div>
             )
@@ -6540,6 +8971,284 @@ pm.test("per_page is 6", () => {
             )
         }
 
+        if (block.scenario === 'github-account-repo-setup') {
+            const s = simState
+            const order = ['idle', 'signup', 'verify', 'newrepo', 'settings', 'url']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['signup', isTr ? 'Kayıt ol' : 'Sign Up', isTr ? 'github.com sayfasına git' : 'Go to github.com'],
+                ['verify', isTr ? 'Doğrula' : 'Verify', isTr ? 'Email adresini onayla' : 'Confirm email address'],
+                ['newrepo', isTr ? 'Yeni Repo' : 'New Repo', isTr ? 'Repository oluştur' : 'Create repository'],
+                ['settings', isTr ? 'Ayarlar' : 'Settings', isTr ? 'Public/Private + README seçimi' : 'Public/Private + README choice'],
+                ['url', 'URL', isTr ? 'HTTPS URL kopyala' : 'Copy HTTPS URL'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'GitHub hesap açma ve repo oluşturma adımları. URL kopyaladıktan sonra local repo ile bağlayabilirsin.' : 'GitHub account creation and repo setup steps. After copying the URL you can connect it to your local repo.'}
+                    </div>
+                    {rows.map(([key, label, value], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-purple-500 bg-purple-950/30' : 'border-purple-300 bg-purple-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-purple-800 bg-purple-950/30 text-purple-200' : 'border-purple-200 bg-purple-50 text-purple-800'}`}>
+                        {isTr ? 'Önemli: local repo ile git init kullanacaksan, GitHub\'da README ekleme — aksi halde push sırasında çakışma olur.' : 'Important: if using git init locally, do NOT add a README on GitHub — otherwise you get conflicts on push.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-clone-vs-init') {
+            const s = simState
+            const order = ['idle', 'left', 'right', 'done']
+            const cur = order.indexOf(s)
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'İki farklı başlangıç yolu: sıfırdan veya mevcut projeyi klonlayarak.' : 'Two different starting paths: from scratch or by cloning an existing project.'}
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('left') && s !== 'idle' ? (darkMode ? 'border-blue-500 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>🆕 git init</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Boş klasörde yeni repo başlatır. Remote bağlantıyı sen kurarsın.' : 'Starts a new repo in an empty folder. You set up the remote yourself.'}</div>
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('right') ? (darkMode ? 'border-purple-500 bg-purple-950/30' : 'border-purple-300 bg-purple-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>👥 git clone</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Uzak repoyu indirir, remote otomatik bağlanır, hemen çalışırsın.' : 'Downloads remote repo, remote is auto-configured, you start working immediately.'}</div>
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-blue-800 bg-blue-950/30 text-blue-200' : 'border-blue-200 bg-blue-50 text-blue-800'}`}>
+                        {isTr ? 'Takıma katılıyorsan clone, yeni proje başlatıyorsan init kullan.' : 'Use clone when joining a team, init when starting a new project.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-dot-folder') {
+            const s = simState
+            const order = ['idle', 'init', 'objects', 'refs', 'head', 'config']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['init', '.git/', isTr ? 'Git\'in gizli kontrol merkezi' : 'Git\'s hidden control center'],
+                ['objects', '.git/objects/', isTr ? 'Commit, tree ve blob verileri' : 'Commit, tree and blob data'],
+                ['refs', '.git/refs/', isTr ? 'Branch ve tag pointer\'ları' : 'Branch and tag pointers'],
+                ['head', '.git/HEAD', isTr ? 'Aktif branch\'e işaret eder' : 'Points to the active branch'],
+                ['config', '.git/config', isTr ? 'Remote URL ve repo ayarları' : 'Remote URLs and repo settings'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? '.git/ klasörünün içeriği — her şey burada saklanır.' : '.git/ folder contents — everything is stored here.'}
+                    </div>
+                    {rows.map(([key, label, value], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-yellow-500 bg-yellow-950/30' : 'border-yellow-300 bg-yellow-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold font-mono ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : '📁'} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-red-800 bg-red-950/30 text-red-200' : 'border-red-200 bg-red-50 text-red-800'}`}>
+                        ⚠️ {isTr ? '.git/ silinirse TÜM geçmiş kaybolur — geri dönüşü yoktur!' : 'If .git/ is deleted ALL history is gone — there is no undo!'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-diff-reader') {
+            const s = simState
+            const order = ['idle', 'header', 'removed', 'added', 'context', 'done']
+            const cur = order.indexOf(s)
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Diff çıktısının renk kodları — her satır bir anlam taşır.' : 'Diff output color codes — each line carries meaning.'}
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('header') && s !== 'idle' ? (darkMode ? 'border-blue-500 bg-blue-950/30' : 'border-blue-300 bg-blue-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>📋 Header</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Hangi dosyanın hangi bölümü değişti' : 'Which file and section changed'}</div>
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('removed') && s !== 'idle' ? (darkMode ? 'border-red-500 bg-red-950/30' : 'border-red-300 bg-red-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-red-300' : 'text-red-700'}`}>− {isTr ? 'Silinen satırlar (kırmızı)' : 'Removed lines (red)'}</div>
+                        <div className={`text-xs mt-1 font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Eski kodun silinmiş hali' : 'Old code that was deleted'}</div>
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('added') && s !== 'idle' ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-green-300' : 'text-green-700'}`}>+ {isTr ? 'Eklenen satırlar (yeşil)' : 'Added lines (green)'}</div>
+                        <div className={`text-xs mt-1 font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Yeni eklenen veya değiştirilen kod' : 'Newly added or changed code'}</div>
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('context') ? (darkMode ? 'border-gray-500 bg-gray-800' : 'border-gray-300 bg-gray-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>  {isTr ? 'Bağlam satırları (gri)' : 'Context lines (gray)'}</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Değişmemiş satırlar — nerede olduğunu gösterir' : 'Unchanged lines — show where you are'}</div>
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                        {isTr ? 'QA ipucu: PR review sırasında diff okumayı bilmek, test kapsamındaki değişiklikleri hızla yakalamanı sağlar.' : 'QA tip: knowing how to read diffs helps you quickly spot changes in test coverage during PR review.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-log-timeline') {
+            const s = simState
+            const order = ['idle', 'c1', 'c2', 'c3', 'head', 'branch']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['c1', 'i7j8k9l', isTr ? 'İlk commit' : 'First commit'],
+                ['c2', 'e4f5g6h', isTr ? 'Selector düzeltmesi' : 'Selector fix'],
+                ['c3', 'a1b2c3d', isTr ? 'Login test eklendi' : 'Login test added'],
+                ['head', 'HEAD →', isTr ? 'Şu an burada olduğunu gösterir' : 'Shows where you are right now'],
+                ['branch', isTr ? 'Dal etiketleri' : 'Branch labels', isTr ? 'Hangi dallar bu commit\'e bakıyor' : 'Which branches point to this commit'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'git log çıktısını okuma — her satırın anlamı var.' : 'Reading git log output — every line has meaning.'}
+                    </div>
+                    {rows.map(([key, label, value], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-purple-500 bg-purple-950/30' : 'border-purple-300 bg-purple-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold font-mono ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-purple-800 bg-purple-950/30 text-purple-200' : 'border-purple-200 bg-purple-50 text-purple-800'}`}>
+                        {isTr ? 'hash = benzersiz ID, HEAD = neredesin, branch etiketi = hangi dallar bu commit\'i işaret ediyor.' : 'hash = unique ID, HEAD = where you are, branch label = which branches point to this commit.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-stash-flow') {
+            const s = simState
+            const order = ['idle', 'working', 'stash', 'switch', 'return', 'pop']
+            const cur = order.indexOf(s)
+            const rows = [
+                ['working', isTr ? 'Çalışma' : 'Working', isTr ? 'Dosyada değişiklik yapıyorsun' : 'You\'re editing a file'],
+                ['stash', 'git stash', isTr ? 'Değişiklikler rafa kaldırılır' : 'Changes shelved away'],
+                ['switch', 'git switch', isTr ? 'Başka branch\'e geçersin' : 'Switch to another branch'],
+                ['return', isTr ? 'Geri dön' : 'Return', isTr ? 'Kendi branch\'ine dön' : 'Back to your branch'],
+                ['pop', 'git stash pop', isTr ? 'Değişiklikler raftan geri gelir' : 'Changes return from shelf'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'Stash = geçici raf. Değişiklikleri kaybetmeden branch değiştirebilirsin.' : 'Stash = temporary shelf. Switch branches without losing changes.'}
+                    </div>
+                    {rows.map(([key, label, value], i) => {
+                        const ready = order.indexOf(key) <= cur && s !== 'idle'
+                        const active = order.indexOf(key) === cur
+                        return (
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-amber-500 bg-amber-950/30' : 'border-amber-300 bg-amber-50') : ready ? (darkMode ? 'border-green-700 bg-green-950/25' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                                <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{ready ? '✓' : active ? '→' : i + 1} {label}</div>
+                                <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{value}</div>
+                            </div>
+                        )
+                    })}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-amber-800 bg-amber-950/30 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                        {isTr ? 'Stash bir yığın (stack) gibi çalışır: en son stash\'lenen en önce pop edilir.' : 'Stash works like a stack: last stashed is first popped.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'git-revert-vs-reset') {
+            const s = simState
+            const order = ['idle', 'commits', 'revert', 'revert-done', 'reset', 'reset-done']
+            const cur = order.indexOf(s)
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr ? 'İki farklı geri alma yöntemi — biri güvenli, diğeri tehlikeli.' : 'Two different undo methods — one safe, one dangerous.'}
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('revert') && s !== 'idle' ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-green-300' : 'text-green-700'}`}>✅ git revert</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Geçmişi korur, yeni bir "geri alma" commit\'i ekler. Paylaşılmış branch\'ler için güvenli.' : 'Preserves history, adds a new "undo" commit. Safe for shared branches.'}</div>
+                    </div>
+                    <div className={`rounded-lg border p-3 ${cur >= order.indexOf('reset') ? (darkMode ? 'border-red-500 bg-red-950/30' : 'border-red-300 bg-red-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                        <div className={`text-xs font-bold ${darkMode ? 'text-red-300' : 'text-red-700'}`}>⛔ git reset --hard</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{isTr ? 'Geçmişi siler! Push edilmiş commit\'lerde kullanma — takımda kaos yaratır.' : 'Erases history! Don\'t use on pushed commits — causes team chaos.'}</div>
+                    </div>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-red-800 bg-red-950/30 text-red-200' : 'border-red-200 bg-red-50 text-red-800'}`}>
+                        {isTr ? 'Kural: push edilmiş bir şeyi geri almak istiyorsan her zaman revert kullan.' : 'Rule: always use revert to undo something that has been pushed.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'linux-terminal-basics') {
+            const s = simState
+            const order = ['idle', 'pwd', 'ls', 'cd', 'ls2', 'cat', 'grep', 'done']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const steps = [
+                { key: 'pwd', label: isTr ? 'pwd — şu an neredeyim?' : 'pwd — where am I right now?' },
+                { key: 'ls', label: isTr ? 'ls — bu klasörde ne var?' : 'ls — what is in this folder?' },
+                { key: 'cd', label: isTr ? 'cd projects — relative path ile içeri gir' : 'cd projects — go in with a relative path' },
+                { key: 'ls2', label: isTr ? 'ls — yeni konumdaki dosyalar' : 'ls — files in the new location' },
+                { key: 'cat', label: isTr ? 'cat ../readme.txt — .. ile bir üst klasöre referans ver' : 'cat ../readme.txt — .. references the parent folder' },
+                { key: 'grep', label: isTr ? '| grep QA — çıktıyı pipe ile filtrele' : '| grep QA — filter the output through a pipe' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'Neden önemli?' : 'Why it matters'}</div>
+                    {steps.map((step, i) => {
+                        const idx = order.indexOf(step.key)
+                        const active = idx === cur
+                        const done = idx < cur && s !== 'idle'
+                        return (
+                            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '5px 8px', borderRadius: 6, background: active ? '#0ea5e922' : done ? nodeBg : 'transparent', marginBottom: 3, transition: 'all 0.3s' }}>
+                                <span style={{ fontSize: 13, opacity: done || active ? 1 : 0.25 }}>{done ? '✅' : '▫️'}</span>
+                                <span style={{ fontSize: 10.5, color: active ? '#0ea5e9' : done ? subtext : (darkMode ? '#4b5563' : '#d1d5db'), fontWeight: active ? 700 : 400 }}>{step.label}</span>
+                            </div>
+                        )
+                    })}
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? 'Java\'da this o anki objeyi gösterir; terminalde de pwd o anki "bağlamı" (working directory) gösterir. cd projects relative path\'tir, cd /home/qa/projects absolute path\'tir.' : 'In Java, this points to the current object; in a terminal, pwd shows the current "context" (working directory). cd projects is a relative path, cd /home/qa/projects is absolute.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'linux-permissions-lab') {
+            const s = simState
+            const order = ['idle', 'lsl', 'denied', 'chmod', 'lsl2', 'success']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            const nodeBg = darkMode ? '#1f2937' : '#f3f4f6'
+            const hasExec = cur >= order.indexOf('chmod')
+            const rows = [
+                { label: isTr ? 'Owner (qa)' : 'Owner (qa)', bits: hasExec ? 'rwx' : 'rw-', color: hasExec ? '#22c55e' : '#f59e0b' },
+                { label: isTr ? 'Group (qa)' : 'Group (qa)', bits: 'r--', color: '#3b82f6' },
+                { label: isTr ? 'Other' : 'Other', bits: 'r--', color: '#a855f7' },
+            ]
+            return (
+                <div>
+                    <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{isTr ? 'rwx kırılımı' : 'rwx breakdown'}</div>
+                    {rows.map((row, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 8, padding: '4px 0', borderBottom: `1px solid ${darkMode ? '#1f2937' : '#f3f4f6'}` }}>
+                            <span style={{ fontSize: 10, color: subtext, width: 90, flexShrink: 0 }}>{row.label}</span>
+                            <span style={{ fontSize: 11, color: row.color, fontWeight: 800, fontFamily: 'monospace' }}>{row.bits}</span>
+                        </div>
+                    ))}
+                    <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext }}>
+                        chmod +x ≈ chmod 7{hasExec ? '5' : '4'}4 — {isTr ? '"x" bitini owner\'a ekler' : 'adds the "x" bit for owner'}
+                    </div>
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: nodeBg, fontSize: 10, color: subtext, lineHeight: 1.6 }}>
+                        ☕ {isTr ? 'Java\'da private/protected/public erişim belirleyicileri kimin neye erişebileceğini söyler; Linux\'ta rwx + owner/group/other de aynı işi dosya seviyesinde yapar. CI script\'i +x olmadan push edilirse pipeline "Permission denied" ile patlar.' : 'Java access modifiers (private/protected/public) decide who can access what; Linux rwx + owner/group/other does the same job at the file level. If a CI script is pushed without +x, the pipeline fails with "Permission denied".'}
+                    </div>
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -6589,6 +9298,22 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'java-javac-workshop' && renderJavaJavacWorkshopPlayground()}
                     {block.scenario === 'java-intellij-project' && renderJavaIntellijProjectPlayground()}
                     {block.scenario === 'java-maven-lifecycle' && renderJavaMavenLifecyclePlayground()}
+                    {block.scenario === 'git-snapshot-story' && renderGitSnapshotStoryPlayground()}
+                    {block.scenario === 'github-collaboration-story' && renderGithubCollaborationPlayground()}
+                    {block.scenario === 'git-concept-order-map' && renderGitConceptOrderPlayground()}
+                    {block.scenario === 'git-terminal-shell-map' && renderGitTerminalShellMapPlayground()}
+                    {block.scenario === 'git-terminal-install-use' && renderGitTerminalInstallUsePlayground()}
+                    {block.scenario === 'git-bash-open-folder' && renderGitBashOpenFolderPlayground()}
+                    {block.scenario === 'git-bash-command-runner' && renderGitBashCommandRunnerPlayground()}
+                    {block.scenario === 'git-install-os-setup' && renderGitInstallOsPlayground()}
+                    {block.scenario === 'git-three-areas' && renderGitThreeAreasPlayground()}
+                    {block.scenario === 'git-remote-origin-setup' && renderGitRemoteOriginSetupPlayground()}
+                    {block.scenario === 'git-branch-lab' && renderGitBranchLabPlayground()}
+                    {block.scenario === 'git-remote-branch-publish' && renderGitRemoteBranchPublishPlayground()}
+                    {block.scenario === 'git-merge-lab' && renderGitMergeLabPlayground()}
+                    {block.scenario === 'git-conflict-lab' && renderGitConflictLabPlayground()}
+                    {block.scenario === 'github-pr-flow' && renderGithubPrFlowPlayground()}
+                    {block.scenario === 'github-actions-pages' && renderGithubActionsPagesPlayground()}
                     {block.scenario === 'explicit-wait' && renderExplicitWaitPlayground()}
                     {block.scenario === 'implicit-wait' && renderImplicitWaitPlayground()}
                     {block.scenario === 'drag-drop' && renderDragDropPlayground()}
@@ -6612,6 +9337,15 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'vitest-runner' && renderVitestRunnerPlayground()}
                     {block.scenario === 'jmeter-load-test' && renderJmeterLoadTestPlayground()}
                     {block.scenario === 'cypress-time-travel' && renderCypressTimeTravelPlayground()}
+                    {block.scenario === 'github-account-repo-setup' && renderGithubAccountRepoSetupPlayground()}
+                    {block.scenario === 'git-clone-vs-init' && renderGitCloneVsInitPlayground()}
+                    {block.scenario === 'git-dot-folder' && renderGitDotFolderPlayground()}
+                    {block.scenario === 'git-diff-reader' && renderGitDiffReaderPlayground()}
+                    {block.scenario === 'git-log-timeline' && renderGitLogTimelinePlayground()}
+                    {block.scenario === 'git-stash-flow' && renderGitStashFlowPlayground()}
+                    {block.scenario === 'git-revert-vs-reset' && renderGitRevertVsResetPlayground()}
+                    {block.scenario === 'linux-terminal-basics' && renderLinuxTerminalBasicsPlayground()}
+                    {block.scenario === 'linux-permissions-lab' && renderLinuxPermissionsLabPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}
@@ -6799,6 +9533,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'git-practice':
+            return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         // ── New block types ────────────────────────────────────────────────────
 
@@ -7016,13 +9752,26 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const content = data[language] || data['en']
     const { hero, tabs, sections } = content
     const pageKey = (hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
-    const completedCount = Object.values(completedTabs).filter(Boolean).length
+    const completedCount = tabs?.filter((_, index) => completedTabs[index] || quizVerifiedTabs[index]).length || 0
+    const quizVerifiedCount = Object.values(quizVerifiedTabs).filter(Boolean).length
 
     const toggleTabComplete = (tabIndex, e) => {
         e.stopPropagation()
-        const updated = { ...completedTabs, [tabIndex]: !completedTabs[tabIndex] }
-        setCompletedTabs(updated)
-        try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updated)) } catch { }
+        const isCompleted = !!completedTabs[tabIndex] || !!quizVerifiedTabs[tabIndex]
+        const updatedCompleted = { ...completedTabs }
+        const updatedQuiz = { ...quizVerifiedTabs }
+
+        if (isCompleted) {
+            delete updatedCompleted[tabIndex]
+            delete updatedQuiz[tabIndex]
+        } else {
+            updatedCompleted[tabIndex] = true
+        }
+
+        setCompletedTabs(updatedCompleted)
+        setQuizVerifiedTabs(updatedQuiz)
+        try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updatedCompleted)) } catch { }
+        try { localStorage.setItem(`quizProgress_${pageKey}`, JSON.stringify(updatedQuiz)) } catch { }
     }
 
     const handleQuizCorrect = () => {
@@ -7066,9 +9815,9 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                             <div className="hidden md:block mb-2 px-2">
                                 <div className={`text-xs font-semibold mb-1 flex items-center justify-between ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     <span>{completedCount}/{tabs.length} {language === 'tr' ? 'tamamlandı' : 'completed'}</span>
-                                    {Object.keys(quizVerifiedTabs).length > 0 && (
+                                    {quizVerifiedCount > 0 && (
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${darkMode ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
-                                            🧠 {Object.keys(quizVerifiedTabs).length} quiz
+                                            🧠 {quizVerifiedCount} quiz
                                         </span>
                                     )}
                                 </div>
@@ -7077,59 +9826,57 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                         className="h-full rounded-full transition-all duration-500"
                                         style={{
                                             width: `${(completedCount / tabs.length) * 100}%`,
-                                            background: Object.keys(quizVerifiedTabs).length > 0 ? 'linear-gradient(to right, #8b5cf6, #10b981)' : '#10b981'
+                                            background: quizVerifiedCount > 0 ? 'linear-gradient(to right, #8b5cf6, #10b981)' : '#10b981'
                                         }}
                                     />
                                 </div>
                             </div>
                         )}
                         <div className="flex flex-col gap-0.5 md:gap-1">
-                            {tabs.map((tab, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setActiveTab(i)}
-                                    title={tab}
-                                    className={`w-full text-left rounded-lg font-semibold transition-all duration-200 ${activeTab === i
-                                        ? `bg-gradient-to-r ${gradient} text-white shadow-md`
-                                        : darkMode
-                                            ? 'text-gray-400 hover:text-white hover:bg-gray-700'
-                                            : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
-                                        } px-1.5 py-2 md:px-3 md:py-2.5`}
-                                >
-                                    {/* Mobile: emoji + dot if completed (purple=quiz, green=manual) */}
-                                    <span className="md:hidden text-base text-center block leading-none relative">
-                                        {[...tab][0]}
-                                        {completedTabs[i] && (
-                                            <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${quizVerifiedTabs[i] ? 'bg-purple-400' : 'bg-green-400'}`} />
-                                        )}
-                                    </span>
-                                    {/* Desktop: label + completion toggle */}
-                                    <span className="hidden md:flex items-center justify-between gap-1 text-xs leading-snug">
-                                        <span className="flex-1 truncate">{tab}</span>
-                                        <span
-                                            role="checkbox"
-                                            aria-checked={!!completedTabs[i]}
-                                            onClick={(e) => toggleTabComplete(i, e)}
-                                            title={quizVerifiedTabs[i]
-                                                ? (language === 'tr' ? 'Quiz doğru cevaplandı ✓' : 'Quiz answered correctly ✓')
-                                                : completedTabs[i]
+                            {tabs.map((tab, i) => {
+                                const isCompleted = !!completedTabs[i] || !!quizVerifiedTabs[i]
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveTab(i)}
+                                        title={tab}
+                                        className={`w-full text-left rounded-lg font-semibold transition-all duration-200 ${activeTab === i
+                                            ? `bg-gradient-to-r ${gradient} text-white shadow-md`
+                                            : darkMode
+                                                ? 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                                            } px-1.5 py-2 md:px-3 md:py-2.5`}
+                                    >
+                                        {/* Mobile: emoji + dot if completed */}
+                                        <span className="md:hidden text-base text-center block leading-none relative">
+                                            {[...tab][0]}
+                                            {isCompleted && (
+                                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white bg-green-400" />
+                                            )}
+                                        </span>
+                                        {/* Desktop: label + completion toggle */}
+                                        <span className="hidden md:flex items-center justify-between gap-1 text-xs leading-snug">
+                                            <span className="flex-1 truncate">{tab}</span>
+                                            <span
+                                                role="checkbox"
+                                                aria-checked={isCompleted}
+                                                onClick={(e) => toggleTabComplete(i, e)}
+                                                title={isCompleted
                                                     ? (language === 'tr' ? 'Tamamlandı — kaldır' : 'Completed — remove')
                                                     : (language === 'tr' ? 'Tamamlandı işaretle' : 'Mark completed')}
-                                            className={`flex-shrink-0 w-4 h-4 rounded border transition-all cursor-pointer flex items-center justify-center ${completedTabs[i]
-                                                ? quizVerifiedTabs[i]
-                                                    ? 'bg-purple-500 border-purple-500 text-white'
-                                                    : 'bg-green-500 border-green-500 text-white'
-                                                : darkMode
-                                                    ? 'border-gray-600 hover:border-green-400'
-                                                    : 'border-gray-300 hover:border-green-500'
-                                                }`}
-                                        >
-                                            {quizVerifiedTabs[i] && <span className="leading-none" style={{ fontSize: '9px' }}>🧠</span>}
-                                            {completedTabs[i] && !quizVerifiedTabs[i] && <span className="text-white leading-none" style={{ fontSize: '10px' }}>✓</span>}
+                                                className={`flex-shrink-0 w-4 h-4 rounded border transition-all cursor-pointer flex items-center justify-center ${isCompleted
+                                                    ? 'bg-green-500 border-green-500 text-white'
+                                                    : darkMode
+                                                        ? 'border-gray-600 hover:border-green-400'
+                                                        : 'border-gray-300 hover:border-green-500'
+                                                    }`}
+                                            >
+                                                {isCompleted && <span className="text-white leading-none" style={{ fontSize: '10px' }}>✓</span>}
+                                            </span>
                                         </span>
-                                    </span>
-                                </button>
-                            ))}
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
 

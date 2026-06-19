@@ -56,7 +56,7 @@
 - **GitHub Pages deploy notu:** `.github/workflows/deploy.yml` artık redirect HTML değil, gerçek `npm run build` çıktısını yayınlar. `concurrency.group: pages` aynı anda birden fazla Pages deploy çakışmasını azaltır. `workflow_dispatch` açık olduğu için Actions ekranından manuel deploy tetiklenebilir.
 
 ### SEO/routing altyapısı — gerçek ve commit'li
-`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları `7f526fd` ile; algoritma soru bankası ve HomePage roadmap fix'i `797aa6d` ile commit'li/push'lu. `npm run build` **25 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
+`BrowserRouter` (`src/main.jsx`), `src/components/SeoMeta.jsx`, `scripts/check-seo.mjs`, `scripts/check-dist-seo.mjs`, `scripts/generate-seo-files.mjs` committed ve push'lu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` route'ları `7f526fd` ile; algoritma soru bankası ve HomePage roadmap fix'i `797aa6d` ile commit'li/push'lu. Bu oturumda `/git-document` route'u çalışma ağacına eklendi; `npm run build` **28 route** için SEO/static shell kontrolünü başarıyla geçiriyor. Mimari detayları `codexSeo.md`'de (kalıcı referans olarak).
 
 **SEO canlı doğrulama durumu — bir sonraki oturumda tekrar kontrol edilmeli (push yeni yapıldı):**
 - `https://learnqa.dev/robots.txt` ve `/sitemap.xml` 200 dönüyor mu?
@@ -66,6 +66,171 @@
 
 ### Stray/uncommitted dosyalar
 Önceki oturumlardan kalan, hiçbir yerden import/referans edilmeyen üç grup dosya 7. kısım sonunda kullanıcı onayıyla silinmişti: paralel TSX rewrite, tek-seferlik içerik script'leri ve kök `documents/` duplikasyonu. `/algorithms`, `/advanced-algorithms`, `/manual-testing` ve `/cypress` artık commit'li — stray değiller. Tek kalan untracked dosya `.claude/settings.local.json` (yerel ayar dosyası, dokunulmadı). `Documents/_Java notlar.md` bilinçli olarak ignore edilen yerel not dosyasıdır ve stray/untracked iş listesine alınmamalı.
+- **20. kısım ile eklenen, stray OLMAYAN untracked dosyalar:** `src/components/LinuxPage.jsx`, `src/data/linuxData.js` — `/linux` route'u için, `App.jsx`/`seo.js`/`searchIndex.js`/`generate-static-routes.mjs`/`HomePage.jsx` içinden referans ediliyor, commit/push bekliyor.
+- **Bu oturumda gözlemlenen, bana ait olmayan eşzamanlı değişiklikler:** `CLAUDE.md` (Bölüm 9.1 öğretme kuralları — kalıcı kural, önceki bir kısımda eklenmiş), `scripts/generate-seo-files.mjs`, `src/data/whatIsTestingData.js`, `src/locales/en.json`, `src/locales/tr.json`, `Documents/`, `public/documents/GitNotesForProfessionals*.md`, `src/components/GitDocPage.jsx` — bunlara 20. kısımda dokunulmadı, başka bir oturum/araca ait olabilir, içerikleri doğrulanmadı.
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 20. kısım — Yeni `/linux` sayfası eklendi)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Yeni bir teknoloji sayfası: Linux. CLAUDE.md'deki kurallara uygun (her sekme `simple-box` ile başlar, görsel+animasyon+try-it-yourself zorunlu, min 50 mülakat sorusu 15/20/15, min 8 hata sözlüğü, Java analojisi her açıklamada) en iyi öğretme yöntemiyle anlatılacak. | ✅ |
+| **Yeni route ve dosyalar:** `/linux` route'u eklendi. `src/data/linuxData.js` (yeni, ~1500+ satır, `en`/`tr` ağaçları + paylaşılan `linuxInterviewQuestions`/`linuxErrors` dizileri) ve `src/components/LinuxPage.jsx` (DockerPage.jsx kalıbında ince wrapper) oluşturuldu. `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/HomePage.jsx` (nav kartı + footer linki, DevOps & Cloud grubuna eklendi) güncellendi. | ✅ |
+| **İçerik kapsamı:** 10 sekme — Giriş, Kurulum (WSL2/macOS/cloud VM), Dosya Sistemi & Navigasyon, İzinler & Kullanıcılar, Metin İşleme & Pipe'lar, Süreçler & Servisler, Gerçek Hayat QA, Ekosistem, Hata Sözlüğü, Mülakat S&C. Her sekme `simple-box` ile başlıyor, Java analojisi her mülakat cevabında var, Windows/Linux komut karşılaştırma tabloları, gerçek QA senaryoları (cron+PATH outage, disk dolması, Selenium Grid port çakışması, OOM killer, exec format error arm64 vb.) işlendi. | ✅ |
+| **Yeni simülasyonlar:** `TopicPage.jsx` içine iki yeni scenario eklendi: `linux-terminal-basics` (pwd→ls→cd→cat→grep canlı terminal + path breadcrumb) ve `linux-permissions-lab` (ls -l → chmod +x → permission denied'dan başarıya, rwx kırılımı sağ panelde canlı güncelleniyor). İkisi de sol Playground + sağ DOM/state paneli + Java analojisi notuyla diğer scenario'larla aynı kalıpta. | ✅ |
+| **Try-it-yourself:** Mevcut genel amaçlı `git-practice` block tipi (regex tabanlı adım kontrolü + dangerousPatterns) Linux komut pratiği için yeniden kullanıldı — Kurulum, Dosya Sistemi, İzinler, Metin İşleme ve Süreçler sekmelerinde 5 farklı pratik alanı var; `rm -rf /`, `chmod -R 777`, fork bomb gibi tehlikeli komutlar için özel uyarılar eklendi. | ✅ |
+| **Mülakat ve hata sözlüğü:** 50 mülakat sorusu (15 basic + 20 intermediate + 15 advanced), her biri Java analojili ve gerçek QA/CI senaryosu içeriyor (örn. arm64 exec format error, OOM killer, fork bomb, set -euo pipefail, ephemeral CI agent SSH stratejisi). 8 gerçek hata senaryosu (`command not found`, `Permission denied`, `No such file or directory`, `exec format error`, `No space left on device`, `Too many open files`, `Address already in use`, bash syntax error). | ✅ |
+| **Doğrulama:** `npm run build` 29 route için başarılı (check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo). `node --check` ile syntax doğrulandı (iki apostrof-escape hatası bulunup düzeltildi). Playwright ile `/linux` canlı test edildi: TR/EN sidebar 10 sekme doğru, simple-box görünüyor, iki yeni simülasyon (Dizin Gezintisi, Permission Denied Atölyesi) animasyon butonlarıyla çalışıp doğru son state'e ulaşıyor, dil toggle TR↔EN tüm metni değiştiriyor, Interview Q&A sekmesinde Basic/Intermediate/Advanced üç seviye de görünüyor, console error/warn yok. | ✅ |
+| **Çalışma ağacı notu:** Bu görev sırasında repo üzerinde eşzamanlı başka değişiklikler de gözlemlendi (`CLAUDE.md`, `scripts/generate-seo-files.mjs`, `src/data/whatIsTestingData.js`, `src/locales/en.json`, `src/locales/tr.json`, `Documents/`, `public/documents/GitNotesForProfessionals*.md`, `src/components/GitDocPage.jsx` modified/untracked) — bunlara bu görev kapsamında dokunulmadı, muhtemelen paralel bir oturum/araçtan kaynaklanıyor. Commit/push yapılmadı. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 19. kısım — Git Bash klasörde açma ve temel terminal alışkanlığı)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Kullanıcı Git kurulumundan sonra yeni başlayanlara Git Bash/CMD/IDE terminalini doğru klasörde açmayı, sadece Git değil temel terminal komutlarını da görerek ve deneyerek öğretmek istedi. Odak: Explorer adres çubuğuna `cmd` yazma, klasörde `Git Bash Here` açma, IDE terminalinde aynı proje klasöründe çalışmaya başlama, komut yazınca terminal çıktısını okuma. | ✅ |
+| **İçerik ekleme:** `src/data/gitGithubData.js` Kurulum sekmesine EN/TR yeni bölüm eklendi: "Git kurulduktan sonra: terminali proje klasöründe aç". İçerik yalnızca terminali doğru yerde açma ve temel komut çıktısını okuma konusuna odaklanıyor; Windows Explorer, Git Bash Here ve IDE terminal yolu ayrı kartlarla anlatılıyor. | ✅ |
+| **Yeni animasyonlar:** `src/components/TopicPage.jsx` içine iki yeni scenario eklendi: `git-bash-open-folder` Windows klasöründe adres çubuğuna `cmd` yazma, `Git Bash Here` ve IDE terminal akışını gösteriyor; `git-bash-command-runner` `pwd`, `ls`/`dir`, `cd`, `mkdir`, `touch`, `echo`, `cat`/`type`, `ipconfig`, `git --version` komutlarını terminal geçmişi ve beklenen çıktılarıyla gösteriyor. Her ikisinin sağ DOM/state açıklama paneli var. | ✅ |
+| **Try-it-yourself:** `gitBashDailyCommandsPractice` eklendi. Kullanıcı `pwd` → `ls` → `mkdir terminal-demo` → `cd terminal-demo` → `touch notes.txt` → `echo "ilk terminal notum" > notes.txt` → `cat notes.txt` → `cd ..` → `ipconfig` sırasını yazınca başarı alıyor. Amaç: terminale eli alışsın, hangi komutun ekranda ne değiştirdiğini görsün. | ✅ |
+| **Doğrulama:** `npm run build` başarılıydı (28 route SEO/static shell chain). In-app Browser ile `/git-github` TR Kurulum sekmesi doğrulandı: yeni başlıklar, Explorer/Git Bash/IDE kartları, iki animasyon ve try-it-yourself alanı görünüyor. `git-bash-open-folder` animasyonunda adres çubuğu `cmd`, CMD prompt, `Git Bash Here`, `$ pwd` ve IDE terminal çıktıları doğrulandı. `git-bash-command-runner` animasyonunda `pwd`, `ls`, `cd`, `mkdir`, dosya oluşturma/okuma, `ipconfig` ve `git --version` hem komut hem çıktı olarak göründü. Practice doğru sırayla başarı verdi. Console error/warn yok. 390px viewport kontrolünde `documentElement` yatay taşma göstermedi. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 18. kısım — Terminal, Git Bash ve komut rehberi görsel/pratik ekleme)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Kullanıcının `terminal_ve_komut_rehberi_v2.html` taslağı incelendi. Amaç: Git’i daha kolay kullanabilmek için Git Bash, CMD, PowerShell, macOS/Linux terminal ve IDE terminal farklarını sade, görsel, animasyonlu ve denenebilir şekilde öğretmek. | ✅ |
+| **İçerik ekleme:** `src/data/gitGithubData.js` Kurulum sekmesinin başına EN/TR yeni terminal araçları dersi eklendi. Anlatım sırası: terminal pencere vs shell motoru vs Git programı → Git Bash/PowerShell/CMD/macOS Terminal/Linux Terminal/IDE Terminal seçim kartları → güvenli ilk terminal turu pratiği → mevcut Windows/macOS/Linux Git kurulumu. Geniş tablolar mobilde taşmasın diye responsive `grid` kartlarına çevrildi. | ✅ |
+| **Yeni animasyonlar:** `src/components/TopicPage.jsx` içine iki yeni scenario eklendi: `git-terminal-shell-map` komutun terminal → shell → Git → `.git` → output yolculuğunu gösteriyor; `git-terminal-install-use` indir → kur → aç → `git --version` ile doğrula → VS Code/IntelliJ terminalinde kullan akışını gösteriyor. Her ikisinin de sağ DOM/state açıklama paneli var. | ✅ |
+| **Try-it-yourself:** `terminalToolsPractice` eklendi. Kullanıcı komutları `pwd` → `ls`/`dir` → `mkdir git-practice` → `cd git-practice` → `git --version` → `git init` → `git status` sırasına koyunca başarı alıyor. Amaç: Git komutlarından önce doğru klasör ve kurulum doğrulama alışkanlığı kazandırmak. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (28 route SEO/static shell chain). In-app Browser ile `/git-github` TR Kurulum sekmesi doğrulandı: yeni başlıklar, kartlar, iki animasyon ve try-it-yourself alanı görünüyor. İki animasyon çalıştırıldı; terminal/shell/Git akışı ve kurulum turu doğru çıktı verdi. Practice doğru sırayla başarı verdi. Console error/warn yok. 390px viewport kontrolünde yeni kartlar taşma üretmedi; görülen genişlik sinyali mevcut HTTPS/SSH uzun bash comment satırları ve üst kontrol grubundan geliyor, document root yatay taşma göstermiyor. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 17. kısım — Git stash TR eşitleme ve öğretme kuralları)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Git/GitHub Branching içindeki `git stash` konusu Türkçe tarafta eksikti. Kullanıcı, öğretim kurallarının da kalıcı hale gelmesini istedi: odak dışına çıkma, görsel/animasyon/pratik zorunlu olsun, kullanıcı denesin ve sonucu görsün. | ✅ |
+| **Stash içerik eşitleme:** `src/data/gitGithubData.js` TR Branching bölümüne `git stash: commit etmeden yarım işi geçici rafa koy` başlığı, `git-stash-flow` animasyonu, komut/amaç tablosu, `gitStashPractice` try-it-yourself pratiği ve gerçek iş uyarısı eklendi. EN/TR iki dilde `git-stash-flow` kullanımı `node -e` kontrolüyle 1/1 doğrulandı. | ✅ |
+| **Kalıcı öğretme kuralları:** `CLAUDE.md` Bölüm 9 altına `9.1. Öğretme Yöntemi ve Odak Kuralları` eklendi. Kurallar: odak dışına çıkmama, önce mantık sonra komut, görsel + animasyon + deneme zorunluluğu, sonucun görünür olması, her geliştirmeden sonra kendi kendini denetleme ve “daha iyi olabilir mi” kontrolü. Anlık durum veya commit hash `CLAUDE.md` içine yazılmadı. | ✅ |
+| **Kendi geliştirme kontrolü:** Eklenen stash konusu yalnızca branch değiştirirken yarım işi geçici rafa alma akışına odaklandı; yan konu eklenmedi. Kullanıcı animasyonda working tree/stash shelf durumunu görüyor, try-it-yourself alanında doğru komut sırasını giriyor ve başarı/eksik adım sonucunu görüyor. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (28 route SEO/static shell chain). In-app Browser ile `/git-github` TR Branching sekmesi doğrulandı: stash başlığı, animasyon, komut tablosu, uyarı ve try-it-yourself alanı görünüyor. Animasyon çalıştırıldı; `git stash` sonrası shelf doluyor, `git stash pop` sonrası iş geri dönüyor. Practice doğru sırayla başarı verdi: `git stash` → `git switch main` → `git switch feature/login` → `git stash pop`. Console error/warn yok. 390px viewport'ta kök sayfa yatay taşma göstermedi; geniş bash satırları kendi kod alanında yatay kaydırmalı kalıyor. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 16. kısım — Antigravity: Git/GitHub 7 Yeni Simülasyon ve İçerik Genişletmesi)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı Yönü:** Git/GitHub görsel öğrenme sayfasının daha öğretici ve zengin hale getirilmesi; git kurulumundan başlayarak adım adım hesap açma, klonlama, gizli klasörler, diff okuma, log geçmişi, stashing ve revert vs reset farkının açıklanması. | ✅ |
+| **İçerik Ekleme:** [gitGithubData.js](file:///d:/ANTIGRAVITY/automationexercise/src/data/gitGithubData.js) dosyasındaki Kurulum, Git Temelleri, Branching ve Riskler sekmelerine hem Türkçe hem İngilizce detaylı rehberler, uyarılar ve 3 yeni `git-practice` (Try-It-Yourself) sıraya koyma egzersizi eklendi. | ✅ |
+| **Simülasyon Geliştirmeleri:** [TopicPage.jsx](file:///d:/ANTIGRAVITY/automationexercise/src/components/TopicPage.jsx) bileşeni içerisine 7 yeni animasyonlu simülasyon (`github-account-repo-setup`, `git-clone-vs-init`, `git-dot-folder`, `git-diff-reader`, `git-log-timeline`, `git-stash-flow`, `git-revert-vs-reset`), DOM/state görselleştiricileri ve senaryo yönlendiricileri başarıyla entegre edildi. | ✅ |
+| **Doğrulama:** `npm run build` komutu çalıştırılarak 28 route'luk SEO statik shell üretimi ve dist SEO kontrollerinin sorunsuz geçtiği kanıtlandı. Tarayıcı üzerinden Türkçe ve İngilizce dillerindeki tüm yeni simülasyon adımları ve kod pratikleri doğrulandı. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 15. kısım — Git/GitHub kavram sırası ve neden-sonuç haritası)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Kullanıcı Git/GitHub sayfasında komutlardan önce kavram sırası istedi: önce ne gelir, neden yapılır, yapılmazsa ne olur; `git init`, `git add`, `git commit`, remote/origin, branch, push, fetch, merge, pull, conflict gibi kavramlar açık ve adım adım anlatılmalı. | ✅ |
+| **İçerik ekleme:** `src/data/gitGithubData.js` Giriş sekmesine EN/TR yeni “komutlardan önce sıralamayı anla” bölümü eklendi. Her adım için “işlem / amaç / yapılmazsa veya karışırsa ne olur” tablosu yazıldı. `clone`, `push`, `fetch`, `merge`, `pull`, `branch`, `conflict` kavramları ayrı anlam/fark tablosuyla açıklandı. `git init` ile yeni local proje, `git clone` ile GitHub’da zaten var olan repo ayrımı netleştirildi. | ✅ |
+| **Yeni animasyon:** `TopicPage.jsx` içine `git-concept-order-map` scenario eklendi. Animasyon local klasör → `.git` → status → stage → commit → origin → push main → feature branch → push feature → fetch/merge/pull → conflict akışını görsel local/GitHub kartları ve terminal çıktılarıyla gösteriyor. Sağ DOM/state paneli her adımın amacını ve atlanırsa oluşacak riski anlatıyor. | ✅ |
+| **Try-it-yourself:** Yeni `git-practice` alanı eklendi. Kullanıcı komutları `git init` → `git status` → `git add README.md` → initial commit → `git remote add origin ...` → `git push -u origin main/master` → `git switch -c feature/login-tests` → feature commit → `git push -u origin feature/login-tests` → `git fetch origin` → `git merge origin/main` sırasına koyunca başarı alıyor. | ✅ |
+| **Sıra tutarlılığı:** Giriş artık Step 1 Git zihinsel modeli, Step 2 GitHub takım alanı, Step 3 komutlardan önce sıra haritası olarak ilerliyor. Git Temelleri sekmesindeki `git-three-areas` başlığı Step 4, `git-remote-origin-setup` başlığı Step 5 yapıldı. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (28 route SEO/static shell chain). In-app Browser ile `/git-github` doğrulandı: EN/TR yeni kavram haritası, amaç/yapılmazsa tablosu, clone/push/fetch/merge/pull kavramları, animasyon ve practice alanı görünüyor. Animasyon çalıştırıldı; terminal akışı doğru sırada oluştu. Practice alanı doğru komut sırasıyla success verdi. Git Temelleri Step 4/5 başlıkları TR modda doğrulandı. Mobil 390px viewport’ta yatay taşma 0. Console error/warn yok. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 14. kısım — Git origin remote setup/list remotes görsel-pratik ekleme)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Kullanıcının görsellerindeki konu Git Temelleri içinde ayrı bir ders olarak ele alındı: localde en az 1 commit oluşturduktan sonra `git remote add origin [REMOTE_URL]`, `git remote`, `git remote -v` / `git remote --verbose`, `git push -u origin main/master`, login/credential manager davranışı. | ✅ |
+| **İçerik ekleme:** `src/data/gitGithubData.js` Git Temelleri sekmesine EN/TR yeni anlatım eklendi. `origin` sadece GitHub repo adresini tanıtır, tek başına upload yapmaz; `git remote -v` fetch/push URL’lerini gösterir; modern varsayılan branch için `main`, eski repo gerçekten öyleyse `master` kullanılır; yanlış URL için `git remote set-url origin [REMOTE_URL]` notu yazıldı. | ✅ |
+| **Yeni animasyon:** `TopicPage.jsx` içine `git-remote-origin-setup` scenario eklendi. Animasyon local repo’da ilk commit snapshotı, GitHub repo URL’sinin `origin` olarak bağlanması, `git remote -v` ile URL kontrolü, `git push -u origin main` ile upstream kurulması ve Windows Credential Manager/macOS Keychain login saklama notunu görsel kartlar ve terminal akışıyla gösteriyor. Sağ DOM/state paneli aynı adımları açıklıyor. | ✅ |
+| **Try-it-yourself:** Yeni `git-practice` alanı eklendi. Kullanıcı komutları `git status` → `git add ...` → `git commit -m ...` → `git remote add origin ...` → `git remote -v` veya `--verbose` → `git push -u origin main/master` sırasına koyunca başarı alıyor. HTTPS ve SSH GitHub remote URL varyantları kabul ediliyor; token/şifreyi URL içine yazma uyarısı eklendi. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (28 route SEO/static shell chain). In-app Browser ile `/git-github` Git Temelleri sekmesi doğrulandı: TR ve EN içerik, yeni başlık, `git remote add origin`, `git remote -v`, `git remote --verbose`, `git push -u origin main`, Credential Manager/Keychain uyarısı ve practice alanı görünüyor. Animasyon çalıştırıldı; terminalde `git log`, `git remote add origin`, `git remote -v`, `git push -u origin main`, sonraki `git push` notu oluştu. Practice alanı doğru komut sırasıyla success verdi. Mobil 390px viewport’ta yatay taşma 0. Console error/warn yok. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 13. kısım — Git remote branch publish görsel/pratik ekleme)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Git doküman sayfası şimdilik ertelendi. Branching sekmesine kullanıcının notundaki "local branch'i remote'da ilk kez açma" konusu eklenecek; görsel animasyon ve try-it-yourself alanı olmalı. | ✅ |
+| **İçerik ekleme:** `src/data/gitGithubData.js` Branching sekmesine EN/TR yeni remote publish bölümü eklendi. Konu: `git switch hasan`, `git push -u origin hasan`, alternatif olarak `git push -u https://github.com/hasankocaman/deneme2.git hasan`, `git branch -vv` ile upstream kontrolü ve sonraki pushlarda sadece `git push` kullanımı. "İlk publish yöntemlerinden sadece birini bir kez kullan" uyarısı açık yazıldı. | ✅ |
+| **Yeni animasyon:** `TopicPage.jsx` içine `git-remote-branch-publish` scenario eklendi. Animasyon local `hasan` branch'inin GitHub tarafında `origin/hasan` remote branch'e dönüşmesini, iki ilk publish yöntemini, upstream bağını ve sonraki kısa `git push` akışını gösteriyor. Sağ DOM/state paneli de aynı adımları açıklıyor. | ✅ |
+| **Try-it-yourself:** Yeni `git-practice` alanı eklendi. Kullanıcı komutları `git switch hasan` → `git push -u origin hasan` veya direkt URL yöntemi → `git branch -vv` → `git push` sırasına koyunca başarı alıyor. Regex ayrıca `hasan2` ve `feature/hasan` varyantlarını kabul edecek şekilde yazıldı. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (28 route SEO/static shell chain). In-app Browser ile `/git-github` Branching sekmesi doğrulandı: yeni remote publish başlığı, uyarı, iki yöntem komutu, animasyon ve try-it-yourself alanı görünüyor. Animasyon çalıştırıldı; terminalde `git switch hasan`, `git push -u origin hasan`, `git branch -vv`, `git push` akışı oluştu. Practice alanı doğru komut sırasıyla success verdi. TR modda başlık/uyarı/pratik görünüyor. Mobil 390px viewport'ta Branching içeriğinde yatay taşma 0. Console error/warn yok. | ✅ |
+
+## ⚠️ Bu Oturumda Kontrol Edilenler (2026-06-18, 12. kısım — Antigravity Git Doküman Review)
+
+| Görev | Durum |
+|-------|-------|
+| **NEXT_SESSION okundu:** Güncel çalışma ağacında `/git-github` görsel öğrenme sayfası, branch/merge/conflict genişletmeleri ve Antigravity tarafından eklenen `/git-document` route'u bulunuyor. | ✅ |
+| **Antigravity çıktısı kontrol edildi:** `src/components/GitDocPage.jsx`, `src/components/GitGithubPage.jsx`, `public/documents/GitNotesForProfessionals.md`, `public/documents/GitNotesForProfessionals_tr.md`, SEO/static route entegrasyonları ve tarayıcıda `/git-document` incelendi. Banner tıklaması `/git-document` route'una gidiyor; route render oluyor ve console error/warn yok. | ✅ |
+| **Kritik eksik:** Önceki 10. kısımda yazan "61 bölüm eksiksiz Türkçe kılavuz" notu doğrulanmadı. Parser ve tarayıcı sonucu şu an yalnızca 13 chapter gösteriyor; `/git-document` içinde Chapter 14 Branching ve sonrası kullanıcıya görünmüyor. İngilizce dosyada 14-61 arası başlıkların çoğu gerçek gövde değil, içindekiler satırlarında `...` ile geçiyor ve `GitDocPage` parser'ı bunları bilerek dışlıyor. | ⚠️ |
+| **TR/EN içerik eşitliği sorunu:** Türkçe dosya 737KB olsa da sadece 13 `Chapter` başlığı içeriyor ve birçok bölümde İngilizce cümleler/yarım çeviri var; örnek: `public/documents/GitNotesForProfessionals_tr.md` Section 1.2 hâlâ "The **git clone** command..." diye başlıyor. Bu nedenle "Türkçe ve İngilizce kapsam eşitlendi" iddiası geçerli değil. | ⚠️ |
+| **UI tutarsızlığı:** Git/GitHub ana sayfasındaki referans kartı kullanıcıya "60+ Chapters" mesajı veriyor; fakat tıklanan `/git-document` sayfası 13 chapter ile bitiyor. Kart metni veya doküman içeriği düzeltilmeden bu haliyle yanıltıcı. | ⚠️ |
+| **Bir sonraki doğru iş:** Kaynak markdown/PDF extraction yeniden düzenlenmeli; EN tarafında gerçek 61 chapter gövdesi parser'ın anlayacağı açık `Chapter`/`Section` satırlarına ayrılmalı, TR dosyası aynı chapter/section ID'leriyle eşitlenmeli, build öncesi chapter/section parity check eklenmeli ve banner chapter sayısı gerçek veriyle uyumlu yapılmalı. | ⏳ |
+| **Doğrulama:** Browser ile `/git-document` TR/EN kontrol edildi: Chapter 13 var, Chapter 14 yok. Git/GitHub sayfasındaki banner tıklaması route'a gidiyor. Bu review sırasında yeni build çalıştırılmadı; mevcut çalışma ağacındaki son bilinen `npm run build` sonucu 28 route için başarılıydı. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 11. kısım — Git/GitHub Branch-Merge-Conflict görsel genişletme)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı geri bildirimi:** Branch açma, merge yapma ve conflict çözme konuları daha detaylı, daha fazla görsel/animasyonla; özellikle `git branch`, `git branch hasan`, `git checkout -b hasan`, `git switch hasan`, `git branch -m ...` gibi komutların sonucunda ne olduğunu adım adım anlatacak şekilde genişletilmeli. | ✅ |
+| **Yeni görsel simülasyonlar:** `TopicPage.jsx` içine üç yeni Git scenario eklendi: `git-branch-lab` (local branch list/create/switch/rename/push), `git-merge-lab` (origin/main güncellemesini feature branch içine alma), `git-conflict-lab` (conflict marker → final davranış → test → add → continue). Her biri sol canlı demo + sağ DOM/state anlatımıyla çalışıyor. | ✅ |
+| **Branch komut sözlüğü:** `gitGithubData.js` Branching sekmesine EN/TR komut-sonuç tablosu eklendi: `git branch`, `git branch hasan`, `git checkout -b hasan`, `git switch -c hasan`, `git switch hasan`, `git checkout hasan`, `git branch -m main`, `git branch -m old_name new_name`. | ✅ |
+| **Try-it-yourself alanları:** Branch komut mini lab eklendi. Kullanıcı komutları listele → oluştur → geç → rename → tek komutta oluştur+geç sırasına koyuyor; `GitPracticeBlock` doğru sıralamayı kontrol edip başarı/eksik adım çıktısı veriyor. Conflict güvenli bitirme ve branch başlangıç pratikleri de korunuyor. | ✅ |
+| **Gerçek iş akışı:** Kullanıcının notundaki güvenli sıra ayrı code block olarak eklendi: önce `git status`, değişikliği commit et, `main` branch’e geç, `git pull --ff-only origin main`, kendi branch’ine dön, `git merge main`, conflict çıkarsa localde çöz/test et. Commit edilmemiş değişiklikle branch değiştirme riskine açık uyarı eklendi. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (mevcut çalışma ağacında 28 route SEO/static shell chain). In-app Browser ile `/git-github` Branching sekmesi doğrulandı: yeni branch komut haritası, komut-sonuç tablosu, mini lab, güvenli switch/pull/merge akışı ve TR karşılıkları görünüyor. Branch mini lab doğru komut sırasıyla başarı verdi; branch animasyonu `git branch → git branch hasan → git switch hasan → git branch -m feature/hasan → git push -u origin feature/hasan` terminal akışını gösterdi. Console error/warn yok. | ✅ |
+| **Çalışma ağacı notu:** Commit/push yapılmadı. Bu görevde `src/components/TopicPage.jsx` ve `src/data/gitGithubData.js` üzerinde çalışıldı; build artifact/SEO dosyaları build nedeniyle güncellendi. `.claude/settings.local.json` ve çalışma ağacında bulunan Git doküman sayfası/`Documents/` kaynakları bu görev kapsamında elle değiştirilmedi. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 10. kısım — Git/GitHub Başvuru Kitabı / Doküman Sayfası)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı Talebi:** `Documents/GitNotesForProfessionals.md` dosyasını incele, Java sayfasındaki referans dokümanı gibi bir doküman sayfası geliştir (Türkçe/İngilizce toggle destekli, adım adım öğretici, kurulum ve hesap açma dahil). Mevcut Git/GitHub sayfasını bozmadan bu dokümanı oraya link olarak ekle. | ✅ |
+| **Yeni Rotalar & Bileşenler:** `/git-document` rotası eklendi, `<GitDocPage />` bileşeni oluşturuldu. `Documents/GitNotesForProfessionals.md` dosyası `public/documents/GitNotesForProfessionals.md` olarak kopyalandı. | ✅ |
+| **Türkçe İçerik Geliştirme:** `public/documents/GitNotesForProfessionals_tr.md` dosyası oluşturuldu; ancak 12. kısım review'unda bu dosyanın eksiksiz 61 bölüm ve TR/EN kapsam eşitliği sağlamadığı doğrulandı. Şu an parser/tarayıcı yalnızca 13 chapter gösteriyor ve TR içerikte İngilizce/yarım çevrilmiş paragraflar var. Bu satırdaki önceki "61 bölüm eksiksiz" iddiası geçersiz sayılmalı. | ⚠️ |
+| **Banner Entegrasyonu:** `src/components/GitGithubPage.jsx` içerisine `GitDocBanner` eklenerek Git/GitHub ana sayfasından referans dokümanına geçiş linki sağlandı (Java sayfasındaki banner ile aynı yapıda). | ✅ |
+| **SEO & Sitemap Entegrasyonu:** `/git-document` rotası sitemap (`whatIsTestingData.js`), SEO metadata (`seo.js`), statik route shell üretici (`generate-static-routes.mjs`) ve sitemap öncelik ayarlarına (`generate-seo-files.mjs`) entegre edildi. | ✅ |
+| **Doğrulama:** `npm run build` başarıyla tamamlandı (check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo zinciri 28 route için sorunsuz geçti). | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 9. kısım — Git/GitHub Giriş checkbox unselect fix)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı geri bildirimi:** Git/GitHub sayfasında Giriş sekmesi quiz ile tamamlandıktan sonra checkbox geri alınamıyordu; ekranda `1/10 tamamlandı` ve `1 quiz` kalıyordu. | ✅ |
+| **Kök neden:** `TopicPage.jsx` içinde sidebar checkbox tıklaması sadece `completedTabs` kaydını değiştiriyordu. Sekme quiz ile tamamlandıysa `quizVerifiedTabs[0]` true kaldığı için Giriş hâlâ tamamlanmış sayılıyordu. | ✅ |
+| **Düzeltme:** `toggleTabComplete` artık mevcut durum `completedTabs ∪ quizVerifiedTabs` üzerinden hesaplıyor. Tamamlanmış bir sekmeye tekrar basıldığında hem `completedTabs[tabIndex]` hem `quizVerifiedTabs[tabIndex]` temizleniyor ve iki localStorage anahtarı da güncelleniyor. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (27 route SEO/static shell chain). In-app Browser ile `/git-github` mobil viewport'ta test edildi: Giriş quiz'i doğru cevaplandı, checkbox ✓ oldu, checkbox'a tekrar basınca ✓ kalktı ve `Mark completed` durumuna döndü. Console error/warn yok. Dev server `http://127.0.0.1:5173/git-github` üzerinde yeniden açık bırakıldı. | ✅ |
+| **Çalışma ağacı notu:** Commit/push yapılmadı. Geçici dev server log dosyaları temizlendi. `.claude/settings.local.json` untracked yerel ayar dosyası olarak dokunulmadan bırakıldı. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 8. kısım — Git/GitHub sidebar checkbox/aktif tab uyumu)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı geri bildirimi:** Git/GitHub sayfasındaki sol sekme yapısı ve checkbox görünümü diğer sayfalardan farklı görünüyordu; aktif tab yeşil/teal kalıyor, quiz state yüzünden checkbox içinde küçük beyin ikonu görünebiliyordu. | ✅ |
+| **Git/GitHub sayfa rengi:** `src/components/GitGithubPage.jsx` içindeki `gradient` Java sayfasındaki aktif tab stiliyle uyumlu olacak şekilde `from-orange-600 to-amber-600` yapıldı; `bgLight` de orange/amber/yellow ailesine çekildi. | ✅ |
+| **Ortak checkbox düzeltmesi:** `TopicPage.jsx` sidebar checkbox render'ı sadeleştirildi. `completedTabs` veya `quizVerifiedTabs` true ise checkbox artık standart yeşil check olarak görünüyor; stale quiz state olsa bile beyin ikonu selectbox içinde görünmüyor. Progress count da `completedTabs ∪ quizVerifiedTabs` üzerinden hesaplanıyor. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (27 route SEO/static shell chain). In-app Browser ile `/git-github` 390px viewport'ta kontrol edildi: aktif tab class'ı `from-orange-600 to-amber-600`, sidebar checkbox'ta beyin ikonu yok, yatay taşma 0, console error/warn yok. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 7. kısım — Git/GitHub giriş ve kurulum görsel revizyonu)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı geri bildirimi:** `/git-github` sayfasının ilk tanıtım akışı komutlara fazla erken giriyordu. Kullanıcı, Git'in ne olduğunu önce uzun görsel/animasyonlu anlatımla; ardından GitHub'ın ne olduğunu yine görsel/animasyonlu anlatımla öğrenmek istedi. Kurulumda da Windows/macOS/Linux ayrı ayrı ve görsel destekli anlatılmalı. | ✅ |
+| **Giriş akışı sadeleştirildi:** Giriş sekmesindeki erken `git status/add/commit/push` kod bloğu kaldırıldı. Yeni sıra: `simple-box` → `git-snapshot-story` simülasyonu → kısa zihinsel model metni → `github-collaboration-story` simülasyonu → Git/GitHub/Java analojisi/QA değeri kartları → quiz. Böylece kullanıcı komut ezberine geçmeden önce Git'i proje hafızası, GitHub'ı takım kalite alanı olarak görüyor. | ✅ |
+| **Yeni görsel simülasyonlar:** `git-snapshot-story` eklendi (klasör → değişiklik → snapshot rafı → karşılaştırma → güvenli dönüş). `github-collaboration-story` eklendi (local branch → Pull Request → Actions checks → main). Her ikisi de sağ panel DOM/state açıklamalarıyla desteklendi. | ✅ |
+| **Kurulum sekmesi yeniden kurgulandı:** Tek karışık kurulum bloğu yerine önce `git-install-os-setup` görsel kurulum haritası eklendi. Ardından Windows, macOS ve Linux için ayrı `installation` blokları yazıldı; her OS kendi kurulum komutu, `git --version` doğrulaması, `user.name`, `user.email`, `init.defaultBranch main` ve config kontrol adımlarıyla anlatılıyor. | ✅ |
+| **Kurulumdan ilk repo kodu çıkarıldı:** `mkdir git-lab`, `git init`, ilk commit gibi pratik kodlar kurulum sekmesinden kaldırıldı; kurulum artık yalnızca araç kurulumu, doğrulama ve kimlik ayarı odaklı. Git çalışma alanları simülasyonu `Git Temelleri` sekmesine taşındı. | ✅ |
+| **Doğrulama:** `npm run build` başarılı (27 route SEO/static shell chain). In-app Browser ile `/git-github` doğrulandı: EN girişte Step 1/Step 2 görsel simülasyonları render oldu, eski erken komut bloğu ilk 5000 karakterde görünmedi, Git snapshot animasyonu final state'e ulaştı, kurulum sekmesinde Windows/macOS/Linux başlıkları ve kurulum haritası göründü, `mkdir git-lab` artık kurulumda yok, kurulum animasyonu kimlik state'ine ulaştı, console error/warn yok. 390px mobil viewport'ta yatay taşma 0. | ✅ |
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 6. kısım — Git ve GitHub görsel öğrenme sayfası)
+
+| Görev | Durum |
+|-------|-------|
+| **Oturum başlangıcı:** `CLAUDE.md`, `.claude/NEXT_SESSION.md`, `codexSeo.md`, `.claude/CONTENT_RULES.md` ve `.claude/UI_STANDARDS.md` okundu. Kullanıcıya güncel durum özetlendi: canlı hedef GitHub Pages, push bekleyen önceki local commit'ler, `.claude/settings.local.json` untracked ve `Documents/_Java notlar.md` ignore kuralı. | ✅ |
+| **Resmi kaynak kontrolü:** GitHub Actions workflow syntax ve GitHub Pages publishing source davranışı resmi GitHub Docs üzerinden doğrulandı; içerikte güncel Actions/Pages kavramları buna göre yazıldı. | ✅ |
+| **Yeni route:** `/git-github` route'u eklendi. Dosyalar: `src/components/GitGithubPage.jsx`, `src/data/gitGithubData.js`, `src/App.jsx`, `src/utils/seo.js`, `src/utils/searchIndex.js`, `scripts/generate-static-routes.mjs`, `src/components/HomePage.jsx`. Ana sayfa DevOps & Cloud kartına ve footer linklerine `Git/GitHub` eklendi. | ✅ |
+| **İçerik kapsamı:** Git ve GitHub sayfası Java sayfasındaki "Gör, Anla, Dene" yöntemine uygun olarak 10 sekmeyle yazıldı: Giriş, Kurulum, Git Temelleri, Branching, GitHub Akışı, GitHub Actions, GitHub Pages, Gerçek İş Riskleri, Hata Sözlüğü, Mülakat S&C. Kurulumda Windows/macOS doğrulama adımları, SSH/HTTPS ayrımı, ilk repo akışı; Actions tarafında workflow anatomy, matrix/cache/artifact/secrets; Pages tarafında custom domain, CNAME, SPA fallback ve SEO riskleri anlatıldı. | ✅ |
+| **Yeni interaktif block tipi:** `git-practice` eklendi (`TopicPage.jsx`). Kullanıcı textarea içinde Git komut akışı yazıyor; block sıralı expected step kontrolü yapıyor, tehlikeli komutları (`reset --hard`, `push --force`, `clean -f`) uyarıyor ve terminal preview gösteriyor. Sayfada 3 try-it-yourself alanı var: ilk güvenli commit, PR branch hazırlığı, destructive komut öncesi kurtarma planı. | ✅ |
+| **Yeni simülasyonlar:** `git-three-areas` (working tree → staging area → local repository → GitHub remote), `github-pr-flow` (branch → commit → push → PR → review → checks → merge) ve `github-actions-pages` (push → workflow trigger → checkout → npm ci → test → build → artifact → Pages deploy → live domain) eklendi. Her biri sağ panel DOM/state görselleştiricisine bağlandı. | ✅ |
+| **Hata sözlüğü ve mülakat:** 9 gerçek Git/GitHub hata senaryosu eklendi (`not a git repository`, `pathspec`, non-fast-forward, merge conflict, detached HEAD, SSH publickey, HTTPS auth, GH013 repo rule, unrelated histories). Mülakat sekmesi 52 soru içeriyor: 15 basic, 20 intermediate, 17 advanced; cevaplar gerçek iş güvenliği ve Java analojisiyle yazıldı. | ✅ |
+| **Doğrulama — build:** `npm run build` başarılı. Zincir 27 route için geçti: `check-seo` → `generate-seo-files` → Vite prod build → 27 static route HTML shell → `check-dist-seo`. Bilinen uyarılar devam ediyor: eski Browserslist/caniuse-lite ve büyük `javaData` chunk. | ✅ |
+| **Doğrulama — browser:** In-app Browser ile `http://127.0.0.1:5173/git-github` test edildi. TR render, 10 sekme, giriş simülasyonu, `git-practice` başarı state'i, Actions→Pages simülasyonu (`learnqa.dev`, `deploy-pages`, `pages: write`) doğrulandı. EN dil geçişinde başlık/subtitle/Actions metni doğru çıktı. Mobil 390px viewport'ta yatay taşma 0. Console error/warn yok. | ✅ |
+| **Çalışma ağacı notu:** Bu oturumda commit/push yapılmadı. Bekleyen kaynak değişiklikleri yukarıdaki route/data/component dosyalarıdır. Build `public/sitemap.xml` dosyasını 27 route'a güncelledi ve `dist/index.html` build artifact hash'i değişti. `.claude/settings.local.json` hâlâ untracked ve dokunulmadı. `Documents/_Java notlar.md` ignore kuralı `git -c core.excludesfile= check-ignore -v -- "Documents/_Java notlar.md"` ile tekrar doğrulandı. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-18, 5. kısım — QA Mentor AI Düzeltmeleri ve Entegrasyonu)
 
@@ -385,6 +550,7 @@ glossary | error-dict | interview-questions | simple-box | visual | callout |
 locator-visual | selenium-visual | playwright-visual | simulation | animated-timeline |
 drag-order (YENİ — 2026-06-17, 10. kısım: sürükle-bırak/tıkla-değiştir sıralama alıştırması)
 java-practice (YENİ — 2026-06-18, 2. kısım: Java main method + semicolon kontrol alanı)
+git-practice (YENİ — 2026-06-18, 6. kısım: Git komut sırası + tehlikeli komut uyarısı)
 ```
 
 ### Önemli Dosyalar
@@ -440,9 +606,26 @@ SimulationBlock({ block, darkMode, language })
 | `vitest-runner` | npx vitest run → 3 test sırayla PASSED → coverage raporu paneli | typescriptData.js s9 (Test Runners) |
 | `jmeter-load-test` | jmeter -n -t → launching→rampup→firing→aggregating→done terminal + Aggregate Report tablosu | jmeterData.js (Gerçek Hayat) |
 | `cypress-time-travel` | ▶ Run → command log adım adım yeşil tikleniyor → geçmiş komuta tıkla → sağ panel o anki DOM snapshot'ına geri sarıyor | cypressData.js s4 (Zaman Yolculuğu) |
+| `git-snapshot-story` | Git'i komutsuz zihinsel modelle anlatır: proje klasörü → değişiklik → snapshot rafı → karşılaştırma → güvenli dönüş | gitGithubData.js (Giriş) |
+| `github-collaboration-story` | GitHub'ı takım akışı olarak gösterir: local branch → Pull Request → Actions checks → main | gitGithubData.js (Giriş) |
+| `git-concept-order-map` | Komut ezberinden önce Git/GitHub işlem sırasını gösterir: `git init` → `status` → `add` → `commit` → `origin` → `push main` → feature branch → `fetch/merge/pull` → local conflict çözümü | gitGithubData.js (Giriş) |
+| `git-terminal-shell-map` | Terminal penceresi, shell motoru ve Git programı farkını; `git status` komutunun terminal → shell → Git → `.git` → output yolculuğunu gösterir | gitGithubData.js (Kurulum) |
+| `git-terminal-install-use` | Git Bash/terminal için indir → kur → aç → `git --version` doğrula → IDE terminalde doğru klasörde kullan akışını gösterir | gitGithubData.js (Kurulum) |
+| `git-bash-open-folder` | Windows Explorer adres çubuğuna `cmd` yazmayı, klasörde `Git Bash Here` açmayı ve IDE terminalinde aynı proje klasöründe çalışmayı gösterir | gitGithubData.js (Kurulum) |
+| `git-bash-command-runner` | `pwd`, `ls`/`dir`, `cd`, `mkdir`, `touch`, `echo`, `cat`/`type`, `ipconfig`, `git --version` komutlarının ekrandaki sonucunu terminal geçmişiyle gösterir | gitGithubData.js (Kurulum) |
+| `git-install-os-setup` | Windows/macOS/Linux kurulum yolları → `git --version` doğrulaması → commit kimliği ayarı | gitGithubData.js (Kurulum) |
+| `git-three-areas` | working tree → staging area → local repository → GitHub remote snapshot akışı | gitGithubData.js (Giriş) |
+| `git-remote-origin-setup` | Local repo ile GitHub repo arasında `origin` bağlantısı kurmayı, `git remote -v` ile URL kontrolünü, ilk `push -u` upstream bağını ve credential manager uyarısını gösterir | gitGithubData.js (Git Temelleri) |
+| `git-branch-lab` | `git branch` → `git branch hasan` → `git switch hasan` → `git branch -m feature/hasan` → commit/push akışını görselleştirir | gitGithubData.js (Branching) |
+| `git-remote-branch-publish` | Local branch'in GitHub tarafında ilk kez remote branch olarak açılmasını, `push -u` upstream bağını ve sonraki kısa `git push` kullanımını gösterir | gitGithubData.js (Branching) |
+| `git-stash-flow` | Commit edilmeye hazır olmayan yarım işi `git stash` ile geçici rafa koymayı, branch değiştirip geri dönünce `git stash pop` ile çalışma alanına almayı gösterir | gitGithubData.js (Branching) |
+| `git-merge-lab` | `origin/main` güncellemelerinin feature branch içine merge edilmesini ve testle kanıtlanmasını gösterir | gitGithubData.js (Branching) |
+| `git-conflict-lab` | conflict marker → final dosya → test → `git add` → continue akışıyla conflict çözmeyi gösterir | gitGithubData.js (Branching) |
+| `github-pr-flow` | feature branch → commit → push → Pull Request → review → checks → merge akışı | gitGithubData.js (GitHub Akışı) |
+| `github-actions-pages` | push → workflow trigger → checkout → npm ci → test → build → Pages artifact → deploy → live domain | gitGithubData.js (Actions) |
 
 ### Build Durumu
-- ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, güncel toplam 25 route; bkz. `codexSeo.md`)
+- ✅ `npm run build` başarılı (SEO check + static route shell üretimi dahil, güncel toplam 28 route; bkz. `codexSeo.md`)
 - ✅ Production hedefi: GitHub Pages custom domain `https://learnqa.dev`
 - ⚠️ `javaData` chunk hâlâ ~665KB tek başına büyük (route-based code splitting sayesinde ana bundle ~239KB civarında, kritik değil)
 - Güncel commit/push durumu için bu dosyanın en üstündeki **"GÜNCEL DURUM"** bölümüne bak (tek kaynak — burada tekrar edilmiyor).

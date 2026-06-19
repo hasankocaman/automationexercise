@@ -386,6 +386,8 @@ function HomePage() {
                             </div>
                             <div className="p-2 flex flex-wrap gap-1">
                                 <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>🐳 Docker</Link>
+                                <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
+                                <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
@@ -518,6 +520,8 @@ function HomePage() {
                             <ul className="space-y-1.5">
                                 {[
                                     { to: '/docker', label: '🐳 Docker' },
+                                    { to: '/git-github', label: '🔀 Git/GitHub' },
+                                    { to: '/linux', label: '🐧 Linux' },
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
                                     { to: '/kafka', label: '🟠 Kafka' },
