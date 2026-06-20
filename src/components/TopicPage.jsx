@@ -3198,6 +3198,147 @@ function GitPracticeBlock({ block, darkMode, language }) {
     )
 }
 
+function CodeGuideBlock({ block, darkMode, language }) {
+    const title = tx(block.title, language) || (language === 'tr' ? 'Kod Rehberi' : 'Code Guide')
+    const items = block.items || []
+
+    return (
+        <div className={`mt-4 rounded-xl border overflow-hidden ${darkMode ? 'border-cyan-800 bg-cyan-950/20' : 'border-cyan-200 bg-cyan-50/70'}`}>
+            <div className={`px-4 py-3 flex items-center gap-2 border-b ${darkMode ? 'border-cyan-900 bg-cyan-950/50' : 'border-cyan-200 bg-cyan-100/70'}`}>
+                <span className="text-lg">{block.icon || '🔎'}</span>
+                <div className={`text-sm font-bold ${darkMode ? 'text-cyan-100' : 'text-cyan-900'}`}>{title}</div>
+                <span className={`ml-auto text-[10px] rounded-full px-2 py-1 font-bold animate-pulse ${darkMode ? 'bg-yellow-900/60 text-yellow-200' : 'bg-yellow-200 text-yellow-900'}`}>
+                    {language === 'tr' ? 'Neden?' : 'Why?'}
+                </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                {items.map((item, idx) => (
+                    <div key={idx} className={`group relative rounded-lg border p-3 text-xs ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-cyan-100 bg-white'}`}>
+                        <div className={`font-mono font-bold mb-2 ${darkMode ? 'text-cyan-300' : 'text-cyan-800'}`}>{tx(item.line, language)}</div>
+                        <div className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            <span className="font-bold">{language === 'tr' ? 'Anlamı: ' : 'Meaning: '}</span>{tx(item.meaning, language)}
+                        </div>
+                        <div className={`mt-2 rounded-md px-2 py-1.5 ${darkMode ? 'bg-emerald-950/40 text-emerald-200' : 'bg-emerald-50 text-emerald-800'}`}>
+                            <span className="font-bold">{language === 'tr' ? 'Neden gerekli: ' : 'Why needed: '}</span>{tx(item.why, language)}
+                        </div>
+                        <div className={`mt-2 rounded-md px-2 py-1.5 ${darkMode ? 'bg-red-950/40 text-red-200' : 'bg-red-50 text-red-800'}`}>
+                            <span className="font-bold">{language === 'tr' ? 'Yazılmazsa: ' : 'If missing: '}</span>{tx(item.missing, language)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+// ─── BackendPracticeBlock ────────────────────────────────────────────────────
+
+function BackendPracticeBlock({ block, darkMode, language }) {
+    const starter = tx(block.starterCode || block.starterCommands || '', language)
+    const [code, setCode] = useState(starter)
+    const [result, setResult] = useState(null)
+
+    useEffect(() => {
+        setCode(starter)
+        setResult(null)
+    }, [starter])
+
+    const runCheck = () => {
+        const expected = block.expectedSteps || []
+        let searchStart = 0
+        const checks = expected.map((step) => {
+            const re = new RegExp(step.pattern, 'im')
+            const slice = code.slice(searchStart)
+            const match = re.exec(slice)
+            const ok = !!match
+            if (ok) searchStart += match.index + Math.max(match[0].length, 1)
+            return {
+                label: tx(step.label, language),
+                ok,
+                example: step.example,
+            }
+        })
+
+        const warnings = []
+        ;(block.dangerousPatterns || []).forEach((item) => {
+            if (new RegExp(item.pattern, 'im').test(code)) {
+                warnings.push(tx(item.label, language))
+            }
+        })
+
+        const missing = checks.filter(check => !check.ok)
+        setResult({
+            ok: missing.length === 0,
+            checks,
+            warnings,
+            output: missing.length === 0
+                ? tx(block.successOutput, language)
+                : tx(block.retryOutput, language),
+        })
+    }
+
+    const title = tx(block.title, language) || 'Try It Yourself'
+    const intro = tx(block.intro, language)
+
+    return (
+        <div className={`mt-5 rounded-xl border overflow-hidden ${darkMode ? 'border-cyan-700 bg-gray-900' : 'border-cyan-200 bg-white'}`}>
+            <div className={`px-4 py-3 flex flex-wrap items-center gap-3 ${darkMode ? 'bg-cyan-950/60' : 'bg-cyan-50'}`}>
+                <span className="text-xl">{block.icon || '🧩'}</span>
+                <div className="min-w-0 flex-1">
+                    <div className={`text-sm font-bold ${darkMode ? 'text-cyan-200' : 'text-cyan-900'}`}>{title}</div>
+                    {intro && <div className={`text-xs mt-0.5 ${darkMode ? 'text-cyan-300/80' : 'text-cyan-700'}`}>{intro}</div>}
+                </div>
+                <button
+                    onClick={runCheck}
+                    className="rounded-md px-3 py-1.5 text-xs font-bold"
+                    style={{ background: '#0891b2', color: '#fff', minHeight: 36 }}
+                >
+                    {tx(block.buttonLabel, language) || (language === 'tr' ? '▶ Kontrol Et' : '▶ Check')}
+                </button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr]">
+                <textarea
+                    value={code}
+                    onChange={e => setCode(e.target.value)}
+                    spellCheck={false}
+                    style={{ minHeight: block.height || 290, background: '#0f172a', color: '#bae6fd', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, lineHeight: 1.65, border: 'none', outline: 'none', resize: 'vertical', padding: '16px', boxSizing: 'border-box' }}
+                />
+                <div className={`p-4 border-t lg:border-t-0 lg:border-l ${darkMode ? 'border-gray-700 bg-gray-950' : 'border-cyan-100 bg-cyan-50/50'}`}>
+                    {!result && (
+                        <div className={`text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {tx(block.help, language) || (language === 'tr'
+                                ? 'Kodu veya checklist’i burada düzenle, sonra kontrol et. Bu alan gerçek Supabase projesine bağlanmaz; sadece sıralama ve kritik parçaları denetler.'
+                                : 'Edit the code or checklist here, then check it. This area does not connect to a real Supabase project; it only validates order and critical pieces.')}
+                        </div>
+                    )}
+                    {result && (
+                        <div className="space-y-3">
+                            <div className={`rounded-lg border p-3 text-sm font-bold ${result.ok ? (darkMode ? 'border-green-700 bg-green-950/30 text-green-200' : 'border-green-300 bg-green-50 text-green-800') : (darkMode ? 'border-red-700 bg-red-950/30 text-red-200' : 'border-red-300 bg-red-50 text-red-800')}`}>
+                                {result.ok ? (language === 'tr' ? '✅ Akış tamam' : '✅ Flow complete') : (language === 'tr' ? '❌ Eksik veya yanlış sıra var' : '❌ Missing piece or wrong order')}
+                            </div>
+                            <div className="space-y-1">
+                                {result.checks.map((check, idx) => (
+                                    <div key={idx} className={`text-xs ${check.ok ? (darkMode ? 'text-green-300' : 'text-green-700') : (darkMode ? 'text-red-300' : 'text-red-700')}`}>
+                                        {check.ok ? '✓' : '×'} {check.label}
+                                        {!check.ok && check.example && <span className="font-mono opacity-70"> — {check.example}</span>}
+                                    </div>
+                                ))}
+                            </div>
+                            {result.warnings.map((warning, idx) => (
+                                <div key={idx} className={`text-xs rounded-md px-3 py-2 ${darkMode ? 'bg-yellow-950/40 text-yellow-200' : 'bg-yellow-50 text-yellow-800'}`}>⚠️ {warning}</div>
+                            ))}
+                            <div>
+                                <div className={`text-xs font-bold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{language === 'tr' ? 'Kontrol Sonucu' : 'Check Result'}</div>
+                                <pre className={`rounded-lg p-3 text-xs min-h-[74px] whitespace-pre-wrap ${darkMode ? 'bg-black text-cyan-300' : 'bg-slate-900 text-cyan-300'}`}>{result.output || (language === 'tr' ? 'Kontrol edildi.' : 'Checked.')}</pre>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── SimulationBlock ──────────────────────────────────────────────────────────
 
 function SimulationBlock({ block, darkMode, language }) {
@@ -8634,8 +8775,370 @@ pm.test("per_page is 6", () => {
         )
     }
 
+    const renderSupabaseProjectUiPlayground = () => {
+        const s = simState
+        const order = ['idle', 'project', 'tables', 'sql', 'auth', 'api', 'realtime', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const active = key => order.indexOf(key) === cur
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const nav = [
+            ['project', 'Project Home'],
+            ['tables', 'Table Editor'],
+            ['sql', 'SQL Editor'],
+            ['auth', 'Authentication'],
+            ['api', 'Project Settings'],
+            ['realtime', 'Realtime'],
+        ]
+        const tables = ['profiles', 'user_progress', 'badges', 'user_badges', 'feedback', 'chat_messages']
+        return (
+            <div style={{ width: '100%', maxWidth: 560, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ border: '1px solid #1f2937', borderRadius: 12, overflow: 'hidden', background: '#0b1120', color: '#e5e7eb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 11px', background: '#101827', borderBottom: '1px solid #1f2937' }}>
+                        <span style={{ width: 26, height: 26, borderRadius: 7, display: 'grid', placeItems: 'center', background: '#3ecf8e', color: '#052e1c', fontWeight: 900 }}>S</span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 11, color: '#94a3b8' }}>Supabase Dashboard</div>
+                            <div style={{ fontSize: 12, fontWeight: 850 }}>learnqa-backend</div>
+                        </div>
+                        <button onClick={() => canStart && runSteps([['project', 120], ['tables', 700], ['sql', 750], ['auth', 750], ['api', 750], ['realtime', 750], ['done', 600]])} disabled={!canStart} style={{ border: 0, borderRadius: 6, padding: '5px 9px', background: canStart ? '#3ecf8e' : '#334155', color: '#052e1c', fontSize: 10.5, fontWeight: 900, cursor: canStart ? 'pointer' : 'not-allowed' }}>
+                            {s === 'idle' ? (isTr ? '▶ Dashboard turu' : '▶ Dashboard tour') : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '132px minmax(0,1fr)', minHeight: 300 }}>
+                        <div style={{ borderRight: '1px solid #1f2937', background: '#0f172a', padding: 8 }}>
+                            {nav.map(([key, label]) => (
+                                <div key={key} style={{ padding: '8px 9px', borderRadius: 7, marginBottom: 4, background: active(key) ? '#3ecf8e22' : reached(key) ? '#064e3b55' : 'transparent', border: `1px solid ${active(key) ? '#3ecf8e' : 'transparent'}`, color: active(key) ? '#bbf7d0' : reached(key) ? '#86efac' : '#94a3b8', fontSize: 10.5, fontWeight: active(key) ? 850 : 650 }}>
+                                    {reached(key) ? '✓ ' : ''}{label}
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ padding: 12 }}>
+                            {(s === 'idle' || active('project')) && (
+                                <div style={{ display: 'grid', gap: 10 }}>
+                                    <div style={{ fontSize: 18, fontWeight: 900 }}>New project</div>
+                                    <div style={{ border: '1px solid #334155', borderRadius: 9, padding: 10, background: '#111827' }}>
+                                        <div style={{ fontSize: 10, color: '#94a3b8' }}>Name</div>
+                                        <div style={{ color: '#f8fafc', fontWeight: 850, fontSize: 12 }}>learnqa-backend</div>
+                                        <div style={{ marginTop: 8, fontSize: 10, color: '#94a3b8' }}>Region: Europe / Frankfurt · Plan: Free</div>
+                                    </div>
+                                </div>
+                            )}
+                            {active('tables') && (
+                                <div style={{ display: 'grid', gap: 8, animation: 'simFadeUp .25s ease-out' }}>
+                                    <div style={{ fontSize: 16, fontWeight: 900 }}>Table Editor</div>
+                                    {tables.map(table => (
+                                        <div key={table} style={{ border: '1px solid #334155', borderRadius: 8, padding: 8, background: '#111827', display: 'flex', justifyContent: 'space-between', fontSize: 10.5 }}>
+                                            <span>public.{table}</span><span style={{ color: '#86efac' }}>RLS ready</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {active('sql') && (
+                                <div style={{ border: '1px solid #334155', borderRadius: 9, overflow: 'hidden', background: '#020617', animation: 'simFadeUp .25s ease-out' }}>
+                                    <div style={{ padding: 8, background: '#111827', borderBottom: '1px solid #334155', fontSize: 10, color: '#94a3b8' }}>SQL Editor · New query</div>
+                                    <pre style={{ margin: 0, padding: 11, color: '#bbf7d0', fontSize: 9.5, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{`create table public.user_progress (...);
+alter table public.user_progress enable row level security;
+create policy "users read own progress" ...;`}</pre>
+                                    <div style={{ padding: 8, color: '#86efac', fontSize: 10 }}>✓ Success. No rows returned</div>
+                                </div>
+                            )}
+                            {active('auth') && (
+                                <div style={{ display: 'grid', gap: 9, animation: 'simFadeUp .25s ease-out' }}>
+                                    <div style={{ fontSize: 16, fontWeight: 900 }}>Authentication · Providers</div>
+                                    <div style={{ border: '1px solid #3ecf8e', borderRadius: 9, padding: 10, background: '#052e1c' }}>
+                                        <div style={{ fontSize: 12, fontWeight: 850 }}>Google</div>
+                                        <div style={{ color: '#bbf7d0', fontSize: 10, marginTop: 5 }}>Enabled · Client ID and Client Secret saved</div>
+                                    </div>
+                                </div>
+                            )}
+                            {active('api') && (
+                                <div style={{ display: 'grid', gap: 9, animation: 'simFadeUp .25s ease-out' }}>
+                                    <div style={{ fontSize: 16, fontWeight: 900 }}>Project Settings · API</div>
+                                    <div style={{ border: '1px solid #334155', borderRadius: 9, padding: 10, background: '#111827' }}>
+                                        <div style={{ fontSize: 10, color: '#94a3b8' }}>Project URL</div>
+                                        <code style={{ fontSize: 10, color: '#bae6fd' }}>https://abc.supabase.co</code>
+                                        <div style={{ marginTop: 8, fontSize: 10, color: '#94a3b8' }}>Publishable key: sb_publishable_...</div>
+                                    </div>
+                                </div>
+                            )}
+                            {(active('realtime') || active('done')) && (
+                                <div style={{ display: 'grid', gap: 9, animation: 'simFadeUp .25s ease-out' }}>
+                                    <div style={{ fontSize: 16, fontWeight: 900 }}>Realtime</div>
+                                    <div style={{ border: '1px solid #8b5cf6', borderRadius: 9, padding: 10, background: '#2e1065' }}>
+                                        <div style={{ fontSize: 12, fontWeight: 850 }}>chat_messages</div>
+                                        <div style={{ color: '#ddd6fe', fontSize: 10, marginTop: 5 }}>INSERT events are broadcast to online users.</div>
+                                    </div>
+                                    {active('done') && <div style={{ color: '#86efac', fontSize: 11, fontWeight: 850 }}>✓ Backend skeleton is ready for React integration.</div>}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #1f2937', background: '#101827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGoogleOauthUiPlayground = () => {
+        const s = simState
+        const order = ['idle', 'callback', 'client', 'origin', 'redirect', 'secret', 'login']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'login'
+        const active = key => order.indexOf(key) === cur
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        return (
+            <div style={{ width: '100%', maxWidth: 560, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ border: '1px solid #334155', borderRadius: 12, overflow: 'hidden', background: '#0f172a', color: '#e5e7eb' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#111827', borderBottom: '1px solid #334155' }}>
+                        <span style={{ width: 26, height: 26, borderRadius: 999, display: 'grid', placeItems: 'center', background: '#4285f4', color: '#fff', fontWeight: 900 }}>G</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 12, fontWeight: 850 }}>Google OAuth setup</div>
+                            <div style={{ color: '#94a3b8', fontSize: 10 }}>Supabase callback + Google Cloud client</div>
+                        </div>
+                        <button onClick={() => canStart && runSteps([['callback', 120], ['client', 760], ['origin', 760], ['redirect', 760], ['secret', 760], ['login', 760]])} disabled={!canStart} style={{ border: 0, borderRadius: 6, padding: '5px 9px', background: canStart ? '#4285f4' : '#334155', color: '#fff', fontSize: 10.5, fontWeight: 850, cursor: canStart ? 'pointer' : 'not-allowed' }}>
+                            {s === 'idle' ? (isTr ? '▶ OAuth kur' : '▶ setup OAuth') : s === 'login' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div style={{ border: `1px solid ${active('callback') || reached('secret') ? '#3ecf8e' : '#334155'}`, borderRadius: 10, background: active('callback') ? '#064e3b' : '#111827', padding: 10 }}>
+                                <div style={{ fontSize: 11, fontWeight: 850, color: '#bbf7d0' }}>Supabase · Google provider</div>
+                                <div style={{ marginTop: 8, color: '#94a3b8', fontSize: 9 }}>Callback URL</div>
+                                <code style={{ color: active('callback') ? '#fff' : '#bae6fd', fontSize: 9.5 }}>https://abc.supabase.co/auth/v1/callback</code>
+                                {reached('secret') && <div style={{ marginTop: 9, borderRadius: 7, padding: 7, background: '#052e1c', color: '#86efac', fontSize: 10 }}>✓ Client ID/Secret saved · Provider enabled</div>}
+                            </div>
+                            <div style={{ border: `1px solid ${active('client') || active('origin') || active('redirect') ? '#4285f4' : '#334155'}`, borderRadius: 10, background: active('client') || active('origin') || active('redirect') ? '#172554' : '#111827', padding: 10 }}>
+                                <div style={{ fontSize: 11, fontWeight: 850, color: '#dbeafe' }}>Google Cloud · Auth Platform</div>
+                                <div style={{ marginTop: 7, fontSize: 10, color: active('client') ? '#fff' : '#94a3b8' }}>Client type: Web application</div>
+                                <div style={{ marginTop: 7, fontSize: 10, color: active('origin') ? '#fff' : '#94a3b8' }}>Authorized JavaScript origins: learnqa.dev, localhost:5173</div>
+                                <div style={{ marginTop: 7, fontSize: 10, color: active('redirect') ? '#fff' : '#94a3b8' }}>Authorized redirect URIs: Supabase callback</div>
+                            </div>
+                        </div>
+                        <div style={{ border: '1px solid #334155', borderRadius: 10, background: '#020617', padding: 10 }}>
+                            <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 8 }}>Browser redirect flow</div>
+                            {['LearnQA.dev button', 'Supabase Auth', 'Google consent', 'Supabase callback', 'Session in app'].map((label, idx) => {
+                                const on = active('login') || (idx < cur && s !== 'idle')
+                                return (
+                                    <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginRight: 6, marginBottom: 6, borderRadius: 999, padding: '5px 8px', background: on ? '#1d4ed8' : '#1f2937', color: on ? '#fff' : '#94a3b8', fontSize: 9.5, fontWeight: 750 }}>
+                                        {on ? '✓' : idx + 1} {label}
+                                    </span>
+                                )
+                            })}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#111827', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderBackendProgressFlowPlayground = () => {
+        const s = simState
+        const order = ['idle', 'click', 'upsert', 'badge', 'return', 'resume']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'resume'
+        const active = key => order.indexOf(key) === cur
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        const steps = [
+            ['click', isTr ? 'Konu tamamlandı' : 'Topic completed'],
+            ['upsert', 'user_progress upsert'],
+            ['badge', isTr ? 'Badge kontrolü' : 'Badge check'],
+            ['return', isTr ? 'Kullanıcı geri döner' : 'User returns'],
+            ['resume', isTr ? 'Kaldığı yer açılır' : 'Resume point opens'],
+        ]
+        return (
+            <div style={{ width: '100%', maxWidth: 560, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ border: '1px solid #14532d', borderRadius: 12, overflow: 'hidden', background: '#052e16', color: '#dcfce7' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#064e3b', borderBottom: '1px solid #166534' }}>
+                        <span style={{ fontSize: 18 }}>📍</span>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, fontWeight: 850 }}>Progress / Resume Flow</div>
+                            <div style={{ color: '#bbf7d0', fontSize: 10 }}>React state → Supabase row → route restore</div>
+                        </div>
+                        <button onClick={() => canStart && runSteps([['click', 120], ['upsert', 760], ['badge', 760], ['return', 760], ['resume', 760]])} disabled={!canStart} style={{ border: 0, borderRadius: 6, padding: '5px 9px', background: canStart ? '#22c55e' : '#166534', color: '#052e16', fontSize: 10.5, fontWeight: 900, cursor: canStart ? 'pointer' : 'not-allowed' }}>
+                            {s === 'idle' ? (isTr ? '▶ progress kaydet' : '▶ save progress') : s === 'resume' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {steps.map(([key, label], idx) => (
+                                <div key={key} style={{ flex: '1 1 90px', minWidth: 90, borderRadius: 9, padding: 9, border: `1px solid ${active(key) ? '#86efac' : reached(key) ? '#22c55e' : '#166534'}`, background: active(key) ? '#16a34a' : reached(key) ? '#166534' : '#052e16', color: reached(key) || active(key) ? '#fff' : '#86efac', fontSize: 10, fontWeight: 800, textAlign: 'center', transition: 'all .3s' }}>
+                                    {reached(key) ? '✓ ' : `${idx + 1}. `}{label}
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div style={{ border: '1px solid #166534', borderRadius: 10, background: '#022c22', padding: 10 }}>
+                                <div style={{ fontSize: 10, color: '#86efac', marginBottom: 7 }}>Browser</div>
+                                <div style={{ borderRadius: 8, background: '#0f172a', padding: 9, color: '#e5e7eb', fontSize: 10 }}>
+                                    /selenium · tab: Waits<br />
+                                    topic: explicit-wait<br />
+                                    scrollY: {reached('click') ? '1840' : '0'}
+                                </div>
+                            </div>
+                            <div style={{ border: '1px solid #166534', borderRadius: 10, background: '#022c22', padding: 10 }}>
+                                <div style={{ fontSize: 10, color: '#86efac', marginBottom: 7 }}>Supabase row</div>
+                                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#bbf7d0', fontSize: 9.5, lineHeight: 1.55 }}>{reached('upsert') ? `user_id: auth.uid()
+lesson_slug: selenium
+topic_slug: explicit-wait
+status: completed
+updated_at: now()` : 'No saved progress yet.'}</pre>
+                            </div>
+                        </div>
+                        {reached('resume') && <div style={{ border: '1px solid #86efac', borderRadius: 9, padding: 9, background: '#14532d', color: '#dcfce7', fontSize: 11, fontWeight: 850 }}>✓ {isTr ? 'Geri dönen kullanıcı /selenium sayfasında aynı konuya yönlendirilir.' : 'Returning user is routed back to the same Selenium topic.'}</div>}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #166534', background: '#064e3b', color: '#bbf7d0', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderSupabaseRealtimeChatPlayground = () => {
+        const s = simState
+        const order = ['idle', 'type', 'insert', 'event', 'receive', 'presence']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'presence'
+        const active = key => order.indexOf(key) === cur
+        const reached = key => order.indexOf(key) <= cur && s !== 'idle'
+        return (
+            <div style={{ width: '100%', maxWidth: 560, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ border: '1px solid #4c1d95', borderRadius: 12, overflow: 'hidden', background: '#1e1b4b', color: '#ede9fe' }}>
+                    <div style={{ padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 8, background: '#2e1065', borderBottom: '1px solid #4c1d95' }}>
+                        <span style={{ fontSize: 18 }}>💬</span>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, fontWeight: 850 }}>LearnQA Chat</div>
+                            <div style={{ color: '#c4b5fd', fontSize: 10 }}>Postgres Changes · INSERT</div>
+                        </div>
+                        <button onClick={() => canStart && runSteps([['type', 120], ['insert', 720], ['event', 720], ['receive', 720], ['presence', 720]])} disabled={!canStart} style={{ border: 0, borderRadius: 6, padding: '5px 9px', background: canStart ? '#a78bfa' : '#4c1d95', color: '#1e1b4b', fontSize: 10.5, fontWeight: 900, cursor: canStart ? 'pointer' : 'not-allowed' }}>
+                            {s === 'idle' ? (isTr ? '▶ mesaj gönder' : '▶ send message') : s === 'presence' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gridTemplateColumns: '1fr 120px 1fr', gap: 10, alignItems: 'stretch' }}>
+                        <div style={{ border: '1px solid #4c1d95', borderRadius: 10, background: '#111827', padding: 10 }}>
+                            <div style={{ fontSize: 10, color: '#c4b5fd', marginBottom: 8 }}>User A · Hasan</div>
+                            <div style={{ borderRadius: 8, padding: 8, background: active('type') ? '#7c3aed' : '#312e81', fontSize: 10, minHeight: 46 }}>
+                                {reached('type') ? 'Selenium wait konusunda takıldım, öneri?' : isTr ? 'Mesaj yazılıyor...' : 'Typing...'}
+                            </div>
+                            {reached('insert') && <div style={{ marginTop: 8, color: '#86efac', fontSize: 10 }}>✓ insert into chat_messages</div>}
+                        </div>
+                        <div style={{ display: 'grid', alignContent: 'center', justifyItems: 'center', gap: 8 }}>
+                            <div style={{ width: 84, borderRadius: 10, padding: 9, background: active('event') ? '#7c3aed' : '#312e81', border: `1px solid ${active('event') ? '#ddd6fe' : '#4c1d95'}`, color: '#fff', textAlign: 'center', fontSize: 10, fontWeight: 850 }}>
+                                Realtime<br />channel
+                            </div>
+                            <div style={{ color: reached('event') ? '#ddd6fe' : '#6d5cae', fontSize: 18 }}>→</div>
+                        </div>
+                        <div style={{ border: '1px solid #4c1d95', borderRadius: 10, background: '#111827', padding: 10 }}>
+                            <div style={{ fontSize: 10, color: '#c4b5fd', marginBottom: 8 }}>User B · Ayşe</div>
+                            <div style={{ borderRadius: 8, padding: 8, background: reached('receive') ? '#312e81' : '#1f2937', fontSize: 10, minHeight: 46, color: reached('receive') ? '#ede9fe' : '#6b7280' }}>
+                                {reached('receive') ? 'Hasan: Selenium wait konusunda takıldım, öneri?' : isTr ? 'Yeni mesaj bekleniyor...' : 'Waiting for new message...'}
+                            </div>
+                            {reached('presence') && <div style={{ marginTop: 8, color: '#c4b5fd', fontSize: 10 }}>● 2 online members</div>}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #4c1d95', background: '#2e1065', color: '#c4b5fd', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
+        if (block.scenario === 'supabase-project-ui') {
+            const rows = [
+                ['Project', isTr ? 'Backend için ayrı Supabase projesi açılır.' : 'Create a dedicated Supabase project for the backend.'],
+                ['Tables', isTr ? 'Kullanıcıya özel veriler Postgres tablolarında saklanır.' : 'User-specific data lives in Postgres tables.'],
+                ['RLS', isTr ? 'auth.uid() ile kullanıcı sadece kendi satırına erişir.' : 'auth.uid() lets users access only their own rows.'],
+                ['Auth', isTr ? 'Google provider session üretir; şifre saklamazsın.' : 'Google provider creates sessions; you do not store passwords.'],
+                ['Realtime', isTr ? 'Chat INSERT eventleri açık tarayıcılara düşer.' : 'Chat INSERT events reach open browsers.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr
+                            ? 'Supabase panelini “backend kontrol odası” gibi düşün. Java’da package/package gezmek yerine burada Auth, Database ve Realtime ekranları arasında gezersin.'
+                            : 'Think of Supabase as the backend control room. Instead of moving across Java packages, you move across Auth, Database, and Realtime screens.'}
+                    </div>
+                    {rows.map(([label, desc], idx) => (
+                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-emerald-800 bg-emerald-950/20' : 'border-emerald-200 bg-emerald-50'}`}>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-emerald-200' : 'text-emerald-800'}`}>{idx + 1}. {label}</div>
+                            <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{desc}</div>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+        if (block.scenario === 'google-oauth-ui') {
+            const items = [
+                ['origin', isTr ? 'Authorized JavaScript origins tarayıcının geldiği domainleri tanımlar.' : 'Authorized JavaScript origins define where the browser comes from.'],
+                ['redirect', isTr ? 'Authorized redirect URI Google’ın kullanıcıyı nereye geri göndereceğini söyler.' : 'Authorized redirect URI tells Google where to send the user back.'],
+                ['callback', isTr ? 'Supabase callback session üretir ve uygulamaya döndürür.' : 'Supabase callback creates the session and returns to the app.'],
+            ]
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr
+                            ? 'OAuth hatalarının çoğu koddan değil config’ten gelir. redirect_uri_mismatch görürsen önce Google Cloud redirect URI ile Supabase callback URL birebir aynı mı bak.'
+                            : 'Most OAuth bugs come from config, not code. If you see redirect_uri_mismatch, first compare the Google redirect URI with the Supabase callback URL exactly.'}
+                    </div>
+                    {items.map(([label, desc]) => (
+                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-blue-800 bg-blue-950/20' : 'border-blue-200 bg-blue-50'}`}>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-blue-200' : 'text-blue-800'}`}>{label}</div>
+                            <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{desc}</div>
+                        </div>
+                    ))}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-purple-800 bg-purple-950/30 text-purple-200' : 'border-purple-200 bg-purple-50 text-purple-800'}`}>
+                        {isTr ? 'Java analojisi: redirect URI, servlet callback endpoint gibidir. Yanlış path verirsen request doğru controller’a hiç ulaşmaz.' : 'Java analogy: the redirect URI is like a servlet callback endpoint. Wrong path means the request never reaches the right controller.'}
+                    </div>
+                </div>
+            )
+        }
+        if (block.scenario === 'backend-progress-flow') {
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr
+                            ? 'Progress kaydında insert yerine upsert önemlidir. Aynı kullanıcı aynı konuya döndüğünde yeni satır üretmek yerine mevcut satır güncellenir.'
+                            : 'upsert matters for progress. When the same user returns to the same topic, you update the existing row instead of creating duplicates.'}
+                    </div>
+                    {[
+                        ['unique', 'user_id + lesson_slug + topic_slug'],
+                        ['write', 'upsert(row, onConflict)'],
+                        ['read', 'order updated_at desc limit 1'],
+                        ['resume', '/route + tab + scroll position'],
+                    ].map(([label, value]) => (
+                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-green-800 bg-green-950/20' : 'border-green-200 bg-green-50'}`}>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-green-200' : 'text-green-800'}`}>{label}</div>
+                            <code className={`text-xs ${darkMode ? 'text-green-300' : 'text-green-700'}`}>{value}</code>
+                        </div>
+                    ))}
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                        {isTr ? 'Java analojisi: UserProgress entity’sinde composite unique constraint koymak gibi.' : 'Java analogy: like adding a composite unique constraint to a UserProgress entity.'}
+                    </div>
+                </div>
+            )
+        }
+        if (block.scenario === 'supabase-realtime-chat') {
+            return (
+                <div className="space-y-3">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {isTr
+                            ? 'Realtime chat normal HTTP request değildir. Mesaj database’e yazılır, channel açık tarayıcılara INSERT eventini yayınlar.'
+                            : 'Realtime chat is not a normal HTTP request. The message is written to the database, and the channel broadcasts the INSERT event to open browsers.'}
+                    </div>
+                    {[
+                        ['insert', isTr ? 'Mesaj chat_messages tablosuna yazılır.' : 'Message is inserted into chat_messages.'],
+                        ['channel', 'supabase.channel("learnqa-chat")'],
+                        ['event', 'postgres_changes INSERT public.chat_messages'],
+                        ['payload', isTr ? 'payload.new UI state’e eklenir.' : 'payload.new is appended to UI state.'],
+                    ].map(([label, desc]) => (
+                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-violet-800 bg-violet-950/20' : 'border-violet-200 bg-violet-50'}`}>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-violet-200' : 'text-violet-800'}`}>{label}</div>
+                            <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{desc}</div>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
         if (block.scenario === 'git-snapshot-story') {
             const s = simState
             const order = ['idle', 'folder', 'change', 'snapshot', 'compare', 'restore']
@@ -11556,6 +12059,10 @@ pm.test("per_page is 6", () => {
                     {block.scenario === 'cypress-selector-playground' && renderCypressSelectorPlaygroundPlayground()}
                     {block.scenario === 'cypress-ci-pipeline' && renderCypressCiPipelinePlayground()}
                     {block.scenario === 'cypress-jquery-selectors' && renderCypressJqSelectorsPlayground()}
+                    {block.scenario === 'supabase-project-ui' && renderSupabaseProjectUiPlayground()}
+                    {block.scenario === 'google-oauth-ui' && renderGoogleOauthUiPlayground()}
+                    {block.scenario === 'backend-progress-flow' && renderBackendProgressFlowPlayground()}
+                    {block.scenario === 'supabase-realtime-chat' && renderSupabaseRealtimeChatPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}
@@ -11601,6 +12108,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             )
         case 'subheading':
             return <h4 key={i} className={h4Cls}>{tx(block.text || block.content, language)}</h4>
+        case 'code-guide':
+            return <CodeGuideBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'code':
             return (
                 <div key={i}>
@@ -11745,6 +12254,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'git-practice':
             return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'backend-practice':
+            return <BackendPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         // ── New block types ────────────────────────────────────────────────────
 

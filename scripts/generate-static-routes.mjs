@@ -34,6 +34,7 @@ const DATA_MODULES = {
     '/algorithms': { file: '../src/data/beginnerAlgorithmsData.js', exportName: 'beginnerAlgorithmsData' },
     '/advanced-algorithms': { file: '../src/data/algorithmsData.js', exportName: 'algorithmsData' },
     '/qa-mentor': { file: '../src/data/qaMentorData.js', exportName: null },
+    '/backend': { file: '../src/data/backendData.js', exportName: 'backendData' },
 }
 
 function escapeHtml(value) {

@@ -92,6 +92,7 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/azure` — Azure / Azure DevOps for QA
 - `/test-frameworks` — pytest, Selenium, Playwright karşılaştırma
 - `/java-document` — Java reference document reader
+- `/backend` — Basit Backend (Supabase tabanlı backend kurulum rehberi: auth/login, progress kaydı, rozetler, feedback, realtime chat, premium paywall)
 
 **Routing:**
 - `src/main.jsx` → `BrowserRouter` kullanır.
@@ -180,6 +181,7 @@ automationexercise/
 - **Static SEO shell üretimi:** Build sırasında her route için `robots.txt`, `sitemap.xml` ve crawl edilebilir static HTML shell üretilir (`scripts/generate-static-routes.mjs`). Detay: `codexSeo.md`.
 - **`/java-document`** sayfası `public/documents/` altındaki markdown dosyalarını okuyup client tarafında parse eder.
 - **Etkileşimli editör:** Her editör kendi sandbox'ında çalışır, global state'i kirletmez.
+- **Progress/rozet üyelik zorunlu değildir:** Ders ilerleme kaydı (kaldığı yerden devam) ve rozetler, kullanıcı üye/login olmadan da çalışmalıdır (anonim/local-first, örn. localStorage). Üyelik (Supabase Auth) bu deneyimi senkronize eden **opsiyonel** bir katmandır, ön koşul değildir. Üyelik/ödeme (premium paywall) özelliklerinin prod'a alınıp alınmayacağı ayrı bir karardır; bu kararın güncel durumu `NEXT_SESSION.md`'dedir.
 
 ---
 

@@ -75,6 +75,31 @@
 - **Dokunulmayan yerel değişiklik:** `src/data/cypressData.js` bu turda düzenlenmedi; önceki/kullanıcı değişikliği olarak korunmalı.
 - **Untracked yerel ayar dosyası:** `.claude/settings.local.json` dokunulmadı. `Documents/_Java notlar.md` ignore edilen yerel not dosyasıdır.
 
+## 🧩 Basit Backend / Auth / Premium — Durum ve Bekleyen Kararlar (2026-06-21)
+
+**Bu bölüm önemli — sıradaki oturumda buradan devam et.**
+
+### Mevcut durum
+- `/backend` route'u ve `src/components/BackendPage.jsx` + `src/data/backendData.js` **henüz commit edilmedi** (`git status` çıktısında `??` ile untracked görünüyor). İçerik Codex tarafından, Claude Code tarafından review edilerek aşamalı yazıldı: (1) temel backend rehberi (auth/login, progress, rozet, feedback, realtime chat), (2) Premium paywall (Stripe + iyzico Edge Functions, RLS, idempotent webhook'lar), (3) Modern Auth (Google/GitHub/Microsoft OAuth + şifresiz Magic Link).
+- **Önemli:** Bu sayfadaki her şey şu ana kadar sadece **öğretim içeriği** (kod örnekleri `backendData.js` string'lerinde) — sitede gerçek bir Supabase projesine bağlı, çalışan bir backend **yok**. `src/lib`, `.env*`, `supabase/` gibi gerçek entegrasyon dosyaları henüz oluşturulmadı.
+- `/backend` şu an canlıda (deploy edilirse) **herkese açık**; hiçbir auth/role kontrolü yok.
+
+### 2026-06-21 kararları (Hasan ile netleşti)
+1. **`/backend` sayfası gerçek admin-only olacak** — sadece görünürlük gizleme değil, gerçek Supabase Auth + admin rolü ile. Supabase projesi **sıfırdan** kurulacak.
+2. **Üyelik (membership) konusunda Hasan kararsız** → Supabase Auth/üyelik özelliği **sadece TEST ortamında** hazırlanacak, prod'a alınması ayrı ve sonraki bir karar. Prod'a alınana kadar canlı sitede gerçek üyelik/login akışı **aktif edilmeyecek**.
+3. **Yeni kalıcı gereksinim (bkz. `CLAUDE.md` Bölüm 5):** Progress kaydı (kaldığı yerden devam) ve rozetler, üyelik/login olmadan da çalışmalı — anonim/local-first (örn. localStorage) destek zorunlu, üyelik sadece opsiyonel senkronizasyon katmanı.
+
+### Bekleyen girdiler (bir sonraki oturumda Hasan'dan istenecek)
+- Supabase **Project URL** + **anon/publishable key** (test projesi sıfırdan kurulacaksa adım adım rehberlik gerekiyor).
+- Google OAuth provider'ının Supabase'te aktif olup olmadığı (Client ID/Secret durumu).
+- Admin hesabı: **gerçek e-posta hiçbir committed dosyaya yazılmayacak** — Hasan kendi Supabase SQL Editor'ünde kendi hesabını `is_admin = true` yapacak, Claude/Codex bu değeri görmeyecek/saklamayacak.
+- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) Hasan tarafından repo Settings > Secrets and variables > Actions'a eklenecek.
+
+### Sıradaki adım
+Yukarıdaki girdiler geldiğinde: (1) gerçek `src/lib/supabaseClient.js`, `AuthContext`, `RequireAdmin` route guard'ı App.jsx'e bağlanacak, (2) anonim/local-first progress+rozet mantığı (üyelik şart olmadan) backend tarafına eklenecek, (3) `.github/workflows/deploy.yml`'a env secret enjeksiyonu eklenecek.
+
+---
+
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 29. kısım — Git/GitHub Pull Request sekmesi)
 
 | Görev | Durum |

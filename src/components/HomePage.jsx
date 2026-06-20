@@ -388,6 +388,7 @@ function HomePage() {
                                 <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>🐳 Docker</Link>
                                 <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
                                 <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
+                                <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 Basit Backend</Link>
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
@@ -522,6 +523,7 @@ function HomePage() {
                                     { to: '/docker', label: '🐳 Docker' },
                                     { to: '/git-github', label: '🔀 Git/GitHub' },
                                     { to: '/linux', label: '🐧 Linux' },
+                                    { to: '/backend', label: language === 'tr' ? '🧩 Basit Backend' : '🧩 Simple Backend' },
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
                                     { to: '/kafka', label: '🟠 Kafka' },
@@ -545,7 +547,7 @@ function HomePage() {
                     {/* Stats Bar */}
                     <div className={`rounded-xl p-3 md:p-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 ${darkMode ? 'bg-gray-800' : 'bg-gray-800'}`}>
                         {[
-                            { num: '22+', label: language === 'tr' ? 'Teknoloji' : 'Technologies' },
+                            { num: '23+', label: language === 'tr' ? 'Teknoloji' : 'Technologies' },
                             { num: '1000+', label: language === 'tr' ? 'Mülakat Sorusu' : 'Interview Q&A' },
                             { num: '100%', label: language === 'tr' ? 'Ücretsiz' : 'Free to Use' },
                             { num: '4', label: language === 'tr' ? 'Etkileşimli Editör' : 'Live Editors' },

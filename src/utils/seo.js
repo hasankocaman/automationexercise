@@ -148,6 +148,11 @@ export const ROUTE_SEO = [
         title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı | LearnQA.dev',
         description: 'QA mühendisliği yolculuğunu planla. Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş zihin haritası ve öğrenme yolu oluştur.',
     },
+    {
+        path: '/backend',
+        title: 'Simple Backend Tutorial for QA Learning Apps | LearnQA.dev',
+        description: 'Learn how to add Google login, user progress, badges, feedback and realtime chat to a React learning platform with Supabase.',
+    },
 ]
 
 export function getSeoForPath(pathname) {
