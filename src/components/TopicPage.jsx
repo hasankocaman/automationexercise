@@ -1597,10 +1597,10 @@ function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
     }
 
     const label = status === 'saved'
-        ? (isTr ? 'Kaydedildi!' : 'Saved!')
+        ? (isTr ? '✅ Kaydedildi!' : '✅ Saved!')
         : status === 'error'
-            ? (isTr ? 'Kaydedilemedi, tekrar dene' : 'Could not save, try again')
-            : (isTr ? 'Kaldığın yeri kaydet' : 'Save progress')
+            ? (isTr ? '⚠️ Kaydedilemedi, tekrar dene' : '⚠️ Could not save, try again')
+            : (isTr ? '📍 Kaldığın yeri kaydet' : '📍 Save your progress')
 
     const colorClass = status === 'error'
         ? 'bg-rose-600 shadow-[0_4px_16px_rgba(220,38,38,0.5)]'
@@ -1615,7 +1615,7 @@ function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
                 disabled={status === 'saving'}
                 aria-label={label}
                 data-testid="save-progress-btn"
-                className={`flex h-11 w-11 items-center justify-center rounded-full border-none text-white transition-transform duration-200 hover:scale-110 ${colorClass} ${status === 'saving' ? 'cursor-wait' : 'cursor-pointer'}`}
+                className={`flex h-11 w-11 items-center justify-center rounded-full border-none text-white transition-transform duration-200 hover:scale-125 ${colorClass} ${status === 'saving' ? 'cursor-wait' : 'cursor-pointer'}`}
             >
                 {status === 'saving' ? (
                     <Loader2 size={20} className="animate-spin" />
@@ -1625,7 +1625,7 @@ function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
                     <Bookmark size={20} fill={status === 'saved' ? 'currentColor' : 'none'} />
                 )}
             </button>
-            <span className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+            <span className="pointer-events-none absolute bottom-full right-0 mb-2.5 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100">
                 {label}
             </span>
         </span>

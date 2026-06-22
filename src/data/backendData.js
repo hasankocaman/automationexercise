@@ -445,6 +445,8 @@ as $$
 declare
   resolved_full_name text;
   resolved_avatar_url text;
+  -- src/lib/avatarEmojis.js içindeki AVATAR_EMOJIS listesiyle birebir aynı sırada tutulmalı.
+  default_avatar_emoji text;
 begin
   -- Magic Link henüz tıklanmadıysa profile satırı üretme.
   -- Yazılmazsa: e-postasını doğrulamamış kişiler profiles içinde aktif kullanıcı gibi görünebilir.
@@ -466,19 +468,30 @@ begin
     new.raw_user_meta_data->>'picture'
   ), '');
 
-  insert into public.profiles (id, full_name, display_name, email, avatar_url)
+  -- İlk girişte rastgele bir emoji avatar atarız; Google fotoğrafı yüklenemese
+  -- veya hiç olmasa bile kullanıcı baştan düzgün görünen bir avatara sahip olur.
+  -- Yazılmazsa: yeni kullanıcı profil resmi gelene kadar boş/baş harf avatarla kalır.
+  default_avatar_emoji := (array[
+    '👩', '👨', '🧑', '👩‍🦰', '👨‍🦰', '👩‍🦱', '👨‍🦱', '👩‍🦳', '👨‍🦳',
+    '👩‍🦲', '👨‍🦲', '🤓', '😎', '👩‍💻', '👨‍💻', '🕵️‍♀️', '🕵️‍♂️'
+  ])[1 + floor(random() * 17)::int];
+
+  insert into public.profiles (id, full_name, display_name, email, avatar_url, avatar_emoji)
   values (
     new.id,
     resolved_full_name,
     resolved_full_name,
     new.email,
-    resolved_avatar_url
+    resolved_avatar_url,
+    default_avatar_emoji
   )
   on conflict (id) do update
   set full_name = coalesce(excluded.full_name, public.profiles.full_name),
       display_name = coalesce(excluded.display_name, public.profiles.display_name),
       email = coalesce(excluded.email, public.profiles.email),
-      avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url);
+      avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+      -- Var olan kullanıcının kendi seçtiği emoji'yi asla ezme; sadece hâlâ boşsa doldur.
+      avatar_emoji = coalesce(public.profiles.avatar_emoji, excluded.avatar_emoji);
 
   return new;
 end;

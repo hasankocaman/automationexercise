@@ -55,7 +55,7 @@ export default function ChatWidget() {
     return (
         <div className="fixed bottom-20 left-4 z-[999] flex flex-col items-start gap-3">
             {open && (
-                <div className="flex h-96 w-[20rem] flex-col overflow-hidden rounded-2xl border border-indigo-700/40 bg-slate-900 shadow-2xl">
+                <div className="flex max-h-[calc(100vh-7rem)] w-[min(20rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-indigo-700/40 bg-slate-900 shadow-2xl">
                     <div className="flex items-center justify-between bg-indigo-600 px-4 py-2.5">
                         <span className="text-sm font-bold text-white">
                             {isTr ? '💬 Üye Sohbeti' : '💬 Member Chat'}
@@ -134,14 +134,21 @@ export default function ChatWidget() {
                 </div>
             )}
 
-            <button
-                onClick={() => setOpen((prev) => !prev)}
-                data-testid="chat-widget-toggle"
-                title={isTr ? 'Üye sohbeti' : 'Member chat'}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-[0_4px_16px_rgba(79,70,229,0.5)] transition-transform hover:scale-110"
-            >
-                {open ? <X size={22} /> : <MessageCircle size={22} />}
-            </button>
+            <span className="group relative">
+                <button
+                    onClick={() => setOpen((prev) => !prev)}
+                    data-testid="chat-widget-toggle"
+                    aria-label={isTr ? 'Üye sohbeti' : 'Member chat'}
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-[0_4px_16px_rgba(79,70,229,0.5)] transition-transform duration-200 hover:scale-125"
+                >
+                    {open ? <X size={22} /> : <MessageCircle size={22} />}
+                </button>
+                {!open && (
+                    <span className="pointer-events-none absolute bottom-full left-0 mb-2.5 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100">
+                        {isTr ? '💬 Üye sohbetine katıl!' : '💬 Join the member chat!'}
+                    </span>
+                )}
+            </span>
         </div>
     )
 }

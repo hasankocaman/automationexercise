@@ -5,6 +5,7 @@ import RequireAdmin from './components/RequireAdmin'
 import AuthCallback from './components/AuthCallback'
 import LoginPage from './components/LoginPage'
 import ChatWidget from './components/ChatWidget'
+import CommentsWidget from './components/CommentsWidget'
 
 const HomePage = lazy(() => import('./components/HomePage'))
 const JMeterPage = lazy(() => import('./components/JMeterPage'))
@@ -50,6 +51,7 @@ function App() {
         <>
             <SeoMeta />
             <ChatWidget />
+            <CommentsWidget />
             <Suspense fallback={<RouteFallback />}>
                 <Routes>
                     <Route path="/" element={<HomePage />} />

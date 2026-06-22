@@ -6,7 +6,14 @@ import { useAuth } from '../context/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 import { loadComments, submitComment } from '../lib/commentsApi'
 
-function Avatar({ name, avatarUrl }) {
+function Avatar({ name, avatarUrl, avatarEmoji }) {
+    if (avatarEmoji) {
+        return (
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-slate-700 border border-white/30 text-base">
+                {avatarEmoji}
+            </div>
+        )
+    }
     if (avatarUrl) {
         return <img src={avatarUrl} alt={name} referrerPolicy="no-referrer" className="h-8 w-8 rounded-full object-cover" />
     }
@@ -21,7 +28,7 @@ function Avatar({ name, avatarUrl }) {
 // üyelik zorunlu değildir kararının sosyal kanıt amaçlı uzantısı — okuma her zaman serbest kalır).
 export default function CommentsSection({ pagePath, darkMode = true }) {
     const { language } = useLanguage()
-    const { session, displayName, avatarUrl } = useAuth()
+    const { session, displayName, avatarUrl, avatarEmoji } = useAuth()
     const navigate = useNavigate()
     const [comments, setComments] = useState([])
     const [draft, setDraft] = useState('')
@@ -45,7 +52,7 @@ export default function CommentsSection({ pagePath, darkMode = true }) {
         if (!cleaned) return
         setStatus('sending')
         try {
-            await submitComment({ userId: session.user.id, displayName, avatarUrl, pagePath, comment: cleaned })
+            await submitComment({ userId: session.user.id, displayName, avatarUrl, avatarEmoji, pagePath, comment: cleaned })
             setDraft('')
             const fresh = await loadComments(pagePath)
             setComments(fresh)
@@ -97,7 +104,7 @@ export default function CommentsSection({ pagePath, darkMode = true }) {
             <div className="space-y-3">
                 {comments.map((c) => (
                     <div key={c.id} className="flex gap-2.5">
-                        <Avatar name={c.display_name} avatarUrl={c.avatar_url} />
+                        <Avatar name={c.display_name} avatarUrl={c.avatar_url} avatarEmoji={c.avatar_emoji} />
                         <div className="min-w-0 flex-1">
                             <div className="flex items-baseline gap-2">
                                 <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
