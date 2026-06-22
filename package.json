@@ -6,6 +6,7 @@
   "description": "QA Learning Platform for Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools",
   "scripts": {
     "dev": "vite --host",
+    "dev:prod": "vite --host --mode prodtest",
     "build": "node scripts/check-seo.mjs && node scripts/generate-seo-files.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "seo:check": "node scripts/check-seo.mjs",
     "seo:check-dist": "node scripts/check-dist-seo.mjs",

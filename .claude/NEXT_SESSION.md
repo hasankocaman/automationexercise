@@ -79,7 +79,7 @@
 **Bu bölüm önemli — sıradaki oturumda buradan devam et.**
 
 ### Genel özet
-`/backend` artık tutorial olmaktan çıktı — gerçek, çalışan bir auth/progress sistemi var ve **test ortamında uçtan uca doğrulandı** (gerçek Google hesabıyla giriş, admin rolü, avatar, kaldığım yeri kaydet/devam et). Prod ortamı henüz aynı seviyeye getirilmedi (SQL adımları + GitHub Actions secret'ları eksik).
+`/backend` artık tutorial olmaktan çıktı — gerçek, çalışan bir auth/progress sistemi var ve **hem test hem prod ortamında uçtan uca doğrulandı** (gerçek Google hesabıyla giriş, admin rolü, avatar, kaldığım yeri kaydet/devam et). Kalan tek gerçek eksik: **GitHub Actions secret'ları + workflow enjeksiyonu** — o olmadan canlıya (learnqa.dev) push edilse auth çalışmaz, bu yüzden hâlâ push edilmedi.
 
 ### Mimari (onaylandı, değişmedi)
 - İki ayrı Supabase projesi: **`learnqa-test`** (`qtwargbbwuvrupfyowbg.supabase.co`, premium tam aktif, Stripe/iyzico sandbox) ve **`learnqa-prod`** (`qmvurwmcuexvuwvaiuhj.supabase.co`, gerçek üyelik, premium UI `VITE_ENABLE_PREMIUM=false` ile kapalı).
@@ -102,16 +102,25 @@
 2. **`profiles` sütunları eksikti:** `is_admin`/`is_premium`/`avatar_emoji` `learnqa-test`'te tam oluşmamıştı; profil sorgusu sessizce `400 (column does not exist)` veriyordu. **Ders:** `AuthContext.loadProfile()`'a eklenen `console.error` gerçek nedeni ortaya çıkardı — Supabase sorgusu sessiz başarısız olursa önce konsola gerçek hatayı yazdır, tahmin etme.
 3. **Premium RLS, `user_progress`'i `lessons` tablosuna (sadece 7 sayfa) bağlamıştı** — "kaldığım yeri kaydet" Java/JMeter/Docker gibi ~25 sayfada RLS hatasıyla başarısız oluyordu. `user_progress` policy'leri `can_access_lesson()` bağımlılığından çıkarıldı (paywall sadece `lesson_contents`'te kalmalı, progress kaydında değil).
 4. **Resume banner yanlış sekmeyi açıyordu:** `Link`'e `state={{ openTab }}` eklenmemişti, her zaman ilk sekme açılıyordu. Düzeltildi, JMeter > Orta Seviye senaryosuyla uçtan uca doğrulandı.
+5. **Google `redirect_uri_mismatch` (prod):** Google Cloud Console'a yazılan prod callback URL'inde iki harf (v/w) yer değiştirmişti (`qmvurwmcuexvu**vw**aiuhj` yerine gerçek ref `qmvurwmcuexvu**wv**aiuhj`) — gözle bakarak yakalanamayan bir typo. **Ders:** Bu tür uzun proje ref'lerini elle yazma/karşılaştırma; Supabase Authentication > Providers > Google panelindeki "Callback URL (for OAuth)" alanından **Copy** butonuyla kopyala, Google Cloud'a öyle yapıştır.
+6. **Prod'da "Üye" görünüyordu, "Admin" değil:** Sebep basit ama yanıltıcı — admin SQL'i (`update profiles set is_admin=true where id=(select id from auth.users where email=...)`), o hesap prod'da **hiç giriş yapmadan önce** çalıştırılmıştı; `auth.users`'ta satır yoktu, alt sorgu NULL döndü, UPDATE sessizce 0 satır etkiledi (hata YOK, "success" göründü). **Ders:** Bir kullanıcıyı SQL ile admin/önceden ayarlamak için önce o kullanıcının gerçekten en az bir kez giriş yapmış olması (yani `auth.users`/`profiles` satırının var olması) gerekir; UPDATE'in "success" demesi satırın gerçekten etkilendiği anlamına gelmez, eşleşen satır sayısını kontrol etmeden asla varsayma.
 
-### `learnqa-test`'te çalıştırılan SQL'ler (sırayla, hepsi başarılı)
-profiles sütunları (`full_name, email, is_admin, is_premium, premium_started_at, premium_until, payment_provider, avatar_emoji`) + column grant + auth.users backfill + kendi hesabını admin yapma + `NOTIFY pgrst, 'reload schema'` + `user_progress` policy düzeltmesi (madde 3).
+### Yerel test altyapısı (yeni — bu oturumda eklendi)
+- **`npm run dev`** → `.env.local` okur (`learnqa-test`).
+- **`npm run dev:prod`** → `.env.prodtest.local` okur (`learnqa-prod`, `VITE_ENABLE_PREMIUM=false`), `vite --mode prodtest` kullanır. **Bilerek `production` adı kullanılmadı** — Vite'ın `vite build` komutu varsayılan olarak `--mode production` çalışır; eğer dosya `.env.production.local` olsaydı normal `npm run build` (test'i doğrulamak için kullanılan komut) sessizce prod key'lerini okurdu. Bu çakışma `build` ile `grep` doğrulanarak test edildi, `prodtest` adı çakışmasız.
+- `.env.prodtest.local` `.gitignore`'da (`.env.*.local` kalıbı), gerçek prod anon key içeriyor ama commit edilmiyor.
 
-### `learnqa-prod` durumu
-- 2026-06-22'de Hasan'a `learnqa-prod` için test'tekiyle aynı SQL seti 5 parça halinde verildi (şema+sütunlar, RLS, trigger, backfill+admin, schema reload) — **Hasan'ın bunu gerçekten çalıştırıp çalıştırmadığı bir sonraki oturumda teyit edilmeli.** Çalıştırdıysa sırada: Supabase prod projesinde Authentication > Providers > Google'ı açması (Google Cloud redirect URI zaten eklenmişti) ve gerçek bir girişle test etmesi var.
-- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM=false`) repo'ya eklenmedi; `.github/workflows/deploy.yml`'a bu secret'ları build'e env olarak geçiren satırlar eklenmedi — **prod'a deploy edilse bile auth çalışmaz, bu yüzden push henüz yapılmadı (bilerek).**
+### `learnqa-test` ve `learnqa-prod`'da çalıştırılan SQL'ler — İKİSİ DE TAMAM
+Her iki projede de: profiles sütunları (`full_name, email, is_admin, is_premium, premium_started_at, premium_until, payment_provider, avatar_emoji`) + RLS policy'leri (idempotent, `drop policy if exists` ile) + `handle_verified_user` trigger + column grant + auth.users backfill + kendi hesabını admin yapma + `NOTIFY pgrst, 'reload schema'` + `user_progress` policy düzeltmesi (madde 3). **2026-06-22'de doğrulandı:** Parça 1 kontrol sorgusu `learnqa-prod`'da `6/8/2` döndü (tablo/sütun/badge sayıları doğru). Google OAuth redirect URI düzeltmesi sonrası gerçek Google girişi (`hasank4311@gmail.com`) `learnqa-prod`'da başarılı; admin SQL'i giriş SONRASI tekrar çalıştırılınca "👑 Admin" rozeti doğru göründü.
 
-### Sıradaki adım
-(1) `learnqa-prod`'da SQL setinin çalıştırıldığını teyit et + Google provider'ı prod'da aç + gerçek girişle test et, (2) `.github/workflows/deploy.yml`'a env secret enjeksiyonu ekle (prod secret'larıyla, test'le DEĞİL — bkz. aşağıdaki uyarı), (3) `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesini uçtan uca test et, (4) gerçek bir "Premium'a geç" UI'ı yazılınca `isPremiumEnabled` ile gate'le, (5) commit `9e82416`/`e0f05fd`/`ee4d74e` ve bu oturumun yeni commit'i push edilmeli — **ama önce (1) ve (2) tamamlanmadan push ETME**, yoksa learnqa.dev'de auth hiç çalışmaz.
+### Hâlâ eksik / sıradaki adım
+1. **GitHub Actions secret'ları** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM=false` — **prod değerleriyle**, `qmvurwmcuexvuwvaiuhj` projesi) repo Settings > Secrets and variables > Actions'a henüz eklenmedi.
+2. `.github/workflows/deploy.yml`'a bu secret'ları build adımına env olarak geçiren satırlar henüz eklenmedi.
+3. Bu ikisi tamamlanmadan **push ETME** — yoksa learnqa.dev'de auth/admin/progress/rozet hiç çalışmaz (env yok).
+4. `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesi hiç uçtan uca test edilmedi.
+5. Gerçek bir "Premium'a geç" UI'ı henüz yazılmadı (yazılınca `isPremiumEnabled` ile gate'lenmeli).
+6. GitHub/Microsoft OAuth provider'ları hâlâ devre dışı (login sayfasında buton var, arkası yok).
+7. Commit'ler: `9e82416`, `e0f05fd`, `ee4d74e`, `e7fdaa1` + bu oturumdaki `package.json` (`dev:prod` script) değişikliği henüz commit/push edilmedi.
 
 ---
 
