@@ -70,6 +70,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Kek yapmak istiyorsan önce malzemeleri koyar, sonra karıştırır, sonra fırına verirsin. Sırayı karıştırırsan kek güzel olmaz. Algoritma da bir işi doğru sırayla yapma tarifidir.',
                 why: 'Yazılım dili ne olursa olsun bilgisayara önce net bir tarif verirsin. Bilgisayar tahmin etmez; ne söylersen onu yapar.',
                 visual: 'recipe',
+                feynman: {
+                    keywords: ['tarif', 'sira', 'adim', 'tost', 'sonuc'],
+                    forbiddenWords: ['kod', 'programlama', 'syntax', 'compiler', 'degisken'],
+                    modelAnswer: 'Algoritma, kaybolmadan veya hata yapmadan bir işi bitirmek için takip ettiğimiz sıralı adımlardır. Tıpkı tost yaparken önce ekmeği alıp sonra ısıtmamız gibi, adımların sırası sonucu doğrudan belirler.'
+                },
+                recall: {
+                    question: 'Algoritmanın kelime anlamı nedir ve tost yaparken sırayı karıştırırsak ne olur?',
+                    answer: 'Algoritma sıralı adımlar tarifidir. Sırayı karıştırırsak (örneğin ekmeği koymadan tost makinesini ısıtırsak) çıktı (tost) hatalı olur veya hiç oluşmaz.'
+                },
                 game: {
                     type: 'sequence',
                     title: 'Tost yapma sırasını düzelt',
@@ -92,6 +101,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Bir meyve suyu makinesine portakal koyarsın, makine sıkar, bardakta meyve suyu çıkar. Portakal input, sıkma işlemi process, meyve suyu output olur.',
                 why: 'Bir program da bilgi alır, bu bilgiyle bir şey yapar ve sonuç üretir. Form doldurma, hesap makinesi, arama kutusu hep bu mantıkla çalışır.',
                 visual: 'machine',
+                feynman: {
+                    keywords: ['girdi', 'islem', 'cikti', 'makine', 'sonuc'],
+                    forbiddenWords: ['parameter', 'argument', 'function', 'return', 'data'],
+                    modelAnswer: 'Bir sisteme dışarıdan verdiğimiz malzemeye girdi (input), sistemin bu malzemeyle yaptığı işe işlem (process), en son çıkan ürüne ise çıktı (output) denir.'
+                },
+                recall: {
+                    question: 'Meyve sıkma makinesinde girdi, işlem ve çıktı nedir?',
+                    answer: 'Portakal girdi (input), makinenin sıkma eylemi işlem (process), bardaktaki meyve suyu ise çıktıdır (output).'
+                },
                 game: {
                     type: 'machine',
                     title: 'Makineye doğru girdiyi ver',
@@ -112,6 +130,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Hava yağmurluysa şemsiye alırsın. Yağmurlu değilse şemsiye almana gerek yoktur. Bu bir karar kuralıdır.',
                 why: 'Yazılımda buna condition denir. Login başarılıysa ana sayfaya git, değilse hata mesajı göster gibi kurallar condition ile kurulur.',
                 visual: 'decision',
+                feynman: {
+                    keywords: ['eger', 'hava', 'semsiye', 'karar', 'durum'],
+                    forbiddenWords: ['if', 'else', 'condition', 'boolean', 'statement'],
+                    modelAnswer: 'Karar yapısı, belirli bir şarta göre farklı yollar seçmektir. Örneğin hava yağmurluysa şemsiye alırız, değilse almayız. Bu durum sonucumuzu değiştirir.'
+                },
+                recall: {
+                    question: 'Yazılımda karar yapıları (condition) hangi kelimelerle kurulur ve gerçek hayattaki neye benzer?',
+                    answer: 'Yazılımda "eğer" (if) ve "değilse" (else) ile kurulur. Gerçek hayatta havanın durumuna göre şemsiye alma veya almama kararına benzer.'
+                },
                 game: {
                     type: 'decision',
                     title: 'Bugün ne giymeli?',
@@ -131,6 +158,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Bir sınıfta 5 öğrenci varsa öğretmen yoklamada her öğrenciye tek tek bakar. Her öğrenci için aynı soru tekrar edilir: burada mısın?',
                 why: 'Yazılımda bir listeyi gezmek, ürünleri ekrana yazmak, testleri tek tek çalıştırmak loop mantığıyla yapılır.',
                 visual: 'loop',
+                feynman: {
+                    keywords: ['tekrar', 'yildiz', 'dongu', 'limit', 'durmak'],
+                    forbiddenWords: ['for', 'while', 'loop', 'iteration', 'increment'],
+                    modelAnswer: 'Döngü, aynı işi belirli bir sınıra ulaşana kadar tekrar tekrar yapmaktır. Sınıra ulaşıldığında işlem kendiliğinden durur.'
+                },
+                recall: {
+                    question: 'Bir döngünün (loop) sonsuza kadar çalışmaması için neye ihtiyacı vardır?',
+                    answer: 'Döngünün durmasını sağlayacak bir şarta (limit/koşul) ve bu koşulu güncelleyen bir sayaca veya duruma ihtiyacı vardır.'
+                },
                 game: {
                     type: 'loop',
                     title: '5 yıldızı yak',
@@ -147,6 +183,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Bir kağıda “puanım 0” yazdığını düşün. Her doğru cevapta kağıttaki sayıyı silip 1 artırırsın. O kağıt senin hafızandır.',
                 why: 'Yazılımda buna variable denir. Kullanıcının adı, sepet toplamı, skor, kalan hak gibi bilgiler variable içinde tutulur.',
                 visual: 'memory',
+                feynman: {
+                    keywords: ['hafiza', 'kutu', 'bilgi', 'saklamak', 'degismek'],
+                    forbiddenWords: ['variable', 'integer', 'string', 'pointer', 'reference'],
+                    modelAnswer: 'Hafıza kutusu, bir bilgiyi daha sonra kullanmak üzere sakladığımız yerdir. Bu kutunun içindeki değer yeni bir bilgi geldiğinde güncellenebilir.'
+                },
+                recall: {
+                    question: 'Yazılımda hafıza kutusuna ne ad verilir ve skorumuz arttığında bu kutuda ne değişir?',
+                    answer: 'Yazılımda variable (değişken) denir. Skor arttığında kutunun içindeki eski değer silinir ve yerine 1 fazlası yazılır.'
+                },
                 game: {
                     type: 'memory',
                     title: 'Skoru artır',
@@ -163,6 +208,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Tost yanmışsa “ekmek mi yanlıştı, peynir mi yoktu, makine çok mu açıktı?” diye adım adım bakarsın. Hata bulmak budur.',
                 why: 'Yazılımda hata olduğunda paniklemek yerine adımları izlersin. Hangi input geldi, hangi karar verildi, hangi output çıktı?',
                 visual: 'debug',
+                feynman: {
+                    keywords: ['hata', 'adim', 'bozuk', 'bulmak', 'duzeltmek'],
+                    forbiddenWords: ['debugger', 'breakpoint', 'stacktrace', 'exception', 'compiler'],
+                    modelAnswer: 'Hata bulma (debug), bir işin neden yanlış gittiğini anlamak için adımları en baştan tek tek kontrol edip sorunlu adımı tespit etmektir.'
+                },
+                recall: {
+                    question: 'Tostumuz yandığında debug işlemi nasıl yapılır?',
+                    answer: 'Adımları geriye dönük inceleriz: Ekmek mi kalındı? Makine çok mu sıcak kaldı? Peynir mi erimedi? Hatayı bulup bir dahaki sefere süreyi ayarlarız.'
+                },
                 game: {
                     type: 'debug',
                     title: 'Bozuk algoritmayı düzelt',
@@ -184,6 +238,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Bir hazine haritası gibi düşün. Oklar sana önce nereye, sonra nereye gideceğini gösterir.',
                 why: 'Kod yazmadan önce flowchart çizmek kafayı toparlar. Programın nerede başlayıp nerede biteceğini görürsün.',
                 visual: 'flowchart',
+                feynman: {
+                    keywords: ['cizim', 'ok', 'harita', 'kutu', 'akis'],
+                    forbiddenWords: ['diagram', 'uml', 'schema', 'modeling', 'canvas'],
+                    modelAnswer: 'Akış şeması, yapacağımız işin adımlarını ve kararlarını kutular ve yön gösteren oklar kullanarak resimle çizmektir.'
+                },
+                recall: {
+                    question: 'Kod yazmadan önce akış şeması (flowchart) çizmek bize ne kazandırır?',
+                    answer: 'Kafamızın karışmasını önler, başlangıçtan bitişe kadar tüm yolları ve karar anlarını net bir şekilde görmemizi sağlar.'
+                },
                 game: {
                     type: 'flowchart',
                     title: 'Akışı tamamla',
@@ -332,6 +395,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'If you bake a cake, you add ingredients, mix them, then put the tray in the oven. If the order is wrong, the cake will not work. An algorithm is a correct order for doing a task.',
                 why: 'Whatever programming language you use, you first give the computer a clear recipe. The computer does not guess; it follows your steps.',
                 visual: 'recipe',
+                feynman: {
+                    keywords: ['recipe', 'order', 'step', 'toast', 'result'],
+                    forbiddenWords: ['code', 'programming', 'syntax', 'compiler', 'variable'],
+                    modelAnswer: 'An algorithm is an ordered set of steps followed to complete a task without getting lost. Just like taking the bread before heating it in toast making, the order of steps determines the result.'
+                },
+                recall: {
+                    question: 'What is the core definition of an algorithm, and what happens if we mix the steps?',
+                    answer: 'An algorithm is an ordered recipe. If we mix the steps, the output will be broken or not created at all.'
+                },
                 game: {
                     type: 'sequence',
                     title: 'Fix the toast-making order',
@@ -354,6 +426,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'You put oranges into a juicer, the machine squeezes them, and juice comes out. Orange is input, squeezing is process, juice is output.',
                 why: 'A program receives information, does something with it, and produces a result. Forms, calculators, and search boxes all work this way.',
                 visual: 'machine',
+                feynman: {
+                    keywords: ['input', 'process', 'output', 'machine', 'result'],
+                    forbiddenWords: ['parameter', 'argument', 'function', 'return', 'data'],
+                    modelAnswer: 'Input is the material we feed into a system, process is the action the system performs on that material, and output is the final product that comes out.'
+                },
+                recall: {
+                    question: 'In a juice maker machine, what are the input, process, and output?',
+                    answer: 'Orange is the input, squeezing is the process, and the glass of juice is the output.'
+                },
                 game: {
                     type: 'machine',
                     title: 'Give the machine the right input',
@@ -374,6 +455,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'If it is raining, you take an umbrella. If it is not raining, you do not need one. That is a decision rule.',
                 why: 'In software this is called a condition. If login succeeds, go to the home page; otherwise show an error message.',
                 visual: 'decision',
+                feynman: {
+                    keywords: ['if', 'weather', 'umbrella', 'decision', 'condition'],
+                    forbiddenWords: ['else', 'boolean', 'statement', 'operator', 'syntax'],
+                    modelAnswer: 'A decision is choosing different paths based on a condition. For example, if it is raining, we take an umbrella; otherwise, we do not. This changes our final outcome.'
+                },
+                recall: {
+                    question: 'How do we express decisions in programming, and what real-life example matches this?',
+                    answer: 'We express them using "if" and "else" conditions. It matches the real-life decision of taking an umbrella depending on whether it rains.'
+                },
                 game: {
                     type: 'decision',
                     title: 'What should I take today?',
@@ -393,6 +483,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'If there are 5 students in class, the teacher checks each student one by one. The same question repeats: are you here?',
                 why: 'Software uses loops to walk through lists, show products, and run tests one by one.',
                 visual: 'loop',
+                feynman: {
+                    keywords: ['repeat', 'star', 'loop', 'limit', 'stop'],
+                    forbiddenWords: ['for', 'while', 'iteration', 'increment', 'recursion'],
+                    modelAnswer: 'A loop is repeating the same action over and over until a certain limit is reached. Once the limit is met, the process stops by itself.'
+                },
+                recall: {
+                    question: 'What does a loop need to prevent it from running forever?',
+                    answer: 'It needs a termination condition (limit) and a way to update the state or counter to eventually meet that condition.'
+                },
                 game: {
                     type: 'loop',
                     title: 'Light 5 stars',
@@ -409,6 +508,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Imagine a note that says “score is 0”. For every correct answer, you erase the number and increase it by 1. That note is memory.',
                 why: 'In software this is called a variable. Names, cart totals, scores, and remaining tries are kept in variables.',
                 visual: 'memory',
+                feynman: {
+                    keywords: ['memory', 'box', 'store', 'information', 'change'],
+                    forbiddenWords: ['variable', 'integer', 'string', 'pointer', 'reference'],
+                    modelAnswer: 'A memory box is a place where we store information to use it later. The value inside this box can be updated when new information comes in.'
+                },
+                recall: {
+                    question: 'What is a memory box called in programming, and what happens when your score increases?',
+                    answer: 'It is called a variable. When the score increases, the old value inside the box is replaced with the new score.'
+                },
                 game: {
                     type: 'memory',
                     title: 'Increase the score',
@@ -425,6 +533,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'If toast is burnt, you check step by step: was the bread wrong, was the cheese missing, was the toaster too hot? That is debugging.',
                 why: 'When software fails, do not panic. Follow the steps: what input arrived, what decision was made, what output came out?',
                 visual: 'debug',
+                feynman: {
+                    keywords: ['error', 'step', 'broken', 'find', 'fix'],
+                    forbiddenWords: ['debugger', 'breakpoint', 'stacktrace', 'exception', 'compiler'],
+                    modelAnswer: 'Debugging is checking steps one by one from the beginning to find which step broke and caused the final error.'
+                },
+                recall: {
+                    question: 'How do you perform debugging if your toast gets burnt?',
+                    answer: 'You inspect the steps: Was the bread too thick? Was the heat too high? You find the error and adjust the timer next time.'
+                },
                 game: {
                     type: 'debug',
                     title: 'Fix the broken algorithm',
@@ -446,6 +563,15 @@ export const beginnerAlgorithmsData = {
                 analogy: 'Think of a treasure map. Arrows tell you where to go first and where to go next.',
                 why: 'Drawing a flowchart before code clears your mind. You see where the program starts and where it ends.',
                 visual: 'flowchart',
+                feynman: {
+                    keywords: ['drawing', 'arrow', 'map', 'box', 'flow'],
+                    forbiddenWords: ['diagram', 'uml', 'schema', 'modeling', 'canvas'],
+                    modelAnswer: 'A flowchart is drawing the steps and decisions of a task as a picture using boxes and arrows to show the direction.'
+                },
+                recall: {
+                    question: 'What is the main benefit of drawing a flowchart before writing code?',
+                    answer: 'It prevents confusion by letting you see all possible paths and decisions from start to finish.'
+                },
                 game: {
                     type: 'flowchart',
                     title: 'Complete the flow',

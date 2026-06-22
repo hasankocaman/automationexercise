@@ -4,6 +4,349 @@ import TopicHeader from './TopicHeader'
 import { useLanguage } from '../context/LanguageContext'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 
+const neuroLabels = {
+    tr: {
+        neuroModeToggle: '🧠 Nöro-Optimizasyon Modu',
+        neuroModeDesc: 'Aralıklı tekrar, Feynman tekniği ve aktif hatırlama ile öğrenme hızınızı 10 kat artırın.',
+        spacedRepTitle: 'Aralıklı Tekrar Takipçisi',
+        spacedRepStart: 'Öğrenme Döngüsünü Başlat',
+        spacedRepReset: 'Sıfırla',
+        spacedRepDone: 'Tamamlandı!',
+        spacedRepTodayDone: 'Bugünkü Tekrarı Tamamla',
+        spacedRepLocked: 'Kilitli',
+        spacedRepDay1: '1. Gün: Öğrenim',
+        spacedRepDay3: '3. Gün: Aktif Hatırlama',
+        spacedRepDay7: '7. Gün: Pekiştirme',
+        spacedRepDay30: '30. Gün: Kalıcılık',
+        feynmanTitle: '💬 Feynman Tekniği (5 Yaşındaki Çocuğa Anlatır Gibi)',
+        feynmanPrompt: 'Bu algoritmanın çalışma mantığını, 5 yaşındaki bir çocuğa anlatır gibi, teknik terim kullanmadan (basit kelimelerle) buraya yazın:',
+        feynmanCheck: 'Açıklarımı Bul & Kontrol Et',
+        feynmanKeywords: 'Anahtar Kavramlar:',
+        feynmanSuccess: 'Tebrikler! Konuyu başarıyla sadeleştirdiniz ve boşluklarınızı kapattınız.',
+        forbiddenWordsWarning: '⚠️ Dikkat! 5 yaşındaki bir çocuk için şu teknik terim(ler) çok ağır gelebilir: ',
+        activeRecallTitle: '🔍 Aktif Hatırlama (Active Recall) Sınaması',
+        activeRecallPrompt: 'Konunun ayrıntılarını açmak için aşağıdaki sorunun cevabını zihninizden çağırın, ardından kartı çevirip kendinizi test edin.',
+        activeRecallFlip: 'Kartı Çevir 🔄',
+        activeRecallGotIt: 'Hatırladım ✓ (İçeriği Aç)',
+        activeRecallFailed: 'Tekrar Bak ✗ (Kilitli Kalır)',
+        activeRecallLocked: '🔒 İçerik Kilitli: Lütfen yukarıdaki Aktif Hatırlama sorusunu yanıtlayın.',
+        interleavedPracticeTitle: '🔀 Zihinsel Vites Değiştirici (Interleaved Mode)',
+        interleavedPracticeDesc: 'Konuları doğrusal değil, beyni vites değiştirmeye zorlayan karışık sırayla çalışın.',
+    },
+    en: {
+        neuroModeToggle: '🧠 Neuro-Optimization Mode',
+        neuroModeDesc: 'Accelerate your learning speed 10x with spaced repetition, Feynman technique, and active recall.',
+        spacedRepTitle: 'Spaced Repetition Tracker',
+        spacedRepStart: 'Start Learning Cycle',
+        spacedRepReset: 'Reset',
+        spacedRepDone: 'Completed!',
+        spacedRepTodayDone: 'Complete Today\'s Review',
+        spacedRepLocked: 'Locked',
+        spacedRepDay1: 'Day 1: Learn',
+        spacedRepDay3: 'Day 3: Active Recall',
+        spacedRepDay7: 'Day 7: Reinforce',
+        spacedRepDay30: 'Day 30: Consolidate',
+        feynmanTitle: '💬 Feynman Technique (Explain to a 5-Year-Old)',
+        feynmanPrompt: 'Explain the working logic of this algorithm without using technical jargon (use simple terms), as if explaining to a 5-year-old:',
+        feynmanCheck: 'Find My Gaps & Verify',
+        feynmanKeywords: 'Key Concepts:',
+        feynmanSuccess: 'Congratulations! You successfully simplified the topic and filled your knowledge gaps.',
+        forbiddenWordsWarning: '⚠️ Warning! These technical terms might be too heavy for a 5-year-old: ',
+        activeRecallTitle: '🔍 Active Recall Challenge',
+        activeRecallPrompt: 'To unlock this topic\'s details, recall the answer to the question below, then flip the card to test yourself.',
+        activeRecallFlip: 'Flip Card 🔄',
+        activeRecallGotIt: 'I Recalled It ✓ (Unlock Content)',
+        activeRecallFailed: 'Study Again ✗ (Stays Locked)',
+        activeRecallLocked: '🔒 Content Locked: Please complete the Active Recall challenge above.',
+        interleavedPracticeTitle: '🔀 Mental Gear Shifter (Interleaved Mode)',
+        interleavedPracticeDesc: 'Study topics in a mixed order that forces the brain to switch tasks and context.',
+    }
+}
+
+function SpacedRepetitionTracker({ labels, darkMode }) {
+    const [cycle, setCycle] = useState(() => {
+        const saved = localStorage.getItem('algorithms_spaced_rep')
+        return saved ? JSON.parse(saved) : null
+    })
+
+    const startCycle = () => {
+        const newCycle = {
+            startDate: new Date().toISOString(),
+            completedDays: [1]
+        }
+        localStorage.setItem('algorithms_spaced_rep', JSON.stringify(newCycle))
+        setCycle(newCycle)
+    }
+
+    const resetCycle = () => {
+        localStorage.removeItem('algorithms_spaced_rep')
+        setCycle(null)
+    }
+
+    const completeDay = (day) => {
+        if (!cycle) return
+        const completedDays = [...cycle.completedDays]
+        if (!completedDays.includes(day)) {
+            completedDays.push(day)
+        }
+        const updated = { ...cycle, completedDays }
+        localStorage.setItem('algorithms_spaced_rep', JSON.stringify(updated))
+        setCycle(updated)
+    }
+
+    if (!cycle) {
+        return (
+            <div className={`rounded-xl border p-5 text-center transition-all duration-300 shadow-lg ${darkMode ? 'border-sky-500/20 bg-sky-950/20' : 'border-sky-200 bg-sky-50/50'}`}>
+                <h3 className="text-base font-black">{labels.spacedRepTitle}</h3>
+                <p className="mt-2 text-xs opacity-85 leading-relaxed">{labels.neuroModeDesc}</p>
+                <button onClick={startCycle} className="mt-4 min-h-10 rounded-lg bg-sky-600 hover:bg-sky-500 px-5 text-xs font-black text-white shadow-md hover:scale-105 transition duration-200">
+                    {labels.spacedRepStart}
+                </button>
+            </div>
+        )
+    }
+
+    const startDate = new Date(cycle.startDate)
+    const getTargetDate = (daysToAdd) => {
+        const d = new Date(startDate)
+        d.setDate(d.getDate() + daysToAdd)
+        return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+    }
+
+    const milestones = [
+        { day: 1, label: labels.spacedRepDay1, daysToAdd: 0 },
+        { day: 3, label: labels.spacedRepDay3, daysToAdd: 2 },
+        { day: 7, label: labels.spacedRepDay7, daysToAdd: 6 },
+        { day: 30, label: labels.spacedRepDay30, daysToAdd: 29 }
+    ]
+
+    return (
+        <div className={`rounded-xl border p-5 shadow-lg transition duration-300 ${darkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-200 bg-white'}`}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <h3 className="text-sm font-black flex items-center gap-2">
+                    <span>📅</span> {labels.spacedRepTitle}
+                </h3>
+                <button onClick={resetCycle} className={`min-h-8 rounded-lg px-3 text-[10px] font-black transition ${darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                    {labels.spacedRepReset}
+                </button>
+            </div>
+            
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                {milestones.map((ms) => {
+                    const isDone = cycle.completedDays.includes(ms.day)
+                    const targetDateStr = getTargetDate(ms.daysToAdd)
+                    const isPrevDone = ms.day === 1 || cycle.completedDays.includes(ms.day === 3 ? 1 : ms.day === 7 ? 3 : 7)
+                    const isAvailable = !isDone && isPrevDone
+                    
+                    return (
+                        <div key={ms.day} className={`rounded-lg border p-3 flex flex-col justify-between min-h-[110px] transition duration-200 ${isDone ? (darkMode ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-emerald-200 bg-emerald-50/30') : isAvailable ? (darkMode ? 'border-sky-500/40 bg-sky-500/5' : 'border-sky-200 bg-sky-50/30') : 'opacity-40'}`}>
+                            <div>
+                                <div className="text-[9px] font-bold opacity-60">{targetDateStr}</div>
+                                <div className={`mt-1 text-[11px] font-black leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{ms.label}</div>
+                            </div>
+                            <div className="mt-3">
+                                {isDone ? (
+                                    <span className="text-xs font-black text-emerald-400">{labels.spacedRepDone}</span>
+                                ) : isAvailable ? (
+                                    <button onClick={() => completeDay(ms.day)} className="w-full min-h-8 rounded bg-sky-600 hover:bg-sky-500 text-[10px] font-black text-white transition duration-150">
+                                        {labels.spacedRepTodayDone}
+                                    </button>
+                                ) : (
+                                    <span className="text-xs font-black opacity-45">{labels.spacedRepLocked}</span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+function FeynmanWorkspace({ lesson, labels, darkMode }) {
+    const [text, setText] = useState('')
+    const [checked, setChecked] = useState(false)
+    const [foundForbidden, setFoundForbidden] = useState([])
+
+    const normalize = (str) => {
+        return str
+            .toLowerCase()
+            .replace(/ı/g, 'i')
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+    }
+
+    const keywords = lesson.feynman?.keywords || []
+    const forbiddenWords = lesson.feynman?.forbiddenWords || []
+
+    const keywordMatches = useMemo(() => {
+        const normText = normalize(text)
+        return keywords.map(kw => {
+            const normKw = normalize(kw)
+            return {
+                word: kw,
+                matched: normText.includes(normKw)
+            }
+        })
+    }, [text, keywords])
+
+    const matchCount = keywordMatches.filter(m => m.matched).length
+    const scorePercentage = keywords.length > 0 ? (matchCount / keywords.length) * 100 : 0
+
+    const checkText = () => {
+        const normText = normalize(text)
+        const forbidden = forbiddenWords.filter(fw => normText.includes(normalize(fw)))
+        setFoundForbidden(forbidden)
+        setChecked(true)
+    }
+
+    return (
+        <div className={`mt-5 rounded-xl border p-4 transition-all duration-300 shadow-md ${darkMode ? 'border-slate-800 bg-slate-950/40 hover:border-sky-500/20' : 'border-slate-200 bg-slate-50/40 hover:border-sky-500/20'}`}>
+            <h4 className={`text-xs font-black flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                {labels.feynmanTitle}
+            </h4>
+            <p className="mt-2 text-[11px] opacity-80 leading-relaxed">{labels.feynmanPrompt}</p>
+            
+            <textarea
+                value={text}
+                onChange={(e) => {
+                    setText(e.target.value)
+                    setChecked(false)
+                }}
+                className={`mt-2 w-full min-h-[96px] rounded-lg border p-3 text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500 ${darkMode ? 'border-slate-700 bg-slate-900 text-slate-200 placeholder-slate-500' : 'border-slate-300 bg-white text-slate-800 placeholder-slate-400'}`}
+                placeholder="..."
+            />
+            
+            <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                    onClick={checkText}
+                    disabled={!text.trim()}
+                    className="min-h-9 rounded-lg bg-sky-600 disabled:opacity-50 hover:bg-sky-500 px-4 text-xs font-black text-white transition duration-150"
+                >
+                    {labels.feynmanCheck}
+                </button>
+                <button
+                    onClick={() => {
+                        setText('')
+                        setChecked(false)
+                        setFoundForbidden([])
+                    }}
+                    className={`min-h-9 rounded-lg px-4 text-xs font-black transition duration-150 ${darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                >
+                    {labels.reset || 'Reset'}
+                </button>
+            </div>
+
+            {checked && (
+                <div className="mt-4 space-y-4 border-t border-slate-700/30 pt-4 transition duration-300">
+                    {foundForbidden.length > 0 && (
+                        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-xs font-bold text-red-400 animate-pulse">
+                            {labels.forbiddenWordsWarning}
+                            <span className="font-mono bg-red-500/10 px-1 py-0.5 rounded">{foundForbidden.join(', ')}</span>
+                        </div>
+                    )}
+                    
+                    <div>
+                        <div className="text-xs font-black opacity-75">{labels.feynmanKeywords}</div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                            {keywordMatches.map((item) => (
+                                <span
+                                    key={item.word}
+                                    className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold border transition duration-200 ${item.matched ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 scale-105' : 'bg-slate-500/10 border-slate-850 text-slate-400'}`}
+                                >
+                                    {item.word} {item.matched ? '✓' : '✗'}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className={`rounded-lg border p-3 transition duration-200 ${darkMode ? 'border-slate-800 bg-slate-900/60' : 'border-slate-200 bg-white'}`}>
+                        <div className="text-[10px] font-black text-sky-400 uppercase tracking-wider">Model Açıklama / Model Answer</div>
+                        <p className="mt-1.5 text-xs leading-relaxed font-medium">{lesson.feynman?.modelAnswer}</p>
+                    </div>
+
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs font-black text-emerald-400">
+                        {labels.feynmanSuccess} (Kapsama Oranı: %{Math.round(scorePercentage)})
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+function RecallFlashcard({ lesson, labels, darkMode, onRecallComplete }) {
+    const [flipped, setFlipped] = useState(false)
+    const [status, setStatus] = useState(null)
+
+    useEffect(() => {
+        setFlipped(false)
+        setStatus(null)
+    }, [lesson])
+
+    const handleAnswer = (success) => {
+        setStatus(success ? 'success' : 'fail')
+        if (success) {
+            onRecallComplete()
+        }
+    }
+
+    const question = lesson.recall?.question || 'What is this algorithm?'
+    const answer = lesson.recall?.answer || 'No answer provided.'
+
+    return (
+        <div className={`rounded-xl border p-4 transition-all duration-300 shadow-md ${darkMode ? 'border-slate-850 bg-slate-900/30 hover:border-sky-500/20' : 'border-slate-200 bg-slate-50/50 hover:border-sky-500/20'}`}>
+            <div className="flex items-center justify-between gap-2">
+                <h4 className={`text-xs font-black flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {labels.activeRecallTitle}
+                </h4>
+                {status && (
+                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded transition duration-200 ${status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 scale-105' : 'bg-rose-500/10 text-rose-400 border border-rose-500/25'}`}>
+                        {status === 'success' ? 'Recalled ✓' : 'Study Again ✗'}
+                    </span>
+                )}
+            </div>
+            <p className="mt-2 text-[11px] opacity-80 leading-relaxed">{labels.activeRecallPrompt}</p>
+
+            <div className="mt-3 relative min-h-[110px] rounded-lg overflow-hidden border border-slate-700/20 bg-slate-950/20">
+                <div 
+                    onClick={() => setFlipped(!flipped)}
+                    className={`p-4 min-h-[110px] flex flex-col justify-center items-center text-center cursor-pointer transition-all duration-500 ${flipped ? 'bg-emerald-950/20' : 'bg-sky-950/20'}`}
+                >
+                    <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? '#10b981' : '#0ea5e9' }}>
+                        {flipped ? 'Cevap / Answer' : 'Soru / Question'}
+                    </div>
+                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-100'}`}>
+                        {flipped ? answer : question}
+                    </p>
+                    <div className="mt-3 text-[9px] font-bold opacity-60 border border-current rounded px-2 py-0.5 hover:opacity-100 transition select-none">
+                        {labels.activeRecallFlip}
+                    </div>
+                </div>
+            </div>
+
+            {flipped && (
+                <div className="mt-3 flex gap-2 justify-center">
+                    <button
+                        onClick={() => handleAnswer(true)}
+                        className={`min-h-8 rounded-lg px-3 text-[11px] font-black text-white transition duration-150 ${status === 'success' ? 'bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'}`}
+                    >
+                        {labels.activeRecallGotIt}
+                    </button>
+                    <button
+                        onClick={() => handleAnswer(false)}
+                        className={`min-h-8 rounded-lg px-3 text-[11px] font-black text-white transition duration-150 ${status === 'fail' ? 'bg-rose-600' : 'bg-slate-800 hover:bg-slate-700'}`}
+                    >
+                        {labels.activeRecallFailed}
+                    </button>
+                </div>
+            )}
+        </div>
+    )
+}
+
 function ScrollProgressBar() {
     const [progress, setProgress] = useState(0)
 
@@ -475,41 +818,73 @@ function QuestionBank({ data, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode }) {
+function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels }) {
+    const isUnlocked = !neuroMode || recallProgress[lesson.id] === 'recalled';
+
     return (
         <section id={lesson.id} className="scroll-mt-24">
-            <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/90' : 'border-slate-200 bg-white'}`}>
-                <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-black uppercase tracking-wide text-white" style={{ background: lesson.color }}>
-                        {lesson.shortTitle}
-                    </span>
-                    <span className={`inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black ${darkMode ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
-                        {labels.beginnerBadge}
-                    </span>
-                </div>
+            <div className={`rounded-lg border p-4 shadow-xl md:p-6 transition duration-300 ${darkMode ? 'border-slate-700 bg-slate-900/90' : 'border-slate-200 bg-white'}`}>
+                {neuroMode && !isUnlocked && (
+                    <div className="mb-5">
+                        <RecallFlashcard 
+                            lesson={lesson} 
+                            labels={nLabels} 
+                            darkMode={darkMode} 
+                            onRecallComplete={() => onRecallUpdate(lesson.id)} 
+                        />
+                    </div>
+                )}
 
-                <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{lesson.title}</h2>
-
-                <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                    <div className="grid gap-4">
-                        <div className={`rounded-lg border-l-4 p-4 text-sm leading-relaxed ${darkMode ? 'bg-amber-500/10 text-amber-100' : 'bg-amber-50 text-amber-900'}`} style={{ borderColor: '#f59e0b' }}>
-                            <div className="mb-1 text-xs font-black uppercase tracking-wide">{labels.lesson}</div>
-                            {lesson.analogy}
+                <div className="relative">
+                    {!isUnlocked && (
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-slate-950/50 backdrop-blur-md text-center p-4">
+                            <div className="rounded-full bg-slate-900/90 p-4 border border-cyan-500/30 text-3xl shadow-lg animate-pulse mb-3">🔒</div>
+                            <p className="text-xs font-black text-cyan-200 bg-slate-900/95 px-4 py-2 rounded-lg border border-cyan-500/20 shadow-md max-w-xs leading-normal">
+                                {nLabels.activeRecallLocked}
+                            </p>
                         </div>
-                        <div className={`rounded-lg border p-4 text-sm leading-relaxed ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
-                            <div className="mb-1 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.why}</div>
-                            {lesson.why}
+                    )}
+
+                    <div className={!isUnlocked ? "blur-sm select-none pointer-events-none" : ""}>
+                        <div className="mb-4 flex flex-wrap items-center gap-2">
+                            <span className="inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-black uppercase tracking-wide text-white" style={{ background: lesson.color }}>
+                                {lesson.shortTitle}
+                            </span>
+                            <span className={`inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black ${darkMode ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
+                                {labels.beginnerBadge}
+                            </span>
+                        </div>
+
+                        <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{lesson.title}</h2>
+
+                        <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+                            <div className="grid gap-4">
+                                <div className={`rounded-lg border-l-4 p-4 text-sm leading-relaxed ${darkMode ? 'bg-amber-500/10 text-amber-100' : 'bg-amber-50 text-amber-900'}`} style={{ borderColor: '#f59e0b' }}>
+                                    <div className="mb-1 text-xs font-black uppercase tracking-wide">{labels.lesson}</div>
+                                    {lesson.analogy}
+                                </div>
+                                <div className={`rounded-lg border p-4 text-sm leading-relaxed ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
+                                    <div className="mb-1 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.why}</div>
+                                    {lesson.why}
+                                </div>
+                            </div>
+                            <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/70' : 'border-slate-200 bg-slate-50'}`}>
+                                <ConceptVisual lesson={lesson} labels={labels} darkMode={darkMode} />
+                            </div>
+                        </div>
+
+                        <div className="mt-5">
+                            <div className="mb-3 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.tryIt}</div>
+                            <GameBlock lesson={lesson} labels={labels} darkMode={darkMode} />
                         </div>
                     </div>
-                    <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/70' : 'border-slate-200 bg-slate-50'}`}>
-                        <ConceptVisual lesson={lesson} labels={labels} darkMode={darkMode} />
-                    </div>
                 </div>
 
-                <div className="mt-5">
-                    <div className="mb-3 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.tryIt}</div>
-                    <GameBlock lesson={lesson} labels={labels} darkMode={darkMode} />
-                </div>
+                {neuroMode && isUnlocked && (
+                    <div className="mt-6 border-t pt-5">
+                        <FeynmanWorkspace lesson={lesson} labels={nLabels} darkMode={darkMode} />
+                    </div>
+                )}
             </div>
         </section>
     )
@@ -519,8 +894,57 @@ function AlgorithmsPage() {
     const { language } = useLanguage()
     const [darkMode, setDarkMode] = useDarkModeState()
     const data = beginnerAlgorithmsData[language] || beginnerAlgorithmsData.tr
-    const [activeId, setActiveId] = useState(data.lessons[0].id)
-    const lessonIds = useMemo(() => data.lessons.map(lesson => lesson.id), [data.lessons])
+    
+    // Neuro labels
+    const nLabels = neuroLabels[language] || neuroLabels.tr
+
+    // Neuro-Optimization Mode Toggle State
+    const [neuroMode, setNeuroMode] = useState(() => {
+        const saved = localStorage.getItem('algorithms_neuro_mode')
+        return saved !== null ? JSON.parse(saved) : true
+    })
+
+    useEffect(() => {
+        localStorage.setItem('algorithms_neuro_mode', JSON.stringify(neuroMode))
+    }, [neuroMode])
+
+    // Interleaved Mod Toggle State
+    const [isInterleaved, setIsInterleaved] = useState(() => {
+        const saved = localStorage.getItem('algorithms_interleaved_mode')
+        return saved !== null ? JSON.parse(saved) : false
+    })
+
+    useEffect(() => {
+        localStorage.setItem('algorithms_interleaved_mode', JSON.stringify(isInterleaved))
+    }, [isInterleaved])
+
+    // Active Recall Progress State
+    const [recallProgress, setRecallProgress] = useState(() => {
+        const saved = localStorage.getItem('algorithms_recall_progress')
+        return saved ? JSON.parse(saved) : {}
+    })
+
+    const handleRecallUpdate = (lessonId) => {
+        const updated = { ...recallProgress, [lessonId]: 'recalled' }
+        localStorage.setItem('algorithms_recall_progress', JSON.stringify(updated))
+        setRecallProgress(updated)
+    }
+
+    // Interleave Effect Shuffling (determinstic for render consistency)
+    const interleavedLessons = useMemo(() => {
+        if (!isInterleaved) return data.lessons
+        const shuffled = [...data.lessons]
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = (i * 7 + 3) % shuffled.length
+            const temp = shuffled[i]
+            shuffled[i] = shuffled[j]
+            shuffled[j] = temp
+        }
+        return shuffled
+    }, [data.lessons, isInterleaved])
+
+    const [activeId, setActiveId] = useState(interleavedLessons[0].id)
+    const lessonIds = useMemo(() => interleavedLessons.map(lesson => lesson.id), [interleavedLessons])
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -565,6 +989,18 @@ function AlgorithmsPage() {
                                 <Link to="/advanced-algorithms" className="inline-flex min-h-11 items-center rounded-lg border border-cyan-400/40 bg-cyan-500/10 px-4 text-sm font-black text-cyan-200 shadow-lg shadow-cyan-500/10 transition hover:scale-105 hover:bg-cyan-500/20">
                                     {data.hero.advancedLabel}
                                 </Link>
+                                <button 
+                                    onClick={() => setNeuroMode(!neuroMode)} 
+                                    className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${neuroMode ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-600/25 animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
+                                >
+                                    {nLabels.neuroModeToggle} {neuroMode ? '✓' : ''}
+                                </button>
+                                <button 
+                                    onClick={() => setIsInterleaved(!isInterleaved)} 
+                                    className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${isInterleaved ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white shadow-cyan-600/25' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
+                                >
+                                    {nLabels.interleavedPracticeTitle} {isInterleaved ? '✓' : ''}
+                                </button>
                             </div>
                         </div>
                         <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
@@ -582,16 +1018,23 @@ function AlgorithmsPage() {
                     </div>
                 </section>
 
+                {/* Spaced Repetition Tracker when neuroMode is active */}
+                {neuroMode && (
+                    <div className="mt-6">
+                        <SpacedRepetitionTracker labels={nLabels} darkMode={darkMode} />
+                    </div>
+                )}
+
                 <div className="mt-6 grid gap-5 lg:grid-cols-[245px_1fr]">
                     <aside className="lg:sticky lg:top-24 lg:self-start">
                         <nav className={`rounded-lg border p-3 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`} aria-label={data.page.navTitle}>
                             <div className={`mb-3 text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.page.navTitle}</div>
                             <div className="grid gap-2">
-                                {data.lessons.map(lesson => (
+                                {interleavedLessons.map(lesson => (
                                     <button
                                         key={lesson.id}
                                         onClick={() => navTo(lesson.id)}
-                                        className={`min-h-10 rounded-lg border px-3 text-left text-sm font-bold transition-all ${activeId === lesson.id ? 'text-white' : darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
+                                        className={`min-h-10 rounded-lg border px-3 text-left text-xs font-bold transition-all ${activeId === lesson.id ? 'text-white' : darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
                                         style={activeId === lesson.id ? { background: lesson.color, borderColor: lesson.color } : {}}
                                     >
                                         {lesson.shortTitle}
@@ -600,7 +1043,7 @@ function AlgorithmsPage() {
                             </div>
                             <button
                                 onClick={() => navTo('practice-questions')}
-                                className={`mt-2 min-h-10 w-full rounded-lg border px-3 text-left text-sm font-bold transition-all ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
+                                className={`mt-2 min-h-10 w-full rounded-lg border px-3 text-left text-xs font-bold transition-all ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
                             >
                                 {data.page.questionsNav}
                             </button>
@@ -611,8 +1054,17 @@ function AlgorithmsPage() {
                     </aside>
 
                     <div className="grid gap-6">
-                        {data.lessons.map(lesson => (
-                            <LessonCard key={lesson.id} lesson={lesson} labels={data.page} darkMode={darkMode} />
+                        {interleavedLessons.map(lesson => (
+                            <LessonCard 
+                                key={lesson.id} 
+                                lesson={lesson} 
+                                labels={data.page} 
+                                darkMode={darkMode} 
+                                neuroMode={neuroMode}
+                                recallProgress={recallProgress}
+                                onRecallUpdate={handleRecallUpdate}
+                                nLabels={nLabels}
+                            />
                         ))}
 
                         <QuestionBank data={data} darkMode={darkMode} />

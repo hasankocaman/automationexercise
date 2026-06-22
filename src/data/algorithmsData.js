@@ -55,6 +55,15 @@ export const algorithmsData = {
                 qaUse: "Test case tasarlarken path'leri ayirirsin, bug triage yaparken kriterlere gore siralarsin, flaky test ararken ihtimal alanini daraltirsin.",
                 javaCompare: "Java'da bir method nasil input alip sonuc donduruyorsa, algorithm de ayni zihinsel modeldir. Method body'si adimlarin kod hali, unit test'ler de bu adimlarin dogrulamasidir.",
                 visualKind: "flow",
+                feynman: {
+                    keywords: ['parca', 'problem', 'adim', 'tarif', 'cozum'],
+                    forbiddenWords: ['recursive', 'function', 'class', 'object', 'data'],
+                    modelAnswer: 'Algoritmik düşünme, büyük ve karmaşık bir problemi daha küçük, çözülebilir parçalara bölerek adım adım bir tarif oluşturmaktır.'
+                },
+                recall: {
+                    question: 'Algoritmik düşünmede "tarif" (adım adım yaklaşım) neden önemlidir?',
+                    answer: 'Çünkü bilgisayar tahmin etmez. Karmaşık bir problemi çözmek için sıralı, net ve edge case\'leri düşünülmüş adımlar tasarlamak zorundayız.'
+                },
                 complexity: ["Net adim", "Tekrar edilebilir sonuc", "Edge case farkindaligi"],
                 blocks: [
                     {
@@ -98,6 +107,15 @@ export const algorithmsData = {
                 qaUse: "Release oncesi hata listesini impact, frequency ve workaround durumuna gore siralamak icin kullanilir.",
                 javaCompare: "Java'da `Collections.sort(list, comparator)` ile yaptigin sey budur. Comparator QA dunyasinda `payment > auth > cosmetic` gibi is kurali tasir.",
                 visualKind: "sort",
+                feynman: {
+                    keywords: ['siralamak', 'kural', 'karsilastirmak', 'oncelik', 'buyuk'],
+                    forbiddenWords: ['sort', 'collections', 'comparator', 'complexity', 'array'],
+                    modelAnswer: 'Sıralama, elimizdeki elemanları belirli bir kurala (büyüklük, risk, önem derecesi vb.) göre yan yana dizip karşılaştırarak düzene sokma işidir.'
+                },
+                recall: {
+                    question: 'QA mülakatlarında ve triage işlemlerinde sıralama (sorting) nasıl kullanılır?',
+                    answer: 'Hataları (bug) risk puanı, frekans ve etki durumlarına göre karşılaştırıp en kritik olandan en hafife doğru sıralamak için kullanılır.'
+                },
                 complexity: ["Comparison sort: O(n log n)", "Tek tek arama: O(n)", "Yanlis kriter: dogru siralama degil"],
                 blocks: [
                     {
@@ -183,6 +201,15 @@ assert bugs.get(0).isReleaseBlocker();                   // Ilk siradaki bug rel
                 qaUse: "Regression hangi commit'te basladi, hangi test data araligi patliyor, hangi config degeri timeout uretir gibi durumlarda kullanilir.",
                 javaCompare: "Java'daki `Collections.binarySearch` sadece sirali listede calisir. QA'daki karsiligi da ayni: commit'ler zaman sirasinda, test datalari artan degerde olmalidir.",
                 visualKind: "binary",
+                feynman: {
+                    keywords: ['arama', 'ikiye', 'orta', 'sirali', 'eleman'],
+                    forbiddenWords: ['binary', 'index', 'pointer', 'search', 'recursion'],
+                    modelAnswer: 'İkili arama (binary search), sıralı bir listenin ortasındaki elemana bakıp, aradığımız şeyden büyükse sol yarısını, küçükse sağ yarısını seçerek arama alanını her adımda yarı yarıya daraltma yöntemidir.'
+                },
+                recall: {
+                    question: 'Binary search yapmak için arama yapacağımız listenin en önemli şartı nedir?',
+                    answer: 'Listenin mutlaka sıralı (sorted) olması gerekir. Aksi takdirde sağa mı sola mı gideceğimizi belirleyemeyiz.'
+                },
                 complexity: ["Linear search: O(n)", "Binary search: O(log n)", "On kosul: sirali alan"],
                 blocks: [
                     {
@@ -237,6 +264,15 @@ Commit firstBadCommit = commits.get(low);               // Ilk bozan commit bulu
                 qaUse: "E-commerce checkout, onboarding wizard, role-based menu ve microservice dependency akislari graph gibi modellenebilir.",
                 javaCompare: "Java'da `Map<Page, List<Page>>` adjacency list yazarsin. BFS icin `Queue`, DFS icin `Stack` veya recursion kullanirsin.",
                 visualKind: "graph",
+                feynman: {
+                    keywords: ['agac', 'akis', 'gezmek', 'derinlik', 'genislik'],
+                    forbiddenWords: ['dfs', 'bfs', 'node', 'graph', 'tree', 'queue', 'stack'],
+                    modelAnswer: 'Graf veya ağaç gezme, birbirine oklarla/bağlarla bağlı noktalar (sayfalar, adımlar) arasında kaybolmadan tüm yolları adım adım tarama işidir.'
+                },
+                recall: {
+                    question: 'Test otomasyonunda web sayfalarındaki checkout akışlarını veya linkleri gezerken DFS ve BFS nasıl kullanılır?',
+                    answer: 'Derinlemesine arama (DFS) bir yolu sonuna kadar gidip test etmek için, enlemesine arama (BFS) ise önce tüm yakın sayfaları (ana menü elemanlarını) test etmek için kullanılır.'
+                },
                 complexity: ["BFS/DFS: O(V + E)", "V: sayfa/state sayisi", "E: gecis sayisi"],
                 blocks: [
                     {
@@ -312,6 +348,15 @@ while (!queue.isEmpty()) {                              // Kuyruk bosalana kadar
                 qaUse: "Button disabled -> loading -> enabled -> submitted akisini modelleyerek flaky click ve premature assertion problemlerini azaltir.",
                 javaCompare: "Java'da enum tabanli state machine yazarsin: `DISABLED`, `LOADING`, `READY`, `SUBMITTED`. Testte her transition icin assertion koyarsin.",
                 visualKind: "state",
+                feynman: {
+                    keywords: ['durum', 'gecis', 'kural', 'tetikleyici', 'makine'],
+                    forbiddenWords: ['state', 'machine', 'transition', 'automata', 'enum'],
+                    modelAnswer: 'Durum makinesi, bir sistemin o an hangi konumda (durumda) olduğunu ve hangi eylemlerle (tetikleyicilerle) hangi yeni duruma geçebileceğini belirleyen kurallar bütünüdür.'
+                },
+                recall: {
+                    question: 'Bir e-ticaret sepet otomasyonunda durum makinesi (state machine) neden kullanılır?',
+                    answer: 'Sipariş durumlarının (Ödeme Bekliyor -> Hazırlanıyor -> Kargoda -> Teslim Edildi) geçersiz geçişler yapmasını (örn: ödenmeden kargoya verilme) engellemek ve testi bu kurallara göre koordine etmek için.'
+                },
                 complexity: ["State sayisi: kontrollu", "Yanlis transition: bug sinyali", "Flaky test azalir"],
                 blocks: [
                     {
@@ -370,6 +415,15 @@ assertEquals(LoginState.SUBMITTED, state);              // Beklenen son state do
                 qaUse: "Test data temizleme, locator arama, API response validation ve rapor parsing buyudukce test suite suresini kontrol etmek icin kullanilir.",
                 javaCompare: "Java Collections secimi burada belirleyicidir. `HashSet.contains` ortalama O(1), `ArrayList.contains` O(n) davranir; test datasi buyuyunce fark buyur.",
                 visualKind: "complexity",
+                feynman: {
+                    keywords: ['zaman', 'buyume', 'hiz', 'hafiza', 'olcek'],
+                    forbiddenWords: ['big o', 'notation', 'complexity', 'polynomial', 'logarithmic'],
+                    modelAnswer: 'Karmaşıklık, veri miktarı arttıkça yazdığımız tarifin (algoritmanın) çalışma süresinin ve harcadığı hafıza miktarının nasıl büyüdüğünü gösteren ölçüdür.'
+                },
+                recall: {
+                    question: 'O(1), O(N) ve O(N^2) arasındaki farkı zihinsel bir analojiyle açıklayın.',
+                    answer: 'O(1) sabit hızdır, veri ne kadar büyük olursa olsun tek adımda çalışır (örn: kutudan eleman alma). O(N) linear hızdır, veri kadar adım gerektirir (örn: tek tek arama). O(N^2) ise veri arttıkça adımların karesiyle artan yavaş hızdır (örn: nested loop).'
+                },
                 complexity: ["O(1): sabit", "O(log n): cok yavas buyur", "O(n): input kadar", "O(n^2): hizla pahalanir"],
                 blocks: [
                     {
@@ -468,6 +522,15 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
                 qaUse: "You use it when designing test cases, ranking defects, narrowing flaky test causes, or choosing which flow to automate first.",
                 javaCompare: "In Java, a method receives input and returns output. An algorithm is the same mental model: the method body is the coded form of the steps, and unit tests verify those steps.",
                 visualKind: "flow",
+                feynman: {
+                    keywords: ['part', 'problem', 'step', 'recipe', 'solve'],
+                    forbiddenWords: ['recursive', 'function', 'class', 'object', 'data'],
+                    modelAnswer: 'Algorithmic thinking is breaking down a large, complex problem into smaller, solvable parts to build a step-by-step recipe.'
+                },
+                recall: {
+                    question: 'Why is a "recipe" (step-by-step approach) important in algorithmic thinking?',
+                    answer: 'Because computers do not guess. To solve a complex problem, we must design ordered, clear steps that account for edge cases.'
+                },
                 complexity: ["Clear steps", "Repeatable result", "Edge-case awareness"],
                 blocks: [
                     { type: "simple-box", content: "An algorithm is like a recipe that keeps you from getting lost. In QA, it helps you find the same bug again, run the same test reliably, and see where the process slows down." },
@@ -505,6 +568,15 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
                 qaUse: "Use sorting to rank release bugs by impact, frequency, and whether a workaround exists.",
                 javaCompare: "In Java, this is `Collections.sort(list, comparator)`. The comparator carries the QA business rule, such as `payment > auth > cosmetic`.",
                 visualKind: "sort",
+                feynman: {
+                    keywords: ['sort', 'rule', 'compare', 'priority', 'order'],
+                    forbiddenWords: ['collections', 'comparator', 'complexity', 'array', 'index'],
+                    modelAnswer: 'Sorting is rearranging elements side-by-side by comparing them based on a specific rule (size, risk, importance, etc.) to put them in order.'
+                },
+                recall: {
+                    question: 'How is sorting used in QA triage and interview scenarios?',
+                    answer: 'It is used to compare bugs based on risk score, frequency, and impact to order them from most critical to least critical.'
+                },
                 complexity: ["Comparison sort: O(n log n)", "Single scan: O(n)", "Wrong rule: wrong priority"],
                 blocks: [
                     { type: "simple-box", content: "Imagine sorting toys by size. In QA the toys are bugs, and the most dangerous ones must move to the top of the box." },
@@ -554,6 +626,15 @@ assert bugs.get(0).isReleaseBlocker();                   // The first bug must b
                 qaUse: "Use it to find the first bad commit, the failing test data boundary, or the configuration value where a timeout starts.",
                 javaCompare: "Java's `Collections.binarySearch` works only on sorted lists. QA has the same rule: commits must be ordered, and the pass/fail behavior must have a clear boundary.",
                 visualKind: "binary",
+                feynman: {
+                    keywords: ['search', 'half', 'middle', 'sorted', 'element'],
+                    forbiddenWords: ['binary', 'index', 'pointer', 'recursion', 'split'],
+                    modelAnswer: 'Binary search is looking at the middle element of a sorted list, then choosing the left half if it is larger or the right half if it is smaller, narrowing the search space by half at each step.'
+                },
+                recall: {
+                    question: 'What is the absolute requirement for running a binary search on a list?',
+                    answer: 'The list must be sorted. Otherwise, we cannot determine whether to look at the left half or the right half.'
+                },
                 complexity: ["Linear search: O(n)", "Binary search: O(log n)", "Requirement: ordered space"],
                 blocks: [
                     { type: "simple-box", content: "When searching a word in a book, you do not inspect every page. You open the middle and decide which half can be ignored." },
@@ -602,6 +683,15 @@ Commit firstBadCommit = commits.get(low);               // First bad commit is f
                 qaUse: "E-commerce checkout, onboarding wizards, role-based menus, and microservice dependencies can all be modeled as graphs.",
                 javaCompare: "In Java, you can represent this with `Map<Page, List<Page>>`. BFS uses a `Queue`; DFS uses a `Stack` or recursion.",
                 visualKind: "graph",
+                feynman: {
+                    keywords: ['tree', 'flow', 'visit', 'depth', 'breadth'],
+                    forbiddenWords: ['dfs', 'bfs', 'node', 'graph', 'queue', 'stack', 'traversal'],
+                    modelAnswer: 'Graph traversal is walking step-by-step through connected points (pages, steps) using lines or links to visit all paths without getting lost.'
+                },
+                recall: {
+                    question: 'How are DFS and BFS used when traversing web checkout flows or links in test automation?',
+                    answer: 'DFS is used to follow a single path to its very end before backtracking, while BFS is used to test all immediate neighbor pages first.'
+                },
                 complexity: ["BFS/DFS: O(V + E)", "V: pages/states", "E: transitions"],
                 blocks: [
                     { type: "simple-box", content: "A game map has rooms and doors. If you want to visit every room, you need to track which door leads where." },
@@ -671,6 +761,15 @@ while (!queue.isEmpty()) {                              // Continue until the qu
                 qaUse: "Model disabled -> loading -> enabled -> submitted flows to reduce flaky clicks and premature assertions.",
                 javaCompare: "In Java, you often use enums such as `DISABLED`, `LOADING`, `READY`, and `SUBMITTED`. Tests assert each transition.",
                 visualKind: "state",
+                feynman: {
+                    keywords: ['state', 'transition', 'rule', 'trigger', 'machine'],
+                    forbiddenWords: ['automata', 'enum', 'switch', 'class', 'object'],
+                    modelAnswer: 'A state machine is a set of rules that defines what status a system is currently in, and what triggers are allowed to move it to a new status.'
+                },
+                recall: {
+                    question: 'Why do we use a state machine in an e-commerce cart automation test?',
+                    answer: 'To prevent invalid transitions of order states (e.g., shipping a product before payment) and to model the test flow based on these state rules.'
+                },
                 complexity: ["Controlled states", "Invalid transition: bug signal", "Less flaky automation"],
                 blocks: [
                     { type: "simple-box", content: "An elevator closes its door, moves, then opens again. If the order is broken, the ride is unsafe." },
@@ -723,6 +822,15 @@ assertEquals(LoginState.SUBMITTED, state);              // Assert the expected f
                 qaUse: "Use it for test data cleanup, locator search, API response validation, and report parsing as the suite grows.",
                 javaCompare: "Java collection choice matters: `HashSet.contains` is average O(1), while `ArrayList.contains` is O(n). The difference grows with test data.",
                 visualKind: "complexity",
+                feynman: {
+                    keywords: ['time', 'growth', 'speed', 'memory', 'scale'],
+                    forbiddenWords: ['big o', 'notation', 'complexity', 'polynomial', 'logarithmic'],
+                    modelAnswer: 'Complexity is a measure of how the running time and memory usage of our recipe grows as the size of the input data increases.'
+                },
+                recall: {
+                    question: 'Explain the difference between O(1), O(N), and O(N^2) using a simple mental analogy.',
+                    answer: 'O(1) is constant speed, taking one step regardless of size. O(N) is linear speed, taking steps equal to the size of data. O(N^2) is quadratic speed, where steps grow by the square of data size (like nested loops).'
+                },
                 complexity: ["O(1): constant", "O(log n): grows slowly", "O(n): grows with input", "O(n^2): gets expensive fast"],
                 blocks: [
                     { type: "simple-box", content: "Checking 10 cards one by one is easy. With 10,000 cards, the same plan becomes slow and needs a smarter structure." },

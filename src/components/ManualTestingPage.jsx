@@ -330,7 +330,272 @@ function GameBlock({ lesson, labels, onComplete }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, complete, onComplete }) {
+// 🧠 NEW COMPONENTS FOR NEURO-OPTIMIZATION MODE
+
+function SpacedRepetitionTracker({ labels, darkMode }) {
+    const [cycle, setCycle] = useState(() => {
+        const saved = localStorage.getItem('manual_testing_spaced_rep')
+        return saved ? JSON.parse(saved) : null
+    })
+
+    const startCycle = () => {
+        const newCycle = {
+            startDate: new Date().toISOString(),
+            completedDays: [1] // Day 1 completed automatically
+        }
+        localStorage.setItem('manual_testing_spaced_rep', JSON.stringify(newCycle))
+        setCycle(newCycle)
+    }
+
+    const resetCycle = () => {
+        localStorage.removeItem('manual_testing_spaced_rep')
+        setCycle(null)
+    }
+
+    const completeDay = (day) => {
+        if (!cycle) return
+        const completedDays = [...cycle.completedDays]
+        if (!completedDays.includes(day)) {
+            completedDays.push(day)
+        }
+        const updated = { ...cycle, completedDays }
+        localStorage.setItem('manual_testing_spaced_rep', JSON.stringify(updated))
+        setCycle(updated)
+    }
+
+    if (!cycle) {
+        return (
+            <div className={`rounded-xl border p-5 text-center transition ${darkMode ? 'border-sky-500/20 bg-sky-950/20' : 'border-sky-200 bg-sky-50/50'}`}>
+                <h3 className="text-lg font-black">{labels.spacedRepTitle}</h3>
+                <p className="mt-2 text-sm opacity-80">{labels.neuroModeDesc}</p>
+                <button onClick={startCycle} className="mt-4 min-h-10 rounded-lg bg-sky-600 px-5 text-sm font-black text-white shadow-md hover:scale-105 hover:bg-sky-500 transition">
+                    {labels.spacedRepStart}
+                </button>
+            </div>
+        )
+    }
+
+    const startDate = new Date(cycle.startDate)
+    const getTargetDate = (daysToAdd) => {
+        const d = new Date(startDate)
+        d.setDate(d.getDate() + daysToAdd)
+        return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+    }
+
+    const milestones = [
+        { day: 1, label: labels.spacedRepDay1, daysToAdd: 0 },
+        { day: 3, label: labels.spacedRepDay3, daysToAdd: 2 },
+        { day: 7, label: labels.spacedRepDay7, daysToAdd: 6 },
+        { day: 30, label: labels.spacedRepDay30, daysToAdd: 29 }
+    ]
+
+    return (
+        <div className={`rounded-xl border p-5 transition ${darkMode ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <h3 className="text-base font-black flex items-center gap-2">
+                    <span>📅</span> {labels.spacedRepTitle}
+                </h3>
+                <button onClick={resetCycle} className={`min-h-8 rounded-lg px-3 text-xs font-black transition ${darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                    {labels.spacedRepReset}
+                </button>
+            </div>
+            
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                {milestones.map((ms) => {
+                    const isDone = cycle.completedDays.includes(ms.day)
+                    const targetDateStr = getTargetDate(ms.daysToAdd)
+                    const isPrevDone = ms.day === 1 || cycle.completedDays.includes(ms.day === 3 ? 1 : ms.day === 7 ? 3 : 7)
+                    const isAvailable = !isDone && isPrevDone
+                    
+                    return (
+                        <div key={ms.day} className={`rounded-lg border p-3 flex flex-col justify-between min-h-[110px] transition ${isDone ? (darkMode ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-emerald-200 bg-emerald-50/30') : isAvailable ? (darkMode ? 'border-sky-500/40 bg-sky-500/5' : 'border-sky-200 bg-sky-50/30') : 'opacity-40'}`}>
+                            <div>
+                                <div className="text-[10px] font-bold opacity-60">{targetDateStr}</div>
+                                <div className={`mt-1 text-xs font-black leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{ms.label}</div>
+                            </div>
+                            <div className="mt-3">
+                                {isDone ? (
+                                    <span className="text-xs font-black text-emerald-400">{labels.spacedRepDone}</span>
+                                ) : isAvailable ? (
+                                    <button onClick={() => completeDay(ms.day)} className="w-full min-h-8 rounded bg-sky-600 hover:bg-sky-500 text-xs font-black text-white transition">
+                                        {labels.spacedRepTodayDone}
+                                    </button>
+                                ) : (
+                                    <span className="text-xs font-black opacity-40">{labels.spacedRepLocked}</span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+function FeynmanWorkspace({ lesson, labels, darkMode }) {
+    const [text, setText] = useState('')
+    const [checked, setChecked] = useState(false)
+    
+    const normalize = (str) => {
+        return str
+            .toLowerCase()
+            .replace(/ı/g, 'i')
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+    }
+
+    const keywordMatches = useMemo(() => {
+        const normText = normalize(text)
+        return lesson.feynman.keywords.map(kw => {
+            const normKw = normalize(kw)
+            return {
+                word: kw,
+                matched: normText.includes(normKw)
+            }
+        })
+    }, [text, lesson.feynman.keywords])
+
+    const matchCount = keywordMatches.filter(m => m.matched).length
+    const scorePercentage = lesson.feynman.keywords.length > 0 ? (matchCount / lesson.feynman.keywords.length) * 100 : 0
+
+    return (
+        <div className={`rounded-xl border p-4 transition-all duration-300 ${darkMode ? 'border-slate-800 bg-slate-950/50 hover:border-sky-500/20' : 'border-slate-200 bg-slate-50/50 hover:border-sky-500/20'}`}>
+            <h4 className={`text-sm font-black flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                {labels.feynmanTitle}
+            </h4>
+            <p className="mt-2 text-xs opacity-80">{labels.feynmanPrompt}</p>
+            
+            <textarea
+                value={text}
+                onChange={(e) => {
+                    setText(e.target.value)
+                    setChecked(false)
+                }}
+                className={`mt-2 w-full min-h-[96px] rounded-lg border p-3 text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-sky-500 ${darkMode ? 'border-slate-700 bg-slate-900 text-slate-200 placeholder-slate-500' : 'border-slate-300 bg-white text-slate-800 placeholder-slate-400'}`}
+                placeholder="..."
+            />
+            
+            <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                    onClick={() => setChecked(true)}
+                    disabled={!text.trim()}
+                    className="min-h-9 rounded-lg bg-sky-600 disabled:opacity-50 hover:bg-sky-500 px-4 text-xs font-black text-white transition"
+                >
+                    {labels.feynmanCheck}
+                </button>
+                <button
+                    onClick={() => {
+                        setText('')
+                        setChecked(false)
+                    }}
+                    className={`min-h-9 rounded-lg px-4 text-xs font-black transition ${darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                >
+                    {labels.reset}
+                </button>
+            </div>
+
+            {checked && (
+                <div className="mt-4 space-y-4 border-t border-slate-700/30 pt-4">
+                    <div>
+                        <div className="text-xs font-black opacity-75">{labels.feynmanKeywords}</div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                            {keywordMatches.map((item) => (
+                                <span
+                                    key={item.word}
+                                    className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-bold border ${item.matched ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-500/10 border-slate-800 text-slate-400'}`}
+                                >
+                                    {item.word} {item.matched ? '✓' : '✗'}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className={`rounded-lg border p-3 ${darkMode ? 'border-slate-850 bg-slate-900/60' : 'border-slate-200 bg-white'}`}>
+                        <div className="text-[10px] font-black text-sky-400 uppercase tracking-wider">Model Açıklama / Model Answer</div>
+                        <p className="mt-1.5 text-xs leading-relaxed font-medium">{lesson.feynman.modelAnswer}</p>
+                    </div>
+
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs font-black text-emerald-400">
+                        {labels.feynmanSuccess} (Kapsama Oranı: %{Math.round(scorePercentage)})
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+function RecallFlashcard({ lesson, labels, darkMode }) {
+    const [flipped, setFlipped] = useState(false)
+    const [status, setStatus] = useState(null) // 'success' or 'fail'
+
+    useEffect(() => {
+        setFlipped(false)
+        setStatus(null)
+    }, [lesson])
+
+    const saveRecallStatus = (success) => {
+        setStatus(success ? 'success' : 'fail')
+        const saved = localStorage.getItem('manual_testing_recall_progress')
+        const progress = saved ? JSON.parse(saved) : {}
+        progress[lesson.id] = success ? 'recalled' : 'failed'
+        localStorage.setItem('manual_testing_recall_progress', JSON.stringify(progress))
+    }
+
+    return (
+        <div className={`rounded-xl border p-4 transition-all duration-300 ${darkMode ? 'border-slate-800 bg-slate-950/50 hover:border-sky-500/20' : 'border-slate-200 bg-slate-50/50 hover:border-sky-500/20'}`}>
+            <div className="flex items-center justify-between gap-2">
+                <h4 className={`text-sm font-black flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {labels.activeRecallTitle}
+                </h4>
+                {status && (
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25' : 'bg-rose-500/10 text-rose-400 border border-rose-500/25'}`}>
+                        {status === 'success' ? labels.correct : labels.wrong}
+                    </span>
+                )}
+            </div>
+            <p className="mt-2 text-xs opacity-80">{labels.activeRecallPrompt}</p>
+
+            <div className="mt-3 relative min-h-[120px] rounded-lg overflow-hidden border border-slate-700/20 bg-slate-950/20">
+                <div 
+                    onClick={() => setFlipped(!flipped)}
+                    className={`p-4 min-h-[120px] flex flex-col justify-center items-center text-center cursor-pointer transition-all duration-500 ${flipped ? 'bg-emerald-950/25' : 'bg-sky-950/25'}`}
+                >
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? '#10b981' : '#0ea5e9' }}>
+                        {flipped ? 'Cevap / Answer' : 'Soru / Question'}
+                    </div>
+                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-100'}`}>
+                        {flipped ? lesson.recall.answer : lesson.recall.question}
+                    </p>
+                    <div className="mt-3 text-[10px] font-bold opacity-60 border border-current rounded px-2 py-0.5 hover:opacity-100 transition select-none">
+                        {labels.activeRecallFlip}
+                    </div>
+                </div>
+            </div>
+
+            {flipped && (
+                <div className="mt-3 flex gap-2 justify-center">
+                    <button
+                        onClick={() => saveRecallStatus(true)}
+                        className={`min-h-8 rounded-lg px-3 text-xs font-black text-white transition ${status === 'success' ? 'bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'}`}
+                    >
+                        {labels.activeRecallGotIt}
+                    </button>
+                    <button
+                        onClick={() => saveRecallStatus(false)}
+                        className={`min-h-8 rounded-lg px-3 text-xs font-black text-white transition ${status === 'fail' ? 'bg-rose-600' : 'bg-slate-800 hover:bg-slate-700'}`}
+                    >
+                        {labels.activeRecallFailed}
+                    </button>
+                </div>
+            )}
+        </div>
+    )
+}
+
+function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode }) {
     return (
         <section id={lesson.id} className="scroll-mt-24">
             <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/95' : 'border-slate-200 bg-white'}`}>
@@ -357,6 +622,14 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete }) {
                         <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} />
                     </div>
                 </div>
+
+                {/* Neuro-Optimization tools inside LessonCard */}
+                {neuroMode && (
+                    <div className="mt-5 border-t border-slate-700/30 pt-5 grid gap-4 md:grid-cols-2">
+                        <FeynmanWorkspace lesson={lesson} labels={labels} darkMode={darkMode} />
+                        <RecallFlashcard lesson={lesson} labels={labels} darkMode={darkMode} />
+                    </div>
+                )}
             </div>
         </section>
     )
@@ -384,7 +657,11 @@ function FinalQuiz({ quiz, labels, darkMode }) {
                         <div className={`text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{index + 1}. {item.question}</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                             {item.options.map(option => (
-                                <button key={option} onClick={() => setAnswers(current => ({ ...current, [index]: option }))} className={`min-h-10 rounded-lg px-3 text-sm font-black transition ${answers[index] === option ? 'bg-sky-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>
+                                <button key={option} onClick={() => answers[index] === option ? setAnswers(current => {
+                                    const next = { ...current }
+                                    delete next[index]
+                                    return next
+                                }) : setAnswers(current => ({ ...current, [index]: option }))} className={`min-h-10 rounded-lg px-3 text-sm font-black transition ${answers[index] === option ? 'bg-sky-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>
                                     {option}
                                 </button>
                             ))}
@@ -404,6 +681,17 @@ function ManualTestingPage() {
     const { language } = useLanguage()
     const [darkMode, setDarkMode] = useDarkModeState()
     const data = manualTestingData[language] || manualTestingData.tr
+    
+    // Neuro-Optimization Mode Toggle State
+    const [neuroMode, setNeuroMode] = useState(() => {
+        const saved = localStorage.getItem('manual_testing_neuro_mode')
+        return saved !== null ? JSON.parse(saved) : false
+    })
+
+    useEffect(() => {
+        localStorage.setItem('manual_testing_neuro_mode', JSON.stringify(neuroMode))
+    }, [neuroMode])
+
     const [activeId, setActiveId] = useState(data.lessons[0].id)
     const [completed, setCompleted] = useState({})
     const lessonIds = useMemo(() => data.lessons.map(lesson => lesson.id), [data.lessons])
@@ -444,9 +732,17 @@ function ManualTestingPage() {
                             <h1 className={`mt-4 text-3xl font-black leading-tight md:text-5xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.hero.title}</h1>
                             <p className={`mt-4 max-w-3xl text-base leading-relaxed md:text-lg ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{data.hero.subtitle}</p>
                             <p className={`mt-3 max-w-3xl text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{data.hero.intro}</p>
-                            <button onClick={() => navTo(data.lessons[0].id)} className="mt-5 min-h-11 rounded-lg bg-sky-600 px-4 text-sm font-black text-white shadow-lg shadow-sky-600/20 transition hover:scale-105 hover:bg-sky-500">
-                                {data.hero.cta}
-                            </button>
+                            <div className="mt-5 flex flex-wrap gap-3">
+                                <button onClick={() => navTo(data.lessons[0].id)} className="min-h-11 rounded-lg bg-sky-600 px-4 text-sm font-black text-white shadow-lg shadow-sky-600/20 transition hover:scale-105 hover:bg-sky-500">
+                                    {data.hero.cta}
+                                </button>
+                                <button 
+                                    onClick={() => setNeuroMode(!neuroMode)} 
+                                    className={`min-h-11 rounded-lg px-4 text-sm font-black transition shadow-lg hover:scale-105 ${neuroMode ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-600/25 animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
+                                >
+                                    {data.ui.neuroModeToggle} {neuroMode ? '✓' : ''}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <FlowVisual labels={data.ui} darkMode={darkMode} />
@@ -462,6 +758,13 @@ function ManualTestingPage() {
                         </div>
                     </div>
                 </section>
+
+                {/* Spaced Repetition Tracker when neuroMode is active */}
+                {neuroMode && (
+                    <div className="mt-6">
+                        <SpacedRepetitionTracker labels={data.ui} darkMode={darkMode} />
+                    </div>
+                )}
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[250px_1fr]">
                     <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -494,6 +797,7 @@ function ManualTestingPage() {
                                 darkMode={darkMode}
                                 complete={Boolean(completed[lesson.id])}
                                 onComplete={() => setCompleted(current => current[lesson.id] ? current : { ...current, [lesson.id]: true })}
+                                neuroMode={neuroMode}
                             />
                         ))}
                         <FinalQuiz quiz={data.quiz} labels={data.ui} darkMode={darkMode} />

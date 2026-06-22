@@ -2,7 +2,7 @@ export const manualTestingData = {
     tr: {
         hero: {
             eyebrow: 'Manuel Test Atolyesi',
-            title: 'Manuel Test Nedir? Bir Kullanici Gibi Dusun, QA Gibi Kanitla',
+            title: 'Manuel Test Nedir? Bir Kullanici Like Dusun, QA Gibi Kanitla',
             subtitle: 'Test senaryosu yazmayi, risk gormeyi, bug raporlamayi ve regression kararini gorsel oyunlarla ogren.',
             intro: 'Manuel test sadece ekrana tiklamak degildir. Bir urunu gercek kullanici gozuyle inceler, beklenen davranisi kanitlarla karsilastirir ve ekibin dogru karari vermesi icin net bilgi uretirsin.',
             cta: 'Ilk goreve basla',
@@ -36,6 +36,31 @@ export const manualTestingData = {
                 report: 'Report',
                 retest: 'Retest',
             },
+            // Neuro-Optimization UI translations
+            neuroModeToggle: '🧠 Nöro-Öğrenim Modu',
+            neuroModeDesc: 'Aralıklı tekrar, Feynman tekniği ve aktif hatırlama ile 10 kat hızlı öğren.',
+            spacedRepTitle: 'Aralıklı Tekrar Takipçisi',
+            spacedRepStart: 'Öğrenme Döngüsünü Başlat',
+            spacedRepReset: 'Döngüyü Sıfırla',
+            spacedRepDay1: '1. Gün: İlk Öğrenim',
+            spacedRepDay3: '3. Gün: Aktif Geri Çağırma',
+            spacedRepDay7: '7. Gün: Yapısal Pekiştirme',
+            spacedRepDay30: '30. Gün: Kalıcılık Kontrolü',
+            spacedRepTodayDone: 'Bugünkü Tekrarı Tamamla',
+            spacedRepDone: 'Tamamlandı ✓',
+            spacedRepPending: 'Bekliyor',
+            spacedRepLocked: 'Kilitli',
+            feynmanTitle: '🧠 Feynman Tekniği Pratiği',
+            feynmanPrompt: 'Bu konuyu 10 yaşındaki bir çocuğa açıklar gibi kendi cümlelerinle yaz:',
+            feynmanCheck: 'Açıklarımı Bul',
+            feynmanKeywords: 'İçermen gereken anahtar kelimeler:',
+            feynmanSelfCheck: 'Kendi açıklamanı değerlendir:',
+            feynmanSuccess: 'Harika! Bilgi açıklarını kapatmak, Feynman tekniğinin en güçlü yanıdır.',
+            activeRecallTitle: '🔄 Aktif Hatırlama Kartı',
+            activeRecallPrompt: 'Sorunun cevabını zihninde canlandır, sonra kartı çevir:',
+            activeRecallFlip: 'Kartı Çevir',
+            activeRecallGotIt: 'Hatırladım ✓',
+            activeRecallFailed: 'Tekrar Bak ✗',
         },
         lessons: [
             {
@@ -59,6 +84,14 @@ export const manualTestingData = {
                         { id: 'overflow', label: 'Bardak dolunca tasma oluyor mu?' },
                     ],
                 },
+                feynman: {
+                    keywords: ['kullanici', 'risk', 'mutlu yol', 'edge case'],
+                    modelAnswer: 'Manuel test sadece ekrana basmak degildir. Urunu gercek bir kullanici gibi denerken, islerin yolunda gittigi mutlu yol (happy path) disindaki su bitmesi veya bardak olmamasi gibi riskleri ve edge case\'leri (sinir durumlarini) kesfetme ve kanitlama surecidir.'
+                },
+                recall: {
+                    question: 'Manuel test neden sadece ekrana rastgele tiklamak degildir?',
+                    answer: 'Cunku sistemli bir risk arama surecidir. Kullanici zihniyetiyle dusunup urunun nerelerde hata verebilecegini (edge case\'ler) bulmayi ve bunlari somut adimlarla kanitlamayi gerektirir.'
+                }
             },
             {
                 id: 'test-case',
@@ -82,6 +115,14 @@ export const manualTestingData = {
                         { id: 'open', text: 'Login sayfasini ac' },
                     ],
                 },
+                feynman: {
+                    keywords: ['adim', 'beklenen sonuc', 'precondition', 'tekrarlanabilir'],
+                    modelAnswer: 'Test case, bir testin herkes tarafindan ayni sekilde yapilabilmesi icin yazilan tariftir. Icinde testten once neyin hazir olmasi gerektigi (precondition), hangi adimlarin izlenecegi (steps) ve sonucun ne olacagi (expected result) net sekilde yazilir.'
+                },
+                recall: {
+                    question: 'Bir test case\'i kaliteli ve kanitlanabilir yapan uc temel bilesen nedir?',
+                    answer: '1. On Kosul (Precondition): Testten onceki sistem durumu. 2. Adimlar (Steps): Yapilacak eylemler. 3. Beklenen Sonuc (Expected Result): Sistemden beklenen dogru tepki.'
+                }
             },
             {
                 id: 'exploratory',
@@ -103,6 +144,14 @@ export const manualTestingData = {
                         { id: 'browse', label: 'Sadece urun listesini gez', output: 'Kesif icin iyi ama checkout riskini dogrudan zorlamiyor.' },
                     ],
                 },
+                feynman: {
+                    keywords: ['planli', 'hipotez', 'not almak', 'kesif'],
+                    modelAnswer: 'Kesifci test, ezbere hazir senaryolarla degil, urunu ogrenirken ayni anda test tasarlama yontemidir. Plansiz degildir; test uzmani bir hedef ve hipotez belirler, urunu kurcalar, buldugu riskleri ve yollari not alarak ilerler.'
+                },
+                recall: {
+                    question: 'Kesifci test (exploratory testing) ile rastgele tiklama (adhoc) arasindaki fark nedir?',
+                    answer: 'Kesifci test sistematiktir. Bir charter (hedef) etrafinda donecegimiz hipotezleri kurariz, test esnasinda ogrendiklerimizle yeni testler uretiriz ve sureci mutlaka gunluk veya notla belgeleriz.'
+                }
             },
             {
                 id: 'bug-report',
@@ -124,6 +173,14 @@ export const manualTestingData = {
                         { id: 'personal', label: 'Bence tasarim daha guzel olmali' },
                     ],
                 },
+                feynman: {
+                    keywords: ['adim', 'beklenen', 'gerceklesen', 'ekran goruntusu', 'yeniden uret'],
+                    modelAnswer: 'Bug raporu, yazilimdaki hatanin nasil ortaya ciktigini gosteren tarif kartidir. Developer\'in hatayi kendi bilgisayarinda yeniden uretebilmesi (reproduce) icin hangi ortamda, hangi adimlarla yapildigini, beklenen durum ile gerceklesen hatayi ve ekran goruntusu kanitini icerir.'
+                },
+                recall: {
+                    question: 'Yazilimcinin hatayi hemen anlayabilmesi icin bug raporundaki en kritik alan hangisidir?',
+                    answer: 'Yeniden Uretme Adimlari (Steps to Reproduce). Net adimlar olmadan yazilimci hatanin nerede ve nasil tetiklendigini bulamaz ve vakit kaybeder.'
+                }
             },
             {
                 id: 'severity',
@@ -144,6 +201,14 @@ export const manualTestingData = {
                         { id: 'typo', label: 'Profil sayfasinda yazim hatasi var', severity: 'minor' },
                     ],
                 },
+                feynman: {
+                    keywords: ['etki', 'is akisi', 'kullanici', 'kritik'],
+                    modelAnswer: 'Severity, hatanin uygulamanin calismasina ve sirketin is akisina verdigi zararin buyuklugudur. Odeme sisteminin cokmesi gibi durumlar kritik (critical), bir yazim hatasi ise minor etkilidir. Hatanin ne kadar acil cozuleceginden ziyade, teknik olarak yarattigi etkiyi olcer.'
+                },
+                recall: {
+                    question: 'Severity (Hata Derecesi) nedir ve nasil belirlenir?',
+                    answer: 'Hatanin fonksiyonel etkisidir. Eger ana is akisi (core flow) engelleniyorsa Critical, alternatif akislarda hata varsa Major, sadece görsel/typo ise Minor derecesindedir.'
+                }
             },
             {
                 id: 'regression',
@@ -165,6 +230,14 @@ export const manualTestingData = {
                         { id: 'none', label: 'Developer test ettiyse QA testine gerek yok' },
                     ],
                 },
+                feynman: {
+                    keywords: ['yeni kod', 'eski calisan', 'bozulma', 'duman testi'],
+                    modelAnswer: 'Regresyon testi, uygulamaya yeni bir kod veya fix eklendikten sonra, daha onceden calisan diger ozelliklerin bozulup bozulmadigini kontrol etmektir. Yeni yapilan tamiratin baska bir muslugu patlatip patlatmadigini dogrulama surecidir.'
+                },
+                recall: {
+                    question: 'Yeni bir kod veya hata duzeltmesi sonrasi neden regression testi yapariz?',
+                    answer: 'Yazilim karmasik bir ag gibidir. Bir yerdeki degisiklik alakasiz baska bir yeri bozabilir (side effect). Regression testi, eski calisan yerlerin hala saglam oldugunu garanti eder.'
+                }
             },
         ],
         quiz: [
@@ -225,6 +298,31 @@ export const manualTestingData = {
                 report: 'Report',
                 retest: 'Retest',
             },
+            // Neuro-Optimization UI translations
+            neuroModeToggle: '🧠 Neuro-Learning Mode',
+            neuroModeDesc: 'Learn 10x faster with spaced repetition, Feynman technique, and active recall.',
+            spacedRepTitle: 'Spaced Repetition Tracker',
+            spacedRepStart: 'Start Learning Cycle',
+            spacedRepReset: 'Reset Cycle',
+            spacedRepDay1: 'Day 1: Initial Learning',
+            spacedRepDay3: 'Day 3: Active Recall',
+            spacedRepDay7: 'Day 7: Structural Reinforcement',
+            spacedRepDay30: 'Day 30: Retention Check',
+            spacedRepTodayDone: 'Complete Today\'s Review',
+            spacedRepDone: 'Completed ✓',
+            spacedRepPending: 'Pending',
+            spacedRepLocked: 'Locked',
+            feynmanTitle: '🧠 Feynman Practice',
+            feynmanPrompt: 'Explain this topic in your own words as if explaining to a 10-year-old child:',
+            feynmanCheck: 'Find My Gaps',
+            feynmanKeywords: 'Key keywords you should include:',
+            feynmanSelfCheck: 'Evaluate your own explanation:',
+            feynmanSuccess: 'Great! Closing knowledge gaps is the strongest part of the Feynman technique.',
+            activeRecallTitle: '🔄 Active Recall Flashcard',
+            activeRecallPrompt: 'Visualize the answer in your mind, then flip the card:',
+            activeRecallFlip: 'Flip Card',
+            activeRecallGotIt: 'I Recalled ✓',
+            activeRecallFailed: 'Review Again ✗',
         },
         lessons: [
             {
@@ -248,6 +346,14 @@ export const manualTestingData = {
                         { id: 'overflow', label: 'Does coffee overflow the cup?' },
                     ],
                 },
+                feynman: {
+                    keywords: ['user', 'risk', 'happy path', 'edge case'],
+                    modelAnswer: 'Manual testing is not just clicking buttons. It is experiencing the product like a user while exploring and proving risks and edge cases (boundary conditions) beyond the happy path (like water running out or missing cups).'
+                },
+                recall: {
+                    question: 'Why is manual testing not just randomly clicking on the screen?',
+                    answer: 'Because it is a systematic risk-finding process. It requires user empathy to find where things can break (edge cases) and proving them with concrete, repeatable steps.'
+                }
             },
             {
                 id: 'test-case',
@@ -271,6 +377,14 @@ export const manualTestingData = {
                         { id: 'open', text: 'Open the login page' },
                     ],
                 },
+                feynman: {
+                    keywords: ['step', 'expected result', 'precondition', 'repeatable'],
+                    modelAnswer: 'A test case is a recipe written so that anyone can run the test the same way. It defines what must be set up beforehand (preconditions), what actions to take (steps), and what the expected outcome is (expected result).'
+                },
+                recall: {
+                    question: 'What are the three main components that make a test case high quality and verifiable?',
+                    answer: '1. Precondition: The system state before testing. 2. Steps: The actions to execute. 3. Expected Result: The expected correct system behavior.'
+                }
             },
             {
                 id: 'exploratory',
@@ -292,6 +406,14 @@ export const manualTestingData = {
                         { id: 'browse', label: 'Only browse the product list', output: 'Useful exploration, but it does not stress checkout risk directly.' },
                     ],
                 },
+                feynman: {
+                    keywords: ['planned', 'hypothesis', 'take notes', 'explore'],
+                    modelAnswer: 'Exploratory testing is designing and running tests at the same time while learning the product, instead of following pre-written scripts. It is structured: the tester has a target charter and hypothesis, explores features, and notes down risks and findings.'
+                },
+                recall: {
+                    question: 'What is the main difference between exploratory testing and random (ad-hoc) clicking?',
+                    answer: 'Exploratory testing is systematic. We set charters (targets), establish hypotheses, generate tests based on real-time learning, and record findings in logs or session reports.'
+                }
             },
             {
                 id: 'bug-report',
@@ -313,6 +435,14 @@ export const manualTestingData = {
                         { id: 'personal', label: 'I think the design should be prettier' },
                     ],
                 },
+                feynman: {
+                    keywords: ['step', 'expected', 'actual', 'screenshot', 'reproduce'],
+                    modelAnswer: 'A bug report is a detailed card explaining how a defect occurs. To help developers reproduce the bug, it includes the test environment, the step-by-step actions, what was expected versus what actually broke, and screenshot or log evidence.'
+                },
+                recall: {
+                    question: 'What is the most critical area of a bug report so developers can understand it instantly?',
+                    answer: 'Steps to Reproduce. Without clear, numbered steps, a developer cannot recreate the exact environment or trigger conditions that lead to the bug.'
+                }
             },
             {
                 id: 'severity',
@@ -333,6 +463,14 @@ export const manualTestingData = {
                         { id: 'typo', label: 'Typo on profile page', severity: 'minor' },
                     ],
                 },
+                feynman: {
+                    keywords: ['impact', 'workflow', 'user', 'critical'],
+                    modelAnswer: 'Severity measures the functional impact of a bug on the application and business flow. A payment crash is critical, while a profile page typo is minor. It evaluates the technical damage rather than how urgently a fix is desired.'
+                },
+                recall: {
+                    question: 'What is Severity and how is it determined?',
+                    answer: 'It is the functional impact of a defect. If the core user flow is blocked (e.g., cannot check out), it is Critical. If alternative flows fail, it is Major. If it is only cosmetic or minor text, it is Minor.'
+                }
             },
             {
                 id: 'regression',
@@ -354,6 +492,14 @@ export const manualTestingData = {
                         { id: 'none', label: 'If developers tested it, QA testing is unnecessary' },
                     ],
                 },
+                feynman: {
+                    keywords: ['new code', 'previously working', 'breakage', 'smoke test'],
+                    modelAnswer: 'Regression testing is verifying that previously working features did not break after new code changes or bug fixes are deployed. It ensures that fixing one leak did not cause another pipe to burst elsewhere.'
+                },
+                recall: {
+                    question: 'Why do we perform regression testing after new code is added or a bug is fixed?',
+                    answer: 'Software is highly interconnected. A change in one area can cause unintended side effects elsewhere. Regression testing guarantees that existing stable features remain working.'
+                }
             },
         ],
         quiz: [
