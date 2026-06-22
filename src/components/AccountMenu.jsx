@@ -39,7 +39,7 @@ function Avatar({ name, avatarUrl, avatarEmoji, size = 28 }) {
 
 export default function AccountMenu({ darkMode }) {
     const { language } = useLanguage()
-    const { session, displayName, avatarUrl, avatarEmoji, setAvatarEmoji, email, isAdmin, signOut } = useAuth()
+    const { session, displayName, avatarUrl, avatarEmoji, setAvatarEmoji, email, isAdmin, signOut, earnedBadges } = useAuth()
     const navigate = useNavigate()
     const [open, setOpen] = useState(false)
     const [pickerOpen, setPickerOpen] = useState(false)
@@ -156,6 +156,29 @@ export default function AccountMenu({ darkMode }) {
                             {pickerError && <p className="mt-2 text-xs text-red-400">{pickerError}</p>}
                         </div>
                     )}
+
+                    <div className="px-4 py-3 border-t border-white/10">
+                        <div className={`text-xs font-bold mb-1.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {isTr ? `Rozetler (${earnedBadges.length})` : `Badges (${earnedBadges.length})`}
+                        </div>
+                        {earnedBadges.length ? (
+                            <div className="flex flex-wrap gap-1.5">
+                                {earnedBadges.map((b) => (
+                                    <span
+                                        key={b.badge_id}
+                                        title={b.badges?.description}
+                                        className={`inline-flex items-center gap-1 text-xs rounded-full px-2 py-1 ${darkMode ? 'bg-gray-700 text-amber-300' : 'bg-amber-50 text-amber-700'}`}
+                                    >
+                                        {b.badges?.icon || '🏅'} {b.badges?.title}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                {isTr ? 'Henüz rozet yok — bir konuyu tamamla.' : 'No badges yet — finish a topic.'}
+                            </p>
+                        )}
+                    </div>
 
                     <div className="p-2 border-t border-white/10">
                         <button

@@ -29,7 +29,28 @@ export default function AuthCallback() {
                 if (error) throw error
                 if (!data.session) throw new Error('Session bulunamadı. Link süresi dolmuş olabilir.')
 
-                if (alive) navigate(safeNext, { replace: true })
+                // safeNext "/" ise (RequireAdmin gibi belirli bir hedef istemeyen genel giriş),
+                // kullanıcıyı ana sayfaya değil doğrudan en son kaldığı yere yönlendir.
+                // Belirli bir hedef (örn. /backend) zaten talep edilmişse buna dokunmuyoruz.
+                let destination = safeNext
+                let openTab
+                if (safeNext === '/') {
+                    const { data: progressRow } = await supabase
+                        .from('user_progress')
+                        .select('topic_slug, last_position')
+                        .eq('user_id', data.session.user.id)
+                        .order('updated_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle()
+                    const resumeRoute = progressRow?.last_position?.routePath
+                    if (resumeRoute && resumeRoute.startsWith('/')) {
+                        destination = resumeRoute
+                        const tabIndex = Number(progressRow.topic_slug)
+                        if (Number.isFinite(tabIndex)) openTab = tabIndex
+                    }
+                }
+
+                if (alive) navigate(destination, { replace: true, state: openTab !== undefined ? { openTab } : undefined })
             } catch (error) {
                 if (alive) setMessage(error.message || 'Giriş tamamlanamadı.')
             }

@@ -87,11 +87,14 @@
 - Üyelik hem prod hem test'te olacak; premium/ödeme sadece TEST'te. Rozet/feedback/chat/progress **ücretsiz üyelere de açık** — paywall sadece kilitli ders İÇERİĞİNİ (`lesson_contents`) korur.
 
 ### Gerçek kod (artık canlı, sadece tutorial değil)
-- `src/lib/supabaseClient.js`, `src/lib/avatarEmojis.js` (17 insan-temalı avatar emoji), `src/context/AuthContext.jsx` (session/profile/isAdmin/isPremium/displayName/avatarUrl/avatarEmoji/saveProgress/getResumePoint), `src/components/RequireAdmin.jsx`, `src/components/AuthCallback.jsx`, `src/components/LoginPage.jsx` (Google/GitHub/Microsoft + Magic Link), `src/components/AccountMenu.jsx` (avatar+isim+rol rozeti+avatar seçici+çıkış).
+- `src/lib/supabaseClient.js`, `src/lib/avatarEmojis.js` (17 insan-temalı avatar emoji), `src/context/AuthContext.jsx` (session/profile/isAdmin/isPremium/displayName/avatarUrl/avatarEmoji/saveProgress/markTopicCompleted/getResumePoint/earnedBadges), `src/components/RequireAdmin.jsx`, `src/components/AuthCallback.jsx`, `src/components/LoginPage.jsx` (Google/GitHub/Microsoft + Magic Link), `src/components/AccountMenu.jsx` (avatar+isim+rol rozeti+avatar seçici+rozet listesi+çıkış).
 - **`AccountMenu` artık her sayfada görünüyor** — `TopicHeader.jsx`'e eklendi (Java/Selenium/Python gibi ~30 sayfanın ortak header'ı), `HomePage.jsx`'te zaten vardı.
-- **"Kaldığım yeri kaydet" özelliği eklendi ve uçtan uca test edildi:** `TopicPage.jsx`'te sabit 📍 buton (home butonunun yanında, her konu sayfasında); `AuthContext.saveProgress()` localStorage + (üyeyse) Supabase `user_progress` upsert yapıyor. `HomePage.jsx`'te "Kaldığın yerden devam et" banner'ı `getResumePoint()` ile en son kaydı okuyup gösteriyor.
+- **"Kaldığım yeri kaydet" özelliği:** `TopicPage.jsx`'te sabit 📍 buton (home butonunun yanında, her konu sayfasında); `AuthContext.saveProgress()` localStorage + (üyeyse) Supabase `user_progress` upsert yapıyor. `HomePage.jsx`'te "Kaldığın yerden devam et" banner'ı `getResumePoint()` ile en son kaydı okuyup gösteriyor.
+- **Giriş sonrası otomatik yönlendirme (2026-06-22 eklendi):** `AuthCallback.jsx` artık genel girişte (next='/' — belirli bir sayfa istenmemişse, örn. navbar'dan "Giriş Yap") kullanıcıyı doğrudan en son kaldığı sayfa+sekmeye yönlendiriyor; `RequireAdmin` gibi belirli bir hedefi olan girişlerde (next='/backend') bu davranış devre dışı, hedefe saygı duyuyor.
+- **Bitirme rozeti sistemi (2026-06-22 eklendi):** Bir konu/sekme "tamamlandı" işaretlendiğinde (manuel checkbox veya quiz doğru cevap) `AuthContext.markTopicCompleted()` çalışır: `user_progress`'i `status='completed'` yapar, tamamlanan konu sayısını sayar, `badges` katalogundaki eşiği (`required_completed_topics`) geçen rozetleri `user_badges`'e upsert eder (idempotent, `ignoreDuplicates`). Yeni kazanılan rozet `TopicPage`'de sağ altta kısa süreli toast olarak, `AccountMenu` dropdown'unda kalıcı liste olarak gösteriliyor. **Sadece üyeler için gerçek rozet kaydı oluşur** — anonim kullanıcı için bu adım sessizce atlanır (hata yok), sadece local "tamamlandı" işareti kalır.
 - `/backend` route'u `<RequireAdmin>` ile sarılı; admin olmayan/giriş yapmamış kullanıcıya engelleme ekranı + "hangi hesapla giriş yaptığın" rozeti gösteriyor. `/backend` public SEO/sitemap/arama indeksinden çıkarıldı.
 - `.gitignore`'a `.env.local`/`.env.*.local` eklendi, `.env.example` commit'li (gerçek key yok).
+- **Ödeme ekranı henüz hiçbir yerde canlı değil** — sadece `/backend` tutorial içeriğinde örnek kod var, gerçek "Premium'a geç" butonu/checkout akışı henüz inşa edilmedi. Yani "ödeme ekranı prod'da görünmesin" kuralı şu an otomatik sağlanıyor (gösterilecek bir ekran yok). Gerçek premium UI ileride yazılırsa `src/lib/supabaseClient.js`'teki `isPremiumEnabled` (env: `VITE_ENABLE_PREMIUM`) ile gate'lenmeli — bu flag zaten hazır, sadece kullanılmayı bekliyor.
 - `npm run build` 32 route ile temiz geçiyor.
 
 ### Bu oturumda yaşanan ve çözülen gerçek buglar (önemli dersler)
@@ -103,13 +106,12 @@
 ### `learnqa-test`'te çalıştırılan SQL'ler (sırayla, hepsi başarılı)
 profiles sütunları (`full_name, email, is_admin, is_premium, premium_started_at, premium_until, payment_provider, avatar_emoji`) + column grant + auth.users backfill + kendi hesabını admin yapma + `NOTIFY pgrst, 'reload schema'` + `user_progress` policy düzeltmesi (madde 3).
 
-### `learnqa-prod`'da HENÜZ yapılmadı
-- Yukarıdaki SQL seti hiç çalıştırılmadı (sadece ilk `is_admin` kolonu + backfill koşulmuştu, o da eksik kalmış olabilir — test'tekiyle aynı şekilde sıfırdan kontrol edilmeli).
-- Google OAuth redirect URI'si Google Cloud'da eklendi ama Supabase prod projesinde gerçek bir Google girişi denenmedi.
-- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM`) repo'ya eklenmedi; `.github/workflows/deploy.yml`'a bu secret'ları build'e env olarak geçiren satırlar eklenmedi — **prod'a deploy edilse bile auth çalışmaz**.
+### `learnqa-prod` durumu
+- 2026-06-22'de Hasan'a `learnqa-prod` için test'tekiyle aynı SQL seti 5 parça halinde verildi (şema+sütunlar, RLS, trigger, backfill+admin, schema reload) — **Hasan'ın bunu gerçekten çalıştırıp çalıştırmadığı bir sonraki oturumda teyit edilmeli.** Çalıştırdıysa sırada: Supabase prod projesinde Authentication > Providers > Google'ı açması (Google Cloud redirect URI zaten eklenmişti) ve gerçek bir girişle test etmesi var.
+- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM=false`) repo'ya eklenmedi; `.github/workflows/deploy.yml`'a bu secret'ları build'e env olarak geçiren satırlar eklenmedi — **prod'a deploy edilse bile auth çalışmaz, bu yüzden push henüz yapılmadı (bilerek).**
 
 ### Sıradaki adım
-(1) `learnqa-prod`'da aynı SQL setini çalıştır ve gerçek Google girişiyle test et, (2) `.github/workflows/deploy.yml`'a env secret enjeksiyonu ekle, (3) `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesini uçtan uca test et, (4) rozet kazanma akışını (şu an sadece progress var, badge otomatik verilmiyor) gerçek koda bağla, (5) commit `9e82416` ve bu oturumun değişiklikleri push edilmeli.
+(1) `learnqa-prod`'da SQL setinin çalıştırıldığını teyit et + Google provider'ı prod'da aç + gerçek girişle test et, (2) `.github/workflows/deploy.yml`'a env secret enjeksiyonu ekle (prod secret'larıyla, test'le DEĞİL — bkz. aşağıdaki uyarı), (3) `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesini uçtan uca test et, (4) gerçek bir "Premium'a geç" UI'ı yazılınca `isPremiumEnabled` ile gate'le, (5) commit `9e82416`/`e0f05fd`/`ee4d74e` ve bu oturumun yeni commit'i push edilmeli — **ama önce (1) ve (2) tamamlanmadan push ETME**, yoksa learnqa.dev'de auth hiç çalışmaz.
 
 ---
 

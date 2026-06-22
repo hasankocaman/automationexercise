@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
     const [session, setSession] = useState(null)
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(isSupabaseConfigured)
+    const [earnedBadges, setEarnedBadges] = useState([])
 
     useEffect(() => {
         if (!isSupabaseConfigured) return
@@ -30,15 +31,30 @@ export function AuthProvider({ children }) {
             if (active) setProfile(data ?? null)
         }
 
+        async function loadBadges(currentSession) {
+            if (!currentSession) {
+                if (active) setEarnedBadges([])
+                return
+            }
+            const { data, error } = await supabase
+                .from('user_badges')
+                .select('badge_id, awarded_at, badges(title, icon, description)')
+                .eq('user_id', currentSession.user.id)
+            if (error) console.error('user_badges select failed:', error)
+            if (active) setEarnedBadges(data ?? [])
+        }
+
         supabase.auth.getSession().then(({ data }) => {
             if (!active) return
             setSession(data.session)
             loadProfile(data.session).finally(() => active && setLoading(false))
+            loadBadges(data.session)
         })
 
         const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
             setSession(nextSession)
             loadProfile(nextSession)
+            loadBadges(nextSession)
         })
 
         return () => {
@@ -100,25 +116,79 @@ export function AuthProvider({ children }) {
     // "Kaldığım yeri kaydet" butonu: üye olmayan ziyaretçi için localStorage'a yazar,
     // üye için ayrıca Supabase user_progress'e upsert eder (CLAUDE.md Bölüm 5: progress
     // üyelik şart olmadan da çalışmalı, üyelik sadece senkronizasyon katmanıdır).
-    async function saveProgress({ lessonSlug, topicSlug, topicLabel, routePath }) {
+    async function saveProgress({ lessonSlug, topicSlug, topicLabel, routePath, status = 'started' }) {
         const point = { lessonSlug, topicSlug, topicLabel, routePath, savedAt: new Date().toISOString() }
         try { localStorage.setItem(RESUME_KEY, JSON.stringify(point)) } catch { /* localStorage dolu/kapalı olabilir, sessizce geç */ }
 
         if (isSupabaseConfigured && session) {
-            const { error } = await supabase.from('user_progress').upsert({
+            const row = {
                 user_id: session.user.id,
                 lesson_slug: lessonSlug,
                 topic_slug: topicSlug,
-                status: 'started',
+                status,
                 last_position: { topicLabel, routePath },
                 updated_at: new Date().toISOString(),
-            }, { onConflict: 'user_id,lesson_slug,topic_slug' })
+            }
+            if (status === 'completed') row.completed_at = new Date().toISOString()
+            const { error } = await supabase
+                .from('user_progress')
+                .upsert(row, { onConflict: 'user_id,lesson_slug,topic_slug' })
             if (error) {
                 console.error('saveProgress failed:', error)
                 throw error
             }
         }
         return point
+    }
+
+    // Bir konuyu "tamamlandı" işaretlemek + rozet kazanma kontrolü. Sadece üyeler için
+    // gerçek rozet satırı oluşturur (badges/user_badges DB'de yaşar); anonim kullanıcı
+    // için sadece progress kaydı (yukarıdaki saveProgress zaten anonim de çalışır).
+    async function markTopicCompleted({ lessonSlug, topicSlug, topicLabel, routePath }) {
+        await saveProgress({ lessonSlug, topicSlug, topicLabel, routePath, status: 'completed' })
+        if (!isSupabaseConfigured || !session) return []
+
+        const { count, error: countError } = await supabase
+            .from('user_progress')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', session.user.id)
+            .eq('status', 'completed')
+        if (countError) {
+            console.error('markTopicCompleted count failed:', countError)
+            return []
+        }
+
+        const { data: badgeCatalog, error: catalogError } = await supabase
+            .from('badges')
+            .select('id, title, icon, description, required_completed_topics')
+        if (catalogError) {
+            console.error('badges select failed:', catalogError)
+            return []
+        }
+
+        const eligibleBadgeIds = (badgeCatalog ?? [])
+            .filter((badge) => (count ?? 0) >= badge.required_completed_topics)
+            .map((badge) => badge.id)
+        if (!eligibleBadgeIds.length) return []
+
+        const { data: newlyAwarded, error: awardError } = await supabase
+            .from('user_badges')
+            .upsert(
+                eligibleBadgeIds.map((badgeId) => ({ user_id: session.user.id, badge_id: badgeId })),
+                { onConflict: 'user_id,badge_id', ignoreDuplicates: true }
+            )
+            .select('badge_id, awarded_at, badges(title, icon, description)')
+        if (awardError) {
+            console.error('user_badges upsert failed:', awardError)
+            return []
+        }
+
+        setEarnedBadges((prev) => {
+            const existingIds = new Set(prev.map((b) => b.badge_id))
+            const merged = [...prev, ...(newlyAwarded ?? []).filter((b) => !existingIds.has(b.badge_id))]
+            return merged
+        })
+        return newlyAwarded ?? []
     }
 
     // Ana sayfada "kaldığın yerden devam et" göstermek için: üye ise en son güncellenen
@@ -192,7 +262,9 @@ export function AuthProvider({ children }) {
         sendMagicLink,
         signOut,
         saveProgress,
+        markTopicCompleted,
         getResumePoint,
+        earnedBadges,
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

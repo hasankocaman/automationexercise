@@ -12470,6 +12470,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const { language } = useLanguage()
     const location = useLocation()
+    const { markTopicCompleted } = useAuth()
+    const [newBadge, setNewBadge] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
         const isDark = saved !== null ? JSON.parse(saved) : true
@@ -12531,6 +12533,23 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const completedCount = tabs?.filter((_, index) => completedTabs[index] || quizVerifiedTabs[index]).length || 0
     const quizVerifiedCount = Object.values(quizVerifiedTabs).filter(Boolean).length
 
+    // Bir konu tamamlandığında progress'i Supabase'e de yazar ve rozet hak edilip
+    // edilmediğini kontrol eder (üye değilse markTopicCompleted sessizce sadece
+    // localStorage'a düşer, hata fırlatmaz — bkz. AuthContext.saveProgress).
+    function notifyTopicCompleted(tabIndex) {
+        markTopicCompleted({
+            lessonSlug: pageKey,
+            topicSlug: String(tabIndex),
+            topicLabel: tabs?.[tabIndex],
+            routePath: location.pathname,
+        }).then((badges) => {
+            if (badges?.length) {
+                setNewBadge(badges[0])
+                setTimeout(() => setNewBadge(null), 5000)
+            }
+        }).catch(() => { /* progress/badge senkronizasyonu başarısız olsa da UI'ı bozma */ })
+    }
+
     const toggleTabComplete = (tabIndex, e) => {
         e.stopPropagation()
         const isCompleted = !!completedTabs[tabIndex] || !!quizVerifiedTabs[tabIndex]
@@ -12548,6 +12567,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
         setQuizVerifiedTabs(updatedQuiz)
         try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updatedCompleted)) } catch { }
         try { localStorage.setItem(`quizProgress_${pageKey}`, JSON.stringify(updatedQuiz)) } catch { }
+        if (!isCompleted) notifyTopicCompleted(tabIndex)
     }
 
     const handleQuizCorrect = () => {
@@ -12562,6 +12582,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
             try { localStorage.setItem(`quizProgress_${pageKey}`, JSON.stringify(updated)) } catch { }
             return updated
         })
+        notifyTopicCompleted(activeTab)
     }
 
     return (
@@ -12574,6 +12595,18 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                 tabLabel={tabs?.[activeTab]}
                 routePath={location.pathname}
             />
+            {newBadge && (
+                <div
+                    style={{ position: 'fixed', bottom: '76px', right: '16px', zIndex: 1000 }}
+                    className="flex items-center gap-2 rounded-xl border border-amber-400 bg-amber-50 px-4 py-3 shadow-2xl animate-bounce"
+                >
+                    <span className="text-2xl">{newBadge.badges?.icon || '🏅'}</span>
+                    <div className="text-xs">
+                        <div className="font-bold text-amber-900">{language === 'tr' ? 'Yeni rozet!' : 'New badge!'}</div>
+                        <div className="text-amber-700">{newBadge.badges?.title}</div>
+                    </div>
+                </div>
+            )}
             <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">
