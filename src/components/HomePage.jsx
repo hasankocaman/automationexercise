@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 import { search as searchContent } from '../utils/searchIndex'
 import ZoomControls from './ZoomControls'
+import AccountMenu from './AccountMenu'
 import BasicElements from './BasicElements'
 import ComplexInteractions from './ComplexInteractions'
 import AdvancedScenarios from './AdvancedScenarios'
@@ -15,8 +17,10 @@ import PlaywrightLangCompare from './PlaywrightLangCompare'
 
 function HomePage() {
     const { language, t, toggleLanguage } = useLanguage()
+    const { isAdmin, getResumePoint } = useAuth()
     const navigate = useNavigate()
     const [activeSection, setActiveSection] = useState('basic')
+    const [resumePoint, setResumePoint] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
         const isDark = saved !== null ? JSON.parse(saved) : true
@@ -35,6 +39,11 @@ function HomePage() {
     const searchInputRef = useRef(null)
     const practiceSectionRef = useRef(null)
     const contentSectionRef = useRef(null)
+
+    useEffect(() => {
+        getResumePoint().then(setResumePoint).catch(() => setResumePoint(null))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
@@ -181,6 +190,7 @@ function HomePage() {
                                 </button>
                             </div>
                             <ZoomControls darkMode={darkMode} />
+                            <AccountMenu darkMode={darkMode} />
                             <button
                                 onClick={() => setDarkMode(!darkMode)}
                                 data-testid="dark-mode-toggle"
@@ -253,6 +263,37 @@ function HomePage() {
                             </div>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* ── Kaldığın Yerden Devam Et Banner ── */}
+            {resumePoint?.routePath && (
+                <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                    <Link
+                        to={resumePoint.routePath}
+                        state={{ openTab: Number.isFinite(Number(resumePoint.topicSlug)) ? Number(resumePoint.topicSlug) : 0 }}
+                        data-testid="resume-banner"
+                        className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${
+                            darkMode
+                                ? 'border-sky-700/60 bg-gradient-to-r from-sky-900/50 via-cyan-900/40 to-blue-900/40 hover:border-sky-500/80'
+                                : 'border-sky-300 bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 hover:border-sky-400'
+                        }`}
+                    >
+                        <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg ${darkMode ? 'bg-sky-700/60' : 'bg-sky-600'}`}>
+                            <span className="text-2xl md:text-3xl">📍</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {language === 'tr' ? 'Kaldığın yerden devam et' : 'Continue where you left off'}
+                            </h2>
+                            <p className={`text-xs md:text-sm leading-relaxed truncate ${darkMode ? 'text-sky-200/80' : 'text-sky-700'}`}>
+                                {resumePoint.topicLabel || resumePoint.lessonSlug}
+                            </p>
+                        </div>
+                        <div className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap ${darkMode ? 'bg-sky-600' : 'bg-sky-600'}`}>
+                            {language === 'tr' ? 'Git' : 'Go'} →
+                        </div>
+                    </Link>
                 </div>
             )}
 
@@ -388,7 +429,7 @@ function HomePage() {
                                 <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>🐳 Docker</Link>
                                 <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
                                 <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
-                                <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 Basit Backend</Link>
+                                {isAdmin && <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 Basit Backend</Link>}
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
@@ -523,7 +564,7 @@ function HomePage() {
                                     { to: '/docker', label: '🐳 Docker' },
                                     { to: '/git-github', label: '🔀 Git/GitHub' },
                                     { to: '/linux', label: '🐧 Linux' },
-                                    { to: '/backend', label: language === 'tr' ? '🧩 Basit Backend' : '🧩 Simple Backend' },
+                                    ...(isAdmin ? [{ to: '/backend', label: language === 'tr' ? '🧩 Basit Backend' : '🧩 Simple Backend' }] : []),
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
                                     { to: '/kafka', label: '🟠 Kafka' },

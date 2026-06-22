@@ -153,6 +153,16 @@ export const ROUTE_SEO = [
         title: 'Simple Backend Tutorial for QA Learning Apps | LearnQA.dev',
         description: 'Learn how to add Google login, user progress, badges, feedback and realtime chat to a React learning platform with Supabase.',
     },
+    {
+        path: '/auth/callback',
+        title: 'Signing you in | LearnQA.dev',
+        description: 'Completing your LearnQA.dev sign-in. You will be redirected automatically once authentication finishes.',
+    },
+    {
+        path: '/login',
+        title: 'Sign In or Sign Up | LearnQA.dev',
+        description: 'Sign in to LearnQA.dev with Google, GitHub, Microsoft, or a passwordless email Magic Link to save your learning progress.',
+    },
 ]
 
 export function getSeoForPath(pathname) {

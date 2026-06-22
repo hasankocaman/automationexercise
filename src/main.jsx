@@ -7,6 +7,7 @@ import './index.css'
 import './dark-overrides.css'
 import { LanguageProvider } from './context/LanguageContext'
 import { ZoomProvider } from './context/ZoomContext'
+import { AuthProvider } from './context/AuthContext'
 
 function migrateLegacyHashRoute() {
     const hashPath = window.location.hash
@@ -53,7 +54,9 @@ enableMocking().catch(console.error).finally(() => {
             <BrowserRouter>
                 <ZoomProvider>
                     <LanguageProvider>
-                        <App />
+                        <AuthProvider>
+                            <App />
+                        </AuthProvider>
                     </LanguageProvider>
                 </ZoomProvider>
             </BrowserRouter>

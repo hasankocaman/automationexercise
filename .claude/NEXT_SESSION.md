@@ -69,36 +69,60 @@
 - **Henüz yapılmamış (hesap yetkisi gerektirir):** Google Search Console domain property + DNS verification + sitemap submission + URL Inspection. Checklist: `codexSeo.md` → "Google Search Console — Tekrar Kullanılabilir Checklist".
 
 ### Stray/uncommitted dosyalar
-- **Şu anki `git status --short`:** `M .claude/NEXT_SESSION.md`, `M dist/index.html`, `M src/data/cypressData.js`, `?? .claude/settings.local.json`.
-- **Bu oturumda bilinçli güncellenen dosya:** `.claude/NEXT_SESSION.md` — Git/GitHub Pull Request sekmesi doğrulama kaydı ve scenario envanteri.
-- **Build kaynaklı dosya:** `dist/index.html` `npm run build` sonrası değişmiş görünüyor; build çıktısı olduğu için stage/commit öncesi özellikle kontrol edilmeli.
-- **Dokunulmayan yerel değişiklik:** `src/data/cypressData.js` bu turda düzenlenmedi; önceki/kullanıcı değişikliği olarak korunmalı.
+- **Şu anki `git status --short`:** `M .claude/NEXT_SESSION.md`, `M src/data/manualTestingData.js`, `M src/components/ManualTestingPage.jsx`, `?? .claude/settings.local.json`.
+- **Bu oturumda bilinçli güncellenen dosyalar:** `.claude/NEXT_SESSION.md` (bu günlük), `src/data/manualTestingData.js` (Feynman ve Recall ders verileri), `src/components/ManualTestingPage.jsx` (Nöro-optimizasyon modu arayüzü).
+- **Build kaynaklı dosyalar:** `dist/` klasörü altındaki statik dosyalar `npm run build` ile güncellendi.
 - **Untracked yerel ayar dosyası:** `.claude/settings.local.json` dokunulmadı. `Documents/_Java notlar.md` ignore edilen yerel not dosyasıdır.
 
-## 🧩 Basit Backend / Auth / Premium — Durum ve Bekleyen Kararlar (2026-06-21)
+## 🧩 Basit Backend / Auth / Premium / Progress — Durum (2026-06-22 güncel)
 
 **Bu bölüm önemli — sıradaki oturumda buradan devam et.**
 
-### Mevcut durum
-- `/backend` route'u ve `src/components/BackendPage.jsx` + `src/data/backendData.js` **henüz commit edilmedi** (`git status` çıktısında `??` ile untracked görünüyor). İçerik Codex tarafından, Claude Code tarafından review edilerek aşamalı yazıldı: (1) temel backend rehberi (auth/login, progress, rozet, feedback, realtime chat), (2) Premium paywall (Stripe + iyzico Edge Functions, RLS, idempotent webhook'lar), (3) Modern Auth (Google/GitHub/Microsoft OAuth + şifresiz Magic Link).
-- **Önemli:** Bu sayfadaki her şey şu ana kadar sadece **öğretim içeriği** (kod örnekleri `backendData.js` string'lerinde) — sitede gerçek bir Supabase projesine bağlı, çalışan bir backend **yok**. `src/lib`, `.env*`, `supabase/` gibi gerçek entegrasyon dosyaları henüz oluşturulmadı.
-- `/backend` şu an canlıda (deploy edilirse) **herkese açık**; hiçbir auth/role kontrolü yok.
+### Genel özet
+`/backend` artık tutorial olmaktan çıktı — gerçek, çalışan bir auth/progress sistemi var ve **test ortamında uçtan uca doğrulandı** (gerçek Google hesabıyla giriş, admin rolü, avatar, kaldığım yeri kaydet/devam et). Prod ortamı henüz aynı seviyeye getirilmedi (SQL adımları + GitHub Actions secret'ları eksik).
 
-### 2026-06-21 kararları (Hasan ile netleşti)
-1. **`/backend` sayfası gerçek admin-only olacak** — sadece görünürlük gizleme değil, gerçek Supabase Auth + admin rolü ile. Supabase projesi **sıfırdan** kurulacak.
-2. **Üyelik (membership) konusunda Hasan kararsız** → Supabase Auth/üyelik özelliği **sadece TEST ortamında** hazırlanacak, prod'a alınması ayrı ve sonraki bir karar. Prod'a alınana kadar canlı sitede gerçek üyelik/login akışı **aktif edilmeyecek**.
-3. **Yeni kalıcı gereksinim (bkz. `CLAUDE.md` Bölüm 5):** Progress kaydı (kaldığı yerden devam) ve rozetler, üyelik/login olmadan da çalışmalı — anonim/local-first (örn. localStorage) destek zorunlu, üyelik sadece opsiyonel senkronizasyon katmanı.
+### Mimari (onaylandı, değişmedi)
+- İki ayrı Supabase projesi: **`learnqa-test`** (`qtwargbbwuvrupfyowbg.supabase.co`, premium tam aktif, Stripe/iyzico sandbox) ve **`learnqa-prod`** (`qmvurwmcuexvuwvaiuhj.supabase.co`, gerçek üyelik, premium UI `VITE_ENABLE_PREMIUM=false` ile kapalı).
+- **Google OAuth:** Tek bir Google Cloud projesi (`LearnQA-Auth`), tek Client ID/Secret, **Authorised redirect URIs** alanına hem test hem prod'un Supabase callback URL'i eklendi (`.../qtwargbbwuvrupfyowbg.../auth/v1/callback` ve `.../qmvurwmcuexvuwvaiuhj.../auth/v1/callback`). Supabase Authentication > Providers'da Google her iki projede de bu tek credential ile aktif. GitHub/Microsoft (LinkedIn değil, login sayfasında "Microsoft" olarak geçiyor) **şimdilik devre dışı** — login sayfasında butonları görünüyor ama arkası kurulmadı, tıklanırsa hata verir.
+- Üyelik hem prod hem test'te olacak; premium/ödeme sadece TEST'te. Rozet/feedback/chat/progress **ücretsiz üyelere de açık** — paywall sadece kilitli ders İÇERİĞİNİ (`lesson_contents`) korur.
 
-### Bekleyen girdiler (bir sonraki oturumda Hasan'dan istenecek)
-- Supabase **Project URL** + **anon/publishable key** (test projesi sıfırdan kurulacaksa adım adım rehberlik gerekiyor).
-- Google OAuth provider'ının Supabase'te aktif olup olmadığı (Client ID/Secret durumu).
-- Admin hesabı: **gerçek e-posta hiçbir committed dosyaya yazılmayacak** — Hasan kendi Supabase SQL Editor'ünde kendi hesabını `is_admin = true` yapacak, Claude/Codex bu değeri görmeyecek/saklamayacak.
-- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) Hasan tarafından repo Settings > Secrets and variables > Actions'a eklenecek.
+### Gerçek kod (artık canlı, sadece tutorial değil)
+- `src/lib/supabaseClient.js`, `src/lib/avatarEmojis.js` (17 insan-temalı avatar emoji), `src/context/AuthContext.jsx` (session/profile/isAdmin/isPremium/displayName/avatarUrl/avatarEmoji/saveProgress/getResumePoint), `src/components/RequireAdmin.jsx`, `src/components/AuthCallback.jsx`, `src/components/LoginPage.jsx` (Google/GitHub/Microsoft + Magic Link), `src/components/AccountMenu.jsx` (avatar+isim+rol rozeti+avatar seçici+çıkış).
+- **`AccountMenu` artık her sayfada görünüyor** — `TopicHeader.jsx`'e eklendi (Java/Selenium/Python gibi ~30 sayfanın ortak header'ı), `HomePage.jsx`'te zaten vardı.
+- **"Kaldığım yeri kaydet" özelliği eklendi ve uçtan uca test edildi:** `TopicPage.jsx`'te sabit 📍 buton (home butonunun yanında, her konu sayfasında); `AuthContext.saveProgress()` localStorage + (üyeyse) Supabase `user_progress` upsert yapıyor. `HomePage.jsx`'te "Kaldığın yerden devam et" banner'ı `getResumePoint()` ile en son kaydı okuyup gösteriyor.
+- `/backend` route'u `<RequireAdmin>` ile sarılı; admin olmayan/giriş yapmamış kullanıcıya engelleme ekranı + "hangi hesapla giriş yaptığın" rozeti gösteriyor. `/backend` public SEO/sitemap/arama indeksinden çıkarıldı.
+- `.gitignore`'a `.env.local`/`.env.*.local` eklendi, `.env.example` commit'li (gerçek key yok).
+- `npm run build` 32 route ile temiz geçiyor.
+
+### Bu oturumda yaşanan ve çözülen gerçek buglar (önemli dersler)
+1. **`NEXT_PUBLIC_*` vs `VITE_*`:** Proje Next.js değil Vite — env değişkenleri `VITE_` önekiyle başlamalı, yoksa sessizce `undefined` olur.
+2. **`profiles` sütunları eksikti:** `is_admin`/`is_premium`/`avatar_emoji` `learnqa-test`'te tam oluşmamıştı; profil sorgusu sessizce `400 (column does not exist)` veriyordu. **Ders:** `AuthContext.loadProfile()`'a eklenen `console.error` gerçek nedeni ortaya çıkardı — Supabase sorgusu sessiz başarısız olursa önce konsola gerçek hatayı yazdır, tahmin etme.
+3. **Premium RLS, `user_progress`'i `lessons` tablosuna (sadece 7 sayfa) bağlamıştı** — "kaldığım yeri kaydet" Java/JMeter/Docker gibi ~25 sayfada RLS hatasıyla başarısız oluyordu. `user_progress` policy'leri `can_access_lesson()` bağımlılığından çıkarıldı (paywall sadece `lesson_contents`'te kalmalı, progress kaydında değil).
+4. **Resume banner yanlış sekmeyi açıyordu:** `Link`'e `state={{ openTab }}` eklenmemişti, her zaman ilk sekme açılıyordu. Düzeltildi, JMeter > Orta Seviye senaryosuyla uçtan uca doğrulandı.
+
+### `learnqa-test`'te çalıştırılan SQL'ler (sırayla, hepsi başarılı)
+profiles sütunları (`full_name, email, is_admin, is_premium, premium_started_at, premium_until, payment_provider, avatar_emoji`) + column grant + auth.users backfill + kendi hesabını admin yapma + `NOTIFY pgrst, 'reload schema'` + `user_progress` policy düzeltmesi (madde 3).
+
+### `learnqa-prod`'da HENÜZ yapılmadı
+- Yukarıdaki SQL seti hiç çalıştırılmadı (sadece ilk `is_admin` kolonu + backfill koşulmuştu, o da eksik kalmış olabilir — test'tekiyle aynı şekilde sıfırdan kontrol edilmeli).
+- Google OAuth redirect URI'si Google Cloud'da eklendi ama Supabase prod projesinde gerçek bir Google girişi denenmedi.
+- GitHub Actions secret'ları (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM`) repo'ya eklenmedi; `.github/workflows/deploy.yml`'a bu secret'ları build'e env olarak geçiren satırlar eklenmedi — **prod'a deploy edilse bile auth çalışmaz**.
 
 ### Sıradaki adım
-Yukarıdaki girdiler geldiğinde: (1) gerçek `src/lib/supabaseClient.js`, `AuthContext`, `RequireAdmin` route guard'ı App.jsx'e bağlanacak, (2) anonim/local-first progress+rozet mantığı (üyelik şart olmadan) backend tarafına eklenecek, (3) `.github/workflows/deploy.yml`'a env secret enjeksiyonu eklenecek.
+(1) `learnqa-prod`'da aynı SQL setini çalıştır ve gerçek Google girişiyle test et, (2) `.github/workflows/deploy.yml`'a env secret enjeksiyonu ekle, (3) `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesini uçtan uca test et, (4) rozet kazanma akışını (şu an sadece progress var, badge otomatik verilmiyor) gerçek koda bağla, (5) commit `9e82416` ve bu oturumun değişiklikleri push edilmeli.
 
 ---
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-21, 30. kısım — Manuel test interaktif nöro-optimizasyon modu)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** Nöro-optimizasyon temelli öğrenme planını (Aralıklı Tekrar, Feynman Tekniği, Aktif Hatırlama) manuel test sayfasına entegre etmek ve tüm ziyaretçilerin bu teknikleri interaktif olarak kullanmasını sağlamak. | ✅ |
+| **Bilingual Data Entegrasyonu (`src/data/manualTestingData.js`):** 6 manuel test dersi için Türkçe ve İngilizce Feynman anahtar kelimeleri/model cevapları ile Aktif Hatırlama soru ve cevapları eklendi. Ayrıca mod arayüzü için gerekli tüm metinler (`neuroModeToggle`, `spacedRepTitle`, vb.) lokalize edildi. | ✅ |
+| **Aralıklı Tekrar Takipçisi (Spaced Repetition Tracker):** `localStorage` tabanlı bir programlama aracı yazıldı. Kullanıcı ilk gün çalışmaya başlayınca döngüyü aktif ediyor ve 1. Gün (Öğrenim), 3. Gün (Aktif Recall), 7. Gün (Pekiştirme) ve 30. Gün (Kalıcılık) hedeflerini tarih bazlı takip edip tamamlayabiliyor. | ✅ |
+| **Feynman Tekniği Çalışma Alanı (Feynman Workspace):** Kullanıcı konuyu 10 yaşındaki bir çocuğa anlatır gibi yazıyor; "Açıklarımı Bul"a basınca sistem harf-normalizasyonu yaparak metinde hangi anahtar kelimelerin eksik veya mevcut olduğunu kontrol ediyor. Karşılaştırma için model cevap ve başarı yüzdesi gösteriliyor. | ✅ |
+| **Aktif Hatırlama Kartları (Active Recall Flashcards):** Derslere entegre edilen flip kartlar. Kullanıcı soruyu okuyor, tıklayınca kart cevap yüzüne dönüyor ve "Hatırladım ✓ / Tekrar Bak ✗" butonlarıyla başarısını `localStorage` üzerine kaydediyor. | ✅ |
+| **Doğrulama:** `npm run build` komutu çalıştırıldı. Rota sayısı 30'a çıktı, SEO check, sitemap, static route shell üretimi ve dist-seo kontrol adımları başarıyla tamamlandı. `localStorage` veri yazma/okuma döngüleri ve mod geçişleri test edildi. | ✅ |
 
 ## ✅ Bu Oturumda Tamamlananlar (2026-06-19, 29. kısım — Git/GitHub Pull Request sekmesi)
 

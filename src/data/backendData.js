@@ -1115,85 +1115,66 @@ using ((select auth.uid()) = user_id);
 -- payment_events ham webhook kayıtları client'a açılmaz.
 -- Policy yazmıyoruz: RLS açık + policy yok = browser erişemez.
 
--- user_progress: ücretsiz dersler veya premium dersler için kendi progress satırını okuyup yazabilir.
+-- Karar (2026-06-22): user_progress, lessons/can_access_lesson'a BAĞLI DEĞİLDİR.
+-- "Kaldığım yeri kaydet" özelliği site genelinde (Java, JMeter, Docker dahil ~30 sayfa)
+-- çalışmalı; bu sayfaların hiçbiri premium "lessons" tablosunda kayıtlı değil. Paywall
+-- sadece kilitli ders İÇERİĞİNİ (lesson_contents) korur, progress kaydını korumaz.
+-- Yazılmazsa: can_access_lesson() lessons tablosunda olmayan her sayfa için false
+-- döner ve "kaldığım yeri kaydet" o sayfalarda RLS hatasıyla başarısız olur.
 drop policy if exists "users read own progress" on public.user_progress;
 drop policy if exists "users write own progress" on public.user_progress;
 drop policy if exists "users update own progress" on public.user_progress;
+drop policy if exists "users read own allowed progress" on public.user_progress;
+drop policy if exists "users insert own allowed progress" on public.user_progress;
+drop policy if exists "users update own allowed progress" on public.user_progress;
 
-create policy "users read own allowed progress"
+create policy "users read own progress"
 on public.user_progress for select to authenticated
-using (
-  (select auth.uid()) = user_id
-  and public.can_access_lesson(lesson_slug, (select auth.uid()))
-);
+using ((select auth.uid()) = user_id);
 
-create policy "users insert own allowed progress"
+create policy "users insert own progress"
 on public.user_progress for insert to authenticated
-with check (
-  (select auth.uid()) = user_id
-  and public.can_access_lesson(lesson_slug, (select auth.uid()))
-);
+with check ((select auth.uid()) = user_id);
 
-create policy "users update own allowed progress"
+create policy "users update own progress"
 on public.user_progress for update to authenticated
-using (
-  (select auth.uid()) = user_id
-  and public.can_access_lesson(lesson_slug, (select auth.uid()))
-)
-with check (
-  (select auth.uid()) = user_id
-  and public.can_access_lesson(lesson_slug, (select auth.uid()))
-);
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
--- Rozetler premium deneyimin parçasıysa user_badges sadece premium kullanıcıya açılır.
+-- Karar (2026-06-21): Rozetler, feedback ve chat ÜCRETSİZ üyelere de açıktır.
+-- Paywall sadece kilitli ders İÇERİĞİNİ (lesson_contents) korur — yukarıdaki
+-- "lesson content follows paywall" policy'si.
+-- Yazılmazsa: prod'da premium hiç satılmadığı için rozet/feedback/chat fiilen kimseye açılmaz.
 drop policy if exists "users read own badges" on public.user_badges;
-create policy "premium users read own badges"
+create policy "users read own badges"
 on public.user_badges for select to authenticated
-using (
-  (select auth.uid()) = user_id
-  and public.is_premium_user((select auth.uid()))
-);
+using ((select auth.uid()) = user_id);
 
--- Feedback sadece premium üyelerden alınacaksa insert/read policy premium kontrolü yapar.
 drop policy if exists "users write own feedback" on public.feedback;
 drop policy if exists "users read own feedback" on public.feedback;
 
-create policy "premium users write own feedback"
+create policy "users write own feedback"
 on public.feedback for insert to authenticated
-with check (
-  (select auth.uid()) = user_id
-  and public.is_premium_user((select auth.uid()))
-);
+with check ((select auth.uid()) = user_id);
 
-create policy "premium users read own feedback"
+create policy "users read own feedback"
 on public.feedback for select to authenticated
-using (
-  (select auth.uid()) = user_id
-  and public.is_premium_user((select auth.uid()))
-);
+using ((select auth.uid()) = user_id);
 
--- Chat: premium olmayan kullanıcı mesaj okuyamaz/gönderemez.
 drop policy if exists "signed in users read chat" on public.chat_messages;
 drop policy if exists "signed in users send chat" on public.chat_messages;
 drop policy if exists "users delete own chat messages" on public.chat_messages;
 
-create policy "premium users read chat"
-on public.chat_messages for select to authenticated
-using (public.is_premium_user((select auth.uid())));
+create policy "signed in users read chat"
+on public.chat_messages for select to authenticated using (true);
 
-create policy "premium users send chat"
+create policy "signed in users send chat"
 on public.chat_messages for insert to authenticated
-with check (
-  (select auth.uid()) = user_id
-  and public.is_premium_user((select auth.uid()))
-);
+with check ((select auth.uid()) = user_id);
 
-create policy "premium users delete own chat"
+create policy "users delete own chat messages"
 on public.chat_messages for delete to authenticated
-using (
-  (select auth.uid()) = user_id
-  and public.is_premium_user((select auth.uid()))
-);`;
+using ((select auth.uid()) = user_id);`;
 
 const stripeCheckoutFunctionCode = `// supabase/functions/create-stripe-checkout/index.ts
 // Amaç: React sadece bu Edge Function'ı çağırır; Stripe secret key tarayıcıya hiç gitmez.
@@ -2712,18 +2693,18 @@ const premiumRlsGuideBlock = {
       },
     },
     {
-      line: 'chat_messages + is_premium_user(auth.uid())',
+      line: 'user_badges / feedback / chat_messages → sadece auth.uid() = user_id',
       meaning: {
-        tr: 'Canlı sohbeti sadece aktif premium üyeye açar.',
-        en: 'Opens live chat only to active premium users.',
+        tr: 'Rozet, feedback ve chat policy’leri `is_premium_user()` kontrolü içermez; sadece kendi satırına bakan herhangi bir üye erişebilir.',
+        en: 'Badge, feedback, and chat policies skip the is_premium_user() check; any signed-in member can access their own rows.',
       },
       why: {
-        tr: 'Prompttaki iş kuralı premium üyeye chat, feedback ve rozet erişimi veriyor.',
-        en: 'The requested business rule grants chat, feedback, and badges to premium users.',
+        tr: '2026-06-21 kararı: prod’da premium hiç satılmıyor. Bu modülleri premium’a bağlarsak prod’da kimse onlara erişemez. Asıl paywall sadece `lesson_contents`/ilerlemede kalır.',
+        en: 'Decision on 2026-06-21: premium is never sold in prod. Gating these modules on premium would make them unreachable in prod. The real paywall stays only on lesson_contents/progress.',
       },
       missing: {
-        tr: 'Standart üyeler premium modülleri API üzerinden kullanabilir.',
-        en: 'Standard users can use premium modules through the API.',
+        tr: 'Bu satır olmadan (yani is_premium_user() geri eklenirse) prod’daki ücretsiz üyeler rozet kazanamaz, feedback yazamaz, sohbete giremez.',
+        en: 'Without this (i.e. if is_premium_user() were added back), free members in prod could not earn badges, send feedback, or join chat.',
       },
     },
   ],
@@ -3066,6 +3047,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
         type: 'warning',
         content: 'Publishable key client tarafında kullanılabilir; secret/service_role key asla React koduna, GitHub’a veya tarayıcıya konmaz. Service role Java’daki admin yetkili private service gibi sadece server tarafında yaşar.',
       },
+      {
+        type: 'quiz',
+        question: 'Bir RLS policy’sinde `profiles.is_premium` kontrolünü her policy içine ayrı ayrı inline subquery olarak yazmak yerine `security definer` bir SQL fonksiyonunda (`is_premium_user()`) toplamanın asıl pratik nedeni nedir?',
+        options: [
+          { id: 'a', text: 'Sadece daha az satır görünsün diye, kozmetik bir tercih' },
+          { id: 'b', text: 'Premium kuralı tek yerde değişir; tüm policy’ler aynı mantığı kullanır ve yinelenen/recursive hata riski azalır' },
+          { id: 'c', text: 'RLS’i tamamen devre dışı bırakmak için' },
+          { id: 'd', text: 'Sadece admin kullanıcılar için çalıştığından' },
+        ],
+        correct: 'b',
+        explanation: 'Aynı kontrol mantığı birden çok policy’ye kopyalanırsa, biri güncellenip diğeri unutulduğunda güvenlik açığı oluşur. Tek bir security definer fonksiyon, Java’da ortak bir authorization service metodunu çağırmak gibidir — tek yerden değişir, her policy aynı doğruyu kullanır.',
+      },
     ],
   },
   {
@@ -3159,6 +3152,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
           ['Magic Link formu herkese açık', 'Rate limit/CAPTCHA eklemeden canlıya almak', 'Supabase’in varsayılan OTP rate limitini kapatma; genel kullanıma açmadan önce Authentication > Settings içine Bot and Abuse Protection (CAPTCHA) ekle — yoksa herkes başkasının e-postasına link spam’leyebilir.'],
         ],
       },
+      {
+        type: 'quiz',
+        question: 'Bir kullanıcı Magic Link isteğini masaüstü tarayıcısından gönderip, e-postasındaki linke telefonunun mail uygulamasından tıklarsa ne olur?',
+        options: [
+          { id: 'a', text: 'Sorunsuz şekilde giriş yapar' },
+          { id: 'b', text: '“invalid code verifier” hatası alır; çünkü PKCE code_verifier sadece isteği başlatan tarayıcıda saklanır' },
+          { id: 'c', text: 'Supabase otomatik olarak masaüstü tarayıcısına yönlendirir' },
+          { id: 'd', text: 'İki cihaz otomatik olarak eşleştirilir' },
+        ],
+        correct: 'b',
+        explanation: 'PKCE akışında code_verifier sadece isteği başlatan tarayıcının yerel belleğinde tutulur. Linke farklı bir tarayıcı/cihazdan tıklamak, o anahtarı bulamaz. Kullanıcıya “linki istek attığın tarayıcıda aç” uyarısı vermek bu hatayı önler.',
+      },
     ],
   },
   {
@@ -3212,6 +3217,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
           tr: 'Eksik parça var. Progress tablosunda user_id + lesson_slug + topic_slug birlikte benzersiz olmalı; yoksa aynı konu için çok sayıda satır oluşur.',
           en: 'A piece is missing. user_id + lesson_slug + topic_slug must be unique, otherwise one topic creates many rows.',
         },
+      },
+      {
+        type: 'quiz',
+        question: 'Kullanıcı aynı dersi/konuyu birden fazla kez “tamamlandı” olarak kaydederse `user_progress` tablosunda ne olmalı?',
+        options: [
+          { id: 'a', text: 'Her kayıtta yeni bir satır eklenir, eski satırlar durur' },
+          { id: 'b', text: '`user_id + lesson_slug + topic_slug` unique kısıtlamasına göre mevcut satır upsert ile güncellenir' },
+          { id: 'c', text: 'Eski satır silinir ve hiçbir kayıt kalmaz' },
+          { id: 'd', text: 'Kayıt hata verip tamamen engellenir' },
+        ],
+        correct: 'b',
+        explanation: 'Unique kısıtlama olmadan her “tamamlandı” işareti yeni bir satır açar; resume mantığı hangi satırın güncel olduğunu bilemez. Upsert + unique(user_id, lesson_slug, topic_slug), Java’daki bir Map’e aynı key ile tekrar put() yapmak gibi: değer güncellenir, yeni giriş açılmaz.',
       },
     ],
   },
@@ -3267,6 +3284,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
           en: 'A critical badge check is missing. The common mistake is using insert and generating the same badge repeatedly.',
         },
       },
+      {
+        type: 'quiz',
+        question: 'Bir rozet verme fonksiyonu, upsert yerine düz `insert` kullanırsa ne olur?',
+        options: [
+          { id: 'a', text: 'Kullanıcı aynı rozeti tekrar tekrar kazanabilir veya duplicate-key hatası alınır' },
+          { id: 'b', text: 'Hiçbir şey değişmez, davranış aynıdır' },
+          { id: 'c', text: 'Rozet otomatik olarak silinir' },
+          { id: 'd', text: 'RLS bu durumu kendiliğinden engeller' },
+        ],
+        correct: 'a',
+        explanation: '`user_badges` üzerinde unique(user_id, badge_id) varsa düz insert ikinci denemede hata fırlatır; yoksa aynı rozet defalarca kaydedilir. Upsert + onConflict, “bu rozet zaten var mı?” sorusunu veritabanına bırakır — Java’da bir Set’e aynı elemanı tekrar eklemeye çalışmak gibi, sonuç hep tek bir kayıt olmalı.',
+      },
     ],
   },
   {
@@ -3317,6 +3346,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
           tr: 'Feedback kodunda eksik var. Özellikle page_path ve mesaj uzunluğu ileride triage yaparken çok işe yarar.',
           en: 'Feedback code is missing something. page_path and message length checks help a lot during triage.',
         },
+      },
+      {
+        type: 'quiz',
+        question: 'Feedback satırında `page_path` alanını saklamanın asıl pratik faydası nedir?',
+        options: [
+          { id: 'a', text: 'Sadece dekoratif bir alan, gerçek faydası yok' },
+          { id: 'b', text: 'Geri bildirimin hangi sayfadan geldiğini gösterip triage/önceliklendirmeyi kolaylaştırır' },
+          { id: 'c', text: 'RLS’i devre dışı bırakır' },
+          { id: 'd', text: 'Kullanıcının şifresini doğrular' },
+        ],
+        correct: 'b',
+        explanation: '“Selenium sayfasında şu bölüm eksik” diyen 50 feedback satırı arasında page_path olmadan hangisinin nereden geldiğini bulmak zorlaşır. Bu alan, Java’daki log satırına request path eklemek gibidir — sorun anında debugging/triage süresini kısaltır.',
       },
     ],
   },
@@ -3375,6 +3416,18 @@ alter publication supabase_realtime add table public.chat_messages;`,
       {
         type: 'warning',
         content: 'Sohbeti açmadan önce küçük moderasyon kuralları koy: maksimum 500 karakter, sadece authenticated kullanıcı insert yapabilir, kullanıcı kendi mesajını silebilir. Küfür/spam filtresi gerekiyorsa Edge Function veya backend endpoint eklenir.',
+      },
+      {
+        type: 'quiz',
+        question: 'Bir geliştirici `supabase.channel(...).on(\'postgres_changes\', {...}, callback)` yazıp en sonda `.subscribe()` çağırmayı unutursa ne olur?',
+        options: [
+          { id: 'a', text: 'Mesajlar normal şekilde canlı düşmeye devam eder' },
+          { id: 'b', text: 'Kanal hiç aktifleşmez; hiçbir realtime event tetiklenmez' },
+          { id: 'c', text: 'Sadece ilk mesaj canlı düşer, sonrakiler düşmez' },
+          { id: 'd', text: 'RLS bu durumda hata fırlatır' },
+        ],
+        correct: 'b',
+        explanation: '`.on(...)` sadece dinleyiciyi tanımlar; kanalı gerçekten açan çağrı `.subscribe()`dir. Java’da bir event listener’ı tanımlayıp hiç `addListener()` ile register etmemek gibi düşün — kod derlenir ama hiçbir event hiç ele alınmaz.',
       },
     ],
   },
@@ -3529,6 +3582,18 @@ Connect provider webhook URLs to Supabase function URLs`,
           ['Tutar doğrulama', 'Webhook SUCCESS geldi diye tutarı hiç kontrol etme', 'Stripe amount_total kontrol et; iZico Checkout Form akışında CF-Retrieve ile paidPrice/currency doğrula.'],
         ],
       },
+      {
+        type: 'quiz',
+        question: 'Bir Stripe webhook handler’ı, gelen JSON içindeki `status: success` alanına bakıp imza doğrulaması yapmadan direkt `is_premium = true` yaparsa asıl risk nedir?',
+        options: [
+          { id: 'a', text: 'Sadece biraz performans kaybı olur' },
+          { id: 'b', text: 'Herhangi biri sahte bir POST isteğiyle kendini ücretsiz premium yapabilir' },
+          { id: 'c', text: 'Stripe bu durumu otomatik olarak engeller' },
+          { id: 'd', text: 'JSON formatı zaten güvenli olduğundan gerçek bir risk yoktur' },
+        ],
+        correct: 'b',
+        explanation: 'Webhook endpoint’i herkese açık bir URL’dir; imza doğrulaması olmadan gelen her POST isteği güvenilir kabul edilir. Bu, Java’da bir REST endpoint’ine gelen her isteği "Authorization header var mı" diye kontrol etmeden admin yetkisi vermek gibidir — saldırgan sadece doğru JSON şeklini taklit ederek premium kazanır.',
+      },
     ],
   },
   {
@@ -3615,6 +3680,18 @@ Check Google OAuth origin/redirect settings`,
           en: 'Order is risky. If you wire login before env and OAuth settings, you will debug UI while the real problem is Google/Supabase config.',
         },
       },
+      {
+        type: 'quiz',
+        question: '`SUPABASE_SERVICE_ROLE_KEY` değerini React tarafında `VITE_` ön ekli bir env değişkenine koyarsak ne olur?',
+        options: [
+          { id: 'a', text: 'Sadece server tarafında çalışır, güvenli kalır' },
+          { id: 'b', text: 'Vite build’te tarayıcıya gömülür; RLS’i bypass eden admin key herkese açık hale gelir' },
+          { id: 'c', text: 'Build hata verip durur' },
+          { id: 'd', text: 'Sadece local dev’de çalışır, production’da hiç çalışmaz' },
+        ],
+        correct: 'b',
+        explanation: '`VITE_` ön eki olan her değişken, Vite tarafından bilerek public JS bundle’ına gömülür — bu yüzden publishable/anon key için güvenlidir ama service_role key için felakettir. Java’da bir admin şifresini frontend’e gömüp “zaten kimse bakmaz” demek gibi düşün; herkes derlenmiş JS dosyasını açıp okuyabilir.',
+      },
     ],
   },
 ];
@@ -3647,6 +3724,18 @@ const enSections = [
           ['Online chat', 'Realtime Postgres Changes', 'chat_messages'],
         ],
       },
+      {
+        type: 'quiz',
+        question: 'What is the most practical reason for choosing Supabase for this app?',
+        options: [
+          { id: 'a', text: 'It only generates static HTML' },
+          { id: 'b', text: 'It manages Auth, Postgres, RLS, and Realtime needs from one dashboard' },
+          { id: 'c', text: 'It refuses to run without a Google account' },
+          { id: 'd', text: 'It forces you to write Java instead of React' },
+        ],
+        correct: 'b',
+        explanation: 'This project needs membership, progress, badges, feedback, and chat. Supabase lets us start all of these without writing separate backend services; a custom Edge Function or a classic Node/Spring Boot backend can be added later if needed.',
+      },
     ],
   },
   {
@@ -3662,6 +3751,18 @@ const enSections = [
         triggerGuideBlock,
         { type: 'code', label: '4) Realtime', language: 'sql', code: realtimeSql },
         realtimeGuideBlock,
+      {
+        type: 'quiz',
+        question: 'Why centralize the `profiles.is_premium` check inside a `security definer` SQL function (`is_premium_user()`) instead of writing the same subquery inline in every RLS policy?',
+        options: [
+          { id: 'a', text: 'It produces fewer lines of code, purely cosmetic' },
+          { id: 'b', text: 'Every policy reuses the same rule from one place, cutting the risk of duplicated or recursive logic' },
+          { id: 'c', text: 'It disables RLS entirely' },
+          { id: 'd', text: 'It only works for admin accounts' },
+        ],
+        correct: 'b',
+        explanation: 'If the same check is copied into many policies, updating one and forgetting another creates a security hole. A single security definer function is like calling one shared authorization service method in Java — change it once, every policy uses the same truth.',
+      },
     ],
   },
   {
@@ -3699,6 +3800,18 @@ const enSections = [
           ['The Magic Link form is public', 'Ship it without rate limiting or CAPTCHA', 'Keep Supabase default OTP rate limits enabled and add Bot and Abuse Protection (CAPTCHA) under Authentication > Settings before going public, otherwise anyone can spam links to someone else’s email.'],
         ],
       },
+      {
+        type: 'quiz',
+        question: 'A user requests a Magic Link from their desktop browser, then opens the email and clicks the link from their phone’s mail app. What happens?',
+        options: [
+          { id: 'a', text: 'They sign in without any issue' },
+          { id: 'b', text: 'The exchange fails with "invalid code verifier" because the PKCE code_verifier only exists in the browser that started the request' },
+          { id: 'c', text: 'Supabase automatically redirects them back to the desktop browser' },
+          { id: 'd', text: 'The two devices get paired automatically' },
+        ],
+        correct: 'b',
+        explanation: 'In the PKCE flow, the code_verifier only lives in the local storage of the browser that started the request. Opening the link from a different browser or device cannot find that key. Telling users to open the link in the same browser that requested it prevents this error.',
+      },
     ],
   },
   {
@@ -3708,6 +3821,18 @@ const enSections = [
       { type: 'simulation', title: { tr: 'Progress kaydı: React state -> Supabase row -> tekrar açınca resume', en: 'Progress save: React state -> Supabase row -> resume on return' }, description: { tr: 'Progress upsert ve resume akışını gösterir.', en: 'Shows progress upsert and resume flow.' }, scenario: 'backend-progress-flow', color: '#10b981', icon: '📍' },
         { type: 'code', label: 'Progress API', language: 'javascript', code: progressCode },
         progressGuideBlock,
+      {
+        type: 'quiz',
+        question: 'If a user marks the same lesson/topic as completed more than once, what should happen in `user_progress`?',
+        options: [
+          { id: 'a', text: 'A new row is inserted every time' },
+          { id: 'b', text: 'The existing row is updated via upsert based on the user_id + lesson_slug + topic_slug unique constraint' },
+          { id: 'c', text: 'The old row is deleted and nothing is saved' },
+          { id: 'd', text: 'The save is blocked with an error' },
+        ],
+        correct: 'b',
+        explanation: 'Without a unique constraint, every "completed" mark opens a new row and resume logic cannot tell which row is current. Upsert plus unique(user_id, lesson_slug, topic_slug) is like calling put() on a Java Map with the same key again: the value updates, no new entry appears.',
+      },
     ],
   },
   {
@@ -3717,6 +3842,18 @@ const enSections = [
       { type: 'text', content: 'For the first version, a small client-side badge check is enough for learning motivation. If badges become important, move award logic to an Edge Function or backend endpoint.' },
         { type: 'code', label: 'Simple badge code', language: 'javascript', code: badgeCode },
         badgeGuideBlock,
+      {
+        type: 'quiz',
+        question: 'What happens if a badge-awarding function uses plain `insert` instead of an idempotent `upsert`?',
+        options: [
+          { id: 'a', text: 'The user can earn the same badge multiple times, or the insert throws a duplicate-key error' },
+          { id: 'b', text: 'Nothing changes, behavior stays the same' },
+          { id: 'c', text: 'The badge gets deleted automatically' },
+          { id: 'd', text: 'RLS blocks it on its own' },
+        ],
+        correct: 'a',
+        explanation: 'If user_badges has unique(user_id, badge_id), a plain insert throws on the second attempt; without it, the same badge keeps piling up. Upsert plus onConflict leaves the "does this badge already exist?" question to the database — like trying to add the same element to a Java Set twice, the result should always stay a single entry.',
+      },
     ],
   },
   {
@@ -3725,6 +3862,18 @@ const enSections = [
       { type: 'simple-box', emoji: '📝', content: 'Feedback is the suggestion box in the classroom. The user writes what is missing, and the app stores who wrote it and from which page.' },
         { type: 'code', label: 'Feedback API', language: 'javascript', code: feedbackCode },
         feedbackGuideBlock,
+      {
+        type: 'quiz',
+        question: 'What is the real practical benefit of storing `page_path` on a feedback row?',
+        options: [
+          { id: 'a', text: 'It is purely decorative, no real benefit' },
+          { id: 'b', text: 'It shows which page the feedback came from, making triage and prioritization easier' },
+          { id: 'c', text: 'It disables RLS' },
+          { id: 'd', text: 'It verifies the user’s password' },
+        ],
+        correct: 'b',
+        explanation: 'Among 50 rows saying "this section is missing on the Selenium page," finding which page each one came from without page_path is hard. It is like adding the request path to a Java log line — it shortens debugging and triage time the moment something needs attention.',
+      },
     ],
   },
   {
@@ -3734,6 +3883,18 @@ const enSections = [
       { type: 'simulation', title: { tr: 'Realtime Chat: insert -> channel -> diğer kullanıcıların ekranı', en: 'Realtime Chat: insert -> channel -> other users screens' }, description: { tr: 'Realtime chat event akışını gösterir.', en: 'Shows the realtime chat event flow.' }, scenario: 'supabase-realtime-chat', color: '#8b5cf6', icon: '🟣' },
         { type: 'code', label: 'Chat API', language: 'javascript', code: chatCode },
         chatGuideBlock,
+      {
+        type: 'quiz',
+        question: 'A developer writes `supabase.channel(...).on(\'postgres_changes\', {...}, callback)` but forgets to call `.subscribe()`. What happens?',
+        options: [
+          { id: 'a', text: 'Messages still arrive live as normal' },
+          { id: 'b', text: 'The channel never activates; no realtime event ever fires' },
+          { id: 'c', text: 'Only the first message arrives' },
+          { id: 'd', text: 'RLS throws an error' },
+        ],
+        correct: 'b',
+        explanation: '`.on(...)` only registers a listener; `.subscribe()` is the call that actually opens the channel. It is like defining an event listener in Java but never calling addListener() to register it — the code compiles, but no event is ever handled.',
+      },
     ],
   },
   {
@@ -3789,6 +3950,18 @@ const enSections = [
           ['Amount verification', 'Trust SUCCESS without checking amount', 'Check Stripe amount_total; in iyzico Checkout Form, verify paidPrice/currency with CF-Retrieve.'],
         ],
       },
+      {
+        type: 'quiz',
+        question: 'If a Stripe webhook handler trusts a `status: success` field in the raw JSON and sets `is_premium = true` without verifying the signature, what is the real risk?',
+        options: [
+          { id: 'a', text: 'Only a small performance cost' },
+          { id: 'b', text: 'Anyone can grant themselves free premium with a forged POST request' },
+          { id: 'c', text: 'Stripe blocks this automatically' },
+          { id: 'd', text: 'There is no real risk since the JSON is already safe' },
+        ],
+        correct: 'b',
+        explanation: 'The webhook endpoint is a public URL; without signature verification, every incoming POST is trusted blindly. It is like granting admin rights to any REST request without checking an Authorization header in Java — an attacker only needs to mimic the right JSON shape to earn premium.',
+      },
     ],
   },
   {
@@ -3799,6 +3972,18 @@ const enSections = [
         { type: 'code', label: 'Install commands', language: 'bash', code: installCode },
         { type: 'code', label: '.env.local', language: 'bash', code: envCode },
         installGuideBlock,
+      {
+        type: 'quiz',
+        question: 'What happens if `SUPABASE_SERVICE_ROLE_KEY` is placed in a `VITE_`-prefixed env variable used by the React app?',
+        options: [
+          { id: 'a', text: 'It only runs server-side, so it stays safe' },
+          { id: 'b', text: 'Vite bakes it into the public browser bundle, exposing the admin key that bypasses RLS to anyone' },
+          { id: 'c', text: 'The build fails' },
+          { id: 'd', text: 'It only works in local dev, never in production' },
+        ],
+        correct: 'b',
+        explanation: 'Every `VITE_`-prefixed variable is intentionally inlined into the public JS bundle by Vite — fine for a publishable/anon key, disastrous for a service_role key. It is like hardcoding an admin password into the frontend and assuming nobody looks; anyone can open the compiled JS file and read it.',
+      },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import ZoomControls from './ZoomControls'
+import AccountMenu from './AccountMenu'
 
 function TopicHeader({ darkMode, setDarkMode }) {
     const { language, t, toggleLanguage } = useLanguage()
@@ -37,6 +38,7 @@ function TopicHeader({ darkMode, setDarkMode }) {
                             </button>
                         </div>
                         <ZoomControls darkMode={darkMode} />
+                        <AccountMenu darkMode={darkMode} />
                         <button
                             onClick={() => setDarkMode(!darkMode)}
                             data-testid="dark-mode-toggle"

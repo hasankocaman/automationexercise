@@ -24,7 +24,6 @@ import { azureData } from '../data/azureData'
 import { algorithmsData } from '../data/algorithmsData'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 import { manualTestingData } from '../data/manualTestingData'
-import { backendData } from '../data/backendData'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -206,7 +205,7 @@ const ALL_DATA = [
     { data: manualTestingData, route: '/manual-testing', name: 'Manual Testing' },
     { data: beginnerAlgorithmsData, route: '/algorithms', name: 'Algorithms' },
     { data: algorithmsData, route: '/advanced-algorithms', name: 'Advanced Algorithms' },
-    { data: backendData, route: '/backend', name: 'Simple Backend' },
+    // backendData intentionally excluded: /backend is admin-only, not general visitor content.
 ]
 
 const indexCache = new Map()

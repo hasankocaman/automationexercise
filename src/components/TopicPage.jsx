@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { useLocation, Link } from 'react-router-dom'
 import TopicHeader from './TopicHeader'
+import { useAuth } from '../context/AuthContext'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -1566,6 +1567,60 @@ function HomeButton() {
             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(124,58,237,0.5)' }}
         >
             🏠
+        </button>
+    )
+}
+
+// ─── SaveProgressButton ────────────────────────────────────────────────────────
+// "Kaldığım yeri kaydet": her TopicPage'de görünür, sabit konumlu. Üye değilse
+// localStorage'a yazar, üyeyse ayrıca Supabase user_progress'e de kaydeder
+// (CLAUDE.md Bölüm 5 — progress üyelik şartı olmadan da çalışmalı).
+
+function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
+    const { language } = useLanguage()
+    const { saveProgress } = useAuth()
+    const [status, setStatus] = useState('idle') // idle | saving | saved | error
+    const isTr = language === 'tr'
+
+    async function handleClick() {
+        setStatus('saving')
+        try {
+            await saveProgress({ lessonSlug: pageKey, topicSlug: String(tabIndex), topicLabel: tabLabel, routePath })
+            setStatus('saved')
+        } catch {
+            setStatus('error')
+        } finally {
+            setTimeout(() => setStatus('idle'), 2200)
+        }
+    }
+
+    const icon = status === 'saving' ? '⏳' : status === 'saved' ? '✅' : status === 'error' ? '⚠️' : '📍'
+    const title = status === 'saved'
+        ? (isTr ? 'Kaydedildi!' : 'Saved!')
+        : status === 'error'
+            ? (isTr ? 'Kaydedilemedi, tekrar dene' : 'Could not save, try again')
+            : (isTr ? 'Kaldığım yeri kaydet' : 'Save my place')
+
+    return (
+        <button
+            onClick={handleClick}
+            disabled={status === 'saving'}
+            title={title}
+            data-testid="save-progress-btn"
+            style={{
+                position: 'fixed', bottom: '16px', right: '70px',
+                width: '44px', height: '44px', borderRadius: '50%',
+                background: status === 'error' ? '#dc2626' : status === 'saved' ? '#059669' : '#0ea5e9',
+                color: '#fff', border: 'none',
+                cursor: status === 'saving' ? 'wait' : 'pointer', fontSize: '20px', zIndex: 999,
+                boxShadow: '0 4px 16px rgba(14,165,233,0.5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+        >
+            {icon}
         </button>
     )
 }
@@ -12513,6 +12568,12 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : bgLight}`}>
             <ScrollProgressBar />
             <HomeButton />
+            <SaveProgressButton
+                pageKey={pageKey}
+                tabIndex={activeTab}
+                tabLabel={tabs?.[activeTab]}
+                routePath={location.pathname}
+            />
             <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">

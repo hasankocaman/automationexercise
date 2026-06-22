@@ -181,7 +181,8 @@ automationexercise/
 - **Static SEO shell üretimi:** Build sırasında her route için `robots.txt`, `sitemap.xml` ve crawl edilebilir static HTML shell üretilir (`scripts/generate-static-routes.mjs`). Detay: `codexSeo.md`.
 - **`/java-document`** sayfası `public/documents/` altındaki markdown dosyalarını okuyup client tarafında parse eder.
 - **Etkileşimli editör:** Her editör kendi sandbox'ında çalışır, global state'i kirletmez.
-- **Progress/rozet üyelik zorunlu değildir:** Ders ilerleme kaydı (kaldığı yerden devam) ve rozetler, kullanıcı üye/login olmadan da çalışmalıdır (anonim/local-first, örn. localStorage). Üyelik (Supabase Auth) bu deneyimi senkronize eden **opsiyonel** bir katmandır, ön koşul değildir. Üyelik/ödeme (premium paywall) özelliklerinin prod'a alınıp alınmayacağı ayrı bir karardır; bu kararın güncel durumu `NEXT_SESSION.md`'dedir.
+- **Progress/rozet üyelik zorunlu değildir:** Ders ilerleme kaydı (kaldığı yerden devam) ve rozetler, kullanıcı üye/login olmadan da çalışmalıdır (anonim/local-first, örn. localStorage). Üyelik (Supabase Auth) bu deneyimi senkronize eden **opsiyonel** bir katmandır, ön koşul değildir.
+- **Üyelik ile premium/ödeme birbirinden bağımsız aç/kapa edilebilmelidir:** Üyelik (login/membership) ve premium/ödeme (paywall) iki ayrı özelliktir; biri prod'da aktifken diğeri feature-flag/ortam (test vs. prod) ile kapalı tutulabilmelidir. Hangi ortamda hangisinin aktif olduğunun güncel durumu `NEXT_SESSION.md`'dedir.
 
 ---
 

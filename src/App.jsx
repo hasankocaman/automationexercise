@@ -1,6 +1,9 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import SeoMeta from './components/SeoMeta'
+import RequireAdmin from './components/RequireAdmin'
+import AuthCallback from './components/AuthCallback'
+import LoginPage from './components/LoginPage'
 
 const HomePage = lazy(() => import('./components/HomePage'))
 const JMeterPage = lazy(() => import('./components/JMeterPage'))
@@ -76,7 +79,9 @@ function App() {
                     <Route path="/algorithms" element={<AlgorithmsPage />} />
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
                     <Route path="/qa-mentor" element={<QAMentorPage />} />
-                    <Route path="/backend" element={<BackendPage />} />
+                    <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
+                    <Route path="/login" element={<LoginPage />} />
                 </Routes>
             </Suspense>
         </>
