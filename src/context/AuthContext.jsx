@@ -97,12 +97,16 @@ export function AuthProvider({ children }) {
         })
     }
 
+    const RESUME_KEY = 'learnqa_resume_point'
+
+    // Üye çıkış yapınca local resume noktasını da temizler — yoksa hesaba bağlı
+    // son konum, çıkış yapıldıktan sonra hâlâ "kaldığın yerden devam et" olarak
+    // görünür (ve aynı tarayıcıyı kullanan farklı biri başkasının ilerlemesini görebilir).
     async function signOut() {
+        try { localStorage.removeItem(RESUME_KEY) } catch { /* localStorage kapalı olabilir */ }
         if (!isSupabaseConfigured) return
         await supabase.auth.signOut()
     }
-
-    const RESUME_KEY = 'learnqa_resume_point'
 
     function readLocalResume() {
         try {

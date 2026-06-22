@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { useLocation, Link } from 'react-router-dom'
+import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
+import CommentsSection from './CommentsSection'
 import { useAuth } from '../context/AuthContext'
 
 const codeCommentTranslations = [
@@ -1594,34 +1596,39 @@ function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
         }
     }
 
-    const icon = status === 'saving' ? '⏳' : status === 'saved' ? '✅' : status === 'error' ? '⚠️' : '📍'
-    const title = status === 'saved'
+    const label = status === 'saved'
         ? (isTr ? 'Kaydedildi!' : 'Saved!')
         : status === 'error'
             ? (isTr ? 'Kaydedilemedi, tekrar dene' : 'Could not save, try again')
-            : (isTr ? 'Kaldığım yeri kaydet' : 'Save my place')
+            : (isTr ? 'Kaldığın yeri kaydet' : 'Save progress')
+
+    const colorClass = status === 'error'
+        ? 'bg-rose-600 shadow-[0_4px_16px_rgba(220,38,38,0.5)]'
+        : status === 'saved'
+            ? 'bg-emerald-600 shadow-[0_4px_16px_rgba(5,150,105,0.5)]'
+            : 'bg-sky-500 shadow-[0_4px_16px_rgba(14,165,233,0.5)]'
 
     return (
-        <button
-            onClick={handleClick}
-            disabled={status === 'saving'}
-            title={title}
-            data-testid="save-progress-btn"
-            style={{
-                position: 'fixed', bottom: '16px', right: '70px',
-                width: '44px', height: '44px', borderRadius: '50%',
-                background: status === 'error' ? '#dc2626' : status === 'saved' ? '#059669' : '#0ea5e9',
-                color: '#fff', border: 'none',
-                cursor: status === 'saving' ? 'wait' : 'pointer', fontSize: '20px', zIndex: 999,
-                boxShadow: '0 4px 16px rgba(14,165,233,0.5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-        >
-            {icon}
-        </button>
+        <span className="group fixed bottom-4 right-[70px] z-[999]">
+            <button
+                onClick={handleClick}
+                disabled={status === 'saving'}
+                aria-label={label}
+                data-testid="save-progress-btn"
+                className={`flex h-11 w-11 items-center justify-center rounded-full border-none text-white transition-transform duration-200 hover:scale-110 ${colorClass} ${status === 'saving' ? 'cursor-wait' : 'cursor-pointer'}`}
+            >
+                {status === 'saving' ? (
+                    <Loader2 size={20} className="animate-spin" />
+                ) : status === 'error' ? (
+                    <AlertTriangle size={20} />
+                ) : (
+                    <Bookmark size={20} fill={status === 'saved' ? 'currentColor' : 'none'} />
+                )}
+            </button>
+            <span className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+                {label}
+            </span>
+        </span>
     )
 }
 
@@ -12724,6 +12731,9 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                 </button>
                             )}
                         </div>
+
+                        {/* Bu ders hakkında yorumlar — herkes okuyabilir, sadece üyeler yazabilir */}
+                        <CommentsSection pagePath={location.pathname} darkMode={darkMode} />
                     </div>
                 </div>
             </main>

@@ -120,7 +120,26 @@ Her iki projede de: profiles sütunları (`full_name, email, is_admin, is_premiu
 4. `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesi hiç uçtan uca test edilmedi.
 5. Gerçek bir "Premium'a geç" UI'ı henüz yazılmadı (yazılınca `isPremiumEnabled` ile gate'lenmeli).
 6. GitHub/Microsoft OAuth provider'ları hâlâ devre dışı (login sayfasında buton var, arkası yok).
-7. Commit'ler: `9e82416`, `e0f05fd`, `ee4d74e`, `e7fdaa1` + bu oturumdaki `package.json` (`dev:prod` script) değişikliği henüz commit/push edilmedi.
+7. **YENİ — `lesson_comments` tablosu henüz Supabase'de yok:** 31. kısımda eklenen yorum özelliği (`src/lib/commentsApi.js`, `CommentsSection.jsx`) bu tabloya bağımlı. Hem `learnqa-test` hem `learnqa-prod`'da SQL Editor'de çalıştırılması gerekiyor — SQL'in tam metni bu oturumun chat geçmişinde kullanıcıya verildi (create table + RLS: herkes okur / sadece üye kendi adına yazar-siler). Çalıştırılmadan yorum bölümü hata verir; sohbet (`chat_messages`) ve feedback tabloları zaten önceki oturumda oluşturulmuştu, onlar için ek işlem gerekmiyor.
+8. Commit'ler: `9e82416`, `e0f05fd`, `ee4d74e`, `e7fdaa1`, `d221f2f` + bu oturumdaki (31. kısım) commit — henüz **push edilmedi**, madde 1-3 tamamlanmadan push edilmemeli.
+
+---
+
+## ✅ Bu Oturumda Tamamlananlar (2026-06-22, 31. kısım — Save butonu/route guard yenilemesi + üyelik sohbet/yorum/tanıtım banner'ı + logout bug fix)
+
+| Görev | Durum |
+|-------|-------|
+| **Kullanıcı yönü:** "Kaldığın yeri kaydet" butonu daha belirgin olsun (Lucide bookmark ikonu + Tailwind tooltip); üye olmayanları engelleyen genel bir `ProtectedRoute`; üyeler için sohbet + yorum yazma; anasayfanın başına üyelik avantajlarını anlatan bir tanıtım bölümü; Slack workspace linkinin de eklenmesi; ardından bulunan bir bug'ın (logout sonrası eski resume noktasının görünmesi) düzeltilmesi. | ✅ |
+| **`lucide-react` eklendi** (`npm install`), proje genelinde emoji-ikon yerine gerçek SVG ikon kullanımı başladı. | ✅ |
+| **Save Progress butonu (`TopicPage.jsx`):** Emoji (📍/✅/⏳/⚠️) yerine `Bookmark`/`Loader2`/`AlertTriangle` ikonları; kaydedildiğinde `fill="currentColor"` ile dolu görünüyor. Inline style tamamen Tailwind sınıflarına çevrildi; native `title` yerine `group-hover` ile `text-xs font-medium` özel tooltip ("Kaldığın yeri kaydet" / "Save progress"). | ✅ |
+| **HomePage resume banner'ı zenginleştirildi:** 📍 emoji → `Save` (disket) ikonu; metin artık kişiselleştirilmiş cümle kuruyor: `{displayName}, en son {ders adı} dersinde {sekme adı} sekmesinde kalmıştın. Devam etmek ister misin?`. Ders adı için `routePath → {tr,en}` eşleme tablosu (`RESUME_LESSON_NAMES`) eklendi. | ✅ |
+| **`ProtectedRoute.jsx` (yeni):** Genel oturum koruması — `loading` sırasında spinner, oturum yoksa `/login?next=<şu anki yol>` redirect (`replace`). `RequireAdmin.jsx` bunu kullanacak şekilde refactor edildi (kod tekrarı kalktı, `/backend` hâlâ aynı şekilde korunuyor). **Bilinçli olarak** mevcut ~30 ders sayfası bu guard'a sarılmadı — CLAUDE.md Bölüm 5'teki "progress/rozet üyelik şartı olmadan çalışmalı" kararı korundu, kullanıcıyla bu kapsam netleştirildi. | ✅ |
+| **Üye sohbeti (`ChatWidget.jsx`, `src/lib/chatApi.js`, `App.jsx`'e global bağlandı):** Sol-altta yüzen ikon (HomePage'deki mevcut LinkedIn rozetiyle çakışmasın diye `bottom-20 left-4`'e konumlandırıldı). Üye ise mevcut `chat_messages` tablosuyla gerçek realtime sohbet; misafirse "Sohbete katılmak için üye ol" teaser'ı. Panelin başında, üye/misafir durumundan bağımsız her zaman görünen bir Slack daveti şeridi var (`https://join.slack.com/t/turkiyetester/...`, `target=_blank`). | ✅ |
+| **Genel/ders yorumları (`CommentsSection.jsx`, `src/lib/commentsApi.js`):** Yeni `lesson_comments` tablosunu kullanıyor — **herkes okuyabilir** (sosyal kanıt için misafire de açık), **sadece üye yazabilir**. `HomePage.jsx`'e `pagePath="/"` ile (uygulama hakkında genel yorum, `<main>` ile `<footer>` arası), her `TopicPage.jsx` dersinin altına `pagePath={location.pathname}` ile eklendi. | ✅ |
+| **Üyelik tanıtım banner'ı (`MembershipPromo.jsx`):** HomePage'in en başında (resume banner'dan önce), **sadece misafirlere** gösteriliyor. 4 fayda kartı: Bookmark (kaldığın yeri kaydet), Award (rozet kazan), MessageCircle (sohbet — Slack linki de bu kartta), MessageSquare (yorum yaz). CTA `/login`'e gidiyor. | ✅ |
+| **Bug bulundu ve düzeltildi — logout sonrası eski resume noktası sızıntısı:** `saveProgress()` üye olsun olmasın her zaman `localStorage`'a yazıyordu ama `signOut()` bu kaydı hiç temizlemiyordu; çıkış yapınca `getResumePoint()` Supabase'e bakamayıp localStorage'daki **hesaba ait eski kaydı** gösteriyordu (aynı cihazı kullanan başka biri bile görebilirdi). `AuthContext.jsx`'te `signOut()` şimdi önce `localStorage.removeItem(RESUME_KEY)` çalıştırıyor; `HomePage.jsx`'teki resume-fetch `useEffect`'i `[session]`'a bağlandı (önceden sadece mount'ta bir kere çalışıyordu, login/logout anında state'te asılı kalıyordu). | ✅ |
+| **Doğrulama:** Her adımdan sonra `npm run build` çalıştırıldı, 32 route için SEO/static-shell/dist-SEO zinciri her seferinde temiz geçti. Canlı tarayıcı testi bu oturumda yapılmadı (kullanıcı ekran görüntüsüyle resume banner'ı doğruladı, logout bug'ını da o şekilde bildirdi). | ✅ |
+| **Sıradaki adım:** `lesson_comments` SQL'i kullanıcı tarafından hem `learnqa-test` hem `learnqa-prod`'da çalıştırılmalı (yukarıdaki "Hâlâ eksik" madde 7) — çalıştırılmadan yorum bölümü canlıda hata verir. | ⏳ |
 
 ---
 

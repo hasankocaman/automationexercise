@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext'
+import ProtectedRoute from './ProtectedRoute'
 
 function GoogleSignInButton() {
     const { signInWithGoogle } = useAuth()
@@ -57,32 +58,24 @@ function BlockedScreen({ reason, displayName, email, avatarUrl, hasSession, acti
 }
 
 export default function RequireAdmin({ children }) {
-    const { loading, session, displayName, email, avatarUrl, isAdmin, isSupabaseConfigured } = useAuth()
+    const { displayName, email, avatarUrl, isAdmin, isSupabaseConfigured } = useAuth()
 
     if (!isSupabaseConfigured) {
         return <BlockedScreen reason="Supabase yapılandırılmadı (.env.local eksik). Bu sayfa şu an hiç kimseye açılamaz." />
     }
-    if (loading) {
-        return (
-            <main className="min-h-screen grid place-items-center bg-slate-950">
-                <div className="h-8 w-8 rounded-full border-4 border-cyan-400 border-t-transparent animate-spin" />
-            </main>
-        )
-    }
-    if (!session) {
-        return <BlockedScreen reason="Devam etmek için admin Google hesabınla giriş yap." />
-    }
-    if (!isAdmin) {
-        return (
-            <BlockedScreen
-                reason="Bu hesap admin olarak işaretli değil. Yanlış hesapla girdiysen çıkış yapıp doğru hesapla tekrar dene."
-                displayName={displayName}
-                email={email}
-                avatarUrl={avatarUrl}
-                hasSession
-                action="sign-out"
-            />
-        )
-    }
-    return children
+
+    return (
+        <ProtectedRoute>
+            {isAdmin ? children : (
+                <BlockedScreen
+                    reason="Bu hesap admin olarak işaretli değil. Yanlış hesapla girdiysen çıkış yapıp doğru hesapla tekrar dene."
+                    displayName={displayName}
+                    email={email}
+                    avatarUrl={avatarUrl}
+                    hasSession
+                    action="sign-out"
+                />
+            )}
+        </ProtectedRoute>
+    )
 }

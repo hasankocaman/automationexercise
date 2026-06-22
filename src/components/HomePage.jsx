@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Save } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { search as searchContent } from '../utils/searchIndex'
@@ -14,10 +15,42 @@ import FrameworkComparison from './FrameworkComparison'
 import LocatorGuide from './LocatorGuide'
 import Practice from './Practice'
 import PlaywrightLangCompare from './PlaywrightLangCompare'
+import MembershipPromo from './MembershipPromo'
+import CommentsSection from './CommentsSection'
+
+// Resume banner'da rota yerine okunabilir ders adı göstermek için (lessonSlug
+// sayfa başlığından türetildiği için düzensiz olabilir, routePath sabit kalır).
+const RESUME_LESSON_NAMES = {
+    '/selenium': { tr: 'Selenium', en: 'Selenium' },
+    '/playwright': { tr: 'Playwright', en: 'Playwright' },
+    '/cypress': { tr: 'Cypress', en: 'Cypress' },
+    '/python': { tr: 'Python', en: 'Python' },
+    '/typescript': { tr: 'TypeScript', en: 'TypeScript' },
+    '/sql': { tr: 'SQL', en: 'SQL' },
+    '/java': { tr: 'Java', en: 'Java' },
+    '/jmeter': { tr: 'JMeter', en: 'JMeter' },
+    '/postman': { tr: 'Postman', en: 'Postman' },
+    '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
+    '/docker': { tr: 'Docker', en: 'Docker' },
+    '/jenkins': { tr: 'Jenkins', en: 'Jenkins' },
+    '/kubernetes': { tr: 'Kubernetes', en: 'Kubernetes' },
+    '/kafka': { tr: 'Kafka', en: 'Kafka' },
+    '/appium': { tr: 'Appium', en: 'Appium' },
+    '/browserstack': { tr: 'BrowserStack', en: 'BrowserStack' },
+    '/aws': { tr: 'AWS', en: 'AWS' },
+    '/azure': { tr: 'Azure', en: 'Azure' },
+    '/test-frameworks': { tr: 'Framework Karşılaştırma', en: 'Test Frameworks' },
+    '/git-github': { tr: 'Git & GitHub', en: 'Git & GitHub' },
+    '/linux': { tr: 'Linux', en: 'Linux' },
+    '/algorithms': { tr: 'Algoritmalar', en: 'Algorithms' },
+    '/advanced-algorithms': { tr: 'İleri Seviye Algoritmalar', en: 'Advanced Algorithms' },
+    '/manual-testing': { tr: 'Manuel Test', en: 'Manual Testing' },
+    '/what-is-testing': { tr: 'Yazılım Testi & QA Temelleri', en: 'Software Testing & QA Basics' },
+}
 
 function HomePage() {
     const { language, t, toggleLanguage } = useLanguage()
-    const { isAdmin, getResumePoint } = useAuth()
+    const { session, isAdmin, displayName, getResumePoint } = useAuth()
     const navigate = useNavigate()
     const [activeSection, setActiveSection] = useState('basic')
     const [resumePoint, setResumePoint] = useState(null)
@@ -42,8 +75,10 @@ function HomePage() {
 
     useEffect(() => {
         getResumePoint().then(setResumePoint).catch(() => setResumePoint(null))
+        // session değiştiğinde (giriş/çıkış) de yeniden okunur — yoksa çıkış yapan
+        // kullanıcının resume banner'ı bir önceki oturumdan kalan state'le görünmeye devam eder.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [session])
 
     useEffect(() => {
         localStorage.setItem('darkMode', JSON.stringify(darkMode))
@@ -266,36 +301,48 @@ function HomePage() {
                 </div>
             )}
 
+            {/* ── Üyelik Tanıtım Banner'ı — sadece misafirler için ── */}
+            {!session && <MembershipPromo darkMode={darkMode} />}
+
             {/* ── Kaldığın Yerden Devam Et Banner ── */}
-            {resumePoint?.routePath && (
-                <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
-                    <Link
-                        to={resumePoint.routePath}
-                        state={{ openTab: Number.isFinite(Number(resumePoint.topicSlug)) ? Number(resumePoint.topicSlug) : 0 }}
-                        data-testid="resume-banner"
-                        className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${
-                            darkMode
-                                ? 'border-sky-700/60 bg-gradient-to-r from-sky-900/50 via-cyan-900/40 to-blue-900/40 hover:border-sky-500/80'
-                                : 'border-sky-300 bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 hover:border-sky-400'
-                        }`}
-                    >
-                        <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg ${darkMode ? 'bg-sky-700/60' : 'bg-sky-600'}`}>
-                            <span className="text-2xl md:text-3xl">📍</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                {language === 'tr' ? 'Kaldığın yerden devam et' : 'Continue where you left off'}
-                            </h2>
-                            <p className={`text-xs md:text-sm leading-relaxed truncate ${darkMode ? 'text-sky-200/80' : 'text-sky-700'}`}>
-                                {resumePoint.topicLabel || resumePoint.lessonSlug}
-                            </p>
-                        </div>
-                        <div className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap ${darkMode ? 'bg-sky-600' : 'bg-sky-600'}`}>
-                            {language === 'tr' ? 'Git' : 'Go'} →
-                        </div>
-                    </Link>
-                </div>
-            )}
+            {resumePoint?.routePath && (() => {
+                const lessonName = RESUME_LESSON_NAMES[resumePoint.routePath]?.[language]
+                    || resumePoint.routePath.replace(/^\//, '').replace(/-/g, ' ')
+                const tabLabel = (resumePoint.topicLabel || '').replace(/^[^\p{L}\p{N}]+/u, '').trim()
+                const resumeMessage = language === 'tr'
+                    ? `${displayName ? `${displayName}, ` : ''}en son ${lessonName} dersinde${tabLabel ? ` ${tabLabel} sekmesinde` : ''} kalmıştın. Devam etmek ister misin?`
+                    : `${displayName ? `${displayName}, ` : ''}you last left off${tabLabel ? ` at ${tabLabel}` : ''} in ${lessonName}. Want to continue?`
+
+                return (
+                    <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                        <Link
+                            to={resumePoint.routePath}
+                            state={{ openTab: Number.isFinite(Number(resumePoint.topicSlug)) ? Number(resumePoint.topicSlug) : 0 }}
+                            data-testid="resume-banner"
+                            className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${
+                                darkMode
+                                    ? 'border-sky-700/60 bg-gradient-to-r from-sky-900/50 via-cyan-900/40 to-blue-900/40 hover:border-sky-500/80'
+                                    : 'border-sky-300 bg-gradient-to-r from-sky-50 via-cyan-50 to-blue-50 hover:border-sky-400'
+                            }`}
+                        >
+                            <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg ${darkMode ? 'bg-sky-700/60' : 'bg-sky-600'}`}>
+                                <Save className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {language === 'tr' ? 'Kaldığın yerden devam et' : 'Continue where you left off'}
+                                </h2>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-sky-200/80' : 'text-sky-700'}`}>
+                                    {resumeMessage}
+                                </p>
+                            </div>
+                            <div className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap ${darkMode ? 'bg-sky-600' : 'bg-sky-600'}`}>
+                                {language === 'tr' ? 'Git' : 'Go'} →
+                            </div>
+                        </Link>
+                    </div>
+                )
+            })()}
 
             {/* ── QA Mentor AI Banner — Yeni misin? Buradan Başla ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
@@ -475,6 +522,9 @@ function HomePage() {
                 <div className="animate-fadeIn">
                     {renderSection()}
                 </div>
+
+                {/* Uygulama hakkında genel yorumlar — herkes okuyabilir, sadece üyeler yazabilir */}
+                <CommentsSection pagePath="/" darkMode={darkMode} />
             </main>
 
             {/* Footer */}
