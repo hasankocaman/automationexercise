@@ -9,6 +9,37 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-23, yeni oturum) — `/backend` sayfasına detaylı Auth walkthrough + gerçek mimari/Swagger sekmeleri eklendi
+
+Kullanıcı önce `/backend` sayfasındaki Supabase işlemlerinin (Sign In/Providers, Google/GitHub/Microsoft girişi, SQL'lerin ne işe yaradığı) daha basit/ayrıntılı anlatılmasını istedi, sonra aynı sayfaya "büyük resim" mimari görünümü + sadece admin'in görebileceği bir Swagger/OpenAPI dokümanı istedi. Hepsi `src/data/backendData.js`'te (TR+EN) yapıldı, kod tarafına dokunulmadı.
+
+### 1. 🔐 Auth sekmesi — adım adım, dashboard ekranlarına birebir uyumlu genişletme
+Eski 5 maddelik kısa `steps` bloğu kaldırıldı, yerine kullanıcının paylaştığı gerçek Supabase Dashboard ekran görüntülerine (Sign In/Providers, URL Configuration) birebir uyan şu bloklar eklendi:
+- Sign In / Providers > "User Signups" 4 anahtarının (Allow new users to sign up, Allow manual linking, Allow anonymous sign-ins, Confirm email) ne işe yaradığı ve LearnQA.dev'de neden açık/kapalı olduğunu gösteren tablo.
+- Google, GitHub, Microsoft (Azure) için AYRI AYRI 6 adımlık, gerçek developer console ekranlarına (Google Cloud Console, GitHub OAuth Apps, Azure App registrations) atıfta bulunan kurulum adımları.
+- **Kritik fark vurgusu:** Google/Azure birden fazla redirect URI kabul ediyor (test+prod aynı app'i paylaşabilir), GitHub TEK callback URL kabul ediyor (test+prod için 2 BAĞIMSIZ GitHub OAuth App gerekiyor) — bunu test eden bir quiz eklendi.
+- URL Configuration (Site URL vs Redirect URLs/allow-list) tablosu + gerçek yaşanmış prod bug'ı (localhost:3000 redirect olayı, bkz. aşağıdaki ilgili bölüm) bir `warning` bloğu olarak işlendi.
+
+### 2. 🟢 Supabase & SQL sekmesi — SQL özeti tablosu
+Mevcut 4 SQL bloğunun (Tablolar, RLS, Trigger, Realtime) her birinin TEK CÜMLEYLE ne yaptığı ve yapılmazsa ne kaybedileceğini gösteren bir özet tablo, satır satır code-guide'lardan ÖNCE eklendi — kullanıcı önce büyük resmi görüp sonra detaya inebiliyor.
+
+### 3. YENİ İKİ SEKME: 🏛️ Gerçek Mimari + 📜 API Swagger
+Kullanıcı "hangi API hangi endpoint hangi SQL tablosuna sorgu atıyor, Spring mi başka mı" sorusunu sorunca, **gerçek kod taranarak** (genel agent ile `src/` içindeki tüm `.from()`/`.rpc()`/`.functions.invoke()` çağrıları grep'lendi) şu gerçek mimari netleştirildi:
+- **GERÇEK, canlı backend yüzeyi:** 7 tablo (`profiles`, `user_progress`, `badges`, `user_badges`, `certificates`, `chat_messages`, `lesson_comments`) + 3 RPC (`increment_user_xp`, `get_leaderboard`, `get_certificate`) + 3 Edge Function (`qa-assistant`, `grade-interview-answer`, `explain-quiz-answer` — hepsi Groq kullanıyor).
+- **SADECE öğretim amaçlı, hiç deploy edilmemiş örnek kod:** `feedback`, `payment_intents`, `payment_events`, `lessons`, `lesson_contents` tabloları + `create-stripe-checkout`/`create-iyzico-checkout`/webhook fonksiyonları — bunlar `supabase/functions/` klasöründe yok, hiçbir gerçek component çağırmıyor. Bu fark yeni "🏛️ Gerçek Mimari" sekmesinde açıkça bir `warning` bloğuyla vurgulandı (kullanıcı sayfanın geri kalanındaki tutorial içerikle karıştırmasın diye).
+- Spring Boot analojisiyle katman eşleştirmesi: PostgREST ≈ otomatik oluşan `@RestController`+JPA, Edge Function ≈ elle yazılan `@PostMapping`, RLS ≈ Spring Security filter zinciri.
+- **📜 API Swagger sekmesi:** Bu 7 tablo + 3 RPC + 3 Edge Function'ı kapsayan, gerçek request/response şemalarıyla (edge function `index.ts` dosyaları okunarak çıkarıldı) yazılmış tam bir OpenAPI 3.0 YAML spec'i (`backendOpenApiSpec` const'ı, TR/EN sekmelerinde paylaşılıyor — kod çevrilmiyor, sadece açıklama metni dile göre). Ekstra bir login/gate eklenmedi çünkü `/backend` zaten `RequireAdmin` ile tamamen korunuyor.
+
+**Doğrulama:** `npm run build` bu oturumda birkaç kez çalıştırıldı, her seferinde 34 route ile temiz geçti. **Tarayıcıda manuel test yapılamadı** — `/backend` `RequireAdmin` ile korunduğu için anonim bir Playwright session'ı sadece login ekranını görüyor (denendi, screenshot'la doğrulandı: sadece "Giriş yap veya kayıt ol" kartı görünüyor, konsol hatası yok). Bu yüzden yeni sekmelerin gerçek admin oturumuyla görsel kontrolü kullanıcıya kalıyor.
+
+---
+
+## ✅ TAMAMLANDI (2026-06-23, aynı oturum) — learnqa-prod'daki test yorumları ve chat mesajları temizlendi
+
+Kullanıcı, kendi test ettiği sırada oluşan gerçek prod verisini (3 `lesson_comments` satırı: "deneme yorum"/"first comment"/"second comment" + 4 `chat_messages` satırı: "deneme"/"deneme1"/"deneme2") temizlemek istedi. Önce SADECE SELECT ile (silmeden) iki tabloyu gözden geçirmesi için SQL verildi, kullanıcı ekran görüntüsüyle tüm satırların kendisine ait olduğunu doğrulayıp "hepsini silebiliriz" dedi. `delete from public.lesson_comments;` ve `delete from public.chat_messages;` SQL'i verildi — **kullanıcı bunu kendi Supabase Dashboard > SQL Editor'ünden, learnqa-prod üzerinde kendisi çalıştırdı** (Claude Code prod'da DELETE çalıştırmadı, sadece SQL'i hazırladı, onay/çalıştırma kullanıcıda kaldı). Sonuç doğrulanmadı (count(*) sorgusu önerildi ama kullanıcıdan teyit gelmedi) — gerekirse bir sonraki oturumda `select count(*) from public.lesson_comments; select count(*) from public.chat_messages;` ile teyit edilebilir.
+
+---
+
 ## ✅ TAMAMLANDI ve canlıda doğrulandı (2026-06-23) — Push sonrası 2 gerçek prod bug'ı bulundu ve düzeltildi
 
 Push'tan sonra kullanıcı canlıda (`learnqa.dev`) 2 ayrı sorun bildirdi — ikisi de kod bug'ı DEĞİL, prod-ortamı yapılandırma/deploy eksikliğiydi:
