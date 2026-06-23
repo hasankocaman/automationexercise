@@ -315,7 +315,9 @@
             "title": "Quick Quiz",
             "checkAnswer": "Check Answer",
             "correctPrefix": "🎉 Correct! ",
-            "incorrectPrefix": "💡 Incorrect — "
+            "incorrectPrefix": "💡 Incorrect — ",
+            "tryDifferentQuestion": "🔄 Try a different question",
+            "retryBadge": "Retry — new question"
         },
         "comparison": {
             "concept": "Concept"

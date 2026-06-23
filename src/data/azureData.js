@@ -107,6 +107,29 @@ export const azureData = {
   <text x="350" y="218" text-anchor="middle" fill="#6b7280" font-size="8">Azure has 60+ regions worldwide — resources deployed closest to your users</text>
 </svg>`,
           },
+          {
+            type: 'quiz',
+            question: 'A QA team wants their source repo, CI/CD pipelines, manual test case management, and bug tracking all in one integrated platform. Which Azure service is built exactly for this?',
+            options: [
+              { id: 'a', text: 'Azure Blob Storage' },
+              { id: 'b', text: 'Azure DevOps' },
+              { id: 'c', text: 'Azure Kubernetes Service' },
+              { id: 'd', text: 'Azure Active Directory' },
+            ],
+            correct: 'b',
+            explanation: 'Azure DevOps bundles Repos (Git), Pipelines (CI/CD), Test Plans (manual/exploratory test management), and Boards (work items/bugs) into one connected platform — a test result can automatically link to a bug work item without switching tools. Blob Storage only stores files, AKS only runs containers, and Active Directory only handles identity.',
+            retryQuestion: {
+              question: 'Within Azure DevOps, which component specifically protects the main branch by requiring a pull request and passing checks before merge?',
+              options: [
+                { id: 'a', text: 'Azure Boards' },
+                { id: 'b', text: 'Azure Repos branch policies' },
+                { id: 'c', text: 'Azure Test Plans' },
+                { id: 'd', text: 'Azure Blob Storage' },
+              ],
+              correct: 'b',
+              explanation: 'Azure Repos branch policies (the Git component of the bundle) enforce required reviewers and passing builds before a PR can complete — the same role GitHub branch protection rules play. Boards tracks work items/bugs, Test Plans manages manual testing, and Blob Storage just stores files; none of them gate a merge.',
+            },
+          },
         ],
       },
 
@@ -254,6 +277,29 @@ az storage blob list \\
   <text x="555" y="83" text-anchor="middle" fill="#34d399" font-size="8">authenticated ✓</text>
   <text x="320" y="128" text-anchor="middle" fill="#6b7280" font-size="8">Token valid for ~1 hour (interactive) or until expiry (Service Principal)</text>
 </svg>`,
+          },
+          {
+            type: 'quiz',
+            question: 'In a QA automation pipeline, why is the Azure CLI used instead of clicking through the Azure Portal?',
+            options: [
+              { id: 'a', text: 'The Portal cannot create virtual machines' },
+              { id: 'b', text: 'The CLI can run unattended inside scripts and pipelines, without a human clicking anything' },
+              { id: 'c', text: 'The Portal is only available in the US region' },
+              { id: 'd', text: 'The CLI is free while the Portal requires a paid plan' },
+            ],
+            correct: 'b',
+            explanation: 'The Azure Portal is a web UI meant for a human to click through. The Azure CLI is a scriptable command-line tool — exactly what a CI/CD pipeline (Azure Pipelines, GitHub Actions, Jenkins) needs to provision resources, log in via a Service Principal, and tear things down automatically with no human in the loop.',
+            retryQuestion: {
+              question: 'A pipeline needs to authenticate to Azure with no human typing a password. What is the correct mechanism for the Azure CLI to use in this case?',
+              options: [
+                { id: 'a', text: 'A personal Microsoft account login prompt' },
+                { id: 'b', text: 'A Service Principal with `az login --service-principal`' },
+                { id: 'c', text: 'Logging into the Azure Portal manually before every run' },
+                { id: 'd', text: 'There is no way to authenticate without a human' },
+              ],
+              correct: 'b',
+              explanation: 'A Service Principal is an identity created specifically for apps/scripts/pipelines rather than a person — `az login --service-principal` authenticates with a client ID and secret/certificate, with no interactive prompt and no MFA challenge. This is exactly what allows a CI pipeline to provision and tear down Azure resources fully unattended.',
+            },
           },
         ],
       },
@@ -465,6 +511,29 @@ stages:
                   --destination reports/$(Build.BuildId) \\
                   --source $(Pipeline.Workspace)/ui-report`,
           },
+          {
+            type: 'quiz',
+            question: 'A bank\'s QA team already uses Microsoft 365, Teams, and Visual Studio. What is the main advantage of also adopting Azure DevOps for their test management, compared to introducing a separate non-Microsoft tool?',
+            options: [
+              { id: 'a', text: 'Azure DevOps is always free regardless of team size' },
+              { id: 'b', text: 'It integrates with their existing Microsoft ecosystem — no extra login, no extra tool to maintain' },
+              { id: 'c', text: 'Azure DevOps does not require any test case management' },
+              { id: 'd', text: 'It removes the need for any CI/CD pipeline' },
+            ],
+            correct: 'b',
+            explanation: "Adopting a tool already inside the Microsoft ecosystem (single sign-on via Active Directory, native Teams notifications, native Visual Studio integration) avoids the friction of managing a separate identity, a separate vendor relationship, and a separate set of integrations that a non-Microsoft tool would require — the same reasoning a Java shop has for picking a JetBrains tool that plugs natively into IntelliJ instead of a disconnected third-party app.",
+            retryQuestion: {
+              question: 'A company NOT already invested in Microsoft tools (no Active Directory, no Teams, no Visual Studio) is choosing a CI/CD platform from scratch. Does the "stay in the Microsoft ecosystem" argument for Azure DevOps still apply as strongly?',
+              options: [
+                { id: 'a', text: 'Yes, Azure DevOps is always the best choice regardless of existing tools' },
+                { id: 'b', text: 'No — the ecosystem-integration advantage only matters if you already use Microsoft tools; otherwise the decision should be based on other factors (pricing, features, team familiarity)' },
+                { id: 'c', text: 'No, Azure DevOps cannot be used without Active Directory at all' },
+                { id: 'd', text: 'Yes, because GitHub Actions cannot work without Microsoft tools either' },
+              ],
+              correct: 'b',
+              explanation: 'The ecosystem argument is conditional, not absolute: it is strong specifically when an org already has sunk cost in Microsoft tooling (AD, Teams, Visual Studio) since switching would mean re-creating identity/integration work elsewhere. A company starting fresh with no such investment gets none of that benefit, so the decision should instead be driven by pricing, feature fit, and what the team already knows.',
+            },
+          },
         ],
       },
 
@@ -550,6 +619,29 @@ stages:
             ],
           },
           { type: 'tip', content: 'Azure Pipelines native integration with Azure Test Plans means every test run result is automatically visible in Test Plans — no extra configuration needed.' },
+          {
+            type: 'quiz',
+            question: 'Which Azure DevOps component automatically links a failed automated test run to a bug work item, without any manual copy-pasting?',
+            options: [
+              { id: 'a', text: 'Azure Repos' },
+              { id: 'b', text: 'Azure Test Plans, integrated with Azure Boards' },
+              { id: 'c', text: 'Azure Blob Storage' },
+              { id: 'd', text: 'Azure Active Directory' },
+            ],
+            correct: 'b',
+            explanation: 'Azure Test Plans natively integrates with Azure Boards: when a test run fails, the result is linked to a bug work item automatically, carrying the test step, environment, and history. Azure Repos only stores code, Blob Storage only stores files, and Active Directory only handles identity — none of them connect a test result to a tracked bug.',
+            retryQuestion: {
+              question: 'A bug work item created from a failed Test Plans run is missing the environment and reproduction steps the tester actually saw. What is the most likely explanation?',
+              options: [
+                { id: 'a', text: 'Azure Boards never captures this information at all' },
+                { id: 'b', text: 'The tester likely created the bug manually instead of using the "Create bug" action directly from the failed test step' },
+                { id: 'c', text: 'Azure Repos stripped the information during commit' },
+                { id: 'd', text: 'Blob Storage lost the file' },
+              ],
+              correct: 'b',
+              explanation: 'The automatic linking only happens when a bug is created FROM the failed test step itself (via the "Create bug" action in Test Plans) — that flow carries over the test case, environment, and steps automatically. A manually created bug work item in Boards has no such automatic context attached, since it was never connected to the originating test run.',
+            },
+          },
         ],
       },
 
@@ -621,6 +713,29 @@ stages:
                 solution: { en: 'Enable AKS Cluster Autoscaler: "az aks update --enable-cluster-autoscaler --min-count 1 --max-count 10". Add a new node pool for test workloads: "az aks nodepool add --name testpool --node-count 3". For immediate fix: scale up manually: "az aks nodepool scale --node-count 5". Use resource requests/limits correctly in pod specs to prevent over-reservation.' },
               },
             ],
+          },
+          {
+            type: 'quiz',
+            question: 'A brand-new Azure DevOps organization running a private repo fails its very first pipeline run with "No hosted parallelism has been purchased or granted." What is happening?',
+            options: [
+              { id: 'a', text: "The pipeline's YAML file has a syntax error" },
+              { id: 'b', text: 'New organizations with private repos must request a one-time free parallelism grant from Microsoft before Microsoft-hosted agents will run' },
+              { id: 'c', text: 'The Azure subscription has expired' },
+              { id: 'd', text: 'The repo needs to be cloned locally first' },
+            ],
+            correct: 'b',
+            explanation: 'This is an Azure DevOps-specific policy, not a config bug: free Microsoft-hosted agent minutes for new organizations with private projects require a manual one-time grant request (anti-abuse measure), which can take a few business days. The immediate workarounds are using a self-hosted agent, or making the project public (open-source gets free parallelism instantly).',
+            retryQuestion: {
+              question: 'A team needs their pipeline to run TODAY and cannot wait a few business days for Microsoft\'s parallelism grant approval. What is the fastest workaround?',
+              options: [
+                { id: 'a', text: 'Wait — there is no faster option' },
+                { id: 'b', text: 'Set up a self-hosted agent on their own machine/VM, which is not subject to the hosted-agent grant policy' },
+                { id: 'c', text: 'Delete and recreate the organization' },
+                { id: 'd', text: 'Switch the pipeline YAML to a different syntax' },
+              ],
+              correct: 'b',
+              explanation: 'The grant requirement only applies to Microsoft-hosted agents — a self-hosted agent (installed on the team\'s own machine, VM, or container) runs the same pipeline immediately with no approval wait, because the team supplies the compute themselves instead of borrowing Microsoft\'s shared pool. Making the repo public is the other instant fix, but is not always acceptable for private/proprietary code.',
+            },
           },
         ],
       },
@@ -969,6 +1084,29 @@ stages:
             ],
           },
           { type: 'tip', content: 'Azure DevOps açık kaynak projeler için ücretsizdir ve özel projeler için 5 ücretsiz kullanıcı + aylık 1.800 ücretsiz pipeline dakikası verir. Birçok QA ekibi hiçbir şey ödemeden kullanıyor.' },
+          {
+            type: 'quiz',
+            question: 'Bir QA ekibi kod repo\'sunu, CI/CD pipeline\'larını, manuel test case yönetimini ve hata takibini TEK bir entegre platformda istiyor. Hangi Azure servisi tam olarak bunun için tasarlanmış?',
+            options: [
+              { id: 'a', text: 'Azure Blob Storage' },
+              { id: 'b', text: 'Azure DevOps' },
+              { id: 'c', text: 'Azure Kubernetes Service' },
+              { id: 'd', text: 'Azure Active Directory' },
+            ],
+            correct: 'b',
+            explanation: 'Azure DevOps; Repos (Git), Pipelines (CI/CD), Test Plans (manuel/keşifsel test yönetimi) ve Boards\'u (work item/bug) bağlantılı tek bir platformda toplar — bir test sonucu araç değiştirmeden otomatik olarak bir bug work item\'ına bağlanabilir. Blob Storage sadece dosya saklar, AKS sadece container çalıştırır, Active Directory ise sadece kimlik yönetir.',
+            retryQuestion: {
+              question: 'Azure DevOps içinde, merge\'den önce bir pull request ve geçen kontroller şart koşarak main branch\'i koruyan bileşen hangisidir?',
+              options: [
+                { id: 'a', text: 'Azure Boards' },
+                { id: 'b', text: 'Azure Repos branch policy\'leri' },
+                { id: 'c', text: 'Azure Test Plans' },
+                { id: 'd', text: 'Azure Blob Storage' },
+              ],
+              correct: 'b',
+              explanation: 'Azure Repos branch policy\'leri (paketin Git bileşeni), bir PR tamamlanmadan önce gerekli reviewer\'ları ve geçen build\'leri zorunlu kılar — GitHub branch protection rule\'larının oynadığı aynı rolü oynar. Boards work item/bug takip eder, Test Plans manuel test yönetir, Blob Storage sadece dosya saklar; hiçbiri bir merge\'i kapı bekçiliği yapmaz.',
+            },
+          },
         ],
       },
 
@@ -1061,6 +1199,29 @@ az storage blob upload \\
   --container-name test-reports \\
   --name test.txt \\
   --file test.txt`,
+          },
+          {
+            type: 'quiz',
+            question: 'Bir QA otomasyon pipeline\'ında neden Azure Portal yerine Azure CLI kullanılır?',
+            options: [
+              { id: 'a', text: 'Portal sanal makine oluşturamaz' },
+              { id: 'b', text: 'CLI, hiçbir insan tıklamadan scriptler ve pipeline\'lar içinde kesintisiz çalışabilir' },
+              { id: 'c', text: 'Portal sadece ABD bölgesinde kullanılabilir' },
+              { id: 'd', text: 'CLI ücretsizken Portal ücretli plan gerektirir' },
+            ],
+            correct: 'b',
+            explanation: 'Azure Portal bir insanın tıklayarak gezdiği web arayüzüdür. Azure CLI ise script\'lenebilir bir komut satırı aracıdır — tam olarak bir CI/CD pipeline\'ının (Azure Pipelines, GitHub Actions, Jenkins) ihtiyacı olan şey: kaynak oluşturmak, bir Service Principal ile login olmak ve hiçbir insan müdahalesi olmadan otomatik temizlemek.',
+            retryQuestion: {
+              question: 'Bir pipeline, hiçbir insan parola yazmadan Azure\'a kimlik doğrulaması yapması gerekiyor. Bu durumda Azure CLI\'nin kullanması gereken doğru mekanizma nedir?',
+              options: [
+                { id: 'a', text: 'Kişisel bir Microsoft hesabı giriş ekranı' },
+                { id: 'b', text: '`az login --service-principal` ile bir Service Principal' },
+                { id: 'c', text: 'Her çalıştırmadan önce Azure Portal\'a manuel giriş yapmak' },
+                { id: 'd', text: 'İnsan olmadan kimlik doğrulamanın bir yolu yoktur' },
+              ],
+              correct: 'b',
+              explanation: 'Service Principal, bir kişi yerine özellikle uygulamalar/script\'ler/pipeline\'lar için oluşturulan bir kimliktir — `az login --service-principal`, bir client ID ve secret/sertifika ile, hiçbir interaktif istem veya MFA challenge\'ı olmadan kimlik doğrular. Bir CI pipeline\'ının Azure kaynaklarını tamamen gözetimsiz oluşturup sonlandırmasını sağlayan tam olarak budur.',
+            },
           },
         ],
       },
@@ -1195,6 +1356,29 @@ az storage blob generate-sas \\
             ],
           },
           { type: 'tip', content: 'Azure Pipelines Microsoft hosted agent\'larda aylık 1.800 ücretsiz dakika veriyor. Bu yaklaşık 30 tam Playwright test çalışması demek — tamamen ücretsiz.' },
+          {
+            type: 'quiz',
+            question: 'Bir bankanın QA ekibi zaten Microsoft 365, Teams ve Visual Studio kullanıyor. Test yönetimi için ayrı, Microsoft dışı bir araç getirmek yerine Azure DevOps benimsemenin temel avantajı nedir?',
+            options: [
+              { id: 'a', text: 'Azure DevOps takım büyüklüğünden bağımsız her zaman ücretsizdir' },
+              { id: 'b', text: 'Var olan Microsoft ekosistemiyle entegre olur — ekstra giriş yok, ekstra bakım gerektiren araç yok' },
+              { id: 'c', text: 'Azure DevOps hiçbir test case yönetimi gerektirmez' },
+              { id: 'd', text: 'Herhangi bir CI/CD pipeline\'ı ihtiyacını ortadan kaldırır' },
+            ],
+            correct: 'b',
+            explanation: 'Zaten Microsoft ekosisteminde olan bir aracı benimsemek (Active Directory üzerinden tek oturum açma, native Teams bildirimleri, native Visual Studio entegrasyonu) Microsoft dışı bir aracın gerektireceği ayrı bir kimlik yönetimi, ayrı bir tedarikçi ilişkisi ve ayrı entegrasyon setinin sürtünmesini ortadan kaldırır — IntelliJ\'e doğrudan entegre olan bir JetBrains aracını bağımsız üçüncü taraf bir uygulama yerine seçmenin Java dünyasındaki mantığıyla aynı.',
+            retryQuestion: {
+              question: 'Microsoft araçlarına hiç yatırım yapmamış (Active Directory, Teams veya Visual Studio kullanmayan) bir şirket sıfırdan bir CI/CD platformu seçiyor. "Microsoft ekosisteminde kal" argümanı bu durumda hâlâ aynı güçte mi geçerlidir?',
+              options: [
+                { id: 'a', text: 'Evet, mevcut araçlardan bağımsız olarak Azure DevOps her zaman en iyi seçimdir' },
+                { id: 'b', text: 'Hayır — ekosistem entegrasyonu avantajı sadece zaten Microsoft araçları kullanıyorsan geçerlidir; aksi halde karar fiyat/özellik/ekip aşinalığına göre verilmeli' },
+                { id: 'c', text: 'Hayır, Azure DevOps Active Directory olmadan hiç kullanılamaz' },
+                { id: 'd', text: 'Evet, çünkü GitHub Actions da Microsoft araçları olmadan çalışamaz' },
+              ],
+              correct: 'b',
+              explanation: 'Ekosistem argümanı koşulludur, mutlak değildir: özellikle bir organizasyonun Microsoft araçlarına (AD, Teams, Visual Studio) zaten yatırım yapmış olması durumunda güçlüdür, çünkü değiştirmek kimlik/entegrasyon işini başka yerde yeniden kurmak demektir. Böyle bir yatırımı olmadan sıfırdan başlayan bir şirket bu avantajın hiçbirini almaz, bu yüzden karar yerine fiyat, özellik uyumu ve ekibin zaten bildiği araçlara göre verilmelidir.',
+            },
+          },
         ],
       },
 
@@ -1232,6 +1416,29 @@ az storage blob generate-sas \\
             ],
           },
           { type: 'tip', content: 'Azure Pipelines\'ın Azure Test Plans ile native entegrasyonu, her test çalışması sonucunun otomatik olarak Test Plans\'ta görülebileceği anlamına gelir — ek yapılandırma gerekmez.' },
+          {
+            type: 'quiz',
+            question: 'Başarısız bir otomatik test çalışmasını, hiçbir manuel kopyala-yapıştır olmadan otomatik olarak bir bug work item\'ına bağlayan Azure DevOps bileşeni hangisidir?',
+            options: [
+              { id: 'a', text: 'Azure Repos' },
+              { id: 'b', text: 'Azure Boards ile entegre Azure Test Plans' },
+              { id: 'c', text: 'Azure Blob Storage' },
+              { id: 'd', text: 'Azure Active Directory' },
+            ],
+            correct: 'b',
+            explanation: 'Azure Test Plans, Azure Boards ile native entegredir: bir test çalışması başarısız olduğunda sonuç, test adımı/ortam/geçmişiyle birlikte otomatik olarak bir bug work item\'ına bağlanır. Azure Repos sadece kod saklar, Blob Storage sadece dosya saklar, Active Directory ise sadece kimlik yönetir — hiçbiri bir test sonucunu takip edilen bir bug\'a bağlamaz.',
+            retryQuestion: {
+              question: 'Test Plans\'taki başarısız bir çalışmadan oluşturulan bir bug work item\'ında testçinin gerçekten gördüğü ortam ve adımlar eksik. En olası açıklama nedir?',
+              options: [
+                { id: 'a', text: 'Azure Boards bu bilgiyi hiçbir zaman yakalamaz' },
+                { id: 'b', text: 'Testçi muhtemelen bug\'ı, başarısız test adımından doğrudan "Create bug" aksiyonunu kullanmak yerine manuel olarak oluşturdu' },
+                { id: 'c', text: 'Azure Repos bu bilgiyi commit sırasında sildi' },
+                { id: 'd', text: 'Blob Storage dosyayı kaybetti' },
+              ],
+              correct: 'b',
+              explanation: 'Otomatik bağlanma SADECE bug, başarısız test adımının KENDİSİNDEN (Test Plans\'taki "Create bug" aksiyonu ile) oluşturulduğunda gerçekleşir — bu akış test case\'i, ortamı ve adımları otomatik olarak taşır. Boards\'da manuel oluşturulan bir bug work item\'ına böyle bir otomatik bağlam eklenmez, çünkü kaynak test çalışmasına hiç bağlanmamıştır.',
+            },
+          },
         ],
       },
 
@@ -1303,6 +1510,29 @@ az storage blob generate-sas \\
                 solution: { tr: 'AKS Cluster Autoscaler\'ı etkinleştir: "az aks update --enable-cluster-autoscaler --min-count 1 --max-count 10". Test iş yükleri için yeni node pool ekle: "az aks nodepool add --name testpool --node-count 3". Anlık çözüm için manuel ölçeklendir: "az aks nodepool scale --node-count 5". Pod spec\'lerinde resource request\'leri ve limitleri doğru ayarla.' },
               },
             ],
+          },
+          {
+            type: 'quiz',
+            question: 'Private repo ile yepyeni bir Azure DevOps organizasyonu, ilk pipeline çalıştırmasında "No hosted parallelism has been purchased or granted" hatasıyla başarısız oluyor. Burada gerçekte ne oluyor?',
+            options: [
+              { id: 'a', text: "Pipeline'ın YAML dosyasında syntax hatası var" },
+              { id: 'b', text: 'Private projeli yeni organizasyonların Microsoft hosted agent\'ları çalıştırmadan önce Microsoft\'tan bir kerelik ücretsiz paralellik onayı alması gerekir' },
+              { id: 'c', text: 'Azure subscription\'ı süresi dolmuş' },
+              { id: 'd', text: 'Repo önce lokalde clone edilmeli' },
+            ],
+            correct: 'b',
+            explanation: 'Bu bir config hatası değil, Azure DevOps\'a özel bir politikadır: private projeli yeni organizasyonlar için ücretsiz Microsoft hosted agent dakikaları, kötüye kullanımı önlemek amacıyla bir kerelik manuel onay talebi gerektirir (birkaç iş günü sürebilir). Anlık çözümler self-hosted agent kullanmak veya projeyi public yapmaktır (açık kaynak projeler anında ücretsiz paralellik alır).',
+            retryQuestion: {
+              question: 'Bir ekibin pipeline\'ının BUGÜN çalışması gerekiyor ve Microsoft\'un paralellik onayı için birkaç iş günü bekleyemiyor. En hızlı çözüm nedir?',
+              options: [
+                { id: 'a', text: 'Beklemek — daha hızlı bir seçenek yok' },
+                { id: 'b', text: 'Kendi makine/VM\'lerinde bir self-hosted agent kurmak — bu hosted-agent onay politikasına tabi değildir' },
+                { id: 'c', text: 'Organizasyonu silip yeniden oluşturmak' },
+                { id: 'd', text: 'Pipeline YAML\'ını farklı bir sözdizimine çevirmek' },
+              ],
+              correct: 'b',
+              explanation: 'Onay gerekliliği sadece Microsoft hosted agent\'lara uygulanır — bir self-hosted agent (ekibin kendi makinesine, VM\'sine veya container\'ına kurulan) aynı pipeline\'ı hiçbir onay beklemeden anında çalıştırır, çünkü ekip Microsoft\'un paylaşılan havuzunu ödünç almak yerine işlem gücünü kendisi sağlar. Repo\'yu public yapmak diğer anlık çözümdür ama private/proprietary kod için her zaman kabul edilebilir değildir.',
+            },
           },
         ],
       },

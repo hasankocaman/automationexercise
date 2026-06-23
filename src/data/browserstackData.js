@@ -126,7 +126,46 @@ driver.quit()                               # Oturumu kapat`
         tr: 'BrowserStack URL\'i şu formattadır: https://USERNAME:ACCESS_KEY@hub.browserstack.com/wd/hub. Kullanıcı adı ve erişim anahtarı doğrudan URL\'e gömülür. Bu, Java\'daki RemoteWebDriver ile aynı mekanizmadır.',
         en: 'The BrowserStack URL format is: https://USERNAME:ACCESS_KEY@hub.browserstack.com/wd/hub. The username and access key are embedded directly in the URL. This is the same mechanism as RemoteWebDriver in Java.'
       }
-    }
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium kodunda RemoteWebDriver ile BrowserStack'e bağlanırken kullanıcı kimlik bilgileri nasıl yapılandırılır?",
+            "en": "How are user credentials configured when connecting to BrowserStack using RemoteWebDriver in Selenium code?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Capabilities nesnesi içinde ayrı bir 'auth' objesi olarak",
+                        "en": "As a separate 'auth' object within the capabilities object"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": "https://username:access_key@hub.browserstack.com/wd/hub"
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Bir .env dosyasına ihtiyaç duyulmaz",
+                        "en": "No .env file is required"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece IP adresi yeterlidir",
+                        "en": "Only the IP address is sufficient"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BrowserStack'te otantikasyon için username ve access_key, RemoteWebDriver constructor'ına gönderilen URL'in bir parçası olarak tanımlanmalıdır.",
+            "en": "For authentication in BrowserStack, the username and access_key must be defined as part of the URL passed to the RemoteWebDriver constructor."
+      }
+}
+}
   ]
 }
 
@@ -301,7 +340,37 @@ BROWSERSTACK_ACCESS_KEY=your_access_key    # BS erişim anahtarı
         tr: 'parallelsPerPlatform x tarayıcı sayısı = 2 x 3 = 6 paralel slot. Her tarayıcı için ayrı ayrı 2 paralel test çalışır. Plan limitiniz bu sayıyı karşılamalıdır.',
         en: 'parallelsPerPlatform × browser count = 2 × 3 = 6 parallel slots. Two parallel tests run for each browser separately. Your plan limit must accommodate this number.'
       }
-    }
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "browserstack.yml dosyasında 'parallelsPerPlatform: 4' ayarı yapılmışsa ve 2 farklı tarayıcı tanımlanmışsa, toplam kaç eşzamanlı oturum tüketilir?",
+            "en": "If 'parallelsPerPlatform: 4' is set in the browserstack.yml file and 2 different browsers are defined, how many concurrent sessions are consumed in total?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "2"
+            },
+            {
+                  "id": "b",
+                  "text": "4"
+            },
+            {
+                  "id": "c",
+                  "text": "8"
+            },
+            {
+                  "id": "d",
+                  "text": "6"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Paralellik hesabı: parallelsPerPlatform (4) * tanımlanan tarayıcı sayısı (2) = 8 paralel slot. Her bir platform/tarayıcı kombinasyonu için belirtilen sayıda paralel oturum açılır.",
+            "en": "Parallelism calculation: parallelsPerPlatform (4) * number of browsers (2) = 8 parallel slots. The specified number of parallel sessions is opened for each platform/browser combination."
+      }
+}
+}
   ]
 }
 
@@ -512,7 +581,49 @@ driver = webdriver.Remote(
         tr: 'BrowserStack, testin geçip geçmediğini kendisi bilemez. Test kodunuzda driver.execute_script("browserstack_executor: {action: setSessionStatus, arguments: {status: passed/failed}}") ile sonucu bildirmeniz gerekir. SDK kullanırsanız bu otomatik yapılır.',
         en: 'BrowserStack cannot determine whether a test passed or failed on its own. You need to report the result in your test code via driver.execute_script("browserstack_executor: {action: setSessionStatus, arguments: {status: passed/failed}}"). If you use the SDK, this is done automatically.'
       }
-    },
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "BrowserStack'te bir testin 'passed' veya 'failed' olarak işaretlenmesi için en temel yöntem nedir?",
+            "en": "What is the primary method to mark a test as 'passed' or 'failed' in BrowserStack?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Dashboard üzerinden manuel düzenleme",
+                        "en": "Manual editing via the dashboard"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "JavaScript executor ile setSessionStatus çalıştırmak",
+                        "en": "Executing setSessionStatus via JavaScript executor"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Testi yeniden başlatmak",
+                        "en": "Restarting the test"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "URL'e query parametresi eklemek",
+                        "en": "Adding a query parameter to the URL"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BrowserStack, testin sonucunu otomatik olarak anlayamaz. Bu yüzden 'browserstack_executor' kullanarak 'setSessionStatus' komutuyla sonucun açıkça gönderilmesi gerekir.",
+            "en": "BrowserStack cannot automatically determine the result of a test. Therefore, the result must be explicitly sent using the 'setSessionStatus' command via the 'browserstack_executor'."
+      }
+}
+},
     {
       type: 'simulation',
       icon: '☁️',
@@ -694,7 +805,49 @@ browserstack-sdk pytest tests/ -n auto`
         tr: 'BrowserStack SDK, pytest çalışma zamanında araya girerek Playwright\'ın tarayıcı bağlantısını otomatik olarak BrowserStack\'e yönlendirir. Test kodunuzda hiçbir değişiklik yapmanıza gerek yoktur. Sadece browserstack-sdk pytest komutuyla çalıştırmanız yeterlidir.',
         en: 'The BrowserStack SDK intercepts pytest at runtime and automatically redirects Playwright\'s browser connection to BrowserStack. You don\'t need to change anything in your test code. Just run it with the browserstack-sdk pytest command.'
       }
-    }
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "BrowserStack SDK kullanarak Playwright testlerini bulutta çalıştırmak için test yapılandırmanızda (config) ne yapmalısınız?",
+            "en": "What must you do in your test configuration to run Playwright tests in the cloud using the BrowserStack SDK?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Tarayıcı başlatma komutlarını manuel olarak BrowserStack hub adresine yönlendirmelisiniz",
+                        "en": "Manually point your browser launch commands to the BrowserStack hub URL"
+                  }
+            },
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Test kodunu değiştirmeye gerek kalmadan SDK ortam değişkenleri veya CLI ile çalıştırmalısınız",
+                        "en": "No need to modify test code; just run with SDK environment variables or CLI"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Playwright.config.js dosyasında özel bir 'cloud' parametresi eklemelisiniz",
+                        "en": "Add a custom 'cloud' parameter in the Playwright.config.js file"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Tüm testleri yeniden yapılandırıp Playwright-BrowserStack kütüphanesini import etmelisiniz",
+                        "en": "Rewrite all tests and import the Playwright-BrowserStack library"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BrowserStack SDK, çalışma zamanında Playwright yapılandırmasını otomatik olarak algılar ve testleri yerel ortam yerine bulutta çalıştırmak için gerekli yönlendirmeyi kendisi yapar. Kod üzerinde değişiklik yapmak gerekmez.",
+            "en": "The BrowserStack SDK automatically detects the Playwright configuration at runtime and handles the redirection to run tests in the cloud instead of your local machine. No changes to the code are required."
+      }
+}
+}
   ]
 }
 
@@ -803,7 +956,49 @@ jobs:
         tr: 'BrowserStack, Percy görsel regresyon aracını bünyesinde barındırır ve 3000+ gerçek cihaz filosuna sahiptir. Özellikle iOS/Safari testi için gerçek iPhone ve iPad\'lere erişim sağlaması kritik bir avantajdır.',
         en: 'BrowserStack includes Percy visual regression tool and has a fleet of 3000+ real devices. Access to real iPhones and iPads for iOS/Safari testing is a critical advantage.'
       }
-    }
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "BrowserStack'in gerçek cihaz test stratejisi, Sauce Labs gibi rakiplerine göre neden öne çıkar?",
+            "en": "Why does BrowserStack's real device testing strategy stand out compared to competitors like Sauce Labs?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Daha az cihaz çeşidi sunması",
+                        "en": "It offers fewer device varieties"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "3000+'den fazla gerçek cihaz ve entegre Percy görsel test imkanı sunması",
+                        "en": "It provides 3000+ real devices and integrated Percy visual testing capabilities"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece emülatör desteğine odaklanması",
+                        "en": "It focuses solely on emulator support"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Kurumsal lisanslarının daha pahalı olması",
+                        "en": "Its enterprise licenses are more expensive"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BrowserStack, geniş bir gerçek cihaz havuzu (3000+) ile fiziksel donanım erişimi sağlar ve Percy gibi görsel test yeteneklerini platforma entegre ederek uçtan uca bir kalite çözümü sunar.",
+            "en": "BrowserStack provides physical hardware access through a vast real device cloud (3000+) and offers an end-to-end quality solution by integrating visual testing tools like Percy directly into the platform."
+      }
+}
+}
   ]
 }
 
@@ -892,7 +1087,37 @@ driver.quit()`
         tr: 'Percy, her PR\'da sayfanın görsel snapshot\'larını alır ve önceki onaylı snapshot ile piksel bazında karşılaştırır. CSS değişiklikleri, font farklılıkları gibi görsel regresyonları otomatik yakalar.',
         en: 'Percy takes visual snapshots of pages on every PR and compares them pixel-by-pixel with the previously approved snapshot. It automatically catches visual regressions like CSS changes and font differences.'
       }
-    }
+    ,
+        retryQuestion: {
+      "question": {
+            "tr": "Modern bir CI/CD hattında, UI tasarımı hatalarını (kırık düzenler, hatalı renkler) otomatik olarak belirlemek için hangi araç kullanılmalıdır?",
+            "en": "In a modern CI/CD pipeline, which tool should be used to automatically identify UI design flaws (broken layouts, incorrect colors)?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "BrowserStack Automate"
+            },
+            {
+                  "id": "b",
+                  "text": "Percy"
+            },
+            {
+                  "id": "c",
+                  "text": "BrowserStack Live"
+            },
+            {
+                  "id": "d",
+                  "text": "Test Observability"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Percy, görsel regresyon testleri için optimize edilmiş bir araçtır. UI bileşenlerindeki piksel tabanlı farklılıkları algılar ve görsel hataların üretim ortamına gitmesini engeller.",
+            "en": "Percy is a tool optimized for visual regression testing. It detects pixel-based discrepancies in UI components and prevents visual bugs from reaching the production environment."
+      }
+}
+}
   ]
 }
 
@@ -1025,6 +1250,41 @@ bstack_options = { "os": "Windows", "osVersion": "11" }`,
 }`
         }
       ]
+    },
+    {
+      type: 'quiz',
+      question: {
+        tr: 'BrowserStack testin "Invalid Credentials" hatası verdiğinde en olası kök neden nedir?',
+        en: 'When a BrowserStack test fails with "Invalid Credentials", what is the most likely root cause?'
+      },
+      options: [
+        { id: 'a', text: { tr: 'İnternet bağlantısı yavaş', en: 'Slow internet connection' } },
+        { id: 'b', text: { tr: 'USERNAME/ACCESS_KEY yanlış, eksik veya environment variable olarak set edilmemiş', en: 'USERNAME/ACCESS_KEY is wrong, missing, or not set as an environment variable' } },
+        { id: 'c', text: { tr: 'Seçilen tarayıcı versiyonu desteklenmiyor', en: 'The selected browser version is unsupported' } },
+        { id: 'd', text: { tr: 'Selenium Grid node\'u offline', en: 'The Selenium Grid node is offline' } },
+      ],
+      correct: 'b',
+      explanation: {
+        tr: 'BrowserStack kimliğini doğrudan RemoteWebDriver URL\'ine gömer (https://USERNAME:ACCESS_KEY@hub.browserstack.com/wd/hub). Bu değerler yanlış yazılmışsa, eski/iptal edilmiş bir access key kullanılıyorsa veya CI ortamında environment variable olarak doğru set edilmemişse sunucu isteği reddeder — tarayıcı/versiyon/ağ ile ilgisi yoktur.',
+        en: 'BrowserStack embeds credentials directly in the RemoteWebDriver URL (https://USERNAME:ACCESS_KEY@hub.browserstack.com/wd/hub). If these are mistyped, an old/revoked access key is used, or they are not correctly set as environment variables in CI, the server rejects the request outright — it has nothing to do with browser, version, or network.'
+      },
+      retryQuestion: {
+        question: {
+          tr: 'CI ortamında BrowserStack credential\'larını yönetmek için en güvenli pratik nedir?',
+          en: 'What is the safest practice for managing BrowserStack credentials in a CI environment?'
+        },
+        options: [
+          { id: 'a', text: { tr: 'Kullanıcı adı/erişim anahtarını test koduna sabit (hardcoded) olarak yazmak', en: 'Hardcoding the username/access key directly into the test code' } },
+          { id: 'b', text: { tr: 'CI\'ın gizli (secret) environment variable mekanizmasında saklamak', en: "Storing them in the CI's secret environment variable mechanism" } },
+          { id: 'c', text: { tr: 'Bir README dosyasına yazmak', en: 'Writing them in a README file' } },
+          { id: 'd', text: { tr: 'Her test çalışmasında yeniden üretmek', en: 'Regenerating them on every test run' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Credential\'ları CI\'ın şifrelenmiş secret deposunda (GitHub Actions secrets, Jenkins credentials vb.) saklamak, bunların kod içinde veya log\'larda görünmesini engeller. Hardcoded bir access key, repo\'ya commit edilirse herkese açık hale gelir ve rotate edilmesi gerekir.',
+          en: 'Storing credentials in the CI\'s encrypted secret store (GitHub Actions secrets, Jenkins credentials, etc.) keeps them out of code and logs. A hardcoded access key becomes public the moment it is committed to the repo and must be rotated.'
+        },
+      },
     }
   ]
 }

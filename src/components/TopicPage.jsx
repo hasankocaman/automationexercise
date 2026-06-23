@@ -5,6 +5,8 @@ import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
+import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -374,31 +376,109 @@ function PostmanCompareBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── AiExplanationPanel ─────────────────────────────────────────────────────────
+// Quiz cevaplandığında (doğru ya da yanlış) gösterilebilir — statik açıklamayı
+// tekrar etmez, öğrencinin SEÇTİĞİ cevaba özel bir mentor notu üretir
+// (explain-quiz-answer). Bilerek OTOMATİK tetiklenmiyor — her quiz cevabında
+// otomatik AI çağrısı, ücretsiz Gemini kotasını çok hızlı tüketir (bkz. NEXT_SESSION.md);
+// kullanıcı butona basınca, sadece gerçekten isteyen kişi için çağrılır.
+
+function AiExplanationPanel({ question, correctAnswer, userAnswer, isCorrect, staticExplanation, darkMode }) {
+    const { language } = useLanguage()
+    const { session } = useAuth()
+    const [explanation, setExplanation] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [requested, setRequested] = useState(false)
+
+    function handleRequest() {
+        if (requested) return
+        setRequested(true)
+        setLoading(true)
+        supabase.functions.invoke('explain-quiz-answer', {
+            body: { question, correctAnswer, userAnswer, isCorrect, staticExplanation, lang: language },
+        }).then(({ data, error: invokeError }) => {
+            if (invokeError) throw invokeError
+            if (data?.error) throw new Error(data.error)
+            setExplanation(data.explanation)
+        }).catch(async (err) => {
+            console.error('explain-quiz-answer failed:', err)
+            const detail = await extractFunctionErrorDetail(err)
+            setError((language === 'tr' ? 'AI açıklaması şu anda yüklenemedi.' : 'Could not load AI explanation right now.')
+                + (detail ? ` (${detail})` : ''))
+        }).finally(() => setLoading(false))
+    }
+
+    if (!session) {
+        return (
+            <div className={`mt-2 text-xs italic ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                🔒 {language === 'tr' ? 'AI açıklaması için giriş yapmalısın.' : 'Sign in to see the AI explanation.'}
+            </div>
+        )
+    }
+
+    if (!requested) {
+        return (
+            <button
+                onClick={handleRequest}
+                className={`mt-2 text-xs font-semibold underline ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}
+            >
+                🤖 {language === 'tr' ? "AI'dan bu cevaba özel ek açıklama iste" : 'Ask AI for an explanation tailored to your answer'}
+            </button>
+        )
+    }
+
+    return (
+        <div className={`mt-3 rounded-lg border-l-4 border-purple-500 p-3 text-sm leading-relaxed ${darkMode ? 'bg-purple-900/20 text-purple-200' : 'bg-purple-50 text-purple-800'}`}>
+            <div className="font-bold mb-1 flex items-center gap-1.5">🤖 {language === 'tr' ? 'AI Açıklama' : 'AI Explanation'}</div>
+            {loading && <span className="opacity-70">{language === 'tr' ? 'Yükleniyor...' : 'Loading...'}</span>}
+            {error && <span className="text-red-400">{error}</span>}
+            {explanation && <p>{explanation}</p>}
+        </div>
+    )
+}
+
 // ─── QuizBlock ────────────────────────────────────────────────────────────────
 
-function QuizBlock({ block, darkMode, language = 'en', onQuizCorrect }) {
+function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
     const { t } = useLanguage()
     const [selected, setSelected] = useState(null)
     const [submitted, setSubmitted] = useState(false)
-    const [correctFired, setCorrectFired] = useState(false)
+    const [answeredFired, setAnsweredFired] = useState(false)
+    // 'main' = original question, 'retry' = alternate question shown after a wrong
+    // answer so the user can't just memorize the answer position they already saw.
+    const [activeVariant, setActiveVariant] = useState('main')
+    const activeQuestion = activeVariant === 'retry' && block.retryQuestion ? block.retryQuestion : block
     // Support both numeric index (correct: 1) and string id (correct: 'b')
-    const normalizedCorrect = typeof block.correct === 'number'
-        ? String.fromCharCode(97 + block.correct)
-        : block.correct
+    const normalizedCorrect = typeof activeQuestion.correct === 'number'
+        ? String.fromCharCode(97 + activeQuestion.correct)
+        : activeQuestion.correct
     const isCorrect = selected === normalizedCorrect
     // Support both plain string options and {id, text} object options
     const normalizeOption = (opt, i) => {
         if (typeof opt === 'string') return { id: String.fromCharCode(97 + i), text: opt }
         return opt
     }
-    const options = (block.options || []).map(normalizeOption)
+    const options = (activeQuestion.options || []).map(normalizeOption)
+    const canRetry = activeVariant === 'main' && !!block.retryQuestion
+    const handleTryDifferentQuestion = () => {
+        setActiveVariant('retry')
+        setSelected(null)
+        setSubmitted(false)
+        setAnsweredFired(false)
+    }
     return (
         <div className={`mt-6 p-5 rounded-xl border-2 ${darkMode ? 'bg-gray-800 border-indigo-700' : 'bg-indigo-50 border-indigo-200'}`}>
             <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">🧠</span>
                 <span className={`font-bold text-sm ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>{t('topic.quiz.title')}</span>
+                {activeVariant === 'retry' && (
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${darkMode ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                        {t('topic.quiz.retryBadge')}
+                    </span>
+                )}
             </div>
-            <p className={`text-sm font-semibold mb-4 leading-relaxed ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.question, language)}</p>
+            <p className={`text-sm font-semibold mb-4 leading-relaxed ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(activeQuestion.question, language)}</p>
             <div className="space-y-2">
                 {options.map((opt, i) => {
                     const isCorrectOpt = opt.id === normalizedCorrect
@@ -430,9 +510,9 @@ function QuizBlock({ block, darkMode, language = 'en', onQuizCorrect }) {
                 <button
                     onClick={() => {
                         setSubmitted(true)
-                        if (isCorrect && !correctFired && onQuizCorrect) {
-                            setCorrectFired(true)
-                            onQuizCorrect()
+                        if (!answeredFired) {
+                            setAnsweredFired(true)
+                            onAnswered?.(isCorrect)
                         }
                     }}
                     className="mt-4 px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:shadow-md transition-all active:scale-95"
@@ -443,8 +523,26 @@ function QuizBlock({ block, darkMode, language = 'en', onQuizCorrect }) {
             {submitted && (
                 <div className={`mt-4 p-4 rounded-lg text-sm leading-relaxed ${isCorrect ? (darkMode ? 'bg-green-900/30 text-green-300 border border-green-700' : 'bg-green-50 text-green-800 border border-green-200') : (darkMode ? 'bg-amber-900/30 text-amber-300 border border-amber-700' : 'bg-amber-50 text-amber-800 border border-amber-200')}`}>
                     <span className="font-bold">{isCorrect ? t('topic.quiz.correctPrefix') : t('topic.quiz.incorrectPrefix')}</span>
-                    {tx(block.explanation, language)}
+                    {tx(activeQuestion.explanation, language)}
                 </div>
+            )}
+            {submitted && (
+                <AiExplanationPanel
+                    question={tx(activeQuestion.question, language)}
+                    correctAnswer={tx(options.find((o) => o.id === normalizedCorrect)?.text, language)}
+                    userAnswer={tx(options.find((o) => o.id === selected)?.text, language)}
+                    isCorrect={isCorrect}
+                    staticExplanation={tx(activeQuestion.explanation, language)}
+                    darkMode={darkMode}
+                />
+            )}
+            {submitted && !isCorrect && canRetry && (
+                <button
+                    onClick={handleTryDifferentQuestion}
+                    className={`mt-3 px-4 py-2 rounded-lg text-sm font-semibold transition-all active:scale-95 ${darkMode ? 'bg-purple-900/40 text-purple-300 border border-purple-700 hover:bg-purple-900/60' : 'bg-purple-100 text-purple-700 border border-purple-300 hover:bg-purple-200'}`}
+                >
+                    {t('topic.quiz.tryDifferentQuestion')}
+                </button>
             )}
         </div>
     )
@@ -1261,6 +1359,549 @@ function JavaPracticeBlock({ block, darkMode, language }) {
     )
 }
 
+// ─── InteractiveSolverBlock ───────────────────────────────────────────────────
+
+
+function InteractiveSolverBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [savedData, setSavedData] = useState(() => {
+        try {
+            const data = localStorage.getItem('learnqa_interactive_scores')
+            return data ? JSON.parse(data) : {}
+        } catch (e) {
+            return {}
+        }
+    })
+    const [selectedId, setSelectedId] = useState(() => SOLVER_QUESTIONS[0]?.id || null)
+    const [stage, setStage] = useState(1) // 1, 2, 3, 4
+    const [checkedSteps, setCheckedSteps] = useState([])
+    const [userCode, setUserCode] = useState('')
+    const [score, setScore] = useState(null)
+    const [notes, setNotes] = useState('')
+    const [justSaved, setJustSaved] = useState(false)
+
+    // Load question details
+    const selectedQ = SOLVER_QUESTIONS.find(q => q.id === selectedId)
+
+    useEffect(() => {
+        if (selectedQ) {
+            setStage(1)
+            const stepsLength = (selectedQ.algorithm[language] || selectedQ.algorithm.tr).length
+            setCheckedSteps(new Array(stepsLength).fill(false))
+            setUserCode(selectedQ.starterCode)
+            setScore(savedData[selectedQ.id]?.score || null)
+            setNotes(savedData[selectedQ.id]?.notes || '')
+            setJustSaved(false)
+        } else {
+            setStage(1)
+            setCheckedSteps([])
+            setUserCode('')
+            setScore(null)
+            setNotes('')
+            setJustSaved(false)
+        }
+    }, [selectedId, language])
+
+    const saveProgress = () => {
+        if (!selectedQ || score === null) return
+        const updated = {
+            ...savedData,
+            [selectedQ.id]: {
+                score,
+                notes,
+                solvedAt: new Date().toISOString()
+            }
+        }
+        setSavedData(updated)
+        try {
+            localStorage.setItem('learnqa_interactive_scores', JSON.stringify(updated))
+        } catch (e) {
+            console.error(e)
+        }
+        setJustSaved(true)
+        setTimeout(() => setJustSaved(false), 3000)
+    }
+
+    const clearAllProgress = () => {
+        if (window.confirm(isTr ? 'Tüm soru çözme ilerlemenizi sıfırlamak istediğinize emin misiniz?' : 'Are you sure you want to clear all practice progress?')) {
+            setSavedData({})
+            try {
+                localStorage.removeItem('learnqa_interactive_scores')
+            } catch (e) {
+                console.error(e)
+            }
+            setSelectedId(null)
+        }
+    }
+
+    const allChecked = checkedSteps.length > 0 && checkedSteps.every(c => c)
+
+    return (
+        <div className={`mt-6 rounded-2xl border-2 p-1 md:p-4 transition-all duration-300 ${darkMode ? 'bg-slate-900/50 border-slate-800 text-white' : 'bg-slate-50/50 border-slate-200 text-slate-900'}`}>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-2">
+                {/* Sol Soru Listesi Sidebar */}
+                <div className={`lg:col-span-1 rounded-xl p-4 border flex flex-col justify-between ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`}>
+                    <div>
+                        <h3 className={`text-md font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                            🧩 {isTr ? 'Pratik Soruları' : 'Practice Questions'}
+                        </h3>
+                        <div className="space-y-2">
+                            {SOLVER_QUESTIONS.map(q => {
+                                const isSolved = !!savedData[q.id]
+                                const isSelected = q.id === selectedId
+                                const qScore = savedData[q.id]?.score
+                                const titleText = q.title[language] || q.title.tr
+
+                                return (
+                                    <button
+                                        key={q.id}
+                                        onClick={() => setSelectedId(q.id)}
+                                        className={`w-full text-left p-3 rounded-lg text-xs font-semibold border transition-all duration-200 flex items-center justify-between gap-2 ${
+                                            isSelected
+                                                ? darkMode
+                                                    ? 'bg-orange-500/20 border-orange-500 text-orange-300 shadow-inner'
+                                                    : 'bg-orange-50 border-orange-400 text-orange-800'
+                                                : isSolved
+                                                    ? darkMode
+                                                        ? 'bg-emerald-500/10 border-emerald-800/50 text-emerald-400 hover:bg-emerald-500/20'
+                                                        : 'bg-emerald-50/50 border-emerald-200 text-emerald-800 hover:bg-emerald-50'
+                                                    : darkMode
+                                                        ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                                                        : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                        style={{ minHeight: 36 }}
+                                    >
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            {isSolved ? (
+                                                <span className="text-emerald-500 flex-shrink-0">✓</span>
+                                            ) : (
+                                                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? 'bg-orange-500 animate-pulse' : 'bg-slate-400'}`}></span>
+                                            )}
+                                            <span className="truncate">{titleText}</span>
+                                        </div>
+                                        {isSolved && qScore !== undefined && (
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${darkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'}`}>
+                                                {qScore}/10
+                                            </span>
+                                        )}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {Object.keys(savedData).length > 0 && (
+                        <button
+                            onClick={clearAllProgress}
+                            className={`w-full mt-6 py-2 px-3 rounded-lg text-xs font-bold transition-all border ${
+                                darkMode
+                                    ? 'bg-red-950/20 border-red-900/50 text-red-400 hover:bg-red-950/40'
+                                    : 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
+                            }`}
+                            style={{ minHeight: 36 }}
+                        >
+                            🗑️ {isTr ? 'İlerlemeyi Sıfırla' : 'Reset All Progress'}
+                        </button>
+                    )}
+                </div>
+
+                {/* Sağ Soru Detayı / Çözücü Alanı */}
+                <div className="lg:col-span-3 flex flex-col min-h-[450px]">
+                    {selectedQ && (
+                        /* Üst Tanıtım/Açıklama Kartı */
+                        <div className={`mb-4 p-4 rounded-xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xl">🧠</span>
+                                <h3 className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                                    {isTr ? 'Adım Adım İnteraktif Soru Çözücü' : 'Step-by-Step Interactive Solver'}
+                                </h3>
+                            </div>
+                            <p className={`text-xs leading-relaxed mb-3 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                {isTr
+                                    ? 'Yazılım test otomasyonunda başarılı olmak için ezberden kaçınmalı ve algoritma kurma yeteneğini geliştirmelisin. Soruları 4 aşamada çözerek mantığı kavra:'
+                                    : 'To succeed in test automation, avoid memorization and develop algorithm design skills. Solve these practice questions in 4 structured stages:'}
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] uppercase font-bold tracking-wide">
+                                <div className="flex items-center gap-1.5 p-1.5 rounded bg-slate-100/50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                                    <span className="text-orange-500">1.</span> {isTr ? 'Algoritma' : 'Algorithm'}
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1.5 rounded bg-slate-100/50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                                    <span className="text-orange-500">2.</span> {isTr ? 'İpucu' : 'Hint'}
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1.5 rounded bg-slate-100/50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                                    <span className="text-orange-500">3.</span> {isTr ? 'Kod Yaz' : 'Coding'}
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1.5 rounded bg-slate-100/50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                                    <span className="text-orange-500">4.</span> {isTr ? 'Kıyaslama' : 'Compare'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {!selectedQ ? (
+                        /* Karşılama Ekranı */
+                        <div className={`flex-1 flex flex-col items-center justify-center text-center p-8 rounded-xl border ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <div className="text-6xl mb-4 animate-bounce">🧠</div>
+                            <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {isTr ? 'Adım Adım İnteraktif Soru Çözücü' : 'Step-by-Step Interactive Solver'}
+                            </h3>
+                            <p className={`text-sm max-w-lg mb-6 leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                {isTr
+                                    ? 'Yazılım test otomasyonunda başarılı olmak için ezberden kaçınmalı ve algoritma kurma yeteneğini geliştirmelisin. Buradaki pratik sorularını 4 aşamada çözerek mantığı kavra:'
+                                    : 'To succeed in test automation, avoid memorization and develop algorithm design skills. Solve these practice questions in 4 structured stages:'}
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mb-8 text-left">
+                                <div className={`p-3 rounded-lg border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                    <div className="font-bold text-xs flex items-center gap-1.5 text-orange-500">
+                                        <span>1.</span> {isTr ? 'Algoritma Kurma' : 'Algorithm Design'}
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1">
+                                        {isTr ? 'Çözüm adımlarını tek tek analiz et ve kafanda canlandır.' : 'Analyze and visualize each solution step individually.'}
+                                    </div>
+                                </div>
+                                <div className={`p-3 rounded-lg border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                    <div className="font-bold text-xs flex items-center gap-1.5 text-orange-500">
+                                        <span>2.</span> {isTr ? 'İpuçları & Metodlar' : 'Hints & Methods'}
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1">
+                                        {isTr ? 'İhtiyaç duyacağın Java metodlarını ve püf noktaları gör.' : 'See the Java methods and tricks you will need.'}
+                                    </div>
+                                </div>
+                                <div className={`p-3 rounded-lg border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                    <div className="font-bold text-xs flex items-center gap-1.5 text-orange-500">
+                                        <span>3.</span> {isTr ? 'Kendi Kodunu Yaz' : 'Write Your Code'}
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1">
+                                        {isTr ? 'Sorunun Java çözümünü taslak koda göre yaz.' : 'Write the Java solution based on the starter code.'}
+                                    </div>
+                                </div>
+                                <div className={`p-3 rounded-lg border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                    <div className="font-bold text-xs flex items-center gap-1.5 text-orange-500">
+                                        <span>4.</span> {isTr ? 'Kıyasla & Puanla' : 'Compare & Rate'}
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1">
+                                        {isTr ? 'Kodunu referans çözümle karşılaştır ve kendine puan ver.' : 'Compare your code with the reference and score yourself.'}
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedId(SOLVER_QUESTIONS[0].id)}
+                                className="px-6 py-3 rounded-xl text-sm font-bold text-white transition-all bg-gradient-to-r from-orange-500 to-amber-500 hover:shadow-lg hover:shadow-orange-500/20 active:scale-95 cursor-pointer"
+                                style={{ minHeight: 36 }}
+                            >
+                                {isTr ? 'İlk Sorudan Başla 🚀' : 'Start with First Question 🚀'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className={`flex flex-col gap-4 rounded-xl border p-4 md:p-6 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            {/* Başlık ve Bilgi */}
+                            <div className="mb-4">
+                                <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
+                                    <h4 className={`text-md font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                                        {selectedQ.title[language] || selectedQ.title.tr}
+                                    </h4>
+                                    <button
+                                        onClick={() => setSelectedId(null)}
+                                        className={`text-xs px-2.5 py-1 rounded-md border ${
+                                            darkMode ? 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        ← {isTr ? 'Kapat' : 'Close'}
+                                    </button>
+                                </div>
+                                <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                    {selectedQ.description[language] || selectedQ.description.tr}
+                                </p>
+                            </div>
+
+                            {/* Aşama Stepper (Progress) Bar */}
+                            <div className="grid grid-cols-4 gap-1 mb-6 relative">
+                                {[1, 2, 3, 4].map(s => {
+                                    const isActive = s === stage
+                                    const isPassed = s < stage
+                                    const stepLabels = [
+                                        isTr ? 'Algoritma' : 'Algorithm',
+                                        isTr ? 'İpucu' : 'Hint',
+                                        isTr ? 'Kod Yaz' : 'Coding',
+                                        isTr ? 'Kıyaslama' : 'Compare'
+                                    ]
+
+                                    return (
+                                        <button
+                                            key={s}
+                                            disabled={s > stage && !isPassed} // Can go back, but can't jump forward until unlocked
+                                            onClick={() => setStage(s)}
+                                            className={`text-center py-2 px-1 rounded-lg border transition-all ${
+                                                isActive
+                                                    ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-500 text-orange-400 font-bold'
+                                                    : isPassed
+                                                        ? 'bg-emerald-500/5 border-emerald-500/30 text-emerald-500'
+                                                        : darkMode ? 'bg-slate-900/50 border-slate-800/80 text-slate-600' : 'bg-slate-50 border-slate-200 text-slate-400'
+                                            }`}
+                                        >
+                                            <div className="text-[10px] uppercase tracking-wider">{isTr ? `Aşama` : `Stage`} {s}</div>
+                                            <div className="text-xs truncate">{stepLabels[s - 1]}</div>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {/* Aşama İçeriği */}
+                            <div className="my-2">
+                                {stage === 1 && (
+                                    <div className="space-y-4 animate-fadeIn">
+                                        <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-orange-50/30 border-orange-100'}`}>
+                                            <div className="text-sm font-bold flex items-center gap-1.5 text-orange-500 mb-1">
+                                                🧠 {isTr ? 'Algoritma Mantığı Nedir?' : 'What is the Algorithm Logic?'}
+                                            </div>
+                                            <p className={`text-xs leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                                {isTr
+                                                    ? 'Aşağıdaki adımları sırayla okuyup kafanızda canlandırın. Java kodunu yazarken bu adımları takip edeceğiz. Devam edebilmek için her adımı okuyup işaretleyin.'
+                                                    : 'Visualize the steps below in order. We will follow these steps when writing the Java code. Check each step as you read it to proceed.'}
+                                            </p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {(selectedQ.algorithm[language] || selectedQ.algorithm.tr).map((stepText, idx) => {
+                                                const isChecked = checkedSteps[idx] || false
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => {
+                                                            const updated = [...checkedSteps]
+                                                            updated[idx] = !updated[idx]
+                                                            setCheckedSteps(updated)
+                                                        }}
+                                                        className={`p-3 rounded-lg border flex items-start gap-3 cursor-pointer transition-all ${
+                                                            isChecked
+                                                                ? darkMode
+                                                                    ? 'bg-emerald-950/20 border-emerald-800 text-emerald-300'
+                                                                    : 'bg-emerald-50/50 border-emerald-200 text-emerald-800'
+                                                                : darkMode
+                                                                    ? 'bg-slate-900 border-slate-800 hover:bg-slate-800/80 text-slate-300'
+                                                                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600'
+                                                        }`}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isChecked}
+                                                            onChange={() => {}} // Controlled via parent onClick
+                                                            className="mt-0.5 w-4 h-4 rounded text-orange-500 border-slate-300 focus:ring-orange-500"
+                                                        />
+                                                        <div className="text-xs leading-relaxed">
+                                                            <strong className="mr-1.5">{idx + 1}.</strong>
+                                                            {stepText}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {stage === 2 && (
+                                    <div className="space-y-4 animate-fadeIn">
+                                        <div className={`p-5 rounded-xl border border-l-4 border-l-orange-500 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-orange-50/30 border-orange-100'}`}>
+                                            <div className="text-sm font-bold text-orange-500 mb-2 flex items-center gap-1.5">
+                                                💡 {isTr ? 'Kritik İpuçları' : 'Critical Hints'}
+                                            </div>
+                                            <p className={`text-xs leading-relaxed ${darkMode ? 'text-slate-300 font-medium' : 'text-slate-700 font-medium'}`}>
+                                                {selectedQ.hint[language] || selectedQ.hint.tr}
+                                            </p>
+                                        </div>
+
+                                        <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-100/50 border-slate-200'}`}>
+                                            <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                🛠️ {isTr ? 'Gerekebilecek Metotlar' : 'Useful Methods Reference'}
+                                            </div>
+                                            <ul className="space-y-2 text-xs">
+                                                <li>
+                                                    <code className="px-1 py-0.5 rounded bg-slate-800 text-orange-300 font-mono">replace(old, new)</code> / <code className="px-1 py-0.5 rounded bg-slate-800 text-orange-300 font-mono">replaceAll(regex, val)</code>: {isTr ? 'Karakter temizleme veya değiştirme.' : 'Character cleanup or replacement.'}
+                                                </li>
+                                                <li>
+                                                    <code className="px-1 py-0.5 rounded bg-slate-800 text-orange-300 font-mono">substring(beginIndex, endIndex)</code>: {isTr ? 'String parçalama veya belirli indeksleri alma.' : 'String slicing or getting specific indices.'}
+                                                </li>
+                                                <li>
+                                                    <code className="px-1 py-0.5 rounded bg-slate-800 text-orange-300 font-mono">Character.isUpperCase(char)</code> / <code className="px-1 py-0.5 rounded bg-slate-800 text-orange-300 font-mono">toUpperCase()</code>: {isTr ? 'Büyük harf kontrolü ve dönüşümü.' : 'Uppercase checks and conversions.'}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {stage === 3 && (
+                                    <div className="space-y-3 animate-fadeIn flex flex-col h-full">
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className={darkMode ? 'text-slate-400' : 'text-slate-600'}>
+                                                ✍️ {isTr ? 'Java Kodunuzu Yazın:' : 'Type your Java Code:'}
+                                            </span>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(selectedQ.starterCode)
+                                                    alert(isTr ? 'Başlangıç kodu kopyalandı!' : 'Starter code copied!')
+                                                }}
+                                                className="text-xs text-orange-500 hover:underline"
+                                            >
+                                                📋 {isTr ? 'Taslak Kodu Kopyala' : 'Copy Starter Code'}
+                                            </button>
+                                        </div>
+
+                                        <textarea
+                                            value={userCode}
+                                            onChange={e => setUserCode(e.target.value)}
+                                            spellCheck={false}
+                                            className="w-full rounded-xl p-4 font-mono text-xs border focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                                            style={{
+                                                minHeight: '260px',
+                                                background: '#0d1117',
+                                                color: '#e6edf3',
+                                                fontFamily: 'JetBrains Mono, monospace',
+                                                fontSize: '13px',
+                                                lineHeight: '1.65',
+                                                border: '1px solid #30363d'
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
+                                {stage === 4 && (
+                                    <div className="space-y-4 animate-fadeIn">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            {/* Kullanıcı Kodu */}
+                                            <div className="flex flex-col">
+                                                <div className={`text-xs font-semibold mb-1.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                    👤 {isTr ? 'Sizin Kodunuz' : 'Your Answer'}
+                                                </div>
+                                                <pre
+                                                    className="w-full p-4 rounded-xl font-mono text-xs overflow-x-auto leading-relaxed border"
+                                                    style={{
+                                                        background: '#0d1117',
+                                                        color: '#8b949e',
+                                                        borderColor: '#30363d',
+                                                        height: '240px',
+                                                        maxHeight: '240px'
+                                                    }}
+                                                >
+                                                    <code>{userCode}</code>
+                                                </pre>
+                                            </div>
+
+                                            {/* Referans Çözüm */}
+                                            <div className="flex flex-col">
+                                                <div className={`text-xs font-semibold mb-1.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                    ☕ {isTr ? 'Referans Çözüm' : 'Reference Solution'}
+                                                </div>
+                                                <div className="overflow-y-auto rounded-xl border border-slate-700 h-[240px]">
+                                                    <CodeBlock code={selectedQ.solution} language="java" darkMode={darkMode} />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Değerlendirme Formu */}
+                                        <div className={`p-4 rounded-xl border space-y-4 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                                            <div>
+                                                <div className="text-xs font-bold text-slate-400 mb-2">
+                                                    💯 {isTr ? 'Kendi Kodunuzu Puanlayın (1 - 10):' : 'Rate Your Answer (1 - 10):'}
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(val => {
+                                                        const isSelected = score === val
+                                                        return (
+                                                            <button
+                                                                key={val}
+                                                                onClick={() => setScore(val)}
+                                                                className={`w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center transition-all ${
+                                                                    isSelected
+                                                                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white scale-110 shadow-md shadow-orange-500/30'
+                                                                        : darkMode
+                                                                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                                                            : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-100'
+                                                                }`}
+                                                                style={{ minHeight: 36 }}
+                                                            >
+                                                                {val}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div className="text-xs font-bold text-slate-400 mb-1.5">
+                                                    📝 {isTr ? 'Kişisel Notlar ve Kıyaslama (Ne öğrendiniz?):' : 'Self Feedback & Comparison Notes:'}
+                                                </div>
+                                                <textarea
+                                                    value={notes}
+                                                    onChange={e => setNotes(e.target.value)}
+                                                    placeholder={isTr ? 'Örn. "Ternary operatörünü kullanırken parantez gruplaması yapmayı unutmuşum. Referans çözümdeki mantık çok daha sade."' : 'E.g., "I forgot to wrap ternary groups in parentheses. The reference logic is much cleaner."'}
+                                                    className={`w-full rounded-lg p-2.5 text-xs focus:ring-1 focus:ring-orange-500 focus:outline-none border ${
+                                                        darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+                                                    }`}
+                                                    style={{ minHeight: '60px', fontSize: '16px' }} // 16px to prevent iOS zoom
+                                                />
+                                            </div>
+
+                                            {justSaved && (
+                                                <div className="text-xs font-semibold text-emerald-500 flex items-center gap-1.5 animate-fadeIn">
+                                                    ✅ {isTr ? 'Çözüm ilerlemeniz başarıyla kaydedildi!' : 'Your practice score and notes have been saved!'}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Alt Yönlendirme Butonları */}
+                            <div className="mt-4 pt-4 border-t border-slate-800/20 flex justify-between gap-4">
+                                <button
+                                    disabled={stage === 1}
+                                    onClick={() => setStage(prev => Math.max(1, prev - 1))}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
+                                        stage === 1
+                                            ? 'opacity-30 cursor-not-allowed'
+                                            : darkMode ? 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                    style={{ minHeight: 36 }}
+                                >
+                                    ← {isTr ? 'Geri' : 'Back'}
+                                </button>
+
+                                {stage < 4 ? (
+                                    <button
+                                        disabled={stage === 1 && !allChecked}
+                                        onClick={() => setStage(prev => Math.min(4, prev + 1))}
+                                        className={`px-5 py-2 rounded-lg text-xs font-bold text-white transition-all ${
+                                            stage === 1 && !allChecked
+                                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
+                                                : 'bg-orange-500 hover:bg-orange-600 shadow-md active:scale-95 cursor-pointer'
+                                        }`}
+                                        style={{ minHeight: 36 }}
+                                    >
+                                        {isTr ? 'İleri' : 'Next'} →
+                                    </button>
+                                ) : (
+                                    <button
+                                        disabled={score === null}
+                                        onClick={saveProgress}
+                                        className={`px-6 py-2 rounded-lg text-xs font-bold text-white transition-all ${
+                                            score === null
+                                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
+                                                : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 cursor-pointer'
+                                        }`}
+                                        style={{ minHeight: 36 }}
+                                    >
+                                        💾 {isTr ? 'Puanı Kaydet ve Bitir' : 'Save Score & Finish'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── Bilingual content helper ─────────────────────────────────────────────────
 
 const tx = (val, lang) => {
@@ -1634,11 +2275,21 @@ function SaveProgressButton({ pageKey, tabIndex, tabLabel, routePath }) {
 
 // ─── QuizFillBlock ────────────────────────────────────────────────────────────
 
-function QuizFillBlock({ block, darkMode }) {
+function QuizFillBlock({ block, darkMode, onAnswered }) {
     const { language } = useLanguage()
     const [userAnswer, setUserAnswer] = useState('')
     const [checked, setChecked] = useState(false)
+    const [answeredFired, setAnsweredFired] = useState(false)
     const isCorrect = userAnswer.trim().toLowerCase() === (block.answer || '').toLowerCase()
+
+    function handleCheck() {
+        setChecked(true)
+        if (!answeredFired) {
+            setAnsweredFired(true)
+            onAnswered?.(isCorrect)
+        }
+    }
+
     return (
         <div className={`mt-6 p-5 rounded-xl border-2 ${darkMode ? 'bg-gray-800 border-teal-700' : 'bg-teal-50 border-teal-200'}`}>
             <div className="flex items-center gap-2 mb-3">
@@ -1655,10 +2306,10 @@ function QuizFillBlock({ block, darkMode }) {
                     onChange={e => { setUserAnswer(e.target.value); setChecked(false) }}
                     placeholder={tx(block.hint, language) || (language === 'tr' ? 'Cevabınızı yazın...' : 'Type your answer...')}
                     className={`px-3 py-2 rounded-lg border text-sm font-mono min-w-[160px] outline-none ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500' : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400'}`}
-                    onKeyDown={e => e.key === 'Enter' && setChecked(true)}
+                    onKeyDown={e => e.key === 'Enter' && handleCheck()}
                 />
                 <button
-                    onClick={() => setChecked(true)}
+                    onClick={handleCheck}
                     className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-500 transition-colors"
                 >
                     {language === 'tr' ? 'Kontrol Et' : 'Check'} →
@@ -1674,13 +2325,22 @@ function QuizFillBlock({ block, darkMode }) {
                         : (language === 'tr' ? `❌ Yanlış. Doğru cevap: "${block.answer}"` : `❌ Incorrect. Correct answer: "${block.answer}"`)}
                 </div>
             )}
+            {checked && (
+                <AiExplanationPanel
+                    question={tx(block.instruction, language)}
+                    correctAnswer={block.answer}
+                    userAnswer={userAnswer}
+                    isCorrect={isCorrect}
+                    darkMode={darkMode}
+                />
+            )}
         </div>
     )
 }
 
 // ─── InterviewQuestionsBlock ──────────────────────────────────────────────────
 
-function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
+function InterviewQuestionsBlock({ block, darkMode, hideHeading = false, onMasteryAchieved, alreadyMastered }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const levelConfig = {
@@ -1698,6 +2358,22 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
                     </h4>
                 </div>
             )}
+
+            {/* Pratik (gate) en üstte — aşağıdaki 50 soruluk çalışma listesine gömülüp
+                kaybolmasın, sekmeyi açan kullanıcı önce bunu görsün. */}
+            <InterviewPracticeBlock
+                allQuestions={block.questions || []}
+                darkMode={darkMode}
+                onMasteryAchieved={onMasteryAchieved}
+                alreadyMastered={alreadyMastered}
+            />
+
+            <div className={`flex items-center gap-2 mt-8 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <span className="text-xl">📚</span>
+                <h4 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {isTr ? 'Tüm Sorular — Çalışma Materyali' : 'All Questions — Study Material'}
+                </h4>
+            </div>
             {['basic', 'intermediate', 'advanced'].map(level => {
                 const qs = block.questions?.filter(q => q.level === level)
                 if (!qs?.length) return null
@@ -1723,6 +2399,349 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false }) {
                     </div>
                 )
             })}
+        </div>
+    )
+}
+
+// ─── InterviewPracticeBlock ───────────────────────────────────────────────────
+// Gerçek bir mülakatta adaya çoktan seçmeli şık verilmez — akıl yürütmesi
+// değerlendirilir. Bu yüzden burada da kullanıcı kendi cümleleriyle yazıyor; AI
+// (grade-interview-answer Edge Function) cevabı referans cevaptaki/keyPoints'teki
+// somut kontrol noktalarına göre sayıyor ("iyi mi" gibi öznel bir yargı değil).
+// 5 soru örneklenir, hepsi en az bir kez değerlendirilince ortalama ≥%80 olursa
+// sekme "tamamlandı" sayılır (notifyTopicCompleted → XP/rozet/sertifika zinciri).
+
+function sampleInterviewQuestions(questions, n) {
+    const shuffled = [...questions].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, Math.min(n, shuffled.length))
+}
+
+// supabase-js'in FunctionsHttpError.message'ı jenerik ("non-2xx status code") —
+// Edge Function'ın asıl döndürdüğü {error: "..."} JSON gövdesini okumak için
+// error.context (Response objesi) içine bakmamız gerekiyor. Bu olmadan hangi
+// adımın (Gemini çağrısı mı, JSON ayrıştırma mı) başarısız olduğunu göremeyiz.
+async function extractFunctionErrorDetail(error) {
+    if (error?.context && typeof error.context.json === 'function') {
+        try {
+            const body = await error.context.json()
+            if (body?.error) return body.error
+        } catch { /* gövde JSON değilse sessizce geç */ }
+    }
+    return error?.message || ''
+}
+
+function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alreadyMastered }) {
+    const { language } = useLanguage()
+    const isTr = language === 'tr'
+    const { session } = useAuth()
+    const [sample] = useState(() => sampleInterviewQuestions(allQuestions, 5))
+    const [answers, setAnswers] = useState({})
+    const [scores, setScores] = useState({})
+    const [gradingIndex, setGradingIndex] = useState(null)
+    const [gradingAll, setGradingAll] = useState(false)
+    const [errorByIndex, setErrorByIndex] = useState({})
+    const [disputeOpenIndex, setDisputeOpenIndex] = useState(null)
+    const [rebuttals, setRebuttals] = useState({})
+    const [disputingIndex, setDisputingIndex] = useState(null)
+    const masteryFiredRef = useRef(false)
+
+    if (!sample.length) return null
+
+    const gradedCount = Object.values(scores).filter((s) => typeof s?.percent === 'number').length
+    const allGraded = gradedCount === sample.length
+    const averagePercent = allGraded
+        ? Math.round(sample.reduce((sum, _, idx) => sum + (scores[idx]?.percent || 0), 0) / sample.length)
+        : null
+
+    // Yeni bir skor geldiğinde (ilk değerlendirme ya da itiraz sonrası revize) skoru
+    // kaydeder ve tüm sorular en az bir kez değerlendirildiyse ortalamayı kontrol eder.
+    function applyScore(idx, data) {
+        const nextScores = { ...scores, [idx]: data }
+        setScores(nextScores)
+
+        const nextGradedCount = Object.values(nextScores).filter((s) => typeof s?.percent === 'number').length
+        if (nextGradedCount === sample.length && !masteryFiredRef.current) {
+            const avg = sample.reduce((sum, _, i2) => sum + (nextScores[i2]?.percent || 0), 0) / sample.length
+            if (avg >= 80) {
+                masteryFiredRef.current = true
+                onMasteryAchieved?.(avg)
+            }
+        }
+    }
+
+    async function handleGrade(idx) {
+        const q = sample[idx]
+        const userAnswer = (answers[idx] || '').trim()
+        if (!userAnswer || gradingIndex !== null) return
+        setErrorByIndex((prev) => ({ ...prev, [idx]: '' }))
+        setGradingIndex(idx)
+        try {
+            const { data, error } = await supabase.functions.invoke('grade-interview-answer', {
+                body: {
+                    question: tx(q.q, language),
+                    modelAnswer: tx(q.a, language),
+                    keyPoints: Array.isArray(q.keyPoints) ? q.keyPoints.map((p) => tx(p, language)) : [],
+                    userAnswer,
+                    lang: language,
+                },
+            })
+            if (error) throw error
+            if (data?.error) throw new Error(data.error)
+            applyScore(idx, data)
+        } catch (error) {
+            console.error('grade-interview-answer failed:', error)
+            const detail = await extractFunctionErrorDetail(error)
+            setErrorByIndex((prev) => ({
+                ...prev,
+                [idx]: (isTr
+                    ? 'Değerlendirme şu anda yapılamadı, lütfen tekrar dene.'
+                    : 'Could not grade your answer right now, please try again.')
+                    + (detail ? ` (${detail})` : ''),
+            }))
+        } finally {
+            setGradingIndex(null)
+        }
+    }
+
+    // İlk değerlendirme turu: 5 soruyu TEK Gemini isteğinde değerlendirir (5 ayrı
+    // istek değil) — ücretsiz katmandaki dakikalık limiti gereksiz tüketmemek için.
+    // Tek tek "Tekrar Değerlendir" (handleGrade) sadece bu ilk tur bittikten sonra,
+    // kullanıcı belirli bir soruyu düzeltmek isterse devreye girer.
+    async function handleGradeAll() {
+        if (gradingAll || gradingIndex !== null) return
+        const items = sample.map((q, idx) => ({
+            question: tx(q.q, language),
+            modelAnswer: tx(q.a, language),
+            keyPoints: Array.isArray(q.keyPoints) ? q.keyPoints.map((p) => tx(p, language)) : [],
+            userAnswer: (answers[idx] || '').trim(),
+        }))
+        if (items.some((item) => !item.userAnswer)) return
+        setErrorByIndex({})
+        setGradingAll(true)
+        try {
+            const { data, error } = await supabase.functions.invoke('grade-interview-answer', {
+                body: { items, lang: language },
+            })
+            if (error) throw error
+            if (data?.error) throw new Error(data.error)
+            const nextScores = {}
+            sample.forEach((_, idx) => { nextScores[idx] = data.results[idx] })
+            setScores(nextScores)
+            const avg = sample.reduce((sum, _, idx) => sum + (nextScores[idx]?.percent || 0), 0) / sample.length
+            if (avg >= 80 && !masteryFiredRef.current) {
+                masteryFiredRef.current = true
+                onMasteryAchieved?.(avg)
+            }
+        } catch (error) {
+            console.error('grade-interview-answer (batch) failed:', error)
+            const detail = await extractFunctionErrorDetail(error)
+            const message = (isTr
+                ? 'Değerlendirme şu anda yapılamadı, lütfen tekrar dene.'
+                : 'Could not grade your answers right now, please try again.')
+                + (detail ? ` (${detail})` : '')
+            setErrorByIndex(Object.fromEntries(sample.map((_, idx) => [idx, message])))
+        } finally {
+            setGradingAll(false)
+        }
+    }
+
+    // Bazı senior kullanıcılar AI'dan daha iyi bilebilir — bu yüzden AI'ın verdiği
+    // puana itiraz edip kendi gerekçesini yazabilirler. AI itirazı gerçek bir teknik
+    // tartışma gibi değerlendirir: haklıysa puanı günceller, değilse gerekçeyle açıklar.
+    async function handleDispute(idx) {
+        const q = sample[idx]
+        const rebuttal = (rebuttals[idx] || '').trim()
+        const previousVerdict = scores[idx]
+        if (!rebuttal || !previousVerdict || disputingIndex !== null) return
+        setErrorByIndex((prev) => ({ ...prev, [idx]: '' }))
+        setDisputingIndex(idx)
+        try {
+            const { data, error } = await supabase.functions.invoke('grade-interview-answer', {
+                body: {
+                    question: tx(q.q, language),
+                    modelAnswer: tx(q.a, language),
+                    keyPoints: Array.isArray(q.keyPoints) ? q.keyPoints.map((p) => tx(p, language)) : [],
+                    userAnswer: (answers[idx] || '').trim(),
+                    lang: language,
+                    dispute: { previousVerdict, rebuttal },
+                },
+            })
+            if (error) throw error
+            if (data?.error) throw new Error(data.error)
+            applyScore(idx, data)
+            setDisputeOpenIndex(null)
+        } catch (error) {
+            console.error('grade-interview-answer dispute failed:', error)
+            const detail = await extractFunctionErrorDetail(error)
+            setErrorByIndex((prev) => ({
+                ...prev,
+                [idx]: (isTr
+                    ? 'İtiraz şu anda gönderilemedi, lütfen tekrar dene.'
+                    : 'Could not submit your dispute right now, please try again.')
+                    + (detail ? ` (${detail})` : ''),
+            }))
+        } finally {
+            setDisputingIndex(null)
+        }
+    }
+
+    if (!session) {
+        return (
+            <div className={`mt-8 rounded-xl border-2 p-5 text-sm ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
+                🔒 {isTr
+                    ? 'Mülakat Pratiği ile bu sekmeyi tamamlamak için giriş yapmalısın — AI senin cevabını referans cevaba göre puanlar.'
+                    : 'Sign in to use Interview Practice and complete this tab — the AI scores your answer against the reference answer.'}
+            </div>
+        )
+    }
+
+    if (alreadyMastered) {
+        return (
+            <div className={`mt-8 rounded-xl border-2 p-5 text-sm font-bold flex items-center gap-2 ${darkMode ? 'bg-emerald-900/20 border-emerald-700 text-emerald-300' : 'bg-emerald-50 border-emerald-300 text-emerald-700'}`}>
+                ✅ {isTr ? 'Mülakat Pratiği tamamlandı.' : 'Interview Practice completed.'}
+            </div>
+        )
+    }
+
+    return (
+        <div className={`mt-8 rounded-2xl border-2 p-5 ${darkMode ? 'bg-gray-800 border-purple-700' : 'bg-purple-50 border-purple-200'}`}>
+            <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🎤</span>
+                <span className={`font-bold text-sm ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                    {isTr ? 'Mülakat Pratiği — Sekmeyi Tamamla' : 'Interview Practice — Complete This Tab'}
+                </span>
+            </div>
+            <p className={`text-xs leading-relaxed mb-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {isTr
+                    ? `Gerçek bir mülakatta şık seçmezsin, akıl yürütmen değerlendirilir. Aşağıdaki ${sample.length} soruya kendi cümlelerinle cevap ver, hepsini doldurduktan sonra TEK seferde değerlendir — AI her cevabı referans cevaptaki somut noktalara göre puanlar. Ortalama %80'e ulaşınca bu sekme tamamlanır.`
+                    : `In a real interview you don't pick from options — your reasoning is judged. Answer all ${sample.length} questions below in your own words, then evaluate them all at once — the AI scores each answer against concrete points in the reference answer. Reach an 80% average to complete this tab.`}
+            </p>
+
+            {allGraded && (
+                <div className={`mb-5 rounded-xl p-4 text-sm font-bold ${averagePercent >= 80
+                    ? (darkMode ? 'bg-emerald-900/30 text-emerald-300 border border-emerald-700' : 'bg-emerald-50 text-emerald-700 border border-emerald-300')
+                    : (darkMode ? 'bg-amber-900/30 text-amber-300 border border-amber-700' : 'bg-amber-50 text-amber-700 border border-amber-300')}`}
+                >
+                    {averagePercent >= 80
+                        ? (isTr ? `✅ Ortalama %${averagePercent} — sekme tamamlandı!` : `✅ Average ${averagePercent}% — tab completed!`)
+                        : (isTr ? `⚠️ Ortalama %${averagePercent} — %80'e ulaşmak için cevaplarını gözden geçir ve tekrar değerlendir.` : `⚠️ Average ${averagePercent}% — review your answers and re-grade to reach 80%.`)}
+                </div>
+            )}
+
+            <div className="space-y-5">
+                {sample.map((q, idx) => {
+                    const score = scores[idx]
+                    return (
+                        <div key={idx} className={`rounded-xl border p-4 ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`}>
+                            <p className={`text-sm font-semibold mb-3 leading-relaxed ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                                {idx + 1}. {tx(q.q, language)}
+                            </p>
+                            <textarea
+                                value={answers[idx] || ''}
+                                onChange={(e) => setAnswers((prev) => ({ ...prev, [idx]: e.target.value }))}
+                                rows={3}
+                                placeholder={isTr ? 'Kendi cümlelerinle cevabını yaz...' : 'Write your own answer...'}
+                                className={`w-full resize-none rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-100' : 'bg-white border-gray-300 text-gray-800'}`}
+                            />
+                            {/* İlk tur tek bir toplu çağrıyla yapılır (aşağıdaki "Tümünü Değerlendir"
+                                butonu) — bu soru bazlı buton sadece o ilk tur bittikten SONRA, tek bir
+                                soruyu düzeltmek isteyen kullanıcı için görünür (tek soruluk istek). */}
+                            {score && (
+                                <button
+                                    onClick={() => handleGrade(idx)}
+                                    disabled={gradingIndex !== null || !(answers[idx] || '').trim()}
+                                    className="mt-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:shadow-md transition-all active:scale-95 disabled:opacity-40"
+                                >
+                                    {gradingIndex === idx
+                                        ? (isTr ? 'Değerlendiriliyor...' : 'Grading...')
+                                        : (isTr ? 'Bu Soruyu Tekrar Değerlendir' : 'Re-grade This Question')} →
+                                </button>
+                            )}
+
+                            {errorByIndex[idx] && (
+                                <p className="mt-2 text-xs font-semibold text-red-400">{errorByIndex[idx]}</p>
+                            )}
+
+                            {score && (
+                                <div className={`mt-3 p-3 rounded-lg text-sm leading-relaxed ${score.percent >= 80
+                                    ? (darkMode ? 'bg-green-900/30 text-green-300 border border-green-700' : 'bg-green-50 text-green-800 border border-green-200')
+                                    : (darkMode ? 'bg-amber-900/30 text-amber-300 border border-amber-700' : 'bg-amber-50 text-amber-800 border border-amber-200')}`}
+                                >
+                                    <div className="font-bold mb-1">
+                                        {score.coveredPoints}/{score.totalPoints} {isTr ? 'kontrol noktası' : 'points'} (%{score.percent})
+                                    </div>
+                                    {score.feedback && <p className="mb-1">{score.feedback}</p>}
+                                    {score.missedPoints?.length > 0 && (
+                                        <ul className="list-disc list-inside opacity-90">
+                                            {score.missedPoints.map((p, j) => <li key={j}>{p}</li>)}
+                                        </ul>
+                                    )}
+
+                                    {score.disputeResponse && (
+                                        <div className={`mt-2 pt-2 border-t text-xs ${darkMode ? 'border-white/10' : 'border-black/10'}`}>
+                                            <span className="font-bold">🤖 {isTr ? 'AI\'ın itiraza yanıtı: ' : "AI's response to your dispute: "}</span>
+                                            {score.disputeResponse}
+                                        </div>
+                                    )}
+
+                                    {disputeOpenIndex !== idx && (
+                                        <button
+                                            onClick={() => setDisputeOpenIndex(idx)}
+                                            className={`mt-2 text-xs font-semibold underline ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}
+                                        >
+                                            {isTr ? 'Bu değerlendirmeye katılmıyorum →' : "I disagree with this assessment →"}
+                                        </button>
+                                    )}
+
+                                    {disputeOpenIndex === idx && (
+                                        <div className="mt-3">
+                                            <p className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                {isTr
+                                                    ? 'Neden haklı olduğunu düşünüyorsun? Doğru cevabın ne olduğunu kendi yorumunla yaz — AI gerekçeni inceleyip kararını gözden geçirecek.'
+                                                    : 'Why do you think you\'re right? Write your own take on the correct answer — the AI will review your reasoning and reconsider.'}
+                                            </p>
+                                            <textarea
+                                                value={rebuttals[idx] || ''}
+                                                onChange={(e) => setRebuttals((prev) => ({ ...prev, [idx]: e.target.value }))}
+                                                rows={2}
+                                                placeholder={isTr ? 'Bence doğru cevap şu çünkü...' : 'I believe the correct answer is... because...'}
+                                                className={`w-full resize-none rounded-lg border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-100' : 'bg-white border-gray-300 text-gray-800'}`}
+                                            />
+                                            <div className="mt-2 flex gap-2">
+                                                <button
+                                                    onClick={() => handleDispute(idx)}
+                                                    disabled={disputingIndex !== null || !(rebuttals[idx] || '').trim()}
+                                                    className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg text-xs font-semibold hover:shadow-md transition-all active:scale-95 disabled:opacity-40"
+                                                >
+                                                    {disputingIndex === idx ? (isTr ? 'Gönderiliyor...' : 'Sending...') : (isTr ? 'İtirazı Gönder' : 'Submit Dispute')}
+                                                </button>
+                                                <button
+                                                    onClick={() => setDisputeOpenIndex(null)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
+                                                >
+                                                    {isTr ? 'Vazgeç' : 'Cancel'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )
+                })}
+            </div>
+
+            {gradedCount === 0 && (
+                <button
+                    onClick={handleGradeAll}
+                    disabled={gradingAll || sample.some((_, idx) => !(answers[idx] || '').trim())}
+                    className="mt-5 w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all active:scale-95 disabled:opacity-40"
+                >
+                    {gradingAll
+                        ? (isTr ? `${sample.length} soru değerlendiriliyor...` : `Grading ${sample.length} questions...`)
+                        : (isTr ? `Tümünü Değerlendir (${sample.length} soru)` : `Evaluate All (${sample.length} questions)`)} →
+                </button>
+            )}
         </div>
     )
 }
@@ -12152,7 +13171,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '') {
+function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false) {
     const textCls = `text-sm leading-relaxed mt-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`
     const h3Cls = `text-xl font-bold mt-8 mb-3 pb-2 border-b ${darkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'}`
     const h4Cls = `text-base font-semibold mt-5 mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`
@@ -12288,14 +13307,14 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             )
         case 'qa':
             return (
-                <QAItem key={i} question={block.question} answer={block.answer} code={block.code} darkMode={darkMode} />
+                <QAItem key={i} question={tx(block.question, language)} answer={tx(block.answer, language)} code={block.code} darkMode={darkMode} />
             )
         case 'exercise':
             return <ExerciseBlock key={i} block={block} darkMode={darkMode} />
         case 'comparison':
             return <ComparisonBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'quiz':
-            return <QuizBlock key={i} block={block} darkMode={darkMode} language={language} onQuizCorrect={onQuizCorrect} />
+            return <QuizBlock key={i} block={block} darkMode={darkMode} language={language} onAnswered={(isCorrect) => onQuizCorrect(i, isCorrect)} />
         case 'visual':
             return <VisualBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'callout':
@@ -12318,6 +13337,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'backend-practice':
             return <BackendPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'interactive-solver':
+            return <InteractiveSolverBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         // ── New block types ────────────────────────────────────────────────────
 
@@ -12378,7 +13399,16 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'interview-questions': {
             const sectionTitleStr = (typeof sectionTitle === 'string' ? sectionTitle : '').toLowerCase()
             const hideHeading = sectionTitleStr.includes('mülakat') || sectionTitleStr.includes('interview')
-            return <InterviewQuestionsBlock key={i} block={block} darkMode={darkMode} hideHeading={hideHeading} />
+            return (
+                <InterviewQuestionsBlock
+                    key={i}
+                    block={block}
+                    darkMode={darkMode}
+                    hideHeading={hideHeading}
+                    onMasteryAchieved={(avg) => onInterviewMastery?.(i, avg)}
+                    alreadyMastered={isTabComplete}
+                />
+            )
         }
 
         case 'error-dictionary': {
@@ -12388,7 +13418,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         }
 
         case 'quiz-fill':
-            return <QuizFillBlock key={i} block={block} darkMode={darkMode} />
+            return <QuizFillBlock key={i} block={block} darkMode={darkMode} onAnswered={(isCorrect) => onQuizCorrect(i, isCorrect)} />
 
         case 'installation':
             return (
@@ -12479,6 +13509,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const location = useLocation()
     const { markTopicCompleted } = useAuth()
     const [newBadge, setNewBadge] = useState(null)
+    const [xpToast, setXpToast] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
         const isDark = saved !== null ? JSON.parse(saved) : true
@@ -12507,6 +13538,26 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
             const d = data['tr'] || data['en']
             const key = (d?.hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
             const saved = localStorage.getItem(`quizProgress_${key}`)
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
+    // Sekme içindeki hangi quiz/quiz-fill bloğunun (blockIndex) doğru cevaplandığını
+    // tutar — { [tabIndex]: { [blockIndex]: true } }. %60 eşiği bu sayım üzerinden hesaplanır.
+    const [quizCorrectBlocks, setQuizCorrectBlocks] = useState(() => {
+        try {
+            const d = data['tr'] || data['en']
+            const key = (d?.hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+            const saved = localStorage.getItem(`quizScore_${key}`)
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
+    // Doğru ya da yanlış FARK ETMEKSİZİN hangi bloğun denendiğini tutar — sidebar'da
+    // "hiç denenmedi" (🔒) ile "denendi ama %60'ı geçemedi" (✗) ayrımı için gerekli.
+    const [quizAttempted, setQuizAttempted] = useState(() => {
+        try {
+            const d = data['tr'] || data['en']
+            const key = (d?.hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+            const saved = localStorage.getItem(`quizAttempted_${key}`)
             return saved ? JSON.parse(saved) : {}
         } catch { return {} }
     })
@@ -12549,16 +13600,74 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
             topicSlug: String(tabIndex),
             topicLabel: tabs?.[tabIndex],
             routePath: location.pathname,
-        }).then((badges) => {
+        }).then(({ badges, xpAwarded } = {}) => {
             if (badges?.length) {
                 setNewBadge(badges[0])
                 setTimeout(() => setNewBadge(null), 5000)
             }
-        }).catch(() => { /* progress/badge senkronizasyonu başarısız olsa da UI'ı bozma */ })
+            if (xpAwarded) {
+                setXpToast(xpAwarded)
+                setTimeout(() => setXpToast(null), 4000)
+            }
+        }).catch(() => { /* progress/badge/XP senkronizasyonu başarısız olsa da UI'ı bozma */ })
+    }
+
+    // Bir sekmenin "gerçek" tamamlanma yolu var mı (quiz/quiz-fill ya da
+    // interview-questions bloğu) — varsa manuel checkbox devre dışı kalır, çünkü
+    // amaç kendi kendine tıklayarak değil, gerçekten doğru cevaplayarak tamamlamak.
+    function countQuizBlocksInTab(tabIndex) {
+        const blocks = sections?.[tabIndex]?.blocks || []
+        return blocks.filter((b) => b.type === 'quiz' || b.type === 'quiz-fill').length
+    }
+    function tabHasInterviewBlock(tabIndex) {
+        const blocks = sections?.[tabIndex]?.blocks || []
+        return blocks.some((b) => b.type === 'interview-questions')
+    }
+    // Bazı sayfalarda (örn. TypeScript/Python/SQL/Appium) bir ders sekmesi
+    // (Foundations/Intermediate/Advanced vb.) kendi quiz'lerinin SONUNA küçük
+    // bir interview-questions pratiği gömüyor — bu, sayfanın DEDICATED
+    // "Mülakat Soruları" sekmesi değildir, sadece o dersin pratiğidir.
+    // Sayfa geneli kilit SADECE gerçek mülakat sekmesine uygulanmalı.
+    // Ayırt edici işaret olarak ne "interview-questions bloğu var mı" (Python/SQL/
+    // TypeScript'in gerçek Mülakat sekmesi eski 'qa' formatını kullanıyor, hiç
+    // interview-questions içermiyor) ne de "kendi quiz bloğu yok" (JMeter'ın
+    // gerçek mülakat sekmesinde 2 quiz bloğu var) güvenilir değil — platformdaki
+    // TÜM dedicated mülakat sekmeleri (hem section title'da hem sidebar tab
+    // etiketinde) 💼 emoji'si taşıyor (CLAUDE.md §10 konvansiyonu), bu yüzden
+    // tek güvenilir ayırt edici işaret budur (19 sayfa üzerinde doğrulandı,
+    // hiçbir yanlış pozitif bulunmadı).
+    function isDedicatedInterviewTab(tabIndex) {
+        const label = tabs?.[tabIndex] || ''
+        const title = tx(sections?.[tabIndex]?.title, language) || ''
+        return label.includes('💼') || title.includes('💼')
+    }
+
+    // Sayfa genelinde TÜM sekmelerdeki quiz/quiz-fill bloklarının ≥%60'ı doğru
+    // cevaplanmadan Mülakat Soruları sekmesine geçilemez — mülakata "akıl yürütme"
+    // ile geçilir, önce temel konuları doğru cevapladığını kanıtlaman gerekir.
+    const totalQuizOnPage = (sections || []).reduce((sum, _, idx) => sum + countQuizBlocksInTab(idx), 0)
+    const correctQuizOnPage = Object.values(quizCorrectBlocks).reduce((sum, tabSet) => sum + Object.keys(tabSet || {}).length, 0)
+    const globalQuizPercent = totalQuizOnPage > 0 ? (correctQuizOnPage / totalQuizOnPage) * 100 : 100
+    const interviewGateOpen = globalQuizPercent >= 60
+
+    function markTabAsVerifiedComplete(tabIndex) {
+        if (completedTabs[tabIndex] || quizVerifiedTabs[tabIndex]) return
+        setCompletedTabs(prev => {
+            const updated = { ...prev, [tabIndex]: true }
+            try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updated)) } catch { }
+            return updated
+        })
+        setQuizVerifiedTabs(prev => {
+            const updated = { ...prev, [tabIndex]: true }
+            try { localStorage.setItem(`quizProgress_${pageKey}`, JSON.stringify(updated)) } catch { }
+            return updated
+        })
+        notifyTopicCompleted(tabIndex)
     }
 
     const toggleTabComplete = (tabIndex, e) => {
         e.stopPropagation()
+        if (countQuizBlocksInTab(tabIndex) > 0 || tabHasInterviewBlock(tabIndex)) return // bu sekme quiz/mülakat ile kazanılır
         const isCompleted = !!completedTabs[tabIndex] || !!quizVerifiedTabs[tabIndex]
         const updatedCompleted = { ...completedTabs }
         const updatedQuiz = { ...quizVerifiedTabs }
@@ -12577,19 +13686,38 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
         if (!isCompleted) notifyTopicCompleted(tabIndex)
     }
 
-    const handleQuizCorrect = () => {
-        // Auto-mark tab as completed and record quiz-verified status
-        setCompletedTabs(prev => {
-            const updated = { ...prev, [activeTab]: true }
-            try { localStorage.setItem(`progress_${pageKey}`, JSON.stringify(updated)) } catch { }
-            return updated
-        })
-        setQuizVerifiedTabs(prev => {
-            const updated = { ...prev, [activeTab]: true }
-            try { localStorage.setItem(`quizProgress_${pageKey}`, JSON.stringify(updated)) } catch { }
-            return updated
-        })
-        notifyTopicCompleted(activeTab)
+    // Sekmedeki TOPLAM quiz/quiz-fill blok sayısının ≥%60'ı doğru cevaplanınca
+    // sekme tamamlanır (önceden tek bir doğru cevap yetiyordu — artık her quiz
+    // bloğu ayrı sayılıyor). Yanlış cevaplar da "denendi" olarak kaydedilir ki
+    // sidebar'da boş kutu (hiç denenmedi) ile ✗ (denendi, geçemedi) ayrılabilsin.
+    const handleQuizAnswered = (blockIndex, isCorrect) => {
+        const prevAttemptSet = quizAttempted[activeTab] || {}
+        if (!prevAttemptSet[blockIndex]) {
+            const updatedAttemptAll = { ...quizAttempted, [activeTab]: { ...prevAttemptSet, [blockIndex]: true } }
+            setQuizAttempted(updatedAttemptAll)
+            try { localStorage.setItem(`quizAttempted_${pageKey}`, JSON.stringify(updatedAttemptAll)) } catch { }
+        }
+
+        if (!isCorrect) return
+
+        const prevCorrectSet = quizCorrectBlocks[activeTab] || {}
+        if (prevCorrectSet[blockIndex]) return
+        const updatedCorrectSet = { ...prevCorrectSet, [blockIndex]: true }
+        const updatedCorrectAll = { ...quizCorrectBlocks, [activeTab]: updatedCorrectSet }
+        setQuizCorrectBlocks(updatedCorrectAll)
+        try { localStorage.setItem(`quizScore_${pageKey}`, JSON.stringify(updatedCorrectAll)) } catch { }
+
+        const total = countQuizBlocksInTab(activeTab)
+        const correctCount = Object.keys(updatedCorrectSet).length
+        if (total > 0 && correctCount / total >= 0.6) {
+            markTabAsVerifiedComplete(activeTab)
+        }
+    }
+
+    // Mülakat Pratiği bloğu örneklenen soruların ortalaması ≥%80 olduğunda çağırır
+    // (eşik kontrolü InterviewPracticeBlock içinde yapılıyor, burada sadece kaydeder).
+    function handleInterviewMastery() {
+        markTabAsVerifiedComplete(activeTab)
     }
 
     return (
@@ -12602,6 +13730,22 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                 tabLabel={tabs?.[activeTab]}
                 routePath={location.pathname}
             />
+            {xpToast && (
+                <div
+                    style={{ position: 'fixed', bottom: newBadge ? '136px' : '76px', right: '16px', zIndex: 1000 }}
+                    className="flex items-center gap-2 rounded-xl border border-indigo-400 bg-indigo-50 px-4 py-3 shadow-2xl animate-bounce"
+                >
+                    <span className="text-2xl">⚡</span>
+                    <div className="text-xs">
+                        <div className="font-bold text-indigo-900">
+                            {language === 'tr' ? 'Tebrikler!' : 'Congrats!'}
+                        </div>
+                        <div className="text-indigo-700">
+                            {language === 'tr' ? `+${xpToast} XP kazandınız` : `+${xpToast} XP earned`}
+                        </div>
+                    </div>
+                </div>
+            )}
             {newBadge && (
                 <div
                     style={{ position: 'fixed', bottom: '76px', right: '16px', zIndex: 1000 }}
@@ -12657,6 +13801,15 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                         <div className="flex flex-col gap-0.5 md:gap-1">
                             {tabs.map((tab, i) => {
                                 const isCompleted = !!completedTabs[i] || !!quizVerifiedTabs[i]
+                                const tabQuizTotal = countQuizBlocksInTab(i)
+                                const hasInterview = tabHasInterviewBlock(i)
+                                const isGated = tabQuizTotal > 0 || hasInterview
+                                const tabAttemptedCount = Object.keys(quizAttempted[i] || {}).length
+                                // Mülakat sekmesi kendi denemesinden ÖNCE, sayfa genelindeki quiz eşiğini
+                                // geçmemiş olabilir — bu durumda kendi denemesi olsa bile öncelik kilitte.
+                                // SADECE dedicated mülakat sekmesi bu page-wide kilide tabidir (bkz. isDedicatedInterviewTab).
+                                const isInterviewLocked = isDedicatedInterviewTab(i) && !isCompleted && !interviewGateOpen
+                                const isFailedAttempt = !isCompleted && !isInterviewLocked && isGated && tabAttemptedCount > 0
                                 return (
                                     <button
                                         key={i}
@@ -12682,18 +13835,31 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                             <span
                                                 role="checkbox"
                                                 aria-checked={isCompleted}
-                                                onClick={(e) => toggleTabComplete(i, e)}
-                                                title={isCompleted
-                                                    ? (language === 'tr' ? 'Tamamlandı — kaldır' : 'Completed — remove')
-                                                    : (language === 'tr' ? 'Tamamlandı işaretle' : 'Mark completed')}
-                                                className={`flex-shrink-0 w-4 h-4 rounded border transition-all cursor-pointer flex items-center justify-center ${isCompleted
+                                                aria-disabled={isGated}
+                                                onClick={isGated ? undefined : (e) => toggleTabComplete(i, e)}
+                                                title={isInterviewLocked
+                                                    ? (language === 'tr' ? `Mülakat sorularına geçmek için diğer sekmelerde %60 quiz başarısı gerekir (şu an %${Math.round(globalQuizPercent)})` : `Reach 60% quiz score on other tabs to unlock Interview Questions (currently ${Math.round(globalQuizPercent)}%)`)
+                                                    : isFailedAttempt
+                                                        ? (language === 'tr' ? 'Denendi ama %60\'a ulaşamadı — tekrar dene' : 'Attempted but below 60% — try again')
+                                                        : isGated
+                                                            ? (isCompleted
+                                                                ? (language === 'tr' ? 'Quiz/mülakat ile tamamlandı' : 'Completed via quiz/interview')
+                                                                : (language === 'tr' ? 'Bu sekme quiz/mülakat ile kazanılır' : 'This tab is completed via quiz/interview'))
+                                                            : (isCompleted
+                                                                ? (language === 'tr' ? 'Tamamlandı — kaldır' : 'Completed — remove')
+                                                                : (language === 'tr' ? 'Tamamlandı işaretle' : 'Mark completed'))}
+                                                className={`flex-shrink-0 w-4 h-4 rounded border transition-all flex items-center justify-center ${isGated ? 'cursor-default' : 'cursor-pointer'} ${isCompleted
                                                     ? 'bg-green-500 border-green-500 text-white'
-                                                    : darkMode
-                                                        ? 'border-gray-600 hover:border-green-400'
-                                                        : 'border-gray-300 hover:border-green-500'
+                                                    : isFailedAttempt
+                                                        ? 'bg-red-500/20 border-red-500'
+                                                        : darkMode
+                                                            ? 'border-gray-600 hover:border-green-400'
+                                                            : 'border-gray-300 hover:border-green-500'
                                                     }`}
                                             >
                                                 {isCompleted && <span className="text-white leading-none" style={{ fontSize: '10px' }}>✓</span>}
+                                                {!isCompleted && isFailedAttempt && <span className="leading-none text-red-500" style={{ fontSize: '10px' }}>✗</span>}
+                                                {!isCompleted && !isFailedAttempt && isGated && <span className="leading-none" style={{ fontSize: '8px' }}>🔒</span>}
                                             </span>
                                         </span>
                                     </button>
@@ -12709,7 +13875,28 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                             <h2 className={`text-xl md:text-2xl font-bold mb-4 md:mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                                 {tx(sections[activeTab]?.title, language)}
                             </h2>
-                            {sections[activeTab]?.blocks?.map((block, i) => renderBlock(block, i, darkMode, language, handleQuizCorrect, tx(sections[activeTab]?.title, language)))}
+                            {isDedicatedInterviewTab(activeTab) && !interviewGateOpen && !(completedTabs[activeTab] || quizVerifiedTabs[activeTab]) ? (
+                                <div className={`mt-4 rounded-xl border-2 p-6 text-center ${darkMode ? 'bg-gray-800 border-amber-700' : 'bg-amber-50 border-amber-300'}`}>
+                                    <div className="text-3xl mb-2">🔒</div>
+                                    <p className={`text-sm font-bold ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+                                        {language === 'tr'
+                                            ? 'Mülakat sorularına geçmeden önce diğer sekmelerdeki quizlerin en az %60\'ını doğru cevaplamalısın.'
+                                            : 'You need to answer at least 60% of the quizzes in the other tabs correctly before unlocking Interview Questions.'}
+                                    </p>
+                                    <p className={`mt-2 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        {language === 'tr'
+                                            ? `Şu anki ilerleme: %${Math.round(globalQuizPercent)} (${correctQuizOnPage}/${totalQuizOnPage} doğru)`
+                                            : `Current progress: ${Math.round(globalQuizPercent)}% (${correctQuizOnPage}/${totalQuizOnPage} correct)`}
+                                    </p>
+                                </div>
+                            ) : (
+                                sections[activeTab]?.blocks?.map((block, i) => renderBlock(
+                                    block, i, darkMode, language, handleQuizAnswered,
+                                    tx(sections[activeTab]?.title, language),
+                                    handleInterviewMastery,
+                                    !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]
+                                ))
+                            )}
                         </div>
 
                         {/* Pagination */}

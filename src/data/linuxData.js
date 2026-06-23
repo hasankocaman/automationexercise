@@ -422,7 +422,31 @@ export const linuxData = {
             ],
             correct: 'b',
             explanation: 'The terminal is just the window. The shell (bash, zsh) interprets what you type. The kernel is the OS core that actually talks to CPU, memory, and disk — the shell forwards your commands down to it.',
-          },
+          
+        retryQuestion: {
+      "question": "In a Linux environment, which statement best describes the role of the shell vs the kernel?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The shell is the hardware driver, and the kernel is the text interface"
+            },
+            {
+                  "id": "b",
+                  "text": "The shell acts as a command processor that translates user input into system calls for the kernel"
+            },
+            {
+                  "id": "c",
+                  "text": "The kernel is responsible for drawing the terminal window on your screen"
+            },
+            {
+                  "id": "d",
+                  "text": "The shell and kernel are identical components in modern Linux distributions"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The shell acts as an intermediary or interpreter between the user and the operating system. It takes your commands and executes them by communicating with the kernel, which is the core of the OS that manages hardware resources."
+}
+},
         ],
       },
 
@@ -506,7 +530,31 @@ pwd                    # Your current working directory`,
             ],
             correct: 'b',
             explanation: 'WSL2 runs a real Linux kernel in a lightweight VM inside Windows, so commands, scripts, and tools behave the same way they would on a Jenkins agent or GitHub Actions runner — closing the gap between "works on my machine" and "works in CI".',
-          },
+          
+        retryQuestion: {
+      "question": "What is the primary benefit of using WSL2 for local automated testing instead of traditional Windows native tools?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It removes the need to use a browser for testing"
+            },
+            {
+                  "id": "b",
+                  "text": "It ensures environment parity by providing a full Linux kernel environment that mirrors production and CI/CD pipelines"
+            },
+            {
+                  "id": "c",
+                  "text": "It automatically converts your test suite to run faster"
+            },
+            {
+                  "id": "d",
+                  "text": "It allows Windows to bypass the need for an internet connection during test execution"
+            }
+      ],
+      "correct": "b",
+      "explanation": "WSL2 provides a native Linux kernel, which allows QA engineers to run Linux-based automation tools, containers, and scripts directly on Windows. This parity helps prevent environment-specific failures that often occur when moving from development to CI/CD."
+}
+},
         ],
       },
 
@@ -593,7 +641,31 @@ pwd                    # Your current working directory`,
             ],
             correct: 'c',
             explanation: 'cd /home/qa/projects is an absolute path — it starts from the root "/" and always resolves to the exact same location. The other options are all relative to your current location.',
-          },
+          
+        retryQuestion: {
+      "question": "Which of the following commands represents a relative path traversal?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "cd /var/log"
+            },
+            {
+                  "id": "b",
+                  "text": "cd /usr/local/bin"
+            },
+            {
+                  "id": "c",
+                  "text": "cd ../../etc"
+            },
+            {
+                  "id": "d",
+                  "text": "cd /root"
+            }
+      ],
+      "correct": "c",
+      "explanation": "The path '../../etc' is a relative path because it depends on your current working directory to resolve the destination. Options a, b, and d are absolute paths because they start with '/', indicating they begin at the root directory."
+}
+},
         ],
       },
 
@@ -675,7 +747,31 @@ pwd                    # Your current working directory`,
             ],
             correct: 'b',
             explanation: 'Git can lose the execute bit depending on how a file was added, or the script was simply never made executable. chmod +x adds the missing bit; committing with `git update-index --chmod=+x` preserves it for future checkouts.',
-          },
+          
+        retryQuestion: {
+      "question": "A runner in a Jenkins pipeline fails to execute a deployment script with an 'Executable not found' or 'Access denied' error. What is the standard way to handle this in version control?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Set the file permissions to 777"
+            },
+            {
+                  "id": "b",
+                  "text": "Use 'git update-index --chmod=+x' to ensure the execute permission is tracked in the repository"
+            },
+            {
+                  "id": "c",
+                  "text": "Convert the script into a binary executable"
+            },
+            {
+                  "id": "d",
+                  "text": "Move the script into the /tmp directory"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Standard file system permissions are not always preserved during a git clone. By using 'git update-index --chmod=+x', you inform git to track the executable bit of the file, ensuring that any runner cloning the repo will respect the execution permission."
+}
+},
         ],
       },
 
@@ -765,7 +861,31 @@ grep -v "PASSED" app.log    # invert match: lines that do NOT contain PASSED`,
             ],
             correct: 'b',
             explanation: 'Every process has stdout (1) and stderr (2) as separate streams. `2>&1` redirects stderr to wherever stdout is currently pointing, so both end up merged into the same file — useful for capturing full test output including crashes.',
-          },
+          
+        retryQuestion: {
+      "question": "What is the purpose of the syntax '&> error_and_output.log' in a shell command?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It pipes the command to a background process"
+            },
+            {
+                  "id": "b",
+                  "text": "It redirects both stdout and stderr into the specified file"
+            },
+            {
+                  "id": "c",
+                  "text": "It forces the command to run with elevated root privileges"
+            },
+            {
+                  "id": "d",
+                  "text": "It clears the file contents before appending the new logs"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The '&>' syntax is a convenient shorthand for ' > file 2>&1'. It ensures that both the standard output and the standard error stream are captured into the same log file, which is crucial for debugging complex CI/CD failures."
+}
+},
         ],
       },
 
@@ -857,7 +977,31 @@ journalctl -u nginx -f        # follow that service's logs live`,
             ],
             correct: 'c',
             explanation: 'A plain `kill` sends SIGTERM, giving the process a chance to clean up and exit gracefully. `kill -9` (SIGKILL) gives it zero chance to clean up, so it is reserved for processes that are truly unresponsive.',
-          },
+          
+        retryQuestion: {
+      "question": "Which of the following describes the correct approach to terminating a hung process?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Always send SIGKILL to ensure no zombie processes are left behind"
+            },
+            {
+                  "id": "b",
+                  "text": "Use the 'halt' command to stop all system processes"
+            },
+            {
+                  "id": "c",
+                  "text": "Issue a SIGTERM first to request a graceful exit, and resort to SIGKILL only if the process is unresponsive"
+            },
+            {
+                  "id": "d",
+                  "text": "Immediately run 'rm -rf' on the process's associated files"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Sending SIGTERM (default kill) allows a process to perform cleanup tasks like closing database connections or temporary files. SIGKILL (kill -9) bypasses these operations entirely, which can lead to file system corruption or stale lock files."
+}
+},
         ],
       },
 
@@ -946,7 +1090,31 @@ find . -size +100M                  # find suspiciously large files`,
             ],
             correct: 'b',
             explanation: 'cron does not inherit your interactive shell\'s exported environment variables. If a script relies on something like $API_TOKEN that you only exported manually, it will be empty under cron — explicitly define or source it inside the cron script.',
-          },
+          
+        retryQuestion: {
+      "question": "You set up a CI pipeline that executes a Selenium test script via a bash file, but it fails every time the CI runner starts it, even though the script runs perfectly on your local machine. What is the most probable issue?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The CI server lacks a web browser installed"
+            },
+            {
+                  "id": "b",
+                  "text": "The CI environment has a limited PATH variable and lacks the user-specific environment variables present in your shell"
+            },
+            {
+                  "id": "c",
+                  "text": "Automation scripts cannot execute on virtual servers"
+            },
+            {
+                  "id": "d",
+                  "text": "The script file is corrupted during upload"
+            }
+      ],
+      "correct": "b",
+      "explanation": "CI/CD runners typically start with a clean, minimal environment. Unlike your local shell, they do not automatically load your ~/.bashrc or ~/.profile. If your script depends on environment variables (like API keys or paths) configured in your local profile, you must explicitly set them in the CI pipeline configuration."
+}
+},
         ],
       },
 
@@ -1020,7 +1188,31 @@ find . -size +100M                  # find suspiciously large files`,
             ],
             correct: 'b',
             explanation: 'Containers are isolated Linux processes that share the host kernel. Since Windows does not run a Linux kernel natively, Docker Desktop needs WSL2 (or Hyper-V) to provide a real Linux kernel underneath for Linux containers to actually run on.',
-          },
+          
+        retryQuestion: {
+      "question": "What is the primary technical reason why you cannot run a standard Linux Docker image directly on a Windows Server kernel without virtualization or WSL2?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Windows lacks the graphical interface required for Docker"
+            },
+            {
+                  "id": "b",
+                  "text": "Containers require the host OS kernel; since Linux images require a Linux kernel, a lightweight Linux VM is needed to provide that kernel on Windows"
+            },
+            {
+                  "id": "c",
+                  "text": "Docker image file systems are incompatible with NTFS"
+            },
+            {
+                  "id": "d",
+                  "text": "Network ports on Windows are restricted for Docker containers"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Containers are not full virtual machines; they use kernel features like namespaces and cgroups to isolate processes. These features are specific to the Linux kernel. To run a Linux container on Windows, the host must provide a Linux kernel, which is accomplished by running a small Linux utility VM (via WSL2 or Hyper-V)."
+}
+},
         ],
       },
 
@@ -1029,6 +1221,29 @@ find . -size +100M                  # find suspiciously large files`,
         title: '🚨 Error Dictionary',
         blocks: [
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors },
+          {
+            type: 'quiz',
+            question: 'A CI agent fails a step with "Permission denied" when running ./deploy.sh, even though the file clearly exists and the content is correct. What is the most likely cause?',
+            options: [
+              { id: 'a', text: 'The script has a syntax error' },
+              { id: 'b', text: 'The file is missing the execute (x) permission bit' },
+              { id: 'c', text: 'The disk is full' },
+              { id: 'd', text: 'The shell does not support .sh files' },
+            ],
+            correct: 'b',
+            explanation: "Linux checks the execute (x) bit separately from read (r) and write (w) — a file can be fully readable and even editable but still not executable. `chmod +x deploy.sh` fixes it. This is unlike Windows, where a .sh/.bat file's extension alone usually determines whether it can run; Linux relies purely on the permission bits shown by `ls -l` (e.g. rwxr-xr-x).",
+            retryQuestion: {
+              question: '`ls -l deploy.sh` shows `rw-r--r--`. What is the minimum change needed so the script\'s OWNER can run it with `./deploy.sh`?',
+              options: [
+                { id: 'a', text: '`chmod 777 deploy.sh`' },
+                { id: 'b', text: '`chmod u+x deploy.sh`' },
+                { id: 'c', text: '`chown root deploy.sh`' },
+                { id: 'd', text: 'Rename the file to deploy.sh.exe' },
+              ],
+              correct: 'b',
+              explanation: '`chmod u+x` adds the execute bit only for the owner (u), turning `rw-r--r--` into `rwxr--r--` — the minimal, correct fix for "owner needs to execute this." `chmod 777` works but grants write+execute to EVERYONE, a real security risk on a shared or CI machine. `chown` only changes ownership, not permissions, and renaming has no effect on Linux (no `.exe` concept).',
+            },
+          },
         ],
       },
 
@@ -1112,7 +1327,49 @@ find . -size +100M                  # find suspiciously large files`,
             ],
             correct: 'b',
             explanation: 'Terminal sadece penceredir. Shell (bash, zsh) yazdığın şeyi yorumlar. Kernel ise CPU, bellek ve diskle gerçekten konuşan işletim sistemi çekirdeğidir — shell komutlarını ona iletir.',
-          },
+          
+        retryQuestion: {
+      "question": {
+            "tr": "Bir kullanıcı bir terminale 'ls -l' yazdığında, işletim sistemi içerisinde görev paylaşımı nasıl gerçekleşir?",
+            "en": "When a user types 'ls -l' into a terminal, how is the task distributed within the operating system?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Terminal komutu doğrudan donanıma gönderir",
+                        "en": "The terminal sends the command directly to the hardware"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Terminal arayüzü sağlar, shell komutu ayrıştırır, kernel ise dosya sistemine erişerek işlemi yapar",
+                        "en": "The terminal provides the interface, the shell parses the command, and the kernel accesses the file system to perform the action"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Kernel komutları metin olarak okur, shell ise donanım sürücülerini yönetir",
+                        "en": "The kernel reads the command as text, and the shell manages hardware drivers"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece shell tüm süreci tek başına yönetir",
+                        "en": "Only the shell manages the entire process alone"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Terminal sadece komut girişi için bir penceredir. Shell komutu işler ve anlamlı hale getirir. Ancak dosya sistemini listelemek veya donanıma erişmek için kernel'in (çekirdek) yetkilerine ve yönetimine ihtiyaç duyar.",
+            "en": "The terminal is simply a window for input. The shell interprets the command. However, to list the file system or access hardware, it must request resources via the kernel, which performs the actual low-level operations."
+      }
+}
+},
         ],
       },
 
@@ -1196,7 +1453,31 @@ pwd                    # Şu anki çalışma dizinin`,
             ],
             correct: 'b',
             explanation: 'WSL2, Windows içinde hafif bir VM\'de gerçek bir Linux kernel çalıştırır, böylece komutlar, script\'ler ve araçlar bir Jenkins agent\'ında veya GitHub Actions runner\'ında olduğu gibi davranır — "benim makinemde çalışıyor" ile "CI\'da çalışıyor" arasındaki farkı kapatır.',
-          },
+          
+        retryQuestion: {
+      "question": "Bir QA otomasyon projesinde WSL2 kullanmanın ana avantajı nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Windows'un grafik performansını artırır"
+            },
+            {
+                  "id": "b",
+                  "text": "Linux tabanlı test araçlarının Windows üzerinde yerel (native) performans ve uyumlulukla çalışmasını sağlar"
+            },
+            {
+                  "id": "c",
+                  "text": "Windows'taki virüs programlarını devre dışı bırakır"
+            },
+            {
+                  "id": "d",
+                  "text": "Test sonuçlarının sadece tarayıcıda görülmesini sağlar"
+            }
+      ],
+      "correct": "b",
+      "explanation": "WSL2, tam bir Linux çekirdeği entegrasyonu sunarak, Linux ortamı gerektiren otomasyon araçlarının (Node.js, Playwright, bash scriptler vb.) Windows üzerinde sorunsuz ve performanslı bir şekilde çalışmasına imkan tanır."
+}
+},
         ],
       },
 
@@ -1283,7 +1564,31 @@ pwd                    # Şu anki çalışma dizinin`,
             ],
             correct: 'c',
             explanation: 'cd /home/qa/projects absolute bir path\'tir — kök "/"dan başlar ve her zaman tam olarak aynı konuma çözülür. Diğer seçenekler şu anki konumuna göre relative\'dir.',
-          },
+          
+        retryQuestion: {
+      "question": "Aşağıdaki komutlardan hangisi çalışma dizininden bağımsız olarak her zaman aynı dizine gitmeyi garantiler?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "cd bin"
+            },
+            {
+                  "id": "b",
+                  "text": "cd ../tests"
+            },
+            {
+                  "id": "c",
+                  "text": "cd /var/jenkins_home/workspace"
+            },
+            {
+                  "id": "d",
+                  "text": "cd ./app"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Başında \"/\" bulunan yollar absolute (mutlak) yollardır. Dosya sisteminin en kökünden başlarlar, bu yüzden terminaldeki mevcut çalışma dizininiz ne olursa olsun her zaman aynı klasöre giriş yaparlar."
+}
+},
         ],
       },
 
@@ -1365,7 +1670,31 @@ pwd                    # Şu anki çalışma dizinin`,
             ],
             correct: 'b',
             explanation: 'Git, dosyanın nasıl eklendiğine bağlı olarak execute bitini kaybedebilir, ya da script hiç çalıştırılabilir yapılmamıştır. chmod +x eksik biti ekler; `git update-index --chmod=+x` ile commit etmek bunu sonraki checkout\'lar için korur.',
-          },
+          
+        retryQuestion: {
+      "question": "Linux terminalinde bir bash scriptini çalıştırmak istediğinizde 'Permission denied' hatası alıyorsanız, atılan en doğru adım nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Dosyayı silip yeniden oluşturmak"
+            },
+            {
+                  "id": "b",
+                  "text": "Dosya sahibini root yapmak"
+            },
+            {
+                  "id": "c",
+                  "text": "chmod u+x filename.sh komutu ile çalıştırılabilir izin atamak"
+            },
+            {
+                  "id": "d",
+                  "text": "Terminali yönetici haklarıyla açıp scriptin adını değiştirmek"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Linux dosya sisteminde bir dosyanın çalıştırılabilmesi için 'execute' (x) iznine sahip olması gerekir. 'Permission denied' hatası, scriptin yürütme bitinin kapalı olduğunu gösterir; chmod u+x bu izni dosyaya kazandırır."
+}
+},
         ],
       },
 
@@ -1455,7 +1784,31 @@ grep -v "PASSED" app.log    # ters eşleşme: PASSED İÇERMEYEN satırlar`,
             ],
             correct: 'b',
             explanation: 'Her process\'in ayrı stdout (1) ve stderr (2) akışı vardır. `2>&1`, stderr\'i stdout\'un o anda işaret ettiği yere yönlendirir, böylece ikisi de tek bir dosyada birleşir — crash dahil tüm test çıktısını yakalamak için kullanışlıdır.',
-          },
+          
+        retryQuestion: {
+      "question": "Bash script'inde `command 2> error.log` yerine `command 2>&1` kullanmanın temel amacı nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Hata çıktılarını terminal ekranından tamamen gizler"
+            },
+            {
+                  "id": "b",
+                  "text": "Hata mesajlarını standart çıktı akışıyla birleştirerek aynı dosyaya yönlendirir"
+            },
+            {
+                  "id": "c",
+                  "text": "Hataları geçici olarak bir değişkene atar"
+            },
+            {
+                  "id": "d",
+                  "text": "Hata mesajlarını ikinci bir dosyaya kopyalar"
+            }
+      ],
+      "correct": "b",
+      "explanation": "`2>&1` ifadesi, dosya tanımlayıcı 2'yi (stderr), dosya tanımlayıcı 1'in (stdout) hedefine yönlendirir. Bu sayede hem normal çıktıları hem de hata mesajlarını tek bir kanal üzerinden aynı dosyaya yazdırabilirsiniz."
+}
+},
         ],
       },
 
@@ -1547,7 +1900,31 @@ journalctl -u nginx -f        # o servisin loglarını canlı takip et`,
             ],
             correct: 'c',
             explanation: 'Normal `kill`, SIGTERM gönderir ve process\'e düzgünce temizlenip çıkma şansı verir. `kill -9` (SIGKILL) hiçbir temizlik şansı vermez, bu yüzden gerçekten yanıt vermeyen process\'ler için son çare olarak ayrılır.',
-          },
+          
+        retryQuestion: {
+      "question": "Bir Docker container'ı durdurmak istediğinizde, veri kaybını veya veritabanı bozulmasını önlemek için izlenmesi gereken doğru kapatma yöntemi nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Docker daemon'u kapatıp makineyi kapatmak"
+            },
+            {
+                  "id": "b",
+                  "text": "Her zaman 'docker kill' komutunu kullanarak süreci anında sonlandırmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Önce 'docker stop' (SIGTERM) gönderip sürece kapanma şansı tanımak, yanıt yoksa 'docker kill' (SIGKILL) uygulamak"
+            },
+            {
+                  "id": "d",
+                  "text": "Container'ın kendi kendine kapanmasını beklemek"
+            }
+      ],
+      "correct": "c",
+      "explanation": "`docker stop` işlemi, sürece SIGTERM sinyali göndererek düzgün bir şekilde kapanma prosedürlerini (dosya yazmalarını tamamlama, bağlantıları kapatma) gerçekleştirmesi için süre tanır. `docker kill` ise süreci anında zorla durdurur ve veri tutarsızlığı riski yaratır."
+}
+},
         ],
       },
 
@@ -1636,7 +2013,31 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
             ],
             correct: 'b',
             explanation: 'cron, interaktif shell\'inin export edilmiş environment variable\'larını miras almaz. Bir script $API_TOKEN gibi sadece manuel export ettiğin bir şeye bağımlıysa, cron altında bu değer boş kalır — değişkeni cron script\'inin içinde açıkça tanımla veya kaynak göster.',
-          },
+          
+        retryQuestion: {
+      "question": "Otomatik bir Jenkins pipeline'ı çalışırken PATH hatası alıyor, ancak aynı komut kendi terminalinizde sorunsuz çalışıyor. Sorunun temel sebebi nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Jenkins sunucusunun internet bağlantısı kısıtlıdır"
+            },
+            {
+                  "id": "b",
+                  "text": "Pipeline'ın çalıştığı kullanıcıya ait PATH değişkeni, sizin lokal shell'inizden farklıdır ve bazı tool'lar bulunamaz"
+            },
+            {
+                  "id": "c",
+                  "text": "Komutların Jenkins üzerinde sadece root yetkisiyle çalışması gerekir"
+            },
+            {
+                  "id": "d",
+                  "text": "Sunucunun saati hatalı olduğu için token'lar geçerli değildir"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Otomatik pipeline ortamları genellikle çok kısıtlı bir PATH değişkeniyle başlar. .bashrc veya .profile dosyasında tanımladığınız özelleşmiş binary yolları bu ortamda yüklü olmayabilir, bu yüzden PATH değişkeninin pipeline içinde export edilmesi veya tam yol (absolute path) kullanılması gerekir."
+}
+},
         ],
       },
 
@@ -1710,7 +2111,31 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
             ],
             correct: 'b',
             explanation: 'Container\'lar host kernel\'ini paylaşan izole Linux process\'leridir. Windows native olarak bir Linux kernel\'i çalıştırmadığı için, Docker Desktop\'ın Linux container\'larını gerçekten çalıştırabilmesi için altında gerçek bir Linux kernel\'i sağlayan WSL2 (veya Hyper-V) gerekir.',
-          },
+          
+        retryQuestion: {
+      "question": "Docker Desktop kullanılırken Linux tabanlı bir container başlatıldığında arka planda neden bir sanallaştırma katmanına (WSL2 veya Hyper-V) ihtiyaç duyulur?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Docker Linux container'larını çalıştırmak için donanım üzerinden doğrudan kernel'e erişemez."
+            },
+            {
+                  "id": "b",
+                  "text": "Windows'un kendi kernel'i Linux sistem çağrılarını doğrudan yönetemez; bu yüzden Linux çekirdeğini sağlayan bir sanal makine (VM) gereklidir."
+            },
+            {
+                  "id": "c",
+                  "text": "Docker sadece Windows üzerinde güvenlik katmanı olarak bir hypervisor kullanır."
+            },
+            {
+                  "id": "d",
+                  "text": "Linux container'ları her zaman sadece Docker Hub'dan değil, bir VM içinden indirilmelidir."
+            }
+      ],
+      "correct": "b",
+      "explanation": "Container teknolojisi, çalışan uygulamanın host işletim sisteminin kernel'i ile doğrudan iletişim kurmasına dayanır. Windows kernel'i Linux binary'lerini ve sistem çağrılarını native olarak çalıştırmadığından, Docker bu uyumluluğu sağlamak için WSL2 veya Hyper-V aracılığıyla bir Linux kernel ortamı sağlar."
+}
+},
         ],
       },
 
@@ -1719,6 +2144,29 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
         title: '🚨 Hata Sözlüğü',
         blocks: [
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors },
+          {
+            type: 'quiz',
+            question: 'Bir CI agent\'ı ./deploy.sh çalıştırırken "Permission denied" hatası veriyor, dosya gerçekten var ve içeriği doğru. En olası neden nedir?',
+            options: [
+              { id: 'a', text: 'Script\'te syntax hatası var' },
+              { id: 'b', text: 'Dosyada execute (x) izin biti eksik' },
+              { id: 'c', text: 'Disk dolu' },
+              { id: 'd', text: 'Shell .sh dosyalarını desteklemiyor' },
+            ],
+            correct: 'b',
+            explanation: 'Linux, execute (x) bitini read (r) ve write (w) bitlerinden ayrı olarak kontrol eder — bir dosya tamamen okunabilir, hatta düzenlenebilir olsa da yine de çalıştırılamaz olabilir. `chmod +x deploy.sh` bunu düzeltir. Bu, Windows\'tan farklıdır — orada bir .sh/.bat dosyasının çalışıp çalışamayacağına genelde sadece uzantı karar verir; Linux ise tamamen `ls -l` ile görünen izin bitlerine (örn. rwxr-xr-x) dayanır.',
+            retryQuestion: {
+              question: '`ls -l deploy.sh` çıktısı `rw-r--r--` gösteriyor. Dosyanın SAHİBİNİN `./deploy.sh` ile çalıştırabilmesi için gereken minimum değişiklik nedir?',
+              options: [
+                { id: 'a', text: '`chmod 777 deploy.sh`' },
+                { id: 'b', text: '`chmod u+x deploy.sh`' },
+                { id: 'c', text: '`chown root deploy.sh`' },
+                { id: 'd', text: 'Dosyayı deploy.sh.exe olarak yeniden adlandırmak' },
+              ],
+              correct: 'b',
+              explanation: '`chmod u+x`, execute bitini SADECE sahibe (u) ekler, `rw-r--r--`yi `rwxr--r--`ye çevirir — "sahibin bunu çalıştırması gerekiyor" için minimal ve doğru çözüm. `chmod 777` da işe yarar ama HERKESE write+execute verir, paylaşılan veya CI makinesinde gerçek bir güvenlik riskidir. `chown` sadece sahipliği değiştirir, izinleri değil; yeniden adlandırmak Linux\'ta hiçbir etki yapmaz (`.exe` kavramı yoktur).',
+            },
+          },
         ],
       },
 

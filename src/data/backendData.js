@@ -2975,7 +2975,31 @@ const trSections = [
         ],
         correct: 'b',
         explanation: 'Bu proje üyelik, progress, badge, feedback ve chat istiyor. Supabase bu parçaları ayrı ayrı backend yazmadan başlatmamızı sağlar; gerektiğinde daha sonra özel Edge Function veya klasik Node/Spring Boot backend ekleyebiliriz.',
-      },
+      
+        retryQuestion: {
+      "question": "Bir web uygulamasında Firebase yerine Supabase tercih edilmesinin temel operasyonel avantajı nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sadece NoSQL yapısını desteklemesi"
+            },
+            {
+                  "id": "b",
+                  "text": "İlişkisel veritabanı (Postgres), Auth, Storage ve Realtime servislerini tek bir platformda sunması"
+            },
+            {
+                  "id": "c",
+                  "text": "Veritabanı şemasını tamamen manuel olarak her seferinde silip oluşturması"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece Python ile çalışması"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Supabase, ilişkisel veritabanı gücü ile Auth ve Realtime gibi modern backend ihtiyaçlarını birleştirerek ayrı ayrı servisler yönetme karmaşasını ortadan kaldırır ve geliştirme hızını artırır."
+}
+},
     ],
   },
   {
@@ -3071,7 +3095,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'b',
         explanation: 'Aynı kontrol mantığı birden çok policy’ye kopyalanırsa, biri güncellenip diğeri unutulduğunda güvenlik açığı oluşur. Tek bir security definer fonksiyon, Java’da ortak bir authorization service metodunu çağırmak gibidir — tek yerden değişir, her policy aynı doğruyu kullanır.',
-      },
+      
+        retryQuestion: {
+      "question": "RLS (Row Level Security) kurallarında veritabanı rollerini (roles) kontrol etmek için her policy içine karmaşık `CASE` ifadeleri yazmak yerine `is_admin()` gibi bir SQL fonksiyonu kullanmanın ana teknik faydası nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sorgu performansını %90 oranında hızlandırması"
+            },
+            {
+                  "id": "b",
+                  "text": "Kuralın tek merkezden yönetilmesini sağlamak, kod tekrarını önlemek ve tutarlılığı artırmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Postgres'in sadece bu fonksiyonları çalıştırması, diğer sorguları engellemesi"
+            },
+            {
+                  "id": "d",
+                  "text": "Veritabanı tablosundaki satır sayısını azaltması"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Merkezi bir yetkilendirme fonksiyonu kullanmak, yetki mantığında bir değişiklik gerektiğinde tek bir yerden güncelleme yapılmasına olanak tanır ve her policy'nin aynı güncel güvenlik kuralını kullandığından emin olmanızı sağlar."
+}
+},
     ],
   },
   {
@@ -3176,7 +3224,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'b',
         explanation: 'PKCE akışında code_verifier sadece isteği başlatan tarayıcının yerel belleğinde tutulur. Linke farklı bir tarayıcı/cihazdan tıklamak, o anahtarı bulamaz. Kullanıcıya “linki istek attığın tarayıcıda aç” uyarısı vermek bu hatayı önler.',
-      },
+      
+        retryQuestion: {
+      "question": "Bir kullanıcı e-posta adresi ve şifre ile giriş yaptıktan sonra, sayfa yenilendiğinde 'session' bilgisinin kaybolması veya 'refresh token' hatası alınması durumunda en olası neden nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Tarayıcı çerezlerinin (cookies) veya local storage verilerinin temizlenmiş olması"
+            },
+            {
+                  "id": "b",
+                  "text": "Kullanıcının internet hızının çok yavaş olması"
+            },
+            {
+                  "id": "c",
+                  "text": "Sunucunun sadece 5 dakika çalışacak şekilde ayarlanmış olması"
+            },
+            {
+                  "id": "d",
+                  "text": "Kullanıcının farklı bir klavye düzeni kullanması"
+            }
+      ],
+      "correct": "a",
+      "explanation": "Supabase auth istemcisi, oturum bilgilerini tarayıcının local storage veya cookie mekanizmasında tutar. Eğer bu depolama temizlenmişse veya tarayıcı ayarları erişimi kısıtlıyorsa, uygulama oturum bilgisini kaybeder."
+}
+},
     ],
   },
   {
@@ -3242,7 +3314,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'b',
         explanation: 'Unique kısıtlama olmadan her “tamamlandı” işareti yeni bir satır açar; resume mantığı hangi satırın güncel olduğunu bilemez. Upsert + unique(user_id, lesson_slug, topic_slug), Java’daki bir Map’e aynı key ile tekrar put() yapmak gibi: değer güncellenir, yeni giriş açılmaz.',
-      },
+      
+        retryQuestion: {
+      "question": "E-ticaret platformunda bir ürünün 'favoriler' listesine tekrar eklendiği senaryoda, veritabanı tutarlılığı için en iyi yaklaşım hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Her eklemede yeni bir satır oluşturup eski kayıtları biriktirmek"
+            },
+            {
+                  "id": "b",
+                  "text": "user_id ve product_id üzerinde unique constraint kullanarak upsert işlemi gerçekleştirmek"
+            },
+            {
+                  "id": "c",
+                  "text": "İşlemi veritabanı yerine sadece frontend tarafında yönetmek"
+            },
+            {
+                  "id": "d",
+                  "text": "Daha önce eklenmişse hata döndürerek işlemin başarısız olmasını sağlamak"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Unique kısıtlaması (user_id, product_id) ve upsert kullanımı, kullanıcının aynı ürünü defalarca favorilemesini engellerken verinin tekilleştirilmesini sağlar. Bu, Java'da bir Set veri yapısının davranışına benzer; aynı eleman tekrar eklenmez, sadece mevcut olan korunur."
+}
+},
     ],
   },
   {
@@ -3308,7 +3404,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'a',
         explanation: '`user_badges` üzerinde unique(user_id, badge_id) varsa düz insert ikinci denemede hata fırlatır; yoksa aynı rozet defalarca kaydedilir. Upsert + onConflict, “bu rozet zaten var mı?” sorusunu veritabanına bırakır — Java’da bir Set’e aynı elemanı tekrar eklemeye çalışmak gibi, sonuç hep tek bir kayıt olmalı.',
-      },
+      
+        retryQuestion: {
+      "question": "Kullanıcı puanı güncelleme fonksiyonunda `ON CONFLICT` kullanılmadan sürekli `INSERT` yapılması hangi soruna yol açar?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Veritabanı kilitlenir ve tüm sistem durur"
+            },
+            {
+                  "id": "b",
+                  "text": "Kullanıcı hiçbir puan kazanamaz"
+            },
+            {
+                  "id": "c",
+                  "text": "Aynı kullanıcı için mükerrer kayıtlar oluşur veya unique constraint varsa hata döndürülür"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece son puan silinir ve puanlar sıfırlanır"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Upsert (ON CONFLICT) kullanılmadığında, düz bir INSERT işlemi veritabanında daha önce aynı anahtar (key) ile oluşturulmuş bir kayıt varsa 'Duplicate Key' hatası fırlatır veya kısıtlama yoksa aynı kullanıcıya ait birden fazla puan satırı yaratır. Bu durum, mantıksal verinin kirlenmesine neden olur."
+}
+},
     ],
   },
   {
@@ -3371,7 +3491,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'b',
         explanation: '“Selenium sayfasında şu bölüm eksik” diyen 50 feedback satırı arasında page_path olmadan hangisinin nereden geldiğini bulmak zorlaşır. Bu alan, Java’daki log satırına request path eklemek gibidir — sorun anında debugging/triage süresini kısaltır.',
-      },
+      
+        retryQuestion: {
+      "question": "Hata bildirim tablosunda 'user_browser' verisinin tutulması hangi amaca hizmet eder?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Kullanıcının IP adresini saklayarak güvenliği sağlamak"
+            },
+            {
+                  "id": "b",
+                  "text": "Teknik hataların hangi tarayıcıda yaşandığını saptayarak hata ayıklama sürecini hızlandırmak"
+            },
+            {
+                  "id": "c",
+                  "text": "RLS (Row Level Security) politikalarını tarayıcıya göre belirlemek"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece istatistiksel raporlarda kullanılacak görsel bir değerdir"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Hata bildirimlerinde 'user_browser' veya benzeri metadata alanlarını tutmak, sorunların spesifik tarayıcılardan kaynaklanıp kaynaklanmadığını anlamayı sağlar. Tıpkı bir uygulamada hata loglarına ortam bilgisini eklemek gibi, bu alan sorun giderirken (triage) hangi ortamda test yapılması gerektiğini anında gösterir."
+}
+},
     ],
   },
   {
@@ -3441,7 +3585,31 @@ alter publication supabase_realtime add table public.chat_messages;`,
         ],
         correct: 'b',
         explanation: '`.on(...)` sadece dinleyiciyi tanımlar; kanalı gerçekten açan çağrı `.subscribe()`dir. Java’da bir event listener’ı tanımlayıp hiç `addListener()` ile register etmemek gibi düşün — kod derlenir ama hiçbir event hiç ele alınmaz.',
-      },
+      
+        retryQuestion: {
+      "question": "Bir geliştirici Supabase üzerinde `channel.on('broadcast', ...)` metodunu kullanıp ardından `.subscribe()` yerine sadece `return` yaparsa ne gerçekleşir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Kanal kurulumu tamamlanır ve veriler akmaya başlar"
+            },
+            {
+                  "id": "b",
+                  "text": "Kanal bağlantısı hiç kurulmaz; istemci hiçbir veriyi alamaz veya gönderemez"
+            },
+            {
+                  "id": "c",
+                  "text": "Sadece ilk veri paketi gönderilir, ardından bağlantı kesilir"
+            },
+            {
+                  "id": "d",
+                  "text": "Uygulama arka planda sessizce hata verir ancak çalışmaya devam eder"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Supabase Realtime SDK'sında `.subscribe()` çağrısı, soket bağlantısını başlatan ana tetikleyicidir. Bu çağrı yapılmadığı sürece dinleyiciler ve kanallar pasif durumda kalır. Bir lambayı prize takıp anahtarına basmamak gibi, bağlantı kanalı tanımlansa bile aktif bir iletişim yolu açılmaz."
+}
+},
     ],
   },
   {
@@ -3606,7 +3774,31 @@ Connect provider webhook URLs to Supabase function URLs`,
         ],
         correct: 'b',
         explanation: 'Webhook endpoint’i herkese açık bir URL’dir; imza doğrulaması olmadan gelen her POST isteği güvenilir kabul edilir. Bu, Java’da bir REST endpoint’ine gelen her isteği "Authorization header var mı" diye kontrol etmeden admin yetkisi vermek gibidir — saldırgan sadece doğru JSON şeklini taklit ederek premium kazanır.',
-      },
+      
+        retryQuestion: {
+      "question": "Eğer bir ödeme sağlayıcı entegrasyonunda (webhook), gelen isteğin `event.type` değerini kontrol edip imzayı (signature verification) doğrulamadan kullanıcıya erişim hakkı tanımlarsanız ne tür bir güvenlik açığı oluşur?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Veritabanı bağlantı hatası"
+            },
+            {
+                  "id": "b",
+                  "text": "Kötü niyetli kişilerin sahte webhook isteği göndererek ödeme yapmadan sistem kaynaklarına erişmesi"
+            },
+            {
+                  "id": "c",
+                  "text": "Stripe sunucularının uygulamanızla olan bağlantısının engellenmesi"
+            },
+            {
+                  "id": "d",
+                  "text": "Hatalı JSON verisi nedeniyle uygulamanın çökmesi"
+            }
+      ],
+      "correct": "b",
+      "explanation": "İmza doğrulaması (signature verification), isteğin gerçekten ödeme sağlayıcısından geldiğini kanıtlayan tek yöntemdir. Bu kontrol yapılmazsa, herhangi bir saldırgan ödeme sisteminizin webhook URL'ini bularak, ödeme başarılıymış gibi sahte istekler (spoofing) gönderebilir ve sisteminizi manipüle edebilir."
+}
+},
     ],
   },
   {
@@ -3704,7 +3896,31 @@ Check Google OAuth origin/redirect settings`,
         ],
         correct: 'b',
         explanation: '`VITE_` ön eki olan her değişken, Vite tarafından bilerek public JS bundle’ına gömülür — bu yüzden publishable/anon key için güvenlidir ama service_role key için felakettir. Java’da bir admin şifresini frontend’e gömüp “zaten kimse bakmaz” demek gibi düşün; herkes derlenmiş JS dosyasını açıp okuyabilir.',
-      },
+      
+        retryQuestion: {
+      "question": "Next.js projesinde `NEXT_PUBLIC_` ön eki ile tanımlanan bir env değişkenine veritabanı `service_role` anahtarını atarsanız sonuç ne olur?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sunucu tarafında güvenli bir şekilde saklanır"
+            },
+            {
+                  "id": "b",
+                  "text": "Tarayıcıya (client-side) gönderilen tüm dosyalara dahil edilir ve herkes tarafından görülebilir"
+            },
+            {
+                  "id": "c",
+                  "text": "Next.js bu değişkeni çalışma zamanında otomatik olarak sansürler"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece `npm run dev` modunda görünür, production build'de gizlenir"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Next.js'teki `NEXT_PUBLIC_` ön eki, değişkenin tarayıcı tarafındaki JS bundle'ına dahil edilmesini sağlar. `service_role` yetkisine sahip bir anahtarın bu şekilde ifşa edilmesi, tüm veritabanı kurallarını (RLS) aşan sınırsız bir erişimin kötü niyetli kişilerin eline geçmesi demektir."
+}
+},
     ],
   },
 ];
@@ -3748,7 +3964,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'This project needs membership, progress, badges, feedback, and chat. Supabase lets us start all of these without writing separate backend services; a custom Edge Function or a classic Node/Spring Boot backend can be added later if needed.',
-      },
+      
+        retryQuestion: {
+      "question": "What is the primary architectural advantage of using Supabase for a full-stack project?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It eliminates the need for any client-side JavaScript"
+            },
+            {
+                  "id": "b",
+                  "text": "It provides a unified platform for database management, authentication, and API generation, reducing backend overhead"
+            },
+            {
+                  "id": "c",
+                  "text": "It restricts database access to read-only mode by default"
+            },
+            {
+                  "id": "d",
+                  "text": "It automatically converts all SQL queries into Python code"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Supabase acts as a 'Backend-as-a-Service' (BaaS), providing a managed PostgreSQL instance with built-in authentication, real-time subscriptions, and auto-generated REST/GraphQL APIs, which significantly speeds up development compared to managing separate infrastructure components."
+}
+},
     ],
   },
   {
@@ -3775,7 +4015,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'If the same check is copied into many policies, updating one and forgetting another creates a security hole. A single security definer function is like calling one shared authorization service method in Java — change it once, every policy uses the same truth.',
-      },
+      
+        retryQuestion: {
+      "question": "Why is it considered a best practice to encapsulate complex authorization logic within a PostgreSQL function rather than writing raw, repetitive SQL snippets in RLS policies?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "SQL functions run significantly faster than raw subqueries"
+            },
+            {
+                  "id": "b",
+                  "text": "It ensures 'single source of truth' for authorization, simplifying maintenance and preventing logic drift across different policies"
+            },
+            {
+                  "id": "c",
+                  "text": "It is the only way to enable Row Level Security on a table"
+            },
+            {
+                  "id": "d",
+                  "text": "It automatically bypasses security audits"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Centralizing authorization logic in a function adheres to the DRY (Don't Repeat Yourself) principle. If business rules change, you update one function instead of scanning and modifying every individual RLS policy defined across your database schemas."
+}
+},
     ],
   },
   {
@@ -3824,7 +4088,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'In the PKCE flow, the code_verifier only lives in the local storage of the browser that started the request. Opening the link from a different browser or device cannot find that key. Telling users to open the link in the same browser that requested it prevents this error.',
-      },
+      
+        retryQuestion: {
+      "question": "When using PKCE (Proof Key for Code Exchange) with Supabase Auth, why might a login attempt fail when a user clicks a confirmation link on a device different from the one that triggered the request?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The email provider blocks different device access"
+            },
+            {
+                  "id": "b",
+                  "text": "The code_verifier key is stored locally in the initiating browser's storage, making it inaccessible to the secondary device"
+            },
+            {
+                  "id": "c",
+                  "text": "Supabase restricts concurrent logins from different IP addresses"
+            },
+            {
+                  "id": "d",
+                  "text": "Magic Links are valid only for exactly 10 seconds"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The PKCE flow relies on a 'code verifier' generated and saved in the browser's local storage during the initial request. Since a different device or browser lacks this specific key, the authentication handshake cannot be completed, leading to an invalidation error."
+}
+},
     ],
   },
   {
@@ -3845,7 +4133,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'Without a unique constraint, every "completed" mark opens a new row and resume logic cannot tell which row is current. Upsert plus unique(user_id, lesson_slug, topic_slug) is like calling put() on a Java Map with the same key again: the value updates, no new entry appears.',
-      },
+      
+        retryQuestion: {
+      "question": "When a student clicks 'Save' on a quiz result multiple times, what is the best database strategy to prevent duplicate result entries for the same user and assessment?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Append a new record on every save regardless of existence"
+            },
+            {
+                  "id": "b",
+                  "text": "Use an upsert operation with a composite unique index on (user_id, assessment_id)"
+            },
+            {
+                  "id": "c",
+                  "text": "Delete all previous records before saving the new result"
+            },
+            {
+                  "id": "d",
+                  "text": "Ignore subsequent clicks only in the client-side code"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Using an upsert with a unique constraint ensures that the state remains consistent. Much like checking if a key exists in a Map, an upsert updates the record if it exists or creates it if it doesn't, preventing data duplication without needing additional application-level logic."
+}
+},
     ],
   },
   {
@@ -3866,7 +4178,31 @@ const enSections = [
         ],
         correct: 'a',
         explanation: 'If user_badges has unique(user_id, badge_id), a plain insert throws on the second attempt; without it, the same badge keeps piling up. Upsert plus onConflict leaves the "does this badge already exist?" question to the database — like trying to add the same element to a Java Set twice, the result should always stay a single entry.',
-      },
+      
+        retryQuestion: {
+      "question": "Why is using a plain SQL 'INSERT' problematic for a function that tracks user 'daily streak' updates?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It will cause an error on repeat attempts or create redundant rows if the unique key is missing"
+            },
+            {
+                  "id": "b",
+                  "text": "It will automatically reset the streak to zero"
+            },
+            {
+                  "id": "c",
+                  "text": "It is faster than upsert but less secure"
+            },
+            {
+                  "id": "d",
+                  "text": "It automatically disables Row Level Security"
+            }
+      ],
+      "correct": "a",
+      "explanation": "If the table has a unique constraint, a simple insert will fail with a duplicate key error; if it doesn't, you will end up with multiple records for the same day. Using an upsert with 'ON CONFLICT' allows the database to handle the state transition gracefully, ensuring only one record represents the streak for that specific period."
+}
+},
     ],
   },
   {
@@ -3886,7 +4222,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'Among 50 rows saying "this section is missing on the Selenium page," finding which page each one came from without page_path is hard. It is like adding the request path to a Java log line — it shortens debugging and triage time the moment something needs attention.',
-      },
+      
+        retryQuestion: {
+      "question": "What is the primary technical advantage of storing the 'user_agent' string along with an error log in a tracking table?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It replaces the need for server-side logging"
+            },
+            {
+                  "id": "b",
+                  "text": "It helps correlate bugs with specific browser versions or device types, drastically improving debugging efficiency"
+            },
+            {
+                  "id": "c",
+                  "text": "It automatically patches the user's browser bugs"
+            },
+            {
+                  "id": "d",
+                  "text": "It serves no technical purpose other than analytics"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Much like attaching a stack trace to an error, metadata like 'user_agent' provides crucial context. When triage is required, knowing that a bug is isolated to a specific browser or version saves hours of investigation by allowing developers to reproduce the issue in the correct environment immediately."
+}
+},
     ],
   },
   {
@@ -3907,7 +4267,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: '`.on(...)` only registers a listener; `.subscribe()` is the call that actually opens the channel. It is like defining an event listener in Java but never calling addListener() to register it — the code compiles, but no event is ever handled.',
-      },
+      
+        retryQuestion: {
+      "question": "A developer sets up a Supabase Realtime subscription with `supabase.channel('public:users').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'users' }, callback)`. If they fail to append `.subscribe()` to this chain, what is the outcome?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The subscription is implicitly active by default"
+            },
+            {
+                  "id": "b",
+                  "text": "The event listener is defined but never initiates a connection to the realtime server"
+            },
+            {
+                  "id": "c",
+                  "text": "The browser console logs an error regarding missing database permissions"
+            },
+            {
+                  "id": "d",
+                  "text": "Only historical data is synced, but no new changes"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Registering the listener via `.on(...)` merely sets up the logic for handling incoming events. The `.subscribe()` method is the mandatory trigger that establishes the WebSocket connection to the Supabase Realtime server. Without it, the client remains disconnected and silent."
+}
+},
     ],
   },
   {
@@ -3974,7 +4358,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'The webhook endpoint is a public URL; without signature verification, every incoming POST is trusted blindly. It is like granting admin rights to any REST request without checking an Authorization header in Java — an attacker only needs to mimic the right JSON shape to earn premium.',
-      },
+      
+        retryQuestion: {
+      "question": "An API endpoint for payment processing reads the property `payment_verified = true` from a request body provided by a client to update a database order status. Why is this a major security flaw?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The database driver cannot handle boolean flags from JSON requests"
+            },
+            {
+                  "id": "b",
+                  "text": "It relies on client-provided data instead of validating the transaction with the payment provider's cryptographic signature"
+            },
+            {
+                  "id": "c",
+                  "text": "The endpoint will be rate-limited by the server automatically"
+            },
+            {
+                  "id": "d",
+                  "text": "JSON bodies are encrypted and therefore impossible to read"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Publicly exposed endpoints must never trust client-supplied status flags. By accepting `payment_verified = true` directly from the request, the API allows any user to spoof a successful transaction by crafting a custom HTTP request, bypassing the actual payment verification flow required for secure e-commerce."
+}
+},
     ],
   },
   {
@@ -3996,7 +4404,31 @@ const enSections = [
         ],
         correct: 'b',
         explanation: 'Every `VITE_`-prefixed variable is intentionally inlined into the public JS bundle by Vite — fine for a publishable/anon key, disastrous for a service_role key. It is like hardcoding an admin password into the frontend and assuming nobody looks; anyone can open the compiled JS file and read it.',
-      },
+      
+        retryQuestion: {
+      "question": "Why is it considered a critical security vulnerability to include a Supabase `service_role` key in a file loaded by Vite with the `VITE_` prefix?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Vite will automatically encrypt the key during the bundling process"
+            },
+            {
+                  "id": "b",
+                  "text": "Vite includes all `VITE_` prefixed variables in the client-side JavaScript bundle, making the admin key visible in browser developer tools"
+            },
+            {
+                  "id": "c",
+                  "text": "The application will immediately crash because service roles are forbidden in the browser"
+            },
+            {
+                  "id": "d",
+                  "text": "The key will be sent to every user's browser but remain inaccessible to the user"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Vite is designed to expose any environment variable prefixed with `VITE_` to the client-side frontend code. The `service_role` key bypasses Row Level Security (RLS) entirely; if it is embedded in the frontend bundle, anyone inspecting the network traffic or source code can acquire full admin access to your database."
+}
+},
     ],
   },
 ];

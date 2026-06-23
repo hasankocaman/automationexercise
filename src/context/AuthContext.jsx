@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
             }
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, display_name, email, avatar_url, avatar_emoji, is_admin, is_premium, premium_until')
+                .select('id, display_name, email, avatar_url, avatar_emoji, is_admin, is_premium, premium_until, career_goal, xp')
                 .eq('id', currentSession.user.id)
                 .maybeSingle()
             // Bu sorgu sessizce başarısız olursa rol/avatar bilgisi hep boş görünür ve
@@ -145,12 +145,26 @@ export function AuthProvider({ children }) {
         return point
     }
 
-    // Bir konuyu "tamamlandı" işaretlemek + rozet kazanma kontrolü. Sadece üyeler için
-    // gerçek rozet satırı oluşturur (badges/user_badges DB'de yaşar); anonim kullanıcı
-    // için sadece progress kaydı (yukarıdaki saveProgress zaten anonim de çalışır).
+    const LESSON_XP = 10
+
+    // Bir ders/quiz tamamlandığında XP ekler. RPC sunucu tarafında auth.uid()===user_id
+    // kontrolü yapar (SECURITY DEFINER) — kullanıcı kendi XP'sinden fazlasını isteyemez.
+    async function awardXp(amount) {
+        if (!isSupabaseConfigured || !session) return 0
+        const { data, error } = await supabase.rpc('increment_user_xp', { user_id: session.user.id, amount })
+        if (error) { console.error('increment_user_xp failed:', error); return 0 }
+        setProfile((prev) => (prev ? { ...prev, xp: data } : prev))
+        return amount
+    }
+
+    // Bir konuyu "tamamlandı" işaretlemek + XP + rozet kazanma kontrolü. Sadece üyeler
+    // için gerçek XP/rozet satırı oluşturur; anonim kullanıcı için sadece progress kaydı
+    // (yukarıdaki saveProgress zaten anonim de çalışır).
     async function markTopicCompleted({ lessonSlug, topicSlug, topicLabel, routePath }) {
         await saveProgress({ lessonSlug, topicSlug, topicLabel, routePath, status: 'completed' })
-        if (!isSupabaseConfigured || !session) return []
+        if (!isSupabaseConfigured || !session) return { badges: [], xpAwarded: 0 }
+
+        const xpAwarded = await awardXp(LESSON_XP)
 
         const { count, error: countError } = await supabase
             .from('user_progress')
@@ -159,7 +173,7 @@ export function AuthProvider({ children }) {
             .eq('status', 'completed')
         if (countError) {
             console.error('markTopicCompleted count failed:', countError)
-            return []
+            return { badges: [], xpAwarded }
         }
 
         const { data: badgeCatalog, error: catalogError } = await supabase
@@ -167,13 +181,13 @@ export function AuthProvider({ children }) {
             .select('id, title, icon, description, required_completed_topics')
         if (catalogError) {
             console.error('badges select failed:', catalogError)
-            return []
+            return { badges: [], xpAwarded }
         }
 
         const eligibleBadgeIds = (badgeCatalog ?? [])
             .filter((badge) => (count ?? 0) >= badge.required_completed_topics)
             .map((badge) => badge.id)
-        if (!eligibleBadgeIds.length) return []
+        if (!eligibleBadgeIds.length) return { badges: [], xpAwarded }
 
         const { data: newlyAwarded, error: awardError } = await supabase
             .from('user_badges')
@@ -184,7 +198,7 @@ export function AuthProvider({ children }) {
             .select('badge_id, awarded_at, badges(title, icon, description)')
         if (awardError) {
             console.error('user_badges upsert failed:', awardError)
-            return []
+            return { badges: [], xpAwarded }
         }
 
         setEarnedBadges((prev) => {
@@ -192,7 +206,7 @@ export function AuthProvider({ children }) {
             const merged = [...prev, ...(newlyAwarded ?? []).filter((b) => !existingIds.has(b.badge_id))]
             return merged
         })
-        return newlyAwarded ?? []
+        return { badges: newlyAwarded ?? [], xpAwarded }
     }
 
     // Ana sayfada "kaldığın yerden devam et" göstermek için: üye ise en son güncellenen
@@ -219,6 +233,66 @@ export function AuthProvider({ children }) {
             }
         }
         return readLocalResume()
+    }
+
+    // QA Mentor yol haritası seçimini kalıcı kılar — sonraki ziyaretlerde sihirbaz
+    // tekrar sorulmaz, doğrudan kayıtlı haritaya gidilir (sadece üyeler için; anonim
+    // kullanıcı her ziyarette sihirbazı yeniden cevaplar, CLAUDE.md §5'e uygun).
+    async function setCareerGoal(goalId) {
+        if (!isSupabaseConfigured || !session) return
+        const { data, error } = await supabase
+            .from('profiles')
+            .update({ career_goal: goalId })
+            .eq('id', session.user.id)
+            .select('career_goal')
+            .maybeSingle()
+        if (error) { console.error('setCareerGoal failed:', error); return }
+        if (data) setProfile((prev) => (prev ? { ...prev, career_goal: data.career_goal } : prev))
+    }
+
+    // Bir yol haritasındaki tamamlanma yüzdesini hesaplamak için, üyenin tamamladığı
+    // (status='completed') derslerin route'larını tek seferde okur.
+    async function getCompletedRoutePaths() {
+        if (!isSupabaseConfigured || !session) return new Set()
+        const { data, error } = await supabase
+            .from('user_progress')
+            .select('last_position')
+            .eq('user_id', session.user.id)
+            .eq('status', 'completed')
+        if (error) { console.error('getCompletedRoutePaths failed:', error); return new Set() }
+        return new Set((data ?? []).map((row) => row.last_position?.routePath).filter(Boolean))
+    }
+
+    // user_progress.updated_at'teki aktif günleri analiz ederek ardışık giriş gün
+    // sayısını hesaplar. Bugün henüz hiçbir aktivite yoksa (ör. henüz giriş yaptı ama
+    // ders bitirmedi) dünden devam eden bir seri varsa onu hâlâ canlı sayar — gece
+    // yarısı geçince seri sıfırlanmış gibi görünmesin diye.
+    async function getStreak() {
+        if (!isSupabaseConfigured || !session) return 0
+        const { data, error } = await supabase
+            .from('user_progress')
+            .select('updated_at')
+            .eq('user_id', session.user.id)
+        if (error) { console.error('getStreak failed:', error); return 0 }
+
+        const activeDates = new Set((data ?? []).map((row) => new Date(row.updated_at).toISOString().slice(0, 10)))
+        if (!activeDates.size) return 0
+
+        const dayMs = 24 * 60 * 60 * 1000
+        const today = new Date()
+        today.setUTCHours(0, 0, 0, 0)
+
+        let cursor = activeDates.has(today.toISOString().slice(0, 10))
+            ? today
+            : new Date(today.getTime() - dayMs)
+        if (!activeDates.has(cursor.toISOString().slice(0, 10))) return 0
+
+        let streak = 0
+        while (activeDates.has(cursor.toISOString().slice(0, 10))) {
+            streak += 1
+            cursor = new Date(cursor.getTime() - dayMs)
+        }
+        return streak
     }
 
     async function setAvatarEmoji(emoji) {
@@ -249,6 +323,32 @@ export function AuthProvider({ children }) {
     const avatarEmoji = profile?.avatar_emoji || null
     const email = profile?.email || session?.user?.email || null
 
+    // Bir yol haritası %100 tamamlanınca QAMentorPage bunu çağırır. unique(user_id,
+    // career_goal) + ignoreDuplicates sayesinde aynı haritayı tekrar tamamlasa (veya
+    // efekt iki kez çalışsa) bile sertifika çoğalmaz, var olan satırın id'si döner.
+    async function claimCertificate(careerGoal) {
+        if (!isSupabaseConfigured || !session) return null
+        const { data, error } = await supabase
+            .from('certificates')
+            .upsert(
+                { user_id: session.user.id, career_goal: careerGoal, display_name: displayName },
+                { onConflict: 'user_id,career_goal', ignoreDuplicates: true }
+            )
+            .select('id')
+            .maybeSingle()
+        if (error) { console.error('claimCertificate failed:', error); return null }
+        if (data) return data.id
+
+        const { data: existing, error: fetchError } = await supabase
+            .from('certificates')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .eq('career_goal', careerGoal)
+            .maybeSingle()
+        if (fetchError) { console.error('claimCertificate fetch failed:', fetchError); return null }
+        return existing?.id ?? null
+    }
+
     const value = {
         session,
         profile,
@@ -269,6 +369,13 @@ export function AuthProvider({ children }) {
         markTopicCompleted,
         getResumePoint,
         earnedBadges,
+        careerGoal: profile?.career_goal || null,
+        setCareerGoal,
+        getCompletedRoutePaths,
+        xp: profile?.xp ?? 0,
+        awardXp,
+        getStreak,
+        claimCertificate,
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

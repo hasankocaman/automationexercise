@@ -97,7 +97,31 @@ export const jenkinsData = {
             ],
             correct: 'b',
             explanation: 'CI means every code commit triggers an automatic build + test cycle, catching bugs immediately. CD (Continuous Delivery/Deployment) handles the deployment part.',
-          },
+          
+        retryQuestion: {
+      "question": "Which of the following best describes the purpose of 'Continuous Integration' in a DevOps workflow?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Continuous deployment of services to the production environment"
+            },
+            {
+                  "id": "b",
+                  "text": "Merging development branches to a main repository and verifying them with automated tests"
+            },
+            {
+                  "id": "c",
+                  "text": "Using automated scripts to synchronize cloud database schemas"
+            },
+            {
+                  "id": "d",
+                  "text": "Manual approval processes for code review before merging"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Continuous Integration focuses on the frequent integration of code changes into a shared repository, which are then validated by an automated build and test suite to detect integration errors early."
+}
+},
         ],
       },
 
@@ -238,7 +262,31 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             ],
             correct: 'b',
             explanation: 'Jenkins runs on port 8080 by default. Port 50000 is for agent-to-controller communication. Both can be changed in Jenkins configuration.',
-          },
+          
+        retryQuestion: {
+      "question": "If you are setting up a local Jenkins server, which port is traditionally accessed to reach the dashboard interface?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "80"
+            },
+            {
+                  "id": "b",
+                  "text": "8080"
+            },
+            {
+                  "id": "c",
+                  "text": "22"
+            },
+            {
+                  "id": "d",
+                  "text": "8443"
+            }
+      ],
+      "correct": "b",
+      "explanation": "By default, Jenkins is configured to listen on port 8080 for HTTP traffic. While this can be modified during installation or in the configuration file, 8080 is the standard port used."
+}
+},
         ],
       },
 
@@ -385,7 +433,31 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             ],
             correct: 'a',
             explanation: 'The "steps" block inside a stage contains actual commands (sh, echo, git, etc.). Pipeline hierarchy: pipeline → stages → stage → steps.',
-          },
+          
+        retryQuestion: {
+      "question": "In the Jenkins Declarative Pipeline syntax, what is the required block that wraps the specific shell commands or functions defined within a single stage?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "steps"
+            },
+            {
+                  "id": "b",
+                  "text": "actions"
+            },
+            {
+                  "id": "c",
+                  "text": "scripts"
+            },
+            {
+                  "id": "d",
+                  "text": "jobs"
+            }
+      ],
+      "correct": "a",
+      "explanation": "In Declarative Pipelines, the 'steps' directive is mandatory within a stage block to house the execution of various commands, such as 'sh' for shell scripts, 'echo', or plugin-specific tasks."
+}
+},
         ],
       },
 
@@ -593,7 +665,32 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
             ],
             correct: 'b',
             explanation: 'post { always {} } runs regardless of result — perfect for publishing reports and cleanup. If you put publishing only in success {}, you lose the report every time a test fails.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Which Jenkins post-build condition ensures that a specific cleanup script or notification block executes specifically when a build fails?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "post { changed { ... } }"
+            },
+            {
+                  "id": "b",
+                  "text": "post { cleanup { ... } }"
+            },
+            {
+                  "id": "c",
+                  "text": "post { failure { ... } }"
+            },
+            {
+                  "id": "d",
+                  "text": "post { success { ... } }"
+            }
+      ],
+      "correct": "c",
+      "explanation": "The 'failure' condition within the 'post' block is specifically designed to run only when the preceding stages result in a non-zero exit code or pipeline failure, making it ideal for error alerts."
+}
+},
         ],
       },
 
@@ -781,7 +878,32 @@ stage('Flaky Tests') {
             ],
             correct: 'b',
             explanation: 'The "parallel { }" directive inside a stage runs nested stages simultaneously. This is how you test Chrome, Firefox, and Safari at the same time — cutting total time by 3x.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "In a declarative Jenkins pipeline, which syntax is required to execute independent tasks in parallel to improve build performance?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Using the 'parallel' keyword inside a 'stage' block"
+            },
+            {
+                  "id": "b",
+                  "text": "Setting 'parallel: true' in the agent directive"
+            },
+            {
+                  "id": "c",
+                  "text": "Defining multiple pipeline blocks"
+            },
+            {
+                  "id": "d",
+                  "text": "Wrapping stages in a 'distributed' block"
+            }
+      ],
+      "correct": "a",
+      "explanation": "To achieve parallel execution in a declarative pipeline, you use the 'parallel' directive inside a stage. This allows multiple steps or stages to run on different executors at the same time."
+}
+},
         ],
       },
 
@@ -858,6 +980,29 @@ stage('Flaky Tests') {
 // Push this file, create a Jenkins Pipeline job pointing at the repo,
 // click "Build Now" — watch each stage light up green/red in real time.`
           },
+          {
+            type: 'quiz',
+            question: 'An organization needs self-hosted CI with full control and complex custom pipelines, and already has a large legacy plugin ecosystem. Which tool fits best, and why?',
+            options: [
+              { id: 'a', text: 'GitHub Actions, because it requires zero infrastructure management' },
+              { id: 'b', text: 'Jenkins, because it is free, self-hosted with full control, and has 1800+ plugins for any language/stack' },
+              { id: 'c', text: 'Neither — manual deployment scripts are always simpler' },
+              { id: 'd', text: 'GitLab CI, because it only works with GitHub repos' },
+            ],
+            correct: 'b',
+            explanation: "Jenkins is the right fit precisely when an org needs to run CI on their own infrastructure (on-prem/self-hosted), wants full control over the pipeline, and already depends on its enormous plugin ecosystem. GitHub Actions trades that control for zero infrastructure management and tight GitHub integration, which is great for repos already living on GitHub but introduces vendor lock-in and can get expensive at high build volume — the right tool depends on the org's hosting and ecosystem constraints, not raw popularity.",
+            retryQuestion: {
+              question: 'A startup with no existing infrastructure team, a repo already on GitHub, and a desire to minimize ops overhead is choosing a CI tool. Which factor most strongly favors GitHub Actions over Jenkins here?',
+              options: [
+                { id: 'a', text: 'GitHub Actions has more plugins than Jenkins' },
+                { id: 'b', text: 'Zero infrastructure to provision or maintain — no one has to run, patch, or scale a Jenkins server' },
+                { id: 'c', text: 'GitHub Actions is always free regardless of usage' },
+                { id: 'd', text: 'Jenkins cannot integrate with GitHub at all' },
+              ],
+              correct: 'b',
+              explanation: "For a small team with no dedicated infrastructure/ops capacity, the biggest practical cost of Jenkins isn't the tool itself — it's running, patching, and scaling the Jenkins server (and its agents) over time. GitHub Actions removes that entire category of work since GitHub manages the runners, which matters far more for this specific team than Jenkins' larger plugin ecosystem (which this team likely won't need to its full extent anyway).",
+            },
+          },
         ],
       },
 
@@ -897,6 +1042,29 @@ stage('Flaky Tests') {
           },
           { type: 'heading', text: 'Where Jenkins Sits Next to Other QA/DevOps Tools' },
           { type: 'text', content: 'In a typical pipeline: Git triggers Jenkins → Jenkins spins up a Docker container to build the app → runs unit tests, then Selenium/Playwright E2E tests inside another container → SonarQube scans for quality gates → on success, Jenkins pushes the image to a registry and triggers a Kubernetes deploy → Slack announces the result. QA engineers most often touch Jenkins when adding or debugging the test stages of this pipeline.' },
+          {
+            type: 'quiz',
+            question: 'What is the core benefit of Jenkins spinning up a fresh Docker container as the build agent for every single pipeline run?',
+            options: [
+              { id: 'a', text: 'It makes the pipeline YAML shorter' },
+              { id: 'b', text: 'It guarantees the exact same Node/Java/Python version every time, eliminating "works on my machine" CI failures' },
+              { id: 'c', text: 'It removes the need for a Jenkinsfile' },
+              { id: 'd', text: 'It automatically deploys to production' },
+            ],
+            correct: 'b',
+            explanation: 'Without fresh containers, a Jenkins agent\'s installed tool versions can drift over time (a plugin update, a manually-installed dependency, an OS patch) — causing a build to pass on one run and mysteriously fail on another with no code change. Spinning up a fresh Docker container pinned to a specific image guarantees every single build starts from byte-identical tooling, the same root cause class that "works on my machine" describes for developer laptops.',
+            retryQuestion: {
+              question: 'A Jenkins pipeline pins its build container to `maven:3.9.6-eclipse-temurin-17` rather than just `maven:latest`. Why does pinning the exact tag matter?',
+              options: [
+                { id: 'a', text: 'It makes the build run faster' },
+                { id: 'b', text: '`maven:latest` can silently point to a different, newer image over time, reintroducing the exact version-drift problem a pinned image was meant to prevent', },
+                { id: 'c', text: 'Jenkins cannot pull images without an exact tag' },
+                { id: 'd', text: 'It removes the need for a Dockerfile entirely' },
+              ],
+              correct: 'b',
+              explanation: '`:latest` is not a fixed version — it is a moving pointer that gets reassigned to whatever image was most recently published under that tag. A pipeline using `maven:latest` can quietly start building with a different Maven/JDK version next month with zero code change, recreating the same "build passed yesterday, fails today" drift problem that pinning a Docker image was supposed to solve in the first place.',
+            },
+          },
         ],
       },
 
@@ -1091,7 +1259,32 @@ stage('Flaky Tests') {
             ],
             correct: 'b',
             explanation: 'CI, her kod commit\'inde otomatik build + test döngüsü tetiklenmesi demektir. CD (Continuous Delivery/Deployment) ise deployment kısmını kapsar.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Continuous Deployment (CD) süreci, Continuous Integration (CI) sürecinden hangi noktada ayrılır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "CI kod kalitesini ölçerken, CD kodun yazılmasını sağlar."
+            },
+            {
+                  "id": "b",
+                  "text": "CI sadece test yapar, CD ise kodun canlı ortama otomatik aktarılmasını sağlar."
+            },
+            {
+                  "id": "c",
+                  "text": "CI sadece yerel bilgisayarda çalışır, CD ise sunucuda çalışır."
+            },
+            {
+                  "id": "d",
+                  "text": "Arasında bir fark yoktur, iki terim de aynı şeyi ifade eder."
+            }
+      ],
+      "correct": "b",
+      "explanation": "CI (Continuous Integration) kodun derlenmesi ve test edilmesine odaklanır. CD (Continuous Deployment) ise test edilmiş kodun otomatik olarak production ortamına aktarılması aşamasını kapsar."
+}
+},
         ],
       },
 
@@ -1193,7 +1386,31 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             ],
             correct: 'b',
             explanation: 'Jenkins varsayılan olarak 8080 portunda çalışır. 50000 portu agent-controller iletişimi içindir. Her ikisi de Jenkins yapılandırmasında değiştirilebilir.',
-          },
+          
+        retryQuestion: {
+      "question": "Jenkins kurulumu yapıldıktan sonra tarayıcıdan erişmek için kullanılan varsayılan adres ve port kombinasyonu aşağıdakilerden hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "localhost:3000"
+            },
+            {
+                  "id": "b",
+                  "text": "localhost:50000"
+            },
+            {
+                  "id": "c",
+                  "text": "localhost:8080"
+            },
+            {
+                  "id": "d",
+                  "text": "localhost:8443"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Jenkins, kurulum sırasında varsayılan olarak 8080 portunu dinler. 50000 portu ise Jenkins agent (slave) node'larının ana makineyle iletişim kurması için ayrılmıştır."
+}
+},
         ],
       },
 
@@ -1384,7 +1601,31 @@ pipeline {
             ],
             correct: 'a',
             explanation: '"steps" bloğu bir stage içinde gerçek komutları (sh, echo, git vb.) içerir. Hiyerarşi: pipeline → stages → stage → steps.',
-          },
+          
+        retryQuestion: {
+      "question": "Jenkins Declarative Pipeline yapısında, bir stage içerisindeki mantıksal iş parçacıklarının veya terminal komutlarının yerleştirildiği tanımlayıcı aşağıdakilerden hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "actions"
+            },
+            {
+                  "id": "b",
+                  "text": "steps"
+            },
+            {
+                  "id": "c",
+                  "text": "scripts"
+            },
+            {
+                  "id": "d",
+                  "text": "tasks"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Declarative Pipeline'da 'steps' bloğu, o stage içinde çalışacak olan betiklerin ve komutların (shell, bat vb.) bulunduğu zorunlu bölümdür."
+}
+},
         ],
       },
 
@@ -1585,7 +1826,31 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
             ],
             correct: 'b',
             explanation: 'post { always {} } build sonucundan bağımsız olarak çalışır — test raporlarını yayınlamak ve temizlik için mükemmeldir. Raporları sadece success{}\'a koyarsan, test başarısız olduğunda raporu kaybedersin.',
-          },
+          
+        retryQuestion: {
+      "question": "Bir Jenkins Pipeline'da, build'in sonucu başarılı olsun ya da hata versin, her durumda çalışan bir 'post' bloğu hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "post { changed { ... } }"
+            },
+            {
+                  "id": "b",
+                  "text": "post { fixed { ... } }"
+            },
+            {
+                  "id": "c",
+                  "text": "post { always { ... } }"
+            },
+            {
+                  "id": "d",
+                  "text": "post { aborted { ... } }"
+            }
+      ],
+      "correct": "c",
+      "explanation": "always koşulu, build'in nihai durumuna (success, failure, unstable, aborted) bakılmaksızın her koşulda çalıştırılmasını sağlar. Bu özellik özellikle log temizleme veya bildirim gönderme süreçlerinde kullanılır."
+}
+},
         ],
       },
 
@@ -1773,7 +2038,31 @@ stage('Flaky Testler') {
             ],
             correct: 'b',
             explanation: '"parallel { }" directive\'i bir stage içinde iç içe stage\'leri eş zamanlı çalıştırır. Bu şekilde Chrome, Firefox ve Safari\'yi aynı anda test edip toplam süreyi 3\'e bölersin.',
-          },
+          
+        retryQuestion: {
+      "question": "Jenkins Pipeline üzerinde birden fazla işin (task) birbirini beklemeden eş zamanlı olarak yürütülmesi için doğru yapılandırma hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "stage içinde \"multi-thread: true\" parametresini kullanmak"
+            },
+            {
+                  "id": "b",
+                  "text": "parallel bloğu içerisinde ayrı stage tanımları yapmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Tüm pipeline'ı tek bir stage içine alıp \"sequential: false\" yapmak"
+            },
+            {
+                  "id": "d",
+                  "text": "Her job için ayrı bir jenkins agent tanımlayıp pipe ile bağlamak"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Jenkins Pipeline'da birden fazla işi paralel çalıştırmak için 'parallel' bloğu kullanılır. Bu blok, içine yazılan stage'leri veya komutları aynı anda başlatarak kaynakların verimli kullanılmasını sağlar."
+}
+},
         ],
       },
 
@@ -1851,6 +2140,29 @@ stage('Flaky Testler') {
 // oluştur, "Build Now"a tıkla — her stage'in gerçek zamanlı olarak
 // yeşil/kırmızı yandığını izle.`
           },
+          {
+            type: 'quiz',
+            question: 'Bir organizasyon tam kontrole sahip self-hosted CI istiyor, karmaşık özel pipeline\'lara ihtiyacı var ve zaten büyük bir legacy plugin ekosistemine sahip. Hangi araç buna en uygun, ve neden?',
+            options: [
+              { id: 'a', text: 'GitHub Actions, çünkü sıfır altyapı yönetimi gerektirir' },
+              { id: 'b', text: 'Jenkins, çünkü ücretsizdir, self-hosted tam kontrol sağlar ve herhangi bir dil/stack için 1800+ plugin sunar' },
+              { id: 'c', text: 'Hiçbiri — manuel deploy scriptleri her zaman daha basittir' },
+              { id: 'd', text: 'GitLab CI, çünkü sadece GitHub repo\'larıyla çalışır' },
+            ],
+            correct: 'b',
+            explanation: 'Jenkins, tam olarak bir organizasyonun CI\'ı kendi altyapısında (on-prem/self-hosted) çalıştırması gerektiğinde, pipeline üzerinde tam kontrol istediğinde ve zaten devasa plugin ekosistemine bağımlı olduğunda doğru seçimdir. GitHub Actions bu kontrolü sıfır altyapı yönetimi ve sıkı GitHub entegrasyonuyla takas eder — bu, repo\'su zaten GitHub\'da yaşayanlar için harikadır ama vendor lock-in getirir ve yüksek build hacminde pahalılaşabilir — doğru araç ham popülerliğe değil, organizasyonun hosting ve ekosistem kısıtlarına bağlıdır.',
+            retryQuestion: {
+              question: 'Var olan bir altyapı ekibi olmayan, repo\'su zaten GitHub\'da olan ve ops yükünü minimize etmek isteyen bir startup bir CI aracı seçiyor. Burada GitHub Actions\'ı Jenkins\'e karşı en güçlü destekleyen faktör hangisidir?',
+              options: [
+                { id: 'a', text: 'GitHub Actions Jenkins\'ten daha fazla plugin\'e sahiptir' },
+                { id: 'b', text: 'Provision veya bakım gerektiren sıfır altyapı — kimsenin bir Jenkins sunucusunu çalıştırması, yamalaması veya ölçeklendirmesi gerekmez' },
+                { id: 'c', text: 'GitHub Actions kullanımdan bağımsız her zaman ücretsizdir' },
+                { id: 'd', text: 'Jenkins GitHub ile hiç entegre olamaz' },
+              ],
+              correct: 'b',
+              explanation: 'Özel altyapı/ops kapasitesi olmayan küçük bir ekip için Jenkins\'in en büyük pratik maliyeti aracın kendisi değildir — zamanla Jenkins sunucusunu (ve agent\'larını) çalıştırmak, yamalamak ve ölçeklendirmektir. GitHub Actions, GitHub runner\'ları yönettiği için bu işin tamamını ortadan kaldırır — bu, bu spesifik ekip için Jenkins\'in büyük plugin ekosisteminden (ki bu ekip muhtemelen zaten tam kapasitesine ihtiyaç duymayacaktır) çok daha önemlidir.',
+            },
+          },
         ],
       },
 
@@ -1890,6 +2202,29 @@ stage('Flaky Testler') {
           },
           { type: 'heading', text: 'Jenkins Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
           { type: 'text', content: 'Tipik bir pipeline\'da: Git Jenkins\'i tetikler → Jenkins uygulamayı build etmek için bir Docker container başlatır → unit testleri, ardından başka bir container içinde Selenium/Playwright E2E testlerini çalıştırır → SonarQube kalite kapıları için tarar → başarılı olursa Jenkins image\'ı bir registry\'e push eder ve bir Kubernetes deploy\'u tetikler → Slack sonucu duyurur. QA mühendisleri Jenkins\'e en çok bu pipeline\'ın test aşamalarını eklerken veya debug ederken dokunur.' },
+          {
+            type: 'quiz',
+            question: 'Jenkins\'in her pipeline çalıştırmasında build agent olarak taze bir Docker container başlatmasının temel avantajı nedir?',
+            options: [
+              { id: 'a', text: 'Pipeline YAML\'ını kısaltır' },
+              { id: 'b', text: 'Her seferinde aynı Node/Java/Python sürümünü garanti eder, "bende çalışıyor" tarzı CI başarısızlıklarını ortadan kaldırır' },
+              { id: 'c', text: 'Jenkinsfile ihtiyacını ortadan kaldırır' },
+              { id: 'd', text: 'Otomatik olarak production\'a deploy eder' },
+            ],
+            correct: 'b',
+            explanation: 'Taze container olmadan, bir Jenkins agent\'ının kurulu araç sürümleri zamanla kayabilir (bir plugin güncellemesi, manuel kurulan bir bağımlılık, bir OS yaması) — bu da bir build\'in bir çalıştırmada geçip kod değişikliği olmadan başka bir çalıştırmada gizemli şekilde başarısız olmasına yol açar. Belirli bir image\'a sabitlenmiş taze bir Docker container başlatmak, her tek build\'in byte-identik araçlarla başlamasını garanti eder — bu, "bende çalışıyor"un geliştirici laptop\'ları için tanımladığı aynı kök neden sınıfıdır.',
+            retryQuestion: {
+              question: 'Bir Jenkins pipeline\'ı build container\'ını sadece `maven:latest` yerine `maven:3.9.6-eclipse-temurin-17`a sabitliyor. Tam tag\'i sabitlemek neden önemlidir?',
+              options: [
+                { id: 'a', text: 'Build\'i daha hızlı çalıştırır' },
+                { id: 'b', text: '`maven:latest` zamanla sessizce farklı, daha yeni bir image\'a işaret edebilir, sabitlenmiş bir image\'ın önlemeyi amaçladığı tam sürüm kayması sorununu yeniden ortaya çıkarır' },
+                { id: 'c', text: 'Jenkins tam bir tag olmadan image pull edemez' },
+                { id: 'd', text: 'Bir Dockerfile ihtiyacını tamamen ortadan kaldırır' },
+              ],
+              correct: 'b',
+              explanation: '`:latest` sabit bir sürüm değildir — o tag altında en son yayınlanan image\'a yeniden atanan hareketli bir işaretçidir. `maven:latest` kullanan bir pipeline, hiçbir kod değişikliği olmadan gelecek ay farklı bir Maven/JDK sürümüyle sessizce build etmeye başlayabilir, bu da bir Docker image\'ını sabitlemenin başta çözmesi gereken aynı "dün geçti, bugün başarısız oluyor" kayma sorununu yeniden yaratır.',
+            },
+          },
         ],
       },
 

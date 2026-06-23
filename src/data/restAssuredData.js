@@ -228,7 +228,49 @@ public class BaseTest {
           tr: 'CI/CD entegrasyonu en kritik fark. Jenkins/GitHub Actions\'da mvn test komutuyla tüm API testleri otomatik çalışır, rapor üretir, hata varsa pipeline durdurur.',
           en: 'CI/CD integration is the most critical difference. In Jenkins/GitHub Actions, mvn test runs all API tests automatically, generates a report, and stops the pipeline if there are failures.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "REST Assured kullanarak yazdığımız otomasyon testlerinin büyük ölçekli kurumsal projelerde Postman'a kıyasla sunduğu en büyük avantaj nedir?",
+            "en": "What is the primary advantage of REST Assured automation tests compared to Postman in large-scale enterprise projects?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Daha sezgisel bir arayüz sunması",
+                        "en": "Providing a more intuitive UI"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Kod tabanlı olması sayesinde CI/CD süreçlerine kusursuz entegre olması",
+                        "en": "Being code-based, allowing for seamless integration into CI/CD pipelines"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Daha hızlı HTTP isteği göndermesi",
+                        "en": "Sending HTTP requests faster"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Dahili veritabanı bağlantısı içermesi",
+                        "en": "Including built-in database connectivity"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Kod tabanlı frameworkler (REST Assured), CI/CD süreçlerinde kaynak kodun bir parçası olarak çalıştırılabilir. Bu, her commit sonrası otomatik testlerin tetiklenmesini ve kod kalitesinin korunmasını sağlar; Postman ise manuel süreçlere daha yakındır.",
+            "en": "Code-based frameworks like REST Assured can be executed as part of the source code in CI/CD processes. This allows for automated test triggers after every commit to maintain quality; Postman is more oriented towards manual processes."
+      }
+}
+},
     ],
   },
 
@@ -442,7 +484,49 @@ public class ConfigReader {
           tr: 'Dev ve staging ortamlarında genellikle self-signed SSL sertifikası olur. setRelaxedHTTPSValidation() bu sertifikaları doğrulamadan geçer. Production\'da kullanma — güvenlik riski.',
           en: 'Dev and staging environments often use self-signed SSL certificates. setRelaxedHTTPSValidation() skips certificate validation. Never use it in production — it is a security risk.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonunda REST Assured kullanılırken SSL sertifika hatalarını aşmak için kullanılan yöntem hangisidir?",
+            "en": "Which method is used to bypass SSL certificate errors when using REST Assured in test automation?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "trustStorePath()",
+                        "en": "trustStorePath()"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "setRelaxedHTTPSValidation()",
+                        "en": "setRelaxedHTTPSValidation()"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "ignoreSSLErrors()",
+                        "en": "ignoreSSLErrors()"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "allowAllCertificates()",
+                        "en": "allowAllCertificates()"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "setRelaxedHTTPSValidation(), test ortamlarında geçerli olmayan sertifikalardan kaynaklanan SSL hatalarını göz ardı etmek için kullanılır. Güvenlik riski taşıdığı için prod ortamlarında kesinlikle tercih edilmemelidir.",
+            "en": "setRelaxedHTTPSValidation() is used to ignore SSL errors caused by invalid certificates in test environments. Since it poses a security risk, it should strictly not be used in production environments."
+      }
+}
+},
     ],
   },
 
@@ -649,7 +733,37 @@ void deleteUser_shouldReturn204() {
           tr: '201 Created — yeni kayıt oluşturulduğunda standart. 200 genelde GET için. 204 DELETE/PUT için (body yok). 202 ise async işlemlerde kullanılır.',
           en: '201 Created is the standard for new resource creation. 200 is typically for GET. 204 for DELETE/PUT when there is no body. 202 is for async operations.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir API servisinde varlık (resource) silme işlemi (DELETE) başarıyla tamamlandığında dönmesi beklenen en uygun HTTP durum kodu hangisidir?",
+            "en": "Which HTTP status code is most appropriate when a resource deletion (DELETE) operation is completed successfully?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "200 OK"
+            },
+            {
+                  "id": "b",
+                  "text": "201 Created"
+            },
+            {
+                  "id": "c",
+                  "text": "204 No Content"
+            },
+            {
+                  "id": "d",
+                  "text": "202 Accepted"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "204 No Content, genellikle bir işlemin başarıyla yapıldığını ancak sunucunun dönecek bir yanıt gövdesi (body) olmadığını belirtmek için DELETE işlemlerinde standarttır.",
+            "en": "204 No Content is standard for DELETE operations to indicate that the request was successful but the server does not need to return a body in the response."
+      }
+}
+},
     ],
   },
 
@@ -795,7 +909,49 @@ public class TokenRefreshFilter implements Filter {
           tr: 'Token refresh Filter en temiz çözüm: her test metoduna login kodu yazmak zorunda kalmazsın, 401 alındığında otomatik yenilenir, kod tekrarı sıfır.',
           en: 'The Token refresh Filter is the cleanest solution: no login code in every test method, automatically refreshes on 401, zero code duplication.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonunda token süresi dolduğunda testlerin başarısız olmasını önlemek için hangi yöntem daha sürdürülebilirdir?",
+            "en": "Which method is more maintainable to prevent test failures when the token expires in test automation?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Her testin başında yeni bir token isteği gönder",
+                        "en": "Send a new token request at the beginning of every test"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Token değerini bir ortam değişkeninde tut ve manuel güncelle",
+                        "en": "Store the token in an environment variable and update it manually"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "RequestInterceptor veya Authentication Filter kullanarak token otomatik yenileme mekanizması kur",
+                        "en": "Set up an automatic token refresh mechanism using a RequestInterceptor or Authentication Filter"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Testlerin süresini token ömründen daha kısa tut",
+                        "en": "Keep the test duration shorter than the token lifespan"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Interceptor veya Filter kullanmak, HTTP yanıtlarını izlemenizi ve 401 hatası aldığınızda otomatik olarak yeni bir token alıp isteği tekrar etmenizi sağlar. Bu, test kodunuzu karmaşadan kurtarır ve yönetimi merkezileştirir.",
+            "en": "Using an Interceptor or Filter allows you to monitor HTTP responses and automatically request a new token and retry the request upon receiving a 401 error. This declutters your test code and centralizes management."
+      }
+}
+},
     ],
   },
 
@@ -974,7 +1130,49 @@ System.out.println(email); // george.bluth@reqres.in`,
           tr: 'API geliştiricisi "avatar_thumb" gibi yeni bir alan ekleyebilir. Bunu POJO\'na eklemediysen UnrecognizedPropertyException fırlar. @JsonIgnoreProperties(ignoreUnknown = true) bu alanları sessizce atlar.',
           en: 'An API developer might add a new field like "avatar_thumb". Without this annotation, an UnrecognizedPropertyException is thrown. @JsonIgnoreProperties(ignoreUnknown = true) silently ignores unknown fields.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da RestAssured ile API testleri yaparken neden model sınıflarımıza @JsonIgnoreProperties(ignoreUnknown = true) eklemeliyiz?",
+            "en": "Why should we add @JsonIgnoreProperties(ignoreUnknown = true) to our model classes when performing API tests with RestAssured in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "API yanıtında dönen JSON verisinin boyutunu küçültmek için",
+                        "en": "To reduce the size of the JSON data returned in the API response"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "JSON yanıtında model sınıfımızda tanımlanmamış yeni alanlar olduğunda hata almamak için",
+                        "en": "To avoid errors when there are new fields in the JSON response that are not defined in our model class"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Tüm alanların değerinin mutlaka dolu gelmesini zorunlu kılmak için",
+                        "en": "To enforce that all fields must have a value"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "API sunucusunun performansını artırmak için",
+                        "en": "To improve the performance of the API server"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Varsayılan olarak, Jackson kütüphanesi model sınıfınızda bulunmayan bir alan JSON'da geldiğinde patlar. Bu ayar, modelinizde tanımlanmayan fazladan verilerin göz ardı edilmesini sağlar ve geriye dönük uyumluluğu korur.",
+            "en": "By default, the Jackson library throws an exception when a field exists in the JSON but not in your model class. This setting allows extra data not defined in your model to be ignored and maintains backward compatibility."
+      }
+}
+},
     ],
   },
 
@@ -1093,7 +1291,49 @@ void userResponse_allFieldsValidation() {
           tr: 'everyItem() koleksiyonun HER elemanının koşulu sağlamasını test eder. hasItem() ise en az birinin sağlamasını test eder.',
           en: 'everyItem() checks that EVERY element in the collection satisfies the condition. hasItem() checks that at least one element satisfies it.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "RestAssured'da .body(\"items.price\", hasItem(greaterThan(100))) ifadesi neyi kontrol eder?",
+            "en": "What does the expression .body(\"items.price\", hasItem(greaterThan(100))) check in RestAssured?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "items listesindeki tüm fiyatların 100'den büyük olduğunu",
+                        "en": "That all prices in the items list are greater than 100"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "items listesindeki en az bir fiyatın 100'den büyük olduğunu",
+                        "en": "That at least one price in the items list is greater than 100"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "items listesindeki ilk fiyatın tam 100 olduğunu",
+                        "en": "That the first price in the items list is exactly 100"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "items listesindeki toplam fiyatın 100'den büyük olduğunu",
+                        "en": "That the total price in the items list is greater than 100"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "hasItem() hamcrest matcher'ı, koleksiyon içindeki öğelerden herhangi birinin verilen koşulu (greaterThan(100)) karşılayıp karşılamadığını kontrol eder. everyItem() ise listenin tamamını doğrular.",
+            "en": "The hasItem() hamcrest matcher checks if any of the items in the collection satisfy the given condition (greaterThan(100)). Conversely, everyItem() validates the entire list."
+      }
+}
+},
     ],
   },
 
@@ -1211,7 +1451,49 @@ void getUser_shouldMatchJsonSchema() {
           tr: 'find { it.id == 3 } Groovy\'de "id alanı 3\'e eşit olan elemanı bul" demektir. data[3] ise dizinin 4. elemanıdır — tamamen farklı şeyler!',
           en: 'find { it.id == 3 } in Groovy means "find the element where the id field equals 3". data[3] returns the 4th element (index 3) — two completely different things!',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "extract().path(\"users.findAll { it.status == 'active' }.name\") ifadesi neyi döndürür?",
+            "en": "What does extract().path(\"users.findAll { it.status == 'active' }.name\") return?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece aktif olan ilk kullanıcının adı",
+                        "en": "The name of only the first active user"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Tüm kullanıcıların isimleri",
+                        "en": "The names of all users"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Status alanı 'active' olan tüm kullanıcıların isimlerinden oluşan bir liste",
+                        "en": "A list of names for all users where the status field is 'active'"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Aktif kullanıcıların sayısını",
+                        "en": "The count of active users"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "findAll Groovy'de koşulu sağlayan tüm öğeleri bir koleksiyon olarak döndürür. .name ifadesi ise bu filtrelenmiş listedeki her bir öğeden name alanını çeker.",
+            "en": "findAll in Groovy returns all items that match the condition as a collection. The .name expression extracts the name field from each element in that filtered list."
+      }
+}
+},
     ],
   },
 
@@ -1302,7 +1584,37 @@ public class UserCrudE2ETest extends BaseTest {
           tr: '@TestMethodOrder(MethodOrderer.OrderAnnotation.class) sınıf seviyesinde, @Order(n) metot seviyesinde eklenir.',
           en: '@TestMethodOrder(MethodOrderer.OrderAnnotation.class) is added at class level, @Order(n) at method level. @Order(1) runs first, @Order(2) runs second.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "JUnit 5'te belirli test metotlarını tanımlı bir sırayla çalıştırmak için ne yapmak gerekir?",
+            "en": "What is required to execute specific JUnit 5 test methods in a defined order?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "@Test(order = 1)"
+            },
+            {
+                  "id": "b",
+                  "text": "@TestMethodOrder(MethodOrderer.OrderAnnotation.class) ve her metoda @Order(n) kullanımı"
+            },
+            {
+                  "id": "c",
+                  "text": "Metotların kod içerisindeki sıralamasını değiştirmek"
+            },
+            {
+                  "id": "d",
+                  "text": "@Execution(Order.ANNOTATION)"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Sıralamayı belirlemek için sınıf üzerinde @TestMethodOrder stratejisini belirtmeli ve test metotları üzerine @Order notasyonunu kullanarak öncelik değerlerini vermelisiniz.",
+            "en": "To define order, you must specify the @TestMethodOrder strategy on the class and assign priority values using the @Order annotation on individual test methods."
+      }
+}
+},
     ],
   },
 
@@ -1545,7 +1857,49 @@ public class UserResponse {
           tr: 'Thread.sleep sabit bekler — çok az ya da çok fazla. Awaitility\'de koşul sağlandığı an geçer. Hem güvenilir hem de hızlı.',
           en: 'Thread.sleep waits a fixed amount — too little or too much. Awaitility proceeds the moment the condition is met. Both reliable and fast.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Otomasyon testlerinde 'Flaky test' (kararsız test) probleminden kaçınmak için neden Thread.sleep yerine Awaitility kullanılmalıdır?",
+            "en": "Why should Awaitility be used instead of Thread.sleep to avoid 'flaky tests' in automation?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Thread.sleep derleme hatalarına yol açar",
+                        "en": "Thread.sleep causes compilation errors"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Awaitility testleri daha yavaş çalıştırır",
+                        "en": "Awaitility makes tests run slower"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Awaitility dinamik bekleme sağlar ve testin koşul sağlanır sağlanmaz devam etmesine olanak tanır",
+                        "en": "Awaitility provides dynamic waiting and allows the test to continue as soon as the condition is met"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Thread.sleep sadece production ortamında çalışır",
+                        "en": "Thread.sleep only works in production"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Sabit beklemeler ya testi gereksiz yere yavaşlatır ya da yük altında hata vermesine sebep olur. Awaitility ile test, durum gerçekleştiği an devam ederek hem güvenli hem de optimize bir çalışma sunar.",
+            "en": "Fixed waits either slow down tests unnecessarily or lead to failures under load. Awaitility allows the test to resume the moment the condition is satisfied, offering both reliability and optimization."
+      }
+}
+},
     ],
   },
 
@@ -1628,7 +1982,49 @@ Scenario: Create user with POST
           tr: 'Karate DSL, Gherkin tabanlı Given/When/Then sözdizimi kullanır. Java kodu yazmadan API testleri yazılabilir.',
           en: 'Karate DSL uses Gherkin-based Given/When/Then syntax. API tests can be written without writing Java code. Both technical and non-technical team members can read them.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Kodlama bilgisi olmayan bir ekipte API otomasyonu için hangi araç tercih edilmelidir?",
+            "en": "Which tool should be preferred for API automation in a team with no coding knowledge?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Postman (Scripting ile)",
+                        "en": "Postman (with scripting)"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Karate DSL — Java gerektirmeden BDD yaklaşımıyla test imkanı sağlar",
+                        "en": "Karate DSL — Provides BDD approach for testing without requiring Java"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "JUnit ile REST Assured",
+                        "en": "REST Assured with JUnit"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "TestNG ile Java WebClient",
+                        "en": "Java WebClient with TestNG"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Karate DSL, kodlama becerisi düşük veya olmayan ekipler için tasarlanmış, Gherkin sözdizimini kullanan ve Java'ya ihtiyaç duymayan bir API otomasyon aracıdır.",
+            "en": "Karate DSL is an API automation tool designed for teams with little to no coding skills, utilizing Gherkin syntax and requiring no Java programming."
+      }
+}
+},
     ],
   },
 

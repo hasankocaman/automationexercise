@@ -120,7 +120,31 @@ export const jmeterData = {
             ],
             correct: 1,
             explanation: 'Thread Group defines: (1) Number of threads = virtual users, (2) Ramp-up period = seconds to start all users, (3) Loop count = repetitions per user. 500 users with 60s ramp-up means ~8 new users start every second.',
-          },
+          
+        retryQuestion: {
+      "question": "You need to configure JMeter to run 200 users that all start executing at the exact same moment and repeat the task 10 times. Which Thread Group settings should you use?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Number of Threads: 200, Ramp-up: 60, Loop Count: 1"
+            },
+            {
+                  "id": "b",
+                  "text": "Number of Threads: 200, Ramp-up: 0, Loop Count: 10"
+            },
+            {
+                  "id": "c",
+                  "text": "Number of Threads: 10, Ramp-up: 0, Loop Count: 200"
+            },
+            {
+                  "id": "d",
+                  "text": "Number of Threads: 200, Ramp-up: 200, Loop Count: 10"
+            }
+      ],
+      "correct": "b",
+      "explanation": "To start users simultaneously, the Ramp-up period must be set to 0. Setting 200 threads with 0 ramp-up ensures immediate execution, and a Loop Count of 10 forces every user to repeat the defined sampler group 10 times."
+}
+},
         ],
       },
 
@@ -191,6 +215,29 @@ export PATH=$JAVA_HOME/bin:$PATH
 echo $JAVA_HOME`
           },
           { type: 'tip', content: 'Create a shortcut on your desktop to jmeter.bat/jmeter.sh for quick access. You\'ll be opening JMeter often!' },
+          {
+            type: 'quiz',
+            question: 'Why must Java (JDK 8+) be installed before JMeter, even though JMeter has its own installer-free zip download?',
+            options: [
+              { id: 'a', text: 'JMeter only generates Java test code' },
+              { id: 'b', text: 'JMeter itself is written in pure Java and runs on the JVM — there is no native binary' },
+              { id: 'c', text: 'Java is only needed for the GUI, not for running tests' },
+              { id: 'd', text: 'It is not actually required, just recommended' },
+            ],
+            correct: 'b',
+            explanation: 'JMeter is a Java application distributed as a zip — there is no separate native executable. Unzipping it and running jmeter.bat/jmeter.sh literally launches a JVM process, the same way you would run any other Java program. Without a JDK/JRE present, the JVM has nothing to launch JMeter with.',
+            retryQuestion: {
+              question: 'A CI runner has JMeter installed but `jmeter -n -t plan.jmx` fails with a Java-related error. What is the first thing to check?',
+              options: [
+                { id: 'a', text: 'Whether the .jmx file extension is correct' },
+                { id: 'b', text: 'Whether a compatible JDK/JRE is actually installed and on the PATH on that runner' },
+                { id: 'c', text: 'Whether the test plan has too many threads' },
+                { id: 'd', text: 'Whether JMeter has internet access' },
+              ],
+              correct: 'b',
+              explanation: 'Since JMeter is fundamentally a Java application, any Java-related startup error almost always traces back to a missing, wrong-version, or misconfigured JDK/JRE on that machine — not the test plan itself. Checking `java -version` on the runner is the standard first diagnostic step before looking at JMeter-specific configuration.',
+            },
+          },
         ],
       },
 
@@ -418,6 +465,29 @@ diana,pass4
               { icon: '⏰', label: 'Duration (sec)', desc: 'total test run time — preferred over Loop Count' },
             ],
             note: 'Golden rule: Ramp-Up ≥ 10% of Duration. Too short a ramp-up creates an artificial spike — not a realistic load pattern.',
+          },
+          {
+            type: 'quiz',
+            question: 'A Thread Group is set to Number of Threads = 10 and Ramp-Up Period = 10 seconds. What actually happens when the test starts?',
+            options: [
+              { id: 'a', text: 'All 10 threads start at the same instant' },
+              { id: 'b', text: 'Threads start gradually, roughly 1 new thread per second, until all 10 are running' },
+              { id: 'c', text: 'Only 1 thread runs for 10 seconds, then the rest start' },
+              { id: 'd', text: 'JMeter waits 10 seconds before starting any thread' },
+            ],
+            correct: 'b',
+            explanation: 'Ramp-Up Period spreads the thread startup evenly across the given time: 10 threads over 10 seconds means roughly 1 new virtual user comes online every second. This simulates a realistic traffic increase instead of slamming the server with all users at once — a near-zero ramp-up creates an artificial instant spike, not a realistic load pattern.',
+            retryQuestion: {
+              question: 'A test plan sets Number of Threads=100 and Ramp-Up Period=1 second. What kind of load pattern does this actually create?',
+              options: [
+                { id: 'a', text: 'A smooth, gradual increase in traffic over 100 seconds' },
+                { id: 'b', text: 'An almost instantaneous spike — all 100 users hit the server within about 1 second' },
+                { id: 'c', text: 'JMeter rejects this configuration as invalid' },
+                { id: 'd', text: 'Exactly 1 user starts every 100 seconds' },
+              ],
+              correct: 'b',
+              explanation: 'Cramming 100 threads into a 1-second ramp-up means nearly all of them start almost simultaneously — this deliberately creates an instant spike test (useful for testing how a system handles a sudden burst) rather than a gradual ramp. The "golden rule" of Ramp-Up ≥ 10% of Duration exists precisely to avoid accidentally creating this kind of unrealistic instant-spike pattern when a gradual one was intended.',
+            },
           },
         ],
       },
@@ -674,6 +744,29 @@ HTML Dashboard (-e -o)
               note: 'Aggregate Report + HTML Dashboard is the standard combination for CI/CD pipelines',
             },
           },
+          {
+            type: 'quiz',
+            question: 'Why are real load tests run in JMeter\'s Non-GUI (CLI) mode in CI/CD pipelines instead of the GUI mode used to build the test plan?',
+            options: [
+              { id: 'a', text: 'Non-GUI mode supports more protocols' },
+              { id: 'b', text: 'GUI mode consumes significant resources rendering the interface, which skews results and is officially discouraged for actual load generation' },
+              { id: 'c', text: 'GUI mode cannot save .jmx files' },
+              { id: 'd', text: 'CI runners do not support installing JMeter at all' },
+            ],
+            correct: 'b',
+            explanation: 'The JMeter GUI itself consumes CPU and memory rendering charts, trees, and listeners in real time — resources that should be going toward generating load, not drawing a UI. JMeter\'s own documentation explicitly states the GUI should only be used to build/debug a test plan, while actual load generation should always run via `jmeter -n -t plan.jmx` (Non-GUI mode), which is also what makes JMeter scriptable inside a CI/CD pipeline step.',
+            retryQuestion: {
+              question: 'A QA engineer runs a 500-user load test directly in JMeter\'s GUI mode and the response times look suspiciously high. What is the most likely explanation?',
+              options: [
+                { id: 'a', text: 'The target server is definitely broken' },
+                { id: 'b', text: 'The GUI itself is competing for CPU/memory with the load generation, skewing the measured response times' },
+                { id: 'c', text: 'GUI mode cannot generate more than 10 users' },
+                { id: 'd', text: 'JMeter always reports double the real response time in GUI mode' },
+              ],
+              correct: 'b',
+              explanation: 'Running a real load test in GUI mode means the JVM is splitting resources between actually generating load AND continuously rendering live charts/trees/listeners — this overhead can inflate measured response times in a way that has nothing to do with the target server\'s real performance. Switching to Non-GUI mode (`jmeter -n -t plan.jmx`) removes that confound and gives trustworthy numbers.',
+            },
+          },
         ],
       },
 
@@ -766,6 +859,29 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    and a P99 close to the average — that is what a HEALTHY
 #    system looks like under modest load.`
           },
+          {
+            type: 'quiz',
+            question: 'A team has QA engineers with limited coding skills and needs to test non-HTTP protocols (JDBC, JMS). Why would JMeter be preferred over a code-first tool like k6 here?',
+            options: [
+              { id: 'a', text: 'JMeter always produces faster test runs' },
+              { id: 'b', text: 'JMeter offers a no-code GUI for building tests plus 600+ protocol support, including non-HTTP protocols k6 does not cover well' },
+              { id: 'c', text: 'k6 cannot generate HTML reports' },
+              { id: 'd', text: 'JMeter is the only free option' },
+            ],
+            correct: 'b',
+            explanation: "JMeter's GUI lets someone build a full test plan by configuring samplers and listeners, with no scripting required, and it has built-in support for a huge range of protocols (HTTP, JDBC, JMS, FTP, and more). k6 is test-as-code (JavaScript) and excels with developer-heavy teams who want lightweight, CI-friendly tests, but it has a narrower protocol surface and no built-in GUI for building tests. The right tool depends on team skill set and protocol needs, not raw speed.",
+            retryQuestion: {
+              question: 'A team is entirely developer-heavy, comfortable writing JavaScript, and only needs to load test HTTP REST APIs with lightweight CI-friendly tests. Which tool fits better here?',
+              options: [
+                { id: 'a', text: 'JMeter, because it always has more features' },
+                { id: 'b', text: 'k6, because test-as-code in JavaScript suits a developer-heavy team and fits naturally into a lightweight CI pipeline' },
+                { id: 'c', text: 'Neither tool can test HTTP APIs' },
+                { id: 'd', text: 'JMeter, because k6 requires a GUI to write tests' },
+              ],
+              correct: 'b',
+              explanation: 'k6\'s test-as-code approach (writing tests in JavaScript) plays to the strengths of a developer-heavy team and integrates naturally as lightweight, version-controlled CI steps — there is no GUI to learn, and no protocols beyond HTTP/WebSocket are needed here. JMeter\'s GUI and 600+ protocol support is a strength for non-coding QA teams or non-HTTP protocols, but it is not the better fit for this specific team and use case.',
+            },
+          },
         ],
       },
 
@@ -827,6 +943,29 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
 # zero "which JMeter version do you have?" debugging.`
           },
           { type: 'tip', content: 'In a real pipeline these four pieces compose: GitHub Actions triggers a Docker container running JMeter on a schedule, results stream to InfluxDB via a Backend Listener, and Grafana alerts the team in Slack if P99 crosses a threshold — fully automated performance regression detection.' },
+          {
+            type: 'quiz',
+            question: 'What is the core benefit of running JMeter as a Docker image (e.g. justb4/jmeter) instead of installing it directly on each CI runner?',
+            options: [
+              { id: 'a', text: 'Docker makes JMeter run tests faster' },
+              { id: 'b', text: 'Every CI runner and developer machine guarantees the exact same JMeter version and plugins — no "works on my machine" drift' },
+              { id: 'c', text: 'Docker is required to use the Backend Listener' },
+              { id: 'd', text: 'It removes the need for a .jmx test plan' },
+            ],
+            correct: 'b',
+            explanation: 'A Docker image pins the exact JMeter version and any installed plugins into one reproducible artifact. Without it, one CI runner might have JMeter 5.4 and another 5.6, or different plugin versions — leading to subtly different results or "works on my machine" debugging. Running `docker run justb4/jmeter ...` guarantees the load generator itself is just as reproducible as the application under test.',
+            retryQuestion: {
+              question: 'Two CI runners produce slightly different load test results for the identical .jmx test plan, even though the target server and network conditions were the same. What is a likely cause?',
+              options: [
+                { id: 'a', text: 'Load test results are always random and meaningless' },
+                { id: 'b', text: 'The two runners may have different JMeter versions or plugin versions installed locally, producing subtly different behavior' },
+                { id: 'c', text: 'The .jmx file format changes randomly between runs' },
+                { id: 'd', text: 'JMeter results can never be compared across machines' },
+              ],
+              correct: 'b',
+              explanation: 'If JMeter is installed directly on each runner rather than run from a pinned Docker image, version drift (5.4 vs 5.6, or different plugin versions) between runners is a real and common source of subtly different results — the exact "works on my machine" class of problem. Running JMeter from the same Docker image tag on every runner eliminates this variable entirely.',
+            },
+          },
         ],
       },
 
@@ -1069,7 +1208,31 @@ Response Assertion on Login:
             ],
             correct: 1,
             explanation: 'JSON Extractor is a Post-Processor that reads a server response and extracts values using JSONPath expressions. Set Reference Name (e.g., authToken) and JSON Path (e.g., $.data.token). Then use ${authToken} in subsequent request headers.',
-          },
+          
+        retryQuestion: {
+      "question": "You have a test where the server returns a 'userId' inside a nested JSON object. Which JMeter Post-Processor should you add to your HTTP Request to capture this ID for later use?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "XPath Extractor"
+            },
+            {
+                  "id": "b",
+                  "text": "Regular Expression Extractor"
+            },
+            {
+                  "id": "c",
+                  "text": "JSON Extractor"
+            },
+            {
+                  "id": "d",
+                  "text": "BeanShell Pre-Processor"
+            }
+      ],
+      "correct": "c",
+      "explanation": "The JSON Extractor is the designated tool for parsing JSON responses. By providing a JSONPath expression (e.g., $.user.id), you can easily extract specific values into a JMeter variable to be referenced later in the test plan as ${userId}."
+}
+},
           {
             type: 'quiz',
             question: 'A JMeter test shows: average response time 800ms but 99th percentile (P99) is 12,000ms. What does this indicate?',
@@ -1081,7 +1244,31 @@ Response Assertion on Login:
             ],
             correct: 2,
             explanation: 'Average hides outliers. P99 = 12s means 1% of users wait 12 seconds — unacceptable for most apps. This is tail latency, often caused by GC pauses, database query variability, or thread pool exhaustion. Always look at P90 and P99 alongside the average.',
-          },
+          
+        retryQuestion: {
+      "question": "If your JMeter report displays an average response time of 100ms, but the Median (50th percentile) is 95ms and the P95 is 800ms, what is the correct interpretation?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The system is performing optimally for all users"
+            },
+            {
+                  "id": "b",
+                  "text": "The test plan is invalid because the average is higher than the median"
+            },
+            {
+                  "id": "c",
+                  "text": "While half the users have a fast experience, 5% of users are experiencing significant delays"
+            },
+            {
+                  "id": "d",
+                  "text": "The server has crashed during the test run"
+            }
+      ],
+      "correct": "c",
+      "explanation": "The Median tells you the experience of the middle user. A high P95 (800ms) compared to the median (95ms) indicates that the top 5% of requests are taking significantly longer than the rest, highlighting performance inconsistency or tail latency."
+}
+},
         ],
       },
     ],
@@ -1208,7 +1395,31 @@ Response Assertion on Login:
             ],
             correct: 1,
             explanation: "Thread Group şunları tanımlar: (1) Thread sayısı = sanal kullanıcılar, (2) Ramp-up süresi = tüm kullanıcıları başlatmak için saniye sayısı, (3) Döngü sayısı = her kullanıcı başına tekrar. 60 saniyelik ramp-up ile 500 kullanıcı → saniyede ~8 yeni kullanıcı başlar.",
-          },
+          
+        retryQuestion: {
+      "question": "JMeter'da 120 saniyelik bir sürede 1000 kullanıcının sisteme yüklenmesini (ramp-up) yapılandırmak istiyorsunuz. Bu ayar hangi bileşen ile yapılır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Logic Controller — mantıksal akışı yönetir"
+            },
+            {
+                  "id": "b",
+                  "text": "Thread Group — kullanıcı yükünü ve ramp-up süresini yapılandırır"
+            },
+            {
+                  "id": "c",
+                  "text": "Timer — istekler arası bekleme sürelerini ekler"
+            },
+            {
+                  "id": "d",
+                  "text": "Configuration Element — genel değişkenleri tanımlar"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Thread Group, sanal kullanıcı sayısını ve bu kullanıcıların ne kadar sürede devreye gireceğini (Ramp-up period) belirleyen temel bileşendir. 1000 kullanıcıyı 120 saniyede başlatmak, saniyede yaklaşık 8.3 kullanıcının sisteme dahil olacağı anlamına gelir."
+}
+},
         ],
       },
       {
@@ -1262,6 +1473,29 @@ export PATH=$JAVA_HOME/bin:$PATH
 echo $JAVA_HOME`
           },
           { type: 'tip', content: 'Masaüstünüzde jmeter.bat/jmeter.sh için bir kısayol oluşturun. JMeter\'ı sık açacaksınız!' },
+          {
+            type: 'quiz',
+            question: 'JMeter\'ın installer\'sız bir zip indirme olmasına rağmen kurulumdan önce Java (JDK 8+) kurulması neden zorunludur?',
+            options: [
+              { id: 'a', text: 'JMeter sadece Java test kodu üretir' },
+              { id: 'b', text: 'JMeter\'ın kendisi tamamen Java ile yazılmıştır ve JVM üzerinde çalışır — ayrı bir native binary yoktur' },
+              { id: 'c', text: 'Java sadece GUI için gerekir, test çalıştırmak için değil' },
+              { id: 'd', text: 'Gerçekte zorunlu değil, sadece tavsiye edilir' },
+            ],
+            correct: 'b',
+            explanation: 'JMeter, zip olarak dağıtılan bir Java uygulamasıdır — ayrı bir native çalıştırılabilir dosya yoktur. Zip\'i açıp jmeter.bat/jmeter.sh çalıştırmak, tıpkı başka bir Java programını çalıştırmak gibi literal olarak bir JVM süreci başlatır. JDK/JRE yoksa, JVM\'in JMeter\'ı başlatacak hiçbir şeyi yoktur.',
+            retryQuestion: {
+              question: 'Bir CI runner\'da JMeter kurulu ama `jmeter -n -t plan.jmx` Java ile ilgili bir hatayla başarısız oluyor. Önce kontrol edilmesi gereken şey nedir?',
+              options: [
+                { id: 'a', text: '.jmx dosya uzantısının doğru olup olmadığı' },
+                { id: 'b', text: 'O runner\'da uyumlu bir JDK/JRE\'nin gerçekten kurulu ve PATH\'te olup olmadığı' },
+                { id: 'c', text: 'Test planında çok fazla thread olup olmadığı' },
+                { id: 'd', text: 'JMeter\'ın internet erişimi olup olmadığı' },
+              ],
+              correct: 'b',
+              explanation: 'JMeter temelde bir Java uygulaması olduğu için, Java ile ilgili herhangi bir başlatma hatası neredeyse her zaman o makinedeki eksik, yanlış sürüm veya yanlış yapılandırılmış bir JDK/JRE\'ye kadar geri gider — test planının kendisine değil. Runner\'da `java -version` kontrol etmek, JMeter\'a özgü konfigürasyona bakmadan önceki standart ilk teşhis adımıdır.',
+            },
+          },
         ],
       },
       {
@@ -1431,6 +1665,29 @@ ayse,sifre3
             ],
             note: 'Altın kural: Ramp-Up ≥ Sürenin %10\'u olmalı. Çok kısa ramp-up yapay bir ani yük oluşturur — gerçekçi bir yük modeli değildir.',
           },
+          {
+            type: 'quiz',
+            question: 'Bir Thread Group\'ta Number of Threads=10 ve Ramp-Up Period=10 saniye ayarlandığında test başladığında gerçekte ne olur?',
+            options: [
+              { id: 'a', text: '10 thread\'in hepsi aynı anda başlar' },
+              { id: 'b', text: 'Thread\'ler kademeli olarak başlar, yaklaşık saniyede 1 yeni thread, ta ki 10\'u da çalışana kadar' },
+              { id: 'c', text: 'Sadece 1 thread 10 saniye çalışır, sonra diğerleri başlar' },
+              { id: 'd', text: 'JMeter herhangi bir thread başlatmadan önce 10 saniye bekler' },
+            ],
+            correct: 'b',
+            explanation: 'Ramp-Up Period, thread başlatmayı verilen süreye eşit olarak yayar: 10 thread, 10 saniyede demek her saniye yaklaşık 1 yeni sanal kullanıcı devreye girer demektir. Bu, sunucuya tüm kullanıcıları bir anda fırlatmak yerine gerçekçi bir trafik artışını simüle eder — sıfıra yakın bir ramp-up, gerçekçi bir yük modeli değil, yapay bir ani sıçrama oluşturur.',
+            retryQuestion: {
+              question: 'Bir test planında Number of Threads=100 ve Ramp-Up Period=1 saniye ayarlanmış. Bu gerçekte ne tür bir yük modeli oluşturur?',
+              options: [
+                { id: 'a', text: '100 saniye boyunca yumuşak, kademeli bir trafik artışı' },
+                { id: 'b', text: 'Neredeyse anlık bir sıçrama — 100 kullanıcının hepsi yaklaşık 1 saniye içinde sunucuya çarpar' },
+                { id: 'c', text: 'JMeter bu konfigürasyonu geçersiz sayıp reddeder' },
+                { id: 'd', text: 'Her 100 saniyede tam olarak 1 kullanıcı başlar' },
+              ],
+              correct: 'b',
+              explanation: '100 thread\'i 1 saniyelik bir ramp-up\'a sıkıştırmak, neredeyse hepsinin aynı anda başlaması demektir — bu kasıtlı olarak bir ani sıçrama testi oluşturur (bir sistemin ani bir yük patlamasına nasıl tepki verdiğini test etmek için faydalı), kademeli bir artış yerine. "Ramp-Up ≥ Sürenin %10\'u" altın kuralı, kademeli bir artış istenirken yanlışlıkla bu tür gerçekçi olmayan ani-sıçrama modelini oluşturmayı önlemek için vardır.',
+            },
+          },
         ],
       },
       {
@@ -1565,6 +1822,29 @@ HTML Dashboard (-e -o)
               note: 'Aggregate Report + HTML Dashboard, CI/CD pipeline\'ları için standart kombinasyondur',
             },
           },
+          {
+            type: 'quiz',
+            question: 'Gerçek yük testleri CI/CD pipeline\'larında neden test planını oluşturmak için kullanılan GUI modu yerine JMeter\'ın Non-GUI (CLI) modunda çalıştırılır?',
+            options: [
+              { id: 'a', text: 'Non-GUI mod daha fazla protokol destekler' },
+              { id: 'b', text: 'GUI modu arayüzü render etmek için önemli kaynak harcar, sonuçları çarpıtır ve gerçek yük üretimi için resmi olarak tavsiye edilmez' },
+              { id: 'c', text: 'GUI modu .jmx dosyalarını kaydedemez' },
+              { id: 'd', text: 'CI runner\'ları JMeter kurulumunu hiç desteklemez' },
+            ],
+            correct: 'b',
+            explanation: 'JMeter GUI\'sinin kendisi grafikleri, ağaçları ve listener\'ları gerçek zamanlı render etmek için CPU ve bellek harcar — bu kaynaklar yük üretmeye gitmesi gereken kaynaklardır. JMeter\'ın kendi dokümantasyonu, GUI\'nin sadece test planı oluşturmak/debug etmek için kullanılması, gerçek yük üretiminin her zaman `jmeter -n -t plan.jmx` (Non-GUI mod) ile çalıştırılması gerektiğini açıkça belirtir — bu aynı zamanda JMeter\'ı bir CI/CD pipeline adımı içinde script\'lenebilir kılan şeydir.',
+            retryQuestion: {
+              question: 'Bir QA mühendisi 500 kullanıcılık bir yük testini doğrudan JMeter\'ın GUI modunda çalıştırıyor ve response time\'lar şüpheli derecede yüksek görünüyor. En olası açıklama nedir?',
+              options: [
+                { id: 'a', text: 'Hedef sunucu kesinlikle bozuk' },
+                { id: 'b', text: 'GUI\'nin kendisi yük üretimiyle CPU/bellek için yarışıyor, ölçülen response time\'ları çarpıtıyor' },
+                { id: 'c', text: 'GUI modu 10\'dan fazla kullanıcı üretemez' },
+                { id: 'd', text: 'JMeter GUI modunda her zaman gerçek response time\'ın iki katını raporlar' },
+              ],
+              correct: 'b',
+              explanation: 'GUI modunda gerçek bir yük testi çalıştırmak, JVM\'in kaynakları gerçekten yük üretmek İLE sürekli canlı grafik/ağaç/listener render etmek arasında bölüştürmesi demektir — bu overhead, hedef sunucunun gerçek performansıyla hiç ilgisi olmayan bir şekilde ölçülen response time\'ları şişirebilir. Non-GUI moda geçmek (`jmeter -n -t plan.jmx`) bu karıştırıcı etkeni ortadan kaldırır ve güvenilir sayılar verir.',
+            },
+          },
         ],
       },
       // ── 4. GERÇEK HAYAT ───────────────────────────────────────────────────
@@ -1656,6 +1936,29 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    yakın bir P99 görmelisin — SAĞLIKLI bir sistem makul yük
 #    altında böyle görünür.`
           },
+          {
+            type: 'quiz',
+            question: 'Ekibinizde kodlama becerisi sınırlı QA mühendisleri varsa ve HTTP olmayan protokollere (JDBC, JMS) ihtiyacınız varsa, k6 gibi kod-öncelikli bir araç yerine neden JMeter tercih edilir?',
+            options: [
+              { id: 'a', text: 'JMeter her zaman daha hızlı test çalıştırır' },
+              { id: 'b', text: 'JMeter kod yazmadan test oluşturmaya izin veren bir GUI sunar, ayrıca k6\'nın iyi kapsamadığı non-HTTP protokoller dahil 600+ protokol desteği vardır' },
+              { id: 'c', text: 'k6 HTML rapor üretemez' },
+              { id: 'd', text: 'JMeter tek ücretsiz seçenektir' },
+            ],
+            correct: 'b',
+            explanation: 'JMeter\'ın GUI\'si, sampler ve listener\'ları yapılandırarak, hiç script yazmadan tam bir test planı oluşturmaya izin verir, ve geniş bir protokol yelpazesi (HTTP, JDBC, JMS, FTP ve daha fazlası) için yerleşik desteği vardır. k6 ise test-as-code (JavaScript) yaklaşımıyla geliştirici-ağırlıklı ekiplerde hafif, CI-uyumlu testler için üstündür ama daha dar bir protokol yüzeyine ve test oluşturmak için yerleşik bir GUI\'ye sahip değildir. Doğru araç ham hıza değil, takım yetkinliğine ve protokol ihtiyacına bağlıdır.',
+            retryQuestion: {
+              question: 'Bir ekip tamamen geliştirici ağırlıklı, JavaScript yazmaya rahat ve sadece HTTP REST API\'lerini hafif, CI-uyumlu testlerle yük testi yapmaya ihtiyaç duyuyor. Burada hangi araç daha uygundur?',
+              options: [
+                { id: 'a', text: 'JMeter, çünkü her zaman daha fazla özelliği vardır' },
+                { id: 'b', text: 'k6, çünkü JavaScript ile test-as-code geliştirici ağırlıklı bir ekibe uyar ve hafif CI pipeline\'ına doğal olarak entegre olur' },
+                { id: 'c', text: 'Hiçbiri HTTP API\'lerini test edemez' },
+                { id: 'd', text: 'JMeter, çünkü k6 test yazmak için GUI gerektirir' },
+              ],
+              correct: 'b',
+              explanation: 'k6\'nın test-as-code yaklaşımı (JavaScript ile test yazma), geliştirici ağırlıklı bir ekibin güçlü yanlarına hitap eder ve hafif, versiyon kontrollü CI adımları olarak doğal şekilde entegre olur — öğrenilecek bir GUI yoktur, HTTP/WebSocket dışında protokole de gerek yoktur. JMeter\'ın GUI\'si ve 600+ protokol desteği kod yazmayan QA ekipleri veya non-HTTP protokoller için bir güçtür, ama bu özel ekip ve kullanım durumu için daha uygun seçim değildir.',
+            },
+          },
         ],
       },
 
@@ -1718,6 +2021,29 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
 # "sende hangi JMeter sürümü var?" hata ayıklaması sıfır.`
           },
           { type: 'tip', content: 'Gerçek bir pipeline\'da bu dört parça birleşir: GitHub Actions, belirli bir programda JMeter çalıştıran bir Docker konteynerini tetikler, sonuçlar bir Backend Listener ile InfluxDB\'ye akar ve P99 bir eşiği aşarsa Grafana ekibi Slack\'te uyarır — tamamen otomatik performans regresyon tespiti.' },
+          {
+            type: 'quiz',
+            question: 'JMeter\'ı her CI runner\'a doğrudan kurmak yerine bir Docker image\'ı (örn. justb4/jmeter) olarak çalıştırmanın temel avantajı nedir?',
+            options: [
+              { id: 'a', text: 'Docker, JMeter\'ı daha hızlı çalıştırır' },
+              { id: 'b', text: 'Her CI runner ve geliştirici makinesi tam olarak aynı JMeter sürümünü ve eklentilerini garanti eder — "bende çalışıyor" sapması olmaz' },
+              { id: 'c', text: 'Backend Listener kullanmak için Docker gereklidir' },
+              { id: 'd', text: '.jmx test planı ihtiyacını ortadan kaldırır' },
+            ],
+            correct: 'b',
+            explanation: 'Bir Docker image, tam JMeter sürümünü ve kurulu eklentileri tek, tekrarlanabilir bir artifact\'a sabitler. Bu olmadan bir CI runner\'da JMeter 5.4, başka birinde 5.6 olabilir veya eklenti sürümleri farklı olabilir — bu da hafif farklı sonuçlara veya "bende çalışıyor" hata ayıklamasına yol açar. `docker run justb4/jmeter ...` çalıştırmak, yük üreticinin kendisinin de test edilen uygulama kadar tekrarlanabilir olmasını garanti eder.',
+            retryQuestion: {
+              question: 'İki CI runner, hedef sunucu ve ağ koşulları aynı olsa bile, AYNI .jmx test planı için hafif farklı yük testi sonuçları üretiyor. Olası bir neden nedir?',
+              options: [
+                { id: 'a', text: 'Yük testi sonuçları her zaman rastgele ve anlamsızdır' },
+                { id: 'b', text: 'İki runner\'da yerel olarak farklı JMeter sürümleri veya eklenti sürümleri kurulu olabilir, hafif farklı davranışlar üretebilir' },
+                { id: 'c', text: '.jmx dosya formatı çalıştırmalar arasında rastgele değişir' },
+                { id: 'd', text: 'JMeter sonuçları makineler arasında asla karşılaştırılamaz' },
+              ],
+              correct: 'b',
+              explanation: 'JMeter sabitlenmiş bir Docker image\'ından çalıştırılmak yerine her runner\'a doğrudan kurulduysa, runner\'lar arasındaki sürüm kayması (5.4 vs 5.6 veya farklı eklenti sürümleri) hafif farklı sonuçların gerçek ve yaygın bir nedenidir — tam olarak "bende çalışıyor" sınıfı bir sorun. Her runner\'da aynı Docker image tag\'inden JMeter çalıştırmak bu değişkeni tamamen ortadan kaldırır.',
+            },
+          },
         ],
       },
 
@@ -1755,7 +2081,31 @@ jmeter -n -t test.jmx -l sonuclar.jtl -e -o ./html-raporu` },
             ],
             correct: 1,
             explanation: "JSON Extractor, sunucu yanıtını okuyarak JSONPath ifadeleriyle değer çıkaran bir Post-Processor'dır. Referans Adı (örn. authToken) ve JSON Path (örn. $.data.token) ayarlanır. Ardından ${authToken} sonraki istek başlıklarında kullanılır.",
-          },
+          
+        retryQuestion: {
+      "question": "JMeter testinde, bir sonraki HTTP isteğinde kullanılmak üzere HTTP yanıtından dinamik bir 'sessionId' değerini yakalamak için en uygun bileşen hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Regex Extractor — metin bazlı desen eşleştirme yapar"
+            },
+            {
+                  "id": "b",
+                  "text": "JSON Extractor — JSONPath kullanarak yanıt içinden veri çeker"
+            },
+            {
+                  "id": "c",
+                  "text": "BeanShell PreProcessor — istek öncesi hesaplama yapar"
+            },
+            {
+                  "id": "d",
+                  "text": "User Defined Variables — statik değişkenleri tanımlar"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Modern API'lerde yanıtlar genellikle JSON formatındadır. JSON Extractor, 'JSON Path expression' (örn: $.sessionId) kullanarak yanıt gövdesindeki değeri yakalar ve bunu bir değişkene atayarak sonraki isteklerde kullanılabilir hale getirir."
+}
+},
           {
             type: 'quiz',
             question: "JMeter testinde: ortalama yanıt süresi 800ms, ancak P99 12.000ms. Bu ne anlama gelir?",
@@ -1767,7 +2117,31 @@ jmeter -n -t test.jmx -l sonuclar.jtl -e -o ./html-raporu` },
             ],
             correct: 2,
             explanation: "Ortalama, uç değerleri gizler. P99 = 12sn, kullanıcıların %1'inin 12 saniye beklediği anlamına gelir — çoğu uygulama için kabul edilemez. Bu kuyruk gecikmesidir; genellikle GC durakları, veritabanı sorgu değişkenliği veya thread havuzu tükenmesinden kaynaklanır. Ortalamanın yanı sıra her zaman P90 ve P99'a bakın.",
-          },
+          
+        retryQuestion: {
+      "question": "Bir performans testinde ortalama yanıt süresini 200ms olarak görüyorsunuz, fakat P95 değeri 5000ms. Bu veriler bize ne anlatıyor?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sistem performansı tüm kullanıcılar için son derece hızlıdır"
+            },
+            {
+                  "id": "b",
+                  "text": "P95 metriği testin başarısız olduğunu kanıtlamaz"
+            },
+            {
+                  "id": "c",
+                  "text": "Çoğu kullanıcı iyi bir deneyim yaşasa da, kullanıcıların %5'i ciddi yavaşlık yaşamaktadır; bu bir darboğaz işaretidir"
+            },
+            {
+                  "id": "d",
+                  "text": "Ramp-up süresinin çok uzun olduğunu gösterir"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Ortalama değer (mean), sistemin genel durumu hakkında yanıltıcı olabilir. P95'in ortalamadan çok daha yüksek çıkması, nadir görülen ancak ciddi olan performans sorunlarını veya kuyruk birikimlerini işaret eder ve mutlaka analiz edilmelidir."
+}
+},
           // JMeter interview-questions blokları
           { type: 'interview-questions', topic: 'JMeter Fundamentals', questions: [
             { level: 'basic', q: { tr: 'JMeter da Thread Group nedir ve parametreleri ne anlama gelir?', en: 'What is a Thread Group in JMeter and what do its parameters mean?' }, a: { tr: 'Thread Group, sanal kullanicilari (thread) tanimlayan ana bilestendir. Number of Threads = toplam sanal kullanici sayisi. Ramp-Up Period = tum kullanicilarin kac saniyede baslatilacagi (kademeli artis). Loop Count = her kullanicinin senaryoyu kac kez tekrarlayacagi. Duration = toplam test suresi (Loop Count yerine tercih edilir). 100 kullanici, 60 saniye ramp-up = saniyede ~1.67 yeni kullanici baslatilir.', en: 'Thread Group defines virtual users. Number of Threads = total virtual users. Ramp-Up Period = seconds to start all users (gradual). Loop Count = times each user repeats the scenario. Duration = total test time (preferred over Loop Count). 100 users, 60s ramp-up = ~1.67 new users start per second.' } },

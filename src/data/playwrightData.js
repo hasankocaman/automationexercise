@@ -74,7 +74,49 @@ const s0 = {
         ],
         correct: 'b',
         explanation: { tr: 'Auto-wait: click(), fill(), type() gibi her aksiyondan önce Playwright elementi otomatik olarak "görünür", "tıklanabilir" ve "stabil" olana kadar bekler. Selenium\'da bunu WebDriverWait ile manuel yazman gerekirdi.', en: 'Auto-wait means before every action like click(), fill(), type(), Playwright automatically waits for the element to be visible, enabled, and stable. In Selenium you had to write this manually with WebDriverWait.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ın sağladığı \"aksiyon öncesi bekleme\" (auto-wait) mekanizmasının temel amacı nedir?",
+            "en": "What is the main purpose of the \"auto-wait\" mechanism provided by Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Ağ trafiğinin tamamlanmasını garantilemek",
+                        "en": "To ensure network traffic is complete"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "İşlem yapılmadan önce elementin etkileşime hazır olmasını sağlamak",
+                        "en": "To ensure the element is actionable before performing an interaction"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Kodun çalışma hızını yavaşlatarak senkronizasyon sağlamak",
+                        "en": "To slow down execution speed for synchronization"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece DOM yapısının yüklenmesini beklemek",
+                        "en": "To wait only for the DOM structure to load"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Auto-wait, Playwright'ın bir element üzerinde aksiyon almadan önce o elementin görünür, aktif ve tıklanabilir durumda olup olmadığını kontrol etme özelliğidir. Bu sayede 'element not found' veya 'element not clickable' hatalarının çoğu otomatik olarak engellenir.",
+            "en": "Auto-wait is Playwright's feature to verify if an element is visible, stable, and enabled before interacting with it. This automatically prevents many common 'element not found' or 'element not clickable' errors."
+      }
+}
+},
     ],
   },
   en: {
@@ -144,7 +186,49 @@ const s0 = {
         ],
         correct: 'b',
         explanation: { tr: 'Auto-wait: her aksiyondan önce Playwright elementi otomatik bekler.', en: 'Auto-wait means Playwright automatically waits for elements to be visible, enabled and stable before every action like click() or fill().' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ta bir element ile etkileşime girmeden önce otomatik olarak yapılan kontrollerden biri değildir?",
+            "en": "Which of the following is NOT one of the checks automatically performed by Playwright before interacting with an element?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Elementin görünür olması",
+                        "en": "Visibility of the element"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Elementin tıklanabilir olması",
+                        "en": "Clickability of the element"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Elementin sabit (hareketsiz) olması",
+                        "en": "Stability of the element"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Elementin arka plan renginin değişmesi",
+                        "en": "Change in element background color"
+                  }
+            }
+      ],
+      "correct": "d",
+      "explanation": {
+            "tr": "Playwright, aksiyon öncesi elementin görünürlüğünü, tıklanabilirliğini ve kararlılığını (stabilite) kontrol eder, ancak CSS özellikleri (renk değişimi gibi) test edilmez.",
+            "en": "Playwright checks visibility, clickability, and stability before actions, but does not perform checks on CSS properties like background color changes."
+      }
+}
+},
     ],
   },
 }
@@ -338,7 +422,49 @@ def test_playwright_hello(page: Page):   # 'page' fixture — pytest-playwright 
         ],
         correct: 'b',
         explanation: { tr: '"playwright install" komutu Chromium, Firefox ve WebKit tarayıcılarını sisteme indirir. Bu adımı atlarsan "Browser is not installed" hatası alırsın.', en: '"playwright install" downloads Chromium, Firefox, and WebKit to your system. Skip this and you\'ll get "Browser is not installed" errors.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Terminal üzerinde 'playwright install' komutunu çalıştırmazsak ne olur?",
+            "en": "What happens if we do not run the 'playwright install' command in the terminal?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Kütüphane Python içine kurulmaz",
+                        "en": "The library will not be installed into Python"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Tarayıcı motorları eksik olduğu için testler başarısız olur",
+                        "en": "Tests will fail because browser engines are missing"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece Chromium tarayıcısı çalışmaz",
+                        "en": "Only the Chromium browser will not work"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Kod editörü Playwright komutlarını tanımaz",
+                        "en": "The code editor will not recognize Playwright commands"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Playwright'ı 'pip install' ile kursanız bile, tarayıcıların çalışabilmesi için 'playwright install' komutuyla gerekli olan Chromium, Firefox ve WebKit binary dosyalarının yerel dizine indirilmesi gerekir.",
+            "en": "Even if you install the Playwright package with 'pip', you must run 'playwright install' to download the necessary binary files for Chromium, Firefox, and WebKit for the tests to execute."
+      }
+}
+},
     ],
   },
   en: {
@@ -460,7 +586,38 @@ def test_playwright_hello(page: Page):   # 'page' fixture from pytest-playwright
         ],
         correct: 'b',
         explanation: { tr: '"playwright install" Chromium, Firefox ve WebKit indirir.', en: '"playwright install" downloads Chromium, Firefox, and WebKit browsers to your system.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Playwright kurulumundan sonra tarayıcı ikili dosyalarını (binaries) sisteme eklemek için kullanılan CLI komutu hangisidir?",
+            "en": "Which CLI command is used to add the browser binaries to your system after installing Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "playwright setup"
+            },
+            {
+                  "id": "b",
+                  "text": "playwright install"
+            },
+            {
+                  "id": "c",
+                  "text": "pip setup-browsers"
+            },
+            {
+                  "id": "d",
+                  "text": "playwright download"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Playwright kütüphanesi yüklendikten sonra 'playwright install' komutu, testlerin çalışması için gerekli olan tarayıcı sürücülerini (Chromium, Firefox, WebKit) varsayılan konumlara indirir.",
+            "en": "After the Playwright library is installed, the 'playwright install' command downloads the necessary browser binaries (Chromium, Firefox, WebKit) required for tests to run."
+      }
+}
+},
     ],
   },
 }
@@ -646,7 +803,38 @@ def test_basic_actions(page: Page):
         ],
         correct: 'c',
         explanation: { tr: 'fill() Selenium\'daki clear() + sendKeys() kombinasyonunun karşılığıdır. Önce alanı temizler, sonra metni yazar. type() ise temizlemeden sadece yazar.', en: 'fill() is the equivalent of Selenium\'s clear() + sendKeys() combination. It clears the field first, then types the text. type() types without clearing.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Playwright'ta bir web formundaki metin kutusunun mevcut içeriğini tamamen silip yeni bir değer yazmak için en güvenli metod hangisidir?",
+            "en": "Which method is the most reliable way in Playwright to completely clear the existing content of a text box in a web form and enter a new value?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "type()"
+            },
+            {
+                  "id": "b",
+                  "text": "clear_and_type()"
+            },
+            {
+                  "id": "c",
+                  "text": "fill()"
+            },
+            {
+                  "id": "d",
+                  "text": "press_sequentially()"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "fill() metodu, ilgili elementin içeriğini otomatik olarak temizler ve ardından yeni veriyi girer; bu işlem, type() metoduna göre daha atomik ve güvenilirdir.",
+            "en": "The fill() method automatically clears the content of the element before entering the new data; this operation is more atomic and reliable than using the type() method."
+      }
+}
+},
     ],
   },
   en: {
@@ -730,7 +918,38 @@ def test_basic_actions(page: Page):
         ],
         correct: 'c',
         explanation: { tr: 'fill() clear() + sendKeys() kombinasyonunun karşılığıdır.', en: 'fill() is the equivalent of Selenium\'s clear() + sendKeys(). It clears the field first, then types the text.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Bir kullanıcı adı alanına veri girişi yaparken, eski metinleri temizleyip yeni metni eklemek için Playwright hangi metodun kullanılmasını önerir?",
+            "en": "When entering data into a username field, which method does Playwright recommend to clear old text and insert the new text?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "write()"
+            },
+            {
+                  "id": "b",
+                  "text": "insert()"
+            },
+            {
+                  "id": "c",
+                  "text": "fill()"
+            },
+            {
+                  "id": "d",
+                  "text": "replace()"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "fill() metodu, bir input veya textarea alanındaki mevcut tüm metni sildiği için, form doldurma senaryolarında en çok tercih edilen metoddur.",
+            "en": "Since the fill() method clears all existing text in an input or textarea field, it is the most preferred method for form-filling scenarios."
+      }
+}
+},
     ],
   },
 }
@@ -891,7 +1110,37 @@ def test_locators(page: Page):
         ],
         correct: 'b',
         explanation: { tr: 'getByTestId("submit-btn") hem en okunabilir hem de en sağlam yöntemdir. CSS/XPath\'tan daha anlamlıdır ve sayfa yeniden yapılandırılsa bile kırılmaz.', en: 'getByTestId("submit-btn") is both the most readable and most resilient approach. It\'s more meaningful than CSS/XPath and won\'t break if the page is restructured.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright\\'ta data-testid=\"login-input\" olan bir input alanını seçmek için en ideal yöntem hangisidir?",
+            "en": "What is the most ideal method to select an input field with data-testid=\"login-input\" in Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.locator(\"input[data-testid='login-input']\")"
+            },
+            {
+                  "id": "b",
+                  "text": "page.getByTestId(\"login-input\")"
+            },
+            {
+                  "id": "c",
+                  "text": "page.querySelector(\"[data-testid='login-input']\")"
+            },
+            {
+                  "id": "d",
+                  "text": "page.getByLabel(\"login\")"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "getByTestId() metodu, test otomasyonunda seçicileri (selectors) test odaklı hale getirmek için tercih edilen, sürdürülebilir ve okunabilir bir Playwright yöntemidir.",
+            "en": "The getByTestId() method is a preferred, maintainable, and readable Playwright approach to make selectors test-oriented in automation."
+      }
+}
+},
     ],
   },
   en: {
@@ -955,7 +1204,37 @@ test('locators', async ({ page }) => {
         ],
         correct: 'b',
         explanation: { tr: 'getByTestId() en sağlam ve okunabilir yöntemdir.', en: 'getByTestId("submit-btn") is both the most readable and most resilient approach — it won\'t break if the page is restructured.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir HTML öğesinin data-testid=\"nav-menu\" niteliğine sahip olduğunu varsayarsak, bu öğeyi Playwright ile bulmanın en iyi yolu nedir?",
+            "en": "Assuming an HTML element has the attribute data-testid=\"nav-menu\", what is the best way to locate this element using Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.locator(\"div > .nav-menu\")"
+            },
+            {
+                  "id": "b",
+                  "text": "page.getByTestId(\"nav-menu\")"
+            },
+            {
+                  "id": "c",
+                  "text": "page.getByClassName(\"nav-menu\")"
+            },
+            {
+                  "id": "d",
+                  "text": "page.$x(\"//div[@data-testid='nav-menu']\")"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "getByTestId(), uygulama içindeki değişikliklerden en az etkilenen ve testlerin daha kararlı çalışmasını sağlayan önerilen yöntemdir.",
+            "en": "getByTestId() is the recommended method as it is least affected by changes in the application, ensuring more stable test execution."
+      }
+}
+},
     ],
   },
 }
@@ -1129,7 +1408,37 @@ await page.getByRole('button', { name: 'Sepete Ekle' }).click();
         ],
         correct: 'b',
         explanation: { tr: 'waitFor({state:"hidden"}) elementi hidden veya DOM\'dan çıkana kadar bekler. Python\'da: wait_for(state="hidden"). Java\'da: WaitForSelectorState.HIDDEN.', en: 'waitFor({state:"hidden"}) waits until the element is hidden or removed from the DOM. In Python: wait_for(state="hidden"). In Java: WaitForSelectorState.HIDDEN.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright\\'ta bir yükleme animasyonu (loading-overlay) ekrandan kalkana kadar beklemek için doğru yöntem hangisidir?",
+            "en": "Which method is correct to wait until a loading animation (loading-overlay) disappears in Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.waitForTimeout(5000)"
+            },
+            {
+                  "id": "b",
+                  "text": "page.locator(\".loading-overlay\").waitFor({state: \"hidden\"})"
+            },
+            {
+                  "id": "c",
+                  "text": "page.waitForElement(\".loading-overlay\", {visible: false})"
+            },
+            {
+                  "id": "d",
+                  "text": "page.click(\".loading-overlay\", {timeout: 0})"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "waitFor({state: \"hidden\"}) kullanımı, elementin DOM\\'dan ayrılmasını veya görünürlüğünü yitirmesini bekleyen Playwright\\'ın yerleşik ve önerilen bekleme yöntemidir.",
+            "en": "Using waitFor({state: \"hidden\"}) is the built-in and recommended Playwright wait method that waits for the element to be removed from the DOM or become hidden."
+      }
+}
+},
     ],
   },
   en: {
@@ -1187,7 +1496,37 @@ test('wait examples', async ({ page }) => {
         ],
         correct: 'b',
         explanation: { tr: 'waitFor({state:"hidden"}) elementi hidden veya DOM\'dan çıkana kadar bekler.', en: 'waitFor({state:"hidden"}) waits until the element is hidden or removed from the DOM.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ta bir yükleme çubuğunun (loading bar) DOM'dan tamamen kaldırılmasını beklemek için en doğru yöntem nedir?",
+            "en": "What is the best way to wait for a loading bar to be completely removed from the DOM in Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.waitForTimeout(5000)"
+            },
+            {
+                  "id": "b",
+                  "text": "page.locator(\".loader\").waitFor({state: \"detached\"})"
+            },
+            {
+                  "id": "c",
+                  "text": "page.waitForElement(\".loader\", {hidden: true})"
+            },
+            {
+                  "id": "d",
+                  "text": "page.expect(\".loader\").toBeInvisible()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "{state: \"detached\"} seçeneği, elementin DOM yapısından tamamen silinmesini beklemek için kullanılır.",
+            "en": "The {state: \"detached\"} option is used to wait for the element to be completely removed from the DOM."
+      }
+}
+},
     ],
   },
 }
@@ -1385,7 +1724,37 @@ def test_new_tab(browser: Browser):
         ],
         correct: 'b',
         explanation: { tr: 'frameLocator("#id") iframe\'i seçer, ardından .locator() ile iframe içinde element aranır. switchTo().defaultContent() gibi geri dönme adımı gerekmez.', en: 'frameLocator("#id") selects the iframe, then .locator() searches inside it. No need for switchTo().defaultContent() to return — Playwright handles scope automatically.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright ile bir iframe içerisindeki butona tıklamak için hangi yaklaşım doğrudur?",
+            "en": "Which approach is correct to click a button inside an iframe using Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.frame(\"myFrame\").click(\"#submit\")"
+            },
+            {
+                  "id": "b",
+                  "text": "page.frameLocator(\"iframe#myFrame\").locator(\"#submit\").click()"
+            },
+            {
+                  "id": "c",
+                  "text": "page.enterFrame(\"#myFrame\").click(\"#submit\")"
+            },
+            {
+                  "id": "d",
+                  "text": "page.switch_to_frame(\"#myFrame\").find(\"#submit\").click()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Playwright'ta frameLocator() metodu, iframe içinde zincirleme işlem yapmayı sağlar ve kapsamı otomatik yönetir.",
+            "en": "In Playwright, the frameLocator() method allows for chaining operations inside an iframe and manages scope automatically."
+      }
+}
+},
     ],
   },
   en: {
@@ -1469,7 +1838,37 @@ test('new tab', async ({ browser }) => {
         ],
         correct: 'b',
         explanation: { tr: 'frameLocator() iframe\'i seçer, ardından .locator() ile içinde arama yapılır.', en: 'frameLocator() selects the iframe, then .locator() searches inside it. No switchTo().defaultContent() needed.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ta bir iframe içindeki form alanına veri girişi yapmak için kullanılan yöntem hangisidir?",
+            "en": "Which method is used to input text into a form field inside an iframe in Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.iframe(\"#id\").fill(\"#input\", \"text\")"
+            },
+            {
+                  "id": "b",
+                  "text": "page.frameLocator(\"#id\").locator(\"#input\").fill(\"text\")"
+            },
+            {
+                  "id": "c",
+                  "text": "page.selectFrame(\"#id\").type(\"#input\", \"text\")"
+            },
+            {
+                  "id": "d",
+                  "text": "page.driver.switchTo(\"#id\").fill(\"#input\", \"text\")"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "frameLocator() ile iframe seçilir ve locator() ile içerideki element hedeflenerek fill() komutu çalıştırılır.",
+            "en": "The iframe is selected via frameLocator(), and the fill() command is executed by targeting the inner element with locator()."
+      }
+}
+},
     ],
   },
 }
@@ -1645,7 +2044,38 @@ def test_api_mock(page: Page):
         ],
         correct: 'b',
         explanation: { tr: 'page.route(pattern, handler) ile URL pattern eşleştirip route.fulfill() ile sahte yanıt döndürürsün. route.continue() ise isteği değiştirerek gerçek sunucuya iletir.', en: 'page.route(pattern, handler) matches URL patterns, and route.fulfill() returns fake responses. route.continue() modifies and forwards the request to the real server.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Playwright'ta bir ağ isteğini (network request) durdurup içeriğini değiştirmek için hangi mekanizma kullanılır?",
+            "en": "Which mechanism is used in Playwright to intercept and modify the content of a network request?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.on('request')"
+            },
+            {
+                  "id": "b",
+                  "text": "page.route() + route.fulfill()"
+            },
+            {
+                  "id": "c",
+                  "text": "page.hook()"
+            },
+            {
+                  "id": "d",
+                  "text": "page.replace()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "page.route() metodu ağ trafiğini izler ve belirli bir URL ile eşleştiğinde route.fulfill() kullanarak isteği sahte veya değiştirilmiş bir yanıtla sonlandırabilir.",
+            "en": "The page.route() method intercepts network traffic, and when it matches a URL pattern, you can use route.fulfill() to terminate the request with a mocked or modified response."
+      }
+}
+},
     ],
   },
   en: {
@@ -1711,7 +2141,38 @@ test('network mock', async ({ page }) => {
         ],
         correct: 'b',
         explanation: { tr: 'page.route() + route.fulfill() ile API yanıtı taklit edilir.', en: 'page.route(pattern, handler) with route.fulfill() returns fake responses. route.continue() modifies and forwards to the real server.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Bir API yanıtını Playwright kullanarak mock'lamak için hangi ikili kullanılır?",
+            "en": "Which combination is used to mock an API response using Playwright?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "page.intercept + response.send"
+            },
+            {
+                  "id": "b",
+                  "text": "page.route() + route.fulfill()"
+            },
+            {
+                  "id": "c",
+                  "text": "page.mock() + route.send()"
+            },
+            {
+                  "id": "d",
+                  "text": "page.handle() + route.mock()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "API yanıtlarını taklit etmek için page.route() ile rota tanımlanır ve route.fulfill() ile özel bir JSON veya durum kodu döndürülür.",
+            "en": "To mock API responses, a route is defined with page.route(), and a custom JSON or status code is returned using route.fulfill()."
+      }
+}
+},
     ],
   },
 }
@@ -1961,6 +2422,29 @@ def test_full_ecommerce_flow(logged_in_page: Page):
 
 # Paralel çalıştır: pytest test_ecommerce.py -n 4 --headed`,
       },
+      {
+        type: 'quiz',
+        question: 'Yukarıdaki uçtan uca checkout senaryosunda, "Siparişi tamamla" adımından SONRA gelen "Sipariş onayını doğrula" adımı neden ayrı bir assertion gerektirir?',
+        options: [
+          { id: 'a', text: 'Çünkü ödeme her zaman başarısız olur' },
+          { id: 'b', text: 'Çünkü bir butona tıklamak, işlemin gerçekten sunucu tarafında başarıyla tamamlandığını kanıtlamaz — UI state ile backend state ayrı doğrulanmalı' },
+          { id: 'c', text: 'Çünkü Playwright otomatik olarak sipariş onayını doğrulamaz' },
+          { id: 'd', text: 'Çünkü ekran görüntüsü almak zorunludur' },
+        ],
+        correct: 'b',
+        explanation: 'Bir butona (ör. "Place Order") tıklamak sadece bir UI eylemidir — sunucunun isteği kabul ettiğini, ödemeyi işlediğini ve siparişi gerçekten oluşturduğunu garanti etmez. Bu yüzden test, "ORDER PLACED!" metnini ve URL\'in order_placed içerdiğini AYRICA doğrular. Java/JUnit\'te bir POST isteği gönderip sadece HTTP 200 almakla, response body\'deki gerçek veriyi assert etmek arasındaki farkla aynı mantık.',
+        retryQuestion: {
+          question: 'Bir test sadece `await page.click(\'#placeOrderBtn\')` çağırıp hiçbir assertion yapmazsa, sipariş gerçekte başarısız olsa bile test neden yine de "geçer"?',
+          options: [
+            { id: 'a', text: 'Playwright her tıklamayı otomatik doğrular' },
+            { id: 'b', text: 'Test, hiçbir koşulu kontrol etmediği için sadece tıklamanın çalışıp çalışmadığına bakar — sonucun ne olduğuna değil' },
+            { id: 'c', text: 'Sunucu her zaman başarılı yanıt döner' },
+            { id: 'd', text: 'click() metodu otomatik olarak HTTP durumunu kontrol eder' },
+          ],
+          correct: 'b',
+          explanation: 'Bir test sadece bir aksiyon çalıştırıp (`click()`) hiçbir `expect()`/assertion içermiyorsa, "geçme" kriteri sadece o satırın exception fırlatmadan çalışmasıdır — backend\'in isteği gerçekten kabul edip etmediğiyle hiç ilgisi yoktur. Bu yüzden her kritik aksiyondan sonra UI\'da veya backend\'de gözlemlenebilir bir sonucu (metin, URL, API yanıtı) doğrulayan bir assertion eklemek zorunludur.',
+        },
+      },
     ],
   },
   en: {
@@ -2016,6 +2500,29 @@ test('register → product → cart → payment', async ({ page }) => {
   await expect(page.getByText('ORDER PLACED!')).toBeVisible();
   await page.screenshot({ path: 'evidence/order-confirmed.png', fullPage: true });
 });`,
+      },
+      {
+        type: 'quiz',
+        question: 'In the end-to-end checkout scenario above, why does the "verify order confirmation" step AFTER "complete the order" require a separate assertion?',
+        options: [
+          { id: 'a', text: 'Because payment always fails' },
+          { id: 'b', text: "Because clicking a button doesn't prove the operation actually succeeded server-side — UI state and backend state must be verified separately" },
+          { id: 'c', text: 'Because Playwright automatically verifies order confirmation' },
+          { id: 'd', text: 'Because taking a screenshot is mandatory' },
+        ],
+        correct: 'b',
+        explanation: 'Clicking a button (e.g. "Place Order") is only a UI action — it does not guarantee the server accepted the request, processed payment, and actually created the order. That\'s why the test ALSO asserts the "ORDER PLACED!" text and that the URL contains order_placed. Same logic as in Java/JUnit: sending a POST request and only checking for HTTP 200 is not the same as asserting the actual data in the response body.',
+        retryQuestion: {
+          question: 'If a test only calls `await page.click(\'#placeOrderBtn\')` with no assertion at all, why does the test still "pass" even if the order actually failed?',
+          options: [
+            { id: 'a', text: 'Playwright automatically verifies every click' },
+            { id: 'b', text: 'Without any condition being checked, the test only cares whether the click itself ran — not what the outcome was' },
+            { id: 'c', text: 'The server always returns a success response' },
+            { id: 'd', text: 'The click() method automatically checks the HTTP status' },
+          ],
+          correct: 'b',
+          explanation: "If a test only runs an action (`click()`) with no `expect()`/assertion, its only \"pass\" criterion is that the line ran without throwing — it has nothing to do with whether the backend actually accepted the request. That's why every critical action needs a follow-up assertion verifying an observable outcome (text, URL, API response) in the UI or backend.",
+        },
       },
     ],
   },
@@ -2115,6 +2622,29 @@ with sync_playwright() as p:
           },
         ],
       },
+      {
+        type: 'quiz',
+        question: '`webServer: { command: "npm run dev", url: "http://localhost:8080" }` konfigürasyonu eksikken Playwright testleri "ECONNREFUSED" hatasıyla başarısız oluyorsa, en olası neden nedir?',
+        options: [
+          { id: 'a', text: 'Playwright sürümü eski' },
+          { id: 'b', text: 'Test, uygulama sunucusu henüz başlamadan/dinlemeden tarayıcıyı o adrese yönlendirmeye çalışıyor' },
+          { id: 'c', text: 'Tarayıcı binary\'si indirilmemiş' },
+          { id: 'd', text: 'baseURL alanı zorunlu değildir' },
+        ],
+        correct: 'b',
+        explanation: '`webServer` config bloğu olmadan Playwright, dev sunucusunun zaten ayakta olduğunu varsayar. Sunucu henüz dinlemiyorsa bağlantı reddedilir (ECONNREFUSED). `webServer` ayarı, testler başlamadan önce komutu çalıştırıp `url` alanındaki adres yanıt verene kadar bekler — CI ortamında bir Spring Boot/Express sunucusunu testlerden önce ayağa kaldırıp health-check beklemekle aynı mantık.',
+        retryQuestion: {
+          question: '`webServer` config\'inde `url` alanını YANLIŞ bir port (örn. uygulamanın gerçekte dinlediği port değil) olarak ayarlarsan ne olur?',
+          options: [
+            { id: 'a', text: 'Playwright otomatik olarak doğru portu bulur' },
+            { id: 'b', text: 'Playwright o yanlış URL\'i sonsuza kadar (timeout\'a kadar) yoklar, sunucu gerçekte hazır olsa bile testler başlamaz' },
+            { id: 'c', text: 'Test hemen başarısız olur, hiç beklemez' },
+            { id: 'd', text: 'webServer ayarı tamamen devre dışı kalır' },
+          ],
+          correct: 'b',
+          explanation: '`webServer.url`, Playwright\'in "sunucu hazır" kabul etmek için yokladığı (poll ettiği) adrestir. Yanlış bir port verilirse, gerçek sunucu farklı bir portta tamamen sağlıklı çalışıyor olsa bile Playwright o yanlış adresten asla 200 alamaz ve sonunda timeout ile başarısız olur — sorunun görünürdeki belirtisi "sunucu başlamadı" gibi görünse de gerçek kök neden yanlış yapılandırılmış URL\'dir.',
+        },
+      },
     ],
   },
   en: {
@@ -2163,6 +2693,29 @@ webServer: { command: 'npm run dev', url: 'http://localhost:8080' },
 use: { baseURL: 'http://localhost:8080' }`,
           },
         ],
+      },
+      {
+        type: 'quiz',
+        question: 'If Playwright tests fail with "ECONNREFUSED" when the `webServer: { command: "npm run dev", url: "http://localhost:8080" }` config is missing, what is the most likely cause?',
+        options: [
+          { id: 'a', text: 'The Playwright version is outdated' },
+          { id: 'b', text: "The test is navigating the browser to that address before the app server has started listening" },
+          { id: 'c', text: 'The browser binary was not downloaded' },
+          { id: 'd', text: 'The baseURL field is not required' },
+        ],
+        correct: 'b',
+        explanation: "Without the `webServer` config block, Playwright assumes the dev server is already running. If the server isn't listening yet, the connection is refused (ECONNREFUSED). The `webServer` setting runs the command and waits for the `url` to respond before tests start — the same logic as spinning up a Spring Boot/Express server and waiting on a health check before running tests in CI.",
+        retryQuestion: {
+          question: 'What happens if you set the `webServer` config\'s `url` field to the WRONG port (not the one the app actually listens on)?',
+          options: [
+            { id: 'a', text: 'Playwright automatically finds the correct port' },
+            { id: 'b', text: 'Playwright keeps polling that wrong URL until timeout, and tests never start even though the server is actually ready' },
+            { id: 'c', text: 'The test fails immediately with no waiting' },
+            { id: 'd', text: 'The webServer setting is disabled entirely' },
+          ],
+          correct: 'b',
+          explanation: '`webServer.url` is the address Playwright polls to consider the server "ready." If given the wrong port, Playwright will never get a 200 from that wrong address even if the real server is perfectly healthy on a different port — it eventually fails with a timeout. The visible symptom looks like "server never started," but the real root cause is a misconfigured URL.',
+        },
       },
     ],
   },
@@ -2434,7 +2987,38 @@ await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
         ],
         correct: 'c',
         explanation: { tr: 'Generic (value-based) assertion\'lar — düz bir JS değeri (number, string, object) üzerinde çalışanlar — anında kontrol eder, retry yapmaz. Web-first assertion\'lar (locator veya page üzerinde çalışanlar) 5 saniye boyunca tekrar dener.', en: 'Generic (value-based) assertions — the ones operating on a plain JS value (number, string, object) — check instantly and never retry. Web-first assertions (the ones operating on a locator or page) retry for up to 5 seconds.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Aşağıdaki ifadelerden hangisi 'web-first' assertion (otomatik tekrar deneme yapan) DEĞİLDİR?",
+            "en": "Which of the following is NOT a 'web-first' assertion (does NOT support auto-retry)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "expect(page.locator('.btn')).toBeDisabled()"
+            },
+            {
+                  "id": "b",
+                  "text": "expect(page).toHaveTitle('Ana Sayfa')"
+            },
+            {
+                  "id": "c",
+                  "text": "expect(users.length).toBe(10) // users bir dizi"
+            },
+            {
+                  "id": "d",
+                  "text": "expect(page.locator('h1')).toHaveText(/Merhaba/)"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Düz bir JavaScript değişkeni veya dizisi (users.length) üzerinde yapılan 'expect' kontrolleri anında değerlendirilir. 'Web-first' assertion'lar ise doğrudan locator veya page nesneleri üzerinde çağrılmalıdır.",
+            "en": "'expect' checks performed on a plain JavaScript variable or array (users.length) are evaluated instantly. 'Web-first' assertions must be called directly on locator or page objects to trigger auto-retry."
+      }
+}
+},
     ],
   },
   en: {
@@ -2575,7 +3159,49 @@ await expect(page).toHaveURL(/.*\\/order-confirmed/);`,
         ],
         correct: 'c',
         explanation: { tr: 'Generic (value-based) assertion\'lar anında kontrol eder, retry yapmaz. Web-first assertion\'lar (locator/page üzerinde) 5 saniye boyunca tekrar dener.', en: 'Generic (value-based) assertions check instantly and never retry. Web-first assertions (on a locator or page) retry for up to 5 seconds.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki ifadelerden hangisi Playwright'ta 'auto-retry' mekanizmasını tetiklemez?",
+            "en": "Which of the following does NOT trigger Playwright's auto-retry mechanism?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "await expect(page.locator('.btn')).toBeEnabled()",
+                        "en": "await expect(page.locator('.btn')).toBeEnabled()"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "await expect(page).toHaveTitle('Home Page')",
+                        "en": "await expect(page).toHaveTitle('Home Page')"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "const status = 200; expect(status).toBe(200)",
+                        "en": "const status = 200; expect(status).toBe(200)"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "await expect(page.locator('input')).toHaveValue('test')",
+                        "en": "await expect(page.locator('input')).toHaveValue('test')"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Web-first assertion'lar (page veya locator nesneleri ile kullanılanlar) otomatik olarak yeniden dener (retry). Ancak basit bir değer (number, string, boolean) üzerinde yapılan kontrol anlıktır ve tekrar deneme yapmaz.",
+            "en": "Web-first assertions (used with page or locator objects) automatically retry. However, assertions performed on simple values (number, string, boolean) are evaluated instantly and do not retry."
+      }
+}
+},
     ],
   },
 }
@@ -2765,7 +3391,49 @@ test.describe.configure({ mode: 'serial' });`,
         ],
         correct: 'a',
         explanation: { tr: 'page fixture test-scoped\'dır — her test için sıfırdan oluşturulur ve testler arası izolasyonu garanti eder. beforeAll bir kere çalıştığı için page fixture\'ı orada anlamlı değildir; bunun yerine browser fixture verilir, gerekirse browser.newPage() ile manuel sayfa açılır.', en: 'The page fixture is test-scoped — it\'s created fresh for every single test to guarantee isolation. Since beforeAll runs only once, the page fixture doesn\'t make sense there; instead the browser fixture is provided, and you can manually open a page with browser.newPage() if needed.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright testlerinde 'test.beforeAll' bloğunda 'page' fixture'ı neden kullanılamaz?",
+            "en": "Why can't the 'page' fixture be used within a 'test.beforeAll' block in Playwright tests?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "page fixture'ı her bir test için özel olarak izole edilmiş bir şekilde oluşturulur.",
+                        "en": "The page fixture is created specifically isolated for each individual test."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "beforeAll bloğu içerisinde sadece browserContext kullanılabilir.",
+                        "en": "Only the browserContext can be used inside a beforeAll block."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Playwright mimarisi beforeAll içinde UI etkileşimlerini yasaklar.",
+                        "en": "Playwright architecture forbids UI interactions inside beforeAll."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "beforeAll sadece asenkron işlemler için tasarlanmıştır.",
+                        "en": "beforeAll is designed only for asynchronous operations."
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "page fixture'ı test seviyesinde (test-scoped) tanımlanmıştır. Yani her test kendi temiz 'page' nesnesine sahiptir. beforeAll ise tüm test dosyasından önce bir kez çalışır, bu yüzden o an henüz oluşturulmuş bir test-specific page yoktur.",
+            "en": "The page fixture is test-scoped. This means every test receives its own clean 'page' object. Since beforeAll runs only once before all tests in the file, there is no test-specific page available at that point."
+      }
+}
+},
     ],
   },
   en: {
@@ -2952,7 +3620,49 @@ test.describe.configure({ mode: 'serial' });`,
         ],
         correct: 'a',
         explanation: { tr: 'page fixture test-scoped\'dır ve testler arası izolasyonu garanti eder. beforeAll bir kere çalıştığı için page fixture\'ı orada anlamlı değildir.', en: 'The page fixture is test-scoped — it\'s created fresh for every single test to guarantee isolation. Since beforeAll runs only once, the page fixture doesn\'t make sense there; instead the browser fixture is provided, and you can manually open a page with browser.newPage() if needed.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "test.beforeAll() kullanırken neden 'browser' fixture'ını tercih etmeliyiz?",
+            "en": "Why should we prefer the 'browser' fixture when using test.beforeAll()?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Çünkü browser fixture'ı testler arası izolasyonu bozar.",
+                        "en": "Because the browser fixture breaks test isolation."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Çünkü page fixture'ı sadece test.beforeEach() içinde erişilebilirdir.",
+                        "en": "Because the page fixture is only accessible within test.beforeEach()."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Çünkü browser fixture'ı, beforeAll içinde manuel olarak context ve page oluşturmamıza olanak sağlar.",
+                        "en": "Because the browser fixture allows us to manually create contexts and pages within beforeAll."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Çünkü browser fixture'ı test süresini kısaltır.",
+                        "en": "Because the browser fixture shortens the test execution time."
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "beforeAll, tekil testlerin yaşam döngüsünden bağımsız olduğu için otomatik page fixture'ına sahip değildir. Browser fixture'ını kullanarak manuel bir sayfa veya context oluşturmak, kurulum işlemlerini (setUp) özelleştirmenize imkan verir.",
+            "en": "Since beforeAll is independent of individual test lifecycles, it does not have the automatic page fixture. Using the browser fixture allows you to manually instantiate a context or page, giving you control over the setup process."
+      }
+}
+},
     ],
   },
 }
@@ -3104,7 +3814,49 @@ await expect(page).toHaveURL('/dashboard');`,
         ],
         correct: 'b',
         explanation: { tr: 'Page Object\'ler "ne yapılabilir ve hangi veri var" sağlar (eylemler + locator\'lar). "Bu sonucun doğru olup olmadığı" testin bağlamına göre değişir — bu yüzden esnekliği korumak için assertion testte kalmalı.', en: 'Page Objects provide "what can be done and what data exists" (actions + locators). "Whether this result is correct" depends on the test\'s context — so assertions should stay in the test to preserve flexibility.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Page Object Model (POM) kullanırken, assertion'ları (doğrulamaları) testin kendisinde tutmanın temel avantajı nedir?",
+            "en": "What is the primary advantage of keeping assertions inside the test itself when using the Page Object Model (POM)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Assertion'ları PO'ya yazmak kodun çalışma süresini kısaltır",
+                        "en": "Writing assertions in PO decreases the code execution time"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Testlerin, PO tarafından sağlanan eylemlerden sonra kendi doğrulama mantıklarını özelleştirebilmesini sağlar",
+                        "en": "It allows tests to customize their own verification logic after actions provided by the PO"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "PO'lar, expect() fonksiyonunun çalışması için gerekli olan bağımlılıklara sahip değildir",
+                        "en": "PO's do not possess the necessary dependencies for the expect() function to run"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Playwright'ta assertion'ların Page Object'ler içinde kullanılması yasaktır",
+                        "en": "It is forbidden to use assertions inside Page Objects in Playwright"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "PO'lar eylemlerin ve yapıların bir temsilidir. Testin başarısı bağlamına göre değişebilir, bu nedenle doğrulamayı testin sorumluluğunda bırakmak kodun yeniden kullanılabilirliğini artırır.",
+            "en": "POs are a representation of actions and structures. A test's success condition can vary by context, so leaving verification as the test's responsibility improves reusability."
+      }
+}
+},
     ],
   },
   en: {
@@ -3253,7 +4005,49 @@ await expect(page).toHaveURL('/dashboard');`,
         ],
         correct: 'b',
         explanation: { tr: 'Page Object\'ler "ne yapılabilir ve hangi veri var" sağlar. Sonucun doğru olup olmadığı testin bağlamına göre değişir.', en: 'Page Objects provide "what can be done and what data exists" (actions + locators). "Whether this result is correct" depends on the test\'s context — so assertions should stay in the test to preserve flexibility.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright testlerinde Page Object sınıfı içinde assertion barındırmamanın en önemli sebebi nedir?",
+            "en": "What is the most significant reason to avoid including assertions within a Page Object class in Playwright tests?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Playwright mimarisi Page Object içinde assertion'ların kullanılmasını desteklemez",
+                        "en": "Playwright architecture does not support the use of assertions within Page Objects"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Page Object sadece arayüz etkileşimlerine odaklanmalı; farklı testler aynı eylem için farklı doğrulama kriterlerine sahip olabilir",
+                        "en": "Page Object should focus only on UI interactions; different tests might have different verification criteria for the same action"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Assertion kodları sadece test dosyalarının en alt satırında kullanılabilir",
+                        "en": "Assertion codes can only be used on the very last line of test files"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Page Object'in karmaşıklığını artırarak testlerin başarısız olmasına yol açar",
+                        "en": "It increases the complexity of the Page Object and leads to test failures"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Page Object'ler sayfa yapısını ve eylemleri temsil etmelidir. Eğer assertion'ı PO içine gömerseniz, aynı sayfayı farklı bir test senaryosunda farklı bir şeyi kontrol etmek için kullanamazsınız.",
+            "en": "Page Objects should represent the page structure and actions. If you embed the assertion inside the PO, you cannot use the same page in a different test scenario to check something else."
+      }
+}
+},
     ],
   },
 }
@@ -3383,7 +4177,49 @@ npx playwright test login.spec.ts --ui`,
         ],
         correct: 'a',
         explanation: { tr: 'Yüzlerce/binlerce PASS testin videosunu saklamak depolama maliyeti ve artifact upload süresini ciddi şekilde artırır. retain-on-failure sadece gerçekten incelemen gereken (fail olan) testlerin videosunu tutar.', en: 'Keeping videos for hundreds or thousands of passing tests seriously increases storage cost and artifact upload time. retain-on-failure keeps videos only for the tests you actually need to investigate (the failing ones).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "CI ortamında 'video: on' yerine 'video: retain-on-failure' ayarının kullanılmasının temel sebebi nedir?",
+            "en": "What is the primary reason for using the 'video: retain-on-failure' setting instead of 'video: on' in a CI environment?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Depolama alanı tasarrufu sağlar ve başarılı testlerin video yükleme yükünü azaltır",
+                        "en": "It saves storage space and reduces the upload burden of passing tests"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "'on' ayarı sadece yerel bilgisayarlarda çalışır",
+                        "en": "'on' setting only works on local computers"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece 'retain-on-failure' ile videoları indirip inceleyebilirsiniz",
+                        "en": "You can only download and examine videos with 'retain-on-failure'"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Video kalitesini artırır",
+                        "en": "It improves the video quality"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "CI üzerinde her test için video kaydetmek disk maliyetini ve artifact yükleme süresini artırır. 'retain-on-failure' sadece hata ayıklama gerektiren başarısız testleri tutarak kaynak tasarrufu sağlar.",
+            "en": "Recording video for every test on CI increases disk costs and artifact upload time. 'retain-on-failure' saves resources by keeping only the failing tests that require debugging."
+      }
+}
+},
     ],
   },
   en: {
@@ -3510,7 +4346,37 @@ npx playwright test login.spec.ts --ui`,
         ],
         correct: 'a',
         explanation: { tr: 'Yüzlerce/binlerce PASS testin videosunu saklamak depolama maliyeti ve artifact upload süresini ciddi şekilde artırır.', en: 'Keeping videos for hundreds or thousands of passing tests seriously increases storage cost and artifact upload time. retain-on-failure keeps videos only for the tests you actually need to investigate (the failing ones).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "CI ortamında trace: 'on' yerine trace: 'retain-on-failure' yapılandırmasını seçmenin temel avantajı nedir?",
+            "en": "What is the primary advantage of choosing trace: 'retain-on-failure' over trace: 'on' in a CI environment?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "retain-on-failure yalnızca başarısız testlerde trace dosyası üretir, böylece başarılı binlerce testin yarattığı depolama yükü ve ağ trafiği önlenmiş olur"
+            },
+            {
+                  "id": "b",
+                  "text": "retain-on-failure trace dosyasını buluta otomatik olarak yedekler"
+            },
+            {
+                  "id": "c",
+                  "text": "trace: 'on' ayarı performans sorunlarına yol açtığı için devre dışı bırakılmıştır"
+            },
+            {
+                  "id": "d",
+                  "text": "İki seçenek arasında dosya boyutu veya kaynak kullanımı açısından bir fark yoktur"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Trace dosyaları detaylı hata ayıklama bilgisi içerir ve oldukça büyük olabilir. Başarılı testler için trace saklamak depolama maliyetlerini artırır ve CI pipeline süresini gereksiz yere uzatır. retain-on-failure sadece hata durumunda bu veriyi tutarak verimli bir süreç sağlar.",
+            "en": "Trace files contain detailed debugging information and can be quite large. Storing traces for successful tests increases storage costs and unnecessarily extends CI pipeline duration. retain-on-failure provides an efficient process by only preserving this data in case of failure."
+      }
+}
+},
     ],
   },
 }
@@ -3659,7 +4525,37 @@ actions/upload-artifact@v4`,
         ],
         correct: 'b',
         explanation: { tr: 'Sharding, BÜYÜK bir test paketini CI\'da birden fazla MAKİNEYE (job) böler — her job sadece kendi diliminden sorumludur. Bu, paralel worker\'lardan (aynı makinedeki CPU çekirdekleri) farklıdır; ikisi birlikte kullanılır.', en: 'Sharding splits a LARGE test suite across multiple CI MACHINES (jobs) — each job is only responsible for its own slice. This is different from parallel workers (CPU cores on the same machine); the two are typically combined.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir CI pipeline yapılandırmasında --shard=3/5 parametresi ne anlama gelir?",
+            "en": "What does the --shard=3/5 parameter mean in a CI pipeline configuration?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Testleri 5 farklı tarayıcıda aynı anda çalıştırır"
+            },
+            {
+                  "id": "b",
+                  "text": "Test paketini 5 parçaya böler ve mevcut makine bu parçalardan 3. olanını işler"
+            },
+            {
+                  "id": "c",
+                  "text": "Toplamda 3 makine kullanır ve her birinde 5 worker çalıştırır"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece 3. ve 5. testleri çalıştırır"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Sharding, test paketini toplam 'N' parçaya böler ve 'M/N' ifadesiyle bu job'ın kaçıncı parçadan sorumlu olduğu belirtilir. Bu, farklı makinelere dağıtılan paralel bir iş yükü yönetimidir.",
+            "en": "Sharding divides the test suite into a total of 'N' slices, and 'M/N' indicates which specific slice this job is responsible for. This is a parallel workload management distributed across different machines."
+      }
+}
+},
     ],
   },
   en: {
@@ -3805,7 +4701,37 @@ actions/upload-artifact@v4`,
         ],
         correct: 'b',
         explanation: { tr: 'Sharding, BÜYÜK bir test paketini CI\'da birden fazla MAKİNEYE böler. Bu, paralel worker\'lardan farklıdır; ikisi birlikte kullanılır.', en: 'Sharding splits a LARGE test suite across multiple CI MACHINES (jobs) — each job is only responsible for its own slice. This is different from parallel workers (CPU cores on the same machine); the two are typically combined.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ta Sharding (örneğin --shard=2/3) kullanımı hakkında hangisi doğrudur?",
+            "en": "Which statement about using Sharding (e.g., --shard=2/3) in Playwright is true?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sharding, tek bir makine içindeki CPU çekirdeklerini kullanır, harici makine gerektirmez"
+            },
+            {
+                  "id": "b",
+                  "text": "Sharding, toplam test paketini parçalara ayırıp farklı CI job'ları arasında dağıtarak toplam test süresini düşürmeyi hedefler"
+            },
+            {
+                  "id": "c",
+                  "text": "Sharding sadece görsel regresyon testleri için kullanılabilir"
+            },
+            {
+                  "id": "d",
+                  "text": "Sharding kullanıldığında --workers ayarının kullanılmasına gerek kalmaz"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Sharding, test paketini mantıksal parçalara ayırarak farklı makinelerde (job'larda) aynı anda çalışmasını sağlar. Bu yöntem, paralel worker kullanımıyla (aynı makinedeki CPU kullanımı) birlikte çalışarak test süresini optimize eder.",
+            "en": "Sharding splits the test suite into logical chunks to run them simultaneously on different machines (jobs). This method works alongside parallel worker usage (CPU usage on the same machine) to optimize overall test execution time."
+      }
+}
+},
     ],
   },
 }
@@ -3929,7 +4855,49 @@ await page.context().storageState({ path: '.auth/user.json' });`,
         ],
         correct: 'b',
         explanation: { tr: 'storageState dosyası gerçek bir oturumun cookie/localStorage verisini içerir — bu, kullanıcı adı/şifreden farksız bir kimlik bilgisidir. Git geçmişine girerse, dosya silinse bile geçmiş commit\'lerde kalır ve güvenlik riski oluşturur.', en: 'The storageState file contains a real session\'s cookie/localStorage data — that\'s just as sensitive as a username/password. If it lands in git history, it stays in old commits even after deletion, creating a security risk.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright projelerinde .auth klasörünü veya içinde yer alan oturum dosyalarını version control (Git) sistemine eklememenin temel sebebi nedir?",
+            "en": "What is the primary reason for avoiding the addition of the .auth folder or session files to version control (Git) in Playwright projects?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Dosya formatı Git ile uyumlu değildir.",
+                        "en": "The file format is incompatible with Git."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Bu dosyalar canlı oturum verileri ve hassas tokenlar içerir; commit edilmeleri güvenlik açığına ve kimlik hırsızlığına yol açar.",
+                        "en": "These files contain live session data and sensitive tokens; committing them leads to security vulnerabilities and credential theft."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Oturum dosyaları çok küçüktür ve Git tarafından yok sayılır.",
+                        "en": "Session files are too small and are ignored by Git."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Playwright bu dosyaları her çalıştırmada yeniden oluşturur.",
+                        "en": "Playwright recreates these files on every run."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Oturum dosyaları, uygulamanın kimlik doğrulama bilgilerini doğrudan depolar. Bunları repo içinde tutmak, kimlik bilgilerini herkese açık hale getirmekle aynıdır ve büyük bir güvenlik riski oluşturur.",
+            "en": "Session files store the raw authentication data of the application. Keeping them in the repository is equivalent to hardcoding credentials, which poses a significant security risk."
+      }
+}
+},
     ],
   },
   en: {
@@ -4050,7 +5018,47 @@ await page.context().storageState({ path: '.auth/user.json' });`,
         ],
         correct: 'b',
         explanation: { tr: 'storageState dosyası gerçek bir oturumun cookie/localStorage verisini içerir — bu bir kimlik bilgisidir. Git geçmişine girerse, dosya silinse bile geçmiş commit\'lerde kalır.', en: 'The storageState file contains a real session\'s cookie/localStorage data — that\'s just as sensitive as a username/password. If it lands in git history, it stays in old commits even after deletion, creating a security risk.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright Codegen aracını kullandıktan sonra ortaya çıkan test kodunun doğrudan projeye kopyalanması yerine 'refactor' edilmesinin (iyileştirilmesinin) en önemli sebebi nedir?",
+            "en": "What is the most important reason for refactoring the test code generated by Playwright Codegen instead of copying it directly into the project?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Codegen her zaman yanlış locator'lar üretir.",
+                        "en": "Codegen always produces incorrect locators."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Codegen tarafından üretilen kod bakım gerektiren, tekrar eden ve sürdürülebilirliği zayıf bir yapıya sahip olabilir; optimize edilmesi gerekir.",
+                        "en": "Codegen-generated code can be repetitive and hard to maintain; it requires optimization for better sustainability."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": "Codegen sadece tek bir test senaryosu üretebilir.",
+                  "en": "Codegen can only generate a single test scenario."
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Codegen kodu sadece yerel makinede çalışır.",
+                        "en": "Codegen code only runs on local machines."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Codegen, test senaryosu oluştururken hızlı bir iskelet sağlar ancak bu iskelet genellikle hard-coded değerler ve kopyalanmış adımlar içerir. Testlerin ölçeklenebilir ve sağlam olması için Page Object Model gibi yapılara taşınması şarttır.",
+            "en": "Codegen provides a quick skeleton for a test case, but it often contains hard-coded values and duplicated steps. Refactoring it into structures like the Page Object Model is essential for scalable and robust testing."
+      }
+}
+},
     ],
   },
 }
@@ -4166,7 +5174,49 @@ npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
         ],
         correct: 'b',
         explanation: { tr: 'Codegen mükemmel bir başlangıç noktasıdır ama bir "ham taslak"tır — production kalitesine getirmek için temizlik, locator kontrolü ve tekrar eden mantığın (login gibi) Page Object/fixture\'a çıkarılması gerekir.', en: 'Codegen is an excellent starting point but it\'s a "rough draft" — getting it to production quality requires cleanup, locator review, and extracting repeated logic (like login) into a Page Object/fixture.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright'ta 'Codegen' aracı tarafından üretilen locator'lar neden her zaman en iyi seçenek olmayabilir?",
+            "en": "Why are the locators generated by the Playwright 'Codegen' tool sometimes not the best choice?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Codegen locator üretemez.",
+                        "en": "Codegen cannot generate locators."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Codegen bazen çok kırılgan (testin bozulmasına müsait) ve dinamik olmayan CSS/XPath seçicileri üretebilir; bunlar yerine daha anlamlı 'test-id' gibi öğeler tercih edilmelidir.",
+                        "en": "Codegen sometimes generates brittle and non-dynamic CSS/XPath selectors; more meaningful elements like 'test-ids' should be preferred instead."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Codegen sadece ID'leri kullanır.",
+                        "en": "Codegen only uses IDs."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Codegen çok yavaştır.",
+                        "en": "Codegen is too slow."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Codegen, ekrandaki elemanları seçmek için rastgele hiyerarşik yollar (örneğin nth-child) kullanabilir. Bu yapılar DOM'da küçük bir değişiklikte bozulur. İdeal olan, daha sağlam olan 'data-testid' gibi attribute'ları kullanmaktır.",
+            "en": "Codegen may use random hierarchical paths (like nth-child) to select elements. These structures break with minor DOM changes. The ideal approach is to use more robust attributes like 'data-testid'."
+      }
+}
+},
     ],
   },
   en: {
@@ -4277,7 +5327,49 @@ npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
         ],
         correct: 'b',
         explanation: { tr: 'Codegen mükemmel bir başlangıç noktasıdır ama bir "ham taslak"tır — production kalitesine getirmek için temizlik ve refactor gerekir.', en: 'Codegen is an excellent starting point but it\'s a "rough draft" — getting it to production quality requires cleanup, locator review, and extracting repeated logic (like login) into a Page Object/fixture.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright Codegen ile oluşturulan bir otomasyon scriptini doğrudan 'production' ortamında kullanmanın en önemli risklerinden biri nedir?",
+            "en": "What is one of the primary risks of using an automation script generated by Playwright Codegen directly in a production-grade test suite?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Codegen tarafından üretilen kod sadece işletim sistemi seviyesinde çalışır, web tarayıcılarında hata verir.",
+                        "en": "Codegen-generated code only works at the operating system level and fails in web browsers."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Codegen, kodun sürdürülebilirliğini azaltan sert kodlanmış (hardcoded) lokatörler veya tekrar eden eylemler üretebilir; bu yüzden Page Object Model gibi yapılara dönüştürülmelidir.",
+                        "en": "Codegen may produce hardcoded locators or redundant actions that decrease maintainability; therefore, it should be refactored into patterns like Page Object Model."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Codegen tarafından üretilen kodlar sadece JavaScript ile sınırlıdır ve TypeScript ile kullanılamaz.",
+                        "en": "Codegen-generated code is limited to JavaScript and cannot be used with TypeScript."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Codegen, test edilen web sitesinin güvenlik duvarı (firewall) tarafından her zaman engellenir.",
+                        "en": "Codegen is always blocked by the firewall of the website being tested."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Codegen, bir senaryoyu kaydetmek için harika bir araçtır ancak oluşturduğu kod genellikle bakım zorluğu yaratır. Kodun temizlenmesi, lokatörlerin iyileştirilmesi ve ortak mantığın (login, navigation) nesne tabanlı yapılara taşınması otomasyonun kalitesini artırır.",
+            "en": "While Codegen is an excellent tool for recording scenarios, the raw code it produces is often difficult to maintain. Cleaning up the code, optimizing locators, and extracting common logic into design patterns like Page Objects is essential for high-quality, long-term testing."
+      }
+}
+},
     ],
   },
 }
@@ -4441,7 +5533,49 @@ claude mcp add playwright npx @playwright/mcp@latest
         ],
         correct: 'b',
         explanation: { tr: 'Accessibility tree, sayfanın anlamsal yapısını (buton, link, textbox + isimleri) doğrudan verir. AI bu yapıdaki "ref" kimliğini kullanarak hatasız tıklar — ekran görüntüsünden piksel koordinatı çıkarmaya (ve bunun için ayrı bir görsel modele) gerek kalmaz.', en: 'The accessibility tree gives the page\'s semantic structure (buttons, links, textboxes + their names) directly. The AI clicks reliably using the "ref" id in that structure — no need to infer pixel coordinates from a screenshot (and no need for a separate vision model to do it).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright MCP kullanırken, görüntü tabanlı (vision) mod yerine 'snapshot mode' tercih etmenin temel mimari avantajı nedir?",
+            "en": "What is the primary architectural advantage of using 'snapshot mode' over vision-based mode when using Playwright MCP?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Snapshot mode, GPU gücü gerektirmediği için daha az enerji tüketir.",
+                        "en": "Snapshot mode consumes less energy as it does not require GPU power."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Snapshot mode, sayfayı DOM ve accessibility tree verileriyle yapılandırılmış şekilde iletir, bu da AI'nın piksel bazlı yorumlama yapmasına gerek kalmadan hedef elemana kesin olarak ulaşmasını sağlar.",
+                        "en": "Snapshot mode provides the page as structured data via the DOM and accessibility tree, allowing the AI to interact with target elements precisely without needing pixel-based inference."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Snapshot mode, sadece yerel bilgisayarlarda çalışır; bulut ortamlarında vision mode zorunludur.",
+                        "en": "Snapshot mode only works on local machines; vision mode is mandatory for cloud environments."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Snapshot mode, sayfanın görüntüsünü daha yüksek çözünürlükte işlediği için daha net sonuçlar verir.",
+                        "en": "Snapshot mode provides clearer results because it processes the page image at a higher resolution."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Snapshot mode, sayfanın anlamsal yapısını (Accessibility Tree) AI'ya metinsel ve yapısal bir formatta sunar. Bu sayede AI, görsel bir analize veya piksel tahmini yapmaya ihtiyaç duymadan doğrudan hedeflenen öğeyi (ref ID ile) seçebilir, bu da hızı ve doğruluğu ciddi oranda artırır.",
+            "en": "Snapshot mode delivers the page's semantic structure (Accessibility Tree) to the AI in a textual, structured format. This allows the AI to select elements directly using ref IDs without performing resource-heavy visual analysis or pixel inference, resulting in faster and more reliable interactions."
+      }
+}
+},
     ],
   },
   en: {
@@ -4602,7 +5736,49 @@ claude mcp add playwright npx @playwright/mcp@latest
         ],
         correct: 'b',
         explanation: { tr: 'Accessibility tree, sayfanın anlamsal yapısını doğrudan verir. AI bu yapıdaki "ref" kimliğini kullanarak hatasız tıklar — ekran görüntüsünden piksel koordinatı çıkarmaya gerek kalmaz.', en: 'The accessibility tree gives the page\'s semantic structure (buttons, links, textboxes + their names) directly. The AI clicks reliably using the "ref" id in that structure — no need to infer pixel coordinates from a screenshot (and no need for a separate vision model to do it).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Görüntü tanıma (vision) moduna kıyasla snapshot mode kullanılmasının test otomasyonundaki doğruluk payı üzerindeki etkisi nedir?",
+            "en": "What is the effect of using snapshot mode on test automation accuracy compared to vision mode?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Snapshot mode, görsel karmaşaya karşı daha duyarlı olduğu için hata payı artar.",
+                        "en": "Snapshot mode has a higher error rate as it is more sensitive to visual clutter."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Snapshot mode, yapısal veri kullandığı için AI'nın yanlış elemana tıklama riskini azaltır ve görsel modeldeki belirsizlikleri ortadan kaldırır.",
+                        "en": "Snapshot mode uses structured data, which minimizes the risk of the AI clicking the wrong element and eliminates the uncertainties associated with visual models."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Görsel modeller her zaman snapshot mode'dan daha hatasız çalışır.",
+                        "en": "Visual models always perform more accurately than snapshot mode."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Snapshot mode sadece basit web sitelerinde çalışır, karmaşık yapılarda hata verir.",
+                        "en": "Snapshot mode only works on simple websites and fails on complex structures."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Vision (görüntü) modelleri piksel ve görsel ipuçlarına dayandığı için bazen yanlış elemanları tahmin edebilir. Snapshot mode ise sayfanın yapısal (DOM/Accessibility) bilgisini kullandığı için elemanları kimliklerine göre tanımlar, bu da hatalı etkileşim riskini minimize eder.",
+            "en": "Vision models rely on pixels and visual cues, which can occasionally lead to misinterpretation. Snapshot mode uses structural (DOM/Accessibility) information to identify elements by their inherent properties, thereby minimizing the risk of incorrect interactions."
+      }
+}
+},
     ],
   },
 }

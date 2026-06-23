@@ -163,10 +163,42 @@ export const ROUTE_SEO = [
         title: 'Sign In or Sign Up | LearnQA.dev',
         description: 'Sign in to LearnQA.dev with Google, GitHub, Microsoft, or a passwordless email Magic Link to save your learning progress.',
     },
+    {
+        path: '/leaderboard',
+        title: 'XP Leaderboard for QA Learners | LearnQA.dev',
+        description: 'See the top 10 LearnQA.dev members by XP, earned by completing lessons and quizzes across Selenium, Playwright, Java, Python and more.',
+    },
+    {
+        path: '/qa-assistant',
+        title: 'AI QA Assistant for Test Automation | LearnQA.dev',
+        description: 'Chat with the LearnQA AI assistant about Selenium, Playwright, Java, Python and API testing, and get feedback on your test automation code.',
+    },
+    {
+        // Gerçek bir sayfa değil, App.jsx route tanımıyla 1:1 eşleşmesi için var (check-seo.mjs
+        // bunu zorunlu kılar). `dynamic: true` sitemap.xml, static-shell ve dist-SEO
+        // kontrollerinden bilerek hariç tutar — her sertifika ID'si için ayrı sayfa
+        // önceden üretilemez ve Windows'ta ":" dosya adında geçersizdir.
+        path: '/verify-certificate/:id',
+        title: 'Certificate Verification | LearnQA.dev',
+        description: 'Verify the authenticity of a LearnQA.dev QA learning roadmap certificate using its unique certificate ID.',
+        dynamic: true,
+    },
 ]
 
+// ROUTE_SEO'daki '/verify-certificate/:id' sadece check-seo.mjs eşleşmesi içindir —
+// gerçek pathname'ler (örn. '/verify-certificate/3fa8...') asla bu literal string'e eşit
+// olmaz, o yüzden burada ayrıca prefix bazlı bir runtime fallback gerekiyor.
 export function getSeoForPath(pathname) {
-    return ROUTE_SEO.find((item) => item.path === pathname) || DEFAULT_SEO
+    const exact = ROUTE_SEO.find((item) => item.path === pathname)
+    if (exact) return exact
+    if (pathname.startsWith('/verify-certificate/')) {
+        return {
+            path: pathname,
+            title: 'Certificate Verification | LearnQA.dev',
+            description: 'Verify the authenticity of a LearnQA.dev QA learning roadmap certificate.',
+        }
+    }
+    return DEFAULT_SEO
 }
 
 export function canonicalUrl(pathname) {

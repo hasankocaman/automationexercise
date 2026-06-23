@@ -315,7 +315,9 @@
             "title": "Hızlı Quiz",
             "checkAnswer": "Cevabı Kontrol Et",
             "correctPrefix": "🎉 Doğru! ",
-            "incorrectPrefix": "💡 Yanlış — "
+            "incorrectPrefix": "💡 Yanlış — ",
+            "tryDifferentQuestion": "🔄 Farklı bir soru dene",
+            "retryBadge": "Tekrar deneme — yeni soru"
         },
         "comparison": {
             "concept": "Kavram"

@@ -45,13 +45,15 @@ Sitemap: https://learnqa.dev/sitemap.xml
 `,
 )
 
+const indexableRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
+
 await writeFile(
     join(publicDir, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${ROUTE_SEO.map(sitemapUrl).join('\n')}
+${indexableRoutes.map(sitemapUrl).join('\n')}
 </urlset>
 `,
 )
 
-console.log(`Generated robots.txt and sitemap.xml for ${ROUTE_SEO.length} routes.`)
+console.log(`Generated robots.txt and sitemap.xml for ${indexableRoutes.length} routes.`)

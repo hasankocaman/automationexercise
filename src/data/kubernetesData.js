@@ -76,7 +76,31 @@ export const kubernetesData = {
             ],
             correct: 'b',
             explanation: 'Kubernetes is a container orchestration platform — it automates deployment, scaling, load balancing, self-healing, and management of containerized applications across a cluster of machines.',
-          },
+          
+        retryQuestion: {
+      "question": "Which of the following best describes the core function of Kubernetes?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "To serve as a persistent storage engine for container data"
+            },
+            {
+                  "id": "b",
+                  "text": "To coordinate, scale, and maintain the lifecycle of containerized workloads"
+            },
+            {
+                  "id": "c",
+                  "text": "To compile source code into container images"
+            },
+            {
+                  "id": "d",
+                  "text": "To manage physical hardware resources without containers"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Kubernetes is specifically designed for container orchestration, meaning it handles the operational tasks of running containers, such as scaling, self-healing, and networking, across a distributed cluster."
+}
+},
           { type: 'heading', text: 'Why QA Engineers Need Kubernetes' },
           {
             type: 'list',
@@ -314,6 +338,29 @@ kubectl get nodes  # Shows EC2 instances as worker nodes
 # ⚠️  Delete cluster when done to avoid AWS costs!
 eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
           },
+          {
+            type: 'quiz',
+            question: 'Why is minikube recommended for local learning/development instead of a real cloud cluster like AWS EKS?',
+            options: [
+              { id: 'a', text: 'minikube supports more Kubernetes features than EKS' },
+              { id: 'b', text: 'minikube spins up a single-node cluster on your laptop in minutes for free, while a cloud cluster has Control Plane management and ongoing cost' },
+              { id: 'c', text: 'EKS cannot run a Deployment' },
+              { id: 'd', text: 'minikube is required before any cloud cluster can be created' },
+            ],
+            correct: 'b',
+            explanation: "minikube creates a single-node Kubernetes cluster directly on your laptop (in Docker or a VM) with zero cloud cost and no waiting on provisioning. A real cloud cluster (EKS/GKE/AKS) manages the Control Plane for you, which is valuable for production but introduces setup time and ongoing billing — overkill while you're still learning core concepts like Pods, Deployments, and Services.",
+            retryQuestion: {
+              question: 'A team has moved past learning and now needs a multi-node cluster with automatic Control Plane upgrades and high availability for a real production app. Is minikube still a reasonable choice?',
+              options: [
+                { id: 'a', text: 'Yes, minikube scales to any production workload' },
+                { id: 'b', text: 'No — minikube is designed for single-node local development, not production-grade multi-node, highly-available clusters' },
+                { id: 'c', text: 'Yes, because minikube and EKS are functionally identical' },
+                { id: 'd', text: 'No, because minikube cannot run any Kubernetes object at all' },
+              ],
+              correct: 'b',
+              explanation: 'minikube is explicitly built for local development and learning — a single-node cluster with no built-in high availability or multi-node scaling. A production workload needing real HA and managed Control Plane upgrades needs a real cluster (EKS/GKE/AKS or a self-managed multi-node setup), which is exactly the tradeoff minikube\'s simplicity gives up.',
+            },
+          },
         ],
       },
 
@@ -502,7 +549,31 @@ eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
             ],
             correct: 'c',
             explanation: 'The kube-scheduler watches for unscheduled pods and assigns them to the most suitable Worker Node based on resource availability, taints, tolerations, and affinity rules.',
-          },
+          
+        retryQuestion: {
+      "question": "When a new pod is created, which control plane component is responsible for selecting the optimal node where the pod will execute?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "kube-controller-manager"
+            },
+            {
+                  "id": "b",
+                  "text": "kube-proxy"
+            },
+            {
+                  "id": "c",
+                  "text": "kube-scheduler"
+            },
+            {
+                  "id": "d",
+                  "text": "Container Runtime"
+            }
+      ],
+      "correct": "c",
+      "explanation": "The kube-scheduler is the specific component responsible for placement decisions. It evaluates the requirements of the pod and the state of the nodes in the cluster to determine the best fit for execution."
+}
+},
         ],
       },
 
@@ -736,7 +807,31 @@ spec:
             ],
             correct: 'b',
             explanation: 'A Service provides a stable IP and DNS name that persists even as pods are created and destroyed. It uses label selectors to route traffic to matching pods automatically.',
-          },
+          
+        retryQuestion: {
+      "question": "If you need a consistent access point that allows external traffic to reach a dynamic group of replica pods, which resource should you create?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Deployment"
+            },
+            {
+                  "id": "b",
+                  "text": "Service"
+            },
+            {
+                  "id": "c",
+                  "text": "Secret"
+            },
+            {
+                  "id": "d",
+                  "text": "Volume"
+            }
+      ],
+      "correct": "b",
+      "explanation": "A Service acts as an abstraction layer that groups a set of Pods together and provides a single, stable IP address or DNS name, ensuring that traffic reaches the pods even if their individual IP addresses change due to scaling or restarts."
+}
+},
         ],
       },
 
@@ -908,7 +1003,31 @@ kubens production   # switches to production namespace`,
             ],
             correct: 'b',
             explanation: 'kubectl logs -f my-pod follows (streams) logs in real-time, similar to tail -f in Linux. The -f flag means "follow". This is essential for debugging running applications.',
-          },
+          
+        retryQuestion: {
+      "question": "Which command is used to stream the logs of a container within a pod continuously until you terminate it?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "kubectl logs my-pod --stream"
+            },
+            {
+                  "id": "b",
+                  "text": "kubectl logs -f my-pod"
+            },
+            {
+                  "id": "c",
+                  "text": "kubectl get logs my-pod -f"
+            },
+            {
+                  "id": "d",
+                  "text": "kubectl logs my-pod --tail"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The -f flag stands for 'follow', which maintains an open connection to the pod's log output, displaying new log entries as they are generated by the container."
+}
+},
         ],
       },
 
@@ -1087,6 +1206,29 @@ spec:
             emoji: '🧪',
             title: 'QA Testing Tip: Validate K8s Deployments',
             content: 'After applying manifests: 1) kubectl rollout status deployment/webapp — check rollout completed, 2) kubectl get pods -w — watch pods come healthy, 3) kubectl describe pod <pod-name> — inspect events if something is wrong, 4) kubectl logs <pod-name> — check app startup logs.',
+          },
+          {
+            type: 'quiz',
+            question: 'After applying a Deployment manifest with `kubectl apply -f deployment.yaml`, which command tells you whether the rollout has actually finished successfully?',
+            options: [
+              { id: 'a', text: 'kubectl apply -f deployment.yaml --check' },
+              { id: 'b', text: 'kubectl rollout status deployment/<name>' },
+              { id: 'c', text: 'kubectl get pods --status' },
+              { id: 'd', text: 'kubectl version' },
+            ],
+            correct: 'b',
+            explanation: '`kubectl apply` only submits the desired state — it returns immediately, before pods are necessarily running. `kubectl rollout status deployment/<name>` blocks and reports progress until the rollout genuinely completes (or fails), making it the right command to verify a deployment actually succeeded rather than assuming it did because `apply` returned with no error.',
+            retryQuestion: {
+              question: 'A CI pipeline runs `kubectl apply -f deployment.yaml` and immediately moves to the next step without checking rollout status. The new pods actually fail to start. What does the pipeline see?',
+              options: [
+                { id: 'a', text: 'The pipeline automatically fails because apply detects the broken pods' },
+                { id: 'b', text: 'The pipeline sees a successful exit code from apply and proceeds, unaware the deployment is actually broken' },
+                { id: 'c', text: 'kubectl apply refuses to return until pods are healthy' },
+                { id: 'd', text: 'The cluster automatically rolls back without any CI awareness' },
+              ],
+              correct: 'b',
+              explanation: '`kubectl apply` only confirms that the desired state was accepted by the API server — it says nothing about whether the actual pods come up healthy. A CI pipeline that does not follow up with `kubectl rollout status` (or equivalent health checks) can report "deploy succeeded" while the real application is crash-looping in production, which is exactly why rollout status checks are a standard step in real deployment pipelines.',
+            },
           },
         ],
       },
@@ -1348,6 +1490,29 @@ helm uninstall monitoring -n monitoring`,
               { label: 'Prometheus + Grafana', desc: 'Monitor, alert, dashboard', color: 'green' },
             ],
           },
+          {
+            type: 'quiz',
+            question: 'Modern Kubernetes clusters run containers using containerd rather than the Docker Engine directly. Why?',
+            options: [
+              { id: 'a', text: 'containerd is faster at building images' },
+              { id: 'b', text: 'Kubernetes only needs a lightweight runtime that implements the Container Runtime Interface (CRI); Docker Engine bundles extra tooling (build, compose, CLI) that Kubernetes does not need' },
+              { id: 'c', text: 'Docker images are incompatible with Kubernetes' },
+              { id: 'd', text: 'containerd is required to write YAML manifests' },
+            ],
+            correct: 'b',
+            explanation: "Kubernetes only needs to pull and run OCI-compliant container images — it talks to the runtime through the CRI (Container Runtime Interface). containerd is a lean runtime that implements CRI directly, while the full Docker Engine bundles extra tooling (the build pipeline, Compose, the docker CLI) that a cluster node has no use for. Images built with `docker build` still run fine — Docker images are OCI-compatible — only the underlying daemon used to RUN them changed.",
+            retryQuestion: {
+              question: 'A developer builds an image with `docker build` on their laptop and pushes it to a registry. Will a Kubernetes cluster running containerd (not Docker Engine) be able to run that image?',
+              options: [
+                { id: 'a', text: 'No, containerd can only run images built with its own tooling' },
+                { id: 'b', text: 'Yes — the image is OCI-compliant, and containerd (or any CRI-compliant runtime) can run any OCI image regardless of what tool built it' },
+                { id: 'c', text: 'Only if the cluster also has Docker Engine installed alongside containerd' },
+                { id: 'd', text: 'Only if the image is rebuilt directly inside the cluster' },
+              ],
+              correct: 'b',
+              explanation: 'Docker images are built to the OCI (Open Container Initiative) image spec — a standard that any OCI-compliant runtime, including containerd, can read and run. The build tool (`docker build`, `buildah`, `kaniko`, etc.) is completely separate from the runtime that executes the image later. This is exactly why moving from Docker Engine to containerd on cluster nodes did not require anyone to change how their images are built.',
+            },
+          },
         ],
       },
 
@@ -1579,6 +1744,29 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
               '✅ Service returns 502/503 (not errors) during rolling update',
             ],
           },
+          {
+            type: 'quiz',
+            question: 'A pod is stuck in CrashLoopBackOff. What is the right first command to diagnose why?',
+            options: [
+              { id: 'a', text: 'kubectl delete pod <name> immediately' },
+              { id: 'b', text: 'kubectl logs <pod-name> --previous' },
+              { id: 'c', text: 'kubectl get nodes' },
+              { id: 'd', text: 'kubectl create secret docker-registry' },
+            ],
+            correct: 'b',
+            explanation: 'CrashLoopBackOff means the container starts and then immediately exits, repeatedly. The crashed container\'s logs are gone the moment a new one starts, so `kubectl logs <pod-name> --previous` retrieves the logs from the LAST crashed instance — usually showing the actual startup exception, missing env variable, or failed health check that caused the crash. Deleting the pod just restarts the same broken container without diagnosing anything.',
+            retryQuestion: {
+              question: '`kubectl logs <pod-name> --previous` shows nothing useful — just an empty log. What is a likely next diagnostic step for a CrashLoopBackOff?',
+              options: [
+                { id: 'a', text: 'Immediately delete and recreate the entire cluster' },
+                { id: 'b', text: 'Run `kubectl describe pod <pod-name>` to check the Events section for scheduling, image pull, or resource issues that happen before the container logs anything' },
+                { id: 'c', text: 'Assume the application code is fine and ignore the crash' },
+                { id: 'd', text: 'Increase the number of replicas to work around the crash' },
+              ],
+              correct: 'b',
+              explanation: 'If `--previous` logs are empty, the crash is likely happening before the application even gets to log anything (e.g. a failed image pull, a missing ConfigMap/Secret mount, or a failed liveness probe killing it too early). `kubectl describe pod` surfaces these pre-application-log events in its Events section, which `kubectl logs` cannot show at all.',
+            },
+          },
         ],
       },
 
@@ -1739,7 +1927,41 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
             ],
             correct: 'b',
             explanation: 'Kubernetes bir container orkestrasyon platformudur — bir makine kümesi üzerinde containerized uygulamaların deployment, scaling, load balancing, self-healing ve yönetimini otomatikleştirir.',
-          },
+          
+        retryQuestion: {
+      "question": {
+            "tr": "Kubernetes'in ana işlevi aşağıdakilerden hangisidir?",
+            "en": "What is the primary function of Kubernetes?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "tr": "Veritabanı yönetimi sağlamak",
+                  "en": "Managing database systems"
+            },
+            {
+                  "id": "b",
+                  "tr": "Container'ların yaşam döngüsünü (deploy, ölçekleme, yönetim) otomatize etmek",
+                  "en": "Automating the lifecycle (deployment, scaling, management) of containerized applications"
+            },
+            {
+                  "id": "c",
+                  "tr": "Sanal makineler (VM) oluşturmak",
+                  "en": "Creating virtual machines"
+            },
+            {
+                  "id": "d",
+                  "tr": "İşletim sistemi kernel'ini güncellemek",
+                  "en": "Updating the OS kernel"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Kubernetes, container tabanlı uygulamaların karmaşık süreçlerini yönetmek, ölçeklendirmek ve operasyonel yükü azaltmak için tasarlanmış bir container orkestrasyon sistemidir.",
+            "en": "Kubernetes is a container orchestration platform designed to manage, scale, and automate the operational complexity of container-based applications."
+      }
+}
+},
           { type: 'heading', text: 'QA Mühendisleri Neden Kubernetes\'e İhtiyaç Duyar?' },
           {
             type: 'list',
@@ -1892,6 +2114,29 @@ minikube service hello-nginx  # Tarayıcıda otomatik açılır
 kubectl get pods                      # Running görmeli
 kubectl delete deployment hello-nginx # Temizlik`,
           },
+          {
+            type: 'quiz',
+            question: 'Yerel öğrenme/geliştirme için neden minikube önerilir, gerçek bir cloud cluster (AWS EKS gibi) değil?',
+            options: [
+              { id: 'a', text: 'minikube, EKS\'den daha fazla Kubernetes özelliği destekler' },
+              { id: 'b', text: 'minikube, laptop\'ında dakikalar içinde ücretsiz tek-node bir cluster kurar; cloud cluster\'ın Control Plane yönetimi ve sürekli maliyeti vardır' },
+              { id: 'c', text: 'EKS bir Deployment çalıştıramaz' },
+              { id: 'd', text: 'Herhangi bir cloud cluster kurmadan önce minikube zorunludur' },
+            ],
+            correct: 'b',
+            explanation: 'minikube, laptop\'ında (Docker veya bir VM içinde) sıfır cloud maliyeti ve provisioning beklemesi olmadan doğrudan tek-node bir Kubernetes cluster\'ı oluşturur. Gerçek bir cloud cluster (EKS/GKE/AKS) Control Plane\'i senin için yönetir — production için değerlidir ama kurulum süresi ve sürekli faturalandırma getirir — Pod, Deployment ve Service gibi temel kavramları öğrenirken bu gereksiz bir yüktür.',
+            retryQuestion: {
+              question: 'Bir ekip öğrenme aşamasını geçti ve gerçek bir production uygulaması için otomatik Control Plane güncellemeleri ve yüksek erişilebilirlik olan multi-node bir cluster\'a ihtiyaç duyuyor. minikube hâlâ mantıklı bir seçim mi?',
+              options: [
+                { id: 'a', text: 'Evet, minikube her production iş yüküne ölçeklenir' },
+                { id: 'b', text: 'Hayır — minikube tek-node lokal geliştirme için tasarlanmıştır, production-grade multi-node, yüksek erişilebilirlikli cluster\'lar için değil' },
+                { id: 'c', text: 'Evet, çünkü minikube ve EKS fonksiyonel olarak birbirinin aynısıdır' },
+                { id: 'd', text: 'Hayır, çünkü minikube hiçbir Kubernetes nesnesini çalıştıramaz' },
+              ],
+              correct: 'b',
+              explanation: 'minikube açıkça lokal geliştirme ve öğrenme için inşa edilmiştir — yerleşik yüksek erişilebilirlik veya multi-node ölçekleme olmayan tek-node bir cluster\'dır. Gerçek HA ve yönetilen Control Plane güncellemeleri gerektiren bir production iş yükü, gerçek bir cluster\'a (EKS/GKE/AKS veya self-managed multi-node kurulum) ihtiyaç duyar — bu, minikube\'ın sadeliğinin tam olarak feda ettiği şeydir.',
+            },
+          },
         ],
       },
 
@@ -2035,7 +2280,41 @@ kubectl delete deployment hello-nginx # Temizlik`,
             ],
             correct: 'c',
             explanation: 'kube-scheduler, schedule edilmemiş pod\'ları izler ve kaynak kullanılabilirliğine, taint\'lere, toleration\'lara ve affinity kurallarına göre en uygun Worker Node\'a atar.',
-          },
+          
+        retryQuestion: {
+      "question": {
+            "tr": "Bir Pod oluşturulduğunda, kaynak gereksinimlerine göre en uygun node'u seçen Kubernetes kontrol düzlemi (control plane) bileşeni hangisidir?",
+            "en": "Which Kubernetes control plane component is responsible for selecting the optimal node for a new Pod based on its resource requirements?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "tr": "kube-controller-manager",
+                  "en": "kube-controller-manager"
+            },
+            {
+                  "id": "b",
+                  "tr": "kube-proxy",
+                  "en": "kube-proxy"
+            },
+            {
+                  "id": "c",
+                  "tr": "kube-scheduler",
+                  "en": "kube-scheduler"
+            },
+            {
+                  "id": "d",
+                  "tr": "etcd",
+                  "en": "etcd"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "kube-scheduler, Pod'un gereksinimlerini ve kümedeki node'ların durumunu analiz ederek Pod'un hangi node'da çalışması gerektiğini belirleyen bileşendir.",
+            "en": "The kube-scheduler analyzes the resource needs of a Pod and the state of the nodes in the cluster to determine the most appropriate node for the Pod to run on."
+      }
+}
+},
         ],
       },
 
@@ -2312,7 +2591,32 @@ spec:
             ],
             correct: 'b',
             explanation: 'Service, pod\'lar oluşturulup yok edilse bile kalıcı olan sabit bir IP ve DNS adı sağlar. Etiket selector\'ları kullanarak trafiği eşleşen pod\'lara otomatik olarak yönlendirir.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Kubernetes mimarisinde, birden fazla Pod'a gelen ağ trafiğini dağıtmak ve onlara erişim için tek bir kararlı adres sunmak amacıyla hangisi kullanılır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Deployment"
+            },
+            {
+                  "id": "b",
+                  "text": "Service"
+            },
+            {
+                  "id": "c",
+                  "text": "Secret"
+            },
+            {
+                  "id": "d",
+                  "text": "Volume"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Service nesnesi, dinamik olarak değişebilen Pod IP adreslerinin aksine, uygulamanız için tutarlı bir IP ve DNS ismi sağlar. Bu sayede Pod'lar yeniden başlatılsa bile uygulama erişilebilir kalmaya devam eder."
+}
+},
         ],
       },
 
@@ -2461,7 +2765,32 @@ kubectl rollout history deployment/uygulama`,
             ],
             correct: 'b',
             explanation: 'kubectl logs -f benim-pod, logları gerçek zamanlı olarak takip eder (Linux\'taki tail -f gibi). -f flag\'i "follow" anlamına gelir. Çalışan uygulamaları debug etmek için olmazsa mazdır.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Bir Kubernetes pod'unun çıktılarını (stdout/stderr) sürekli olarak terminal ekranında izlemek istiyorsanız hangi komutu çalıştırmalısınız?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "kubectl get logs pod-adi --stream"
+            },
+            {
+                  "id": "b",
+                  "text": "kubectl logs -f pod-adi"
+            },
+            {
+                  "id": "c",
+                  "text": "kubectl monitor pod-adi"
+            },
+            {
+                  "id": "d",
+                  "text": "kubectl follow pod-adi"
+            }
+      ],
+      "correct": "b",
+      "explanation": "kubectl logs komutuna eklenen -f (follow) parametresi, pod içerisinde üretilen yeni log satırlarını anlık olarak terminalinize yansıtır. Geliştirme ve hata ayıklama süreçlerinde log akışını gözlemlemek için standart yöntemdir."
+}
+},
         ],
       },
 
@@ -2610,6 +2939,29 @@ spec:
             emoji: '🧪',
             title: 'QA Test İpucu: K8s Deployment\'larını Doğrula',
             content: 'Manifest\'leri uyguladıktan sonra: 1) kubectl rollout status deployment/webuygulamasi — rollout tamamlandı mı kontrol et, 2) kubectl get pods -w — pod\'ların sağlıklı gelişini izle, 3) kubectl describe pod <pod-adı> — bir şeyler yanlışsa event\'leri incele, 4) kubectl logs <pod-adı> — uygulama başlangıç loglarını kontrol et.',
+          },
+          {
+            type: 'quiz',
+            question: '`kubectl apply -f deployment.yaml` ile bir Deployment manifest\'i uyguladıktan sonra, rollout\'un gerçekten başarıyla bittiğini hangi komut söyler?',
+            options: [
+              { id: 'a', text: 'kubectl apply -f deployment.yaml --check' },
+              { id: 'b', text: 'kubectl rollout status deployment/<isim>' },
+              { id: 'c', text: 'kubectl get pods --status' },
+              { id: 'd', text: 'kubectl version' },
+            ],
+            correct: 'b',
+            explanation: '`kubectl apply` sadece istenen durumu gönderir — pod\'lar henüz çalışmıyor olsa bile anında geri döner. `kubectl rollout status deployment/<isim>` ise rollout GERÇEKTEN tamamlanana (veya başarısız olana) kadar bekler ve ilerlemeyi raporlar — bu yüzden bir deployment\'ın `apply` hatasız döndüğü için başarılı olduğunu varsaymak yerine, gerçekten başarılı olduğunu doğrulamak için doğru komut budur.',
+            retryQuestion: {
+              question: 'Bir CI pipeline\'ı `kubectl apply -f deployment.yaml` çalıştırıyor ve rollout durumunu kontrol etmeden hemen sıradaki adıma geçiyor. Yeni pod\'lar gerçekte başlamayı başaramıyor. Pipeline ne görür?',
+              options: [
+                { id: 'a', text: 'apply bozuk pod\'ları tespit ettiği için pipeline otomatik olarak başarısız olur' },
+                { id: 'b', text: 'Pipeline, apply\'dan başarılı bir exit code görür ve devam eder, deployment\'ın gerçekte bozuk olduğundan habersiz kalır' },
+                { id: 'c', text: 'kubectl apply, pod\'lar sağlıklı olana kadar geri dönmeyi reddeder' },
+                { id: 'd', text: 'Cluster, hiçbir CI farkındalığı olmadan otomatik olarak geri alır' },
+              ],
+              correct: 'b',
+              explanation: '`kubectl apply` sadece istenen durumun API sunucusu tarafından kabul edildiğini onaylar — gerçek pod\'ların sağlıklı gelip gelmediği konusunda hiçbir şey söylemez. `kubectl rollout status` (veya eşdeğer health check\'ler) ile takip etmeyen bir CI pipeline\'ı, gerçek uygulama production\'da crash-loop yaparken "deploy başarılı" raporlayabilir — rollout status kontrollerinin gerçek deployment pipeline\'larında standart bir adım olmasının tam nedeni budur.',
+            },
           },
         ],
       },
@@ -2821,6 +3173,29 @@ helm upgrade monitoring prometheus-community/kube-prometheus-stack -n monitoring
 # Kaldır
 helm uninstall monitoring -n monitoring`,
           },
+          {
+            type: 'quiz',
+            question: 'Modern Kubernetes cluster\'ları container çalıştırmak için doğrudan Docker Engine değil containerd kullanır. Neden?',
+            options: [
+              { id: 'a', text: 'containerd image build etmekte daha hızlıdır' },
+              { id: 'b', text: 'Kubernetes\'in sadece Container Runtime Interface (CRI) uygulayan hafif bir runtime\'a ihtiyacı vardır; Docker Engine ise K8s\'nin gerek duymadığı ekstra araçlar (build, compose, CLI) taşır' },
+              { id: 'c', text: 'Docker image\'ları Kubernetes ile uyumsuzdur' },
+              { id: 'd', text: 'containerd YAML manifest yazmak için zorunludur' },
+            ],
+            correct: 'b',
+            explanation: 'Kubernetes sadece OCI uyumlu container image\'larını pull edip çalıştırmaya ihtiyaç duyar — runtime ile CRI (Container Runtime Interface) üzerinden konuşur. containerd, CRI\'yi doğrudan uygulayan hafif bir runtime\'dır; tam Docker Engine ise bir node\'un ihtiyacı olmayan ekstra araçlar (build pipeline\'ı, Compose, docker CLI) taşır. `docker build` ile oluşturulan image\'lar yine sorunsuz çalışır — Docker image\'ları OCI uyumludur — değişen sadece onları ÇALIŞTIRMAK için kullanılan daemon\'dur.',
+            retryQuestion: {
+              question: 'Bir geliştirici laptop\'ında `docker build` ile bir image oluşturup bir registry\'e push ediyor. containerd çalıştıran (Docker Engine değil) bir Kubernetes cluster\'ı bu image\'ı çalıştırabilir mi?',
+              options: [
+                { id: 'a', text: 'Hayır, containerd sadece kendi araçlarıyla build edilmiş image\'ları çalıştırabilir' },
+                { id: 'b', text: 'Evet — image OCI uyumludur, containerd (veya herhangi bir CRI uyumlu runtime) hangi araçla build edildiğinden bağımsız olarak herhangi bir OCI image\'ı çalıştırabilir' },
+                { id: 'c', text: 'Sadece cluster\'da containerd\'nin yanında Docker Engine de kuruluysa' },
+                { id: 'd', text: 'Sadece image cluster\'ın içinde doğrudan yeniden build edilirse' },
+              ],
+              correct: 'b',
+              explanation: 'Docker image\'ları OCI (Open Container Initiative) image spesifikasyonuna göre build edilir — containerd dahil herhangi bir OCI uyumlu runtime\'ın okuyup çalıştırabileceği bir standart. Build aracı (`docker build`, `buildah`, `kaniko` vb.) daha sonra image\'ı çalıştıran runtime\'dan tamamen ayrıdır. Cluster node\'larında Docker Engine\'den containerd\'ye geçişin kimsenin image build etme şeklini değiştirmesini gerektirmemesinin tam nedeni budur.',
+            },
+          },
         ],
       },
 
@@ -2960,6 +3335,29 @@ kubectl rollout undo deployment/spring-app`,
               '✅ ConfigMap güncellemeleri pod yeniden başlatmadan uygulanıyor',
               '✅ Rolling update sırasında service 502/503 döndürüyor (hata değil)',
             ],
+          },
+          {
+            type: 'quiz',
+            question: 'Bir pod CrashLoopBackOff durumunda takılı kalıyor. Nedenini teşhis etmek için doğru ilk komut hangisidir?',
+            options: [
+              { id: 'a', text: 'kubectl delete pod <isim> hemen çalıştırılır' },
+              { id: 'b', text: 'kubectl logs <pod-adı> --previous' },
+              { id: 'c', text: 'kubectl get nodes' },
+              { id: 'd', text: 'kubectl create secret docker-registry' },
+            ],
+            correct: 'b',
+            explanation: 'CrashLoopBackOff, container\'ın başlayıp tekrar tekrar hemen çıkması demektir. Çökmüş container\'ın logları yeni bir tane başladığı anda kaybolur, bu yüzden `kubectl logs <pod-adı> --previous` SON çöken instance\'ın loglarını getirir — genellikle çökmeye neden olan gerçek startup exception\'ını, eksik environment variable\'ı veya başarısız health check\'i gösterir. Pod\'u silmek, hiçbir şeyi teşhis etmeden aynı bozuk container\'ı yeniden başlatır.',
+            retryQuestion: {
+              question: '`kubectl logs <pod-adı> --previous` hiçbir faydalı şey göstermiyor — sadece boş bir log. CrashLoopBackOff için olası sıradaki teşhis adımı nedir?',
+              options: [
+                { id: 'a', text: 'Hemen tüm cluster\'ı silip yeniden oluşturmak' },
+                { id: 'b', text: 'Container hiçbir şey loglamadan önce gerçekleşen scheduling, image pull veya resource sorunlarını kontrol etmek için `kubectl describe pod <pod-adı>` çalıştırıp Events bölümüne bakmak' },
+                { id: 'c', text: 'Uygulama kodunun sorunsuz olduğunu varsayıp çökmeyi görmezden gelmek' },
+                { id: 'd', text: 'Çökmeyi atlatmak için replika sayısını artırmak' },
+              ],
+              correct: 'b',
+              explanation: '`--previous` logları boşsa, çökme muhtemelen uygulama herhangi bir şey loglamaya başlamadan ÖNCE gerçekleşiyor (örn. başarısız bir image pull, eksik bir ConfigMap/Secret mount, veya container\'ı çok erken öldüren başarısız bir liveness probe). `kubectl describe pod`, Events bölümünde bu uygulama-öncesi-log olaylarını gösterir — `kubectl logs`\'un hiç gösteremediği bir şeydir.',
+            },
           },
         ],
       },

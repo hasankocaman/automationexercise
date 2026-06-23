@@ -64,7 +64,50 @@ const s0 = {
         ],
         correct: 'b',
         explanation: { tr: 'Selenium 4, W3C WebDriver standart protokolüne geçmiştir. Selenium 3\'teki JSON Wire Protocol artık kullanılmamaktadır. Bu değişiklik, tüm tarayıcı sürücülerinin standart bir API\'yi takip etmesini sağlar.', en: 'Selenium 4 switched to the W3C WebDriver standard protocol. The JSON Wire Protocol used in Selenium 3 is no longer used. This change ensures all browser drivers follow a standard API.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Selenium 4 mimarisinde tarayıcılarla iletişim kurmak için benimsenen resmi standart nedir?",
+            "en": "What is the official standard adopted by Selenium 4 architecture for browser communication?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "JSON Wire Protocol",
+                        "en": "JSON Wire Protocol"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "W3C WebDriver Protocol",
+                        "en": "W3C WebDriver Protocol"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "REST API",
+                        "en": "REST API"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "WebSocket API",
+                        "en": "WebSocket API"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Selenium 4, tarayıcılarla etkileşim için W3C WebDriver protokolünü zorunlu kılmıştır. Bu, farklı tarayıcılar ve sürücüler arasında tutarlı bir iletişim sağlar.",
+            "en": "Selenium 4 has mandated the W3C WebDriver protocol for interacting with browsers. This ensures consistent communication across different browsers and drivers."
+      }
+}
+},
     ],
   },
   en: {
@@ -128,7 +171,50 @@ const s0 = {
         ],
         correct: 'b',
         explanation: { tr: 'Selenium 4 switched to the W3C WebDriver standard protocol. The JSON Wire Protocol from Selenium 3 is no longer used.', en: 'Selenium 4 switched to the W3C WebDriver standard protocol. The JSON Wire Protocol from Selenium 3 is no longer used.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Selenium 4 öncesinde (Selenium 3) kullanılan temel iletişim protokolü hangisidir?",
+            "en": "Which communication protocol was the primary standard before Selenium 4 (in Selenium 3)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "JSON Wire Protocol",
+                        "en": "JSON Wire Protocol"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "W3C WebDriver Protocol",
+                        "en": "W3C WebDriver Protocol"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "SOAP",
+                        "en": "SOAP"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "gRPC",
+                        "en": "gRPC"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Selenium 3 sürümünde tarayıcı sürücüleri JSON Wire Protocol kullanıyordu. Selenium 4 ile bu protokol terk edilerek W3C standardına geçilmiştir.",
+            "en": "In the Selenium 3 version, browser drivers utilized the JSON Wire Protocol. With Selenium 4, this protocol was abandoned in favor of the W3C standard."
+      }
+}
+},
     ],
   },
 }
@@ -281,6 +367,43 @@ main();`,
         title: 'Eski Yöntem — WebDriverManager (Java)',
         content: 'Selenium 4.6 öncesi projelerde io.github.bonigarcia:webdrivermanager kütüphanesi kullanılıyordu: WebDriverManager.chromedriver().setup(). Yeni projelerde buna gerek yok.',
       },
+      {
+        type: 'quiz',
+        question: 'Selenium 4.6 ve sonrası sürümlerde ChromeDriver\'ı kim otomatik yönetir?',
+        options: [
+          { id: 'a', text: 'Maven' },
+          { id: 'b', text: 'Selenium Manager' },
+          { id: 'c', text: 'WebDriverManager kütüphanesi' },
+          { id: 'd', text: 'npm' },
+        ],
+        correct: 'b',
+        explanation: 'Selenium 4.6\'dan itibaren Selenium Manager, yüklü Chrome sürümünü tespit edip uyumlu ChromeDriver\'ı otomatik indirir — eski projelerde kullanılan WebDriverManager kütüphanesine artık gerek yoktur.',
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Selenium 4.6 ile tanıtılan ve dış bağımlılıklara (örneğin WebDriverManager) ihtiyacı ortadan kaldıran otomatik sürücü yönetim aracının adı nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Chrome DevTools"
+            },
+            {
+                  "id": "b",
+                  "text": "Selenium Manager"
+            },
+            {
+                  "id": "c",
+                  "text": "Selenium Grid"
+            },
+            {
+                  "id": "d",
+                  "text": "Docker Integration"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Selenium 4.6 sürümünde gelen 'Selenium Manager' özelliği, tarayıcı sürücülerinin (ChromeDriver, GeckoDriver vb.) otomatik olarak indirilmesini ve yapılandırılmasını yöneterek geliştiriciyi manuel sürücü yönetimi yükünden kurtarır."
+}
+},
     ],
   },
   en: {
@@ -368,6 +491,43 @@ async function main() {
 main();`,
         expected: 'Title: Google',
       },
+      {
+        type: 'quiz',
+        question: 'From Selenium 4.6 onward, what automatically manages ChromeDriver?',
+        options: [
+          { id: 'a', text: 'Maven' },
+          { id: 'b', text: 'Selenium Manager' },
+          { id: 'c', text: 'The WebDriverManager library' },
+          { id: 'd', text: 'npm' },
+        ],
+        correct: 'b',
+        explanation: 'Since Selenium 4.6, Selenium Manager detects your installed Chrome version and downloads a matching ChromeDriver automatically — the older WebDriverManager library is no longer needed.',
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Starting with Selenium 4.6, which built-in feature handles browser driver binaries automatically, eliminating the need for external dependencies?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Gradle"
+            },
+            {
+                  "id": "b",
+                  "text": "The WebDriverManager binary tool"
+            },
+            {
+                  "id": "c",
+                  "text": "Selenium Manager"
+            },
+            {
+                  "id": "d",
+                  "text": "Auto-driver-configurator"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Selenium Manager is the native binary included with Selenium 4.6+ that automatically detects the browser version and provisions the correct driver, replacing external libraries like WebDriverManager."
+}
+},
     ],
   },
 }
@@ -655,7 +815,38 @@ for (const link of links) {
         ],
         correct: 'b',
         explanation: { tr: 'By.ID en hızlı ve en güvenilir locator\'dır çünkü ID sayfa içinde benzersiz olmalıdır (HTML standardı) ve tarayıcılar ID aramasını O(1) ile yapar. XPath ise en yavaş ve kırılgandır.', en: 'By.ID is the fastest and most reliable locator because IDs should be unique within a page (HTML standard) and browsers perform ID lookups in O(1). XPath is the slowest and most brittle.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Test otomasyonu performansını optimize etmek için hangi locator tipi her zaman tercih edilmelidir?",
+            "en": "Which locator type should always be preferred to optimize test automation performance?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "By.CSS_SELECTOR — cssSelector(\".submit-button\")"
+            },
+            {
+                  "id": "b",
+                  "text": "By.ID — id=\"submit-button\""
+            },
+            {
+                  "id": "c",
+                  "text": "By.LINK_TEXT — linkText(\"Submit\")"
+            },
+            {
+                  "id": "d",
+                  "text": "By.XPATH — //button[@id=\"submit-button\"]"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "By.ID kullanımı, tarayıcının DOM üzerinde doğrudan erişim sağlaması ve benzersiz olması nedeniyle en hızlı ve en kararlı yöntemdir. XPath veya CSS seçiciler daha karmaşık tarama süreçleri gerektirir.",
+            "en": "Using By.ID is the fastest and most stable method because it allows the browser to perform a direct lookup on the DOM and guarantees uniqueness. XPath or CSS selectors require more complex parsing processes."
+      }
+}
+},
     ],
   },
   en: {
@@ -778,7 +969,42 @@ await (await driver.findElement(By.xpath("//button[contains(text(),'Login')]")))
         ],
         correct: 'b',
         explanation: { en: 'By.ID is the fastest and most reliable because IDs should be unique in a page and browsers perform ID lookups in O(1). XPath is the slowest and most brittle.', tr: 'By.ID en hızlı ve güvenilirdir çünkü ID benzersiz olmalı ve tarayıcı O(1) ile arar.' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "en": "Why is 'By.ID' considered the superior choice for element location compared to other strategies?",
+            "tr": "Neden 'By.ID' diğer stratejilere kıyasla element konumlandırma için daha üstün bir seçenek olarak kabul edilir?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It supports complex query language features.",
+                  "tr": "Karmaşık sorgu dili özelliklerini destekler."
+            },
+            {
+                  "id": "b",
+                  "text": "It provides the most readable code for developers.",
+                  "tr": "Geliştiriciler için en okunabilir kodu sağlar."
+            },
+            {
+                  "id": "c",
+                  "text": "It provides the most efficient lookup performance (O(1)) and enforces uniqueness.",
+                  "tr": "En verimli arama performansını (O(1)) sağlar ve benzersizliği zorunlu kılar."
+            },
+            {
+                  "id": "d",
+                  "text": "It is the only locator that works in all browsers.",
+                  "tr": "Tüm tarayıcılarda çalışan tek locator türüdür."
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "en": "By.ID is preferred because HTML standards mandate unique IDs, allowing browsers to perform high-speed lookups with O(1) time complexity.",
+            "tr": "By.ID tercih edilir çünkü HTML standartları benzersiz ID'leri zorunlu kılar, bu da tarayıcıların O(1) zaman karmaşıklığı ile yüksek hızlı arama yapmasına olanak tanır."
+      }
+}
+},
     ],
   },
 }
@@ -1372,7 +1598,37 @@ fs.writeFileSync('element.png', elemImg, 'base64');`,
         ],
         correct: 'b',
         explanation: { tr: 'Hover için Actions sınıfı kullanılır: new Actions(driver).moveToElement(element).perform(). Python\'da ActionChains, TypeScript\'te driver.actions() kullanılır. WebElement\'in doğrudan hover() metodu yoktur.', en: 'The Actions class is used for hover: new Actions(driver).moveToElement(element).perform(). Python uses ActionChains, TypeScript uses driver.actions(). WebElement has no direct hover() method.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium Java'da belirli bir elementin üzerine fare imlecini getirmek (mouse hover) için kullanılan etkileşim sınıfı hangisidir?",
+            "en": "Which interaction class is used in Selenium Java to move the mouse cursor over a specific element (mouse hover)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "InteractionManager"
+            },
+            {
+                  "id": "b",
+                  "text": "Actions"
+            },
+            {
+                  "id": "c",
+                  "text": "MouseController"
+            },
+            {
+                  "id": "d",
+                  "text": "Robot class"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Fare hareketleri gibi karmaşık etkileşimler için Actions sınıfı kullanılır. 'moveToElement()' metodu, fareyi elementin üzerine getirmek için kullanılır ve 'perform()' ile işlem yürütülür.",
+            "en": "The Actions class is used for complex interactions like mouse movements. The 'moveToElement()' method is used to hover over an element, and 'perform()' is called to execute the sequence."
+      }
+}
+},
     ],
   },
   en: {
@@ -1484,6 +1740,48 @@ select.select_by_visible_text("Turkey")
 select.select_by_value("TR")
 select.select_by_index(2)`,
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Bir sayfa üzerinde hover (fare üstüne getirme) işlemi için hangi sınıf kullanılır (Java)?', en: 'Which class is used for hover (mouse over) operations in Java Selenium?' },
+        options: [
+          { id: 'a', text: 'WebElement.hover()' },
+          { id: 'b', text: 'Actions (org.openqa.selenium.interactions.Actions)' },
+          { id: 'c', text: 'JavascriptExecutor' },
+          { id: 'd', text: 'Select sınıfı' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Hover için Actions sınıfı kullanılır: new Actions(driver).moveToElement(element).perform(). Python\'da ActionChains, TypeScript\'te driver.actions() kullanılır. WebElement\'in doğrudan hover() metodu yoktur.', en: 'The Actions class is used for hover: new Actions(driver).moveToElement(element).perform(). Python uses ActionChains, TypeScript uses driver.actions(). WebElement has no direct hover() method.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium Java'da belirli bir elementin üzerine fare imlecini getirmek (mouse hover) için kullanılan etkileşim sınıfı hangisidir?",
+            "en": "Which interaction class is used in Selenium Java to move the mouse cursor over a specific element (mouse hover)?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "InteractionManager"
+            },
+            {
+                  "id": "b",
+                  "text": "Actions"
+            },
+            {
+                  "id": "c",
+                  "text": "MouseController"
+            },
+            {
+                  "id": "d",
+                  "text": "Robot class"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Fare hareketleri gibi karmaşık etkileşimler için Actions sınıfı kullanılır. 'moveToElement()' metodu, fareyi elementin üzerine getirmek için kullanılır ve 'perform()' ile işlem yürütülür.",
+            "en": "The Actions class is used for complex interactions like mouse movements. The 'moveToElement()' method is used to hover over an element, and 'perform()' is called to execute the sequence."
+      }
+}
+},
     ],
   },
 }
@@ -1807,7 +2105,37 @@ result = wait.until(
         ],
         correct: 'c',
         explanation: { tr: 'EC.invisibilityOfElementLocated() veya Python\'da EC.invisibility_of_element_located() — element DOM\'dan kaybolana veya gizlenene kadar bekler. Yükleme animasyonlarının bitmesini beklemek için idealdir.', en: 'EC.invisibilityOfElementLocated() (Java) or EC.invisibility_of_element_located() (Python) waits until the element is no longer visible or no longer present in the DOM. Perfect for waiting for loading spinners to disappear.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir web sayfasında işlemin tamamlandığını gösteren 'loading' katmanının DOM'dan tamamen kalkmasını beklemek için hangi WebDriverWait koşulu kullanılmalıdır?",
+            "en": "Which WebDriverWait condition should be used to wait for a 'loading' overlay to be completely removed from the DOM in a web page?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "ExpectedConditions.attributeToBeNotEmpty()"
+            },
+            {
+                  "id": "b",
+                  "text": "ExpectedConditions.invisibilityOfElementLocated()"
+            },
+            {
+                  "id": "c",
+                  "text": "ExpectedConditions.elementToBeSelected()"
+            },
+            {
+                  "id": "d",
+                  "text": "ExpectedConditions.frameToBeAvailableAndSwitchToIt()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "ExpectedConditions.invisibilityOfElementLocated(), belirtilen lokatörün artık görünür olmadığında veya DOM'da bulunmadığında true döner. Bu, yükleme ekranları veya spinnerlar için en uygun yöntemdir.",
+            "en": "ExpectedConditions.invisibilityOfElementLocated() returns true when the element located by the locator is no longer visible or present in the DOM. This is the most suitable method for handling loading screens or spinners."
+      }
+}
+},
     ],
   },
   en: {
@@ -1913,6 +2241,48 @@ await btn.click();
 
 await driver.wait(until.urlContains('/dashboard'), 15000);`,
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Selenium\'da bir spinner (yükleniyor ikonu) kaybolana kadar beklemek için hangi ExpectedCondition kullanılır?', en: 'Which ExpectedCondition is used to wait for a spinner to disappear in Selenium?' },
+        options: [
+          { id: 'a', text: 'EC.visibilityOfElementLocated()' },
+          { id: 'b', text: 'EC.presenceOfElementLocated()' },
+          { id: 'c', text: 'EC.invisibilityOfElementLocated()' },
+          { id: 'd', text: 'EC.elementToBeClickable()' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'EC.invisibilityOfElementLocated() veya Python\'da EC.invisibility_of_element_located() — element DOM\'dan kaybolana veya gizlenene kadar bekler. Yükleme animasyonlarının bitmesini beklemek için idealdir.', en: 'EC.invisibilityOfElementLocated() (Java) or EC.invisibility_of_element_located() (Python) waits until the element is no longer visible or no longer present in the DOM. Perfect for waiting for loading spinners to disappear.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium'da sayfa üzerinde bir bildirim (toast) mesajının ekrandan kalkmasını beklemek için en uygun ExpectedCondition hangisidir?",
+            "en": "Which ExpectedCondition is the most appropriate to wait for a notification (toast) message to be removed from the screen in Selenium?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "EC.elementToBeClickable()"
+            },
+            {
+                  "id": "b",
+                  "text": "EC.invisibilityOfElementLocated()"
+            },
+            {
+                  "id": "c",
+                  "text": "EC.visibilityOfElementLocated()"
+            },
+            {
+                  "id": "d",
+                  "text": "EC.frameToBeAvailableAndSwitchToIt()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "EC.invisibilityOfElementLocated(), bir öğenin DOM'dan kaldırılmasını veya görünmez hale gelmesini beklemek için kullanılır. Bildirim mesajlarının (toast) kaybolması için beklemek bu metodun temel kullanım alanlarından biridir.",
+            "en": "EC.invisibilityOfElementLocated() is used to wait for an element to be removed from the DOM or become invisible. Waiting for temporary notification messages (toasts) to disappear is a primary use case for this method."
+      }
+}
+},
     ],
   },
 }
@@ -2331,7 +2701,37 @@ driver.delete_all_cookies()`,
         ],
         correct: 'c',
         explanation: { tr: 'driver.switchTo().defaultContent() (Java), driver.switch_to.default_content() (Python) — ana sayfa bağlamına döner. parentFrame() ise bir üst iframe\'e döner (iç içe iframe durumunda). Testi bitirince her zaman defaultContent() çağırın.', en: 'driver.switchTo().defaultContent() returns to the top-level page context. parentFrame() goes one level up (for nested iframes). Always call defaultContent() when finished with an iframe.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "İç içe geçmiş iframe yapılarında, üzerinde çalıştığınız alt iframe'den bir üstteki kapsayıcı çerçeveye geçiş yapmak için hangi metot tercih edilmelidir?",
+            "en": "Which method should be used to switch from a nested iframe to its immediate parent frame?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "driver.switchTo().parentFrame()"
+            },
+            {
+                  "id": "b",
+                  "text": "driver.switchTo().defaultContent()"
+            },
+            {
+                  "id": "c",
+                  "text": "driver.switchTo().activeElement()"
+            },
+            {
+                  "id": "d",
+                  "text": "driver.navigate().refresh()"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "driver.switchTo().parentFrame(), kontrolü mevcut iframe'in bir üstündeki (parent) iframe'e aktarır. Eğer tüm hiyerarşiden çıkıp ana sayfaya dönmek isteseydiniz defaultContent() kullanırdınız.",
+            "en": "driver.switchTo().parentFrame() shifts the control to the immediate parent of the current iframe. If you wanted to exit the entire hierarchy and return to the main page, you would use defaultContent()."
+      }
+}
+},
       {
         type: 'simulation',
         icon: '🕶️',
@@ -2444,6 +2844,48 @@ for handle in driver.window_handles:
 driver.close()
 driver.switch_to.window(main_window)`,
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Bir iframe içindeki elemana eriştikten sonra ana sayfaya dönmek için hangi metot kullanılır?', en: 'Which method is used to return to the main page after accessing an element inside an iframe?' },
+        options: [
+          { id: 'a', text: 'driver.switchTo().mainFrame()' },
+          { id: 'b', text: 'driver.navigate().back()' },
+          { id: 'c', text: 'driver.switchTo().defaultContent()' },
+          { id: 'd', text: 'driver.switchTo().parentFrame()' },
+        ],
+        correct: 'c',
+        explanation: { tr: 'driver.switchTo().defaultContent() (Java), driver.switch_to.default_content() (Python) — ana sayfa bağlamına döner. parentFrame() ise bir üst iframe\'e döner (iç içe iframe durumunda). Testi bitirince her zaman defaultContent() çağırın.', en: 'driver.switchTo().defaultContent() returns to the top-level page context. parentFrame() goes one level up (for nested iframes). Always call defaultContent() when finished with an iframe.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir sayfadaki iframe içerisine girip işlem yaptıktan sonra Selenium'un tekrar ana sayfa (top-level page) üzerinde işlem yapabilmesi için hangi komut gereklidir?",
+            "en": "Which command is required for Selenium to be able to interact with the top-level page again after entering and performing actions within an iframe?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "driver.switchTo().frame(0)"
+            },
+            {
+                  "id": "b",
+                  "text": "driver.switchTo().parentFrame()"
+            },
+            {
+                  "id": "c",
+                  "text": "driver.switchTo().defaultContent()"
+            },
+            {
+                  "id": "d",
+                  "text": "driver.switchTo().window()"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "iframe içine girildiğinde WebDriver odağı o çerçeveye kilitlenir. Ana sayfaya geri dönüp oradaki elementleri bulabilmek için driver.switchTo().defaultContent() metodunu kullanarak odak sıfırlanmalıdır.",
+            "en": "When switching into an iframe, the WebDriver's focus is locked to that frame. To return to the main page and locate elements outside the iframe, you must reset the focus using driver.switchTo().defaultContent()."
+      }
+}
+},
     ],
   },
 }
@@ -2755,7 +3197,49 @@ describe('E-Commerce Tests', function () {
         ],
         correct: 'b',
         explanation: { tr: 'Selenium\'un en büyük avantajı Java dahil 6+ dil desteği, 20 yıllık olgunluk, geniş topluluk ve her tarayıcıda çalışabilmesidir. Özellikle Java ağırlıklı QA ekiplerinin tercihi olmaya devam etmektedir.', en: 'Selenium\'s biggest advantage is support for 6+ languages including Java, 20 years of maturity, a large community, and compatibility with all browsers. It remains the go-to choice for Java-heavy QA teams.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium'u modern test otomasyon projelerinde hala popüler kılan temel faktör nedir?",
+            "en": "What is the primary factor that keeps Selenium popular in modern test automation projects?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Tarayıcıya özel yerel sürücülerin olmaması",
+                        "en": "Lack of browser-specific native drivers"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Geniş dil desteği, zengin ekosistem ve uzun yıllara dayanan endüstriyel deneyim",
+                        "en": "Broad language support, rich ecosystem, and years of industrial experience"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Tüm web elementleri için otomatik bekleme süresi sunması",
+                        "en": "Built-in automatic wait for all web elements"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece kurumsal şirketler tarafından geliştiriliyor olması",
+                        "en": "Being developed exclusively by corporate companies"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Selenium, 20 yılı aşkın süredir piyasada olması, Java, Python ve C# gibi pek çok dille entegre çalışabilmesi ve devasa bir topluluk desteğine sahip olması sayesinde en çok tercih edilen araçlardan biri olmaya devam etmektedir.",
+            "en": "Selenium remains one of the most preferred tools due to its 20+ years of presence in the market, its ability to integrate with many languages like Java, Python, and C#, and its massive community support."
+      }
+}
+},
     ],
   },
   en: {
@@ -2807,6 +3291,60 @@ public void testSuccessfulLogin() {
           ['Best For', 'Java projects, cross-browser, legacy', 'New projects, multi-browser', 'Frontend-only, JS/TS teams'],
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Selenium\'un en büyük avantajı hangisidir?', en: "What is Selenium's biggest advantage?" },
+        options: [
+          { id: 'a', text: 'Sadece Chrome\'da çalışır' },
+          { id: 'b', text: 'Çok dil desteği (Java, Python, C#, JS, Ruby) ve olgunluk (20 yıl)' },
+          { id: 'c', text: 'Yalnızca JavaScript testleri için uygundur' },
+          { id: 'd', text: 'Auto-wait built-in gelir' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Selenium\'un en büyük avantajı Java dahil 6+ dil desteği, 20 yıllık olgunluk, geniş topluluk ve her tarayıcıda çalışabilmesidir. Özellikle Java ağırlıklı QA ekiplerinin tercihi olmaya devam etmektedir.', en: "Selenium's biggest advantage is support for 6+ languages including Java, 20 years of maturity, a large community, and compatibility with all browsers. It remains the go-to choice for Java-heavy QA teams." },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium otomasyon aracının yazılım test dünyasındaki en güçlü yönü nedir?",
+            "en": "What is the greatest strength of the Selenium automation tool in the software testing world?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece mobil tarayıcıları desteklemesi",
+                        "en": "Support only for mobile browsers"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Çeşitli programlama dillerine uyumluluk, köklü geçmiş ve geniş kütüphane desteği",
+                        "en": "Compatibility with various programming languages, established history, and wide library support"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Testleri kendiliğinden paralel çalıştırması",
+                        "en": "Running tests in parallel automatically"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Kurulum gerektirmeyen taşınabilir yapı",
+                        "en": "Portable structure that does not require installation"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Selenium'un uzun soluklu başarısının sırrı, farklı programlama dillerine sunduğu esnek adaptasyon ve 20 yıllık köklü geçmişi ile oluşan geniş topluluk desteğidir.",
+            "en": "The secret to Selenium's long-term success is its flexible adaptation to different programming languages and the massive community support built over its 20-year established history."
+      }
+}
+},
     ],
   },
 }
@@ -3006,6 +3544,42 @@ jobs:
           name: test-reports
           path: target/surefire-reports/`,
       },
+      {
+        type: 'quiz',
+        question: 'TestNG\'de her test metodundan ÖNCE çalışan annotation hangisidir?',
+        options: [
+          { id: 'a', text: '@BeforeSuite' },
+          { id: 'b', text: '@BeforeClass' },
+          { id: 'c', text: '@BeforeMethod' },
+          { id: 'd', text: '@AfterMethod' },
+        ],
+        correct: 'c',
+        explanation: '@BeforeMethod her @Test metodundan önce çalışır (JUnit\'teki @BeforeEach karşılığı). @BeforeClass sınıf başına bir kez, @BeforeSuite ise tüm suite için bir kez çalışır.',
+      
+        retryQuestion: {
+      "question": "TestNG framework'ünde, test sınıfı içindeki tüm test metotlarından SONRA bir kez çalışacak olan annotation hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "@AfterSuite"
+            },
+            {
+                  "id": "b",
+                  "text": "@AfterClass"
+            },
+            {
+                  "id": "c",
+                  "text": "@AfterMethod"
+            },
+            {
+                  "id": "d",
+                  "text": "@AfterTest"
+            }
+      ],
+      "correct": "b",
+      "explanation": "@AfterClass annotation'ı, o sınıf içerisindeki tüm @Test metotları tamamlandıktan sonra bir kez çalışır. @AfterMethod her metodun sonunda, @AfterSuite ise tüm test paketi bittiğinde çalışır."
+}
+},
     ],
   },
   en: {
@@ -3049,6 +3623,42 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
     options=Options()
 )`,
       },
+      {
+        type: 'quiz',
+        question: 'Which TestNG annotation runs BEFORE every test method?',
+        options: [
+          { id: 'a', text: '@BeforeSuite' },
+          { id: 'b', text: '@BeforeClass' },
+          { id: 'c', text: '@BeforeMethod' },
+          { id: 'd', text: '@AfterMethod' },
+        ],
+        correct: 'c',
+        explanation: '@BeforeMethod runs before every @Test method (equivalent to JUnit\'s @BeforeEach). @BeforeClass runs once per class, @BeforeSuite once for the whole suite.',
+      
+        retryQuestion: {
+      "question": "Which TestNG annotation is executed only once before all test methods in the current class?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "@BeforeTest"
+            },
+            {
+                  "id": "b",
+                  "text": "@BeforeClass"
+            },
+            {
+                  "id": "c",
+                  "text": "@BeforeMethod"
+            },
+            {
+                  "id": "d",
+                  "text": "@BeforeGroups"
+            }
+      ],
+      "correct": "b",
+      "explanation": "@BeforeClass runs once before the first test method in the current class is invoked. In contrast, @BeforeMethod runs before every single @Test method, and @BeforeTest runs before all methods in the <test> tag of the XML suite."
+}
+},
     ],
   },
 }
@@ -3173,7 +3783,61 @@ driver.get("https://www.google.com/maps");`,
             tr: '✓ Tebrikler! CDP console listener\'ı başarıyla kurdunuz. Artık tarayıcıdaki tüm JS hataları test raporunuza eklenecektir.',
             en: '✓ Congratulations! You successfully set up the CDP console listener. All JS errors in the browser will now be captured in your test report.'
         }
+      },
+      {
+        type: 'quiz',
+        question: 'WebDriver BiDi protokolü tarayıcıyla hangi iletişim türünü kullanır?',
+        options: [
+          { id: 'a', text: 'Tek yönlü HTTP istekleri' },
+          { id: 'b', text: 'WebSocket tabanlı çift yönlü iletişim' },
+          { id: 'c', text: 'FTP' },
+          { id: 'd', text: 'gRPC' },
+        ],
+        correct: 'b',
+        explanation: 'BiDi, "bidirectional" (çift yönlü) anlamına gelir — WebSocket üzerinden tarayıcıyla anlık, çift yönlü iletişim kurar. Bu sayede console log\'ları veya network isteklerini canlı dinleyebiliriz, klasik HTTP request-response modelinin aksine.',
+      
+        retryQuestion: {
+      "question": {
+            "tr": "WebDriver BiDi protokolü, klasik HTTP tabanlı komutların aksine hangi avantajı sağlar?",
+            "en": "What advantage does the WebDriver BiDi protocol provide over classic HTTP-based commands?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Daha hızlı dosya transferi",
+                        "en": "Faster file transfer"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Tarayıcı olaylarını gerçek zamanlı dinleme",
+                        "en": "Real-time listening of browser events"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Daha güvenli şifreleme",
+                        "en": "More secure encryption"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Daha düşük bellek kullanımı",
+                        "en": "Lower memory usage"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BiDi (Bidirectional), tarayıcıya sadece komut göndermekle kalmaz, aynı zamanda tarayıcıdan gelen olayları (loglar, network verileri vb.) eş zamanlı (real-time) dinlemenize olanak tanır. HTTP modelinde istemci bir şey sormadan sunucu cevap veremez, WebSocket ise bu engeli kaldırır.",
+            "en": "BiDi (Bidirectional) allows not only sending commands but also listening to events (logs, network traffic, etc.) from the browser in real-time. In the HTTP model, the server cannot respond unless the client initiates a request, whereas WebSocket removes this limitation."
       }
+}
+},
     ],
   },
   en: {
@@ -3277,7 +3941,43 @@ driver.get("https://www.google.com/maps");`,
             tr: '✓ Tebrikler! CDP console listener\'ı başarıyla kurdunuz. Artık tarayıcıdaki tüm JS hataları test raporunuza eklenecektir.',
             en: '✓ Congratulations! You successfully set up the CDP console listener. All JS errors in the browser will now be captured in your test report.'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'What kind of communication does the WebDriver BiDi protocol use with the browser?',
+        options: [
+          { id: 'a', text: 'One-way HTTP requests' },
+          { id: 'b', text: 'Bidirectional WebSocket communication' },
+          { id: 'c', text: 'FTP' },
+          { id: 'd', text: 'gRPC' },
+        ],
+        correct: 'b',
+        explanation: 'BiDi stands for "bidirectional" — it uses WebSocket for real-time, two-way communication with the browser, letting you listen to console logs or network requests live, unlike the classic HTTP request-response model.',
+      
+        retryQuestion: {
+      "question": "If you want to receive push notifications from the browser about console errors while a script is running, which protocol enables this functionality?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "REST API"
+            },
+            {
+                  "id": "b",
+                  "text": "WebDriver BiDi"
+            },
+            {
+                  "id": "c",
+                  "text": "Legacy WebDriver JSON Wire Protocol"
+            },
+            {
+                  "id": "d",
+                  "text": "gRPC"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The WebDriver BiDi protocol is specifically designed for bidirectional communication using WebSockets. This allows the browser to send data back to the automation client (like console logs or network events) without the client explicitly requesting it, which is not possible with older, request-response based protocols."
+}
+},
     ],
   },
 }
@@ -3389,7 +4089,43 @@ new Actions(driver)
             tr: '✓ Tebrikler! Print API adımlarını başarıyla sıraladınız. Artık fatura sayfalarını otomatik test edebilirsiniz.',
             en: '✓ Congratulations! You correctly ordered the Print API steps. You can now test invoice pages automatically.'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'Bir web sayfasını headless modda PDF olarak kaydetmek için hangi arayüz kullanılır?',
+        options: [
+          { id: 'a', text: 'HasVirtualAuthenticator' },
+          { id: 'b', text: 'PrintsPage' },
+          { id: 'c', text: 'WheelInput' },
+          { id: 'd', text: 'NetworkInterceptor' },
+        ],
+        correct: 'b',
+        explanation: 'PrintsPage arayüzünün print() metodu sayfayı PDF formatında dışa aktarır ve headless (ekransız) tarayıcı modu gerektirir. HasVirtualAuthenticator ise WebAuthn/Passkey testleri için kullanılır.',
+      
+        retryQuestion: {
+      "question": "Headless tarayıcıda bir web sayfasının görüntüsünü veya PDF çıktısını almak için kullanılan spesifik arayüz hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "TakeScreenshot"
+            },
+            {
+                  "id": "b",
+                  "text": "PrintsPage"
+            },
+            {
+                  "id": "c",
+                  "text": "BrowserContext"
+            },
+            {
+                  "id": "d",
+                  "text": "DevToolsSession"
+            }
+      ],
+      "correct": "b",
+      "explanation": "PrintsPage arayüzü, web sayfalarını PDF'e yazdırmak için gerekli olan print() metodunu sağlar. Diğer seçenekler ekran görüntüsü alma veya oturum yönetimi ile ilgilidir, PDF dışa aktarma fonksiyonuna sahip değildir."
+}
+},
     ],
   },
   en: {
@@ -3482,7 +4218,43 @@ new Actions(driver)
             tr: '✓ Tebrikler! Print API adımlarını başarıyla sıraladınız. Artık fatura sayfalarını otomatik test edebilirsiniz.',
             en: '✓ Congratulations! You correctly ordered the Print API steps. You can now test invoice pages automatically.'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'Which interface is used to save a web page as a PDF in headless mode?',
+        options: [
+          { id: 'a', text: 'HasVirtualAuthenticator' },
+          { id: 'b', text: 'PrintsPage' },
+          { id: 'c', text: 'WheelInput' },
+          { id: 'd', text: 'NetworkInterceptor' },
+        ],
+        correct: 'b',
+        explanation: 'The PrintsPage interface\'s print() method exports the page as a PDF and requires headless browser mode. HasVirtualAuthenticator, by contrast, is used for WebAuthn/Passkey testing.',
+      
+        retryQuestion: {
+      "question": "Which interface allows you to invoke the printing functionality of a browser to generate a PDF document?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "PageRenderer"
+            },
+            {
+                  "id": "b",
+                  "text": "PrintsPage"
+            },
+            {
+                  "id": "c",
+                  "text": "PdfConverter"
+            },
+            {
+                  "id": "d",
+                  "text": "DocumentHandler"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The PrintsPage interface is specifically designed to handle print operations, including exporting web content to PDF files. Other options provided are not standard interfaces for this specific browser automation capability."
+}
+},
     ],
   },
 }
@@ -3569,7 +4341,43 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
             tr: '✓ Tebrikler! Selenium IDE control flow mantığını doğru şekilde kurdunuz. IDE artık sadece kayıt cihazı değil!',
             en: '✓ Congratulations! You correctly set up the Selenium IDE control flow. The IDE is no longer just a recorder!'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'Selenium IDE\'de "assertText" komutu başarısız olursa ne olur?',
+        options: [
+          { id: 'a', text: 'Test durur (fail olur)' },
+          { id: 'b', text: 'Test devam eder ama loglar' },
+          { id: 'c', text: 'Hiçbir şey olmaz' },
+          { id: 'd', text: 'Tarayıcı kapanır' },
+        ],
+        correct: 'a',
+        explanation: 'assertText başarısız olursa test hemen durur (fail). "verifyElementPresent" gibi verify* komutları ise başarısız olsa bile testi durdurmaz, sadece kaydeder — fark budur.',
+      
+        retryQuestion: {
+      "question": "Selenium IDE'de \"verifyText\" komutu ile \"assertText\" komutu arasındaki temel fark nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "assertText başarısız olursa test yürütmeyi durdurur, verifyText devam eder"
+            },
+            {
+                  "id": "b",
+                  "text": "verifyText başarısız olursa tarayıcıyı anında kapatır"
+            },
+            {
+                  "id": "c",
+                  "text": "İkisi arasında hiçbir fark yoktur"
+            },
+            {
+                  "id": "d",
+                  "text": "assertText sadece loglama yapar, verifyText testi durdurur"
+            }
+      ],
+      "correct": "a",
+      "explanation": "assert* komutları kritik kontroller içindir ve bir hata durumunda testi anında durdurur (fail). verify* komutları ise testin hata alsa bile çalışmaya devam etmesini sağlar, sadece hata kaydı oluşturur."
+}
+},
     ],
   },
   en: {
@@ -3648,7 +4456,43 @@ selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
             tr: '✓ Tebrikler! Selenium IDE control flow mantığını doğru şekilde kurdunuz. IDE artık sadece kayıt cihazı değil!',
             en: '✓ Congratulations! You correctly set up the Selenium IDE control flow. The IDE is no longer just a recorder!'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'What happens if the "assertText" command fails in Selenium IDE?',
+        options: [
+          { id: 'a', text: 'The test stops immediately (fails)' },
+          { id: 'b', text: 'The test continues but logs it' },
+          { id: 'c', text: 'Nothing happens' },
+          { id: 'd', text: 'The browser closes' },
+        ],
+        correct: 'a',
+        explanation: 'If assertText fails, the test stops immediately. verify* commands like verifyElementPresent, on the other hand, do NOT stop the test even on failure — that\'s the key difference.',
+      
+        retryQuestion: {
+      "question": "What is the primary difference between using 'assertElementPresent' and 'verifyElementPresent' in Selenium IDE?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Both commands stop the test if they fail."
+            },
+            {
+                  "id": "b",
+                  "text": "assertElementPresent stops execution on failure, while verifyElementPresent continues."
+            },
+            {
+                  "id": "c",
+                  "text": "verifyElementPresent stops execution on failure, while assertElementPresent continues."
+            },
+            {
+                  "id": "d",
+                  "text": "Neither command stops the test regardless of the outcome."
+            }
+      ],
+      "correct": "b",
+      "explanation": "In Selenium IDE, 'assert' commands are fatal; if the assertion fails, the test stops immediately. 'verify' commands are non-fatal, meaning the test will log the failure but continue to execute the remaining steps."
+}
+},
     ],
   },
 }
@@ -3768,7 +4612,43 @@ driver.quit();`,
             tr: '✓ Tebrikler! Grid üzerinde RemoteWebDriver oturumu açma adımlarını başarıyla sıraladınız. Artık paralel testlere hazırsınız.',
             en: '✓ Congratulations! You correctly ordered the RemoteWebDriver session steps on the Grid. You are ready for parallel testing.'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'Selenium Grid 4 mimarisinde kuyruktaki istekleri alıp uygun Node\'lara dağıtan bileşen hangisidir?',
+        options: [
+          { id: 'a', text: 'Router' },
+          { id: 'b', text: 'Distributor' },
+          { id: 'c', text: 'Session Map' },
+          { id: 'd', text: 'Event Bus' },
+        ],
+        correct: 'b',
+        explanation: 'Distributor, kuyruktaki test isteklerini alıp uygun özelliklere (browser, OS) sahip boş Node\'lara dağıtır. Router gelen istekleri doğru bileşene yönlendirir, Session Map ise hangi session\'ın hangi Node\'da çalıştığını takip eder.',
+      
+        retryQuestion: {
+      "question": "Selenium Grid 4 mimarisinde hangi bileşen, aktif olan test oturumlarını ve bunların hangi Node üzerinde çalıştığını takip ederek Session ID ile Node eşleşmesini sağlar?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Distributor"
+            },
+            {
+                  "id": "b",
+                  "text": "Router"
+            },
+            {
+                  "id": "c",
+                  "text": "Session Map"
+            },
+            {
+                  "id": "d",
+                  "text": "Node"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Session Map, Selenium Grid 4'te oturum ID'lerini ve bu oturumların hangi Node üzerinde çalıştığını kayıt altında tutan bileşendir. Distributor sadece dağıtımı yaparken, Session Map yürütülen oturumların durumunu yönetir."
+}
+},
     ],
   },
   en: {
@@ -3883,7 +4763,43 @@ driver.quit();`,
             tr: '✓ Tebrikler! Grid üzerinde RemoteWebDriver oturumu açma adımlarını başarıyla sıraladınız. Artık paralel testlere hazırsınız.',
             en: '✓ Congratulations! You correctly ordered the RemoteWebDriver session steps on the Grid. You are ready for parallel testing.'
         }
-      }
+      },
+      {
+        type: 'quiz',
+        question: 'In the Selenium Grid 4 architecture, which component takes queued requests and assigns them to suitable Nodes?',
+        options: [
+          { id: 'a', text: 'Router' },
+          { id: 'b', text: 'Distributor' },
+          { id: 'c', text: 'Session Map' },
+          { id: 'd', text: 'Event Bus' },
+        ],
+        correct: 'b',
+        explanation: 'The Distributor takes queued test requests and assigns them to free Nodes with matching capabilities (browser, OS). The Router directs incoming requests to the right component, while Session Map tracks which session runs on which Node.',
+      
+        retryQuestion: {
+      "question": "In the Selenium Grid 4 architecture, which component is responsible for receiving the incoming HTTP requests from the client and forwarding them to the appropriate component?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Router"
+            },
+            {
+                  "id": "b",
+                  "text": "Distributor"
+            },
+            {
+                  "id": "c",
+                  "text": "Node"
+            },
+            {
+                  "id": "d",
+                  "text": "Event Bus"
+            }
+      ],
+      "correct": "a",
+      "explanation": "The Router acts as the entry point for all incoming requests in Selenium Grid 4. It inspects the request and directs it to the Distributor (if it's a new session request) or to the Session Map (if it's an existing session request)."
+}
+},
     ],
   },
 }
@@ -3994,6 +4910,42 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
           },
         ],
       },
+      {
+        type: 'quiz',
+        question: 'Bir React/Vue (SPA) uygulamasında DOM sürekli güncellendiği için en sık karşılaşılan exception hangisidir?',
+        options: [
+          { id: 'a', text: 'NoSuchElementException' },
+          { id: 'b', text: 'StaleElementReferenceException' },
+          { id: 'c', text: 'InvalidSelectorException' },
+          { id: 'd', text: 'NoSuchWindowException' },
+        ],
+        correct: 'b',
+        explanation: 'StaleElementReferenceException, bir element referans alındıktan SONRA DOM değiştiğinde (SPA\'larda sık) oluşur. Çözüm: elementi her kullanmadan önce yeniden bulmak.',
+      
+        retryQuestion: {
+      "question": "React veya Vue gibi dinamik web uygulamalarında, bir sayfa yenilemesi veya render işlemi sırasında elementin referansının geçersiz kalması sonucu oluşan hata hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "TimeoutException"
+            },
+            {
+                  "id": "b",
+                  "text": "StaleElementReferenceException"
+            },
+            {
+                  "id": "c",
+                  "text": "ElementNotVisibleException"
+            },
+            {
+                  "id": "d",
+                  "text": "SessionNotCreatedException"
+            }
+      ],
+      "correct": "b",
+      "explanation": "StaleElementReferenceException, WebDriver'ın yakaladığı bir elementin DOM'dan kaldırılması veya tekrar render edilmesi durumunda ortaya çıkar. SPA projelerinde bileşenler sürekli güncellendiği için bu durumla sıkça karşılaşılır; çözüm elementi kullanmadan önce tekrar locate etmektir."
+}
+},
     ],
   },
   en: {
@@ -4063,6 +5015,42 @@ el.click();`,
           },
         ],
       },
+      {
+        type: 'quiz',
+        question: 'Which exception is most common in a React/Vue (SPA) app because the DOM updates constantly?',
+        options: [
+          { id: 'a', text: 'NoSuchElementException' },
+          { id: 'b', text: 'StaleElementReferenceException' },
+          { id: 'c', text: 'InvalidSelectorException' },
+          { id: 'd', text: 'NoSuchWindowException' },
+        ],
+        correct: 'b',
+        explanation: 'StaleElementReferenceException occurs when the DOM changes AFTER an element reference was captured (common in SPAs). The fix: re-find the element right before each use.',
+      
+        retryQuestion: {
+      "question": "When testing a dynamic SPA, why would Selenium throw a 'StaleElementReferenceException' even if the element was correctly located a moment ago?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Because the driver lost connection to the browser."
+            },
+            {
+                  "id": "b",
+                  "text": "Because the element was detached or re-rendered in the DOM after the initial lookup."
+            },
+            {
+                  "id": "c",
+                  "text": "Because the CSS selector provided is syntactically incorrect."
+            },
+            {
+                  "id": "d",
+                  "text": "Because the page is taking too long to load initial assets."
+            }
+      ],
+      "correct": "b",
+      "explanation": "A StaleElementReferenceException indicates that the element reference held by the driver is no longer valid because the underlying DOM node was updated or replaced by the framework (React/Vue). You must refresh the reference by re-locating the element."
+}
+},
     ],
   },
 }

@@ -134,7 +134,49 @@ const sections = [
           tr: 'Yazılım geliştirme yaşam döngüsünde (SDLC) hataları analiz veya geliştirme aşamasında bulup çözmek, canlı ortamda (production) bulmaktan kat kat daha ucuzdur.',
           en: 'Catching and resolving bugs during requirements or development is orders of magnitude cheaper than resolving them in production.'
         }
+      ,
+        retryQuestion: {
+      "question": {
+            "tr": "Yazılım geliştirme sürecinde 'Shift-Left' (Sola Kaydırma) yaklaşımının temel amacı nedir?",
+            "en": "What is the core objective of the 'Shift-Left' approach in the software development process?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Testleri sadece geliştirme süreci bittikten sonra yapmak.",
+                        "en": "Performing tests only after the development process is finished."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Test faaliyetlerini erken aşamalara çekerek hata maliyetini azaltmak.",
+                        "en": "Reducing defect costs by initiating testing activities in earlier stages."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Yazılımı kullanıcıya daha hızlı teslim etmek için dokümantasyonu azaltmak.",
+                        "en": "Reducing documentation to deliver software faster to the user."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Tüm testleri otomatik araçlarla tamamen ücretsiz bir şekilde gerçekleştirmek.",
+                        "en": "Executing all tests completely for free using automated tools."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Shift-Left yaklaşımı, testin yazılım geliştirme sürecinin en başından itibaren dahil edilmesini ve hataların henüz kodlanmadan veya erken aşamalarda tespit edilerek düzeltilmesini amaçlar; bu da maliyet tasarrufu sağlar.",
+            "en": "The Shift-Left approach emphasizes involving testing from the very beginning of the software development lifecycle to identify and resolve defects early, which significantly saves costs."
       }
+}
+}
     ]
   },
 
@@ -282,7 +324,49 @@ const sections = [
           tr: 'Sistemin yük, stres, yanıt süresi ve ölçeklenebilirlik gibi davranışlarını inceleyen testler, fonksiyonel olmayan testlerin (Non-Functional Testing) altındaki Performans Testleri alanına girer.',
           en: 'Evaluating system behavior under heavy load, stress, and response times falls under Performance Testing, which is a subcategory of Non-Functional Testing.'
         }
+      ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir e-ticaret sitesinin, indirim dönemlerinde artan trafiğe rağmen sistemin ne kadar kararlı çalıştığını belirlemek için yapılan test türü hangisidir?",
+            "en": "Which type of testing is used to determine how stable an e-commerce site remains despite increased traffic during sales periods?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Birim Testi (Unit Testing)",
+                        "en": "Unit Testing"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Uyumluluk Testi (Compatibility Testing)",
+                        "en": "Compatibility Testing"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Yük ve Stres Testi (Load and Stress Testing)",
+                        "en": "Load and Stress Testing"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Arayüz Testi (UI Testing)",
+                        "en": "UI Testing"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Yük ve stres testleri, uygulamanın yüksek trafik altında nasıl performans gösterdiğini, sistemin çöküp çökmediğini ve yanıt sürelerinin ne kadar değiştiğini anlamak için kullanılır ve bu fonksiyonel olmayan bir test türüdür.",
+            "en": "Load and stress testing are used to understand how an application performs under high traffic, whether it crashes, and how response times vary; this is a category of non-functional testing."
       }
+}
+}
     ]
   },
 
@@ -376,7 +460,49 @@ const sections = [
           tr: 'Quality Assurance (QA) süreç odaklıdır ve hataları önlemeye (defect prevention) odaklanır. Quality Control (QC) ise ürün odaklıdır ve mevcut hataları bulmaya (defect detection) çalışır.',
           en: 'Quality Assurance (QA) is process-oriented and focuses on defect prevention. Quality Control (QC) is product-oriented and focuses on defect detection.'
         }
+      ,
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdakilerden hangisi doğrudan bir 'Kalite Güvence' (QA) aktivitesidir?",
+            "en": "Which of the following is directly a 'Quality Assurance' (QA) activity?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Bir hata bulunduğunda test raporu oluşturmak.",
+                        "en": "Creating a test report when a defect is found."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Yazılım süreçlerini iyileştirmek için standartlar ve prosedürler belirlemek.",
+                        "en": "Defining standards and procedures to improve software processes."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Canlıya çıkacak sürümü manuel olarak test etmek.",
+                        "en": "Manually testing the build before it goes live."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Yazılımdaki hataları bulup geliştiricilere raporlamak.",
+                        "en": "Finding defects in the software and reporting them to developers."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Kalite Güvence (QA), hata bulmaktan ziyade hata oluşmasını önleyecek süreçleri ve standartları yönetmeyi hedefler. Hata bulma, raporlama ve doğrulama faaliyetleri Kalite Kontrol (QC) kapsamındadır.",
+            "en": "Quality Assurance (QA) aims to manage processes and standards to prevent defects rather than just finding them. Bug finding, reporting, and verification activities fall under Quality Control (QC)."
       }
+}
+}
     ]
   },
 
@@ -504,7 +630,49 @@ const sections = [
           tr: "SDET'ler ileri seviye kodlama, mimari tasarım, DevOps araçları (Docker, CI/CD) entegrasyonu ve framework oluşturma yetkinliklerine sahip test mühendisleridir.",
           en: "SDETs are test engineers equipped with advanced software development capabilities, systems design, DevOps integration (Docker, CI/CD), and framework engineering."
         }
+      ,
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonu için ölçeklenebilir bir framework geliştiren, bulut tabanlı altyapıları yöneten ve test süreçlerini yazılım geliştirme döngüsüne entegre eden mühendislik rolü hangisidir?",
+            "en": "Which engineering role is responsible for developing scalable automation frameworks, managing cloud-based test infrastructures, and integrating test processes into the software development lifecycle?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Destek Uzmanı (Support Specialist)",
+                        "en": "Support Specialist"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "SDET (Software Development Engineer in Test)",
+                        "en": "SDET"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "UI Tasarımcısı (UI Designer)",
+                        "en": "UI Designer"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sistem Yöneticisi (System Administrator)",
+                        "en": "System Administrator"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "SDET rolü, hem yazılım geliştirme prensiplerini hem de test otomasyonunu birleştirerek, altyapı yönetimi ve pipeline kurulumu gibi teknik sorumlulukları üstlenen uzmanları tanımlar.",
+            "en": "The SDET role defines experts who combine software development principles with test automation, taking on technical responsibilities such as infrastructure management and pipeline setup."
       }
+}
+}
     ]
   },
 
@@ -738,7 +906,49 @@ const sections = [
           tr: 'UI tıklamayı yakalar, API isteği backend\'e taşır, backend mantığı işler ve veriyi kalıcı olarak saklayan katman Database\'dir.',
           en: 'The UI captures the click, the API carries the request to the backend, backend logic processes it, and the Database is the layer that permanently stores the data.'
         }
+      ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir kullanıcı profil sayfasında 'Kaydet' butonuna bastığında, güncellenen kullanıcı bilgilerinin sistemde kalıcı hale getirilmesi hangi katmanda gerçekleşir?",
+            "en": "When a user clicks 'Save' on a profile page, at which layer does the persistence of the updated user information occur?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Tarayıcı Önbelleği (Browser Cache)",
+                        "en": "Browser Cache"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Test Ortamı (Test Environment)",
+                        "en": "Test Environment"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Veritabanı (Database)",
+                        "en": "Database"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "İstemci Tarafı (Client-side)",
+                        "en": "Client-side"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Verilerin uzun vadeli tutulduğu, güncellendiği ve sorgulanabildiği yer veritabanıdır. Frontend ve API sadece arayüz ve iletişim görevlerini üstlenirken, veritabanı kalıcılığı sağlar.",
+            "en": "The database is where data is kept, updated, and queried for the long term. While frontend and API handle the interface and communication, the database provides persistence."
       }
+}
+}
     ]
   },
 

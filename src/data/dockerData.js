@@ -75,7 +75,32 @@ export const dockerData = {
             ],
             correct: 'b',
             explanation: 'An image is like a class in OOP — a read-only blueprint. A container is like an object instance — a running process based on the image. You can run many containers from a single image simultaneously.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "How is a Docker Image related to a Docker Container?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "A container is the source code for building an image."
+            },
+            {
+                  "id": "b",
+                  "text": "An image is a static snapshot, while a container is an executable process derived from that image."
+            },
+            {
+                  "id": "c",
+                  "text": "Images are used for production, while containers are only for development environments."
+            },
+            {
+                  "id": "d",
+                  "text": "An image must be deleted before you can create a container from it."
+            }
+      ],
+      "correct": "b",
+      "explanation": "Think of the image as a recipe or a template that contains everything needed to run an application. The container is the 'dish' being cooked—the actual living process that uses that blueprint to operate in a specific runtime environment."
+}
+},
         ],
       },
 
@@ -174,7 +199,32 @@ docker images              # List downloaded images (should be empty)`,
             ],
             correct: 'c',
             explanation: 'Docker Desktop on Windows uses WSL 2 as the recommended backend. WSL 2 runs a full Linux kernel in an efficient VM, giving Docker near-native Linux performance on Windows.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Which technology does Docker Desktop on Windows utilize to execute Linux-based containers with high efficiency?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Oracle VM VirtualBox"
+            },
+            {
+                  "id": "b",
+                  "text": "Windows Docker Native Engine"
+            },
+            {
+                  "id": "c",
+                  "text": "WSL 2 (Windows Subsystem for Linux)"
+            },
+            {
+                  "id": "d",
+                  "text": "QEMU emulation"
+            }
+      ],
+      "correct": "c",
+      "explanation": "WSL 2 allows Docker Desktop to integrate seamlessly with the Windows OS. By using a genuine Linux kernel via WSL 2, Docker can provide better resource management and faster startup times compared to legacy virtual machine approaches."
+}
+},
         ],
       },
 
@@ -325,7 +375,32 @@ docker network connect qa-network my-container`,
             ],
             correct: 'b',
             explanation: '"docker run -d" runs the container in detached mode (background). Without -d, the container runs in the foreground and blocks your terminal. "docker start" starts an already-created (stopped) container.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Which flag is utilized with 'docker run' to ensure the container launches in the background?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "--run-hidden"
+            },
+            {
+                  "id": "b",
+                  "text": "-d"
+            },
+            {
+                  "id": "c",
+                  "text": "--background"
+            },
+            {
+                  "id": "d",
+                  "text": "-b"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The '-d' flag stands for detached mode. It tells Docker to run the container in the background so that your current command-line interface is not occupied by the container's output. The other options are incorrect syntax."
+}
+},
         ],
       },
 
@@ -528,7 +603,31 @@ docker compose ps`,
             ],
             correct: 'c',
             explanation: 'depends_on with condition: service_healthy waits until the dependency\'s healthcheck passes. Without this, your test container might start before the database is actually ready, causing connection errors.',
-          },
+          
+        retryQuestion: {
+      "question": "In a Docker Compose configuration, what is the best way to delay the startup of a web service until the database service has fully initialized and passed its health checks?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "links: - db_healthy"
+            },
+            {
+                  "id": "b",
+                  "text": "depends_on: { service_db: { condition: service_healthy } }"
+            },
+            {
+                  "id": "c",
+                  "text": "start_priority: 1"
+            },
+            {
+                  "id": "d",
+                  "text": "order: wait_for_db"
+            }
+      ],
+      "correct": "b",
+      "explanation": "To manage startup order based on application state, Docker Compose provides the depends_on condition attribute. Using 'service_healthy' ensures the dependent container only starts once the dependency's healthcheck command returns a zero exit code."
+}
+},
         ],
       },
 
@@ -765,7 +864,31 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
             correct: 'b',
             explanation: 'Docker containers default to 64MB of /dev/shm. Chrome uses shared memory for rendering complex pages. 64MB is insufficient and causes Chrome to crash. Solution: increase to 2GB or use --disable-dev-shm-usage (uses /tmp instead).',
-          },
+          
+        retryQuestion: {
+      "question": "What is the primary reason for configuring a larger shared memory size when running headless browser tests inside Docker?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "To prevent the browser from using too much CPU"
+            },
+            {
+                  "id": "b",
+                  "text": "To allow the browser to use more physical RAM for plugins"
+            },
+            {
+                  "id": "c",
+                  "text": "The default 64MB /dev/shm limit in Docker is insufficient for rendering complex pages in Chrome, leading to browser crashes"
+            },
+            {
+                  "id": "d",
+                  "text": "To cache external CSS and JavaScript files for faster test execution"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Headless Chrome relies on the /dev/shm partition for shared memory communication between its processes. Docker's default allocation is 64MB, which is often not enough for browser rendering, leading to intermittent failures unless increased via --shm-size or bypassed using --disable-dev-shm-usage."
+}
+},
         ],
       },
 
@@ -805,6 +928,29 @@ options.add_argument('--disable-dev-shm-usage')`,
           },
           { type: 'heading', text: 'Where Docker Sits Next to Other QA/DevOps Tools' },
           { type: 'text', content: 'In a typical pipeline: Jenkins triggers the build → Docker packages the app and test runner into images → the test image runs against a docker-compose stack (app + DB + Selenium Grid, all containerized) → on success, Docker pushes the production image to a registry → Kubernetes deploys it. QA engineers interact with Docker most directly when running Selenium Grid in containers or spinning up disposable test environments with docker-compose.' },
+          {
+            type: 'quiz',
+            question: 'In a CI/CD pipeline, which tool is responsible for pulling a Docker image from a registry and running multiple replicas of it across a cluster, restarting them if they crash?',
+            options: [
+              { id: 'a', text: 'Docker Hub' },
+              { id: 'b', text: 'Jenkins' },
+              { id: 'c', text: 'Kubernetes' },
+              { id: 'd', text: 'docker-compose' },
+            ],
+            correct: 'c',
+            explanation: 'Kubernetes is the orchestrator: it pulls images from a registry, schedules them as Pods across a cluster, and restarts them automatically on failure — turning a single container into a self-healing, horizontally scalable service. Docker Hub only stores images, Jenkins only builds/pushes them, and docker-compose is for local/single-host multi-container setups, not cluster-wide orchestration.',
+            retryQuestion: {
+              question: 'If a Kubernetes-managed container crashes, what happens without any manual intervention?',
+              options: [
+                { id: 'a', text: 'Nothing — an engineer must manually restart it' },
+                { id: 'b', text: 'Kubernetes automatically restarts it to match the desired replica count' },
+                { id: 'c', text: 'Docker Hub automatically rebuilds the image' },
+                { id: 'd', text: 'docker-compose detects the crash across the cluster' },
+              ],
+              correct: 'b',
+              explanation: "This is exactly what \"self-healing\" means in Kubernetes: it continuously compares the actual running Pods to the desired replica count and restarts/replaces any that crash, with zero manual action. docker-compose has no concept of a multi-node cluster, and Docker Hub is just an image registry — neither monitors running container health.",
+            },
+          },
         ],
       },
 
@@ -987,7 +1133,31 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
             correct: 'b',
             explanation: 'Image, OOP\'taki class gibidir — salt okunur bir şablon. Container, çalışan bir nesne örneği gibidir — image\'a dayalı canlı bir process. Tek image\'dan aynı anda birçok container çalıştırabilirsin.',
-          },
+          
+        retryQuestion: {
+      "question": "Docker dünyasında 'Image' ve 'Container' kavramları arasındaki ilişkiyi en iyi hangisi tanımlar?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Container'lar image'ları oluşturmak için kullanılan kaynak kodlardır"
+            },
+            {
+                  "id": "b",
+                  "text": "Image'lar sadece depolama alanlarıdır, container'lar ise network katmanıdır"
+            },
+            {
+                  "id": "c",
+                  "text": "Image, uygulamanın çalışması için gerekli tüm dosyaları içeren sabit bir pakettir; container ise bu paketin canlı çalışma ortamıdır"
+            },
+            {
+                  "id": "d",
+                  "text": "Container'lar image'ların bir üst versiyonudur"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Image'lar uygulamayı çalıştırmak için gereken kod, runtime ve kütüphaneleri içeren değişmez (immutable) dosyalardır. Container ise bu image'ın bir çalışma zamanı kopyasıdır ve üzerinde yapılan değişiklikler canlı olarak gerçekleşir."
+}
+},
         ],
       },
 
@@ -1065,7 +1235,31 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
             ],
             correct: 'c',
             explanation: 'Windows\'ta Docker Desktop önerilen arka uç olarak WSL 2 kullanır. WSL 2, verimli bir VM\'de tam Linux kernel çalıştırarak Docker\'a Windows\'ta Linux\'a yakın performans sağlar.',
-          },
+          
+        retryQuestion: {
+      "question": "Docker Desktop'ın modern Windows kurulumlarında Linux tabanlı container'lar için varsayılan olarak tercih ettiği çalışma ortamı/teknoloji hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "QEMU"
+            },
+            {
+                  "id": "b",
+                  "text": "Docker Machine"
+            },
+            {
+                  "id": "c",
+                  "text": "WSL 2 (Windows Subsystem for Linux)"
+            },
+            {
+                  "id": "d",
+                  "text": "Native Windows Hypervisor"
+            }
+      ],
+      "correct": "c",
+      "explanation": "WSL 2, Windows üzerinde gerçek bir Linux çekirdeği çalıştırarak Docker container'larının yüksek performanslı ve düşük kaynak tüketen bir şekilde çalışmasını sağlar. Eski sürümlerde Hyper-V doğrudan kullanılırken, güncel Docker Desktop yapılandırması WSL 2 entegrasyonu üzerine kuruludur."
+}
+},
         ],
       },
 
@@ -1244,7 +1438,31 @@ docker network connect qa-network my-container`,
             ],
             correct: 'b',
             explanation: '"docker run -d", container\'ı detached modda (arka planda) çalıştırır. -d olmadan container ön planda çalışır ve terminali bloke eder. "docker start", önceden oluşturulmuş (durdurulmuş) bir container\'ı başlatır.',
-          },
+          
+        retryQuestion: {
+      "question": "Bir Docker container'ını terminalden bağımsız olarak, arka planda çalıştırmak istediğimizde kullanılan parametre hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "docker run -it nginx"
+            },
+            {
+                  "id": "b",
+                  "text": "docker run -d nginx"
+            },
+            {
+                  "id": "c",
+                  "text": "docker run --hidden nginx"
+            },
+            {
+                  "id": "d",
+                  "text": "docker run -b nginx"
+            }
+      ],
+      "correct": "b",
+      "explanation": "-d (detached) modu, container'ın ana süreç (process) olarak arka planda çalışmasını sağlar. Bu sayede container çıktısı terminale yansımaz ve terminalinizi kullanmaya devam edebilirsiniz."
+}
+},
         ],
       },
 
@@ -1441,7 +1659,31 @@ docker compose ps`,
             ],
             correct: 'c',
             explanation: 'depends_on + condition: service_healthy, bağımlılığın healthcheck\'i geçene kadar bekler. Bunu kullanmazsan test container\'ın veritabanı gerçekten hazır olmadan başlayabilir ve bağlantı hataları alırsın.',
-          },
+          
+        retryQuestion: {
+      "question": "Docker Compose içerisinde, bir uygulamanın veritabanı gibi bağımlı olduğu bir servisin tamamen çalışır duruma gelmesini beklemek için hangi yapı kullanılır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "links:"
+            },
+            {
+                  "id": "b",
+                  "text": "volumes_from:"
+            },
+            {
+                  "id": "c",
+                  "text": "depends_on: condition: service_healthy"
+            },
+            {
+                  "id": "d",
+                  "text": "start_order: enabled"
+            }
+      ],
+      "correct": "c",
+      "explanation": "depends_on tek başına servisin sadece başlatılmasını garanti eder. Eğer servisin hazır (sağlıklı) olmasını beklemek istiyorsak 'condition: service_healthy' ifadesini eklemeli ve ilgili servise bir 'healthcheck' tanımlamalıyız."
+}
+},
         ],
       },
 
@@ -1653,7 +1895,31 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
             correct: 'b',
             explanation: 'Docker container\'ları varsayılan olarak 64MB /dev/shm alır. Chrome, karmaşık sayfaları render etmek için shared memory kullanır. 64MB yetersiz ve Chrome crash yapar. Çözüm: 2GB\'a çıkar ya da --disable-dev-shm-usage ekle (bunun yerine /tmp kullanır).',
-          },
+          
+        retryQuestion: {
+      "question": "Selenium ile tarayıcı otomasyonu yaparken Docker konteynerinde 'DevToolsActivePort file doesn't exist' hatası almamak için neden paylaşılan bellek (shared memory) yapılandırması kritiktir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Konteynerin dış dünyaya erişimini sağlamak için"
+            },
+            {
+                  "id": "b",
+                  "text": "Chrome'un varsayılan Docker /dev/shm boyutunu aşan bellek kullanımını yönetmek için"
+            },
+            {
+                  "id": "c",
+                  "text": "Test sonuçlarını diske daha hızlı yazmak için"
+            },
+            {
+                  "id": "d",
+                  "text": "Web sürücüsünün (WebDriver) ağ portlarını eşlemek için"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Docker, varsayılan olarak paylaşılan bellek (/dev/shm) için sadece 64MB ayırır. Chrome ve Chromium tabanlı tarayıcılar, sayfaları render ederken yoğun bir şekilde paylaşılan belleğe ihtiyaç duyar. Bu limit aşıldığında tarayıcı çöker veya düzgün başlatılamaz. 'shm_size: 2gb' ayarı bu limiti genişleterek işlemin başarıyla tamamlanmasını sağlar."
+}
+},
         ],
       },
 
@@ -1693,6 +1959,29 @@ options.add_argument('--disable-dev-shm-usage')`,
           },
           { type: 'heading', text: 'Docker Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
           { type: 'text', content: 'Tipik bir pipeline\'da: Jenkins build\'i tetikler → Docker uygulamayı ve test runner\'ı image\'lara paketler → test image\'ı bir docker-compose stack\'ine (uygulama + DB + Selenium Grid, hepsi containerized) karşı çalışır → başarılı olursa Docker production image\'ını bir registry\'e push eder → Kubernetes deploy eder. QA mühendisleri Docker ile en doğrudan Selenium Grid\'i container\'larda çalıştırırken veya docker-compose ile atılabilir test ortamları kurarken etkileşime girer.' },
+          {
+            type: 'quiz',
+            question: 'Bir CI/CD pipeline\'ında, bir registry\'den Docker image çekip cluster genelinde birden fazla replikasını çalıştırmaktan ve çökerlerse yeniden başlatmaktan hangi araç sorumludur?',
+            options: [
+              { id: 'a', text: 'Docker Hub' },
+              { id: 'b', text: 'Jenkins' },
+              { id: 'c', text: 'Kubernetes' },
+              { id: 'd', text: 'docker-compose' },
+            ],
+            correct: 'c',
+            explanation: 'Kubernetes orkestratördür: registry\'den image\'ları çeker, cluster genelinde Pod olarak zamanlar ve çökerlerse otomatik yeniden başlatır — tek bir container\'ı kendi kendini onaran, yatay ölçeklenebilir bir servise dönüştürür. Docker Hub sadece image saklar, Jenkins sadece build/push eder, docker-compose ise tek makinede/lokal çoklu container kurulumu içindir, cluster genelinde orkestrasyon yapmaz.',
+            retryQuestion: {
+              question: 'Kubernetes tarafından yönetilen bir container çökerse, hiçbir manuel müdahale olmadan ne olur?',
+              options: [
+                { id: 'a', text: 'Hiçbir şey — bir mühendisin elle yeniden başlatması gerekir' },
+                { id: 'b', text: 'Kubernetes, istenen replika sayısına uyacak şekilde otomatik olarak yeniden başlatır' },
+                { id: 'c', text: 'Docker Hub image\'ı otomatik olarak yeniden build eder' },
+                { id: 'd', text: 'docker-compose çökmeyi cluster genelinde tespit eder' },
+              ],
+              correct: 'b',
+              explanation: 'Kubernetes\'teki "kendi kendini onarma" tam olarak budur: gerçekte çalışan Pod\'ları istenen replika sayısıyla sürekli karşılaştırır ve çökeni hiçbir manuel işlem gerekmeden yeniden başlatır/değiştirir. docker-compose\'da multi-node cluster kavramı yoktur, Docker Hub ise sadece bir image registry\'sidir — hiçbiri çalışan container sağlığını izlemez.',
+            },
+          },
         ],
       },
 

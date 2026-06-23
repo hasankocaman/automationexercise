@@ -229,7 +229,33 @@ export const manualTestingData = {
                         { id: 'smoke', label: 'Login, checkout, payment gibi kritik akislari hizli smoke test et' },
                         { id: 'none', label: 'Developer test ettiyse QA testine gerek yok' },
                     ],
-                },
+                
+        retryQuestion: {
+      "title": "Smoke testi mi, regression testi mi?",
+      "prompt": "Canliya cikisa 15 dakika kala kritik bir bug duzeltmesi yapildi. Izlenmesi gereken en saglikli strateji nedir?",
+      "success": "Dogru. Sistem kararliligini hizli bir sekilde dogrulamak icin temel islevleri (smoke) kontrol etmek, ardindan degisikligin etkiledigi yerleri test etmek en dogrusudur.",
+      "correct": "c",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Tum regression paketini otomatik olarak calistir ve bitmesini bekle"
+            },
+            {
+                  "id": "b",
+                  "text": "Sadece hata giderilen sayfayi manuel kontrol et, gerisine bakma"
+            },
+            {
+                  "id": "c",
+                  "text": "Kritik is akislarini (smoke) hizlica dogrula ve ilgili modulun regresyonuna odaklan"
+            },
+            {
+                  "id": "d",
+                  "text": "Hata giderildigi icin sistemin diger bolumlerinin bozulmayacagini varsay"
+            }
+      ],
+      "explanation": "Kisa sureli kriz anlarinda tum uygulamayi test etmek imkansizdir. Oncelik, uygulamanin calisir oldugundan emin olmak (smoke) ve yapilan degisikligin yan etki yaratmadigini kontrol etmektir (regression)."
+}
+},
                 feynman: {
                     keywords: ['yeni kod', 'eski calisan', 'bozulma', 'duman testi'],
                     modelAnswer: 'Regresyon testi, uygulamaya yeni bir kod veya fix eklendikten sonra, daha onceden calisan diger ozelliklerin bozulup bozulmadigini kontrol etmektir. Yeni yapilan tamiratin baska bir muslugu patlatip patlatmadigini dogrulama surecidir.'
@@ -491,7 +517,33 @@ export const manualTestingData = {
                         { id: 'smoke', label: 'Quickly smoke test critical flows like login, checkout, payment' },
                         { id: 'none', label: 'If developers tested it, QA testing is unnecessary' },
                     ],
-                },
+                
+        retryQuestion: {
+      "title": "Smoke test or regression test?",
+      "prompt": "A critical hotfix was applied 15 minutes before the production deployment. What is the most effective approach?",
+      "success": "Correct. Verifying core functionality (smoke) followed by targeted regression around the affected module is the most efficient strategy under time pressure.",
+      "correct": "c",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Run the entire full regression suite and wait for it to complete"
+            },
+            {
+                  "id": "b",
+                  "text": "Only check the specific page where the bug was fixed"
+            },
+            {
+                  "id": "c",
+                  "text": "Quickly verify critical flows (smoke) and then perform targeted regression on the affected area"
+            },
+            {
+                  "id": "d",
+                  "text": "Assume that since the bug was fixed, no other parts of the system will be affected"
+            }
+      ],
+      "explanation": "In time-constrained scenarios, exhaustive testing is not feasible. The focus must remain on ensuring the core system viability (smoke) while validating that the specific change did not introduce regressions in related components."
+}
+},
                 feynman: {
                     keywords: ['new code', 'previously working', 'breakage', 'smoke test'],
                     modelAnswer: 'Regression testing is verifying that previously working features did not break after new code changes or bug fixes are deployed. It ensures that fixing one leak did not cause another pipe to burst elsewhere.'

@@ -89,7 +89,31 @@ const sections = [
         options: ['Standard Query Logic', 'Structured Query Language', 'Simple Question Language', 'Sequential Query Library'],
         correct: 1,
         explanation: 'SQL = Structured Query Language. It\'s been the standard language for relational databases since the 1970s and is used by MySQL, PostgreSQL, SQLite, Oracle, and SQL Server.',
-      },
+      
+        retryQuestion: {
+      "question": "Which of the following correctly describes the acronym SQL?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "System Query Logic"
+            },
+            {
+                  "id": "b",
+                  "text": "Sequential Query Language"
+            },
+            {
+                  "id": "c",
+                  "text": "Structured Query Language"
+            },
+            {
+                  "id": "d",
+                  "text": "Standard Question Logic"
+            }
+      ],
+      "correct": "c",
+      "explanation": "SQL stands for Structured Query Language. It is the international standard language for managing and manipulating relational database management systems."
+}
+},
     ],
   },
 
@@ -284,6 +308,29 @@ import psycopg2
 # mysql-connector-python==8.2.0`,
         note: 'Python wins on speed-to-first-query for SQLite. For real project deps, use requirements.txt (same idea as pom.xml). pip install -r requirements.txt installs everything.',
         note_en: 'Python wins on speed-to-first-query for SQLite. For real project deps, use requirements.txt (same idea as pom.xml). pip install -r requirements.txt installs everything.',
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Yeni başlayan biri için SQL öğrenmeye en hızlı şekilde başlamak isterse hangi kurulum seçeneği önerilir?', en: 'Which setup option is recommended for a beginner who wants to start learning SQL as fast as possible?' },
+        options: [
+          { id: 'a', text: { tr: 'Önce MySQL Community Server kurmak', en: 'Installing MySQL Community Server first' } },
+          { id: 'b', text: { tr: 'Kurulum gerektirmeyen bir çevrimiçi editörle başlamak', en: 'Starting with an install-free online editor' } },
+          { id: 'c', text: { tr: 'Önce bir DBeaver lisansı satın almak', en: 'Buying a DBeaver license first' } },
+          { id: 'd', text: { tr: 'Önce bir cloud sunucusu kiralamak', en: 'Renting a cloud server first' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Kurulum gerektirmeyen çevrimiçi bir editör (örn. tarayıcı tabanlı SQLite/PostgreSQL sandbox), sıfır kurulum süresiyle SQL syntax\'ını anında denemeyi sağlar. Yerel bir veritabanı sunucusu kurmak (MySQL Community Server gibi) gerçek bir projeye geçince gerekli olur ama temel SELECT/JOIN/GROUP BY öğrenirken gereksiz bir engeldir.', en: 'An install-free online editor (e.g. a browser-based SQLite/PostgreSQL sandbox) lets you try SQL syntax instantly with zero setup time. Installing a local database server (like MySQL Community Server) becomes necessary once you move to a real project, but it is an unnecessary barrier while learning basic SELECT/JOIN/GROUP BY.' },
+        retryQuestion: {
+          question: { tr: 'Bir QA mühendisi gerçek bir projede CI pipeline\'ında otomatik SQL testleri çalıştırmaya başlıyor. Bu noktada artık neden yerel bir veritabanı sunucusuna (veya en azından bir Docker container\'ına) ihtiyaç duyar?', en: 'A QA engineer is now running automated SQL tests in a CI pipeline for a real project. Why do they now need a local database server (or at least a Docker container) instead of just a browser sandbox?' },
+          options: [
+            { id: 'a', text: { tr: 'Tarayıcı sandbox\'ları CI ortamlarında hiç çalışmaz ve gerçekçi bir bağlantı dizesi/test verisi/şema yönetimi gerektirir', en: 'Browser sandboxes don\'t run in CI environments at all, and a real pipeline needs a real connection string/test data/schema management' } },
+            { id: 'b', text: { tr: 'Çevrimiçi editörler artık SQL syntax\'ını desteklemiyor', en: 'Online editors no longer support SQL syntax' } },
+            { id: 'c', text: { tr: 'Tarayıcı sandbox\'ları sadece 10 satırdan fazla veri tutamaz', en: 'Browser sandboxes can only hold more than 10 rows of data' } },
+            { id: 'd', text: { tr: 'CI pipeline\'ları SELECT sorgularını desteklemez', en: 'CI pipelines do not support SELECT queries' } },
+          ],
+          correct: 'a',
+          explanation: { tr: 'Tarayıcı tabanlı bir sandbox, izole, geçici, tek kullanıcılı bir oyun alanıdır — gerçek bir CI pipeline\'ı ise tekrarlanabilir bir bağlantı dizesi, gerçekçi şema/migration yönetimi ve genelde bir Docker container\'ında veya yönetilen bir test veritabanı instance\'ında çalışan otomatik testler gerektirir. Öğrenme aşamasında sandbox yeterliyken, gerçek bir projeye geçişte bu altyapı kaçınılmaz hale gelir.', en: 'A browser-based sandbox is an isolated, ephemeral, single-user playground — a real CI pipeline needs a reproducible connection string, realistic schema/migration management, and automated tests that typically run against a Docker container or a managed test database instance. The sandbox is enough while learning, but this infrastructure becomes unavoidable once you move to a real project.' },
+        },
       },
     ],
   },
@@ -509,7 +556,31 @@ SELECT name, COALESCE(email, 'no email') FROM users;`,
         ],
         correct: 1,
         explanation: 'Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs.',
-      },
+      
+        retryQuestion: {
+      "question": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "NULL values cannot be queried in a WHERE clause"
+            },
+            {
+                  "id": "b",
+                  "text": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+            },
+            {
+                  "id": "c",
+                  "text": "The syntax requires 'WHERE age IS 0'"
+            },
+            {
+                  "id": "d",
+                  "text": "NULL values are hidden by default in SQL results"
+            }
+      ],
+      "correct": "b",
+      "explanation": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+}
+},
       { type: 'heading', text: '☕ If You Know Java: Database Access Bridge' },
       {
         type: 'java-compare',
@@ -647,9 +718,81 @@ DELETE FROM test_results WHERE environment = 'cleanup';`,
         note_en: 'SQL UPDATE and DELETE with WHERE can affect many rows in one statement. JPA needs individual entity loads for each row. In test automation, direct SQL cleanup is faster and more common.',
       },
       // Quiz: ORDER BY
-      { type: 'quiz', question: { tr: 'SELECT sorgusu sonuçlarini siralamak icin hangi clause kullanilir?', en: 'Which clause is used to sort SELECT query results?' }, options: [{ id: 'a', text: 'GROUP BY' }, { id: 'b', text: 'ORDER BY' }, { id: 'c', text: 'SORT BY' }, { id: 'd', text: 'HAVING' }], correct: 'b', explanation: { tr: 'ORDER BY, sutun adi ve istege bagli ASC (artan) ya da DESC (azalan) yonuyle sonuclari siralar.', en: 'ORDER BY sorts results by a column name with optional ASC (ascending) or DESC (descending) direction.' } },
+      { type: 'quiz', question: { tr: 'SELECT sorgusu sonuçlarini siralamak icin hangi clause kullanilir?', en: 'Which clause is used to sort SELECT query results?' }, options: [{ id: 'a', text: 'GROUP BY' }, { id: 'b', text: 'ORDER BY' }, { id: 'c', text: 'SORT BY' }, { id: 'd', text: 'HAVING' }], correct: 'b', explanation: { tr: 'ORDER BY, sutun adi ve istege bagli ASC (artan) ya da DESC (azalan) yonuyle sonuclari siralar.', en: 'ORDER BY sorts results by a column name with optional ASC (ascending) or DESC (descending) direction.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "SELECT ifadesinde belirli bir sutuna gore verileri kucukten buyuge veya buyukten kucuge siralayan komut hangisidir?",
+            "en": "Which command is used in a SELECT statement to arrange data in ascending or descending order based on a specific column?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "LIMIT",
+                        "en": "LIMIT"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "ORDER BY",
+                        "en": "ORDER BY"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "GROUP BY",
+                        "en": "GROUP BY"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "DISTINCT",
+                        "en": "DISTINCT"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "ORDER BY ifadesi, belirtilen sutun veya sutunlara gore sorgu sonuclarini duzenlemek icin kullanilir.",
+            "en": "The ORDER BY clause is used to arrange the query results based on the specified column or columns."
+      }
+}
+},
       // Quiz: PRIMARY KEY
-      { type: 'quiz', question: { tr: 'Tablodaki her satiri benzersiz tanimlayan kisitlama hangisidir?', en: 'Which constraint uniquely identifies every row in a table?' }, options: [{ id: 'a', text: 'FOREIGN KEY' }, { id: 'b', text: 'UNIQUE' }, { id: 'c', text: 'PRIMARY KEY' }, { id: 'd', text: 'NOT NULL' }], correct: 'c', explanation: { tr: 'PRIMARY KEY, her satiri benzersiz tanimlar, NULL olamaz ve tekrar edemez. Her tabloda yalnizca bir tane olabilir.', en: 'PRIMARY KEY uniquely identifies each row, cannot be NULL, and must be unique. Only one per table is allowed.' } },
+      { type: 'quiz', question: { tr: 'Tablodaki her satiri benzersiz tanimlayan kisitlama hangisidir?', en: 'Which constraint uniquely identifies every row in a table?' }, options: [{ id: 'a', text: 'FOREIGN KEY' }, { id: 'b', text: 'UNIQUE' }, { id: 'c', text: 'PRIMARY KEY' }, { id: 'd', text: 'NOT NULL' }], correct: 'c', explanation: { tr: 'PRIMARY KEY, her satiri benzersiz tanimlar, NULL olamaz ve tekrar edemez. Her tabloda yalnizca bir tane olabilir.', en: 'PRIMARY KEY uniquely identifies each row, cannot be NULL, and must be unique. Only one per table is allowed.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir veritabanı tablosundaki her kaydı kesin olarak tanımlamak ve null değer almasını engellemek için kullanılan sütun kısıtlaması nedir?",
+            "en": "Which database column constraint is used to ensure that each record can be definitively identified and cannot contain null values?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "CHECK"
+            },
+            {
+                  "id": "b",
+                  "text": "DEFAULT"
+            },
+            {
+                  "id": "c",
+                  "text": "PRIMARY KEY"
+            },
+            {
+                  "id": "d",
+                  "text": "UNIQUE"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "PRIMARY KEY, tablodaki satırları eşsiz bir şekilde tanımlayan, NULL olamayan ve varsayılan olarak indekslenen kısıtlamadır.",
+            "en": "A PRIMARY KEY is a constraint that uniquely identifies records in a table, enforces non-nullability, and is automatically indexed."
+      }
+}
+},
       // Interview Questions: SQL Foundations
       { type: 'interview-questions', topic: 'SQL Foundations', questions: [
         { level: 'basic', q: { tr: 'SELECT * ile SELECT col1, col2 arasindaki fark nedir?', en: 'What is the difference between SELECT * and SELECT col1, col2?' }, a: { tr: 'SELECT * tum sutunlari dondurur — hizli sorgu icin uygun ama uretimde onerilmez: gereksiz veri aktarir, index kullanimini zorlastitir, sema degisikliginde beklenmedik sonuclar verebilir. SELECT col1, col2 sadece ihtiyac duydugunuz sutunlari getirir — daha hizli, daha guvenli.', en: 'SELECT * returns all columns — fine for quick exploration but not recommended in production: it transfers unnecessary data, can break covering indexes, and may cause issues when schema changes. SELECT col1, col2 fetches only what you need — faster and safer.' } },
@@ -1025,7 +1168,31 @@ GROUP BY t.id, t.name;
         options: ['INNER JOIN', 'CROSS JOIN', 'LEFT JOIN', 'RIGHT JOIN'],
         correct: 2,
         explanation: 'LEFT JOIN (also called LEFT OUTER JOIN) returns every row from the left table. For right-table columns with no match, NULL values appear. Use it when you need "all X, even if they have no related Y" — like all testers including those with 0 bugs.',
-      },
+      
+        retryQuestion: {
+      "question": "Which SQL operation is used to retrieve all records from the right-hand table, even if there is no matching data found in the left-hand table?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "LEFT JOIN"
+            },
+            {
+                  "id": "b",
+                  "text": "RIGHT JOIN"
+            },
+            {
+                  "id": "c",
+                  "text": "INNER JOIN"
+            },
+            {
+                  "id": "d",
+                  "text": "FULL OUTER JOIN"
+            }
+      ],
+      "correct": "b",
+      "explanation": "RIGHT JOIN (or RIGHT OUTER JOIN) ensures that all rows from the right table are included in the result set, filling in NULLs for any columns where no relationship exists in the left table."
+}
+},
       { type: 'heading', text: '☕ If You Know Java: PreparedStatement & Transactions' },
       {
         type: 'java-compare',
@@ -1097,11 +1264,101 @@ with conn:   # auto-commits on success, rolls back on error
         note: 'QA tip: wrap test data setup in a transaction and rollback after each test — keeps the DB clean without writing DELETE cleanup queries.',
       },
       // Quiz: HAVING
-      { type: 'quiz', question: { tr: 'GROUP BY ile birlikte gruplanmis sonuclari filtreleyen clause hangisidir?', en: 'Which clause filters grouped results when used with GROUP BY?' }, options: [{ id: 'a', text: 'WHERE' }, { id: 'b', text: 'HAVING' }, { id: 'c', text: 'FILTER' }, { id: 'd', text: 'ORDER BY' }], correct: 'b', explanation: { tr: 'HAVING, aggregate fonksiyon sonuclarini (COUNT, SUM vb.) filtreler. WHERE ise satirlari gruplamadan once filtreler.', en: 'HAVING filters aggregate results (COUNT, SUM etc.). WHERE filters individual rows before grouping — you cannot use COUNT(*) in a WHERE clause.' } },
+      { type: 'quiz', question: { tr: 'GROUP BY ile birlikte gruplanmis sonuclari filtreleyen clause hangisidir?', en: 'Which clause filters grouped results when used with GROUP BY?' }, options: [{ id: 'a', text: 'WHERE' }, { id: 'b', text: 'HAVING' }, { id: 'c', text: 'FILTER' }, { id: 'd', text: 'ORDER BY' }], correct: 'b', explanation: { tr: 'HAVING, aggregate fonksiyon sonuclarini (COUNT, SUM vb.) filtreler. WHERE ise satirlari gruplamadan once filtreler.', en: 'HAVING filters aggregate results (COUNT, SUM etc.). WHERE filters individual rows before grouping — you cannot use COUNT(*) in a WHERE clause.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "SQL sorgularında, gruplandırılmış veriler üzerinde (örneğin COUNT, SUM sonuçları gibi) filtreleme yapmak için hangi anahtar kelime kullanılır?",
+            "en": "Which keyword is used in SQL queries to filter data based on aggregate functions (like COUNT, SUM) performed on grouped data?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "WHERE"
+            },
+            {
+                  "id": "b",
+                  "text": "HAVING"
+            },
+            {
+                  "id": "c",
+                  "text": "GROUP BY"
+            },
+            {
+                  "id": "d",
+                  "text": "LIMIT"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "HAVING, GROUP BY sonrası oluşturulan özetlenmiş verileri filtrelemek için kullanılır, WHERE ise gruplama öncesi satırları filtreler.",
+            "en": "HAVING is specifically designed to filter aggregated result sets created by the GROUP BY clause, whereas WHERE is used to filter individual records before any grouping occurs."
+      }
+}
+},
       // Quiz: LEFT JOIN
-      { type: 'quiz', question: { tr: 'Hangi JOIN turu sol tablodan tum satirlari dondurur, sagda eslesme olmasa bile?', en: 'Which JOIN returns ALL rows from the left table, even with no match on the right?' }, options: [{ id: 'a', text: 'INNER JOIN' }, { id: 'b', text: 'CROSS JOIN' }, { id: 'c', text: 'RIGHT JOIN' }, { id: 'd', text: 'LEFT JOIN' }], correct: 'd', explanation: { tr: 'LEFT JOIN, sol tablodaki tum satirlari dondurur. Sag tabloda eslesme yoksa sag sutunlar NULL olur.', en: 'LEFT JOIN returns every row from the left table. If there is no match on the right, right-side columns come back as NULL.' } },
+      { type: 'quiz', question: { tr: 'Hangi JOIN turu sol tablodan tum satirlari dondurur, sagda eslesme olmasa bile?', en: 'Which JOIN returns ALL rows from the left table, even with no match on the right?' }, options: [{ id: 'a', text: 'INNER JOIN' }, { id: 'b', text: 'CROSS JOIN' }, { id: 'c', text: 'RIGHT JOIN' }, { id: 'd', text: 'LEFT JOIN' }], correct: 'd', explanation: { tr: 'LEFT JOIN, sol tablodaki tum satirlari dondurur. Sag tabloda eslesme yoksa sag sutunlar NULL olur.', en: 'LEFT JOIN returns every row from the left table. If there is no match on the right, right-side columns come back as NULL.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Hangi JOIN turu sag tablodaki tum satirlari dondurur, solda eslesme olmasa bile?",
+            "en": "Which JOIN returns ALL rows from the right table, even with no match on the left?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "INNER JOIN"
+            },
+            {
+                  "id": "b",
+                  "text": "RIGHT JOIN"
+            },
+            {
+                  "id": "c",
+                  "text": "LEFT JOIN"
+            },
+            {
+                  "id": "d",
+                  "text": "CROSS JOIN"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "RIGHT JOIN, sag tablodaki tum satirlari dondurur. Sol tabloda eslesme yoksa sol sutunlar NULL degeri alir.",
+            "en": "A RIGHT JOIN returns every row from the right table. If there is no match on the left, left-side columns are returned as NULL."
+      }
+}
+},
       // Quiz: Correlated subquery
-      { type: 'quiz', question: { tr: 'Correlated subquery ile normal subquery arasindaki temel fark nedir?', en: 'What is the key difference between a correlated and a regular subquery?' }, options: [{ id: 'a', text: 'Correlated subquery sadece FROM clause\'da calisir' }, { id: 'b', text: 'Correlated subquery dis sorgunun her satiri icin bir kez calisir' }, { id: 'c', text: 'Normal subquery her zaman daha yavastir' }, { id: 'd', text: 'Aralarinda bir fark yoktur' }], correct: 'b', explanation: { tr: 'Correlated subquery, dis sorgunun bir sutununa referans verir ve dis sorgunun her satiri icin yeniden calisir. Mumkunse JOIN kullanin.', en: 'A correlated subquery references a column from the outer query and runs once per outer row — can be slow. Use a JOIN instead when possible.' } },
+      { type: 'quiz', question: { tr: 'Correlated subquery ile normal subquery arasindaki temel fark nedir?', en: 'What is the key difference between a correlated and a regular subquery?' }, options: [{ id: 'a', text: 'Correlated subquery sadece FROM clause\'da calisir' }, { id: 'b', text: 'Correlated subquery dis sorgunun her satiri icin bir kez calisir' }, { id: 'c', text: 'Normal subquery her zaman daha yavastir' }, { id: 'd', text: 'Aralarinda bir fark yoktur' }], correct: 'b', explanation: { tr: 'Correlated subquery, dis sorgunun bir sutununa referans verir ve dis sorgunun her satiri icin yeniden calisir. Mumkunse JOIN kullanin.', en: 'A correlated subquery references a column from the outer query and runs once per outer row — can be slow. Use a JOIN instead when possible.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir 'Correlated subquery' hakkinda asagidaki ifadelerden hangisi dogrudur?",
+            "en": "Which of the following statements is true regarding a correlated subquery?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Bagimsiz olarak calisabilir ve dis sorguyla iletisim kurmaz"
+            },
+            {
+                  "id": "b",
+                  "text": "Dis sorgudan gelen veriye baglidir ve her satir icin tekrar calisir"
+            },
+            {
+                  "id": "c",
+                  "text": "Sadece tek bir sonuc degeri dondurmek zorundadir"
+            },
+            {
+                  "id": "d",
+                  "text": "Daima performans acisindan JOIN islemlerinden daha iyidir"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Correlated subquery, dis sorgudaki bir degere bagimlidir, bu yuzden dis sorgunun her bir satirinda subquery tekrar islenir.",
+            "en": "A correlated subquery is dependent on a value from the outer query, causing the subquery to be executed repeatedly for every row processed by the outer query."
+      }
+}
+},
       // Interview Questions: SQL Intermediate
       { type: 'interview-questions', topic: 'SQL Intermediate', questions: [
         { level: 'basic', q: { tr: 'Aggregate fonksiyonlari GROUP BY olmadan kullanabilir misiniz?', en: 'Can you use aggregate functions without GROUP BY?' }, a: { tr: 'Evet. GROUP BY olmadan aggregate TUM tabloyu tek bir grup olarak ele alir ve tek bir deger dondurur. SELECT COUNT(*) FROM test_results tum satir sayisini verir. GROUP BY ekleyince her grup icin ayri satir uretilir.', en: 'Yes. Without GROUP BY, aggregates treat the entire table as one group and return a single value. SELECT COUNT(*) FROM test_results gives total row count. Add GROUP BY to get one row per group.' } },
@@ -1382,9 +1639,69 @@ cursor.execute(
         note: 'COMMIT makes all changes permanent. ROLLBACK undoes everything back to START TRANSACTION — like Ctrl+Z for the entire batch.',
       },
       // Quiz: Window functions
-      { type: 'quiz', question: { tr: 'Window fonksiyonlarini GROUP BY dan ayiran temel ozellik nedir?', en: 'What is the key difference between window functions and GROUP BY?' }, options: [{ id: 'a', text: 'Window functions only work on dates' }, { id: 'b', text: 'Window functions collapse rows into groups' }, { id: 'c', text: 'Window functions calculate across rows without collapsing them' }, { id: 'd', text: 'GROUP BY is faster than window functions' }], correct: 'c', explanation: { tr: 'Window fonksiyonlari her satirin kimligini korur. GROUP BY satiri daraltir. ROW_NUMBER(), RANK(), SUM() OVER() satir bazli hesaplama yapar ama satir kaybolmaz.', en: 'Window functions keep each row identity — unlike GROUP BY which collapses rows. ROW_NUMBER(), RANK(), SUM() OVER() calculate per-row while keeping all rows visible.' } },
+      { type: 'quiz', question: { tr: 'Window fonksiyonlarini GROUP BY dan ayiran temel ozellik nedir?', en: 'What is the key difference between window functions and GROUP BY?' }, options: [{ id: 'a', text: 'Window functions only work on dates' }, { id: 'b', text: 'Window functions collapse rows into groups' }, { id: 'c', text: 'Window functions calculate across rows without collapsing them' }, { id: 'd', text: 'GROUP BY is faster than window functions' }], correct: 'c', explanation: { tr: 'Window fonksiyonlari her satirin kimligini korur. GROUP BY satiri daraltir. ROW_NUMBER(), RANK(), SUM() OVER() satir bazli hesaplama yapar ama satir kaybolmaz.', en: 'Window functions keep each row identity — unlike GROUP BY which collapses rows. ROW_NUMBER(), RANK(), SUM() OVER() calculate per-row while keeping all rows visible.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Window fonksiyonlarinin 'Aggregate' fonksiyonlardan (GROUP BY ile kullanilan) temel farki nedir?",
+            "en": "What is the primary difference between window functions and aggregate functions (used with GROUP BY)?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Window fonksiyonlari tabloyu gruplara ayirarak satir sayisini azaltir"
+            },
+            {
+                  "id": "b",
+                  "text": "Aggregate fonksiyonlar satir bazli hesaplama yapamaz"
+            },
+            {
+                  "id": "c",
+                  "text": "Window fonksiyonlari her satiri korur ve sonuc satiri sayisini degistirmez"
+            },
+            {
+                  "id": "d",
+                  "text": "Aggregate fonksiyonlar sadece numerik verilerde calisir"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Aggregate fonksiyonlar GROUP BY ile kullanildiginda satirlari tek bir satira indirger. Window fonksiyonlari ise her bir satirin verisini koruyarak hesaplama sonucunu yeni bir sutunda ekler.",
+            "en": "Aggregate functions used with GROUP BY condense rows into single result rows. Window functions perform calculations over a set of rows while preserving the identity and number of the original rows."
+      }
+}
+},
       // Quiz: CTE
-      { type: 'quiz', question: { tr: 'CTE (Common Table Expression) icin hangi keyword kullanilir?', en: 'Which keyword is used to define a CTE?' }, options: [{ id: 'a', text: 'DEFINE' }, { id: 'b', text: 'TEMP' }, { id: 'c', text: 'WITH' }, { id: 'd', text: 'CREATE TEMP' }], correct: 'c', explanation: { tr: 'CTE, WITH keyword u ile tanimlanir: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. Karmasik sorgulari adlandirilmis adimlara boler.', en: 'A CTE starts with WITH: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. It breaks complex queries into named steps and improves readability.' } },
+      { type: 'quiz', question: { tr: 'CTE (Common Table Expression) icin hangi keyword kullanilir?', en: 'Which keyword is used to define a CTE?' }, options: [{ id: 'a', text: 'DEFINE' }, { id: 'b', text: 'TEMP' }, { id: 'c', text: 'WITH' }, { id: 'd', text: 'CREATE TEMP' }], correct: 'c', explanation: { tr: 'CTE, WITH keyword u ile tanimlanir: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. Karmasik sorgulari adlandirilmis adimlara boler.', en: 'A CTE starts with WITH: WITH cte_name AS (SELECT ...) SELECT * FROM cte_name. It breaks complex queries into named steps and improves readability.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "SQL'de gecici bir sonuc kumesi olusturmak ve sorgu icinde tekrar kullanmak icin hangi ifade tercih edilir?",
+            "en": "Which statement is preferred to create a temporary result set and reuse it within a query in SQL?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "DECLARE"
+            },
+            {
+                  "id": "b",
+                  "text": "WITH"
+            },
+            {
+                  "id": "c",
+                  "text": "JOIN"
+            },
+            {
+                  "id": "d",
+                  "text": "UNION"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "WITH ifadesi, karmaşık sorguları basitleştirmek ve okunabilirliği artırmak için bir CTE (Common Table Expression) tanımlamak amacıyla kullanılır.",
+            "en": "The WITH clause is used to define a CTE (Common Table Expression), which is used to simplify complex queries and improve readability."
+      }
+}
+},
       // Interview Questions: SQL Advanced
       { type: 'interview-questions', topic: 'SQL Advanced', questions: [
         { level: 'basic', q: { tr: 'Window fonksiyonu nedir? Basit bir ornek verin.', en: 'What is a window function? Give a simple example.' }, a: { tr: 'Window fonksiyonu, iliskili bir satir kumesi uzerinde hesaplama yapar ama GROUP BY nin aksine satirlari daraltmaz. Ornek: SELECT test_name, duration_ms, RANK() OVER (ORDER BY duration_ms DESC) AS rank FROM test_results — her test icin hem suresini hem siralamadaki yerini gosterir, satir sayisi degismez.', en: 'A window function performs a calculation over a set of related rows without collapsing them like GROUP BY. Example: SELECT test_name, duration_ms, RANK() OVER (ORDER BY duration_ms DESC) AS rank FROM test_results — shows each test with its duration AND its rank, row count stays the same.' } },
@@ -1540,6 +1857,29 @@ EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL' AND environment = 'prod
 -- EXPLAIN ANALYZE (PostgreSQL — actually runs the query):
 EXPLAIN ANALYZE SELECT * FROM test_results WHERE status = 'FAIL';`,
         expected: `Before index: type=ALL, rows=50000, key=NULL\nAfter index:  type=ref, rows=120, key=idx_status_env`
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'EXPLAIN çıktısında bir sorgu için `type: "ALL"` ve `rows: 50000` görüyorsun. Bu ne anlama gelir, ve genel çözüm nedir?', en: 'EXPLAIN output shows `type: "ALL"` and `rows: 50000` for a query. What does this mean, and what is the general fix?' },
+        options: [
+          { id: 'a', text: { tr: 'Sorgu zaten optimaldir, hiçbir şey yapma', en: 'The query is already optimal, do nothing' } },
+          { id: 'b', text: { tr: 'Veritabanı bir full table scan yapıyor (index kullanmıyor) — WHERE\'de filtrelenen kolona index ekle', en: 'The database is doing a full table scan (not using an index) — add an index on the column filtered in WHERE' } },
+          { id: 'c', text: { tr: 'Tablo boş', en: 'The table is empty' } },
+          { id: 'd', text: { tr: 'Sorgu syntax hatası içeriyor', en: 'The query contains a syntax error' } },
+        ],
+        correct: 'b',
+        explanation: { tr: '`type: "ALL"`, veritabanının eşleşen satırları bulmak için tablonun TÜM satırlarını taradığı anlamına gelir (full table scan) — `rows: 50000` bunun ne kadar maliyetli olduğunu gösterir. WHERE koşulunda filtrelenen kolona (örn. status, environment) bir index eklemek, planı `type: "ref"`e çevirir ve taranan satır sayısını dramatik şekilde düşürür — Java\'da bir HashMap ile O(1) erişim yerine bir ArrayList\'i baştan sona taramanın (O(n)) farkı gibi.', en: '`type: "ALL"` means the database scans EVERY row in the table to find matches (a full table scan) — `rows: 50000` shows how expensive that is. Adding an index on the column filtered in WHERE (e.g. status, environment) changes the plan to `type: "ref"` and dramatically reduces the rows scanned — similar to the difference between O(1) lookup with a Java HashMap versus scanning an entire ArrayList from start to end (O(n)).' },
+        retryQuestion: {
+          question: { tr: 'Bir kolona index ekledikten sonra EXPLAIN hâlâ `type: "ALL"` gösteriyor, sorgu hâlâ yavaş. Olası bir neden nedir?', en: 'After adding an index on a column, EXPLAIN still shows `type: "ALL"` and the query is still slow. What is a likely cause?' },
+          options: [
+            { id: 'a', text: { tr: 'Index\'ler her zaman 24 saat sonra etkin olur', en: 'Indexes always take 24 hours to become active' } },
+            { id: 'b', text: { tr: 'WHERE koşulu o kolonu fonksiyon içinde kullanıyor olabilir (örn. UPPER(status) = \'FAIL\'), bu da index kullanımını engeller', en: "The WHERE clause might be wrapping that column in a function (e.g. UPPER(status) = 'FAIL'), which prevents the index from being used" } },
+            { id: 'c', text: { tr: 'Index sadece SELECT * sorgularında çalışır', en: 'Indexes only work with SELECT * queries' } },
+            { id: 'd', text: { tr: 'Sorgu zaten optimaldir, EXPLAIN yanlış bilgi veriyor', en: 'The query is already optimal, EXPLAIN is reporting incorrectly' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Bir kolonu bir fonksiyonun içine sarmak (örn. `WHERE UPPER(status) = \'FAIL\'` veya `WHERE YEAR(created_at) = 2024`) veritabanının normal index\'i kullanmasını engeller, çünkü index ham kolon değerleri üzerine kuruludur, fonksiyonun sonucu üzerine değil — bu yaygın bir "neden index\'im hâlâ çalışmıyor" tuzağıdır. Çözüm genelde sorguyu fonksiyon kullanmadan yeniden yazmak veya bir functional/expression index oluşturmaktır.', en: "Wrapping a column in a function (e.g. `WHERE UPPER(status) = 'FAIL'` or `WHERE YEAR(created_at) = 2024`) prevents the database from using a normal index, because the index is built on the raw column values, not the function's result — this is a common \"why isn't my index working\" trap. The fix is usually to rewrite the query without the function, or create a functional/expression index." },
+        },
       },
     ],
   },
@@ -1743,6 +2083,29 @@ CREATE INDEX idx_bugs_created ON bugs(created_at);
 
 -- Step 3: Re-check
 EXPLAIN SELECT ...  -- Now shows type=ref, using indexes` },
+      {
+        type: 'quiz',
+        question: { tr: 'Yukarıdaki sorguda `LEFT JOIN bugs` kullanılıyor, `JOIN` (INNER JOIN) değil. Bunun sonuçlar üzerindeki etkisi nedir?', en: 'The query above uses `LEFT JOIN bugs`, not a plain `JOIN` (INNER JOIN). What effect does this have on the results?' },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir testers satırı dönmez', en: 'No testers rows are returned at all' } },
+          { id: 'b', text: { tr: 'Hiç bug\'ı olmayan tester\'lar da sonuçta görünür (bug sayısı 0 olur); INNER JOIN onları tamamen hariç tutardı', en: "Testers with zero bugs still appear in the result (with a bug count of 0); an INNER JOIN would exclude them entirely" } },
+          { id: 'c', text: { tr: 'Sadece bug\'ı olan tester\'lar görünür, aynı INNER JOIN gibi', en: 'Only testers with bugs appear, same as an INNER JOIN' } },
+          { id: 'd', text: { tr: 'Sorgu performansını artırır, sonuçları değiştirmez', en: 'It only improves performance, does not change results' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'LEFT JOIN, sol tablodaki (testers) TÜM satırları tutar; sağ tabloda (bugs) eşleşme yoksa o satırların alanları NULL olur (COUNT(b.id) bu durumda 0 sayar). INNER JOIN (sade JOIN) ise sadece İKİ tarafta da eşleşme olan satırları döndürür — hiç bug açmamış bir tester INNER JOIN sonucunda tamamen kaybolurdu. Bu fark, "hiç hatası olmayan testerlar dahil" raporlama gibi gerçek QA senaryolarında kritiktir.', en: "LEFT JOIN keeps ALL rows from the left table (testers); if there is no match in the right table (bugs), those fields become NULL (so COUNT(b.id) counts as 0). An INNER JOIN (plain JOIN) only returns rows where BOTH sides match — a tester with zero bugs would disappear entirely from an INNER JOIN result. This distinction matters in real QA reporting scenarios like \"include testers with zero bugs\"." },
+        retryQuestion: {
+          question: { tr: 'Bir LEFT JOIN sorgusunda `WHERE bugs.severity = \'HIGH\'` koşulu eklersen, bunun sonuçlar üzerinde fark etmediğin bir etkisi olabilir. Bu etki nedir?', en: 'If you add `WHERE bugs.severity = \'HIGH\'` to a LEFT JOIN query, it can have an effect on results you might not expect. What is it?' },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir etkisi yok, LEFT JOIN davranışı tamamen korunur', en: 'No effect at all, LEFT JOIN behavior is fully preserved' } },
+            { id: 'b', text: { tr: 'WHERE koşulu NULL satırları (bug\'ı olmayan tester\'lar) filtreler, LEFT JOIN\'i fiilen bir INNER JOIN gibi davranmaya zorlar', en: 'The WHERE clause filters out the NULL rows (testers with no bugs), effectively forcing the LEFT JOIN to behave like an INNER JOIN' } },
+            { id: 'c', text: { tr: 'Sorgu syntax hatası verir', en: 'The query throws a syntax error' } },
+            { id: 'd', text: { tr: 'LEFT JOIN otomatik olarak RIGHT JOIN\'e dönüşür', en: 'The LEFT JOIN automatically converts to a RIGHT JOIN' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'WHERE, JOIN tamamlandıktan SONRA uygulanır. Bug\'ı olmayan bir tester\'ın `bugs.severity` alanı NULL\'dur, ve `NULL = \'HIGH\'` her zaman UNKNOWN (yanlış) değerlendirilir — bu yüzden o satır WHERE tarafından elenir. Sonuç, LEFT JOIN\'in "sıfır eşleşmeli satırları da tut" amacının fiilen iptal olmasıdır. Bu koşulu LEFT JOIN\'i bozmadan filtrelemek istiyorsan, WHERE yerine ON clause\'una taşımalısın.', en: 'WHERE is applied AFTER the join completes. A tester with no bugs has `bugs.severity` as NULL, and `NULL = \'HIGH\'` always evaluates to UNKNOWN (falsy) — so that row gets filtered out by WHERE. The net effect is that the LEFT JOIN\'s purpose of keeping zero-match rows gets effectively cancelled. To filter like this without breaking the LEFT JOIN, you would move that condition into the ON clause instead of WHERE.' },
+        },
+      },
     ],
   },
 
@@ -1988,6 +2351,29 @@ VALUES (1, 'Alice', 'alice@test.com');
         { term: 'View', definition: { tr: 'Kayitli SQL sorgu tarafindan tanimlanan sanal tablo. Bir tablo gibi sorgulanabilir ama veriyi kendisi saklamaz.', en: 'A virtual table defined by a stored SQL query. Can be queried like a table but does not store data itself.' } },
         { term: 'Window Function', definition: { tr: 'GROUP BY nin aksine satirlari daraltmadan iliskili satirlar penceresi uzerinde hesaplama yapan fonksiyon. ROW_NUMBER, RANK, LAG gibi.', en: 'A function that performs calculations over a window of related rows without collapsing them like GROUP BY. Examples: ROW_NUMBER, RANK, LAG.' } },
       ]},
+      {
+        type: 'quiz',
+        question: { tr: '`WHERE email = NULL` yazan bir sorgu hiçbir satır döndürmüyor, hatta email\'i gerçekten eksik olan satırlar için de. Sorun nedir, ve doğru sözdizimi nedir?', en: 'A query with `WHERE email = NULL` returns no rows, even for rows where the email is genuinely missing. What is the problem, and what is the correct syntax?' },
+        options: [
+          { id: 'a', text: { tr: 'NULL büyük harfle yazılmalı', en: 'NULL must be written in lowercase' } },
+          { id: 'b', text: { tr: 'NULL hiçbir değere "eşit" değildir (NULL dahil) — `IS NULL` kullanılmalı', en: 'NULL is not "equal" to anything (including NULL itself) — `IS NULL` must be used' } },
+          { id: 'c', text: { tr: 'WHERE clause\'u NULL kontrolünü desteklemez', en: 'WHERE clauses do not support NULL checks' } },
+          { id: 'd', text: { tr: 'NULL yerine boş string ("") kullanılmalı', en: 'An empty string ("") should be used instead of NULL' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'SQL\'in üç değerli mantığında, NULL "bilinmeyen" bir değeri temsil eder ve hiçbir değerle (kendisi dahil) eşit veya eşit değildir — `NULL = NULL` bile UNKNOWN döner, TRUE değil. Bu yüzden `email IS NULL` / `email IS NOT NULL` özel operatörleri kullanılmalı. Java\'da bu, bir referansı `== null` ile kontrol etmekle aynı kategoride bir kavramdır, ama SQL\'de `=` operatörü bunun için ASLA çalışmaz.', en: "In SQL's three-valued logic, NULL represents an \"unknown\" value and is never equal or unequal to anything (including itself) — even `NULL = NULL` evaluates to UNKNOWN, not TRUE. That's why the special `IS NULL` / `IS NOT NULL` operators must be used instead. This is conceptually similar to checking a reference with `== null` in Java, but in SQL the `=` operator will NEVER work for this." },
+        retryQuestion: {
+          question: { tr: '`WHERE status != \'FAIL\'` koşulu olan bir sorgu, beklenmedik şekilde `status`u NULL olan satırları da hariç tutuyor (oysa onları DAHİL etmek istiyordun). Neden?', en: 'A query with `WHERE status != \'FAIL\'` unexpectedly excludes rows where `status` is NULL too (even though you wanted to INCLUDE them). Why?' },
+          options: [
+            { id: 'a', text: { tr: 'NULL her zaman \'FAIL\'e eşittir', en: 'NULL is always equal to \'FAIL\'' } },
+            { id: 'b', text: { tr: 'NULL != \'FAIL\' karşılaştırması da UNKNOWN değerlendirilir, bu yüzden WHERE o satırı dahil etmez', en: 'The comparison NULL != \'FAIL\' also evaluates to UNKNOWN, so WHERE does not include that row either' } },
+            { id: 'c', text: { tr: 'NULL satırları veritabanından otomatik silinmiştir', en: 'NULL rows have been automatically deleted from the database' } },
+            { id: 'd', text: { tr: '!= operatörü NULL ile asla kullanılamaz, syntax hatası verir', en: 'The != operator can never be used with NULL, it throws a syntax error' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'NULL ile yapılan HER karşılaştırma (=, !=, <, > dahil) UNKNOWN döner, TRUE veya FALSE değil — ve WHERE clause sadece TRUE değerlendirilen satırları tutar. `status != \'FAIL\'`, NULL bir status için UNKNOWN döner, bu yüzden o satır ne dahil edilir ne reddedilir gibi görünür, fiilen DIŞARIDA kalır. Doğru çözüm: `WHERE status != \'FAIL\' OR status IS NULL`.', en: 'EVERY comparison with NULL (including =, !=, <, >) evaluates to UNKNOWN, not TRUE or FALSE — and the WHERE clause only keeps rows that evaluate to TRUE. `status != \'FAIL\'` evaluates to UNKNOWN for a NULL status, so that row ends up excluded, not included as you might expect. The correct fix is: `WHERE status != \'FAIL\' OR status IS NULL`.' },
+        },
+      },
     ],
   },
 ]

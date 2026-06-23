@@ -1,4 +1,4 @@
-﻿node_modules/
+node_modules/
 test-results/
 playwright-report/
 dist/
@@ -9,6 +9,7 @@ dist/
 
 # Local study notes - must never be committed
 Documents/_Java notlar.md
+Documents/IT JavaTürkçe.md
 
 # Debug / verification screenshots
 verify_*.png

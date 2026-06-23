@@ -1269,7 +1269,31 @@ export const gitGithubData = {
             ],
             correct: 'b',
             explanation: 'Git works locally and creates snapshots. GitHub hosts repositories and adds PRs, Actions, Pages and collaboration features.',
-          },
+          
+        retryQuestion: {
+      "question": "Which of the following best describes the fundamental difference between Git and a platform like GitLab?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Git is the platform and GitLab is the version control system"
+            },
+            {
+                  "id": "b",
+                  "text": "Git is a version control system for local tracking; GitLab is a remote service for collaboration and CI/CD"
+            },
+            {
+                  "id": "c",
+                  "text": "Git manages server infrastructure while GitLab manages local file snapshots"
+            },
+            {
+                  "id": "d",
+                  "text": "They are identical and can be used interchangeably without any setup"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Git is a distributed version control system designed to manage code history locally. Services like GitLab (similar to GitHub) provide a centralized server interface to manage these repositories, handle user permissions, and run automated pipelines."
+}
+},
         ],
       },
       {
@@ -1480,6 +1504,29 @@ export const gitGithubData = {
             type: 'warning',
             content: 'Pick one method and stick with it. HTTPS remotes look like `https://github.com/user/repo.git`, SSH remotes look like `git@github.com:user/repo.git`. If you switch later, update with `git remote set-url origin <new-url>`.',
           },
+          {
+            type: 'quiz',
+            question: "Right after installing Git, you skip `git config --global user.name`/`user.email` and make your first commit anyway. What happens?",
+            options: [
+              { id: 'a', text: 'Git refuses to commit until you configure it' },
+              { id: 'b', text: 'The commit succeeds but is attributed to a missing or wrong author identity' },
+              { id: 'c', text: 'GitHub automatically fills in your account name' },
+              { id: 'd', text: 'The commit is created without a timestamp' },
+            ],
+            correct: 'b',
+            explanation: "Git does not block commits without a configured identity — depending on the OS/Git version it either falls back to a guessed system username/hostname or errors only when that fallback is also missing. Either way, the commit's author metadata is unreliable, which breaks `git log`/`git blame` history and confuses code review. Always set `user.name`/`user.email` before your first real commit.",
+            retryQuestion: {
+              question: 'You already made several commits with the wrong `user.email` before noticing. What is the safe way to fix the identity for FUTURE commits on a shared branch?',
+              options: [
+                { id: 'a', text: 'Rewrite all past commits with `git rebase` to fix the author on a branch others have already pulled' },
+                { id: 'b', text: 'Run `git config user.email "correct@email.com"` and simply continue committing normally going forward' },
+                { id: 'c', text: 'Delete the repository and clone it again' },
+                { id: 'd', text: 'Nothing can be done once a commit is made' },
+              ],
+              correct: 'b',
+              explanation: 'Fixing the config only affects commits made AFTER the change — past commits keep whatever identity they already have. Rewriting history on a shared branch (rebase/amend) to fix old author metadata is risky if anyone else has already pulled those commits, since it breaks their history too; that kind of rewrite should only be done on a private, not-yet-pushed branch.',
+            },
+          },
         ],
       },
       {
@@ -1610,6 +1657,29 @@ export const gitGithubData = {
             title: { en: 'Commit Timeline: HEAD, branches and hashes', tr: 'Commit Zaman Çizelgesi: HEAD, branch ve hash' },
             description: { en: 'See how `git log --oneline --graph` output maps to a visual commit chain with HEAD and branch pointers.', tr: '`git log --oneline --graph` çıktısının HEAD ve branch pointer ile commit zincirine nasıl karşılık geldiğini gör.' },
           },
+          {
+            type: 'quiz',
+            question: 'You have 10 modified files in your working directory, but you only run `git add` on 3 of them before committing. What ends up in the commit?',
+            options: [
+              { id: 'a', text: 'All 10 files, because Git always commits every change' },
+              { id: 'b', text: 'Only the 3 staged files — the other 7 stay as uncommitted changes' },
+              { id: 'c', text: 'Nothing, because you must stage all files at once' },
+              { id: 'd', text: 'The 3 staged files plus a warning that blocks the commit' },
+            ],
+            correct: 'b',
+            explanation: "The staging area (index) is exactly what its name says: a deliberate selection of what goes into the next commit. `git add` moves specific files into that selection; `git commit` only snapshots what is staged. The remaining 7 modified files keep existing in your working directory, untouched, ready to be staged in a later, separate commit.",
+            retryQuestion: {
+              question: 'You run `git add file1.js file2.js` then immediately `git add file3.js`, then `git commit`. Which files end up in this single commit?',
+              options: [
+                { id: 'a', text: 'Only file3.js, since the second `git add` overwrites the first' },
+                { id: 'b', text: 'All three files — each `git add` call adds to the existing staging selection, it does not replace it' },
+                { id: 'c', text: 'None — you must stage everything in one command' },
+                { id: 'd', text: 'Only file1.js and file2.js' },
+              ],
+              correct: 'b',
+              explanation: '`git add` is additive: every call adds more files to the existing staging selection rather than resetting it. So staging file1.js+file2.js and then file3.js separately still results in all three being staged together — the next `git commit` snapshots everything currently in the index, regardless of how many separate `git add` calls built up that selection.',
+            },
+          },
         ],
       },
       {
@@ -1728,7 +1798,31 @@ export const gitGithubData = {
             ],
             correct: 'c',
             explanation: '.gitignore only affects files Git is not already tracking. To stop tracking something committed before, use git rm --cached (add -r for folders) and commit — this removes it from future tracking without deleting it from disk.',
-          },
+          
+        retryQuestion: {
+      "question": "You have accidentally tracked a 'config.env' file that contains secrets. You added it to '.gitignore', but it still appears as modified in your Git status. How do you stop Git from tracking this file without deleting it from your local system?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Run 'git clean -f' to clear the ignored files"
+            },
+            {
+                  "id": "b",
+                  "text": "Simply delete the file and recreate it, Git will ignore it then"
+            },
+            {
+                  "id": "c",
+                  "text": "Run 'git rm --cached config.env' and then commit"
+            },
+            {
+                  "id": "d",
+                  "text": "Use 'git reset --hard' to revert the file to the state of the initial commit"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Files that were already committed to the repository are still tracked by Git even if you add them to .gitignore later. You must use 'git rm --cached <file>' to remove it from the Git index (staging area) while keeping the actual file on your local machine."
+}
+},
         ],
       },
       {
@@ -2000,7 +2094,31 @@ git status`,
             ],
             correct: 'b',
             explanation: '`--force-with-lease` checks that the remote branch did not move unexpectedly, reducing the chance of overwriting a teammate.',
-          },
+          
+        retryQuestion: {
+      "question": "When you need to force-push to a branch that others are also working on, which command is considered the professional standard to prevent accidental overwriting of others' work?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "git push --force"
+            },
+            {
+                  "id": "b",
+                  "text": "git push --force-with-lease"
+            },
+            {
+                  "id": "c",
+                  "text": "git push --all --soft"
+            },
+            {
+                  "id": "d",
+                  "text": "git push --mirror"
+            }
+      ],
+      "correct": "b",
+      "explanation": "'--force-with-lease' is a safer alternative to '--force'. It verifies that the remote branch has not been updated by someone else since your last fetch; if it has, the push will be rejected, preventing you from silently deleting a colleague's contributions."
+}
+},
         ],
       },
       {
@@ -2041,6 +2159,29 @@ git push -u origin feature/login-tests
           {
             type: 'warning',
             content: 'Avoid direct pushes to `main`. In professional teams, `main` should be protected with PR review and required checks. A direct push can bypass test evidence and make rollback harder.',
+          },
+          {
+            type: 'quiz',
+            question: 'On a professional team, why should you avoid pushing directly to `main` instead of always going through a Pull Request?',
+            options: [
+              { id: 'a', text: 'Direct push is slower than opening a PR' },
+              { id: 'b', text: 'It bypasses code review and required checks, making bad changes and rollback harder to manage' },
+              { id: 'c', text: 'GitHub does not allow direct pushes at all' },
+              { id: 'd', text: 'Direct push deletes the commit history' },
+            ],
+            correct: 'b',
+            explanation: 'A protected `main` requires PR review and passing checks (tests, lint, build) before code lands — this is the gate that catches mistakes before they reach production. A direct push skips that gate entirely: no second pair of eyes, no CI evidence that tests pass, and if something breaks, there is no documented PR to revert cleanly.',
+            retryQuestion: {
+              question: 'A repository has branch protection enabled on `main` requiring 1 approval and passing CI. What happens if someone tries `git push origin main` directly with a local commit?',
+              options: [
+                { id: 'a', text: 'GitHub silently merges it without review' },
+                { id: 'b', text: 'GitHub rejects the push because the protection rule requires changes to go through a reviewed, passing Pull Request' },
+                { id: 'c', text: 'The push succeeds but is automatically reverted a day later' },
+                { id: 'd', text: 'GitHub disables branch protection automatically for emergencies' },
+              ],
+              correct: 'b',
+              explanation: 'Branch protection rules are enforced by GitHub itself, not just a team convention — once enabled, a direct push to a protected branch is rejected outright, forcing every change through a Pull Request that satisfies the configured requirements (review count, required status checks). This is what actually makes "always go through PR" enforceable instead of just a polite request.',
+            },
           },
         ],
       },
@@ -2142,7 +2283,31 @@ git push -u origin feature/login-tests
             ],
             correct: 'c',
             explanation: 'A missing test that can let a real bug through is blocking feedback. Request changes keeps the PR out of main until the risk is handled.',
-          },
+          
+        retryQuestion: {
+      "question": "A pull request introduces a new payment processing function but lacks a unit test for handling invalid credit card inputs. What is the most professional review action?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Approve, since payment functionality is complex and can be tested later"
+            },
+            {
+                  "id": "b",
+                  "text": "Merge the PR and create a ticket for the missing test in the next sprint"
+            },
+            {
+                  "id": "c",
+                  "text": "Request changes, highlighting that invalid input handling is a critical test coverage gap"
+            },
+            {
+                  "id": "d",
+                  "text": "Ignore the missing test if the manual QA team has already verified it"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Security and stability require proper test coverage for edge cases. Requesting changes ensures that the code meets quality standards before it ever reaches the main branch."
+}
+},
         ],
       },
       {
@@ -2243,6 +2408,29 @@ jobs:
           {
             type: 'warning',
             content: 'Never print secrets in workflow logs. Use repository or environment secrets, keep permissions minimal, and remember that secrets are restricted for untrusted fork pull requests.',
+          },
+          {
+            type: 'quiz',
+            question: 'You want a workflow that blocks a Pull Request from being merged whenever the test job fails. Which `on:` trigger fits this QA gatekeeping use case?',
+            options: [
+              { id: 'a', text: 'on: push (to main)' },
+              { id: 'b', text: 'on: pull_request' },
+              { id: 'c', text: 'on: schedule' },
+              { id: 'd', text: 'on: workflow_dispatch' },
+            ],
+            correct: 'b',
+            explanation: "`on: pull_request` runs the workflow on every PR update and surfaces pass/fail status as a required check before merge — exactly the gatekeeping behavior QA wants. `on: push` (to main) only runs AFTER code is already merged, which is useful for deploys but too late to block a bad PR. `schedule` and `workflow_dispatch` are for periodic or manually triggered runs, not merge gating.",
+            retryQuestion: {
+              question: 'A team wants a workflow to deploy to production automatically the moment code lands on `main`, but NOT on every PR (to avoid deploying unreviewed code). Which trigger fits?',
+              options: [
+                { id: 'a', text: 'on: pull_request' },
+                { id: 'b', text: 'on: push (filtered to the main branch)' },
+                { id: 'c', text: 'on: schedule' },
+                { id: 'd', text: 'on: workflow_dispatch only' },
+              ],
+              correct: 'b',
+              explanation: '`on: push` restricted to `main` runs the workflow only when commits actually land there — i.e. after a PR has already been reviewed and merged, which is exactly the right moment to deploy. `on: pull_request` would deploy unreviewed code from every PR update, `schedule` runs on a timer unrelated to merges, and `workflow_dispatch` only fires when someone manually triggers it.',
+            },
           },
         ],
       },
@@ -2364,6 +2552,29 @@ jobs:
             type: 'warning',
             content: 'Anything inside a static Pages build is public. Do not put API keys, tokens or private test data into Vite/React client code. Environment variables bundled into client JavaScript are visible to users.',
           },
+          {
+            type: 'quiz',
+            question: 'Your GitHub Pages Source setting is left pointing at an old branch instead of the one your GitHub Actions workflow actually deploys. What is the visible symptom?',
+            options: [
+              { id: 'a', text: 'The site fails to build entirely' },
+              { id: 'b', text: 'The live site serves stale or empty files, even though your latest deploy "succeeded"' },
+              { id: 'c', text: 'GitHub automatically corrects the source to match the workflow' },
+              { id: 'd', text: 'The custom domain stops resolving' },
+            ],
+            correct: 'b',
+            explanation: "GitHub Pages publishes whatever the configured Source points to — it has no awareness of which workflow you intended to be authoritative. If Source is still set to an old branch (or the wrong deploy method) while your Actions workflow deploys somewhere else, the workflow run can show green/success while the public site keeps serving outdated or blank content, because Pages never picked up the new artifact.",
+            retryQuestion: {
+              question: 'You switch your Pages Source from "Deploy from a branch" to "GitHub Actions" in repo settings. What else must be true for the live site to actually update?',
+              options: [
+                { id: 'a', text: 'Nothing else — the switch alone updates the live site immediately' },
+                { id: 'b', text: 'A workflow using actions/deploy-pages must actually run successfully at least once after the switch' },
+                { id: 'c', text: 'The repository must be made public' },
+                { id: 'd', text: 'The old branch must be deleted' },
+              ],
+              correct: 'b',
+              explanation: 'Changing the Source setting only tells GitHub Pages WHERE to look for its next deployment — it does not retroactively trigger one. The live site only updates once an Actions workflow that uses `actions/deploy-pages` (or equivalent) actually completes a run after the switch; until then, Pages may show nothing new or even an error until that first successful deploy happens.',
+            },
+          },
         ],
       },
       {
@@ -2426,6 +2637,29 @@ git push origin feature/my-branch   # Push only your branch`,
             type: 'warning',
             content: 'If a command rewrites history, deletes files, removes branches or touches credentials, slow down. In a real company, ask in the team channel before changing shared history.',
           },
+          {
+            type: 'quiz',
+            question: 'A teammate force-pushes over your already-pushed commits on a shared branch using `git push --force`. What is the safer alternative they should have used instead?',
+            options: [
+              { id: 'a', text: '`git push --force-with-lease`, after team agreement' },
+              { id: 'b', text: 'There is no safer alternative — force push should never be used' },
+              { id: 'c', text: '`git pull --force`' },
+              { id: 'd', text: '`git commit --amend --force`' },
+            ],
+            correct: 'a',
+            explanation: '`git push --force` overwrites the remote branch unconditionally, silently destroying any commits someone else pushed in the meantime. `git push --force-with-lease` refuses to push if the remote has moved since your last fetch — it fails safely instead of overwriting unseen work, which is why it should be the default whenever a forced push is genuinely needed (e.g. after an interactive rebase on your own feature branch), combined with a heads-up to the team.',
+            retryQuestion: {
+              question: 'You run `git push --force-with-lease` and it REJECTS the push with a "stale info" error. What does this tell you?',
+              options: [
+                { id: 'a', text: 'Your network connection is broken' },
+                { id: 'b', text: 'Someone else pushed to the remote branch since your last fetch — force-with-lease is protecting their work from being overwritten' },
+                { id: 'c', text: 'force-with-lease never actually works and you should use --force instead' },
+                { id: 'd', text: 'Your local repository is corrupted' },
+              ],
+              correct: 'b',
+              explanation: 'This is `--force-with-lease` doing exactly its job: it refuses to push because the remote has moved since you last fetched, meaning someone else\'s commits are sitting there that you have not seen yet. The correct response is to `git fetch`, look at what changed, and reconcile before forcing again — switching to plain `--force` here would silently destroy those commits, which is the exact problem this flag exists to prevent.',
+            },
+          },
         ],
       },
       {
@@ -2440,6 +2674,29 @@ git push origin feature/my-branch   # Push only your branch`,
             type: 'error-dictionary',
             framework: 'Git & GitHub',
             errors: gitErrorEntries,
+          },
+          {
+            type: 'quiz',
+            question: '`git push origin main` fails with `! [rejected] main -> main (non-fast-forward)`. What is the root cause and the correct fix?',
+            options: [
+              { id: 'a', text: 'Your local Git installation is outdated — reinstall Git' },
+              { id: 'b', text: 'The remote branch has commits you do not have locally; fetch and merge/rebase before pushing again' },
+              { id: 'c', text: 'You need to delete the remote branch and push fresh' },
+              { id: 'd', text: 'The repository ran out of disk space' },
+            ],
+            correct: 'b',
+            explanation: "This happens when someone else pushed to `main` after your last fetch — your push would overwrite history instead of extending it, so Git rejects it to protect those commits. The fix is `git fetch origin`, then `git merge origin/main` (or rebase), resolve any conflicts, and push again. Deleting the remote branch would destroy your teammate's work — never the right move here.",
+            retryQuestion: {
+              question: 'After `git fetch origin` and `git merge origin/main`, Git reports a merge conflict in `app.js`. What is the correct next step?',
+              options: [
+                { id: 'a', text: 'Run `git push --force` to skip the conflict' },
+                { id: 'b', text: 'Open app.js, manually resolve the conflict markers, then `git add app.js` and `git commit` to complete the merge, then push' },
+                { id: 'c', text: 'Delete app.js entirely to remove the conflict' },
+                { id: 'd', text: 'Run `git fetch origin` again until the conflict disappears' },
+              ],
+              correct: 'b',
+              explanation: 'A merge conflict means Git could not automatically reconcile two different changes to the same lines — it pauses and waits for a human decision. Editing the file to choose the correct final content, removing the `<<<<<<<`/`=======`/`>>>>>>>` markers, then staging and committing tells Git the conflict is resolved, after which the (now-merged) branch can be pushed normally. Force-pushing or deleting the file would either skip the conflict dangerously or lose real work.',
+            },
           },
         ],
       },
@@ -2564,7 +2821,49 @@ git push origin feature/my-branch   # Push only your branch`,
             ],
             correct: 'b',
             explanation: 'Git local çalışır ve snapshot üretir. GitHub repository host eder, PR, Actions, Pages ve takım iş birliği özellikleri ekler.',
-          },
+          
+        retryQuestion: {
+      "question": {
+            "tr": "Version kontrol sistemleri ve barındırma platformları arasındaki farkı en iyi açıklayan yaklaşım hangisidir?",
+            "en": "Which statement best describes the fundamental difference between version control systems and hosting platforms?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Git, bulut tabanlı bir hizmettir; GitHub ise Git'i çalıştıran programdır",
+                        "en": "Git is a cloud-based service; GitHub is the program that runs Git"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Git, yerel versiyonlama ve snapshot aracıdır; GitHub ise bu depoların merkezi yönetimi ve iş birliği için kullanılır",
+                        "en": "Git is a local versioning and snapshot tool; GitHub is used for centralized management and collaboration of those repositories"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Git ve GitHub her zaman eş zamanlı olarak senkronize çalışmak zorundadır",
+                        "en": "Git and GitHub must always operate in perfect synchronization at all times"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Git, projenin canlı yayına çıkmasını sağlar; GitHub ise sadece kod deposudur",
+                        "en": "Git enables the project's production deployment; GitHub is merely a storage for code"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Git, kodunuzun geçmişini yerel bilgisayarınızda yönetmenizi sağlayan bir araçtır. GitHub (veya GitLab/Bitbucket gibi platformlar) ise bu yerel çalışmaların paylaşıldığı, kod incelemelerinin yapıldığı ve CI/CD süreçlerinin tetiklendiği uzaktan sunuculardır.",
+            "en": "Git is a tool that allows you to manage the history of your code on your local computer. GitHub (or platforms like GitLab/Bitbucket) are remote servers where those local efforts are shared, code reviews occur, and CI/CD processes are triggered."
+      }
+}
+},
         ],
       },
       {
@@ -2775,6 +3074,29 @@ git push origin feature/my-branch   # Push only your branch`,
             type: 'warning',
             content: 'Bir yöntem seç ve ona bağlı kal. HTTPS remote\'ları `https://github.com/user/repo.git`, SSH remote\'ları `git@github.com:user/repo.git` şeklindedir. Sonradan değiştirirsen `git remote set-url origin <yeni-url>` kullan.',
           },
+          {
+            type: 'quiz',
+            question: 'Git kurulumundan hemen sonra `git config --global user.name`/`user.email` ayarlamadan ilk commit\'ini yaparsan ne olur?',
+            options: [
+              { id: 'a', text: 'Git, ayar yapmadan commit\'i reddeder' },
+              { id: 'b', text: 'Commit başarılı olur ama eksik veya yanlış bir author bilgisiyle kaydedilir' },
+              { id: 'c', text: 'GitHub otomatik olarak hesap adını doldurur' },
+              { id: 'd', text: 'Commit zaman damgası olmadan oluşturulur' },
+            ],
+            correct: 'b',
+            explanation: 'Git, kimlik ayarlanmamışsa commit\'i otomatik olarak engellemez — işletim sistemine/Git sürümüne göre tahmin edilen bir sistem kullanıcı adı/hostname\'e düşer veya bu da yoksa hata verir. Her durumda commit\'in author bilgisi güvenilmez olur — bu da `git log`/`git blame` geçmişini bozar ve code review\'i karıştırır. İlk gerçek commit\'ten önce her zaman `user.name`/`user.email` ayarla.',
+            retryQuestion: {
+              question: 'Yanlış `user.email` ile birkaç commit yaptıktan sonra fark ettin. Paylaşılan bir branch\'te GELECEK commit\'ler için kimliği düzeltmenin güvenli yolu nedir?',
+              options: [
+                { id: 'a', text: 'Başkalarının zaten çektiği bir branch\'te `git rebase` ile geçmiş commit\'lerin author\'ını yeniden yazmak' },
+                { id: 'b', text: '`git config user.email "dogru@email.com"` çalıştırıp bundan sonra normal şekilde commit etmeye devam etmek' },
+                { id: 'c', text: 'Repository\'i silip yeniden clone\'lamak' },
+                { id: 'd', text: 'Bir commit yapıldıktan sonra hiçbir şey yapılamaz' },
+              ],
+              correct: 'b',
+              explanation: 'Config\'i düzeltmek SADECE değişiklikten SONRA yapılan commit\'leri etkiler — eski commit\'ler zaten sahip oldukları kimliği korur. Eski author bilgisini düzeltmek için paylaşılan bir branch\'te geçmişi yeniden yazmak (rebase/amend) riskli olur, çünkü başka biri o commit\'leri zaten çekmişse onların geçmişini de bozar; bu tür bir yeniden yazma sadece private, henüz push edilmemiş bir branch\'te yapılmalıdır.',
+            },
+          },
         ],
       },
       {
@@ -2905,6 +3227,29 @@ git push origin feature/my-branch   # Push only your branch`,
             title: { en: 'Commit Timeline: HEAD, branches and hashes', tr: 'Commit Zaman Çizelgesi: HEAD, branch ve hash' },
             description: { en: 'See how log output maps to a visual commit chain.', tr: 'Log çıktısının commit zincirine nasıl karşılık geldiğini gör.' },
           },
+          {
+            type: 'quiz',
+            question: 'Çalışma dizininde 10 değişmiş dosya var ama commit\'ten önce sadece 3\'üne `git add` çalıştırdın. Commit\'e ne girer?',
+            options: [
+              { id: 'a', text: 'Git her zaman tüm değişiklikleri commit eder, 10 dosya da girer' },
+              { id: 'b', text: 'Sadece stage edilen 3 dosya — diğer 7 değişiklik commit dışında kalır' },
+              { id: 'c', text: 'Hiçbiri, çünkü tüm dosyaları aynı anda stage etmen gerekir' },
+              { id: 'd', text: '3 dosya artı commit\'i engelleyen bir uyarı' },
+            ],
+            correct: 'b',
+            explanation: 'Staging area (index) tam olarak adının söylediği şeydir: bir sonraki commit\'e gireceklerin bilinçli bir seçimi. `git add`, belirli dosyaları bu seçime taşır; `git commit` sadece stage edilenin anlık görüntüsünü alır. Geri kalan 7 değişmiş dosya, çalışma dizininde dokunulmadan kalır — daha sonra ayrı bir commit\'te stage edilmeye hazır.',
+            retryQuestion: {
+              question: '`git add dosya1.js dosya2.js` çalıştırıp ardından hemen `git add dosya3.js` çalıştırıyorsun, sonra `git commit` yapıyorsun. Bu TEK commit\'e hangi dosyalar girer?',
+              options: [
+                { id: 'a', text: 'Sadece dosya3.js, çünkü ikinci `git add` ilkinin üzerine yazar' },
+                { id: 'b', text: 'Üç dosyanın hepsi — her `git add` çağrısı mevcut staging seçimine ekler, onu değiştirmez' },
+                { id: 'c', text: 'Hiçbiri — her şeyi tek komutta stage etmen gerekir' },
+                { id: 'd', text: 'Sadece dosya1.js ve dosya2.js' },
+              ],
+              correct: 'b',
+              explanation: '`git add` ekleyicidir: her çağrı mevcut staging seçimini sıfırlamak yerine ona daha fazla dosya ekler. Yani dosya1.js+dosya2.js\'i stage edip ayrıca dosya3.js\'i stage etmek, üçünün de birlikte stage edilmesiyle sonuçlanır — sıradaki `git commit`, kaç ayrı `git add` çağrısının o seçimi oluşturduğundan bağımsız olarak index\'te o anda bulunan her şeyin anlık görüntüsünü alır.',
+            },
+          },
         ],
       },
       {
@@ -3023,7 +3368,49 @@ git push origin feature/my-branch   # Push only your branch`,
             ],
             correct: 'c',
             explanation: '.gitignore sadece Git\'in henüz takip etmediği dosyaları etkiler. Daha önce commit edilmiş bir şeyin takibini durdurmak için git rm --cached (klasörler için -r ekleyerek) kullanılır ve commit edilir — bu, dosyayı diskten silmeden gelecekteki takipten çıkarır.',
-          },
+          
+        retryQuestion: {
+      "question": {
+            "tr": "Bir proje dosyasını yanlışlıkla commit ettikten sonra .gitignore dosyasına eklediniz, ancak dosya hâlâ 'git status' komutunda değişikliğe uğramış görünüyor. Git'e bu dosyanın takibini tamamen bırakmasını nasıl söylersiniz?",
+            "en": "You added a file to .gitignore after accidentally committing it, but it still shows up as modified in 'git status'. How do you tell Git to stop tracking this file entirely?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece dosyayı sistemden silip tekrar ekle",
+                        "en": "Just delete the file from the system and re-add it"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "git reset --hard komutu ile tüm değişiklikleri temizle",
+                        "en": "Use git reset --hard to clear all changes"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "git rm --cached <dosya_adı> komutunu kullan ve değişikliği commit et",
+                        "en": "Use the command git rm --cached <filename> and commit the change"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "git clean -f komutu ile tüm untracked dosyaları sil",
+                        "en": "Run git clean -f to remove all untracked files"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": ".gitignore dosyası sadece henüz Git tarafından takip edilmeyen (untracked) dosyalar için geçerlidir. Daha önce commit edilmiş dosyalar için Git'in önbelleğinden kaldırmak adına --cached bayrağı kullanılmalıdır.",
+            "en": "The .gitignore file only applies to files that are not already tracked by Git. For files that have been previously committed, the --cached flag must be used to remove the file from Git's index without deleting it from the disk."
+      }
+}
+},
         ],
       },
       {
@@ -3295,7 +3682,31 @@ git status`,
             ],
             correct: 'b',
             explanation: '`--force-with-lease`, remote branch beklenmedik şekilde ilerlediyse push’u durdurur ve teammate commit’ini ezme riskini azaltır.',
-          },
+          
+        retryQuestion: {
+      "question": "Ortak bir branch üzerinde çalışırken commit geçmişini değiştirdin ve remote repoya göndermen gerekiyor. Hangi komut başkalarının yaptığı commit'leri yanlışlıkla silmeni engellemek için daha güvenlidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "git push --force-if-includes"
+            },
+            {
+                  "id": "b",
+                  "text": "git push --force-with-lease"
+            },
+            {
+                  "id": "c",
+                  "text": "git push -u origin HEAD"
+            },
+            {
+                  "id": "d",
+                  "text": "git commit --amend --no-edit"
+            }
+      ],
+      "correct": "b",
+      "explanation": "`--force-with-lease`, uzak repodaki güncellemelerin senin yerel branch'indeki durumla uyumlu olup olmadığını kontrol eder. Eğer sen push yapmadan önce başka biri değişiklik gönderdiyse, bu komut işlemin üzerine yazmanı engelleyerek veri kaybını önler."
+}
+},
         ],
       },
       {
@@ -3336,6 +3747,29 @@ git push -u origin feature/login-tests
           {
             type: 'warning',
             content: '`main` branch’e doğrudan push yapmaktan kaçın. Profesyonel ekiplerde `main`, PR review ve required checks ile korunmalıdır. Direct push test kanıtını bypass eder ve rollback’i zorlaştırır.',
+          },
+          {
+            type: 'quiz',
+            question: 'Profesyonel bir ekipte her zaman Pull Request üzerinden gitmek yerine doğrudan `main`\'e push yapmaktan neden kaçınılır?',
+            options: [
+              { id: 'a', text: 'Doğrudan push, PR açmaktan daha yavaştır' },
+              { id: 'b', text: 'Code review ve required checks\'i bypass eder, hatalı değişiklikleri ve rollback\'i yönetmeyi zorlaştırır' },
+              { id: 'c', text: 'GitHub doğrudan push\'a hiç izin vermez' },
+              { id: 'd', text: 'Doğrudan push commit geçmişini siler' },
+            ],
+            correct: 'b',
+            explanation: 'Korumalı bir `main`, kod gitmeden önce PR review ve geçen kontroller (test, lint, build) ister — bu, hataları production\'a ulaşmadan yakalayan kapıdır. Doğrudan push bu kapıyı tamamen atlar: ikinci bir göz yok, testlerin geçtiğine dair CI kanıtı yok, ve bir şey bozulursa temizce geri alınacak belgelenmiş bir PR yok.',
+            retryQuestion: {
+              question: 'Bir repo\'da `main` üzerinde 1 onay ve geçen CI gerektiren branch protection aktif. Biri lokal bir commit ile doğrudan `git push origin main` denerse ne olur?',
+              options: [
+                { id: 'a', text: 'GitHub onu sessizce review olmadan merge eder' },
+                { id: 'b', text: 'GitHub push\'u reddeder, çünkü kural değişikliklerin review edilmiş ve geçmiş bir Pull Request üzerinden gitmesini gerektirir' },
+                { id: 'c', text: 'Push başarılı olur ama bir gün sonra otomatik geri alınır' },
+                { id: 'd', text: 'GitHub acil durumlar için branch protection\'ı otomatik devre dışı bırakır' },
+              ],
+              correct: 'b',
+              explanation: 'Branch protection kuralları sadece bir takım kuralı değil, GitHub\'ın kendisi tarafından uygulanır — etkinleştirildiğinde korumalı bir branch\'e doğrudan push tamamen reddedilir, her değişikliği yapılandırılan gereksinimleri (review sayısı, gerekli status check\'ler) karşılayan bir Pull Request\'e zorlar. "Her zaman PR\'dan geç" kuralını sadece nazik bir rica olmaktan çıkarıp gerçekten uygulanabilir kılan budur.',
+            },
           },
         ],
       },
@@ -3437,7 +3871,31 @@ git push -u origin feature/login-tests
             ],
             correct: 'c',
             explanation: 'Gerçek bug riski doğurabilecek eksik test bloklayıcı feedback’tir. Request changes, risk çözülene kadar PR’ın main’e girmesini engeller.',
-          },
+          
+        retryQuestion: {
+      "question": "Bir Pull Request review sürecinde, kodun kritik bir hata yönetimi (exception handling) mekanizmasını eksik bıraktığını fark ettin. En uygun aksiyon nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Kodu düzeltip kendin Merge et"
+            },
+            {
+                  "id": "b",
+                  "text": "Sadece bir 'Suggestion' bırakıp Approve et"
+            },
+            {
+                  "id": "c",
+                  "text": "Gerekli düzeltmeyi isteyerek 'Request changes' seçeneğini kullan"
+            },
+            {
+                  "id": "d",
+                  "text": "Kod çalıştığı için incelemeyi tamamlayıp 'Approve' et"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Kritik eksiklikler veya hata yönetimi zafiyetleri, kodun üretim ortamında bozulmasına neden olabilir. 'Request changes' kullanarak geliştiricinin bu açığı kapatmasını zorunlu kılmak, kod kalitesini ve güvenliğini korumak için en profesyonel yaklaşımdır."
+}
+},
         ],
       },
       {
@@ -3538,6 +3996,29 @@ jobs:
           {
             type: 'warning',
             content: 'Secret değerlerini workflow loglarına asla yazdırma. Repository/environment secrets kullan, permissions değerini minimum tut ve untrusted fork pull request’lerinde secret erişiminin kısıtlı olduğunu unutma.',
+          },
+          {
+            type: 'quiz',
+            question: 'Test job\'ı başarısız olduğunda bir Pull Request\'in merge edilmesini engelleyecek bir workflow istiyorsun. Bu QA kapı bekçiliği için hangi `on:` tetikleyicisi uygundur?',
+            options: [
+              { id: 'a', text: 'on: push (main\'e)' },
+              { id: 'b', text: 'on: pull_request' },
+              { id: 'c', text: 'on: schedule' },
+              { id: 'd', text: 'on: workflow_dispatch' },
+            ],
+            correct: 'b',
+            explanation: '`on: pull_request`, her PR güncellemesinde workflow\'u çalıştırır ve geçti/geçmedi durumunu merge öncesi gerekli bir kontrol olarak gösterir — QA\'nın istediği tam olarak bu kapı bekçiliğidir. `on: push` (main\'e) sadece kod ZATEN merge edildikten SONRA çalışır; deploy için faydalıdır ama hatalı bir PR\'ı engellemek için çok geçtir. `schedule` ve `workflow_dispatch` ise periyodik veya manuel tetiklenen çalışmalar içindir, merge engellemek için değil.',
+            retryQuestion: {
+              question: 'Bir ekip, kod `main`e ulaştığı anda otomatik production deploy yapan ama HER PR\'da değil (review edilmemiş kodu deploy etmemek için) çalışan bir workflow istiyor. Hangi tetikleyici uygundur?',
+              options: [
+                { id: 'a', text: 'on: pull_request' },
+                { id: 'b', text: 'on: push (main branch\'ine filtrelenmiş)' },
+                { id: 'c', text: 'on: schedule' },
+                { id: 'd', text: 'sadece on: workflow_dispatch' },
+              ],
+              correct: 'b',
+              explanation: '`main`e filtrelenmiş `on: push`, workflow\'u sadece commit\'ler ORAYA ulaştığında çalıştırır — yani bir PR zaten review edilip merge edildikten sonra, ki bu deploy için tam doğru zamandır. `on: pull_request` her PR güncellemesinden review edilmemiş kodu deploy ederdi, `schedule` merge\'lerle ilgisiz bir zamanlayıcıda çalışır, `workflow_dispatch` ise sadece biri manuel tetiklediğinde çalışır.',
+            },
           },
         ],
       },
@@ -3659,6 +4140,29 @@ jobs:
             type: 'warning',
             content: 'Static Pages build içindeki her şey public’tir. API key, token veya özel test datasını Vite/React client koduna koyma. Client JavaScript içine giren environment variable kullanıcı tarafından görülebilir.',
           },
+          {
+            type: 'quiz',
+            question: 'GitHub Pages Source ayarın, GitHub Actions workflow\'unun gerçekten deploy ettiği branch yerine eski bir branch\'i göstermeye devam ediyor. Görünür belirti nedir?',
+            options: [
+              { id: 'a', text: 'Site hiç build olmaz' },
+              { id: 'b', text: 'Workflow çalışması "başarılı" görünse de canlı site eski/boş dosyalar sunmaya devam eder' },
+              { id: 'c', text: 'GitHub source\'u otomatik olarak workflow ile eşleşecek şekilde düzeltir' },
+              { id: 'd', text: 'Custom domain çözümlenmeyi durdurur' },
+            ],
+            correct: 'b',
+            explanation: 'GitHub Pages, ayarlanan Source\'un işaret ettiği şeyi yayınlar — hangi workflow\'u yetkili saymak istediğinden habersizdir. Source eski bir branch\'i (veya yanlış deploy yöntemini) gösterirken Actions workflow\'un başka bir yere deploy ediyorsa, workflow çalışması yeşil/başarılı görünebilir ama public site, Pages yeni artifact\'ı hiç almadığı için eski veya boş içerik sunmaya devam eder.',
+            retryQuestion: {
+              question: 'Repo ayarlarında Pages Source\'unu "Deploy from a branch"tan "GitHub Actions"a çeviriyorsun. Canlı sitenin gerçekten güncellenmesi için başka ne doğru olmalı?',
+              options: [
+                { id: 'a', text: 'Hiçbir şey — sadece bu değişiklik canlı siteyi anında güncelleştirir' },
+                { id: 'b', text: 'actions/deploy-pages kullanan bir workflow değişiklikten sonra en az bir kez başarıyla çalışmış olmalı' },
+                { id: 'c', text: 'Repository public yapılmalı' },
+                { id: 'd', text: 'Eski branch silinmeli' },
+              ],
+              correct: 'b',
+              explanation: 'Source ayarını değiştirmek GitHub Pages\'e sadece sıradaki deploy\'u NEREDE arayacağını söyler — geriye dönük olarak bir deploy tetiklemez. Canlı site sadece `actions/deploy-pages` (veya eşdeğeri) kullanan bir Actions workflow\'u değişiklikten sonra GERÇEKTEN bir çalışmayı tamamladığında güncellenir; o ana kadar Pages hiçbir yeni şey göstermeyebilir veya o ilk başarılı deploy gerçekleşene kadar hata bile verebilir.',
+            },
+          },
         ],
       },
       {
@@ -3721,6 +4225,29 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
             type: 'warning',
             content: 'Bir komut history rewrite ediyor, dosya siliyor, branch kaldırıyor veya credential’a dokunuyorsa yavaşla. Gerçek şirkette shared history değiştirmeden önce takım kanalında haber ver.',
           },
+          {
+            type: 'quiz',
+            question: 'Bir takım arkadaşın paylaşılan bir branch\'te zaten push edilmiş commit\'lerinin üzerine `git push --force` ile yazıyor. Bunun yerine kullanması gereken daha güvenli alternatif nedir?',
+            options: [
+              { id: 'a', text: 'Takım onayıyla `git push --force-with-lease`' },
+              { id: 'b', text: 'Daha güvenli bir alternatif yok — force push asla kullanılmamalı' },
+              { id: 'c', text: '`git pull --force`' },
+              { id: 'd', text: '`git commit --amend --force`' },
+            ],
+            correct: 'a',
+            explanation: '`git push --force`, remote branch\'in üzerine koşulsuz yazar ve başkasının bu arada push ettiği commit\'leri sessizce yok eder. `git push --force-with-lease`, son fetch\'inden sonra remote ilerlemişse push\'u reddeder — görmediğin işin üzerine yazmak yerine güvenli şekilde başarısız olur. Bu yüzden gerçekten force push gerektiğinde (örn. kendi feature branch\'inde interactive rebase sonrası) varsayılan olması gereken budur, takıma haber vermekle birlikte.',
+            retryQuestion: {
+              question: '`git push --force-with-lease` çalıştırıyorsun ve push "stale info" hatasıyla REDDEDİLİYOR. Bu sana ne anlatır?',
+              options: [
+                { id: 'a', text: 'Ağ bağlantın bozuk' },
+                { id: 'b', text: 'Son fetch\'inden sonra başka biri remote branch\'e push etti — force-with-lease onların işinin üzerine yazılmasını önlüyor' },
+                { id: 'c', text: 'force-with-lease asla gerçekten çalışmaz, bunun yerine --force kullanmalısın' },
+                { id: 'd', text: 'Yerel repository\'n bozulmuş' },
+              ],
+              correct: 'b',
+              explanation: 'Bu, `--force-with-lease`\'in tam olarak görevini yapmasıdır: son fetch\'inden sonra remote ilerlediği için push\'u reddeder, yani henüz görmediğin başkasının commit\'leri orada duruyor. Doğru tepki `git fetch` çalıştırıp neyin değiştiğine bakmak ve tekrar force etmeden önce uzlaştırmaktır — burada düz `--force`\'a geçmek o commit\'leri sessizce yok ederdi, bu flag\'in var olma nedeni tam olarak bunu önlemektir.',
+            },
+          },
         ],
       },
       {
@@ -3735,6 +4262,29 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
             type: 'error-dictionary',
             framework: 'Git & GitHub',
             errors: gitErrorEntries,
+          },
+          {
+            type: 'quiz',
+            question: '`git push origin main` `! [rejected] main -> main (non-fast-forward)` hatasıyla başarısız oluyor. Kök neden ve doğru çözüm nedir?',
+            options: [
+              { id: 'a', text: 'Yerel Git kurulumun eski — Git\'i yeniden kur' },
+              { id: 'b', text: 'Remote branch\'te sende olmayan commit\'ler var; tekrar push etmeden önce fetch + merge/rebase yap' },
+              { id: 'c', text: 'Remote branch\'i silip sıfırdan push etmen gerekir' },
+              { id: 'd', text: 'Repository\'nin disk alanı bitti' },
+            ],
+            correct: 'b',
+            explanation: 'Bu, senin son fetch\'inden sonra başka birinin `main`e push etmesiyle olur — senin push\'un geçmişi ileri taşımak yerine üzerine yazardı, bu yüzden Git o commit\'leri korumak için reddeder. Çözüm `git fetch origin`, sonra `git merge origin/main` (veya rebase), conflict varsa çöz ve tekrar push et. Remote branch\'i silmek takım arkadaşının işini yok eder — burada asla doğru hamle değildir.',
+            retryQuestion: {
+              question: '`git fetch origin` ve `git merge origin/main` sonrası Git, `app.js`\'te bir merge conflict\'i bildiriyor. Doğru sıradaki adım nedir?',
+              options: [
+                { id: 'a', text: 'Conflict\'i atlamak için `git push --force` çalıştırmak' },
+                { id: 'b', text: 'app.js\'i açıp conflict işaretlerini manuel çöz, sonra `git add app.js` ve `git commit` ile merge\'i tamamla, sonra push et' },
+                { id: 'c', text: 'Conflict\'i ortadan kaldırmak için app.js\'i tamamen silmek' },
+                { id: 'd', text: 'Conflict kaybolana kadar `git fetch origin`\'i tekrar tekrar çalıştırmak' },
+              ],
+              correct: 'b',
+              explanation: 'Bir merge conflict, Git\'in aynı satırlardaki iki farklı değişikliği otomatik uzlaştıramadığı anlamına gelir — duraklar ve bir insan kararı bekler. Dosyayı düzenleyip doğru son içeriği seçmek, `<<<<<<<`/`=======`/`>>>>>>>` işaretlerini kaldırmak, sonra stage edip commit etmek Git\'e conflict\'in çözüldüğünü söyler, ardından (artık merge edilmiş) branch normal şekilde push edilebilir. Force push veya dosyayı silmek ya conflict\'i tehlikeli şekilde atlar ya da gerçek işi kaybettirir.',
+            },
           },
         ],
       },

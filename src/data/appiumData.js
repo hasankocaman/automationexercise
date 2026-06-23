@@ -77,7 +77,32 @@ const section0 = {
         ],
         correct: 'b',
         explanation: 'Appium 3\'te tüm Appium-specific capability\'ler "appium:" prefix alır. platformName, deviceName gibi W3C standart olanlar prefix almaz. Bu, Appium 2\'den 3\'e geçişte en sık yapılan hatadır.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Appium 3'te \"appActivity\" capability'si nasıl tanımlanmalıdır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "appActivity: \".MainActivity\""
+            },
+            {
+                  "id": "b",
+                  "text": "\"appium:appActivity\": \".MainActivity\""
+            },
+            {
+                  "id": "c",
+                  "text": "\"activity\": \".MainActivity\""
+            },
+            {
+                  "id": "d",
+                  "text": "appium_activity: \".MainActivity\""
+            }
+      ],
+      "correct": "b",
+      "explanation": "Appium 3 ve üzerindeki W3C standartlarına uygun şekilde, özel Appium yetenekleri (appium-specific capabilities) her zaman 'appium:' ön eki ile kullanılmalıdır. appActivity, W3C standardı olmadığından 'appium:' ön ekini alması zorunludur."
+}
+},
       {
         type: 'quiz',
         question: 'Appium\'un WebDriver protokolünü kullanmasının en büyük avantajı nedir?',
@@ -89,7 +114,36 @@ const section0 = {
         ],
         correct: 'b',
         explanation: 'WebDriver (W3C) protokolü sayesinde Appium, Selenium ile aynı temel API\'ı paylaşır. Java\'da Selenium bilen biri AppiumDriver\'ı çok hızlı öğrenir. JUnit/TestNG gibi framework\'ler hem web hem mobil testlerde kullanılabilir.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Appium'un WebDriver standardını temel almasının QA otomasyon süreçlerine sağladığı temel katkı nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Mobil testleri sadece Python ile yapabilmek"
+            },
+            {
+                  "id": "b",
+                  "text": "Selenium altyapısı sayesinde kod tekrarını önleyip ortak kütüphaneler kullanabilmek"
+            },
+            {
+                  "id": "c",
+                  "text": "Cihazlarda fiziksel bir bağlantıya ihtiyaç duymamak"
+            },
+            {
+                  "id": "d",
+                  "text": "Testlerin sadece yerel makinede çalışmasını sağlamak"
+            },
+            {
+                  "id": "e",
+                  "text": ""
+            }
+      ],
+      "correct": "b",
+      "explanation": "WebDriver protokolü, Appium'un Selenium ile aynı arayüzleri paylaşmasını sağlar. Bu sayede otomasyon mühendisleri, web projelerinde kullandıkları Page Object Model (POM) yapısını ve yardımcı kütüphaneleri mobil test süreçlerine kolayca adapte edebilirler."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Appium Temelleri',
@@ -197,7 +251,32 @@ const section0 = {
         ],
         correct: 'b',
         explanation: 'In Appium 3, all Appium-specific capabilities must have the "appium:" prefix. W3C standard ones (platformName, deviceName) do not need a prefix. This is the most common mistake when migrating from Appium 2.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "What is the correct way to specify the \"automationName\" capability in Appium 3?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "automationName: \"UiAutomator2\""
+            },
+            {
+                  "id": "b",
+                  "text": "\"appium:automationName\": \"UiAutomator2\""
+            },
+            {
+                  "id": "c",
+                  "text": "\"name\": \"UiAutomator2\""
+            },
+            {
+                  "id": "d",
+                  "text": "appium_automationName: \"UiAutomator2\""
+            }
+      ],
+      "correct": "b",
+      "explanation": "Consistent with Appium 3 standards, any capability that is not part of the standard W3C spec must be prefixed with 'appium:'. Since 'automationName' is specific to the Appium driver, it must be declared as 'appium:automationName'."
+}
+},
       {
         type: 'quiz',
         question: 'What is the biggest advantage of Appium using the WebDriver protocol?',
@@ -209,7 +288,31 @@ const section0 = {
         ],
         correct: 'b',
         explanation: 'Since Appium uses W3C WebDriver protocol, existing Selenium knowledge is fully reusable. Java\'s java-client extends Selenium\'s RemoteWebDriver. WebdriverIO is the same framework used for both web and mobile testing. This is why QA engineers who know Selenium can quickly learn Appium.',
-      },
+      
+        retryQuestion: {
+      "question": "Why is the use of the W3C WebDriver protocol considered a significant architectural benefit for Appium?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It eliminates the need for any automation tools"
+            },
+            {
+                  "id": "b",
+                  "text": "It allows developers to use familiar Selenium-based APIs, libraries, and design patterns across mobile and web platforms"
+            },
+            {
+                  "id": "c",
+                  "text": "It makes the Appium server optional for running tests"
+            },
+            {
+                  "id": "d",
+                  "text": "It exclusively optimizes performance for native iOS applications"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Because Appium leverages the standardized W3C WebDriver protocol, the automation logic is decoupled from the platform specifics. This means testers can reuse their existing proficiency in Selenium and common test automation frameworks, ensuring a consistent development experience regardless of the target platform (web or mobile)."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Appium Fundamentals',
@@ -468,7 +571,31 @@ npx wdio --version`,
         ],
         correct: 'b',
         explanation: 'Appium 3\'te driver\'lar "appium driver install <isim>" komutuyla ayrı kurulur. UIAutomator2 Android için, XCUITest iOS için zorunludur. Bu plugin mimarisi, Appium 2\'deki dahili driver yapısından farklıdır.',
-      },
+      
+        retryQuestion: {
+      "question": "iOS testleri için bir XCUITest driver kurulum komutu aşağıdakilerden hangisidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "npm install appium-ios-driver"
+            },
+            {
+                  "id": "b",
+                  "text": "appium driver install xcuitest"
+            },
+            {
+                  "id": "c",
+                  "text": "appium add driver ios"
+            },
+            {
+                  "id": "d",
+                  "text": "appium plugin install xcuitest"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Appium 2.x ve sonrası sürümlerde driver yönetimi komut satırı üzerinden yapılır. iOS platformunda otomasyon yapabilmek için Apple'ın XCUITest framework'ünü kullanan 'xcuitest' driver'ının 'appium driver install xcuitest' komutu ile yüklenmesi gerekmektedir."
+}
+},
       {
         type: 'quiz',
         question: 'Appium kurulumu sonrası "ANDROID_HOME is not set" hatası alıyorsunuz. Ne yapmalısınız?',
@@ -480,7 +607,31 @@ npx wdio --version`,
         ],
         correct: 'b',
         explanation: 'ANDROID_HOME, Appium\'un Android SDK\'yı nerede bulacağını söyleyen environment variable\'dır. Değer genellikle ~/Library/Android/sdk (Mac), %LOCALAPPDATA%\\Android\\Sdk (Windows) yolunu göstermeli. Değişiklik için terminali/IDE\'yi yeniden başlatmak şarttır.',
-      },
+      
+        retryQuestion: {
+      "question": "Appium testlerini çalıştırırken \"JAVA_HOME is not set\" hatası alıyorsanız, bu sorunu çözmek için en doğru yaklaşım nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Appium Inspector'ı tekrar yükleyin"
+            },
+            {
+                  "id": "b",
+                  "text": "Sistem ortam değişkenlerine (Environment Variables) Java JDK kurulum dizinini ekleyin ve terminal oturumunu yenileyin"
+            },
+            {
+                  "id": "c",
+                  "text": "Node.js sürümünü düşürün"
+            },
+            {
+                  "id": "d",
+                  "text": "Android SDK yolunu kaldırın"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Appium ve Android SDK bileşenleri, Java derleyicisine ihtiyaç duyarlar. JAVA_HOME değişkeni, işletim sistemine Java'nın hangi dizinde kurulu olduğunu bildirir. Bu tanımlama yapılmadığında, Appium gerekli Java bağımlılıklarını yürütemez ve hata verir. Değişikliğin geçerli olması için ilgili kabuk (shell) veya IDE'nin yeniden başlatılması gereklidir."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Appium Kurulum',
@@ -728,7 +879,32 @@ npx wdio --version`,
         ],
         correct: 'b',
         explanation: 'In Appium 3, drivers are installed separately with "appium driver install <name>". UIAutomator2 is required for Android, XCUITest for iOS. This plugin architecture differs from Appium 2\'s built-in driver structure.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Which command is used to install the XCUITest driver for iOS in Appium?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "appium plugin install xcuitest"
+            },
+            {
+                  "id": "b",
+                  "text": "npm install appium-xcuitest-driver"
+            },
+            {
+                  "id": "c",
+                  "text": "appium driver install xcuitest"
+            },
+            {
+                  "id": "d",
+                  "text": "appium install ios"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Appium's CLI utilizes the 'appium driver install <driver-name>' command to manage its driver ecosystem. For iOS automation, the xcuitest driver must be installed using this command to allow Appium to interface with Apple's XCUITest framework."
+}
+},
       {
         type: 'quiz',
         question: 'You get "ANDROID_HOME is not set" after Appium installation. What should you do?',
@@ -740,7 +916,32 @@ npx wdio --version`,
         ],
         correct: 'b',
         explanation: 'ANDROID_HOME tells Appium where to find the Android SDK. The value should point to ~/Library/Android/sdk (Mac), %LOCALAPPDATA%\\Android\\Sdk (Windows). You must restart the terminal/IDE after setting the variable for changes to take effect.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Appium throws 'JAVA_HOME is not set'. What is the most effective solution?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Install a newer version of Appium Server"
+            },
+            {
+                  "id": "b",
+                  "text": "Set the JAVA_HOME environment variable to the path of your JDK and source your profile or restart your terminal"
+            },
+            {
+                  "id": "c",
+                  "text": "Add the Android SDK path to your PATH variable"
+            },
+            {
+                  "id": "d",
+                  "text": "Clear the Appium temporary files folder"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Many Appium components, such as the Android SDK tools and Appium server itself, rely on the JAVA_HOME variable to locate the Java Runtime Environment. Setting this variable system-wide ensures consistent behavior across all terminal sessions."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Appium Installation',
@@ -950,7 +1151,32 @@ export const config: Options.Testrunner = {
         ],
         correct: 'b',
         explanation: 'WebdriverIO capabilities objesinde Appium-specific capability\'ler string key olarak "appium:" prefix ile yazılır. Java\'da UiAutomator2Options builder pattern bu prefix\'i otomatik ekler, ama TypeScript\'te manuel eklemeniz gerekir.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "TypeScript projesinde Appium 3 kullanılırken 'automationName' capability'si nasıl tanımlanmalıdır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "automationName: 'UiAutomator2'"
+            },
+            {
+                  "id": "b",
+                  "text": "'appium:automationName': 'UiAutomator2'"
+            },
+            {
+                  "id": "c",
+                  "text": "capabilities.set('automationName', 'UiAutomator2')"
+            },
+            {
+                  "id": "d",
+                  "text": "desiredCapabilities['automationName'] = 'UiAutomator2'"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Appium 2 ve 3 standartlarında, tüm standart dışı (Appium-specific) capability'lerin W3C uyumluluğu için 'appium:' ön ekiyle tanımlanması zorunludur. TypeScript ile yapılandırma objesi oluştururken bu anahtarı string olarak bu önek ile sağlamalısınız."
+}
+},
       {
         type: 'quiz',
         question: 'noReset: true ile noReset: false arasındaki temel fark nedir?',
@@ -962,7 +1188,31 @@ export const config: Options.Testrunner = {
         ],
         correct: 'b',
         explanation: 'noReset: true olduğunda test bitiminde uygulama cache, login state, local storage korunur. noReset: false (varsayılan) ile bu veriler temizlenir. E2E senaryolarında bazen state korumak gerekir (login bir kez yapılır, sonraki testler devam eder).',
-      },
+      
+        retryQuestion: {
+      "question": "Appium'da fullReset ile noReset arasındaki temel ayrım nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "fullReset uygulama hızını artırır, noReset azaltır"
+            },
+            {
+                  "id": "b",
+                  "text": "noReset verileri korur, fullReset ise uygulamayı tamamen kaldırıp yeniden yükler"
+            },
+            {
+                  "id": "c",
+                  "text": "noReset her testte uygulama önbelleğini siler"
+            },
+            {
+                  "id": "d",
+                  "text": "Bu ayarlar sadece Android üzerinde çalışır, iOS'te etkisi yoktur"
+            }
+      ],
+      "correct": "b",
+      "explanation": "noReset: true, uygulama verilerini ve oturumu koruyarak hızlı test döngüsü sağlar. fullReset: true ise testi başlatmadan önce uygulamayı cihazdan tamamen kaldırıp yeniden kurar, bu da temiz bir ortam oluşturur."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Desired Capabilities',
@@ -1157,7 +1407,31 @@ export const config: Options.Testrunner = {
         ],
         correct: 'b',
         explanation: 'In TypeScript WebdriverIO, Appium-specific capabilities must be written as string keys with "appium:" prefix. Java\'s UiAutomator2Options builder adds this prefix automatically.',
-      },
+      
+        retryQuestion: {
+      "question": "Which of the following is the correct way to define \"automationName\" in WebdriverIO capabilities using Appium 3?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "automationName: \"UiAutomator2\""
+            },
+            {
+                  "id": "b",
+                  "text": "\"appium:automationName\": \"UiAutomator2\""
+            },
+            {
+                  "id": "c",
+                  "text": "capabilities.set(\"automationName\", \"UiAutomator2\")"
+            },
+            {
+                  "id": "d",
+                  "text": "appiumOptions.automationName = \"UiAutomator2\""
+            }
+      ],
+      "correct": "b",
+      "explanation": "In modern Appium (2.0+), capabilities must be namespaced. Using the \"appium:\" prefix ensures that the driver properly interprets vendor-specific capabilities like automationName, deviceName, or platformVersion."
+}
+},
       {
         type: 'quiz',
         question: 'What is the difference between noReset: true and noReset: false?',
@@ -1169,7 +1443,31 @@ export const config: Options.Testrunner = {
         ],
         correct: 'b',
         explanation: 'With noReset: true, app cache, login state, and local storage are preserved after the test. noReset: false (default) clears these. In E2E scenarios you sometimes need to preserve state (login once, subsequent tests continue). fullReset: true goes even further by uninstalling the app completely.',
-      },
+      
+        retryQuestion: {
+      "question": "What happens if you set noReset: false in your Appium configuration?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The app will not launch at all"
+            },
+            {
+                  "id": "b",
+                  "text": "The app state, such as login sessions and local cache, is cleared before the session starts"
+            },
+            {
+                  "id": "c",
+                  "text": "The app will be updated to the latest version automatically"
+            },
+            {
+                  "id": "d",
+                  "text": "The test will run significantly faster because it skips the reset process"
+            }
+      ],
+      "correct": "b",
+      "explanation": "By default (noReset: false), Appium cleans the app's internal data directories or reinstalls the app to ensure that each test starts from a clean slate, preventing test contamination from previous runs."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Desired Capabilities',
@@ -1543,7 +1841,31 @@ describe('Login Akışı', () => {
         ],
         correct: 'c',
         explanation: 'ID (resource-id) en hızlı ve en güvenilir locator stratejisidir çünkü Android doğrudan ID üzerinden arama yapar. XPath DOM traversal yaptığı için en yavaştır. UIAutomator2 çok güçlüdür ama biraz daha yavaş. ID bulunamadığında Accessibility ID tercih edilmeli.',
-      },
+      
+        retryQuestion: {
+      "question": "Appium mobil otomasyonunda testlerinizin en kararlı ve hızlı çalışması için aşağıdaki locator yöntemlerinden hangisini birincil tercih etmelisiniz?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "XPath — //android.widget.EditText[@resource-id='email']"
+            },
+            {
+                  "id": "b",
+                  "text": "Accessibility ID — email_input"
+            },
+            {
+                  "id": "c",
+                  "text": "Android UIAutomator — new UiSelector().className('android.widget.EditText')"
+            },
+            {
+                  "id": "d",
+                  "text": "Class Name — android.widget.EditText"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Accessibility ID (iOS'te accessibility identifier, Android'de content-description), framework seviyesinde en hızlı sonuç veren ve platform bağımsızlığı sunan yöntemdir. ID (resource-id) de çok hızlıdır, ancak Accessibility ID özellikle platformlar arası geçişlerde tercih edilir. XPath ise DOM ağacını taradığı için performans açısından en maliyetli yöntemdir."
+}
+},
       {
         type: 'quiz',
         question: 'TypeScript WebdriverIO\'da $("~Login") ne anlama gelir?',
@@ -1555,7 +1877,31 @@ describe('Login Akışı', () => {
         ],
         correct: 'b',
         explanation: 'WebdriverIO\'da tilde (~) prefix Accessibility ID anlamına gelir. $("~Login") = driver.findElement(AppiumBy.accessibilityId("Login")) ile eşdeğerdir. Bu kısaltma sadece WebdriverIO\'ya özgüdür; Java\'da AppiumBy.accessibilityId() açıkça yazılır.',
-      },
+      
+        retryQuestion: {
+      "question": "WebdriverIO'da $(\"#submit_button\") kullanımı ile $(\"~submit_button\") kullanımı arasındaki temel fark nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Her ikisi de aynı şekilde çalışır, sadece sözdizimi farkıdır."
+            },
+            {
+                  "id": "b",
+                  "text": "# işareti class, ~ işareti ID arar."
+            },
+            {
+                  "id": "c",
+                  "text": "# işareti resource-id ararken, ~ işareti accessibility id arar."
+            },
+            {
+                  "id": "d",
+                  "text": "~ işareti sadece CSS selector'lar için kullanılır."
+            }
+      ],
+      "correct": "c",
+      "explanation": "WebdriverIO'da # karakteri CSS veya ID (resource-id) ile eşleşirken, ~ karakteri Appium'un accessibilityId stratejisini temsil eder. Accessibility ID'ler, hem Android'deki content-description hem de iOS'teki accessibility identifier alanlarını hedeflediği için cross-platform projelerde daha sürdürülebilir bir yöntemdir."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Locator & POM',
@@ -1941,7 +2287,31 @@ describe('Login Flow', () => {
         ],
         correct: 'c',
         explanation: 'ID (resource-id) is the fastest and most reliable locator strategy because Android searches directly by ID. XPath is slowest due to DOM traversal. UIAutomator2 is powerful but slightly slower. When ID is not available, prefer Accessibility ID.',
-      },
+      
+        retryQuestion: {
+      "question": "Which of the following locator strategies is considered the best practice for cross-platform Appium automation in terms of performance and maintainability?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "XPath — //*[@text='Submit']"
+            },
+            {
+                  "id": "b",
+                  "text": "Class Name — android.widget.TextView"
+            },
+            {
+                  "id": "c",
+                  "text": "Accessibility ID — submit_btn"
+            },
+            {
+                  "id": "d",
+                  "text": "UIAutomator — new UiSelector().resourceId('btn_id')"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Accessibility ID is the recommended locator strategy because it is high-performance and works identically on both iOS and Android if the developer provides the same accessibility identifier on both platforms. XPath should be avoided whenever possible as it is slow and brittle. UIAutomator and ID are specific to Android, limiting code reusability."
+}
+},
       {
         type: 'quiz',
         question: 'What does $("~Login") mean in TypeScript WebdriverIO?',
@@ -1953,7 +2323,32 @@ describe('Login Flow', () => {
         ],
         correct: 'b',
         explanation: 'In WebdriverIO, the tilde (~) prefix means Accessibility ID. $("~Login") is equivalent to driver.findElement(AppiumBy.accessibilityId("Login")). This shorthand is WebdriverIO-specific; in Java you write AppiumBy.accessibilityId() explicitly.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "What does $(\"#submit-btn\") signify when using WebdriverIO with TypeScript?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Locates an element with accessibility ID \"submit-btn\""
+            },
+            {
+                  "id": "b",
+                  "text": "Locates an element with CSS selector \"#submit-btn\""
+            },
+            {
+                  "id": "c",
+                  "text": "Locates an element by text content \"submit-btn\""
+            },
+            {
+                  "id": "d",
+                  "text": "Locates an element with ID \"submit-btn\" using XPath"
+            }
+      ],
+      "correct": "b",
+      "explanation": "In WebdriverIO, if a selector string starts with '#', it is treated as a CSS selector. This is standard behavior for the WebdriverIO selector engine, mapping directly to CSS-based element lookups for web or hybrid applications."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Locator & POM',
@@ -2345,7 +2740,32 @@ describe('Automation Exercise — E2E Ürün Akışı', () => {
         ],
         correct: 'b',
         explanation: 'Mobil uygulamalar ağ isteği, animasyon ve async loading yaptığından elementler hemen ekranda olmayabilir. Explicit wait olmadan kodun devam etmesi "NoSuchElementException" veya "ElementNotInteractableException" verir. WebDriverWait + ExpectedConditions (Java) veya waitForDisplayed (TS) bunu çözer.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Mobil testlerde testlerin kararsız (flaky) çalışmasının ana nedeni genellikle nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Test cihazının ekran parlaklığının düşük olması"
+            },
+            {
+                  "id": "b",
+                  "text": "İnternet bağlantısının kesilmesi"
+            },
+            {
+                  "id": "c",
+                  "text": "Test betiğinin elementin görünürlüğünü beklemeden işleme geçmesi (synchronization issue)"
+            },
+            {
+                  "id": "d",
+                  "text": "Test projesinde kullanılan IDE ayarları"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Mobil uygulamalarda UI elementlerinin DOM üzerinde hazır olması zaman alır. Eğer test kodu, element henüz oluşmadan etkileşime girmeye çalışırsa, uygulama durumuna göre test bazen başarılı olur bazen hata verir. Bu durumu düzeltmek için bekletme mekanizmalarının (wait) doğru kullanımı hayati önem taşır."
+}
+},
       {
         type: 'interview-questions',
         topic: 'E2E Test Senaryosu',
@@ -2734,7 +3154,32 @@ describe('Automation Exercise — E2E Product Flow', () => {
         ],
         correct: 'b',
         explanation: 'Mobile apps make network requests, animations and async loading — elements may not be on screen immediately. Without explicit wait, proceeding causes NoSuchElementException or ElementNotInteractableException. WebDriverWait + ExpectedConditions (Java) or waitForDisplayed (TS) solves this.',
-      },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": "Which strategy is recommended to eliminate non-deterministic behavior in mobile automated tests caused by network latency?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Use static sleep commands to pause execution"
+            },
+            {
+                  "id": "b",
+                  "text": "Implement synchronization by waiting for element visibility or conditions"
+            },
+            {
+                  "id": "c",
+                  "text": "Increase the test script execution speed"
+            },
+            {
+                  "id": "d",
+                  "text": "Restart the mobile device after every test case"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Network latency is unpredictable in mobile environments. Relying on fixed sleep times is fragile. Instead, implementing explicit waits (like `waitForDisplayed` or `FluentWait`) ensures the test script synchronizes with the actual state of the application, eliminating race conditions."
+}
+},
       {
         type: 'interview-questions',
         topic: 'E2E Test Scenario',
@@ -2945,7 +3390,31 @@ stage('Run Appium Tests') {
         ],
         correct: 'b',
         explanation: 'Appium 3 güvenlik açısından varsayılan olarak kısıtlayıcıdır. adb_shell, chromedriver_autodownload gibi feature\'lar için --allow-insecure flag\'i gereklidir. wdio.conf.ts\'de services altında allowInsecure array\'ine eklenebilir. Üretimde sadece gerçekten gerekli olan feature\'lar izin listesine eklenmeli.',
-      },
+      
+        retryQuestion: {
+      "question": "Appium testlerinde 'chromedriver_autodownload' özelliğini kullanırken karşılaşılan \"Security feature flag is not enabled\" hatasını gidermek için hangi yöntem izlenmelidir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Appium driverlarını güncelle"
+            },
+            {
+                  "id": "b",
+                  "text": "--allow-insecure=chromedriver_autodownload bayrağı ile server'ı çalıştır"
+            },
+            {
+                  "id": "c",
+                  "text": "JAVA_HOME yolunu kontrol et"
+            },
+            {
+                  "id": "d",
+                  "text": "Cihazın USB hata ayıklama modunu kapat"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Appium, güvenlik gerekçesiyle belirli gelişmiş komutları varsayılan olarak devre dışı bırakır. ChromeDriver'ın otomatik indirilmesi gibi özellikler, risk oluşturabileceği için --allow-insecure flag'i ile açıkça izin verilmesini gerektirir."
+}
+},
       {
         type: 'quiz',
         question: 'StaleElementReferenceException alındığında ne yapılmalıdır?',
@@ -2957,7 +3426,31 @@ stage('Run Appium Tests') {
         ],
         correct: 'b',
         explanation: 'StaleElementReferenceException, önceden bulunan bir elemana atıfta bulunulduğunda ancak o element artık DOM\'da olmadığında oluşur (sayfa yenilendi, animation, RecyclerView). Çözüm: findElement\'i tekrar çağırarak taze referans almak. POM getter\'lar bunu otomatik çözer çünkü her seferinde yeni element bulur.',
-      },
+      
+        retryQuestion: {
+      "question": "Sayfa yenilenmesi veya dinamik içerik güncellenmesi sırasında \"StaleElementReferenceException\" hatası alınıyorsa, en doğru yaklaşım nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Test betiğine daha uzun bekleme süreleri (implicit wait) eklemek"
+            },
+            {
+                  "id": "b",
+                  "text": "Elemente erişmeye çalışmadan önce elemanı tekrar findElement metoduyla bulmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Testi try-catch bloğuna alıp uygulamayı kapatıp açmak"
+            },
+            {
+                  "id": "d",
+                  "text": "Locator stratejisini CSS Selector yerine XPath olarak değiştirmek"
+            }
+      ],
+      "correct": "b",
+      "explanation": "StaleElementReferenceException, referans alınan elementin artık DOM üzerinde bulunmadığını gösterir. DOM yapısı değiştiği için, elementin güncel referansını almak adına findElement komutunu tekrar çalıştırmak hatayı kalıcı olarak çözer."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Hata Ayıklama',
@@ -3131,7 +3624,31 @@ stage('Run Appium Tests') {
         ],
         correct: 'b',
         explanation: 'Appium 3 is restrictive by default for security. Features like adb_shell and chromedriver_autodownload require the --allow-insecure flag. In wdio.conf.ts, add to the allowInsecure array under services. In production, only add actually needed features to the allow list.',
-      },
+      
+        retryQuestion: {
+      "question": "Which configuration step is necessary when encountering a \"Security feature flag is not enabled\" error while trying to execute shell commands via Appium?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Enable Developer Mode on the emulator"
+            },
+            {
+                  "id": "b",
+                  "text": "Add 'adb_shell' to the allow-insecure list in Appium server arguments"
+            },
+            {
+                  "id": "c",
+                  "text": "Upgrade the Appium inspector tool"
+            },
+            {
+                  "id": "d",
+                  "text": "Clear the Appium cache folder"
+            }
+      ],
+      "correct": "b",
+      "explanation": "To maintain a secure environment, Appium blocks potentially dangerous commands by default. Adding specific features like 'adb_shell' to the allow-insecure list explicitly authorizes the server to execute those commands."
+}
+},
       {
         type: 'quiz',
         question: 'What should you do when StaleElementReferenceException occurs?',
@@ -3143,7 +3660,31 @@ stage('Run Appium Tests') {
         ],
         correct: 'b',
         explanation: 'StaleElementReferenceException occurs when referencing a previously found element that is no longer in the DOM (page refreshed, animation, RecyclerView). Solution: call findElement again to get a fresh reference. POM getters solve this automatically because they find a new element each time.',
-      },
+      
+        retryQuestion: {
+      "question": "What is the recommended way to handle a StaleElementReferenceException in Selenium automation?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Clear the browser cache and cookies"
+            },
+            {
+                  "id": "b",
+                  "text": "Re-locate the element using findElement before performing the next action"
+            },
+            {
+                  "id": "c",
+                  "text": "Set a higher value for the implicit wait"
+            },
+            {
+                  "id": "d",
+                  "text": "Change the locator strategy from CSS to ID"
+            }
+      ],
+      "correct": "b",
+      "explanation": "StaleElementReferenceException indicates the DOM has changed, rendering your existing element reference invalid. To fix this, you must re-identify the element using the driver instance, ensuring you have the updated reference to the new element node."
+}
+},
       {
         type: 'interview-questions',
         topic: 'Debugging',

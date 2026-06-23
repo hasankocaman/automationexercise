@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import SeoMeta from './components/SeoMeta'
 import RequireAdmin from './components/RequireAdmin'
+import ProtectedRoute from './components/ProtectedRoute'
 import AuthCallback from './components/AuthCallback'
 import LoginPage from './components/LoginPage'
 import ChatWidget from './components/ChatWidget'
@@ -37,6 +38,9 @@ const AlgorithmsPage = lazy(() => import('./components/AlgorithmsPage'))
 const AdvancedAlgorithmsPage = lazy(() => import('./components/AdvancedAlgorithmsPage'))
 const QAMentorPage = lazy(() => import('./components/QAMentorPage'))
 const BackendPage = lazy(() => import('./components/BackendPage'))
+const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
+const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
+const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
 
 function RouteFallback() {
     return (
@@ -84,6 +88,9 @@ function App() {
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
                     <Route path="/qa-mentor" element={<QAMentorPage />} />
                     <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
+                    <Route path="/leaderboard" element={<LeaderboardPage />} />
+                    <Route path="/verify-certificate/:id" element={<VerifyCertificatePage />} />
+                    <Route path="/qa-assistant" element={<ProtectedRoute><QaAssistantPage /></ProtectedRoute>} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/login" element={<LoginPage />} />
                 </Routes>

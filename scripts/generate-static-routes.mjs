@@ -253,7 +253,7 @@ async function routeContent(seo) {
 
 function fallbackContent(seo, content) {
     const links = ROUTE_SEO
-        .filter((item) => item.path !== seo.path)
+        .filter((item) => item.path !== seo.path && !item.dynamic)
         .map((item) => `          <li><a href="${escapeHtml(item.path)}">${escapeHtml(item.title.replace(' | LearnQA.dev', ''))}</a></li>`)
         .join('\n')
     const contentIntro = content?.intro ? `<p>${escapeHtml(content.intro)}</p>` : ''
@@ -333,7 +333,9 @@ function replaceMeta(html, seo) {
 
 const template = await readFile(indexPath, 'utf8')
 
-for (const seo of ROUTE_SEO) {
+const staticRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
+
+for (const seo of staticRoutes) {
     const html = replaceMeta(template, { ...seo, content: await routeContent(seo) })
 
     if (seo.path === '/') {
@@ -346,4 +348,4 @@ for (const seo of ROUTE_SEO) {
     await writeFile(join(routeDir, 'index.html'), html)
 }
 
-console.log(`Generated ${ROUTE_SEO.length} static route HTML shells.`)
+console.log(`Generated ${staticRoutes.length} static route HTML shells.`)

@@ -57,7 +57,32 @@ export const kafkaData = {
             ],
             correct: 'c',
             explanation: 'Unlike traditional queues, Kafka retains messages for a configured retention period (default 7 days) regardless of consumption. This allows multiple independent consumers to read the same message, and allows replaying events from any point in time.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "How does Kafka handle message deletion after a consumer reads data?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "The message is removed as soon as the acknowledgement is received"
+            },
+            {
+                  "id": "b",
+                  "text": "The message is marked for deletion only after all consumers in the group read it"
+            },
+            {
+                  "id": "c",
+                  "text": "The message stays in the partition based on time or size configuration, ignoring read status"
+            },
+            {
+                  "id": "d",
+                  "text": "The message is transferred to a permanent database store"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Kafka uses a distributed commit log approach. Messages are not deleted upon consumption; they are persisted until the topic's retention policy (time-based or size-based) is triggered, enabling re-processing of data."
+}
+},
         ],
       },
 
@@ -264,6 +289,29 @@ EOF
 docker compose -f docker-compose-kraft.yml up -d
 # No ZooKeeper container needed!`,
           },
+          {
+            type: 'quiz',
+            question: 'Why is running Kafka as a "bare binary" on a single VM discouraged for production, in favor of Strimzi on Kubernetes or Confluent Cloud?',
+            options: [
+              { id: 'a', text: 'Bare binary installs cannot connect to producers' },
+              { id: 'b', text: 'Managed/operator solutions handle broker failover, scaling, and upgrades automatically — a bare binary requires you to build all of that yourself' },
+              { id: 'c', text: 'Bare binary Kafka does not support topics' },
+              { id: 'd', text: 'Confluent Cloud is the only option that supports Java clients' },
+            ],
+            correct: 'b',
+            explanation: 'A bare binary install gives you a running broker but nothing else — no automated failover when a broker dies, no rolling upgrades, no built-in monitoring. Strimzi (a Kubernetes operator) and Confluent Cloud (fully managed) handle exactly those operational concerns, which is why production deployments almost always choose one of them instead of hand-rolling broker lifecycle management.',
+            retryQuestion: {
+              question: 'A broker in a self-managed (bare binary) Kafka cluster crashes at 3am. With no operator/managed service in place, what actually happens?',
+              options: [
+                { id: 'a', text: 'Kafka automatically provisions a replacement broker' },
+                { id: 'b', text: 'Nothing happens automatically — an on-call engineer must notice and manually restart or replace the broker' },
+                { id: 'c', text: 'The cluster automatically shuts down to prevent data loss' },
+                { id: 'd', text: 'Confluent Cloud takes over automatically even without being configured' },
+              ],
+              correct: 'b',
+              explanation: 'A bare binary install has no automation watching broker health — recovery is entirely manual unless the team has built their own monitoring/alerting/restart tooling. This is exactly the operational burden that Strimzi (which reconciles desired vs actual cluster state automatically) or a managed service like Confluent Cloud takes off the team\'s plate.',
+            },
+          },
         ],
       },
 
@@ -437,7 +485,32 @@ docker compose -f docker-compose-kraft.yml up -d
             ],
             correct: 'b',
             explanation: 'An offset is a unique, sequential integer ID assigned to each message within a partition (0, 1, 2, 3...). Consumers track their current offset to know which messages they\'ve read. This allows replaying from any point: setting offset to 0 replays all messages from the beginning.',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "In the context of Kafka consumers, what is the role of an offset?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It defines the partition replication factor"
+            },
+            {
+                  "id": "b",
+                  "text": "It acts as a pointer or index to track the consumer's position in a partition"
+            },
+            {
+                  "id": "c",
+                  "text": "It determines the maximum throughput of a producer"
+            },
+            {
+                  "id": "d",
+                  "text": "It signifies the compression ratio of the data block"
+            }
+      ],
+      "correct": "b",
+      "explanation": "An offset is a monotonically increasing integer that marks the position of a consumer within a specific partition. By committing offsets, consumers can track progress and resume from where they left off in case of a crash."
+}
+},
         ],
       },
 
@@ -609,7 +682,32 @@ public class OrderConsumer {
             ],
             correct: 'b',
             explanation: 'Each partition can only be assigned to ONE consumer within a group. With 3 partitions and 5 consumers, 3 consumers get one partition each, and 2 consumers sit idle. To increase parallelism, increase the number of partitions (but you cannot decrease partitions without deleting the topic).',
-          },
+          
+        retryQuestion: {
+      "type": "quiz",
+      "question": "If you have 10 partitions in a Kafka topic and a consumer group consisting of 12 consumers, what is the outcome?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Each partition will be read by 1.2 consumers simultaneously"
+            },
+            {
+                  "id": "b",
+                  "text": "All 12 consumers will be active, with 2 partitions handling multiple consumers"
+            },
+            {
+                  "id": "c",
+                  "text": "10 consumers are actively assigned to partitions, while 2 remain idle"
+            },
+            {
+                  "id": "d",
+                  "text": "The consumer group will fail to start due to an imbalance"
+            }
+      ],
+      "correct": "c",
+      "explanation": "Kafka ensures that each partition is processed by exactly one consumer within a group to avoid duplicate processing. With more consumers than partitions, the excess consumers will remain in an idle state, waiting for a partition to become available if a consumer drops out."
+}
+},
         ],
       },
 
@@ -697,6 +795,29 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
 # Check consumer group lag (how far behind is the consumer?)
 kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
   --describe --group order-processing-group`,
+          },
+          {
+            type: 'quiz',
+            question: 'You want to survive the loss of up to 2 brokers in a 3-broker production cluster without losing any messages. What `replication.factor` should you set on the topic?',
+            options: [
+              { id: 'a', text: '1' },
+              { id: 'b', text: '2' },
+              { id: 'c', text: '3' },
+              { id: 'd', text: '0' },
+            ],
+            correct: 'c',
+            explanation: 'With `replication.factor=3`, each partition has 1 leader and 2 followers spread across the 3 brokers. If a broker dies, one of the followers is automatically promoted to leader and no data is lost. The standard production rule of thumb is replication factor = number of brokers (minimum 3) for real fault tolerance — replication.factor=1 means a single broker failure loses that partition entirely.',
+            retryQuestion: {
+              question: 'A topic has `replication.factor=3` but `min.insync.replicas=1`. A producer sends with `acks=all`. What does this combination actually guarantee?',
+              options: [
+                { id: 'a', text: 'The message is durable only after all 3 replicas confirm it' },
+                { id: 'b', text: 'The message is considered written once just 1 replica (the leader) confirms it, even though 3 copies are configured to exist' },
+                { id: 'c', text: 'The producer will never receive an acknowledgment' },
+                { id: 'd', text: 'Kafka rejects this configuration as invalid' },
+              ],
+              correct: 'b',
+              explanation: '`min.insync.replicas` controls how many replicas must confirm a write before it counts as successful — with it set to 1, the leader alone confirming is enough, even though `replication.factor=3` means 3 copies eventually exist. This is a real production gotcha: a high replication factor alone does not guarantee strong durability if `min.insync.replicas` is left at a low value.',
+            },
           },
         ],
       },
@@ -860,6 +981,29 @@ class OrderEventConsumerTest {
             emoji: '🧪',
             title: 'QA Testing Strategy for Kafka',
             content: '1) @EmbeddedKafka for unit/integration tests — no external Kafka needed. 2) Testcontainers for full integration tests — spins up a real Kafka Docker container. 3) Consumer Group Lag monitoring in production — if lag grows, consumers are behind. 4) Dead Letter Topic (DLT) — failed messages routed to orders.DLT for inspection.',
+          },
+          {
+            type: 'quiz',
+            question: 'You want a fast unit/integration test for a Spring Boot Kafka consumer that does not depend on an external Kafka cluster being available. What is the right tool?',
+            options: [
+              { id: 'a', text: 'Testcontainers, spinning up a real Docker Kafka broker' },
+              { id: 'b', text: '@EmbeddedKafka' },
+              { id: 'c', text: 'A manually installed Kafka on the CI runner' },
+              { id: 'd', text: 'Mocking the entire Spring context' },
+            ],
+            correct: 'b',
+            explanation: '@EmbeddedKafka starts an in-memory Kafka broker inside the test JVM itself — no Docker, no external cluster, no network dependency. It is the fastest option for true unit/integration tests. Testcontainers is the right tool one level up, when you specifically want to verify behavior against a real Kafka Docker container (closer to production), at the cost of slower test startup.',
+            retryQuestion: {
+              question: 'A team wants their CI test to catch a real bug that only happens with the actual Kafka broker binary (not the in-memory @EmbeddedKafka implementation). Which tool fits better here?',
+              options: [
+                { id: 'a', text: '@EmbeddedKafka, since it is always the better choice' },
+                { id: 'b', text: 'Testcontainers, since it runs a real Kafka Docker container, closer to what production actually runs' },
+                { id: 'c', text: 'Neither — this kind of bug cannot be caught in CI' },
+                { id: 'd', text: 'A manually installed Kafka on the CI runner, since containers cannot run Kafka' },
+              ],
+              correct: 'b',
+              explanation: '@EmbeddedKafka is a lightweight in-memory reimplementation — fast, but not byte-identical to the real broker binary, so it can miss broker-specific behavior. Testcontainers spins up the actual Kafka Docker image, trading some test startup speed for fidelity closer to production — the right choice when you specifically need to verify against real broker behavior.',
+            },
           },
         ],
       },
@@ -1065,6 +1209,29 @@ class OrderIntegrationTest {
 }
 // After registration, every DB change produces an event on topic: dbserver1.shop.orders
 // {"op":"c","before":null,"after":{"id":1,"product":"laptop","status":"PLACED"}}`,
+          },
+          {
+            type: 'quiz',
+            question: 'A new consumer group needs to reprocess the last 7 days of events from a topic, even though those events were already consumed and acknowledged by other consumers. Is this possible with Kafka, and why does RabbitMQ/ActiveMQ struggle with the same request?',
+            options: [
+              { id: 'a', text: 'Not possible in either system — messages are gone once consumed' },
+              { id: 'b', text: 'Possible in Kafka because messages stay in the log per a retention policy and can be replayed from any offset; RabbitMQ/ActiveMQ delete messages once acknowledged' },
+              { id: 'c', text: 'Only possible by asking the producer to resend everything' },
+              { id: 'd', text: 'Only possible if you restart the broker' },
+            ],
+            correct: 'b',
+            explanation: 'Kafka is log-based: messages stay on disk for the configured retention period (e.g. 7 days) regardless of whether a consumer already read them, so a brand-new consumer group can simply start from offset 0 (or any specific offset) and replay history. RabbitMQ/ActiveMQ are queue-based — once a message is acknowledged, it is deleted, so there is nothing left to replay. This is the core architectural reason Kafka is chosen for event streaming/audit logs/CDC, while traditional queues are chosen for task distribution/RPC.',
+            retryQuestion: {
+              question: 'A team needs a "distribute one task to exactly one worker" pattern (e.g. send each image-resize job to only one available worker, never duplicated). Is Kafka or a traditional queue (RabbitMQ) the better natural fit here?',
+              options: [
+                { id: 'a', text: 'Kafka, because it is always the more modern choice' },
+                { id: 'b', text: 'RabbitMQ, because competing-consumer task queues are exactly what queue-based systems were designed for' },
+                { id: 'c', text: 'Neither can do this' },
+                { id: 'd', text: 'Kafka, because it has more retention' },
+              ],
+              correct: 'b',
+              explanation: 'Kafka excels at event streaming/replay (many consumer groups can independently re-read the same log), but classic "exactly one worker handles this task" distribution is the native use case of a queue-based system like RabbitMQ, where a message is removed once a worker acknowledges it. Choosing the tool based on the actual access pattern — replay/audit vs. task distribution — matters more than which technology is newer.',
+            },
           },
         ],
       },
@@ -1280,6 +1447,29 @@ public void handleDeadLetter(
               '✅ Retention policy is set appropriately (not accumulating indefinitely)',
             ],
           },
+          {
+            type: 'quiz',
+            question: "A consumer crashes every time it processes a specific \"poison\" message, and consumer group lag never decreases. Without a Dead Letter Topic, why does this loop forever?",
+            options: [
+              { id: 'a', text: 'Kafka automatically deletes poison messages after 3 retries' },
+              { id: 'b', text: "The offset is never committed because processing throws, so the same message keeps being redelivered on every retry" },
+              { id: 'c', text: 'The broker restarts and clears the message' },
+              { id: 'd', text: 'The consumer group automatically skips to the next message' },
+            ],
+            correct: 'b',
+            explanation: "Kafka only advances a consumer's offset when it is explicitly committed — if processing throws an exception before that commit, the same message is redelivered on the next poll, forever, because nothing tells Kafka the consumer is done with it. A Dead Letter Topic breaks the loop: after a configured number of retries, the failed message is routed to a separate DLT for manual inspection, and the main consumer's offset advances past it — the same pattern as a try-catch with a fallback handler.",
+            retryQuestion: {
+              question: 'A consumer is configured to retry a failing message up to 3 times before sending it to a Dead Letter Topic. After the message is routed to the DLT, what happens to the main consumer\'s processing of subsequent messages?',
+              options: [
+                { id: 'a', text: 'It stays stuck forever, the same as without a DLT' },
+                { id: 'b', text: 'Its offset advances past the poison message, so it continues processing the next messages normally' },
+                { id: 'c', text: 'The entire consumer group shuts down' },
+                { id: 'd', text: 'The poison message is processed a 4th time automatically' },
+              ],
+              correct: 'b',
+              explanation: 'The whole point of routing to a DLT after max retries is to let the main consumer commit past the poison message and resume normal processing — without this, every message behind the poison one in the partition would also be stuck waiting. The poison message itself is preserved in the DLT for later manual inspection, not lost.',
+            },
+          },
         ],
       },
 
@@ -1413,7 +1603,31 @@ public void handleDeadLetter(
             ],
             correct: 'c',
             explanation: 'Geleneksel queue\'ların aksine Kafka, mesajları tüketimden bağımsız olarak yapılandırılmış retention süresi boyunca (varsayılan 7 gün) saklar. Bu, birden fazla bağımsız consumer\'ın aynı mesajı okumasına ve herhangi bir noktadan event\'lerin tekrar oynatılmasına olanak tanır.',
-          },
+          
+        retryQuestion: {
+      "question": "Kafka'da bir consumer bir mesajı okuduktan sonra broker üzerinde nasıl bir değişiklik gerçekleşir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Mesajın okunma durumu 'okundu' olarak güncellenir ve veritabanından silinir."
+            },
+            {
+                  "id": "b",
+                  "text": "Mesajın içeriği consumer'a iletildikten sonra broker'dan hemen temizlenir."
+            },
+            {
+                  "id": "c",
+                  "text": "Broker üzerinde mesaj verisi silinmez, sadece ilgili consumer grubu için offset bilgisi güncellenir."
+            },
+            {
+                  "id": "d",
+                  "text": "Mesaj, işlenmesi için geçici bir 'processing' dizinine taşınır."
+            }
+      ],
+      "correct": "c",
+      "explanation": "Kafka, 'log-based' bir yapıdır. Bir mesaj tüketildiğinde broker mesajı silmez veya değiştirmez. Mesaj, topic'in yapılandırılmış retention süresi boyunca fiziksel olarak diskte tutulmaya devam eder. Consumer sadece kendi okuma ilerlemesini (offset) takip eder, bu sayede aynı mesaj farklı consumer grupları tarafından tekrar tekrar okunabilir."
+}
+},
         ],
       },
       {
@@ -1574,6 +1788,29 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 # ZooKeeper container'ına gerek yok!`,
           },
+          {
+            type: 'quiz',
+            question: 'Production\'da Kafka\'yı tek bir VM üzerinde "bare binary" olarak çalıştırmak yerine Kubernetes üzerinde Strimzi veya Confluent Cloud kullanmak neden tercih edilir?',
+            options: [
+              { id: 'a', text: 'Bare binary kurulumlar producer\'lara bağlanamaz' },
+              { id: 'b', text: 'Managed/operator çözümler broker failover, ölçekleme ve upgrade\'leri otomatik yönetir — bare binary\'de bunların hepsini kendin inşa etmen gerekir' },
+              { id: 'c', text: 'Bare binary Kafka topic desteklemez' },
+              { id: 'd', text: 'Confluent Cloud Java client desteği sunan tek seçenektir' },
+            ],
+            correct: 'b',
+            explanation: 'Bare binary kurulum sana çalışan bir broker verir ama başka hiçbir şey vermez — bir broker öldüğünde otomatik failover yok, rolling upgrade yok, yerleşik monitoring yok. Strimzi (bir Kubernetes operator\'ü) ve Confluent Cloud (tamamen yönetilen) tam olarak bu operasyonel ihtiyaçları çözer — bu yüzden production deploymentlar broker lifecycle\'ını elle yönetmek yerine bunlardan birini seçer.',
+            retryQuestion: {
+              question: 'Self-managed (bare binary) bir Kafka cluster\'ında bir broker sabah 3\'te çöküyor. Hiçbir operator/yönetilen servis yokken gerçekte ne olur?',
+              options: [
+                { id: 'a', text: 'Kafka otomatik olarak yedek bir broker sağlar' },
+                { id: 'b', text: 'Hiçbir şey otomatik olarak olmaz — bir nöbetçi mühendisin fark edip broker\'ı manuel yeniden başlatması/değiştirmesi gerekir' },
+                { id: 'c', text: 'Cluster, veri kaybını önlemek için otomatik olarak kapanır' },
+                { id: 'd', text: 'Confluent Cloud, hiç yapılandırılmamış olsa da devreye girer' },
+              ],
+              correct: 'b',
+              explanation: 'Bare binary kurulumda broker sağlığını izleyen hiçbir otomasyon yoktur — ekip kendi monitoring/alerting/restart araçlarını kurmadıysa kurtarma tamamen manueldir. Bu, Strimzi\'nin (istenen durumla gerçek cluster durumunu otomatik uzlaştıran) veya Confluent Cloud gibi yönetilen bir servisin ekibin sırtından aldığı tam olarak bu operasyonel yüktür.',
+            },
+          },
         ],
       },
 
@@ -1707,7 +1944,31 @@ services:
             ],
             correct: 'b',
             explanation: 'Offset, bir partition içindeki her mesaja atanan benzersiz, sıralı bir tam sayı ID\'sidir (0, 1, 2, 3...). Consumer\'lar hangi mesajları okuyup okumadıklarını bilmek için mevcut offset\'lerini takip eder. Bu, herhangi bir noktadan yeniden oynatmaya olanak tanır: offset\'i 0\'a ayarlamak tüm mesajları baştan oynatır.',
-          },
+          
+        retryQuestion: {
+      "question": "Kafka'da 'Offset' kavramı neyi ifade eder?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Topic içindeki partition'ların toplam sayısıdır."
+            },
+            {
+                  "id": "b",
+                  "text": "Bir partition içerisindeki mesajın konumunu belirten sıralı, artan bir indekstir."
+            },
+            {
+                  "id": "c",
+                  "text": "Mesajın broker'a ulaştığı milisaniye cinsinden zaman damgasıdır."
+            },
+            {
+                  "id": "d",
+                  "text": "Consumer'ın bir mesajı işlemek için harcadığı toplam süredir."
+            }
+      ],
+      "correct": "b",
+      "explanation": "Offset, bir partition içindeki her mesaja atanan, 0'dan başlayan sıralı bir tanımlayıcıdır. Consumer'lar, kaldıkları yerden devam edebilmek veya geçmişe dönüp tekrar okuma yapabilmek için bu offset değerini kullanırlar. Offset, mesajların sırasını belirleyen temel mekanizmadır."
+}
+},
         ],
       },
       {
@@ -1898,7 +2159,31 @@ public class SiparisConsumer {
             ],
             correct: 'b',
             explanation: 'Her partition, group içinde yalnızca BİR consumer\'a atanabilir. 3 partition ve 5 consumer varsa, 3 consumer birer partition alır ve 2 consumer boşta bekler. Paralelliği artırmak için partition sayısını artır (ancak topic\'i silmeden partition sayısını azaltamazsın).',
-          },
+          
+        retryQuestion: {
+      "question": "Bir Kafka topic'inin 4 partition'ı ve aynı tüketici grubuna bağlı 6 consumer instance'ı varsa sistem nasıl davranır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "6 consumer, 4 partition'ı kendi aralarında paylaşıp aynı anda çalışır."
+            },
+            {
+                  "id": "b",
+                  "text": "4 consumer birer partition'dan veri çekerken, 2 consumer boşta (idle) kalır."
+            },
+            {
+                  "id": "c",
+                  "text": "Kafka hata verir ve tüketicilerin başlamasını engeller."
+            },
+            {
+                  "id": "d",
+                  "text": "Tüm 6 consumer, veriyi verimli bir şekilde tüketmek için partition'ları alt parçalara böler."
+            }
+      ],
+      "correct": "b",
+      "explanation": "Kafka'da bir partition aynı anda aynı consumer grubundan en fazla bir consumer tarafından okunabilir. Bu nedenle, partition sayısından fazla consumer olması durumunda, fazla olan consumer'lar herhangi bir partition ataması almazlar ve pasif kalırlar. Ölçeklenebilirliği artırmak için partition sayısını, consumer sayısına eşit veya daha fazla olacak şekilde ayarlamak gerekir."
+}
+},
         ],
       },
       {
@@ -1956,6 +2241,29 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
               ['compression.type', 'Mesaj sıkıştırma', 'Throughput için lz4/snappy; oran için gzip'],
               ['cleanup.policy', 'delete vs compact', 'delete (varsayılan): eskiyi sil; compact: key başına en yeniyi sakla'],
             ],
+          },
+          {
+            type: 'quiz',
+            question: '3 broker\'lı bir production cluster\'da en fazla 2 broker\'ın kaybını mesaj kaybetmeden tolere etmek istiyorsun. Topic\'te hangi `replication.factor` ayarlanmalı?',
+            options: [
+              { id: 'a', text: '1' },
+              { id: 'b', text: '2' },
+              { id: 'c', text: '3' },
+              { id: 'd', text: '0' },
+            ],
+            correct: 'c',
+            explanation: '`replication.factor=3` ile her partition 3 broker arasında dağılmış 1 leader ve 2 follower\'a sahip olur. Bir broker ölürse, follower\'lardan biri otomatik olarak leader\'a yükseltilir ve veri kaybı olmaz. Gerçek fault tolerance için standart production kuralı: replication factor = broker sayısı (minimum 3) — replication.factor=1, tek bir broker arızasında o partition\'ın tamamen kaybolması anlamına gelir.',
+            retryQuestion: {
+              question: 'Bir topic\'te `replication.factor=3` ama `min.insync.replicas=1` ayarlı. Bir producer `acks=all` ile gönderiyor. Bu kombinasyon gerçekte ne garanti eder?',
+              options: [
+                { id: 'a', text: 'Mesaj sadece 3 replikanın hepsi onayladıktan sonra dayanıklı sayılır' },
+                { id: 'b', text: 'Mesaj sadece 1 replika (leader) onayladığında yazılmış sayılır, 3 kopya yapılandırılmış olsa bile' },
+                { id: 'c', text: 'Producer hiçbir zaman onay almaz' },
+                { id: 'd', text: 'Kafka bu konfigürasyonu geçersiz sayıp reddeder' },
+              ],
+              correct: 'b',
+              explanation: '`min.insync.replicas`, bir yazmanın başarılı sayılması için kaç replikanın onaylaması gerektiğini kontrol eder — 1 olarak ayarlandığında, `replication.factor=3` sonunda 3 kopya oluşturacak olsa bile sadece leader\'ın onaylaması yeterlidir. Bu gerçek bir production tuzağıdır: yüksek bir replication factor tek başına, `min.insync.replicas` düşük bırakılırsa güçlü dayanıklılığı garanti etmez.',
+            },
           },
         ],
       },
@@ -2059,6 +2367,29 @@ class SiparisEventConsumerTest {
             emoji: '🧪',
             title: 'Kafka için QA Test Stratejisi',
             content: '1) @EmbeddedKafka ile unit/integration testler — dış Kafka gerekmez. 2) Testcontainers ile tam entegrasyon testleri — gerçek bir Kafka Docker container\'ı başlatır. 3) Production\'da Consumer Group Lag izleme — lag büyüyorsa consumer\'lar geride kalıyordur. 4) Dead Letter Topic (DLT) — başarısız mesajlar inceleme için siparisler.DLT\'ye yönlendirilir.',
+          },
+          {
+            type: 'quiz',
+            question: 'Dışarıda çalışan bir Kafka cluster\'ına bağımlı olmadan bir Spring Boot Kafka consumer\'ı için hızlı bir unit/integration testi yazmak istiyorsun. Doğru araç hangisidir?',
+            options: [
+              { id: 'a', text: 'Gerçek bir Docker Kafka broker\'ı başlatan Testcontainers' },
+              { id: 'b', text: '@EmbeddedKafka' },
+              { id: 'c', text: 'CI runner\'a elle kurulmuş bir Kafka' },
+              { id: 'd', text: 'Tüm Spring context\'ini mock\'lamak' },
+            ],
+            correct: 'b',
+            explanation: '@EmbeddedKafka, test JVM\'inin kendi içinde bellekte (in-memory) bir Kafka broker\'ı başlatır — Docker yok, dış cluster yok, ağ bağımlılığı yok. Gerçek unit/integration testleri için en hızlı seçenektir. Testcontainers ise bir seviye yukarıda, davranışı gerçek bir Kafka Docker container\'ına (production\'a daha yakın) karşı özellikle doğrulamak istediğinde doğru araçtır — bunun karşılığında test başlangıcı daha yavaştır.',
+            retryQuestion: {
+              question: 'Bir ekip, CI testinin sadece gerçek Kafka broker binary\'sinde (in-memory @EmbeddedKafka implementasyonunda değil) ortaya çıkan gerçek bir bug\'ı yakalamasını istiyor. Burada hangi araç daha uygundur?',
+              options: [
+                { id: 'a', text: '@EmbeddedKafka, çünkü her zaman daha iyi seçimdir' },
+                { id: 'b', text: 'Testcontainers, çünkü gerçek bir Kafka Docker container\'ı çalıştırır, production\'da gerçekte çalışana daha yakındır' },
+                { id: 'c', text: 'Hiçbiri — bu tür bir bug CI\'da yakalanamaz' },
+                { id: 'd', text: 'CI runner\'a manuel kurulan bir Kafka, çünkü container\'lar Kafka çalıştıramaz' },
+              ],
+              correct: 'b',
+              explanation: '@EmbeddedKafka hafif bir bellek içi yeniden implementasyondur — hızlıdır ama gerçek broker binary\'siyle byte-identik değildir, bu yüzden broker\'a özgü davranışları kaçırabilir. Testcontainers gerçek Kafka Docker image\'ını başlatır, bir kısım test başlangıç hızını production\'a daha yakın bir doğruluk için takas eder — gerçek broker davranışına karşı doğrulama yapman gerektiğinde doğru seçim budur.',
+            },
           },
         ],
       },
@@ -2173,6 +2504,29 @@ class SiparisEntegrasyonTest {
             type: 'simple-box',
             emoji: '🔄',
             content: 'Debezium, veritabanındaki her INSERT/UPDATE/DELETE\'i yakalar ve Kafka event\'i olarak yayımlar. Artık veritabanı polling yok! Microservice\'leriniz veri değişikliklerine gerçek zamanlı olarak tepki verir. Yaygın pattern: MySQL → Debezium → Kafka → Elasticsearch (arama indeksi otomatik güncellenir).',
+          },
+          {
+            type: 'quiz',
+            question: 'Yeni bir consumer group, başka consumer\'lar tarafından zaten okunup onaylanmış olsa bile bir topic\'in son 7 gününün event\'lerini yeniden işlemek istiyor. Kafka\'da bu mümkün mü, ve RabbitMQ/ActiveMQ aynı istekte neden zorlanır?',
+            options: [
+              { id: 'a', text: 'Hiçbirinde mümkün değil — mesajlar okunduktan sonra gider' },
+              { id: 'b', text: 'Kafka\'da mümkün çünkü mesajlar retention policy\'ye göre log\'da kalır ve herhangi bir offset\'ten replay edilebilir; RabbitMQ/ActiveMQ onaylanan mesajı siler' },
+              { id: 'c', text: 'Sadece producer\'dan her şeyi yeniden göndermesi istenerek mümkün' },
+              { id: 'd', text: 'Sadece broker yeniden başlatılırsa mümkün' },
+            ],
+            correct: 'b',
+            explanation: 'Kafka log tabanlıdır: mesajlar bir consumer onları okumuş olsa da olmasa da yapılandırılan retention süresi boyunca (örn. 7 gün) diskte kalır, böylece yepyeni bir consumer group basitçe offset 0\'dan (veya istenen herhangi bir offset\'ten) başlayıp geçmişi replay edebilir. RabbitMQ/ActiveMQ queue tabanlıdır — bir mesaj onaylandığında silinir, replay edecek bir şey kalmaz. Kafka\'nın event streaming/audit log/CDC için, geleneksel queue\'ların ise task dağıtımı/RPC için seçilmesinin temel mimari nedeni budur.',
+            retryQuestion: {
+              question: 'Bir ekip "her görevi tam olarak bir worker\'a dağıt" pattern\'ine ihtiyaç duyuyor (örn. her resim boyutlandırma işini sadece bir uygun worker\'a gönder, asla çoğaltmadan). Bu durumda doğal olarak Kafka mı yoksa geleneksel bir queue (RabbitMQ) mı daha uygundur?',
+              options: [
+                { id: 'a', text: 'Kafka, çünkü her zaman daha modern seçimdir' },
+                { id: 'b', text: 'RabbitMQ, çünkü competing-consumer task queue\'ları tam olarak queue tabanlı sistemlerin tasarlandığı şeydir' },
+                { id: 'c', text: 'Hiçbiri bunu yapamaz' },
+                { id: 'd', text: 'Kafka, çünkü daha fazla retention\'ı var' },
+              ],
+              correct: 'b',
+              explanation: 'Kafka event streaming/replay\'de üstündür (birçok consumer group aynı log\'u bağımsız olarak yeniden okuyabilir), ama klasik "bu görevi tam olarak bir worker işlesin" dağıtımı RabbitMQ gibi queue tabanlı bir sistemin doğal kullanım alanıdır — bir mesaj bir worker tarafından onaylandığında kaldırılır. Aracı, hangi teknolojinin daha yeni olduğuna göre değil gerçek erişim pattern\'ine (replay/audit mi task dağıtımı mı) göre seçmek daha önemlidir.',
+            },
           },
         ],
       },
@@ -2339,6 +2693,29 @@ public class KafkaConsumerConfig {
               '✅ Broker hatası recover ediliyor (bir broker kapat, consumer\'ların devam ettiğini doğrula)',
               '✅ Retention policy uygun ayarlanmış (süresiz birikim yok)',
             ],
+          },
+          {
+            type: 'quiz',
+            question: 'Bir consumer, belirli bir "zehirli" mesajı işlerken her seferinde çöküyor ve consumer group lag\'i hiç azalmıyor. Dead Letter Topic olmadan bu döngü neden sonsuza kadar sürer?',
+            options: [
+              { id: 'a', text: 'Kafka zehirli mesajları 3 retry sonra otomatik siler' },
+              { id: 'b', text: 'İşleme exception fırlattığı için offset asla commit edilmez, bu yüzden aynı mesaj her poll\'da yeniden gönderilir' },
+              { id: 'c', text: 'Broker yeniden başlar ve mesajı temizler' },
+              { id: 'd', text: 'Consumer group otomatik olarak sıradaki mesaja atlar' },
+            ],
+            correct: 'b',
+            explanation: 'Kafka, bir consumer\'ın offset\'ini sadece açıkça commit edildiğinde ilerletir — işleme bu commit\'ten önce exception fırlatırsa, aynı mesaj bir sonraki poll\'da yeniden gönderilir, çünkü Kafka\'ya consumer\'ın bu mesajı bitirdiği hiç söylenmemiştir. Dead Letter Topic bu döngüyü kırar: yapılandırılan retry sayısı sonrası başarısız mesaj manuel inceleme için ayrı bir DLT\'ye yönlendirilir ve ana consumer\'ın offset\'i onun ötesine ilerler — fallback handler\'lı bir try-catch ile aynı pattern.',
+            retryQuestion: {
+              question: 'Bir consumer, başarısız bir mesajı DLT\'ye göndermeden önce en fazla 3 kez tekrar denemek üzere yapılandırılmış. Mesaj DLT\'ye yönlendirildikten sonra, ana consumer\'ın sıradaki mesajları işlemesine ne olur?',
+              options: [
+                { id: 'a', text: 'DLT olmadığı gibi sonsuza kadar takılı kalır' },
+                { id: 'b', text: 'Offset\'i zehirli mesajın ötesine ilerler, böylece sıradaki mesajları normal şekilde işlemeye devam eder' },
+                { id: 'c', text: 'Tüm consumer group kapanır' },
+                { id: 'd', text: 'Zehirli mesaj otomatik olarak 4. kez işlenir' },
+              ],
+              correct: 'b',
+              explanation: 'Maksimum retry sonrası DLT\'ye yönlendirmenin tüm amacı, ana consumer\'ın zehirli mesajın ötesine commit edip normal işlemeye devam etmesini sağlamaktır — bu olmadan, partition\'da zehirli mesajın arkasındaki her mesaj da beklemede kalırdı. Zehirli mesajın kendisi kaybolmaz, daha sonraki manuel inceleme için DLT\'de korunur.',
+            },
           },
         ],
       },

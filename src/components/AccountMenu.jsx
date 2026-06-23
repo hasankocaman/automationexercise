@@ -39,13 +39,20 @@ function Avatar({ name, avatarUrl, avatarEmoji, size = 28 }) {
 
 export default function AccountMenu({ darkMode }) {
     const { language } = useLanguage()
-    const { session, displayName, avatarUrl, avatarEmoji, setAvatarEmoji, email, isAdmin, signOut, earnedBadges } = useAuth()
+    const { session, displayName, avatarUrl, avatarEmoji, setAvatarEmoji, email, isAdmin, signOut, earnedBadges, xp, getStreak } = useAuth()
     const navigate = useNavigate()
     const [open, setOpen] = useState(false)
     const [pickerOpen, setPickerOpen] = useState(false)
     const [pickerError, setPickerError] = useState('')
+    const [streak, setStreak] = useState(0)
     const containerRef = useRef(null)
     const isTr = language === 'tr'
+
+    // Streak sorgusu sadece menü açıldığında çalışır — her sayfa yüklemesinde
+    // gereksiz bir Supabase isteği eklememek için.
+    useEffect(() => {
+        if (open) getStreak().then(setStreak)
+    }, [open, getStreak])
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -122,6 +129,12 @@ export default function AccountMenu({ darkMode }) {
                                 {email}
                             </p>
                         </div>
+                    </div>
+                    <div className="px-4 py-2 flex items-center gap-3 text-xs font-bold border-b border-white/10">
+                        <span className={darkMode ? 'text-indigo-300' : 'text-indigo-600'}>⚡ {xp} XP</span>
+                        <span className={darkMode ? 'text-orange-300' : 'text-orange-600'}>
+                            🔥 {streak} {isTr ? 'gün' : (streak === 1 ? 'day' : 'days')}
+                        </span>
                     </div>
                     <div className="px-4 py-3 flex items-center justify-between">
                         <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-slate-500 text-white'}`}>

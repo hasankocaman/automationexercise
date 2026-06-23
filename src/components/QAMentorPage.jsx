@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 import TopicHeader from './TopicHeader'
+import CircularProgress from './CircularProgress'
 import { DIALOG, MENTOR_STEPS, ALL_MAPS } from '../data/qaMentorData'
 
 // ─── Scroll Progress Bar ────────────────────────────────────────────────────
@@ -231,7 +233,7 @@ function ExtraNode({ node, lang, darkMode, animDelay }) {
 }
 
 // ─── Mind Map View ──────────────────────────────────────────────────────────
-function MindMapView({ mapData, lang, darkMode, dialog, onRestart }) {
+function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, certificateId }) {
     const [headerVisible, setHeaderVisible] = useState(false)
     const [noteVisible, setNoteVisible] = useState(false)
 
@@ -277,6 +279,20 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart }) {
                     <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {lang === 'tr' ? mapData.subtitle.tr : mapData.subtitle.en}
                     </p>
+
+                    {progress && (
+                        <div className="mt-4 flex items-center justify-center">
+                            <CircularProgress
+                                percent={progress.percent}
+                                darkMode={darkMode}
+                                label={
+                                    lang === 'tr'
+                                        ? `${progress.completedCount}/${progress.total} ders tamamlandı`
+                                        : `${progress.completedCount}/${progress.total} lessons completed`
+                                }
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -367,6 +383,15 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart }) {
                     >
                         🖨️ {dialog.print}
                     </button>
+                    {certificateId && (
+                        <Link
+                            to={`/verify-certificate/${certificateId}`}
+                            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-emerald-500/30"
+                            style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}
+                        >
+                            📜 {lang === 'tr' ? 'Sertifikamı Görüntüle' : 'View My Certificate'}
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>
@@ -394,6 +419,7 @@ function QAMentorPage() {
     const [darkMode, setDarkMode] = useDarkModeState()
     const lang = language
     const dialog = DIALOG[lang]
+    const { session, profile, loading: authLoading, setCareerGoal, getCompletedRoutePaths, claimCertificate } = useAuth()
 
     const [step, setStep] = useState(MENTOR_STEPS.STEP_1)
     const [messages, setMessages] = useState([])
@@ -401,7 +427,10 @@ function QAMentorPage() {
     const [isTyping, setIsTyping] = useState(false)
     const [selectedMap, setSelectedMap] = useState(null)
     const [choices, setChoices] = useState([])
+    const [progress, setProgress] = useState(null)
+    const [certificateId, setCertificateId] = useState(null)
     const chatBottomRef = useRef(null)
+    const resumedRef = useRef(false)
 
     // Scroll to bottom on new messages
     useEffect(() => {
@@ -430,22 +459,59 @@ function QAMentorPage() {
         setMessages(prev => [...prev, { id: Date.now() + Math.random(), isBot: false, key, visible: true }])
     }, [])
 
-    // Initialize
+    // Initialize — eğer üye daha önce bir yol haritası seçip kaydettiyse (career_goal),
+    // sihirbazı tekrar sormak yerine doğrudan kayıtlı haritayı gösterir.
     useEffect(() => {
-        let cancelled = false
+        if (authLoading || resumedRef.current) return
+        resumedRef.current = true
+
+        const savedGoal = profile?.career_goal
+        if (savedGoal && ALL_MAPS[savedGoal]) {
+            setSelectedMap(ALL_MAPS[savedGoal])
+            setStep(savedGoal)
+            return
+        }
+
+        // Not: burada kasıtlı olarak bir "cancelled" guard'ı YOK. React 18
+        // StrictMode (dev modu) bu efekti mount→cleanup→remount şeklinde iki kez
+        // tetikler; eskiden buradaki cleanup zinciri "cancelled=true" yapıyordu ve
+        // resumedRef zaten true olduğu için ikinci (gerçek) mount asla yeni bir
+        // zincir başlatmıyordu — sonuç: sihirbaz tek bot mesajından sonra kalıcı
+        // olarak takılı kalıyordu (gerçek kullanıcı bug raporu, 2026-06-23).
+        // resumedRef tek zincirin başlamasını garantilediği için burada ekstra
+        // cancellation gerekmiyor; component gerçekten unmount olursa devam eden
+        // setState çağrıları React 18'de sessizce yok sayılır, hata vermez.
         const init = async () => {
             await addBotMessage('welcome.bot', 800)
-            if (cancelled) return
             await addBotMessage('welcome.bot2', 900)
-            if (cancelled) return
             await addBotMessage('step1.bot', 700)
-            if (cancelled) return
             setShowOptions(true)
         }
         init()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authLoading])
+
+    // Seçilen yol haritasındaki tamamlanma yüzdesini hesaplar (sadece üyeler için —
+    // anonim kullanıcının route bazlı geçmişi Supabase'de yaşamıyor). %100'e ulaşınca
+    // bir sertifika talep eder (claimCertificate idempotent — tekrar tekrar çağrılsa
+    // bile aynı sertifikayı döner, çoğaltmaz).
+    useEffect(() => {
+        if (!selectedMap || !session) { setProgress(null); setCertificateId(null); return }
+        let cancelled = false
+        getCompletedRoutePaths().then((completedSet) => {
+            if (cancelled) return
+            const total = selectedMap.nodes.length
+            const completedCount = selectedMap.nodes.filter((node) => completedSet.has(node.route)).length
+            const percent = total ? (completedCount / total) * 100 : 0
+            setProgress({ percent, completedCount, total })
+
+            if (percent === 100 && step) {
+                claimCertificate(step).then((id) => { if (!cancelled) setCertificateId(id) })
+            }
+        })
         return () => { cancelled = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [selectedMap, session])
 
     // Restart — reset everything
     const handleRestart = useCallback(() => {
@@ -470,6 +536,13 @@ function QAMentorPage() {
         return () => { cancelled = true }
     }, [addBotMessage])
 
+    // Sihirbaz bir haritada karar kıldığında haritayı gösterir ve (üyeyse) career_goal'u kaydeder.
+    const finalizeMap = useCallback((mapKey) => {
+        setSelectedMap(ALL_MAPS[mapKey])
+        setStep(mapKey)
+        if (session) setCareerGoal(mapKey)
+    }, [session, setCareerGoal])
+
     // Handle option selection
     const handleOption = useCallback(async (option) => {
         setShowOptions(false)
@@ -479,8 +552,7 @@ function QAMentorPage() {
         if (option.id === 'A') {
             // → Sıfırdan, direkt MAP_A
             await addBotMessage('mapReady', 900)
-            setSelectedMap(ALL_MAPS.map_a)
-            setStep(MENTOR_STEPS.MAP_A)
+            finalizeMap('map_a')
         } else if (option.id === 'B') {
             // → Yazılım geçmişi var, sor: Java mı?
             await addBotMessage('step2.bot', 900)
@@ -499,26 +571,22 @@ function QAMentorPage() {
         } else if (option.id === 'B_SEL_YES') {
             // → Python/TS + Selenium dahil
             await addBotMessage('mapReady', 900)
-            setSelectedMap(ALL_MAPS.map_b_sel)
-            setStep(MENTOR_STEPS.MAP_B_SEL)
+            finalizeMap('map_b_sel')
         } else if (option.id === 'B_SEL_NO') {
             // → Playwright vs Cypress tanıtımı, ardından MAP_B
             await addBotMessage('playwrightCypressCompare.bot', 1200)
             await addBotMessage('mapReady', 700)
-            setSelectedMap(ALL_MAPS.map_b)
-            setStep(MENTOR_STEPS.MAP_B)
+            finalizeMap('map_b')
         } else if (option.id === 'C1') {
             // → Java + Selenium
             await addBotMessage('mapReady', 900)
-            setSelectedMap(ALL_MAPS.map_c1)
-            setStep(MENTOR_STEPS.MAP_C1)
+            finalizeMap('map_c1')
         } else if (option.id === 'C2') {
             // → Java + Playwright
             await addBotMessage('mapReady', 900)
-            setSelectedMap(ALL_MAPS.map_c2)
-            setStep(MENTOR_STEPS.MAP_C2)
+            finalizeMap('map_c2')
         }
-    }, [addBotMessage, addUserMessage])
+    }, [addBotMessage, addUserMessage, finalizeMap])
 
     const isMapStep = [
         MENTOR_STEPS.MAP_A,
@@ -681,6 +749,8 @@ function QAMentorPage() {
                         darkMode={darkMode}
                         dialog={dialog}
                         onRestart={handleRestart}
+                        progress={progress}
+                        certificateId={certificateId}
                     />
                 )}
             </main>

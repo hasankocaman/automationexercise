@@ -85,7 +85,37 @@ Merhaba QA!`,
         ],
         correct: 'b',
         explanation: { tr: 'javac, Java derleyicisidir. .java uzantılı kaynak kodu alır ve JVM\'nin çalıştırabileceği .class (bytecode) dosyasına dönüştürür. JVM ise bu bytecode\'u çalışma zamanında yorumlar/çalıştırır.', en: 'javac is the Java compiler. It takes .java source files and converts them to .class (bytecode) files that the JVM can execute. The JVM then interprets/runs this bytecode at runtime.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java derleyicisi (javac) tarafından .java dosyası derlendiğinde ortaya çıkan ve JVM tarafından çalıştırılabilen dosya formatı hangisidir?",
+            "en": "What is the file format produced by the Java compiler (javac) that can be executed by the JVM?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Source Code (.java)"
+            },
+            {
+                  "id": "b",
+                  "text": "Bytecode (.class)"
+            },
+            {
+                  "id": "c",
+                  "text": "Executable (.exe)"
+            },
+            {
+                  "id": "d",
+                  "text": "Configuration (.xml)"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "javac, kaynak kodunu (.java) işleyerek platformdan bağımsız olan bytecode (.class) dosyasına dönüştürür. JVM, bu bytecode dosyasını okuyarak işletim sisteminde çalıştırır.",
+            "en": "The javac compiler processes source code (.java) and converts it into platform-independent bytecode (.class) files. The JVM reads this bytecode to execute it on the operating system."
+      }
+}
+},
     ],
   },
   en: {
@@ -171,7 +201,37 @@ Hello QA!`,
         ],
         correct: 'b',
         explanation: { tr: 'javac, Java derleyicisidir.', en: 'javac is the Java compiler. It takes .java source files and converts them to .class (bytecode) files that the JVM can execute.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdakilerden hangisi Java uygulamalarının çalışması için gerekli olan ve bytecode'u makine diline çeviren/yürüten ortamdır?",
+            "en": "Which of the following is the environment required for Java applications to run, responsible for interpreting/executing bytecode?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "JDK"
+            },
+            {
+                  "id": "b",
+                  "text": "JVM (Java Virtual Machine)"
+            },
+            {
+                  "id": "c",
+                  "text": "IDE"
+            },
+            {
+                  "id": "d",
+                  "text": "Maven"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "JVM, derlenmiş olan bytecode dosyalarını çalıştıran sanal makinedir. Java'nın 'bir kere yaz, her yerde çalıştır' prensibinin temelidir.",
+            "en": "The JVM is the virtual machine that runs the compiled bytecode files. It is the foundation of Java's 'write once, run anywhere' principle."
+      }
+}
+},
     ],
   },
 }
@@ -837,6 +897,48 @@ mvn test`,
         title: 'Output you should see:',
         content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Maven projelerinde tüm bağımlılıkların, eklentilerin ve proje konfigürasyonlarının yönetildiği ana XML dosyası hangisidir?', en: 'Which main XML file is used to manage dependencies, plugins, and project configurations in a Maven project?' },
+        options: [
+          { id: 'a', text: 'build.gradle' },
+          { id: 'b', text: 'pom.xml' },
+          { id: 'c', text: 'maven.config' },
+          { id: 'd', text: 'settings.xml' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'pom.xml (Project Object Model), Maven\'in kalbidir. Projenin kimliği, bağımlılıkları (dependencies), build ayarları ve eklentileri (plugins) bu dosyada XML formatında tanımlanır.', en: 'pom.xml (Project Object Model) is the heart of Maven. The project identity, dependencies, build settings, and plugins are defined in this XML file.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir Maven projesinde, projenin sahip olduğu dış kütüphaneleri (bağımlılıkları) tanımlamak için kullanılan standart yapılandırma dosyası hangisidir?",
+            "en": "Which standard configuration file is used in a Maven project to define the external libraries (dependencies) that the project possesses?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "pom.xml"
+            },
+            {
+                  "id": "b",
+                  "text": "manifest.mf"
+            },
+            {
+                  "id": "c",
+                  "text": "build.xml"
+            },
+            {
+                  "id": "d",
+                  "text": "application.properties"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Maven yapısında pom.xml, projenin yapılandırma merkezidir. Bağımlılıkların versiyonları ve projeye dahil edilmesi burada yönetilir.",
+            "en": "In the Maven structure, pom.xml is the project's configuration center. It manages dependency versions and how they are included in the project."
+      }
+}
+},
     ],
   },
   en: {
@@ -933,6 +1035,48 @@ cd java-qa-project && mvn test`,
         title: 'Output you should see:',
         content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Maven projelerinde tüm bağımlılıkların, eklentilerin ve proje konfigürasyonlarının yönetildiği ana XML dosyası hangisidir?', en: 'Which main XML file is used to manage dependencies, plugins, and project configurations in a Maven project?' },
+        options: [
+          { id: 'a', text: 'build.gradle' },
+          { id: 'b', text: 'pom.xml' },
+          { id: 'c', text: 'maven.config' },
+          { id: 'd', text: 'settings.xml' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'pom.xml (Project Object Model), Maven\'in kalbidir. Projenin kimliği, bağımlılıkları (dependencies), build ayarları ve eklentileri (plugins) bu dosyada XML formatında tanımlanır.', en: 'pom.xml (Project Object Model) is the heart of Maven. The project identity, dependencies, build settings, and plugins are defined in this XML file.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Maven yapısında bir projenin bağımlılıklarını ve yapılandırma ayarlarını merkezi bir yerden yönetmek için kullanılan temel yapılandırma dosyası hangisidir?",
+            "en": "Which configuration file serves as the central location to manage dependencies and build configuration settings in a Maven project?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "project.json"
+            },
+            {
+                  "id": "b",
+                  "text": "pom.xml"
+            },
+            {
+                  "id": "c",
+                  "text": "maven.properties"
+            },
+            {
+                  "id": "d",
+                  "text": "manifest.mf"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Maven projelerinde Project Object Model (POM) dosyası olan pom.xml, projenin yapılandırmasından, kütüphane bağımlılıklarından ve build süreçlerinden sorumlu ana dosyadır.",
+            "en": "In Maven projects, the pom.xml file, which stands for Project Object Model, is the primary file responsible for the project's configuration, library dependencies, and build processes."
+      }
+}
+},
     ],
   },
 }
@@ -1138,7 +1282,37 @@ userIds.add(1002);`,
         ],
         correct: 'b',
         explanation: { tr: 'LinkedHashMap, ekleme sırasını (insertion order) korur — test loglarında ve raporlarda adım sırasını görmek istediğinizde kullanışlıdır. HashMap ise sırayı garanti etmez ama genellikle daha hafiftir.', en: 'LinkedHashMap preserves insertion order — useful when you want to see step order in test logs and reports. HashMap doesn\'t guarantee order but is generally lighter.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da TreeMap ve HashMap yapılarının sıralama davranışı açısından farkı nedir?",
+            "en": "What is the difference between TreeMap and HashMap in terms of ordering behavior in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "HashMap verileri anahtarların doğal sırasına göre sıralar"
+            },
+            {
+                  "id": "b",
+                  "text": "TreeMap, anahtarları doğal sıraya (natural order) göre sıralar, HashMap ise sıralama garantisi vermez"
+            },
+            {
+                  "id": "c",
+                  "text": "HashMap, verileri eklenme sırasına göre tutar"
+            },
+            {
+                  "id": "d",
+                  "text": "Her ikisi de verileri rastgele bir sırayla tutar"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "TreeMap, anahtarları (keys) doğal sıralama düzenine veya tanımlanan bir Comparator'a göre sıralı tutar. HashMap ise performans odaklıdır ve elemanların sıralaması üzerinde herhangi bir garanti sağlamaz.",
+            "en": "TreeMap maintains keys in their natural sorted order or according to a provided Comparator, whereas HashMap focuses on performance and provides no guarantee regarding the order of elements."
+      }
+}
+},
     ],
   },
   en: {
@@ -1266,7 +1440,37 @@ for (Map.Entry<String, String> entry : credentials.entrySet()) {
         ],
         correct: 'b',
         explanation: { tr: 'LinkedHashMap ekleme sırasını korur.', en: 'LinkedHashMap preserves insertion order — useful when you want to see step order in test logs and reports. HashMap doesn\'t guarantee order.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da TreeMap ve HashMap yapılarının sıralama davranışı açısından farkı nedir?",
+            "en": "What is the difference between TreeMap and HashMap in terms of ordering behavior in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "HashMap stores elements in natural order"
+            },
+            {
+                  "id": "b",
+                  "text": "TreeMap stores keys in sorted order, while HashMap does not guarantee any order"
+            },
+            {
+                  "id": "c",
+                  "text": "HashMap stores elements based on insertion order"
+            },
+            {
+                  "id": "d",
+                  "text": "Both collections store elements in a random order"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "TreeMap elemanları sıralı tutarken, HashMap performans için sıralamayı göz ardı eder.",
+            "en": "TreeMap keeps elements sorted according to their keys, whereas HashMap ignores order for the sake of performance."
+      }
+}
+},
     ],
   },
 }
@@ -1498,7 +1702,37 @@ public class LoginTest {
         ],
         correct: 'c',
         explanation: { tr: '@BeforeMethod her test metodundan önce çalışır — JUnit5\'teki @BeforeEach karşılığıdır. @BeforeClass sınıftaki tüm testlerden önce bir kez çalışır (JUnit5\'te @BeforeAll). @BeforeTest ise testng.xml\'deki <test> tag\'inden öncedir.', en: '@BeforeMethod runs before each test method — it is the equivalent of @BeforeEach in JUnit5. @BeforeClass runs once before all tests in the class (@BeforeAll in JUnit5). @BeforeTest runs before the <test> tag in testng.xml.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "TestNG'de her test metodundan hemen sonra çalışması gereken temizleme işlemlerini hangi annotation ile yaparsınız?",
+            "en": "Which TestNG annotation should you use for cleanup tasks that need to run immediately after each test method?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "@AfterClass"
+            },
+            {
+                  "id": "b",
+                  "text": "@AfterSuite"
+            },
+            {
+                  "id": "c",
+                  "text": "@AfterMethod"
+            },
+            {
+                  "id": "d",
+                  "text": "@AfterTest"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "@AfterMethod, tanımlandığı sınıftaki her bir @Test metodunun yürütülmesinden sonra çalışır. Genellikle test sonrası temizlik işlemleri için kullanılır.",
+            "en": "@AfterMethod runs after the execution of each @Test method in the class. It is typically used for post-test cleanup operations."
+      }
+}
+},
     ],
   },
   en: {
@@ -1583,7 +1817,37 @@ class LoginTest {
         ],
         correct: 'c',
         explanation: { tr: '@BeforeMethod her test metodundan önce çalışır.', en: '@BeforeMethod runs before each test method — the equivalent of @BeforeEach in JUnit5.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "TestNG'de tüm sınıf (class) başlatılmadan önce sadece bir kez çalışması istenen bir kurulum metodu için hangi annotation kullanılmalıdır?",
+            "en": "Which TestNG annotation should be used for a setup method that needs to run only once before the entire class is initialized?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "@BeforeMethod"
+            },
+            {
+                  "id": "b",
+                  "text": "@BeforeClass"
+            },
+            {
+                  "id": "c",
+                  "text": "@BeforeSuite"
+            },
+            {
+                  "id": "d",
+                  "text": "@BeforeGroups"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "@BeforeClass, sınıf içindeki test metotlarından önce bir kez çalışır. JUnit5'teki @BeforeAll'a karşılık gelir.",
+            "en": "@BeforeClass runs once before any test methods in the current class are executed. It is the equivalent of @BeforeAll in JUnit5."
+      }
+}
+},
     ],
   },
 }
@@ -1675,6 +1939,48 @@ public class DriverFactory {
           ['Şirket tercihi', 'Kurumsal', 'Startup/Data', 'Frontend odaklı'],
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Maven\'da testleri çalıştırmak ve test raporları oluşturmak için kullanılan varsayılan yaşam döngüsü aşaması (lifecycle phase) hangisidir?', en: 'Which default Maven lifecycle phase is used to run tests and generate test reports?' },
+        options: [
+          { id: 'a', text: 'compile' },
+          { id: 'b', text: 'test' },
+          { id: 'c', text: 'package' },
+          { id: 'd', text: 'install' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Maven\'da `mvn test` komutu test aşamasını (test phase) tetikler. Bu aşama, `src/test/java` altındaki test kodlarını derler ve Surefire eklentisini (plugin) kullanarak testleri çalıştırıp rapor üretir.', en: 'In Maven, the `mvn test` command triggers the test phase. This phase compiles test code under `src/test/java` and executes tests using the Surefire plugin to generate reports.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Maven projenizde sadece kodunuzu derlemek (compile) ve testleri atlamak istiyorsanız, hangi komutu kullanırsınız?",
+            "en": "Which command would you use if you want to compile your Maven project code but skip running the tests?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "mvn install -DskipTests"
+            },
+            {
+                  "id": "b",
+                  "text": "mvn compile"
+            },
+            {
+                  "id": "c",
+                  "text": "mvn test -DskipTests"
+            },
+            {
+                  "id": "d",
+                  "text": "mvn package -DskipTests"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "`mvn compile` aşaması sadece kaynak kodlarını derler. Testleri çalıştırmak için `test` yaşam döngüsü aşamasına ulaşmanız gerekir.",
+            "en": "The `mvn compile` phase only compiles the source code. To run tests, you would need to reach the `test` lifecycle phase."
+      }
+}
+},
     ],
   },
   en: {
@@ -1713,6 +2019,48 @@ public class DriverFactory {
           ['Company preference', 'Enterprise', 'Startup/Data', 'Frontend-focused'],
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Maven\'da testleri çalıştırmak ve test raporları oluşturmak için kullanılan varsayılan yaşam döngüsü aşaması (lifecycle phase) hangisidir?', en: 'Which default Maven lifecycle phase is used to run tests and generate test reports?' },
+        options: [
+          { id: 'a', text: 'compile' },
+          { id: 'b', text: 'test' },
+          { id: 'c', text: 'package' },
+          { id: 'd', text: 'install' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Maven\'da `mvn test` komutu test aşamasını (test phase) tetikler. Bu aşama, `src/test/java` altındaki test kodlarını derler ve Surefire eklentisini (plugin) kullanarak testleri çalıştırıp rapor üretir.', en: 'In Maven, the `mvn test` command triggers the test phase. This phase compiles test code under `src/test/java` and executes tests using the Surefire plugin to generate reports.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Maven yapısında, `src/test/java` klasörü altındaki test dosyalarının derlenmesini ve Surefire eklentisi aracılığıyla testlerin koşturulmasını sağlayan yaşam döngüsü aşaması (lifecycle phase) aşağıdakilerden hangisidir?",
+            "en": "In the Maven structure, which lifecycle phase is responsible for compiling test files located in `src/test/java` and executing the tests via the Surefire plugin?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "validate"
+            },
+            {
+                  "id": "b",
+                  "text": "test"
+            },
+            {
+                  "id": "c",
+                  "text": "verify"
+            },
+            {
+                  "id": "d",
+                  "text": "deploy"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Maven'da `test` aşaması, projenin testlerini yürütmek için tasarlanmıştır. Bu aşama öncesinde `compile` ve `test-compile` aşamaları çalışır, ardından Surefire eklentisi testleri otomatik olarak raporlar.",
+            "en": "The `test` phase in Maven is designed to execute the project's tests. Preceding this, the `compile` and `test-compile` phases run, after which the Surefire plugin automatically processes the tests and generates reports."
+      }
+}
+},
     ],
   },
 }
@@ -1820,6 +2168,48 @@ const s5 = {
     </dependency>
 </dependencies>`,
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Java projelerinde getter, setter, constructor, toString gibi boilerplate (basmakalıp) kodları yazmadan, sadece anotasyonlar kullanarak otomatik üretilmesini sağlayan popüler kütüphane hangisidir?', en: 'Which popular library allows automatic generation of boilerplate code like getters, setters, constructors, and toString in Java using annotations?' },
+        options: [
+          { id: 'a', text: 'Lombok' },
+          { id: 'b', text: 'Jackson' },
+          { id: 'c', text: 'Log4j' },
+          { id: 'd', text: 'Apache Commons' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Project Lombok, `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor` ve `@Data` gibi anotasyonlar sayesinde Java\'daki gereksiz kod kalabalığını ortadan kaldırır. QA projelerinde Page Object ve Data modellerini sadeleştirmek için çok sık kullanılır.', en: 'Project Lombok eliminates boilerplate code in Java using annotations like `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, and `@Data`. It is widely used in QA to simplify Page Objects and Data Models.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java sınıflarında `@Data` anotasyonunu kullanarak sınıfın tüm private alanlarına otomatik getter ve setter metotları atayan, kodun daha temiz kalmasını sağlayan araç hangisidir?",
+            "en": "Which tool enables the automatic creation of getter and setter methods for all private fields in Java classes by using the `@Data` annotation, thus keeping the code cleaner?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "JUnit"
+            },
+            {
+                  "id": "b",
+                  "text": "Mockito"
+            },
+            {
+                  "id": "c",
+                  "text": "Lombok"
+            },
+            {
+                  "id": "d",
+                  "text": "Selenium"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Lombok kütüphanesi, sınıfların üzerine eklenen basit anotasyonlar sayesinde derleme anında getter, setter ve yapıcı metotları oluşturarak sınıfların okunabilirliğini artırır ve bakım maliyetini düşürür.",
+            "en": "The Lombok library improves code readability and reduces maintenance costs by generating getters, setters, and constructors at compile time through simple annotations placed on classes."
+      }
+}
+},
     ],
   },
   en: {
@@ -1854,6 +2244,48 @@ const s5 = {
           ['Datafaker', 'Test data generation', 'net.datafaker'],
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Java projelerinde getter, setter, constructor, toString gibi boilerplate (basmakalıp) kodları yazmadan, sadece anotasyonlar kullanarak otomatik üretilmesini sağlayan popüler kütüphane hangisidir?', en: 'Which popular library allows automatic generation of boilerplate code like getters, setters, constructors, and toString in Java using annotations?' },
+        options: [
+          { id: 'a', text: 'Lombok' },
+          { id: 'b', text: 'Jackson' },
+          { id: 'c', text: 'Log4j' },
+          { id: 'd', text: 'Apache Commons' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Project Lombok, `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor` ve `@Data` gibi anotasyonlar sayesinde Java\'daki gereksiz kod kalabalığını ortadan kaldırır. QA projelerinde Page Object ve Data modellerini sadeleştirmek için çok sık kullanılır.', en: 'Project Lombok eliminates boilerplate code in Java using annotations like `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, and `@Data`. It is widely used in QA to simplify Page Objects and Data Models.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir Java nesnesinin sınıf tanımı içerisinde, her bir alan için ayrı ayrı metot yazma zahmetinden kurtulmak ve `@ToString` veya `@Getter` gibi tanımlamalarla kod kalabalığını engellemek için hangi kütüphane kullanılır?",
+            "en": "Which library is used to avoid the burden of writing individual methods for each field in a Java class definition, and to prevent boilerplate code using declarations like `@ToString` or `@Getter`?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Apache Maven"
+            },
+            {
+                  "id": "b",
+                  "text": "Lombok"
+            },
+            {
+                  "id": "c",
+                  "text": "RestAssured"
+            },
+            {
+                  "id": "d",
+                  "text": "TestNG"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Lombok, Java dilindeki standart kod kalıplarını (boilerplate) azaltmak için kullanılan bir kütüphanedir. `@ToString` ve `@Getter` gibi anotasyonlar, sınıfın derlenmesi sırasında gerekli metotların gövdelerini otomatik olarak oluşturur.",
+            "en": "Lombok is a library used to reduce standard boilerplate code in Java. Annotations like `@ToString` and `@Getter` automatically generate the bodies of the necessary methods during the class compilation process."
+      }
+}
+},
     ],
   },
 }
@@ -1907,6 +2339,48 @@ assertThat(element.getText().trim()).isEqualTo("Welcome, Admin!");` },
       { type: 'heading', text: { tr: '8. Maven dependency çakışması', en: '8. Maven dependency conflict' } },
       { type: 'code', language: 'bash', label: 'Tanı', code: `mvn dependency:tree | grep selenium
 # pom.xml'de <properties><selenium.version>4.20.0</selenium.version></properties>` },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da başlatılmamış (null referansına sahip) bir nesnenin metot veya değişkenlerine erişmeye çalışırken hangi runtime hatası fırlatılır?', en: 'Which runtime exception is thrown in Java when trying to access methods or fields of a null reference?' },
+        options: [
+          { id: 'a', text: 'NullPointerException' },
+          { id: 'b', text: 'NoSuchElementException' },
+          { id: 'c', text: 'IllegalArgumentException' },
+          { id: 'd', text: 'ClassCastException' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'NullPointerException (NPE), Java\'da en sık karşılaşılan hatalardan biridir. Başlatılmamış (örneğin `WebDriver driver;` deyip `new ChromeDriver()` ataması yapmadan önce) bir referans üzerinden metot çağırmak bu hataya yol açar.', en: 'NullPointerException (NPE) is one of the most common exceptions in Java. It is thrown when trying to access a method or field on an uninitialized reference (e.g. declaring `WebDriver driver;` without assigning `new ChromeDriver()`).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki kod parçası çalıştırıldığında hangi hata fırlatılır? String str = null; int length = str.length();",
+            "en": "What exception is thrown when the following code snippet is executed? String str = null; int length = str.length();"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "NullPointerException"
+            },
+            {
+                  "id": "b",
+                  "text": "ArrayIndexOutOfBoundsException"
+            },
+            {
+                  "id": "c",
+                  "text": "ArithmeticException"
+            },
+            {
+                  "id": "d",
+                  "text": "NullReferenceException"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Java'da değeri atanmamış (null) bir nesne üzerinde bir metot çağırmaya (bu örnekte .length()) çalışmak NullPointerException'a neden olur.",
+            "en": "In Java, attempting to invoke a method (in this case .length()) on an object that is null will result in a NullPointerException."
+      }
+}
+},
     ],
   },
   en: {
@@ -1926,6 +2400,48 @@ wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();`
       { type: 'heading', text: { en: '6. WebDriverException — ChromeDriver mismatch' } },
       { type: 'code', language: 'java', label: 'Solution', code: `WebDriverManager.chromedriver().setup();
 WebDriver driver = new ChromeDriver();` },
+      {
+        type: 'quiz',
+        question: { tr: 'Java\'da başlatılmamış (null referansına sahip) bir nesnenin metot veya değişkenlerine erişmeye çalışırken hangi runtime hatası fırlatılır?', en: 'Which runtime exception is thrown in Java when trying to access methods or fields of a null reference?' },
+        options: [
+          { id: 'a', text: 'NullPointerException' },
+          { id: 'b', text: 'NoSuchElementException' },
+          { id: 'c', text: 'IllegalArgumentException' },
+          { id: 'd', text: 'ClassCastException' },
+        ],
+        correct: 'a',
+        explanation: { tr: 'NullPointerException (NPE), Java\'da en sık karşılaşılan hatalardan biridir. Başlatılmamış (örneğin `WebDriver driver;` deyip `new ChromeDriver()` ataması yapmadan önce) bir referans üzerinden metot çağırmak bu hataya yol açar.', en: 'NullPointerException (NPE) is one of the most common exceptions in Java. It is thrown when trying to access a method or field on an uninitialized reference (e.g. declaring `WebDriver driver;` without assigning `new ChromeDriver()`).' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da `String s = null; System.out.println(s.toString());` kodu hangi hatayı verir?",
+            "en": "Which exception is thrown by the code `String s = null; System.out.println(s.toString());` in Java?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "NullPointerException"
+            },
+            {
+                  "id": "b",
+                  "text": "StringIndexOutOfBoundsException"
+            },
+            {
+                  "id": "c",
+                  "text": "StackOverflowError"
+            },
+            {
+                  "id": "d",
+                  "text": "IllegalStateException"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Null bir referans üzerinden herhangi bir instance metodunu çağırmaya çalıştığınızda Java çalışma zamanı (runtime) NullPointerException fırlatır.",
+            "en": "Java runtime throws a NullPointerException whenever you attempt to call an instance method on a null reference."
+      }
+}
+},
     ],
   },
 }
@@ -7283,7 +7799,37 @@ System.out.println(name);  // admin`,
         ],
         correct: 'b',
         explanation: { tr: 'Java\'da int / int = int (tam sayı bölmesi). Sonuç 3\'tür; 3.33 değil. Ondalık sonuç için en az bir taraf double olmalı: 10.0 / 3 → 3.3333...', en: 'In Java, int / int = int (integer division). Result is 3, not 3.33. For decimal result, at least one side must be double: 10.0 / 3 → 3.3333...' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da `int result = 7 / 2;` işleminden sonra `result` değişkeninin değeri nedir?",
+            "en": "What is the value of the `result` variable after the operation `int result = 7 / 2;` in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "3.5"
+            },
+            {
+                  "id": "b",
+                  "text": "4"
+            },
+            {
+                  "id": "c",
+                  "text": "3"
+            },
+            {
+                  "id": "d",
+                  "text": "3.0"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Java'da tamsayı bölmesi (integer division) yapıldığında küsurat kısmı atılır. 7 / 2 işlemi 3.5 sonucunu vermesi gerekirken, tamsayı bölmesi sonucunda 3 olarak döner.",
+            "en": "In Java, integer division truncates the fractional part. While 7 / 2 mathematically is 3.5, integer division results in 3."
+      }
+}
+},
     ],
   },
   en: {
@@ -7417,7 +7963,35 @@ System.out.println(name);  // admin`,
         ],
         correct: 'b',
         explanation: { en: 'In Java, int / int = int (integer division). Result is 3, not 3.33. For decimal, use 10.0 / 3 → 3.3333...' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "What will be the output of 7 / 2 in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "3.5"
+            },
+            {
+                  "id": "b",
+                  "text": "4"
+            },
+            {
+                  "id": "c",
+                  "text": "3"
+            },
+            {
+                  "id": "d",
+                  "text": "1"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "en": "In Java, integer division discards the remainder. Since both operands are integers, the result is truncated to the nearest whole number. To get 3.5, you would need to perform floating-point division like 7.0 / 2."
+      }
+}
+},
     ],
   },
 }
@@ -7625,7 +8199,37 @@ const sB = {
         ],
         correct: 'b',
         explanation: { tr: '== referans eşitliğini karşılaştırır (iki nesne aynı bellekte mi). .equals() içerik eşitliğini karşılaştırır. String karşılaştırmasında HER ZAMAN .equals() veya .equalsIgnoreCase() kullanın.', en: '== compares references (same memory location?). .equals() compares content. ALWAYS use .equals() or .equalsIgnoreCase() for String comparison.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da bir String değişkeninin değerinin başka bir String ile aynı olup olmadığını kontrol etmek için en doğru yöntem hangisidir?",
+            "en": "Which approach is correct to verify if the value of a String variable matches another String in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "using the equals() method"
+            },
+            {
+                  "id": "b",
+                  "text": "using the == operator"
+            },
+            {
+                  "id": "c",
+                  "text": "using the isEqualTo() method"
+            },
+            {
+                  "id": "d",
+                  "text": "using the sameAs() method"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "== operatörü bellek referanslarını kontrol ederken, .equals() metodu String nesnelerinin karakter dizilerini karşılaştırır. İçerik karşılaştırması için her zaman .equals() kullanılmalıdır.",
+            "en": "The == operator checks memory references, while the .equals() method compares the actual character sequences of String objects. Always use .equals() for content comparison."
+      }
+}
+},
     ],
   },
   en: {
@@ -7693,7 +8297,35 @@ const sB = {
         ],
         correct: 'b',
         explanation: { en: '== compares references. .equals() compares content. Always use .equals() for String comparison in Java.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "What happens when you use '==' instead of '.equals()' to compare two distinct String objects in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It always returns true if the content is identical."
+            },
+            {
+                  "id": "b",
+                  "text": "It compares memory references and may return false even if content is identical."
+            },
+            {
+                  "id": "c",
+                  "text": "It causes a compilation error."
+            },
+            {
+                  "id": "d",
+                  "text": "It automatically invokes the .equals() method."
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "en": "The '==' operator checks if two references point to the exact same object instance in memory. '.equals()' is the correct way to compare the actual text content inside the String objects."
+      }
+}
+},
     ],
   },
 }
@@ -7952,7 +8584,49 @@ if (score >= 90) {
         ],
         correct: 'b',
         explanation: { tr: 'do-while: önce bloğu çalıştırır, sonra koşulu kontrol eder → garantili en az 1 çalışma. while: önce koşulu kontrol eder → koşul baştan false ise hiç çalışmaz. QA\'da: kullanıcı şifre girişi gibi "en az bir kez dene" senaryoları için do-while kullanılır.', en: 'do-while: executes block first, then checks condition → guaranteed at least 1 execution. while: checks condition first → may never execute if condition is false. QA: use do-while for "retry at least once" scenarios like user password input.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir 'while' döngüsü ile 'do-while' döngüsü arasındaki yürütme mantığı farkı aşağıdakilerden hangisidir?",
+            "en": "What is the difference in execution logic between a 'while' loop and a 'do-while' loop?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "while döngüsü koşul yanlış olsa bile en az bir kez çalışır",
+                        "en": "while loop runs at least once even if the condition is false"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "do-while döngüsü, koşul denetimini döngü gövdesi çalışmadan önce yapar",
+                        "en": "do-while loop performs the condition check before the loop body runs"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "do-while döngüsünde gövde, koşul doğrulanmasa dahi ilk seferde mutlaka çalıştırılır",
+                        "en": "do-while loop body is guaranteed to run at least once even if the condition is not met"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "while döngüsü sadece sonsuz döngüler oluşturmak için tasarlanmıştır",
+                        "en": "while loop is designed only for creating infinite loops"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "do-while yapısı 'post-test' döngüsüdür; yani kod bloğu önce çalışır, koşul sonra değerlendirilir. while ise 'pre-test' yapısıdır ve koşul hatalıysa döngü hiç başlamaz.",
+            "en": "The do-while structure is a 'post-test' loop; the code block executes first, and then the condition is evaluated. while is a 'pre-test' structure, meaning the loop never runs if the condition is false initially."
+      }
+}
+},
     ],
   },
   en: {
@@ -8052,7 +8726,35 @@ if (score >= 90) {
         ],
         correct: 'b',
         explanation: { en: 'do-while: runs block first, then checks condition → guaranteed at least 1 execution. while: checks condition first → may never run.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "Why might a tester choose a do-while loop over a while loop when implementing a test retry mechanism?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It is syntactically shorter than a while loop"
+            },
+            {
+                  "id": "b",
+                  "text": "It ensures the test logic inside the block runs at least once before evaluating the retry condition"
+            },
+            {
+                  "id": "c",
+                  "text": "It prevents the browser from crashing"
+            },
+            {
+                  "id": "d",
+                  "text": "It is the only way to handle asynchronous test steps"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "en": "In scenarios like retrying a login attempt or re-fetching an element, we always want the action to occur at least once before checking the status/condition; do-while guarantees this execution order."
+      }
+}
+},
     ],
   },
 }
@@ -8196,7 +8898,49 @@ public class Main {
         ],
         correct: 'b',
         explanation: { tr: 'Java dizileri 0\'dan başlar. 5 elemanlı dizinin indexleri: 0, 1, 2, 3, 4. Son eleman array[array.length - 1] = array[4]. array[5] → ArrayIndexOutOfBoundsException!', en: 'Java arrays start at index 0. A 5-element array has indices 0, 1, 2, 3, 4. Last element: array[array.length - 1] = array[4]. array[5] → ArrayIndexOutOfBoundsException!' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java programlamada, 10 elemanlı bir dizinin (array) sonuncu elemanına hangi indeks numarası ile ulaşılır?",
+            "en": "In Java programming, which index number is used to access the last element of an array with 10 elements?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "10",
+                        "en": "10"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "9",
+                        "en": "9"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "1",
+                        "en": "1"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "0",
+                        "en": "0"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Java'da diziler sıfır tabanlı indekslemeye sahiptir (0-indexed). Bu nedenle n elemanlı bir dizinin son indeksi her zaman 'n-1'dir. 10 elemanlı bir dizide son indeks 9'dur.",
+            "en": "Java uses zero-based indexing for arrays. Therefore, the last index of an array with n elements is always 'n-1'. For an array with 10 elements, the last index is 9."
+      }
+}
+},
     ],
   },
   en: {
@@ -8268,7 +9012,36 @@ public class Main {
         ],
         correct: 'b',
         explanation: { en: 'Java arrays start at 0. 5-element array has indices 0,1,2,3,4. Last: array[4] or array[array.length-1].' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "en": "What is the index of the first element in a Java array containing 10 elements?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "1"
+            },
+            {
+                  "id": "b",
+                  "text": "0"
+            },
+            {
+                  "id": "c",
+                  "text": "10"
+            },
+            {
+                  "id": "d",
+                  "text": "9"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "en": "Java uses zero-based indexing for arrays. Therefore, the first element of any array is always at index 0, regardless of the array's total size."
+      }
+}
+},
     ],
   },
 }
@@ -8453,7 +9226,38 @@ public class Main {
         ],
         correct: 'b',
         explanation: { tr: 'Method overloading: aynı sınıfta aynı isimli ama farklı parametre (sayı, tip, sıra) metotlar. Compiler hangi versiyonu çağıracağını parametreye göre belirler. Overriding\'den farklıdır: overriding alt sınıfta miras alınan metodu yeniden tanımlamaktır.', en: 'Method overloading: same class, same method name, different parameters (count, type, order). Compiler determines which version to call based on parameters. Different from overriding (redefining inherited method in subclass).' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "tr": "Java'da Method Overriding ne anlama gelir?",
+            "en": "What does method overriding mean in Java?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Aynı isimli ama farklı parametrelere sahip metotlar tanımlamak"
+            },
+            {
+                  "id": "b",
+                  "text": "Statik bir metodu başka bir sınıftan çağırmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Alt sınıfta, üst sınıftan miras alınan bir metodun gövdesini yeniden tanımlamak"
+            },
+            {
+                  "id": "d",
+                  "text": "Sınıf içinde özel (private) bir metot oluşturmak"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Method overriding, alt sınıfın üst sınıftaki bir metodun implementasyonunu kendi ihtiyaçlarına göre değiştirmesidir. @Override anatasyonu ile belirtilir ve çok biçimliliğin (polymorphism) bir parçasıdır.",
+            "en": "Method overriding is the process where a subclass provides a specific implementation for a method already defined in its superclass. It is indicated by the @Override annotation and is a key component of polymorphism."
+      }
+}
+},
     ],
   },
   en: {
@@ -8524,7 +9328,36 @@ public class Main {
         ],
         correct: 'b',
         explanation: { en: 'Overloading: same class, same name, different parameters (count, type, order). Different from overriding (redefining an inherited method in a subclass).' },
+      
+        retryQuestion: {
+      "type": "quiz",
+      "question": {
+            "en": "In Java, what occurs when you define multiple methods with the same name but different parameter lists within the same class?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Compilation error"
+            },
+            {
+                  "id": "b",
+                  "text": "Method overriding"
+            },
+            {
+                  "id": "c",
+                  "text": "Method overloading"
+            },
+            {
+                  "id": "d",
+                  "text": "Method encapsulation"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "en": "This is the definition of method overloading. It allows a class to perform similar tasks using the same name, provided the parameter signatures (type, number, or order) are distinct."
+      }
+}
+},
     ],
   },
 }
@@ -8797,7 +9630,49 @@ public class Main {
         ],
         correct: 'c',
         explanation: { tr: 'finally bloğu HER ZAMAN çalışır: try başarılı olsa da, catch yakalasa da. Exception yeniden fırlatılsa bile çalışır. QA\'da driver.quit() ve dosya kapatma işlemleri finally\'de yapılır — test fail etse bile kaynaklar serbest bırakılır.', en: 'The finally block ALWAYS executes: whether try succeeds or catch catches. Even if exception is rethrown. In QA: driver.quit() and file close operations go in finally — resources released even if test fails.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir try-catch yapısında, try bloğu içerisinde hata alınmasa dahi çalışan ve kaynak temizliği için kullanılan blok hangisidir?",
+            "en": "In a try-catch structure, which block is guaranteed to run even if no exception is thrown, commonly used for resource cleanup?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "catch bloğu",
+                        "en": "catch block"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "throw bloğu",
+                        "en": "throw block"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "finally bloğu",
+                        "en": "finally block"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "try bloğu",
+                        "en": "try block"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "finally bloğu, try ve catch bloklarının sonucundan bağımsız olarak her zaman çalışır. QA süreçlerinde driver.quit() gibi işlemler için en güvenli yerdir.",
+            "en": "The finally block always runs regardless of the outcome of try and catch. It is the safest place for cleanup operations like driver.quit() in QA processes."
+      }
+}
+},
     ],
   },
   en: {
@@ -8918,7 +9793,35 @@ public class Main {
         ],
         correct: 'c',
         explanation: { en: 'finally ALWAYS executes. Perfect for cleanup: driver.quit(), closing files, releasing resources — even if the test fails.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "Why is the finally block used in test automation frameworks?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "To handle errors that occurred during the test execution"
+            },
+            {
+                  "id": "b",
+                  "text": "To stop the test if an error occurs"
+            },
+            {
+                  "id": "c",
+                  "text": "To ensure cleanup tasks like closing the browser run regardless of test success or failure"
+            },
+            {
+                  "id": "d",
+                  "text": "To repeat the test if it fails"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "en": "The finally block is critical in QA to guarantee that resources like browser drivers are closed or network connections are terminated, preventing memory leaks or hung processes even if the test fails."
+      }
+}
+},
     ],
   },
 }
@@ -9287,7 +10190,49 @@ public class CartSteps {
         ],
         correct: 'b',
         explanation: { tr: 'Scenario Outline + Examples tablosu, aynı testi farklı verilerle çalıştıran parametrik test yapısıdır. Java\'daki @DataProvider (TestNG) veya @ParameterizedTest (JUnit5) eşdeğeridir. Examples tablosundaki her satır ayrı bir Scenario instance\'ı olarak çalışır.', en: 'Scenario Outline + Examples table runs the same test with different data sets — the parametric (data-driven) structure. Equivalent to @DataProvider in TestNG or @ParameterizedTest in JUnit5. Each Examples row runs as a separate Scenario instance.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cucumber'da birden fazla veri seti ile bir testi tekrarlamak için kullanılan yapı hangisidir?",
+            "en": "Which structure is used in Cucumber to execute a test repeatedly with multiple sets of data?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Background",
+                        "en": "Background"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Scenario Outline",
+                        "en": "Scenario Outline"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Step Definition",
+                        "en": "Step Definition"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Feature File",
+                        "en": "Feature File"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Scenario Outline, Examples anahtar kelimesi ile birleşerek testin tablo içerisindeki her satır için ayrı ayrı parametrelerle çalışmasını sağlar, bu da data-driven test yapısıdır.",
+            "en": "Scenario Outline, combined with the Examples keyword, allows the test to run with different parameters for each row in the table, enabling a data-driven testing approach."
+      }
+}
+},
     ],
   },
   en: {
@@ -9446,7 +10391,35 @@ public class TestNGCucumberRunner extends AbstractTestNGCucumberTests {
         ],
         correct: 'b',
         explanation: { en: 'Scenario Outline + Examples table is the parametric (data-driven) structure — same test, different data. Equivalent to @DataProvider in TestNG or @ParameterizedTest in JUnit5. Each Examples row runs as a separate Scenario instance.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "How is the 'Examples' keyword utilized in Cucumber when paired with a 'Scenario Outline'?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It provides a configuration file for test execution environments"
+            },
+            {
+                  "id": "b",
+                  "text": "It supplies multiple sets of input values, executing the scenario once for each row in the table"
+            },
+            {
+                  "id": "c",
+                  "text": "It marks the end of a feature file"
+            },
+            {
+                  "id": "d",
+                  "text": "It specifies which browser should be used for the test run"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "en": "The 'Examples' table provides the data inputs. When combined with 'Scenario Outline', Cucumber iterates through each row of the 'Examples' table, replacing placeholders in the scenario steps with the actual data, effectively performing data-driven testing."
+      }
+}
+},
     ],
   },
 }
@@ -10716,7 +11689,41 @@ public class EcommerceE2ETest {
         ],
         correct: 'c',
         explanation: { tr: 'Explicit wait (WebDriverWait + ExpectedConditions), belirli bir koşul yerine gelene kadar döngüsel olarak kontrol eder — önerilen yaklaşımdır. Implicit wait ise tüm findElement çağrıları için global bir max timeout süresi tanımlar. İkisini birlikte kullanmak beklenmedik gecikmelere yol açar. Thread.sleep() ise koşulsuz olarak N saniye bekler — Selenium ile kullanılmamalıdır.', en: 'Explicit wait (WebDriverWait + ExpectedConditions) polls until a specific condition is met — the recommended approach. Implicit wait defines a global max timeout for all findElement calls. Mixing both causes unpredictable delays. Thread.sleep() unconditionally waits N seconds — avoid it with Selenium.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "WebDriverWait ile implicit wait kullanımı hakkında hangisi doğrudur?",
+            "en": "Which statement is true regarding the usage of WebDriverWait vs implicit wait?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Implicit wait, belirli elementler için daha hassas bir bekleme sağlar",
+                  "en": "Implicit wait provides more precise waiting for specific elements"
+            },
+            {
+                  "id": "b",
+                  "text": "WebDriverWait (Explicit), kodun geri kalanını duraklatmadan koşullu beklemeye izin verir",
+                  "en": "WebDriverWait (Explicit) allows conditional waiting without pausing the rest of the code execution"
+            },
+            {
+                  "id": "c",
+                  "text": "Explicit wait kullanırken implicit wait de tanımlanmalıdır",
+                  "en": "Implicit wait must be defined while using explicit wait"
+            },
+            {
+                  "id": "d",
+                  "text": "Explicit wait ve implicit wait aynı anda kullanıldığında bekleme süreleri birbirini kısaltır",
+                  "en": "When used together, explicit wait and implicit wait shorten each other's waiting time"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Explicit wait, sadece ihtiyaç duyulan element için akıllı bir bekleme mekanizması sunar. Implicit wait ise driver düzeyinde tanımlanır ve tüm element arama işlemlerini etkiler; ikisinin bir arada kullanılması Selenium'un davranışını öngörülemez hale getirir.",
+            "en": "Explicit wait offers an intelligent waiting mechanism specifically for the required element. Implicit wait is defined at the driver level and affects all element search operations; using them together makes Selenium's behavior unpredictable."
+      }
+}
+},
     ],
   },
   en: {
@@ -11090,7 +12097,35 @@ public class EcommerceE2ETest {
         ],
         correct: 'b',
         explanation: { en: 'id is the fastest and most reliable locator — unique in the DOM. cssSelector is second fastest and supports attribute selectors (data-testid). xpath is the most powerful but slowest — use only when nothing else works. Avoid tagName and className as primary locators since they often return multiple elements.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "In Selenium automation, why is 'id' generally considered the best locator strategy?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It is the easiest to type in code"
+            },
+            {
+                  "id": "b",
+                  "text": "It is the only locator that can be used with CSS"
+            },
+            {
+                  "id": "c",
+                  "text": "It is guaranteed to be unique within a valid HTML document and provides the fastest element resolution"
+            },
+            {
+                  "id": "d",
+                  "text": "It automatically bypasses all waiting requirements"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "en": "According to HTML standards, an 'id' attribute should be unique on a page. Locating by ID is the most efficient and stable method because the browser engine can resolve it directly without traversing the DOM tree extensively, unlike complex XPath expressions."
+      }
+}
+},
     ],
   },
 }
@@ -12366,6 +13401,48 @@ Allure.addAttachment("Playwright Trace",
           },
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Playwright Java API\'sinde, testler arasında tam izolasyon sağlamak (çerezleri, oturum verilerini ve tarayıcı geçmişini temiz tutmak) için her test öncesi oluşturulan nesne hangisidir?', en: 'In Playwright Java API, which object is created before each test to ensure complete test isolation (clean cookies, storage, and history)?' },
+        options: [
+          { id: 'a', text: 'Browser' },
+          { id: 'b', text: 'BrowserContext' },
+          { id: 'c', text: 'Page' },
+          { id: 'd', text: 'Playwright' },
+        ],
+        correct: 'b',
+        explanation: { tr: 'BrowserContext, tarayıcı içinde izole bir oturum (session) oluşturur. Tıpkı gizli sekme (Incognito) gibi çalışır; çerezler, yerel depolama ve geçmiş tamamen izoledir. Playwright, her test için yeni bir BrowserContext oluşturulmasını önerir.', en: 'BrowserContext creates an isolated session within the browser, functioning like an Incognito window. Cookies, local storage, and history are completely isolated. Playwright recommends creating a new BrowserContext for each test.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Playwright Java'da, birbirlerinden bağımsız (her biri ayrı bir kimlik doğrulamasına sahip) birden fazla kullanıcı oturumunu aynı test senaryosu içerisinde simüle etmek için hangi sınıf kullanılır?",
+            "en": "Which class in Playwright Java is used to simulate multiple independent user sessions (each with its own authentication) within the same test scenario?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Browser"
+            },
+            {
+                  "id": "b",
+                  "text": "BrowserContext"
+            },
+            {
+                  "id": "c",
+                  "text": "Page"
+            },
+            {
+                  "id": "d",
+                  "text": "APIRequestContext"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "BrowserContext, her biri bağımsız çerezlere ve depolama alanlarına sahip birden fazla izole ortam oluşturmanıza olanak tanır. Bu sayede aynı tarayıcı örneği içinde farklı kullanıcı oturumlarını kolayca yönetebilirsiniz.",
+            "en": "BrowserContext allows you to create multiple isolated environments, each with its own cookies and storage. This enables easy management of different user sessions within the same browser instance."
+      }
+}
+},
     ],
   },
   en: {
@@ -13575,6 +14652,10 @@ Allure.addAttachment("Playwright Trace",
     ],
   },
 }
+sPlaywright.en = {
+  title: '🎭 Playwright Java — Step-by-Step Guide',
+  blocks: sPlaywright.tr.blocks
+};
 
 // ─── S-FILEIO: FILE HANDLING, ITERATOR, GENERICS, THREADS ──────────────────
 const sFileIO = {
@@ -14098,7 +15179,37 @@ public class Main {
         ],
         correct: 'b',
         explanation: { tr: 'for-each döngüsünde koleksiyon üzerinde değişiklik (silme/ekleme) yapmak ConcurrentModificationException fırlatır. Iterator\'ün it.remove() metodu ise döngü sırasında güvenli silmeye olanak tanır. Java Collections Framework\'te bu pattern çok sık kullanılır: Selenium testlerinde stale element listesini temizlemek, null element kaldırmak gibi.', en: 'Modifying a collection during a for-each loop (add/remove) throws ConcurrentModificationException. Iterator\'s it.remove() enables safe removal during iteration. This pattern is common in Java: cleaning stale element lists, removing nulls, filtering during traversal.' },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Java'da bir liste üzerinde döngü kurarken ConcurrentModificationException hatası almamak için koleksiyonu değiştirmenin en güvenli yolu nedir?",
+            "en": "What is the safest way to modify a collection while iterating in Java to avoid ConcurrentModificationException?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "for-each döngüsü kullanıp listeyi doğrudan temizlemek"
+            },
+            {
+                  "id": "b",
+                  "text": "Iterator.remove() metodunu kullanmak"
+            },
+            {
+                  "id": "c",
+                  "text": "Listeyi while döngüsü ile index kullanarak gezmek"
+            },
+            {
+                  "id": "d",
+                  "text": "Döngüyü paralel (parallelStream) olarak çalıştırmak"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "For-each döngüsü sırasında doğrudan listeyi değiştirmek (add/remove) çalışma zamanı hatalarına yol açar. Iterator arayüzü, listenin yapısını bozmadan elemanları güvenli bir şekilde kaldırmak için özel olarak tasarlanmıştır.",
+            "en": "Modifying a list (add/remove) directly during a for-each loop leads to runtime errors. The Iterator interface is specifically designed to safely remove elements without disrupting the collection's structure."
+      }
+}
+},
     ],
   },
   en: {
@@ -14224,9 +15335,56 @@ public class Main {
         ],
         correct: 'b',
         explanation: { en: 'Removing elements inside a for-each loop throws ConcurrentModificationException. Iterator\'s it.remove() is the safe, designed way to delete during traversal. This is a frequent pattern in QA: cleaning null WebElements, removing processed items, filtering results in place.' },
+      
+        retryQuestion: {
+      "question": {
+            "en": "If you need to filter a list of elements while iterating, why is an Iterator preferred over an enhanced for-loop?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Iterator offers better memory management"
+            },
+            {
+                  "id": "b",
+                  "text": "Iterator's it.remove() avoids throwing a ConcurrentModificationException"
+            },
+            {
+                  "id": "c",
+                  "text": "Iterator supports more complex loop structures"
+            },
+            {
+                  "id": "d",
+                  "text": "For-each loops are deprecated in newer Java versions"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "en": "An enhanced for-loop provides read-only access to the collection and throws an exception if you attempt structural modifications. Iterator's remove() method handles the pointer updates correctly, ensuring the loop remains stable during modification."
+      }
+}
+},
     ],
   },
+}
+
+const sInteractivePractice = {
+  tr: {
+    title: '🧠 Adım Adım Soru Çözücü',
+    blocks: [
+      {
+        type: 'interactive-solver'
+      }
+    ]
+  },
+  en: {
+    title: '🧠 Step-by-Step Solver',
+    blocks: [
+      {
+        type: 'interactive-solver'
+      }
+    ]
+  }
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
@@ -14256,8 +15414,9 @@ export const javaData = {
       '🚨 Yaygın Hatalar',
       '📁 File & Threads',
       '💼 Mülakat Soruları',
+      '🧠 Adım Adım Soru Çözücü',
     ],
-    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr],
+    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr, sInteractivePractice.tr],
   },
   en: {
     hero: {
@@ -14284,8 +15443,10 @@ export const javaData = {
       '🚨 Common Errors',
       '📁 File & Threads',
       '💼 Interview Questions',
+      '🧠 Step-by-Step Solver',
     ],
-    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en],
+    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en, sInteractivePractice.en],
   },
 }
+
 

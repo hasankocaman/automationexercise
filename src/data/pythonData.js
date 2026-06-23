@@ -42,6 +42,29 @@ const sections = [
           ['allure-pytest', 'Beautiful test reports', 'pip install allure-pytest'],
         ]
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Tabloya göre Python\'ın test otomasyonundaki en büyük artısı/eksisi nedir?', en: "According to the comparison table, what is Python's biggest pro/con for test automation?" },
+        options: [
+          { id: 'a', text: { tr: 'Artı: derlenmiş dillerden daha hızlı çalışır', en: 'Pro: it runs faster than compiled languages' } },
+          { id: 'b', text: { tr: 'Artı: okunabilir syntax + geniş ekosistem; Eksi: derlenmiş dillerden çalışma zamanında daha yavaş', en: 'Pro: readable syntax + huge ecosystem; Con: slower at runtime than compiled languages' } },
+          { id: 'c', text: { tr: 'Artı: API testi yapılamaz', en: "Pro: cannot be used for API testing" } },
+          { id: 'd', text: { tr: 'Eksi: CI/CD ile uyumlu değildir', en: 'Con: it is not CI/CD compatible' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Python\'ın test otomasyonundaki temel değeri okunabilirlik (testler dokümantasyon gibi okunur) ve pytest/Selenium/Playwright/requests/Faker/pandas gibi binlerce kütüphaneden oluşan ekosistemdir. Karşılığında, derlenmiş bir dile (Java gibi) göre çalışma zamanında daha yavaştır — ama otomasyon scriptleri için bu fark genelde önemsizdir.', en: "Python's core value in test automation is readability (tests read like documentation) and its ecosystem of thousands of libraries like pytest/Selenium/Playwright/requests/Faker/pandas. In exchange, it runs slower at runtime than a compiled language like Java — but for automation scripts, that difference rarely matters in practice." },
+        retryQuestion: {
+          question: { tr: 'Bir ekip, milisaniyeler içinde milyonlarca istek işleyen bir yüksek frekanslı trading sisteminin çekirdek motorunu yazacak. Python burada neden tipik olarak tercih edilmez?', en: 'A team is writing the core engine of a high-frequency trading system processing millions of requests in milliseconds. Why is Python typically not chosen here?' },
+          options: [
+            { id: 'a', text: { tr: 'Python hiçbir matematiksel işlem yapamaz', en: 'Python cannot do any mathematical operations' } },
+            { id: 'b', text: { tr: 'Yorumlanan/dinamik tipli yapısı, bu kadar düşük gecikme gerektiren işler için derlenmiş bir dilden (Java/C++) daha yavaş çalışır', en: "Its interpreted/dynamically-typed nature runs slower than a compiled language (Java/C++) for workloads needing this kind of extreme low latency" } },
+            { id: 'c', text: { tr: 'Python kütüphaneleri yoktur', en: 'Python has no libraries' } },
+            { id: 'd', text: { tr: 'Python test otomasyonu için tasarlanmamıştır', en: 'Python was not designed for test automation' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Otomasyon scriptlerinde Python\'ın çalışma zamanı yavaşlığı genelde önemsizdir (bir test 50ms yerine 60ms sürse kimse fark etmez), ama mikrosaniyelerin önemli olduğu bir sistemin ÇEKİRDEK motorunda bu fark kritik hale gelir — bu yüzden böyle bir sistem genelde Java/C++ gibi derlenmiş bir dilde yazılır. Doğru dil seçimi her zaman kullanım senaryosuna bağlıdır, "Python her zaman yavaştır" gibi mutlak bir kural değildir.', en: "Python's runtime slowness rarely matters for automation scripts (nobody notices if a test takes 60ms instead of 50ms), but in the CORE engine of a system where microseconds matter, that difference becomes critical — which is why such a system is typically written in a compiled language like Java/C++. The right language choice always depends on the use case, not an absolute \"Python is always slow\" rule." },
+        },
+      },
     ],
   },
 
@@ -123,6 +146,29 @@ import sys                         # import a built-in module
 print(sys.version)                 # print Python version`,
         expected: `Hello, QA Engineer!\nPython version check: 3.12.0 (main, ...) [GCC ...]`
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Bir Python projesinde virtual environment (venv) kullanmamanın temel riski nedir?', en: 'What is the main risk of not using a virtual environment (venv) in a Python project?' },
+        options: [
+          { id: 'a', text: { tr: 'Python yorumlayıcısı daha yavaş çalışır', en: 'The Python interpreter runs slower' } },
+          { id: 'b', text: { tr: 'Farklı projelerin bağımlılık sürümleri çakışır — sistem genelinde paket kirliliği oluşur', en: "Different projects' dependency versions conflict — you get system-wide package pollution" } },
+          { id: 'c', text: { tr: 'pip komutu hiç çalışmaz', en: 'The pip command stops working entirely' } },
+          { id: 'd', text: { tr: 'Kod artık import edilemez', en: 'Code can no longer be imported' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'Virtual environment olmadan, tüm projeler aynı global Python kurulumunun paketlerini paylaşır. Bir proje requests==2.28 isterken başka biri requests==2.31 isterse, sadece biri her seferinde "kazanır" — diğer projenin testleri sebepsiz yere bozulur. venv, her projeye kendi izole bağımlılık kümesini verir; Java\'da her projenin kendi pom.xml/Maven local repository\'sine sahip olmasıyla aynı mantık.', en: "Without a virtual environment, every project shares the same global Python installation's packages. If one project needs requests==2.28 and another needs requests==2.31, only one can \"win\" at a time — the other project's tests break for no obvious reason. A venv gives each project its own isolated dependency set, the same logic as each Java project having its own pom.xml/Maven local repository." },
+        retryQuestion: {
+          question: { tr: 'Bir venv aktifken `pip install requests` çalıştırıyorsun. Bu paket nereye kurulur?', en: 'You run `pip install requests` while a venv is activated. Where does this package get installed?' },
+          options: [
+            { id: 'a', text: { tr: 'Global Python kurulumuna, tüm projeleri etkiler', en: 'Into the global Python installation, affecting all projects' } },
+            { id: 'b', text: { tr: 'Sadece aktif venv\'in izole klasörüne — diğer projeleri hiç etkilemez', en: "Only into the active venv's isolated folder — it does not affect other projects at all" } },
+            { id: 'c', text: { tr: 'Sistem genelinde PATH\'e', en: 'System-wide into PATH' } },
+            { id: 'd', text: { tr: 'requirements.txt dosyasının içine doğrudan', en: 'Directly inside the requirements.txt file' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Bir venv aktifken çalıştırılan `pip install`, paketi SADECE o venv\'in kendi izole klasörüne kurar (`.venv/lib/...`), global Python kurulumuna veya başka bir projenin venv\'ine asla dokunmaz. Bu izolasyon, venv\'in tüm amacıdır — her proje, başka hiçbir projeyi etkilemeden kendi bağımlılık sürümlerine sahip olabilir.', en: "Running `pip install` while a venv is active installs the package ONLY into that venv's own isolated folder (`.venv/lib/...`) — it never touches the global Python installation or any other project's venv. This isolation is the entire point of a venv: each project can have its own dependency versions without affecting any other project." },
+        },
+      },
     ],
   },
 
@@ -135,7 +181,7 @@ print(sys.version)                 # print Python version`,
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 1 — Python Syntax
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Python Syntax', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Python Söz Dizimi', en: 'Python Syntax' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '📐', content: { tr: 'Python kodu yazmak, cümle yazmak gibi. Süslü parantez yok, noktalı virgül yok. Sadece düzgün hizalama (girinti) gerekiyor — sanki bir liste hazırlıyorsun.', en: 'Writing Python is like writing sentences. No curly braces, no semicolons. Just proper indentation — like writing a neat outline.' } },
       { type: 'text', content: { tr: "Java\'da bloklar {} ile açılır-kapanır ve her satır \";\" ile biter. Python\'da bunların hiçbiri yok. Bloklar \":\" (iki nokta) ile başlar, girintileme ile devam eder.", en: 'In Java, blocks open/close with {} and every statement ends with ";". Python has neither. Blocks start with ":" and continue by indentation.' } },
       { type: 'code', language: 'python', code: `# Python Syntax Basics
@@ -169,12 +215,54 @@ for skill in ["Python", "pytest", "Selenium"]:
         { concept: { tr: 'Satır sonu', en: 'Statement end' }, java: 'int x = 5;', python: 'x = 5' },
         { concept: { tr: 'Koşul parantezi', en: 'Condition parens' }, java: 'if (x > 0)', python: 'if x > 0:' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da bir kod bloğunun sonu nasıl anlaşılır?", en: 'How does Python mark the end of a code block?' }, options: [{ id: 'a', text: '}' }, { id: 'b', text: 'end' }, { id: 'c', text: 'Dedenting (going back to outer indentation level)' }, { id: 'd', text: ';' }], correct: 'c', explanation: { tr: "Python, girintinin azalmasıyla bloğun bittiğini anlar. Süslü parantez ya da \"end\" keyword\'ü yoktur.", en: 'Python detects block end by dedenting — moving back to the outer indentation level. No closing symbol needed.' } },
+      { type: 'quiz', question: { tr: "Python\'da bir kod bloğunun sonu nasıl anlaşılır?", en: 'How does Python mark the end of a code block?' }, options: [{ id: 'a', text: '}' ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python\\'da girintileme (indentation) yapısı hakkında aşağıdakilerden hangisi doğrudur?",
+            "en": "Which of the following is true about indentation in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Kod bloklarını sınırlamak için süslü parantez {} kullanılır.",
+                        "en": "Curly braces {} are used to delimit code blocks."
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Girintileme zorunludur ve kod bloklarını tanımlar.",
+                        "en": "Indentation is mandatory and defines code blocks."
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Kod blokları için 'begin' ve 'end' anahtar kelimeleri kullanılır.",
+                        "en": "'begin' and 'end' keywords are used for code blocks."
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece okunabilirlik için kullanılır, işlevsel değildir.",
+                        "en": "It is only used for readability and is not functional."
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da bir kod bloğunun başlangıcı ve sonu, süslü parantezler yerine girintileme (whitespace/indentation) ile belirlenir.",
+            "en": "In Python, the start and end of a code block are determined by indentation instead of curly braces."
+      }
+}
+}, { id: 'b', text: 'end' }, { id: 'c', text: 'Dedenting (going back to outer indentation level)' }, { id: 'd', text: ';' }], correct: 'c', explanation: { tr: "Python, girintinin azalmasıyla bloğun bittiğini anlar. Süslü parantez ya da \"end\" keyword\'ü yoktur.", en: 'Python detects block end by dedenting — moving back to the outer indentation level. No closing symbol needed.' } },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 2 — Comments
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Comments', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Yorum Satırları', en: 'Comments' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '💬', content: { tr: 'Yorum, kodun içine "not" bırakmak gibi. Python bu satırları çalıştırmaz — sadece sen ve ekibindekiler okur.', en: "A comment is like a sticky note inside your code. Python ignores it completely — it\'s just for humans to read." } },
       { type: 'text', content: { tr: "Java\'da // tek satır, /* */ çok satır yorum. Python\'da # tek satır, \"\"\" \"\"\" (docstring) çok satır yorum için kullanılır. Teknik terim değişmez ama sözdizimi farklı.", en: 'Java uses // for single-line and /* */ for multi-line comments. Python uses # for single-line and triple quotes """ for multi-line (docstrings).' } },
       { type: 'code', language: 'python', code: `# Single-line comment — Python ignores this
@@ -202,12 +290,54 @@ print("Pass rate:", pass_rate, "%")` },
         { concept: { tr: 'Çok satır yorum', en: 'Multi-line comment' }, java: '/* comment */', python: '"""comment"""' },
         { concept: { tr: 'Dokümantasyon yorumu', en: 'Doc comment' }, java: '/** Javadoc */', python: '"""docstring"""' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da çok satırlı yorum için hangi sözdizimi kullanılır?", en: 'Which syntax creates a multi-line comment in Python?' }, options: [{ id: 'a', text: '/* ... */' }, { id: 'b', text: '// ...' }, { id: 'c', text: '"""..."""' }, { id: 'd', text: '#! ...' }], correct: 'c', explanation: { tr: "Python\'da üçlü tırnak (\"\"\" veya \'\'\'…\'\'\'\') docstring / çok satır yorum için kullanılır.", en: "Triple quotes \"\"\" or \'\'\'\' create multi-line strings / docstrings. Python ignores them if not assigned." } },
+      { type: 'quiz', question: { tr: "Python\'da çok satırlı yorum için hangi sözdizimi kullanılır?", en: 'Which syntax creates a multi-line comment in Python?' }, options: [{ id: 'a', text: '/* ... */' }, { id: 'b', text: '// ...' }, { id: 'c', text: '"""..."""' }, { id: 'd', text: '#! ...' }], correct: 'c', explanation: { tr: "Python\'da üçlü tırnak (\"\"\" veya \'\'\'…\'\'\'\') docstring / çok satır yorum için kullanılır.", en: "Triple quotes \"\"\" or \'\'\'\' create multi-line strings / docstrings. Python ignores them if not assigned." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python\\'da kod içerisinde geçici olarak devre dışı bırakılan veya açıklama satırı olarak kullanılan yapı aşağıdakilerden hangisidir?",
+            "en": "Which structure is used in Python to temporarily disable code or write comments?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "<!-- ... -->",
+                        "en": "<!-- ... -->"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "/* ... */",
+                        "en": "/* ... */"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "''' ... '''",
+                        "en": "''' ... '''"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "@@ ... @@",
+                        "en": "@@ ... @@"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Python'da üçlü tek tırnak (''') veya üçlü çift tırnak (\"\"\") çok satırlı açıklamalar veya docstring oluşturmak için tercih edilir.",
+            "en": "In Python, triple single quotes (''') or triple double quotes (\"\"\") are preferred for creating multi-line comments or docstrings."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 3 — Variables
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Variables', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Değişkenler', en: 'Variables' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '🏷️', content: { tr: 'Değişken, içine bir şey koyabileceğin etiketlenmiş bir kutu. "isim = \'Ali\'" diyince "isim" etiketli kutuya \'Ali\' koymuş olursun. İstediğin zaman açıp bakabilirsin.', en: 'A variable is a labeled box. When you write name = "Ali", you put "Ali" in a box labeled "name". You can check it anytime.' } },
       { type: 'text', content: { tr: "Java\'da değişken tipi açıkça yazılır: int x = 5. Python\'da sadece x = 5 yazılır — Python tipi otomatik anlar. Bu \"dinamik tipleme\" olarak adlandırılır.", en: 'Java requires explicit type: int x = 5. Python just needs x = 5 — the type is inferred automatically. This is called dynamic typing.' } },
       { type: 'code', language: 'python', code: `# Python Variables — no type declaration needed
@@ -248,23 +378,65 @@ print("Type of passed:", type(passed))` },
         { concept: { tr: 'Tip kontrolü', en: 'Type check' }, java: 'x instanceof Integer', python: 'type(x) == int  or  isinstance(x, int)' },
         { concept: { tr: 'Sabit (const)', en: 'Constant' }, java: 'final int MAX = 100;', python: 'MAX = 100  # convention: ALL_CAPS' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da bir değişkenin tipini öğrenmek için hangi fonksiyon kullanılır?", en: 'Which function checks the type of a variable in Python?' }, options: [{ id: 'a', text: 'typeof(x)' }, { id: 'b', text: 'x.getClass()' }, { id: 'c', text: 'type(x)' }, { id: 'd', text: 'datatype(x)' }], correct: 'c', explanation: { tr: "type(x) Python\'ın yerleşik fonksiyonudur. isinstance(x, int) ise miras (inheritance) dahil kontrol eder.", en: "type(x) is Python\'s built-in. isinstance(x, int) also works and checks inheritance." } },
+      { type: 'quiz', question: { tr: "Python\'da bir değişkenin tipini öğrenmek için hangi fonksiyon kullanılır?", en: 'Which function checks the type of a variable in Python?' }, options: [{ id: 'a', text: 'typeof(x)' }, { id: 'b', text: 'x.getClass()' }, { id: 'c', text: 'type(x)' }, { id: 'd', text: 'datatype(x)' }], correct: 'c', explanation: { tr: "type(x) Python\'ın yerleşik fonksiyonudur. isinstance(x, int) ise miras (inheritance) dahil kontrol eder.", en: "type(x) is Python\'s built-in. isinstance(x, int) also works and checks inheritance." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir Python değişkeninin sınıfını (veri tipini) öğrenmek için en yaygın kullanılan yöntem nedir?",
+            "en": "What is the most common method to determine the class (data type) of a Python variable?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "x.type()",
+                        "en": "x.type()"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "get_type(x)",
+                        "en": "get_type(x)"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "type(x)",
+                        "en": "type(x)"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "is_instance(x)",
+                        "en": "is_instance(x)"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Python'da bir değişkenin türünü doğrudan döndürmek için type() yerleşik fonksiyonu kullanılır.",
+            "en": "The built-in type() function is used in Python to directly return the type of a variable."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 4 — Data Types
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Data Types', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Veri Tipleri', en: 'Data Types' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '🗂️', content: { tr: 'Veri tipleri, farklı "çekmece" türleri gibi. Sayılar, yazılar, listeler, doğru/yanlış — her veri türü için ayrı bir çekmece var.', en: 'Data types are like different drawer types. Numbers, text, lists, true/false — each kind of data has its own drawer.' } },
       { type: 'text', content: { tr: "Java\'da primitive tipler (int, double, boolean) ve Object tipleri ayrıdır. Python\'da her şey bir object\'tir — int, str, list, dict hepsi birer sınıf örneğidir.", en: 'Java separates primitives (int, double, boolean) from Objects. In Python, everything is an object — int, str, list, dict are all class instances.' } },
-      { type: 'table', headers: ['Python Type', 'Example', 'Java Equivalent', 'Mutable?'], rows: [
-        ['str', '"hello"', 'String', 'No'],
-        ['int', '42', 'int / Integer', 'No'],
-        ['float', '3.14', 'double / Double', 'No'],
-        ['bool', 'True / False', 'boolean', 'No'],
-        ['list', '[1, 2, 3]', 'ArrayList<T>', 'Yes'],
-        ['tuple', '(1, 2, 3)', 'List.of()', 'No'],
-        ['dict', '{"a": 1}', 'HashMap<K,V>', 'Yes'],
-        ['set', '{1, 2, 3}', 'HashSet<T>', 'Yes'],
+      { type: 'table', headers: [{ tr: 'Python Tipi', en: 'Python Type' }, { tr: 'Örnek', en: 'Example' }, { tr: 'Java Karşılığı', en: 'Java Equivalent' }, { tr: 'Değiştirilebilir mi?', en: 'Mutable?' }], rows: [
+        ['str', '"hello"', 'String', { tr: 'Hayır', en: 'No' }],
+        ['int', '42', 'int / Integer', { tr: 'Hayır', en: 'No' }],
+        ['float', '3.14', 'double / Double', { tr: 'Hayır', en: 'No' }],
+        ['bool', 'True / False', 'boolean', { tr: 'Hayır', en: 'No' }],
+        ['list', '[1, 2, 3]', 'ArrayList<T>', { tr: 'Evet', en: 'Yes' }],
+        ['tuple', '(1, 2, 3)', 'List.of()', { tr: 'Hayır', en: 'No' }],
+        ['dict', '{"a": 1}', 'HashMap<K,V>', { tr: 'Evet', en: 'Yes' }],
+        ['set', '{1, 2, 3}', 'HashSet<T>', { tr: 'Evet', en: 'Yes' }],
         ['NoneType', 'None', 'null', '-'],
       ]},
       { type: 'editor', lang: 'python', defaultCode: `# Explore Python data types
@@ -279,12 +451,42 @@ st = {1, 2, 3}      # set
 
 for var in [x, y, s, b, lst, tpl, d, st]:
     print(type(var).__name__, ":", var)` },
-      { type: 'quiz', question: { tr: "Python\'da hangi veri tipi değiştirilemez (immutable)?", en: 'Which Python data type is immutable (cannot be changed after creation)?' }, options: [{ id: 'a', text: 'list' }, { id: 'b', text: 'dict' }, { id: 'c', text: 'tuple' }, { id: 'd', text: 'set' }], correct: 'c', explanation: { tr: "Tuple immutable\'dır — oluşturduktan sonra eleman ekleyip çıkaramazsınız. Java\'daki List.of() gibi.", en: "Tuples are immutable — you cannot add or remove elements after creation. Like Java\'s List.of()." } },
+      { type: 'quiz', question: { tr: "Python\'da hangi veri tipi değiştirilemez (immutable)?", en: 'Which Python data type is immutable (cannot be changed after creation)?' }, options: [{ id: 'a', text: 'list' }, { id: 'b', text: 'dict' }, { id: 'c', text: 'tuple' }, { id: 'd', text: 'set' }], correct: 'c', explanation: { tr: "Tuple immutable\'dır — oluşturduktan sonra eleman ekleyip çıkaramazsınız. Java\'daki List.of() gibi.", en: "Tuples are immutable — you cannot add or remove elements after creation. Like Java\'s List.of()." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da aşağıdakilerden hangisi değiştirilebilir (mutable) bir veri tipidir?",
+            "en": "Which of the following Python data types is mutable (can be changed after creation)?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "str"
+            },
+            {
+                  "id": "b",
+                  "text": "list"
+            },
+            {
+                  "id": "c",
+                  "text": "tuple"
+            },
+            {
+                  "id": "d",
+                  "text": "frozenset"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Listeler mutable'dır; yani indeksleme yoluyla elemanları güncelleyebilir, yeni elemanlar ekleyebilir veya çıkarabilirsiniz.",
+            "en": "Lists are mutable, meaning you can update elements, add new items, or remove them using indexing and built-in methods."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 5 — Numbers
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Numbers', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Sayılar', en: 'Numbers' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '🔢', content: { tr: "Python\'da üç tür sayı var: tam sayılar (3, 100), ondalıklı sayılar (3.14), ve karmaşık sayılar (2+3j). Günlük kodlamada çoğunlukla ilk ikisini kullanırsın.", en: 'Python has three number types: integers (3, 100), floats (3.14), and complex (2+3j). In daily coding you mostly use the first two.' } },
       { type: 'text', content: { tr: "Java\'da int sınırlı büyüklüktedir (max ~2 milyar). Python\'da int sınırsız büyüyebilir — memory yettikçe. float ise Java\'daki double\'a eşdeğerdir.", en: "Java\'s int has a fixed limit (~2 billion). Python\'s int can grow infinitely — limited only by memory. Python\'s float is equivalent to Java\'s double." } },
       { type: 'code', language: 'python', code: `# Python Numbers
@@ -321,12 +523,42 @@ print("Is 100% pass:", pass_rate == 100)` },
         { concept: { tr: 'Üs alma', en: 'Power' }, java: 'Math.pow(2, 10)', python: '2 ** 10' },
         { concept: { tr: 'Sınırsız int', en: 'Unlimited int' }, java: 'BigInteger', python: 'int (built-in, unlimited)' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da 10 / 3 ifadesinin sonucu nedir?", en: 'What does 10 / 3 return in Python?' }, options: [{ id: 'a', text: '3' }, { id: 'b', text: '3.333...' }, { id: 'c', text: '3.0' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "Python\'da / her zaman float döner (3.3333...). Tam bölme için // kullanılır ve 3 döner. Java\'dan büyük fark!", en: 'In Python, / always returns a float (3.3333...). Use // for integer division which returns 3. Big difference from Java!' } },
+      { type: 'quiz', question: { tr: "Python\'da 10 / 3 ifadesinin sonucu nedir?", en: 'What does 10 / 3 return in Python?' }, options: [{ id: 'a', text: '3' }, { id: 'b', text: '3.333...' }, { id: 'c', text: '3.0' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "Python\'da / her zaman float döner (3.3333...). Tam bölme için // kullanılır ve 3 döner. Java\'dan büyük fark!", en: 'In Python, / always returns a float (3.3333...). Use // for integer division which returns 3. Big difference from Java!' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 7 // 2 işleminin sonucu nedir?",
+            "en": "What is the result of 7 // 2 in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "3.5"
+            },
+            {
+                  "id": "b",
+                  "text": "3"
+            },
+            {
+                  "id": "c",
+                  "text": "4"
+            },
+            {
+                  "id": "d",
+                  "text": "2.5"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "// operatörü tam bölme (floor division) yapar ve sonucun ondalık kısmını atarak en yakın küçük tam sayıya yuvarlar.",
+            "en": "The // operator performs floor division and discards the fractional part, returning the largest integer less than or equal to the result."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 6 — Casting
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Casting (Type Conversion)', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Casting (Tip Dönüşümü)', en: 'Casting (Type Conversion)' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '🔄', content: { tr: 'Casting, bir şeyi farklı bir şekle dönüştürmek gibi. Suyu buz yapıyorsun ama H₂O aynı kalıyor. "5" yazısını 5 sayısına çeviriyorsun — ama artık matematiksel işlem yapabilirsin.', en: 'Casting is like transforming something into a different form. "5" is a text, 5 is a number. Casting turns one into the other so you can do math.' } },
       { type: 'code', language: 'python', code: `# Python Casting — converting between types
 x = int("5")         # str → int  : 5
@@ -363,12 +595,42 @@ for v in values:
         { concept: { tr: 'int → double', en: 'int to float' }, java: '(double) 5', python: 'float(5)' },
         { concept: { tr: 'Herhangi → bool', en: 'Anything to bool' }, java: '(boolean) — limited', python: 'bool(x) — all values castable' },
       ]},
-      { type: 'quiz', question: { tr: 'int("3.14") ifadesi ne döner?', en: 'What does int("3.14") return in Python?' }, options: [{ id: 'a', text: '3' }, { id: 'b', text: '3.14' }, { id: 'c', text: 'ValueError' }, { id: 'd', text: '0' }], correct: 'c', explanation: { tr: "int() doğrudan ondalıklı string\'i çeviremez. Önce float(\"3.14\"), sonra int() kullanmalısınız: int(float(\"3.14\")) = 3", en: 'int() cannot directly convert a decimal string. Use int(float("3.14")) = 3. Direct int("3.14") raises ValueError.' } },
+      { type: 'quiz', question: { tr: 'int("3.14") ifadesi ne döner?', en: 'What does int("3.14") return in Python?' }, options: [{ id: 'a', text: '3' }, { id: 'b', text: '3.14' }, { id: 'c', text: 'ValueError' }, { id: 'd', text: '0' }], correct: 'c', explanation: { tr: "int() doğrudan ondalıklı string\'i çeviremez. Önce float(\"3.14\"), sonra int() kullanmalısınız: int(float(\"3.14\")) = 3", en: 'int() cannot directly convert a decimal string. Use int(float("3.14")) = 3. Direct int("3.14") raises ValueError.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da float(\"on\") ifadesi nasıl bir sonuç üretir?",
+            "en": "What happens when you execute float(\"on\") in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "0.0"
+            },
+            {
+                  "id": "b",
+                  "text": "0"
+            },
+            {
+                  "id": "c",
+                  "text": "ValueError"
+            },
+            {
+                  "id": "d",
+                  "text": "None"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "float() fonksiyonu, sadece sayısal karakterler içeren string'leri çevirebilir. \"on\" gibi sayısal değer ifade etmeyen bir string geçildiğinde ValueError hatası alınır.",
+            "en": "The float() function can only convert strings that represent numeric values. Passing a non-numeric string like \"on\" results in a ValueError."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 7 — Strings
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Strings', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'String\'ler (Metinler)', en: 'Strings' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '📝', content: { tr: "String, harflerden oluşan bir dize — \"merhaba\" gibi. Python'da stringleri tek (''), çift (\"\") veya üçlü (\"\"\") tırnak içinde yazabilirsin.", en: 'A string is a sequence of characters — like "hello". In Python you can write strings with single, double, or triple quotes.' } },
       { type: 'text', content: { tr: "Java\'da String.charAt(), substring(), indexOf() gibi metodlar kullanılır. Python\'da aynı işler için daha kısa ve okunabilir sözdizimi var: s[0], s[1:5], \"hello\" in s gibi.", en: 'Java uses String.charAt(), substring(), indexOf(). Python has shorter, more readable syntax: s[0], s[1:5], "hello" in s.' } },
       { type: 'code', language: 'python', code: `# Python Strings
@@ -419,12 +681,42 @@ print("Replace:", url.replace("api", "v2"))` },
         { concept: { tr: 'Parçala', en: 'Split' }, java: 's.split(",")', python: 's.split(",")' },
         { concept: { tr: 'Format (modern)', en: 'String format' }, java: 'String.format("Hi %s", name)', python: 'f"Hi {name}"' },
       ]},
-      { type: 'quiz', question: { tr: '"Hello"[::-1] ifadesi ne döner?', en: 'What does "Hello"[::-1] return?' }, options: [{ id: 'a', text: 'Hello' }, { id: 'b', text: 'olleH' }, { id: 'c', text: 'H' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "[::-1] slice\'ı stringi tersine çevirir. -1 adım = sondan başa gider. Bu Python\'a özgü çok kullanışlı bir trick.", en: '[::-1] reverses the string. Step -1 means go backwards. This is a very Pythonic trick with no Java equivalent.' } },
+      { type: 'quiz', question: { tr: '"Hello"[::-1] ifadesi ne döner?', en: 'What does "Hello"[::-1] return?' }, options: [{ id: 'a', text: 'Hello' }, { id: 'b', text: 'olleH' }, { id: 'c', text: 'H' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "[::-1] slice\'ı stringi tersine çevirir. -1 adım = sondan başa gider. Bu Python\'a özgü çok kullanışlı bir trick.", en: '[::-1] reverses the string. Step -1 means go backwards. This is a very Pythonic trick with no Java equivalent.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "'Python'[::-2] ifadesi ne döner?",
+            "en": "What does 'Python'[::-2] return?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "no"
+            },
+            {
+                  "id": "b",
+                  "text": "nhy"
+            },
+            {
+                  "id": "c",
+                  "text": "nht"
+            },
+            {
+                  "id": "d",
+                  "text": "Pyth"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Slicing'de -2 adımı, stringi sondan başa doğru her iki karakterde bir seçer. 'n', 'h', 'y' karakterlerini alır.",
+            "en": "The -2 step in slicing iterates backwards, skipping every second character. It selects 'n', 'h', and 'y'."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 8 — Booleans
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Booleans', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Boolean\'lar', en: 'Booleans' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '✅', content: { tr: 'Boolean, sadece iki değer alır: True veya False (doğru veya yanlış). "Test geçti mi?" sorusunun cevabı gibi — ya evet ya hayır.', en: 'A Boolean has only two values: True or False. Like the answer to "Did the test pass?" — only yes or no.' } },
       { type: 'text', content: { tr: "Java\'da boolean küçük harfle (true/false) yazılır. Python\'da büyük harfle (True/False). Ayrıca Python\'da her değer True ya da False gibi davranır — boş liste, 0, None hepsi False sayılır.", en: 'Java writes boolean lowercase (true/false). Python uses uppercase (True/False). Python also has "truthy/falsy" — empty list, 0, None all behave as False.' } },
       { type: 'code', language: 'python', code: `# Python Booleans
@@ -475,12 +767,42 @@ else:
         { concept: { tr: 'DEĞİL operatörü', en: 'NOT operator' }, java: '!', python: 'not' },
         { concept: { tr: 'Falsy değerler', en: 'Falsy values' }, java: 'false, null only', python: 'False, None, 0, "", [], {}, ()' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da bool([]) ifadesi ne döner?", en: 'What does bool([]) return in Python?' }, options: [{ id: 'a', text: 'True' }, { id: 'b', text: 'False' }, { id: 'c', text: 'None' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "Boş liste False\'tur. Python\'da boş container\'lar ([], {}, (), set()), 0, None ve \"\" hepsi False sayılır.", en: 'Empty list is falsy. In Python: empty containers ([], {}, (), set()), 0, None, and "" are all False.' } },
+      { type: 'quiz', question: { tr: "Python\'da bool([]) ifadesi ne döner?", en: 'What does bool([]) return in Python?' }, options: [{ id: 'a', text: 'True' }, { id: 'b', text: 'False' }, { id: 'c', text: 'None' }, { id: 'd', text: 'Error' }], correct: 'b', explanation: { tr: "Boş liste False\'tur. Python\'da boş container\'lar ([], {}, (), set()), 0, None ve \"\" hepsi False sayılır.", en: 'Empty list is falsy. In Python: empty containers ([], {}, (), set()), 0, None, and "" are all False.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da bool(0) ifadesi ne döner?",
+            "en": "What does bool(0) return in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "True"
+            },
+            {
+                  "id": "b",
+                  "text": "False"
+            },
+            {
+                  "id": "c",
+                  "text": "0"
+            },
+            {
+                  "id": "d",
+                  "text": "Error"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da 0 değeri 'falsy' olarak kabul edilir. Bu nedenle bool(0) ifadesi False döndürür.",
+            "en": "In Python, the integer 0 is considered 'falsy'. Therefore, the bool(0) expression returns False."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 9 — Operators
       // ═══════════════════════════════════════════════════════════════════════
-      { type: 'heading', text: 'Operators', difficulty: '🟢 Beginner' },
+      { type: 'heading', text: { tr: 'Operatörler', en: 'Operators' }, difficulty: '🟢 Beginner' },
       { type: 'simple-box', emoji: '⚙️', content: { tr: 'Operatörler, işlem sembolleri. Toplama (+), çıkarma (-), karşılaştırma (>, <), ve mantık (and, or) — bunların hepsi operatör. Matematik dersindeki sembollerin kod versiyonu.', en: 'Operators are action symbols. Addition (+), comparison (>, <), logic (and, or) — all operators. Think of them as the math symbols from school, but for code.' } },
       { type: 'code', language: 'python', code: `# Python Operators — complete reference
 
@@ -538,15 +860,201 @@ print("Method allowed:", method in allowed_methods)` },
         { concept: { tr: 'Referans eşitliği', en: 'Reference equality' }, java: '==', python: 'is' },
         { concept: { tr: 'Değer eşitliği', en: 'Value equality' }, java: '.equals()', python: '==' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da \"not in\" operatörü ne işe yarar?", en: 'What does the "not in" operator do in Python?' }, options: [{ id: 'a', text: 'It reverses a list' }, { id: 'b', text: 'It checks if a value is NOT in a sequence' }, { id: 'c', text: 'It removes an element from a list' }, { id: 'd', text: 'Same as !='}], correct: 'b', explanation: { tr: "\"not in\" bir değerin listede, string\'de ya da dict\'te OLMADIĞINI kontrol eder. Java\'da list.contains(x) == false ile eşdeğer.", en: "\"not in\" checks if a value is absent from a sequence. Equivalent to Java\'s !list.contains(x)." } },
+      { type: 'quiz', question: { tr: "Python\'da \"not in\" operatörü ne işe yarar?", en: 'What does the "not in" operator do in Python?' }, options: [{ id: 'a', text: { tr: 'Bir listeyi tersine çevirir', en: 'It reverses a list' } }, { id: 'b', text: { tr: 'Bir değerin bir dizide OLMADIĞINI kontrol eder', en: 'It checks if a value is NOT in a sequence' } }, { id: 'c', text: { tr: 'Bir listeden eleman siler', en: 'It removes an element from a list' } }, { id: 'd', text: { tr: '!= ile aynıdır', en: 'Same as !=' } }], correct: 'b', explanation: { tr: "\"not in\" bir değerin listede, string\'de ya da dict\'te OLMADIĞINI kontrol eder. Java\'da list.contains(x) == false ile eşdeğer.", en: "\"not in\" checks if a value is absent from a sequence. Equivalent to Java\'s !list.contains(x)." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 5 not in [1, 2, 3, 4] ifadesi ne döner?",
+            "en": "What does 5 not in [1, 2, 3, 4] return in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "True",
+                        "en": "True"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "False",
+                        "en": "False"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "None",
+                        "en": "None"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Hata",
+                        "en": "Error"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "'not in' operatörü, eleman listede bulunmadığında True döndürür. 5 değeri listede olmadığı için sonuç True'dur.",
+            "en": "The 'not in' operator returns True if the element is not present in the sequence. Since 5 is not in the list, the result is True."
+      }
+}
+},
 
-      // Section interview questions
-      { type: 'interview-questions', topic: 'Python Foundations', questions: [
-        { level: 'basic', q: { tr: 'Python dinamik tipli bir dil ne demek?', en: 'What does it mean that Python is dynamically typed?' }, a: { tr: "Değişken tipini siz belirtmezsiniz — Python çalışma zamanında anlar. x = 5 dersiniz, Python x\'i int olarak işler. Sonra x = \"hello\" derseniz, x artık str olur. Java\'da bu hata verir çünkü tip sabitlenir.", en: "You don\'t declare variable types — Python infers them at runtime. x = 5 makes x an int. Then x = \"hello\" makes it a str. In Java, this would be a compile error." } },
-        { level: 'basic', q: { tr: "Python\'da None nedir?", en: 'What is None in Python?' }, a: { tr: "None, Java\'daki null\'ın karşılığıdır. \"Değer yok\" anlamına gelir. Karşılaştırma için == yerine \"is\" kullanılır: if x is None. Fonksiyon hiçbir şey dönmezse implicit olarak None döner.", en: "None is Python\'s null. It means \"no value.\" Compare with \"is\" not \"==\": if x is None. Functions that return nothing implicitly return None." } },
-        { level: 'intermediate', q: { tr: "Python\'da \"is\" ile \"==\" operatörlerinin farkı nedir?", en: 'What is the difference between "is" and "==" in Python?' }, a: { tr: "\"==\" değer eşitliğini kontrol eder. \"is\" kimlik (identity) eşitliğini — aynı bellek nesnesini mi? None, True, False için \"is\" kullanın. Sayılar ve string\'ler için \"==\" kullanın. Java\'daki == (referans) → Python\'da is; Java\'daki .equals() → Python\'da ==.", en: "\"==\" checks value equality. \"is\" checks identity — are they the same object in memory? Use \"is\" for None, True, False. Use \"==\" for numbers and strings. Java\'s == → Python\'s is; Java\'s .equals() → Python\'s ==" } },
-        { level: 'advanced', q: { tr: "Python\'da truthy/falsy kavramını açıklayın ve QA\'da ne zaman kullanışlıdır?", en: "Explain Python\'s truthy/falsy concept and when it\'s useful in QA." }, a: { tr: "Herhangi bir Python değeri bool\'a dönüştürülebilir. 0, None, \"\", [], {}, () False\'tur; geri kalanlar True\'dur. QA\'da: \"if errors:\" veya \"if response.json():\" şeklinde kullanılır — Java\'daki \"if (errors != null && !errors.isEmpty())\" yerine çok daha kısa.", en: "Any Python value can be coerced to bool. 0, None, \"\", [], {}, () are False; everything else True. In QA: \"if errors:\" or \"if response.json()\" is much shorter than Java\'s \"if (errors != null && !errors.isEmpty())\"." } },
-      ]},
+      // Section quizzes (converted from open-ended interview questions —
+      // mülakat-tarzı serbest cevap soruları sadece "Mülakat" sekmesinde olmalı,
+      // bu yüzden burada çoktan seçmeli quiz formatına dönüştürüldü)
+      { type: 'quiz', question: { tr: 'Python\'da bir değişkene önce x = 5 (int) sonra x = "hello" (string) atarsan ne olur?', en: 'What happens if you assign x = 5 (int) and then x = "hello" (string) to the same variable in Python?' }, options: [{ id: 'a', text: { tr: 'Java\'da olduğu gibi derleme hatası verir', en: 'It raises a compile error, like in Java' } }, { id: 'b', text: { tr: 'Python buna izin verir, x artık bir string olur', en: 'Python allows it, x is now a string' } }, { id: 'c', text: { tr: 'Program çalışma zamanında çöker', en: 'The program crashes at runtime' } }, { id: 'd', text: { tr: 'x hem int hem string olarak kalır', en: 'x stays both an int and a string' } }], correct: 'b', explanation: { tr: 'Python dinamik tipli bir dildir — değişken tipini siz belirtmezsiniz, Python çalışma zamanında anlar. x = 5 dersiniz, x int olur; x = "hello" derseniz, x artık str olur. Java\'da bu bir derleme hatası verirdi çünkü tip sabitlenir.', en: "Python is dynamically typed — you don't declare variable types, Python infers them at runtime. x = 5 makes x an int; x = \"hello\" makes it a str. In Java, this would be a compile error because the type is fixed." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 'y = 10.5' tanımladıktan hemen sonra 'y = [1, 2, 3]' ataması yaparsak ne gerçekleşir?",
+            "en": "What happens if you define 'y = 10.5' and then immediately reassign 'y = [1, 2, 3]' in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Tip uyuşmazlığı nedeniyle hata alınır",
+                        "en": "It raises a type mismatch error"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Python dinamik yapısı sayesinde y artık bir liste (list) olur",
+                        "en": "Thanks to Python's dynamic nature, y becomes a list"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Değişkenin önceki tipi (float) korunur ve atama reddedilir",
+                        "en": "The previous type (float) is preserved and the assignment is rejected"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Program derleme aşamasında hata verir",
+                        "en": "The program fails at the compilation stage"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da değişkenler nesnelere referanstır, dolayısıyla bir değişkene farklı türde bir nesne atamak tamamen geçerli bir işlemdir. Python çalışma zamanında tip kontrolü yapar ve atanan yeni değerin türünü kabul eder.",
+            "en": "In Python, variables are references to objects, so reassigning a variable to a different type of object is a perfectly valid operation. Python checks types at runtime and accepts the type of the newly assigned value."
+      }
+}
+},
+      { type: 'quiz', question: { tr: 'Python\'da bir değişkenin None olup olmadığını kontrol etmenin önerilen yolu hangisidir?', en: 'What is the recommended way to check if a Python variable is None?' }, options: [{ id: 'a', text: 'if x == None:' }, { id: 'b', text: 'if x is None:' }, { id: 'c', text: 'if x.equals(None):' }, { id: 'd', text: 'if None(x):' }], correct: 'b', explanation: { tr: 'None, Java\'daki null\'ın karşılığıdır. Karşılaştırma için == yerine "is" kullanılır çünkü None bir SINGLETON\'dır — "is None" kimlik (identity) kontrolü yapar, bu anlam ve performans açısından doğru olandır. Fonksiyon hiçbir şey dönmezse implicit olarak None döner.', en: 'None is Python\'s equivalent of Java\'s null. Use "is" instead of "==" for comparison because None is a SINGLETON — "is None" performs an identity check, which is the semantically and performance-correct choice. A function that returns nothing implicitly returns None.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdakilerden hangisi Python PEP 8 standartlarına göre bir 'val' değişkeninin değerinin None olup olmadığını kontrol etmek için en doğru sözdizimidir?",
+            "en": "Which of the following is the most idiomatic Python syntax according to PEP 8 to check if a 'val' variable is None?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "if val == None:"
+            },
+            {
+                  "id": "b",
+                  "text": "if val is None:"
+            },
+            {
+                  "id": "c",
+                  "text": "if val.is_null():"
+            },
+            {
+                  "id": "d",
+                  "text": "if None == val:"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da 'None' tekil (singleton) bir nesnedir. 'is None' ifadesi, nesnenin kimliğini kontrol eder ve tercih edilen yöntemdir. '== None' kullanımı ise teknik olarak çalışsa da Pythonic bir yaklaşım değildir.",
+            "en": "In Python, 'None' is a singleton object. 'is None' checks the identity of the object and is the preferred, idiomatic way. Using '== None' technically works but is not considered Pythonic."
+      }
+}
+},
+      { type: 'quiz', question: { tr: 'Python\'da iki değişkenin AYNI bellek nesnesini işaret edip etmediğini (değer eşitliği değil, kimlik eşitliği) kontrol etmek için hangi operatör kullanılır?', en: 'Which operator checks whether two Python variables point to the EXACT SAME object in memory (identity, not value equality)?' }, options: [{ id: 'a', text: '==' }, { id: 'b', text: 'is' }, { id: 'c', text: '.equals()' }, { id: 'd', text: 'compareTo()' }], correct: 'b', explanation: { tr: '"==" değer eşitliğini kontrol eder. "is" ise kimlik (identity) eşitliğini kontrol eder — aynı bellek nesnesi mi? None, True, False için "is" kullanılır. Sayılar ve string\'ler için "==" kullanılır. Java\'daki == (referans) → Python\'da is; Java\'daki .equals() → Python\'da ==.', en: '"==" checks value equality. "is" checks identity — are they the same object in memory? Use "is" for None, True, False. Use "==" for numbers and strings. Java\'s == (reference) maps to Python\'s is; Java\'s .equals() maps to Python\'s ==.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da iki değişkenin bellekte aynı nesne olup olmadığını sorgulamak için kullanılan operatör hangisidir?",
+            "en": "Which operator is used in Python to query if two variables refer to the same object in memory?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "=="
+            },
+            {
+                  "id": "b",
+                  "text": "is"
+            },
+            {
+                  "id": "c",
+                  "text": "match"
+            },
+            {
+                  "id": "d",
+                  "text": "==="
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "'is' operatörü nesne kimliğini (id) karşılaştırırken, '==' operatörü nesne değerlerini karşılaştırır. Aynı bellek konumuna işaret edip etmediklerini anlamak için her zaman 'is' operatörü kullanılmalıdır.",
+            "en": "The 'is' operator compares object identity (id), while the '==' operator compares object values. The 'is' operator should always be used to determine if they point to the same location in memory."
+      }
+}
+},
+      { type: 'quiz', question: { tr: 'QA otomasyon kodunda `if errors:` yazmak (errors boş bir liste olduğunda False, dolu olduğunda True), Java\'daki hangi kontrolün kısayoludur?', en: 'In QA automation code, writing `if errors:` (False when errors is an empty list, True when non-empty) is shorthand for which Java check?' }, options: [{ id: 'a', text: { tr: 'if (errors == null)', en: 'if (errors == null)' } }, { id: 'b', text: { tr: 'if (errors != null && !errors.isEmpty())', en: 'if (errors != null && !errors.isEmpty())' } }, { id: 'c', text: { tr: 'if (errors.size() > 0)', en: 'if (errors.size() > 0)' } }, { id: 'd', text: { tr: 'try { } catch bloğu', en: 'a try { } catch block' } }], correct: 'b', explanation: { tr: 'Herhangi bir Python değeri bool\'a dönüştürülebilir (truthy/falsy). 0, None, "", [], {}, () False\'tur; geri kalanlar True\'dur. "if errors:" hem null kontrolünü hem "boş değil mi" kontrolünü tek satırda yapar — Java\'daki "if (errors != null && !errors.isEmpty())" yerine çok daha kısadır.', en: 'Any Python value can be coerced to a bool (truthy/falsy). 0, None, "", [], {}, () are False; everything else is True. "if errors:" combines a null check AND a "not empty" check in one line — much shorter than Java\'s "if (errors != null && !errors.isEmpty())".' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "QA otomasyon kodunda bir dictionary'nin dolu olup olmadığını kontrol etmek için kullanılan `if data:` yapısı, Java'daki hangi ifadeye eşdeğerdir?",
+            "en": "In QA automation code, the `if data:` construct used to check if a dictionary is not empty is equivalent to which Java expression?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "if (data != null)",
+                        "en": "if (data != null)"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "if (data != null && !data.isEmpty())",
+                        "en": "if (data != null && !data.isEmpty())"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "if (data.size() == 0)",
+                        "en": "if (data.size() == 0)"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "if (data instanceof Map)",
+                        "en": "if (data instanceof Map)"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da boş bir koleksiyon (liste, sözlük, küme) 'falsy' olarak değerlendirilir. 'if data:' ifadesi, hem değişkenin None olmadığını hem de koleksiyonun en az bir elemana sahip olduğunu doğrular. Bu, Java'da hem null kontrolü hem de isEmpty() kontrolü gerektiren durumun kısaltılmış halidir.",
+            "en": "In Python, empty collections (lists, dicts, sets) are 'falsy'. The expression 'if data:' verifies both that the variable is not None and that the collection contains at least one item. This is the shorthand for the Java requirement to perform both null and isEmpty() checks."
+      }
+}
+},
     ],
   },
 
@@ -612,7 +1120,37 @@ print("After fix:", failed_tests)` },
         { concept: { tr: 'İçeriyor mu?', en: 'Contains?' }, java: 'list.contains(x)', python: 'x in list' },
         { concept: { tr: 'Sırala', en: 'Sort' }, java: 'Collections.sort(list)', python: 'list.sort()' },
       ]},
-      { type: 'quiz', question: { tr: 'tests = ["a","b","c"] ise tests[-1] ne döner?', en: 'If tests = ["a","b","c"], what does tests[-1] return?' }, options: [{ id: 'a', text: '"a"' }, { id: 'b', text: '"b"' }, { id: 'c', text: '"c"' }, { id: 'd', text: 'Error' }], correct: 'c', explanation: { tr: "Negatif index sondan sayar. -1 = son eleman, -2 = sondan ikinci. Java\'da bu doğrudan desteklenmez.", en: "Negative indices count from the end. -1 = last, -2 = second to last. Java doesn\'t support negative indexing." } },
+      { type: 'quiz', question: { tr: 'tests = ["a","b","c"] ise tests[-1] ne döner?', en: 'If tests = ["a","b","c"], what does tests[-1] return?' }, options: [{ id: 'a', text: '"a"' }, { id: 'b', text: '"b"' }, { id: 'c', text: '"c"' }, { id: 'd', text: 'Error' }], correct: 'c', explanation: { tr: "Negatif index sondan sayar. -1 = son eleman, -2 = sondan ikinci. Java\'da bu doğrudan desteklenmez.", en: "Negative indices count from the end. -1 = last, -2 = second to last. Java doesn\'t support negative indexing." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "logs = ['info', 'warning', 'error'] verildiğinde, logs[-2] ifadesi neyi döndürür?",
+            "en": "Given logs = ['info', 'warning', 'error'], what does the expression logs[-2] return?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "'info'"
+            },
+            {
+                  "id": "b",
+                  "text": "'warning'"
+            },
+            {
+                  "id": "c",
+                  "text": "'error'"
+            },
+            {
+                  "id": "d",
+                  "text": "None"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python listelerinde negatif indeksleme -1 ile en sondan başlar. -1 'error' değerine, -2 ise sondan ikinci olan 'warning' değerine karşılık gelir.",
+            "en": "In Python lists, negative indexing starts from the end with -1. Therefore, -1 corresponds to 'error', and -2 corresponds to the second-to-last item, 'warning'."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 11 — Tuples
@@ -667,7 +1205,37 @@ if result[0] == "PASS":
         { concept: { tr: 'Unpack', en: 'Destructure' }, java: 'pair.getFirst(), pair.getSecond()', python: 'a, b = pair' },
         { concept: { tr: 'Değiştirmeye çalış', en: 'Try to modify' }, java: 'throws UnsupportedOperationException', python: 'raises TypeError' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da bir fonksiyon \"return a, b\" döndürürse, dönen değer tipi nedir?", en: 'When a Python function does "return a, b", what type is returned?' }, options: [{ id: 'a', text: 'list' }, { id: 'b', text: 'tuple' }, { id: 'c', text: 'dict' }, { id: 'd', text: 'Two separate values' }], correct: 'b', explanation: { tr: "\"return a, b\" aslında bir tuple döndürür: (a, b). Bu Python\'da çok yaygın — değişken unpacking ile x, y = func() şeklinde kullanılır.", en: '"return a, b" returns a tuple (a, b). Very common in Python — use variable unpacking: x, y = func().' } },
+      { type: 'quiz', question: { tr: "Python\'da bir fonksiyon \"return a, b\" döndürürse, dönen değer tipi nedir?", en: 'When a Python function does "return a, b", what type is returned?' }, options: [{ id: 'a', text: 'list' }, { id: 'b', text: 'tuple' }, { id: 'c', text: 'dict' }, { id: 'd', text: 'Two separate values' }], correct: 'b', explanation: { tr: "\"return a, b\" aslında bir tuple döndürür: (a, b). Bu Python\'da çok yaygın — değişken unpacking ile x, y = func() şeklinde kullanılır.", en: '"return a, b" returns a tuple (a, b). Very common in Python — use variable unpacking: x, y = func().' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da bir fonksiyon `return x, y, z` ifadesini çalıştırdığında, dönen verinin veri yapısı türü nedir?",
+            "en": "When a Python function executes `return x, y, z`, what is the data structure type of the returned value?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "list"
+            },
+            {
+                  "id": "b",
+                  "text": "tuple"
+            },
+            {
+                  "id": "c",
+                  "text": "set"
+            },
+            {
+                  "id": "d",
+                  "text": "sequence"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da virgülle ayrılmış birden fazla değerin döndürülmesi otomatik olarak bir 'tuple' (demet) yapısı oluşturur. Bu, Python'un çoklu değer döndürme mekanizmasıdır.",
+            "en": "In Python, returning multiple values separated by commas automatically packs them into a 'tuple'. This is Python's native mechanism for returning multiple values from a function."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 12 — Sets
@@ -706,7 +1274,46 @@ all_browsers = {"Chrome", "Firefox", "Safari", "Edge"}
 tested = {"Chrome", "Safari"}
 not_tested = all_browsers - tested
 print("Not tested:", not_tested)` },
-      { type: 'quiz', question: { tr: "Set\'e aynı eleman iki kez eklenirse ne olur?", en: 'What happens when you add the same element to a set twice?' }, options: [{ id: 'a', text: 'Error is raised' }, { id: 'b', text: 'It appears twice' }, { id: 'c', text: 'The duplicate is silently ignored' }, { id: 'd', text: 'The set is cleared' }], correct: 'c', explanation: { tr: "Set\'ler benzersizdir. Aynı eleman eklendiğinde sessizce görmezden gelinir — hata olmaz.", en: 'Sets are unique. Adding a duplicate is silently ignored — no error, no duplicate.' } },
+      { type: 'quiz', question: { tr: "Set\'e aynı eleman iki kez eklenirse ne olur?", en: 'What happens when you add the same element to a set twice?' }, options: [{ id: 'a', text: 'Error is raised' }, { id: 'b', text: 'It appears twice' }, { id: 'c', text: 'The duplicate is silently ignored' }, { id: 'd', text: 'The set is cleared' }], correct: 'c', explanation: { tr: "Set\'ler benzersizdir. Aynı eleman eklendiğinde sessizce görmezden gelinir — hata olmaz.", en: 'Sets are unique. Adding a duplicate is silently ignored — no error, no duplicate.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir listeye append edilen aynı eleman listeye tekrar eklendiğinde sonuç ne olur?",
+            "en": "What happens when you append the same element to a list again?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Hata verir",
+                        "en": "Raises an error"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Eleman listede tekrar görünür",
+                        "en": "The element appears twice in the list"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Önceki eleman güncellenir",
+                        "en": "The previous element is updated"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": "İşlem iptal edilir"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Listeler sıralı ve yinelenebilir yapılardır. Listeye aynı elemanı tekrar eklerseniz, bu eleman listede yeni bir indeksle tekrar yer alır.",
+            "en": "Lists are ordered and allow duplicates. If you append the same element again, it will simply be added as a new entry at the end of the list."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 13 — Dictionaries
@@ -772,7 +1379,37 @@ for key in required_keys:
         { concept: { tr: 'Anahtar var mı?', en: 'Contains key?' }, java: 'map.containsKey("k")', python: '"k" in map' },
         { concept: { tr: 'Tüm girişler', en: 'All entries' }, java: 'map.entrySet()', python: 'map.items()' },
       ]},
-      { type: 'quiz', question: { tr: 'Sözlükte olmayan bir key için dict.get("key") ne döner?', en: "What does dict.get(\"missing_key\") return when the key doesn\'t exist?" }, options: [{ id: 'a', text: 'KeyError' }, { id: 'b', text: 'None' }, { id: 'c', text: '0' }, { id: 'd', text: 'False' }], correct: 'b', explanation: { tr: '.get() varsayılan olarak None döner. dict["key"] ise KeyError fırlatır. QA kodunda .get() tercih edilir — crash olmaz.', en: ".get() returns None by default. dict[\"key\"] raises KeyError. In QA code, prefer .get() — it won\'t crash on missing data." } },
+      { type: 'quiz', question: { tr: 'Sözlükte olmayan bir key için dict.get("key") ne döner?', en: "What does dict.get(\"missing_key\") return when the key doesn\'t exist?" }, options: [{ id: 'a', text: 'KeyError' }, { id: 'b', text: 'None' }, { id: 'c', text: '0' }, { id: 'd', text: 'False' }], correct: 'b', explanation: { tr: '.get() varsayılan olarak None döner. dict["key"] ise KeyError fırlatır. QA kodunda .get() tercih edilir — crash olmaz.', en: ".get() returns None by default. dict[\"key\"] raises KeyError. In QA code, prefer .get() — it won\'t crash on missing data." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Sözlükte bulunmayan bir anahtar için dict[\"key\"] kullanımının sonucu nedir?",
+            "en": "What is the result of accessing a non-existent key using dict['key']?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "KeyError"
+            },
+            {
+                  "id": "b",
+                  "text": "None"
+            },
+            {
+                  "id": "c",
+                  "text": "False"
+            },
+            {
+                  "id": "d",
+                  "text": "0"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Köşeli parantez ile erişim (dict[key]) anahtar bulunamadığında KeyError fırlatır. Hata yönetimi yapılmıyorsa programın durmasına sebep olur.",
+            "en": "Accessing with square brackets (dict[key]) raises a KeyError if the key is missing. This will crash the script unless handled."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 14 — If...Else
@@ -844,7 +1481,37 @@ print(validate_response(503, {}))` },
         { concept: { tr: 'Switch', en: 'Switch statement' }, java: 'switch(x) { case 1: ... }', python: 'match x:  case 1:  (Python 3.10+)' },
         { concept: { tr: 'Null kontrolü', en: 'Null check' }, java: 'if (x == null)', python: 'if x is None:' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da \"else if\" yerine hangi keyword kullanılır?", en: 'Which keyword does Python use instead of "else if"?' }, options: [{ id: 'a', text: 'else if' }, { id: 'b', text: 'elsif' }, { id: 'c', text: 'elif' }, { id: 'd', text: 'elseif' }], correct: 'c', explanation: { tr: "Python \"elif\" kullanır — \"else if\"nin kısaltması. Bu Python\'a özgüdür; Java\'da \"else if\" (iki kelime) kullanılır.", en: 'Python uses "elif" — short for "else if". This is Python-specific; Java uses "else if" (two words).' } },
+      { type: 'quiz', question: { tr: "Python\'da \"else if\" yerine hangi keyword kullanılır?", en: 'Which keyword does Python use instead of "else if"?' }, options: [{ id: 'a', text: 'else if' }, { id: 'b', text: 'elsif' }, { id: 'c', text: 'elif' }, { id: 'd', text: 'elseif' }], correct: 'c', explanation: { tr: "Python \"elif\" kullanır — \"else if\"nin kısaltması. Bu Python\'a özgüdür; Java\'da \"else if\" (iki kelime) kullanılır.", en: 'Python uses "elif" — short for "else if". This is Python-specific; Java uses "else if" (two words).' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da birden fazla koşulu kontrol etmek için kullanılan doğru yapı nedir?",
+            "en": "Which structure is the correct way to check multiple conditions in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "switch-case"
+            },
+            {
+                  "id": "b",
+                  "text": "elif"
+            },
+            {
+                  "id": "c",
+                  "text": "elsif"
+            },
+            {
+                  "id": "d",
+                  "text": "else-if"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python, koşullu dallanmalarda 'if', 'elif' ve 'else' anahtar kelimelerini kullanır. 'elif' (else if) ile ikinci ve sonraki koşullar kontrol edilir.",
+            "en": "Python uses 'if', 'elif', and 'else' for conditional branching. 'elif' (else if) is the keyword used to evaluate subsequent conditions."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 15 — While Loops
@@ -896,7 +1563,49 @@ while retry < max_retries:
         break
 else:
     print(f"Service still DOWN after {max_retries} retries")` },
-      { type: 'quiz', question: { tr: "Python\'da while döngüsünde \"else\" bloğu ne zaman çalışır?", en: 'When does the "else" block of a Python while loop execute?' }, options: [{ id: 'a', text: 'When the loop body throws an exception' }, { id: 'b', text: 'When the condition was never True' }, { id: 'c', text: 'When the loop completes normally (without break)' }, { id: 'd', text: 'Java has the same feature' }], correct: 'c', explanation: { tr: "Python\'a özgü: while...else bloğu döngü break ile sonlanmadıysa (normal bitti) çalışır. Java\'da bu özellik yoktur.", en: 'Python-specific: while...else runs only if the loop finished without hitting break. Java has no equivalent.' } },
+      { type: 'quiz', question: { tr: "Python\'da while döngüsünde \"else\" bloğu ne zaman çalışır?", en: 'When does the "else" block of a Python while loop execute?' }, options: [{ id: 'a', text: 'When the loop body throws an exception' }, { id: 'b', text: 'When the condition was never True' }, { id: 'c', text: 'When the loop completes normally (without break)' }, { id: 'd', text: 'Java has the same feature' }], correct: 'c', explanation: { tr: "Python\'a özgü: while...else bloğu döngü break ile sonlanmadıysa (normal bitti) çalışır. Java\'da bu özellik yoktur.", en: 'Python-specific: while...else runs only if the loop finished without hitting break. Java has no equivalent.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da for döngüsündeki 'else' bloğunun çalışma mantığı nedir?",
+            "en": "What is the execution logic of the 'else' block in a Python for loop?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Döngü her çalıştığında çalışır",
+                        "en": "It runs every time the loop executes"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Döngü bir break komutuyla kesilmediği sürece çalışır",
+                        "en": "It runs only if the loop is not terminated by a break statement"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece hata oluştuğunda çalışır",
+                        "en": "It runs only if an error occurs"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Döngü boşsa çalışır",
+                        "en": "It runs if the loop is empty"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da döngü (for veya while) eğer break komutuyla kesilmeden tüm öğeleri tüketirse veya koşul yanlışlanırsa else bloğu çalıştırılır.",
+            "en": "In Python, the else block executes if the loop (for or while) finishes iterating through all items or the condition becomes false without being interrupted by a break statement."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 16 — For Loops
@@ -953,7 +1662,49 @@ print(f"\nTotal: {len(results)}, Failed: {len(failures)}")` },
         { concept: { tr: 'Index + değer', en: 'Index + value' }, java: 'IntStream.range(0,n).forEach(i→...)', python: 'for i, v in enumerate(lst):' },
         { concept: { tr: 'Paralel iterasyon', en: 'Parallel iteration' }, java: 'Iterator + two lists manually', python: 'for a, b in zip(lst1, lst2):' },
       ]},
-      { type: 'quiz', question: { tr: 'range(2, 10, 3) hangi sayıları üretir?', en: 'What numbers does range(2, 10, 3) produce?' }, options: [{ id: 'a', text: '2, 3, 4, 5, 6, 7, 8, 9' }, { id: 'b', text: '2, 5, 8' }, { id: 'c', text: '2, 4, 6, 8' }, { id: 'd', text: '3, 6, 9' }], correct: 'b', explanation: { tr: 'range(start, stop, step) → 2\'den başla, 10\'dan önce dur, 3 adım at: 2, 5, 8. Java\'daki for(i=2; i<10; i+=3)\'e eşdeğer.', en: "range(start, stop, step) → start at 2, stop before 10, step 3: 2, 5, 8. Equivalent to Java's for(i=2; i<10; i+=3)." } },
+      { type: 'quiz', question: { tr: 'range(2, 10, 3) hangi sayıları üretir?', en: 'What numbers does range(2, 10, 3) produce?' }, options: [{ id: 'a', text: '2, 3, 4, 5, 6, 7, 8, 9' }, { id: 'b', text: '2, 5, 8' }, { id: 'c', text: '2, 4, 6, 8' }, { id: 'd', text: '3, 6, 9' }], correct: 'b', explanation: { tr: 'range(start, stop, step) → 2\'den başla, 10\'dan önce dur, 3 adım at: 2, 5, 8. Java\'daki for(i=2; i<10; i+=3)\'e eşdeğer.', en: "range(start, stop, step) → start at 2, stop before 10, step 3: 2, 5, 8. Equivalent to Java's for(i=2; i<10; i+=3)." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "range(1, 10, 2) fonksiyonu hangi sayı dizisini döndürür?",
+            "en": "What sequence of numbers does range(1, 10, 2) return?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "1, 2, 3, 4, 5, 6, 7, 8, 9",
+                        "en": "1, 2, 3, 4, 5, 6, 7, 8, 9"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "1, 3, 5, 7, 9",
+                        "en": "1, 3, 5, 7, 9"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "1, 4, 7",
+                        "en": "1, 4, 7"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "2, 4, 6, 8",
+                        "en": "2, 4, 6, 8"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "range(start, stop, step) fonksiyonu 1'den başlar, 10'dan küçük olan değerleri 2'şer artışla sıralar: 1, 3, 5, 7, 9.",
+            "en": "The range(start, stop, step) function starts at 1, goes up to but not including 10, incrementing by 2: 1, 3, 5, 7, 9."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 17 — Functions
@@ -1020,7 +1771,49 @@ print(f"Pass rate: {calculate_pass_rate(0, 50)}%")` },
         { concept: { tr: 'Named args', en: 'Named args (kwargs)' }, java: 'No equivalent', python: '**kwargs or name=value calls' },
         { concept: { tr: 'Çoklu dönüş', en: 'Return multiple' }, java: 'array or wrapper class', python: 'return a, b  (tuple)' },
       ]},
-      { type: 'quiz', question: { tr: "Python\'da fonksiyon tanımlamak için hangi keyword kullanılır?", en: 'Which keyword defines a function in Python?' }, options: [{ id: 'a', text: 'function' }, { id: 'b', text: 'def' }, { id: 'c', text: 'func' }, { id: 'd', text: 'method' }], correct: 'b', explanation: { tr: "\"def\" (define\'ın kısası) Python\'da fonksiyon tanımlar. JavaScript\'te \"function\", Java\'da tip ve isim yeterlidir.", en: '"def" (short for define) creates a Python function. JavaScript uses "function", Java just needs type and name.' } },
+      { type: 'quiz', question: { tr: "Python\'da fonksiyon tanımlamak için hangi keyword kullanılır?", en: 'Which keyword defines a function in Python?' }, options: [{ id: 'a', text: 'function' }, { id: 'b', text: 'def' }, { id: 'c', text: 'func' }, { id: 'd', text: 'method' }], correct: 'b', explanation: { tr: "\"def\" (define\'ın kısası) Python\'da fonksiyon tanımlar. JavaScript\'te \"function\", Java\'da tip ve isim yeterlidir.", en: '"def" (short for define) creates a Python function. JavaScript uses "function", Java just needs type and name.' } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da isimsiz (lambda) fonksiyonları oluşturmak için kullanılan anahtar kelime nedir?",
+            "en": "Which keyword is used to create anonymous (lambda) functions in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "anon",
+                        "en": "anon"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "lambda",
+                        "en": "lambda"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "def",
+                        "en": "def"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "inline",
+                        "en": "inline"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da 'lambda' anahtar kelimesi, 'def' anahtar kelimesiyle tanımlanan standart fonksiyonların aksine, tek satırlık isimsiz fonksiyonlar oluşturmak için kullanılır.",
+            "en": "The 'lambda' keyword in Python is used to create small, anonymous functions in a single line, unlike standard functions defined with the 'def' keyword."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 18 — Lambda
@@ -1082,7 +1875,37 @@ print("\nFailures:", [r["test"] for r in failures])` },
         { concept: { tr: 'Sort ile kullan', en: 'Use with sort' }, java: 'list.sort(Comparator.comparing(t -> t.name))', python: 'list.sort(key=lambda t: t["name"])' },
         { concept: { tr: 'Filter ile kullan', en: 'Use with filter' }, java: 'stream().filter(x -> x > 5)', python: 'filter(lambda x: x > 5, list)' },
       ]},
-      { type: 'quiz', question: { tr: 'lambda x, y: x + y ifadesi ne işe yarar?', en: 'What does lambda x, y: x + y do?' }, options: [{ id: 'a', text: 'Returns x only' }, { id: 'b', text: 'Creates an anonymous function that returns x + y' }, { id: 'c', text: 'Prints x + y' }, { id: 'd', text: 'Creates a list' }], correct: 'b', explanation: { tr: "Lambda, iki parametre alan ve toplamlarını döndüren isimsiz bir fonksiyon oluşturur. Java\'daki (x, y) -> x + y ile aynı.", en: "Lambda creates an anonymous function with two parameters that returns their sum. Same as Java\'s (x, y) -> x + y." } },
+      { type: 'quiz', question: { tr: 'lambda x, y: x + y ifadesi ne işe yarar?', en: 'What does lambda x, y: x + y do?' }, options: [{ id: 'a', text: 'Returns x only' }, { id: 'b', text: 'Creates an anonymous function that returns x + y' }, { id: 'c', text: 'Prints x + y' }, { id: 'd', text: 'Creates a list' }], correct: 'b', explanation: { tr: "Lambda, iki parametre alan ve toplamlarını döndüren isimsiz bir fonksiyon oluşturur. Java\'daki (x, y) -> x + y ile aynı.", en: "Lambda creates an anonymous function with two parameters that returns their sum. Same as Java\'s (x, y) -> x + y." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "lambda a, b: a * b ifadesi neyi temsil eder?",
+            "en": "What does lambda a, b: a * b represent?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "İki sayının çarpımını döndüren isimsiz bir fonksiyon"
+            },
+            {
+                  "id": "b",
+                  "text": "İki sayıyı çarpan bir sınıf"
+            },
+            {
+                  "id": "c",
+                  "text": "İki sayının çarpımını ekrana yazdıran bir metod"
+            },
+            {
+                  "id": "d",
+                  "text": "a ve b değişkenlerini içeren bir tuple"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Lambda fonksiyonları tek satırda isimsiz (anonim) fonksiyonlar tanımlamaya yarar. Burada a ve b parametreleri çarpılarak sonuç döndürülmektedir.",
+            "en": "Lambda functions are used to define anonymous functions in a single line. Here, it multiplies the parameters a and b and returns the result."
+      }
+}
+},
 
       // Section interview questions
       { type: 'interview-questions', topic: 'Python Intermediate', questions: [
@@ -1161,7 +1984,37 @@ acc.withdraw(2000)` },
         { concept: 'toString', java: '@Override public String toString()', python: 'def __str__(self):' },
         { concept: 'Access modifier', java: 'private int x; (enforced)', python: '_x or __x (convention only)' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da __init__ metodunun ilk parametresi nedir?", en: 'What is the first parameter of a Python __init__ method?' }, options: [{ id: 'a', text: 'this' }, { id: 'b', text: 'self' }, { id: 'c', text: 'cls' }, { id: 'd', text: 'me' }], correct: 'b', explanation: { tr: "'self' bu sınıfın o anki instance'ını temsil eder — Java'daki 'this' gibi. Python'da her instance metoduna açıkça yazılır.", en: "'self' represents the current instance of the class — like Java's 'this'. It must be written explicitly in every instance method in Python." } },
+      { type: 'quiz', question: { tr: "Python'da __init__ metodunun ilk parametresi nedir?", en: 'What is the first parameter of a Python __init__ method?' }, options: [{ id: 'a', text: 'this' }, { id: 'b', text: 'self' }, { id: 'c', text: 'cls' }, { id: 'd', text: 'me' }], correct: 'b', explanation: { tr: "'self' bu sınıfın o anki instance'ını temsil eder — Java'daki 'this' gibi. Python'da her instance metoduna açıkça yazılır.", en: "'self' represents the current instance of the class — like Java's 'this'. It must be written explicitly in every instance method in Python." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python sınıf metodlarında (instance methods) nesnenin kendisini ifade eden standart parametre adı nedir?",
+            "en": "What is the standard parameter name for the object itself in Python instance methods?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "instance"
+            },
+            {
+                  "id": "b",
+                  "text": "self"
+            },
+            {
+                  "id": "c",
+                  "text": "this"
+            },
+            {
+                  "id": "d",
+                  "text": "current"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python'da instance metodlarının ilk parametresi, nesnenin kendisine referans verir ve geleneksel olarak 'self' adıyla tanımlanır.",
+            "en": "In Python, the first parameter of instance methods refers to the object itself and is conventionally named 'self'."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 20 — Inheritance
@@ -1228,7 +2081,37 @@ for a in animals:
         { concept: 'Override', java: '@Override void speak()', python: 'def speak(self): (no annotation)' },
         { concept: 'Multiple inheritance', java: 'Not supported (use interface)', python: 'class C(A, B): # supported!' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da parent class constructor'ını çağırmak için ne kullanılır?", en: 'How do you call the parent class constructor in Python?' }, options: [{ id: 'a', text: 'parent().__init__()' }, { id: 'b', text: 'super().__init__()' }, { id: 'c', text: 'this.__init__()' }, { id: 'd', text: 'base.__init__()' }], correct: 'b', explanation: { tr: "super().__init__() parent class'ın constructor'ını çağırır. Java'daki super() gibi — ama Python'da açıkça super().__init__() yazılır.", en: "super().__init__() calls the parent class constructor. Like Java's super() — but in Python you must explicitly call super().__init__()." } },
+      { type: 'quiz', question: { tr: "Python'da parent class constructor'ını çağırmak için ne kullanılır?", en: 'How do you call the parent class constructor in Python?' }, options: [{ id: 'a', text: 'parent().__init__()' }, { id: 'b', text: 'super().__init__()' }, { id: 'c', text: 'this.__init__()' }, { id: 'd', text: 'base.__init__()' }], correct: 'b', explanation: { tr: "super().__init__() parent class'ın constructor'ını çağırır. Java'daki super() gibi — ama Python'da açıkça super().__init__() yazılır.", en: "super().__init__() calls the parent class constructor. Like Java's super() — but in Python you must explicitly call super().__init__()." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir alt sınıf (child class) içinde üst sınıfın (parent class) constructor metodunu tetiklemek için hangi yapı kullanılır?",
+            "en": "Which structure is used to trigger the parent class constructor within a child class?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "parent.init()"
+            },
+            {
+                  "id": "b",
+                  "text": "super().__init__()"
+            },
+            {
+                  "id": "c",
+                  "text": "base.constructor()"
+            },
+            {
+                  "id": "d",
+                  "text": "self.parent()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "super() fonksiyonu, üst sınıfın metodlarına erişmemizi sağlar. Constructor'ı çağırmak için __init__ metodunu super() üzerinden çağırmamız gerekir.",
+            "en": "The super() function allows access to parent class methods. To call the constructor, we must invoke the __init__ method via super()."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 21 — Scope
@@ -1285,7 +2168,49 @@ add(5)
 add(3)
 add(2)
 print(f"Total: {total}")        # Should print 10` },
-      { type: 'quiz', question: { tr: "Python'da LEGB kuralında 'E' neyi temsil eder?", en: "In Python's LEGB rule, what does 'E' stand for?" }, options: [{ id: 'a', text: 'External' }, { id: 'b', text: 'Enclosing' }, { id: 'c', text: 'Exported' }, { id: 'd', text: 'Extended' }], correct: 'b', explanation: { tr: "LEGB = Local, Enclosing, Global, Built-in. Python değişkeni bu sırayla arar. Enclosing, iç içe fonksiyonlarda dıştaki fonksiyonun kapsamını ifade eder.", en: "LEGB = Local, Enclosing, Global, Built-in. Python searches for variables in this order. Enclosing refers to the scope of outer functions in nested function definitions." } },
+      { type: 'quiz', question: { tr: "Python'da LEGB kuralında 'E' neyi temsil eder?", en: "In Python's LEGB rule, what does 'E' stand for?" }, options: [{ id: 'a', text: 'External' }, { id: 'b', text: 'Enclosing' }, { id: 'c', text: 'Exported' }, { id: 'd', text: 'Extended' }], correct: 'b', explanation: { tr: "LEGB = Local, Enclosing, Global, Built-in. Python değişkeni bu sırayla arar. Enclosing, iç içe fonksiyonlarda dıştaki fonksiyonun kapsamını ifade eder.", en: "LEGB = Local, Enclosing, Global, Built-in. Python searches for variables in this order. Enclosing refers to the scope of outer functions in nested function definitions." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'daki LEGB kuralına göre, bir değişken tanımlı olduğu yerel kapsama (local) sahip değilse, Python değişkeni bir sonraki aşamada nerede arar?",
+            "en": "According to the LEGB rule in Python, if a variable is not found in the local scope, where does Python search for it next?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Global kapsam",
+                        "en": "Global scope"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Enclosing kapsam",
+                        "en": "Enclosing scope"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Built-in kapsam",
+                        "en": "Built-in scope"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "External kapsam",
+                        "en": "External scope"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Python, değişkenleri LEGB sırasıyla arar: Local (Yerel), Enclosing (Kapsayan), Global ve Built-in. Yerel kapsamda bulunamayan bir değişken önce bir dış fonksiyonun kapsamında (Enclosing) aranır.",
+            "en": "Python searches for variables in the LEGB order: Local, Enclosing, Global, and Built-in. If a variable is not found in the local scope, it is next searched for in the Enclosing (outer function) scope."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 22 — Modules
@@ -1331,7 +2256,49 @@ def generate_user():
 for i in range(3):
     user = generate_user()
     print(user)` },
-      { type: 'quiz', question: { tr: "Python'da math modülünden sadece sqrt fonksiyonunu import etmek için hangi syntax kullanılır?", en: 'Which syntax imports only sqrt from the math module?' }, options: [{ id: 'a', text: 'import math.sqrt' }, { id: 'b', text: 'from math import sqrt' }, { id: 'c', text: 'include math: sqrt' }, { id: 'd', text: 'using math import sqrt' }], correct: 'b', explanation: { tr: "'from math import sqrt' sadece sqrt'yi import eder. Java'daki static import gibi: import static java.lang.Math.sqrt; Python'da bu şekilde kullanılır.", en: "'from math import sqrt' imports only sqrt. Like Java's static import: import static java.lang.Math.sqrt; This is the Python equivalent." } },
+      { type: 'quiz', question: { tr: "Python'da math modülünden sadece sqrt fonksiyonunu import etmek için hangi syntax kullanılır?", en: 'Which syntax imports only sqrt from the math module?' }, options: [{ id: 'a', text: 'import math.sqrt' }, { id: 'b', text: 'from math import sqrt' }, { id: 'c', text: 'include math: sqrt' }, { id: 'd', text: 'using math import sqrt' }], correct: 'b', explanation: { tr: "'from math import sqrt' sadece sqrt'yi import eder. Java'daki static import gibi: import static java.lang.Math.sqrt; Python'da bu şekilde kullanılır.", en: "'from math import sqrt' imports only sqrt. Like Java's static import: import static java.lang.Math.sqrt; This is the Python equivalent." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 'random' modülü içerisinden 'randint' fonksiyonunu doğrudan çağırmak için doğru import ifadesi hangisidir?",
+            "en": "Which import statement allows you to call the 'randint' function directly from the 'random' module?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "import random.randint",
+                        "en": "import random.randint"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "from random import randint",
+                        "en": "from random import randint"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "get random.randint",
+                        "en": "get random.randint"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "include random: randint",
+                        "en": "include random: randint"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "'from module_name import function_name' yapısı, belirtilen fonksiyonu mevcut isim uzayına doğrudan aktarır, böylece modül adını belirtmeden çağırabiliriz.",
+            "en": "The 'from module_name import function_name' structure imports the specified function directly into the current namespace, allowing you to call it without prefixing the module name."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 23 — Try...Except (Error Handling)
@@ -1401,7 +2368,49 @@ print(get_user_age({"name": "Ali"}, "age"))       # KeyError` },
         { concept: 'Multiple catches', java: 'catch (A | B e)', python: 'except (A, B) as e:' },
         { concept: 'Else (no exception)', java: 'not available', python: 'else: (runs if no exception)' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da exception olmadığında çalışan blok hangisidir?", en: 'Which block in Python runs only when no exception occurs?' }, options: [{ id: 'a', text: 'finally' }, { id: 'b', text: 'else' }, { id: 'c', text: 'clean' }, { id: 'd', text: 'ok' }], correct: 'b', explanation: { tr: "'else' bloğu try bloğu exception fırlatmadan tamamlandığında çalışır. Java'da bu bloğun karşılığı yok — Python'a özgü.", en: "The 'else' block runs only when the try block completes without raising an exception. Java has no equivalent — this is unique to Python." } },
+      { type: 'quiz', question: { tr: "Python'da exception olmadığında çalışan blok hangisidir?", en: 'Which block in Python runs only when no exception occurs?' }, options: [{ id: 'a', text: 'finally' }, { id: 'b', text: 'else' }, { id: 'c', text: 'clean' }, { id: 'd', text: 'ok' }], correct: 'b', explanation: { tr: "'else' bloğu try bloğu exception fırlatmadan tamamlandığında çalışır. Java'da bu bloğun karşılığı yok — Python'a özgü.", en: "The 'else' block runs only when the try block completes without raising an exception. Java has no equivalent — this is unique to Python." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'daki 'try-except-else-finally' yapısında, hata oluşsa da oluşmasa da kodun her zaman çalışmasını istediğimiz blok hangisidir?",
+            "en": "In the 'try-except-else-finally' structure in Python, which block is guaranteed to run regardless of whether an exception occurs?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "finally",
+                        "en": "finally"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "else",
+                        "en": "else"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "catch",
+                        "en": "catch"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "except",
+                        "en": "except"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "'finally' bloğu, try-except süreci nasıl sonuçlanırsa sonuçlansın (hata olsa da olmasa da) kaynakları serbest bırakmak veya temizlik yapmak için her zaman çalıştırılır.",
+            "en": "The 'finally' block is always executed regardless of how the try-except block finishes, making it ideal for cleanup operations or closing resources."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 24 — JSON
@@ -1463,7 +2472,37 @@ print(f"Total: {len(data['results'])}, Failed: {len(failed)}")
 if failed:
     for f in failed:
         print(f"  FAIL: {f['name']} ({f['ms']}ms)")` },
-      { type: 'quiz', question: { tr: "Python'da dict'i JSON string'e dönüştüren fonksiyon hangisidir?", en: 'Which function converts a Python dict to a JSON string?' }, options: [{ id: 'a', text: 'json.stringify()' }, { id: 'b', text: 'json.encode()' }, { id: 'c', text: 'json.dumps()' }, { id: 'd', text: 'json.serialize()' }], correct: 'c', explanation: { tr: "json.dumps() (dump string) Python nesnesini JSON string'e çevirir. json.loads() (load string) tersini yapar. JavaScript'teki JSON.stringify() ve JSON.parse() gibi.", en: "json.dumps() (dump string) converts Python objects to JSON string. json.loads() (load string) does the reverse. Like JavaScript's JSON.stringify() and JSON.parse()." } },
+      { type: 'quiz', question: { tr: "Python'da dict'i JSON string'e dönüştüren fonksiyon hangisidir?", en: 'Which function converts a Python dict to a JSON string?' }, options: [{ id: 'a', text: 'json.stringify()' }, { id: 'b', text: 'json.encode()' }, { id: 'c', text: 'json.dumps()' }, { id: 'd', text: 'json.serialize()' }], correct: 'c', explanation: { tr: "json.dumps() (dump string) Python nesnesini JSON string'e çevirir. json.loads() (load string) tersini yapar. JavaScript'teki JSON.stringify() ve JSON.parse() gibi.", en: "json.dumps() (dump string) converts Python objects to JSON string. json.loads() (load string) does the reverse. Like JavaScript's JSON.stringify() and JSON.parse()." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir JSON string'ini Python sözlüğüne (dict) dönüştüren fonksiyon hangisidir?",
+            "en": "Which function converts a JSON string to a Python dictionary?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "json.loads()"
+            },
+            {
+                  "id": "b",
+                  "text": "json.load()"
+            },
+            {
+                  "id": "c",
+                  "text": "json.parse()"
+            },
+            {
+                  "id": "d",
+                  "text": "json.decode()"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "json.loads() (load string) bir JSON verisini Python nesnesine dönüştürür. json.dump() veya json.dumps() ise tersi yönde, Python nesnesini JSON verisine dönüştürür.",
+            "en": "json.loads() (load string) converts JSON data into a Python object. Conversely, json.dump() or json.dumps() convert Python objects into JSON data."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 25 — RegEx
@@ -1510,7 +2549,49 @@ phones = ["+90-555-123-4567", "05551234567", "5551234", "+1-555-123-4567"]
 for phone in phones:
     valid = bool(re.match(phone_pattern, phone))
     print(f"{phone}: {'VALID' if valid else 'INVALID'}")` },
-      { type: 'quiz', question: { tr: "re.findall() ve re.search() arasındaki fark nedir?", en: 'What is the difference between re.findall() and re.search()?' }, options: [{ id: 'a', text: { tr: 'Hiçbir fark yok', en: 'No difference' } }, { id: 'b', text: { tr: 'findall tüm eşleşmeleri listeler, search ilkini bulur', en: 'findall returns all matches as list, search returns first match object' } }, { id: 'c', text: { tr: 'search sadece başlangıçta arar', en: 'search only checks at the start' } }, { id: 'd', text: { tr: 'findall büyük/küçük harf duyarsız', en: 'findall is case-insensitive' } }], correct: 'b', explanation: { tr: "re.findall() tüm eşleşmeleri string listesi olarak döner. re.search() ilk eşleşmeyi Match nesnesi olarak döner — veya None. .group() ile eşleşen metni alırsın.", en: "re.findall() returns all matches as a list of strings. re.search() returns the first match as a Match object — or None. Use .group() to get the matched text." } },
+      { type: 'quiz', question: { tr: "re.findall() ve re.search() arasındaki fark nedir?", en: 'What is the difference between re.findall() and re.search()?' }, options: [{ id: 'a', text: { tr: 'Hiçbir fark yok', en: 'No difference' } }, { id: 'b', text: { tr: 'findall tüm eşleşmeleri listeler, search ilkini bulur', en: 'findall returns all matches as list, search returns first match object' } }, { id: 'c', text: { tr: 'search sadece başlangıçta arar', en: 'search only checks at the start' } }, { id: 'd', text: { tr: 'findall büyük/küçük harf duyarsız', en: 'findall is case-insensitive' } }], correct: 'b', explanation: { tr: "re.findall() tüm eşleşmeleri string listesi olarak döner. re.search() ilk eşleşmeyi Match nesnesi olarak döner — veya None. .group() ile eşleşen metni alırsın.", en: "re.findall() returns all matches as a list of strings. re.search() returns the first match as a Match object — or None. Use .group() to get the matched text." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "re.match() ve re.search() metodları arasındaki temel fark nedir?",
+            "en": "What is the main difference between re.match() and re.search() methods?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Hiçbir fark yoktur",
+                        "en": "There is no difference"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "re.match() sadece string'in başındaki eşleşmeleri kontrol eder",
+                        "en": "re.match() only checks for a match at the beginning of the string"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "re.match() tüm eşleşmeleri döndürür",
+                        "en": "re.match() returns all matches"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "re.search() sadece ilk karakteri kontrol eder",
+                        "en": "re.search() only checks the first character"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "re.match() yalnızca string'in başlangıcında bir eşleşme arar. re.search() ise tüm string içerisinde herhangi bir yerdeki ilk eşleşmeyi tarar.",
+            "en": "re.match() only checks for a match at the beginning of the string. re.search() scans through the entire string to find the first occurrence of the pattern."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 26 — Comprehensions
@@ -1570,7 +2651,37 @@ avg = sum(passed) / len(passed) if passed else 0
 
 print(f"Failed: {failed}")
 print(f"Avg duration of passed tests: {avg:.0f}ms")` },
-      { type: 'quiz', question: { tr: "[x*2 for x in range(5) if x % 2 == 0] ne üretir?", en: 'What does [x*2 for x in range(5) if x % 2 == 0] produce?' }, options: [{ id: 'a', text: '[0, 2, 4, 6, 8]' }, { id: 'b', text: '[0, 4, 8]' }, { id: 'c', text: '[0, 2, 4]' }, { id: 'd', text: '[2, 4, 6, 8, 10]' }], correct: 'b', explanation: { tr: "range(5) = 0,1,2,3,4. x%2==0 filtrelemesi: 0,2,4 kalır. x*2 işlemi: 0,4,8. Sonuç: [0, 4, 8].", en: "range(5) = 0,1,2,3,4. Filter x%2==0 keeps 0,2,4. Then x*2 gives 0,4,8. Result: [0, 4, 8]." } },
+      { type: 'quiz', question: { tr: "[x*2 for x in range(5) if x % 2 == 0] ne üretir?", en: 'What does [x*2 for x in range(5) if x % 2 == 0] produce?' }, options: [{ id: 'a', text: '[0, 2, 4, 6, 8]' }, { id: 'b', text: '[0, 4, 8]' }, { id: 'c', text: '[0, 2, 4]' }, { id: 'd', text: '[2, 4, 6, 8, 10]' }], correct: 'b', explanation: { tr: "range(5) = 0,1,2,3,4. x%2==0 filtrelemesi: 0,2,4 kalır. x*2 işlemi: 0,4,8. Sonuç: [0, 4, 8].", en: "range(5) = 0,1,2,3,4. Filter x%2==0 keeps 0,2,4. Then x*2 gives 0,4,8. Result: [0, 4, 8]." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "[x+1 for x in range(4) if x > 1] ifadesinin sonucu nedir?",
+            "en": "What is the result of [x+1 for x in range(4) if x > 1]?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "[2, 3, 4]"
+            },
+            {
+                  "id": "b",
+                  "text": "[1, 2, 3]"
+            },
+            {
+                  "id": "c",
+                  "text": "[3, 4]"
+            },
+            {
+                  "id": "d",
+                  "text": "[2, 3]"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "range(4) değerleri 0, 1, 2, 3'tür. x > 1 koşulu sağlandığında sadece 2 ve 3 değerleri kalır. x+1 işlemi uygulandığında sonuç [3, 4] olur.",
+            "en": "range(4) produces 0, 1, 2, 3. The condition x > 1 filters these to only 2 and 3. Applying x+1 to these results in [3, 4]."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 27 — Iterators
@@ -1625,7 +2736,37 @@ def generate_test_users(count):
 # Only processes one user at a time — memory efficient!
 for user in generate_test_users(5):
     print(user)` },
-      { type: 'quiz', question: { tr: "Python'da bir generator fonksiyonu oluşturmak için hangi keyword kullanılır?", en: 'Which keyword is used to create a generator function in Python?' }, options: [{ id: 'a', text: 'return' }, { id: 'b', text: 'generate' }, { id: 'c', text: 'yield' }, { id: 'd', text: 'next' }], correct: 'c', explanation: { tr: "'yield' ile normal fonksiyon generator'a dönüşür. Her yield çağrısında değer döner ve fonksiyon duraklar. Java'da bu pattern için Iterator interface'i implement edilir.", en: "'yield' turns a normal function into a generator. Each yield returns a value and pauses the function. In Java, you'd implement the Iterator interface for this pattern." } },
+      { type: 'quiz', question: { tr: "Python'da bir generator fonksiyonu oluşturmak için hangi keyword kullanılır?", en: 'Which keyword is used to create a generator function in Python?' }, options: [{ id: 'a', text: 'return' }, { id: 'b', text: 'generate' }, { id: 'c', text: 'yield' }, { id: 'd', text: 'next' }], correct: 'c', explanation: { tr: "'yield' ile normal fonksiyon generator'a dönüşür. Her yield çağrısında değer döner ve fonksiyon duraklar. Java'da bu pattern için Iterator interface'i implement edilir.", en: "'yield' turns a normal function into a generator. Each yield returns a value and pauses the function. In Java, you'd implement the Iterator interface for this pattern." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da bir generator nesnesi döndüren bir fonksiyon yazarken değerleri teker teker üretmek için hangi anahtar kelime tercih edilir?",
+            "en": "Which keyword is preferred to produce values one by one when writing a function that returns a generator object in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "def"
+            },
+            {
+                  "id": "b",
+                  "text": "return"
+            },
+            {
+                  "id": "c",
+                  "text": "yield"
+            },
+            {
+                  "id": "d",
+                  "text": "emit"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "'yield' anahtar kelimesi fonksiyonun durumunu kaydeder ve bir sonraki çağrıya kadar bekletir. Bu, hafıza yönetimi açısından verimli bir şekilde veri akışı sağlar.",
+            "en": "The 'yield' keyword saves the state of the function and pauses it until the next call. This allows for memory-efficient data streaming."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 28 — Decorators
@@ -1702,7 +2843,49 @@ def slow_function(n):
 
 result = slow_function(100000)
 print(f"Result: {result}")` },
-      { type: 'quiz', question: { tr: "@functools.wraps(func) ne işe yarar?", en: 'What does @functools.wraps(func) do in a decorator?' }, options: [{ id: 'a', text: { tr: 'Fonksiyonu kopyalar', en: 'Copies the function' } }, { id: 'b', text: { tr: "Wrapper'ın orijinal fonksiyonun adını ve docstring'ini korumasını sağlar", en: "Preserves the original function's name and docstring on the wrapper" } }, { id: 'c', text: { tr: 'Decorator olmadan çağrılmasını sağlar', en: 'Allows calling without the decorator' } }, { id: 'd', text: { tr: 'Performansı artırır', en: 'Improves performance' } }], correct: 'b', explanation: { tr: "@functools.wraps(func) olmadan, wrapper.__name__ 'wrapper' olur. Wraps ile orijinal fonksiyonun adı ve docstring'i korunur — debugging ve logging için önemli.", en: "Without @functools.wraps(func), wrapper.__name__ would be 'wrapper'. Wraps preserves the original name and docstring — important for debugging and logging." } },
+      { type: 'quiz', question: { tr: "@functools.wraps(func) ne işe yarar?", en: 'What does @functools.wraps(func) do in a decorator?' }, options: [{ id: 'a', text: { tr: 'Fonksiyonu kopyalar', en: 'Copies the function' } }, { id: 'b', text: { tr: "Wrapper'ın orijinal fonksiyonun adını ve docstring'ini korumasını sağlar", en: "Preserves the original function's name and docstring on the wrapper" } }, { id: 'c', text: { tr: 'Decorator olmadan çağrılmasını sağlar', en: 'Allows calling without the decorator' } }, { id: 'd', text: { tr: 'Performansı artırır', en: 'Improves performance' } }], correct: 'b', explanation: { tr: "@functools.wraps(func) olmadan, wrapper.__name__ 'wrapper' olur. Wraps ile orijinal fonksiyonun adı ve docstring'i korunur — debugging ve logging için önemli.", en: "Without @functools.wraps(func), wrapper.__name__ would be 'wrapper'. Wraps preserves the original name and docstring — important for debugging and logging." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da dekoratör yazarken dekoratörün meta verileri bozmasını engellemek için kullanılan standart araç nedir?",
+            "en": "What is the standard tool used in Python to prevent a decorator from corrupting the metadata of the wrapped function?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "@functools.lru_cache",
+                        "en": "@functools.lru_cache"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "@functools.wraps",
+                        "en": "@functools.wraps"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "@staticmethod",
+                        "en": "@staticmethod"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "@classmethod",
+                        "en": "@classmethod"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "@functools.wraps, orijinal fonksiyonun niteliklerini (name, docstring, vb.) wrapper fonksiyonuna kopyalayarak fonksiyonun sanki orijinal haliymiş gibi davranmasını sağlar.",
+            "en": "@functools.wraps copies the attributes (name, docstring, etc.) of the original function to the wrapper, ensuring the function behaves as its original self."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 29 — Context Managers
@@ -1775,7 +2958,49 @@ with assert_raises(ZeroDivisionError):
 
 with assert_raises(ValueError):
     int("not a number")` },
-      { type: 'quiz', question: { tr: "Python'da with statement kullanmanın temel avantajı nedir?", en: 'What is the main advantage of using a with statement in Python?' }, options: [{ id: 'a', text: { tr: 'Daha hızlı çalışır', en: 'It runs faster' } }, { id: 'b', text: { tr: 'Exception olsa bile cleanup kodu garanti çalışır', en: 'Cleanup code runs guaranteed even if an exception occurs' } }, { id: 'c', text: { tr: 'Sadece dosya işlemleri için kullanılır', en: 'Can only be used with files' } }, { id: 'd', text: { tr: "try/except'e gerek bırakmaz", en: "Eliminates the need for try/except" } }], correct: 'b', explanation: { tr: "with statement, __exit__ metodunun exception durumunda bile çalışmasını garanti eder. Java'daki try-with-resources gibi: try (Resource r = new Resource()). Kaynak sızıntısını önler.", en: "The with statement guarantees __exit__ runs even if an exception occurs. Like Java's try-with-resources: try (Resource r = new Resource()). Prevents resource leaks." } },
+      { type: 'quiz', question: { tr: "Python'da with statement kullanmanın temel avantajı nedir?", en: 'What is the main advantage of using a with statement in Python?' }, options: [{ id: 'a', text: { tr: 'Daha hızlı çalışır', en: 'It runs faster' } }, { id: 'b', text: { tr: 'Exception olsa bile cleanup kodu garanti çalışır', en: 'Cleanup code runs guaranteed even if an exception occurs' } }, { id: 'c', text: { tr: 'Sadece dosya işlemleri için kullanılır', en: 'Can only be used with files' } }, { id: 'd', text: { tr: "try/except'e gerek bırakmaz", en: "Eliminates the need for try/except" } }], correct: 'b', explanation: { tr: "with statement, __exit__ metodunun exception durumunda bile çalışmasını garanti eder. Java'daki try-with-resources gibi: try (Resource r = new Resource()). Kaynak sızıntısını önler.", en: "The with statement guarantees __exit__ runs even if an exception occurs. Like Java's try-with-resources: try (Resource r = new Resource()). Prevents resource leaks." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da bağlam yöneticilerinin (context managers) 'with' bloğu ile kullanılmasının sağladığı temel teknik kazanç nedir?",
+            "en": "What is the core technical benefit of using context managers with the 'with' block in Python?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Kodun satır sayısını azaltması",
+                        "en": "Reduces lines of code"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Kaynakların otomatik ve güvenli bir şekilde kapatılması (Resource management)",
+                        "en": "Automatic and safe resource management"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Değişkenlerin kapsamını kısıtlaması",
+                        "en": "Limits variable scope"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Tip güvenliğini artırması",
+                        "en": "Improves type safety"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "with bloğu, __enter__ ve __exit__ metodlarını tetikleyerek hata oluşsa dahi kaynakların (dosya, socket, veritabanı bağlantısı) serbest bırakılmasını sağlar.",
+            "en": "The with block triggers __enter__ and __exit__ methods, ensuring that resources (files, sockets, database connections) are released even if an error occurs."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 30 — Type Hints
@@ -1849,7 +3074,49 @@ print(suite.get_test(99))   # Should return None` },
         { concept: 'Map type', java: 'Map<String, Integer>', python: 'Dict[str, int]' },
         { concept: 'Type check tool', java: 'javac (compile time)', python: 'mypy (separate tool)' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da Optional[str] ne anlama gelir?", en: 'What does Optional[str] mean in Python type hints?' }, options: [{ id: 'a', text: { tr: 'Sadece string olabilir', en: 'Can only be a string' } }, { id: 'b', text: { tr: 'String veya None olabilir', en: 'Can be a string or None' } }, { id: 'c', text: { tr: 'Tip belirtmek isteğe bağlı', en: 'The type hint is optional' } }, { id: 'd', text: { tr: 'Birden fazla string', en: 'Multiple strings' } }], correct: 'b', explanation: { tr: "Optional[str] = Union[str, None] — değer str veya None olabilir. Java'daki Optional<String> ile benzer ama Python'da None döndürebilecek fonksiyonlarda yaygın.", en: "Optional[str] = Union[str, None] — the value can be str or None. Similar to Java's Optional<String> but commonly used in Python for functions that might return None." } },
+      { type: 'quiz', question: { tr: "Python'da Optional[str] ne anlama gelir?", en: 'What does Optional[str] mean in Python type hints?' }, options: [{ id: 'a', text: { tr: 'Sadece string olabilir', en: 'Can only be a string' } }, { id: 'b', text: { tr: 'String veya None olabilir', en: 'Can be a string or None' } }, { id: 'c', text: { tr: 'Tip belirtmek isteğe bağlı', en: 'The type hint is optional' } }, { id: 'd', text: { tr: 'Birden fazla string', en: 'Multiple strings' } }], correct: 'b', explanation: { tr: "Optional[str] = Union[str, None] — değer str veya None olabilir. Java'daki Optional<String> ile benzer ama Python'da None döndürebilecek fonksiyonlarda yaygın.", en: "Optional[str] = Union[str, None] — the value can be str or None. Similar to Java's Optional<String> but commonly used in Python for functions that might return None." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da Union[int, float] ifadesi neyi ifade eder?",
+            "en": "What does Union[int, float] signify in Python type hints?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece tamsayılar kabul edilir",
+                        "en": "Only integers are accepted"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Değer bir int veya float olabilir",
+                        "en": "The value can be an int or a float"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Değerlerin toplamı tipidir",
+                        "en": "It is the sum of both types"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Değer None olamaz",
+                        "en": "The value cannot be None"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Union, bir değişkenin belirtilen tiplerden herhangi birine sahip olabileceğini gösterir. Union[int, float], değerin ya bir tamsayı ya da bir kayan noktalı sayı olabileceği anlamına gelir.",
+            "en": "Union indicates that a variable can be any of the specified types. Union[int, float] means the value can be either an integer or a floating-point number."
+      }
+}
+},
 
       // ─── Interview Questions for Advanced Topics ───────────────────────────
       { type: 'interview-questions', topic: 'Python Advanced', questions: [
@@ -1930,7 +3197,49 @@ for runner in runners:
         { concept: { tr: 'Runtime type check', en: 'Runtime type check' }, java: 'instanceof', python: 'isinstance(obj, ClassName)' },
         { concept: { tr: 'Override', en: 'Method override' }, java: '@Override annotation', python: 'Just define same method name' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da duck typing ne anlama gelir?", en: 'What does duck typing mean in Python?' }, options: [{ id: 'a', text: { tr: 'Sadece Duck sınıfıyla çalışır', en: 'Works only with Duck class' } }, { id: 'b', text: { tr: 'Nesnenin tipi değil, hangi metodları sağladığı önemlidir', en: "An object's type doesn't matter — only whether it has the required methods" } }, { id: 'c', text: { tr: 'Interface zorunludur', en: 'Interface is required' } }, { id: 'd', text: { tr: 'Java polymorphism ile aynıdır', en: 'Same as Java polymorphism' } }], correct: 'b', explanation: { tr: "Duck typing: 'Eğer ördek gibi yürüyorsa ve vaklıyorsa, o bir ördektir.' Python nesnelerin tipini değil, çağrılan metodun varlığını kontrol eder. Java'da interface zorunluyken Python'da duck typing ile herhangi bir sınıf çalışır.", en: "Duck typing: 'If it walks like a duck and quacks like a duck, it's a duck.' Python checks if the method exists, not the object's type. Java requires an interface; Python's duck typing works with any class that has the method." } },
+      { type: 'quiz', question: { tr: "Python'da duck typing ne anlama gelir?", en: 'What does duck typing mean in Python?' }, options: [{ id: 'a', text: { tr: 'Sadece Duck sınıfıyla çalışır', en: 'Works only with Duck class' } }, { id: 'b', text: { tr: 'Nesnenin tipi değil, hangi metodları sağladığı önemlidir', en: "An object's type doesn't matter — only whether it has the required methods" } }, { id: 'c', text: { tr: 'Interface zorunludur', en: 'Interface is required' } }, { id: 'd', text: { tr: 'Java polymorphism ile aynıdır', en: 'Same as Java polymorphism' } }], correct: 'b', explanation: { tr: "Duck typing: 'Eğer ördek gibi yürüyorsa ve vaklıyorsa, o bir ördektir.' Python nesnelerin tipini değil, çağrılan metodun varlığını kontrol eder. Java'da interface zorunluyken Python'da duck typing ile herhangi bir sınıf çalışır.", en: "Duck typing: 'If it walks like a duck and quacks like a duck, it's a duck.' Python checks if the method exists, not the object's type. Java requires an interface; Python's duck typing works with any class that has the method." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 'Polimorfizm' kavramı nesne yönelimli programlamada nasıl işler?",
+            "en": "How does the concept of 'Polymorphism' work in Python OOP?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece miras alınan sınıflarda çalışır",
+                        "en": "It works only with inherited classes"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Farklı nesnelerin aynı isimli metodları kendi türlerine göre farklı davranabilir",
+                        "en": "Objects of different types can have methods with the same name that behave differently"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Metodların ismi her zaman benzersiz olmalıdır",
+                        "en": "Method names must always be unique"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Nesnelerin hiçbir metodu olmamalıdır",
+                        "en": "Objects must not have any methods"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Polimorfizm, duck typing ile iç içe geçer. Bir nesnenin tipi ne olursa olsun, belirli bir metodu (örneğin .calculate()) varsa, Python bu metodu çalıştırır ve nesne kendi mantığına göre sonuç üretir.",
+            "en": "Polymorphism is closely related to duck typing. Regardless of the object's type, if it has a specific method (e.g., .calculate()), Python executes it, and the object behaves according to its own implementation."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 32 — Arrays (array module)
@@ -1986,7 +3295,49 @@ print("After append:", list(durations))` },
         { concept: { tr: 'Bellek verimliliği', en: 'Memory efficiency' }, java: 'int[] (very efficient)', python: "array.array('i') — efficient for numbers" },
         { concept: { tr: 'Tip kısıtlaması', en: 'Type restriction' }, java: 'Compile-time enforced', python: 'Runtime (typecode enforced)' },
       ]},
-      { type: 'quiz', question: { tr: "Python'da array.array('i', [...]) ile list arasındaki temel fark nedir?", en: "What is the key difference between array.array('i', [...]) and a list in Python?" }, options: [{ id: 'a', text: { tr: 'array daha hızlıdır', en: 'array is faster' } }, { id: 'b', text: { tr: "array yalnızca aynı tipte veri tutar, list her tipi tutar", en: 'array holds only one data type, list holds any type' } }, { id: 'c', text: { tr: 'array değiştirilemez (immutable)', en: 'array is immutable' } }, { id: 'd', text: { tr: 'array sırasız', en: 'array is unordered' } }], correct: 'b', explanation: { tr: "array.array tek bir tip (int, float vb.) tutar ve bu sayede bellekte daha verimlidir. Python list her tipte veri tutabilir. QA'de büyük sayısal veri setlerinde array kullanmak bellek tasarrufu sağlar.", en: "array.array holds only one type (int, float, etc.) making it memory efficient. Python's list holds any type. Using array for large numeric datasets in QA saves memory." } },
+      { type: 'quiz', question: { tr: "Python'da array.array('i', [...]) ile list arasındaki temel fark nedir?", en: "What is the key difference between array.array('i', [...]) and a list in Python?" }, options: [{ id: 'a', text: { tr: 'array daha hızlıdır', en: 'array is faster' } }, { id: 'b', text: { tr: "array yalnızca aynı tipte veri tutar, list her tipi tutar", en: 'array holds only one data type, list holds any type' } }, { id: 'c', text: { tr: 'array değiştirilemez (immutable)', en: 'array is immutable' } }, { id: 'd', text: { tr: 'array sırasız', en: 'array is unordered' } }], correct: 'b', explanation: { tr: "array.array tek bir tip (int, float vb.) tutar ve bu sayede bellekte daha verimlidir. Python list her tipte veri tutabilir. QA'de büyük sayısal veri setlerinde array kullanmak bellek tasarrufu sağlar.", en: "array.array holds only one type (int, float, etc.) making it memory efficient. Python's list holds any type. Using array for large numeric datasets in QA saves memory." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Python'da 'list' veri yapısının 'array.array' ile kıyaslandığında dezavantajı nedir?",
+            "en": "What is the downside of using a 'list' in Python compared to an 'array.array'?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Daha az metot içerir",
+                        "en": "It contains fewer methods"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Bellekte daha fazla yer kaplar ve çoklu tip desteği nedeniyle daha az verimlidir",
+                        "en": "It consumes more memory and is less efficient due to multi-type support"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Eleman eklemek daha yavaştır",
+                        "en": "Appending elements is slower"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece okunabilir bir yapıdır",
+                        "en": "It is a read-only structure"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Listeler, Python'daki esnekliği sağlamak için her elemanın tipini ayrı ayrı saklar, bu da 'array.array'in aksine daha fazla bellek kullanımına ve büyük sayısal işlemlerde yavaşlığa yol açar.",
+            "en": "Lists store the type of each element separately to maintain Python's flexibility, leading to higher memory consumption and slower performance in large numerical operations compared to array.array."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 33 — Dates (datetime module)
@@ -2054,7 +3405,37 @@ print(is_recent(datetime.now().strftime("%Y-%m-%d")))  # True - today` },
         { concept: { tr: 'String → tarih', en: 'Parse string' }, java: 'LocalDate.parse(str)', python: 'strptime(str, format)' },
         { concept: { tr: 'Tarih farkı', en: 'Date difference' }, java: 'ChronoUnit.DAYS.between()', python: 'timedelta and .total_seconds()' },
       ]},
-      { type: 'quiz', question: { tr: "datetime.now().strftime('%Y%m%d') ne döner?", en: "What does datetime.now().strftime('%Y%m%d') return?" }, options: [{ id: 'a', text: '2024-01-15' }, { id: 'b', text: '20240115' }, { id: 'c', text: 'January 15' }, { id: 'd', text: '15/01/2024' }], correct: 'b', explanation: { tr: "'%Y' 4 haneli yıl, '%m' 2 haneli ay, '%d' 2 haneli gün döner — birleşik: '20240115'. Bu format log dosyaları ve report isimlendirmesi için yaygın kullanılır.", en: "'%Y' = 4-digit year, '%m' = 2-digit month, '%d' = 2-digit day. Combined: '20240115'. This format is commonly used for log files and report naming." } },
+      { type: 'quiz', question: { tr: "datetime.now().strftime('%Y%m%d') ne döner?", en: "What does datetime.now().strftime('%Y%m%d') return?" }, options: [{ id: 'a', text: '2024-01-15' }, { id: 'b', text: '20240115' }, { id: 'c', text: 'January 15' }, { id: 'd', text: '15/01/2024' }], correct: 'b', explanation: { tr: "'%Y' 4 haneli yıl, '%m' 2 haneli ay, '%d' 2 haneli gün döner — birleşik: '20240115'. Bu format log dosyaları ve report isimlendirmesi için yaygın kullanılır.", en: "'%Y' = 4-digit year, '%m' = 2-digit month, '%d' = 2-digit day. Combined: '20240115'. This format is commonly used for log files and report naming." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "datetime.now().strftime('%d/%m/%Y') kodu ne döndürür?",
+            "en": "What does the code datetime.now().strftime('%d/%m/%Y') return?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "2024-01-15"
+            },
+            {
+                  "id": "b",
+                  "text": "15012024"
+            },
+            {
+                  "id": "c",
+                  "text": "15/01/2024"
+            },
+            {
+                  "id": "d",
+                  "text": "01/15/2024"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "'%d' gün, '%m' ay ve '%Y' yıl değerlerini belirtilen '/' ayırıcısı ile birleştirir. Örn: 15/01/2024.",
+            "en": "It combines the '%d' day, '%m' month, and '%Y' year values with the specified '/' separator. E.g., 15/01/2024."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 34 — Math (math module)
@@ -2118,7 +3499,37 @@ print(f"SLA violations: {len(violations)}")` },
         { concept: { tr: 'Pi sabiti', en: 'Pi constant' }, java: 'Math.PI', python: 'math.pi' },
         { concept: { tr: 'Mutlak değer', en: 'Absolute value' }, java: 'Math.abs(-5)', python: 'abs(-5) or math.fabs(-5)' },
       ]},
-      { type: 'quiz', question: { tr: "math.ceil(4.1) ve math.floor(4.9) sırasıyla ne döner?", en: "What do math.ceil(4.1) and math.floor(4.9) each return?" }, options: [{ id: 'a', text: '4 ve 4' }, { id: 'b', text: '5 ve 5' }, { id: 'c', text: '5 ve 4' }, { id: 'd', text: '4 ve 5' }], correct: 'c', explanation: { tr: "ceil() her zaman yukarı yuvarlar: ceil(4.1) = 5. floor() her zaman aşağı yuvarlar: floor(4.9) = 4. Java'daki Math.ceil() ve Math.floor() ile aynı davranış.", en: "ceil() always rounds UP: ceil(4.1) = 5. floor() always rounds DOWN: floor(4.9) = 4. Same behavior as Java's Math.ceil() and Math.floor()." } },
+      { type: 'quiz', question: { tr: "math.ceil(4.1) ve math.floor(4.9) sırasıyla ne döner?", en: "What do math.ceil(4.1) and math.floor(4.9) each return?" }, options: [{ id: 'a', text: '4 ve 4' }, { id: 'b', text: '5 ve 5' }, { id: 'c', text: '5 ve 4' }, { id: 'd', text: '4 ve 5' }], correct: 'c', explanation: { tr: "ceil() her zaman yukarı yuvarlar: ceil(4.1) = 5. floor() her zaman aşağı yuvarlar: floor(4.9) = 4. Java'daki Math.ceil() ve Math.floor() ile aynı davranış.", en: "ceil() always rounds UP: ceil(4.1) = 5. floor() always rounds DOWN: floor(4.9) = 4. Same behavior as Java's Math.ceil() and Math.floor()." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "math.ceil(2.9) ve math.floor(2.1) işlemleri sırasıyla ne döndürür?",
+            "en": "What do the operations math.ceil(2.9) and math.floor(2.1) return respectively?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "2 ve 2"
+            },
+            {
+                  "id": "b",
+                  "text": "3 ve 2"
+            },
+            {
+                  "id": "c",
+                  "text": "3 ve 3"
+            },
+            {
+                  "id": "d",
+                  "text": "2 ve 3"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "math.ceil(2.9) değeri yukarı yuvarlayarak 3 sonucunu verir; math.floor(2.1) ise aşağı yuvarlayarak 2 sonucunu verir.",
+            "en": "math.ceil(2.9) rounds up to 3; while math.floor(2.1) rounds down to 2."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 35 — PIP (Package Manager)
@@ -2197,7 +3608,49 @@ for line in requirements_txt.strip().split("\\n"):
         { concept: { tr: 'Paket deposu', en: 'Package registry' }, java: 'Maven Central', python: 'PyPI (pypi.org)' },
         { concept: { tr: 'Sanal ortam', en: 'Virtual environment' }, java: 'N/A (global or project scope)', python: 'venv + pip (per project)' },
       ]},
-      { type: 'quiz', question: { tr: "pip freeze > requirements.txt komutu ne yapar?", en: "What does the command 'pip freeze > requirements.txt' do?" }, options: [{ id: 'a', text: { tr: 'requirements.txt dosyasını siler', en: 'Deletes requirements.txt' } }, { id: 'b', text: { tr: 'Mevcut ortamdaki tüm paketleri ve sürümlerini requirements.txt dosyasına yazar', en: 'Writes all installed packages and their exact versions to requirements.txt' } }, { id: 'c', text: { tr: 'Tüm paketleri günceller', en: 'Updates all packages' } }, { id: 'd', text: { tr: 'Pip\'i günceller', en: 'Updates pip' } }], correct: 'b', explanation: { tr: "pip freeze tüm kurulu paketleri ve tam sürümlerini (pkg==x.y.z formatında) listeler. > operatörü çıktıyı requirements.txt dosyasına yönlendirir. Başka bir ortamda pip install -r requirements.txt ile aynı ortam oluşturulur.", en: "pip freeze lists all installed packages with exact versions (pkg==x.y.z format). > redirects output to requirements.txt. Run 'pip install -r requirements.txt' on another machine to recreate the exact same environment." } },
+      { type: 'quiz', question: { tr: "pip freeze > requirements.txt komutu ne yapar?", en: "What does the command 'pip freeze > requirements.txt' do?" }, options: [{ id: 'a', text: { tr: 'requirements.txt dosyasını siler', en: 'Deletes requirements.txt' } }, { id: 'b', text: { tr: 'Mevcut ortamdaki tüm paketleri ve sürümlerini requirements.txt dosyasına yazar', en: 'Writes all installed packages and their exact versions to requirements.txt' } }, { id: 'c', text: { tr: 'Tüm paketleri günceller', en: 'Updates all packages' } }, { id: 'd', text: { tr: 'Pip\'i günceller', en: 'Updates pip' } }], correct: 'b', explanation: { tr: "pip freeze tüm kurulu paketleri ve tam sürümlerini (pkg==x.y.z formatında) listeler. > operatörü çıktıyı requirements.txt dosyasına yönlendirir. Başka bir ortamda pip install -r requirements.txt ile aynı ortam oluşturulur.", en: "pip freeze lists all installed packages with exact versions (pkg==x.y.z format). > redirects output to requirements.txt. Run 'pip install -r requirements.txt' on another machine to recreate the exact same environment." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "pip install -r requirements.txt komutunun temel amacı nedir?",
+            "en": "What is the primary purpose of the command 'pip install -r requirements.txt'?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "requirements.txt içindeki tüm paketleri kurar",
+                        "en": "Installs all packages listed in requirements.txt"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Paketleri kaldırır",
+                        "en": "Uninstalls packages"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "requirements.txt dosyasını oluşturur",
+                        "en": "Creates a requirements.txt file"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Paketleri günceller",
+                        "en": "Updates packages"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Bu komut, requirements.txt dosyasında belirtilen tüm bağımlılıkları ve bunların sürüm numaralarını mevcut sanal ortama yükler.",
+            "en": "This command installs all dependencies and their specific versions listed in the requirements.txt file into the current environment."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 36 — User Input
@@ -2268,7 +3721,49 @@ print(f"\\nReady to run {config['workers']} parallel tests!")` },
         { concept: { tr: 'Tip dönüşümü', en: 'Type conversion' }, java: 'Automatic for nextInt()', python: 'Always manual: int(), float()' },
         { concept: { tr: 'CLI araçları için', en: 'For CLI tools' }, java: 'Apache Commons CLI', python: 'argparse (built-in)' },
       ]},
-      { type: 'quiz', question: { tr: "age = input('Yaşınız: ') sonrası age + 1 yazmak hata verir. Neden?", en: "After age = input('Your age: '), writing age + 1 causes an error. Why?" }, options: [{ id: 'a', text: { tr: 'input() None döner', en: 'input() returns None' } }, { id: 'b', text: { tr: "input() her zaman string döner, int ile toplama yapılamaz", en: "input() always returns a string, you can't add int to a string" } }, { id: 'c', text: { tr: 'input() sayı döner', en: 'input() returns a number' } }, { id: 'd', text: { tr: 'Syntax hatası', en: 'Syntax error' } }], correct: 'b', explanation: { tr: "input() her zaman str döner. '25' + 1 TypeError verir. Önce int(age) dönüştürmeliyiz. Bu Python'da çok yaygın bir hata kaynağı.", en: "input() always returns str. '25' + 1 raises TypeError. We must convert first: int(age). This is a very common mistake in Python." } },
+      { type: 'quiz', question: { tr: "age = input('Yaşınız: ') sonrası age + 1 yazmak hata verir. Neden?", en: "After age = input('Your age: '), writing age + 1 causes an error. Why?" }, options: [{ id: 'a', text: { tr: 'input() None döner', en: 'input() returns None' } }, { id: 'b', text: { tr: "input() her zaman string döner, int ile toplama yapılamaz", en: "input() always returns a string, you can't add int to a string" } }, { id: 'c', text: { tr: 'input() sayı döner', en: 'input() returns a number' } }, { id: 'd', text: { tr: 'Syntax hatası', en: 'Syntax error' } }], correct: 'b', explanation: { tr: "input() her zaman str döner. '25' + 1 TypeError verir. Önce int(age) dönüştürmeliyiz. Bu Python'da çok yaygın bir hata kaynağı.", en: "input() always returns str. '25' + 1 raises TypeError. We must convert first: int(age). This is a very common mistake in Python." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "price = input('Fiyat: ') sonrası price * 2 işlemi neden hata verir veya beklenmedik sonuç doğurur?",
+            "en": "After price = input('Price: '), why does price * 2 cause an error or unexpected results?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "input() boş değer (None) döndürür",
+                        "en": "input() returns a null (None) value"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "input() veriyi string olarak alır, sayısal çarpma işlemi yapılamaz",
+                        "en": "input() retrieves data as a string, numerical multiplication cannot be performed"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "input() her zaman float döndürür",
+                        "en": "input() always returns a float"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Python input() fonksiyonunda tip güvenliği zorunludur",
+                        "en": "Type safety is mandatory in Python's input() function"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "input() fonksiyonu her zaman str döner. Eğer '10' girerseniz, '10' * 2 işlemi '1010' sonucunu verir. Matematiksel işlem için float(price) veya int(price) kullanarak tip dönüşümü yapmanız gerekir.",
+            "en": "The input() function always returns a str. If you input '10', the operation '10' * 2 results in '1010'. For mathematical operations, you must perform type casting using float(price) or int(price)."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 37 — String Formatting
@@ -2337,7 +3832,37 @@ for r in test_results:
         { concept: { tr: 'Zero-padding', en: 'Zero-padding' }, java: 'String.format("%05d", 42)', python: 'f"{42:05d}"' },
         { concept: { tr: 'Multi-line template', en: 'Multi-line template' }, java: 'String.format with \\n', python: 'f-string + triple quotes' },
       ]},
-      { type: 'quiz', question: { tr: "f\"{0.856:.1%}\" ifadesi ne döner?", en: 'What does f"{0.856:.1%}" return?' }, options: [{ id: 'a', text: '85.6' }, { id: 'b', text: '0.856%' }, { id: 'c', text: '85.6%' }, { id: 'd', text: '86%' }], correct: 'c', explanation: { tr: ":.1% format specifier: sayıyı 100 ile çarpar, % ekler, 1 ondalık hane gösterir. 0.856 → 85.6%. Java'da String.format(\"%.1f%%\", 85.6) gerekir; f-string çok daha temiz.", en: ":.1% format specifier: multiplies by 100, adds %, shows 1 decimal. 0.856 → 85.6%. Java needs String.format(\"%.1f%%\", 85.6); f-string is much cleaner." } },
+      { type: 'quiz', question: { tr: "f\"{0.856:.1%}\" ifadesi ne döner?", en: 'What does f"{0.856:.1%}" return?' }, options: [{ id: 'a', text: '85.6' }, { id: 'b', text: '0.856%' }, { id: 'c', text: '85.6%' }, { id: 'd', text: '86%' }], correct: 'c', explanation: { tr: ":.1% format specifier: sayıyı 100 ile çarpar, % ekler, 1 ondalık hane gösterir. 0.856 → 85.6%. Java'da String.format(\"%.1f%%\", 85.6) gerekir; f-string çok daha temiz.", en: ":.1% format specifier: multiplies by 100, adds %, shows 1 decimal. 0.856 → 85.6%. Java needs String.format(\"%.1f%%\", 85.6); f-string is much cleaner." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "f\\\"{0.1234:.2%}\\\" ifadesi çalıştırıldığında sonuç ne olur?",
+            "en": "What is the result when f\"{0.1234:.2%}\" is executed?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "12.34%"
+            },
+            {
+                  "id": "b",
+                  "text": "0.12%"
+            },
+            {
+                  "id": "c",
+                  "text": "123.40%"
+            },
+            {
+                  "id": "d",
+                  "text": "12.3%"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": ":.2% format belirleyicisi, sayıyı 100 ile çarpar, sonuna % işareti ekler ve noktadan sonra 2 basamak gösterir. 0.1234 değeri 12.34% olarak biçimlendirilir.",
+            "en": "The :.2% format specifier multiplies the number by 100, appends a % sign, and displays 2 decimal places. The value 0.1234 is formatted as 12.34%."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 38 — File Handling
@@ -2422,7 +3947,49 @@ print(f"\\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")` },
         { concept: { tr: 'CSV oku', en: 'Read CSV' }, java: 'OpenCSV library', python: 'csv.DictReader (built-in)' },
         { concept: { tr: 'Dosya var mı?', en: 'File exists?' }, java: 'Files.exists(path)', python: 'os.path.exists("f.txt")' },
       ]},
-      { type: 'quiz', question: { tr: "open(\"file.txt\", \"a\") modu ne yapar?", en: 'What does open("file.txt", "a") mode do?' }, options: [{ id: 'a', text: { tr: 'Dosyayı okur', en: 'Reads the file' } }, { id: 'b', text: { tr: 'Dosyayı siler ve yeniden oluşturur', en: 'Deletes and recreates the file' } }, { id: 'c', text: { tr: 'Dosyanın sonuna ekler (varsa siler, yoksa oluşturur)', en: 'Appends to end of file (creates if not exists)' } }, { id: 'd', text: { tr: 'Dosyayı sadece okuma modunda açar', en: 'Opens file in read-only mode' } }], correct: 'c', explanation: { tr: "\"a\" (append) modu: dosya varsa sonuna ekler, yoksa oluşturur. \"r\" okuma, \"w\" yazma (sıfırlar), \"a\" ekleme, \"x\" sadece yeni oluşturma (varsa hata). QA log dosyaları için \"a\" modu idealdir.", en: "\"a\" (append) mode: adds to end if exists, creates if not. \"r\" = read, \"w\" = write (overwrites), \"a\" = append, \"x\" = create only new (error if exists). \"a\" mode is ideal for QA log files." } },
+      { type: 'quiz', question: { tr: "open(\"file.txt\", \"a\") modu ne yapar?", en: 'What does open("file.txt", "a") mode do?' }, options: [{ id: 'a', text: { tr: 'Dosyayı okur', en: 'Reads the file' } }, { id: 'b', text: { tr: 'Dosyayı siler ve yeniden oluşturur', en: 'Deletes and recreates the file' } }, { id: 'c', text: { tr: 'Dosyanın sonuna ekler (varsa siler, yoksa oluşturur)', en: 'Appends to end of file (creates if not exists)' } }, { id: 'd', text: { tr: 'Dosyayı sadece okuma modunda açar', en: 'Opens file in read-only mode' } }], correct: 'c', explanation: { tr: "\"a\" (append) modu: dosya varsa sonuna ekler, yoksa oluşturur. \"r\" okuma, \"w\" yazma (sıfırlar), \"a\" ekleme, \"x\" sadece yeni oluşturma (varsa hata). QA log dosyaları için \"a\" modu idealdir.", en: "\"a\" (append) mode: adds to end if exists, creates if not. \"r\" = read, \"w\" = write (overwrites), \"a\" = append, \"x\" = create only new (error if exists). \"a\" mode is ideal for QA log files." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "open(\\\"test.log\\\", \\\"w\\\") modu dosyada ne yapar?",
+            "en": "What does open(\"test.log\", \"w\") mode do to the file?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Dosyanın sonuna yeni veriler ekler",
+                        "en": "Appends new data to the end of the file"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Dosyayı sadece okuma modunda açar",
+                        "en": "Opens the file in read-only mode"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Dosyayı açar ve içindeki mevcut verileri silip sıfırlar",
+                        "en": "Opens the file and truncates (clears) its existing content"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Dosyayı sadece yazılabilir ancak mevcut veriyi koruyarak açar",
+                        "en": "Opens for writing while preserving existing data"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "\\\"w\\\" (write) modu dosyayı sıfırlar. Eğer dosya zaten varsa içini boşaltır, yoksa yeni bir dosya oluşturur. Veri kaybetmemek için dikkatli kullanılmalıdır.",
+            "en": "\\\"w\\\" (write) mode truncates the file. If the file exists, it empties it; if not, it creates a new one. It should be used with caution to avoid data loss."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // QA Topic — Dataclasses
@@ -2510,7 +4077,37 @@ for case in cases:
         { concept: { tr: 'toString() otomatik', en: 'Auto toString' }, java: 'record auto / @ToString', python: '@dataclass auto __repr__' },
         { concept: { tr: 'Immutable', en: 'Immutable' }, java: 'record (final fields)', python: '@dataclass(frozen=True)' },
       ]},
-      { type: 'quiz', question: { tr: "@dataclass dekoratörü hangi metodları otomatik oluşturur?", en: 'Which methods does the @dataclass decorator auto-generate?' }, options: [{ id: 'a', text: 'Sadece __init__' }, { id: 'b', text: '__init__, __repr__ ve __eq__' }, { id: 'c', text: '__init__ ve __str__' }, { id: 'd', text: 'Sadece __repr__' }], correct: 'b', explanation: { tr: "@dataclass varsayılan olarak __init__ (constructor), __repr__ (print için string gösterimi) ve __eq__ (== operatörü) metodlarını otomatik oluşturur. frozen=True ile __hash__ da eklenir.", en: "@dataclass by default auto-generates __init__ (constructor), __repr__ (string representation for printing), and __eq__ (== operator). With frozen=True, __hash__ is also added." } },
+      { type: 'quiz', question: { tr: "@dataclass dekoratörü hangi metodları otomatik oluşturur?", en: 'Which methods does the @dataclass decorator auto-generate?' }, options: [{ id: 'a', text: 'Sadece __init__' }, { id: 'b', text: '__init__, __repr__ ve __eq__' }, { id: 'c', text: '__init__ ve __str__' }, { id: 'd', text: 'Sadece __repr__' }], correct: 'b', explanation: { tr: "@dataclass varsayılan olarak __init__ (constructor), __repr__ (print için string gösterimi) ve __eq__ (== operatörü) metodlarını otomatik oluşturur. frozen=True ile __hash__ da eklenir.", en: "@dataclass by default auto-generates __init__ (constructor), __repr__ (string representation for printing), and __eq__ (== operator). With frozen=True, __hash__ is also added." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "@dataclass ile tanımlanan bir sınıfta, varsayılan olarak eklenen __eq__ metodu neyi sağlar?",
+            "en": "What does the __eq__ method, added by default in a @dataclass, provide?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sınıfın hafızadaki adresini kontrol eder"
+            },
+            {
+                  "id": "b",
+                  "text": "Nesne içindeki tüm alanların değerlerinin eşitliğini karşılaştırır"
+            },
+            {
+                  "id": "c",
+                  "text": "Sadece sınıf isimlerinin eşitliğini kontrol eder"
+            },
+            {
+                  "id": "d",
+                  "text": "Nesnenin boş olup olmadığını denetler"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "@dataclass, __eq__ metodunu otomatik olarak ekleyerek, iki farklı nesne örneğinin aynı alana (field) sahip olup olmadığının '==' operatörü ile kolayca karşılaştırılmasını sağlar.",
+            "en": "@dataclass automatically adds the __eq__ method, allowing two different instances to be easily compared for equality of their fields using the '==' operator."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // QA Topic — argparse (CLI Arguments)
@@ -2612,7 +4209,49 @@ print(f"  Output:   {args.output}")` },
         { concept: { tr: 'Tip dönüşümü', en: 'Type conversion' }, java: 'Manual parseInt', python: 'type=int (automatic)' },
         { concept: { tr: 'Yardım mesajı', en: 'Help message' }, java: 'Manual or HelpFormatter', python: '--help auto-generated' },
       ]},
-      { type: 'quiz', question: { tr: "argparse'te action='store_true' ne işe yarar?", en: "What does action='store_true' do in argparse?" }, options: [{ id: 'a', text: { tr: 'Argümana "true" string değeri verir', en: 'Gives the argument the string "true"' } }, { id: 'b', text: { tr: 'Flag mevsa True, yoksa False değerini atar — değer gerektirmez', en: 'Sets to True when flag is present, False when absent — no value required' } }, { id: 'c', text: { tr: 'Zorunlu argüman yapar', en: 'Makes the argument required' } }, { id: 'd', text: { tr: 'Argümanı true tipine çevirir', en: 'Converts argument to true type' } }], correct: 'b', explanation: { tr: "store_true: --headless yazarsan args.headless = True, yazmazsan False. Değer yazman gerekmez — flag'in varlığı yeterli. --headless true yazmak yanlıştır. Java'daki boolean flag'lere eşdeğer.", en: "store_true: if --headless is present, args.headless = True; if absent, False. No value needed — just the flag's presence. Writing --headless true is wrong. Equivalent to boolean flags in Java." } },
+      { type: 'quiz', question: { tr: "argparse'te action='store_true' ne işe yarar?", en: "What does action='store_true' do in argparse?" }, options: [{ id: 'a', text: { tr: 'Argümana "true" string değeri verir', en: 'Gives the argument the string "true"' } }, { id: 'b', text: { tr: 'Flag mevsa True, yoksa False değerini atar — değer gerektirmez', en: 'Sets to True when flag is present, False when absent — no value required' } }, { id: 'c', text: { tr: 'Zorunlu argüman yapar', en: 'Makes the argument required' } }, { id: 'd', text: { tr: 'Argümanı true tipine çevirir', en: 'Converts argument to true type' } }], correct: 'b', explanation: { tr: "store_true: --headless yazarsan args.headless = True, yazmazsan False. Değer yazman gerekmez — flag'in varlığı yeterli. --headless true yazmak yanlıştır. Java'daki boolean flag'lere eşdeğer.", en: "store_true: if --headless is present, args.headless = True; if absent, False. No value needed — just the flag's presence. Writing --headless true is wrong. Equivalent to boolean flags in Java." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "argparse kütüphanesinde action='store_const' seçeneğinin temel amacı nedir?",
+            "en": "What is the primary purpose of action='store_const' in the argparse library?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Belirli bir argüman verilmediğinde varsayılan bir değer atar",
+                        "en": "Assigns a default value if the argument is not provided"
+                  }
+            },
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Argüman kullanıldığında önceden tanımlanmış sabit bir değeri değişkene atar",
+                        "en": "Assigns a predefined constant value to the variable when the argument is present"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Argümanı salt okunur (read-only) yapar",
+                        "en": "Makes the argument read-only"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Kullanıcıdan bir girdi almayı zorunlu kılar",
+                        "en": "Forces the user to provide an input"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "store_const, argüman komut satırında yazıldığında, belirtilen 'const' değerini değişkene atar. Özellikle `--verbose` gibi flag'lerin belirli bir sayısal değer (örneğin 1) almasını sağlamak için kullanılır.",
+            "en": "store_const assigns the specified 'const' value to the variable when the argument is used in the command line. It is often used to assign a specific numeric value (e.g., 1) to flags like --verbose."
+      }
+}
+},
     ],
   },
 
@@ -2904,7 +4543,31 @@ def test_order_placed(sample_order, db):
         ],
         correct: 3,
         explanation: 'scope="session" creates the fixture once for the entire pytest session and shares it across ALL tests. Use it for expensive resources like DB connections and browser instances. The teardown (after yield) runs once at the very end.',
-      },
+      
+        retryQuestion: {
+      "question": "If you define a pytest fixture with scope=\"module\", how often is that fixture initialized?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Once for the entire suite execution"
+            },
+            {
+                  "id": "b",
+                  "text": "Once per individual test function"
+            },
+            {
+                  "id": "c",
+                  "text": "Once for every Python test file (module)"
+            },
+            {
+                  "id": "d",
+                  "text": "Once for every test class defined"
+            }
+      ],
+      "correct": "c",
+      "explanation": "With scope=\"module\", the fixture is set up once per test file. Any test within that file can reuse the same instance, and the cleanup (teardown) runs after the last test in that module completes."
+}
+},
       { type: 'heading', text: '🚨 Common Errors & How to Fix Them' },
       {
         type: 'error-dictionary',
@@ -3175,6 +4838,10 @@ def managed_page(browser):
 with managed_page(browser) as page:
     page.goto("/login")
     # page.close() called automatically even if assertion fails` },
+      { type: 'qa', question: { tr: 'Q14: Python\'da dinamik tipleme (dynamic typing) ne demektir?', en: 'Q14: What does dynamic typing mean in Python?' },
+        answer: { tr: 'Değişken tipini siz belirtmezsiniz — Python çalışma zamanında anlar. x = 5 dersiniz, Python x\'i int olarak işler. Sonra x = "hello" derseniz, x artık str olur. Java\'da bu bir derleme hatası verirdi çünkü tip sabitlenir. Bu esneklik testleri hızlı yazmanı sağlar ama tip uyumsuzluklarına dikkat etmen gerekir.', en: "You don't declare variable types — Python infers them at runtime. x = 5 makes x an int. Then x = \"hello\" makes it a str. In Java, this would be a compile error because the type is fixed. This flexibility lets you write tests fast, but you need to watch for type mismatches." } },
+      { type: 'qa', question: { tr: 'Q15: Python\'da truthy/falsy kavramını açıklayın ve QA\'da ne zaman kullanışlıdır?', en: "Q15: Explain Python's truthy/falsy concept and when it's useful in QA." },
+        answer: { tr: 'Herhangi bir Python değeri bool\'a dönüştürülebilir. 0, None, "", [], {}, () False\'tur; geri kalanlar True\'dur. QA\'da: "if errors:" veya "if response.json():" şeklinde kullanılır — Java\'daki "if (errors != null && !errors.isEmpty())" yerine çok daha kısadır.', en: "Any Python value can be coerced to bool. 0, None, \"\", [], {}, () are False; everything else True. In QA: \"if errors:\" or \"if response.json()\" is much shorter than Java's \"if (errors != null && !errors.isEmpty())\"." } },
       { type: 'heading', text: '☕ If You Know Java: Advanced Python Concepts Bridge' },
       {
         type: 'java-compare',
@@ -3334,6 +5001,29 @@ class ManagedDB:
         note: '"with" = try-with-resources. "yield" in @contextmanager = the try body. Code after yield in finally = AutoCloseable.close(). Same contract, zero boilerplate class.',
         note_en: '"with" = try-with-resources. "yield" in @contextmanager = the try body. Code after yield in finally = AutoCloseable.close(). Same contract, zero boilerplate class.',
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Python\'da list ile tuple arasındaki temel fark nedir, ve bir Selenium locator\'ı için hangisi tercih edilmelidir?', en: 'What is the key difference between a list and a tuple in Python, and which should be used for a Selenium locator?' },
+        options: [
+          { id: 'a', text: { tr: 'Aralarında fark yok, ikisi de aynı şekilde davranır', en: 'There is no difference, they behave identically' } },
+          { id: 'b', text: { tr: 'List değiştirilebilir ([]), tuple değiştirilemez (()) — sabit kalması gereken veri (locator gibi) için tuple kullanılır', en: 'A list is mutable ([]), a tuple is immutable (()) — a tuple should be used for data that must stay constant, like a locator' } },
+          { id: 'c', text: { tr: 'Tuple\'lar sadece sayı içerebilir', en: 'Tuples can only contain numbers' } },
+          { id: 'd', text: { tr: 'List\'ler unpacking desteklemez, tuple\'lar destekler', en: 'Lists do not support unpacking, tuples do' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'List\'ler oluşturulduktan sonra değiştirilebilir (append/remove) ve [] kullanır; tuple\'lar değiştirilemez ve () kullanır. Bir Selenium locator gibi sabit kalması gereken veriler için tuple tercih edilir — yanlışlıkla mutate edilmesini derleyici/runtime seviyesinde engeller. Java\'da bunun karşılığı, sabit bir değeri `final` ile işaretlemek veya değiştirilemez bir koleksiyon (`List.of(...)`) kullanmaktır.', en: "Lists are mutable after creation (append/remove) and use []; tuples are immutable and use (). A tuple is preferred for data that must stay constant, like a Selenium locator — it prevents accidental mutation at the language level. The Java equivalent is marking a constant `final` or using an immutable collection (`List.of(...)`)." },
+        retryQuestion: {
+          question: { tr: 'LOGIN_LOCATOR = ("id", "username") şeklinde bir tuple tanımladın ve bir fonksiyonda yanlışlıkla `LOGIN_LOCATOR.append("extra")` çağırmaya çalıştın. Ne olur?', en: 'You define LOGIN_LOCATOR = ("id", "username") as a tuple, and accidentally call `LOGIN_LOCATOR.append("extra")` somewhere. What happens?' },
+          options: [
+            { id: 'a', text: { tr: 'Sessizce çalışır, tuple\'a yeni eleman eklenir', en: 'It runs silently, adding a new element to the tuple' } },
+            { id: 'b', text: { tr: 'AttributeError fırlatılır — tuple\'larda append() metodu yoktur', en: 'An AttributeError is raised — tuples have no append() method' } },
+            { id: 'c', text: { tr: 'Tuple otomatik olarak bir list\'e dönüştürülür', en: 'The tuple is automatically converted to a list' } },
+            { id: 'd', text: { tr: 'Program sessizce hiçbir şey yapmadan devam eder', en: 'The program continues silently doing nothing' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Tuple\'lar değiştirilemez olduğu için `append`, `remove`, `pop` gibi mutasyon metodlarına sahip DEĞİLDİR — bunları çağırmaya çalışmak `AttributeError: \'tuple\' object has no attribute \'append\'` fırlatır. Bu, immutability\'nin gerçek koruması: bir locator\'ı yanlışlıkla değiştirme girişimi sessizce başarılı olmaz, hemen ve gürültülü bir şekilde başarısız olur.', en: "Because tuples are immutable, they simply DO NOT HAVE mutation methods like `append`, `remove`, or `pop` — attempting to call one raises `AttributeError: 'tuple' object has no attribute 'append'`. This is immutability's real protection: an accidental attempt to mutate a locator doesn't silently succeed, it fails loudly and immediately." },
+        },
+      },
     ],
   },
 
@@ -3489,6 +5179,29 @@ def test_user_validation(db, email, role):
         ]
       },
       { type: 'tip', content: 'Run "python -m pytest -v --tb=short" for verbose output with compact tracebacks. Add "--headed" to Playwright to see the browser while debugging.' },
+      {
+        type: 'quiz',
+        question: { tr: '`with open("f.txt") as f:` gibi bir context manager kullanmanın temel avantajı nedir?', en: 'What is the main benefit of using a context manager like `with open("f.txt") as f:`?' },
+        options: [
+          { id: 'a', text: { tr: 'Dosyayı daha hızlı okur', en: 'It reads the file faster' } },
+          { id: 'b', text: { tr: 'Blok bittiğinde (hata olsa da olmasa da) kaynağı otomatik kapatır, try/finally yazmaya gerek kalmaz', en: 'It automatically closes the resource when the block ends (even on error), so you never write try/finally' } },
+          { id: 'c', text: { tr: 'Dosyayı salt-okunur yapar', en: 'It makes the file read-only' } },
+          { id: 'd', text: { tr: 'Sadece dosyalarla kullanılabilir', en: 'It can only be used with files' } },
+        ],
+        correct: 'b',
+        explanation: { tr: '`with` ifadesi, Java\'daki try-with-resources ile birebir aynı şeyi yapar: blok normal bitse de bir exception fırlatsa da kaynağı (dosya, DB bağlantısı, vb.) garanti olarak kapatır. Bu, manuel `try/finally: f.close()` yazmaktan kurtarır ve bir kaynağı açık unutma hatasını dilin kendisi seviyesinde ortadan kaldırır.', en: "The `with` statement does exactly what Java's try-with-resources does: it guarantees the resource (file, DB connection, etc.) is closed whether the block finishes normally or throws an exception. This eliminates manually writing `try/finally: f.close()` and removes the class of bug where a resource is accidentally left open." },
+        retryQuestion: {
+          question: { tr: '`with open("data.txt") as f:` bloğu içinde, dosyayı okumaya çalışırken bir exception fırlatılırsa dosyaya ne olur?', en: 'Inside a `with open("data.txt") as f:` block, if an exception is raised while reading the file, what happens to the file?' },
+          options: [
+            { id: 'a', text: { tr: 'Açık kalır, çünkü exception bloğu kesintiye uğrattı', en: 'It stays open, because the exception interrupted the block' } },
+            { id: 'b', text: { tr: 'Exception fırlatılsa bile dosya garanti olarak kapatılır, sonra exception normal şekilde yukarı yayılır', en: 'The file is guaranteed to be closed even though the exception was raised, then the exception propagates normally' } },
+            { id: 'c', text: { tr: 'Program çökmeden önce dosyayı siler', en: 'It deletes the file before the program crashes' } },
+            { id: 'd', text: { tr: 'with bloğu exception\'ları yutar, hiçbir hata görünmez', en: 'The with block swallows exceptions, no error is ever seen' } },
+          ],
+          correct: 'b',
+          explanation: { tr: '`with` ifadesinin garantisi tam olarak budur: blok İÇİNDE bir exception fırlatılsa bile, dosyanın `__exit__` metodu (kapatma işlemini yapan) MUTLAKA çalışır, sonra exception normal akışına devam ederek yukarı yayılır. Bu, Java\'daki try-with-resources\'ın bir exception fırlatıldığında da kaynağı kapatmasıyla birebir aynıdır — exception\'ı yutmaz, sadece kaynağın sızmadığını garanti eder.', en: "This is exactly the `with` statement's guarantee: even if an exception is raised INSIDE the block, the file's `__exit__` method (which performs the close) ALWAYS runs, and then the exception continues propagating normally. This is identical to Java's try-with-resources closing the resource even when an exception is thrown — it doesn't swallow the exception, it just guarantees the resource doesn't leak." },
+        },
+      },
     ],
   },
 
@@ -4100,6 +5813,29 @@ class LoginPage(BasePage, Loggable):  # extends + implements!
         { term: 'type hint', definition: { tr: 'def func(x: int) -> str: sozdizimi ile Python fonksiyon parametrelerine tip bilgisi ekleme. Java generics e benzer.', en: 'Adding type information to Python function parameters with def func(x: int) -> str: syntax. Similar to Java generics.' } },
         { term: 'virtual environment (venv)', definition: { tr: 'python -m venv .venv ile olusturulan, proje bagimliliklarini global Python dan izole eden klasor yapisi.', en: 'A folder structure created with python -m venv .venv that isolates project dependencies from the global Python.' } },
       ]},
+      {
+        type: 'quiz',
+        question: { tr: 'Python\'da None, Java\'daki null\'a eşdeğerdir. Bunu kontrol etmenin doğru yolu nedir?', en: "Python's None is the equivalent of Java's null. What is the correct way to check for it?" },
+        options: [
+          { id: 'a', text: { tr: '`value == None`', en: '`value == None`' } },
+          { id: 'b', text: { tr: '`value is None`', en: '`value is None`' } },
+          { id: 'c', text: { tr: '`value.equals(None)`', en: '`value.equals(None)`' } },
+          { id: 'd', text: { tr: '`None(value)`', en: '`None(value)`' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'None Python\'da SİNGLETON bir nesnedir, bu yüzden kimlik karşılaştırması (`is None`) anlam ve performans açısından doğru olanıdır — `==` teorik olarak çalışır (çünkü `__eq__` override edilmemiş özel sınıflar için kimliğe düşer) ama bir sınıf `__eq__`\'i override ederse `== None` beklenmedik şekilde davranabilir. Java\'da bunun karşılığı `value == null` (referans karşılaştırması) kullanmaktır, `value.equals(null)` değil — `equals` null referans üzerinde NullPointerException fırlatır.', en: "None is a SINGLETON object in Python, so identity comparison (`is None`) is the semantically and performance-correct choice — `==` technically works for most objects (it falls back to identity unless `__eq__` is overridden) but can behave unexpectedly if a class overrides `__eq__`. The Java equivalent is using `value == null` (reference comparison), not `value.equals(null)` — calling `equals` on a null reference throws a NullPointerException." },
+        retryQuestion: {
+          question: { tr: 'Bir `Money` sınıfı `__eq__`\'i override ederek iki farklı `Money` nesnesini değer bazında karşılaştırıyor. Bu sınıfın bir instance\'ını `instance == None` ile kontrol etmek neden riskli olabilir?', en: 'A `Money` class overrides `__eq__` to compare two different `Money` instances by value. Why can checking an instance with `instance == None` be risky?' },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir risk yok, `==` her zaman `is None` ile birebir aynı sonucu verir', en: '`==` always gives identical results to `is None`, there is no risk at all' } },
+            { id: 'b', text: { tr: '`__eq__` override\'ı None ile karşılaştırmayı da ele alabilir ve beklenmedik bir sonuç (örn. exception veya yanlış True/False) üretebilir', en: 'The `__eq__` override might also handle the None comparison and produce an unexpected result (e.g. an exception or a wrong True/False)' } },
+            { id: 'c', text: { tr: '`==` operatörü None ile asla kullanılamaz', en: 'The `==` operator can never be used with None' } },
+            { id: 'd', text: { tr: 'Python bunu otomatik olarak `is None`a çevirir', en: 'Python automatically converts this to `is None`' } },
+          ],
+          correct: 'b',
+          explanation: { tr: '`__eq__` override edildiğinde, `==` artık varsayılan kimlik kontrolüne düşmez — sınıfın kendi karşılaştırma mantığını çalıştırır. Eğer bu mantık `None` ile karşılaştırmayı düzgün ele almıyorsa (örn. `other.amount` gibi bir attribute\'a erişmeye çalışırsa), `instance == None` beklenmedik bir AttributeError fırlatabilir. `is None`, sınıfın `__eq__`\'inden tamamen bağımsız çalıştığı için bu riski hiç taşımaz.', en: "Once `__eq__` is overridden, `==` no longer falls back to the default identity check — it runs the class's own comparison logic. If that logic doesn't handle comparison against `None` properly (e.g. it tries to access `other.amount`), `instance == None` can raise an unexpected AttributeError. `is None` carries none of this risk because it operates completely independently of the class's `__eq__`." },
+        },
+      },
     ],
   },
 ]
@@ -4176,93 +5912,15 @@ const trSections = [
   }),
   applyTr(sections[2], {
     title: '🟢 Seviye 1: Python Temelleri',
-    blocks: {
-      0: { text: 'Değişkenler ve Veri Tipleri', difficulty: '🟢 Başlangıç' },
-      2: { text: 'String\'ler ve F-String\'ler', difficulty: '🟢 Başlangıç' },
-      4: { text: 'List\'ler (Listeler)', difficulty: '🟢 Başlangıç' },
-      6: { text: 'Dictionary\'ler (Sözlükler)', difficulty: '🟢 Başlangıç' },
-      8: { text: 'Koşullar ve Döngüler', difficulty: '🟢 Başlangıç' },
-      10: { text: 'Fonksiyonlar', difficulty: '🟢 Başlangıç' },
-      12: { text: 'CSV Dosyaları Okuma', difficulty: '🟢 Başlangıç' },
-      14: { text: 'Python Veri Tipleri — Görsel Kılavuz' },
-      15: {
-        title: '📋 list — Sıralı, Değiştirilebilir (mutable), Tekrara İzin Verir',
-        items: [
-          { value: 'login' },
-          { value: 'signup' },
-          { value: 'checkout', highlighted: true },
-          { value: 'logout' },
-        ],
-        note: 'İndeks 0\'dan başlar. test_cases[2] → "checkout". Append, insert, remove, sort yapılabilir. Test case koleksiyonları için idealdir.',
-      },
-      16: {
-        title: '🔑 dict — Anahtar-Değer Çiftleri, Hızlı Arama, Sıralı (Python 3.7+)',
-        items: [
-          { key: 'id', value: 'TC-001' },
-          { key: 'name', value: 'Login Test' },
-          { key: 'status', value: 'PASS' },
-          { key: 'duration', value: 1.23 },
-        ],
-        note: 'result["status"] → "PASS". result.get("browser", "N/A") → güvenli erişim. Test sonuç nesneleri için mükemmeldir.',
-      },
-      17: {
-        title: '🔵 set — Yalnızca Benzersiz Değerler, Sırasız, Hızlı Üyelik Kontrolü',
-        items: [
-          { value: 'PASS' },
-          { value: 'FAIL' },
-          { value: 'SKIP' },
-        ],
-        note: '"PASS" in statuses → True (anında, O(1)). Tekrar eden değer yok. Benzersiz ID\'ler, etiketler, durum değerleri için idealdir.',
-      },
-      18: {
-        title: '🔒 tuple — Sıralı, Değiştirilemez (immutable, oluşturulduktan sonra değiştirilmez)',
-        items: [
-          { value: 'css selector' },
-          { value: '#login-btn' },
-        ],
-        note: 'locator = ("css selector", "#login-btn"). Asla değişmemesi gereken sabit veri — Selenium locator\'lar, koordinatlar, DB satırı sonuçları.',
-      },
-      19: {
-        headers: ['Tip', 'Söz Dizimi', 'Sıralı?', 'Değiştirilebilir?', 'Tekrar?', 'En İyi Kullanım'],
-        rows: [
-          ['list', '[1, 2, 3]', '✅ Evet', '✅ Evet', '✅ Evet', 'Test case koleksiyonları, sonuç dizileri'],
-          ['tuple', '(1, 2, 3)', '✅ Evet', '❌ Hayır', '✅ Evet', 'Sabit veri, Selenium locator\'lar, DB satırları'],
-          ['set', '{1, 2, 3}', '❌ Hayır', '✅ Evet', '❌ Hayır', 'Benzersiz etiketler, hızlı üyelik testi'],
-          ['dict', '{"a": 1}', '✅ Evet (3.7+)', '✅ Evet', 'Anahtar: Hayır', 'Test sonuçları, config, JSON nesneleri'],
-        ]
-      },
-      20: {
-        left: {
-          label: '❌ Yavaş — Listede üyelik kontrolü',
-          code: `statuses = ["PASS", "FAIL", "SKIP"]
-# Python her öğeyi tek tek kontrol eder (O(n))
-if "PASS" in statuses:
-    print("bulundu")`,
-          note: '1 milyon öğe için 1 milyon kez kontrol',
-        },
-        right: {
-          label: '✅ Hızlı — Set ile üyelik kontrolü',
-          code: `statuses = {"PASS", "FAIL", "SKIP"}
-# Hash araması — boyuttan bağımsız anlık (O(1))
-if "PASS" in statuses:
-    print("bulundu")`,
-          note: '1 milyon öğe için de anlık!',
-        },
-      },
-      21: {
-        question: 'Asla yanlışlıkla değiştirilmemesi gereken bir Selenium locator çiftini ("css selector", "#login-btn") saklamak için hangi Python tipini kullanmalısınız?',
-        options: ['list — sıralı olduğu için', 'tuple — değiştirilemez, sabit veri için mükemmel', 'dict — anahtar-değer çiftleri için', 'set — benzersiz değerler için'],
-        correct: 1,
-        explanation: 'tuple değiştirilemezdir — oluşturulduktan sonra değiştirilemez. Bu, kazara değişiklikleri önler. Selenium locator çiftleri, veritabanı satırı sonuçları ve koordinatlar için tuple kullanımı idealdir.',
-      },
-      22: { text: '☕ Java Biliyorsan: Veri Tipi Köprüsü' },
-      23: { topic: 'Değişkenler ve Tipler', why: 'Java\'da her değişkenin tipi derleme zamanında sabitlenir. Python\'da tipler dinamiktir — aynı değişken farklı tipler tutabilir. Testleri daha hızlı yazarsın ama tip uyumsuzluklarına dikkat etmen gerekir.', note: 'Python type hints (count: int) Java gibi görünür ama çalışma zamanında zorlanmaz. Statik kontrol için mypy kullan.' },
-      24: { topic: 'null → None', why: 'Java\'da null NullPointerException\'a yol açar. Python\'da aynı risk None ile var. "is None" kullanımı en iyi pratiktir (Java\'daki Objects.isNull() gibi).', note: '"is None" kullan, "== None" değil. "value or default" falsy kontrol yapar (0, "", [] de default döner), dikkatli kullan.' },
-      25: { topic: 'ArrayList → list', why: 'Java ArrayList ve Python list aynı amaca hizmet eder: dinamik boyutlu sıralı koleksiyon. Python sözdizimi çok daha kısadır — new yok, import yok, generic tip yok.', note: 'append()=add(), remove()=remove(), len()=size(), in=contains(). "new ArrayList<>()" yok — sadece []. Karışık tipler desteklenir.' },
-      26: { topic: 'HashMap → dict', why: 'Java HashMap ve Python dict aynı konsepttir: key-value eşlemeleri. Python sözdizimi çok daha temizdir — put/get yerine [] kullanılır, import gerekmez.', note: 'Python dict Python 3.7\'den itibaren ekleme sırasını korur. put()=result["k"]=v, get()=result.get("k"), entrySet()=.items().' },
-      27: { topic: 'HashSet → set', why: 'Tekrar eden öğeleri elemek ve O(1) üyelik kontrolü için — Java\'da HashSet, Python\'da set. Aynı sözdizimi kalıbı ve aynı Big-O performans özellikleri.', note: 'Hızlı üyelik testi için list yerine set kullan (QA\'da: test etiketleri, ziyaret edilen URL\'ler, görülen hata kodları). Aynı O(1) garantisi.' },
-      28: { topic: 'tuple (Java\'da karşılığı yok!)', why: 'Python tuple değiştirilemez sıralı koleksiyondur. Java\'daki en yakın karşılık List.of() veya record\'dur. Anahtar kullanım: bir fonksiyondan sarmalayıcı sınıf olmadan birden fazla değer döndürmek.', note: 'Python\'ın en güçlü özelliklerinden biri: tuple ile birden fazla değer döndür. Java\'da Result/Pair sarmalayıcı gerekir; Python\'da sadece "return a, b".' },
-    }
+    // Not: Bu sekmenin TÜM içeriği (heading/simple-box/text/comparison/table/quiz)
+    // artık master `sections[2]` içinde doğrudan bilingual {tr,en} alanlar olarak
+    // tanımlı — bu yüzden burada blok bazlı override'a gerek yok. Önceki override
+    // burada (index 15-28) tamamen FARKLI/eski bir içerik kümesini (list/dict/set/
+    // tuple görselleri) hedefliyordu; master içerik genişleyince index'ler kaymış
+    // ve override yanlış bloklara (örn. index 19'daki gerçek Java karşılaştırma
+    // tablosunun "rows" alanını) çarpıp veriyi bozuyordu (2026-06-23'te bulunan
+    // gerçek kullanıcı bug raporu — boş görünen "Java ile Karşılaştırma" tablosu).
+    blocks: {}
   }),
   applyTr(sections[3], {
     title: '🟡 Seviye 2: Orta Seviye Python',

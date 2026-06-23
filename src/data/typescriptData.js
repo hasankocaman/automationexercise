@@ -93,6 +93,29 @@ const sections = [
         content:
           "If you're starting a new Playwright project today, choose TypeScript from the first `npm init playwright@latest` prompt. Retrofitting types into a large JS test suite is far harder than starting typed.",
       },
+      {
+        type: "quiz",
+        question: { tr: "TypeScript'in test otomasyonundaki temel değer önerisi nedir?", en: "What is TypeScript's core value proposition in test automation?" },
+        options: [
+          { id: "a", text: { tr: "Testleri daha hızlı çalıştırır", en: "Makes tests run faster" } },
+          { id: "b", text: { tr: "Tür hatalarını derleme zamanında yakalar, testler CI'da çalışmadan önce", en: "Catches type errors at compile time, before tests even run in CI" } },
+          { id: "c", text: "Tarayıcı ihtiyacını ortadan kaldırır" },
+          { id: "d", text: { tr: "Testleri otomatik olarak paralel çalıştırır", en: "Automatically runs tests in parallel" } },
+        ],
+        correct: "b",
+        explanation: { tr: "TypeScript bir derleme adımı ekler: tür hataları, tanımsız özellik erişimleri ve yanlış argüman tipleri kodun hiç çalışmadan önce IDE'de görünür hale gelir. Bu, gece 2'de CI'da sessizce başarısız olan bir test paketinden, sorunu yazarken anında gösteren bir geri bildirim döngüsüne geçiştir — hız veya paralellikle ilgisi yoktur.", en: "TypeScript adds a compile step: type errors, undefined property access, and wrong argument types become visible in the IDE before the code ever runs. This shifts the feedback loop from a test suite silently failing in CI at 2am to seeing the problem the moment you write it — it has nothing to do with speed or parallelism." },
+        retryQuestion: {
+          question: { tr: "Bir geliştirici `let count: number = \"5\"` yazarsa ne olur?", en: 'What happens if a developer writes `let count: number = "5"`?' },
+          options: [
+            { id: "a", text: { tr: "Kod çalışır, count değişkeni \"5\" string'ini tutar", en: 'The code runs fine, count holds the string "5"' } },
+            { id: "b", text: { tr: "TypeScript derleyicisi kodu çalıştırmadan önce bir tip hatası verir", en: "The TypeScript compiler reports a type error before the code ever runs" } },
+            { id: "c", text: { tr: "JavaScript runtime'ı bir exception fırlatır", en: "The JavaScript runtime throws an exception" } },
+            { id: "d", text: { tr: "TypeScript string'i otomatik olarak sayıya çevirir", en: "TypeScript automatically converts the string to a number" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Bu, derleme zamanı tip güvenliğinin somut bir örneğidir: `\"5\"` bir string literal\'dir, `number` tipine atanamaz, ve derleyici bunu kod hiç çalışmadan IDE\'de kırmızı çizgiyle işaretler. Çalışma zamanı hiç devreye girmez — hata yazarken anında görünür.', en: 'This is compile-time type safety in action: `"5"` is a string literal, not assignable to `number`, and the compiler flags it with a red squiggly in the IDE before the code ever runs. Runtime never even gets involved — the error is visible the moment it is written.' },
+        },
+      },
     ],
   },
 
@@ -317,6 +340,29 @@ npx playwright show-report`,
         content:
           "After `npm init playwright@latest`, open `playwright.config.ts` — it is already fully typed. Your tests in `tests/` will be `.spec.ts` files. You get full autocomplete for `page`, `expect`, `browser`, and every Playwright API immediately.",
       },
+      {
+        type: "quiz",
+        question: { tr: "TypeScript kurulumunda Node.js'in LTS (Long Term Support) sürümünün tercih edilmesinin temel nedeni nedir?", en: "What is the main reason to prefer Node.js's LTS (Long Term Support) version when installing TypeScript?" },
+        options: [
+          { id: "a", text: { tr: "LTS sürümü her zaman en yeni dil özelliklerine sahiptir", en: "The LTS version always has the newest language features" } },
+          { id: "b", text: { tr: "En kararlı sürümdür ve CI/CD ortamlarının kullandığı sürümle eşleşir", en: "It is the most stable version and matches what CI/CD environments run" } },
+          { id: "c", text: { tr: "Sadece LTS sürümü TypeScript'i destekler", en: "Only the LTS version supports TypeScript" } },
+          { id: "d", text: { tr: "LTS sürümü kurulum gerektirmez", en: "The LTS version requires no installation" } },
+        ],
+        correct: "b",
+        explanation: { tr: "LTS sürümleri uzun süreli güvenlik yamaları ve kararlılık garantisi alır; bu yüzden CI/CD pipeline'ları, Docker imajları ve production sunucuları genellikle LTS kullanır. Geliştirme makinende farklı, daha yeni bir sürüm kullanırsan, sadece kendi makinende çalışan ama CI'da başarısız olan bir kod yazma riski oluşur — Java'da JDK LTS sürümü (8/11/17/21) seçmekle aynı mantık.", en: "LTS versions get long-term security patches and a stability guarantee, which is why CI/CD pipelines, Docker images, and production servers typically run LTS. Using a different, newer version on your dev machine risks writing code that only works locally but fails in CI — the same reasoning behind picking a Java LTS JDK version (8/11/17/21)." },
+        retryQuestion: {
+          question: { tr: "Bir geliştirici local makinesinde Node 22 (henüz LTS olmayan, Current sürüm) kullanıyor, CI ise Node 20 LTS kullanıyor. Bu fark ne tür bir riske yol açar?", en: 'A developer uses Node 22 (a non-LTS Current release) locally, while CI runs Node 20 LTS. What kind of risk does this mismatch create?' },
+          options: [
+            { id: "a", text: { tr: "Hiçbir risk yok, Node sürümleri her zaman geriye uyumludur", en: "No risk at all, Node versions are always backward compatible" } },
+            { id: "b", text: { tr: "Geliştiricinin makinesinde çalışan kod, Node 20'de mevcut olmayan bir API'ye dayanıyorsa CI'da başarısız olabilir", en: "Code that works on the developer's machine may rely on an API not present in Node 20, and fail in CI" } },
+            { id: "c", text: { tr: "TypeScript derleyicisi farklı Node sürümlerinde çalışmaz", en: "The TypeScript compiler cannot run on different Node versions" } },
+            { id: "d", text: { tr: "Testler her zaman CI'da otomatik olarak Node 22'ye yükseltilir", en: "Tests are automatically upgraded to Node 22 in CI" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Yeni bir Node sürümünde mevcut olan ama eski LTS sürümünde olmayan bir API veya davranış kullanmak, kodun lokalde çalışıp CI\'da "fonksiyon tanımlı değil" gibi bir hatayla başarısız olmasına yol açar. Bu yüzden geliştirme ve CI ortamlarının aynı LTS sürümünde hizalanması gerekir — versiyon uyuşmazlığı sessiz bir kaynaktır, kodun kendisi doğru olsa bile.', en: 'Using an API or behavior available in a newer Node version but missing from the older LTS one causes code to work locally and then fail in CI with something like "function is not defined." This is exactly why dev and CI environments should align on the same LTS version — version mismatch is a silent source of failures even when the code itself is correct.' },
+        },
+      },
     ],
   },
 
@@ -378,7 +424,37 @@ console.log("Total with tax:", total);
         { concept: "Boolean", java: "boolean b = true;", typescript: "let b: boolean = true;" },
         { concept: "No type", java: "Object o = anything;", typescript: "let o: any = anything;" },
       ]},
-      { type: "quiz", question: { tr: "TypeScript'te hem integer hem float için hangi tip kullanılır?", en: "Which TypeScript type is used for both integers and floats?" }, options: [{ id: "a", text: "int" }, { id: "b", text: "float" }, { id: "c", text: "number" }, { id: "d", text: "numeric" }], correct: "c", explanation: { tr: "TypeScript'te 'number' tipi Java'daki int, long, double, float'un hepsini kapsar. Tek bir sayısal tip var. Java'da bu ayrım önemliydi — TypeScript'te yok.", en: "TypeScript's 'number' type covers Java's int, long, double, and float. There is only one numeric type. This distinction was important in Java — not in TypeScript." } },
+      { type: "quiz", question: { tr: "TypeScript'te hem integer hem float için hangi tip kullanılır?", en: "Which TypeScript type is used for both integers and floats?" }, options: [{ id: "a", text: "int" }, { id: "b", text: "float" }, { id: "c", text: "number" }, { id: "d", text: "numeric" }], correct: "c", explanation: { tr: "TypeScript'te 'number' tipi Java'daki int, long, double, float'un hepsini kapsar. Tek bir sayısal tip var. Java'da bu ayrım önemliydi — TypeScript'te yok.", en: "TypeScript's 'number' type covers Java's int, long, double, and float. There is only one numeric type. This distinction was important in Java — not in TypeScript." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te ondalıklı sayıları (decimal) saklamak için hangi veri tipi tercih edilir?",
+            "en": "Which data type is preferred to store decimal numbers in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "decimal"
+            },
+            {
+                  "id": "b",
+                  "text": "float"
+            },
+            {
+                  "id": "c",
+                  "text": "number"
+            },
+            {
+                  "id": "d",
+                  "text": "double"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "TypeScript, tüm sayısal değerler (tam sayılar ve ondalıklı sayılar dahil) için sadece 'number' tipini kullanır. Farklı sayı tipleri tanımlamaya gerek yoktur.",
+            "en": "TypeScript uses only the 'number' type for all numeric values, including both integers and floating-point numbers. There is no need to define distinct numeric types."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 2 — Special Types
@@ -438,7 +514,49 @@ function parseAge(input: unknown): number {
 console.log(parseAge(25));       // 25
 console.log(parseAge("30"));    // 30
 // console.log(parseAge(true)); // Error` },
-      { type: "quiz", question: { tr: "TypeScript'te 'unknown' ve 'any' arasındaki temel fark nedir?", en: "What is the key difference between 'unknown' and 'any' in TypeScript?" }, options: [{ id: "a", text: { tr: "Hiçbir fark yok", en: "No difference" } }, { id: "b", text: { tr: "unknown kullanmadan önce tip kontrolü zorunlu, any'de değil", en: "unknown requires a type check before use, any does not" } }, { id: "c", text: { tr: "unknown sadece string için, any hepsi için", en: "unknown is only for strings, any is for everything" } }, { id: "d", text: { tr: "any daha güvenli", en: "any is safer" } }], correct: "b", explanation: { tr: "'unknown' tip kontrolü (typeof, instanceof) yapılmadan kullanılamaz. 'any' tip güvenliğini tamamen devre dışı bırakır. Production kodunda any yerine unknown tercih edilir.", en: "'unknown' cannot be used without a type check (typeof, instanceof). 'any' completely disables type safety. In production code, prefer unknown over any." } },
+      { type: "quiz", question: { tr: "TypeScript'te 'unknown' ve 'any' arasındaki temel fark nedir?", en: "What is the key difference between 'unknown' and 'any' in TypeScript?" }, options: [{ id: "a", text: { tr: "Hiçbir fark yok", en: "No difference" } }, { id: "b", text: { tr: "unknown kullanmadan önce tip kontrolü zorunlu, any'de değil", en: "unknown requires a type check before use, any does not" } }, { id: "c", text: { tr: "unknown sadece string için, any hepsi için", en: "unknown is only for strings, any is for everything" } }, { id: "d", text: { tr: "any daha güvenli", en: "any is safer" } }], correct: "b", explanation: { tr: "'unknown' tip kontrolü (typeof, instanceof) yapılmadan kullanılamaz. 'any' tip güvenliğini tamamen devre dışı bırakır. Production kodunda any yerine unknown tercih edilir.", en: "'unknown' cannot be used without a type check (typeof, instanceof). 'any' completely disables type safety. In production code, prefer unknown over any." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir değişkene herhangi bir metodun uygulanmasını engelleyip tip güvenliğini zorunlu kılan 'any' alternatifi nedir?",
+            "en": "What is the alternative to 'any' that forces type safety and prevents arbitrary method calls on a variable?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "never",
+                        "en": "never"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "unknown",
+                        "en": "unknown"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "object",
+                        "en": "object"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "void",
+                        "en": "void"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "'unknown' tipi, bir değişkenin üzerinde işlem yapmadan önce tip koruması (type narrowing) yapmanızı zorunlu kılarak güvenli bir kod yazmanıza olanak tanır. 'any' ise tüm tip kontrollerini atlar.",
+            "en": "The 'unknown' type allows you to write safe code by forcing you to perform type narrowing before interacting with the variable, whereas 'any' bypasses all type checks."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 3 — Arrays
@@ -497,7 +615,37 @@ const paths = endpoints.map(e => \`\${e.method} \${e.path}\`);
 
 console.log("Public endpoints:", publicEndpoints.length);
 paths.forEach(p => console.log(p));` },
-      { type: "quiz", question: { tr: "TypeScript'te string array nasıl tanımlanır?", en: "How do you declare a string array in TypeScript?" }, options: [{ id: "a", text: "let arr: Array<String>" }, { id: "b", text: "let arr: string[]" }, { id: "c", text: "let arr = String[]" }, { id: "d", text: "let arr: [string]" }], correct: "b", explanation: { tr: "string[] tercih edilen syntax'tır. Array<string> da çalışır. [string] ise tuple sözdizimi — tek elemanlı string tuple'ı tanımlar.", en: "string[] is the preferred syntax. Array<string> also works. [string] is tuple syntax — it defines a single-element string tuple." } },
+      { type: "quiz", question: { tr: "TypeScript'te string array nasıl tanımlanır?", en: "How do you declare a string array in TypeScript?" }, options: [{ id: "a", text: "let arr: Array<String>" }, { id: "b", text: "let arr: string[]" }, { id: "c", text: "let arr = String[]" }, { id: "d", text: "let arr: [string]" }], correct: "b", explanation: { tr: "string[] tercih edilen syntax'tır. Array<string> da çalışır. [string] ise tuple sözdizimi — tek elemanlı string tuple'ı tanımlar.", en: "string[] is the preferred syntax. Array<string> also works. [string] is tuple syntax — it defines a single-element string tuple." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te birden fazla sayı içeren bir diziyi tanımlamanın en yaygın yolu nedir?",
+            "en": "What is the most common way to declare an array of numbers in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "let list: number[]"
+            },
+            {
+                  "id": "b",
+                  "text": "let list: Array<number>"
+            },
+            {
+                  "id": "c",
+                  "text": "let list = [number]"
+            },
+            {
+                  "id": "d",
+                  "text": "let list: List<number>"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "number[] syntax'ı TypeScript'te dizi tanımlamak için kullanılan en temiz ve yaygın yöntemdir. Array<number> da geçerlidir ancak genellikle kısa syntax tercih edilir.",
+            "en": "The number[] syntax is the cleanest and most common way to define an array in TypeScript. Array<number> is also valid, but the shorter syntax is generally preferred."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 4 — Tuples
@@ -560,7 +708,49 @@ console.log("Failed steps:", failed.length);
 steps.forEach(([name, passed, ms]) => {
   console.log(\`  \${passed ? "✓" : "✗"} \${name} (\${ms}ms)\`);
 });` },
-      { type: "quiz", question: { tr: "let t: [string, number] = [42, 'hello'] neden hata verir?", en: "Why does let t: [string, number] = [42, 'hello'] cause an error?" }, options: [{ id: "a", text: { tr: "Tuple boş olmalı", en: "Tuple must be empty" } }, { id: "b", text: { tr: "Eleman sayısı hatalı", en: "Wrong number of elements" } }, { id: "c", text: { tr: "Tip sıralaması yanlış: ilk eleman string, ikinci number olmalı", en: "Type order is wrong: first must be string, second must be number" } }, { id: "d", text: { tr: "Tuple readonly olmalı", en: "Tuple must be readonly" } }], correct: "c", explanation: { tr: "[string, number] tuple'ında 0. pozisyon string, 1. pozisyon number olmalı. 42 number'dır, string değil. TypeScript her pozisyonun tipini kontrol eder.", en: "In [string, number] tuple, position 0 must be string, position 1 must be number. 42 is a number, not a string. TypeScript checks the type of each position." } },
+      { type: "quiz", question: { tr: "let t: [string, number] = [42, 'hello'] neden hata verir?", en: "Why does let t: [string, number] = [42, 'hello'] cause an error?" }, options: [{ id: "a", text: { tr: "Tuple boş olmalı", en: "Tuple must be empty" } }, { id: "b", text: { tr: "Eleman sayısı hatalı", en: "Wrong number of elements" } }, { id: "c", text: { tr: "Tip sıralaması yanlış: ilk eleman string, ikinci number olmalı", en: "Type order is wrong: first must be string, second must be number" } }, { id: "d", text: { tr: "Tuple readonly olmalı", en: "Tuple must be readonly" } }], correct: "c", explanation: { tr: "[string, number] tuple'ında 0. pozisyon string, 1. pozisyon number olmalı. 42 number'dır, string değil. TypeScript her pozisyonun tipini kontrol eder.", en: "In [string, number] tuple, position 0 must be string, position 1 must be number. 42 is a number, not a string. TypeScript checks the type of each position." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "let user: [number, string] = ['John', 25] ataması neden derleme hatası verir?",
+            "en": "Why does let user: [number, string] = ['John', 25] cause a compilation error?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Tuple uzunluğu çok fazla",
+                        "en": "The tuple length is too long"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Tuple elemanları değiştirilemez",
+                        "en": "Tuple elements are immutable"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Tip uyumsuzluğu: ilk eleman number, ikinci string olmalı",
+                        "en": "Type mismatch: first must be number, second must be string"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Tuple içerisinde farklı tipler bulunamaz",
+                        "en": "Tuples cannot contain different types"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Tanımlanan [number, string] yapısında, indeks 0 mutlaka bir sayı (number), indeks 1 ise metin (string) olmalıdır. 'John' bir string olduğundan TypeScript tip hatası fırlatır.",
+            "en": "In the defined [number, string] structure, index 0 must be a number and index 1 must be a string. Since 'John' is a string, TypeScript throws a type error."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 5 — Object Types
@@ -636,7 +826,49 @@ const listReq: ApiRequest = {
 
 console.log(describeRequest(loginReq));
 console.log(describeRequest(listReq));` },
-      { type: "quiz", question: { tr: "TypeScript object type'ta '?' ile işaretlenmiş property ne anlama gelir?", en: "What does a '?' after a property name mean in a TypeScript object type?" }, options: [{ id: "a", text: { tr: "readonly", en: "readonly" } }, { id: "b", text: { tr: "Opsiyonel — tanımsız olabilir", en: "Optional — may be undefined" } }, { id: "c", text: { tr: "Null olamaz", en: "Cannot be null" } }, { id: "d", text: { tr: "Zorunlu alan", en: "Required field" } }], correct: "b", explanation: { tr: "'?' property'yi opsiyonel yapar — değer olmayabilir (undefined). Java'da @Nullable annotation'ına benzer. timeout?: number yazınca timeout veya undefined olabilir.", en: "'?' makes a property optional — the value may not be present (undefined). Similar to Java's @Nullable annotation. timeout?: number means it can be a number or undefined." } },
+      { type: "quiz", question: { tr: "TypeScript object type'ta '?' ile işaretlenmiş property ne anlama gelir?", en: "What does a '?' after a property name mean in a TypeScript object type?" }, options: [{ id: "a", text: { tr: "readonly", en: "readonly" } }, { id: "b", text: { tr: "Opsiyonel — tanımsız olabilir", en: "Optional — may be undefined" } }, { id: "c", text: { tr: "Null olamaz", en: "Cannot be null" } }, { id: "d", text: { tr: "Zorunlu alan", en: "Required field" } }], correct: "b", explanation: { tr: "'?' property'yi opsiyonel yapar — değer olmayabilir (undefined). Java'da @Nullable annotation'ına benzer. timeout?: number yazınca timeout veya undefined olabilir.", en: "'?' makes a property optional — the value may not be present (undefined). Similar to Java's @Nullable annotation. timeout?: number means it can be a number or undefined." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Bir interface içerisinde bir property'nin sonuna eklenen ':' işaretinin anlamı nedir?",
+            "en": "What does adding a ':' at the end of a property in an interface imply?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Property'nin sadece okuma modunda olduğunu belirtir",
+                        "en": "Specifies that the property is read-only"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Property'nin zorunlu olmadığını, undefined olabileceğini belirtir",
+                        "en": "Indicates the property is not required and can be undefined"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Property'nin mutlaka bir değer alması gerektiğini belirtir",
+                        "en": "Ensures the property must always have a value"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Property'nin sadece fonksiyonlarda kullanılabileceğini belirtir",
+                        "en": "Indicates the property can only be used in functions"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "TypeScript'te '?' işareti bir alanın opsiyonel olduğunu gösterir. Yani o alan nesnede bulunmasa bile derleme hatası oluşmaz ve değeri undefined olarak değerlendirilir.",
+            "en": "In TypeScript, the '?' symbol indicates an optional field. This means if the field is missing in an object, no compilation error occurs and its value is treated as undefined."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 6 — Enums
@@ -727,7 +959,49 @@ apiTests.forEach(t => {
         { concept: { tr: "Kullanım", en: "Usage" }, java: "Status.PASS", typescript: "Status.PASS" },
         { concept: { tr: "Switch", en: "Switch" }, java: "switch(s) { case PASS: }", typescript: "switch(s) { case Status.PASS: }" },
       ]},
-      { type: "quiz", question: { tr: "QA testlerinde string enum neden numeric enum'a tercih edilir?", en: "Why are string enums preferred over numeric enums in QA tests?" }, options: [{ id: "a", text: { tr: "Daha hızlı", en: "They are faster" } }, { id: "b", text: { tr: "Log ve debug'da değer okunabilir (PASS görürsün, 0 değil)", en: "Values are readable in logs and debug (you see PASS, not 0)" } }, { id: "c", text: { tr: "Daha az bellek kullanır", en: "They use less memory" } }, { id: "d", text: { tr: "Zorunlu — TypeScript'te numeric enum yok", en: "Required — TypeScript has no numeric enums" } }], correct: "b", explanation: { tr: "String enum'da TestStatus.PASS = 'PASS' — log dosyasında 'PASS' görürsün. Numeric enum'da TestStatus.PASS = 0 — log'da 0 görürsün, anlamak zor. QA araçlarında okunabilirlik önemli.", en: "With string enum, TestStatus.PASS = 'PASS' — you see 'PASS' in logs. With numeric enum, TestStatus.PASS = 0 — you see 0 in logs, hard to understand. Readability matters in QA tools." } },
+      { type: "quiz", question: { tr: "QA testlerinde string enum neden numeric enum'a tercih edilir?", en: "Why are string enums preferred over numeric enums in QA tests?" }, options: [{ id: "a", text: { tr: "Daha hızlı", en: "They are faster" } }, { id: "b", text: { tr: "Log ve debug'da değer okunabilir (PASS görürsün, 0 değil)", en: "Values are readable in logs and debug (you see PASS, not 0)" } }, { id: "c", text: { tr: "Daha az bellek kullanır", en: "They use less memory" } }, { id: "d", text: { tr: "Zorunlu — TypeScript'te numeric enum yok", en: "Required — TypeScript has no numeric enums" } }], correct: "b", explanation: { tr: "String enum'da TestStatus.PASS = 'PASS' — log dosyasında 'PASS' görürsün. Numeric enum'da TestStatus.PASS = 0 — log'da 0 görürsün, anlamak zor. QA araçlarında okunabilirlik önemli.", en: "With string enum, TestStatus.PASS = 'PASS' — you see 'PASS' in logs. With numeric enum, TestStatus.PASS = 0 — you see 0 in logs, hard to understand. Readability matters in QA tools." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "QA otomasyonunda neden tercih edilir: 'const Role = { ADMIN: \"ADMIN\", GUEST: \"GUEST\" }' gibi bir yapı yerine 'enum Role { ADMIN, GUEST }' yerine string tabanlı bir yapı kullanmak?",
+            "en": "Why is it preferred in QA automation to use a string-based structure instead of 'enum Role { ADMIN, GUEST }'?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "String değerler bellekte daha az yer kaplar",
+                        "en": "String values occupy less memory"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Hata ayıklama (debug) ve raporlama aşamasında değerlerin metin olarak okunabilir olması",
+                        "en": "Better readability of values as text during debugging and reporting"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "String değerler daha hızlı karşılaştırılır",
+                        "en": "String values are faster to compare"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Numeric enum'lar TypeScript tarafından desteklenmez",
+                        "en": "Numeric enums are not supported by TypeScript"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "String tabanlı yapılar (veya string enum'lar), loglarda 'Role.ADMIN' değerini gördüğünüzde direkt 'ADMIN' metnini görmenizi sağlar. Numeric enum'lar ise sadece bir sayı gösterir, bu da test hata raporlarını anlamayı zorlaştırır.",
+            "en": "String-based structures (or string enums) ensure that when you see 'Role.ADMIN' in logs, you see the text 'ADMIN'. Numeric enums show only numbers, which makes test error reports harder to interpret."
+      }
+}
+},
 
       // ─── Interview Questions for Foundations ──────────────────────────────
       { type: "interview-questions", topic: "TypeScript Foundations", questions: [
@@ -811,7 +1085,49 @@ results.forEach(r => console.log(
         { concept: "Extend", java: "interface B extends A", typescript: "interface B extends A" },
         { concept: "Optional field", java: "@Nullable String field;", typescript: "field?: string;" },
       ]},
-      { type: "quiz", question: { tr: "TypeScript'te interface ve type alias arasındaki önemli fark nedir?", en: "What is an important difference between interface and type alias in TypeScript?" }, options: [{ id: "a", text: { tr: "Interface sadece class için kullanılır", en: "Interface can only be used with classes" } }, { id: "b", text: { tr: "Interface extends edilebilir ve declaration merging destekler", en: "Interface supports extends and declaration merging; type alias cannot be reopened" } }, { id: "c", text: { tr: "Type alias daha hızlıdır", en: "Type aliases are faster" } }, { id: "d", text: { tr: "Hiçbir fark yok", en: "No difference" } }], correct: "b", explanation: { tr: "Interface 'declaration merging' destekler — aynı isimle iki interface tanımlarsan birleşirler. Type alias desteklemez. Bu nedenle kütüphane tiplerini genişletmek için interface tercih edilir.", en: "Interfaces support declaration merging — if you declare the same interface name twice, they merge. Type aliases cannot be reopened. This is why interfaces are preferred for extending library types." } },
+      { type: "quiz", question: { tr: "TypeScript'te interface ve type alias arasındaki önemli fark nedir?", en: "What is an important difference between interface and type alias in TypeScript?" }, options: [{ id: "a", text: { tr: "Interface sadece class için kullanılır", en: "Interface can only be used with classes" } }, { id: "b", text: { tr: "Interface extends edilebilir ve declaration merging destekler", en: "Interface supports extends and declaration merging; type alias cannot be reopened" } }, { id: "c", text: { tr: "Type alias daha hızlıdır", en: "Type aliases are faster" } }, { id: "d", text: { tr: "Hiçbir fark yok", en: "No difference" } }], correct: "b", explanation: { tr: "Interface 'declaration merging' destekler — aynı isimle iki interface tanımlarsan birleşirler. Type alias desteklemez. Bu nedenle kütüphane tiplerini genişletmek için interface tercih edilir.", en: "Interfaces support declaration merging — if you declare the same interface name twice, they merge. Type aliases cannot be reopened. This is why interfaces are preferred for extending library types." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te 'interface' ve 'type' kullanımı arasındaki temel farklardan biri hangisidir?",
+            "en": "Which of the following is a key difference between using 'interface' and 'type' in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Type alias sadece fonksiyonlar için kullanılır",
+                        "en": "Type alias is only used for functions"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Interface'ler 'declaration merging' (bildirim birleştirme) özelliğine sahiptir, type'lar ise sahip değildir",
+                        "en": "Interfaces support declaration merging, whereas type aliases do not"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Interface kullanımı kodun çalışma zamanı (runtime) performansını artırır",
+                        "en": "Using interfaces increases runtime performance"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Type alias'lar interface'lerden daha gelişmiş özelliklere sahiptir",
+                        "en": "Type aliases have more advanced features than interfaces"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Declaration merging sayesinde, aynı isimle birden fazla kez tanımlanan interface'ler TypeScript tarafından otomatik olarak birleştirilir. Type alias'lar tekrar tanımlandığında hata verir ve birleştirilemez.",
+            "en": "Declaration merging allows multiple interfaces with the same name to be automatically merged by TypeScript. Type aliases throw an error if re-declared and cannot be merged."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 8 — Union Types
@@ -876,7 +1192,49 @@ const events: TestEvent[] = [
   { type: "skip", testName: "payment_test", reason: "Feature not ready" },
 ];
 events.forEach(logEvent);` },
-      { type: "quiz", question: { tr: "TypeScript'te 'type narrowing' ne anlama gelir?", en: "What does 'type narrowing' mean in TypeScript?" }, options: [{ id: "a", text: { tr: "Tipi daraltmak (kötü)", en: "Making the type smaller (bad thing)" } }, { id: "b", text: { tr: "typeof/instanceof kontrolleri sonrası TypeScript'in daha spesifik tip bilmesi", en: "TypeScript knowing a more specific type after typeof/instanceof checks" } }, { id: "c", text: { tr: "Tipi any'ye çevirmek", en: "Converting to any type" } }, { id: "d", text: { tr: "Union'dan bir tip kaldırmak", en: "Removing a type from a union" } }], correct: "b", explanation: { tr: "Type narrowing: typeof kontrolü sonrası TypeScript değişkenin tipini bilir. if (typeof x === 'number') içinde TypeScript x'in number olduğunu garanti eder.", en: "Type narrowing: after a typeof check, TypeScript knows the variable's specific type. Inside if (typeof x === 'number'), TypeScript guarantees x is a number." } },
+      { type: "quiz", question: { tr: "TypeScript'te 'type narrowing' ne anlama gelir?", en: "What does 'type narrowing' mean in TypeScript?" }, options: [{ id: "a", text: { tr: "Tipi daraltmak (kötü)", en: "Making the type smaller (bad thing)" } }, { id: "b", text: { tr: "typeof/instanceof kontrolleri sonrası TypeScript'in daha spesifik tip bilmesi", en: "TypeScript knowing a more specific type after typeof/instanceof checks" } }, { id: "c", text: { tr: "Tipi any'ye çevirmek", en: "Converting to any type" } }, { id: "d", text: { tr: "Union'dan bir tip kaldırmak", en: "Removing a type from a union" } }], correct: "b", explanation: { tr: "Type narrowing: typeof kontrolü sonrası TypeScript değişkenin tipini bilir. if (typeof x === 'number') içinde TypeScript x'in number olduğunu garanti eder.", en: "Type narrowing: after a typeof check, TypeScript knows the variable's specific type. Inside if (typeof x === 'number'), TypeScript guarantees x is a number." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te bir union tipinin (string | number) kesin bir tipe indirgenmesine ne ad verilir?",
+            "en": "What is it called when a union type (string | number) is narrowed down to a specific type in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Type casting",
+                        "en": "Type casting"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Type narrowing",
+                        "en": "Type narrowing"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Type annotation",
+                        "en": "Type annotation"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Type inference",
+                        "en": "Type inference"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Type narrowing, kontrol akışı analizi (if/else, typeof, instanceof) kullanarak TypeScript'in değişkenin tipini daha dar bir kapsamda kesinleştirmesine verilen isimdir.",
+            "en": "Type narrowing is the process of using control flow analysis (if/else, typeof, instanceof) to allow TypeScript to refine a variable's type to a more specific one."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 9 — Functions
@@ -939,7 +1297,49 @@ assertEqual("test".includes("es"), false, "includes check"); // fails` },
         { concept: "Default param", java: "Not supported (use overload)", typescript: "function f(x: number = 0)" },
         { concept: "Varargs", java: "void f(String... msgs)", typescript: "function f(...msgs: string[])" },
       ]},
-      { type: "quiz", question: { tr: "TypeScript'te parametre sonundaki '?' ne anlama gelir?", en: "What does '?' at the end of a parameter name mean in TypeScript?" }, options: [{ id: "a", text: { tr: "Parametre nullable", en: "Parameter is nullable" } }, { id: "b", text: { tr: "Parametre opsiyonel — undefined olabilir, geçilmeyebilir", en: "Parameter is optional — can be undefined, can be omitted" } }, { id: "c", text: { tr: "Parametre bir string", en: "Parameter is a string" } }, { id: "d", text: { tr: "Return type optional", en: "Return type is optional" } }], correct: "b", explanation: { tr: "function f(x?: number) yazınca x hem number hem undefined olabilir ve çağırırken geçilmeyebilir. f() ve f(42) ikisi de geçerli.", en: "function f(x?: number) means x can be number or undefined, and can be omitted. f() and f(42) are both valid." } },
+      { type: "quiz", question: { tr: "TypeScript'te parametre sonundaki '?' ne anlama gelir?", en: "What does '?' at the end of a parameter name mean in TypeScript?" }, options: [{ id: "a", text: { tr: "Parametre nullable", en: "Parameter is nullable" } }, { id: "b", text: { tr: "Parametre opsiyonel — undefined olabilir, geçilmeyebilir", en: "Parameter is optional — can be undefined, can be omitted" } }, { id: "c", text: { tr: "Parametre bir string", en: "Parameter is a string" } }, { id: "d", text: { tr: "Return type optional", en: "Return type is optional" } }], correct: "b", explanation: { tr: "function f(x?: number) yazınca x hem number hem undefined olabilir ve çağırırken geçilmeyebilir. f() ve f(42) ikisi de geçerli.", en: "function f(x?: number) means x can be number or undefined, and can be omitted. f() and f(42) are both valid." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript fonksiyon parametresinde kullanılan '?' işareti neyi ifade eder?",
+            "en": "What does the '?' symbol represent in a TypeScript function parameter?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Parametrenin tipinin kesinlikle bilinmediği",
+                        "en": "The parameter type is unknown"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Parametrenin opsiyonel olduğu ve eksik gönderilebileceği",
+                        "en": "The parameter is optional and can be omitted"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Parametrenin zorunlu olduğu",
+                        "en": "The parameter is mandatory"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Parametrenin sadece null değer alabileceği",
+                        "en": "The parameter can only accept null"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Parametre isminin sonuna eklenen '?', ilgili parametrenin çağrı sırasında gönderilmesinin zorunlu olmadığını belirtir. Gönderilmediğinde değeri 'undefined' olur.",
+            "en": "The '?' added to a parameter name indicates that the parameter is not required during the function call. If it is omitted, its value will be 'undefined'."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 10 — Casting
@@ -1001,7 +1401,49 @@ function parseConfig(raw: unknown): Config {
 const valid = { baseUrl: "https://api.example.com", timeout: 5000, retries: 3 };
 const parsed = parseConfig(valid);
 console.log("Config: " + parsed.baseUrl + ", timeout: " + parsed.timeout);` },
-      { type: "quiz", question: { tr: "TypeScript'te 'as' keyword'ü ne yapar?", en: "What does the 'as' keyword do in TypeScript?" }, options: [{ id: "a", text: { tr: "Değeri gerçekten dönüştürür", en: "Actually converts the value" } }, { id: "b", text: { tr: "TypeScript'e tip hakkında bilgi verir — runtime'da etkisi yok", en: "Tells TypeScript about the type — no effect at runtime" } }, { id: "c", text: { tr: "Null kontrolü yapar", en: "Performs a null check" } }, { id: "d", text: { tr: "Değeri clone'lar", en: "Clones the value" } }], correct: "b", explanation: { tr: "'as' compile-time'da TypeScript'e tipi söyler — runtime'da hiçbir şey olmaz. Java'daki (String) obj gerçekten cast eder. TypeScript'te 'as' yanlış tipte kullanılsa bile runtime'da ClassCastException atmaz.", en: "'as' tells TypeScript the type at compile-time — nothing happens at runtime. Java's (String) obj actually converts. TypeScript 'as' with a wrong type causes wrong behavior at runtime, not an explicit crash." } },
+      { type: "quiz", question: { tr: "TypeScript'te 'as' keyword'ü ne yapar?", en: "What does the 'as' keyword do in TypeScript?" }, options: [{ id: "a", text: { tr: "Değeri gerçekten dönüştürür", en: "Actually converts the value" } }, { id: "b", text: { tr: "TypeScript'e tip hakkında bilgi verir — runtime'da etkisi yok", en: "Tells TypeScript about the type — no effect at runtime" } }, { id: "c", text: { tr: "Null kontrolü yapar", en: "Performs a null check" } }, { id: "d", text: { tr: "Değeri clone'lar", en: "Clones the value" } }], correct: "b", explanation: { tr: "'as' compile-time'da TypeScript'e tipi söyler — runtime'da hiçbir şey olmaz. Java'daki (String) obj gerçekten cast eder. TypeScript'te 'as' yanlış tipte kullanılsa bile runtime'da ClassCastException atmaz.", en: "'as' tells TypeScript the type at compile-time — nothing happens at runtime. Java's (String) obj actually converts. TypeScript 'as' with a wrong type causes wrong behavior at runtime, not an explicit crash." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te 'type assertion' (as) kullanımı için aşağıdakilerden hangisi doğrudur?",
+            "en": "Which of the following is true regarding the use of 'type assertion' (as) in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Runtime sırasında değeri yeniden formatlar",
+                        "en": "It re-formats the value during runtime"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Derleyiciye tipi belirtir, ancak çıktı kodunda dönüşüm (cast) kodu üretmez",
+                        "en": "It tells the compiler the type, but generates no conversion code in the output"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Hata oluşmaması için değerin tipini otomatik olarak değiştirir",
+                        "en": "It automatically changes the value type to prevent errors"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece nesneler üzerinde çalışır",
+                        "en": "It only works on objects"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Type assertion (as), sadece TypeScript'in derleme zamanındaki (compile-time) tip kontrol mekanizmasını etkiler. Çıktı olarak üretilen JavaScript dosyasında herhangi bir tip dönüşümü (type casting) işlemi gerçekleştirilmez.",
+            "en": "Type assertion (as) only affects TypeScript's compile-time type checking mechanism. It does not perform any actual type casting or transformation in the resulting JavaScript code."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 11 — Classes
@@ -1087,7 +1529,49 @@ console.log("Result: " + res.passed + "/" + res.total + " passed");` },
         { concept: "Readonly", java: "final String x;", typescript: "readonly x: string;" },
         { concept: "Abstract", java: "abstract class A { abstract void run(); }", typescript: "abstract class A { abstract run(): void; }" },
       ]},
-      { type: "quiz", question: { tr: "TypeScript constructor parametresinde 'public' yazmanın avantajı nedir?", en: "What is the advantage of writing 'public' in a TypeScript constructor parameter?" }, options: [{ id: "a", text: { tr: "Hiç avantajı yok", en: "No advantage" } }, { id: "b", text: { tr: "Field tanımlama ve atamayı tek satırda yapar", en: "Defines and assigns the field in one line (Java's 2 steps become 1)" } }, { id: "c", text: { tr: "Performansı artırır", en: "Improves performance" } }, { id: "d", text: { tr: "Sadece string için çalışır", en: "Only works for strings" } }], correct: "b", explanation: { tr: "Java'da: 'String email; MyClass(String email) { this.email = email; }' — 2 adım. TypeScript'te: 'constructor(public email: string)' — 1 adım. Constructor shorthand field tanımlamayı ve atamayı aynı anda yapar.", en: "In Java: field declaration + constructor assignment = 2 steps. In TypeScript: 'constructor(public email: string)' = 1 step. Constructor shorthand defines and assigns simultaneously." } },
+      { type: "quiz", question: { tr: "TypeScript constructor parametresinde 'public' yazmanın avantajı nedir?", en: "What is the advantage of writing 'public' in a TypeScript constructor parameter?" }, options: [{ id: "a", text: { tr: "Hiç avantajı yok", en: "No advantage" } }, { id: "b", text: { tr: "Field tanımlama ve atamayı tek satırda yapar", en: "Defines and assigns the field in one line (Java's 2 steps become 1)" } }, { id: "c", text: { tr: "Performansı artırır", en: "Improves performance" } }, { id: "d", text: { tr: "Sadece string için çalışır", en: "Only works for strings" } }], correct: "b", explanation: { tr: "Java'da: 'String email; MyClass(String email) { this.email = email; }' — 2 adım. TypeScript'te: 'constructor(public email: string)' — 1 adım. Constructor shorthand field tanımlamayı ve atamayı aynı anda yapar.", en: "In Java: field declaration + constructor assignment = 2 steps. In TypeScript: 'constructor(public email: string)' = 1 step. Constructor shorthand defines and assigns simultaneously." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te 'Parameter Properties' kullanarak 'private name: string' ifadesini constructor içinde tanımlamanın sonucu nedir?",
+            "en": "What is the result of defining 'private name: string' inside a constructor using 'Parameter Properties' in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sadece metodun kapsamı içinde geçerli bir değişken oluşturur",
+                        "en": "It creates a variable scoped only to the method"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Hem sınıf içinde bir 'field' tanımlar hem de constructor parametresini bu field'a atar",
+                        "en": "It declares a class field and assigns the constructor parameter to that field simultaneously"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Değişkenin değerini salt okunur (readonly) yapar",
+                        "en": "It makes the variable readonly"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Hata verir, çünkü private fieldlar constructor içinde tanımlanamaz",
+                        "en": "It throws an error because private fields cannot be defined in a constructor"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "TypeScript'in sunduğu 'Parameter Properties' özelliği, constructor parametrelerinde erişim belirleyicileri (public, private, protected) kullanarak, ayrı bir field tanımlamadan sınıf üyesinin doğrudan başlatılmasını sağlar.",
+            "en": "TypeScript's 'Parameter Properties' feature allows you to declare and initialize a class member directly in the constructor by adding an access modifier (public, private, protected) to the parameter."
+      }
+}
+},
 
       // ─── Interview Questions ──────────────────────────────────────────────
       { type: "interview-questions", topic: "TypeScript Intermediate", questions: [
@@ -1169,7 +1653,49 @@ if (!bad.success) console.log("Error:", bad.error);` },
         { concept: "Constraint", java: "<T extends Comparable<T>>", typescript: "<T extends { compareTo: (a: T) => number }>" },
         { concept: "Multiple params", java: "Map<K, V>", typescript: "Map<K, V> / function f<K, V>" },
       ]},
-      { type: "quiz", question: { tr: "TypeScript'te <T extends { length: number }> ne anlama gelir?", en: "What does <T extends { length: number }> mean in TypeScript generics?" }, options: [{ id: "a", text: { tr: "T sadece number olabilir", en: "T can only be a number" } }, { id: "b", text: { tr: "T, 'length' adında number özelliği olan herhangi bir tip olabilir", en: "T can be any type that has a 'length' property of type number" } }, { id: "c", text: { tr: "T bir array olmak zorunda", en: "T must be an array" } }, { id: "d", text: { tr: "T'nin uzunluğu belirtiliyor", en: "The length of T is being specified" } }], correct: "b", explanation: { tr: "Generic constraint ile T'nin hangi özelliklere sahip olması gerektiği belirtilir. string, array, hatta { length: number } olan herhangi bir obje T olabilir. Java'daki <T extends Comparable<T>> gibi.", en: "Generic constraints specify what properties T must have. string, array, or any object with { length: number } can be T. Similar to Java's <T extends Comparable<T>>." } },
+      { type: "quiz", question: { tr: "TypeScript'te <T extends { length: number }> ne anlama gelir?", en: "What does <T extends { length: number }> mean in TypeScript generics?" }, options: [{ id: "a", text: { tr: "T sadece number olabilir", en: "T can only be a number" } }, { id: "b", text: { tr: "T, 'length' adında number özelliği olan herhangi bir tip olabilir", en: "T can be any type that has a 'length' property of type number" } }, { id: "c", text: { tr: "T bir array olmak zorunda", en: "T must be an array" } }, { id: "d", text: { tr: "T'nin uzunluğu belirtiliyor", en: "The length of T is being specified" } }], correct: "b", explanation: { tr: "Generic constraint ile T'nin hangi özelliklere sahip olması gerektiği belirtilir. string, array, hatta { length: number } olan herhangi bir obje T olabilir. Java'daki <T extends Comparable<T>> gibi.", en: "Generic constraints specify what properties T must have. string, array, or any object with { length: number } can be T. Similar to Java's <T extends Comparable<T>>." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Generic bir yapıda <T extends { id: string }> kısıtlaması neyi garanti eder?",
+            "en": "What does the constraint <T extends { id: string }> guarantee in a generic structure?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "T'nin sadece 'id' adında bir string olması gerektiğini",
+                        "en": "That T must only be a string named 'id'"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "T'nin en azından 'id' isminde string tipinde bir özelliği olan bir yapı olduğunu",
+                        "en": "That T must be a structure that has at least a string property named 'id'"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "T'nin bir ID veritabanı ile eşleştiğini",
+                        "en": "That T is mapped to an ID database"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "T'nin mutlaka bir class instance olduğunu",
+                        "en": "That T must be a class instance"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Bu kısıtlama, Generic tipin (T) en azından belirtilen nesne yapısına (interface veya object shape) sahip olması gerektiğini zorunlu kılar. T bu yapıya sahip olan herhangi bir tip (obje, class vb.) olabilir.",
+            "en": "This constraint forces the Generic type (T) to have at least the specified object shape. T can be any type (object, class, etc.) as long as it includes a property named 'id' of type string."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 13 — Utility Types
@@ -1237,7 +1763,49 @@ const patchPayload: PartialUpdate = { timeout: 10000 };
 console.log("Base:", JSON.stringify(baseConfig));
 console.log("Public:", JSON.stringify(publicView));
 console.log("Patch:", JSON.stringify(patchPayload));` },
-      { type: "quiz", question: { tr: "TypeScript'te Partial<T> ne yapar?", en: "What does Partial<T> do in TypeScript?" }, options: [{ id: "a", text: { tr: "T'nin tüm alanlarını siler", en: "Removes all fields from T" } }, { id: "b", text: { tr: "T'nin tüm alanlarını opsiyonel (?) yapar", en: "Makes all fields of T optional (?)" } }, { id: "c", text: { tr: "T'nin sadece kısmi alanlarını seçer", en: "Selects only some fields of T" } }, { id: "d", text: { tr: "T'yi readonly yapar", en: "Makes T readonly" } }], correct: "b", explanation: { tr: "Partial<T> tüm alanları opsiyonel yapar. PATCH endpoint'lerinde sadece değişen alanları göndermek için idealdir. Java'da bu tipi manuel olarak oluşturman gerekirdi.", en: "Partial<T> makes all fields optional. Ideal for PATCH endpoints where you only send changed fields. In Java you'd have to create this type manually." } },
+      { type: "quiz", question: { tr: "TypeScript'te Partial<T> ne yapar?", en: "What does Partial<T> do in TypeScript?" }, options: [{ id: "a", text: { tr: "T'nin tüm alanlarını siler", en: "Removes all fields from T" } }, { id: "b", text: { tr: "T'nin tüm alanlarını opsiyonel (?) yapar", en: "Makes all fields of T optional (?)" } }, { id: "c", text: { tr: "T'nin sadece kısmi alanlarını seçer", en: "Selects only some fields of T" } }, { id: "d", text: { tr: "T'yi readonly yapar", en: "Makes T readonly" } }], correct: "b", explanation: { tr: "Partial<T> tüm alanları opsiyonel yapar. PATCH endpoint'lerinde sadece değişen alanları göndermek için idealdir. Java'da bu tipi manuel olarak oluşturman gerekirdi.", en: "Partial<T> makes all fields optional. Ideal for PATCH endpoints where you only send changed fields. In Java you'd have to create this type manually." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te Required<T> ne yapar?",
+            "en": "What does Required<T> do in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "T'nin tüm opsiyonel alanlarını zorunlu hale getirir",
+                        "en": "Makes all optional fields of T required"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "T'yi stringe çevirir",
+                        "en": "Converts T to a string"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "T içindeki tüm metotları kaldırır",
+                        "en": "Removes all methods from T"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "T'yi sadece okunur yapar",
+                        "en": "Makes T read-only"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Required<T>, Partial<T>'nin tam tersidir; tüm özelliklerin opsiyonel işaretlerini (?) kaldırarak onları zorunlu kılar. Veri doğrulama senaryolarında tüm alanların doldurulmasını garantilemek için kullanılır.",
+            "en": "Required<T> is the inverse of Partial<T>; it removes the optional flags (?) from all properties, making them mandatory. It is useful in validation scenarios to ensure all fields are provided."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 14 — Keyof
@@ -1311,7 +1879,37 @@ const activeUsers = filterBy(users, "active", true);
 
 console.log("Admins:", admins.map(u => u.email));
 console.log("Active:", activeUsers.map(u => u.email));` },
-      { type: "quiz", question: { tr: "keyof TestCase nedir? interface TestCase { id: number; name: string; }", en: "What is keyof TestCase if interface TestCase { id: number; name: string; }?" }, options: [{ id: "a", text: 'number | string' }, { id: "b", text: '"id" | "name"' }, { id: "c", text: '{ id: number; name: string }' }, { id: "d", text: 'TestCase' }], correct: "b", explanation: { tr: "keyof, nesnenin anahtar isimlerini string literal union olarak döner. TestCase için keyof = 'id' | 'name'. Java'da böyle bir built-in operatör yok — reflection ile benzer şeyler yapılır.", en: "keyof returns the key names as a string literal union. For TestCase, keyof = 'id' | 'name'. Java has no built-in equivalent — similar things are done with reflection." } },
+      { type: "quiz", question: { tr: "keyof TestCase nedir? interface TestCase { id: number; name: string; }", en: "What is keyof TestCase if interface TestCase { id: number; name: string; }?" }, options: [{ id: "a", text: 'number | string' }, { id: "b", text: '"id" | "name"' }, { id: "c", text: '{ id: number; name: string }' }, { id: "d", text: 'TestCase' }], correct: "b", explanation: { tr: "keyof, nesnenin anahtar isimlerini string literal union olarak döner. TestCase için keyof = 'id' | 'name'. Java'da böyle bir built-in operatör yok — reflection ile benzer şeyler yapılır.", en: "keyof returns the key names as a string literal union. For TestCase, keyof = 'id' | 'name'. Java has no built-in equivalent — similar things are done with reflection." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "interface User { email: string; age: number; } yapısında keyof User ifadesi ne döndürür?",
+            "en": "What does keyof User return for the interface User { email: string; age: number; }?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "string | number"
+            },
+            {
+                  "id": "b",
+                  "text": "\"email\" | \"age\""
+            },
+            {
+                  "id": "c",
+                  "text": "{ email: string; age: number }"
+            },
+            {
+                  "id": "d",
+                  "text": "User"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "keyof operatörü, bir arayüzün tüm anahtar isimlerini union tipi olarak alır. Bu durumda 'email' veya 'age' anahtarları elde edilir. Otomasyon kodlarında dinamik özellik erişimi için çok güçlüdür.",
+            "en": "The keyof operator retrieves all key names of an interface as a union type. In this case, it results in 'email' or 'age'. It is very powerful for dynamic property access in automation scripts."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 15 — Null (Null Safety)
@@ -1386,7 +1984,49 @@ const partialUser: ApiUser = { id: 2, name: "Bob" };
 console.log(formatUser(fullUser));
 console.log(formatUser(partialUser));
 console.log(formatUser(null));` },
-      { type: "quiz", question: { tr: "TypeScript'te '??' ve '||' operatörleri arasındaki fark nedir?", en: "What is the difference between '??' and '||' operators in TypeScript?" }, options: [{ id: "a", text: { tr: "Hiçbir fark yok", en: "No difference" } }, { id: "b", text: { tr: "?? sadece null/undefined'ı kontrol eder, || 0, '', false'ı da falsy sayar", en: "?? only checks for null/undefined, while || also treats 0, '', false as falsy" } }, { id: "c", text: { tr: "|| daha güvenli", en: "|| is safer" } }, { id: "d", text: { tr: "?? sadece TypeScript'te var, JS'de yok", en: "?? only exists in TypeScript, not JS" } }], correct: "b", explanation: { tr: "0 || 'default' = 'default' (0 falsy). 0 ?? 'default' = 0 (0 null/undefined değil). QA testlerinde sıfır değer kontrol ediyorsanız ?? kullanın — || sıfırı da default'a düşürür.", en: "0 || 'default' = 'default' (0 is falsy). 0 ?? 'default' = 0 (0 is not null/undefined). In QA tests checking for zero values, use ?? — || would incorrectly treat 0 as missing." } },
+      { type: "quiz", question: { tr: "TypeScript'te '??' ve '||' operatörleri arasındaki fark nedir?", en: "What is the difference between '??' and '||' operators in TypeScript?" }, options: [{ id: "a", text: { tr: "Hiçbir fark yok", en: "No difference" } }, { id: "b", text: { tr: "?? sadece null/undefined'ı kontrol eder, || 0, '', false'ı da falsy sayar", en: "?? only checks for null/undefined, while || also treats 0, '', false as falsy" } }, { id: "c", text: { tr: "|| daha güvenli", en: "|| is safer" } }, { id: "d", text: { tr: "?? sadece TypeScript'te var, JS'de yok", en: "?? only exists in TypeScript, not JS" } }], correct: "b", explanation: { tr: "0 || 'default' = 'default' (0 falsy). 0 ?? 'default' = 0 (0 null/undefined değil). QA testlerinde sıfır değer kontrol ediyorsanız ?? kullanın — || sıfırı da default'a düşürür.", en: "0 || 'default' = 'default' (0 is falsy). 0 ?? 'default' = 0 (0 is not null/undefined). In QA tests checking for zero values, use ?? — || would incorrectly treat 0 as missing." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki kodun çıktısı nedir? const val = false || 'Test'; const result = false ?? 'Test';",
+            "en": "What is the output of the following code: const val = false || 'Test'; const result = false ?? 'Test';"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "val = 'Test', result = 'Test'",
+                        "en": "val = 'Test', result = 'Test'"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "val = false, result = false",
+                        "en": "val = false, result = false"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "val = 'Test', result = false",
+                        "en": "val = 'Test', result = false"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "val = false, result = 'Test'",
+                        "en": "val = false, result = 'Test'"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "|| operatörü 'false' değerini falsy olarak kabul edip sağ tarafa geçer. ?? operatörü ise sadece null veya undefined durumunda sağ tarafa geçer; false değeri null/undefined olmadığı için korunur.",
+            "en": "The || operator treats 'false' as falsy and proceeds to the right side. The ?? operator only proceeds to the right side if the value is null or undefined; since false is neither, it is preserved."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 16 — Definitely Typed
@@ -1496,7 +2136,49 @@ declare module 'legacy-api' {
 }
 
 // Without types, TypeScript falls back to 'any' — no type safety`, note: "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun.", note_en: "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name." },
-      { type: "quiz", question: { tr: "@types/node kurulumu ne zaman GEREKLİDİR?", en: "When is it REQUIRED to install @types/node?" }, options: [{ id: "a", text: { tr: "Her TypeScript projesinde otomatik kurulur", en: "It installs automatically in every TypeScript project" } }, { id: "b", text: { tr: "Node.js API'lerini (fs, path, process) TypeScript kodunda kullanırken", en: "When using Node.js APIs (fs, path, process) in TypeScript code" } }, { id: "c", text: { tr: "Yalnızca Playwright projeleri için gereklidir", en: "Only required for Playwright projects" } }, { id: "d", text: { tr: "Yalnızca frontend (React, Vue) projelerinde", en: "Only in frontend (React, Vue) projects" } }], correct: "b", explanation: { tr: "Node.js runtime'ı JavaScript ile yazılmıştır — TypeScript tipleri içermez. @types/node paketi fs.readFileSync, path.join, process.env gibi built-in modüller için tip tanımları sağlar. Playwright projeleri de Node.js API'lerini kullandığından neredeyse her Playwright+TypeScript projesinde @types/node bulunur.", en: "@types/node is required when using Node.js built-in modules (fs, path, process) in TypeScript. The Node.js runtime ships no TypeScript types — @types/node provides them. Most Playwright projects need @types/node since they use Node.js APIs for file I/O, env vars, and path manipulation." } },
+      { type: "quiz", question: { tr: "@types/node kurulumu ne zaman GEREKLİDİR?", en: "When is it REQUIRED to install @types/node?" }, options: [{ id: "a", text: { tr: "Her TypeScript projesinde otomatik kurulur", en: "It installs automatically in every TypeScript project" } }, { id: "b", text: { tr: "Node.js API'lerini (fs, path, process) TypeScript kodunda kullanırken", en: "When using Node.js APIs (fs, path, process) in TypeScript code" } }, { id: "c", text: { tr: "Yalnızca Playwright projeleri için gereklidir", en: "Only required for Playwright projects" } }, { id: "d", text: { tr: "Yalnızca frontend (React, Vue) projelerinde", en: "Only in frontend (React, Vue) projects" } }], correct: "b", explanation: { tr: "Node.js runtime'ı JavaScript ile yazılmıştır — TypeScript tipleri içermez. @types/node paketi fs.readFileSync, path.join, process.env gibi built-in modüller için tip tanımları sağlar. Playwright projeleri de Node.js API'lerini kullandığından neredeyse her Playwright+TypeScript projesinde @types/node bulunur.", en: "@types/node is required when using Node.js built-in modules (fs, path, process) in TypeScript. The Node.js runtime ships no TypeScript types — @types/node provides them. Most Playwright projects need @types/node since they use Node.js APIs for file I/O, env vars, and path manipulation." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "Neden TypeScript projelerinde 'import fs from \"fs\"' satırı için @types/node paketine ihtiyaç duyarız?",
+            "en": "Why do we need the @types/node package when using 'import fs from \"fs\"' in TypeScript projects?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "TypeScript derleyicisinin Node.js kurulumunu bulmasını sağlar",
+                        "en": "It allows the TypeScript compiler to find the Node.js installation"
+                  }
+            },
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Node.js modüllerinin TypeScript tarafından anlaşılabilmesi için tip tanımlarını (typings) sunar",
+                        "en": "It provides type definitions so that Node.js modules are understandable by TypeScript"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Kodun Node.js yerine tarayıcıda çalışmasını zorunlu kılar",
+                        "en": "It forces the code to run in the browser instead of Node.js"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "fs modülünü hızlandırmak için ek bir runtime kütüphanesidir",
+                        "en": "It is an additional runtime library to speed up the fs module"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Node.js yerleşik modülleri (fs, path, http vb.) JavaScript ile yazılmıştır. TypeScript'in bu modüllerin metodlarını ve parametre tiplerini anlayabilmesi için harici bir tip tanım paketi olan @types/node gereklidir.",
+            "en": "Node.js built-in modules (fs, path, http, etc.) are written in JavaScript. To let TypeScript understand the methods and parameter types of these modules, an external type definition package like @types/node is necessary."
+      }
+}
+},
 
       // ═══════════════════════════════════════════════════════════════════════
       // Advanced: Conditional & Mapped Types
@@ -1576,7 +2258,49 @@ console.log("Port:", config.server.port);
 
 // This would be a TypeScript error:
 // config.server.port = 9000;  // Cannot assign to readonly` },
-      { type: "quiz", question: { tr: "TypeScript'te { [K in keyof T]?: T[K] } ne yapar?", en: "What does { [K in keyof T]?: T[K] } do in TypeScript?" }, options: [{ id: "a", text: { tr: "T'nin tüm alanlarını siler", en: "Removes all fields from T" } }, { id: "b", text: { tr: "T'nin tüm alanlarını opsiyonel yapar (Partial<T> ile aynı)", en: "Makes all fields of T optional (same as Partial<T>)" } }, { id: "c", text: { tr: "T'nin alanlarını string'e dönüştürür", en: "Converts T's fields to strings" } }, { id: "d", text: { tr: "T'yi array'e dönüştürür", en: "Converts T to an array" } }], correct: "b", explanation: { tr: "[K in keyof T] ile T'nin tüm keylerini iterate edersin. ?: her birini opsiyonel yapar. T[K] ile orijinal tipi korursun. Bu tam olarak Partial<T>'nin implementation'ı.", en: "[K in keyof T] iterates over all keys of T. ?: makes each optional. T[K] preserves the original type. This is exactly how Partial<T> is implemented." } },
+      { type: "quiz", question: { tr: "TypeScript'te { [K in keyof T]?: T[K] } ne yapar?", en: "What does { [K in keyof T]?: T[K] } do in TypeScript?" }, options: [{ id: "a", text: { tr: "T'nin tüm alanlarını siler", en: "Removes all fields from T" } }, { id: "b", text: { tr: "T'nin tüm alanlarını opsiyonel yapar (Partial<T> ile aynı)", en: "Makes all fields of T optional (same as Partial<T>)" } }, { id: "c", text: { tr: "T'nin alanlarını string'e dönüştürür", en: "Converts T's fields to strings" } }, { id: "d", text: { tr: "T'yi array'e dönüştürür", en: "Converts T to an array" } }], correct: "b", explanation: { tr: "[K in keyof T] ile T'nin tüm keylerini iterate edersin. ?: her birini opsiyonel yapar. T[K] ile orijinal tipi korursun. Bu tam olarak Partial<T>'nin implementation'ı.", en: "[K in keyof T] iterates over all keys of T. ?: makes each optional. T[K] preserves the original type. This is exactly how Partial<T> is implemented." } ,
+        retryQuestion: {
+      "question": {
+            "tr": "TypeScript'te Readonly<T> yardımcı tipinin arka planda çalışan eşdeğeri aşağıdakilerden hangisidir?",
+            "en": "Which of the following is the underlying equivalent of the Readonly<T> utility type in TypeScript?"
+      },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "{ readonly [K in keyof T]: T[K] }",
+                        "en": "{ readonly [K in keyof T]: T[K] }"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "{ [K in keyof T]: T[K] | null }",
+                        "en": "{ [K in keyof T]: T[K] | null }"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "{ [K in keyof T]?: T[K] }",
+                        "en": "{ [K in keyof T]?: T[K] }"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "{ [K in keyof T]: T[K] | undefined }",
+                        "en": "{ [K in keyof T]: T[K] | undefined }"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Readonly<T> yapısı, bir nesnenin tüm özelliklerini değiştirilemez hale getirir. Bu, mapped type sözdizimi kullanılarak [K in keyof T] üzerinden her anahtarın önüne readonly değiştiricisi eklenerek gerçekleştirilir.",
+            "en": "The Readonly<T> utility makes all properties of an object immutable. This is achieved using the mapped type syntax by prepending the readonly modifier to every key via [K in keyof T]."
+      }
+}
+},
 
       // ─── Interview Questions for Advanced ─────────────────────────────────
       { type: "interview-questions", topic: "TypeScript Advanced", questions: [
@@ -2164,6 +2888,29 @@ test('login', async ({ loginPage }) => {
         ],
         note: "Every arrow is a typed boundary — passing wrong types triggers a compile error, not a runtime crash.",
       },
+      {
+        type: "quiz",
+        question: { tr: "Tam tipli bir Page Object Model'in Playwright otomasyonunda sağladığı temel avantaj nedir?", en: "What is the core benefit of a fully-typed Page Object Model in Playwright automation?" },
+        options: [
+          { id: "a", text: { tr: "Testleri daha hızlı çalıştırır", en: "Makes tests run faster" } },
+          { id: "b", text: { tr: "IDE metod/property isimlerini otomatik tamamlar ve yanlış kullanım derleme zamanında yakalanır", en: "The IDE autocompletes method/property names and misuse is caught at compile time" } },
+          { id: "c", text: { tr: "Locator'ları otomatik olarak günceller", en: "Automatically updates locators" } },
+          { id: "d", text: { tr: "Tarayıcı oturumlarını paylaşır", en: "Shares browser sessions" } },
+        ],
+        correct: "b",
+        explanation: { tr: "Bir Page Object class'ı tam tipli olduğunda, yanlış bir metod adı çağırmak veya yanlış argüman tipini geçirmek testi çalıştırmadan önce derleyici tarafından yakalanır — IDE de her metod/property için otomatik tamamlama gösterir, metod adlarını tahmin etmeye gerek kalmaz. Bu, Java'da bir arayüze (interface) karşı derleme yapmanın IDE/derleyici güvenliğiyle aynı mantıktır.", en: "When a Page Object class is fully typed, calling a wrong method name or passing the wrong argument type is caught by the compiler before the test even runs — the IDE also autocompletes every method/property, so you never have to guess a method name. Same logic as compiling against an interface in Java." },
+        retryQuestion: {
+          question: { tr: "Tipsiz (plain JS) bir Page Object'te `loginPage.clickLogin()` yazılır ama gerçek metod adı `clickLoginButton()`dır. Bu hata ne zaman fark edilir?", en: "In an untyped (plain JS) Page Object, someone writes `loginPage.clickLogin()` but the real method is `clickLoginButton()`. When is this mistake caught?" },
+          options: [
+            { id: "a", text: { tr: "Hemen, IDE kırmızı çizgiyle gösterir", en: "Immediately, the IDE flags it with a red squiggly" } },
+            { id: "b", text: { tr: "Test çalıştırıldığında, \"clickLogin is not a function\" runtime hatasıyla", en: 'Only when the test runs, with a "clickLogin is not a function" runtime error' } },
+            { id: "c", text: { tr: "Asla — JavaScript var olmayan metodları otomatik oluşturur", en: "Never — JavaScript automatically creates missing methods" } },
+            { id: "d", text: { tr: "Derleme sırasında, çünkü JavaScript de derlenir", en: "At compile time, because JavaScript is compiled too" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Plain JavaScript\'te (tip kontrolü olmadan) yanlış bir metod adı sadece o satır gerçekten ÇALIŞTIĞINDA patlar — derleme zamanı diye bir kavram yoktur. Bu, TypeScript\'in tam tipli bir Page Object\'te aynı hatayı yazarken IDE\'de anında yakalamasıyla tam karşıtlık oluşturur; bu fark, "test çalıştırıp hatayı CI\'da görmek" ile "yazarken hatayı görmek" arasındaki temel farktır.', en: 'In plain JavaScript (no type checking), a wrong method name only blows up when that line actually RUNS — there is no compile-time concept at all. This is the exact contrast with TypeScript catching the same mistake instantly in the IDE on a fully-typed Page Object — the difference between "run the test and see the error in CI" versus "see the error while typing."' },
+        },
+      },
     ],
   },
 
@@ -2625,6 +3372,29 @@ runTest(browserStr as Browser); // dikkatli kullan — doğrulama ekle`
           },
         ]
       },
+      {
+        type: "quiz",
+        question: { tr: "Test otomasyonunda 'any' tipi kullanmaktan neden kaçınılır ve onun yerine ne önerilir?", en: "Why should the 'any' type be avoided in test automation, and what is recommended instead?" },
+        options: [
+          { id: "a", text: { tr: "any daha yavaş çalışır", en: "any runs slower" } },
+          { id: "b", text: { tr: "any tür denetimini tamamen kapatır, hatalar runtime'da ortaya çıkar; bilmediğin tipte unknown kullan", en: "any disables all type checking, so errors surface at runtime instead; use unknown when the type is genuinely not known" } },
+          { id: "c", text: { tr: "any sadece test dosyalarında kullanılabilir", en: "any can only be used in test files" } },
+          { id: "d", text: { tr: "any otomatik olarak string'e dönüştürülür", en: "any is automatically converted to string" } },
+        ],
+        correct: "b",
+        explanation: { tr: "`any` bir kaçış kapısıdır — ona her şeyi atayabilir, herhangi bir metodu çağırabilirsin, derleyici hiçbir şeyi kontrol etmez. Bu hatalar çalışma zamanına kadar görünmez kalır, yani TypeScript'in tüm amacı ortadan kalkar. `unknown` ise aynı esnekliği verir ama kullanmadan önce tip daralması (type narrowing, örn. `typeof` kontrolü) yapmaya ZORLAR — bu yüzden bilinmeyen bir API yanıtı için her zaman `any` değil `unknown` kullanılmalı.", en: "`any` is an escape hatch — you can assign anything to it and call any method, and the compiler checks nothing. Those errors stay invisible until runtime, defeating TypeScript's whole purpose. `unknown` offers the same flexibility but FORCES you to narrow the type (e.g. a `typeof` check) before using it — which is why an unknown API response should always use `unknown`, never `any`." },
+        retryQuestion: {
+          question: { tr: "`let data: unknown = await response.json()` yazdın. `data.name` özelliğine doğrudan erişmeye çalışırsan ne olur?", en: 'You write `let data: unknown = await response.json()`. What happens if you try to access `data.name` directly?' },
+          options: [
+            { id: "a", text: { tr: "Çalışır, `any` ile aynı davranışı gösterir", en: "It works fine, behaving exactly like any" } },
+            { id: "b", text: { tr: "TypeScript derleme hatası verir — önce tip daralması (örn. typeof/in kontrolü) yapman gerekir", en: "TypeScript gives a compile error — you must narrow the type first (e.g. a typeof/in check)" } },
+            { id: "c", text: { tr: "Runtime'da sessizce undefined döner", en: "It silently returns undefined at runtime" } },
+            { id: "d", text: { tr: "unknown otomatik olarak any'e dönüşür", en: "unknown automatically converts to any" } },
+          ],
+          correct: "b",
+          explanation: { tr: '`unknown`, `any`\'den farklı olarak HİÇBİR property/metoda doğrulama yapmadan erişime izin vermez — derleyici, `data.name`\'e erişmeden önce `typeof data === "object" && data !== null && "name" in data` gibi bir tip daralması ister. Bu, `any` kullanırken atlanan güvenliği geri getirir: bilinmeyen bir API yanıtını kullanmadan önce gerçekten doğrulamaya zorlar.', en: 'Unlike `any`, `unknown` does not allow accessing ANY property/method without validation first — the compiler requires a type narrowing step like `typeof data === "object" && data !== null && "name" in data"` before `data.name` is allowed. This restores the safety that `any` throws away: it forces you to actually validate an unknown API response before using it.' },
+        },
+      },
     ],
   },
 
@@ -2940,6 +3710,29 @@ demoPage.navigate().then(async () => {
         type: "tip",
         content:
           "Bookmark the TypeScript Playground at typescriptlang.org/play — paste any snippet and see the compiled JavaScript, type errors, and hover types instantly. It is the fastest way to experiment with TypeScript concepts without setting up a project.",
+      },
+      {
+        type: "quiz",
+        question: { tr: "Generic bir `ApiResponse<T>` sarmalayıcı tipi tanımlamanın amacı nedir?", en: "What is the purpose of defining a generic `ApiResponse<T>` wrapper type?" },
+        options: [
+          { id: "a", text: { tr: "API çağrılarını hızlandırır", en: "It makes API calls faster" } },
+          { id: "b", text: { tr: "Her endpoint'in farklı veri şeklini, ortak bir sarmalayıcı yapıyı (status/data/error gibi) tip güvenliğiyle tekrar kullanmayı sağlar", en: "It lets each endpoint's different data shape reuse a common wrapper structure (e.g. status/data/error) with full type safety" } },
+          { id: "c", text: { tr: "Sadece string tipindeki yanıtlar için çalışır", en: "It only works for string-type responses" } },
+          { id: "d", text: { tr: "Network hatalarını otomatik olarak retry eder", en: "It automatically retries network errors" } },
+        ],
+        correct: "b",
+        explanation: { tr: "`ApiResponse<T>` gibi bir generic tip, `{ status: number, data: T, error?: string }` şeklindeki ortak zarfı BİR kez tanımlar; `T` yerine `User`, `Product`, `OrderResult` gibi her endpoint'in gerçek veri tipini geçirirsin. Java'daki generic bir `ApiResponse<T>` sınıfıyla aynı mantık — kod tekrarı olmadan her endpoint için tip güvenliği kazanırsın.", en: "A generic type like `ApiResponse<T>` defines the common envelope `{ status: number, data: T, error?: string }` ONCE; you substitute `T` with each endpoint's real data type like `User`, `Product`, `OrderResult`. Same logic as a generic `ApiResponse<T>` class in Java — you get type safety per endpoint without duplicating the wrapper." },
+        retryQuestion: {
+          question: { tr: "`ApiResponse<T>` generic tipi olmadan, her endpoint için (User, Product, Order) AYRI bir response wrapper tipi (UserResponse, ProductResponse, OrderResponse) yazsaydın, temel dezavantajı ne olurdu?", en: 'Without the generic `ApiResponse<T>` type, if you wrote a SEPARATE response wrapper type for each endpoint (UserResponse, ProductResponse, OrderResponse), what would be the main downside?' },
+          options: [
+            { id: "a", text: { tr: "Derleyici hiçbirini tip kontrolü yapamaz", en: "The compiler could not type-check any of them" } },
+            { id: "b", text: { tr: "{status, data, error} zarf şeklini her tipte tekrar yazman gerekirdi — bir alanı değiştirmek N yerde güncelleme ister", en: "You'd have to repeat the {status, data, error} envelope shape in every type — changing one field means updating it in N places" } },
+            { id: "c", text: { tr: "TypeScript birden fazla interface tanımlamayı desteklemez", en: "TypeScript does not support defining multiple interfaces" } },
+            { id: "d", text: { tr: "API yanıtları artık JSON olarak parse edilemezdi", en: "API responses could no longer be parsed as JSON" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Generic olmadan, ortak zarf yapısı ({status, data, error}) her ayrı response tipinde KOPYALANIR. Zarfa yeni bir alan eklemen gerekirse (örn. bir `requestId`), bunu UserResponse, ProductResponse, OrderResponse\'un hepsinde tek tek güncellemen gerekir — generic bir `ApiResponse<T>` ile bu değişiklik tek bir yerde yapılır ve her kullanıma otomatik yayılır.', en: 'Without generics, the common envelope shape ({status, data, error}) gets COPIED into every separate response type. If you need to add a field to the envelope (e.g. a `requestId`), you must update UserResponse, ProductResponse, and OrderResponse individually — with a generic `ApiResponse<T>`, that change happens in one place and automatically propagates to every usage.' },
+        },
       },
     ],
   },
@@ -3374,6 +4167,29 @@ test("login works", async ({ page }) => {
         { term: 'union type (A | B)', definition: { tr: 'Bir degerin birden fazla tipten biri olabilecegini ifade eder. Java sealed classes a benzer ama cok daha kisadir.', en: 'Expresses that a value can be one of multiple types. Similar to Java sealed classes but much more concise.' } },
         { term: 'unknown', definition: { tr: 'any nin daha guvenli alternatifi. Kullanmadan once tip daralttirmasi (type narrowing) yapmak zorundasinizdir.', en: "A safer alternative to any. You must perform type narrowing before using it." } },
       ]},
+      {
+        type: "quiz",
+        question: { tr: "Java'daki interface ile TypeScript'teki interface arasındaki en önemli fark nedir?", en: "What is the most important difference between an interface in Java and an interface in TypeScript?" },
+        options: [
+          { id: "a", text: { tr: "TypeScript interface'leri metot içeremez", en: "TypeScript interfaces cannot contain methods" } },
+          { id: "b", text: { tr: "TypeScript yapısal tipleme kullanır — bir obje açıkça 'implements' demeden, sadece şekli uyuyorsa o interface'e atanabilir; Java nominal tiplemede açık 'implements' ister", en: "TypeScript uses structural typing — an object can satisfy an interface just by having the right shape, without explicitly declaring 'implements'; Java's nominal typing requires explicit 'implements'" } },
+          { id: "c", text: { tr: "TypeScript interface'leri sadece bir kez kullanılabilir", en: "TypeScript interfaces can only be used once" } },
+          { id: "d", text: { tr: "Java interface'leri generic destekler, TypeScript desteklemez", en: "Java interfaces support generics, TypeScript does not" } },
+        ],
+        correct: "b",
+        explanation: { tr: "Java nominal tiplemeye dayanır: bir sınıfın bir interface'i karşıladığını söylemek için açıkça `implements InterfaceName` yazman gerekir. TypeScript ise yapısal tiplemeye dayanır: bir obje, interface'in beklediği tüm property/metodlara sahipse, hiçbir `implements` bildirimi olmadan o interface tipine atanabilir — derleyici sadece şekle bakar. Bu, TypeScript'i mock obje oluşturmada ve farklı kütüphanelerin tiplerini birbirine uydurmada Java'dan daha esnek yapar.", en: "Java relies on nominal typing: a class must explicitly write `implements InterfaceName` to satisfy an interface. TypeScript relies on structural typing: an object can be assigned to an interface type as long as it has all the required properties/methods — the compiler only checks the shape, with no `implements` declaration needed at all. This makes TypeScript more flexible than Java when building mock objects or reconciling types across different libraries." },
+        retryQuestion: {
+          question: { tr: "Bir testte `interface Logger { log(msg: string): void }` tipinde bir parametre bekleyen bir fonksiyona, `{ log: (msg) => console.log(msg) }` şeklinde sade bir obje literal'i geçiriyorsun, hiç `implements Logger` yazmadan. TypeScript ne yapar?", en: 'In a test, you pass a plain object literal `{ log: (msg) => console.log(msg) }` to a function expecting an `interface Logger { log(msg: string): void }` parameter, with no `implements Logger` anywhere. What does TypeScript do?' },
+          options: [
+            { id: "a", text: { tr: "Derleme hatası verir, çünkü hiçbir sınıf açıkça implements Logger demedi", en: "It throws a compile error because no class explicitly said implements Logger" } },
+            { id: "b", text: { tr: "Kabul eder — obje, Logger'ın beklediği şekle (bir log metodu) sahip olduğu için geçerlidir", en: "It accepts it — the object has the shape Logger expects (a log method), so it's valid" } },
+            { id: "c", text: { tr: "Runtime'da çalışır ama derleme zamanında uyarı verir", en: "It runs at runtime but warns at compile time" } },
+            { id: "d", text: { tr: "Sadece class instance'ları interface parametresi olarak kabul edilir", en: "Only class instances are accepted as interface parameters" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Bu, yapısal tiplemenin (structural typing) tam tanımıdır: obje literal\'i Logger interface\'inin gerektirdiği şekle (bir `log(msg: string): void` metodu) sahip olduğu için, hiçbir `implements` bildirimine ihtiyaç olmadan kabul edilir. Bu, testlerde gerçek bir logger sınıfı oluşturmadan basit obje literal\'leriyle mock/stub yapmayı kolaylaştırır — Java\'da bunun için her zaman interface\'i implement eden gerçek bir sınıf (veya anonim sınıf) gerekirdi.', en: 'This is structural typing in action: the object literal is accepted with no `implements` declaration needed at all, simply because it has the shape Logger requires (a `log(msg: string): void` method). This makes it easy to mock/stub in tests using plain object literals instead of creating a real logger class — Java would always require an actual class (or anonymous class) that implements the interface for this.' },
+        },
+      },
     ],
   },
   // ─────────────────────────────────────────────
@@ -3491,6 +4307,29 @@ describe('formatPrice', () => {
 // npx vitest run --coverage → coverage/index.html`,
         note: "The @Test annotation in Java maps almost 1-to-1 to Vitest's it()/test() — both isolate one behavior per function, both fail loudly with a stack trace, and both plug into CI as a separate step from your end-to-end (Playwright/Selenium) suite.",
         note_en: "The @Test annotation in Java maps almost 1-to-1 to Vitest's it()/test() — both isolate one behavior per function, both fail loudly with a stack trace, and both plug into CI as a separate step from your end-to-end (Playwright/Selenium) suite.",
+      },
+      {
+        type: "quiz",
+        question: { tr: "Playwright Test zaten kendi test runner'ına sahipken, bir QA otomasyon projesinde Vitest'e ne zaman ihtiyaç duyulur?", en: "Given that Playwright Test already has its own test runner, when does a QA automation project actually need Vitest?" },
+        options: [
+          { id: "a", text: { tr: "Playwright testlerini daha hızlı çalıştırmak için", en: "To make Playwright tests run faster" } },
+          { id: "b", text: { tr: "Tarayıcı açmadan, düz bir TypeScript yardımcı fonksiyonunu (formatter, parser, util) izole şekilde unit test etmek için", en: "To unit test a plain TypeScript helper function (a formatter, parser, util) in isolation, without opening a browser" } },
+          { id: "c", text: { tr: "Playwright'ın hiç desteklemediği tarayıcılarda test çalıştırmak için", en: "To run tests in browsers Playwright does not support at all" } },
+          { id: "d", text: { tr: "CI/CD pipeline'ına ihtiyacı ortadan kaldırmak için", en: "To eliminate the need for a CI/CD pipeline" } },
+        ],
+        correct: "b",
+        explanation: { tr: "Playwright Test, uçtan uca tarayıcı testleri için zaten yeterlidir — Vitest'e gerek yoktur. Ama bir fiyat formatlayıcı veya veri parser'ı gibi düz bir TypeScript fonksiyonu yazdığında, o fonksiyonu tarayıcı açmadan, hızlı ve izole şekilde test etmek istersin — Java'da JUnit'in bir servis sınıfını Selenium'a hiç dokunmadan unit test etmesiyle aynı mantık. Vitest bu rolü TypeScript dünyasında üstlenir.", en: "Playwright Test is already sufficient for end-to-end browser tests — Vitest is not needed there. But the moment you write a plain TypeScript function like a price formatter or data parser, you want to test it fast and in isolation, without spinning up a browser — the same logic as JUnit unit-testing a service class in Java without touching Selenium at all. Vitest fills that role in the TypeScript world." },
+        retryQuestion: {
+          question: { tr: "Bir `formatPrice(cents: number): string` fonksiyonunu Vitest ile unit test etmenin, onu sadece bir Playwright E2E testi içinde dolaylı olarak test etmeye göre temel avantajı nedir?", en: 'What is the core advantage of unit testing a `formatPrice(cents: number): string` function with Vitest, versus only testing it indirectly inside a Playwright E2E test?' },
+          options: [
+            { id: "a", text: { tr: "Vitest testleri her zaman daha yüksek coverage verir", en: "Vitest tests always produce higher coverage" } },
+            { id: "b", text: { tr: "Tarayıcı açmadan, saniyeler içinde ve fonksiyonu izole ederek çalışır — bir E2E testi başarısız olursa hatanın formatPrice'tan mı yoksa UI'dan mı geldiği belirsiz olur", en: "It runs in seconds with no browser, testing the function in isolation — if an E2E test fails, it's unclear whether the bug is in formatPrice or the UI" } },
+            { id: "c", text: { tr: "Vitest, Playwright'ın test edemediği bir sözdizimi kullanır", en: "Vitest uses syntax Playwright cannot test" } },
+            { id: "d", text: { tr: "E2E testleri unit test edilebilir fonksiyonları çalıştıramaz", en: "E2E tests cannot execute unit-testable functions at all" } },
+          ],
+          correct: "b",
+          explanation: { tr: 'Bir E2E testi `formatPrice`\'ı sadece DOLAYLI olarak (sayfada doğru fiyatın görünmesi üzerinden) test eder — başarısız olursa, hatanın formatPrice\'ın kendisinde mi yoksa render/UI mantığında mı olduğunu ayırt etmek zordur, ayrıca her assertion için bir tarayıcı başlatmak gerekir (saniyeler/dakikalar). Vitest, fonksiyonu doğrudan, tarayıcısız ve milisaniyeler içinde test eder — hata varsa tam olarak nerede olduğunu hemen gösterir.', en: 'An E2E test only tests `formatPrice` INDIRECTLY (via the correct price appearing on the page) — if it fails, it is hard to tell whether the bug is in formatPrice itself or in rendering/UI logic, and spinning up a browser for every assertion costs seconds/minutes. Vitest tests the function directly, with no browser, in milliseconds — if it fails, it tells you exactly where the bug is.' },
+        },
       },
     ],
   },

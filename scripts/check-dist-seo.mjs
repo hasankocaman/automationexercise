@@ -13,7 +13,9 @@ function htmlIncludes(html, value) {
     return html.includes(String(value).replaceAll('&', '&amp;'))
 }
 
-for (const seo of ROUTE_SEO) {
+const checkedRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
+
+for (const seo of checkedRoutes) {
     const htmlPath = routeIndexPath(seo.path)
 
     try {
@@ -56,4 +58,4 @@ if (errors.length) {
     process.exit(1)
 }
 
-console.log(`Dist SEO check passed for ${ROUTE_SEO.length} generated pages.`)
+console.log(`Dist SEO check passed for ${checkedRoutes.length} generated pages.`)

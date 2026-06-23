@@ -69,7 +69,49 @@ const s0 = {
           tr: 'Selenium, WebDriver protokolü üzerinden tarayıcıya "uzaktan" komut gönderir (network round-trip vardır). Cypress ise test kodunu doğrudan tarayıcının içinde çalıştırır — bu da onu hızlı yapar ama aynı zamanda sadece JavaScript/TypeScript ile sınırlar ve tek sekme/aynı origin kısıtlamaları getirir.',
           en: 'Selenium sends commands to the browser "remotely" via the WebDriver protocol (a network round-trip). Cypress runs the test code directly inside the browser — this makes it fast, but also limits it to JavaScript/TypeScript and introduces single-tab/same-origin constraints.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium'un Cypress'ten ayrılan en büyük çalışma prensibi nedir?",
+            "en": "What is the primary operational principle that distinguishes Selenium from Cypress?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Selenium tarayıcı dışında, Cypress ise tarayıcı içinde çalışır",
+                        "en": "Selenium runs outside the browser, while Cypress runs inside the browser"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Selenium doğrudan tarayıcı ile konuşur, Cypress ise sunucu tarafında çalışır",
+                        "en": "Selenium talks directly to the browser, while Cypress runs server-side"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Selenium sadece API testlerini destekler",
+                        "en": "Selenium only supports API testing"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Selenium tarayıcıyı kontrol etmek için WebDriver API'sine ihtiyaç duymaz",
+                        "en": "Selenium does not require the WebDriver API to control the browser"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Selenium, WebDriver protokolünü kullanarak dışarıdan komut gönderirken, Cypress doğrudan tarayıcının main thread'i içerisinde uygulamayla aynı döngüde (run-loop) çalışır, bu da onu daha senkronize ve hızlı kılar.",
+            "en": "Selenium sends commands from the outside using the WebDriver protocol, whereas Cypress runs directly inside the browser's main thread in the same run-loop as the application, making it more synchronized and faster."
+      }
+}
+},
       {
         type: 'glossary-section',
         terms: [
@@ -147,7 +189,49 @@ const s0 = {
           tr: 'Selenium, WebDriver protokolü üzerinden tarayıcıya "uzaktan" komut gönderir (network round-trip vardır). Cypress ise test kodunu doğrudan tarayıcının içinde çalıştırır — bu da onu hızlı yapar ama aynı zamanda sadece JavaScript/TypeScript ile sınırlar ve tek sekme/aynı origin kısıtlamaları getirir.',
           en: 'Selenium sends commands to the browser "remotely" via the WebDriver protocol (a network round-trip). Cypress runs the test code directly inside the browser — this makes it fast, but also limits it to JavaScript/TypeScript and introduces single-tab/same-origin constraints.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selenium ile karşılaştırıldığında Cypress'in sunduğu en büyük avantaj hangisidir?",
+            "en": "Which of the following is the biggest advantage of Cypress compared to Selenium?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Birden fazla tarayıcıyı aynı anda kontrol edebilmesi",
+                        "en": "Being able to control multiple browsers simultaneously"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Test kodunun tarayıcıyla aynı bellek alanında ve 'run-loop'ta çalışması",
+                        "en": "Test code running in the same run-loop and memory space as the browser"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Cypress'in tüm dilleri (Java, Python, C#) desteklemesi",
+                        "en": "Cypress supporting all languages (Java, Python, C#)"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "WebDriver protokolü ile daha yavaş ve stabil çalışması",
+                        "en": "Working slower and more stable with the WebDriver protocol"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress'in en büyük avantajı, testin tarayıcı ile aynı süreçte çalışmasıdır. Bu durum, DOM ile doğrudan etkileşime geçmesini sağlar ve ağ gecikmelerinden kaynaklanan 'flakiness'ı önemli ölçüde azaltır.",
+            "en": "Cypress's greatest advantage is that the test runs in the same process as the browser. This allows it to interact directly with the DOM and significantly reduces 'flakiness' caused by network latency."
+      }
+}
+},
       {
         type: 'glossary-section',
         terms: [
@@ -245,7 +329,49 @@ const s1 = {
           tr: 'cypress.config.js, v10 ile birlikte eski cypress.json\'ın yerini aldı; baseUrl, viewport, timeout, env değişkenleri ve setupNodeEvents (plugin) gibi tüm ayarları tek bir yerde toplar.',
           en: "cypress.config.js replaced the old cypress.json starting with v10; it centralizes all settings like baseUrl, viewport, timeout, env variables, and setupNodeEvents (plugins) in one place.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress projelerinde ayarları ve konfigürasyonları yönetmek için kullanılan dosya hangisidir?",
+            "en": "Which file is used to manage settings and configurations in Cypress projects?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "cypress-settings.json",
+                        "en": "cypress-settings.json"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "cypress.config.js",
+                        "en": "cypress.config.js"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "test-config.yaml",
+                        "en": "test-config.yaml"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "config.js",
+                        "en": "config.js"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress v10 sonrası tüm yapılandırma ayarları cypress.config.js dosyasında toplanmıştır. Bu dosya; temel URL, zaman aşımları ve plugin tanımlamaları gibi kritik ayarları içerir.",
+            "en": "Since Cypress v10, all configuration settings are centralized in the cypress.config.js file. This file contains critical settings such as base URL, timeouts, and plugin definitions."
+      }
+}
+},
     ],
   },
   en: {
@@ -331,7 +457,37 @@ const s1 = {
           tr: 'cypress.config.js, v10 ile birlikte eski cypress.json\'ın yerini aldı; baseUrl, viewport, timeout, env değişkenleri ve setupNodeEvents (plugin) gibi tüm ayarları tek bir yerde toplar.',
           en: "cypress.config.js replaced the old cypress.json starting with v10; it centralizes all settings like baseUrl, viewport, timeout, env variables, and setupNodeEvents (plugins) in one place.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress projelerinde e2e test ayarlarını (viewport, env, baseUrl) tanımlamak için kullanılan temel konfigürasyon dosyası hangisidir?",
+            "en": "Which file is the primary configuration file used to define e2e test settings (such as viewport, env, and baseUrl) in Cypress projects?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "test.config.js"
+            },
+            {
+                  "id": "b",
+                  "text": "cypress.config.js"
+            },
+            {
+                  "id": "c",
+                  "text": "package.json"
+            },
+            {
+                  "id": "d",
+                  "text": "cypress.json"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cypress.config.js, Cypress v10 ve sonrası için standart konfigürasyon dosyasıdır. Proje genelindeki ayarları (baseUrl, timeout, ortam değişkenleri) burada merkezi bir şekilde yönetiriz.",
+            "en": "cypress.config.js is the standard configuration file for Cypress v10 and later. We manage global project settings (like baseUrl, timeouts, and environment variables) centrally in this file."
+      }
+}
+},
     ],
   },
 }
@@ -402,7 +558,37 @@ cy.get('[data-cy=submit]').click()
           tr: 'data-cy (veya data-test, data-testid) attribute\'ları sadece test amacıyla eklenir; geliştiriciler stil veya metin değiştirdiğinde bu attribute\'a dokunmaz, bu yüzden testler kırılmaz. Bu, Selenium dünyasında da geçerli olan evrensel bir "resilient selector" pratiğidir.',
           en: 'data-cy (or data-test, data-testid) attributes exist purely for testing; developers will not touch them when changing styles or text, so tests stay stable. This is a universal "resilient selector" practice that applies in the Selenium world too.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonunda 'data-cy' veya 'data-testid' kullanmanın CSS sınıfları (classes) veya HTML etiketlerine göre en büyük avantajı nedir?",
+            "en": "What is the primary advantage of using 'data-cy' or 'data-testid' over CSS classes or HTML tags in test automation?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Daha hızlı tarayıcı render süresi sağlar"
+            },
+            {
+                  "id": "b",
+                  "text": "Testlerin, arayüzdeki stil (CSS) veya yapısal (HTML tag) değişikliklerinden etkilenmemesini (daha az kırılgan olmasını) sağlar"
+            },
+            {
+                  "id": "c",
+                  "text": "Tarayıcının sayfayı daha hızlı yüklemesine yardımcı olur"
+            },
+            {
+                  "id": "d",
+                  "text": "Otomatik olarak tüm tarayıcılarda cross-browser uyumluluğu sağlar"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "CSS sınıfları genellikle stil değişiklikleri nedeniyle güncellenir. 'data-cy' ise sadece test için ayrılmıştır; bu sayede arayüz tasarımı değişse bile testleriniz stabil kalmaya devam eder.",
+            "en": "CSS classes are often updated for styling purposes. 'data-cy' is reserved strictly for testing, ensuring your tests remain stable even when the UI design changes."
+      }
+}
+},
     ],
   },
   en: {
@@ -470,7 +656,37 @@ cy.get('[data-cy=submit]').click()
           tr: 'data-cy (veya data-test, data-testid) attribute\'ları sadece test amacıyla eklenir; geliştiriciler stil veya metin değiştirdiğinde bu attribute\'a dokunmaz, bu yüzden testler kırılmaz. Bu, Selenium dünyasında da geçerli olan evrensel bir "resilient selector" pratiğidir.',
           en: 'data-cy (or data-test, data-testid) attributes exist purely for testing; developers will not touch them when changing styles or text, so tests stay stable. This is a universal "resilient selector" practice that applies in the Selenium world too.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonunda 'data-cy' veya 'data-testid' kullanmanın CSS sınıfları (classes) veya HTML etiketlerine göre en büyük avantajı nedir?",
+            "en": "What is the primary advantage of using 'data-cy' or 'data-testid' over CSS classes or HTML tags in test automation?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It improves browser rendering performance"
+            },
+            {
+                  "id": "b",
+                  "text": "It decouples tests from UI/styling changes, making tests more resilient"
+            },
+            {
+                  "id": "c",
+                  "text": "It helps the browser load pages faster"
+            },
+            {
+                  "id": "d",
+                  "text": "It provides automatic cross-browser compatibility"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "CSS sınıfları genellikle stil değişiklikleri nedeniyle güncellenir. 'data-cy' ise sadece test için ayrılmıştır; bu sayede arayüz tasarımı değişse bile testleriniz stabil kalmaya devam eder.",
+            "en": "CSS classes are often updated for styling purposes. 'data-cy' is reserved strictly for testing, ensuring your tests remain stable even when the UI design changes."
+      }
+}
+},
     ],
   },
 }
@@ -547,7 +763,37 @@ cy.get('[data-cy=drag-source]').drag('[data-cy=drop-target]')`,
           tr: 'Hem Cypress hem Selenium\'un Actions API\'si, native drag-and-drop\'u gerçek OS seviyesinde mouse hareketleri olmadan simüle etmekte zorlanır. Cypress\'te .trigger() ile sentetik event göndermek ya da topluluk eklentisi (cypress-drag-drop) kullanmak en yaygın çözümdür.',
           en: "Both Cypress and Selenium's Actions API struggle to simulate native drag-and-drop without real OS-level mouse movement. In Cypress, dispatching synthetic events with .trigger() or using a community plugin (cypress-drag-drop) is the most common workaround.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress'te mouse hareketlerine dayalı etkileşimleri (örneğin elementleri sürükleyip bırakma) test ederken karşılaşılan temel teknik kısıt nedir?",
+            "en": "What is the primary technical limitation when testing mouse-based interactions, such as drag-and-drop, in Cypress?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Cypress'in mouse koordinat sistemini tamamen devre dışı bırakması"
+            },
+            {
+                  "id": "b",
+                  "text": "İşletim sistemi seviyesindeki gerçek mouse sürücü hareketlerini taklit etmenin zorluğu"
+            },
+            {
+                  "id": "c",
+                  "text": "Cypress'in sadece dokunmatik ekranlı cihazlarda çalışması"
+            },
+            {
+                  "id": "d",
+                  "text": "DOM elementlerinin sürüklenemez olarak işaretlenmiş olması"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress, tarayıcı içinde çalışan bir araç olduğu için işletim sistemi düzeyindeki gerçek mouse donanım hareketlerini tetikleyemez. Bu yüzden drag-and-drop işlemleri sentetik event'ler aracılığıyla simüle edilir, bu da native behavior'ı her zaman %100 yansıtmayabilir.",
+            "en": "Because Cypress runs inside the browser, it cannot trigger actual hardware mouse movements at the OS level. Therefore, drag-and-drop actions are simulated via synthetic events, which may not always perfectly replicate native browser behavior."
+      }
+}
+},
     ],
   },
   en: {
@@ -621,7 +867,37 @@ cy.get('[data-cy=drag-source]').drag('[data-cy=drop-target]')`,
           tr: 'Hem Cypress hem Selenium\'un Actions API\'si, native drag-and-drop\'u gerçek OS seviyesinde mouse hareketleri olmadan simüle etmekte zorlanır. Cypress\'te .trigger() ile sentetik event göndermek ya da topluluk eklentisi (cypress-drag-drop) kullanmak en yaygın çözümdür.',
           en: "Both Cypress and Selenium's Actions API struggle to simulate native drag-and-drop without real OS-level mouse movement. In Cypress, dispatching synthetic events with .trigger() or using a community plugin (cypress-drag-drop) is the most common workaround.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress'te mouse hareketlerine dayalı etkileşimleri (örneğin elementleri sürükleyip bırakma) test ederken karşılaşılan temel teknik kısıt nedir?",
+            "en": "What is the primary technical limitation when testing mouse-based interactions, such as drag-and-drop, in Cypress?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Cypress completely disables the mouse coordinate system"
+            },
+            {
+                  "id": "b",
+                  "text": "The difficulty of simulating actual OS-level mouse driver movements"
+            },
+            {
+                  "id": "c",
+                  "text": "Cypress only functions on touchscreen devices"
+            },
+            {
+                  "id": "d",
+                  "text": "DOM elements are marked as non-draggable by default"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress, tarayıcı içinde çalışan bir araç olduğu için işletim sistemi düzeyindeki gerçek mouse donanım hareketlerini tetikleyemez. Bu yüzden drag-and-drop işlemleri sentetik event'ler aracılığıyla simüle edilir, bu da native behavior'ı her zaman %100 yansıtmayabilir.",
+            "en": "Because Cypress runs inside the browser, it cannot trigger actual hardware mouse movements at the OS level. Therefore, drag-and-drop actions are simulated via synthetic events, which may not always perfectly replicate native browser behavior."
+      }
+}
+},
     ],
   },
 }
@@ -686,7 +962,37 @@ wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("toast")));`,
           tr: 'Cypress her komuttan sonra otomatik olarak bir DOM snapshot\'ı saklar. Command Log\'da geçmişe tıklamak, testi yeniden çalıştırmadan o anki uygulama durumunu (DOM, stil, hatta hover durumları) tekrar görmeni sağlar — buna "time travel debugging" denir.',
           en: 'Cypress automatically stores a DOM snapshot after every command. Clicking a past entry in the Command Log lets you see the app state at that exact moment (DOM, styles, even hover states) without re-running the test — this is called "time travel debugging".',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress Test Runner'da Command Log üzerinde bir komutun üzerine gelindiğinde (hover) uygulanan 'Time Travel' özelliğinin sağladığı temel avantaj nedir?",
+            "en": "What is the main benefit provided by the 'Time Travel' feature when hovering over a command in the Cypress Test Runner Command Log?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Testin o noktadan itibaren kodunu otomatik düzeltmesi"
+            },
+            {
+                  "id": "b",
+                  "text": "Testin çalışması sırasında o ana ait DOM yapısını ve CSS durumunu inceleme imkanı"
+            },
+            {
+                  "id": "c",
+                  "text": "Tüm network isteklerini o an için iptal etmesi"
+            },
+            {
+                  "id": "d",
+                  "text": "Testin çalışma hızını artırmak için render'ı durdurması"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Time Travel, Cypress'in her komut sonrası aldığı snapshot'ları kullanarak, testin yürütülmesi bittikten sonra uygulamanın geçmişteki herhangi bir durumunu görselleştirmenize ve DOM üzerinde debug yapmanıza olanak tanır.",
+            "en": "Time Travel utilizes the snapshots Cypress takes after every command, allowing you to visualize and debug any past state of the application in the DOM after the test execution has finished."
+      }
+}
+},
     ],
   },
   en: {
@@ -748,7 +1054,49 @@ wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("toast")));`,
           tr: 'Cypress her komuttan sonra otomatik olarak bir DOM snapshot\'ı saklar. Command Log\'da geçmişe tıklamak, testi yeniden çalıştırmadan o anki uygulama durumunu (DOM, stil, hatta hover durumları) tekrar görmeni sağlar — buna "time travel debugging" denir.',
           en: 'Cypress automatically stores a DOM snapshot after every command. Clicking a past entry in the Command Log lets you see the app state at that exact moment (DOM, styles, even hover states) without re-running the test — this is called "time travel debugging".',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress Test Runner'da bir test adımı tamamlandıktan sonra Command Log'da bir komutun üzerine gelindiğinde oluşan 'Snapshot' özelliğinin ana amacı nedir?",
+            "en": "What is the primary purpose of the 'Snapshot' feature that appears when hovering over a command in the Cypress Test Runner Command Log?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Testi o noktadan itibaren hızlandırmak",
+                        "en": "To speed up the test execution from that point"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Uygulamanın o adımdaki görsel ve yapısal durumunu inceleyebilmek",
+                        "en": "To inspect the visual and structural state of the application at that step"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Testi otomatik olarak hata ayıklama modunda yeniden başlatmak",
+                        "en": "To automatically restart the test in debug mode"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Eski komutları testten kalıcı olarak silmek",
+                        "en": "To permanently delete old commands from the test"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress, her komut sonrasında DOM'un bir anlık görüntüsünü (snapshot) alır. Command Log üzerinden bu anlık görüntülere erişmek, uygulamanın o komut çalıştırıldığı andaki DOM yapısını, CSS stillerini ve etkileşim durumlarını inceleyerek hatayı hızlıca anlamanızı sağlar.",
+            "en": "Cypress captures a snapshot of the DOM after every command. Accessing these snapshots via the Command Log allows you to inspect the DOM structure, CSS styles, and interaction states as they existed at the moment that command was executed, helping you debug issues efficiently."
+      }
+}
+},
     ],
   },
 }
@@ -821,7 +1169,49 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
           tr: 'cy.intercept() içine fixture/body/statusCode verirsen "stub" olur — gerçek sunucuya hiç gidilmez. Sadece .as() ile alias verip override yapmazsan "spy" olur — gerçek istek sunucuya gider ama sen response\'u test edebilirsin (cy.wait(\'@alias\').its(...)).',
           en: "If you pass a fixture/body/statusCode to cy.intercept(), it becomes a \"stub\" — the real server is never hit. If you only give it an alias with .as() without overriding the response, it becomes a \"spy\" — the real request goes to the server but you can still assert on the response (cy.wait('@alias').its(...)).",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir API isteğini cy.intercept() ile 'spy' (gözlemci) modunda kullanmanın en belirgin özelliği nedir?",
+            "en": "What is the most distinct characteristic of using an API request in 'spy' mode with cy.intercept()?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "İstek gerçek sunucuya ulaşır ve yanıt döner",
+                        "en": "The request reaches the actual server and receives a response"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "İstek engellenir ve sunucuya hiç gitmez",
+                        "en": "The request is blocked and never reaches the server"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece hata durumunda tetiklenir",
+                        "en": "It is only triggered in case of an error"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Yanıt verisini rastgele üretir",
+                        "en": "It generates random response data"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Spy modunda, cy.intercept() isteği izler ancak araya girip manipüle etmez. İstek gerçek sunucuya iletilir, sunucu yanıtı döner ve siz bu süreci cy.wait('@alias') ile yakalayarak yanıtı onaylayabilirsiniz. 'Stub' ise sunucuya gidişi engeller.",
+            "en": "In spy mode, cy.intercept() monitors the request without manipulating it. The request is passed through to the real server, the server returns the response, and you can capture this process using cy.wait('@alias') to assert the response. 'Stub', on the other hand, prevents the request from reaching the server."
+      }
+}
+},
     ],
   },
   en: {
@@ -891,7 +1281,49 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
           tr: 'cy.intercept() içine fixture/body/statusCode verirsen "stub" olur — gerçek sunucuya hiç gidilmez. Sadece .as() ile alias verip override yapmazsan "spy" olur — gerçek istek sunucuya gider ama sen response\'u test edebilirsin (cy.wait(\'@alias\').its(...)).',
           en: "If you pass a fixture/body/statusCode to cy.intercept(), it becomes a \"stub\" — the real server is never hit. If you only give it an alias with .as() without overriding the response, it becomes a \"spy\" — the real request goes to the server but you can still assert on the response (cy.wait('@alias').its(...)).",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "cy.intercept() ile bir API yanıtını 'stub' etmek (sahtesini oluşturmak) ile 'spy' etmek arasındaki temel fark hangi durumda ortaya çıkar?",
+            "en": "In what scenario does the fundamental difference between 'stubbing' and 'spying' an API response with cy.intercept() emerge?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Stub işleminde yanıt manuel olarak belirlenir, spy işleminde ise gerçek sunucu yanıtı kullanılır",
+                        "en": "In stubbing, the response is manually defined, whereas in spying, the real server response is used"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Spy işlemi sadece yerel geliştirme ortamında çalışır",
+                        "en": "Spying only works in the local development environment"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Stub sadece JSON verileri için geçerlidir",
+                        "en": "Stubbing is only applicable for JSON data"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Her ikisi de gerçek sunucuyla iletişim kurar",
+                        "en": "Both communicate with the real server"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "Stub kullandığınızda, Cypress'e 'bu isteğe gerçek sunucuya gitme, şu veriyi dön' demiş olursunuz. Spy kullandığınızda ise 'isteği izle ama sunucunun gerçek yanıt dönmesine izin ver' demiş olursunuz.",
+            "en": "When using stubbing, you are telling Cypress 'do not go to the real server, return this specific data instead.' When using spying, you are telling Cypress 'monitor the request, but let the real server provide the response.'"
+      }
+}
+},
     ],
   },
 }
@@ -958,6 +1390,29 @@ describe('Checkout Flow', () => {
         type: 'tip',
         content: { tr: 'Hands-on mini proje: jsonplaceholder.typicode.com gibi public bir API\'ye karşı cy.intercept() ile sahte ürün listesi dönen, kupon uygulayan ve "sipariş onaylandı" mesajını doğrulayan uçtan uca bir checkout testi yaz — gerçek bir backend\'e ihtiyacın olmadan tüm akışı pratik edebilirsin.', en: 'Hands-on mini project: write an end-to-end checkout test against a public API like jsonplaceholder.typicode.com, using cy.intercept() to return a fake product list, applying a coupon, and asserting the "order confirmed" message — you can practice the whole flow without needing a real backend.' },
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Gerçek bir e-ticaret checkout test paketinde, her testte UI üzerinden tekrar giriş yapmak yerine "App Actions" pattern\'i ne yapar?', en: 'In a real e-commerce checkout test suite, instead of logging in through the UI in every test, what does the "App Actions" pattern do?' },
+        options: [
+          { id: 'a', text: { tr: 'Testleri paralel çalıştırır', en: 'Runs tests in parallel' } },
+          { id: 'b', text: { tr: 'Session\'ı API üzerinden önceden kurar, testleri birbirinden bağımsız ve hızlı yapar', en: 'Sets up the session via the API ahead of time, making tests independent and fast' } },
+          { id: 'c', text: { tr: 'Tarayıcı önbelleğini temizler', en: 'Clears the browser cache' } },
+          { id: 'd', text: { tr: 'Sadece mobil görünümde test çalıştırır', en: 'Only runs tests in mobile viewport' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'UI üzerinden her testte giriş yapmak yavaştır ve testleri birbirine bağımlı kılar (login akışındaki bir bug tüm suite\'i çökertir). App Actions pattern\'i, session\'ı doğrudan API/uygulama state\'i üzerinden kurar — Selenium\'da bir test setup metodunda REST API ile token alıp cookie\'yi doğrudan enjekte etmenin eşdeğeridir.', en: 'Logging in through the UI in every test is slow and makes tests dependent on each other (a bug in the login flow breaks the whole suite). The App Actions pattern sets up the session directly via the API/app state — the equivalent of a Selenium test setup method that fetches a token via a REST API and injects the cookie directly.' },
+        retryQuestion: {
+          question: { tr: '"App Actions" pattern\'i, uygulamanın kendi Redux/Zustand store\'una doğrudan dispatch yaparak state hazırlamayı önerir. Bu yaklaşımın Selenium dünyasında neden nadir olduğu söylenir?', en: 'The "App Actions" pattern sets up state by dispatching directly into the app\'s own Redux/Zustand store. Why is this kind of approach considered rare in the Selenium world?' },
+          options: [
+            { id: 'a', text: { tr: 'Selenium Redux\'ı desteklemez', en: 'Selenium does not support Redux' } },
+            { id: 'b', text: { tr: 'WebDriver, tarayıcının JavaScript context\'ine Cypress kadar doğrudan erişemez', en: "WebDriver cannot reach into the browser's JavaScript context as directly as Cypress can" } },
+            { id: 'c', text: { tr: 'Redux store\'lar sadece mobil uygulamalarda bulunur', en: 'Redux stores only exist in mobile apps' } },
+            { id: 'd', text: { tr: 'Java dispatch syntax\'ını desteklemez', en: 'Java does not support dispatch syntax' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Cypress, testleri tarayıcının kendi process\'i içinde çalıştırdığı için `cy.window()` ile uygulamanın JS state\'ine (Redux/Zustand store\'u dahil) doğrudan erişebilir. Selenium ise WebDriver protokolü üzerinden "uzaktan" komut gönderir — tarayıcı sürecinin dışındadır, bu yüzden uygulamanın iç JS state\'ine bu derece doğrudan erişimi yoktur.', en: "Cypress runs tests inside the browser's own process, so `cy.window()` can reach directly into the app's JS state (including the Redux/Zustand store). Selenium sends commands \"remotely\" via the WebDriver protocol — it lives outside the browser process, so it has no such direct access to the app's internal JS state." },
+        },
+      },
     ],
   },
   en: {
@@ -1021,6 +1476,29 @@ describe('Checkout Flow', () => {
         type: 'tip',
         content: { tr: 'Hands-on mini proje: jsonplaceholder.typicode.com gibi public bir API\'ye karşı cy.intercept() ile sahte ürün listesi dönen, kupon uygulayan ve "sipariş onaylandı" mesajını doğrulayan uçtan uca bir checkout testi yaz — gerçek bir backend\'e ihtiyacın olmadan tüm akışı pratik edebilirsin.', en: 'Hands-on mini project: write an end-to-end checkout test against a public API like jsonplaceholder.typicode.com, using cy.intercept() to return a fake product list, applying a coupon, and asserting the "order confirmed" message — you can practice the whole flow without needing a real backend.' },
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Gerçek bir e-ticaret checkout test paketinde, her testte UI üzerinden tekrar giriş yapmak yerine "App Actions" pattern\'i ne yapar?', en: 'In a real e-commerce checkout test suite, instead of logging in through the UI in every test, what does the "App Actions" pattern do?' },
+        options: [
+          { id: 'a', text: { tr: 'Testleri paralel çalıştırır', en: 'Runs tests in parallel' } },
+          { id: 'b', text: { tr: 'Session\'ı API üzerinden önceden kurar, testleri birbirinden bağımsız ve hızlı yapar', en: 'Sets up the session via the API ahead of time, making tests independent and fast' } },
+          { id: 'c', text: { tr: 'Tarayıcı önbelleğini temizler', en: 'Clears the browser cache' } },
+          { id: 'd', text: { tr: 'Sadece mobil görünümde test çalıştırır', en: 'Only runs tests in mobile viewport' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'UI üzerinden her testte giriş yapmak yavaştır ve testleri birbirine bağımlı kılar (login akışındaki bir bug tüm suite\'i çökertir). App Actions pattern\'i, session\'ı doğrudan API/uygulama state\'i üzerinden kurar — Selenium\'da bir test setup metodunda REST API ile token alıp cookie\'yi doğrudan enjekte etmenin eşdeğeridir.', en: 'Logging in through the UI in every test is slow and makes tests dependent on each other (a bug in the login flow breaks the whole suite). The App Actions pattern sets up the session directly via the API/app state — the equivalent of a Selenium test setup method that fetches a token via a REST API and injects the cookie directly.' },
+        retryQuestion: {
+          question: { tr: '"App Actions" pattern\'i, uygulamanın kendi Redux/Zustand store\'una doğrudan dispatch yaparak state hazırlamayı önerir. Bu yaklaşımın Selenium dünyasında neden nadir olduğu söylenir?', en: 'The "App Actions" pattern sets up state by dispatching directly into the app\'s own Redux/Zustand store. Why is this kind of approach considered rare in the Selenium world?' },
+          options: [
+            { id: 'a', text: { tr: 'Selenium Redux\'ı desteklemez', en: 'Selenium does not support Redux' } },
+            { id: 'b', text: { tr: 'WebDriver, tarayıcının JavaScript context\'ine Cypress kadar doğrudan erişemez', en: "WebDriver cannot reach into the browser's JavaScript context as directly as Cypress can" } },
+            { id: 'c', text: { tr: 'Redux store\'lar sadece mobil uygulamalarda bulunur', en: 'Redux stores only exist in mobile apps' } },
+            { id: 'd', text: { tr: 'Java dispatch syntax\'ını desteklemez', en: 'Java does not support dispatch syntax' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Cypress, testleri tarayıcının kendi process\'i içinde çalıştırdığı için `cy.window()` ile uygulamanın JS state\'ine (Redux/Zustand store\'u dahil) doğrudan erişebilir. Selenium ise WebDriver protokolü üzerinden "uzaktan" komut gönderir — tarayıcı sürecinin dışındadır, bu yüzden uygulamanın iç JS state\'ine bu derece doğrudan erişimi yoktur.', en: "Cypress runs tests inside the browser's own process, so `cy.window()` can reach directly into the app's JS state (including the Redux/Zustand store). Selenium sends commands \"remotely\" via the WebDriver protocol — it lives outside the browser process, so it has no such direct access to the app's internal JS state." },
+        },
+      },
     ],
   },
 }
@@ -1082,7 +1560,47 @@ it('has no detectable accessibility violations', () => {
           tr: 'cypress-axe, Deque\'in axe-core motorunu Cypress\'e entegre eder; cy.injectAxe() + cy.checkA11y() ile sayfadaki renk kontrastı, eksik alt-text, yanlış ARIA rolü gibi erişilebilirlik ihlallerini otomatik tarar ve test sonucunda raporlar.',
           en: "cypress-axe integrates Deque's axe-core engine into Cypress; cy.injectAxe() + cy.checkA11y() automatically scan the page for accessibility violations like color contrast, missing alt-text, or incorrect ARIA roles and report them as part of the test result.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress içerisinde cy.checkA11y() komutu temel olarak neyi amaçlar?",
+            "en": "What is the primary purpose of the cy.checkA11y() command in Cypress?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Sayfa yüklenme hızını analiz etmek",
+                        "en": "Analyzing page load speed"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Sayfanın WCAG standartlarına uygunluğunu kontrol etmek",
+                        "en": "Checking page compliance with WCAG standards"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": "API uç noktalarından dönen verileri doğrulamak",
+                  "en": "Verifying data from API endpoints"
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sayfa içeriğinin görsel değişikliklerini tespit etmek",
+                        "en": "Detecting visual changes in page content"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.checkA11y(), sayfadaki DOM yapısını tarayarak WCAG (Web Content Accessibility Guidelines) yönergelerine aykırı durumları (örneğin eksik aria-label veya kontrast sorunları) bulmak için kullanılır.",
+            "en": "cy.checkA11y() is used to scan the DOM structure of a page to identify violations of WCAG (Web Content Accessibility Guidelines) such as missing aria-labels or contrast issues."
+      }
+}
+},
     ],
   },
   en: {
@@ -1141,7 +1659,37 @@ it('has no detectable accessibility violations', () => {
           tr: 'cypress-axe, Deque\'in axe-core motorunu Cypress\'e entegre eder; cy.injectAxe() + cy.checkA11y() ile sayfadaki renk kontrastı, eksik alt-text, yanlış ARIA rolü gibi erişilebilirlik ihlallerini otomatik tarar ve test sonucunda raporlar.',
           en: "cypress-axe integrates Deque's axe-core engine into Cypress; cy.injectAxe() + cy.checkA11y() automatically scan the page for accessibility violations like color contrast, missing alt-text, or incorrect ARIA roles and report them as part of the test result.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress içerisinde cy.checkA11y() komutu temel olarak neyi amaçlar?",
+            "en": "What is the primary purpose of the cy.checkA11y() command in Cypress?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Analyzing page load speed"
+            },
+            {
+                  "id": "b",
+                  "text": "Checking page compliance with WCAG standards"
+            },
+            {
+                  "id": "c",
+                  "text": "Verifying data from API endpoints"
+            },
+            {
+                  "id": "d",
+                  "text": "Detecting visual changes in page content"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.checkA11y(), sayfadaki DOM yapısını tarayarak WCAG (Web Content Accessibility Guidelines) yönergelerine aykırı durumları (örneğin eksik aria-label veya kontrast sorunları) bulmak için kullanılır.",
+            "en": "cy.checkA11y() is used to scan the DOM structure of a page to identify violations of WCAG (Web Content Accessibility Guidelines) such as missing aria-labels or contrast issues."
+      }
+}
+},
     ],
   },
 }
@@ -1200,7 +1748,49 @@ const s8 = {
           tr: 'Cypress, WebKit (Safari\'nin motoru) desteklemez — sadece Chromium ailesi, Firefox ve Electron\'da çalışır. Safari testi gerekiyorsa Selenium (SafariDriver ile) veya Playwright (WebKit desteğiyle) tercih edilmelidir.',
           en: "Cypress does not support WebKit (Safari's engine) — it only runs on the Chromium family, Firefox, and Electron. If Safari testing is required, you should choose Selenium (with SafariDriver) or Playwright (with WebKit support).",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki test otomasyon araçlarından hangisi Apple'ın WebKit motorunu doğrudan desteklememektedir?",
+            "en": "Which of the following test automation tools does NOT provide direct support for Apple's WebKit engine?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Playwright",
+                        "en": "Playwright"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Selenium WebDriver",
+                        "en": "Selenium WebDriver"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Cypress",
+                        "en": "Cypress"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Hiçbiri, hepsi WebKit desteği sunar",
+                        "en": "None, all of them provide WebKit support"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Cypress sadece Chromium, Firefox ve Electron üzerinde test çalıştırmayı destekler. WebKit üzerinde test yapmak için genellikle Playwright veya Selenium (SafariDriver aracılığıyla) tercih edilmelidir.",
+            "en": "Cypress only supports running tests on Chromium, Firefox, and Electron. For testing on WebKit, Playwright or Selenium (via SafariDriver) should generally be preferred."
+      }
+}
+},
     ],
   },
   en: {
@@ -1256,7 +1846,37 @@ const s8 = {
           tr: 'Cypress, WebKit (Safari\'nin motoru) desteklemez — sadece Chromium ailesi, Firefox ve Electron\'da çalışır. Safari testi gerekiyorsa Selenium (SafariDriver ile) veya Playwright (WebKit desteğiyle) tercih edilmelidir.',
           en: "Cypress does not support WebKit (Safari's engine) — it only runs on the Chromium family, Firefox, and Electron. If Safari testing is required, you should choose Selenium (with SafariDriver) or Playwright (with WebKit support).",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Test otomasyonu süreçlerinde Apple'ın Safari tarayıcısını (WebKit motoru) yerel olarak desteklemeyen test aracı hangisidir?",
+            "en": "Which test automation tool does NOT natively support Apple's Safari browser (WebKit engine)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Playwright"
+            },
+            {
+                  "id": "b",
+                  "text": "Cypress"
+            },
+            {
+                  "id": "c",
+                  "text": "Selenium"
+            },
+            {
+                  "id": "d",
+                  "text": "Puppeteer"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Cypress, WebKit motorunu doğrudan desteklemez. Playwright WebKit desteği sunar, Selenium ise SafariDriver ile bu tarayıcıyı kontrol edebilir. Puppeteer da Chromium odaklıdır ancak Cypress kadar yaygın bir Safari kısıtlaması ile bilinir; ancak soru bağlamında Cypress, bu özellik eksikliğiyle öne çıkan bir araçtır.",
+            "en": "Cypress does not support the WebKit engine. Playwright provides built-in WebKit support, and Selenium can control Safari via SafariDriver. Puppeteer is primarily focused on Chromium, and Cypress is well-known for its lack of WebKit support compared to modern alternatives."
+      }
+}
+},
     ],
   },
 }
@@ -1331,6 +1951,29 @@ const s9 = {
           },
         ],
       },
+      {
+        type: 'quiz',
+        question: { tr: 'Bir testte cy.fixture() ile alınan obje mutate edilip sonraki testte "kirli" veri kalmasına ne sebep olur?', en: 'What causes a "dirty" data leak into the next test when an object returned by cy.fixture() is mutated?' },
+        options: [
+          { id: 'a', text: { tr: 'cy.fixture() her testte aynı dosyayı yeniden okur', en: 'cy.fixture() re-reads the same file every test' } },
+          { id: 'b', text: { tr: 'Fixture objesi JavaScript\'te referans olarak paylaşılır, mutate edilince tüm referanslar değişir', en: 'The fixture object is shared by reference in JavaScript, so mutating it changes all references' } },
+          { id: 'c', text: { tr: 'testIsolation: false ayarı varsayılan olarak açıktır', en: 'testIsolation: false is on by default' } },
+          { id: 'd', text: { tr: 'Cypress fixture\'ları cache\'lemez', en: 'Cypress does not cache fixtures' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'cy.fixture() bir JSON\'ı parse edip referans tipi bir obje döndürür. Bir testte bu objeyi mutate edersen (örn. data.used = true), JavaScript\'in referans semantiği nedeniyle aynı objeye bakan sıradaki test de değişikliği görür — Java\'da bir static/shared mutable nesneyi testler arası paylaşmanın yarattığı klasik flaky test sorunuyla aynı kök neden.', en: 'cy.fixture() parses a JSON file and returns a reference-type object. If you mutate it in one test (e.g. data.used = true), JavaScript\'s reference semantics mean the next test looking at the same object sees the change too — the same root cause as the classic flaky-test problem in Java when a static/shared mutable object is reused across tests.' },
+        retryQuestion: {
+          question: { tr: 'Bu fixture mutation sorununu kalıcı olarak önlemek için en güvenli pratik nedir?', en: 'What is the safest practice to permanently prevent this fixture mutation problem?' },
+          options: [
+            { id: 'a', text: { tr: 'cy.fixture()\'ı sadece ilk testte çağırmak', en: 'Calling cy.fixture() only in the first test' } },
+            { id: 'b', text: { tr: 'Her testte fixture verisinin bir kopyasını oluşturmak (örn. { ...data })', en: 'Creating a copy of the fixture data in every test (e.g. { ...data })' } },
+            { id: 'c', text: { tr: 'testIsolation: false ayarını açmak', en: 'Turning on testIsolation: false' } },
+            { id: 'd', text: { tr: 'Fixture dosyasını her testten önce silmek', en: 'Deleting the fixture file before each test' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Fixture verisini kullanmadan önce klonlamak (`{ ...data }` veya `structuredClone(data)`) her testin kendi bağımsız kopyasıyla çalışmasını garanti eder — orijinal fixture objesi hiç mutate edilmez, bu yüzden sıradaki test her zaman temiz veriyle başlar. Java\'da bir test fixture\'ını her testte yeniden oluşturmak (`@BeforeEach`) ile aynı prensiptir.', en: 'Cloning the fixture data before use (`{ ...data }` or `structuredClone(data)`) guarantees each test works with its own independent copy — the original fixture object is never mutated, so the next test always starts with clean data. Same principle as recreating a test fixture fresh in every test (`@BeforeEach`) in Java.' },
+        },
+      },
     ],
   },
   en: {
@@ -1401,6 +2044,29 @@ const s9 = {
             solution: "Always clone fixture data before mutating it: cy.fixture('user.json').then((data) => cy.wrap({ ...data })).",
           },
         ],
+      },
+      {
+        type: 'quiz',
+        question: { tr: 'Bir testte cy.fixture() ile alınan obje mutate edilip sonraki testte "kirli" veri kalmasına ne sebep olur?', en: 'What causes a "dirty" data leak into the next test when an object returned by cy.fixture() is mutated?' },
+        options: [
+          { id: 'a', text: { tr: 'cy.fixture() her testte aynı dosyayı yeniden okur', en: 'cy.fixture() re-reads the same file every test' } },
+          { id: 'b', text: { tr: 'Fixture objesi JavaScript\'te referans olarak paylaşılır, mutate edilince tüm referanslar değişir', en: 'The fixture object is shared by reference in JavaScript, so mutating it changes all references' } },
+          { id: 'c', text: { tr: 'testIsolation: false ayarı varsayılan olarak açıktır', en: 'testIsolation: false is on by default' } },
+          { id: 'd', text: { tr: 'Cypress fixture\'ları cache\'lemez', en: 'Cypress does not cache fixtures' } },
+        ],
+        correct: 'b',
+        explanation: { tr: 'cy.fixture() bir JSON\'ı parse edip referans tipi bir obje döndürür. Bir testte bu objeyi mutate edersen (örn. data.used = true), JavaScript\'in referans semantiği nedeniyle aynı objeye bakan sıradaki test de değişikliği görür — Java\'da bir static/shared mutable nesneyi testler arası paylaşmanın yarattığı klasik flaky test sorunuyla aynı kök neden.', en: 'cy.fixture() parses a JSON file and returns a reference-type object. If you mutate it in one test (e.g. data.used = true), JavaScript\'s reference semantics mean the next test looking at the same object sees the change too — the same root cause as the classic flaky-test problem in Java when a static/shared mutable object is reused across tests.' },
+        retryQuestion: {
+          question: { tr: 'Bu fixture mutation sorununu kalıcı olarak önlemek için en güvenli pratik nedir?', en: 'What is the safest practice to permanently prevent this fixture mutation problem?' },
+          options: [
+            { id: 'a', text: { tr: 'cy.fixture()\'ı sadece ilk testte çağırmak', en: 'Calling cy.fixture() only in the first test' } },
+            { id: 'b', text: { tr: 'Her testte fixture verisinin bir kopyasını oluşturmak (örn. { ...data })', en: 'Creating a copy of the fixture data in every test (e.g. { ...data })' } },
+            { id: 'c', text: { tr: 'testIsolation: false ayarını açmak', en: 'Turning on testIsolation: false' } },
+            { id: 'd', text: { tr: 'Fixture dosyasını her testten önce silmek', en: 'Deleting the fixture file before each test' } },
+          ],
+          correct: 'b',
+          explanation: { tr: 'Fixture verisini kullanmadan önce klonlamak (`{ ...data }` veya `structuredClone(data)`) her testin kendi bağımsız kopyasıyla çalışmasını garanti eder — orijinal fixture objesi hiç mutate edilmez, bu yüzden sıradaki test her zaman temiz veriyle başlar. Java\'da bir test fixture\'ını her testte yeniden oluşturmak (`@BeforeEach`) ile aynı prensiptir.', en: 'Cloning the fixture data before use (`{ ...data }` or `structuredClone(data)`) guarantees each test works with its own independent copy — the original fixture object is never mutated, so the next test always starts with clean data. Same principle as recreating a test fixture fresh in every test (`@BeforeEach`) in Java.' },
+        },
       },
     ],
   },
@@ -1673,7 +2339,37 @@ before(() => cy.task('db:seed'))`,
           tr: 'beforeEach() ismiyle de belirtildiği gibi HER it()\'ten önce çalışır — 3 test varsa 3 kez tetiklenir. before() ise sadece 1 kez, ilk testten önce çalışır.',
           en: 'As its name says, beforeEach() runs before EVERY it() — with 3 tests it fires 3 times. before(), in contrast, runs only once, before the first test.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Dört adet test senaryosu (it) barındıran bir test grubunda (describe), beforeAll() kancası toplamda kaç kez çalıştırılır?",
+            "en": "In a test suite (describe) containing four test cases (it), how many times does the beforeAll() hook execute?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "1 kez"
+            },
+            {
+                  "id": "b",
+                  "text": "4 kez"
+            },
+            {
+                  "id": "c",
+                  "text": "Hiç çalışmaz"
+            },
+            {
+                  "id": "d",
+                  "text": "5 kez"
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": "beforeAll() (veya jest gibi kütüphanelerde beforeAll), tanımlandığı describe bloğundaki tüm testlerden önce yalnızca bir kez çalışır. Her bir testten önce çalışmasını istediğiniz kancalar için beforeEach() kullanılmalıdır.",
+            "en": "beforeAll() (or before() in some frameworks) is executed exactly once before all tests in the describe block begin. For logic that needs to run before each individual test case, you must use beforeEach()."
+      }
+}
+},
     ],
   },
   en: {
@@ -1805,7 +2501,37 @@ before(() => cy.task('db:seed'))`,
           tr: 'beforeEach() ismiyle de belirtildiği gibi HER it()\'ten önce çalışır — 3 test varsa 3 kez tetiklenir.',
           en: "As its name says, beforeEach() runs before EVERY it() — with 3 tests it fires 3 times. before(), in contrast, runs only once, before the first test.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Beş adet it() içeren bir test dosyasında, afterEach() kancası hangi durumlarda tetiklenir?",
+            "en": "In a test file with five it()s, under what circumstances does the afterEach() hook trigger?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Sadece tüm testler bittikten sonra 1 kez"
+            },
+            {
+                  "id": "b",
+                  "text": "Dosya çalışmaya başladığında 1 kez"
+            },
+            {
+                  "id": "c",
+                  "text": "Her bir it() bloğunun çalışması tamamlandıktan sonra"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece test başarısız olduğunda"
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "afterEach() kancası, isminden de anlaşılacağı üzere, 'her' (each) test adımından (it) sonra çalışır. 5 test varsa, 5 kez tetiklenir; testin başarılı veya başarısız olması bu kancanın çalışmasını engellemez.",
+            "en": "As the name suggests, the afterEach() hook executes after 'each' individual test block (it). With 5 tests, it will fire 5 times; whether the test passes or fails does not prevent this hook from executing."
+      }
+}
+},
     ],
   },
 }
@@ -1946,7 +2672,45 @@ cy.get('header').should('contain', this.users[0].name)`,
           tr: 'cy.session() aynı parametrelerle (örn. aynı username/password) tekrar çağrıldığında, login fonksiyonunu YENİDEN çalıştırmaz — daha önce kaydedilen tarayıcı context\'ini (cookie, localStorage, sessionStorage) anında geri yükler.',
           en: 'When cy.session() is called again with the same parameters (e.g. the same username/password), it does NOT re-run the login function — it instantly restores the previously saved browser context (cookies, localStorage, sessionStorage).',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "cy.session() kullanıldığında, aynı oturum verilerinin ikinci kez kullanılmasının performansa etkisi nedir?",
+            "en": "What is the performance impact of using the same session data for the second time when using cy.session()?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Login isteğini tekrar göndererek sunucu yükünü artırır",
+                        "en": "Increases server load by resending the login request"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Login süreçlerini atlayarak testin çok daha hızlı başlamasını sağlar",
+                        "en": "It skips the login steps, allowing the test to start much faster"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": "Testin süresini uzatır",
+                  "en": "It increases the test duration"
+            },
+            {
+                  "id": "d",
+                  "text": "Browser belleğini tamamen temizleyerek testi yavaşlatır",
+                  "en": "It slows down the test by clearing the browser memory completely"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.session(), daha önce önbelleğe alınmış oturum bilgilerini geri yüklediği için login adımlarını (UI ile giriş yapma veya API isteği) atlar, bu da test süresini önemli ölçüde kısaltır.",
+            "en": "Since cy.session() restores previously cached session information, it skips the login steps (UI interaction or API requests), which significantly reduces the test execution time."
+      }
+}
+},
     ],
   },
   en: {
@@ -2084,7 +2848,49 @@ cy.get('header').should('contain', this.users[0].name)`,
           tr: "cy.session() aynı parametrelerle tekrar çağrıldığında, login fonksiyonunu YENİDEN çalıştırmaz — daha önce kaydedilen tarayıcı context'ini anında geri yükler.",
           en: "When cy.session() is called again with the same parameters, it does NOT re-run the login function — it instantly restores the previously saved browser context.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "cy.session() ile kaydedilen bir oturum, bir sonraki test dosyasında nasıl davranış gösterir?",
+            "en": "How does a session saved with cy.session() behave in the next test file?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Her dosya kendi oturumunu yeniden oluşturmak zorundadır",
+                        "en": "Each file must recreate its own session"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Aynı parametrelerle çağrıldığında, oturumu sıfırdan kurmak yerine mevcut oturumu yeniden kullanır",
+                        "en": "When called with the same parameters, it reuses the existing session instead of setting it up from scratch"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Tarayıcıyı tamamen kapatır ve logout yapar",
+                        "en": "It completely closes the browser and logs out"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece localStorage'ı siler ancak cookie'leri tutar",
+                        "en": "It only clears localStorage but keeps cookies"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.session(), oturum durumunu yönetir ve aynı kimlik bilgileriyle (id/key) çağrıldığında, oturum açma maliyetinden kaçınarak testler arasında oturumun devamlılığını sağlar.",
+            "en": "cy.session() manages the session state and, when called with the same identifiers/keys, enables session persistence across tests by avoiding redundant login costs."
+      }
+}
+},
     ],
   },
 }
@@ -2211,7 +3017,49 @@ Install the suggested dependencies (adapter)`,
           tr: 'cy.mount(), Component Testing\'in temel komutudur: bir tek component\'i bağımsız olarak render eder, backend gerektirmez. cy.visit() ise E2E testte tüm uygulamayı (sunucu, router, tüm sayfa) gerçek bir URL üzerinden açar.',
           en: 'cy.mount() is the core Component Testing command: it renders a single component independently, with no backend required. cy.visit() in E2E testing loads the entire app (server, router, full page) via a real URL.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki senaryolardan hangisinde cy.mount() yerine cy.visit() tercih edilmelidir?",
+            "en": "In which of the following scenarios should cy.visit() be preferred over cy.mount()?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Küçük bir buton component'ini test ederken",
+                        "en": "Testing a small button component"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Bir formun sadece input validasyonlarını denerken",
+                        "en": "Trying only input validations of a form"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Uygulamanın ana sayfasındaki kullanıcı akışını (login-to-checkout) test ederken",
+                        "en": "Testing the user flow (login-to-checkout) on the application homepage"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Bir navbar component'inin rengini kontrol ederken",
+                        "en": "Checking the color of a navbar component"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "cy.mount() tek bir component'in izole testleri için uygundur. Tüm uygulamanın sayfalar arası geçişlerini ve entegre akışlarını test etmek için cy.visit() kullanılarak gerçek bir URL üzerinden tarayıcı yüklenmelidir.",
+            "en": "cy.mount() is suitable for isolated tests of a single component. To test cross-page transitions and integrated flows of the entire application, you must use cy.visit() to load the browser via a real URL."
+      }
+}
+},
     ],
   },
   en: {
@@ -2335,7 +3183,37 @@ Install the suggested dependencies (adapter)`,
           tr: "cy.mount(), Component Testing'in temel komutudur: bir tek component'i bağımsız olarak render eder. cy.visit() ise E2E testte tüm uygulamayı gerçek bir URL üzerinden açar.",
           en: "cy.mount() is the core Component Testing command: it renders a single component independently, with no backend required. cy.visit() in E2E testing loads the entire app (server, router, full page) via a real URL.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress Component Testing bağlamında, cy.mount() komutunu kullanmanın temel amacı nedir?",
+            "en": "In the context of Cypress Component Testing, what is the primary purpose of using the cy.mount() command?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "To navigate between different pages in an E2E test"
+            },
+            {
+                  "id": "b",
+                  "text": "To render a specific UI component in a isolated test environment without loading the entire application"
+            },
+            {
+                  "id": "c",
+                  "text": "To automate browser window resizing"
+            },
+            {
+                  "id": "d",
+                  "text": "To verify that a specific API endpoint returns a 200 OK status"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.mount(), izole edilmiş bir ortamda belirli bir bileşeni render etmek için kullanılır. cy.visit() ise uygulamayı bir URL üzerinden tam kapsamlı olarak yükler.",
+            "en": "cy.mount() is specifically designed to mount a single component into a test sandbox. cy.visit() is meant for E2E testing to load the full application via a URL."
+      }
+}
+},
     ],
   },
 }
@@ -2464,7 +3342,37 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
           tr: 'cy.stub() bir fonksiyonun gerçek çalışmasını tamamen ENGELLER ve senin verdiğin sahte cevabı/hatayı döner. cy.spy() ise fonksiyonun gerçek çalışmasına izin verir, sadece hangi parametrelerle ve kaç kez çağrıldığını kaydeder.',
           en: 'cy.stub() completely PREVENTS a function from really running and returns the fake response/error you provide. cy.spy() lets the function run normally, just recording which arguments it was called with and how many times.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Bir birim testinde, bir fonksiyonun iç mantığını çalıştırmadan sadece çağrılıp çağrılmadığını kontrol etmek istiyorsak hangisini kullanmalıyız?",
+            "en": "If we want to verify if a function was called without executing its internal logic during a unit test, which one should we use?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "cy.stub()"
+            },
+            {
+                  "id": "b",
+                  "text": "cy.spy()"
+            },
+            {
+                  "id": "c",
+                  "text": "cy.visit()"
+            },
+            {
+                  "id": "d",
+                  "text": "cy.get()"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.spy(), fonksiyonun orijinal çalışmasını bozmadan sadece çağrı kayıtlarını (argümanlar, çağrılma sayısı) takip etmenize olanak tanır. stub() ise fonksiyonu tamamen devre dışı bırakır.",
+            "en": "cy.spy() allows you to track function calls (arguments, call counts) without modifying the original implementation. stub() would completely override or disable the function execution."
+      }
+}
+},
     ],
   },
   en: {
@@ -2590,7 +3498,37 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
           tr: 'cy.stub() bir fonksiyonun gerçek çalışmasını tamamen ENGELLER. cy.spy() ise fonksiyonun gerçek çalışmasına izin verir, sadece çağrıyı kaydeder.',
           en: 'cy.stub() completely PREVENTS a function from really running and returns the fake response/error you provide. cy.spy() lets the function run normally, just recording which arguments it was called with and how many times.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki ifadelerden hangisi cy.stub() kullanımını en doğru şekilde tanımlar?",
+            "en": "Which of the following statements most accurately defines the use of cy.stub()?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It keeps the original function alive but monitors the execution"
+            },
+            {
+                  "id": "b",
+                  "text": "It overrides the function and returns a specific value or result instead of running the original code"
+            },
+            {
+                  "id": "c",
+                  "text": "It is used to delay test execution by a set amount of milliseconds"
+            },
+            {
+                  "id": "d",
+                  "text": "It allows interaction with DOM elements like buttons and inputs"
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cy.stub(), fonksiyonun orijinal içeriğini geçersiz kılar ve döndüreceği değeri kontrol etmenizi sağlar; bu, bağımlılıkları taklit etmek için idealdir.",
+            "en": "cy.stub() replaces the original function logic with your own specified behavior, allowing you to force a specific return value, which is ideal for mocking dependencies."
+      }
+}
+},
     ],
   },
 }
@@ -2706,7 +3644,49 @@ Re-run the test to confirm`,
           tr: 'Selector Playground, tıkladığın elemanı analiz eder ve en güvenilir selector önerisini (varsa data-cy, yoksa diğer öznitelikler) kaç eşleşme bulduğu bilgisiyle birlikte gösterir — 1 eşleşme idealdir, daha fazlası kırılgan bir selector\'a işaret eder.',
           en: 'The Selector Playground analyzes the element you clicked and shows the most reliable selector suggestion (data-cy if available, otherwise other attributes) along with how many matches it found — 1 match is ideal, more than that signals a fragile selector.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selector Playground'da bir HTML elemanını seçtiğinizde, aracın sağladığı en önemli geri bildirim nedir?",
+            "en": "When you select an HTML element in the Selector Playground, what is the most important feedback the tool provides?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Elementin CSS sınıf listesi",
+                        "en": "The list of the element's CSS classes"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Benzersiz tanımlayıcı önerisi ve benzersizlik durumu (eşleşme sayısı)",
+                        "en": "The unique identifier suggestion and its uniqueness status (match count)"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Elementin DOM içindeki derinliği",
+                        "en": "The depth of the element in the DOM"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Elementin tarayıcıdaki render süresi",
+                        "en": "The render time of the element in the browser"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Selector Playground'un temel amacı, testlerinizin kararlılığını artırmak için benzersiz ve güvenilir bir selector oluşturmaktır. Eşleşme sayısı (match count), seçicinizin sayfada birden fazla elemanı etkileyip etkilemediğini anlamanızı sağlar.",
+            "en": "The primary purpose of the Selector Playground is to generate a unique and reliable selector to increase the stability of your tests. The match count allows you to determine if your selector targets more than one element on the page."
+      }
+}
+},
     ],
   },
   en: {
@@ -2819,7 +3799,49 @@ Re-run the test to confirm`,
           tr: 'Selector Playground, tıkladığın elemanı analiz eder ve en güvenilir selector önerisini kaç eşleşme bulduğu bilgisiyle birlikte gösterir.',
           en: 'The Selector Playground analyzes the element you clicked and shows the most reliable selector suggestion along with how many matches it found — 1 match is ideal, more than that signals a fragile selector.',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Selector Playground'un sunduğu en iyi selector önerisi ile ilgili hangisi doğrudur?",
+            "en": "Which of the following is true regarding the best selector suggestion provided by the Selector Playground?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Her zaman sadece CSS sınıfını kullanır",
+                        "en": "It always uses only the CSS class"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "1 eşleşme (match) ile benzersiz olan, kararlı bir selector hedefler",
+                        "en": "It targets a stable selector that is unique with 1 match"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Her zaman sayfa başlığını değiştirir",
+                        "en": "It always modifies the page title"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Sadece id özniteliğini destekler",
+                        "en": "It only supports the id attribute"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "Playground, en spesifik ve kırılmaya dayanıklı (örneğin data-cy, data-test gibi) öznitelikleri önceliklendirerek tek bir benzersiz eşleşme bulmayı amaçlar.",
+            "en": "The Playground prioritizes the most specific and breakage-resistant attributes (e.g., data-cy, data-test) to aim for a single unique match."
+      }
+}
+},
     ],
   },
 }
@@ -2955,7 +3977,49 @@ Install dependencies with npm ci`,
           tr: '--browser bayrağı, cypress run\'ın hangi tarayıcı motorunu headless modda kullanacağını belirler. cypress open\'ın aksine, cypress run CI/CD ortamları için tasarlanmıştır ve interaktif arayüz açmaz.',
           en: "The --browser flag tells cypress run which browser engine to use in headless mode. Unlike cypress open, cypress run is designed for CI/CD environments and doesn't open an interactive UI.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "CI ortamında 'cypress run --browser chrome' komutunun davranışı nasıldır?",
+            "en": "What is the behavior of the 'cypress run --browser chrome' command in a CI environment?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Testleri tarayıcı penceresi görünür (headed) şekilde çalıştırır",
+                        "en": "Runs tests in a visible (headed) browser window"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Testleri Chrome motorunu kullanarak arka planda (headless) yürütür",
+                        "en": "Executes tests in the background (headless) using the Chrome engine"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Sadece Chrome'a özgü CSS'leri denetler",
+                        "en": "Checks only Chrome-specific CSS"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Test yürütme hızını 2 katına çıkarır",
+                        "en": "Doubles the test execution speed"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": "cypress run komutu, CI süreçlerinde otomasyon sağlamak için tarayıcıyı 'headless' modda çalıştırır. --browser parametresi ile istenen tarayıcı motoru seçilebilir ancak bu görsel bir arayüz açmaz.",
+            "en": "The cypress run command executes the browser in 'headless' mode to enable automation in CI processes. The --browser parameter allows selecting the target browser engine without launching a graphical user interface."
+      }
+}
+},
     ],
   },
   en: {
@@ -3088,7 +4152,49 @@ Install dependencies with npm ci`,
           tr: "--browser bayrağı, cypress run'ın hangi tarayıcı motorunu headless modda kullanacağını belirler.",
           en: "The --browser flag tells cypress run which browser engine to use in headless mode. Unlike cypress open, cypress run is designed for CI/CD environments and doesn't open an interactive UI.",
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress CLI komutunda '--headed' bayrağını kullanmanın temel amacı nedir?",
+            "en": "What is the primary purpose of using the '--headed' flag in the Cypress CLI command?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Testleri sadece Chrome tarayıcısında çalıştırmak",
+                        "en": "To run tests only in the Chrome browser"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Testleri arka planda sessizce çalıştırmak",
+                        "en": "To run tests in the background silently"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Testleri görünür bir tarayıcı penceresinde, görsel olarak çalıştırmak",
+                        "en": "To run tests in a visible browser window, visually"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Testleri daha hızlı tamamlamak için paralelleştirmek",
+                        "en": "To parallelize tests for faster completion"
+                  }
+            }
+      ],
+      "correct": "c",
+      "explanation": {
+            "tr": "Varsayılan olarak cypress run testleri 'headless' modda (görünmez) çalıştırır. --headed bayrağı eklendiğinde tarayıcı penceresi açılır ve testin aşamalarını canlı olarak görmenizi sağlar.",
+            "en": "By default, cypress run executes tests in 'headless' mode (invisible). When the --headed flag is added, the browser window opens, allowing you to see the test steps live."
+      }
+}
+},
     ],
   },
 }
@@ -3214,7 +4320,49 @@ cy.get('[data-cy=cherry-item]').click()`,
           tr: ':hover, :focus ve :nth-child() CSS3 standardının BİR PARÇASIDIR — Selenium\'da da CSS selector olarak kullanılabilirler. :contains() ise SADECE jQuery/Sizzle motoruna özeldir, CSS3 spesifikasyonunda yoktur — bu yüzden Selenium\'da bunun yerine XPath\'e geçmen gerekir, Cypress\'te ise cy.get() içinde doğrudan çalışır.',
           en: ':hover, :focus, and :nth-child() ARE PART of the CSS3 standard — they can be used as CSS selectors in Selenium too. :contains(), however, is jQuery/Sizzle-engine-only and does not exist in the CSS3 spec — so in Selenium you must switch to XPath instead, while in Cypress it works directly inside cy.get().',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Aşağıdaki jQuery seçicilerinden hangisi standart bir CSS3 seçicisi olmayıp Cypress (jQuery) ile kullanılabilir?",
+            "en": "Which of the following jQuery selectors is NOT a standard CSS3 selector but can be used with Cypress (jQuery)?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "div:visible",
+                        "en": "div:visible"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "div:first-child",
+                        "en": "div:first-child"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "input:disabled",
+                        "en": "input:disabled"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "a:link",
+                        "en": "a:link"
+                  }
+            }
+      ],
+      "correct": "a",
+      "explanation": {
+            "tr": ":visible seçicisi jQuery tarafından sağlanan bir eklentidir ve CSS3 spesifikasyonunda yer almaz. :first-child, :disabled ve :link gibi ifadeler standart CSS3 seçicileridir.",
+            "en": "The :visible selector is a plugin provided by jQuery and is not part of the CSS3 specification. Expressions like :first-child, :disabled, and :link are standard CSS3 selectors."
+      }
+}
+},
     ],
   },
   en: {
@@ -3337,7 +4485,49 @@ cy.get('[data-cy=cherry-item]').click()`,
           tr: ':hover, :focus ve :nth-child() CSS3 standardının BİR PARÇASIDIR. :contains() ise SADECE jQuery/Sizzle motoruna özeldir, CSS3 spesifikasyonunda yoktur.',
           en: ':hover, :focus, and :nth-child() ARE PART of the CSS3 standard — they can be used as CSS selectors in Selenium too. :contains(), however, is jQuery/Sizzle-engine-only and does not exist in the CSS3 spec — so in Selenium you must switch to XPath instead, while in Cypress it works directly inside cy.get().',
         },
+      
+        retryQuestion: {
+      "question": {
+            "tr": "Cypress testlerinde cy.get('div:eq(1)') kullanımı neden mümkündür?",
+            "en": "Why is the use of cy.get('div:eq(1)') possible in Cypress tests?"
       },
+      "options": [
+            {
+                  "id": "a",
+                  "text": {
+                        "tr": "Çünkü CSS3 :eq() fonksiyonunu destekler",
+                        "en": "Because CSS3 supports the :eq() function"
+                  }
+            },
+            {
+                  "id": "b",
+                  "text": {
+                        "tr": "Çünkü Cypress, alt yapı olarak jQuery seçici motorunu kullanır",
+                        "en": "Because Cypress uses the jQuery selector engine under the hood"
+                  }
+            },
+            {
+                  "id": "c",
+                  "text": {
+                        "tr": "Çünkü tarayıcılar varsayılan olarak :eq seçicisini tanımlar",
+                        "en": "Because browsers define the :eq selector by default"
+                  }
+            },
+            {
+                  "id": "d",
+                  "text": {
+                        "tr": "Çünkü bu sadece XPath için geçerli bir sözdizimidir",
+                        "en": "Because this is valid syntax only for XPath"
+                  }
+            }
+      ],
+      "correct": "b",
+      "explanation": {
+            "tr": ":eq() bir CSS standardı değildir, ancak jQuery motoru tarafından desteklenen bir seçicidir. Cypress, cy.get() içerisinde bu gelişmiş seçicileri kullanmanıza olanak tanıyan bir jQuery katmanı içerir.",
+            "en": ":eq() is not a CSS standard, but it is a selector supported by the jQuery engine. Cypress includes a jQuery layer that allows you to use these extended selectors within cy.get()."
+      }
+}
+},
     ],
   },
 }
