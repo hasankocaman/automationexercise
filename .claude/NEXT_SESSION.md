@@ -9,6 +9,24 @@
 
 ---
 
+## ✅ TAMAMLANDI ve canlıda doğrulandı (2026-06-23) — Push sonrası 2 gerçek prod bug'ı bulundu ve düzeltildi
+
+Push'tan sonra kullanıcı canlıda (`learnqa.dev`) 2 ayrı sorun bildirdi — ikisi de kod bug'ı DEĞİL, prod-ortamı yapılandırma/deploy eksikliğiydi:
+
+### 1. OAuth login `localhost:3000`'e yönlendiriyordu
+**Belirti:** `learnqa.dev/login`'de Google/GitHub/Microsoft ile giriş denendiğinde tarayıcı `http://localhost:3000/#access_token=...`'a yönlendi (ERR_CONNECTION_REFUSED) — kod tarafı (`AuthContext.jsx`'teki `getRedirectUrl()`) zaten `window.location.origin + '/auth/callback'`'i doğru şekilde dinamik üretiyordu, sorun kod değildi.
+**Kök neden:** `learnqa-prod` (qmvurwmcuexvuwvaiuhj) Supabase projesinde Authentication → URL Configuration'da **Site URL hâlâ `http://localhost:3000`'di ve Redirect URLs allow-list'te `https://learnqa.dev/auth/callback` yoktu** — Supabase, allow-list'te olmayan bir `redirectTo` gördüğünde sessizce Site URL'e (localhost) düşüyor.
+**Çözüm (kullanıcı Dashboard'dan yaptı):** Site URL → `https://learnqa.dev`; Redirect URLs'e `https://learnqa.dev/auth/callback` ve `https://learnqa.dev/**` eklendi. **Henüz gerçek bir girişle uçtan uca tekrar doğrulanmadı** (kullanıcı ayarı değiştirdi ama login akışını yeniden denediğini teyit eden bir mesaj gelmedi) — bir sonraki oturumda/ya da kullanıcı isterse sorulup doğrulanmalı.
+
+### 2. AI quiz açıklaması ("🤖 AI Açıklama") prod'da hep hata veriyordu
+**Belirti:** `/java` sayfasında quiz cevaplanıp "AI'dan ek açıklama iste" butonuna basıldığında her zaman `{"error":"AI servisinden yanıt alınamadı."}` (502) dönüyordu.
+**Kök neden — gerçek deploy bug'ı, hipotez sırasıyla elendi:** Önce prod'a yanlışlıkla placeholder Groq key girilmiş olabileceği şüphelenildi (kullanıcı "myqroqkey" yazarak paylaşmıştı) — kullanıcı bunun sadece chat'te gizleme amaçlı olduğunu, gerçek key'i kullandığını doğruladı. Gerçek kök neden **`supabase functions download explain-quiz-answer --project-ref qmvurwmcuexvuwvaiuhj` ile prod'daki GERÇEK deploy edilmiş kod indirilip incelenerek** bulundu: `qa-assistant` ve `grade-interview-answer` doğru şekilde Groq'a geçmişti, ama **`explain-quiz-answer` hâlâ ESKİ Gemini-tabanlı kodu çalıştırıyordu** (`GEMINI_API_KEY` okuyup `generativelanguage.googleapis.com`'a istek atan eski sürüm) — kullanıcının bu fonksiyon için attığı üçüncü deploy komutu önceki mesajda kesik göründüğü için muhtemelen tamamlanmadan/başarısız şekilde sonlanmıştı (`functions list`'te version 1→2 görünse de `ezbr_sha256` hash'i deploy öncesiyle AYNI çıkmıştı — bu sinyal ilk seferde gözden kaçırıldı, ama doğru yorumlanması gereken kanıt buydu).
+**Çözüm:** `supabase functions deploy explain-quiz-answer --project-ref qmvurwmcuexvuwvaiuhj` tekrar çalıştırıldı. Tekrar indirilip doğrulandı: artık `GROQ_API_KEY`/`callGroq` kullanıyor, Gemini referansı yok. **Kullanıcı canlıda gerçek bir quiz cevaplayıp test etti — AI Açıklama paneli artık gerçek, kullanıcının seçtiği cevaba özel bir açıklama üretiyor (ekran görüntüsüyle doğrulandı), hata yok.** ✅ Bu konu tam kapandı.
+
+**Genel ders (ileride benzer durumda hatırlanmalı):** `supabase functions deploy` komutu terminalde "Deployed Functions" çıktısı verse bile, bu YETERLİ kanıt değil — gerçekten YENİ kodun yüklendiğini doğrulamak için `supabase functions list`'teki `ezbr_sha256` hash'inin deploy ÖNCESİ/SONRASI değiştiğini karşılaştırmak ya da şüpheli durumda `supabase functions download <fn> --project-ref <ref>` ile gerçek deploy edilmiş kaynak kodu indirip okumak gerekir — versiyon numarasının artması bile (1→2) tek başına "kod güncellendi" anlamına gelmiyormuş (bu olayda gelmedi).
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-23) — "💼 Mülakat Soruları" sekmesi her derste en sona alındı
 
 Kullanıcı, mülakat sekmesinin platformdaki TÜM derslerde en alt (son) sekme olmasını istedi — Java sayfasında Antigravity'nin sonradan eklediği "🧠 Adım Adım Soru Çözücü" sekmesi Mülakat'tan SONRA geliyordu (ekran görüntüsüyle bildirildi). Tüm `src/data/*Data.js` dosyaları 💼 emoji'sine göre taranıp (TopicPage.jsx'in `isDedicatedInterviewTab` helper'ının kullandığı aynı ayırt edici) sadece 4 dosyada Mülakat sekmesi son sırada DEĞİLDİ:
