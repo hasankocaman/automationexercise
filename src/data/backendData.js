@@ -3036,7 +3036,7 @@ paths:
   /rest/v1/profiles:
     get:
       summary: Read your own profile (PostgREST auto-generated)
-      description: Real caller: src/context/AuthContext.jsx -> loadProfile(). RLS only returns the row where auth.uid() = id.
+      description: "Real caller: src/context/AuthContext.jsx -> loadProfile(). RLS only returns the row where auth.uid() = id."
       parameters:
         - in: query
           name: select
@@ -3054,7 +3054,7 @@ paths:
               schema: { type: array, items: { $ref: '#/components/schemas/Profile' } }
     patch:
       summary: Update career_goal or avatar_emoji
-      description: Real caller: AuthContext.jsx -> setCareerGoal() / setAvatarEmoji(). RLS with check (auth.uid() = id) blocks updating anyone else's row.
+      description: "Real caller: AuthContext.jsx -> setCareerGoal() / setAvatarEmoji(). RLS with check (auth.uid() = id) blocks updating anyone else's row."
       parameters:
         - in: query
           name: id

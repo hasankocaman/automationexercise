@@ -9,6 +9,22 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-23, Swagger YAML dosyası + syntax fix)
+
+### 1. `public/openapi.yaml` oluşturuldu
+`backendData.js`'teki `backendOpenApiSpec` içeriği `public/openapi.yaml` olarak kaydedildi. Build sırasında `public/` → `dist/` kopyalandığı için production'da `https://learnqa.dev/openapi.yaml` adresinden doğrudan erişilebilir. Postman, Swagger UI (editor.swagger.io) veya herhangi bir OpenAPI uyumlu araçla import edilebilir.
+
+### 2. `backendData.js` YAML syntax bug'ı düzeltildi
+`backendOpenApiSpec` içinde 2 satırda `description: Real caller: ...` yazıyordu. YAML parser ikinci `:` (boşluklu) karakterini map key başlangıcı olarak yorumlayıp syntax error veriyordu — kullanıcı Swagger Editor'a yapıştırınca line 118 hatası görüyordu. İki satır da `"Real caller: ..."` şeklinde çift tırnakla sarıldı:
+- `src/data/backendData.js:3039` — `/rest/v1/profiles GET` description
+- `src/data/backendData.js:3057` — `/rest/v1/profiles PATCH` description
+
+Artık Swagger Editor'a yapıştırınca hata yok.
+
+**Değişen dosyalar:** `public/openapi.yaml` (yeni), `src/data/backendData.js` (2 satır fix)
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-23, yeni oturum) — `/backend` sayfasına detaylı Auth walkthrough + gerçek mimari/Swagger sekmeleri eklendi
 
 Kullanıcı önce `/backend` sayfasındaki Supabase işlemlerinin (Sign In/Providers, Google/GitHub/Microsoft girişi, SQL'lerin ne işe yaradığı) daha basit/ayrıntılı anlatılmasını istedi, sonra aynı sayfaya "büyük resim" mimari görünümü + sadece admin'in görebileceği bir Swagger/OpenAPI dokümanı istedi. Hepsi `src/data/backendData.js`'te (TR+EN) yapıldı, kod tarafına dokunulmadı.
