@@ -9,12 +9,331 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-23) — Anasayfa "Bir ders nasıl tamamlandı sayılır?" kartına retry-quiz maddesi eklendi
+
+Kullanıcı, anasayfadaki şeffaflık kartının 🧠 maddesine (her sekmede en az bir quiz, manuel işaretleme yok) bir üçüncü satır eklenmesini istedi: bir quiz sorusu yanlış cevaplandığında aynı sorunun tekrar gösterilmediği, yerine alternatif bir soru sorulduğu (`retryQuestion` mekanizması, yukarıdaki "Quiz alternatif soru kapsaması" bölümünde zaten %100 doğrulanmıştı — bu sadece kartın metnini gerçek davranışla tam eşleştirdi).
+
+- `src/components/HomePage.jsx` (~satır 428-429): 🧠 kuralının `tr`/`en` dizilerine üçüncü satır eklendi (TR: "Bir quiz sorusunu yanlış cevapladığında aynı soru tekrar gösterilmez — alternatif bir soru sorulur, doğru cevabı ezberleyip geçemezsin."; EN eşdeğeri).
+- `npm run build` 34 route ile temiz geçti.
+- Tarayıcıda manuel görsel test yapılmadı (düşük risk, sadece statik metin satırı eklendi) — istenirse anasayfada kart açılıp kontrol edilebilir.
+
+---
+
+## ✅ DOĞRULANDI (2026-06-23, denetim oturumu) — Quiz "alternatif soru" kapsaması platform genelinde %100
+
+Kullanıcı, aşağıdaki bölümde anlatılan "tekrar dene" (`retryQuestion`) mekanizmasının **Antigravity** (ayrı bir AI aracı) tarafından platformun TÜM sayfalarına/quizlerine yayılıp yayılmadığını sordu — aşağıdaki bölümdeki not ("16 dosya, 59 quiz, 118 retry sorusu, eski quiz'lere eklenmedi") güncelliğini kaybetmiş çıkıyor, gerçek kapsama daha geniş. Bağımsız bir denetim agent'ı ile her `src/data/*Data.js` dosyasında `type: 'quiz'` blok sayısı ile `retryQuestion` alan sayısı satır satır karşılaştırıldı:
+
+- **23/23 quiz içeren veri dosyasında, 397/397 `quiz` bloğunun TÜMÜNDE `retryQuestion` mevcut** — sıfır eksik (appium, aws, azure, backend, browserstack, cypress, docker, gitGithub, java, jenkins, jmeter, kafka, kubernetes, linux, manualTesting, playwright, postman, python, restAssured, selenium, sql, typescript, whatIsTesting). Antigravity bu işi önceki notta belirtilenden çok daha kapsamlı tamamlamış (eski quiz'ler dahil, hiçbiri dışarıda kalmamış).
+- `algorithmsData.js`, `beginnerAlgorithmsData.js`, `qaMentorData.js` — hiç `type: 'quiz'` bloğu yok (bu sayfalar `TopicPage`'in quiz sistemini kullanmıyor, kapsam dışı — bkz. aşağıdaki not).
+- **Yapısal not (eksik değil, kullanılmayan altyapı):** `type: 'quiz-fill'` block tipi (`QuizFillBlock`, `TopicPage.jsx:2278`, `case 'quiz-fill':` satır ~13420) hiçbir veri dosyasında **hiç kullanılmıyor** (0 occurrence) — bu yüzden retry desteği yok ama bu bir içerik boşluğu değil, zaten yazılmamış bir block tipi. İleride `quiz-fill` kullanılırsa retry mekanizması o component'e de eklenmesi gerekecek.
+- **Algorithms sayfaları (`AlgorithmsPage.jsx`/`AdvancedAlgorithmsPage.jsx`) ayrı bir soru sistemi kullanıyor:** flashcard (kendi kendine değerlendirme), soru bankası (cevap göster/gizle, hiç grading yok), flowchart/bad-step oyunu (sabit seçenek seti, statik doğru/yanlış geri bildirim). Hiçbirinde "yanlış cevap → alternatif soru" mantığı yok — ama bu sayfalar zaten çoktan seçmeli quiz formatında değil, `retryQuestion` mekanizmasının kapsamına girmiyor (ayrı bir özellik istenirse ayrı görev).
+- `npm run build` denetim sonrası tekrar çalıştırıldı: 34 route, sıfır hata, sadece bilinen büyük-chunk uyarıları (javaData/TopicPage >500KB, §14'te zaten not edilmiş, build'i bozmuyor).
+
+**Sonuç: geliştirme doğru ve eksiksiz, ek aksiyon gerekmiyor.** Aşağıdaki "16 dosya / 59 quiz / 118 retry sorusu" notu artık güncelliğini kaybetmiş bir ara-durum kaydı olarak kalıyor (o not bu denetimden ÖNCEKİ bir oturuma ait), gerçek kapsama bu bölümdeki rakamlardır.
+
+---
+
+## ✅ DOĞRULANDI (2026-06-23, denetim oturumu) — Java sayfasına Antigravity'nin eklediği "🧠 Adım Adım Soru Çözücü" sekmesi
+
+**Bu işi de Claude Code yapmadı — Antigravity yaptı**, kullanıcı ekran görüntüsüyle Java sayfasının en altında yeni bir sekme bildirdi, kod tarafı incelenip doğrulandı (henüz git'e commit edilmemiş, untracked/working-tree değişikliği).
+
+**Ne eklenmiş:**
+- `src/data/javaInteractiveQuestions.json` (yeni, untracked dosya) — **123 adet** gerçek Java alıştırma sorusu (`java-var-*`, `java-type-casting-*`, `java-wrapper-*`, `java-string-*`, `java-date-*`, `java-datetime-*`, `java-if-*`, `java-ternary-*`, `java-switch-*`, `java-loop(s)-*`, `java-arrays-*`, `java-lists-*` ...). Her soru şu alanları içeriyor: `id`, bilingual `title`/`description`/`algorithm` (adım listesi)/`hint`, `starterCode`, `solution`.
+- `src/components/TopicPage.jsx`'e yeni `InteractiveSolverBlock` component'i (satır ~1365) ve yeni `interactive-solver` block tipi (`case 'interactive-solver':` satır ~13340) eklenmiş. 4 aşamalı akış: 1) Algoritma adımlarını oku/işaretle → 2) İpucu + kullanılabilecek Java metotları → 3) Kendi Java kodunu textarea'da yaz → 4) Referans çözümle yan yana kıyasla, kendi kodunu 1-10 puanla, not düş. Puan+not `learnqa_interactive_scores` localStorage key'inde soru id bazlı saklanıyor (Supabase'e yazmıyor — bilinçli olarak basit/anonim/local-first, platformun progress felsefesiyle (Bölüm 5, "üyelik zorunlu değil") uyumlu).
+- `javaData.js`'e yeni `sInteractivePractice` sekmesi (TR: "🧠 Adım Adım Soru Çözücü", EN: "🧠 Step-by-Step Solver") `tabs`/`sections` dizilerinin SONUNA eklenmiş (Mülakat Soruları'ndan sonra, son sekme).
+
+**Kod denetimi sonucu (read-only, agent ile satır satır kontrol + manuel doğrulama):**
+- `javaInteractiveQuestions.json`'daki 123 sorunun **TÜMÜNDE** zorunlu alanlar (`id`,`title`,`description`,`algorithm`,`hint`,`starterCode`,`solution`) eksiksiz, `title`/`description`/`algorithm`/`hint` TR+EN ikisi de dolu, `algorithm.tr`/`algorithm.en` adım sayıları eşit, `starterCode`/`solution` boş değil — sıfır şema hatası. Duplicate `id` yok.
+- Örnek soruların (`java-loops-23` Asal Sayı, `java-arrays-13` Anagram, `java-var-7` Swap) algoritma adımları, ipuçları ve referans Java çözümleri elle okunup mantık/syntax doğruluğu kontrol edildi — gerçek, çalışır, QA-Java öğrencisine uygun seviyede alıştırmalar (ezbere değil, kendi kod yazıp referansla kıyaslama mantığı CLAUDE.md §9.1 "önce mantık sonra komut, sonuç görünür olmalı" ilkesiyle örtüşüyor).
+- **Gating sistemiyle çakışma yok:** `countQuizBlocksInTab()` sadece `type==='quiz'/'quiz-fill'` sayıyor, `tabHasInterviewBlock()`/`isDedicatedInterviewTab()` sadece `interview-questions` bloğunu ve 💼 emoji'sini arıyor — yeni `interactive-solver` tipi bu sayımlara hiç girmiyor. Bu yüzden yeni sekme sayfa geneli %60 quiz gate'ine veya mülakat kilidine takılmıyor, ekran görüntüsündeki **boş (kilitsiz) checkbox** doğru ve beklenen davranış — quiz/mülakat içermeyen diğer eski sekmelerle aynı eski manuel-tamamlama yoluna giriyor.
+- `npm run build` bu değişikliklerle (yeni JSON import + yeni component + yeni sekme dahil) 34 route ile temiz geçti, sıfır hata.
+
+**Henüz yapılmayan:** Tarayıcıda gerçek manuel test (4 aşamalı akışın tıklanarak baştan sona denenmesi, localStorage'a puan/not kaydının gerçekten kalıcı olduğunun görsel doğrulanması) — kod/veri seviyesinde tam doğrulandı ama canlı browser testi yapılmadı, düşük öncelik.
+
+**Commit/push durumu:** `javaInteractiveQuestions.json` henüz git'e eklenmemiş (untracked), `TopicPage.jsx`/`javaData.js` değişiklikleri de commit edilmemiş — bu oturumda hiçbir git işlemi yapılmadı, karar kullanıcıya ait.
+
+---
+
+## ✅ TAMAMLANDI (2026-06-23, devam oturumu) — Quiz "tekrar dene" mekanizması + Python Temeller dil/içerik bug'ları
+
+### 1. Quiz retry mekanizması (platform geneli, kod + içerik)
+Kullanıcı isteği: bir quiz yanlış cevaplanırsa kullanıcı konuya geri dönüp tekrar denediğinde AYNI soruyu (ve gördüğü doğru cevabı) tekrar görmesin — alternatif bir soru sorulsun. Doğru cevaplayana bu buton hiç gösterilmesin.
+- **`TopicPage.jsx` → `QuizBlock`:** Yeni opsiyonel `retryQuestion` alanı desteği. Yanlış cevaplanan quiz'de AI açıklama panelinden sonra **"🔄 Farklı bir soru dene"** butonu çıkar (sadece `retryQuestion` tanımlıysa, sadece yanlış cevaplayana). Tıklanınca state sıfırlanır, sidebar'da "Tekrar deneme — yeni soru" rozeti görünür. İkinci soru doğru cevaplanırsa da %60 eşiğine sayılır; ikinci soru da yanlış olursa üçüncü varyant YOK, sadece açıklama gösterilir.
+- `tr.json`/`en.json`'a `topic.quiz.tryDifferentQuestion` / `topic.quiz.retryBadge` anahtarları eklendi.
+- **İçerik:** Bu oturumdan önceki "platform geneli quiz kapsaması" çalışmasında eklenen **59 quiz'in tamamına** (Docker, BrowserStack, Cypress, Playwright, Linux, AWS, Azure, GitHub/Git, TypeScript, Kafka, JMeter, Python, SQL, Kubernetes, Postman, Jenkins — 16 dosya) gerçek içeriğe dayalı bir alternatif soru yazıldı (TR+EN, toplam 118 retry sorusu). Platformdaki bu oturumdan ÖNCEKİ yüzlerce eski quiz'e alternatif soru eklenmedi (kullanıcıyla netleşti, kapsam dışı — istenirse ayrı bir görev).
+- `npm run build` 34 route ile temiz, otomatik bir script ile her dosyada beklenen sayıda `retryQuestion` olduğu doğrulandı.
+
+### 2. Python "Temeller" sekmesi — 3 gerçek bug (kullanıcı ekran görüntüsüyle bildirdi)
+**Bug A — Boş "Java ile Karşılaştırma" tablosu:** `pythonData.js`'teki `applyTr(sections[2], {...})` override'ı, içerik sonradan genişletilince (her konuya quiz/comparison eklenince) **tamamen farklı, eski bir içerik kümesini** (list/dict/set/tuple görselleri) hedefliyordu — index 19'daki override gerçek "Değişkenler" Java-karşılaştırma tablosunun `rows` alanını yanlış şemayla ezip tabloyu boş gösteriyordu. **Çözüm:** Temeller'in TÜM içeriği (9 başlık, 1 tablo, ilgili quiz) master dizide doğrudan bilingual `{tr,en}` alanlara çevrildi, bozuk override tamamen kaldırıldı (`blocks: {}`) — index kayması riski kalmadı.
+**Bug B — Dil tutarsızlığı:** 9 sekme başlığı, 1 quiz'in şıkları, 1 tablonun başlık/hücreleri İngilizce kalmıştı → Türkçeleştirildi. **Daha büyük kök neden bulundu:** `TopicPage.jsx`'teki `case 'qa':` render kodu `tx()` çağırmıyordu, bilingual `{tr,en}` veri verilse bile İngilizce gösterirdi — bu platform geneli tek satırlık bug düzeltildi (`question={tx(block.question, language)}`).
+**Bug C — Mülakat tarzı içerik yanlış sekmede:** Temeller'in sonundaki 4 açık-uçlu mülakat sorusu (`interview-questions` bloğu) kaldırıldı, 4 çoktan seçmeli quiz'e çevrilip Temeller'de tutuldu. 2 konu (None, is-vs-==) zaten Mülakat sekmesinde vardı; eşsiz olan 2 konu (dinamik tipleme, truthy/falsy) Q14/Q15 olarak Mülakat sekmesine bilingual taşındı.
+`npm run build` temiz. Memory'ye `applyTr` index-kayması riski hakkında kalıcı not eklendi (`feedback_ts_heading_property.md`, artık typescriptData/pythonData/sqlData.js'i kapsıyor).
+
+**Sıradaki adım — bilinçli ertelenen iş:** Python Mülakat sekmesindeki diğer 13 `qa` sorusu hâlâ sadece İngilizce (yeni `tx()` düzeltmesi eski tek-dilli veriyi otomatik çevirmez). Aynı `qa` formatını kullanan diğer sayfalarda (TypeScript, SQL, JMeter, Docker, Jenkins, Postman vb. Mülakat sekmeleri) da muhtemelen aynı sorun var — platform geneli bir dil-tutarlılığı taraması/düzeltmesi istenirse ayrı, büyük bir görev olur (CLAUDE.md §13 gereği sayfa sayfa).
+
+---
+
+## ✅ TAMAMLANDI — Antigravity'ye verilen görev: Java dersine eksik quiz ekleme (2026-06-23, doğrulandı)
+
+**Bu işi Claude Code yapmadı — Antigravity (başka bir AI araç) yaptı, Claude Code 2026-06-23'te `git diff src/data/javaData.js` ile doğruladı.** Aşağıdaki 5/5 plan maddesi `javaData.js`'te birebir bulundu (TR+EN), `npm run build` 34 route ile temiz geçti. Ek işlem gerekmiyor.
+
+**Kapsam:** `javaData.js`'te quiz'i olmayan 5 sekme (Giriş ve Mülakat Soruları hariç) — `s1` (Kurulum), `s4` (Gerçek Hayat/API & Config), `s5` (Ekosistem), `s6` (Yaygın Hatalar), `sPlaywright` (Java ile Playwright). Her birine TR+EN birer quiz ekleniyor:
+
+| Sekme | Soru konusu | Cevap |
+|-------|-------------|-------|
+| s1 — Kurulum | Maven bağımlılıklarının tanımlandığı dosya | `pom.xml` |
+| s4 — Gerçek Hayat | Maven test phase komutu | `mvn test` |
+| s5 — Ekosistem | Getter/setter/constructor'ı otomatik üreten kütüphane | `Lombok` |
+| s6 — Yaygın Hatalar | Null referansa erişimde fırlatılan exception | `NullPointerException` |
+| sPlaywright | Test izolasyonu sağlayan Playwright Java nesnesi | `BrowserContext` |
+
+**Doğrulama planı (Antigravity tarafından):** `npm run build` (32 route, sitemap/static-shell/SEO kontrolleri dahil sıfır hata) + `npm run dev` ile Java dersinin ilgili sekmelerinde TR/EN quiz'lerin manuel kontrolü.
+
+**Bu işin Selenium pilotuyla ilişkisi:** Bu, Claude Code'un bu oturumda Selenium sayfasında kurduğu "her sekmede quiz + sayfa geneli %60 gate + AI açıklama" sistemiyle AYNI mimariyi (var olan `quiz` block type, `TopicPage.jsx`'teki agregasyon mantığı) kullanır — kod tarafında ek bir değişiklik gerektirmez, sadece `javaData.js`'e içerik eklenmesidir. Java sayfası bu quiz'ler eklenince otomatik olarak gated/3-state sidebar göstergesine kavuşur (TopicPage.jsx zaten generic).
+
+**Doğrulama (2026-06-23):** `git diff src/data/javaData.js` → s1 (`pom.xml`), s4 (`mvn test`), s5 (`Lombok`), s6 (`NullPointerException`), sPlaywright (`BrowserContext`) sorularının hepsi TR+EN olarak doğru eklendi. `npm run build` 34 route, sıfır hata. Java sayfası artık Selenium'daki gibi quiz/3-state sidebar göstergesine kavuştu (kod tarafında ek değişiklik gerekmedi, `TopicPage.jsx` zaten generic). **Henüz tarayıcıda manuel test edilmedi** — bir sonraki oturumda istenirse `/java`'da yeni 5 quiz'in render olduğu ve doğru cevaplandığında sekmenin ✓'a geçtiği gözden geçirilebilir (düşük öncelik, kod zaten doğrulandı).
+
+---
+
 ## 🎯 AKTİF FELSEFE
 
 **"Gör, Anla, Dene ve Test Et."** — Her konu için:
 1. **Animasyonlu simülasyon** (önce gör)
 2. **DOM / state görselleştirme** (arka planda ne oluyor)
 3. **Otomasyon kodu** (nasıl test ederim)
+
+---
+
+## 🗺️ YENİ ÖZELLİK YOL HARİTASI — Roadmap+Gamification+Sertifika+AI Asistan (planlandı, 2026-06-22)
+
+**Kaynak:** Kullanıcının verdiği "özellik yapılabilirlik raporu" promptu. İncelendi, projeye
+özgü 5 gerçek eksik bulundu ve kullanıcıyla netleştirildi — orijinal prompt yerine bu
+**düzeltilmiş** plan uygulanıyor:
+1. Her SQL/RPC/trigger **hem `learnqa-test` hem `learnqa-prod`'da ayrı ayrı** çalıştırılmalı (credential paylaşımı yok).
+2. Yeni route eklenirse: `App.jsx` + `src/utils/seo.js` (`ROUTE_SEO`) + `scripts/generate-static-routes.mjs` birlikte güncellenmeli.
+3. Public okuma gerektiren tablolar (leaderboard, certificate verify) için RLS `select` policy'si açıkça tasarlanmalı.
+4. `:id` parametreli dinamik rotalar (sertifika doğrulama) sitemap'e eklenmez, `/backend` gibi public index'ten hariç tutulur.
+5. **Adım 2 — kullanıcıyla netleştirildi:** Promptun istediği "ayrı onboarding modal + learningPaths.js" yerine **mevcut `/qa-mentor` sihirbazı genişletiliyor** (career_goal + ilerleme yüzdesi eklenerek) — iki paralel "kariyer hedefi seç" akışı oluşmasın diye.
+6. CLAUDE.md §13 gereği tüm bunlar **tek seferde değil, adım adım** geliştirilip her adım sonunda `npm run build` ile doğrulanıyor.
+
+| Adım | İçerik | Durum |
+|------|--------|-------|
+| **2.1** | SQL: `profiles.career_goal TEXT` sütunu (+ column grant) | ✅ kod hazır, ⏳ kullanıcı SQL'i test+prod'da çalıştıracak |
+| **2.2** | `AuthContext.jsx`: `setCareerGoal()`, `getCompletedRoutePaths()` | ✅ |
+| **2.3** | `QAMentorPage.jsx`: kayıtlı career_goal varsa wizard'ı atla, direkt haritayı göster; yeni `src/components/CircularProgress.jsx` SVG bileşeni ile tamamlanma % | ✅ |
+| **3.1** | Supabase RPC `increment_user_xp(user_id uuid, amount int)` (SECURITY DEFINER, auth.uid() kontrolü) + `profiles.xp` sütunu | ✅ kod hazır, ⏳ SQL çalıştırılacak |
+| **3.2** | `AuthContext.markTopicCompleted()` artık `{badges, xpAwarded}` döndürüyor; `TopicPage.jsx`'te "+XP Kazandınız" toast'ı (rozet toast'ının üstünde stack'lenir) | ✅ |
+| **3.3** | `/leaderboard` route (App.jsx+seo.js+generate-static-routes.mjs) + `get_leaderboard` RPC (SECURITY DEFINER, sadece display_name/avatar/xp döner — profiles'a geniş public RLS açılmadı) | ✅ kod hazır, ⏳ RPC SQL çalıştırılacak |
+| **3.4** | `AuthContext.getStreak()` — `user_progress.updated_at`'ten ardışık gün hesabı; `AccountMenu.jsx` dropdown'unda ⚡XP + 🔥streak satırı (menü açılınca lazy-fetch) | ✅ |
+| **4.1** | **Mimari karar:** SQL trigger DEĞİL — roadmap içeriği (`MAP_A/B/C...`) DB'de değil JS'de yaşıyor, trigger bunu bilemez. Bunun yerine `QAMentorPage.jsx`'teki progress effect'i %100'e ulaşınca `AuthContext.claimCertificate()` çağırır (idempotent, `unique(user_id,career_goal)` + `ignoreDuplicates`). `certificates` tablosu + RLS (sadece sahibi okur/yazar) | ✅ kod hazır, ⏳ SQL çalıştırılacak |
+| **4.2** | `/verify-certificate/:id` public route + `get_certificate` RPC (SECURITY DEFINER, tek id ile public okuma — tüm tabloyu public yapmadan). **Yeni SEO pattern:** `seo.js`'e `dynamic: true` flag'i eklendi; `generate-seo-files.mjs`/`generate-static-routes.mjs`/`check-dist-seo.mjs` bu flag'i taşıyan route'ları sitemap/static-shell/dist-check'ten hariç tutuyor (Windows'ta ":" dosya adında geçersiz olduğu için de gerekliydi) | ✅ |
+| **4.3** | PDF export — `window.print()` + print CSS (qa-mentor'daki pattern tekrarlandı) | ✅ |
+| **5.1** | `/qa-assistant` route, `<ProtectedRoute>` ile sarılı (üye-only — AI maliyeti sadece gerçek kullanıcıya çıksın), hafif markdown render (fenced code block + inline code + bold, yeni npm bağımlılığı eklemeden) | ✅ |
+| **5.2** | `supabase/functions/qa-assistant/index.ts` (Deno Edge Function) — JWT'den gerçek kullanıcı doğrulanıyor, Gemini API key sadece server-side env secret olarak okunuyor, frontend asla key görmüyor | ✅ **TAMAM (2026-06-22) — kullanıcı her iki projede de deploy etti + `GEMINI_API_KEY` secret'ını ayarladı.** `supabase functions list` ile doğrulandı: her iki projede `qa-assistant` `ACTIVE`, `verify_jwt: true`. `supabase secrets list` ile her iki projede `GEMINI_API_KEY` mevcut (CLI değerleri hash olarak gösteriyor, gerçek key asla görünmüyor). |
+| **5.3** | System prompt: sadece QA/test otomasyonu + LearnQA.dev kapsamı, kapsam dışını kibarca reddediyor (Edge Function içinde `SYSTEM_PROMPT` sabiti) | ✅ |
+
+**2026-06-22 — kullanıcı altyapı adımlarını tamamladı, REST API ile doğrulandı:**
+1. ✅ Konsolide SQL bloğu hem `learnqa-test` hem `learnqa-prod`'da çalıştırıldı.
+2. ✅ `supabase functions deploy qa-assistant` her iki `--project-ref` için de çalıştırıldı. `supabase functions list` ile doğrulandı: ikisi de `ACTIVE`, `verify_jwt: true`.
+3. ✅ Gemini API key her iki projede `GEMINI_API_KEY` secret'ı olarak ayarlandı (`supabase secrets list` ile doğrulandı — CLI gerçek değeri göstermiyor, sadece hash).
+4. ✅ **RPC fonksiyonel doğrulama (curl ile doğrudan REST API'ye istek atılarak):**
+   - `get_leaderboard` → hem test hem prod'da gerçek profil verisi (display_name/avatar_emoji/xp) döndü, ikisi de çalışıyor.
+   - `get_certificate` (test) → geçersiz id ile boş array `[]` döndü, hata yok — RPC mevcut ve çalışıyor.
+   - `increment_user_xp` → kasıtlı olarak canlı yazma testi YAPILMADI (auto mode classifier "shared DB'ye yetkisiz yazma" diye engelledi, doğru bir refleks) — bu RPC'nin gerçek doğrulaması ancak gerçek bir kullanıcı oturumuyla bir ders/quiz tamamlanarak yapılabilir.
+   - Tüm sonuçlarda `xp: 0` görünüyor — beklenen, migration sonrası henüz kimse ders tamamlamadı.
+5. ⏳ **Sıradaki adım — kullanıcının gerçek tarayıcıda test etmesi gerekenler** (ben kendi hesabıyla giriş yapamam):
+   - `npm run dev` (test ortamı), giriş yap, bir ders tamamla → XP toast görünüyor mu, `/leaderboard`'da kendi satırın güncelleniyor mu, `AccountMenu`'de ⚡XP/🔥streak doğru mu?
+   - `/qa-mentor`'da sihirbazı tamamla → harita kaydediliyor mu (sayfayı yenileyince sihirbaz tekrar sormuyor mu), tüm dersleri tamamlayınca "Sertifikamı Görüntüle" butonu çıkıyor mu, `/verify-certificate/:id` doğru kart gösteriyor mu?
+   - `/qa-assistant`'a git, bir soru sor (örn. "Selenium'da StaleElementReferenceException nasıl çözülür?") → Gemini'den yanıt geliyor mu; kapsam dışı bir soru sor (örn. "bugün hava nasıl?") → kibarca reddediyor mu?
+6. Hâlâ push edilmeyen önceki OAuth/Actions-secret işi (yukarıdaki "Hâlâ eksik" listesi) bu özelliklerden bağımsız olarak geçerliliğini koruyor — bu yeni kod da aynı nedenle henüz push edilmedi. **Önemli:** AI Asistan/Leaderboard/Sertifika canlıda (learnqa.dev) çalışması için de aynı GitHub Actions secret'ları gerekiyor (VITE_SUPABASE_URL/KEY prod build'e geçmeden Supabase client hiç başlamaz) — bu yeni özellikler push engelini DEĞİŞTİRMEDİ, aynı engele tabi.
+
+---
+
+## 🎯 Ders/Sekme Tamamlama — Objektif Doğrulama (2026-06-22, devam oturumu)
+
+**Kullanıcı sorunu:** Sekmeler sadece elle tıklanan bir checkbox ile "tamamlandı" sayılıyordu — hiçbir gerçek doğrulama yoktu. Kullanıcı önerisi: sekme içi quiz %60, mülakat soruları %80 doğru cevaplanınca tamamlanmış sayılsın. Tartışıldı ve şu şekilde netleşti: mülakat soruları gerçek mülakatlarda olduğu gibi serbest metin/akıl yürütme formatında olduğu için çoktan seçmeliye çevrilmedi — bunun yerine **AI (Gemini) kullanıcının cevabını referans cevap/keyPoints'teki somut kontrol noktalarına göre objektif olarak sayıyor** (öznel "iyi mi" yargısı değil).
+
+### Yapılan değişiklikler
+- **`supabase/functions/grade-interview-answer/index.ts` (yeni Edge Function):** Üye-only, mevcut `GEMINI_API_KEY` secret'ını tekrar kullanıyor (yeni secret gerekmiyor). Soru + referans cevap + (varsa) `keyPoints` + kullanıcının cevabını alır, Gemini'den SADECE şu JSON'u ister: `{totalPoints, coveredPoints, missedPoints, feedback}`. `keyPoints` yoksa (platformun çoğu sayfasında yok — `INTERVIEW_TEMPLATE.md` şemasında sadece `q`/`a` var) Gemini referans cevaptan kendi çıkarıyor.
+- **`src/components/TopicPage.jsx`:**
+  - `quizCorrectBlocks` state'i eklendi — sekme içindeki HER `quiz`/`quiz-fill` bloğunun (blockIndex bazlı) doğru cevaplanıp cevaplanmadığını ayrı ayrı tutuyor (önceden tek bir doğru cevap tüm sekmeyi tamamlıyordu).
+  - `countQuizBlocksInTab(i)` / `tabHasInterviewBlock(i)` — bir sekmenin "gerçek" tamamlanma yolu (quiz veya mülakat) olup olmadığını `sections[i].blocks` üzerinden tespit eder.
+  - `handleQuizCorrect(blockIndex)` artık o sekmedeki TOPLAM quiz/quiz-fill blok sayısının ≥%60'ı doğru cevaplanınca `markTabAsVerifiedComplete()` çağırıyor (eski davranış: herhangi bir doğru cevap = anında tamamlandı).
+  - **Manuel checkbox artık gated:** Bir sekmede quiz veya mülakat bloğu VARSA, sidebar'daki elle işaretleme checkbox'ı devre dışı (🔒 ikonu, tıklanamaz) — sadece gerçekten quiz/mülakat ile kazanılabilir. Quiz/mülakat'ı OLMAYAN sekmelerde (platformun çoğu sekmesi, henüz quiz içeriği eklenmedi) eski manuel davranış **değişmedi** — kimse kilitlenmedi.
+  - **Yeni `InterviewPracticeBlock` bileşeni** (`InterviewQuestionsBlock`'un sonuna otomatik ekleniyor): O sayfanın mülakat havuzundan 5 soru rastgele örnekler, kullanıcı her birine kendi cümleleriyle cevap yazar, "Değerlendir" butonu `grade-interview-answer`'ı çağırır, sonucu (kaç kontrol noktası, kaçırılanlar, geri bildirim) anında gösterir. Tüm 5 soru en az bir kez değerlendirilip ortalama ≥%80 olunca sekme otomatik tamamlanır (XP/rozet/sertifika zinciri `notifyTopicCompleted` üzerinden tetiklenir, değişmedi).
+  - `QuizFillBlock`'a `onCorrect` prop'u eklendi (önceden hiçbir tamamlama sinyali vermiyordu, artık `quiz` block'uyla aynı agregasyona dahil).
+- **Geriye dönük uyumluluk:** Daha önce manuel checkbox ile "tamamlandı" işaretlenmiş sekmeler (localStorage/Supabase'deki eski kayıtlar) **geri alınmadı** — sadece BUNDAN SONRAKİ tamamlamalar quiz/mülakat içeren sekmelerde gated.
+
+### Selenium verisiyle statik doğrulama (gerçek tarayıcı testi yapılmadı, kod/veri analizi ile)
+`seleniumData.js` 14 sekme içeriyor: Tab 0 ve 2'de 2'şer quiz bloğu (bu durumda %60 eşiği pratikte 2/2 gerektiriyor, 1/2=%50 yetmiyor — az soru sayısının doğal sonucu), Tab 3-6'da 1'er quiz bloğu (öncekiyle aynı davranış), **Tab 1 ve 7-12 (7 sekme) hiç quiz içermiyor** (gated değil, eski manuel checkbox çalışıyor), Tab 13 (Mülakat Soruları) artık `InterviewPracticeBlock` ile gated.
+
+### Kapsam gerçeği — platform genelinde ÇOĞU sekmede henüz quiz yok
+Bu özellik var olan `quiz`/`quiz-fill`/`interview-questions` bloklarını kullanır, yeni içerik yazmaz. Ama platformdaki ~30 sayfanın çoğu sekmesinde hâlâ hiç quiz sorusu yok (örn. Selenium'da 14 sekmeden 7'si) — o sekmeler eski manuel checkbox'ta kalıyor. Tüm platforma gerçek doğrulama yaymak için her sekmeye 3-5 quiz sorusu eklemek ayrı, büyük bir içerik görevi (kullanıcıyla pilot-önce karar verildi, henüz yapılmadı).
+
+### Sıradaki adım (devam oturumunda genişletildi — bkz. aşağıdaki "v2" bölümü)
+1. ~~`grade-interview-answer` deploy~~ — kullanıcı yaptı, ayrıca aşağıdaki v2 değişiklikleriyle prompt güncellendi, **yeniden deploy gerekiyor**.
+2. Aşağıdaki yeni `explain-quiz-answer` fonksiyonu da deploy edilmeli.
+3. Manuel test adımları aşağıdaki "v2" bölümünde güncellendi.
+
+---
+
+## 🧮 Quiz Kapsama Denetimi ve Yayılım — Anasayfa Banner'ı Doğru mu? (2026-06-23, devam oturumu)
+
+Kullanıcı anasayfadaki "Bir ders nasıl tamamlandı sayılır?" banner'ının (🧠 "Her sekmede en az bir quiz sorusu bulunur, manuel işaretleyemezsin") gerçekten uygulanıp uygulanmadığını sordu. Kod denetimi (`TopicPage.jsx`'teki `toggleTabComplete`/`countQuizBlocksInTab` mantığı + her `src/data/*Data.js` dosyasının gerçek `sections`'ı dynamic import ile sayılarak) yapıldı.
+
+**Sonuç — banner'ın 4/5 kuralı (🔒%60 gate, 🤖 opt-in AI açıklama, 🎤 serbest metin+itiraz, 🏅%80 eşik) kodda tam ve doğru çalışıyor; sadece 🧠 "her sekmede" iddiası evrensel değil.** `TopicPage` kullanan 22 sayfa üzerinden gerçek kapsama (gated sekme/toplam sekme):
+
+| Tam (✅) | Kısmi | En büyük boşluk |
+|---|---|---|
+| Selenium 14/14, Java 18/18, RestAssured 11/11, Appium 7/7, Backend 9/9 | Docker, BrowserStack, Cypress, Playwright, Linux, WhatIsTesting (bu oturumda 5'i tamamlandı, aşağıya bak) | **AWS 1/6, Azure 1/6, GitHub/Git 5/12, TypeScript 3/10, Kafka 4/9, JMeter 2/7, Python 4/9, Kubernetes 5/9, SQL 4/8, Postman 5/8, Jenkins 6/8** |
+
+Not: `interview-questions` (AI-grading) bloğu zaten 18/20 sayfada var — eksik olan asıl şey, normal konu anlatım sekmelerine (kurulum/ekosistem/gerçek hayat) `quiz` bloğu eklemek. `whatIsTestingData`'daki "🗺️ Site Haritası" sekmesi kasıtlı olarak quiz'siz bırakıldı (gerçek ders içeriği değil, platform içi navigasyon listesi).
+
+**Bu oturumda tamamlanan (kullanıcı "en az iş çıkaran küçük sayfalar önce" seçti):**
+- `dockerData.js`: 6/7 → **7/7** ("🔗 Ekosistem" sekmesine Docker↔Kubernetes orkestrasyon sorusu, TR+EN)
+- `browserstackData.js`: 7/8 → **8/8** ("🚨 Yaygın Hatalar" sekmesine Invalid Credentials kök neden sorusu, TR+EN)
+- `cypressData.js`: 16/18 → **18/18** ("🌍 Gerçek Hayat" App Actions pattern sorusu + "🚨 Yaygın Hatalar" fixture mutation/flaky test sorusu, TR+EN, 2 sekme)
+- `playwrightData.js`: 16/18 → **18/18** ("🌍 Gerçek Hayat" assertion-after-action sorusu + "🚨 Yaygın Hatalar" webServer/ECONNREFUSED sorusu, TR+EN, 2 sekme)
+- `linuxData.js`: 9/10 → **10/10** ("🚨 Hata Sözlüğü" sekmesine chmod +x/execute bit sorusu, TR+EN)
+
+`npm run build` 34 route ile temiz geçti (sadece bu 5 chunk büyüdü, beklenen).
+
+**Devam — AWS ve Azure de tamamlandı (kullanıcı "AWS→Azure→..." sırasıyla devam et dedi):**
+- `awsData.js`: 1/6 → **6/6** (S3 artifact depolama, IAM secret key kaybı, EC2 pay-per-use, ECS Fargate, NoCredentialsError — 5 sekme, TR+EN)
+- `azureData.js`: 1/6 → **6/6** (Azure DevOps entegre platform, CLI vs Portal, Microsoft ekosistem entegrasyonu, Test Plans↔Boards bağlantısı, "No hosted parallelism" hatası — 5 sekme, TR+EN)
+
+`npm run build` her adımda tekrar çalıştırıldı, 34 route ile temiz. **Hiçbiri henüz tarayıcıda manuel test edilmedi** — düşük öncelik, kod/veri zaten dynamic-import ile doğrulandı (her sayfa için gated/toplam sekme sayısı script ile sayıldı).
+
+**Devam — GitHub/Git de tamamlandı:**
+- `gitGithubData.js`: 5/12 → **12/12** (git config user.name/email, staging area seçiciliği, main'e direct push riski, pull_request vs push tetikleyicisi, Pages Source/workflow uyumsuzluğu, force-with-lease, non-fast-forward — 7 sekme, TR+EN, `gitErrorEntries` paylaşılan hata dizisine dokunulmadı, sadece her dilin kendi `blocks` dizisine quiz eklendi)
+
+`npm run build` tekrar çalıştırıldı, 34 route ile temiz.
+
+**Devam — TypeScript de tamamlandı:**
+- `typescriptData.js`: 3/10 → **10/10** (derleme zamanı tip güvenliği, Node LTS, tipli Page Object Model, any vs unknown, generic ApiResponse<T>, Java interface vs TS structural typing, Vitest'in rolü — 7 sekme)
+- **⚠️ Bu dosyaya özgü mimari tuzak (not edildi):** `typescriptData.js`'te TR ağacı EN'den `applyTr(enSection, overrides)` ile üretiliyor — `overrides.blocks` SADECE var olan index'leri (`enSection.blocks.map`) patch'liyor, master `sections` (EN) dizisinde olmayan YENİ bir index'e override eklemek sessizce hiçbir şey yapmaz (dizi o uzunlukta iterate edilmiyor). Bu yüzden yeni blok eklerken HER ZAMAN master `sections` (dosyanın başındaki EN dizisi) içine, bilingual `{tr, en}` alan değerleriyle ekledim — `trSections`/`overrides`'a hiç dokunmadım, otomatik olarak her iki dile de yayıldı. Bu dosyada yeni içerik eklenecekse bu mekanizma tekrar hatırlanmalı.
+
+`npm run build` tekrar çalıştırıldı, 34 route ile temiz.
+
+## ✅ TAMAMLANDI (2026-06-23, otonom devam oturumu) — Quiz kapsaması %100, 3 kritik bug düzeltildi
+
+Kullanıcı bu oturumda tarayıcıda 3 gerçek bug bildirdi ve "sormadan tamamen bitir" talimatı verdi. Hepsi çözüldü:
+
+### Bug 1+2 — TopicPage.jsx içerik kilidi yanlış uygulanıyordu (KRİTİK, platform geneli)
+**Belirti (ekran görüntüsüyle bildirildi):** TypeScript "Orta Seviye" sekmesi tamamen boş, sadece "Mülakat sorularına geçmeden önce %60 quiz" kilit mesajı gösteriyordu — ders içeriği hiç görünmüyordu.
+
+**Kök neden:** `tabHasInterviewBlock(tabIndex)` fonksiyonu bir sekmede `interview-questions` bloğu VARSA true dönüyordu — ama bazı sayfalarda (TypeScript/Python/SQL/Appium) ders sekmeleri (Foundations/Intermediate/Advanced) kendi quiz'lerinin SONUNA gömülü bir mini mülakat pratiği içeriyor. Bu yanlışlıkla "dedicated Mülakat sekmesi" sanılıp TÜM ders içeriği sayfa geneli %60 kilidinin arkasına gizleniyordu.
+
+**Ek karmaşıklık:** "Kendi quiz bloğu yok" ayırt edici de güvenilir değildi (JMeter'ın GERÇEK mülakat sekmesinde 2 quiz bloğu var). Ayrıca Python/SQL/TypeScript'in gerçek Mülakat sekmeleri eski `qa` formatını kullanıyor, hiç `interview-questions` içermiyor — bu da TERS bug'a yol açıyordu (bug 2: mülakat sorular %60 olmadan serbestçe gösteriliyordu, çünkü hiç kilitlenmiyordu).
+
+**Çözüm:** `TopicPage.jsx`'e yeni `isDedicatedInterviewTab(tabIndex)` helper'ı eklendi — platformdaki TÜM dedicated mülakat sekmelerinin (19 sayfa üzerinde doğrulandı, sıfır yanlış pozitif) hem section title'da hem sidebar `tabs[]` etiketinde 💼 emoji'si taşıdığı tespit edildi; bu artık TEK güvenilir ayırt edici. `isInterviewLocked` (satır ~13237) ve içerik-kilit render koşulu (satır ~13304) bu yeni fonksiyonu kullanıyor; `toggleTabComplete`'teki orijinal `tabHasInterviewBlock` kullanımı (manuel checkbox devre dışı bırakma) kasıtlı olarak değişmedi — gömülü pratik sekmeleri zaten kendi quiz'leriyle gated.
+
+### Bug 3 — QA Mentor sihirbazı bir mesajdan sonra kalıcı olarak takılıyordu
+**Kök neden:** `main.jsx`'te `<StrictMode>` aktif. React 18 dev modunda her efekti mount→cleanup→remount şeklinde 2 kez tetikler. `QAMentorPage.jsx`'teki init efekti `resumedRef.current=true`'yu senkron olarak ayarlıyordu (ikinci/gerçek mount'un yeniden başlamasını engellemek için) AMA cleanup'ı `cancelled=true` yapıyordu — bu da BİRİNCİ (StrictMode'un hayalet) çalıştırmanın zincirini öldürüyordu, tam ortasında, ilk mesaj eklendikten sonra. Sonuç: sihirbaz "Merhaba!" der, sonra hiç ilerlemez.
+
+**Çözüm:** Init efektindeki `cancelled` guard'ı tamamen kaldırıldı — `resumedRef` zaten tek bir zincirin başlamasını garantiliyor, React 18'de unmount sonrası setState çağrıları sessizce yok sayılır (hata/uyarı yok), bu yüzden ekstra cancellation gereksizdi ve asıl bug'a sebep oluyordu.
+
+### Madde 4 — Platform genelinde quiz kapsaması %100'e tamamlandı (22/22 sayfa)
+Önceki oturum bölümlerinde AWS/Azure/GitHub/TypeScript'e kadar gelinmişti. Bu oturumda devam edilip **Kafka (5), JMeter (5), Python (5), SQL (4), Kubernetes (4), Postman (3), Jenkins (2)** sekmelerine quiz eklendi — hepsi gerçek tab içeriğine dayalı, senaryo bazlı, TR+EN, Java karşılaştırmalı sorular. Dynamic-import tabanlı bir denetim scripti ile **her 22 sayfanın her sekmesinde en az 1 quiz/quiz-fill/interview-questions bloğu olduğu doğrulandı** (`whatIsTestingData`'nın "Site Haritası" navigasyon sekmesi hariç — gerçek ders içeriği değil, kasıtlı).
+
+**Bu süreçte bulunan ve düzeltilen 2 ek veri bug'ı:**
+- **`javaData.js` sPlaywright bölümü:** `const sPlaywright = { tr: {...}, en: {...} }` yapısında TR ve EN AYRI inline bloklar olarak tanımlıydı (önceki oturumun notu olan "sPlaywright.en = sPlaywright.tr.blocks" referans paylaşımı YANLIŞ anlaşılmıştı — o satır aslında inline `en` objesini SİLİP `tr.blocks`'a işaret eden YENİ bir obje ile değiştiriyor). İlk eklenen quiz yanlışlıkla atılan inline `en` bloğuna gitmişti (sessizce kayboluyordu); doğru konuma (gerçek `tr.blocks`'un sonu, satır ~12464) taşındı.
+- **`seleniumData.js`:** "Actions", "Wait Strategies", "Frames/Alerts", "Real World" sekmelerinin EN versiyonlarında hiç quiz yoktu (TR'de vardı) — önceki bir oturumun "TR+EN eklendi" notu bu 4 sekme için yanlışmış. TR'deki bilingual {tr,en} quiz objeleri aynen EN ağacına da eklendi.
+
+**Doğrulama:** `npm run build` bu oturumda defalarca çalıştırıldı, her seferinde 34 route ile temiz geçti. Son kapsamlı denetim: **22/22 sayfa, her sekmede quiz — sıfır eksik.**
+
+### Henüz yapılmayan (kapsam dışı, kullanıcı istemedi)
+- Tarayıcıda gerçek manuel test (QA Mentor sihirbazının artık tam akışı tamamladığı, TypeScript "Orta Seviye" sekmesinin artık içerik gösterdiği) — kod seviyesinde kök neden analiziyle doğrulandı ama canlı tarayıcı testi yapılmadı.
+- Commit/push — bu oturumda hiçbir commit yapılmadı, tüm değişiklikler hâlâ working tree'de. Önceki oturumda OAuth/Actions secret config'i tamamlanmıştı (bkz. yukarıdaki bölüm), push kararı kullanıcıya ait.
+
+---
+
+## 🎯 Ders/Sekme Tamamlama v2 — Kullanıcı Geri Bildirimiyle Genişletme (2026-06-23)
+
+Kullanıcı önceki oturumdaki temel quiz/mülakat doğrulamasını test ettikten sonra 6 ek kural istedi. Hepsi kodlandı:
+
+1. **Selenium'da quiz'i olmayan 7 sekmeye 1'er quiz eklendi** (Kurulum, Ekosistem, CDP&BiDi, Sanal Auth&PDF, Selenium IDE, Grid4, Yaygın Hatalar — TR+EN, toplam 14 yeni quiz block). Selenium'da artık **22 quiz bloğu**, 14 sekmenin 13'ünde en az 1 quiz var (sadece bilgi amaçlı not: bu hâlâ platformun SADECE Selenium pilotu, diğer ~29 sayfa için ayrı bir içerik görevi).
+2. **Sayfa geneli quiz gate'i:** `TopicPage.jsx`'te `totalQuizOnPage`/`correctQuizOnPage`/`globalQuizPercent` hesaplanıyor — sayfadaki TÜM sekmelerin quizlerinin ≥%60'ı doğru cevaplanmadan Mülakat Soruları sekmesine geçilemiyor (tıklanınca içerik yerine kilit mesajı + güncel % gösteriliyor). Zaten tamamlanmış mülakat sekmesi bu kontrolden muaf (geriye dönük kırılma yok).
+3. **3 durumlu sekme göstergesi:** Yeni `quizAttempted` state'i (doğru/yanlış FARK ETMEKSİZİN hangi blok denendi) eklendi. Sidebar'da: boş kutu = hiç denenmedi, kırmızı ✗ = denendi ama %60'ı geçemedi, yeşil ✓ = geçti. Mülakat sekmesi için global gate kapalıyken kendi denemesi olsa bile 🔒 önceliklidir.
+4. **AI quiz açıklaması — yeni `supabase/functions/explain-quiz-answer/index.ts`:** Quiz cevaplanınca (doğru ya da yanlış) yeni `AiExplanationPanel` bileşeni görünür; statik açıklamayı TEKRARLAMAZ, kullanıcının SEÇTİĞİ cevaba özel bir mentor notu üretir (yanlışsa o seçimin neden yanlış olduğunu, doğruysa konuyu derinleştiren ek bir detayı). Üye değilse "giriş yapmalısın" mesajı gösterir, anonim trafikten AI maliyeti çıkmaz.
+5. **Mülakat Pratiği'ne itiraz akışı:** `grade-interview-answer` artık opsiyonel `dispute: {previousVerdict, rebuttal}` alanı kabul ediyor — kullanıcı "Bu değerlendirmeye katılmıyorum" deyip kendi gerekçesini yazabilir, AI bunu gerçek bir teknik tartışma gibi ele alıp puanı günceller veya gerekçeyle reddeder (`disputeResponse` alanı UI'da gösteriliyor). Senior kullanıcıların AI'dan daha iyi bilebileceği senaryosu için tasarlandı.
+6. **Mantık/akıl yürütme ağırlıklı grading:** `grade-interview-answer`'ın system prompt'una açık bir kural eklendi — kontrol noktası "değindi" sayılması için referans cevapla kelime kelime eşleşme ARANMAZ, aynı mantıksal sonuca farklı kelimelerle ulaşmak yeterli; tersine ezbere tekrar edip altındaki mantığı anlamadığı belli olan cevaplara puan verilmez.
+7. **HomePage'e herkese açık "Nasıl Tamamlanır?" kuralları:** Yeni collapsible kart (QA Mentor banner'ının altında, `rulesOpen` state'i ile aç/kapa) — yukarıdaki 1-6 kuralların kullanıcı dilinde (TR/EN) özeti, giriş yapmamış ziyaretçiler dahil HERKESE görünür.
+
+### Mimari notlar
+- Quiz tracking artık 2 ayrı state: `quizCorrectBlocks` (sadece doğru, %60 hesaplamasında kullanılır) ve `quizAttempted` (doğru+yanlış, sidebar 3-state göstergesi için). `QuizBlock`/`QuizFillBlock`'un callback'i `onQuizCorrect` → `onAnswered(isCorrect)` olarak genelleştirildi, `TopicPage`'deki handler `handleQuizCorrect` → `handleQuizAnswered(blockIndex, isCorrect)` oldu.
+- `explain-quiz-answer` ve `grade-interview-answer` AYNI `GEMINI_API_KEY` secret'ını kullanıyor — yeni secret gerekmiyor, sadece deploy.
+
+### Sıradaki adım — kullanıcının yapması gerekenler
+
+**2026-06-23 güncelleme — kullanıcı ilk testte 2 gerçek sorun buldu, ikisi de çözüldü:**
+1. **"AI açıklaması şu anda yüklenemedi" hatası** — kök neden: `grade-interview-answer` ve `explain-quiz-answer` hiç deploy edilmemişti (sadece `qa-assistant` vardı, `supabase functions list` ile doğrulandı). Kullanıcı 4 deploy komutunu çalıştırdı, **şimdi her iki projede de 3 fonksiyon `ACTIVE`** (qa-assistant, grade-interview-answer, explain-quiz-answer — `supabase functions list` ile tekrar doğrulandı).
+2. **"Mülakat sorularında input alanı/AI yok" şikayeti** — kod aslında çalışıyordu ama `InterviewPracticeBlock`'u 50 soruluk statik listenin EN ALTINA koymuştum, kullanıcı sekmeyi açınca ilk soruyu görüp pratik alanını fark etmemiş (scroll gerekiyordu). **Düzeltildi:** `InterviewQuestionsBlock` artık pratik alanını EN ÜSTTE render ediyor, statik 50 soruluk liste "📚 Tüm Sorular — Çalışma Materyali" başlığıyla altta, ayrı bölüm olarak kalıyor.
+
+**Şimdi tekrar test edilmesi gerekenler (`npm run dev`, `/selenium`, giriş yapmış halde):**
+- Quiz'i olan bir sekmede soruyu cevapla → "🤖 AI Açıklama" paneli artık gerçek bir açıklama göstermeli (hata değil).
+- "Mülakat Soruları" sekmesine geçince EN ÜSTTE 5 soruluk pratik alanı (textarea + Değerlendir butonu) görünmeli — soruya tıklayınca direkt cevap açılmamalı.
+- Bir soruyu değerlendir, "Bu değerlendirmeye katılmıyorum" deyip itiraz yaz → AI'ın itiraza yanıtı görünmeli.
+- Sayfadaki quizlerin %60'ından azını doğru cevapla, Mülakat sekmesine geçmeyi dene → 🔒 kilit mesajı ve güncel % görünmeli.
+- Anasayfada "Bir ders nasıl tamamlandı sayılır?" kartını aç/kapa.
+
+**Ders:** Bundan sonra yeni bir Edge Function eklendiğinde, kullanıcıya "deploy et" demek yetmiyor — `supabase functions list` ile GERÇEKTEN deploy edildiğini ben de doğrulamalıyım, "deploy ettim" diyen bir önceki mesaj farklı bir fonksiyon için olabilir.
+
+### 2026-06-23 — Kök neden bulundu: Gemini API kota/rate-limit (429), AI maliyet optimizasyonu yapıldı
+
+Kullanıcı test ederken `grade-interview-answer` çağrısı HTTP 429 ("You exceeded your current quota") ile başarısız oldu — kod hatası değil, Gemini ücretsiz katman dakikalık limiti. Kullanıcı "AI ile değerlendirme pahalı olacak, başka çözüm öner" dedi; şu optimizasyonlar yapıldı (hepsi kodlandı, build geçti):
+
+1. **Quiz "AI Açıklama" artık opt-in:** Önceden her quiz cevaplandığında OTOMATİK AI çağrısı yapılıyordu. Şimdi sadece kullanıcı "🤖 AI'dan bu cevaba özel ek açıklama iste" butonuna basınca çağrılıyor (`AiExplanationPanel`, `requested` state). Statik açıklama (`block.explanation`) zaten ücretsiz ve her zaman görünüyor — AI sadece ek isteyen için.
+2. **Mülakat Pratiği'nin ilk turu artık TEK Gemini isteği:** Önceden 5 soru = 5 ayrı API çağrısı (tam da 429'a sebep olan şey). `grade-interview-answer` artık `items: [...]` dizisi kabul eden bir BATCH modu destekliyor — 5 soru-cevap çifti tek istekte gönderilip tek seferde 5 sonuç array'i alınıyor. Frontend'de yeni `handleGradeAll()` + paylaşımlı "Tümünü Değerlendir" butonu (tüm 5 cevap doldurulmadan aktif olmuyor). Tekil "Tekrar Değerlendir" butonu sadece bir soru ilk turdan SONRA tekrar değerlendirilmek istenirse görünüyor (düşük hacimli, tek soruluk istek — kabul edilebilir).
+3. **Hata mesajları artık Gemini'nin gerçek yanıtını gösteriyor:** `(AI servisinden yanıt alınamadı (HTTP 429): ...)` gibi — Supabase Dashboard log'larına erişim olmadan da teşhis edilebilir hale geldi (`extractFunctionErrorDetail()` helper, `error.context.json()` okuyor).
+4. **Hata mesajı konumu düzeltildi:** Önceden tek bir `errorMsg` sadece en alttaki 5. sorunun altında gösteriliyordu — kullanıcı 1. soruyla ilgilenirken oluşan bir hata görünmüyordu. Artık her sorunun kendi `errorByIndex[idx]` mesajı, kendi butonunun altında.
+
+**Henüz yapılmayan ama önerilen, kullanıcı isterse:** Model adını `gemini-2.0-flash`'tan `gemini-2.0-flash-lite`'a çevirmek (genelde ücretsiz katmanda daha yüksek dakikalık limit) — kod değişikliği basit, henüz uygulanmadı. Daha büyük bir gelecek iyileştirmesi: quiz AI açıklamalarını (soru+seçilen cevap bazında) bir Supabase tablosunda cache'lemek — MC sorularda seçenek sayısı sabit olduğu için ilk birkaç kullanıcıdan sonra çoğu açıklama tekrar kullanılabilir; yeni tablo+RLS gerektirir, şimdilik yapılmadı.
+
+**Güvenlik notu (kayıt amaçlı):** Kullanıcı bir "copy as fetch" çıktısını paylaşırken gerçek, canlı bir Supabase session JWT'sini (Authorization header) yanlışlıkla yapıştırdı. Düşük risk (kısa ömürlü token, sadece bu konuşmada kaldı) ama not edildi.
+
+**Sıradaki adım — yeniden deploy gerekiyor (batch modu eklendi, kod değişti):**
+```
+supabase functions deploy grade-interview-answer --project-ref qtwargbbwuvrupfyowbg
+supabase functions deploy grade-interview-answer --project-ref qmvurwmcuexvuwvaiuhj
+```
+(`explain-quiz-answer` bu turda değişmedi — sadece frontend'deki çağrı şekli opt-in oldu — redeploy gerekmiyor.)
+
+**Güncelleme — batch moda geçtikten SONRA da hâlâ 429:** Kullanıcı 5 soruyu tek istekte (`handleGradeAll`) denedi, yine aynı "You exceeded your current quota" hatası geldi — yani sorun istek SAYISI değil, bu Google Cloud projesinin günlük/anlık kotasının (billing aktif olmadığı için) pratikte sıfıra yakın olması. Kullanıcıya 4 seçenek sunuldu (billing aktif et / AI özelliklerini geçici kapat / başka sağlayıcıya geç / bekle), **kullanıcı "biraz bekleyip tekrar dene"yi seçti — şu an hiçbir kod/altyapı değişikliği yapılmadı, bilinçli olarak bekleniyor.**
+
+**Sıradaki oturumda önce bunu sor/kontrol et:** Kota düzeldi mi (kullanıcı kendi zamanında tekrar deneyecek)? Düzelmediyse yukarıdaki 3 alternatifi (billing/farklı sağlayıcı/AI'ı geçici kapatma) tekrar gündeme getir — kod tarafı (Mülakat Pratiği batch grading, opt-in quiz açıklaması, sayfa geneli quiz gate'i, 3 durumlu sekme göstergesi) tamamen hazır ve `learnqa-test`'e deploy edilmiş durumda, sadece Gemini kotası nedeniyle gerçek bir değerlendirme uçtan uca doğrulanamadı.
+
+**Not — bu konu artık Gemini değil Groq'a taşındı (bkz. aşağıdaki "KARAR DEĞİŞTİ" bölümü), bu Gemini-spesifik kota maddesi geçmiş referans olarak kalıyor.**
+
+### 2026-06-23 — KARAR DEĞİŞTİ: Gemini'den Groq'a geçiş yapıldı
+
+Kullanıcı "AI değerlendirme pahalı olacak, başka model öner" dedi → Groq (ücretsiz katmanı çok daha yüksek, OpenAI-uyumlu `chat/completions` API) önerildi ve onaylandı. Kullanıcı `GROQ_API_KEY` secret'ını **sadece `learnqa-test` projesine** ekledi (`qtwargbbwuvrupfyowbg`) — **prod'a (`qmvurwmcuexvuwvaiuhj`) henüz eklenmedi.**
+
+**Yapılan kod değişikliği (3 Edge Function, hepsi build edildi ama henüz deploy edilmedi):**
+- **Yeni `supabase/functions/_shared/groq.ts`:** Tek bir `callGroq(apiKey, messages, options)` helper'ı — model varsayılanı `llama-3.3-70b-versatile`, OpenAI `chat/completions` formatında. Her 3 fonksiyon bunu import ediyor (`../_shared/groq.ts`) — Supabase'in `_shared` klasör konvansiyonu, kendi başına bir fonksiyon olarak deploy edilmez, diğerlerine bundle edilir.
+- **`qa-assistant/index.ts`:** Gemini'nin `contents`/`parts` formatı → OpenAI `messages` formatına çevrildi (`role: 'model'` → `role: 'assistant'`).
+- **`grade-interview-answer/index.ts`:** Eski yerel `callGemini()` fonksiyonu tamamen kaldırıldı, hem batch hem tekli mod artık paylaşılan `callGroq()`'u çağırıyor. Grading mantığı/prompt'lar (mantığa göre değerlendirme, itiraz akışı) DEĞİŞMEDİ — sadece AI sağlayıcısı değişti.
+- **`explain-quiz-answer/index.ts`:** Aynı şekilde `callGroq()`'a geçirildi.
+- **Frontend (`TopicPage.jsx`) HİÇ değişmedi** — `supabase.functions.invoke()` çağrıları ve beklenen response şekilleri (`{reply}`, `{explanation}`, `{results: [...]}`, `{totalPoints, coveredPoints, ...}`) aynı kaldı, sadece Edge Function'ların İÇİNDE hangi AI sağlayıcısına gittiği değişti.
+- `npm run build` temiz geçti (frontend dosyası değişmediği için beklenen).
+
+**2026-06-23 — DOĞRULANDI, Groq çalışıyor (`learnqa-test`):** Kullanıcı 3 fonksiyonu deploy etti, `/selenium`'da Mülakat Pratiği'nde bilerek anlamsız bir cevap ("deneme") yazıp "Tümünü Değerlendir"i denedi — batch çağrı başarıyla döndü, her soruya doğru şekilde %0 (0/3 kontrol noktası) + soruya özel kaçırılan noktalar verildi, hata yok, 429 yok. Sidebar'da Mülakat Soruları sekmesi hâlâ 🔒 (beklenen — ortalama %0, %80 eşiğinin çok altında). Tek soruluk "Tekrar Değerlendir" ve itiraz linki de göründü.
+
+**Henüz test edilmedi:** Gerçekten iyi/doğru bir cevapla yüksek puan alıp alınmadığı (pozitif uç) ve `qa-assistant`/`explain-quiz-answer`'ın da Groq ile çalıştığı — sadece `grade-interview-answer` fiilen denendi.
+
+**2026-06-23, devam oturumu — deploy sağlığı tekrar doğrulandı, fiili kota hâlâ doğrulanamadı:** `supabase functions list --project-ref qtwargbbwuvrupfyowbg` çalıştırıldı, 3 fonksiyon (`qa-assistant` v4, `grade-interview-answer` v6, `explain-quiz-answer` v4) hepsi `ACTIVE`. CLI'da `functions logs` gibi bir alt komut yok (sadece `list/delete/download/deploy/new/serve`), ve fonksiyonlar `verify_jwt:true` olduğu için gerçek bir çağrı tetiklemek üye JWT'si gerektiriyor — Claude Code'un gerçek bir kullanıcı oturumu yok, bu yüzden fiili Groq kota/kalite durumu hâlâ sadece **kullanıcının tarayıcıda gerçek girişle test etmesiyle** doğrulanabilir.
+
+**Sıradaki adım — kullanıcının yapması gerekenler:**
+1. (Opsiyonel ama önerilir) Bir soruya gerçekten iyi bir cevap yazıp tekrar değerlendir — yüksek puan (%80+) gelip gelmediğini, %80 ortalamaya ulaşınca sekmenin gerçekten 🔒'dan ✓'a geçip geçmediğini doğrula. `/qa-assistant` ve quiz'lerdeki "AI'dan ek açıklama iste" butonunu da bir kez dene (Groq ile henüz fiilen test edilmedi).
+2. **Sonuç iyiyse prod'a da taşı:** `supabase secrets set GROQ_API_KEY=... --project-ref qmvurwmcuexvuwvaiuhj` + 3 deploy komutunu `qmvurwmcuexvuwvaiuhj` için de çalıştır:
+   ```
+   supabase functions deploy qa-assistant --project-ref qmvurwmcuexvuwvaiuhj
+   supabase functions deploy grade-interview-answer --project-ref qmvurwmcuexvuwvaiuhj
+   supabase functions deploy explain-quiz-answer --project-ref qmvurwmcuexvuwvaiuhj
+   ```
+3. **Eski `GEMINI_API_KEY` secret'ı her iki projede de hâlâ duruyor olabilir** — artık hiçbir fonksiyon onu okumuyor, zararsız ama istenirse `supabase secrets unset GEMINI_API_KEY --project-ref <ref>` ile temizlenebilir.
+
+Sonuç olumluysa: bu doğrulama mantığını diğer ~29 sayfaya yayma kararını birlikte ver (büyük içerik görevi — her sayfanın her sekmesine quiz eklemek gerekiyor, CLAUDE.md §13 gereği sayfa sayfa ilerlenmeli).
 
 ---
 
@@ -79,7 +398,7 @@
 **Bu bölüm önemli — sıradaki oturumda buradan devam et.**
 
 ### Genel özet
-`/backend` artık tutorial olmaktan çıktı — gerçek, çalışan bir auth/progress sistemi var. **Google OAuth hem test hem prod'da, GitHub/Azure (Microsoft) OAuth ise sadece TEST ortamında** uçtan uca doğrulandı (gerçek hesapla giriş, admin rolü, avatar, kaldığım yeri kaydet/devam et). Kalan gerçek eksikler: (1) GitHub/Azure'ün **prod** Supabase projesinde kurulmamış olması, (2) **GitHub Actions secret'ları + workflow enjeksiyonu** — o olmadan canlıya (learnqa.dev) push edilse auth çalışmaz, bu yüzden hâlâ push edilmedi.
+`/backend` artık tutorial olmaktan çıktı — gerçek, çalışan bir auth/progress sistemi var. **Google OAuth hem test hem prod'da, GitHub/Azure (Microsoft) OAuth ise sadece TEST ortamında** uçtan uca (gerçek tarayıcı girişiyle) doğrulandı. **2026-06-23'te prod tarafında config seviyesinde tamamlanan ek işler:** GitHub OAuth için ayrı `LearnQA - Prod` app, Azure OAuth için ayrı `LearnQA - Prod` app registration (her ikisi de doğru prod callback URL'iyle), `learnqa-prod` Supabase'ine her iki credential girildi, GitHub Actions repo secret'ları (`VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY`/`VITE_ENABLE_PREMIUM=false`, prod değerleriyle) eklendi, `.github/workflows/deploy.yml`'a bu secret'ları build adımına geçiren `env:` bloğu eklendi. **Bunların hiçbiri henüz gerçek tarayıcı girişiyle prod'da uçtan uca doğrulanmadı** — bu, push öncesi/sonrası yapılması gereken son kontrol.
 
 ### Mimari (onaylandı, değişmedi)
 - İki ayrı Supabase projesi: **`learnqa-test`** (`qtwargbbwuvrupfyowbg.supabase.co`, premium tam aktif, Stripe/iyzico sandbox) ve **`learnqa-prod`** (`qmvurwmcuexvuwvaiuhj.supabase.co`, gerçek üyelik, premium UI `VITE_ENABLE_PREMIUM=false` ile kapalı).
@@ -119,11 +438,11 @@
 Her iki projede de: profiles sütunları (`full_name, email, is_admin, is_premium, premium_started_at, premium_until, payment_provider, avatar_emoji`) + RLS policy'leri (idempotent, `drop policy if exists` ile) + `handle_verified_user` trigger + column grant + auth.users backfill + kendi hesabını admin yapma + `NOTIFY pgrst, 'reload schema'` + `user_progress` policy düzeltmesi (madde 3). **2026-06-22'de doğrulandı:** Parça 1 kontrol sorgusu `learnqa-prod`'da `6/8/2` döndü (tablo/sütun/badge sayıları doğru). Google OAuth redirect URI düzeltmesi sonrası gerçek Google girişi (`hasank4311@gmail.com`) `learnqa-prod`'da başarılı; admin SQL'i giriş SONRASI tekrar çalıştırılınca "👑 Admin" rozeti doğru göründü.
 
 ### Hâlâ eksik / sıradaki adım
-1. **GitHub OAuth — prod kaydı yok:** Ayrı bir GitHub OAuth App (prod callback URL'iyle) henüz açılmadı; açılınca client id/secret `learnqa-prod` Supabase Authentication > Providers > GitHub'a girilmeli.
-2. **Azure OAuth — prod redirect URI yok:** Mevcut Azure App registration'ın Redirect URIs listesine prod callback URL'i (`qmvurwmcuexvuwvaiuhj.../auth/v1/callback`) henüz eklenmedi; eklenince aynı client id/secret `learnqa-prod` Supabase'ine de girilmeli (Supabase projeleri arasında credential paylaşımı yok, Google'da da bu adım ayrıca yapılmıştı).
-3. **GitHub Actions secret'ları** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM=false` — **prod değerleriyle**, `qmvurwmcuexvuwvaiuhj` projesi) repo Settings > Secrets and variables > Actions'a henüz eklenmedi.
-4. `.github/workflows/deploy.yml`'a bu secret'ları build adımına env olarak geçiren satırlar henüz eklenmedi.
-5. Madde 3-4 tamamlanmadan **push ETME** — yoksa learnqa.dev'de auth/admin/progress/rozet hiç çalışmaz (env yok).
+1. ~~**GitHub OAuth — prod kaydı yok**~~ — **2026-06-23'te tamamlandı:** Kullanıcı `LearnQA - Prod` adında bağımsız bir GitHub OAuth App kaydetti (callback: `qmvurwmcuexvuwvaiuhj.supabase.co/auth/v1/callback`), client id/secret `learnqa-prod` Supabase Authentication > Providers > GitHub'a girildi. **Henüz gerçek tarayıcı girişiyle doğrulanmadı** (sadece test ortamında Playwright ile redirect parametreleri doğrulanmıştı, prod için aynı doğrulama henüz yapılmadı).
+2. ~~**Azure OAuth — prod redirect URI yok**~~ — **2026-06-23'te tamamlandı, planı değişti:** Kullanıcı mevcut test app'ine 2. bir redirect URI eklemek yerine **GitHub'daki gibi ayrı, bağımsız bir Azure App registration** (`LearnQA - Prod`) oluşturdu. Bu app'in Authentication sekmesinde TEK redirect URI kayıtlı: `https://qmvurwmcuexvuwvaiuhj.supabase.co/auth/v1/callback` (ekran görüntüsüyle doğrulandı). Client ID (`27bd8a0e-d3d5-4f3b-b679-0a7b56907ed6`) hem bu Azure app'te hem `learnqa-prod` Supabase Authentication > Providers > Azure panelinde hem de kullanıcının kayıtlı `learnqa-prod-secret` notunda tutarlı — credential eşleşmesi doğrulandı. **Henüz gerçek tarayıcı girişiyle uçtan uca doğrulanmadı** (sadece statik/dashboard config kontrolü yapıldı).
+3. ~~**GitHub Actions secret'ları**~~ — **2026-06-23'te tamamlandı:** Kullanıcı `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (prod anon/public key), `VITE_ENABLE_PREMIUM=false` değerlerini `learnqa-prod` (`qmvurwmcuexvuwvaiuhj`) projesine ait olarak repo Settings > Secrets and variables > Actions'a ekledi. `gh` CLI bu makinede kurulu olmadığı için Claude Code secret isimlerini bağımsız doğrulayamadı — gerçek doğrulama ilk push'ta Actions log'unda olacak.
+4. ~~`.github/workflows/deploy.yml`'a bu secret'ları build adımına env olarak geçiren satırlar henüz eklenmedi.~~ — **2026-06-23'te eklendi:** `Build` adımına `env: VITE_SUPABASE_URL/VITE_SUPABASE_PUBLISHABLE_KEY/VITE_ENABLE_PREMIUM` (hepsi `${{ secrets.* }}`'dan okunuyor) eklendi. IDE'de "Context access might be invalid" sarı uyarısı bekleniyor — secret'lar repo'ya henüz eklenmediği için, madde 3 tamamlanınca kaybolacak. Kod tarafı artık hazır, sadece madde 3 (repo secret'larını eklemek) kaldı.
+5. ~~Madde 3-4 tamamlanmadan **push ETME**~~ — **2026-06-23 itibarıyla madde 1-4'ün hepsi tamamlandı** (GitHub OAuth prod app, Azure OAuth prod app, GitHub Actions secret'ları, workflow env enjeksiyonu). Kod ve config seviyesinde push için engel kalmadı. **Ama hiçbiri gerçek tarayıcı girişiyle uçtan uca doğrulanmadı** — push'tan önce veya hemen sonra Google/GitHub/Azure'ın üçünün de learnqa.dev'de (veya push sonrası canlıda) gerçekten çalıştığı test edilmeli, test ortamında yapılan Playwright doğrulaması prod için henüz tekrarlanmadı.
 6. `learnqa-test`'te gerçek bir Stripe/iyzico sandbox ödemesi hiç uçtan uca test edilmedi.
 7. Gerçek bir "Premium'a geç" UI'ı henüz yazılmadı (yazılınca `isPremiumEnabled` ile gate'lenmeli).
 8. ~~`lesson_comments` tablosu henüz Supabase'de yok~~ — **2026-06-22'de doğrulandı, TAMAM:** Hem `learnqa-test` hem `learnqa-prod`'da tablo 7 doğru kolonla (`id, user_id, display_name, avatar_url, page_path, comment, created_at`), RLS açık (`relrowsecurity=true`) ve 3 policy ile (`everyone reads lesson comments`/SELECT/public, `signed in users write own comment`/INSERT/authenticated, `users delete own comment`/DELETE/authenticated) zaten kurulu çıktı — daha önceki bir oturumda yapılmış ama bu dosyaya işlenmemişti. Ek işlem gerekmiyor.

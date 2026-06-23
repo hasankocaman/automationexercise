@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Save } from 'lucide-react'
+import { Save, ChevronDown, ChevronUp } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { search as searchContent } from '../utils/searchIndex'
@@ -54,6 +54,7 @@ function HomePage() {
     const navigate = useNavigate()
     const [activeSection, setActiveSection] = useState('basic')
     const [resumePoint, setResumePoint] = useState(null)
+    const [rulesOpen, setRulesOpen] = useState(false)
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('darkMode')
         const isDark = saved !== null ? JSON.parse(saved) : true
@@ -397,8 +398,70 @@ function HomePage() {
                 </Link>
             </div>
 
+            {/* ── Ders Tamamlama Kuralları — herkese açık, şeffaflık için ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <div className={`rounded-2xl border-2 overflow-hidden ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+                    <button
+                        onClick={() => setRulesOpen((prev) => !prev)}
+                        data-testid="completion-rules-toggle"
+                        className="w-full flex items-center justify-between gap-3 p-4 md:p-5 text-left"
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl flex-shrink-0">📐</span>
+                            <div>
+                                <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {language === 'tr' ? 'Bir ders nasıl "tamamlandı" sayılır?' : 'How does a lesson count as "completed"?'}
+                                </h2>
+                                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {language === 'tr' ? 'Tıkla ve kuralları gör — tüm kullanıcılar için geçerlidir.' : 'Tap to see the rules — the same for every user.'}
+                                </p>
+                            </div>
+                        </div>
+                        {rulesOpen ? <ChevronUp className={darkMode ? 'text-gray-400' : 'text-gray-500'} /> : <ChevronDown className={darkMode ? 'text-gray-400' : 'text-gray-500'} />}
+                    </button>
 
-
+                    {rulesOpen && (
+                        <div className={`px-4 pb-5 md:px-5 space-y-3 text-sm leading-relaxed border-t ${darkMode ? 'border-gray-700 text-gray-300' : 'border-gray-100 text-gray-700'}`}>
+                            {[
+                                {
+                                    icon: '🧠',
+                                    tr: ['Her sekmede en az bir quiz sorusu bulunur.', 'Bir sekmeyi manuel olarak "tamamlandı" diye işaretleyemezsin — gerçekten doğru cevaplaman gerekir.', 'Bir quiz sorusunu yanlış cevapladığında aynı soru tekrar gösterilmez — alternatif bir soru sorulur, doğru cevabı ezberleyip geçemezsin.'],
+                                    en: ['Every tab has at least one quiz question.', 'You can\'t manually mark a tab "completed" — you have to actually answer it correctly.', 'If you answer a quiz question incorrectly, you won\'t see the same question again — you get an alternative question instead, so you can\'t pass by memorizing the answer.'],
+                                },
+                                {
+                                    icon: '🔒',
+                                    tr: ['Sayfadaki TÜM sekmelerin quizlerinin en az %60\'ını doğru cevaplamadan Mülakat Soruları sekmesine geçemezsin.', 'Sidebar\'da: boş kutu = henüz denenmedi, kırmızı ✗ = denendi ama %60\'ı geçemedi, yeşil ✓ = geçti.'],
+                                    en: ['You can\'t unlock the Interview Questions tab until you\'ve answered at least 60% of the quizzes across ALL tabs on the page correctly.', 'In the sidebar: empty box = not tried yet, red ✗ = tried but below 60%, green ✓ = passed.'],
+                                },
+                                {
+                                    icon: '🤖',
+                                    tr: ['Bir quiz sorusunu cevapladığında AI, senin SEÇTİĞİN cevaba özel bir açıklama yazar — sadece "doğru cevap bu" demez, neden öyle olduğunu (veya neden yanlış seçtiğini) öğretir.'],
+                                    en: ['When you answer a quiz question, the AI writes an explanation specific to YOUR choice — not just "the answer is X", but why (or why your pick was wrong).'],
+                                },
+                                {
+                                    icon: '🎤',
+                                    tr: ['Mülakat sorularında çoktan seçmeli şık YOKTUR — gerçek bir mülakatta olduğu gibi kendi cümlelerinle cevap yazarsın. Cevap sana önceden gösterilmez.', 'AI seni mantığına/akıl yürütmene göre değerlendirir, kelime ezberine göre değil.', 'AI\'ın değerlendirmesine katılmıyorsan itiraz edip kendi gerekçeni yazabilirsin — AI itirazını gerçek bir teknik tartışma gibi inceler.'],
+                                    en: ['Interview questions have NO multiple-choice options — just like a real interview, you write your own answer in your own words. The answer is never shown to you in advance.', 'The AI judges your reasoning and logic, not rote keyword matching.', 'If you disagree with the AI\'s verdict, you can dispute it and write your own justification — the AI treats it as a real technical discussion.'],
+                                },
+                                {
+                                    icon: '🏅',
+                                    tr: ['Mülakat pratiğinde örnek sorularının ortalaması %80\'e ulaşınca o sekme — ve gerekli sekme sayısına ulaşıldığında bitirme rozeti — kazanılır.'],
+                                    en: ['Once your average score on the sampled interview questions reaches 80%, that tab — and, once enough tabs are done, a completion badge — is earned.'],
+                                },
+                            ].map((rule, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <span className="text-lg flex-shrink-0">{rule.icon}</span>
+                                    <div className="space-y-1">
+                                        {(language === 'tr' ? rule.tr : rule.en).map((line, j) => (
+                                            <p key={j} className={j === 0 ? 'font-semibold' : 'opacity-90'}>{line}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Navigation — Category Cards Grid */}
             <nav
