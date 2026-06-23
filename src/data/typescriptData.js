@@ -4809,10 +4809,10 @@ const trTabs = [
   "🟡 Orta Seviye",
   "🔴 İleri Seviye",
   "🧪 QA Kullanım",
-  "💼 Mülakat",
   "📝 Pratik & Referans",
   "☕ Java → TS",
   "🏃 Test Runner'lar",
+  "💼 Mülakat",
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -4833,16 +4833,16 @@ export const typescriptData = {
       "🟡 Intermediate",
       "🔴 Advanced",
       "🧪 QA Use Cases",
-      "💼 Interview Q&A",
       "📝 Practice & Reference",
       "☕ Java → TS",
       "🏃 Test Runners",
+      "💼 Interview Q&A",
     ],
-    sections,
+    sections: [sections[0], sections[1], sections[2], sections[3], sections[4], sections[5], sections[7], sections[8], sections[9], sections[6]],
   },
   tr: {
     hero: trHero,
     tabs: trTabs,
-    sections: trSections,
+    sections: [trSections[0], trSections[1], trSections[2], trSections[3], trSections[4], trSections[5], trSections[7], trSections[8], trSections[9], trSections[6]],
   },
 };

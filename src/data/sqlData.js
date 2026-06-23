@@ -2833,7 +2833,7 @@ const trHero = {
   intro: 'SQL\'i test otomasyonu için öğrenin — backend durumunu doğrulamak, test verisi eklemek, bütünlüğü kontrol etmek ve her SQL mülakatını geçmek için. Önceden veritabanı deneyimi gerekmez.',
 }
 
-const trTabs = ['🎯 Giriş', '📦 Kurulum', '🟢 Temeller', '🟡 Orta Seviye', '🔴 İleri Seviye', '🧪 QA Kullanım', '💼 Mülakat', '📝 Pratik & Referans']
+const trTabs = ['🎯 Giriş', '📦 Kurulum', '🟢 Temeller', '🟡 Orta Seviye', '🔴 İleri Seviye', '🧪 QA Kullanım', '📝 Pratik & Referans', '💼 Mülakat']
 
 const enHero = {
   title: '🗄️ SQL',
@@ -2841,9 +2841,9 @@ const enHero = {
   intro: 'Master SQL for test automation — query databases to verify backend state, seed test data, validate integrity, and pass any SQL interview. No prior database experience needed.',
 }
 
-const enTabs = ['🎯 Intro & Why', '📦 Installation', '🟢 Foundations', '🟡 Intermediate', '🔴 Advanced', '🧪 QA Use Cases', '💼 Interview Q&A', '📝 Practice & Reference']
+const enTabs = ['🎯 Intro & Why', '📦 Installation', '🟢 Foundations', '🟡 Intermediate', '🔴 Advanced', '🧪 QA Use Cases', '📝 Practice & Reference', '💼 Interview Q&A']
 
 export const sqlData = {
-  en: { hero: enHero, tabs: enTabs, sections },
-  tr: { hero: trHero, tabs: trTabs, sections: trSections },
+  en: { hero: enHero, tabs: enTabs, sections: [sections[0], sections[1], sections[2], sections[3], sections[4], sections[5], sections[7], sections[6]] },
+  tr: { hero: trHero, tabs: trTabs, sections: [trSections[0], trSections[1], trSections[2], trSections[3], trSections[4], trSections[5], trSections[7], trSections[6]] },
 }

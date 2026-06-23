@@ -15413,10 +15413,10 @@ export const javaData = {
       '🔗 Ekosistem',
       '🚨 Yaygın Hatalar',
       '📁 File & Threads',
-      '💼 Mülakat Soruları',
       '🧠 Adım Adım Soru Çözücü',
+      '💼 Mülakat Soruları',
     ],
-    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, s7.tr, sInteractivePractice.tr],
+    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, sInteractivePractice.tr, s7.tr],
   },
   en: {
     hero: {
@@ -15442,10 +15442,10 @@ export const javaData = {
       '🔗 Ecosystem',
       '🚨 Common Errors',
       '📁 File & Threads',
-      '💼 Interview Questions',
       '🧠 Step-by-Step Solver',
+      '💼 Interview Questions',
     ],
-    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, s7.en, sInteractivePractice.en],
+    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, sInteractivePractice.en, s7.en],
   },
 }
 

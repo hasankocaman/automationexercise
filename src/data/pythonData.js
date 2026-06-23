@@ -6252,7 +6252,7 @@ const trHero = {
   intro: 'Python\'u sıfırdan öğrenin, test otomasyonuna odaklanın. Temel kodlamadan gelişmiş pytest çerçevelerine kadar — modern bir QA mühendisinin ihtiyaç duyduğu her şey burada.',
 }
 
-const trTabs = ['🎯 Giriş', '📦 Kurulum', '🟢 Temeller', '🟡 Orta Seviye', '🔴 İleri Seviye', '🧪 QA Kullanım', '💼 Mülakat', '📝 Pratik & Referans', '☕ Java → Python']
+const trTabs = ['🎯 Giriş', '📦 Kurulum', '🟢 Temeller', '🟡 Orta Seviye', '🔴 İleri Seviye', '🧪 QA Kullanım', '📝 Pratik & Referans', '☕ Java → Python', '💼 Mülakat']
 
 const enHero = {
   title: '🐍 Python',
@@ -6260,9 +6260,9 @@ const enHero = {
   intro: 'Learn Python from scratch with a focus on test automation. From basic scripting to advanced pytest frameworks — everything a modern QA engineer needs to write reliable, maintainable tests.',
 }
 
-const enTabs = ['🎯 Intro & Why', '📦 Installation', '🟢 Foundations', '🟡 Intermediate', '🔴 Advanced', '🧪 QA Use Cases', '💼 Interview Q&A', '📝 Practice & Reference', '☕ Java → Python']
+const enTabs = ['🎯 Intro & Why', '📦 Installation', '🟢 Foundations', '🟡 Intermediate', '🔴 Advanced', '🧪 QA Use Cases', '📝 Practice & Reference', '☕ Java → Python', '💼 Interview Q&A']
 
 export const pythonData = {
-  en: { hero: enHero, tabs: enTabs, sections },
-  tr: { hero: trHero, tabs: trTabs, sections: trSections },
+  en: { hero: enHero, tabs: enTabs, sections: [sections[0], sections[1], sections[2], sections[3], sections[4], sections[5], sections[7], sections[8], sections[6]] },
+  tr: { hero: trHero, tabs: trTabs, sections: [trSections[0], trSections[1], trSections[2], trSections[3], trSections[4], trSections[5], trSections[7], trSections[8], trSections[6]] },
 }

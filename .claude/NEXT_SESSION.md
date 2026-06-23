@@ -9,6 +9,19 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-23) — "💼 Mülakat Soruları" sekmesi her derste en sona alındı
+
+Kullanıcı, mülakat sekmesinin platformdaki TÜM derslerde en alt (son) sekme olmasını istedi — Java sayfasında Antigravity'nin sonradan eklediği "🧠 Adım Adım Soru Çözücü" sekmesi Mülakat'tan SONRA geliyordu (ekran görüntüsüyle bildirildi). Tüm `src/data/*Data.js` dosyaları 💼 emoji'sine göre taranıp (TopicPage.jsx'in `isDedicatedInterviewTab` helper'ının kullandığı aynı ayırt edici) sadece 4 dosyada Mülakat sekmesi son sırada DEĞİLDİ:
+
+- **`javaData.js`:** "💼 Mülakat Soruları" ile "🧠 Adım Adım Soru Çözücü" sekmelerinin sırası değiştirildi (`tabs`/`sections` dizilerinde doğrudan, named section değişkenleri kullanıldığı için risk yok).
+- **`pythonData.js`, `sqlData.js`, `typescriptData.js`:** Bu 3 dosyada Mülakat'tan sonra "📝 Pratik & Referans" (+ Python/TS'te "☕ Java → ..." ve TS'te "🏃 Test Runner'lar") sekmeleri vardı. **Önemli mimari detay:** Bu dosyalarda TR ağacı (`trSections`) EN `sections` dizisini **index ile** referans alıyor (`applyTr(sections[N], {...})`) — bu, memory'de zaten kayıtlı olan risk (`feedback_ts_heading_property.md`). Bu yüzden ham `sections`/`trSections` dizilerinin İÇİNDEKİ eleman sırası hiç değiştirilmedi (index kayması riski yok) — sadece dosyanın en sonundaki `export const xData = {...}` bloğunda, `sections`/`trSections`'a index numarasıyla yeniden sıralanmış bir dizi (`[sections[0], sections[1], ..., sections[6]]` gibi) verildi. `tabs`/`trTabs`/`enTabs` literal dizileri de aynı yeni sırayla güncellendi.
+- Her sekmenin TOPLAM konu içeriği değişmedi, sadece görüntülenme SIRASI değişti — quiz/sekme tamamlama gating mantığı (`isDedicatedInterviewTab`, %60/%80 eşikleri) içerik etiketine (💼 emoji) göre çalıştığı için index kaymasından etkilenmiyor.
+- `npm run build` 34 route ile temiz geçti. **Tarayıcıda manuel görsel doğrulama yapılmadı** (veri/export seviyesinde grep ile her 4 dosyanın yeni `tabs` dizisinin son elemanının 💼 olduğu doğrulandı) — istenirse `/java`, `/python`, `/sql`, `/typescript` sayfalarında sidebar'da Mülakat'ın en altta olduğu gözden geçirilebilir.
+- **Not — geriye dönük progress kayması riski:** Bu 4 dosyada sekme SIRASI değişti; eğer bir kullanıcının localStorage/Supabase'inde bu sayfalar için ESKİ index'e göre kaydedilmiş bir "şu sekmeye kadar tamamlandı" kaydı varsa (örn. eski sırada index 6 = Mülakat), bu artık farklı bir sekmeye işaret edebilir. Düşük olasılıklı, kullanıcıya bildirilmedi ama not edilmeli — sorulursa gündeme getirilebilir.
+- **Commit edildi** (bu oturumda, `javaData.js`/`pythonData.js`/`sqlData.js`/`typescriptData.js` + bu dosya birlikte) — push kararı kullanıcının son-gözden-geçirme onayına bağlı, aşağıdaki "Push öncesi son gözden geçirme" bölümüne bak.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-23) — Anasayfa "Bir ders nasıl tamamlandı sayılır?" kartına retry-quiz maddesi eklendi
 
 Kullanıcı, anasayfadaki şeffaflık kartının 🧠 maddesine (her sekmede en az bir quiz, manuel işaretleme yok) bir üçüncü satır eklenmesini istedi: bir quiz sorusu yanlış cevaplandığında aynı sorunun tekrar gösterilmediği, yerine alternatif bir soru sorulduğu (`retryQuestion` mekanizması, yukarıdaki "Quiz alternatif soru kapsaması" bölümünde zaten %100 doğrulanmıştı — bu sadece kartın metnini gerçek davranışla tam eşleştirdi).
