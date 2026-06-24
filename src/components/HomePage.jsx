@@ -519,7 +519,7 @@ function HomePage() {
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
-                                <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>
+                                {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>}
                                 <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
                             </div>
                         </div>
@@ -664,7 +664,7 @@ function HomePage() {
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
-                                    { to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' },
+                                    ...(isAdmin ? [{ to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' }] : []),
                                     { to: '/test-frameworks', label: '⚖️ Framework Karş.' },
                                 ].map(({ to, label }) => (
                                     <li key={to}>

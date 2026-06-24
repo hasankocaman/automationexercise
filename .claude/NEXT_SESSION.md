@@ -9,6 +9,19 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-24) — HomePage nav ve footer'da /security linki admin-only yapıldı
+
+`src/components/HomePage.jsx` — 2 satır değişiklik:
+
+| Konum | Değişiklik |
+|---|---|
+| Üst nav "Test Araçları" bölümü (~satır 522) | `{isAdmin && <Link to="/security" ...>🔒 Siber Güvenlik</Link>}` |
+| Footer "Test Araçları" listesi (~satır 667) | `...(isAdmin ? [{ to: '/security', label: ... }] : [])` — spread ile dizi boş kalır |
+
+`isAdmin` zaten `useAuth()` destructure'ından geliyordu (`const { session, isAdmin, ... } = useAuth()`), ekstra import gerekmedi. Admin olmayan kullanıcı ne üst navda ne footerda "Siber Güvenlik" linkini görmez.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-24) — /security sayfası admin koruması + Antigravity Security sayfası
 
 ### Antigravity — Yeni `/security` sayfası (yeni dosyalar, untracked)
