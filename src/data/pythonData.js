@@ -65,6 +65,27 @@ const sections = [
           explanation: { tr: 'Otomasyon scriptlerinde Python\'ın çalışma zamanı yavaşlığı genelde önemsizdir (bir test 50ms yerine 60ms sürse kimse fark etmez), ama mikrosaniyelerin önemli olduğu bir sistemin ÇEKİRDEK motorunda bu fark kritik hale gelir — bu yüzden böyle bir sistem genelde Java/C++ gibi derlenmiş bir dilde yazılır. Doğru dil seçimi her zaman kullanım senaryosuna bağlıdır, "Python her zaman yavaştır" gibi mutlak bir kural değildir.', en: "Python's runtime slowness rarely matters for automation scripts (nobody notices if a test takes 60ms instead of 50ms), but in the CORE engine of a system where microseconds matter, that difference becomes critical — which is why such a system is typically written in a compiled language like Java/C++. The right language choice always depends on the use case, not an absolute \"Python is always slow\" rule." },
         },
       },
+      {
+        type: 'python-memory-visual',
+        titleEn: 'Memory Model — QA Engineer Variables Live in RAM',
+        titleTr: 'Bellek Modeli — QA Değişkenleri RAM\'e Böyle Yazılır',
+        variables: [
+          { name: 'test_name', value: 'Login Test', type: 'str', desc: 'Test case label', descTr: 'Test adı' },
+          { name: 'pass_count', value: 42, type: 'int', desc: 'Tests passed', descTr: 'Geçen test sayısı' },
+          { name: 'pass_rate', value: 0.87, type: 'float', desc: '87% pass rate', descTr: '%87 başarı oranı' },
+          { name: 'is_flaky', value: 'False', type: 'bool', desc: 'Unstable test?', descTr: 'Kararsız test mi?' },
+          { name: 'error_msg', value: 'None', type: 'None', desc: 'No error yet', descTr: 'Henüz hata yok' },
+        ],
+      },
+      {
+        type: 'feynman-checkpoint',
+        promptTr: 'Python\'ı test otomasyonunda neden kullanırız? Java da yapabilir, neden Python? Jargon kullanmadan, sektöre yeni giren birine 3 somut nedeni anlat.',
+        promptEn: 'Why use Python for test automation? Java can do it too — why Python? Explain 3 concrete reasons to someone new to the field, no jargon.',
+        keywords: [['okunabilir', 'readable', 'syntax'], ['ekosistem', 'ecosystem', 'pytest', 'library'], ['hızlı', 'fast', 'rapid', 'script'], ['requests', 'api', 'http'], ['ci', 'jenkins', 'pipeline']],
+        minScore: 3,
+        modelAnswerTr: 'Python test otomasyonunda 3 nedenden tercih edilir: (1) Okunabilirlik — testler neredeyse İngilizce cümle gibi okunur, ekip içi herkes anlar. (2) Ekosistem zenginliği — pytest, Selenium, Playwright, requests, Faker, pandas gibi binlerce hazır kütüphane var, sıfırdan yazmak gerekmez. (3) Hız ve esneklik — 5 satırda API testi, 10 satırda veri üreteci yazılır; Java\'da aynı iş çok daha fazla kod ister.',
+        modelAnswerEn: 'Python is chosen for test automation for 3 reasons: (1) Readability — tests read like English sentences, the whole team can understand them. (2) Ecosystem richness — thousands of ready-made libraries like pytest, Selenium, Playwright, requests, Faker, pandas. (3) Speed & flexibility — a 5-line API test, a 10-line data generator; the same work takes far more code in Java.',
+      },
     ],
   },
 
@@ -168,6 +189,19 @@ print(sys.version)                 # print Python version`,
           correct: 'b',
           explanation: { tr: 'Bir venv aktifken çalıştırılan `pip install`, paketi SADECE o venv\'in kendi izole klasörüne kurar (`.venv/lib/...`), global Python kurulumuna veya başka bir projenin venv\'ine asla dokunmaz. Bu izolasyon, venv\'in tüm amacıdır — her proje, başka hiçbir projeyi etkilemeden kendi bağımlılık sürümlerine sahip olabilir.', en: "Running `pip install` while a venv is active installs the package ONLY into that venv's own isolated folder (`.venv/lib/...`) — it never touches the global Python installation or any other project's venv. This isolation is the entire point of a venv: each project can have its own dependency versions without affecting any other project." },
         },
+      },
+      {
+        type: 'python-flow-diagram',
+        titleEn: 'Virtual Environment Lifecycle — Step by Step',
+        titleTr: 'Sanal Ortam Yaşam Döngüsü — Adım Adım',
+        steps: [
+          { type: 'action', code: 'python -m venv .venv', desc: 'Creates isolated .venv/ folder', descTr: 'İzole .venv/ klasörü oluşturur' },
+          { type: 'action', code: 'source .venv/bin/activate  # (Windows: .venv\\Scripts\\activate)', desc: 'Shell switches to this venv', descTr: 'Shell bu venv\'e geçer' },
+          { type: 'condition', code: 'which python → .venv/bin/python?', desc: 'Verify venv is active', descTr: 'Venv\'in aktif olduğunu doğrula', branch: { true: 'venv active ✓', false: 'activate again' } },
+          { type: 'action', code: 'pip install pytest selenium requests', desc: 'Installs ONLY inside .venv/ — global Python untouched', descTr: 'Sadece .venv/ içine kurar — global Python dokunulmaz' },
+          { type: 'action', code: 'pip freeze > requirements.txt', desc: 'Lock exact versions for teammates', descTr: 'Takım için sürümleri kilitle' },
+          { type: 'end', code: 'deactivate', desc: 'Return to global Python', descTr: 'Global Python\'a dön' },
+        ],
       },
     ],
   },
@@ -421,6 +455,18 @@ print("Type of passed:", type(passed))` },
       }
 }
 },
+      {
+        type: 'python-memory-visual',
+        titleEn: 'Memory Model — All Basic Types Side by Side',
+        titleTr: 'Bellek Modeli — Temel Tipler Yan Yana',
+        variables: [
+          { name: 'name', value: 'Alice', type: 'str', desc: 'Text / String', descTr: 'Metin / String' },
+          { name: 'age', value: 25, type: 'int', desc: 'Whole number', descTr: 'Tam sayı' },
+          { name: 'score', value: 98.5, type: 'float', desc: 'Decimal number', descTr: 'Ondalıklı sayı' },
+          { name: 'is_qa', value: 'True', type: 'bool', desc: 'True / False', descTr: 'Doğru / Yanlış' },
+          { name: 'error', value: 'None', type: 'None', desc: 'Java null', descTr: 'Java null karşılığı' },
+        ],
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 4 — Data Types
@@ -1151,6 +1197,14 @@ print("After fix:", failed_tests)` },
       }
 }
 },
+      {
+        type: 'python-collection-visual',
+        titleEn: 'List Operations — Try Append & Pop Live',
+        titleTr: 'Liste İşlemleri — Append & Pop\'u Canlı Dene',
+        collectionType: 'list',
+        initial: ['login', 'checkout', 'search'],
+        appendItems: ['payment', 'logout', 'profile', 'cart'],
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 11 — Tuples
@@ -1410,6 +1464,14 @@ for key in required_keys:
       }
 }
 },
+      {
+        type: 'python-collection-visual',
+        titleEn: 'Dictionary — Add Entries & Lookup Keys Live',
+        titleTr: 'Dictionary — Kayıt Ekle & Key Ara (Canlı)',
+        collectionType: 'dict',
+        initialDict: { name: 'Login Test', status: 'PASSED', duration: '1.2s' },
+        newEntry: { key: 'env', value: 'staging' },
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 14 — If...Else
@@ -1705,6 +1767,18 @@ print(f"\nTotal: {len(results)}, Failed: {len(failures)}")` },
       }
 }
 },
+      {
+        type: 'python-flow-diagram',
+        titleEn: 'For Loop — How Python Iterates Step by Step',
+        titleTr: 'For Döngüsü — Python Adım Adım Nasıl İterler',
+        steps: [
+          { type: 'action', code: 'tests = ["login", "checkout", "search"]', desc: 'Define the list to iterate', descTr: 'İtere edilecek liste tanımlanır' },
+          { type: 'loop', code: 'for test in tests:', desc: 'Pick first item: "login"', descTr: 'İlk eleman alınır: "login"' },
+          { type: 'action', code: '    print("Running:", test)', desc: 'Execute body with current item', descTr: 'Döngü gövdesi çalışır' },
+          { type: 'condition', code: 'More items?', desc: 'Next: "checkout", then "search"', descTr: 'Sıradaki: "checkout", sonra "search"', branch: { true: 'next item ↑ loop', false: 'exit loop →' } },
+          { type: 'end', code: 'Loop ends — all 3 items processed', desc: 'Code after the loop continues', descTr: 'Döngü sonrası kod devam eder' },
+        ],
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 17 — Functions
@@ -2411,6 +2485,18 @@ print(get_user_age({"name": "Ali"}, "age"))       # KeyError` },
       }
 }
 },
+      {
+        type: 'python-flow-diagram',
+        titleEn: 'Try / Except / Else / Finally — Full Error Handling Flow',
+        titleTr: 'Try / Except / Else / Finally — Hata Yönetimi Akışı',
+        steps: [
+          { type: 'action', code: 'try:\n    response = requests.get(url)', desc: 'Attempt the risky operation', descTr: 'Riskli işlem denenir' },
+          { type: 'condition', code: 'Exception raised?', desc: 'Did the code inside try fail?', descTr: 'try bloğu hata verdi mi?', branch: { true: 'except block', false: 'else block' } },
+          { type: 'error', code: 'except RequestException as e:\n    log(e)', desc: 'Handle the specific error', descTr: 'Belirli hatayı yakala ve işle' },
+          { type: 'action', code: 'else:\n    assert response.status_code == 200', desc: 'Runs ONLY when no exception', descTr: 'SADECE hata yoksa çalışır' },
+          { type: 'end', code: 'finally:\n    session.close()', desc: 'ALWAYS runs — cleanup resources', descTr: 'HER ZAMAN çalışır — kaynak temizliği' },
+        ],
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 24 — JSON
@@ -2886,6 +2972,19 @@ print(f"Result: {result}")` },
       }
 }
 },
+      {
+        type: 'python-flow-diagram',
+        titleEn: 'Decorator — How the Wrapper Wraps the Function',
+        titleTr: 'Decorator — Wrapper Fonksiyonu Nasıl Sarar',
+        steps: [
+          { type: 'action', code: '@retry(max=3)\ndef test_login():', desc: 'Python sees @ — starts wrapping', descTr: 'Python @ görür — sarmaya başlar' },
+          { type: 'action', code: 'retry(test_login) → wrapper()', desc: 'Decorator returns a new wrapper function', descTr: 'Decorator yeni bir wrapper fonksiyonu döndürür' },
+          { type: 'action', code: 'wrapper() called instead of test_login()', desc: 'All future calls go through wrapper', descTr: 'Bundan sonra test_login() yerine wrapper() çağrılır' },
+          { type: 'loop', code: 'try: test_login()  # attempt 1,2,3', desc: 'Wrapper controls retry logic', descTr: 'Wrapper retry mantığını yönetir' },
+          { type: 'condition', code: 'Exception raised?', desc: 'If fail: retry up to max times', descTr: 'Hata varsa max kez dene', branch: { true: 'retry ↑', false: 'return result' } },
+          { type: 'end', code: 'Original test_login unmodified', desc: 'Function stays clean — decorator handles cross-cutting concerns', descTr: 'Fonksiyon sade kalır — decorator genel davranışı yönetir' },
+        ],
+      },
 
       // ═══════════════════════════════════════════════════════════════════════
       // W3Schools Topic 29 — Context Managers
@@ -4259,6 +4358,27 @@ print(f"  Output:   {args.output}")` },
   {
     title: '🧪 Python in QA — Real Automation Scenarios',
     blocks: [
+      {
+        type: 'pytest-execution-visual',
+        titleEn: 'pytest Execution Flow — From Discovery to Report',
+        titleTr: 'pytest Yürütme Akışı — Keşiften Rapora',
+        tests: [
+          { name: 'test_user_api_returns_200', result: 'pass' },
+          { name: 'test_user_email_format_valid', result: 'pass' },
+          { name: 'test_data_driven_login_csv', result: 'pass' },
+          { name: 'test_retry_on_flaky_network', result: 'fail' },
+          { name: 'test_compare_staging_vs_prod', result: 'pass' },
+        ],
+      },
+      {
+        type: 'http-flow-animation',
+        method: 'GET',
+        endpoint: '/users/1',
+        dbQuery: 'SELECT id, name, email FROM users WHERE id = 1',
+        statusCode: 200,
+        expectedValue: '500',
+        actualValue: '200',
+      },
       { type: 'heading', text: 'Use Case 1: Parse JSON API Response & Assert Values' },
       {
         type: 'code',
@@ -6022,15 +6142,15 @@ except requests.exceptions.HTTPError as e:
   applyTr(sections[5], {
     title: '🧪 QA\'da Python — Gerçek Otomasyon Senaryoları',
     blocks: {
-      0: { text: 'Senaryo 1: JSON API Yanıtını Parse Et & Değerleri Doğrula' },
-      2: { text: "Senaryo 2: CSV\'den Data-Driven Testler" },
-      4: { text: 'Senaryo 3: Kararsız Testler için Retry Decorator' },
-      6: { text: 'Senaryo 4: İki API Yanıtını Karşılaştır' },
-      8: { text: 'Senaryo 5: Setup/Teardown ile Pytest DB Fixture' },
-      10: { text: 'Senaryo 6: Regex ile Test Verisi Doğrulama' },
-      12: { text: 'Senaryo 7: Zaman Damgalı Test Raporu Oluştur' },
-      14: { text: '🗂️ pytest Fixture\'ları Nasıl Bulur ve Enjekte Eder?' },
-      15: {
+      2: { text: 'Senaryo 1: JSON API Yanıtını Parse Et & Değerleri Doğrula' },
+      4: { text: "Senaryo 2: CSV\'den Data-Driven Testler" },
+      6: { text: 'Senaryo 3: Kararsız Testler için Retry Decorator' },
+      8: { text: 'Senaryo 4: İki API Yanıtını Karşılaştır' },
+      10: { text: 'Senaryo 5: Setup/Teardown ile Pytest DB Fixture' },
+      12: { text: 'Senaryo 6: Regex ile Test Verisi Doğrulama' },
+      14: { text: 'Senaryo 7: Zaman Damgalı Test Raporu Oluştur' },
+      16: { text: '🗂️ pytest Fixture\'ları Nasıl Bulur ve Enjekte Eder?' },
+      17: {
         title: 'pytest Fixture Keşif & Enjeksiyon Akışı',
         note: 'Fixture\'lar aşağıdan yukarıya keşfedilir: önce yerel conftest.py, sonra üst klasörler, en son `page` ve `tmp_path` gibi yerleşikler.',
         steps: [
@@ -6042,7 +6162,7 @@ except requests.exceptions.HTTPError as e:
           { num: '6', label: 'Enjekte et & çalıştır', desc: 'Eşleşen fixture\'lar enjekte edilir, test çalışır', highlight: true },
         ],
       },
-      16: {
+      18: {
         left: {
           label: '❌ Anti-pattern: Her Testte Manuel Kurulum',
           code: `def test_order_placed():
@@ -6084,7 +6204,7 @@ def test_order_placed(sample_order, db):
           note: 'Bir kez kur, her yerde kullan, teardown garantili',
         },
       },
-      17: {
+      19: {
         question: 'scope="session" ile işaretlenmiş bir pytest fixture, test çalışması boyunca kurulum kodunu kaç kez çalıştırır?',
         options: [
           'Her test fonksiyonu için bir kez',

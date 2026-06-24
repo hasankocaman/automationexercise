@@ -32,7 +32,8 @@
         "table": "📊 Data Table",
         "api": "🌐 API Simulation",
         "comparison": "🔍 Test Tools Comparison",
-        "practice": "🛠️ Practice Playground"
+        "practice": "🛠️ Practice Playground",
+        "neuroLocate": "🧠 Neuro-Locate Lab"
     },
     "home": {
         "section": {
@@ -42,7 +43,8 @@
             "advancedShort": "🚀 Advanced",
             "tableShort": "📊 Table",
             "apiShort": "🌐 API",
-            "practiceShort": "🛠️ Practice"
+            "practiceShort": "🛠️ Practice",
+            "neuroLocateShort": "🧠 Neuro-Locate"
         },
         "category": {
             "languages": "Languages",

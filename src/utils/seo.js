@@ -34,6 +34,11 @@ export const ROUTE_SEO = [
         description: 'Learn TypeScript for QA engineers with type basics, advanced patterns, Playwright examples, quizzes and Java comparisons.',
     },
     {
+        path: '/javascript',
+        title: 'JavaScript for QA Automation Engineers | LearnQA.dev',
+        description: 'Learn JavaScript for modern QA automation. Interactive Lego playgrounds for variables and event loop, plus 50 Java-compared interview questions.',
+    },
+    {
         path: '/sql',
         title: 'SQL for QA Engineers with Interactive Practice | LearnQA.dev',
         description: 'Practice SQL for software testing with SELECT, JOIN, GROUP BY, window functions, data validation scenarios and interactive exercises.',
@@ -92,6 +97,11 @@ export const ROUTE_SEO = [
         path: '/git-github',
         title: 'Git and GitHub Tutorial for QA Engineers | LearnQA.dev',
         description: 'Learn Git and GitHub with visual workflows, branch strategy, pull requests, GitHub Actions, Pages deployment, safety rules and hands-on command practice.',
+    },
+    {
+        path: '/security',
+        title: 'Web Penetration Testing & Siber Güvenlik | LearnQA.dev',
+        description: 'Learn web application penetration testing, OWASP Top 10 vulnerabilities (SQLi, XSS, JWT, IDOR, SSRF) with interactive Pixar-style Lego animations and quiz practice.',
     },
     {
         path: '/linux',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { useLocation, Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
@@ -6,7 +6,10 @@ import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import CssAnimationBlock from './CssAnimationBlock'
 import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
+import SecuritySimulation from './SecuritySimulations'
+import SecurityLegoVisual from './SecurityLegoVisual'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -222,7 +225,11 @@ function localizeCodeComments(code, language) {
 }
 
 function getLocalizedCode(code, language) {
-    return localizeCodeComments(code || '', language)
+    if (!code) return ''
+    if (typeof code === 'object') {
+        return code[language] || code.en || code.tr || ''
+    }
+    return localizeCodeComments(code, language)
 }
 
 // ─── CodeBlock ────────────────────────────────────────────────────────────────
@@ -267,16 +274,17 @@ function ExerciseBlock({ block, darkMode }) {
     const isTr = language === 'tr'
     const [showSolution, setShowSolution] = useState(false)
     const [showHint, setShowHint] = useState(false)
-    const diffBg = block.difficulty?.startsWith('🟢')
+    const diffStr = block.difficulty ? tx(block.difficulty, language) : ''
+    const diffBg = diffStr?.startsWith('🟢')
         ? (darkMode ? 'bg-green-900/30 border-green-700' : 'bg-green-50 border-green-300')
-        : block.difficulty?.startsWith('🟡')
+        : diffStr?.startsWith('🟡')
             ? (darkMode ? 'bg-yellow-900/30 border-yellow-700' : 'bg-yellow-50 border-yellow-300')
             : (darkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-300')
     return (
         <div className={`mt-6 rounded-xl border-2 p-5 ${darkMode ? 'bg-gray-800' : 'bg-white'} ${diffBg}`}>
             <div className="flex items-center gap-2 flex-wrap mb-3">
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${diffBg}`}>{block.difficulty}</span>
-                <span className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-800'}`}>{block.title}</span>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${diffBg}`}>{diffStr}</span>
+                <span className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</span>
             </div>
             <p className={`text-sm mb-3 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{block.description}</p>
             {block.hint && (
@@ -519,6 +527,40 @@ function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
                 >
                     {t('topic.quiz.checkAnswer')} →
                 </button>
+            )}
+            {submitted && !isCorrect && block.isSecurityQuiz && (
+                <div className={`mt-4 p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all duration-300 ${
+                    darkMode ? 'bg-red-950/20 border-red-500/50 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
+                }`}>
+                    <div className="flex items-center gap-3 w-full justify-center">
+                        <div className="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-400 flex items-center justify-center relative shadow-lg animate-bounce">
+                            <span className="text-xl">🛡️</span>
+                            <span className="absolute -bottom-1 -right-1 bg-green-500 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full">WAF</span>
+                        </div>
+                        <div className="text-left">
+                            <div className="font-bold text-xs text-red-500 uppercase">
+                                🚨 {language === 'tr' ? "ZARARLI İSTEK ENGELLEDİ!" : "MALICIOUS BLOCK DETECTED!"}
+                            </div>
+                            <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'} leading-tight`}>
+                                {language === 'tr' 
+                                  ? "WAF (Web Application Firewall) girdideki riskli komutu süzgeçten geçirdi ve dezenfekte etti." 
+                                  : "The WAF sanitized your input, converting dangerous components into harmless text."}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="w-full flex items-center justify-center gap-2 mt-1 font-mono text-[10px] bg-black/60 p-2 rounded border border-slate-700/60">
+                        <span className="text-red-400">{language === 'tr' ? "Girdi: " : "Raw: "} <code className="bg-red-950/50 px-1 rounded">{'<script>'}</code></span>
+                        <span className="text-slate-500">→</span>
+                        <span className="text-green-400">{language === 'tr' ? "Temizlendi: " : "Sanitized: "} <code className="bg-green-950/50 px-1 rounded">{'&lt;script&gt;'}</code></span>
+                    </div>
+                    
+                    <span className="text-[11px] font-semibold text-yellow-600 dark:text-yellow-400">
+                        {language === 'tr' 
+                          ? "👾 Zınnn! Hacklenmediniz! Güvenlik kalkanı devrede. Hadi yedek soruyu deneyelim!" 
+                          : "👾 Zuuup! WAF active! You didn't get hacked. Let's try the backup question!"}
+                    </span>
+                </div>
             )}
             {submitted && (
                 <div className={`mt-4 p-4 rounded-lg text-sm leading-relaxed ${isCorrect ? (darkMode ? 'bg-green-900/30 text-green-300 border border-green-700' : 'bg-green-50 text-green-800 border border-green-200') : (darkMode ? 'bg-amber-900/30 text-amber-300 border border-amber-700' : 'bg-amber-50 text-amber-800 border border-amber-200')}`}>
@@ -830,7 +872,7 @@ function BoxesDiagram({ block, darkMode }) {
                                 ? (darkMode ? 'bg-indigo-900 border-indigo-500' : 'bg-indigo-100 border-indigo-400')
                                 : (darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300')
                                 }`}>
-                                {item.icon && <div className="text-xl mb-1">{item.icon}</div>}
+                                {item.icon && <div className="text-xl mb-1">{tx(item.icon, language)}</div>}
                                 <div className={`font-bold text-xs ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(item.label, language)}</div>
                                 {item.desc && <div className={`text-xs mt-1 leading-tight ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(item.desc, language)}</div>}
                             </div>
@@ -1136,6 +1178,46 @@ function TSEditor({ defaultCode, height = '180px' }) {
         </div>
     )
 }
+
+// ─── JSEditor ─────────────────────────────────────────────────────────────────
+
+function JSEditor({ defaultCode, height = '180px' }) {
+    const { language } = useLanguage()
+    const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const [code, setCode] = useState(localizedDefaultCode)
+    const [output, setOutput] = useState('')
+
+    useEffect(() => {
+        setCode(localizedDefaultCode)
+    }, [localizedDefaultCode])
+
+    const run = () => {
+        setOutput('')
+        try {
+            const logs = []
+            const fn = new Function('console', code)
+            fn({
+                log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')),
+                error: (...a) => logs.push('❌ ' + a.join(' '))
+            })
+            setOutput(logs.join('\n') || '(no output)')
+        } catch (e) {
+            setOutput('❌ ' + e.message)
+        }
+    }
+
+    return (
+        <div className="mt-4 rounded-xl overflow-hidden border border-yellow-500/40">
+            <div style={{ background: '#12121f' }} className="flex items-center justify-between px-3 py-2">
+                <span className="text-xs font-mono" style={{ color: '#f59e0b' }}>🟨 JavaScript — Try it yourself</span>
+                <button onClick={run} style={{ background: '#f59e0b', color: '#000', border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>▶ Run</button>
+            </div>
+            <textarea value={code} onChange={e => setCode(e.target.value)} style={{ display: 'block', width: '100%', minHeight: height, background: '#12121f', color: '#cdd6f4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} spellCheck={false} />
+            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+        </div>
+    )
+}
+
 
 // ─── SQLEditor ────────────────────────────────────────────────────────────────
 
@@ -4429,6 +4511,29 @@ function SimulationBlock({ block, darkMode, language }) {
     const accent = block.color || '#7c3aed'
     const timersRef = useRef([])
 
+    // Docker build & port mapping states
+    const [dockerBuildStep, setDockerBuildStep] = useState(0)
+    const [dockerVolumeMode, setDockerVolumeMode] = useState('none')
+    const [dockerDataCount, setDockerDataCount] = useState(0)
+    const [dockerContainerDeleted, setDockerContainerDeleted] = useState(false)
+    const [dockerDataSpilled, setDockerDataSpilled] = useState(false)
+    const [dockerIsBuilding, setDockerIsBuilding] = useState(false)
+
+    // Jenkins Conveyor Belt states
+    const [jenkinsBuildMode, setJenkinsBuildMode] = useState('success') // 'success' or 'failure'
+    const [jenkinsParallelAgents, setJenkinsParallelAgents] = useState({ chrome: 'idle', firefox: 'idle' })
+    const [jenkinsSmoke, setJenkinsSmoke] = useState(false)
+    const [jenkinsFailureStage, setJenkinsFailureStage] = useState(null)
+
+    // Kubernetes Cluster Map states
+    const [k8sScaleCount, setK8sScaleCount] = useState(2)
+    const [k8sSelectorMode, setK8sSelectorMode] = useState('correct') // 'correct' or 'wrong'
+    const [k8sPods, setK8sPods] = useState([
+        { id: 1, name: 'my-nginx-pod-1', status: 'Running', age: '12s', isNew: false, isDead: false },
+        { id: 2, name: 'my-nginx-pod-2', status: 'Running', age: '12s', isNew: false, isDead: false }
+    ])
+    const [k8sSelfHealingInProgress, setK8sSelfHealingInProgress] = useState(false)
+
     const resetSim = () => {
         timersRef.current.forEach(t => clearTimeout(t))
         timersRef.current = []
@@ -7302,6 +7407,755 @@ pm.test("per_page is 6", () => {
                 </div>
 
                 {s !== 'idle' && <button onClick={resetSim} style={{ display: 'block', width: '100%', padding: '5px', background: K8S.bgDark, border: `1px solid ${K8S.border}`, color: K8S.muted, fontSize: 9, cursor: 'pointer', borderRadius: '0 0 10px 10px' }}>🔄 {isTr ? 'Sıfırla' : 'Reset'}</button>}
+            </div>
+        )
+    }
+
+    // === DOCKER BUILD & PORT MAPPING PLAYGROUND ===
+    const runDockerBuild = () => {
+        setDockerIsBuilding(true)
+        setDockerBuildStep(0)
+        setDockerContainerDeleted(false)
+        setDockerDataSpilled(false)
+        setDockerDataCount(0)
+        
+        const steps = [
+            [1, 800], // FROM node:18-alpine
+            [2, 1000], // RUN npm install
+            [3, 1000], // COPY . .
+            [4, 1000] // EXPOSE 80
+        ]
+        
+        let cum = 0
+        steps.forEach(([step, delay]) => {
+            cum += delay
+            const t = setTimeout(() => {
+                setDockerBuildStep(step)
+                if (step === 4) setDockerIsBuilding(false)
+            }, cum)
+            timersRef.current.push(t)
+        })
+    }
+
+    const resetDockerSim = () => {
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        setDockerBuildStep(0)
+        setDockerContainerDeleted(false)
+        setDockerDataSpilled(false)
+        setDockerDataCount(0)
+        setDockerIsBuilding(false)
+    }
+
+    const deleteDockerContainer = () => {
+        setDockerContainerDeleted(true)
+        if (dockerVolumeMode === 'none' && dockerDataCount > 0) {
+            setDockerDataSpilled(true)
+        }
+    }
+
+    const renderDockerBuildAndPortMappingPlayground = () => {
+        const isTr = language === 'tr'
+        const isBuilt = dockerBuildStep === 4
+        
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', width: '100%' }}>
+                <style>{`
+                    @keyframes pulseCable {
+                        0% { stroke-dashoffset: 24; }
+                        100% { stroke-dashoffset: 0; }
+                    }
+                    @keyframes spillOut {
+                        0% { transform: translateY(0) scale(1); opacity: 1; }
+                        100% { transform: translateY(50px) scale(0); opacity: 0; }
+                    }
+                    @keyframes slideUpLayer {
+                        0% { transform: translateY(20px); opacity: 0; }
+                        100% { transform: translateY(0); opacity: 1; }
+                    }
+                `}</style>
+
+                {/* Control Panel */}
+                <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: 10, marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#ede9fe' : '#1e1b4b' }}>
+                        🐳 Docker Build & Run Lab
+                    </span>
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                        {!isBuilt && !dockerIsBuilding ? (
+                            <button
+                                onClick={runDockerBuild}
+                                style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, background: '#2563eb', color: '#fff', cursor: 'pointer' }}
+                            >
+                                {isTr ? '▶ Resim Derle & Çalıştır' : '▶ Build & Run Image'}
+                            </button>
+                        ) : (
+                            <button
+                                onClick={resetDockerSim}
+                                style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, background: '#64748b', color: '#fff', cursor: 'pointer' }}
+                            >
+                                🔄 {isTr ? 'Sıfırla' : 'Reset'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Split build section */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    {/* Dockerfile Panel */}
+                    <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: 10, fontFamily: 'monospace', fontSize: 11 }}>
+                        <div style={{ color: '#64748b', borderBottom: '1px solid #1e293b', paddingBottom: 4, marginBottom: 6, fontSize: 9 }}>Dockerfile</div>
+                        {[
+                            { step: 1, text: 'FROM node:18-alpine' },
+                            { step: 2, text: 'RUN npm install' },
+                            { step: 3, text: 'COPY . .' },
+                            { step: 4, text: 'EXPOSE 80' }
+                        ].map((line) => {
+                            const isCurrent = dockerBuildStep === line.step
+                            const isPast = dockerBuildStep > line.step
+                            return (
+                                <div key={line.step} style={{ padding: '3px 6px', borderRadius: 4, background: isCurrent ? '#1e3a8a' : 'transparent', color: isCurrent ? '#60a5fa' : isPast ? '#10b981' : '#94a3b8', transition: 'all 0.3s' }}>
+                                    <span style={{ marginRight: 8, opacity: 0.4 }}>{line.step}</span>
+                                    <span>{line.text}</span>
+                                    {isCurrent && <span style={{ marginLeft: 6, animation: 'pulse 1s infinite' }}>⏳</span>}
+                                    {isPast && <span style={{ marginLeft: 6 }}>✓</span>}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* Image Layer Stack */}
+                    <div style={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'flex-start', gap: 4, minHeight: 100, border: `1px dashed ${darkMode ? '#334155' : '#cbd5e1'}`, borderRadius: 8, padding: 8, background: darkMode ? '#020617' : '#fafafa' }}>
+                        {dockerBuildStep >= 1 ? (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, background: '#1d63ed', color: '#fff', fontSize: 10, fontWeight: 700, textAlign: 'center', animation: 'slideUpLayer 0.4s ease-out' }}>
+                                Layer 1: Base OS (Node-Alpine)
+                            </div>
+                        ) : (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, border: '1px dashed #334155', color: '#64748b', fontSize: 9, textAlign: 'center' }}>[Empty Layer 1]</div>
+                        )}
+                        {dockerBuildStep >= 2 ? (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, background: '#f59e0b', color: '#fff', fontSize: 10, fontWeight: 700, textAlign: 'center', animation: 'slideUpLayer 0.4s ease-out' }}>
+                                Layer 2: Dependencies (node_modules)
+                            </div>
+                        ) : (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, border: '1px dashed #334155', color: '#64748b', fontSize: 9, textAlign: 'center' }}>[Empty Layer 2]</div>
+                        )}
+                        {dockerBuildStep >= 3 ? (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, background: '#a855f7', color: '#fff', fontSize: 10, fontWeight: 700, textAlign: 'center', animation: 'slideUpLayer 0.4s ease-out' }}>
+                                Layer 3: App Source Code
+                            </div>
+                        ) : (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, border: '1px dashed #334155', color: '#64748b', fontSize: 9, textAlign: 'center' }}>[Empty Layer 3]</div>
+                        )}
+                        {dockerBuildStep >= 4 ? (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 700, textAlign: 'center', animation: 'slideUpLayer 0.4s ease-out' }}>
+                                Layer 4: Configuration (EXPOSE 80)
+                            </div>
+                        ) : (
+                            <div style={{ padding: '6px 8px', borderRadius: 4, border: '1px dashed #334155', color: '#64748b', fontSize: 9, textAlign: 'center' }}>[Empty Layer 4]</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Port Mapping & Running Container Section */}
+                {isBuilt && (
+                    <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
+                        {/* Storage configuration */}
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center', background: darkMode ? '#1e293b' : '#f1f5f9', padding: '8px 12px', borderRadius: 8, marginBottom: 12 }}>
+                            <span style={{ fontSize: 10.5, fontWeight: 700, color: darkMode ? '#cbd5e1' : '#475569' }}>
+                                {isTr ? 'Depolama Tipi:' : 'Storage Mode:'}
+                            </span>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'none' ? '#ef4444' : '#64748b', fontWeight: dockerVolumeMode === 'none' ? 700 : 400 }}>
+                                <input type="radio" name="volMode" checked={dockerVolumeMode === 'none'} onChange={() => setDockerVolumeMode('none')} />
+                                Ephemeral (No Volume)
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'volume' ? '#10b981' : '#64748b', fontWeight: dockerVolumeMode === 'volume' ? 700 : 400 }}>
+                                <input type="radio" name="volMode" checked={dockerVolumeMode === 'volume'} onChange={() => setDockerVolumeMode('volume')} />
+                                Persistent (-v volume)
+                            </label>
+                        </div>
+
+                        {/* Visual Host / Port / Container */}
+                        <div style={{ border: `1px solid ${darkMode ? '#334155' : '#cbd5e1'}`, borderRadius: 8, padding: 12, background: darkMode ? '#090d16' : '#f8fafc', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                {/* Host Machine */}
+                                <div style={{ flex: 1, border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 6, padding: 8, background: darkMode ? '#111827' : '#fff', position: 'relative' }}>
+                                    <div style={{ fontSize: 9, color: '#94a3b8', fontWeight: 800 }}>HOST MACHINE</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>Port: 8080</div>
+                                    
+                                    {/* Volume Box */}
+                                    {dockerVolumeMode === 'volume' && (
+                                        <div style={{ marginTop: 8, border: '1px solid #10b981', borderRadius: 4, padding: '4px 6px', background: '#10b98111' }}>
+                                            <div style={{ fontSize: 7, color: '#10b981', fontWeight: 800 }}>VOLUME (host/db_data)</div>
+                                            <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
+                                                {dockerVolumeMode === 'volume' && dockerContainerDeleted && dockerDataCount > 0 ? (
+                                                    Array.from({ length: dockerDataCount }).map((_, i) => (
+                                                        <span key={i} style={{ display: 'inline-block', width: 6, height: 6, background: '#10b981', borderRadius: 1 }} />
+                                                    ))
+                                                ) : dockerVolumeMode === 'volume' && dockerDataCount > 0 ? (
+                                                    <span style={{ fontSize: 7.5, color: '#64748b' }}>Shared from container...</span>
+                                                ) : (
+                                                    <span style={{ fontSize: 7.5, color: '#64748b' }}>Empty</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Pulse Cable Wire */}
+                                {!dockerContainerDeleted ? (
+                                    <div style={{ width: 60, height: 20, position: 'relative' }}>
+                                        <svg width="100%" height="20" viewBox="0 0 60 20">
+                                            <path d="M 0,10 L 60,10" stroke="#10b981" strokeWidth="3" fill="none" strokeDasharray="6" style={{ animation: 'pulseCable 1.2s linear infinite' }} />
+                                        </svg>
+                                        <div style={{ position: 'absolute', top: -14, left: 16, fontSize: 8, background: '#10b981', color: '#fff', padding: '1px 4px', borderRadius: 3, fontWeight: 700 }}>
+                                            -p 8080:80
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ width: 60, display: 'flex', justifyContent: 'center', fontSize: 11, color: '#ef4444' }}>
+                                        ❌ Disconnected
+                                    </div>
+                                )}
+
+                                {/* Container Box */}
+                                {!dockerContainerDeleted ? (
+                                    <div style={{ flex: 1, border: '1px solid #10b981', borderRadius: 6, padding: 8, background: '#062f22', position: 'relative' }}>
+                                        <span style={{ position: 'absolute', top: 2, right: 4, fontSize: 9 }}>🟢</span>
+                                        <div style={{ fontSize: 9, color: '#10b981', fontWeight: 800 }}>CONTAINER (Up)</div>
+                                        <div style={{ fontSize: 11, fontWeight: 700, color: '#ede9fe', marginTop: 4 }}>Port: 80</div>
+                                        
+                                        {/* Container Data Blocks */}
+                                        <div style={{ marginTop: 8, border: '1px dashed #10b98144', borderRadius: 4, padding: 4, minHeight: 18 }}>
+                                            <div style={{ fontSize: 7, color: '#64748b' }}>/app/data (writable layer)</div>
+                                            <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
+                                                {dockerDataCount > 0 ? (
+                                                    Array.from({ length: dockerDataCount }).map((_, i) => (
+                                                        <span key={i} style={{ display: 'inline-block', width: 6, height: 6, background: '#a855f7', borderRadius: 1 }} />
+                                                    ))
+                                                ) : (
+                                                    <span style={{ fontSize: 7.5, color: '#64748b' }}>Empty</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ flex: 1, border: '1px dashed #ef4444', borderRadius: 6, padding: 12, textAlign: 'center', background: '#ef444405' }}>
+                                        <div style={{ fontSize: 12, color: '#ef4444', fontWeight: 800 }}>CONTAINER DELETED</div>
+                                        <div style={{ fontSize: 8, color: '#94a3b8' }}>(docker rm -f)</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Interaction buttons */}
+                            {!dockerContainerDeleted && (
+                                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                                    <button
+                                        onClick={() => setDockerDataCount(c => Math.min(c + 3, 9))}
+                                        style={{ border: 0, borderRadius: 5, padding: '4px 10px', fontSize: 10, fontWeight: 700, background: '#a855f7', color: '#fff', cursor: 'pointer' }}
+                                    >
+                                        💾 {isTr ? 'Veri Üret' : 'Generate Data'}
+                                    </button>
+                                    <button
+                                        onClick={deleteDockerContainer}
+                                        style={{ border: 0, borderRadius: 5, padding: '4px 10px', fontSize: 10, fontWeight: 700, background: '#ef4444', color: '#fff', cursor: 'pointer' }}
+                                    >
+                                        🗑️ {isTr ? 'Container\'ı Sil (docker rm)' : 'Delete Container (docker rm)'}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Spilled data animation / notice */}
+                            {dockerDataSpilled && (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', animation: 'spillOut 1.5s forwards' }}>
+                                    <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                                        {Array.from({ length: dockerDataCount }).map((_, i) => (
+                                            <span key={i} style={{ display: 'inline-block', width: 6, height: 6, background: '#ef4444', borderRadius: 1 }} />
+                                        ))}
+                                    </div>
+                                    <div style={{ fontSize: 10, color: '#ef4444', fontWeight: 800 }}>
+                                        {isTr ? '❌ VERİ KAYBOLDU! (Container silindi, volume bağlı değildi)' : '❌ DATA LOST! (Container deleted, no volume mount)'}
+                                    </div>
+                                </div>
+                            )}
+
+                            {dockerContainerDeleted && dockerVolumeMode === 'volume' && dockerDataCount > 0 && (
+                                <div style={{ fontSize: 9.5, color: '#10b981', fontWeight: 800, textAlign: 'center', animation: 'fadeIn 0.5s' }}>
+                                    {isTr ? '✅ VERİ KORUNDU! (Container silindi, volume sayesinde host makinede kaldı)' : '✅ DATA SAVED! (Container deleted, persistent volume keeps it safe on host)'}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    // === JENKINS PIPELINE FACTORY CONVEYOR BELT PLAYGROUND ===
+    const runJenkinsPipeline = () => {
+        setJenkinsSmoke(false)
+        setJenkinsFailureStage(null)
+        setJenkinsParallelAgents({ chrome: 'idle', firefox: 'idle' })
+        setIsRunning(true)
+        setSimState('idle')
+        
+        const steps = [
+            ['checkout', 100],
+            ['compile', 1200],
+            ['test', 1200]
+        ]
+        
+        let cum = 0
+        steps.forEach(([state, delay], idx) => {
+            cum += delay
+            const t = setTimeout(() => {
+                setSimState(state)
+                
+                if (state === 'test') {
+                    setJenkinsParallelAgents({ chrome: 'testing', firefox: 'testing' })
+                    
+                    const tTest = setTimeout(() => {
+                        if (jenkinsBuildMode === 'failure') {
+                            setJenkinsParallelAgents({ chrome: 'success', firefox: 'failed' })
+                            setJenkinsFailureStage('test')
+                            setJenkinsSmoke(true)
+                            setIsRunning(false)
+                            setSimState('failed')
+                        } else {
+                            setJenkinsParallelAgents({ chrome: 'success', firefox: 'success' })
+                            
+                            const tDeploy = setTimeout(() => {
+                                setSimState('deploy')
+                                
+                                const tDone = setTimeout(() => {
+                                    setSimState('done')
+                                    setIsRunning(false)
+                                }, 1200)
+                                timersRef.current.push(tDone)
+                            }, 1200)
+                            timersRef.current.push(tDeploy)
+                        }
+                    }, 1500)
+                    timersRef.current.push(tTest)
+                }
+            }, cum)
+            timersRef.current.push(t)
+        })
+    }
+
+    const resetJenkinsSim = () => {
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        setSimState('idle')
+        setIsRunning(false)
+        setJenkinsSmoke(false)
+        setJenkinsFailureStage(null)
+        setJenkinsParallelAgents({ chrome: 'idle', firefox: 'idle' })
+    }
+
+    const renderJenkinsPipelineVisualPlayground = () => {
+        const isTr = language === 'tr'
+        const s = simState
+        
+        const stages = [
+            { key: 'checkout', label: isTr ? 'Sorgula' : 'Checkout', icon: '📥', color: '#3a86ff' },
+            { key: 'compile', label: isTr ? 'Derle' : 'Compile', icon: '🔨', color: '#ffbe0b' },
+            { key: 'test', label: isTr ? 'QA Test' : 'Run Tests', icon: '🧪', color: '#a200ff' },
+            { key: 'deploy', label: isTr ? 'Dağıt' : 'Deploy', icon: '🚀', color: '#06d6a0' },
+        ]
+
+        const logLines = [
+            { minState: 'checkout', text: '[Checkout] git clone https://github.com/learnqa/devops.git', color: '#3a86ff' },
+            { minState: 'checkout', text: '[Checkout] Checking out branch: main -> HEAD: a8f9c2d ✓', color: '#94a3b8' },
+            { minState: 'compile', text: '[Compile] npm ci && npm run build', color: '#ffbe0b' },
+            { minState: 'compile', text: '[Compile] Webpack build successful. Artifact: dist.zip (1.2 MB) ✓', color: '#06d6a0' },
+            { minState: 'test', text: '[QA Tests] Starting parallel executors: Chrome, Firefox...', color: '#a200ff' },
+            { minState: 'test', text: '[QA Tests] Chrome Executor: Running 12 UI tests...', color: '#94a3b8' },
+            { minState: 'test', text: '[QA Tests] Firefox Executor: Running 12 UI tests...', color: '#94a3b8' },
+            { minState: 'test', text: jenkinsBuildMode === 'failure' ? '[QA Tests] ❌ Test Failure in Firefox: AssertionError: expected 200 to equal 500' : '[QA Tests] All 24 tests passed successfully ✓', color: jenkinsBuildMode === 'failure' ? '#ef4444' : '#06d6a0' },
+            { minState: 'deploy', text: '[Deploy] rsync -a dist/ server:/var/www/prod', color: '#06d6a0' },
+            { minState: 'done', text: '[Deploy] App deployed to http://learnqa.dev. Status: Active ✓', color: '#06d6a0' }
+        ]
+
+        const curIdx = ['idle', 'checkout', 'compile', 'test', 'deploy', 'done', 'failed'].indexOf(s)
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', width: '100%' }}>
+                <style>{`
+                    @keyframes alarmPulse {
+                        0% { background: rgba(239,68,68,0.05); }
+                        100% { background: rgba(239,68,68,0.3); }
+                    }
+                    @keyframes smokeRise {
+                        0% { transform: translateY(0) scale(0.7); opacity: 0.8; }
+                        50% { opacity: 0.4; }
+                        100% { transform: translateY(-50px) scale(1.6); opacity: 0; }
+                    }
+                    @keyframes gearSpin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    @keyframes beltMove {
+                        0% { background-position: 0 0; }
+                        100% { background-position: 40px 0; }
+                    }
+                `}</style>
+
+                {/* Controller */}
+                <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: 10, marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#ede9fe' : '#1e1b4b' }}>
+                        🏭 Jenkins Pipeline Factory
+                    </span>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginLeft: 'auto' }}>
+                        <span style={{ fontSize: 10.5, color: '#94a3b8' }}>{isTr ? 'Test Senaryosu:' : 'QA Scenario:'}</span>
+                        <select
+                            value={jenkinsBuildMode}
+                            onChange={(e) => setJenkinsBuildMode(e.target.value)}
+                            disabled={isRunning}
+                            style={{ padding: '3px 8px', fontSize: 11, borderRadius: 5, border: `1px solid ${darkMode ? '#475569' : '#cbd5e1'}`, background: darkMode ? '#0f172a' : '#fff', color: darkMode ? '#fff' : '#000', cursor: isRunning ? 'not-allowed' : 'pointer' }}
+                        >
+                            <option value="success">{isTr ? 'Başarılı Test (Success)' : 'Successful QA Test'}</option>
+                            <option value="failure">{isTr ? 'Hatalı Test (Failure)' : 'Failing QA Test'}</option>
+                        </select>
+
+                        {!isRunning && s !== 'done' && s !== 'failed' ? (
+                            <button
+                                onClick={runJenkinsPipeline}
+                                style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, background: '#ef4444', color: '#fff', cursor: 'pointer' }}
+                            >
+                                {isTr ? '▶ Build Başlat' : '▶ Build Now'}
+                            </button>
+                        ) : (
+                            <button
+                                onClick={resetJenkinsSim}
+                                style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, background: '#64748b', color: '#fff', cursor: 'pointer' }}
+                            >
+                                🔄 {isTr ? 'Sıfırla' : 'Reset'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Conveyor Belt Visualization */}
+                <div style={{ position: 'relative', border: `1px solid ${darkMode ? '#334155' : '#cbd5e1'}`, borderRadius: 10, padding: 16, background: darkMode ? '#090d16' : '#fafafa', overflow: 'hidden', minHeight: 180, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Failure Alarm Siren Overlay */}
+                    {jenkinsSmoke && (
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, animation: 'alarmPulse 0.8s infinite alternate', pointerEvents: 'none', zIndex: 1 }} />
+                    )}
+
+                    {/* Converyor Belt Line */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', padding: '0 20px', zIndex: 2 }}>
+                        {stages.map((st, idx) => {
+                            const stIdx = ['checkout', 'compile', 'test', 'deploy'].indexOf(st.key)
+                            const isCurrent = s === st.key
+                            const isPast = ['checkout', 'compile', 'test', 'deploy'].indexOf(s) > stIdx || s === 'done'
+                            const isFailed = s === 'failed' && st.key === 'test'
+                            
+                            return (
+                                <div key={st.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', width: 68 }}>
+                                    {/* Workstation box */}
+                                    <div style={{
+                                        width: 50, height: 50, borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                        background: isFailed ? '#7f1d1d' : isPast ? '#064e3b' : isCurrent ? '#1e3a8a' : darkMode ? '#111827' : '#fff',
+                                        border: `2px solid ${isFailed ? '#ef4444' : isPast ? '#10b981' : isCurrent ? '#3b82f6' : darkMode ? '#334155' : '#cbd5e1'}`,
+                                        color: isFailed ? '#fca5a5' : isPast ? '#a7f3d0' : isCurrent ? '#93c5fd' : '#64748b',
+                                        fontSize: 18, transition: 'all 0.3s', position: 'relative'
+                                    }}>
+                                        <span>{st.icon}</span>
+                                        {isCurrent && <span style={{ position: 'absolute', top: -14, fontSize: 10, animation: 'pulse 1s infinite' }}>⏳</span>}
+                                        {isPast && <span style={{ position: 'absolute', top: -14, fontSize: 11, color: '#10b981' }}>✓</span>}
+                                        {isFailed && <span style={{ position: 'absolute', top: -14, fontSize: 11, color: '#ef4444' }}>❌</span>}
+                                    </div>
+                                    <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 6, color: isFailed ? '#ef4444' : isPast ? '#10b981' : isCurrent ? '#3b82f6' : '#64748b', textAlign: 'center' }}>{st.label}</div>
+
+                                    {/* Parallel Agent Testing Details */}
+                                    {st.key === 'test' && (isCurrent || isFailed || (s === 'deploy' || s === 'done')) && (
+                                        <div style={{ position: 'absolute', top: 76, width: 140, display: 'flex', flexDirection: 'column', gap: 4, background: darkMode ? '#111827' : '#fff', border: `1px solid ${isFailed ? '#ef4444' : '#10b981'}`, borderRadius: 6, padding: '4px 6px', fontSize: 8.5 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.chrome === 'success' ? '#10b981' : '#f59e0b' }}>
+                                                <span>🖥️ Chrome Agent</span>
+                                                <span style={{ fontWeight: 800 }}>{jenkinsParallelAgents.chrome === 'success' ? '✓ OK' : '⏳ Test...'}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.firefox === 'success' ? '#10b981' : jenkinsParallelAgents.firefox === 'failed' ? '#ef4444' : '#f59e0b' }}>
+                                                <span>🦊 Firefox Agent</span>
+                                                <span style={{ fontWeight: 800 }}>{jenkinsParallelAgents.firefox === 'success' ? '✓ OK' : jenkinsParallelAgents.firefox === 'failed' ? '❌ FAIL' : '⏳ Test...'}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Smoke Particle Generator for QA Fail */}
+                                    {isFailed && (
+                                        <div style={{ position: 'absolute', top: -16, left: 16 }}>
+                                            <span style={{ display: 'block', fontSize: 16, animation: 'smokeRise 1.5s infinite' }}>💨</span>
+                                            <span style={{ display: 'block', fontSize: 12, animation: 'smokeRise 2s infinite', animationDelay: '0.5s' }}>💨</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* Conveyor Belt Track */}
+                    <div style={{
+                        height: 12, borderRadius: 6,
+                        background: 'repeating-linear-gradient(90deg, #334155, #334155 10px, #1e293b 10px, #1e293b 20px)',
+                        animation: isRunning && s !== 'failed' ? 'beltMove 1s linear infinite' : 'none',
+                        margin: '10px 0', border: '1px solid #475569', zIndex: 2
+                    }} />
+
+                    {/* Conveyor Belt Gears */}
+                    <div style={{ display: 'flex', justifyContent: 'space-around', padding: '0 40px', marginTop: -20, zIndex: 2 }}>
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <span key={i} style={{ fontSize: 18, color: '#475569', display: 'inline-block', animation: isRunning && s !== 'failed' ? 'gearSpin 2s linear infinite' : 'none' }}>⚙️</span>
+                        ))}
+                    </div>
+
+                    {/* Terminal Log */}
+                    <div style={{ background: '#070a13', border: '1px solid #1e293b', borderRadius: 6, padding: '8px 12px', minHeight: 70, maxHeight: 90, overflow: 'hidden', fontFamily: 'monospace', fontSize: 9.5, zIndex: 2 }}>
+                        <div style={{ color: '#64748b', fontSize: 8.5, borderBottom: '1px solid #1e293b', paddingBottom: 2, marginBottom: 4 }}>Console Output</div>
+                        {s === 'idle' && <span style={{ color: '#64748b' }}>{isTr ? 'Pipeline başlatmak için Build\'e bas...' : 'Press Build to start pipeline...'}</span>}
+                        {logLines.map((ln, i) => {
+                            const stepIdx = ['idle', 'checkout', 'compile', 'test', 'deploy', 'done', 'failed']
+                            const isVisible = stepIdx.indexOf(s) >= stepIdx.indexOf(ln.minState) && s !== 'idle'
+                            
+                            // Adjust visibility for done/failed
+                            if (s === 'failed' && ln.minState === 'deploy') return null
+                            if (s === 'failed' && ln.minState === 'done') return null
+                            
+                            return isVisible ? (
+                                <div key={i} style={{ color: ln.color, lineHeight: 1.5 }}>{ln.text}</div>
+                            ) : null
+                        })}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // === KUBERNETES CLUSTER MAP PLAYGROUND ===
+    const scaleK8s = (targetCount) => {
+        if (targetCount === k8sPods.length) return
+        if (targetCount > k8sPods.length) {
+            const countToAdd = targetCount - k8sPods.length
+            const newPods = Array.from({ length: countToAdd }).map((_, i) => ({
+                id: Date.now() + i,
+                name: `my-nginx-pod-${k8sPods.length + i + 1}`,
+                status: 'Running',
+                age: '1s',
+                isNew: true,
+                isDead: false
+            }))
+            setK8sPods([...k8sPods, ...newPods])
+        } else {
+            setK8sPods(k8sPods.slice(0, targetCount))
+        }
+    }
+
+    const killK8sPod = (podId) => {
+        if (k8sSelfHealingInProgress) return
+        
+        // 1. Mark pod as CrashLoopBackOff and shaking
+        setK8sPods(prev => prev.map(p => p.id === podId ? { ...p, status: 'CrashLoopBackOff', isDead: true } : p))
+        setK8sSelfHealingInProgress(true)
+        
+        // 2. Trigger self-healing
+        const t = setTimeout(() => {
+            setK8sPods(prev => {
+                const filtered = prev.filter(p => p.id !== podId)
+                const healedPod = {
+                    id: Date.now(),
+                    name: `my-nginx-pod-healed-${Math.floor(Math.random() * 100)}`,
+                    status: 'Running',
+                    age: '1s',
+                    isNew: true,
+                    isDead: false
+                }
+                return [...filtered, healedPod]
+            })
+            setK8sSelfHealingInProgress(false)
+        }, 1800)
+        timersRef.current.push(t)
+    }
+
+    const renderK8sClusterMapPlayground = () => {
+        const isTr = language === 'tr'
+        
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', width: '100%' }}>
+                <style>{`
+                    @keyframes podScaleIn {
+                        0% { transform: scale(0.4); opacity: 0; filter: drop-shadow(0 0 12px #10b981); }
+                        100% { transform: scale(1); opacity: 1; }
+                    }
+                    @keyframes podShake {
+                        0%, 100% { transform: translateX(0); }
+                        20%, 60% { transform: translateX(-4px); }
+                        40%, 80% { transform: translateX(4px); }
+                    }
+                    @keyframes arrowFlow {
+                        0% { stroke-dashoffset: 16; }
+                        100% { stroke-dashoffset: 0; }
+                    }
+                `}</style>
+
+                {/* Controller Panel */}
+                <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: 10, marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#ede9fe' : '#1e1b4b' }}>
+                        ☸️ Kubernetes Cluster Map
+                    </span>
+                    
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginLeft: 'auto' }}>
+                        <span style={{ fontSize: 10.5, color: '#94a3b8' }}>Selector:</span>
+                        <select
+                            value={k8sSelectorMode}
+                            onChange={(e) => setK8sSelectorMode(e.target.value)}
+                            style={{ padding: '3px 8px', fontSize: 11, borderRadius: 5, border: `1px solid ${darkMode ? '#475569' : '#cbd5e1'}`, background: darkMode ? '#0f172a' : '#fff', color: darkMode ? '#fff' : '#000', cursor: 'pointer' }}
+                        >
+                            <option value="correct">app: nginx (Correct)</option>
+                            <option value="wrong">app: web (Wrong)</option>
+                        </select>
+                        <button
+                            onClick={() => {
+                                setK8sPods([
+                                    { id: 1, name: 'my-nginx-pod-1', status: 'Running', age: '12s', isNew: false, isDead: false },
+                                    { id: 2, name: 'my-nginx-pod-2', status: 'Running', age: '12s', isNew: false, isDead: false }
+                                ])
+                                setK8sSelectorMode('correct')
+                                setK8sSelfHealingInProgress(false)
+                            }}
+                            style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, background: '#64748b', color: '#fff', cursor: 'pointer' }}
+                        >
+                            🔄 Reset
+                        </button>
+                    </div>
+                </div>
+
+                {/* Topology Map */}
+                <div style={{ border: `1px solid ${darkMode ? '#334155' : '#cbd5e1'}`, borderRadius: 10, padding: 16, background: darkMode ? '#090d16' : '#f8fafc', display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    
+                    {/* Service & Selector Level */}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div style={{
+                            width: 170, border: `2px solid ${k8sSelectorMode === 'correct' ? '#10b981' : '#ef4444'}`,
+                            borderRadius: 8, padding: '8px 12px', background: k8sSelectorMode === 'correct' ? '#062f22' : '#7f1d1d',
+                            textAlign: 'center', color: '#fff', boxShadow: k8sSelectorMode === 'correct' ? '0 0 10px rgba(16,185,129,0.2)' : 'none', transition: 'all 0.3s'
+                        }}>
+                            <div style={{ fontSize: 10, fontWeight: 800 }}>SERVICE (NodePort)</div>
+                            <div style={{ fontSize: 8, color: '#cbd5e1', marginTop: 3 }}>Selector: app={k8sSelectorMode === 'correct' ? 'nginx' : 'web'}</div>
+                            <div style={{ fontSize: 7.5, color: '#94a3b8', marginTop: 4 }}>
+                                {k8sSelectorMode === 'correct' ? `Endpoints: ${k8sPods.filter(p => !p.isDead).length} active` : 'Endpoints: <none> (Error!)'}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SVG Connector Arrows */}
+                    <div style={{ height: 40, position: 'relative', marginTop: -20, marginBottom: -20 }}>
+                        <svg width="100%" height="40" style={{ pointerEvents: 'none' }}>
+                            {k8sSelectorMode === 'correct' ? (
+                                k8sPods.map((pod, idx) => {
+                                    const count = k8sPods.length
+                                    const stepWidth = 100 / (count + 1)
+                                    const targetX = `${stepWidth * (idx + 1)}%`
+                                    return (
+                                        <line
+                                            key={pod.id}
+                                            x1="50%" y1="0"
+                                            x2={targetX} y2="40"
+                                            stroke={pod.isDead ? '#ef4444' : '#10b981'}
+                                            strokeWidth="2.5"
+                                            strokeDasharray="6"
+                                            style={{ animation: 'arrowFlow 1.2s linear infinite' }}
+                                        />
+                                    )
+                                })
+                            ) : (
+                                // Wrong selector: arrows miss pods
+                                <>
+                                    <line x1="50%" y1="0" x2="30%" y2="40" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="4" style={{ animation: 'podShake 0.4s infinite' }} />
+                                    <line x1="50%" y1="0" x2="70%" y2="40" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="4" style={{ animation: 'podShake 0.4s infinite' }} />
+                                </>
+                            )}
+                        </svg>
+                        {k8sSelectorMode === 'wrong' && (
+                            <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', background: '#ef4444', color: '#fff', fontSize: 7.5, padding: '1px 6px', borderRadius: 4, fontWeight: 700, animation: 'podShake 0.5s infinite' }}>
+                                ⚠️ Selector Mismatch: Service routing failed!
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Cluster Nodes & Pods */}
+                    <div style={{ border: `2px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 8, padding: 12, background: darkMode ? '#111827' : '#fff' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#f1f5f9'}`, paddingBottom: 4, marginBottom: 10 }}>
+                            <span style={{ fontSize: 9.5, fontWeight: 800, color: '#94a3b8' }}>WORKER NODE 1</span>
+                            <span style={{ fontSize: 9.5, color: '#94a3b8' }}>IP: 10.244.1.10</span>
+                        </div>
+
+                        {/* Pod Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.max(2, k8sPods.length)}, 1fr)`, gap: 8 }}>
+                            {k8sPods.map((pod) => (
+                                <div
+                                    key={pod.id}
+                                    style={{
+                                        border: `1.5px solid ${pod.status === 'Running' ? '#10b981' : '#ef4444'}`,
+                                        borderRadius: 6, padding: 8, background: pod.status === 'Running' ? '#062f22' : '#7f1d1d',
+                                        animation: pod.isDead ? 'podShake 0.5s infinite' : pod.isNew ? 'podScaleIn 0.5s ease-out' : 'none',
+                                        position: 'relative'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: 13 }}>🐳</span>
+                                        {pod.status === 'Running' && !k8sSelfHealingInProgress && (
+                                            <button
+                                                onClick={() => killK8sPod(pod.id)}
+                                                style={{ border: 0, background: '#ef4444', color: '#fff', fontSize: 7, padding: '2px 5px', borderRadius: 3, cursor: 'pointer', fontWeight: 800 }}
+                                            >
+                                                Kill
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: 9, fontWeight: 800, color: '#fff', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis' }}>{pod.name}</div>
+                                    <div style={{ fontSize: 7.5, color: pod.status === 'Running' ? '#10b981' : '#fca5a5', fontWeight: 800, marginTop: 2 }}>
+                                        Status: {pod.status}
+                                    </div>
+                                    <div style={{ fontSize: 7, color: '#94a3b8', marginTop: 1 }}>Age: {pod.age}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Scale Controls */}
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: darkMode ? '#1e293b' : '#f1f5f9', padding: '6px 12px', borderRadius: 8 }}>
+                        <span style={{ fontSize: 9.5, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569' }}>
+                            Scale Deployment (kubectl scale):
+                        </span>
+                        <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
+                            {[1, 2, 3, 4].map((n) => (
+                                <button
+                                    key={n}
+                                    onClick={() => scaleK8s(n)}
+                                    disabled={k8sSelfHealingInProgress}
+                                    style={{
+                                        border: `1px solid ${k8sPods.length === n ? '#3b82f6' : darkMode ? '#475569' : '#cbd5e1'}`,
+                                        borderRadius: 4, padding: '2px 8px', fontSize: 9.5, fontWeight: 800,
+                                        background: k8sPods.length === n ? '#2563eb' : darkMode ? '#0f172a' : '#fff',
+                                        color: k8sPods.length === n ? '#fff' : darkMode ? '#94a3b8' : '#475569',
+                                        cursor: k8sSelfHealingInProgress ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    {n} {n === 1 ? 'Pod' : 'Pods'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Self healing notification banner */}
+                    {k8sSelfHealingInProgress && (
+                        <div style={{
+                            padding: '6px 10px', borderRadius: 6, background: '#ef444415', border: '1px solid #ef4444',
+                            color: '#ef4444', fontSize: 9, fontWeight: 700, textAlign: 'center', animation: 'pulse 1.2s infinite'
+                        }}>
+                            🚨 Pod crashed! Kubernetes self-healing detected state discrepancy. Spawning new Pod replacement...
+                        </div>
+                    )}
+                </div>
             </div>
         )
     }
@@ -13109,10 +13963,13 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                     {block.scenario === 'pw-autowait' && renderPwAutoWaitPlayground()}
                     {block.scenario === 'rest-assured-chain' && renderRestAssuredPlayground()}
                     {block.scenario === 'jenkins-pipeline' && renderJenkinsPipelinePlayground()}
+                    {block.scenario === 'jenkins-pipeline-visual' && renderJenkinsPipelineVisualPlayground()}
                     {block.scenario === 'kafka-flow' && renderKafkaPlayground()}
                     {block.scenario === 'docker-lifecycle' && renderDockerLifecyclePlayground()}
+                    {block.scenario === 'docker-build-port-mapping' && renderDockerBuildAndPortMappingPlayground()}
                     {block.scenario === 'api-request' && renderApiRequestPlayground()}
                     {block.scenario === 'k8s-pod' && renderK8sPodPlayground()}
+                    {block.scenario === 'k8s-cluster-map' && renderK8sClusterMapPlayground()}
                     {block.scenario === 'shadow-dom' && renderShadowDomPlayground()}
                     {block.scenario === 'iframe-detection' && renderIframeDetectionPlayground()}
                     {block.scenario === 'shadow-dom-xray' && renderShadowDomXrayPlayground()}
@@ -13179,12 +14036,18 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
     switch (block.type) {
         case 'text':
-            return <p key={i} className={textCls}>{tx(block.content, language)}</p>
+            const textContent = tx(block.content, language)
+            const lowerText = textContent.toLowerCase()
+            if (lowerText.startsWith('lego ile anlatım:') || lowerText.startsWith('lego analogy:')) {
+                return <LegoAnalogyCard key={i} text={textContent} darkMode={darkMode} language={language} />
+            }
+            return <p key={i} className={textCls}>{textContent}</p>
         case 'heading':
+            const headingDiff = block.difficulty ? tx(block.difficulty, language) : ''
             return (
                 <h3 key={i} className={h3Cls}>
                     {tx(block.text || block.content, language)}
-                    {block.difficulty && <span className={`ml-3 text-xs font-normal px-2 py-0.5 rounded-full align-middle ${block.difficulty.startsWith('🟢') ? (darkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700') : block.difficulty.startsWith('🟡') ? (darkMode ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700') : (darkMode ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700')}`}>{block.difficulty}</span>}
+                    {headingDiff && <span className={`ml-3 text-xs font-normal px-2 py-0.5 rounded-full align-middle ${headingDiff.startsWith('🟢') ? (darkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700') : headingDiff.startsWith('🟡') ? (darkMode ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700') : (darkMode ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700')}`}>{headingDiff}</span>}
                 </h3>
             )
         case 'subheading':
@@ -13194,7 +14057,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'code':
             return (
                 <div key={i}>
-                    {block.label && <div className={`mt-4 mb-1 text-xs font-semibold uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.label}</div>}
+                    {block.label && <div className={`mt-4 mb-1 text-xs font-semibold uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{tx(block.label, language)}</div>}
                     <CodeBlock code={block.code ?? block.content} language={block.language} darkMode={darkMode} />
                     {block.expected && (
                         <div className={`mt-1 p-3 rounded-b-lg font-mono text-xs border-l-4 border-emerald-500 ${darkMode ? 'bg-gray-900 text-emerald-400' : 'bg-emerald-50 text-emerald-800'}`}>
@@ -13233,9 +14096,11 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                             <li key={j} className={`flex items-start gap-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                                 <span className={`mt-0.5 flex-shrink-0 ${bulletColor}`}>{block.icon || '▸'}</span>
                                 {typeof item === 'string' ? tx(item, language) : (
-                                    <span><strong className={darkMode ? 'text-white' : 'text-gray-800'}>{tx(item.label, language)}</strong>
-                                        {item.desc && <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}> — {tx(item.desc, language)}</span>}
-                                    </span>
+                                    (item.en || item.tr) ? tx(item, language) : (
+                                        <span><strong className={darkMode ? 'text-white' : 'text-gray-800'}>{tx(item.label, language)}</strong>
+                                            {item.desc && <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}> — {tx(item.desc, language)}</span>}
+                                        </span>
+                                    )
                                 )}
                             </li>
                         ))}
@@ -13248,7 +14113,13 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                     {block.items.map((item, j) => (
                         <div key={j} className={`flex items-start gap-3 p-3 rounded-lg text-sm ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-700'}`}>
                             <span className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-indigo-800 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>{j + 1}</span>
-                            <span className="leading-relaxed">{typeof item === 'string' ? item : <span><strong>{tx(item.label, language)}</strong>{item.desc && `: ${tx(item.desc, language)}`}</span>}</span>
+                            <span className="leading-relaxed">
+                                {typeof item === 'string' ? item : (
+                                    (item.en || item.tr) ? tx(item, language) : (
+                                        <span><strong>{tx(item.label, language)}</strong>{item.desc && `: ${tx(item.desc, language)}`}</span>
+                                    )
+                                )}
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -13258,7 +14129,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                 <div key={i} className={`mt-4 grid grid-cols-1 md:grid-cols-${block.cols || 2} gap-3`}>
                     {block.items.map((item, j) => (
                         <div key={j} className={`p-4 rounded-xl border text-sm ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
-                            {item.icon && <div className="text-2xl mb-2">{item.icon}</div>}
+                            {item.icon && <div className="text-2xl mb-2">{tx(item.icon, language)}</div>}
                             <div className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(item.label, language)}</div>
                             {item.desc && <div className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{tx(item.desc, language)}</div>}
                         </div>
@@ -13274,7 +14145,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                             to={item.route}
                             className={`group flex items-start gap-3 p-4 rounded-xl border text-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${darkMode ? 'bg-gray-800 border-gray-600 hover:border-indigo-500' : 'bg-gray-50 border-gray-200 hover:border-indigo-400'}`}
                         >
-                            {item.icon && <div className="text-2xl flex-shrink-0">{item.icon}</div>}
+                            {item.icon && <div className="text-2xl flex-shrink-0">{tx(item.icon, language)}</div>}
                             <div className="min-w-0 flex-1">
                                 <div className={`font-bold mb-1 flex items-center gap-1.5 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                                     {tx(item.label, language)}
@@ -13328,6 +14199,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'editor':
             if (block.lang === 'typescript')
                 return <TSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
+            if (block.lang === 'javascript')
+                return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
             if (block.lang === 'sql')
                 return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} />
             return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
@@ -13339,6 +14212,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <BackendPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'interactive-solver':
             return <InteractiveSolverBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'security-simulation':
+            return <SecuritySimulation key={i} variant={block.variant} darkMode={darkMode} language={language} />
 
         // ── New block types ────────────────────────────────────────────────────
 
@@ -13497,9 +14372,2355 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'drag-order':
             return <DragOrderBlock key={i} block={block} darkMode={darkMode} language={language} />
 
+        case 'api-traffic-chain':
+            return <ApiTrafficChainBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'sql-join-visual':
+            return <SqlJoinVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'feynman-checkpoint':
+            return <FeynmanCheckpointBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'css-animation':
+            return <CssAnimationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'interleaving-challenge':
+            return <InterleavingChallengeBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'http-flow-animation':
+            return <HttpFlowAnimationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'python-memory-visual':
+            return <PythonMemoryVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'python-collection-visual':
+            return <PythonCollectionVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'python-flow-diagram':
+            return <PythonFlowDiagramBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'pytest-execution-visual':
+            return <PytestExecutionVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'ts-lego-visual':
+            return <TSLegoVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'security-lego-visual':
+            return <SecurityLegoVisual key={i} variant={block.variant} darkMode={darkMode} language={language} />
+
+        case 'ts-mini-hero':
+            return <TSMiniHeroBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'ts-error-animation':
+            return <TSErrorAnimationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'js-variables-visual':
+            return <JSVariablesVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'js-eventloop-visual':
+            return <JSEventLoopVisualBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'js-interleaving-games':
+            return <JSInterleavingGamesBlock key={i} block={block} darkMode={darkMode} language={language} />
+
         default:
             return null
     }
+}
+
+// ─── ApiTrafficChainBlock ─────────────────────────────────────────────────────
+
+function ApiTrafficChainBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [phase, setPhase] = useState('idle')
+    const [activePanel, setActivePanel] = useState(null)
+    const timersRef = useRef([])
+
+    const endpoint = block.endpoint || 'GET /api/users/1'
+    const method = block.method || 'GET'
+    const statusCode = block.statusCode || 200
+    const requestHeaders = block.requestHeaders || { 'Authorization': 'Bearer {{token}}', 'Content-Type': 'application/json' }
+    const responseBody = block.responseBody || '{\n  "data": { "id": 1, "email": "george.bluth@reqres.in" }\n}'
+    const raCode = block.raCode || `given()\n  .header("Authorization", "Bearer " + token)\n.when()\n  .get("/api/users/1")\n.then()\n  .statusCode(200)\n  .body("data.id", equalTo(1));`
+
+    const methodColor = { GET: '#22c55e', POST: '#f59e0b', PUT: '#3b82f6', PATCH: '#8b5cf6', DELETE: '#ef4444' }[method] || '#6b7280'
+    const statusColor = statusCode < 300 ? '#22c55e' : statusCode < 400 ? '#f59e0b' : '#ef4444'
+
+    const reset = () => {
+        timersRef.current.forEach(t => clearTimeout(t)); timersRef.current = []
+        setPhase('idle'); setActivePanel(null)
+    }
+
+    const runChain = () => {
+        if (phase !== 'idle' && phase !== 'done') return
+        reset()
+        const seq = [
+            ['sending', 'postman', 200],
+            ['network', 'devtools', 500],
+            ['server', 'swagger', 500],
+            ['response', 'restassured', 600],
+            ['done', null, 600],
+        ]
+        let cum = 0
+        seq.forEach(([p, panel, delay]) => {
+            cum += delay
+            const t = setTimeout(() => { setPhase(p); setActivePanel(panel) }, cum)
+            timersRef.current.push(t)
+        })
+    }
+
+    const panelActive = (id) => activePanel === id
+    const glowStyle = (id) => panelActive(id) ? { boxShadow: '0 0 0 2px #7c3aed, 0 0 24px rgba(124,58,237,0.5)', borderColor: '#7c3aed' } : {}
+
+    const statusBadge = <span style={{ background: statusColor + '22', color: statusColor, border: `1px solid ${statusColor}44`, borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{statusCode}</span>
+    const methodBadge = <span style={{ background: methodColor + '22', color: methodColor, border: `1px solid ${methodColor}44`, borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 800 }}>{method}</span>
+
+    return (
+        <div style={{ marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 16, overflow: 'hidden' }}>
+                {/* Header */}
+                <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#e0e7ff' }}>🔗 {isTr ? 'API Trafik Zinciri' : 'API Traffic Chain'}</span>
+                    <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {methodBadge}
+                        <span style={{ color: '#c7d2fe', fontSize: 12, fontFamily: 'monospace', fontWeight: 700 }}>{endpoint}</span>
+                    </span>
+                </div>
+
+                {/* Flow indicator */}
+                <div style={{ padding: '10px 20px', background: darkMode ? '#0f172a' : '#f1f5f9', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {['postman', 'devtools', 'swagger', 'restassured'].map((p, idx) => {
+                        const labels = { postman: '📬 Postman', devtools: '🔍 DevTools', swagger: '📋 Swagger', restassured: '☕ RestAssured' }
+                        const active = panelActive(p)
+                        const done = ['sending','network','server','response','done'].indexOf(phase) > idx
+                        return (
+                            <span key={p} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: active ? '#7c3aed' : done ? '#166534' : darkMode ? '#1e293b' : '#e2e8f0', color: active ? '#fff' : done ? '#bbf7d0' : darkMode ? '#64748b' : '#94a3b8', transition: 'all .3s', boxShadow: active ? '0 0 12px rgba(124,58,237,0.6)' : 'none' }}>{labels[p]}</span>
+                                {idx < 3 && <span style={{ color: darkMode ? '#334155' : '#cbd5e1', fontSize: 14 }}>→</span>}
+                            </span>
+                        )
+                    })}
+                    <button onClick={phase === 'idle' || phase === 'done' ? runChain : reset} style={{ marginLeft: 'auto', border: 0, borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: phase === 'idle' || phase === 'done' ? '#7c3aed' : '#ef4444', color: '#fff', transition: 'background .2s' }}>
+                        {phase === 'idle' ? (isTr ? '▶ İstek Gönder' : '▶ Send Request') : phase === 'done' ? (isTr ? '↺ Tekrar' : '↺ Reset') : '⏹ Stop'}
+                    </button>
+                </div>
+
+                {/* 4-panel grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 0 }}>
+                    {/* Postman Panel */}
+                    <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('postman') }}>
+                        <div style={{ background: darkMode ? '#1a0a2e' : '#fdf4ff', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#2d1b4e' : '#f3e8ff'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: '#e879f9' }}>📬 Postman</span>
+                            {panelActive('postman') && <span style={{ fontSize: 10, background: '#e879f922', color: '#e879f9', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>SENDING...</span>}
+                            {(['network','server','response','done'].includes(phase)) && <span style={{ fontSize: 10, background: '#22c55e22', color: '#22c55e', borderRadius: 4, padding: '1px 6px' }}>SENT ✓</span>}
+                        </div>
+                        <div style={{ padding: 12, fontSize: 11, fontFamily: 'monospace' }}>
+                            <div style={{ marginBottom: 8 }}>
+                                <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>REQUEST</div>
+                                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>{methodBadge}<span style={{ color: darkMode ? '#c7d2fe' : '#4338ca', fontWeight: 600 }}>{endpoint}</span></div>
+                                <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8 }}>
+                                    {Object.entries(requestHeaders).map(([k, v]) => (
+                                        <div key={k}><span style={{ color: '#f59e0b' }}>{k}:</span> <span style={{ color: '#22c55e' }}>{v}</span></div>
+                                    ))}
+                                </div>
+                            </div>
+                            {['response','done'].includes(phase) && (
+                                <div style={{ animation: 'fadeInUp .4s ease' }}>
+                                    <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>RESPONSE {statusBadge}</div>
+                                    <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8, color: '#22c55e', whiteSpace: 'pre', maxHeight: 80, overflow: 'auto' }}>{responseBody}</div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* DevTools Panel */}
+                    <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('devtools') }}>
+                        <div style={{ background: darkMode ? '#0a1628' : '#eff6ff', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#1e3a5f' : '#dbeafe'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: '#60a5fa' }}>🔍 DevTools Network</span>
+                            {panelActive('devtools') && <span style={{ fontSize: 10, background: '#60a5fa22', color: '#60a5fa', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>CAPTURING...</span>}
+                        </div>
+                        <div style={{ padding: 12, fontSize: 11, fontFamily: 'monospace' }}>
+                            <div style={{ color: '#94a3b8', marginBottom: 6, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>HEADERS</div>
+                            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8, marginBottom: 8 }}>
+                                <div><span style={{ color: '#f59e0b' }}>:method:</span> <span style={{ color: methodColor }}>{method}</span></div>
+                                <div><span style={{ color: '#f59e0b' }}>:path:</span> <span style={{ color: '#c7d2fe' }}>{endpoint.split(' ')[1] || endpoint}</span></div>
+                                <div><span style={{ color: '#f59e0b' }}>:status:</span> <span style={{ color: statusColor }}>{['response','done'].includes(phase) ? statusCode : '...'}</span></div>
+                                {Object.entries(requestHeaders).slice(0, 2).map(([k, v]) => (
+                                    <div key={k}><span style={{ color: '#f59e0b' }}>{k.toLowerCase()}:</span> <span style={{ color: '#22c55e' }}>{v}</span></div>
+                                ))}
+                            </div>
+                            {['network','server','response','done'].includes(phase) && (
+                                <div style={{ animation: 'fadeInUp .4s ease' }}>
+                                    <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>PAYLOAD (TIMING)</div>
+                                    <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8 }}>
+                                        <div><span style={{ color: '#94a3b8' }}>DNS: </span><span style={{ color: '#22c55e' }}>2ms</span></div>
+                                        <div><span style={{ color: '#94a3b8' }}>Connect: </span><span style={{ color: '#22c55e' }}>8ms</span></div>
+                                        <div><span style={{ color: '#94a3b8' }}>TTFB: </span><span style={{ color: '#22c55e' }}>{['response','done'].includes(phase) ? '124ms' : '...'}</span></div>
+                                        <div><span style={{ color: '#94a3b8' }}>Download: </span><span style={{ color: '#22c55e' }}>{phase === 'done' ? '2ms' : '...'}</span></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Swagger Panel */}
+                    <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('swagger') }}>
+                        <div style={{ background: darkMode ? '#0a1f0a' : '#f0fdf4', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#14532d' : '#bbf7d0'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: '#4ade80' }}>📋 Swagger / OpenAPI</span>
+                            {panelActive('swagger') && <span style={{ fontSize: 10, background: '#4ade8022', color: '#4ade80', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>PROCESSING...</span>}
+                        </div>
+                        <div style={{ padding: 12, fontSize: 11 }}>
+                            <div style={{ border: `1px solid ${darkMode ? '#14532d' : '#86efac'}`, borderRadius: 8, overflow: 'hidden' }}>
+                                <div style={{ background: darkMode ? '#052e16' : '#dcfce7', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {methodBadge}
+                                    <span style={{ fontFamily: 'monospace', fontWeight: 700, color: darkMode ? '#bbf7d0' : '#166534' }}>{endpoint.split(' ')[1] || endpoint}</span>
+                                </div>
+                                <div style={{ padding: '8px 10px', fontFamily: 'monospace', background: darkMode ? '#0a1f0a' : '#f0fdf4' }}>
+                                    <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>PARAMETERS</div>
+                                    {Object.entries(requestHeaders).slice(0, 1).map(([k]) => (
+                                        <div key={k} style={{ color: darkMode ? '#86efac' : '#166534' }}>• {k} <span style={{ color: '#f59e0b' }}>(header, required)</span></div>
+                                    ))}
+                                    {panelActive('swagger') || ['response','done'].includes(phase) ? (
+                                        <div style={{ marginTop: 8, animation: 'fadeInUp .3s ease' }}>
+                                            <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>RESPONSES</div>
+                                            <div style={{ color: statusColor }}>✓ {statusCode} — Success</div>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* RestAssured Panel */}
+                    <div style={{ borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('restassured') }}>
+                        <div style={{ background: darkMode ? '#1a1000' : '#fffbeb', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#451a03' : '#fde68a'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: '#fbbf24' }}>☕ REST Assured</span>
+                            {panelActive('restassured') && <span style={{ fontSize: 10, background: '#fbbf2422', color: '#fbbf24', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>ASSERTING...</span>}
+                            {phase === 'done' && <span style={{ fontSize: 10, background: '#22c55e22', color: '#22c55e', borderRadius: 4, padding: '1px 6px' }}>PASS ✓</span>}
+                        </div>
+                        <div style={{ padding: 12 }}>
+                            <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: 11, color: darkMode ? '#fde68a' : '#78350f', background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 10, overflowX: 'auto', lineHeight: 1.7 }}>
+                                {raCode.split('\n').map((line, idx) => {
+                                    const isActive = phase === 'done' || panelActive('restassured')
+                                    const highlight = isActive && (line.includes('given') || line.includes('when') || line.includes('then'))
+                                    return (
+                                        <span key={idx} style={{ display: 'block', color: line.includes('given') ? '#60a5fa' : line.includes('when') ? '#f59e0b' : line.includes('then') ? '#4ade80' : line.includes('.statusCode') ? statusColor : darkMode ? '#fde68a' : '#78350f', fontWeight: highlight ? 800 : 400, transition: 'color .3s' }}>{line}</span>
+                                    )
+                                })}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                {phase === 'done' && (
+                    <div style={{ padding: '12px 20px', background: darkMode ? '#052e16' : '#f0fdf4', borderTop: `1px solid ${darkMode ? '#14532d' : '#bbf7d0'}`, display: 'flex', alignItems: 'center', gap: 10, animation: 'fadeInUp .4s ease' }}>
+                        <span style={{ fontSize: 18 }}>✅</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#4ade80' }}>{isTr ? 'İstek-Yanıt döngüsü tamamlandı — 4 araç aynı veriyi farklı perspektiften gösterdi.' : 'Request-Response cycle complete — all 4 tools showed the same data from different angles.'}</span>
+                    </div>
+                )}
+            </div>
+
+            <style>{`
+                @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+            `}</style>
+        </div>
+    )
+}
+
+// ─── SqlJoinVisualBlock ───────────────────────────────────────────────────────
+
+function SqlJoinVisualBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [joinType, setJoinType] = useState(block.defaultJoin || 'INNER')
+    const [phase, setPhase] = useState('idle')
+    const [wrongAttempt, setWrongAttempt] = useState(false)
+    const timersRef = useRef([])
+
+    const leftTable = block.leftTable || { name: 'orders', columns: ['id', 'customer_id', 'amount'], rows: [[1, 101, 250], [2, 102, 180], [3, 999, 95]] }
+    const rightTable = block.rightTable || { name: 'customers', columns: ['id', 'name'], rows: [[101, 'Alice'], [102, 'Bob']] }
+    const joinKey = block.joinKey || [1, 0] // [leftCol index, rightCol index]
+
+    const leftJoinCol = leftTable.columns[joinKey[0]]
+    const rightJoinCol = rightTable.columns[joinKey[1]]
+
+    const getMatchedRows = () => {
+        const rightMap = {}
+        rightTable.rows.forEach(r => { rightMap[r[joinKey[1]]] = r })
+
+        return leftTable.rows.map(lRow => {
+            const key = lRow[joinKey[0]]
+            const match = rightMap[key]
+            return { left: lRow, right: match || null, matched: !!match }
+        })
+    }
+
+    const matched = getMatchedRows()
+    const resultRows = joinType === 'INNER' ? matched.filter(r => r.matched)
+        : joinType === 'LEFT' ? matched
+        : joinType === 'RIGHT' ? (() => {
+            const leftMap = {}
+            leftTable.rows.forEach(r => { leftMap[r[joinKey[0]]] = r })
+            return rightTable.rows.map(rRow => {
+                const key = rRow[joinKey[1]]
+                const match = leftMap[key]
+                return { left: match || null, right: rRow, matched: !!match }
+            })
+        })()
+        : matched
+
+    const runJoin = () => {
+        timersRef.current.forEach(t => clearTimeout(t)); timersRef.current = []
+        setPhase('matching')
+        const t1 = setTimeout(() => setPhase('filtering'), 700)
+        const t2 = setTimeout(() => setPhase('result'), 1300)
+        timersRef.current = [t1, t2]
+    }
+
+    const joinTypes = [
+        { id: 'INNER', label: 'INNER JOIN', color: '#22c55e', desc: isTr ? 'Sadece eşleşen satırlar' : 'Only matching rows' },
+        { id: 'LEFT', label: 'LEFT JOIN', color: '#3b82f6', desc: isTr ? 'Sol tablo hepsi + eşleşme' : 'All left + matches' },
+        { id: 'RIGHT', label: 'RIGHT JOIN', color: '#8b5cf6', desc: isTr ? 'Sağ tablo hepsi + eşleşme' : 'All right + matches' },
+    ]
+    const activeJoin = joinTypes.find(j => j.id === joinType)
+
+    const rowMatchStatus = (lRow) => {
+        if (!lRow) return 'null'
+        const key = lRow[joinKey[0]]
+        return rightTable.rows.some(r => r[joinKey[1]] === key) ? 'match' : 'nomatch'
+    }
+
+    const cellStyle = (status, isLeft) => ({
+        padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`,
+        background: phase === 'idle' ? 'transparent'
+            : status === 'match' ? (darkMode ? '#052e16' : '#f0fdf4')
+            : status === 'nomatch' && ((joinType === 'INNER') || (joinType === 'RIGHT' && isLeft) || (joinType === 'LEFT' && !isLeft))
+            ? (darkMode ? '#2d0000' : '#fff5f5')
+            : 'transparent',
+        color: status === 'match' ? '#22c55e'
+            : status === 'nomatch' && phase !== 'idle' ? '#ef4444'
+            : darkMode ? '#e2e8f0' : '#1e293b',
+        transition: 'all .4s',
+        opacity: phase === 'filtering' && joinType === 'INNER' && status === 'nomatch' ? 0.3 : 1,
+    })
+
+    return (
+        <div style={{ marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 16, overflow: 'hidden' }}>
+                {/* Header */}
+                <div style={{ background: 'linear-gradient(135deg, #0c4a6e 0%, #0e7490 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#e0f2fe' }}>🔗 {isTr ? 'SQL JOIN Görselleştirici' : 'SQL JOIN Visualizer'}</span>
+                    {activeJoin && <span style={{ marginLeft: 'auto', background: activeJoin.color + '33', color: activeJoin.color, border: `1px solid ${activeJoin.color}66`, borderRadius: 8, padding: '3px 12px', fontSize: 12, fontWeight: 800 }}>{activeJoin.label}</span>}
+                </div>
+
+                {/* JOIN type selector */}
+                <div style={{ padding: '12px 16px', background: darkMode ? '#0f172a' : '#f1f5f9', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {joinTypes.map(j => (
+                        <button key={j.id} onClick={() => { setJoinType(j.id); setPhase('idle') }}
+                            style={{ border: `2px solid ${joinType === j.id ? j.color : darkMode ? '#334155' : '#cbd5e1'}`, borderRadius: 8, padding: '5px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: joinType === j.id ? j.color + '22' : 'transparent', color: joinType === j.id ? j.color : darkMode ? '#94a3b8' : '#64748b', transition: 'all .2s' }}>
+                            {j.label}
+                            <span style={{ display: 'block', fontSize: 9, fontWeight: 400, opacity: 0.8 }}>{j.desc}</span>
+                        </button>
+                    ))}
+                    <button onClick={runJoin} style={{ marginLeft: 'auto', border: 0, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: activeJoin?.color || '#22c55e', color: '#fff' }}>
+                        {isTr ? '▶ JOIN Çalıştır' : '▶ Execute JOIN'}
+                    </button>
+                </div>
+
+                {/* Tables + Result */}
+                <div style={{ padding: 16 }}>
+                    {/* Source tables */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'start', marginBottom: 16 }}>
+                        {/* Left table */}
+                        <div style={{ border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 10, overflow: 'hidden' }}>
+                            <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '6px 12px', fontWeight: 800, fontSize: 12, color: darkMode ? '#94a3b8' : '#475569' }}>📋 {leftTable.name}</div>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr>{leftTable.columns.map((c, ci) => <th key={c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: ci === joinKey[0] ? (activeJoin?.color || '#22c55e') : '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: ci === joinKey[0] ? (activeJoin?.color || '#22c55e') + '11' : 'transparent' }}>{c} {ci === joinKey[0] && '🔑'}</th>)}</tr>
+                                </thead>
+                                <tbody>
+                                    {leftTable.rows.map((row, ri) => {
+                                        const status = phase !== 'idle' ? rowMatchStatus(row) : 'idle'
+                                        return (
+                                            <tr key={ri}>
+                                                {row.map((cell, ci) => (
+                                                    <td key={ci} style={cellStyle(status, true)}>{cell}</td>
+                                                ))}
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Center arrow */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 32 }}>
+                            <div style={{ fontSize: 22, color: activeJoin?.color || '#22c55e', transition: 'color .3s', filter: phase !== 'idle' ? `drop-shadow(0 0 8px ${activeJoin?.color || '#22c55e'})` : 'none' }}>⟷</div>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', fontFamily: 'monospace', textAlign: 'center' }}>{leftJoinCol}<br/>= {rightJoinCol}</div>
+                        </div>
+
+                        {/* Right table */}
+                        <div style={{ border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 10, overflow: 'hidden' }}>
+                            <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '6px 12px', fontWeight: 800, fontSize: 12, color: darkMode ? '#94a3b8' : '#475569' }}>📋 {rightTable.name}</div>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr>{rightTable.columns.map((c, ci) => <th key={c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: ci === joinKey[1] ? (activeJoin?.color || '#22c55e') : '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: ci === joinKey[1] ? (activeJoin?.color || '#22c55e') + '11' : 'transparent' }}>{c} {ci === joinKey[1] && '🔑'}</th>)}</tr>
+                                </thead>
+                                <tbody>
+                                    {rightTable.rows.map((row, ri) => (
+                                        <tr key={ri}>
+                                            {row.map((cell, ci) => (
+                                                <td key={ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: darkMode ? '#e2e8f0' : '#1e293b' }}>{cell}</td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Result table */}
+                    {phase === 'result' && (
+                        <div style={{ animation: 'fadeInUp .5s ease', border: `2px solid ${activeJoin?.color || '#22c55e'}`, borderRadius: 10, overflow: 'hidden' }}>
+                            <div style={{ background: (activeJoin?.color || '#22c55e') + '22', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <span style={{ fontWeight: 800, fontSize: 13, color: activeJoin?.color || '#22c55e' }}>📊 {isTr ? 'Sonuç' : 'Result'}: {activeJoin?.label}</span>
+                                <span style={{ fontSize: 11, color: '#94a3b8' }}>{resultRows.length} {isTr ? 'satır döndü' : 'rows returned'}</span>
+                            </div>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr>
+                                            {leftTable.columns.map(c => <th key={'l'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{leftTable.name}.{c}</th>)}
+                                            {rightTable.columns.map(c => <th key={'r'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{rightTable.name}.{c}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {resultRows.map((row, ri) => (
+                                            <tr key={ri} style={{ animation: `fadeInUp .3s ease ${ri * 0.1}s both` }}>
+                                                {leftTable.columns.map((_, ci) => (
+                                                    <td key={'l'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.left ? (darkMode ? '#e2e8f0' : '#1e293b') : '#94a3b8', fontStyle: row.left ? 'normal' : 'italic' }}>
+                                                        {row.left ? row.left[ci] : 'NULL'}
+                                                    </td>
+                                                ))}
+                                                {rightTable.columns.map((_, ci) => (
+                                                    <td key={'r'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.right ? (darkMode ? '#e2e8f0' : '#1e293b') : '#94a3b8', fontStyle: row.right ? 'normal' : 'italic' }}>
+                                                        {row.right ? row.right[ci] : 'NULL'}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── FeynmanCheckpointBlock ───────────────────────────────────────────────────
+
+function FeynmanCheckpointBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [text, setText] = useState('')
+    const [result, setResult] = useState(null)
+    const [showModel, setShowModel] = useState(false)
+
+    const prompt = isTr ? (block.promptTr || tx(block.prompt, 'tr')) : (block.promptEn || tx(block.prompt, 'en') || 'Explain this concept in simple terms...')
+    const keywords = block.keywords || []
+    const modelAnswer = isTr ? (block.modelAnswerTr || tx(block.modelAnswer, 'tr')) : (block.modelAnswerEn || tx(block.modelAnswer, 'en') || '')
+    const minScore = block.minScore || Math.ceil(keywords.length * 0.5)
+
+    const evaluate = () => {
+        const lower = text.toLowerCase()
+        const covered = keywords.filter(k => {
+            const variants = Array.isArray(k) ? k : [k]
+            return variants.some(v => lower.includes(v.toLowerCase()))
+        })
+        const score = covered.length
+        const total = keywords.length
+        setResult({ covered, missed: keywords.filter(k => !covered.includes(k)), score, total, pass: score >= minScore })
+    }
+
+    const reset = () => { setText(''); setResult(null); setShowModel(false) }
+
+    const scoreColor = result ? (result.pass ? '#22c55e' : result.score >= minScore * 0.7 ? '#f59e0b' : '#ef4444') : '#7c3aed'
+    const pct = result ? Math.round((result.score / result.total) * 100) : 0
+
+    return (
+        <div style={{ marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <div style={{ background: darkMode ? '#0f172a' : '#fffbeb', border: `2px solid ${result ? scoreColor : '#f59e0b'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .4s' }}>
+                <div style={{ background: 'linear-gradient(135deg, #78350f 0%, #92400e 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 20 }}>🧠</span>
+                    <div>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: '#fef3c7' }}>Feynman {isTr ? 'Kontrol Noktası' : 'Checkpoint'}</div>
+                        <div style={{ fontSize: 11, color: '#fde68a', opacity: 0.8 }}>{isTr ? 'Teknik jargon kullanmadan, sektöre yeni giren birine anlatır gibi açıkla.' : 'Explain without technical jargon, as if to a newcomer.'}</div>
+                    </div>
+                    {result && <div style={{ marginLeft: 'auto', fontSize: 24, fontWeight: 900, color: scoreColor }}>{pct}%</div>}
+                </div>
+
+                <div style={{ padding: 20 }}>
+                    <div style={{ marginBottom: 12, fontSize: 14, fontWeight: 600, color: darkMode ? '#fde68a' : '#78350f', lineHeight: 1.5 }}>
+                        ❓ {prompt}
+                    </div>
+
+                    {!result ? (
+                        <>
+                            <textarea
+                                value={text}
+                                onChange={e => setText(e.target.value)}
+                                placeholder={isTr ? 'Cevabını buraya yaz... (en az 30 karakter)' : 'Write your answer here... (at least 30 characters)'}
+                                style={{ width: '100%', minHeight: 120, borderRadius: 10, border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#f9fafb' : '#111827', padding: 12, fontSize: 13, fontFamily: 'Inter, system-ui, sans-serif', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+                            />
+                            <div style={{ display: 'flex', gap: 10, marginTop: 10, alignItems: 'center' }}>
+                                <button
+                                    onClick={evaluate}
+                                    disabled={text.length < 30}
+                                    style={{ border: 0, borderRadius: 8, padding: '8px 20px', fontSize: 13, fontWeight: 800, cursor: text.length >= 30 ? 'pointer' : 'not-allowed', background: text.length >= 30 ? '#f59e0b' : '#6b7280', color: '#111827' }}>
+                                    {isTr ? '✓ Değerlendir' : '✓ Evaluate'}
+                                </button>
+                                <span style={{ fontSize: 11, color: '#94a3b8' }}>{text.length} {isTr ? 'karakter' : 'chars'} · {isTr ? 'hedef' : 'target'}: {keywords.length} {isTr ? 'anahtar kavram' : 'key concepts'}</span>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ animation: 'fadeInUp .4s ease' }}>
+                            {/* Score bar */}
+                            <div style={{ marginBottom: 16 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, fontWeight: 700 }}>
+                                    <span style={{ color: scoreColor }}>{result.pass ? (isTr ? '🎉 Geçti! ' : '🎉 Passed! ') : (isTr ? '📚 Daha fazla pratik gerek — ' : '📚 Keep practicing — ')}{result.score}/{result.total} {isTr ? 'kavram kapsandı' : 'concepts covered'}</span>
+                                </div>
+                                <div style={{ height: 8, borderRadius: 99, background: darkMode ? '#1e293b' : '#e2e8f0', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${pct}%`, background: scoreColor, borderRadius: 99, transition: 'width 1s ease' }} />
+                                </div>
+                            </div>
+
+                            {/* Covered concepts */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                                {result.covered.map((k, i) => (
+                                    <span key={i} style={{ background: '#22c55e22', color: '#22c55e', border: '1px solid #22c55e44', borderRadius: 99, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>✓ {Array.isArray(k) ? k[0] : k}</span>
+                                ))}
+                                {result.missed.map((k, i) => (
+                                    <span key={i} style={{ background: '#ef444422', color: '#ef4444', border: '1px solid #ef444444', borderRadius: 99, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>✗ {Array.isArray(k) ? k[0] : k}</span>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <button onClick={reset} style={{ border: 0, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: '#374151', color: '#f9fafb' }}>{isTr ? '↺ Tekrar Dene' : '↺ Try Again'}</button>
+                                {modelAnswer && <button onClick={() => setShowModel(s => !s)} style={{ border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: 'transparent', color: darkMode ? '#94a3b8' : '#6b7280' }}>{showModel ? (isTr ? '▲ Gizle' : '▲ Hide') : (isTr ? '📖 Model Cevap' : '📖 Model Answer')}</button>}
+                            </div>
+
+                            {showModel && modelAnswer && (
+                                <div style={{ marginTop: 14, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 10, padding: 14, fontSize: 13, color: darkMode ? '#f9fafb' : '#374151', lineHeight: 1.7, animation: 'fadeInUp .3s ease' }}>
+                                    <div style={{ fontWeight: 800, marginBottom: 8, color: '#f59e0b' }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
+                                    {modelAnswer}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── InterleavingChallengeBlock ───────────────────────────────────────────────
+
+function InterleavingChallengeBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const challenges = block.challenges || []
+    const [idx, setIdx] = useState(0)
+    const [selected, setSelected] = useState(null)
+    const [showFeedback, setShowFeedback] = useState(false)
+    const [switching, setSwitching] = useState(false)
+    const [score, setScore] = useState(0)
+    const [answered, setAnswered] = useState(0)
+
+    if (!challenges.length) return null
+    const current = challenges[idx % challenges.length]
+    const options = isTr ? (current.optionsTr || current.options) : (current.optionsEn || current.options)
+    const question = isTr ? (current.questionTr || current.question) : (current.questionEn || current.question)
+    const explanation = isTr ? (current.explanationTr || current.explanation) : (current.explanationEn || current.explanation)
+
+    const topicColors = { SQL: '#3b82f6', Postman: '#e879f9', RestAssured: '#fbbf24', API: '#22c55e', Docker: '#0db7ed', Jenkins: '#d24939', Kubernetes: '#326ce5' }
+    const topicColor = topicColors[current.topic] || '#7c3aed'
+
+    const handleSelect = (optIdx) => {
+        if (selected !== null) return
+        setSelected(optIdx)
+        setShowFeedback(true)
+        setAnswered(a => a + 1)
+        if (optIdx === current.correct) setScore(s => s + 1)
+    }
+
+    const nextChallenge = () => {
+        setSwitching(true)
+        setTimeout(() => {
+            setIdx(i => i + 1)
+            setSelected(null)
+            setShowFeedback(false)
+            setSwitching(false)
+        }, 600)
+    }
+
+    const nextTopic = challenges[(idx + 1) % challenges.length]?.topic
+
+    return (
+        <div style={{ marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', border: `2px solid ${topicColor}44`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .3s' }}>
+                {/* Header */}
+                <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: darkMode ? '#f1f5f9' : '#0f172a' }}>🔀 {isTr ? 'Karma Pratik' : 'Interleaving Challenge'}</span>
+                    <span style={{ background: topicColor + '22', color: topicColor, border: `1px solid ${topicColor}44`, borderRadius: 99, padding: '3px 12px', fontSize: 12, fontWeight: 800 }}>{current.topic}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>{answered}/{challenges.length} · {score} ✓</span>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ height: 4, background: darkMode ? '#1e293b' : '#e2e8f0' }}>
+                    <div style={{ height: '100%', width: `${((idx % challenges.length) / challenges.length) * 100}%`, background: topicColor, transition: 'width .5s, background .3s' }} />
+                </div>
+
+                {/* Challenge */}
+                <div style={{ padding: 20, opacity: switching ? 0 : 1, transform: switching ? 'translateY(8px)' : 'none', transition: 'all .4s' }}>
+                    {switching && (
+                        <div style={{ textAlign: 'center', padding: 24 }}>
+                            <div style={{ fontSize: 28, marginBottom: 8 }}>🔄</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: topicColor }}>{isTr ? 'Beyin vites değiştiriyor...' : 'Brain shifting gears...'}</div>
+                            {nextTopic && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{isTr ? 'Sıradaki konu:' : 'Next topic:'} <span style={{ color: topicColors[nextTopic] || '#7c3aed', fontWeight: 700 }}>{nextTopic}</span></div>}
+                        </div>
+                    )}
+
+                    {!switching && (
+                        <>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: darkMode ? '#f1f5f9' : '#0f172a', marginBottom: 16, lineHeight: 1.6 }}>{question}</div>
+
+                            <div style={{ display: 'grid', gap: 8 }}>
+                                {(options || []).map((opt, oi) => {
+                                    const isCorrect = oi === current.correct
+                                    const isSelected = selected === oi
+                                    let bg = darkMode ? '#1e293b' : '#f1f5f9'
+                                    let border = darkMode ? '#334155' : '#cbd5e1'
+                                    let color = darkMode ? '#f1f5f9' : '#1e293b'
+                                    if (showFeedback) {
+                                        if (isCorrect) { bg = '#052e16'; border = '#22c55e'; color = '#22c55e' }
+                                        else if (isSelected) { bg = '#2d0000'; border = '#ef4444'; color = '#ef4444' }
+                                    }
+                                    return (
+                                        <button key={oi} onClick={() => handleSelect(oi)}
+                                            style={{ textAlign: 'left', border: `2px solid ${border}`, borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, cursor: selected !== null ? 'default' : 'pointer', background: bg, color, transition: 'all .3s', display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <span style={{ fontWeight: 800, opacity: 0.5 }}>{['A','B','C','D'][oi]}.</span>
+                                            <span>{isTr ? (typeof opt === 'object' ? opt.tr : opt) : (typeof opt === 'object' ? opt.en : opt)}</span>
+                                            {showFeedback && isCorrect && <span style={{ marginLeft: 'auto' }}>✅</span>}
+                                            {showFeedback && isSelected && !isCorrect && <span style={{ marginLeft: 'auto' }}>❌</span>}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {showFeedback && (
+                                <div style={{ marginTop: 14, animation: 'fadeInUp .3s ease' }}>
+                                    {explanation && (
+                                        <div style={{ background: darkMode ? '#1e293b' : '#f1f5f9', borderRadius: 10, padding: 12, fontSize: 12, color: darkMode ? '#94a3b8' : '#64748b', lineHeight: 1.6, marginBottom: 12, borderLeft: `3px solid ${topicColor}` }}>
+                                            💡 {explanation}
+                                        </div>
+                                    )}
+                                    {idx < challenges.length - 1 ? (
+                                        <button onClick={nextChallenge} style={{ border: 0, borderRadius: 8, padding: '8px 20px', fontSize: 13, fontWeight: 800, cursor: 'pointer', background: topicColor, color: '#fff' }}>
+                                            {isTr ? 'Sonraki →' : 'Next →'} <span style={{ opacity: 0.7, fontSize: 11 }}>({nextTopic})</span>
+                                        </button>
+                                    ) : (
+                                        <div style={{ background: darkMode ? '#052e16' : '#f0fdf4', border: `1px solid #22c55e`, borderRadius: 10, padding: 14, textAlign: 'center' }}>
+                                            <div style={{ fontSize: 18, marginBottom: 4 }}>🏆</div>
+                                            <div style={{ fontWeight: 800, color: '#22c55e' }}>{score}/{challenges.length} {isTr ? 'doğru! Beyin başarıyla vites değiştirdi.' : 'correct! Brain successfully shifted gears.'}</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── HttpFlowAnimationBlock ───────────────────────────────────────────────────
+
+function HttpFlowAnimationBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [phase, setPhase] = useState('idle')
+    const [assertMode, setAssertMode] = useState(null)
+    const [expectedVal, setExpectedVal] = useState(block.expectedValue || '200')
+    const [actualVal] = useState(block.actualValue || '200')
+    const timersRef = useRef([])
+
+    const method = block.method || 'GET'
+    const endpoint = block.endpoint || '/api/users/1'
+    const dbQuery = block.dbQuery || 'SELECT * FROM users WHERE id = 1'
+    const statusCode = block.statusCode || 200
+    const methodColor = { GET: '#22c55e', POST: '#f59e0b', PUT: '#3b82f6', PATCH: '#8b5cf6', DELETE: '#ef4444' }[method] || '#6b7280'
+
+    const reset = () => {
+        timersRef.current.forEach(t => clearTimeout(t)); timersRef.current = []
+        setPhase('idle'); setAssertMode(null)
+    }
+
+    const runFlow = () => {
+        reset()
+        const isWrong = expectedVal !== String(statusCode)
+        const seq = [
+            ['client-send', 300], ['network', 400], ['server', 500],
+            ['db-query', 600], ['db-response', 500], ['server-process', 400],
+            ['response', 500], [isWrong ? 'assert-fail' : 'assert-pass', 700],
+        ]
+        let cum = 0
+        seq.forEach(([p, delay]) => {
+            cum += delay
+            const t = setTimeout(() => {
+                setPhase(p)
+                if (p === 'assert-fail' || p === 'assert-pass') setAssertMode(isWrong ? 'fail' : 'pass')
+            }, cum)
+            timersRef.current.push(t)
+        })
+    }
+
+    const nodes = [
+        { id: 'client', label: isTr ? '💻 Client' : '💻 Client', sub: 'RestAssured', color: '#7c3aed' },
+        { id: 'network', label: '🌐 Network', sub: 'HTTP/TLS', color: '#3b82f6' },
+        { id: 'server', label: '⚙️ Server', sub: 'Spring Boot', color: '#f59e0b' },
+        { id: 'db', label: '🗄️ Database', sub: 'PostgreSQL', color: '#22c55e' },
+    ]
+
+    const nodeActive = (id) => {
+        const map = { 'client': ['client-send', 'response', 'assert-fail', 'assert-pass'], 'network': ['network'], 'server': ['server', 'server-process'], 'db': ['db-query', 'db-response'] }
+        return (map[id] || []).includes(phase)
+    }
+
+    const arrowActive = (from, to) => {
+        const fwd = { 'client-network': ['client-send', 'network'], 'network-server': ['network', 'server'], 'server-db': ['server', 'db-query'], 'db-server': ['db-response', 'server-process'], 'server-network': ['server-process'], 'network-client': ['response', 'assert-fail', 'assert-pass'] }
+        const key = `${from}-${to}`
+        return (fwd[key] || []).includes(phase)
+    }
+
+    return (
+        <div style={{ marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 16, overflow: 'hidden' }}>
+                {/* Header */}
+                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#e2e8f0' }}>🔄 {isTr ? 'HTTP İstek-Yanıt Akışı' : 'HTTP Request-Response Flow'}</span>
+                    <span style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <span style={{ background: methodColor + '22', color: methodColor, border: `1px solid ${methodColor}44`, borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 800 }}>{method}</span>
+                        <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: 11 }}>{endpoint}</span>
+                    </span>
+                </div>
+
+                {/* Assert input */}
+                <div style={{ padding: '10px 20px', background: darkMode ? '#0f172a' : '#f1f5f9', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: darkMode ? '#94a3b8' : '#64748b' }}>{isTr ? 'Beklenen HTTP Status:' : 'Expected HTTP Status:'}</span>
+                    <input type="text" value={expectedVal} onChange={e => { setExpectedVal(e.target.value); reset() }}
+                        style={{ width: 70, borderRadius: 6, border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#f9fafb' : '#111', padding: '4px 8px', fontSize: 12, fontFamily: 'monospace', outline: 'none' }} />
+                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{isTr ? '(gerçek:' : '(actual:'} <span style={{ color: '#22c55e', fontWeight: 700 }}>{statusCode}</span>)</span>
+                    <button onClick={runFlow} style={{ marginLeft: 'auto', border: 0, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: '#7c3aed', color: '#fff' }}>
+                        {phase === 'idle' ? (isTr ? '▶ Gönder' : '▶ Send') : (isTr ? '↺ Sıfırla' : '↺ Reset')}
+                    </button>
+                </div>
+
+                {/* Flow diagram */}
+                <div style={{ padding: '20px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, justifyContent: 'center', flexWrap: 'nowrap', overflowX: 'auto' }}>
+                        {nodes.map((node, ni) => (
+                            <span key={node.id} style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ minWidth: 80, padding: '10px 8px', borderRadius: 12, border: `2px solid ${nodeActive(node.id) ? node.color : darkMode ? '#1e293b' : '#e2e8f0'}`, background: nodeActive(node.id) ? node.color + '22' : darkMode ? '#1e293b' : '#f8fafc', textAlign: 'center', transition: 'all .3s', boxShadow: nodeActive(node.id) ? `0 0 16px ${node.color}55` : 'none' }}>
+                                    <div style={{ fontSize: 14 }}>{node.label.split(' ')[0]}</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: nodeActive(node.id) ? node.color : darkMode ? '#94a3b8' : '#64748b' }}>{node.label.split(' ').slice(1).join(' ')}</div>
+                                    <div style={{ fontSize: 9, color: '#94a3b8' }}>{node.sub}</div>
+                                    {node.id === 'db' && ['db-query','db-response'].includes(phase) && (
+                                        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#22c55e', marginTop: 4, animation: 'pulse 1s infinite' }}>{dbQuery.slice(0, 20)}...</div>
+                                    )}
+                                </div>
+                                {ni < nodes.length - 1 && (
+                                    <div style={{ position: 'relative', width: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                        {/* Forward arrow */}
+                                        <div style={{ height: 2, width: '100%', background: arrowActive(node.id, nodes[ni+1].id) ? nodes[ni+1].color : darkMode ? '#334155' : '#cbd5e1', transition: 'background .3s', position: 'relative', overflow: 'hidden' }}>
+                                            {arrowActive(node.id, nodes[ni+1].id) && <div style={{ position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%', background: `linear-gradient(90deg, transparent, ${nodes[ni+1].color}, transparent)`, animation: 'slideRight .4s linear infinite' }} />}
+                                        </div>
+                                        <span style={{ fontSize: 12, color: arrowActive(node.id, nodes[ni+1].id) ? nodes[ni+1].color : darkMode ? '#475569' : '#94a3b8' }}>→</span>
+                                        {/* Return arrow */}
+                                        <div style={{ height: 2, width: '100%', background: arrowActive(nodes[ni+1].id, node.id) ? '#22c55e' : darkMode ? '#334155' : '#cbd5e1', transition: 'background .3s', position: 'relative', overflow: 'hidden' }}>
+                                            {arrowActive(nodes[ni+1].id, node.id) && <div style={{ position: 'absolute', top: 0, right: '-100%', width: '60%', height: '100%', background: 'linear-gradient(90deg, transparent, #22c55e, transparent)', animation: 'slideLeft .4s linear infinite' }} />}
+                                        </div>
+                                        <span style={{ fontSize: 12, color: arrowActive(nodes[ni+1].id, node.id) ? '#22c55e' : darkMode ? '#475569' : '#94a3b8' }}>←</span>
+                                    </div>
+                                )}
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* Status line */}
+                    {phase !== 'idle' && (
+                        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 12, color: '#94a3b8', animation: 'fadeInUp .3s ease' }}>
+                            {phase === 'client-send' && <span style={{ color: '#7c3aed' }}>📤 {isTr ? 'RestAssured isteği gönderiyor...' : 'RestAssured sending request...'}</span>}
+                            {phase === 'network' && <span style={{ color: '#3b82f6' }}>🌐 {isTr ? 'TCP bağlantısı kuruldu, TLS handshake...' : 'TCP connection, TLS handshake...'}</span>}
+                            {phase === 'server' && <span style={{ color: '#f59e0b' }}>⚙️ {isTr ? 'Controller handler çağrıldı...' : 'Controller handler invoked...'}</span>}
+                            {phase === 'db-query' && <span style={{ color: '#22c55e', fontFamily: 'monospace' }}>🗄️ {dbQuery}</span>}
+                            {phase === 'db-response' && <span style={{ color: '#22c55e' }}>✓ {isTr ? 'DB 1 satır döndü' : 'DB returned 1 row'}</span>}
+                            {phase === 'server-process' && <span style={{ color: '#f59e0b' }}>📦 {isTr ? 'JSON serialize edildi, response oluşturuluyor...' : 'JSON serialized, building response...'}</span>}
+                            {phase === 'response' && <span style={{ color: '#22c55e' }}>📥 HTTP {statusCode} {isTr ? 'yanıt geldi' : 'response received'}</span>}
+                            {phase === 'assert-pass' && <span style={{ color: '#22c55e', fontWeight: 700 }}>✅ {isTr ? `Assertion PASS — beklenen ${expectedVal} = gerçek ${statusCode}` : `Assertion PASS — expected ${expectedVal} = actual ${statusCode}`}</span>}
+                        </div>
+                    )}
+
+                    {/* ASSERT FAIL visual */}
+                    {assertMode === 'fail' && (
+                        <div style={{ marginTop: 16, animation: 'fadeInUp .4s ease' }}>
+                            <div style={{ background: '#2d0000', border: '2px solid #ef4444', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                                <div style={{ fontSize: 20, marginBottom: 8 }}>💥</div>
+                                <div style={{ fontWeight: 800, color: '#ef4444', marginBottom: 10, fontSize: 14 }}>AssertionError — {isTr ? 'Beklenen ≠ Gerçek' : 'Expected ≠ Actual'}</div>
+                                <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <div style={{ background: '#1a0000', borderRadius: 8, padding: '8px 20px', border: '1px solid #ef444466' }}>
+                                        <div style={{ fontSize: 10, color: '#ef4444', fontWeight: 700, marginBottom: 4 }}>EXPECTED</div>
+                                        <div style={{ fontFamily: 'monospace', fontSize: 20, color: '#ef4444', fontWeight: 900 }}>{expectedVal}</div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', color: '#ef4444', fontSize: 20, animation: 'pulse 0.5s infinite' }}>✗</div>
+                                    <div style={{ background: '#052e16', borderRadius: 8, padding: '8px 20px', border: '1px solid #22c55e66' }}>
+                                        <div style={{ fontSize: 10, color: '#22c55e', fontWeight: 700, marginBottom: 4 }}>ACTUAL</div>
+                                        <div style={{ fontFamily: 'monospace', fontSize: 20, color: '#22c55e', fontWeight: 900 }}>{statusCode}</div>
+                                    </div>
+                                </div>
+                                <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
+                                    {isTr ? `💡 .statusCode(${expectedVal}) yazdın ama sunucu ${statusCode} döndürüyor. Assertion'ı güncelle.` : `💡 You wrote .statusCode(${expectedVal}) but server returns ${statusCode}. Update your assertion.`}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes slideRight { from { left: -60%; } to { left: 100%; } }
+                @keyframes slideLeft { from { right: -60%; } to { right: 100%; } }
+            `}</style>
+        </div>
+    )
+}
+
+// ─── PythonMemoryVisualBlock ──────────────────────────────────────────────────
+
+function PythonMemoryVisualBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [step, setStep] = useState(-1)
+    const timersRef = useRef([])
+    const vars = block.variables || []
+    const TYPE_COLOR = { str: '#3b82f6', int: '#10b981', float: '#f59e0b', bool: '#8b5cf6', list: '#ec4899', dict: '#f97316', None: '#94a3b8' }
+
+    const runAnim = () => {
+        timersRef.current.forEach(clearTimeout)
+        setStep(-1)
+        vars.forEach((_, i) => { timersRef.current.push(setTimeout(() => setStep(i), 200 + i * 450)) })
+    }
+    useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
+
+    return (
+        <div style={{ margin: '24px 0', padding: '24px', background: darkMode ? '#060d1f' : '#eff6ff', borderRadius: 16, border: `1px solid ${darkMode ? '#1e40af' : '#bfdbfe'}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: darkMode ? '#e2e8f0' : '#1e293b' }}>
+                    🧠 {isTr ? (block.titleTr || 'Bellek Modeli') : (block.titleEn || 'Memory Model')}
+                </span>
+                <button onClick={runAnim} style={{ padding: '6px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+                    ▶ {isTr ? 'Çalıştır' : 'Run'}
+                </button>
+            </div>
+            <div style={{ padding: '10px 14px', background: darkMode ? '#1e293b' : '#fff', borderRadius: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, marginBottom: 16, overflowX: 'auto' }}>
+                {vars.map((v, i) => (
+                    <div key={i} style={{ lineHeight: 2 }}>
+                        <span style={{ color: step >= i ? '#93c5fd' : '#94a3b8' }}>{v.name}</span>
+                        <span style={{ color: '#64748b' }}> = </span>
+                        <span style={{ color: step >= i ? (TYPE_COLOR[v.type] || '#e2e8f0') : '#94a3b8' }}>{v.type === 'str' ? `"${v.value}"` : String(v.value)}</span>
+                        <span style={{ color: '#475569', fontSize: 11 }}>  # {v.type}</span>
+                    </div>
+                ))}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {vars.map((v, i) => {
+                    const c = TYPE_COLOR[v.type] || '#94a3b8'
+                    const active = step >= i
+                    return (
+                        <div key={i} style={{
+                            flex: '1 1 110px', minWidth: 100, textAlign: 'center', padding: '14px 10px',
+                            background: active ? (darkMode ? c + '22' : c + '12') : (darkMode ? '#1e293b' : '#f1f5f9'),
+                            border: `2px solid ${active ? c : (darkMode ? '#334155' : '#e2e8f0')}`,
+                            borderRadius: 12, opacity: step === -1 ? 0.4 : (active ? 1 : 0.3),
+                            transform: active ? 'translateY(0)' : 'translateY(10px)',
+                            transition: 'all 0.4s ease',
+                            boxShadow: active ? `0 4px 16px ${c}30` : 'none',
+                        }}>
+                            <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 4 }}>{v.type}</div>
+                            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 14, fontWeight: 800, color: active ? c : (darkMode ? '#475569' : '#94a3b8'), marginBottom: 4 }}>
+                                {v.type === 'str' ? `"${v.value}"` : String(v.value)}
+                            </div>
+                            <div style={{ fontSize: 12, color: darkMode ? '#94a3b8' : '#64748b', fontWeight: 600 }}>{v.name}</div>
+                            {v.desc && <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, lineHeight: 1.3 }}>{isTr && v.descTr ? v.descTr : v.desc}</div>}
+                        </div>
+                    )
+                })}
+            </div>
+            {step >= vars.length - 1 && (
+                <div style={{ marginTop: 14, padding: '8px 14px', background: '#10b98120', border: '1px solid #10b981', borderRadius: 8, fontSize: 13, color: '#10b981', fontWeight: 600 }}>
+                    ✓ {isTr ? `${vars.length} değişken RAM'e yazıldı` : `${vars.length} variables stored in memory`}
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ─── PythonCollectionVisualBlock ──────────────────────────────────────────────
+
+function PythonCollectionVisualBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const isDict = block.collectionType === 'dict'
+    const [listItems, setListItems] = useState(block.initial || [])
+    const [dictItems, setDictItems] = useState(block.initialDict || {})
+    const [flash, setFlash] = useState(null)
+    const [lastOp, setLastOp] = useState('')
+    const [lookupKey, setLookupKey] = useState('')
+    const [lookupResult, setLookupResult] = useState(null)
+    const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f97316', '#06b6d4', '#84cc16']
+
+    const doAppend = () => {
+        const pool = block.appendItems || ['new_item']
+        const newVal = pool[listItems.length % pool.length]
+        setListItems(p => [...p, newVal])
+        setLastOp(`list.append("${newVal}")`)
+        setFlash({ type: 'append', idx: listItems.length })
+        setTimeout(() => setFlash(null), 800)
+    }
+    const doPop = () => {
+        if (!listItems.length) return
+        const popped = listItems[listItems.length - 1]
+        setFlash({ type: 'pop', idx: listItems.length - 1 })
+        setTimeout(() => { setListItems(p => p.slice(0, -1)); setFlash(null) }, 500)
+        setLastOp(`list.pop() → "${popped}"`)
+    }
+    const doAddEntry = () => {
+        const e = block.newEntry || { key: 'new_key', value: 'new_val' }
+        setDictItems(p => ({ ...p, [e.key]: e.value }))
+        setLastOp(`dict["${e.key}"] = "${e.value}"`)
+        setFlash({ type: 'add', key: e.key })
+        setTimeout(() => setFlash(null), 800)
+    }
+    const doLookup = () => {
+        const k = lookupKey || (Object.keys(dictItems)[0] || '')
+        if (k in dictItems) setLookupResult({ key: k, value: dictItems[k], found: true })
+        else setLookupResult({ key: k, found: false })
+        setLastOp(`dict["${k}"]`)
+    }
+    const doReset = () => { setListItems(block.initial || []); setDictItems(block.initialDict || {}); setLastOp(''); setLookupResult(null); setFlash(null) }
+
+    return (
+        <div style={{ margin: '24px 0', padding: '24px', background: darkMode ? '#0f1a0a' : '#fefce8', borderRadius: 16, border: `1px solid ${darkMode ? '#3d4a00' : '#fde68a'}` }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: darkMode ? '#e2e8f0' : '#1e293b', marginBottom: 16 }}>
+                📦 {isTr ? (block.titleTr || 'Koleksiyon Görselleştirici') : (block.titleEn || 'Collection Visualizer')}
+                <span style={{ marginLeft: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#f59e0b' }}>{isDict ? 'dict {}' : 'list []'}</span>
+            </div>
+            {!isDict ? (
+                <>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', minHeight: 60, alignItems: 'center', marginBottom: 16 }}>
+                        {listItems.length === 0 && <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: 13 }}>{isTr ? '(boş liste)' : '(empty list)'}</span>}
+                        {listItems.map((item, idx) => {
+                            const isPop = flash?.type === 'pop' && flash?.idx === idx
+                            const isNew = flash?.type === 'append' && flash?.idx === idx
+                            return (
+                                <div key={idx} style={{
+                                    padding: '8px 14px', borderRadius: 8,
+                                    background: isNew ? '#f59e0b' : (COLORS[idx % COLORS.length] + (darkMode ? '33' : '18')),
+                                    border: `2px solid ${COLORS[idx % COLORS.length]}`,
+                                    fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700,
+                                    color: isNew ? '#000' : (darkMode ? '#e2e8f0' : '#1e293b'),
+                                    opacity: isPop ? 0.2 : 1,
+                                    transform: isPop ? 'scale(0.8) translateY(-8px)' : (isNew ? 'scale(1.12)' : 'scale(1)'),
+                                    transition: 'all 0.4s ease',
+                                }}>
+                                    <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 2 }}>[{idx}]</div>
+                                    {String(item)}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                        <button onClick={doAppend} style={{ padding: '7px 14px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>+ append()</button>
+                        <button onClick={doPop} disabled={!listItems.length} style={{ padding: '7px 14px', background: listItems.length ? '#ef4444' : '#94a3b8', color: '#fff', border: 'none', borderRadius: 8, cursor: listItems.length ? 'pointer' : 'default', fontWeight: 600, fontSize: 13 }}>– pop()</button>
+                        <button onClick={doReset} style={{ padding: '7px 14px', background: darkMode ? '#334155' : '#e2e8f0', color: darkMode ? '#e2e8f0' : '#1e293b', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>↺ reset</button>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                        {Object.entries(dictItems).map(([k, v], idx) => {
+                            const isHl = flash?.type === 'add' && flash?.key === k
+                            return (
+                                <div key={k} style={{
+                                    display: 'flex', alignItems: 'center',
+                                    background: isHl ? '#f59e0b20' : (darkMode ? '#1e293b' : '#fff'),
+                                    border: `2px solid ${isHl ? '#f59e0b' : COLORS[idx % COLORS.length]}`,
+                                    borderRadius: 10, overflow: 'hidden',
+                                    transform: isHl ? 'scale(1.02)' : 'scale(1)',
+                                    transition: 'all 0.4s ease',
+                                }}>
+                                    <div style={{ padding: '10px 16px', background: COLORS[idx % COLORS.length] + '22', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700, color: COLORS[idx % COLORS.length], minWidth: 100 }}>"{k}"</div>
+                                    <div style={{ padding: '0 8px', color: '#94a3b8', fontSize: 14, fontWeight: 700 }}>:</div>
+                                    <div style={{ padding: '10px 16px', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: darkMode ? '#e2e8f0' : '#1e293b' }}>{typeof v === 'string' ? `"${v}"` : String(v)}</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12, alignItems: 'center' }}>
+                        <button onClick={doAddEntry} style={{ padding: '7px 14px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>+ add entry</button>
+                        <input value={lookupKey} onChange={e => setLookupKey(e.target.value)} placeholder={isTr ? 'key ara...' : 'lookup key...'}
+                            style={{ padding: '7px 12px', border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 8, background: darkMode ? '#1e293b' : '#fff', color: darkMode ? '#e2e8f0' : '#1e293b', fontSize: 16, width: 120 }} />
+                        <button onClick={doLookup} style={{ padding: '7px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>dict[key]</button>
+                        <button onClick={doReset} style={{ padding: '7px 14px', background: darkMode ? '#334155' : '#e2e8f0', color: darkMode ? '#e2e8f0' : '#1e293b', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>↺ reset</button>
+                    </div>
+                    {lookupResult && (
+                        <div style={{ padding: '10px 14px', background: lookupResult.found ? '#10b98120' : '#ef444420', border: `1px solid ${lookupResult.found ? '#10b981' : '#ef4444'}`, borderRadius: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
+                            {lookupResult.found
+                                ? <span style={{ color: '#10b981' }}>✓ dict["{lookupResult.key}"] = "{lookupResult.value}"</span>
+                                : <span style={{ color: '#ef4444' }}>✗ KeyError: "{lookupResult.key}" not found</span>}
+                        </div>
+                    )}
+                </>
+            )}
+            {lastOp && (
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#f59e0b', padding: '6px 12px', background: '#f59e0b15', borderRadius: 6, marginTop: 8 }}>► {lastOp}</div>
+            )}
+        </div>
+    )
+}
+
+// ─── PythonFlowDiagramBlock ───────────────────────────────────────────────────
+
+function PythonFlowDiagramBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [activeStep, setActiveStep] = useState(-1)
+    const [running, setRunning] = useState(false)
+    const timersRef = useRef([])
+    const steps = block.steps || []
+    const COLORS = { action: '#3b82f6', condition: '#f59e0b', loop: '#8b5cf6', end: '#10b981', error: '#ef4444' }
+
+    const animate = () => {
+        timersRef.current.forEach(clearTimeout)
+        setActiveStep(-1); setRunning(true)
+        steps.forEach((_, i) => {
+            timersRef.current.push(setTimeout(() => {
+                setActiveStep(i)
+                if (i === steps.length - 1) setRunning(false)
+            }, i * 800))
+        })
+    }
+    useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
+
+    return (
+        <div style={{ margin: '24px 0', padding: '24px', background: darkMode ? '#0f0a1a' : '#fdf4ff', borderRadius: 16, border: `1px solid ${darkMode ? '#4a1d96' : '#e9d5ff'}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: darkMode ? '#e2e8f0' : '#1e293b' }}>
+                    🔀 {isTr ? (block.titleTr || 'Akış Diyagramı') : (block.titleEn || 'Execution Flow')}
+                </span>
+                <button onClick={animate} disabled={running} style={{ padding: '6px 16px', background: running ? '#475569' : '#8b5cf6', color: '#fff', border: 'none', borderRadius: 8, cursor: running ? 'default' : 'pointer', fontWeight: 600, fontSize: 13 }}>
+                    {running ? '⏳' : '▶'} {isTr ? 'Animasyon' : 'Animate'}
+                </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                {steps.map((s, i) => {
+                    const c = COLORS[s.type] || '#3b82f6'
+                    const isActive = activeStep >= i
+                    const isCurr = activeStep === i
+                    return (
+                        <Fragment key={i}>
+                            <div style={{
+                                width: '100%', maxWidth: 400, padding: '12px 18px', textAlign: 'center',
+                                background: isActive ? (darkMode ? c + '25' : c + '12') : (darkMode ? '#1e293b' : '#fff'),
+                                border: `2px solid ${isActive ? c : (darkMode ? '#334155' : '#e2e8f0')}`,
+                                borderRadius: s.type === 'condition' ? 24 : 10,
+                                opacity: activeStep === -1 ? 0.5 : (isActive ? 1 : 0.35),
+                                transition: 'all 0.4s ease',
+                                boxShadow: isCurr ? `0 0 20px ${c}50` : 'none',
+                            }}>
+                                <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 3 }}>{s.type}</div>
+                                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700, color: isActive ? c : (darkMode ? '#475569' : '#94a3b8') }}>{s.code}</div>
+                                {s.desc && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{isTr && s.descTr ? s.descTr : s.desc}</div>}
+                                {s.branch && isActive && (
+                                    <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: 11, padding: '3px 10px', background: '#10b98115', border: '1px solid #10b981', borderRadius: 20, color: '#10b981' }}>True → {s.branch.true}</span>
+                                        <span style={{ fontSize: 11, padding: '3px 10px', background: '#ef444415', border: '1px solid #ef4444', borderRadius: 20, color: '#ef4444' }}>False → {s.branch.false}</span>
+                                    </div>
+                                )}
+                            </div>
+                            {i < steps.length - 1 && (
+                                <div style={{ height: 24, width: 2, background: isActive ? c : (darkMode ? '#334155' : '#e2e8f0'), transition: 'background 0.4s', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+                                    <div style={{ position: 'absolute', bottom: -4, color: isActive ? c : (darkMode ? '#334155' : '#e2e8f0'), fontSize: 12 }}>▼</div>
+                                </div>
+                            )}
+                        </Fragment>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+// ─── PytestExecutionVisualBlock ───────────────────────────────────────────────
+
+function PytestExecutionVisualBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [phase, setPhase] = useState('idle')
+    const [visibleTests, setVisibleTests] = useState([])
+    const timersRef = useRef([])
+    const tests = block.tests || [
+        { name: 'test_login_success', result: 'pass' },
+        { name: 'test_invalid_credentials', result: 'pass' },
+        { name: 'test_empty_password', result: 'fail' },
+        { name: 'test_session_token', result: 'pass' },
+    ]
+    const PHASES = [
+        { key: 'collect', icon: '🔍', labelTr: 'Keşif', labelEn: 'Collection', descTr: 'test_*.py taranıyor', descEn: 'Scanning test_*.py', color: '#3b82f6' },
+        { key: 'setup', icon: '🔧', labelTr: 'Fixture', labelEn: 'Setup', descTr: 'conftest.py okunuyor', descEn: 'Loading fixtures', color: '#f59e0b' },
+        { key: 'run', icon: '▶', labelTr: 'Çalıştırma', labelEn: 'Execution', descTr: 'testler sırayla', descEn: 'Tests running', color: '#8b5cf6' },
+        { key: 'teardown', icon: '🧹', labelTr: 'Temizlik', labelEn: 'Teardown', descTr: 'kaynaklar kapatılıyor', descEn: 'Resources closed', color: '#f97316' },
+        { key: 'report', icon: '📊', labelTr: 'Rapor', labelEn: 'Report', descTr: 'sonuçlar yazılıyor', descEn: 'Results written', color: '#10b981' },
+    ]
+    const phaseKeys = ['idle', 'collect', 'setup', 'run', 'teardown', 'report']
+
+    const runPytest = () => {
+        timersRef.current.forEach(clearTimeout)
+        setPhase('idle'); setVisibleTests([])
+        timersRef.current.push(setTimeout(() => setPhase('collect'), 300))
+        timersRef.current.push(setTimeout(() => setPhase('setup'), 900))
+        timersRef.current.push(setTimeout(() => setPhase('run'), 1500))
+        tests.forEach((t, i) => { timersRef.current.push(setTimeout(() => setVisibleTests(p => [...p, t]), 2000 + i * 600)) })
+        timersRef.current.push(setTimeout(() => setPhase('teardown'), 2200 + tests.length * 600))
+        timersRef.current.push(setTimeout(() => setPhase('report'), 2900 + tests.length * 600))
+    }
+    useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
+
+    const phaseIdx = phaseKeys.indexOf(phase)
+    const passed = visibleTests.filter(t => t.result === 'pass').length
+    const failed = visibleTests.filter(t => t.result === 'fail').length
+
+    return (
+        <div style={{ margin: '24px 0', padding: '24px', background: darkMode ? '#061208' : '#f0fdf4', borderRadius: 16, border: `1px solid ${darkMode ? '#14532d' : '#bbf7d0'}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: darkMode ? '#e2e8f0' : '#1e293b' }}>
+                    🧪 {isTr ? (block.titleTr || 'pytest Yürütme Akışı') : (block.titleEn || 'pytest Execution Flow')}
+                </span>
+                <button onClick={runPytest} style={{ padding: '6px 16px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+                    ▶ pytest {isTr ? 'çalıştır' : 'run'}
+                </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 20, flexWrap: 'wrap' }}>
+                {PHASES.map((p, i) => {
+                    const active = phaseIdx > 0 && phaseKeys.indexOf(p.key) <= phaseIdx
+                    const curr = phase === p.key
+                    return (
+                        <Fragment key={p.key}>
+                            <div style={{
+                                flex: 1, minWidth: 78, padding: '12px 6px', textAlign: 'center',
+                                background: active ? (darkMode ? p.color + '25' : p.color + '12') : (darkMode ? '#1e293b' : '#fff'),
+                                border: `2px solid ${curr ? p.color : (active ? p.color + '80' : (darkMode ? '#334155' : '#e2e8f0'))}`,
+                                borderRadius: 10, transition: 'all 0.5s ease',
+                                boxShadow: curr ? `0 0 16px ${p.color}50` : 'none',
+                                opacity: phase === 'idle' ? 0.45 : (active ? 1 : 0.35),
+                            }}>
+                                <div style={{ fontSize: 20, marginBottom: 5 }}>{p.icon}</div>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: active ? p.color : '#94a3b8' }}>{isTr ? p.labelTr : p.labelEn}</div>
+                                <div style={{ fontSize: 9, color: '#64748b', marginTop: 2, lineHeight: 1.3 }}>{isTr ? p.descTr : p.descEn}</div>
+                            </div>
+                            {i < PHASES.length - 1 && <div style={{ padding: '0 3px', color: darkMode ? '#334155' : '#cbd5e1', fontSize: 14 }}>→</div>}
+                        </Fragment>
+                    )
+                })}
+            </div>
+            {visibleTests.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 8 }}>{isTr ? 'Test Sonuçları:' : 'Test Results:'}</div>
+                    {visibleTests.map((t, i) => (
+                        <div key={i} style={{
+                            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
+                            padding: '8px 14px',
+                            background: t.result === 'pass' ? '#10b98112' : '#ef444412',
+                            border: `1px solid ${t.result === 'pass' ? '#10b98150' : '#ef444450'}`,
+                            borderRadius: 8, animation: 'fadeInUp 0.3s ease',
+                        }}>
+                            <span style={{ fontSize: 15, color: t.result === 'pass' ? '#10b981' : '#ef4444' }}>{t.result === 'pass' ? '✓' : '✗'}</span>
+                            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: darkMode ? '#e2e8f0' : '#1e293b', flex: 1 }}>{t.name}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: t.result === 'pass' ? '#10b981' : '#ef4444' }}>{t.result.toUpperCase()}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {phase === 'report' && (
+                <div style={{ padding: '12px 16px', background: failed > 0 ? '#ef444412' : '#10b98112', border: `2px solid ${failed > 0 ? '#ef4444' : '#10b981'}`, borderRadius: 10, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 800, color: '#10b981', fontSize: 14 }}>✓ {passed} passed</span>
+                    {failed > 0 && <span style={{ fontWeight: 800, color: '#ef4444', fontSize: 14 }}>✗ {failed} failed</span>}
+                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#94a3b8' }}>{failed ? `FAILED — ${failed} errors` : 'ALL TESTS PASSED'}</span>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ─── LegoAnalogyCard ──────────────────────────────────────────────────────────
+
+function LegoAnalogyCard({ text, darkMode, language }) {
+    // Extract the analogy content without the prefix
+    const cleanText = text.replace(/^(LEGO ile anlatım:|LEGO analogy:)\s*/i, '')
+    
+    // Choose a color based on the text content hash
+    const colors = [
+        { bg: '#ef4444', text: '#ffffff', name: 'Red' }, // Red
+        { bg: '#3b82f6', text: '#ffffff', name: 'Blue' }, // Blue
+        { bg: '#f59e0b', text: '#1e293b', name: 'Yellow' }, // Yellow
+        { bg: '#10b981', text: '#ffffff', name: 'Green' }, // Green
+        { bg: '#8b5cf6', text: '#ffffff', name: 'Purple' }, // Purple
+        { bg: '#f97316', text: '#ffffff', name: 'Orange' }  // Orange
+    ]
+    
+    const getHash = (str) => {
+        let hash = 0
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash)
+        }
+        return Math.abs(hash)
+    }
+    const colorIndex = getHash(cleanText) % colors.length
+    const theme = colors[colorIndex]
+    
+    return (
+        <div className="my-6 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] group" style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.15))' }}>
+            {/* Studs/Bumps row at the top */}
+            <div style={{ display: 'flex', gap: '8px', paddingLeft: '16px', marginBottom: '-2px' }}>
+                {Array.from({ length: 6 }).map((_, idx) => (
+                    <div 
+                        key={idx} 
+                        style={{ 
+                            width: '16px', 
+                            height: '8px', 
+                            background: theme.bg, 
+                            borderRadius: '4px 4px 0 0',
+                            border: '2px solid rgba(0,0,0,0.18)',
+                            borderBottom: 'none',
+                            boxShadow: 'inset 0 2px 1px rgba(255,255,255,0.4)',
+                            transform: 'translateY(1px)'
+                        }} 
+                    />
+                ))}
+            </div>
+            
+            {/* Main LEGO Brick body */}
+            <div 
+                style={{ 
+                    background: theme.bg, 
+                    color: theme.text,
+                    border: '3px solid rgba(0,0,0,0.18)',
+                    borderRadius: '8px',
+                    boxShadow: 'inset 0 4px 0 rgba(255,255,255,0.35), inset 0 -5px 0 rgba(0,0,0,0.25), 0 8px 12px rgba(0,0,0,0.15)',
+                    padding: '16px 20px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Glossy overlay reflection */}
+                <div 
+                    style={{ 
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
+                        right: 0, 
+                        height: '50%', 
+                        background: 'linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)',
+                        pointerEvents: 'none'
+                    }} 
+                />
+                
+                {/* Content */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div 
+                        style={{ 
+                            fontSize: '28px', 
+                            background: 'rgba(255,255,255,0.2)', 
+                            borderRadius: '10px', 
+                            width: '46px', 
+                            height: '46px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+                            flexShrink: 0,
+                            border: '1.5px solid rgba(255,255,255,0.25)'
+                        }}
+                    >
+                        🧱
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.5px', opacity: 0.8, marginBottom: '4px', fontFamily: 'system-ui, sans-serif' }}>
+                            {language === 'tr' ? 'LEGO ANALOJİSİ' : 'LEGO ANALOGY'}
+                        </div>
+                        <p style={{ fontSize: '13.5px', fontWeight: 650, lineHeight: '1.55', margin: 0, fontFamily: 'system-ui, sans-serif' }}>
+                            {cleanText}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoVisualBlock ────────────────────────────────────────────────────────
+
+function TSLegoBumps({ color, count = 4 }) {
+    return (
+        <div style={{ display: 'flex', gap: 5, padding: '5px 10px 0' }}>
+            {Array.from({ length: count }, (_, i) => (
+                <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: color, border: '2px solid rgba(0,0,0,0.25)', boxShadow: '0 -2px 0 rgba(255,255,255,0.3) inset' }} />
+            ))}
+        </div>
+    )
+}
+
+function TSLegoTypeVsInterface({ isTr, darkMode }) {
+    const [demo, setDemo] = useState(null)
+    const [shake, setShake] = useState(false)
+
+    const doMerge = () => { setDemo('merge'); setShake(false) }
+    const doError = () => { setShake(true); setDemo('error'); setTimeout(() => setShake(false), 600) }
+    const reset = () => { setDemo(null); setShake(false) }
+
+    const ifc = { color: '#3b82f6', title: 'interface User', lines: ['email: string', 'role?: string', '// Extendable ✓'] }
+    const typ = { color: '#f97316', title: 'type Status', lines: ['"PASS" | "FAIL"', '"SKIP" | "BLOCKED"', '// Sealed 🔒'] }
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`
+                @keyframes ts-merge-in { from{opacity:0;transform:translateX(-24px) scale(0.9)} to{opacity:1;transform:none} }
+                @keyframes ts-shake { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-4deg) translateX(-4px)} 50%{transform:rotate(4deg) translateX(4px)} 70%{transform:rotate(-3deg)} }
+                @keyframes ts-glow-green { 0%,100%{box-shadow:0 0 0 transparent} 50%{box-shadow:0 0 20px #22c55e88} }
+            `}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 16, border: `2px solid ${darkMode ? '#334155' : '#e2e8f0'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#1e40af 0%,#3730a3 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🧩</span>
+                    <div>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{isTr ? 'LEGO ile Type vs Interface' : 'LEGO: Type vs Interface'}</div>
+                        <div style={{ fontSize: 11, color: '#bfdbfe' }}>{isTr ? 'Butonlara tıkla — farkı canlı gör!' : 'Click the buttons — see the difference live!'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 20 }}>
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 }}>
+                        {/* Interface piece */}
+                        <div style={{ flex: '0 0 auto' }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: ifc.color, textAlign: 'center', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>Interface</div>
+                            <div style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))', animation: demo === 'merge' ? 'ts-glow-green 1.5s ease' : 'none' }}>
+                                <TSLegoBumps color={ifc.color} />
+                                <div style={{ background: ifc.color, borderRadius: '0 0 8px 8px', padding: '10px 14px', minWidth: 148, border: '3px solid rgba(0,0,0,0.15)', boxShadow: 'inset 0 -4px 0 rgba(0,0,0,0.25)', position: 'relative' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 900, color: 'rgba(0,0,0,0.7)', marginBottom: 6, fontFamily: 'JetBrains Mono,monospace' }}>{ifc.title}</div>
+                                    {ifc.lines.map((l, i) => <div key={i} style={{ fontSize: 10, color: 'rgba(0,0,0,0.65)', lineHeight: 1.8 }}>{l}</div>)}
+                                    <div style={{ position: 'absolute', right: -10, top: '30%', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                        {[0,1,2].map(i => <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: ifc.color, border: '2px solid rgba(0,0,0,0.3)' }} />)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ fontSize: 10, color: darkMode ? '#64748b' : '#94a3b8', textAlign: 'center', marginTop: 6, maxWidth: 160 }}>🔗 {isTr ? 'Yan slotlar → birleşebilir!' : 'Side slots → can merge!'}</div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', fontSize: 18, fontWeight: 900, color: darkMode ? '#475569' : '#94a3b8', padding: '0 4px' }}>VS</div>
+
+                        {/* Type piece */}
+                        <div style={{ flex: '0 0 auto', animation: shake ? 'ts-shake .5s ease' : 'none' }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: typ.color, textAlign: 'center', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>Type Alias</div>
+                            <div style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }}>
+                                <TSLegoBumps color={typ.color} />
+                                <div style={{ background: typ.color, borderRadius: '0 0 8px 8px', padding: '10px 14px', minWidth: 148, border: '3px solid rgba(0,0,0,0.15)', boxShadow: 'inset 0 -4px 0 rgba(0,0,0,0.25)' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 900, color: 'rgba(0,0,0,0.7)', marginBottom: 6, fontFamily: 'JetBrains Mono,monospace' }}>{typ.title}</div>
+                                    {typ.lines.map((l, i) => <div key={i} style={{ fontSize: 10, color: 'rgba(0,0,0,0.65)', lineHeight: 1.8 }}>{l}</div>)}
+                                </div>
+                            </div>
+                            <div style={{ fontSize: 10, color: darkMode ? '#64748b' : '#94a3b8', textAlign: 'center', marginTop: 6, maxWidth: 160 }}>🔒 {isTr ? 'Solid plastik → yeniden açılamaz' : 'Solid plastic → sealed forever'}</div>
+                        </div>
+                    </div>
+
+                    {demo === 'merge' && (
+                        <div style={{ background: darkMode ? '#052e16' : '#f0fdf4', border: '2px solid #22c55e', borderRadius: 12, padding: 14, marginBottom: 14, animation: 'ts-merge-in .5s ease' }}>
+                            <div style={{ fontWeight: 800, color: '#22c55e', marginBottom: 8 }}>🎉 {isTr ? 'Declaration Merging başarılı!' : 'Declaration Merging works!'}</div>
+                            <pre style={{ fontSize: 11, color: darkMode ? '#86efac' : '#15803d', background: 'transparent', margin: 0, fontFamily: 'JetBrains Mono,monospace', lineHeight: 1.7 }}>{`interface User { email: string }\ninterface User { name: string }   // Same name — no error!\n// TypeScript AUTOMATICALLY merges:\n// → interface User { email: string; name: string }`}</pre>
+                        </div>
+                    )}
+                    {demo === 'error' && (
+                        <div style={{ background: darkMode ? '#2d0000' : '#fef2f2', border: '2px solid #ef4444', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                            <div style={{ fontWeight: 800, color: '#ef4444', marginBottom: 8 }}>⚡ {isTr ? 'Cızz! Type alias yeniden açılamaz!' : 'Buzz! Type alias cannot be reopened!'}</div>
+                            <pre style={{ fontSize: 11, color: darkMode ? '#fca5a5' : '#dc2626', background: 'transparent', margin: 0, fontFamily: 'JetBrains Mono,monospace', lineHeight: 1.7 }}>{`type Status = "PASS" | "FAIL";\ntype Status = "SKIP";   // ❌ Error: Duplicate identifier\n// Kare parça → Yuvarlak deliğe SIĞMAZ 🔲 ≠ ⭕`}</pre>
+                            <div style={{ display: 'flex', gap: 3, marginTop: 8, alignItems: 'center' }}>
+                                {Array.from({ length: 6 }, (_, i) => <div key={i} style={{ width: 8, height: i % 2 === 0 ? 18 : 7, background: '#ef4444', borderRadius: 2, opacity: 0.85 }} />)}
+                                <span style={{ fontSize: 12, fontWeight: 800, color: '#ef4444', marginLeft: 6 }}>⚡ Cızz!</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button onClick={doMerge} style={{ border: 0, borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: '#3b82f6', color: '#fff' }}>🔗 {isTr ? 'Interface Merge Göster' : 'Show Interface Merge'}</button>
+                        <button onClick={doError} style={{ border: 0, borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: '#f97316', color: '#fff' }}>🔒 {isTr ? 'Type Yeniden Açmayı Dene' : 'Try to Reopen Type'}</button>
+                        {demo && <button onClick={reset} style={{ border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: 'transparent', color: darkMode ? '#94a3b8' : '#6b7280' }}>↺</button>}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TSLegoGenericsFactory({ isTr, darkMode }) {
+    const [sel, setSel] = useState(null)
+    const [running, setRunning] = useState(false)
+    const [out, setOut] = useState(null)
+
+    const PIECES = [
+        { id: 'string',  label: '"hello"', color: '#3b82f6', typeLabel: 'string',  result: 'Box<string>',  ex: 'box.get() → "hello"' },
+        { id: 'number',  label: '42',      color: '#f59e0b', typeLabel: 'number',  result: 'Box<number>',  ex: 'box.get() → 42' },
+        { id: 'boolean', label: 'true',    color: '#22c55e', typeLabel: 'boolean', result: 'Box<boolean>', ex: 'box.get() → true' },
+    ]
+
+    const pick = (p) => {
+        if (running) return
+        setSel(p.id); setOut(null); setRunning(true)
+        setTimeout(() => { setOut(p); setRunning(false) }, 900)
+    }
+
+    const active = PIECES.find(p => p.id === sel)
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`
+                @keyframes ts-gear { to{transform:rotate(360deg)} }
+                @keyframes ts-pop { 0%{transform:scale(0) rotate(-15deg);opacity:0} 70%{transform:scale(1.1) rotate(2deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+                @keyframes ts-fly { 0%{transform:translateX(-20px);opacity:0} 100%{transform:none;opacity:1} }
+            `}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 16, border: `2px solid ${darkMode ? '#334155' : '#e2e8f0'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#6d28d9 0%,#4c1d95 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🏭</span>
+                    <div>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{isTr ? 'Generics Fabrikası — Şeffaf Kalıp' : 'Generics Factory — Transparent Mold'}</div>
+                        <div style={{ fontSize: 11, color: '#ddd6fe' }}>{isTr ? 'Kalıba ne atarsan, o tipi üretir — tıpkı Java\'daki List<T> gibi!' : 'Whatever you put in the mold, it produces that type — just like Java\'s List<T>!'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {/* Input pieces */}
+                        <div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#6b7280', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center', marginBottom: 8 }}>{isTr ? 'Değer Seç' : 'Pick a Value'}</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                {PIECES.map(p => (
+                                    <button key={p.id} onClick={() => pick(p)} disabled={running}
+                                        style={{ border: `2px solid ${p.color}`, borderRadius: 8, padding: '6px 16px', fontSize: 13, fontWeight: 800, cursor: running ? 'wait' : 'pointer', background: sel === p.id ? p.color : 'transparent', color: sel === p.id ? '#fff' : p.color, transition: 'all .2s', opacity: running && sel !== p.id ? 0.4 : 1, fontFamily: 'JetBrains Mono,monospace' }}>
+                                        {p.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div style={{ fontSize: 20, color: darkMode ? '#475569' : '#cbd5e1', flexShrink: 0 }}>→</div>
+                        {/* Mold */}
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{isTr ? 'Kalıp' : 'Mold'}</div>
+                            <div style={{ width: 90, height: 80, border: `3px dashed ${active ? active.color : (darkMode ? '#475569' : '#cbd5e1')}`, borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: active ? active.color + '11' : 'transparent', transition: 'all .4s' }}>
+                                {running
+                                    ? <span style={{ fontSize: 28, display: 'inline-block', animation: 'ts-gear 1s linear infinite' }}>⚙️</span>
+                                    : <Fragment>
+                                        <span style={{ fontSize: 20, fontWeight: 900, color: active ? active.color : (darkMode ? '#475569' : '#94a3b8') }}>{'<T>'}</span>
+                                        {active && <span style={{ fontSize: 9, fontWeight: 700, color: active.color, animation: 'ts-fly .3s ease' }}>T={active.typeLabel}</span>}
+                                    </Fragment>
+                                }
+                            </div>
+                        </div>
+                        <div style={{ fontSize: 20, color: darkMode ? '#475569' : '#cbd5e1', flexShrink: 0 }}>→</div>
+                        {/* Output */}
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{isTr ? 'Çıktı' : 'Output'}</div>
+                            <div style={{ width: 90, height: 80, border: `3px solid ${out ? out.color : (darkMode ? '#475569' : '#cbd5e1')}`, borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: out ? out.color + '22' : 'transparent', transition: 'all .3s', animation: out ? 'ts-pop .6s ease' : 'none' }}>
+                                {out
+                                    ? <Fragment>
+                                        <TSLegoBumps color={out.color} count={3} />
+                                        <span style={{ fontSize: 9, fontWeight: 900, color: out.color, textAlign: 'center', padding: '0 4px', lineHeight: 1.3 }}>{out.result}</span>
+                                    </Fragment>
+                                    : <span style={{ fontSize: 14, color: darkMode ? '#475569' : '#94a3b8' }}>?</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    {out && !running && (
+                        <div style={{ marginTop: 14, background: darkMode ? '#1e1b4b' : '#f5f3ff', border: `2px solid ${out.color}`, borderRadius: 10, padding: 12, animation: 'ts-fly .4s ease' }}>
+                            <div style={{ fontWeight: 800, color: out.color, marginBottom: 6 }}>✅ {out.result} {isTr ? 'oluşturuldu!' : 'created!'}</div>
+                            <pre style={{ fontSize: 11, color: darkMode ? out.color : '#4c1d95', background: 'transparent', margin: 0, fontFamily: 'JetBrains Mono,monospace', lineHeight: 1.7 }}>{`const box = new Box<${out.typeLabel}>(${out.label});\n${out.ex}`}</pre>
+                        </div>
+                    )}
+                    <div style={{ marginTop: 12, fontSize: 11, color: darkMode ? '#64748b' : '#94a3b8', textAlign: 'center' }}>
+                        💡 {isTr ? 'Aynı kalıp, farklı tipler — Generics\'in gücü bu!' : 'Same mold, different types — the power of Generics!'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoArraysVisual ────────────────────────────────────────────────────────
+function TSLegoArraysVisual({ isTr, darkMode }) {
+    const [items, setItems] = useState(['📧 "test1"', '🔑 "test2"', '✅ "test3"'])
+    const [log, setLog] = useState(null)
+    const [errShake, setErrShake] = useState(false)
+
+    const push = () => {
+        const v = `📌 "item${items.length + 1}"`
+        setItems(p => [...p, v])
+        setLog({ text: `push("item${items.length + 1}") ✅ → length: ${items.length + 1}`, ok: true })
+    }
+    const pop = () => {
+        if (!items.length) return
+        const removed = items[items.length - 1]
+        setItems(p => p.slice(0, -1))
+        setLog({ text: `pop() → ${removed} removed`, ok: true })
+    }
+    const bad = () => {
+        setErrShake(true)
+        setLog({ text: `push(42) ❌  Type 'number' is not assignable to type 'string'`, ok: false })
+        setTimeout(() => setErrShake(false), 600)
+    }
+    const reset = () => { setItems(['📧 "test1"', '🔑 "test2"', '✅ "test3"']); setLog(null) }
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-arr-in{from{transform:scale(0.5) translateY(-6px);opacity:0}to{transform:none;opacity:1}} @keyframes ts-arr-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#eff6ff', borderRadius: 14, border: `2px solid ${darkMode ? '#1e3a5f' : '#bfdbfe'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#0369a1,#0284c7)', padding: '11px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>📚</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'TypeScript Array — Canlı Demo' : 'TypeScript Array — Live Demo'}</div>
+                        <div style={{ fontSize: 10, color: '#bae6fd' }}>{isTr ? 'let arr: string[] — sadece string kabul eder!' : 'let arr: string[] — only strings allowed!'}</div>
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#bae6fd', fontFamily: 'JetBrains Mono,monospace' }}>length: {items.length}</div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: darkMode ? '#64748b' : '#94a3b8', marginBottom: 8 }}>
+                        {'let arr: '}<span style={{ color: '#f59e0b' }}>string</span>{'[] = [...]'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', minHeight: 42, background: darkMode ? '#1e293b' : '#fff', borderRadius: 8, padding: 8, border: `2px solid ${errShake ? '#ef4444' : (darkMode ? '#334155' : '#dbeafe')}`, transition: 'border-color .3s', animation: errShake ? 'ts-arr-shake .5s ease' : 'none', marginBottom: 10 }}>
+                        {items.map((v, i) => (
+                            <div key={i} style={{ background: '#3b82f6', color: '#fff', borderRadius: 6, padding: '4px 9px', fontSize: 10, fontWeight: 700, fontFamily: 'JetBrains Mono,monospace', animation: 'ts-arr-in .3s ease' }}>
+                                [{i}] {v}
+                            </div>
+                        ))}
+                        {!items.length && <span style={{ fontSize: 10, color: '#94a3b8' }}>[ ] — {isTr ? 'boş' : 'empty'}</span>}
+                    </div>
+                    {log && (
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, padding: '6px 10px', borderRadius: 6, marginBottom: 10, background: log.ok ? '#22c55e22' : '#ef444422', color: log.ok ? '#22c55e' : '#ef4444', animation: 'ts-arr-in .3s ease' }}>
+                            › {log.text}
+                        </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button onClick={push} style={{ border: 0, borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 800, cursor: 'pointer', background: '#22c55e', color: '#fff' }}>+ push()</button>
+                        <button onClick={pop} disabled={!items.length} style={{ border: 0, borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 800, cursor: items.length ? 'pointer' : 'not-allowed', background: '#f59e0b', color: '#fff', opacity: items.length ? 1 : 0.5 }}>− pop()</button>
+                        <button onClick={bad} style={{ border: 0, borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 800, cursor: 'pointer', background: '#ef4444', color: '#fff' }}>push(42) ⚡</button>
+                        <button onClick={reset} style={{ border: `1px solid ${darkMode ? '#334155' : '#dbeafe'}`, borderRadius: 6, padding: '5px 10px', fontSize: 11, cursor: 'pointer', background: 'transparent', color: darkMode ? '#94a3b8' : '#6b7280' }}>↺</button>
+                    </div>
+                    <div style={{ marginTop: 8, fontSize: 10, color: darkMode ? '#475569' : '#94a3b8' }}>
+                        💡 {isTr ? 'push(42) hata verir: "number" tipi "string[]"\'e atanamaz. TypeScript bunu derleme sırasında yakalar.' : 'push(42) errors: type "number" not assignable to "string[]". TypeScript catches this at compile time, not runtime.'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoEnumsVisual ─────────────────────────────────────────────────────────
+function TSLegoEnumsVisual({ isTr, darkMode }) {
+    const [mode, setMode] = useState('string')
+    const [selected, setSelected] = useState(null)
+
+    const allItems = {
+        string: [{ name: 'PASS', value: '"PASS"', color: '#22c55e' }, { name: 'FAIL', value: '"FAIL"', color: '#ef4444' }, { name: 'SKIP', value: '"SKIP"', color: '#f59e0b' }],
+        numeric: [{ name: 'PASS', value: '0', color: '#22c55e' }, { name: 'FAIL', value: '1', color: '#ef4444' }, { name: 'SKIP', value: '2', color: '#f59e0b' }],
+    }
+    const current = allItems[mode]
+    const sel = selected ? current.find(i => i.name === selected) : null
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-enum-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#f0fdf4', borderRadius: 14, border: `2px solid ${darkMode ? '#14532d' : '#bbf7d0'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#065f46,#059669)', padding: '11px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>🎯</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Enum — String vs Numeric Karşılaştırma' : 'Enum — String vs Numeric Comparison'}</div>
+                        <div style={{ fontSize: 10, color: '#a7f3d0' }}>{isTr ? "Log'da ne görürsün? Hangisi daha okunabilir?" : 'What appears in your logs? Which is more readable?'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                        {[['string', '✅ String Enum', '#059669'], ['numeric', '⚠️ Numeric Enum', '#dc2626']].map(([m, label, col]) => (
+                            <button key={m} onClick={() => { setMode(m); setSelected(null) }}
+                                style={{ flex: 1, border: 0, borderRadius: 8, padding: '7px', fontSize: 11, fontWeight: 800, cursor: 'pointer', background: mode === m ? col : (darkMode ? '#1e293b' : '#e2e8f0'), color: mode === m ? '#fff' : (darkMode ? '#94a3b8' : '#6b7280') }}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '8px 12px', marginBottom: 12, color: '#94a3b8' }}>
+                        {'enum TestStatus { '}
+                        {mode === 'string'
+                            ? <Fragment>PASS = <span style={{ color: '#22c55e' }}>"PASS"</span>, FAIL = <span style={{ color: '#ef4444' }}>"FAIL"</span>, SKIP = <span style={{ color: '#f59e0b' }}>"SKIP"</span></Fragment>
+                            : <Fragment>PASS = <span style={{ color: '#ef4444' }}>0</span>, FAIL = <span style={{ color: '#ef4444' }}>1</span>, SKIP = <span style={{ color: '#ef4444' }}>2</span></Fragment>
+                        }
+                        {' }'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                        {current.map(item => (
+                            <button key={item.name} onClick={() => setSelected(item.name)}
+                                style={{ flex: 1, border: `2px solid ${item.color}`, borderRadius: 8, padding: '8px 4px', fontSize: 12, fontWeight: 900, cursor: 'pointer', background: selected === item.name ? item.color : 'transparent', color: selected === item.name ? '#fff' : item.color, transition: 'all .2s' }}>
+                                {item.name}
+                            </button>
+                        ))}
+                    </div>
+                    {sel && (
+                        <div style={{ background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '8px 12px', animation: 'ts-enum-in .3s ease' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', marginBottom: 4 }}>{isTr ? '// console.log çıktısı:' : '// console.log output:'}</div>
+                            <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 12, color: mode === 'numeric' ? '#f87171' : '#22c55e', fontWeight: 700 }}>
+                                console.log(status) → {sel.value}
+                            </div>
+                            <div style={{ marginTop: 6, fontSize: 10, color: mode === 'numeric' ? '#f59e0b' : '#22c55e' }}>
+                                {mode === 'numeric'
+                                    ? (isTr ? `⚠️ "${sel.value}" ne anlama geliyor? Test geçti mi? String enum kullan!` : `⚠️ "${sel.value}" — what does it mean? Use string enum!`)
+                                    : (isTr ? `✅ "${sel.value}" — log'da direkt okunabilir, açıklama gerekmez.` : `✅ "${sel.value}" — directly readable in logs, no extra lookup needed.`)
+                                }
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoFunctionsVisual ─────────────────────────────────────────────────────
+function TSLegoFunctionsVisual({ isTr, darkMode }) {
+    const [roleOn, setRoleOn] = useState(false)
+    const [activeOn, setActiveOn] = useState(false)
+
+    const callStr = `createTestUser("admin@test.com"${roleOn ? ', "admin"' : ''}${activeOn ? ', false' : ''})`
+    const resultStr = `{ email: "admin@test.com", role: "${roleOn ? 'admin' : 'user'}", active: ${activeOn ? 'false' : 'true'} }`
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-fn-in{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#fdf4ff', borderRadius: 14, border: `2px solid ${darkMode ? '#5b2163' : '#e879f9'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#7e22ce,#9333ea)', padding: '11px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>⚙️</span>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Fonksiyon — Opsiyonel Parametreler' : 'Function — Optional Parameters'}</div>
+                        <div style={{ fontSize: 10, color: '#e9d5ff' }}>{isTr ? 'Parametreleri aç/kapat — çağrıyı canlı gör!' : 'Toggle parameters — see the call update live!'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '8px 12px', marginBottom: 12, lineHeight: 1.9, color: '#94a3b8' }}>
+                        <span style={{ color: '#3b82f6' }}>function</span>{' createTestUser('}<br />
+                        {'  '}<span style={{ color: '#22c55e' }}>email</span>{': '}<span style={{ color: '#f59e0b' }}>string</span>{','}
+                        <span style={{ fontSize: 9, color: '#475569', fontStyle: 'italic' }}> {isTr ? '// zorunlu' : '// required'}</span><br />
+                        {'  '}<span style={{ color: roleOn ? '#c084fc' : '#475569' }}>role</span>{'?: '}<span style={{ color: '#f59e0b' }}>string</span>{' = '}<span style={{ color: '#22c55e' }}>"user"</span>{','}
+                        <span style={{ fontSize: 9, color: '#475569', fontStyle: 'italic' }}> {isTr ? '// opsiyonel' : '// optional'}</span><br />
+                        {'  '}<span style={{ color: activeOn ? '#c084fc' : '#475569' }}>active</span>{'?: '}<span style={{ color: '#f59e0b' }}>boolean</span>{' = '}<span style={{ color: '#22c55e' }}>true</span>
+                        <span style={{ fontSize: 9, color: '#475569', fontStyle: 'italic' }}> {isTr ? '// opsiyonel' : '// optional'}</span><br />
+                        {')'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                        {[{ label: 'role?: string', on: roleOn, set: setRoleOn }, { label: 'active?: boolean', on: activeOn, set: setActiveOn }].map(({ label, on, set }) => (
+                            <button key={label} onClick={() => set(p => !p)}
+                                style={{ flex: 1, border: '2px solid #c084fc', borderRadius: 8, padding: '7px', fontSize: 11, fontWeight: 800, cursor: 'pointer', background: on ? '#c084fc' : 'transparent', color: on ? '#fff' : '#c084fc', transition: 'all .2s' }}>
+                                {on ? '✓ ' : '+ '}{label}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ background: darkMode ? '#1e1b4b' : '#f5f3ff', border: '1px solid #c084fc44', borderRadius: 8, padding: '10px 12px', animation: 'ts-fn-in .3s ease' }}>
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 4 }}>{isTr ? '// Çağrı:' : '// Call:'}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#c084fc', fontWeight: 700, wordBreak: 'break-all', marginBottom: 8 }}>{callStr}</div>
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 4 }}>{isTr ? '// Sonuç:' : '// Result:'}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#22c55e', fontWeight: 700, wordBreak: 'break-all' }}>{resultStr}</div>
+                    </div>
+                    <div style={{ marginTop: 8, fontSize: 10, color: darkMode ? '#475569' : '#94a3b8' }}>
+                        💡 {isTr ? '? işaretli parametreler geçilmezse default değer kullanılır. Java\'da ise overloaded method yazman gerekirdi.' : 'Params with ? use their default if omitted. In Java you\'d need overloaded methods for each combination.'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoClassesVisual ───────────────────────────────────────────────────────
+function TSLegoClassesVisual({ isTr, darkMode }) {
+    const [show, setShow] = useState('java')
+
+    const javaCode = `// Java — 3 adım gerekli\nclass User {\n  private String email;       // 1) field tanımla\n  private String role;\n\n  User(String email, String role) {\n    this.email = email;       // 2) ata\n    this.role = role;         // 3) ata\n  }\n}`
+    const tsCode = `// TypeScript — 1 adım yeterli ✨\nclass User {\n  constructor(\n    public email: string,   // field + atama tek satır!\n    public role: string = "user"\n  ) {}   // boş constructor gövdesi\n}`
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-cls-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#fff7ed', borderRadius: 14, border: `2px solid ${darkMode ? '#431407' : '#fed7aa'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#9a3412,#c2410c)', padding: '11px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>🏗️</span>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Class — Constructor Shorthand (Java vs TypeScript)' : 'Class — Constructor Shorthand (Java vs TypeScript)'}</div>
+                        <div style={{ fontSize: 10, color: '#fed7aa' }}>{isTr ? "Java'daki 3 adım → TypeScript'te 1 adım!" : "Java's 3 steps → TypeScript's 1 step!"}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                        {[['java', '☕ Java', '#c2410c'], ['ts', '🔷 TypeScript', '#3b82f6'], ['both', isTr ? '⚖️ Karşılaştır' : '⚖️ Compare', '#7c3aed']].map(([id, label, color]) => (
+                            <button key={id} onClick={() => setShow(id)}
+                                style={{ flex: 1, border: 0, borderRadius: 8, padding: '7px', fontSize: 11, fontWeight: 800, cursor: 'pointer', background: show === id ? color : (darkMode ? '#1e293b' : '#f1f5f9'), color: show === id ? '#fff' : (darkMode ? '#94a3b8' : '#6b7280') }}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    {show === 'both' ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            {[['☕ Java', '#c2410c', javaCode], ['🔷 TypeScript', '#3b82f6', tsCode]].map(([label, color, code]) => (
+                                <div key={label}>
+                                    <div style={{ fontSize: 10, fontWeight: 800, color, marginBottom: 4 }}>{label}</div>
+                                    <pre style={{ fontSize: 9, color: '#94a3b8', background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '8px 10px', margin: 0, overflowX: 'auto', lineHeight: 1.7, fontFamily: 'JetBrains Mono,monospace' }}>{code}</pre>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <pre style={{ fontSize: 10, color: '#94a3b8', background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '10px 12px', margin: 0, overflowX: 'auto', lineHeight: 1.8, fontFamily: 'JetBrains Mono,monospace', animation: 'ts-cls-in .3s ease' }}>
+                            {show === 'java' ? javaCode : tsCode}
+                        </pre>
+                    )}
+                    <div style={{ marginTop: 8, fontSize: 10, color: darkMode ? '#475569' : '#94a3b8' }}>
+                        💡 {isTr ? 'constructor parametresine public/private/readonly eklemek hem field tanımı hem atamayı birleştirir. Java\'da bu 3 farklı satır gerektirirdi.' : 'Adding public/private/readonly to constructor params combines field declaration and assignment. In Java this required 3 separate lines.'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSLegoUtilityVisual ───────────────────────────────────────────────────────
+function TSLegoUtilityVisual({ isTr, darkMode }) {
+    const fields = [
+        { name: 'id', type: 'number' },
+        { name: 'name', type: 'string' },
+        { name: 'status', type: '"PASS"|"FAIL"' },
+        { name: 'duration', type: 'number' },
+        { name: 'tags', type: 'string[]' },
+    ]
+    const MODES = [
+        { id: 'original', label: 'TestCase', color: '#64748b', apply: f => ({ ...f, optional: false, hidden: false, readonly: false }), desc: { tr: 'Orijinal interface — tüm alanlar zorunlu.', en: 'Original interface — all fields required.' } },
+        { id: 'partial', label: 'Partial<T>', color: '#3b82f6', apply: f => ({ ...f, optional: true, hidden: false, readonly: false }), desc: { tr: 'Tüm alanlar opsiyonel (?). PATCH için ideal!', en: 'All fields optional (?). Ideal for PATCH!' } },
+        { id: 'pick', label: 'Pick<T,"id"|"name">', color: '#22c55e', apply: f => ({ ...f, optional: false, hidden: !['id', 'name'].includes(f.name), readonly: false }), desc: { tr: 'Sadece id ve name kalır.', en: 'Only id and name remain.' } },
+        { id: 'omit', label: 'Omit<T,"tags">', color: '#f59e0b', apply: f => ({ ...f, optional: false, hidden: f.name === 'tags', readonly: false }), desc: { tr: 'tags alanı çıkarılır.', en: 'The tags field is removed.' } },
+        { id: 'readonly', label: 'Readonly<T>', color: '#8b5cf6', apply: f => ({ ...f, optional: false, hidden: false, readonly: true }), desc: { tr: 'Tüm alanlar salt okunur.', en: 'All fields readonly — cannot be mutated.' } },
+    ]
+    const [modeId, setModeId] = useState('original')
+    const active = MODES.find(m => m.id === modeId)
+    const shown = fields.map(active.apply)
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-util-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#f8f0fe', borderRadius: 14, border: `2px solid ${darkMode ? '#4c1d95' : '#ddd6fe'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#4c1d95,#6d28d9)', padding: '11px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>🔧</span>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Utility Types — Canlı Dönüştürücü' : 'Utility Types — Live Transformer'}</div>
+                        <div style={{ fontSize: 10, color: '#ddd6fe' }}>{isTr ? "Bir tip seç — TestCase'in nasıl dönüştüğünü gör!" : "Select a utility — see how TestCase transforms!"}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>
+                        {MODES.map(m => (
+                            <button key={m.id} onClick={() => setModeId(m.id)}
+                                style={{ border: `2px solid ${m.color}`, borderRadius: 7, padding: '5px 9px', fontSize: 10, fontWeight: 800, cursor: 'pointer', background: modeId === m.id ? m.color : 'transparent', color: modeId === m.id ? '#fff' : m.color, fontFamily: 'JetBrains Mono,monospace', transition: 'all .2s' }}>
+                                {m.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ background: active.color + '22', border: `1px solid ${active.color}55`, borderRadius: 8, padding: '6px 10px', marginBottom: 10, fontSize: 10, fontWeight: 700, color: active.color }}>
+                        ✨ {isTr ? active.desc.tr : active.desc.en}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {shown.map(f => (
+                            <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 7, background: f.hidden ? '#ef444411' : (active.id !== 'original' ? active.color + '11' : (darkMode ? '#1e293b' : '#f8fafc')), border: `1px solid ${f.hidden ? '#ef444433' : (active.id !== 'original' ? active.color + '33' : (darkMode ? '#334155' : '#e2e8f0'))}`, opacity: f.hidden ? 0.3 : 1, transition: 'all .35s', fontFamily: 'JetBrains Mono,monospace', animation: 'ts-util-in .3s ease' }}>
+                                {f.hidden && <span style={{ fontSize: 11 }}>🚫</span>}
+                                {f.readonly && !f.hidden && <span style={{ fontSize: 9, color: '#8b5cf6', fontWeight: 800 }}>readonly{' '}</span>}
+                                <span style={{ fontSize: 10, color: active.id !== 'original' ? active.color : (darkMode ? '#94a3b8' : '#1e293b'), fontWeight: 700 }}>{f.name}</span>
+                                {f.optional && !f.hidden && <span style={{ fontSize: 10, color: '#3b82f6' }}>?</span>}
+                                <span style={{ fontSize: 10, color: '#64748b' }}>:</span>
+                                <span style={{ fontSize: 10, color: '#f59e0b', marginLeft: 4 }}>{f.type}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TSLegoConstructorVisual({ isTr, darkMode }) {
+    const [step, setStep] = useState(-1)
+    const [running, setRunning] = useState(false)
+    const cProps = [
+        { name: 'brand', value: '"Toyota"', color: '#3b82f6' },
+        { name: 'model', value: '"Corolla"', color: '#22c55e' },
+        { name: 'year', value: '2024', color: '#f59e0b' },
+        { name: 'running', value: 'false', color: '#8b5cf6' },
+    ]
+    const build = () => {
+        if (running) return
+        setStep(-1)
+        setRunning(true)
+        cProps.forEach((_, i) => {
+            setTimeout(() => {
+                setStep(i)
+                if (i === cProps.length - 1) setTimeout(() => setRunning(false), 200)
+            }, (i + 1) * 550)
+        })
+    }
+    const reset = () => { setStep(-1); setRunning(false) }
+    const done = step >= cProps.length - 1 && !running
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-ctor-in{from{transform:translateX(-24px) scale(0.85);opacity:0}to{transform:none;opacity:1}} @keyframes ts-ctor-pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#fffbeb', borderRadius: 14, border: '2px solid #f59e0b', overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#78350f,#b45309)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🚗</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Constructor — Araba Fabrikası Analojisi' : 'Constructor — Car Factory Analogy'}</div>
+                        <div style={{ fontSize: 10, color: '#fde68a' }}>{isTr ? '"new Car()" çalıştır — constructor property\'leri tek tek bağlar!' : 'Run "new Car()" — watch the constructor bind properties one by one!'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+                        {[
+                            ['📋', isTr ? 'Class = Plan' : 'Class = Blueprint', isTr ? "Arabanın teknik çizimi — tek başına araba değil" : "The car's blueprint — not the car itself"],
+                            ['🏭', isTr ? 'Constructor = Fabrika' : 'Constructor = Factory', isTr ? 'Planı alıp araba üreten hat' : 'Takes the blueprint and assembles the car'],
+                            ['🚗', isTr ? 'Object = Araba' : 'Object = The Car', isTr ? 'Fabrikadan çıkan gerçek ürün' : 'The real product that comes out'],
+                        ].map(([emoji, title, desc]) => (
+                            <div key={title} style={{ background: darkMode ? '#1e293b' : '#fff', border: `1px solid ${darkMode ? '#334155' : '#fde68a'}`, borderRadius: 8, padding: 8, textAlign: 'center' }}>
+                                <div style={{ fontSize: 22, marginBottom: 4 }}>{emoji}</div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: '#b45309', marginBottom: 3 }}>{title}</div>
+                                <div style={{ fontSize: 9, color: darkMode ? '#64748b' : '#92400e', lineHeight: 1.4 }}>{desc}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'center', marginBottom: 14 }}>
+                        <div style={{ border: '2px dashed #94a3b8', borderRadius: 10, padding: 10, background: darkMode ? '#1e293b' : '#f8fafc' }}>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', marginBottom: 6 }}>📋 CLASS BLUEPRINT</div>
+                            <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.8, color: darkMode ? '#94a3b8' : '#475569' }}>
+                                <div>{`class Car {`}</div>
+                                <div>{`  constructor(`}</div>
+                                {cProps.map((p, i) => (
+                                    <div key={p.name} style={{ color: step >= i ? p.color : 'inherit', fontWeight: step >= i ? 800 : 400, transition: 'color .3s', paddingLeft: 8 }}>
+                                        {'    public '}{p.name}{','}
+                                    </div>
+                                ))}
+                                <div>{`  ) {}`}</div>
+                                <div>{'}'}</div>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                            <div style={{ fontSize: 22, animation: running ? 'ts-ctor-pulse 1s infinite' : 'none' }}>
+                                {running ? '⚙️' : done ? '✅' : '➡️'}
+                            </div>
+                        </div>
+                        <div style={{ border: `2px solid ${done ? '#22c55e' : (darkMode ? '#334155' : '#e2e8f0')}`, borderRadius: 10, padding: 10, minHeight: 110, background: done ? (darkMode ? '#052e16' : '#f0fdf4') : (darkMode ? '#1e293b' : '#f8fafc'), transition: 'all .4s' }}>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: done ? '#22c55e' : '#94a3b8', marginBottom: 6 }}>
+                                {done ? '🚗 ' : '🔲 '}{isTr ? 'Nesne (Object)' : 'Object'}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                {cProps.map((p, i) => (
+                                    <div key={p.name} style={{ display: 'flex', gap: 5, alignItems: 'center', opacity: step >= i ? 1 : 0.12, animation: step === i ? 'ts-ctor-in .45s ease' : 'none', transition: 'opacity .25s' }}>
+                                        <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: p.color, fontWeight: 800 }}>{p.name}:</span>
+                                        <span style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, color: darkMode ? '#e2e8f0' : '#1e293b' }}>{p.value}</span>
+                                        {step >= i && <span style={{ fontSize: 9 }}>✅</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={build} disabled={running}
+                            style={{ flex: 1, border: 0, borderRadius: 8, padding: 9, fontSize: 11, fontWeight: 800, cursor: running ? 'not-allowed' : 'pointer', background: done ? '#22c55e' : '#b45309', color: '#fff', opacity: running ? 0.7 : 1, transition: 'background .4s' }}>
+                            {running ? '⚙️ ' + (isTr ? 'Constructor çalışıyor...' : 'Constructor running...') : done ? '🎉 ' + (isTr ? 'Araba oluşturuldu!' : 'Car created!') : '🔨 new Car("Toyota", "Corolla", 2024)'}
+                        </button>
+                        <button onClick={reset} style={{ border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 8, padding: '9px 14px', fontSize: 13, cursor: 'pointer', background: 'transparent', color: darkMode ? '#94a3b8' : '#6b7280' }}>↺</button>
+                    </div>
+                    <div style={{ marginTop: 10, fontSize: 10, color: darkMode ? '#475569' : '#92400e' }}>
+                        {'💡 '}{isTr ? "Java'da 3 adım: field tanımla + constructor'a parametre ekle + this.field = value yaz. TypeScript'te constructor parametresine public ekle — 3 adım 1 adıma düşer." : "Java needs 3 steps: declare field + add parameter + write this.field = value. TypeScript: add public to the constructor parameter — all 3 collapse into 1 step."}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TSLegoInheritanceVisual({ isTr, darkMode }) {
+    const [selected, setSelected] = useState('eagle')
+    const hierarchy = {
+        animal: { emoji: '🦎', name: 'Animal', color: '#22c55e', own: ['breathe()', 'sleep()', 'eat()'], extends: null,   desc: { tr: 'Tüm hayvanlar için temel sınıf', en: 'Base class for all animals' } },
+        bird:   { emoji: '🐦', name: 'Bird',   color: '#3b82f6', own: ['fly()', 'sing()'],            extends: 'animal', desc: { tr: "Animal'dan extends — uçma ekler", en: 'Extends Animal — adds flying' } },
+        eagle:  { emoji: '🦅', name: 'Eagle',  color: '#8b5cf6', own: ['hunt()', 'dive()'],          extends: 'bird',   desc: { tr: "Bird'dan extends — avlanma ekler", en: 'Extends Bird — adds hunting' } },
+    }
+    const getInherited = (key) => {
+        const node = hierarchy[key]
+        if (!node.extends) return []
+        const parent = hierarchy[node.extends]
+        const gp = parent.extends ? hierarchy[parent.extends] : null
+        return [
+            ...(gp ? gp.own.map(m => ({ method: m, from: gp.name, emoji: gp.emoji, fk: parent.extends })) : []),
+            ...parent.own.map(m => ({ method: m, from: parent.name, emoji: parent.emoji, fk: node.extends })),
+        ]
+    }
+    const ORDER = ['animal', 'bird', 'eagle']
+    const sel = hierarchy[selected]
+    const inherited = getInherited(selected)
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-inh-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#f5f3ff', borderRadius: 14, border: '2px solid #8b5cf6', overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#3b0764,#7c3aed)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🦅</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Inheritance — Hayvan Hiyerarşisi' : 'Inheritance — Animal Hierarchy'}</div>
+                        <div style={{ fontSize: 10, color: '#ddd6fe' }}>{isTr ? 'Bir hayvan seç — hangi metodları nereden miras aldığını gör!' : 'Select an animal — see which methods it inherits and from where!'}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+                        {ORDER.map((key, i) => {
+                            const node = hierarchy[key]
+                            return (
+                                <Fragment key={key}>
+                                    <button onClick={() => setSelected(key)}
+                                        style={{ border: `2px solid ${node.color}`, borderRadius: 10, padding: '7px 14px', cursor: 'pointer', background: selected === key ? node.color : 'transparent', color: selected === key ? '#fff' : node.color, fontWeight: 800, fontSize: 12, transition: 'all .2s', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <span>{node.emoji}</span> {node.name}
+                                    </button>
+                                    {i < ORDER.length - 1 && <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 700 }}>{'extends →'}</div>}
+                                </Fragment>
+                            )
+                        })}
+                    </div>
+                    <div key={selected} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, animation: 'ts-inh-in .3s ease', marginBottom: 12 }}>
+                        <div style={{ background: sel.color + '1a', border: `2px solid ${sel.color}44`, borderRadius: 10, padding: 10 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: sel.color, marginBottom: 8 }}>
+                                {sel.emoji} {sel.name} — {isTr ? '🆕 KENDİ metodları' : '🆕 OWN methods'}
+                            </div>
+                            {sel.own.map(m => (
+                                <div key={m} style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: sel.color, fontWeight: 700, padding: '3px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span>🆕</span> {m}
+                                </div>
+                            ))}
+                            <div style={{ fontSize: 9, color: sel.color, marginTop: 6, fontStyle: 'italic', opacity: 0.8 }}>
+                                {sel.desc[isTr ? 'tr' : 'en']}
+                            </div>
+                        </div>
+                        <div style={{ background: darkMode ? '#1e293b' : '#f8fafc', border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 10, padding: 10 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 8 }}>
+                                {'📥 '}{isTr ? 'MİRAS alınan metodlar' : 'INHERITED methods'}
+                            </div>
+                            {inherited.length === 0 ? (
+                                <div style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>
+                                    {isTr ? '(Temel sınıf — miras yok)' : '(Base class — nothing inherited)'}
+                                </div>
+                            ) : inherited.map((m, mi) => (
+                                <div key={`${m.fk}-${m.method}-${mi}`} style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, padding: '3px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span>{m.emoji}</span>
+                                    <span style={{ color: hierarchy[m.fk].color, fontWeight: 700 }}>{m.method}</span>
+                                    <span style={{ fontSize: 9, color: '#64748b' }}>← {m.from}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, background: darkMode ? '#020617' : '#1e293b', borderRadius: 8, padding: '8px 12px', lineHeight: 1.8, color: '#64748b' }}>
+                        {sel.extends ? (
+                            <>
+                                <span style={{ color: '#60a5fa' }}>{'class '}</span>
+                                <span style={{ color: sel.color, fontWeight: 800 }}>{sel.name}</span>
+                                {' '}<span style={{ color: '#94a3b8' }}>{'extends'}</span>{' '}
+                                <span style={{ color: hierarchy[sel.extends].color, fontWeight: 800 }}>{hierarchy[sel.extends].name}</span>
+                                {' {'}
+                                {sel.own.map(m => <div key={m} style={{ paddingLeft: 12 }}><span style={{ color: sel.color }}>{m.replace('()', '')}</span>{'() { ... }'}</div>)}
+                                {'}'}
+                            </>
+                        ) : (
+                            <>
+                                <span style={{ color: '#60a5fa' }}>{'class '}</span>
+                                <span style={{ color: sel.color, fontWeight: 800 }}>{sel.name}</span>
+                                {' {'}
+                                {sel.own.map(m => <div key={m} style={{ paddingLeft: 12 }}><span style={{ color: sel.color }}>{m.replace('()', '')}</span>{'() { ... }'}</div>)}
+                                {'}'}
+                            </>
+                        )}
+                    </div>
+                    <div style={{ marginTop: 10, fontSize: 10, color: darkMode ? '#475569' : '#6b7280' }}>
+                        {'💡 '}{isTr ? "Eagle, Bird'ın TÜM metodlarını + Animal'ın TÜM metodlarını miras alır. Java'daki inheritance zinciri gibi — üst sınıf ne yazarsa alt sınıflar otomatik kazanır." : "Eagle inherits ALL of Bird's methods + ALL of Animal's methods. Just like Java's inheritance chain — whatever a parent class has, subclasses automatically get."}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TSLegoAbstractVisual({ isTr, darkMode }) {
+    const [triedAbstract, setTriedAbstract] = useState(false)
+    const [builtConcrete, setBuiltConcrete] = useState(false)
+    const [shaking, setShaking] = useState(false)
+    const clickAbstract = () => {
+        setShaking(true)
+        setTriedAbstract(true)
+        setTimeout(() => setShaking(false), 700)
+    }
+    const reset = () => { setTriedAbstract(false); setBuiltConcrete(false); setShaking(false) }
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`@keyframes ts-abs-shake{0%,100%{transform:none}15%{transform:translateX(-10px) rotate(-3deg)}40%{transform:translateX(10px) rotate(3deg)}65%{transform:translateX(-6px) rotate(-1deg)}85%{transform:translateX(5px)}} @keyframes ts-abs-in{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:none}}`}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#fef2f2', borderRadius: 14, border: '2px solid #ef4444', overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#7f1d1d,#dc2626)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>📋</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{isTr ? 'Abstract Class — Blueprint vs Gerçek Bina' : 'Abstract Class — Blueprint vs Real Building'}</div>
+                        <div style={{ fontSize: 10, color: '#fecaca' }}>{isTr ? 'Soyut sınıftan direkt nesne oluşturulmaz — dene ve gör!' : "You can't instantiate an abstract class directly — try it and see!"}</div>
+                    </div>
+                </div>
+                <div style={{ padding: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                        <div style={{ animation: shaking ? 'ts-abs-shake .7s ease' : 'none' }}>
+                            <div style={{ border: '2px dashed #ef4444', borderRadius: 10, padding: 10, background: darkMode ? '#1c0a0a' : '#fff5f5', minHeight: 160 }}>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: '#ef4444', marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <span>📋</span>
+                                    <span>{isTr ? 'SOYUT (Abstract)' : 'ABSTRACT'}</span>
+                                    <span style={{ fontSize: 8, background: '#ef444420', color: '#ef4444', borderRadius: 4, padding: '1px 5px' }}>{isTr ? 'YAPI PLANI' : 'BLUEPRINT'}</span>
+                                </div>
+                                <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.8, color: darkMode ? '#fca5a5' : '#b91c1c' }}>
+                                    <div><span style={{ color: '#ef4444', fontWeight: 900 }}>{'abstract'}</span>{' class Shape {'}</div>
+                                    <div style={{ paddingLeft: 12, color: '#f87171', fontStyle: 'italic' }}>{'  abstract draw(): void'}</div>
+                                    <div style={{ paddingLeft: 12 }}>{`  move() { ... }`}</div>
+                                    <div>{'}'}</div>
+                                </div>
+                                {triedAbstract && (
+                                    <div style={{ marginTop: 8, background: '#ef444420', border: '1px solid #ef4444', borderRadius: 6, padding: '6px 8px', fontSize: 9, fontWeight: 700, color: '#ef4444', animation: 'ts-abs-in .3s ease' }}>
+                                        {'❌ '}{isTr ? 'Hata: Soyut sınıftan nesne oluşturulamaz!' : 'Error: Cannot create an instance of an abstract class!'}
+                                    </div>
+                                )}
+                                <button onClick={clickAbstract}
+                                    style={{ marginTop: 8, width: '100%', border: '1px solid #ef4444', borderRadius: 7, padding: 7, fontSize: 10, fontWeight: 800, cursor: 'pointer', background: 'transparent', color: '#ef4444' }}>
+                                    {'⚡ new Shape() — '}{isTr ? 'dene!' : 'try it!'}
+                                </button>
+                            </div>
+                        </div>
+                        <div style={{ border: `2px solid ${builtConcrete ? '#22c55e' : '#64748b'}`, borderRadius: 10, padding: 10, background: builtConcrete ? (darkMode ? '#052e16' : '#f0fdf4') : (darkMode ? '#1e293b' : '#f8fafc'), minHeight: 160, transition: 'all .4s' }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: builtConcrete ? '#22c55e' : '#64748b', marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+                                <span>{builtConcrete ? '🏢' : '🏗️'}</span>
+                                <span>{isTr ? 'SOMUT (Concrete)' : 'CONCRETE'}</span>
+                                <span style={{ fontSize: 8, background: (builtConcrete ? '#22c55e' : '#64748b') + '20', color: builtConcrete ? '#22c55e' : '#64748b', borderRadius: 4, padding: '1px 5px' }}>{isTr ? 'GERÇEK SINIF' : 'REAL CLASS'}</span>
+                            </div>
+                            <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.8, color: darkMode ? '#94a3b8' : '#475569' }}>
+                                <div>{'class Circle '}<span style={{ color: '#8b5cf6' }}>{'extends'}</span>{' Shape {'}</div>
+                                <div style={{ paddingLeft: 12 }}><span style={{ color: '#22c55e', fontWeight: 800 }}>{'draw'}</span>{`() { console.log("○") }`}</div>
+                                <div>{'}'}</div>
+                            </div>
+                            {builtConcrete && (
+                                <div style={{ marginTop: 8, background: '#22c55e20', border: '1px solid #22c55e', borderRadius: 6, padding: '6px 8px', fontSize: 9, fontWeight: 700, color: '#22c55e', animation: 'ts-abs-in .3s ease' }}>
+                                    {'✅ '}{isTr ? 'Circle nesnesi oluşturuldu!' : 'Circle object created!'}<br/>
+                                    <span style={{ fontWeight: 400, opacity: 0.85 }}>{'{ draw() [own], move() [from Shape] }'}</span>
+                                </div>
+                            )}
+                            <button onClick={() => setBuiltConcrete(true)}
+                                style={{ marginTop: 8, width: '100%', border: 0, borderRadius: 7, padding: 7, fontSize: 10, fontWeight: 800, cursor: 'pointer', background: builtConcrete ? '#22c55e' : '#8b5cf6', color: '#fff', transition: 'background .3s' }}>
+                                {builtConcrete ? '🎉 ' + (isTr ? 'Başarılı!' : 'Success!') : '✅ new Circle() — ' + (isTr ? 'çalıştır!' : 'run it!')}
+                            </button>
+                        </div>
+                    </div>
+                    <div style={{ background: darkMode ? '#1e293b' : '#f8fafc', border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 8, padding: '8px 12px', marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b', marginBottom: 4 }}>{'☕ '}{isTr ? "Java'da aynı kavram:" : 'Same concept in Java:'}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.7, color: darkMode ? '#94a3b8' : '#475569' }}>
+                            <div><span style={{ color: '#ef4444', fontWeight: 800 }}>{'abstract'}</span>{` class Shape { `}<span style={{ color: '#f59e0b' }}>{'abstract void'}</span>{` draw(); }`}</div>
+                            <div>{`class Circle extends Shape { `}<span style={{ color: '#22c55e' }}>{'void draw'}</span>{`() { ... } }`}</div>
+                        </div>
+                        <div style={{ marginTop: 4, fontSize: 9, color: '#94a3b8' }}>
+                            {isTr ? '→ TypeScript sözdizimi Java ile neredeyse aynı — abstract keyword birebir var.' : '→ TypeScript syntax is almost identical to Java — the abstract keyword is there word for word.'}
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ fontSize: 10, color: darkMode ? '#475569' : '#92400e', flex: 1 }}>
+                            {'💡 '}{isTr ? 'Abstract class = tamamlanmamış plan. Doğrudan new yapamazsın — önce implement eden bir alt sınıf yaz.' : 'Abstract class = incomplete blueprint. You cannot directly new it — first write a subclass that implements all abstract methods.'}
+                        </div>
+                        <button onClick={reset} style={{ border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 6, padding: '5px 12px', fontSize: 11, cursor: 'pointer', background: 'transparent', color: darkMode ? '#94a3b8' : '#6b7280', marginLeft: 10 }}>↺</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TSLegoVisualBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const v = block.variant || 'type-vs-interface'
+    if (v === 'type-vs-interface') return <TSLegoTypeVsInterface isTr={isTr} darkMode={darkMode} />
+    if (v === 'generics-factory') return <TSLegoGenericsFactory isTr={isTr} darkMode={darkMode} />
+    if (v === 'arrays-visual') return <TSLegoArraysVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'enums-visual') return <TSLegoEnumsVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'functions-visual') return <TSLegoFunctionsVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'classes-visual') return <TSLegoClassesVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'utility-types-visual') return <TSLegoUtilityVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'constructor-visual') return <TSLegoConstructorVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'inheritance-visual') return <TSLegoInheritanceVisual isTr={isTr} darkMode={darkMode} />
+    if (v === 'abstract-visual') return <TSLegoAbstractVisual isTr={isTr} darkMode={darkMode} />
+    return null
+}
+
+// ─── TSMiniHeroBlock ──────────────────────────────────────────────────────────
+
+function TSMiniHeroBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [text, setText] = useState('')
+    const [result, setResult] = useState(null)
+    const [showModel, setShowModel] = useState(false)
+    const [dancing, setDancing] = useState(false)
+
+    const prompt = isTr ? (block.promptTr || block.prompt) : (block.promptEn || block.prompt || 'Explain this concept in simple terms...')
+    const keywords = block.keywords || []
+    const modelAnswer = isTr ? (block.modelAnswerTr || block.modelAnswer) : (block.modelAnswerEn || block.modelAnswer || '')
+    const minScore = block.minScore != null ? block.minScore : Math.ceil(keywords.length * 0.5)
+
+    const evaluate = () => {
+        const lower = text.toLowerCase()
+        const covered = keywords.filter(k => {
+            const variants = Array.isArray(k) ? k : [k]
+            return variants.some(v => lower.includes(v.toLowerCase()))
+        })
+        const pass = covered.length >= minScore
+        setResult({ covered, missed: keywords.filter(k => !covered.includes(k)), score: covered.length, total: keywords.length, pass })
+        if (pass) { setDancing(true); setTimeout(() => setDancing(false), 1400) }
+    }
+
+    const reset = () => { setText(''); setResult(null); setShowModel(false); setDancing(false) }
+
+    const scoreColor = result ? (result.pass ? '#22c55e' : result.score >= minScore * 0.7 ? '#f59e0b' : '#ef4444') : '#a855f7'
+
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <style>{`
+                @keyframes ts-dance { 0%,100%{transform:translateY(0) rotate(0)} 25%{transform:translateY(-9px) rotate(-6deg)} 75%{transform:translateY(-9px) rotate(6deg)} }
+                @keyframes ts-nod { 0%,100%{transform:rotate(0)} 30%{transform:rotate(-8deg)} 70%{transform:rotate(8deg)} }
+                @keyframes ts-hero-in { 0%{transform:scale(0)} 65%{transform:scale(1.12)} 100%{transform:scale(1)} }
+            `}</style>
+            <div style={{ background: darkMode ? '#0f172a' : '#fdf4ff', border: `2px solid ${result ? scoreColor : '#a855f7'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .4s' }}>
+                <div style={{ background: 'linear-gradient(135deg,#7e22ce 0%,#4c1d95 100%)', padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                    {/* Robot SVG */}
+                    <svg width="54" height="56" viewBox="0 0 54 56" fill="none" style={{ flexShrink: 0, animation: dancing ? 'ts-dance 1.4s ease infinite' : (result && !result.pass ? 'ts-nod .6s ease' : 'none') }}>
+                        <rect x="8" y="10" width="38" height="30" rx="7" fill="#1e293b" stroke="#a855f7" strokeWidth="2.5"/>
+                        <circle cx="20" cy="23" r="5.5" fill={result ? (result.pass ? '#22c55e' : '#ef4444') : '#a855f7'}/>
+                        <circle cx="34" cy="23" r="5.5" fill={result ? (result.pass ? '#22c55e' : '#ef4444') : '#a855f7'}/>
+                        <circle cx="20" cy="23" r="2.8" fill="#fff" opacity="0.85"/>
+                        <circle cx="34" cy="23" r="2.8" fill="#fff" opacity="0.85"/>
+                        {result && result.pass
+                            ? <path d="M 16 34 Q 27 41 38 34" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                            : result
+                                ? <path d="M 16 38 Q 27 31 38 38" stroke="#ef4444" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                                : <rect x="17" y="33" width="20" height="3" rx="1.5" fill="#475569"/>
+                        }
+                        <line x1="27" y1="10" x2="27" y2="3" stroke="#a855f7" strokeWidth="2.5" strokeLinecap="round"/>
+                        <circle cx="27" cy="2" r="3" fill={result ? (result.pass ? '#22c55e' : '#ef4444') : '#c084fc'}/>
+                        <rect x="17" y="42" width="20" height="10" rx="4" fill="#1e293b" stroke="#a855f7" strokeWidth="2"/>
+                    </svg>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#ddd6fe', marginBottom: 5 }}>🤖 {isTr ? 'Mini Kahraman Soruyor...' : 'Mini Hero is Asking...'}</div>
+                        <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 10, padding: '10px 14px', borderLeft: '3px solid #a855f7' }}>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: '#f3e8ff', lineHeight: 1.7 }}>{prompt}</div>
+                        </div>
+                    </div>
+                </div>
+                <div style={{ padding: 18 }}>
+                    {!result ? (
+                        <Fragment>
+                            <textarea value={text} onChange={e => setText(e.target.value)}
+                                placeholder={isTr ? '✍️ Cevabını buraya yaz... (teknik terim kullanma!)' : '✍️ Write your answer here... (explain simply!)'}
+                                style={{ width: '100%', minHeight: 100, borderRadius: 10, border: `1px solid ${darkMode ? '#374151' : '#e9d5ff'}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#f9fafb' : '#111827', padding: 12, fontSize: 13, fontFamily: 'Inter,system-ui,sans-serif', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+                            />
+                            <div style={{ display: 'flex', gap: 10, marginTop: 10, alignItems: 'center' }}>
+                                <button onClick={evaluate} disabled={text.length < 20}
+                                    style={{ border: 0, borderRadius: 8, padding: '8px 20px', fontSize: 13, fontWeight: 800, cursor: text.length >= 20 ? 'pointer' : 'not-allowed', background: text.length >= 20 ? '#a855f7' : '#4b5563', color: '#fff', transition: 'background .2s' }}>
+                                    🤖 {isTr ? 'Robot Değerlendir!' : 'Robot, Evaluate!'}
+                                </button>
+                                <span style={{ fontSize: 11, color: '#94a3b8' }}>{text.length} {isTr ? 'karakter' : 'chars'} · {keywords.length} {isTr ? 'kavram' : 'concepts'}</span>
+                            </div>
+                        </Fragment>
+                    ) : (
+                        <div style={{ animation: 'ts-hero-in .4s ease' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                <span style={{ fontWeight: 800, color: scoreColor, fontSize: 14 }}>
+                                    {result.pass ? (isTr ? '🎉 Harika! Robot onaylıyor!' : '🎉 Awesome! Robot approves!') : (isTr ? '🤔 Daha fazla pratik gerek...' : '🤔 Keep practicing...')} {result.score}/{result.total}
+                                </span>
+                                <span style={{ fontWeight: 900, fontSize: 20, color: scoreColor }}>{Math.round(result.score / result.total * 100)}%</span>
+                            </div>
+                            <div style={{ height: 8, borderRadius: 99, background: darkMode ? '#1e293b' : '#f3e8ff', overflow: 'hidden', marginBottom: 12 }}>
+                                <div style={{ height: '100%', width: `${result.score / result.total * 100}%`, background: scoreColor, borderRadius: 99, transition: 'width 1s ease' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                                {result.covered.map((k, i) => <span key={i} style={{ background: '#22c55e22', color: '#22c55e', border: '1px solid #22c55e44', borderRadius: 99, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>✓ {Array.isArray(k) ? k[0] : k}</span>)}
+                                {result.missed.map((k, i) => <span key={i} style={{ background: '#ef444422', color: '#ef4444', border: '1px solid #ef444444', borderRadius: 99, padding: '3px 10px', fontSize: 11, fontWeight: 700 }}>✗ {Array.isArray(k) ? k[0] : k}</span>)}
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <button onClick={reset} style={{ border: 0, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: '#374151', color: '#f9fafb' }}>↺ {isTr ? 'Tekrar' : 'Try Again'}</button>
+                                {modelAnswer && <button onClick={() => setShowModel(s => !s)} style={{ border: `1px solid ${darkMode ? '#374151' : '#e9d5ff'}`, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: 'transparent', color: darkMode ? '#a855f7' : '#7e22ce' }}>{showModel ? '▲' : '📖'} {isTr ? 'Model Cevap' : 'Model Answer'}</button>}
+                            </div>
+                            {showModel && modelAnswer && (
+                                <div style={{ marginTop: 12, background: darkMode ? '#1f2937' : '#f3e8ff', border: '1px solid #a855f7', borderRadius: 10, padding: 14, fontSize: 13, color: darkMode ? '#f3e8ff' : '#4c1d95', lineHeight: 1.7, animation: 'fadeInUp .3s ease' }}>
+                                    <div style={{ fontWeight: 800, color: '#a855f7', marginBottom: 6 }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
+                                    {modelAnswer}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── TSErrorAnimationBlock ────────────────────────────────────────────────────
+
+function TSErrorAnimationBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const rounds = block.rounds || [
+        { targetType: 'number', values: [{ label: '"hello"', type: 'string', correct: false }, { label: '42', type: 'number', correct: true }, { label: 'true', type: 'boolean', correct: false }, { label: 'null', type: 'null', correct: false }] },
+        { targetType: 'string', values: [{ label: '"test"', type: 'string', correct: true }, { label: '99', type: 'number', correct: false }, { label: 'false', type: 'boolean', correct: false }, { label: '[]', type: 'array', correct: false }] },
+        { targetType: 'boolean', values: [{ label: 'true', type: 'boolean', correct: true }, { label: '0', type: 'number', correct: false }, { label: 'null', type: 'null', correct: false }, { label: '"yes"', type: 'string', correct: false }] },
+    ]
+    const [roundIdx, setRoundIdx] = useState(0)
+    const [picked, setPicked] = useState(null)
+    const [shaking, setShaking] = useState(null)
+    const [confetti, setConfetti] = useState(false)
+    const [score, setScore] = useState(0)
+    const [done, setDone] = useState(false)
+
+    const round = rounds[roundIdx]
+
+    const handlePick = (v) => {
+        if (picked) return
+        setPicked(v)
+        if (v.correct) {
+            setConfetti(true)
+            setScore(s => s + 1)
+            setTimeout(() => setConfetti(false), 1200)
+        } else {
+            setShaking(v.label)
+            setTimeout(() => setShaking(null), 500)
+        }
+    }
+
+    const next = () => {
+        if (roundIdx < rounds.length - 1) { setRoundIdx(i => i + 1); setPicked(null); setShaking(null) }
+        else setDone(true)
+    }
+
+    const restart = () => { setRoundIdx(0); setPicked(null); setShaking(null); setScore(0); setDone(false); setConfetti(false) }
+
+    const TYPE_COLORS = { number: '#f59e0b', string: '#3b82f6', boolean: '#22c55e', null: '#6b7280', array: '#8b5cf6', undefined: '#64748b' }
+    const typeColor = TYPE_COLORS[round?.targetType] || '#7c3aed'
+
+    return (
+        <div style={{ marginBottom: 24, position: 'relative' }}>
+            <style>{`
+                @keyframes ts-type-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px) rotate(-3deg)} 50%{transform:translateX(9px) rotate(3deg)} 80%{transform:translateX(-5px)} }
+                @keyframes ts-confetti-fly { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(-70px) rotate(720deg) scale(0.2);opacity:0} }
+            `}</style>
+
+            {confetti && (
+                <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none', zIndex: 10, display: 'flex', gap: 8 }}>
+                    {['#f59e0b','#22c55e','#3b82f6','#ef4444','#a855f7','#f97316','#10b981'].map((c, i) => (
+                        <div key={i} style={{ width: 10, height: 10, borderRadius: i % 2 === 0 ? '50%' : '2px', background: c, animation: `ts-confetti-fly ${0.8 + i * 0.08}s ease ${i * 0.05}s forwards` }} />
+                    ))}
+                </div>
+            )}
+
+            <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 16, border: `2px solid ${darkMode ? '#334155' : '#e2e8f0'}`, overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🔧</span>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{isTr ? 'Tip Uyum Oyunu' : 'Type Matching Game'}</div>
+                        <div style={{ fontSize: 11, color: '#94a3b8' }}>{isTr ? 'Yanlış tip → Cızz! Doğru tip → Konfeti! TypeScript\'i hisset.' : 'Wrong type → Buzz! Right type → Confetti! Feel TypeScript.'}</div>
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#22c55e' }}>{score}/{rounds.length} ✓</div>
+                </div>
+
+                <div style={{ padding: 20 }}>
+                    {done ? (
+                        <div style={{ textAlign: 'center', padding: 20, animation: 'fadeInUp .4s ease' }}>
+                            <div style={{ fontSize: 40, marginBottom: 10 }}>{score === rounds.length ? '🏆' : score >= rounds.length / 2 ? '⭐' : '📚'}</div>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: score === rounds.length ? '#22c55e' : '#f59e0b', marginBottom: 8 }}>{score}/{rounds.length} {isTr ? 'doğru!' : 'correct!'}</div>
+                            <div style={{ fontSize: 13, color: darkMode ? '#94a3b8' : '#6b7280', marginBottom: 18 }}>
+                                {score === rounds.length ? (isTr ? '🎉 TypeScript uzmanısın!' : '🎉 TypeScript expert!') : (isTr ? '💪 Biraz daha pratik!' : '💪 A bit more practice!')}
+                            </div>
+                            <button onClick={restart} style={{ border: 0, borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 800, cursor: 'pointer', background: '#3b82f6', color: '#fff' }}>↺ {isTr ? 'Tekrar Oyna' : 'Play Again'}</button>
+                        </div>
+                    ) : (
+                        <Fragment>
+                            <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+                                {rounds.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 99, background: i < roundIdx ? '#22c55e' : (i === roundIdx ? typeColor : (darkMode ? '#334155' : '#e2e8f0')), transition: 'background .3s' }} />)}
+                            </div>
+
+                            <div style={{ background: darkMode ? '#020617' : '#1e293b', borderRadius: 10, padding: '14px 18px', marginBottom: 16, fontFamily: 'JetBrains Mono,monospace' }}>
+                                <span style={{ color: '#94a3b8', fontSize: 12 }}>let value: </span>
+                                <span style={{ color: typeColor, fontSize: 15, fontWeight: 900 }}>{round.targetType}</span>
+                                <span style={{ color: '#94a3b8', fontSize: 12 }}> = </span>
+                                <span style={{ color: picked ? (picked.correct ? '#22c55e' : '#ef4444') : '#475569', fontSize: 15, fontWeight: 900 }}>{picked ? picked.label : '???'}</span>
+                                {picked && !picked.correct && (
+                                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ display: 'flex', gap: 2 }}>{Array.from({ length: 5 }, (_, i) => <div key={i} style={{ width: 6, height: i % 2 === 0 ? 14 : 6, background: '#ef4444', borderRadius: 1 }} />)}</div>
+                                        <span style={{ fontSize: 10, color: '#ef4444', fontWeight: 700 }}>Type '{picked.type}' is not assignable to '{round.targetType}'. ⚡</span>
+                                    </div>
+                                )}
+                                {picked && picked.correct && (
+                                    <div style={{ marginTop: 8, fontSize: 11, color: '#22c55e', fontWeight: 700 }}>✅ {isTr ? 'Type-safe! TypeScript onaylıyor.' : 'Type-safe! TypeScript approves.'}</div>
+                                )}
+                            </div>
+
+                            <div style={{ marginBottom: 8, fontSize: 11, fontWeight: 700, color: darkMode ? '#64748b' : '#94a3b8' }}>
+                                🎯 {isTr ? `"${round.targetType}" tipine hangi değer atar?` : `Which value can be assigned to type "${round.targetType}"?`}
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+                                {round.values.map((v, vi) => {
+                                    const isSelected = picked?.label === v.label
+                                    const isWrong = isSelected && !v.correct
+                                    const isRight = isSelected && v.correct
+                                    const showFb = picked !== null
+                                    const bg = isRight ? '#22c55e22' : isWrong ? '#ef444422' : (showFb && v.correct ? '#22c55e11' : 'transparent')
+                                    const border = isRight ? '#22c55e' : isWrong ? '#ef4444' : (showFb && v.correct ? '#22c55e88' : (TYPE_COLORS[v.type] || '#7c3aed'))
+                                    const color = isRight ? '#22c55e' : isWrong ? '#ef4444' : (TYPE_COLORS[v.type] || '#7c3aed')
+                                    return (
+                                        <button key={vi} onClick={() => handlePick(v)} disabled={picked !== null}
+                                            style={{ border: `2px solid ${border}`, borderRadius: 10, padding: '8px 18px', fontSize: 14, fontWeight: 800, cursor: picked ? 'default' : 'pointer', background: bg, color, fontFamily: 'JetBrains Mono,monospace', transition: 'all .2s', animation: shaking === v.label ? 'ts-type-shake .5s ease' : 'none' }}>
+                                            {v.label}{isWrong ? ' ❌' : isRight ? ' ✅' : (showFb && v.correct ? ' 👈' : '')}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {picked && (
+                                <button onClick={next} style={{ border: 0, borderRadius: 8, padding: '8px 20px', fontSize: 13, fontWeight: 800, cursor: 'pointer', background: picked.correct ? '#22c55e' : '#3b82f6', color: '#fff', animation: 'fadeInUp .3s ease' }}>
+                                    {roundIdx < rounds.length - 1 ? (isTr ? 'Sonraki Tur →' : 'Next Round →') : (isTr ? '🏁 Sonucu Gör' : '🏁 See Results')}
+                                </button>
+                            )}
+                        </Fragment>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
 }
 
 // ─── TopicPage ────────────────────────────────────────────────────────────────
@@ -13928,4 +17149,712 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     )
 }
 
+// =============================================================================
+// JAVASCRIPT LEARNING PLATFORM VISUAL PLAYGROUNDS
+// =============================================================================
+
+function JSVariablesVisualBlock({ darkMode, language }) {
+    const isTr = language === 'tr'
+    const [varVal, setVarVal] = useState(null)
+    const [letVal, setLetVal] = useState(null)
+    const [constVal, setConstVal] = useState(null)
+    const [activeVar, setActiveVar] = useState(null) // 'var' | 'let' | 'const'
+    const [isCrushed, setIsCrushed] = useState(false)
+    const [shakeActive, setShakeActive] = useState(false)
+    const [beepActive, setBeepActive] = useState(false)
+    const [successConfetti, setSuccessConfetti] = useState(false)
+
+    const handleDeclare = (type, val) => {
+        setIsCrushed(false)
+        setBeepActive(false)
+        setSuccessConfetti(false)
+        setActiveVar(type)
+        if (type === 'var') {
+            setVarVal(val)
+        } else if (type === 'let') {
+            setLetVal(val)
+            setSuccessConfetti(true)
+        } else if (type === 'const') {
+            setConstVal(val)
+            setSuccessConfetti(true)
+        }
+    }
+
+    const handleReassign = (type, val) => {
+        setSuccessConfetti(false)
+        if (type === 'var') {
+            setVarVal(val)
+            setSuccessConfetti(true)
+        } else if (type === 'let') {
+            setLetVal(val)
+            setSuccessConfetti(true)
+        } else if (type === 'const') {
+            // CRUSH ANIMATION!
+            setIsCrushed(true)
+            setShakeActive(true)
+            setBeepActive(true)
+            setTimeout(() => setShakeActive(false), 800)
+        }
+    }
+
+    const handleReset = () => {
+        setVarVal(null)
+        setLetVal(null)
+        setConstVal(null)
+        setActiveVar(null)
+        setIsCrushed(false)
+        setShakeActive(false)
+        setBeepActive(false)
+        setSuccessConfetti(false)
+    }
+
+    return (
+        <div className="mb-6" style={{ fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' }}>
+            <style>{`
+                @keyframes jsShake {
+                    0%, 100% { transform: translateX(0); }
+                    20%, 60% { transform: translateX(-8px); }
+                    40%, 80% { transform: translateX(8px); }
+                }
+                @keyframes jsCrush {
+                    0% { transform: translateY(-120px) scaleY(1); opacity: 0; }
+                    50% { transform: translateY(0) scaleY(0.4); opacity: 1; }
+                    70% { transform: scaleY(1.3) translateY(-10px); }
+                    85% { transform: scaleY(0.8) translateY(4px); }
+                    100% { transform: scaleY(1) translateY(0); }
+                }
+                @keyframes jsLeak {
+                    0% { transform: translateY(0); opacity: 1; }
+                    40% { transform: translateY(80px); opacity: 0.7; }
+                    100% { transform: translateY(-130px); opacity: 1; }
+                }
+                @keyframes jsPop {
+                    0% { transform: scale(0); }
+                    80% { transform: scale(1.1); }
+                    100% { transform: scale(1); }
+                }
+                .js-shake { animation: jsShake 0.4s ease-in-out; }
+                .js-crush { animation: jsCrush 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+                .js-leak { animation: jsLeak 2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+                .js-pop { animation: jsPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+            `}</style>
+
+            <div className={`rounded-2xl border-2 p-5 transition-all duration-300 ${shakeActive ? 'js-shake' : ''} ${darkMode ? 'bg-gray-900 border-yellow-900/40 text-white' : 'bg-amber-50/30 border-amber-200 text-gray-800'}`}>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4 border-b border-dashed pb-3 border-amber-300/40">
+                    <div className="flex items-center gap-2">
+                        <span className="text-2xl">🧱</span>
+                        <div>
+                            <div className="font-bold text-sm">{isTr ? 'Lego Sepetleri ile Scope Laboratuvarı' : 'Scope Lab with Lego Baskets'}</div>
+                            <div className="text-[10px] opacity-75">{isTr ? 'Var, let ve const kutularının davranışlarını keşfet' : 'Explore the behaviors of var, let, and const'}</div>
+                        </div>
+                    </div>
+                    <button onClick={handleReset} className="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-gray-950 transition-colors">
+                        ↺ Reset
+                    </button>
+                </div>
+
+                {/* Playground Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    
+                    {/* VAR BASKET (Leaky bottom) */}
+                    <div className="relative rounded-xl border-2 border-dashed p-4 flex flex-col items-center justify-between min-h-[220px] bg-red-500/5 border-red-500/30">
+                        <div className="text-xs font-bold text-red-400">var x</div>
+                        
+                        {/* Leaky Container Graphic */}
+                        <div className="w-20 h-20 relative border-l-2 border-r-2 border-red-500/40 flex items-center justify-center">
+                            {/* Bottom dotted/open line representing sızıntı */}
+                            <div className="absolute bottom-0 left-0 right-0 border-t border-dashed border-red-500/50" />
+                            {varVal ? (
+                                <div className={`text-3xl ${activeVar === 'var' ? 'js-leak' : ''}`}>
+                                    {varVal}
+                                </div>
+                            ) : (
+                                <span className="text-xs opacity-40">{isTr ? 'Boş' : 'Empty'}</span>
+                            )}
+                        </div>
+
+                        {/* Floating global indicator */}
+                        {varVal && (
+                            <div className="absolute top-1 bg-red-600 text-[9px] px-2 py-0.5 rounded text-white font-bold js-pop">
+                                🌐 Global Scope!
+                            </div>
+                        )}
+
+                        <div className="w-full space-y-1.5 mt-2">
+                            <button onClick={() => handleDeclare('var', '🧸')} className="w-full py-1 rounded text-xs font-bold bg-red-600/20 hover:bg-red-600/30 text-red-200 border border-red-500/30 transition-all">
+                                {isTr ? 'Ata: 🧸' : 'Set: 🧸'}
+                            </button>
+                            <button onClick={() => handleReassign('var', '🚗')} disabled={!varVal} className="w-full py-1 rounded text-xs font-bold bg-red-600/20 hover:bg-red-600/30 text-red-200 border border-red-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                {isTr ? 'Güncelle: 🚗' : 'Reassign: 🚗'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* LET BASKET (Covered Castle) */}
+                    <div className="rounded-xl border-2 p-4 flex flex-col items-center justify-between min-h-[220px] bg-green-500/5 border-green-500/30">
+                        <div className="text-xs font-bold text-green-400">let y</div>
+                        
+                        {/* Safe Castle Graphic */}
+                        <div className="w-20 h-20 relative border-2 border-green-500/40 rounded-lg flex items-center justify-center bg-green-950/20">
+                            {/* Castle Lock Indicator */}
+                            <div className="absolute top-1 text-[10px] text-green-400">🔒 Block</div>
+                            {letVal ? (
+                                <div className="text-3xl js-pop">
+                                    {letVal}
+                                </div>
+                            ) : (
+                                <span className="text-xs opacity-40">{isTr ? 'Boş' : 'Empty'}</span>
+                            )}
+                        </div>
+
+                        <div className="w-full space-y-1.5 mt-2">
+                            <button onClick={() => handleDeclare('let', '🧩')} className="w-full py-1 rounded text-xs font-bold bg-green-600/20 hover:bg-green-600/30 text-green-200 border border-green-500/30 transition-all">
+                                {isTr ? 'Ata: 🧩' : 'Set: 🧩'}
+                            </button>
+                            <button onClick={() => handleReassign('let', '🚂')} disabled={!letVal} className="w-full py-1 rounded text-xs font-bold bg-green-600/20 hover:bg-green-600/30 text-green-200 border border-green-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                {isTr ? 'Güncelle: 🚂' : 'Reassign: 🚂'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* CONST BASKET (Ultra Security Castle) */}
+                    <div className="relative rounded-xl border-2 p-4 flex flex-col items-center justify-between min-h-[220px] bg-yellow-500/5 border-yellow-500/30">
+                        <div className="text-xs font-bold text-yellow-400">const z</div>
+                        
+                        {/* High Security Container */}
+                        <div className="w-20 h-20 relative border-2 border-yellow-500/40 rounded-lg flex items-center justify-center bg-yellow-950/20">
+                            <div className="absolute top-1 text-[10px] text-yellow-400">🛡️ Guarded</div>
+                            {constVal ? (
+                                <div className={`text-3xl js-pop ${isCrushed ? 'opacity-30 scale-75' : ''}`}>
+                                    {constVal}
+                                </div>
+                            ) : (
+                                <span className="text-xs opacity-40">{isTr ? 'Boş' : 'Empty'}</span>
+                            )}
+
+                            {/* Crush animation overlay */}
+                            {isCrushed && (
+                                <div className="absolute inset-0 flex items-center justify-center js-crush">
+                                    <span style={{ fontSize: 42 }}>🟫</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="w-full space-y-1.5 mt-2">
+                            <button onClick={() => handleDeclare('const', '🏰')} className="w-full py-1 rounded text-xs font-bold bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-200 border border-yellow-500/30 transition-all">
+                                {isTr ? 'Ata: 🏰' : 'Set: 🏰'}
+                            </button>
+                            <button onClick={() => handleReassign('const', '🤖')} disabled={!constVal} className="w-full py-1 rounded text-xs font-bold bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-200 border border-yellow-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                {isTr ? 'Güncelle: 🤖' : 'Reassign: 🤖'}
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Cartoon Feedback Message */}
+                {beepActive && (
+                    <div className="p-3 mb-3 rounded-lg border border-red-500 bg-red-950/40 text-red-200 text-xs font-mono text-center flex items-center justify-center gap-2 js-pop">
+                        <span>💥</span>
+                        <strong>BIIIP! TypeError: Assignment to constant variable!</strong>
+                    </div>
+                )}
+
+                {successConfetti && (
+                    <div className="p-3 mb-3 rounded-lg border border-green-500 bg-green-950/30 text-green-200 text-xs text-center flex items-center justify-center gap-2 js-pop">
+                        <span>🎉</span>
+                        <strong>{isTr ? 'Tık! Yerine başarıyla oturdu!' : 'Click! Placed successfully!'}</strong>
+                    </div>
+                )}
+
+                {/* Right/Info Panel Details */}
+                <div className={`p-4 rounded-xl border text-xs leading-relaxed ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-amber-100 text-gray-600'}`}>
+                    <div className="font-bold text-amber-400 mb-1">💡 {isTr ? 'QA Mühendisi Notu' : 'QA Engineer Note'}</div>
+                    <p className="mb-2">
+                        {isTr ? 'Java geliştiricisi olarak `var` anahtar kelimesinin delikli tabanını hoisting sızıntısı olarak zihninde tut. `let` ve `const` Java\'daki standart değişken kurallarına ve `final` kilidine benzer.' 
+                             : 'As a Java developer, visualize `var` as a basket with a hole in the bottom representing scope leaks (hoisting). `let` and `const` align closely with Java\'s block scopes and the `final` re-assignment lock.'}
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function JSEventLoopVisualBlock({ darkMode, language }) {
+    const isTr = language === 'tr'
+    const [stack, setStack] = useState([])
+    const [webApis, setWebApis] = useState([])
+    const [callbackQueue, setCallbackQueue] = useState([])
+    const [consoleOutput, setConsoleOutput] = useState([])
+    const [phase, setPhase] = useState('idle') // idle, step1, step2, step3, step4, step5, step6, completed
+    const [isAutoPlaying, setIsAutoPlaying] = useState(false)
+    const timersRef = useRef([])
+
+    const resetSim = () => {
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        setStack([])
+        setWebApis([])
+        setCallbackQueue([])
+        setConsoleOutput([])
+        setPhase('idle')
+        setIsAutoPlaying(false)
+    }
+
+    const runAutoPlay = () => {
+        if (isAutoPlaying) return
+        resetSim()
+        setIsAutoPlaying(true)
+        setPhase('step1')
+
+        const timeline = [
+            { fn: () => { setStack(['console.log("A")']); setConsoleOutput(c => [...c, 'A']) }, delay: 1000, next: 'step2' },
+            { fn: () => { setStack(['setTimeout(fn, 2s)']) }, delay: 1000, next: 'step3' },
+            { fn: () => { setStack([]); setWebApis([{ label: 'Lego Car 🚗 (setTimeout)', time: 2 }]) }, delay: 1000, next: 'step4' },
+            { fn: () => { setStack(['console.log("C")']); setConsoleOutput(c => [...c, 'C']) }, delay: 1000, next: 'step5' },
+            { fn: () => { setStack([]) }, delay: 800, next: 'step5_timer' },
+            // Timer count down
+            { fn: () => { setWebApis([{ label: 'Lego Car 🚗 (setTimeout)', time: 1 }]) }, delay: 1000, next: 'step5_timer2' },
+            { fn: () => { setWebApis([]); setCallbackQueue(['Lego Car 🚗 Callback']) }, delay: 1000, next: 'step6' },
+            { fn: () => { setCallbackQueue([]); setStack(['Lego Car Callback served! 🍦']) }, delay: 1200, next: 'step7' },
+            { fn: () => { setStack([]); setConsoleOutput(c => [...c, 'B 🍦']) }, delay: 1000, next: 'completed' }
+        ]
+
+        let accumulated = 0
+        timeline.forEach((step, idx) => {
+            accumulated += step.delay
+            const t = setTimeout(() => {
+                step.fn()
+                setPhase(step.next)
+                if (idx === timeline.length - 1) setIsAutoPlaying(false)
+            }, accumulated)
+            timersRef.current.push(t)
+        })
+    }
+
+    const getExplanation = () => {
+        switch (phase) {
+            case 'idle':
+                return isTr ? 'Otomasyon simülasyonunu başlatmak için "Başlat" butonuna basın.' : 'Click "Start Auto Play" to begin the async event loop simulation.'
+            case 'step1':
+                return isTr ? '1. Senkron `console.log("A")` Call Stack dondurma sırasına girer, çalışır ve anında konsola "A" yazar.' : '1. Synchronous `console.log("A")` enters Call Stack queue, executes, and prints "A".'
+            case 'step2':
+                return isTr ? '2. Asenkron `setTimeout(fn, 2s)` Call Stack dondurma sırasına yüklenir.' : '2. Asynchronous `setTimeout(fn, 2s)` is loaded onto the Call Stack.'
+            case 'step3':
+                return isTr ? '3. Dondurmacı setTimeout asenkron olduğunu anlar! Lego Arabasını arka bahçeye (Web APIs) gönderir ve zamanlayıcıyı başlatır.' : '3. The engine recognizes async setTimeout! Pushes Lego Car into the Backyard (Web APIs) and starts the timer.'
+            case 'step4':
+                return isTr ? '4. Dondurmacı beklemez! Sıradaki senkron `console.log("C")` Call Stack\'e yüklenir, çalışır ve konsola "C" basar.' : '4. The engine does not wait! Synchronous `console.log("C")` is pushed to Call Stack, runs, and prints "C".'
+            case 'step5_timer':
+            case 'step5_timer2':
+                return isTr ? '5. Arka bahçedeki Lego Arabası oyuncaklarla oynuyor, zamanlayıcı sıfıra geri sayıyor.' : '5. Lego Car is playing with toys in the Backyard as the timer counts down.'
+            case 'step6':
+                return isTr ? '6. Süre bitti! Lego Arabası dondurma sırasına (Call Stack) girmek için "Sıra Bekleyen Çocuklar Hattı"na (Callback Queue) geçer.' : '6. Time out! Lego Car moves into "Waiting Kids Line" (Callback Queue) waiting to return to Call Stack.'
+            case 'step7':
+                return isTr ? '7. Bekçi (Event Loop) bakar: Call Stack boş! Lego Arabası callback kodunu stack\'e parlayarak fırlatır!' : '7. Guard (Event Loop) sees Call Stack is empty! Shoots the Callback function back into the Call Stack!'
+            case 'completed':
+                return isTr ? '8. Callback çalışır! Konsola "B 🍦" basılır ve dondurma teslim edilir!' : '8. Callback executes! Prints "B 🍦" to the console and the ice cream is served!'
+            default:
+                return ''
+        }
+    }
+
+    return (
+        <div className="mb-6" style={{ fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' }}>
+            <div className={`rounded-2xl border-2 p-5 ${darkMode ? 'bg-gray-900 border-indigo-900/40 text-white' : 'bg-indigo-50/20 border-indigo-100 text-gray-800'}`}>
+                
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4 border-b border-dashed pb-3 border-indigo-300/40">
+                    <div className="flex items-center gap-2">
+                        <span className="text-2xl">🎡</span>
+                        <div>
+                            <div className="font-bold text-sm">{isTr ? '🎡 Lunapark Asenkron Event Loop Simülatörü' : '🎡 Amusement Park Async Event Loop Simulator'}</div>
+                            <div className="text-[10px] opacity-75">{isTr ? 'Asenkron kod adımlarınınlunapark seyahatini izle' : 'Watch async execution travel through the amusement park'}</div>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={runAutoPlay} disabled={isAutoPlaying} className="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-colors disabled:opacity-50">
+                            {isAutoPlaying ? (isTr ? '⏳ Oynatılıyor' : '⏳ Playing') : (isTr ? '▶ Başlat' : '▶ Play')}
+                        </button>
+                        <button onClick={resetSim} className="px-3 py-1 rounded-lg text-xs font-bold bg-gray-600 hover:bg-gray-700 text-white transition-colors">
+                            ↺ Reset
+                        </button>
+                    </div>
+                </div>
+
+                {/* Park Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    
+                    {/* CALL STACK (Dondurma Kuyruğu) */}
+                    <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-emerald-500/5 border-emerald-500/20">
+                        <div className="text-xs font-bold text-emerald-400 border-b border-emerald-500/20 pb-1 flex items-center justify-between">
+                            <span>🍦 Dondurma Kuyruğu (Call Stack)</span>
+                            <span className="text-[9px] opacity-70">Single-threaded</span>
+                        </div>
+                        <div className="flex-1 flex flex-col-reverse gap-2 justify-center items-center py-2">
+                            {stack.length > 0 ? (
+                                stack.map((item, idx) => (
+                                    <div key={idx} className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-mono text-[10px] js-pop shadow-md shadow-emerald-950/50">
+                                        {item}
+                                    </div>
+                                ))
+                            ) : (
+                                <span className="text-xs opacity-30 italic">{isTr ? 'Kuyruk Boş (Dondurmacı Dinleniyor)' : 'Queue Empty'}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* WEB APIS (Arka Bahçe) */}
+                    <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-blue-500/5 border-blue-500/20">
+                        <div className="text-xs font-bold text-blue-400 border-b border-blue-500/20 pb-1">
+                            🍀 Arka Bahçe (Web APIs)
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center items-center gap-2 py-2">
+                            {webApis.length > 0 ? (
+                                webApis.map((item, idx) => (
+                                    <div key={idx} className="p-2 rounded-lg bg-blue-600 text-white font-mono text-[10px] js-pop flex items-center gap-1.5 shadow-md shadow-blue-950/50">
+                                        <span>{item.label}</span>
+                                        <span className="bg-blue-950/60 px-1.5 py-0.5 rounded text-[8px] font-bold text-yellow-300">⏱️ {item.time}s</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <span className="text-xs opacity-30 italic">{isTr ? 'Bahçe Boş' : 'Backyard Empty'}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* CALLBACK QUEUE (Waiting kids) */}
+                    <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-purple-500/5 border-purple-500/20">
+                        <div className="text-xs font-bold text-purple-400 border-b border-purple-500/20 pb-1">
+                            🧒 Bekleyen Çocuklar (Callback Queue)
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center items-center gap-2 py-2">
+                            {callbackQueue.length > 0 ? (
+                                callbackQueue.map((item, idx) => (
+                                    <div key={idx} className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-mono text-[10px] js-pop shadow-md shadow-purple-950/50">
+                                        {item}
+                                    </div>
+                                ))
+                            ) : (
+                                <span className="text-xs opacity-30 italic">{isTr ? 'Hatta Kimse Yok' : 'Line Empty'}</span>
+                            )}
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Event Loop Rotating Wheel Indicator */}
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-950/50 border border-gray-800/80 mb-4 justify-between">
+                    <div className="flex items-center gap-2">
+                        <span className={`text-xl inline-block ${isAutoPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '3s' }}>
+                            🎡
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            Event Loop Guard
+                        </span>
+                    </div>
+                    <span className="text-[10px] text-yellow-400 font-mono">
+                        {isAutoPlaying ? 'STATUS: MONITORING' : 'STATUS: IDLE'}
+                    </span>
+                </div>
+
+                {/* Console Output Screen */}
+                <div className="rounded-xl bg-gray-950 text-green-400 p-3 font-mono text-xs mb-4 min-h-[60px] border border-gray-800">
+                    <div className="text-[9px] text-gray-500 uppercase font-bold border-b border-gray-800/80 pb-1 mb-2">
+                        🖥️ Console / Terminal
+                    </div>
+                    {consoleOutput.length > 0 ? (
+                        <div className="flex gap-2 text-sm font-bold">
+                            {consoleOutput.map((val, i) => (
+                                <span key={i} className="js-pop bg-gray-900 px-2 py-1 border border-green-500/20 rounded">
+                                    {val}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <span className="opacity-30 text-[10px]">{isTr ? 'Kodu çalıştırmak için Başlat\'a basın...' : 'Press Play to run code...'}</span>
+                    )}
+                </div>
+
+                {/* Explanation text */}
+                <div className="p-3.5 rounded-xl border border-dashed border-indigo-400/30 text-xs bg-indigo-500/5 leading-relaxed">
+                    <div className="font-bold text-indigo-400 mb-1">📢 {isTr ? 'Adım Adım Lunapark Akışı' : 'Step-by-step Park Flow'}</div>
+                    <p>{getExplanation()}</p>
+                </div>
+
+            </div>
+        </div>
+    )
+}
+
+function JSInterleavingGamesBlock({ darkMode, language }) {
+    const isTr = language === 'tr'
+    const [game, setGame] = useState('array') // 'array' | 'promise' | 'completed' | 'transitioning'
+    const [score, setScore] = useState(0)
+    const [wrongSelection, setWrongSelection] = useState(false)
+    const [confettiActive, setConfettiActive] = useState(false)
+    const [bombTimer, setBombTimer] = useState(5)
+    const [bombActive, setBombActive] = useState(false)
+    const [bombExploded, setBombExploded] = useState(false)
+    const bombIntervalRef = useRef(null)
+
+    // Game 1 Array State
+    const arrayInput = ['🍓', '🥦', '🍎', '🥕']
+    const [selectedArrayCard, setSelectedArrayCard] = useState(null)
+
+    // Handle Game 1 Answer
+    const handleArraySelect = (cardIdx) => {
+        if (selectedArrayCard !== null) return
+        setSelectedArrayCard(cardIdx)
+        if (cardIdx === 0) { // filter (correct)
+            setScore(s => s + 1)
+            setConfettiActive(true)
+            setTimeout(() => {
+                setConfettiActive(false)
+                setGame('transitioning')
+                setTimeout(() => {
+                    setGame('promise')
+                    startBombTimer()
+                }, 1500)
+            }, 1800)
+        } else { // map (wrong)
+            setWrongSelection(true)
+            setTimeout(() => {
+                setWrongSelection(false)
+                setSelectedArrayCard(null)
+            }, 1000)
+        }
+    }
+
+    // Game 2 Bomb Timer
+    const startBombTimer = () => {
+        setBombTimer(5)
+        setBombActive(true)
+        setBombExploded(false)
+        if (bombIntervalRef.current) clearInterval(bombIntervalRef.current)
+        bombIntervalRef.current = setInterval(() => {
+            setBombTimer(prev => {
+                if (prev <= 1) {
+                    clearInterval(bombIntervalRef.current)
+                    setBombExploded(true)
+                    setBombActive(false)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+    }
+
+    // Handle Game 2 Answer
+    const handleWireSelect = (wireId) => {
+        if (!bombActive || bombExploded) return
+        if (wireId === 'A') { // Promise.race winner (2s)
+            clearInterval(bombIntervalRef.current)
+            setBombActive(false)
+            setScore(s => s + 1)
+            setConfettiActive(true)
+            setTimeout(() => {
+                setConfettiActive(false)
+                setGame('completed')
+            }, 2500)
+        } else {
+            // Wrong wire, speed up bomb!
+            setBombTimer(prev => Math.max(1, prev - 2))
+        }
+    }
+
+    const restartGame = () => {
+        if (bombIntervalRef.current) clearInterval(bombIntervalRef.current)
+        setGame('array')
+        setScore(0)
+        setSelectedArrayCard(null)
+        setWrongSelection(false)
+        setConfettiActive(false)
+        setBombTimer(5)
+        setBombActive(false)
+        setBombExploded(false)
+    }
+
+    useEffect(() => {
+        return () => { if (bombIntervalRef.current) clearInterval(bombIntervalRef.current) }
+    }, [])
+
+    return (
+        <div className="mb-6" style={{ fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' }}>
+            <style>{`
+                @keyframes jsBoom {
+                    0% { transform: scale(1); filter: invert(0); }
+                    30% { transform: scale(1.15) rotate(4deg); filter: invert(1) sepia(1) saturate(5) hue-rotate(0deg); }
+                    60% { transform: scale(0.9) rotate(-4deg); filter: invert(1) sepia(1) saturate(5) hue-rotate(180deg); }
+                    100% { transform: scale(1); filter: invert(0); }
+                }
+                @keyframes jsConfetti {
+                    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(150px) rotate(360deg); opacity: 0; }
+                }
+                .js-boom { animation: jsBoom 0.5s ease-in-out; }
+                .js-confetti-particle {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    animation: jsConfetti 1.5s ease-out infinite;
+                }
+            `}</style>
+
+            <div className={`rounded-2xl border-2 p-5 ${bombExploded ? 'js-boom border-red-500 bg-red-950/40' : darkMode ? 'bg-gray-900 border-yellow-900/40 text-white' : 'bg-yellow-50/20 border-yellow-200 text-gray-800'}`}>
+                
+                {/* Score Header */}
+                <div className="flex items-center justify-between mb-4 border-b border-dashed pb-3 border-yellow-300/40">
+                    <div className="flex items-center gap-2">
+                        <span className="text-2xl">🎮</span>
+                        <div>
+                            <div className="font-bold text-sm">{isTr ? 'Karma Vites Değiştirme Oyunu' : 'Interleaving Concept Game'}</div>
+                            <div className="text-[10px] opacity-75">{isTr ? 'Konudan konuya vites değiştirerek beynini test et' : 'Shift gears between topics to boost memory retention'}</div>
+                        </div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 border border-yellow-500/40 text-yellow-300">
+                        {isTr ? 'Puan:' : 'Score:'} {score} / 2
+                    </span>
+                </div>
+
+                {/* Confetti Explosion Overlay */}
+                {confettiActive && (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl z-10">
+                        {[...Array(20)].map((_, i) => (
+                            <div key={i} className="js-confetti-particle"
+                                 style={{
+                                     left: `${Math.random() * 90}%`,
+                                     top: `${Math.random() * 20}%`,
+                                     background: ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#ec4899'][i % 5],
+                                     animationDelay: `${Math.random() * 0.5}s`,
+                                     animationDuration: `${1.2 + Math.random() * 0.8}s`
+                                 }}
+                            />
+                        ))}
+                        <div className="absolute inset-0 bg-green-500/10 flex items-center justify-center pointer-events-none">
+                            <span className="text-4xl font-extrabold text-green-400 bg-gray-900/80 px-4 py-2 rounded-2xl border border-green-500/40 js-pop">🎉 TIK! SUCCESS!</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* GAME 1: ARRAY METHOD SORTING */}
+                {game === 'array' && (
+                    <div className="js-pop">
+                        <div className="text-xs font-bold mb-3 text-center uppercase tracking-wider text-yellow-400">
+                            {isTr ? 'Görev 1: Kırmızı Meyveleri Ayıkla' : 'Task 1: Filter Out the Red Fruits'}
+                        </div>
+                        <div className="p-3 bg-gray-950 rounded-xl mb-4 text-center border border-gray-800">
+                            <div className="text-2xl mb-1 flex justify-center gap-1">
+                                {arrayInput.map((val, idx) => (
+                                    <span key={idx} className="bg-gray-900 px-2.5 py-1 border border-gray-800 rounded">{val}</span>
+                                ))}
+                            </div>
+                            <span className="text-[10px] text-gray-500 font-mono">Input Array: ['🍓', '🥦', '🍎', '🥕']</span>
+                        </div>
+
+                        {/* Selected Lego Target */}
+                        <div className="text-xs font-semibold text-center mb-3">
+                            {isTr ? 'Hedef Dizi: ' : 'Target Array: '} <span className="bg-green-500/10 px-2 py-0.5 border border-green-500/40 text-green-300 rounded">['🍓', '🍎']</span>
+                        </div>
+
+                        {/* Options Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                            <button onClick={() => handleArraySelect(0)}
+                                    className={`p-3 rounded-xl border-2 text-left font-mono text-xs transition-all ${
+                                        selectedArrayCard === 0 ? 'bg-green-950/40 border-green-500 text-green-200' : 'bg-gray-800/40 border-gray-700 hover:border-yellow-500/40'
+                                    }`}>
+                                <div className="font-bold text-green-400 mb-1">Lego A — filter() 🧱</div>
+                                <code>fruits.filter(f =&gt; f !== '🥦' && f !== '🥕')</code>
+                            </button>
+                            <button onClick={() => handleArraySelect(1)}
+                                    className={`p-3 rounded-xl border-2 text-left font-mono text-xs transition-all ${
+                                        wrongSelection ? 'js-shake bg-red-950/40 border-red-500 text-red-200' : 'bg-gray-800/40 border-gray-700 hover:border-yellow-500/40'
+                                    }`}>
+                                <div className="font-bold text-red-400 mb-1">Lego B — map() 🧱</div>
+                                <code>fruits.map(f =&gt; f + '🥤')</code>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* TRANSITION SHIFTING GEARS */}
+                {game === 'transitioning' && (
+                    <div className="py-8 text-center js-pop">
+                        <span className="text-4xl inline-block animate-spin" style={{ animationDuration: '1.2s' }}>⚙️</span>
+                        <div className="mt-3 font-extrabold text-sm text-yellow-400">{isTr ? 'Beyin vites değiştiriyor...' : 'Brain shifting gears...'}</div>
+                        <div className="text-[10px] text-gray-500 mt-1">{isTr ? 'Sıradaki: Asenkron Bomba Etkisizleştirme!' : 'Up next: Async Promise Race Defuser!'}</div>
+                    </div>
+                )}
+
+                {/* GAME 2: PROMISE.RACE BOMB DEFUSER */}
+                {game === 'promise' && (
+                    <div className="js-pop">
+                        <div className="text-xs font-bold mb-3 text-center uppercase tracking-wider text-red-400">
+                            {isTr ? 'Görev 2: Asenkron Bombayı Etkisizleştir!' : 'Task 2: Defuse the Async Bomb!'}
+                        </div>
+
+                        {/* Ticking Bomb graphic */}
+                        <div className="p-4 bg-gray-950 rounded-xl mb-4 text-center border border-red-900/30 flex flex-col items-center justify-center">
+                            {bombExploded ? (
+                                <div className="text-center js-pop">
+                                    <span className="text-5xl">💥</span>
+                                    <div className="text-sm font-bold text-red-500 mt-2">BOOM! {isTr ? 'Bomba Patladı!' : 'Bomb Exploded!'}</div>
+                                    <button onClick={restartGame} className="mt-3 px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs">
+                                        {isTr ? 'Tekrar Dene ↺' : 'Try Again ↺'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <span className="text-4xl animate-bounce">💣</span>
+                                    <div className="text-2xl font-bold font-mono text-red-400 mt-1">00:0{bombTimer}</div>
+                                    <span className="text-[9px] text-gray-500 font-mono mt-1">Promise.race([WireA, WireB, WireC])</span>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Wires container */}
+                        {bombActive && !bombExploded && (
+                            <div className="space-y-2">
+                                <div className="text-[10px] text-gray-400 text-center mb-2">
+                                    {isTr ? 'En hızlı çözülen (en kısa süren) Promise kablosunu kes!' : 'Cut the Promise wire with the shortest resolution time!'}
+                                </div>
+                                <button onClick={() => handleWireSelect('A')} className="w-full p-2.5 rounded-lg border border-blue-500 bg-blue-950/20 hover:bg-blue-950/40 text-blue-200 text-xs font-mono flex items-center justify-between transition-all">
+                                    <strong>Wire A (Winner 🥇)</strong>
+                                    <span>new Promise(res =&gt; setTimeout(res, 2000))</span>
+                                </button>
+                                <button onClick={() => handleWireSelect('B')} className="w-full p-2.5 rounded-lg border border-gray-700 bg-gray-800/20 hover:bg-red-950/20 text-gray-400 text-xs font-mono flex items-center justify-between transition-all">
+                                    <strong>Wire B</strong>
+                                    <span>new Promise(res =&gt; setTimeout(res, 4000))</span>
+                                </button>
+                                <button onClick={() => handleWireSelect('C')} className="w-full p-2.5 rounded-lg border border-gray-700 bg-gray-800/20 hover:bg-red-950/20 text-gray-400 text-xs font-mono flex items-center justify-between transition-all">
+                                    <strong>Wire C</strong>
+                                    <span>new Promise(res =&gt; setTimeout(res, 6000))</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* GAME COMPLETED */}
+                {game === 'completed' && (
+                    <div className="py-6 text-center js-pop">
+                        <span className="text-5xl">🏆</span>
+                        <div className="mt-3 font-extrabold text-sm text-green-400">{isTr ? 'Tebrikler! Lunapark Kurtarıldı!' : 'Congratulations! The Park is Saved!'}</div>
+                        <p className="text-xs text-gray-400 mt-2">
+                            {isTr ? 'Beyniniz başarıyla vites değiştirdi ve asenkron kod yollarını etkisiz hale getirdi.' 
+                                 : 'Your brain successfully shifted gears and defused asynchronous race conditions.'}
+                        </p>
+                        <button onClick={restartGame} className="mt-4 px-4 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold text-xs">
+                            {isTr ? 'Yeniden Oyna ↺' : 'Play Again ↺'}
+                        </button>
+                    </div>
+                )}
+
+            </div>
+        </div>
+    )
+}
+
 export default TopicPage
+

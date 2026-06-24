@@ -32,7 +32,8 @@
         "table": "📊 Veri Tablosu",
         "api": "🌐 API Simülasyonu",
         "comparison": "🔍 Test Araçları Karşılaştırma",
-        "practice": "🛠️ Uygulama Bahçesi"
+        "practice": "🛠️ Uygulama Bahçesi",
+        "neuroLocate": "🧠 Neuro-Locate Lab"
     },
     "home": {
         "section": {
@@ -42,7 +43,8 @@
             "advancedShort": "🚀 Gelişmiş",
             "tableShort": "📊 Tablo",
             "apiShort": "🌐 API",
-            "practiceShort": "🛠️ Pratik"
+            "practiceShort": "🛠️ Pratik",
+            "neuroLocateShort": "🧠 Nöro-Locate"
         },
         "category": {
             "languages": "Diller",

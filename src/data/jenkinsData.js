@@ -285,10 +285,22 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
       ],
       "correct": "b",
       "explanation": "By default, Jenkins is configured to listen on port 8080 for HTTP traffic. While this can be modified during installation or in the configuration file, 8080 is the standard port used."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Jenkins Dağıtık Derleme Mimarisi (Master-Agent)', en: 'Jenkins Distributed Build Architecture (Master-Agent)' },
+    items: [
+      { icon: '🖥️', label: { tr: 'Jenkins Controller (Master)', en: 'Jenkins Controller (Master)' }, desc: { tr: 'İşleri planlar, UI sunar ve konfigürasyonu yönetir.', en: 'Schedules builds, serves UI, and manages configuration.' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Agent Node A (Chrome)', en: 'Agent Node A (Chrome)' }, desc: { tr: 'UI testlerini koşan izole test makinesi', en: 'Isolated agent running UI tests on Chrome' } },
+      { icon: '🐳', label: { tr: 'Agent Node B (Firefox)', en: 'Agent Node B (Firefox)' }, desc: { tr: 'Paralel koşan Firefox test makinesi', en: 'Isolated agent running Firefox tests' } }
+    ],
+    note: { tr: 'Tüm testler ve derlemeler Controller üzerinde değil, Agent makineleri üzerinde koşturularak yük dağıtılır.', en: 'All heavy compilation and test execution runs on Agent nodes to prevent overloading the Controller.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 2: PIPELINE ────────────────────────────────────────────────
       {
@@ -355,6 +367,54 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
         }
     }
 }`,
+            language: 'groovy',
+          },
+          {
+            type: 'simulation',
+            icon: '🔧',
+            color: '#ef4444',
+            title: { tr: 'CI/CD Pipeline — Canlı Simülasyon', en: 'CI/CD Pipeline — Live Simulation' },
+            scenario: 'jenkins-pipeline-visual',
+            description: {
+              tr: '"▶ Build Başlat" butonuna bas: Checkout → Compile → Run QA Tests → Deploy aşamalarını bir fabrika üretim bandı gibi canlı izle. Paralel çalışan agent\'ları ve hata durumunda çıkan dumanları gözlemle.',
+              en: 'Press "▶ Build Başlat": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
+            },
+            code: `// Jenkinsfile — Parallel QA Stages
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/org/repo.git'
+            }
+        }
+        stage('Compile') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('Run QA Tests') {
+            parallel {
+                stage('UI Tests - Chrome') {
+                    steps {
+                        sh 'npx playwright test --project=chromium'
+                    }
+                }
+                stage('UI Tests - Firefox') {
+                    steps {
+                        sh 'npx playwright test --project=firefox'
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh './scripts/deploy-staging.sh'
+            }
+        }
+    }
+}`,
+            language: 'groovy'
           },
           { type: 'heading', text: 'Environment Variables' },
           {
@@ -689,10 +749,87 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
       ],
       "correct": "c",
       "explanation": "The 'failure' condition within the 'post' block is specifically designed to run only when the preceding stages result in a non-zero exit code or pipeline failure, making it ideal for error alerts."
-}
-},
+    }
+  },
+  {
+    type: 'interleaving-challenge',
+    challenges: [
+      {
+        topic: 'Docker',
+        questionTr: 'Bir test ortamını konteynerleştirirken, test raporlarının container kapandıktan sonra da makinenizde kalması için hangi yöntemi seçmelisiniz?',
+        questionEn: 'When containerizing a test environment, which method should you choose to ensure test reports persist on your host machine after the container is destroyed?',
+        optionsTr: [
+          'docker exec komutunu kullanmak',
+          'Host dizinini -v veya --volume ile container\'a mount etmek (Volume Bind Mount)',
+          'ENV komutuyla ortam değişkeni tanımlamak',
+          'Dockerfile içine EXPOSE 8080 eklemek'
         ],
+        optionsEn: [
+          'Using the docker exec command',
+          'Mounting a host directory into the container using -v or --volume (Volume Bind Mount)',
+          'Defining an environment variable with the ENV command',
+          'Adding EXPOSE 8080 inside the Dockerfile'
+        ],
+        correct: 1,
+        explanationTr: 'Volume bind mount sayesinde, container içindeki test raporları dizini host makinenizdeki bir klasöre yazılır ve container yok olsa bile raporlar kalıcı olur.',
+        explanationEn: 'Using a volume bind mount allows the container to write test reports directly to a directory on the host machine, retaining them even after the container is destroyed.'
       },
+      {
+        topic: 'Jenkins',
+        questionTr: 'Jenkinsfile\'da birden fazla QA test aşamasını (örneğin API ve UI testleri) paralel ve bağımsız agent\'lar üzerinde çalıştırmak için hangi direktif kullanılır?',
+        questionEn: 'Which directive is used in a Jenkinsfile to run multiple QA test stages (e.g. API and UI tests) in parallel on independent agents?',
+        optionsTr: [
+          'stages',
+          'parallel',
+          'agent any',
+          'post always'
+        ],
+        optionsEn: [
+          'stages',
+          'parallel',
+          'agent any',
+          'post always'
+        ],
+        correct: 1,
+        explanationTr: 'parallel direktifi, altındaki stage\'leri eş zamanlı olarak farklı agent\'lar üzerinde paralel koşturarak build sürelerini kısaltır.',
+        explanationEn: 'The parallel directive executes its child stages concurrently, potentially allocating them to different agents to decrease total build execution time.'
+      },
+      {
+        topic: 'Kubernetes',
+        questionTr: 'Kubernetes\'te bir Pod çöktüğünde (CrashLoopBackOff durumuna geldiğinde), Kubernetes\'in bu pod\'u otomatik olarak yeniden başlatmasına ne ad verilir?',
+        questionEn: 'When a Pod crashes in Kubernetes (enters CrashLoopBackOff), what is the term for Kubernetes automatically restarting/replacing it?',
+        optionsTr: [
+          'Self-healing (Kendi kendini iyileştirme)',
+          'Port Forwarding (Port yönlendirme)',
+          'Horizontal Pod Autoscaling (Yatay ölçekleme)',
+          'Rolling Update (Kesintisiz güncelleme)'
+        ],
+        optionsEn: [
+          'Self-healing',
+          'Port Forwarding',
+          'Horizontal Pod Autoscaling',
+          'Rolling Update'
+        ],
+        correct: 0,
+        explanationTr: 'Self-healing (Kendi kendini iyileştirme), Kubernetes\'in istenen durum (desired state) ile mevcut durumu (current state) eşitlemek için çöken pod\'u otomatik olarak silip yenisini ayağa kaldırmasıdır.',
+        explanationEn: 'Self-healing is a core Kubernetes capability where the controller manager detects a failed pod and automatically restarts or replaces it to maintain the desired replica count.'
+      }
+    ]
+  },
+  {
+    type: 'visual',
+    variant: 'flow',
+    title: { tr: 'QA Otomasyon Pipeline Akışı', en: 'QA Automation Pipeline Flow' },
+    steps: [
+      { num: '1', label: { tr: 'Kod Değişikliği', en: 'Code Commit' }, desc: { tr: 'Geliştirici veya QA test kodunu GitHub\'a gönderir.', en: 'Developer or QA pushes code to Git repository.' } },
+      { num: '2', label: { tr: 'Webhook Tetikleyici', en: 'Webhook Trigger' }, desc: { tr: 'GitHub webhook üzerinden Jenkins\'e otomatik bildirim gönderilir.', en: 'GitHub Webhook notifies Jenkins to start a new build.' } },
+      { num: '3', label: { tr: 'Test Koşumu', en: 'Test Execution' }, desc: { tr: 'Jenkins agent üzerinde Playwright veya Selenium testleri başlatılır.', en: 'Runs Playwright/pytest/Newman tests on the build agent.' } },
+      { num: '4', label: { tr: 'Rapor Arşivleme', en: 'Report Archiving' }, desc: { tr: 'JUnit XML veya HTML test raporları Jenkins master\'a yüklenir.', en: 'Uploads and stores HTML/Allure test reports on Master.' } },
+      { num: '5', label: { tr: 'Slack / E-posta Bildirimi', en: 'Slack Notification' }, desc: { tr: 'Test başarısız olursa post-build ile Slack kanalına anında alarm gönderilir.', en: 'Sends instant Slack alert if any automation test fails.' } }
+    ]
+  }
+],
+},
 
       // ── SECTION 4: ADVANCED ────────────────────────────────────────────────
       {
@@ -900,12 +1037,51 @@ stage('Flaky Tests') {
                   "text": "Wrapping stages in a 'distributed' block"
             }
       ],
-      "correct": "a",
       "explanation": "To achieve parallel execution in a declarative pipeline, you use the 'parallel' directive inside a stage. This allows multiple steps or stages to run on different executors at the same time."
-}
+    }
+  },
+  {
+    type: 'simulation',
+    icon: '🔧',
+    color: '#ef4444',
+    title: { tr: 'CI/CD Pipeline — Canlı Simülasyon', en: 'CI/CD Pipeline — Live Simulation' },
+    scenario: 'jenkins-pipeline',
+    description: {
+      tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
+      en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+    },
+    code: `// Jenkinsfile — Declarative Pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { git branch: 'main', url: 'https://github.com/org/repo.git' }
+        }
+        stage('Build') {
+            steps { sh 'mvn clean package -DskipTests' }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { sh 'mvn sonar:sonar' }
+                waitForQualityGate abortPipeline: true
+            }
+        }
+        stage('Deploy') {
+            when { branch 'main' }
+            steps { sh './scripts/deploy-staging.sh' }
+        }
+    }
+}`,
+    language: 'groovy'
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 5: REAL WORLD ───────────────────────────────────────────────
       {
@@ -1062,11 +1238,24 @@ stage('Flaky Tests') {
                 { id: 'd', text: 'It removes the need for a Dockerfile entirely' },
               ],
               correct: 'b',
-              explanation: '`:latest` is not a fixed version — it is a moving pointer that gets reassigned to whatever image was most recently published under that tag. A pipeline using `maven:latest` can quietly start building with a different Maven/JDK version next month with zero code change, recreating the same "build passed yesterday, fails today" drift problem that pinning a Docker image was supposed to solve in the first place.',
-            },
-          },
-        ],
-      },
+      "explanation": "`:latest` is not a fixed version — it is a moving pointer that gets reassigned to whatever image was most recently published under that tag. A pipeline using `maven:latest` can quietly start building with a different Maven/JDK version next month with zero code change, recreating the same \"build passed yesterday, fails today\" drift problem that pinning a Docker image was supposed to solve in the first place.",
+    }
+  },
+  {
+    type: 'feynman-checkpoint',
+    prompt: 'Explain how parallel test execution in Jenkins affects resource management, and why a test team should care, in simple terms (as if explaining to a 5-year-old).',
+    promptTr: 'Jenkins\'te paralel test koşumunun kaynak yönetimini (CPU/Memory/Network) nasıl etkilediğini ve test ekibinin bunu neden önemsemesi gerektiğini, 5 yaşındaki bir çocuğa anlatır gibi (teknik jargon kullanmadan) basit terimlerle açıkla.',
+    keywords: [
+      ['paralel', 'parallel', 'aynı anda', 'concurrent', 'simultaneous'],
+      ['kaynak', 'resource', 'cpu', 'ram', 'hafıza', 'memory', 'sunucu', 'agent', 'executor'],
+      ['yavaş', 'slow', 'çökme', 'crash', 'limit', 'darboğaz', 'bottleneck']
+    ],
+    modelAnswerEn: 'Running tests in parallel is like cooking multiple dishes on a stove at the same time. It makes dinner ready much faster, but if you put too many pots on the stove, you run out of burners or gas (CPU and memory), and everything might burn (crash). Test teams need to balance speed with how much resources they have.',
+    modelAnswerTr: 'Paralel test koşmak, ocaktaki tüm gözlerde aynı anda farklı yemekler pişirmek gibidir. Akşam yemeği çok daha hızlı hazır olur, ama ocağa bir anda çok fazla tencere koyarsan gaz yetmeyebilir veya ocak taşabilir (CPU ve RAM tükenir, sistem çöker). Bu yüzden hızı ve kaynakları dengede tutmalıyız.',
+    minScore: 2
+  }
+],
+},
 
       // ── SECTION 7: INTERVIEW Q&A ───────────────────────────────────────────
       {
@@ -1409,10 +1598,22 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
       ],
       "correct": "c",
       "explanation": "Jenkins, kurulum sırasında varsayılan olarak 8080 portunu dinler. 50000 portu ise Jenkins agent (slave) node'larının ana makineyle iletişim kurması için ayrılmıştır."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Jenkins Dağıtık Derleme Mimarisi (Master-Agent)', en: 'Jenkins Distributed Build Architecture (Master-Agent)' },
+    items: [
+      { icon: '🖥️', label: { tr: 'Jenkins Controller (Master)', en: 'Jenkins Controller (Master)' }, desc: { tr: 'İşleri planlar, UI sunar ve konfigürasyonu yönetir.', en: 'Schedules builds, serves UI, and manages configuration.' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Agent Node A (Chrome)', en: 'Agent Node A (Chrome)' }, desc: { tr: 'UI testlerini koşan izole test makinesi', en: 'Isolated agent running UI tests on Chrome' } },
+      { icon: '🐳', label: { tr: 'Agent Node B (Firefox)', en: 'Agent Node B (Firefox)' }, desc: { tr: 'Paralel koşan Firefox test makinesi', en: 'Isolated agent running Firefox tests' } }
+    ],
+    note: { tr: 'Tüm testler ve derlemeler Controller üzerinde değil, Agent makineleri üzerinde koşturularak yük dağıtılır.', en: 'All heavy compilation and test execution runs on Agent nodes to prevent overloading the Controller.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 2: PIPELINE (TR) ───────────────────────────────────────────
       {
@@ -1428,44 +1629,47 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             icon: '🔧',
             color: '#ef4444',
             title: { tr: 'CI/CD Pipeline — Canlı Simülasyon', en: 'CI/CD Pipeline — Live Simulation' },
-            scenario: 'jenkins-pipeline',
+            scenario: 'jenkins-pipeline-visual',
             description: {
-              tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
-              en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+              tr: '"▶ Build Başlat" butonuna bas: Checkout → Compile → Run QA Tests → Deploy aşamalarını bir fabrika üretim bandı gibi canlı izle. Paralel çalışan agent\'ları ve hata durumunda çıkan dumanları gözlemle.',
+              en: 'Press "▶ Build Başlat": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
             },
-            code: `// Jenkinsfile — Declarative Pipeline
+            code: `// Jenkinsfile — Parallel QA Stages
 pipeline {
     agent any
     stages {
         stage('Checkout') {
-            steps { git branch: 'main', url: 'https://github.com/org/repo.git' }
-        }
-        stage('Build') {
-            steps { sh 'mvn clean package -DskipTests' }
-        }
-        stage('Test') {
             steps {
-                sh 'mvn test'
-                junit '**/target/surefire-reports/*.xml'
+                git branch: 'main', url: 'https://github.com/org/repo.git'
             }
         }
-        stage('SonarQube') {
+        stage('Compile') {
             steps {
-                withSonarQubeEnv('SonarCloud') { sh 'mvn sonar:sonar' }
-                waitForQualityGate abortPipeline: true
+                sh 'npm install'
+            }
+        }
+        stage('Run QA Tests') {
+            parallel {
+                stage('UI Tests - Chrome') {
+                    steps {
+                        sh 'npx playwright test --project=chromium'
+                    }
+                }
+                stage('UI Tests - Firefox') {
+                    steps {
+                        sh 'npx playwright test --project=firefox'
+                    }
+                }
             }
         }
         stage('Deploy') {
-            when { branch 'main' }
-            steps { sh './scripts/deploy-staging.sh' }
+            steps {
+                sh './scripts/deploy-staging.sh'
+            }
         }
     }
-    post {
-        success { slackSend color: 'good', message: "✅ Build #\${BUILD_NUMBER} başarılı" }
-        failure { slackSend color: 'danger', message: "❌ Build #\${BUILD_NUMBER} başarısız!" }
-    }
 }`,
-            language: 'groovy',
+            language: 'groovy'
           },
           { type: 'heading', text: 'Freestyle Job vs Declarative Pipeline' },
           {
@@ -1849,10 +2053,87 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
       ],
       "correct": "c",
       "explanation": "always koşulu, build'in nihai durumuna (success, failure, unstable, aborted) bakılmaksızın her koşulda çalıştırılmasını sağlar. Bu özellik özellikle log temizleme veya bildirim gönderme süreçlerinde kullanılır."
-}
-},
+    }
+  },
+  {
+    type: 'interleaving-challenge',
+    challenges: [
+      {
+        topic: 'Docker',
+        questionTr: 'Bir test ortamını konteynerleştirirken, test raporlarının container kapandıktan sonra da makinenizde kalması için hangi yöntemi seçmelisiniz?',
+        questionEn: 'When containerizing a test environment, which method should you choose to ensure test reports persist on your host machine after the container is destroyed?',
+        optionsTr: [
+          'docker exec komutunu kullanmak',
+          'Host dizinini -v veya --volume ile container\'a mount etmek (Volume Bind Mount)',
+          'ENV komutuyla ortam değişkeni tanımlamak',
+          'Dockerfile içine EXPOSE 8080 eklemek'
         ],
+        optionsEn: [
+          'Using the docker exec command',
+          'Mounting a host directory into the container using -v or --volume (Volume Bind Mount)',
+          'Defining an environment variable with the ENV command',
+          'Adding EXPOSE 8080 inside the Dockerfile'
+        ],
+        correct: 1,
+        explanationTr: 'Volume bind mount sayesinde, container içindeki test raporları dizini host makinenizdeki bir klasöre yazılır ve container yok olsa bile raporlar kalıcı olur.',
+        explanationEn: 'Using a volume bind mount allows the container to write test reports directly to a directory on the host machine, retaining them even after the container is destroyed.'
       },
+      {
+        topic: 'Jenkins',
+        questionTr: 'Jenkinsfile\'da birden fazla QA test aşamasını (örneğin API ve UI testleri) paralel ve bağımsız agent\'lar üzerinde çalıştırmak için hangi direktif kullanılır?',
+        questionEn: 'Which directive is used in a Jenkinsfile to run multiple QA test stages (e.g. API and UI tests) in parallel on independent agents?',
+        optionsTr: [
+          'stages',
+          'parallel',
+          'agent any',
+          'post always'
+        ],
+        optionsEn: [
+          'stages',
+          'parallel',
+          'agent any',
+          'post always'
+        ],
+        correct: 1,
+        explanationTr: 'parallel direktifi, altındaki stage\'leri eş zamanlı olarak farklı agent\'lar üzerinde paralel koşturarak build sürelerini kısaltır.',
+        explanationEn: 'The parallel directive executes its child stages concurrently, potentially allocating them to different agents to decrease total build execution time.'
+      },
+      {
+        topic: 'Kubernetes',
+        questionTr: 'Kubernetes\'te bir Pod çöktüğünde (CrashLoopBackOff durumuna geldiğinde), Kubernetes\'in bu pod\'u otomatik olarak yeniden başlatmasına ne ad verilir?',
+        questionEn: 'When a Pod crashes in Kubernetes (enters CrashLoopBackOff), what is the term for Kubernetes automatically restarting/replacing it?',
+        optionsTr: [
+          'Self-healing (Kendi kendini iyileştirme)',
+          'Port Forwarding (Port yönlendirme)',
+          'Horizontal Pod Autoscaling (Yatay ölçekleme)',
+          'Rolling Update (Kesintisiz güncelleme)'
+        ],
+        optionsEn: [
+          'Self-healing',
+          'Port Forwarding',
+          'Horizontal Pod Autoscaling',
+          'Rolling Update'
+        ],
+        correct: 0,
+        explanationTr: 'Self-healing (Kendi kendini iyileştirme), Kubernetes\'in istenen durum (desired state) ile mevcut durumu (current state) eşitlemek için çöken pod\'u otomatik olarak silip yenisini ayağa kaldırmasıdır.',
+        explanationEn: 'Self-healing is a core Kubernetes capability where the controller manager detects a failed pod and automatically restarts or replaces it to maintain the desired replica count.'
+      }
+    ]
+  },
+  {
+    type: 'visual',
+    variant: 'flow',
+    title: { tr: 'QA Otomasyon Pipeline Akışı', en: 'QA Automation Pipeline Flow' },
+    steps: [
+      { num: '1', label: { tr: 'Kod Değişikliği', en: 'Code Commit' }, desc: { tr: 'Geliştirici veya QA test kodunu GitHub\'a gönderir.', en: 'Developer or QA pushes code to Git repository.' } },
+      { num: '2', label: { tr: 'Webhook Tetikleyici', en: 'Webhook Trigger' }, desc: { tr: 'GitHub webhook üzerinden Jenkins\'e otomatik bildirim gönderilir.', en: 'GitHub Webhook notifies Jenkins to start a new build.' } },
+      { num: '3', label: { tr: 'Test Koşumu', en: 'Test Execution' }, desc: { tr: 'Jenkins agent üzerinde Playwright veya Selenium testleri başlatılır.', en: 'Runs Playwright/pytest/Newman tests on the build agent.' } },
+      { num: '4', label: { tr: 'Rapor Arşivleme', en: 'Report Archiving' }, desc: { tr: 'JUnit XML veya HTML test raporları Jenkins master\'a yüklenir.', en: 'Uploads and stores HTML/Allure test reports on Master.' } },
+      { num: '5', label: { tr: 'Slack / E-posta Bildirimi', en: 'Slack Notification' }, desc: { tr: 'Test başarısız olursa post-build ile Slack kanalına anında alarm gönderilir.', en: 'Sends instant Slack alert if any automation test fails.' } }
+    ]
+  }
+],
+},
 
       // ── SECTION 4: ADVANCED (TR) ───────────────────────────────────────────
       {
@@ -2059,12 +2340,51 @@ stage('Flaky Testler') {
                   "text": "Her job için ayrı bir jenkins agent tanımlayıp pipe ile bağlamak"
             }
       ],
-      "correct": "b",
       "explanation": "Jenkins Pipeline'da birden fazla işi paralel çalıştırmak için 'parallel' bloğu kullanılır. Bu blok, içine yazılan stage'leri veya komutları aynı anda başlatarak kaynakların verimli kullanılmasını sağlar."
-}
+    }
+  },
+  {
+    type: 'simulation',
+    icon: '🔧',
+    color: '#ef4444',
+    title: { tr: 'CI/CD Pipeline — Canlı Simülasyon', en: 'CI/CD Pipeline — Live Simulation' },
+    scenario: 'jenkins-pipeline',
+    description: {
+      tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
+      en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+    },
+    code: `// Jenkinsfile — Declarative Pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps { git branch: 'main', url: 'https://github.com/org/repo.git' }
+        }
+        stage('Build') {
+            steps { sh 'mvn clean package -DskipTests' }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { sh 'mvn sonar:sonar' }
+                waitForQualityGate abortPipeline: true
+            }
+        }
+        stage('Deploy') {
+            when { branch 'main' }
+            steps { sh './scripts/deploy-staging.sh' }
+        }
+    }
+}`,
+    language: 'groovy'
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 5: GERÇEK HAYAT ─────────────────────────────────────────────
       {
@@ -2222,11 +2542,24 @@ stage('Flaky Testler') {
                 { id: 'd', text: 'Bir Dockerfile ihtiyacını tamamen ortadan kaldırır' },
               ],
               correct: 'b',
-              explanation: '`:latest` sabit bir sürüm değildir — o tag altında en son yayınlanan image\'a yeniden atanan hareketli bir işaretçidir. `maven:latest` kullanan bir pipeline, hiçbir kod değişikliği olmadan gelecek ay farklı bir Maven/JDK sürümüyle sessizce build etmeye başlayabilir, bu da bir Docker image\'ını sabitlemenin başta çözmesi gereken aynı "dün geçti, bugün başarısız oluyor" kayma sorununu yeniden yaratır.',
-            },
-          },
-        ],
-      },
+      "explanation": "`:latest` sabit bir sürüm değildir — o tag altında en son yayınlanan image\'a yeniden atanan hareketli bir işaretçidir. `maven:latest` kullanan bir pipeline, hiçbir kod değişikliği olmadan gelecek ay farklı bir Maven/JDK sürümüyle sessizce build etmeye başlayabilir, bu da bir Docker image\'ını sabitlemenin başta çözmesi gereken aynı \"dün geçti, bugün başarısız oluyor\" kayma sorununu yeniden yaratır.",
+    }
+  },
+  {
+    type: 'feynman-checkpoint',
+    prompt: 'Explain how parallel test execution in Jenkins affects resource management, and why a test team should care, in simple terms (as if explaining to a 5-year-old).',
+    promptTr: 'Jenkins\'te paralel test koşumunun kaynak yönetimini (CPU/Memory/Network) nasıl etkilediğini ve test ekibinin bunu neden önemsemesi gerektiğini, 5 yaşındaki bir çocuğa anlatır gibi (teknik jargon kullanmadan) basit terimlerle açıkla.',
+    keywords: [
+      ['paralel', 'parallel', 'aynı anda', 'concurrent', 'simultaneous'],
+      ['kaynak', 'resource', 'cpu', 'ram', 'hafıza', 'memory', 'sunucu', 'agent', 'executor'],
+      ['yavaş', 'slow', 'çökme', 'crash', 'limit', 'darboğaz', 'bottleneck']
+    ],
+    modelAnswerEn: 'Running tests in parallel is like cooking multiple dishes on a stove at the same time. It makes dinner ready much faster, but if you put too many pots on the stove, you run out of burners or gas (CPU and memory), and everything might burn (crash). Test teams need to balance speed with how much resources they have.',
+    modelAnswerTr: 'Paralel test koşmak, ocaktaki tüm gözlerde aynı anda farklı yemekler pişirmek gibidir. Akşam yemeği çok daha hızlı hazır olur, ama ocağa bir anda çok fazla tencere koyarsan gaz yetmeyebilir veya ocak taşabilir (CPU ve RAM tükenir, sistem çöker). Bu yüzden hızı ve kaynakları dengede tutmalıyız.',
+    minScore: 2
+  }
+],
+},
 
       // ── SECTION 7: INTERVIEW Q&A (TR) ─────────────────────────────────────
       {

@@ -271,6 +271,15 @@ public class BaseTest {
       }
 }
 },
+    {
+      type: 'api-traffic-chain',
+      endpoint: 'GET /api/users/2',
+      method: 'GET',
+      statusCode: 200,
+      requestHeaders: { 'Authorization': 'Bearer {{token}}', 'Accept': 'application/json' },
+      responseBody: '{\n  "data": {\n    "id": 2,\n    "email": "janet@reqres.in",\n    "first_name": "Janet"\n  },\n  "support": { "url": "https://reqres.in" }\n}',
+      raCode: 'given()\n  .baseUri("https://reqres.in")\n  .header("Authorization", "Bearer " + token)\n.when()\n  .get("/api/users/2")\n.then()\n  .statusCode(200)\n  .body("data.id", equalTo(2))\n  .body("data.email", notNullValue());',
+    },
     ],
   },
 
@@ -764,6 +773,15 @@ void deleteUser_shouldReturn204() {
       }
 }
 },
+    {
+      type: 'http-flow-animation',
+      method: 'POST',
+      endpoint: '/api/users',
+      dbQuery: 'INSERT INTO users (name, job) VALUES (?, ?)',
+      statusCode: 201,
+      expectedValue: '201',
+      actualValue: '201',
+    },
     ],
   },
 
@@ -1334,6 +1352,24 @@ void userResponse_allFieldsValidation() {
       }
 }
 },
+    {
+      type: 'feynman-checkpoint',
+      promptTr: 'RestAssured\'da Hamcrest Assertion nedir ve neden salt "== ile karşılaştır"dan daha iyidir? Sektöre yeni giren bir yazılımcıya anlat.',
+      promptEn: 'What is a Hamcrest Assertion in RestAssured and why is it better than just "compare with =="? Explain to a software newcomer.',
+      keywords: [['matcher','eşleştirici'], ['okunabilir','readable','equalTo','is('], ['hata mesajı','error message','fail message'], ['then','assertion'], ['body','json']],
+      minScore: 3,
+      modelAnswerTr: 'Hamcrest matcher\'ları "beklenen == gerçek mi?" sorusunu okunabilir bir dile çevirir: .body("name", equalTo("George")) "body\'deki name alanı George\'a eşit mi?" der. Düz == ile karşılaştırınca test patlayınca sadece "false" görürsün. Hamcrest ise "Expected: George, but was: Janet" gibi net bir mesaj verir — hangi alanın neden hatalı olduğunu anında anlarsın.',
+      modelAnswerEn: 'Hamcrest matchers translate "is expected == actual?" into readable English: .body("name", equalTo("George")) says "is the name field in the body equal to George?". With plain == when a test fails you only see "false". Hamcrest gives you a clear message: "Expected: George, but was: Janet" — you instantly know which field failed and why.',
+    },
+    {
+      type: 'http-flow-animation',
+      method: 'GET',
+      endpoint: '/api/users/2',
+      dbQuery: 'SELECT id, name, email FROM users WHERE id = 2',
+      statusCode: 200,
+      expectedValue: '404',
+      actualValue: '200',
+    },
     ],
   },
 

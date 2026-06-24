@@ -465,6 +465,15 @@ export const postmanData = {
       "explanation": "403 Forbidden indicates that the server understood the request but refuses to authorize it. Unlike 401 (Authentication), 403 is about Authorization (having the right permissions/roles). 204/200 = success for delete, 404 = resource not found, 503 = service unavailable."
 }
 },
+          {
+            type: 'api-traffic-chain',
+            endpoint: 'GET /api/users/1',
+            method: 'GET',
+            statusCode: 200,
+            requestHeaders: { 'Authorization': 'Bearer {{token}}', 'Accept': 'application/json' },
+            responseBody: '{\n  "data": {\n    "id": 1,\n    "email": "george@reqres.in",\n    "first_name": "George"\n  }\n}',
+            raCode: 'given()\n  .header("Authorization", "Bearer " + token)\n  .header("Accept", "application/json")\n.when()\n  .get("/api/users/1")\n.then()\n  .statusCode(200)\n  .body("data.id", equalTo(1))\n  .body("data.email", notNullValue());',
+          },
         ],
       },
 
@@ -583,6 +592,15 @@ export const postmanData = {
       "explanation": "While 200 OK confirms the request was processed, a thorough QA test validates that the state change persisted in the system. A subsequent GET request ensures the update was actually applied to the database, rather than just returning a 'success' response without saving data."
 }
 },
+          {
+            type: 'http-flow-animation',
+            method: 'POST',
+            endpoint: '/api/users',
+            dbQuery: 'INSERT INTO users (name, email) VALUES (?, ?)',
+            statusCode: 201,
+            expectedValue: '201',
+            actualValue: '201',
+          },
         ],
       },
 
@@ -816,6 +834,15 @@ newman run tests/postman/payment-service.collection.json -e env.staging.json`,
               ['Environment', 'pm.environment.set()', 'Until changed', 'baseUrl, authToken, dynamic IDs'],
               ['Global (lowest priority)', 'pm.globals.set()', 'Whole workspace', 'Shared API keys, constants'],
             ],
+          },
+          {
+            type: 'feynman-checkpoint',
+            promptTr: 'Postman\'da Environment Variable zincirlemesi nasıl çalışır? POST /login\'den dönen token\'ı sonraki isteklerde nasıl kullanırsın? Jargon kullanmadan, sektöre yeni giren birine anlat.',
+            promptEn: 'How does Environment Variable chaining work in Postman? How do you use the token from POST /login in subsequent requests? Explain without jargon, as to a newcomer.',
+            keywords: [['token','auth'], ['environment','variable','değişken'], ['pm.environment.set','set'], ['tests tab','tests','test script'], ['{{','curly']],
+            minScore: 3,
+            modelAnswerTr: 'Postman\'da bir istekten dönen değeri (örn. token) "Tests" sekmesine küçük bir kod yazarak environment\'a kaydedebilirsin: pm.environment.set("token", yanıt.body.token). Sonraki isteklerde Authorization header\'ına {{token}} yazınca Postman otomatik olarak kaydettiğin değeri oraya yerleştirir. Böylece her istekte token\'ı elle kopyalamazsın.',
+            modelAnswerEn: 'In Postman you can save a value from one response (e.g. a token) into the environment by writing a small script in the Tests tab: pm.environment.set("token", response.body.token). In subsequent requests you write {{token}} in the Authorization header and Postman automatically fills in the saved value. This way you never copy-paste the token manually.',
           },
           {
             type: 'quiz',
@@ -1124,6 +1151,41 @@ pm.test("Status OK", function() {       // open
       "explanation": "Integrating Newman into CI/CD pipelines is the standard automation practice. It allows the Newman command-line interface to execute collections as part of the build process, ensuring immediate feedback on every commit without manual intervention."
 }
 },
+          {
+            type: 'interleaving-challenge',
+            challenges: [
+              {
+                topic: 'Postman',
+                questionEn: 'In the Tests tab, you extract a token: pm.environment.set("token", pm.response.json().token). In the next request, where do you use {{token}}?',
+                questionTr: 'Tests sekmesinde pm.environment.set("token", pm.response.json().token) yazdın. Sonraki istekte {{token}}\'ı nereye yazarsın?',
+                optionsEn: ['In the URL path only', 'In the Authorization header (Bearer {{token}})', 'In the Body tab only', 'In the Pre-request Script'],
+                optionsTr: ['Sadece URL yoluna', 'Authorization header\'ına (Bearer {{token}})', 'Sadece Body sekmesine', 'Pre-request Script\'e'],
+                correct: 1,
+                explanationEn: 'Environment variables set via pm.environment.set() are accessible in any part of the next request using {{variableName}} — most commonly in headers like Authorization: Bearer {{token}}.',
+                explanationTr: 'pm.environment.set() ile kaydedilen değerler sonraki istekte {{değişkenAdı}} olarak her yerde kullanılabilir. En yaygın kullanım Authorization: Bearer {{token}} şeklinde header\'dadır.',
+              },
+              {
+                topic: 'SQL',
+                questionEn: 'After POST /users returns 201, you run a DB check. Which SQL query validates the user was actually stored?',
+                questionTr: 'POST /users 201 döndürdükten sonra DB kontrolü yapıyorsun. Kullanıcının gerçekten kaydedildiğini hangi SQL ile doğrularsın?',
+                optionsEn: ['INSERT INTO users VALUES (...)', 'SELECT * FROM users WHERE email = \'test@test.com\'', 'UPDATE users SET verified = true', 'DELETE FROM users WHERE id = 1'],
+                optionsTr: ['INSERT INTO users VALUES (...)', 'SELECT * FROM users WHERE email = \'test@test.com\'', 'UPDATE users SET verified = true', 'DELETE FROM users WHERE id = 1'],
+                correct: 1,
+                explanationEn: 'After a POST creates a resource, a SELECT query against the DB directly is the gold-standard QA check — it confirms persistence independent of the API layer.',
+                explanationTr: 'POST bir kaynak oluşturduktan sonra, DB\'ye doğrudan SELECT sorgusu atmak altın standarttır — API katmanından bağımsız olarak verinin kalıcı olduğunu doğrular.',
+              },
+              {
+                topic: 'RestAssured',
+                questionEn: 'You want to assert that the response JSON has a field "status" equal to "active". What is the correct RestAssured assertion?',
+                questionTr: 'Yanıt JSON\'ında "status" alanının "active" olduğunu doğrulamak istiyorsun. Doğru RestAssured assertion hangisi?',
+                optionsEn: ['.body("status", is("active"))', '.statusCode("active")', '.header("status", equalTo("active"))', '.json("status").equals("active")'],
+                optionsTr: ['.body("status", is("active"))', '.statusCode("active")', '.header("status", equalTo("active"))', '.json("status").equals("active")'],
+                correct: 0,
+                explanationEn: '.body(jsonPath, matcher) is the RestAssured method for JSON field assertions. Hamcrest matchers like is(), equalTo(), hasSize() are used as the second argument.',
+                explanationTr: '.body(jsonPath, matcher) RestAssured\'ın JSON alan doğrulaması için kullandığı metoddur. Hamcrest matcher\'ları (is(), equalTo(), hasSize()) ikinci argüman olarak verilir.',
+              },
+            ],
+          },
         ],
       },
 

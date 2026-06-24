@@ -9,6 +9,7 @@ import { playwrightData } from '../data/playwrightData'
 import { cypressData } from '../data/cypressData'
 import { pythonData } from '../data/pythonData'
 import { typescriptData } from '../data/typescriptData'
+import { javascriptData } from '../data/javascriptData'
 import { sqlData } from '../data/sqlData'
 import { jmeterData } from '../data/jmeterData'
 import { javaData } from '../data/javaData'
@@ -24,6 +25,7 @@ import { azureData } from '../data/azureData'
 import { algorithmsData } from '../data/algorithmsData'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 import { manualTestingData } from '../data/manualTestingData'
+import { securityData } from '../data/securityData'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -190,6 +192,7 @@ const ALL_DATA = [
     { data: cypressData, route: '/cypress', name: 'Cypress' },
     { data: pythonData, route: '/python', name: 'Python' },
     { data: typescriptData, route: '/typescript', name: 'TypeScript' },
+    { data: javascriptData, route: '/javascript', name: 'JavaScript' },
     { data: sqlData, route: '/sql', name: 'SQL' },
     { data: jmeterData, route: '/jmeter', name: 'JMeter' },
     { data: javaData, route: '/java', name: 'Java' },
@@ -203,6 +206,7 @@ const ALL_DATA = [
     { data: awsData, route: '/aws', name: 'AWS' },
     { data: azureData, route: '/azure', name: 'Azure' },
     { data: manualTestingData, route: '/manual-testing', name: 'Manual Testing' },
+    { data: securityData, route: '/security', name: 'Siber Güvenlik' },
     { data: beginnerAlgorithmsData, route: '/algorithms', name: 'Algorithms' },
     { data: algorithmsData, route: '/advanced-algorithms', name: 'Advanced Algorithms' },
     // backendData intentionally excluded: /backend is admin-only, not general visitor content.

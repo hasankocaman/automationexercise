@@ -12,6 +12,7 @@ const HomePage = lazy(() => import('./components/HomePage'))
 const JMeterPage = lazy(() => import('./components/JMeterPage'))
 const SQLPage = lazy(() => import('./components/SQLPage'))
 const TypeScriptPage = lazy(() => import('./components/TypeScriptPage'))
+const JavaScriptPage = lazy(() => import('./components/JavaScriptPage'))
 const PythonPage = lazy(() => import('./components/PythonPage'))
 const TestFrameworksPage = lazy(() => import('./components/TestFrameworksPage'))
 const PostmanPage = lazy(() => import('./components/PostmanPage'))
@@ -33,6 +34,7 @@ const JavaPage = lazy(() => import('./components/JavaPage'))
 const JavaDocPage = lazy(() => import('./components/JavaDocPage'))
 const GitDocPage = lazy(() => import('./components/GitDocPage'))
 const WhatIsTestingPage = lazy(() => import('./components/WhatIsTestingPage'))
+const SecurityPage = lazy(() => import('./components/SecurityPage'))
 const ManualTestingPage = lazy(() => import('./components/ManualTestingPage'))
 const AlgorithmsPage = lazy(() => import('./components/AlgorithmsPage'))
 const AdvancedAlgorithmsPage = lazy(() => import('./components/AdvancedAlgorithmsPage'))
@@ -62,6 +64,7 @@ function App() {
                     <Route path="/jmeter" element={<JMeterPage />} />
                     <Route path="/sql" element={<SQLPage />} />
                     <Route path="/typescript" element={<TypeScriptPage />} />
+                    <Route path="/javascript" element={<JavaScriptPage />} />
                     <Route path="/python" element={<PythonPage />} />
                     <Route path="/test-frameworks" element={<TestFrameworksPage />} />
                     <Route path="/postman" element={<PostmanPage />} />
@@ -83,6 +86,7 @@ function App() {
                     <Route path="/java-document" element={<JavaDocPage />} />
                     <Route path="/git-document" element={<GitDocPage />} />
                     <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
+                    <Route path="/security" element={<RequireAdmin><SecurityPage /></RequireAdmin>} />
                     <Route path="/manual-testing" element={<ManualTestingPage />} />
                     <Route path="/algorithms" element={<AlgorithmsPage />} />
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />

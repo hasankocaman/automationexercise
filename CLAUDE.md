@@ -7,26 +7,27 @@
 > hangi konuda hangi dosyaya bakacağını gösterir. Kullanıcıdan proje hakkında
 > aynı bilgiyi tekrar isteme — cevap bu dosyalarda ve kodun kendisinde.
 
-**Misyon:** Kullanıcı dostu, kaliteli ve zengin içerikli; Google aramalarında
-QA/test otomasyonu sorgularında öne çıkan bir web uygulaması inşa etmek.
-İçerik derinliği ve SEO, eşit öncelikli iki temel hedeftir — biri diğeri
-pahasına feda edilmez.
+**Misyon:** Kullanıcı dostu, kaliteli ve zengin içerikli; Google aramalarında QA/test otomasyonu sorgularında öne çıkan bir web uygulaması inşa etmek. İçerik derinliği, görsel anlatım kalitesi ve SEO, eşit öncelikli temel hedeflerdir.
 
 ---
 
 ## 0. Dosya Haritası — Hangi Konuda Hangi Dosyaya Bak
 
-Bu proje birden fazla AI aracıyla (Claude Code, Codex) geliştiriliyor.
-Çelişki ve kafa karışıklığını önlemek için **tek kaynak ilkesi** geçerlidir:
+Bu proje birden fazla AI aracıyla (Claude Code, Antigravity, Windsurf, Trae) geliştiriliyor. Çelişki ve kafa karışıklığını önlemek için **tek kaynak ilkesi** geçerlidir:
 
 | Dosya | İçerdiği Şey | Ne Zaman Oku |
 |-------|--------------|--------------|
-| **`CLAUDE.md`** (bu dosya) | Kalıcı proje kuralları, mimari, route haritası, içerik kuralları. Anayasa. | Her oturum başında, ilk. |
+| **`CLAUDE.md`** (bu dosya) | Kalıcı proje kuralları, mimari, route haritası, içerik ve pedagoji kuralları. Anayasa. | Her oturum başında, ilk. |
+| **`.claude/NEXT_SESSION.md`** | "Şu an ne yapıyoruz?", son yapılanlar, bir sonraki adımda yapılacaklar listesi. | Projede kodlamaya başlamadan hemen önce. |
+
+**Diğer referans dosyalar** (ihtiyaç duyulduğunda):
+
+| Dosya | İçerdiği Şey | Ne Zaman Oku |
+|-------|--------------|--------------|
 | **`AGENTS.md`** | Sadece `CLAUDE.md`'ye yönlendiren kısa pointer (Codex için). | Codex bunu okur; içerik burada değil orada. |
-| **`.claude/NEXT_SESSION.md`** | **TEK güncel durum dosyası.** Son yapılanlar, sıradaki görevler, git/deploy durumu, SEO durumu — hepsi burada, tarihli. | `CLAUDE.md`'den hemen sonra, her oturumda. |
-| **`codexSeo.md`** | SEO kurallarının ve mimarisinin **kalıcı** referansı (nasıl çalışır, hangi script ne yapar, GSC checklist, uzun vadeli SEO stratejisi). Anlık durum/yapılacaklar listesi **burada değil**, `NEXT_SESSION.md`'de. | SEO/routing/metadata işi yaparken. |
+| **`codexSeo.md`** | SEO kurallarının ve mimarisinin **kalıcı** referansı (nasıl çalışır, hangi script ne yapar, GSC checklist, uzun vadeli SEO stratejisi). | SEO/routing/metadata işi yaparken. |
 | **`DEPLOY.md`** | Netlify/GitHub Pages yayın adımları, Google Search Console kurulum adımları. | Yayın veya GSC işlerinde. |
-| **`promptkurallar.md`** | Kullanıcının (Hasan) AI araçlarına (Claude Code, Codex) nasıl prompt yazacağına dair rehber — bu dosyaların kuralı değil, kullanıcının iş akışı kuralı. | Kullanıcı nasıl prompt yazacağını sorduğunda. |
+| **`promptkurallar.md`** | Kullanıcının (Hasan) AI araçlarına nasıl prompt yazacağına dair rehber. | Kullanıcı nasıl prompt yazacağını sorduğunda. |
 | **`.claude/CONTENT_RULES.md`** | İçerik yazım kuralları: block formatları, mülakat sorusu formatı, hata sözlüğü formatı, kurulum formatı. | İçerik yazarken, W3Schools kapsam kontrolü yaparken. |
 | **`.claude/UI_STANDARDS.md`** | Görsel/animasyon/renk standartları. | UI bileşeni eklerken. |
 | **`.claude/TECH_SPEC.md`** | Editör, toggle, localStorage, performans teknik gereksinimleri. | Etkileşimli editör/teknik altyapı işlerinde. |
@@ -35,14 +36,7 @@ Bu proje birden fazla AI aracıyla (Claude Code, Codex) geliştiriliyor.
 | **`.claude/INTERVIEW_TEMPLATE.md`** | Mülakat soruları şablonu. | Mülakat sekmesi yazarken. |
 | **`.claude/JAVA_COMPARISON.md`** | Java ↔ Python/TS karşılaştırma kuralları. | Python/TS anlatırken. |
 
-**Kural:** Bu dosyalardan biri diğeriyle çelişiyorsa, en güncel olanı değil,
-**bu dosyanın (CLAUDE.md) tanımladığı sorumluluk alanına uygun olanı** doğru
-kabul et — yani SEO sorusu varsa `codexSeo.md`, güncel durum sorusu varsa
-`NEXT_SESSION.md` otoritedir. **`NEXT_SESSION.md` hariç** hiçbir kalıcı kural
-dosyasına (CLAUDE.md, AGENTS.md, codexSeo.md, `.claude/CONTENT_RULES.md` gibi
-diğer `.claude/*.md` kural dosyaları) commit hash veya "şu an X yapıldı, push
-bekliyor" gibi anlık bilgi yazma — bu bilgi yazıldığı an
-güncelliğini yitirir. Anlık durum sadece `NEXT_SESSION.md`'dedir.
+**Kural:** Bu dosyalardan biri diğeriyle çelişiyorsa, en güncel olanı değil, **bu dosyanın (CLAUDE.md) tanımladığı sorumluluk alanına uygun olanı** doğru kabul et — yani SEO sorusu varsa `codexSeo.md`, güncel durum sorusu varsa `NEXT_SESSION.md` otoritedir. **`NEXT_SESSION.md` hariç** hiçbir kalıcı kural dosyasına commit hash veya anlık bilgi yazma — anlık durum sadece `NEXT_SESSION.md`'dedir.
 
 ---
 
@@ -311,3 +305,55 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - Türkçe açıklama + İngilizce teknik terimler.
 - **Görsel + animasyon önceliklidir** — metin secondary.
 - Token kısıtı varsa adım adım, onay alarak devam et (Bölüm 13).
+
+---
+
+## 16. W3Schools İçerik ve Menü Standardı
+
+Uygulamaya eklenecek olan herhangi bir dil, kütüphane veya araç (Python, JavaScript, TypeScript, SQL, Docker, Jenkins, Kubernetes vb.) eğitimi kesinlikle şu kurallara uymalıdır:
+
+1. **Konu Eksiksizliği:** Eğitim içeriği tasarlanırken önce mutlaka `https://www.w3schools.com/` adresindeki ilgili dersin müfredatına bakılmalıdır. W3Schools üzerinde listelenen tüm konu başlıkları, bizim uygulamamızda da eksiksiz olarak yer almalıdır.
+2. **Sekme ve Menü Yapısı:** Dersler "Basit - Orta - İleri" gibi yapay ve geniş kategorilere/sekmelere AYRILMAMALIDIR. Sol menü veya sekme yapısı, tıpkı W3Schools'ta olduğu gibi, en küçük atomik konu başlıklarına kadar dikey bir hiyerarşiyle bölünmelidir (Örn: JS Variables, JS Let, JS Const, JS Operators, JS Data Types...).
+
+---
+
+## 17. Pedagojik İçerik Standardı: "2 - 2 - 2 - 2" Kuralı
+
+Kullanıcıyı hiçbir şekilde kuru teoride veya sadece ham kod bloklarında boğmamalıyız. Herhangi bir atomik konu başlığı anlatılırken üretilen içerik mutlaka şu altın oranı karşılamalıdır:
+
+- **2 Adet Analoji (Benzetme):** Soyut kavramı günlük hayattan somut bir duruma benzeten 2 farklı açıklama.
+- **2 Adet Akıl Yürütme (Logical Reasoning):** Kullanıcının mantık kurarak "Neden bu şekilde tasarlanmış?" sorusuna cevap bulmasını sağlayan 2 senaryo.
+- **2 Adet LEGO ile Anlatım:** Kavramı renkli lego parçalarıyla oynamak, birleştirmek veya ayırmak üzerinden açıklayan 2 görselleştirme metni.
+- **2 Adet İnteraktif Quiz:** Konuyu pekiştirecek 2 adet çoktan seçmeli veya interaktif kod tamamlama sorusu.
+
+---
+
+## 18. Dinamik Quiz ve Hata Algoritması
+
+1. **Yedek Soru Hazırlığı:** Her quiz sorusu için arka planda mutlaka alternatif bir "Yedek Soru" mimarisi kurulmalıdır.
+2. **Alternatif Akış:** Eğer kullanıcı quiz sorusunu YANLIŞ cevaplarsa, moral bozucu kırmızı bir hata ekranı yerine, hatayı açıklayan animasyonlu bir mikro-geri bildirim gösterilmeli ve kullanıcıya hemen **alternatif/başka bir quiz sorusu** sunularak şansını tekrar denemesi sağlanmalıdır.
+
+---
+
+## 19. Feynman Tekniği Checkpoint'leri
+
+1. **Mini Mucit Alanı:** Her atomik konunun/modülün en sonuna interaktif bir 'Feynman Alanı' (Input text alanı veya sevimli bir canavar/robot karakter simülasyonu) eklenmelidir.
+2. **Çocuksu Sorgulama:** Sistem kullanıcıdan, az önce öğrendiği karmaşık konsepti (Örn: Closures, Generics, Promises, Docker Volumes) teknik terim veya jargona boğulmadan **"5 yaşındaki bir çocuğa (veya sektöre yeni giren birine) anlatır gibi"** kendi cümleleriyle özetlemesini istemelidir.
+3. **Mantıksal Doğrulama:** Kullanıcının girdisini değerlendiren mini bir mantıksal kontrolör veya mock/regex/AI validation yapısı kurulmalı, doğru mantık oturtulduğunda neşeli onaylamalar tetiklenmelidir.
+
+---
+
+## 20. Öğrenme Mühendisliği Core Promptu (Disney/Pixar & LEGO Modu)
+
+AI Geliştirme araçları (Antigravity, Claude, Windsurf vb.) arayüz bileşenlerini, animasyonları ve akışları tasarlarken kendilerini bir **"Full-Stack UI/UX Animasyon ve Öğrenme Mühendisi"** olarak görmelidir. Kodlama yaparken aşağıdaki vizyon rehber alınmalıdır:
+
+- **Çizgi Film Dinamikleri:** Arayüz gri, resmi veya statik teknik doküman gibi görünmemelidir. 5 yaşındaki bir çocuğun çizgi film izlerken veya legolarla oynarken yaşadığı o pürüzsüz, büyüleyici ve hiper-görsel deneyim web arayüzüne taşınmalıdır.
+- **Frame-by-Frame Adım Adım İlerleme:** Her komutta, her kod satırında, verinin bir yerden bir yere gidişi (`framer-motion`, CSS keyframes veya geçiş efektleriyle) adım adım hareket eden mikro-animasyonlarla canlandırılmalıdır.
+- **Çizgi Film Tarzı Hata Görselleri:** Kod derleyicisi hata verdiğinde veya kullanıcı yanlış eşleştirme yaptığında (Örn: Yuvarlak bir deliğe kare lego parçasını zorla sokmaya çalışmak gibi) sallanan, tıkanıp "Cızz!" diyen, iFrame sınırlarını kırmızıyla parlatan eğlenceli görsel efektler kullanılmalıdır. Başarı durumlarında ise ekrandan konfetiler fırlatılmalı, elementler parlayarak havaya zıplamalıdır.
+
+---
+
+## 21. Proje Teknolojik Yığını ve Geliştirme Kuralları
+
+- **Teknoloji Koruma:** Mevcut projenin teknoloji yığınını (UI kütüphanesi, global state yönetimi, Tailwind CSS vb.) bozma. Mevcut tasarıma sadık kalarak, tüm çocuksu, animasyonlu özellikleri **Fonksiyonel Bileşenler (Functional Components)** olarak entegre et.
+- **Analiz Protokolü:** Kodlamaya başlamadan önce her zaman etkilenen dosyaları analiz et. Kullanıcıya en kritik dosyaların listesini ve yapacağın yapısal, görsel ve animasyon odaklı değişiklikleri özetle, onay aldıktan sonra kodlamaya başla.

@@ -895,6 +895,25 @@ ORDER BY count DESC;
       { type: 'heading', text: 'JOINs — Combining Tables', difficulty: '🟡 Intermediate' },
       { type: 'text', content: 'JOINs let you query data from multiple related tables in one go. Essential for any real-world database where data is split across tables.' },
       {
+        type: 'sql-join-visual',
+        defaultJoin: 'INNER',
+        joinKey: [1, 0],
+        leftTable: {
+          name: 'bugs',
+          columns: ['id', 'tester_id', 'title', 'status'],
+          rows: [
+            [1, 1, 'Login fails on Safari', 'OPEN'],
+            [2, 2, 'Broken image', 'CLOSED'],
+            [3, 99, 'API timeout', 'OPEN'],
+          ],
+        },
+        rightTable: {
+          name: 'testers',
+          columns: ['id', 'name'],
+          rows: [[1, 'Alice'], [2, 'Bob']],
+        },
+      },
+      {
         type: 'code',
         code: `-- Our tables:
 -- testers:  id, name, email
@@ -1880,6 +1899,15 @@ EXPLAIN ANALYZE SELECT * FROM test_results WHERE status = 'FAIL';`,
           correct: 'b',
           explanation: { tr: 'Bir kolonu bir fonksiyonun içine sarmak (örn. `WHERE UPPER(status) = \'FAIL\'` veya `WHERE YEAR(created_at) = 2024`) veritabanının normal index\'i kullanmasını engeller, çünkü index ham kolon değerleri üzerine kuruludur, fonksiyonun sonucu üzerine değil — bu yaygın bir "neden index\'im hâlâ çalışmıyor" tuzağıdır. Çözüm genelde sorguyu fonksiyon kullanmadan yeniden yazmak veya bir functional/expression index oluşturmaktır.', en: "Wrapping a column in a function (e.g. `WHERE UPPER(status) = 'FAIL'` or `WHERE YEAR(created_at) = 2024`) prevents the database from using a normal index, because the index is built on the raw column values, not the function's result — this is a common \"why isn't my index working\" trap. The fix is usually to rewrite the query without the function, or create a functional/expression index." },
         },
+      },
+      {
+        type: 'feynman-checkpoint',
+        promptTr: 'INNER JOIN ile LEFT JOIN arasındaki fark nedir? Bir QA mühendisi olarak bu farkı test senaryolarında nasıl kullanırsın? Sektöre yeni giren birine anlat.',
+        promptEn: 'What is the difference between INNER JOIN and LEFT JOIN? As a QA engineer, how would you use this difference in test scenarios? Explain to a newcomer.',
+        keywords: [['eşleşen','matching','inner'], ['null','boş'], ['sol','left','hepsi','all left'], ['kayıt','row','satır'], ['test','doğrula','verify']],
+        minScore: 3,
+        modelAnswerTr: 'INNER JOIN sadece her iki tabloda da eşleşen satırları döndürür. Örneğin her böcek mutlaka bir test uzmanına atanmışsa INNER JOIN kullanırsın. LEFT JOIN ise sol tablodaki tüm satırları döndürür; sağ tabloda eşleşme yoksa NULL gelir. QA açısından: henüz hiç bug\'ı olmayan test uzmanlarını bulmak için LEFT JOIN kullanırsın — çünkü INNER JOIN onları sonuçtan çıkarır.',
+        modelAnswerEn: 'INNER JOIN returns only rows that match in both tables. LEFT JOIN returns ALL rows from the left table; where there is no match in the right table, NULLs are returned. As a QA engineer: use LEFT JOIN to find testers with no assigned bugs (INNER JOIN would exclude them from the result entirely — which is wrong for that use case).',
       },
     ],
   },

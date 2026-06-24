@@ -99,10 +99,33 @@ export const dockerData = {
       ],
       "correct": "b",
       "explanation": "Think of the image as a recipe or a template that contains everything needed to run an application. The container is the 'dish' being cooked—the actual living process that uses that blueprint to operate in a specific runtime environment."
-}
+    }
+  },
+  {
+    type: 'simulation',
+    icon: '🐳',
+    color: '#1D63ED',
+    title: { tr: 'Docker Konteyner Yaşam Döngüsü', en: 'Docker Container Lifecycle' },
+    scenario: 'docker-lifecycle',
+    description: {
+      tr: '"▶ Run Demo" butonuna basarak bir Docker konteynerinin çekilmesi (pull), çalıştırılması (run), içinde komut koşturulması (exec) ve durdurulması (stop) süreçlerini canlı izle.',
+      en: 'Press "▶ Run Demo" to watch a container being pulled, run, executing commands internally, and stopped in real-time.'
+    },
+    code: `# Pull the image from registry
+docker pull nginx:latest
+
+# Run the container in detached mode
+docker run -d -p 8080:80 --name my-nginx nginx
+
+# Execute command inside container
+docker exec -it my-nginx ls /usr/share/nginx/html
+
+# Stop the container
+docker stop my-nginx`,
+    language: 'bash'
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 1: INSTALLATION ────────────────────────────────────────────
       {
@@ -223,10 +246,25 @@ docker images              # List downloaded images (should be empty)`,
       ],
       "correct": "c",
       "explanation": "WSL 2 allows Docker Desktop to integrate seamlessly with the Windows OS. By using a genuine Linux kernel via WSL 2, Docker can provide better resource management and faster startup times compared to legacy virtual machine approaches."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Windows Üzerinde Docker Desktop Mimarisi', en: 'Docker Desktop Architecture on Windows' },
+    items: [
+      { icon: '💻', label: { tr: 'Windows Host OS', en: 'Windows Host OS' }, desc: { tr: 'Ana işletim sistemi ve GUI arayüzü', en: 'Main operating system and GUI interface' } },
+      { arrow: true },
+      { icon: '🐧', label: { tr: 'WSL 2 Linux Çekirdeği', en: 'WSL 2 Linux Kernel' }, desc: { tr: 'Windows içindeki hafif sanal Linux', en: 'Lightweight virtual Linux inside Windows' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Docker Daemon', en: 'Docker Daemon' }, desc: { tr: 'Konteynerleri yöneten arka plan servisi', en: 'Background service managing containers' } },
+      { arrow: true },
+      { icon: '📦', label: { tr: 'Konteynerler', en: 'Containers' }, desc: { tr: 'İzole çalışan uygulamalar', en: 'Isolated running applications' } }
+    ],
+    note: { tr: 'Docker Desktop, WSL 2 sayesinde Windows üzerinde yerel Linux performansına yakın çalışır.', en: 'Docker Desktop achieves near-native Linux performance on Windows using WSL 2.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 2: CORE COMMANDS ───────────────────────────────────────────
       {
@@ -311,6 +349,26 @@ docker exec my-container ls /app   # Run command without interactive shell
 # Copy files between host and container
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
+          },
+          {
+            type: 'simulation',
+            icon: '🐳',
+            color: '#0369a1',
+            title: { tr: 'Dockerfile Derleme & Port Eşleme — Canlı Demo', en: 'Dockerfile Build & Port Mapping — Live Demo' },
+            scenario: 'docker-build-port-mapping',
+            description: {
+              tr: '"▶ Resim Derle & Çalıştır" butonuna bas: Dockerfile\'ın satır satır çalışmasını, katmanların üst üste binmesini ve port eşlemesini parıldayan kablo akışıyla izle.',
+              en: 'Press "▶ Build & Run Image": Watch the Dockerfile execute line-by-line, layers stacking on top of each other, and port mapping connected via a glowing pulsing cable.'
+            },
+            code: `# 1. Build the image from Dockerfile
+docker build -t my-app .
+
+# 2. Run the container with port mapping
+docker run -d -p 8080:80 --name my-running-app my-app
+
+# 3. Scale and persist data with volumes
+docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
+            language: 'bash'
           },
           { type: 'heading', text: 'Volume Commands (Persistent Storage)' },
           {
@@ -628,6 +686,83 @@ docker compose ps`,
       "explanation": "To manage startup order based on application state, Docker Compose provides the depends_on condition attribute. Using 'service_healthy' ensures the dependent container only starts once the dependency's healthcheck command returns a zero exit code."
 }
 },
+          {
+            type: 'interleaving-challenge',
+            challenges: [
+              {
+                topic: 'Docker',
+                questionTr: 'Bir Dockerfile optimize edilirken, hangisi önbellek (cache) verimliliğini en çok artırır?',
+                questionEn: 'When optimizing a Dockerfile, which practice best increases layer cache efficiency?',
+                optionsTr: [
+                  'COPY . . komutunu en başa taşımak',
+                  'requirements.txt / package.json kopyalama ve yükleme adımını kod kopyalamadan önce yapmak',
+                  'Her RUN komutunu ayrı çalıştırmak',
+                  'Base image olarak alpine yerine ubuntu seçmek'
+                ],
+                optionsEn: [
+                  'Moving COPY . . to the top of the Dockerfile',
+                  'Copying and installing requirements.txt / package.json before copying the rest of the application source code',
+                  'Running every RUN instruction separately',
+                  'Choosing ubuntu as base image instead of alpine'
+                ],
+                correct: 1,
+                explanationTr: 'Bağımlılıklar (requirements.txt / package.json) daha seyrek değiştiği için, onları koddan önce kopyalayıp yüklemek cache verimliliğini artırır. Böylece her kod değiştiğinde bağımlılıklar tekrar indirilmez.',
+                explanationEn: 'Since dependencies change less frequently than source code, copying and installing them before copying the rest of the source code maximizes cache hit rates. This prevents reinstalling dependencies on every code change.'
+              },
+              {
+                topic: 'Jenkins',
+                questionTr: 'Jenkins pipeline\'ında büyük bir Allure/JUnit test raporu üretildikten sonra, bu raporun silinmemesi ve sonradan incelenebilmesi için hangi pipeline aşaması (step) kullanılmalıdır?',
+                questionEn: 'After generating a large Allure/JUnit test report in a Jenkins pipeline, which step must be used to ensure the report persists for later inspection?',
+                optionsTr: [
+                  'sh "rm -rf target/"',
+                  'archiveArtifacts artifacts: "**/target/surefire-reports/*"',
+                  'git commit -m "add reports"',
+                  'echo "Tests completed"'
+                ],
+                optionsEn: [
+                  'sh "rm -rf target/"',
+                  'archiveArtifacts artifacts: "**/target/surefire-reports/*"',
+                  'git commit -m "add reports"',
+                  'echo "Tests completed"'
+                ],
+                correct: 1,
+                explanationTr: 'archiveArtifacts komutu, test raporları gibi derleme çıktılarını (artifacts) Jenkins master sunucusunda saklayarak pipeline tamamlandıktan sonra da erişilebilir kılar.',
+                explanationEn: 'The archiveArtifacts step stores build artifacts (like test reports) on the Jenkins master, ensuring they persist and remain downloadable after the build agent is destroyed.'
+              },
+              {
+                topic: 'Kubernetes',
+                questionTr: 'Kubernetes\'te bir Service\'in gelen istekleri doğru Pod\'lara yönlendirebilmesi için hangisi eşleşmelidir?',
+                questionEn: 'In Kubernetes, which component must match so that a Service can correctly route traffic to Pods?',
+                optionsTr: [
+                  'Service selector etiketleri ile Pod label etiketleri',
+                  'Service ismi ile Pod ismi',
+                  'Pod spec container portu ile Node IP adresi',
+                  'ReplicaSet replica sayısı ile Node port sayısı'
+                ],
+                optionsEn: [
+                  'Service selector labels and Pod labels',
+                  'Service name and Pod name',
+                  'Pod spec container port and Node IP address',
+                  'ReplicaSet replica count and Node port count'
+                ],
+                correct: 0,
+                explanationTr: 'Kubernetes Service, gelen istekleri yönlendireceği Pod\'ları seçmek için selector etiketlerini kullanır. Eşleşme hatası olursa Service endpoint bulamaz ve yönlendirme başarısız olur.',
+                explanationEn: 'Kubernetes Services use label selectors to target Pods. If there is a mismatch, the Service will have no endpoints and routing will fail.'
+              }
+            ]
+          },
+          {
+            type: 'visual',
+            variant: 'flow',
+            title: { tr: 'Docker Compose Çalışma Akışı', en: 'Docker Compose Startup Lifecycle' },
+            steps: [
+              { num: '1', label: { tr: 'YAML Analizi', en: 'YAML Parsing' }, desc: { tr: 'docker-compose.yml dosyasındaki servisler, ağlar ve volume tanımları okunur.', en: 'Reads services, networks, and volumes configuration.' } },
+              { num: '2', label: { tr: 'İmaj Kontrolü', en: 'Image Check' }, desc: { tr: 'Gerekli imajlar lokalde yoksa Docker Hub\'dan çekilir veya build edilir.', en: 'Pulls missing images from Docker Hub or builds them from Dockerfiles.' } },
+              { num: '3', label: { tr: 'Bağımlılık Sırası', en: 'Dependency Order' }, desc: { tr: 'depends_on kurallarına göre container\'ların öncelik sırası belirlenir.', en: 'Sets container startup priority based on depends_on conditions.' } },
+              { num: '4', label: { tr: 'Ağ & Hacim Oluşturma', en: 'Network & Volume' }, desc: { tr: 'İzole sanal ağlar ve kalıcı veri hacimleri (volumes) ayağa kaldırılır.', en: 'Creates isolated virtual networks and persistent volumes.' } },
+              { num: '5', label: { tr: 'Çalıştırma', en: 'Running Containers' }, desc: { tr: 'Tüm servisler tek bir komutla eş zamanlı olarak başlatılır.', en: 'Starts all services concurrently under a single orchestration command.' } }
+            ]
+          }
         ],
       },
 
@@ -887,10 +1022,24 @@ options.add_argument('--disable-dev-shm-usage')`,
       ],
       "correct": "c",
       "explanation": "Headless Chrome relies on the /dev/shm partition for shared memory communication between its processes. Docker's default allocation is 64MB, which is often not enough for browser rendering, leading to intermittent failures unless increased via --shm-size or bypassed using --disable-dev-shm-usage."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Docker Üzerinde Selenium Grid Mimarisi', en: 'Selenium Grid Architecture in Docker' },
+    items: [
+      { icon: '🌐', label: { tr: 'Test Kodları', en: 'Test Code' }, desc: { tr: 'Local veya CI üzerindeki test adımları', en: 'Test runner execution' } },
+      { arrow: true },
+      { icon: '🏗️', label: { tr: 'Selenium Hub', en: 'Selenium Hub' }, desc: { tr: 'İstekleri yönlendiren merkezi kontrolör', en: 'Router and controller' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Chrome Node', en: 'Chrome Node' }, desc: { tr: 'İzole Chrome tarayıcı servisi', en: 'Isolated Chrome service' } },
+      { icon: '🐳', label: { tr: 'Firefox Node', en: 'Firefox Node' }, desc: { tr: 'İzole Firefox tarayıcı servisi', en: 'Isolated Firefox service' } }
+    ],
+    note: { tr: 'Tüm tarayıcı düğümleri (nodes) tek bir ağda Hub\'a bağlıdır ve paralel olarak testleri çalıştırabilir.', en: 'All browser nodes run in isolated containers connected to the Hub via the same virtual network.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 5: ECOSYSTEM ────────────────────────────────────────────────
       {
@@ -951,6 +1100,18 @@ options.add_argument('--disable-dev-shm-usage')`,
               explanation: "This is exactly what \"self-healing\" means in Kubernetes: it continuously compares the actual running Pods to the desired replica count and restarts/replaces any that crash, with zero manual action. docker-compose has no concept of a multi-node cluster, and Docker Hub is just an image registry — neither monitors running container health.",
             },
           },
+          {
+            type: 'feynman-checkpoint',
+            prompt: 'Explain the key difference between a Docker Image and a Docker Container in simple terms (as if explaining to a 5-year-old).',
+            promptTr: 'Bir Docker Image ile Docker Container arasındaki temel farkı, 5 yaşındaki bir çocuğa anlatır gibi (teknik jargon kullanmadan) basit terimlerle açıkla.',
+            keywords: [
+              ['imaj', 'image', 'blueprint', 'recipe', 'kalıp', 'tarif', 'şablon'],
+              ['container', 'konteyner', 'çalışan', 'process', 'örnek', 'instance', 'kek']
+            ],
+            modelAnswerEn: 'A Docker Image is like a recipe for a cake (static, instructions only). A Docker Container is the actual cake baked using that recipe (live, interactive, running). You can bake many cakes from the same recipe.',
+            modelAnswerTr: 'Docker Image, bir kek tarifi gibidir (statik, sadece talimatlar). Docker Container ise bu tarife göre pişirilmiş, yenebilen gerçek kektir (canlı, çalışan örnek). Aynı tariften birçok kek pişirebilirsin.',
+            minScore: 2
+          }
         ],
       },
 
@@ -1156,10 +1317,33 @@ options.add_argument('--disable-dev-shm-usage')`,
       ],
       "correct": "c",
       "explanation": "Image'lar uygulamayı çalıştırmak için gereken kod, runtime ve kütüphaneleri içeren değişmez (immutable) dosyalardır. Container ise bu image'ın bir çalışma zamanı kopyasıdır ve üzerinde yapılan değişiklikler canlı olarak gerçekleşir."
-}
+    }
+  },
+  {
+    type: 'simulation',
+    icon: '🐳',
+    color: '#1D63ED',
+    title: { tr: 'Docker Konteyner Yaşam Döngüsü', en: 'Docker Container Lifecycle' },
+    scenario: 'docker-lifecycle',
+    description: {
+      tr: '"▶ Run Demo" butonuna basarak bir Docker konteynerinin çekilmesi (pull), çalıştırılması (run), içinde komut koşturulması (exec) ve durdurulması (stop) süreçlerini canlı izle.',
+      en: 'Press "▶ Run Demo" to watch a container being pulled, run, executing commands internally, and stopped in real-time.'
+    },
+    code: `# Pull the image from registry
+docker pull nginx:latest
+
+# Run the container in detached mode
+docker run -d -p 8080:80 --name my-nginx nginx
+
+# Execute command inside container
+docker exec -it my-nginx ls /usr/share/nginx/html
+
+# Stop the container
+docker stop my-nginx`,
+    language: 'bash'
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 1: INSTALLATION (TR) ──────────────────────────────────────
       {
@@ -1256,12 +1440,26 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
                   "text": "Native Windows Hypervisor"
             }
       ],
-      "correct": "c",
       "explanation": "WSL 2, Windows üzerinde gerçek bir Linux çekirdeği çalıştırarak Docker container'larının yüksek performanslı ve düşük kaynak tüketen bir şekilde çalışmasını sağlar. Eski sürümlerde Hyper-V doğrudan kullanılırken, güncel Docker Desktop yapılandırması WSL 2 entegrasyonu üzerine kuruludur."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Windows Üzerinde Docker Desktop Mimarisi', en: 'Docker Desktop Architecture on Windows' },
+    items: [
+      { icon: '💻', label: { tr: 'Windows Host OS', en: 'Windows Host OS' }, desc: { tr: 'Ana işletim sistemi ve GUI arayüzü', en: 'Main operating system and GUI interface' } },
+      { arrow: true },
+      { icon: '🐧', label: { tr: 'WSL 2 Linux Çekirdeği', en: 'WSL 2 Linux Kernel' }, desc: { tr: 'Windows içindeki hafif sanal Linux', en: 'Lightweight virtual Linux inside Windows' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Docker Daemon', en: 'Docker Daemon' }, desc: { tr: 'Konteynerleri yöneten arka plan servisi', en: 'Background service managing containers' } },
+      { arrow: true },
+      { icon: '📦', label: { tr: 'Konteynerler', en: 'Containers' }, desc: { tr: 'İzole çalışan uygulamalar', en: 'Isolated running applications' } }
+    ],
+    note: { tr: 'Docker Desktop, WSL 2 sayesinde Windows üzerinde yerel Linux performansına yakın çalışır.', en: 'Docker Desktop achieves near-native Linux performance on Windows using WSL 2.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 2: CORE COMMANDS (TR) ─────────────────────────────────────
       {
@@ -1351,30 +1549,21 @@ docker cp ./tests my-container:/app/tests       # Host → container`,
             type: 'simulation',
             icon: '🐳',
             color: '#0369a1',
-            title: { tr: 'Container Yaşam Döngüsü — Canlı Demo', en: 'Container Lifecycle — Live Demo' },
-            scenario: 'docker-lifecycle',
+            title: { tr: 'Dockerfile Derleme & Port Eşleme — Canlı Demo', en: 'Dockerfile Build & Port Mapping — Live Demo' },
+            scenario: 'docker-build-port-mapping',
             description: {
-              tr: '"▶ Demo Çalıştır" butonuna bas: docker pull → docker run → docker exec → docker stop adımlarını terminal çıktısıyla izle. Java\'da class=Image, new MyClass()=docker run analogisini sağda gör.',
-              en: 'Press "▶ Demo Çalıştır": watch docker pull → docker run → docker exec → docker stop steps with terminal output. See the Java class=Image, new MyClass()=docker run analogy on the right.',
+              tr: '"▶ Resim Derle & Çalıştır" butonuna bas: Dockerfile\'ın satır satır çalışmasını, katmanların üst üste binmesini ve port eşlemesini parıldayan kablo akışıyla izle.',
+              en: 'Press "▶ Build & Run Image": Watch the Dockerfile execute line-by-line, layers stacking on top of each other, and port mapping connected via a glowing pulsing cable.'
             },
-            code: `# 1. Image indir
-docker pull nginx:latest
+            code: `# 1. Build the image from Dockerfile
+docker build -t my-app .
 
-# 2. Container oluştur ve çalıştır
-# Java analoji: new MyClass() gibi — image'dan container instance oluştur
-docker run -d \\
-  --name my-nginx \\      # Container adı (new MyClass() → my-nginx)
-  -p 8080:80 \\           # Host:Container port eşlemesi
-  nginx:latest            # Kullanılan image (class = Image)
+# 2. Run the container with port mapping
+docker run -d -p 8080:80 --name my-running-app my-app
 
-# 3. Container'ın içine gir (debug için)
-docker exec -it my-nginx bash
-# root@a1b2c3d4:/# whoami → root
-
-# 4. Container'ı durdur ve sil
-docker stop my-nginx
-docker rm my-nginx`,
-            language: 'bash',
+# 3. Scale and persist data with volumes
+docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
+            language: 'bash'
           },
           { type: 'heading', text: 'Volume Komutları (Kalıcı Depolama)' },
           {
@@ -1684,6 +1873,83 @@ docker compose ps`,
       "explanation": "depends_on tek başına servisin sadece başlatılmasını garanti eder. Eğer servisin hazır (sağlıklı) olmasını beklemek istiyorsak 'condition: service_healthy' ifadesini eklemeli ve ilgili servise bir 'healthcheck' tanımlamalıyız."
 }
 },
+          {
+            type: 'interleaving-challenge',
+            challenges: [
+              {
+                topic: 'Docker',
+                questionTr: 'Bir Dockerfile optimize edilirken, hangisi önbellek (cache) verimliliğini en çok artırır?',
+                questionEn: 'When optimizing a Dockerfile, which practice best increases layer cache efficiency?',
+                optionsTr: [
+                  'COPY . . komutunu en başa taşımak',
+                  'requirements.txt / package.json kopyalama ve yükleme adımını kod kopyalamadan önce yapmak',
+                  'Her RUN komutunu ayrı çalıştırmak',
+                  'Base image olarak alpine yerine ubuntu seçmek'
+                ],
+                optionsEn: [
+                  'Moving COPY . . to the top of the Dockerfile',
+                  'Copying and installing requirements.txt / package.json before copying the rest of the application source code',
+                  'Running every RUN instruction separately',
+                  'Choosing ubuntu as base image instead of alpine'
+                ],
+                correct: 1,
+                explanationTr: 'Bağımlılıklar (requirements.txt / package.json) daha seyrek değiştiği için, onları koddan önce kopyalayıp yüklemek cache verimliliğini artırır. Böylece her kod değiştiğinde bağımlılıklar tekrar indirilmez.',
+                explanationEn: 'Since dependencies change less frequently than source code, copying and installing them before copying the rest of the source code maximizes cache hit rates. This prevents reinstalling dependencies on every code change.'
+              },
+              {
+                topic: 'Jenkins',
+                questionTr: 'Jenkins pipeline\'ında büyük bir Allure/JUnit test raporu üretildikten sonra, bu raporun silinmemesi ve sonradan incelenebilmesi için hangi pipeline aşaması (step) kullanılmalıdır?',
+                questionEn: 'After generating a large Allure/JUnit test report in a Jenkins pipeline, which step must be used to ensure the report persists for later inspection?',
+                optionsTr: [
+                  'sh "rm -rf target/"',
+                  'archiveArtifacts artifacts: "**/target/surefire-reports/*"',
+                  'git commit -m "add reports"',
+                  'echo "Tests completed"'
+                ],
+                optionsEn: [
+                  'sh "rm -rf target/"',
+                  'archiveArtifacts artifacts: "**/target/surefire-reports/*"',
+                  'git commit -m "add reports"',
+                  'echo "Tests completed"'
+                ],
+                correct: 1,
+                explanationTr: 'archiveArtifacts komutu, test raporları gibi derleme çıktılarını (artifacts) Jenkins master sunucusunda saklayarak pipeline tamamlandıktan sonra da erişilebilir kılar.',
+                explanationEn: 'The archiveArtifacts step stores build artifacts (like test reports) on the Jenkins master, ensuring they persist and remain downloadable after the build agent is destroyed.'
+              },
+              {
+                topic: 'Kubernetes',
+                questionTr: 'Kubernetes\'te bir Service\'in gelen istekleri doğru Pod\'lara yönlendirebilmesi için hangisi eşleşmelidir?',
+                questionEn: 'In Kubernetes, which component must match so that a Service can correctly route traffic to Pods?',
+                optionsTr: [
+                  'Service selector etiketleri ile Pod label etiketleri',
+                  'Service ismi ile Pod ismi',
+                  'Pod spec container portu ile Node IP adresi',
+                  'ReplicaSet replica sayısı ile Node port sayısı'
+                ],
+                optionsEn: [
+                  'Service selector labels and Pod labels',
+                  'Service name and Pod name',
+                  'Pod spec container port and Node IP address',
+                  'ReplicaSet replica count and Node port count'
+                ],
+                correct: 0,
+                explanationTr: 'Kubernetes Service, gelen istekleri yönlendireceği Pod\'ları seçmek için selector etiketlerini kullanır. Eşleşme hatası olursa Service endpoint bulamaz ve yönlendirme başarısız olur.',
+                explanationEn: 'Kubernetes Services use label selectors to target Pods. If there is a mismatch, the Service will have no endpoints and routing will fail.'
+              }
+            ]
+          },
+          {
+            type: 'visual',
+            variant: 'flow',
+            title: { tr: 'Docker Compose Çalışma Akışı', en: 'Docker Compose Startup Lifecycle' },
+            steps: [
+              { num: '1', label: { tr: 'YAML Analizi', en: 'YAML Parsing' }, desc: { tr: 'docker-compose.yml dosyasındaki servisler, ağlar ve volume tanımları okunur.', en: 'Reads services, networks, and volumes configuration.' } },
+              { num: '2', label: { tr: 'İmaj Kontrolü', en: 'Image Check' }, desc: { tr: 'Gerekli imajlar lokalde yoksa Docker Hub\'dan çekilir veya build edilir.', en: 'Pulls missing images from Docker Hub or builds them from Dockerfiles.' } },
+              { num: '3', label: { tr: 'Bağımlılık Sırası', en: 'Dependency Order' }, desc: { tr: 'depends_on kurallarına göre container\'ların öncelik sırası belirlenir.', en: 'Sets container startup priority based on depends_on conditions.' } },
+              { num: '4', label: { tr: 'Ağ & Hacim Oluşturma', en: 'Network & Volume' }, desc: { tr: 'İzole sanal ağlar ve kalıcı veri hacimleri (volumes) ayağa kaldırılır.', en: 'Creates isolated virtual networks and persistent volumes.' } },
+              { num: '5', label: { tr: 'Çalıştırma', en: 'Running Containers' }, desc: { tr: 'Tüm servisler tek bir komutla eş zamanlı olarak başlatılır.', en: 'Starts all services concurrently under a single orchestration command.' } }
+            ]
+          }
         ],
       },
 
@@ -1916,12 +2182,25 @@ options.add_argument('--disable-dev-shm-usage')`,
                   "text": "Web sürücüsünün (WebDriver) ağ portlarını eşlemek için"
             }
       ],
-      "correct": "b",
       "explanation": "Docker, varsayılan olarak paylaşılan bellek (/dev/shm) için sadece 64MB ayırır. Chrome ve Chromium tabanlı tarayıcılar, sayfaları render ederken yoğun bir şekilde paylaşılan belleğe ihtiyaç duyar. Bu limit aşıldığında tarayıcı çöker veya düzgün başlatılamaz. 'shm_size: 2gb' ayarı bu limiti genişleterek işlemin başarıyla tamamlanmasını sağlar."
-}
+    }
+  },
+  {
+    type: 'visual',
+    variant: 'boxes',
+    title: { tr: 'Docker Üzerinde Selenium Grid Mimarisi', en: 'Selenium Grid Architecture in Docker' },
+    items: [
+      { icon: '🌐', label: { tr: 'Test Kodları', en: 'Test Code' }, desc: { tr: 'Local veya CI üzerindeki test adımları', en: 'Test runner execution' } },
+      { arrow: true },
+      { icon: '🏗️', label: { tr: 'Selenium Hub', en: 'Selenium Hub' }, desc: { tr: 'İstekleri yönlendiren merkezi kontrolör', en: 'Router and controller' }, highlight: true },
+      { arrow: true },
+      { icon: '🐳', label: { tr: 'Chrome Node', en: 'Chrome Node' }, desc: { tr: 'İzole Chrome tarayıcı servisi', en: 'Isolated Chrome service' } },
+      { icon: '🐳', label: { tr: 'Firefox Node', en: 'Firefox Node' }, desc: { tr: 'İzole Firefox tarayıcı servisi', en: 'Isolated Firefox service' } }
+    ],
+    note: { tr: 'Tüm tarayıcı düğümleri (nodes) tek bir ağda Hub\'a bağlıdır ve paralel olarak testleri çalıştırabilir.', en: 'All browser nodes run in isolated containers connected to the Hub via the same virtual network.' }
+  }
+],
 },
-        ],
-      },
 
       // ── SECTION 5: EKOSİSTEM ────────────────────────────────────────────────
       {
@@ -1982,6 +2261,18 @@ options.add_argument('--disable-dev-shm-usage')`,
               explanation: 'Kubernetes\'teki "kendi kendini onarma" tam olarak budur: gerçekte çalışan Pod\'ları istenen replika sayısıyla sürekli karşılaştırır ve çökeni hiçbir manuel işlem gerekmeden yeniden başlatır/değiştirir. docker-compose\'da multi-node cluster kavramı yoktur, Docker Hub ise sadece bir image registry\'sidir — hiçbiri çalışan container sağlığını izlemez.',
             },
           },
+          {
+            type: 'feynman-checkpoint',
+            prompt: 'Explain the key difference between a Docker Image and a Docker Container in simple terms (as if explaining to a 5-year-old).',
+            promptTr: 'Bir Docker Image ile Docker Container arasındaki temel farkı, 5 yaşındaki bir çocuğa anlatır gibi (teknik jargon kullanmadan) basit terimlerle açıkla.',
+            keywords: [
+              ['imaj', 'image', 'blueprint', 'recipe', 'kalıp', 'tarif', 'şablon'],
+              ['container', 'konteyner', 'çalışan', 'process', 'örnek', 'instance', 'kek']
+            ],
+            modelAnswerEn: 'A Docker Image is like a recipe for a cake (static, instructions only). A Docker Container is the actual cake baked using that recipe (live, interactive, running). You can bake many cakes from the same recipe.',
+            modelAnswerTr: 'Docker Image, bir kek tarifi gibidir (statik, sadece talimatlar). Docker Container ise bu tarife göre pişirilmiş, yenebilen gerçek kektir (canlı, çalışan örnek). Aynı tariften birçok kek pişirebilirsin.',
+            minScore: 2
+          }
         ],
       },
 

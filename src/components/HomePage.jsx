@@ -15,6 +15,7 @@ import FrameworkComparison from './FrameworkComparison'
 import LocatorGuide from './LocatorGuide'
 import Practice from './Practice'
 import PlaywrightLangCompare from './PlaywrightLangCompare'
+import NeuroLocateLab from './NeuroLocateLab'
 import MembershipPromo from './MembershipPromo'
 import CommentsSection from './CommentsSection'
 
@@ -26,6 +27,7 @@ const RESUME_LESSON_NAMES = {
     '/cypress': { tr: 'Cypress', en: 'Cypress' },
     '/python': { tr: 'Python', en: 'Python' },
     '/typescript': { tr: 'TypeScript', en: 'TypeScript' },
+    '/javascript': { tr: 'JavaScript', en: 'JavaScript' },
     '/sql': { tr: 'SQL', en: 'SQL' },
     '/java': { tr: 'Java', en: 'Java' },
     '/jmeter': { tr: 'JMeter', en: 'JMeter' },
@@ -46,6 +48,7 @@ const RESUME_LESSON_NAMES = {
     '/advanced-algorithms': { tr: 'İleri Seviye Algoritmalar', en: 'Advanced Algorithms' },
     '/manual-testing': { tr: 'Manuel Test', en: 'Manual Testing' },
     '/what-is-testing': { tr: 'Yazılım Testi & QA Temelleri', en: 'Software Testing & QA Basics' },
+    '/security': { tr: 'Siber Güvenlik', en: 'Cyber Security' },
 }
 
 function HomePage() {
@@ -131,6 +134,7 @@ function HomePage() {
         { id: 'table', name: t('nav.table'), shortName: t('home.section.tableShort') },
         { id: 'api', name: t('nav.api'), shortName: t('home.section.apiShort') },
         { id: 'practice', name: t('nav.practice') || '🛠️ Practice Playground', shortName: t('home.section.practiceShort') },
+        { id: 'neuro-locate', name: t('nav.neuroLocate') || '🧠 Neuro-Locate Lab', shortName: t('home.section.neuroLocateShort') || '🧠 Neuro-Locate' },
     ]
 
 
@@ -146,6 +150,7 @@ function HomePage() {
             case 'comparison': return <FrameworkComparison darkMode={darkMode} />
             case 'lang-compare': return <PlaywrightLangCompare darkMode={darkMode} />
             case 'practice': return <Practice darkMode={darkMode} onHomeClick={() => setActiveSection('basic')} />
+            case 'neuro-locate': return <NeuroLocateLab darkMode={darkMode} />
             default: return <BasicElements darkMode={darkMode} />
         }
     }
@@ -484,6 +489,7 @@ function HomePage() {
                                 <Link to="/java" data-testid="nav-java" className={nb('orange')}>☕ Java</Link>
                                 <Link to="/python" data-testid="nav-python" className={nb('yellow')}>🐍 Python</Link>
                                 <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
+                                <Link to="/javascript" data-testid="nav-javascript" className={nb('yellow')}>🟨 JS</Link>
                                 <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
                                 <Link
                                     to="/algorithms"
@@ -513,6 +519,7 @@ function HomePage() {
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
+                                <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>
                                 <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
                             </div>
                         </div>
@@ -629,6 +636,7 @@ function HomePage() {
                                     { to: '/java', label: '☕ Java' },
                                     { to: '/python', label: '🐍 Python' },
                                     { to: '/typescript', label: '💻 TypeScript' },
+                                    { to: '/javascript', label: '🟨 JavaScript' },
                                     { to: '/sql', label: '🗄️ SQL' },
                                     { to: '/algorithms', label: '🧠 Algorithms' },
                                 ].map(({ to, label }) => (
@@ -656,6 +664,7 @@ function HomePage() {
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
+                                    { to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' },
                                     { to: '/test-frameworks', label: '⚖️ Framework Karş.' },
                                 ].map(({ to, label }) => (
                                     <li key={to}>
