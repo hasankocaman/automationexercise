@@ -5161,19 +5161,19 @@ const finalEnSections = [
       {
         "type": "comparison",
         "left": {
-          "label": "❌ Slow — Subquery for every row",
-          "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- Runs inner SELECT once per tester row!",
-          "note": "Correlated subquery: O(n) inner queries"
+          "label": { "tr": "❌ Yavaş — Her satır için alt sorgu", "en": "❌ Slow — Subquery for every row" },
+          "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- Her tester satırı için iç SELECT bir kez çalışır!",
+          "note": { "tr": "Bağıntılı alt sorgu: O(n) iç sorgu", "en": "Correlated subquery: O(n) inner queries" }
         },
         "right": {
-          "label": "✅ Fast — Single JOIN + GROUP BY",
-          "code": "SELECT t.name, COUNT(b.id) AS bug_count\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.id, t.name;\n-- Single pass through both tables",
-          "note": "LEFT JOIN: handles 0 bugs correctly too"
+          "label": { "tr": "✅ Hızlı — Tek JOIN + GROUP BY", "en": "✅ Fast — Single JOIN + GROUP BY" },
+          "code": "SELECT t.name, COUNT(b.id) AS bug_count\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.id, t.name;\n-- Her iki tabloda tek geçiş",
+          "note": { "tr": "LEFT JOIN: 0 hatalı durumları da doğru işler", "en": "LEFT JOIN: handles 0 bugs correctly too" }
         }
       },
       {
         "type": "quiz",
-        "question": "Which JOIN type returns ALL rows from the left table, including rows with NO matches in the right table?",
+        "question": { "tr": "Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?", "en": "Which JOIN type returns ALL rows from the left table, including rows with NO matches in the right table?" },
         "options": [
           "INNER JOIN",
           "CROSS JOIN",
@@ -5181,9 +5181,9 @@ const finalEnSections = [
           "RIGHT JOIN"
         ],
         "correct": 2,
-        "explanation": "LEFT JOIN (also called LEFT OUTER JOIN) returns every row from the left table. For right-table columns with no match, NULL values appear. Use it when you need \"all X, even if they have no related Y\" — like all testers including those with 0 bugs.",
+        "explanation": { "tr": "LEFT JOIN (LEFT OUTER JOIN olarak da bilinir), sol tablodan her satırı döndürür. Sağ tabloda eşleşme yoksa NULL değerler görünür. \"Sıfır hatalı olanlar dahil tüm test uzmanları\" gibi durumlarda kullanılır.", "en": "LEFT JOIN (also called LEFT OUTER JOIN) returns every row from the left table. For right-table columns with no match, NULL values appear. Use it when you need \"all X, even if they have no related Y\" — like all testers including those with 0 bugs." },
         "retryQuestion": {
-          "question": "Which SQL operation is used to retrieve all records from the right-hand table, even if there is no matching data found in the left-hand table?",
+          "question": { "tr": "Sağ tablodaki tüm kayıtları, sol tabloda eşleşen veri olmasa bile getiren SQL işlemi hangisidir?", "en": "Which SQL operation is used to retrieve all records from the right-hand table, even if there is no matching data found in the left-hand table?" },
           "options": [
             {
               "id": "a",
@@ -5203,7 +5203,7 @@ const finalEnSections = [
             }
           ],
           "correct": "b",
-          "explanation": "RIGHT JOIN (or RIGHT OUTER JOIN) ensures that all rows from the right table are included in the result set, filling in NULLs for any columns where no relationship exists in the left table."
+          "explanation": { "tr": "RIGHT JOIN (RIGHT OUTER JOIN olarak da bilinir), sağ tablodaki tüm satırların sonuç kümesine dahil edilmesini sağlar. Sol tabloda ilişki olmayan sütunlar NULL ile doldurulur.", "en": "RIGHT JOIN (or RIGHT OUTER JOIN) ensures that all rows from the right table are included in the result set, filling in NULLs for any columns where no relationship exists in the left table." }
         }
       },
       {
@@ -10878,13 +10878,11 @@ const finalTrSections = [
       },
       {
         "type": "heading",
-        "text": "Visual JOIN Guide — See Exactly Which Rows Are Returned",
-        "content": "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu."
+        "text": { "tr": "Görsel JOIN Rehberi — Hangi Satırlar Döndürülür", "en": "Visual JOIN Guide — See Exactly Which Rows Are Returned" }
       },
       {
         "type": "text",
-        "content": "The 4 diagrams below use the same data. Click \"Eşleşmeleri Göster\" to highlight matched rows, then \"Sonucu Göster\" to see the query result. This is the fastest way to truly understand JOINs.",
-        "explanation": "INNER JOIN, yalnızca HER İKİ tabloda da eşleşen satırları döndürür. Carol'un hiç hatası yok — sonuçtan tamamen hariç tutulur."
+        "content": { "tr": "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu.", "en": "The 4 diagrams below use the same data. Click 'Eşleşmeleri Göster' to highlight matched rows, then 'Sonucu Göster' to see the query result. This is the fastest way to truly understand JOINs." }
       },
       {
         "type": "visual",
@@ -10946,7 +10944,7 @@ const finalTrSections = [
             "OPEN"
           ]
         ],
-        "explanation": "LEFT JOIN, SOL tablodan (testers) TÜM satırları döndürür, artı bugs'dan eşleşmeleri. Carol bug_count=0 ile görünür — LEFT JOIN, \"sıfır dahil her kullanıcı başına say\" için mükemmeldir."
+        "explanation": { "tr": "INNER JOIN yalnızca HER İKİ tabloda da eşleşen satırları döndürür. Carol'un hiç hatası yok — sonuçtan tamamen hariç tutulur.", "en": "INNER JOIN returns ONLY rows that match in BOTH tables. Carol has no bugs — she is completely excluded from the result." }
       },
       {
         "type": "visual",
@@ -11005,7 +11003,7 @@ const finalTrSections = [
             0
           ]
         ],
-        "explanation": "RIGHT JOIN, SAĞ tablodan (bugs) TÜM satırları döndürür. Bug #4'ün test uzmanı yok — hâlâ tester=NULL ile görünür. Nadiren kullanılır — çoğu geliştirici bunu tablolar yer değiştirilerek LEFT JOIN olarak yeniden yazar."
+        "explanation": { "tr": "LEFT JOIN, SOL tablodan (testers) TÜM satırları döndürür, artı bugs'dan eşleşmeleri. Carol bug_count=0 ile görünür — LEFT JOIN, \"sıfır dahil her kullanıcı başına say\" için mükemmeldir.", "en": "LEFT JOIN returns ALL rows from the LEFT table (testers), plus matches from bugs. Carol appears with bug_count=0 — LEFT JOIN is perfect for \"count per user, including zeros\"." }
       },
       {
         "type": "visual",
@@ -11072,7 +11070,7 @@ const finalTrSections = [
             "Crash on empty search"
           ]
         ],
-        "explanation": "RIGHT JOIN returns ALL rows from the RIGHT table (bugs). Bug #4 has no tester — it still appears with tester = NULL. Rarely used — most developers rewrite as LEFT JOIN with tables swapped.",
+        "explanation": { "tr": "RIGHT JOIN, SAĞ tablodan (bugs) TÜM satırları döndürür. Bug #4'ün test uzmanı yok — hâlâ tester=NULL ile görünür. Nadiren kullanılır — çoğu geliştirici bunu tablolar yer değiştirilerek LEFT JOIN olarak yeniden yazar.", "en": "RIGHT JOIN returns ALL rows from the RIGHT table (bugs). Bug #4 has no tester — it still appears with tester = NULL. Rarely used — most developers rewrite as LEFT JOIN with tables swapped." },
         "left": {
           "label": "❌ Yavaş — Her satır için alt sorgu",
           "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- İç SELECT her tester satırı için bir kez çalışır!",

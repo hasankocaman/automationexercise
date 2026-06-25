@@ -1348,7 +1348,7 @@ function JoinDiagram({ block, darkMode, language = 'en' }) {
 
             {block.explanation && (
                 <p className={`mt-4 text-xs leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    💡 {block.explanation}
+                    💡 {tx(block.explanation, language)}
                 </p>
             )}
         </div>
