@@ -168,6 +168,19 @@ print(sys.version)                 # print Python version`,
         expected: `Hello, QA Engineer!\nPython version check: 3.12.0 (main, ...) [GCC ...]`
       },
       {
+        type: 'simulation',
+        scenario: 'python-compile-run',
+        icon: '🐍',
+        title: { tr: 'Python Yorumlayıcı ve Derleme Adımları', en: 'Python Interpreter and Compilation Steps' },
+        description: {
+          tr: 'Python kodunun çalışma zamanında (runtime) arka planda nasıl derlendiğini, bytecode\'a çevrildiğini ve PVM (Python Virtual Machine) tarafından nasıl yorumlandığını gör.',
+          en: 'Watch how Python code is implicitly compiled to bytecode and interpreted line-by-line by the PVM (Python Virtual Machine) at runtime.'
+        },
+        code: `name = "QA Engineer"
+print(f"Hello, {name}!")`,
+        language: 'python'
+      },
+      {
         type: 'quiz',
         question: { tr: 'Bir Python projesinde virtual environment (venv) kullanmamanın temel riski nedir?', en: 'What is the main risk of not using a virtual environment (venv) in a Python project?' },
         options: [
@@ -4371,6 +4384,24 @@ print(f"  Output:   {args.output}")` },
         ],
       },
       {
+        type: 'simulation',
+        scenario: 'pytest-interactive-run',
+        icon: '🧪',
+        title: { tr: 'pytest ile İnteraktif Test Çalıştırma', en: 'pytest Interactive Test Runner' },
+        description: {
+          tr: 'pytest test suite\'in çalıştırılma akışını, test keşfini (discovery), flaky testler için retry/rerun mekanizmasını ve HTML raporunun üretilmesini adım adım izle.',
+          en: 'Watch how pytest discovers and runs tests, retries flaky tests, catches assertion failures, and generates an HTML test report.'
+        },
+        code: `def test_login_flaky_network():
+    # Flaky test simulation (succeeds on retry)
+    assert check_network_connection() == "OK"
+
+def test_invalid_password_error():
+    # Expected assertion failure
+    assert get_error_message() == "Wrong password"`,
+        language: 'python'
+      },
+      {
         type: 'http-flow-animation',
         method: 'GET',
         endpoint: '/users/1',
@@ -4762,391 +4793,660 @@ driver.execute_script("arguments[0].click();", element)`,
   {
     title: '💼 Python Interview Questions & Answers',
     blocks: [
-      { type: 'text', content: 'Click each question to expand the model answer. Organized by difficulty.' },
+      { type: 'text', content: { tr: 'Model cevabı görmek için her soruya tıklayın. Zorluk düzeyine göre sıralanmıştır.', en: 'Click each question to expand the model answer. Organized by difficulty.' } },
       { type: 'subheading', text: '🟢 Basic Questions' },
-      { type: 'qa', question: 'Q1: What is the difference between a list and a tuple?',
-        answer: 'Lists are MUTABLE (can change after creation) and use []. Tuples are IMMUTABLE (cannot change) and use ().\n\nUse lists when the collection changes (appending results). Use tuples when data should be fixed — allowed status values, a (x,y) coordinate, a Selenium locator.',
-        code: `results = ["PASS", "FAIL"]
-results.append("SKIP")        # OK — lists are mutable
-
-STATUS_OPTIONS = ("PASS", "FAIL", "SKIP")
-# STATUS_OPTIONS.append("x")  # TypeError: tuple does not support append
-
-# Tuples also unpack cleanly:
-def get_viewport() -> tuple:
-    return (1920, 1080)
-width, height = get_viewport()` },
-      { type: 'qa', question: 'Q2: What is None in Python?',
-        answer: 'None is Python\'s null — the absence of a value. It\'s its own type (NoneType). All functions without a return statement implicitly return None.\n\nAlways check with "is None" or "is not None" — never use == None.',
-        code: `value = None
-print(value is None)        # True  ← correct
-print(value == None)        # True  — works but wrong style
-
-def log(event):
-    print(event)
-    # no return → implicitly returns None
-
-result = log("click")
-print(result is None)       # True
-
-# Safe default with "or":
-name = user.get("name") or "Anonymous"` },
-      { type: 'qa', question: 'Q3: What is the difference between == and is?',
-        answer: '== checks VALUE equality. "is" checks IDENTITY — whether two variables point to the SAME object in memory.\n\nRule: use "is" only for None, True, False. Use == for everything else.',
-        code: `a = [1, 2, 3]
-b = [1, 2, 3]
-c = a
-
-print(a == b)   # True  — equal values
-print(a is b)   # False — different objects
-print(a is c)   # True  — same reference
-
-# Correct None check:
-result = None
-print(result is None)    # True` },
-      { type: 'qa', question: 'Q4: What does *args and **kwargs mean?',
-        answer: '*args collects extra POSITIONAL arguments into a tuple. **kwargs collects extra KEYWORD arguments into a dict. They let functions accept any number of arguments — essential for writing decorators that wrap any function.',
-        code: `def log_event(*args, **kwargs):
-    print("args:", args)      # tuple of positional args
-    print("kwargs:", kwargs)  # dict of keyword args
-
-log_event("test_login", "FAIL", duration=2.3, retry=True)
-# args: ('test_login', 'FAIL')
-# kwargs: {'duration': 2.3, 'retry': True}
-
-# Decorator must pass all args through:
-def decorator(func):
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)  # pass everything through
-    return wrapper` },
-      { type: 'qa', question: 'Q5: What is a list comprehension?',
-        answer: 'A concise one-line way to create a list: [expression for item in iterable if condition]. More readable than a for loop for simple transformations. Avoid nested comprehensions — use regular loops when logic is complex.',
-        code: `results = [
-    {"name": "Login",  "status": "FAIL"},
-    {"name": "Signup", "status": "PASS"},
-]
-
-failed = [r["name"] for r in results if r["status"] == "FAIL"]
-print(failed)   # ['Login']` },
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S1: Python ile Java arasındaki temel tip belirleme (typing) farkı nedir? Test otomasyonuna etkisi nasıldır?",
+            "en": "Q1: What is the main typing difference between Python and Java? How does it affect test automation?"
+      },
+      "answer": {
+            "tr": "Python dinamik tipli (dynamically typed) bir dildir; değişken tanımlarken tip belirtilmez ve tip çalışma zamanında (runtime) belirlenir. Java ise statik tiplidir (statically typed) ve derleme zamanında tip kontrolü yapar. Dinamik tipleme, otomasyon testlerini çok daha hızlı yazmayı sağlar; ancak çalışma zamanında tip hataları (TypeError) alma riskini artırır. Bunu önlemek için tip ipuçları (type hints) ve mypy gibi statik analiz araçları kullanılır.",
+            "en": "Python is dynamically typed (types are inferred at runtime; no explicit declaration needed), whereas Java is statically typed (types checked at compile-time). In test automation, dynamic typing enables rapid scripting and less boilerplate. However, it increases the risk of runtime TypeErrors, which we mitigate using type hints and static analyzers like mypy."
+      },
+      "code": "# Python: dynamic typing\nx = 10\nx = \"Passed\"       # OK: variable type can change dynamically\n\n# Java: static typing (compile error if type changes)\n// int x = 10;\n// x = \"Passed\";   // Compile Error: incompatible types"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S2: Python'da list ile tuple arasındaki fark nedir? Selenium locator'larını tanımlarken hangisi tercih edilir?",
+            "en": "Q2: What is the difference between a list and a tuple? Which is preferred for Selenium locators?"
+      },
+      "answer": {
+            "tr": "List değiştirilebilir (mutable) bir yapıdır ve [] ile tanımlanır (eleman ekleme/silme yapılabilir). Tuple ise değiştirilemez (immutable) bir yapıdır ve () ile tanımlanır. Test otomasyonunda Selenium locator'ları gibi sabit kalması gereken verileri tanımlarken tuple tercih edilir. Bu, locator değerinin çalışma zamanında yanlışlıkla değiştirilmesini dil seviyesinde engeller. Java'daki karşılığı List.of(...) veya final List kullanımıdır.",
+            "en": "A list is mutable (can be changed after creation) and uses []. A tuple is immutable (cannot be modified) and uses (). In test automation, tuples are preferred for defining locators (e.g., By.ID, \"submit\") to prevent accidental runtime modifications at the language level. Equivalent to Java's List.of(...) or final lists."
+      },
+      "code": "# List (mutable)\nresults = [\"PASS\", \"FAIL\"]\nresults.append(\"SKIP\")       # OK\n\n# Tuple (immutable)\nLOGIN_LOCATOR = (\"id\", \"username\")\n# LOGIN_LOCATOR[1] = \"email\" # TypeError: object does not support item assignment"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S3: Python'da None nedir? Java'daki null ile farkı nedir ve nasıl kontrol edilmelidir?",
+            "en": "Q3: What is None in Python? How does it differ from null in Java and how should you check for it?"
+      },
+      "answer": {
+            "tr": "None, Python'da bir değerin yokluğunu temsil eden özel bir singleton nesnesidir (NoneType tipindedir). Java'daki null bir referans yokluğu iken, None gerçek bir nesnedir. None kontrolü yapılırken her zaman \"is None\" veya \"is not None\" kimlik operatörleri kullanılmalıdır; \"== None\" kullanılmamalıdır. Çünkü \"==\" nesnenin __eq__ metodunu tetikler ve bu metod override edilmişse yanlış sonuç verebilir.",
+            "en": "None is a singleton object in Python representing the absence of a value. Unlike Java's null (which is a reference pointing to nothing), None is a real object of NoneType. You should always check for None using identity operators \"is None\" or \"is not None\" rather than \"== None\", because \"==\" invokes __eq__ which could be overridden."
+      },
+      "code": "result = None\nif result is None:\n    print(\"No test results found\")\n\n# Avoid: result == None (style guide violation and risky if __eq__ is overridden)"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S4: == ile is operatörleri arasındaki fark nedir? Somut bir otomasyon örneğiyle açıklayın.",
+            "en": "Q4: What is the difference between == and is? Explain with a concrete automation example."
+      },
+      "answer": {
+            "tr": "\"==\" operatörü değer eşitliğini (value equality) kontrol eder (iki nesnenin içeriği aynı mı?). \"is\" operatörü ise referans/kimlik eşitliğini (identity) kontrol eder (iki değişken bellekte tamamen aynı nesneyi mi işaret ediyor?). Test doğrulamalarında (assertion) her zaman değer karşılaştırması yapan \"==\" kullanılmalıdır. \"is\" sadece None, True ve False gibi singleton değerleri kontrol etmek için kullanılır.",
+            "en": "\"==\" checks value equality (do they contain the same data?), equivalent to Java's .equals(). \"is\" checks object identity (do they point to the exact same memory address?), equivalent to Java's \"==\". In assertions, always use \"==\". Use \"is\" only for singleton checks like None or booleans."
+      },
+      "code": "a = [\"test_login\", \"test_logout\"]\nb = [\"test_login\", \"test_logout\"]\nc = a\n\nprint(a == b)  # True  (same elements)\nprint(a is b)  # False (different objects in memory)\nprint(a is c)  # True  (same reference)"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S5: *args ve **kwargs ne anlama gelir? Test kütüphanelerinde nerede kullanılır?",
+            "en": "Q5: What do *args and **kwargs mean? Where are they used in test libraries?"
+      },
+      "answer": {
+            "tr": "*args, bir fonksiyona belirsiz sayıda pozisyonel argüman gönderilmesini sağlar ve bunları bir tuple olarak toplar. **kwargs ise belirsiz sayıda anahtar kelime (keyword) argümanı alır ve bunları bir dict olarak toplar. Test otomasyonunda, test metodlarını sarmalayan decorator'larda (örn. retry, loglama) orijinal parametreleri koruyarak iletmek için kullanılır.",
+            "en": "*args collects variable positional arguments into a tuple. **kwargs collects variable keyword arguments into a dictionary. In test automation, they are extensively used in decorators (e.g., logging or retrying test cases) to forward arguments dynamically to the wrapped function."
+      },
+      "code": "def log_api_call(url, *args, **headers):\n    print(f\"Calling: {url}\")\n    print(f\"Params: {args}\")\n    print(f\"Headers: {headers}\")\n\nlog_api_call(\"https://api.com\", \"GET\", 200, Authorization=\"Bearer token\")"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S6: List comprehension nedir? Java karşılığı nedir ve ne zaman tercih edilmelidir?",
+            "en": "Q6: What is a list comprehension? What is its Java equivalent and when should you use it?"
+      },
+      "answer": {
+            "tr": "List comprehension, mevcut bir koleksiyondan yeni bir liste üretmek için kullanılan tek satırlı, kısa ve performanslı bir Python söz dizimidir: [ifade for x in iterable if koşul]. Java'daki karşılığı Streams API (.stream().filter().map().collect()) zinciridir. Basit filtreleme ve haritalama işlemleri için okunabilirliği artırdığı için tercih edilir.",
+            "en": "List comprehension is a concise syntax to create a new list from an existing iterable: [expression for x in iterable if condition]. Its Java equivalent is the Streams API. Use it for straightforward loops that transform or filter data, as it is faster and more readable than standard loops."
+      },
+      "code": "results = [{\"name\": \"T1\", \"status\": \"FAIL\"}, {\"name\": \"T2\", \"status\": \"PASS\"}]\n\n# Get failed test names\nfailed_names = [r[\"name\"] for r in results if r[\"status\"] == \"FAIL\"]\nprint(failed_names)  # ['T1']"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S7: Python'da dict (sözlük) nedir? Listelerden farkı nedir ve ne zaman tercih edilir?",
+            "en": "Q7: What is a dict (dictionary) in Python? How does it differ from a list and when should you prefer it?"
+      },
+      "answer": {
+            "tr": "Dict, anahtar-değer (key-value) çiftlerini tutan sırasız (Python 3.7+ için ekleme sıralı) bir koleksiyondur. Listeler indis bazlı arama yaparken O(n) zaman harcayabilir. Dict ise hash tablosu kullandığı için anahtara göre aramayı O(1) zaman karmaşıklığı ile çok hızlı yapar. Test otomasyonunda test datalarını, konfigürasyonları veya API response gövdelerini eşleştirmek için tercih edilir. Java'daki HashMap karşılığıdır.",
+            "en": "A dict is an unordered key-value mapping (insertion-ordered in Python 3.7+). Unlike lists which search by scanning elements in O(n) time, dict uses hash lookups in O(1) constant time. In test automation, it is preferred for managing configuration properties, test data fixtures, or parsing API responses. Java HashMap equivalent."
+      },
+      "code": "# Dict definition\nconfig = {\"env\": \"staging\", \"timeout\": 30}\nprint(config.get(\"env\"))  # staging\n\n# Fast check (O(1))\nif \"timeout\" in config:\n    print(\"Timeout configured\")"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S8: Python'da docstring nedir ve test otomasyon raporlarında nasıl kullanılır?",
+            "en": "Q8: What is a docstring in Python and how is it used in test automation reports?"
+      },
+      "answer": {
+            "tr": "Docstring, üçlü çift tırnak (\"\"\") ile fonksiyon, sınıf veya modüllerin hemen altına yazılan dokümantasyon yorumudur. Standart yorum satırlarından (#) farkı, runtime'da __doc__ niteliği ile erişilebilir olmasıdır. pytest ve Allure gibi raporlama araçları, test fonksiyonlarının docstring'lerini otomatik okuyarak test raporlarında \"Test Senaryosu Açıklaması\" olarak yansıtır.",
+            "en": "A docstring is a documentation literal written with triple double quotes (\"\"\") directly under a function, class, or module. Unlike standard comments, it remains in memory and is accessible via the __doc__ attribute. Test runners like pytest and Allure automatically extract docstrings to serve as test case descriptions in HTML reports."
+      },
+      "code": "def test_user_login():\n    \"\"\"Verify that a registered user can successfully log in with valid credentials.\"\"\"\n    # Test code here\n    assert True\n\n# Accessing it programmatically:\n# print(test_user_login.__doc__)"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S9: Python'da yerel (local) ve global kapsam (scope) farkı nedir? Bir fonksiyon içinden global değişken nasıl güncellenir?",
+            "en": "Q9: What is the difference between local and global scope in Python? How do you modify a global variable inside a function?"
+      },
+      "answer": {
+            "tr": "Yerel kapsam (local scope) bir fonksiyon içinde tanımlanan değişkenleri kapsar; bu değişkenlere dışarıdan erişilemez. Global kapsam ise modül düzeyindedir. Bir fonksiyon içinden global bir değişkeni güncellemeye çalışırsanız, Python lokalde yeni bir değişken tanımlar. Global değişkeni güncellemek için fonksiyon içinde `global` anahtar kelimesi ile bildirilmesi gerekir. Java'daki sınıf seviyesindeki static değişken güncellemelerine benzer.",
+            "en": "Local scope applies to variables defined inside a function (inaccessible from outside). Global scope applies to module-level variables. Attempting to modify a global variable inside a function will define a new local variable unless you declare it using the `global` keyword. Similar to modifying static class variables in Java."
+      },
+      "code": "status = \"READY\"\n\ndef start_test():\n    global status\n    status = \"RUNNING\"  # Modifies the global variable\n\nstart_test()\nprint(status)  # \"RUNNING\""
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S10: Python'da string formatlama yöntemleri nelerdir? En modern ve önerilen yöntem hangisidir?",
+            "en": "Q10: What are the string formatting methods in Python? Which is the most modern and recommended method?"
+      },
+      "answer": {
+            "tr": "Python'da üç ana yöntem vardır: % operatörü (eski C tarzı), .format() metodu (orta dönem) ve f-string (en modern, Python 3.6+). f-string (`f\"Metin {değişken}\"`), hem en hızlı çalışan hem de okunabilirliği en yüksek olan yöntemdir. Doğrudan süslü parantez içine Python kodu veya matematiksel işlemler yazılmasına izin verir. Java'daki `String.format()` veya + ile birleştirmeye göre çok daha temizdir.",
+            "en": "Python has three main string formatting methods: % formatting (old C-style), .format() (legacy), and f-strings (modern, Python 3.6+). f-strings (e.g. f\"Text {variable}\") are the fastest and most readable method, allowing you to embed expressions directly in string literals. Much cleaner than Java's String.format()."
+      },
+      "code": "test_id = 404\nstatus = \"FAILED\"\n\n# f-string formatting (Recommended)\nlog_msg = f\"Test TC-{test_id} has finished with status: {status}\"\nprint(log_msg)"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S11: Python'da set (küme) nedir? Liste ve sözlüklerden farkı nedir?",
+            "en": "Q11: What is a set in Python? How does it differ from lists and dictionaries?"
+      },
+      "answer": {
+            "tr": "Set, sırasız (unordered) ve benzersiz (unique) elemanlar tutan bir koleksiyondur. Süslü parantezlerle {} tanımlanır. Sözlüklerden farkı, key-value çiftleri yerine sadece tekil değerler tutmasıdır. Listelerden farkı ise mükerrer (duplicate) elemana izin vermemesi ve arama işlemlerini O(1) hızında yapmasıdır. Test otomasyonunda test sonuçlarındaki mükerrer logları temizlemek veya benzersiz ID listelerini doğrulamak için kullanılır. Java'daki HashSet karşılığıdır.",
+            "en": "A set is an unordered collection of unique elements defined using {}. It differs from dicts by not holding key-value pairs, and from lists by prohibiting duplicate values and providing O(1) membership lookups. In testing, it is used to filter duplicates or verify unique dataset fields. Java HashSet equivalent."
+      },
+      "code": "duplicated_logs = [\"401\", \"200\", \"401\", \"500\", \"200\"]\nunique_codes = set(duplicated_logs)\nprint(unique_codes)  # {'200', '401', '500'}\n\n# Fast check (O(1))\nprint(\"401\" in unique_codes)  # True"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S12: Python'da \"pass\" ifadesi ne işe yarar? Test otomasyonunda nerede kullanılır?",
+            "en": "Q12: What does the \"pass\" statement do in Python? Where is it used in test automation?"
+      },
+      "answer": {
+            "tr": "\"pass\" ifadesi, Python'da söz dizimsel olarak bir kod bloğu yazılması zorunlu olan ancak hiçbir işlem yapılmak istenmeyen yerlerde kullanılan bir yer tutucudur (null statement). Python boş kod bloklarına izin vermediği ve indentation hatası verdiği için pass kurtarıcıdır. Test otomasyonunda henüz içi doldurulmamış taslak test case'leri veya içi boş mock sınıfları tanımlarken kullanılır.",
+            "en": "The \"pass\" statement is a null placeholder in Python. Since Python relies on indentation and does not allow empty code blocks, pass is used to satisfy syntax requirements without executing code. In test automation, it is used for writing skeleton/draft test cases, empty helper classes, or mock methods."
+      },
+      "code": "class MockDatabaseConnector:\n    def connect(self):\n        pass  # Will implement connection details later\n\ndef test_draft_feature():\n    pass  # Placeholder test to be coded"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S13: Python'daki \"del\" keyword'ünün amacı nedir? Java'daki çöp toplayıcı (Garbage Collector) ile nasıl karşılaştırılır?",
+            "en": "Q13: What is the purpose of \"del\" keyword in Python? How does it compare to Java's Garbage Collector?"
+      },
+      "answer": {
+            "tr": "\"del\" ifadesi, Python'da bir değişken referansını, liste elemanını veya sözlük anahtarını silmek için kullanılır. \"del x\" yazıldığında, değişkenin kendisine ait isim referansı silinir ve nesnenin referans sayacı (reference count) bir azaltılır. Referans sayacı 0'a düştüğünde Python'ın Garbage Collector'ı belleği temizler. Java'da nesneler doğrudan manuel silinemez, GC arka planda otomatik çalışır; Python'da ise del ile referansı manuel koparabiliriz.",
+            "en": "The \"del\" keyword in Python deletes references to variables, list indices, or dict keys. Using \"del x\" removes the name binding and decrements the object's reference count. When the count reaches zero, Python's garbage collector reclaims the memory. Unlike Java, where you cannot manually delete references directly, Python allows reference removal."
+      },
+      "code": "# Delete list element by index\ntests = [\"T1\", \"T2\", \"T3\"]\ndel tests[1]\nprint(tests)  # ['T1', 'T3']\n\n# Delete global variable reference\nx = \"driver\"\ndel x\n# print(x)  # NameError: name 'x' is not defined"
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S14: Python'da dinamik tipleme (dynamic typing) ne demektir?",
+            "en": "Q14: What does dynamic typing mean in Python?"
+      },
+      "answer": {
+            "tr": "Değişken tipini siz belirtmezsiniz — Python çalışma zamanında anlar. x = 5 dersiniz, Python x'i int olarak işler. Sonra x = \"hello\" derseniz, x artık str olur. Java'da bu bir derleme hatası verirdi çünkü tip sabitlenir. Bu esneklik testleri hızlı yazmanı sağlar ama tip uyumsuzluklarına dikkat etmen gerekir.",
+            "en": "You don't declare variable types — Python infers them at runtime. x = 5 makes x an int. Then x = \"hello\" makes it a str. In Java, this would be a compile error because the type is fixed. This flexibility lets you write tests fast, but you need to watch for type mismatches."
+      }
+},
+      {
+      "type": "qa",
+      "level": "basic",
+      "question": {
+            "tr": "S15: Python'da truthy/falsy kavramını açıklayın ve QA'da ne zaman kullanışlıdır?",
+            "en": "Q15: Explain Python's truthy/falsy concept and when it's useful in QA."
+      },
+      "answer": {
+            "tr": "Herhangi bir Python değeri bool'a dönüştürülebilir. 0, None, \"\", [], {}, () False'tur; geri kalanlar True'dur. QA'da: \"if errors:\" veya \"if response.json():\" şeklinde kullanılır — Java'daki \"if (errors != null && !errors.isEmpty())\" yerine çok daha kısadır.",
+            "en": "Any Python value can be coerced to bool. 0, None, \"\", [], {}, () are False; everything else True. In QA: \"if errors:\" or \"if response.json()\" is much shorter than Java's \"if (errors != null && !errors.isEmpty())\"."
+      }
+},
       { type: 'subheading', text: '🟡 Intermediate Questions' },
-      { type: 'qa', question: 'Q6: What is a decorator and how do you write one?',
-        answer: 'A decorator is a function that takes a function, wraps it with behavior, and returns the wrapped version. In test automation: @retry, @timer, @pytest.fixture, @allure.step are all decorators. functools.wraps preserves the wrapped function\'s metadata.',
-        code: `import functools, time
-
-def timer(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start  = time.time()
-        result = func(*args, **kwargs)
-        print(f"{func.__name__} took {(time.time()-start)*1000:.0f}ms")
-        return result
-    return wrapper
-
-@timer
-def load_test_data(path):
-    return []
-
-load_test_data("results.csv")
-# Output: load_test_data took 12ms` },
-      { type: 'qa', question: 'Q7: Explain pytest fixture scopes.',
-        answer: 'function (default): new fixture per test. Use for isolation (create/delete user per test).\nclass: shared across all tests in one class.\nmodule: shared across all tests in one file.\nsession: shared across entire test session. Use for expensive setup — DB connections, browser instances, auth tokens.',
-        code: `@pytest.fixture(scope="session")
-def db():
-    conn = create_connection()  # expensive — create ONCE
-    yield conn
-    conn.close()
-
-@pytest.fixture(scope="function")
-def test_user(db):              # cheap — recreate per test
-    user = db.create_user("test@test.com")
-    yield user
-    db.delete_user(user.id)     # cleanup after each test` },
-      { type: 'qa', question: 'Q8: What is exception handling in test automation?',
-        answer: 'try/except/finally catches runtime errors. In automation: catch network errors so one failed API call doesn\'t crash the test runner. Use finally for cleanup (browser/connection always closes). Raise custom exceptions for better error messages.',
-        code: `def safe_get(url: str):
-    try:
-        r = requests.get(url, timeout=5)
-        r.raise_for_status()    # raises on 4xx/5xx
-        return r.json()
-    except requests.Timeout:
-        pytest.fail(f"Timeout: {url}")
-    except requests.HTTPError as e:
-        pytest.fail(f"HTTP {e.response.status_code}")
-    finally:
-        pass  # cleanup, logging, etc.` },
-      { type: 'qa', question: 'Q9: Difference between instance, class, and static methods?',
-        answer: 'Instance method: first param is self — accesses instance state. Most common.\nClass method (@classmethod): first param is cls — accesses class state. Use for alternative constructors.\nStatic method (@staticmethod): no self/cls — pure utility function in the class namespace.',
-        code: `class TestData:
-    registry = []
-
-    def __init__(self, name, status):
-        self.name   = name
-        self.status = status
-
-    def is_passed(self):              # instance method
-        return self.status == "PASS"
-
-    @classmethod
-    def from_dict(cls, data: dict):   # class method — alt constructor
-        return cls(data["name"], data["status"])
-
-    @staticmethod
-    def valid_statuses() -> list:     # static utility
-        return ["PASS", "FAIL", "SKIP"]` },
-      { type: 'qa', question: 'Q10: How would you structure a Python test automation framework?',
-        answer: 'Key layers: pages/ (Page Objects, one per page), tests/ (pytest files per feature), fixtures/ (conftest.py hierarchy), test_data/ (CSV, JSON files), utils/ (API clients, DB helpers), reports/ (git-ignored output), config/ (.env + config.py).\n\nPrinciples: DRY (no repeated locators), fixtures handle setup/teardown, parametrize drives data-driven tests, CI runs everything headless.',
-        code: `# Recommended project structure:
-# project/
-# ├── conftest.py          <- session-scoped fixtures
-# ├── pytest.ini           <- marks, base URL, reporters
-# ├── requirements.txt
-# ├── pages/
-# │   ├── base_page.py
-# │   └── login_page.py
-# ├── tests/
-# │   ├── conftest.py      <- test-level fixtures
-# │   └── test_login.py
-# ├── utils/
-# │   └── api_client.py
-# └── test_data/
-#     └── users.csv` },
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S16: Decorator nedir ve nasıl yazılır? Test otomasyonunda gerçek bir kullanım örneği verin.",
+            "en": "Q16: What is a decorator and how do you write one? Give a real test automation example."
+      },
+      "answer": {
+            "tr": "Decorator, bir fonksiyonun kodunu değiştirmeden ona ek özellikler kazandırmak için kullanılan `@` söz dizimli bir tasarım kalıbıdır. Arka planda bir fonksiyonu girdi olarak alıp yeni bir wrapper fonksiyon döndürür. Test otomasyonunda loglama, test süresi ölçme veya başarısız testleri otomatik yeniden deneme (retry) gibi çapraz kesen kaygıları (cross-cutting concerns) çözmek için kullanılır. Java'daki karşılığı Spring AOP (Aspects) veya proxy sınıflarıdır.",
+            "en": "A decorator is a design pattern represented by `@` that wraps a function to extend its behavior without modifying the original code. In test automation, decorators are commonly used for logging, measurement of test execution times, or retrying failed tests. Java equivalent is Spring AOP or proxy wrappers."
+      },
+      "code": "import functools, time\n\ndef log_test(func):\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        print(f\"--- Starting test: {func.__name__} ---\")\n        start = time.time()\n        res = func(*args, **kwargs)\n        print(f\"--- Finished test: {func.__name__} in {time.time()-start:.2f}s ---\")\n        return res\n    return wrapper\n\n@log_test\ndef test_payment():\n    time.sleep(0.5)"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S17: Pytest fixture scope'larını açıklayın. Hangi scope ne zaman tercih edilmelidir?",
+            "en": "Q17: Explain pytest fixture scopes. Which scope should be chosen when?"
+      },
+      "answer": {
+            "tr": "pytest fixture scope'ları, fixture ömrünü ve paylaşım düzeyini belirler: (1) function (varsayılan): Her test fonksiyonu öncesi ve sonrası çalışır (yüksek izolasyon). (2) class: Her test sınıfı için bir kez. (3) module: Her python test dosyası (.py) için bir kez. (4) session: Tüm test çalıştırması boyunca sadece bir kez. DB bağlantıları veya WebDriver instance başlatma gibi maliyetli işlemler için \"session\" veya \"module\" scope tercih edilerek test hızı artırılır.",
+            "en": "pytest fixture scopes define the lifecycle of setup/teardown resources: (1) function (default): runs for every single test. (2) class: runs once per test class. (3) module: runs once per python file (.py). (4) session: runs once for the entire test run. Use \"session\" for expensive operations like spawning browser drivers or connecting databases to speed up test execution."
+      },
+      "code": "# Database connection fixture shared across all test files\n@pytest.fixture(scope=\"session\")\ndef db_conn():\n    conn = connect_db()\n    yield conn\n    conn.close()  # runs once at the very end of the test execution"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S18: Test otomasyonunda exception handling (hata yönetimi) nasıl yapılır? \"except:\" kullanımı neden risklidir?",
+            "en": "Q18: How do you handle exceptions in test automation? Why is generic \"except:\" risky?"
+      },
+      "answer": {
+            "tr": "Hata yönetimi try/except/finally bloklarıyla yapılır. Testlerde network veya element bulunamama hatalarını yakalamak için try/except kullanılır; veritabanı veya tarayıcı kapatma gibi temizlik kodları finally bloğuna yazılır. \"except:\" (spesifik hata belirtmeden) kullanımı çok risklidir çünkü KeyboardInterrupt, AssertionError gibi testin başarısız olmasını veya durmasını gerektiren kritik hataları da yakalayıp yutar, debug yapmayı zorlaştırır.",
+            "en": "Exceptions are handled via try/except/finally blocks. Teardown tasks are placed in finally to guarantee execution. Generic \"except:\" is risky because it catches and swallows all exceptions — including KeyboardInterrupt or AssertionError — hiding real test failures and blocking debugging."
+      },
+      "code": "from selenium.common.exceptions import TimeoutException\n\ntry:\n    element = wait.until(EC.presence_of_element_located((By.ID, \"alert\")))\nexcept TimeoutException:\n    print(\"Optional alert did not appear, continuing test...\")\nfinally:\n    driver.quit()  # Always close driver"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S19: Python'da instance, class ve static metodlar arasındaki farklar nelerdir? Otomasyonda neye göre seçilir?",
+            "en": "Q19: What is the difference between instance, class, and static methods? How are they chosen in automation?"
+      },
+      "answer": {
+            "tr": "Instance metodlar normal sınıf metodlarıdır, \"self\" parametresi alır ve nesne durumuna (instance state) erişir. Class metodlar (@classmethod), \"cls\" parametresi alır ve sınıf durumuna erişir; genellikle alternatif constructor oluşturmak için kullanılır. Static metodlar (@staticmethod) ise sınıf veya nesne durumuna erişmez, bağımsız bir yardımcı fonksiyondur. Otomasyonda Page Object sınıflarında genelde instance; konfigürasyon/API client gibi yardımcı araçlarda static metodlar seçilir.",
+            "en": "Instance methods take \"self\" and access instance variables. Class methods (@classmethod) take \"cls\" and access class variables (often used for custom builders). Static methods (@staticmethod) do not access self/cls and behave like plain functions inside class namespaces. In automation, Page Objects use instance methods, while helper classes use static methods."
+      },
+      "code": "class APIClient:\n    def __init__(self, token):\n        self.token = token  # Instance state\n\n    def get_data(self):\n        return f\"Headers: Bearer {self.token}\"  # Instance method\n\n    @staticmethod\n    def validate_url(url):\n        return url.startswith(\"https\")  # Static method (utility)"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S20: Python ile modern bir test otomasyon projesinin klasör yapısı nasıl olmalıdır?",
+            "en": "Q20: How should you structure a modern Python test automation project?"
+      },
+      "answer": {
+            "tr": "Modern bir Python otomasyon projesi şu katmanları içerir: pages/ (Sayfa nesneleri, POM), tests/ (pytest test dosyaları), conftest.py (ortak fixture ve kancalar), config/ (.env ve konfigürasyon sınıfları), utils/ (API ve veritabanı yardımcıları), requirements.txt (bağımlılık yönetimi) ve reports/ (test çıktıları). Bu yapı kod tekrarını önler (DRY), bakım maliyetlerini azaltır ve CI/CD süreçleriyle kolayca entegre olur.",
+            "en": "A standard directory layout: pages/ (POM classes), tests/ (pytest files), conftest.py (shared fixtures), config/ (.env and parser classes), utils/ (DB/API helpers), requirements.txt (dependencies), and reports/. This keeps the framework modular, compliant with DRY, and easily integrable into CI/CD."
+      },
+      "code": "my_framework/\n├── config/\n│   └── settings.py\n├── pages/\n│   ├── base_page.py\n│   └── login_page.py\n├── tests/\n│   ├── conftest.py\n│   └── test_auth.py\n└── requirements.txt"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S21: Python'da sığ kopyalama (copy) ile derin kopyalama (deepcopy) arasındaki fark nedir?",
+            "en": "Q21: What is the difference between shallow copy (copy) and deep copy (deepcopy) in Python?"
+      },
+      "answer": {
+            "tr": "Sığ kopyalama (`copy.copy()`), nesnenin kendisini kopyalar ancak içindeki iç içe geçmiş (nested) nesnelerin referanslarını kopyalar (yani alt nesneler orijinaliyle paylaşılır). Derin kopyalama (`copy.deepcopy()`) ise nesneyi ve içindeki tüm alt nesneleri özyinelemeli olarak tamamen kopyalar, hafızada bağımsız yeni nesneler oluşturur. Test otomasyonunda şablon bir test datası üzerinden veri türetirken alt nesnelerin bozulmaması için deepcopy tercih edilir.",
+            "en": "Shallow copy (`copy.copy()`) duplicates the top-level object but references the nested child elements from the original. Deep copy (`copy.deepcopy()`) recursively clones the parent and all nested objects, creating completely independent memory addresses. In testing, use deepcopy when generating variants of template test datasets."
+      },
+      "code": "import copy\n\noriginal = [[1, 2], [3, 4]]\nshallow = copy.copy(original)\ndeep = copy.deepcopy(original)\n\noriginal[0][0] = 99\nprint(shallow[0][0])  # 99 (affected by shallow reference!)\nprint(deep[0][0])     # 1  (isolated copy)"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S22: Python'da dunder (double underscore) metodları nedir? __init__ ve __str__ metodlarını açıklayın.",
+            "en": "Q22: What are dunder (double underscore) methods in Python? Explain __init__ and __str__."
+      },
+      "answer": {
+            "tr": "Dunder metodları (magic methods), Python'da çift alt çizgiyle başlayan ve biten, belirli dil işlemlerinde (aritmetik işlemler, stringe dönüştürme, karşılaştırma) otomatik tetiklenen özel metodlardır. `__init__`, bir sınıftan nesne üretildiğinde çağrılan constructor (kurucu) metodudur. `__str__` ise nesne `print()` veya `str()` ile çağrıldığında okunabilir bir string çıktısı vermesini sağlar (Java'daki toString() karşılığıdır).",
+            "en": "Dunder (double underscore) methods, or magic methods, are built-in methods called implicitly by Python operations. `__init__` acts as the object constructor. `__str__` defines the human-readable string representation of the object, equivalent to Java's `toString()` method."
+      },
+      "code": "class TestCase:\n    def __init__(self, name, priority):\n        self.name = name\n        self.priority = priority\n\n    def __str__(self):\n        return f\"TestCase: {self.name} [Priority: {self.priority}]\"\n\ntc = TestCase(\"LoginTest\", \"High\")\nprint(tc)  # Prints: TestCase: LoginTest [Priority: High]"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S23: Python'da JSON verileriyle nasıl çalışılır? json.loads() ile json.dumps() farkı nedir?",
+            "en": "Q23: How do you work with JSON data in Python? What is the difference between json.loads() and json.dumps()?"
+      },
+      "answer": {
+            "tr": "Python yerleşik \"json\" modülünü kullanır. `json.loads()`, bir JSON string'ini parse ederek Python dictionary veya list yapısına dönüştürür (De-serialization). `json.dumps()` ise Python dictionary veya listesini JSON formatında bir string'e dönüştürür (Serialization). API test otomasyonunda requests ile gönderilen payload'ları oluştururken dumps, response gövdelerini parse ederken loads kullanılır.",
+            "en": "Python handles JSON via the built-in \"json\" module. `json.loads()` deserializes a JSON string into a Python dictionary/list. `json.dumps()` serializes a Python dictionary/list into a JSON string. In API test automation, dumps formats payload strings and loads parses responses."
+      },
+      "code": "import json\n\n# json.loads: String to dict\njson_str = '{\"status\": \"PASS\", \"duration\": 120}'\ndata = json.loads(json_str)\nprint(data[\"status\"])  # PASS\n\n# json.dumps: Dict to String\npayload = {\"test\": \"login\", \"passed\": True}\npayload_str = json.dumps(payload)\nprint(type(payload_str))  # <class 'str'>"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S24: yield anahtar kelimesi nedir? pytest fixture'larında setup ve teardown işlemlerini nasıl yönetir?",
+            "en": "Q24: What is the yield keyword? How does it manage setup and teardown inside pytest fixtures?"
+      },
+      "answer": {
+            "tr": "`yield`, bir fonksiyonu generator'a çeviren ve değeri döndürüp fonksiyon durumunu donduran bir kelimedir. pytest fixture'larında yield, setup (kurulum) ile teardown (temizlik) kodlarını ayırmak için kullanılır. yield satırına kadar olan kodlar testten ÖNCE (setup) çalışır. yield değeri teste iletir ve duraklar. Test başarıyla tamamlansa da çökmüş olsa da, testten SONRA (teardown) yield altındaki kodlar çalışır.",
+            "en": "`yield` returns a value from a generator and pauses its execution. In pytest fixtures, it divides setup and teardown logic. Code before yield executes BEFORE the test runs (setup). yield yields the resource to the test. Code after yield executes AFTER the test finishes (teardown), guaranteed."
+      },
+      "code": "@pytest.fixture\ndef browser():\n    # SETUP\n    driver = webdriver.Chrome()\n    yield driver  # hand over control to test\n    # TEARDOWN\n    driver.quit()  # executed after the test finishes"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S25: Python'da list dilimleme (slicing) nasıl çalışır? [::2] veya [-1] ne yapar?",
+            "en": "Q25: How does list slicing work in Python? What does [::2] or [-1] do?"
+      },
+      "answer": {
+            "tr": "Dilimleme, `liste[başlangıç:bitiş:adım]` formatında bir listenin alt kümesini kopyalar. `[-1]`, listenin son elemanını döndürür. `[::2]` ise en baştan en sona ikişer adım atlayarak her ikinci elemanı alır. Otomasyonda test log dosyalarını sondan okumak (`[-10:]` ile son 10 satırı alma) veya veri setlerinden örnekleme yapmak için sıkça kullanılır. Java'da bunun için alt listeler oluşturmak (subList) gerekir.",
+            "en": "Slicing copies a sub-segment using `list[start:stop:step]` syntax. `[-1]` accesses the last element directly. `[::2]` extracts every second element from start to finish. In automation, it is handy for fetching recent log rows (`logs[-10:]`) or sampling test records. Java requires subList boilerplate."
+      },
+      "code": "cases = [\"T1\", \"T2\", \"T3\", \"T4\", \"T5\"]\n\nprint(cases[-1])    # T5 (last element)\nprint(cases[1:4])   # ['T2', 'T3', 'T4'] (index 1 to 3)\nprint(cases[::2])   # ['T1', 'T3', 'T5'] (every second element)"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S26: Lambda fonksiyonu nedir? Test otomasyonunda (örneğin Selenium beklemelerinde) nerede kullanılır?",
+            "en": "Q26: What is a lambda function? Where is it used in test automation (e.g. Selenium waits)?"
+      },
+      "answer": {
+            "tr": "Lambda, tek satırlık ve isimsiz (anonymous) küçük fonksiyonlar tanımlamak için kullanılan bir yapıdır. `lambda argümanlar: ifade` şeklinde yazılır. Test otomasyonunda özellikle Selenium WebDriverWait kullanırken, belirli bir durumun gerçekleşmesini (örneğin bir elementin özniteliğinin değişmesi) beklemek için kısa süreli koşul fonksiyonu olarak kullanılır.",
+            "en": "A lambda is an anonymous, single-line function defined as `lambda args: expression`. In test automation, it is commonly used with Selenium's WebDriverWait to declare inline conditions (e.g. waiting for a specific attribute value) without writing full function definitions."
+      },
+      "code": "# Wait until page title changes to \"Dashboard\"\nwait = WebDriverWait(driver, 10)\nwait.until(lambda d: d.title == \"Dashboard\")\n\n# Sort test results by duration key\nresults = [{\"name\": \"T1\", \"time\": 200}, {\"name\": \"T2\", \"time\": 50}]\nresults.sort(key=lambda x: x[\"time\"])"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S27: Python'da bir modül (module) ile paket (package) arasındaki fark nedir?",
+            "en": "Q27: What is the difference between a module and a package in Python?"
+      },
+      "answer": {
+            "tr": "Modül, `.py` uzantılı tek bir Python kod dosyasıdır. Paket ise içinde birden fazla modül ve dizin barındıran ve Python'ın bunu bir paket olarak algılamasını sağlayan (eski sürümlerde zorunlu, yenilerde opsiyonel olan) `__init__.py` dosyasını içeren klasör yapısıdır. Otomasyonda pages/ klasörü bir paket, altındaki login_page.py ise bir modüldür.",
+            "en": "A module is a single Python file (.py). A package is a directory structure containing multiple modules and an optional `__init__.py` file (mandatory in older Python versions) that namespaces the directory. In automation frameworks, pages/ behaves as a package and login_page.py acts as a module."
+      },
+      "code": "# Importing a function from a module inside a package\n# Structure: pages/login_page.py -> login()\nfrom pages.login_page import login"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S28: pytest ile testleri paralel olarak nasıl çalıştırırsınız? Çakışmaları önlemek için ne yapmalısınız?",
+            "en": "Q28: How do you run tests in parallel using pytest? How do you prevent conflicts?"
+      },
+      "answer": {
+            "tr": "pytest testlerini paralel koşturmak için `pytest-xdist` eklentisi kullanılır (`pytest -n auto` veya `pytest -n 4` komutuyla). Paralel çalışmada paylaşılan kaynak (veritabanı, tekil test kullanıcıları) çakışmalarını önlemek için: (1) Her testin kendi izole test verisini üretmesi sağlanmalı, (2) Fixture scope'ları doğru kurgulanmalı ve (3) WebDriver oturumları thread-safe şekilde tasarlanmalıdır.",
+            "en": "To execute tests concurrently, install and use the `pytest-xdist` plugin with the command `pytest -n auto` (or specify workers: `pytest -n 4`). To avoid parallel conflicts: (1) Ensure test data isolation, (2) check fixture lifetimes, and (3) verify that driver instances are thread-safe and isolated."
+      },
+      "code": "# Install pytest-xdist: pip install pytest-xdist\n# CLI execution using 4 parallel workers:\n# pytest -n 4"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S29: conftest.py dosyasının pytest'teki amacı nedir? Java test kütüphanelerindeki karşılığı nedir?",
+            "en": "Q29: What is the purpose of conftest.py in pytest? What is its Java equivalent?"
+      },
+      "answer": {
+            "tr": "`conftest.py`, pytest tarafından otomatik olarak algılanan ve içine yazılan ortak fixture'ların, hook'ların (kancalar) ve eklentilerin tüm test dosyaları tarafından import edilmeden paylaşılmasını sağlayan özel bir konfigürasyon dosyasıdır. Java JUnit/TestNG dünyasında doğrudan bir dosya karşılığı yoktur; bunun yerine ortak BaseTest sınıfları veya Test Listener'lar yazılır.",
+            "en": "`conftest.py` is a special pytest file used to share setup fixtures, command-line hook definitions, and helper plug-ins across test files without explicit imports. It has no direct file counterpart in JUnit/TestNG; Java developers write BaseTest classes or Listener hooks instead."
+      },
+      "code": "# Defined inside conftest.py:\n@pytest.fixture\ndef api_token():\n    return \"secret-token\"\n\n# Any test file in the directory can use api_token directly:\n# def test_get_profile(api_token): ..."
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S30: pytest'te test parametrizasyonu (@pytest.mark.parametrize) nedir? Neden tercih edilir?",
+            "en": "Q30: What is test parametrization (@pytest.mark.parametrize) in pytest? Why is it preferred?"
+      },
+      "answer": {
+            "tr": "Parametrizasyon, aynı test fonksiyonunu farklı girdi ve beklenen çıktılardan oluşan veri kümeleriyle tekrar tekrar çalıştırmayı sağlayan bir özelliktir. Kod tekrarını önler (DRY) ve test kapsamını artırır. Bir test verisi kümesindeki tek bir satır başarısız olsa bile diğer parametreler etkilenmez ve bağımsız olarak koşmaya devam eder. Java TestNG'deki @DataProvider karşılığıdır.",
+            "en": "Parametrization runs the same test logic multiple times with different inputs and expected outputs. It adheres to DRY principles and scales test coverage. If one dataset fails, the others continue running independently. Java TestNG DataProvider equivalent."
+      },
+      "code": "@pytest.mark.parametrize(\"username,password,expected_error\", [\n    (\"invalid_user\", \"password123\", \"User not found\"),\n    (\"admin\", \"wrong_pass\", \"Invalid credentials\"),\n    (\"\", \"pass\", \"Username cannot be empty\")\n])\ndef test_login_failures(username, password, expected_error):\n    # execute login and assert error message\n    pass"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S31: \"requests\" kütüphanesi nedir? Bir API response'unun durum kodunu ve JSON içeriğini nasıl doğrularsınız?",
+            "en": "Q31: What is the \"requests\" library? How do you assert the status code and JSON body of an API response?"
+      },
+      "answer": {
+            "tr": "requests, Python'da HTTP istekleri göndermek için kullanılan en popüler kütüphanedir. Oldukça temiz ve okunabilir bir API sunar. Bir API çağrısının sonucunu doğrulamak için `response.status_code` ile durum kodu kontrol edilir; `response.json()` metoduyla da response gövdesi bir Python dict/list nesnesine dönüştürülerek assert edilir. Java REST Assured karşılığıdır.",
+            "en": "requests is the most popular Python HTTP library. To validate API responses, check `response.status_code` and decode JSON payloads using `response.json()` to assert fields as native Python dicts. Equivalent to Java REST Assured."
+      },
+      "code": "import requests\n\nresponse = requests.get(\"https://api.com/users/1\")\nassert response.status_code == 200\n\ndata = response.json()\nassert data[\"username\"] == \"admin\"\nassert \"email\" in data"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S32: RegEx kütüphanesindeki re.match() ile re.search() arasındaki fark nedir? Otomasyonda ne zaman kullanılır?",
+            "en": "Q32: What is the difference between re.match() and re.search() in RegEx? When to use in automation?"
+      },
+      "answer": {
+            "tr": "`re.match()`, düzenli ifadenin (RegEx) string'in en başından başlayarak eşleşip eşleşmediğini kontrol eder. `re.search()` ise string'in herhangi bir yerinde eşleşme arar. Test otomasyonunda dinamik olarak üretilen onay kodlarını (OTP), e-posta formatlarını, fatura numaralarını veya veritabanı log formatlarını doğrulamak için sıkça kullanılır.",
+            "en": "`re.match()` checks for a regex match only at the very beginning of a string. `re.search()` scans the entire string looking for the first location where a match occurs. In automation, it is used to extract dynamic OTP codes, validate email formats, or check logs."
+      },
+      "code": "import re\n\nlog_line = \"ERROR: Connection timeout on port 8080\"\n\n# re.match starts at index 0 (Returns None because log starts with E, not C)\nprint(re.match(r\"Connection\", log_line))  # None\n\n# re.search scans the string (Finds the match)\nmatch = re.search(r\"port (\\d+)\", log_line)\nprint(match.group(1))  # 8080"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S33: Python otomasyon projelerinde farklı test ortamlarının konfigürasyonları (dev, staging, prod) nasıl yönetilir?",
+            "en": "Q33: How do you manage configurations for different test environments (dev, staging, prod) in Python?"
+      },
+      "answer": {
+            "tr": "En yaygın yöntem, ortam değişkenlerini `.env` dosyalarında tutmak ve bunları `python-dotenv` kütüphanesiyle okumaktır. pytest ile çalışırken komut satırından `--env` argümanı eklenerek conftest.py içinde konfigürasyon dinamik olarak yüklenir (örn: dev.json veya staging.json okunur). Java dünyasında bu işlem maven profile'ları veya spring profiles (application.yml) ile yönetilir.",
+            "en": "The industry standard is storing environment variables in a `.env` file and reading them using `python-dotenv`. With pytest, you can register a custom `--env` CLI option in conftest.py to load staging or production configs dynamically. Equivalent to Maven profiles or Spring profiles."
+      },
+      "code": "# env_config.py\nimport os\nfrom dotenv import load_dotenv\n\nload_dotenv()  # loads .env file\nBASE_URL = os.getenv(\"BASE_URL\", \"https://dev.api.com\")\nTIMEOUT = int(os.getenv(\"TIMEOUT\", \"30\"))"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S34: Sözlük kapsamı (dictionary comprehension) nedir? QA veri hazırlık aşamasında nasıl kullanılır?",
+            "en": "Q34: What is a dictionary comprehension? How is it used in QA test data setup?"
+      },
+      "answer": {
+            "tr": "Dictionary comprehension, mevcut bir koleksiyondan hızlıca yeni bir sözlük (dict) oluşturmaya yarayan tek satırlı bir Python söz dizimidir: `{key_ifadesi: value_ifadesi for x in iterable if koşul}`. Test otomasyonunda ham verileri (örn: bir API listesinden gelen kullanıcı nesnelerini) test doğrulamalarında kolayca sorgulamak amacıyla ID-nesne eşleştirmesi şeklinde indekslemek için kullanılır.",
+            "en": "Dict comprehension creates a new dictionary from an iterable: `{key: value for x in iterable if condition}`. In test automation, it is heavily used to index raw API responses or database row lists into quick-lookup mappings (e.g. mapping user IDs to profiles)."
+      },
+      "code": "raw_users = [{\"id\": 101, \"name\": \"Bob\"}, {\"id\": 102, \"name\": \"Alice\"}]\n\n# Index users by ID for O(1) lookups in test assertions\nuser_map = {u[\"id\"]: u[\"name\"] for u in raw_users}\nprint(user_map)  # {101: 'Bob', 102: 'Alice'}\nprint(user_map[101])  # 'Bob'"
+},
+      {
+      "type": "qa",
+      "level": "intermediate",
+      "question": {
+            "tr": "S35: \"pathlib\" modülü nedir? Neden eski \"os.path\" yerine tercih edilmelidir?",
+            "en": "Q35: What is the \"pathlib\" module? Why should it be preferred over legacy \"os.path\"?"
+      },
+      "answer": {
+            "tr": "`pathlib`, dosya yolu işlemlerini işletim sisteminden bağımsız (cross-platform), nesne yönelimli (OOP) ve güvenli bir şekilde yapmayı sağlayan modern bir standart kütüphanedir. Eski `os.path` kütüphanesi yolları düz string olarak ele alır ve Windows (\\) ile Mac/Linux (/) slash uyumsuzluklarında kolayca hata üretebilir. `pathlib.Path` nesneleri ise bu slash farklılıklarını arka planda otomatik yönetir.",
+            "en": "`pathlib` is a modern, object-oriented module for filesystem path operations. Legacy `os.path` treats paths as raw strings, making them prone to slash syntax errors between Windows (\\\\) and Unix (/). `pathlib.Path` objects resolve these platform differences automatically."
+      },
+      "code": "from pathlib import Path\n\n# Combine directory paths safely (slash division operator /)\nproject_root = Path(__file__).resolve().parent.parent\ndata_file = project_root / \"test_data\" / \"users.csv\"\n\nprint(data_file.exists())  # True/False (works on Windows & Linux)"
+},
       { type: 'subheading', text: '🔴 Advanced Questions' },
-      { type: 'qa', question: 'Q11: What is a generator? When to use in testing?',
-        answer: 'A generator produces values one at a time using yield — lazy evaluation. Unlike a list, it doesn\'t store all values in memory. Use in testing for: generating large test datasets without memory issues, processing huge log files line-by-line.',
-        code: `# List — 1M strings in memory upfront:
-ids_list = [f"TC-{i:06d}" for i in range(1_000_000)]  # ~50MB RAM
-
-# Generator — compute ONE at a time:
-def id_generator(count: int):
-    for i in range(count):
-        yield f"TC-{i:06d}"   # pauses here, resumes on next()
-
-gen = id_generator(1_000_000)   # almost no memory
-print(next(gen))   # TC-000000
-print(next(gen))   # TC-000001` },
-      { type: 'qa', question: 'Q12: How do you write a retry decorator for flaky tests?',
-        answer: 'Key elements: functools.wraps to preserve metadata, configurable max_retries + delay + exception types, exponential backoff between attempts, re-raise the last exception when all retries exhausted.',
-        code: `def retry(max_attempts=3, delay=1.0, exceptions=(Exception,)):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    return func(*args, **kwargs)
-                except exceptions as e:
-                    if attempt == max_attempts:
-                        raise
-                    time.sleep(delay * attempt)  # exponential backoff
-        return wrapper
-    return decorator
-
-@retry(max_attempts=3, delay=0.5, exceptions=(ConnectionError,))
-def fetch_token() -> str:
-    return requests.post("/auth").json()["token"]` },
-      { type: 'qa', question: 'Q13: What is a context manager and how do you write a custom one?',
-        answer: 'A context manager ensures setup and cleanup always happen — even if an exception occurs. Behind "with open(file) as f:". Write custom ones with @contextmanager decorator or __enter__/__exit__ methods.',
-        code: `from contextlib import contextmanager
-
-@contextmanager
-def managed_page(browser):
-    page = browser.new_page()
-    try:
-        yield page          # code inside "with" block runs here
-    finally:
-        page.close()        # ALWAYS executes
-
-with managed_page(browser) as page:
-    page.goto("/login")
-    # page.close() called automatically even if assertion fails` },
-      { type: 'qa', question: { tr: 'Q14: Python\'da dinamik tipleme (dynamic typing) ne demektir?', en: 'Q14: What does dynamic typing mean in Python?' },
-        answer: { tr: 'Değişken tipini siz belirtmezsiniz — Python çalışma zamanında anlar. x = 5 dersiniz, Python x\'i int olarak işler. Sonra x = "hello" derseniz, x artık str olur. Java\'da bu bir derleme hatası verirdi çünkü tip sabitlenir. Bu esneklik testleri hızlı yazmanı sağlar ama tip uyumsuzluklarına dikkat etmen gerekir.', en: "You don't declare variable types — Python infers them at runtime. x = 5 makes x an int. Then x = \"hello\" makes it a str. In Java, this would be a compile error because the type is fixed. This flexibility lets you write tests fast, but you need to watch for type mismatches." } },
-      { type: 'qa', question: { tr: 'Q15: Python\'da truthy/falsy kavramını açıklayın ve QA\'da ne zaman kullanışlıdır?', en: "Q15: Explain Python's truthy/falsy concept and when it's useful in QA." },
-        answer: { tr: 'Herhangi bir Python değeri bool\'a dönüştürülebilir. 0, None, "", [], {}, () False\'tur; geri kalanlar True\'dur. QA\'da: "if errors:" veya "if response.json():" şeklinde kullanılır — Java\'daki "if (errors != null && !errors.isEmpty())" yerine çok daha kısadır.', en: "Any Python value can be coerced to bool. 0, None, \"\", [], {}, () are False; everything else True. In QA: \"if errors:\" or \"if response.json()\" is much shorter than Java's \"if (errors != null && !errors.isEmpty())\"." } },
-      { type: 'heading', text: '☕ If You Know Java: Advanced Python Concepts Bridge' },
       {
-        type: 'java-compare',
-        topic: 'Decorator vs AOP / Method Wrapping',
-        why: 'In Java, cross-cutting concerns (logging, timing, retry) are handled via AOP frameworks (AspectJ, Spring @Around) or manual method wrapping with boilerplate. Python decorators do the same thing in a single @decorator line — no framework needed.',
-        why_en: 'In Java, cross-cutting concerns (logging, timing, retry) are handled via AOP frameworks (AspectJ, Spring @Around) or manual method wrapping with boilerplate. Python decorators do the same thing in a single @decorator line — no framework needed.',
-        java: `// Java: manual wrapper / Spring AOP
-// Option A: manual wrapper (verbose!)
-public Object timedCall(Method m, Object obj, Object... args)
-    throws Exception {
-  long start = System.currentTimeMillis();
-  Object result = m.invoke(obj, args);
-  System.out.println(m.getName() + " took "
-      + (System.currentTimeMillis() - start) + "ms");
-  return result;
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S36: Generator nedir? Büyük test log dosyalarını okurken veya veri üretirken test otomasyonunda neden tercih edilir?",
+            "en": "Q36: What is a generator? Why is it preferred in test automation when reading large log files or generating data?"
+      },
+      "answer": {
+            "tr": "Generator, belleğe (RAM) tüm elemanları tek seferde yüklemek yerine, \"yield\" ifadesiyle her seferinde tek bir eleman üreten (lazy evaluation) özel bir fonksiyon / yineleyicidir. Test otomasyonunda 10GB boyutunda bir log dosyasını satır satır analiz ederken veya test verisi üretirken belleği tüketmemek için kullanılır. Java dünyasındaki karşılığı Iterator veya Custom Iterable sınıfları yazmaktır.",
+            "en": "A generator is a special function that yields values one at a time using the \"yield\" keyword, instead of loading the entire list into RAM (lazy evaluation). In test automation, generators prevent OutOfMemory errors when parsing gigabytes of log files or spawning massive test datasets. Java equivalent is implementing custom Iterators."
+      },
+      "code": "def log_reader(file_path):\n    with open(file_path, \"r\") as f:\n        for line in f:\n            if \"ERROR\" in line:\n                yield line.strip()  # lazy output\n\n# Memory footprint is constant regardless of file size\nfor err_log in log_reader(\"huge_run.log\"):\n    print(err_log)"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S37: Kararsız (flaky) testler için yeniden deneme (retry) decorator'ı arka planda nasıl çalışır?",
+            "en": "Q37: How does a retry decorator for flaky tests work behind the scenes?"
+      },
+      "answer": {
+            "tr": "Yeniden deneme decorator'ı, test fonksiyonunu bir wrapper içine alır ve test gövdesini bir try-except bloğu ile döngü (loop) içinde çalıştırır. Test hata fırlatırsa (AssertionError veya WebDriverException), belirlenen maksimum deneme sayısına ulaşılana kadar hata yutulur ve araya bekleme (delay) eklenerek test tekrar çağrılır. Maksimum denemede de başarısız olursa son fırlatılan hata dışarıya fırlatılır.",
+            "en": "A retry decorator wraps the test case, executing it inside a try-except statement wrapped in a loop. If a failure (AssertionError/WebDriverException) is caught, the error is suppressed, it pauses for a delay, and retries. If the maximum attempt count is reached, it bubbles the last exception up."
+      },
+      "code": "import time, functools\n\ndef retry_test(max_attempts=3, delay=1):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            attempts = 0\n            while attempts < max_attempts:\n                try:\n                    return func(*args, **kwargs)\n                except Exception as e:\n                    attempts += 1\n                    if attempts == max_attempts:\n                        raise e  # Bubble up on last failure\n                    time.sleep(delay)\n        return wrapper\n    return decorator"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S38: Context manager nedir? Özel bir context manager (@contextmanager veya __enter__/__exit__) otomasyonda ne amaçla yazılır?",
+            "en": "Q38: What is a context manager? Why write a custom one (@contextmanager or __enter__/__exit__) in automation?"
+      },
+      "answer": {
+            "tr": "Context manager, \"with\" ifadesiyle kullanılan ve kod bloğuna girerken kurulum (setup), çıkarken ise otomatik temizlik (teardown) işlemlerini garanti eden nesnedir. Test çökmüş olsa bile temizlik işlemi (__exit__ veya yield sonrası) her zaman çalışır. Otomasyonda geçici veritabanı bağlantısı açma, mock sunucu başlatma, test öncesi dosya kopyalama/test sonrası silme gibi kaynak temizliği senaryolarında yazılır. Java try-with-resources (AutoCloseable) karşılığıdır.",
+            "en": "A context manager handles setup and cleanup using the \"with\" statement. Even if the block raises an exception, the teardown code (__exit__ or code after yield) is guaranteed to execute. In automation, they manage temporary database sessions, server mocks, or file copying/deleting. Java try-with-resources equivalent."
+      },
+      "code": "from contextlib import contextmanager\n\n@contextmanager\ndef temporary_file(path, content):\n    # Setup\n    with open(path, \"w\") as f:\n        f.write(content)\n    try:\n        yield path  # hands over control to the \"with\" block\n    finally:\n        # Teardown (always runs!)\n        import os\n        if os.path.exists(path):\n            os.remove(path)"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S39: Global Interpreter Lock (GIL) nedir? Python test otomasyonunda paralel çalışmayı ve multi-threading mimarisini nasıl etkiler?",
+            "en": "Q39: What is the Global Interpreter Lock (GIL)? How does it affect multi-threading and parallel runs in Python testing?"
+      },
+      "answer": {
+            "tr": "GIL, CPython yorumlayıcısının aynı anda yalnızca tek bir işletim sistemi thread'i üzerinde Python bytecode çalıştırmasına izin veren bir kilit mekanizmasıdır (mutex). Bu durum, Python'da `threading` kütüphanesi kullanılsa bile CPU-bound işlerin gerçek anlamda paralel çalışmasını engeller. Ancak ağ (network I/O) veya disk (file I/O) gibi I/O-bound otomasyon işlerinde (örn: API testleri veya Selenium istekleri) GIL bekleme anlarında serbest bırakıldığı için multi-threading hız kazandırır. CPU-bound gerçek paralellik için multiprocessing veya pytest-xdist (ayrı prosesler açar) tercih edilmelidir.",
+            "en": "GIL is a mutex in CPython that ensures only one OS thread executes Python bytecodes at a time, limiting true parallel execution of CPU-bound multi-threaded programs. However, for I/O-bound tasks typical in QA (e.g. HTTP requests, WebDriver commands), GIL is released during I/O waits, so threading still provides speedups. For true CPU-bound parallelism, use multiprocessing or pytest-xdist."
+      },
+      "code": "# For I/O-bound test runs (like parallel Web API checks), threading is useful:\n# import threading\n# t1 = threading.Thread(target=run_api_check)\n# t1.start()"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S40: Python belleği nasıl yönetir? Referans sayımı (reference counting) ve Çöp Toplayıcı (Garbage Collector) çalışma mantığı nedir?",
+            "en": "Q40: How does Python manage memory? What is reference counting and Garbage Collection?"
+      },
+      "answer": {
+            "tr": "Python'da temel bellek yönetimi referans sayımına dayanır. Bir nesneyi işaret eden her yeni değişken referans sayısını bir artırır; kapsam dışı kalma veya \"del\" ile referans silindiğinde sayaç bir azalır. Sayaç 0 olduğunda bellek anında serbest bırakılır. Ancak, iki nesnenin birbirini referans gösterdiği dairesel referans (circular reference) durumlarında referans sayısı asla 0'a düşmez. Python bu sızıntıları önlemek için arka planda periyodik olarak çalışan ve dairesel referansları tespit edip temizleyen bir Garbage Collector (gc modülü) barındırır.",
+            "en": "Python's primary memory management is reference counting. Each variable pointing to an object increments its reference count, and dropping the variable decrements it. When the count hits zero, the object is immediately deallocated. To solve circular references (where objects reference each other, preventing count from hitting zero), Python runs a generational garbage collector in the background."
+      },
+      "code": "import sys\n\na = []\nprint(sys.getrefcount(a))  # 2 (a reference + reference passed to getrefcount)\nb = a\nprint(sys.getrefcount(a))  # 3 (shared reference)"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S41: @dataclass nedir? Standart sınıflardan farkı nedir ve test verisi modellerken neden tercih edilir?",
+            "en": "Q41: What is a @dataclass? How does it differ from standard classes and why use it for test data modeling?"
+      },
+      "answer": {
+            "tr": "`@dataclass` (Python 3.7+), sadece veri depolamak için yazılan sınıflarda boilerplate (şablon) kodları azaltan bir dekoratördür. Sınıfa yazılan alanlara göre `__init__` (constructor), `__repr__` (okunabilir string çıktı) ve `__eq__` (nesneleri == ile karşılaştırma) metodlarını otomatik olarak üretir. `frozen=True` yapılarak değiştirilemez (immutable) veri modelleri oluşturulabilir. Java'daki `record` (Java 16+) veya Lombok kütüphanesinin doğrudan karşılığıdır.",
+            "en": "`@dataclass` is a decorator introduced in Python 3.7 that auto-generates constructor (`__init__`), representation (`__repr__`), and equality (`__eq__`) methods for data-holding classes. Setting `frozen=True` makes the fields immutable. It is the direct equivalent of Java `record` classes or Lombok annotations."
+      },
+      "code": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass UserPayload:\n    username: str\n    email: str\n    role: str = \"user\"  # Default value\n\nuser1 = UserPayload(\"bob\", \"bob@test.com\")\nuser2 = UserPayload(\"bob\", \"bob@test.com\")\nprint(user1)       # UserPayload(username='bob', email='bob@test.com', role='user')\nprint(user1 == user2)  # True (compares values, not memory addresses)"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S42: Python'da __new__ ile __init__ arasındaki fark nedir? Singleton tasarım kalıbında hangisi kullanılır?",
+            "en": "Q42: What is the difference between __new__ and __init__ in Python? Which is used in Singleton pattern?"
+      },
+      "answer": {
+            "tr": "`__new__`, sınıfın yeni bir nesnesini fiilen oluşturan (bellekte yer ayıran) kurucu metoddur ve statik bir metoddur; geriye oluşturulan nesne örneğini döndürür. `__init__` ise oluşturulmuş nesneye başlangıç değerlerini (attributes) atayan başlatıcı (initializer) metoddur. Singleton tasarım kalıbında (örneğin sadece tek bir WebDriver instance'ı paylaşırken) nesnenin ikinci kez oluşturulmasını engelleyip mevcut olanı döndürmek için `__new__` metodu override edilir.",
+            "en": "`__new__` is the static method that actually instantiates (allocates memory for) the class object and returns the instance. `__init__` is the initializer that runs after instantiation to set attributes. In the Singleton pattern (e.g., sharing a single WebDriver driver), we override `__new__` to intercept instantiation and return the existing instance."
+      },
+      "code": "class WebDriverSingleton:\n    _instance = None\n\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n            print(\"Allocating driver instance...\")\n        return cls._instance\n\ndriver1 = WebDriverSingleton()\ndriver2 = WebDriverSingleton()\nprint(driver1 is driver2)  # True (both point to the exact same instance)"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S43: \"argparse\" kütüphanesi nedir? Test otomasyonunu CI/CD (Jenkins/GitHub Actions) ile entegre ederken nasıl yardımcı olur?",
+            "en": "Q43: What is the \"argparse\" library? How does it help when integrating test automation with CI/CD?"
+      },
+      "answer": {
+            "tr": "argparse, Python'da komut satırı argümanlarını (CLI parameters) parse etmek için kullanılan yerleşik bir kütüphanedir. Otomasyon scriptlerinize `--browser chrome --env staging --headless` gibi parametreler geçebilmenizi sağlar. CI/CD araçları (Jenkins, GitHub Actions) testlerinizi çalıştırırken bu parametreleri CLI üzerinden gönderir, böylece test kodunu değiştirmeden farklı ortamlar ve tarayıcılar hedeflenebilir. Java dünyasında bu parametreler Maven `-Dbrowser=chrome` parametreleriyle alınır.",
+            "en": "argparse is a built-in library for parsing CLI options. It lets your scripts accept flags like `--browser chrome --env staging`. CI/CD systems leverage CLI flags to execute tests across different settings dynamically, without modifying the code repository. Equivalent to Java Maven CLI parameters."
+      },
+      "code": "# run_tests.py\nimport argparse\n\nparser = argparse.ArgumentParser(description=\"Test Runner CLI\")\nparser.add_argument(\"--browser\", default=\"chrome\", help=\"Browser type\")\nparser.add_argument(\"--headless\", action=\"store_true\", help=\"Run without UI\")\nargs = parser.parse_args()\n\nprint(f\"Running tests on: {args.browser} (Headless: {args.headless})\")"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S44: Python'da metaprogramlama nedir? Metaclass (metasınıf) kavramı ne amaçla kullanılır?",
+            "en": "Q44: What is metaprogramming in Python? What is the purpose of a metaclass?"
+      },
+      "answer": {
+            "tr": "Metaprogramlama, kodun çalışma zamanında kendi kendisini inceleyebilmesi, değiştirebilmesi veya üretebilmesi yeteneğidir (kod yazan kod). Metaclass, sınıfların nasıl oluşturulacağını tanımlayan \"sınıfın sınıfıdır\" (Python'da her sınıf `type` metaclass'ından türetilir). Otomasyon kütüphanelerinde (örn: ORM modelleri veya custom test runner API'leri), sınıflar oluşturulurken (derleme/yükleme anında) tüm metod adlarını doğrulamak, otomatik loglama eklemek veya locator yapılarını validate etmek amacıyla yazılır.",
+            "en": "Metaprogramming allows code to manipulate, inspect, or generate code at runtime. A metaclass is a blueprint for creating class objects (\"class of a class\"). In testing frameworks, metaclasses enforce rules (e.g. validating method naming rules, auto-injecting logs, checking database schemas) during class creation."
+      },
+      "code": "class ForceTestPrefixMeta(type):\n    def __new__(cls, name, bases, attrs):\n        # Validate that all methods in a test class start with \"test_\"\n        for attr_name in attrs:\n            if callable(attrs[attr_name]) and not attr_name.startswith(\"test_\") and not attr_name.startswith(\"__\"):\n                raise TypeError(f\"Method '{attr_name}' in class '{name}' must start with 'test_'\")\n        return super().__new__(cls, name, bases, attrs)\n\n# Usage: class MyTests(metaclass=ForceTestPrefixMeta): ..."
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S45: Unit test mocklama nedir? pytest'teki monkeypatch ile unittest.mock arasındaki farklar nelerdir?",
+            "en": "Q45: What is unit test mocking? What are the differences between monkeypatch and unittest.mock in pytest?"
+      },
+      "answer": {
+            "tr": "Mocklama, test sırasında dış bağımlılıkları (API servisleri, veritabanları, zamanlayıcılar) sahte nesnelerle değiştirerek testi izole etmektir. `monkeypatch`, pytest ile gelen yerleşik bir fixture'dur; nitelikleri, sözlükleri ve ortam değişkenlerini güvenli bir şekilde (test sonunda otomatik temizlenecek şekilde) çalışma zamanında değiştirir. `unittest.mock` ise daha kapsamlı mocklama, çağrı sayılarını doğrulama (assert_called_once) ve karmaşık davranışlar (side_effect) tanımlamak için kullanılan standart Python kütüphanesidir.",
+            "en": "Mocking replaces external dependencies (APIs, databases) with controlled objects to isolate code under test. `monkeypatch` is a built-in pytest fixture that patches attributes/env vars and automatically restores them after each test. `unittest.mock` is standard Python library providing rich Mock classes to assert calls and simulate exceptions."
+      },
+      "code": "import requests\n\ndef test_api_mock(monkeypatch):\n    class MockResponse:\n        def json(self): return {\"status\": \"mocked\"}\n    \n    # Mock requests.get globally for this test\n    monkeypatch.setattr(requests, \"get\", lambda url: MockResponse())\n    \n    resp = requests.get(\"https://realapi.com\")\n    assert resp.json()[\"status\"] == \"mocked\""
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S46: Veritabanı testlerinde transaction (işlem) yönetimi nasıl yapılır? Her testten sonra veritabanı nasıl temizlenir?",
+            "en": "Q46: How do you handle database transaction management in testing? How is DB cleaned up after each test?"
+      },
+      "answer": {
+            "tr": "Veritabanı testlerinin hızı ve izolasyonu için her testin kendi transaction'ı içinde çalışması sağlanır. pytest fixture setup kısmında transaction başlatılır (BEGIN), test bu kapsamda çalışır; test bittikten sonra ise teardown kısmında `ROLLBACK` komutu çalıştırılarak veritabanına yazılan tüm geçici veriler geri alınır ve temizlenir. Bu sayede veritabanına fiziksel yazma/silme maliyetleri önlenir ve testler birbirini etkilemez.",
+            "en": "To speed up database testing and ensure isolation, execute each test inside a dedicated transaction. The pytest fixture starts the transaction (BEGIN) in setup, passes the connection to the test, and executes a `ROLLBACK` in the teardown phase. This discards modifications without performing expensive deletes."
+      },
+      "code": "@pytest.fixture\ndef db_transaction():\n    conn = sqlite3.connect(\"test.db\")\n    cursor = conn.cursor()\n    cursor.execute(\"BEGIN TRANSACTION;\")\n    yield cursor\n    # Teardown\n    conn.rollback()  # Undo all modifications made in test\n    conn.close()"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S47: Asenkron (async/await) programlama nedir? Playwright Python kütüphanesinde neden iki farklı API (Sync ve Async) bulunur?",
+            "en": "Q47: What is asynchronous (async/await) programming? Why does Playwright Python provide both Sync and Async APIs?"
+      },
+      "answer": {
+            "tr": "Asenkron programlama, tek bir thread üzerinde I/O bekleme sürelerinde (ağ çağrıları, dosya okuma) CPU'yu bloke etmeden başka görevleri çalıştırmayı sağlayan bir eşzamanlılık modelidir. Playwright Python, test yazarlarının tercihlerine göre iki sürüm sunar: (1) Sync API: Geleneksel Selenium/Cypress tarzı senkron akışlar yazmak için (arka planda asyncio döngüsünü gizler). (2) Async API: Asenkron ağ geçitleri veya web scraping gibi yüksek performanslı ve eşzamanlı koşan async test senaryolarını desteklemek için.",
+            "en": "Asynchronous programming is a concurrency model executing non-blocking I/O tasks on a single thread. Playwright Python exposes two APIs: (1) Sync API: hides asyncio loop under the hood, enabling standard blocking test flows. (2) Async API: targets high-performance execution patterns where async assertions run concurrently."
+      },
+      "code": "# Sync Playwright API\nfrom playwright.sync_api import sync_playwright\nwith sync_playwright() as p:\n    browser = p.chromium.launch()\n    page = browser.new_page()\n    page.goto(\"https://test.com\")\n    browser.close()"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S48: Test otomasyon süresini optimize etmek ve bellek sızıntılarını (memory leak) tespit etmek için Python'da hangi araçlar kullanılır?",
+            "en": "Q48: What tools are used in Python to profile test execution times and detect memory leaks?"
+      },
+      "answer": {
+            "tr": "Test otomasyon sürelerini analiz etmek için pytest'in `--durations=N` parametresi en hızlı araçtır (en yavaş koşan N testi raporlar). Kod seviyesinde darboğaz tespiti için `cProfile` modülü kullanılır. Bellek sızıntılarını ve RAM tüketimini izlemek için `tracemalloc` standart kütüphanesi veya `memory_profiler` eklentisi tercih edilir. Bunlar, kapatılmayan driver veya dosya referanslarının sızıntı yaptığını doğrulamada kritik öneme sahiptir.",
+            "en": "To profile test duration, run pytest with the `--durations=N` flag. For code profiling, use the built-in `cProfile` module. To analyze memory consumption and detect object memory leaks, leverage the `tracemalloc` standard library or `memory_profiler`. Extremely useful to spot unclosed webdrivers."
+      },
+      "code": "# CLI profiling of top 5 slowest tests\n# pytest --durations=5\n\n# Simple memory tracking in code\nimport tracemalloc\ntracemalloc.start()\n# run driver setup/teardown\nsnapshot = tracemalloc.take_snapshot()"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S49: Python'da çoklu kalıtımda (multiple inheritance) Method Resolution Order (MRO) nedir ve super() çağrısını nasıl etkiler?",
+            "en": "Q49: What is Method Resolution Order (MRO) in Python multiple inheritance? How does it affect super() calls?"
+      },
+      "answer": {
+            "tr": "MRO (Metod Çözümleme Sırası), bir sınıfın birden fazla sınıftan kalıtım alması durumunda, Python'un çağrılan metodun hangi sınıfa ait olduğunu çözmek için kullandığı hiyerarşik sıralamadır (C3 Linearization algoritması kullanılır). `super()` çağrıları bu MRO sırasına göre zincirleme olarak üst sınıflara iletilir. Sınıfın `.mro()` veya `.__mro__` niteliği okunarak sıra görüntülenebilir. Java'da çoklu kalıtım yasak olduğu için MRO konsepti Java geliştiricileri için yeni bir kavramdır.",
+            "en": "MRO is the hierarchical path Python follows to resolve method lookups in multiple inheritance setups (calculated using the C3 Linearization algorithm). `super()` calls execute class lookups sequentially based on this order. Accessible via Class.mro(). Concept does not exist in Java due to single inheritance rules."
+      },
+      "code": "class A:\n    def test(self): print(\"A\")\n\nclass B(A):\n    def test(self):\n        print(\"B\")\n        super().test()\n\nclass C(A):\n    def test(self):\n        print(\"C\")\n        super().test()\n\nclass D(B, C):\n    def test(self):\n        print(\"D\")\n        super().test()\n\nprint(D.__mro__)  # (D, B, C, A, object)\nD().test()        # Prints D -> B -> C -> A"
+},
+      {
+      "type": "qa",
+      "level": "advanced",
+      "question": {
+            "tr": "S50: Test projelerinde Singleton tasarım kalıbı kullanarak tekil WebDriver veya APIClient örneği nasıl paylaşılır? Thread-safe Singleton nasıl yazılır?",
+            "en": "Q50: How do you share a single WebDriver/APIClient instance using Singleton pattern? How is thread-safe Singleton implemented?"
+      },
+      "answer": {
+            "tr": "Singleton, projenin tamamında bir sınıftan yalnızca bir nesne örneği oluşturulmasını garanti eder. Otomasyonda tüm testler boyunca tek bir WebDriver instance'ını paylaşmak için kullanılır. Paralel test çalıştırma senaryolarında (pytest-xdist vb.) yarış durumunu (race condition) engellemek ve thread-safe bir yapı kurmak amacıyla `threading.Lock()` mekanizması kullanılarak nesne kilit altına alınır.",
+            "en": "The Singleton pattern restricts instantiation of a class to a single object instance, commonly used in automation to share a driver session. In multi-threaded execution (pytest-xdist), we implement thread-safe instantiation using a `threading.Lock()` to prevent race conditions during instance allocation."
+      },
+      "code": "import threading\n\nclass ThreadSafeDriver:\n    _instance = None\n    _lock = threading.Lock()\n\n    def __new__(cls):\n        with cls._lock:  # Thread-safe lock acquisition\n            if cls._instance is None:\n                # Initialize driver here\n                cls._instance = super().__new__(cls)\n        return cls._instance"
 }
-
-// Option B: Spring @Around (needs framework!)
-@Around("@annotation(Timed)")
-public Object time(ProceedingJoinPoint pjp) throws Throwable {
-  long start = System.currentTimeMillis();
-  Object result = pjp.proceed();
-  System.out.println(pjp.getSignature().getName()
-      + " took " + (System.currentTimeMillis()-start) + "ms");
-  return result;
-}`,
-        python: `import functools, time
-
-# Python: decorator — no framework needed
-def timer(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start  = time.time()
-        result = func(*args, **kwargs)
-        elapsed = (time.time() - start) * 1000
-        print(f"{func.__name__} took {elapsed:.0f}ms")
-        return result
-    return wrapper
-
-@timer                        # one line — done!
-def load_test_data(path):
-    return open(path).readlines()
-
-# Parameterized decorator:
-def retry(max=3):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            for i in range(max):
-                try:    return func(*args, **kwargs)
-                except: pass
-        return wrapper
-    return decorator
-
-@retry(max=5)
-def flaky_api_call(): ...`,
-        note: '@pytest.fixture, @pytest.mark.parametrize, @allure.step — all decorators. functools.wraps is the equivalent of preserving method signature metadata.',
-        note_en: '@pytest.fixture, @pytest.mark.parametrize, @allure.step — all decorators. functools.wraps is the equivalent of preserving method signature metadata.',
-      },
-      {
-        type: 'java-compare',
-        topic: 'Generator vs Iterator / Iterable',
-        why: 'Java requires you to implement Iterator<T> or Iterable<T> with hasNext() and next() methods — lots of boilerplate. Python generators produce the same lazy sequence with a single yield statement.',
-        why_en: 'Java requires you to implement Iterator<T> or Iterable<T> with hasNext() and next() methods — lots of boilerplate. Python generators produce the same lazy sequence with a single yield statement.',
-        java: `// Java: custom Iterator — lots of boilerplate
-public class IdGenerator implements Iterator<String> {
-    private int current = 0;
-    private final int max;
-
-    public IdGenerator(int max) { this.max = max; }
-
-    @Override
-    public boolean hasNext() { return current < max; }
-
-    @Override
-    public String next() {
-        return String.format("TC-%06d", current++);
-    }
-}
-
-// Usage:
-Iterator<String> gen = new IdGenerator(1_000_000);
-while (gen.hasNext()) {
-    String id = gen.next();   // lazy — one at a time
-}`,
-        python: `# Python: generator — one yield, no boilerplate
-def id_generator(count: int):
-    for i in range(count):
-        yield f"TC-{i:06d}"   # pauses here each iteration
-
-# Usage — same lazy behaviour, cleaner syntax:
-gen = id_generator(1_000_000)
-print(next(gen))    # TC-000000
-print(next(gen))    # TC-000001
-
-# Or iterate directly:
-for id in id_generator(100):
-    print(id)       # prints TC-000000 … TC-000099
-
-# Real test use: generate unique test emails lazily:
-def email_gen(domain="test.com"):
-    n = 0
-    while True:
-        yield f"user{n}@{domain}"
-        n += 1`,
-        note: 'Generators are memory-efficient: id_generator(1_000_000) uses almost no RAM until you call next(). Java equivalent would need the entire list stored upfront or Iterator boilerplate.',
-        note_en: 'Generators are memory-efficient: id_generator(1_000_000) uses almost no RAM until you call next(). Java equivalent would need the entire list stored upfront or Iterator boilerplate.',
-      },
-      {
-        type: 'java-compare',
-        topic: 'Context Manager vs try-with-resources',
-        why: 'Java try-with-resources (AutoCloseable) ensures resources close even if an exception occurs. Python "with" statement does exactly the same thing — it calls __exit__ (or the code after yield in @contextmanager) automatically.',
-        why_en: 'Java try-with-resources (AutoCloseable) ensures resources close even if an exception occurs. Python "with" statement does exactly the same thing — it calls __exit__ (or the code after yield in @contextmanager) automatically.',
-        java: `// Java: try-with-resources (AutoCloseable)
-// Resource must implement AutoCloseable:
-public class ManagedPage implements AutoCloseable {
-    private final Page page;
-    public ManagedPage(Browser b) {
-        this.page = b.newPage();
-    }
-    public Page get() { return page; }
-
-    @Override
-    public void close() {
-        page.close();   // ALWAYS called by JVM
-    }
-}
-
-// Usage:
-try (ManagedPage mp = new ManagedPage(browser)) {
-    mp.get().navigate("/login");
-    // page.close() called automatically here
-}`,
-        python: `from contextlib import contextmanager
-
-# Python: @contextmanager (no class needed!)
-@contextmanager
-def managed_page(browser):
-    page = browser.new_page()
-    try:
-        yield page        # "try" body runs here
-    finally:
-        page.close()      # ALWAYS runs (like AutoCloseable.close())
-
-# Usage — same guarantee as try-with-resources:
-with managed_page(browser) as page:
-    page.goto("/login")
-    # page.close() called automatically
-
-# Or with __enter__ / __exit__ (class-based):
-class ManagedDB:
-    def __enter__(self):
-        self.conn = sqlite3.connect("test.db")
-        return self.conn
-    def __exit__(self, *args):
-        self.conn.close()   # always runs`,
-        note: '"with" = try-with-resources. "yield" in @contextmanager = the try body. Code after yield in finally = AutoCloseable.close(). Same contract, zero boilerplate class.',
-        note_en: '"with" = try-with-resources. "yield" in @contextmanager = the try body. Code after yield in finally = AutoCloseable.close(). Same contract, zero boilerplate class.',
-      },
-      {
-        type: 'quiz',
-        question: { tr: 'Python\'da list ile tuple arasındaki temel fark nedir, ve bir Selenium locator\'ı için hangisi tercih edilmelidir?', en: 'What is the key difference between a list and a tuple in Python, and which should be used for a Selenium locator?' },
-        options: [
-          { id: 'a', text: { tr: 'Aralarında fark yok, ikisi de aynı şekilde davranır', en: 'There is no difference, they behave identically' } },
-          { id: 'b', text: { tr: 'List değiştirilebilir ([]), tuple değiştirilemez (()) — sabit kalması gereken veri (locator gibi) için tuple kullanılır', en: 'A list is mutable ([]), a tuple is immutable (()) — a tuple should be used for data that must stay constant, like a locator' } },
-          { id: 'c', text: { tr: 'Tuple\'lar sadece sayı içerebilir', en: 'Tuples can only contain numbers' } },
-          { id: 'd', text: { tr: 'List\'ler unpacking desteklemez, tuple\'lar destekler', en: 'Lists do not support unpacking, tuples do' } },
-        ],
-        correct: 'b',
-        explanation: { tr: 'List\'ler oluşturulduktan sonra değiştirilebilir (append/remove) ve [] kullanır; tuple\'lar değiştirilemez ve () kullanır. Bir Selenium locator gibi sabit kalması gereken veriler için tuple tercih edilir — yanlışlıkla mutate edilmesini derleyici/runtime seviyesinde engeller. Java\'da bunun karşılığı, sabit bir değeri `final` ile işaretlemek veya değiştirilemez bir koleksiyon (`List.of(...)`) kullanmaktır.', en: "Lists are mutable after creation (append/remove) and use []; tuples are immutable and use (). A tuple is preferred for data that must stay constant, like a Selenium locator — it prevents accidental mutation at the language level. The Java equivalent is marking a constant `final` or using an immutable collection (`List.of(...)`)." },
-        retryQuestion: {
-          question: { tr: 'LOGIN_LOCATOR = ("id", "username") şeklinde bir tuple tanımladın ve bir fonksiyonda yanlışlıkla `LOGIN_LOCATOR.append("extra")` çağırmaya çalıştın. Ne olur?', en: 'You define LOGIN_LOCATOR = ("id", "username") as a tuple, and accidentally call `LOGIN_LOCATOR.append("extra")` somewhere. What happens?' },
-          options: [
-            { id: 'a', text: { tr: 'Sessizce çalışır, tuple\'a yeni eleman eklenir', en: 'It runs silently, adding a new element to the tuple' } },
-            { id: 'b', text: { tr: 'AttributeError fırlatılır — tuple\'larda append() metodu yoktur', en: 'An AttributeError is raised — tuples have no append() method' } },
-            { id: 'c', text: { tr: 'Tuple otomatik olarak bir list\'e dönüştürülür', en: 'The tuple is automatically converted to a list' } },
-            { id: 'd', text: { tr: 'Program sessizce hiçbir şey yapmadan devam eder', en: 'The program continues silently doing nothing' } },
-          ],
-          correct: 'b',
-          explanation: { tr: 'Tuple\'lar değiştirilemez olduğu için `append`, `remove`, `pop` gibi mutasyon metodlarına sahip DEĞİLDİR — bunları çağırmaya çalışmak `AttributeError: \'tuple\' object has no attribute \'append\'` fırlatır. Bu, immutability\'nin gerçek koruması: bir locator\'ı yanlışlıkla değiştirme girişimi sessizce başarılı olmaz, hemen ve gürültülü bir şekilde başarısız olur.', en: "Because tuples are immutable, they simply DO NOT HAVE mutation methods like `append`, `remove`, or `pop` — attempting to call one raises `AttributeError: 'tuple' object has no attribute 'append'`. This is immutability's real protection: an accidental attempt to mutate a locator doesn't silently succeed, it fails loudly and immediately." },
-        },
-      },
-    ],
+    ]
   },
-
   // ── 7. PRACTICE & REFERENCE ─────────────────────────────────────────────────
   {
     title: '📝 Practice Exercises & Quick Reference',
@@ -6219,41 +6519,7 @@ def test_order_placed(sample_order, db):
   }),
   applyTr(sections[6], {
     title: '💼 Python Mülakat Soruları & Cevapları',
-    blocks: {
-      0: { content: 'Model cevabı görmek için her soruya tıklayın. Zorluk düzeyine göre sıralanmıştır.' },
-      1: { text: '🟢 Temel Sorular' },
-      2: { question: 'S1: List ile tuple arasındaki fark nedir?', answer: "List\'ler DEĞİŞTİRİLEBİLİR (oluşturulduktan sonra değiştirilebilir) ve [] kullanır. Tuple\'lar DEĞİŞTİRİLEMEZ ve () kullanır.\n\nList kullanın: koleksiyon değiştiğinde (sonuçlar ekleniyor). Tuple kullanın: veri sabit olmalıysa — izin verilen durum değerleri, (x,y) koordinatı, bir Selenium locator." },
-      3: { question: "S2: Python\'da None nedir?", answer: "None, Python\'un null değeridir — bir değerin yokluğu. Kendi tipi vardır (NoneType). Return ifadesi olmayan tüm fonksiyonlar örtük olarak None döndürür.\n\nHer zaman 'is None' veya 'is not None' ile kontrol edin — asla == None kullanmayın." },
-      4: { question: 'S3: == ile is arasındaki fark nedir?', answer: "== DEĞER eşitliğini kontrol eder. 'is' KİMLİK kontrol eder — iki değişkenin bellekte AYNI nesneyi gösterip göstermediğini.\n\nKural: 'is' yalnızca None, True, False için kullanın. Geri kalan her şey için == kullanın." },
-      5: { question: 'S4: *args ve **kwargs ne anlama gelir?', answer: "*args, fazladan KONUMSAL argümanları bir tuple\'a toplar. **kwargs, fazladan ANAHTAR KELİME argümanlarını bir dict\'e toplar. Fonksiyonların herhangi sayıda argüman almasına izin verir — herhangi bir fonksiyonu saran decorator\'lar yazmak için gereklidir." },
-      6: { question: 'S5: List comprehension nedir?', answer: 'Bir liste oluşturmanın kısa tek satırlı yolu: [ifade for öğe in iterable if koşul]. Basit dönüşümler için for döngüsünden daha okunabilirdir. İç içe comprehension\'lardan kaçının — mantık karmaşıklaştığında düzenli döngüler kullanın.' },
-      7: { text: '🟡 Orta Seviye Sorular' },
-      8: { question: "S6: Decorator nedir ve nasıl yazılır?", answer: "Decorator, bir fonksiyonu alıp davranışla sararak sarılmış versiyonu döndüren bir fonksiyondur. Test otomasyonunda: @retry, @timer, @pytest.fixture, @allure.step hepsi birer decorator\'dır. functools.wraps, sarılan fonksiyonun metadata\'sını korur." },
-      9: { question: 'S7: Pytest fixture scope\'larını açıklayın.', answer: "function (varsayılan): test başına yeni fixture. İzolasyon için kullanın (her test için kullanıcı oluştur/sil).\nclass: bir sınıftaki tüm testlerde paylaşılır.\nmodule: bir dosyadaki tüm testlerde paylaşılır.\nsession: tüm test oturumunda paylaşılır. Pahalı kurulum için kullanın — DB bağlantıları, tarayıcı örnekleri, auth token\'ları." },
-      10: { question: 'S8: Test otomasyonunda exception handling nedir?', answer: "try/except/finally çalışma zamanı hatalarını yakalar. Otomasyonda: bir başarısız API çağrısının test runner\'ı çöktürmemesi için ağ hatalarını yakalayın. Temizlik için finally kullanın (tarayıcı/bağlantı her zaman kapanır). Daha iyi hata mesajları için özel exception\'lar oluşturun." },
-      11: { question: 'S9: Instance, class ve static method arasındaki fark nedir?', answer: "Instance method: ilk parametre self\'tir — instance state\'e erişir. En yaygın kullanım.\nClass method (@classmethod): ilk parametre cls\'dir — class state\'e erişir. Alternatif constructor\'lar için kullanın.\nStatic method (@staticmethod): self/cls yok — class isim alanındaki saf yardımcı fonksiyon." },
-      12: { question: 'S10: Python test otomasyon framework\'ünü nasıl yapılandırırsınız?', answer: "Temel katmanlar: pages/ (Page Object\'ler, sayfa başına bir), tests/ (özellik başına pytest dosyaları), fixtures/ (conftest.py hiyerarşisi), test_data/ (CSV, JSON dosyaları), utils/ (API client\'ları, DB yardımcıları), reports/ (git-ignored çıktı), config/ (.env + config.py).\n\nİlkeler: DRY (tekrarlanan locator yok), fixture\'lar setup/teardown yönetir, parametrize data-driven testleri yönetir, CI her şeyi headless çalıştırır." },
-      13: { text: '🔴 İleri Seviye Sorular' },
-      14: { question: 'S11: Generator nedir? Testte ne zaman kullanılır?', answer: "Generator, yield ile birer birer değer üretir — lazy evaluation. List\'in aksine tüm değerleri bellekte saklamaz. Testte kullanım: bellek sorunları olmadan büyük test veri setleri üretme, büyük log dosyalarını satır satır işleme." },
-      15: { question: 'S12: Kararsız testler için retry decorator nasıl yazılır?', answer: "Temel öğeler: metadata korumak için functools.wraps, yapılandırılabilir max_retries + delay + exception tipleri, denemeler arası exponential backoff, tüm yeniden denemeler tükendiğinde son exception\'ı yeniden fırlat." },
-      16: { question: 'S13: Context manager nedir ve özel bir tane nasıl yazılır?', answer: "Context manager, exception oluşsa bile setup ve cleanup\'ın her zaman gerçekleşmesini sağlar. 'with open(file) as f:' arkasında bu mekanizma yatar. @contextmanager decorator\'ı veya __enter__/__exit__ metodları ile özel context manager yazın." },
-      17: { text: '☕ Java Biliyorsan: İleri Python Kavramları Köprüsü' },
-      18: {
-        topic: 'Decorator — AOP / Metod Sarma',
-        why: 'Java\'da çapraz kesen kaygılar (loglama, zamanlama, retry) AOP framework\'leri (AspectJ, Spring @Around) veya manuel boilerplate ile ele alınır. Python decorator\'ları aynı şeyi tek bir @decorator satırı ile yapar — framework gerekmez.',
-        note: '@pytest.fixture, @pytest.mark.parametrize, @allure.step — hepsi decorator. functools.wraps metod imzası metadata\'sını korumaya eşdeğerdir.',
-      },
-      19: {
-        topic: 'Generator — Iterator / Iterable',
-        why: 'Java\'da hasNext() ve next() metodları olan Iterator<T> veya Iterable<T> uygulamanız gerekir — çok boilerplate. Python generator\'ları tek bir yield ifadesiyle aynı lazy diziyi üretir.',
-        note: 'Generator\'lar bellek açısından verimlidir: id_generator(1_000_000) next() çağrılana kadar neredeyse sıfır RAM kullanır. Java karşılığı için tüm listeyi veya Iterator boilerplate\'i saklamamız gerekir.',
-      },
-      20: {
-        topic: 'Context Manager — try-with-resources',
-        why: 'Java try-with-resources (AutoCloseable) exception oluşsa bile kaynakların kapandığını garanti eder. Python "with" ifadesi tamamen aynı şeyi yapar — __exit__\'i veya @contextmanager\'da yield\'den sonraki kodu otomatik çağırır.',
-        note: '"with" = try-with-resources. @contextmanager\'daki "yield" = try gövdesi. finally\'deki kod = AutoCloseable.close(). Aynı garanti, sıfır boilerplate sınıf.',
-      },
-    }
+    blocks: {}
   }),
   applyTr(sections[7], {
     title: '📝 Pratik Alıştırmalar & Hızlı Referans',
@@ -6366,23 +6632,435 @@ def test_order_placed(sample_order, db):
   }),
 ]
 
+// --- TRANSLATION MAP & HELPERS ---
+const translationMap = {
+  'Lists': { tr: 'Listeler', en: 'Lists' },
+  'Tuples': { tr: 'Demetler (Tuples)', en: 'Tuples' },
+  'Sets': { tr: 'Setler (Kümeler)', en: 'Sets' },
+  'Dictionaries': { tr: 'Sözlükler (Dictionaries)', en: 'Dictionaries' },
+  'If...Else (Conditions)': { tr: 'Koşul Durumları (If...Else)', en: 'If...Else (Conditions)' },
+  'While Loops': { tr: 'While Döngüleri', en: 'While Loops' },
+  'For Loops': { tr: 'For Döngüleri', en: 'For Loops' },
+  'Functions': { tr: 'Fonksiyonlar', en: 'Functions' },
+  'Lambda Functions': { tr: 'Lambda Fonksiyonları', en: 'Lambda Functions' },
+  'Classes / Objects': { tr: 'Sınıflar & Nesneler', en: 'Classes / Objects' },
+  'Inheritance': { tr: 'Kalıtım (Inheritance)', en: 'Inheritance' },
+  'Scope': { tr: 'Kapsam (Scope)', en: 'Scope' },
+  'Modules': { tr: 'Modüller', en: 'Modules' },
+  'Try...Except': { tr: 'Hata Yönetimi (Try...Except)', en: 'Try...Except' },
+  'JSON': { tr: 'JSON İşlemleri', en: 'JSON' },
+  'RegEx': { tr: 'Düzenli İfadeler (RegEx)', en: 'RegEx' },
+  'Comprehensions': { tr: 'Comprehensions (Kapsamlar)', en: 'Comprehensions' },
+  'Iterators': { tr: 'Iterators (Yineleyiciler)', en: 'Iterators' },
+  'Decorators': { tr: 'Dekoratörler (Decorators)', en: 'Decorators' },
+  'Context Managers': { tr: 'Context Managers', en: 'Context Managers' },
+  'Type Hints': { tr: 'Type Hints (Tip İpuçları)', en: 'Type Hints' },
+  'Polymorphism': { tr: 'Polimorfizm (Çok Biçimlilik)', en: 'Polymorphism' },
+  'Arrays (array module)': { tr: 'Arrays (Diziler)', en: 'Arrays (array module)' },
+  'Dates (datetime module)': { tr: 'Tarihler (datetime)', en: 'Dates (datetime module)' },
+  'Math (math module)': { tr: 'Matematik (math)', en: 'Math (math module)' },
+  'PIP — Python Package Manager': { tr: 'PIP Paket Yöneticisi', en: 'PIP — Python Package Manager' },
+  'User Input': { tr: 'Kullanıcı Girdisi (User Input)', en: 'User Input' },
+  'String Formatting': { tr: 'String Formatlama', en: 'String Formatting' },
+  'File Handling': { tr: 'Dosya Yönetimi (File Handling)', en: 'File Handling' }
+};
+
+function translateBlocks(blocks) {
+  return blocks.map(block => {
+    if (block.type === 'heading' && typeof block.text === 'string') {
+      const trans = translationMap[block.text];
+      if (trans) {
+        return { ...block, text: trans };
+      }
+    }
+    return block;
+  });
+}
+
+// --- FEYNMAN CHECKPOINTS ---
+const feynman1 = {
+  type: 'feynman-checkpoint',
+  promptTr: 'Sanal ortam (venv) nedir ve test otomasyonunda neden her proje için ayrı bir venv kullanırız?',
+  promptEn: 'What is a virtual environment (venv) and why do we use a separate venv for each test automation project?',
+  keywords: [['venv', 'sanal', 'virtual'], ['izole', 'isolate', 'isolation'], ['çakışma', 'conflict', 'version', 'sürüm'], ['bağımlılık', 'dependency', 'package', 'paket']],
+  minScore: 2,
+  modelAnswerTr: 'Sanal ortam (venv), Python projelerimizin bağımlılıklarını izole eden bir yapıdır. Her proje için ayrı venv kullanırız çünkü farklı projeler farklı paket sürümleri (örn. requests 2.28 vs 2.31) gerektirebilir ve bu sayede sistem genelinde çakışmaları önlemiş oluruz.',
+  modelAnswerEn: 'A virtual environment (venv) is an isolated folder structure for a project\'s dependencies. We use a separate venv for each project to prevent dependency version conflicts (e.g. requests 2.28 vs 2.31) and keep global Python clean.'
+};
+
+const feynman2A = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da kod bloklarının başlangıcı ve sonu süslü parantezler olmadan nasıl anlaşılır? Girintileme hatası (IndentationError) aldığında ne yaparsın?",
+  promptEn: 'How does Python mark the start and end of code blocks without curly braces? What do you do when you get an IndentationError?',
+  keywords: [['girinti', 'indentation', 'indent'], ['iki nokta', 'colon', ':'], ['boşluk', 'space', 'tab'], ['blok', 'block']],
+  minScore: 2,
+  modelAnswerTr: "Python'da kod blokları süslü parantezler yerine girintileme (genelde 4 boşluk) ve iki nokta (:) işareti ile başlar. Girinti azaldığında blok biter. IndentationError aldığımda hizalamayı ve boşluk sayılarını kontrol ederim.",
+  modelAnswerEn: 'Python uses indentation (usually 4 spaces) and colons (:) to define blocks. Moving back to the outer indent level marks block end. On IndentationError, I verify alignment and space counts.'
+};
+
+const feynman2B = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da dinamik tipleme (dynamic typing) ne anlama gelir? Bir değişkenin tipini kod çalışırken nasıl doğrularsın?",
+  promptEn: "What does dynamic typing mean in Python? How can you verify a variable's type at runtime?",
+  keywords: [['dinamik', 'dynamic'], ['tip', 'type'], ['type()', 'isinstance'], ['çalışma zamanı', 'runtime']],
+  minScore: 2,
+  modelAnswerTr: "Dinamik tipleme, değişkenlerin tipinin önceden beyan edilmemesi ve çalışma zamanında otomatik belirlenmesidir. Tipi doğrulamak için type() veya isinstance() fonksiyonlarını kullanırım.",
+  modelAnswerEn: 'Dynamic typing means variables do not need explicit type declarations; Python infers them at runtime. I verify types at runtime using type() or isinstance().'
+};
+
+const feynman2C = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da string slicing (dilimleme) nedir? s[::-1] ifadesinin ne işe yaradığını anlat.",
+  promptEn: 'What is string slicing in Python? Explain what s[::-1] does.',
+  keywords: [['dilim', 'slice', 'slicing'], ['ters', 'reverse', 'backward'], ['adım', 'step', '-1']],
+  minScore: 2,
+  modelAnswerTr: "String slicing, metnin belirli bir kısmını [başlangıç:bitiş:adım] formatında seçmektir. s[::-1] ifadesi, -1 adım değeriyle stringi sondan başa doğru okuyarak tersine çevirir.",
+  modelAnswerEn: 'String slicing extracts a substring using [start:stop:step] syntax. The s[::-1] expression uses step -1 to traverse the string backward, reversing it.'
+};
+
+const feynman2D = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'daki 'is' operatörü ile '==' operatörü arasındaki farkı, referans ve değer bazlı karşılaştırma kavramlarıyla açıkla.",
+  promptEn: 'Explain the difference between the "is" and "==" operators in Python using reference and value comparison concepts.',
+  keywords: [['is', 'identity', 'kimlik'], ['==', 'değer', 'value'], ['referans', 'reference'], ['hafıza', 'memory', 'address', 'adres']],
+  minScore: 2,
+  modelAnswerTr: "'==' operatörü iki nesnenin içindeki değerlerin eşit olup olmadığını kontrol eder. 'is' operatörü ise iki değişkenin bellekte tamamen aynı nesneyi (aynı referans adresini) işaret edip etmediğini kontrol eder.",
+  modelAnswerEn: "'==' compares values for equality. 'is' checks object identity, verifying if both variables point to the exact same object reference in memory."
+};
+
+const feynman3A = {
+  type: 'feynman-checkpoint',
+  promptTr: "List ile tuple arasındaki temel fark nedir? Selenium locator'larını tanımlarken neden tuple tercih ederiz?",
+  promptEn: 'What is the key difference between a list and a tuple? Why do we prefer tuples for defining Selenium locators?',
+  keywords: [['mutable', 'değiştirilebilir', 'change'], ['immutable', 'sabit', 'değiştirilemez'], ['locator'], ['tuple']],
+  minScore: 2,
+  modelAnswerTr: "Listeler değiştirilebilir (mutable), tuple'lar ise değiştirilemezdir (immutable). Selenium locator'ları sabit kalması gerektiği için kazara değiştirilmelerini önlemek amacıyla tuple tercih edilir.",
+  modelAnswerEn: 'Lists are mutable (can change), while tuples are immutable (constant). We prefer tuples for Selenium locators to ensure they stay constant and prevent accidental runtime modifications.'
+};
+
+const feynman3B = {
+  type: 'feynman-checkpoint',
+  promptTr: "Set veri tipinin listelerden farkı nedir? QA'de test verisi ararken set veya dict kullanmanın hız avantajı nedir?",
+  promptEn: 'How does a set differ from a list? What is the speed advantage of using a set or dict for test data lookup in QA?',
+  keywords: [['benzersiz', 'unique'], ['hash'], ['O(1)', 'sabit', 'constant'], ['hızlı', 'fast', 'hız']],
+  minScore: 2,
+  modelAnswerTr: "Set elemanları benzersizdir ve sırasızdır. Listelerde arama yapmak O(n) zaman alırken, set ve dict yapıları hash tablosu kullandığı için arama hızı O(1) düzeyindedir ve çok daha hızlıdır.",
+  modelAnswerEn: 'Sets hold unique, unordered elements. Searching in a list takes O(n) time, whereas sets and dicts use hash lookups which take O(1) constant time, making them extremely fast.'
+};
+
+const feynman3C = {
+  type: 'feynman-checkpoint',
+  promptTr: "Bir test senaryosunda dinamik bir bekleme (wait loop) yaparken while döngüsünü break ile nasıl kurgularsın?",
+  promptEn: 'How would you construct a dynamic wait loop in a test using a while loop and break?',
+  keywords: [['while'], ['break'], ['koşul', 'condition', 'timeout', 'zaman'], ['döngü', 'loop']],
+  minScore: 2,
+  modelAnswerTr: "Döngüyü 'while True' ile başlatır, her iterasyonda elementi kontrol ederim. Element bulunursa veya maksimum süre aşılırsa 'break' ile döngüyü sonlandırırım. Araya küçük bir time.sleep koyarım.",
+  modelAnswerEn: 'I start a "while True" loop, check for the element, and trigger a "break" once it is found or the timeout is reached. I add time.sleep to avoid high CPU usage.'
+};
+
+const feynman3D = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da fonksiyonlara varsayılan parametre (default argument) nasıl verilir ve bu özellik Java'daki method overloading'in yerini nasıl tutar?",
+  promptEn: 'How do you provide default arguments to Python functions, and how does this feature replace Java\'s method overloading?',
+  keywords: [['varsayılan', 'default'], ['overload', 'overloading'], ['parametre', 'argument'], ['def']],
+  minScore: 2,
+  modelAnswerTr: "Fonksiyon tanımında parametreye eşittir ile değer atanarak varsayılan değer verilir (def log(msg, level='INFO')). Bu sayede tek fonksiyon farklı parametre sayılarıyla çağrılabilir, Java'daki gibi ayrı metodlar overload etmeye gerek kalmaz.",
+  modelAnswerEn: 'Default arguments are set using assignment in definition: def log(msg, level="INFO"). This allows calling the function with varying parameter counts, replacing the need for Java method overloading.'
+};
+
+const feynman4A = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'daki __init__ ve self kavramlarını Java'daki constructor ve this ile kıyaslayarak anlat.",
+  promptEn: 'Explain the concepts of __init__ and self in Python by comparing them with constructor and this in Java.',
+  keywords: [['init', 'constructor'], ['self', 'this'], ['instance', 'örnek'], ['açık', 'explicit']],
+  minScore: 2,
+  modelAnswerTr: "__init__ Python'daki constructor metodudur. 'self' ise Java'daki 'this' gibidir, nesnenin kendisini işaret eder; ancak Python'da her metodun ilk parametresi olarak açıkça (explicit) yazılmalıdır.",
+  modelAnswerEn: '__init__ is Pythons constructor method. self is like Javas this, representing the object instance, but in Python it must be explicitly declared as the first parameter of every instance method.'
+};
+
+const feynman4B = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da global ve nonlocal keyword'leri ne zaman gereklidir ve modül import ederken import module ile from module import func arasındaki fark nedir?",
+  promptEn: 'When are global and nonlocal keywords needed in Python, and what is the difference between import module and from module import func?',
+  keywords: [['global'], ['nonlocal'], ['import'], ['kapsam', 'scope'], ['isim alanı', 'namespace']],
+  minScore: 2,
+  modelAnswerTr: "global, lokal bir alandan dış kapsamdaki global değişkeni değiştirmek için kullanılır; nonlocal ise iç içe fonksiyonlarda üst kapsamdaki değişkeni değiştirmek içindir. 'import module' tüm modülü isim alanıyla getirirken, 'from module import func' sadece ilgili fonksiyonu direkt getirir.",
+  modelAnswerEn: 'global modifies a variable in the module-level scope from a local scope; nonlocal modifies a variable in the enclosing outer function scope. import module imports the module namespace, while from module import func imports the function directly.'
+};
+
+const feynmanHelper = {
+  type: 'feynman-checkpoint',
+  promptTr: "Python'da Dates (datetime) ve Math modüllerini test otomasyonunda hangi amaçlarla kullanırız? Somut örnekler ver.",
+  promptEn: 'For what purposes do we use Dates (datetime) and Math modules in test automation in Python? Give concrete examples.',
+  keywords: [['datetime', 'tarih', 'date'], ['math', 'matematik'], ['rapor', 'report', 'timestamp'], ['yuvarla', 'round', 'ceil', 'floor']],
+  minScore: 2,
+  modelAnswerTr: "datetime modülünü test raporlarına zaman damgası eklemek veya dinamik gelecek/geçmiş tarihli test verisi üretmek için kullanırız. math modülünü ise sayfa sayılama hesaplamalarında (örn. ceil(total_items / page_size)) kullanırız.",
+  modelAnswerEn: 'We use datetime for generating dynamic test data (timestamps, past/future dates) and logging test execution times. We use math for calculations like page count paging (e.g. math.ceil(items / limit)).'
+};
+
+const feynman4C = {
+  type: 'feynman-checkpoint',
+  promptTr: "QA'de test verisi okurken neden open() fonksiyonunu with (context manager) bloğu ile kullanmalıyız?",
+  promptEn: 'Why should we use the open() function with a with statement (context manager) when reading test data in QA?',
+  keywords: [['with'], ['close', 'kapat'], ['open'], ['context manager'], ['hata', 'error', 'exception']],
+  minScore: 2,
+  modelAnswerTr: "with bloğu bir context manager'dır. Dosya okurken with kullanırsak, işlem bitince veya kod hata fırlatıp çökse bile dosya otomatik olarak kapatılır (close edilir). Bu, bellek ve dosya kilidi sızıntılarını önler.",
+  modelAnswerEn: 'The with statement acts as a context manager. It guarantees that the file is automatically closed (close() is called) when the block exits, even if exceptions occur, preventing resource leaks.'
+};
+
+const feynman4D = {
+  type: 'feynman-checkpoint',
+  promptTr: "QA testlerinde genel bir except: (veya except Exception:) kullanmanın yaratacağı riski ve neden spesifik exception tiplerini yakalamamız gerektiğini anlat.",
+  promptEn: 'Explain the risk of using a generic except: (or except Exception:) block in QA tests and why we should catch specific exception types.',
+  keywords: [['spesifik', 'specific'], ['risk'], ['except'], ['exception', 'hata'], ['gizle', 'hide', 'debug']],
+  minScore: 2,
+  modelAnswerTr: "Genel bir except bloğu, beklenmedik hataları (örn. syntax hatası, Assertion ve KeyboardInterrupt) da yakalayıp yutar. Bu, gerçek hataları gizler ve debug etmeyi imkansızlaştırır. Sadece beklediğimiz spesifik hataları (örn. TimeoutException) yakalamalıyız.",
+  modelAnswerEn: 'Generic except blocks catch and swallow everything, including syntax errors, assertions, or system exits. This hides real bugs and makes debugging impossible. We should always target specific exceptions.'
+};
+
+const feynman4E = {
+  type: 'feynman-checkpoint',
+  promptTr: "Bir decorator'ın (@decorator) çalışma mantığını anlat. Test otomasyonunda @retry mekanizması kurarken arka planda ne döner?",
+  promptEn: 'Explain the working logic of a decorator (@decorator). What happens behind the scenes when setting up a @retry mechanism in test automation?',
+  keywords: [['wrapper', 'sar', 'wrap'], ['decorator'], ['retry'], ['fonksiyon', 'function']],
+  minScore: 2,
+  modelAnswerTr: "Decorator, bir fonksiyonu girdi olarak alıp onu yeni bir wrapper fonksiyon ile saran ve bu wrapper'ı döndüren bir fonksiyondur. @retry kullandığımızda, wrapper fonksiyon orijinal testi bir try-except içinde döngüyle çağırır ve hata alınca tekrar dener.",
+  modelAnswerEn: 'A decorator takes a function as input, wraps it inside another function (wrapper) that adds behavior, and returns the wrapper. @retry wraps the test function in a loop with try-except to rerun on failure.'
+};
+
+const feynman5 = {
+  type: 'feynman-checkpoint',
+  promptTr: "pytest fixture'larında yield anahtar kelimesi ne işe yarar? setup ve teardown işlemlerinin yield ile nasıl ayrıldığını açıkla.",
+  promptEn: 'What does the yield keyword do in pytest fixtures? Explain how setup and teardown operations are separated by yield.',
+  keywords: [['yield'], ['setup', 'kurulum'], ['teardown', 'yıkım', 'temizlik', 'cleanup'], ['fixture']],
+  minScore: 2,
+  modelAnswerTr: "yield kelimesinden önceki kodlar test başlamadan önce çalışır (setup). yield testi çalıştıracak değeri döner ve testi başlatır. Test bittikten sonra ise yield'dan sonraki temizlik kodları çalışır (teardown).",
+  modelAnswerEn: 'The code before yield runs before the test (setup). yield passes data to the test and pauses. Once the test finishes, code after yield runs to clean up resources (teardown).'
+};
+
+const feynmanEcosystem = {
+  type: 'feynman-checkpoint',
+  promptTr: "Bir Python test otomasyon projesinin ekosistemini (pip, virtualenv, requirements.txt) Java dünyasındaki Maven/Gradle ile eşleştirerek açıkla.",
+  promptEn: 'Explain the ecosystem of a Python test automation project (pip, virtualenv, requirements.txt) by mapping it to Maven/Gradle in the Java world.',
+  keywords: [['pip'], ['maven', 'pom.xml'], ['requirements.txt'], ['ekosistem', 'ecosystem'], ['bağımlılık', 'dependency']],
+  minScore: 2,
+  modelAnswerTr: "pip, Java'daki Maven'ın paket indirme aracına eşdeğerdir. requirements.txt ise pom.xml'in bağımlılık listesi gibidir. virtualenv (venv) ise bağımlılıkları projeye özel izole eder, Java'da genelde bağımlılıklar global maven repository'de (.m2) tutulur.",
+  modelAnswerEn: 'pip is like Mavens dependency downloader. requirements.txt is similar to dependencies in pom.xml. venv isolates dependencies per project, whereas Java holds dependencies globally in the .m2 repository.'
+};
+
+const feynmanTroubleshooting = {
+  type: 'feynman-checkpoint',
+  promptTr: "Selenium'da StaleElementReferenceException hatasının nedeni nedir ve bu hatayı engellemek için kodunda nasıl bir strateji izlersin?",
+  promptEn: 'What causes a StaleElementReferenceException in Selenium and what strategy do you follow in your code to prevent this error?',
+  keywords: [['stale', 'eskimiş'], ['dom'], ['refind', 'yeniden bul', 're-find'], ['reload', 'yenile', 'refresh']],
+  minScore: 2,
+  modelAnswerTr: "StaleElementReferenceException, referans alınan elementin DOM yenilendiği için (re-render, sayfa yenileme) artık sayfada fiziksel olarak bulunmamasıdır. Çözüm için element referansını saklamak yerine her kullanımdan önce yeniden sorgulayıp (find_element) buluruz.",
+  modelAnswerEn: 'StaleElementReferenceException happens when the referenced element is no longer attached to the DOM (due to page reload or re-render). To fix it, we must re-query the element (find_element) right before using it instead of reusing stale references.'
+};
+
+const feynman8 = {
+  type: 'feynman-checkpoint',
+  promptTr: "Java'dan Python'a geçen bir QA otomasyon mühendisinin en çok dikkat etmesi gereken 3 felsefi/sözdizimsel farkı özetle.",
+  promptEn: 'Summarize 3 philosophical/syntactic differences that a QA automation engineer transitioning from Java to Python should pay closest attention to.',
+  keywords: [['dinamik', 'dynamic'], ['girinti', 'indentation'], ['boilerplate', 'standalone', 'fonksiyon', 'function']],
+  minScore: 2,
+  modelAnswerTr: "(1) Python dinamik tiplidir, tip tanımlanmaz. (2) Süslü parantez yoktur, bloklar girinti (hizalama) ile ayrılır. (3) boilerplate kod çok azdır; bağımsız fonksiyonlar yazılabilir, her şey için class zorunlu değildir.",
+  modelAnswerEn: '(1) Python is dynamically typed, so no type declarations. (2) Indentation defines blocks, not curly braces. (3) Extremely low boilerplate; standalone functions are fully supported, no classes required for everything.'
+};
+
+const feynman7 = {
+  type: 'feynman-checkpoint',
+  promptTr: "Yazdığın APIClient sınıfında requests.get çağrısı yaparken oluşabilecek network zaman aşımlarını (Timeout) nasıl handle ettin ve kodunu nasıl test ettin?",
+  promptEn: 'How did you handle potential network timeouts when calling requests.get in your APIClient class, and how did you test your code?',
+  keywords: [['timeout', 'zaman aşımı'], ['requests'], ['try'], ['except'], ['client']],
+  minScore: 2,
+  modelAnswerTr: "requests.get çağrısına timeout=X parametresi ekledim. Bunu try-except bloğu içine alarak requests.exceptions.Timeout hatasını yakaladım ve kullanıcıya uygun bir mesaj/log döndürdüm.",
+  modelAnswerEn: 'I added timeout=X parameter to requests.get call. I wrapped it in try-except catching requests.exceptions.Timeout, and returned an appropriate message/log or raised a custom exception.'
+};
+
+// --- NEW ECOSYSTEM BLOCKS ---
+const pythonEcosystemBlocks = [
+  {
+    type: 'heading',
+    text: { tr: 'Python Test Ekosistemi', en: 'Python Test Ecosystem' },
+    difficulty: '🟢 Beginner'
+  },
+  {
+    type: 'simple-box',
+    emoji: '🌐',
+    content: {
+      tr: 'Python ekosistemi geniş bir yapboz gibidir. Her araç (pip, pytest, allure, black) farklı bir parçayı temsil eder ve birleşerek tam bir otomasyon hattı oluşturur.',
+      en: 'The Python ecosystem is like a giant puzzle. Each tool (pip, pytest, allure, black) represents a piece that fits together to build a complete automation pipeline.'
+    }
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Java dünyasında Maven ve Gradle projenin her şeyini (bağımlılık yönetimi, derleme, test çalıştırma) yönetir. Python\'da ise bu görevler araçlar arasında bölünmüştür: bağımlılıklar için pip/requirements, test çalıştırma için pytest, kod kalitesi için black/flake8 kullanılır.',
+      en: 'In Java, Maven or Gradle manages everything (dependencies, compilation, test running). In Python, these roles are split among tools: pip/requirements for dependencies, pytest for running, black/flake8 for code style.'
+    }
+  },
+  {
+    type: 'comparison',
+    title: { tr: 'Test Araçları Karşılaştırması', en: 'Ecosystem Comparison — Java vs Python' },
+    columns: ['Java / Maven Stack', 'Python / pytest Stack'],
+    rows: [
+      { concept: { tr: 'Test Runner', en: 'Test Runner' }, java: 'JUnit / TestNG', python: 'pytest' },
+      { concept: { tr: 'Dependency Manager', en: 'Dependency Manager' }, java: 'Maven (pom.xml) / Gradle', python: 'pip (requirements.txt) / Poetry' },
+      { concept: { tr: 'API Testing', en: 'API Testing' }, java: 'REST Assured / HttpClient', python: 'requests' },
+      { concept: { tr: 'HTML Reporting', en: 'HTML Reporting' }, java: 'Extent Reports / Allure', python: 'pytest-html / allure-pytest' },
+      { concept: { tr: 'Code Formatter', en: 'Code Formatter' }, java: 'Black / Flake8' , python: 'black / flake8' },
+      { concept: { tr: 'Data Generation', en: 'Data Generation' }, java: 'JavaFaker', python: 'Faker' }
+    ]
+  },
+  {
+    type: 'diagram-svg',
+    title: { tr: 'Python Test Pipeline Akışı', en: 'Python Test Pipeline Flow' },
+    svg: `<svg viewBox="0 0 600 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280" />
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="none" />
+      <rect x="20" y="70" width="100" height="60" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2" />
+      <text x="70" y="100" fill="#f8fafc" font-family="monospace" font-size="12" text-anchor="middle">Git / CI</text>
+      <text x="70" y="118" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">Trigger</text>
+      
+      <rect x="160" y="70" width="100" height="60" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2" />
+      <text x="210" y="100" fill="#f8fafc" font-family="monospace" font-size="12" text-anchor="middle">venv &amp; pip</text>
+      <text x="210" y="118" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">Install Deps</text>
+      
+      <rect x="300" y="70" width="100" height="60" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+      <text x="350" y="100" fill="#f8fafc" font-family="monospace" font-size="12" text-anchor="middle">pytest</text>
+      <text x="350" y="118" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">Run Tests</text>
+      
+      <rect x="440" y="70" width="140" height="60" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="2" />
+      <text x="510" y="100" fill="#f8fafc" font-family="monospace" font-size="12" text-anchor="middle">Allure / HTML</text>
+      <text x="510" y="118" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">Generate Reports</text>
+      
+      <line x1="120" y1="100" x2="155" y2="100" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)" />
+      <line x1="260" y1="100" x2="295" y2="100" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)" />
+      <line x1="400" y1="100" x2="435" y2="100" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)" />
+    </svg>`
+  }
+];
+
+// --- TABS & HERO DEFINITIONS ---
 const trHero = {
   title: '🐍 Python',
   subtitle: 'QA Mühendisleri için Python ve Test Otomasyonu',
   intro: 'Python\'u sıfırdan öğrenin, test otomasyonuna odaklanın. Temel kodlamadan gelişmiş pytest çerçevelerine kadar — modern bir QA mühendisinin ihtiyaç duyduğu her şey burada.',
-}
-
-const trTabs = ['🎯 Giriş', '📦 Kurulum', '🟢 Temeller', '🟡 Orta Seviye', '🔴 İleri Seviye', '🧪 QA Kullanım', '📝 Pratik & Referans', '☕ Java → Python', '💼 Mülakat']
+};
 
 const enHero = {
   title: '🐍 Python',
   subtitle: 'Python for QA Engineers & Test Automation',
   intro: 'Learn Python from scratch with a focus on test automation. From basic scripting to advanced pytest frameworks — everything a modern QA engineer needs to write reliable, maintainable tests.',
-}
+};
 
-const enTabs = ['🎯 Intro & Why', '📦 Installation', '🟢 Foundations', '🟡 Intermediate', '🔴 Advanced', '🧪 QA Use Cases', '📝 Practice & Reference', '☕ Java → Python', '💼 Interview Q&A']
+const enTabs = [
+  '🎯 Intro & Why',
+  '📦 Installation',
+  '📐 Syntax & Comments',
+  '📦 Variables & Types',
+  '🔤 Strings & Booleans',
+  '➕ Operators',
+  '📋 Lists & Tuples',
+  '🗂️ Sets & Dicts',
+  '🔁 Conditions & Loops',
+  '⚙️ Functions & Lambda',
+  '🏗️ Classes & OOP',
+  '🌐 Scope & Modules',
+  '📊 Helper Modules',
+  '📂 Files & JSON',
+  '🚨 Exceptions & RegEx',
+  '⚡ Advanced Concepts',
+  '🛠️ Real World (pytest)',
+  '🔗 Ecosystem',
+  '🚨 Troubleshooting',
+  '☕ Java → Python',
+  '📝 Practice Exercises',
+  '💼 Interview Q&A'
+];
+
+const trTabs = [
+  '🎯 Giriş',
+  '📦 Kurulum',
+  '📐 Sözdizimi & Yorumlar',
+  '📦 Değişkenler & Tipler',
+  '🔤 Metinler & Mantıksal',
+  '➕ Operatörler',
+  '📋 Listeler & Demetler',
+  '🗂️ Setler & Sözlükler',
+  '🔁 Koşul & Döngüler',
+  '⚙️ Fonksiyonlar & Lambda',
+  '🏗️ Sınıflar & OOP',
+  '🌐 Kapsam & Modüller',
+  '📊 Yardımcı Modüller',
+  '📂 Dosya & JSON',
+  '🚨 Hata & RegEx',
+  '⚡ İleri Seviye',
+  '🛠️ Gerçek Hayat (pytest)',
+  '🔗 Ekosistem',
+  '🚨 Yaygın Hatalar',
+  '☕ Java → Python',
+  '📝 Pratik & Alıştırma',
+  '💼 Mülakat Soruları'
+];
+
+// --- FINAL SECTION MAPPING ---
+const finalEnSections = [
+  sections[0], // Intro
+  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, feynman1]) },
+  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), feynman2A]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), feynman2B]) },
+  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), feynman2C]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 65), feynman2D]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), feynman3A]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), feynman3B]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 48), feynman3C]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 63), feynman3D]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), feynman4A]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), feynman4B]) },
+  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), feynmanHelper]) },
+  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), feynman4C]) },
+  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), feynman4D]) },
+  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), feynman4E]) },
+  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5]) },
+  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), feynmanTroubleshooting]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, feynman8]) },
+  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, feynman7]) },
+  sections[6] // Interview Q&A
+];
+
+const finalTrSections = [
+  trSections[0], // Intro
+  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, feynman1]) },
+  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), feynman2A]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), feynman2B]) },
+  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), feynman2C]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 65), feynman2D]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), feynman3A]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), feynman3B]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 48), feynman3C]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 63), feynman3D]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), feynman4A]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), feynman4B]) },
+  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), feynmanHelper]) },
+  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), feynman4C]) },
+  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), feynman4D]) },
+  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), feynman4E]) },
+  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5]) },
+  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), feynmanTroubleshooting]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, feynman8]) },
+  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, feynman7]) },
+  trSections[6] // Interview Q&A
+];
 
 export const pythonData = {
-  en: { hero: enHero, tabs: enTabs, sections: [sections[0], sections[1], sections[2], sections[3], sections[4], sections[5], sections[7], sections[8], sections[6]] },
-  tr: { hero: trHero, tabs: trTabs, sections: [trSections[0], trSections[1], trSections[2], trSections[3], trSections[4], trSections[5], trSections[7], trSections[8], trSections[6]] },
+  en: { hero: enHero, tabs: enTabs, sections: finalEnSections },
+  tr: { hero: trHero, tabs: trTabs, sections: finalTrSections },
 }

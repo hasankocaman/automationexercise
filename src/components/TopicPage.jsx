@@ -208,19 +208,595 @@ const codeCommentTranslations = [
     [/BS hub URL'i/gi, 'BS hub URL'],
 ]
 
-function translateCodeComment(comment) {
-    return codeCommentTranslations.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), comment)
+const englishToTurkishCodeComments = [
+    [/Create a test_results table to store automation run data:/gi, 'Otomasyon çalıştırma verilerini saklamak için bir test_results tablosu oluşturun:'],
+    [/unique ID, auto\-increments/gi, 'benzersiz kimlik, otomatik artar'],
+    [/text up to 100 chars, required/gi, 'en fazla 100 karakterlik metin, zorunlu'],
+    [/test duration in milliseconds/gi, 'milisaniye cinsinden test süresi'],
+    [/auto\-set to now/gi, 'otomatik olarak şu anki zamana ayarlanır'],
+    [/which env was tested/gi, 'test edilen ortam'],
+    [/marks known flaky tests/gi, 'bilinen stabil olmayan (flaky) testleri işaretler'],
+    [/Common SQL data types:/gi, 'Yaygın SQL veri tipleri:'],
+    [/whole numbers \(28, 1000000\)/gi, 'tamsayılar (28, 1000000)'],
+    [/precise decimals, e.g. prices \(99.99\)/gi, 'hassas ondalıklı sayılar, örn. fiyatlar (99.99)'],
+    [/variable text up to n characters/gi, 'n karaktere kadar değişken uzunluklu metin'],
+    [/unlimited text \(descriptions, logs\)/gi, 'sınırsız metin (açıklamalar, loglar)'],
+    [/true\/false/gi, 'doğru/yanlış'],
+    [/Select all columns and all rows:/gi, 'Tüm sütunları ve tüm satırları seçin:'],
+    [/Select specific columns only:/gi, 'Sadece belirli sütunları seçin:'],
+    [/WHERE — filter rows:/gi, 'WHERE — satırları filtreleme:'],
+    [/slow tests/gi, 'yavaş testler'],
+    [/LIKE — pattern matching:/gi, 'LIKE — şablon eşleştirme:'],
+    [/contains "Login"/gi, '"Login" içerenler'],
+    [/starts with "Sign"/gi, '"Sign" ile başlayanlar'],
+    [/ORDER BY — sort results:/gi, 'ORDER BY — sonuçları sıralama:'],
+    [/slowest first/gi, 'en yavaş olan en başta'],
+    [/last 10 runs/gi, 'son 10 çalışma'],
+    [/LIMIT \+ OFFSET — pagination:/gi, 'LIMIT + OFFSET — sayfalama:'],
+    [/first 10 rows/gi, 'ilk 10 satır'],
+    [/rows 21\-30 \(page 3\)/gi, 'satır 21-30 (sayfa 3)'],
+    [/DISTINCT — unique values only:/gi, 'DISTINCT — sadece benzersiz değerler:'],
+    [/Single row update:/gi, 'Tek satır güncelleme:'],
+    [/Update multiple columns at once:/gi, 'Birden fazla sütunu aynı anda güncelleme:'],
+    [/UPDATE with expression:/gi, 'İfade (expression) ile UPDATE:'],
+    [/Safe delete \(removes rows, keeps table structure\):/gi, 'Güvenli silme (satırları siler, tablo yapısını korur):'],
+    [/Remove logs older than 30 days:/gi, '30 günden eski logları silme:'],
+    [/TRUNCATE TABLE \(fast, deletes all rows, cannot ROLLBACK in some DBs\):/gi, 'TRUNCATE TABLE (hızlıdır, tüm satırları siler, bazı veritabanlarında ROLLBACK yapılamaz):'],
+    [/DROP TABLE \(completely deletes table and its structure\):/gi, 'DROP TABLE (tabloyu ve yapısını tamamen siler):'],
+    [/Find tests with NO duration recorded \(IS NULL\):/gi, 'Süresi kaydedilmemiş testleri bulma (IS NULL):'],
+    [/Find tests that have a duration \(IS NOT NULL\):/gi, 'Süresi olan testleri bulma (IS NOT NULL):'],
+    [/WRONG: NULL is not a value, you cannot use = or !=/gi, 'YANLIŞ: NULL bir değer değildir, = veya != kullanamazsınız'],
+    [/returns 0 rows!/gi, '0 satır döndürür!'],
+    [/COALESCE: fallback value if NULL:/gi, 'COALESCE: NULL durumunda varsayılan değer:'],
+    [/If environment is NULL, displays 'local'/gi, 'Eğer ortam NULL ise \'local\' gösterir'],
+    [/NULLIF: avoid division by zero:/gi, 'NULLIF: sıfıra bölmeyi engelleme:'],
+    [/If total_runs is 0, NULLIF returns NULL. Division by NULL is NULL \(safe, no crash\)/gi, 'Eğer total_runs 0 ise NULLIF NULL döndürür. NULL\'a bölme işlemi NULL olur (güvenlidir, çökmez)'],
+    [/Write order \(Syntax\):/gi, 'Yazım sırası (Syntax):'],
+    [/Execution order \(Logical\):/gi, 'Mantıksal çalışma sırası (Logical):'],
+    [/Count total rows in table:/gi, 'Tablodaki toplam satır sayısını bulma:'],
+    [/Count non\-NULL values in a column:/gi, 'Bir sütundaki NULL olmayan değerleri sayma:'],
+    [/Sum of all test run times:/gi, 'Tüm test çalışma sürelerinin toplamı:'],
+    [/Average test run time:/gi, 'Ortalama test çalışma süresi:'],
+    [/Fastest and slowest runs:/gi, 'En hızlı ve en yavaş çalışmalar:'],
+    [/Group runs by environment and count them:/gi, 'Çalışmaları ortama göre gruplama ve sayma:'],
+    [/Group by env and status:/gi, 'Ortam ve duruma (status) göre gruplama:'],
+    [/HAVING: filter groups AFTER aggregation:/gi, 'HAVING: gruplamadan SONRA grupları filtreleme:'],
+    [/WRONG: WHERE cannot filter aggregate functions/gi, 'YANLIŞ: WHERE aggregate fonksiyonları filtreleyemez'],
+    [/fails!/gi, 'başarısız olur!'],
+    [/CORRECT: use HAVING to filter group stats/gi, 'DOĞRU: grup istatistiklerini filtrelemek için HAVING kullanın'],
+    [/INNER JOIN: matches rows present in BOTH tables/gi, 'INNER JOIN: HER İKİ tabloda da eşleşen satırları getirir'],
+    [/LEFT JOIN: all rows from left table, matching rows from right \(NULL if no match\)/gi, 'LEFT JOIN: sol tablodaki tüm satırları, sağ tablodan ise sadece eşleşenleri getirir (eşleşme yoksa NULL)'],
+    [/RIGHT JOIN: all rows from right table, matching rows from left/gi, 'RIGHT JOIN: sağ tablodaki tüm satırları, sol tablodan ise sadece eşleşenleri getirir'],
+    [/FULL OUTER JOIN: all rows from both tables, matches if possible, NULLs otherwise/gi, 'FULL OUTER JOIN: her iki tablodaki tüm satırları getirir, eşleşirse birleştirir, aksi halde NULL koyar'],
+    [/CROSS JOIN: Cartesian product \(all combinations\):/gi, 'CROSS JOIN: Kartezyen çarpım (tüm kombinasyonlar):'],
+    [/Self Join: joining a table to itself:/gi, 'Self Join: bir tabloyu kendisiyle birleştirme:'],
+    [/Find employees and their managers:/gi, 'Çalışanları ve yöneticilerini bulma:'],
+    [/Composite JOIN \(joining on multiple columns\):/gi, 'Birleşik JOIN (birden fazla sütun üzerinden birleştirme):'],
+    [/Bad practice: JOIN without ON \(creates accidental cross join\/Cartesian product!\):/gi, 'Kötü pratik: ON olmadan JOIN yapmak (yanlışlıkla cross join/kartezyen çarpım oluşturur!):'],
+    [/Simple Subquery \(find tests slower than average\):/gi, 'Basit Alt Sorgu (ortalamadan daha yavaş testleri bulma):'],
+    [/subquery runs ONCE and returns average/gi, 'alt sorgu BİR KEZ çalışır ve ortalamayı döndürür'],
+    [/Correlated Subquery \(find tests slower than their own env average\):/gi, 'Bağlantılı Alt Sorgu (kendi ortamının ortalamasından daha yavaş testleri bulma):'],
+    [/subquery runs ONCE FOR EACH row of outer query/gi, 'alt sorgu dış sorgunun HER satırı için bir kez çalışır'],
+    [/EXISTS subquery \(check if a parent user has any orders\):/gi, 'EXISTS alt sorgusu (parent kullanıcının siparişi olup olmadığını kontrol etme):'],
+    [/returns true if at least one row matches/gi, 'en az bir satır eşleşirse true döndürür'],
+    [/BETWEEN: inclusive range filter/gi, 'BETWEEN: dahil aralık filtresi'],
+    [/IN: match any value in a list/gi, 'IN: bir listedeki herhangi bir değerle eşleşme'],
+    [/subquery list/gi, 'alt sorgu listesi'],
+    [/OVER\(\) with Partition: average duration of env next to each test run/gi, 'Partition ile OVER(): her test çalışmasının yanına kendi ortamının ortalama süresini ekler'],
+    [/does NOT collapse rows/gi, 'satırları daraltıp TEK satıra indirgemez'],
+    [/ROW_NUMBER\(\): unique sequential number for each row in partition/gi, 'ROW_NUMBER(): her partition içindeki satırlara benzersiz ardışık numara verir'],
+    [/RANK\(\) vs DENSE_RANK\(\) for tied durations/gi, 'Eşit süreler için RANK() vs DENSE_RANK():'],
+    [/tied rows get same rank\. Next rank has a gap \(1, 1, 3\)/gi, 'eşit satırlar aynı sıra numarasını alır. Sonraki sırada boşluk bırakılır (1, 1, 3)'],
+    [/tied rows get same rank\. Next rank has NO gap \(1, 1, 2\)/gi, 'eşit satırlar aynı sıra numarasını alır. Sonraki sırada boşluk bırakılmaz (1, 1, 2)'],
+    [/Single CTE:/gi, 'Tekli CTE:'],
+    [/Multiple CTEs \(comma\-separated\):/gi, 'Çoklu CTE (virgülle ayrılmış):'],
+    [/Recursive CTE \(hierarchical data, e.g. organization tree\):/gi, 'Özyinelemeli (Recursive) CTE (hiyerarşik veriler, örn: organizasyon ağacı):'],
+    [/Anchor member/gi, 'Anchor (Başlangıç) üyesi'],
+    [/Recursive member/gi, 'Recursive (Özyinelemeli) üye'],
+    [/termination condition/gi, 'sonlandırma koşulu'],
+    [/Start a transaction/gi, 'Transaction başlat'],
+    [/Undo all changes if test fails:/gi, 'Test başarısız olursa tüm değişiklikleri geri al:'],
+    [/Commit changes if test passes:/gi, 'Test başarılı olursa değişiklikleri kaydet:'],
+    [/Savepoint for partial rollback:/gi, 'Kısmi geri alma için Savepoint (kayıt noktası):'],
+    [/rollbacks only UPDATE statement/gi, 'sadece UPDATE ifadesini geri alır'],
+    [/Create index on environment:/gi, 'Environment sütununa indeks oluşturma:'],
+    [/Create composite index for multi\-column search:/gi, 'Çoklu sütun aramaları için birleşik indeks oluşturma:'],
+    [/Create a View of failed tests:/gi, 'Başarısız testlerden oluşan bir Görünüm (View) oluşturma:'],
+    [/Query the View like a table:/gi, 'View\'u bir tablo gibi sorgulama:'],
+    [/Vulnerable code \(Python\):/gi, 'Zafiyetli kod (Python):'],
+    [/Vulnerable code \(Java\):/gi, 'Zafiyetli kod (Java):'],
+    [/Safe code \(Python\):/gi, 'Güvenli kod (Python):'],
+    [/Safe code \(Java\):/gi, 'Güvenli kod (Java):'],
+    [/Python: dynamic typing/gi, 'Python: dinamik tipleme'],
+    [/Java: static typing \(compile error if type changes\)/gi, 'Java: statik tipleme (tip değişirse derleme hatası)'],
+    [/int x = 10;/gi, 'int x = 10;'],
+    [/x = "Passed";   \/\/ Compile Error: incompatible types/gi, 'x = "Passed";   // Derleme Hatası: uyumsuz tipler'],
+    [/List \(mutable\)/gi, 'List (değiştirilebilir)'],
+    [/Tuple \(immutable\)/gi, 'Tuple (değiştirilemez)'],
+    [/Avoid: result == None \(style guide violation and risky if __eq__ is overridden\)/gi, 'Kaçının: result == None (stil kılavuzu ihlali ve __eq__ override edilmişse riskli)'],
+    [/f\-string formatting \(Recommended\)/gi, 'f-string formatlama (Önerilen)'],
+    [/Tuple definition/gi, 'Tuple tanımı'],
+    [/Dict \(mutable\)/gi, 'Dict (değiştirilebilir)'],
+    [/Set \(mutable\)/gi, 'Set (değiştirilebilir)'],
+    [/Fast check \(O\(1\)\)/gi, 'Hızlı kontrol (O(1))'],
+    [/Accessing it programmatically:/gi, 'Programatik olarak erişim:'],
+    [/print\(test_user_login\.__doc__\)/gi, 'print(test_user_login.__doc__)'],
+    [/Modifies the global variable/gi, 'Global değişkeni günceller'],
+    [/Delete list element by index/gi, 'İndekse göre liste elemanını silme'],
+    [/Delete global variable reference/gi, 'Global değişken referansını silme'],
+    [/print\(x\)  # NameError: name 'x' is not defined/gi, 'print(x)  # NameError: name \'x\' tanımlı değil'],
+    [/yield: return value and suspend function/gi, 'yield: değer döndür ve fonksiyonu askıya al'],
+    [/yield: return value and suspend/gi, 'yield: değer döndür ve askıya al'],
+    [/List comprehension/gi, 'List comprehension (liste üretimi)'],
+    [/Get failed test names/gi, 'Başarısız test adlarını al'],
+    [/Dict definition/gi, 'Dict tanımı'],
+    [/Access characters/gi, 'Karakterlere erişim'],
+    [/first character/gi, 'ilk karakter'],
+    [/last character/gi, 'son karakter'],
+    [/Slicing  \[start:stop:step\]/gi, 'Dilimleme  [başlangıç:bitiş:adım]'],
+    [/String methods/gi, 'String metotları'],
+    [/f\-strings \(most modern — use this!\)/gi, 'f-string\'ler (en modern yöntem — bunu kullanın!)'],
+    [/Python Booleans/gi, 'Python Booleans'],
+    [/Comparison operators return bool/gi, 'Karşılaştırma operatörleri bool döndürür'],
+    [/Logical operators \(Python uses words, not symbols!\)/gi, 'Mantıksal operatörler (Python sembol yerine kelimeler kullanır!)'],
+    [/Truthy \/ Falsy/gi, 'Truthy / Falsy'],
+    [/Python Operators — complete reference/gi, 'Python Operatörleri — tam referans'],
+    [/Comparison \(return True or False\)/gi, 'Karşılaştırma (True veya False döndürür)'],
+    [/Assignment operators \(shorthand\)/gi, 'Atama operatörleri (kısayol)'],
+    [/Identity & Membership/gi, 'Kimlik & Üyelik'],
+    [/Operator examples for QA/gi, 'QA için operatör örnekleri'],
+    [/Python Lists — most used data structure/gi, 'Python Listeleri — en çok kullanılan veri yapısı'],
+    [/^Create$/gi, 'Oluşturma'],
+    [/Add to end/gi, 'Sona ekleme'],
+    [/Insert at index 1/gi, 'İndeks 1\'e ekleme'],
+    [/Remove by value/gi, 'Değere göre silme'],
+    [/Remove & return last/gi, 'Son elemanı sil ve döndür'],
+    [/Change element/gi, 'Elemanı değiştirme'],
+    [/Info/gi, 'Bilgi'],
+    [/Count elements/gi, 'Elemanları sayma'],
+    [/Membership check/gi, 'Üyelik kontrolü'],
+    [/Sort in place/gi, 'Yerinde sıralama'],
+    [/Reverse in place/gi, 'Yerinde ters çevirme'],
+    [/Working with test case lists/gi, 'Test case listeleriyle çalışma'],
+    [/Add a new failure/gi, 'Yeni bir hata ekle'],
+    [/Check if specific test failed/gi, 'Belirli testin başarısız olup olmadığını kontrol et'],
+    [/Sort and print/gi, 'Sırala ve yazdır'],
+    [/Remove resolved test/gi, 'Çözülen testi kaldır'],
+    [/Python Tuples — immutable sequences/gi, 'Python Tuple\'ları — değiştirilemez diziler'],
+    [/Tuple unpacking — very Pythonic!/gi, 'Tuple paketini açma — Python\'a özgü!'],
+    [/Tuples are immutable — this raises TypeError:/gi, 'Tuple\'lar değiştirilemez — bu TypeError fırlatır:'],
+    [/Function returning multiple values \(actually a tuple\)/gi, 'Çoklu değer döndüren fonksiyon (aslında bir tuple)'],
+    [/Returns tuple!/gi, 'Tuple döndürür!'],
+    [/tuple vs list/gi, 'tuple vs list'],
+    [/Python Sets — unique, unordered/gi, 'Python Set\'leri — benzersiz, sırasız'],
+    [/No duplicates allowed/gi, 'Mükerrer elemana izin verilmez'],
+    [/Fast membership check/gi, 'Hızlı üyelik kontrolü'],
+    [/Set operations/gi, 'Set işlemleri'],
+    [/Set use case: finding duplicate test IDs/gi, 'Set kullanım senaryosu: mükerrer test ID\'lerini bulma'],
+    [/Python Dictionaries/gi, 'Python Sözlükleri'],
+    [/Key\-value pairs/gi, 'Anahtar-değer çiftleri'],
+    [/Access value by key/gi, 'Anahtarla değere erişim'],
+    [/Add or update/gi, 'Ekle veya güncelle'],
+    [/Iterating dict/gi, 'Sözlüğü itere etme'],
+    [/API response as dictionary/gi, 'Sözlük olarak API yanıtı'],
+    [/Python If\.\.\.Else/gi, 'Python If...Else'],
+    [/QA decision logic/gi, 'QA karar mantığı'],
+    [/Python While Loop/gi, 'Python While Döngüsü'],
+    [/Retry pattern — common in QA automation/gi, 'Yeniden deneme (retry) deseni — QA otomasyonunda yaygındır'],
+    [/Python For Loops/gi, 'Python For Döngüleri'],
+    [/For loop QA examples/gi, 'For döngüsü QA örnekleri'],
+    [/Python Functions/gi, 'Python Fonksiyonları'],
+    [/Function exercises/gi, 'Fonksiyon alıştırmaları'],
+    [/Python Lambda Functions/gi, 'Python Lambda Fonksiyonları'],
+    [/Lambda sorting exercise/gi, 'Lambda sıralama alıştırması'],
+    [/Python Classes — QA Engineer Example/gi, 'Python Sınıfları — QA Mühendisi Örneği'],
+    [/Create a BankAccount class/gi, 'Bir BankAccount sınıfı oluşturun'],
+    [/Python Inheritance — Test Framework Example/gi, 'Python Kalıtımı — Test Framework Örneği'],
+    [/Python Scope — LEGB Rule/gi, 'Python Kapsamı — LEGB Kuralı'],
+    [/Test scope understanding/gi, 'Kapsam anlama testi'],
+    [/Python Error Handling — QA Patterns/gi, 'Python Hata Yönetimi — QA Desenleri'],
+    [/Practice: handle multiple errors gracefully/gi, 'Alıştırma: birden fazla hatayı düzgün şekilde yönetin'],
+    [/Python File Handling — Read, Write, Append, Delete/gi, 'Python Dosya İşlemleri — Okuma, Yazma, Ekleme, Silme'],
+    [/PIP — Python Package Installer/gi, 'PIP — Python Paket Yükleyicisi'],
+    [/Python User Input/gi, 'Python Kullanıcı Girdisi'],
+    [/Practice string formatting/gi, 'String formatlama alıştırması'],
+    [/Python File Handling/gi, 'Python Dosya İşlemleri'],
+    [/Polymorphism/gi, 'Polimorfizm'],
+    [/In your terminal\/command prompt:/gi, 'Terminalinizde / komut satırınızda:'],
+    [/Why both\? On Mac\/Linux, "python" may point to Python 2 \(legacy\)\./gi, 'Neden ikisi de? Mac/Linux\'ta "python" Python 2\'yi (eski) işaret edebilir.'],
+    [/"python3" always points to Python 3\. Use whichever works on your system\./gi, '"python3" her zaman Python 3\'ü işaret eder. Sisteminizde hangisi çalışıyorsa onu kullanın.'],
+    [/package manager/gi, 'paket yöneticisi'],
+    [/Mac\/Linux alternative/gi, 'Mac/Linux alternatifi'],
+    [/Create a virtual environment \(run inside your project folder\):/gi, 'Sanal ortam oluşturma (proje klasörünüzün içinde çalıştırın):'],
+    [/creates a "venv" folder/gi, '"venv" adında bir klasör oluşturur'],
+    [/Activate it:/gi, 'Aktif edin:'],
+    [/Windows:/gi, 'Windows:'],
+    [/Mac\/Linux:/gi, 'Mac/Linux:'],
+    [/Your prompt changes to show \(venv\) when active\./gi, 'Aktif olduğunda komut satırınız (venv) gösterecek şekilde değişir.'],
+    [/Now install packages — they go INTO venv, not system Python:/gi, 'Şimdi paketleri kurun — bunlar sistem Python\'ına değil, venv İÇİNE kurulur:'],
+    [/Deactivate when done:/gi, 'İşiniz bittiğinde devre dışı bırakın:'],
+    [/Save current dependencies to a file:/gi, 'Mevcut bağımlılıkları bir dosyaya kaydedin:'],
+    [/Contents of requirements\.txt:/gi, 'requirements.txt içeriği:'],
+    [/Install from requirements\.txt on another machine or CI:/gi, 'Başka bir makinede veya CI üzerinde requirements.txt dosyasından kurulum yapın:'],
+    [/Your first Python program/gi, 'İlk Python programınız'],
+    [/variable assignment/gi, 'değişken ataması'],
+    [/f\-string: embed variable in string/gi, 'f-string: değişkeni metnin içine gömme'],
+    [/import a built\-in module/gi, 'yerleşik bir modülü içe aktarma'],
+    [/print Python version/gi, 'Python sürümünü yazdır'],
+    [/Variable — no type declaration/gi, 'Değişken — tip bildirimi yok'],
+    [/Colon starts block/gi, 'İki nokta üst üste bloğu başlatır'],
+    [/4\-space indent = inside block/gi, '4 boşluk girinti = blok içi'],
+    [/Loop body \(indented\)/gi, 'Döngü gövdesi (girintili)'],
+    [/Back to top level \(no indent\)/gi, 'En dış seviyeye dönüş (girintisiz)'],
+    [/Edit and run this code!/gi, 'Bu kodu düzenleyin ve çalıştırın!'],
+    [/Single\-line comment — Python ignores this/gi, 'Tek satırlık yorum — Python bunu yoksayar'],
+    [/Inline comment — also ignored/gi, 'Satır içi yorum — bu da yoksayılır'],
+    [/Try adding your own comments!/gi, 'Kendi yorumlarınızı eklemeyi deneyin!'],
+    [/This calculates a test pass rate/gi, 'Bu test geçme oranını hesaplar'],
+    [/How many tests were run/gi, 'Kaç test çalıştırıldı'],
+    [/How many passed/gi, 'Kaç test geçti'],
+    [/Python Variables — no type declaration needed/gi, 'Python Değişkenleri — tip bildirimine gerek yok'],
+    [/str \(string\)/gi, 'str (metin)'],
+    [/int \(integer\)/gi, 'int (tam sayı)'],
+    [/float \(decimal\)/gi, 'float (ondalık)'],
+    [/bool \(boolean\)/gi, 'bool (mantıksal)'],
+    [/NoneType \(null\)/gi, 'NoneType (boş)'],
+    [/dynamically typed/gi, 'dinamik tipli'],
+    [/variable type can change dynamically/gi, 'değişken tipi dinamik olarak değişebilir'],
+    [/static typing/gi, 'statik tipleme'],
+    [/compile error if type changes/gi, 'tip değişirse derleme hatası'],
+    [/Compile Error/gi, 'Derleme Hatası'],
+    [/incompatible types/gi, 'uyumsuz tipler'],
+    [/type hints/gi, 'tip ipuçları'],
+    [/int \(integer\)/gi, 'int (tam sayı)'],
+    [/float \(floating point\)/gi, 'float (ondalık sayı)'],
+    [/complex \(not used in QA\)/gi, 'complex (QA\'de kullanılmaz)'],
+    [/Arithmetic operations/gi, 'Aritmetik işlemler'],
+    [/addition/gi, 'toplama'],
+    [/subtraction/gi, 'çıkarma'],
+    [/multiplication/gi, 'çarpma'],
+    [/divide/gi, 'bölme'],
+    [/floor divide/gi, 'kalansız bölme'],
+    [/modulo/gi, 'modül'],
+    [/power/gi, 'üs alma'],
+    [/exponentiation/gi, 'üs alma'],
+    [/always float!/gi, 'her zaman ondalık!'],
+    [/always round down for safety/gi, 'güvenlik için her zaman aşağı yuvarla'],
+    [/round DOWN always/gi, 'her zaman aşağı yuvarla'],
+    [/round UP always/gi, 'her zaman yukarı yuvarla'],
+    [/banker's rounding/gi, 'bankacı yuvarlaması'],
+    [/built\-in/gi, 'yerleşik'],
+    [/no import needed/gi, 'içe aktarma gerekmez'],
+    [/square root/gi, 'karekök'],
+    [/natural log/gi, 'doğal logaritma'],
+    [/convenient shorthand/gi, 'pratik kısayol'],
+    [/decimal places/gi, 'ondalık basamak'],
+    [/String methods/gi, 'String metotları'],
+    [/f\-strings/gi, 'f-string\'ler'],
+    [/most modern — use this!/gi, 'en modern yöntem — bunu kullanın!'],
+    [/Can do math inside!/gi, 'İçinde matematiksel işlem yapılabilir!'],
+    [/Logical operators/gi, 'Mantıksal operatörler'],
+    [/Truthy \/ Falsy/gi, 'Truthy / Falsy'],
+    [/Truthy \/ Falsy values/gi, 'Truthy / Falsy değerler'],
+    [/Python Operators — complete reference/gi, 'Python Operatörleri — tam referans'],
+    [/Comparison \(return True or False\)/gi, 'Karşılaştırma (True veya False döndürür)'],
+    [/Assignment operators \(shorthand\)/gi, 'Atama operatörleri (kısayol)'],
+    [/Identity & Membership/gi, 'Kimlik & Üyelik'],
+    [/Operator examples for QA/gi, 'QA için operatör örnekleri'],
+    [/Python Lists — most used data structure/gi, 'Python Listeleri — en çok kullanılan veri yapısı'],
+    [/^Create$/gi, 'Oluşturma'],
+    [/Add to end/gi, 'Sona ekleme'],
+    [/Insert at index/gi, 'Belirli indekse ekleme'],
+    [/Remove by value/gi, 'Değere göre silme'],
+    [/Remove & return/gi, 'Sil ve döndür'],
+    [/Change element/gi, 'Elemanı değiştirme'],
+    [/Count elements/gi, 'Elemanları sayma'],
+    [/Membership check/gi, 'Üyelik kontrolü'],
+    [/Sort in place/gi, 'Yerinde sıralama'],
+    [/Reverse in place/gi, 'Yerinde ters çevirme'],
+    [/Working with test case lists/gi, 'Test case listeleriyle çalışma'],
+    [/Add a new failure/gi, 'Yeni bir hata ekle'],
+    [/Check if specific test failed/gi, 'Belirli testin başarısız olup olmadığını kontrol et'],
+    [/Sort and print/gi, 'Sırala ve yazdır'],
+    [/Remove resolved test/gi, 'Çözülen testi kaldır'],
+    [/Python Tuples — immutable sequences/gi, 'Python Tuple\'ları — değiştirilemez diziler'],
+    [/Tuple unpacking/gi, 'Tuple paketini açma'],
+    [/Tuples are immutable/gi, 'Tuple\'lar değiştirilemez'],
+    [/Function returning multiple values/gi, 'Çoklu değer döndüren fonksiyon'],
+    [/Returns tuple!/gi, 'Tuple döndürür!'],
+    [/tuple vs list/gi, 'tuple vs list'],
+    [/Python Sets — unique, unordered/gi, 'Python Set\'leri — benzersiz, sırasız'],
+    [/No duplicates allowed/gi, 'Mükerrer elemana izin verilmez'],
+    [/Fast membership check/gi, 'Hızlı üyelik kontrolü'],
+    [/Set operations/gi, 'Set işlemleri'],
+    [/Set use case/gi, 'Set kullanım senaryosu'],
+    [/Python Dictionaries/gi, 'Python Sözlükleri'],
+    [/Key\-value pairs/gi, 'Anahtar-değer çiftleri'],
+    [/Access value by key/gi, 'Anahtarla değere erişim'],
+    [/Add or update/gi, 'Ekle veya güncelle'],
+    [/Iterating dict/gi, 'Sözlüğü itere etme'],
+    [/API response as dictionary/gi, 'Sözlük olarak API yanıtı'],
+    [/Python If\.\.\.Else/gi, 'Python If...Else'],
+    [/QA decision logic/gi, 'QA karar mantığı'],
+    [/Python While Loop/gi, 'Python While Döngüsü'],
+    [/Retry pattern/gi, 'Yeniden deneme (retry) deseni'],
+    [/Python For Loops/gi, 'Python For Döngüleri'],
+    [/For loop QA examples/gi, 'For döngüsü QA örnekleri'],
+    [/Python Functions/gi, 'Python Fonksiyonları'],
+    [/Function exercises/gi, 'Fonksiyon alıştırmaları'],
+    [/Python Lambda Functions/gi, 'Python Lambda Fonksiyonları'],
+    [/Lambda sorting exercise/gi, 'Lambda sıralama alıştırması'],
+    [/Python Classes/gi, 'Python Sınıfları'],
+    [/Create a BankAccount class/gi, 'Bir BankAccount sınıfı oluşturun'],
+    [/Python Inheritance/gi, 'Python Kalıtımı'],
+    [/Python Scope/gi, 'Python Kapsamı'],
+    [/Test scope understanding/gi, 'Kapsam anlama testi'],
+    [/Python Error Handling/gi, 'Python Hata Yönetimi'],
+    [/Practice: handle multiple errors gracefully/gi, 'Alıştırma: birden fazla hatayı düzgün şekilde yönetin'],
+    [/PIP — Python Package Installer/gi, 'PIP — Python Paket Yükleyicisi'],
+    [/Python User Input/gi, 'Python Kullanıcı Girdisi'],
+    [/Practice string formatting/gi, 'String formatlama alıştırması'],
+    [/Python File Handling/gi, 'Python Dosya İşlemleri'],
+    [/Polymorphism/gi, 'Polimorfizm'],
+
+    // --- SQL: INSERT ---
+    [/Single row insert:/gi, 'Tek satır INSERT:'],
+    [/Multiple rows at once \(much faster than one at a time!\):/gi, 'Bir seferde çoklu satır (tek tek eklemekten çok daha hızlı!):'],
+    [/Copy rows from one table to another:/gi, 'Bir tablodan diğerine satır kopyala:'],
+
+    // --- SQL: SQLite CLI ---
+    [/SQLite CLI quick reference:/gi, 'SQLite CLI hızlı başvuru:'],
+    [/open or create database/gi, 'veritabanını aç veya oluştur'],
+    [/connect \(creates file if not exists\)/gi, 'bağlan (dosya yoksa oluşturur)'],
+    [/list all tables/gi, 'tüm tabloları listele'],
+    [/show CREATE TABLE for/gi, 'CREATE TABLE ifadesini göster —'],
+    [/show column headers in output/gi, 'çıktıda sütun başlıklarını göster'],
+    [/aligned column output/gi, 'hizalanmış sütun çıktısı'],
+    [/exit SQLite/gi, 'SQLite\'dan çık'],
+
+    // --- SQL: veri tipleri ---
+    [/INT \/ BIGINT\s+→ whole numbers/gi, 'INT / BIGINT       → tam sayılar'],
+    [/DECIMAL\(10,2\)\s+→ precise decimals, e\.g\. prices/gi, 'DECIMAL(10,2)      → hassas ondalıklı sayılar, örn. fiyatlar'],
+    [/VARCHAR\(n\)\s+→ variable text up to n characters/gi, 'VARCHAR(n)         → n karaktere kadar değişken metin'],
+    [/TEXT\s+→ unlimited text \(descriptions, logs\)/gi, 'TEXT               → sınırsız metin (açıklamalar, loglar)'],
+    [/BOOLEAN \/ TINYINT\s+→ true\/false/gi, 'BOOLEAN / TINYINT  → doğru/yanlış'],
+    [/DATE\s+→ 2024-01-15/gi, 'DATE               → 2024-01-15'],
+    [/DATETIME\/TIMESTAMP\s+→ 2024-01-15 14:30:00/gi, 'DATETIME/TIMESTAMP → 2024-01-15 14:30:00'],
+    [/Fixed length \(ideal for ISO country codes, hashes\):/gi, 'Sabit uzunluk (ISO ülke kodları, hash\'ler için ideal):'],
+    [/Variable length \(ideal for names, emails\):/gi, 'Değişken uzunluk (isimler, e-mail\'ler için ideal):'],
+
+    // --- SQL: SELECT / sıralama / takma ad ---
+    [/Select all columns and all rows:/gi, 'Tüm sütunları ve tüm satırları seçin:'],
+    [/Select specific columns only:/gi, 'Sadece belirli sütunları seçin:'],
+    [/Sorts ascending \(default\):/gi, 'Artan sırayla sıralar (varsayılan):'],
+    [/Sorts descending:/gi, 'Azalan sırayla sıralar:'],
+    [/Column alias:/gi, 'Sütun takma adı (alias):'],
+    [/Table alias:/gi, 'Tablo takma adı (alias):'],
+    [/Aliases make output readable:/gi, 'Takma adlar (alias) çıktıyı okunabilir yapar:'],
+    [/Exact match:/gi, 'Tam eşleşme:'],
+    [/Inclusive range:/gi, 'Dahil aralık:'],
+    [/Shorthand for OR:/gi, 'OR için kısayol:'],
+    [/% = any number of characters, _ = exactly one character/gi, '% = herhangi sayıda karakter, _ = tam olarak bir karakter'],
+    [/LIKE: pattern matching/gi, 'LIKE: şablon eşleştirme'],
+    [/Matches: 'Test', 'Tested', 'Testing':/gi, 'Eşleşenler: \'Test\', \'Tested\', \'Testing\':'],
+    [/Matches: 'Test', 'Tast', 'Tost' \(exactly 4 characters\):/gi, 'Eşleşenler: \'Test\', \'Tast\', \'Tost\' (tam 4 karakter):'],
+    [/MySQL Case-sensitive search:/gi, 'MySQL büyük-küçük harf duyarlı arama:'],
+    [/PostgreSQL Case-insensitive search:/gi, 'PostgreSQL büyük-küçük harf duyarsız arama:'],
+    [/Pattern match:/gi, 'Şablon eşleştirme:'],
+
+    // --- SQL: UPDATE / DELETE ---
+    [/UPDATE — modify existing rows:/gi, 'UPDATE — mevcut satırları değiştir:'],
+    [/DELETE — remove rows:/gi, 'DELETE — satırları sil:'],
+    [/SAFE PATTERN: ALWAYS SELECT first to verify what will be deleted!/gi, 'GÜVENLİ YÖNTEM: Silinecekleri doğrulamak için ÖNCE SELECT çalıştır!'],
+    [/SAFE PATTERN: always SELECT first to verify, THEN DELETE:/gi, 'GÜVENLİ YÖNTEM: Önce SELECT ile doğrula, SONRA DELETE:'],
+    [/Step 1: see what will be deleted:/gi, 'Adım 1: Silinecekleri gör:'],
+    [/Step 2: if the count looks right, delete:/gi, 'Adım 2: Sayı doğruysa sil:'],
+    [/To be extra safe, delete in batches \(avoids locking the table\):/gi, 'Daha güvenli olmak için toplu sil (tablo kilitlemeyi önler):'],
+    [/Repeat until 0 rows affected\./gi, '0 satır etkilenene kadar tekrarla.'],
+
+    // --- SQL: NULL ---
+    [/NULL means "no value \/ unknown" — NOT the same as 0 or empty string!/gi, 'NULL "değer yok / bilinmiyor" demektir — 0 veya boş string ile AYNI DEĞİLDİR!'],
+    [/You CANNOT use = to check for NULL — it always returns false:/gi, 'NULL kontrolü için = KULLANILAMAZ — her zaman false döndürür:'],
+    [/COALESCE: Fallback to 'N\/A'/gi, 'COALESCE: \'N/A\' yedek değeri'],
+    [/COALESCE: return first non-NULL value:/gi, 'COALESCE: ilk NULL olmayan değeri döndür:'],
+    [/NULLIF: return NULL if two values are equal \(avoid division by zero!\):/gi, 'NULLIF: iki değer eşitse NULL döndür (sıfıra bölmeyi önle!):'],
+    [/NULLIF: Prevent division by zero \(turns 0 duration to NULL, rendering avg division safe\)/gi, 'NULLIF: Sıfıra bölmeyi önle (0 süreyi NULL\'a çevirir, bölme işlemini güvenli yapar)'],
+    [/Provide default with COALESCE:/gi, 'COALESCE ile varsayılan değer ver:'],
+
+    // --- SQL: Aggregate / GROUP BY / HAVING ---
+    [/Aggregate functions summarize multiple rows into one value:/gi, 'Aggregate fonksiyonlar birden fazla satırı tek değere indirgir:'],
+    [/Count tests by status:/gi, 'Testleri duruma (status) göre say:'],
+    [/Count failures per test in last 7 days:/gi, 'Son 7 günde test bazında hata sayısı:'],
+    [/Count and percentage per status:/gi, 'Durum bazında sayı ve yüzde:'],
+    [/Average duration per environment \(only envs with > 3 tests\):/gi, 'Ortam bazında ortalama süre (3\'ten fazla testi olan ortamlar):'],
+    [/WHERE \(filter before grouping\) \+ HAVING \(filter after\):/gi, 'WHERE (gruplamadan önce filtrele) + HAVING (gruplamadan sonra filtrele):'],
+    [/WHERE: filter rows before grouping/gi, 'WHERE: gruplamadan önce satırları filtrele'],
+    [/HAVING: filter groups after aggregation/gi, 'HAVING: gruplamadan sonra grupları filtrele'],
+    [/Round decimals:/gi, 'Ondalıkları yuvarla:'],
+
+    // --- SQL: JOIN ---
+    [/INNER JOIN: only rows matching in BOTH tables/gi, 'INNER JOIN: HER İKİ tabloda da eşleşen satırlar'],
+    [/INNER JOIN \(Matches orders to existing users\):/gi, 'INNER JOIN (siparişleri mevcut kullanıcılarla eşleştirir):'],
+    [/LEFT JOIN: ALL rows from left table \+ matching from right \(NULL if no match\)/gi, 'LEFT JOIN: sol tablodan TÜM satırlar + sağdan eşleşenler (eşleşme yoksa NULL)'],
+    [/RIGHT JOIN: ALL rows from right table \+ matching from left/gi, 'RIGHT JOIN: sağ tablodan TÜM satırlar + soldan eşleşenler'],
+    [/CROSS JOIN \(Combines all sizes with all colors\):/gi, 'CROSS JOIN (tüm bedenleri tüm renklerle birleştirir):'],
+    [/\(rarely used — usually rewrite as LEFT JOIN with tables swapped\)/gi, '(nadiren kullanılır — sol/sağ tablolar değiştirilerek LEFT JOIN olarak yeniden yaz)'],
+    [/Multi-table JOIN:/gi, 'Çoklu tablo JOIN:'],
+    [/Find ALL testers, even those with no bugs \(LEFT JOIN\):/gi, 'Bug\'ı olmayan tester\'lar dahil TÜM tester\'ları bul (LEFT JOIN):'],
+    [/Find testers WITH open bugs \(INNER JOIN\):/gi, 'Açık bug\'ı olan tester\'ları bul (INNER JOIN):'],
+    [/Find employees and their managers from the same table:/gi, 'Aynı tablodan çalışanları ve yöneticilerini bul:'],
+    [/Rows with no matching tester OR no matching bug are EXCLUDED/gi, 'Eşleşen tester veya bug\'ı olmayan satırlar DIŞLANIR'],
+    [/Testers with 0 bugs still appear \(assigned_bugs = 0\)/gi, 'Bug\'ı olmayan tester\'lar hâlâ görünür (assigned_bugs = 0)'],
+
+    // --- SQL: Subquery ---
+    [/Simple subquery \(runs ONCE\):/gi, 'Basit alt sorgu (bir kez çalışır):'],
+    [/Correlated subquery \(runs once per outer row — slow on large tables!\):/gi, 'Bağlantılı alt sorgu (dış sorgunun her satırı için çalışır — büyük tablolarda yavaş!):'],
+    [/Subquery in FROM \(derived table — must be aliased\):/gi, 'FROM içinde alt sorgu (türetilmiş tablo — takma ad zorunlu):'],
+    [/Subquery in WHERE \(scalar subquery\):/gi, 'WHERE içinde alt sorgu (skaler alt sorgu):'],
+    [/Subquery with IN:/gi, 'IN ile alt sorgu:'],
+    [/Better: use LEFT JOIN \+ GROUP BY instead/gi, 'Daha iyi: yerine LEFT JOIN + GROUP BY kullan'],
+
+    // --- SQL: Window Functions ---
+    [/DENSE_RANK: ties get same number, NO gaps \(1,1,2\)/gi, 'DENSE_RANK: eşitler aynı numarayı alır, BOŞLUK YOK (1,1,2)'],
+    [/RANK:\s+ties get same number, then GAPS \(1,1,3\)/gi, 'RANK: eşitler aynı numarayı alır, ardından BOŞLUK bırakır (1,1,3)'],
+    [/ROW_NUMBER: sequential number \(ties each get unique numbers\)/gi, 'ROW_NUMBER: ardışık numara (eşitler farklı numara alır)'],
+    [/Show each test run alongside the average duration of its environment:/gi, 'Her test çalışmasının yanına kendi ortamının ortalama süresini göster:'],
+    [/Rank tests by duration within each environment:/gi, 'Her ortamda testleri süreye göre sırala:'],
+    [/Running total:/gi, 'Kümülatif toplam:'],
+    [/Example output for tied durations \(1000ms, 1000ms, 1200ms\):/gi, 'Eşit süreler için örnek çıktı (1000ms, 1000ms, 1200ms):'],
+    [/LAG \/ LEAD: access previous\/next row values/gi, 'LAG / LEAD: önceki/sonraki satır değerlerine eriş'],
+
+    // --- SQL: CTE ---
+    [/CTE: a named subquery at the top of your statement\./gi, 'CTE: ifadenin başına yazılan adlandırılmış alt sorgudur.'],
+    [/Makes complex queries readable by breaking into named steps\./gi, 'Karmaşık sorguları adlandırılmış adımlara bölerek okunabilir yapar.'],
+    [/Readable queries with CTE:/gi, 'CTE ile okunabilir sorgular:'],
+    [/Now use both CTEs together:/gi, 'Her iki CTE\'yi birlikte kullan:'],
+    [/Recursive CTE \(for hierarchical data like org charts, nested categories\):/gi, 'Özyinelemeli CTE (organizasyon şeması, iç içe kategoriler gibi hiyerarşik veriler için):'],
+    [/Traverse manager-employee tree recursively:/gi, 'Yönetici-çalışan ağacını özyinelemeli (recursive) olarak gez:'],
+
+    // --- SQL: Transaction / Deadlock ---
+    [/A transaction is a group of SQL statements that execute as ONE unit\./gi, 'Transaction, bir birim olarak çalışan SQL ifadeleri grubudur.'],
+    [/Either ALL succeed \(COMMIT\) or ALL are undone \(ROLLBACK\)\./gi, 'Ya TÜMÜ başarılı olur (COMMIT) ya da TÜMÜ geri alınır (ROLLBACK).'],
+    [/ACID: Atomicity, Consistency, Isolation, Durability/gi, 'ACID: Atomiklik, Tutarlılık, İzolasyon, Kalıcılık'],
+    [/SAVEPOINT: partial rollback/gi, 'SAVEPOINT: kısmi geri alma'],
+    [/Transaction A locks Row 1, wants Row 2/gi, 'Transaction A, Satır 1\'i kilitler, Satır 2\'yi ister'],
+    [/Transaction B locks Row 2, wants Row 1 \(Deadlock!\)/gi, 'Transaction B, Satır 2\'yi kilitler, Satır 1\'i ister (Deadlock!)'],
+    [/Transaction A:/gi, 'Transaction A:'],
+    [/Transaction B \(concurrent\):/gi, 'Transaction B (eşzamanlı):'],
+    [/Transaction B:/gi, 'Transaction B:'],
+    [/Session A/gi, 'Oturum A'],
+    [/Session B/gi, 'Oturum B'],
+    [/Mitigation: always update Row 1 before Row 2 in both scripts/gi, 'Önlem: her iki script\'te de Satır 1\'i Satır 2\'den önce güncelle'],
+    [/Read Committed: Sees committed changes mid-transaction\./gi, 'Read Committed: Transaction sırasında commit edilmiş değişiklikleri görür.'],
+    [/Repeatable Read: Read values are guaranteed not to change until rollback\/commit\./gi, 'Repeatable Read: Okunan değerlerin rollback/commit\'e kadar değişmeyeceği garantidir.'],
+
+    // --- SQL: Index / EXPLAIN / Performans ---
+    [/Create compound index for multi-column filters:/gi, 'Çoklu sütun filtreleri için bileşik indeks oluştur (CREATE INDEX):'],
+    [/Create indexes on columns used frequently in WHERE\/JOIN:/gi, 'WHERE/JOIN\'de sık kullanılan sütunlara indeks ekle (CREATE INDEX):'],
+    [/Add index:/gi, 'İndeks ekle:'],
+    [/Add index and check improvement:/gi, 'İndeks ekle ve iyileşmeyi kontrol et:'],
+    [/Run EXPLAIN:/gi, 'EXPLAIN çalıştır:'],
+    [/Slow \(ignores index on created_at\):/gi, 'Yavaş (created_at üzerindeki indeksi yoksayar):'],
+    [/Optimized \(uses index\):/gi, 'Optimize edilmiş (indeks kullanıyor):'],
+    [/View indexes on a table:/gi, 'Tablonun indekslerini görüntüle:'],
+    [/Unique index \(also enforces uniqueness\):/gi, 'Benzersizlik indeksi (UNIQUE INDEX — tekrarsızlığı da garantiler):'],
+    [/Non-Clustered: auxiliary index pointing to clustered key/gi, 'Non-Clustered: clustered key\'e işaret eden yardımcı indeks'],
+    [/Clustered: primary key \(rows sorted physically by id\)/gi, 'Clustered: primary key (satırlar fiziksel olarak id\'ye göre sıralanır)'],
+    [/B-Tree supports:/gi, 'B-Tree indeks şunları destekler:'],
+    [/Hash index only supports:/gi, 'Hash indeks yalnızca şunu destekler:'],
+    [/EXPLAIN query plan:/gi, 'Sorgu planını görüntüle (EXPLAIN):'],
+    [/EXPLAIN: see how MySQL plans to execute a query/gi, 'EXPLAIN: MySQL\'in sorguyu nasıl çalıştıracağını gör'],
+    [/EXPLAIN ANALYZE \(PostgreSQL — actually runs the query\):/gi, 'EXPLAIN ANALYZE (PostgreSQL — sorguyu gerçekten çalıştırır):'],
+    [/Before index: EXPLAIN shows type=ALL \(reads ALL 50,000 rows\)/gi, 'İndeks öncesi: EXPLAIN type=ALL gösterir (tüm 50.000 satır okunur)'],
+    [/After index: EXPLAIN shows type=ref \(uses index, reads ~5000 rows\)/gi, 'İndeks sonrası: EXPLAIN type=ref gösterir (~5000 satır, indeks kullanıyor)'],
+    [/"type: ALL" = full table scan \(slow, needs index\)/gi, '"type: ALL" = tam tablo taraması (yavaş, indeks gerekir)'],
+    [/"type: ref" = using index \(fast!\)/gi, '"type: ref" = indeks kullanıyor (hızlı!)'],
+    [/1\. Identify a slow query and add EXPLAIN before it:/gi, '1. Yavaş sorguyu bul ve başına EXPLAIN ekle:'],
+    [/2\. Create a composite index:/gi, '2. Bileşik indeks oluştur (CREATE INDEX):'],
+    [/3\. Run EXPLAIN again:/gi, '3. EXPLAIN\'i tekrar çalıştır:'],
+    [/Now see: type: "ref", key: idx_status_env, rows: much lower/gi, 'Artık gösterir: type: "ref", key: idx_status_env, rows çok daha az'],
+    [/Now shows: key: idx_status, rows: ~10 \(not all rows\)/gi, 'Artık gösterir: key: idx_status, rows: ~10 (tüm satırlar değil)'],
+    [/key: NULL\s+=\s+no index being used \(bad\)/gi, 'key: NULL  = indeks kullanılmıyor (kötü)'],
+    [/rows: high\s+=\s+many rows examined/gi, 'rows: çok yüksek = çok sayıda satır inceleniyor'],
+    [/Look for:/gi, 'Şunlara bak:'],
+    [/Look for "scan type"/gi, '"scan type"\'a bak'],
+
+    // --- SQL: VIEW ---
+    [/A VIEW is a saved SQL query that acts like a virtual table\./gi, 'VIEW, sanal bir tablo gibi davranan kayıtlı bir SQL sorgusudur.'],
+    [/Great for: reusable complex queries, hiding complexity, security\./gi, 'Kullanım alanları: tekrar kullanılabilir karmaşık sorgular, karmaşıklığı gizleme, güvenlik.'],
+    [/Drop a view:/gi, 'Görünümü (VIEW) sil:'],
+    [/Use the view like a table:/gi, 'Görünümü bir tablo gibi kullan:'],
+
+    // --- SQL: UNION ---
+    [/UNION: removes duplicates \(slower\):/gi, 'UNION: mükerrer kayıtları kaldırır (daha yavaş):'],
+    [/UNION ALL: keeps duplicates \(faster\):/gi, 'UNION ALL: mükerrer kayıtları tutar (daha hızlı):'],
+    [/MySQL alternative \(no window function needed\):/gi, 'MySQL alternatifi (window fonksiyonu gerekmez):'],
+    [/Standard compliant way:/gi, 'Standart uyumlu yol:'],
+    [/Might fail in strict ANSI SQL databases:/gi, 'Katı ANSI SQL veritabanlarında başarısız olabilir:'],
+    [/WRONG in standard SQL \(MySQL without ONLY_FULL_GROUP_BY might allow it, but returns random name!\):/gi, 'Standart SQL\'de YANLIŞ (MySQL ONLY_FULL_GROUP_BY olmadan izin verebilir, ancak rastgele isim döndürür!):'],
+    [/Equivalent to:/gi, 'Şuna eşdeğerdir:'],
+    [/ALSO CORRECT:/gi, 'BU DA DOĞRU:'],
+    [/Correct:/gi, 'Doğru:'],
+
+    // --- SQL: Injection ---
+    [/SQL INJECTION: attacker injects SQL code through user input\./gi, 'SQL INJECTION: saldırgan kullanıcı girdisi aracılığıyla SQL kodu enjekte eder.'],
+    [/VULNERABLE to SQL injection:/gi, 'SQL injection\'a AÇIK (VULNERABLE):'],
+    [/SAFE \(Parameterized query\):/gi, 'GÜVENLİ (Parametreli sorgu — Parameterized query):'],
+    [/Why safe\? The DB engine handles the values as DATA, never as SQL code\./gi, 'Neden güvenli? Veritabanı motoru değerleri DATA olarak işler, asla SQL kodu olarak değil.'],
+    [/✅ SAFE: Use parameterized queries \(placeholders\):/gi, '✅ GÜVENLİ: Parametreli sorgu kullan (placeholder):'],
+    [/❌ VULNERABLE \(never do this in tests or apps\):/gi, '❌ AÇIK (testlerde veya uygulamalarda asla yapma):'],
+    [/Classic example:/gi, 'Klasik örnek:'],
+    [/Vulnerable query becomes:/gi, 'Açık (vulnerable) sorgu şu hale gelir:'],
+    [/'admin' OR '1'='1' becomes a literal string to match, not executable SQL\./gi, '\'admin\' OR \'1\'=\'1\' eşleştirilecek literal bir string olur, çalıştırılabilir SQL değil.'],
+
+    // --- SQL: QA / analitik sorgular ---
+    [/Count valid vs orphaned records:/gi, 'Geçerli ve yetim (orphaned) kayıtları say:'],
+    [/Find failed tests from the last 7 days with details:/gi, 'Son 7 günde başarısız olan testleri ayrıntılarıyla bul:'],
+    [/Get list of unique environments tested:/gi, 'Test edilen benzersiz ortam listesini al:'],
+    [/Get the 5 most recent test failures:/gi, 'Son 5 test hatasını getir:'],
+    [/Find duplicate email addresses in a users table:/gi, 'Kullanıcılar tablosunda mükerrer e-mail adreslerini bul:'],
+    [/Find duplicates across multiple columns \(exact duplicate records\):/gi, 'Birden fazla sütundaki mükerrer kayıtları bul (tam kopyalar):'],
+    [/See ALL rows that have a duplicate email:/gi, 'Mükerrer e-mail\'e sahip TÜM satırları gör:'],
+    [/1\. Find duplicates:/gi, '1. Mükerrer kayıtları bul:'],
+    [/2\. Delete duplicates keeping only the lowest ID \(SQLite\/MySQL\):/gi, '2. En düşük ID\'yi tutarak mükerrer kayıtları sil (SQLite/MySQL):'],
+    [/Find orders whose user_id doesn't exist in the users table \(orphaned records\):/gi, 'users tablosunda user_id\'si olmayan siparişleri bul (yetim kayıtlar):'],
+    [/Find test results whose test_case_id doesn't exist:/gi, 'test_case_id\'si olmayan test sonuçlarını bul:'],
+    [/testers who have at least one open bug/gi, 'en az bir açık bug\'ı olan tester\'lar'],
+    [/tests that are slower than average/gi, 'ortalamadan yavaş testler'],
+
+    // --- SQL: şema / DDL ---
+    [/Example of schema definition \(DDL\):/gi, 'Şema tanımı örneği (DDL):'],
+    [/Example of composite primary key \(user_badges\):/gi, 'Bileşik primary key örneği (user_badges tablosu):'],
+    [/Example of trigger side-effect:/gi, 'Trigger yan etkisi örneği:'],
+    [/If user_logs table is missing\/locked, normal user delete fails!/gi, 'user_logs tablosu eksikse/kilitliyse, normal kullanıcı silme başarısız olur!'],
+    [/Prevent deleting user if they have active orders:/gi, 'Aktif siparişi olan kullanıcıyı silmeyi engelle:'],
+    [/Call stored procedure from test automation:/gi, 'Test otomasyonundan stored procedure çağır:'],
+    [/Our tables:/gi, 'Tablolarımız:'],
+
+    // --- SQL: Python/DB bağlantısı ---
+    [/Python sqlite3:/gi, 'Python sqlite3 bağlantısı:'],
+    [/Python psycopg2 \(PostgreSQL\):/gi, 'Python psycopg2 (PostgreSQL) bağlantısı:'],
+    [/SQLite — built into Python, no install needed:/gi, 'SQLite — Python\'a yerleşik, kurulum gerektirmez:'],
+    [/PostgreSQL — install: pip install psycopg2-binary/gi, 'PostgreSQL — kur: pip install psycopg2-binary'],
+    [/CLI execution in CI\/CD pipeline:/gi, 'CI/CD pipeline\'da CLI ile çalıştırma:'],
+    [/Connect and verify:/gi, 'Bağlan ve doğrula:'],
+    [/get all results as list of tuples/gi, 'tüm sonuçları tuple listesi olarak al'],
+    [/value is passed separately — SQL engine escapes it/gi, 'değer ayrı iletilir — SQL motoru onu escape eder'],
+
+    // --- SQL: genel ---
+    [/This is a single line comment/gi, 'Bu tek satırlık bir yorumdur'],
+    [/If any error occurs:/gi, 'Hata oluşursa:'],
+    [/If any failed:/gi, 'Herhangi biri başarısız olursa:'],
+    [/If both succeeded:/gi, 'Her ikisi de başarılıysa:'],
+    [/If everything looks good:/gi, 'Her şey yolundaysa:'],
+    [/Duplicate insert will throw: "UNIQUE constraint failed"/gi, 'Tekrar eklemek "UNIQUE constraint failed" hatası fırlatır'],
+    [/Example: Transfer test case from one project to another/gi, 'Örnek: Test senaryosunu bir projeden diğerine transfer et'],
+    [/N\+1 \(bad\): 1 parent query \+ N child queries in loop/gi, 'N+1 (kötü): 1 ana sorgu + döngüde N alt sorgu'],
+    [/Fix: single JOIN \(1 query total\)/gi, 'Düzeltme: tek JOIN (toplam 1 sorgu)'],
+    [/Aggregate functions/gi, 'Aggregate fonksiyonlar'],
+    [/Option 1:/gi, 'Seçenek 1:'],
+    [/Option 2:/gi, 'Seçenek 2:'],
+    [/Option 3:/gi, 'Seçenek 3:'],
+];
+
+function translateCodeComment(comment, language) {
+    if (language === 'en') {
+        return codeCommentTranslations.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), comment)
+    } else if (language === 'tr') {
+        return englishToTurkishCodeComments.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), comment)
+    }
+    return comment
 }
 
 function localizeCodeComments(code, language) {
-    if (language !== 'en' || typeof code !== 'string') return code
+    if (typeof code !== 'string') return code
     return code.split('\n').map(line => {
         const markerMatch = line.match(/(#|\/\/|--)/)
-        if (!markerMatch) return translateCodeComment(line)
+        if (!markerMatch) return line
         const markerIndex = markerMatch.index
         const before = line.slice(0, markerIndex + markerMatch[0].length)
         const after = line.slice(markerIndex + markerMatch[0].length)
-        return translateCodeComment(before) + translateCodeComment(after)
+        return before + translateCodeComment(after, language)
     }).join('\n')
 }
 
@@ -1029,7 +1605,7 @@ function CalloutBlock({ block, darkMode }) {
     return (
         <div className={`mt-4 p-4 rounded-xl border-2 ${c.border} ${c.bg}`}>
             {block.title && <div className={`font-bold text-sm mb-2 ${c.titleText}`}>{block.emoji || ''} {tx(block.title, language)}</div>}
-            <p className={`text-sm leading-relaxed ${c.text}`}>{tx(block.content, language)}</p>
+            <p className={`text-sm leading-relaxed whitespace-pre-line ${c.text}`}>{tx(block.content, language)}</p>
         </div>
     )
 }
@@ -1066,13 +1642,13 @@ function JavaCompareBlock({ block, darkMode }) {
                 <div className={`border-r ${darkMode ? 'border-gray-700' : 'border-orange-200'}`}>
                     <div className={`px-3 py-1.5 text-xs font-bold ${darkMode ? 'bg-yellow-900/25 text-yellow-300' : 'bg-yellow-100 text-yellow-800'}`}>☕ {isTr ? "Java'da" : 'in Java'}</div>
                     <div className="bg-slate-800 p-3 min-h-[80px]">
-                        <pre className="font-mono text-xs text-amber-200 overflow-x-auto leading-relaxed">{(block.java || '').trim()}</pre>
+                        <pre className="font-mono text-xs text-amber-200 overflow-x-auto leading-relaxed">{getLocalizedCode(block.java || '', language).trim()}</pre>
                     </div>
                 </div>
                 <div>
                     <div className={`px-3 py-1.5 text-xs font-bold ${darkMode ? 'bg-blue-900/25 text-blue-300' : 'bg-blue-100 text-blue-800'}`}>{langIcon} {langLabel}</div>
                     <div className="bg-slate-800 p-3 min-h-[80px]">
-                        <pre className={`font-mono text-xs overflow-x-auto leading-relaxed ${isTS ? 'text-sky-200' : 'text-emerald-200'}`}>{(newCode || '').trim()}</pre>
+                        <pre className={`font-mono text-xs overflow-x-auto leading-relaxed ${isTS ? 'text-sky-200' : 'text-emerald-200'}`}>{getLocalizedCode(newCode || '', language).trim()}</pre>
                     </div>
                 </div>
             </div>
@@ -4533,6 +5109,9 @@ function SimulationBlock({ block, darkMode, language }) {
         { id: 2, name: 'my-nginx-pod-2', status: 'Running', age: '12s', isNew: false, isDead: false }
     ])
     const [k8sSelfHealingInProgress, setK8sSelfHealingInProgress] = useState(false)
+
+    // Python & SQL simulation states
+    const [sqlTxIsolation, setSqlTxIsolation] = useState('read-committed')
 
     const resetSim = () => {
         timersRef.current.forEach(t => clearTimeout(t))
@@ -10976,6 +11555,260 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
         )
     }
 
+    const renderPythonCompileRunPlayground = () => {
+        const s = simState
+        const order = ['idle', 'source', 'compile', 'bytecode', 'pvm', 'output']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'output'
+        const isActive = (key) => order.indexOf(key) === cur
+        const isDone = (key) => order.indexOf(key) < cur && s !== 'idle'
+        const steps = [
+            { key: 'source', label: 'main.py', desc: isTr ? 'Temiz, okunabilir Python kaynak kodu' : 'Clean, readable Python source code', icon: '📝' },
+            { key: 'compile', label: 'Compiler', desc: isTr ? 'Sözdizimini (syntax) kontrol eder' : 'Checks code syntax', icon: '⚙️' },
+            { key: 'bytecode', label: 'main.pyc', desc: isTr ? 'Derlenen bytecode (düşük seviyeli)' : 'Compiled bytecode (low-level)', icon: '🔢' },
+            { key: 'pvm', label: 'PVM', desc: isTr ? 'Bytecode\'u satır satır yorumlar' : 'Interprets bytecode line-by-line', icon: '🐍' },
+            { key: 'output', label: 'Console', desc: isTr ? 'Sonuç terminalde görünür' : 'Output appears in terminal', icon: '🖥️' },
+        ]
+        const terminalLines = [
+            { show: cur >= 1, text: '$ python main.py', color: '#fbbf24' },
+            { show: cur >= 2, text: isTr ? '✓ Syntax OK, bytecode oluşturuluyor...' : '✓ Syntax OK, generating bytecode...', color: '#22c55e' },
+            { show: cur >= 3, text: isTr ? 'PVM (Python Virtual Machine) bytecode\'u yükledi...' : 'PVM (Python Virtual Machine) loaded bytecode...', color: '#38bdf8' },
+            { show: cur >= 4, text: isTr ? 'Yorumlayıcı satır satır kodu çalıştırıyor...' : 'Interpreter runs the code line-by-line...', color: '#a78bfa' },
+            { show: cur >= 5, text: isTr ? 'Hello, QA Engineer!' : 'Hello, QA Engineer!', color: '#22c55e' },
+        ]
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🐍</span>
+                        <span style={{ fontSize: 11, fontWeight: 700 }}>Python Interpreter Lab</span>
+                        <button
+                            onClick={() => canStart && runSteps([['source', 120], ['compile', 650], ['bytecode', 650], ['pvm', 650], ['output', 650]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 800, color: '#0f172a', background: canStart ? '#38bdf8' : '#475569', cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ python main.py' : s === 'output' ? (isTr ? '▶ tekrar' : '▶ run again') : (isTr ? '⏳ çalışıyor' : '⏳ running')}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+                        {steps.map((step, i) => (
+                            <div key={step.key} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8, alignItems: 'center' }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'grid', placeItems: 'center', background: isActive(step.key) ? '#38bdf8' : isDone(step.key) ? '#166534' : '#334155', boxShadow: isActive(step.key) ? '0 0 16px rgba(56,189,248,0.65)' : 'none', transition: 'all .35s' }}>
+                                    {isDone(step.key) ? '✓' : step.icon}
+                                </div>
+                                <div style={{ border: `1px solid ${isActive(step.key) ? '#38bdf8' : '#334155'}`, background: isActive(step.key) ? '#0c4a6e' : '#020617', borderRadius: 8, padding: '7px 9px', transition: 'all .35s' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 800, color: isActive(step.key) ? '#bae6fd' : '#f8fafc' }}>{step.label}</div>
+                                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{step.desc}</div>
+                                </div>
+                                {i < steps.length - 1 && <div style={{ gridColumn: '1 / 2', width: 2, height: 10, background: isDone(steps[i + 1].key) || isActive(steps[i + 1].key) ? '#38bdf8' : '#334155', margin: '-2px auto' }} />}
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ background: '#020617', padding: '9px 12px', minHeight: 92, borderTop: '1px solid #334155', fontFamily: 'JetBrains Mono, monospace' }}>
+                        {s === 'idle' && <div style={{ color: '#64748b', fontSize: 11 }}>{isTr ? 'Çalıştırmak için butona basın.' : 'Click button to run.'}</div>}
+                        {terminalLines.map((line, i) => line.show ? (
+                            <div key={i} style={{ color: line.color, fontSize: 10.5, lineHeight: 1.7 }}>{line.text}</div>
+                        ) : null)}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#0f172a', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderPytestInteractiveRunPlayground = () => {
+        const s = simState
+        const order = ['idle', 'collecting', 'test1', 'test2', 'test2-retry', 'test3', 'report', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+
+        const termLines = [
+            { show: cur >= 1, text: '$ pytest test_auth.py --html=report.html', color: '#f8fafc' },
+            { show: cur >= 1, text: 'collected 3 items', color: '#94a3b8' },
+            { show: cur >= 2, text: 'test_auth.py::test_login_valid_credentials PASSED [ 33%]', color: '#22c55e' },
+            { show: cur >= 3, text: 'test_auth.py::test_login_flaky_network FAILED [ 66%] - NetworkTimeout', color: '#ef4444' },
+            { show: cur >= 4, text: isTr ? '  ⚠️ flaky test algılandı! yeniden deneniyor (deneme 2 / 3)...' : '  ⚠️ flaky test detected! retrying (attempt 2 of 3)...', color: '#f59e0b' },
+            { show: cur >= 4, text: 'test_auth.py::test_login_flaky_network PASSED [ 66%] (retry)', color: '#22c55e' },
+            { show: cur >= 5, text: 'test_auth.py::test_invalid_password_error FAILED [100%]', color: '#ef4444' },
+            { show: cur >= 6, text: '----------------------------- Failures -----------------------------', color: '#ef4444' },
+            { show: cur >= 6, text: 'E AssertionError: Expected error message "Invalid pass" but got "Wrong password"', color: '#fca5a5' },
+            { show: cur >= 7, text: '==== 1 failed, 2 passed, 1 rerun in 1.42s ====', color: '#f59e0b' },
+            { show: cur >= 7, text: 'HTML report generated successfully at report.html', color: '#38bdf8' }
+        ]
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🧪</span>
+                        <span style={{ fontSize: 11, fontWeight: 700 }}>pytest Runner Simulator</span>
+                        <button
+                            onClick={() => canStart && runSteps([['collecting', 150], ['test1', 750], ['test2', 750], ['test2-retry', 900], ['test3', 750], ['report', 750], ['done', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 800, color: '#0f172a', background: canStart ? '#22c55e' : '#475569', cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ pytest' : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 12 }}>
+                            {[
+                                { key: 'test1', name: 'test_login_valid', status: cur >= 3 ? 'PASS' : cur === 2 ? 'RUNNING' : 'PENDING' },
+                                { key: 'test2', name: 'test_flaky_network', status: cur >= 5 ? 'RERUN/PASS' : [3, 4].includes(cur) ? 'RERUNNING' : 'PENDING' },
+                                { key: 'test3', name: 'test_invalid_pass', status: cur >= 7 ? 'FAIL' : cur === 5 ? 'RUNNING' : 'PENDING' },
+                            ].map((t, idx) => {
+                                const isPass = t.status.includes('PASS')
+                                const isFail = t.status === 'FAIL'
+                                const isRun = t.status.includes('RUN')
+                                const color = isPass ? '#22c55e' : isFail ? '#ef4444' : isRun ? '#fbbf24' : '#64748b'
+                                const bg = isPass ? '#052e16' : isFail ? '#450a0a' : isRun ? '#451a03' : '#1e293b'
+                                return (
+                                    <div key={idx} style={{ border: `1px solid ${color}`, background: bg, borderRadius: 8, padding: 8, textAlign: 'center', transition: 'all 0.3s' }}>
+                                        <div style={{ fontSize: 9, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
+                                        <div style={{ fontSize: 10, fontWeight: 800, color, marginTop: 4 }}>{t.status}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div style={{ background: '#020617', borderRadius: 9, padding: '9px 10px', minHeight: 140, fontFamily: 'JetBrains Mono, monospace', overflowY: 'auto' }}>
+                            {s === 'idle' && <div style={{ color: '#64748b', fontSize: 10 }}>{isTr ? 'Butona tıklayarak pytest\'i çalıştırın.' : 'Click the button to run pytest.'}</div>}
+                            {termLines.map((line, i) => line.show ? (
+                                <div key={i} style={{ color: line.color, fontSize: 10, lineHeight: 1.6 }}>{line.text}</div>
+                            ) : null)}
+                        </div>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#0f172a', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderSqlSelectFlowPlayground = () => {
+        const s = simState
+        const order = ['idle', 'from', 'where', 'group', 'having', 'select', 'orderby', 'limit', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+        const isActive = (key) => order.indexOf(key) === cur
+        const isDone = (key) => order.indexOf(key) < cur && s !== 'idle'
+
+        const steps = [
+            { key: 'from', label: '1. FROM test_runs', desc: isTr ? 'Veri kaynağı tablo yüklenir' : 'Loads target table data', icon: '📁' },
+            { key: 'where', label: '2. WHERE status = \'FAIL\'', desc: isTr ? 'Koşula uymayan satırlar elenir' : 'Filters out non-matching rows', icon: '🔍' },
+            { key: 'group', label: '3. GROUP BY env', desc: isTr ? 'Kalan satırlar env sütununa göre gruplanır' : 'Groups rows by env column', icon: '🗂️' },
+            { key: 'having', label: '4. HAVING count >= 1', desc: isTr ? 'Grup sayısına göre gruplar filtrelenir' : 'Filters groups based on count', icon: '⚖️' },
+            { key: 'select', label: '5. SELECT env, COUNT(*)', desc: isTr ? 'Sütunlar seçilir ve sayımlar yapılır' : 'Selects columns and calculates count', icon: '🎯' },
+            { key: 'orderby', label: '6. ORDER BY count DESC', desc: isTr ? 'Sonuçlar sıralanır' : 'Sorts resulting records', icon: '⬇️' },
+            { key: 'limit', label: '7. LIMIT 1', desc: isTr ? 'İstenen sayıda satır alınır' : 'Slices the final records', icon: '✂️' },
+        ]
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🗄️</span>
+                        <span style={{ fontSize: 11, fontWeight: 700 }}>SQL Execution Order Lab</span>
+                        <button
+                            onClick={() => canStart && runSteps([['from', 150], ['where', 900], ['group', 900], ['having', 900], ['select', 900], ['orderby', 800], ['limit', 700], ['done', 500]])}
+                            disabled={!canStart}
+                            style={{ marginLeft: 'auto', border: 0, borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 800, color: '#0f172a', background: canStart ? '#fbbf24' : '#475569', cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ Run Query' : s === 'done' ? (isTr ? '▶ tekrar' : '▶ run again') : '⏳'}
+                        </button>
+                    </div>
+                    <div style={{ padding: 12, display: 'grid', gap: 7 }}>
+                        {steps.map((step, i) => (
+                            <div key={step.key} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 8, alignItems: 'center' }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'grid', placeItems: 'center', background: isActive(step.key) ? '#fbbf24' : isDone(step.key) ? '#166534' : '#334155', boxShadow: isActive(step.key) ? '0 0 16px rgba(251,191,36,0.65)' : 'none', transition: 'all .3s' }}>
+                                    {isDone(step.key) ? '✓' : step.icon}
+                                </div>
+                                <div style={{ border: `1px solid ${isActive(step.key) ? '#fbbf24' : '#334155'}`, background: isActive(step.key) ? '#451a03' : '#020617', borderRadius: 8, padding: '7px 9px', transition: 'all .35s' }}>
+                                    <div style={{ fontSize: 11.5, fontWeight: 800, color: isActive(step.key) ? '#fde68a' : '#f8fafc', fontFamily: 'JetBrains Mono, monospace' }}>{step.label}</div>
+                                    <div style={{ fontSize: 9.5, color: '#94a3b8' }}>{step.desc}</div>
+                                </div>
+                                {i < steps.length - 1 && <div style={{ gridColumn: '1 / 2', width: 2, height: 8, background: isDone(steps[i + 1].key) || isActive(steps[i + 1].key) ? '#fbbf24' : '#334155', margin: '-2px auto' }} />}
+                            </div>
+                        ))}
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#0f172a', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const renderSqlTransactionIsolationPlayground = () => {
+        const s = simState
+        const order = ['idle', 'beginA', 'readA1', 'updateB', 'readA2', 'commitB', 'readA3', 'done']
+        const cur = order.indexOf(s)
+        const canStart = s === 'idle' || s === 'done'
+
+        const steps = [
+            { key: 'beginA', label: 'User A: BEGIN;', active: cur >= 1 },
+            { key: 'readA1', label: 'User A: SELECT balance; -> $1000', active: cur >= 2 },
+            { key: 'updateB', label: 'User B: UPDATE balance = 800; (uncommitted)', active: cur >= 3 },
+            { key: 'readA2', label: sqlTxIsolation === 'read-committed' 
+                ? 'User A: SELECT balance; -> $1000 (no dirty read)' 
+                : 'User A: SELECT balance; -> $1000 (repeatable read)', active: cur >= 4 },
+            { key: 'commitB', label: 'User B: COMMIT;', active: cur >= 5 },
+            { key: 'readA3', label: sqlTxIsolation === 'read-committed' 
+                ? 'User A: SELECT balance; -> $800 (non-repeatable read!)' 
+                : 'User A: SELECT balance; -> $1000 (repeatable read ✅)', active: cur >= 6 },
+            { key: 'done', label: 'User A: COMMIT / END;', active: cur >= 7 },
+        ]
+
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif', maxWidth: 360 }}>
+                <div style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }}>
+                    <div style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8, background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ fontSize: 18 }}>🔒</span>
+                        <span style={{ fontSize: 11, fontWeight: 700 }}>Transaction Isolation Lab</span>
+                    </div>
+                    
+                    <div style={{ padding: 10, borderBottom: '1px solid #334155', background: '#020617' }}>
+                        <label style={{ fontSize: 10, color: '#94a3b8', display: 'block', marginBottom: 4 }}>ISOLATION LEVEL:</label>
+                        <select 
+                            value={sqlTxIsolation} 
+                            onChange={(e) => { resetSim(); setSqlTxIsolation(e.target.value) }}
+                            disabled={s !== 'idle' && s !== 'done'}
+                            style={{ width: '100%', background: '#1e293b', color: '#f8fafc', border: '1px solid #475569', borderRadius: 6, padding: '4px 6px', fontSize: 11, fontWeight: 700, cursor: (s === 'idle' || s === 'done') ? 'pointer' : 'not-allowed' }}
+                        >
+                            <option value="read-committed">Read Committed</option>
+                            <option value="repeatable-read">Repeatable Read</option>
+                        </select>
+                    </div>
+
+                    <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 200 }}>
+                        {steps.map((step, idx) => (
+                            <div key={idx} style={{ 
+                                padding: '6px 10px', 
+                                borderRadius: 8, 
+                                border: `1px solid ${cur === idx + 1 ? '#a78bfa' : step.active ? '#1e293b' : '#334155'}`, 
+                                background: cur === idx + 1 ? '#4c1d9533' : step.active ? '#111827' : 'transparent',
+                                color: cur === idx + 1 ? '#ddd6fe' : step.active ? '#cbd5e1' : '#475569',
+                                fontSize: 10.5,
+                                fontFamily: 'JetBrains Mono, monospace',
+                                transition: 'all 0.3s'
+                            }}>
+                                {cur === idx + 1 ? '➜ ' : step.active ? '✓ ' : '  '}{step.label}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{ padding: '8px 10px', borderTop: '1px solid #334155', background: '#1e293b', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                            onClick={() => canStart && runSteps([['beginA', 150], ['readA1', 750], ['updateB', 900], ['readA2', 900], ['commitB', 750], ['readA3', 900], ['done', 500]])}
+                            disabled={!canStart}
+                            style={{ border: 0, borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, color: '#fff', background: canStart ? '#7c3aed' : '#475569', cursor: canStart ? 'pointer' : 'not-allowed' }}
+                        >
+                            {s === 'idle' ? '▶ Start TX Demo' : s === 'done' ? (isTr ? '▶ tekrar' : '▶ again') : '⏳'}
+                        </button>
+                    </div>
+                    {s !== 'idle' && <button onClick={resetSim} style={{ width: '100%', border: 0, borderTop: '1px solid #334155', background: '#0f172a', color: '#94a3b8', padding: 6, fontSize: 10, cursor: 'pointer' }}>🔄 reset</button>}
+                </div>
+            </div>
+        )
+    }
+
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
         if (block.scenario === 'supabase-project-ui') {
@@ -13879,6 +14712,262 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
             )
         }
 
+        if (block.scenario === 'python-compile-run') {
+            const s = simState
+            const order = ['idle', 'source', 'compile', 'bytecode', 'pvm', 'output']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            
+            return (
+                <div className="space-y-4">
+                    <div style={{ fontSize: 11, color: subtext, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📦 {isTr ? 'Python Çalışma Zamanı Modeli' : 'Python Runtime Model'}
+                    </div>
+                    <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                        <span className="font-bold text-sky-400">Python:</span> {isTr ? 'Derleme adımı gizlidir. `python main.py` yazdığında Python kodu önce bellekte bytecode\'a derler, ardından PVM (Python Virtual Machine) bunu yorumlar.' : 'Compilation is implicit. When you run `python main.py`, Python compiles it to bytecode in memory first, then the PVM interprets it.'}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className={`p-2.5 rounded-lg border ${cur >= 3 ? (darkMode ? 'border-sky-800 bg-sky-950/20 text-sky-200' : 'border-sky-300 bg-sky-50 text-sky-800') : (darkMode ? 'border-gray-800 bg-gray-950 text-gray-500' : 'border-gray-200 bg-gray-50 text-gray-400')}`}>
+                            <div className="font-bold mb-1">🐍 Python (Runtime Compilation)</div>
+                            <div>main.py ➔ main.pyc (in RAM) ➔ PVM</div>
+                            <div className="text-[10px] mt-1 text-gray-400">{isTr ? 'Hızlı ve pratik geliştirme' : 'Fast and interactive development'}</div>
+                        </div>
+                        <div className={`p-2.5 rounded-lg border ${cur >= 2 ? (darkMode ? 'border-violet-800 bg-violet-950/20 text-violet-200' : 'border-violet-300 bg-violet-50 text-violet-800') : (darkMode ? 'border-gray-800 bg-gray-950 text-gray-500' : 'border-gray-200 bg-gray-50 text-gray-400')}`}>
+                            <div className="font-bold mb-1">☕ Java (Ayrı Derleme Adımı)</div>
+                            <div>Main.java ➔ javac ➔ Main.class ➔ JVM</div>
+                            <div className="text-[10px] mt-1 text-gray-400">{isTr ? 'Derleme hatası erken yakalanır' : 'Catches errors at compile-time'}</div>
+                        </div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'border-yellow-800 bg-yellow-950/20 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        💡 <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr 
+                            ? 'Python\'daki bytecode (.pyc) ve PVM, Java\'daki bytecode (.class) ve JVM ile birebir aynı işi yapar. Aradaki fark, Python\'ın bu adımı kullanıcıya hissettirmeden otomatik yapmasıdır.' 
+                            : 'Python\'s bytecode (.pyc) and PVM do the exact same job as Java\'s bytecode (.class) and JVM. The difference is Python does this automatically under the hood.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'pytest-interactive-run') {
+            const s = simState
+            const order = ['idle', 'collecting', 'test1', 'test2', 'test2-retry', 'test3', 'report', 'done']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+            
+            return (
+                <div className="space-y-3">
+                    <div style={{ fontSize: 11, color: subtext, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'pytest Yaşam Döngüsü & Rapor' : 'pytest Lifecycle & Report'}
+                    </div>
+
+                    <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                        {isTr 
+                            ? 'pytest testleri bulur (Test Discovery), sıralar, fixture\'ları enjekte eder, her test için setup/teardown yapar ve finalde rapor üretir.' 
+                            : 'pytest discovers tests, orders them, injects fixtures, runs setup/teardown for each test, and produces reports.'}
+                    </div>
+
+                    {cur >= 6 ? (
+                        <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'border-green-800 bg-green-950/20' : 'border-green-200 bg-green-50'} transition-all`}>
+                            <div className="font-bold text-green-400 mb-1">📋 report.html (pytest-html)</div>
+                            <div className="space-y-1 mt-2 text-[10.5px]">
+                                <div className="flex justify-between border-b border-gray-700 pb-1">
+                                    <span>test_login_valid_credentials</span>
+                                    <span className="text-green-500 font-bold">PASSED</span>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-700 pb-1">
+                                    <span>test_login_flaky_network</span>
+                                    <span className="text-green-500 font-bold">PASSED (rerun)</span>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-700 pb-1">
+                                    <span>test_invalid_password_error</span>
+                                    <span className="text-red-500 font-bold">FAILED</span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="p-8 border border-dashed border-gray-700 rounded-lg text-center text-xs text-gray-500">
+                            {s === 'idle' ? (isTr ? 'Testi başlatınca rapor burada görünecek' : 'Report will appear here once tests run') : (isTr ? 'Testler çalıştırılıyor...' : 'Executing tests...')}
+                        </div>
+                    )}
+
+                    <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'border-yellow-800 bg-yellow-950/20 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        ☕ <b>{isTr ? 'Java Analojisi:' : 'Java Analogy:'}</b> {isTr 
+                            ? 'pytest runner, JUnit veya TestNG ile eşdeğerdir. Raporlama için JUnit XML raporları üretip Allure Report gibi araçlarla görselleştirebilirsin.' 
+                            : 'The pytest runner is equivalent to JUnit or TestNG. For reporting, you can generate JUnit XML reports and visualize them with tools like Allure Report.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'sql-select-flow') {
+            const s = simState
+            const order = ['idle', 'from', 'where', 'group', 'having', 'select', 'orderby', 'limit', 'done']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+
+            const rawData = [
+                { id: 1, name: 'Login Test', status: 'FAIL', duration: 1200, env: 'staging' },
+                { id: 2, name: 'Checkout Test', status: 'FAIL', duration: 5400, env: 'staging' },
+                { id: 3, name: 'Search Test', status: 'PASS', duration: 400, env: 'prod' },
+                { id: 4, name: 'Payment Test', status: 'FAIL', duration: 3100, env: 'prod' },
+                { id: 5, name: 'Cart Test', status: 'PASS', duration: 800, env: 'staging' },
+            ]
+
+            const showWhere = cur >= 2
+            const showSelect = cur >= 5
+            const showOrderBy = cur >= 6
+            const showLimit = cur >= 7
+
+            return (
+                <div className="space-y-4">
+                    <div style={{ fontSize: 11, color: subtext, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Veri Akışı & Satır Seçimi' : 'Data Flow & Row Selection'}
+                    </div>
+
+                    {!showSelect ? (
+                        <div className="overflow-x-auto border border-gray-700 rounded-lg">
+                            <table className="w-full text-[11px] text-left border-collapse">
+                                <thead>
+                                    <tr className={darkMode ? 'bg-gray-900 text-gray-400 border-b border-gray-700' : 'bg-gray-100 text-gray-600 border-b border-gray-200'}>
+                                        <th className="p-2">id</th>
+                                        <th className="p-2">test_name</th>
+                                        <th className="p-2">status</th>
+                                        <th className="p-2">duration</th>
+                                        <th className="p-2">env</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {rawData.map(row => {
+                                        let isDimmed = false
+                                        let isHighlighted = false
+                                        if (showWhere && row.status !== 'FAIL') {
+                                            isDimmed = true
+                                        }
+                                        if (showWhere && row.status === 'FAIL') {
+                                            isHighlighted = true
+                                        }
+                                        return (
+                                            <tr key={row.id} style={{ 
+                                                opacity: isDimmed ? 0.25 : 1,
+                                                background: isHighlighted ? '#451a03' : 'transparent',
+                                                borderBottom: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`,
+                                                transition: 'all 0.3s'
+                                            }}>
+                                                <td className="p-2">{row.id}</td>
+                                                <td className="p-2 font-semibold">{row.name}</td>
+                                                <td className="p-2" style={{ color: row.status === 'FAIL' ? '#f87171' : '#4ade80' }}>{row.status}</td>
+                                                <td className="p-2">{row.duration}ms</td>
+                                                <td className="p-2">{row.env}</td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto border border-gray-700 rounded-lg transition-all">
+                            <table className="w-full text-[11px] text-left border-collapse">
+                                <thead>
+                                    <tr className={darkMode ? 'bg-gray-900 text-gray-400 border-b border-gray-700' : 'bg-gray-100 text-gray-600 border-b border-gray-200'}>
+                                        <th className="p-2">env</th>
+                                        <th className="p-2">count(*)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[
+                                        { env: 'staging', count: 2 },
+                                        { env: 'prod', count: 1 }
+                                    ]
+                                    .filter((g) => g.count >= 1)
+                                    .sort((a, b) => {
+                                        if (!showOrderBy) return 0
+                                        return b.count - a.count
+                                    })
+                                    .slice(0, showLimit ? 1 : 2)
+                                    .map((group, idx) => (
+                                        <tr key={idx} style={{ 
+                                            background: '#052e16',
+                                            borderBottom: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`,
+                                            transition: 'all 0.3s'
+                                        }}>
+                                            <td className="p-2 font-semibold">{group.env}</td>
+                                            <td className="p-2 font-bold text-green-400">{group.count}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'border-yellow-800 bg-yellow-950/20 text-yellow-200' : 'border-yellow-200 bg-yellow-50 text-yellow-800'}`}>
+                        💡 <b>{isTr ? 'Unutma:' : 'Remember:'}</b> {isTr 
+                            ? 'WHERE adımı SELECT\'ten önce çalıştığı için SELECT\'te verdiğin takma isimleri (AS alias) WHERE içinde kullanamazsın.' 
+                            : 'Because the WHERE clause executes before the SELECT clause, you cannot use SELECT aliases inside the WHERE clause.'}
+                    </div>
+                </div>
+            )
+        }
+
+        if (block.scenario === 'sql-transaction-isolation') {
+            const s = simState
+            const order = ['idle', 'beginA', 'readA1', 'updateB', 'readA2', 'commitB', 'readA3', 'done']
+            const cur = order.indexOf(s)
+            const subtext = darkMode ? '#9ca3af' : '#6b7280'
+
+            const showLock = cur >= 3 && cur < 5
+            const showUpdatedDb = cur >= 5
+
+            return (
+                <div className="space-y-4">
+                    <div style={{ fontSize: 11, color: subtext, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        📊 {isTr ? 'Veritabanı Durumu & Kilitler' : 'Database State & Locks'}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className={`p-3 rounded-lg border ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                            <div className="font-bold mb-1">🏦 accounts Table</div>
+                            <div className="flex justify-between mt-2 font-mono text-[10.5px]">
+                                <span>id: 1</span>
+                                <span className={showUpdatedDb ? 'text-green-400 font-bold' : ''}>
+                                    {showUpdatedDb ? '$800' : '$1000'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className={`p-3 rounded-lg border ${showLock ? 'border-red-500 bg-red-950/10 text-red-200' : (darkMode ? 'border-gray-800 bg-gray-950 text-gray-500' : 'border-gray-200 bg-gray-50 text-gray-400')}`}>
+                            <div className="font-bold mb-1">🔒 Lock Manager</div>
+                            <div className="mt-2 text-[10.5px]">
+                                {showLock ? (isTr ? '🔴 Exclusive Lock (X) ON id=1' : '🔴 Exclusive Lock (X) ON id=1') : (isTr ? '🟢 Kilit yok' : '🟢 No locks active')}
+                            </div>
+                        </div>
+                    </div>
+
+                    {cur >= 4 && (
+                        <div className={`p-3 rounded-lg border text-xs ${darkMode ? 'border-violet-800 bg-violet-950/20 text-violet-200' : 'border-violet-300 bg-violet-50 text-violet-800'}`}>
+                            <strong>{isTr ? 'İzolasyon Analizi:' : 'Isolation Analysis:'}</strong>
+                            {cur === 4 && (
+                                <p className="mt-1">
+                                    {isTr 
+                                        ? 'User B güncellemeyi henüz COMMIT etmedi. Bu yüzden her iki izolasyon seviyesinde de User A eski değeri ($1000) okur. Kirli okuma (Dirty Read) engellenir.' 
+                                        : 'User B has not COMMITTED yet. Therefore, under both isolation levels, User A reads the old value ($1000). Dirty Read is prevented.'}
+                                </p>
+                            )}
+                            {cur >= 5 && (
+                                <p className="mt-1">
+                                    {sqlTxIsolation === 'read-committed' 
+                                        ? (isTr 
+                                            ? 'Read Committed seviyesinde User B commit edince User A güncel değeri ($800) görür. Bu, aynı sorgunun aynı işlemde farklı sonuç vermesidir (Non-Repeatable Read).' 
+                                            : 'Under Read Committed, once User B commits, User A sees the updated value ($800). This means the same query returns different results in the same transaction (Non-Repeatable Read).')
+                                        : (isTr 
+                                            ? 'Repeatable Read seviyesinde, User B commit etse bile User A kendi snapshot\'ından okuduğu için hâlâ $1000 görür. Tutarlılık korunur!' 
+                                            : 'Under Repeatable Read, even after User B commits, User A still reads $1000 from their transaction snapshot. Consistency is preserved!')}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )
+        }
+
         return null
     }
 
@@ -14001,6 +15090,10 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                     {block.scenario === 'google-oauth-ui' && renderGoogleOauthUiPlayground()}
                     {block.scenario === 'backend-progress-flow' && renderBackendProgressFlowPlayground()}
                     {block.scenario === 'supabase-realtime-chat' && renderSupabaseRealtimeChatPlayground()}
+                    {block.scenario === 'python-compile-run' && renderPythonCompileRunPlayground()}
+                    {block.scenario === 'pytest-interactive-run' && renderPytestInteractiveRunPlayground()}
+                    {block.scenario === 'sql-select-flow' && renderSqlSelectFlowPlayground()}
+                    {block.scenario === 'sql-transaction-isolation' && renderSqlTransactionIsolationPlayground()}
                 </div>
 
                 {/* Right: DOM Visualizer */}

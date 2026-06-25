@@ -7,10 +7,10 @@ test('Python Foundations tab loads without crash', async ({ page }) => {
     await page.goto('/automationexercise/#/python');
     await page.waitForSelector('text=Python', { timeout: 10000 });
 
-    // Click Foundations tab
-    const foundationsTab = page.locator('button', { hasText: 'Foundations' });
-    if (await foundationsTab.count() > 0) {
-        await foundationsTab.first().click();
+    // Click Syntax & Comments tab
+    const syntaxTab = page.locator('button', { hasText: 'Syntax & Comments' });
+    if (await syntaxTab.count() > 0) {
+        await syntaxTab.first().click();
         await page.waitForTimeout(1000);
     }
 

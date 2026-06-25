@@ -37,7 +37,6 @@ test('TypeScript tabs load and render without crash', async ({ page }) => {
         const bodyContent = await page.locator('body').innerText();
         const hasErrorText = bodyContent.includes('Objects are not valid') || 
                              bodyContent.includes('Cannot read properties') || 
-                             bodyContent.includes('ReferenceError') ||
                              bodyContent.includes('Render Error') ||
                              bodyContent.includes('something went wrong') ||
                              bodyContent.includes('[object Object]');

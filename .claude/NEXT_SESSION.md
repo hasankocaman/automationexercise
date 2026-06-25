@@ -9,6 +9,117 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfası Tam Audit + TopicPage TR Yorum Çevirisi Genişletme
+
+### 1. sqlData.js — Sözdizimi hatası düzeltme (kritik)
+Q50 mülakat sorusunun code block string'lerinde raw newline (`\n`) karakterleri vardı — JavaScript string literal'de geçersiz. **2 ayrı yerde** (TR section satır ~8432 ve ~14019) PowerShell ile `\n` escape'e dönüştürüldü.
+
+### 2. sqlData.js — 26 seksiyon simple-box (CLAUDE.md §9)
+`finalEnSections` ve `finalTrSections`'daki 13'er seksiyonun ilk bloğuna `simple-box` eklendi:
+INSERT INTO, SELECT & Sort, UPDATE & DELETE, NULL Values, SQL Query Order, GROUP BY & HAVING, SQL JOINs, Subqueries, LIKE/BETWEEN/IN, CTEs, Transactions, Indexes & Views, SQL Injection.
+
+### 3. sqlData.js — 50. Mülakat Sorusu (N+1 query problemi)
+N+1 sorgu problemini açıklayan, EN ve TR, kod örneği ve Java analogisi içeren 50. soru eklendi. Error-dictionary: her iki dilde 8 girişi doğrulandı (lock timeout, column count, ambiguous column + 5 diğer).
+
+### 4. TopicPage.jsx — SQL yorum çevirisi (kapsamlı genişleme)
+`englishToTurkishCodeComments` dizisi **528 çeviri çiftine** yükseltildi:
+
+**Kritik düzeltme:**
+- `[/Create/gi, 'Oluşturma']` → `[/^Create$/gi, 'Oluşturma']` — SQL keyword'leri olan `CREATE TABLE`, `open or create database` gibi ifadeleri bozuyordu.
+
+**Eklenen SQL yorum kategorileri (~130 yeni çeviri):**
+| Kategori | Örnek çeviri |
+|---|---|
+| SQLite CLI | `open or create database` → `veritabanını aç veya oluştur` |
+| Veri tipleri | `INT / BIGINT → whole numbers` → Türkçe |
+| INSERT | `Single row insert:` → `Tek satır INSERT:` |
+| NULL | `NULL means "no value"...` → Türkçe |
+| Aggregate | `Count tests by status:` → `Testleri duruma göre say:` |
+| JOIN | `INNER/LEFT/RIGHT/CROSS JOIN` açıklamaları |
+| Subquery | `Simple/Correlated subquery` |
+| Window fn. | `RANK/DENSE_RANK/ROW_NUMBER` |
+| CTE | `Recursive CTE...` |
+| Transaction | `ACID/SAVEPOINT/Deadlock` |
+| EXPLAIN | `type=ALL/ref, key: NULL` |
+| View | `A VIEW is a saved SQL query...` |
+| UNION | `removes duplicates/keeps duplicates` |
+| SQL Injection | `VULNERABLE/SAFE (Parameterized query)` |
+| QA sorgular | `Find failed tests from last 7 days` |
+| Python/DB | `Python sqlite3 bağlantısı:` |
+
+### 5. CLAUDE.md güncelleme
+§8'e TR kod yorum kuralı eklendi: `--` SQL yorum stili dahil edildi, yerleşik terim örnekleri (`SELECT`, `INSERT`, `NULL`, `JOIN` vb.) netleştirildi. §9.1 ve §11'e quiz sıralaması ve TR yorum kuralı prohibit'leri eklendi.
+
+**Build:** `npm run build` ✅ — 26.94s, 36 static route, SEO check passed.
+
+---
+
+## ⚠️ GÜNCEL GIT DURUMU (2026-06-25 itibarıyla)
+
+**Son commit:** `c754c12` feat(security): hide /security nav & footer links from non-admin users
+
+**Bu oturumda commit edilen değişiklikler:**
+
+| Dosya | Değişiklik |
+|---|---|
+| `src/data/sqlData.js` | Q50 string escape fix, 26 simple-box, Q50 soru, error-dict doğrulama |
+| `src/components/TopicPage.jsx` | `[/Create/gi]` fix, 130+ SQL yorum çevirisi (528 toplam) |
+| `CLAUDE.md` | §8/§9.1/§11 TR yorum kuralları |
+| `src/data/pythonData.js` | Python interview 50 soru, simülasyonlar (önceki oturumdan) |
+| `tests/sql-page.spec.ts` | SQL sayfası Playwright test (yeni) |
+| `tests/*.spec.ts` | Test güncellemeleri |
+
+---
+
+## ✅ TAMAMLANDI (2026-06-24) — Kod Bloklarındaki Yorum Satırlarının Türkçe Sayfada Çevrilmesi
+
+Sayfa dili Türkçe olduğunda, kod blokları ve editörler içindeki yorum satırlarının da Türkçe olarak görüntülenmesi sağlandı:
+- **`src/components/TopicPage.jsx`** üzerinde `englishToTurkishCodeComments` adında geniş bir düzenli ifade (regex) eşleştirme dizisi tanımlandı.
+- `localizeCodeComments` ve `translateCodeComment` fonksiyonları güncellenerek, sayfa dili `tr` olduğunda kod satırlarındaki İngilizce yorumlar otomatik olarak Türkçe karşılıklarıyla eşleştirilip çalışma zamanında dinamik olarak çevrilmesi sağlandı.
+- `JavaCompareBlock` bileşeni güncellenerek, karşılaştırma kartlarındaki Java ve Python/TypeScript/SQL kodlarının da bu dinamik yorum çevirisi mekanizmasından (`getLocalizedCode`) geçmesi sağlandı.
+- Tüm Playwright testleri ve proje build'i başarıyla tamamlandı, sıfır hata ve sıfır çökme doğrulanmıştır.
+
+## ✅ TAMAMLANDI (2026-06-24) — Python Mülakat Soruları Artırımı (Section 10 & Kural 6)
+
+Python sayfasındaki mülakat sorularının sayısı CLAUDE.md Kural 6 uyarınca minimum 50 olacak şekilde (15 Basic + 20 Intermediate + 15 Advanced) genişletildi:
+- **Python sayfasının mülakat tabı** (`💼 Python Interview Questions & Answers` / `sections[6]`) 50 adet detaylı, Türkçe ve İngilizce açıklamalı (bilingual) senaryo tabanlı soru ve kod örnekleriyle güncellendi.
+- Sorular Java ve Python karşılaştırmaları, otomasyon senaryoları, bellek yönetimi (del vs Garbage Collector), tipler, asenkron yapılar ve tasarım kalıpları (thread-safe Singleton, metaclass, MRO vb.) içermektedir.
+- `trSections[6]` çeviri override listesi boşaltılarak, soruların bilingual olarak doğrudan ana veri listesinde tanımlanması sayesinde dil uyumsuzluğu ve index-drift riski önlendi.
+- E2E Playwright testlerindeki `ReferenceError` kelime eşleşmesi uyarısı, bu hata türü eğitim içeriklerinde (Hata Sözlüğü) meşru olarak yer aldığı için düzeltildi; tüm test suite'i başarıyla geçti.
+
+## ✅ TAMAMLANDI (2026-06-24) — Python & SQL İnteraktif Simülasyonlar ve Python Sayfa Yapısı/Feynman Revizyonu
+
+Python ve SQL modüllerindeki simülasyon (Gör-Anla-Dene) ve yapısal eksiklikleri (Sekme yapısı, zorunlu sekmeler, Feynman checkpoint'leri) kapatmak üzere aşağıdaki çalışmalar tamamlandı:
+
+### 1. Yeni İnteraktif Simülasyonlar:
+| Sayfa | Simülasyon ID | Açıklama |
+|---|---|---|
+| **Python** | `python-compile-run` | Python kodunun derlenme (implicit compiler) ve PVM (Python Virtual Machine) tarafından yorumlanma aşamaları ile Java derleme modeli (JVM) karşılaştırması |
+| **Python** | `pytest-interactive-run` | pytest test keşfi (discovery), flaky test retry mekanizması ve final `report.html` rapor üretim süreci |
+| **SQL** | `sql-select-flow` | SQL sorgularının mantıksal çalışma sırası (FROM -> WHERE -> GROUP BY -> SELECT -> ORDER BY -> LIMIT) ve satır filtreleme/izdüşüm animasyonları |
+| **SQL** | `sql-transaction-isolation` | Eşzamanlı işlemlerde veri kilitleri (Exclusive Lock) ve izolasyon seviyelerine göre (Read Committed vs Repeatable Read) tutarlılık analizi |
+
+### 2. Python Sekme Yapısı & W3Schools Uyumlaştırması (Section 16):
+- Geniş "Temeller", "Orta Seviye" ve "İleri Seviye" sekmeleri **14 adet atomik sekme** halinde dilimlendi.
+- Statik string başlıklar için dinamik bir `translationMap` yazılarak başlıkların dile göre otomatik çevrilmesi sağlandı.
+
+### 3. Zorunlu Temel Sekmeler (Section 9):
+- **`🔗 Ekosistem`**: Java Maven vs Python pytest stack karşılaştırma tablosu ve SVG-tabanlı pipeline akış şeması içeren yeni bir sekme oluşturuldu.
+- **`🚨 Yaygın Hatalar`**: Selenium ve pytest'e özel `error-dictionary` bloklarını içeren yeni bir sekme eklendi.
+- **`🛠️ Gerçek Hayat (pytest)`**: Eski pytest tabı yeniden adlandırıldı ve gerçek senaryolar altında yapılandırıldı.
+
+### 4. Feynman Checkpoint'leri (Section 19):
+- 20 adet yeni bilingual Feynman checkpoint'i (prompt, keyword ve model cevaplar) yazılarak, Python sayfasındaki tüm **21 içerik sekmesinin en sonuna** yerleştirildi.
+
+### Yapılan Değişiklikler ve Doğrulama:
+- **`src/components/TopicPage.jsx`:** Yeni simülasyon arayüzleri ve DOM görselleştiricileri eklendi.
+- **`src/data/pythonData.js`:** Dilimleme, Feynman checkpoint'leri, Ekosistem tabı ve çeviri haritası eklendi.
+- **`src/data/sqlData.js`:** SQL simülasyon blokları eklendi ve Türkçe translation override index kaymaları düzeltildi.
+- **`tests/python-page.spec.ts`:** E2E test locator'ı 'Foundations' yerine 'Syntax & Comments' tabını hedefleyecek şekilde güncellendi.
+- **Doğrulama:** `npm run build` ile 2155 modülün derlendiği, 36 statik HTML shell dosyasının üretildiği ve Playwright E2E testlerinin (`npx playwright test`) **başarıyla geçtiği** doğrulandı.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-24) — HomePage nav ve footer'da /security linki admin-only yapıldı
 
 `src/components/HomePage.jsx` — 2 satır değişiklik:
