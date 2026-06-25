@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('SQL tabs load and render without crash', async ({ page }) => {
-    // Set test timeout to 90s to accommodate dev server compilation and 24 tabs navigation
+    // Set test timeout to 90s to accommodate dev server compilation and 25 tabs navigation
     test.setTimeout(90000);
 
     const errors: string[] = [];
@@ -23,7 +23,7 @@ test('SQL tabs load and render without crash', async ({ page }) => {
     const tabButtons = page.locator('div[class*="w-52"] button');
     const count = await tabButtons.count();
     console.log(`Found ${count} SQL tabs`);
-    expect(count).toBe(24); // Verify we have exactly 24 tabs now
+    expect(count).toBe(25); // 24 original + 1 DBeaver tab
 
     for (let i = 0; i < count; i++) {
         const tabButton = tabButtons.nth(i);
