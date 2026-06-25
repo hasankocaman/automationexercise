@@ -2935,8 +2935,8 @@ const enTabs = [
   "🚨 Troubleshooting",
   "☕ Java → SQL",
   "📝 Practice & Reference",
-  "💼 Interview Q&A",
-  "🛠️ DBeaver"
+  "🛠️ DBeaver",
+  "💼 Interview Q&A"
 ];
 const trTabs = [
   "🎯 Giriş",
@@ -2962,8 +2962,8 @@ const trTabs = [
   "🚨 Yaygın Hatalar",
   "☕ Java → SQL",
   "📝 Pratik & Referans",
-  "💼 Mülakat",
-  "🛠️ DBeaver"
+  "🛠️ DBeaver",
+  "💼 Mülakat"
 ];
 
 const finalEnSections = [
@@ -7650,6 +7650,364 @@ const finalEnSections = [
     ]
   },
   {
+    "title": "🛠️ DBeaver — Visual Database Manager",
+    "blocks": [
+      {
+        "type": "simple-box",
+        "emoji": "🛠️",
+        "content": {
+          "tr": "DBeaver, veritabanına bağlanmak için görsel bir kontrol paneli — Excel açar gibi açar, tablolara tıklar, SQL yazar çalıştırırsın. Terminal komutlarına gerek yok. Next.js projenin arkasındaki PostgreSQL'i DBeaver'da görmek, dosya yöneticisinde klasör açmak kadar kolay.",
+          "en": "DBeaver is like a visual control panel for your database — open it like Excel, click on tables, write and run SQL instantly. No terminal commands needed. Seeing the PostgreSQL database behind your Next.js project in DBeaver is as easy as opening a folder in a file manager."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "DBeaver Nedir? / What is DBeaver?"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "DBeaver, MySQL, PostgreSQL, SQLite, Oracle ve SQL Server dahil **80+ veritabanını** destekleyen **tamamen ücretsiz açık kaynaklı** bir veritabanı yönetim aracıdır. Java'daki ücretli DataGrip veya MySQL Workbench'in ücretsiz alternatifi olarak düşün. Java'da JDBC ile komut satırından sorgu çalıştırmak yerine, DBeaver ile aynı işi görsel arayüzde yaparsın: tablo yapılarına tıkla, FK ilişkilerini gör, sorgu sonuçlarını spreadsheet'te incele.",
+          "en": "DBeaver is a **100% free, open-source** database management tool supporting **80+ databases** including MySQL, PostgreSQL, SQLite, Oracle, and SQL Server. Think of it as the free alternative to the paid DataGrip or MySQL Workbench. In Java you ran queries from the command line via JDBC — DBeaver does the same visually: click table structures, see FK relationships, view results in a spreadsheet."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 3,
+        "items": [
+          {
+            "icon": "🆓",
+            "label": "Tamamen Ücretsiz",
+            "desc": "Community Edition %100 ücretsiz ve açık kaynak. Lisans ücreti yok, abonelik yok."
+          },
+          {
+            "icon": "🗄️",
+            "label": "80+ Veritabanı",
+            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis ve daha fazlası."
+          },
+          {
+            "icon": "🎨",
+            "label": "Görsel Schema Editörü",
+            "desc": "Tablolara tıkla-gez, ER diyagramları, görsel foreign key tarayıcı."
+          },
+          {
+            "icon": "⚡",
+            "label": "SQL Editör + Autocomplete",
+            "desc": "Syntax highlight, otomatik tamamlama, sorgu geçmişi ve explain plan."
+          },
+          {
+            "icon": "📊",
+            "label": "Veri Dışa Aktarma",
+            "desc": "CSV, Excel, JSON, SQL formatlarında dışa aktar. Dosyadan içe aktar."
+          },
+          {
+            "icon": "🔐",
+            "label": "SSH Tüneli",
+            "desc": "SSH tüneli ile uzak production veritabanlarına güvenli, şifreli bağlantı."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Kurulum / Installation"
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "1️⃣",
+            "label": "İndir",
+            "desc": "dbeaver.io → Community Edition → İşletim sisteminize uygun paketi seç"
+          },
+          {
+            "icon": "2️⃣",
+            "label": "Kur",
+            "desc": "Windows: .exe çalıştır · macOS: .dmg sürükle · Linux: .deb veya snap"
+          },
+          {
+            "icon": "3️⃣",
+            "label": "Aç",
+            "desc": "İlk açılışta yerleşik Java (JRE) indirir — internet bağlantısı gerekli"
+          },
+          {
+            "icon": "4️⃣",
+            "label": "Doğrula",
+            "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
+      },
+      {
+        "type": "callout",
+        "color": "blue",
+        "emoji": "💡",
+        "title": {
+          "tr": "İlk Bağlantı İpucu",
+          "en": "First Connection Tip"
+        },
+        "content": {
+          "tr": "DBeaver açılınca 'Yeni Bağlantı Sihirbazı' görünür. **SQLite** için mevcut bir `.db` dosyasına işaret etmen yeterli — sunucu gerekmez. **PostgreSQL/MySQL** için önce sunucunun çalıştığından emin ol: `pg_isready` veya `mysqladmin ping` bunu doğrular.",
+          "en": "DBeaver shows 'New Connection Wizard' on first launch. For **SQLite** just point to an existing `.db` file — no server needed. For **PostgreSQL/MySQL** confirm the server is running first: `pg_isready` or `mysqladmin ping` will verify this."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "Sıfırdan Veritabanı + Schema Oluşturma / Create DB & Schema"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "DBeaver'da sıfırdan bir veritabanı oluşturmak **4 adımda** tamamlanır. Java'da Hibernate ile database schema'sını başlatmak gibi — ama terminal veya XML konfigürasyonu olmadan.",
+          "en": "Creating a database from scratch in DBeaver takes **4 steps**. This is the equivalent of bootstrapping a database schema with Hibernate in Java — but without terminal commands or XML configuration files."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "🔌",
+            "label": "1. Bağlantı Kur",
+            "desc": "Database Navigator (sol) → + simgesi → Veritabanı türünü seç → Host/Port/User/Password doldur"
+          },
+          {
+            "icon": "🗃️",
+            "label": "2. Database Oluştur",
+            "desc": "Bağlantıya sağ tık → Create → Database → İsim ver (örn: myapp_db)"
+          },
+          {
+            "icon": "📋",
+            "label": "3. SQL Schema Yaz",
+            "desc": "SQL Editor aç (F3) → CREATE TABLE sorgularını yaz → Ctrl+Enter ile çalıştır"
+          },
+          {
+            "icon": "✅",
+            "label": "4. Doğrula",
+            "desc": "Navigator'da tabloya çift tık → Data sekmesi → satırları grid'de gör"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "sql",
+        "code": "-- DBeaver SQL Editor'de çalıştır (F3 ile aç, Ctrl+Enter ile çalıştır)\n\n-- 1. Database oluştur (PostgreSQL için)\nCREATE DATABASE myapp_db;\n\n-- 2. Schema oluştur (Java'daki package gibi — namespace sağlar)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Kullanıcı tablosu\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- otomatik artan birincil anahtar\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- benzersiz ve zorunlu\n  name       VARCHAR(100) NOT NULL,               -- zorunlu alan\n  role       VARCHAR(20)  DEFAULT 'user',         -- varsayılan değer\n  created_at TIMESTAMP    DEFAULT NOW()           -- kayıt zamanı otomatik atanır\n);\n\n-- 4. Post tablosu (users ile foreign key ilişkisi)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users tablosu\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Test verisi ekle\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'İlk içerik', 1, true),\n  ('Taslak Yazı', NULL,         2, false);\n\n-- 6. JOIN ile ilişkili veriyi doğrula\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
+      },
+      {
+        "type": "callout",
+        "color": "green",
+        "emoji": "🎨",
+        "title": {
+          "tr": "DBeaver ER Diyagramı",
+          "en": "DBeaver ER Diagram"
+        },
+        "content": {
+          "tr": "Tabloları oluşturduktan sonra: **Database Navigator'da veritabanına sağ tık → ER Diagram**. DBeaver, `users` ve `posts` arasındaki FK ilişkisini otomatik olarak görsel bir diyagram olarak render eder. Büyük projelerde tüm schema'yı anlamak için bu özelliği kullan.",
+          "en": "After creating your tables: **right-click the database in Database Navigator → ER Diagram**. DBeaver automatically renders the FK relationship between `users` and `posts` as a visual diagram. Use this to understand the complete schema in large projects."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "Next.js + PostgreSQL Entegrasyonu / Integration"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "Next.js uygulamanı veritabanına bağlamak için iki modern yaklaşım var: **1) pg (Direct Driver)** — ham SQL, tam kontrol, Java'da JDBC'ye karşılık gelir. **2) Prisma ORM** — type-safe, otomatik migration, Java'da Hibernate/JPA'ya karşılık gelir. İkisi de DBeaver'da oluşturduğun aynı veritabanına bağlanır.",
+          "en": "There are two modern approaches to connect Next.js to the database: **1) pg (Direct Driver)** — raw SQL, full control, the equivalent of JDBC in Java. **2) Prisma ORM** — type-safe, auto-migrations, the equivalent of Hibernate/JPA in Java. Both connect to the same database you created in DBeaver."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "🌐",
+            "label": "Browser / Client",
+            "desc": "fetch('/api/users') → HTTP isteği gönderir"
+          },
+          {
+            "icon": "⚡",
+            "label": "Next.js API Route",
+            "desc": "/app/api/users/route.ts → isteği işler"
+          },
+          {
+            "icon": "🔗",
+            "label": "Driver / ORM",
+            "desc": "pg (ham SQL) veya Prisma (ORM) — DB ile konuşur"
+          },
+          {
+            "icon": "🗄️",
+            "label": "PostgreSQL",
+            "desc": "DBeaver ile yönetilen veritabanı"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Yaklaşım 1: pg paketi (ham SQL) — Java'daki JDBC gibi, tam kontrol\n// Kurulum: npm install pg @types/pg\n\n// lib/db.ts — tek connection pool (bağlantı havuzu) oluştur\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // .env.local'da tanımla\n  max: 10,                                    // maksimum eşzamanlı bağlantı\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parametreli sorgu — SQL injection'a karşı güvenli\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Yaklaşım 2: Prisma ORM — Java'daki Hibernate/JPA gibi, type-safe\n// Kurulum: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — şema TypeScript benzeri DSL ile yazılır\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // ilişki — User'ın Post listesi var\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK sütunu\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — Prisma ile\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // yayınlanmış post'ları dahil et\n  });\n  return NextResponse.json(users);\n}\n\n// Migration çalıştır (DBeaver'daki CREATE TABLE'a karşılık gelir)\n// npx prisma migrate dev --name init"
+      },
+      {
+        "type": "table",
+        "headers": [
+          "Özellik / Feature",
+          "pg (Raw SQL)",
+          "Prisma ORM"
+        ],
+        "rows": [
+          [
+            "Öğrenme eğrisi",
+            "SQL biliyorsan sıfır",
+            "Prisma DSL öğren (~1 gün)"
+          ],
+          [
+            "Type safety",
+            "Manuel cast gerekir",
+            "✅ Otomatik TypeScript tipleri"
+          ],
+          [
+            "Migration yönetimi",
+            "Elle SQL dosyası yaz",
+            "✅ npx prisma migrate dev"
+          ],
+          [
+            "Sorgu performansı",
+            "Tam kontrol, optimize et",
+            "Karmaşık JOIN'lerde dikkatli ol"
+          ],
+          [
+            "DBeaver uyumu",
+            "✅ Aynı DB'ye bağlanır",
+            "✅ Prisma Studio da var"
+          ],
+          [
+            "Java karşılığı",
+            "JDBC",
+            "Hibernate / JPA"
+          ],
+          [
+            "Ne zaman seç",
+            "Karmaşık SQL, tam kontrol",
+            "Hızlı başlangıç, type-safe API"
+          ]
+        ]
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
+      },
+      {
+        "type": "quiz",
+        "question": {
+          "tr": "DBeaver'da bir tablonun içindeki verileri nasıl görürsün?",
+          "en": "How do you view the data inside a table in DBeaver?"
+        },
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "tr": "Tabloya çift tık → Data sekmesi — tüm satırlar düzenlenebilir grid'de görünür",
+              "en": "Double-click the table → Data tab — all rows appear in an editable grid"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "Önce terminalde psql ile bağlanman gerekir",
+              "en": "You must first connect via psql in the terminal"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Tabloya sağ tık → Export Data → CSV oluştur",
+              "en": "Right-click the table → Export Data → generate CSV"
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "DBeaver tablo verilerini gösteremez, sadece schema yapısını gösterir",
+              "en": "DBeaver cannot show table data, only schema structure"
+            }
+          }
+        ],
+        "correct": "a",
+        "explanation": {
+          "tr": "DBeaver'da tabloya çift tıklayınca Properties, Data ve ER Diagram sekmeleri açılır. **Data** sekmesi tüm satırları düzenlenebilir grid'de gösterir — inline düzenleyebilir, yeni satır ekleyebilir, silebilirsin. Sağ tık → Export Data ile CSV veya Excel'e aktarım yapılabilir.",
+          "en": "Double-clicking a table in DBeaver opens Properties, Data, and ER Diagram tabs. The **Data** tab shows all rows in an editable grid — you can edit rows inline, add new rows, and delete them. Right-click → Export Data to export to CSV or Excel."
+        }
+      },
+      {
+        "type": "quiz",
+        "question": {
+          "tr": "Next.js'te veritabanı bağlantısı neden tek bir `Pool` (connection pool) üzerinden yapılmalıdır?",
+          "en": "Why should the database connection in Next.js go through a single `Pool` (connection pool)?"
+        },
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "tr": "PostgreSQL aynı anda yalnızca 1 bağlantı kabul eder",
+              "en": "PostgreSQL only accepts 1 connection at a time"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "Her API isteğinde yeni bağlantı açmak pahalıdır — Pool bağlantıları yeniden kullanarak hızı artırır ve veritabanını limit aşımından korur",
+              "en": "Opening a new connection per request is expensive — a Pool reuses connections, increasing speed and protecting the database from hitting max connection limits"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Pool sadece Prisma ile çalışır, pg ile çalışmaz",
+              "en": "Pool only works with Prisma, not with pg"
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "Pool yalnızca production ortamında gereklidir",
+              "en": "A Pool is only necessary in production environments"
+            }
+          }
+        ],
+        "correct": "b",
+        "explanation": {
+          "tr": "Her HTTP isteğinde yeni TCP bağlantısı kurmak ~100-200ms overhead ekler ve veritabanının max connection limitine çarpılırsın. Connection Pool bağlantıları önceden hazır tutar ve istekler arasında paylaşır. Java'da HikariCP / DBCP bu yüzden standarttır — her istek için `DriverManager.getConnection()` çağırmak yerine pool'dan alınır.",
+          "en": "Creating a new TCP connection per HTTP request adds ~100-200ms overhead and you can hit the database's max connection limit under load. A Connection Pool keeps connections pre-opened and shares them across requests. In Java, HikariCP / DBCP is standard for the same reason — instead of calling `DriverManager.getConnection()` per request, you borrow from the pool."
+        }
+      },
+      {
+        "type": "callout",
+        "color": "green",
+        "emoji": "✅",
+        "title": {
+          "tr": "DBeaver + Next.js Özet",
+          "en": "DBeaver + Next.js Summary"
+        },
+        "content": {
+          "tr": "1. **DBeaver kur** — Windows (winget), macOS (brew), Linux (snap)\n2. **Bağlantı kur** — SQLite için .db dosyası, PostgreSQL için host/port/user/db\n3. **Schema oluştur** — SQL Editor'de CREATE TABLE sorgularını çalıştır\n4. **Driver seç** — pg (JDBC gibi, tam kontrol) veya Prisma (Hibernate gibi, type-safe)\n5. **DATABASE_URL** yaz — .env.local'a ekle, git'e asla ekleme\n6. **DBeaver açık tut** — API'nin yaptığı değişiklikleri gerçek zamanlı izle",
+          "en": "1. **Install DBeaver** — Windows (winget), macOS (brew), Linux (snap)\n2. **Create connection** — for SQLite use .db file, for PostgreSQL use host/port/user/db\n3. **Build schema** — run CREATE TABLE queries in SQL Editor\n4. **Choose driver** — pg (like JDBC, full control) or Prisma (like Hibernate, type-safe)\n5. **Set DATABASE_URL** — add to .env.local, never commit it\n6. **Keep DBeaver open** — watch the data changes your API makes in real time"
+        }
+      }
+    ]
+  }
+,
+    {
     "title": "💼 Interview Q&A",
     "blocks": [
       {
@@ -8516,363 +8874,6 @@ const finalEnSections = [
             "tr": "WHERE, JOIN tamamlandıktan SONRA uygulanır. Bug'ı olmayan bir tester'ın `bugs.severity` alanı NULL'dur, ve `NULL = 'HIGH'` her zaman UNKNOWN (yanlış) değerlendirilir — bu yüzden o satır WHERE tarafından elenir. Sonuç, LEFT JOIN'in \"sıfır eşleşmeli satırları da tut\" amacının fiilen iptal olmasıdır. Bu koşulu LEFT JOIN'i bozmadan filtrelemek istiyorsan, WHERE yerine ON clause'una taşımalısın.",
             "en": "WHERE is applied AFTER the join completes. A tester with no bugs has `bugs.severity` as NULL, and `NULL = 'HIGH'` always evaluates to UNKNOWN (falsy) — so that row gets filtered out by WHERE. The net effect is that the LEFT JOIN's purpose of keeping zero-match rows gets effectively cancelled. To filter like this without breaking the LEFT JOIN, you would move that condition into the ON clause instead of WHERE."
           }
-        }
-      }
-    ]
-  },
-  {
-    "title": "🛠️ DBeaver — Visual Database Manager",
-    "blocks": [
-      {
-        "type": "simple-box",
-        "emoji": "🛠️",
-        "content": {
-          "tr": "DBeaver, veritabanına bağlanmak için görsel bir kontrol paneli — Excel açar gibi açar, tablolara tıklar, SQL yazar çalıştırırsın. Terminal komutlarına gerek yok. Next.js projenin arkasındaki PostgreSQL'i DBeaver'da görmek, dosya yöneticisinde klasör açmak kadar kolay.",
-          "en": "DBeaver is like a visual control panel for your database — open it like Excel, click on tables, write and run SQL instantly. No terminal commands needed. Seeing the PostgreSQL database behind your Next.js project in DBeaver is as easy as opening a folder in a file manager."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "DBeaver Nedir? / What is DBeaver?"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "DBeaver, MySQL, PostgreSQL, SQLite, Oracle ve SQL Server dahil **80+ veritabanını** destekleyen **tamamen ücretsiz açık kaynaklı** bir veritabanı yönetim aracıdır. Java'daki ücretli DataGrip veya MySQL Workbench'in ücretsiz alternatifi olarak düşün. Java'da JDBC ile komut satırından sorgu çalıştırmak yerine, DBeaver ile aynı işi görsel arayüzde yaparsın: tablo yapılarına tıkla, FK ilişkilerini gör, sorgu sonuçlarını spreadsheet'te incele.",
-          "en": "DBeaver is a **100% free, open-source** database management tool supporting **80+ databases** including MySQL, PostgreSQL, SQLite, Oracle, and SQL Server. Think of it as the free alternative to the paid DataGrip or MySQL Workbench. In Java you ran queries from the command line via JDBC — DBeaver does the same visually: click table structures, see FK relationships, view results in a spreadsheet."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 3,
-        "items": [
-          {
-            "icon": "🆓",
-            "label": "Tamamen Ücretsiz",
-            "desc": "Community Edition %100 ücretsiz ve açık kaynak. Lisans ücreti yok, abonelik yok."
-          },
-          {
-            "icon": "🗄️",
-            "label": "80+ Veritabanı",
-            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis ve daha fazlası."
-          },
-          {
-            "icon": "🎨",
-            "label": "Görsel Schema Editörü",
-            "desc": "Tablolara tıkla-gez, ER diyagramları, görsel foreign key tarayıcı."
-          },
-          {
-            "icon": "⚡",
-            "label": "SQL Editör + Autocomplete",
-            "desc": "Syntax highlight, otomatik tamamlama, sorgu geçmişi ve explain plan."
-          },
-          {
-            "icon": "📊",
-            "label": "Veri Dışa Aktarma",
-            "desc": "CSV, Excel, JSON, SQL formatlarında dışa aktar. Dosyadan içe aktar."
-          },
-          {
-            "icon": "🔐",
-            "label": "SSH Tüneli",
-            "desc": "SSH tüneli ile uzak production veritabanlarına güvenli, şifreli bağlantı."
-          }
-        ]
-      },
-      {
-        "type": "heading",
-        "text": "Kurulum / Installation"
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "1️⃣",
-            "label": "İndir",
-            "desc": "dbeaver.io → Community Edition → İşletim sisteminize uygun paketi seç"
-          },
-          {
-            "icon": "2️⃣",
-            "label": "Kur",
-            "desc": "Windows: .exe çalıştır · macOS: .dmg sürükle · Linux: .deb veya snap"
-          },
-          {
-            "icon": "3️⃣",
-            "label": "Aç",
-            "desc": "İlk açılışta yerleşik Java (JRE) indirir — internet bağlantısı gerekli"
-          },
-          {
-            "icon": "4️⃣",
-            "label": "Doğrula",
-            "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "bash",
-        "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
-      },
-      {
-        "type": "callout",
-        "color": "blue",
-        "emoji": "💡",
-        "title": {
-          "tr": "İlk Bağlantı İpucu",
-          "en": "First Connection Tip"
-        },
-        "content": {
-          "tr": "DBeaver açılınca 'Yeni Bağlantı Sihirbazı' görünür. **SQLite** için mevcut bir `.db` dosyasına işaret etmen yeterli — sunucu gerekmez. **PostgreSQL/MySQL** için önce sunucunun çalıştığından emin ol: `pg_isready` veya `mysqladmin ping` bunu doğrular.",
-          "en": "DBeaver shows 'New Connection Wizard' on first launch. For **SQLite** just point to an existing `.db` file — no server needed. For **PostgreSQL/MySQL** confirm the server is running first: `pg_isready` or `mysqladmin ping` will verify this."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "Sıfırdan Veritabanı + Schema Oluşturma / Create DB & Schema"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "DBeaver'da sıfırdan bir veritabanı oluşturmak **4 adımda** tamamlanır. Java'da Hibernate ile database schema'sını başlatmak gibi — ama terminal veya XML konfigürasyonu olmadan.",
-          "en": "Creating a database from scratch in DBeaver takes **4 steps**. This is the equivalent of bootstrapping a database schema with Hibernate in Java — but without terminal commands or XML configuration files."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "🔌",
-            "label": "1. Bağlantı Kur",
-            "desc": "Database Navigator (sol) → + simgesi → Veritabanı türünü seç → Host/Port/User/Password doldur"
-          },
-          {
-            "icon": "🗃️",
-            "label": "2. Database Oluştur",
-            "desc": "Bağlantıya sağ tık → Create → Database → İsim ver (örn: myapp_db)"
-          },
-          {
-            "icon": "📋",
-            "label": "3. SQL Schema Yaz",
-            "desc": "SQL Editor aç (F3) → CREATE TABLE sorgularını yaz → Ctrl+Enter ile çalıştır"
-          },
-          {
-            "icon": "✅",
-            "label": "4. Doğrula",
-            "desc": "Navigator'da tabloya çift tık → Data sekmesi → satırları grid'de gör"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "sql",
-        "code": "-- DBeaver SQL Editor'de çalıştır (F3 ile aç, Ctrl+Enter ile çalıştır)\n\n-- 1. Database oluştur (PostgreSQL için)\nCREATE DATABASE myapp_db;\n\n-- 2. Schema oluştur (Java'daki package gibi — namespace sağlar)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Kullanıcı tablosu\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- otomatik artan birincil anahtar\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- benzersiz ve zorunlu\n  name       VARCHAR(100) NOT NULL,               -- zorunlu alan\n  role       VARCHAR(20)  DEFAULT 'user',         -- varsayılan değer\n  created_at TIMESTAMP    DEFAULT NOW()           -- kayıt zamanı otomatik atanır\n);\n\n-- 4. Post tablosu (users ile foreign key ilişkisi)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users tablosu\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Test verisi ekle\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'İlk içerik', 1, true),\n  ('Taslak Yazı', NULL,         2, false);\n\n-- 6. JOIN ile ilişkili veriyi doğrula\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
-      },
-      {
-        "type": "callout",
-        "color": "green",
-        "emoji": "🎨",
-        "title": {
-          "tr": "DBeaver ER Diyagramı",
-          "en": "DBeaver ER Diagram"
-        },
-        "content": {
-          "tr": "Tabloları oluşturduktan sonra: **Database Navigator'da veritabanına sağ tık → ER Diagram**. DBeaver, `users` ve `posts` arasındaki FK ilişkisini otomatik olarak görsel bir diyagram olarak render eder. Büyük projelerde tüm schema'yı anlamak için bu özelliği kullan.",
-          "en": "After creating your tables: **right-click the database in Database Navigator → ER Diagram**. DBeaver automatically renders the FK relationship between `users` and `posts` as a visual diagram. Use this to understand the complete schema in large projects."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "Next.js + PostgreSQL Entegrasyonu / Integration"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "Next.js uygulamanı veritabanına bağlamak için iki modern yaklaşım var: **1) pg (Direct Driver)** — ham SQL, tam kontrol, Java'da JDBC'ye karşılık gelir. **2) Prisma ORM** — type-safe, otomatik migration, Java'da Hibernate/JPA'ya karşılık gelir. İkisi de DBeaver'da oluşturduğun aynı veritabanına bağlanır.",
-          "en": "There are two modern approaches to connect Next.js to the database: **1) pg (Direct Driver)** — raw SQL, full control, the equivalent of JDBC in Java. **2) Prisma ORM** — type-safe, auto-migrations, the equivalent of Hibernate/JPA in Java. Both connect to the same database you created in DBeaver."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "🌐",
-            "label": "Browser / Client",
-            "desc": "fetch('/api/users') → HTTP isteği gönderir"
-          },
-          {
-            "icon": "⚡",
-            "label": "Next.js API Route",
-            "desc": "/app/api/users/route.ts → isteği işler"
-          },
-          {
-            "icon": "🔗",
-            "label": "Driver / ORM",
-            "desc": "pg (ham SQL) veya Prisma (ORM) — DB ile konuşur"
-          },
-          {
-            "icon": "🗄️",
-            "label": "PostgreSQL",
-            "desc": "DBeaver ile yönetilen veritabanı"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "typescript",
-        "code": "// Yaklaşım 1: pg paketi (ham SQL) — Java'daki JDBC gibi, tam kontrol\n// Kurulum: npm install pg @types/pg\n\n// lib/db.ts — tek connection pool (bağlantı havuzu) oluştur\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // .env.local'da tanımla\n  max: 10,                                    // maksimum eşzamanlı bağlantı\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parametreli sorgu — SQL injection'a karşı güvenli\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
-      },
-      {
-        "type": "code",
-        "language": "typescript",
-        "code": "// Yaklaşım 2: Prisma ORM — Java'daki Hibernate/JPA gibi, type-safe\n// Kurulum: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — şema TypeScript benzeri DSL ile yazılır\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // ilişki — User'ın Post listesi var\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK sütunu\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — Prisma ile\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // yayınlanmış post'ları dahil et\n  });\n  return NextResponse.json(users);\n}\n\n// Migration çalıştır (DBeaver'daki CREATE TABLE'a karşılık gelir)\n// npx prisma migrate dev --name init"
-      },
-      {
-        "type": "table",
-        "headers": [
-          "Özellik / Feature",
-          "pg (Raw SQL)",
-          "Prisma ORM"
-        ],
-        "rows": [
-          [
-            "Öğrenme eğrisi",
-            "SQL biliyorsan sıfır",
-            "Prisma DSL öğren (~1 gün)"
-          ],
-          [
-            "Type safety",
-            "Manuel cast gerekir",
-            "✅ Otomatik TypeScript tipleri"
-          ],
-          [
-            "Migration yönetimi",
-            "Elle SQL dosyası yaz",
-            "✅ npx prisma migrate dev"
-          ],
-          [
-            "Sorgu performansı",
-            "Tam kontrol, optimize et",
-            "Karmaşık JOIN'lerde dikkatli ol"
-          ],
-          [
-            "DBeaver uyumu",
-            "✅ Aynı DB'ye bağlanır",
-            "✅ Prisma Studio da var"
-          ],
-          [
-            "Java karşılığı",
-            "JDBC",
-            "Hibernate / JPA"
-          ],
-          [
-            "Ne zaman seç",
-            "Karmaşık SQL, tam kontrol",
-            "Hızlı başlangıç, type-safe API"
-          ]
-        ]
-      },
-      {
-        "type": "code",
-        "language": "bash",
-        "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
-      },
-      {
-        "type": "quiz",
-        "question": {
-          "tr": "DBeaver'da bir tablonun içindeki verileri nasıl görürsün?",
-          "en": "How do you view the data inside a table in DBeaver?"
-        },
-        "options": [
-          {
-            "id": "a",
-            "text": {
-              "tr": "Tabloya çift tık → Data sekmesi — tüm satırlar düzenlenebilir grid'de görünür",
-              "en": "Double-click the table → Data tab — all rows appear in an editable grid"
-            }
-          },
-          {
-            "id": "b",
-            "text": {
-              "tr": "Önce terminalde psql ile bağlanman gerekir",
-              "en": "You must first connect via psql in the terminal"
-            }
-          },
-          {
-            "id": "c",
-            "text": {
-              "tr": "Tabloya sağ tık → Export Data → CSV oluştur",
-              "en": "Right-click the table → Export Data → generate CSV"
-            }
-          },
-          {
-            "id": "d",
-            "text": {
-              "tr": "DBeaver tablo verilerini gösteremez, sadece schema yapısını gösterir",
-              "en": "DBeaver cannot show table data, only schema structure"
-            }
-          }
-        ],
-        "correct": "a",
-        "explanation": {
-          "tr": "DBeaver'da tabloya çift tıklayınca Properties, Data ve ER Diagram sekmeleri açılır. **Data** sekmesi tüm satırları düzenlenebilir grid'de gösterir — inline düzenleyebilir, yeni satır ekleyebilir, silebilirsin. Sağ tık → Export Data ile CSV veya Excel'e aktarım yapılabilir.",
-          "en": "Double-clicking a table in DBeaver opens Properties, Data, and ER Diagram tabs. The **Data** tab shows all rows in an editable grid — you can edit rows inline, add new rows, and delete them. Right-click → Export Data to export to CSV or Excel."
-        }
-      },
-      {
-        "type": "quiz",
-        "question": {
-          "tr": "Next.js'te veritabanı bağlantısı neden tek bir `Pool` (connection pool) üzerinden yapılmalıdır?",
-          "en": "Why should the database connection in Next.js go through a single `Pool` (connection pool)?"
-        },
-        "options": [
-          {
-            "id": "a",
-            "text": {
-              "tr": "PostgreSQL aynı anda yalnızca 1 bağlantı kabul eder",
-              "en": "PostgreSQL only accepts 1 connection at a time"
-            }
-          },
-          {
-            "id": "b",
-            "text": {
-              "tr": "Her API isteğinde yeni bağlantı açmak pahalıdır — Pool bağlantıları yeniden kullanarak hızı artırır ve veritabanını limit aşımından korur",
-              "en": "Opening a new connection per request is expensive — a Pool reuses connections, increasing speed and protecting the database from hitting max connection limits"
-            }
-          },
-          {
-            "id": "c",
-            "text": {
-              "tr": "Pool sadece Prisma ile çalışır, pg ile çalışmaz",
-              "en": "Pool only works with Prisma, not with pg"
-            }
-          },
-          {
-            "id": "d",
-            "text": {
-              "tr": "Pool yalnızca production ortamında gereklidir",
-              "en": "A Pool is only necessary in production environments"
-            }
-          }
-        ],
-        "correct": "b",
-        "explanation": {
-          "tr": "Her HTTP isteğinde yeni TCP bağlantısı kurmak ~100-200ms overhead ekler ve veritabanının max connection limitine çarpılırsın. Connection Pool bağlantıları önceden hazır tutar ve istekler arasında paylaşır. Java'da HikariCP / DBCP bu yüzden standarttır — her istek için `DriverManager.getConnection()` çağırmak yerine pool'dan alınır.",
-          "en": "Creating a new TCP connection per HTTP request adds ~100-200ms overhead and you can hit the database's max connection limit under load. A Connection Pool keeps connections pre-opened and shares them across requests. In Java, HikariCP / DBCP is standard for the same reason — instead of calling `DriverManager.getConnection()` per request, you borrow from the pool."
-        }
-      },
-      {
-        "type": "callout",
-        "color": "green",
-        "emoji": "✅",
-        "title": {
-          "tr": "DBeaver + Next.js Özet",
-          "en": "DBeaver + Next.js Summary"
-        },
-        "content": {
-          "tr": "1. **DBeaver kur** — Windows (winget), macOS (brew), Linux (snap)\n2. **Bağlantı kur** — SQLite için .db dosyası, PostgreSQL için host/port/user/db\n3. **Schema oluştur** — SQL Editor'de CREATE TABLE sorgularını çalıştır\n4. **Driver seç** — pg (JDBC gibi, tam kontrol) veya Prisma (Hibernate gibi, type-safe)\n5. **DATABASE_URL** yaz — .env.local'a ekle, git'e asla ekleme\n6. **DBeaver açık tut** — API'nin yaptığı değişiklikleri gerçek zamanlı izle",
-          "en": "1. **Install DBeaver** — Windows (winget), macOS (brew), Linux (snap)\n2. **Create connection** — for SQLite use .db file, for PostgreSQL use host/port/user/db\n3. **Build schema** — run CREATE TABLE queries in SQL Editor\n4. **Choose driver** — pg (like JDBC, full control) or Prisma (like Hibernate, type-safe)\n5. **Set DATABASE_URL** — add to .env.local, never commit it\n6. **Keep DBeaver open** — watch the data changes your API makes in real time"
         }
       }
     ]
@@ -13592,6 +13593,364 @@ const finalTrSections = [
     ]
   },
   {
+    "title": "🛠️ DBeaver — Görsel Veritabanı Yöneticisi",
+    "blocks": [
+      {
+        "type": "simple-box",
+        "emoji": "🛠️",
+        "content": {
+          "tr": "DBeaver, veritabanına bağlanmak için görsel bir kontrol paneli — Excel açar gibi açar, tablolara tıklar, SQL yazar çalıştırırsın. Terminal komutlarına gerek yok. Next.js projenin arkasındaki PostgreSQL'i DBeaver'da görmek, dosya yöneticisinde klasör açmak kadar kolay.",
+          "en": "DBeaver is like a visual control panel for your database — open it like Excel, click on tables, write and run SQL instantly. No terminal commands needed. Seeing the PostgreSQL database behind your Next.js project in DBeaver is as easy as opening a folder in a file manager."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "DBeaver Nedir? / What is DBeaver?"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "DBeaver, MySQL, PostgreSQL, SQLite, Oracle ve SQL Server dahil **80+ veritabanını** destekleyen **tamamen ücretsiz açık kaynaklı** bir veritabanı yönetim aracıdır. Java'daki ücretli DataGrip veya MySQL Workbench'in ücretsiz alternatifi olarak düşün. Java'da JDBC ile komut satırından sorgu çalıştırmak yerine, DBeaver ile aynı işi görsel arayüzde yaparsın: tablo yapılarına tıkla, FK ilişkilerini gör, sorgu sonuçlarını spreadsheet'te incele.",
+          "en": "DBeaver is a **100% free, open-source** database management tool supporting **80+ databases** including MySQL, PostgreSQL, SQLite, Oracle, and SQL Server. Think of it as the free alternative to the paid DataGrip or MySQL Workbench. In Java you ran queries from the command line via JDBC — DBeaver does the same visually: click table structures, see FK relationships, view results in a spreadsheet."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 3,
+        "items": [
+          {
+            "icon": "🆓",
+            "label": "Tamamen Ücretsiz",
+            "desc": "Community Edition %100 ücretsiz ve açık kaynak. Lisans ücreti yok, abonelik yok."
+          },
+          {
+            "icon": "🗄️",
+            "label": "80+ Veritabanı",
+            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis ve daha fazlası."
+          },
+          {
+            "icon": "🎨",
+            "label": "Görsel Schema Editörü",
+            "desc": "Tablolara tıkla-gez, ER diyagramları, görsel foreign key tarayıcı."
+          },
+          {
+            "icon": "⚡",
+            "label": "SQL Editör + Autocomplete",
+            "desc": "Syntax highlight, otomatik tamamlama, sorgu geçmişi ve explain plan."
+          },
+          {
+            "icon": "📊",
+            "label": "Veri Dışa Aktarma",
+            "desc": "CSV, Excel, JSON, SQL formatlarında dışa aktar. Dosyadan içe aktar."
+          },
+          {
+            "icon": "🔐",
+            "label": "SSH Tüneli",
+            "desc": "SSH tüneli ile uzak production veritabanlarına güvenli, şifreli bağlantı."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Kurulum / Installation"
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "1️⃣",
+            "label": "İndir",
+            "desc": "dbeaver.io → Community Edition → İşletim sisteminize uygun paketi seç"
+          },
+          {
+            "icon": "2️⃣",
+            "label": "Kur",
+            "desc": "Windows: .exe çalıştır · macOS: .dmg sürükle · Linux: .deb veya snap"
+          },
+          {
+            "icon": "3️⃣",
+            "label": "Aç",
+            "desc": "İlk açılışta yerleşik Java (JRE) indirir — internet bağlantısı gerekli"
+          },
+          {
+            "icon": "4️⃣",
+            "label": "Doğrula",
+            "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
+      },
+      {
+        "type": "callout",
+        "color": "blue",
+        "emoji": "💡",
+        "title": {
+          "tr": "İlk Bağlantı İpucu",
+          "en": "First Connection Tip"
+        },
+        "content": {
+          "tr": "DBeaver açılınca 'Yeni Bağlantı Sihirbazı' görünür. **SQLite** için mevcut bir `.db` dosyasına işaret etmen yeterli — sunucu gerekmez. **PostgreSQL/MySQL** için önce sunucunun çalıştığından emin ol: `pg_isready` veya `mysqladmin ping` bunu doğrular.",
+          "en": "DBeaver shows 'New Connection Wizard' on first launch. For **SQLite** just point to an existing `.db` file — no server needed. For **PostgreSQL/MySQL** confirm the server is running first: `pg_isready` or `mysqladmin ping` will verify this."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "Sıfırdan Veritabanı + Schema Oluşturma / Create DB & Schema"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "DBeaver'da sıfırdan bir veritabanı oluşturmak **4 adımda** tamamlanır. Java'da Hibernate ile database schema'sını başlatmak gibi — ama terminal veya XML konfigürasyonu olmadan.",
+          "en": "Creating a database from scratch in DBeaver takes **4 steps**. This is the equivalent of bootstrapping a database schema with Hibernate in Java — but without terminal commands or XML configuration files."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "🔌",
+            "label": "1. Bağlantı Kur",
+            "desc": "Database Navigator (sol) → + simgesi → Veritabanı türünü seç → Host/Port/User/Password doldur"
+          },
+          {
+            "icon": "🗃️",
+            "label": "2. Database Oluştur",
+            "desc": "Bağlantıya sağ tık → Create → Database → İsim ver (örn: myapp_db)"
+          },
+          {
+            "icon": "📋",
+            "label": "3. SQL Schema Yaz",
+            "desc": "SQL Editor aç (F3) → CREATE TABLE sorgularını yaz → Ctrl+Enter ile çalıştır"
+          },
+          {
+            "icon": "✅",
+            "label": "4. Doğrula",
+            "desc": "Navigator'da tabloya çift tık → Data sekmesi → satırları grid'de gör"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "sql",
+        "code": "-- DBeaver SQL Editor'de çalıştır (F3 ile aç, Ctrl+Enter ile çalıştır)\n\n-- 1. Database oluştur (PostgreSQL için)\nCREATE DATABASE myapp_db;\n\n-- 2. Schema oluştur (Java'daki package gibi — namespace sağlar)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Kullanıcı tablosu\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- otomatik artan birincil anahtar\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- benzersiz ve zorunlu\n  name       VARCHAR(100) NOT NULL,               -- zorunlu alan\n  role       VARCHAR(20)  DEFAULT 'user',         -- varsayılan değer\n  created_at TIMESTAMP    DEFAULT NOW()           -- kayıt zamanı otomatik atanır\n);\n\n-- 4. Post tablosu (users ile foreign key ilişkisi)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users tablosu\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Test verisi ekle\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'İlk içerik', 1, true),\n  ('Taslak Yazı', NULL,         2, false);\n\n-- 6. JOIN ile ilişkili veriyi doğrula\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
+      },
+      {
+        "type": "callout",
+        "color": "green",
+        "emoji": "🎨",
+        "title": {
+          "tr": "DBeaver ER Diyagramı",
+          "en": "DBeaver ER Diagram"
+        },
+        "content": {
+          "tr": "Tabloları oluşturduktan sonra: **Database Navigator'da veritabanına sağ tık → ER Diagram**. DBeaver, `users` ve `posts` arasındaki FK ilişkisini otomatik olarak görsel bir diyagram olarak render eder. Büyük projelerde tüm schema'yı anlamak için bu özelliği kullan.",
+          "en": "After creating your tables: **right-click the database in Database Navigator → ER Diagram**. DBeaver automatically renders the FK relationship between `users` and `posts` as a visual diagram. Use this to understand the complete schema in large projects."
+        }
+      },
+      {
+        "type": "heading",
+        "text": "Next.js + PostgreSQL Entegrasyonu / Integration"
+      },
+      {
+        "type": "text",
+        "content": {
+          "tr": "Next.js uygulamanı veritabanına bağlamak için iki modern yaklaşım var: **1) pg (Direct Driver)** — ham SQL, tam kontrol, Java'da JDBC'ye karşılık gelir. **2) Prisma ORM** — type-safe, otomatik migration, Java'da Hibernate/JPA'ya karşılık gelir. İkisi de DBeaver'da oluşturduğun aynı veritabanına bağlanır.",
+          "en": "There are two modern approaches to connect Next.js to the database: **1) pg (Direct Driver)** — raw SQL, full control, the equivalent of JDBC in Java. **2) Prisma ORM** — type-safe, auto-migrations, the equivalent of Hibernate/JPA in Java. Both connect to the same database you created in DBeaver."
+        }
+      },
+      {
+        "type": "grid",
+        "cols": 4,
+        "items": [
+          {
+            "icon": "🌐",
+            "label": "Browser / Client",
+            "desc": "fetch('/api/users') → HTTP isteği gönderir"
+          },
+          {
+            "icon": "⚡",
+            "label": "Next.js API Route",
+            "desc": "/app/api/users/route.ts → isteği işler"
+          },
+          {
+            "icon": "🔗",
+            "label": "Driver / ORM",
+            "desc": "pg (ham SQL) veya Prisma (ORM) — DB ile konuşur"
+          },
+          {
+            "icon": "🗄️",
+            "label": "PostgreSQL",
+            "desc": "DBeaver ile yönetilen veritabanı"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Yaklaşım 1: pg paketi (ham SQL) — Java'daki JDBC gibi, tam kontrol\n// Kurulum: npm install pg @types/pg\n\n// lib/db.ts — tek connection pool (bağlantı havuzu) oluştur\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // .env.local'da tanımla\n  max: 10,                                    // maksimum eşzamanlı bağlantı\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parametreli sorgu — SQL injection'a karşı güvenli\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
+      },
+      {
+        "type": "code",
+        "language": "typescript",
+        "code": "// Yaklaşım 2: Prisma ORM — Java'daki Hibernate/JPA gibi, type-safe\n// Kurulum: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — şema TypeScript benzeri DSL ile yazılır\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // ilişki — User'ın Post listesi var\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK sütunu\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — Prisma ile\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // yayınlanmış post'ları dahil et\n  });\n  return NextResponse.json(users);\n}\n\n// Migration çalıştır (DBeaver'daki CREATE TABLE'a karşılık gelir)\n// npx prisma migrate dev --name init"
+      },
+      {
+        "type": "table",
+        "headers": [
+          "Özellik / Feature",
+          "pg (Raw SQL)",
+          "Prisma ORM"
+        ],
+        "rows": [
+          [
+            "Öğrenme eğrisi",
+            "SQL biliyorsan sıfır",
+            "Prisma DSL öğren (~1 gün)"
+          ],
+          [
+            "Type safety",
+            "Manuel cast gerekir",
+            "✅ Otomatik TypeScript tipleri"
+          ],
+          [
+            "Migration yönetimi",
+            "Elle SQL dosyası yaz",
+            "✅ npx prisma migrate dev"
+          ],
+          [
+            "Sorgu performansı",
+            "Tam kontrol, optimize et",
+            "Karmaşık JOIN'lerde dikkatli ol"
+          ],
+          [
+            "DBeaver uyumu",
+            "✅ Aynı DB'ye bağlanır",
+            "✅ Prisma Studio da var"
+          ],
+          [
+            "Java karşılığı",
+            "JDBC",
+            "Hibernate / JPA"
+          ],
+          [
+            "Ne zaman seç",
+            "Karmaşık SQL, tam kontrol",
+            "Hızlı başlangıç, type-safe API"
+          ]
+        ]
+      },
+      {
+        "type": "code",
+        "language": "bash",
+        "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
+      },
+      {
+        "type": "quiz",
+        "question": {
+          "tr": "DBeaver'da bir tablonun içindeki verileri nasıl görürsün?",
+          "en": "How do you view the data inside a table in DBeaver?"
+        },
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "tr": "Tabloya çift tık → Data sekmesi — tüm satırlar düzenlenebilir grid'de görünür",
+              "en": "Double-click the table → Data tab — all rows appear in an editable grid"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "Önce terminalde psql ile bağlanman gerekir",
+              "en": "You must first connect via psql in the terminal"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Tabloya sağ tık → Export Data → CSV oluştur",
+              "en": "Right-click the table → Export Data → generate CSV"
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "DBeaver tablo verilerini gösteremez, sadece schema yapısını gösterir",
+              "en": "DBeaver cannot show table data, only schema structure"
+            }
+          }
+        ],
+        "correct": "a",
+        "explanation": {
+          "tr": "DBeaver'da tabloya çift tıklayınca Properties, Data ve ER Diagram sekmeleri açılır. **Data** sekmesi tüm satırları düzenlenebilir grid'de gösterir — inline düzenleyebilir, yeni satır ekleyebilir, silebilirsin. Sağ tık → Export Data ile CSV veya Excel'e aktarım yapılabilir.",
+          "en": "Double-clicking a table in DBeaver opens Properties, Data, and ER Diagram tabs. The **Data** tab shows all rows in an editable grid — you can edit rows inline, add new rows, and delete them. Right-click → Export Data to export to CSV or Excel."
+        }
+      },
+      {
+        "type": "quiz",
+        "question": {
+          "tr": "Next.js'te veritabanı bağlantısı neden tek bir `Pool` (connection pool) üzerinden yapılmalıdır?",
+          "en": "Why should the database connection in Next.js go through a single `Pool` (connection pool)?"
+        },
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "tr": "PostgreSQL aynı anda yalnızca 1 bağlantı kabul eder",
+              "en": "PostgreSQL only accepts 1 connection at a time"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "Her API isteğinde yeni bağlantı açmak pahalıdır — Pool bağlantıları yeniden kullanarak hızı artırır ve veritabanını limit aşımından korur",
+              "en": "Opening a new connection per request is expensive — a Pool reuses connections, increasing speed and protecting the database from hitting max connection limits"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Pool sadece Prisma ile çalışır, pg ile çalışmaz",
+              "en": "Pool only works with Prisma, not with pg"
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "Pool yalnızca production ortamında gereklidir",
+              "en": "A Pool is only necessary in production environments"
+            }
+          }
+        ],
+        "correct": "b",
+        "explanation": {
+          "tr": "Her HTTP isteğinde yeni TCP bağlantısı kurmak ~100-200ms overhead ekler ve veritabanının max connection limitine çarpılırsın. Connection Pool bağlantıları önceden hazır tutar ve istekler arasında paylaşır. Java'da HikariCP / DBCP bu yüzden standarttır — her istek için `DriverManager.getConnection()` çağırmak yerine pool'dan alınır.",
+          "en": "Creating a new TCP connection per HTTP request adds ~100-200ms overhead and you can hit the database's max connection limit under load. A Connection Pool keeps connections pre-opened and shares them across requests. In Java, HikariCP / DBCP is standard for the same reason — instead of calling `DriverManager.getConnection()` per request, you borrow from the pool."
+        }
+      },
+      {
+        "type": "callout",
+        "color": "green",
+        "emoji": "✅",
+        "title": {
+          "tr": "DBeaver + Next.js Özet",
+          "en": "DBeaver + Next.js Summary"
+        },
+        "content": {
+          "tr": "1. **DBeaver kur** — Windows (winget), macOS (brew), Linux (snap)\n2. **Bağlantı kur** — SQLite için .db dosyası, PostgreSQL için host/port/user/db\n3. **Schema oluştur** — SQL Editor'de CREATE TABLE sorgularını çalıştır\n4. **Driver seç** — pg (JDBC gibi, tam kontrol) veya Prisma (Hibernate gibi, type-safe)\n5. **DATABASE_URL** yaz — .env.local'a ekle, git'e asla ekleme\n6. **DBeaver açık tut** — API'nin yaptığı değişiklikleri gerçek zamanlı izle",
+          "en": "1. **Install DBeaver** — Windows (winget), macOS (brew), Linux (snap)\n2. **Create connection** — for SQLite use .db file, for PostgreSQL use host/port/user/db\n3. **Build schema** — run CREATE TABLE queries in SQL Editor\n4. **Choose driver** — pg (like JDBC, full control) or Prisma (like Hibernate, type-safe)\n5. **Set DATABASE_URL** — add to .env.local, never commit it\n6. **Keep DBeaver open** — watch the data changes your API makes in real time"
+        }
+      }
+    ]
+  }
+,
+    {
     "title": "💼 Mülakat",
     "blocks": [
       {
@@ -14458,363 +14817,6 @@ const finalTrSections = [
             "tr": "WHERE, JOIN tamamlandıktan SONRA uygulanır. Bug'ı olmayan bir tester'ın `bugs.severity` alanı NULL'dur, ve `NULL = 'HIGH'` her zaman UNKNOWN (yanlış) değerlendirilir — bu yüzden o satır WHERE tarafından elenir. Sonuç, LEFT JOIN'in \"sıfır eşleşmeli satırları da tut\" amacının fiilen iptal olmasıdır. Bu koşulu LEFT JOIN'i bozmadan filtrelemek istiyorsan, WHERE yerine ON clause'una taşımalısın.",
             "en": "WHERE is applied AFTER the join completes. A tester with no bugs has `bugs.severity` as NULL, and `NULL = 'HIGH'` always evaluates to UNKNOWN (falsy) — so that row gets filtered out by WHERE. The net effect is that the LEFT JOIN's purpose of keeping zero-match rows gets effectively cancelled. To filter like this without breaking the LEFT JOIN, you would move that condition into the ON clause instead of WHERE."
           }
-        }
-      }
-    ]
-  },
-  {
-    "title": "🛠️ DBeaver — Görsel Veritabanı Yöneticisi",
-    "blocks": [
-      {
-        "type": "simple-box",
-        "emoji": "🛠️",
-        "content": {
-          "tr": "DBeaver, veritabanına bağlanmak için görsel bir kontrol paneli — Excel açar gibi açar, tablolara tıklar, SQL yazar çalıştırırsın. Terminal komutlarına gerek yok. Next.js projenin arkasındaki PostgreSQL'i DBeaver'da görmek, dosya yöneticisinde klasör açmak kadar kolay.",
-          "en": "DBeaver is like a visual control panel for your database — open it like Excel, click on tables, write and run SQL instantly. No terminal commands needed. Seeing the PostgreSQL database behind your Next.js project in DBeaver is as easy as opening a folder in a file manager."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "DBeaver Nedir? / What is DBeaver?"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "DBeaver, MySQL, PostgreSQL, SQLite, Oracle ve SQL Server dahil **80+ veritabanını** destekleyen **tamamen ücretsiz açık kaynaklı** bir veritabanı yönetim aracıdır. Java'daki ücretli DataGrip veya MySQL Workbench'in ücretsiz alternatifi olarak düşün. Java'da JDBC ile komut satırından sorgu çalıştırmak yerine, DBeaver ile aynı işi görsel arayüzde yaparsın: tablo yapılarına tıkla, FK ilişkilerini gör, sorgu sonuçlarını spreadsheet'te incele.",
-          "en": "DBeaver is a **100% free, open-source** database management tool supporting **80+ databases** including MySQL, PostgreSQL, SQLite, Oracle, and SQL Server. Think of it as the free alternative to the paid DataGrip or MySQL Workbench. In Java you ran queries from the command line via JDBC — DBeaver does the same visually: click table structures, see FK relationships, view results in a spreadsheet."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 3,
-        "items": [
-          {
-            "icon": "🆓",
-            "label": "Tamamen Ücretsiz",
-            "desc": "Community Edition %100 ücretsiz ve açık kaynak. Lisans ücreti yok, abonelik yok."
-          },
-          {
-            "icon": "🗄️",
-            "label": "80+ Veritabanı",
-            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis ve daha fazlası."
-          },
-          {
-            "icon": "🎨",
-            "label": "Görsel Schema Editörü",
-            "desc": "Tablolara tıkla-gez, ER diyagramları, görsel foreign key tarayıcı."
-          },
-          {
-            "icon": "⚡",
-            "label": "SQL Editör + Autocomplete",
-            "desc": "Syntax highlight, otomatik tamamlama, sorgu geçmişi ve explain plan."
-          },
-          {
-            "icon": "📊",
-            "label": "Veri Dışa Aktarma",
-            "desc": "CSV, Excel, JSON, SQL formatlarında dışa aktar. Dosyadan içe aktar."
-          },
-          {
-            "icon": "🔐",
-            "label": "SSH Tüneli",
-            "desc": "SSH tüneli ile uzak production veritabanlarına güvenli, şifreli bağlantı."
-          }
-        ]
-      },
-      {
-        "type": "heading",
-        "text": "Kurulum / Installation"
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "1️⃣",
-            "label": "İndir",
-            "desc": "dbeaver.io → Community Edition → İşletim sisteminize uygun paketi seç"
-          },
-          {
-            "icon": "2️⃣",
-            "label": "Kur",
-            "desc": "Windows: .exe çalıştır · macOS: .dmg sürükle · Linux: .deb veya snap"
-          },
-          {
-            "icon": "3️⃣",
-            "label": "Aç",
-            "desc": "İlk açılışta yerleşik Java (JRE) indirir — internet bağlantısı gerekli"
-          },
-          {
-            "icon": "4️⃣",
-            "label": "Doğrula",
-            "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "bash",
-        "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
-      },
-      {
-        "type": "callout",
-        "color": "blue",
-        "emoji": "💡",
-        "title": {
-          "tr": "İlk Bağlantı İpucu",
-          "en": "First Connection Tip"
-        },
-        "content": {
-          "tr": "DBeaver açılınca 'Yeni Bağlantı Sihirbazı' görünür. **SQLite** için mevcut bir `.db` dosyasına işaret etmen yeterli — sunucu gerekmez. **PostgreSQL/MySQL** için önce sunucunun çalıştığından emin ol: `pg_isready` veya `mysqladmin ping` bunu doğrular.",
-          "en": "DBeaver shows 'New Connection Wizard' on first launch. For **SQLite** just point to an existing `.db` file — no server needed. For **PostgreSQL/MySQL** confirm the server is running first: `pg_isready` or `mysqladmin ping` will verify this."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "Sıfırdan Veritabanı + Schema Oluşturma / Create DB & Schema"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "DBeaver'da sıfırdan bir veritabanı oluşturmak **4 adımda** tamamlanır. Java'da Hibernate ile database schema'sını başlatmak gibi — ama terminal veya XML konfigürasyonu olmadan.",
-          "en": "Creating a database from scratch in DBeaver takes **4 steps**. This is the equivalent of bootstrapping a database schema with Hibernate in Java — but without terminal commands or XML configuration files."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "🔌",
-            "label": "1. Bağlantı Kur",
-            "desc": "Database Navigator (sol) → + simgesi → Veritabanı türünü seç → Host/Port/User/Password doldur"
-          },
-          {
-            "icon": "🗃️",
-            "label": "2. Database Oluştur",
-            "desc": "Bağlantıya sağ tık → Create → Database → İsim ver (örn: myapp_db)"
-          },
-          {
-            "icon": "📋",
-            "label": "3. SQL Schema Yaz",
-            "desc": "SQL Editor aç (F3) → CREATE TABLE sorgularını yaz → Ctrl+Enter ile çalıştır"
-          },
-          {
-            "icon": "✅",
-            "label": "4. Doğrula",
-            "desc": "Navigator'da tabloya çift tık → Data sekmesi → satırları grid'de gör"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "sql",
-        "code": "-- DBeaver SQL Editor'de çalıştır (F3 ile aç, Ctrl+Enter ile çalıştır)\n\n-- 1. Database oluştur (PostgreSQL için)\nCREATE DATABASE myapp_db;\n\n-- 2. Schema oluştur (Java'daki package gibi — namespace sağlar)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Kullanıcı tablosu\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- otomatik artan birincil anahtar\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- benzersiz ve zorunlu\n  name       VARCHAR(100) NOT NULL,               -- zorunlu alan\n  role       VARCHAR(20)  DEFAULT 'user',         -- varsayılan değer\n  created_at TIMESTAMP    DEFAULT NOW()           -- kayıt zamanı otomatik atanır\n);\n\n-- 4. Post tablosu (users ile foreign key ilişkisi)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users tablosu\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Test verisi ekle\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'İlk içerik', 1, true),\n  ('Taslak Yazı', NULL,         2, false);\n\n-- 6. JOIN ile ilişkili veriyi doğrula\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
-      },
-      {
-        "type": "callout",
-        "color": "green",
-        "emoji": "🎨",
-        "title": {
-          "tr": "DBeaver ER Diyagramı",
-          "en": "DBeaver ER Diagram"
-        },
-        "content": {
-          "tr": "Tabloları oluşturduktan sonra: **Database Navigator'da veritabanına sağ tık → ER Diagram**. DBeaver, `users` ve `posts` arasındaki FK ilişkisini otomatik olarak görsel bir diyagram olarak render eder. Büyük projelerde tüm schema'yı anlamak için bu özelliği kullan.",
-          "en": "After creating your tables: **right-click the database in Database Navigator → ER Diagram**. DBeaver automatically renders the FK relationship between `users` and `posts` as a visual diagram. Use this to understand the complete schema in large projects."
-        }
-      },
-      {
-        "type": "heading",
-        "text": "Next.js + PostgreSQL Entegrasyonu / Integration"
-      },
-      {
-        "type": "text",
-        "content": {
-          "tr": "Next.js uygulamanı veritabanına bağlamak için iki modern yaklaşım var: **1) pg (Direct Driver)** — ham SQL, tam kontrol, Java'da JDBC'ye karşılık gelir. **2) Prisma ORM** — type-safe, otomatik migration, Java'da Hibernate/JPA'ya karşılık gelir. İkisi de DBeaver'da oluşturduğun aynı veritabanına bağlanır.",
-          "en": "There are two modern approaches to connect Next.js to the database: **1) pg (Direct Driver)** — raw SQL, full control, the equivalent of JDBC in Java. **2) Prisma ORM** — type-safe, auto-migrations, the equivalent of Hibernate/JPA in Java. Both connect to the same database you created in DBeaver."
-        }
-      },
-      {
-        "type": "grid",
-        "cols": 4,
-        "items": [
-          {
-            "icon": "🌐",
-            "label": "Browser / Client",
-            "desc": "fetch('/api/users') → HTTP isteği gönderir"
-          },
-          {
-            "icon": "⚡",
-            "label": "Next.js API Route",
-            "desc": "/app/api/users/route.ts → isteği işler"
-          },
-          {
-            "icon": "🔗",
-            "label": "Driver / ORM",
-            "desc": "pg (ham SQL) veya Prisma (ORM) — DB ile konuşur"
-          },
-          {
-            "icon": "🗄️",
-            "label": "PostgreSQL",
-            "desc": "DBeaver ile yönetilen veritabanı"
-          }
-        ]
-      },
-      {
-        "type": "code",
-        "language": "typescript",
-        "code": "// Yaklaşım 1: pg paketi (ham SQL) — Java'daki JDBC gibi, tam kontrol\n// Kurulum: npm install pg @types/pg\n\n// lib/db.ts — tek connection pool (bağlantı havuzu) oluştur\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // .env.local'da tanımla\n  max: 10,                                    // maksimum eşzamanlı bağlantı\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parametreli sorgu — SQL injection'a karşı güvenli\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
-      },
-      {
-        "type": "code",
-        "language": "typescript",
-        "code": "// Yaklaşım 2: Prisma ORM — Java'daki Hibernate/JPA gibi, type-safe\n// Kurulum: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — şema TypeScript benzeri DSL ile yazılır\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // ilişki — User'ın Post listesi var\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK sütunu\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — Prisma ile\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // yayınlanmış post'ları dahil et\n  });\n  return NextResponse.json(users);\n}\n\n// Migration çalıştır (DBeaver'daki CREATE TABLE'a karşılık gelir)\n// npx prisma migrate dev --name init"
-      },
-      {
-        "type": "table",
-        "headers": [
-          "Özellik / Feature",
-          "pg (Raw SQL)",
-          "Prisma ORM"
-        ],
-        "rows": [
-          [
-            "Öğrenme eğrisi",
-            "SQL biliyorsan sıfır",
-            "Prisma DSL öğren (~1 gün)"
-          ],
-          [
-            "Type safety",
-            "Manuel cast gerekir",
-            "✅ Otomatik TypeScript tipleri"
-          ],
-          [
-            "Migration yönetimi",
-            "Elle SQL dosyası yaz",
-            "✅ npx prisma migrate dev"
-          ],
-          [
-            "Sorgu performansı",
-            "Tam kontrol, optimize et",
-            "Karmaşık JOIN'lerde dikkatli ol"
-          ],
-          [
-            "DBeaver uyumu",
-            "✅ Aynı DB'ye bağlanır",
-            "✅ Prisma Studio da var"
-          ],
-          [
-            "Java karşılığı",
-            "JDBC",
-            "Hibernate / JPA"
-          ],
-          [
-            "Ne zaman seç",
-            "Karmaşık SQL, tam kontrol",
-            "Hızlı başlangıç, type-safe API"
-          ]
-        ]
-      },
-      {
-        "type": "code",
-        "language": "bash",
-        "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
-      },
-      {
-        "type": "quiz",
-        "question": {
-          "tr": "DBeaver'da bir tablonun içindeki verileri nasıl görürsün?",
-          "en": "How do you view the data inside a table in DBeaver?"
-        },
-        "options": [
-          {
-            "id": "a",
-            "text": {
-              "tr": "Tabloya çift tık → Data sekmesi — tüm satırlar düzenlenebilir grid'de görünür",
-              "en": "Double-click the table → Data tab — all rows appear in an editable grid"
-            }
-          },
-          {
-            "id": "b",
-            "text": {
-              "tr": "Önce terminalde psql ile bağlanman gerekir",
-              "en": "You must first connect via psql in the terminal"
-            }
-          },
-          {
-            "id": "c",
-            "text": {
-              "tr": "Tabloya sağ tık → Export Data → CSV oluştur",
-              "en": "Right-click the table → Export Data → generate CSV"
-            }
-          },
-          {
-            "id": "d",
-            "text": {
-              "tr": "DBeaver tablo verilerini gösteremez, sadece schema yapısını gösterir",
-              "en": "DBeaver cannot show table data, only schema structure"
-            }
-          }
-        ],
-        "correct": "a",
-        "explanation": {
-          "tr": "DBeaver'da tabloya çift tıklayınca Properties, Data ve ER Diagram sekmeleri açılır. **Data** sekmesi tüm satırları düzenlenebilir grid'de gösterir — inline düzenleyebilir, yeni satır ekleyebilir, silebilirsin. Sağ tık → Export Data ile CSV veya Excel'e aktarım yapılabilir.",
-          "en": "Double-clicking a table in DBeaver opens Properties, Data, and ER Diagram tabs. The **Data** tab shows all rows in an editable grid — you can edit rows inline, add new rows, and delete them. Right-click → Export Data to export to CSV or Excel."
-        }
-      },
-      {
-        "type": "quiz",
-        "question": {
-          "tr": "Next.js'te veritabanı bağlantısı neden tek bir `Pool` (connection pool) üzerinden yapılmalıdır?",
-          "en": "Why should the database connection in Next.js go through a single `Pool` (connection pool)?"
-        },
-        "options": [
-          {
-            "id": "a",
-            "text": {
-              "tr": "PostgreSQL aynı anda yalnızca 1 bağlantı kabul eder",
-              "en": "PostgreSQL only accepts 1 connection at a time"
-            }
-          },
-          {
-            "id": "b",
-            "text": {
-              "tr": "Her API isteğinde yeni bağlantı açmak pahalıdır — Pool bağlantıları yeniden kullanarak hızı artırır ve veritabanını limit aşımından korur",
-              "en": "Opening a new connection per request is expensive — a Pool reuses connections, increasing speed and protecting the database from hitting max connection limits"
-            }
-          },
-          {
-            "id": "c",
-            "text": {
-              "tr": "Pool sadece Prisma ile çalışır, pg ile çalışmaz",
-              "en": "Pool only works with Prisma, not with pg"
-            }
-          },
-          {
-            "id": "d",
-            "text": {
-              "tr": "Pool yalnızca production ortamında gereklidir",
-              "en": "A Pool is only necessary in production environments"
-            }
-          }
-        ],
-        "correct": "b",
-        "explanation": {
-          "tr": "Her HTTP isteğinde yeni TCP bağlantısı kurmak ~100-200ms overhead ekler ve veritabanının max connection limitine çarpılırsın. Connection Pool bağlantıları önceden hazır tutar ve istekler arasında paylaşır. Java'da HikariCP / DBCP bu yüzden standarttır — her istek için `DriverManager.getConnection()` çağırmak yerine pool'dan alınır.",
-          "en": "Creating a new TCP connection per HTTP request adds ~100-200ms overhead and you can hit the database's max connection limit under load. A Connection Pool keeps connections pre-opened and shares them across requests. In Java, HikariCP / DBCP is standard for the same reason — instead of calling `DriverManager.getConnection()` per request, you borrow from the pool."
-        }
-      },
-      {
-        "type": "callout",
-        "color": "green",
-        "emoji": "✅",
-        "title": {
-          "tr": "DBeaver + Next.js Özet",
-          "en": "DBeaver + Next.js Summary"
-        },
-        "content": {
-          "tr": "1. **DBeaver kur** — Windows (winget), macOS (brew), Linux (snap)\n2. **Bağlantı kur** — SQLite için .db dosyası, PostgreSQL için host/port/user/db\n3. **Schema oluştur** — SQL Editor'de CREATE TABLE sorgularını çalıştır\n4. **Driver seç** — pg (JDBC gibi, tam kontrol) veya Prisma (Hibernate gibi, type-safe)\n5. **DATABASE_URL** yaz — .env.local'a ekle, git'e asla ekleme\n6. **DBeaver açık tut** — API'nin yaptığı değişiklikleri gerçek zamanlı izle",
-          "en": "1. **Install DBeaver** — Windows (winget), macOS (brew), Linux (snap)\n2. **Create connection** — for SQLite use .db file, for PostgreSQL use host/port/user/db\n3. **Build schema** — run CREATE TABLE queries in SQL Editor\n4. **Choose driver** — pg (like JDBC, full control) or Prisma (like Hibernate, type-safe)\n5. **Set DATABASE_URL** — add to .env.local, never commit it\n6. **Keep DBeaver open** — watch the data changes your API makes in real time"
         }
       }
     ]
