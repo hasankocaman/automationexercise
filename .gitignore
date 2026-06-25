@@ -10,6 +10,7 @@ dist/
 # Local study notes - must never be committed
 Documents/_Java notlar.md
 Documents/IT JavaTürkçe.md
+Documents/DBeaverconnectionsteps.md
 
 # Debug / verification screenshots
 verify_*.png

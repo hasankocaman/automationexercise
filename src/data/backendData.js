@@ -3437,6 +3437,258 @@ paths:
                   - $ref: '#/components/schemas/GradeVerdict'
 `;
 
+const trDbeaverSection = {
+  title: '🧰 DBeaver bağlantısı: Supabase PostgreSQL veritabanına dış araçla bağlanma',
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🧰',
+      content: 'DBeaver gibi bir database client, okul dolabının içine dışarıdan bakan güvenli bir kontrol penceresi gibidir. Uygulama öğrencilerin dolaba eşya koyup almasını sağlar; DBeaver ise geliştiricinin dolapların gerçekten doğru oluşup oluşmadığını görmesini sağlar.',
+    },
+    {
+      type: 'text',
+      content: 'Bu sekmenin hedefi Supabase PostgreSQL veritabanına lokal geliştirme bilgisayarından DBeaver, VS Code Database Client veya benzeri bir araçla güvenli şekilde bağlanmaktır. Java analojisiyle düşün: Spring Boot projesinde pgAdmin veya IntelliJ Database penceresinden PostgreSQL tablolarına bakmak neyse, burada DBeaver ile Supabase Postgres tablolarını görmek de odur. Bu bağlantı uygulama kullanıcıları için değil, geliştirici/debug amaçlıdır.',
+    },
+    {
+      type: 'visual',
+      variant: 'boxes',
+      title: 'Kararlı direct connection mimarisi',
+      items: [
+        { icon: '💻', label: 'Local DBeaver', desc: 'Geliştirici makinesi' },
+        { arrow: true },
+        { icon: '🛡️', label: 'Cloudflare WARP', desc: 'IPv6/tünel yolu' },
+        { arrow: true },
+        { icon: '🌐', label: 'db.[Project-ID]', desc: 'Direct host' },
+        { arrow: true },
+        { icon: '🔒', label: 'SSL require', desc: 'Şifreli kanal' },
+        { arrow: true },
+        { icon: '🐘', label: 'PostgreSQL', desc: 'Supabase DB' },
+      ],
+      note: 'Pooler yerine direct connection seçildiğinde username sade kalır: postgres. Bu, DBeaver tarafındaki tenant/user karmaşasını azaltır.',
+    },
+    {
+      type: 'steps',
+      items: [
+        { label: 'Supabase Database ayarlarını aç', desc: 'Supabase Dashboard içinde ilgili projeyi seç, Settings > Database ekranına git.' },
+        { label: 'Host, port ve user bilgisini ayır', desc: 'Direct connection için host db.[Project-ID].supabase.co, port 5432, database postgres, username postgres olmalı.' },
+        { label: 'Database şifresini sadeleştir', desc: 'Özel karakterler connection string ayrıştırmasını bozabildiği için sadece büyük harf, küçük harf ve rakam içeren güçlü bir şifre kullan.' },
+        { label: 'Cloudflare WARP aç', desc: 'Timeout görüyorsan WARP bağlantısını aktif ederek IPv6/tünel yolundan Supabase hostuna ulaşmayı dene.' },
+        { label: 'DBeaver SSL ayarını zorunlu yap', desc: 'SSL sekmesinde Use SSL işaretli, SSL Mode değeri require olmalı.' },
+      ],
+    },
+    {
+      type: 'visual',
+      variant: 'flow',
+      title: 'DBeaver ayar ekranında güvenli sırayla ilerleme',
+      steps: [
+        { num: '1', label: 'PostgreSQL driver', desc: 'Yeni bağlantı' },
+        { num: '2', label: 'Host mode', desc: 'URL değil Host' },
+        { num: '3', label: 'Direct host', desc: 'db.[Project-ID]' },
+        { num: '4', label: 'Port 5432', desc: 'Pooler değil' },
+        { num: '5', label: 'SSL require', desc: 'Zorunlu' },
+        { num: '6', label: 'Test Connection', desc: 'Bağlantıyı doğrula', highlight: true },
+      ],
+      note: 'Bu akışta pooler portu 6543 kullanılmaz; direct connection ile 5432 tercih edilir.',
+    },
+    {
+      type: 'table',
+      headers: ['DBeaver alanı', 'Kararlı değer', 'Neden böyle?'],
+      rows: [
+        ['Connect by', 'Host', 'DBeaver username içindeki nokta veya JDBC URL ayrıştırmasıyla uğraşmaz; alanlar tek tek verilir.'],
+        ['Host', 'db.[Project-ID].supabase.co', 'Supabase PostgreSQL veritabanının direct host adresidir.'],
+        ['Port', '5432', 'Standart PostgreSQL portudur; pooler portu 6543 yerine direct connection kullanılır.'],
+        ['Database', 'postgres', 'Supabase varsayılan database adıdır.'],
+        ['Username', 'postgres', 'Direct connection kullanıldığı için postgres.[Project-ID] formatına gerek yoktur.'],
+        ['Password', 'Özel karaktersiz güncel database şifresi', 'Özel karakterler URL/driver ayrıştırmasında authentication hatasına dönüşebilir.'],
+        ['SSL', 'Use SSL = true, SSL Mode = require', 'Supabase dış bağlantıda şifreli bağlantı bekler; SSL kapalıysa bağlantı başarısız olabilir.'],
+      ],
+    },
+    {
+      type: 'code',
+      label: 'DBeaver direct connection checklist',
+      language: 'bash',
+      code: `# DBeaver > New Database Connection > PostgreSQL
+# Main sekmesi
+Connect by: Host
+Host: db.[Project-ID].supabase.co
+Port: 5432
+Database: postgres
+Username: postgres
+Password: [Supabase Database password]
+
+# SSL sekmesi
+Use SSL: true
+SSL mode: require
+
+# Ağ kontrolü
+Cloudflare WARP: Connected
+Test Connection: Success`,
+    },
+    {
+      type: 'table',
+      headers: ['Hata mesajı', 'Muhtemel neden', 'Çözüm'],
+      rows: [
+        ['FATAL: tenant/user not found veya no tenant identifier provided', 'Pooler username formatı veya driver ayrıştırması sorun çıkarmıştır.', 'Direct connection kullan: host db.[Project-ID].supabase.co, port 5432, username postgres.'],
+        ['Connect timeout!', 'Yerel ağ/ISS yönlendirmesi Supabase portlarına sağlıklı ulaşamıyor olabilir.', 'Cloudflare WARP aç, sonra aynı DBeaver ayarlarıyla tekrar Test Connection çalıştır.'],
+        ['Password authentication failed for user ...', 'Şifre yanlış olabilir, özel karakterler driver/URL ayrıştırmasını bozmuş olabilir veya pooler eski şifreyi cachelemiş olabilir.', 'Supabase Settings > Database altında şifreyi özel karaktersiz güçlü bir değerle resetle; direct connection ve SSL require ile tekrar dene.'],
+      ],
+    },
+    {
+      type: 'warning',
+      content: 'Bu bağlantı geliştirici/debug içindir. Database password, Supabase service_role key veya bağlantı stringi asla React tarafındaki VITE_ değişkenlerine, public dokümana ya da Git ile takip edilen dosyaya yazılmamalıdır. DBeaver içinde kaydettiğin parola lokal makinede kalmalı; proje repo dosyalarına taşınmamalıdır.',
+    },
+    {
+      type: 'quiz',
+      question: 'Supabase PostgreSQL veritabanına DBeaver ile en kararlı bağlantı için hangi kombinasyon tercih edilir?',
+      options: [
+        { id: 'a', text: 'Pooler host + port 6543 + username postgres.[Project-ID] + SSL kapalı' },
+        { id: 'b', text: 'Direct host db.[Project-ID].supabase.co + port 5432 + username postgres + SSL require' },
+        { id: 'c', text: 'localhost + port 3000 + username admin + HTTP' },
+        { id: 'd', text: 'React uygulamasındaki VITE_SUPABASE_URL değerini password alanına yazmak' },
+      ],
+      correct: 'b',
+      explanation: 'Dokümandaki nihai kararlı yapı direct connection üzerinden kurulmuş: host db.[Project-ID].supabase.co, port 5432, database postgres, username postgres ve SSL Mode require. Pooler bazı ortamlarda username/tenant ayrıştırması ve şifre cache sorunları çıkarabildiği için bu senaryoda direct connection daha sade ve stabil kabul edilir.',
+      retryQuestion: {
+        question: 'DBeaver bağlantısında Connect timeout hatası alırsan ilk pratik ağ çözümü nedir?',
+        options: [
+          { id: 'a', text: 'RLS policy silmek' },
+          { id: 'b', text: 'Cloudflare WARP açıp IPv6/tünel yoluyla tekrar denemek' },
+          { id: 'c', text: 'React uygulamasını production build almak' },
+          { id: 'd', text: 'Database adını learnqa olarak değiştirmek' },
+        ],
+        correct: 'b',
+        explanation: 'Timeout veritabanı şemasından değil, ağ yolundan kaynaklanır. Dokümandaki kesin çözüm WARP açılarak Supabase hostuna daha sağlıklı bir ağ rotası üzerinden tekrar bağlanmaktır.',
+      },
+    },
+  ],
+};
+
+const enDbeaverSection = {
+  title: '🧰 DBeaver connection: connect an external tool to Supabase PostgreSQL',
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🧰',
+      content: 'A database client like DBeaver is like a safe inspection window into a school locker room. The app lets students put things into their own lockers; DBeaver lets the developer check whether the lockers were created and filled correctly.',
+    },
+    {
+      type: 'text',
+      content: 'The goal of this tab is to connect from your local development machine to Supabase PostgreSQL with DBeaver, VS Code Database Client, or a similar tool. Java analogy: using DBeaver here is like opening pgAdmin or the IntelliJ Database tool window for a Spring Boot + PostgreSQL project. This connection is for developer/debug work, not for application end users.',
+    },
+    {
+      type: 'visual',
+      variant: 'boxes',
+      title: 'Stable direct connection architecture',
+      items: [
+        { icon: '💻', label: 'Local DBeaver', desc: 'Developer machine' },
+        { arrow: true },
+        { icon: '🛡️', label: 'Cloudflare WARP', desc: 'IPv6/tunnel path' },
+        { arrow: true },
+        { icon: '🌐', label: 'db.[Project-ID]', desc: 'Direct host' },
+        { arrow: true },
+        { icon: '🔒', label: 'SSL require', desc: 'Encrypted channel' },
+        { arrow: true },
+        { icon: '🐘', label: 'PostgreSQL', desc: 'Supabase DB' },
+      ],
+      note: 'Using direct connection keeps the username simple: postgres. That avoids tenant/user parsing confusion that can appear with the pooler path.',
+    },
+    {
+      type: 'steps',
+      items: [
+        { label: 'Open Supabase Database settings', desc: 'In Supabase Dashboard, select the project and go to Settings > Database.' },
+        { label: 'Separate host, port, and user', desc: 'For direct connection use host db.[Project-ID].supabase.co, port 5432, database postgres, username postgres.' },
+        { label: 'Simplify the database password', desc: 'Because special characters can confuse URL/connection-string parsing, use a strong password made of letters and numbers only.' },
+        { label: 'Turn on Cloudflare WARP', desc: 'If you hit timeout errors, enable WARP and retry through the IPv6/tunnel route.' },
+        { label: 'Make DBeaver SSL mandatory', desc: 'In the SSL tab, enable Use SSL and set SSL Mode to require.' },
+      ],
+    },
+    {
+      type: 'visual',
+      variant: 'flow',
+      title: 'Safe order inside the DBeaver connection screen',
+      steps: [
+        { num: '1', label: 'PostgreSQL driver', desc: 'New connection' },
+        { num: '2', label: 'Host mode', desc: 'Not URL' },
+        { num: '3', label: 'Direct host', desc: 'db.[Project-ID]' },
+        { num: '4', label: 'Port 5432', desc: 'Not pooler' },
+        { num: '5', label: 'SSL require', desc: 'Required' },
+        { num: '6', label: 'Test Connection', desc: 'Verify access', highlight: true },
+      ],
+      note: 'This flow does not use the pooler port 6543; it prefers direct connection on 5432.',
+    },
+    {
+      type: 'table',
+      headers: ['DBeaver field', 'Stable value', 'Why this value?'],
+      rows: [
+        ['Connect by', 'Host', 'DBeaver receives each field separately instead of parsing dots in usernames or JDBC URLs.'],
+        ['Host', 'db.[Project-ID].supabase.co', 'The direct host address of the Supabase PostgreSQL database.'],
+        ['Port', '5432', 'The standard PostgreSQL port; this setup uses direct connection instead of pooler port 6543.'],
+        ['Database', 'postgres', 'The default Supabase database name.'],
+        ['Username', 'postgres', 'Direct connection does not need the postgres.[Project-ID] pooler username format.'],
+        ['Password', 'Current database password without special characters', 'Special characters can become authentication failures when a driver or URL parser misreads them.'],
+        ['SSL', 'Use SSL = true, SSL Mode = require', 'Supabase expects encrypted external connections; disabling SSL can make the connection fail.'],
+      ],
+    },
+    {
+      type: 'code',
+      label: 'DBeaver direct connection checklist',
+      language: 'bash',
+      code: `# DBeaver > New Database Connection > PostgreSQL
+# Main tab
+Connect by: Host
+Host: db.[Project-ID].supabase.co
+Port: 5432
+Database: postgres
+Username: postgres
+Password: [Supabase Database password]
+
+# SSL tab
+Use SSL: true
+SSL mode: require
+
+# Network check
+Cloudflare WARP: Connected
+Test Connection: Success`,
+    },
+    {
+      type: 'table',
+      headers: ['Error message', 'Likely cause', 'Fix'],
+      rows: [
+        ['FATAL: tenant/user not found or no tenant identifier provided', 'The pooler username format or driver parsing caused confusion.', 'Use direct connection: host db.[Project-ID].supabase.co, port 5432, username postgres.'],
+        ['Connect timeout!', 'The local network or ISP route may not reach Supabase ports reliably.', 'Enable Cloudflare WARP, then retry Test Connection with the same DBeaver settings.'],
+        ['Password authentication failed for user ...', 'The password may be wrong, special characters may have confused parsing, or the pooler may still cache the old password.', 'Reset the password in Supabase Settings > Database using a strong value without special characters; retry with direct connection and SSL require.'],
+      ],
+    },
+    {
+      type: 'warning',
+      content: 'This connection is for developer/debug work. Never put the database password, Supabase service_role key, or full connection string into React VITE_ variables, public docs, or Git-tracked files. A password saved inside DBeaver should stay local to the machine, not move into the repository.',
+    },
+    {
+      type: 'quiz',
+      question: 'Which combination is the most stable DBeaver connection setup for Supabase PostgreSQL in this guide?',
+      options: [
+        { id: 'a', text: 'Pooler host + port 6543 + username postgres.[Project-ID] + SSL off' },
+        { id: 'b', text: 'Direct host db.[Project-ID].supabase.co + port 5432 + username postgres + SSL require' },
+        { id: 'c', text: 'localhost + port 3000 + username admin + HTTP' },
+        { id: 'd', text: 'Put VITE_SUPABASE_URL into the password field' },
+      ],
+      correct: 'b',
+      explanation: 'The final stable setup in the guide uses direct connection: host db.[Project-ID].supabase.co, port 5432, database postgres, username postgres, and SSL Mode require. Pooler can introduce username/tenant parsing and password cache issues in some environments, so direct connection is simpler here.',
+      retryQuestion: {
+        question: 'If DBeaver shows Connect timeout, what is the first practical network fix from the guide?',
+        options: [
+          { id: 'a', text: 'Delete RLS policies' },
+          { id: 'b', text: 'Turn on Cloudflare WARP and retry through the IPv6/tunnel path' },
+          { id: 'c', text: 'Run a production React build' },
+          { id: 'd', text: 'Rename the database to learnqa' },
+        ],
+        correct: 'b',
+        explanation: 'Timeout is a network path problem, not a database schema problem. The guide resolves it by turning on WARP and retrying the Supabase host through a healthier route.',
+      },
+    },
+  ],
+};
+
 const trSections = [
   {
     title: '🧭 Backend yol haritası: Bu uygulama neye ihtiyaç duyuyor?',
@@ -3647,6 +3899,7 @@ const trSections = [
       },
     ],
   },
+  trDbeaverSection,
   {
     title: '🟢 Supabase projesi, tablo şeması ve güvenlik',
     blocks: [
@@ -4863,6 +5116,7 @@ const enSections = [
       },
     ],
   },
+  enDbeaverSection,
   {
     title: '🟢 Supabase project, schema, and security',
     blocks: [
@@ -5421,7 +5675,7 @@ export const backendData = {
       subtitle: 'Modern Auth, Progress, Rozet, Feedback, Realtime Chat ve Premium Paywall',
       intro: 'LearnQA.dev uygulamasına Supabase ile kişisel kullanıcı deneyimi eklemeyi adım adım öğren: Google/GitHub/Microsoft giriş, Magic Link aktivasyon, kaldığı yerden devam, ders ilerleme kaydı, rozetler, öneri kutusu, online sohbet, sembolik premium ödeme ve güvenli paywall.',
     },
-    tabs: ['🧭 Yol Haritası', '🏛️ Gerçek Mimari', '📜 API Swagger', '🟢 Supabase & SQL', '🔐 Auth', '📍 Progress', '🏅 Rozetler', '💬 Feedback', '🟣 Realtime Chat', '💳 Premium', '🚀 Entegrasyon'],
+    tabs: ['🧭 Yol Haritası', '🏛️ Gerçek Mimari', '📜 API Swagger', '🧰 DBeaver Bağlantı', '🟢 Supabase & SQL', '🔐 Auth', '📍 Progress', '🏅 Rozetler', '💬 Feedback', '🟣 Realtime Chat', '💳 Premium', '🚀 Entegrasyon'],
     sections: trSections,
   },
   en: {
@@ -5430,7 +5684,7 @@ export const backendData = {
       subtitle: 'Modern Auth, Progress, Badges, Feedback, Realtime Chat, and Premium Paywall',
       intro: 'Learn how to add a personal backend experience to LearnQA.dev with Supabase: Google/GitHub/Microsoft login, Magic Link activation, resume points, progress tracking, badges, feedback, online chat, symbolic premium payment, and secure paywall.',
     },
-    tabs: ['🧭 Roadmap', '🏛️ Real Architecture', '📜 API Swagger', '🟢 Supabase & SQL', '🔐 Auth', '📍 Progress', '🏅 Badges', '💬 Feedback', '🟣 Realtime Chat', '💳 Premium', '🚀 Integration'],
+    tabs: ['🧭 Roadmap', '🏛️ Real Architecture', '📜 API Swagger', '🧰 DBeaver Connection', '🟢 Supabase & SQL', '🔐 Auth', '📍 Progress', '🏅 Badges', '💬 Feedback', '🟣 Realtime Chat', '💳 Premium', '🚀 Integration'],
     sections: enSections,
   },
 };

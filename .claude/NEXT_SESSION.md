@@ -9,13 +9,30 @@
 
 ---
 
-## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfasına DBeaver Sekmesi Eklendi
+## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfası DBeaver + JOIN TR Düzeltmeleri
 
-SQL sayfasına 25. sekme olarak **"🛠️ DBeaver — Görsel Veritabanı Yöneticisi"** eklendi.
+### 1. DBeaver Sekmesi (SQL sayfası 25. sekme)
+`sqlData.js` → DBeaver sekmesi `enTabs`/`trTabs`'a (25 giriş) ve `finalEnSections`/`finalTrSections`'a eklendi.
+**Kapsam:** kurulum (Windows/macOS/Linux), sıfırdan DB + schema, Next.js + PostgreSQL entegrasyonu (pg driver vs Prisma ORM, Java JDBC/Hibernate analojisi). 22 bilingual blok.
+**Son commit:** `ff28214` (sekme sırası fix: Mülakat en sonda)
 
-**Kapsam:** DBeaver kurulumu (Windows/macOS/Linux), sıfırdan database + schema oluşturma, Next.js + PostgreSQL entegrasyonu (pg driver ve Prisma ORM karşılaştırması ile Java JDBC/Hibernate analojisi).
+### 2. JOIN Bölümü TR Dil Düzeltmeleri
+Türkçe modda görünen İngilizce içerikler düzeltildi:
+- "Visual JOIN Guide" başlığı → bilingual `{ tr, en }` object
+- "The 4 diagrams below..." text → bilingual
+- 3 JOIN visual block explanation veri kayması hatası giderildi (INNER→INNER, LEFT→LEFT, RIGHT→Right, her biri bilingual)
+- Comparison block label/note → bilingual
+- Quiz question + explanation + retryQuestion → bilingual
+- `TopicPage.jsx` `JoinDiagram`: `block.explanation` artık `tx()` üzerinden işleniyor
 
-**Teknik:** `sqlData.js` → `enTabs`/`trTabs` dizilerine tab etiketi eklendi (25 giriş), `finalEnSections` ve `finalTrSections` dizilerine bilingual blok setleri eklendi (22 blok: simple-box, grid, code, callout, table, 2 quiz). Build: ✅ 16.09s, 36 static route, SEO check passed.
+### 3. Sekme Sırası: Mülakat en sona taşındı
+`enTabs`/`trTabs` ve `finalEnSections`/`finalTrSections` sırası:
+`... → DBeaver (23) → Mülakat/Interview Q&A (24, en son)`
+
+### 4. backendData.js — DBeaver→Supabase Bağlantı Bölümü
+Backend sayfasına `trDbeaverSection` eklendi (Supabase PostgreSQL'e DBeaver ile bağlanma, direkt connection mimarisi).
+
+**Build:** ✅ tüm commitlerde geçti, 36 static route, SEO check passed.
 
 ---
 
