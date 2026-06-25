@@ -564,40 +564,87 @@ SELECT name, COALESCE(email, 'no email') FROM users;`,
       },
       {
         type: 'quiz',
-        question: 'A query returns 0 rows when you filter: WHERE discount = NULL. Why?',
+        question: {
+          tr: 'WHERE discount = NULL filtresi uyguladığında sorgu 0 satır döndürüyor. Neden?',
+          en: 'A query returns 0 rows when you filter: WHERE discount = NULL. Why?'
+        },
         options: [
-          'There are no NULL discounts in the table',
-          'NULL comparisons with = always return NULL (not TRUE), so no rows match',
-          'You need quotes: WHERE discount = "NULL"',
-          'NULL is automatically converted to 0',
-        ],
-        correct: 1,
-        explanation: 'Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs.',
-      
-        retryQuestion: {
-      "question": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
-      "options": [
-            {
-                  "id": "a",
-                  "text": "NULL values cannot be queried in a WHERE clause"
-            },
-            {
-                  "id": "b",
-                  "text": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
-            },
-            {
-                  "id": "c",
-                  "text": "The syntax requires 'WHERE age IS 0'"
-            },
-            {
-                  "id": "d",
-                  "text": "NULL values are hidden by default in SQL results"
+          {
+            id: 'a',
+            text: {
+              tr: 'Tabloda NULL indirim yok',
+              en: 'There are no NULL discounts in the table'
             }
-      ],
-      "correct": "b",
-      "explanation": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
-}
-},
+          },
+          {
+            id: 'b',
+            text: {
+              tr: '= ile NULL karşılaştırması her zaman NULL (TRUE değil) döndürür, hiçbir satır eşleşmez',
+              en: 'NULL comparisons with = always return NULL (not TRUE), so no rows match'
+            }
+          },
+          {
+            id: 'c',
+            text: {
+              tr: 'Tırnak gerekiyor: WHERE discount = "NULL"',
+              en: 'You need quotes: WHERE discount = "NULL"'
+            }
+          },
+          {
+            id: 'd',
+            text: {
+              tr: "NULL otomatik olarak 0'a dönüştürülür",
+              en: 'NULL is automatically converted to 0'
+            }
+          }
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '= veya != ile yapılan NULL karşılaştırmaları FALSE gibi davranır. Bunun yerine IS NULL veya IS NOT NULL kullanın. Bu, en yaygın SQL hatalarından biridir.',
+          en: 'Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs.'
+        },
+        retryQuestion: {
+          question: {
+            tr: "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+            en: "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?"
+          },
+          options: [
+            {
+              id: "a",
+              text: {
+                tr: "NULL değerleri WHERE ifadesinde sorgulanamaz",
+                en: "NULL values cannot be queried in a WHERE clause"
+              }
+            },
+            {
+              id: "b",
+              text: {
+                tr: "= operatörüyle yapılan NULL karşılaştırmaları UNKNOWN ile sonuçlanır, bunun yerine IS NULL operatörü kullanılmalıdır",
+                en: "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+              }
+            },
+            {
+              id: "c",
+              text: {
+                tr: "Sözdizimi 'WHERE age IS 0' şeklinde olmalıdır",
+                en: "The syntax requires 'WHERE age IS 0'"
+              }
+            },
+            {
+              id: "d",
+              text: {
+                tr: "NULL değerleri SQL sonuçlarında varsayılan olarak gizlenir",
+                en: "NULL values are hidden by default in SQL results"
+              }
+            }
+          ],
+          correct: "b",
+          explanation: {
+            tr: "SQL'de NULL bilinmeyen bir değeri temsil eder. NULL değerine karşı standart eşittir operatörü (=) kullanmak TRUE değil UNKNOWN ile sonuçlanır. Boş alanları filtrelemek için 'IS NULL' veya 'IS NOT NULL' ifadelerini kullanmalısınız.",
+            en: "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+          }
+        }
+      },
       { type: 'heading', text: '☕ If You Know Java: Database Access Bridge' },
       {
         type: 'java-compare',
@@ -1694,7 +1741,7 @@ COMMIT;`,
         language: 'sql'
       },
       // Quiz: Window functions
-      { type: 'quiz', question: { tr: 'Window fonksiyonlarini GROUP BY dan ayiran temel ozellik nedir?', en: 'What is the key difference between window functions and GROUP BY?' }, options: [{ id: 'a', text: 'Window functions only work on dates' }, { id: 'b', text: 'Window functions collapse rows into groups' }, { id: 'c', text: 'Window functions calculate across rows without collapsing them' }, { id: 'd', text: 'GROUP BY is faster than window functions' }], correct: 'c', explanation: { tr: 'Window fonksiyonlari her satirin kimligini korur. GROUP BY satiri daraltir. ROW_NUMBER(), RANK(), SUM() OVER() satir bazli hesaplama yapar ama satir kaybolmaz.', en: 'Window functions keep each row identity — unlike GROUP BY which collapses rows. ROW_NUMBER(), RANK(), SUM() OVER() calculate per-row while keeping all rows visible.' } ,
+      { type: 'quiz', question: { tr: 'Window fonksiyonlarini GROUP BY dan ayiran temel ozellik nedir?', en: 'What is the key difference between window functions and GROUP BY?' }, options: [{ id: 'a', text: { tr: 'Window fonksiyonları sadece tarih değerlerinde çalışır', en: 'Window functions only work on dates' } }, { id: 'b', text: { tr: 'Window fonksiyonları satırları gruplar halinde daraltır/indirger', en: 'Window functions collapse rows into groups' } }, { id: 'c', text: { tr: 'Window fonksiyonları satırları daraltmadan (indirgemeden) satırlar boyunca hesaplama yapar', en: 'Window functions calculate across rows without collapsing them' } }, { id: 'd', text: { tr: 'GROUP BY, window fonksiyonlarından daha hızlıdır', en: 'GROUP BY is faster than window functions' } }], correct: 'c', explanation: { tr: 'Window fonksiyonlari her satirin kimligini korur. GROUP BY satiri daraltir. ROW_NUMBER(), RANK(), SUM() OVER() satir bazli hesaplama yapar ama satir kaybolmaz.', en: 'Window functions keep each row identity — unlike GROUP BY which collapses rows. ROW_NUMBER(), RANK(), SUM() OVER() calculate per-row while keeping all rows visible.' } ,
         retryQuestion: {
       "question": {
             "tr": "Window fonksiyonlarinin 'Aggregate' fonksiyonlardan (GROUP BY ile kullanilan) temel farki nedir?",
@@ -1703,19 +1750,19 @@ COMMIT;`,
       "options": [
             {
                   "id": "a",
-                  "text": "Window fonksiyonlari tabloyu gruplara ayirarak satir sayisini azaltir"
+                  "text": { tr: 'Window fonksiyonları tabloyu gruplara ayırarak satır sayısını azaltır', en: 'Window functions divide the table into groups to reduce the row count' }
             },
             {
                   "id": "b",
-                  "text": "Aggregate fonksiyonlar satir bazli hesaplama yapamaz"
+                  "text": { tr: 'Aggregate fonksiyonlar satır bazlı hesaplama yapamaz', en: 'Aggregate functions cannot perform row-level calculations' }
             },
             {
                   "id": "c",
-                  "text": "Window fonksiyonlari her satiri korur ve sonuc satiri sayisini degistirmez"
+                  "text": { tr: 'Window fonksiyonları her satırı korur ve sonuç satırı sayısını değiştirmez', en: 'Window functions preserve each row and do not change the number of output rows' }
             },
             {
                   "id": "d",
-                  "text": "Aggregate fonksiyonlar sadece numerik verilerde calisir"
+                  "text": { tr: 'Aggregate fonksiyonlar sadece sayısal (numerik) verilerde çalışır', en: 'Aggregate functions only work on numeric data' }
             }
       ],
       "correct": "c",
@@ -4232,37 +4279,85 @@ const finalEnSections = [
       },
       {
         "type": "quiz",
-        "question": "A query returns 0 rows when you filter: WHERE discount = NULL. Why?",
+        "question": {
+          "tr": "WHERE discount = NULL filtresi uyguladığında sorgu 0 satır döndürüyor. Neden?",
+          "en": "A query returns 0 rows when you filter: WHERE discount = NULL. Why?"
+        },
         "options": [
-          "There are no NULL discounts in the table",
-          "NULL comparisons with = always return NULL (not TRUE), so no rows match",
-          "You need quotes: WHERE discount = \"NULL\"",
-          "NULL is automatically converted to 0"
+          {
+            "id": "a",
+            "text": {
+              "tr": "Tabloda NULL indirim yok",
+              "en": "There are no NULL discounts in the table"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "= ile NULL karşılaştırması her zaman NULL (TRUE değil) döndürür, hiçbir satır eşleşmez",
+              "en": "NULL comparisons with = always return NULL (not TRUE), so no rows match"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Tırnak gerekiyor: WHERE discount = \"NULL\"",
+              "en": "You need quotes: WHERE discount = \"NULL\""
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "NULL otomatik olarak 0'a dönüştürülür",
+              "en": "NULL is automatically converted to 0"
+            }
+          }
         ],
-        "correct": 1,
-        "explanation": "Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs.",
+        "correct": "b",
+        "explanation": {
+          "tr": "= veya != ile yapılan NULL karşılaştırmaları FALSE gibi davranır. Bunun yerine IS NULL veya IS NOT NULL kullanın. Bu, en yaygın SQL hatalarından biridir.",
+          "en": "Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs."
+        },
         "retryQuestion": {
-          "question": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+          "question": {
+            "tr": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+            "en": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?"
+          },
           "options": [
             {
               "id": "a",
-              "text": "NULL values cannot be queried in a WHERE clause"
+              "text": {
+                "tr": "NULL değerleri WHERE ifadesinde sorgulanamaz",
+                "en": "NULL values cannot be queried in a WHERE clause"
+              }
             },
             {
               "id": "b",
-              "text": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+              "text": {
+                "tr": "= operatörüyle yapılan NULL karşılaştırmaları UNKNOWN ile sonuçlanır, bunun yerine IS NULL operatörü kullanılmalıdır",
+                "en": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+              }
             },
             {
               "id": "c",
-              "text": "The syntax requires 'WHERE age IS 0'"
+              "text": {
+                "tr": "Sözdizimi 'WHERE age IS 0' şeklinde olmalıdır",
+                "en": "The syntax requires 'WHERE age IS 0'"
+              }
             },
             {
               "id": "d",
-              "text": "NULL values are hidden by default in SQL results"
+              "text": {
+                "tr": "NULL değerleri SQL sonuçlarında varsayılan olarak gizlenir",
+                "en": "NULL values are hidden by default in SQL results"
+              }
             }
           ],
           "correct": "b",
-          "explanation": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+          "explanation": {
+            "tr": "SQL'de NULL bilinmeyen bir değeri temsil eder. NULL değerine karşı standart eşittir operatörü (=) kullanmak TRUE değil UNKNOWN ile sonuçlanır. Boş alanları filtrelemek için 'IS NULL' veya 'IS NOT NULL' ifadelerini kullanmalısınız.",
+            "en": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+          }
         }
       },
       {
@@ -5652,19 +5747,31 @@ const finalEnSections = [
         "options": [
           {
             "id": "a",
-            "text": "Window functions only work on dates"
+            "text": {
+              "tr": "Window fonksiyonları sadece tarih değerlerinde çalışır",
+              "en": "Window functions only work on dates"
+            }
           },
           {
             "id": "b",
-            "text": "Window functions collapse rows into groups"
+            "text": {
+              "tr": "Window fonksiyonları satırları gruplar halinde daraltır/indirger",
+              "en": "Window functions collapse rows into groups"
+            }
           },
           {
             "id": "c",
-            "text": "Window functions calculate across rows without collapsing them"
+            "text": {
+              "tr": "Window fonksiyonları satırları daraltmadan (indirgemeden) satırlar boyunca hesaplama yapar",
+              "en": "Window functions calculate across rows without collapsing them"
+            }
           },
           {
             "id": "d",
-            "text": "GROUP BY is faster than window functions"
+            "text": {
+              "tr": "GROUP BY, window fonksiyonlarından daha hızlıdır",
+              "en": "GROUP BY is faster than window functions"
+            }
           }
         ],
         "correct": "c",
@@ -5680,19 +5787,31 @@ const finalEnSections = [
           "options": [
             {
               "id": "a",
-              "text": "Window fonksiyonlari tabloyu gruplara ayirarak satir sayisini azaltir"
+              "text": {
+                "tr": "Window fonksiyonları tabloyu gruplara ayırarak satır sayısını azaltır",
+                "en": "Window functions divide the table into groups to reduce the row count"
+              }
             },
             {
               "id": "b",
-              "text": "Aggregate fonksiyonlar satir bazli hesaplama yapamaz"
+              "text": {
+                "tr": "Aggregate fonksiyonlar satır bazlı hesaplama yapamaz",
+                "en": "Aggregate functions cannot perform row-level calculations"
+              }
             },
             {
               "id": "c",
-              "text": "Window fonksiyonlari her satiri korur ve sonuc satiri sayisini degistirmez"
+              "text": {
+                "tr": "Window fonksiyonları her satırı korur ve sonuç satırı sayısını değiştirmez",
+                "en": "Window functions preserve each row and do not change the number of output rows"
+              }
             },
             {
               "id": "d",
-              "text": "Aggregate fonksiyonlar sadece numerik verilerde calisir"
+              "text": {
+                "tr": "Aggregate fonksiyonlar sadece sayısal (numerik) verilerde çalışır",
+                "en": "Aggregate functions only work on numeric data"
+              }
             }
           ],
           "correct": "c",
@@ -10145,37 +10264,85 @@ const finalTrSections = [
       },
       {
         "type": "quiz",
-        "question": "WHERE discount = NULL filtresi uyguladığında sorgu 0 satır döndürüyor. Neden?",
+        "question": {
+          "tr": "WHERE discount = NULL filtresi uyguladığında sorgu 0 satır döndürüyor. Neden?",
+          "en": "A query returns 0 rows when you filter: WHERE discount = NULL. Why?"
+        },
         "options": [
-          "Tabloda NULL indirim yok",
-          "= ile NULL karşılaştırması her zaman NULL (TRUE değil) döndürür, hiçbir satır eşleşmez",
-          "Tırnak gerekiyor: WHERE discount = \"NULL\"",
-          "NULL otomatik olarak 0'a dönüştürülür"
+          {
+            "id": "a",
+            "text": {
+              "tr": "Tabloda NULL indirim yok",
+              "en": "There are no NULL discounts in the table"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "tr": "= ile NULL karşılaştırması her zaman NULL (TRUE değil) döndürür, hiçbir satır eşleşmez",
+              "en": "NULL comparisons with = always return NULL (not TRUE), so no rows match"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "tr": "Tırnak gerekiyor: WHERE discount = \"NULL\"",
+              "en": "You need quotes: WHERE discount = \"NULL\""
+            }
+          },
+          {
+            "id": "d",
+            "text": {
+              "tr": "NULL otomatik olarak 0'a dönüştürülür",
+              "en": "NULL is automatically converted to 0"
+            }
+          }
         ],
-        "correct": 1,
-        "explanation": "= veya != ile yapılan NULL karşılaştırmaları FALSE gibi davranır. Bunun yerine IS NULL veya IS NOT NULL kullanın. Bu, en yaygın SQL hatalarından biridir.",
+        "correct": "b",
+        "explanation": {
+          "tr": "= veya != ile yapılan NULL karşılaştırmaları FALSE gibi davranır. Bunun yerine IS NULL veya IS NOT NULL kullanın. Bu, en yaygın SQL hatalarından biridir.",
+          "en": "Any comparison with NULL using = or != returns NULL, which is treated as FALSE. Use IS NULL or IS NOT NULL instead. This is one of the most common SQL bugs."
+        },
         "retryQuestion": {
-          "question": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+          "question": {
+            "tr": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?",
+            "en": "If you execute 'SELECT * FROM users WHERE age = NULL;', why might you get no results even if some users have no age recorded?"
+          },
           "options": [
             {
               "id": "a",
-              "text": "NULL values cannot be queried in a WHERE clause"
+              "text": {
+                "tr": "NULL değerleri WHERE ifadesinde sorgulanamaz",
+                "en": "NULL values cannot be queried in a WHERE clause"
+              }
             },
             {
               "id": "b",
-              "text": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+              "text": {
+                "tr": "= operatörüyle yapılan NULL karşılaştırmaları UNKNOWN ile sonuçlanır, bunun yerine IS NULL operatörü kullanılmalıdır",
+                "en": "Comparisons with NULL using = result in UNKNOWN, requiring the IS NULL operator instead"
+              }
             },
             {
               "id": "c",
-              "text": "The syntax requires 'WHERE age IS 0'"
+              "text": {
+                "tr": "Sözdizimi 'WHERE age IS 0' şeklinde olmalıdır",
+                "en": "The syntax requires 'WHERE age IS 0'"
+              }
             },
             {
               "id": "d",
-              "text": "NULL values are hidden by default in SQL results"
+              "text": {
+                "tr": "NULL değerleri SQL sonuçlarında varsayılan olarak gizlenir",
+                "en": "NULL values are hidden by default in SQL results"
+              }
             }
           ],
           "correct": "b",
-          "explanation": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+          "explanation": {
+            "tr": "SQL'de NULL bilinmeyen bir değeri temsil eder. NULL değerine karşı standart eşittir operatörü (=) kullanmak TRUE değil UNKNOWN ile sonuçlanır. Boş alanları filtrelemek için 'IS NULL' veya 'IS NOT NULL' ifadelerini kullanmalısınız.",
+            "en": "In SQL, NULL represents an unknown value. Using standard equality operators (=) against NULL results in UNKNOWN, not TRUE. To filter for empty fields, you must use the 'IS NULL' or 'IS NOT NULL' predicates."
+          }
         }
       },
       {
@@ -11572,19 +11739,31 @@ const finalTrSections = [
         "options": [
           {
             "id": "a",
-            "text": "Window functions only work on dates"
+            "text": {
+              "tr": "Window fonksiyonları sadece tarih değerlerinde çalışır",
+              "en": "Window functions only work on dates"
+            }
           },
           {
             "id": "b",
-            "text": "Window functions collapse rows into groups"
+            "text": {
+              "tr": "Window fonksiyonları satırları gruplar halinde daraltır/indirger",
+              "en": "Window functions collapse rows into groups"
+            }
           },
           {
             "id": "c",
-            "text": "Window functions calculate across rows without collapsing them"
+            "text": {
+              "tr": "Window fonksiyonları satırları daraltmadan (indirgemeden) satırlar boyunca hesaplama yapar",
+              "en": "Window functions calculate across rows without collapsing them"
+            }
           },
           {
             "id": "d",
-            "text": "GROUP BY is faster than window functions"
+            "text": {
+              "tr": "GROUP BY, window fonksiyonlarından daha hızlıdır",
+              "en": "GROUP BY is faster than window functions"
+            }
           }
         ],
         "correct": "c",
@@ -11600,19 +11779,31 @@ const finalTrSections = [
           "options": [
             {
               "id": "a",
-              "text": "Window fonksiyonlari tabloyu gruplara ayirarak satir sayisini azaltir"
+              "text": {
+                "tr": "Window fonksiyonları tabloyu gruplara ayırarak satır sayısını azaltır",
+                "en": "Window functions divide the table into groups to reduce the row count"
+              }
             },
             {
               "id": "b",
-              "text": "Aggregate fonksiyonlar satir bazli hesaplama yapamaz"
+              "text": {
+                "tr": "Aggregate fonksiyonlar satır bazlı hesaplama yapamaz",
+                "en": "Aggregate functions cannot perform row-level calculations"
+              }
             },
             {
               "id": "c",
-              "text": "Window fonksiyonlari her satiri korur ve sonuc satiri sayisini degistirmez"
+              "text": {
+                "tr": "Window fonksiyonları her satırı korur ve sonuç satırı sayısını değiştirmez",
+                "en": "Window functions preserve each row and do not change the number of output rows"
+              }
             },
             {
               "id": "d",
-              "text": "Aggregate fonksiyonlar sadece numerik verilerde calisir"
+              "text": {
+                "tr": "Aggregate fonksiyonlar sadece sayısal (numerik) verilerde çalışır",
+                "en": "Aggregate functions only work on numeric data"
+              }
             }
           ],
           "correct": "c",

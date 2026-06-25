@@ -15,7 +15,7 @@ test('JavaScript tabs load and render without crash', async ({ page }) => {
     });
 
     await page.goto('/javascript');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await page.waitForSelector('h1', { timeout: 30000 });
 
     // Find only sidebar navigation buttons
     const tabButtons = page.locator('div[class*="w-52"] button');

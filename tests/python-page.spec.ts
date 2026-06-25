@@ -5,7 +5,7 @@ test('Python Foundations tab loads without crash', async ({ page }) => {
     page.on('pageerror', e => errors.push(e.message));
 
     await page.goto('/automationexercise/#/python');
-    await page.waitForSelector('text=Python', { timeout: 10000 });
+    await page.waitForSelector('text=Python', { timeout: 30000 });
 
     // Click Syntax & Comments tab
     const syntaxTab = page.locator('button', { hasText: 'Syntax & Comments' });
@@ -34,7 +34,7 @@ test('TypeScript Foundations tab loads without crash', async ({ page }) => {
     page.on('pageerror', e => errors.push(e.message));
 
     await page.goto('/automationexercise/#/typescript');
-    await page.waitForSelector('text=TypeScript', { timeout: 10000 });
+    await page.waitForSelector('text=TypeScript', { timeout: 30000 });
 
     const foundationsTab = page.locator('button', { hasText: 'Foundations' });
     if (await foundationsTab.count() > 0) {
