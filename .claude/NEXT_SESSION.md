@@ -9,6 +9,16 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfasına DBeaver Sekmesi Eklendi
+
+SQL sayfasına 25. sekme olarak **"🛠️ DBeaver — Görsel Veritabanı Yöneticisi"** eklendi.
+
+**Kapsam:** DBeaver kurulumu (Windows/macOS/Linux), sıfırdan database + schema oluşturma, Next.js + PostgreSQL entegrasyonu (pg driver ve Prisma ORM karşılaştırması ile Java JDBC/Hibernate analojisi).
+
+**Teknik:** `sqlData.js` → `enTabs`/`trTabs` dizilerine tab etiketi eklendi (25 giriş), `finalEnSections` ve `finalTrSections` dizilerine bilingual blok setleri eklendi (22 blok: simple-box, grid, code, callout, table, 2 quiz). Build: ✅ 16.09s, 36 static route, SEO check passed.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfası Tam Audit + TopicPage TR Yorum Çevirisi Genişletme
 
 ### 1. sqlData.js — Sözdizimi hatası düzeltme (kritik)
@@ -1629,10 +1639,10 @@ Kullanıcı, CLAUDE.md/AGENTS.md/codexSeo.md/NEXT_SESSION.md arasında sürekli 
    - Hata sözlüğü (`error-dictionary`) hâlâ ayrı bir "🚨 Yaygın Hatalar" sekmesi değil, mevcut sekmelerin içine gömülü — düşük öncelikli kalan eksik.
 2. ~~**Docker / Jenkins / Postman — kısmi Section 12 eksikliği**~~ ✅ **TAMAMLANDI (2026-06-17)** — Postman: Real World+Ecosystem+Common Errors; Docker: Ecosystem; Jenkins: Real World+Ecosystem.
    - REST Assured: Ecosystem yerine "🆆 Araç Karşılaştırması" var — kabul edilebilir, düşük öncelik (dokunulmadı).
-3. **Python / SQL sayfalarında hâlâ `simulation` (Gör-Anla-Dene) block'u yok** — Java tarafı 2026-06-18 oturumlarında 6 `simulation` + 1 `java-practice` block tipiyle güçlendirildi (`java-compile-run`, `java-stack-heap`, `java-branch-runner`, `java-javac-workshop`, `java-intellij-project`, `java-maven-lifecycle`). Python'da `PythonFrameworksTab.jsx` içinde elle yazılmış pytest runner var ama `pythonData.js`'in kendi `simulation` sistemini kullanmıyor; SQL'de de `simulation` yok. **← Bir sonraki oturumun önceliği Python/SQL.**
+3. ~~**Python / SQL sayfalarında `simulation` (Gör-Anla-Dene) block'u eksikti**~~ ✅ **TAMAMLANDI (2026-06-24)** — Python artık `python-compile-run` ve `pytest-interactive-run`; SQL artık `sql-select-flow` ve `sql-transaction-isolation` simülasyonlarını `TopicPage` `simulation` sistemi üzerinden kullanıyor. Güncel detaylar dosyanın üst bölümündeki 2026-06-24/25 kayıtlarındadır.
 4. **Bundle boyutu optimizasyonu** — 3.4MB chunk uyarısı var (özellikle javaData.js 639KB), code splitting yapılabilir (zorunlu değil)
 
-> Not: "Python/TypeScript sayfalarına simülasyon — pytest/vitest runner arayüzü" görevi tamamlandı (her iki yarı da bitti).
+> Not: Python, SQL ve TypeScript simülasyon görevleri tamamlandı (`pytest-interactive-run`, `sql-select-flow`, `sql-transaction-isolation`, `vitest-runner` dahil). Bu bölümde kalan tek teknik iyileştirme adayı bundle boyutu optimizasyonudur.
 
 ---
 
