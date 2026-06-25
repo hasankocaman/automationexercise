@@ -975,6 +975,14 @@ function AiExplanationPanel({ question, correctAnswer, userAnswer, isCorrect, st
     const [error, setError] = useState('')
     const [requested, setRequested] = useState(false)
 
+    // Soru değişince (tab geçişinde aynı index'e farklı quiz gelince) state sıfırlanır
+    useEffect(() => {
+        setExplanation(null)
+        setLoading(false)
+        setError('')
+        setRequested(false)
+    }, [question])
+
     function handleRequest() {
         if (requested) return
         setRequested(true)
@@ -1032,6 +1040,16 @@ function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
     // 'main' = original question, 'retry' = alternate question shown after a wrong
     // answer so the user can't just memorize the answer position they already saw.
     const [activeVariant, setActiveVariant] = useState('main')
+
+    // key={i} tab geçişinde aynı index'e farklı soru gelirse state'i sıfırla
+    const questionId = typeof block.question === 'string' ? block.question : (block.question?.en || block.question?.tr || '')
+    useEffect(() => {
+        setSelected(null)
+        setSubmitted(false)
+        setAnsweredFired(false)
+        setActiveVariant('main')
+    }, [questionId])
+
     const activeQuestion = activeVariant === 'retry' && block.retryQuestion ? block.retryQuestion : block
     // Support both numeric index (correct: 1) and string id (correct: 'b')
     const normalizedCorrect = typeof activeQuestion.correct === 'number'
@@ -5046,8 +5064,8 @@ function BackendPracticeBlock({ block, darkMode, language }) {
                     {!result && (
                         <div className={`text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             {tx(block.help, language) || (language === 'tr'
-                                ? 'Kodu veya checklist’i burada düzenle, sonra kontrol et. Bu alan gerçek Supabase projesine bağlanmaz; sadece sıralama ve kritik parçaları denetler.'
-                                : 'Edit the code or checklist here, then check it. This area does not connect to a real Supabase project; it only validates order and critical pieces.')}
+                                ? 'Kodu veya checklist’i burada düzenle, sonra kontrol et. Bu alan gerçek veritabanına veya canlı API’ye bağlanmaz; sadece sıralama ve kritik parçaları denetler.'
+                                : 'Edit the code or checklist here, then check it. This area does not connect to a real database or live API; it only validates order and critical pieces.')}
                         </div>
                     )}
                     {result && (
@@ -5072,6 +5090,353 @@ function BackendPracticeBlock({ block, darkMode, language }) {
                             </div>
                         </div>
                     )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function MockBackendLabBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const makeRows = () => [
+        { id: 1, name: isTr ? 'Nebula Gaming Laptop' : 'Nebula Gaming Laptop', category: isTr ? 'Bilgisayar' : 'Computers', sku: 'COMP-LAP-001', price: 39999.90, stock: 12, active: true },
+        { id: 2, name: isTr ? '27 inç 4K Monitör' : '27-inch 4K Monitor', category: isTr ? 'Bilgisayar' : 'Computers', sku: 'COMP-MON-002', price: 8999.50, stock: 18, active: true },
+        { id: 3, name: isTr ? 'Pamuk Oversize Tişört' : 'Cotton Oversize T-Shirt', category: isTr ? 'Elbise' : 'Clothing', sku: 'CLO-TSH-101', price: 549.90, stock: 60, active: true },
+        { id: 4, name: isTr ? 'Koşu Ayakkabısı' : 'Running Shoes', category: isTr ? 'Ayakkabı' : 'Shoes', sku: 'SHO-RUN-201', price: 1899.90, stock: 24, active: true },
+    ]
+    const [rows, setRows] = useState(makeRows)
+    const [sqlAction, setSqlAction] = useState('create')
+    const [apiAction, setApiAction] = useState('GET')
+    const [apiTitle, setApiTitle] = useState('USB-C Dock Station')
+    const [result, setResult] = useState(null)
+
+    useEffect(() => {
+        setRows(makeRows())
+        setApiTitle('USB-C Dock Station')
+        setResult(null)
+    }, [language, block.variant])
+
+    const cardBase = darkMode ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
+    const mutedText = darkMode ? 'text-slate-400' : 'text-slate-600'
+    const panelBg = darkMode ? 'bg-slate-900/95 border-slate-700' : 'bg-slate-50 border-slate-200'
+    const selectedButton = 'border-emerald-400 bg-emerald-500/15 text-emerald-200 shadow-[0_0_0_1px_rgba(52,211,153,0.35)]'
+    const idleButton = darkMode ? 'border-slate-700 bg-slate-900 text-slate-300 hover:border-emerald-500' : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-400'
+
+    const sqlSteps = [
+        {
+            id: 'create',
+            label: isTr ? '1. Tablo kur' : '1. Create table',
+            short: 'CREATE TABLE',
+            sql: isTr
+                ? `-- Tarayıcıdaki ürün tablosu: gerçek database'e bağlanmaz
+create table products (
+  id bigint generated always as identity primary key,
+  name text not null,
+  category text not null,
+  sku text not null unique,
+  price numeric(10, 2) not null,
+  stock int not null default 0,
+  active boolean default true
+);`
+                : `-- Browser product table: this does not connect to a real database
+create table products (
+  id bigint generated always as identity primary key,
+  name text not null,
+  category text not null,
+  sku text not null unique,
+  price numeric(10, 2) not null,
+  stock int not null default 0,
+  active boolean default true
+);`,
+            run: currentRows => ({
+                rows: makeRows(),
+                message: isTr ? 'Ürün tablosu temiz şekilde kuruldu. Henüz gerçek veritabanı yok; bu sadece tarayıcıdaki güvenli kopya.' : 'Product table created safely. There is no real database here; this is only a browser-side copy.',
+            }),
+        },
+        {
+            id: 'insert',
+            label: isTr ? '2. Satır ekle' : '2. Insert row',
+            short: 'INSERT',
+            sql: isTr
+                ? `-- Yeni ürün satırı ekle
+insert into products (name, category, sku, price, stock, active)
+values ('USB-C Dock Station', 'Bilgisayar', 'COMP-DOCK-004', 3299.90, 14, true);`
+                : `-- Add a new product row
+insert into products (name, category, sku, price, stock, active)
+values ('USB-C Dock Station', 'Computers', 'COMP-DOCK-004', 3299.90, 14, true);`,
+            run: currentRows => {
+                const exists = currentRows.some(row => row.sku === 'COMP-DOCK-004')
+                const rowsNext = exists ? currentRows : [...currentRows, { id: Math.max(...currentRows.map(row => row.id)) + 1, name: 'USB-C Dock Station', category: isTr ? 'Bilgisayar' : 'Computers', sku: 'COMP-DOCK-004', price: 3299.90, stock: 14, active: true }]
+                return {
+                    rows: rowsNext,
+                    message: exists ? (isTr ? 'Bu mock ürün zaten ekli.' : 'This mock product already exists.') : (isTr ? 'Yeni ürün satırı eklendi. Gerçek tabloda olsaydı bu bir INSERT olurdu.' : 'New product row inserted. In a real table, this would be an INSERT.'),
+                }
+            },
+        },
+        {
+            id: 'select',
+            label: isTr ? '3. Oku' : '3. Read',
+            short: 'SELECT',
+            sql: isTr
+                ? `-- Stokta olan aktif bilgisayar ürünlerini getir
+select id, name, category, price, stock
+from products
+where category = 'Bilgisayar'
+  and active = true
+  and stock > 0
+order by id;`
+                : `-- Read active computer products in stock
+select id, name, category, price, stock
+from products
+where category = 'Computers'
+  and active = true
+  and stock > 0
+order by id;`,
+            run: currentRows => ({
+                rows: currentRows,
+                selectedRows: currentRows.filter(row => row.active && row.stock > 0 && row.category === (isTr ? 'Bilgisayar' : 'Computers')),
+                message: isTr ? 'SELECT sadece okur. Tablo değişmedi; aktif bilgisayar ürünleri filtrelendi.' : 'SELECT only reads. The table did not change; active computer products were filtered on screen.',
+            }),
+        },
+        {
+            id: 'update',
+            label: isTr ? '4. Güncelle' : '4. Update',
+            short: 'UPDATE',
+            sql: isTr
+                ? `-- Monitör stok bilgisini güncelle
+update products
+set stock = stock - 1
+where sku = 'COMP-MON-002';`
+                : `-- Update monitor stock
+update products
+set stock = stock - 1
+where sku = 'COMP-MON-002';`,
+            run: currentRows => ({
+                rows: currentRows.map(row => row.sku === 'COMP-MON-002' ? { ...row, stock: Math.max(0, row.stock - 1) } : row),
+                message: isTr ? 'Monitör stok satırı güncellendi. Java dünyasında bu, repository.save(product) gibi düşünebilirsin.' : 'Monitor stock updated. In Java terms, think of this like repository.save(product).',
+            }),
+        },
+    ]
+
+    const activeSql = sqlSteps.find(step => step.id === sqlAction) || sqlSteps[0]
+
+    const runSql = () => {
+        const outcome = activeSql.run(rows)
+        setRows(outcome.rows)
+        setResult({
+            kind: 'sql',
+            title: activeSql.short,
+            message: outcome.message,
+            rows: outcome.selectedRows || outcome.rows,
+        })
+    }
+
+    const responseFor = (method, currentRows) => {
+        if (method === 'GET') {
+            const computerRows = currentRows.filter(row => row.active && row.category === (isTr ? 'Bilgisayar' : 'Computers'))
+            return { status: 200, rows: currentRows, displayRows: computerRows, body: { data: computerRows, count: computerRows.length } }
+        }
+        if (method === 'POST') {
+            if (!apiTitle.trim()) {
+                return { status: 400, rows: currentRows, body: { error: isTr ? 'ürün adı boş olamaz' : 'product name cannot be empty' } }
+            }
+            const nextRow = { id: Math.max(...currentRows.map(row => row.id)) + 1, name: apiTitle.trim(), category: isTr ? 'Bilgisayar' : 'Computers', sku: `COMP-API-${currentRows.length + 1}`, price: 3299.90, stock: 14, active: true }
+            const rowsNext = [...currentRows, nextRow]
+            return { status: 201, rows: rowsNext, body: { data: nextRow } }
+        }
+        const rowsNext = currentRows.map(row => row.id === 2 ? { ...row, stock: Math.max(0, row.stock - 1) } : row)
+        return { status: 200, rows: rowsNext, body: { data: rowsNext.find(row => row.id === 2) } }
+    }
+
+    const runApi = () => {
+        const outcome = responseFor(apiAction, rows)
+        setRows(outcome.rows)
+        setResult({
+            kind: 'api',
+            title: `${apiAction} /api/products`,
+            message: isTr ? `Sahte e-ticaret API ${outcome.status} cevabı döndü. Gerçek ağ isteği yapılmadı.` : `Fake e-commerce API returned ${outcome.status}. No real network request was made.`,
+            status: outcome.status,
+            body: outcome.body,
+            rows: outcome.displayRows || outcome.rows,
+        })
+    }
+
+    const resetLab = () => {
+        setRows(makeRows())
+        setResult(null)
+    }
+
+    const apiCode = isTr
+        ? `// src/app/api/products/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { pool } from '@/lib/db'
+
+export async function GET(request: NextRequest) {
+  const category = request.nextUrl.searchParams.get('category')
+
+  const { rows } = await pool.query(
+    'select p.id, p.name, c.slug as category, p.price, p.stock from shop.products p join shop.categories c on c.id = p.category_id where ($1::text is null or c.slug = $1) and p.is_active = true order by p.id',
+    [category]
+  )
+
+  return NextResponse.json({ data: rows })
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+
+  const { rows } = await pool.query(
+    'insert into shop.products (category_id, name, sku, price, stock) select c.id, $1, $2, $3, $4 from shop.categories c where c.slug = $5 returning id, name, sku, price, stock',
+    [body.name, body.sku, body.price, body.stock, body.categorySlug]
+  )
+
+  return NextResponse.json({ data: rows[0] }, { status: 201 })
+}`
+        : `// src/app/api/products/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { pool } from '@/lib/db'
+
+export async function GET(request: NextRequest) {
+  const category = request.nextUrl.searchParams.get('category')
+
+  const { rows } = await pool.query(
+    'select p.id, p.name, c.slug as category, p.price, p.stock from shop.products p join shop.categories c on c.id = p.category_id where ($1::text is null or c.slug = $1) and p.is_active = true order by p.id',
+    [category]
+  )
+
+  return NextResponse.json({ data: rows })
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+
+  const { rows } = await pool.query(
+    'insert into shop.products (category_id, name, sku, price, stock) select c.id, $1, $2, $3, $4 from shop.categories c where c.slug = $5 returning id, name, sku, price, stock',
+    [body.name, body.sku, body.price, body.stock, body.categorySlug]
+  )
+
+  return NextResponse.json({ data: rows[0] }, { status: 201 })
+}`
+
+    const visibleRows = result?.rows || rows
+    const responseText = result?.kind === 'api'
+        ? JSON.stringify(result.body, null, 2)
+        : JSON.stringify({ rows: visibleRows }, null, 2)
+
+    return (
+        <div className={`mt-5 overflow-hidden rounded-lg border ${panelBg}`}>
+            <div className="border-b border-emerald-500/20 bg-slate-950 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-400 text-sm font-black text-slate-950">{block.variant === 'api' ? 'API' : 'SQL'}</span>
+                    <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold text-emerald-100">{tx(block.title, language)}</div>
+                        <div className="mt-0.5 text-xs text-slate-400">{tx(block.intro, language) || (isTr ? 'Tamamen izole mock alan.' : 'Fully isolated mock area.')}</div>
+                    </div>
+                    <button onClick={resetLab} className="min-h-9 rounded-md border border-slate-700 px-3 text-xs font-bold text-slate-300 transition-colors hover:border-emerald-400 hover:text-emerald-200">
+                        {isTr ? 'Sıfırla' : 'Reset'}
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1.08fr_0.92fr]">
+                <div className="space-y-4 p-4">
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
+                        {[
+                            [isTr ? 'Tarayıcı' : 'Browser', isTr ? 'Buton ve form' : 'Button and form'],
+                            [isTr ? 'Next.js API' : 'Next.js API', isTr ? 'Güvenli API kapısı' : 'Safe API door'],
+                            [isTr ? 'PostgreSQL' : 'PostgreSQL', isTr ? 'Sahte ürün tablosu' : 'Fake product table'],
+                        ].map((item, idx) => (
+                            <Fragment key={item[0]}>
+                                <div className={`rounded-lg border p-3 transition-all duration-300 ${cardBase}`}>
+                                    <div className="text-xs font-black uppercase tracking-wide text-emerald-300">{item[0]}</div>
+                                    <div className={`mt-1 text-xs ${mutedText}`}>{item[1]}</div>
+                                </div>
+                                {idx < 2 && <div className="hidden text-center text-xl font-black text-emerald-400 md:block">→</div>}
+                            </Fragment>
+                        ))}
+                    </div>
+
+                    {block.variant === 'api' ? (
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-2">
+                                {['GET', 'POST', 'PATCH'].map(method => (
+                                    <button
+                                        key={method}
+                                        onClick={() => { setApiAction(method); setResult(null) }}
+                                        className={`min-h-10 rounded-md border px-3 text-xs font-black transition-all duration-300 ${apiAction === method ? selectedButton : idleButton}`}
+                                    >
+                                        {method}
+                                    </button>
+                                ))}
+                            </div>
+                            {apiAction === 'POST' && (
+                                <label className={`block text-xs font-bold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                                    {isTr ? 'Yeni ürün adı' : 'New product name'}
+                                    <input
+                                        value={apiTitle}
+                                        onChange={event => setApiTitle(event.target.value)}
+                                        className="mt-2 min-h-10 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-base text-emerald-100 outline-none transition-colors focus:border-emerald-400"
+                                    />
+                                </label>
+                            )}
+                            <pre className="max-h-[360px] overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-relaxed text-sky-200">{apiCode}</pre>
+                            <button onClick={runApi} className="min-h-10 w-full rounded-md bg-emerald-400 px-4 text-sm font-black text-slate-950 transition-all duration-300 hover:bg-emerald-300">
+                                {isTr ? 'İsteği Çalıştır' : 'Run Request'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                                {sqlSteps.map(step => (
+                                    <button
+                                        key={step.id}
+                                        onClick={() => { setSqlAction(step.id); setResult(null) }}
+                                        className={`min-h-10 rounded-md border px-2 text-xs font-black transition-all duration-300 ${sqlAction === step.id ? selectedButton : idleButton}`}
+                                    >
+                                        {step.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <pre className="min-h-[220px] overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-relaxed text-emerald-200">{activeSql.sql}</pre>
+                            <button onClick={runSql} className="min-h-10 w-full rounded-md bg-emerald-400 px-4 text-sm font-black text-slate-950 transition-all duration-300 hover:bg-emerald-300">
+                                {isTr ? 'SQL Adımını Çalıştır' : 'Run SQL Step'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className={`border-t p-4 lg:border-l lg:border-t-0 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-white'}`}>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <div className={`text-xs font-black uppercase tracking-wide ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{isTr ? 'Canlı Sonuç' : 'Live Result'}</div>
+                            <div className={`mt-1 text-xs ${mutedText}`}>{result?.message || (isTr ? 'Bir adım çalıştır; sonuç burada görünür.' : 'Run a step; the result appears here.')}</div>
+                        </div>
+                        {result?.status && <span className="rounded-md bg-emerald-400 px-2 py-1 text-xs font-black text-slate-950">{result.status}</span>}
+                    </div>
+
+                    <div className="overflow-hidden rounded-lg border border-slate-700">
+                        <div className="grid grid-cols-[44px_1.35fr_92px_72px_82px] bg-slate-900 px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-400">
+                            <span>ID</span><span>{isTr ? 'Ürün' : 'Product'}</span><span>{isTr ? 'Kategori' : 'Category'}</span><span>{isTr ? 'Stok' : 'Stock'}</span><span>{isTr ? 'Fiyat' : 'Price'}</span>
+                        </div>
+                        <div className="divide-y divide-slate-800">
+                            {visibleRows.map(row => (
+                                <div key={row.id} className="grid grid-cols-[44px_1.35fr_92px_72px_82px] items-center px-3 py-2 text-xs text-slate-200 transition-colors duration-300 hover:bg-slate-900">
+                                    <span className="font-mono text-slate-400">{row.id}</span>
+                                    <span className="min-w-0 truncate font-semibold">{row.name}</span>
+                                    <span className="min-w-0 truncate text-slate-300">{row.category}</span>
+                                    <span>
+                                        <span className="inline-flex min-w-10 justify-center rounded bg-emerald-500/15 px-2 py-1 font-mono text-emerald-200">{row.stock}</span>
+                                    </span>
+                                    <span className="font-mono text-slate-300">{Number(row.price).toLocaleString(isTr ? 'tr-TR' : 'en-US')}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-3">
+                        <div className={`mb-1 text-xs font-bold ${mutedText}`}>{block.variant === 'api' ? 'JSON' : 'Mock output'}</div>
+                        <pre className="max-h-[220px] overflow-auto rounded-lg bg-slate-950 p-3 text-xs leading-relaxed text-emerald-200">{responseText}</pre>
+                    </div>
                 </div>
             </div>
         </div>
@@ -15303,6 +15668,10 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'backend-practice':
             return <BackendPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'mock-backend-lab':
+            return <MockBackendLabBlock key={i} block={block} darkMode={darkMode} language={language} />
+        case 'mock-supabase-lab':
+            return <MockBackendLabBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'interactive-solver':
             return <InteractiveSolverBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'security-simulation':
@@ -17900,7 +18269,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
     }, [activeTab])
 
     const content = data[language] || data['en']
-    const { hero, tabs, sections } = content
+    const { hero, tabs, sections, disableTabGating = false } = content
     const pageKey = (hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
     const completedCount = tabs?.filter((_, index) => completedTabs[index] || quizVerifiedTabs[index]).length || 0
     const quizVerifiedCount = Object.values(quizVerifiedTabs).filter(Boolean).length
@@ -17981,7 +18350,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
 
     const toggleTabComplete = (tabIndex, e) => {
         e.stopPropagation()
-        if (countQuizBlocksInTab(tabIndex) > 0 || tabHasInterviewBlock(tabIndex)) return // bu sekme quiz/mülakat ile kazanılır
+        if (!disableTabGating && (countQuizBlocksInTab(tabIndex) > 0 || tabHasInterviewBlock(tabIndex))) return // bu sekme quiz/mülakat ile kazanılır
         const isCompleted = !!completedTabs[tabIndex] || !!quizVerifiedTabs[tabIndex]
         const updatedCompleted = { ...completedTabs }
         const updatedQuiz = { ...quizVerifiedTabs }
@@ -18117,12 +18486,12 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                 const isCompleted = !!completedTabs[i] || !!quizVerifiedTabs[i]
                                 const tabQuizTotal = countQuizBlocksInTab(i)
                                 const hasInterview = tabHasInterviewBlock(i)
-                                const isGated = tabQuizTotal > 0 || hasInterview
+                                const isGated = !disableTabGating && (tabQuizTotal > 0 || hasInterview)
                                 const tabAttemptedCount = Object.keys(quizAttempted[i] || {}).length
                                 // Mülakat sekmesi kendi denemesinden ÖNCE, sayfa genelindeki quiz eşiğini
                                 // geçmemiş olabilir — bu durumda kendi denemesi olsa bile öncelik kilitte.
                                 // SADECE dedicated mülakat sekmesi bu page-wide kilide tabidir (bkz. isDedicatedInterviewTab).
-                                const isInterviewLocked = isDedicatedInterviewTab(i) && !isCompleted && !interviewGateOpen
+                                const isInterviewLocked = !disableTabGating && isDedicatedInterviewTab(i) && !isCompleted && !interviewGateOpen
                                 const isFailedAttempt = !isCompleted && !isInterviewLocked && isGated && tabAttemptedCount > 0
                                 return (
                                     <button
@@ -18950,4 +19319,3 @@ function JSInterleavingGamesBlock({ darkMode, language }) {
 }
 
 export default TopicPage
-

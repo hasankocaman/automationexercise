@@ -16,14 +16,16 @@
 **Kapsam:** kurulum (Windows/macOS/Linux), sıfırdan DB + schema, Next.js + PostgreSQL entegrasyonu (pg driver vs Prisma ORM, Java JDBC/Hibernate analojisi). 22 bilingual blok.
 **Son commit:** `ff28214` (sekme sırası fix: Mülakat en sonda)
 
-### 2. JOIN Bölümü TR Dil Düzeltmeleri
-Türkçe modda görünen İngilizce içerikler düzeltildi:
-- "Visual JOIN Guide" başlığı → bilingual `{ tr, en }` object
-- "The 4 diagrams below..." text → bilingual
-- 3 JOIN visual block explanation veri kayması hatası giderildi (INNER→INNER, LEFT→LEFT, RIGHT→Right, her biri bilingual)
-- Comparison block label/note → bilingual
-- Quiz question + explanation + retryQuestion → bilingual
-- `TopicPage.jsx` `JoinDiagram`: `block.explanation` artık `tx()` üzerinden işleniyor
+### 2. JOIN Bölümü TR Dil Düzeltmeleri & Hizalama Düzeltmesi (Bug Fix)
+- **Hizalama ve Çeviri Düzeltmesi:** `finalTrSections` (Türkçe derlenmiş sekmeler) içindeki offset kayması nedeniyle `visual`, `comparison` ve `quiz` blokları arasındaki veri kaymaları giderildi.
+- **Düzeltilenler:**
+  - `RIGHT JOIN` visual bloğunun içine sızmış olan comparison verileri (`left`/`right`) temizlendi.
+  - `comparison` bloğu üzerindeki hatalı quiz verileri (`question`/`options`/`correct`/`explanation`) kaldırıldı ve Türkçe karşılaştırma etiketleri (`❌ Yavaş...`, `✅ Hızlı...`) doğru yere yerleştirildi.
+  - `quiz` bloğu üzerine sızan Java başlığı temizlendi ve asıl JOIN quizi Türkçe diline çevrildi:
+    - Soru: *"Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?"*
+    - Şıklar: `INNER JOIN`, `CROSS JOIN`, `LEFT JOIN`, `RIGHT JOIN`
+    - Açıklamalar ve tekrar sorusu/seçenekleri tamamen Türkçe yapıldı.
+- **E2E & Build:** `npm run build` ve `npx playwright test tests/sql-page.spec.ts` (25 sekmeyi tarayan E2E testleri) başarıyla geçti.
 
 ### 3. Sekme Sırası: Mülakat en sona taşındı
 `enTabs`/`trTabs` ve `finalEnSections`/`finalTrSections` sırası:
@@ -32,7 +34,7 @@ Türkçe modda görünen İngilizce içerikler düzeltildi:
 ### 4. backendData.js — DBeaver→Supabase Bağlantı Bölümü
 Backend sayfasına `trDbeaverSection` eklendi (Supabase PostgreSQL'e DBeaver ile bağlanma, direkt connection mimarisi).
 
-**Build:** ✅ tüm commitlerde geçti, 36 static route, SEO check passed.
+**Build:** ✅ tüm commitlerde geçti, 37 static route, SEO check passed, E2E testpassed.
 
 ---
 

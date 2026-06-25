@@ -40,6 +40,7 @@ const AlgorithmsPage = lazy(() => import('./components/AlgorithmsPage'))
 const AdvancedAlgorithmsPage = lazy(() => import('./components/AdvancedAlgorithmsPage'))
 const QAMentorPage = lazy(() => import('./components/QAMentorPage'))
 const BackendPage = lazy(() => import('./components/BackendPage'))
+const BasitBackendPage = lazy(() => import('./components/BasitBackendPage'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
 const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
 const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
@@ -92,6 +93,7 @@ function App() {
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
                     <Route path="/qa-mentor" element={<QAMentorPage />} />
                     <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
+                    <Route path="/basit-backend" element={<BasitBackendPage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
                     <Route path="/verify-certificate/:id" element={<VerifyCertificatePage />} />
                     <Route path="/qa-assistant" element={<ProtectedRoute><QaAssistantPage /></ProtectedRoute>} />

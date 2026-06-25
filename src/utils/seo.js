@@ -164,6 +164,11 @@ export const ROUTE_SEO = [
         description: 'Learn how to add Google login, user progress, badges, feedback and realtime chat to a React learning platform with Supabase.',
     },
     {
+        path: '/basit-backend',
+        title: 'Basit Backend SQL and API Tutorial | LearnQA.dev',
+        description: 'Practice e-commerce backend testing with DBeaver PostgreSQL schema, mock data, Next.js TypeScript API routes, endpoints and headers.',
+    },
+    {
         path: '/auth/callback',
         title: 'Signing you in | LearnQA.dev',
         description: 'Completing your LearnQA.dev sign-in. You will be redirected automatically once authentication finishes.',

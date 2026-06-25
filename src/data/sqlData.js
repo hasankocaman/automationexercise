@@ -1,4 +1,4 @@
-﻿const sections = [
+const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
     title: '🎯 What is SQL & Why Does Every QA Engineer Need It?',
@@ -11071,7 +11071,10 @@ const finalTrSections = [
             "Crash on empty search"
           ]
         ],
-        "explanation": { "tr": "RIGHT JOIN, SAĞ tablodan (bugs) TÜM satırları döndürür. Bug #4'ün test uzmanı yok — hâlâ tester=NULL ile görünür. Nadiren kullanılır — çoğu geliştirici bunu tablolar yer değiştirilerek LEFT JOIN olarak yeniden yazar.", "en": "RIGHT JOIN returns ALL rows from the RIGHT table (bugs). Bug #4 has no tester — it still appears with tester = NULL. Rarely used — most developers rewrite as LEFT JOIN with tables swapped." },
+        "explanation": "RIGHT JOIN, SAĞ tablodan (bugs) TÜM satırları döndürür. Bug #4'ün test uzmanı yok — hâlâ tester=NULL ile görünür. Nadiren kullanılır — çoğu geliştirici bunu tablolar yer değiştirilerek LEFT JOIN olarak yeniden yazar."
+      },
+      {
+        "type": "comparison",
         "left": {
           "label": "❌ Yavaş — Her satır için alt sorgu",
           "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- İç SELECT her tester satırı için bir kez çalışır!",
@@ -11084,17 +11087,7 @@ const finalTrSections = [
         }
       },
       {
-        "type": "comparison",
-        "left": {
-          "label": "❌ Slow — Subquery for every row",
-          "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- Runs inner SELECT once per tester row!",
-          "note": "Correlated subquery: O(n) inner queries"
-        },
-        "right": {
-          "label": "✅ Fast — Single JOIN + GROUP BY",
-          "code": "SELECT t.name, COUNT(b.id) AS bug_count\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.id, t.name;\n-- Single pass through both tables",
-          "note": "LEFT JOIN: handles 0 bugs correctly too"
-        },
+        "type": "quiz",
         "question": "Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?",
         "options": [
           "INNER JOIN",
@@ -11103,21 +11096,9 @@ const finalTrSections = [
           "RIGHT JOIN"
         ],
         "correct": 2,
-        "explanation": "LEFT JOIN (LEFT OUTER JOIN olarak da bilinir), sol tablodan her satırı döndürür. Sağ tabloda eşleşme yoksa NULL değerler görünür. \"Sıfır hataya sahip olanlar dahil tüm test uzmanları\" gibi durumlarda kullanılır."
-      },
-      {
-        "type": "quiz",
-        "question": "Which JOIN type returns ALL rows from the left table, including rows with NO matches in the right table?",
-        "options": [
-          "INNER JOIN",
-          "CROSS JOIN",
-          "LEFT JOIN",
-          "RIGHT JOIN"
-        ],
-        "correct": 2,
-        "explanation": "LEFT JOIN (also called LEFT OUTER JOIN) returns every row from the left table. For right-table columns with no match, NULL values appear. Use it when you need \"all X, even if they have no related Y\" — like all testers including those with 0 bugs.",
+        "explanation": "LEFT JOIN (LEFT OUTER JOIN olarak da bilinir), sol tablodan her satırı döndürür. Sağ tabloda eşleşme yoksa NULL değerler görünür. \"Sıfır hataya sahip olanlar dahil tüm test uzmanları\" gibi durumlarda kullanılır.",
         "retryQuestion": {
-          "question": "Which SQL operation is used to retrieve all records from the right-hand table, even if there is no matching data found in the left-hand table?",
+          "question": "Sağ tablodaki tüm kayıtları, sol tabloda eşleşen veri olmasa bile getiren SQL işlemi hangisidir?",
           "options": [
             {
               "id": "a",
@@ -11137,9 +11118,8 @@ const finalTrSections = [
             }
           ],
           "correct": "b",
-          "explanation": "RIGHT JOIN (or RIGHT OUTER JOIN) ensures that all rows from the right table are included in the result set, filling in NULLs for any columns where no relationship exists in the left table."
-        },
-        "text": "☕ Java Biliyorsan: PreparedStatement ve Transaction Köprüsü"
+          "explanation": "RIGHT JOIN (veya RIGHT OUTER JOIN) sağ tablodaki tüm satırların sonuç kümesine dahil edilmesini sağlar, sol tabloda eşleşen bir ilişki yoksa o sütunlar NULL olarak doldurulur."
+        }
       },
       {
         "type": "callout",

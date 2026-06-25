@@ -37,6 +37,7 @@ const DATA_MODULES = {
     '/advanced-algorithms': { file: '../src/data/algorithmsData.js', exportName: 'algorithmsData' },
     '/qa-mentor': { file: '../src/data/qaMentorData.js', exportName: null },
     '/backend': { file: '../src/data/backendData.js', exportName: 'backendData' },
+    '/basit-backend': { file: '../src/data/basitBackendData.js', exportName: 'basitBackendData' },
 }
 
 function escapeHtml(value) {

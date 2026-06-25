@@ -3450,6 +3450,18 @@ const trDbeaverSection = {
       content: 'Bu sekmenin hedefi Supabase PostgreSQL veritabanına lokal geliştirme bilgisayarından DBeaver, VS Code Database Client veya benzeri bir araçla güvenli şekilde bağlanmaktır. Java analojisiyle düşün: Spring Boot projesinde pgAdmin veya IntelliJ Database penceresinden PostgreSQL tablolarına bakmak neyse, burada DBeaver ile Supabase Postgres tablolarını görmek de odur. Bu bağlantı uygulama kullanıcıları için değil, geliştirici/debug amaçlıdır.',
     },
     {
+      type: 'link-grid',
+      cols: 1,
+      items: [
+        {
+          icon: '🛒',
+          label: 'Yeni geliştirme burada: E-Ticaret Backend SQL & API Lab',
+          desc: 'Supabase’den tamamen ayrı, gerçekçi tester senaryosu: DBeaver ile shop schema, mock ürün verileri, Next.js TypeScript API, endpoint, header ve API test paneli.',
+          route: '/basit-backend',
+        },
+      ],
+    },
+    {
       type: 'visual',
       variant: 'boxes',
       title: 'Kararlı direct connection mimarisi',
@@ -3574,6 +3586,18 @@ const enDbeaverSection = {
     {
       type: 'text',
       content: 'The goal of this tab is to connect from your local development machine to Supabase PostgreSQL with DBeaver, VS Code Database Client, or a similar tool. Java analogy: using DBeaver here is like opening pgAdmin or the IntelliJ Database tool window for a Spring Boot + PostgreSQL project. This connection is for developer/debug work, not for application end users.',
+    },
+    {
+      type: 'link-grid',
+      cols: 1,
+      items: [
+        {
+          icon: '🛒',
+          label: 'New work is here: E-Commerce Backend SQL & API Lab',
+          desc: 'A fully separate tester scenario: DBeaver shop schema, mock product data, Next.js TypeScript API, endpoints, headers, and API test panel.',
+          route: '/basit-backend',
+        },
+      ],
     },
     {
       type: 'visual',

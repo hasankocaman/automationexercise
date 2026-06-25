@@ -26,6 +26,7 @@ import { algorithmsData } from '../data/algorithmsData'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 import { manualTestingData } from '../data/manualTestingData'
 import { securityData } from '../data/securityData'
+import { basitBackendData } from '../data/basitBackendData'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -209,6 +210,7 @@ const ALL_DATA = [
     { data: securityData, route: '/security', name: 'Siber Güvenlik' },
     { data: beginnerAlgorithmsData, route: '/algorithms', name: 'Algorithms' },
     { data: algorithmsData, route: '/advanced-algorithms', name: 'Advanced Algorithms' },
+    { data: basitBackendData, route: '/basit-backend', name: 'Basit Backend Lab' },
     // backendData intentionally excluded: /backend is admin-only, not general visitor content.
 ]
 

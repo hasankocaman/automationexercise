@@ -161,6 +161,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://learnqa.dev/basit-backend</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://learnqa.dev/auth/callback</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
