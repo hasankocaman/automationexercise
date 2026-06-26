@@ -9,6 +9,29 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-26) — Playwright Post-Commit Test Altyapısı (UI + API + Mülakat Akışı)
+
+### Ne eklendi
+- **`simple-git-hooks`** ile her `git commit` sonrası `npm run test:e2e` otomatik çalışıyor (`scripts/post-commit-tests.sh`, atlamak için `SKIP_E2E_HOOK=1 git commit ...`).
+- **`tests/topic-pages-ui.spec.ts`** — TopicPage tabanlı 25 route'un her sekmesini gezip render hatası/buton görünürlüğü kontrol ediyor.
+- **`tests/other-pages-ui.spec.ts`** — ana sayfa, doküman okuyucular, leaderboard, scroll-spy sayfalar (manual-testing/algorithms/advanced-algorithms/qa-mentor).
+- **`tests/api-endpoints.spec.ts`** — `get_leaderboard` RPC (anonim) + 3 AI Edge Function'ın (`qa-assistant`, `grade-interview-answer`, `explain-quiz-answer`) happy-path'i, gerçek test hesabıyla.
+- **`tests/docker-interview-mastery-flow.spec.ts`** — `/docker` üzerinden quiz gating (<%60 kilitli/>=%60 açık) → AI mülakat değerlendirmesi → %80 mastery → `user_progress` tamamlandı akışının tam uçtan uca testi (post-commit suite'in parçası, hızlı/temsili).
+- **`tests-extended/interview-mastery-flows.spec.ts`** + **`playwright.interview-flows.config.ts`** + **`npm run test:interview-flows`** — aynı akışı `interview-questions` mekanizmasını kullanan **18 sayfanın hepsinde** ayrı ayrı doğruluyor. Post-commit suite'e KASITLI olarak bağlı değil (18 gerçek Groq AI çağrısı + birkaç dakika sürüyor).
+- Auth tekniği: uygulamada sadece Google/Azure OAuth var, headless'ta sürülemiyor — `supabase-js` ile `signInWithPassword` yapıp gerçek session'ı `localStorage`'a (`sb-<project-ref>-auth-token`) `addInitScript` ile enjekte ediyoruz.
+- Test hesabı: `hasank4320@gmail.com` (learnqa-test projesinde, Email+Google provider'lı, `.env.local`'da `TEST_USER_EMAIL`/`TEST_USER_PASSWORD`).
+- **Gerçek bug fix (yan ürün):** `playwrightData.js`'de `language: 'XML (pom.xml)'` Prism'in geçersiz `prism-xmlpomxml.min.js`'sini çekmeye çalışıp 404 atıyordu → `language: 'xml'` olarak düzeltildi.
+
+### Commit'ler
+`2c38fa9` (post-commit hook + UI/API suite + Prism fix) → `f58e466` (Docker mülakat akışı testi) → `2526d8a` (18 sayfaya genelleştirme).
+
+### 🔧 Bir Sonraki Oturumda Düzeltilecek Eksiklikler (test sırasında bulundu)
+1. **JMeter mülakat sekmesi veri bug'ı** — `jmeterData.js`'in TR Mülakat sekmesinde `interview-questions` bloğu **iki kez** var (1. blok "JMeter Fundamentals" 7 soru, 2. blok "JMeter Advanced" 3 soru → toplam sadece 10, CLAUDE.md §10'daki 50 soru minimumunun çok altında). EN versiyonda ise SADECE "Advanced" bloğu var (3 soru) — TR'deki "Fundamentals" 7 sorusu İngilizceye hiç çevrilmemiş/eklenmemiş. Düzeltme: iki TR bloğunu birleştirip tek `interview-questions` bloğu yap, sonra her iki dilde de 50'ye tamamla (15 Basic/20 Intermediate/15 Advanced, CLAUDE.md §10 formatı).
+2. **`/python` ve `/sql` — Mülakat sekmesi eski format** — Bu iki sayfanın dedicated Mülakat sekmesi `interview-questions` block'unu DEĞİL, eski `qa` formatını kullanıyor. Sonuç: bu iki sayfada quiz-gating (%60 eşiği), AI toplu değerlendirme (`InterviewPracticeBlock`/`grade-interview-answer`) ve mastery→rozet zinciri YOK — diğer 18 sayfadan farklı/eksik davranıyorlar. Karar gerekiyor: bu iki sayfa da `interview-questions` formatına mı taşınsın (tutarlılık), yoksa bilinçli bir tasarım farkı mı (gerekçesi `NEXT_SESSION.md`'ye not edilmeli)?
+3. **`tests-extended/interview-mastery-flows.spec.ts` tam teyit edilmedi** — Geliştirme sırasında 18 sayfanın HEPSİ ayrı ayrı/gruplar halinde geçti, ama son toplu (18 art arda) koşumda Groq ücretsiz katman rate limit'ine çarpıldı (502, kod hatası değil — o gün yapılan yoğun testten kaynaklı kümülatif kota tükenmesi). Rate limit sıfırlandığında `npm run test:interview-flows` ile tek seferlik tam koşum yapılıp gerçekten hepsinin yeşil olduğu teyit edilmeli.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-26) — Bruno API Client Sayfası Uçtan Uca Eklendi (`/bruno`)
 
 `brunoData.js` içeriği genişletildi (8 sekme: Giriş, Kurulum, Temel Kavramlar,
