@@ -304,7 +304,7 @@ export default defineConfig({
         content: 'Selenium\'da pom.xml\'e selenium-java dependency ekliyordun. Playwright\'ta da aynı — sadece groupId "com.microsoft.playwright" oluyor. TestNG veya JUnit kullanmaya devam edebilirsin.',
       },
       {
-        type: 'code', language: 'XML (pom.xml)',
+        type: 'code', language: 'xml',
         code: `<!-- pom.xml — Maven bağımlılıkları -->
 <dependencies>
   <!-- Playwright Java API -->
