@@ -32,6 +32,7 @@ const RESUME_LESSON_NAMES = {
     '/java': { tr: 'Java', en: 'Java' },
     '/jmeter': { tr: 'JMeter', en: 'JMeter' },
     '/postman': { tr: 'Postman', en: 'Postman' },
+    '/bruno': { tr: 'Bruno', en: 'Bruno' },
     '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
     '/docker': { tr: 'Docker', en: 'Docker' },
     '/jenkins': { tr: 'Jenkins', en: 'Jenkins' },
@@ -533,6 +534,7 @@ function HomePage() {
                             <div className="p-2 flex flex-wrap gap-1">
                                 <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>📊 JMeter</Link>
                                 <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>📮 Postman</Link>
+                                <Link to="/bruno" data-testid="nav-bruno" className={nb('blue')}>📦 Bruno</Link>
                             </div>
                         </div>
 
@@ -662,6 +664,7 @@ function HomePage() {
                                     { to: '/appium', label: '📱 Appium' },
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
                                     { to: '/postman', label: '📮 Postman' },
+                                    { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
                                     ...(isAdmin ? [{ to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' }] : []),

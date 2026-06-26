@@ -16,6 +16,7 @@ const JavaScriptPage = lazy(() => import('./components/JavaScriptPage'))
 const PythonPage = lazy(() => import('./components/PythonPage'))
 const TestFrameworksPage = lazy(() => import('./components/TestFrameworksPage'))
 const PostmanPage = lazy(() => import('./components/PostmanPage'))
+const BrunoPage = lazy(() => import('./components/BrunoPage'))
 const JenkinsPage = lazy(() => import('./components/JenkinsPage'))
 const DockerPage = lazy(() => import('./components/DockerPage'))
 const RestAssuredPage = lazy(() => import('./components/RestAssuredPage'))
@@ -69,6 +70,7 @@ function App() {
                     <Route path="/python" element={<PythonPage />} />
                     <Route path="/test-frameworks" element={<TestFrameworksPage />} />
                     <Route path="/postman" element={<PostmanPage />} />
+                    <Route path="/bruno" element={<BrunoPage />} />
                     <Route path="/jenkins" element={<JenkinsPage />} />
                     <Route path="/docker" element={<DockerPage />} />
                     <Route path="/rest-assured" element={<RestAssuredPage />} />

@@ -19,6 +19,7 @@ const DATA_MODULES = {
     '/java': { file: '../src/data/javaData.js', exportName: 'javaData' },
     '/jmeter': { file: '../src/data/jmeterData.js', exportName: 'jmeterData' },
     '/postman': { file: '../src/data/postmanData.js', exportName: 'postmanData' },
+    '/bruno': { file: '../src/data/brunoData.js', exportName: 'brunoData' },
     '/rest-assured': { file: '../src/data/restAssuredData.js', exportName: 'restAssuredData' },
     '/docker': { file: '../src/data/dockerData.js', exportName: 'dockerData' },
     '/jenkins': { file: '../src/data/jenkinsData.js', exportName: 'jenkinsData' },

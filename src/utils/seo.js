@@ -59,6 +59,11 @@ export const ROUTE_SEO = [
         description: 'Learn Postman API testing with collections, environments, scripts, Newman, CI integration, troubleshooting and interview practice.',
     },
     {
+        path: '/bruno',
+        title: 'Bruno API Client Tutorial: Git-Native Postman Alternative | LearnQA.dev',
+        description: 'Learn Bruno, the open-source Git-native API client: installation, .bru files, scripting, CLI automation, CI/CD and a full Postman comparison.',
+    },
+    {
         path: '/rest-assured',
         title: 'REST Assured Tutorial for Java API Testing | LearnQA.dev',
         description: 'Learn REST Assured for Java API automation with request chaining, assertions, serialization, authentication and CI-ready test design.',

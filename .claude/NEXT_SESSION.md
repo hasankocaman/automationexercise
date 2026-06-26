@@ -9,6 +9,24 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-26) — Bruno API Client Sayfası Uçtan Uca Eklendi (`/bruno`)
+
+`brunoData.js` içeriği genişletildi (8 sekme: Giriş, Kurulum, Temel Kavramlar,
+Test Otomasyonu, Gerçek Hayat, Ekosistem, Yaygın Hatalar, Mülakat Q&A — EN/TR
+ikisi de tam) ve route uçtan uca bağlandı:
+- `src/components/BrunoPage.jsx` (yeni) — `TopicPage` + `brunoData` standart kalıbı.
+- `src/App.jsx` → `/bruno` route + lazy import eklendi.
+- `src/components/HomePage.jsx` → nav linkleri (`nav-bruno` test-id) ve resume-lesson ismi eklendi.
+- `src/utils/seo.js` → `/bruno` için `ROUTE_SEO` girişi eklendi.
+- `scripts/generate-static-routes.mjs` → `/bruno` static shell modül eşlemesi eklendi.
+- `public/sitemap.xml` → `/bruno` URL girişi eklendi.
+- `dist/` yeniden build edildi (yeni asset hash'leri).
+- Mülakat sekmesi basic/intermediate/advanced seviyelerinde senaryo tabanlı sorular içeriyor (Bölüm 10 kuralına uygun).
+
+**Sonraki adım:** Henüz commit edilmedi — bu oturumda commit yapılacak. Sonraki oturumda `npm run build` ile SEO check zincirinin (check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo) hatasız geçtiği teyit edilmeli ve gerekirse Bruno sayfası tarayıcıda manuel gözden geçirilmeli.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-26) — Tüm Sayfalarda Mülakat Soruları AI Değerlendirmesi
 
 ### QAItem + InterviewPracticeBlock — Global AI Evaluation Fix
