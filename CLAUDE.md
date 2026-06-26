@@ -362,3 +362,36 @@ AI Geliştirme araçları (Antigravity, Claude, Windsurf vb.) arayüz bileşenle
 
 - **Teknoloji Koruma:** Mevcut projenin teknoloji yığınını (UI kütüphanesi, global state yönetimi, Tailwind CSS vb.) bozma. Mevcut tasarıma sadık kalarak, tüm çocuksu, animasyonlu özellikleri **Fonksiyonel Bileşenler (Functional Components)** olarak entegre et.
 - **Analiz Protokolü:** Kodlamaya başlamadan önce her zaman etkilenen dosyaları analiz et. Kullanıcıya en kritik dosyaların listesini ve yapacağın yapısal, görsel ve animasyon odaklı değişiklikleri özetle, onay aldıktan sonra kodlamaya başla.
+
+---
+
+## 22. KESİN KURAL — Her Commit'te Zorunlu E2E Test Kontrolleri
+
+Bu proje kullanıcıya somut vaatlerde bulunur (bkz. Bölüm 9, 10, 17, 19). Bu vaatlerin
+her commit'te hâlâ doğru çalıştığından emin olunmalıdır — `npm run test:e2e`
+(post-commit hook ile otomatik tetiklenir, `simple-git-hooks` + `scripts/post-commit-tests.sh`)
+aşağıdaki 6 kontrolü **mutlaka** kapsamalıdır. Yeni bir sayfa/özellik eklenirken veya
+mevcut test suite'i değiştirilirken bu liste referans alınmalı, kapsam dışı kalan
+kontrol varsa ilgili Playwright test dosyasına eklenmelidir:
+
+1. **Buton tıklanabilirliği:** Ana sayfada ve her ders/test sayfasında her butonun
+   görünür VE tıklanabilir (disabled/overlay ile bloklanmamış) olduğu doğrulanmalı.
+2. **Mülakat gating — kapalı durum:** Bir derste konu quizlerinin **%60'ı doğru
+   cevaplanmadıysa**, mülakat sorularının sekmede **gözükmediği** (kilitli/gizli
+   olduğu) doğrulanmalı.
+3. **Mülakat gating — açık durum:** **Her ders için** (tek bir örnek sayfa değil,
+   `interview-questions` formatı kullanan tüm sayfalar) quizlerin %60'ı doğru
+   cevaplanırsa mülakat sorularının sekmede **gözüktüğü** doğrulanmalı.
+4. **Cevap input alanı:** Mülakat sorularında kullanıcının kendi cevabını
+   yazabileceği bir input/textarea alanının var olduğu doğrulanmalı.
+5. **AI değerlendirme:** Kullanıcının mülakat sorusuna girdiği cevabın yapay zeka
+   tarafından (`grade-interview-answer` Edge Function) kontrol edildiği ve bir
+   sonuç/puan döndüğü doğrulanmalı.
+6. **Bitirme rozeti:** Mülakat sorularının **%80'ine** doğru cevap verdiği
+   belirlenen kullanıcıya bitirme rozetinin verildiği doğrulanmalı.
+
+**Not:** 2-6 arası kontroller her gerçek AI çağrısı gerektirdiğinden (Groq rate
+limit riski), post-commit hook'ta **temsili bir sayfa** üzerinden hızlı koşulabilir;
+**tüm sayfalar için tam koşum** ayrı bir suite'te (`npm run test:interview-flows`
+gibi) tutulabilir — ama bu ayrım ve o an hangi sayfaların kapsam içinde/dışında
+olduğu `NEXT_SESSION.md`'de güncel tutulmalıdır, bu dosyada değil (bkz. Bölüm 0).
