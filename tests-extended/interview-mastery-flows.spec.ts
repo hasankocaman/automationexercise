@@ -9,9 +9,11 @@ import { createClient } from '@supabase/supabase-js';
 // (her sayfa gerçek bir Groq AI çağrısı yapar, npm run test:interview-flows ile
 // elle çalıştırılır).
 //
-// NOT: /python ve /sql'in dedicated Mülakat sekmesi bu mekanizmayı (interview-
-// questions block + InterviewPracticeBlock) KULLANMIYOR, eski 'qa' formatında —
-// bu yüzden burada YOK. Quiz-gating/AI-grading/mastery onlarda test edilemez.
+// NOT (2026-06-27 itibarıyla güncel değil — bilgi için saklanıyor): /python,
+// /sql ve /typescript önceden bu mekanizmayı (interview-questions block +
+// InterviewPracticeBlock) KULLANMIYORDU, eski 'qa' formatındaydı. 2026-06-27'de
+// üçü de interview-questions formatına taşındı (bkz. NEXT_SESSION.md) ve
+// aşağıdaki listeye eklendi.
 const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/appium', dataVar: 'appiumData', dataFile: 'appiumData' },
     { route: '/aws', dataVar: 'awsData', dataFile: 'awsData' },
@@ -31,6 +33,9 @@ const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/selenium', dataVar: 'seleniumData', dataFile: 'seleniumData' },
     { route: '/playwright', dataVar: 'playwrightData', dataFile: 'playwrightData' },
     { route: '/rest-assured', dataVar: 'restAssuredData', dataFile: 'restAssuredData' },
+    { route: '/python', dataVar: 'pythonData', dataFile: 'pythonData' },
+    { route: '/sql', dataVar: 'sqlData', dataFile: 'sqlData' },
+    { route: '/typescript', dataVar: 'typescriptData', dataFile: 'typescriptData' },
 ];
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;

@@ -35,6 +35,7 @@ Bu proje birden fazla AI aracıyla (Claude Code, Antigravity, Windsurf, Trae) ge
 | **`.claude/COMPONENT_LIBRARY.md`** | Tekrar kullanılan bileşenler. | Yeni bileşen eklerken. |
 | **`.claude/INTERVIEW_TEMPLATE.md`** | Mülakat soruları şablonu. | Mülakat sekmesi yazarken. |
 | **`.claude/JAVA_COMPARISON.md`** | Java ↔ Python/TS karşılaştırma kuralları. | Python/TS anlatırken. |
+| **`Documents/acceptancecriterias.md`** | Sistem kabul kriterleri (Acceptance Criteria) — navigasyon, quiz/retry mekanizması, i18n (TR/EN içerik+yorum kuralları), %60 mülakat gating, AI quiz açıklaması, mülakat AI değerlendirme döngüsü, %80 bitirme rozeti + reset akışı (Major AC 01-07); tema/erişilebilirlik ve roadmap ilerleme takibi (Minor AC 08-09). | Yeni özellik/sayfa geliştirirken veya bir akışı (gating, AI değerlendirme, reset, i18n) test ederken — bu dosyadaki AC'lere göre doğrula. |
 
 **Kural:** Bu dosyalardan biri diğeriyle çelişiyorsa, en güncel olanı değil, **bu dosyanın (CLAUDE.md) tanımladığı sorumluluk alanına uygun olanı** doğru kabul et — yani SEO sorusu varsa `codexSeo.md`, güncel durum sorusu varsa `NEXT_SESSION.md` otoritedir. **`NEXT_SESSION.md` hariç** hiçbir kalıcı kural dosyasına commit hash veya anlık bilgi yazma — anlık durum sadece `NEXT_SESSION.md`'dedir.
 
@@ -366,6 +367,13 @@ AI Geliştirme araçları (Antigravity, Claude, Windsurf vb.) arayüz bileşenle
 ---
 
 ## 22. KESİN KURAL — Her Commit'te Zorunlu E2E Test Kontrolleri
+
+> Bu bölümdeki kontroller `Documents/acceptancecriterias.md`'deki resmi kabul
+> kriterlerinin (AC 01-07) operasyonel/test karşılığıdır. AC dokümanı "ne"
+> beklendiğini tanımlar (gating eşiği, reset akışı, i18n kuralı vb.); bu bölüm
+> "nasıl test edilir"i tanımlar. Yeni bir AC eklenirse veya değişirse, önce
+> `acceptancecriterias.md` güncellenir, sonra buradaki ilgili kontrol maddesi
+> senkronize edilir — iki dosya birbirine çelişmemelidir.
 
 Bu proje kullanıcıya somut vaatlerde bulunur (bkz. Bölüm 9, 10, 17, 19). Bu vaatlerin
 her commit'te hâlâ doğru çalıştığından emin olunmalıdır — `npm run test:e2e`

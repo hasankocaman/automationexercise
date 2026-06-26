@@ -9,6 +9,124 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-27) — Acceptance Criteria Dokümanı Tanıtıldı + Mülakat Akışı E2E Doğrulaması
+
+### Yapılanlar
+- `Documents/acceptancecriterias.md` (kullanıcının eklediği AC 01-09 listesi)
+  `CLAUDE.md` Bölüm 0 dosya haritasına ve Bölüm 22'ye (E2E checklist ile
+  çapraz referans) eklendi.
+- `tests-extended/interview-mastery-flows.spec.ts`'in PAGES listesine
+  `/python`, `/sql`, `/typescript` eklendi (artık üçü de `interview-questions`
+  formatını kullanıyor, eski stale not güncellendi).
+- Gerçek AI çağrısıyla `npm run test:interview-flows` şu 4 sayfada çalıştırıldı:
+  **jmeter ✅, sql ✅** (gating kilit/açma, AI grading, %80 mastery, Supabase
+  `user_progress` satırı `completed` — tam akış uçtan uca doğrulandı).
+  **typescript** — gating kilidi doğru açıldı ama test hesabının
+  `user_progress` tablosunda `/typescript`'in 8 sekmesi de **önceki bir
+  oturumdan zaten `completed`** olduğu için `alreadyMastered=true` görünümü
+  ("✅ tamamlandı") gösterdi, AI grading adımına ulaşılamadı — **kodda bug
+  değil**, test hesabı state'i. Kullanıcı onayıyla bu satırları silmeye
+  çalışıldı ama `user_progress` tablosunda anon-key için DELETE RLS policy'si
+  yok (0 satır silindi, hata yok) — **bu da AC07'deki "Reset" özelliğinin
+  backend'de hiç var olmadığını doğruladı** (bkz. aşağıdaki bulgu).
+  **python** — `/python` sayfasında "pip freeze" quiz'inin (Python Foundations
+  sekmesi, satır ~3723, bu oturumda hiç dokunulmadı) cevap butonu 120s
+  timeout'ta hiç tıklanabilir olmadı — muhtemelen Pyodide editör bloklarının
+  ağırlığından kaynaklı performans/timing sorunu, mülakat migration'ıyla
+  ilgisiz. Ayrı bir oturumda araştırılmalı.
+- `tests/topic-pages-ui.spec.ts` (AI gerektirmeyen render+buton testi) bu
+  oturumda değiştirilen 8 sayfanın (jmeter, sql, typescript, python, jenkins,
+  docker, kubernetes, kafka) hepsinde **yeşil** — crash yok, her sekme render
+  oluyor, butonlar tıklanabilir (AC01 doğrulandı).
+
+### 🔍 AC07 — Önemli Bulgu: "Reset" özelliği backend'de yok
+`acceptancecriterias.md` AC07, %80 altı kalan kullanıcı için bir "Reset"
+butonunun tüm quiz+mülakat cevaplarını hard-reset etmesini ve ilk sekmeye
+yönlendirmesini istiyor. Kod tabanında arandı: `TopicPage.jsx:2179`'daki
+"İlerlemeyi Sıfırla" butonu **ayrı bir özellik** (algoritma soru çözücü
+panelinin lokal ilerlemesini temizliyor, `user_progress`/mülakat sistemiyle
+ilgisi yok). `user_progress` tablosunda kullanıcının kendi satırını
+silebileceği bir DELETE RLS policy'si de yok. **Sonuç: AC07'nin reset kısmı
+şu an hiç implemente edilmemiş** — sadece %80 üstü "Bitirme Rozeti" kısmı
+çalışıyor (jmeter/sql testinde doğrulandı).
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar
+1. **AC07 reset özelliği eksik** — mülakat/quiz `user_progress` satırlarını
+   sıfırlayan bir buton + (muhtemelen bir Supabase RPC/Edge Function ile,
+   çünkü RLS düz DELETE'e izin vermiyor) backend mekanizması tasarlanıp
+   eklenmeli. Kullanıcıyla önce kapsam/öncelik teyit edilmeli.
+2. **typescript AI grading akışı tam doğrulanamadı** — test hesabının
+   `/typescript` `user_progress` satırları temizlenip (reset özelliği
+   eklendiğinde onunla, yoksa Supabase dashboard'undan elle ya da servis-role
+   key'le) test tekrar çalıştırılmalı.
+3. **python "pip freeze" quiz timeout'u** — `/python` sayfasında ayrı
+   araştırılmalı, muhtemelen Pyodide editör ağırlığı kaynaklı; mülakat
+   migration'ından bağımsız, önceden var olan bir sorun.
+4. **AC02 (quiz retry), AC05 (AI quiz açıklaması), AC08 (tema), AC09
+   (roadmap)** bu oturumda hiç test edilmedi — kapsam dışıydı, ayrı bir
+   oturumda AC bazlı test edilmeli.
+
+---
+
+## ✅ TAMAMLANDI (2026-06-27) — Mülakat Sekmesi Format + Sayı Açıklarının Tamamı Kapatıldı
+
+### Neden yapıldı
+Önceki oturumda (2026-06-26) tespit edilen 8 dosyalık eksik listesi tek
+oturumda bitirildi: Docker/Jenkins/Kafka/Kubernetes (sadece sayı eksikti,
+format doğruydu) ve JMeter/Python/SQL/TypeScript (format + bazılarında sayı
+eksikti). Kullanıcı `basitBackendData.js`'i kasıtlı olarak kapsam dışı
+bıraktı ("sadece benim için, diğer kullanıcıların görmediği") — o dosyaya
+hiç dokunulmadı, hâlâ 2 quiz bloğunda `retryQuestion` eksik.
+
+### Yapılanlar (hepsi 15 Basic / 20 Intermediate / 15 Advanced = 50, her dilde)
+- **Docker** — EN+TR'ye 25+25 yeni senaryo bazlı soru eklendi (25/25 → 50/50).
+- **Jenkins** — EN+TR'ye 35+35 yeni soru eklendi (15/15 → 50/50).
+- **Kafka** — EN+TR'ye 42+43 yeni soru eklendi (8/7 → 50/50, en büyük açıktı).
+- **Kubernetes** — EN+TR'ye 40+41 yeni soru eklendi (10/9 → 50/50).
+- **JMeter** — `qa` formatındaki 15 EN + (8 TR + 2 kopya `interview-questions`
+  bloğu, "JMeter Fundamentals"+"JMeter Advanced" adında **mükerrer** idi)
+  tamamen kaldırıldı; tek, temiz `interview-questions` bloğuna taşındı,
+  35 EN + 38 TR yeni soruyla 50/50'ye tamamlandı.
+- **Python** — 50 EN `"type": "qa"` bloğu (zaten bilingual q/a/code içeriyordu)
+  `interview-questions` formatına dönüştürüldü. **Yan ürün bug fix:** TR
+  sayfası bu bloğu `applyTr(sections[6], { blocks: {} })` ile EN'den
+  paylaştığı için TR kullanıcıları İngilizce cevap görüyordu — artık bilingual
+  blok sayesinde otomatik düzeldi.
+- **SQL** — **Kullanıcı onayıyla** dosyanın ilk 2950 satırı (`sections`/
+  `applyTr`/`trSections` — hiçbir yerden referans edilmeyen tamamen ölü kod,
+  3 gömülü kullanılmayan `interview-questions` dahil) silindi (15000→12050
+  satır, sqlData chunk 728KB→564KB). Gerçek içerik olan `finalEnSections`/
+  `finalTrSections`'daki 50 EN + 50 TR `qa` bloğu (birebir aynı içerik
+  kopyalanmıştı) `interview-questions` formatına taşındı.
+- **TypeScript** — 50 `qa` bloğu (bilingual soru ama **sadece İngilizce
+  cevap**, TR sayfası da aynı İngilizce cevabı gösteriyordu) `interview-questions`
+  formatına taşındı; bu oturumda **50 cevabın Türkçe çevirisi yazıldı**
+  (gerçek yeni içerik üretimi, sadece format değil). Seviye sınırı 15/15/20
+  yerine 15/20/15 olacak şekilde Q31-35 intermediate'e kaydırıldı.
+
+### Doğrulama
+Her dosya değişikliğinden sonra ayrı ayrı `npm run build` (SEO zinciri dahil)
+çalıştırıldı, hepsi yeşil. Sonunda tam tekrar `npm run build` çalıştırıldı,
+yeşil. `node --check` ile her dosyanın sözdizimi ayrıca doğrulandı.
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar
+1. **Manuel/E2E doğrulama eksik** — Bu oturumda sadece `npm run build` ve
+   `node --check` ile statik doğrulama yapıldı; 8 sayfanın hiçbirinde
+   tarayıcıda gerçek gating (%60 quiz → mülakat açılması) ve mülakat
+   sekmesinin görsel render'ı **manuel/Playwright ile test edilmedi**.
+   Özellikle JMeter/SQL/TypeScript gibi büyük yapısal değişiklik geçen
+   dosyalarda bunu doğrulamak öncelikli olmalı (`npm run test:interview-flows`
+   bu 18 sayfanın hepsini kapsıyordu — Docker/Jenkins/Kafka/Kubernetes zaten
+   bu sette vardı; JMeter/Python/SQL/TypeScript'in sette olup olmadığı ve
+   yeni yapıyla uyumlu çalışıp çalışmadığı kontrol edilmeli).
+2. **basitBackendData.js** — kullanıcı talimatıyla bu oturumda kasıtlı atlandı,
+   hâlâ 2 quiz bloğunda `retryQuestion` eksik. Sadece kullanıcı kendisi
+   istediğinde dokunulmalı.
+3. Bu oturumda hiçbir commit yapılmadı — değişiklikler working tree'de.
+   Kullanıcı commit istemeden commit yapma.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-26) — 3 Kullanıcı Vaadi Platform Geneli Denetimi + Küçük Açıkların Kapatılması
 
 ### Neden yapıldı
