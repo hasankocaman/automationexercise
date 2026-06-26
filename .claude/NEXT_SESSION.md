@@ -9,6 +9,80 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-26) — 3 Kullanıcı Vaadi Platform Geneli Denetimi + Küçük Açıkların Kapatılması
+
+### Neden yapıldı
+Kullanıcı (Hasan), platformun kullanıcılara verdiği 3 temel vaadin gerçekten
+tutulduğunu denetlememi istedi: (1) AI destekli quiz + yanlış cevapta 1 kez
+alternatif soru, (2) konu quizlerinin %60'ını tamamlayana açılan **min 50
+sorulu** mülakat sekmesi, (3) mülakatta %80 başarıya rozet + progress kaydı +
+üye sohbeti. `NEXT_SESSION.md`'de zaten bilinen JMeter/Python/SQL eksikleri
+dışında, **tüm `src/data/*Data.js` dosyaları satır satır taranarak** gerçek
+soru sayıları doğrulandı (önceki bir Explore agent taraması yanlış grep
+deseni kullandığı için `"type": "qa"` çift-tırnaklı JSON stilini kaçırmıştı —
+bu yüzden ilk rapor güvenilmezdi, elle doğrulama yapıldı).
+
+### Bulgu — Vaat #2 ihlali tahmin edilenden çok daha yaygın
+**Format DA sorunlu (eski `qa`, gating/mastery çalışmıyor) — bilinen 4:**
+JMeter (15 EN / 8 TR — hem format hem sayı ihlali), Python (50/50 ama eski
+format), SQL (50/50 ama eski format + ~2900 satır tamamen ölü/kullanılmayan
+kod — `sections`/`applyTr` bloğu, `finalEnSections`/`finalTrSections`
+tarafından hiç referans edilmiyor), TypeScript (50/50 ama eski format).
+
+**Format DOĞRU (`interview-questions`, gating çalışıyor) ama soru sayısı
+50'nin altındaydı — YENİ bulunan, bu oturumda kısmen düzeltilen:**
+- ✅ **Selenium** — 48 EN / 47 TR → **50/50 düzeltildi** (2 EN + 2 TR yeni
+  soru: Page Factory vs POM, TestNG retry/flaky, headless Docker sorunları).
+- ✅ **Postman** — 15 EN / 50 TR → **50/50 düzeltildi** (TR setindeki zaten
+  yazılmış `.en` alanları EN sekmesine taşındı — yeniden yazılmadı).
+- ✅ **Playwright** — 50 EN / 40 TR → **50/50 düzeltildi** (10 yeni advanced
+  EN sorusu: custom fixtures, file download, page.clock, mobile emulation
+  caveat'leri, expect.poll, popup/new-tab, component testing, CI-only flaky
+  debug, projects/dependencies mimarisi, WebSocket mocking).
+- ❌ **Docker** — 25 EN / 25 TR (yarısı eksik, henüz dokunulmadı)
+- ❌ **Jenkins** — 15 EN / 15 TR (çok eksik, henüz dokunulmadı)
+- ❌ **Kafka** — 8 EN / 7 TR (çok eksik, henüz dokunulmadı)
+- ❌ **Kubernetes** — 10 EN / 9 TR (çok eksik, henüz dokunulmadı)
+
+**Tam uyumlu (≥50, doğru format), değişiklik gerekmedi:** Appium, AWS, Azure,
+BrowserStack, Bruno, Cypress, Git/GitHub, Java, Linux, REST Assured, Security.
+
+### Vaat #1 ve #3 — büyük ölçüde sağlam
+%60 gating mantığı `TopicPage.jsx` içinde global ve çalışıyor; `grade-interview-answer`
+ve progress/chat altyapısı tüm sayfalarda aktif. Tek istisna: **`basitBackendData.js`**
+— 2 quiz bloğunda `retryQuestion` alanı yok (yanlış cevapta tekrar şansı verilmiyor),
+henüz düzeltilmedi.
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar (öncelik sırası)
+1. **basitBackendData.js** — 2 quiz bloğuna `retryQuestion` ekle (küçük, hızlı).
+2. **Docker / Jenkins / Kafka / Kubernetes** — eksik soruları tamamla (sırasıyla
+   +25/+25, +35/+35, +42/+43, +40/+41 EN/TR). Mevcut sorularla TEMA çakışmaması
+   için önce dosyadaki mevcut soru başlıklarını grep'le, sonra ekle.
+3. **JMeter** — TR/EN mülakat bloklarını birleştirip eski `qa` formatından
+   `interview-questions` formatına taşı, 15/20/15 (50) tamamla. En kritik —
+   hem format hem sayı ihlali var.
+4. **Python / SQL / TypeScript** — dedicated Mülakat sekmesini eski `qa`
+   formatından `interview-questions` formatına taşı (50 soru zaten var, sadece
+   format migrasyonu — gating/mastery zinciri aktif olsun). **SQL'de ayrıca**
+   `sqlData.js` satır ~1-3015 arası tamamen ölü kodu (`sections`/`applyTr`,
+   3 adet kullanılmayan gömülü `interview-questions` bloğu dahil) temizle.
+5. Tüm değişikliklerden sonra `npm run build` (SEO zinciri) + ilgili Playwright
+   E2E testleri çalıştırılmalı.
+
+### Doğrulama yöntemi (tekrar kullanılabilir)
+Her `*Data.js` dosyasında dedicated mülakat sekmesinin gerçek soru sayısını
+saymak için: `grep -n "type: 'interview-questions'"` ile blok başlangıç
+satırlarını bul, ardından her blok aralığında `grep -c "level: '[a-z]*'"` ile
+say. **Dikkat:** bazı dosyalar (`pythonData.js`, `sqlData.js`, `typescriptData.js`)
+çift-tırnaklı JSON stili (`"type": "qa"`) kullanıyor — tek-tırnaklı grep deseni
+bunları kaçırır. Bazı dosyalar (`gitGithubData.js`, `linuxData.js`) soruları
+`iq()` helper fonksiyonuyla üretiyor — `level:` deseni onları da kaçırır,
+`iq('basic'` gibi fonksiyon çağrısı sayılmalı. Ayrıca bazı dosyalarda (`javaData.js`,
+`pythonData.js`) sorular paylaşılan bilingual bir diziye (`_s7Q` gibi) referansla
+geliyor — gerçek diziyi bulup oradan saymak gerekir.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-26) — Playwright Post-Commit Test Altyapısı (UI + API + Mülakat Akışı)
 
 ### Ne eklendi
