@@ -3028,7 +3028,7 @@ function QuizFillBlock({ block, darkMode, onAnswered }) {
 
 // ─── InterviewQuestionsBlock ──────────────────────────────────────────────────
 
-function InterviewQuestionsBlock({ block, darkMode, hideHeading = false, onMasteryAchieved, alreadyMastered }) {
+function InterviewQuestionsBlock({ block, darkMode, hideHeading = false, onMasteryAchieved, alreadyMastered, onHardReset }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const levelConfig = {
@@ -3054,6 +3054,7 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false, onMaste
                 darkMode={darkMode}
                 onMasteryAchieved={onMasteryAchieved}
                 alreadyMastered={alreadyMastered}
+                onHardReset={onHardReset}
             />
 
             <div className={`flex items-center gap-2 mt-8 mb-4 pb-2 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -3119,7 +3120,7 @@ async function extractFunctionErrorDetail(error) {
     return error?.message || ''
 }
 
-function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alreadyMastered }) {
+function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alreadyMastered, onHardReset }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const { session } = useAuth()
@@ -3132,6 +3133,7 @@ function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alr
     const [disputeOpenIndex, setDisputeOpenIndex] = useState(null)
     const [rebuttals, setRebuttals] = useState({})
     const [disputingIndex, setDisputingIndex] = useState(null)
+    const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
     const masteryFiredRef = useRef(false)
 
     if (!sample.length) return null
@@ -3314,6 +3316,50 @@ function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alr
                     {averagePercent >= 80
                         ? (isTr ? `✅ Ortalama %${averagePercent} — sekme tamamlandı!` : `✅ Average ${averagePercent}% — tab completed!`)
                         : (isTr ? `⚠️ Ortalama %${averagePercent} — %80'e ulaşmak için cevaplarını gözden geçir ve tekrar değerlendir.` : `⚠️ Average ${averagePercent}% — review your answers and re-grade to reach 80%.`)}
+                </div>
+            )}
+
+            {/* AC07: %80'in altında kalan kullanıcıya, sayfayı baştan başlayabileceği bir
+                hard-reset seçeneği sunulur — onay alınmadan tetiklenmez (yanlışlıkla tıklamayı önler). */}
+            {allGraded && averagePercent < 80 && onHardReset && (
+                <div className={`mb-5 rounded-xl border-2 p-4 text-sm ${darkMode ? 'bg-gray-900 border-amber-800' : 'bg-white border-amber-300'}`}>
+                    {!resetConfirmOpen ? (
+                        <>
+                            <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                                {isTr
+                                    ? 'Bitirme rozetini şu an kazanamadın. İstersen bu sayfadaki tüm quiz ve mülakat cevaplarını sıfırlayıp ilk sekmeden baştan başlayabilirsin.'
+                                    : "You haven't earned the completion badge yet. You can reset all quiz and interview answers on this page and start over from the first tab."}
+                            </p>
+                            <button
+                                onClick={() => setResetConfirmOpen(true)}
+                                className={`mt-3 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${darkMode ? 'bg-amber-900/40 text-amber-300 hover:bg-amber-900/60' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'}`}
+                            >
+                                🔄 {isTr ? 'Sayfayı Sıfırla' : 'Reset This Page'}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <p className={`font-bold ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+                                {isTr
+                                    ? 'Eminsin — bu sayfadaki TÜM sekmelerin ilerlemesi (quiz + mülakat) tamamen silinecek ve ilk sekmeye döneceksin. Geri alınamaz.'
+                                    : "Are you sure — ALL progress on this page (quizzes + interview) will be permanently deleted and you'll return to the first tab. This cannot be undone."}
+                            </p>
+                            <div className="flex gap-3 mt-3">
+                                <button
+                                    onClick={onHardReset}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${darkMode ? 'bg-red-900/40 text-red-300 hover:bg-red-900/60' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+                                >
+                                    ✅ {isTr ? 'Eminim, sıfırla' : "Yes, reset it"}
+                                </button>
+                                <button
+                                    onClick={() => setResetConfirmOpen(false)}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                >
+                                    {isTr ? 'Vazgeç' : 'Cancel'}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -15616,7 +15662,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false) {
+function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false, onHardReset) {
     const textCls = `text-sm leading-relaxed mt-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`
     const h3Cls = `text-xl font-bold mt-8 mb-3 pb-2 border-b ${darkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'}`
     const h4Cls = `text-base font-semibold mt-5 mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`
@@ -15884,6 +15930,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                     hideHeading={hideHeading}
                     onMasteryAchieved={(avg) => onInterviewMastery?.(i, avg)}
                     alreadyMastered={isTabComplete}
+                    onHardReset={onHardReset}
                 />
             )
         }
@@ -18330,7 +18377,7 @@ function TSErrorAnimationBlock({ block, darkMode, language }) {
 function TopicPage({ data, gradient, bgLight, extraBanner }) {
     const { language } = useLanguage()
     const location = useLocation()
-    const { markTopicCompleted } = useAuth()
+    const { markTopicCompleted, resetLessonProgress } = useAuth()
     const [newBadge, setNewBadge] = useState(null)
     const [xpToast, setXpToast] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
@@ -18543,6 +18590,21 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
         markTabAsVerifiedComplete(activeTab)
     }
 
+    // AC07 "Reset": kullanıcı mülakatta %80 barajını geçemeyip onayladığında, sayfadaki
+    // TÜM sekmelerin quiz/mülakat ilerlemesini hard-reset eder ve ilk sekmeye döner.
+    function handleHardResetPage() {
+        setCompletedTabs({})
+        setQuizVerifiedTabs({})
+        setQuizCorrectBlocks({})
+        setQuizAttempted({})
+        try { localStorage.removeItem(`progress_${pageKey}`) } catch { }
+        try { localStorage.removeItem(`quizProgress_${pageKey}`) } catch { }
+        try { localStorage.removeItem(`quizScore_${pageKey}`) } catch { }
+        try { localStorage.removeItem(`quizAttempted_${pageKey}`) } catch { }
+        setActiveTab(0)
+        resetLessonProgress(pageKey).catch(() => { /* üye değilse veya senkron başarısız olsa da local reset zaten yapıldı */ })
+    }
+
     return (
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : bgLight}`}>
             <ScrollProgressBar />
@@ -18717,7 +18779,8 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                                     block, i, darkMode, language, handleQuizAnswered,
                                     tx(sections[activeTab]?.title, language),
                                     handleInterviewMastery,
-                                    !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]
+                                    !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab],
+                                    handleHardResetPage
                                 ))
                             )}
                         </div>

@@ -145,6 +145,20 @@ export function AuthProvider({ children }) {
         return point
     }
 
+    // AC07 "Reset" akışı: kullanıcı bir sayfanın mülakat sorularında %80 barajını
+    // geçemezse, sayfadaki TÜM sekmelerin user_progress satırlarını siler (hard-reset).
+    // RLS'de "users delete own progress" policy'si (auth.uid() = user_id) gerekiyor —
+    // bkz. NEXT_SESSION.md, kullanıcı bu SQL'i learnqa-test + learnqa-prod'da çalıştırmalı.
+    async function resetLessonProgress(lessonSlug) {
+        if (!isSupabaseConfigured || !session) return
+        const { error } = await supabase
+            .from('user_progress')
+            .delete()
+            .eq('user_id', session.user.id)
+            .eq('lesson_slug', lessonSlug)
+        if (error) { console.error('resetLessonProgress failed:', error); throw error }
+    }
+
     const LESSON_XP = 10
 
     // Bir ders/quiz tamamlandığında XP ekler. RPC sunucu tarafında auth.uid()===user_id
@@ -367,6 +381,7 @@ export function AuthProvider({ children }) {
         signOut,
         saveProgress,
         markTopicCompleted,
+        resetLessonProgress,
         getResumePoint,
         earnedBadges,
         careerGoal: profile?.career_goal || null,

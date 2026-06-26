@@ -9,6 +9,76 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-27, devam oturumu) — AC02/05/08/09 Doğrulaması + AC07 Reset Özelliği Kodlandı
+
+### AC02/AC05/AC08/AC09 doğrulama sonucu (koddan, satır referanslı)
+- **AC02 (quiz yanlış cevap → alternatif soru, bir defaya mahsus):** ✅ Tam implemente.
+  `TopicPage.jsx` `QuizBlock` (~satır 1035-1184), `activeVariant`/`canRetry` state'i
+  retry'i sadece ana sorudan bir kez açıyor — ikinci yanlışta üçüncü varyant yok.
+- **AC05 (AI'dan ek quiz açıklaması):** ✅ Tam implemente. `AiExplanationPanel`
+  (~satır 970-1031) → `explain-quiz-answer` Edge Function (Groq, `lang` parametresi
+  ile TR/EN), sadece üyeler için (`session` kontrolü).
+- **AC08 (tema/erişilebilirlik):** ⚠️ Kısmen. Dark/Light mode toggle + localStorage
+  (`darkMode` key) + `dark-overrides.css` var ve çalışıyor. AC08'in istediği "kullanıcıya
+  alternatif renk paleti/tema şablonları sunma" kısmı YOK — sadece 2 mod var (dark/light),
+  birden fazla renk paleti seçeneği bulunamadı.
+- **AC09 (roadmap/career path + ilerleme görselleştirme):** ✅ Tam implemente, ama
+  CLAUDE.md route haritasında YOK (dosya haritası güncellenmeli). `/qa-mentor`
+  (`QAMentorPage.jsx`) — sihirbazla 5 career path (`qaMentorData.js`: MAP_A/B/B_SEL/C1/C2),
+  `CircularProgress.jsx` ile % tamamlanma, `AuthContext.getCompletedRoutePaths()` ile
+  Supabase `user_progress`'ten gerçek tamamlanan dersler okunuyor, %100'de sertifika
+  (`claimCertificate` → `/verify-certificate/:id`).
+
+**Not:** AC08/AC09 bulguları kod okumayla yapıldı, tarayıcıda manuel/Playwright ile
+görsel doğrulanmadı (düşük risk, mevcut kod zaten bu özellikleri kullanıyor).
+
+### AC07 — Reset özelliği koda eklendi (önceki oturumda "backend'de hiç yok" bulunmuştu)
+Önceki oturumda AC07'nin reset kısmının hiç implemente edilmediği bulunmuştu (bkz.
+aşağıdaki "AC07 — Önemli Bulgu" bölümü). Bu oturumda kodlandı:
+- **`src/context/AuthContext.jsx`:** Yeni `resetLessonProgress(lessonSlug)` — üye ise
+  `user_progress` tablosunda `user_id` + `lesson_slug` eşleşen TÜM satırları `.delete()`
+  ile siler (sayfanın tüm sekmeleri, sadece tek tab değil). `value` objesine eklendi.
+- **`src/components/TopicPage.jsx`:** Yeni `handleHardResetPage()` (komponentin
+  `handleInterviewMastery`'nin yanında) — `completedTabs`/`quizVerifiedTabs`/
+  `quizCorrectBlocks`/`quizAttempted` state'lerini ve ilgili 4 localStorage key'ini
+  (`progress_/quizProgress_/quizScore_/quizAttempted_${pageKey}`) temizler, `activeTab`'ı
+  0'a döndürür, sonra `resetLessonProgress(pageKey)` çağırır (üye değilse veya hata
+  olsa da local reset zaten yapıldığı için sessizce yutuluyor). `onHardReset` prop'u
+  `renderBlock` → `InterviewQuestionsBlock` → `InterviewPracticeBlock` zincirinden
+  geçirildi.
+- **`InterviewPracticeBlock` içinde** (~averagePercent<80 bloğunun altı): %80 barajı
+  geçilemediğinde önce bilgilendirme + "🔄 Sayfayı Sıfırla" butonu, tıklanınca **onay
+  adımı** ("Eminim, sıfırla" / "Vazgeç") açılıyor — AC07'nin "kullanıcı onaylarsa Reset
+  butonu aktifleşir" akışı bununla karşılanıyor. TR/EN ikisi de yazıldı.
+- `npm run build` 38 route ile temiz geçti (SEO zinciri dahil).
+
+### ⏳ Kullanıcının yapması gereken — SQL henüz çalıştırılmadı
+NEXT_SESSION.md §"GERÇEK canlı backend yüzeyi" konvansiyonuna uygun olarak: bu RPC
+DEĞİL, düz bir RLS policy — `user_progress` tablosunda kendi satırını silebilme izni
+hiç yoktu (önceki oturumda doğrulanmıştı). **Hem `learnqa-test` hem `learnqa-prod`
+projelerinde** Supabase Dashboard → SQL Editor'den ayrı ayrı çalıştırılmalı:
+```sql
+create policy "users delete own progress"
+on public.user_progress
+for delete
+using (auth.uid() = user_id);
+```
+Bu SQL çalıştırılmadan `resetLessonProgress()` sessizce başarısız olur (RLS satırı
+engeller, `console.error` ile loglanır ama UI'da local reset zaten göründüğü için
+kullanıcı fark etmeyebilir) — **SQL koşulmadan reset'in Supabase tarafı çalışmaz.**
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar
+1. Kullanıcı yukarıdaki SQL'i iki projede de çalıştırınca, gerçek bir test hesabıyla
+   bir sayfada %80 altı sonuç alıp "Sayfayı Sıfırla" → onay → reset akışı uçtan uca
+   (Supabase'de satırın gerçekten silindiği `select count(*)` ile) doğrulanmalı.
+2. AC08 — "alternatif renk paleti" isteği netleştirilmeli: kullanıcı bunu gerçekten
+   istiyor mu (yeni bir özellik, kapsam/öncelik teyidi gerek) yoksa dark/light yeterli
+   mi kabul ediliyor mu?
+3. CLAUDE.md Bölüm 2 (route haritası) `/qa-mentor`'u listelemiyor — eklenmeli.
+4. Bu oturumda hiçbir commit yapılmadı, değişiklikler working tree'de.
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-27) — Acceptance Criteria Dokümanı Tanıtıldı + Mülakat Akışı E2E Doğrulaması
 
 ### Yapılanlar
