@@ -9,6 +9,40 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-26) — Tüm Sayfalarda Mülakat Soruları AI Değerlendirmesi
+
+### QAItem + InterviewPracticeBlock — Global AI Evaluation Fix
+`src/components/TopicPage.jsx` içindeki `QAItem` bileşeni güncellendi:
+- Kullanıcı kendi cevabını yazabileceği **textarea** eklendi (her soru altında, model cevap açılmadan önce)
+- "AI ile Değerlendir" butonu → `grade-interview-answer` Supabase Edge Function'ı çağırır
+- Puan gösterimi: `coveredPoints/totalPoints (%percent)`, eksik noktalar, feedback
+- Model cevap artık "Model Cevabı Göster" toggle ile gizlenip açılabilir
+- `inferCodeLanguage()` yardımcı fonksiyonu eklendi (kod bloğu diline otomatik highlight)
+- `qa` blok tipine de `analogy`, `keyPoints`, `tip`, `codeLanguage` prop'ları iletilmeye başlandı
+- Bu değişiklik **tüm sayfaları etkiler** (Selenium, Playwright, Python, SQL, TypeScript, Docker, Jenkins, Kubernetes, JMeter, Postman, REST Assured, Kafka, AWS, Azure, Appium, BrowserStack, Linux, Git/GitHub, Cypress, Security...)
+
+### brunoData.js — İçerik Eklendi
+Bruno API Client sayfası için temel içerik ve SVG görselleri (`brunoFlowSvg`, `bruCliSvg`) eklendi.
+
+---
+
+## ✅ TAMAMLANDI (2026-06-26) — SQL Quiz Seçenekleri Çevirileri & Playwright Timeout Güncellemesi
+
+- **SQL Quiz Seçenekleri Çevirileri:**
+  - `src/data/sqlData.js` içinde sayfa dili Türkçe iken İngilizce kalan veya hatalı/bilingual olmayan seçenekler düzeltildi.
+  - **Düzeltilen Quizzler:**
+    - **Window Fonksiyonları Quizi (Section 13 Block 6):** Türkçe görünümünde İngilizce kalan seçenekler (`Window functions only work on dates` vb.) tamamen bilingual `{ tr, en }` nesnelerine dönüştürülerek Türkçe dilinde de doğru şekilde gösterilmesi sağlandı.
+    - **NULL Değerler Tekrar Quizi (Section 6 Block 9):** Türkçe görünümünde İngilizce kalan `retryQuestion` seçenekleri Türkçe/bilingual hale getirildi.
+  - Değişiklikler hem ana `sections` tanımında hem de `finalEnSections` / `finalTrSections` derlenmiş bloklarında uygulandı.
+- **Playwright Flaky Timeout Çözümü:**
+  - `tests/javascript-page.spec.ts` ve `tests/python-page.spec.ts` testlerindeki `waitForSelector` timeout süreleri `10000ms`'den `30000ms`'ye çıkarılarak, Vite dev server'ın ilk derleme yükünden kaynaklanan yavaşlıklardaki test çökmeleri (timeout) engellendi.
+- **Git Commit & Push:**
+  - Önceki oturumdan kalan `Documents/bruno-vs-postman.md` ve `src/data/brunoData.js` dosyaları staged/committed edildi.
+  - Tüm değişiklikler hatasız şekilde build ve E2E testlerinden (`npm run test:e2e`) geçirildi.
+  - Commit Hash: `650a30d` (origin main dalına başarıyla push edildi).
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-25) — SQL Sayfası DBeaver + JOIN TR Düzeltmeleri
 
 ### 1. DBeaver Sekmesi (SQL sayfası 25. sekme)

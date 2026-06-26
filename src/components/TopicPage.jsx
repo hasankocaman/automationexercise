@@ -2586,6 +2586,18 @@ const tx = (val, lang) => {
     return val[lang] || val.en || val.tr || ''
 }
 
+const inferCodeLanguage = (code, context = '') => {
+    const raw = typeof code === 'object' ? (code.en || code.tr || '') : (code || '')
+    const haystack = `${context}\n${raw}`.toLowerCase()
+    if (!raw.trim()) return undefined
+    if (/\b(cursor\.execute|def |import |pytest|python|self\.|print\()/i.test(raw)) return 'python'
+    if (/\b(public class|public static void|@test|webdriver|system\.out|new [A-Z]|string\[\])/i.test(raw)) return 'java'
+    if (/\b(await |const |let |=>|page\.|test\(|expect\(|typescript|javascript)\b/i.test(raw)) return haystack.includes('typescript') ? 'typescript' : 'javascript'
+    if (/\b(jmeter|docker|kubectl|npm |npx |git |curl |mvn |gradle |bash|sh )\b/i.test(raw)) return 'bash'
+    if (/\b(select|insert|update|delete|create table|alter table|drop table|truncate table|with |join |group by|order by|having|explain|start transaction|commit|rollback)\b/i.test(raw)) return 'sql'
+    return undefined
+}
+
 const isCypressInterviewItem = (question, answer, topic = '') => {
     const haystack = `${topic} ${question || ''} ${answer || ''}`.toLowerCase()
     return haystack.includes('cypress')
@@ -3065,6 +3077,7 @@ function InterviewQuestionsBlock({ block, darkMode, hideHeading = false, onMaste
                                     question={tx(q.q, language)}
                                     answer={tx(q.a, language)}
                                     code={tx(q.code, language)}
+                                    codeLanguage={q.language || q.lang || inferCodeLanguage(tx(q.code, language), `${block.topic} ${tx(q.q, language)}`)}
                                     analogy={enhancements.analogy}
                                     keyPoints={enhancements.keyPoints}
                                     tip={enhancements.tip}
@@ -3483,10 +3496,58 @@ function ErrorDictionaryBlock({ block, darkMode, hideHeading = false }) {
 
 // ─── QAItem ───────────────────────────────────────────────────────────────────
 
-function QAItem({ question, answer, code, analogy, keyPoints, tip, darkMode }) {
+function QAItem({ question, answer, code, codeLanguage, analogy, keyPoints, tip, darkMode }) {
     const [open, setOpen] = useState(false)
+    const [showModel, setShowModel] = useState(false)
+    const [userAnswer, setUserAnswer] = useState('')
+    const [grading, setGrading] = useState(false)
+    const [grade, setGrade] = useState(null)
+    const [gradeError, setGradeError] = useState('')
     const { language } = useLanguage()
-    const resolvedKeyPoints = keyPoints?.map(point => tx(point, language)).filter(Boolean) || []
+    const { session } = useAuth()
+    const isTr = language === 'tr'
+    const resolvedKeyPoints = Array.isArray(keyPoints) ? keyPoints.map(point => tx(point, language)).filter(Boolean) : []
+    const resolvedCodeLanguage = codeLanguage || inferCodeLanguage(code, `${question} ${answer}`)
+    const trimmedAnswer = userAnswer.trim()
+    const minAnswerLength = 20
+    const canGrade = Boolean(session && supabase && answer && trimmedAnswer.length >= minAnswerLength && !grading)
+
+    useEffect(() => {
+        setShowModel(false)
+        setUserAnswer('')
+        setGrade(null)
+        setGradeError('')
+    }, [question, answer])
+
+    async function handleGrade() {
+        if (!session || !supabase) return
+        if (!trimmedAnswer || trimmedAnswer.length < minAnswerLength || grading) return
+        setGrading(true)
+        setGradeError('')
+        try {
+            const { data, error } = await supabase.functions.invoke('grade-interview-answer', {
+                body: {
+                    question,
+                    modelAnswer: answer,
+                    keyPoints: resolvedKeyPoints,
+                    userAnswer: trimmedAnswer,
+                    lang: language,
+                },
+            })
+            if (error) throw error
+            if (data?.error) throw new Error(data.error)
+            setGrade(data)
+        } catch (error) {
+            console.error('grade-interview-answer (qa item) failed:', error)
+            const detail = await extractFunctionErrorDetail(error)
+            setGradeError((isTr
+                ? 'AI değerlendirmesi şu anda yapılamadı, lütfen tekrar dene.'
+                : 'Could not grade your answer right now, please try again.')
+                + (detail ? ` (${detail})` : ''))
+        } finally {
+            setGrading(false)
+        }
+    }
 
     return (
         <div className={`rounded-xl border overflow-hidden mb-3 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
@@ -3499,28 +3560,97 @@ function QAItem({ question, answer, code, analogy, keyPoints, tip, darkMode }) {
             </button>
             {open && (
                 <div className={`p-4 border-t text-sm ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-gray-100 text-gray-600'}`}>
-                    <p className="leading-relaxed whitespace-pre-line">{answer}</p>
-                    {resolvedKeyPoints.length > 0 && (
-                        <ul className={`mt-4 space-y-2 rounded-lg border p-3 ${darkMode ? 'border-blue-900/50 bg-blue-950/20 text-blue-100' : 'border-blue-200 bg-blue-50 text-blue-900'}`}>
-                            {resolvedKeyPoints.map((point, i) => (
-                                <li key={i} className="flex gap-2 leading-relaxed">
-                                    <span className={darkMode ? 'text-blue-300' : 'text-blue-600'}>•</span>
-                                    <span>{point}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    {analogy && (
-                        <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-amber-900/50 bg-amber-950/20 text-amber-100' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
-                            <span className="font-semibold">{language === 'tr' ? 'Java analoji: ' : 'Java analogy: '}</span>
-                            {analogy}
+                    <div className={`rounded-xl border p-4 ${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                        <div className={`text-xs font-bold uppercase tracking-wide mb-2 ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                            {isTr ? 'Kendi Cevabın' : 'Your Answer'}
                         </div>
-                    )}
-                    {code && <CodeBlock code={code} language="java" darkMode={darkMode} />}
-                    {tip && (
-                        <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-green-900/50 bg-green-950/20 text-green-100' : 'border-green-200 bg-green-50 text-green-900'}`}>
-                            <span className="font-semibold">{language === 'tr' ? 'Mülakat notu: ' : 'Interview note: '}</span>
-                            {tip}
+                        <textarea
+                            value={userAnswer}
+                            onChange={(e) => {
+                                setUserAnswer(e.target.value)
+                                setGrade(null)
+                                setGradeError('')
+                            }}
+                            rows={4}
+                            placeholder={isTr ? 'Cevabını kendi cümlelerinle yaz... AI, model cevaptaki somut noktalara göre değerlendirecek.' : 'Write your answer in your own words... AI will grade it against the concrete points in the model answer.'}
+                            className={`w-full min-h-[110px] resize-y rounded-lg border px-3 py-2 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-100 placeholder:text-gray-500' : 'bg-white border-gray-300 text-gray-800 placeholder:text-gray-400'}`}
+                        />
+                        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {!session
+                                    ? (isTr ? 'AI değerlendirmesi için giriş yapmalısın.' : 'Sign in to use AI grading.')
+                                    : !supabase
+                                        ? (isTr ? 'AI servisi yapılandırılmamış.' : 'AI service is not configured.')
+                                        : trimmedAnswer.length < minAnswerLength
+                                            ? (isTr ? `En az ${minAnswerLength} karakter yaz.` : `Write at least ${minAnswerLength} characters.`)
+                                            : (isTr ? 'Cevabın değerlendirilmeye hazır.' : 'Your answer is ready to grade.')}
+                            </div>
+                            <button
+                                onClick={handleGrade}
+                                disabled={!canGrade}
+                                className="min-h-[36px] rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                {grading
+                                    ? (isTr ? 'Değerlendiriliyor...' : 'Grading...')
+                                    : grade
+                                        ? (isTr ? 'Tekrar Değerlendir' : 'Re-grade')
+                                        : (isTr ? 'AI ile Değerlendir' : 'Grade with AI')}
+                            </button>
+                        </div>
+
+                        {gradeError && <p className="mt-2 text-xs font-semibold text-red-400">{gradeError}</p>}
+
+                        {grade && (
+                            <div className={`mt-3 rounded-lg border p-3 leading-relaxed ${Number(grade.percent) >= 80
+                                ? (darkMode ? 'border-green-700 bg-green-900/30 text-green-300' : 'border-green-200 bg-green-50 text-green-800')
+                                : (darkMode ? 'border-amber-700 bg-amber-900/30 text-amber-300' : 'border-amber-200 bg-amber-50 text-amber-800')}`}
+                            >
+                                <div className="font-bold mb-1">
+                                    {grade.coveredPoints}/{grade.totalPoints} {isTr ? 'kontrol noktası' : 'points'} (%{grade.percent})
+                                </div>
+                                {grade.feedback && <p>{grade.feedback}</p>}
+                                {grade.missedPoints?.length > 0 && (
+                                    <ul className="mt-2 list-disc list-inside opacity-90">
+                                        {grade.missedPoints.map((point, idx) => <li key={idx}>{point}</li>)}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={() => setShowModel((value) => !value)}
+                        className={`mt-4 min-h-[36px] rounded-lg border px-4 py-2 text-xs font-bold transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        {showModel ? (isTr ? 'Model Cevabı Gizle' : 'Hide Model Answer') : (isTr ? 'Model Cevabı Göster' : 'Show Model Answer')}
+                    </button>
+
+                    {showModel && (
+                        <div className={`mt-3 rounded-xl border p-4 ${darkMode ? 'border-gray-700 bg-gray-900/60' : 'border-gray-200 bg-white'}`}>
+                            <p className="leading-relaxed whitespace-pre-line">{answer}</p>
+                            {resolvedKeyPoints.length > 0 && (
+                                <ul className={`mt-4 space-y-2 rounded-lg border p-3 ${darkMode ? 'border-blue-900/50 bg-blue-950/20 text-blue-100' : 'border-blue-200 bg-blue-50 text-blue-900'}`}>
+                                    {resolvedKeyPoints.map((point, i) => (
+                                        <li key={i} className="flex gap-2 leading-relaxed">
+                                            <span className={darkMode ? 'text-blue-300' : 'text-blue-600'}>•</span>
+                                            <span>{point}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {analogy && (
+                                <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-amber-900/50 bg-amber-950/20 text-amber-100' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                                    <span className="font-semibold">{language === 'tr' ? 'Java analoji: ' : 'Java analogy: '}</span>
+                                    {analogy}
+                                </div>
+                            )}
+                            {code && <CodeBlock code={code} language={resolvedCodeLanguage} darkMode={darkMode} />}
+                            {tip && (
+                                <div className={`mt-4 rounded-lg border p-3 leading-relaxed ${darkMode ? 'border-green-900/50 bg-green-950/20 text-green-100' : 'border-green-200 bg-green-50 text-green-900'}`}>
+                                    <span className="font-semibold">{language === 'tr' ? 'Mülakat notu: ' : 'Interview note: '}</span>
+                                    {tip}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -15636,7 +15766,17 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             )
         case 'qa':
             return (
-                <QAItem key={i} question={tx(block.question, language)} answer={tx(block.answer, language)} code={block.code} darkMode={darkMode} />
+                <QAItem
+                    key={i}
+                    question={tx(block.question, language)}
+                    answer={tx(block.answer, language)}
+                    code={tx(block.code, language)}
+                    codeLanguage={block.language || block.lang || inferCodeLanguage(tx(block.code, language), `${sectionTitle} ${tx(block.question, language)}`)}
+                    analogy={tx(block.analogy, language)}
+                    keyPoints={block.keyPoints}
+                    tip={tx(block.tip, language)}
+                    darkMode={darkMode}
+                />
             )
         case 'exercise':
             return <ExerciseBlock key={i} block={block} darkMode={darkMode} />
