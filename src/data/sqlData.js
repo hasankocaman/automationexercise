@@ -4831,7 +4831,7 @@ const finalEnSections = [
       },
       {
         "type": "heading",
-        "text": "DBeaver Nedir? / What is DBeaver?"
+        "text": "What is DBeaver?"
       },
       {
         "type": "text",
@@ -4887,21 +4887,21 @@ const finalEnSections = [
           {
             "icon": "1️⃣",
             "label": "İndir",
-            "desc": "dbeaver.io → Community Edition → İşletim sisteminize uygun paketi seç"
+            "desc": "dbeaver.io → Community Edition → pick the package for your operating system"
           },
           {
             "icon": "2️⃣",
             "label": "Kur",
-            "desc": "Windows: .exe çalıştır · macOS: .dmg sürükle · Linux: .deb veya snap"
+            "desc": "Windows: run the .exe · macOS: drag the .dmg · Linux: .deb or snap"
           },
           {
             "icon": "3️⃣",
             "label": "Aç",
-            "desc": "İlk açılışta yerleşik Java (JRE) indirir — internet bağlantısı gerekli"
+            "desc": "Downloads a bundled Java (JRE) on first launch — requires an internet connection"
           },
           {
             "icon": "4️⃣",
-            "label": "Doğrula",
+            "label": "Verify",
             "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
           }
         ]
@@ -4909,7 +4909,7 @@ const finalEnSections = [
       {
         "type": "code",
         "language": "bash",
-        "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
+        "code": "# Windows install (winget package manager)\nwinget install dbeaver.dbeaver\n\n# macOS install (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian install\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (easiest route)\nsnap install dbeaver-ce\n\n# Verify version: Help → About DBeaver menu shows the version"
       },
       {
         "type": "callout",
@@ -4926,7 +4926,7 @@ const finalEnSections = [
       },
       {
         "type": "heading",
-        "text": "Sıfırdan Veritabanı + Schema Oluşturma / Create DB & Schema"
+        "text": "Create DB & Schema From Scratch"
       },
       {
         "type": "text",
@@ -4941,30 +4941,30 @@ const finalEnSections = [
         "items": [
           {
             "icon": "🔌",
-            "label": "1. Bağlantı Kur",
-            "desc": "Database Navigator (sol) → + simgesi → Veritabanı türünü seç → Host/Port/User/Password doldur"
+            "label": "1. Connect",
+            "desc": "Database Navigator (left) → + icon → pick the database type → fill Host/Port/User/Password"
           },
           {
             "icon": "🗃️",
-            "label": "2. Database Oluştur",
-            "desc": "Bağlantıya sağ tık → Create → Database → İsim ver (örn: myapp_db)"
+            "label": "2. Create Database",
+            "desc": "Right-click the connection → Create → Database → give it a name (e.g. myapp_db)"
           },
           {
             "icon": "📋",
-            "label": "3. SQL Schema Yaz",
-            "desc": "SQL Editor aç (F3) → CREATE TABLE sorgularını yaz → Ctrl+Enter ile çalıştır"
+            "label": "3. Write SQL Schema",
+            "desc": "Open SQL Editor (F3) → write your CREATE TABLE statements → run with Ctrl+Enter"
           },
           {
             "icon": "✅",
-            "label": "4. Doğrula",
-            "desc": "Navigator'da tabloya çift tık → Data sekmesi → satırları grid'de gör"
+            "label": "4. Verify",
+            "desc": "Double-click the table in Navigator → Data tab → see the rows in the grid"
           }
         ]
       },
       {
         "type": "code",
         "language": "sql",
-        "code": "-- DBeaver SQL Editor'de çalıştır (F3 ile aç, Ctrl+Enter ile çalıştır)\n\n-- 1. Database oluştur (PostgreSQL için)\nCREATE DATABASE myapp_db;\n\n-- 2. Schema oluştur (Java'daki package gibi — namespace sağlar)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Kullanıcı tablosu\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- otomatik artan birincil anahtar\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- benzersiz ve zorunlu\n  name       VARCHAR(100) NOT NULL,               -- zorunlu alan\n  role       VARCHAR(20)  DEFAULT 'user',         -- varsayılan değer\n  created_at TIMESTAMP    DEFAULT NOW()           -- kayıt zamanı otomatik atanır\n);\n\n-- 4. Post tablosu (users ile foreign key ilişkisi)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users tablosu\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Test verisi ekle\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'İlk içerik', 1, true),\n  ('Taslak Yazı', NULL,         2, false);\n\n-- 6. JOIN ile ilişkili veriyi doğrula\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
+        "code": "-- Run in DBeaver SQL Editor (open with F3, run with Ctrl+Enter)\n\n-- 1. Create the database (for PostgreSQL)\nCREATE DATABASE myapp_db;\n\n-- 2. Create the schema (like a package in Java — provides a namespace)\nCREATE SCHEMA IF NOT EXISTS app;\n\n-- 3. Users table\nCREATE TABLE app.users (\n  id         SERIAL       PRIMARY KEY,           -- auto-incrementing primary key\n  email      VARCHAR(255) UNIQUE NOT NULL,        -- unique and required\n  name       VARCHAR(100) NOT NULL,               -- required field\n  role       VARCHAR(20)  DEFAULT 'user',         -- default value\n  created_at TIMESTAMP    DEFAULT NOW()           -- timestamp set automatically\n);\n\n-- 4. Posts table (foreign key relationship to users)\nCREATE TABLE app.posts (\n  id         SERIAL       PRIMARY KEY,\n  title      VARCHAR(300) NOT NULL,\n  content    TEXT,\n  author_id  INT REFERENCES app.users(id) ON DELETE CASCADE, -- FK → users table\n  published  BOOLEAN      DEFAULT false,\n  created_at TIMESTAMP    DEFAULT NOW()\n);\n\n-- 5. Insert test data\nINSERT INTO app.users (email, name, role) VALUES\n  ('alice@example.com', 'Alice', 'admin'),\n  ('bob@example.com',   'Bob',   'user');\n\nINSERT INTO app.posts (title, content, author_id, published) VALUES\n  ('Hello World', 'First post', 1, true),\n  ('Draft Post', NULL,         2, false);\n\n-- 6. JOIN to verify the related data\nSELECT u.name, p.title, p.published\nFROM   app.users u\nJOIN   app.posts p ON p.author_id = u.id\nORDER  BY p.created_at DESC;"
       },
       {
         "type": "callout",
@@ -4981,7 +4981,7 @@ const finalEnSections = [
       },
       {
         "type": "heading",
-        "text": "Next.js + PostgreSQL Entegrasyonu / Integration"
+        "text": "Next.js + PostgreSQL Integration"
       },
       {
         "type": "text",
@@ -4997,84 +4997,84 @@ const finalEnSections = [
           {
             "icon": "🌐",
             "label": "Browser / Client",
-            "desc": "fetch('/api/users') → HTTP isteği gönderir"
+            "desc": "fetch('/api/users') → sends an HTTP request"
           },
           {
             "icon": "⚡",
             "label": "Next.js API Route",
-            "desc": "/app/api/users/route.ts → isteği işler"
+            "desc": "/app/api/users/route.ts → handles the request"
           },
           {
             "icon": "🔗",
             "label": "Driver / ORM",
-            "desc": "pg (ham SQL) veya Prisma (ORM) — DB ile konuşur"
+            "desc": "pg (raw SQL) or Prisma (ORM) — talks to the DB"
           },
           {
             "icon": "🗄️",
             "label": "PostgreSQL",
-            "desc": "DBeaver ile yönetilen veritabanı"
+            "desc": "PostgreSQL database managed via DBeaver"
           }
         ]
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// Yaklaşım 1: pg paketi (ham SQL) — Java'daki JDBC gibi, tam kontrol\n// Kurulum: npm install pg @types/pg\n\n// lib/db.ts — tek connection pool (bağlantı havuzu) oluştur\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // .env.local'da tanımla\n  max: 10,                                    // maksimum eşzamanlı bağlantı\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parametreli sorgu — SQL injection'a karşı güvenli\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
+        "code": "// Approach 1: pg package (raw SQL) — like JDBC in Java, full control\n// Install: npm install pg @types/pg\n\n// lib/db.ts — create a single connection pool\nimport { Pool } from 'pg';\n\nconst pool = new Pool({\n  connectionString: process.env.DATABASE_URL, // define this in .env.local\n  max: 10,                                    // maximum concurrent connections\n});\n\nexport default pool;\n\n// app/api/users/route.ts\nimport { NextResponse } from 'next/server';\nimport pool from '@/lib/db';\n\nexport async function GET() {\n  const result = await pool.query(\n    'SELECT id, name, email FROM app.users ORDER BY created_at DESC'\n  );\n  return NextResponse.json(result.rows);\n}\n\nexport async function POST(req: Request) {\n  const { name, email } = await req.json();\n  const result = await pool.query(\n    'INSERT INTO app.users (name, email) VALUES ($1, $2) RETURNING *',\n    [name, email]  // parameterized query — safe against SQL injection\n  );\n  return NextResponse.json(result.rows[0], { status: 201 });\n}"
       },
       {
         "type": "code",
         "language": "typescript",
-        "code": "// Yaklaşım 2: Prisma ORM — Java'daki Hibernate/JPA gibi, type-safe\n// Kurulum: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — şema TypeScript benzeri DSL ile yazılır\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // ilişki — User'ın Post listesi var\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK sütunu\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — Prisma ile\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // yayınlanmış post'ları dahil et\n  });\n  return NextResponse.json(users);\n}\n\n// Migration çalıştır (DBeaver'daki CREATE TABLE'a karşılık gelir)\n// npx prisma migrate dev --name init"
+        "code": "// Approach 2: Prisma ORM — like Hibernate/JPA in Java, type-safe\n// Install: npm install prisma @prisma/client && npx prisma init\n\n// prisma/schema.prisma — schema written in a TypeScript-like DSL\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String\n  role      String   @default(\"user\")\n  posts     Post[]   // relation — User has a list of Posts\n  createdAt DateTime @default(now())\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String?\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int      // FK column\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n\n// app/api/users/route.ts — with Prisma\nimport { NextResponse } from 'next/server';\nimport { PrismaClient }  from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport async function GET() {\n  const users = await prisma.user.findMany({\n    include: { posts: { where: { published: true } } } // include published posts only\n  });\n  return NextResponse.json(users);\n}\n\n// Run the migration (the equivalent of CREATE TABLE in DBeaver)\n// npx prisma migrate dev --name init"
       },
       {
         "type": "table",
         "headers": [
-          "Özellik / Feature",
+          { "tr": "Özellik / Feature", "en": "Feature" },
           "pg (Raw SQL)",
           "Prisma ORM"
         ],
         "rows": [
           [
-            "Öğrenme eğrisi",
-            "SQL biliyorsan sıfır",
-            "Prisma DSL öğren (~1 gün)"
+            { "tr": "Öğrenme eğrisi", "en": "Learning curve" },
+            { "tr": "SQL biliyorsan sıfır", "en": "Zero if you already know SQL" },
+            { "tr": "Prisma DSL öğren (~1 gün)", "en": "Learn the Prisma DSL (~1 day)" }
           ],
           [
             "Type safety",
-            "Manuel cast gerekir",
-            "✅ Otomatik TypeScript tipleri"
+            { "tr": "Manuel cast gerekir", "en": "Requires manual casting" },
+            { "tr": "✅ Otomatik TypeScript tipleri", "en": "✅ Automatic TypeScript types" }
           ],
           [
-            "Migration yönetimi",
-            "Elle SQL dosyası yaz",
+            { "tr": "Migration yönetimi", "en": "Migration management" },
+            { "tr": "Elle SQL dosyası yaz", "en": "Write SQL files by hand" },
             "✅ npx prisma migrate dev"
           ],
           [
-            "Sorgu performansı",
-            "Tam kontrol, optimize et",
-            "Karmaşık JOIN'lerde dikkatli ol"
+            { "tr": "Sorgu performansı", "en": "Query performance" },
+            { "tr": "Tam kontrol, optimize et", "en": "Full control, optimize yourself" },
+            { "tr": "Karmaşık JOIN'lerde dikkatli ol", "en": "Be careful with complex JOINs" }
           ],
           [
-            "DBeaver uyumu",
-            "✅ Aynı DB'ye bağlanır",
-            "✅ Prisma Studio da var"
+            { "tr": "DBeaver uyumu", "en": "DBeaver compatibility" },
+            { "tr": "✅ Aynı DB'ye bağlanır", "en": "✅ Connects to the same DB" },
+            { "tr": "✅ Prisma Studio da var", "en": "✅ Prisma Studio is also available" }
           ],
           [
-            "Java karşılığı",
+            { "tr": "Java karşılığı", "en": "Java equivalent" },
             "JDBC",
             "Hibernate / JPA"
           ],
           [
-            "Ne zaman seç",
-            "Karmaşık SQL, tam kontrol",
-            "Hızlı başlangıç, type-safe API"
+            { "tr": "Ne zaman seç", "en": "When to choose" },
+            { "tr": "Karmaşık SQL, tam kontrol", "en": "Complex SQL, full control" },
+            { "tr": "Hızlı başlangıç, type-safe API", "en": "Fast start, type-safe API" }
           ]
         ]
       },
       {
         "type": "code",
         "language": "bash",
-        "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
+        "code": "# .env.local file (do NOT commit — add it to .gitignore!)\n\n# PostgreSQL connection URL format\nDATABASE_URL=\"postgresql://user:password@localhost:5432/myapp_db?schema=app\"\n\n# For SQLite (dev environment — no server needed)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver connection settings (connects to the same database)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL default)\n# Database : myapp_db\n# Username : user\n# Password : password\n# Schema   : app"
       },
       {
         "type": "quiz",

@@ -40,6 +40,13 @@
    dark/light mode var. Kullanıcıyla kapsam/öncelik teyit edilmeli.
 4. **`npm run test:quiz-audit` CI'a bağlı değil** — şu an sadece elle
    çalıştırılıyor, istenirse periyodik bir GitHub Actions adımına bağlanabilir.
+5. **`npm run test:quiz-audit`'te 4 sayfa kırmızı (önceden var olan, bu
+   oturumda dokunulmamış dosyalar):** `/java`, `/javascript`, `/kafka` —
+   bu oturumda hiç değiştirilmedi, AC02 retry mekanizması testinde "Farklı
+   bir soru dene" butonu bulunamıyor. `/jmeter` da kırmızı ama bu oturumda
+   sadece tek bir alakasız `error-dictionary` etiketi değişti (quiz/retry
+   mantığıyla ilgisi yok) — pre-existing bir bug, bu oturumun kapsamı
+   dışında, ayrı incelenmeli.
 5. **Bundle boyutu** — `TopicPage` chunk ~1.27MB, `typescriptData`/`javaData`/
    `sqlData` her biri 500KB+ (bilinen uyarı, `CLAUDE.md` §14 — build'i bozmuyor,
    zorunlu değil ama code-splitting adayı).
@@ -59,42 +66,52 @@ güncellendi (kodda olan ama dokümanda hiç listelenmemiş 18 route eklendi:
 `/basit-backend` çıkarıldı (CLAUDE.md §22.1 ile çelişiyordu — kural
 "hiçbir otomatik suite'e dahil değil" diyordu ama bu dosyada hâlâ vardı).
 
-**i18n Türkçe-sızıntı düzeltmeleri (EN modda Türkçe metin gösteren gerçek
-bug'lar, kullanıcı raporundan + ek tarama ile bulundu):**
-- `pythonData.js` — `error-dictionary` bloğunda `error: 'FAILED vs ERROR
-  ayrımı'` plain string'di, `ErrorDictionaryBlock` bunu `tx()`'siz basıyordu
-  → bilingual yapıldı + `TopicPage.jsx`'teki render satırı `tx(err.error,
-  language)` kullanacak şekilde düzeltildi (bu fonksiyon artık her sayfada
-  bilingual `error` alanını destekler). Ayrıca "☕ Java → Python" sekmesindeki
-  16 heading + 1 giriş paragrafı tamamen Türkçe-only'di (EN sayfada da
-  Türkçe görünüyordu) — hepsi bilingual yapıldı.
-- `typescriptData.js` — "Java Biliyorsan" (`java-compare`) bloklarının
-  `why`/`note` alanlarının `en` değeri yanlışlıkla Türkçe metin içeriyordu
-  (9 farklı blok: Type declarations, Basic Types, Interface, Class, Access
-  Modifiers, Generics, Enum, Null Safety, Union Types, Async/Await — dosyada
-  2 kez tekrarlanmış haliyle 18 lokasyon). Doğru İngilizce metin zaten
-  kullanılmayan `why_en`/`note_en` alanlarında duruyordu (render hiç
-  okumuyordu) — oradan taşındı, dead `_en` alanları silindi.
-- `sqlData.js` — JOIN görsel rehberi açıklama metninde EN cümle içinde
-  Türkçe buton adı geçiyordu ("Eşleşmeleri Göster"/"Sonucu Göster" yerine
-  gerçek buton metni "Show Matches"/"Show Result" olmalıydı) + DBeaver
-  sekmesinde 6 öğelik bir `grid` bloğu (label+desc) tamamen Türkçe'ydi ve
-  EN-only diziye (`finalEnSections`) aitti → ikisi de düzeltildi.
-- **Not — false-positive'ler bulundu ve geri alınmadı (zararsız, dokunulmadı):**
-  postman/jmeter'da benzer görünen 6 `error:` etiketi bulundu ama bunlar
-  dosyanın `tr.sections`'ına ait olduğu doğrulandı (yani zaten sadece
-  Türkçe kullanıcıya gösteriliyor, EN kullanıcı hiç görmüyor) — bilingual'a
-  çevrilmeleri zararsız ama gereksizdi. aws/azure/docker/kafka/kubernetes/
-  jenkins'te bulunan "benzer" 13 etiket de aynı şekilde TAMAMEN
-  `tr.sections` içinde — **gerçek bug değiller, ek aksiyon gerekmiyor.**
-  (Bu dosyaların `cause`/`solution` alanlarının çoğu zaten sadece `{tr:...}`
-  şeklinde — `en` karşılığı yok — ama bu ayrı, çok daha büyük bir içerik
-  yazma görevi, bu oturumun kapsamı dışında bırakıldı, kullanıcıya
-  raporlandı ama henüz talep edilmedi.)
+**i18n Türkçe-sızıntı düzeltmeleri.** İlk commit'in post-commit hook'u
+(`npm run test:e2e`) `tests/i18n-content-toggle.spec.ts`'teki AC03 Koşul B
+testinde (EN modda 6 örnek sayfada Türkçeye özgü karakter taraması)
+python/sql/typescript'te EK gerçek sızıntılar buldu — kullanıcının raporladığı
+3 örnek sadece bir kısmıydı. Her round'da test tekrar koşulup kalan ihlal
+giderildi, sonunda **10/10 i18n testi yeşil**:
+- **Render mimarisi bug'ı (asıl kök neden, 2 yerde):** `ComparisonBlock`'taki
+  `left`/`right` kod örnekleri `getLocalizedCode()`'dan hiç geçmiyordu (ham
+  `side.code` basılıyordu) → düzeltildi. `ErrorDictionaryBlock`'taki
+  `err.error` etiketi `tx()`'siz basılıyordu → düzeltildi. Bu ikisi
+  düzeltilince, var olan `codeCommentTranslations` (TR→EN kod yorumu
+  sözlüğü, `TopicPage.jsx` satır ~14) mekanizması bu alanlar için de
+  otomatik çalışmaya başladı.
+- **`codeCommentTranslations`'a ~25 yeni TR→EN çift eklendi** (python'daki
+  "karşılığı" kalıpları, sql'deki transaction/JOIN örnek yorumları vb.) —
+  **dikkat:** bu dizi sırayla `reduce` ile uygulanıyor, genel kelime kuralları
+  (`YANLIŞ`→`WRONG`, `DOĞRU`→`FIXED`, `HATA`→`ERROR`) daha erken sırada
+  olduğu için sonraki spesifik pattern'lerin bu DÖNÜŞTÜRÜLMÜŞ hâli
+  eşlemesi gerekti (örn. `Açık bırakılan...` pattern'i `YANLIŞ` önekini
+  içermemeli, çünkü o zaten `WRONG`'a çevrilmiş olacak).
+- **2 hardcoded JSX bug'ı** (`TopicPage.jsx`): `TSLegoClassesVisual`'daki
+  `javaCode`/`tsCode` template literal'leri dile bakmadan sabit Türkçeydi →
+  `isTr` şartına bağlandı. `python-compile-run` simülasyonundaki "☕ Java
+  (Ayrı Derleme Adımı)" etiketi sabitti → `isTr ?` ile düzeltildi.
+- **Veri düzeltmeleri:** `pythonData.js`'de "Java → Python" sekmesindeki
+  16 heading + 1 giriş paragrafı + 18 satırlık "Quick Comparison Table"
+  tamamen Türkçe-only'di → bilingual yapıldı. `sqlData.js`'in "🛠️ DBeaver"
+  sekmesinde (kurulum grid'i, "Create DB & Schema" grid'i, Next.js/Prisma
+  kod örnekleri, karşılaştırma tablosu, `.env.local` örneği, 3 adet
+  "TR / EN" birleşik heading) baştan sona Türkçe-only'di, EN-only diziye
+  (`finalEnSections`) ait olduğu için tamamı düzeltildi. `typescriptData.js`'de
+  9 "Java Biliyorsan" karşılaştırma bloğunun `why`/`note.en` alanı yanlışlıkla
+  Türkçe'ydi (doğru İngilizce metin zaten kullanılmayan `why_en`/`note_en`
+  alanlarında duruyordu, oradan taşındı, dead alanlar silindi).
+- **Not — gerçek bug OLMAYAN, false-positive olarak doğrulanan bulgular:**
+  postman/jmeter'da benzer görünen 6 `error:` etiketi ile aws/azure/docker/
+  kafka/kubernetes/jenkins'teki 13 etiket TAMAMEN `tr.sections`'a ait —
+  yani zaten sadece Türkçe kullanıcıya gösteriliyor, EN kullanıcı hiç
+  görmüyor. Aksiyon gerekmiyor. (Bu dosyaların `cause`/`solution`
+  alanlarının çoğu zaten sadece `{tr:...}` — `en` karşılığı yok — ama bu
+  ayrı, çok daha büyük bir içerik yazma görevi, bu oturumun kapsamı dışında
+  bırakıldı.)
 
-`npm run build` (38 route, SEO check) ve ilgili Playwright testleri
-(`topic-pages-ui`, `sql-page`, `typescript-page`, `python-page` — 28/28)
-yeşil.
+`npm run build` (38 route, SEO check), `npm run test:e2e` (59/60 — sadece
+bilinen AC07 RLS-pending testi hariç) ve `tests/i18n-content-toggle.spec.ts`
+(10/10) yeşil.
 
 ---
 

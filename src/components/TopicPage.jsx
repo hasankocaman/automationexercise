@@ -206,6 +206,33 @@ const codeCommentTranslations = [
     [/token yoksa login başarısız demektir/gi, 'missing token means login failed'],
     [/Build grubu/gi, 'Build group'],
     [/BS hub URL'i/gi, 'BS hub URL'],
+    [/log'da görünür değer/gi, "value visible in the log"],
+    [/Java numeric enum gibi/gi, "like Java's numeric enum"],
+    [/\(TypeScript idiomu — daha yaygın\):/gi, '(the TypeScript idiom — more common):'],
+    [/Python None \(null karşılığı\)/gi, 'Python None (the equivalent of null)'],
+    [/Python idiom \(Optional\.orElse karşılığı\):/gi, 'Python idiom (the equivalent of Optional.orElse):'],
+    [/Index \+ value \(Java'nın indexed for'u\):/gi, "Index + value (Java's indexed for):"],
+    [/Index \+ value \(enumerate = Java'nın indexed for\):/gi, "Index + value (enumerate = Java's indexed for):"],
+    [/getOrDefault karşılığı/gi, 'the equivalent of getOrDefault'],
+    [/containsKey karşılığı/gi, 'the equivalent of containsKey'],
+    [/Literal syntax \(en yaygın\):/gi, 'Literal syntax (most common):'],
+    [/entrySet karşılığı/gi, 'the equivalent of entrySet'],
+    [/Named tuple \(record karşılığı\):/gi, 'Named tuple (the equivalent of record):'],
+    [/Her türlü ifade \{\} içinde çalışır:/gi, 'Any expression works inside {}:'],
+    [/\(Java enhanced for karşılığı\)/gi, "(the equivalent of Java's enhanced for)"],
+    [/FIXEDdan çağır/gi, 'call it directly'],
+    [/self = Java'nın 'this'i/gi, "self = Java's 'this'"],
+    [/\[ifade for öğe in liste if koşul\]/gi, '[expression for item in list if condition]'],
+    [/\(context manager kullanır!\):/gi, '(uses a context manager!):'],
+    [/Her iki tabloda tek geçiş/gi, 'a single pass over both tables'],
+    [/Her tester satırı için iç SELECT bir kez çalışır!/gi, 'the inner SELECT runs once per tester row!'],
+    [/Açık bırakılan kilitli transaction \(COMMIT edilmemiş\)/gi, 'a locked transaction left open (no COMMIT)'],
+    [/Test yarıda kesildi veya bağlantı açık kaldı \(COMMIT\/ROLLBACK yok\)/gi, 'Test was interrupted or the connection stayed open (no COMMIT/ROLLBACK)'],
+    [/Eşzamanlı başka sorgu bekler ve ERROR verir:/gi, 'A concurrent query waits and then errors out:'],
+    [/Transaction'ı her zaman güvenli şekilde bitirin/gi, 'always finish the transaction safely'],
+    [/Kilidi kaldır/gi, 'release the lock'],
+    [/Eşzamanlı sorgu artık anında çalışır:/gi, 'The concurrent query now runs instantly:'],
+    [/HATA: Lock wait timeout/gi, 'ERROR: Lock wait timeout'],
 ]
 
 const englishToTurkishCodeComments = [
@@ -1251,7 +1278,7 @@ function ComparisonBlock({ block, darkMode, language = 'en' }) {
                             {tx(side.label, language)}
                         </div>
                         <div style={{ background: '#0d1117' }}>
-                            <pre className="font-mono text-xs overflow-x-auto leading-relaxed whitespace-pre-wrap p-4 m-0" style={{ background: '#0d1117', color: '#e6edf3' }}>{side.code}</pre>
+                            <pre className="font-mono text-xs overflow-x-auto leading-relaxed whitespace-pre-wrap p-4 m-0" style={{ background: '#0d1117', color: '#e6edf3' }}>{getLocalizedCode(side.code, language)}</pre>
                         </div>
                         {side.note && (
                             <div className={`px-4 py-2 text-xs ${isLeft ? (darkMode ? 'text-red-400 bg-red-900/10' : 'text-red-600 bg-red-50') : (darkMode ? 'text-green-400 bg-green-900/10' : 'text-green-600 bg-green-50')}`}>
@@ -15277,7 +15304,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                             <div className="text-[10px] mt-1 text-gray-400">{isTr ? 'Hızlı ve pratik geliştirme' : 'Fast and interactive development'}</div>
                         </div>
                         <div className={`p-2.5 rounded-lg border ${cur >= 2 ? (darkMode ? 'border-violet-800 bg-violet-950/20 text-violet-200' : 'border-violet-300 bg-violet-50 text-violet-800') : (darkMode ? 'border-gray-800 bg-gray-950 text-gray-500' : 'border-gray-200 bg-gray-50 text-gray-400')}`}>
-                            <div className="font-bold mb-1">☕ Java (Ayrı Derleme Adımı)</div>
+                            <div className="font-bold mb-1">☕ {isTr ? 'Java (Ayrı Derleme Adımı)' : 'Java (Separate Compilation Step)'}</div>
                             <div>Main.java ➔ javac ➔ Main.class ➔ JVM</div>
                             <div className="text-[10px] mt-1 text-gray-400">{isTr ? 'Derleme hatası erken yakalanır' : 'Catches errors at compile-time'}</div>
                         </div>
@@ -17712,8 +17739,12 @@ function TSLegoFunctionsVisual({ isTr, darkMode }) {
 function TSLegoClassesVisual({ isTr, darkMode }) {
     const [show, setShow] = useState('java')
 
-    const javaCode = `// Java — 3 adım gerekli\nclass User {\n  private String email;       // 1) field tanımla\n  private String role;\n\n  User(String email, String role) {\n    this.email = email;       // 2) ata\n    this.role = role;         // 3) ata\n  }\n}`
-    const tsCode = `// TypeScript — 1 adım yeterli ✨\nclass User {\n  constructor(\n    public email: string,   // field + atama tek satır!\n    public role: string = "user"\n  ) {}   // boş constructor gövdesi\n}`
+    const javaCode = isTr
+        ? `// Java — 3 adım gerekli\nclass User {\n  private String email;       // 1) field tanımla\n  private String role;\n\n  User(String email, String role) {\n    this.email = email;       // 2) ata\n    this.role = role;         // 3) ata\n  }\n}`
+        : `// Java — requires 3 steps\nclass User {\n  private String email;       // 1) declare the field\n  private String role;\n\n  User(String email, String role) {\n    this.email = email;       // 2) assign\n    this.role = role;         // 3) assign\n  }\n}`
+    const tsCode = isTr
+        ? `// TypeScript — 1 adım yeterli ✨\nclass User {\n  constructor(\n    public email: string,   // field + atama tek satır!\n    public role: string = "user"\n  ) {}   // boş constructor gövdesi\n}`
+        : `// TypeScript — just 1 step is enough ✨\nclass User {\n  constructor(\n    public email: string,   // field + assignment in one line!\n    public role: string = "user"\n  ) {}   // empty constructor body\n}`
 
     return (
         <div style={{ marginBottom: 24 }}>

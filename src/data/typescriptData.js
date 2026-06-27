@@ -4169,7 +4169,7 @@ export const typescriptData = {
               },
               {
                 "id": "d",
-                "text": "Hem A hem B şıkkı aynı sonucu üretir"
+                "text": "Both A and B produce the same result"
               }
             ],
             "correct": "d",
