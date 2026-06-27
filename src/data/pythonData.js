@@ -1,3 +1,5 @@
+import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData'
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -6357,6 +6359,886 @@ const pythonEcosystemBlocks = [
   }
 ];
 
+// --- CODE PLAYGROUND BLOCKS (Run / Show Expected Output / Fix the Failing Test / Hint) ---
+const playgroundSyntax = {
+  type: 'code-playground',
+  id: 'py-syntax-01',
+  xpReward: 15,
+  label: { tr: 'Dene: Girinti ve İki Nokta', en: 'Try it: Indentation and Colon' },
+  language: 'python',
+  code: `def check_status(code):
+    if code == 200:
+        print("OK")
+    else:
+        print("FAIL")
+
+check_status(200)`,
+  expected: 'OK',
+  explanation: {
+    tr: '200 değeri "code == 200" koşulunu sağladığı için if bloğu çalışır ve "OK" yazdırılır. Python\'da bloğun sınırını süslü parantez değil girinti belirler.',
+    en: '200 satisfies "code == 200", so the if-block runs and prints "OK". In Python, indentation — not curly braces — marks where a block ends.',
+  },
+  hints: [
+    { tr: 'check_status fonksiyon tanımının sonunda ne eksik olabilir?', en: 'What might be missing at the end of the check_status function signature?' },
+    { tr: 'Python\'da bir fonksiyon/if/else satırı her zaman ne ile bitmeli?', en: 'What must a function/if/else line always end with in Python?' },
+    { tr: 'def check_status(code) satırına iki nokta (:) eklemeyi dene.', en: 'Try adding a colon (:) to the end of the def check_status(code) line.' },
+  ],
+  buggyCode: `def check_status(code)
+    if code == 200:
+        print("OK")
+    else:
+        print("FAIL")
+
+check_status(200)`,
+  fixedCode: `def check_status(code):
+    if code == 200:
+        print("OK")
+    else:
+        print("FAIL")
+
+check_status(200)`,
+}
+
+const playgroundVariables = {
+  type: 'code-playground',
+  id: 'py-variables-01',
+  xpReward: 15,
+  label: { tr: 'Dene: String vs Int Karşılaştırma', en: 'Try it: String vs Int Comparison' },
+  language: 'python',
+  code: `status_code = "200"
+if status_code == "200":
+    print("Test passed")
+else:
+    print("Test failed")`,
+  expected: 'Test passed',
+  explanation: {
+    tr: 'status_code bir string ("200") olarak tanımlandı ve "200" string\'i ile karşılaştırıldığı için eşleşir. Java\'da "200".equals("200") gibi düşünebilirsin — burada == string içerik eşitliğine bakar.',
+    en: 'status_code is a string ("200") and is compared against the string "200", so it matches. Think of it like Java\'s "200".equals("200") — here == checks string value equality.',
+  },
+  hints: [
+    { tr: 'status_code hangi veri tipinde tanımlandı?', en: 'What data type is status_code defined as?' },
+    { tr: 'if satırının sonunda ne eksik olabilir?', en: 'What might be missing at the end of the if line?' },
+    { tr: 'if status_code == "200" satırına iki nokta (:) ekle.', en: 'Add a colon (:) to the end of the if status_code == "200" line.' },
+  ],
+  buggyCode: `status_code = "200"
+if status_code == "200"
+    print("Test passed")
+else:
+    print("Test failed")`,
+  fixedCode: `status_code = "200"
+if status_code == "200":
+    print("Test passed")
+else:
+    print("Test failed")`,
+}
+
+const playgroundLoops = {
+  type: 'code-playground',
+  id: 'py-loops-01',
+  xpReward: 15,
+  label: { tr: 'Dene: range() ile Off-by-One Hatası', en: 'Try it: Off-by-One Error with range()' },
+  language: 'python',
+  code: `test_ids = []
+for i in range(1, 6):
+    test_ids.append(f"TC-{i}")
+
+print(test_ids)`,
+  expected: "['TC-1', 'TC-2', 'TC-3', 'TC-4', 'TC-5']",
+  explanation: {
+    tr: 'range(1, 6) sayıları 1\'den başlatır ama 6\'yı DAHİL ETMEZ — yani 1,2,3,4,5 üretir. Java\'daki "for (i=1; i<6; i++)" ile aynı mantık: bitiş değeri her zaman dışlanır.',
+    en: 'range(1, 6) starts at 1 but does NOT include 6 — it produces 1,2,3,4,5. Same logic as Java\'s "for (i=1; i<6; i++)": the stop value is always exclusive.',
+  },
+  hints: [
+    { tr: '5 test ID üretmek istiyorsun ama kod kaç tane üretiyor?', en: 'You want 5 test IDs — how many does the buggy code actually produce?' },
+    { tr: 'range(start, stop) içinde "stop" değeri dahil mi, dışlanır mı?', en: 'In range(start, stop), is the "stop" value inclusive or exclusive?' },
+    { tr: '5 eleman için range(1, 6) kullanman gerekiyor, range(1, 5) sadece 4 üretir.', en: 'For 5 elements you need range(1, 6) — range(1, 5) only produces 4.' },
+  ],
+  buggyCode: `test_ids = []
+for i in range(1, 5):
+    test_ids.append(f"TC-{i}")
+
+print(test_ids)`,
+  fixedCode: `test_ids = []
+for i in range(1, 6):
+    test_ids.append(f"TC-{i}")
+
+print(test_ids)`,
+}
+
+const playgroundFunctions = {
+  type: 'code-playground',
+  id: 'py-functions-01',
+  xpReward: 20,
+  label: { tr: 'Dene: Mutable Default Argument Tuzağı', en: 'Try it: The Mutable Default Argument Trap' },
+  language: 'python',
+  code: `def add_test_case(case, cases=None):
+    if cases is None:
+        cases = []
+    cases.append(case)
+    return cases
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+  expected: "['login']\n['logout']",
+  explanation: {
+    tr: 'cases=None ile başlatıp fonksiyon içinde yeni bir liste oluşturduğumuz için her çağrı kendi temiz listesiyle başlar. Bu, Python\'a özgü bir tuzağı (mutable default argument) önler — Java\'da bu sorun zaten oluşmaz çünkü default değerler her çağrıda yeniden değerlendirilir.',
+    en: 'Because we start with cases=None and create a fresh list inside the function, every call gets its own clean list. This avoids a Python-specific trap (the mutable default argument) — Java doesn\'t have this problem since default values are re-evaluated per call.',
+  },
+  hints: [
+    { tr: 'Varsayılan parametre değeri cases=[] ne zaman oluşturulur — her çağrıda mı, yoksa bir kere mi?', en: 'When is the default parameter cases=[] created — once, or on every call?' },
+    { tr: '[] varsayılan değeri SADECE BİR KEZ oluşturulur ve tüm çağrılar arasında PAYLAŞILIR.', en: 'The [] default value is created ONLY ONCE and is SHARED across every call.' },
+    { tr: 'cases=None kullan, fonksiyon içinde "if cases is None: cases = []" ile her çağrıda taze bir liste oluştur.', en: 'Use cases=None, then inside the function do "if cases is None: cases = []" to create a fresh list on every call.' },
+  ],
+  buggyCode: `def add_test_case(case, cases=[]):
+    cases.append(case)
+    return cases
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+  fixedCode: `def add_test_case(case, cases=None):
+    if cases is None:
+        cases = []
+    cases.append(case)
+    return cases
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+}
+
+const playgroundClasses = {
+  type: 'code-playground',
+  id: 'py-classes-01',
+  xpReward: 20,
+  label: { tr: 'Dene: super().__init__() Unutmak', en: 'Try it: Forgetting super().__init__()' },
+  language: 'python',
+  code: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+  expected: 'Rex says Woof!',
+  explanation: {
+    tr: 'Dog.__init__ kendi self.name değerini hiç atamıyor; bunu Animal sınıfının __init__\'ine devretmek için super().__init__(name) çağırmak gerekir — Java\'daki super(name) ile aynı mantık.',
+    en: "Dog.__init__ never sets self.name itself; it must delegate to Animal's __init__ via super().__init__(name) — same idea as Java's super(name) call.",
+  },
+  hints: [
+    { tr: 'Dog.__init__ içinde self.name hiç atanıyor mu?', en: 'Inside Dog.__init__, is self.name ever assigned?' },
+    { tr: 'Animal sınıfının __init__ metodu nasıl çağrılır?', en: "How do you call the Animal class's __init__ method?" },
+    { tr: 'Dog.__init__ içine super().__init__(name) satırını ekle.', en: 'Add the line super().__init__(name) inside Dog.__init__.' },
+  ],
+  buggyCode: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        pass
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+  fixedCode: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+}
+
+// --- GOOD VS BAD BLOCKS ---
+const goodVsBadAssertPrint = {
+  type: 'good-vs-bad',
+  title: { tr: 'Debug: assert vs print', en: 'Debugging: assert vs print' },
+  bad: {
+    code: `result = calculate_total(cart)
+print(result)`,
+    explanation: {
+      tr: 'print() sadece konsola yazar — testi otomatik FAIL ETMEZ, sonucu elle kontrol etmen gerekir.',
+      en: "print() only writes to the console — it doesn't automatically FAIL the test; you'd have to check the result by hand.",
+    },
+  },
+  good: {
+    code: `result = calculate_total(cart)
+assert result == 42, f"Expected 42, got {result}"`,
+    explanation: {
+      tr: "assert, koşul yanlışsa testi otomatik olarak FAILED yapar ve CI/CD'de hemen yakalanır.",
+      en: 'assert automatically marks the test FAILED when the condition is false, so CI/CD catches it immediately.',
+    },
+  },
+}
+
+const goodVsBadWaitStrategy = {
+  type: 'good-vs-bad',
+  title: { tr: 'Sabit Bekleme vs Akıllı Bekleme', en: 'Hardcoded Sleep vs Smart Wait' },
+  bad: {
+    code: `driver.find_element("id", "submit").click()
+time.sleep(5)
+result = driver.find_element("id", "result").text`,
+    explanation: {
+      tr: 'time.sleep(5) her zaman 5 saniye bekler — yavaş sistemde yetersiz, hızlı sistemde gereksiz yavaş kalır.',
+      en: 'time.sleep(5) always waits a fixed 5 seconds — not enough on a slow system, needlessly slow on a fast one.',
+    },
+  },
+  good: {
+    code: `driver.find_element("id", "submit").click()
+WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located(("id", "result"))
+)
+result = driver.find_element("id", "result").text`,
+    explanation: {
+      tr: 'WebDriverWait, element gerçekten görünür olduğu anda devam eder — hem daha hızlı hem daha güvenilir.',
+      en: 'WebDriverWait continues the moment the element actually becomes visible — both faster and more reliable.',
+    },
+  },
+}
+
+const goodVsBadFixture = {
+  type: 'good-vs-bad',
+  title: { tr: 'Hardcoded Test Verisi vs Fixture', en: 'Hardcoded Test Data vs Fixture' },
+  bad: {
+    code: `def test_login():
+    user = {"email": "test@test.com", "password": "12345"}
+    response = login(user["email"], user["password"])
+    assert response.status_code == 200`,
+    explanation: {
+      tr: 'Test verisi fonksiyonun içine gömülü — birden fazla testte tekrar tekrar kopyalanır, değiştirmek zor.',
+      en: 'Test data is baked into the function — it gets copy-pasted across many tests and is hard to change.',
+    },
+  },
+  good: {
+    code: `@pytest.fixture
+def test_user():
+    return {"email": "test@test.com", "password": "12345"}
+
+def test_login(test_user):
+    response = login(test_user["email"], test_user["password"])
+    assert response.status_code == 200`,
+    explanation: {
+      tr: "Fixture, veriyi tek bir yerden yönetir; birden fazla test aynı test_user'ı paylaşır, bakım tek noktadan yapılır.",
+      en: 'A fixture manages the data in one place; multiple tests share the same test_user, so maintenance happens in a single spot.',
+    },
+  },
+}
+
+const goodVsBadExceptionHandling = {
+  type: 'good-vs-bad',
+  title: { tr: 'Genel except vs Spesifik Exception', en: 'Bare except vs Specific Exception' },
+  bad: {
+    code: `try:
+    response = requests.get(url, timeout=5)
+except:
+    print("Something went wrong")`,
+    explanation: {
+      tr: 'Çıplak "except:" HER hatayı (KeyboardInterrupt dahil!) yutar ve gerçek sebebi gizler — debug etmek imkansızlaşır.',
+      en: 'A bare "except:" swallows EVERY error (even KeyboardInterrupt!) and hides the real cause — debugging becomes impossible.',
+    },
+  },
+  good: {
+    code: `try:
+    response = requests.get(url, timeout=5)
+except requests.exceptions.Timeout:
+    print("Request timed out — retrying")
+except requests.exceptions.ConnectionError:
+    print("Server unreachable")`,
+    explanation: {
+      tr: "Spesifik exception'ları yakalamak, her hata türüne uygun bir tepki vermeni sağlar ve beklenmeyen hataları gizlemez.",
+      en: 'Catching specific exceptions lets you respond appropriately to each error type, without hiding unexpected ones.',
+    },
+  },
+}
+
+// --- STEP ANIMATION BLOCKS ---
+const stepAnimationPytestFlow = {
+  type: 'step-animation',
+  title: { tr: 'pytest Çalışma Akışı', en: 'pytest Execution Flow' },
+  steps: [
+    {
+      id: 1,
+      icon: '🔍',
+      label: { tr: 'Toplama (Collect)', en: 'Collect' },
+      detail: {
+        tr: 'pytest, test_ ile başlayan tüm dosyaları ve fonksiyonları tarar ve çalıştırılacak test listesini oluşturur.',
+        en: 'pytest scans every file and function starting with test_ and builds the list of tests to run.',
+      },
+    },
+    {
+      id: 2,
+      icon: '⚙️',
+      label: { tr: "Fixture'lar Çalışır (Setup)", en: 'Fixtures Run (Setup)' },
+      detail: {
+        tr: 'Test fonksiyonunun ihtiyaç duyduğu fixture\'lar (setup kodu) sırayla tetiklenir — örneğin tarayıcı açılır, test verisi hazırlanır.',
+        en: 'The fixtures (setup code) a test function depends on run in order — e.g. opening a browser, preparing test data.',
+      },
+    },
+    {
+      id: 3,
+      icon: '▶',
+      label: { tr: 'Test Çalışır (Run)', en: 'Test Runs' },
+      detail: {
+        tr: 'Test fonksiyonunun kendisi çalışır; içindeki assert ifadeleri değerlendirilir.',
+        en: "The test function itself executes; the assert statements inside it are evaluated.",
+      },
+    },
+    {
+      id: 4,
+      icon: '🧹',
+      label: { tr: 'Teardown', en: 'Teardown' },
+      detail: {
+        tr: "Fixture'ların temizlik (cleanup) kodu çalışır — tarayıcı kapatılır, geçici veriler silinir.",
+        en: "Each fixture's cleanup code runs — closing the browser, deleting temporary data.",
+      },
+    },
+    {
+      id: 5,
+      icon: '📊',
+      label: { tr: 'Rapor Üretilir', en: 'Report Generated' },
+      detail: {
+        tr: 'Her test için PASSED / FAILED / ERROR durumu belirlenir ve terminale veya bir HTML rapora yazılır.',
+        en: 'A PASSED / FAILED / ERROR status is recorded for each test and printed to the terminal or an HTML report.',
+      },
+    },
+  ],
+}
+
+const stepAnimationImportFlow = {
+  type: 'step-animation',
+  title: { tr: 'Python import Mekanizması', en: 'Python Import Mechanism' },
+  steps: [
+    {
+      id: 1,
+      icon: '🔎',
+      label: { tr: 'Modül Aranır', en: 'Module Is Searched' },
+      detail: {
+        tr: 'Python, import edilen modülü sys.path listesindeki klasörlerde sırayla arar.',
+        en: "Python searches for the imported module across the folders listed in sys.path, in order.",
+      },
+    },
+    {
+      id: 2,
+      icon: '📦',
+      label: { tr: 'Yüklenir (Load)', en: 'Module Is Loaded' },
+      detail: {
+        tr: 'Modül dosyası bulunur ve byte-code\'a derlenir (.pyc önbelleği oluşur).',
+        en: 'The module file is found and compiled to bytecode (cached as a .pyc file).',
+      },
+    },
+    {
+      id: 3,
+      icon: '▶',
+      label: { tr: 'Çalıştırılır (Execute)', en: 'Module Code Executes' },
+      detail: {
+        tr: "Modülün İÇİNDEKİ TÜM KOD üstten alta BİR KEZ çalıştırılır — fonksiyon/class tanımları da bu sırada oluşturulur.",
+        en: 'ALL of the code inside the module runs top-to-bottom EXACTLY ONCE — function/class definitions are created during this pass too.',
+      },
+    },
+    {
+      id: 4,
+      icon: '💾',
+      label: { tr: "sys.modules'e Kaydedilir", en: 'Cached in sys.modules' },
+      detail: {
+        tr: "Modül, sys.modules sözlüğüne kaydedilir. Aynı modülü TEKRAR import edersen, kod tekrar ÇALIŞMAZ — direkt cache'den okunur.",
+        en: "The module gets cached in the sys.modules dict. Importing the SAME module AGAIN does NOT re-run its code — it's read straight from the cache.",
+      },
+    },
+  ],
+}
+
+// --- INTERACTIVE DIAGRAM BLOCKS ---
+const interactiveDiagramTestPyramid = {
+  type: 'interactive-diagram',
+  variant: 'pyramid',
+  title: { tr: 'Test Piramidi', en: 'Test Pyramid' },
+  nodes: [
+    {
+      id: 'e2e',
+      label: { tr: 'E2E Testler', en: 'E2E Tests' },
+      color: '#ef4444',
+      detail: {
+        tr: 'Gerçek bir kullanıcı gibi tüm uygulamayı baştan sona test eder (örn. Selenium/Playwright ile giriş yap → sepete ekle → ödeme yap). Yavaş ve pahalıdır — az sayıda olmalı.',
+        en: 'Tests the whole application end-to-end like a real user (e.g. with Selenium/Playwright: log in → add to cart → checkout). Slow and expensive — there should be few of these.',
+      },
+      stats: {
+        count: '~10',
+        speed: { tr: 'Yavaş', en: 'Slow' },
+        cost: { tr: 'Yüksek', en: 'High' },
+      },
+    },
+    {
+      id: 'integration',
+      label: { tr: 'Integration', en: 'Integration' },
+      color: '#f59e0b',
+      detail: {
+        tr: 'Servisler arası etkileşimi test eder (örn. API çağrısının veritabanına doğru yazıp yazmadığı). E2E\'den hızlı, unit\'ten daha yavaştır.',
+        en: 'Tests interaction between services (e.g. whether an API call writes correctly to the database). Faster than E2E, slower than unit.',
+      },
+      stats: {
+        count: '~100',
+        speed: { tr: 'Orta', en: 'Medium' },
+        cost: { tr: 'Orta', en: 'Medium' },
+      },
+    },
+    {
+      id: 'unit',
+      label: { tr: 'Unit Testler', en: 'Unit Tests' },
+      color: '#22c55e',
+      detail: {
+        tr: 'Tek bir fonksiyonu/metodu izole şekilde test eder — dış bağımlılık yoktur (mock kullanılır). Hızlı, ucuz ve çok sayıda olmalı.',
+        en: 'Tests a single function/method in isolation — no external dependencies (mocks are used instead). Fast, cheap, and there should be lots of them.',
+      },
+      stats: {
+        count: '~1000',
+        speed: { tr: 'Hızlı', en: 'Fast' },
+        cost: { tr: 'Düşük', en: 'Low' },
+      },
+    },
+  ],
+}
+
+// --- CHALLENGE BLOCKS (mini görevler) ---
+const challengeAssertVsIs = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-assert-01',
+  question: {
+    tr: "Python'da iki string'in İÇERİK olarak eşit olup olmadığını kontrol etmek için hangi operatörü kullanmalısın?",
+    en: 'Which operator should you use to check if two strings are equal in VALUE in Python?',
+  },
+  options: [
+    {
+      id: 'a',
+      text: 'is',
+      correct: false,
+      explanation: {
+        tr: '"is" kimlik (aynı bellek nesnesi) kontrolü yapar, değer eşitliğini değil. Bazen string\'ler için işe yarar gibi görünse de (interning yüzünden) güvenilir değildir.',
+        en: '"is" checks identity (same memory object), not value equality. It may seem to work for strings due to interning, but it\'s unreliable.',
+      },
+    },
+    {
+      id: 'b',
+      text: '==',
+      correct: true,
+      explanation: {
+        tr: '"==" iki nesnenin İÇERİĞİNİN eşit olup olmadığını kontrol eder — değer karşılaştırması için doğru operatör budur.',
+        en: '"==" checks whether the CONTENTS of two objects are equal — this is the correct operator for value comparison.',
+      },
+    },
+    {
+      id: 'c',
+      text: '=',
+      correct: false,
+      explanation: {
+        tr: '"=" atama operatörüdür, karşılaştırma yapmaz. "if x = 5" yazmak SyntaxError verir.',
+        en: '"=" is the assignment operator, not comparison. Writing "if x = 5" raises a SyntaxError.',
+      },
+    },
+  ],
+  xpReward: 10,
+}
+
+const challengeFixtureScope = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-fixture-scope-01',
+  question: {
+    tr: 'Aynı veritabanı bağlantısını TÜM test dosyaları arasında bir kere kurup paylaşmak istiyorsun (performans için). Hangi fixture scope\'unu seçersin?',
+    en: 'You want to set up the same database connection ONCE and share it across ALL test files (for performance). Which fixture scope do you choose?',
+  },
+  options: [
+    {
+      id: 'a',
+      text: 'function (varsayılan)',
+      correct: false,
+      explanation: {
+        tr: '"function" scope\'u her TEK test fonksiyonu için fixture\'ı yeniden çalıştırır — paylaşım yok, en yavaş seçenek.',
+        en: '"function" scope re-runs the fixture for EVERY single test function — no sharing, the slowest option.',
+      },
+    },
+    {
+      id: 'b',
+      text: 'session',
+      correct: true,
+      explanation: {
+        tr: '"session" scope, fixture\'ı TÜM test çalıştırması boyunca sadece BİR KEZ kurar ve tüm dosyalar arasında paylaşır — tam istediğin bu.',
+        en: '"session" scope sets up the fixture only ONCE for the entire test run and shares it across all files — exactly what you want.',
+      },
+    },
+    {
+      id: 'c',
+      text: 'class',
+      correct: false,
+      explanation: {
+        tr: '"class" scope sadece aynı test CLASS\'ı içindeki testler arasında paylaşılır, dosyalar arası paylaşım sağlamaz.',
+        en: '"class" scope is only shared between tests in the same test CLASS — it won\'t share across files.',
+      },
+    },
+  ],
+  xpReward: 15,
+}
+
+const challengeParametrize = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-parametrize-01',
+  question: {
+    tr: 'Aynı test fonksiyonunu 3 farklı email girdisiyle (geçerli, boş, @ işaretsiz) çalıştırmak istiyorsun. En doğru pytest yaklaşımı hangisi?',
+    en: "You want to run the same test function with 3 different email inputs (valid, empty, missing @). What's the correct pytest approach?",
+  },
+  options: [
+    {
+      id: 'a',
+      text: { tr: '3 ayrı test fonksiyonu yazmak (test_email_1, test_email_2, test_email_3)', en: 'Write 3 separate test functions (test_email_1, test_email_2, test_email_3)' },
+      correct: false,
+      explanation: {
+        tr: 'Çalışır ama kod tekrarına yol açar — mantık aynı, sadece veri değişiyor. Bakımı zorlaşır.',
+        en: 'It works, but duplicates logic — only the data changes. Harder to maintain.',
+      },
+    },
+    {
+      id: 'b',
+      text: { tr: '@pytest.mark.parametrize ile tek fonksiyon, 3 veri seti', en: 'A single function with @pytest.mark.parametrize and 3 data sets' },
+      correct: true,
+      explanation: {
+        tr: 'parametrize, aynı test mantığını farklı girdilerle ÇOĞALTIR — kod tekrarı olmaz, her girdi ayrı bir test olarak raporlanır.',
+        en: 'parametrize MULTIPLIES the same test logic across different inputs — no duplication, and each input is reported as its own test.',
+      },
+    },
+    {
+      id: 'c',
+      text: { tr: 'Bir for döngüsü içinde 3 assert yazmak', en: 'Write 3 asserts inside a for loop' },
+      correct: false,
+      explanation: {
+        tr: 'İlk assert fail ettiğinde döngü durur — diğer 2 girdi hiç test edilmemiş gibi görünür, hangi girdinin başarısız olduğu raporda görünmez.',
+        en: "When the first assert fails, the loop stops — the other 2 inputs look untested, and the report won't show which input actually failed.",
+      },
+    },
+  ],
+  xpReward: 15,
+}
+
+const challengeConftest = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-conftest-01',
+  question: {
+    tr: "conftest.py dosyasının pytest projelerindeki temel amacı nedir?",
+    en: 'What is the main purpose of a conftest.py file in pytest projects?',
+  },
+  options: [
+    {
+      id: 'a',
+      text: { tr: 'Test sonuçlarının raporlandığı HTML dosyası', en: 'The HTML file where test results get reported' },
+      correct: false,
+      explanation: {
+        tr: 'Hayır, raporlama pytest-html gibi eklentilerle yapılır. conftest.py rapor üretmez.',
+        en: 'No, reporting is done via plugins like pytest-html. conftest.py does not generate reports.',
+      },
+    },
+    {
+      id: 'b',
+      text: { tr: "Birden fazla test dosyasının paylaştığı fixture'ları tanımlamak için özel bir dosya", en: 'A special file for defining fixtures shared across multiple test files' },
+      correct: true,
+      explanation: {
+        tr: "conftest.py, pytest tarafından otomatik keşfedilen özel bir dosyadır — içindeki fixture'lar import etmeden, aynı klasördeki/alt klasördeki TÜM test dosyalarına otomatik olarak erişilebilir olur.",
+        en: 'conftest.py is a special file pytest auto-discovers — fixtures defined in it become automatically available to ALL test files in the same or nested folders, without any import.',
+      },
+    },
+    {
+      id: 'c',
+      text: { tr: 'Projenin bağımlılıklarını listeleyen dosya', en: "The file that lists the project's dependencies" },
+      correct: false,
+      explanation: {
+        tr: "Bağımlılıklar requirements.txt veya pyproject.toml'da listelenir, conftest.py'da değil.",
+        en: 'Dependencies are listed in requirements.txt or pyproject.toml, not conftest.py.',
+      },
+    },
+  ],
+  xpReward: 10,
+}
+
+const challengeMark = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-mark-01',
+  question: {
+    tr: 'Yavaş çalışan (örn. 30 saniye süren) bir E2E testini, hızlı CI koşumlarında ATLAMAK istiyorsun ama gerektiğinde manuel çalıştırabilmek istiyorsun. Doğru yaklaşım nedir?',
+    en: "You want to SKIP a slow E2E test (e.g. 30 seconds) during fast CI runs, but still be able to run it manually when needed. What's the right approach?",
+  },
+  options: [
+    {
+      id: 'a',
+      text: { tr: 'Testi yorum satırı yapmak (# ile baştan kapatmak)', en: 'Comment the test out (disable it with #)' },
+      correct: false,
+      explanation: {
+        tr: 'Yorum satırı yapılan kod pytest tarafından hiç görülmez/toplanmaz — testi tamamen kaybedersin, geri açmak da kolay unutulur.',
+        en: "Commented-out code is invisible to pytest entirely — you effectively lose the test, and it's easy to forget to re-enable it.",
+      },
+    },
+    {
+      id: 'b',
+      text: { tr: "@pytest.mark.slow ile işaretlemek ve CI'da \"-m 'not slow'\" ile çalıştırmak", en: 'Mark it with @pytest.mark.slow and run CI with "-m \'not slow\'"' },
+      correct: true,
+      explanation: {
+        tr: "mark, testi etiketler ama SİLMEZ. CI'da \"-m 'not slow'\" ile bu testleri atlarsın, ama \"pytest -m slow\" ile istediğinde manuel çalıştırabilirsin.",
+        en: 'A mark labels the test without deleting it. CI can skip it with "-m \'not slow\'", while you can still run it manually with "pytest -m slow".',
+      },
+    },
+    {
+      id: 'c',
+      text: { tr: "Testi başka bir Git branch'ine taşımak", en: 'Move the test to a different Git branch' },
+      correct: false,
+      explanation: {
+        tr: 'Bu testi ana koddan tamamen ayırır ve bakımını/senkronizasyonunu çok daha karmaşık hale getirir — mark kullanmak çok daha basit.',
+        en: 'This completely separates the test from the main codebase and makes maintenance far more complex — a mark is much simpler.',
+      },
+    },
+  ],
+  xpReward: 15,
+}
+
+const challengeExceptionBestPractice = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-py-exception-01',
+  question: {
+    tr: 'Bir API çağrısı zaman aşımına (timeout) uğrayabilir. En iyi pratik hangisidir?',
+    en: 'An API call might time out. What is the best practice here?',
+  },
+  options: [
+    {
+      id: 'a',
+      text: { tr: "try/except hiç kullanmamak, hata olursa program çöksün", en: 'Skip try/except entirely — let the program crash on error' },
+      correct: false,
+      explanation: {
+        tr: 'Beklenen bir senaryo (network sorunları) için programın çökmesi kötü bir kullanıcı/test deneyimi yaratır ve gerçek sorunu maskeler.',
+        en: 'Letting the program crash for an expected scenario (network issues) creates a bad experience and can mask the real underlying issue.',
+      },
+    },
+    {
+      id: 'b',
+      text: 'except requests.exceptions.Timeout:',
+      correct: true,
+      explanation: {
+        tr: 'Spesifik exception yakalamak, SADECE beklediğin hatayı (timeout) ele almanı sağlar; beklenmeyen başka hatalar (örn. programlama hatası) gizlenmez.',
+        en: "Catching a specific exception means you handle ONLY the error you expect (timeout); other unexpected errors (like a programming bug) won't be silently hidden.",
+      },
+    },
+    {
+      id: 'c',
+      text: 'except:',
+      correct: false,
+      explanation: {
+        tr: 'Çıplak "except:" HER hatayı yutar (KeyboardInterrupt dahil) ve gerçek sebebi gizleyerek debug etmeyi imkansızlaştırır.',
+        en: 'A bare "except:" swallows EVERY error (even KeyboardInterrupt) and hides the real cause, making debugging very hard.',
+      },
+    },
+  ],
+  xpReward: 15,
+}
+
+const challengePytestOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-pytest-01',
+  question: {
+    tr: 'pytest bir testi çalıştırırken adımları doğru sıraya diz.',
+    en: 'Arrange the steps in the correct order for how pytest runs a test.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Test Toplanır (Collect)', en: 'Collect' }, order: 1 },
+    { id: '2', text: { tr: "Fixture'lar Çalışır (Setup)", en: 'Setup (fixtures run)' }, order: 2 },
+    { id: '3', text: { tr: 'Test Çalışır (Run)', en: 'Run' }, order: 3 },
+    { id: '4', text: { tr: 'Teardown', en: 'Teardown' }, order: 4 },
+    { id: '5', text: { tr: 'Rapor Üretilir', en: 'Report' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+const challengeInheritanceOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-inheritance-01',
+  question: {
+    tr: "SportsCar(Car), Car(Vehicle) şeklinde tanımlanmış. Python, SportsCar üzerinde olmayan bir metodu ararken hangi sırayla sınıfları tarar?",
+    en: 'SportsCar(Car) and Car(Vehicle) are defined. When Python looks for a method not found on SportsCar, in what order does it search the classes?',
+  },
+  items: [
+    { id: '1', text: { tr: 'SportsCar (kendisi)', en: 'SportsCar (itself)' }, order: 1 },
+    { id: '2', text: { tr: 'Car (ebeveyn)', en: 'Car (parent)' }, order: 2 },
+    { id: '3', text: { tr: 'Vehicle (büyük ebeveyn)', en: 'Vehicle (grandparent)' }, order: 3 },
+    { id: '4', text: { tr: "object (Python'daki en temel sınıf)", en: "object (Python's base class)" }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeCiOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-ci-01',
+  question: {
+    tr: "Tipik bir CI/CD pipeline'ında adımları doğru sıraya diz.",
+    en: 'Arrange the steps in a typical CI/CD pipeline in the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Kod push edilir / PR açılır', en: 'Code is pushed / PR opened' }, order: 1 },
+    { id: '2', text: { tr: 'Bağımlılıklar kurulur (pip install)', en: 'Dependencies are installed (pip install)' }, order: 2 },
+    { id: '3', text: { tr: 'Testler çalıştırılır (pytest)', en: 'Tests run (pytest)' }, order: 3 },
+    { id: '4', text: { tr: 'Build/Deploy adımı tetiklenir (testler geçtiyse)', en: 'Build/Deploy step triggers (if tests passed)' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeFillAssert = {
+  type: 'challenge',
+  variant: 'fill-blank',
+  id: 'ch-py-fill-assert-01',
+  instruction: {
+    tr: 'Aşağıdaki assert ifadesini tamamla: sonucun beklenen değere EŞİT olduğunu kontrol et.',
+    en: 'Complete the assert statement: check that the result EQUALS the expected value.',
+  },
+  codeTemplate: 'assert result {BLANK} expected',
+  answer: '==',
+  alternatives: [],
+  explanation: {
+    tr: '"==" iki değerin eşit olup olmadığını kontrol eder — assert ifadelerinde en yaygın kullanılan karşılaştırma budur.',
+    en: '"==" checks whether two values are equal — this is the most common comparison used in assert statements.',
+  },
+  xpReward: 10,
+}
+
+const challengeFillFixture = {
+  type: 'challenge',
+  variant: 'fill-blank',
+  id: 'ch-py-fill-fixture-01',
+  instruction: {
+    tr: "Bu fonksiyonu bir pytest fixture'ı yapan decorator'ı yaz.",
+    en: 'Write the decorator that turns this function into a pytest fixture.',
+  },
+  codeTemplate: '@pytest.{BLANK}\ndef db_connection():\n    return connect_to_test_db()',
+  answer: 'fixture',
+  alternatives: ['fixture()'],
+  explanation: {
+    tr: '@pytest.fixture (parantezsiz) ve @pytest.fixture() (parantezli, argüman yoksa) ikisi de geçerlidir — pytest bu fonksiyonu bir fixture olarak tanır.',
+    en: '@pytest.fixture (no parens) and @pytest.fixture() (with parens, when there are no arguments) are both valid — pytest recognizes this function as a fixture either way.',
+  },
+  xpReward: 15,
+}
+
+const challengeFillParametrize = {
+  type: 'challenge',
+  variant: 'fill-blank',
+  id: 'ch-py-fill-parametrize-01',
+  instruction: {
+    tr: "Aynı testi farklı değerlerle birden çok kez çalıştıran decorator'ı tamamla.",
+    en: 'Complete the decorator that runs the same test multiple times with different values.',
+  },
+  codeTemplate: '@pytest.mark.{BLANK}("value", [1, 2, 3])\ndef test_is_positive(value):\n    assert value > 0',
+  answer: 'parametrize',
+  alternatives: [],
+  explanation: {
+    tr: '@pytest.mark.parametrize, aynı test fonksiyonunu listede verilen her değer için bir kez çalıştırır — burada test 3 kez çalışır (1, 2 ve 3 için).',
+    en: '@pytest.mark.parametrize runs the same test function once for each value in the list — here the test runs 3 times (for 1, 2, and 3).',
+  },
+  xpReward: 15,
+}
+
+const challengeFillWith = {
+  type: 'challenge',
+  variant: 'fill-blank',
+  id: 'ch-py-fill-with-01',
+  instruction: {
+    tr: 'Bir dosyayı açıp, blok bittiğinde otomatik olarak kapatan yapıyı tamamla.',
+    en: 'Complete the construct that opens a file and automatically closes it when the block ends.',
+  },
+  codeTemplate: '{BLANK} open("data.json") as f:\n    data = f.read()',
+  answer: 'with',
+  alternatives: [],
+  explanation: {
+    tr: '"with" bir context manager başlatır — blok bittiğinde (hata olsa da olmasa da) dosyayı otomatik kapatır. f.close() yazmana gerek kalmaz.',
+    en: '"with" starts a context manager — it automatically closes the file when the block ends (whether or not an error occurred). You never need to write f.close().',
+  },
+  xpReward: 10,
+}
+
+const challengeBugSpotAssert = {
+  type: 'challenge',
+  variant: 'bug-spot',
+  id: 'ch-py-bugspot-assert-01',
+  instruction: { tr: 'Bu test fonksiyonunda hatalı satıra tıkla.', en: 'Click the line that contains the bug.' },
+  lines: [
+    { id: 1, code: 'def test_user_count():', hasBug: false },
+    { id: 2, code: '    users = get_all_users()', hasBug: false },
+    {
+      id: 3,
+      code: '    assert len(users) = 5',
+      hasBug: true,
+      explanation: {
+        tr: '"=" atama operatörüdür, karşılaştırma için "==" kullanılmalı. "assert len(users) = 5" SyntaxError verir.',
+        en: '"=" is the assignment operator; comparison needs "==". "assert len(users) = 5" raises a SyntaxError.',
+      },
+    },
+    { id: 4, code: '    return True', hasBug: false },
+  ],
+  xpReward: 15,
+}
+
+const challengeBugSpotFixture = {
+  type: 'challenge',
+  variant: 'bug-spot',
+  id: 'ch-py-bugspot-fixture-01',
+  instruction: { tr: 'Bu fixture tanımında hatalı satıra tıkla.', en: 'Click the line that contains the bug.' },
+  lines: [
+    { id: 1, code: '@pytest.fixture(scope="function")', hasBug: false },
+    { id: 2, code: 'def browser():', hasBug: false },
+    { id: 3, code: '    driver = webdriver.Chrome()', hasBug: false },
+    {
+      id: 4,
+      code: '    return driver',
+      hasBug: true,
+      explanation: {
+        tr: '"return" kullanmak, fixture\'ın testten sonra çalışması gereken temizlik (driver.quit()) kodunu ASLA ÇALIŞTIRMAZ. "yield driver" kullanılmalı — test bitince kontrol fixture\'a geri döner ve yield sonrası gelen temizlik kodu çalışır.',
+        en: 'Using "return" means any cleanup code (driver.quit()) meant to run AFTER the test NEVER EXECUTES. Use "yield driver" instead — control returns to the fixture after the test, running the cleanup code that follows the yield.',
+      },
+    },
+  ],
+  xpReward: 20,
+}
+
+const challengeBugSpotException = {
+  type: 'challenge',
+  variant: 'bug-spot',
+  id: 'ch-py-bugspot-exception-01',
+  instruction: { tr: 'Bu API çağrısı kodunda hatalı satıra tıkla.', en: 'Click the line that contains the bug.' },
+  lines: [
+    { id: 1, code: 'def fetch_user_profile(user_id):', hasBug: false },
+    { id: 2, code: '    response = requests.get(f"/users/{user_id}", timeout=5)', hasBug: false },
+    {
+      id: 3,
+      code: '    data = response.json()',
+      hasBug: true,
+      explanation: {
+        tr: 'response.json() çağrısından önce status_code kontrol edilmiyor. İstek 404/500 dönerse .json() anlamsız bir hata gövdesini parse eder — response.raise_for_status() veya bir status_code kontrolü eklenmeli.',
+        en: "response.json() is called without checking status_code first. If the request returns 404/500, .json() ends up parsing a meaningless error body — add response.raise_for_status() or a status_code check.",
+      },
+    },
+    { id: 4, code: '    return data["profile"]', hasBug: false },
+  ],
+  xpReward: 20,
+}
+
 // --- TABS & HERO DEFINITIONS ---
 const trHero = {
   title: '🐍 Python',
@@ -6392,6 +7274,7 @@ const enTabs = [
   '🚨 Troubleshooting',
   '☕ Java → Python',
   '📝 Practice Exercises',
+  '🐞 Manual Testing Lab',
   '💼 Interview Q&A'
 ];
 
@@ -6417,57 +7300,102 @@ const trTabs = [
   '🚨 Yaygın Hatalar',
   '☕ Java → Python',
   '📝 Pratik & Alıştırma',
+  '🐞 Manuel Test Lab',
   '💼 Mülakat Soruları'
 ];
 
 // --- FINAL SECTION MAPPING ---
 const finalEnSections = [
-  sections[0], // Intro
-  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, feynman1]) },
-  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), feynman2A]) },
-  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), feynman2B]) },
-  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), feynman2C]) },
-  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 65), feynman2D]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), feynman3A]) },
-  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), feynman3B]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 48), feynman3C]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 63), feynman3D]) },
-  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), feynman4A]) },
-  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), feynman4B]) },
-  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), feynmanHelper]) },
-  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), feynman4C]) },
-  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), feynman4D]) },
-  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), feynman4E]) },
-  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5]) },
-  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem]) },
-  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), feynmanTroubleshooting]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, feynman8]) },
-  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, feynman7]) },
+  { ...sections[0], blocks: [...sections[0].blocks, ...getPlaygroundBlocksForTopic('intro')] },
+  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
+  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
+  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 65), feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 48), feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 63), feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
+  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
+  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
+  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
+  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
+  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
+  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
+  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  {
+    title: '🐞 Manual Testing Lab',
+    blocks: [
+      {
+        type: 'simple-box',
+        emoji: '🐞',
+        content: {
+          tr: 'Bu bölüm, kodla ilgisi olmayan ama her QA mühendisinin yapması gereken bir işi öğretiyor: bir uygulamayı elle test edip bulduğun sorunu, başka birinin (geliştiricinin) anlayıp tekrar üretebileceği şekilde yazıya dökmek.',
+          en: 'This section teaches something that has nothing to do with code, yet every QA engineer must do it: manually testing an app and writing up what you found so someone else (a developer) can understand and reproduce it.',
+        },
+      },
+      { type: 'heading', text: { tr: 'Manual Testing Lab — Bug Avı', en: 'Manual Testing Lab — Bug Hunt' } },
+      {
+        type: 'text',
+        content: {
+          tr: 'Aşağıdaki giriş formunda kasıtlı olarak en az 5 farklı bug var. Formu farklı girdilerle dene (boş şifre, geçersiz email, "Şifremi Unuttum" linki, Giriş Yap butonuna art arda tıklama gibi), bulduğun her sorun için sağdaki forma yapılandırılmış bir bug report yaz. Sistem raporunu başlık, yeniden üretme adımları, beklenen/gerçek sonuç ve severity seçimine göre otomatik puanlar ve XP verir.',
+          en: 'The login form below intentionally contains at least 5 different bugs. Try it with different inputs (empty password, invalid email, the "Forgot password" link, clicking Log In repeatedly), then write a structured bug report for each issue you find. The system automatically scores your report based on the title, repro steps, expected/actual result, and severity — and awards XP.',
+        },
+      },
+      { type: 'manual-testing-lab' },
+    ],
+  },
   sections[6] // Interview Q&A
 ];
 
 const finalTrSections = [
-  trSections[0], // Intro
-  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, feynman1]) },
-  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), feynman2A]) },
-  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), feynman2B]) },
-  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), feynman2C]) },
-  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 65), feynman2D]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), feynman3A]) },
-  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), feynman3B]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 48), feynman3C]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 63), feynman3D]) },
-  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), feynman4A]) },
-  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), feynman4B]) },
-  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), feynmanHelper]) },
-  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), feynman4C]) },
-  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), feynman4D]) },
-  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), feynman4E]) },
-  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5]) },
-  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem]) },
-  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), feynmanTroubleshooting]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, feynman8]) },
-  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, feynman7]) },
+  { ...trSections[0], blocks: [...trSections[0].blocks, ...getPlaygroundBlocksForTopic('intro')] },
+  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
+  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
+  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 65), feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 48), feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 63), feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
+  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
+  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
+  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
+  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
+  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
+  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
+  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  {
+    title: '🐞 Manuel Test Lab',
+    blocks: [
+      {
+        type: 'simple-box',
+        emoji: '🐞',
+        content: {
+          tr: 'Bu bölüm, kodla ilgisi olmayan ama her QA mühendisinin yapması gereken bir işi öğretiyor: bir uygulamayı elle test edip bulduğun sorunu, başka birinin (geliştiricinin) anlayıp tekrar üretebileceği şekilde yazıya dökmek.',
+          en: 'This section teaches something that has nothing to do with code, yet every QA engineer must do it: manually testing an app and writing up what you found so someone else (a developer) can understand and reproduce it.',
+        },
+      },
+      { type: 'heading', text: { tr: 'Manual Testing Lab — Bug Avı', en: 'Manual Testing Lab — Bug Hunt' } },
+      {
+        type: 'text',
+        content: {
+          tr: 'Aşağıdaki giriş formunda kasıtlı olarak en az 5 farklı bug var. Formu farklı girdilerle dene (boş şifre, geçersiz email, "Şifremi Unuttum" linki, Giriş Yap butonuna art arda tıklama gibi), bulduğun her sorun için sağdaki forma yapılandırılmış bir bug report yaz. Sistem raporunu başlık, yeniden üretme adımları, beklenen/gerçek sonuç ve severity seçimine göre otomatik puanlar ve XP verir.',
+          en: 'The login form below intentionally contains at least 5 different bugs. Try it with different inputs (empty password, invalid email, the "Forgot password" link, clicking Log In repeatedly), then write a structured bug report for each issue you find. The system automatically scores your report based on the title, repro steps, expected/actual result, and severity — and awards XP.',
+        },
+      },
+      { type: 'manual-testing-lab' },
+    ],
+  },
   trSections[6] // Interview Q&A
 ];
 

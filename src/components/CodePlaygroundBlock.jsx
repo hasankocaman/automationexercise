@@ -1,0 +1,236 @@
+import { useEffect, useState } from 'react'
+import { CodeBlock } from './TopicPage'
+import { getXP, addXP, getCompletedExercises, markExerciseComplete, subscribeToXpChanges } from '../lib/xp'
+import { XpSummaryBar } from './XpStat'
+
+const HINT_PENALTY = 5
+
+function pick(value, isTr) {
+    if (value == null) return ''
+    if (typeof value === 'string') return value
+    return isTr ? (value.tr ?? value.en ?? '') : (value.en ?? value.tr ?? '')
+}
+
+function panelCls(darkMode) {
+    return darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-white text-slate-700'
+}
+
+function normalizeCode(code) {
+    return (code || '')
+        .split('\n')
+        .map(line => line.trimEnd())
+        .join('\n')
+        .trim()
+}
+
+// Types out `text` line by line into a terminal-styled panel, like a live run.
+function TerminalRun({ text, isTr, runId }) {
+    const [shown, setShown] = useState('')
+
+    useEffect(() => {
+        setShown('')
+        if (!text) return
+        let i = 0
+        const interval = setInterval(() => {
+            i += 1
+            setShown(text.slice(0, i))
+            if (i >= text.length) clearInterval(interval)
+        }, 18)
+        return () => clearInterval(interval)
+    }, [text, runId])
+
+    const done = shown.length === text.length
+
+    return (
+        <div className="mt-3 rounded-lg border border-slate-700 bg-slate-950 p-3 font-mono text-xs text-emerald-400">
+            <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                {isTr ? '▶ çalışıyor...' : '▶ running...'}
+            </div>
+            <pre className="whitespace-pre-wrap">{shown}{!done && <span className="animate-pulse">▋</span>}</pre>
+        </div>
+    )
+}
+
+function HintPanel({ hints, isTr, darkMode, onReveal }) {
+    const [level, setLevel] = useState(0)
+    const revealed = hints.slice(0, level)
+    const hasMore = level < hints.length
+
+    const revealNext = () => {
+        const next = level + 1
+        setLevel(next)
+        onReveal(next)
+    }
+
+    return (
+        <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
+            {revealed.length > 0 && (
+                <div className="mb-2 grid gap-1.5">
+                    {revealed.map((hint, idx) => (
+                        <div key={idx} className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-bold text-amber-300">
+                            💡 {isTr ? `İpucu ${idx + 1}` : `Hint ${idx + 1}`}: {pick(hint, isTr)}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {hasMore ? (
+                <button
+                    onClick={revealNext}
+                    className="min-h-9 rounded-lg bg-amber-600 px-3 text-xs font-black text-white"
+                >
+                    💡 {isTr ? `${level === 0 ? 'İpucu göster' : 'Sonraki ipucu'} (${level + 1}/${hints.length})` : `${level === 0 ? 'Show hint' : 'Next hint'} (${level + 1}/${hints.length})`}
+                </button>
+            ) : (
+                <div className="text-xs font-bold opacity-60">{isTr ? 'Tüm ipuçları gösterildi.' : 'All hints revealed.'}</div>
+            )}
+        </div>
+    )
+}
+
+function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
+    const [draft, setDraft] = useState(buggyCode)
+    const [attempts, setAttempts] = useState(0)
+    const [result, setResult] = useState(null) // null | 'pass' | 'fail'
+
+    const handleCheck = () => {
+        const isCorrect = normalizeCode(draft) === normalizeCode(fixedCode)
+        setResult(isCorrect ? 'pass' : 'fail')
+        setAttempts(a => a + 1)
+        if (isCorrect) onPass()
+    }
+
+    return (
+        <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
+            <div className="mb-2 text-xs font-bold opacity-70">
+                {isTr ? 'Kodu düzelt ve "Kontrol Et"e bas:' : 'Fix the code, then click "Check":'}
+            </div>
+            <textarea
+                value={draft}
+                onChange={(e) => { setDraft(e.target.value); setResult(null) }}
+                rows={Math.max(4, buggyCode.split('\n').length)}
+                spellCheck={false}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950 p-3 font-mono text-xs text-slate-100"
+                style={{ fontFamily: 'JetBrains Mono, monospace' }}
+            />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button onClick={handleCheck} className="min-h-9 rounded-lg bg-rose-600 px-3 text-xs font-black text-white">
+                    🐛 {isTr ? 'Kontrol Et' : 'Check'}
+                </button>
+                {attempts >= 2 && result !== 'pass' && (
+                    <button onClick={() => setDraft(fixedCode)} className="min-h-9 rounded-lg bg-slate-700 px-3 text-xs font-bold text-white">
+                        {isTr ? 'Çözümü göster' : 'Show solution'}
+                    </button>
+                )}
+            </div>
+            {result === 'pass' && (
+                <div className="mt-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-black text-emerald-300">
+                    🎉 {isTr ? 'Doğru! Test artık geçiyor.' : 'Correct! The test passes now.'}
+                </div>
+            )}
+            {result === 'fail' && (
+                <div className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+                    {isTr ? '🔧 Henüz değil, tekrar dene — İpucu butonuna göz at.' : "🔧 Not yet, try again — check the Hint button."}
+                </div>
+            )}
+        </div>
+    )
+}
+
+// Adds Run / Show Expected Output / Fix the Failing Test / Hint controls under a code block.
+// Run (always shows the correct code's output) and a passing Fix both earn
+// block.xpReward XP — once per exercise id, reduced 5pts per hint revealed.
+export default function CodePlaygroundBlock({ block, darkMode, language }) {
+    const isTr = language === 'tr'
+    const [activePanel, setActivePanel] = useState(null)
+    const [runId, setRunId] = useState(0)
+    const [hintsUsed, setHintsUsed] = useState(0)
+    const [xp, setXp] = useState(getXP)
+    const [completed, setCompleted] = useState(getCompletedExercises)
+    const [xpPop, setXpPop] = useState(null)
+
+    useEffect(() => subscribeToXpChanges(() => {
+        setXp(getXP())
+        setCompleted(getCompletedExercises())
+    }), [])
+
+    const hasExpected = Boolean(block.expected)
+    const hasFix = Boolean(block.buggyCode && block.fixedCode)
+    const hasHints = Array.isArray(block.hints) && block.hints.length > 0
+    const isDone = block.id ? completed.includes(block.id) : false
+
+    const toggle = (panel) => setActivePanel(curr => (curr === panel ? null : panel))
+
+    const awardXpOnce = () => {
+        if (!block.id || isDone) return
+        const reward = Math.max(0, (block.xpReward ?? 0) - hintsUsed * HINT_PENALTY)
+        const newTotal = addXP(reward)
+        markExerciseComplete(block.id)
+        setXp(newTotal)
+        setCompleted(getCompletedExercises())
+        if (reward > 0) setXpPop({ amount: reward, at: Date.now() })
+    }
+
+    const runClick = () => {
+        setRunId(id => id + 1)
+        setActivePanel('run')
+        awardXpOnce()
+    }
+
+    return (
+        <div>
+            <XpSummaryBar xp={xp} completedCount={completed.length} pop={xpPop} isTr={isTr} panelClassName={panelCls(darkMode)} />
+
+            {block.label && (
+                <div className={`mt-4 mb-1 text-xs font-semibold uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {pick(block.label, isTr)}
+                </div>
+            )}
+            <CodeBlock code={block.code} language={block.language} darkMode={darkMode} />
+
+            <div className="mt-2 flex flex-wrap gap-2">
+                {hasExpected && (
+                    <button onClick={runClick} className="min-h-9 rounded-lg bg-emerald-600 px-3 text-xs font-black text-white">
+                        ▶ {isTr ? 'Çalıştır' : 'Run'}
+                    </button>
+                )}
+                {hasExpected && (
+                    <button onClick={() => toggle('expected')} className="min-h-9 rounded-lg bg-sky-600 px-3 text-xs font-black text-white">
+                        👁 {isTr ? 'Beklenen Çıktıyı Göster' : 'Show Expected Output'}
+                    </button>
+                )}
+                {hasFix && (
+                    <button onClick={() => toggle('fix')} className="min-h-9 rounded-lg bg-rose-600 px-3 text-xs font-black text-white">
+                        🐛 {isTr ? 'Bozuk Testi Düzelt' : 'Fix the Failing Test'}
+                    </button>
+                )}
+                {hasHints && (
+                    <button onClick={() => toggle('hint')} className="min-h-9 rounded-lg bg-amber-600 px-3 text-xs font-black text-white">
+                        💡 {isTr ? 'İpucu' : 'Hint'}
+                    </button>
+                )}
+            </div>
+
+            {activePanel === 'run' && <TerminalRun text={block.expected} isTr={isTr} runId={runId} />}
+
+            {activePanel === 'expected' && (
+                <div className={`mt-3 rounded-lg border-l-4 border-emerald-500 p-3 font-mono text-xs ${darkMode ? 'bg-gray-900 text-emerald-400' : 'bg-emerald-50 text-emerald-800'}`}>
+                    <div className={`mb-1 font-sans text-xs ${darkMode ? 'opacity-50' : 'opacity-60'}`}>
+                        {isTr ? '▶ Beklenen Çıktı:' : '▶ Expected Output:'}
+                    </div>
+                    <pre className="whitespace-pre-wrap">{block.expected}</pre>
+                    {block.explanation && (
+                        <div className={`mt-2 font-sans text-xs font-normal ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {pick(block.explanation, isTr)}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {activePanel === 'fix' && (
+                <FixThePanel buggyCode={block.buggyCode} fixedCode={block.fixedCode} isTr={isTr} darkMode={darkMode} onPass={awardXpOnce} />
+            )}
+
+            {activePanel === 'hint' && <HintPanel hints={block.hints} isTr={isTr} darkMode={darkMode} onReveal={setHintsUsed} />}
+        </div>
+    )
+}

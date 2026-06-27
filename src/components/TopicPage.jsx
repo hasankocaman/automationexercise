@@ -7,6 +7,12 @@ import CommentsSection from './CommentsSection'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import CssAnimationBlock from './CssAnimationBlock'
+import ManualTestingLabBlock from './ManualTestingLabBlock'
+import CodePlaygroundBlock from './CodePlaygroundBlock'
+import GoodVsBadBlock from './GoodVsBadBlock'
+import StepAnimationBlock from './StepAnimationBlock'
+import InteractiveDiagramBlock from './InteractiveDiagramBlock'
+import ChallengeBlock from './ChallengeBlock'
 import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
 import SecuritySimulation from './SecuritySimulations'
 import SecurityLegoVisual from './SecurityLegoVisual'
@@ -837,7 +843,7 @@ function getLocalizedCode(code, language) {
 
 // ─── CodeBlock ────────────────────────────────────────────────────────────────
 
-function CodeBlock({ code, language, darkMode }) {
+export function CodeBlock({ code, language, darkMode }) {
     const { language: pageLanguage } = useLanguage()
     const [copied, setCopied] = useState(false)
     const codeRef = useRef(null)
@@ -16100,6 +16106,24 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'js-interleaving-games':
             return <JSInterleavingGamesBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'manual-testing-lab':
+            return <ManualTestingLabBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'code-playground':
+            return <CodePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'good-vs-bad':
+            return <GoodVsBadBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'step-animation':
+            return <StepAnimationBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'interactive-diagram':
+            return <InteractiveDiagramBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'challenge':
+            return <ChallengeBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

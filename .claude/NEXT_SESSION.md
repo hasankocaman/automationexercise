@@ -32,86 +32,84 @@
    edilmeli — bir test sırasında `42501 row-level security policy` hatası
    yakalandı (`AuthContext.jsx` ~205-214 hatayı yutuyor, kullanıcı eşiği
    geçtiğinde rozeti sessizce alamayabilir).
-2. **`/basit-backend` EN içerik eksik:** tab 0 ve tab 3'te TR'de quiz bloğu
-   varken EN'de hiç yok. Kalıcı olarak test kapsamı dışı (`CLAUDE.md` §22.1),
-   ama gerçek bir içerik eksikliği olarak duruyor.
-3. **AC08 netleştirme gerekiyor:** Acceptance criteria "özelleştirilebilir
-   renk paleti / alternatif temalar" istiyor, platformda şu an sadece
-   dark/light mode var. Kullanıcıyla kapsam/öncelik teyit edilmeli.
-4. **`npm run test:quiz-audit` CI'a bağlı değil** — şu an sadece elle
+2. **Yeni Python interaktif özellikleri henüz resmi test suite'inden geçmedi:**
+   Bu oturumda eklenen her şey (madde 6'daki liste) sadece elle yazılan
+   Playwright betikleriyle canlı doğrulandı — `npm run test:e2e` ve
+   `npm run test:quiz-audit` resmi suite'leri bu özelliklere karşı HENÜZ
+   çalıştırılmadı. Commit sonrası post-commit hook (`scripts/post-commit-tests.sh`)
+   otomatik tetiklenecek; çıkan sonuç burada güncellenmeli. Özellikle quiz
+   gating sayımının (`countQuizBlocksInTab`) yeni `challenge`/`code-playground`
+   block tiplerini quiz olarak SAYMADIĞI (yanlışlıkla mülakat kilidini
+   etkilemediği) doğrulanmalı.
+3. **`/basit-backend` EN içerik eksik (ÖNEMSİZ, dokunma):** tab 0 ve tab 3'te
+   TR'de quiz bloğu varken EN'de hiç yok. Kalıcı olarak test kapsamı dışı
+   (`CLAUDE.md` §22.1). Kullanıcı talimatı: bu sayfayı sadece kendisi
+   görüyor, EN eksikliği önemli değil — zaman harcanmasın.
+4. **AC08 — "özelleştirilebilir renk paleti / alternatif temalar" eksik
+   (kullanıcı kararıyla şimdilik ATLANIYOR):** Platformda sadece dark/light
+   mode var, AC dokümanı çoklu tema paleti istiyor. Kullanıcı 2026-06-27'de
+   "şimdilik atla" dedi — dark/light yeterli kabul ediliyor, kod yazılmadı,
+   AC dokümanı da değiştirilmedi.
+5. **`npm run test:quiz-audit` CI'a bağlı değil** — şu an sadece elle
    çalıştırılıyor, istenirse periyodik bir GitHub Actions adımına bağlanabilir.
-5. **`npm run test:quiz-audit`'te 4 sayfa kırmızı (önceden var olan, bu
-   oturumda dokunulmamış dosyalar):** `/java`, `/javascript`, `/kafka` —
-   bu oturumda hiç değiştirilmedi, AC02 retry mekanizması testinde "Farklı
-   bir soru dene" butonu bulunamıyor. `/jmeter` da kırmızı ama bu oturumda
-   sadece tek bir alakasız `error-dictionary` etiketi değişti (quiz/retry
-   mantığıyla ilgisi yok) — pre-existing bir bug, bu oturumun kapsamı
-   dışında, ayrı incelenmeli.
-5. **Bundle boyutu** — `TopicPage` chunk ~1.27MB, `typescriptData`/`javaData`/
+6. **Yeni özellikler sadece `/python` sayfasında — diğer sayfalara henüz
+   yayılmadı:** Manual Testing Lab, Code Playground, paylaşılan XP sistemi,
+   görsel/animasyonlu bloklar (good-vs-bad / step-animation / interactive-diagram)
+   ve Challenge sistemi şimdilik kasıtlı olarak Python'a özel. Kullanıcı
+   isterse aynı block tipleri başka tech sayfalarına (Selenium, Playwright,
+   Java vb.) da eklenebilir — mimari hazır, sadece veri/içerik eklemek yeterli.
+7. **Bundle boyutu** — `TopicPage` chunk ~1.3MB+, `typescriptData`/`javaData`/
    `sqlData` her biri 500KB+ (bilinen uyarı, `CLAUDE.md` §14 — build'i bozmuyor,
    zorunlu değil ama code-splitting adayı).
 
 ---
 
-## ✅ Son Oturum (2026-06-27) — CLAUDE.md/NEXT_SESSION.md Denetimi + i18n İçerik Düzeltmeleri
+## ✅ Son Oturum (2026-06-28) — Python Sayfasına 4 Büyük İnteraktif Özellik
 
-Kullanıcı isteğiyle: (1) bu dosya kısaltıldı (aşağıdaki tüm ayrıntılı geçmiş
-silindi — `git log` otoritedir), (2) `CLAUDE.md` Bölüm 2 route haritası
-güncellendi (kodda olan ama dokümanda hiç listelenmemiş 18 route eklendi:
-`/javascript`, `/bruno`, `/cypress`, `/git-github`, `/linux`, `/git-document`,
-`/what-is-testing`, `/security`, `/manual-testing`, `/algorithms`,
-`/advanced-algorithms`, `/qa-mentor`, `/basit-backend`, `/leaderboard`,
-`/verify-certificate/:id`, `/qa-assistant`, `/login`, `/auth/callback`),
-(3) `tests/topic-pages-ui.spec.ts`'teki `TOPIC_ROUTES` listesinden
-`/basit-backend` çıkarıldı (CLAUDE.md §22.1 ile çelişiyordu — kural
-"hiçbir otomatik suite'e dahil değil" diyordu ama bu dosyada hâlâ vardı).
+Bu oturumda `/python` sayfasına sırasıyla şu özellikler eklendi (her biri ayrı
+ayrı canlı Playwright doğrulamasıyla test edildi, build her adımda yeşil):
 
-**i18n Türkçe-sızıntı düzeltmeleri.** İlk commit'in post-commit hook'u
-(`npm run test:e2e`) `tests/i18n-content-toggle.spec.ts`'teki AC03 Koşul B
-testinde (EN modda 6 örnek sayfada Türkçeye özgü karakter taraması)
-python/sql/typescript'te EK gerçek sızıntılar buldu — kullanıcının raporladığı
-3 örnek sadece bir kısmıydı. Her round'da test tekrar koşulup kalan ihlal
-giderildi, sonunda **10/10 i18n testi yeşil**:
-- **Render mimarisi bug'ı (asıl kök neden, 2 yerde):** `ComparisonBlock`'taki
-  `left`/`right` kod örnekleri `getLocalizedCode()`'dan hiç geçmiyordu (ham
-  `side.code` basılıyordu) → düzeltildi. `ErrorDictionaryBlock`'taki
-  `err.error` etiketi `tx()`'siz basılıyordu → düzeltildi. Bu ikisi
-  düzeltilince, var olan `codeCommentTranslations` (TR→EN kod yorumu
-  sözlüğü, `TopicPage.jsx` satır ~14) mekanizması bu alanlar için de
-  otomatik çalışmaya başladı.
-- **`codeCommentTranslations`'a ~25 yeni TR→EN çift eklendi** (python'daki
-  "karşılığı" kalıpları, sql'deki transaction/JOIN örnek yorumları vb.) —
-  **dikkat:** bu dizi sırayla `reduce` ile uygulanıyor, genel kelime kuralları
-  (`YANLIŞ`→`WRONG`, `DOĞRU`→`FIXED`, `HATA`→`ERROR`) daha erken sırada
-  olduğu için sonraki spesifik pattern'lerin bu DÖNÜŞTÜRÜLMÜŞ hâli
-  eşlemesi gerekti (örn. `Açık bırakılan...` pattern'i `YANLIŞ` önekini
-  içermemeli, çünkü o zaten `WRONG`'a çevrilmiş olacak).
-- **2 hardcoded JSX bug'ı** (`TopicPage.jsx`): `TSLegoClassesVisual`'daki
-  `javaCode`/`tsCode` template literal'leri dile bakmadan sabit Türkçeydi →
-  `isTr` şartına bağlandı. `python-compile-run` simülasyonundaki "☕ Java
-  (Ayrı Derleme Adımı)" etiketi sabitti → `isTr ?` ile düzeltildi.
-- **Veri düzeltmeleri:** `pythonData.js`'de "Java → Python" sekmesindeki
-  16 heading + 1 giriş paragrafı + 18 satırlık "Quick Comparison Table"
-  tamamen Türkçe-only'di → bilingual yapıldı. `sqlData.js`'in "🛠️ DBeaver"
-  sekmesinde (kurulum grid'i, "Create DB & Schema" grid'i, Next.js/Prisma
-  kod örnekleri, karşılaştırma tablosu, `.env.local` örneği, 3 adet
-  "TR / EN" birleşik heading) baştan sona Türkçe-only'di, EN-only diziye
-  (`finalEnSections`) ait olduğu için tamamı düzeltildi. `typescriptData.js`'de
-  9 "Java Biliyorsan" karşılaştırma bloğunun `why`/`note.en` alanı yanlışlıkla
-  Türkçe'ydi (doğru İngilizce metin zaten kullanılmayan `why_en`/`note_en`
-  alanlarında duruyordu, oradan taşındı, dead alanlar silindi).
-- **Not — gerçek bug OLMAYAN, false-positive olarak doğrulanan bulgular:**
-  postman/jmeter'da benzer görünen 6 `error:` etiketi ile aws/azure/docker/
-  kafka/kubernetes/jenkins'teki 13 etiket TAMAMEN `tr.sections`'a ait —
-  yani zaten sadece Türkçe kullanıcıya gösteriliyor, EN kullanıcı hiç
-  görmüyor. Aksiyon gerekmiyor. (Bu dosyaların `cause`/`solution`
-  alanlarının çoğu zaten sadece `{tr:...}` — `en` karşılığı yok — ama bu
-  ayrı, çok daha büyük bir içerik yazma görevi, bu oturumun kapsamı dışında
-  bırakıldı.)
+1. **Manual Testing Lab** (`ManualTestingLabBlock.jsx`, `BuggyLoginForm.jsx`,
+   `data/manualTestingLabBugs.js`) — kasıtlı 5 bug içeren bir login formu;
+   kullanıcı bug report yazıp kural-bazlı (LLM çağrısı yok) bir
+   `BugEvaluator` tarafından puanlanıyor. Yeni tab: "🐞 Manuel Test Lab".
+2. **Code Playground** (`CodePlaygroundBlock.jsx`, `data/pythonPlaygroundData.js`)
+   — Run / Show Expected Output / Fix the Failing Test / Hint sistemi.
+   21 "kod müfredatı" tab'ının HER BİRİNE en az 2 alıştırma eklendi (toplam
+   42 alıştırma — 5'i daha önceden vardı, 37'si bu oturumda eklendi).
+   Her buggy/fixed Python çifti gerçek `python3` ile mekanik olarak
+   doğrulandı (fixed → expectedOutput tam eşleşiyor, buggy → fail ediyor).
+3. **Paylaşılan XP sistemi** (`src/lib/xp.js`, `src/components/XpStat.jsx`)
+   — tek localStorage key: `learnqa_xp_python` (`{xp, completed}`). Lab ve
+   Playground (ve şimdi Challenge sistemi) aynı havuzu kullanıyor;
+   `markExerciseComplete(id)` aynı egzersize tekrar XP verilmesini önlüyor;
+   `subscribeToXpChanges` ile aynı sekmedeki birden fazla blok canlı senkron.
+4. **Görsel/animasyonlu açıklama blokları** — `GoodVsBadBlock.jsx` (iyi/kötü
+   kod karşılaştırma + basit satır diff'i), `StepAnimationBlock.jsx`
+   (600ms aralıklı adım animasyonu), `InteractiveDiagramBlock.jsx` (SVG test
+   piramidi, tıklanabilir katmanlar). Çeşitli tab'lara dağıtıldı.
+5. **Challenge & Görev Sistemi** (`ChallengeBlock.jsx` + `challenges/
+   {MultipleChoice,OrderSort,FillBlank,BugSpot}.jsx`) — 4 görev tipi, 16
+   örnek, 7 farklı tab'a dağıtılmış. Zorluk rozeti `xpReward`'dan türetiliyor
+   (≤10 Kolay, ≤15 Orta, >15 Zor — ayrı bir `difficulty` alanı yok).
+   Sürükle-bırak (OrderSort) native HTML5 DnD + ↑/↓ buton fallback'i ile.
 
-`npm run build` (38 route, SEO check), `npm run test:e2e` (59/60 — sadece
-bilinen AC07 RLS-pending testi hariç) ve `tests/i18n-content-toggle.spec.ts`
-(10/10) yeşil.
+**Doğrulama sırasında bulunan ve düzeltilen gerçek hatalar (canlı test
+olmadan kaçacaktı):**
+- `InteractiveDiagramBlock`'taki `stats.speed`/`stats.cost` alanları
+  `{tr,en}` nesnesiydi ama `pick()` ile çevrilmeden render ediliyordu →
+  "Objects are not valid as a React child" hatası TÜM sayfayı beyaz ekrana
+  düşürüyordu (error boundary yok). Düzeltildi.
+- `FillBlank`'te `instruction` metni iki kez render oluyordu (hem
+  `ChallengeBlock`'un ortak başlığında hem bileşenin kendi içinde).
+  Düzeltildi.
+
+**Mimari notu:** Tüm yeni block tipleri (`manual-testing-lab`,
+`code-playground`, `good-vs-bad`, `step-animation`, `interactive-diagram`,
+`challenge`) `TopicPage.jsx`'in `renderBlock` switch'ine eklendi — mevcut
+pattern korundu, yeni route/sayfa açılmadı. `CodeBlock` bileşeni
+`TopicPage.jsx`'ten `export` edilerek `CodePlaygroundBlock.jsx` tarafından
+yeniden kullanıldı (bilinçli, render-zamanı için güvenli bir circular import).
 
 ---
 
@@ -126,9 +124,15 @@ simülasyon (önce gör), (2) DOM/state görselleştirme (arka planda ne oluyor)
 ## Önemli Dosyalar (hızlı referans)
 
 - `src/components/TopicPage.jsx` — tüm block tiplerinin render switch'i
-  (`renderBlock`, ~satır 15670+). Yeni block tipi eklerken/ararken buraya bak
-  — block tipi listesi sık değiştiği için burada veya `CLAUDE.md`'de
-  ayrıca elle tutulmuyor, kod tek kaynak.
+  (`renderBlock`, ~satır 15670+). Yeni block tipi eklerken/ararken buraya bak.
+- `src/lib/xp.js` — paylaşılan XP/tamamlanma deposu (`learnqa_xp_python`).
+  Yeni bir interaktif/XP veren özellik eklenirse BURADAN `getXP`/`addXP`/
+  `markExerciseComplete` kullan, yeni bir localStorage key icat etme.
+- `src/components/XpStat.jsx` — XP count-up animasyonu + "+N XP" toast'u
+  (`useCountUp`, `XpStatCard`, `XpSummaryBar`). Animasyon kodu BURADA tek
+  yerde — kopyalama, import et.
+- `src/data/pythonPlaygroundData.js` — Code Playground alıştırma verisi +
+  `toPlaygroundBlock`/`getPlaygroundBlocksForTopic` adaptörü.
 - `src/utils/searchIndex.js` — global arama indeksi, tüm `*Data.js`
   dosyalarını import eder.
 - `DEPLOY.md` — tam deploy dokümantasyonu (Netlify/GitHub Pages/GSC).
