@@ -2138,7 +2138,7 @@ HTTP Request:
   Path: /api/users`
               },
               {
-                error: 'EXTRACTION_FAILED — Değişken EXTRACTION_FAILED içeriyor',
+                error: { tr: 'EXTRACTION_FAILED — Değişken EXTRACTION_FAILED içeriyor', en: 'EXTRACTION_FAILED — variable contains EXTRACTION_FAILED' },
                 fullMessage: '${authToken} → EXTRACTION_FAILED\nJSON Extractor: No results for expression: $.data.token',
                 cause: { tr: 'JSON Extractor belirtilen path ile yanıtta hiçbir değer bulamadı. Login başarısız olmuş, response yapısı değişmiş veya JSON path yanlış yazılmış olabilir.', en: 'JSON Extractor could not find a value matching the JSON path in the response. Login may have failed, the response structure changed, or the JSON path is wrong.' },
                 solution: { tr: '1) View Results Tree ile gerçek yanıtı inceleyin. 2) JSON path ifadesini doğrulayın. 3) Önceki isteğin başarılı olduğunu kontrol edin. 4) Extraction başarısız olursa testi başarısız sayan bir assertion ekleyin.', en: '1) Inspect the actual response in View Results Tree. 2) Verify the JSON path expression. 3) Confirm the preceding request succeeded. 4) Add an assertion that fails the test if extraction fails.' },

@@ -6,12 +6,14 @@ import { test, expect } from '@playwright/test';
 // /verify-certificate/:id) ve tek-sayfa/scroll-spy navigasyonu kullanan sayfalar
 // (/manual-testing, /algorithms, /advanced-algorithms, /qa-mentor — bunlar TopicPage
 // kullanmaz, tüm içerik aynı anda render olur) burada YOK — onlar other-pages-ui.spec.ts'de.
+// /basit-backend de YOK — CLAUDE.md §22.1 gereği kalıcı olarak hiçbir otomatik
+// test suite'ine dahil edilmiyor.
 // Yeni bir TopicPage route'u eklenirse buraya da eklenmeli (bkz. CLAUDE.md Bölüm 2).
 const TOPIC_ROUTES = [
     '/jmeter', '/sql', '/typescript', '/javascript', '/python', '/test-frameworks',
     '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
-    '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing', '/basit-backend',
+    '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
 ];
 
 // Sidebar genişliği sayfaya göre değişebilir (w-52 / w-56 vb.) — ortak özellik

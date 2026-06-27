@@ -4779,7 +4779,7 @@ driver.execute_script("arguments[0].click();", element)`,
             solution: { tr: 'conftest.py dosyasına @pytest.fixture ile fixture\'ı ekle. Test dosyasıyla aynı dizinde ya da üst dizinde olmalı.', en: 'Add the fixture to conftest.py with @pytest.fixture. The conftest.py must be in the same or parent directory as the test file.' },
           },
           {
-            error: 'FAILED vs ERROR ayrımı',
+            error: { tr: 'FAILED vs ERROR ayrımı', en: 'FAILED vs ERROR distinction' },
             fullMessage: 'FAILED tests/test_login.py::test_login — AssertionError\nERROR tests/test_login.py::test_login — Exception',
             cause: { tr: 'FAILED = assertion başarısız (test çalıştı ama beklenen sonuç gelmedi). ERROR = exception fırlattı (test setup/teardown\'da ya da test içinde beklenmedik hata).', en: 'FAILED = assertion failed (test ran but expected result not met). ERROR = unexpected exception (in setup/teardown or test body).' },
             solution: { tr: 'Stack trace\'e bak: AssertionError = test logic hatası. Başka exception = kod/fixture hatası.', en: 'Check the stack trace: AssertionError = logic bug in test. Other exception = bug in code or fixture.' },
@@ -5038,9 +5038,9 @@ def test_user_validation(db, email, role):
   {
     title: '☕ Java → Python: Bildiğini Kullan',
     blocks: [
-      { type: 'text', content: 'Core Java biliyorsan Python öğrenmek çok daha hızlı! Konseptler aynı — sözdizimi ve bazı kurallar farklı. Bu bölüm her Python kavramını tanıdık Java perspektifinden açıklar: neden gerekli, Java\'da nasıldı, Python\'da nasıl.' },
+      { type: 'text', content: { tr: 'Core Java biliyorsan Python öğrenmek çok daha hızlı! Konseptler aynı — sözdizimi ve bazı kurallar farklı. Bu bölüm her Python kavramını tanıdık Java perspektifinden açıklar: neden gerekli, Java\'da nasıldı, Python\'da nasıl.', en: 'Knowing Core Java makes learning Python much faster! The concepts are the same — only the syntax and some rules differ. This section explains every Python concept from a familiar Java perspective: why it\'s needed, how it worked in Java, and how it works in Python.' } },
       // 1
-      { type: 'heading', text: '1. Değişkenler ve Tipler' },
+      { type: 'heading', text: { tr: '1. Değişkenler ve Tipler', en: '1. Variables and Types' } },
       // 2
       {
         type: 'java-compare',
@@ -5067,7 +5067,7 @@ name: str = "Alice"`,
         note_en: 'Python type hints (count: int) look like Java but are NOT enforced at runtime. Use mypy for static checking.',
       },
       // 3
-      { type: 'heading', text: '2. None — null\'ın Karşılığı' },
+      { type: 'heading', text: { tr: '2. None — null\'ın Karşılığı', en: '2. None — the Equivalent of null' } },
       // 4
       {
         type: 'java-compare',
@@ -5096,7 +5096,7 @@ result = value or "default"  # shorter`,
         note_en: 'Use "is None" not "== None" — checks object identity, not __eq__. "value or \'default\'" does a falsy check (0, "", [] also trigger default), use carefully.',
       },
       // 5
-      { type: 'heading', text: '3. List — ArrayList\'in Karşılığı' },
+      { type: 'heading', text: { tr: '3. List — ArrayList\'in Karşılığı', en: '3. List — the Equivalent of ArrayList' } },
       // 6
       {
         type: 'java-compare',
@@ -5136,7 +5136,7 @@ for i, t in enumerate(tests):
         note_en: 'Python list supports mixed types: [1, "hello", True]. append() = add(), remove() = remove(), len() = size(), in = contains(). No "new ArrayList<>()" — just [].',
       },
       // 7
-      { type: 'heading', text: '4. Dict — HashMap\'in Karşılığı' },
+      { type: 'heading', text: { tr: '4. Dict — HashMap\'in Karşılığı', en: '4. Dict — the Equivalent of HashMap' } },
       // 8
       {
         type: 'java-compare',
@@ -5174,7 +5174,7 @@ for key, value in result.items():  # entrySet karşılığı
         note_en: 'Python dict preserves insertion order since Python 3.7. Java HashMap gives no order guarantee. put() = result["k"] = v, get() = result.get("k"), entrySet() = .items().',
       },
       // 9
-      { type: 'heading', text: '5. Set — HashSet\'in Karşılığı' },
+      { type: 'heading', text: { tr: '5. Set — HashSet\'in Karşılığı', en: '5. Set — the Equivalent of HashSet' } },
       // 10
       {
         type: 'java-compare',
@@ -5211,7 +5211,7 @@ seen ^ other       # Symmetric difference`,
         note_en: 'Use set instead of list for O(1) lookup (QA: test tags, visited URLs, seen error codes). Python set and Java HashSet have the same Big-O guarantees.',
       },
       // 11
-      { type: 'heading', text: '6. Tuple — Java\'da Doğrudan Karşılığı Yok' },
+      { type: 'heading', text: { tr: '6. Tuple — Java\'da Doğrudan Karşılığı Yok', en: '6. Tuple — No Direct Equivalent in Java' } },
       // 12
       {
         type: 'java-compare',
@@ -5251,7 +5251,7 @@ print(p.x)  # 3`,
         note_en: 'One of Python\'s best features: use a tuple to return multiple values. In Java you need a Result/Pair wrapper class; in Python just "return a, b".',
       },
       // 13
-      { type: 'heading', text: '7. String Formatting — f-string vs String.format()' },
+      { type: 'heading', text: { tr: '7. String Formatting — f-string vs String.format()', en: '7. String Formatting — f-string vs String.format()' } },
       // 14
       {
         type: 'java-compare',
@@ -5292,7 +5292,7 @@ Tests: {count}
         note_en: 'Inside f-string braces you can write method calls, calculations, or ternary expressions. Avoid %s or String.format — f-string is always more readable.',
       },
       // 15
-      { type: 'heading', text: '8. Döngüler — for-each → for-in' },
+      { type: 'heading', text: { tr: '8. Döngüler — for-each → for-in', en: '8. Loops — for-each → for-in' } },
       // 16
       {
         type: 'java-compare',
@@ -5332,7 +5332,7 @@ for i in range(0, 10, 2):   # 0,2,4,6,8
         note_en: 'Python has no curly braces — INDENTATION defines blocks! Missing indent = no loop body. This is the biggest syntax shock when coming from Java.',
       },
       // 17
-      { type: 'heading', text: '9. Fonksiyonlar — Method → def' },
+      { type: 'heading', text: { tr: '9. Fonksiyonlar — Method → def', en: '9. Functions — Method → def' } },
       // 18
       {
         type: 'java-compare',
@@ -5370,7 +5370,7 @@ create_user("Bob", role="admin")  # keyword arg`,
         note_en: 'Python keyword arguments are powerful: create_user("Bob", active=False, role="admin") — order doesn\'t matter. Use @staticmethod for utility methods inside a class.',
       },
       // 19
-      { type: 'heading', text: '10. Exception Handling — try/catch → try/except' },
+      { type: 'heading', text: { tr: '10. Exception Handling — try/catch → try/except', en: '10. Exception Handling — try/catch → try/except' } },
       // 20
       {
         type: 'java-compare',
@@ -5404,7 +5404,7 @@ finally:
         note_en: '"raise" (no argument) = Java "throw e" (re-throw). "except Exception as e" = Java "catch (Exception e)". No checked exceptions — no "throws IOException" declaration.',
       },
       // 21
-      { type: 'heading', text: '11. Sınıflar ve OOP — class (Çok Benzer!)' },
+      { type: 'heading', text: { tr: '11. Sınıflar ve OOP — class (Çok Benzer!)', en: '11. Classes and OOP — class (Very Similar!)' } },
       // 22
       {
         type: 'java-compare',
@@ -5449,7 +5449,7 @@ print(result)     # "login_test: PASS"`,
         note_en: '"self" is explicit in Python (Java\'s implicit "this"). @property = getter (called without parentheses). __init__ = constructor. __str__ = toString(). No @Override — just redefine the method.',
       },
       // 23
-      { type: 'heading', text: '12. Erişim Belirleyicileri — Kural, Zorunluluk Değil!' },
+      { type: 'heading', text: { tr: '12. Erişim Belirleyicileri — Kural, Zorunluluk Değil!', en: '12. Access Modifiers — Convention, Not Enforcement!' } },
       // 24
       {
         type: 'java-compare',
@@ -5479,7 +5479,7 @@ u._User__password # ✅ still accessible via mangled name!
         note_en: '__ (double underscore) triggers name mangling: self.__password becomes _User__password. Makes access harder but NOT impossible. Python philosophy: "We\'re all adults here, no need to hide."',
       },
       // 25
-      { type: 'heading', text: '13. Java Streams → List Comprehension' },
+      { type: 'heading', text: { tr: '13. Java Streams → List Comprehension', en: '13. Java Streams → List Comprehension' } },
       // 26
       {
         type: 'java-compare',
@@ -5516,7 +5516,7 @@ status_map = {t["name"]: t["status"] for t in tests}`,
         note_en: '[x for x in list if cond] = stream().filter().map().collect(). This idiom is everywhere in Python — you must learn it. Generator expressions (parentheses) are lazy; list comp (brackets) evaluates immediately.',
       },
       // 27
-      { type: 'heading', text: '14. try-with-resources → with' },
+      { type: 'heading', text: { tr: '14. try-with-resources → with', en: '14. try-with-resources → with' } },
       // 28
       {
         type: 'java-compare',
@@ -5554,7 +5554,7 @@ with sync_playwright() as p:
         note_en: '"with" works with any object implementing __enter__ + __exit__ (like AutoCloseable). Files, connections, locks, Playwright browser — all work with "with". Writing "finally: f.close()" is now old-fashioned.',
       },
       // 29
-      { type: 'heading', text: '15. Kalıtım — extends/implements → Python' },
+      { type: 'heading', text: { tr: '15. Kalıtım — extends/implements → Python', en: '15. Inheritance — extends/implements → Python' } },
       // 30
       {
         type: 'java-compare',
@@ -5597,7 +5597,7 @@ class LoginPage(BasePage, Loggable):  # extends + implements!
         note_en: 'Python supports multiple inheritance: (BasePage, Loggable). If you don\'t override an @abstractmethod you can\'t instantiate — same rule as Java abstract class. No @Override — just redefine the method.',
       },
       // 31
-      { type: 'heading', text: 'Hızlı Karşılaştırma Tablosu' },
+      { type: 'heading', text: { tr: 'Hızlı Karşılaştırma Tablosu', en: 'Quick Comparison Table' } },
       // 32
       {
         type: 'table',

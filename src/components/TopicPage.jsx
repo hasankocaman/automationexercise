@@ -3502,7 +3502,7 @@ function ErrorDictionaryBlock({ block, darkMode, hideHeading = false }) {
                 {block.errors?.map((err, j) => (
                     <div key={j} className={`rounded-xl border overflow-hidden ${darkMode ? 'border-red-900/50' : 'border-red-200'}`}>
                         <div className={`px-4 py-2.5 font-mono text-sm font-bold ${darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-700'}`}>
-                            ❌ {err.error}
+                            ❌ {tx(err.error, language)}
                         </div>
                         {err.fullMessage && (
                             <div className={`px-4 py-2 text-xs font-mono border-b ${darkMode ? 'bg-gray-900 text-gray-400 border-gray-800' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>

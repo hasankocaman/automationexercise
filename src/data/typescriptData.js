@@ -489,7 +489,7 @@ export const typescriptData = {
               {
                 "id": "c",
                 "text": {
-                  "en": "Tarayıcı ihtiyacını ortadan kaldırır",
+                  "en": "Removes the need for a browser",
                   "tr": "Tarayıcı ihtiyacını ortadan kaldırır"
                 }
               },
@@ -4529,17 +4529,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Type declarations for external libraries",
             "why": {
-              "en": "Java'da Jackson veya Gson kullanırken tipler Maven/Gradle ile gelir ve Java sınıflarının kendisidir. TypeScript'te ise çoğu JavaScript kütüphanesi tip tanımı içermez — @types paketi bu boşluğu doldurur.",
+              "en": "In Java, libraries like Jackson or Gson come via Maven/Gradle and their types are the Java classes themselves. In TypeScript, most JavaScript libraries don't bundle type definitions — @types packages fill this gap.",
               "tr": "Java'da Jackson veya Gson kullanırken tipler Maven/Gradle ile gelir ve Java sınıflarının kendisidir. TypeScript'te ise çoğu JavaScript kütüphanesi tip tanımı içermez — @types paketi bu boşluğu doldurur."
             },
-            "why_en": "In Java, libraries like Jackson or Gson come via Maven/Gradle and their types are the Java classes themselves. In TypeScript, most JavaScript libraries don't bundle type definitions — @types packages fill this gap.",
             "java": "// Java: types come from the library's compiled .class files\n// Add to pom.xml — types come bundled in the .jar:\n// <dependency>\n//   <groupId>com.fasterxml.jackson.core</groupId>\n//   <artifactId>jackson-databind</artifactId>\n//   <version>2.15.0</version>\n// </dependency>\n\n// IDE and compiler see all types automatically:\nObjectMapper mapper = new ObjectMapper();\nMyData obj = mapper.readValue(jsonString, MyData.class);\n// ↑ Full type safety — IDE shows all readValue overloads",
             "typescript": "// TypeScript: runtime code and types are SEPARATE for JS libraries\n\n// Option 1 — library bundles its own types (modern):\nimport { test, expect } from '@playwright/test';  // types included\nimport axios from 'axios';                         // types included\n\n// Option 2 — install @types for legacy JS libraries:\n// npm install node-fetch\n// npm install --save-dev @types/node-fetch\nimport fetch from 'node-fetch';  // now TypeScript understands fetch\n\n// Option 3 — write your own .d.ts declaration file:\n// src/types/legacy-api.d.ts\ndeclare module 'legacy-api' {\n  export function callEndpoint(url: string): Promise<{ status: number }>;\n}\n\n// Without types, TypeScript falls back to 'any' — no type safety",
             "note": {
-              "en": "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun.",
+              "en": "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name.",
               "tr": "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun."
-            },
-            "note_en": "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name."
+            }
           },
           {
             "type": "quiz",
@@ -5671,17 +5669,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Basic Types",
             "why": {
-              "en": "Java'da int, long, float, double gibi ayrı sayısal tipler vardır. TypeScript'te tüm sayılar için tek tip kullanılır: number. string küçük harf (Java'nın String objesi değil), boolean aynı.",
+              "en": "In Java there are separate numeric types: int, long, float, double. TypeScript uses a single type for all numbers: number. string is lowercase (not Java's String object), and boolean is identical.",
               "tr": "Java'da int, long, float, double gibi ayrı sayısal tipler vardır. TypeScript'te tüm sayılar için tek tip kullanılır: number. string küçük harf, boolean aynı."
             },
             "java": "// Java: separate numeric types\nint count = 5;          // 32-bit integer\nlong bigNum = 999L;     // 64-bit integer\nfloat rate = 3.14f;     // 32-bit float\ndouble price = 99.99;   // 64-bit double\nString name = \"test\";   // immutable Object\nboolean active = true;",
             "typescript": "// TypeScript: simplified!\nlet count: number = 5;       // ALL numbers: one type\nlet bigNum: number = 999;    // no 'L' suffix\nlet rate: number = 3.14;     // no 'f' suffix\nlet price: number = 99.99;   // same type\nlet name: string = \"test\";   // lowercase! (not String)\nlet active: boolean = true;  // identical!\n\n// Type inference (Java's 'var' equivalent):\nlet count2 = 5;       // inferred: number\nlet name2 = \"Alice\";  // inferred: string",
             "note": {
-              "en": "\"number\" = Java'nın int/long/float/double hepsi. \"string\" (küçük harf) ≠ Java String (büyük harf). TypeScript'te ayrıca \"any\" (Object gibi, kaçış kapısı — kaçın!) ve \"unknown\" (daha güvenli any) var.",
+              "en": "\"number\" = all of Java's int/long/float/double in one type. \"string\" (lowercase) ≠ Java String (uppercase). TypeScript also has \"any\" (like Object — an escape hatch, avoid it!) and \"unknown\" (safer any).",
               "tr": "\"number\" = Java'nın int/long/float/double hepsi. \"string\" (küçük harf) ≠ Java String (büyük harf). TypeScript'te ayrıca \"any\" (Object gibi — kaçın!) var."
-            },
-            "why_en": "In Java there are separate numeric types: int, long, float, double. TypeScript uses a single type for all numbers: number. string is lowercase (not Java's String object), and boolean is identical.",
-            "note_en": "\"number\" = all of Java's int/long/float/double in one type. \"string\" (lowercase) ≠ Java String (uppercase). TypeScript also has \"any\" (like Object — an escape hatch, avoid it!) and \"unknown\" (safer any)."
+            }
           },
           {
             "type": "heading",
@@ -5694,17 +5690,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "interface (structural typing!)",
             "why": {
-              "en": "TypeScript interface Java'dakilere benzer ama kritik bir fark var: TypeScript 'structural typing' (yapısal tipleme) kullanır. Nesnenin 'implements' bildirmesine gerek yoktur — doğru shape'e sahip her nesne interface'i karşılar.",
+              "en": "TypeScript interfaces look like Java's but have one critical difference: TypeScript uses structural typing. An object does NOT need to declare \"implements\" — any object with the right shape satisfies the interface.",
               "tr": "TypeScript interface Java'dakilere benzer ama kritik fark: TypeScript 'structural typing' kullanır. Nesnenin 'implements' bildirmesine gerek yoktur — doğru shape her nesne interface'i karşılar."
             },
             "java": "// Java: nominal typing\n// Class MUST declare \"implements\"\ninterface Testable {\n    void run();\n    String getName();\n    default int getTimeout() { return 30000; }\n}\n\n// Explicitly declares: \"implements Testable\"\npublic class LoginTest implements Testable {\n    public void run() { /* test logic */ }\n    public String getName() { return \"Login Test\"; }\n}",
             "typescript": "// TypeScript: structural typing!\ninterface Testable {\n    run(): void;\n    getName(): string;\n    timeout?: number;  // optional (no 'default' — use ?: instead)\n}\n\n// No \"implements\" needed if shape matches:\nconst loginTest = {\n    run: () => { /* test logic */ },\n    getName: () => \"Login Test\"\n};\n// ✅ TypeScript accepts loginTest as Testable!\n\n// But you CAN use implements for clarity:\nclass SignupTest implements Testable {\n    run() { /* test logic */ }\n    getName() { return \"Signup Test\"; }\n}",
             "note": {
-              "en": "Java = nominal typing (\"implements\" bildirimi zorunlu). TypeScript = structural typing (\"doğru şekle sahip olman yeterli\"). Bu TypeScript'in en güçlü ve en farklı konsepti.",
+              "en": "Java = nominal typing (\"implements\" declaration required). TypeScript = structural typing (\"having the right shape is enough\"). This is TypeScript's most powerful and most distinctive concept.",
               "tr": "Java = nominal typing ('implements' zorunlu). TypeScript = structural typing ('doğru şekil yeterli'). Bu TypeScript'in en güçlü ve en farklı konsepti."
-            },
-            "why_en": "TypeScript interfaces look like Java's but have one critical difference: TypeScript uses structural typing. An object does NOT need to declare \"implements\" — any object with the right shape satisfies the interface.",
-            "note_en": "Java = nominal typing (\"implements\" declaration required). TypeScript = structural typing (\"having the right shape is enough\"). This is TypeScript's most powerful and most distinctive concept."
+            }
           },
           {
             "type": "heading",
@@ -5717,17 +5711,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "class (nearly identical!)",
             "why": {
-              "en": "TypeScript class sözdizimi Java'ya o kadar benzer ki sadece küçük farklılıklar var: 'constructor' anahtar kelimesi, 'readonly' (final yerine), ve constructor shorthand (tek satırda hem declare hem assign).",
+              "en": "TypeScript class syntax is so similar to Java that there are only minor differences: the \"constructor\" keyword, \"readonly\" (instead of final), and constructor shorthand (declare and assign in one line).",
               "tr": "TypeScript class sözdizimi Java'ya çok benzer: 'constructor' anahtar kelimesi, 'readonly' (final yerine), ve constructor shorthand (tek satırda hem declare hem assign)."
             },
             "java": "// Java class\npublic class PageObject {\n    private final WebDriver driver; // final = immutable\n    protected String baseUrl;\n\n    public PageObject(WebDriver driver) {\n        this.driver = driver;\n        this.baseUrl = \"https://example.com\";\n    }\n\n    protected void click(By locator) {\n        driver.findElement(locator).click();\n    }\n\n    public static PageObject create(WebDriver d) {\n        return new PageObject(d);\n    }\n}",
             "typescript": "// TypeScript class — almost identical!\nclass PageObject {\n    private readonly driver: WebDriver; // readonly = final\n    protected baseUrl: string;\n\n    constructor(driver: WebDriver) {    // NOT class name!\n        this.driver = driver;\n        this.baseUrl = \"https://example.com\";\n    }\n\n    protected click(locator: Locator): void {\n        locator.click();\n    }\n\n    static create(d: WebDriver): PageObject {\n        return new PageObject(d);\n    }\n}\n\n// Constructor shorthand (saves boilerplate!):\nclass Test {\n    constructor(\n        private readonly driver: WebDriver, // declare + assign\n        public name: string                 // declare + assign\n    ) {}\n}",
             "note": {
-              "en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" hem field'ı tanımlar hem atar — Java'ya kıyasla büyük boilerplate tasarrufu.",
+              "en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" both declares the field and assigns it — a big boilerplate saving compared to Java.",
               "tr": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" hem field'ı tanımlar hem atar — büyük boilerplate tasarrufu."
-            },
-            "why_en": "TypeScript class syntax is so similar to Java that there are only minor differences: the \"constructor\" keyword, \"readonly\" (instead of final), and constructor shorthand (declare and assign in one line).",
-            "note_en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" both declares the field and assigns it — a big boilerplate saving compared to Java."
+            }
           },
           {
             "type": "heading",
@@ -5740,17 +5732,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "access modifiers (same keywords!)",
             "why": {
-              "en": "TypeScript access modifier'ları Java ile birebir aynı keyword'ler: public, private, protected. Java'dan farklı olarak 'package-private' kavramı yoktur. Ve iyi haber: Python'un aksine TypeScript gerçekten derleme zamanında zorlar!",
+              "en": "TypeScript access modifiers use the exact same keywords as Java: public, private, protected. Unlike Java there is no \"package-private\". And good news: unlike Python, TypeScript actually enforces this at compile time!",
               "tr": "TypeScript access modifier'ları Java ile birebir aynı: public, private, protected. Python'un aksine TypeScript gerçekten derleme zamanında zorlar!"
             },
             "java": "// Java access modifiers\npublic class BankTest {\n    public String testId;      // anyone\n    protected String env;      // subclasses + package\n    private String apiKey;     // only this class\n\n    public void run() { }\n    protected void setup() { }\n    private void loadKey() { }\n\n    // Package-private (no keyword):\n    String internalName;\n}",
             "typescript": "// TypeScript access modifiers — same keywords!\nclass BankTest {\n    public testId: string;     // anyone (default)\n    protected env: string;     // subclasses only\n    private apiKey: string;    // only this class\n    // No \"package-private\" in TypeScript\n\n    public run(): void { }\n    protected setup(): void { }\n    private loadKey(): void { }\n}\n\n// Constructor shorthand applies here too:\nclass ApiTest {\n    constructor(\n        public name: string,\n        private apiKey: string,\n        protected env: string = \"staging\"\n    ) {}\n}",
             "note": {
-              "en": "TypeScript derleme zamanında private/protected'ı zorlar (Java gibi). Python'un aksine bu gerçek bir kısıtlamadır. \"package-private\" yok — modüllerde internal için \"export\" kullanılmaz.",
+              "en": "TypeScript enforces private/protected at compile time (like Java). Unlike Python, this is a real constraint. No \"package-private\" — for internal module use, simply don't export.",
               "tr": "TypeScript derleme zamanında private/protected'ı zorlar (Java gibi). \"package-private\" yok."
-            },
-            "why_en": "TypeScript access modifiers use the exact same keywords as Java: public, private, protected. Unlike Java there is no \"package-private\". And good news: unlike Python, TypeScript actually enforces this at compile time!",
-            "note_en": "TypeScript enforces private/protected at compile time (like Java). Unlike Python, this is a real constraint. No \"package-private\" — for internal module use, simply don't export."
+            }
           },
           {
             "type": "heading",
@@ -5763,17 +5753,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Generics <T>",
             "why": {
-              "en": "TypeScript generic'leri Java generic'leri ile neredeyse aynı sözdizimini kullanır. <T>, kısıtlar (extends), ve tip parametresi tümü tanıdık gelecek.",
+              "en": "TypeScript generics use nearly identical syntax to Java generics. <T>, constraints (extends), and type parameters will all feel familiar.",
               "tr": "TypeScript generic'leri Java generic'leri ile neredeyse aynı sözdizimini kullanır. <T>, kısıtlar (extends) tümü tanıdık."
             },
             "java": "// Java Generics\npublic class ApiResponse<T> {\n    private T data;\n    private boolean success;\n    public T getData() { return data; }\n}\n\n// With bounds:\npublic <T extends Comparable<T>> T max(T a, T b) {\n    return a.compareTo(b) > 0 ? a : b;\n}\n\n// Usage:\nApiResponse<User> resp = service.getUser(1);\nUser user = resp.getData();",
             "typescript": "// TypeScript Generics — very similar!\ninterface ApiResponse<T> {\n    data: T;\n    success: boolean;\n}\n\n// With bounds (extends):\nfunction max<T extends { id: number }>(a: T, b: T): T {\n    return a.id > b.id ? a : b;\n}\n\n// Usage:\nconst resp: ApiResponse<User> = await api.getUser(1);\nconst user = resp.data;  // TypeScript knows: User\n\n// Playwright uses generics everywhere:\nasync function getData<T>(url: string): Promise<T> {\n    const res = await fetch(url);\n    return res.json() as T;\n}",
             "note": {
-              "en": "TypeScript generics aynı <T> sözdizimini kullanır. \"T extends X\" = Java \"T extends X\". TypeScript ayrıca union types ve mapped types gibi Java'da olmayan güçlü özellikler ekler.",
+              "en": "TypeScript generics use the same <T> syntax. \"T extends X\" = Java \"T extends X\". TypeScript also adds powerful features Java lacks, like union types and mapped types.",
               "tr": "TypeScript aynı <T> sözdizimini kullanır. TypeScript ayrıca Java'da olmayan union types ve mapped types gibi güçlü özellikler ekler."
-            },
-            "why_en": "TypeScript generics use nearly identical syntax to Java generics. <T>, constraints (extends), and type parameters will all feel familiar.",
-            "note_en": "TypeScript generics use the same <T> syntax. \"T extends X\" = Java \"T extends X\". TypeScript also adds powerful features Java lacks, like union types and mapped types."
+            }
           },
           {
             "type": "heading",
@@ -5786,17 +5774,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "enum",
             "why": {
-              "en": "Java enum'ları tam teşekküllü sınıflardır. TypeScript'te numeric enum (Java'ya benzer) ve string enum var. QA'da genellikle string enum tercih edilir çünkü log'larda okunabilir değerler üretir.",
+              "en": "Java enums are full-featured classes. TypeScript has numeric enums (similar to Java) and string enums. In QA, string enums are preferred because they produce readable values in logs.",
               "tr": "Java enum'ları tam teşekküllü sınıflardır. TypeScript'te numeric ve string enum var. QA'da genellikle string enum tercih edilir çünkü log'larda okunabilir değerler üretir."
             },
             "java": "// Java enum (full-featured class)\npublic enum TestStatus {\n    PASS(\"✅\"), FAIL(\"❌\"), SKIP(\"⏭️\");\n\n    private final String icon;\n    TestStatus(String icon) { this.icon = icon; }\n    public String getIcon() { return icon; }\n}\n\nTestStatus status = TestStatus.PASS;\nstatus.getIcon();  // \"✅\"\nstatus.name();     // \"PASS\"",
             "typescript": "// TypeScript: two enum styles + union type\n\n// 1. String enum (most similar to Java):\nenum TestStatus {\n    PASS = \"PASS\",    // log'da görünür değer\n    FAIL = \"FAIL\",\n    SKIP = \"SKIP\"\n}\nTestStatus.PASS // === \"PASS\"\n\n// 2. Numeric enum (Java numeric enum gibi):\nenum Priority { LOW, MEDIUM, HIGH }  // 0, 1, 2\n\n// 3. Union type (TypeScript idiomu — daha yaygın):\ntype Status = \"PASS\" | \"FAIL\" | \"SKIP\";\n// No enum import needed! Compiler checks all cases.",
             "note": {
-              "en": "Java enum = TypeScript string enum. Ama TypeScript'te union type (type Status = \"PASS\" | \"FAIL\") daha kısa ve tree-shakeable. QA'de string enum kullan — log'larda \"PASS\" görünür, 0 değil.",
+              "en": "Java enum = TypeScript string enum. But TypeScript's union type (type Status = \"PASS\" | \"FAIL\") is shorter and tree-shakeable. Use string enums in QA — logs show \"PASS\" not 0.",
               "tr": "Java enum = TypeScript string enum. Ama TypeScript'te union type (type Status = \"PASS\" | \"FAIL\") daha kısa ve tree-shakeable. QA'de string enum kullan."
-            },
-            "why_en": "Java enums are full-featured classes. TypeScript has numeric enums (similar to Java) and string enums. In QA, string enums are preferred because they produce readable values in logs.",
-            "note_en": "Java enum = TypeScript string enum. But TypeScript's union type (type Status = \"PASS\" | \"FAIL\") is shorter and tree-shakeable. Use string enums in QA — logs show \"PASS\" not 0."
+            }
           },
           {
             "type": "heading",
@@ -5809,17 +5795,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "null safety & Optional chaining",
             "why": {
-              "en": "Java'da null NullPointerException'a yol açar. TypeScript'te de aynı risk var ama optional chaining (?.) ile çok daha kısa ve temiz handle edilir. Java Optional'ın tüm gücü tek bir operatörde.",
+              "en": "In Java, null causes NullPointerException. TypeScript has the same risk but optional chaining (?.) handles it much more concisely. All the power of Java Optional in a single operator.",
               "tr": "Java'da null NullPointerException'a yol açar. TypeScript'te de aynı risk var ama optional chaining (?.) ile çok daha kısa handle edilir."
             },
             "java": "// Java null — NPE risk\nString name = user.getName();  // NPE if user is null!\n\n// Java 8+ Optional (verbose):\nOptional.ofNullable(user)\n    .map(u -> u.getAddress())\n    .map(a -> a.getCity())\n    .orElse(\"Unknown\");\n\n// Or null check (long form):\nif (user != null && user.getAddress() != null) {\n    city = user.getAddress().getCity();\n}",
             "typescript": "// TypeScript: optional chaining ?. (much cleaner!)\nconst name = user?.getName(); // undefined if user is null\nconst city = user?.address?.city ?? \"Unknown\";\n// No NPE! Returns undefined instead of crashing.\n\n// ?? = nullish coalescing (null/undefined → default)\n// Like Java's orElse() built into the language\n\n// TypeScript strict null checks (tsconfig.json):\n// \"strictNullChecks\": true\nfunction greet(user: User | null): string {\n    if (user === null) return \"Guest\"; // must handle null\n    return user.getName(); // TypeScript: definitely not null\n}",
             "note": {
-              "en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). tsconfig'da \"strictNullChecks: true\" aç — Java'nın null-safety derleme zamanı kontrolü gibi çalışır.",
+              "en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). Enable \"strictNullChecks: true\" in tsconfig — it works like Java's compile-time null-safety control.",
               "tr": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). tsconfig'da \"strictNullChecks: true\" aç — Java'nın null-safety derleme zamanı kontrolü gibi çalışır."
-            },
-            "why_en": "In Java, null causes NullPointerException. TypeScript has the same risk but optional chaining (?.) handles it much more concisely. All the power of Java Optional in a single operator.",
-            "note_en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). Enable \"strictNullChecks: true\" in tsconfig — it works like Java's compile-time null-safety control."
+            }
           },
           {
             "type": "heading",
@@ -5832,17 +5816,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "union types (no Java equivalent!)",
             "why": {
-              "en": "TypeScript'in Java'ya göre en güçlü özelliklerinden biri. Bir değişkenin birden fazla tip tutabilmesini tip güvenli şekilde ifade eder. Java'da bunu Object veya abstract class ile yapmak zorunda kalırsın.",
+              "en": "One of TypeScript's most powerful features compared to Java. Expresses in a type-safe way that a variable can hold more than one type. In Java you'd have to use Object or an abstract class.",
               "tr": "TypeScript'in Java'ya göre en güçlü özelliklerinden biri. Bir değişkenin birden fazla tip tutabilmesini tip güvenli şekilde ifade eder."
             },
             "java": "// Java: no union types\n// Must use Object (loses type safety):\nvoid handle(Object result) {\n    if (result instanceof String s) {\n        // string logic\n    } else if (result instanceof Integer i) {\n        // int logic\n    }\n    // No compile-time guarantee all cases handled\n}\n\n// Sealed classes (Java 17+) are closest:\nsealed interface Result permits Ok, Err {}\nrecord Ok(String data) implements Result {}\nrecord Err(String msg) implements Result {}",
             "typescript": "// TypeScript union types — elegant!\ntype ApiResult =\n    | { status: \"ok\";    data: string  }\n    | { status: \"error\"; message: string };\n\nfunction handle(result: ApiResult) {\n    if (result.status === \"ok\") {\n        console.log(result.data);    // TS knows: has 'data'\n    } else {\n        console.log(result.message); // TS knows: has 'message'\n    }\n    // TypeScript ensures ALL cases are covered!\n}\n\n// Simple union (very common):\nfunction log(level: \"info\" | \"warn\" | \"error\"): void { ... }\nlet id: string | number = getIdFromApi();",
             "note": {
-              "en": "\"Discriminated union\" (status field ile) = Java sealed classes, ama çok daha kısa. TypeScript switch/if ile tüm case'lerin ele alındığını derleme zamanında kontrol eder.",
+              "en": "\"Discriminated union\" (using a status field) = Java sealed classes, but much shorter. TypeScript verifies at compile time that all cases are handled in switch/if.",
               "tr": "\"Discriminated union\" = Java sealed classes, ama çok daha kısa. TypeScript tüm case'lerin ele alındığını derleme zamanında kontrol eder."
-            },
-            "why_en": "One of TypeScript's most powerful features compared to Java. Expresses in a type-safe way that a variable can hold more than one type. In Java you'd have to use Object or an abstract class.",
-            "note_en": "\"Discriminated union\" (using a status field) = Java sealed classes, but much shorter. TypeScript verifies at compile time that all cases are handled in switch/if."
+            }
           },
           {
             "type": "heading",
@@ -5855,17 +5837,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "async/await & Promise",
             "why": {
-              "en": "TypeScript (ve JavaScript) ağ, dosya işlemleri için async/await kullanır. Java'da CompletableFuture karşılığıdır. TypeScript versiyonu çok daha temizdir. Playwright tamamen async-first'tir — her sayfa işlemi await gerektirir.",
+              "en": "TypeScript (and JavaScript) uses async/await for network and file operations. The Java equivalent is CompletableFuture. The TypeScript version is much cleaner. Playwright is entirely async-first — every page operation requires await.",
               "tr": "TypeScript ağ/dosya işlemleri için async/await kullanır. Java'da CompletableFuture karşılığıdır. Playwright tamamen async-first'tir — her sayfa işlemi await gerektirir."
             },
             "java": "// Java CompletableFuture (verbose)\nCompletableFuture<Response> future =\n    httpClient.getAsync(url);\n\nfuture.thenApply(response -> processResponse(response))\n      .thenAccept(result -> System.out.println(result))\n      .exceptionally(e -> {\n          System.err.println(\"Error: \" + e);\n          return null;\n      });",
             "typescript": "// TypeScript async/await (clean!)\nasync function fetchTests(url: string): Promise<Test[]> {\n    try {\n        const response = await fetch(url);   // waits\n        const data = await response.json();  // waits\n        return data as Test[];\n    } catch (error) {\n        console.error(\"Error:\", error);\n        throw error;  // re-throw\n    }\n}\n\n// Playwright — all async:\ntest(\"login works\", async ({ page }) => {\n    await page.goto(\"https://example.com/login\");\n    await page.fill(\"#email\", \"user@test.com\");\n    await page.click(\"#submit\");\n    await expect(page).toHaveURL(\"/dashboard\");\n});",
             "note": {
-              "en": "\"await\" = .get() on CompletableFuture (blocker until done). \"async function\" = CompletableFuture<T>. Playwright, Axios, fetch API tümü async-first. \"await\" olmadan Promise objesi alırsın, sonuç değil!",
+              "en": "\"await\" = .get() on CompletableFuture (blocks until done). \"async function\" returns Promise<T>. Playwright, Axios, and fetch API are all async-first. Without \"await\" you get a Promise object, not the result!",
               "tr": "\"await\" = .get() on CompletableFuture. \"async function\" = CompletableFuture<T>. Playwright, fetch API tümü async-first. \"await\" olmadan Promise objesi alırsın!"
-            },
-            "why_en": "TypeScript (and JavaScript) uses async/await for network and file operations. The Java equivalent is CompletableFuture. The TypeScript version is much cleaner. Playwright is entirely async-first — every page operation requires await.",
-            "note_en": "\"await\" = .get() on CompletableFuture (blocks until done). \"async function\" returns Promise<T>. Playwright, Axios, and fetch API are all async-first. Without \"await\" you get a Promise object, not the result!"
+            }
           },
           {
             "type": "heading",
@@ -7797,7 +7777,7 @@ export const typescriptData = {
               {
                 "id": "c",
                 "text": {
-                  "en": "Tarayıcı ihtiyacını ortadan kaldırır",
+                  "en": "Removes the need for a browser",
                   "tr": "Tarayıcı ihtiyacını ortadan kaldırır"
                 }
               },
@@ -11837,17 +11817,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Type declarations for external libraries",
             "why": {
-              "en": "Java'da Jackson veya Gson kullanırken tipler Maven/Gradle ile gelir ve Java sınıflarının kendisidir. TypeScript'te ise çoğu JavaScript kütüphanesi tip tanımı içermez — @types paketi bu boşluğu doldurur.",
+              "en": "In Java, libraries like Jackson or Gson come via Maven/Gradle and their types are the Java classes themselves. In TypeScript, most JavaScript libraries don't bundle type definitions — @types packages fill this gap.",
               "tr": "Java'da Jackson veya Gson kullanırken tipler Maven/Gradle ile gelir ve Java sınıflarının kendisidir. TypeScript'te ise çoğu JavaScript kütüphanesi tip tanımı içermez — @types paketi bu boşluğu doldurur."
             },
-            "why_en": "In Java, libraries like Jackson or Gson come via Maven/Gradle and their types are the Java classes themselves. In TypeScript, most JavaScript libraries don't bundle type definitions — @types packages fill this gap.",
             "java": "// Java: types come from the library's compiled .class files\n// Add to pom.xml — types come bundled in the .jar:\n// <dependency>\n//   <groupId>com.fasterxml.jackson.core</groupId>\n//   <artifactId>jackson-databind</artifactId>\n//   <version>2.15.0</version>\n// </dependency>\n\n// IDE and compiler see all types automatically:\nObjectMapper mapper = new ObjectMapper();\nMyData obj = mapper.readValue(jsonString, MyData.class);\n// ↑ Full type safety — IDE shows all readValue overloads",
             "typescript": "// TypeScript: runtime code and types are SEPARATE for JS libraries\n\n// Option 1 — library bundles its own types (modern):\nimport { test, expect } from '@playwright/test';  // types included\nimport axios from 'axios';                         // types included\n\n// Option 2 — install @types for legacy JS libraries:\n// npm install node-fetch\n// npm install --save-dev @types/node-fetch\nimport fetch from 'node-fetch';  // now TypeScript understands fetch\n\n// Option 3 — write your own .d.ts declaration file:\n// src/types/legacy-api.d.ts\ndeclare module 'legacy-api' {\n  export function callEndpoint(url: string): Promise<{ status: number }>;\n}\n\n// Without types, TypeScript falls back to 'any' — no type safety",
             "note": {
-              "en": "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun.",
+              "en": "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name.",
               "tr": "Kütüphane seçerken npm sayfasında 'TypeScript' rozetine veya package.json'da 'types' field'ına bakın. Varsa @types kurmanıza gerek yok. Yoksa @types/paket-adi kurun."
-            },
-            "note_en": "When picking a library, check the npm page for a 'TypeScript' badge or 'types' field in package.json. If present, no @types needed. Otherwise install @types/package-name."
+            }
           },
           {
             "type": "quiz",
@@ -12979,17 +12957,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Basic Types",
             "why": {
-              "en": "Java'da int, long, float, double gibi ayrı sayısal tipler vardır. TypeScript'te tüm sayılar için tek tip kullanılır: number. string küçük harf (Java'nın String objesi değil), boolean aynı.",
+              "en": "In Java there are separate numeric types: int, long, float, double. TypeScript uses a single type for all numbers: number. string is lowercase (not Java's String object), and boolean is identical.",
               "tr": "Java'da int, long, float, double gibi ayrı sayısal tipler vardır. TypeScript'te tüm sayılar için tek tip kullanılır: number. string küçük harf, boolean aynı."
             },
             "java": "// Java: separate numeric types\nint count = 5;          // 32-bit integer\nlong bigNum = 999L;     // 64-bit integer\nfloat rate = 3.14f;     // 32-bit float\ndouble price = 99.99;   // 64-bit double\nString name = \"test\";   // immutable Object\nboolean active = true;",
             "typescript": "// TypeScript: simplified!\nlet count: number = 5;       // ALL numbers: one type\nlet bigNum: number = 999;    // no 'L' suffix\nlet rate: number = 3.14;     // no 'f' suffix\nlet price: number = 99.99;   // same type\nlet name: string = \"test\";   // lowercase! (not String)\nlet active: boolean = true;  // identical!\n\n// Type inference (Java's 'var' equivalent):\nlet count2 = 5;       // inferred: number\nlet name2 = \"Alice\";  // inferred: string",
             "note": {
-              "en": "\"number\" = Java'nın int/long/float/double hepsi. \"string\" (küçük harf) ≠ Java String (büyük harf). TypeScript'te ayrıca \"any\" (Object gibi, kaçış kapısı — kaçın!) ve \"unknown\" (daha güvenli any) var.",
+              "en": "\"number\" = all of Java's int/long/float/double in one type. \"string\" (lowercase) ≠ Java String (uppercase). TypeScript also has \"any\" (like Object — an escape hatch, avoid it!) and \"unknown\" (safer any).",
               "tr": "\"number\" = Java'nın int/long/float/double hepsi. \"string\" (küçük harf) ≠ Java String (büyük harf). TypeScript'te ayrıca \"any\" (Object gibi — kaçın!) var."
-            },
-            "why_en": "In Java there are separate numeric types: int, long, float, double. TypeScript uses a single type for all numbers: number. string is lowercase (not Java's String object), and boolean is identical.",
-            "note_en": "\"number\" = all of Java's int/long/float/double in one type. \"string\" (lowercase) ≠ Java String (uppercase). TypeScript also has \"any\" (like Object — an escape hatch, avoid it!) and \"unknown\" (safer any)."
+            }
           },
           {
             "type": "heading",
@@ -13002,17 +12978,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "interface (structural typing!)",
             "why": {
-              "en": "TypeScript interface Java'dakilere benzer ama kritik bir fark var: TypeScript 'structural typing' (yapısal tipleme) kullanır. Nesnenin 'implements' bildirmesine gerek yoktur — doğru shape'e sahip her nesne interface'i karşılar.",
+              "en": "TypeScript interfaces look like Java's but have one critical difference: TypeScript uses structural typing. An object does NOT need to declare \"implements\" — any object with the right shape satisfies the interface.",
               "tr": "TypeScript interface Java'dakilere benzer ama kritik fark: TypeScript 'structural typing' kullanır. Nesnenin 'implements' bildirmesine gerek yoktur — doğru shape her nesne interface'i karşılar."
             },
             "java": "// Java: nominal typing\n// Class MUST declare \"implements\"\ninterface Testable {\n    void run();\n    String getName();\n    default int getTimeout() { return 30000; }\n}\n\n// Explicitly declares: \"implements Testable\"\npublic class LoginTest implements Testable {\n    public void run() { /* test logic */ }\n    public String getName() { return \"Login Test\"; }\n}",
             "typescript": "// TypeScript: structural typing!\ninterface Testable {\n    run(): void;\n    getName(): string;\n    timeout?: number;  // optional (no 'default' — use ?: instead)\n}\n\n// No \"implements\" needed if shape matches:\nconst loginTest = {\n    run: () => { /* test logic */ },\n    getName: () => \"Login Test\"\n};\n// ✅ TypeScript accepts loginTest as Testable!\n\n// But you CAN use implements for clarity:\nclass SignupTest implements Testable {\n    run() { /* test logic */ }\n    getName() { return \"Signup Test\"; }\n}",
             "note": {
-              "en": "Java = nominal typing (\"implements\" bildirimi zorunlu). TypeScript = structural typing (\"doğru şekle sahip olman yeterli\"). Bu TypeScript'in en güçlü ve en farklı konsepti.",
+              "en": "Java = nominal typing (\"implements\" declaration required). TypeScript = structural typing (\"having the right shape is enough\"). This is TypeScript's most powerful and most distinctive concept.",
               "tr": "Java = nominal typing ('implements' zorunlu). TypeScript = structural typing ('doğru şekil yeterli'). Bu TypeScript'in en güçlü ve en farklı konsepti."
-            },
-            "why_en": "TypeScript interfaces look like Java's but have one critical difference: TypeScript uses structural typing. An object does NOT need to declare \"implements\" — any object with the right shape satisfies the interface.",
-            "note_en": "Java = nominal typing (\"implements\" declaration required). TypeScript = structural typing (\"having the right shape is enough\"). This is TypeScript's most powerful and most distinctive concept."
+            }
           },
           {
             "type": "heading",
@@ -13025,17 +12999,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "class (nearly identical!)",
             "why": {
-              "en": "TypeScript class sözdizimi Java'ya o kadar benzer ki sadece küçük farklılıklar var: 'constructor' anahtar kelimesi, 'readonly' (final yerine), ve constructor shorthand (tek satırda hem declare hem assign).",
+              "en": "TypeScript class syntax is so similar to Java that there are only minor differences: the \"constructor\" keyword, \"readonly\" (instead of final), and constructor shorthand (declare and assign in one line).",
               "tr": "TypeScript class sözdizimi Java'ya çok benzer: 'constructor' anahtar kelimesi, 'readonly' (final yerine), ve constructor shorthand (tek satırda hem declare hem assign)."
             },
             "java": "// Java class\npublic class PageObject {\n    private final WebDriver driver; // final = immutable\n    protected String baseUrl;\n\n    public PageObject(WebDriver driver) {\n        this.driver = driver;\n        this.baseUrl = \"https://example.com\";\n    }\n\n    protected void click(By locator) {\n        driver.findElement(locator).click();\n    }\n\n    public static PageObject create(WebDriver d) {\n        return new PageObject(d);\n    }\n}",
             "typescript": "// TypeScript class — almost identical!\nclass PageObject {\n    private readonly driver: WebDriver; // readonly = final\n    protected baseUrl: string;\n\n    constructor(driver: WebDriver) {    // NOT class name!\n        this.driver = driver;\n        this.baseUrl = \"https://example.com\";\n    }\n\n    protected click(locator: Locator): void {\n        locator.click();\n    }\n\n    static create(d: WebDriver): PageObject {\n        return new PageObject(d);\n    }\n}\n\n// Constructor shorthand (saves boilerplate!):\nclass Test {\n    constructor(\n        private readonly driver: WebDriver, // declare + assign\n        public name: string                 // declare + assign\n    ) {}\n}",
             "note": {
-              "en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" hem field'ı tanımlar hem atar — Java'ya kıyasla büyük boilerplate tasarrufu.",
+              "en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" both declares the field and assigns it — a big boilerplate saving compared to Java.",
               "tr": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" hem field'ı tanımlar hem atar — büyük boilerplate tasarrufu."
-            },
-            "why_en": "TypeScript class syntax is so similar to Java that there are only minor differences: the \"constructor\" keyword, \"readonly\" (instead of final), and constructor shorthand (declare and assign in one line).",
-            "note_en": "\"readonly\" = Java \"final\". Constructor shorthand: \"constructor(private x: T)\" both declares the field and assigns it — a big boilerplate saving compared to Java."
+            }
           },
           {
             "type": "heading",
@@ -13048,17 +13020,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "access modifiers (same keywords!)",
             "why": {
-              "en": "TypeScript access modifier'ları Java ile birebir aynı keyword'ler: public, private, protected. Java'dan farklı olarak 'package-private' kavramı yoktur. Ve iyi haber: Python'un aksine TypeScript gerçekten derleme zamanında zorlar!",
+              "en": "TypeScript access modifiers use the exact same keywords as Java: public, private, protected. Unlike Java there is no \"package-private\". And good news: unlike Python, TypeScript actually enforces this at compile time!",
               "tr": "TypeScript access modifier'ları Java ile birebir aynı: public, private, protected. Python'un aksine TypeScript gerçekten derleme zamanında zorlar!"
             },
             "java": "// Java access modifiers\npublic class BankTest {\n    public String testId;      // anyone\n    protected String env;      // subclasses + package\n    private String apiKey;     // only this class\n\n    public void run() { }\n    protected void setup() { }\n    private void loadKey() { }\n\n    // Package-private (no keyword):\n    String internalName;\n}",
             "typescript": "// TypeScript access modifiers — same keywords!\nclass BankTest {\n    public testId: string;     // anyone (default)\n    protected env: string;     // subclasses only\n    private apiKey: string;    // only this class\n    // No \"package-private\" in TypeScript\n\n    public run(): void { }\n    protected setup(): void { }\n    private loadKey(): void { }\n}\n\n// Constructor shorthand applies here too:\nclass ApiTest {\n    constructor(\n        public name: string,\n        private apiKey: string,\n        protected env: string = \"staging\"\n    ) {}\n}",
             "note": {
-              "en": "TypeScript derleme zamanında private/protected'ı zorlar (Java gibi). Python'un aksine bu gerçek bir kısıtlamadır. \"package-private\" yok — modüllerde internal için \"export\" kullanılmaz.",
+              "en": "TypeScript enforces private/protected at compile time (like Java). Unlike Python, this is a real constraint. No \"package-private\" — for internal module use, simply don't export.",
               "tr": "TypeScript derleme zamanında private/protected'ı zorlar (Java gibi). \"package-private\" yok."
-            },
-            "why_en": "TypeScript access modifiers use the exact same keywords as Java: public, private, protected. Unlike Java there is no \"package-private\". And good news: unlike Python, TypeScript actually enforces this at compile time!",
-            "note_en": "TypeScript enforces private/protected at compile time (like Java). Unlike Python, this is a real constraint. No \"package-private\" — for internal module use, simply don't export."
+            }
           },
           {
             "type": "heading",
@@ -13071,17 +13041,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "Generics <T>",
             "why": {
-              "en": "TypeScript generic'leri Java generic'leri ile neredeyse aynı sözdizimini kullanır. <T>, kısıtlar (extends), ve tip parametresi tümü tanıdık gelecek.",
+              "en": "TypeScript generics use nearly identical syntax to Java generics. <T>, constraints (extends), and type parameters will all feel familiar.",
               "tr": "TypeScript generic'leri Java generic'leri ile neredeyse aynı sözdizimini kullanır. <T>, kısıtlar (extends) tümü tanıdık."
             },
             "java": "// Java Generics\npublic class ApiResponse<T> {\n    private T data;\n    private boolean success;\n    public T getData() { return data; }\n}\n\n// With bounds:\npublic <T extends Comparable<T>> T max(T a, T b) {\n    return a.compareTo(b) > 0 ? a : b;\n}\n\n// Usage:\nApiResponse<User> resp = service.getUser(1);\nUser user = resp.getData();",
             "typescript": "// TypeScript Generics — very similar!\ninterface ApiResponse<T> {\n    data: T;\n    success: boolean;\n}\n\n// With bounds (extends):\nfunction max<T extends { id: number }>(a: T, b: T): T {\n    return a.id > b.id ? a : b;\n}\n\n// Usage:\nconst resp: ApiResponse<User> = await api.getUser(1);\nconst user = resp.data;  // TypeScript knows: User\n\n// Playwright uses generics everywhere:\nasync function getData<T>(url: string): Promise<T> {\n    const res = await fetch(url);\n    return res.json() as T;\n}",
             "note": {
-              "en": "TypeScript generics aynı <T> sözdizimini kullanır. \"T extends X\" = Java \"T extends X\". TypeScript ayrıca union types ve mapped types gibi Java'da olmayan güçlü özellikler ekler.",
+              "en": "TypeScript generics use the same <T> syntax. \"T extends X\" = Java \"T extends X\". TypeScript also adds powerful features Java lacks, like union types and mapped types.",
               "tr": "TypeScript aynı <T> sözdizimini kullanır. TypeScript ayrıca Java'da olmayan union types ve mapped types gibi güçlü özellikler ekler."
-            },
-            "why_en": "TypeScript generics use nearly identical syntax to Java generics. <T>, constraints (extends), and type parameters will all feel familiar.",
-            "note_en": "TypeScript generics use the same <T> syntax. \"T extends X\" = Java \"T extends X\". TypeScript also adds powerful features Java lacks, like union types and mapped types."
+            }
           },
           {
             "type": "heading",
@@ -13094,17 +13062,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "enum",
             "why": {
-              "en": "Java enum'ları tam teşekküllü sınıflardır. TypeScript'te numeric enum (Java'ya benzer) ve string enum var. QA'da genellikle string enum tercih edilir çünkü log'larda okunabilir değerler üretir.",
+              "en": "Java enums are full-featured classes. TypeScript has numeric enums (similar to Java) and string enums. In QA, string enums are preferred because they produce readable values in logs.",
               "tr": "Java enum'ları tam teşekküllü sınıflardır. TypeScript'te numeric ve string enum var. QA'da genellikle string enum tercih edilir çünkü log'larda okunabilir değerler üretir."
             },
             "java": "// Java enum (full-featured class)\npublic enum TestStatus {\n    PASS(\"✅\"), FAIL(\"❌\"), SKIP(\"⏭️\");\n\n    private final String icon;\n    TestStatus(String icon) { this.icon = icon; }\n    public String getIcon() { return icon; }\n}\n\nTestStatus status = TestStatus.PASS;\nstatus.getIcon();  // \"✅\"\nstatus.name();     // \"PASS\"",
             "typescript": "// TypeScript: two enum styles + union type\n\n// 1. String enum (most similar to Java):\nenum TestStatus {\n    PASS = \"PASS\",    // log'da görünür değer\n    FAIL = \"FAIL\",\n    SKIP = \"SKIP\"\n}\nTestStatus.PASS // === \"PASS\"\n\n// 2. Numeric enum (Java numeric enum gibi):\nenum Priority { LOW, MEDIUM, HIGH }  // 0, 1, 2\n\n// 3. Union type (TypeScript idiomu — daha yaygın):\ntype Status = \"PASS\" | \"FAIL\" | \"SKIP\";\n// No enum import needed! Compiler checks all cases.",
             "note": {
-              "en": "Java enum = TypeScript string enum. Ama TypeScript'te union type (type Status = \"PASS\" | \"FAIL\") daha kısa ve tree-shakeable. QA'de string enum kullan — log'larda \"PASS\" görünür, 0 değil.",
+              "en": "Java enum = TypeScript string enum. But TypeScript's union type (type Status = \"PASS\" | \"FAIL\") is shorter and tree-shakeable. Use string enums in QA — logs show \"PASS\" not 0.",
               "tr": "Java enum = TypeScript string enum. Ama TypeScript'te union type (type Status = \"PASS\" | \"FAIL\") daha kısa ve tree-shakeable. QA'de string enum kullan."
-            },
-            "why_en": "Java enums are full-featured classes. TypeScript has numeric enums (similar to Java) and string enums. In QA, string enums are preferred because they produce readable values in logs.",
-            "note_en": "Java enum = TypeScript string enum. But TypeScript's union type (type Status = \"PASS\" | \"FAIL\") is shorter and tree-shakeable. Use string enums in QA — logs show \"PASS\" not 0."
+            }
           },
           {
             "type": "heading",
@@ -13117,17 +13083,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "null safety & Optional chaining",
             "why": {
-              "en": "Java'da null NullPointerException'a yol açar. TypeScript'te de aynı risk var ama optional chaining (?.) ile çok daha kısa ve temiz handle edilir. Java Optional'ın tüm gücü tek bir operatörde.",
+              "en": "In Java, null causes NullPointerException. TypeScript has the same risk but optional chaining (?.) handles it much more concisely. All the power of Java Optional in a single operator.",
               "tr": "Java'da null NullPointerException'a yol açar. TypeScript'te de aynı risk var ama optional chaining (?.) ile çok daha kısa handle edilir."
             },
             "java": "// Java null — NPE risk\nString name = user.getName();  // NPE if user is null!\n\n// Java 8+ Optional (verbose):\nOptional.ofNullable(user)\n    .map(u -> u.getAddress())\n    .map(a -> a.getCity())\n    .orElse(\"Unknown\");\n\n// Or null check (long form):\nif (user != null && user.getAddress() != null) {\n    city = user.getAddress().getCity();\n}",
             "typescript": "// TypeScript: optional chaining ?. (much cleaner!)\nconst name = user?.getName(); // undefined if user is null\nconst city = user?.address?.city ?? \"Unknown\";\n// No NPE! Returns undefined instead of crashing.\n\n// ?? = nullish coalescing (null/undefined → default)\n// Like Java's orElse() built into the language\n\n// TypeScript strict null checks (tsconfig.json):\n// \"strictNullChecks\": true\nfunction greet(user: User | null): string {\n    if (user === null) return \"Guest\"; // must handle null\n    return user.getName(); // TypeScript: definitely not null\n}",
             "note": {
-              "en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). tsconfig'da \"strictNullChecks: true\" aç — Java'nın null-safety derleme zamanı kontrolü gibi çalışır.",
+              "en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). Enable \"strictNullChecks: true\" in tsconfig — it works like Java's compile-time null-safety control.",
               "tr": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). tsconfig'da \"strictNullChecks: true\" aç — Java'nın null-safety derleme zamanı kontrolü gibi çalışır."
-            },
-            "why_en": "In Java, null causes NullPointerException. TypeScript has the same risk but optional chaining (?.) handles it much more concisely. All the power of Java Optional in a single operator.",
-            "note_en": "\"?.\" = Java Optional.map(). \"??\" = Java .orElse(). Enable \"strictNullChecks: true\" in tsconfig — it works like Java's compile-time null-safety control."
+            }
           },
           {
             "type": "heading",
@@ -13140,17 +13104,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "union types (no Java equivalent!)",
             "why": {
-              "en": "TypeScript'in Java'ya göre en güçlü özelliklerinden biri. Bir değişkenin birden fazla tip tutabilmesini tip güvenli şekilde ifade eder. Java'da bunu Object veya abstract class ile yapmak zorunda kalırsın.",
+              "en": "One of TypeScript's most powerful features compared to Java. Expresses in a type-safe way that a variable can hold more than one type. In Java you'd have to use Object or an abstract class.",
               "tr": "TypeScript'in Java'ya göre en güçlü özelliklerinden biri. Bir değişkenin birden fazla tip tutabilmesini tip güvenli şekilde ifade eder."
             },
             "java": "// Java: no union types\n// Must use Object (loses type safety):\nvoid handle(Object result) {\n    if (result instanceof String s) {\n        // string logic\n    } else if (result instanceof Integer i) {\n        // int logic\n    }\n    // No compile-time guarantee all cases handled\n}\n\n// Sealed classes (Java 17+) are closest:\nsealed interface Result permits Ok, Err {}\nrecord Ok(String data) implements Result {}\nrecord Err(String msg) implements Result {}",
             "typescript": "// TypeScript union types — elegant!\ntype ApiResult =\n    | { status: \"ok\";    data: string  }\n    | { status: \"error\"; message: string };\n\nfunction handle(result: ApiResult) {\n    if (result.status === \"ok\") {\n        console.log(result.data);    // TS knows: has 'data'\n    } else {\n        console.log(result.message); // TS knows: has 'message'\n    }\n    // TypeScript ensures ALL cases are covered!\n}\n\n// Simple union (very common):\nfunction log(level: \"info\" | \"warn\" | \"error\"): void { ... }\nlet id: string | number = getIdFromApi();",
             "note": {
-              "en": "\"Discriminated union\" (status field ile) = Java sealed classes, ama çok daha kısa. TypeScript switch/if ile tüm case'lerin ele alındığını derleme zamanında kontrol eder.",
+              "en": "\"Discriminated union\" (using a status field) = Java sealed classes, but much shorter. TypeScript verifies at compile time that all cases are handled in switch/if.",
               "tr": "\"Discriminated union\" = Java sealed classes, ama çok daha kısa. TypeScript tüm case'lerin ele alındığını derleme zamanında kontrol eder."
-            },
-            "why_en": "One of TypeScript's most powerful features compared to Java. Expresses in a type-safe way that a variable can hold more than one type. In Java you'd have to use Object or an abstract class.",
-            "note_en": "\"Discriminated union\" (using a status field) = Java sealed classes, but much shorter. TypeScript verifies at compile time that all cases are handled in switch/if."
+            }
           },
           {
             "type": "heading",
@@ -13163,17 +13125,15 @@ export const typescriptData = {
             "type": "java-compare",
             "topic": "async/await & Promise",
             "why": {
-              "en": "TypeScript (ve JavaScript) ağ, dosya işlemleri için async/await kullanır. Java'da CompletableFuture karşılığıdır. TypeScript versiyonu çok daha temizdir. Playwright tamamen async-first'tir — her sayfa işlemi await gerektirir.",
+              "en": "TypeScript (and JavaScript) uses async/await for network and file operations. The Java equivalent is CompletableFuture. The TypeScript version is much cleaner. Playwright is entirely async-first — every page operation requires await.",
               "tr": "TypeScript ağ/dosya işlemleri için async/await kullanır. Java'da CompletableFuture karşılığıdır. Playwright tamamen async-first'tir — her sayfa işlemi await gerektirir."
             },
             "java": "// Java CompletableFuture (verbose)\nCompletableFuture<Response> future =\n    httpClient.getAsync(url);\n\nfuture.thenApply(response -> processResponse(response))\n      .thenAccept(result -> System.out.println(result))\n      .exceptionally(e -> {\n          System.err.println(\"Error: \" + e);\n          return null;\n      });",
             "typescript": "// TypeScript async/await (clean!)\nasync function fetchTests(url: string): Promise<Test[]> {\n    try {\n        const response = await fetch(url);   // waits\n        const data = await response.json();  // waits\n        return data as Test[];\n    } catch (error) {\n        console.error(\"Error:\", error);\n        throw error;  // re-throw\n    }\n}\n\n// Playwright — all async:\ntest(\"login works\", async ({ page }) => {\n    await page.goto(\"https://example.com/login\");\n    await page.fill(\"#email\", \"user@test.com\");\n    await page.click(\"#submit\");\n    await expect(page).toHaveURL(\"/dashboard\");\n});",
             "note": {
-              "en": "\"await\" = .get() on CompletableFuture (blocker until done). \"async function\" = CompletableFuture<T>. Playwright, Axios, fetch API tümü async-first. \"await\" olmadan Promise objesi alırsın, sonuç değil!",
+              "en": "\"await\" = .get() on CompletableFuture (blocks until done). \"async function\" returns Promise<T>. Playwright, Axios, and fetch API are all async-first. Without \"await\" you get a Promise object, not the result!",
               "tr": "\"await\" = .get() on CompletableFuture. \"async function\" = CompletableFuture<T>. Playwright, fetch API tümü async-first. \"await\" olmadan Promise objesi alırsın!"
-            },
-            "why_en": "TypeScript (and JavaScript) uses async/await for network and file operations. The Java equivalent is CompletableFuture. The TypeScript version is much cleaner. Playwright is entirely async-first — every page operation requires await.",
-            "note_en": "\"await\" = .get() on CompletableFuture (blocks until done). \"async function\" returns Promise<T>. Playwright, Axios, and fetch API are all async-first. Without \"await\" you get a Promise object, not the result!"
+            }
           },
           {
             "type": "heading",

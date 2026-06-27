@@ -70,12 +70,19 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/` — Home / automation playground
 - `/selenium` — Selenium WebDriver
 - `/playwright` — Playwright
+- `/cypress` — Cypress E2E testing
 - `/python` — Python + pytest/Selenium/Playwright
 - `/typescript` — TypeScript + Playwright TS
+- `/javascript` — JavaScript for QA Automation (DOM, events, async)
 - `/sql` — SQL + interactive practice
 - `/java` — Java for QA Automation
+- `/java-document` — Java reference document reader
+- `/git-github` — Git & GitHub for QA
+- `/git-document` — Git/GitHub reference document reader
+- `/linux` — Linux command line for QA engineers
 - `/jmeter` — JMeter performance testing
 - `/postman` — Postman API testing
+- `/bruno` — Bruno (Git-native API client)
 - `/rest-assured` — REST Assured Java API testing
 - `/docker` — Docker for QA
 - `/jenkins` — Jenkins CI/CD
@@ -86,8 +93,18 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/aws` — AWS for QA
 - `/azure` — Azure / Azure DevOps for QA
 - `/test-frameworks` — pytest, Selenium, Playwright karşılaştırma
-- `/java-document` — Java reference document reader
-- `/backend` — Basit Backend (Supabase tabanlı backend kurulum rehberi: auth/login, progress kaydı, rozetler, feedback, realtime chat, premium paywall)
+- `/what-is-testing` — Yazılım testine giriş / temel kavramlar
+- `/manual-testing` — Manuel test öğrenme sayfası (görsel/oyunlaştırılmış senaryolar)
+- `/algorithms` — Algoritmalar: QA mühendisi için görsel problem çözme atölyesi
+- `/advanced-algorithms` — İleri seviye algoritmalar
+- `/qa-mentor` — QA Mentor: kariyer yol haritası sihirbazı, ilerleme % takibi, sertifika
+- `/leaderboard` — XP/streak liderlik tablosu (public, `get_leaderboard` RPC)
+- `/verify-certificate/:id` — Sertifika doğrulama (public, dinamik route — sitemap'e eklenmez, bkz. `seo.js` `dynamic: true`)
+- `/qa-assistant` — AI QA asistanı (`<ProtectedRoute>`, sadece üye)
+- `/login`, `/auth/callback` — Giriş sayfası ve OAuth callback handler
+- `/backend` — Basit Backend (Supabase tabanlı backend kurulum rehberi: auth/login, progress kaydı, rozetler, feedback, realtime chat, premium paywall). `<RequireAdmin>` ile korunuyor.
+- `/basit-backend` — Basit Backend: E-Ticaret SQL ve API Lab (DBeaver ile PostgreSQL kurulumu + Next.js API, herkese açık — `/backend` ile karıştırılmamalı, ayrı bir sayfa). Kalıcı E2E test istisnası, bkz. §22.1.
+- `/security` — Siber Güvenlik / OWASP Top 10, interaktif güvenlik simülasyonları. `<RequireAdmin>` ile korunuyor.
 
 **Routing:**
 - `src/main.jsx` → `BrowserRouter` kullanır.

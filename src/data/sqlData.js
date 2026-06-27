@@ -2113,7 +2113,7 @@ const finalEnSections = [
       },
       {
         "type": "text",
-        "content": "The 4 diagrams below use the same data. Click \"Eşleşmeleri Göster\" to highlight matched rows, then \"Sonucu Göster\" to see the query result. This is the fastest way to truly understand JOINs."
+        "content": "The 4 diagrams below use the same data. Click \"Show Matches\" to highlight matched rows, then \"Show Result\" to see the query result. This is the fastest way to truly understand JOINs."
       },
       {
         "type": "visual",
@@ -4846,33 +4846,33 @@ const finalEnSections = [
         "items": [
           {
             "icon": "🆓",
-            "label": "Tamamen Ücretsiz",
-            "desc": "Community Edition %100 ücretsiz ve açık kaynak. Lisans ücreti yok, abonelik yok."
+            "label": "Completely Free",
+            "desc": "Community Edition is 100% free and open-source. No license fee, no subscription."
           },
           {
             "icon": "🗄️",
-            "label": "80+ Veritabanı",
-            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis ve daha fazlası."
+            "label": "80+ Databases",
+            "desc": "MySQL, PostgreSQL, SQLite, Oracle, SQL Server, MongoDB, Redis, and more."
           },
           {
             "icon": "🎨",
-            "label": "Görsel Schema Editörü",
-            "desc": "Tablolara tıkla-gez, ER diyagramları, görsel foreign key tarayıcı."
+            "label": "Visual Schema Editor",
+            "desc": "Click-through tables, ER diagrams, a visual foreign key browser."
           },
           {
             "icon": "⚡",
-            "label": "SQL Editör + Autocomplete",
-            "desc": "Syntax highlight, otomatik tamamlama, sorgu geçmişi ve explain plan."
+            "label": "SQL Editor + Autocomplete",
+            "desc": "Syntax highlighting, autocomplete, query history, and explain plan."
           },
           {
             "icon": "📊",
-            "label": "Veri Dışa Aktarma",
-            "desc": "CSV, Excel, JSON, SQL formatlarında dışa aktar. Dosyadan içe aktar."
+            "label": "Data Export",
+            "desc": "Export to CSV, Excel, JSON, SQL formats. Import from file."
           },
           {
             "icon": "🔐",
-            "label": "SSH Tüneli",
-            "desc": "SSH tüneli ile uzak production veritabanlarına güvenli, şifreli bağlantı."
+            "label": "SSH Tunnel",
+            "desc": "Secure, encrypted connection to remote production databases via SSH tunnel."
           }
         ]
       },
@@ -7388,7 +7388,7 @@ const finalTrSections = [
       },
       {
         "type": "text",
-        "content": { "tr": "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu.", "en": "The 4 diagrams below use the same data. Click 'Eşleşmeleri Göster' to highlight matched rows, then 'Sonucu Göster' to see the query result. This is the fastest way to truly understand JOINs." }
+        "content": { "tr": "Aşağıdaki 4 diyagram aynı veriyi kullanıyor. Eşleşen satırları vurgulamak için 'Eşleşmeleri Göster', sorgu sonucunu görmek için 'Sonucu Göster'e tıklayın. JOIN'leri gerçekten anlamanın en hızlı yolu bu.", "en": "The 4 diagrams below use the same data. Click 'Show Matches' to highlight matched rows, then 'Show Result' to see the query result. This is the fastest way to truly understand JOINs." }
       },
       {
         "type": "visual",
