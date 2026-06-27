@@ -4336,7 +4336,7 @@ print(f"  Output:   {args.output}")` },
                   }
             },
             {
-                  "id": "a",
+                  "id": "b",
                   "text": {
                         "tr": "Argüman kullanıldığında önceden tanımlanmış sabit bir değeri değişkene atar",
                         "en": "Assigns a predefined constant value to the variable when the argument is present"

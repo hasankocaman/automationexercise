@@ -820,7 +820,7 @@ browserstack-sdk pytest tests/ -n auto`
                   }
             },
             {
-                  "id": "a",
+                  "id": "b",
                   "text": {
                         "tr": "Test kodunu değiştirmeye gerek kalmadan SDK ortam değişkenleri veya CLI ile çalıştırmalısınız",
                         "en": "No need to modify test code; just run with SDK environment variables or CLI"

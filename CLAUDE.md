@@ -403,3 +403,13 @@ limit riski), post-commit hook'ta **temsili bir sayfa** üzerinden hızlı koşu
 **tüm sayfalar için tam koşum** ayrı bir suite'te (`npm run test:interview-flows`
 gibi) tutulabilir — ama bu ayrım ve o an hangi sayfaların kapsam içinde/dışında
 olduğu `NEXT_SESSION.md`'de güncel tutulmalıdır, bu dosyada değil (bkz. Bölüm 0).
+
+### 22.1 Test Kapsamı Dışı Sayfalar (Kalıcı İstisna Listesi)
+
+Aşağıdaki sayfalar hiçbir otomatik E2E/Playwright test suite'ine (post-commit,
+`test:interview-flows`, `test:quiz-audit` vb.) dahil edilmez. Yeni bir test
+dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
+
+- **`/basit-backend`** — kullanıcı isteğiyle test kapsamı dışında tutuluyor.
+- **`/security`, `/backend`** — `RequireAdmin` ile korunuyor, normal test
+  hesabıyla erişilemiyor.

@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:interview-flows": "playwright test --config=playwright.interview-flows.config.ts",
+    "test:quiz-audit": "playwright test --config=playwright.quiz-audit.config.ts",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {

@@ -856,19 +856,21 @@ function ExerciseBlock({ block, darkMode }) {
         : diffStr?.startsWith('🟡')
             ? (darkMode ? 'bg-yellow-900/30 border-yellow-700' : 'bg-yellow-50 border-yellow-300')
             : (darkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-300')
+    const hint = tx(block.hint, language)
+    const explanation = tx(block.explanation, language)
     return (
         <div className={`mt-6 rounded-xl border-2 p-5 ${darkMode ? 'bg-gray-800' : 'bg-white'} ${diffBg}`}>
             <div className="flex items-center gap-2 flex-wrap mb-3">
                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${diffBg}`}>{diffStr}</span>
                 <span className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-800'}`}>{tx(block.title, language)}</span>
             </div>
-            <p className={`text-sm mb-3 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{block.description}</p>
-            {block.hint && (
+            <p className={`text-sm mb-3 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{tx(block.description, language)}</p>
+            {hint && (
                 <div className="mb-3">
                     <button onClick={() => setShowHint(!showHint)} className="text-xs text-blue-400 hover:underline">
                         {showHint ? t('topic.hideHint') : t('topic.showHint')}
                     </button>
-                    {showHint && <p className={`mt-2 text-xs p-3 rounded-lg ${darkMode ? 'bg-blue-900/20 text-blue-300' : 'bg-blue-50 text-blue-700'}`}>{block.hint}</p>}
+                    {showHint && <p className={`mt-2 text-xs p-3 rounded-lg ${darkMode ? 'bg-blue-900/20 text-blue-300' : 'bg-blue-50 text-blue-700'}`}>{hint}</p>}
                 </div>
             )}
             <button
@@ -883,9 +885,9 @@ function ExerciseBlock({ block, darkMode }) {
             {showSolution && (
                 <div className="mt-3">
                     <CodeBlock code={block.solution} darkMode={darkMode} />
-                    {block.explanation && (
+                    {explanation && (
                         <p className={`mt-3 text-xs leading-relaxed italic ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            💡 {block.explanation}
+                            💡 {explanation}
                         </p>
                     )}
                 </div>

@@ -14,6 +14,18 @@ import { createClient } from '@supabase/supabase-js';
 // InterviewPracticeBlock) KULLANMIYORDU, eski 'qa' formatındaydı. 2026-06-27'de
 // üçü de interview-questions formatına taşındı (bkz. NEXT_SESSION.md) ve
 // aşağıdaki listeye eklendi.
+//
+// NOT (2026-06-27, yeni oturum): /javascript bu listede EKSİKTİ — javascriptData.js
+// gerçek bir dedicated 💼 mülakat sekmesine sahip ama hiç bu suite'e eklenmemişti,
+// eklendi. Ayrıca typescriptData.js'te tabs[]/sections[] dizilerinin son 4 öğesi
+// kaymıştı (sidebar "💼 Mülakat" etiketi YANLIŞ sekmeyi gösteriyordu, gerçek
+// interview-questions bloğu "🏃 Test Runner'lar" etiketinin altındaydı) — bu bug
+// TopicPage.jsx'teki isDedicatedInterviewTab ile AYNI mantığı kullanan bu testin
+// de /typescript için her zaman yanlış sekme indexini bulmasına yol açıyordu;
+// veri dosyasında düzeltildi (bkz. NEXT_SESSION.md).
+// HARİÇ: /security, /backend — RequireAdmin ile korunuyor, normal test
+// hesabıyla erişilemiyor; her ikisinin de kendi dedicated 💼 sekmesi var ama bu
+// suite'e eklenemiyor (admin hesabı/ayrı bir test akışı gerekir).
 const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/appium', dataVar: 'appiumData', dataFile: 'appiumData' },
     { route: '/aws', dataVar: 'awsData', dataFile: 'awsData' },
@@ -23,6 +35,7 @@ const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/docker', dataVar: 'dockerData', dataFile: 'dockerData' },
     { route: '/git-github', dataVar: 'gitGithubData', dataFile: 'gitGithubData' },
     { route: '/bruno', dataVar: 'brunoData', dataFile: 'brunoData' },
+    { route: '/javascript', dataVar: 'javascriptData', dataFile: 'javascriptData' },
     { route: '/jenkins', dataVar: 'jenkinsData', dataFile: 'jenkinsData' },
     { route: '/jmeter', dataVar: 'jmeterData', dataFile: 'jmeterData' },
     { route: '/linux', dataVar: 'linuxData', dataFile: 'linuxData' },

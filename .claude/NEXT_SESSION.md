@@ -9,6 +9,190 @@
 
 ---
 
+## ✅ TAMAMLANDI (2026-06-27, 4. oturum) — `/basit-backend` Kalıcı Test İstisnası
+
+Kullanıcı talebi: `/basit-backend` hiçbir otomatik teste dahil edilmesin. Bu artık
+**kalıcı bir kural** olduğu için `CLAUDE.md` §22.1'e ("Test Kapsamı Dışı Sayfalar
+— Kalıcı İstisna Listesi") eklendi — `/security`/`/backend` (RequireAdmin) ile
+aynı yerde. `tests-quiz-audit/quiz-full-audit.spec.ts`'in `ROUTES` listesinden
+`/basit-backend` çıkarıldı (artık **23 sayfa / 346 quiz bloğu** kapsıyor, önceki
+oturumdaki "24 sayfa/348 blok, sadece basit-backend kırmızı" durumu artık geçerli
+değil — `npm run test:quiz-audit` şimdi **23/23 tamamen yeşil**). Aşağıdaki
+3. oturum bölümündeki "Düzeltilmeyen, raporlanan gerçek bulgu" ve "Bir Sonraki
+Oturumda Yapılacaklar #1" maddeleri bu yüzden ARTIK GEÇERSİZ — `/basit-backend`
+EN içerik eksikliği test kapsamı dışına alındığı için bir aksiyon gerektirmiyor
+(yine de gerçek bir içerik eksikliği olarak kodda duruyor, sadece test edilmiyor).
+
+---
+
+## ✅ TAMAMLANDI (2026-06-27, 3. oturum) — Projedeki HER Quiz Bloğu için Kapsamlı TR/EN + AC02 Retry Denetimi
+
+Önceki oturumda (aşağıdaki bölüm) sadece Docker üzerinden AC02/03/05 doğrulanmıştı.
+Bu oturumda kullanıcı talebi: "her ders için ayrı ayrı %60/%80 ve projedeki HER
+quiz sorusunda yanlış cevap → bir defaya mahsus retry mekanizmasını test et."
+
+### Yeni dosyalar
+- **`tests-quiz-audit/quizInventory.mjs`** — *Data.js dosyalarından quiz
+  bloklarını TR/EN eşleştirmesiyle çıkaran saf veri yardımcıları
+  (`extractQuizPairs`, `pickText` — TopicPage.jsx'teki `tx()` ile aynı mantık).
+- **`tests-quiz-audit/quiz-full-audit.spec.ts`** — 24 sayfadaki (appium, aws,
+  azure, basit-backend, browserstack, bruno, cypress, docker, git-github, java,
+  javascript, jenkins, jmeter, kafka, kubernetes, linux, playwright, postman,
+  python, rest-assured, selenium, sql, typescript, what-is-testing — `/security`
+  ve `/backend` RequireAdmin olduğu için hariç) **348 quiz bloğunun HER BİRİNİ
+  HEM TR HEM EN'de bağımsız olarak** doğruluyor: soru/şık metni veriyle eşleşiyor
+  mu, retryQuestion varsa yanlış→retry→doğru akışı çalışıyor mu ve İKİNCİ bir
+  retry asla çıkmıyor mu (AC02), retryQuestion yoksa retry butonu hiç çıkmıyor mu.
+  Gerçek AI çağrısı yok, tamamen yerel — `npm run test:quiz-audit`
+  (`playwright.quiz-audit.config.ts`, ayrı, post-commit hook'a bağlı DEĞİL,
+  348 blok × 2 dil yüzünden ~3 dakika sürüyor).
+- `tests-extended/interview-mastery-flows.spec.ts` PAGES listesine eksik olan
+  `/javascript` eklendi (gerçek bir dedicated 💼 sekmesi var, hiç test
+  edilmiyordu).
+
+### 🐞 Bu oturumda bulunan ve DÜZELTİLEN gerçek bug'lar
+1. **`typescriptData.js` — sidebar "💼 Mülakat" YANLIŞ sekmeyi gösteriyordu.**
+   `tr.tabs`/`en.tabs` dizilerinde son 4 etiket (Alıştırmalar&Referans/Java→TS/
+   Test Runners/💼Mülakat) `sections[]` içeriğiyle 1 kayma yapmıştı — kullanıcı
+   "💼 Mülakat" sekmesine tıklayınca gerçekte "Pratik Alıştırmalar" içeriğini
+   görüyordu, gerçek mülakat soruları "🏃 Test Runner'lar" etiketinin altında
+   saklıydı. `tabs[]` dizisi içerikle eşleşecek şekilde düzeltildi (sections[]
+   dokunulmadı, sadece etiket sırası).
+2. **`ExerciseBlock` (`TopicPage.jsx`) tam React crash'i.** `description`/`hint`/
+   `explanation` alanları `tx()` ile localize edilmiyordu — bug #1 düzeltilip
+   "💼 Mülakat" sekmesi doğru "Pratik Alıştırmalar" sekmesiyle eşleşince bu sekme
+   ilk kez gerçekten ziyaret edilebilir hale geldi ve typescriptData'nın bilingual
+   `{tr,en}` formatlı exercise bloklarıyla "Objects are not valid as a React
+   child" hatasıyla TAMAMEN ÇÖKTÜĞÜ ortaya çıktı (sayfa bomboş kalıyordu).
+   `tx()` üç alana da uygulandı, python/sql'deki (düz string) exercise blokları
+   bozulmadı.
+3. **10 adet retryQuestion'da `correct` alanı veri hatası** (gerçek kullanıcı
+   bu retry sorularını ASLA doğru cevaplayamıyordu):
+   - `dockerData.js` tr tab1 + tab4 retryQuestion: `correct` alanı TAMAMEN EKSİKTİ
+     → eklendi (`c`, `b`).
+   - `jenkinsData.js` tr+en tab4 retryQuestion: `correct` alanı EKSİKTİ → eklendi
+     (`b` tr, `a` en).
+   - `browserstackData.js`, `pythonData.js`, `typescriptData.js` (tr+en, 3 farklı
+     soru): ikinci şıkkın `id`'si yanlışlıkla `"a"` (ilk şıkla DUPLICATE) yazılmıştı,
+     `correct:"b"` hiçbir option'a eşleşmiyordu → ikinci şıkkın id'si `"b"`'ye düzeltildi.
+4. **Test izolasyon bug'ı (ÖNEMLİ KEŞİF, app bug'ı DEĞİL):** bir sekmede birden
+   fazla quiz bloğu varsa (sql tab10 "SQL JOINs", javascript tab6) ikisi de aynı
+   "{LETTER}.{şık metni}" string'ine sahip olabiliyor — sayfa genelinde arayan
+   `.first()` her zaman YANLIŞ (DOM'da önce gelen) bloğun butonuna tıklıyordu.
+   Çözüm: her quiz bloğu kendi sabit "Hızlı Quiz"/"Quick Quiz" başlığından
+   XPath ile bulunan kendi kök konteynerine izole edildi, tüm buton aramaları
+   bu konteyner içinde yapılıyor (bkz. dosya başındaki "ÖNEMLİ KEŞİF #2" yorumu).
+
+### 🐞 Düzeltilmeyen, raporlanan gerçek bulgu
+- **`/basit-backend` EN içerik eksik:** tab 0 ve tab 3'te TR'de 1 quiz bloğu
+  varken EN'de SIFIR — bu bir kod hatası değil, içerik/çeviri eksikliği.
+  `npm run test:quiz-audit` bu sayfada KASITLI olarak fail eder (pairWarning),
+  içerik tamamlanana kadar düzelmez. Aynı sınıftan (ama otomatik testte
+  henüz işaretlenmemiş) farklı uzunluktaki tr/en `sections[].blocks` dizileri
+  aws/azure/javaData/jenkins/jmeter/kafka/kubernetes/playwright/postman/selenium'da
+  da var (bu oturumda doğrulandı, ÇOĞUNLUKLA quiz dışı ara bloklarda — sadece
+  basit-backend'de doğrudan quiz/soru kaybı var).
+
+### Son durum
+`npm run test:quiz-audit` → **23/24 sayfa yeşil** (sadece `/basit-backend`
+yukarıdaki gerçek içerik eksikliği yüzünden kırmızı, beklenen). `npm run build`
+38 route ile temiz geçti. 696 (348×2 dil) quiz-dil-AC02 kombinasyonu tek tek
+doğrulandı.
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar
+1. `/basit-backend` EN içeriğine tab0/tab3 için quiz blokları eklenmeli (içerik
+   yazım işi, bu oturumun kapsamı dışında bırakıldı).
+2. Önceki oturumdan kalan: `user_progress` DELETE RLS policy + `user_badges`
+   INSERT RLS policy hâlâ learnqa-test'te çalıştırılmadı (bkz. aşağıdaki bölüm).
+3. İstenirse `npm run test:quiz-audit`'i CI'da periyodik (örn. haftalık) koşacak
+   bir GitHub Actions adımına bağlanabilir — şu an sadece elle çalıştırılıyor.
+
+---
+
+## ✅ TAMAMLANDI (2026-06-27, yeni oturum) — AC02/03/05/06/07 İçin Otomatik Test Kapsamı Genişletildi + 2 Gerçek Bug Bulundu
+
+`acceptancecriterias.md` baştan sona okunup hangi AC'lerin hiç otomatik test
+kapsamında olmadığı çıkarıldı (AC02, AC03 Koşul B, AC05, AC07 — hiçbiri
+test edilmiyordu, sadece kod okumayla "implemente" işaretlenmişti). 4 yeni
+Playwright dosyası eklendi (hepsi `tests/` altında, yani `npm run test:e2e`
+ile her commit'te otomatik koşuluyor):
+
+- **`tests/quiz-retry-mechanism.spec.ts`** (AC02) — yanlış cevap → retry sorusu
+  → retry'da da yanlış olursa İKİNCİ retry YOK; retry'a doğru cevap verilirse
+  sekme ilerlemesine katkı sağlar; ilk denemede doğru cevapta retry hiç çıkmaz.
+  Anonim, maliyetsiz.
+- **`tests/quiz-ai-explanation-access.spec.ts`** (AC05) — anonim kullanıcı TR/EN
+  ikisinde de AI butonu yerine giriş kilidi görür; üye kullanıcı butonu görür,
+  `explain-quiz-answer` çağrısı `page.route()` ile kesilip simüle edilen hatada
+  doğru hata mesajı gösterildiği doğrulanıyor (gerçek AI çağrısı YOK).
+- **`tests/interview-grading-and-reset.spec.ts`** (AC06 dayanıklılık + AC07 reset)
+  — boş/eksik cevapla "Tümünü Değerlendir" disabled; `grade-interview-answer`
+  1. çağrıda hata, 2. çağrıda mocklanmış düşük skor (%10) döner; "Sayfayı
+  Sıfırla" → "Vazgeç" hiçbir şeyi bozmaz; "Eminim, sıfırla" → UI ilk sekmeye
+  döner, localStorage temizlenir, kilit geri gelir, Supabase'de satırların
+  silinip silinmediği gerçek REST çağrısıyla kontrol edilir.
+- **`tests/i18n-content-toggle.spec.ts`** (AC03) — TR/EN geçişi, localStorage
+  kalıcılığı + 6 sayfalık örneklemde (docker/postman/kubernetes/python/sql/
+  typescript) EN modda TÜM sekmelerde Türkçeye özgü karakter (ı/ğ/ş) taraması.
+
+**Önemli — `serviceWorkers: 'block'` keşfi:** Proje dev modunda MSW service
+worker'ı aktif (`src/main.jsx`). Aktif bir SW varken Playwright `page.route()`
+ile kesilen istekler SESSİZCE gerçek ağa gidiyor (route handler hiç tetiklenmiyor,
+mock'lanmamış gerçek bir AI çağrısı yapılıyor) — bunu ilk fark eden test bu
+oturumdaki AC05 negatif testiydi. Çözüm: mock gerektiren testlerde
+`browser.newContext({ serviceWorkers: 'block' })` kullanılmalı. Mevcut eski
+testler bundan etkilenmiyor çünkü onlar `page.route()` değil sadece
+`page.waitForResponse()` (pasif gözlem) kullanıyor.
+
+### 🐞 Bu oturumda bulunan 2 gerçek backend bug'ı
+
+1. **AC07 reset hâlâ Supabase'e yansımıyor (önceki oturumda bulunan gap DOĞRULANDI,
+   düzeltilmedi):** `tests/interview-grading-and-reset.spec.ts` artık bu durumu
+   KASITLI olarak fail ediyor — `user_progress` tablosunda
+   `create policy "users delete own progress" ... for delete using (auth.uid() = user_id);`
+   SQL'i learnqa-test'te hâlâ çalıştırılmamış. SQL çalıştırılınca bu test
+   otomatik yeşile dönecek (testte değişiklik gerekmez).
+2. **YENİ — `user_badges` tablosunda INSERT RLS policy'si eksik/yanlış olabilir:**
+   Bir test sırasında konsolda şu hata yakalandı:
+   `user_badges upsert failed: {code: 42501, message: "new row violates row-level
+   security policy for table \"user_badges\""}`. Kod (`AuthContext.jsx` ~205-214)
+   bu hatayı yutuyor (`console.error` + `return {badges:[], xpAwarded}`) — UI
+   ÇÖKMÜYOR ama kullanıcı eşiği geçtiği anda YENİ rozeti hiç alamıyor olabilir
+   (sessiz veri kaybı). `user_badges` tablosunda
+   `auth.uid() = user_id` şartlı bir INSERT (veya upsert için gereken) RLS
+   policy'si learnqa-test'te kontrol edilmeli/eklenmeli. Otomatik test
+   eklenmedi (eşik aşımını deterministik tetiklemek test hesabının o anki
+   kümülatif tamamlanan-konu sayısına bağlı, ek araştırma gerekir).
+
+### 🐞 Bu oturumda bulunan i18n (AC03 Koşul B) içerik hatası
+`tests/i18n-content-toggle.spec.ts`'teki EN-mod karakter taraması 3 sayfada
+Türkçe içerik sızıntısı buldu (muhtemelen 2026-06-27'de interview-questions
+formatına taşınırken `en` çevirisi tamamlanmamış kalan bloklar):
+- **`/python`:** sekme 1 "☕ Java (Ayrı Derleme Adımı)", sekme 18
+  "❌ FAILED vs ERROR ayrımı", sekme 19 "Core Java biliyorsan Python öğrenmek
+  çok daha hızlı! Konsept..."
+- **`/typescript`:** sekme 0 "Tarayıcı ihtiyacını ortadan kaldırır", sekme 7
+  "// Java — 3 adım gerekli", sekme 9 "...şıkkı aynı sonucu üretir", sekme 11
+  "...Maven/Gradle ile g...", sekme 13 "...ayrı sayısal tipler vardır..."
+- **`/sql`:** sekme 10 "Eşleşmeleri Göster", sekme 20 "Açık bırakılan kilitli
+  transaction", sekme 23 "...Lisans ücreti yok..."
+`/docker`, `/postman`, `/kubernetes` temiz çıktı — sorun büyük olasılıkla sadece
+yakın zamanda migrate edilen sayfalarda. Bu içerik düzeltmeleri henüz YAPILMADI
+(kapsam: test yazma), `*Data.js`'lerdeki ilgili `en` bloklarının elle (veya
+ayrı bir oturumda) düzeltilmesi gerekiyor.
+
+### 🔧 Bir Sonraki Oturumda Yapılacaklar
+1. Kullanıcı `user_progress` DELETE policy SQL'ini learnqa-test'te (sonra prod'da)
+   çalıştırmalı — `tests/interview-grading-and-reset.spec.ts` o zaman yeşile döner.
+2. `user_badges` INSERT/upsert RLS policy'si learnqa-test'te incelenmeli.
+3. `/python`, `/typescript`, `/sql` sayfalarındaki yukarıda listelenen Türkçe
+   içerik sızıntıları `en` bloklarında düzeltilmeli.
+4. İstenirse `tests/i18n-content-toggle.spec.ts`'teki EN karakter taraması
+   `SAMPLE_ROUTES_FOR_EN_AUDIT` listesi genişletilip tüm TopicPage rotalarına
+   uygulanabilir (şu an maliyet/süre dengesi için 6 sayfa ile sınırlı).
+
+---
+
 ## ✅ TAMAMLANDI (2026-06-27, devam oturumu) — AC02/05/08/09 Doğrulaması + AC07 Reset Özelliği Kodlandı
 
 ### AC02/AC05/AC08/AC09 doğrulama sonucu (koddan, satır referanslı)

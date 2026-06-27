@@ -1468,6 +1468,7 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
                   "text": "Native Windows Hypervisor"
             }
       ],
+      "correct": "c",
       "explanation": "WSL 2, Windows üzerinde gerçek bir Linux çekirdeği çalıştırarak Docker container'larının yüksek performanslı ve düşük kaynak tüketen bir şekilde çalışmasını sağlar. Eski sürümlerde Hyper-V doğrudan kullanılırken, güncel Docker Desktop yapılandırması WSL 2 entegrasyonu üzerine kuruludur."
     }
   },
@@ -2210,6 +2211,7 @@ options.add_argument('--disable-dev-shm-usage')`,
                   "text": "Web sürücüsünün (WebDriver) ağ portlarını eşlemek için"
             }
       ],
+      "correct": "b",
       "explanation": "Docker, varsayılan olarak paylaşılan bellek (/dev/shm) için sadece 64MB ayırır. Chrome ve Chromium tabanlı tarayıcılar, sayfaları render ederken yoğun bir şekilde paylaşılan belleğe ihtiyaç duyar. Bu limit aşıldığında tarayıcı çöker veya düzgün başlatılamaz. 'shm_size: 2gb' ayarı bu limiti genişleterek işlemin başarıyla tamamlanmasını sağlar."
     }
   },

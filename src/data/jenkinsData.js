@@ -1037,6 +1037,7 @@ stage('Flaky Tests') {
                   "text": "Wrapping stages in a 'distributed' block"
             }
       ],
+      "correct": "a",
       "explanation": "To achieve parallel execution in a declarative pipeline, you use the 'parallel' directive inside a stage. This allows multiple steps or stages to run on different executors at the same time."
     }
   },
@@ -2378,6 +2379,7 @@ stage('Flaky Testler') {
                   "text": "Her job için ayrı bir jenkins agent tanımlayıp pipe ile bağlamak"
             }
       ],
+      "correct": "b",
       "explanation": "Jenkins Pipeline'da birden fazla işi paralel çalıştırmak için 'parallel' bloğu kullanılır. Bu blok, içine yazılan stage'leri veya komutları aynı anda başlatarak kaynakların verimli kullanılmasını sağlar."
     }
   },

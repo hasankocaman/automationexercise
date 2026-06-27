@@ -23,10 +23,10 @@ export const typescriptData = {
       "📝 Template Literals & Null",
       "🐛 Error Handling & Advanced Types",
       "🧪 QA Use Cases",
-      "📝 Practice & Reference",
       "☕ Java → TS",
       "🏃 Test Runners",
-      "💼 Interview Q&A"
+      "💼 Interview Q&A",
+      "📝 Practice & Reference"
     ],
     "sections": [
       {
@@ -4596,7 +4596,7 @@ export const typescriptData = {
                   }
                 },
                 {
-                  "id": "a",
+                  "id": "b",
                   "text": {
                     "en": "It provides type definitions so that Node.js modules are understandable by TypeScript",
                     "tr": "Node.js modüllerinin TypeScript tarafından anlaşılabilmesi için tip tanımlarını (typings) sunar"
@@ -7331,10 +7331,10 @@ export const typescriptData = {
       "📝 Template Literaller & Null",
       "🐛 Hata Yönetimi & Gelişmiş Tipler",
       "🧪 QA Kullanım",
-      "📝 Alıştırmalar & Referans",
       "☕ Java → TS",
       "🏃 Test Runner'lar",
-      "💼 Mülakat"
+      "💼 Mülakat",
+      "📝 Alıştırmalar & Referans"
     ],
     "sections": [
       {
@@ -11904,7 +11904,7 @@ export const typescriptData = {
                   }
                 },
                 {
-                  "id": "a",
+                  "id": "b",
                   "text": {
                     "en": "It provides type definitions so that Node.js modules are understandable by TypeScript",
                     "tr": "Node.js modüllerinin TypeScript tarafından anlaşılabilmesi için tip tanımlarını (typings) sunar"
