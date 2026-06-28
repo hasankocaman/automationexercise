@@ -7,6 +7,7 @@ import { dockerData } from '../data/dockerData'
 import { seleniumData } from '../data/seleniumData'
 import { playwrightData } from '../data/playwrightData'
 import { cypressData } from '../data/cypressData'
+import { brunoData } from '../data/brunoData'
 import { pythonData } from '../data/pythonData'
 import { typescriptData } from '../data/typescriptData'
 import { javascriptData } from '../data/javascriptData'
@@ -191,6 +192,7 @@ const ALL_DATA = [
     { data: seleniumData, route: '/selenium', name: 'Selenium' },
     { data: playwrightData, route: '/playwright', name: 'Playwright' },
     { data: cypressData, route: '/cypress', name: 'Cypress' },
+    { data: brunoData, route: '/bruno', name: 'Bruno' },
     { data: pythonData, route: '/python', name: 'Python' },
     { data: typescriptData, route: '/typescript', name: 'TypeScript' },
     { data: javascriptData, route: '/javascript', name: 'JavaScript' },

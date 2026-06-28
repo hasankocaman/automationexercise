@@ -18,6 +18,56 @@
 - Calisma agacinda commit'e dahil EDILMEMESI gereken local izler olabilir:
   - `.claude/settings.local.json` local ayar dosyasi, untracked kalmali.
   - `dist/index.html` ve `public/sitemap.xml` onceki build dogrulamasindan sonra dirty gorunebilir; icerik degisikligi commitlenmeden once ayrica kontrol edilmeli.
+  - `Documents/acceptancecriterias.md` bu oturumda agent tarafindan degistirilmedi
+    ama `git status --short` icinde modified gorundu; commit oncesi sahibi/icerigi
+    ayrica kontrol edilmeli.
+
+---
+
+## Son Oturum Notu (2026-06-28)
+
+Bu oturumda kullanicinin istedigi iki entegrasyon duzeltmesi yapildi:
+
+1. **Python static SEO import fix tamamlandi.**
+   - `src/data/pythonData.js` icindeki
+     `./pythonPlaygroundData` import'u `./pythonPlaygroundData.js` yapildi.
+   - `npm run build` sonrasi `/python` icin onceki `Could not load SEO content`
+     uyarisi artik gorunmedi.
+
+2. **Bruno global search index'e eklendi.**
+   - `src/utils/searchIndex.js` icine `brunoData` import'u eklendi.
+   - `ALL_DATA` listesine `{ data: brunoData, route: '/bruno', name: 'Bruno' }`
+     entry'si eklendi.
+   - UI smoke dogrulamasi: ana sayfada search modalinda `Bruno` arandi,
+     sonuc gorundu ve tiklayinca `http://127.0.0.1:5173/bruno` route'una gitti.
+
+**Dogrulama sonucu:**
+
+- `npm run build` PASS.
+  - SEO check passed for 39 routes.
+  - 38 static route HTML shell uretildi.
+  - Dist SEO check passed for 38 generated pages.
+- `npm run test:e2e` PASS.
+  - Sandbox icinde ilk deneme Node `EPERM: lstat 'C:\Users\1'` hatasiyla
+    baslamadan durdu; ayni komut escalation ile kosuldu.
+  - Sonuc: 54 passed, 6 skipped.
+- `npm run test:interview-flows` kosuldu ama full suite gercekten calismadi.
+  - Sonuc: 22 skipped.
+  - Sebep: `.env.local` icinde `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
+    `VITE_SUPABASE_URL` ve `VITE_SUPABASE_PUBLISHABLE_KEY` var.
+- Kullanici istegiyle tum runnable testler tekrar kosuldu.
+  - `npm run build` PASS.
+  - `npm run test:e2e` PASS: 54 passed, 6 skipped.
+  - `test:quiz-audit` tam kapsami route gruplarina bolunerek tamamlandi:
+    23/23 route passed.
+  - `npx playwright test tests/api-endpoints.spec.ts` PARTIAL: public
+    `get_leaderboard` passed, uyelik gerektiren 3 Edge Function testi skipped.
+  - `npm run test:interview-flows` PARTIAL: 22 skipped.
+  - Skip sebebi: `.env.local` icinde `VITE_SUPABASE_URL`,
+    `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM` var; fakat
+    `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
+  - Bu nedenle uyelik/AI happy-path testleri tamamlanmis sayilmaz; env'e test
+    kullanici bilgileri eklenirse tekrar kosulmali.
 
 ---
 
@@ -103,25 +153,7 @@
 
 ## Eksikler / Riskler
 
-1. **Python static SEO shell icerigi eksik uretiliyor.**
-   - `src/data/pythonData.js` en ustte `./pythonPlaygroundData` uzantisiz
-     import kullaniyor.
-   - Vite bunu tolere ediyor, fakat Node ESM ile calisan
-     `scripts/generate-static-routes.mjs` import'u cozemiyor.
-   - Build log'unda `/python` icin `Could not load SEO content` uyarisi geldi.
-   - Sonuc: `dist/python/index.html` genel fallback link listesiyle uretiliyor;
-     Python konu/snippet SEO derinligi dusuyor.
-   - Yapilacak fix: import'u `./pythonPlaygroundData.js` yap.
-
-2. **Bruno global arama index'ine eklenmemis.**
-   - `/bruno` route/SEO/nav/static shell var.
-   - Fakat `src/utils/searchIndex.js` icinde `brunoData` import'u ve
-     `ALL_DATA` entry'si yok.
-   - Sonuc: kullanici global aramada Bruno icerigini bulamaz.
-   - Yapilacak fix: `brunoData` import et ve
-     `{ data: brunoData, route: '/bruno', name: 'Bruno' }` ekle.
-
-3. **Supabase RLS SQL'leri kullanici tarafinda calistirilmali.**
+1. **Supabase RLS SQL'leri kullanici tarafinda calistirilmali.**
    - AC07 reset akisinda `AuthContext.resetLessonProgress()` hazir.
    - `user_progress` delete policy yoksa Supabase tarafinda reset sessizce
      basarisiz olabilir.
@@ -134,22 +166,23 @@
      ```
    - `user_badges` INSERT/upsert RLS policy'si de kontrol edilmeli.
 
-4. **Yeni Python interaktif ozellikleri resmi suite'lerle tam dogrulanmadi.**
-   - Elle/canli Playwright dogrulamalari yapilmis.
-   - Ancak `npm run test:e2e` ve `npm run test:quiz-audit` yeni
-     `challenge` / `code-playground` / XP akislari icin tekrar kosulmali.
-   - Ozellikle quiz gate sayimi bu yeni block type'lari quiz saymamali.
+2. **Uyelik gerektiren full AI/interview testleri env eksigi nedeniyle skip.**
+   - `.env.local` icinde `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
+   - Bu yuzden `tests/api-endpoints.spec.ts` icindeki 3 uyelikli Edge Function
+     testi ve `test:interview-flows` icindeki 22 full-flow test skip oluyor.
+   - Bu iki test kullanici degiskeni eklenirse uyelik/AI happy-path suite'leri
+     tekrar kosulmali.
 
-5. **`/basit-backend` EN icerik eksigi bilerek duruyor.**
+3. **`/basit-backend` EN icerik eksigi bilerek duruyor.**
    - Tab 0 ve tab 3'te TR'de quiz var, EN tarafinda yok.
    - Kullanici talimati: onemsiz, zaman harcanmasin.
 
-6. **AC08 coklu tema paleti eksik.**
+4. **AC08 coklu tema paleti eksik.**
    - Platformda dark/light mode var.
    - Acceptance Criteria alternatif renk paletleri istiyor.
    - Kullanici "simdilik atla" dedigi icin kodlanmadi.
 
-7. **Bundle boyutu buyuk.**
+5. **Bundle boyutu buyuk.**
    - `TopicPage` chunk ~1.3MB+.
    - `typescriptData`, `javaData`, `sqlData` 500KB+.
    - Build'i bozmaz, fakat code-splitting/manual chunk adayi.
@@ -158,34 +191,19 @@
 
 ## Yapilmasi Gerekenler (Oncelik Sirasi)
 
-1. **Hemen duzelt:** `src/data/pythonData.js`
-   - `import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData'`
-   - `import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData.js'`
-   - Ardindan `npm run build` ile `/python` static SEO uyarisinin kalktigini
-     dogrula.
-
-2. **Hemen duzelt:** `src/utils/searchIndex.js`
-   - `brunoData` import et.
-   - `ALL_DATA` listesine `/bruno` entry'si ekle.
-   - Bruno arama sonucunun geldigini local olarak dogrula.
-
-3. **Testleri kos:**
-   - `npm run build`
-   - `npm run test:e2e`
-   - Gerekirse uzun denetim icin `npm run test:quiz-audit`
-   - AI kullanan uzun suite icin env hazirsa `npm run test:interview-flows`
-
-4. **Supabase manuel isleri:**
+1. **Supabase manuel isleri:**
    - `learnqa-test` ve `learnqa-prod` icin `user_progress` DELETE RLS policy'sini
      ekle.
    - `user_badges` upsert/insert RLS policy'sini kontrol et.
+   - Uzun interview suite'i gercekten kosmak icin `.env.local` icine
+     `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` eklenmeli.
 
-5. **Python interaktif ozelliklerini onaydan sonra diger sayfalara yay:**
+2. **Python interaktif ozelliklerini onaydan sonra diger sayfalara yay:**
    - Selenium, Playwright, Java, API testing sayfalarina ayni block type'lari
      veri/icerik ekleyerek tasinabilir.
    - Component mimarisi hazir; yeni component yazmak yerine data eklemek yeterli.
 
-6. **Opsiyonel teknik borc:**
+3. **Opsiyonel teknik borc:**
    - `TopicPage` ve buyuk data chunk'lari icin code-splitting/manualChunks
      degerlendir.
    - `test:quiz-audit` periyodik GitHub Actions job'ina baglanabilir.

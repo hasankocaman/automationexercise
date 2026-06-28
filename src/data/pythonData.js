@@ -1,4 +1,4 @@
-import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData'
+import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData.js'
 
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
