@@ -6860,7 +6860,7 @@ const challengeFixtureScope = {
   options: [
     {
       id: 'a',
-      text: 'function (varsayılan)',
+      text: { tr: 'function (varsayılan)', en: 'function (default)' },
       correct: false,
       explanation: {
         tr: '"function" scope\'u her TEK test fonksiyonu için fixture\'ı yeniden çalıştırır — paylaşım yok, en yavaş seçenek.',
