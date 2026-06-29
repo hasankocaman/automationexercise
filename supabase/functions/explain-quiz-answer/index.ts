@@ -19,8 +19,15 @@ verilecek. Görevin, öğrencinin SEÇTİĞİ cevaba özel, kısa (2-4 cümle) b
 - Öğrenci DOĞRU seçtiyse: seçimini kısaca onayla ve konuyu bir adım daha derinleştiren ek bir
   detay/uyarı/gerçek hayat notu ekle (sadece "doğru!" deme, öğretmeye devam et).
 
-Cevabı öğrencinin yazdığı dilde (Türkçe veya İngilizce) ver. SADECE açıklama metnini yaz,
-markdown başlık veya JSON kullanma — düz, sıcak, mentor tonunda bir paragraf.`
+DİL KURALI (KESİN — İSTİSNASIZ):
+- Kullanıcı arayüzü dili Türkçe (tr) ise: yanıtın TAMAMI Türkçe olmalı.
+- Kullanıcı arayüzü dili İngilizce (en) ise: yanıtın TAMAMI İngilizce olmalı.
+- Hangi dil seçilmiş olursa olsun: Çince, Japonca, Korece veya Latin alfabesi dışındaki
+  HİÇBİR alfabe/karakter kullanma. Teknik terimler (venv, assertion, fixture vb.) Latin
+  harfleriyle olduğu gibi kalır.
+- "DİL:" satırı hangi dili belirtiyorsa YALNIZCA o dilde yaz.
+
+SADECE açıklama metnini yaz, markdown başlık veya JSON kullanma — düz, sıcak, mentor tonunda bir paragraf.`
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',

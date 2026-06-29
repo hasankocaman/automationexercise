@@ -14580,3 +14580,2677 @@ export const typescriptData = {
     ]
   }
 };
+
+// ── TS BATCH 1: step-animation + order-sort (Sekme 0-8) ──────────────────
+// Güvenli enjeksiyon: her section kendi blocks dizisine sahip (paylaşılan
+// slice yok) — Python Batch 2/3 ile aynı pattern, cascading risk sıfır.
+
+const tsStepAnim0 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Kodu Derlenip Çalışana Kadar Ne Olur?', en: 'What Happens When TypeScript Code Is Compiled and Run?' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: '.ts Dosyası Yazılır', en: '.ts File Is Written' }, detail: { tr: 'Geliştiricinin yazdığı TypeScript kodu, .ts uzantılı bir dosyada saklanır. Java\'daki .java dosyası gibi — source kod, henüz çalıştırılamaz.', en: 'The TypeScript code lives in a .ts file — like a .java source file, it is not directly runnable yet.' } },
+    { id: 2, icon: '🔍', label: { tr: 'tsc Tip Kontrolü Yapar', en: 'tsc Performs Type Checking' }, detail: { tr: 'TypeScript derleyicisi (tsc) kodu analiz eder. Yanlış tip, eksik alan, yanlış argüman gibi hataları bu aşamada yakalar — kod hiç çalışmadan.', en: 'The TypeScript compiler (tsc) analyses the code. Wrong types, missing fields, and wrong arguments are caught here — before the code ever runs.' } },
+    { id: 3, icon: '🚫', label: { tr: 'Hata Varsa Derleme Durur', en: 'Compilation Stops on Errors' }, detail: { tr: 'Tip hatası bulunursa tsc hata mesajı verir ve .js dosyası üretilmez. Bu Java\'da "build failed" mesajına eşdeğerdir.', en: 'If a type error is found, tsc outputs an error and produces no .js file — equivalent to a Java "build failed".' } },
+    { id: 4, icon: '✅', label: { tr: 'Temiz Kod JavaScript\'e Dönüşür', en: 'Clean Code Transpiles to JavaScript' }, detail: { tr: 'Hata yoksa tsc, TypeScript sözdizimini silerek saf JavaScript üretir. Tip anotasyonları, interface\'ler ve generics çıktıda görünmez — bunlar yalnızca geliştirme zamanına aittir.', en: 'If there are no errors, tsc strips all TypeScript syntax and outputs plain JavaScript. Type annotations, interfaces, and generics are absent from the output — they exist only at development time.' } },
+    { id: 5, icon: '▶️', label: { tr: 'JavaScript Çalışır', en: 'JavaScript Runs' }, detail: { tr: 'Üretilen .js dosyası Node.js\'de veya tarayıcıda çalışır. Bu noktada TypeScript kalmamıştır — sadece güvenli, doğrulanmış JavaScript vardır.', en: 'The generated .js file runs in Node.js or the browser. At this point there is no TypeScript left — just safe, validated JavaScript.' } }
+  ]
+};
+
+const tsOrderSort0 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-compile-flow-01',
+  question: { tr: 'TypeScript kodunun derlenip çalışma adımlarını doğru sıraya diz.', en: 'Arrange the steps of the TypeScript compile-and-run flow in the correct order.' },
+  items: [
+    { id: '1', text: { tr: '.ts dosyasına TypeScript kodu yaz', en: 'Write TypeScript code in a .ts file' }, order: 1 },
+    { id: '2', text: { tr: 'tsc ile tip kontrolü ve derleme yap', en: 'Run tsc for type checking and transpilation' }, order: 2 },
+    { id: '3', text: { tr: 'Tip hataları varsa düzelt, yoksa devam et', en: 'Fix type errors if any; otherwise continue' }, order: 3 },
+    { id: '4', text: { tr: 'Üretilen .js dosyasını Node.js veya tarayıcıda çalıştır', en: 'Run the generated .js file in Node.js or the browser' }, order: 4 },
+    { id: '5', text: { tr: 'Runtime\'da tip bilgisi kalmamıştır — sadece saf JS çalışır', en: 'At runtime no type info remains — only plain JS executes' }, order: 5 }
+  ]
+};
+
+const tsStepAnim1 = {
+  type: 'step-animation',
+  title: { tr: 'Playwright + TypeScript Proje Kurulum Akışı', en: 'Playwright + TypeScript Project Setup Flow' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Node.js & npm Kurulu mu?', en: 'Is Node.js & npm Installed?' }, detail: { tr: 'node --version ve npm --version ile kontrol et. Java\'daki JDK kurulumu gibi — runtime ve paket yöneticisi hazır olmalı.', en: 'Check with node --version and npm --version. Like installing the JDK in Java — the runtime and package manager must be ready.' } },
+    { id: 2, icon: '⚙️', label: { tr: 'TypeScript Global Kurulumu', en: 'Install TypeScript Globally' }, detail: { tr: 'npm install -g typescript komutu tsc derleyicisini terminale ekler. tsc --version ile doğrula — Java\'da javac\'nın PATH\'e eklenmesi gibi.', en: 'npm install -g typescript adds the tsc compiler to the terminal. Verify with tsc --version — like adding javac to the PATH in Java.' } },
+    { id: 3, icon: '🎭', label: { tr: 'Playwright Projesi Başlat', en: 'Initialize Playwright Project' }, detail: { tr: 'npm init playwright@latest komutu Playwright\'ı, TypeScript config\'ini ve örnek testleri tek seferde kurar. Maven archetype\'a benzer bir hızlı başlangıç şablonu.', en: 'npm init playwright@latest installs Playwright, TypeScript config, and sample tests in one go — similar to a Maven archetype quick start.' } },
+    { id: 4, icon: '📄', label: { tr: 'tsconfig.json Yapılandır', en: 'Configure tsconfig.json' }, detail: { tr: 'strict: true aç, target ve module ayarla. Bu dosya TypeScript derleyicisine nasıl davranacağını söyler — Java\'daki pom.xml\'in source/target versiyonları gibi.', en: 'Enable strict: true, set target and module. This file tells the TypeScript compiler how to behave — like source/target versions in a Java pom.xml.' } },
+    { id: 5, icon: '✅', label: { tr: 'İlk Testi Çalıştır', en: 'Run First Test' }, detail: { tr: 'npx playwright test ile projeyi doğrula. Tüm testler yeşil geçerse kurulum tamamlanmıştır.', en: 'Validate the project with npx playwright test. If all tests pass green, the setup is complete.' } }
+  ]
+};
+
+const tsOrderSort1 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-install-01',
+  question: { tr: 'Playwright + TypeScript projesi kurulum adımlarını doğru sıraya diz.', en: 'Arrange the Playwright + TypeScript project setup steps in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Node.js ve npm kurulumunu doğrula (node --version)', en: 'Verify Node.js and npm installation (node --version)' }, order: 1 },
+    { id: '2', text: { tr: 'npm init playwright@latest ile projeyi başlat', en: 'Initialize the project with npm init playwright@latest' }, order: 2 },
+    { id: '3', text: { tr: 'tsconfig.json dosyasında strict: true ayarla', en: 'Configure tsconfig.json with strict: true' }, order: 3 },
+    { id: '4', text: { tr: 'npx playwright install ile tarayıcıları kur', en: 'Install browsers with npx playwright install' }, order: 4 },
+    { id: '5', text: { tr: 'npx playwright test ile ilk testi çalıştır', en: 'Run the first test with npx playwright test' }, order: 5 }
+  ]
+};
+
+const tsStepAnim2 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Tip Anotasyonu Nasıl Çalışır?', en: 'How Does a TypeScript Type Annotation Work?' },
+  steps: [
+    { id: 1, icon: '✍️', label: { tr: 'Değişkeni Tanımla', en: 'Declare the Variable' }, detail: { tr: 'let age: number = 25; yazarsın. Java\'daki int age = 25; ile aynı mantık — tip önce değil sonra yazılır, sözdizimleri farklı.', en: 'You write let age: number = 25; — same idea as Java\'s int age = 25; but the type comes after, with a colon.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Derleyici Tipi Kaydeder', en: 'Compiler Records the Type' }, detail: { tr: 'tsc, age\'in number tipinde olduğunu belleğine alır. Artık bu değişkene yanlış tipte bir değer atamaya çalışırsan anında uyarır.', en: 'tsc registers that age is of type number. From this point, any attempt to assign a wrong type triggers an immediate warning.' } },
+    { id: 3, icon: '🚫', label: { tr: 'Yanlış Tip → Anında Hata', en: 'Wrong Type → Instant Error' }, detail: { tr: 'age = "hello"; yazmaya çalışırsan IDE kırmızı altı çizer ve tsc hata verir. JavaScript\'te bu hata yalnızca çalışma zamanında ortaya çıkardı.', en: 'If you try age = "hello"; the IDE underlines it in red and tsc errors. In JavaScript this bug would only surface at runtime.' } },
+    { id: 4, icon: '✅', label: { tr: 'Doğru Tip → Devam Et', en: 'Correct Type → Proceed' }, detail: { tr: 'age = 30; hata vermez. Derleyici değişkenin tipine uygun kullanıldığını onaylar — güvenle devam edebilirsin.', en: 'age = 30; produces no error. The compiler confirms the variable is used according to its type — safe to proceed.' } },
+    { id: 5, icon: '💡', label: { tr: 'unknown > any — Güvenli Genel Tip', en: 'unknown > any — Safe Generic Type' }, detail: { tr: 'Tipi bilmiyorsan any yerine unknown kullan. unknown ile bir şey yapmadan önce typeof ile tipi daraltman gerekir — any bunu atlayarak tüm güvenliği kaybettirir.', en: 'When the type is truly unknown, use unknown instead of any. unknown forces you to narrow the type with typeof before using it — any bypasses all type safety.' } }
+  ]
+};
+
+const tsOrderSort2 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-types-01',
+  question: { tr: 'TypeScript\'te bilinmeyen bir API yanıtını güvenli şekilde kullanma adımlarını sırala.', en: 'Arrange the steps for safely using an unknown API response in TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'Yanıtı unknown tipinde al', en: 'Receive the response as type unknown' }, order: 1 },
+    { id: '2', text: { tr: 'typeof veya instanceof ile tipi kontrol et', en: 'Check the type with typeof or instanceof' }, order: 2 },
+    { id: '3', text: { tr: 'Tip doğrulandıktan sonra alanları oku', en: 'Read fields only after the type is confirmed' }, order: 3 },
+    { id: '4', text: { tr: 'Doğrulama başarısızsa hata fırlat veya varsayılan değer döndür', en: 'Throw an error or return a default if validation fails' }, order: 4 }
+  ]
+};
+
+const tsStepAnim3 = {
+  type: 'step-animation',
+  title: { tr: 'Array ve Tuple Farkı — Adım Adım', en: 'Array vs Tuple — Step by Step' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'string[] Array Tanımla', en: 'Declare a string[] Array' }, detail: { tr: 'const names: string[] = ["Alice", "Bob"]; yazarsın. Java\'daki List<String> gibi — sonsuz uzunluk, tek tip.', en: 'You write const names: string[] = ["Alice", "Bob"]; — like Java\'s List<String>: unlimited length, one type.' } },
+    { id: 2, icon: '✅', label: { tr: 'Doğru Eleman Ekle', en: 'Add Correct Element' }, detail: { tr: 'names.push("Carol"); hatasız çalışır. Array<string> de aynı sonucu verir — iki sözdizimi de geçerlidir.', en: 'names.push("Carol"); works without error. Array<string> is equivalent syntax — both are valid.' } },
+    { id: 3, icon: '🚫', label: { tr: 'Yanlış Tip → Hata', en: 'Wrong Type → Error' }, detail: { tr: 'names.push(42); yazmak hata verir. TypeScript, number\'ın string array\'ine girmesine izin vermez — Java\'daki compile-time hata gibi.', en: 'names.push(42); throws a compile error. TypeScript does not allow a number into a string array — same as a compile-time error in Java.' } },
+    { id: 4, icon: '🔒', label: { tr: 'Tuple: Sıra ve Tip Sabitlenir', en: 'Tuple: Order and Type Are Fixed' }, detail: { tr: 'let t: [string, number] = ["age", 25]; tanımladığında sıra önemlidir. [25, "age"] hata verir — Java\'da yok, Python\'daki fixed-length tuple\'a benzer.', en: 'let t: [string, number] = ["age", 25]; — order matters. [25, "age"] gives an error — unlike Java, similar to Python\'s fixed-length tuple.' } },
+    { id: 5, icon: '📖', label: { tr: 'Tuple Neden Kullanılır?', en: 'When to Use a Tuple?' }, detail: { tr: 'API endpoint\'i [url: string, timeout: number] gibi sabit yapılı çiftler için tuple idealdir. Array\'den daha açıklayıcıdır — IDE hangi konumun ne anlama geldiğini gösterir.', en: 'Tuples shine for fixed-structure pairs like [url: string, timeout: number]. More descriptive than an array — the IDE shows what each position means.' } }
+  ]
+};
+
+const tsOrderSort3 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-arrays-01',
+  question: { tr: 'TypeScript\'te API yanıtındaki veri listesini tip güvenli şekilde işleme adımlarını sırala.', en: 'Arrange the steps for processing a list of API response data in a type-safe way in TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'interface User { id: number; name: string } tanımla', en: 'Define interface User { id: number; name: string }' }, order: 1 },
+    { id: '2', text: { tr: 'const users: User[] = [] dizisi oluştur', en: 'Create const users: User[] = [] array' }, order: 2 },
+    { id: '3', text: { tr: 'API yanıtını User[] tipinde parse et', en: 'Parse the API response as User[]' }, order: 3 },
+    { id: '4', text: { tr: 'users.find(u => u.id === targetId) ile güvenli eriş', en: 'Access safely with users.find(u => u.id === targetId)' }, order: 4 },
+    { id: '5', text: { tr: 'Sonuç undefined olabilir — null check yap', en: 'Result may be undefined — add a null check' }, order: 5 }
+  ]
+};
+
+const tsStepAnim4 = {
+  type: 'step-animation',
+  title: { tr: 'Object Type ve Enum ile QA Config Tanımlama', en: 'Defining a QA Config with Object Type and Enum' },
+  steps: [
+    { id: 1, icon: '🔧', label: { tr: 'Enum ile Sabit Seçenekler', en: 'Fixed Options via Enum' }, detail: { tr: 'enum Browser { CHROMIUM = "chromium", FIREFOX = "firefox" } yaz. Artık "chrome" veya "crome" yazım hataları imkânsız — Java\'daki enum ile birebir aynı sözdizimi.', en: 'Write enum Browser { CHROMIUM = "chromium", FIREFOX = "firefox" }. Typos like "chrome" or "crome" are now impossible — identical syntax to Java enums.' } },
+    { id: 2, icon: '📋', label: { tr: 'Interface ile Config Şekli', en: 'Config Shape via Interface' }, detail: { tr: 'interface RunConfig { browser: Browser; workers: number; baseUrl: string } tanımla. Her alan tipli — eksik alan veya yanlış tip derleme hatasına yol açar.', en: 'Define interface RunConfig { browser: Browser; workers: number; baseUrl: string }. Every field is typed — a missing field or wrong type is a compile error.' } },
+    { id: 3, icon: '✅', label: { tr: 'Geçerli Config Nesnesi Oluştur', en: 'Create a Valid Config Object' }, detail: { tr: 'const cfg: RunConfig = { browser: Browser.CHROMIUM, workers: 4, baseUrl: "..." } çalışır. IDE autocomplete ile tüm enum seçeneklerini gösterir.', en: 'const cfg: RunConfig = { browser: Browser.CHROMIUM, workers: 4, baseUrl: "..." } works. The IDE autocompletes all enum options.' } },
+    { id: 4, icon: '🚫', label: { tr: 'Yanlış Alan → Hata', en: 'Wrong Field → Error' }, detail: { tr: '{ browser: "chrome" } yazmak hata verir — "chrome" Browser enum\'unda yok. "baseUrl" alanı atlanırsa da hata verir.', en: '{ browser: "chrome" } errors — "chrome" is not in the Browser enum. Omitting the "baseUrl" field also errors.' } },
+    { id: 5, icon: '❓', label: { tr: 'Optional Alan (?) Kullan', en: 'Use Optional Fields (?)' }, detail: { tr: 'interface RunConfig { timeout?: number } gibi optional alan eklenirse o alan olmadan da nesne oluşturulabilir. Java\'da yok — Python\'daki Optional parametreye benzer.', en: 'Adding interface RunConfig { timeout?: number } makes that field optional — the object is valid without it. Not in Java — similar to Python\'s optional params.' } }
+  ]
+};
+
+const tsOrderSort4 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-objects-01',
+  question: { tr: 'TypeScript enum ve interface kullanarak tip güvenli test config tanımlama adımlarını sırala.', en: 'Arrange the steps for defining a type-safe test config using TypeScript enum and interface.' },
+  items: [
+    { id: '1', text: { tr: 'enum Browser { CHROMIUM, FIREFOX, WEBKIT } tanımla', en: 'Define enum Browser { CHROMIUM, FIREFOX, WEBKIT }' }, order: 1 },
+    { id: '2', text: { tr: 'interface RunConfig { browser: Browser; workers: number } tanımla', en: 'Define interface RunConfig { browser: Browser; workers: number }' }, order: 2 },
+    { id: '3', text: { tr: 'RunConfig tipinde bir config nesnesi oluştur', en: 'Create a config object of type RunConfig' }, order: 3 },
+    { id: '4', text: { tr: 'Config nesnesini playwright.config.ts\'e export et', en: 'Export the config object to playwright.config.ts' }, order: 4 },
+    { id: '5', text: { tr: 'Yanlış browser string ile CI testinde derleme hatasını gözlemle', en: 'Observe a compile error in CI when a wrong browser string is used' }, order: 5 }
+  ]
+};
+
+const tsStepAnim5 = {
+  type: 'step-animation',
+  title: { tr: 'Interface ile Type Alias Arasındaki Fark', en: 'The Difference Between Interface and Type Alias' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Interface Tanımla', en: 'Define an Interface' }, detail: { tr: 'interface ILoginPage { navigate(): Promise<void>; login(e: string, p: string): Promise<void> } yaz. Java\'daki interface ile birebir aynı — sözleşme tanımlar, uygulama içermez.', en: 'Write interface ILoginPage { navigate(): Promise<void>; login(e: string, p: string): Promise<void> }. Identical to a Java interface — defines a contract, contains no implementation.' } },
+    { id: 2, icon: '🔀', label: { tr: 'Type Alias Tanımla', en: 'Define a Type Alias' }, detail: { tr: 'type TestStatus = "PASS" | "FAIL" | "SKIP" yaz. Union type gibi karmaşık tip ifadelerini tek isimle adlandırmak için kullanılır — Java\'da karşılığı yok.', en: 'Write type TestStatus = "PASS" | "FAIL" | "SKIP". Used to name complex type expressions like unions — has no direct Java equivalent.' } },
+    { id: 3, icon: '➕', label: { tr: 'Interface extends ile Genişler', en: 'Interface Extends with extends' }, detail: { tr: 'interface IAdminPage extends ILoginPage { adminMenu: Locator } yaz. Miras alarak yeni üyeler ekler — Java\'daki extends ile aynı mantık.', en: 'Write interface IAdminPage extends ILoginPage { adminMenu: Locator }. Inherits and adds members — same logic as Java\'s extends.' } },
+    { id: 4, icon: '🔗', label: { tr: 'Type Alias & ile Birleşir', en: 'Type Alias Merges with &' }, detail: { tr: 'type AdminPage = ILoginPage & { adminMenu: Locator } yaz. Intersection type her iki tipin tüm üyelerini birleştirir — Java\'daki multiple interface implement\'e benzer.', en: 'Write type AdminPage = ILoginPage & { adminMenu: Locator }. Intersection type combines all members of both types — similar to implementing multiple Java interfaces.' } },
+    { id: 5, icon: '📌', label: { tr: 'Ne Zaman Hangisi?', en: 'Which One and When?' }, detail: { tr: 'Class kontratları ve genişletilebilir yapılar için interface; union, intersection, conditional gibi tip ifadeleri için type alias kullan. Tutarlılık için projede birini seç ve yönergeyi belgele.', en: 'Use interface for class contracts and extensible shapes; use type alias for union, intersection, and conditional type expressions. Pick one for consistency and document the guideline.' } }
+  ]
+};
+
+const tsOrderSort5 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-interface-01',
+  question: { tr: 'TypeScript\'te union type narrowing adımlarını doğru sıraya diz.', en: 'Arrange the TypeScript union type narrowing steps in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'type Result = "PASS" | "FAIL" | number tanımla', en: 'Define type Result = "PASS" | "FAIL" | number' }, order: 1 },
+    { id: '2', text: { tr: 'Fonksiyon parametresini Result tipiyle al', en: 'Accept the function parameter as type Result' }, order: 2 },
+    { id: '3', text: { tr: 'typeof r === "string" ile string koluna gir', en: 'Enter the string branch with typeof r === "string"' }, order: 3 },
+    { id: '4', text: { tr: 'if (r === "PASS") ile tam string değerini daralt', en: 'Narrow to the exact string value with if (r === "PASS")' }, order: 4 },
+    { id: '5', text: { tr: 'else kolunda r\'nin number olduğunu TypeScript zaten bilir', en: 'In the else branch TypeScript already knows r is number' }, order: 5 }
+  ]
+};
+
+const tsStepAnim6 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Fonksiyon Tip Anotasyonu Adım Adım', en: 'TypeScript Function Type Annotation — Step by Step' },
+  steps: [
+    { id: 1, icon: '✍️', label: { tr: 'Parametre Tiplerini Yaz', en: 'Write Parameter Types' }, detail: { tr: 'function add(a: number, b: number) yaz. Java\'da int a, int b ile aynı şey — her parametre için tip zorunlu.', en: 'Write function add(a: number, b: number). Same as Java\'s int a, int b — type is required for each parameter.' } },
+    { id: 2, icon: '↩️', label: { tr: 'Return Tipini Belirt', en: 'Specify the Return Type' }, detail: { tr: ': number ekleyerek add(a: number, b: number): number yaz. TypeScript çoğu durumda bunu çıkarabilir, ama açık yazmak dokümantasyon görevini üstlenir.', en: 'Add : number to get add(a: number, b: number): number. TypeScript can usually infer this, but writing it explicitly serves as documentation.' } },
+    { id: 3, icon: '🚫', label: { tr: 'Yanlış Argüman → Derleme Hatası', en: 'Wrong Argument → Compile Error' }, detail: { tr: 'add("hello", 2) çağrısı hata verir. Argüman sayısı eksikse de hata verir — Python\'daki runtime TypeError\'ın aksine bu hata IDE\'de anında görünür.', en: 'Calling add("hello", 2) errors. Too few arguments also error — unlike Python\'s runtime TypeError, this surfaces instantly in the IDE.' } },
+    { id: 4, icon: '❓', label: { tr: 'Optional Parametre (?) Kullan', en: 'Use Optional Parameters (?)' }, detail: { tr: 'function greet(name: string, title?: string) yazarsın. title atlanabilir — Java\'daki method overloading yerine tek imzayla opsiyonel parametre sağlar.', en: 'Write function greet(name: string, title?: string). title can be omitted — one signature covers optional params instead of Java method overloading.' } },
+    { id: 5, icon: '🔀', label: { tr: 'Type Assertion (as) ile Tip Dönüşümü', en: 'Type Conversion with Type Assertion (as)' }, detail: { tr: 'const input = document.getElementById("q") as HTMLInputElement yaz. TypeScript\'e "bu tipi biliyorum, güven" diyorsun — ama yanlış kullanırsan runtime hata kaçabilir, dikkatli ol.', en: 'Write const input = document.getElementById("q") as HTMLInputElement. You tell TypeScript "trust me, I know the type" — but misuse can leak runtime errors, so be careful.' } }
+  ]
+};
+
+const tsOrderSort6 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-functions-01',
+  question: { tr: 'TypeScript fonksiyon yazarken tip güvenliği adımlarını doğru sıraya diz.', en: 'Arrange the type-safety steps when writing a TypeScript function in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Parametrelere tip anotasyonu ekle (a: number)', en: 'Add type annotations to parameters (a: number)' }, order: 1 },
+    { id: '2', text: { tr: 'Return tipini belirt (: string)', en: 'Specify the return type (: string)' }, order: 2 },
+    { id: '3', text: { tr: 'Fonksiyonu doğru tiplerle çağır', en: 'Call the function with correct types' }, order: 3 },
+    { id: '4', text: { tr: 'Yanlış tip ile çağırınca IDE\'nin hata gösterdiğini gözlemle', en: 'Observe the IDE error when calling with wrong type' }, order: 4 },
+    { id: '5', text: { tr: 'tsc ile build al — tüm tip hataları raporlanır', en: 'Run tsc build — all type errors are reported' }, order: 5 }
+  ]
+};
+
+const tsStepAnim7 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Class → Playwright Page Object Adımları', en: 'TypeScript Class → Playwright Page Object Steps' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Interface Tanımla', en: 'Define the Interface' }, detail: { tr: 'interface ILoginPage { navigate(): Promise<void>; login(e: string, p: string): Promise<void> } yaz. Java\'daki interface gibi — sınıfın dış sözleşmesi.', en: 'Write interface ILoginPage { navigate(): Promise<void>; login(e: string, p: string): Promise<void> }. Like a Java interface — the public contract of the class.' } },
+    { id: 2, icon: '🏛️', label: { tr: 'Class implements Interface', en: 'Class implements Interface' }, detail: { tr: 'export class LoginPage implements ILoginPage yaz. TypeScript compiler, tüm interface metodlarının var olduğunu doğrular — Java\'daki @Override kontrolüne benzer.', en: 'Write export class LoginPage implements ILoginPage. The TypeScript compiler verifies all interface methods exist — similar to Java\'s @Override checking.' } },
+    { id: 3, icon: '⚡', label: { tr: 'Constructor Shorthand — Java\'dan Fark', en: 'Constructor Shorthand — Different From Java' }, detail: { tr: 'constructor(private readonly page: Page) yazınca TypeScript otomatik olarak this.page property\'sini oluşturur. Java\'da bunu açıkça yapman gerekir — TypeScript burada daha özlüdür.', en: 'Writing constructor(private readonly page: Page) auto-creates the this.page property. In Java you must do this explicitly — TypeScript is more concise here.' } },
+    { id: 4, icon: '🔒', label: { tr: 'Locator\'ları Constructor\'da Tanımla', en: 'Define Locators in the Constructor' }, detail: { tr: 'this.emailInput = page.locator(\'[data-testid="email"]\') constructor içinde yaz. Selector değişirse tek yerden güncellenir — Page Object\'in temel prensibi.', en: 'Write this.emailInput = page.locator(\'[data-testid="email"]\') inside the constructor. If the selector changes, update it in one place — the core POM principle.' } },
+    { id: 5, icon: '✅', label: { tr: 'Metodlara Return Tipi Ekle', en: 'Add Return Types to Methods' }, detail: { tr: 'async login(...): Promise<void> return tipi, metodun değer döndürmediğini belirtir. Promise<string> döndüren bir metod bu tipte yanlışlıkla void yazılamaz — IDE hata gösterir.', en: 'async login(...): Promise<void> signals the method returns nothing. A method that should return Promise<string> cannot accidentally be typed void — the IDE catches it.' } }
+  ]
+};
+
+const tsOrderSort7 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-pom-01',
+  question: { tr: 'TypeScript ile Playwright Page Object Model (POM) oluşturma adımlarını doğru sıraya diz.', en: 'Arrange the steps for creating a Playwright Page Object Model (POM) with TypeScript in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'interface ILoginPage { navigate, login metodlarını tanımla }', en: 'interface ILoginPage { define navigate, login methods }' }, order: 1 },
+    { id: '2', text: { tr: 'class LoginPage implements ILoginPage yaz', en: 'Write class LoginPage implements ILoginPage' }, order: 2 },
+    { id: '3', text: { tr: 'Constructor\'da Page parametresi ve private Locator\'ları tanımla', en: 'Define the Page parameter and private Locators in the constructor' }, order: 3 },
+    { id: '4', text: { tr: 'navigate() ve login() metodlarını Promise<void> dönüş tipiyle yaz', en: 'Implement navigate() and login() methods with Promise<void> return type' }, order: 4 },
+    { id: '5', text: { tr: 'Test dosyasında new LoginPage(page) ile kullan', en: 'Use it in the test file with new LoginPage(page)' }, order: 5 }
+  ]
+};
+
+const tsStepAnim8 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Generic Fonksiyon Nasıl Çalışır?', en: 'How Does a TypeScript Generic Function Work?' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Generic Parametre <T> Tanımla', en: 'Define the Generic Parameter <T>' }, detail: { tr: 'function first<T>(arr: T[]): T yaz. Java\'daki <T> ile birebir aynı sözdizimi — tip parametresi çağrı anında belirlenir.', en: 'Write function first<T>(arr: T[]): T. Identical syntax to Java\'s <T> — the type parameter is determined at the call site.' } },
+    { id: 2, icon: '🔤', label: { tr: 'string[] ile Çağır → T = string', en: 'Call with string[] → T = string' }, detail: { tr: 'first(["a", "b"]) çağrısında TypeScript T\'yi otomatik string olarak çıkarır. Java\'da <String>first(list) gibi açıkça yazmak gerekirdi.', en: 'When calling first(["a", "b"]) TypeScript auto-infers T as string. In Java you\'d often write <String>first(list) explicitly.' } },
+    { id: 3, icon: '🔢', label: { tr: 'number[] ile Çağır → T = number', en: 'Call with number[] → T = number' }, detail: { tr: 'first([1, 2, 3]) çağrısında T otomatik number olur. Aynı fonksiyon, farklı tip güvenliğiyle — Java\'daki generic metodlarla aynı avantaj.', en: 'Calling first([1, 2, 3]) makes T number automatically. Same function, different type safety — the same advantage as Java generic methods.' } },
+    { id: 4, icon: '🔗', label: { tr: 'Constraint Ekle: T extends { id: number }', en: 'Add Constraint: T extends { id: number }' }, detail: { tr: 'T extends { id: number } yazınca T\'nin id adında bir number alanı olması zorunlu olur. Java\'daki <T extends Comparable<T>> gibi — generic türü kısıtla.', en: 'Writing T extends { id: number } requires T to have a numeric id field. Like Java\'s <T extends Comparable<T>> — constrain the generic type.' } },
+    { id: 5, icon: '🎯', label: { tr: 'İki Generic: <T, U>', en: 'Two Generics: <T, U>' }, detail: { tr: 'function zip<T, U>(a: T[], b: U[]): [T, U][] gibi iki generic kullanabilirsin. Java\'daki Map<K, V> gibi — birden fazla bağımsız tip parametresi.', en: 'You can use two generics like function zip<T, U>(a: T[], b: U[]): [T, U][]. Like Java\'s Map<K, V> — multiple independent type parameters.' } }
+  ]
+};
+
+const tsOrderSort8 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-generics-01',
+  question: { tr: 'TypeScript\'te generic bir ApiResponse<T> wrapper tipi yazma ve kullanma adımlarını sırala.', en: 'Arrange the steps for writing and using a generic ApiResponse<T> wrapper type in TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'interface ApiResponse<T> { status: number; data: T; error?: string } yaz', en: 'Write interface ApiResponse<T> { status: number; data: T; error?: string }' }, order: 1 },
+    { id: '2', text: { tr: 'interface User { id: number; name: string } tanımla', en: 'Define interface User { id: number; name: string }' }, order: 2 },
+    { id: '3', text: { tr: 'fetchUser(): Promise<ApiResponse<User>> fonksiyonunu yaz', en: 'Write fetchUser(): Promise<ApiResponse<User>> function' }, order: 3 },
+    { id: '4', text: { tr: 'response.data.name ile tip güvenli erişim sağla', en: 'Access type-safely with response.data.name' }, order: 4 },
+    { id: '5', text: { tr: 'ApiResponse<Product> ile aynı sarmalayıcıyı başka endpoint için yeniden kullan', en: 'Reuse the same wrapper for another endpoint as ApiResponse<Product>' }, order: 5 }
+  ]
+};
+
+// ── TS BATCH 2: step-animation + order-sort (Sekme 9-16) ─────────────────
+
+const tsStepAnim9 = {
+  type: 'step-animation',
+  title: { tr: 'Utility Types ile Tip Dönüşümleri — Adım Adım', en: 'Type Transformations with Utility Types — Step by Step' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Temel Interface Tanımla', en: 'Define the Base Interface' }, detail: { tr: 'interface TestCase { id: number; title: string; priority: number } yaz. Bu temel tip, diğer utility tiplerinin hammaddesidir.', en: 'Write interface TestCase { id: number; title: string; priority: number }. This is the source type for all utility type transformations.' } },
+    { id: 2, icon: '❓', label: { tr: 'Partial<T> — Hepsi Optional', en: 'Partial<T> — All Optional' }, detail: { tr: 'Partial<TestCase> her alanı optional yapar. API güncellemelerinde kullanışlı — yalnızca değişen alanları gönderebilirsin. Java\'da yok, Python\'daki TypedDict ile partial yapısına benzer.', en: 'Partial<TestCase> makes every field optional. Useful for API updates — you only send changed fields. Not in Java; similar to Python TypedDict with partial updates.' } },
+    { id: 3, icon: '✅', label: { tr: 'Required<T> — Hepsi Zorunlu', en: 'Required<T> — All Mandatory' }, detail: { tr: 'Required<TestCase> her alanı zorunlu yapar (optional alanlar bile). Zorunlu alanların eksik olmadığından emin olmak istediğinde kullan.', en: 'Required<TestCase> makes every field mandatory, even optional ones. Use when you need to guarantee no field is missing.' } },
+    { id: 4, icon: '🔒', label: { tr: 'Readonly<T> — Değişmez', en: 'Readonly<T> — Immutable' }, detail: { tr: 'Readonly<TestCase> her alana readonly ekler. Test fixture\'larını immutable yapmak için idealdir — Java\'daki final field\'a benzer.', en: 'Readonly<TestCase> adds readonly to every field. Ideal for making test fixtures immutable — similar to Java\'s final field.' } },
+    { id: 5, icon: '✂️', label: { tr: 'Pick<T, K> — Sadece Seçilenler', en: 'Pick<T, K> — Only Selected Fields' }, detail: { tr: 'Pick<TestCase, "id" | "title"> yalnızca o iki alanı içeren yeni bir tip üretir. API\'a gereksiz alan göndermemek için idealdir.', en: 'Pick<TestCase, "id" | "title"> produces a new type with only those two fields. Ideal to avoid sending unnecessary fields to an API.' } }
+  ]
+};
+
+const tsOrderSort9 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-utility-01',
+  question: { tr: 'TypeScript keyof ve Pick utility tipiyle type-safe property access oluşturma adımlarını sırala.', en: 'Arrange the steps for building type-safe property access using TypeScript keyof and Pick.' },
+  items: [
+    { id: '1', text: { tr: 'interface TestCase { id: number; title: string; priority: number } tanımla', en: 'Define interface TestCase { id: number; title: string; priority: number }' }, order: 1 },
+    { id: '2', text: { tr: 'type TCKey = keyof TestCase ile tüm anahtar adlarını tip olarak al', en: 'Get all key names as a type with type TCKey = keyof TestCase' }, order: 2 },
+    { id: '3', text: { tr: 'function getField<K extends keyof TestCase>(tc: TestCase, key: K): TestCase[K] yaz', en: 'Write function getField<K extends keyof TestCase>(tc: TestCase, key: K): TestCase[K]' }, order: 3 },
+    { id: '4', text: { tr: 'getField(tc, "title") çağır — dönüş tipi otomatik string', en: 'Call getField(tc, "title") — return type is automatically string' }, order: 4 },
+    { id: '5', text: { tr: 'getField(tc, "nonexistent") derleme hatası verir — tip güvenliği çalışıyor', en: 'getField(tc, "nonexistent") gives a compile error — type safety works' }, order: 5 }
+  ]
+};
+
+const tsStepAnim10 = {
+  type: 'step-animation',
+  title: { tr: 'strictNullChecks ile Null Güvenliği Adım Adım', en: 'Null Safety with strictNullChecks — Step by Step' },
+  steps: [
+    { id: 1, icon: '⚙️', label: { tr: 'tsconfig\'de strictNullChecks Aç', en: 'Enable strictNullChecks in tsconfig' }, detail: { tr: '"strictNullChecks": true ekle. Artık null ve undefined otomatik olarak her tipe atanamazlar — Java\'nın null pointer safety olmayan yapısının aksine TypeScript bunu zorunlu kılar.', en: 'Add "strictNullChecks": true. Now null and undefined cannot be assigned to every type automatically — unlike Java where null pointer safety is optional.' } },
+    { id: 2, icon: '🚫', label: { tr: 'string\'e null Atama → Hata', en: 'Assigning null to string → Error' }, detail: { tr: 'let name: string = null; artık hata verir. Null alabilmesi için açıkça string | null yazman gerekir — Java\'da bu yoktur, Python\'da None her değişkene gidebilir.', en: 'let name: string = null; now errors. You must explicitly write string | null for it to accept null — Java does not have this, Python\'s None goes anywhere.' } },
+    { id: 3, icon: '✅', label: { tr: 'Union Type ile Null İzin Ver', en: 'Allow Null via Union Type' }, detail: { tr: 'let name: string | null = null; çalışır. Artık bu değişkenin null olabileceğini okuyucuya ve derleyiciye açıkça bildiriyorsun.', en: 'let name: string | null = null; works. You now explicitly signal to both the reader and the compiler that this variable can be null.' } },
+    { id: 4, icon: '🔍', label: { tr: 'Kullanmadan Önce Null Kontrolü', en: 'Null Check Before Use' }, detail: { tr: 'name.toUpperCase() null olabilirse hata verir. if (name !== null) { name.toUpperCase() } içinde ise TypeScript name\'in artık string olduğunu bilir (narrowing).', en: 'name.toUpperCase() errors if name might be null. Inside if (name !== null) { name.toUpperCase() } TypeScript knows name is a string (narrowing).' } },
+    { id: 5, icon: '⚡', label: { tr: '?? (Nullish Coalescing) ile Kısa Yol', en: 'Shortcut with ?? (Nullish Coalescing)' }, detail: { tr: 'const label = name ?? "Unknown" yazınca name null veya undefined ise "Unknown" kullanılır. || ile farkı: || 0 ve "" de falsy sayar, ?? yalnızca null/undefined\'ı.', en: 'const label = name ?? "Unknown" uses "Unknown" if name is null or undefined. Unlike ||, which treats 0 and "" as falsy, ?? only triggers for null/undefined.' } }
+  ]
+};
+
+const tsOrderSort10 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-null-01',
+  question: { tr: 'TypeScript\'te API\'dan gelen nullable string\'i güvenli kullanma adımlarını sırala.', en: 'Arrange the steps for safely using a nullable string from an API in TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'tsconfig\'de strictNullChecks: true ayarla', en: 'Set strictNullChecks: true in tsconfig' }, order: 1 },
+    { id: '2', text: { tr: 'API dönüş tipini string | null olarak tanımla', en: 'Define the API return type as string | null' }, order: 2 },
+    { id: '3', text: { tr: 'if (value !== null) kontrolü ile tipi daralt', en: 'Narrow the type with an if (value !== null) check' }, order: 3 },
+    { id: '4', text: { tr: 'Daraltılmış blok içinde string metodlarını güvenle kullan', en: 'Safely use string methods inside the narrowed block' }, order: 4 },
+    { id: '5', text: { tr: 'Alternatif: value ?? "varsayılan" ile nullish coalescing kullan', en: 'Alternative: use value ?? "default" with nullish coalescing' }, order: 5 }
+  ]
+};
+
+const tsStepAnim11 = {
+  type: 'step-animation',
+  title: { tr: '@types Paketi Kurulum ve Kullanım Akışı', en: '@types Package Installation and Usage Flow' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Kütüphaneyi Kur', en: 'Install the Library' }, detail: { tr: 'npm install node-fetch gibi bir JavaScript kütüphanesi kur. Bu kütüphanenin kendi .d.ts dosyası olmayabilir — TypeScript henüz tipleri bilmez.', en: 'Install a JavaScript library like npm install node-fetch. This library may not ship its own .d.ts file — TypeScript does not know the types yet.' } },
+    { id: 2, icon: '🔍', label: { tr: '@types Var mı Kontrol Et', en: 'Check If @types Exists' }, detail: { tr: 'npm search @types/node-fetch ile kontrol et. Büyük kütüphaneler (node, jest, lodash) için DefinitelyTyped\'da @types paketi vardır.', en: 'Check with npm search @types/node-fetch. For major libraries (node, jest, lodash) a @types package exists on DefinitelyTyped.' } },
+    { id: 3, icon: '⬇️', label: { tr: '@types Paketini Kur (devDependency)', en: 'Install @types Package (devDependency)' }, detail: { tr: 'npm install --save-dev @types/node-fetch yaz. save-dev önemli — tipler sadece geliştirme zamanına aittir, production bundle\'a girmez.', en: 'Write npm install --save-dev @types/node-fetch. The save-dev flag matters — types belong only to development time, not the production bundle.' } },
+    { id: 4, icon: '📄', label: { tr: '.d.ts Dosyası TypeScript\'e Bildirir', en: '.d.ts File Declares to TypeScript' }, detail: { tr: 'node_modules/@types/node-fetch/index.d.ts dosyası, TypeScript\'e fetch fonksiyonunun imzasını söyler. Runtime kodu yok — sadece tip bilgisi.', en: 'The node_modules/@types/node-fetch/index.d.ts file tells TypeScript the signature of the fetch function. No runtime code — just type information.' } },
+    { id: 5, icon: '✅', label: { tr: 'IDE\'de Autocomplete ve Tip Güvenliği', en: 'Autocomplete and Type Safety in the IDE' }, detail: { tr: 'Artık fetch() kullanırken IDE parametre tiplerini gösterir ve yanlış kullanım anında altı çizilir. Playwright\'ın @types gerektirmemesinin nedeni: kendi index.d.ts\'ini zaten paketler.', en: 'Now when using fetch() the IDE shows parameter types and wrong usage is instantly underlined. Playwright does not need @types because it ships its own index.d.ts.' } }
+  ]
+};
+
+const tsOrderSort11 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-types-pkg-01',
+  question: { tr: 'TypeScript\'te üçüncü parti JS kütüphanesi için tip desteği ekleme adımlarını sırala.', en: 'Arrange the steps for adding type support for a third-party JS library in TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'npm install library ile kütüphaneyi kur', en: 'Install the library with npm install library' }, order: 1 },
+    { id: '2', text: { tr: 'Kütüphanenin kendi .d.ts dosyası olup olmadığını kontrol et', en: 'Check if the library ships its own .d.ts file' }, order: 2 },
+    { id: '3', text: { tr: '@types/library mevcut ise npm install -D @types/library ile kur', en: 'If @types/library exists, install with npm install -D @types/library' }, order: 3 },
+    { id: '4', text: { tr: '@types yoksa src/types/library.d.ts ile kendi bildirimini yaz', en: 'If @types does not exist, write your own declaration in src/types/library.d.ts' }, order: 4 },
+    { id: '5', text: { tr: 'IDE\'de tip desteğini ve autocomplete\'i doğrula', en: 'Verify type support and autocomplete in the IDE' }, order: 5 }
+  ]
+};
+
+const tsStepAnim12 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript POM: Yazımdan Teste Kadar Akış', en: 'TypeScript POM: From Writing to Testing — Full Flow' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'ILoginPage Interface Yaz', en: 'Write the ILoginPage Interface' }, detail: { tr: 'navigate, login, getErrorMessage metodlarını tanımla. Java\'daki interface gibi — implementasyon yok, sadece sözleşme.', en: 'Define navigate, login, getErrorMessage methods. Like a Java interface — no implementation, just a contract.' } },
+    { id: 2, icon: '🏛️', label: { tr: 'LoginPage Class Implements Interface', en: 'LoginPage Class Implements Interface' }, detail: { tr: 'class LoginPage implements ILoginPage yaz. Constructor\'da private readonly page: Page ve tüm Locator\'ları tanımla.', en: 'Write class LoginPage implements ILoginPage. Define private readonly page: Page and all Locators in the constructor.' } },
+    { id: 3, icon: '🔒', label: { tr: 'Tip Güvenli Metodlar', en: 'Type-Safe Methods' }, detail: { tr: 'async login(email: string, password: string): Promise<void> ve async getErrorMessage(): Promise<string> metodlarını yaz. Dönüş tipleri yanlış kullanımı önler.', en: 'Write async login(email: string, password: string): Promise<void> and async getErrorMessage(): Promise<string>. Return types prevent wrong usage.' } },
+    { id: 4, icon: '🔧', label: { tr: 'Fixtures ile Entegre Et', en: 'Integrate with Fixtures' }, detail: { tr: 'test.extend<{ loginPage: ILoginPage }> ile fixture olarak kaydet. Her test { loginPage } ile erişir — new LoginPage(page) yazmasına gerek kalmaz.', en: 'Register as a fixture with test.extend<{ loginPage: ILoginPage }>. Every test accesses it via { loginPage } — no need to write new LoginPage(page) each time.' } },
+    { id: 5, icon: '✅', label: { tr: 'Tip Güvenli Test Yaz', en: 'Write Type-Safe Tests' }, detail: { tr: 'test("login", async ({ loginPage }) => { await loginPage.login("u", "p") }) çağrısında TypeScript, login\'in iki string aldığını ve undefined döndürdüğünü bilir.', en: 'In test("login", async ({ loginPage }) => { await loginPage.login("u", "p") }) TypeScript knows login takes two strings and returns undefined.' } }
+  ]
+};
+
+const tsOrderSort12 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-pom-qa-01',
+  question: { tr: 'TypeScript Playwright POM + fixture entegrasyon adımlarını doğru sıraya diz.', en: 'Arrange the TypeScript Playwright POM + fixture integration steps in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'ILoginPage interface\'ini pages/LoginPage.ts\'de tanımla', en: 'Define ILoginPage interface in pages/LoginPage.ts' }, order: 1 },
+    { id: '2', text: { tr: 'LoginPage class\'ını implements ile yaz, locator\'ları ekle', en: 'Write LoginPage class with implements, add locators' }, order: 2 },
+    { id: '3', text: { tr: 'fixtures/index.ts\'de test.extend ile loginPage fixture ekle', en: 'Add loginPage fixture in fixtures/index.ts using test.extend' }, order: 3 },
+    { id: '4', text: { tr: 'Test dosyasına fixtures\'dan test ve expect import et', en: 'Import test and expect from fixtures in the test file' }, order: 4 },
+    { id: '5', text: { tr: 'async ({ loginPage }) destructor ile tip güvenli teste başla', en: 'Start the type-safe test with async ({ loginPage }) destructuring' }, order: 5 }
+  ]
+};
+
+const tsStepAnim13 = {
+  type: 'step-animation',
+  title: { tr: 'Java\'dan TypeScript\'e Geçiş Adımları', en: 'Migration Steps from Java to TypeScript' },
+  steps: [
+    { id: 1, icon: '☕', label: { tr: 'Class Sözdizimi — Neredeyse Aynı', en: 'Class Syntax — Nearly Identical' }, detail: { tr: 'class User { private String name; } → class User { private name: string; }. Değişen: tip Java\'da önce (String name), TypeScript\'te sonra (name: string).', en: 'class User { private String name; } → class User { private name: string; }. What changes: type is before in Java (String name), after in TypeScript (name: string).' } },
+    { id: 2, icon: '🔀', label: { tr: 'Interface → Neredeyse Aynı, Ama Structural', en: 'Interface → Nearly the Same, But Structural' }, detail: { tr: 'Java\'da bir class interface\'i açıkça implements etmeli. TypeScript\'te structural typing var — doğru şekle sahip her obje interface\'i karşılar, implements yazman gerekmez.', en: 'In Java a class must explicitly implement an interface. TypeScript uses structural typing — any object with the right shape satisfies the interface; implements is optional.' } },
+    { id: 3, icon: '🧩', label: { tr: 'Generics — Aynı Sözdizimi', en: 'Generics — Same Syntax' }, detail: { tr: 'Java: List<String> → TypeScript: string[]. Java: Map<String,Integer> → TypeScript: Map<string,number>. Generic metodlar da aynı: <T> sözdizimi ikisinde de geçerli.', en: 'Java: List<String> → TypeScript: string[]. Java: Map<String,Integer> → TypeScript: Map<string,number>. Generic methods too: <T> syntax works in both.' } },
+    { id: 4, icon: '🆕', label: { tr: 'TypeScript\'te Java\'da Olmayan: Union Types', en: 'In TypeScript, Not in Java: Union Types' }, detail: { tr: 'type Status = "PASS" | "FAIL" | number gibi bir union type Java\'da karşılıksız. Java\'da enum veya interface ile aynı efekti elde edersin ama o kadar temiz olmaz.', en: 'A union type like "PASS" | "FAIL" | number has no Java equivalent. In Java you\'d use an enum or interface for a similar effect but it\'s much more verbose.' } },
+    { id: 5, icon: '⏩', label: { tr: 'async/await → Sözdizimi Aynı, Çalışma Farklı', en: 'async/await → Same Syntax, Different Runtime' }, detail: { tr: 'async/await sözdizimi her ikisinde de aynı. Java\'da CompletableFuture arka planda thread kullanır. TypeScript\'te Promise, single-threaded event loop üzerinde çalışır — bloke olmaz ama paralel CPU işi yapmaz.', en: 'async/await syntax is identical in both. In Java CompletableFuture uses threads under the hood. In TypeScript a Promise runs on the single-threaded event loop — non-blocking but no parallel CPU work.' } }
+  ]
+};
+
+const tsOrderSort13 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-java-ts-01',
+  question: { tr: 'Java\'daki bir List<String>\'i TypeScript\'e taşıma adımlarını doğru sıraya diz.', en: 'Arrange the steps for migrating a Java List<String> to TypeScript in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Java\'daki List<String> karşılığının TypeScript\'te string[] olduğunu tanımla', en: 'Recognise that Java\'s List<String> maps to string[] in TypeScript' }, order: 1 },
+    { id: '2', text: { tr: 'const names: string[] = [] şeklinde başlat', en: 'Initialise as const names: string[] = []' }, order: 2 },
+    { id: '3', text: { tr: 'names.push("Alice") ile eleman ekle (Java\'daki add gibi)', en: 'Add an element with names.push("Alice") (like Java\'s add)' }, order: 3 },
+    { id: '4', text: { tr: 'names.filter/map/find ile Java Stream API yerine kullan', en: 'Use names.filter/map/find instead of Java Stream API' }, order: 4 },
+    { id: '5', text: { tr: 'readonly string[] ile immutability sağla (Java\'daki Collections.unmodifiableList gibi)', en: 'Use readonly string[] for immutability (like Java\'s Collections.unmodifiableList)' }, order: 5 }
+  ]
+};
+
+const tsStepAnim14 = {
+  type: 'step-animation',
+  title: { tr: 'Vitest ile TypeScript Unit Test Çalıştırma', en: 'Running TypeScript Unit Tests with Vitest' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: 'Utility Fonksiyonu Yaz (.ts)', en: 'Write the Utility Function (.ts)' }, detail: { tr: 'export function formatPrice(cents: number): string { ... } gibi basit, pure bir fonksiyon yaz. Java\'daki static utility metoduna benzer — bağımlılık yok, test edilmesi kolay.', en: 'Write a simple pure function like export function formatPrice(cents: number): string { ... }. Like a Java static utility method — no dependencies, easy to test.' } },
+    { id: 2, icon: '🧪', label: { tr: 'Test Dosyası Oluştur (.test.ts)', en: 'Create the Test File (.test.ts)' }, detail: { tr: 'formatPrice.test.ts dosyası oluştur. Vitest describe/it/expect API\'si Jest ile birebir aynı — Java\'daki JUnit @Test/@Nested yapısına benzer.', en: 'Create formatPrice.test.ts. Vitest\'s describe/it/expect API is identical to Jest — similar to JUnit\'s @Test/@Nested structure in Java.' } },
+    { id: 3, icon: '✍️', label: { tr: 'Test Senaryolarını Yaz', en: 'Write Test Scenarios' }, detail: { tr: 'it("formats whole dollars", () => { expect(formatPrice(1000)).toBe("$10.00") }) yaz. Her it bir JUnit @Test metodudur.', en: 'Write it("formats whole dollars", () => { expect(formatPrice(1000)).toBe("$10.00") }). Each it is equivalent to a JUnit @Test method.' } },
+    { id: 4, icon: '▶️', label: { tr: 'npx vitest run ile Çalıştır', en: 'Run with npx vitest run' }, detail: { tr: 'Terminal çıktısı her it bloğu için PASS/FAIL gösterir. npx vitest --watch geliştirme sırasında dosyayı kaydettiğinde otomatik yeniden çalıştırır.', en: 'Terminal output shows PASS/FAIL for each it block. npx vitest --watch automatically re-runs when you save during development.' } },
+    { id: 5, icon: '📊', label: { tr: 'Coverage Raporu Al', en: 'Get Coverage Report' }, detail: { tr: 'npx vitest run --coverage komutu hangi satırların test edildiğini gösterir. CI pipeline\'ında bu raporu artifact olarak sakla — Java\'daki JaCoCo gibi.', en: 'npx vitest run --coverage shows which lines are tested. Save this report as a CI artifact — like JaCoCo in Java.' } }
+  ]
+};
+
+const tsOrderSort14 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-runners-01',
+  question: { tr: 'TypeScript Playwright e2e test çalıştırma adımlarını doğru sıraya diz.', en: 'Arrange the TypeScript Playwright e2e test execution steps in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'playwright.config.ts\'de baseURL, browser ve workers ayarla', en: 'Set baseURL, browser and workers in playwright.config.ts' }, order: 1 },
+    { id: '2', text: { tr: 'Test dosyasında fixtures\'dan import { test, expect } et', en: 'In the test file import { test, expect } from fixtures' }, order: 2 },
+    { id: '3', text: { tr: 'test("...", async ({ page }) => { ... }) bloğunu yaz', en: 'Write the test("...", async ({ page }) => { ... }) block' }, order: 3 },
+    { id: '4', text: { tr: 'npx playwright test ile tüm testleri çalıştır', en: 'Run all tests with npx playwright test' }, order: 4 },
+    { id: '5', text: { tr: 'npx playwright show-report ile HTML raporu aç', en: 'Open the HTML report with npx playwright show-report' }, order: 5 }
+  ]
+};
+
+const tsStepAnim15 = {
+  type: 'step-animation',
+  title: { tr: 'Mülakatta TypeScript Sorusunu Cevaplama Stratejisi', en: 'Strategy for Answering TypeScript Interview Questions' },
+  steps: [
+    { id: 1, icon: '🎯', label: { tr: 'Temel Kavramı Tanımla', en: 'Define the Core Concept' }, detail: { tr: '"TypeScript nedir?" sorusuna "JavaScript\'in statik tipli üst kümesi" ile başla. Tek cümle — derleyici ne yapar, runtime nedir ayrımını hemen yap.', en: 'Start "What is TypeScript?" with "a statically typed superset of JavaScript." One sentence — immediately clarify what the compiler does vs. what runs at runtime.' } },
+    { id: 2, icon: '☕', label: { tr: 'Java ile Karşılaştır', en: 'Compare with Java' }, detail: { tr: '"Java\'da compile-time tip güvenliği zorunlu, TypeScript bunu JavaScript\'e ekler" de. Mülakat yapan Java bilen bir QA ise bu analoji çok güçlü bir sinyal.', en: 'Say "Java enforces compile-time type safety; TypeScript adds that to JavaScript." If the interviewer knows Java this analogy sends a strong signal.' } },
+    { id: 3, icon: '🏗️', label: { tr: 'Gerçek Kullanım Senaryosu Ver', en: 'Give a Real Usage Scenario' }, detail: { tr: '"Playwright POM\'unda yanlış selector tipini yakaladı" gibi somut bir örnek ver. Teorik değil — gerçek iş senaryosu.', en: 'Give a concrete example like "it caught a wrong selector type in our Playwright POM." Not theoretical — a real work scenario.' } },
+    { id: 4, icon: '⚖️', label: { tr: 'Trade-off\'ları Say', en: 'Name the Trade-offs' }, detail: { tr: '"Derleme adımı zaman alır, ama production\'da daha az bug" de. Mülakat yapan kişi "eleştiriyi fark edip edemez?" diye bakıyor — dengeli yanıt güven verir.', en: 'Say "the compile step takes time, but fewer production bugs." The interviewer checks whether you see trade-offs — a balanced answer builds trust.' } },
+    { id: 5, icon: '💬', label: { tr: 'Projeden Somut Örnek', en: 'Concrete Example From Your Project' }, detail: { tr: '"Fixture tipi değişince tüm test dosyalarındaki hataları tek seferde IDE\'de gördüm" gibi deneyiminden bir örnek ekle. Hikaye, tanımdan çok daha akılda kalır.', en: 'Add an example from your experience like "when I changed a fixture type, the IDE instantly showed errors across all test files." A story sticks much better than a definition.' } }
+  ]
+};
+
+const tsOrderSort15 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-interview-01',
+  question: { tr: '"TypeScript\'te any neden zararlıdır?" sorusunu mülakatta cevaplama adımlarını sırala.', en: 'Arrange the steps for answering "Why is any harmful in TypeScript?" in an interview.' },
+  items: [
+    { id: '1', text: { tr: 'any\'nin tüm tip kontrolünü devre dışı bıraktığını söyle', en: 'State that any disables all type checking' }, order: 1 },
+    { id: '2', text: { tr: 'JavaScript\'ten farklı olmadığını belirt — TypeScript\'i anlamsız kılar', en: 'Point out it is no different from JavaScript — makes TypeScript pointless' }, order: 2 },
+    { id: '3', text: { tr: 'Alternatif: bilinmeyense unknown kullan, tip daraltmayı zorlar', en: 'Alternative: use unknown for truly unknown types; forces type narrowing' }, order: 3 },
+    { id: '4', text: { tr: 'Gerçek senaryodan örnek: any kullanınca runtime hata production\'a sızdı', en: 'Real scenario example: using any let a runtime error leak to production' }, order: 4 },
+    { id: '5', text: { tr: 'Kural öner: ESLint no-explicit-any kuralını projede etkinleştir', en: 'Suggest a rule: enable ESLint no-explicit-any in the project' }, order: 5 }
+  ]
+};
+
+const tsStepAnim16 = {
+  type: 'step-animation',
+  title: { tr: 'TypeScript Quick Reference ile Sorun Çözme', en: 'Solving Problems with the TypeScript Quick Reference' },
+  steps: [
+    { id: 1, icon: '❓', label: { tr: 'Tiplendirme Sorunuyla Karşılaş', en: 'Encounter a Typing Problem' }, detail: { tr: '"Argument of type X is not assignable to parameter of type Y" gibi bir hata görürsün. Panik yapma — bu hata sana neyin yanlış olduğunu tam olarak söylüyor.', en: 'You see an error like "Argument of type X is not assignable to parameter of type Y." Don\'t panic — this error tells you exactly what is wrong.' } },
+    { id: 2, icon: '📖', label: { tr: 'Hata Mesajını Oku', en: 'Read the Error Message' }, detail: { tr: 'TypeScript hata mesajları Java\'nın cast exception\'larından çok daha açıklayıcıdır. "Type \'string\' is not assignable to type \'number\'" — sorun net.', en: 'TypeScript error messages are far more descriptive than Java\'s ClassCastException. "Type \'string\' is not assignable to type \'number\'" — the problem is clear.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Quick Reference\'a Bak', en: 'Check the Quick Reference' }, detail: { tr: 'Utility type mi lazım? Generics syntax\'ı mı unuttun? Pratik referans tablosunu tara — typescriptlang.org/cheatsheets hızlı cevap için idealdir.', en: 'Do you need a utility type? Forgot generics syntax? Scan the quick reference table — typescriptlang.org/cheatsheets is ideal for quick answers.' } },
+    { id: 4, icon: '🔧', label: { tr: 'Düzeltmeyi Uygula', en: 'Apply the Fix' }, detail: { tr: 'Doğru tip sözdizimini bulunca koda uygula. IDE anında kırmızıyı kaldırırsa düzeltme doğrudur — tsc ile de doğrulayabilirsin.', en: 'Once you find the right type syntax, apply it to the code. If the IDE immediately removes the red underline the fix is correct — you can also verify with tsc.' } },
+    { id: 5, icon: '✅', label: { tr: 'tsc ile Doğrula', en: 'Validate with tsc' }, detail: { tr: 'tsc --noEmit ile sadece tip kontrolü yap (dosya üretmeden). CI pipeline\'ında bu adımı build\'dan önce ekle — hata varsa PR merge olmadan yakalanır.', en: 'Run tsc --noEmit for type-checking only (no file output). Add this step before the build in CI — errors are caught before a PR can merge.' } }
+  ]
+};
+
+const tsOrderSort16 = {
+  type: 'challenge', variant: 'order-sort', id: 'ch-ts-order-practice-01',
+  question: { tr: 'Mevcut JavaScript Playwright projesini TypeScript\'e taşıma adımlarını sırala.', en: 'Arrange the steps for migrating an existing JavaScript Playwright project to TypeScript.' },
+  items: [
+    { id: '1', text: { tr: 'npm install --save-dev typescript @types/node kur', en: 'Install npm install --save-dev typescript @types/node' }, order: 1 },
+    { id: '2', text: { tr: 'npx tsc --init ile tsconfig.json oluştur, strict: true ekle', en: 'Create tsconfig.json with npx tsc --init, add strict: true' }, order: 2 },
+    { id: '3', text: { tr: '.js dosyalarını birer birer .ts olarak yeniden adlandır', en: 'Rename .js files to .ts one by one' }, order: 3 },
+    { id: '4', text: { tr: 'tsc --noEmit ile hataları bul ve düzelt', en: 'Find and fix errors with tsc --noEmit' }, order: 4 },
+    { id: '5', text: { tr: 'CI pipeline\'ına tsc --noEmit adımını ekle', en: 'Add the tsc --noEmit step to the CI pipeline' }, order: 5 }
+  ]
+};
+
+// ── Injection (Python Batch 2/3 ile aynı güvenli pattern) ────────────────
+// insertPoints[i] = yeni blokların splice edileceği index
+// Kural: lastCodeIdx+1 varsa orası; yoksa firstQuizIdx
+const _tsInsert = [
+  [14, tsStepAnim0,  tsOrderSort0],   // [0] Intro & Why       — no code, before quiz
+  [19, tsStepAnim1,  tsOrderSort1],   // [1] Installation      — after last code idx 18
+  [12, tsStepAnim2,  tsOrderSort2],   // [2] Simple Types      — after last code idx 11
+  [10, tsStepAnim3,  tsOrderSort3],   // [3] Arrays & Tuples   — after last code idx 9
+  [12, tsStepAnim4,  tsOrderSort4],   // [4] Object Types      — after last code idx 11
+  [4,  tsStepAnim5,  tsOrderSort5],   // [5] Interface & Type  — after last code idx 3
+  [11, tsStepAnim6,  tsOrderSort6],   // [6] Functions         — after last code idx 10
+  [16, tsStepAnim7,  tsOrderSort7],   // [7] Classes           — after last code idx 15
+  [6,  tsStepAnim8,  tsOrderSort8],   // [8] Generics          — after last code idx 5
+  [10, tsStepAnim9,  tsOrderSort9],   // [9] Utility Types     — after last code idx 9
+  [11, tsStepAnim10, tsOrderSort10],  // [10] Template Literals — after last code idx 10
+  [22, tsStepAnim11, tsOrderSort11],  // [11] Error Handling   — after last code idx 21
+  [17, tsStepAnim12, tsOrderSort12],  // [12] QA Use Cases     — after last code idx 16
+  [22, tsStepAnim13, tsOrderSort13],  // [13] Java → TS        — no code, before quiz
+  [4,  tsStepAnim14, tsOrderSort14],  // [14] Test Runners     — after last code idx 3
+  [6,  tsStepAnim15, tsOrderSort15],  // [15] Interview Q&A    — no code, before quiz
+  [11, tsStepAnim16, tsOrderSort16],  // [16] Practice         — no code, before quiz
+];
+
+_tsInsert.forEach(([pos, stepAnim, orderSort], sectionIdx) => {
+  typescriptData.en.sections[sectionIdx].blocks.splice(pos, 0, stepAnim, orderSort);
+  typescriptData.tr.sections[sectionIdx].blocks.splice(pos, 0, stepAnim, orderSort);
+});
+
+// ── TS i18n FIX: TR kod yorumları + label düzeltmeleri ──────────────────
+// CLAUDE.md §8: Türkçe sayfada kod yorumları Türkçe olmalı.
+// 3 helper ile tüm 46 bloğu paçalıyoruz:
+//   _tsLabel  → label.tr güncelle
+//   _tsContent → content.tr güncelle (bilingual content alanı)
+//   _tsCode   → plain string code'u {tr, en} nesnesine dönüştür
+
+function _tsLabel(si, bi, trLabel) {
+  [typescriptData.en, typescriptData.tr].forEach(lang => {
+    const b = lang.sections[si]?.blocks[bi];
+    if (b?.label && typeof b.label === 'object') b.label.tr = trLabel;
+  });
+}
+function _tsContent(si, bi, trContent) {
+  [typescriptData.en, typescriptData.tr].forEach(lang => {
+    const b = lang.sections[si]?.blocks[bi];
+    if (b?.content && typeof b.content === 'object') b.content.tr = trContent;
+  });
+}
+function _tsCode(si, bi, trCode) {
+  [typescriptData.en, typescriptData.tr].forEach(lang => {
+    const b = lang.sections[si]?.blocks[bi];
+    if (b && typeof b.code === 'string') { const en = b.code; b.code = { en, tr: trCode }; }
+  });
+}
+
+// ── Label düzeltmeleri ────────────────────────────────────────────────────
+_tsLabel(1, 3,  'Node.js ve npm Doğrulama');
+_tsLabel(1, 5,  'TypeScript Global Kurulumu');
+_tsLabel(1, 8,  'tsconfig.json — tam açıklamalı');
+_tsLabel(1, 12, 'index.ts — ilk tipli programın');
+_tsLabel(1, 13, 'Derle ve çalıştır');
+_tsLabel(1, 15, 'ts-node ile doğrudan TypeScript çalıştırma');
+_tsLabel(1, 18, 'Playwright TypeScript tam kurulum (sıfırdan)');
+_tsLabel(12, 1,  'Production\'a hazır TypeScript POM sınıfı');
+_tsLabel(12, 3,  'Tip güvenli yapılandırma için string enum\'lar');
+_tsLabel(12, 5,  'Doğrulama fonksiyonlu tip güvenli API yanıt interface\'i');
+_tsLabel(12, 7,  'Override desteğiyle test fixture üretmek için generic factory');
+_tsLabel(12, 9,  'Partial<Config> ile ortama özgü Playwright yapılandırması');
+_tsLabel(12, 11, 'Tam TypeScript tipleriyle özel Playwright fixture\'ları');
+_tsLabel(12, 13, 'Esnek test kurulumu için fixture alanlarını optional yapma');
+
+// ── content.tr düzeltmeleri — Installation sekmesi ───────────────────────
+_tsContent(1, 3, `# Node.js versiyonunu kontrol et (18.x veya 20.x LTS olmalı)
+node --version
+# Beklenen: v20.11.0
+
+# npm (Node Package Manager) versiyonunu kontrol et
+npm --version
+# Beklenen: 10.2.4`);
+
+_tsContent(1, 5, `# TypeScript derleyicisini global olarak kur (makinende her yerde kullanılabilir)
+npm install -g typescript
+
+# TypeScript derleyicisinin kurulduğunu doğrula
+tsc --version
+# Beklenen: Version 5.4.5`);
+
+_tsContent(1, 8, `{
+  "compilerOptions": {
+    // ── Çıktı ───────────────────────────────────
+    "target": "ES2022",          // Modern JS'e derle (Node 18+ anlar)
+    "module": "commonjs",        // require() stili modüller kullan (Node varsayılanı)
+    "outDir": "./dist",          // Derlenen .js dosyaları dist/ klasörüne gider
+    "rootDir": "./src",          // .ts kaynak dosyalarının bulunduğu yer
+
+    // ── Tip Kontrolü ─────────────────────────────
+    "strict": true,              // TÜM katı tip kontrollerini etkinleştir (önerilir)
+    "noImplicitAny": true,       // Örtük olarak any tipi alan değişkenlerde hata ver
+    "strictNullChecks": true,    // null ve undefined diğer tiplere atanamaz
+    "noUnusedLocals": true,      // Tanımlanıp kullanılmayan değişkenlerde hata ver
+    "noUnusedParameters": true,  // Kullanılmayan fonksiyon parametrelerinde hata ver
+
+    // ── Modül Çözümleme ──────────────────────────
+    "moduleResolution": "node",  // Node.js modül çözümleme algoritmasını kullan
+    "esModuleInterop": true,     // CommonJS modüllerinden varsayılan import'a izin ver
+    "resolveJsonModule": true,   // .json dosyalarını tip güvenliğiyle import et
+    "baseUrl": ".",              // Göreceli olmayan import'lar için temel yol
+
+    // ── Kaynak Haritaları ─────────────────────────
+    "sourceMap": true,           // Debug için .js.map dosyaları üret
+
+    // ── Diğer ────────────────────────────────────
+    "lib": ["ES2022"],           // ES2022 için yerleşik tip tanımlarını dahil et
+    "skipLibCheck": true,        // node_modules içindeki .d.ts kontrolünü atla
+    "forceConsistentCasingInFileNames": true  // İşletim sistemi bazlı import uyumsuzluğunu önle
+  },
+  "include": ["src/**/*", "tests/**/*"],   // Derlenecek dosyalar
+  "exclude": ["node_modules", "dist"]       // Atlanan dosyalar
+}`);
+
+_tsContent(1, 12, `// index.ts
+// Tipli 'Merhaba Dünya' — açık tip anotasyonlarına dikkat et
+
+// string alan ve string döndüren bir fonksiyon
+function greet(name: string): string {
+  return \`Hello, \${name}! Welcome to TypeScript.\`;
+}
+
+// TypeScript bunu çalıştırmadan önce yakalar:
+// greet(42);  // HATA: number, string'e atanamaz
+
+const message: string = greet("QA Engineer");
+console.log(message);
+// Çıktı: Hello, QA Engineer! Welcome to TypeScript.`);
+
+_tsContent(1, 13, `# Adım 1: TypeScript'i JavaScript'e derle
+tsc index.ts
+# Aynı klasörde index.js oluşturur
+
+# Adım 2: Derlenen JavaScript'i çalıştır
+node index.js
+# Beklenen: Hello, QA Engineer! Welcome to TypeScript.`);
+
+_tsContent(1, 15, `# ts-node tek komutla derler ve çalıştırır — script ve debug için idealdir
+npx ts-node index.ts
+# Beklenen: Hello, QA Engineer! Welcome to TypeScript.
+
+# Her seferinde npx kullanmamak için ts-node'u global kur
+npm install -g ts-node`);
+
+_tsContent(1, 18, `# 1. Proje klasörünü oluştur
+mkdir my-playwright-project
+cd my-playwright-project
+
+# 2. Playwright'ı başlat (sorulara cevap ver: TypeScript, tests/, evet, evet)
+npm init playwright@latest
+
+# 3. Proje yapısının oluşturulduğunu doğrula
+ls
+# node_modules/   package.json   playwright.config.ts   tests/
+
+# 4. Tarayıcıları kur (ilk kurulumda gerekli)
+npx playwright install
+
+# 5. Örnek testleri çalıştır ve kurulumu doğrula
+npx playwright test`);
+
+// ── content.tr düzeltmeleri — QA Use Cases sekmesi ───────────────────────
+// [12][1] Production-ready POM class
+_tsContent(12, 1, typescriptData.en.sections[12].blocks[1].content.en
+  .replace(/\/\/ Interface defines the public contract — what callers can do with this page/g, '// Interface, genel sözleşmeyi tanımlar — bu sayfayla ne yapılabileceğini belirtir')
+  .replace(/\/\/ private Locators — callers cannot access selectors directly/g, '// private Locator\'lar — dışarıdan selector\'lara erişilemez')
+  .replace(/\/\/ Using Playwright\'s \'Locator\' type for full IDE support/g, '// Tam IDE desteği için Playwright\'ın \'Locator\' tipini kullan')
+  .replace(/\/\/ Page is injected — dependency injection pattern/g, '// Page dışarıdan enjekte edilir — dependency injection deseni')
+  .replace(/\/\/ Define all locators in the constructor \(fail fast if selectors change\)/g, '// Tüm locator\'ları constructor\'da tanımla (selector değişirse hemen hata ver)')
+  .replace(/\/\/ Typed method — returns Promise<void> \(performs action, returns nothing\)/g, '// Tipli metod — Promise<void> döndürür (aksiyon alır, değer döndürmez)')
+  .replace(/\/\/ Typed params — TypeScript catches if caller passes wrong types/g, '// Tipli parametreler — yanlış tip geçilirse TypeScript yakalar')
+  .replace(/\/\/ Returns a string — caller knows they\'ll always get a string back/g, '// string döndürür — çağıran her zaman string alacağını bilir')
+  .replace(/\/\/ Returns boolean — clean API for assertions/g, '// boolean döndürür — assertion\'lar için temiz API')
+  .replace(/\/\/ Usage in test:/g, '// Test dosyasında kullanım:')
+  .replace(/\/\/ page is typed as Page/g, '// page, Page tipi olarak tiplendirilmiş')
+);
+
+// [12][3] String enums
+_tsContent(12, 3, typescriptData.en.sections[12].blocks[3].content.en
+  .replace(/\/\/ String enums for every configuration choice — prevents typos and invalid values/g, '// Her yapılandırma seçimi için string enum — yazım hatalarını ve geçersiz değerleri önler')
+  .replace(/\/\/ Config interface uses the enums — values are constrained/g, '// Config interface enum\'ları kullanır — değerler kısıtlanmıştır')
+  .replace(/\/\/ must be a valid Environment/g, '// geçerli bir Environment olmalı')
+  .replace(/\/\/ must be a valid Browser/g, '// geçerli bir Browser olmalı')
+  .replace(/\/\/ Error: \'chrome\' is not assignable to type \'Browser\'/g, '// Hata: \'chrome\', \'Browser\' tipine atanamaz')
+  .replace(/\/\/ Error: use Environment\.STAGING/g, '// Hata: Environment.STAGING kullan')
+);
+
+// [12][5] API response interface
+_tsContent(12, 5, typescriptData.en.sections[12].blocks[5].content.en
+  .replace(/\/\/ Generic API response wrapper — define the shape ONCE, reuse everywhere/g, '// Generic API yanıt sarmalayıcı — şekli BİR KEZ tanımla, her yerde yeniden kullan')
+  .replace(/\/\/ status codes from HTTP spec/g, '// HTTP spec\'ten durum kodları')
+  .replace(/\/\/ error only present on failure/g, '// hata yalnızca başarısızlıkta bulunur')
+  .replace(/\/\/ Type guard — narrows ApiResponse to SuccessResponse/g, '// Type guard — ApiResponse\'u SuccessResponse\'a daraltır')
+  .replace(/\/\/ Usage: type-safe access to response data/g, '// Kullanım: yanıt verilerine tip güvenli erişim')
+);
+
+// [12][7] Generic factory
+_tsContent(12, 7, typescriptData.en.sections[12].blocks[7].content.en
+  .replace(/\/\/ Generic test fixture factory — create typed test data with optional overrides/g, '// Generic test fixture factory — opsiyonel override\'larla tipli test verisi oluşturur')
+  .replace(/\/\/ Partial<T> means all fields are optional overrides/g, '// Partial<T>, tüm alanların opsiyonel override olduğu anlamına gelir')
+  .replace(/\/\/ Default test user/g, '// Varsayılan test kullanıcısı')
+  .replace(/\/\/ Custom override — only specify what differs/g, '// Özel override — yalnızca farklı olanı belirt')
+  .replace(/\/\/ Infer T from the default value/g, '// T\'yi varsayılan değerden çıkar')
+);
+
+// [12][9] Environment-specific config
+_tsContent(12, 9, typescriptData.en.sections[12].blocks[9].content.en
+  .replace(/\/\/ Environment-specific Playwright configuration using TypeScript utility types/g, '// TypeScript utility tipleriyle ortama özgü Playwright yapılandırması')
+  .replace(/\/\/ Base config shared across all environments/g, '// Tüm ortamlarda paylaşılan temel yapılandırma')
+  .replace(/\/\/ Environment overrides — Partial means we only specify what changes/g, '// Ortam override\'ları — Partial, yalnızca değişeni belirttiğimiz anlamına gelir')
+  .replace(/\/\/ Merge base with environment override/g, '// Temel ile ortam override\'ını birleştir')
+  .replace(/\/\/ Usage/g, '// Kullanım')
+  .replace(/\/\/ Type: PlaywrightConfig \(all fields required\)/g, '// Tip: PlaywrightConfig (tüm alanlar zorunlu)')
+);
+
+// [12][11] Custom fixtures
+_tsContent(12, 11, typescriptData.en.sections[12].blocks[11].content.en
+  .replace(/\/\/ Import your page objects/g, '// Sayfa nesnelerini import et')
+  .replace(/\/\/ 1\. Define the SHAPE of your custom fixtures/g, '// 1. Özel fixture\'larının ŞEKLİNİ tanımla')
+  .replace(/\/\/ 2\. Extend the base test with your fixture types/g, '// 2. Temel test\'i kendi fixture tiplerinle genişlet')
+  .replace(/\/\/ Fixture: loginPage — creates a new LoginPage instance per test/g, '// Fixture: loginPage — her test için yeni bir LoginPage örneği oluşturur')
+  .replace(/\/\/ const lp = new LoginPage\(page\);   \/\/ real: use your POM class/g, '// const lp = new LoginPage(page);   // gerçekte: kendi POM sınıfını kullan')
+  .replace(/\/\/ simplified for demo/g, '// demo için basitleştirilmiş')
+  .replace(/\/\/ pass to the test/g, '// teste geçir')
+  .replace(/\/\/ Fixture: testUser — provides default test credentials/g, '// Fixture: testUser — varsayılan test kimlik bilgilerini sağlar')
+  .replace(/\/\/ Fixture: adminUser — provides admin credentials/g, '// Fixture: adminUser — admin kimlik bilgilerini sağlar')
+  .replace(/\/\/ Fixture: apiBaseUrl — environment-aware API URL/g, '// Fixture: apiBaseUrl — ortama duyarlı API URL\'si')
+  .replace(/\/\/ dashboardPage omitted for brevity/g, '// dashboardPage kısalık için atlandı')
+  .replace(/\/\/ 3\. Usage in tests — full autocomplete for loginPage, testUser, etc\./g, '// 3. Testlerde kullanım — loginPage, testUser vb. için tam autocomplete')
+);
+
+// [12][13] Optional fixture fields
+_tsContent(12, 13, typescriptData.en.sections[12].blocks[13].content.en
+  .replace(/\/\/ Problem: strict fixtures require ALL fields every time/g, '// Sorun: katı fixture\'lar her seferinde TÜM alanları gerektirir')
+  .replace(/\/\/ Solution: use Partial to make overrides optional/g, '// Çözüm: override\'ları opsiyonel yapmak için Partial kullan')
+  .replace(/\/\/ Base defaults — sensible values for most tests/g, '// Temel varsayılanlar — çoğu test için makul değerler')
+  .replace(/\/\/ Merge base with any overrides/g, '// Temel ile tüm override\'ları birleştir')
+  .replace(/\/\/ Usage in tests/g, '// Testlerde kullanım')
+  .replace(/\/\/ Only override what differs for this specific test/g, '// Yalnızca bu özel test için farklı olanı override et')
+);
+
+// ── plain code → bilingual dönüşümler ─────────────────────────────────────
+
+// [2][3] Simple Types
+_tsCode(2, 3, `// TypeScript Basit Tipler — Java Karşılaştırması
+// Java:    int age = 25;
+// TypeScript: let age: number = 25;  (veya sadece: let age = 25)
+
+let age: number = 25;          // number (int, float, double hepsi birleşik)
+let name: string = "Alice";    // string
+let isActive: boolean = true;  // boolean
+let score: number = 98.5;      // TypeScript number = Java double
+
+// Tip çıkarımı — TypeScript değerden tipi çıkarır
+let city = "Istanbul";         // TypeScript bunun string olduğunu bilir
+// city = 42;                  // HATA: 'number' tipi 'string' tipine atanamaz
+
+// Tip anotasyonu vs çıkarım
+let explicitNum: number = 10;  // açık anotasyon
+let inferredNum = 10;          // number olarak çıkarıldı (sonuç aynı)
+
+// any — tip kontrolünü devre dışı bırakır (production'da kullanmaktan kaçın!)
+let anything: any = "hello";
+anything = 42;                 // hata yok — ama tip güvenliğini kaybedersin
+anything = true;
+
+// Tipli parametre ve dönüş tipi olan fonksiyon
+function greet(name: string, times: number): string {
+  return (name + " ").repeat(times).trim();
+}
+console.log(greet("Hi", 3));   // Hi Hi Hi
+// greet(42, "three");          // HATA: yanlış tipler`);
+
+// [2][10] Special Types
+_tsCode(2, 10, `// TypeScript Özel Tipler
+
+// void — fonksiyon hiçbir şey döndürmez (Java void gibi)
+function logMessage(msg: string): void {
+  console.log("[LOG]", msg);
+  // dönüş değeri yok
+}
+
+// null ve undefined
+let nullVal: null = null;
+let undVal: undefined = undefined;
+
+// any — tip kontrolünü atlar (dikkatli kullan)
+let userInput: any = document.getElementById("input");  // DOM'dan
+userInput = 42;         // hata yok
+
+// unknown — any'den daha güvenli: kullanmadan önce tip kontrolü gerekir
+function processInput(input: unknown): string {
+  if (typeof input === "string") {
+    return input.toUpperCase();    // güvenli: tipi kontrol ettik
+  }
+  if (typeof input === "number") {
+    return input.toFixed(2);       // güvenli: tipi kontrol ettik
+  }
+  return String(input);            // geri dönüş
+}
+console.log(processInput("hello"));  // HELLO
+console.log(processInput(42.5));     // 42.50
+
+// never — asla dönmeyen fonksiyon (hata fırlatır veya sonsuz döngü)
+function throwError(message: string): never {
+  throw new Error(message);         // normal şekilde asla dönmez
+}
+
+// Type guard deseni (QA kodunda yaygın)
+function assertDefined<T>(val: T | null | undefined, name: string): T {
+  if (val == null) throwError(\`\${name} is required but was \${val}\`);
+  return val;
+}`);
+
+// [3][2] Arrays
+_tsCode(3, 2, `// TypeScript Array'ler — iki sözdizimi seçeneği (ikisi de çalışır)
+// Java: List<String> names = new ArrayList<>();
+// TypeScript:
+let names: string[] = ["Alice", "Bob", "Carol"];    // tercih edilen sözdizimi
+let scores: Array<number> = [95, 87, 72, 98];       // generic sözdizimi
+
+// Tipli array işlemleri
+names.push("Dave");           // OK: string
+// names.push(42);            // HATA: number, string'e atanamaz
+
+// Nesne dizisi (QA test verilerinde yaygın)
+interface TestCase {
+  id: number;
+  name: string;
+  passed: boolean;
+}
+
+const testCases: TestCase[] = [
+  { id: 1, name: "login_test", passed: true },
+  { id: 2, name: "checkout_test", passed: false },
+  { id: 3, name: "profile_test", passed: true },
+];
+
+// filter, map, reduce — Java Stream API ile aynı
+const failedTests = testCases.filter(t => !t.passed);
+const testNames = testCases.map(t => t.name);
+const passCount = testCases.reduce((acc, t) => acc + (t.passed ? 1 : 0), 0);
+
+console.log("Başarısız:", failedTests.length);    // 1
+console.log("Adlar:", testNames);
+console.log("Geçen sayısı:", passCount);           // 2
+
+// readonly array — Java unmodifiableList gibi
+const fixedList: readonly string[] = ["a", "b", "c"];
+// fixedList.push("d");        // HATA: readonly`);
+
+// [3][8] Tuples
+_tsCode(3, 8, `// TypeScript Tuple'lar — sabit uzunluklu, konuma göre tipli
+// Java'nın doğrudan karşılığı yok (basit sınıf kullan)
+// Python: (name, age) = ("Alice", 25)
+
+// Temel tuple
+let person: [string, number] = ["Alice", 25];
+let [name, age] = person;               // destructuring
+console.log(name, age);                 // Alice 25
+
+// Tuple tipleri indeks hatalarını önler
+// person[0] = 42;                      // HATA: number, string'e atanamaz
+// person[2] = "extra";                 // HATA: 2. indeks sınır dışı
+
+// Adlandırılmış tuple elemanları (TypeScript 4.0+)
+type TestResult = [testName: string, passed: boolean, durationMs: number];
+
+const result: TestResult = ["login_test", true, 342];
+console.log(result[0], result[1], result[2]);  // login_test true 342
+
+// Tuple dizisi — sabit yapılı çiftlerin dizisi
+type KeyValue = [string, string];
+const headers: KeyValue[] = [
+  ["Content-Type", "application/json"],
+  ["Authorization", "Bearer token123"],
+  ["Accept", "application/json"],
+];
+
+headers.forEach(([key, value]) => {
+  console.log(\`\${key}: \${value}\`);
+});
+
+// Opsiyonel tuple elemanı
+type Point3D = [x: number, y: number, z?: number];
+const p2d: Point3D = [10, 20];          // z opsiyonel
+const p3d: Point3D = [10, 20, 30];`);
+
+// [4][2] Object Types
+_tsCode(4, 2, `// TypeScript Nesne Tipleri
+
+// Satır içi nesne tipi anotasyonu
+function printTest(test: { name: string; passed: boolean; duration: number }): void {
+  const icon = test.passed ? "✓" : "✗";
+  console.log(\`\${icon} \${test.name} (\${test.duration}ms)\`);
+}
+
+printTest({ name: "login_test", passed: true, duration: 342 });
+
+// Opsiyonel özellikler (Java: null olabilir alanlar)
+type Config = {
+  baseUrl: string;
+  timeout?: number;         // opsiyonel — undefined olabilir
+  retries?: number;
+};
+
+const cfg: Config = { baseUrl: "https://api.example.com" };
+const cfgWithTimeout: Config = { baseUrl: "https://api.example.com", timeout: 5000 };
+
+// Readonly özellikler
+type ImmutableUser = {
+  readonly id: number;      // Java'daki final gibi
+  readonly email: string;
+  role: string;             // değiştirilebilir
+};
+
+const user: ImmutableUser = { id: 1, email: "alice@example.com", role: "admin" };
+user.role = "user";         // OK: değiştirilebilir
+// user.id = 2;             // HATA: readonly özelliğe atama yapılamaz
+
+// İndeks imzaları — dinamik anahtarlı nesne
+type TestSuiteResults = {
+  [testName: string]: "PASS" | "FAIL" | "SKIP";
+};
+
+const results: TestSuiteResults = {
+  login_test: "PASS",
+  checkout_test: "FAIL",
+  profile_test: "SKIP",
+};
+console.log(results["login_test"]);  // PASS`);
+
+// [4][9] Enums
+_tsCode(4, 9, `// TypeScript Enum'lar — QA Test Durumu Örneği
+
+// String enum (QA'da tercih edilir — loglarda okunabilir)
+enum TestStatus {
+  PASS = "PASS",      // değer = string literal
+  FAIL = "FAIL",
+  SKIP = "SKIP",
+  PENDING = "PENDING"
+}
+
+// Sayısal enum (0'dan otomatik artar)
+enum Priority {
+  LOW,      // = 0
+  MEDIUM,   // = 1
+  HIGH,     // = 2
+  CRITICAL  // = 3
+}
+
+interface TestCase {
+  name: string;
+  status: TestStatus;
+  priority: Priority;
+}
+
+const tc: TestCase = {
+  name: "login_test",
+  status: TestStatus.PASS,   // tip güvenli: yalnızca PASS/FAIL/SKIP/PENDING
+  priority: Priority.HIGH,
+};
+
+console.log(tc.status);                 // PASS (string enum)
+console.log(tc.priority);               // 2   (sayısal enum)
+console.log(Priority[2]);               // HIGH (sayısal için ters arama çalışır)
+
+// switch'te kullan
+function getStatusIcon(status: TestStatus): string {
+  switch (status) {
+    case TestStatus.PASS:    return "✅";
+    case TestStatus.FAIL:    return "❌";
+    case TestStatus.SKIP:    return "⏭️";
+    case TestStatus.PENDING: return "⏳";
+  }
+}
+
+console.log(getStatusIcon(TestStatus.FAIL));  // ❌`);
+
+// [5][2] Union Types & Interface
+_tsCode(5, 2, `// Union Types — değer birden fazla tipten biri olabilir
+type TestStatus = "PASS" | "FAIL" | "SKIP";     // literal union
+
+function formatId(id: string | number): string {
+  if (typeof id === "number") {           // tip daralması
+    return "TC-" + id.toString().padStart(4, "0");
+  }
+  return id.startsWith("TC-") ? id : "TC-" + id;
+}
+console.log(formatId(42));          // TC-0042
+console.log(formatId("LOGIN-001")); // TC-LOGIN-001
+
+// Discriminated union — varyantları modellemek için en iyi desen
+type ApiResponse =
+  | { status: "success"; data: unknown; statusCode: 200 }
+  | { status: "error"; message: string; statusCode: 400 | 401 | 404 | 500 };
+
+function handleResponse(res: ApiResponse): void {
+  if (res.status === "success") {
+    console.log("Veri:", res.data);
+  } else {
+    console.error("Hata " + res.statusCode + ": " + res.message);
+  }
+}
+
+handleResponse({ status: "success", data: { users: 5 }, statusCode: 200 });
+handleResponse({ status: "error", message: "Bulunamadı", statusCode: 404 });`);
+
+// [6][2] Functions
+_tsCode(6, 2, `// TypeScript Fonksiyonlar — temel desenler
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Arrow fonksiyon
+const multiply = (a: number, b: number): number => a * b;
+
+// Opsiyonel ve varsayılan parametreler
+function createTestUser(
+  email: string,
+  role: "admin" | "user" = "user",    // varsayılan değer
+  active?: boolean                      // opsiyonel
+): { email: string; role: string; active: boolean } {
+  return { email, role, active: active ?? true };
+}
+
+console.log(JSON.stringify(createTestUser("alice@example.com")));
+console.log(JSON.stringify(createTestUser("admin@example.com", "admin")));
+
+// Rest parametreler (Java varargs gibi)
+function joinLogs(...messages: string[]): string {
+  return messages.join(" | ");
+}
+console.log(joinLogs("PASS", "login", "342ms"));
+
+// Fonksiyon tipi
+type Validator = (value: string) => boolean;
+
+const isEmail: Validator = (v) => v.includes("@") && v.includes(".");
+const isPhone: Validator = (v) => /^[0-9]{10,11}$/.test(v);
+
+console.log(isEmail("test@example.com"));  // true
+console.log(isPhone("05551234567"));       // true`);
+
+// [6][9] Casting
+_tsCode(6, 9, `// TypeScript Casting (Tip Dönüşümü)
+// as anahtar kelimesi — TypeScript'e değere hangi tipin uygulanacağını söyler
+// NOT: gerçek runtime dönüşümü yoktur — yalnızca derleme zamanı ipucu
+
+interface User {
+  id: number;
+  email: string;
+  role: string;
+}
+
+// unknown'dan casting (API yanıtlarında yaygın)
+function toUser(raw: unknown): User | null {
+  if (
+    typeof raw === "object" && raw !== null &&
+    "id" in raw && "email" in raw && "role" in raw
+  ) {
+    return raw as User;      // güvenli: şekli kontrol ettik
+  }
+  return null;
+}
+
+const apiData: unknown = { id: 1, email: "alice@example.com", role: "admin" };
+const user = toUser(apiData);
+if (user) {
+  console.log("Kullanıcı:", user.email, user.role);
+}
+
+// DOM casting (tarayıcıda çalışırken)
+// const input = document.getElementById("username") as HTMLInputElement;
+// input.value  — TypeScript artık HTMLInputElement olduğunu bilir
+
+// Tehlike: çift casting güvenliği atlar (kullanmaktan kaçın!)
+const a: string = "hello";
+const b = a as unknown as number;  // derlenir, ama kötü pratik
+console.log(typeof b);             // "string" — casting dönüştürmedi!`);
+
+// [7][3] Classes
+_tsCode(7, 3, `// TypeScript Sınıflar — constructor kısayolu
+class User {
+  constructor(
+    public readonly id: number,       // public + readonly tek satırda!
+    public email: string,
+    private role: string = "user",    // varsayılan değerli private
+  ) {}
+
+  getRole(): string { return this.role; }
+
+  toString(): string {
+    return "User(" + this.id + ": " + this.email + ", " + this.role + ")";
+  }
+}
+
+// Kalıtım
+class AdminUser extends User {
+  constructor(id: number, email: string, private permissions: string[]) {
+    super(id, email, "admin");
+  }
+
+  hasPermission(perm: string): boolean {
+    return this.permissions.includes(perm);
+  }
+}
+
+const u = new User(1, "alice@example.com");
+const admin = new AdminUser(2, "admin@example.com", ["delete", "manage"]);
+
+console.log(u.toString());
+console.log(admin.toString());
+console.log(admin.hasPermission("delete"));   // true
+
+// Soyut sınıf
+abstract class BaseTest {
+  abstract run(): void;
+  log(msg: string): void { console.log("[TEST] " + msg); }
+}
+
+class LoginTest extends BaseTest {
+  run(): void { this.log("Login testi çalışıyor"); }
+}
+new LoginTest().run();`);
+
+// [8][3] Generics
+_tsCode(8, 3, `// TypeScript Generics — tip güvenliğiyle yeniden kullanılabilir kod
+
+// Generic fonksiyon — Java <T> metodu gibi
+function identity<T>(value: T): T {
+  return value;
+}
+console.log(identity<string>("hello"));  // hello
+console.log(identity<number>(42));       // 42
+// TypeScript T'yi otomatik çıkarır: identity("hello")
+
+// Generic kap — Java class Box<T> gibi
+class Box<T> {
+  constructor(private value: T) {}
+  get(): T { return this.value; }
+  toString(): string { return "Box(" + String(this.value) + ")"; }
+}
+
+const strBox = new Box<string>("TypeScript");
+const numBox = new Box<number>(42);
+console.log(strBox.toString());    // Box(TypeScript)
+console.log(numBox.toString());    // Box(42)
+
+// Kısıtlamalı generic — Java <T extends Comparable<T>> gibi
+function findMax<T extends { value: number }>(items: T[]): T {
+  return items.reduce((max, item) => item.value > max.value ? item : max);
+}
+
+const tests = [
+  { name: "login", value: 342 },
+  { name: "checkout", value: 891 },
+  { name: "profile", value: 215 },
+];
+const slowest = findMax(tests);
+console.log("En yavaş:", slowest.name, slowest.value + "ms");`);
+
+// [9][2] Utility Types
+_tsCode(9, 2, `// TypeScript Utility Tipleri — güçlü tip dönüşümleri
+
+interface TestCase {
+  id: number;
+  name: string;
+  status: "PASS" | "FAIL" | "SKIP";
+  duration: number;
+  tags: string[];
+}
+
+// Partial — tüm alanlar opsiyonel (güncellemeler için kullanışlı)
+type PartialTestCase = Partial<TestCase>;
+const update: PartialTestCase = { status: "PASS" };  // yalnızca bazı alanlar
+
+// Required — tüm alanlar zorunlu (Partial'ın tersi)
+// Pick — yalnızca belirli alanları seç
+type TestSummary = Pick<TestCase, "id" | "name" | "status">;
+const summary: TestSummary = { id: 1, name: "login", status: "PASS" };
+
+// Omit — belirli alanları kaldır
+type TestWithoutId = Omit<TestCase, "id">;
+
+// Readonly — tüm alanları readonly yap
+type ImmutableTest = Readonly<TestCase>;
+
+// Record — anahtar-değer harita tipi oluştur
+type TestResults = Record<string, "PASS" | "FAIL" | "SKIP">;
+const results: TestResults = {
+  login_test: "PASS",
+  checkout_test: "FAIL",
+};
+
+// ReturnType — bir fonksiyonun dönüş tipini al
+function createUser() { return { id: 1, email: "a@b.com" }; }
+type UserType = ReturnType<typeof createUser>;  // { id: number; email: string }
+
+// Pratik: güncelleme payload tipini oluştur
+function updateTest(id: number, changes: Partial<Omit<TestCase, "id">>): void {
+  console.log("Test güncelleniyor " + id + ":", JSON.stringify(changes));
+}
+updateTest(1, { status: "PASS", duration: 342 });`);
+
+// [9][8] keyof
+_tsCode(9, 8, `// keyof — bir tipin tüm anahtarlarını union olarak al
+interface TestCase {
+  id: number;
+  name: string;
+  status: "PASS" | "FAIL" | "SKIP";
+  duration: number;
+}
+
+type TestCaseKeys = keyof TestCase;  // "id" | "name" | "status" | "duration"
+
+// Pratik kullanım: tip güvenli özellik erişici
+function getField<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const tc: TestCase = { id: 1, name: "login_test", status: "PASS", duration: 342 };
+console.log(getField(tc, "name"));      // "login_test" — TypeScript tipinin string olduğunu bilir
+console.log(getField(tc, "duration"));  // 342 — TypeScript tipinin number olduğunu bilir
+// getField(tc, "invalid");             // HATA: "invalid" keyof TestCase'de yok
+
+// Herhangi bir alana göre dizi sırala — tip güvenli
+function sortBy<T>(items: T[], key: keyof T): T[] {
+  return [...items].sort((a, b) => {
+    if (a[key] < b[key]) return -1;
+    if (a[key] > b[key]) return 1;
+    return 0;
+  });
+}
+
+const tests: TestCase[] = [
+  { id: 3, name: "profile", status: "PASS", duration: 215 },
+  { id: 1, name: "login", status: "PASS", duration: 342 },
+  { id: 2, name: "checkout", status: "FAIL", duration: 891 },
+];
+
+const byName = sortBy(tests, "name");
+const byDuration = sortBy(tests, "duration");
+console.log(byName.map(t => t.name));      // ["checkout", "login", "profile"]
+console.log(byDuration.map(t => t.name));  // ["profile", "login", "checkout"]`);
+
+// [10][2] Null Safety
+_tsCode(10, 2, `// TypeScript Null Güvenliği — strictNullChecks ile
+// (tsconfig.json: "strictNullChecks": true)
+
+// Null olabilir tipler — açıkça belirtilmeli
+let name: string | null = null;   // string VEYA null
+let age: number | undefined;      // number veya undefined (başlatılmamış)
+
+// Opsiyonel zincirleme — güvenli erişim (Java ?. veya Kotlin ?. gibi)
+interface User {
+  id: number;
+  profile?: {           // profile bulunmayabilir
+    email: string;
+    phone?: string;     // telefon bulunmayabilir
+  };
+}
+
+function getPhone(user: User): string {
+  return user.profile?.phone ?? "Telefon yok";  // ?. + ?? operatörü
+}
+
+const u1: User = { id: 1, profile: { email: "a@b.com", phone: "555-1234" } };
+const u2: User = { id: 2 };  // profil yok
+console.log(getPhone(u1));   // 555-1234
+console.log(getPhone(u2));   // Telefon yok
+
+// Nullish coalescing ?? ve || farkı
+const zero = 0;
+console.log(zero || "varsayılan");   // "varsayılan" — 0 falsy!
+console.log(zero ?? "varsayılan");   // 0 — ?? yalnızca null/undefined kontrol eder
+
+// Non-null assertion operatörü ! (dikkatli kullan)
+function getLength(s: string | null): number {
+  return s!.length;   // TypeScript'e "s'nin null olmadığını garanti ediyorum" diyorsun
+  // Ama s gerçekten null ise → çökme! Yalnızca kesinlikle emin olduğunda kullan
+}
+
+// Daha güvenli yaklaşım: type guard
+function safeLength(s: string | null | undefined): number {
+  return s?.length ?? 0;
+}`);
+
+// [11][3] @types
+_tsCode(11, 3, `// @types paketlerini kurma
+
+// Kütüphane kendi tiplerini sağlıyor — @types gerekmez:
+npm install --save-dev @playwright/test  // kendi .d.ts dosyasını içerir
+npm install axios                        // kendi .d.ts dosyasını içerir
+
+// Kütüphane düz JS — @types gerekli:
+npm install node-fetch
+npm install --save-dev @types/node-fetch   // tip tanımlarını sağlar
+
+// Node.js projeleri için temel:
+npm install --save-dev @types/node         // Node.js yerleşikleri (fs, path, process)
+npm install --save-dev @types/jest         // Jest eşleştiricileri (describe, it, expect)
+
+// Bir paketin kendi tiplerini sağlayıp sağlamadığını doğrula:
+// package.json dosyasında "types" veya "typings" alanını kontrol et
+// → "@playwright/test": { "types": "index.d.ts" }    ← kendi içeriyor!
+// → "node-fetch": (types alanı yok)                  ← @types/node-fetch gerekli
+
+import path from 'path';              // TypeScript bilir: path.join, path.resolve
+import { readFileSync } from 'fs';    // TypeScript dönüş tipini bilir
+const configPath: string = path.join(__dirname, 'playwright.config.ts');
+console.log('Config yolu:', configPath);`);
+
+// [11][4] .d.ts files
+_tsCode(11, 4, `// .d.ts bildirim dosyası nasıl görünür
+// TypeScript bunları otomatik okur — @types için kendin yazmazsın
+
+// @types/node fs.d.ts'nin basitleştirilmiş versiyonu:
+declare module 'fs' {
+  function readFileSync(path: string, options: { encoding: BufferEncoding }): string;
+  function readFileSync(path: string): Buffer;
+  function writeFileSync(path: string, data: string | Buffer): void;
+  function existsSync(path: string): boolean;
+}
+
+// tsconfig.json — tip çözümlemesini kontrol etme
+// {
+//   "compilerOptions": {
+//     "typeRoots": ["./node_modules/@types", "./src/types"],
+//     // varsayılan zaten node_modules/@types içerir — nadiren değiştirmen gerekir
+//
+//     "types": ["node", "jest"]
+//     // YALNIZCA bu @types paketleriyle sınırla (opsiyonel — hepsini dahil etmek için atla)
+//   }
+// }
+
+// Eski bir JS kütüphanesi için kendi bildirimi
+// Dosya: src/types/legacy-tool.d.ts
+declare module 'legacy-tool' {
+  export function runSuite(config: { url: string; timeout?: number }): Promise<void>;
+  export interface SuiteResult { passed: number; failed: number; }
+}`);
+
+// [11][11] Conditional & Mapped Types
+_tsCode(11, 11, `// Koşullu Tipler — tipler için üçlü operatör
+type IsString<T> = T extends string ? "evet" : "hayır";
+
+type A = IsString<string>;   // "evet"
+type B = IsString<number>;   // "hayır"
+
+// NonNullable (yerleşik utility — koşullu tip olarak uygulandı)
+type NonNull<T> = T extends null | undefined ? never : T;
+
+// Mapped Types — tüm özellikleri dönüştür
+interface User { id: number; name: string; active: boolean; }
+
+// Tüm alanları opsiyonel yap (Partial<T> ile aynı)
+type Optional<T> = { [K in keyof T]?: T[K] };
+
+// Tüm alanları readonly yap (Readonly<T> ile aynı)
+type Immutable<T> = { readonly [K in keyof T]: T[K] };
+
+// Tüm alanları string yap (tip dönüşümü)
+type Stringified<T> = { [K in keyof T]: string };
+
+type StringUser = Stringified<User>;
+const su: StringUser = { id: "1", name: "Alice", active: "true" };
+
+// Pratik: doğrulama şeması
+type ValidationRules<T> = {
+  [K in keyof T]?: (value: T[K]) => string | null;  // null = geçerli
+};
+
+const userValidation: ValidationRules<User> = {
+  name: (v) => v.length < 2 ? "İsim çok kısa" : null,
+  id: (v) => v <= 0 ? "ID pozitif olmalı" : null,
+};
+
+function validate<T>(obj: T, rules: ValidationRules<T>): string[] {
+  const errors: string[] = [];
+  for (const key in rules) {
+    const rule = rules[key];
+    const error = rule ? rule(obj[key]) : null;
+    if (error) errors.push(key + ": " + error);
+  }
+  return errors;
+}
+
+const u: User = { id: 1, name: "A", active: true };
+console.log(validate(u, userValidation));  // ["name: İsim çok kısa"]`);
+
+// [14][3] Test Runners
+_tsCode(14, 3, `// utils/formatPrice.ts — tarayıcı gerektirmeyen basit bir yardımcı
+export function formatPrice(cents: number): string {
+  if (cents < 0) throw new Error('Fiyat negatif olamaz');
+  return \`$\${(cents / 100).toFixed(2)}\`;
+}
+
+// utils/formatPrice.test.ts — Vitest unit testi
+import { describe, it, expect } from 'vitest';
+import { formatPrice } from './formatPrice';
+
+describe('formatPrice', () => {
+  it('tam dolar formatlar', () => {
+    expect(formatPrice(1000)).toBe('$10.00');
+  });
+
+  it('kuruşları doğru formatlar', () => {
+    expect(formatPrice(99)).toBe('$0.99');
+  });
+
+  it('negatif girişte hata fırlatır', () => {
+    expect(() => formatPrice(-50)).toThrow('Fiyat negatif olamaz');
+  });
+});
+
+// Çalıştır:
+// npx vitest run`);
+
+// ── QA Use Cases [12] eksik TR çevirileri (replace() eşleşmeyenlerin tam çevirisi) ──
+
+_tsContent(12, 5, `// types/api.ts
+// API testleri için çalışma zamanı doğrulamalı tipli interface'ler
+
+// API'den beklediğimiz şekil
+interface UserResponse {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "viewer" | "editor";
+  createdAt: string;
+}
+
+// Generic API sarmalayıcı — herhangi bir yanıt verisini sarar
+interface ApiEnvelope<T> {
+  data: T;
+  meta: {
+    total: number;
+    page: number;
+    perPage: number;
+  };
+  errors: string[] | null;
+}
+
+// Çalışma zamanı type guard — bilinmeyen yanıtın UserResponse ile eşleştiğini doğrular
+// Tip predicate döndürür: 'value is UserResponse'
+function isUserResponse(value: unknown): value is UserResponse {
+  if (!value || typeof value !== "object") return false;
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj.id         === "number"   &&
+    typeof obj.name       === "string"   &&
+    typeof obj.email      === "string"   &&
+    typeof obj.role       === "string"   &&
+    ["admin", "viewer", "editor"].includes(obj.role as string) &&
+    typeof obj.createdAt  === "string"
+  );
+}
+
+// Testte kullanım
+async function fetchAndValidateUser(userId: number): Promise<UserResponse> {
+  // const response = await fetch(\`/api/users/\${userId}\`);
+  // const json: unknown = await response.json();
+
+  const json: unknown = {            // API yanıtını simüle et
+    id: userId,
+    name: "Alice",
+    email: "alice@test.com",
+    role: "admin",
+    createdAt: "2024-01-01",
+  };
+
+  if (!isUserResponse(json)) {
+    throw new Error("API yanıtı UserResponse şekliyle eşleşmiyor");
+  }
+
+  // Guard'dan sonra TypeScript 'json'ın UserResponse olduğunu bilir
+  return json;
+}
+
+fetchAndValidateUser(1).then((u) => {
+  console.log(\`Doğrulanmış kullanıcı: \${u.name} (\${u.role})\`);
+});`);
+
+_tsContent(12, 7, `// utils/factory.ts
+// Makul varsayılanlarla tipli test verisi oluşturan generic factory
+// Testler yalnızca önemli olanı belirtsin diye kısmi override destekler
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  inStock: boolean;
+  category: string;
+  sku: string;
+}
+
+interface Order {
+  id: number;
+  userId: number;
+  products: Product[];
+  total: number;
+  status: "pending" | "confirmed" | "shipped" | "delivered";
+  createdAt: string;
+}
+
+// Generic factory fonksiyonu — T herhangi bir nesne tipi olabilir
+function createTestData<T>(defaults: T, overrides?: Partial<T>): T {
+  return { ...defaults, ...overrides };
+}
+
+// Varsayılan test ürünü
+const defaultProduct: Product = {
+  id: 1,
+  name: "Test Widget",
+  price: 29.99,
+  inStock: true,
+  category: "electronics",
+  sku: "WIDGET-001",
+};
+
+// Belirli test senaryoları için varyantlar oluştur
+const outOfStockProduct = createTestData(defaultProduct, {
+  inStock: false,
+  name: "Tükendi Widget",
+});
+
+const premiumProduct = createTestData(defaultProduct, {
+  id: 2,
+  price: 299.99,
+  name: "Premium Widget",
+  sku: "WIDGET-PREMIUM",
+});
+
+// ── Builder deseni varyantı — zincirleme override ─────────────────
+function productFactory(overrides?: Partial<Product>): Product {
+  return createTestData(defaultProduct, overrides);
+}
+
+const cheapProduct   = productFactory({ price: 1.99, name: "Ucuz Widget" });
+const electronicItem = productFactory({ category: "computers", id: 99 });
+
+console.log(\`Stokta yok: \${outOfStockProduct.name} — \${outOfStockProduct.inStock}\`);
+console.log(\`Premium fiyat: $\${premiumProduct.price}\`);
+console.log(\`Ucuz fiyat: $\${cheapProduct.price}\`);`);
+
+_tsContent(12, 9, `// config/index.ts
+// Çok ortamlı test suite'leri için tip güvenli yapılandırma yönetimi
+
+interface TestSuiteConfig {
+  baseUrl: string;
+  apiUrl: string;
+  timeout: number;
+  retries: number;
+  headless: boolean;
+  workers: number;
+  screenshotOnFailure: boolean;
+  videoOnFailure: boolean;
+  reporter: "html" | "json" | "junit" | "dot";
+  credentials: {
+    adminEmail: string;
+    adminPassword: string;
+  };
+}
+
+// Temel (varsayılan) yapılandırma — her şey için geri dönüş değeri
+const baseConfig: TestSuiteConfig = {
+  baseUrl: "http://localhost:3000",
+  apiUrl: "http://localhost:3001/api",
+  timeout: 30_000,
+  retries: 0,
+  headless: true,
+  workers: 4,
+  screenshotOnFailure: true,
+  videoOnFailure: false,
+  reporter: "html",
+  credentials: {
+    adminEmail: "admin@localhost.com",
+    adminPassword: "DevPass123",
+  },
+};
+
+// Ortama özgü kısmi override'lar — yalnızca değişeni belirt
+const envConfigs: Record<string, Partial<TestSuiteConfig>> = {
+  staging: {
+    baseUrl: "https://staging.myapp.com",
+    apiUrl: "https://api.staging.myapp.com",
+    retries: 1,
+    credentials: { adminEmail: "admin@staging.myapp.com", adminPassword: "StagingPass456" },
+  },
+  prod: {
+    baseUrl: "https://myapp.com",
+    apiUrl: "https://api.myapp.com",
+    retries: 2,
+    headless: true,
+    workers: 8,
+    videoOnFailure: true,
+    credentials: { adminEmail: "qa@myapp.com", adminPassword: "ProdPass789" },
+  },
+};
+
+// Birleştir: temel yapılandırma + ortam override'ı
+function getConfig(env: string): TestSuiteConfig {
+  const override = envConfigs[env] ?? {};
+  return { ...baseConfig, ...override };
+}
+
+const stagingConfig = getConfig("staging");
+console.log(\`Staging URL: \${stagingConfig.baseUrl}\`);      // https://staging.myapp.com
+console.log(\`Staging retries: \${stagingConfig.retries}\`);  // 1
+console.log(\`Workers: \${stagingConfig.workers}\`);           // 4 (tabandan — override edilmedi)`);
+
+_tsContent(12, 13, `// Test fixture'larını esnek yapmak için TypeScript utility tiplerini kullanmak
+
+// Tam fixture interface'i — tüm alanlar zorunlu
+interface TestFixtures {
+  email: string;
+  password: string;
+  role: string;
+  permissions: string[];
+  teamId: number;
+  locale: string;
+  timezone: string;
+}
+
+// Partial<T> — TÜM alanlar opsiyonel olur
+// Kısmi override kabul eden test yardımcıları için kullan
+type PartialFixtures = Partial<TestFixtures>;
+
+// Required<T> — TÜM opsiyonel alanlar zorunlu olur
+type StrictFixtures = Required<TestFixtures>;
+
+// Readonly<T> — kimse fixture verisini değiştiremez (yanlışlıkla paylaşılan state önlenir)
+type ImmutableFixtures = Readonly<TestFixtures>;
+
+// Pick — yalnızca kimlik doğrulamaya ilgili alanlar
+type AuthFixture = Pick<TestFixtures, "email" | "password" | "role">;
+
+// Omit — hassas kimlik bilgileri hariç her şey
+type SafeFixture = Omit<TestFixtures, "password">;
+
+// ── createFixture: varsayılanlar + kısmi override'ları birleştir ──
+const defaultFixtures: TestFixtures = {
+  email:       "default@test.com",
+  password:    "DefaultPass123",
+  role:        "viewer",
+  permissions: ["read"],
+  teamId:      1,
+  locale:      "en-US",
+  timezone:    "UTC",
+};
+
+function createFixture(overrides: Partial<TestFixtures>): Readonly<TestFixtures> {
+  const merged = { ...defaultFixtures, ...overrides };
+  return Object.freeze(merged);   // freeze = çalışma zamanı + derleme zamanı değişmezliği
+}
+
+const adminFixture   = createFixture({ role: "admin", permissions: ["read", "write", "delete"] });
+const euFixture      = createFixture({ locale: "de-DE", timezone: "Europe/Berlin" });
+const minimalFixture: AuthFixture = { email: "qa@test.com", password: "pass", role: "editor" };
+
+console.log(\`Admin: \${adminFixture.role}, izinler: \${adminFixture.permissions.join(", ")}\`);
+console.log(\`AB yerel: \${euFixture.locale}, zaman dilimi: \${euFixture.timezone}\`);
+console.log(\`Yalnızca auth: \${minimalFixture.email}\`);`);
+
+
+// ── FULL INTERACTIVITY: step-animation + order-sort + quiz after every code block ──
+function _afterCode(si, prefix, ...toInsert) {
+  [typescriptData.en, typescriptData.tr].forEach(lang => {
+    const arr = lang.sections[si].blocks;
+    const idx = arr.findIndex(b => {
+      if (b.type !== 'code') return false;
+      const raw = b.code ?? b.content;
+      const c = typeof raw === 'string' ? raw : (raw?.en ?? raw?.tr ?? '');
+      return c.trimStart().startsWith(prefix.trimStart());
+    });
+    if (idx >= 0) arr.splice(idx + 1, 0, ...toInsert);
+  });
+}
+
+// ══ [1] Installation — 7 code blocks ══════════════════════════════════════
+
+_afterCode(1, '# Check Node.js version',
+  {type:'step-animation',title:{tr:'Node.js kurulum kontrolü',en:'Node.js installation check'},steps:[
+    {id:1,icon:'🖥️',label:{tr:'Terminali aç',en:'Open terminal'},detail:{tr:'node --version yaz ve Enter bas',en:'Type node --version and press Enter'}},
+    {id:2,icon:'✅',label:{tr:'Versiyonu oku',en:'Read the version'},detail:{tr:'v18.x veya v20.x LTS görüyorsan hazırsın',en:"If you see v18.x or v20.x LTS you're ready"}},
+    {id:3,icon:'⚠️',label:{tr:'Eskiyse güncelle',en:'Update if outdated'},detail:{tr:'v16 altındaysa: nvm install 20',en:'If below v16: nvm install 20'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-install-node-01',question:{tr:'Node.js kurulum kontrolünün adımlarını sırala:',en:'Order the Node.js installation check steps:'},items:[
+    {id:'a',text:{tr:'Terminali aç',en:'Open terminal'},order:1},
+    {id:'b',text:{tr:'node --version yaz',en:'Type node --version'},order:2},
+    {id:'c',text:{tr:'Versiyon numarasını oku',en:'Read the version number'},order:3},
+    {id:'d',text:{tr:'npm --version ile de doğrula',en:'Also verify with npm --version'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'node --version çıktısı v14.17.0 gösteriyor. TypeScript 5.x projesi için bu uygun mudur?',en:'node --version shows v14.17.0. Suitable for a TypeScript 5.x project?'},options:[
+    {text:{tr:'Hayır — TypeScript 5.x en az Node.js 16.x gerektirir',en:'No — TypeScript 5.x requires at least Node.js 16.x'}},
+    {text:{tr:'Evet — herhangi bir Node.js yeterlidir',en:'Yes — any Node.js version works'}},
+    {text:{tr:'Versiyon önemli değil, TypeScript JS\'e derlenir',en:"Version doesn't matter, TypeScript compiles to JS"}},
+    {text:{tr:'Sadece npm versiyonu önemlidir',en:'Only the npm version matters'}}
+  ],correct:0,explanation:{tr:"TypeScript 5.x araçları (ts-node, tsx, Playwright gibi) Node.js 16+ gerektirir. Java'da JDK versiyonu ne kadar kritikse, Node versiyonu da o kadar kritiktir.",en:"TypeScript 5.x tooling (ts-node, tsx, Playwright etc.) requires Node.js 16+. Node version matters as much as JDK version does in Java."}}
+);
+
+_afterCode(1, '# Install TypeScript compiler globally',
+  {type:'step-animation',title:{tr:'Global TypeScript kurulumu',en:'Global TypeScript installation'},steps:[
+    {id:1,icon:'📦',label:{tr:'Global kur',en:'Install globally'},detail:{tr:'-g flag\'i tsc\'yi tüm projelerde kullanılabilir kılar',en:"-g flag makes tsc available in all projects"}},
+    {id:2,icon:'✅',label:{tr:'Doğrula',en:'Verify'},detail:{tr:'tsc --version ile kurulumu doğrula — 5.x.x görmeli',en:'Verify with tsc --version — should show 5.x.x'}},
+    {id:3,icon:'🌍',label:{tr:'Global vs local',en:'Global vs local'},detail:{tr:'Global araç kurulumu; proje bağımlılığı için --save-dev tercih et',en:'For tool install; for project dependency prefer --save-dev'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-install-tsc-01',question:{tr:'TypeScript global kurulum adımlarını sırala:',en:'Order the TypeScript global installation steps:'},items:[
+    {id:'a',text:{tr:'npm install -g typescript çalıştır',en:'Run npm install -g typescript'},order:1},
+    {id:'b',text:{tr:'Kurulumun bitmesini bekle',en:'Wait for installation to finish'},order:2},
+    {id:'c',text:{tr:'tsc --version yaz',en:'Type tsc --version'},order:3},
+    {id:'d',text:{tr:'Version 5.x.x çıkışını gör',en:'See Version 5.x.x output'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'npm install -g typescript ile npm install --save-dev typescript arasındaki fark nedir?',en:'What is the difference between npm install -g typescript and npm install --save-dev typescript?'},options:[
+    {text:{tr:'-g tüm makinede kullanılabilir; --save-dev sadece o projeye ait',en:'-g available machine-wide; --save-dev only for that project'}},
+    {text:{tr:'İkisi aynı şeyi yapar',en:'Both do the same thing'}},
+    {text:{tr:'-g daha hızlı kurar',en:'-g installs faster'}},
+    {text:{tr:'--save-dev daha güncel paket indirir',en:'--save-dev downloads a newer package'}}
+  ],correct:0,explanation:{tr:"Java'da JAR'ı sistem PATH'ine eklemek (-g) ile pom.xml'e dependency olarak eklemek (--save-dev) arasındaki fark gibidir. Production build'ler için proje içi local kurulum tercih edilir.",en:"Like adding a JAR to system PATH (-g) vs adding it as pom.xml dependency (--save-dev). For production builds, local project installation is preferred."}}
+);
+
+_afterCode(1, '{\n  "compilerOptions"',
+  {type:'step-animation',title:{tr:'tsconfig.json anatomisi',en:'tsconfig.json anatomy'},steps:[
+    {id:1,icon:'📄',label:{tr:'Derleyiciye talimat',en:'Instructions to compiler'},detail:{tr:"Bu dosya tsc'ye nasıl davranacağını söyler — Java'daki pom.xml gibi",en:"This file tells tsc how to behave — like pom.xml in Java"}},
+    {id:2,icon:'🔒',label:{tr:'strict: true şart',en:'strict: true is essential'},detail:{tr:"Tüm güvenlik kontrollerini açar — production'da kapatma",en:"Enables all safety checks — never disable in production"}},
+    {id:3,icon:'📁',label:{tr:'include/exclude',en:'include/exclude'},detail:{tr:'Hangi dosyaların derleneceğini ve atlanacağını belirtir',en:'Specifies which files to compile and which to skip'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-tsconfig-01',question:{tr:"tsconfig.json'ın kritik ayarlarını önem sırasına koy:",en:"Order tsconfig.json's critical settings by importance:"},items:[
+    {id:'a',text:{tr:'strict: true — tip güvenliği temeli',en:'strict: true — foundation of type safety'},order:1},
+    {id:'b',text:{tr:'target: ES2022 — çıktı JS versiyonu',en:'target: ES2022 — output JS version'},order:2},
+    {id:'c',text:{tr:'outDir: ./dist — derleme çıktısı',en:'outDir: ./dist — compile output'},order:3},
+    {id:'d',text:{tr:'include/exclude — kapsam belirleme',en:'include/exclude — scope definition'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'tsconfig.json\'da "noImplicitAny": true aktifken ne olur?',en:'What happens when "noImplicitAny": true is active in tsconfig.json?'},options:[
+    {text:{tr:"Tipi belirsiz değişkenler hata verir — any'e örtük düşme yasak",en:"Variables with unclear type error — implicit any fallback banned"}},
+    {text:{tr:'any tipi hiç kullanılamaz',en:'The any type cannot be used at all'}},
+    {text:{tr:'Sadece fonksiyon parametrelerinde any yasak',en:'Only any in function parameters is banned'}},
+    {text:{tr:'Derleme daha yavaş olur',en:'Compilation becomes slower'}}
+  ],correct:0,explanation:{tr:"noImplicitAny TypeScript'e 'tip belirtmediğim yerlerde any'e düşme, hata ver' der. Java'da tüm alanları Object tipinde bırakmak gibi — kaçınılması gereken bir pratik.",en:"noImplicitAny tells TypeScript: 'don't silently fall back to any — throw an error.' Like leaving all fields as Object type in Java — a practice to avoid."}}
+);
+
+_afterCode(1, '// index.ts\n// Typed \'Hello World\'',
+  {type:'step-animation',title:{tr:'İlk tipli fonksiyon nasıl çalışır',en:'How the first typed function works'},steps:[
+    {id:1,icon:'✏️',label:{tr:'Tip anotasyonu',en:'Type annotation'},detail:{tr:'name: string — TypeScript parametrenin string olmasını zorunlu kılar',en:'name: string — TypeScript enforces the parameter must be a string'}},
+    {id:2,icon:'🛡️',label:{tr:'Derleme anında koruma',en:'Compile-time protection'},detail:{tr:"greet(42) yazmaya çalışırsan tsc hata verir — kod çalışmadan önce",en:'If you try greet(42), tsc errors before code ever runs'}},
+    {id:3,icon:'🚀',label:{tr:'Çıkarım çalışıyor',en:'Inference at work'},detail:{tr:"const message: string = greet('QA') — dönüş tipi de kontrol altında",en:"const message: string = greet('QA') — return type also checked"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-greet-fn-01',question:{tr:'Tipli fonksiyon yazımının adımlarını sırala:',en:'Order the steps of writing a typed function:'},items:[
+    {id:'a',text:{tr:'Parametre tipini belirt (name: string)',en:'Specify parameter type (name: string)'},order:1},
+    {id:'b',text:{tr:'Dönüş tipini belirt (: string)',en:'Specify return type (: string)'},order:2},
+    {id:'c',text:{tr:'Fonksiyon gövdesini yaz',en:'Write the function body'},order:3},
+    {id:'d',text:{tr:'Yanlış tipli çağrıda hatayı gör',en:'See error when called with wrong type'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'function greet(name: string): string tanımında greet(42) çağrısı ne zaman hata üretir?',en:'When does calling greet(42) on function greet(name: string): string produce an error?'},options:[
+    {text:{tr:'Derleme anında — TypeScript kodu çalıştırmadan hatayı yakalar',en:'At compile time — TypeScript catches the error before code runs'}},
+    {text:{tr:'Runtime\'da — JavaScript gibi',en:'At runtime — just like JavaScript'}},
+    {text:{tr:"Hiç hata vermez, TypeScript 42'yi string'e çevirir",en:"No error — TypeScript converts 42 to string automatically"}},
+    {text:{tr:'Yalnızca strict: true aktifse hata verir',en:'Only errors if strict: true is set'}}
+  ],correct:0,explanation:{tr:"Açık tip anotasyonu olan parametreye yanlış tip geçmek her zaman derleme hatasıdır — strict ayarından bağımsız. Java'da int bekleyen metoda String geçmeye çalışmak gibi.",en:"Passing wrong type to an explicitly annotated parameter is always a compile error — regardless of strict. Like passing a String to a method expecting int in Java."}}
+);
+
+_afterCode(1, '# Step 1: Compile TypeScript to JavaScript',
+  {type:'step-animation',title:{tr:'Derleme ve çalıştırma akışı',en:'Compile and run flow'},steps:[
+    {id:1,icon:'⚙️',label:{tr:'tsc derler',en:'tsc compiles'},detail:{tr:'tsc index.ts → index.ts\'i index.js\'e dönüştürür',en:'tsc index.ts → converts index.ts to index.js'}},
+    {id:2,icon:'🏃',label:{tr:'node çalıştırır',en:'node executes'},detail:{tr:'node index.js → V8 motoru pure JavaScript\'i çalıştırır',en:'node index.js → V8 engine runs pure JavaScript'}},
+    {id:3,icon:'🔄',label:{tr:"Production'da da aynı",en:'Same in production'},detail:{tr:"CI/CD pipeline'ında da: tsc → node — araçlar bu iki adımı otomatize eder",en:'In CI/CD too: tsc → node — tools automate these two steps'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-compile-run-01',question:{tr:'TypeScript kodunu derleme ve çalıştırma adımlarını sırala:',en:'Order the steps to compile and run TypeScript code:'},items:[
+    {id:'a',text:{tr:'index.ts dosyasını yaz',en:'Write index.ts file'},order:1},
+    {id:'b',text:{tr:'tsc index.ts ile derle',en:'Compile with tsc index.ts'},order:2},
+    {id:'c',text:{tr:'index.js oluştuğunu gör',en:'See index.js was created'},order:3},
+    {id:'d',text:{tr:'node index.js ile çalıştır',en:'Run with node index.js'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'tsc index.ts başarıyla çalışınca hangi dosya oluşur?',en:'Which file is created when tsc index.ts runs successfully?'},options:[
+    {text:{tr:'index.js — TypeScript, JavaScript\'e derlenir',en:'index.js — TypeScript compiles to JavaScript'}},
+    {text:{tr:'index.tsx — React bileşeni olarak kaydedilir',en:'index.tsx — saved as a React component'}},
+    {text:{tr:'index.d.ts — sadece tip tanımı üretilir',en:'index.d.ts — only type definition produced'}},
+    {text:{tr:'index.map — kaynak haritası üretilir',en:'index.map — source map produced'}}
+  ],correct:0,explanation:{tr:"tsc TypeScript'i JavaScript'e çevirir — .ts → .js. Java'da javac'ın .java → .class yapmasına benzer. Fark: TypeScript'in çıktısı okunabilir JavaScript, bytecode değil.",en:"tsc converts TypeScript to JavaScript — .ts → .js. Like javac turning .java → .class in Java. Difference: TypeScript output is readable JavaScript, not bytecode."}}
+);
+
+_afterCode(1, '# ts-node compiles and runs in one command',
+  {type:'step-animation',title:{tr:'ts-node: tek komut, iki adım',en:'ts-node: one command, two steps'},steps:[
+    {id:1,icon:'⚡',label:{tr:'Derle + Çalıştır',en:'Compile + Run'},detail:{tr:'ts-node arka planda derler ve hemen çalıştırır — ayrı adım yok',en:'ts-node compiles in memory and runs immediately — no separate step'}},
+    {id:2,icon:'🔧',label:{tr:'Script ve debug için',en:'For scripts and debugging'},detail:{tr:'Hızlı deneme, otomasyon script\'leri ve REPL için idealdir',en:'Ideal for quick experiments, automation scripts, and REPL'}},
+    {id:3,icon:'🏭',label:{tr:"Production'da kullanma",en:"Don't use in production"},detail:{tr:"Production'da önce tsc ile derle, sonra node ile çalıştır",en:'In production, compile first with tsc, then run with node'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-tsnode-01',question:{tr:"ts-node'un arka planda yaptıklarını sırala:",en:'Order what ts-node does behind the scenes:'},items:[
+    {id:'a',text:{tr:'npx ts-node index.ts komutunu al',en:'Receive npx ts-node index.ts command'},order:1},
+    {id:'b',text:{tr:"TypeScript'i bellekte derle",en:'Compile TypeScript in memory'},order:2},
+    {id:'c',text:{tr:"Derlenen kodu Node.js'de çalıştır",en:'Run compiled code in Node.js'},order:3},
+    {id:'d',text:{tr:'Çıktıyı terminale yazdır',en:'Print output to terminal'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"QA mühendisi hem ts-node hem de tsc+node seçeneğine sahip. CI/CD'de Playwright testleri için hangisini kullanmalı?",en:'A QA engineer has both ts-node and tsc+node. Which to use in CI/CD for Playwright tests?'},options:[
+    {text:{tr:"tsc + node — önceden derlenmiş JS CI'da çok daha hızlı çalışır",en:'tsc + node — pre-compiled JS runs much faster in CI'}},
+    {text:{tr:'ts-node — tek komutla çalışır, daha pratik',en:'ts-node — runs in one command, more practical'}},
+    {text:{tr:"İkisi de CI'da aynı performansı verir",en:'Both give the same performance in CI'}},
+    {text:{tr:"CI'da TypeScript hiç kullanılmamalı",en:'TypeScript should not be used in CI at all'}}
+  ],correct:0,explanation:{tr:"CI/CD'de her saniye önemlidir. ts-node her çalıştırmada derleme yapar. tsc+node önceden derlenmiş .js dosyasını çalıştırır — çok daha hızlı.",en:"Every second matters in CI/CD. ts-node compiles on every run. tsc+node executes pre-compiled .js — much faster."}}
+);
+
+_afterCode(1, '# 1. Create project folder',
+  {type:'step-animation',title:{tr:'Playwright TypeScript projesi kurulumu',en:'Playwright TypeScript project setup'},steps:[
+    {id:1,icon:'📁',label:{tr:'Proje klasörü',en:'Project folder'},detail:{tr:'mkdir ile klasör oluştur, cd ile içine gir',en:'Create folder with mkdir, enter with cd'}},
+    {id:2,icon:'🎭',label:{tr:"Playwright'ı başlat",en:'Initialize Playwright'},detail:{tr:"npm init playwright@latest TypeScript seçeneğiyle kurulum yapar",en:'npm init playwright@latest sets up with TypeScript option'}},
+    {id:3,icon:'▶️',label:{tr:'Test et',en:'Test it'},detail:{tr:'npx playwright install + npx playwright test ile kurulumu doğrula',en:'Verify setup with npx playwright install + npx playwright test'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-pw-setup-01',question:{tr:'Playwright TypeScript kurulum adımlarını sırala:',en:'Order the Playwright TypeScript setup steps:'},items:[
+    {id:'a',text:{tr:'Proje klasörünü oluştur ve içine gir',en:'Create project folder and enter it'},order:1},
+    {id:'b',text:{tr:'npm init playwright@latest çalıştır',en:'Run npm init playwright@latest'},order:2},
+    {id:'c',text:{tr:'Tarayıcıları kur: npx playwright install',en:'Install browsers: npx playwright install'},order:3},
+    {id:'d',text:{tr:'npx playwright test ile doğrula',en:'Verify with npx playwright test'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"npm init playwright@latest komutu TypeScript seçildiğinde hangi dosyayı oluşturur?",en:'When TypeScript is selected, which file does npm init playwright@latest create?'},options:[
+    {text:{tr:'playwright.config.ts — TypeScript yapılandırma dosyası',en:'playwright.config.ts — TypeScript config file'}},
+    {text:{tr:'playwright.config.js — JavaScript yapılandırma dosyası',en:'playwright.config.js — JavaScript config file'}},
+    {text:{tr:'tsconfig.json — sadece TypeScript derleyici ayarları',en:'tsconfig.json — only TypeScript compiler settings'}},
+    {text:{tr:'package.json — sadece bağımlılık listesi',en:'package.json — only dependency list'}}
+  ],correct:0,explanation:{tr:"TypeScript seçildiğinde playwright.config.ts, tests/ klasörü (örnek .ts testleriyle) ve tsconfig.json oluşturulur. Java'da Maven archetype'ın proje iskeletini oluşturmasına benzer.",en:"When TypeScript is selected, playwright.config.ts, tests/ folder (with example .ts tests), and tsconfig.json are created. Like a Maven archetype generating the project skeleton in Java."}}
+);
+
+// ══ [2] Simple Types — 2 code blocks ══════════════════════════════════════
+
+_afterCode(2, '// TypeScript Simple Types — Java Comparison',
+  {type:'step-animation',title:{tr:'Temel tip sistemi nasıl çalışır',en:'How the basic type system works'},steps:[
+    {id:1,icon:'🏷️',label:{tr:'Tip anotasyonu',en:'Type annotation'},detail:{tr:'let age: number = 25 — iki nokta üst üste ile tipi açıkça belirtirsin',en:'let age: number = 25 — colon specifies type explicitly'}},
+    {id:2,icon:'🧠',label:{tr:'Tip çıkarımı',en:'Type inference'},detail:{tr:"let city = 'Istanbul' — TypeScript string olduğunu otomatik anlar",en:"let city = 'Istanbul' — TypeScript automatically infers string"}},
+    {id:3,icon:'🚫',label:{tr:"any'den kaçın",en:"Avoid any"},detail:{tr:"let x: any açık tipin tüm avantajlarını iptal eder — production'da kullanma",en:"let x: any cancels all type safety advantages — avoid in production"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-basic-types-01',question:{tr:"TypeScript'te bir değişken tanımlarken en iyi pratik sırasını seç:",en:'Order the best practice steps when defining a variable in TypeScript:'},items:[
+    {id:'a',text:{tr:'Değişkenin ne için kullanılacağını anla',en:'Understand what the variable is for'},order:1},
+    {id:'b',text:{tr:'En spesifik tipi seç (string, number...)',en:'Choose the most specific type (string, number...)'},order:2},
+    {id:'c',text:{tr:'Tip çıkarımı yeterliyse anotasyonu atla',en:'Skip annotation if inference suffices'},order:3},
+    {id:'d',text:{tr:'any kullanmak zorunda kalıyorsan yorum yaz',en:"Leave a comment if you're forced to use any"},order:4}
+  ]},
+  {type:'quiz',question:{tr:"TypeScript'te let city = 'Istanbul' yazıldığında TypeScript bu değişkene hangi tipi atar?",en:"When you write let city = 'Istanbul' in TypeScript, what type does TypeScript assign?"},options:[
+    {text:{tr:"string — TypeScript değerden tipi çıkarır (type inference)",en:'string — TypeScript infers type from the value (type inference)'}},
+    {text:{tr:'any — açık tip belirtilmediğinde any\'dir',en:"any — it's any when no explicit type is given"}},
+    {text:{tr:'object — string bir nesnedir',en:'object — string is an object'}},
+    {text:{tr:'unknown — TypeScript emin olamaz',en:"unknown — TypeScript can't be sure"}}
+  ],correct:0,explanation:{tr:"TypeScript tipi değerden çıkarır. Bir kere string olarak çıkarıldıktan sonra city = 42 atamaya çalışırsan derleme hatası alırsın. Java'da final String city = 'Istanbul' gibi — tip sabittir.",en:"TypeScript infers the type from the value. Once inferred as string, trying city = 42 gives a compile error. Like final String city = 'Istanbul' in Java — the type is fixed."}}
+);
+
+_afterCode(2, '// TypeScript Special Types',
+  {type:'step-animation',title:{tr:"any, unknown, never — ne zaman hangisi?",en:'any, unknown, never — which when?'},steps:[
+    {id:1,icon:'🔴',label:{tr:'any = tehlike',en:'any = danger'},detail:{tr:"any tip kontrolünü tamamen devre dışı bırakır — sadece migration'da geçici kullan",en:'any completely disables type checking — only use temporarily during migration'}},
+    {id:2,icon:'🟡',label:{tr:'unknown = güvenli any',en:'unknown = safe any'},detail:{tr:'unknown kullanmadan önce typeof ile kontrol zorunludur — API yanıtları için ideal',en:'unknown requires typeof check before use — ideal for API responses'}},
+    {id:3,icon:'⚫',label:{tr:'never = ulaşılamaz',en:'never = unreachable'},detail:{tr:'never döndüren fonksiyon asla bitmez — hata fırlatır veya sonsuz döngüdedir',en:'A function returning never never finishes — throws or loops infinitely'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-special-types-01',question:{tr:"Tip güvenliği en yüksekten en düşüğe özel tipleri sırala:",en:'Order special types from most to least type-safe:'},items:[
+    {id:'a',text:{tr:'never — asla değer üretmez',en:'never — never produces a value'},order:1},
+    {id:'b',text:{tr:'unknown — kullanmadan önce kontrol zorunlu',en:'unknown — check required before use'},order:2},
+    {id:'c',text:{tr:'void — değer döndürmez ama çalışır',en:'void — returns nothing but completes'},order:3},
+    {id:'d',text:{tr:'any — tip kontrolü yok',en:'any — no type checking'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"Bir API'den unknown tipinde veri geldi. Bu veriyi string olarak kullanmadan önce ne yapmalısın?",en:'You have unknown type data from an API. What must you do before using it as string?'},options:[
+    {text:{tr:'typeof kontrolü yapmalısın: if (typeof data === "string")',en:'You must check the type: if (typeof data === "string")'}},
+    {text:{tr:'Direkt kullanabilirsin, unknown string\'e dönüştürülür',en:'Use it directly, unknown converts to string'}},
+    {text:{tr:'as string ile cast edebilirsin — güvenlidir',en:'You can cast with as string — it is safe'}},
+    {text:{tr:'Object.toString() çağırabilirsin',en:'You can call Object.toString()'}}
+  ],correct:0,explanation:{tr:"unknown kullanmadan önce typeof veya instanceof kontrolü zorunludur. any'den farkı budur. API'den gelen veriyi her zaman unknown olarak al, kontrol et, sonra kullan.",en:"unknown requires typeof or instanceof check before use. This is the key difference from any. Always receive API data as unknown, check it, then use it."}}
+);
+
+// ══ [3] Arrays & Tuples — 2 code blocks ══════════════════════════════════
+
+_afterCode(3, '// TypeScript Arrays — two syntax options',
+  {type:'step-animation',title:{tr:"Tipli diziler — Java'dan farklı ne var?",en:'Typed arrays — what differs from Java?'},steps:[
+    {id:1,icon:'📋',label:{tr:'İki sözdizimi aynı',en:'Two syntaxes, same result'},detail:{tr:"string[] ve Array<string> tamamen eşdeğer — string[] daha yaygın",en:'string[] and Array<string> are identical — string[] is more common'}},
+    {id:2,icon:'🚧',label:{tr:'Yanlış tip hemen hata',en:'Wrong type errors immediately'},detail:{tr:"names.push(42) — string[] içine number atanamaz, tsc hata verir",en:"names.push(42) — can't push number into string[], tsc errors"}},
+    {id:3,icon:'🔗',label:{tr:'filter/map/reduce tipli',en:'filter/map/reduce are typed'},detail:{tr:"testCases.filter(t => !t.passed) — TypeScript dönüş tipini bilir: TestCase[]",en:'testCases.filter(t => !t.passed) — TypeScript knows return type: TestCase[]'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-arrays-01',question:{tr:'Tipli bir dizi oluşturmanın adımlarını sırala:',en:'Order the steps to create a typed array:'},items:[
+    {id:'a',text:{tr:'Dizi elemanının tipini belirle',en:'Determine the element type'},order:1},
+    {id:'b',text:{tr:'string[] veya Array<string> syntax seç',en:'Choose string[] or Array<string> syntax'},order:2},
+    {id:'c',text:{tr:'Diziye sadece doğru tipte eleman ekle',en:'Add only correctly typed elements'},order:3},
+    {id:'d',text:{tr:'filter/map/reduce ile tipli işlem yap',en:'Perform typed operations with filter/map/reduce'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"const names: string[] = ['Alice', 'Bob']; names.push(42); satırında ne olur?",en:"const names: string[] = ['Alice', 'Bob']; names.push(42); What happens?"},options:[
+    {text:{tr:"Derleme hatası — string[] içine number eklenemez",en:"Compile error — number cannot be added to string[]"}},
+    {text:{tr:"42, '42' string'ine dönüştürülür ve eklenir",en:"42 is converted to '42' string and added"}},
+    {text:{tr:"Runtime hatası — derleme başarılı olur",en:'Runtime error — compilation succeeds'}},
+    {text:{tr:"Dizi any[] olur ve 42 eklenir",en:'Array becomes any[] and 42 is added'}}
+  ],correct:0,explanation:{tr:"TypeScript tip uyumsuzluğunu derleme anında yakalar. Java'da List<String>'e integer eklemeye çalışmak gibi — derleyici bırakmaz.",en:"TypeScript catches type mismatch at compile time. Like trying to add an integer to a List<String> in Java — the compiler won't allow it."}}
+);
+
+_afterCode(3, '// TypeScript Tuples — fixed-length, typed by position',
+  {type:'step-animation',title:{tr:"Tuple — pozisyona göre tipli, sabit yapı",en:'Tuple — typed by position, fixed structure'},steps:[
+    {id:1,icon:'📌',label:{tr:'Sabit uzunluk',en:'Fixed length'},detail:{tr:"[string, number] tam olarak 2 eleman — eksik veya fazla eleman hata",en:'[string, number] exactly 2 elements — too few or too many errors'}},
+    {id:2,icon:'🎯',label:{tr:'Pozisyon = tip',en:'Position = type'},detail:{tr:"person[0] string, person[1] number — sıra bozulunca TypeScript yakalar",en:'person[0] string, person[1] number — TypeScript catches wrong order'}},
+    {id:3,icon:'🏷️',label:{tr:'Adlandırılmış elemanlar',en:'Named elements'},detail:{tr:'[testName: string, passed: boolean] — kod okunabilirliğini artırır',en:'[testName: string, passed: boolean] — improves code readability'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-tuples-01',question:{tr:'Tuple ile Array arasındaki farklara göre doğru kullanım senaryolarını sırala:',en:'Order correct usage scenarios based on Tuple vs Array differences:'},items:[
+    {id:'a',text:{tr:'Sabit sayıda, farklı tipli veri → Tuple',en:'Fixed count, different types → Tuple'},order:1},
+    {id:'b',text:{tr:'Değişken sayıda, aynı tipli veri → Array',en:'Variable count, same type → Array'},order:2},
+    {id:'c',text:{tr:'HTTP yanıtı [status, data] → Tuple',en:'HTTP response [status, data] → Tuple'},order:3},
+    {id:'d',text:{tr:'Test case listesi → Array<TestCase>',en:'List of test cases → Array<TestCase>'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'let result: [string, boolean, number] tanımında result[1] = 42 atamaya çalışırsak ne olur?',en:'In let result: [string, boolean, number], what happens if we try result[1] = 42?'},options:[
+    {text:{tr:'Derleme hatası — pozisyon 1 boolean olmalı, number değil',en:'Compile error — position 1 must be boolean, not number'}},
+    {text:{tr:'42 boolean\'a dönüştürülür (true)',en:'42 is converted to boolean (true)'}},
+    {text:{tr:"Runtime'da hata verir, derleme başarılıdır",en:'Runtime error, compilation succeeds'}},
+    {text:{tr:'Tuple dinamik olarak any olur',en:'Tuple dynamically becomes any'}}
+  ],correct:0,explanation:{tr:"Tuple'ın gücü tam da bu: her pozisyon için ayrı tip kontrolü. result[1] boolean pozisyonu, 42 number — TypeScript derleme anında yakalar.",en:"This is exactly the power of Tuples: separate type checking per position. result[1] is the boolean position, 42 is a number — TypeScript catches it at compile time."}}
+);
+
+// ══ [4] Object Types — 2 code blocks ══════════════════════════════════════
+
+_afterCode(4, '// TypeScript Object Types',
+  {type:'step-animation',title:{tr:'Nesne tipi anatomisi',en:'Object type anatomy'},steps:[
+    {id:1,icon:'📦',label:{tr:'Satır içi tip',en:'Inline type'},detail:{tr:"function foo(obj: { name: string; age: number }) — küçük tek kullanımlık yapılar için",en:'function foo(obj: { name: string; age: number }) — for small one-off structures'}},
+    {id:2,icon:'❓',label:{tr:'Opsiyonel alanlar',en:'Optional fields'},detail:{tr:'timeout?: number — alan bulunmayabilir, undefined ile başlar',en:'timeout?: number — field may be absent, starts as undefined'}},
+    {id:3,icon:'🔒',label:{tr:'readonly alanlar',en:'readonly fields'},detail:{tr:"readonly id: number — Java'daki final gibi, bir kez atandıktan sonra değiştirilemez",en:"readonly id: number — like final in Java, cannot be changed once assigned"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-obj-types-01',question:{tr:'Nesne tipi özelliklerini tip güvenliği sırasına koy:',en:'Order object type properties by type safety level:'},items:[
+    {id:'a',text:{tr:'readonly — değişmez garanti',en:'readonly — immutability guaranteed'},order:1},
+    {id:'b',text:{tr:'required alan — her zaman mevcut',en:'required field — always present'},order:2},
+    {id:'c',text:{tr:'optional? — bulunabilir veya undefined',en:'optional? — may be present or undefined'},order:3},
+    {id:'d',text:{tr:'index signature [key: string] — dinamik',en:'index signature [key: string] — dynamic'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"type Config = { baseUrl: string; timeout?: number } tanımında timeout alanı belirtilmeden nesne oluşturulursa ne olur?",en:'In type Config = { baseUrl: string; timeout?: number }, what happens when object is created without timeout?'},options:[
+    {text:{tr:"Geçerlidir — timeout undefined olur (opsiyonel '?' sayesinde)",en:"Valid — timeout will be undefined (thanks to optional '?')"}},
+    {text:{tr:'Derleme hatası — tüm alanlar zorunludur',en:'Compile error — all fields are required'}},
+    {text:{tr:'timeout 0 olarak varsayılan alır',en:'timeout defaults to 0'}},
+    {text:{tr:'timeout null olarak ayarlanır',en:'timeout is set to null'}}
+  ],correct:0,explanation:{tr:"? işareti alanı opsiyonel yapar. Java'da @Nullable annotation gibi. Config = { baseUrl: 'http://...' } tamamen geçerlidir — timeout undefined olarak kalır.",en:"The ? mark makes the field optional. Like @Nullable annotation in Java. Config = { baseUrl: 'http://...' } is perfectly valid — timeout remains undefined."}}
+);
+
+_afterCode(4, '// TypeScript Enums — QA Test Status Example',
+  {type:'step-animation',title:{tr:"Enum — 'magic string' sorununa çözüm",en:"Enum — solution to 'magic string' problem"},steps:[
+    {id:1,icon:'🎯',label:{tr:'String enum',en:'String enum'},detail:{tr:"TestStatus.PASS yerine 'PASS' yazmak zorunda kalmadan tip güvenliği",en:"Type safety without having to write 'PASS' instead of TestStatus.PASS"}},
+    {id:2,icon:'🔢',label:{tr:'Sayısal enum',en:'Numeric enum'},detail:{tr:'Priority.HIGH = 2 — karşılaştırma ve sıralama için uygun',en:'Priority.HIGH = 2 — suitable for comparison and sorting'}},
+    {id:3,icon:'🔍',label:{tr:'Ters arama',en:'Reverse lookup'},detail:{tr:'Priority[2] → "HIGH" — sayısal enumlarda anahtar-değer her iki yönde çalışır',en:'Priority[2] → "HIGH" — numeric enums work both ways'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-enums-01',question:{tr:"String enum vs sayısal enum — hangi durum için hangisi uygun?",en:'String vs numeric enum — which for which situation?'},items:[
+    {id:'a',text:{tr:'Log çıktısında okunabilir değer → String enum',en:'Readable value in logs → String enum'},order:1},
+    {id:'b',text:{tr:'Sıralama veya karşılaştırma → Sayısal enum',en:'Sorting or comparison → Numeric enum'},order:2},
+    {id:'c',text:{tr:'API response durumu (PASS/FAIL) → String enum',en:'API response status (PASS/FAIL) → String enum'},order:3},
+    {id:'d',text:{tr:"HTTP status kodu (200, 404) → Sayısal enum",en:'HTTP status code (200, 404) → Numeric enum'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"enum Browser { CHROME = 'CHROME', FIREFOX = 'FIREFOX' } tanımında browser = 'chrome' ataması ne olur?",en:"In enum Browser { CHROME = 'CHROME', FIREFOX = 'FIREFOX' }, what happens with browser = 'chrome'?"},options:[
+    {text:{tr:"Derleme hatası — 'chrome' Browser enum tipine atanamaz",en:"Compile error — 'chrome' is not assignable to type Browser"}},
+    {text:{tr:"'chrome' otomatik büyük harfe çevrilir",en:"'chrome' is automatically uppercased"}},
+    {text:{tr:"Çalışır — string ve enum birbirinin yerine geçer",en:'Works — string and enum are interchangeable'}},
+    {text:{tr:"Runtime'da hata verir",en:'Gives runtime error'}}
+  ],correct:0,explanation:{tr:"String enum tip güvenliğinin özü: yalnızca enum'da tanımlı değerler geçerlidir. 'chrome' geçersiz — Browser.CHROME kullanmalısın. Yazım hatalarını derleme anında yakalar.",en:"This is the essence of string enum type safety: only values defined in the enum are valid. 'chrome' is invalid — use Browser.CHROME. Catches typos at compile time."}}
+);
+
+// ══ [5] Interface & Type — 1 code block ═══════════════════════════════════
+
+_afterCode(5, '// Union Types — value can be one of multiple types',
+  {type:'step-animation',title:{tr:"Union type ve discriminated union — pattern",en:'Union type and discriminated union pattern'},steps:[
+    {id:1,icon:'🔀',label:{tr:'Union type',en:'Union type'},detail:{tr:'type Status = "PASS" | "FAIL" | "SKIP" — değer yalnızca bu üçünden biri olabilir',en:'type Status = "PASS" | "FAIL" | "SKIP" — value can only be one of these three'}},
+    {id:2,icon:'🏷️',label:{tr:'Discriminated union',en:'Discriminated union'},detail:{tr:'status: "success" | "error" — bu "discriminant" alan TypeScript\'e hangi tipte olduğunu söyler',en:'status: "success" | "error" — this discriminant field tells TypeScript which type it is'}},
+    {id:3,icon:'💡',label:{tr:'Neden güçlü?',en:'Why powerful?'},detail:{tr:"if (res.status === 'success') — bundan sonra TypeScript res.data'nın mevcut olduğunu garanti eder",en:"if (res.status === 'success') — TypeScript then guarantees res.data exists"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-union-01',question:{tr:'Discriminated union ile API yanıtını işleme adımlarını sırala:',en:'Order the steps to handle an API response with discriminated union:'},items:[
+    {id:'a',text:{tr:'Union tipini "success" | "error" discriminant ile tanımla',en:"Define union type with 'success' | 'error' discriminant"},order:1},
+    {id:'b',text:{tr:'if (res.status === "success") ile dal',en:'Branch with if (res.status === "success")'},order:2},
+    {id:'c',text:{tr:'success dalında res.data\'ya güvenle eriş',en:'In success branch, safely access res.data'},order:3},
+    {id:'d',text:{tr:'error dalında res.message\'ı göster',en:'In error branch, display res.message'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"type ApiResponse = { status: 'success'; data: unknown } | { status: 'error'; message: string } — if (res.status === 'success') dalında res.message'a erişim ne olur?",en:"type ApiResponse = { status: 'success'; data: unknown } | { status: 'error'; message: string } — accessing res.message in the if (res.status === 'success') branch?"},options:[
+    {text:{tr:"Derleme hatası — TypeScript bilir ki success dalında message yok",en:"Compile error — TypeScript knows message doesn't exist in success branch"}},
+    {text:{tr:'undefined döner — alan yoksa undefined',en:'Returns undefined — field is absent so undefined'}},
+    {text:{tr:'Çalışır — TypeScript message\'ı opsiyonel yapar',en:'Works — TypeScript makes message optional'}},
+    {text:{tr:"Runtime'da null pointer hatası",en:'Null pointer error at runtime'}}
+  ],correct:0,explanation:{tr:"Discriminated union'ın en büyük gücü budur: TypeScript hangi dalda hangi alanların var olduğunu bilir. success dalında message aramak derleme hatasıdır — null check gerekmez.",en:"This is the greatest power of discriminated union: TypeScript knows which fields exist in which branch. Looking for message in success branch is a compile error — no null check needed."}}
+);
+
+// ══ [6] Functions — 2 code blocks ═════════════════════════════════════════
+
+_afterCode(6, '// TypeScript Functions — all key patterns',
+  {type:'step-animation',title:{tr:'TypeScript fonksiyon desenleri',en:'TypeScript function patterns'},steps:[
+    {id:1,icon:'📝',label:{tr:'Parametre tipleri',en:'Parameter types'},detail:{tr:'Her parametreye tip ver — yanlış tip geçilirse derleme hatası',en:'Give each parameter a type — wrong type passed means compile error'}},
+    {id:2,icon:'⭐',label:{tr:'Varsayılan değer',en:'Default value'},detail:{tr:"role = 'user' — Java'da overloaded method yerine tek satır",en:"role = 'user' — one line instead of overloaded methods in Java"}},
+    {id:3,icon:'🔧',label:{tr:'Fonksiyon tipi',en:'Function type'},detail:{tr:'type Validator = (value: string) => boolean — fonksiyonu değer gibi kullan',en:'type Validator = (value: string) => boolean — use function as a value'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-functions-01',question:{tr:'Tipli fonksiyon tasarımının adımlarını sırala:',en:'Order the steps of designing a typed function:'},items:[
+    {id:'a',text:{tr:'Girdi tiplerini belirle',en:'Determine input types'},order:1},
+    {id:'b',text:{tr:'Dönüş tipini belirle',en:'Determine return type'},order:2},
+    {id:'c',text:{tr:'Opsiyonel ve varsayılan parametreleri işaretle',en:'Mark optional and default parameters'},order:3},
+    {id:'d',text:{tr:'Fonksiyon tipini type alias ile belgele',en:'Document function type with type alias'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'function createUser(email: string, role: "admin" | "user" = "user") tanımında createUser("alice@test.com") çağrısı geçerli midir?',en:'In function createUser(email: string, role: "admin" | "user" = "user"), is createUser("alice@test.com") valid?'},options:[
+    {text:{tr:'Evet — role varsayılan değere "user" sahip olduğu için opsiyoneldir',en:'Yes — role is optional because it has a default value of "user"'}},
+    {text:{tr:"Hayır — role parametresi her zaman verilmeli",en:'No — role parameter must always be provided'}},
+    {text:{tr:'Evet ama role undefined olur',en:'Yes but role will be undefined'}},
+    {text:{tr:'Hayır — Union type olan parametreler varsayılan değer alamaz',en:'No — parameters with union types cannot have defaults'}}
+  ],correct:0,explanation:{tr:"Varsayılan değeri olan parametre opsiyoneldir. Java'da overloaded method yazman gereken yeri TypeScript tek imzayla halleder. role verilmezse 'user' kullanılır.",en:"A parameter with a default value is optional. Where you'd write an overloaded method in Java, TypeScript handles it with a single signature. If role is omitted, 'user' is used."}}
+);
+
+_afterCode(6, '// TypeScript Casting (Type Assertions)',
+  {type:'step-animation',title:{tr:'Type assertion — dikkatli kullan',en:'Type assertion — use carefully'},steps:[
+    {id:1,icon:'🎭',label:{tr:'as anahtar kelimesi',en:'as keyword'},detail:{tr:"raw as User — TypeScript'e 'bu değerin User tipinde olduğuna güven' dersin",en:"raw as User — you tell TypeScript 'trust me, this value is type User'"}},
+    {id:2,icon:'✅',label:{tr:'Güvenli kullanım',en:'Safe use'},detail:{tr:'Kullanmadan önce typeof / instanceof ile kontrol et, sonra as ile pekiştir',en:'Check with typeof / instanceof first, then confirm with as'}},
+    {id:3,icon:'⚠️',label:{tr:'Tehlikeli kullanım',en:'Dangerous use'},detail:{tr:'a as unknown as number çift casting tip güvenliğini tamamen atlar',en:'a as unknown as number double casting completely bypasses type safety'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-casting-01',question:{tr:'Güvenli type assertion akışını sırala:',en:'Order the safe type assertion flow:'},items:[
+    {id:'a',text:{tr:'unknown tipinde veriyi al',en:'Receive data as unknown type'},order:1},
+    {id:'b',text:{tr:'typeof / instanceof ile tipi kontrol et',en:'Check type with typeof / instanceof'},order:2},
+    {id:'c',text:{tr:'Kontrol başarılıysa as ile assert et',en:'If check passes, assert with as'},order:3},
+    {id:'d',text:{tr:'Güvenle kullan — TypeScript artık tipi bilir',en:'Use safely — TypeScript now knows the type'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"const b = a as unknown as number yazısı TypeScript'te ne anlama gelir?",en:'What does const b = a as unknown as number mean in TypeScript?'},options:[
+    {text:{tr:"Çalışır ama tehlikelidir — çift casting tip güvenliğini tamamen atlar",en:'Compiles but is dangerous — double casting completely bypasses type safety'}},
+    {text:{tr:"a'yı gerçekten number'a dönüştürür",en:'Actually converts a to a number'}},
+    {text:{tr:'Derleme hatası — unknown number\'a cast edilemez',en:'Compile error — unknown cannot be cast to number'}},
+    {text:{tr:'TypeScript bunu otomatik engeller',en:'TypeScript automatically prevents this'}}
+  ],correct:0,explanation:{tr:"Çift casting (as unknown as X) TypeScript'i bypass eder — derleyici kabul eder ama runtime'da beklenen tip olmayabilir. Java'da (Number)(Object)'a benzer. Yalnızca kesinlikle gerektiğinde kullan.",en:"Double casting (as unknown as X) bypasses TypeScript — the compiler accepts it but at runtime the value may not be the expected type. Like (Number)(Object) in Java. Only use when absolutely necessary."}}
+);
+
+// ══ [7] Classes — 2 code blocks ═══════════════════════════════════════════
+
+_afterCode(7, '// TypeScript Classes — constructor shorthand',
+  {type:'step-animation',title:{tr:'TypeScript sınıf anatomisi',en:'TypeScript class anatomy'},steps:[
+    {id:1,icon:'🏗️',label:{tr:'Constructor kısayolu',en:'Constructor shorthand'},detail:{tr:'public readonly id: number constructor\'da field tanımlar — Java\'daki 2 satır yerine 1 satır',en:'public readonly id: number in constructor defines field — 1 line instead of 2 in Java'}},
+    {id:2,icon:'🔐',label:{tr:'Erişim belirleyiciler',en:'Access modifiers'},detail:{tr:'private, public, protected — Java ile aynı anlam, daha az boilerplate',en:'private, public, protected — same meaning as Java, less boilerplate'}},
+    {id:3,icon:'🧬',label:{tr:'Kalıtım ve soyut',en:'Inheritance and abstract'},detail:{tr:'extends + abstract class — Java\'daki extend ve abstract ile birebir eşdeğer',en:'extends + abstract class — exact equivalent of Java extends and abstract'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-classes-01',question:{tr:'TypeScript sınıfı tanımlamanın adımlarını sırala:',en:'Order the steps of defining a TypeScript class:'},items:[
+    {id:'a',text:{tr:'constructor parametrelerine public/private ekle',en:'Add public/private to constructor parameters'},order:1},
+    {id:'b',text:{tr:'TypeScript field\'ları otomatik oluşturur',en:'TypeScript auto-creates fields'},order:2},
+    {id:'c',text:{tr:'Metotlara dönüş tipi yaz',en:'Write return types for methods'},order:3},
+    {id:'d',text:{tr:'extends ile alt sınıf oluştur',en:'Create subclass with extends'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'class User { constructor(public readonly id: number) {} } tanımında id nerede depolanır?',en:'In class User { constructor(public readonly id: number) {} }, where is id stored?'},options:[
+    {text:{tr:'Otomatik bir instance field olarak — public readonly this.id',en:'As an automatic instance field — public readonly this.id'}},
+    {text:{tr:'Sadece constructor parametresi olarak — kalıcı değil',en:'Only as a constructor parameter — not persistent'}},
+    {text:{tr:'Static class değişkeni olarak',en:'As a static class variable'}},
+    {text:{tr:'Prototype\'da saklanır',en:'Stored on the prototype'}}
+  ],correct:0,explanation:{tr:"TypeScript constructor kısayolu public/private/readonly yazıldığında hem parametreyi alır hem de class field'ı oluşturur. Java'da field tanımlayıp this.id = id yazmana gerek kalmaz.",en:"TypeScript constructor shorthand with public/private/readonly both receives the parameter and creates the class field. No need to declare the field separately and write this.id = id as in Java."}}
+);
+
+_afterCode(7, '// Step decorator: logs method call arguments automatically',
+  {type:'step-animation',title:{tr:'Decorator — metaprogram deseni',en:'Decorator — metaprogramming pattern'},steps:[
+    {id:1,icon:'🏷️',label:{tr:'Decorator ne yapar',en:'What a decorator does'},detail:{tr:'@Step gibi bir decorator metot çağrısını "sararak" otomatik log ekler',en:'A @Step decorator "wraps" the method call to add automatic logging'}},
+    {id:2,icon:'🔄',label:{tr:'Nasıl çalışır',en:'How it works'},detail:{tr:'Orijinal fonksiyonu replace eder — giren, çıkan veya ikisi de izlenebilir',en:'Replaces the original function — can intercept entry, exit, or both'}},
+    {id:3,icon:'🎯',label:{tr:'QA\'da kullanım',en:'QA usage'},detail:{tr:'Test step\'leri, Allure report entegrasyonu, retry logic — decorator ideal çözümdür',en:'Test steps, Allure report integration, retry logic — decorator is ideal'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-decorator-01',question:{tr:'Bir method decorator\'ın çalışma akışını sırala:',en:'Order the execution flow of a method decorator:'},items:[
+    {id:'a',text:{tr:'@Step decorator sınıf tanımında işlenir',en:'@Step decorator is processed at class definition'},order:1},
+    {id:'b',text:{tr:'Orijinal metot bir wrapper ile değiştirilir',en:'Original method is replaced with a wrapper'},order:2},
+    {id:'c',text:{tr:'Test metodu @Step\'li fonksiyonu çağırır',en:'Test method calls the @Step-wrapped function'},order:3},
+    {id:'d',text:{tr:'Wrapper log yazdırır sonra orijinali çağırır',en:'Wrapper logs then calls the original'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'TypeScript\'te bir class method\'u her çağrıldığında otomatik log atan en temiz mimari nedir?',en:'What is the cleanest architecture for auto-logging every time a class method is called in TypeScript?'},options:[
+    {text:{tr:'Method decorator — bir kez tanımla, tüm işaretli metotlarda çalışır',en:'Method decorator — define once, works on all marked methods'}},
+    {text:{tr:'Her metot başına manuel console.log yaz',en:'Write manual console.log at start of every method'}},
+    {text:{tr:'Singleton logger sınıfı oluştur',en:'Create a singleton logger class'}},
+    {text:{tr:'Proxy pattern\'i manuel uygula',en:'Manually implement Proxy pattern'}}
+  ],correct:0,explanation:{tr:"Decorator DRY (Don't Repeat Yourself) ilkesini uygular — log mantığını bir kez yaz, @Step ile istediğin metoda uygula. Java'da AspectJ @Aspect ve @Before/'@After gibi.",en:"Decorator applies DRY principle — write logging logic once, apply with @Step to any method. Like AspectJ @Aspect with @Before/@After in Java."}}
+);
+
+// ══ [8] Generics — 1 code block ═══════════════════════════════════════════
+
+_afterCode(8, '// TypeScript Generics — reusable code with type safety',
+  {type:'step-animation',title:{tr:'Generic tip gücü',en:'Generic type power'},steps:[
+    {id:1,icon:'🧬',label:{tr:'T: tip parametresi',en:'T: type parameter'},detail:{tr:"function identity<T>(value: T): T — T çağrı anında belirlenir, sihir değil",en:'function identity<T>(value: T): T — T is determined at call time, not magic'}},
+    {id:2,icon:'🔒',label:{tr:'Kısıtlama',en:'Constraint'},detail:{tr:"<T extends { value: number }> — T'nin belirli bir şekle sahip olmasını zorunlu kılar",en:"<T extends { value: number }> — forces T to have a specific shape"}},
+    {id:3,icon:'♻️',label:{tr:'Yeniden kullanım',en:'Reusability'},detail:{tr:"Box<string>, Box<number>, Box<TestCase> — aynı sınıf, farklı tipler, tip güvenliği korunur",en:"Box<string>, Box<number>, Box<TestCase> — same class, different types, type safety maintained"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-generics-01',question:{tr:'Generic bir fonksiyon tasarımının adımlarını sırala:',en:'Order the steps of designing a generic function:'},items:[
+    {id:'a',text:{tr:'Tip parametresini <T> ile tanımla',en:'Define type parameter with <T>'},order:1},
+    {id:'b',text:{tr:'Gerekiyorsa T extends ile kısıtla',en:'Constrain with T extends if needed'},order:2},
+    {id:'c',text:{tr:'T\'yi parametre ve dönüş tipinde kullan',en:'Use T in parameter and return type'},order:3},
+    {id:'d',text:{tr:'TypeScript T\'yi çağrı anında çıkarır',en:'TypeScript infers T at call time'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'function findMax<T extends { value: number }>(items: T[]): T tanımında findMax([{ name: "test" }]) çağrısı ne olur?',en:'In function findMax<T extends { value: number }>(items: T[]): T, what happens with findMax([{ name: "test" }])?'},options:[
+    {text:{tr:"Derleme hatası — T { value: number } şartını karşılamıyor",en:"Compile error — T doesn't satisfy the { value: number } constraint"}},
+    {text:{tr:'Çalışır — TypeScript value\'yu undefined olarak kabul eder',en:'Works — TypeScript accepts value as undefined'}},
+    {text:{tr:'Runtime hatası verir',en:'Gives runtime error'}},
+    {text:{tr:"T extends any olarak gevşer",en:'T relaxes to extends any'}}
+  ],correct:0,explanation:{tr:"T extends { value: number } kısıtlaması T'nin value: number alanına sahip olmasını zorunlu kılar. { name: 'test' } bu şartı karşılamaz — derleme hatası. Java'da <T extends Comparable<T>> ile aynı mantık.",en:"T extends { value: number } constraint forces T to have a value: number field. { name: 'test' } doesn't satisfy this — compile error. Same logic as <T extends Comparable<T>> in Java."}}
+);
+
+// ══ [9] Utility Types — 2 code blocks ═════════════════════════════════════
+
+_afterCode(9, '// TypeScript Utility Types — powerful type transformations',
+  {type:'step-animation',title:{tr:'Utility tipler — tip cerrahi araçları',en:'Utility types — type surgery tools'},steps:[
+    {id:1,icon:'✂️',label:{tr:'Pick ve Omit',en:'Pick and Omit'},detail:{tr:"Pick<T, 'a'|'b'> sadece o alanları alır; Omit<T, 'a'> o alanı çıkarır",en:"Pick<T, 'a'|'b'> keeps only those fields; Omit<T, 'a'> removes that field"}},
+    {id:2,icon:'❓',label:{tr:'Partial ve Required',en:'Partial and Required'},detail:{tr:'Partial<T> tüm alanları opsiyonel yapar — güncelleme payload\'ları için ideal',en:'Partial<T> makes all fields optional — ideal for update payloads'}},
+    {id:3,icon:'📋',label:{tr:'Record',en:'Record'},detail:{tr:"Record<string, 'PASS'|'FAIL'> — anahtar-değer haritası tipi oluşturur",en:"Record<string, 'PASS'|'FAIL'> — creates a key-value map type"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-utility-01',question:{tr:'Kullanım senaryolarına göre doğru utility tip eşleşmesini sırala:',en:'Order correct utility type matches by use case:'},items:[
+    {id:'a',text:{tr:'API güncelleme payload\'ı → Partial<T>',en:'API update payload → Partial<T>'},order:1},
+    {id:'b',text:{tr:'Sadece id+name göster → Pick<T, "id"|"name">',en:'Show only id+name → Pick<T, "id"|"name">'},order:2},
+    {id:'c',text:{tr:'Şifre hariç tüm alanlar → Omit<T, "password">',en:'All fields except password → Omit<T, "password">'},order:3},
+    {id:'d',text:{tr:'Test sonuçları haritası → Record<string, Status>',en:'Test results map → Record<string, Status>'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'function updateTest(id: number, changes: Partial<Omit<TestCase, "id">>) imzasında ne yapar Partial<Omit<...>>?',en:'In function updateTest(id: number, changes: Partial<Omit<TestCase, "id">>), what does Partial<Omit<...>> do?'},options:[
+    {text:{tr:"id dışındaki tüm TestCase alanlarını opsiyonel yapar — sadece değişenleri gönder",en:"Makes all TestCase fields except id optional — send only what changes"}},
+    {text:{tr:'Tüm alanları zorunlu yapar',en:'Makes all fields required'}},
+    {text:{tr:'id dahil tüm alanları siler',en:'Deletes all fields including id'}},
+    {text:{tr:'TestCase tipini any\'e dönüştürür',en:'Converts TestCase type to any'}}
+  ],correct:0,explanation:{tr:"Omit<TestCase, 'id'> önce id'yi çıkarır, sonra Partial<...> kalan tüm alanları opsiyonel yapar. Güncelleme API'lerinde çok yaygın desen — yalnızca değişen alanları gönderirsin.",en:"Omit<TestCase, 'id'> first removes id, then Partial<...> makes all remaining fields optional. Very common pattern in update APIs — you only send the fields that change."}}
+);
+
+_afterCode(9, '// keyof — get all keys of a type as a union',
+  {type:'step-animation',title:{tr:'keyof — tip güvenli dinamik erişim',en:'keyof — type-safe dynamic access'},steps:[
+    {id:1,icon:'🗝️',label:{tr:'keyof T = union',en:'keyof T = union'},detail:{tr:'keyof TestCase → "id" | "name" | "status" | "duration" — tüm anahtarlar union',en:'keyof TestCase → "id" | "name" | "status" | "duration" — all keys as union'}},
+    {id:2,icon:'🎯',label:{tr:'K extends keyof T',en:'K extends keyof T'},detail:{tr:"function getField<T, K extends keyof T>(obj: T, key: K): T[K] — tam tip güvenliği",en:'function getField<T, K extends keyof T>(obj: T, key: K): T[K] — full type safety'}},
+    {id:3,icon:'🚀',label:{tr:'Pratik: sortBy',en:'Practical: sortBy'},detail:{tr:"sortBy(tests, 'name') — key string olarak geçilir ama TypeScript bu key'in var olduğunu bilir",en:"sortBy(tests, 'name') — key passed as string but TypeScript knows the key exists"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-keyof-01',question:{tr:'keyof ile tip güvenli alan erişiminin adımlarını sırala:',en:'Order the steps of type-safe field access with keyof:'},items:[
+    {id:'a',text:{tr:'Interface\'i tanımla (T)',en:'Define interface (T)'},order:1},
+    {id:'b',text:{tr:'K extends keyof T kısıtlamasını yaz',en:'Write K extends keyof T constraint'},order:2},
+    {id:'c',text:{tr:'Dönüş tipini T[K] yap',en:'Make return type T[K]'},order:3},
+    {id:'d',text:{tr:'Derleme anında yanlış anahtar hata alır',en:'Wrong key errors at compile time'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"getField(tc, 'invalid') çağrısında — tc: TestCase, interface'de 'invalid' alanı yok — ne olur?",en:"Calling getField(tc, 'invalid') — tc: TestCase, 'invalid' field doesn't exist in interface — what happens?"},options:[
+    {text:{tr:"Derleme hatası — 'invalid' keyof TestCase'de yok",en:"Compile error — 'invalid' is not in keyof TestCase"}},
+    {text:{tr:'undefined döner',en:'Returns undefined'}},
+    {text:{tr:"Runtime'da hata verir",en:'Gives runtime error'}},
+    {text:{tr:'any tipinde dönüş verir',en:'Returns with any type'}}
+  ],correct:0,explanation:{tr:"K extends keyof T kısıtlaması yalnızca gerçekten var olan alanların geçilmesine izin verir. 'invalid' TestCase'in keyof birliğinde yok — TypeScript çalıştırmadan hatayı yakalar.",en:"K extends keyof T constraint allows only keys that actually exist on T. 'invalid' is not in TestCase's keyof union — TypeScript catches the error before running."}}
+);
+
+// ══ [10] Null Safety — 2 code blocks ══════════════════════════════════════
+
+_afterCode(10, '// TypeScript Null Safety with strictNullChecks',
+  {type:'step-animation',title:{tr:'Null güvenliği — NullPointerException\'a son',en:"Null safety — end of NullPointerException"},steps:[
+    {id:1,icon:'🚫',label:{tr:'Zorunlu kontrol',en:'Mandatory check'},detail:{tr:'string | null — null olasılığı varsa TypeScript kullanmadan kontrol zorunlu kılar',en:'string | null — if null is possible, TypeScript forces check before use'}},
+    {id:2,icon:'⛓️',label:{tr:'Opsiyonel zincirleme',en:'Optional chaining'},detail:{tr:'user.profile?.phone — profile yoksa undefined döner, exception fırlatmaz',en:'user.profile?.phone — returns undefined if profile absent, no exception'}},
+    {id:3,icon:'??',label:{tr:'Nullish coalescing',en:'Nullish coalescing'},detail:{tr:'value ?? "default" — yalnızca null/undefined\'da devreye girer; 0 ve "" geçer',en:'value ?? "default" — only kicks in for null/undefined; 0 and "" pass through'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-null-01',question:{tr:'Null güvenli kod yazımının adımlarını sırala:',en:'Order the steps of writing null-safe code:'},items:[
+    {id:'a',text:{tr:'Değerin null olup olamayacağını belirle',en:'Determine if value can be null'},order:1},
+    {id:'b',text:{tr:'string | null tipini kullan',en:'Use string | null type'},order:2},
+    {id:'c',text:{tr:'?. ile güvenli erişim veya if kontrol yaz',en:'Use ?. for safe access or write if check'},order:3},
+    {id:'d',text:{tr:'?? ile varsayılan değer ver',en:'Provide default value with ??'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'const zero = 0; console.log(zero || "default") ile console.log(zero ?? "default") farkı nedir?',en:'What is the difference between console.log(zero || "default") and console.log(zero ?? "default") for const zero = 0?'},options:[
+    {text:{tr:'|| için "default" çıkar (0 falsy); ?? için 0 çıkar (sadece null/undefined kontrol eder)',en:'|| outputs "default" (0 is falsy); ?? outputs 0 (only checks null/undefined)'}},
+    {text:{tr:'İkisi de "default" çıkarır',en:'Both output "default"'}},
+    {text:{tr:'İkisi de 0 çıkarır',en:'Both output 0'}},
+    {text:{tr:'?? derleme hatası verir',en:'?? gives compile error'}}
+  ],correct:0,explanation:{tr:"|| falsy değerlere (0, '', false, null, undefined) karşı devreye girer. ?? yalnızca null ve undefined için devreye girer. 0 geçerli bir sayı — ?? 0'ı korur, || 'default'a düşer.",en:"|| triggers for falsy values (0, '', false, null, undefined). ?? only triggers for null and undefined. 0 is a valid number — ?? preserves 0, || falls through to 'default'."}}
+);
+
+_afterCode(10, 'type Environment = "dev" | "staging" | "prod"',
+  {type:'step-animation',title:{tr:'Template literal tipler',en:'Template literal types'},steps:[
+    {id:1,icon:'📝',label:{tr:'Tip seviyesinde string birleştirme',en:'String concatenation at type level'},detail:{tr:'`${Environment}-config` → "dev-config" | "staging-config" | "prod-config"',en:'`${Environment}-config` → "dev-config" | "staging-config" | "prod-config"'}},
+    {id:2,icon:'🔀',label:{tr:'Kombinasyonlar otomatik üretilir',en:'Combinations are auto-generated'},detail:{tr:'2 tip × 2 yön = 4 literal otomatik — `${A}-${B}` her kombinasyonu üretir',en:'2 types × 2 directions = 4 literals auto — `${A}-${B}` generates every combo'}},
+    {id:3,icon:'🛡️',label:{tr:'Yanlış kombinasyon hata',en:'Wrong combination errors'},detail:{tr:"configKey: 'dev-settings' ama 'invalid-config' değil — TypeScript derleme anında yakalar",en:"configKey: 'dev-settings' valid but 'invalid-config' is not — TypeScript catches at compile time"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-template-literal-01',question:{tr:'Template literal tip nasıl oluşturulur, adımları sırala:',en:'Order the steps of creating a template literal type:'},items:[
+    {id:'a',text:{tr:'Temel string union tiplerini tanımla',en:'Define base string union types'},order:1},
+    {id:'b',text:{tr:'Backtick içinde birleştir: `${A}-${B}`',en:'Combine in backticks: `${A}-${B}`'},order:2},
+    {id:'c',text:{tr:'TypeScript tüm kombinasyonları otomatik üretir',en:'TypeScript auto-generates all combinations'},order:3},
+    {id:'d',text:{tr:'Yanlış değer derleme hatası verir',en:'Wrong value gives compile error'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'type Env = "dev" | "prod"; type Key = `${Env}-url` — bu tipte geçerli bir değer hangisidir?',en:'type Env = "dev" | "prod"; type Key = `${Env}-url` — which is a valid value of this type?'},options:[
+    {text:{tr:'"dev-url" veya "prod-url" — yalnızca bu ikisi geçerli',en:'"dev-url" or "prod-url" — only these two are valid'}},
+    {text:{tr:'Herhangi bir string geçerlidir',en:'Any string is valid'}},
+    {text:{tr:'"staging-url" de geçerlidir',en:'"staging-url" is also valid'}},
+    {text:{tr:'Bu tip derleme hatası üretir',en:'This type produces a compile error'}}
+  ],correct:0,explanation:{tr:'Template literal tipler union değerlerin her kombinasyonunu üretir. Env "dev"|"prod" olduğundan Key yalnızca "dev-url" veya "prod-url" olabilir. "staging-url" geçersiz — tip güvenliği korunur.',en:'Template literal types generate every combination of union values. Since Env is "dev"|"prod", Key can only be "dev-url" or "prod-url". "staging-url" is invalid — type safety is maintained.'}}
+);
+
+// ══ [11] Error Handling & @types — 4 code blocks ══════════════════════════
+
+_afterCode(11, '// Installing @types packages',
+  {type:'step-animation',title:{tr:'@types paketleri — neden gerekli?',en:'@types packages — why needed?'},steps:[
+    {id:1,icon:'📦',label:{tr:'Kütüphane + tipler',en:'Library + types'},detail:{tr:'@playwright/test ve axios kendi .d.ts dosyalarını içerir — @types gerekmez',en:"@playwright/test and axios include their own .d.ts files — no @types needed"}},
+    {id:2,icon:'🔧',label:{tr:'Eski JS kütüphaneleri',en:'Legacy JS libraries'},detail:{tr:'node-fetch gibi eski kütüphaneler @types/node-fetch ile tip tanımı alır',en:'Legacy libs like node-fetch get type definitions via @types/node-fetch'}},
+    {id:3,icon:'🔍',label:{tr:'Nasıl anlarsın?',en:'How to tell?'},detail:{tr:'package.json\'da "types" veya "typings" alanına bak — varsa @types gerekmez',en:'Look for "types" or "typings" in package.json — if present, no @types needed'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-types-pkg-01',question:{tr:'Bir npm paketinin kendi tipini sağlayıp sağlamadığını kontrol etme adımları:',en:'Order the steps to check if an npm package provides its own types:'},items:[
+    {id:'a',text:{tr:'npm install ile paketi kur',en:'Install the package with npm install'},order:1},
+    {id:'b',text:{tr:'package.json\'da "types" alanını ara',en:'Look for "types" field in package.json'},order:2},
+    {id:'c',text:{tr:'"types" varsa @types paketi gerekmiyor',en:'If "types" exists, no @types package needed'},order:3},
+    {id:'d',text:{tr:'"types" yoksa @types/paket-adi kur',en:'If missing, install @types/package-name'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'npm install @types/node komutu ne sağlar?',en:'What does npm install @types/node provide?'},options:[
+    {text:{tr:'Node.js yerleşik modülleri (fs, path, process) için TypeScript tip tanımları',en:'TypeScript type definitions for Node.js built-in modules (fs, path, process)'}},
+    {text:{tr:'Node.js çalışma ortamını yükler',en:'Installs the Node.js runtime'}},
+    {text:{tr:'TypeScript derleyicisini günceller',en:'Updates the TypeScript compiler'}},
+    {text:{tr:'Node.js modüllerini otomatik import eder',en:'Auto-imports Node.js modules'}}
+  ],correct:0,explanation:{tr:'@types/node fs.readFileSync, path.join, process.env gibi Node.js built-in\'leri için tip tanımlarını sağlar. Bunlar olmadan TypeScript bu fonksiyonları "tanımaz" ve derleme hatası verir.',en:'@types/node provides type definitions for Node.js built-ins like fs.readFileSync, path.join, process.env. Without them TypeScript does not "know" these functions and errors at compile time.'}}
+);
+
+_afterCode(11, '// What a .d.ts declaration file looks like',
+  {type:'step-animation',title:{tr:'.d.ts — TypeScript\'in "API belgesi"',en:".d.ts — TypeScript's API contract"},steps:[
+    {id:1,icon:'📄',label:{tr:'declare module',en:'declare module'},detail:{tr:'declare module "fs" {} — TypeScript\'e bu modülün şeklini anlatır',en:"declare module 'fs' {} — tells TypeScript the shape of this module"}},
+    {id:2,icon:'🔍',label:{tr:'Yalnızca tipler',en:'Types only'},detail:{tr:'.d.ts dosyasında uygulama kodu yoktur — sadece TypeScript\'e ne bekleneceğini söyler',en:'.d.ts files contain no implementation — only tell TypeScript what to expect'}},
+    {id:3,icon:'✍️',label:{tr:'Kendi bildirimini yaz',en:'Write your own declaration'},detail:{tr:'Eski bir JS kütüphanesi için src/types/lib.d.ts oluşturarak tip tanımı ekleyebilirsin',en:'For a legacy JS library, create src/types/lib.d.ts to add type definitions'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-dts-01',question:{tr:'Eski bir JS kütüphanesi için .d.ts bildirimi yazma adımları:',en:'Order the steps of writing a .d.ts declaration for a legacy JS library:'},items:[
+    {id:'a',text:{tr:'Kütüphanenin public API\'sını incele',en:"Review the library's public API"},order:1},
+    {id:'b',text:{tr:'src/types/ altında lib.d.ts oluştur',en:'Create lib.d.ts under src/types/'},order:2},
+    {id:'c',text:{tr:'declare module "lib-name" {} yaz',en:'Write declare module "lib-name" {}'},order:3},
+    {id:'d',text:{tr:'Fonksiyon ve interface\'leri tanımla',en:'Define functions and interfaces'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'.d.ts dosyasının içinde aşağıdakilerden hangisi yer alabilir?',en:'Which of the following can appear inside a .d.ts file?'},options:[
+    {text:{tr:'declare function ve interface — sadece tip tanımları',en:'declare function and interface — type definitions only'}},
+    {text:{tr:'Gerçek çalışan uygulama kodu',en:'Real executable application code'}},
+    {text:{tr:'npm paket bilgisi',en:'npm package information'}},
+    {text:{tr:'Test senaryoları',en:'Test scenarios'}}
+  ],correct:0,explanation:{tr:'.d.ts sadece tip bildirimleri içerir — declare function, declare class, interface, type alias. Uygulama kodu içermez. Derleme sırasında TypeScript bu dosyaları okur ama JavaScript çıktısına dahil etmez.',en:'.d.ts contains only type declarations — declare function, declare class, interface, type alias. No implementation code. TypeScript reads these files during compilation but does not include them in JavaScript output.'}}
+);
+
+_afterCode(11, '// Conditional Types — ternary for types',
+  {type:'step-animation',title:{tr:'Koşullu ve mapped tipler — tip cerrahi',en:'Conditional and mapped types — type surgery'},steps:[
+    {id:1,icon:'🔀',label:{tr:'Koşullu tip',en:'Conditional type'},detail:{tr:'T extends string ? "evet" : "hayır" — tip seviyesinde if/else',en:'T extends string ? "yes" : "no" — if/else at the type level'}},
+    {id:2,icon:'🗺️',label:{tr:'Mapped tip',en:'Mapped type'},detail:{tr:'[K in keyof T]: T[K] — her alanı dönüştür; Partial, Readonly bunlar üzerine kurulu',en:'[K in keyof T]: T[K] — transform every field; Partial, Readonly are built on these'}},
+    {id:3,icon:'💡',label:{tr:'Pratik kullanım',en:'Practical use'},detail:{tr:'ValidationRules<T> — her alan için opsiyonel validator fonksiyon tipi',en:'ValidationRules<T> — optional validator function type for each field'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-conditional-01',question:{tr:'Mapped tip ile tüm alanları string yapma adımları:',en:'Order the steps to convert all fields to string with a mapped type:'},items:[
+    {id:'a',text:{tr:'Orijinal interface\'i tanımla',en:'Define the original interface'},order:1},
+    {id:'b',text:{tr:'type Stringified<T> = { [K in keyof T]: string } yaz',en:'Write type Stringified<T> = { [K in keyof T]: string }'},order:2},
+    {id:'c',text:{tr:'Stringified<User> tipini kullan',en:'Use Stringified<User> type'},order:3},
+    {id:'d',text:{tr:'Tüm alanlar artık string tipinde',en:'All fields are now of string type'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'type Optional<T> = { [K in keyof T]?: T[K] } tipi neye eşdeğerdir?',en:'type Optional<T> = { [K in keyof T]?: T[K] } is equivalent to which utility type?'},options:[
+    {text:{tr:'Partial<T> — tüm alanları opsiyonel yapar',en:'Partial<T> — makes all fields optional'}},
+    {text:{tr:'Required<T> — tüm alanları zorunlu yapar',en:'Required<T> — makes all fields required'}},
+    {text:{tr:'Readonly<T> — tüm alanları değiştirilemez yapar',en:'Readonly<T> — makes all fields immutable'}},
+    {text:{tr:'Pick<T> — belirli alanları seçer',en:'Pick<T> — selects specific fields'}}
+  ],correct:0,explanation:{tr:'[K in keyof T]?: T[K] — her K anahtarına ? opsiyonel işareti ekler. Bu tam olarak Partial<T>\'nin implementasyonudur. TypeScript\'in built-in utility tipleri de mapped type ve conditional type üzerine inşa edilmiştir.',en:'[K in keyof T]?: T[K] — adds the ? optional mark to every key K. This is exactly how Partial<T> is implemented. TypeScript\'s built-in utility types are all built on mapped and conditional types.'}}
+);
+
+_afterCode(11, 'async function clickSelector(selector: string)',
+  {type:'step-animation',title:{tr:'async/await + try/catch hata yönetimi',en:'async/await + try/catch error handling'},steps:[
+    {id:1,icon:'⚡',label:{tr:'async/await',en:'async/await'},detail:{tr:'async fonksiyon Promise döndürür; await Promise\'i çözene kadar bekler',en:'async function returns Promise; await waits until Promise resolves'}},
+    {id:2,icon:'🛡️',label:{tr:'try/catch',en:'try/catch'},detail:{tr:'Error nesnesini catch eder — TypeScript 4+ catch (e) tipini unknown olarak alır',en:'Catches Error object — TypeScript 4+ types catch (e) as unknown'}},
+    {id:3,icon:'📋',label:{tr:'Hata loglama',en:'Error logging'},detail:{tr:'(err as Error).message — unknown\'u Error\'a cast etmeden önce kontrol et',en:'(err as Error).message — check before casting unknown to Error'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-async-error-01',question:{tr:'TypeScript async fonksiyonunda hata yönetiminin adımları:',en:'Order the steps of error handling in a TypeScript async function:'},items:[
+    {id:'a',text:{tr:'async fonksiyonu tanımla ve await kullan',en:'Define async function and use await'},order:1},
+    {id:'b',text:{tr:'try bloğuna riskli kodu yaz',en:'Write risky code in try block'},order:2},
+    {id:'c',text:{tr:'catch (err) ile hatayı yakala',en:'Catch the error with catch (err)'},order:3},
+    {id:'d',text:{tr:'(err as Error).message ile hatayı logla',en:'Log the error with (err as Error).message'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'TypeScript 4+\'ta catch (err) bloğunda err\'nin tipi nedir?',en:'In TypeScript 4+, what is the type of err in a catch (err) block?'},options:[
+    {text:{tr:'unknown — kullanmadan önce tip kontrolü zorunlu',en:'unknown — type check required before use'}},
+    {text:{tr:'Error — her zaman Error nesnesidir',en:'Error — always an Error object'}},
+    {text:{tr:'any — herhangi bir tip olabilir',en:'any — can be any type'}},
+    {text:{tr:'string — hata mesajıdır',en:'string — it is the error message'}}
+  ],correct:0,explanation:{tr:"TypeScript 4'ten itibaren catch değişkeni unknown tipindedir. Bu daha güvenlidir — (err as Error).message yazmadan önce isinstance kontrolü yapmalısın. Önceki sürümlerde any idi.",en:"Since TypeScript 4, the catch variable is typed as unknown. This is safer — you must check instanceof before accessing (err as Error).message. In earlier versions it was any."}}
+);
+
+// ══ [12] QA Use Cases — 7 code blocks ════════════════════════════════════
+
+_afterCode(12, '// pages/LoginPage.ts',
+  {type:'step-animation',title:{tr:'TypeScript POM — interface + sınıf deseni',en:'TypeScript POM — interface + class pattern'},steps:[
+    {id:1,icon:'📋',label:{tr:'Interface sözleşmesi',en:'Interface contract'},detail:{tr:'ILoginPage interface\'i dışarıdan görülen API\'yi tanımlar — uygulama detayı gizlidir',en:'ILoginPage interface defines the external API — implementation details are hidden'}},
+    {id:2,icon:'🔒',label:{tr:'private Locator\'lar',en:'private Locators'},detail:{tr:'private readonly selector\'lar dışarıdan erişilemez — tek yetkili LoginPage sınıfıdır',en:'private readonly selectors cannot be accessed externally — only LoginPage is authorised'}},
+    {id:3,icon:'💉',label:{tr:'Dependency injection',en:'Dependency injection'},detail:{tr:'constructor(private readonly page: Page) — Page dışarıdan enjekte edilir, test izole kalır',en:'constructor(private readonly page: Page) — Page is injected, test stays isolated'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-pom-01',question:{tr:'TypeScript POM sınıfı oluşturma adımlarını sırala:',en:'Order the steps of creating a TypeScript POM class:'},items:[
+    {id:'a',text:{tr:'Interface\'i tanımla (ne yapılabilir?)',en:'Define interface (what can be done?)'},order:1},
+    {id:'b',text:{tr:'Sınıfı interface\'i uygulayarak yaz',en:'Write class implementing the interface'},order:2},
+    {id:'c',text:{tr:'Constructor\'da Locator\'ları tanımla',en:'Define Locators in constructor'},order:3},
+    {id:'d',text:{tr:'Tipli metotları implement et',en:'Implement typed methods'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'TypeScript POM\'da page locatorlarının constructor\'da tanımlanmasının avantajı nedir?',en:'What is the advantage of defining page locators in the constructor in a TypeScript POM?'},options:[
+    {text:{tr:'Selector değişince hata hemen constructor\'da oluşur — erken tespit',en:'If selector changes, error surfaces immediately in constructor — early detection'}},
+    {text:{tr:'Daha az kod yazılır',en:'Less code is written'}},
+    {text:{tr:'Locator\'lar paylaşılabilir hale gelir',en:'Locators become shareable'}},
+    {text:{tr:'TypeScript tüm selector\'ları otomatik bulur',en:'TypeScript automatically finds all selectors'}}
+  ],correct:0,explanation:{tr:"Constructor'da locator tanımlamak 'fail fast' prensibini uygular. Selector yanlışsa test başlar başlamaz hata alırsın — metodun ortasında değil. Java'da field'ları constructor'da doğrulamak gibi.",en:"Defining locators in the constructor applies 'fail fast'. If a selector is wrong, you get an error as soon as the test starts — not mid-method. Like validating fields in a Java constructor."}}
+);
+
+_afterCode(12, '// enums/index.ts',
+  {type:'step-animation',title:{tr:'Enum ile tip güvenli konfigürasyon',en:'Type-safe configuration with enums'},steps:[
+    {id:1,icon:'🔒',label:{tr:'Magic string\'e son',en:"End of magic strings"},detail:{tr:"'chrome' yerine Browser.CHROME — yazım hatası derleme anında yakalanır",en:"Browser.CHROME instead of 'chrome' — typos caught at compile time"}},
+    {id:2,icon:'📋',label:{tr:'Config interface + enum',en:'Config interface + enum'},detail:{tr:'environment: Environment — yalnızca STAGING, DEV, PROD geçerlidir; başka string değil',en:'environment: Environment — only STAGING, DEV, PROD valid; no arbitrary string'}},
+    {id:3,icon:'🔍',label:{tr:'IDE autocomplete',en:'IDE autocomplete'},detail:{tr:'Browser. yazdığında IDE tüm geçerli değerleri listeler — dokümantasyon gereksizleşir',en:'Typing Browser. shows all valid values in IDE — documentation becomes unnecessary'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-str-enum-01',question:{tr:'String enum ile tip güvenli konfigürasyon oluşturma adımları:',en:'Order the steps of creating type-safe configuration with string enums:'},items:[
+    {id:'a',text:{tr:'Geçerli değerleri enum olarak tanımla',en:'Define valid values as enum'},order:1},
+    {id:'b',text:{tr:'Config interface\'inde enum tipini kullan',en:'Use enum type in Config interface'},order:2},
+    {id:'c',text:{tr:'Config nesnesi oluştururken enum değerini geç',en:'Pass enum value when creating Config'},order:3},
+    {id:'d',text:{tr:'Geçersiz string derleme hatası verir',en:'Invalid string gives compile error'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'Bir QA mühendisi browser: "chrome" yazar ama Browser enum\'unda sadece CHROMIUM, FIREFOX, WEBKIT var. Ne olur?',en:"A QA engineer writes browser: 'chrome' but the Browser enum only has CHROMIUM, FIREFOX, WEBKIT. What happens?"},options:[
+    {text:{tr:"Derleme hatası — 'chrome' Browser tipine atanamaz",en:"Compile error — 'chrome' is not assignable to type Browser"}},
+    {text:{tr:"'chrome' otomatik Browser.CHROMIUM'a eşlenir",en:"'chrome' is automatically mapped to Browser.CHROMIUM"}},
+    {text:{tr:"Runtime'da hata verir",en:'Gives runtime error'}},
+    {text:{tr:"TypeScript 'chrome' string'ini kabul eder",en:"TypeScript accepts the 'chrome' string"}}
+  ],correct:0,explanation:{tr:"String enum tam olarak bunun için var: 'chrome' yazmak derleme hatası. Browser.CHROMIUM kullanmalısın. Cypress'te 'chomre' yazım hatasıyla 2 saat debug yaşamamak için.",en:"String enum exists exactly for this: writing 'chrome' is a compile error. You must use Browser.CHROMIUM. So you don't spend 2 hours debugging because you wrote 'chomre' in your Cypress config."}}
+);
+
+_afterCode(12, '// types/api.ts',
+  {type:'step-animation',title:{tr:'API yanıt tipleri + type guard',en:'API response types + type guard'},steps:[
+    {id:1,icon:'📦',label:{tr:'Generic wrapper',en:'Generic wrapper'},detail:{tr:'ApiEnvelope<T> — aynı wrapper herhangi bir data tipiyle çalışır',en:'ApiEnvelope<T> — same wrapper works with any data type'}},
+    {id:2,icon:'🛡️',label:{tr:'Type guard',en:'Type guard'},detail:{tr:'function isUserResponse(value: unknown): value is UserResponse — runtime tip doğrulama',en:'function isUserResponse(value: unknown): value is UserResponse — runtime type validation'}},
+    {id:3,icon:'✅',label:{tr:'Guard sonrası güvenli',en:'Safe after guard'},detail:{tr:'if (isUserResponse(json)) — sonrasında TypeScript json\'ı UserResponse olarak bilir',en:'if (isUserResponse(json)) — after this TypeScript knows json is UserResponse'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-api-type-01',question:{tr:'Tip güvenli API yanıtı işleme adımları:',en:'Order the steps of type-safe API response handling:'},items:[
+    {id:'a',text:{tr:'API yanıtını unknown olarak al',en:'Receive API response as unknown'},order:1},
+    {id:'b',text:{tr:'Type guard ile şekli doğrula',en:'Validate shape with type guard'},order:2},
+    {id:'c',text:{tr:'Guard başarısızsa hata fırlat',en:'Throw error if guard fails'},order:3},
+    {id:'d',text:{tr:'Doğrulanmış veriyi güvenle kullan',en:'Use validated data safely'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'function isUser(v: unknown): v is UserResponse — bu fonksiyonun dönüş tipi "v is UserResponse" ne anlama gelir?',en:'function isUser(v: unknown): v is UserResponse — what does the return type "v is UserResponse" mean?'},options:[
+    {text:{tr:'true dönünce TypeScript o kapsamda v\'yi UserResponse olarak kabul eder',en:'When it returns true, TypeScript accepts v as UserResponse in that scope'}},
+    {text:{tr:'v her zaman UserResponse tipinde olmak zorunda',en:'v must always be of type UserResponse'}},
+    {text:{tr:'Sadece runtime tip dönüşümü yapar',en:'Only performs runtime type conversion'}},
+    {text:{tr:'Başka bir type guard çağırmak için kullanılır',en:'Used to call another type guard'}}
+  ],correct:0,explanation:{tr:"'v is UserResponse' bir type predicate'dir. if (isUser(json)) true döndüğünde TypeScript if bloğunun içinde json'ı UserResponse olarak kabul eder. instanceof kullanamazsan runtime doğrulama için en iyi desendir.",en:"'v is UserResponse' is a type predicate. When isUser(json) returns true, TypeScript accepts json as UserResponse inside the if block. Best pattern for runtime validation when you can't use instanceof."}}
+);
+
+_afterCode(12, '// utils/factory.ts',
+  {type:'step-animation',title:{tr:'Generic test factory deseni',en:'Generic test factory pattern'},steps:[
+    {id:1,icon:'🏭',label:{tr:'createTestData<T>',en:'createTestData<T>'},detail:{tr:'Generic fonksiyon herhangi bir nesne tipinin test verisini varsayılanlarla oluşturur',en:'Generic function creates test data for any object type with defaults'}},
+    {id:2,icon:'🔀',label:{tr:'Partial override',en:'Partial override'},detail:{tr:'Partial<T> ile yalnızca farklı olan alanları belirtirsin — tüm alanları tekrar yazmana gerek yok',en:'With Partial<T> you only specify what differs — no need to repeat all fields'}},
+    {id:3,icon:'🔗',label:{tr:'Builder varyantı',en:'Builder variant'},detail:{tr:'productFactory({ price: 1.99 }) — bir factory fonksiyonu daha temiz API sağlar',en:'productFactory({ price: 1.99 }) — a factory function provides cleaner API'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-factory-01',question:{tr:'Generic test factory kullanım adımları:',en:'Order the steps of using a generic test factory:'},items:[
+    {id:'a',text:{tr:'Interface\'i ve varsayılan nesneyi tanımla',en:'Define interface and default object'},order:1},
+    {id:'b',text:{tr:'createTestData<T>(defaults, overrides?) fonksiyonunu yaz',en:'Write createTestData<T>(defaults, overrides?) function'},order:2},
+    {id:'c',text:{tr:'Test varyantı için yalnızca farklı alanları geç',en:'Pass only differing fields for test variant'},order:3},
+    {id:'d',text:{tr:'TypeScript tüm alanların tipini kontrol eder',en:'TypeScript checks types of all fields'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'createTestData(defaultProduct, { inStock: false }) çağrısında TypeScript hangi tipi çıkarır?',en:'In createTestData(defaultProduct, { inStock: false }), what type does TypeScript infer for the result?'},options:[
+    {text:{tr:'Product — defaultProduct\'tan T çıkarılır, dönüş tipi de Product',en:'Product — T is inferred from defaultProduct, return type is also Product'}},
+    {text:{tr:'Partial<Product> — override nedeniyle',en:'Partial<Product> — because of the override'}},
+    {text:{tr:'{ inStock: false } — yalnızca override',en:'{ inStock: false } — only the override'}},
+    {text:{tr:'any — generic tip belirsiz',en:'any — generic type is ambiguous'}}
+  ],correct:0,explanation:{tr:"TypeScript T'yi defaultProduct'tan çıkarır: T = Product. { ...defaults, ...overrides } spread'i Product tipinde döner. override'daki inStock: false Product.inStock alanıyla tip uyumlu. Java'da Builder.build() gibi.",en:"TypeScript infers T from defaultProduct: T = Product. The { ...defaults, ...overrides } spread returns type Product. inStock: false in the override is type-compatible with Product.inStock. Like Builder.build() in Java."}}
+);
+
+_afterCode(12, '// config/index.ts',
+  {type:'step-animation',title:{tr:'Ortama özgü yapılandırma — Partial merge deseni',en:'Environment-specific config — Partial merge pattern'},steps:[
+    {id:1,icon:'🌍',label:{tr:'Temel + override',en:'Base + override'},detail:{tr:'baseConfig tüm ortamlar için geçerli varsayılanları tutar; staging/prod yalnızca farklıları belirtir',en:'baseConfig holds defaults for all environments; staging/prod only specify what differs'}},
+    {id:2,icon:'🔀',label:{tr:'Partial<Config> ile override',en:'Override with Partial<Config>'},detail:{tr:'Partial sayesinde staging sadece baseUrl ve credentials\'ı belirtir — gerisi baseden gelir',en:'Thanks to Partial, staging only specifies baseUrl and credentials — rest comes from base'}},
+    {id:3,icon:'✅',label:{tr:'getConfig("staging")',en:'getConfig("staging")'},detail:{tr:'{ ...baseConfig, ...override } — spread ile birleştir, tam TestSuiteConfig döner',en:'{ ...baseConfig, ...override } — merge with spread, returns complete TestSuiteConfig'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-env-config-01',question:{tr:'Ortama özgü yapılandırma sistemi kurma adımları:',en:'Order the steps of setting up an environment-specific config system:'},items:[
+    {id:'a',text:{tr:'Tam TestSuiteConfig interface\'ini tanımla',en:'Define the full TestSuiteConfig interface'},order:1},
+    {id:'b',text:{tr:'baseConfig ile tüm varsayılanları ayarla',en:'Set all defaults with baseConfig'},order:2},
+    {id:'c',text:{tr:'Ortam override\'larını Partial<Config> olarak tanımla',en:'Define environment overrides as Partial<Config>'},order:3},
+    {id:'d',text:{tr:'getConfig(env) ile birleştirip döndür',en:'Merge and return with getConfig(env)'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'staging override sadece baseUrl ve retries belirtir, workers belirtmez. getConfig("staging") çağrısında workers değeri ne olur?',en:"staging override only specifies baseUrl and retries, not workers. What is workers in getConfig('staging')?"},options:[
+    {text:{tr:'baseConfig.workers değeri — override edilmeyenler baseden gelir',en:'baseConfig.workers value — unoverridden fields come from base'}},
+    {text:{tr:'undefined — belirtilmedi',en:'undefined — not specified'}},
+    {text:{tr:'0 — sayısal varsayılan',en:'0 — numeric default'}},
+    {text:{tr:'Derleme hatası — tüm alanlar override edilmeli',en:'Compile error — all fields must be overridden'}}
+  ],correct:0,explanation:{tr:"{ ...baseConfig, ...stagingOverride } spread'i — staging'de belirtilmeyen alanlar baseConfig'den gelir. Partial<Config> yalnızca istediğin alanları belirtmeni sağlar. 'workers: 4' baseConfig'den gelir.",en:"{ ...baseConfig, ...stagingOverride } spread — fields not specified in staging come from baseConfig. Partial<Config> lets you specify only what you want. 'workers: 4' comes from baseConfig."}}
+);
+
+_afterCode(12, '// fixtures/index.ts',
+  {type:'step-animation',title:{tr:'Playwright fixture\'ları TypeScript ile',en:'Playwright fixtures with TypeScript'},steps:[
+    {id:1,icon:'🧩',label:{tr:'Fixture shape tanımla',en:'Define fixture shape'},detail:{tr:'interface MyFixtures { loginPage, testUser, adminUser } — TypeScript ne bekleneceğini bilir',en:'interface MyFixtures { loginPage, testUser, adminUser } — TypeScript knows what to expect'}},
+    {id:2,icon:'🔧',label:{tr:'base.extend<MyFixtures>({})',en:'base.extend<MyFixtures>({})'},detail:{tr:'Her fixture setup + teardown fonksiyonu alır — use() ile teste aktarılır',en:'Each fixture gets setup + teardown function — passed to test with use()'}},
+    {id:3,icon:'🚀',label:{tr:'Tam autocomplete',en:'Full autocomplete'},detail:{tr:'test("...", async ({ loginPage, testUser }) — tüm fixture\'lar tipli ve autocomplete\'li',en:'test("...", async ({ loginPage, testUser }) — all fixtures typed and autocompleted'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-fixtures-01',question:{tr:'TypeScript Playwright fixture\'ı oluşturma adımları:',en:'Order the steps of creating a TypeScript Playwright fixture:'},items:[
+    {id:'a',text:{tr:'Fixture shape\'ini interface ile tanımla',en:'Define fixture shape with interface'},order:1},
+    {id:'b',text:{tr:'base.extend<MyFixtures>({...}) ile genişlet',en:'Extend with base.extend<MyFixtures>({...})'},order:2},
+    {id:'c',text:{tr:'Her fixture\'ı async ({}, use) => {} ile yaz',en:'Write each fixture as async ({}, use) => {}'},order:3},
+    {id:'d',text:{tr:'use(fixture) ile teste aktar',en:'Pass to test with use(fixture)'},order:4}
+  ]},
+  {type:'quiz',question:{tr:'base.extend<MyFixtures>() çağrısında TypeScript\'in MyFixtures generic parametresini bilmesinin faydası nedir?',en:'What is the benefit of TypeScript knowing the MyFixtures generic parameter in base.extend<MyFixtures>()?'},options:[
+    {text:{tr:'Test fonksiyonlarında fixture argümanları için tam tip kontrolü ve autocomplete',en:'Full type checking and autocomplete for fixture arguments in test functions'}},
+    {text:{tr:'Fixture\'ları daha hızlı çalıştırır',en:'Makes fixtures run faster'}},
+    {text:{tr:'Browser kurulumunu otomatik yapar',en:'Automatically sets up the browser'}},
+    {text:{tr:'TypeScript fixture\'ları otomatik oluşturur',en:'TypeScript auto-creates fixtures'}}
+  ],correct:0,explanation:{tr:"Generic parametresi sayesinde test('...', async ({ loginPage }) =>) yazarken TypeScript loginPage'in tipini bilir — yanlış metot çağrısı veya yanlış argüman derleme anında yakalanır. Java'da generic tip parametresiyle aynı prensip.",en:"Thanks to the generic parameter, when you write test('...', async ({ loginPage }) =>), TypeScript knows the type of loginPage — wrong method calls or wrong arguments are caught at compile time. Same principle as a generic type parameter in Java."}}
+);
+
+_afterCode(12, '// Using TypeScript utility types to make test fixtures flexible',
+  {type:'step-animation',title:{tr:'Utility tip kombinasyonu — esnek fixture',en:'Utility type combination — flexible fixture'},steps:[
+    {id:1,icon:'✂️',label:{tr:'Pick — sadece auth',en:'Pick — auth only'},detail:{tr:"Pick<TestFixtures, 'email'|'password'|'role'> — sadece kimlik doğrulama alanları",en:"Pick<TestFixtures, 'email'|'password'|'role'> — only authentication fields"}},
+    {id:2,icon:'🚫',label:{tr:'Omit — şifresiz',en:'Omit — without password'},detail:{tr:"Omit<TestFixtures, 'password'> — hassas veriyi dışarı sızdırmaz",en:"Omit<TestFixtures, 'password'> — does not expose sensitive data"}},
+    {id:3,icon:'🔒',label:{tr:'Object.freeze = runtime readonly',en:'Object.freeze = runtime readonly'},detail:{tr:'Readonly<T> derleme anında korur; Object.freeze runtime\'da da korur — ikisi birden',en:'Readonly<T> protects at compile time; Object.freeze also protects at runtime — both'}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-flex-fixture-01',question:{tr:'Esnek fixture createFixture fonksiyonunun çalışma adımları:',en:'Order the working steps of the flexible createFixture function:'},items:[
+    {id:'a',text:{tr:'Tam TestFixtures interface\'ini tanımla',en:'Define full TestFixtures interface'},order:1},
+    {id:'b',text:{tr:'defaultFixtures nesnesini ayarla',en:'Set up defaultFixtures object'},order:2},
+    {id:'c',text:{tr:'createFixture(Partial<TestFixtures>) al ve birleştir',en:'Take createFixture(Partial<TestFixtures>) and merge'},order:3},
+    {id:'d',text:{tr:'Object.freeze ile immutable döndür',en:'Return immutable with Object.freeze'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"createFixture({ role: 'admin' }) çağrısında TypeScript Partial<TestFixtures> nedeniyle ne sağlar?",en:"In createFixture({ role: 'admin' }), what does TypeScript provide because of Partial<TestFixtures>?"},options:[
+    {text:{tr:'Yalnızca role geçilebilir — diğer alanlar varsayılan alır. Tip kontrolü korunur.',en:"Only role can be passed — other fields get defaults. Type checking is maintained."}},
+    {text:{tr:'Tüm alanlar zorunlu — eksik alan hata verir',en:'All fields required — missing field errors'}},
+    {text:{tr:'role unknown tipinde — TypeScript bilemez',en:'role is unknown type — TypeScript cannot tell'}},
+    {text:{tr:'Tüm alanlar any olur',en:'All fields become any'}}
+  ],correct:0,explanation:{tr:"Partial<TestFixtures> tüm alanları opsiyonel yapar. Sadece { role: 'admin' } geçebilirsin. TypeScript yine de 'role' alanının 'admin'|'viewer'|... tipinde olmasını zorunlu kılar. Eksik alanlar defaultFixtures'dan gelir.",en:"Partial<TestFixtures> makes all fields optional. You can pass just { role: 'admin' }. TypeScript still enforces the 'role' field is of type 'admin'|'viewer'|... Missing fields come from defaultFixtures."}}
+);
+
+// ══ [14] Test Runners — 1 code block ══════════════════════════════════════
+
+_afterCode(14, '// utils/formatPrice.ts — a plain helper, no browser needed',
+  {type:'step-animation',title:{tr:'Vitest ile unit test akışı',en:'Unit test flow with Vitest'},steps:[
+    {id:1,icon:'⚡',label:{tr:'Vitest nedir?',en:'What is Vitest?'},detail:{tr:"Vite tabanlı ultra hızlı test runner — describe/it/expect API'si Jest ile aynı",en:'Vite-based ultra-fast test runner — describe/it/expect API identical to Jest'}},
+    {id:2,icon:'📝',label:{tr:'Test yapısı',en:'Test structure'},detail:{tr:'describe ile grup, it ile tek test, expect ile assertion — üç katman birlikte kullan',en:'describe for group, it for single test, expect for assertion — use all three layers'}},
+    {id:3,icon:'▶️',label:{tr:'npx vitest run',en:'npx vitest run'},detail:{tr:'CI\'da npx vitest run tek seferlik çalıştırır; npx vitest watch geliştirme modundadır',en:"npx vitest run runs once for CI; npx vitest watch is for development mode"}}
+  ]},
+  {type:'challenge',variant:'order-sort',id:'ch-ts-vitest-01',question:{tr:'Vitest ile bir fonksiyonu test etme adımları:',en:'Order the steps of testing a function with Vitest:'},items:[
+    {id:'a',text:{tr:'Test edilecek fonksiyonu import et',en:'Import the function to test'},order:1},
+    {id:'b',text:{tr:'describe ile test grubunu tanımla',en:'Define test group with describe'},order:2},
+    {id:'c',text:{tr:'it ile senaryoyu yaz ve expect ile doğrula',en:'Write scenario with it and verify with expect'},order:3},
+    {id:'d',text:{tr:'npx vitest run ile testleri çalıştır',en:'Run tests with npx vitest run'},order:4}
+  ]},
+  {type:'quiz',question:{tr:"it('negatif girişte hata fırlatır', () => { expect(() => formatPrice(-50)).toThrow('...') }) — bu testte expect neden fonksiyon sarmalıyor?",en:"it('errors on negative input', () => { expect(() => formatPrice(-50)).toThrow('...') }) — why does expect wrap a function?"},options:[
+    {text:{tr:'Hata fırlatacak kodu yakalamak için — direkt çağrı testi çökertiyor',en:'To catch code that throws — direct call would crash the test'}},
+    {text:{tr:'formatPrice async olduğu için',en:'Because formatPrice is async'}},
+    {text:{tr:'TypeScript sözdizimi gerektiriyor',en:'TypeScript syntax requires it'}},
+    {text:{tr:'Birden fazla assertion yazmak için',en:'To write multiple assertions'}}
+  ],correct:0,explanation:{tr:"Hata fırlatan kodu test ederken expect(() => fn()).toThrow() kullanırsın. Eğer expect(fn()).toThrow() yazsaydın fn() test dışında çalışır ve hata testi çöküşüne neden olurdu. Java'da assertThrows(() -> fn()) ile aynı mantık.",en:"When testing code that throws, use expect(() => fn()).toThrow(). If you wrote expect(fn()).toThrow(), fn() would run outside expect and the thrown error would crash the test. Same logic as assertThrows(() -> fn()) in Java."}}
+);
+
+
+// ─── Editor Blocks — Bilingual defaultCode (TR comments) ────────────────────
+
+function _editorBilingual(si, bi, trCode) {
+  [typescriptData.en, typescriptData.tr].forEach(lang => {
+    const b = lang.sections[si]?.blocks[bi];
+    if (b && typeof b.defaultCode === 'string') {
+      const en = b.defaultCode;
+      b.defaultCode = { en, tr: trCode };
+    }
+  });
+}
+
+// [2][7] calculateTax
+_editorBilingual(2, 7,
+`// TypeScript hataları derleme anında yakalar
+function calculateTax(price: number, taxRate: number): number {
+  return price * (1 + taxRate);
+}
+
+const total = calculateTax(100, 0.18);
+console.log("Total with tax:", total);
+
+// Dene: 100'ü "100" yap — TypeScript hata gösterecek
+// const wrongTotal = calculateTax("100", 0.18);`
+);
+
+// [2][17] parseAge
+_editorBilingual(2, 17,
+`// unknown vs any pratiği
+function parseAge(input: unknown): number {
+  if (typeof input === "number") return input;
+  if (typeof input === "string") {
+    const parsed = parseInt(input);
+    if (isNaN(parsed)) throw new Error("Invalid age: " + input);
+    return parsed;
+  }
+  throw new Error("Cannot parse age from: " + typeof input);
+}
+
+console.log(parseAge(25));       // 25
+console.log(parseAge("30"));    // 30
+// console.log(parseAge(true)); // Hata`
+);
+
+// [3][15] StepResult tuple
+_editorBilingual(3, 15,
+`// Tuple'ları test adımı sonuçlarını temsil etmek için kullan
+type StepResult = [stepName: string, passed: boolean, ms: number];
+
+function runStep(name: string, shouldPass: boolean): StepResult {
+  const ms = Math.floor(Math.random() * 500) + 50;
+  return [name, shouldPass, ms];
+}
+
+const steps: StepResult[] = [
+  runStep("Navigate to login", true),
+  runStep("Enter credentials", true),
+  runStep("Click submit", true),
+  runStep("Assert dashboard", false),  // simüle edilmiş başarısızlık
+];
+
+const failed = steps.filter(([, passed]) => !passed);
+console.log("Total steps:", steps.length);
+console.log("Failed steps:", failed.length);
+steps.forEach(([name, passed, ms]) => {
+  console.log(\`  \${passed ? "✓" : "✗"} \${name} (\${ms}ms)\`);
+});`
+);
+
+// [5][6] TestEvent discriminated union
+_editorBilingual(5, 6,
+`// Test olaylarını discriminated union ile modelle
+type TestEvent =
+  | { type: "start"; testName: string; timestamp: number }
+  | { type: "pass"; testName: string; durationMs: number }
+  | { type: "fail"; testName: string; errorMessage: string; durationMs: number }
+  | { type: "skip"; testName: string; reason: string };
+
+function logEvent(event: TestEvent): void {
+  switch (event.type) {
+    case "start":
+      console.log("Starting: " + event.testName);
+      break;
+    case "pass":
+      console.log("PASS: " + event.testName + " (" + event.durationMs + "ms)");
+      break;
+    case "fail":
+      console.log("FAIL: " + event.testName + " — " + event.errorMessage);
+      break;
+    case "skip":
+      console.log("SKIP: " + event.testName + " — " + event.reason);
+      break;
+  }
+}
+
+const events: TestEvent[] = [
+  { type: "start", testName: "login_test", timestamp: Date.now() },
+  { type: "pass", testName: "login_test", durationMs: 342 },
+  { type: "fail", testName: "checkout_test", errorMessage: "Timeout", durationMs: 5000 },
+  { type: "skip", testName: "payment_test", reason: "Feature not ready" },
+];
+events.forEach(logEvent);`
+);
+
+// [6][6] assertEqual generic
+_editorBilingual(6, 6,
+`// Tipli parametreli generic assertion yardımcısı
+function assertEqual<T>(actual: T, expected: T, message?: string): void {
+  const passed = JSON.stringify(actual) === JSON.stringify(expected);
+  const label = message ?? "assertEqual";
+  const icon = passed ? "PASS" : "FAIL";
+  console.log(icon + ": " + label);
+  if (!passed) {
+    console.log("  Expected: " + JSON.stringify(expected));
+    console.log("  Actual:   " + JSON.stringify(actual));
+  }
+}
+
+assertEqual(2 + 2, 4, "2+2=4");
+assertEqual("hello".toUpperCase(), "HELLO", "toUpperCase");
+assertEqual([1, 2, 3].length, 3, "array length");
+assertEqual("test".includes("es"), false, "includes check"); // başarısız`
+);
+
+// [7][21] Log decorator
+_editorBilingual(7, 21,
+`// Decorator kodunu çalıştır (tsconfig'de experimentalDecorators gerekli)
+function Log(target: any, key: string, descriptor: PropertyDescriptor) {
+  const original = descriptor.value;
+  descriptor.value = function(...args: any[]) {
+    console.log(\`Calling \${key} with:\`, args);
+    return original.apply(this, args);
+  }
+}
+
+class Calculator {
+  @Log
+  add(a: number, b: number) {
+    return a + b;
+  }
+}
+
+const calc = new Calculator();
+calc.add(5, 10);`
+);
+
+// [8][7] Result generic type
+_editorBilingual(8, 7,
+`// Generic Result tipi — yaygın QA deseni
+type Result<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+function parseJSON<T>(raw: string): Result<T> {
+  try {
+    const data = JSON.parse(raw) as T;
+    return { success: true, data };
+  } catch (e) {
+    return { success: false, error: "Invalid JSON: " + String(e) };
+  }
+}
+
+interface User { id: number; email: string; }
+
+const good = parseJSON<User>('{"id": 1, "email": "alice@example.com"}');
+const bad = parseJSON<User>("not json");
+
+if (good.success) console.log("User:", good.data.email);
+if (!bad.success) console.log("Error:", bad.error);`
+);
+
+// [9][6] Config utility types
+_editorBilingual(9, 6,
+`interface Config {
+  baseUrl: string;
+  timeout: number;
+  retries: number;
+  apiKey: string;
+  debug: boolean;
+}
+
+// Türetilmiş tipler oluşturmak için utility tipleri kullan
+type PublicConfig = Omit<Config, "apiKey">;  // gizli anahtarı gizle
+type PartialUpdate = Partial<Config>;         // PATCH için tümü opsiyonel
+type RequiredCore = Required<Pick<Config, "baseUrl" | "timeout">>;  // alt küme zorunlu
+
+const baseConfig: RequiredCore = { baseUrl: "https://api.example.com", timeout: 5000 };
+const publicView: PublicConfig = { baseUrl: "https://api.example.com", timeout: 5000, retries: 3, debug: false };
+const patchPayload: PartialUpdate = { timeout: 10000 };
+
+console.log("Base:", JSON.stringify(baseConfig));
+console.log("Public:", JSON.stringify(publicView));
+console.log("Patch:", JSON.stringify(patchPayload));`
+);
+
+// [9][15] filterBy keyof
+_editorBilingual(9, 15,
+`interface User {
+  id: number;
+  email: string;
+  role: "admin" | "user";
+  active: boolean;
+}
+
+// keyof kullanarak tip güvenli filtre fonksiyonu oluştur
+function filterBy<T>(
+  items: T[],
+  key: keyof T,
+  value: T[keyof T]
+): T[] {
+  return items.filter(item => item[key] === value);
+}
+
+const users: User[] = [
+  { id: 1, email: "alice@example.com", role: "admin", active: true },
+  { id: 2, email: "bob@example.com", role: "user", active: true },
+  { id: 3, email: "carol@example.com", role: "user", active: false },
+  { id: 4, email: "dave@example.com", role: "admin", active: false },
+];
+
+const admins = filterBy(users, "role", "admin");
+const activeUsers = filterBy(users, "active", true);
+
+console.log("Admins:", admins.map(u => u.email));
+console.log("Active:", activeUsers.map(u => u.email));`
+);
+
+// [10][6] null-safe API response
+_editorBilingual(10, 6,
+`// Null güvenli API yanıt işleme pratiği
+interface ApiUser {
+  id: number;
+  name: string;
+  email?: string;
+  address?: {
+    city: string;
+    country?: string;
+  };
+}
+
+function formatUser(user: ApiUser | null): string {
+  if (user === null) return "No user";
+  const email = user.email ?? "No email";
+  const city = user.address?.city ?? "Unknown city";
+  const country = user.address?.country ?? "Unknown country";
+  return user.name + " | " + email + " | " + city + ", " + country;
+}
+
+const fullUser: ApiUser = {
+  id: 1, name: "Alice", email: "alice@example.com",
+  address: { city: "Istanbul", country: "Turkey" }
+};
+const partialUser: ApiUser = { id: 2, name: "Bob" };
+
+console.log(formatUser(fullUser));
+console.log(formatUser(partialUser));
+console.log(formatUser(null));`
+);
+
+// [10][16] template literal types
+_editorBilingual(10, 16,
+`// Derleme hatalarını tetiklemek için ortamı veya öneki değiştirmeyi dene
+type Browser = "chrome" | "firefox";
+type Action = "click" | "hover";
+
+type TestEvent = \`\${Browser}:\${Action}\`;
+
+const myEvent: TestEvent = "chrome:click"; // OK
+console.log("Event registered:", myEvent);
+
+// const badEvent: TestEvent = "safari:click"; // Bunu yorum satırından çıkarmayı dene`
+);
+
+// [11][11] declare types for JS library
+_editorBilingual(11, 11,
+`// Pratik: Düz bir JS kütüphanesi için tip bildirimleri simüle et
+
+// Hayali bir legacy JavaScript kütüphanesi için tip tanımla:
+declare function runBenchmark(
+  name: string,
+  fn: () => void,
+  iterations?: number
+): { name: string; avgMs: number; minMs: number; maxMs: number };
+
+// Artık TypeScript runBenchmark'ı anlıyor:
+const result = runBenchmark("sort 1000 items", () => {
+  [3, 1, 4, 1, 5, 9, 2, 6].sort();
+}, 100);
+
+// TypeScript dönüş tipi şeklini biliyor:
+const report: string = result.name + ": avg " + result.avgMs.toFixed(2) + "ms";
+console.log(report);
+
+// TypeScript'in hatayı yakalamasını görmek için tipi boz:
+// runBenchmark(42, () => {});   // Hata: number string'e atanamaz
+// result.totalMs;               // Hata: özellik mevcut değil
+console.log("Avg:", result.avgMs, "ms | Min:", result.minMs, "ms");`
+);
+
+// [11][21] DeepReadonly mapped type
+_editorBilingual(11, 21,
+`// DeepReadonly mapped tip oluştur
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
+};
+
+interface Config {
+  server: {
+    host: string;
+    port: number;
+    ssl: boolean;
+  };
+  database: {
+    url: string;
+    poolSize: number;
+  };
+}
+
+const config: DeepReadonly<Config> = {
+  server: { host: "localhost", port: 3000, ssl: true },
+  database: { url: "postgres://localhost/testdb", poolSize: 5 },
+};
+
+console.log("Host:", config.server.host);
+console.log("Port:", config.server.port);
+
+// Bu bir TypeScript hatası olurdu:
+// config.server.port = 9000;  // readonly'e atanamaz`
+);
+
+// [11][33] throw/catch
+_editorBilingual(11, 33,
+`// String vs Error nesnesi fırlatmayı dene
+function testAction() {
+  try {
+    // Bunları değiştirmeyi dene:
+    throw new Error("Element not clickable!");
+    // throw "Something bad happened!";
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.log("Caught standard error:", err.message);
+    } else {
+      console.log("Caught non-standard throw:", String(err));
+    }
+  }
+}
+testAction();`
+);

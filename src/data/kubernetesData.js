@@ -1,3 +1,955 @@
+const kubernetesIntroInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-intro-desired-state-practice',
+    label: { tr: 'Pratik: İstenen durumu komutla tarif et', en: 'Practice: Describe desired state with commands' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Kubernetes mantığını komut üstünde hissetmek: tek tek container yönetmek yerine "3 kopya nginx çalışsın ve servisle erişilsin" dersin, controller bu durumu korur.',
+      en: 'Goal: Feel the Kubernetes model in commands: instead of managing containers one by one, you declare "run 3 nginx replicas and expose them with a Service", then controllers keep that state alive.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını Deployment oluşturma, replica sayısı ve Service expose komutlarıyla tamamla.',
+      en: 'Fill the TODO parts with the Deployment creation, replica count, and Service expose commands.',
+    },
+    code: {
+      tr: `# qa-web adında bir Deployment oluştur
+TODO
+
+# İstenen durumu 3 replica olarak güncelle
+TODO
+
+# Pod'ları sabit bir Service arkasına koy
+TODO
+
+# Son durumu gözlemle
+kubectl get deploy,pod,svc -l app=qa-web`,
+      en: `# Create a Deployment named qa-web
+TODO
+
+# Update desired state to 3 replicas
+TODO
+
+# Put the pods behind a stable Service
+TODO
+
+# Observe the final state
+kubectl get deploy,pod,svc -l app=qa-web`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO
+kubectl get deploy,pod,svc -l app=qa-web`,
+      en: `TODO
+TODO
+TODO
+kubectl get deploy,pod,svc -l app=qa-web`,
+    },
+    solutionCode: {
+      tr: `kubectl create deployment qa-web --image=nginx:1.25
+kubectl scale deployment qa-web --replicas=3
+kubectl expose deployment qa-web --port=80 --type=ClusterIP
+kubectl get deploy,pod,svc -l app=qa-web`,
+      en: `kubectl create deployment qa-web --image=nginx:1.25
+kubectl scale deployment qa-web --replicas=3
+kubectl expose deployment qa-web --port=80 --type=ClusterIP
+kubectl get deploy,pod,svc -l app=qa-web`,
+    },
+    expected: {
+      tr: `Deployment qa-web oluşturulur.
+ReplicaSet 3 pod hedefini korur.
+Service pod'lar değişse bile sabit endpoint sağlar.`,
+      en: `Deployment qa-web is created.
+ReplicaSet keeps the 3-pod target alive.
+Service provides a stable endpoint even when pods change.`,
+    },
+    hints: [
+      { tr: 'Deployment oluşturmak için kubectl create deployment kullanılır.', en: 'Use kubectl create deployment to create a Deployment.' },
+      { tr: 'Replica sayısını kubectl scale deployment ... --replicas=3 ile değiştirirsin.', en: 'Change replica count with kubectl scale deployment ... --replicas=3.' },
+      { tr: 'Service oluşturmak için kubectl expose deployment komutu pratik bir başlangıçtır.', en: 'kubectl expose deployment is a practical way to create a Service.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Kubernetes İstenen Durumu Nasıl Korur', en: 'How Kubernetes Keeps Desired State' },
+    steps: [
+      { id: 1, icon: '📝', label: { tr: 'İstenen durum yazılır', en: 'Desired state declared' }, detail: { tr: 'Deployment veya YAML ile kaç replica, hangi image ve hangi port gerektiği tarif edilir.', en: 'A Deployment or YAML describes replica count, image, and ports.' } },
+      { id: 2, icon: '🎮', label: { tr: 'API Server alır', en: 'API Server receives it' }, detail: { tr: 'kubectl isteği API Server üzerinden cluster durumuna kaydedilir.', en: 'kubectl sends the request through the API Server into cluster state.' } },
+      { id: 3, icon: '🔁', label: { tr: 'Controller izler', en: 'Controller watches' }, detail: { tr: 'Deployment controller mevcut durum ile istenen durum arasındaki farkı sürekli kontrol eder.', en: 'The Deployment controller continuously compares actual state with desired state.' } },
+      { id: 4, icon: '📦', label: { tr: 'Pod oluşturulur', en: 'Pods are created' }, detail: { tr: 'ReplicaSet eksik pod varsa yenisini ister; scheduler node seçer.', en: 'ReplicaSet asks for missing pods; the scheduler chooses nodes.' } },
+      { id: 5, icon: '✅', label: { tr: 'Durum korunur', en: 'State is maintained' }, detail: { tr: 'Bir pod silinirse controller tekrar oluşturur; self-healing burada başlar.', en: 'If a pod is deleted, the controller creates another; this is self-healing.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-desired-state-order-01',
+    question: { tr: 'Kubernetes desired state akışını doğru sıraya diz.', en: 'Arrange the Kubernetes desired state flow.' },
+    items: [
+      { id: '1', text: { tr: 'Deployment veya manifest ile istenen durum tanımlanır', en: 'Desired state is defined with a Deployment or manifest' }, order: 1 },
+      { id: '2', text: { tr: 'kubectl isteği API Server\'a gönderir', en: 'kubectl sends the request to the API Server' }, order: 2 },
+      { id: '3', text: { tr: 'Controller mevcut durum ile hedef durumu karşılaştırır', en: 'A controller compares actual state with target state' }, order: 3 },
+      { id: '4', text: { tr: 'Scheduler yeni pod için uygun node seçer', en: 'The scheduler selects a suitable node for the new pod' }, order: 4 },
+      { id: '5', text: { tr: 'kubelet container\'ı çalıştırır ve durumu raporlar', en: 'kubelet runs the container and reports status' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesInstallationInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-install-minikube-practice',
+    label: { tr: 'Pratik: minikube kurulumunu doğrula', en: 'Practice: Verify a minikube setup' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: "kuruldu" ile "cluster gerçekten çalışıyor" arasındaki farkı görmek. Docker Desktop\'ta daemon kontrolü nasıl önemliyse, Kubernetes\'te node ve system pod kontrolü önemlidir.',
+      en: 'Goal: Separate "installed" from "the cluster is actually running". Just as Docker Desktop needs daemon verification, Kubernetes needs node and system pod verification.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını minikube başlatma, status, node ve kube-system pod kontrolleriyle tamamla.',
+      en: 'Fill TODO with minikube start, status, node, and kube-system pod checks.',
+    },
+    code: {
+      tr: `# Local cluster'ı başlat
+TODO
+
+# minikube servislerinin durumunu kontrol et
+TODO
+
+# API Server ile konuşabildiğini doğrula
+TODO
+
+# Control plane pod'larını gör
+TODO`,
+      en: `# Start the local cluster
+TODO
+
+# Check minikube service status
+TODO
+
+# Verify you can talk to the API Server
+TODO
+
+# Inspect control plane pods
+TODO`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO
+TODO`,
+      en: `TODO
+TODO
+TODO
+TODO`,
+    },
+    solutionCode: {
+      tr: `minikube start --driver=docker
+minikube status
+kubectl get nodes
+kubectl get pods -n kube-system`,
+      en: `minikube start --driver=docker
+minikube status
+kubectl get nodes
+kubectl get pods -n kube-system`,
+    },
+    expected: {
+      tr: `minikube Running görünür.
+Node Ready durumundadır.
+kube-system pod'ları Running veya Completed durumuna gelir.`,
+      en: `minikube shows Running.
+The node is Ready.
+kube-system pods become Running or Completed.`,
+    },
+    hints: [
+      { tr: 'Docker driver için minikube start --driver=docker kullanılır.', en: 'Use minikube start --driver=docker for the Docker driver.' },
+      { tr: 'kubectl get nodes API Server bağlantısını ve node sağlığını doğrular.', en: 'kubectl get nodes verifies API Server connectivity and node health.' },
+      { tr: 'kube-system namespace control plane ve eklenti pod\'larını gösterir.', en: 'The kube-system namespace shows control plane and addon pods.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Local Kubernetes İlk Çalıştırma Akışı', en: 'Local Kubernetes First-Run Flow' },
+    steps: [
+      { id: 1, icon: '🐳', label: { tr: 'Runtime hazır', en: 'Runtime ready' }, detail: { tr: 'minikube Docker veya VM driver üstünde tek node cluster başlatır.', en: 'minikube starts a single-node cluster on a Docker or VM driver.' } },
+      { id: 2, icon: '☸️', label: { tr: 'Cluster başlar', en: 'Cluster starts' }, detail: { tr: 'API Server, etcd, scheduler ve controller manager system pod\'ları ayağa kalkar.', en: 'API Server, etcd, scheduler, and controller manager system pods come up.' } },
+      { id: 3, icon: '🔑', label: { tr: 'Context ayarlanır', en: 'Context configured' }, detail: { tr: 'kubectl config içinde aktif context minikube olur.', en: 'The active kubectl context becomes minikube.' } },
+      { id: 4, icon: '📡', label: { tr: 'Node Ready olur', en: 'Node becomes Ready' }, detail: { tr: 'kubelet API Server\'a node durumunu bildirir.', en: 'kubelet reports node health to the API Server.' } },
+      { id: 5, icon: '🧪', label: { tr: 'Smoke test yapılır', en: 'Smoke test runs' }, detail: { tr: 'Küçük bir nginx Deployment ile uçtan uca pod oluşturma yolu doğrulanır.', en: 'A small nginx Deployment verifies the end-to-end pod creation path.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-minikube-order-01',
+    question: { tr: 'minikube ile local cluster doğrulama adımlarını sırala.', en: 'Arrange the minikube local cluster verification steps.' },
+    items: [
+      { id: '1', text: { tr: 'Docker Desktop veya VM driver hazır edilir', en: 'Docker Desktop or a VM driver is made ready' }, order: 1 },
+      { id: '2', text: { tr: 'minikube start ile cluster başlatılır', en: 'The cluster is started with minikube start' }, order: 2 },
+      { id: '3', text: { tr: 'minikube status ile bileşenler kontrol edilir', en: 'Components are checked with minikube status' }, order: 3 },
+      { id: '4', text: { tr: 'kubectl get nodes ile API bağlantısı doğrulanır', en: 'API connectivity is verified with kubectl get nodes' }, order: 4 },
+      { id: '5', text: { tr: 'Örnek Deployment ile uçtan uca smoke test yapılır', en: 'A sample Deployment runs an end-to-end smoke test' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesArchitectureInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-architecture-inspect-practice',
+    label: { tr: 'Pratik: Cluster mimarisini kubectl ile oku', en: 'Practice: Read cluster architecture with kubectl' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Control Plane ve Worker Node bileşenlerini sadece diagramda değil, çalışan cluster üzerinde de görebilmek.',
+      en: 'Goal: See Control Plane and Worker Node components on a running cluster, not only in a diagram.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını cluster bilgisi, node listesi, kube-system pod\'ları ve node detaylarıyla tamamla.',
+      en: 'Fill TODO with cluster info, node list, kube-system pods, and node details.',
+    },
+    code: {
+      tr: `# API Server endpoint'lerini gör
+TODO
+
+# Worker node'ları geniş formatta listele
+TODO
+
+# Control Plane ve ağ bileşenlerini gör
+TODO
+
+# Bir node'un kubelet/container runtime bilgisini oku
+TODO`,
+      en: `# See API Server endpoints
+TODO
+
+# List worker nodes in wide format
+TODO
+
+# See Control Plane and networking components
+TODO
+
+# Read kubelet/container runtime info for a node
+TODO`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO
+TODO`,
+      en: `TODO
+TODO
+TODO
+TODO`,
+    },
+    solutionCode: {
+      tr: `kubectl cluster-info
+kubectl get nodes -o wide
+kubectl get pods -n kube-system
+kubectl describe node minikube`,
+      en: `kubectl cluster-info
+kubectl get nodes -o wide
+kubectl get pods -n kube-system
+kubectl describe node minikube`,
+    },
+    expected: {
+      tr: `API Server endpoint'i görünür.
+Node Ready durumunda listelenir.
+kube-system içinde scheduler, controller, CoreDNS ve network pod'ları görünür.`,
+      en: `The API Server endpoint is visible.
+The node is listed as Ready.
+kube-system shows scheduler, controller, CoreDNS, and networking pods.`,
+    },
+    hints: [
+      { tr: 'kubectl cluster-info cluster endpoint\'lerini gösterir.', en: 'kubectl cluster-info shows cluster endpoints.' },
+      { tr: '-n kube-system system namespace\'ini hedefler.', en: '-n kube-system targets the system namespace.' },
+      { tr: 'kubectl describe node runtime, kapasite ve condition bilgilerini gösterir.', en: 'kubectl describe node shows runtime, capacity, and conditions.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Bir Pod İsteği Cluster İçinde Nasıl Yürür', en: 'How a Pod Request Moves Through the Cluster' },
+    steps: [
+      { id: 1, icon: '⌨️', label: { tr: 'kubectl istek yollar', en: 'kubectl sends request' }, detail: { tr: 'Manifest veya komut API Server\'a HTTPS isteği olarak gider.', en: 'A manifest or command goes to the API Server as an HTTPS request.' } },
+      { id: 2, icon: '🗄️', label: { tr: 'etcd durum tutar', en: 'etcd stores state' }, detail: { tr: 'API Server doğrulanmış hedef durumu etcd içine yazar.', en: 'The API Server writes validated target state into etcd.' } },
+      { id: 3, icon: '📅', label: { tr: 'Scheduler node seçer', en: 'Scheduler picks node' }, detail: { tr: 'Kaynak istekleri, taint ve affinity kurallarına göre uygun node seçilir.', en: 'A suitable node is selected by resources, taints, and affinity rules.' } },
+      { id: 4, icon: '👮', label: { tr: 'kubelet uygular', en: 'kubelet applies' }, detail: { tr: 'Seçilen node üzerindeki kubelet container runtime\'a pod\'u başlatmasını söyler.', en: 'kubelet on the selected node asks the runtime to start the pod.' } },
+      { id: 5, icon: '🌐', label: { tr: 'kube-proxy yönlendirir', en: 'kube-proxy routes' }, detail: { tr: 'Service trafiği sağlıklı pod endpoint\'lerine yönlenir.', en: 'Service traffic is routed to healthy pod endpoints.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-architecture-order-01',
+    question: { tr: 'Yeni bir pod oluşturulurken bileşenlerin çalışmasını sırala.', en: 'Arrange how components work when a new pod is created.' },
+    items: [
+      { id: '1', text: { tr: 'kubectl isteği API Server\'a gider', en: 'kubectl request reaches the API Server' }, order: 1 },
+      { id: '2', text: { tr: 'API Server hedef durumu etcd içine kaydeder', en: 'API Server stores desired state in etcd' }, order: 2 },
+      { id: '3', text: { tr: 'Scheduler pod için uygun node seçer', en: 'Scheduler selects a suitable node for the pod' }, order: 3 },
+      { id: '4', text: { tr: 'kubelet runtime üzerinden container\'ı başlatır', en: 'kubelet starts the container through the runtime' }, order: 4 },
+      { id: '5', text: { tr: 'Controller ve kubelet durum raporlarını izler', en: 'Controllers and kubelet watch status reports' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesCoreInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-core-deployment-service-practice',
+    label: { tr: 'Pratik: Deployment ve Service bağlantısını tamamla', en: 'Practice: Complete the Deployment and Service link' },
+    language: 'yaml',
+    task: {
+      tr: 'Amaç: Pod, Deployment, label ve Service selector ilişkisinin neden kritik olduğunu görmek. Selector yanlışsa Service pod\'lara trafik gönderemez.',
+      en: 'Goal: See why Pod, Deployment, label, and Service selector relationships matter. If the selector is wrong, the Service cannot send traffic to pods.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını aynı app label değeriyle doldur; Deployment pod\'ları üretir, Service aynı label\'ı seçer.',
+      en: 'Fill TODO with the same app label value; the Deployment creates pods and the Service selects the same label.',
+    },
+    code: {
+      tr: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: TODO
+  template:
+    metadata:
+      labels:
+        app: TODO
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qa-web
+spec:
+  selector:
+    app: TODO
+  ports:
+  - port: 80
+    targetPort: 80`,
+      en: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: TODO
+  template:
+    metadata:
+      labels:
+        app: TODO
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qa-web
+spec:
+  selector:
+    app: TODO
+  ports:
+  - port: 80
+    targetPort: 80`,
+    },
+    starterCode: {
+      tr: `selector:
+  matchLabels:
+    app: TODO
+template:
+  metadata:
+    labels:
+      app: TODO
+service:
+  selector:
+    app: TODO`,
+      en: `selector:
+  matchLabels:
+    app: TODO
+template:
+  metadata:
+    labels:
+      app: TODO
+service:
+  selector:
+    app: TODO`,
+    },
+    solutionCode: {
+      tr: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qa-web
+  template:
+    metadata:
+      labels:
+        app: qa-web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qa-web
+spec:
+  selector:
+    app: qa-web
+  ports:
+  - port: 80
+    targetPort: 80`,
+      en: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qa-web
+  template:
+    metadata:
+      labels:
+        app: qa-web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qa-web
+spec:
+  selector:
+    app: qa-web
+  ports:
+  - port: 80
+    targetPort: 80`,
+    },
+    expected: {
+      tr: `Deployment selector, pod label ve Service selector aynı app=qa-web değerini kullanır.
+Service endpoint listesi boş kalmaz.`,
+      en: `Deployment selector, pod label, and Service selector all use app=qa-web.
+The Service endpoint list does not stay empty.`,
+    },
+    hints: [
+      { tr: 'Deployment spec.selector.matchLabels ve template.metadata.labels uyumlu olmalı.', en: 'Deployment spec.selector.matchLabels and template.metadata.labels must match.' },
+      { tr: 'Service selector pod label\'larını hedefler; Deployment adını değil.', en: 'A Service selector targets pod labels, not the Deployment name.' },
+      { tr: 'Selector hatasını kubectl get endpoints service-name ile yakalayabilirsin.', en: 'You can catch selector mistakes with kubectl get endpoints service-name.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Deployment, ReplicaSet, Pod ve Service İlişkisi', en: 'Deployment, ReplicaSet, Pod, and Service Relationship' },
+    steps: [
+      { id: 1, icon: '🧾', label: { tr: 'Deployment tarif edilir', en: 'Deployment described' }, detail: { tr: 'Image, replica sayısı ve pod template tek yerde tanımlanır.', en: 'Image, replica count, and pod template are defined in one place.' } },
+      { id: 2, icon: '🔁', label: { tr: 'ReplicaSet oluşur', en: 'ReplicaSet created' }, detail: { tr: 'ReplicaSet pod sayısını hedef değerde tutar.', en: 'ReplicaSet keeps pod count at the target value.' } },
+      { id: 3, icon: '📦', label: { tr: 'Pod\'lar başlar', en: 'Pods start' }, detail: { tr: 'Her pod aynı label ile gelir ve container image\'ını çalıştırır.', en: 'Each pod carries the same label and runs the container image.' } },
+      { id: 4, icon: '🌐', label: { tr: 'Service seçer', en: 'Service selects' }, detail: { tr: 'Service selector, label eşleşen sağlıklı pod endpoint\'lerini bulur.', en: 'The Service selector finds healthy pod endpoints with matching labels.' } },
+      { id: 5, icon: '🧪', label: { tr: 'QA doğrular', en: 'QA verifies' }, detail: { tr: 'QA, endpoint boş mu, readiness çalışıyor mu ve trafik doğru pod\'lara gidiyor mu kontrol eder.', en: 'QA checks whether endpoints exist, readiness works, and traffic reaches the right pods.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-core-objects-order-01',
+    question: { tr: 'Deployment ve Service nesnelerinin çalışma ilişkisini sırala.', en: 'Arrange how Deployment and Service objects work together.' },
+    items: [
+      { id: '1', text: { tr: 'Deployment pod template ve replica hedefini tanımlar', en: 'Deployment defines pod template and replica target' }, order: 1 },
+      { id: '2', text: { tr: 'ReplicaSet hedef pod sayısını üretir', en: 'ReplicaSet creates the target pod count' }, order: 2 },
+      { id: '3', text: { tr: 'Pod\'lar ortak label ile çalışır hale gelir', en: 'Pods become running with a shared label' }, order: 3 },
+      { id: '4', text: { tr: 'Service selector bu label\'a sahip pod\'ları endpoint yapar', en: 'Service selector turns pods with that label into endpoints' }, order: 4 },
+      { id: '5', text: { tr: 'İstemci sabit Service DNS/IP üzerinden pod\'lara ulaşır', en: 'Clients reach pods through stable Service DNS/IP' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesKubectlInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-kubectl-debug-practice',
+    label: { tr: 'Pratik: CrashLoopBackOff debug akışını tamamla', en: 'Practice: Complete the CrashLoopBackOff debug flow' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: kubectl komutlarını ezberlemek yerine debug sırasını öğrenmek: önce gör, sonra describe, sonra önceki crash logunu oku.',
+      en: 'Goal: Learn the debug order instead of memorizing kubectl commands: observe first, describe next, then read the previous crash log.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını pod listesi, describe, previous logs, events ve rollout kontrolüyle tamamla.',
+      en: 'Fill TODO with pod list, describe, previous logs, events, and rollout status checks.',
+    },
+    code: {
+      tr: `# Namespace içindeki pod durumlarını gör
+TODO
+
+# Problemli pod'un event ve condition bilgilerini incele
+TODO
+
+# Crash eden önceki container logunu oku
+TODO
+
+# Son event'leri zaman sırasıyla listele
+TODO
+
+# Deployment rollout durumunu kontrol et
+TODO`,
+      en: `# See pod states in the namespace
+TODO
+
+# Inspect events and conditions for the failing pod
+TODO
+
+# Read logs from the previously crashed container
+TODO
+
+# List recent events by time
+TODO
+
+# Check Deployment rollout status
+TODO`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO
+TODO
+TODO`,
+      en: `TODO
+TODO
+TODO
+TODO
+TODO`,
+    },
+    solutionCode: {
+      tr: `kubectl get pods -n qa
+kubectl describe pod web-abc123 -n qa
+kubectl logs web-abc123 -n qa --previous
+kubectl get events -n qa --sort-by=.lastTimestamp
+kubectl rollout status deployment/web -n qa`,
+      en: `kubectl get pods -n qa
+kubectl describe pod web-abc123 -n qa
+kubectl logs web-abc123 -n qa --previous
+kubectl get events -n qa --sort-by=.lastTimestamp
+kubectl rollout status deployment/web -n qa`,
+    },
+    expected: {
+      tr: `Pod durumu görülür.
+Events image pull, probe veya scheduling hatasını gösterebilir.
+--previous crash eden son container logunu getirir.`,
+      en: `Pod state is visible.
+Events may reveal image pull, probe, or scheduling failures.
+--previous retrieves logs from the last crashed container.`,
+    },
+    hints: [
+      { tr: 'CrashLoopBackOff için ilk faydalı log çoğu zaman --previous ile gelir.', en: 'For CrashLoopBackOff, the useful log often comes with --previous.' },
+      { tr: 'describe pod Events bölümü probe, image pull ve scheduling hatalarını gösterir.', en: 'describe pod Events shows probe, image pull, and scheduling failures.' },
+      { tr: '--sort-by=.lastTimestamp son event\'leri okumayı kolaylaştırır.', en: '--sort-by=.lastTimestamp makes recent events easier to read.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'kubectl ile Güvenli Debug Sırası', en: 'Safe Debug Order with kubectl' },
+    steps: [
+      { id: 1, icon: '👀', label: { tr: 'Durumu gözle', en: 'Observe state' }, detail: { tr: 'kubectl get ile hangi kaynakların bozuk olduğunu önce yüzeyden gör.', en: 'Use kubectl get to see which resources look broken at a high level.' } },
+      { id: 2, icon: '🧾', label: { tr: 'Detay oku', en: 'Read details' }, detail: { tr: 'kubectl describe Events, condition ve selector bilgilerini gösterir.', en: 'kubectl describe shows Events, conditions, and selector details.' } },
+      { id: 3, icon: '📜', label: { tr: 'Log al', en: 'Read logs' }, detail: { tr: 'kubectl logs ile canlı veya --previous ile son çöken container logu okunur.', en: 'kubectl logs reads live logs or the last crashed container with --previous.' } },
+      { id: 4, icon: '🔍', label: { tr: 'Hipotez kur', en: 'Form hypothesis' }, detail: { tr: 'Image tag, env var, Secret, probe veya resource limit şüphesi netleştirilir.', en: 'Image tag, env var, Secret, probe, or resource limit suspects are narrowed down.' } },
+      { id: 5, icon: '✅', label: { tr: 'Rollout doğrula', en: 'Verify rollout' }, detail: { tr: 'Fix sonrası rollout status ve pod readiness izlenir.', en: 'After the fix, rollout status and pod readiness are watched.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-kubectl-debug-order-01',
+    question: { tr: 'CrashLoopBackOff debug adımlarını doğru sıraya diz.', en: 'Arrange the CrashLoopBackOff debug steps.' },
+    items: [
+      { id: '1', text: { tr: 'kubectl get pods ile problemli pod\'u ve namespace\'i bul', en: 'Find the failing pod and namespace with kubectl get pods' }, order: 1 },
+      { id: '2', text: { tr: 'kubectl describe pod ile Events ve condition alanlarını oku', en: 'Read Events and conditions with kubectl describe pod' }, order: 2 },
+      { id: '3', text: { tr: 'kubectl logs --previous ile son crash logunu al', en: 'Fetch the last crash log with kubectl logs --previous' }, order: 3 },
+      { id: '4', text: { tr: 'Image, env, Secret, probe veya resource limit nedenini düzelt', en: 'Fix image, env, Secret, probe, or resource limit cause' }, order: 4 },
+      { id: '5', text: { tr: 'kubectl rollout status ve get pods -w ile sonucu doğrula', en: 'Verify with kubectl rollout status and get pods -w' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesYamlInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-yaml-probes-practice',
+    label: { tr: 'Pratik: Readiness ve liveness probe ekle', en: 'Practice: Add readiness and liveness probes' },
+    language: 'yaml',
+    task: {
+      tr: 'Amaç: QA açısından kritik sağlık kontrollerini manifest içine yerleştirmek. Readiness trafik almayı, liveness yeniden başlatmayı etkiler.',
+      en: 'Goal: Add health checks that matter for QA. Readiness controls traffic eligibility; liveness controls restart behavior.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını HTTP path, port ve gecikme değerleriyle doldur.',
+      en: 'Fill TODO with HTTP path, port, and delay values.',
+    },
+    code: {
+      tr: `containers:
+- name: web
+  image: myapp:1.0
+  ports:
+  - containerPort: 8080
+  readinessProbe:
+    httpGet:
+      path: TODO
+      port: TODO
+    initialDelaySeconds: TODO
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: TODO
+      port: TODO
+    initialDelaySeconds: TODO
+    periodSeconds: 10`,
+      en: `containers:
+- name: web
+  image: myapp:1.0
+  ports:
+  - containerPort: 8080
+  readinessProbe:
+    httpGet:
+      path: TODO
+      port: TODO
+    initialDelaySeconds: TODO
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: TODO
+      port: TODO
+    initialDelaySeconds: TODO
+    periodSeconds: 10`,
+    },
+    starterCode: {
+      tr: `readinessProbe:
+  httpGet:
+    path: TODO
+    port: TODO
+livenessProbe:
+  httpGet:
+    path: TODO
+    port: TODO`,
+      en: `readinessProbe:
+  httpGet:
+    path: TODO
+    port: TODO
+livenessProbe:
+  httpGet:
+    path: TODO
+    port: TODO`,
+    },
+    solutionCode: {
+      tr: `containers:
+- name: web
+  image: myapp:1.0
+  ports:
+  - containerPort: 8080
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10`,
+      en: `containers:
+- name: web
+  image: myapp:1.0
+  ports:
+  - containerPort: 8080
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10`,
+    },
+    expected: {
+      tr: `Hazır olmayan pod Service trafiği almaz.
+Gerçekten kilitlenen container liveness ile yeniden başlatılır.
+QA rollout sırasında sağlık davranışını ölçebilir.`,
+      en: `A not-ready pod receives no Service traffic.
+A truly stuck container is restarted by liveness.
+QA can measure health behavior during rollout.`,
+    },
+    hints: [
+      { tr: 'Readiness için genelde /health/ready gibi trafik almaya hazır endpoint kullanılır.', en: 'Readiness often uses an endpoint such as /health/ready.' },
+      { tr: 'Liveness gecikmesi readiness\'ten daha uzun olmalıdır; erken restart riski azalır.', en: 'Liveness delay should be longer than readiness to reduce early restart risk.' },
+      { tr: 'Port containerPort ile aynı olmalı veya named port kullanılmalı.', en: 'The port should match containerPort or use a named port.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Manifest Apply Sonrası Ne Olur', en: 'What Happens After Manifest Apply' },
+    steps: [
+      { id: 1, icon: '📄', label: { tr: 'YAML yazılır', en: 'YAML written' }, detail: { tr: 'apiVersion, kind, metadata ve spec alanları istenen durumu tarif eder.', en: 'apiVersion, kind, metadata, and spec describe desired state.' } },
+      { id: 2, icon: '✅', label: { tr: 'Validasyon yapılır', en: 'Validation runs' }, detail: { tr: 'API Server şema, yetki ve namespace kontrollerini yapar.', en: 'The API Server checks schema, authorization, and namespace.' } },
+      { id: 3, icon: '🗄️', label: { tr: 'Durum kaydedilir', en: 'State stored' }, detail: { tr: 'Geçerli manifest cluster durumuna yazılır.', en: 'A valid manifest is written into cluster state.' } },
+      { id: 4, icon: '🔁', label: { tr: 'Controller uygular', en: 'Controller applies' }, detail: { tr: 'Deployment, Service ve HPA controller\'ları kendi kaynaklarını uzlaştırır.', en: 'Deployment, Service, and HPA controllers reconcile their resources.' } },
+      { id: 5, icon: '🧪', label: { tr: 'QA doğrular', en: 'QA verifies' }, detail: { tr: 'rollout status, endpoints, probes ve logs ile uygulamanın gerçekten hazır olduğu kanıtlanır.', en: 'rollout status, endpoints, probes, and logs prove the app is actually ready.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-yaml-apply-order-01',
+    question: { tr: 'Bir Kubernetes manifestinin uygulanma akışını sıraya diz.', en: 'Arrange the flow for applying a Kubernetes manifest.' },
+    items: [
+      { id: '1', text: { tr: 'Manifest apiVersion, kind, metadata ve spec ile yazılır', en: 'Manifest is written with apiVersion, kind, metadata, and spec' }, order: 1 },
+      { id: '2', text: { tr: 'kubectl apply manifesti API Server\'a gönderir', en: 'kubectl apply sends the manifest to the API Server' }, order: 2 },
+      { id: '3', text: { tr: 'API Server manifesti doğrular ve kaydeder', en: 'API Server validates and stores the manifest' }, order: 3 },
+      { id: '4', text: { tr: 'Controller hedef duruma ulaşmak için kaynakları oluşturur', en: 'Controllers create resources to reach target state' }, order: 4 },
+      { id: '5', text: { tr: 'QA rollout, endpoints, probes ve logları kontrol eder', en: 'QA checks rollout, endpoints, probes, and logs' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesEcosystemInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-ecosystem-helm-ci-practice',
+    label: { tr: 'Pratik: CI/CD ile Helm deploy komutunu tamamla', en: 'Practice: Complete a CI/CD Helm deploy command' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Docker image tag, registry, Helm chart ve Kubernetes namespace zincirini tek deploy komutunda birleştirmek.',
+      en: 'Goal: Connect Docker image tag, registry, Helm chart, and Kubernetes namespace in one deploy command.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını release adı, chart yolu, namespace ve image tag override değerleriyle doldur.',
+      en: 'Fill TODO with release name, chart path, namespace, and image tag override values.',
+    },
+    code: {
+      tr: `# CI build image'ı registry'ye push etti:
+# registry.example.com/qa/web:build-128
+
+helm upgrade --install TODO TODO \\
+  --namespace TODO --create-namespace \\
+  --set image.repository=registry.example.com/qa/web \\
+  --set image.tag=TODO \\
+  --wait --timeout 5m`,
+      en: `# CI pushed the image to the registry:
+# registry.example.com/qa/web:build-128
+
+helm upgrade --install TODO TODO \\
+  --namespace TODO --create-namespace \\
+  --set image.repository=registry.example.com/qa/web \\
+  --set image.tag=TODO \\
+  --wait --timeout 5m`,
+    },
+    starterCode: {
+      tr: `helm upgrade --install TODO TODO \\
+  --namespace TODO --create-namespace \\
+  --set image.tag=TODO \\
+  --wait --timeout 5m`,
+      en: `helm upgrade --install TODO TODO \\
+  --namespace TODO --create-namespace \\
+  --set image.tag=TODO \\
+  --wait --timeout 5m`,
+    },
+    solutionCode: {
+      tr: `helm upgrade --install qa-web ./charts/web \\
+  --namespace qa --create-namespace \\
+  --set image.repository=registry.example.com/qa/web \\
+  --set image.tag=build-128 \\
+  --wait --timeout 5m`,
+      en: `helm upgrade --install qa-web ./charts/web \\
+  --namespace qa --create-namespace \\
+  --set image.repository=registry.example.com/qa/web \\
+  --set image.tag=build-128 \\
+  --wait --timeout 5m`,
+    },
+    expected: {
+      tr: `qa-web release'i qa namespace'ine kurulur veya güncellenir.
+Chart build-128 image tag'ini kullanır.
+--wait rollout hazır olana kadar CI adımını bekletir.`,
+      en: `The qa-web release is installed or upgraded in the qa namespace.
+The chart uses the build-128 image tag.
+--wait keeps the CI step waiting until rollout is ready.`,
+    },
+    hints: [
+      { tr: 'Helm release adı qa-web gibi uygulama ortamını anlatmalıdır.', en: 'A Helm release name such as qa-web should describe the app environment.' },
+      { tr: 'Chart yolu örnek olarak ./charts/web olabilir.', en: 'A chart path can be ./charts/web.' },
+      { tr: '--wait CI pipeline\'ın apply sonrası hemen başarılı sayılmasını engeller.', en: '--wait prevents the CI pipeline from passing immediately after apply.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Modern K8s Ekosisteminde Koddan Production\'a', en: 'From Code to Production in the Modern K8s Ecosystem' },
+    steps: [
+      { id: 1, icon: '🐙', label: { tr: 'Git tetikler', en: 'Git triggers' }, detail: { tr: 'PR veya merge Jenkins/GitHub Actions pipeline\'ını başlatır.', en: 'A PR or merge starts a Jenkins/GitHub Actions pipeline.' } },
+      { id: 2, icon: '🐳', label: { tr: 'Image build olur', en: 'Image built' }, detail: { tr: 'Dockerfile uygulamayı immutable image haline getirir.', en: 'Dockerfile turns the app into an immutable image.' } },
+      { id: 3, icon: '📦', label: { tr: 'Registry\'ye push edilir', en: 'Pushed to registry' }, detail: { tr: 'Tag\'li image ECR, Docker Hub veya private registry içine gider.', en: 'The tagged image goes to ECR, Docker Hub, or a private registry.' } },
+      { id: 4, icon: '☸️', label: { tr: 'K8s deploy eder', en: 'K8s deploys' }, detail: { tr: 'Helm veya kubectl yeni tag ile rollout başlatır.', en: 'Helm or kubectl starts a rollout with the new tag.' } },
+      { id: 5, icon: '📈', label: { tr: 'Monitoring izler', en: 'Monitoring watches' }, detail: { tr: 'Prometheus, Grafana ve alerting rollout sonrası kalite sinyallerini görünür yapar.', en: 'Prometheus, Grafana, and alerting make post-rollout quality signals visible.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-ecosystem-deploy-order-01',
+    question: { tr: 'Kubernetes ekosisteminde CI/CD deploy zincirini sıraya diz.', en: 'Arrange the CI/CD deploy chain in the Kubernetes ecosystem.' },
+    items: [
+      { id: '1', text: { tr: 'Kod Git\'e push edilir ve pipeline tetiklenir', en: 'Code is pushed to Git and the pipeline is triggered' }, order: 1 },
+      { id: '2', text: { tr: 'Testler koşar ve Docker image build edilir', en: 'Tests run and a Docker image is built' }, order: 2 },
+      { id: '3', text: { tr: 'Image tag ile registry\'ye push edilir', en: 'The image is pushed to a registry with a tag' }, order: 3 },
+      { id: '4', text: { tr: 'Helm/kubectl yeni tag ile Kubernetes rollout başlatır', en: 'Helm/kubectl starts a Kubernetes rollout with the new tag' }, order: 4 },
+      { id: '5', text: { tr: 'Monitoring, logs ve smoke test sonucu doğrular', en: 'Monitoring, logs, and smoke tests verify the result' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const kubernetesRealWorldInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'kubernetes-realworld-rollout-practice',
+    label: { tr: 'Pratik: Rolling update ve rollback komutlarını tamamla', en: 'Practice: Complete rolling update and rollback commands' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Production benzeri bir deploy sırasında yeni image tag\'ini yayınlamak, rollout\'u beklemek ve gerekirse güvenli rollback yapmak.',
+      en: 'Goal: During a production-like deploy, publish a new image tag, wait for rollout, and safely roll back when needed.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını set image, rollout status, undo ve history komutlarıyla tamamla.',
+      en: 'Fill TODO with set image, rollout status, undo, and history commands.',
+    },
+    code: {
+      tr: `# Yeni versiyonu yayına al
+TODO
+
+# Rollout gerçekten bitti mi bekle
+TODO
+
+# Sorun varsa önceki ReplicaSet'e dön
+TODO
+
+# Rollout geçmişini kanıt olarak incele
+TODO`,
+      en: `# Release the new version
+TODO
+
+# Wait until rollout truly finishes
+TODO
+
+# If broken, return to the previous ReplicaSet
+TODO
+
+# Inspect rollout history as evidence
+TODO`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO
+TODO`,
+      en: `TODO
+TODO
+TODO
+TODO`,
+    },
+    solutionCode: {
+      tr: `kubectl set image deployment/web web=registry.example.com/qa/web:2.0 -n production
+kubectl rollout status deployment/web -n production
+kubectl rollout undo deployment/web -n production
+kubectl rollout history deployment/web -n production`,
+      en: `kubectl set image deployment/web web=registry.example.com/qa/web:2.0 -n production
+kubectl rollout status deployment/web -n production
+kubectl rollout undo deployment/web -n production
+kubectl rollout history deployment/web -n production`,
+    },
+    expected: {
+      tr: `Yeni image tag rollout başlatır.
+rollout status tamamlanana veya hata verene kadar bekler.
+undo önceki çalışan revision'a döner.`,
+      en: `The new image tag starts a rollout.
+rollout status waits until completion or failure.
+undo returns to the previous working revision.`,
+    },
+    hints: [
+      { tr: 'Image güncelleme için kubectl set image deployment/name container=image kullanılır.', en: 'Use kubectl set image deployment/name container=image to update an image.' },
+      { tr: 'kubectl apply veya set image tek başına başarı kanıtı değildir; rollout status beklenmelidir.', en: 'kubectl apply or set image alone is not proof of success; wait for rollout status.' },
+      { tr: 'Rollback için kubectl rollout undo deployment/name kullanılır.', en: 'Use kubectl rollout undo deployment/name for rollback.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Production Rollout Kontrol Döngüsü', en: 'Production Rollout Control Loop' },
+    steps: [
+      { id: 1, icon: '🚀', label: { tr: 'Yeni revision başlar', en: 'New revision starts' }, detail: { tr: 'Deployment yeni ReplicaSet oluşturur ve pod\'ları kademeli değiştirir.', en: 'Deployment creates a new ReplicaSet and gradually replaces pods.' } },
+      { id: 2, icon: '🧪', label: { tr: 'Readiness beklenir', en: 'Readiness awaited' }, detail: { tr: 'Hazır olmayan pod Service trafiğine alınmaz.', en: 'A not-ready pod is not added to Service traffic.' } },
+      { id: 3, icon: '📈', label: { tr: 'Metrikler izlenir', en: 'Metrics watched' }, detail: { tr: 'Error rate, latency, CPU ve restart count deploy kalitesini gösterir.', en: 'Error rate, latency, CPU, and restart count reveal rollout quality.' } },
+      { id: 4, icon: '🧯', label: { tr: 'Rollback kararı verilir', en: 'Rollback decision made' }, detail: { tr: 'Smoke test veya monitoring alarm verirse önceki revision\'a dönülür.', en: 'If smoke tests or monitoring alert, the team returns to the previous revision.' } },
+      { id: 5, icon: '📋', label: { tr: 'Kanıt kaydedilir', en: 'Evidence recorded' }, detail: { tr: 'QA rollout history, log ve incident notlarını release kaydına ekler.', en: 'QA adds rollout history, logs, and incident notes to the release record.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-kubernetes-realworld-rollout-order-01',
+    question: { tr: 'Production rolling update doğrulama akışını sırala.', en: 'Arrange the production rolling update verification flow.' },
+    items: [
+      { id: '1', text: { tr: 'Yeni image tag Deployment üzerine uygulanır', en: 'A new image tag is applied to the Deployment' }, order: 1 },
+      { id: '2', text: { tr: 'kubectl rollout status ile rollout beklenir', en: 'Rollout is awaited with kubectl rollout status' }, order: 2 },
+      { id: '3', text: { tr: 'Readiness, smoke test ve error rate kontrol edilir', en: 'Readiness, smoke tests, and error rate are checked' }, order: 3 },
+      { id: '4', text: { tr: 'Sorun varsa kubectl rollout undo ile geri dönülür', en: 'If broken, rollback is done with kubectl rollout undo' }, order: 4 },
+      { id: '5', text: { tr: 'Rollout history ve gözlemler release notuna eklenir', en: 'Rollout history and observations are added to release notes' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
 export const kubernetesData = {
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
@@ -65,6 +1017,7 @@ export const kubernetesData = {
               ['Learning Curve', '⭐ Easy', '⭐⭐⭐⭐ Steep but worth it'],
             ],
           },
+          ...kubernetesIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: 'What is the main purpose of Kubernetes?',
@@ -350,6 +1303,7 @@ kubectl get nodes  # Shows EC2 instances as worker nodes
 # ⚠️  Delete cluster when done to avoid AWS costs!
 eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
           },
+          ...kubernetesInstallationInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Why is minikube recommended for local learning/development instead of a real cloud cluster like AWS EKS?',
@@ -561,6 +1515,7 @@ eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
               { icon: '🐳', label: 'Container Runtime', desc: 'The actual engine that runs containers. Kubernetes supports containerd (default), CRI-O, or Docker (deprecated). Pulls images and starts containers per kubelet instructions.' },
             ],
           },
+          ...kubernetesArchitectureInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Which component decides which Worker Node a new pod should be scheduled on?',
@@ -819,6 +1774,7 @@ spec:
     - secretRef:
         name: app-secrets      # All Secret keys as env vars`,
           },
+          ...kubernetesCoreInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Which Kubernetes object provides a stable network endpoint for a set of pods?',
@@ -1015,6 +1971,7 @@ kubens production   # switches to production namespace`,
             title: 'Pro Tip: kubectl aliases',
             content: 'Experienced K8s users add aliases to .bashrc: alias k=kubectl | alias kgp="kubectl get pods" | alias kgs="kubectl get svc". This saves enormous time during day-to-day work and especially during interviews/certification exams.',
           },
+          ...kubernetesKubectlInteractiveBlocks,
           {
             type: 'quiz',
             question: 'How do you follow pod logs in real-time?',
@@ -1242,6 +2199,7 @@ spec:
             title: 'QA Testing Tip: Validate K8s Deployments',
             content: 'After applying manifests: 1) kubectl rollout status deployment/webapp — check rollout completed, 2) kubectl get pods -w — watch pods come healthy, 3) kubectl describe pod <pod-name> — inspect events if something is wrong, 4) kubectl logs <pod-name> — check app startup logs.',
           },
+          ...kubernetesYamlInteractiveBlocks,
           {
             type: 'quiz',
             question: 'After applying a Deployment manifest with `kubectl apply -f deployment.yaml`, which command tells you whether the rollout has actually finished successfully?',
@@ -1525,6 +2483,7 @@ helm uninstall monitoring -n monitoring`,
               { label: 'Prometheus + Grafana', desc: 'Monitor, alert, dashboard', color: 'green' },
             ],
           },
+          ...kubernetesEcosystemInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Modern Kubernetes clusters run containers using containerd rather than the Docker Engine directly. Why?',
@@ -1779,6 +2738,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
               '✅ Service returns 502/503 (not errors) during rolling update',
             ],
           },
+          ...kubernetesRealWorldInteractiveBlocks,
           {
             type: 'quiz',
             question: 'A pod is stuck in CrashLoopBackOff. What is the right first command to diagnose why?',
@@ -1994,6 +2954,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
               ['Öğrenme Eğrisi', '⭐ Kolay', '⭐⭐⭐⭐ Dik ama değer'],
             ],
           },
+          ...kubernetesIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Kubernetes\'in temel amacı nedir?',
@@ -2204,6 +3165,7 @@ minikube service hello-nginx  # Tarayıcıda otomatik açılır
 kubectl get pods                      # Running görmeli
 kubectl delete deployment hello-nginx # Temizlik`,
           },
+          ...kubernetesInstallationInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Yerel öğrenme/geliştirme için neden minikube önerilir, gerçek bir cloud cluster (AWS EKS gibi) değil?',
@@ -2370,6 +3332,7 @@ kubectl delete deployment hello-nginx # Temizlik`,
               { icon: '🐳', label: 'Container Runtime', desc: 'Container\'ları gerçekten çalıştıran motor. K8s containerd (varsayılan), CRI-O veya Docker\'ı destekler (Docker kullanımdan kaldırıldı). Image\'ları çeker ve kubelet talimatlarına göre container\'ları başlatır.' },
             ],
           },
+          ...kubernetesArchitectureInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Hangi bileşen yeni bir pod\'un hangi Worker Node\'a schedule edileceğine karar verir?',
@@ -2681,6 +3644,7 @@ spec:
     - secretRef:
         name: uygulama-secrets   # Tüm Secret anahtarları env var olarak`,
           },
+          ...kubernetesCoreInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Hangi Kubernetes nesnesi bir pod kümesi için sabit ağ endpoint\'i sağlar?',
@@ -2855,6 +3819,7 @@ kubectl rollout history deployment/uygulama`,
             title: 'Pro İpucu: kubectl alias\'ları',
             content: 'Deneyimli K8s kullanıcıları .bashrc\'ye alias\'lar ekler: alias k=kubectl | alias kgp="kubectl get pods" | alias kgs="kubectl get svc". Bu günlük çalışmada ve özellikle mülakatlarda/sertifika sınavlarında çok zaman kazandırır.',
           },
+          ...kubernetesKubectlInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Pod loglarını gerçek zamanlı takip etmek için hangi komut kullanılır?',
@@ -3041,6 +4006,7 @@ spec:
             title: 'QA Test İpucu: K8s Deployment\'larını Doğrula',
             content: 'Manifest\'leri uyguladıktan sonra: 1) kubectl rollout status deployment/webuygulamasi — rollout tamamlandı mı kontrol et, 2) kubectl get pods -w — pod\'ların sağlıklı gelişini izle, 3) kubectl describe pod <pod-adı> — bir şeyler yanlışsa event\'leri incele, 4) kubectl logs <pod-adı> — uygulama başlangıç loglarını kontrol et.',
           },
+          ...kubernetesYamlInteractiveBlocks,
           {
             type: 'quiz',
             question: '`kubectl apply -f deployment.yaml` ile bir Deployment manifest\'i uyguladıktan sonra, rollout\'un gerçekten başarıyla bittiğini hangi komut söyler?',
@@ -3274,6 +4240,7 @@ helm upgrade monitoring prometheus-community/kube-prometheus-stack -n monitoring
 # Kaldır
 helm uninstall monitoring -n monitoring`,
           },
+          ...kubernetesEcosystemInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Modern Kubernetes cluster\'ları container çalıştırmak için doğrudan Docker Engine değil containerd kullanır. Neden?',
@@ -3437,6 +4404,7 @@ kubectl rollout undo deployment/spring-app`,
               '✅ Rolling update sırasında service 502/503 döndürüyor (hata değil)',
             ],
           },
+          ...kubernetesRealWorldInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Bir pod CrashLoopBackOff durumunda takılı kalıyor. Nedenini teşhis etmek için doğru ilk komut hangisidir?',
