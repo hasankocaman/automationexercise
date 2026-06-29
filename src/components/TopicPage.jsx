@@ -1828,7 +1828,10 @@ function PyodideEditor({ defaultCode, height = '180px' }) {
         window._pyodideLoading = true
         const s = document.createElement('script')
         s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js'
-        s.onload = () => window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' }).then(py => { window._pyodideInstance = py; pyRef.current = py; setPyReady(true) })
+        s.onload = () => window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/' })
+            .then(py => { window._pyodideInstance = py; pyRef.current = py; setPyReady(true) })
+            .catch(() => { window._pyodideLoading = false })
+        s.onerror = () => { window._pyodideLoading = false }
         document.head.appendChild(s)
     }, [])
 

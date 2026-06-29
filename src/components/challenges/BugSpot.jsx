@@ -16,7 +16,11 @@ export default function BugSpot({ block, isTr, onResult }) {
     const handleClick = (line) => {
         if (clickedId != null) return
         setClickedId(line.id)
-        onResult({ success: line.hasBug })
+        onResult({
+            success: line.hasBug,
+            clickedLine: line,
+            buggyLine,
+        })
     }
 
     const answered = clickedId != null

@@ -15536,6 +15536,1743 @@ const sInteractivePractice = {
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
+const javaPlaygroundMainMethod = {
+  type: 'code-playground',
+  id: 'java-syntax-main-01',
+  xpReward: 15,
+  label: { tr: '☕ Egzersiz 1 — JVM\'nin giriş noktası: main method', en: '☕ Exercise 1 — JVM entry point: main method' },
+  task: {
+    tr: '1️⃣  "▶ Çalıştır" butonuna bas → kodun terminalde ne yazdırdığını gör.\n2️⃣  "🐛 Bozuk Testi Düzelt" butonuna geç → kasıtlı bozulmuş bir versiyon açılır; eksik karakteri bulup ekle.\n3️⃣  Takıldıysan "💡 İpucu" ile adım adım yönlendir.\n\n💡 Hedef: Java\'da her programın public static void main(String[] args) ile başlaması gerektiğini ve her satırın noktalı virgülle (;) bitmesi gerektiğini hisset.',
+    en: '1️⃣  Press "▶ Run" → see what the code prints in the terminal.\n2️⃣  Switch to "🐛 Fix the Failing Test" → a deliberately broken version opens; find and add the missing character.\n3️⃣  If stuck, use "💡 Hint" for step-by-step guidance.\n\n💡 Goal: Feel why every Java program must start with public static void main(String[] args) and why every statement must end with a semicolon (;).',
+  },
+  language: 'java',
+  code: `public class Main {
+    public static void main(String[] args) {
+        int passed = 3;
+        int failed = 1;
+
+        System.out.println("Passed: " + passed);
+        System.out.println("Failed: " + failed);
+    }
+}`,
+  expected: 'Passed: 3\nFailed: 1',
+  explanation: {
+    tr: '✅ Çalıştı! JVM önce public class Main\'i bulur, sonra içindeki public static void main(String[] args) metodunu çağırır. static olması kritik — JVM henüz hiç Main nesnesi oluşturmadan bu metodu çağırabilir. Her System.out.println satırı sırayla çalışır ve konsola bir satır yazar.',
+    en: '✅ It ran! The JVM first finds public class Main, then calls the public static void main(String[] args) method inside it. static is critical — the JVM can call this method without creating any Main object first. Each System.out.println line runs in order and writes one line to the console.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neye bak: Her değişken tanımı (int x = 5), her method çağrısı (println(...)) bir statement\'tır. Java\'da her statement noktalı virgülle (;) biter.', en: '🔍 Hint 1 — What to look for: Every variable declaration (int x = 5) and every method call (println(...)) is a statement. In Java every statement ends with a semicolon (;).' },
+    { tr: '🔍 İpucu 2 — Hangi satır sorunlu: int failed = 1 satırının sonuna bak. Diğer satırlarla farkı ne?', en: '🔍 Hint 2 — Which line is the problem: Look at the end of the int failed = 1 line. What is different about it compared to the others?' },
+    { tr: '✏️ İpucu 3 — Çözüm: int failed = 1 → int failed = 1; yap. Tek karakter fark Java compiler için kritik!', en: '✏️ Hint 3 — Solution: Change int failed = 1 → int failed = 1; One character makes the difference for the Java compiler!' },
+  ],
+  buggyCode: `public class Main {
+    public static void main(String[] args) {
+        int passed = 3;
+        int failed = 1
+
+        System.out.println("Passed: " + passed);
+        System.out.println("Failed: " + failed);
+    }
+}`,
+  fixedCode: `public class Main {
+    public static void main(String[] args) {
+        int passed = 3;
+        int failed = 1;
+
+        System.out.println("Passed: " + passed);
+        System.out.println("Failed: " + failed);
+    }
+}`,
+}
+
+const javaPlaygroundJUnitAssertion = {
+  type: 'code-playground',
+  id: 'java-junit-assertion-01',
+  xpReward: 20,
+  label: { tr: '🧪 Egzersiz 2 — JUnit5 ile test yaz ve geçir', en: '🧪 Exercise 2 — Write and pass a JUnit5 test' },
+  task: {
+    tr: '1️⃣  "▶ Çalıştır" butonuna bas → testin geçtiğini gör (TEST PASSED).\n2️⃣  "🐛 Bozuk Testi Düzelt" butonuna geç → assertEquals\'in ilk parametresi yanlış ayarlanmış; gerçek değerle eşleştir.\n3️⃣  Java\'da assertEquals(expected, actual) sırası Python\'dan farklı — ilk parametre beklenen değer.\n\n💡 Hedef: System.out.println ile "görsel kontrol" yerine assertEquals ile "otomatik karar" arasındaki farkı anla. CI/CD pipeline\'ı bir println\'e bakıp testi fail yapmaz; sadece assertion\'a bakar.',
+    en: '1️⃣  Press "▶ Run" → see the test pass (TEST PASSED).\n2️⃣  Switch to "🐛 Fix the Failing Test" → the first parameter of assertEquals is set incorrectly; match it to the real value.\n3️⃣  In Java, assertEquals(expected, actual) order differs from Python — first parameter is the expected value.\n\n💡 Goal: Understand the difference between "visual check" with System.out.println and "automated decision" with assertEquals. The CI/CD pipeline does not look at a println to fail a test; it only looks at assertions.',
+  },
+  language: 'java',
+  code: `import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+class CartTest {
+    @Test
+    void totalShouldIncludeTax() {
+        int total = 120;
+        assertEquals(120, total, "Total should include tax");
+    }
+}`,
+  expected: 'TEST PASSED: totalShouldIncludeTax',
+  explanation: {
+    tr: '✅ Test geçti! assertEquals(120, total) → 120 == 120 → PASS. Bu method bozulursa JUnit "expected: <120> but was: <100>" gibi açıklayıcı bir hata mesajı üretir; seni tam hatanın olduğu yere götürür. Java\'da bu, Python\'daki assert total == 120 satırının karşılığıdır.',
+    en: '✅ Test passed! assertEquals(120, total) → 120 == 120 → PASS. If this method breaks, JUnit generates a descriptive message like "expected: <120> but was: <100>"; it takes you exactly where the bug is. In Java, this is the equivalent of the Python line assert total == 120.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Sıra önemli: assertEquals(expected, actual) → ilk parametre BEKLENEN değer, ikinci gerçek/hesaplanan değer. Karıştırmak hata mesajını yanıltıcı yapar.', en: '🔍 Hint 1 — Order matters: assertEquals(expected, actual) → first parameter is EXPECTED value, second is real/calculated value. Mixing them makes error messages misleading.' },
+    { tr: '🔍 İpucu 2 — Bozuk versiyonda: assertEquals(100, total) yazıyor ama total değişkeni 120. Beklenen değer ne olmalı?', en: '🔍 Hint 2 — In the broken version: assertEquals(100, total) is written but total variable is 120. What should the expected value be?' },
+    { tr: '✏️ İpucu 3 — Çözüm: 100 yerine 120 yaz. assertEquals(120, total) → beklenen ile gerçek eşleşir → TEST PASSED.', en: '✏️ Hint 3 — Solution: Replace 100 with 120. assertEquals(120, total) → expected matches actual → TEST PASSED.' },
+  ],
+  buggyCode: `import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+class CartTest {
+    @Test
+    void totalShouldIncludeTax() {
+        int total = 120;
+        assertEquals(100, total, "Total should include tax");
+    }
+}`,
+  fixedCode: `import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+class CartTest {
+    @Test
+    void totalShouldIncludeTax() {
+        int total = 120;
+        assertEquals(120, total, "Total should include tax");
+    }
+}`,
+}
+
+const javaGoodVsBadPrintAssert = {
+  type: 'good-vs-bad',
+  title: { tr: 'Console kontrolü vs gerçek assertion', en: 'Console check vs real assertion' },
+  bad: {
+    code: `String actualUrl = driver.getCurrentUrl();
+System.out.println(actualUrl);`,
+    explanation: {
+      tr: 'System.out.println sadece ekrana yazar. CI/CD pipeline bu çıktıya bakıp testi fail yapmaz; insan gözüne bağımlı kalırsın.',
+      en: 'System.out.println only writes to the console. The CI/CD pipeline will not fail the test from that output; you stay dependent on human inspection.',
+    },
+  },
+  good: {
+    code: `String actualUrl = driver.getCurrentUrl();
+assertTrue(actualUrl.contains("/dashboard"));`,
+    explanation: {
+      tr: 'assertTrue koşul bozulduğunda testi otomatik FAILED yapar. Sonuç terminalde, raporda ve pipeline kararında görünür olur.',
+      en: 'assertTrue automatically marks the test FAILED when the condition breaks. The result becomes visible in the terminal, report, and pipeline decision.',
+    },
+  },
+}
+
+const javaGoodVsBadSleepWait = {
+  type: 'good-vs-bad',
+  title: { tr: 'Thread.sleep vs WebDriverWait', en: 'Thread.sleep vs WebDriverWait' },
+  bad: {
+    code: `driver.findElement(By.id("submit")).click();
+Thread.sleep(5000);
+String message = driver.findElement(By.id("result")).getText();`,
+    explanation: {
+      tr: 'Thread.sleep her zaman sabit bekler. Hızlı ortamda zamanı boşa harcar, yavaş ortamda yine de yetmeyebilir.',
+      en: 'Thread.sleep always waits a fixed amount. It wastes time in fast environments and can still be insufficient in slow ones.',
+    },
+  },
+  good: {
+    code: `driver.findElement(By.id("submit")).click();
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+String message = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("result"))
+).getText();`,
+    explanation: {
+      tr: 'WebDriverWait gerçek hazır olma sinyalini bekler. Element görünür olduğu anda devam eder ve flaky test riskini azaltır.',
+      en: 'WebDriverWait waits for the real readiness signal. It continues as soon as the element is visible and reduces flaky test risk.',
+    },
+  },
+}
+
+const javaStepAnimationObjectLifecycle = {
+  type: 'step-animation',
+  title: { tr: 'Object oluşturma akışı', en: 'Object creation flow' },
+  steps: [
+    {
+      id: 1,
+      icon: '1',
+      label: { tr: 'Class okunur', en: 'Class is read' },
+      detail: {
+        tr: 'Java önce TestUser class kalıbını bilir: field, constructor ve methodlar burada tanımlıdır.',
+        en: 'Java first knows the TestUser class blueprint: fields, constructor, and methods are defined there.',
+      },
+    },
+    {
+      id: 2,
+      icon: '2',
+      label: { tr: 'new çalışır', en: 'new runs' },
+      detail: {
+        tr: 'new TestUser(...) heap üzerinde yeni object alanı ayırır. Reference değişkeni bu object adresini tutar.',
+        en: 'new TestUser(...) allocates a new object on the heap. The reference variable stores that object address.',
+      },
+    },
+    {
+      id: 3,
+      icon: '3',
+      label: { tr: 'Constructor çağrılır', en: 'Constructor is called' },
+      detail: {
+        tr: 'Constructor parametreleri alır ve object field değerlerini ilk güvenli hale getirir.',
+        en: 'The constructor receives parameters and initializes the object fields into a safe first state.',
+      },
+    },
+    {
+      id: 4,
+      icon: '4',
+      label: { tr: 'Method kullanılır', en: 'Methods are used' },
+      detail: {
+        tr: 'Test kodu artık user.getEmail() veya page.login() gibi davranışları çağırabilir.',
+        en: 'The test code can now call behavior such as user.getEmail() or page.login().',
+      },
+    },
+  ],
+}
+
+const javaStepAnimationJUnitLifecycle = {
+  type: 'step-animation',
+  title: { tr: 'JUnit5 test yaşam döngüsü', en: 'JUnit5 test lifecycle' },
+  steps: [
+    {
+      id: 1,
+      icon: '1',
+      label: { tr: '@BeforeAll', en: '@BeforeAll' },
+      detail: {
+        tr: 'Test sınıfı için bir kez çalışır. Driver, database veya pahalı setup burada kurulabilir.',
+        en: 'Runs once for the test class. Driver, database, or expensive setup can be initialized here.',
+      },
+    },
+    {
+      id: 2,
+      icon: '2',
+      label: { tr: '@BeforeEach', en: '@BeforeEach' },
+      detail: {
+        tr: 'Her testten önce temiz başlangıç sağlar. Login sayfasını açmak veya test verisini hazırlamak için uygundur.',
+        en: 'Gives each test a clean start. It is suitable for opening the login page or preparing test data.',
+      },
+    },
+    {
+      id: 3,
+      icon: '3',
+      label: { tr: '@Test', en: '@Test' },
+      detail: {
+        tr: 'Asıl davranış kontrol edilir. Assertion yoksa test sadece kod çalıştırmış olur, kalite kararı vermez.',
+        en: 'The actual behavior is verified. Without an assertion, the test only runs code and does not make a quality decision.',
+      },
+    },
+    {
+      id: 4,
+      icon: '4',
+      label: { tr: '@AfterEach', en: '@AfterEach' },
+      detail: {
+        tr: 'Her testten sonra temizlik yapar. Cookie silme, ekran görüntüsü alma veya geçici veri temizleme burada yapılır.',
+        en: 'Cleans up after each test. Cookie cleanup, screenshot capture, or temporary data cleanup belongs here.',
+      },
+    },
+    {
+      id: 5,
+      icon: '5',
+      label: { tr: '@AfterAll', en: '@AfterAll' },
+      detail: {
+        tr: 'Sınıf bitince bir kez çalışır. Driver kapatma ve ortak kaynakları bırakma adımıdır.',
+        en: 'Runs once when the class is finished. This is where the driver and shared resources are released.',
+      },
+    },
+  ],
+}
+
+const javaStepAnimationMavenLifecycle = {
+  type: 'step-animation',
+  title: { tr: 'Maven test akışı', en: 'Maven test flow' },
+  steps: [
+    {
+      id: 1,
+      icon: 'A',
+      label: { tr: 'pom.xml okunur', en: 'pom.xml is read' },
+      detail: {
+        tr: 'Maven önce bağımlılıkları, pluginleri ve project metadata bilgisini pom.xml dosyasından okur.',
+        en: 'Maven first reads dependencies, plugins, and project metadata from pom.xml.',
+      },
+    },
+    {
+      id: 2,
+      icon: 'B',
+      label: { tr: 'dependencies iner', en: 'dependencies download' },
+      detail: {
+        tr: 'JUnit, Selenium veya REST Assured gibi kütüphaneler local Maven cache içine indirilir.',
+        en: 'Libraries such as JUnit, Selenium, or REST Assured are downloaded into the local Maven cache.',
+      },
+    },
+    {
+      id: 3,
+      icon: 'C',
+      label: { tr: 'compile', en: 'compile' },
+      detail: {
+        tr: 'src/main/java altındaki üretim kodu derlenir. Syntax veya type hatası varsa akış burada durur.',
+        en: 'Production code under src/main/java is compiled. Syntax or type errors stop the flow here.',
+      },
+    },
+    {
+      id: 4,
+      icon: 'D',
+      label: { tr: 'test', en: 'test' },
+      detail: {
+        tr: 'src/test/java altındaki JUnit/TestNG testleri çalışır ve assertion sonuçları rapora yazılır.',
+        en: 'JUnit/TestNG tests under src/test/java run and assertion results are written to reports.',
+      },
+    },
+    {
+      id: 5,
+      icon: 'E',
+      label: { tr: 'package', en: 'package' },
+      detail: {
+        tr: 'Testler geçerse jar/war paketi üretilir. CI/CD genelde bu adımdan sonra deploy kararını verir.',
+        en: 'If tests pass, a jar/war package is produced. CI/CD usually makes the deployment decision after this step.',
+      },
+    },
+  ],
+}
+
+const javaInteractiveDiagramTestLayers = {
+  type: 'interactive-diagram',
+  variant: 'pyramid',
+  title: { tr: 'Java otomasyon test katmanları', en: 'Java automation test layers' },
+  nodes: [
+    {
+      id: 'ui',
+      label: { tr: 'UI E2E', en: 'UI E2E' },
+      color: '#ef4444',
+      detail: {
+        tr: 'Selenium veya Playwright Java ile gerçek kullanıcı akışı test edilir. Az sayıda tutulmalı çünkü yavaş ve bakım maliyeti yüksektir.',
+        en: 'Selenium or Playwright Java tests a real user flow. Keep these few because they are slow and expensive to maintain.',
+      },
+      stats: { speed: { tr: 'Yavaş', en: 'Slow' }, count: { tr: 'Az', en: 'Few' }, risk: { tr: 'Flaky riski yüksek', en: 'High flaky risk' } },
+    },
+    {
+      id: 'api',
+      label: { tr: 'API / Integration', en: 'API / Integration' },
+      color: '#f59e0b',
+      detail: {
+        tr: 'REST Assured ile servis cevabı, status code, schema ve database etkisi doğrulanır. UI testinden hızlıdır.',
+        en: 'REST Assured verifies service response, status code, schema, and database impact. It is faster than UI testing.',
+      },
+      stats: { speed: { tr: 'Orta', en: 'Medium' }, count: { tr: 'Orta', en: 'Medium' }, feedback: { tr: 'Güçlü', en: 'Strong' } },
+    },
+    {
+      id: 'unit',
+      label: { tr: 'Unit / Component', en: 'Unit / Component' },
+      color: '#22c55e',
+      detail: {
+        tr: 'JUnit5 ile küçük method veya service davranışı hızlıca test edilir. En hızlı feedback burada gelir.',
+        en: 'JUnit5 quickly tests small method or service behavior. This layer gives the fastest feedback.',
+      },
+      stats: { speed: { tr: 'Hızlı', en: 'Fast' }, count: { tr: 'Çok', en: 'Many' }, cost: { tr: 'Düşük', en: 'Low' } },
+    },
+  ],
+}
+
+const javaChallengeMainSignature = {
+  type: 'challenge',
+  variant: 'multiple-choice',
+  id: 'ch-java-main-signature-01',
+  question: {
+    tr: '🎯 JVM bir Java programını başlatırken tam olarak hangi method imzasını arar? Yanlış bir imza yazılırsa JVM programı çalıştırmayı reddeder — hangi seçenek doğru?',
+    en: '🎯 Which exact method signature does the JVM look for when starting a Java program? If the wrong signature is written the JVM refuses to run it — which option is correct?',
+  },
+  options: [
+    {
+      id: 'a',
+      text: 'public static void main(String[] args)',
+      correct: true,
+      explanation: {
+        tr: '✅ Doğru! Her anahtar kelime bir anlam taşır: public → JVM dışarıdan erişebilir, static → nesne oluşturmadan çağırabilir, void → geri dönüş değeri yok, String[] args → komut satırından parametre alabilir. Bunlardan herhangi birini çıkar veya değiştir → JVM programı başlatamaz.',
+        en: '✅ Correct! Each keyword carries meaning: public → JVM can access from outside, static → can call without creating an object, void → no return value, String[] args → can receive parameters from the command line. Remove or change any of these → JVM cannot start the program.',
+      },
+    },
+    {
+      id: 'b',
+      text: 'public void main(String args)',
+      correct: false,
+      explanation: {
+        tr: '❌ İki hata var: (1) static eksik — JVM nesne oluşturmadan çağıramaz, (2) String args yerine String[] args olmalı — tek String değil, String dizisi beklenir. Her ikisi de compile hatasına değil runtime hatasına yol açar: "Main method not found."',
+        en: '❌ Two errors: (1) static is missing — JVM cannot call without an object, (2) must be String[] args not String args — an array of Strings is expected, not a single String. Both cause a runtime error not a compile error: "Main method not found."',
+      },
+    },
+    {
+      id: 'c',
+      text: 'static int start(String[] args)',
+      correct: false,
+      explanation: {
+        tr: '❌ İki hata var: (1) method adı start, main değil — JVM sadece main arar, (2) dönüş tipi int, void olmalı. Java giriş noktası için tam ve değişmez bir imza gereklidir.',
+        en: '❌ Two errors: (1) method name is start not main — the JVM only looks for main, (2) return type is int, must be void. Java requires an exact and unchangeable entry-point signature.',
+      },
+    },
+  ],
+  xpReward: 10,
+}
+
+const javaChallengeFillAssertEquals = {
+  type: 'challenge',
+  variant: 'fill-blank',
+  id: 'ch-java-fill-assert-equals-01',
+  instruction: {
+    tr: '📝 Boşluğu doldur: JUnit5\'te iki değerin birbirine eşit olup olmadığını kontrol eden method "assert" ile başlar ve "Equals" ile biter. Bu method yoksa test çalışır ama hiçbir zaman FAILED olmaz — sadece kod çalıştırmış olur, kalite kararı vermez.',
+    en: '📝 Fill in the blank: In JUnit5, the method that checks whether two values are equal starts with "assert" and ends with "Equals". Without this method the test runs but never becomes FAILED — it only executes code, it makes no quality decision.',
+  },
+  codeTemplate: 'assert{BLANK}(expected, actual);',
+  answer: 'Equals',
+  alternatives: [],
+  explanation: {
+    tr: '✅ assertEquals(expected, actual) — JUnit5\'te en çok kullanılan eşitlik kontrolü. Python\'daki assert total == 120 yerine Java\'da assertEquals(120, total) yazılır. İkisi de aynı amaca hizmet eder: değer yanlışsa testi otomatik FAILED yapar ve seni hatanın tam yerine götürür.',
+    en: '✅ assertEquals(expected, actual) — the most used equality check in JUnit5. Instead of Python assert total == 120, in Java you write assertEquals(120, total). Both serve the same purpose: if the value is wrong it automatically makes the test FAILED and takes you to the exact location of the bug.',
+  },
+  xpReward: 10,
+}
+
+const javaChallengeMavenOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-maven-01',
+  question: {
+    tr: '🔀 mvn test komutunu terminale yazdın — Maven arka planda 5 adımı sırayla gerçekleştirir. Bu adımları doğru sıraya sürükle. Sıra yanlışsa Maven gerçekte de aynı hatayı verir: "test kodu derlenmeden önce production kod derlenmeli".',
+    en: '🔀 You typed mvn test in the terminal — Maven performs 5 steps in sequence behind the scenes. Drag them into the correct order. If the order is wrong, Maven actually gives the same error: "production code must be compiled before test code can be compiled".',
+  },
+  items: [
+    { id: '1', text: { tr: '📄 pom.xml okunur — bağımlılıklar ve ayarlar belirlenir', en: '📄 pom.xml is read — dependencies and settings are determined' }, order: 1 },
+    { id: '2', text: { tr: '⬇️ Bağımlılıklar (JUnit, Selenium vb.) local cache\'e indirilir', en: '⬇️ Dependencies (JUnit, Selenium etc.) are downloaded to the local cache' }, order: 2 },
+    { id: '3', text: { tr: '🔨 src/main/java production kodu compile edilir', en: '🔨 src/main/java production code is compiled' }, order: 3 },
+    { id: '4', text: { tr: '🔨 src/test/java test kodu compile edilir', en: '🔨 src/test/java test code is compiled' }, order: 4 },
+    { id: '5', text: { tr: '🧪 JUnit/TestNG testleri çalışır, sonuçlar rapora yazılır', en: '🧪 JUnit/TestNG tests run, results are written to report' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+const javaChallengeBugSpotSemicolon = {
+  type: 'challenge',
+  variant: 'bug-spot',
+  id: 'ch-java-bugspot-semicolon-01',
+  instruction: {
+    tr: '🔍 Java compiler bu kodu derlemeye çalışıyor ve "error: \';\' expected" hatası veriyor. Her satırı incele: değişken tanımı veya method çağrısı olan satırların sonunda noktalı virgül (;) olmalı. Hatanın olduğu satıra tıkla.',
+    en: '🔍 The Java compiler is trying to compile this code and gives an "error: \';\' expected" error. Examine each line: lines with a variable declaration or method call must end with a semicolon (;). Click the line that has the bug.',
+  },
+  lines: [
+    { id: 1, code: 'public class Main {', hasBug: false },
+    { id: 2, code: '    public static void main(String[] args) {', hasBug: false },
+    {
+      id: 3,
+      code: '        int failed = 1',
+      hasBug: true,
+      explanation: {
+        tr: 'Java statement sonunda noktalı virgül bekler. Bu satır int failed = 1; olmalı.',
+        en: 'Java expects a semicolon at the end of a statement. This line should be int failed = 1;.',
+      },
+    },
+    { id: 4, code: '        System.out.println(failed);', hasBug: false },
+    { id: 5, code: '    }', hasBug: false },
+    { id: 6, code: '}', hasBug: false },
+  ],
+  xpReward: 15,
+}
+
+// ─── YENİ BLOKLAR: step-animation + order-sort (her kod anlatımı sonrası) ──────
+
+const javaStepAnimationMainExecution = {
+  type: 'step-animation',
+  title: { tr: '🎬 JVM bu kodu nasıl çalıştırır? — Adım adım izle', en: '🎬 How does JVM execute this code? — Watch step by step' },
+  steps: [
+    {
+      id: 1,
+      icon: '🚀',
+      label: { tr: 'java Main komutu verilir', en: 'java Main command is given' },
+      detail: {
+        tr: 'Terminal\'e java Main yazdığında JVM başlatılır. JVM, Java Virtual Machine — Java kodunu gerçek makine koduna çeviren ve çalıştıran araç. Tıpkı bir tercüman gibi.',
+        en: 'When you type java Main in the terminal, the JVM starts. JVM, Java Virtual Machine — the tool that translates and runs Java code as real machine code. Just like an interpreter.',
+      },
+    },
+    {
+      id: 2,
+      icon: '🔍',
+      label: { tr: 'public class Main bulunur', en: 'public class Main is found' },
+      detail: {
+        tr: 'JVM önce public class Main\'i arar. Dosya adı Main.java ise class adı da Main olmalıdır — bunlar eşleşmezse "class Main is public, should be declared in a file named Main.java" hatası gelir.',
+        en: 'The JVM first looks for public class Main. If the file is named Main.java, the class must also be named Main — if these do not match you get "class Main is public, should be declared in a file named Main.java".',
+      },
+    },
+    {
+      id: 3,
+      icon: '🎯',
+      label: { tr: 'main metodu aranır', en: 'main method is searched' },
+      detail: {
+        tr: 'JVM class içinde public static void main(String[] args) metodunu arar. static olmak zorunda — JVM nesne oluşturmadan çağırır. Bu imza yanlışsa "Main method not found in class Main" hatası verir.',
+        en: 'The JVM looks for public static void main(String[] args) inside the class. It must be static — the JVM calls it without creating an object. If this signature is wrong you get "Main method not found in class Main".',
+      },
+    },
+    {
+      id: 4,
+      icon: '💾',
+      label: { tr: 'int passed = 3 çalışır', en: 'int passed = 3 runs' },
+      detail: {
+        tr: 'İlk satır: int (tamsayı) tipinde passed adında bir değişken oluşturulur ve 3 değeri RAM\'e yazılır. Java Python\'dan farklı olarak tipi açıkça belirtmeni ister.',
+        en: 'First line: a variable named passed of type int (integer) is created and value 3 is written to RAM. Unlike Python, Java requires you to explicitly declare the type.',
+      },
+    },
+    {
+      id: 5,
+      icon: '🖨️',
+      label: { tr: 'System.out.println çalışır', en: 'System.out.println runs' },
+      detail: {
+        tr: '"Passed: " + passed ifadesi "Passed: 3" string\'ine dönüştürülür (string concatenation) ve konsola yazdırılır. İkinci println de aynı şekilde çalışır. main metodunun sonu → JVM durur, exit code 0 döner.',
+        en: 'The expression "Passed: " + passed is converted to the string "Passed: 3" (string concatenation) and printed to the console. The second println works the same way. End of main method → JVM stops, returns exit code 0.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderMainStructure = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-main-structure-01',
+  question: {
+    tr: '🔀 Çalışan bir Java programının 4 temel parçasını doğru sıraya sürükle. Sıra yanlış olursa Java compiler "class expected" veya "illegal start of expression" hatası verir.',
+    en: '🔀 Drag the 4 basic parts of a working Java program into the correct order. If the order is wrong the Java compiler gives "class expected" or "illegal start of expression" errors.',
+  },
+  items: [
+    { id: '1', text: { tr: '📦 public class Main {  ← tüm kodu saran class bildirimi', en: '📦 public class Main {  ← class declaration wrapping all code' }, order: 1 },
+    { id: '2', text: { tr: '🎯 public static void main(String[] args) {  ← JVM giriş noktası', en: '🎯 public static void main(String[] args) {  ← JVM entry point' }, order: 2 },
+    { id: '3', text: { tr: '💾 int passed = 3;  ← değişken tanımı, noktalı virgülle biter', en: '💾 int passed = 3;  ← variable declaration, ends with semicolon' }, order: 3 },
+    { id: '4', text: { tr: '🖨️ System.out.println(passed);  ← çıktı; sonra } } ile her iki blok kapatılır', en: '🖨️ System.out.println(passed);  ← output; then } } closes both blocks' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const javaStepAnimationAssertionFlow = {
+  type: 'step-animation',
+  title: { tr: '🎬 assertEquals perde arkasında ne yapar? — Adım adım izle', en: '🎬 What does assertEquals do behind the scenes? — Watch step by step' },
+  steps: [
+    {
+      id: 1,
+      icon: '🏃',
+      label: { tr: '@Test annotation tetikler', en: '@Test annotation triggers' },
+      detail: {
+        tr: 'Maven veya IDE @Test annotation\'ını görünce totalShouldIncludeTax() metodunu otomatik çalıştırır. Metodun adı önemli değil — sadece @Test işareti yeterli. Python\'da pytest fonksiyon adının test_ ile başlamasını ister; Java\'da annotation daha esnek.',
+        en: 'When Maven or the IDE sees the @Test annotation, it automatically runs the totalShouldIncludeTax() method. The method name does not matter — only the @Test marker is needed. In Python pytest requires the function name to start with test_; in Java the annotation is more flexible.',
+      },
+    },
+    {
+      id: 2,
+      icon: '📦',
+      label: { tr: 'int total = 120 RAM\'e yazılır', en: 'int total = 120 is written to RAM' },
+      detail: {
+        tr: 'Metod içinde ilk satır çalışır: total değişkeni 120 değeriyle RAM\'e yazılır. Bu, testin kontrol edeceği "actual" (gerçek) değerdir.',
+        en: 'The first line inside the method runs: the total variable is written to RAM with value 120. This is the "actual" (real) value the test will verify.',
+      },
+    },
+    {
+      id: 3,
+      icon: '⚖️',
+      label: { tr: 'assertEquals iki değeri karşılaştırır', en: 'assertEquals compares two values' },
+      detail: {
+        tr: 'assertEquals(120, total) çağrısı: ilk parametre expected (beklenen) = 120, ikinci parametre actual (gerçek) = total değişkeni = 120. JUnit bu iki değeri karşılaştırır: 120 == 120 → PASS.',
+        en: 'The call assertEquals(120, total): first parameter expected = 120, second parameter actual = total variable = 120. JUnit compares these two values: 120 == 120 → PASS.',
+      },
+    },
+    {
+      id: 4,
+      icon: '✅',
+      label: { tr: 'TEST PASSED → rapor güncellenir', en: 'TEST PASSED → report is updated' },
+      detail: {
+        tr: 'Değerler eşit olduğu için test PASSED olur. Maven raporu güncellenir. CI/CD pipeline bir sonraki adıma geçebilir. Ekibe yeşil işaret gider.',
+        en: 'Since the values are equal the test becomes PASSED. Maven updates its report. The CI/CD pipeline can proceed to the next step. A green signal goes to the team.',
+      },
+    },
+    {
+      id: 5,
+      icon: '❌',
+      label: { tr: 'Değer yanlışsa: açıklayıcı hata mesajı', en: 'If value is wrong: descriptive error message' },
+      detail: {
+        tr: 'assertEquals(100, total) yazılsaydı → 100 ≠ 120 → JUnit: "expected: <100> but was: <120>" mesajı üretirdi. Bu mesaj seni tam hatanın olduğu yere götürür; System.out.println\'nin aksine insan gözüne muhtaç değilsin.',
+        en: 'If assertEquals(100, total) was written → 100 ≠ 120 → JUnit would produce: "expected: <100> but was: <120>". This message takes you exactly where the bug is; unlike System.out.println you do not depend on human eyes.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderJUnitTest = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-junit-test-01',
+  question: {
+    tr: '🔀 Bir JUnit5 test sınıfını sıfırdan yazmak için 5 adımı doğru sıraya sürükle. Sıra yanlışsa "cannot find symbol" veya "annotation not applicable" hataları alırsın.',
+    en: '🔀 Drag the 5 steps of writing a JUnit5 test class from scratch into the correct order. Wrong order gives you "cannot find symbol" or "annotation not applicable" errors.',
+  },
+  items: [
+    { id: '1', text: { tr: '📥 import static org.junit.jupiter.api.Assertions.*;  ← assertEquals erişimi', en: '📥 import static org.junit.jupiter.api.Assertions.*;  ← assertEquals access' }, order: 1 },
+    { id: '2', text: { tr: '📥 import org.junit.jupiter.api.Test;  ← @Test annotation erişimi', en: '📥 import org.junit.jupiter.api.Test;  ← @Test annotation access' }, order: 2 },
+    { id: '3', text: { tr: '📦 class CartTest {  ← test sınıfı bildirimi', en: '📦 class CartTest {  ← test class declaration' }, order: 3 },
+    { id: '4', text: { tr: '🏷️ @Test  ← metodu test olarak işaretle', en: '🏷️ @Test  ← mark method as a test' }, order: 4 },
+    { id: '5', text: { tr: '⚖️ void totalShouldBe120() { assertEquals(120, total); }  ← assertion ile test metodu', en: '⚖️ void totalShouldBe120() { assertEquals(120, total); }  ← test method with assertion' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+// ─── Selenium: step-animation + order-sort ────────────────────────────────────
+
+const javaStepAnimationWebDriverWait = {
+  type: 'step-animation',
+  title: { tr: '🎬 WebDriverWait perde arkasında ne yapar? — Thread.sleep ile farkını izle', en: '🎬 What does WebDriverWait do behind the scenes? — See the difference from Thread.sleep' },
+  steps: [
+    {
+      id: 1,
+      icon: '🖱️',
+      label: { tr: 'click() tetiklendi', en: 'click() triggered' },
+      detail: {
+        tr: 'driver.findElement(By.id("submit")).click() çalıştı. Sunucu isteği aldı. Cevap henüz gelmedi — sayfa güncelleniyor. Thread.sleep bu noktada körü körüne sayar; WebDriverWait ise izler.',
+        en: 'driver.findElement(By.id("submit")).click() ran. Server received the request. Response has not arrived yet — the page is updating. Thread.sleep blindly counts down from here; WebDriverWait watches instead.',
+      },
+    },
+    {
+      id: 2,
+      icon: '⏱️',
+      label: { tr: 'WebDriverWait oluşturuldu', en: 'WebDriverWait is created' },
+      detail: {
+        tr: 'new WebDriverWait(driver, Duration.ofSeconds(10)) → "10 saniyeye kadar sabırla bekle, ama koşul sağlanırsa hemen devam et" demek. Thread.sleep(5000) ise ne olursa olsun tam 5 saniye bekler — ne fazla ne az.',
+        en: 'new WebDriverWait(driver, Duration.ofSeconds(10)) → means "wait patiently up to 10 seconds, but continue immediately if the condition is met". Thread.sleep(5000) always waits exactly 5 seconds regardless — no more no less.',
+      },
+    },
+    {
+      id: 3,
+      icon: '🔄',
+      label: { tr: 'Her 500ms koşul kontrol edilir', en: 'Condition checked every 500ms' },
+      detail: {
+        tr: 'WebDriverWait her 500 milisaniyede bir sorar: "visibilityOfElementLocated(By.id(\'result\')) koşulu doğru mu?" Hayırsa: bekle. Evetse: hemen devam et. 10 saniye geçerse: TimeoutException fırlatır.',
+        en: 'WebDriverWait asks every 500 milliseconds: "is the visibilityOfElementLocated(By.id(\'result\')) condition true?" If no: wait. If yes: continue immediately. If 10 seconds pass: throws TimeoutException.',
+      },
+    },
+    {
+      id: 4,
+      icon: '👁️',
+      label: { tr: 'Element görünür oldu → hemen devam', en: 'Element became visible → continue immediately' },
+      detail: {
+        tr: 'Sunucu 1.5 saniyede cevap verdi, #result elementi sayfada göründü. WebDriverWait koşulun doğru olduğunu gördü ve kalan 8.5 saniyeyi beklemeden devam etti. Thread.sleep bunu bilemezdi — ne az ne fazla, tam 5 saniye beklerdi.',
+        en: 'The server responded in 1.5 seconds, the #result element appeared on the page. WebDriverWait saw the condition was true and continued without waiting the remaining 8.5 seconds. Thread.sleep could not know this — it would always wait exactly 5 seconds.',
+      },
+    },
+    {
+      id: 5,
+      icon: '📝',
+      label: { tr: 'getText() güvenle çalışır', en: 'getText() runs safely' },
+      detail: {
+        tr: 'WebDriverWait element\'in gerçekten görünür olduğunu garanti etti. getText() çağrısı artık güvenli — StaleElementReferenceException veya boş string riski minimize edildi. Flaky test ihtimali önemli ölçüde azaldı.',
+        en: 'WebDriverWait guaranteed the element is truly visible. The getText() call is now safe — the risk of StaleElementReferenceException or an empty string is minimized. The chance of a flaky test is significantly reduced.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderWebDriverWait = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-webdriverwait-01',
+  question: {
+    tr: '🔀 Selenium testinde WebDriverWait kullanımının 5 adımını doğru sıraya sürükle. Sıra yanlış olursa ya element bulunamaz ya da beklemeden önce aksiyon alınır ve test flaky olur.',
+    en: '🔀 Drag the 5 steps of using WebDriverWait in a Selenium test into the correct order. Wrong order either causes "element not found" or takes action before waiting, making the test flaky.',
+  },
+  items: [
+    { id: '1', text: { tr: '🖱️ Aksiyon tetiklenir: driver.findElement(...).click()', en: '🖱️ Action triggered: driver.findElement(...).click()' }, order: 1 },
+    { id: '2', text: { tr: '⏱️ WebDriverWait nesnesi oluşturulur: new WebDriverWait(driver, Duration.ofSeconds(10))', en: '⏱️ WebDriverWait object created: new WebDriverWait(driver, Duration.ofSeconds(10))' }, order: 2 },
+    { id: '3', text: { tr: '🎯 Koşul tanımlanır: wait.until(ExpectedConditions.visibilityOfElementLocated(...))', en: '🎯 Condition defined: wait.until(ExpectedConditions.visibilityOfElementLocated(...))' }, order: 3 },
+    { id: '4', text: { tr: '✅ Koşul sağlandığında WebElement otomatik döner', en: '✅ When condition is met WebElement is automatically returned' }, order: 4 },
+    { id: '5', text: { tr: '📝 Dönen WebElement üzerinde getText() veya assertion yapılır', en: '📝 getText() or assertion is performed on the returned WebElement' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+// ─── OOP: order-sort ──────────────────────────────────────────────────────────
+
+const javaChallengeOrderOopCreation = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-oop-creation-01',
+  question: {
+    tr: '🔀 Java\'da bir nesneyi oluşturup kullanmanın 5 adımını doğru sıraya sürükle. Class tanımı olmadan new çalışamaz; constructor olmadan field\'lar başlangıç değeri almaz.',
+    en: '🔀 Drag the 5 steps of creating and using an object in Java into the correct order. new cannot run without a class definition; fields cannot receive initial values without a constructor.',
+  },
+  items: [
+    { id: '1', text: { tr: '📐 Class yazılır: field\'lar ve constructor tanımlanır', en: '📐 Class is written: fields and constructor are defined' }, order: 1 },
+    { id: '2', text: { tr: '🏗️ new ile heap\'te alan ayrılır: TestUser user = new TestUser("ali@test.com")', en: '🏗️ Space is allocated on the heap with new: TestUser user = new TestUser("ali@test.com")' }, order: 2 },
+    { id: '3', text: { tr: '⚙️ Constructor çalışır: this.email = "ali@test.com" field\'a yazılır', en: '⚙️ Constructor runs: this.email = "ali@test.com" is written to the field' }, order: 3 },
+    { id: '4', text: { tr: '📌 Reference değişkeni (user) heap\'teki nesneye işaret eder', en: '📌 Reference variable (user) points to the object on the heap' }, order: 4 },
+    { id: '5', text: { tr: '🔧 Nesne metotları çağrılabilir: user.getEmail(), page.login(user)', en: '🔧 Object methods can be called: user.getEmail(), page.login(user)' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sB: Strings & Math Teaching Blocks ─────────────────────────────────────
+
+const javaPlaygroundStringMethods = {
+  type: 'code-playground',
+  id: 'java-strings-01',
+  xpReward: 15,
+  label: { tr: '🔤 Egzersiz 3 — String karşılaştırma tuzağı: trim() + equals()', en: '🔤 Exercise 3 — String comparison trap: trim() + equals()' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" ile çıktıyı gör — 3 satır çıkar.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — rawTitle üzerinde trim() yapılmadığı için endsWith ve equals false dönüyor. Önce temizle, sonra karşılaştır.\n3️⃣ Hedef: QA testlerinde driver.getTitle().trim().equals("Login") zincirini anla; trim() olmadan boşluklar her assertion\'ı patlatır.',
+    en: '1️⃣ Press "▶ Run" to see output — 3 lines appear.\n2️⃣ Switch to "🐛 Fix the Failing Test" — endsWith and equals return false because trim() was not called on rawTitle. Clean first, then compare.\n3️⃣ Goal: Understand the driver.getTitle().trim().equals("Login") chain in QA tests; without trim() spaces blow up every assertion.',
+  },
+  language: 'java',
+  code: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        String title = rawTitle.trim(); // önce temizle
+        System.out.println(title.endsWith("Login Page")); // true
+        System.out.println(title.equals("Login Page"));   // true
+        System.out.println(title.toUpperCase());          // LOGIN PAGE
+    }
+}`,
+  expected: 'true\ntrue\nLOGIN PAGE',
+  explanation: {
+    tr: '✅ Çalıştı! .trim() yeni bir String döndürür — orijinal rawTitle değişmez (immutability). .equals() içerik karşılaştırır, == ise referans. QA\'da driver.getTitle().trim().equalsIgnoreCase("login page") kombinasyonu en güvenli doğrulama yöntemidir.',
+    en: '✅ It ran! .trim() returns a new String — the original rawTitle is unchanged (immutability). .equals() compares content, == compares references. In QA driver.getTitle().trim().equalsIgnoreCase("login page") is the safest verification approach.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neden false: rawTitle = "  Login Page  " — başta ve sonda boşluk var. rawTitle.endsWith("Login Page") → son karakter boşluk; "Page" değil. Sonuç false.', en: '🔍 Hint 1 — Why false: rawTitle = "  Login Page  " — spaces at start and end. rawTitle.endsWith("Login Page") → last character is space, not "Page". Result false.' },
+    { tr: '🔍 İpucu 2 — Hangi adım eksik: rawTitle.endsWith(...) yazmadan önce String title = rawTitle.trim() ile boşlukları temizle; sonra title üzerinde işlem yap.', en: '🔍 Hint 2 — Which step is missing: Before writing rawTitle.endsWith(...) clean whitespace with String title = rawTitle.trim(); then work on title.' },
+    { tr: '✏️ İpucu 3 — Çözüm: String title = rawTitle.trim() ekle; rawTitle.endsWith → title.endsWith ve rawTitle.equals → title.equals yap.', en: '✏️ Hint 3 — Solution: Add String title = rawTitle.trim(); change rawTitle.endsWith → title.endsWith and rawTitle.equals → title.equals.' },
+  ],
+  buggyCode: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        // trim() yok — boşluklar soruna yol açıyor
+        System.out.println(rawTitle.endsWith("Login Page")); // false!
+        System.out.println(rawTitle.equals("Login Page"));   // false!
+        System.out.println(rawTitle.toUpperCase().trim());   // yanlış sıra
+    }
+}`,
+  fixedCode: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        String title = rawTitle.trim(); // önce temizle
+        System.out.println(title.endsWith("Login Page")); // true
+        System.out.println(title.equals("Login Page"));   // true
+        System.out.println(title.toUpperCase());          // LOGIN PAGE
+    }
+}`,
+}
+
+const javaStepAnimationStringImmutable = {
+  type: 'step-animation',
+  title: { tr: '🎬 String immutability — .trim() neden yeni nesne döner?', en: '🎬 String immutability — why does .trim() return a new object?' },
+  steps: [
+    {
+      id: 1,
+      icon: '💾',
+      label: { tr: '"  Login Page  " belleğe yazıldı', en: '"  Login Page  " written to memory' },
+      detail: {
+        tr: 'String rawTitle = "  Login Page  " → bu metin belleğe yazıldı. Java\'da String nesneleri IMMUTABLE — değiştirilemez. Bu nesne sonsuza kadar "  Login Page  " olarak kalır.',
+        en: 'String rawTitle = "  Login Page  " → this text is written to memory. In Java String objects are IMMUTABLE — they cannot be changed. This object stays "  Login Page  " forever.',
+      },
+    },
+    {
+      id: 2,
+      icon: '✂️',
+      label: { tr: '.trim() → YENİ String üretir', en: '.trim() → produces a NEW String' },
+      detail: {
+        tr: 'rawTitle.trim() orijinali DEĞİŞTİRMEZ. Boşlukları kesilmiş yeni bir String nesnesi oluşturur: "Login Page". Python\'da da str.strip() aynı şekilde yeni string döndürür.',
+        en: 'rawTitle.trim() does NOT change the original. It creates a new String object with spaces stripped: "Login Page". In Python str.strip() also returns a new string the same way.',
+      },
+    },
+    {
+      id: 3,
+      icon: '📌',
+      label: { tr: 'Dönen değeri yakalamazsan kaybolur', en: 'If you don\'t capture the return value it is lost' },
+      detail: {
+        tr: 'rawTitle.trim() yaptıktan sonra hâlâ rawTitle.equals("Login Page") yazarsan → FALSE. rawTitle hâlâ boşluklu orijinali gösteriyor. String title = rawTitle.trim() yazarak yeni değişkene atamalısın.',
+        en: 'If you write rawTitle.equals("Login Page") after rawTitle.trim() → FALSE. rawTitle still points to the original with spaces. You must write String title = rawTitle.trim() to capture the new value.',
+      },
+    },
+    {
+      id: 4,
+      icon: '⛓️',
+      label: { tr: 'Zincir çağrısı: trim().toLowerCase().contains()', en: 'Chaining: trim().toLowerCase().contains()' },
+      detail: {
+        tr: 'rawTitle.trim().toLowerCase().contains("login") — her metot yeni String döndürür; bir sonraki metot o yeni String üzerinde çalışır. Güvenli çünkü rawTitle\'ı kullanan başka kodlar etkilenmez.',
+        en: 'rawTitle.trim().toLowerCase().contains("login") — each method returns a new String; the next method works on that new String. Safe because other code using rawTitle is not affected.',
+      },
+    },
+    {
+      id: 5,
+      icon: '🧪',
+      label: { tr: 'QA\'da neden kritik?', en: 'Why is it critical in QA?' },
+      detail: {
+        tr: 'driver.getTitle() bazen başlıkta boşluk döndürür. .trim().equals("Login") yazmadan assertEquals başarısız olur — flaky test! Her string assertion\'ından önce .trim() al; .equalsIgnoreCase() ile büyük/küçük harf farkını da ortadan kaldır.',
+        en: 'driver.getTitle() sometimes returns the title with whitespace. Without .trim().equals("Login") the assertEquals fails — flaky test! Always call .trim() before any string assertion; use .equalsIgnoreCase() to also eliminate case differences.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderStringChain = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-string-chain-01',
+  question: {
+    tr: '🔀 QA testinde sayfa başlığını güvenli doğrulamak için 4 adımı doğru sıraya sürükle. Sıra yanlışsa boşluklar veya büyük/küçük harf farkı assertion\'ı patlatır.',
+    en: '🔀 Drag the 4 steps for safely validating a page title in a QA test into the correct order. Wrong order causes assertion failure due to spaces or letter casing.',
+  },
+  items: [
+    { id: '1', text: { tr: 'String rawTitle = driver.getTitle()  ← ham başlığı al', en: 'String rawTitle = driver.getTitle()  ← get raw title' }, order: 1 },
+    { id: '2', text: { tr: 'String title = rawTitle.trim()  ← baş/son boşlukları sil', en: 'String title = rawTitle.trim()  ← remove leading/trailing spaces' }, order: 2 },
+    { id: '3', text: { tr: 'String normalized = title.toLowerCase()  ← büyük/küçük eşitle', en: 'String normalized = title.toLowerCase()  ← equalize upper/lower case' }, order: 3 },
+    { id: '4', text: { tr: 'assertTrue(normalized.contains("login"))  ← assertion', en: 'assertTrue(normalized.contains("login"))  ← assertion' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sC: Control Flow Teaching Blocks ────────────────────────────────────────
+
+const javaPlaygroundIfElse = {
+  type: 'code-playground',
+  id: 'java-ifelse-01',
+  xpReward: 15,
+  label: { tr: '🔀 Egzersiz 4 — if/else merdiveni: koşul sırası kritik', en: '🔀 Exercise 4 — if/else ladder: condition order is critical' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — score=75 için hangi not çıkıyor görünsün.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — koşullar ters sırada; 75 alan öğrenci "AA" alıyor! Büyükten küçüğe sırala.\n3️⃣ Hedef: Java if/else merdiveninde yukarıdan aşağı değerlendirir; ilk TRUE koşul kazanır, kalanlar hiç çalışmaz.',
+    en: '1️⃣ Press "▶ Run" — see which grade score=75 gets.\n2️⃣ Switch to "🐛 Fix the Failing Test" — conditions are in reverse order; a student with 75 gets "AA"! Order from highest to lowest.\n3️⃣ Goal: Java evaluates an if/else ladder top to bottom; the first TRUE condition wins, the rest never run.',
+  },
+  language: 'java',
+  code: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+
+        if (score >= 90) {
+            System.out.println("AA");
+        } else if (score >= 80) {
+            System.out.println("BA");
+        } else if (score >= 70) {
+            System.out.println("BB");
+        } else {
+            System.out.println("FF");
+        }
+    }
+}`,
+  expected: 'BB',
+  explanation: {
+    tr: '✅ BB çıktı! score=75 → >= 90 false → >= 80 false → >= 70 TRUE → "BB" yazdırıldı, kalan bloklar atlandı. Kritik kural: eşikler büyükten küçüğe sıralanmalı. Ters yazılırsa 60 alan öğrenci de "AA" alır.',
+    en: '✅ BB! score=75 → >= 90 false → >= 80 false → >= 70 TRUE → "BB" printed, remaining blocks skipped. Critical rule: thresholds must be ordered high to low. If reversed even a student with 60 gets "AA".',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neden yanlış: Bozuk versiyonda ilk koşul score >= 60. 75 >= 60 → TRUE → hemen "AA" yazdırır; diğer else if\'lere hiç bakılmaz.', en: '🔍 Hint 1 — Why it is wrong: In the broken version the first condition is score >= 60. 75 >= 60 → TRUE → prints "AA" immediately; other else ifs are never checked.' },
+    { tr: '🔍 İpucu 2 — Kural: en kısıtlayıcı (en büyük eşikli) koşul en üste gelmeli. >= 90 → >= 80 → >= 70 → >= 60 → else.', en: '🔍 Hint 2 — Rule: the most restrictive condition (highest threshold) must come first. >= 90 → >= 80 → >= 70 → >= 60 → else.' },
+    { tr: '✏️ İpucu 3 — Sıra: if(>=90) … else if(>=80) … else if(>=70) … else if(>=60) … else. Koşulları bu sıraya getir.', en: '✏️ Hint 3 — Order: if(>=90) … else if(>=80) … else if(>=70) … else if(>=60) … else. Reorder the conditions to this sequence.' },
+  ],
+  buggyCode: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+
+        if (score >= 60) {            // ilk TRUE: 75>=60
+            System.out.println("AA"); // yanlış not!
+        } else if (score >= 70) {
+            System.out.println("BB");
+        } else if (score >= 80) {
+            System.out.println("BA");
+        } else {
+            System.out.println("FF");
+        }
+    }
+}`,
+  fixedCode: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+
+        if (score >= 90) {
+            System.out.println("AA");
+        } else if (score >= 80) {
+            System.out.println("BA");
+        } else if (score >= 70) {
+            System.out.println("BB"); // 75>=70 → BB
+        } else {
+            System.out.println("FF");
+        }
+    }
+}`,
+}
+
+const javaStepAnimationIfElse = {
+  type: 'step-animation',
+  title: { tr: '🎬 Java if/else merdiveni nasıl değerlendirir? — score=75 yolculuğu', en: '🎬 How does Java evaluate an if/else ladder? — journey of score=75' },
+  steps: [
+    {
+      id: 1,
+      icon: '📥',
+      label: { tr: 'score = 75 hazır', en: 'score = 75 ready' },
+      detail: {
+        tr: 'int score = 75 çalıştı. Java şimdi if bloğuna giriyor ve koşulları YUKARIDAN AŞAĞI değerlendiriyor.',
+        en: 'int score = 75 ran. Java is now entering the if block and evaluating conditions TOP TO BOTTOM.',
+      },
+    },
+    {
+      id: 2,
+      icon: '❌',
+      label: { tr: 'score >= 90 → FALSE, atlandı', en: 'score >= 90 → FALSE, skipped' },
+      detail: {
+        tr: '75 >= 90 → false. Bu bloğun içindeki System.out.println("AA") HİÇ ÇALIŞMAZ. Java bir sonraki else if\'e geçer.',
+        en: '75 >= 90 → false. The System.out.println("AA") inside this block NEVER RUNS. Java moves to the next else if.',
+      },
+    },
+    {
+      id: 3,
+      icon: '❌',
+      label: { tr: 'score >= 80 → FALSE, atlandı', en: 'score >= 80 → FALSE, skipped' },
+      detail: {
+        tr: '75 >= 80 → false. "BA" bloğu da atlandı. Java bir sonraki else if\'e geçer.',
+        en: '75 >= 80 → false. "BA" block also skipped. Java moves to the next else if.',
+      },
+    },
+    {
+      id: 4,
+      icon: '✅',
+      label: { tr: 'score >= 70 → TRUE → BB!', en: 'score >= 70 → TRUE → BB!' },
+      detail: {
+        tr: '75 >= 70 → true! "BB" yazdırıldı. Bu blok çalıştı — artık kalan else if ve else blokları ATLANIR. Java tek bir blok çalıştırır.',
+        en: '75 >= 70 → true! "BB" is printed. This block ran — all remaining else if and else blocks are SKIPPED. Java runs exactly one block.',
+      },
+    },
+    {
+      id: 5,
+      icon: '⏭️',
+      label: { tr: 'Kalan koşullar hiç kontrol edilmedi', en: 'Remaining conditions never checked' },
+      detail: {
+        tr: 'Java >= 60 ve else bloğuna bakmadı bile. if/else zincirinin garantisi: en fazla 1 blok çalışır. Bu, test durumu değerlendirme kodu için de geçerli — PASS/FAIL/SKIP merdivenini aynı mantıkla kur.',
+        en: 'Java never even looked at >= 60 and else blocks. Guarantee of the if/else chain: at most 1 block runs. This applies to test status evaluation code too — build PASS/FAIL/SKIP ladders with the same logic.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderIfElse = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-ifelse-01',
+  question: {
+    tr: '🔀 Test durumuna göre mesaj veren bir if/else bloğunun 5 parçasını doğru sıraya sürükle.',
+    en: '🔀 Drag the 5 parts of an if/else block that gives a message based on test status into the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'if (status.equals("PASS")) {  ← en spesifik koşul ilk', en: 'if (status.equals("PASS")) {  ← most specific condition first' }, order: 1 },
+    { id: '2', text: { tr: '    System.out.println("✅ Test geçti");', en: '    System.out.println("✅ Test passed");' }, order: 2 },
+    { id: '3', text: { tr: '} else if (status.equals("FAIL")) {', en: '} else if (status.equals("FAIL")) {' }, order: 3 },
+    { id: '4', text: { tr: '    System.out.println("❌ Test başarısız");', en: '    System.out.println("❌ Test failed");' }, order: 4 },
+    { id: '5', text: { tr: '} else { System.out.println("⏳ Bekliyor"); }  ← catch-all', en: '} else { System.out.println("⏳ Pending"); }  ← catch-all' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sD: Arrays Teaching Blocks ──────────────────────────────────────────────
+
+const javaPlaygroundArrays = {
+  type: 'code-playground',
+  id: 'java-arrays-01',
+  xpReward: 15,
+  label: { tr: '📦 Egzersiz 5 — Array: index ve for-each döngüsü', en: '📦 Exercise 5 — Array: index and for-each loop' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — 3 test sonucunu ve son elemanı gör.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — scores[3] yazılmış; 3 elemanlı dizide geçerli indexler 0-1-2. ArrayIndexOutOfBoundsException alırsın. Son elemanı doğru şekilde eriş.\n3️⃣ Hedef: n elemanlı dizide son geçerli index n-1. scores.length eleman sayısı (3), scores[scores.length-1] son eleman.',
+    en: '1️⃣ Press "▶ Run" — see 3 test results and the last element.\n2️⃣ Switch to "🐛 Fix the Failing Test" — scores[3] is written; valid indexes in a 3-element array are 0-1-2. You get ArrayIndexOutOfBoundsException. Access the last element correctly.\n3️⃣ Goal: Last valid index in an n-element array is n-1. scores.length is element count (3), scores[scores.length-1] is the last element.',
+  },
+  language: 'java',
+  code: `public class Main {
+    public static void main(String[] args) {
+        int[] scores = {85, 92, 78};
+
+        for (int score : scores) {
+            System.out.println("Score: " + score);
+        }
+
+        System.out.println("Son: " + scores[scores.length - 1]);
+    }
+}`,
+  expected: 'Score: 85\nScore: 92\nScore: 78\nSon: 78',
+  explanation: {
+    tr: '✅ Çalıştı! int[] scores = {85, 92, 78} → 3 element, index 0-1-2. scores.length = 3 (eleman sayısı), son index = 2. for-each her elemanı sırayla verir — index takip etmene gerek yok.',
+    en: '✅ It ran! int[] scores = {85, 92, 78} → 3 elements, indexes 0-1-2. scores.length = 3 (count), last index = 2. for-each gives each element in order — no need to track the index yourself.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Hata nereden: scores[3] yazılmış ama 3 elemanlı dizide geçerli indexler 0, 1, 2. Index 3 yoktur → ArrayIndexOutOfBoundsException.', en: '🔍 Hint 1 — Where the error comes from: scores[3] is written but valid indexes in a 3-element array are 0, 1, 2. Index 3 does not exist → ArrayIndexOutOfBoundsException.' },
+    { tr: '🔍 İpucu 2 — Kural: n elemanlı dizide son geçerli index n-1. scores.length 3 döndürür, son geçerli index 3-1 = 2.', en: '🔍 Hint 2 — Rule: Last valid index in an n-element array is n-1. scores.length returns 3, last valid index is 3-1 = 2.' },
+    { tr: '✏️ İpucu 3 — Çözüm: scores[3] → scores[scores.length - 1] yap.', en: '✏️ Hint 3 — Solution: Change scores[3] → scores[scores.length - 1].' },
+  ],
+  buggyCode: `public class Main {
+    public static void main(String[] args) {
+        int[] scores = {85, 92, 78};
+
+        for (int score : scores) {
+            System.out.println("Score: " + score);
+        }
+
+        System.out.println("Son: " + scores[3]); // IndexOutOfBounds!
+    }
+}`,
+  fixedCode: `public class Main {
+    public static void main(String[] args) {
+        int[] scores = {85, 92, 78};
+
+        for (int score : scores) {
+            System.out.println("Score: " + score);
+        }
+
+        System.out.println("Son: " + scores[scores.length - 1]); // 78
+    }
+}`,
+}
+
+const javaStepAnimationArrayMemory = {
+  type: 'step-animation',
+  title: { tr: '🎬 Array bellekte nasıl durur? — index sıfırdan başlar', en: '🎬 How does an array sit in memory? — index starts from zero' },
+  steps: [
+    {
+      id: 1,
+      icon: '🏗️',
+      label: { tr: 'int[] scores = {85, 92, 78}', en: 'int[] scores = {85, 92, 78}' },
+      detail: {
+        tr: 'JVM bellekte 3 kutulu ardışık alan ayırır: [0]=85, [1]=92, [2]=78. Sabit boyut — oluşturduktan sonra büyütemezsin. Dinamik boyut gerekiyorsa ArrayList<Integer> kullan.',
+        en: 'JVM allocates 3 consecutive boxes in memory: [0]=85, [1]=92, [2]=78. Fixed size — you cannot grow it after creation. For dynamic size use ArrayList<Integer>.',
+      },
+    },
+    {
+      id: 2,
+      icon: '🎯',
+      label: { tr: 'scores[0]=85, scores[2]=78', en: 'scores[0]=85, scores[2]=78' },
+      detail: {
+        tr: 'scores[0] ilk kutuya erişir → 85. scores[2] üçüncü kutu → 78. Java 0\'dan sayar. Python\'daki scores[-1] ÇALIŞMAZ — Java negatif index kabul etmez.',
+        en: 'scores[0] accesses the first box → 85. scores[2] is the third box → 78. Java counts from 0. Python\'s scores[-1] DOES NOT WORK — Java does not accept negative indexes.',
+      },
+    },
+    {
+      id: 3,
+      icon: '📏',
+      label: { tr: 'scores.length = 3 (field, metod değil)', en: 'scores.length = 3 (field, not method)' },
+      detail: {
+        tr: 'scores.length eleman sayısını döndürür: 3. METOD DEĞİL — field. Parantez yok: scores.length, not scores.length(). String\'de length() metod (parantezli); array\'de length field (parentezsiz) — bu fark sıkça sorulur.',
+        en: 'scores.length returns element count: 3. NOT a method — a field. No parentheses: scores.length, not scores.length(). String has length() method (with parentheses); array has length field (no parentheses) — this difference is frequently asked.',
+      },
+    },
+    {
+      id: 4,
+      icon: '🔄',
+      label: { tr: 'for-each: her adım sonraki kutuyu açar', en: 'for-each: each step opens the next box' },
+      detail: {
+        tr: 'for (int score : scores) → adım 1: score=85, adım 2: score=92, adım 3: score=78, bitti. Python\'daki for score in scores ile aynı. Index takip etmek gerekmez.',
+        en: 'for (int score : scores) → step 1: score=85, step 2: score=92, step 3: score=78, done. Same as Python\'s for score in scores. No need to track the index.',
+      },
+    },
+    {
+      id: 5,
+      icon: '💥',
+      label: { tr: 'scores[3] → ArrayIndexOutOfBoundsException', en: 'scores[3] → ArrayIndexOutOfBoundsException' },
+      detail: {
+        tr: 'scores[3] → 4. kutuya erişmeye çalışıyor ama dizi 3 kutulu (0,1,2). JVM ArrayIndexOutOfBoundsException fırlatır. Compile zamanında yakalanmaz — runtime hatası. QA\'da test datası array boyutunu geçerse bu hata çıkabilir.',
+        en: 'scores[3] → tries to access the 4th box but array has 3 boxes (0,1,2). JVM throws ArrayIndexOutOfBoundsException. Not caught at compile time — runtime error. In QA this error can appear when test data exceeds the array size.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderArrayLifecycle = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-array-lifecycle-01',
+  question: {
+    tr: '🔀 Bir array oluşturup doldurup okumak için 5 adımı doğru sıraya sürükle.',
+    en: '🔀 Drag the 5 steps for creating, filling, and reading an array into the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'int[] arr = new int[3]  ← 3 kutulu sabit alan ayır', en: 'int[] arr = new int[3]  ← allocate 3 fixed boxes' }, order: 1 },
+    { id: '2', text: { tr: 'arr[0] = 85; arr[1] = 92; arr[2] = 78  ← değerleri yaz', en: 'arr[0] = 85; arr[1] = 92; arr[2] = 78  ← write values' }, order: 2 },
+    { id: '3', text: { tr: 'System.out.println(arr.length)  ← 3 (eleman sayısı, field)', en: 'System.out.println(arr.length)  ← 3 (element count, field)' }, order: 3 },
+    { id: '4', text: { tr: 'for (int v : arr) println(v)  ← for-each ile tüm elemanları oku', en: 'for (int v : arr) println(v)  ← read all elements with for-each' }, order: 4 },
+    { id: '5', text: { tr: 'arr[arr.length-1]  ← son elemanı oku (length-1 = 2)', en: 'arr[arr.length-1]  ← read last element (length-1 = 2)' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sE: Methods Teaching Blocks ─────────────────────────────────────────────
+
+const javaPlaygroundMethods = {
+  type: 'code-playground',
+  id: 'java-methods-01',
+  xpReward: 20,
+  label: { tr: '🔧 Egzersiz 6 — Method: return değeri ve void farkı', en: '🔧 Exercise 6 — Method: return value vs void difference' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — greet ve add metodlarının sonuçlarını gör.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — add metodu return ifadesini içermiyor; "missing return statement" compile hatası. Eksik satırı ekle.\n3️⃣ Hedef: void metod hiçbir şey döndürmez; int metod mutlaka return ile int döndürmeli — compile zorunluluğu.',
+    en: '1️⃣ Press "▶ Run" — see results from greet and add methods.\n2️⃣ Switch to "🐛 Fix the Failing Test" — add method has no return statement; "missing return statement" compile error. Add the missing line.\n3️⃣ Goal: void method returns nothing; int method must always return an int with return — a compile requirement.',
+  },
+  language: 'java',
+  code: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Merhaba, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        return a + b;
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+  expected: 'Merhaba, QA!\n5 + 3 = 8',
+  explanation: {
+    tr: '✅ Çalıştı! greet void — sadece konsola yazar, değer döndürmez, çağıran değişkene atayamaz. add int — hesaplar ve return ile döndürür. Python\'daki def add(a, b): return a+b ile birebir aynı mantık.',
+    en: '✅ It ran! greet is void — only writes to console, returns no value, caller cannot assign it. add is int — calculates and returns with return. Exact same logic as Python\'s def add(a, b): return a+b.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neden hata: static int add(...) yazıyor — bu metod int döndürmek ZORUNDA. Ama metodun içinde return yok → "missing return statement" compile hatası.', en: '🔍 Hint 1 — Why the error: static int add(...) is declared — this method MUST return an int. But there is no return inside → "missing return statement" compile error.' },
+    { tr: '🔍 İpucu 2 — Neyi döndür: a ve b parametreleri toplamı döndürmeli.', en: '🔍 Hint 2 — What to return: the sum of parameters a and b must be returned.' },
+    { tr: '✏️ İpucu 3 — Çözüm: int sum = a + b; satırından sonra return sum; veya doğrudan return a + b; yaz.', en: '✏️ Hint 3 — Solution: After int sum = a + b; write return sum; or directly write return a + b;' },
+  ],
+  buggyCode: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Merhaba, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        int sum = a + b;
+        // return eksik! compile hatası: missing return statement
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+  fixedCode: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Merhaba, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        return a + b; // hesapla VE döndür
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+}
+
+const javaStepAnimationMethodCall = {
+  type: 'step-animation',
+  title: { tr: '🎬 add(5, 3) çağrısı nasıl akar? — parametre → body → return', en: '🎬 How does the add(5, 3) call flow? — parameter → body → return' },
+  steps: [
+    {
+      id: 1,
+      icon: '📞',
+      label: { tr: 'int result = add(5, 3) çağrıldı', en: 'int result = add(5, 3) is called' },
+      detail: {
+        tr: 'main metodunda bu satır çalıştı. Java yürütme kontrolünü add metoduna devreder. 5 ve 3 argümanları birlikte gönderilir.',
+        en: 'This line ran inside main. Java transfers execution control to the add method. Arguments 5 and 3 are sent along.',
+      },
+    },
+    {
+      id: 2,
+      icon: '📥',
+      label: { tr: 'a=5, b=3 parametrelere atandı', en: 'a=5, b=3 assigned to parameters' },
+      detail: {
+        tr: 'add metoduna girildi: int a = 5, int b = 3. a ve b yerel değişken — sadece bu metod içinde yaşar. main\'deki değişkenler etkilenmez.',
+        en: 'Entered the add method: int a = 5, int b = 3. a and b are local variables — they only live inside this method. Variables in main are not affected.',
+      },
+    },
+    {
+      id: 3,
+      icon: '⚙️',
+      label: { tr: 'a + b = 8 hesaplandı', en: 'a + b = 8 calculated' },
+      detail: {
+        tr: 'return a + b satırı: önce a + b = 5 + 3 = 8 hesaplanır. Sonra bu değer çağırana gönderilir.',
+        en: 'Line return a + b: first a + b = 5 + 3 = 8 is calculated. Then this value is sent back to the caller.',
+      },
+    },
+    {
+      id: 4,
+      icon: '↩️',
+      label: { tr: 'return 8 → main\'e döndü', en: 'return 8 → returned to main' },
+      detail: {
+        tr: 'Dönen 8 değeri main\'deki int result değişkenine atandı. add metodunun stack frame\'i temizlendi — a ve b artık yok.',
+        en: 'The returned value 8 is assigned to int result in main. The add method\'s stack frame is cleared — a and b no longer exist.',
+      },
+    },
+    {
+      id: 5,
+      icon: '🖨️',
+      label: { tr: 'println("5 + 3 = 8") çalıştı', en: 'println("5 + 3 = 8") runs' },
+      detail: {
+        tr: '"5 + 3 = " + result → result=8 olduğu için "5 + 3 = 8" yazdırıldı. Python\'da def add(a,b): return a+b → result = add(5,3) ile birebir aynı akış.',
+        en: '"5 + 3 = " + result → since result=8, "5 + 3 = 8" is printed. Exact same flow as Python\'s def add(a,b): return a+b → result = add(5,3).',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderMethodAnatomy = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-method-anatomy-01',
+  question: {
+    tr: '🔀 static int add(int a, int b) { return a+b; } metodunun 5 anatomik parçasını doğru sıraya sürükle.',
+    en: '🔀 Drag the 5 anatomical parts of the method static int add(int a, int b) { return a+b; } into the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'static  ← erişim/davranış belirleyici (nesnesiz çağrılır)', en: 'static  ← access/behavior modifier (called without object)' }, order: 1 },
+    { id: '2', text: { tr: 'int  ← dönüş tipi (void ise hiçbir şey dönmez)', en: 'int  ← return type (void means nothing is returned)' }, order: 2 },
+    { id: '3', text: { tr: 'add  ← metod adı (camelCase, fiil)', en: 'add  ← method name (camelCase, verb)' }, order: 3 },
+    { id: '4', text: { tr: '(int a, int b)  ← parametre listesi (tip + isim)', en: '(int a, int b)  ← parameter list (type + name)' }, order: 4 },
+    { id: '5', text: { tr: '{ return a + b; }  ← gövde ve return ifadesi', en: '{ return a + b; }  ← body and return statement' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sF: Advanced OOP Teaching Blocks ────────────────────────────────────────
+
+const javaPlaygroundEnum = {
+  type: 'code-playground',
+  id: 'java-enum-01',
+  xpReward: 20,
+  label: { tr: '🎯 Egzersiz 7 — switch fall-through tuzağı: break eksikliği', en: '🎯 Exercise 7 — switch fall-through trap: missing break' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — QA ortamının URL\'si görünsün.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — case "QA"\'da break eksik; QA URL yazdıktan sonra PROD URL da yazdırılıyor (fall-through).\n3️⃣ Hedef: switch\'te her case break ile bitmeli. break olmadan Java bir sonraki case\'e düşer (fall-through) — bu QA testinde yanlış ortam URL\'si kullanılmasına neden olabilir.',
+    en: '1️⃣ Press "▶ Run" — see the QA environment URL.\n2️⃣ Switch to "🐛 Fix the Failing Test" — break is missing in case "QA"; after printing QA URL it also prints PROD URL (fall-through).\n3️⃣ Goal: Every case in switch must end with break. Without break Java falls through to the next case — in QA testing this can mean the wrong environment URL is used.',
+  },
+  language: 'java',
+  code: `public class Main {
+    public static void main(String[] args) {
+        String env = "QA";
+        switch (env) {
+            case "QA":
+                System.out.println("URL: https://qa.example.com");
+                break;
+            case "PROD":
+                System.out.println("URL: https://prod.example.com");
+                break;
+            default:
+                System.out.println("URL: https://dev.example.com");
+        }
+    }
+}`,
+  expected: 'URL: https://qa.example.com',
+  explanation: {
+    tr: '✅ Sadece QA URL yazdırıldı! break switch\'ten çıkışı sağlar. Java 14+ switch expression sözdizimi (case "QA" -> ...) fall-through sorununu tamamen ortadan kaldırır — break yazmana gerek kalmaz.',
+    en: '✅ Only QA URL was printed! break exits the switch. Java 14+ switch expression syntax (case "QA" -> ...) completely eliminates the fall-through problem — no need to write break.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Fall-through nedir: case "QA": bloğundan sonra break yoksa Java otomatik olarak case "PROD": bloğuna geçer ve onu da çalıştırır. Her iki URL da yazdırılır.', en: '🔍 Hint 1 — What is fall-through: if there is no break after the case "QA": block Java automatically moves to the case "PROD": block and runs it too. Both URLs are printed.' },
+    { tr: '🔍 İpucu 2 — Nereye break ekle: println("URL: https://qa.example.com") satırından hemen sonra break; ekle.', en: '🔍 Hint 2 — Where to add break: add break; immediately after the println("URL: https://qa.example.com") line.' },
+    { tr: '✏️ İpucu 3 — Çözüm: case "QA": bloğuna break; ekle. Ya da Java 14+ sözdizimini kullan: case "QA" -> System.out.println("URL: https://qa.example.com");', en: '✏️ Hint 3 — Solution: Add break; to case "QA": block. Or use Java 14+ syntax: case "QA" -> System.out.println("URL: https://qa.example.com");' },
+  ],
+  buggyCode: `public class Main {
+    public static void main(String[] args) {
+        String env = "QA";
+        switch (env) {
+            case "QA":
+                System.out.println("URL: https://qa.example.com");
+                // break eksik! fall-through başlıyor
+            case "PROD":
+                System.out.println("URL: https://prod.example.com");
+                break;
+            default:
+                System.out.println("URL: https://dev.example.com");
+        }
+    }
+}`,
+  fixedCode: `public class Main {
+    public static void main(String[] args) {
+        String env = "QA";
+        switch (env) {
+            case "QA":
+                System.out.println("URL: https://qa.example.com");
+                break; // fall-through önlendi
+            case "PROD":
+                System.out.println("URL: https://prod.example.com");
+                break;
+            default:
+                System.out.println("URL: https://dev.example.com");
+        }
+    }
+}`,
+}
+
+const javaStepAnimationEnum = {
+  type: 'step-animation',
+  title: { tr: '🎬 switch fall-through — break olmayınca ne olur?', en: '🎬 switch fall-through — what happens without break?' },
+  steps: [
+    {
+      id: 1,
+      icon: '🔀',
+      label: { tr: 'switch(env) başladı', en: 'switch(env) started' },
+      detail: {
+        tr: 'env = "QA". Java switch\'e girdi ve case\'leri yukarıdan aşağı eşleştiriyor. case "DEV": → eşleşme yok, atlandı.',
+        en: 'env = "QA". Java entered switch and is matching cases from top to bottom. case "DEV": → no match, skipped.',
+      },
+    },
+    {
+      id: 2,
+      icon: '✅',
+      label: { tr: 'case "QA": eşleşti', en: 'case "QA": matched' },
+      detail: {
+        tr: '"QA" == "QA" → eşleşme! case "QA": bloğu çalışır. println yazdırıldı.',
+        en: '"QA" == "QA" → match! The case "QA": block runs. println is printed.',
+      },
+    },
+    {
+      id: 3,
+      icon: '⚠️',
+      label: { tr: 'break yok → fall-through!', en: 'No break → fall-through!' },
+      detail: {
+        tr: 'case "QA": bloğunun sonunda break yoksa Java durmaz. Bir sonraki case "PROD": bloğuna GİRER — koşulu kontrol ETMEDEN! Bu Java\'nın tasarım özelliği — eski C dilinden miras.',
+        en: 'If there is no break at the end of case "QA": Java does not stop. It ENTERS the next case "PROD": block — WITHOUT checking the condition! This is a Java design feature inherited from old C language.',
+      },
+    },
+    {
+      id: 4,
+      icon: '❌',
+      label: { tr: 'case "PROD": de çalıştı!', en: 'case "PROD": also ran!' },
+      detail: {
+        tr: 'PROD URL da yazdırıldı. env = "QA" olmasına rağmen! Bu QA testinde yanlış ortam URL\'si kullanılması demek — kritik hata. break ile case\'ten çık veya Java 14+ → syntax kullan.',
+        en: 'PROD URL was also printed. Even though env = "QA"! This means using the wrong environment URL in QA testing — critical bug. Exit case with break or use Java 14+ → syntax.',
+      },
+    },
+    {
+      id: 5,
+      icon: '🛡️',
+      label: { tr: 'break ile korunma', en: 'Protection with break' },
+      detail: {
+        tr: 'case "QA": bloğuna break; eklendi → Java switch\'ten çıkar, case "PROD": asla çalışmaz. Java 14+: case "QA" -> println("...") sözdizimi otomatik break içerir, fall-through mümkün değildir.',
+        en: 'break; added to case "QA": block → Java exits switch, case "PROD": never runs. Java 14+: case "QA" -> println("...") syntax includes automatic break, fall-through is not possible.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderTryCatch = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-try-catch-01',
+  question: {
+    tr: '🔀 Java try-catch-finally bloğunun 3 kısmını doğru sıraya sürükle. Yanlış sırada compile hatası alırsın.',
+    en: '🔀 Drag the 3 parts of a Java try-catch-finally block into the correct order. Wrong order gives a compile error.',
+  },
+  items: [
+    { id: '1', text: { tr: 'try { driver.findElement(By.id("btn")).click(); }  ← riskli kod', en: 'try { driver.findElement(By.id("btn")).click(); }  ← risky code' }, order: 1 },
+    { id: '2', text: { tr: 'catch (NoSuchElementException e) { System.out.println(e.getMessage()); }  ← hata yakala', en: 'catch (NoSuchElementException e) { System.out.println(e.getMessage()); }  ← catch error' }, order: 2 },
+    { id: '3', text: { tr: 'finally { driver.quit(); }  ← her durumda çalışır, kaynakları kapat', en: 'finally { driver.quit(); }  ← always runs, close resources' }, order: 3 },
+  ],
+  xpReward: 15,
+}
+
+// ─── sCucumber: BDD Teaching Blocks ──────────────────────────────────────────
+
+const javaPlaygroundCucumber = {
+  type: 'code-playground',
+  id: 'java-cucumber-01',
+  xpReward: 20,
+  label: { tr: '🥒 Egzersiz 8 — Cucumber: Given→When→Then adım sırası', en: '🥒 Exercise 8 — Cucumber: Given→When→Then step order' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — BDD akışının 3 adımını sırayla göster.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — When, Given\'dan önce çağrılıyor; tarayıcı açılmadan giriş yapılmaya çalışılıyor.\n3️⃣ Hedef: Given (ortam kur) → When (aksiyon) → Then (sonuç doğrula) sırasını anla. Bu sıra hem okunabilirliği hem de test mantığını sağlar.',
+    en: '1️⃣ Press "▶ Run" — show 3 steps of BDD flow in order.\n2️⃣ Switch to "🐛 Fix the Failing Test" — When is called before Given; trying to log in before the browser opens.\n3️⃣ Goal: Understand Given (set up environment) → When (action) → Then (verify result). This order provides both readability and test logic.',
+  },
+  language: 'java',
+  code: {
+    tr: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Tarayıcı açık, login sayfasında");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: admin/admin123 ile giriş yapıldı");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard göründü ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.givenBrowserOpen();
+        s.whenUserLogsIn();
+        s.thenDashboardVisible();
+    }
+}`,
+    en: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Browser open, on login page");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: logged in with admin/admin123");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard appeared ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.givenBrowserOpen();
+        s.whenUserLogsIn();
+        s.thenDashboardVisible();
+    }
+}`,
+  },
+  expected: '1. Given: Tarayıcı açık, login sayfasında\n2. When: admin/admin123 ile giriş yapıldı\n3. Then: Dashboard göründü ✅',
+  explanation: {
+    tr: '✅ Given → When → Then sırası doğru! Bu sıra iş gereksinimini yansıtır: ortam hazır → aksiyon → kontrol. Cucumber feature dosyasında da aynı sıra hem PO\'ların hem QA\'nın anlayabileceği yaşayan belge oluşturur.',
+    en: '✅ Given → When → Then order is correct! This order reflects the business requirement: environment ready → action → check. Same order in Cucumber feature files creates a living document both POs and QA can understand.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Mantık bozuldu: Bozuk versiyonda önce whenUserLogsIn() (giriş yap), sonra givenBrowserOpen() (tarayıcı aç). Tarayıcı açık değilken nasıl giriş yapılır?', en: '🔍 Hint 1 — Logic broken: In broken version whenUserLogsIn() (log in) comes before givenBrowserOpen() (open browser). How can you log in when the browser is not open?' },
+    { tr: '🔍 İpucu 2 — Doğru sıra: 1.Given — ortamı hazırla 2.When — aksiyonu gerçekleştir 3.Then — sonucu doğrula.', en: '🔍 Hint 2 — Correct order: 1.Given — prepare environment 2.When — perform action 3.Then — verify result.' },
+    { tr: '✏️ İpucu 3 — Çözüm: main içindeki çağrı sırasını givenBrowserOpen → whenUserLogsIn → thenDashboardVisible yap.', en: '✏️ Hint 3 — Solution: Reorder main calls to givenBrowserOpen → whenUserLogsIn → thenDashboardVisible.' },
+  ],
+  buggyCode: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Tarayıcı açık");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: Giriş yapıldı");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.whenUserLogsIn();      // yanlış sıra!
+        s.givenBrowserOpen();   // yanlış sıra!
+        s.thenDashboardVisible();
+    }
+}`,
+  fixedCode: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Tarayıcı açık");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: Giriş yapıldı");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.givenBrowserOpen();   // doğru: önce ortam
+        s.whenUserLogsIn();     // sonra aksiyon
+        s.thenDashboardVisible(); // sonra doğrulama
+    }
+}`,
+}
+
+const javaStepAnimationCucumberFlow = {
+  type: 'step-animation',
+  title: { tr: '🎬 Cucumber perde arkasında nasıl çalışır? — Feature → Step Def → Test', en: '🎬 How does Cucumber work behind the scenes? — Feature → Step Def → Test' },
+  steps: [
+    {
+      id: 1,
+      icon: '📄',
+      label: { tr: 'Feature dosyası okunur', en: 'Feature file is read' },
+      detail: {
+        tr: 'login.feature okunur. Cucumber her Scenario: altındaki Given/When/Then satırlarını metin olarak ayrıştırır. Bu metinler Java metodlarına bağlanacak.',
+        en: 'login.feature is read. Cucumber parses Given/When/Then lines under each Scenario: as text. These texts will be bound to Java methods.',
+      },
+    },
+    {
+      id: 2,
+      icon: '🔍',
+      label: { tr: '@Given annotation eşleşmesi aranır', en: '@Given annotation match is searched' },
+      detail: {
+        tr: '"tarayıcı açık ve login sayfasında" metni → @Given("tarayıcı açık ve login sayfasında") annotasyonlu Java metodunu ara. Eşleşme bulunmazsa Cucumber "Undefined step" hatası verir.',
+        en: '"browser open on login page" text → look for a Java method annotated with @Given("browser open on login page"). If no match: Cucumber gives "Undefined step" error.',
+      },
+    },
+    {
+      id: 3,
+      icon: '🚀',
+      label: { tr: 'Step Definition metodu çalışır', en: 'Step Definition method runs' },
+      detail: {
+        tr: 'Eşleşen metod çalıştırılır: ChromeDriver başlatılır, URL\'ye gidilir. Selenium/Playwright komutları bu metodun içindedir. Cucumber akışı yönetir, teknik implementasyon Java\'da.',
+        en: 'The matching method is executed: ChromeDriver starts, navigates to URL. Selenium/Playwright commands are inside this method. Cucumber manages the flow, technical implementation is in Java.',
+      },
+    },
+    {
+      id: 4,
+      icon: '📊',
+      label: { tr: 'Given → When → Then sırasıyla çalışır', en: 'Given → When → Then runs in sequence' },
+      detail: {
+        tr: 'Her adım için step def bulunur ve çalışır. Bir adım hata verirse Scenario FAILED olur, kalan adımlar atlanır. Hata mesajı feature dosyasındaki satıra işaret eder.',
+        en: 'For each step a step def is found and runs. If a step throws an error the Scenario is FAILED, remaining steps are skipped. The error message points to the line in the feature file.',
+      },
+    },
+    {
+      id: 5,
+      icon: '📋',
+      label: { tr: 'HTML/JSON rapor üretilir', en: 'HTML/JSON report is generated' },
+      detail: {
+        tr: 'Her Scenario PASSED/FAILED olarak işaretlenir. Rapor iş analistleri için okunabilir Gherkin formatında. CI/CD bu raporun tamamına bakarak deploy kararı verir.',
+        en: 'Each Scenario is marked PASSED/FAILED. Report is in readable Gherkin format for business analysts. CI/CD looks at this complete report to make the deploy decision.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderCucumber = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-cucumber-01',
+  question: {
+    tr: '🔀 Cucumber ile BDD testi yazmak için 5 adımı doğru sıraya sürükle.',
+    en: '🔀 Drag the 5 steps for writing a BDD test with Cucumber into the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Feature: başlığını yaz — iş gereksinimi (.feature dosyası)', en: 'Write Feature: title — business requirement (.feature file)' }, order: 1 },
+    { id: '2', text: { tr: 'Scenario: adını yaz — test senaryosu tanımı', en: 'Write Scenario: name — test scenario definition' }, order: 2 },
+    { id: '3', text: { tr: 'Given / When / Then adımlarını yaz — Gherkin sözdizimi', en: 'Write Given / When / Then steps — Gherkin syntax' }, order: 3 },
+    { id: '4', text: { tr: '@Given @When @Then step definition metodlarını yaz — Java bağlaması', en: 'Write @Given @When @Then step definition methods — Java binding' }, order: 4 },
+    { id: '5', text: { tr: 'Runner sınıfı oluştur, mvn test ile çalıştır, raporu kontrol et', en: 'Create Runner class, run with mvn test, check report' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+// ─── sPlaywright: Java Teaching Blocks ────────────────────────────────────────
+
+const javaPlaygroundPlaywright = {
+  type: 'code-playground',
+  id: 'java-playwright-01',
+  xpReward: 20,
+  label: { tr: '🎭 Egzersiz 9 — Playwright Java: test adım sırası', en: '🎭 Exercise 9 — Playwright Java: test step order' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" — Playwright test akışının 5 adımını sırayla göster.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — assertThat navigate\'ten önce çağrılıyor; sayfa yüklenmeden title kontrolü yapılıyor, test yanlış FAIL.\n3️⃣ Hedef: navigate → locator → assert sırası zorunlu. Assert daima sayfa içeriği hazır olduktan SONRA gelir.',
+    en: '1️⃣ Press "▶ Run" — show 5 steps of Playwright test flow in order.\n2️⃣ Switch to "🐛 Fix the Failing Test" — assertThat is called before navigate; title is checked before page loads, test incorrectly fails.\n3️⃣ Goal: navigate → locator → assert order is mandatory. Assert always comes AFTER page content is ready.',
+  },
+  language: 'java',
+  code: {
+    tr: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        System.out.println("3. page.navigate('https://learnqa.dev/login')");
+        System.out.println("4. assertThat(page).hasTitle('Login') → PASS ✅");
+        System.out.println("5. try-with-resources → browser kapandı");
+    }
+}`,
+    en: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        System.out.println("3. page.navigate('https://learnqa.dev/login')");
+        System.out.println("4. assertThat(page).hasTitle('Login') → PASS ✅");
+        System.out.println("5. try-with-resources → browser closed");
+    }
+}`,
+  },
+  expected: '1. Playwright.create() + browser.launch()\n2. browser.newPage()\n3. page.navigate(\'https://learnqa.dev/login\')\n4. assertThat(page).hasTitle(\'Login\') → PASS ✅\n5. try-with-resources → browser kapandı',
+  explanation: {
+    tr: '✅ Doğru sıra! Playwright\'ta assertThat(page).hasTitle() akıllı bekleme içerir — başlık hazır olana kadar otomatik bekler. Selenium\'da buna explicit WebDriverWait gerekirdi. Sıra önemli: navigate olmadan title undefined.',
+    en: '✅ Correct order! In Playwright assertThat(page).hasTitle() includes smart waiting — it auto-waits until the title is ready. Selenium would need an explicit WebDriverWait for this. Order matters: title is undefined without navigate.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neden fail: Bozuk versiyonda assertThat navigate\'ten önce. Sayfa henüz yüklenmemiş — title boş ya da hatalı. Playwright assertion başarısız, test FAIL.', en: '🔍 Hint 1 — Why fail: In broken version assertThat comes before navigate. Page not loaded yet — title is empty or wrong. Playwright assertion fails, test FAIL.' },
+    { tr: '🔍 İpucu 2 — Kural: Her zaman önce navigate, sonra assert. Playwright otomatik bekleyebilir ama içerik yokken bekleyecek bir şey de yok.', en: '🔍 Hint 2 — Rule: Always navigate first, then assert. Playwright can auto-wait but there is nothing to wait for if there is no content.' },
+    { tr: '✏️ İpucu 3 — Çözüm: navigate satırını assertThat satırından ÖNCE koy.', en: '✏️ Hint 3 — Solution: Place the navigate line BEFORE the assertThat line.' },
+  ],
+  buggyCode: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        // Yanlış: navigate OLMADAN assert!
+        System.out.println("3. assertThat(page).hasTitle('Login') → FAIL ❌");
+        System.out.println("4. page.navigate('https://learnqa.dev/login')");
+        System.out.println("5. try-with-resources → browser kapandı");
+    }
+}`,
+  fixedCode: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        System.out.println("3. page.navigate('https://learnqa.dev/login')");
+        System.out.println("4. assertThat(page).hasTitle('Login') → PASS ✅");
+        System.out.println("5. try-with-resources → browser kapandı");
+    }
+}`,
+}
+
+const javaStepAnimationPlaywrightFlow = {
+  type: 'step-animation',
+  title: { tr: '🎬 Playwright Java test yaşam döngüsü — adım adım', en: '🎬 Playwright Java test lifecycle — step by step' },
+  steps: [
+    {
+      id: 1,
+      icon: '🚀',
+      label: { tr: 'Playwright.create() + browser.launch()', en: 'Playwright.create() + browser.launch()' },
+      detail: {
+        tr: 'try(Playwright pw = Playwright.create()) → Playwright kontrolör başlatıldı. pw.chromium().launch() → Chromium binary çalıştırıldı. Selenium\'da ChromeDriver başlatmakla aynı, ama binary otomatik yönetilir.',
+        en: 'try(Playwright pw = Playwright.create()) → Playwright controller started. pw.chromium().launch() → Chromium binary runs. Same as starting ChromeDriver in Selenium, but binary is managed automatically.',
+      },
+    },
+    {
+      id: 2,
+      icon: '🌐',
+      label: { tr: 'browser.newPage() + page.navigate(url)', en: 'browser.newPage() + page.navigate(url)' },
+      detail: {
+        tr: 'Page page = browser.newPage() → yeni sekme. page.navigate("https://...") → URL\'ye git. Playwright sayfa tam yüklenene kadar otomatik bekler — Selenium\'daki pageLoadStrategy gibi ama daha akıllı.',
+        en: 'Page page = browser.newPage() → new tab. page.navigate("https://...") → go to URL. Playwright auto-waits until the page is fully loaded — like Selenium\'s pageLoadStrategy but smarter.',
+      },
+    },
+    {
+      id: 3,
+      icon: '🔍',
+      label: { tr: 'page.locator() — tarif tutar, arama yapmaz', en: 'page.locator() — holds recipe, does not search' },
+      detail: {
+        tr: 'page.locator("#username") → CSS/text/XPath selector. Locator hemen DOM\'da aramaz — sadece tarifi tutar. .click() .fill() .textContent() gibi aksiyon yapıldığında element aranır ve hazır olana kadar otomatik beklenir.',
+        en: 'page.locator("#username") → CSS/text/XPath selector. Locator does not search the DOM immediately — it just holds the recipe. When an action like .click() .fill() .textContent() is performed, element is searched and auto-waited until ready.',
+      },
+    },
+    {
+      id: 4,
+      icon: '⚖️',
+      label: { tr: 'assertThat(locator) akıllı bekler', en: 'assertThat(locator) waits smartly' },
+      detail: {
+        tr: 'assertThat(page.locator(".message")).isVisible() → Playwright koşul sağlanana kadar bekler (default 5sn). Selenium\'da assertEquals + WebDriverWait gerekirdi. Fail olursa JUnit test FAILED.',
+        en: 'assertThat(page.locator(".message")).isVisible() → Playwright waits until condition is met (default 5s). Selenium would need assertEquals + WebDriverWait. If it fails JUnit marks test FAILED.',
+      },
+    },
+    {
+      id: 5,
+      icon: '🔒',
+      label: { tr: 'try-with-resources → otomatik temizlik', en: 'try-with-resources → automatic cleanup' },
+      detail: {
+        tr: 'try(Playwright pw = ...) bloğu bitince pw.close() otomatik çağrılır, browser ve tüm sayfalar kapanır. AfterAll\'da browser.close() yazmana gerek yok. Java AutoCloseable garantisi.',
+        en: 'When try(Playwright pw = ...) block ends, pw.close() is automatically called, browser and all pages close. No need to write browser.close() in AfterAll. Java AutoCloseable guarantee.',
+      },
+    },
+  ],
+}
+
+const javaChallengeOrderPlaywright = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-java-order-playwright-01',
+  question: {
+    tr: '🔀 Bir Playwright Java testinin 5 adımını doğru sıraya sürükle. assert navigate\'ten önce gelirse test yanlış FAIL olur.',
+    en: '🔀 Drag the 5 steps of a Playwright Java test into the correct order. If assert comes before navigate the test incorrectly fails.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Playwright.create() + browser.launch()  ← browser başlat', en: 'Playwright.create() + browser.launch()  ← start browser' }, order: 1 },
+    { id: '2', text: { tr: 'browser.newPage() + page.navigate(url)  ← sayfayı yükle', en: 'browser.newPage() + page.navigate(url)  ← load the page' }, order: 2 },
+    { id: '3', text: { tr: 'page.locator(selector)  ← element tarifi yaz (arama yapmaz)', en: 'page.locator(selector)  ← write element recipe (does not search)' }, order: 3 },
+    { id: '4', text: { tr: 'assertThat(locator).isVisible()  ← akıllı bekleme + assertion', en: 'assertThat(locator).isVisible()  ← smart wait + assertion' }, order: 4 },
+    { id: '5', text: { tr: 'try-with-resources biter → browser otomatik kapanır', en: 'try-with-resources ends → browser auto-closes' }, order: 5 },
+  ],
+  xpReward: 20,
+}
+
+// ─── Blok grupları ─────────────────────────────────────────────────────────────
+
+const javaSyntaxTeachingBlocks = [
+  javaPlaygroundMainMethod,
+  javaStepAnimationMainExecution,
+  javaChallengeOrderMainStructure,
+  javaChallengeMainSignature,
+  javaChallengeBugSpotSemicolon,
+]
+
+const javaStringsTeachingBlocks = [
+  javaPlaygroundStringMethods,
+  javaStepAnimationStringImmutable,
+  javaChallengeOrderStringChain,
+]
+
+const javaControlFlowTeachingBlocks = [
+  javaPlaygroundIfElse,
+  javaStepAnimationIfElse,
+  javaChallengeOrderIfElse,
+]
+
+const javaArraysTeachingBlocks = [
+  javaPlaygroundArrays,
+  javaStepAnimationArrayMemory,
+  javaChallengeOrderArrayLifecycle,
+]
+
+const javaMethodsTeachingBlocks = [
+  javaPlaygroundMethods,
+  javaStepAnimationMethodCall,
+  javaChallengeOrderMethodAnatomy,
+]
+
+const javaOopTeachingBlocks = [
+  javaStepAnimationObjectLifecycle,
+  javaChallengeOrderOopCreation,
+]
+
+const javaAdvancedOopTeachingBlocks = [
+  javaPlaygroundEnum,
+  javaStepAnimationEnum,
+  javaChallengeOrderTryCatch,
+]
+
+const javaFrameworkTeachingBlocks = [
+  javaInteractiveDiagramTestLayers,
+  javaStepAnimationJUnitLifecycle,
+  javaStepAnimationMavenLifecycle,
+  javaPlaygroundJUnitAssertion,
+  javaStepAnimationAssertionFlow,
+  javaChallengeOrderJUnitTest,
+  javaGoodVsBadPrintAssert,
+  javaChallengeFillAssertEquals,
+  javaChallengeMavenOrder,
+]
+
+const javaCucumberTeachingBlocks = [
+  javaPlaygroundCucumber,
+  javaStepAnimationCucumberFlow,
+  javaChallengeOrderCucumber,
+]
+
+const javaSeleniumTeachingBlocks = [
+  javaGoodVsBadSleepWait,
+  javaStepAnimationWebDriverWait,
+  javaChallengeOrderWebDriverWait,
+]
+
+const javaPlaywrightTeachingBlocks = [
+  javaPlaygroundPlaywright,
+  javaStepAnimationPlaywrightFlow,
+  javaChallengeOrderPlaywright,
+]
+
+const javaRealWorldTeachingBlocks = [
+  javaInteractiveDiagramTestLayers,
+  javaStepAnimationMavenLifecycle,
+]
+
+function withExtraBlocks(section, extraBlocks) {
+  return {
+    ...section,
+    blocks: [...section.blocks, ...extraBlocks],
+  }
+}
+
 export const javaData = {
   tr: {
     hero: {
@@ -15564,7 +17301,27 @@ export const javaData = {
       '🧠 Adım Adım Soru Çözücü',
       '💼 Mülakat Soruları',
     ],
-    sections: [s0.tr, s1.tr, sA.tr, sB.tr, sC.tr, sD.tr, sE.tr, s2.tr, sF.tr, s3.tr, sCucumber.tr, sSelenium.tr, sPlaywright.tr, s4.tr, s5.tr, s6.tr, sFileIO.tr, sInteractivePractice.tr, s7.tr],
+    sections: [
+      s0.tr,
+      s1.tr,
+      withExtraBlocks(sA.tr, javaSyntaxTeachingBlocks),
+      withExtraBlocks(sB.tr, javaStringsTeachingBlocks),
+      withExtraBlocks(sC.tr, javaControlFlowTeachingBlocks),
+      withExtraBlocks(sD.tr, javaArraysTeachingBlocks),
+      withExtraBlocks(sE.tr, javaMethodsTeachingBlocks),
+      withExtraBlocks(s2.tr, javaOopTeachingBlocks),
+      withExtraBlocks(sF.tr, javaAdvancedOopTeachingBlocks),
+      withExtraBlocks(s3.tr, javaFrameworkTeachingBlocks),
+      withExtraBlocks(sCucumber.tr, javaCucumberTeachingBlocks),
+      withExtraBlocks(sSelenium.tr, javaSeleniumTeachingBlocks),
+      withExtraBlocks(sPlaywright.tr, javaPlaywrightTeachingBlocks),
+      withExtraBlocks(s4.tr, javaRealWorldTeachingBlocks),
+      s5.tr,
+      s6.tr,
+      sFileIO.tr,
+      sInteractivePractice.tr,
+      s7.tr,
+    ],
   },
   en: {
     hero: {
@@ -15593,7 +17350,27 @@ export const javaData = {
       '🧠 Step-by-Step Solver',
       '💼 Interview Questions',
     ],
-    sections: [s0.en, s1.en, sA.en, sB.en, sC.en, sD.en, sE.en, s2.en, sF.en, s3.en, sCucumber.en, sSelenium.en, sPlaywright.en, s4.en, s5.en, s6.en, sFileIO.en, sInteractivePractice.en, s7.en],
+    sections: [
+      s0.en,
+      s1.en,
+      withExtraBlocks(sA.en, javaSyntaxTeachingBlocks),
+      withExtraBlocks(sB.en, javaStringsTeachingBlocks),
+      withExtraBlocks(sC.en, javaControlFlowTeachingBlocks),
+      withExtraBlocks(sD.en, javaArraysTeachingBlocks),
+      withExtraBlocks(sE.en, javaMethodsTeachingBlocks),
+      withExtraBlocks(s2.en, javaOopTeachingBlocks),
+      withExtraBlocks(sF.en, javaAdvancedOopTeachingBlocks),
+      withExtraBlocks(s3.en, javaFrameworkTeachingBlocks),
+      withExtraBlocks(sCucumber.en, javaCucumberTeachingBlocks),
+      withExtraBlocks(sSelenium.en, javaSeleniumTeachingBlocks),
+      withExtraBlocks(sPlaywright.en, javaPlaywrightTeachingBlocks),
+      withExtraBlocks(s4.en, javaRealWorldTeachingBlocks),
+      s5.en,
+      s6.en,
+      sFileIO.en,
+      sInteractivePractice.en,
+      s7.en,
+    ],
   },
 }
 

@@ -1,18 +1,27 @@
-// Shared local-first XP pool for the Python page — used by both
-// ManualTestingLabBlock (bug reports) and CodePlaygroundBlock (code exercises)
-// so XP earned in either feature counts towards the same total.
+// Shared local-first XP pool for lesson pages — used by both
+// ManualTestingLabBlock (bug reports) and CodePlaygroundBlock / ChallengeBlock
+// code exercises so XP earned inside the same lesson counts towards one total.
 //
-// Single localStorage key on purpose: { xp, completed }. `completed` tracks
-// exercise ids that already paid out XP, so re-running/re-fixing the same
-// exercise doesn't earn XP twice.
+// One localStorage key per topic: { xp, completed }. `completed` tracks exercise
+// ids that already paid out XP, so re-running/re-fixing the same exercise
+// doesn't earn XP twice.
 
-const STORAGE_KEY = 'learnqa_xp_python'
 const XP_EVENT = 'learnqa-xp-changed'
 const LEGACY_LAB_KEY = 'manual_testing_lab_python'
 
+function getTopicKey() {
+    if (typeof window === 'undefined') return 'python'
+    const firstSegment = window.location.pathname.split('/').filter(Boolean)[0]
+    return (firstSegment || 'python').replace(/[^a-z0-9-]/gi, '-').toLowerCase()
+}
+
+function getStorageKey() {
+    return `learnqa_xp_${getTopicKey()}`
+}
+
 function readState() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY)
+        const raw = localStorage.getItem(getStorageKey())
         if (raw) {
             const parsed = JSON.parse(raw)
             return {
@@ -25,7 +34,7 @@ function readState() {
 }
 
 function writeState(state) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)) } catch { /* localStorage unavailable, skip persistence */ }
+    try { localStorage.setItem(getStorageKey(), JSON.stringify(state)) } catch { /* localStorage unavailable, skip persistence */ }
     if (typeof window !== 'undefined') window.dispatchEvent(new Event(XP_EVENT))
 }
 
@@ -33,7 +42,9 @@ function writeState(state) {
 // Lab's own blob. Seed the shared pool from it once so existing local
 // progress isn't silently lost when this module takes over.
 function migrateLegacyXpOnce() {
-    if (localStorage.getItem(STORAGE_KEY) !== null) return
+    if (typeof localStorage === 'undefined') return
+    if (getTopicKey() !== 'python') return
+    if (localStorage.getItem(getStorageKey()) !== null) return
     try {
         const legacyRaw = localStorage.getItem(LEGACY_LAB_KEY)
         if (!legacyRaw) return

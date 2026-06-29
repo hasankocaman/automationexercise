@@ -24,7 +24,11 @@ export default function FillBlank({ block, isTr, darkMode, onResult }) {
         const isCorrect = normalized === normalize(block.answer) || (block.alternatives || []).some(alt => normalize(alt) === normalized)
         setChecked(true)
         setCorrect(isCorrect)
-        onResult({ success: isCorrect })
+        onResult({
+            success: isCorrect,
+            value,
+            answer: block.answer,
+        })
     }
 
     return (

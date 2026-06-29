@@ -19,7 +19,11 @@ export default function MultipleChoice({ block, isTr, darkMode, onResult }) {
     const handlePick = (option) => {
         if (pickedId != null) return
         setPickedId(option.id)
-        onResult({ success: option.correct })
+        onResult({
+            success: option.correct,
+            selectedOption: option,
+            correctOption: block.options.find(candidate => candidate.correct),
+        })
     }
 
     return (

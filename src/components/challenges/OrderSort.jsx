@@ -39,7 +39,12 @@ export default function OrderSort({ block, isTr, darkMode, onResult }) {
     const handleCheck = () => {
         const isCorrect = items.every((item, idx) => item.order === idx + 1)
         setChecked(true)
-        onResult({ success: isCorrect })
+        onResult({
+            success: isCorrect,
+            items,
+            currentFirst: items[0],
+            correctFirst: block.items.find(item => item.order === 1),
+        })
     }
 
     return (

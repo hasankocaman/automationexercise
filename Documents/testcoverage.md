@@ -1,9 +1,9 @@
 # LearnQA.dev — Test Coverage Raporu
 
-> **Son güncelleme:** 2026-06-29  
+> **Son güncelleme:** 2026-06-29 (3. güncelleme)  
 > **Test Framework:** Playwright 1.57  
 > **Tarayıcı:** Chromium (Desktop Chrome)  
-> **Toplam test sayısı:** 78 test · 13 dosya  
+> **Toplam test sayısı:** ~76 test · 12 dosya (python-page.spec.ts silindi)  
 > **Base URL:** `http://localhost:5173` (Vite dev server)
 
 ---
@@ -61,18 +61,9 @@
 
 ---
 
-### 2.3 `python-page.spec.ts` — Eski Smoke (Stale)
+### 2.3 `python-page.spec.ts` — **SİLİNDİ** (2026-06-29)
 
-**Ne test eder:** Python ve TypeScript sayfalarının sekmelerinin crash olmadan yüklenmesi.
-
-| # | Test Adı | Adımlar | Beklenen Sonuç | Teknik |
-|---|----------|---------|----------------|--------|
-| 1 | Python Foundations tab loads | Hash URL ile git (`/#/python`) → tab tıkla → body > 500 karakter | Crash yok, tablo hücresi görünür | Crash detection |
-| 2 | TypeScript Foundations tab loads | Hash URL ile git (`/#/typescript`) → tab tıkla | Crash yok | Crash detection |
-
-**Değerlendirme:** **Stale — iki kritik sorun:**
-1. `/#/python` hash URL eski format; uygulama artık `/python` temiz path kullanıyor. Bu testler `/automationexercise/#/python` adresine gidiyor ve dev server'da o route yok. Testler **yanlış sayfada** çalışıyor.
-2. `topic-pages-ui.spec.ts` zaten bu sayfaları kapsıyor. Örtüşen kapsam.
+Hash URL (`/#/python`, `/#/typescript`) kullandığı için yanlış sayfada çalışıyordu. `topic-pages-ui.spec.ts` zaten bu sayfaları temiz path ile tam kapsamlı test ediyor — örtüşen ve bozuk dosya silindi.
 
 ---
 
@@ -84,9 +75,11 @@
 |---|----------|---------|----------------|--------|
 | 1 | SQL tabs load and render without crash | `/sql` → `h1` bekle → 25 tab say → her taba tıkla → son tab (interview) lock mesajı, diğerleri unlock | Crash yok, sekme sayısı = 25, son tab kilit gösteriyor | Parametrik tab traversal, boundary (son tab özel) |
 
-**Kırılganlık:** `expect(count).toBe(25)` — sekme eklenirse/silinirse test kırılır. Daha sağlam alternatif: `toBeTruthy()` veya `toBeGreaterThan(20)`.
+**Düzeltildi (2026-06-29):**
+- `expect(count).toBe(25)` → `toBeGreaterThan(20)` — sekme sayısı değişince kırılmaz
+- Son sekme pozisyon varsayımı (`i < count - 1`) → `💼` emoji ile interview tab tespiti (`typescript-page.spec.ts` pattern'i)
 
-**Selector:** `div[class*="w-52"] button` — `topic-pages-ui.spec.ts`'deki `flex-shrink-0 + sticky` kombinasyonundan farklı, daha az sağlam.
+**Selector:** `div[class*="w-52"] button` — `topic-pages-ui.spec.ts`'deki selector'dan farklı, daha az sağlam ama işlevsel.
 
 ---
 
@@ -98,7 +91,7 @@
 |---|----------|---------|----------------|--------|
 | 1 | JavaScript tabs load without crash | `/javascript` → tüm tablar → son tab kilit, diğerleri açık | Crash yok, interview lock doğru | Tab traversal, gating state |
 
-**Kırılganlık:** `sql-page.spec.ts` ile aynı: son sekme her zaman interview sekmesi değilse, `i < count - 1` koşulu yanlış sekmeyi interview olarak işaretler. `typescript-page.spec.ts`'deki `💼 emoji` tespiti daha sağlam.
+**Düzeltildi (2026-06-29):** Son sekme pozisyon varsayımı (`i < count - 1`) → `💼` emoji ile interview tab tespiti. `sql-page.spec.ts` ile aynı pattern uygulandı.
 
 ---
 
@@ -265,8 +258,8 @@
 | Route | topic-pages-ui | sql-page | js-page | ts-page | i18n | docker-mastery | diğerleri |
 |-------|:--------------:|:--------:|:-------:|:-------:|:----:|:--------------:|:---------:|
 | `/` | — | — | — | — | — | — | ✅ other-pages |
-| `/python` | ✅ | — | — | — | ✅ | — | ⚠️ stale hash url |
-| `/typescript` | ✅ | — | — | ✅ | ✅ | — | ⚠️ stale hash url |
+| `/python` | ✅ | — | — | — | ✅ | — | — |
+| `/typescript` | ✅ | — | — | ✅ | ✅ | — | — |
 | `/sql` | ✅ | ✅ | — | — | ✅ | — | — |
 | `/javascript` | ✅ | — | ✅ | — | ✅ | — | — |
 | `/docker` | ✅ | — | — | — | ✅ | ✅ | ✅ quiz-retry, quiz-ai, grading-reset |
@@ -315,9 +308,7 @@
 | **AC08 — Tema/dark mode/erişilebilirlik** | Orta | Hiç test yok. Dark mode geçişinde renk/okunabilirlik sorunları gözden kaçabilir |
 | **AC09 — Roadmap progress** | Düşük | Özellik kısmen implement; test yok |
 | **AC05 — AI açıklama başarılı içerik** | Orta | AI'ın ürettiği açıklamanın konu ile ilgili ve dil uyumlu olduğu doğrulanmıyor |
-| **python-page.spec.ts — stale hash URL** | Yüksek | `/#/python` eski format. Bu testler yanlış URL'e gidiyor; geçerleri yanlış nedenle geçiyor olabilir |
-| **sql/javascript-page.spec.ts — son sekme varsayımı** | Orta | `i < count - 1` koşulu: interview sekmesi her zaman son sekme değilse gating testi yanlış sekmede çalışır |
-| **sql-page.spec.ts — hardcoded sayı** | Orta | `expect(count).toBe(25)` — bir sekme eklenince test kırılır |
+| **Tarayıcı çaprazlığı** | Yüksek | Yalnızca Chromium. Firefox ve Safari/WebKit test edilmiyor |
 | **Tarayıcı çaprazlığı** | Yüksek | Yalnızca Chromium. Firefox ve Safari/WebKit test edilmiyor |
 | **Mobil responsive** | Yüksek | Playwright'ta mobile viewport testi yok. WCAG touch target (36px) doğrulaması yok |
 | **Visual regression** | Orta | Tasarım değişikliklerinde görsel bozulmalar gözden kaçar |
@@ -334,7 +325,7 @@
 | Framework | Playwright 1.57 | |
 | Tarayıcı | Chromium (Desktop Chrome) | Firefox/WebKit yok |
 | Paralel | `fullyParallel: true` (lokal) / `workers: 1` (CI) | |
-| Retry | 0 (lokal) / 2 (CI) | |
+| Retry | 1 (lokal) / 2 (CI) | Lokal'de 1 retry eklendi (paralel Pyodide/CDN gecikmelerine karşı) |
 | Reporter | HTML | `playwright-report/` klasörüne |
 | Timeout | 30–120s test başına | Ağır sayfalarda `test.setTimeout` ile artırılmış |
 | Web server | `npm run dev` (Vite 5173) | CI'da yeniden başlatılır |
@@ -349,14 +340,17 @@
 
 ## 7. Öncelikli İyileştirme Önerileri
 
-| Öncelik | Konu | Aksiyon |
-|---------|------|---------|
-| 🔴 | `python-page.spec.ts` stale | Hash URL'leri temiz path'e çevir veya `topic-pages-ui.spec.ts` zaten kapsıyor diye dosyayı sil |
-| 🔴 | `sql-page.spec.ts` — hardcoded sekme sayısı | `expect(count).toBe(25)` → `toBeGreaterThan(20)` |
-| 🔴 | `sql-page.spec.ts` + `javascript-page.spec.ts` — son sekme varsayımı | `💼` emoji ile interview tab tespiti (typescript-page.spec.ts'den kopyala) |
-| 🟡 | Chromium-only | `playwright.config.ts`'e Firefox projesi ekle |
-| 🟡 | AC05 AI başarılı içerik | Mock yerine gerçek Groq çağrısı ile response ilgililik ve dil testi (maliyetli suite'e taşı) |
-| 🟡 | AC08 dark mode | En az: dark mode toggle → body'de `dark-mode` class; `--tw-bg-opacity` değeri değişti mi |
-| 🟡 | Mülakat 50 soru kuralı | `interview-questions` block'larını `pages.length >= 50` ile doğrulayan statik audit testi |
-| 🟢 | `docker-mastery` — `serviceWorkers: 'block'` | MSW çakışmasına karşı koruma |
-| 🟢 | Mobile viewport | `devices['iPhone 14']` ile en az bir kritik flow (quiz cevaplama, dil toggle) |
+| Öncelik | Konu | Aksiyon | Durum |
+|---------|------|---------|-------|
+| 🔴 | `python-page.spec.ts` stale | Hash URL'leri temiz path'e çevir veya dosyayı sil | ✅ **Silindi** (2026-06-29) |
+| 🔴 | `sql-page.spec.ts` — hardcoded sekme sayısı | `expect(count).toBe(25)` → `toBeGreaterThan(20)` | ✅ **Düzeltildi** (2026-06-29) |
+| 🔴 | `sql-page.spec.ts` + `javascript-page.spec.ts` — son sekme varsayımı | `💼` emoji ile interview tab tespiti | ✅ **Düzeltildi** (2026-06-29) |
+| 🔴 | Java sayfası AC03 ihlali (EN modda `ı/ş` karakterleri) | `javaPlaygroundCucumber` + `javaPlaygroundPlaywright` `code` alanı bilingual; `CodePlaygroundBlock` `pick()` desteği | ✅ **Düzeltildi** (2026-06-29) |
+| 🔴 | `/python` topic-pages-ui paralel kosumda fail (1 fail + 3 flaky) | `TopicPage.jsx` Pyodide CDN `.catch()` + `s.onerror` handler eklendi; unhandled promise rejection önlendi | ✅ **Düzeltildi** (2026-06-29) |
+| 🟡 | Chromium-only | `playwright.config.ts`'e Firefox projesi ekle | ⏳ Bekliyor |
+| 🟡 | AC05 AI başarılı içerik | Mock yerine gerçek Groq çağrısı ile response ilgililik ve dil testi (maliyetli suite'e taşı) | ⏳ Bekliyor |
+| 🟡 | AC08 dark mode | En az: dark mode toggle → body'de `dark-mode` class; `--tw-bg-opacity` değeri değişti mi | ⏳ Bekliyor |
+| 🟡 | Mülakat 50 soru kuralı | `interview-questions` block'larını `pages.length >= 50` ile doğrulayan statik audit testi | ⏳ Bekliyor |
+| 🟡 | `code-playground` `buggyCode`/`fixedCode` içindeki Türkçe yorumlar | Şu an body scan'e girmiyor (panel kapalı). i18n testi panel açmaya genişlerse ihlal çıkar. Bilingual yapılmalı. | ⚠️ Bilinen risk |
+| 🟢 | `docker-mastery` — `serviceWorkers: 'block'` | MSW çakışmasına karşı koruma | ⏳ Bekliyor |
+| 🟢 | Mobile viewport | `devices['iPhone 14']` ile en az bir kritik flow (quiz cevaplama, dil toggle) | ⏳ Bekliyor |
