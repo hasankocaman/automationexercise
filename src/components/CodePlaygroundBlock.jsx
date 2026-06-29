@@ -41,6 +41,22 @@ function firstDifferentLine(actual, expected) {
     return null
 }
 
+function nextSafeStep(diff, isTr) {
+    if (!diff.actual) {
+        return isTr
+            ? `Önce ${diff.line}. satıra eksik kodu ekle, sonra tekrar kontrol et.`
+            : `First add the missing code on line ${diff.line}, then check again.`
+    }
+    if (!diff.expected) {
+        return isTr
+            ? `${diff.line}. satır fazladan görünüyor — silmeyi dene, sonra tekrar kontrol et.`
+            : `Line ${diff.line} looks extra — try removing it, then check again.`
+    }
+    return isTr
+        ? `${diff.line}. satırı "Beklenen" ile karşılaştır, sadece o satırı düzelt ve tekrar kontrol et.`
+        : `Compare line ${diff.line} with "Expected", fix just that line, then check again.`
+}
+
 function DiagnosticPanel({ diff, isTr }) {
     if (!diff) return null
 
@@ -52,6 +68,9 @@ function DiagnosticPanel({ diff, isTr }) {
             </div>
             <div className="font-mono">
                 {isTr ? 'Senin kodun' : 'Your code'}: {diff.actual || '(empty)'}
+            </div>
+            <div className="mt-1.5 font-sans font-semibold opacity-90">
+                👉 {nextSafeStep(diff, isTr)}
             </div>
         </div>
     )
@@ -181,7 +200,7 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
     )
 }
 
-function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, onPass }) {
+function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, onPass, language }) {
     const [draft, setDraft] = useState(starterCode)
     const [attempts, setAttempts] = useState(0)
     const [result, setResult] = useState(null) // null | 'pass' | 'fail'
@@ -211,8 +230,8 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
-                    ? 'Bu alanda kodu veya komutu kendin yazıp kontrollü şekilde sonucu görebilirsin. Gerçek runtime/terminal değildir; bu egzersizin beklenen çözümüyle karşılaştırır.'
-                    : 'Write the code or command yourself here and see a controlled result. This is not a real runtime or terminal; it compares against this exercise solution.'}
+                    ? `Bu alanda kodu veya komutu kendin yazıp kontrollü şekilde sonucu görebilirsin. Gerçek ${language || 'kod'} derleyici/yorumlayıcısı/terminali değildir; bu egzersizin beklenen çözümüyle karşılaştırır.`
+                    : `Write the code or command yourself here and see a controlled result. This is not a real ${language || 'code'} compiler/interpreter/terminal; it compares against this exercise solution.`}
             </div>
             <textarea
                 value={draft}
@@ -385,6 +404,7 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
                     isTr={isTr}
                     darkMode={darkMode}
                     onPass={awardXpOnce}
+                    language={block.language}
                 />
             )}
 

@@ -10,6 +10,213 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30) — Dusunduren Analoji Standardi: Bruno -> Python + CLAUDE.md Kurali
+
+Kullanici `/bruno` sayfasindaki `simple-box` analojilerini (somut benzetme +
+dusundurucu "neden" sorusu + Java karsilastirmasi + is/QA baglami) ornek
+gosterip "bunu Python sayfasina uygula" dedi (ilk basta "TypeScript" demisti,
+sonra "yanlis soyledim, Python'a uygula, TypeScript'i geri al" diye duzeltti —
+TypeScript'e hicbir Edit/Write yapilmamisti, geri alinacak bir sey yoktu,
+sadece dogrulandi).
+
+**Yapilan:** `src/data/pythonData.js`'deki **43 `simple-box` blogunun TUMU**
+(40 atomik konu + Ecosystem intro + Manual Testing Lab intro x2 EN/TR kopya)
+yuzeysel tek cumlelik benzetmelerden, Bruno tarzi 4 katmanli analojilere
+yukseltildi:
+1. Mekanizmasi konuyla orusen somut analoji
+2. Dusundurucu "neden" sorusu (dogrudan cevap vermeden once)
+3. Java ile karsilastirma/zitlik
+4. Gercek QA/otomasyon senaryosu (flaky test, sessiz bug, yanlis PASS vb.)
+
+**Guvenlik:** Sadece mevcut bloklarin `content` DEGERI degisti, hicbir blok
+eklenmedi/silinmedi/sira degismedi — slice/assembly riski SIFIR. 4 batch
+halinde yapildi, her batch sonrasi `npm run build` PASS. Son halde
+`i18n-content-toggle.spec.ts` 28/28 PASS (/python 10.3s'de, EN modda Turkce
+karakter sizintisi yok) ve `topic-pages-ui.spec.ts -g "/python"` PASS.
+
+**Kullanici onayladi ve "ileride derinlestiririz (2. analoji eklenebilir)"
+dedi, kurali kalici hale getirmemi istedi.**
+
+**CLAUDE.md degisikligi:**
+- Bolum 9'daki eski "ilk block simple-box olmali, teknik terim kullanmadan,
+  10 yasindaki cocuga anlatir gibi" kurali GUNCELLENDI — artik Bolum 9.3'e
+  yonlendiriyor.
+- **Yeni Bolum 9.3 "Dusundurucu Analoji Standardi"** eklendi: `/bruno` referans
+  kalite bari olarak tanimlandi, 4 katman (analoji+soru+karsilastirma+QA baglami)
+  kalici kural olarak yazildi, eski "10 yasindaki cocuk, teknik terimsiz" ifadesi
+  ACIKCA YERINE GECTI (cunku hedef kitle yetiskin QA muhendisi, teknik terim
+  sorun degil — asil hedef dusundurmek).
+- Bolum 11'e (Sik Yapilan Hatalar) "tek cumlelik yuzeysel analoji yazma" maddesi eklendi.
+
+**Sonraki adim (kullanici "ileride derinlestiririz" dedi, simdi degil):**
+- Her konuya Bruno'daki gibi BIRDEN FAZLA analoji eklenebilir (su an 1, Bruno'da
+  bazi konularda 2-3 var).
+- Bu standart henuz SADECE Bruno (kaynak) + Python (tam yukseltme) sayfalarinda
+  var. Bolum 9.2'deki genel yayilim kuraline tabi — diger sayfalara (Selenium,
+  Playwright, Java vb.) ne zaman tasinacagi kullanicidan onay alinarak
+  belirlenmeli, hangi sayfanin yukseltildigi BURADA (bu dosyada) takip edilecek.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29, devam 4) — Her Sekmede 3. Drag-and-Drop + CLAUDE.md'ye Kalici Kurallar
+
+Kullanici "sekmelere 3. bir order-sort ekle" + "animasyon/drag-and-drop/practice
+ogretme yonteminin her koddan sonra olmasi gerektigini CLAUDE.md'ye yaz" +
+"Python sayfasina yapilan gelistirmelerin diger sayfalarda da olmasi icin
+CLAUDE.md'ye ekle" dedi. Iki parca:
+
+**BATCH 5 — 26 yeni order-sort const'u, 21 sekmenin TUMU artik 3 order-sort'a sahip:**
+- Onceki durum: 16 sekme 2 order-sort'a sahipti (BATCH 4'ten); 5 sekme
+  (Operators, Files&JSON, Exceptions&RegEx, Real World/pytest, Practice
+  Exercises) BASKA challenge variant'lari (multiple-choice/fill-blank/bug-spot)
+  ile zengindi ama SADECE 1 order-sort'a sahipti.
+- `src/data/pythonData.js`: "BATCH 5" yorum basligi altinda 26 yeni order-sort
+  const'u eklendi — 16 sekmeye +1 (3.'ye tamamlamak icin), 5 ozel sekmeye +2
+  (1'den 3'e tamamlamak icin). Ayni guvenli yontem: paylasilan
+  `sections[n].blocks` dizilerine DOKUNULMADI, her sekmenin assembly
+  satirinin (EN+TR) SONUNA eklendi. Node script ile (20 pattern × EN+TR = 40
+  occurrence, her biri count===2 dogrulanarak) tek seferde uygulandi.
+- **Sonuc: Python'daki 21 sekmenin TUMUNDE artik EN AZ 3 farkli drag-and-drop
+  (order-sort) egzersizi var.**
+- Dogrulama: `npm run build` PASS, `topic-pages-ui.spec.ts -g "/python"` PASS,
+  `i18n-content-toggle.spec.ts` tam suite 28/28 PASS (0 flaky). Gecici
+  Playwright script ile Intro sekmesinde 2 farkli order-sort sorusu metninin
+  (eski + BATCH5 yenisi) ayni anda goruldugu dogrulandi, script silindi.
+
+**CLAUDE.md'ye 2 kalici kural eklendi (anlik durum DEGIL, mimari/pedagoji kurali):**
+1. **Bolum 9.1'e yeni madde:** Her `code` blogunun ardina, mumkun olan her
+   yerde, animasyon + drag-and-drop (`order-sort`) + practice (`code-playground`,
+   `starterCode`/`solutionCode`) UCLUSUNUN birlikte yerlestirilmesi zorunlu
+   kilindi — sekme basina bir kez degil, konunun izin verdigi HER atomik kod
+   blogunun ardina tekrarlanmali.
+2. **Yeni Bolum 9.2 — "Referans Uygulama: Python Sayfasi — Tum Teknoloji
+   Sayfalarina Yayilim Zorunlulugu":** `/python` sayfasi bu uclunun referans
+   uygulamasi olarak tanimlandi (her sekmede ≥3 order-sort, ≥1 step-animation,
+   playground'da hem Fix hem Practice modu calisir). Bu kalibin TUM teknoloji
+   sayfalarina (Bolum 2 route haritasindaki tum sayfalar) zaman icinde
+   yayilmasi kalici bir hedef olarak yazildi; component'ler tekrar yazilmadan
+   (`CodePlaygroundBlock`/`StepAnimationBlock`/`ChallengeBlock` hazir) sadece
+   her sayfanin `*Data.js`'ine veri eklenerek yapilmasi gerektigi belirtildi.
+   Hangi sayfanin ne kadar tamamlandigi `NEXT_SESSION.md`'de takip edilecek
+   (CLAUDE.md'ye anlik durum yazilmadi, sadece kalici kural).
+3. **Bolum 11'e (Sik Yapilan Hatalar) 2 yeni "yapma" maddesi** eklendi: uclu
+   atlamak ve kalibi sadece Python'da birakmak.
+
+**Sonraki adim (kullanici onceligi belirlerse):** Yeni CLAUDE.md §9.2 kuralina
+gore, sirada hangi sayfanin (Selenium, Playwright, Java zaten kismen var, vb.)
+ayni uclu pattern'e tasinacagi kullanicidan onay alinarak belirlenmeli — her
+sayfa icin component degisikligi gerekmiyor, sadece `*Data.js` veri eklemesi.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29, devam 3) — Practice Mode Tum 37 Egzersize Yayildi + 16 Yeni Drag-and-Drop
+
+Onceki adimda Practice mode ("Kod Yaz ve Dene") sadece 5 inline `pythonData.js`
+ornegine eklenmisti. Kullanici "pythonPlaygroundData.js'deki 37 egzersize de yay"
++ "drag and drop yerlestirebildigin her yere yerlestir, kullanici aktif olmali"
+dedi. Iki fazda yapildi:
+
+**Faz 1 — 37/37 playground egzersizine starterCode/solutionCode:**
+- `src/data/pythonPlaygroundData.js`: tum 37 `pythonPlaygroundItems` girdisine
+  bilingual `starterCode: {tr, en}` (TODO yorumlu iskelet, genelde fixedCode'un
+  degisen/eklenen satirinin TODO ile degistirilmis hali) + `solutionCode` (=
+  fixedCode'un birebir kopyasi) eklendi. `toPlaygroundBlock()` adaptorune
+  `starterCode`/`solutionCode` alanlarini bloga aktaran 2 satir eklendi (onceden
+  bu alanlar adaptorde kayboyordu, component destekliyordu ama veri akmiyordu).
+- Sonuc: Python'daki TUM 42 playground egzersizinde (5 inline + 37 adapter'li)
+  artik "Kod Yaz ve Dene" butonu calisiyor.
+
+**Faz 2 — 16 Python sekmesine 2. drag-and-drop (order-sort) eklendi:**
+- Inceleme: 21 sekmenin 16'sinda SADECE 1 order-sort vardi (Intro, Installation,
+  Syntax&Comments, Variables&Types, Strings&Booleans, Lists&Tuples, Sets&Dicts,
+  Conditions&Loops, Functions&Lambda, Classes&OOP, Scope&Modules, Helper Modules,
+  Advanced Concepts, Ecosystem, Troubleshooting, Java→Python) — 5 sekme zaten
+  birden fazla challenge'a sahipti (Operators, Files&JSON, Exceptions&RegEx,
+  Real World/pytest, Practice Exercises).
+- `src/data/pythonData.js`: bu 16 sekmenin HER BIRINE, mevcut order-sort'tan
+  FARKLI bir alt-konuda yeni bir order-sort const'u eklendi ("BATCH 4" yorum
+  basligi altinda, `// --- FINAL SECTION MAPPING ---` satirindan once). Ornekler:
+  `challengePrintFlowOrder` (Intro: print() akisi), `challengePipInstallOrder`
+  (Installation), `challengeWhileLoopOrder` (Conditions&Loops), `challengeLambdaOrder`
+  (Functions&Lambda), `challengeDecoratorOrder` (Advanced Concepts) vb.
+- Guvenli yerlestirme yontemi: paylasilan `sections[n].blocks`/`trSections[n].blocks`
+  dizilerine DOKUNULMADI (onceki batch'lerdeki gibi cascading risk sifir).
+  Bunun yerine her sekmenin assembly satirindaki `getPlaygroundBlocksForTopic(...)`
+  cagrisinin SONUNA yeni const eklendi — slice sinirlarini degistirmeyen, en
+  guvenli ekleme noktasi. Node script ile (16 pattern × EN+TR = 32 occurrence,
+  her biri count===2 dogrulanarak) tek seferde uygulandi.
+- Sonuc: Python'daki TUM 21 sekmede artik EN AZ 2 farkli drag-and-drop egzersizi var.
+
+**Dogrulama:** `npm run build` PASS (her iki faz sonrasi ayri ayri calistirildi).
+`tests/topic-pages-ui.spec.ts -g "/python"` PASS. `tests/i18n-content-toggle.spec.ts`
+tam suite (28 test) PASS, 0 flaky (/python 9.6s'de gecti) — yeni TODO yorumlarinda
+ve yeni challenge metinlerinde EN modda Turkce karakter sizintisi yok. Gecici
+Playwright script ile manuel dogrulama: Intro sekmesinde yeni order-sort metni
+goruluyor, py-intro-02'nin (2. "Kod Yaz ve Dene" butonu) starter kodu dogru
+TODO ile aciliyor. Script is bitince silindi.
+
+**Sonraki adim (kullanici isterse):** Su an her sekmede 2 order-sort var (1 eski
++ 1 yeni). Daha fazla "her ogretilen kod blogunun hemen ardina" istenirse,
+coklu alt-konu iceren sekmelerde (orn. Variables&Types 4 alt-konu icerir) ek
+order-sort/step-animation/fill-blank eklenebilir — ama bu noktada XP/UI
+yorgunlugu riski var (bkz. asagidaki "Batch 3" sonrasi not), once kullanicinin
+sayfada deneyimleyip yeterli bulup bulmadigini sormak iyi olur.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29, devam 2) — Python "Kod Yaz ve Dene" Paneli Gercek Veriyle Bağlandı
+
+Kullanici kisa vadede "kontrollu kod yazma ve sonucu gorme" deneyimini Python
+sayfasinda istedi. Inceleme sonucu bulunan kok durum: `CodePlaygroundBlock.jsx`
+icindeki `PracticePanel` (starterCode/solutionCode karsilastirmali "Kod Yaz ve
+Dene" modu) onceki oturumda component seviyesinde tam insa edilmis ve test
+edilmisti, ama **hicbir gercek veri dosyasi onu kullanmiyordu** — Python'da
+sifir, Java'da da `code-playground` tipinde sifir (Java'nin 4 ornegi farkli bir
+block tipi olan `java-practice`'i kullaniyor, `CodePlaygroundBlock` degil).
+Yani buton mevcut ama tetiklenmiyordu.
+
+Yapilanlar:
+- `src/data/pythonData.js` — 5 mevcut `code-playground` bloguna (`playgroundSyntax`,
+  `playgroundVariables`, `playgroundLoops`, `playgroundFunctions`, `playgroundClasses`)
+  `starterCode: {tr, en}` (TODO yorumlu iskelet) + `solutionCode` (fixedCode ile
+  ayni calisan kod) eklendi. Bu, "Kod Yaz ve Dene" butonunu bu 5 egzersizde
+  gercek olarak aktif eder — kullanici sifirdan kod yazip "Calistir ve Kontrol
+  Et" ile beklenen cozumle karsilastirir.
+- `src/components/CodePlaygroundBlock.jsx`:
+  - `DiagnosticPanel`'e `nextSafeStep()` eklendi — satir farki gosterildikten
+    sonra "satiri ekle / satiri sil / sadece o satiri duzelt" seklinde somut
+    bir sonraki adim cumlesi ekler (TR/EN).
+  - `PracticePanel` tanitim metni "Gercek javac degil..." diyordu (Java'ya ozel
+    kalmis bir ifadeydi, artik Python'da da gosteriliyor) — `language` prop'u
+    eklenerek genel hale getirildi ("Gercek {language} derleyici/yorumlayicisi
+    degil...").
+- Degisiklik yapilmayanlar (zaten dogru calisiyordu, kontrol edildi):
+  - `buggyCode`/`fixedCode`/`starterCode`/`solutionCode`/`expected` zaten
+    `pick(value, isTr)` ile dil degisiminde dogru resetleniyor (useEffect
+    dependency zaten picked degerlere bagli).
+  - `pick()` string olmayan/null veride crash etmiyor, sessizce '' donuyor.
+  - `ChallengeBlock.jsx`'teki AC02 "bir defaya mahsus ekstra soru" (recovery
+    question) mekanizmasi tum variant'lar (`order-sort`, `multiple-choice`,
+    `fill-blank`, `bug-spot`) icin generic calisiyor — Python'un batch 2/3'te
+    eklenen challenge bloklari (`challengeOperatorPrecedenceOrder` vb.) icin
+    de otomatik calisiyor, ek kod gerekmedi.
+
+**Dogrulama:** `npm run build` PASS. `tests/i18n-content-toggle.spec.ts`
+28/28 passed (4'u retry sonrasi gecti — bilinen Pyodide/CDN flakiness, bu
+oturumun degisiklikleriyle ilgisiz). `tests/topic-pages-ui.spec.ts -g "/python"`
+PASS. Gecici Playwright script ile manuel uctan uca dogrulama: panel acikken
+dil degistirince TODO yorumu dogru dilde yeniden render ediliyor (TR->EN
+gecisinde Turkce karakter sizintisi yok), yanlis cevapta "Henuz degil" +
+tanı paneli, dogru cevapta "beklenen cozumle eslesti" + terminal output
+gosteriliyor. Script calisma sonrasi silindi (kalici test suite'e eklenmedi).
+
+**Sonraki adim (kullanici isterse):** Su an Practice mode sadece bu 5 ornekte
+aktif. Kullanici onaylarsa `pythonPlaygroundData.js`'deki 37 Fix-the-Bug
+egzersizinden bir kismina da starterCode/solutionCode eklenebilir (ayni guvenli
+pattern, `toPlaygroundBlock()` adaptorune iki alan eklemek yeterli).
+
+---
+
 ## Guncel Branch Durumu (2026-06-29)
 
 - Bu Codex oturumunda aktif branch `codex2` olarak dogrulandi. Calisma agacinda

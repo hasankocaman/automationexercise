@@ -29,6 +29,24 @@ print(check_environment("UP", "DOWN"))`,
     return "NOT READY"
 
 print(check_environment("UP", "DOWN"))`,
+    starterCode: {
+      tr: `def check_environment(server_status, db_status):
+    # TODO: iki servisin de "UP" olduğu koşulu yaz, sonra "READY" döndür
+    return "NOT READY"
+
+print(check_environment("UP", "DOWN"))`,
+      en: `def check_environment(server_status, db_status):
+    # TODO: write the condition that checks BOTH services are "UP", then return "READY"
+    return "NOT READY"
+
+print(check_environment("UP", "DOWN"))`,
+    },
+    solutionCode: `def check_environment(server_status, db_status):
+    if server_status == "UP" and db_status == "UP":
+        return "READY"
+    return "NOT READY"
+
+print(check_environment("UP", "DOWN"))`,
     expectedOutput: 'NOT READY',
     hints: [
       { tr: 'Ortamın hazır olması için kaç servisin "UP" olması gerekiyor?', en: 'How many services need to be "UP" for the environment to be ready?' },
@@ -50,6 +68,20 @@ print(check_environment("UP", "DOWN"))`,
 
 print(format_test_id(7, "TC"))`,
     fixedCode: `def format_test_id(prefix, number):
+    return f"{prefix}-{number:03d}"
+
+print(format_test_id("TC", 7))`,
+    starterCode: {
+      tr: `def format_test_id(prefix, number):
+    return f"{prefix}-{number:03d}"
+
+# TODO: format_test_id'yi doğru parametre sırasıyla çağır (önce prefix, sonra number)`,
+      en: `def format_test_id(prefix, number):
+    return f"{prefix}-{number:03d}"
+
+# TODO: call format_test_id with the correct argument order (prefix first, number second)`,
+    },
+    solutionCode: `def format_test_id(prefix, number):
     return f"{prefix}-{number:03d}"
 
 print(format_test_id("TC", 7))`,
@@ -75,6 +107,13 @@ print(format_test_id("TC", 7))`,
     fixedCode: `import sys
 
 print(sys.version_info.major)`,
+    starterCode: {
+      tr: `# TODO: doğru modülü import et, sonra sürümün major numarasını yazdır`,
+      en: `# TODO: import the right module, then print the major version number`,
+    },
+    solutionCode: `import sys
+
+print(sys.version_info.major)`,
     expectedOutput: '3',
     hints: [
       { tr: '"version_info" hangi modülün bir parçası?', en: 'Which module does "version_info" belong to?' },
@@ -97,6 +136,23 @@ if pytest_version >= 7:
 else:
     print("Upgrade needed")`,
     fixedCode: `pytest_version = "7"
+if int(pytest_version) >= 7:
+    print("Compatible")
+else:
+    print("Upgrade needed")`,
+    starterCode: {
+      tr: `pytest_version = "7"
+# TODO: pytest_version'u sayıya çevirip 7 ile karşılaştır
+    print("Compatible")
+else:
+    print("Upgrade needed")`,
+      en: `pytest_version = "7"
+# TODO: convert pytest_version to a number, then compare it against 7
+    print("Compatible")
+else:
+    print("Upgrade needed")`,
+    },
+    solutionCode: `pytest_version = "7"
 if int(pytest_version) >= 7:
     print("Compatible")
 else:
@@ -129,6 +185,23 @@ print(describe_test())`,
     return "Described"
 
 print(describe_test())`,
+    starterCode: {
+      tr: `def describe_test():
+    # TODO: docstring'i AÇ ve AYNI SATIRDA üçlü tırnakla KAPAT
+    return "Described"
+
+print(describe_test())`,
+      en: `def describe_test():
+    # TODO: open the docstring and CLOSE it with triple quotes on the SAME line
+    return "Described"
+
+print(describe_test())`,
+    },
+    solutionCode: `def describe_test():
+    """This function returns a description"""
+    return "Described"
+
+print(describe_test())`,
     expectedOutput: 'Described',
     hints: [
       { tr: 'Üçlü tırnak (""") ile başlayan bir docstring nasıl bitirilir?', en: 'How do you close a triple-quote (""") docstring?' },
@@ -153,6 +226,17 @@ print(f"Retrying {retry_count} times")`,
     fixedCode: `user_input = "3.5"
 retry_count = int(float(user_input))
 print(f"Retrying {retry_count} times")`,
+    starterCode: {
+      tr: `user_input = "3.5"
+# TODO: ondalıklı bir string'i önce float'a, sonra int'e çevirerek retry_count'u oluştur
+print(f"Retrying {retry_count} times")`,
+      en: `user_input = "3.5"
+# TODO: build retry_count by converting the decimal string to float first, then to int
+print(f"Retrying {retry_count} times")`,
+    },
+    solutionCode: `user_input = "3.5"
+retry_count = int(float(user_input))
+print(f"Retrying {retry_count} times")`,
     expectedOutput: 'Retrying 3 times',
     hints: [
       { tr: 'user_input string\'i hangi formatta — tam sayı mı, ondalıklı mı?', en: 'What format is the user_input string in — a whole number or a decimal?' },
@@ -175,6 +259,17 @@ print(f"Retrying {retry_count} times")`,
 numeric_part = test_case_id[3:7]
 print(numeric_part)`,
     fixedCode: `test_case_id = "TC-00125"
+numeric_part = test_case_id[3:8]
+print(numeric_part)`,
+    starterCode: {
+      tr: `test_case_id = "TC-00125"
+# TODO: 3. indeksten itibaren 5 karakteri ("00125") slice ile al
+print(numeric_part)`,
+      en: `test_case_id = "TC-00125"
+# TODO: slice 5 characters ("00125") starting from index 3
+print(numeric_part)`,
+    },
+    solutionCode: `test_case_id = "TC-00125"
 numeric_part = test_case_id[3:8]
 print(numeric_part)`,
     expectedOutput: '00125',
@@ -203,6 +298,23 @@ if status.lower() == "passed":
     print("Test succeeded")
 else:
     print("Unknown status")`,
+    starterCode: {
+      tr: `status = "PASSED"
+# TODO: status'u büyük/küçük harf duyarsız hale getirip "passed" ile karşılaştır
+    print("Test succeeded")
+else:
+    print("Unknown status")`,
+      en: `status = "PASSED"
+# TODO: normalize status to be case-insensitive, then compare it to "passed"
+    print("Test succeeded")
+else:
+    print("Unknown status")`,
+    },
+    solutionCode: `status = "PASSED"
+if status.lower() == "passed":
+    print("Test succeeded")
+else:
+    print("Unknown status")`,
     expectedOutput: 'Test succeeded',
     hints: [
       { tr: '"PASSED" ve "passed" Python\'a göre aynı string mi?', en: 'Are "PASSED" and "passed" the same string as far as Python is concerned?' },
@@ -225,6 +337,17 @@ else:
 max_retries = 5
 print(retry_count + max_retries)`,
     fixedCode: `retry_count = "3"
+max_retries = 5
+print(int(retry_count) + max_retries)`,
+    starterCode: {
+      tr: `retry_count = "3"
+max_retries = 5
+# TODO: retry_count'u sayıya çevirip max_retries ile topla, sonra yazdır`,
+      en: `retry_count = "3"
+max_retries = 5
+# TODO: convert retry_count to a number, add max_retries, then print it`,
+    },
+    solutionCode: `retry_count = "3"
 max_retries = 5
 print(int(retry_count) + max_retries)`,
     expectedOutput: '8',
@@ -255,6 +378,26 @@ if attempt >= max_attempts:
     print("STOP")
 else:
     print("RETRY")`,
+    starterCode: {
+      tr: `attempt = 3
+max_attempts = 3
+# TODO: attempt, max_attempts'a EŞİT veya BÜYÜKSE "STOP" yazdır, değilse "RETRY"
+    print("STOP")
+else:
+    print("RETRY")`,
+      en: `attempt = 3
+max_attempts = 3
+# TODO: print "STOP" if attempt is EQUAL TO OR GREATER THAN max_attempts, else "RETRY"
+    print("STOP")
+else:
+    print("RETRY")`,
+    },
+    solutionCode: `attempt = 3
+max_attempts = 3
+if attempt >= max_attempts:
+    print("STOP")
+else:
+    print("RETRY")`,
     expectedOutput: 'STOP',
     hints: [
       { tr: 'attempt, max_attempts\'a EŞİT olduğunda denemeler bitmiş sayılır mı?', en: 'When attempt EQUALS max_attempts, should retries be considered exhausted?' },
@@ -279,6 +422,17 @@ print(last_three)`,
     fixedCode: `results = ["PASS", "PASS", "FAIL", "PASS", "FAIL"]
 last_three = results[-3:]
 print(last_three)`,
+    starterCode: {
+      tr: `results = ["PASS", "PASS", "FAIL", "PASS", "FAIL"]
+# TODO: negatif slicing ile son 3 elemanı al
+print(last_three)`,
+      en: `results = ["PASS", "PASS", "FAIL", "PASS", "FAIL"]
+# TODO: use negative slicing to get the last 3 elements
+print(last_three)`,
+    },
+    solutionCode: `results = ["PASS", "PASS", "FAIL", "PASS", "FAIL"]
+last_three = results[-3:]
+print(last_three)`,
     expectedOutput: "['FAIL', 'PASS', 'FAIL']",
     hints: [
       { tr: 'results[-2:] kaç eleman döndürür?', en: 'How many elements does results[-2:] return?' },
@@ -299,6 +453,17 @@ print(last_three)`,
 durations.sort(reverse=False)
 print(durations[0])`,
     fixedCode: `durations = [5.2, 1.8, 3.4, 2.1]
+durations.sort(reverse=True)
+print(durations[0])`,
+    starterCode: {
+      tr: `durations = [5.2, 1.8, 3.4, 2.1]
+# TODO: en yavaş süre ilk sırada olacak şekilde sort() ile sırala
+print(durations[0])`,
+      en: `durations = [5.2, 1.8, 3.4, 2.1]
+# TODO: sort() the list so the slowest duration comes first
+print(durations[0])`,
+    },
+    solutionCode: `durations = [5.2, 1.8, 3.4, 2.1]
 durations.sort(reverse=True)
 print(durations[0])`,
     expectedOutput: '5.2',
@@ -325,6 +490,17 @@ print(len(unique_ids))`,
     fixedCode: `bug_ids = [101, 102, 101, 103, 102]
 unique_ids = list(set(bug_ids))
 print(len(unique_ids))`,
+    starterCode: {
+      tr: `bug_ids = [101, 102, 101, 103, 102]
+# TODO: tekrarları kaldırmak için önce set()'e, sonra tekrar list()'e çevir
+print(len(unique_ids))`,
+      en: `bug_ids = [101, 102, 101, 103, 102]
+# TODO: remove duplicates by converting to a set() first, then back to a list
+print(len(unique_ids))`,
+    },
+    solutionCode: `bug_ids = [101, 102, 101, 103, 102]
+unique_ids = list(set(bug_ids))
+print(len(unique_ids))`,
     expectedOutput: '3',
     hints: [
       { tr: 'list(bug_ids) sadece bir kopya mı oluşturuyor, yoksa tekrarları mı kaldırıyor?', en: 'Does list(bug_ids) just make a copy, or does it remove duplicates too?' },
@@ -345,6 +521,17 @@ print(len(unique_ids))`,
 headless_mode = test_config["headless"]
 print(headless_mode)`,
     fixedCode: `test_config = {"browser": "chrome", "timeout": 30}
+headless_mode = test_config.get("headless", False)
+print(headless_mode)`,
+    starterCode: {
+      tr: `test_config = {"browser": "chrome", "timeout": 30}
+# TODO: olmayan bir key'e güvenle erişmek için .get() kullan (varsayılan: False)
+print(headless_mode)`,
+      en: `test_config = {"browser": "chrome", "timeout": 30}
+# TODO: use .get() to safely read a missing key (default: False)
+print(headless_mode)`,
+    },
+    solutionCode: `test_config = {"browser": "chrome", "timeout": 30}
 headless_mode = test_config.get("headless", False)
 print(headless_mode)`,
     expectedOutput: 'False',
@@ -380,6 +567,33 @@ def wait_for_condition(attempts):
     return "done"
 
 print(wait_for_condition(3))`,
+    starterCode: {
+      tr: `# TODO: sleep fonksiyonunu doğru modülden import et
+
+def wait_for_condition(attempts):
+    for i in range(attempts):
+        sleep(0.01)
+    return "done"
+
+print(wait_for_condition(3))`,
+      en: `# TODO: import the sleep function from the right module
+
+def wait_for_condition(attempts):
+    for i in range(attempts):
+        sleep(0.01)
+    return "done"
+
+print(wait_for_condition(3))`,
+    },
+    solutionCode: `from time import sleep
+
+
+def wait_for_condition(attempts):
+    for i in range(attempts):
+        sleep(0.01)
+    return "done"
+
+print(wait_for_condition(3))`,
     expectedOutput: 'done',
     hints: [
       { tr: '"sleep" fonksiyonu hangi standart modülde bulunur?', en: 'Which standard module does the "sleep" function live in?' },
@@ -407,6 +621,27 @@ first_pass = list(ids)
 second_pass = list(ids)
 print(second_pass)`,
     fixedCode: `def get_test_ids():
+    for i in range(3):
+        yield f"TC-{i}"
+
+first_pass = list(get_test_ids())
+second_pass = list(get_test_ids())
+print(second_pass)`,
+    starterCode: {
+      tr: `def get_test_ids():
+    for i in range(3):
+        yield f"TC-{i}"
+
+# TODO: generator'ı TÜKETMEMEK için get_test_ids()'i HER GEÇİŞTE yeniden çağır
+print(second_pass)`,
+      en: `def get_test_ids():
+    for i in range(3):
+        yield f"TC-{i}"
+
+# TODO: call get_test_ids() again for EACH pass so the generator never gets exhausted
+print(second_pass)`,
+    },
+    solutionCode: `def get_test_ids():
     for i in range(3):
         yield f"TC-{i}"
 
@@ -451,6 +686,38 @@ print(runner.describe())`,
 
 runner = TestRunner("Login Test", "Chrome")
 print(runner.describe())`,
+    starterCode: {
+      tr: `class TestRunner:
+    def __init__(self, name, browser):
+        self.name = name
+        self.browser = browser
+
+    def describe(self):
+        return f"{self.name} on {self.browser}"
+
+# TODO: TestRunner'ı __init__'in beklediği İKİ argümanla da çağır
+print(runner.describe())`,
+      en: `class TestRunner:
+    def __init__(self, name, browser):
+        self.name = name
+        self.browser = browser
+
+    def describe(self):
+        return f"{self.name} on {self.browser}"
+
+# TODO: call TestRunner with BOTH arguments that __init__ expects
+print(runner.describe())`,
+    },
+    solutionCode: `class TestRunner:
+    def __init__(self, name, browser):
+        self.name = name
+        self.browser = browser
+
+    def describe(self):
+        return f"{self.name} on {self.browser}"
+
+runner = TestRunner("Login Test", "Chrome")
+print(runner.describe())`,
     expectedOutput: 'Login Test on Chrome',
     hints: [
       { tr: '__init__ metodu (self hariç) kaç parametre bekliyor?', en: 'How many parameters does __init__ expect (besides self)?' },
@@ -477,6 +744,32 @@ def increment_counter():
 
 print(increment_counter())`,
     fixedCode: `test_counter = 0
+
+def increment_counter():
+    global test_counter
+    test_counter += 1
+    return test_counter
+
+print(increment_counter())`,
+    starterCode: {
+      tr: `test_counter = 0
+
+def increment_counter():
+    # TODO: global test_counter'a atama yapabilmek için bu satırı ekle
+    test_counter += 1
+    return test_counter
+
+print(increment_counter())`,
+      en: `test_counter = 0
+
+def increment_counter():
+    # TODO: add the line needed to assign to the global test_counter
+    test_counter += 1
+    return test_counter
+
+print(increment_counter())`,
+    },
+    solutionCode: `test_counter = 0
 
 def increment_counter():
     global test_counter
@@ -512,6 +805,28 @@ def calculate_timeout(base):
     return sqrt(base) * 2
 
 print(calculate_timeout(16))`,
+    starterCode: {
+      tr: `from math import sqrt
+
+def calculate_timeout(base):
+    # TODO: sadece import edilen "sqrt" adını kullan, "math.sqrt" değil
+    return sqrt(base) * 2
+
+print(calculate_timeout(16))`,
+      en: `from math import sqrt
+
+def calculate_timeout(base):
+    # TODO: use just the imported "sqrt" name, not "math.sqrt"
+    return sqrt(base) * 2
+
+print(calculate_timeout(16))`,
+    },
+    solutionCode: `from math import sqrt
+
+def calculate_timeout(base):
+    return sqrt(base) * 2
+
+print(calculate_timeout(16))`,
     expectedOutput: '8.0',
     hints: [
       { tr: 'Kod "from math import sqrt" mu yapıyor, yoksa "import math" mı?', en: 'Does the code do "from math import sqrt", or "import math"?' },
@@ -533,6 +848,20 @@ print(calculate_timeout(16))`,
     buggyCode: `user_id = random.randint(1000, 9999)
 print(user_id >= 1000 and user_id <= 9999)`,
     fixedCode: `import random
+
+user_id = random.randint(1000, 9999)
+print(user_id >= 1000 and user_id <= 9999)`,
+    starterCode: {
+      tr: `# TODO: random modülünü import et
+
+user_id = random.randint(1000, 9999)
+print(user_id >= 1000 and user_id <= 9999)`,
+      en: `# TODO: import the random module
+
+user_id = random.randint(1000, 9999)
+print(user_id >= 1000 and user_id <= 9999)`,
+    },
+    solutionCode: `import random
 
 user_id = random.randint(1000, 9999)
 print(user_id >= 1000 and user_id <= 9999)`,
@@ -559,6 +888,26 @@ end = "2024-01-10"
 duration = (end - start).days
 print(duration)`,
     fixedCode: `from datetime import datetime
+
+start = datetime(2024, 1, 1)
+end = datetime(2024, 1, 10)
+duration = (end - start).days
+print(duration)`,
+    starterCode: {
+      tr: `from datetime import datetime
+
+start = datetime(2024, 1, 1)
+# TODO: end'i de bir string yerine datetime(2024, 1, 10) yap
+duration = (end - start).days
+print(duration)`,
+      en: `from datetime import datetime
+
+start = datetime(2024, 1, 1)
+# TODO: make end a datetime(2024, 1, 10) too, instead of a string
+duration = (end - start).days
+print(duration)`,
+    },
+    solutionCode: `from datetime import datetime
 
 start = datetime(2024, 1, 1)
 end = datetime(2024, 1, 10)
@@ -594,6 +943,26 @@ config_json = '{"retries": "3", "timeout": 30}'
 config = json.loads(config_json)
 total_wait = int(config["retries"]) * config["timeout"]
 print(total_wait)`,
+    starterCode: {
+      tr: `import json
+
+config_json = '{"retries": "3", "timeout": 30}'
+config = json.loads(config_json)
+# TODO: config["retries"] string olarak geliyor — çarpmadan önce int() ile çevir
+print(total_wait)`,
+      en: `import json
+
+config_json = '{"retries": "3", "timeout": 30}'
+config = json.loads(config_json)
+# TODO: config["retries"] arrives as a string — convert it with int() before multiplying
+print(total_wait)`,
+    },
+    solutionCode: `import json
+
+config_json = '{"retries": "3", "timeout": 30}'
+config = json.loads(config_json)
+total_wait = int(config["retries"]) * config["timeout"]
+print(total_wait)`,
     expectedOutput: '90',
     hints: [
       { tr: 'JSON\'daki "retries" değeri tırnak içinde mi yazılmış?', en: 'Is the "retries" value in the JSON written inside quotes?' },
@@ -613,6 +982,20 @@ print(total_wait)`,
     buggyCode: `results_path = Path("results.json")
 print(results_path.name)`,
     fixedCode: `from pathlib import Path
+
+results_path = Path("results.json")
+print(results_path.name)`,
+    starterCode: {
+      tr: `# TODO: Path sınıfını pathlib'den import et
+
+results_path = Path("results.json")
+print(results_path.name)`,
+      en: `# TODO: import the Path class from pathlib
+
+results_path = Path("results.json")
+print(results_path.name)`,
+    },
+    solutionCode: `from pathlib import Path
 
 results_path = Path("results.json")
 print(results_path.name)`,
@@ -648,6 +1031,29 @@ print(parse_retry_count("abc"))`,
         return 0
 
 print(parse_retry_count("abc"))`,
+    starterCode: {
+      tr: `def parse_retry_count(value):
+    try:
+        return int(value)
+    # TODO: int("abc") gerçekte hangi exception'ı fırlatır? Onu yakala.
+        return 0
+
+print(parse_retry_count("abc"))`,
+      en: `def parse_retry_count(value):
+    try:
+        return int(value)
+    # TODO: which exception does int("abc") actually raise? Catch that one.
+        return 0
+
+print(parse_retry_count("abc"))`,
+    },
+    solutionCode: `def parse_retry_count(value):
+    try:
+        return int(value)
+    except ValueError:
+        return 0
+
+print(parse_retry_count("abc"))`,
     expectedOutput: '0',
     hints: [
       { tr: 'int("abc") çalıştığında Python hangi exception\'ı fırlatır?', en: 'Which exception does Python raise when int("abc") runs?' },
@@ -670,6 +1076,26 @@ text = "Running TC-00452 now"
 match = re.search(pattern, text)
 print(match.group())`,
     fixedCode: `import re
+
+text = "Running TC-00452 now"
+pattern = r"TC-\\d+"
+match = re.search(pattern, text)
+print(match.group())`,
+    starterCode: {
+      tr: `import re
+
+text = "Running TC-00452 now"
+# TODO: "TC-" ile başlayıp birden fazla rakamla devam eden bir pattern tanımla
+match = re.search(pattern, text)
+print(match.group())`,
+      en: `import re
+
+text = "Running TC-00452 now"
+# TODO: define a pattern that matches "TC-" followed by one or more digits
+match = re.search(pattern, text)
+print(match.group())`,
+    },
+    solutionCode: `import re
 
 text = "Running TC-00452 now"
 pattern = r"TC-\\d+"
@@ -699,6 +1125,17 @@ print(failed)`,
     fixedCode: `results = [("TC-1", "PASS"), ("TC-2", "FAIL"), ("TC-3", "FAIL"), ("TC-4", "PASS")]
 failed = [tc for tc, status in results if status == "FAIL"]
 print(failed)`,
+    starterCode: {
+      tr: `results = [("TC-1", "PASS"), ("TC-2", "FAIL"), ("TC-3", "FAIL"), ("TC-4", "PASS")]
+# TODO: "failed" listesi gerçekten FAIL olanları toplasın — koşulu doğru yaz
+print(failed)`,
+      en: `results = [("TC-1", "PASS"), ("TC-2", "FAIL"), ("TC-3", "FAIL"), ("TC-4", "PASS")]
+# TODO: make "failed" actually collect the FAIL entries — write the correct condition
+print(failed)`,
+    },
+    solutionCode: `results = [("TC-1", "PASS"), ("TC-2", "FAIL"), ("TC-3", "FAIL"), ("TC-4", "PASS")]
+failed = [tc for tc, status in results if status == "FAIL"]
+print(failed)`,
     expectedOutput: "['TC-2', 'TC-3']",
     hints: [
       { tr: 'Değişken adı "failed" — ama koşul hangi status\'u kontrol ediyor?', en: 'The variable is named "failed" — but which status does the condition actually check for?' },
@@ -724,6 +1161,30 @@ total_chunks = len(list(chunks))
 first_chunk = next(chunks, None)
 print(first_chunk)`,
     fixedCode: `def yield_chunks(data, size):
+    for i in range(0, len(data), size):
+        yield data[i:i + size]
+
+chunks = list(yield_chunks([1, 2, 3, 4, 5, 6], 2))
+total_chunks = len(chunks)
+first_chunk = chunks[0] if chunks else None
+print(first_chunk)`,
+    starterCode: {
+      tr: `def yield_chunks(data, size):
+    for i in range(0, len(data), size):
+        yield data[i:i + size]
+
+# TODO: generator'ı BİR KEZ list()'e çevirip sonucu bir değişkende sakla,
+# sonra hem uzunluğu hem ilk elemanı bu listeden oku (generator'ı iki kez dolaşma)
+print(first_chunk)`,
+      en: `def yield_chunks(data, size):
+    for i in range(0, len(data), size):
+        yield data[i:i + size]
+
+# TODO: convert the generator to a list ONCE and store it, then read both the
+# length and the first item from that list (don't iterate the generator twice)
+print(first_chunk)`,
+    },
+    solutionCode: `def yield_chunks(data, size):
     for i in range(0, len(data), size):
         yield data[i:i + size]
 
@@ -759,6 +1220,35 @@ try:
 except AssertionError as e:
     print(f"FAILED: {e}")`,
     fixedCode: `def test_signup_response_code():
+    response_code = 201
+    assert response_code == 201, f"Expected 201, got {response_code}"
+
+try:
+    test_signup_response_code()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
+    starterCode: {
+      tr: `def test_signup_response_code():
+    response_code = 201
+    # TODO: response_code zaten 201 — assert ifadesi de 201'i beklemeli
+
+try:
+    test_signup_response_code()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
+      en: `def test_signup_response_code():
+    response_code = 201
+    # TODO: response_code is already 201 — the assert should expect 201 too
+
+try:
+    test_signup_response_code()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
+    },
+    solutionCode: `def test_signup_response_code():
     response_code = 201
     assert response_code == 201, f"Expected 201, got {response_code}"
 
@@ -813,6 +1303,55 @@ try:
     print("PASSED")
 except AssertionError as e:
     print(f"FAILED: {e}")`,
+    starterCode: {
+      tr: `# TODO: paylaşılan bir global liste KULLANMA — her test fonksiyonu kendi
+# yerel "cart = []" listesini oluştursun ki testler birbirini etkilemesin
+
+def test_add_item_to_cart():
+    cart.append("item1")
+    assert len(cart) == 1
+
+def test_cart_starts_empty():
+    assert len(cart) == 0
+
+test_add_item_to_cart()
+try:
+    test_cart_starts_empty()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
+      en: `# TODO: do NOT use a shared global list — each test function should create
+# its own local "cart = []" so tests can't leak state into each other
+
+def test_add_item_to_cart():
+    cart.append("item1")
+    assert len(cart) == 1
+
+def test_cart_starts_empty():
+    assert len(cart) == 0
+
+test_add_item_to_cart()
+try:
+    test_cart_starts_empty()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
+    },
+    solutionCode: `def test_add_item_to_cart():
+    cart = []
+    cart.append("item1")
+    assert len(cart) == 1
+
+def test_cart_starts_empty():
+    cart = []
+    assert len(cart) == 0
+
+test_add_item_to_cart()
+try:
+    test_cart_starts_empty()
+    print("PASSED")
+except AssertionError as e:
+    print(f"FAILED: {e}")`,
     expectedOutput: 'PASSED',
     hints: [
       { tr: 'shared_cart, fonksiyonların DIŞINDA mı tanımlandı? Bu ne anlama gelir?', en: 'Is shared_cart defined OUTSIDE the functions? What does that imply?' },
@@ -843,6 +1382,26 @@ print(client.get("/users", time_out=10))`,
 
 client = APIClient()
 print(client.get("/users", timeout=10))`,
+    starterCode: {
+      tr: `class APIClient:
+    def get(self, endpoint, timeout=5):
+        return f"GET {endpoint} (timeout={timeout}s)"
+
+client = APIClient()
+# TODO: get() metoduyla AYNI parametre adını kullanarak çağır`,
+      en: `class APIClient:
+    def get(self, endpoint, timeout=5):
+        return f"GET {endpoint} (timeout={timeout}s)"
+
+client = APIClient()
+# TODO: call get() using the EXACT same parameter name as the method`,
+    },
+    solutionCode: `class APIClient:
+    def get(self, endpoint, timeout=5):
+        return f"GET {endpoint} (timeout={timeout}s)"
+
+client = APIClient()
+print(client.get("/users", timeout=10))`,
     expectedOutput: 'GET /users (timeout=10s)',
     hints: [
       { tr: 'APIClient.get metodunun parametre adı tam olarak nedir?', en: "What is the exact parameter name on APIClient.get?" },
@@ -862,6 +1421,20 @@ print(client.get("/users", timeout=10))`,
     buggyCode: `test_run_id = uuid.uuid4().hex[:8]
 print(len(test_run_id))`,
     fixedCode: `import uuid
+
+test_run_id = uuid.uuid4().hex[:8]
+print(len(test_run_id))`,
+    starterCode: {
+      tr: `# TODO: uuid modülünü import et
+
+test_run_id = uuid.uuid4().hex[:8]
+print(len(test_run_id))`,
+      en: `# TODO: import the uuid module
+
+test_run_id = uuid.uuid4().hex[:8]
+print(len(test_run_id))`,
+    },
+    solutionCode: `import uuid
 
 test_run_id = uuid.uuid4().hex[:8]
 print(len(test_run_id))`,
@@ -899,6 +1472,32 @@ if text is None or text == "":
     print("Element is empty")
 else:
     print("Element has text or is missing")`,
+    starterCode: {
+      tr: `def get_element_text(element):
+    return None
+
+text = get_element_text("button")
+# TODO: hem None hem boş string durumunu kontrol eden bir koşul yaz
+    print("Element is empty")
+else:
+    print("Element has text or is missing")`,
+      en: `def get_element_text(element):
+    return None
+
+text = get_element_text("button")
+# TODO: write a condition that checks for BOTH None and an empty string
+    print("Element is empty")
+else:
+    print("Element has text or is missing")`,
+    },
+    solutionCode: `def get_element_text(element):
+    return None
+
+text = get_element_text("button")
+if text is None or text == "":
+    print("Element is empty")
+else:
+    print("Element has text or is missing")`,
     expectedOutput: 'Element is empty',
     hints: [
       { tr: 'get_element_text() gerçekte ne döndürüyor — None mu, boş string mi?', en: 'What does get_element_text() actually return — None, or an empty string?' },
@@ -921,6 +1520,23 @@ page_number = 2
 page_items = all_results[page_number * page_size: page_number * page_size + page_size]
 print(page_items[0])`,
     fixedCode: `all_results = list(range(1, 26))
+page_size = 10
+page_number = 2
+page_items = all_results[(page_number - 1) * page_size: (page_number - 1) * page_size + page_size]
+print(page_items[0])`,
+    starterCode: {
+      tr: `all_results = list(range(1, 26))
+page_size = 10
+page_number = 2
+# TODO: page_number 1'den sayılıyor ama liste 0'dan başlıyor — indeksleri buna göre kaydır
+print(page_items[0])`,
+      en: `all_results = list(range(1, 26))
+page_size = 10
+page_number = 2
+# TODO: page_number is 1-indexed but the list is 0-indexed — shift the indices accordingly
+print(page_items[0])`,
+    },
+    solutionCode: `all_results = list(range(1, 26))
 page_size = 10
 page_number = 2
 page_items = all_results[(page_number - 1) * page_size: (page_number - 1) * page_size + page_size]
@@ -955,6 +1571,26 @@ if status_a == status_b:
     print("Same status")
 else:
     print("Different status")`,
+    starterCode: {
+      tr: `status_a = "PASS"
+status_b = "".join(["P", "A", "S", "S"])
+# TODO: değer eşitliğini kontrol eden operatörü kullan (Java'daki .equals() gibi)
+    print("Same status")
+else:
+    print("Different status")`,
+      en: `status_a = "PASS"
+status_b = "".join(["P", "A", "S", "S"])
+# TODO: use the operator that checks value equality (like Java's .equals())
+    print("Same status")
+else:
+    print("Different status")`,
+    },
+    solutionCode: `status_a = "PASS"
+status_b = "".join(["P", "A", "S", "S"])
+if status_a == status_b:
+    print("Same status")
+else:
+    print("Different status")`,
     expectedOutput: 'Same status',
     hints: [
       { tr: 'status_a ve status_b aynı DEĞERE sahip mi? Aynı bellek nesnesi olmaları gerekir mi?', en: 'Do status_a and status_b have the same VALUE? Do they need to be the same memory object?' },
@@ -976,6 +1612,22 @@ else:
 
 log_message("Test started")`,
     fixedCode: `def log_message(message, level="INFO"):
+    print(f"[{level}] {message}")
+
+log_message("Test started")`,
+    starterCode: {
+      tr: `# TODO: log_message'a "level" için bir varsayılan değer ver, Java'daki overload yerine
+def log_message(message, level):
+    print(f"[{level}] {message}")
+
+log_message("Test started")`,
+      en: `# TODO: give "level" a default value instead of relying on Java-style overloading
+def log_message(message, level):
+    print(f"[{level}] {message}")
+
+log_message("Test started")`,
+    },
+    solutionCode: `def log_message(message, level="INFO"):
     print(f"[{level}] {message}")
 
 log_message("Test started")`,
@@ -1011,6 +1663,27 @@ for i in range(len(test_results)):
         passed_count += 1
 
 print(passed_count)`,
+    starterCode: {
+      tr: `test_results = ["PASS", "FAIL", "PASS", "FAIL", "PASS"]
+passed_count = 0
+# TODO: son elemanı da dahil edecek şekilde döngüyü kur ("- 1" kullanma)
+        passed_count += 1
+
+print(passed_count)`,
+      en: `test_results = ["PASS", "FAIL", "PASS", "FAIL", "PASS"]
+passed_count = 0
+# TODO: set up the loop so it includes the last element too (don't use "- 1")
+        passed_count += 1
+
+print(passed_count)`,
+    },
+    solutionCode: `test_results = ["PASS", "FAIL", "PASS", "FAIL", "PASS"]
+passed_count = 0
+for i in range(len(test_results)):
+    if test_results[i] == "PASS":
+        passed_count += 1
+
+print(passed_count)`,
     expectedOutput: '3',
     hints: [
       { tr: 'test_results listesinde kaç eleman var, döngü kaç tanesini geziyor?', en: 'How many elements are in test_results, and how many does the loop visit?' },
@@ -1032,6 +1705,18 @@ total = sum(durations)
 average = total / len(durations)
 print(average)`,
     fixedCode: `durations = ["2.5", "3.0", "1.5"]
+total = sum(float(d) for d in durations)
+average = round(total / len(durations), 2)
+print(average)`,
+    starterCode: {
+      tr: `durations = ["2.5", "3.0", "1.5"]
+# TODO: string'leri float()'a çevirerek topla, ortalamayı round(..., 2) ile yuvarla
+print(average)`,
+      en: `durations = ["2.5", "3.0", "1.5"]
+# TODO: sum the strings by converting them with float(), round the average with round(..., 2)
+print(average)`,
+    },
+    solutionCode: `durations = ["2.5", "3.0", "1.5"]
 total = sum(float(d) for d in durations)
 average = round(total / len(durations), 2)
 print(average)`,
@@ -1063,6 +1748,8 @@ export function toPlaygroundBlock(item) {
     hints: item.hints,
     buggyCode: item.buggyCode,
     fixedCode: item.fixedCode,
+    starterCode: item.starterCode,
+    solutionCode: item.solutionCode,
     xpReward: item.xpReward,
   }
 }
