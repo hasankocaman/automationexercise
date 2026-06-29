@@ -231,7 +231,7 @@ print(f"Hello, {name}!")`,
       // W3Schools Topic 1 — Python Syntax
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Python Söz Dizimi', en: 'Python Syntax' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '📐', content: { tr: 'Python kodu yazmak, cümle yazmak gibi. Süslü parantez yok, noktalı virgül yok. Sadece düzgün hizalama (girinti) gerekiyor — sanki bir liste hazırlıyorsun.', en: 'Writing Python is like writing sentences. No curly braces, no semicolons. Just proper indentation — like writing a neat outline.' } },
+      { type: 'simple-box', emoji: '📐', content: { tr: `Bir tarif kitabını düşün: adımlar girintiyle gösterilir — ana adım, altına alt adım, onun da altına alt-alt adım. Gözün hangi adımın hangisinin İÇİNDE olduğunu anında görür. Java'nın süslü parantezleri aynı işi parantez SAYARAK yapar; gözün otomatik yapmaz, derleyici sayar. Python'un tasarımcıları şunu sormuş: "Okunabilirlik için zaten girinti kullanıyoruz, neden ayrıca parantez de sayalım?" Cevap: gerek yok — girintinin kendisi blok sınırını belirler. Bedeli ne mi? Bir ekip arkadaşın tab ile boşluğu karıştırırsa, göze görünmeyen bir hata çıkar — bu yüzden "tab'ları boşluğa çevir" ayarı, QA otomasyon ekiplerinde standart bir ilk gün adımıdır.`, en: `Picture a recipe book where steps are shown with indentation — a main step, a sub-step beneath it, a sub-sub-step beneath that. Your eye instantly sees what's nested inside what. Java's curly braces do the same job by COUNTING brackets; your eye doesn't do that automatically, the compiler does. Python's designers asked: "We already use indentation for readability — why also count braces?" Their answer: we don't need to — indentation itself marks the block boundary. The cost? If a teammate mixes tabs and spaces, you get an invisible bug — which is exactly why "convert tabs to spaces" is a standard day-one editor setting on QA automation teams.` } },
       { type: 'text', content: { tr: "Java\'da bloklar {} ile açılır-kapanır ve her satır \";\" ile biter. Python\'da bunların hiçbiri yok. Bloklar \":\" (iki nokta) ile başlar, girintileme ile devam eder.", en: 'In Java, blocks open/close with {} and every statement ends with ";". Python has neither. Blocks start with ":" and continue by indentation.' } },
       { type: 'code', language: 'python', code: `# Python Syntax Basics
 # NO semicolons, NO curly braces
@@ -312,7 +312,7 @@ for skill in ["Python", "pytest", "Selenium"]:
       // W3Schools Topic 2 — Comments
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Yorum Satırları', en: 'Comments' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '💬', content: { tr: 'Yorum, kodun içine "not" bırakmak gibi. Python bu satırları çalıştırmaz — sadece sen ve ekibindekiler okur.', en: "A comment is like a sticky note inside your code. Python ignores it completely — it\'s just for humans to read." } },
+      { type: 'simple-box', emoji: '💬', content: { tr: `Bir yorum satırı, kod kutusunun kapağına yapıştırılmış bir sticky note gibi — kutunun İÇİNDEKİ ürünü (kodun çalışma şeklini) değiştirmez, sadece kutuyu açan bir sonraki kişiye not bırakır. Şunu kendine sor: bir yıl sonra bu testi tekrar açtığında, "neden bu satırı böyle yazdım?" sorusuna kod satırının kendisi mi cevap verecek, yoksa hafızana mı güveneceksin? İyi bir yorum, KODUN NE YAPTIĞINI tekrar etmez (bunu zaten kod söylüyor) — NEDEN bu şekilde yazıldığını söyler. Java'da // ve /* */ aynı işi görür; QA ekiplerinde flaky test workaround'larının yanına "neden bu sleep() burada" notu bırakmak, altı ay sonra o satırı silmeye çalışan birinin günlerce kafa patlatmasını önler.`, en: `A comment is like a sticky note taped to the OUTSIDE of a box — it doesn't change the product INSIDE the box (how the code runs), it just leaves a message for whoever opens it next. Ask yourself: a year from now, when you reopen this test, will the code line itself answer "why did I write it this way?" — or will you be relying on memory? A good comment doesn't repeat WHAT the code does (the code already says that) — it explains WHY it was written this way. Java has the same idea with // and /* */; in QA teams, leaving a "why this sleep() is here" note next to a flaky-test workaround saves whoever tries to delete that line six months later days of head-scratching.` } },
       { type: 'text', content: { tr: "Java\'da // tek satır, /* */ çok satır yorum. Python\'da # tek satır, \"\"\" \"\"\" (docstring) çok satır yorum için kullanılır. Teknik terim değişmez ama sözdizimi farklı.", en: 'Java uses // for single-line and /* */ for multi-line comments. Python uses # for single-line and triple quotes """ for multi-line (docstrings).' } },
       { type: 'code', language: 'python', code: `# Single-line comment — Python ignores this
 name = "Alice"  # Inline comment — also ignored
@@ -387,7 +387,7 @@ print("Pass rate:", pass_rate, "%")` },
       // W3Schools Topic 3 — Variables
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Değişkenler', en: 'Variables' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🏷️', content: { tr: 'Değişken, içine bir şey koyabileceğin etiketlenmiş bir kutu. "isim = \'Ali\'" diyince "isim" etiketli kutuya \'Ali\' koymuş olursun. İstediğin zaman açıp bakabilirsin.', en: 'A variable is a labeled box. When you write name = "Ali", you put "Ali" in a box labeled "name". You can check it anytime.' } },
+      { type: 'simple-box', emoji: '🏷️', content: { tr: `Bir değişken, üzerine etiket yapıştırılmış bir kutu gibi — name = "Ali" dediğinde, "name" etiketli kutuya "Ali" koymuş olursun. Ama burada gerçek soru şu: Java'da o kutuyu açmadan önce kutunun TÜRÜNÜ söylemen gerekir (String name = "Ali") — Python'da neden gerekmiyor? Çünkü Python kutuyu açıp içine BAKAR, etiketi okumadan da ne olduğunu anlar. Bu hız kazandırır ama bir riski de getirir: aynı kutuya önce bir string, sonra bir sayı koyarsan Python hiç şikayet etmez — derleme zamanında değil, test ÇALIŞIRKEN patlar. QA otomasyonunda "AttributeError: 'int' object has no attribute 'strip'" hatasının kökü neredeyse her zaman budur: kutunun içinde sandığından FARKLI bir tür var.`, en: `A variable is a labeled box — write name = "Ali" and you've put "Ali" in a box labeled "name". But here's the real question: in Java, you must declare the box's TYPE before using it (String name = "Ali") — why doesn't Python ask for that? Because Python peeks INSIDE the box to figure out what's there, instead of trusting a label. That's faster to write, but it carries a risk: put a string in that box today and a number tomorrow, and Python won't complain — not at compile time, but mid-test, when it actually breaks. In QA automation, the root cause behind "AttributeError: 'int' object has no attribute 'strip'" is almost always exactly this: the box held a DIFFERENT type than you assumed.` } },
       { type: 'text', content: { tr: "Java\'da değişken tipi açıkça yazılır: int x = 5. Python\'da sadece x = 5 yazılır — Python tipi otomatik anlar. Bu \"dinamik tipleme\" olarak adlandırılır.", en: 'Java requires explicit type: int x = 5. Python just needs x = 5 — the type is inferred automatically. This is called dynamic typing.' } },
       { type: 'code', language: 'python', code: `# Python Variables — no type declaration needed
 name = "Alice"          # str (string)
@@ -487,7 +487,7 @@ print("Type of passed:", type(passed))` },
       // W3Schools Topic 4 — Data Types
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Veri Tipleri', en: 'Data Types' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🗂️', content: { tr: 'Veri tipleri, farklı "çekmece" türleri gibi. Sayılar, yazılar, listeler, doğru/yanlış — her veri türü için ayrı bir çekmece var.', en: 'Data types are like different drawer types. Numbers, text, lists, true/false — each kind of data has its own drawer.' } },
+      { type: 'simple-box', emoji: '🗂️', content: { tr: `Veri tipleri, bir mutfaktaki farklı çekmece türleri gibi: çatal-bıçak çekmecesine bardak koymazsın, baharat rafına tencere koymazsın — her şeyin "doğru yeri" var. Java'da bu ayrım sıkı bir kuraldır: int çekmecesi sadece tam sayı alır, derleyici buna izin VERMEZ. Python'da ise her şey aslında bir "nesne" — yani aynı çekmece sistemi var ama kilit yok. Şunu düşün: bu özgürlük mü, yoksa risk mi? İkisi de — hızlı prototip yazmanı sağlar ama bir API'den gelen "200" (string) ile 200 (sayı) arasındaki farkı fark etmezsen, test sonucun yanlış "PASS" verebilir. QA mühendisinin işi tam burada başlıyor: veri TÜRÜNÜ varsaymak yerine kontrol etmek.`, en: `Data types are like different drawer types in a kitchen: you don't put glasses in the cutlery drawer, you don't put pots on the spice rack — everything has its "right place." In Java this separation is a strict rule: the int drawer only accepts whole numbers, and the compiler simply won't allow otherwise. In Python, everything is technically an object — so the same drawer system exists, just without a lock. So which is it — freedom or risk? Both: it lets you prototype fast, but if you don't notice the difference between "200" (a string) coming back from an API and 200 (a number), your test can report a false "PASS". This is exactly where a QA engineer's real job begins: checking the data's TYPE instead of assuming it.` } },
       { type: 'text', content: { tr: "Java\'da primitive tipler (int, double, boolean) ve Object tipleri ayrıdır. Python\'da her şey bir object\'tir — int, str, list, dict hepsi birer sınıf örneğidir.", en: 'Java separates primitives (int, double, boolean) from Objects. In Python, everything is an object — int, str, list, dict are all class instances.' } },
       { type: 'table', headers: [{ tr: 'Python Tipi', en: 'Python Type' }, { tr: 'Örnek', en: 'Example' }, { tr: 'Java Karşılığı', en: 'Java Equivalent' }, { tr: 'Değiştirilebilir mi?', en: 'Mutable?' }], rows: [
         ['str', '"hello"', 'String', { tr: 'Hayır', en: 'No' }],
@@ -548,7 +548,7 @@ for var in [x, y, s, b, lst, tpl, d, st]:
       // W3Schools Topic 5 — Numbers
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Sayılar', en: 'Numbers' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🔢', content: { tr: "Python\'da üç tür sayı var: tam sayılar (3, 100), ondalıklı sayılar (3.14), ve karmaşık sayılar (2+3j). Günlük kodlamada çoğunlukla ilk ikisini kullanırsın.", en: 'Python has three number types: integers (3, 100), floats (3.14), and complex (2+3j). In daily coding you mostly use the first two.' } },
+      { type: 'simple-box', emoji: '🔢', content: { tr: `Java'da int'in bir tavanı var — yaklaşık 2 milyarı geçince taşar (overflow), tıpkı bir bardağın belli bir hacme kadar su tutması gibi. Python'da int sınırsız büyüyebilir, hafıza yettiği kadar — sanki bardağın değil de elastik bir balonun suyunu döküyorsun. Peki bu "bedava" mı? Hayır: o esneklik, çok büyük sayılarla işlem yaparken Python'u Java'dan daha yavaş yapabilir, çünkü her büyük sayı için ekstra hafıza yönetimi gerekir. Bir de float (ondalıklı) var — ve burada gerçek bir tuzak gizli: 0.1 + 0.2 hiçbir dilde tam olarak 0.3 vermez (ikili sayı sistemi yüzünden). Bir test "0.1+0.2 == 0.3" diye assert ederse, rastgele görünen ama HER ZAMAN aynı sebepten kaynaklanan bir flaky test doğmuş olur.`, en: `Java's int has a ceiling — overflow around 2 billion, like a glass that can only hold so much water. Python's int can grow without limit, as long as memory allows — like pouring into a stretchy balloon instead of a fixed glass. Is that "free", though? No: that flexibility can make Python slower than Java for huge numbers, since every big number needs extra memory bookkeeping behind the scenes. Then there's float — and here's a real trap: 0.1 + 0.2 doesn't equal exactly 0.3 in ANY language (binary floating-point math), Python included. If a test asserts "0.1+0.2 == 0.3" directly, you've just created a flaky test that looks random but always fails for the exact same reason.` } },
       { type: 'text', content: { tr: "Java\'da int sınırlı büyüklüktedir (max ~2 milyar). Python\'da int sınırsız büyüyebilir — memory yettikçe. float ise Java\'daki double\'a eşdeğerdir.", en: "Java\'s int has a fixed limit (~2 billion). Python\'s int can grow infinitely — limited only by memory. Python\'s float is equivalent to Java\'s double." } },
       { type: 'code', language: 'python', code: `# Python Numbers
 x = 10          # int
@@ -620,7 +620,7 @@ print("Is 100% pass:", pass_rate == 100)` },
       // W3Schools Topic 6 — Casting
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Casting (Tip Dönüşümü)', en: 'Casting (Type Conversion)' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🔄', content: { tr: 'Casting, bir şeyi farklı bir şekle dönüştürmek gibi. Suyu buz yapıyorsun ama H₂O aynı kalıyor. "5" yazısını 5 sayısına çeviriyorsun — ama artık matematiksel işlem yapabilirsin.', en: 'Casting is like transforming something into a different form. "5" is a text, 5 is a number. Casting turns one into the other so you can do math.' } },
+      { type: 'simple-box', emoji: '🔄', content: { tr: `Casting, suyu buza çevirmek gibi: madde (H₂O) aynı kalır, sadece ŞEKLİ değişir. "5" (string) ile 5 (int) aynı bilgiyi taşır ama biri matematik yapamaz, diğeri yapar — int("5") tam olarak bu dönüşümü yapar. Şimdi şunu düşün: bir API'den gelen response her zaman JSON, yani her sayı sana STRING olarak gelir. "retries": "3" yazan bir config'i int() ile çevirmeyi unutursan, Python "3" + 1 işlemini hata vermeden "31" yapar (string birleştirme!) — sayısal toplama hiç gerçekleşmez. Java'da bu hata derleme anında yakalanır; Python'da test ÇALIŞIRKEN, belki de production'da farkına varırsın. Casting'i atlamak, en sinsi QA bug'larından birinin kaynağıdır.`, en: `Casting is like turning water into ice: the substance (H₂O) stays the same, only its SHAPE changes. "5" (a string) and 5 (an int) carry the same information, but only one of them can do math — int("5") performs exactly that conversion. Now consider this: an API response is always JSON, which means every number arrives as a STRING. Forget to cast a config value like "retries": "3" with int(), and Python will silently turn "3" + 1 into "31" (string concatenation!) instead of raising an error — no numeric addition ever happens. Java would catch this mistake at compile time; in Python, you find out while the test is RUNNING — or worse, in production. Skipping a cast is the root of some of the sneakiest QA bugs out there.` } },
       { type: 'code', language: 'python', code: `# Python Casting — converting between types
 x = int("5")         # str → int  : 5
 y = float(5)         # int → float: 5.0
@@ -692,7 +692,7 @@ for v in values:
       // W3Schools Topic 7 — Strings
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'String\'ler (Metinler)', en: 'Strings' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '📝', content: { tr: "String, harflerden oluşan bir dize — \"merhaba\" gibi. Python'da stringleri tek (''), çift (\"\") veya üçlü (\"\"\") tırnak içinde yazabilirsin.", en: 'A string is a sequence of characters — like "hello". In Python you can write strings with single, double, or triple quotes.' } },
+      { type: 'simple-box', emoji: '📝', content: { tr: `Bir string'i, üzerine dizilmiş boncuklardan oluşan bir kolye gibi düşün — her boncuk (karakter) sırayla durur ve numarasıyla (index) çağrılabilir. Şimdi şunu sor: neden Python "string1 + string2" yazınca onları YAPIŞTIRIR ama "string1 - string2" yazınca hata verir? Çünkü "+" boncukları art arda dizmek demek (mantıklı), ama bir koleden boncuk "çıkarmak" tanımsız bir işlem (hangi boncuğu çıkaracaksın, nereden?). Java'da String immutable'dır — bir String'i "değiştirdiğinde" aslında YENİ bir String oluşur, eski hafızada durur. Python'da da aynı: s += "x" yazdığında s'in kendisi değişmez, Python yeni bir string yaratıp etiketi ona taşır. QA'de bu, döngü içinde string birleştirmenin (binlerce gizli kopya oluşturarak) neden yavaş olduğunu açıklar.`, en: `Think of a string as a necklace strung with beads — each bead (character) sits in order and can be called by its number (index). Now ask: why does "string1 + string2" glue them together but "string1 - string2" throws an error? Because "+" means lining beads up one after another (that makes sense), but "subtracting" from a necklace is undefined — which bead, from where? In Java, String is immutable — "modifying" a String actually creates a brand NEW String, while the old one sits in memory. Python works the same way: writing s += "x" doesn't change s itself — Python builds a new string and moves the label onto it. In QA, this is exactly why concatenating strings inside a loop quietly creates thousands of hidden copies and slows things down.` } },
       { type: 'text', content: { tr: "Java\'da String.charAt(), substring(), indexOf() gibi metodlar kullanılır. Python\'da aynı işler için daha kısa ve okunabilir sözdizimi var: s[0], s[1:5], \"hello\" in s gibi.", en: 'Java uses String.charAt(), substring(), indexOf(). Python has shorter, more readable syntax: s[0], s[1:5], "hello" in s.' } },
       { type: 'code', language: 'python', code: `# Python Strings
 s = "Hello, World!"
@@ -778,7 +778,7 @@ print("Replace:", url.replace("api", "v2"))` },
       // W3Schools Topic 8 — Booleans
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Boolean\'lar', en: 'Booleans' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '✅', content: { tr: 'Boolean, sadece iki değer alır: True veya False (doğru veya yanlış). "Test geçti mi?" sorusunun cevabı gibi — ya evet ya hayır.', en: 'A Boolean has only two values: True or False. Like the answer to "Did the test pass?" — only yes or no.' } },
+      { type: 'simple-box', emoji: '✅', content: { tr: `Boolean, bir ışık anahtarı gibi — ya açık ya kapalı, ara hâl yok. "Test geçti mi?" sorusunun cevabı tam olarak budur: True ya da False. Ama Python'da gizli bir kural var ki burada gerçekten düşünmen gerekiyor: boş bir liste ([]), 0 sayısı ve None — hiçbiri "False" YAZILMADIĞI halde if koşulunda False gibi davranır ("truthy/falsy"). Java'da böyle bir şey YOKTUR — if (myList) yazamazsın, derleyici izin vermez, sadece if (myList.size() > 0) çalışır. Peki Python neden buna izin veriyor? Çünkü "if results:" yazmak, "if len(results) > 0:" yazmaktan daha kısa VE daha "Pythonic" sayılıyor. Riski ne? "if response:" yazıp, response'un aslında 0 (geçerli bir HTTP status kodu olmasa da) değerini taşıdığını fark etmemek — sessizce yanlış dala girersin.`, en: `A Boolean is like a light switch — on or off, no in-between. "Did the test pass?" has exactly that kind of answer: True or False. But Python hides a rule here that actually deserves real thought: an empty list ([]), the number 0, and None all behave as False inside an if condition — without ever literally being False ("truthy/falsy"). Java has NOTHING like this — you can't write if (myList), the compiler won't allow it; only if (myList.size() > 0) works. So why does Python allow it? Because "if results:" is shorter — and considered more "Pythonic" — than "if len(results) > 0:". The risk? Writing "if response:" without noticing response might actually hold 0 (even if that's not a valid HTTP status), and silently sliding into the wrong branch.` } },
       { type: 'text', content: { tr: "Java\'da boolean küçük harfle (true/false) yazılır. Python\'da büyük harfle (True/False). Ayrıca Python\'da her değer True ya da False gibi davranır — boş liste, 0, None hepsi False sayılır.", en: 'Java writes boolean lowercase (true/false). Python uses uppercase (True/False). Python also has "truthy/falsy" — empty list, 0, None all behave as False.' } },
       { type: 'code', language: 'python', code: `# Python Booleans
 print(True)          # True
@@ -864,7 +864,7 @@ else:
       // W3Schools Topic 9 — Operators
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: { tr: 'Operatörler', en: 'Operators' }, difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '⚙️', content: { tr: 'Operatörler, işlem sembolleri. Toplama (+), çıkarma (-), karşılaştırma (>, <), ve mantık (and, or) — bunların hepsi operatör. Matematik dersindeki sembollerin kod versiyonu.', en: 'Operators are action symbols. Addition (+), comparison (>, <), logic (and, or) — all operators. Think of them as the math symbols from school, but for code.' } },
+      { type: 'simple-box', emoji: '⚙️', content: { tr: `Operatörler, okuldaki matematik sembollerinin (+, -, >, <) kod versiyonu — ama "and"/"or" gibi MANTIK operatörleri okulda görmediğin bir şey katıyor: birden fazla koşulu birleştirme gücü. Şunu kendine sor: "or" ile "and" arasındaki fark neden bir QA mühendisi için hayati? Çünkü "server_status == 'UP' or db_status == 'UP'" yazmak, SADECE BİRİNİN ayakta olmasını "her şey hazır" sayar — gerçekte ikisi de UP olmalı, yani doğru operatör "and"dı. Bu tek kelimelik fark, "ortam hazır" diyen ama gerçekte yarısı çökmüş bir sistemde test çalıştırmana yol açabilir. Java'daki && ve || mantığı birebir aynı; sadece sembol farklı, akıl yürütme aynı kalır.`, en: `Operators are the code version of the math symbols from school (+, -, >, <) — but LOGICAL operators like "and"/"or" add something school never covered: the power to combine multiple conditions. Ask yourself: why does the difference between "or" and "and" actually matter for a QA engineer? Because writing "server_status == 'UP' or db_status == 'UP'" treats JUST ONE service being up as "everything's ready" — when really both need to be UP, meaning "and" was the correct operator all along. That one-word difference can make your test run against a half-crashed system while reporting "environment ready." Java's && and || follow the exact same logic — only the symbols differ, the reasoning stays identical.` } },
       { type: 'code', language: 'python', code: `# Python Operators — complete reference
 
 # Arithmetic
@@ -1128,7 +1128,7 @@ print("Method allowed:", method in allowed_methods)` },
       // W3Schools Topic 10 — Lists
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Lists', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🛒', content: { tr: 'Liste, sıralı bir alışveriş listesi gibi. Her maddenin bir numarası (index) var. İstediğin yere ekleyebilir, istediğini silebilirsin.', en: 'A list is like a numbered shopping list. Each item has an index. You can add anywhere, remove anything.' } },
+      { type: 'simple-box', emoji: '🛒', content: { tr: `Bir liste, numaralandırılmış bir alışveriş listesi gibi — her madde bir sırada durur, istediğin maddeyi numarasıyla (index) çağırabilirsin. Java'da bu işi ArrayList<String> yapar — ama "generic" tip yazman, import etmen, kapasiteyi düşünmen gerekir. Python'da [1, 2, 3] yazman yeterli. Bu basitlik nereden geliyor? Python listesi farklı TÜRLERİ aynı anda tutabilir ([1, "iki", True] geçerli!) — Java'nın type-safety'sinden feragat ediyor, karşılığında hız ve esneklik alıyorsun. Peki bunun QA'deki bedeli ne? Bir fonksiyon "test_ids listesi" bekliyorsa ama biri yanlışlıkla içine bir sayı yerine string koyarsa, Python bunu çalışana kadar fark etmez — Java'da derleyici seni anında durdururdu.`, en: `A list is like a numbered shopping list — each item sits in order, and you can call any item by its number (index). In Java, ArrayList<String> does this job — but you need to write a generic type, import it, and think about capacity upfront. In Python, [1, 2, 3] is enough. Where does that simplicity come from? A Python list can hold mixed TYPES at once ([1, "two", True] is valid!) — it trades away Java's type-safety in exchange for speed and flexibility. So what's the cost in QA? If a function expects a "list of test IDs" but someone accidentally slips in a number where a string belonged, Python won't notice until it actually runs — Java's compiler would have stopped you instantly.` } },
       { type: 'text', content: { tr: "Java\'daki ArrayList\'in karşılığı Python\'daki list\'tir. Ama hiçbir import gerekmez, generic tip yazmak gerekmez. [1, 2, 3] yeterli. Farklı tipte elemanlar da tutabilir.", en: "Python list is Java\'s ArrayList. No import needed, no generic types. [1, 2, 3] is all you need. Lists can hold mixed types." } },
       { type: 'code', language: 'python', code: `# Python Lists — most used data structure
 tests = ["login", "checkout", "search"]  # Create
@@ -1225,7 +1225,7 @@ print("After fix:", failed_tests)` },
       // W3Schools Topic 11 — Tuples
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Tuples', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '📦', content: { tr: 'Tuple, açılamaz, değiştirilemez bir kutu gibi. İçine koyduklarını sonsuza kadar öyle kalır. GPS koordinatları gibi — (lat, lon) değişmez.', en: "A tuple is a sealed box — you can\'t change what\'s inside. Like GPS coordinates (lat, lon) — fixed and permanent." } },
+      { type: 'simple-box', emoji: '📦', content: { tr: `Bir tuple, fabrikada mühürlenmiş ve asla açılmayan bir kutu gibi — (lat, lon) GPS koordinatları gibi, içeriği sonsuza dek aynı kalır. Şimdi gerçek soru: Python'da zaten bir list var, neden AYRICA değiştirilemez bir yapıya ihtiyaç duyalım? Çünkü "değiştirilemezlik" bazen bir ÖZELLİKTİR, bug değil — bir fonksiyondan (x, y) koordinatı döndürdüğünde, çağıran kodun bunu YANLIŞLIKLA değiştiremeyeceğini garanti edersin. Java'da bunun karşılığı final değişkenler veya immutable record'lardır — aynı güvence, farklı sözdizimi. Bir de pratik bir fayda var: tuple'lar dict key'i olabilir (örn. {(0,0): "başlangıç"}), ama list'ler OLAMAZ — çünkü Python, değişebilen bir şeyin key olarak güvenilir olmadığını bilir.`, en: `A tuple is like a box sealed at the factory and never reopened — GPS coordinates (lat, lon) stay exactly as they were, forever. Here's the real question: Python already has a list, so why do we ALSO need an unchangeable structure? Because immutability is sometimes a FEATURE, not a limitation — when a function returns an (x, y) coordinate, you guarantee the caller can't accidentally mutate it later. Java's equivalent is final variables or immutable records — same guarantee, different syntax. There's a practical payoff too: tuples can be dict keys (e.g. {(0,0): "start"}), but lists CANNOT — because Python knows something that can change isn't trustworthy as a key.` } },
       { type: 'text', content: { tr: "Java\'da değiştirilemez liste için List.of() veya Collections.unmodifiableList() kullanırsınız. Python\'da tuple bu işi görür. Tuple() sözdizimi ile [] yerine () kullanılır. Fonksiyondan birden fazla değer döndürmek için ideal.", en: "Java uses List.of() or unmodifiableList() for immutable lists. Python\'s tuple does this. Use () instead of []. Ideal for returning multiple values from a function." } },
       { type: 'code', language: 'python', code: `# Python Tuples — immutable sequences
 point = (10, 20)         # x, y coordinates
@@ -1310,7 +1310,7 @@ if result[0] == "PASS":
       // W3Schools Topic 12 — Sets
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Sets', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🎯', content: { tr: 'Set, tekrarsız bir koleksiyon. Bir sınıftaki öğrenci isimlerini listeliyor ama aynı isim birden fazla kez yazılmışsa — set kullanırsan sadece bir tane kalır.', en: 'A set is a collection with no duplicates. List student names but someone appears twice — a set keeps only one.' } },
+      { type: 'simple-box', emoji: '🎯', content: { tr: `Bir set, kapıda parmak izi okuyan bir giriş sistemi gibi — aynı kişi ikinci kez girmeye çalışsa bile, içeride sadece BİR kayıt vardır. list(bug_ids) yazarsan sadece kopyalarsın, tekrarlar kalır; set(bug_ids) yazarsan Python her elemanı "daha önce gördüm mü?" diye kontrol eder ve tekilleştirir. Bunun bedeli ne? Set'in elemanları SIRASIZDIR ve indeksle erişilemez (set[0] çalışmaz) — çünkü set, hız için bir hash tablosu kullanır, sıralı bir liste değil. Java'da bu HashSet'e karşılık gelir. QA'de pratik kullanımı şu: 1000 test çalıştırıp "kaç FARKLI hata mesajı çıktı?" sorusuna len(set(error_messages)) ile tek satırda cevap verirsin.`, en: `A set is like a fingerprint scanner at a door — even if the same person tries to enter twice, there's only ONE record inside. Writing list(bug_ids) just copies the list, duplicates stay; writing set(bug_ids) makes Python check "have I seen this before?" for each item and dedupe automatically. The cost? Set items have NO order and can't be indexed (set[0] fails) — because a set uses a hash table for speed, not an ordered list. In Java, this maps to HashSet. A practical QA use case: after running 1000 tests, you can answer "how many DISTINCT error messages came up?" in a single line with len(set(error_messages)).` } },
       { type: 'text', content: { tr: "Java\'daki HashSet\'in karşılığı Python\'daki set\'tir. İçe aktarma gerekmez. {1, 2, 3} ile oluşturulur. Sıralama garantisi yoktur.", en: "Python set is Java\'s HashSet. No import needed. Created with {1, 2, 3}. No guaranteed order." } },
       { type: 'code', language: 'python', code: `# Python Sets — unique, unordered
 browsers = {"Chrome", "Firefox", "Safari"}
@@ -1388,7 +1388,7 @@ print("Not tested:", not_tested)` },
       // W3Schools Topic 13 — Dictionaries
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Dictionaries', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '📖', content: { tr: "Dictionary, telefon rehberi gibi. İsim (key) yazıyorsun, numarayı (value) alıyorsun. {\"Ali\": \"555-1234\"} — Ali\'ye bak, numarasını al.", en: 'A dictionary is like a phone book. Look up a name (key), get the number (value). {"Ali": "555-1234"} — look up Ali, get his number.' } },
+      { type: 'simple-box', emoji: '📖', content: { tr: `Bir dictionary, telefon rehberi gibi — ama kâğıt rehberden FARKI şu: kâğıtta "Ali"yi bulmak için A harfine kadar sayfa çevirirsin (yavaş), dict'te ise Python doğrudan o sayfaya "atlar" (hash tablosu sayesinde, neredeyse anlık). Java'daki HashMap<String, String> tam olarak bu işi yapar — sözdizimi farklı, fikir aynı. Şimdi gerçek bir QA senaryosu: bir API config dict'inde "headless" key'i TANIMLI DEĞİLSE, config["headless"] yazmak KeyError ile testi çökertir — ama config.get("headless", False) yazarsan, "yoksa varsayılan değeri kullan" demiş olursun, test akmaya devam eder. Bu tek metod farkı, "config eksik" ile "test crash oldu" arasındaki çizgiyi belirler.`, en: `A dictionary is like a phone book — but here's the difference from a paper one: in paper, finding "Ali" means flipping pages to the A section (slow); in a dict, Python jumps STRAIGHT to that page (thanks to a hash table, nearly instant). Java's HashMap<String, String> does the exact same job — different syntax, same idea. Now a real QA scenario: if a config dict's "headless" key is NOT defined, writing config["headless"] crashes the test with a KeyError — but config.get("headless", False) says "if it's missing, use this default instead," and the test keeps running. That one method choice is the line between "config was missing" and "test crashed."` } },
       { type: 'text', content: { tr: 'Java\'daki HashMap<K,V>\'nin karşılığı Python\'daki dict\'tir. İçe aktarma gerekmez. {"key": value} ile oluşturulur. Python 3.7\'den itibaren ekleme sırasını korur.', en: "Python dict is Java\'s HashMap<K,V>. No import. Created with {\"key\": value}. Since Python 3.7, dicts preserve insertion order." } },
       { type: 'code', language: 'python', code: `# Python Dictionaries
 test = {
@@ -1492,7 +1492,7 @@ for key in required_keys:
       // W3Schools Topic 14 — If...Else
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'If...Else (Conditions)', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🚦', content: { tr: 'If-else, trafik ışığı gibi. Yeşil → git, kırmızı → dur, sarı → yavaşla. Kod da aynı şekilde karar verir: "Bu durum mu? O zaman şunu yap."', en: 'If-else is like a traffic light. Green → go, red → stop, yellow → slow down. Code makes decisions the same way: "Is this true? Then do this."' } },
+      { type: 'simple-box', emoji: '🚦', content: { tr: `If-else, bir trafik ışığı gibi karar verir: yeşil → git, kırmızı → dur. Ama gerçek hayatta üçten fazla seçenek olabilir (sarı, yanıp sönen kırmızı, arızalı ışık) — kodda da öyle: elif zinciri bunun karşılığıdır. Şimdi şunu sor: "attempt > max_attempts" ile "attempt >= max_attempts" arasındaki TEK karakterlik fark neden önemli? Çünkü deneme sayısı tam olarak limite ULAŞTIĞINDA (eşit olduğunda), ">" bunu "henüz aşılmadı" sayar ve bir deneme daha yaptırır — oysa istenen davranış "limite ulaşınca DUR"dur. Bu sınır değer (boundary) hatası, test otomasyonunda retry mantığının en sık kırıldığı yerdir; QA'de "boundary value testing" diye bilinen tekniğin tam karşılığıdır.`, en: `If-else makes decisions like a traffic light: green → go, red → stop. But real life often has more than two options (yellow, a flashing red, a broken light) — in code, an elif chain handles exactly that. Now ask: why does the ONE-character difference between "attempt > max_attempts" and "attempt >= max_attempts" matter so much? Because the moment the attempt count exactly REACHES the limit, ">" treats it as "not exceeded yet" and allows one more try — when the intended behavior was "stop once the limit is reached." This boundary mistake is one of the most common ways retry logic breaks in test automation — it's the real-world face of what QA calls "boundary value testing."` } },
       { type: 'code', language: 'python', code: `# Python If...Else
 score = 87
 
@@ -1594,7 +1594,7 @@ print(validate_response(503, {}))` },
       // W3Schools Topic 15 — While Loops
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'While Loops', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🔁', content: { tr: 'While döngüsü, "koşul doğru olduğu sürece tekrar et" demek. Alarm saati çalana kadar uyumaya devam etmek gibi.', en: 'A while loop means "keep doing this as long as condition is true." Like sleeping until your alarm rings.' } },
+      { type: 'simple-box', emoji: '🔁', content: { tr: `While döngüsü, "alarm çalana kadar uyu" demektir — KAÇ KEZ tekrarlanacağını ÖNCEDEN bilmiyorsun, sadece DURMA koşulunu biliyorsun. Bu, for döngüsünden temelde farklı bir akıl yürütme gerektirir: for "5 elemanlık listede 5 kere dön" der, while "sunucu ayağa kalkana kadar dön, kaç deneme süreceğini bilmiyorum" der. İşte burada gerçek bir tehlike var: koşulu bir noktada False yapmazsan (sayacı unutursan), döngü SONSUZA kadar döner — CI pipeline'ında bu, "test 2 saat takıldı, timeout'a çarptı" şeklinde fark edilir. Java'daki while (condition) { } ile birebir aynı mantık; tek fark Python'un koşulu yazarken parantez İSTEMEMESİ.`, en: `A while loop means "sleep until the alarm rings" — you DON'T know in advance how many times it'll repeat, you only know the STOPPING condition. That's a fundamentally different mindset from a for loop: a for loop says "go through these 5 items," a while loop says "keep going until the server is up, however many tries that takes." Here's the real danger: if you never make the condition False (forget to update a counter), the loop runs FOREVER — in a CI pipeline, that shows up as "the test hung for 2 hours and hit a timeout." Java's while (condition) { } follows the identical logic; the only difference is Python doesn't want parentheses around the condition.` } },
       { type: 'code', language: 'python', code: `# Python While Loop
 count = 0
 while count < 5:
@@ -1688,7 +1688,7 @@ else:
       // W3Schools Topic 16 — For Loops
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'For Loops', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🎢', content: { tr: 'For döngüsü, listedeki her şey için sırayla bir işlem yapar. "Her test için çalıştır" gibi — liste bitince döngü de biter.', en: 'A for loop does something for each item in a sequence. "Run for every test" — the loop ends when the list ends.' } },
+      { type: 'simple-box', emoji: '🎢', content: { tr: `For döngüsü, bir trenin her vagonuna sırayla binip aynı kontrolü yapan bir denetçi gibi — vagon (eleman) bitince tur da biter, KAÇ vagon olduğunu önceden bilmen gerekmez. Java'da klasik "for (int i=0; i<n; i++)" yazman gerekirken, Python doğrudan "for endpoint in api_endpoints:" der — sayaç değişkeni, sınır kontrolü, artırma işlemi YOK, çünkü Python listenin kendisini geziyor, indeksini değil. Peki bu neden önemli? Çünkü range(1, 6) gibi bir aralık yazarken bitiş değeri HER ZAMAN dışlanır (1,2,3,4,5 üretir, 6'yı asla) — Java'nın "i < 6" mantığıyla birebir aynı, ama bu "off-by-one" tuzağı, "neden son test ID'm eksik?" diye soran QA mühendislerinin en sık düştüğü çukurdur.`, en: `A for loop is like an inspector walking through every car of a train, doing the same check in order — once the cars (items) run out, the round is over, and you never needed to know the count upfront. Java forces you to write "for (int i=0; i<n; i++)", while Python just says "for endpoint in api_endpoints:" — no counter variable, no bound check, no increment, because Python walks the list itself, not an index into it. Why does that matter? Because a range like range(1, 6) ALWAYS excludes its stop value (produces 1,2,3,4,5, never 6) — the same logic as Java's "i < 6", but this exact off-by-one trap is the most common pit QA engineers fall into when asking "why is my last test ID missing?"` } },
       { type: 'text', content: { tr: "Java\'da for-each: \"for (String s : list)\". Python\'da: \"for s in list:\". Çok benzer ama Python\'da index olmaz — index lazımsa enumerate() kullan.", en: 'Java for-each: "for (String s : list)". Python: "for s in list:". Very similar but Python has no index — if you need one, use enumerate().' } },
       { type: 'code', language: 'python', code: `# Python For Loops
 tests = ["login", "checkout", "search"]
@@ -1799,7 +1799,7 @@ print(f"\nTotal: {len(results)}, Failed: {len(failures)}")` },
       // W3Schools Topic 17 — Functions
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Functions', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '🔧', content: { tr: 'Fonksiyon, bir tarif gibi. "Çay yap" tarifi: su kaynat, demle, koy. Her çay yapmak istediğinde aynı adımları tekrar yazmana gerek yok — tarifi çağırırsın.', en: "A function is like a recipe. \"Make tea\": boil water, steep, pour. You don\'t rewrite the steps every time — you call the recipe." } },
+      { type: 'simple-box', emoji: '🔧', content: { tr: `Bir fonksiyon, "çay yap" tarifi gibi: su kaynat, demle, koy. Tarifi bir kere yazarsın, sonra her çay isteğinde sadece ÇAĞIRIRSIN — adımları tekrar yazmana gerek yok. Ama gerçek bir QA tuzağı tam burada gizli: def add_test_case(case, cases=[]) yazarsan, o [] varsayılan değeri SADECE BİR KEZ (fonksiyon tanımlanırken) oluşturulur ve TÜM çağrılar arasında PAYLAŞILIR — yani bir testte listeye eleman eklersen, bir sonraki çağrıda "boş liste" beklerken önceki çağrının kalıntılarını bulursun. Java'da bu sorun hiç YOKTUR çünkü varsayılan değerler her çağrıda yeniden değerlendirilir. Çözüm: cases=None yaz, fonksiyon içinde "if cases is None: cases = []" ile her seferinde TAZE bir liste oluştur — bu, Python'a özgü en sinsi bug kalıplarından biridir.`, en: `A function is like a "make tea" recipe: boil water, steep, pour. Write the recipe once, then every time you want tea you just CALL it — no rewriting the steps. But a real QA trap hides right here: write def add_test_case(case, cases=[]) and that [] default is created ONLY ONCE (when the function is defined) and SHARED across every call — meaning if one test appends to that list, the next call expecting "an empty list" finds leftovers from the previous one. Java has NO such problem, because default values are re-evaluated on every call. The fix: use cases=None, then inside the function do "if cases is None: cases = []" to build a FRESH list each time — this is one of the sneakiest Python-specific bug patterns out there.` } },
       { type: 'text', content: { tr: "Java\'da metod tanımlarken erişim belirleyici, dönüş tipi yazılır: public String greet(String name). Python\'da sadece \"def\" yeterli: def greet(name):. Tip ipuçları opsiyonel ama önerilen.", en: 'Java methods need access modifier and return type: public String greet(String name). Python just needs "def": def greet(name):. Type hints are optional but recommended.' } },
       { type: 'code', language: 'python', code: `# Python Functions
 # Basic function
@@ -1908,7 +1908,7 @@ print(f"Pass rate: {calculate_pass_rate(0, 50)}%")` },
       // W3Schools Topic 18 — Lambda
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Lambda Functions', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '⚡', content: { tr: 'Lambda, tek satırlık isimsiz bir fonksiyon. "Sadece bir kez kullanacağım, isim koymaya değmez" dediğinde kullanılır. Hesap makinesi gibi: sadece basarsın, sonucu alırsın.', en: 'A lambda is a one-line nameless function. Use it when "I only need this once, not worth naming." Like a quick calculator.' } },
+      { type: 'simple-box', emoji: '⚡', content: { tr: `Lambda, "tek kullanımlık bir hesap makinesi" gibi — basarsın, sonucu alırsın, ona isim koymaya değmez. Şimdi gerçek soru: zaten def ile fonksiyon yazabiliyorken, neden ayrıca isimsiz bir fonksiyon türüne ihtiyaç var? Çünkü sorted(results, key=lambda x: x[1]) yazdığında, "sıralama anahtarı" sadece BİR satırlık, başka hiçbir yerde kullanılmayacak bir mantık — ona ayrı bir def bloğu açmak, kod okuyana "bu önemli, tekrar kullanılacak" yanlış sinyalini verir. Java'da bunun karşılığı lambda expression'lardır (örn. list.sort((a,b) -> ...)) — Java 8'den sonra eklendi, Python'da baştan beri var. Riski: lambda içine if-else'den fazla mantık sıkıştırmaya çalışırsan okunaksızlaşır — o zaman gerçek bir def yazmanın vakti gelmiştir.`, en: `A lambda is like a one-use calculator — you press it, get the result, and it's not worth naming. Here's the real question: if def already lets you write functions, why do we need a nameless function type at all? Because writing sorted(results, key=lambda x: x[1]) means the "sort key" is just ONE line of logic, used nowhere else — giving it its own def block would falsely signal to a reader "this is important, it gets reused elsewhere." Java's equivalent is the lambda expression (e.g. list.sort((a,b) -> ...)) — added in Java 8, while Python has had it from the start. The risk: cram more than a simple if-else into a lambda and it becomes unreadable — that's your signal it's time to write a real def instead.` } },
       { type: 'text', content: { tr: "Java\'da lambda: x -> x * 2. Python\'da: lambda x: x * 2. Çok benzer! Python lambda\'sı tek ifade ile sınırlıdır — birden fazla satıra ihtiyaç varsa normal def kullanılır.", en: 'Java lambda: x -> x * 2. Python: lambda x: x * 2. Very similar! Python lambda is limited to one expression — need multiple lines? Use def instead.' } },
       { type: 'code', language: 'python', code: `# Python Lambda Functions
 # Basic lambda — anonymous function
@@ -2015,7 +2015,7 @@ print("\nFailures:", [r["test"] for r in failures])` },
       // W3Schools Topic 19 — Classes / Objects
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Classes / Objects', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🏗️', content: { tr: "Class, bir nesne şablonu gibi. Araba şablonunda renk, hız, model var — her araba bu şablondan yaratılır ama hepsinin rengi farklı olabilir. Class = şablon, nesne (object) = şablondan üretilen şey.", en: "A class is a blueprint. The car blueprint has color, speed, model — every car is made from it but each can have a different color. Class = blueprint, object = thing made from it." } },
+      { type: 'simple-box', emoji: '🏗️', content: { tr: `Class, bir araba fabrikasının ŞABLONU gibi — renk, hız, model alanları tanımlıdır, ama şablonun kendisinden hiç kimse araba SÜREMEZ. __init__ metodu, fabrikadan çıkan her arabaya bu alanları doldurma görevidir: TestRunner("Login Test", "Chrome") dediğinde, Python "yeni bir araba üret, rengini Chrome yap" der gibi çalışır. Şimdi gerçek bir soru: neden __init__'in beklediği parametre sayısından AZ argüman verirsen Python hata fırlatır? Çünkü şablon "her arabada bir motor OLMALI" diyorsa, motoru eksik bir araba üretmek anlamsızdır — Java'da constructor'lar aynı garantiyi verir, sadece "constructor" adıyla çağrılır. Class = şablon, object = şablondan üretilen, KENDİNE ÖZGÜ verilere sahip gerçek araba.`, en: `A class is like a car factory's BLUEPRINT — fields for color, speed, model are defined, but no one can ever drive the blueprint itself. The __init__ method is the job of filling in those fields for every car that rolls off the line: write TestRunner("Login Test", "Chrome") and Python effectively does "produce a new car, make its color Chrome." Here's a real question: why does Python raise an error if you give __init__ FEWER arguments than it expects? Because if the blueprint says "every car MUST have an engine," producing a car without one is meaningless — Java's constructors give the exact same guarantee, just under a different name. Class = blueprint, object = an actual car built from it, carrying its OWN specific data.` } },
       { type: 'text', content: { tr: "Java'da constructor açıkça yazılır: public Car(String color) {...}. Python'da __init__ metodu constructor görevi görür. Python'daki 'self', Java'daki 'this' gibidir — ama Python'da her metoda açıkça yazılmalıdır.", en: "Java constructors are explicit: public Car(String color) {}. Python uses __init__ as the constructor. Python's 'self' is like Java's 'this' — but must be written explicitly in every method." } },
       { type: 'code', language: 'python', code: `# Python Classes — QA Engineer Example
 class TestResult:
@@ -2109,7 +2109,7 @@ acc.withdraw(2000)` },
       // W3Schools Topic 20 — Inheritance
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Inheritance', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🧬', content: { tr: "Kalıtım, miras gibi. Ebeveynin özellikleri çocuğa geçer. Araba şablonundan 'Elektrikli Araba' şablonu türetilirse, arabanın tüm özellikleri artık elektrikli arabada da var — üstüne pil kapasitesi ekleniyor.", en: "Inheritance is like a family trait. A child class gets all properties of the parent. ElectricCar inherits from Car — gets all car features plus adds battery capacity." } },
+      { type: 'simple-box', emoji: '🧬', content: { tr: `Kalıtım, bir ailenin DNA'sını çocuğa aktarması gibi — ElectricCar, Car'dan türetilirse, Car'ın tüm özellikleri (renk, hız) otomatik olarak ElectricCar'da da vardır, üstüne pil kapasitesi eklenir. Ama burada düşünmeye değer bir tuzak var: Dog(Animal) sınıfının __init__ metodunda super().__init__(name) çağırmayı UNUTURSAN, ne olur? Animal'ın kendi __init__'i hiç çalışmaz — yani self.name asla atanmaz, ve bark() metodu çağrıldığında "AttributeError: no attribute 'name'" patlar. Java'da super(name) çağırmazsan derleyici seni otomatik olarak (eğer parametresiz bir constructor varsa) kurtarır veya hata verir — Python'da bu SESSİZCE atlanır, sadece metod çağrıldığında patlar. Yani kalıtım miras alır ama hiçbir şeyi OTOMATİK başlatmaz — sen tetiklemezsen, üst sınıfın kurulumu hiç çalışmaz.`, en: `Inheritance is like a family passing down DNA — if ElectricCar inherits from Car, all of Car's properties (color, speed) automatically exist in ElectricCar too, with battery capacity added on top. But here's a trap worth thinking through: if Dog(Animal)'s __init__ FORGETS to call super().__init__(name), what happens? Animal's own __init__ never runs — meaning self.name is never set, and calling bark() later blows up with "AttributeError: no attribute 'name'". In Java, skipping a super() call either gets auto-handled (if a no-arg constructor exists) or flagged by the compiler — in Python it's SILENTLY skipped, and only explodes once that method actually gets called. So inheritance passes down properties, but it doesn't AUTOMATICALLY initialize anything — if you don't trigger it, the parent's setup simply never runs.` } },
       { type: 'text', content: { tr: "Java'da 'extends' keyword'ü kullanılır: class Dog extends Animal. Python'da parantez içinde yazılır: class Dog(Animal). Her iki dilde de 'super()' ile parent constructor çağrılır.", en: "Java uses 'extends': class Dog extends Animal. Python puts the parent in parentheses: class Dog(Animal). Both languages use super() to call the parent constructor." } },
       { type: 'code', language: 'python', code: `# Python Inheritance — Test Framework Example
 class BaseTest:
@@ -2206,7 +2206,7 @@ for a in animals:
       // W3Schools Topic 21 — Scope
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Scope', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🔭', content: { tr: "Scope, değişkenin görünebildiği alan. Odanın içinde tanımladığın bir şey odanın dışından görünmez — tıpkı bir fonksiyon içindeki değişkenin dışarıdan erişilememesi gibi.", en: "Scope is the area where a variable can be seen. Something defined inside a room can't be seen from outside — just like a variable inside a function can't be accessed from outside." } },
+      { type: 'simple-box', emoji: '🔭', content: { tr: `Scope, bir odanın görüş alanı gibi — odanın İÇİNDE bıraktığın bir not, dışarıdan görünmez; bir fonksiyon içindeki değişken de aynı şekilde dışarıdan erişilemez. Ama tersi soru daha ilginç: dışarıdaki (global) bir değişkene fonksiyon İÇİNDEN dokunabilir misin? test_counter = 0 yazıp fonksiyon içinde test_counter += 1 dersen, Python bunu SESSİZCE yerel bir değişken sayar ve "referenced before assignment" hatası fırlatır — çünkü atama yapan her satır, Python'a "bu artık YEREL" der, sen istemesen de. Çözüm: fonksiyonun ilk satırına "global test_counter" eklemek, yani Python'a "hayır, dışarıdaki odadan bahsediyorum" demek. Java'da bu kavram bile yok — instance/static field'lar zaten açıkça tanımlıdır, Python'un bu "varsayılan yerel" davranışı bambaşka bir akıl yürütme ister.`, en: `Scope is like a room's line of sight — a note left INSIDE the room is invisible from outside; a variable inside a function is just as unreachable from outside it. But the more interesting question runs backward: can a function reach OUT and touch a global variable? Write test_counter = 0, then test_counter += 1 inside a function, and Python SILENTLY treats it as a local variable and throws "referenced before assignment" — because any line that assigns to a name tells Python "this is now LOCAL," whether you meant it or not. The fix: add "global test_counter" as the function's first line, telling Python "no, I mean the one out in the outer room." Java doesn't even have this concept — instance/static fields are always explicitly declared, so Python's "assignment makes it local by default" rule demands a genuinely different way of thinking.` } },
       { type: 'text', content: { tr: "Python LEGB kuralını kullanır: Local → Enclosing → Global → Built-in. Java'da benzer kural: yerel değişken → metod → sınıf → paket. 'global' keyword'ü ile Python'da global değişkene yazılabilir — ama bu pratikte kaçınılması gereken bir pattern.", en: "Python uses the LEGB rule: Local → Enclosing → Global → Built-in. Java has a similar rule. The 'global' keyword allows writing to a global variable — but this pattern is generally avoided in practice." } },
       { type: 'code', language: 'python', code: `# Python Scope — LEGB Rule
 x = "global"                    # Global scope — visible everywhere
@@ -2305,7 +2305,7 @@ print(f"Total: {total}")        # Should print 10` },
       // W3Schools Topic 22 — Modules
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Modules', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '📦', content: { tr: "Module, araç kutusu gibi. Matematiksel işlemler için 'math' kutusunu aç, tarih işlemleri için 'datetime' kutusunu. Her kutuda hazır araçlar var — sıfırdan yazman gerekmiyor.", en: "A module is like a toolbox. Open the 'math' toolbox for math operations, 'datetime' for date work. Each box has ready-made tools — you don't need to build them from scratch." } },
+      { type: 'simple-box', emoji: '📦', content: { tr: `Bir modül, etiketli bir araç kutusu gibi — matematik için "math" kutusunu, tarih için "datetime" kutusunu açarsın, içindeki aletleri sıfırdan üretmen gerekmez. Ama burada gerçekten düşünmeye değer bir ayrım var: "from math import sqrt" ile "import math" arasındaki fark nedir? Birincisi SADECE sqrt aletini kutudan çıkarıp masana koyar — math.sqrt(16) YAZAMAZSIN, çünkü "math" adı hiç tanımlı değil, sadece sqrt çağrılabilir. İkincisi TÜM kutuyu masaya koyar, her aleti math.şu_şekilde çağırırsın. Java'da import java.util.List sadece o sınıfı görünür yapar — birebir aynı mantık. Karıştırırsan "NameError: name 'math' is not defined" hatası alırsın; bu, hangi import stilini seçtiğini HATIRLAMAN gerektiğini gösterir.`, en: `A module is like a labeled toolbox — open "math" for math operations, "datetime" for date work, and you never build those tools from scratch. But here's a distinction genuinely worth thinking through: what's the difference between "from math import sqrt" and "import math"? The first ONLY takes the sqrt tool out of the box and puts it on your desk — you CANNOT write math.sqrt(16), because the name "math" was never defined, only sqrt itself is callable. The second puts the WHOLE box on your desk, and you call every tool as math.something. Java's import java.util.List works the same way — it only makes that one class visible. Mix the two up and you get "NameError: name 'math' is not defined" — a reminder that you need to remember which import style you actually chose.` } },
       { type: 'text', content: { tr: "Java'da import java.util.List gibi paket import edilir. Python'da import math veya from math import sqrt. Python'da kendi modülünü yazmak da çok kolay — .py dosyası oluştur, import et.", en: "Java imports packages like import java.util.List. Python uses import math or from math import sqrt. Writing your own module in Python is simple — just create a .py file and import it." } },
       { type: 'code', language: 'python', code: `import os                       # operating system interface
 import sys                      # system-specific parameters
@@ -2393,7 +2393,7 @@ for i in range(3):
       // W3Schools Topic 23 — Try...Except (Error Handling)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Try...Except', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🛡️', content: { tr: "Try-except, kalkan gibi. 'Dene, çalışmazsa şu planı uygula.' Bisiklet sürerken düşebilirsin — ama kaskın varsa ciddi bir şey olmaz. Kod patlarsa except bloğu devreye girer.", en: "Try-except is like a safety helmet. 'Try this, if it breaks do this instead.' You might fall off a bike — but with a helmet, nothing serious happens. If code crashes, except catches it." } },
+      { type: 'simple-box', emoji: '🛡️', content: { tr: `Try-except, bisiklet kaskı gibi — düşebilirsin ama kask varsa ciddi bir şey olmaz; except bloğu, kodun "düşmesini" yakalar. Ama gerçek beceri, HANGİ kaskı takacağını bilmek: "except TypeError" yazıp gerçekte fırlatılan hata ValueError ise, except hiç DEVREYE GİRMEZ — yanlış kaskı takmışsın, düşme yine de seni yaralar. int("abc") çalıştığında Python ValueError fırlatır, TypeError değil — bu ayrımı bilmemek, "except bloğum çalışmıyor" diye saatlerce debug etmene yol açar. Java'da catch (SpecificException e) aynı disiplini ister; genel bir "catch hepsini yakalar" alışkanlığı (except: veya catch (Exception e)) ise gerçek hatayı GİZLER — QA'de sessizce yutulan bir bug, görünür bir hatadan çok daha tehlikelidir.`, en: `Try-except is like a bike helmet — you might fall, but with the helmet nothing serious happens; the except block catches the code's "fall." But the real skill is knowing WHICH helmet to wear: write "except TypeError" when the actual error raised is ValueError, and the except block never ACTIVATES at all — wrong helmet, the fall still hurts. Running int("abc") raises ValueError, not TypeError — not knowing that distinction is exactly why people spend hours debugging "why isn't my except block catching this?" Java's catch (SpecificException e) demands the same discipline; a lazy catch-all habit (bare except: or catch (Exception e)) HIDES the real error — and in QA, a silently swallowed bug is far more dangerous than a visible one.` } },
       { type: 'text', content: { tr: "Java'da try-catch-finally kullanılır. Python'da da aynı yapı var: try-except-finally. Java'da Exception sınıfından türetme — Python'da da aynı. Fark: Python'da as keyword'ü ile exception nesnesine erişilir.", en: "Java uses try-catch-finally. Python has the same structure: try-except-finally. Both inherit from a base Exception class. Difference: Python uses the 'as' keyword to access the exception object." } },
       { type: 'code', language: 'python', code: `# Python Error Handling — QA Patterns
 def safe_divide(a, b):
@@ -2517,7 +2517,7 @@ print(get_user_age({"name": "Ali"}, "age"))       # KeyError` },
       // W3Schools Topic 24 — JSON
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'JSON', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🔄', content: { tr: "JSON, evrensel dil gibi. Farklı dillerdeki programlar birbirleriyle konuşmak için JSON kullanır. Türkçe-İngilizce tercüman gibi — Python dict'ini JSON'a çevir, karşı taraf anlasın.", en: "JSON is like a universal language. Programs in different languages use JSON to talk to each other. Like a translator — convert Python dict to JSON, and any other language can understand it." } },
+      { type: 'simple-box', emoji: '🔄', content: { tr: `JSON, bir Python programı ile bir Java programının ortak konuştuğu nötr bir dil gibi — ikisi de kendi "ana dilini" (dict, HashMap) bırakıp ortak bir formata geçer. Ama burada gerçek bir tuzak var: '{"retries": "3", "timeout": 30}' JSON'ını okuduğunda, "retries" tırnak İÇİNDE yazıldığı için Python'a STRING olarak gelir, "timeout" tırnaksız olduğu için sayı olarak gelir — ikisi de aynı satırda, farklı davranır. config["retries"] * config["timeout"] yazarsan, Python hata FIRLATMAZ ama "3" * 30 işlemini "333333..." (30 kez tekrarlanan string) yapar — matematik hiç gerçekleşmez! json.dump() ile yazarken de aynı dikkat gerekir: bir dosyayı "with open(...) as f:" ile açıp kapatmak, dosyanın YARIM yazılmış halde kalmasını engeller.`, en: `JSON is like a neutral language a Python program and a Java program both happen to speak — each sets aside its "native tongue" (dict, HashMap) and switches to a shared format. But there's a real trap here: parse '{"retries": "3", "timeout": 30}' and "retries" arrives as a STRING (because it's quoted in the JSON), while "timeout" arrives as a number (unquoted) — same line, different behavior. Write config["retries"] * config["timeout"] and Python won't raise an error — it'll happily turn "3" * 30 into a string repeated 30 times, and no math ever happens! The same care applies when writing with json.dump(): opening and closing a file with "with open(...) as f:" prevents it from being left HALF-written if something goes wrong mid-write.` } },
       { type: 'text', content: { tr: "Java'da Jackson veya Gson kütüphanesi kullanılır. Python'da standart kütüphane 'json' modülü yeterli — import etmek yeterli. json.dumps() Python'u JSON string'e, json.loads() JSON string'i Python'a çevirir.", en: "Java requires Jackson or Gson library. Python's built-in 'json' module is sufficient — just import it. json.dumps() converts Python to JSON string, json.loads() converts JSON string back to Python." } },
       { type: 'code', language: 'python', code: `import json
 
@@ -2609,7 +2609,7 @@ if failed:
       // W3Schools Topic 25 — RegEx
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'RegEx', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🔍', content: { tr: "Regex, metin arama için çok güçlü bir filtre. 'E-posta bul' gibi değil — '@' işareti olan, noktayla biten, belirli uzunlukta olan metinleri bul. QA'de form validation testlerinde çok kullanılır.", en: "Regex is a powerful text filter. Not just 'find email' — find text that has '@', ends with a dot, has a specific length. Very useful in QA for form validation testing." } },
+      { type: 'simple-box', emoji: '🔍', content: { tr: `Regex, "e-posta bul" gibi kaba bir arama değil — "@ işareti olan, sonrasında nokta geçen, belirli bir uzunluk aralığında olan metni bul" diyebilen hassas bir filtre. Şunu kendine sor: neden re.search(pattern, text) çağırmadan ÖNCE pattern'i tanımlamak ZORUNDASIN? Çünkü Python, pattern'i her arama için YENİDEN derler (compile eder) — onu önceden tanımlamazsan, "neyi arayacağımı bilmiyorum" der ve NameError fırlatır. r"TC-\\d+" gibi bir pattern yazarken \\d+ "bir veya daha fazla rakam" anlamına gelir — "+" işaretini unutursan, sadece TEK rakamla eşleşir ve TC-00452 yerine sadece "TC-0" bulursun. QA'de regex, form validation testlerinde ("e-posta formatı doğru mu?") ve log dosyalarından hata kodu ÇIKARMADA günlük kullanılan bir araçtır.`, en: `Regex isn't a vague "find an email" search — it's a precise filter that can say "find text with an '@', followed later by a dot, within a specific length range." Ask yourself: why MUST you define the pattern BEFORE calling re.search(pattern, text)? Because Python compiles the pattern fresh for every search — skip defining it and Python has no idea what to look for, and raises a NameError. Writing a pattern like r"TC-\\d+", the \\d+ means "one or more digits" — forget the "+" and it matches only a SINGLE digit, returning just "TC-0" instead of TC-00452. In QA, regex is an everyday tool for form validation testing ("is this email format valid?") and for EXTRACTING error codes out of log files.` } },
       { type: 'code', language: 'python', code: `import re   # regular expressions module
 
 # Basic patterns:
@@ -2698,7 +2698,7 @@ for phone in phones:
       // W3Schools Topic 26 — Comprehensions
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Comprehensions', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '⚡', content: { tr: "Comprehension, listeni tek satırda oluşturmanın kısa yolu. 'Sepetteki tüm meyvelerden sadece kırmızı olanları al' — bunu Python'da tek satırda yazabilirsin. Uzun for döngüsü yazmaya gerek yok.", en: "Comprehension is a shortcut to build lists in one line. 'From all fruits in basket, take only the red ones' — Python lets you write this in one line. No need for a long for loop." } },
+      { type: 'simple-box', emoji: '⚡', content: { tr: `List comprehension, "sepetteki meyvelerden sadece kırmızı olanları al" cümlesini TEK satırda yazabilmek — [tc for tc, status in results if status == "FAIL"] tam olarak bunu söyler: "results'taki her çift için, status FAIL ise tc'yi al." Ama burada düşünmeye değer bir hata kalıbı var: değişkenin adı "failed" diye yazıp koşulu YANLIŞLIKLA "if status == 'PASS'" yaparsan, Python hiçbir uyarı vermez — değişken adı sadece bir İSİMDİR, koşulu kontrol etmez. Sonuç: "failed" listesi aslında BAŞARILI testleri tutar, ve bunu fark etmeden raporlarsan yanlış bir QA metriği üretirsin. Java'da Stream API'nin .filter() metodu aynı işi yapar ama daha çok satırla — Python'un kısalığı hız kazandırır, dikkatsizlik ise sessizce ters sonuç üretir.`, en: `A list comprehension lets you write "from all fruits in the basket, take only the red ones" in ONE line — [tc for tc, status in results if status == "FAIL"] says exactly that: "for each pair in results, take tc if status is FAIL." But there's a mistake pattern genuinely worth thinking about: name the variable "failed" and then accidentally write the condition as "if status == 'PASS'", and Python won't warn you at all — the variable's NAME is just a label, it doesn't check the condition. The result: your "failed" list actually holds the PASSING tests, and reporting that without noticing produces a wrong QA metric. Java's Stream API .filter() does the same job with more lines — Python's brevity buys speed, but carelessness silently flips the result.` } },
       { type: 'code', language: 'python', code: `# List Comprehension — [expression for item in iterable if condition]
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
@@ -2788,7 +2788,7 @@ print(f"Avg duration of passed tests: {avg:.0f}ms")` },
       // W3Schools Topic 27 — Iterators
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Iterators', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🎡', content: { tr: "Iterator, sıra bekleyen bir kuyruk gibi. Her defasında bir sonraki kişiyi verir. Dondurma kuyruğu — her çağırdığında sıradaki kişi gelir, kuyruğun hepsi hafızada değil.", en: "An iterator is like a queue. Each time you ask, it gives you the next one. An ice cream queue — each call gives the next person, not everyone in memory at once." } },
+      { type: 'simple-box', emoji: '🎡', content: { tr: `Bir generator (yield kullanan fonksiyon), bir dondurma kuyruğu gibi — her seferinde SIRADAKI kişiyi çağırırsın, kuyruktaki HERKESİ aynı anda hafızada tutmazsın. Ama burada gerçekten önemli bir davranış var: bu kuyruk SADECE BİR KEZ baştan sona dolaşılabilir. list(ids) çağırıp kuyruğun tamamını bir kere tükettiysen, AYNI "ids" nesnesini ikinci kez list()'e çevirmek BOŞ bir sonuç verir — kuyruk zaten boşalmış, kimse kalmamış. Çözüm: ikinci geçiş için get_test_ids() fonksiyonunu YENİDEN çağırman gerekir, taze bir kuyruk açman gerekir. Java'da bunun en yakın karşılığı Stream'lerdir — bir Stream da SADECE BİR KEZ tüketilebilir, ikinci kullanım denemesi IllegalStateException fırlatır. Fikir aynı: tek seferlik tüketim, farklı hata mesajı.`, en: `A generator (a function using yield) is like an ice cream queue — each time you ask, it gives you the NEXT person, without holding everyone in the queue in memory at once. But here's a behavior that genuinely matters: that queue can only be walked through ONCE, start to finish. Call list(ids) and exhaust the whole queue, then try converting that SAME "ids" object to a list a second time, and you get nothing back — the queue is already empty, nobody's left. The fix: call get_test_ids() AGAIN for the second pass, opening a fresh queue. Java's closest equivalent is a Stream — it too can only be consumed ONCE, and a second attempt throws IllegalStateException. Same idea, different error message.` } },
       { type: 'code', language: 'python', code: `# Python Iterators and Generators
 # Iterator protocol: __iter__() and __next__()
 
@@ -2873,7 +2873,7 @@ for user in generate_test_users(5):
       // W3Schools Topic 28 — Decorators
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Decorators', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🎀', content: { tr: "Decorator, hediye paketleyici gibi. Çikolata güzel — ama paketleyince daha iyi görünüyor. Decorator, bir fonksiyonun etrafına ek davranış sarar — fonksiyonu değiştirmeden.", en: "A decorator is like a gift wrapper. Chocolate is great — but wrapped it looks even better. A decorator wraps a function with extra behavior — without changing the function itself." } },
+      { type: 'simple-box', emoji: '🎀', content: { tr: `Bir decorator, hediye paketleyici gibi — çikolatanın (fonksiyonun) KENDİSİNE dokunmaz, sadece etrafına bir paket (ek davranış) sarar. @pytest.fixture'ı düşün: fixture fonksiyonunun içine "bu bir fixture'dır, testlere otomatik enjekte edilsin" mantığını YAZMAZSIN — bu mantığı decorator senin için EKLER. Şimdi gerçek soru: bunu neden manuel yapmıyoruz? Çünkü "her test fonksiyonunun başına aynı log/retry/setup kodunu kopyala-yapıştır yap" yerine, bir kez "@log_call" yazıp aynı sarmalamayı 50 fonksiyona uygulayabilirsin — kod tekrarı sıfıra iner. Java'da bu kavramın en yakın akrabası annotation'lardır (@Test, @BeforeEach) — onlar da fonksiyonun KENDİSİNİ değiştirmez, framework'e "bunu nasıl çalıştıracağını" söyler.`, en: `A decorator is like a gift wrapper — it never touches the chocolate (the function) ITSELF, it just wraps extra behavior AROUND it. Think of @pytest.fixture: you don't write "this is a fixture, auto-inject me into tests" logic inside the fixture function — the decorator ADDS that behavior for you. Here's the real question: why not just do this manually? Because instead of copy-pasting the same log/retry/setup code at the top of every test function, you write "@log_call" once and apply that exact wrapping to 50 functions — duplication drops to zero. Java's closest relative to this idea is annotations (@Test, @BeforeEach) — they too don't change the function ITSELF, they tell the framework how to run it.` } },
       { type: 'text', content: { tr: "Java'da Aspect Oriented Programming (AOP) veya @annotation + proxy pattern ile benzer şeyler yapılır. Python'da decorator çok daha basit — sadece @ ile fonksiyon üstüne yaz. QA'de retry, timer, log gibi cross-cutting concerns için idealdir.", en: "Java does similar things with AOP or @annotation + proxy pattern. Python decorators are much simpler — just write @ above the function. In QA, ideal for cross-cutting concerns like retry, timer, and logging." } },
       { type: 'code', language: 'python', code: `import functools
 import time
@@ -3005,7 +3005,7 @@ print(f"Result: {result}")` },
       // W3Schools Topic 29 — Context Managers
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Context Managers', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🚪', content: { tr: "Context manager, otomatik kapı gibi. Kütüphaneye girince kapı açılır, çıkınca kapanır — sen manuel kapatmak zorunda değilsin. Dosya açınca aynı şey: 'with' ile açarsan, Python otomatik kapatır.", en: "A context manager is like an automatic door. It opens when you enter, closes when you leave — you don't need to close it manually. Same with files: use 'with' and Python closes it automatically." } },
+      { type: 'simple-box', emoji: '🚪', content: { tr: `Context manager (with ifadesi), bir süpermarketin OTOMATİK kapısı gibi — girerken açılır, çıkarken KENDİLİĞİNDEN kapanır, sen elle iteklemek zorunda değilsin. Şimdi şunu sor: kapıyı elle kapatman gerekseydi (f = open(...) ... f.close()) ve araya bir hata girseydi ne olurdu? f.close() satırına asla ULAŞILMAZDI — dosya açık kalırdı, kaynak sızıntısı oluşurdu. with open(...) as f: yazdığında Python, blok içinde hata OLSA DA OLMASA DA dosyayı kapatmayı GARANTİ eder — try/finally'nin otomatik hali. Java'da bunun karşılığı try-with-resources'tur (try (var f = ...) { }) — aynı garanti, farklı sözdizimi. QA'de bu, "test crash oldu ama dosya handle açık kaldı, sonraki test dosyaya erişemiyor" gibi sinsi arıza zincirlerini önler.`, en: `A context manager (the with statement) is like a supermarket's AUTOMATIC door — it opens as you walk in, closes ON ITS OWN as you leave, and you never have to push it shut yourself. Now ask: what if you HAD to close it manually (f = open(...) ... f.close()) and an error happened in between? The f.close() line would NEVER be reached — the file would stay open, leaking a resource. Write with open(...) as f: and Python GUARANTEES the file gets closed whether or not an error occurred inside the block — it's try/finally, automated. Java's equivalent is try-with-resources (try (var f = ...) { }) — same guarantee, different syntax. In QA, this prevents sneaky failure chains like "the test crashed but the file handle stayed open, so the NEXT test can't access the file."` } },
       { type: 'code', language: 'python', code: `from contextlib import contextmanager
 import time
 
@@ -3120,7 +3120,7 @@ with assert_raises(ValueError):
       // W3Schools Topic 30 — Type Hints
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Type Hints', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🏷️', content: { tr: "Type hint, adım adım tariften 'şekeri ölçerken bardakla değil, gramla koy' demek gibi. Zorunlu değil ama çok yardımcı — IDE sana yanlış tip verdiğinde uyarır, ekip arkadaşın kodu daha hızlı anlar.", en: "Type hints are like adding 'use grams not cups' to a recipe. Not required but very helpful — your IDE warns you about wrong types, and teammates understand the code faster." } },
+      { type: 'simple-box', emoji: '🏷️', content: { tr: `Type hint, bir tarife "şekeri bardakla değil, gramla ölç" notunu eklemek gibi — tarif YİNE çalışır eklemesen de, ama eklersen kimse "bardak" derken hangi bardağı kastettiğini TAHMİN ETMEK zorunda kalmaz. Şimdi şunu sor: Python zaten dinamik tipliyken, neden type hint ekleyelim? Çünkü def parse_response(data: dict) -> bool: yazdığında, IDE'n fonksiyonu YANLIŞ bir tiple çağırdığında seni UYARIR — derleme zamanında değil ama yazarken. Java'da bu zorunludur (her parametre tiplenmek ZORUNDADIR); Python'da OPSİYONELDİR ve hiçbir şeyi ÇALIŞTIRMA ZAMANINDA zorlamaz — yani type hint'i yazıp yanlış tip geçirsen bile Python hata vermez, sadece statik analiz araçları (mypy gibi) seni uyarır. Yani bu bir "öneri sistemi", bir "kural" değil.`, en: `A type hint is like adding "measure sugar in grams, not cups" to a recipe — the recipe still works without it, but with it, nobody has to GUESS which cup you meant. Now ask: if Python is already dynamically typed, why bother adding type hints at all? Because writing def parse_response(data: dict) -> bool: makes your IDE WARN you the moment you call the function with the wrong type — not at compile time, but as you're typing. Java makes this MANDATORY (every parameter MUST be typed); Python makes it OPTIONAL and enforces NOTHING at runtime — write a type hint, pass the wrong type anyway, and Python won't complain; only static analysis tools (like mypy) will flag it. So it's a suggestion system, not a rule.` } },
       { type: 'text', content: { tr: "Java statically-typed — her değişkene tip belirtmek zorunlu: String name = 'Ali'. Python dynamically-typed — tip opsiyonel ama type hint ekleyebilirsin: name: str = 'Ali'. Çalışma zamanında fark yaratmaz, sadece IDE ve mypy gibi araçlar kullanır.", en: "Java is statically-typed — types are mandatory: String name = 'Ali'. Python is dynamically-typed — types are optional but you can add hints: name: str = 'Ali'. No runtime difference, only IDEs and tools like mypy use them." } },
       { type: 'code', language: 'python', code: `from typing import Optional, List, Dict, Union, Tuple, Callable
 
@@ -3244,7 +3244,7 @@ print(suite.get_test(99))   # Should return None` },
       // W3Schools Topic 31 — Polymorphism
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Polymorphism', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🎭', content: { tr: 'Polimorfizm, aynı komuta farklı nesnelerin farklı tepki vermesi. "Ses çıkar" dersen kedi miyavlar, köpek havlar, inek möö der. Aynı metod ismi, farklı davranışlar.', en: 'Polymorphism means the same command gets different responses from different objects. "Make sound" and a cat meows, a dog barks, a cow moos. Same method name, different behaviors.' } },
+      { type: 'simple-box', emoji: '🎭', content: { tr: `Polimorfizm, "ses çıkar" komutuna kedinin miyavlayıp köpeğin havlamasıdır — AYNI metod ismi (make_sound()), HER sınıfa göre farklı davranış. Şimdi gerçek soru: bu, neden sadece "şirin bir OOP özelliği" değil, QA'de PRATİK bir araç? Çünkü bir test framework'ünde her tarayıcı sınıfı (ChromeBrowser, FirefoxBrowser) aynı open() metodunu FARKLI şekilde implemente edebilir — test kodun "browser.open()" der, HANGİ tarayıcı olduğunu BİLMEK ZORUNDA değildir. Bu, "Liskov Substitution" prensibinin temelidir: bir üst sınıfın yerine HER ALT SINIF konulabilmeli, kod kırılmamalı. Java'da bu method overriding ile birebir aynı çalışır — interface tanımlar "ne" yapılacağını, her sınıf kendi "nasıl"ını yazar.`, en: `Polymorphism is a cat meowing and a dog barking at the SAME "make a sound" command — the SAME method name (make_sound()), DIFFERENT behavior per class. Here's the real question: why is this more than just a "cute OOP feature" — why does it matter PRACTICALLY in QA? Because in a test framework, each browser class (ChromeBrowser, FirefoxBrowser) can implement the same open() method DIFFERENTLY — your test code just says "browser.open()" and never needs to KNOW which browser it actually is. This is the foundation of the Liskov Substitution principle: any subclass should be swappable in place of its parent without breaking the code. Java handles this identically through method overriding — an interface defines "what" gets done, and each class writes its own "how."` } },
       { type: 'text', content: { tr: "Java'da polimorfizm interface veya abstract class ile sağlanır. Python'da duck typing ile çalışır — bir nesne gerekli metodu sağladığı sürece tip önemli değildir: 'eğer ördek gibi yürüyorsa ve ördek gibi vaklıyorsa, o bir ördektir'.", en: "In Java, polymorphism uses interfaces or abstract classes. Python uses duck typing — if an object has the required method, its type doesn't matter: 'If it walks like a duck and quacks like a duck, it's a duck'." } },
       { type: 'code', language: 'python', code: `# Python Polymorphism — Duck Typing
 class Dog:
@@ -3359,7 +3359,7 @@ for runner in runners:
       // W3Schools Topic 32 — Arrays (array module)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Arrays (array module)', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '📊', content: { tr: "Python'daki array modülü, sadece aynı tip sayıları tutan özel bir liste. Normal list her şeyi tutabilir ama array yalnızca int veya float gibi tek bir tip tutar — bu sayede daha az yer kaplar.", en: "Python's array module holds only one type of number. A regular list holds anything, but array holds only ints or only floats — uses less memory." } },
+      { type: 'simple-box', emoji: '📊', content: { tr: `Python'daki array, sıkı bir bagaj düzenleyicisi gibi — sadece BİR tür eşya kabul eder (hep int, hep float), karışık koyamazsın; normal bir list ise "her şeyi atabileceğin" gelişigüzel bir çanta. Şimdi şunu sor: bu kısıtlama neden bir DEZAVANTAJ değil, bir AVANTAJ? Çünkü Python her şeyi sabit tipte tutarsa, her elemanın boyutunu ÖNCEDEN bilir — hafızada yan yana sıkıca dizebilir, "bu eleman ne tip, ne kadar yer tutuyor" diye tek tek kontrol etmesi gerekmez. Sonuç: binlerce sayısal veriyle (örn. performans test sonuçları) çalışırken array, normal listeden daha az hafıza kullanır. Java'nın int[] dizisi tam olarak bu disipliniyle çalışır — Python'un array modülü, Java geliştiricisine zaten tanıdık gelen "homojen dizi" mantığını opsiyonel olarak sunar.`, en: `Python's array module is like a strict luggage organizer — it accepts only ONE kind of item (always int, always float), no mixing allowed; a regular list is a loose bag you can throw anything into. Now ask: why is that restriction an ADVANTAGE, not a downside? Because if Python knows every element is the same fixed type, it knows each element's size IN ADVANCE — it can pack them tightly side-by-side in memory instead of checking "what type is this, how much space does it need" one by one. The payoff: working with thousands of numeric values (say, performance test results), array uses less memory than a regular list. Java's int[] array works with exactly this discipline — Python's array module offers that same "homogeneous array" logic, already familiar to a Java developer, as an opt-in choice.` } },
       { type: 'text', content: { tr: "Python'da normal list zaten dinamik ve esnek. array modülü çok sayısal veriyle çalışırken bellek optimizasyonu için kullanılır. QA'de büyük performans ölçümü verisi işlerken yararlı olabilir. Java'daki primitive array (int[]) kavramına yakın.", en: "Python's regular list is already flexible. The array module is for memory optimization when working with large numeric data. Useful in QA for processing large performance measurement datasets. Similar to Java's primitive arrays (int[])." } },
       { type: 'code', language: 'python', code: `import array
 
@@ -3457,7 +3457,7 @@ print("After append:", list(durations))` },
       // W3Schools Topic 33 — Dates (datetime module)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Dates (datetime module)', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '📅', content: { tr: "Python'daki datetime modülü, tarih ve saat işlemleri için. 'Test ne zaman çalıştı?', 'Bu rapor ne kadar sürdü?', 'Bugünün tarihi nedir?' sorularını cevaplar.", en: "Python's datetime module handles date and time. 'When did the test run?', 'How long did the report take?', 'What is today's date?' — all answered here." } },
+      { type: 'simple-box', emoji: '📅', content: { tr: `datetime, "bu test ne zaman çalıştı, ne kadar sürdü?" sorularına cevap veren bir kronometre + takvim ikilisi. Ama gerçek bir QA tuzağı şurada: end = "2024-01-10" gibi bir tarihi STRING olarak tutup, sonra (end - start).days yazarsan, Python "bir datetime nesnesinden bir string ÇIKARAMAZSIN" der ve patlar — çünkü çıkarma işlemi, iki tarafın da AYNI TÜRDEN olmasını ister, tıpkı 5 elmadan 3 armut çıkaramayacağın gibi. end'i de datetime(2024, 1, 10) yaparsan, ikisi de "aynı dilde" konuşur ve fark hesaplanabilir hale gelir. Java'da bu LocalDate/LocalDateTime ile aynı disiplini gerektirir — bir String'i bir LocalDate'ten çıkarmaya çalışsan derleyici seni anında durdurur; Python'da bu hata sadece çalışma zamanında (test sırasında) ortaya çıkar.`, en: `datetime is a stopwatch-and-calendar duo that answers "when did this test run, how long did it take?" But a real QA trap hides here: keep a date like end = "2024-01-10" as a STRING, then write (end - start).days, and Python blows up with "you can't subtract a string from a datetime" — because subtraction demands both sides be the SAME type, the same way you can't subtract 3 pears from 5 apples. Make end a datetime(2024, 1, 10) too, and suddenly both sides "speak the same language," and the difference becomes computable. Java demands the same discipline with LocalDate/LocalDateTime — try subtracting a String from a LocalDate and the compiler stops you instantly; in Python, that same mistake only surfaces at runtime, mid-test.` } },
       { type: 'code', language: 'python', code: `from datetime import datetime, date, timedelta
 
 # Current date and time
@@ -3555,7 +3555,7 @@ print(is_recent(datetime.now().strftime("%Y-%m-%d")))  # True - today` },
       // W3Schools Topic 34 — Math (math module)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Math (math module)', difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🧮', content: { tr: "Python'ın math modülü, hesap makinenizdeki gelişmiş fonksiyonlar gibi: karekök, log, güç, yuvarlama. Normal +, -, *, / için gerekmiyor ama sqrt(25) veya pi sayısı için lazım.", en: "Python's math module is like your calculator's advanced functions: square root, log, power, rounding. Not needed for +, -, *, / but necessary for sqrt(25) or the pi constant." } },
+      { type: 'simple-box', emoji: '🧮', content: { tr: `math modülü, hesap makinenin "ek fonksiyon" tuşları gibi — temel +, -, *, / için zaten dokunmadığın, ama karekök veya pi sayısı gerektiğinde açtığın bir bölüm. Peki neden bu fonksiyonlar yerleşik (built-in) DEĞİL de bir modülde? Çünkü Python, "her programın HER aracı kullanması gerekmez" felsefesini benimser — math'i import etmezsen, o kod hiç hafızaya yüklenmez, programın daha hafif kalır. Java'da Math sınıfı (Math.sqrt(), Math.PI) hiçbir import GEREKTİRMEDEN her yerde hazır durur — bu, "varsayılan olarak her şey görünür olsun" tasarım felsefesinin tam tersidir. QA'de performans testi sonuçlarının standart sapmasını hesaplarken math.sqrt() günlük kullanılan bir araçtır.`, en: `The math module is like your calculator's "extra function" panel — untouched for plain +, -, *, /, but opened the moment you need a square root or the pi constant. So why aren't these built in directly instead of living in a module? Because Python follows the philosophy "not every program needs every tool" — skip importing math, and that code never even loads into memory, keeping your program leaner. Java's Math class (Math.sqrt(), Math.PI) sits available everywhere with NO import required at all — the exact opposite design philosophy of "everything visible by default." In QA, math.sqrt() is an everyday tool when calculating the standard deviation of performance test results.` } },
       { type: 'code', language: 'python', code: `import math
 
 # Constants
@@ -3649,7 +3649,7 @@ print(f"SLA violations: {len(violations)}")` },
       // W3Schools Topic 35 — PIP (Package Manager)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'PIP — Python Package Manager', difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '📦', content: { tr: "pip, Python'ın uygulama mağazası gibi. Başkalarının yazdığı kütüphaneleri indirir. 'pip install requests' yazarsın, her şey hazır! Java'daki Maven/Gradle'a benzer ama komut satırından.", en: "pip is like Python's app store. It downloads libraries others wrote. Type 'pip install requests' and everything is ready! Similar to Maven/Gradle in Java but from the command line." } },
+      { type: 'simple-box', emoji: '📦', content: { tr: `pip, bir uygulama mağazası gibi — "pip install requests" yazarsın, başkalarının yıllarca emek verdiği bir kütüphane saniyeler içinde senin projende kullanıma hazır olur. Ama gerçek bir ekip sorunu burada gizli: bugün "pip install pytest" yaparsan en GÜNCEL sürüm kurulur — ama bir ay sonra bir teknik arkadaşın AYNI komutu çalıştırırsa, pytest'in DAHA YENİ bir sürümü çıkmış olabilir, ve onun makinesinde testler farklı davranabilir. Çözüm: "pip freeze > requirements.txt" ile TAM sürüm numaralarını dondurmak, sonra herkesin "pip install -r requirements.txt" ile AYNI sürümleri kurması. Java'da Maven/Gradle'ın pom.xml/build.gradle dosyaları zaten bu sürüm kilitlemesini zorunlu kılar — Python'da bu disiplin, OPSİYONEL ama hayati bir alışkanlıktır.`, en: `pip is like an app store — type "pip install requests" and a library other people spent years building is ready in your project within seconds. But a real team problem hides here: run "pip install pytest" today and you get the LATEST version — but if a teammate runs the SAME command a month from now, a NEWER pytest version might exist, and tests could behave differently on their machine. The fix: freeze EXACT version numbers with "pip freeze > requirements.txt", then everyone installs the SAME versions with "pip install -r requirements.txt". Java's Maven/Gradle already force this version-locking through pom.xml/build.gradle — in Python, that discipline is OPTIONAL, yet absolutely vital.` } },
       { type: 'code', language: 'python', code: `# PIP — Python Package Installer
 # ─────────────────────────────────────────
 # Install a package
@@ -3770,7 +3770,7 @@ for line in requirements_txt.strip().split("\\n"):
       // W3Schools Topic 36 — User Input
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'User Input', difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '⌨️', content: { tr: "input() fonksiyonu, kullanıcıdan bilgi almak için. 'Adınızı girin:' yazarsın, kullanıcı yazar ve Enter'a basar. Python ne yazıldığını bir değişkende saklar. Dikkat: her zaman string döner!", en: "input() asks the user for information. You write 'Enter your name:' and the user types and presses Enter. Python stores what was typed in a variable. Important: it always returns a string!" } },
+      { type: 'simple-box', emoji: '⌨️', content: { tr: `input(), bir resepsiyonist gibi — kullanıcıya soru sorar, cevabı alır, ve sana TESLİM eder. Ama burada herkesin gözden kaçırdığı bir kural var: input() ne yazılırsa yazılsın, SONUCU HER ZAMAN string olarak döner. Kullanıcı "25" yazsa bile, age = input("Yaşınız: ") sonrası age bir SAYI değil, "25" METNİDİR — age + 1 yazarsan Python hata fırlatır ("can only concatenate str"), age bir sayı GİBİ göründüğü için bu hata kafa karıştırır. Çözüm: int(input(...)) ile dönüşümü hemen yapmak. Java'da Scanner sınıfı nextInt() ve nextLine() diye AYRI metodlar sunarak bu ayrımı zorunlu kılar — Python ise "her şey string, çevirmek senin işin" der, esnekliği sana, sorumluluğu da sana bırakır.`, en: `input() is like a receptionist — it asks the user a question, takes the answer, and HANDS it to you. But there's a rule almost everyone overlooks: no matter what gets typed, input() ALWAYS returns a string. Even if the user types "25", age = input("Your age: ") leaves age holding the TEXT "25", not a NUMBER — write age + 1 and Python throws "can only concatenate str", which is confusing precisely because age LOOKS like a number. The fix: convert immediately with int(input(...)). Java's Scanner class forces this distinction by offering SEPARATE methods, nextInt() and nextLine() — Python instead says "everything's a string, converting is your job," handing you the flexibility and the responsibility together.` } },
       { type: 'code', language: 'python', code: `# Python User Input
 # input() always returns a STRING
 
@@ -3883,7 +3883,7 @@ print(f"\\nReady to run {config['workers']} parallel tests!")` },
       // W3Schools Topic 37 — String Formatting
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'String Formatting', difficulty: '🟢 Beginner' },
-      { type: 'simple-box', emoji: '🖨️', content: { tr: "String formatting, boşluk bırakılmış bir mektuba değer doldurmak gibi. 'Merhaba ___! Puanın: ___' şablonuna ad ve puan yazarsın. Python'da bunu yapmanın birkaç yolu var; en moderni f-string.", en: "String formatting is like filling out a form letter. 'Hello ___! Your score: ___' — you fill in the name and score. Python has several ways to do this; the most modern is f-strings." } },
+      { type: 'simple-box', emoji: '🖨️', content: { tr: `String formatting, "Merhaba ___! Puanın: ___" şablonuna ad ve puan doldurduğun bir form mektup gibi. Ama Python'da bunu yapmanın ÜÇ farklı yolu var, ve bu sadece "tercih" meselesi değil — bir GEÇMİŞ hikayesi: eski "%s" stili Java'nın printf'inden ilham alır, .format() metodu daha okunaklı bir ara adımdır, f-string ("merhaba {ad}") ise en yeni VE en hızlı yoldur (çünkü Python onu derleme anında optimize eder). Şimdi şunu sor: neden hâlâ eski kod tabanlarında %s görüyorsun? Çünkü 10 yıllık bir QA framework'ünü f-string'e geçirmek BÜYÜK bir refactor — yeni kod f-string yazar, eski kod yaşamaya devam eder. Bu, "neden aynı işi yapan üç sözdizimi var" sorusuna verilebilecek en gerçekçi cevaptır: dilin evrimi, geriye dönük uyumluluk pahasına asla tüm eski kodu silmez.`, en: `String formatting is like filling in a form letter: "Hello ___! Your score: ___." But Python has THREE different ways to do this, and that's not just "preference" — it's a HISTORY lesson: the old "%s" style takes inspiration from Java's printf, .format() is a more readable middle step, and the f-string ("hello {name}") is the newest AND fastest way (because Python optimizes it at compile time). So why do you still see %s in old codebases? Because migrating a 10-year-old QA framework to f-strings is a MAJOR refactor — new code uses f-strings, old code keeps living. That's the honest answer to "why does this language have three syntaxes for the same job": a language's evolution rarely deletes all the old code, for the sake of backward compatibility.` } },
       { type: 'code', language: 'python', code: `# Python String Formatting — 4 methods (newest to oldest)
 
 name = "Alice"
@@ -3982,7 +3982,7 @@ for r in test_results:
       // W3Schools Topic 38 — File Handling
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'File Handling', difficulty: '🟡 Intermediate' },
-      { type: 'simple-box', emoji: '📁', content: { tr: "Dosya işleme, Python ile bilgisayardaki dosyaları okumak ve yazmak. 'open()' fonksiyonu dosyayı açar, 'with' otomatik kapatır. QA'de test verilerini CSV'den okumak ve rapor kaydetmek için çok kullanılır.", en: "File handling means reading and writing files on your computer using Python. 'open()' opens a file, 'with' closes it automatically. In QA, heavily used for reading CSV test data and saving reports." } },
+      { type: 'simple-box', emoji: '📁', content: { tr: `Dosya işleme, bir not defterini açıp yazmak/okumak gibi — open() defteri açar, with otomatik kapatır. Ama gerçek bir QA sorusu şu: bir CSV'den 10.000 satır test verisi okurken, TÜM dosyayı tek seferde belleğe mi alırsın, yoksa SATIR SATIR mı işlersin? "for line in f:" yazarsan Python dosyayı satır satır okur — bellek dostu. f.readlines() yazarsan TÜM dosyayı tek seferde bir listeye yükler — küçük dosyalarda sorun yok, ama büyük log dosyalarında bellek taşmasına yol açabilir. Java'da BufferedReader.readLine() ile Files.readAllLines() arasındaki seçim BİREBİR aynı ikilemdir — "ne kadarını aynı anda hafızada tutmaya değer?" sorusu, dil değişse de aynı kalır.`, en: `File handling is like opening a notebook to read and write — open() opens the notebook, with closes it automatically. But here's a real QA question: reading 10,000 rows of test data from a CSV, do you load the WHOLE file into memory at once, or process it LINE BY LINE? Write "for line in f:" and Python reads line by line — memory-friendly. Write f.readlines() and it loads the ENTIRE file into a list at once — fine for small files, but can blow up memory on huge log files. Java's choice between BufferedReader.readLine() and Files.readAllLines() is the IDENTICAL dilemma — "how much is worth holding in memory at once" stays the same question, no matter which language you're in.` } },
       { type: 'code', language: 'python', code: `# Python File Handling — Read, Write, Append, Delete
 
 # WRITE — create or overwrite a file
@@ -4109,7 +4109,7 @@ print(f"\\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")` },
       // QA Topic — Dataclasses
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'Dataclasses (@dataclass)', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🏗️', content: { tr: "@dataclass, veri tutmak için class yazmayı kolaylaştıran bir dekoratör. Normalde __init__, __repr__, __eq__ metodlarını tek tek yazman gerekirdi — @dataclass bunları otomatik oluşturur. QA'de test verisi modellemek için mükemmel.", en: "@dataclass is a decorator that makes writing data-holding classes easy. Normally you'd write __init__, __repr__, __eq__ manually — @dataclass generates them automatically. Perfect for modeling test data in QA." } },
+      { type: 'simple-box', emoji: '🏗️', content: { tr: `@dataclass, "sadece veri tutacak bu sınıfın sıradan kısımlarını SEN YAZMA, ben yazarım" diyen bir asistan gibi. Normalde bir TestCase sınıfı için __init__ (alanları ata), __repr__ (print'te düzgün görünsün), __eq__ (iki nesne aynı verilere sahipse eşit say) — üçünü de TEK TEK yazman gerekirdi. @dataclass bunları OTOMATİK üretir, sen sadece alan isimlerini bildirirsin. Şimdi şunu sor: bu neden sadece "az yazmak" değil, gerçek bir KALİTE kazancı? Çünkü __eq__'i elle yazıp bir alanı unutursan, iki FARKLI test verisini "aynı" sanan sessiz bir bug yaratırsın — @dataclass bunu senin için doğru üretir. Java'da record (Java 14+) BİREBİR aynı motivasyondan doğdu: "veri tutan sınıflar için boilerplate yazmayı bırakalım."`, en: `@dataclass is like an assistant saying "don't write the boring parts of this data-only class yourself, I'll handle it." Normally, a TestCase class needs __init__ (assign the fields), __repr__ (look right when printed), and __eq__ (treat two objects as equal if their data matches) — all three written BY HAND. @dataclass generates them AUTOMATICALLY; you just declare the field names. Now ask: why is this more than just "less typing" — why is it a real QUALITY win? Because hand-writing __eq__ and forgetting one field creates a silent bug where two DIFFERENT test records get treated as "the same" — @dataclass generates it correctly for you, every time. Java's record (Java 14+) was born from the EXACT same motivation: "stop writing boilerplate for data-holding classes."` } },
       { type: 'code', language: 'python', code: `from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -4227,7 +4227,7 @@ for case in cases:
       // QA Topic — argparse (CLI Arguments)
       // ═══════════════════════════════════════════════════════════════════════
       { type: 'heading', text: 'argparse — CLI Arguments', difficulty: '🔴 Advanced' },
-      { type: 'simple-box', emoji: '🖥️', content: { tr: "argparse, komut satırından programına parametre göndermeni sağlar. 'python run_tests.py --browser chromium --headless --env staging' gibi. QA scriptlerini esnek ve CI/CD ile uyumlu hale getirir.", en: "argparse lets you pass parameters to your script from the command line. Like 'python run_tests.py --browser chromium --headless --env staging'. Makes QA scripts flexible and CI/CD compatible." } },
+      { type: 'simple-box', emoji: '🖥️', content: { tr: `argparse, scriptine bir "uzaktan kumanda" eklemek gibi — "python run_tests.py --browser chromium --headless --env staging" yazdığında, scriptin DIŞARIDAN ayarlanabilir hale gelir. Şimdi gerçek soru: bu farkı neden hardcoded BROWSER = "chrome" yazmaktan daha güçlü kılıyor? Çünkü hardcode edilmiş bir değer, bir kod DEĞİŞİKLİĞİ ve yeniden COMMIT gerektirir; argparse ile aynı script CI pipeline'ında "--env staging", senin makinende "--env dev" ile çalışabilir — TEK SATIR kod değişmeden. Java'da bu, main(String[] args) ile manuel parse etmek veya Apache Commons CLI gibi bir kütüphaneyle yapılır — Python'un argparse'ı standart kütüphanede HAZIR gelir, ekstra bağımlılık gerekmez. QA scriptlerini "esnek" yapan tam olarak bu: aynı kodu, FARKLI ortamlarda, hiç dokunmadan çalıştırabilmek.`, en: `argparse is like adding a "remote control" to your script — write "python run_tests.py --browser chromium --headless --env staging" and the script becomes configurable FROM OUTSIDE. Here's the real question: why does that make it more powerful than just hardcoding BROWSER = "chrome"? Because a hardcoded value demands a code CHANGE and a fresh COMMIT to update; with argparse, the exact same script can run with "--env staging" in your CI pipeline and "--env dev" on your own machine — with ZERO lines of code changed. Java handles this by manually parsing main(String[] args) or pulling in a library like Apache Commons CLI — Python's argparse comes READY in the standard library, no extra dependency needed. That's exactly what makes QA scripts "flexible": running the same code across DIFFERENT environments without touching it at all.` } },
       { type: 'code', language: 'python', code: `import argparse
 
 # Create the argument parser
@@ -6302,8 +6302,8 @@ const pythonEcosystemBlocks = [
     type: 'simple-box',
     emoji: '🌐',
     content: {
-      tr: 'Python ekosistemi geniş bir yapboz gibidir. Her araç (pip, pytest, allure, black) farklı bir parçayı temsil eder ve birleşerek tam bir otomasyon hattı oluşturur.',
-      en: 'The Python ecosystem is like a giant puzzle. Each tool (pip, pytest, allure, black) represents a piece that fits together to build a complete automation pipeline.'
+      tr: `Java dünyasında Maven/Gradle TEK bir şefe benzer — bağımlılık, derleme, test çalıştırma, hepsi BİR aracın elinde. Python ekosistemi ise her biri TEK bir işte uzmanlaşmış bir mutfak ekibi gibidir: pip sadece malzeme getirir, pytest sadece pişirme testini yapar, black sadece tabağı düzgün dizer. Şimdi şunu sor: bu PARÇALANMIŞLIK bir zayıflık mı, yoksa bir güç mü? Güç — çünkü her aracı, daha iyisi çıkana kadar İSTEDİĞİN zaman değiştirebilirsin (flake8'i ruff ile değiştirmek, Maven'i değiştirmekten çok daha kolay). Bedeli: yeni bir QA mühendisi "hangi araç ne işe yarıyor" diye 5 farklı aracı öğrenmek zorunda kalır — Java'da tek bir Maven dokümantasyonunu okumak yeterliyken.`,
+      en: `In the Java world, Maven/Gradle acts like a SINGLE head chef — dependencies, compilation, test running, all in ONE tool's hands. Python's ecosystem is more like a kitchen crew where each person specializes in ONE job: pip just fetches ingredients, pytest just runs the taste test, black just arranges the plate neatly. Now ask: is this FRAGMENTATION a weakness or a strength? A strength — because you can swap out any single tool the moment a better one appears (replacing flake8 with ruff is far easier than replacing Maven itself). The cost: a new QA engineer has to learn "what does each of these 5 tools actually do" — where in Java, reading one Maven doc would have been enough.`
     }
   },
   {
@@ -6397,6 +6397,23 @@ check_status(200)`,
         print("FAIL")
 
 check_status(200)`,
+  starterCode: {
+    tr: `def check_status(code):
+    # TODO: code 200 ise "OK", değilse "FAIL" yazdır
+
+check_status(200)`,
+    en: `def check_status(code):
+    # TODO: print "OK" if code is 200, otherwise print "FAIL"
+
+check_status(200)`,
+  },
+  solutionCode: `def check_status(code):
+    if code == 200:
+        print("OK")
+    else:
+        print("FAIL")
+
+check_status(200)`,
 }
 
 const playgroundVariables = {
@@ -6426,6 +6443,17 @@ if status_code == "200"
 else:
     print("Test failed")`,
   fixedCode: `status_code = "200"
+if status_code == "200":
+    print("Test passed")
+else:
+    print("Test failed")`,
+  starterCode: {
+    tr: `status_code = "200"
+# TODO: status_code "200" stringine eşitse "Test passed", değilse "Test failed" yazdır`,
+    en: `status_code = "200"
+# TODO: print "Test passed" if status_code equals the string "200", otherwise "Test failed"`,
+  },
+  solutionCode: `status_code = "200"
 if status_code == "200":
     print("Test passed")
 else:
@@ -6463,6 +6491,21 @@ for i in range(1, 6):
     test_ids.append(f"TC-{i}")
 
 print(test_ids)`,
+  starterCode: {
+    tr: `test_ids = []
+# TODO: range() kullanarak TC-1'den TC-5'e kadar 5 test ID üret ve test_ids'e ekle
+
+print(test_ids)`,
+    en: `test_ids = []
+# TODO: use range() to generate 5 test IDs from TC-1 to TC-5 and append them to test_ids
+
+print(test_ids)`,
+  },
+  solutionCode: `test_ids = []
+for i in range(1, 6):
+    test_ids.append(f"TC-{i}")
+
+print(test_ids)`,
 }
 
 const playgroundFunctions = {
@@ -6496,6 +6539,26 @@ print(add_test_case("logout"))`,
 print(add_test_case("login"))
 print(add_test_case("logout"))`,
   fixedCode: `def add_test_case(case, cases=None):
+    if cases is None:
+        cases = []
+    cases.append(case)
+    return cases
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+  starterCode: {
+    tr: `def add_test_case(case, cases=None):
+    # TODO: cases None ise her çağrıda taze bir liste oluştur, sonra case'i ekle ve döndür
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+    en: `def add_test_case(case, cases=None):
+    # TODO: if cases is None, create a fresh list per call, then append case and return it
+
+print(add_test_case("login"))
+print(add_test_case("logout"))`,
+  },
+  solutionCode: `def add_test_case(case, cases=None):
     if cases is None:
         cases = []
     cases.append(case)
@@ -6546,6 +6609,44 @@ class Dog(Animal):
 
 print(Dog("Rex").bark())`,
   fixedCode: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+  starterCode: {
+    tr: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        # TODO: Animal sınıfının __init__'ini çağırarak self.name'i ata
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+    en: `class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name):
+        # TODO: call the Animal class's __init__ to set self.name
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+print(Dog("Rex").bark())`,
+  },
+  solutionCode: `class Animal:
     def __init__(self, name):
         self.name = name
 
@@ -7807,29 +7908,757 @@ const trTabs = [
   '💼 Mülakat Soruları'
 ];
 
+// --- BATCH 4: second drag-and-drop (order-sort) challenge per tab, on a
+// different sub-topic than the tab's existing order-sort, so every tab has
+// at least two distinct hands-on drag-and-drop exercises. Appended at the
+// END of each tab's block array (no slicing of shared sections[n].blocks
+// arrays), so existing tab boundaries are never shifted. ---
+const challengePrintFlowOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-print-flow-01',
+  question: {
+    tr: 'Bir print() çağrısının terminalde görünmesine kadar izlediği adımları sırala.',
+    en: 'Arrange the steps a print() call goes through before it appears in the terminal.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Python kodu bir .py dosyasına yazılır', en: 'Python code is written into a .py file' }, order: 1 },
+    { id: '2', text: { tr: 'Yorumlayıcı (interpreter) dosyayı satır satır okur', en: 'The interpreter reads the file line by line' }, order: 2 },
+    { id: '3', text: { tr: 'print("...") satırına gelindiğinde fonksiyon çağrılır', en: 'When it reaches print("..."), the function is called' }, order: 3 },
+    { id: '4', text: { tr: 'Argüman standart çıkışa (stdout) yazılır', en: 'The argument is written to standard output (stdout)' }, order: 4 },
+    { id: '5', text: { tr: 'Terminal stdout\'u okuyup metni ekranda gösterir', en: 'The terminal reads stdout and displays the text on screen' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+const challengePipInstallOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-pip-install-01',
+  question: {
+    tr: 'pip ile bir paket kurup test ortamında kullanıma hazır hale getirme adımlarını sırala.',
+    en: 'Arrange the steps for installing a package with pip and getting it ready to use in a test environment.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Sanal ortamı (venv) aktive et', en: 'Activate the virtual environment (venv)' }, order: 1 },
+    { id: '2', text: { tr: '"pip install <paket>" komutunu çalıştır', en: 'Run "pip install <package>"' }, order: 2 },
+    { id: '3', text: { tr: '"pip list" ile paketin kurulduğunu doğrula', en: 'Verify the package was installed with "pip list"' }, order: 3 },
+    { id: '4', text: { tr: 'Kodda "import <paket>" ile kullanmaya başla', en: 'Start using it in code with "import <package>"' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeIndentationNestingOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-indentation-nesting-01',
+  question: {
+    tr: 'Bir fonksiyon içindeki if bloğunun girinti seviyelerini, dıştan içe doğru sırala.',
+    en: 'Arrange the indentation levels inside a function\'s if block, from outermost to innermost.',
+  },
+  items: [
+    { id: '1', text: { tr: 'def check(value):   (girinti seviyesi 0)', en: 'def check(value):   (indentation level 0)' }, order: 1 },
+    { id: '2', text: { tr: '    if value > 0:   (girinti seviyesi 1)', en: '    if value > 0:   (indentation level 1)' }, order: 2 },
+    { id: '3', text: { tr: '        return "positive"   (girinti seviyesi 2)', en: '        return "positive"   (indentation level 2)' }, order: 3 },
+    { id: '4', text: { tr: 'check(5)   (fonksiyon dışı, girinti seviyesi 0)', en: 'check(5)   (outside the function, indentation level 0)' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeTypeCheckOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-type-check-01',
+  question: {
+    tr: 'Bir değişkenin tipini güvenle kontrol edip ona göre davranma adımlarını sırala.',
+    en: 'Arrange the steps for safely checking a variable\'s type and acting on it.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Değişkeni tanımla (örn. response_code = "200")', en: 'Define the variable (e.g. response_code = "200")' }, order: 1 },
+    { id: '2', text: { tr: 'type(response_code) ile gerçek tipini öğren', en: 'Find its actual type with type(response_code)' }, order: 2 },
+    { id: '3', text: { tr: 'isinstance(response_code, str) ile beklenen tiple karşılaştır', en: 'Compare it to the expected type with isinstance(response_code, str)' }, order: 3 },
+    { id: '4', text: { tr: 'Sonuca göre dönüştür veya işlemi devam ettir', en: 'Convert it or continue processing based on the result' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeFStringOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-fstring-01',
+  question: {
+    tr: 'Bir f-string ile dinamik bir test mesajı oluşturma adımlarını sırala.',
+    en: 'Arrange the steps for building a dynamic test message with an f-string.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Mesajda kullanılacak değişkenleri tanımla (örn. test_name, status)', en: 'Define the variables the message will use (e.g. test_name, status)' }, order: 1 },
+    { id: '2', text: { tr: 'String\'i f" ile başlat', en: 'Start the string with f"' }, order: 2 },
+    { id: '3', text: { tr: 'Değişkenleri {test_name} gibi süslü parantezle göm', en: 'Embed the variables with curly braces, like {test_name}' }, order: 3 },
+    { id: '4', text: { tr: 'String\'i " ile kapat ve print() ile yazdır', en: 'Close the string with " and print() it' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeListAppendOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-list-append-01',
+  question: {
+    tr: 'Boş bir listeye eleman ekleyip kontrol etme adımlarını sırala.',
+    en: 'Arrange the steps for adding an element to an empty list and checking it.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Boş bir liste oluştur: results = []', en: 'Create an empty list: results = []' }, order: 1 },
+    { id: '2', text: { tr: 'append() ile bir eleman ekle: results.append("PASS")', en: 'Add an element with append(): results.append("PASS")' }, order: 2 },
+    { id: '3', text: { tr: 'len(results) ile eleman sayısını kontrol et', en: 'Check the element count with len(results)' }, order: 3 },
+    { id: '4', text: { tr: 'results[0] ile ilk elemana indeksle eriş', en: 'Access the first element by index with results[0]' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeSetOperationOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-set-operation-01',
+  question: {
+    tr: 'İki test sonucu kümesinin kesişimini bulma adımlarını sırala.',
+    en: 'Arrange the steps for finding the intersection of two test-result sets.',
+  },
+  items: [
+    { id: '1', text: { tr: 'İki set tanımla: run1 = {"TC-1", "TC-2"}, run2 = {"TC-2", "TC-3"}', en: 'Define two sets: run1 = {"TC-1", "TC-2"}, run2 = {"TC-2", "TC-3"}' }, order: 1 },
+    { id: '2', text: { tr: '& operatörünü kullan: common = run1 & run2', en: 'Use the & operator: common = run1 & run2' }, order: 2 },
+    { id: '3', text: { tr: 'Sonucu bir değişkende sakla', en: 'Store the result in a variable' }, order: 3 },
+    { id: '4', text: { tr: 'print(common) ile ortak elemanları yazdır', en: 'print(common) to show the shared elements' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeWhileLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-while-loop-01',
+  question: {
+    tr: 'Bir retry mekanizmasını while döngüsüyle yazma adımlarını sırala.',
+    en: 'Arrange the steps for writing a retry mechanism with a while loop.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Sayaç değişkenini başlat: attempt = 0', en: 'Initialize the counter: attempt = 0' }, order: 1 },
+    { id: '2', text: { tr: 'Koşulu yaz: while attempt < max_attempts:', en: 'Write the condition: while attempt < max_attempts:' }, order: 2 },
+    { id: '3', text: { tr: 'Döngü içinde isteği yap ve sonucu kontrol et', en: 'Inside the loop, make the request and check the result' }, order: 3 },
+    { id: '4', text: { tr: 'Sayacı güncelle: attempt += 1', en: 'Update the counter: attempt += 1' }, order: 4 },
+    { id: '5', text: { tr: 'Koşul False olunca döngü kendiliğinden durur', en: 'The loop stops on its own once the condition is False' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+const challengeLambdaOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-lambda-01',
+  question: {
+    tr: 'Bir test sonucu listesini lambda ile sıralama adımlarını sırala.',
+    en: 'Arrange the steps for sorting a list of test results with a lambda.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Sıralanacak listeyi tanımla: results = [("TC-1", 3), ("TC-2", 1)]', en: 'Define the list to sort: results = [("TC-1", 3), ("TC-2", 1)]' }, order: 1 },
+    { id: '2', text: { tr: 'sorted() fonksiyonunu çağır', en: 'Call the sorted() function' }, order: 2 },
+    { id: '3', text: { tr: 'key=lambda x: x[1] ile hangi alana göre sıralanacağını belirt', en: 'Use key=lambda x: x[1] to specify which field to sort by' }, order: 3 },
+    { id: '4', text: { tr: 'Sonucu bir değişkende sakla ve yazdır', en: 'Store the result in a variable and print it' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeMethodOverrideOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-method-override-01',
+  question: {
+    tr: 'Bir alt sınıfta üst sınıfın metodunu override etme adımlarını sırala.',
+    en: 'Arrange the steps for overriding a parent class\'s method in a subclass.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Üst sınıfı ve metodunu tanımla: class Browser: def open(self): ...', en: 'Define the parent class and its method: class Browser: def open(self): ...' }, order: 1 },
+    { id: '2', text: { tr: 'Alt sınıfı üst sınıftan miras al: class ChromeBrowser(Browser):', en: 'Inherit the subclass from the parent: class ChromeBrowser(Browser):' }, order: 2 },
+    { id: '3', text: { tr: 'Aynı isimli metodu alt sınıfta yeniden tanımla: def open(self): ...', en: 'Redefine the same-named method in the subclass: def open(self): ...' }, order: 3 },
+    { id: '4', text: { tr: 'Alt sınıftan bir nesne oluştur ve metodu çağır', en: 'Create an object of the subclass and call the method' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeModuleImportOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-module-import-01',
+  question: {
+    tr: 'Kendi yazdığın bir yardımcı fonksiyonu başka bir dosyada modül olarak kullanma adımlarını sırala.',
+    en: 'Arrange the steps for using a helper function you wrote, as a module in another file.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Yardımcı fonksiyonu helpers.py dosyasına yaz', en: 'Write the helper function into helpers.py' }, order: 1 },
+    { id: '2', text: { tr: 'Ana dosyada "import helpers" ile modülü içeri al', en: 'Import the module in the main file with "import helpers"' }, order: 2 },
+    { id: '3', text: { tr: 'Fonksiyonu modül adıyla çağır: helpers.my_function()', en: 'Call the function via the module name: helpers.my_function()' }, order: 3 },
+    { id: '4', text: { tr: 'Çıktıyı çalıştırıp doğrula', en: 'Run it and verify the output' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeRandomSeedOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-random-seed-01',
+  question: {
+    tr: 'Testlerde tekrarlanabilir (deterministik) rastgele veri üretme adımlarını sırala.',
+    en: 'Arrange the steps for generating repeatable (deterministic) random data in tests.',
+  },
+  items: [
+    { id: '1', text: { tr: 'random modülünü import et', en: 'Import the random module' }, order: 1 },
+    { id: '2', text: { tr: 'random.seed(42) ile sabit bir başlangıç değeri ver', en: 'Set a fixed starting value with random.seed(42)' }, order: 2 },
+    { id: '3', text: { tr: 'random.randint(1, 100) çağır ve sonucu sakla', en: 'Call random.randint(1, 100) and store the result' }, order: 3 },
+    { id: '4', text: { tr: 'Aynı seed ile tekrar çalıştırıp aynı sonucu doğrula', en: 'Run it again with the same seed and verify the same result' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeDecoratorOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-decorator-01',
+  question: {
+    tr: 'Bir fonksiyona decorator uygulama adımlarını sırala.',
+    en: 'Arrange the steps for applying a decorator to a function.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Decorator fonksiyonunu tanımla: def log_call(func): ...', en: 'Define the decorator function: def log_call(func): ...' }, order: 1 },
+    { id: '2', text: { tr: 'Hedef fonksiyonun üstüne "@log_call" satırını ekle', en: 'Add the "@log_call" line above the target function' }, order: 2 },
+    { id: '3', text: { tr: 'Fonksiyonu normal şekilde çağır: run_test()', en: 'Call the function normally: run_test()' }, order: 3 },
+    { id: '4', text: { tr: 'Decorator\'ın eklediği davranışı (loglama vb.) gözlemle', en: 'Observe the behavior the decorator added (e.g. logging)' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeVirtualenvWorkflowOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-virtualenv-workflow-01',
+  question: {
+    tr: 'Bir CI pipeline\'ında Python bağımlılıklarını kurup testleri çalıştırma adımlarını sırala.',
+    en: 'Arrange the steps for installing Python dependencies and running tests in a CI pipeline.',
+  },
+  items: [
+    { id: '1', text: { tr: 'requirements.txt dosyasındaki paket listesini oku', en: 'Read the package list in requirements.txt' }, order: 1 },
+    { id: '2', text: { tr: '"pip install -r requirements.txt" çalıştır', en: 'Run "pip install -r requirements.txt"' }, order: 2 },
+    { id: '3', text: { tr: '"pytest" ile testleri çalıştır', en: 'Run the tests with "pytest"' }, order: 3 },
+    { id: '4', text: { tr: 'Sonucu (pass/fail) CI raporuna yansıt', en: 'Reflect the result (pass/fail) in the CI report' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeTracebackReadOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-traceback-read-01',
+  question: {
+    tr: 'Bir Python Traceback hata mesajını okuma adımlarını doğru sırayla diz.',
+    en: 'Arrange the steps for reading a Python Traceback error message in the right order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'En ALTTAKİ satırdan hata tipini ve mesajını oku (örn. KeyError)', en: 'Read the error type and message from the BOTTOM line (e.g. KeyError)' }, order: 1 },
+    { id: '2', text: { tr: 'Hatanın hangi dosya ve satırda oluştuğunu bul', en: 'Find which file and line the error occurred on' }, order: 2 },
+    { id: '3', text: { tr: 'Çağrı zincirini (call stack) yukarı doğru takip et', en: 'Follow the call stack upward' }, order: 3 },
+    { id: '4', text: { tr: 'Hatayı tetikleyen kök nedeni belirle', en: 'Identify the root cause that triggered the error' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeJavaTryCatchToPythonOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-java-trycatch-01',
+  question: {
+    tr: 'Java\'daki bir try-catch-finally bloğunu Python\'a çevirme adımlarını sırala.',
+    en: 'Arrange the steps for translating a Java try-catch-finally block into Python.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Java\'daki try { ... } bloğunu bul', en: 'Find the Java try { ... } block' }, order: 1 },
+    { id: '2', text: { tr: 'Python\'da "try:" yaz ve aynı kodu altına yerleştir', en: 'Write "try:" in Python and place the same code under it' }, order: 2 },
+    { id: '3', text: { tr: 'Java\'daki "catch (Exception e)" yerine "except Exception as e:" yaz', en: 'Replace Java\'s "catch (Exception e)" with "except Exception as e:"' }, order: 3 },
+    { id: '4', text: { tr: 'Varsa Java\'daki finally { ... } bloğunu Python\'da "finally:" olarak ekle', en: 'If present, add Java\'s finally { ... } block as "finally:" in Python' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+// --- BATCH 5: a THIRD drag-and-drop (order-sort) challenge for every tab
+// (the 16 tabs from BATCH 4 get a 3rd; the 5 tabs that already had other
+// challenge variants — Operators, Files & JSON, Exceptions & RegEx,
+// Real World/pytest, Practice Exercises — only had ONE order-sort each, so
+// they get TWO more here to reach 3 too). Same safe append-only pattern as
+// BATCH 4: appended at the END of each tab's array, shared sections[n].blocks
+// arrays untouched. ---
+const challengeVariableAssignUseOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-variable-assign-use-01',
+  question: {
+    tr: 'Bir değişken tanımlayıp bir ifadede kullanma adımlarını sırala.',
+    en: 'Arrange the steps for defining a variable and using it in an expression.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Bir değişken adı seç (örn. retry_count)', en: 'Pick a variable name (e.g. retry_count)' }, order: 1 },
+    { id: '2', text: { tr: '"=" ile bir değer ata: retry_count = 3', en: 'Assign a value with "=": retry_count = 3' }, order: 2 },
+    { id: '3', text: { tr: 'Değişkeni bir ifadede kullan: retry_count + 1', en: 'Use the variable in an expression: retry_count + 1' }, order: 3 },
+    { id: '4', text: { tr: 'Sonucu print() ile ekrana yazdır', en: 'Print the result with print()' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeRequirementsTxtOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-requirements-txt-01',
+  question: {
+    tr: 'Bir projenin bağımlılıklarını requirements.txt ile paylaşma adımlarını sırala.',
+    en: 'Arrange the steps for sharing a project\'s dependencies with requirements.txt.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Kurulu paketleri görmek için "pip freeze" çalıştır', en: 'Run "pip freeze" to see the installed packages' }, order: 1 },
+    { id: '2', text: { tr: 'Çıktıyı bir dosyaya yönlendir: pip freeze > requirements.txt', en: 'Redirect the output to a file: pip freeze > requirements.txt' }, order: 2 },
+    { id: '3', text: { tr: 'requirements.txt dosyasını başka bir makineye/CI\'a taşı', en: 'Move requirements.txt to another machine/CI' }, order: 3 },
+    { id: '4', text: { tr: '"pip install -r requirements.txt" ile aynı paketleri kur', en: 'Install the same packages with "pip install -r requirements.txt"' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeCommentToggleOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-comment-toggle-01',
+  question: {
+    tr: 'Bir kod satırını yorum satırı yaparak geçici olarak devre dışı bırakma adımlarını sırala.',
+    en: 'Arrange the steps for temporarily disabling a line of code by commenting it out.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Devre dışı bırakılacak satırı bul', en: 'Find the line to disable' }, order: 1 },
+    { id: '2', text: { tr: 'Satırın başına "#" ekle', en: 'Add "#" at the start of the line' }, order: 2 },
+    { id: '3', text: { tr: 'Kodu çalıştır, satırın atlandığını gözlemle', en: 'Run the code and observe that the line is skipped' }, order: 3 },
+    { id: '4', text: { tr: 'İş bitince "#" işaretini kaldırıp satırı geri etkinleştir', en: 'Remove the "#" afterward to re-enable the line' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeStringToIntMathOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-string-to-int-math-01',
+  question: {
+    tr: 'Bir string olarak gelen sayıyı çevirip matematiksel işlem yapma adımlarını sırala.',
+    en: 'Arrange the steps for converting a numeric string and doing math with it.',
+  },
+  items: [
+    { id: '1', text: { tr: 'String bir sayı tanımla: count = "42"', en: 'Define a numeric string: count = "42"' }, order: 1 },
+    { id: '2', text: { tr: 'int() ile sayıya çevir: int(count)', en: 'Convert it to a number with int(): int(count)' }, order: 2 },
+    { id: '3', text: { tr: 'Sayısal işlemi yap: int(count) + 1', en: 'Do the math: int(count) + 1' }, order: 3 },
+    { id: '4', text: { tr: 'Sonucu bir değişkende sakla ve yazdır', en: 'Store the result in a variable and print it' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeSplitJoinOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-split-join-01',
+  question: {
+    tr: 'Virgülle ayrılmış bir string\'i parçalara ayırıp tekrar birleştirme adımlarını sırala.',
+    en: 'Arrange the steps for splitting a comma-separated string and joining it back together.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Virgüllü string\'i tanımla: ids = "TC-1,TC-2,TC-3"', en: 'Define the comma-separated string: ids = "TC-1,TC-2,TC-3"' }, order: 1 },
+    { id: '2', text: { tr: 'split(",") ile parçalara ayır', en: 'Split it with split(",")' }, order: 2 },
+    { id: '3', text: { tr: 'Sonucu bir liste olarak sakla', en: 'Store the result as a list' }, order: 3 },
+    { id: '4', text: { tr: '" | ".join(liste) ile farklı bir ayraçla yeniden birleştir', en: 'Rejoin it with a different separator using " | ".join(list)' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeChainedComparisonOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-chained-comparison-01',
+  question: {
+    tr: '"1 < x < 10" gibi zincirli bir karşılaştırmanın değerlendirilme adımlarını sırala.',
+    en: 'Arrange the evaluation steps for a chained comparison like "1 < x < 10".',
+  },
+  items: [
+    { id: '1', text: { tr: 'En soldaki karşılaştırma değerlendirilir: 1 < x', en: 'The leftmost comparison is evaluated: 1 < x' }, order: 1 },
+    { id: '2', text: { tr: 'Sonuç "and" ile bir sonraki karşılaştırmaya bağlanır', en: 'The result is linked with "and" to the next comparison' }, order: 2 },
+    { id: '3', text: { tr: 'Sağdaki karşılaştırma değerlendirilir: x < 10', en: 'The right comparison is evaluated: x < 10' }, order: 3 },
+    { id: '4', text: { tr: 'İki sonuç birleşip nihai True/False değeri ortaya çıkar', en: 'Both results combine into the final True/False value' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengePlusEqualsOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-plus-equals-01',
+  question: {
+    tr: '"counter += 1" ifadesinin arka planda çalışma adımlarını sırala.',
+    en: 'Arrange the behind-the-scenes steps of "counter += 1".',
+  },
+  items: [
+    { id: '1', text: { tr: 'counter\'ın MEVCUT değeri okunur', en: 'The CURRENT value of counter is read' }, order: 1 },
+    { id: '2', text: { tr: 'Okunan değere 1 eklenir', en: '1 is added to the value that was read' }, order: 2 },
+    { id: '3', text: { tr: 'Sonuç tekrar counter değişkenine atanır', en: 'The result is assigned back to counter' }, order: 3 },
+    { id: '4', text: { tr: 'Güncellenmiş counter bir sonraki satırda kullanılabilir', en: 'The updated counter is available on the next line' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeTupleUnpackOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-tuple-unpack-01',
+  question: {
+    tr: 'Bir tuple\'ı iki değişkene unpack etme adımlarını sırala.',
+    en: 'Arrange the steps for unpacking a tuple into two variables.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Bir tuple tanımla: point = (4, 7)', en: 'Define a tuple: point = (4, 7)' }, order: 1 },
+    { id: '2', text: { tr: 'Sol tarafa, tuple ile aynı sayıda değişken yaz: x, y =', en: 'Write the same number of variables on the left: x, y =' }, order: 2 },
+    { id: '3', text: { tr: 'Python her elemanı sırayla ilgili değişkene atar', en: 'Python assigns each element to the matching variable in order' }, order: 3 },
+    { id: '4', text: { tr: 'x ve y\'yi artık ayrı ayrı kullanabilirsin', en: 'You can now use x and y separately' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeDictItemsLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-dict-items-loop-01',
+  question: {
+    tr: 'Bir dict üzerinde for döngüsüyle key-value çiftlerini gezme adımlarını sırala.',
+    en: 'Arrange the steps for looping over a dict\'s key-value pairs with for.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Bir dict tanımla: config = {"timeout": 30, "retries": 3}', en: 'Define a dict: config = {"timeout": 30, "retries": 3}' }, order: 1 },
+    { id: '2', text: { tr: '"for key, value in config.items():" yaz', en: 'Write "for key, value in config.items():"' }, order: 2 },
+    { id: '3', text: { tr: 'Döngü her key-value çifti için bir kez çalışır', en: 'The loop runs once per key-value pair' }, order: 3 },
+    { id: '4', text: { tr: 'key ve value\'yu döngü gövdesinde kullan', en: 'Use key and value inside the loop body' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeBreakLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-break-loop-01',
+  question: {
+    tr: 'Bir döngüde "break" ile hedef bulununca çıkma adımlarını sırala.',
+    en: 'Arrange the steps for exiting a loop early with "break" once a target is found.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Döngüyü başlat: for test_id in test_ids:', en: 'Start the loop: for test_id in test_ids:' }, order: 1 },
+    { id: '2', text: { tr: 'Her elemanı hedefle karşılaştır: if test_id == target:', en: 'Compare each element to the target: if test_id == target:' }, order: 2 },
+    { id: '3', text: { tr: 'Eşleşme bulununca "break" çalıştır', en: 'Run "break" once a match is found' }, order: 3 },
+    { id: '4', text: { tr: 'Döngüden hemen çıkılır, kalan elemanlar kontrol edilmez', en: 'The loop exits immediately, remaining elements are not checked' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeMultiReturnUnpackOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-multi-return-unpack-01',
+  question: {
+    tr: 'Bir fonksiyondan birden fazla değer döndürüp kullanma adımlarını sırala.',
+    en: 'Arrange the steps for returning multiple values from a function and using them.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Fonksiyon içinde "return passed, failed" yaz', en: 'Inside the function, write "return passed, failed"' }, order: 1 },
+    { id: '2', text: { tr: 'Python bu iki değeri otomatik olarak bir tuple yapar', en: 'Python automatically packs these two values into a tuple' }, order: 2 },
+    { id: '3', text: { tr: 'Çağrıda "p, f = get_results()" ile unpack et', en: 'Unpack it at the call site: "p, f = get_results()"' }, order: 3 },
+    { id: '4', text: { tr: 'p ve f değişkenlerini ayrı ayrı kullan', en: 'Use the p and f variables separately' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeInstanceMethodCallOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-instance-method-call-01',
+  question: {
+    tr: 'Bir nesnenin metodunu çağırma adımlarını sırala.',
+    en: 'Arrange the steps for calling a method on an object.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Sınıftan bir nesne oluştur: runner = TestRunner()', en: 'Create an object from the class: runner = TestRunner()' }, order: 1 },
+    { id: '2', text: { tr: 'Nesne üzerinden metodu çağır: runner.run()', en: 'Call the method on the object: runner.run()' }, order: 2 },
+    { id: '3', text: { tr: 'Python "runner" nesnesini otomatik olarak self parametresine geçirir', en: 'Python automatically passes the "runner" object as the self parameter' }, order: 3 },
+    { id: '4', text: { tr: 'Metod çalışır ve sonucunu döner', en: 'The method runs and returns its result' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengePackageImportOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-package-import-01',
+  question: {
+    tr: 'Kendi yazdığın bir paket (package) içindeki modülü import etme adımlarını sırala.',
+    en: 'Arrange the steps for importing a module from a package you wrote.',
+  },
+  items: [
+    { id: '1', text: { tr: '__init__.py içeren bir klasör (paket) oluştur: utils/', en: 'Create a folder (package) with __init__.py: utils/' }, order: 1 },
+    { id: '2', text: { tr: 'Paket içine bir .py dosyası ekle: utils/helpers.py', en: 'Add a .py file inside the package: utils/helpers.py' }, order: 2 },
+    { id: '3', text: { tr: '"from utils import helpers" ile modülü import et', en: 'Import the module with "from utils import helpers"' }, order: 3 },
+    { id: '4', text: { tr: 'helpers.my_function() ile modüldeki fonksiyonu çağır', en: 'Call the module\'s function with helpers.my_function()' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeOsEnvironOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-os-environ-01',
+  question: {
+    tr: 'os modülüyle bir ortam değişkenini güvenle okuma adımlarını sırala.',
+    en: 'Arrange the steps for safely reading an environment variable with the os module.',
+  },
+  items: [
+    { id: '1', text: { tr: 'os modülünü import et', en: 'Import the os module' }, order: 1 },
+    { id: '2', text: { tr: 'os.environ.get("BASE_URL") çağır', en: 'Call os.environ.get("BASE_URL")' }, order: 2 },
+    { id: '3', text: { tr: 'Sonucu bir değişkende sakla', en: 'Store the result in a variable' }, order: 3 },
+    { id: '4', text: { tr: 'Değer tanımlı değilse .get()\'in ikinci argümanıyla varsayılan bir değer kullan', en: 'If undefined, use a default value via .get()\'s second argument' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeJsonLoadOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-json-load-01',
+  question: {
+    tr: 'Bir JSON dosyasını okuyup Python dict\'ine çevirme adımlarını sırala.',
+    en: 'Arrange the steps for reading a JSON file into a Python dict.',
+  },
+  items: [
+    { id: '1', text: { tr: 'json modülünü import et', en: 'Import the json module' }, order: 1 },
+    { id: '2', text: { tr: 'Dosyayı "with open(\\"config.json\\") as f:" ile aç', en: 'Open the file with "with open(\\"config.json\\") as f:"' }, order: 2 },
+    { id: '3', text: { tr: 'json.load(f) çağır', en: 'Call json.load(f)' }, order: 3 },
+    { id: '4', text: { tr: 'Dönen dict\'i normal bir Python dict gibi kullan', en: 'Use the returned value like a normal Python dict' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeJsonDumpOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-json-dump-01',
+  question: {
+    tr: 'Bir test sonucunu JSON dosyasına yazma adımlarını sırala.',
+    en: 'Arrange the steps for writing a test result to a JSON file.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Sonucu bir dict olarak hazırla: result = {"status": "PASS"}', en: 'Prepare the result as a dict: result = {"status": "PASS"}' }, order: 1 },
+    { id: '2', text: { tr: 'Dosyayı yazma modunda aç: with open("result.json", "w") as f:', en: 'Open the file in write mode: with open("result.json", "w") as f:' }, order: 2 },
+    { id: '3', text: { tr: 'json.dump(result, f) çağır', en: 'Call json.dump(result, f)' }, order: 3 },
+    { id: '4', text: { tr: 'with bloğu bitince Python dosyayı otomatik kapatır', en: 'Python automatically closes the file when the with block ends' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeMultiExceptOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-multi-except-01',
+  question: {
+    tr: 'Birden fazla exception tipini ayrı ayrı yakalama adımlarını sırala.',
+    en: 'Arrange the steps for catching multiple exception types separately.',
+  },
+  items: [
+    { id: '1', text: { tr: '"try:" bloğunu yaz, riskli kodu içine koy', en: 'Write "try:" and put the risky code inside it' }, order: 1 },
+    { id: '2', text: { tr: '"except ValueError:" ekle, o hatayı ele al', en: 'Add "except ValueError:" to handle that error' }, order: 2 },
+    { id: '3', text: { tr: '"except TypeError:" ekle, farklı bir hatayı ele al', en: 'Add "except TypeError:" to handle a different error' }, order: 3 },
+    { id: '4', text: { tr: 'Hangi hata oluşursa ona uyan except bloğu çalışır', en: 'Whichever error occurs, the matching except block runs' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeRegexFindallOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-regex-findall-01',
+  question: {
+    tr: 're.findall() ile bir metindeki TÜM eşleşmeleri bulma adımlarını sırala.',
+    en: 'Arrange the steps for finding ALL matches in text with re.findall().',
+  },
+  items: [
+    { id: '1', text: { tr: 're modülünü import et ve bir pattern tanımla', en: 'Import the re module and define a pattern' }, order: 1 },
+    { id: '2', text: { tr: 're.findall(pattern, text) çağır', en: 'Call re.findall(pattern, text)' }, order: 2 },
+    { id: '3', text: { tr: 'Sonuç, bulunan TÜM eşleşmelerin bir listesi olarak döner', en: 'The result is a list of ALL matches found' }, order: 3 },
+    { id: '4', text: { tr: 'Listeyi "for match in matches:" ile gez', en: 'Loop over the list with "for match in matches:"' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeContextManagerOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-context-manager-01',
+  question: {
+    tr: 'Bir dosyayı "with" ile (context manager) açıp kullanma adımlarını sırala.',
+    en: 'Arrange the steps for opening and using a file with "with" (a context manager).',
+  },
+  items: [
+    { id: '1', text: { tr: '"with open(\\"data.txt\\") as f:" yaz', en: 'Write "with open(\\"data.txt\\") as f:"' }, order: 1 },
+    { id: '2', text: { tr: 'Blok içinde dosyayı oku/işle: f.read()', en: 'Read/process the file inside the block: f.read()' }, order: 2 },
+    { id: '3', text: { tr: 'with bloğu biter', en: 'The with block ends' }, order: 3 },
+    { id: '4', text: { tr: 'Python dosyayı otomatik kapatır, close() çağırmaya gerek kalmaz', en: 'Python closes the file automatically — no need to call close()' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengePytestFixtureOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-pytest-fixture-01',
+  question: {
+    tr: 'Bir pytest fixture\'ı tanımlayıp bir testte kullanma adımlarını sırala.',
+    en: 'Arrange the steps for defining a pytest fixture and using it in a test.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Fonksiyonun üstüne "@pytest.fixture" ekle', en: 'Add "@pytest.fixture" above the function' }, order: 1 },
+    { id: '2', text: { tr: 'Fixture fonksiyonunu yaz, bir test verisi döndür', en: 'Write the fixture function, returning test data' }, order: 2 },
+    { id: '3', text: { tr: 'Test fonksiyonuna fixture\'ın adını parametre olarak ver', en: 'Pass the fixture\'s name as a parameter to the test function' }, order: 3 },
+    { id: '4', text: { tr: 'pytest fixture\'ı otomatik çalıştırıp sonucu enjekte eder', en: 'pytest automatically runs the fixture and injects the result' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengePytestRunOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-pytest-run-01',
+  question: {
+    tr: 'Bir testin pytest ile yazılıp çalıştırılma adımlarını sırala.',
+    en: 'Arrange the steps for writing and running a test with pytest.',
+  },
+  items: [
+    { id: '1', text: { tr: '"test_" ile başlayan bir fonksiyon yaz', en: 'Write a function whose name starts with "test_"' }, order: 1 },
+    { id: '2', text: { tr: 'Fonksiyon içine bir veya daha fazla assert satırı ekle', en: 'Add one or more assert lines inside the function' }, order: 2 },
+    { id: '3', text: { tr: 'Terminalde "pytest" komutunu çalıştır', en: 'Run the "pytest" command in the terminal' }, order: 3 },
+    { id: '4', text: { tr: 'pytest test_ ile başlayan fonksiyonları bulur, çalıştırır ve PASS/FAIL raporlar', en: 'pytest finds functions starting with test_, runs them, and reports PASS/FAIL' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengePyPiVersionCheckOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-pypi-version-check-01',
+  question: {
+    tr: 'PyPI\'dan bir paket kurup sürümünü kontrol etme adımlarını sırala.',
+    en: 'Arrange the steps for installing a package from PyPI and checking its version.',
+  },
+  items: [
+    { id: '1', text: { tr: '"pip install <paket>" çalıştır', en: 'Run "pip install <package>"' }, order: 1 },
+    { id: '2', text: { tr: '"pip show <paket>" ile kurulu sürümü gör', en: 'See the installed version with "pip show <package>"' }, order: 2 },
+    { id: '3', text: { tr: 'Kodda "import <paket>" yap', en: 'Do "import <package>" in code' }, order: 3 },
+    { id: '4', text: { tr: '<paket>.__version__ ile sürümü kod içinden de doğrula', en: 'Verify the version from code too, with <package>.__version__' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeFlakyInvestigateOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-flaky-investigate-01',
+  question: {
+    tr: 'Bir testin neden flaky (kararsız) olduğunu araştırma adımlarını sırala.',
+    en: 'Arrange the steps for investigating why a test is flaky.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Testi birkaç kez arka arkaya çalıştır', en: 'Run the test several times in a row' }, order: 1 },
+    { id: '2', text: { tr: 'Hep aynı noktada mı başarısız olduğunu kontrol et', en: 'Check whether it always fails at the same point' }, order: 2 },
+    { id: '3', text: { tr: 'Zamanlama/bekleme (timing) sorunu olup olmadığını incele', en: 'Investigate whether it\'s a timing/wait issue' }, order: 3 },
+    { id: '4', text: { tr: 'Sabit sleep() yerine explicit wait kullanmayı dene', en: 'Try using an explicit wait instead of a fixed sleep()' }, order: 4 },
+  ],
+  xpReward: 20,
+}
+
+const challengeJavaForRangeToPythonOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-java-for-range-01',
+  question: {
+    tr: 'Java\'daki "for (int i=0; i<n; i++)" döngüsünü Python\'a çevirme adımlarını sırala.',
+    en: 'Arrange the steps for translating Java\'s "for (int i=0; i<n; i++)" loop into Python.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Java\'daki başlangıç ve bitiş değerlerini belirle (0\'dan n\'e)', en: 'Identify Java\'s start and end values (0 to n)' }, order: 1 },
+    { id: '2', text: { tr: 'Python\'da aynı aralık için range(n) kullan', en: 'Use range(n) in Python for the same range' }, order: 2 },
+    { id: '3', text: { tr: '"for i in range(n):" satırını yaz', en: 'Write the line "for i in range(n):"' }, order: 3 },
+    { id: '4', text: { tr: 'Java\'daki {} blok yerine girinti kullan', en: 'Use indentation instead of Java\'s {} block' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeTestHelperFunctionOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-test-helper-function-01',
+  question: {
+    tr: 'Tekrar eden test verisini bir yardımcı fonksiyona taşıma adımlarını sırala.',
+    en: 'Arrange the steps for moving repeated test data into a helper function.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Birden fazla testte tekrar eden veriyi/kodu fark et', en: 'Notice the data/code that repeats across multiple tests' }, order: 1 },
+    { id: '2', text: { tr: 'O kodu parametreli bir fonksiyona taşı', en: 'Move that code into a parameterized function' }, order: 2 },
+    { id: '3', text: { tr: 'Her testte fonksiyonu farklı argümanlarla çağır', en: 'Call the function with different arguments in each test' }, order: 3 },
+    { id: '4', text: { tr: 'Kod tekrarı azalır, testler daha okunaklı olur', en: 'Code duplication drops and the tests become more readable' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeBugReportWriteOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-bug-report-write-01',
+  question: {
+    tr: 'Bir bug raporu yazarken izlenecek adımları sırala.',
+    en: 'Arrange the steps for writing a bug report.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Kısa, açık bir başlık yaz', en: 'Write a short, clear title' }, order: 1 },
+    { id: '2', text: { tr: 'Hatanın nasıl tekrar edileceğini adım adım yaz', en: 'Write step-by-step how to reproduce the bug' }, order: 2 },
+    { id: '3', text: { tr: 'Beklenen ve gerçek sonucu ayrı ayrı belirt', en: 'State the expected and actual results separately' }, order: 3 },
+    { id: '4', text: { tr: 'Önem derecesini (severity) ekle', en: 'Add the severity level' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
 // --- FINAL SECTION MAPPING ---
 const finalEnSections = [
-  { ...sections[0], blocks: [...sections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro')] },
-  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
-  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
-  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
-  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
-  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
-  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
-  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
-  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
-  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
-  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
-  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
-  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
-  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
-  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
-  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
-  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  { ...sections[0], blocks: [...sections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
+  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
+  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
+  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
+  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
+  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
+  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
+  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
+  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
     title: '🐞 Manual Testing Lab',
     blocks: [
@@ -7837,8 +8666,8 @@ const finalEnSections = [
         type: 'simple-box',
         emoji: '🐞',
         content: {
-          tr: 'Bu bölüm, kodla ilgisi olmayan ama her QA mühendisinin yapması gereken bir işi öğretiyor: bir uygulamayı elle test edip bulduğun sorunu, başka birinin (geliştiricinin) anlayıp tekrar üretebileceği şekilde yazıya dökmek.',
-          en: 'This section teaches something that has nothing to do with code, yet every QA engineer must do it: manually testing an app and writing up what you found so someone else (a developer) can understand and reproduce it.',
+          tr: `Bir bug report, bir polis tutanağı gibi — "bir şey ters gitti" demek YETMEZ, BAŞKA BİRİNİN (geliştiricinin) senin görmediğin ekrandan, sadece yazdıklarınla aynı hatayı YENİDEN ÜRETEBİLMESİ gerekir. Şimdi gerçek soru: neden "Giriş çalışmıyor" gibi bir başlık YETERSİZ ama "Boş şifreyle giriş denendiğinde 'Geçersiz email' hatası gösteriliyor" yeterli? Çünkü ilki bir HİS, ikincisi bir TEKRAR ÜRETME TARİFİDİR — adımlar, beklenen sonuç, gerçek sonuç içerir. Bu, kod yazmaktan tamamen farklı bir beceri ister: BELİRSİZLİĞİ ortadan kaldırma disiplini. Bir geliştirici senin raporunu okuyup ekranını AÇMADAN bile "ah, anladım, sorun şu" diyebiliyorsa, o rapor işini yapmıştır.`,
+          en: `A bug report is like a police report — saying "something went wrong" is NOT enough; ANOTHER PERSON (a developer), looking at a screen you can't see, must be able to REPRODUCE the exact same failure using only what you wrote. Here's the real question: why is a title like "Login doesn't work" insufficient, but "Attempting login with an empty password shows 'Invalid email' instead" is enough? Because the first is a FEELING, the second is a REPRODUCTION RECIPE — it has steps, an expected result, and an actual result. This demands a completely different skill from writing code: the discipline of eliminating AMBIGUITY. If a developer can read your report and say "ah, I see the problem" without even opening the screen themselves, that report has done its job.`,
         },
       },
       { type: 'heading', text: { tr: 'Manual Testing Lab — Bug Avı', en: 'Manual Testing Lab — Bug Hunt' } },
@@ -7856,27 +8685,27 @@ const finalEnSections = [
 ];
 
 const finalTrSections = [
-  { ...trSections[0], blocks: [...trSections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro')] },
-  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
-  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
-  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
-  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
-  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
-  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
-  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
-  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
-  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
-  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
-  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
-  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
-  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
-  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
-  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
-  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  { ...trSections[0], blocks: [...trSections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
+  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
+  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
+  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
+  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
+  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
+  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
+  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
+  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
     title: '🐞 Manuel Test Lab',
     blocks: [
@@ -7884,8 +8713,8 @@ const finalTrSections = [
         type: 'simple-box',
         emoji: '🐞',
         content: {
-          tr: 'Bu bölüm, kodla ilgisi olmayan ama her QA mühendisinin yapması gereken bir işi öğretiyor: bir uygulamayı elle test edip bulduğun sorunu, başka birinin (geliştiricinin) anlayıp tekrar üretebileceği şekilde yazıya dökmek.',
-          en: 'This section teaches something that has nothing to do with code, yet every QA engineer must do it: manually testing an app and writing up what you found so someone else (a developer) can understand and reproduce it.',
+          tr: `Bir bug report, bir polis tutanağı gibi — "bir şey ters gitti" demek YETMEZ, BAŞKA BİRİNİN (geliştiricinin) senin görmediğin ekrandan, sadece yazdıklarınla aynı hatayı YENİDEN ÜRETEBİLMESİ gerekir. Şimdi gerçek soru: neden "Giriş çalışmıyor" gibi bir başlık YETERSİZ ama "Boş şifreyle giriş denendiğinde 'Geçersiz email' hatası gösteriliyor" yeterli? Çünkü ilki bir HİS, ikincisi bir TEKRAR ÜRETME TARİFİDİR — adımlar, beklenen sonuç, gerçek sonuç içerir. Bu, kod yazmaktan tamamen farklı bir beceri ister: BELİRSİZLİĞİ ortadan kaldırma disiplini. Bir geliştirici senin raporunu okuyup ekranını AÇMADAN bile "ah, anladım, sorun şu" diyebiliyorsa, o rapor işini yapmıştır.`,
+          en: `A bug report is like a police report — saying "something went wrong" is NOT enough; ANOTHER PERSON (a developer), looking at a screen you can't see, must be able to REPRODUCE the exact same failure using only what you wrote. Here's the real question: why is a title like "Login doesn't work" insufficient, but "Attempting login with an empty password shows 'Invalid email' instead" is enough? Because the first is a FEELING, the second is a REPRODUCTION RECIPE — it has steps, an expected result, and an actual result. This demands a completely different skill from writing code: the discipline of eliminating AMBIGUITY. If a developer can read your report and say "ah, I see the problem" without even opening the screen themselves, that report has done its job.`,
         },
       },
       { type: 'heading', text: { tr: 'Manual Testing Lab — Bug Avı', en: 'Manual Testing Lab — Bug Hunt' } },
