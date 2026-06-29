@@ -5,14 +5,14 @@
 // gets mapped (via toPlaygroundBlock) into the block shape that already exists.
 //
 // `topic` matches a tab slug used in pythonData.js to splice items into the
-// right tab. Title is English-only by design; description/hints stay
-// bilingual per this project's i18n rule (CLAUDE.md §7-8).
+// right tab. title/description/hints are all bilingual {tr, en} per this
+// project's i18n rule (CLAUDE.md §7-8).
 
 export const pythonPlaygroundItems = [
   // --- intro ---
   {
     id: 'py-intro-01',
-    title: 'Why Python Reads Almost Like English',
+    title: { tr: 'Python Neden Neredeyse İngilizce Gibi Okunur', en: 'Why Python Reads Almost Like English' },
     description: {
       tr: 'Bu fonksiyon bir test ortamının hazır olup olmadığını kontrol ediyor. Aşağıdaki test neden fail ediyor?',
       en: 'This function checks if a test environment is ready. Why does the test below fail?',
@@ -40,7 +40,7 @@ print(check_environment("UP", "DOWN"))`,
   },
   {
     id: 'py-intro-02',
-    title: 'Boilerplate-Free Functions',
+    title: { tr: 'Gereksiz Kalıp Kod Olmadan Fonksiyonlar', en: 'Boilerplate-Free Functions' },
     description: {
       tr: 'Python fonksiyonları Java\'daki gibi tip bildirimi istemez, ama parametre SIRASI hâlâ önemlidir. Aşağıdaki test neden fail ediyor?',
       en: "Python functions don't need type declarations like Java, but parameter ORDER still matters. Why does the test below fail?",
@@ -66,7 +66,7 @@ print(format_test_id("TC", 7))`,
   // --- installation ---
   {
     id: 'py-installation-01',
-    title: 'Checking Your Python Version Programmatically',
+    title: { tr: 'Python Sürümünü Kod İçinden Kontrol Etmek', en: 'Checking Your Python Version Programmatically' },
     description: {
       tr: 'CI pipeline\'ında Python sürümünü kod içinden kontrol etmek isteyebilirsin. Aşağıdaki test neden fail ediyor?',
       en: 'You may want to check the Python version from inside your code in a CI pipeline. Why does the test below fail?',
@@ -86,7 +86,7 @@ print(sys.version_info.major)`,
   },
   {
     id: 'py-installation-02',
-    title: 'Verifying pip Installed a Compatible Package',
+    title: { tr: "pip'in Uyumlu Bir Paket Kurduğunu Doğrulamak", en: 'Verifying pip Installed a Compatible Package' },
     description: {
       tr: 'Bir paketin sürümünü string olarak okuyup sayılarla karşılaştırmak yaygın bir hatadır. Aşağıdaki test neden fail ediyor?',
       en: "Reading a package version as a string and comparing it to a number is a common mistake. Why does the test below fail?",
@@ -114,7 +114,7 @@ else:
   // --- syntax-comments (existing tab, extra item) ---
   {
     id: 'py-syntax-02',
-    title: 'An Unterminated Docstring Breaks Everything Below It',
+    title: { tr: 'Kapatılmamış Bir Docstring Altındaki Her Şeyi Bozar', en: 'An Unterminated Docstring Breaks Everything Below It' },
     description: {
       tr: 'Üçlü tırnaklı bir docstring\'i kapatmayı unutmak, altındaki her şeyi bozar. Aşağıdaki test neden fail ediyor?',
       en: 'Forgetting to close a triple-quoted docstring breaks everything below it. Why does the test below fail?',
@@ -142,7 +142,7 @@ print(describe_test())`,
   // --- variables-types (existing tab, extra item) ---
   {
     id: 'py-variables-02',
-    title: 'Converting User Input Safely',
+    title: { tr: 'Kullanıcı Girdisini Güvenle Sayıya Çevirmek', en: 'Converting User Input Safely' },
     description: {
       tr: 'int() bir ondalıklı string\'i doğrudan çeviremez. Aşağıdaki test neden fail ediyor?',
       en: 'int() cannot directly convert a decimal string. Why does the test below fail?',
@@ -166,7 +166,7 @@ print(f"Retrying {retry_count} times")`,
   // --- strings-booleans ---
   {
     id: 'py-strings-01',
-    title: 'Slicing a Test Case ID',
+    title: { tr: "Bir Test Case ID'sini Slice'lamak", en: 'Slicing a Test Case ID' },
     description: {
       tr: 'String slicing\'de bitiş indeksi dahil edilmez. Aşağıdaki test neden fail ediyor?',
       en: 'The stop index in string slicing is exclusive. Why does the test below fail?',
@@ -188,7 +188,7 @@ print(numeric_part)`,
   },
   {
     id: 'py-strings-02',
-    title: 'Case-Insensitive Status Check',
+    title: { tr: 'Büyük/Küçük Harf Duyarsız Status Kontrolü', en: 'Case-Insensitive Status Check' },
     description: {
       tr: 'String karşılaştırması büyük/küçük harfe duyarlıdır. Aşağıdaki test neden fail ediyor?',
       en: 'String comparison is case-sensitive. Why does the test below fail?',
@@ -216,7 +216,7 @@ else:
   // --- operators ---
   {
     id: 'py-operators-01',
-    title: "Adding Two 'Numbers' From a Form",
+    title: { tr: "Bir Formdan Gelen İki 'Sayıyı' Toplamak", en: "Adding Two 'Numbers' From a Form" },
     description: {
       tr: 'Bir formdan gelen değer çoğu zaman string\'tir, sayı değil. Aşağıdaki test neden fail ediyor?',
       en: "A value coming from a form is usually a string, not a number. Why does the test below fail?",
@@ -238,7 +238,7 @@ print(int(retry_count) + max_retries)`,
   },
   {
     id: 'py-operators-02',
-    title: 'Checking if Retries Are Exhausted',
+    title: { tr: 'Deneme Hakkının Tükenip Tükenmediğini Kontrol Etmek', en: 'Checking if Retries Are Exhausted' },
     description: {
       tr: 'Sınır (boundary) değerlerde ">" ile ">=" farkı kritik olabilir. Aşağıdaki test neden fail ediyor?',
       en: 'The difference between ">" and ">=" matters at boundary values. Why does the test below fail?',
@@ -268,7 +268,7 @@ else:
   // --- lists-tuples ---
   {
     id: 'py-lists-01',
-    title: 'Getting the Last 3 Test Results',
+    title: { tr: 'Son 3 Test Sonucunu Almak', en: 'Getting the Last 3 Test Results' },
     description: {
       tr: 'Negatif slicing\'de off-by-one hatası çok yaygındır. Aşağıdaki test neden fail ediyor?',
       en: 'Off-by-one mistakes are very common with negative slicing. Why does the test below fail?',
@@ -290,7 +290,7 @@ print(last_three)`,
   },
   {
     id: 'py-lists-02',
-    title: 'Sorting Test Durations, Slowest First',
+    title: { tr: 'Test Sürelerini En Yavaştan Başlayarak Sıralamak', en: 'Sorting Test Durations, Slowest First' },
     description: {
       tr: 'sort() metodunun "reverse" argümanı yanlış verilirse sıralama tersine döner. Aşağıdaki test neden fail ediyor?',
       en: "Passing the wrong value to sort()'s reverse argument flips the order. Why does the test below fail?",
@@ -314,7 +314,7 @@ print(durations[0])`,
   // --- sets-dicts ---
   {
     id: 'py-sets-01',
-    title: 'Removing Duplicate Bug IDs',
+    title: { tr: "Tekrarlanan Bug ID'lerini Kaldırmak", en: 'Removing Duplicate Bug IDs' },
     description: {
       tr: 'list() bir listeyi sadece kopyalar, tekrarları silmez. Aşağıdaki test neden fail ediyor?',
       en: "list() only copies a list — it doesn't remove duplicates. Why does the test below fail?",
@@ -336,7 +336,7 @@ print(len(unique_ids))`,
   },
   {
     id: 'py-sets-02',
-    title: 'Safe Dictionary Lookup',
+    title: { tr: 'Güvenli Sözlük (dict) Erişimi', en: 'Safe Dictionary Lookup' },
     description: {
       tr: 'Olmayan bir dict key\'ine doğrudan erişmek KeyError fırlatır. Aşağıdaki test neden fail ediyor?',
       en: "Directly accessing a missing dict key raises a KeyError. Why does the test below fail?",
@@ -360,7 +360,7 @@ print(headless_mode)`,
   // --- conditions-loops (existing tab, extra item) ---
   {
     id: 'py-loops-02',
-    title: 'A Retry Loop That Forgets an Import',
+    title: { tr: 'Bir Import Satırını Unutan Retry Döngüsü', en: 'A Retry Loop That Forgets an Import' },
     description: {
       tr: 'Bir fonksiyonu kullanmak için önce onu import etmen gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'You must import a function before you can use it. Why does the test below fail?',
@@ -393,7 +393,7 @@ print(wait_for_condition(3))`,
   // --- functions-lambda (existing tab, extra item) ---
   {
     id: 'py-functions-02',
-    title: 'Reusing an Exhausted Generator',
+    title: { tr: "Tükenmiş Bir Generator'ı Yeniden Kullanmak", en: 'Reusing an Exhausted Generator' },
     description: {
       tr: 'Bir generator sadece BİR KEZ baştan sona dolaşılabilir. Aşağıdaki test neden fail ediyor?',
       en: 'A generator can only be iterated ONCE from start to finish. Why does the test below fail?',
@@ -426,7 +426,7 @@ print(second_pass)`,
   // --- classes-oop (existing tab, extra item) ---
   {
     id: 'py-classes-02',
-    title: 'A Constructor That Needs Two Arguments',
+    title: { tr: 'İki Argüman Bekleyen Bir __init__', en: 'A Constructor That Needs Two Arguments' },
     description: {
       tr: '__init__ metodunun beklediği tüm parametreler çağrı sırasında verilmelidir. Aşağıdaki test neden fail ediyor?',
       en: 'Every parameter __init__ expects must be supplied when you instantiate the class. Why does the test below fail?',
@@ -464,7 +464,7 @@ print(runner.describe())`,
   // --- scope-modules ---
   {
     id: 'py-scope-01',
-    title: 'Modifying a Global Counter Inside a Function',
+    title: { tr: 'Bir Fonksiyon İçinde Global Bir Sayacı Değiştirmek', en: 'Modifying a Global Counter Inside a Function' },
     description: {
       tr: 'Bir fonksiyon içinde global bir değişkene atama yapmadan önce "global" anahtar kelimesi gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'Assigning to a global variable inside a function requires the "global" keyword first. Why does the test below fail?',
@@ -495,7 +495,7 @@ print(increment_counter())`,
   },
   {
     id: 'py-scope-02',
-    title: 'Importing a Function vs Importing the Module',
+    title: { tr: 'Bir Fonksiyonu mu, Modülü mü Import Etmeli', en: 'Importing a Function vs Importing the Module' },
     description: {
       tr: '"from module import func" yaptığında, modülün kendisi bir isim olarak tanımlı OLMAZ. Aşağıdaki test neden fail ediyor?',
       en: "When you do \"from module import func\", the module itself is NOT defined as a name. Why does the test below fail?",
@@ -525,7 +525,7 @@ print(calculate_timeout(16))`,
   // --- helper-modules ---
   {
     id: 'py-helper-01',
-    title: 'Generating a Random Test User ID',
+    title: { tr: 'Rastgele Bir Test Kullanıcı ID Üretmek', en: 'Generating a Random Test User ID' },
     description: {
       tr: 'random modülünü kullanmadan önce import etmen gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'You must import the random module before using it. Why does the test below fail?',
@@ -547,7 +547,7 @@ print(user_id >= 1000 and user_id <= 9999)`,
   },
   {
     id: 'py-helper-02',
-    title: 'Calculating Days Between Two Dates',
+    title: { tr: 'İki Tarih Arasındaki Gün Sayısını Hesaplamak', en: 'Calculating Days Between Two Dates' },
     description: {
       tr: 'Bir datetime nesnesini bir string\'ten çıkaramazsın. Aşağıdaki test neden fail ediyor?',
       en: "You can't subtract a string from a datetime object. Why does the test below fail?",
@@ -577,7 +577,7 @@ print(duration)`,
   // --- files-json ---
   {
     id: 'py-files-01',
-    title: 'A JSON Number That Got Quoted',
+    title: { tr: 'Tırnak İçine Alınmış Bir JSON Sayısı', en: 'A JSON Number That Got Quoted' },
     description: {
       tr: 'JSON\'da tırnak içine alınmış bir sayı, Python\'a string olarak gelir. Aşağıdaki test neden fail ediyor (ipucu: hata fırlatmıyor, ama yanlış sonuç veriyor!)?',
       en: "A quoted number in JSON arrives in Python as a string. Why does the test below fail (hint: it doesn't error, it just gives the wrong result!)?",
@@ -605,7 +605,7 @@ print(total_wait)`,
   },
   {
     id: 'py-files-02',
-    title: 'Working With File Paths',
+    title: { tr: 'Dosya Yollarıyla (File Paths) Çalışmak', en: 'Working With File Paths' },
     description: {
       tr: 'Path sınıfını kullanmadan önce pathlib\'den import etmen gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'You must import Path from pathlib before using it. Why does the test below fail?',
@@ -629,7 +629,7 @@ print(results_path.name)`,
   // --- exceptions-regex ---
   {
     id: 'py-exceptions-01',
-    title: 'Catching the Right Exception Type',
+    title: { tr: 'Doğru Exception Tipini Yakalamak', en: 'Catching the Right Exception Type' },
     description: {
       tr: 'Yanlış exception tipini yakalamak, gerçek hatayı yakalamamak demektir. Aşağıdaki test neden fail ediyor?',
       en: 'Catching the wrong exception type means the real error slips through uncaught. Why does the test below fail?',
@@ -659,7 +659,7 @@ print(parse_retry_count("abc"))`,
   },
   {
     id: 'py-exceptions-02',
-    title: 'Extracting a Test Case Number With Regex',
+    title: { tr: 'Regex ile Test Case Numarası Çıkarmak', en: 'Extracting a Test Case Number With Regex' },
     description: {
       tr: 're.search() çağırmadan önce bir pattern tanımlaman gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'You need to define a pattern before calling re.search(). Why does the test below fail?',
@@ -688,7 +688,7 @@ print(match.group())`,
   // --- advanced-concepts ---
   {
     id: 'py-advanced-01',
-    title: 'Filtering for the Wrong Status',
+    title: { tr: 'Yanlış Status İçin Filtreleme Yapmak', en: 'Filtering for the Wrong Status' },
     description: {
       tr: 'Bir liste içi (list comprehension) ifadesinde koşulu yanlış yazmak sessizce ters sonuç verir. Aşağıdaki test neden fail ediyor?',
       en: 'Writing the wrong condition in a list comprehension silently gives the opposite result. Why does the test below fail?',
@@ -710,7 +710,7 @@ print(failed)`,
   },
   {
     id: 'py-advanced-02',
-    title: 'A Generator That Got Exhausted Early',
+    title: { tr: 'Erken Tükenen Bir Generator', en: 'A Generator That Got Exhausted Early' },
     description: {
       tr: 'Bir generator nesnesi tükendiğinde, tekrar dolaşmak boş sonuç verir. Aşağıdaki test neden fail ediyor?',
       en: 'Once a generator object is exhausted, iterating it again gives nothing. Why does the test below fail?',
@@ -744,7 +744,7 @@ print(first_chunk)`,
   // --- real-world-pytest ---
   {
     id: 'py-pytest-01',
-    title: 'A Test That Asserts the Wrong Status Code',
+    title: { tr: "Yanlış Status Code'u Assert Eden Bir Test", en: 'A Test That Asserts the Wrong Status Code' },
     description: {
       tr: 'Test yazarken yanlış beklenen değeri assert etmek çok yaygın bir hatadır. Aşağıdaki test neden fail ediyor?',
       en: 'Asserting the wrong expected value is a very common test-writing mistake. Why does the test below fail?',
@@ -778,7 +778,7 @@ except AssertionError as e:
   },
   {
     id: 'py-pytest-02',
-    title: 'Tests That Leak State Into Each Other',
+    title: { tr: 'Birbirine State Sızdıran Testler', en: 'Tests That Leak State Into Each Other' },
     description: {
       tr: 'Paylaşılan (global) bir değişken kullanmak, testlerin birbirini etkilemesine yol açar. Aşağıdaki test neden fail ediyor?',
       en: 'Using a shared (global) variable lets tests leak state into each other. Why does the test below fail?',
@@ -826,7 +826,7 @@ except AssertionError as e:
   // --- ecosystem ---
   {
     id: 'py-ecosystem-01',
-    title: 'A Typo in a Keyword Argument',
+    title: { tr: 'Bir Keyword Argümanında Yazım Hatası', en: 'A Typo in a Keyword Argument' },
     description: {
       tr: 'Bir kütüphane fonksiyonuna yanlış yazılmış bir keyword argüman vermek hata fırlatır. Aşağıdaki test neden fail ediyor?',
       en: 'Passing a misspelled keyword argument to a library function raises an error. Why does the test below fail?',
@@ -854,7 +854,7 @@ print(client.get("/users", timeout=10))`,
   },
   {
     id: 'py-ecosystem-02',
-    title: 'Generating a Unique Test Run ID',
+    title: { tr: 'Benzersiz Bir Test Run ID Üretmek', en: 'Generating a Unique Test Run ID' },
     description: {
       tr: 'uuid modülünü kullanmadan önce import etmen gerekir. Aşağıdaki test neden fail ediyor?',
       en: 'You must import the uuid module before using it. Why does the test below fail?',
@@ -878,7 +878,7 @@ print(len(test_run_id))`,
   // --- troubleshooting ---
   {
     id: 'py-troubleshooting-01',
-    title: 'None Is Not the Same as an Empty String',
+    title: { tr: 'None, Boş String ile Aynı Değildir', en: 'None Is Not the Same as an Empty String' },
     description: {
       tr: 'None ile boş string\'i karıştırmak, eksik veriyi yanlış yorumlamana sebep olur. Aşağıdaki test neden fail ediyor?',
       en: 'Confusing None with an empty string makes you misinterpret missing data. Why does the test below fail?',
@@ -910,7 +910,7 @@ else:
   },
   {
     id: 'py-troubleshooting-02',
-    title: 'An Off-by-One Bug in Pagination',
+    title: { tr: "Pagination'da Off-by-One Hatası", en: 'An Off-by-One Bug in Pagination' },
     description: {
       tr: 'Sayfa numarasını 1\'den başlatıp dizinleri 0\'dan başlayan bir listeye uygulamak off-by-one hatasına yol açar. Aşağıdaki test neden fail ediyor?',
       en: '1-indexed page numbers applied to a 0-indexed list cause an off-by-one bug. Why does the test below fail?',
@@ -938,7 +938,7 @@ print(page_items[0])`,
   // --- java-to-python ---
   {
     id: 'py-java-01',
-    title: 'Using "is" Like Java\'s "=="',
+    title: { tr: '"is"\'i Java\'nın "==" Gibi Kullanmak', en: 'Using "is" Like Java\'s "=="' },
     description: {
       tr: 'Java\'dan gelen alışkanlıkla "==" yerine "is" kullanmak, değer eşitliği yerine kimlik (identity) kontrolü yapar. Aşağıdaki test neden fail ediyor?',
       en: 'Using "is" out of Java habit instead of "==" checks identity, not value equality. Why does the test below fail?',
@@ -966,7 +966,7 @@ else:
   },
   {
     id: 'py-java-02',
-    title: "Python Has No Method Overloading",
+    title: { tr: "Python'da Method Overloading Yoktur", en: 'Python Has No Method Overloading' },
     description: {
       tr: 'Java\'da metod overload edilebilir; Python\'da bunun yerine varsayılan parametre değerleri kullanılır. Aşağıdaki test neden fail ediyor?',
       en: "Java lets you overload methods; Python uses default parameter values instead. Why does the test below fail?",
@@ -992,7 +992,7 @@ log_message("Test started")`,
   // --- practice-exercises ---
   {
     id: 'py-practice-01',
-    title: 'An Off-by-One Loop That Skips the Last Test',
+    title: { tr: 'Son Testi Atlayan Off-by-One Döngü', en: 'An Off-by-One Loop That Skips the Last Test' },
     description: {
       tr: 'range(len(liste) - 1) yazmak, listenin son elemanını atlamana sebep olur. Aşağıdaki test neden fail ediyor?',
       en: 'Writing range(len(list) - 1) makes you skip the last element of the list. Why does the test below fail?',
@@ -1022,7 +1022,7 @@ print(passed_count)`,
   },
   {
     id: 'py-practice-02',
-    title: 'Averaging Durations Stored as Strings',
+    title: { tr: 'String Olarak Saklanan Sürelerin Ortalamasını Almak', en: 'Averaging Durations Stored as Strings' },
     description: {
       tr: 'sum() bir string listesini doğrudan toplayamaz. Aşağıdaki test neden fail ediyor?',
       en: "sum() can't add up a list of strings directly. Why does the test below fail?",
@@ -1052,7 +1052,12 @@ export function toPlaygroundBlock(item) {
     id: item.id,
     label: item.title,
     language: 'python',
-    code: item.fixedCode,
+    // The code shown by default is the BUGGY version on purpose: item.description
+    // poses "why does the test below fail?", so the visible code must be the
+    // failing one. expected/explanation describe the CORRECT/target behavior the
+    // user is working towards; FixThePanel lets them edit this same buggy code
+    // until it matches fixedCode.
+    code: item.buggyCode,
     expected: item.expectedOutput,
     explanation: item.description,
     hints: item.hints,

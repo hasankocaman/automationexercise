@@ -144,7 +144,9 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
     return (
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
             <div className="mb-2 text-xs font-bold opacity-70">
-                {isTr ? 'Kodu düzelt ve "Kontrol Et"e bas:' : 'Fix the code, then click "Check":'}
+                {isTr
+                    ? 'Aşağıdaki kutu, yukarıdaki bozuk kodun düzenlenebilir bir kopyası. Hatayı bul, kodu burada düzelt ve "Kontrol Et"e bas — "Beklenen Çıktı" ile eşleşince yeşil onayı göreceksin:'
+                    : 'The box below is an editable copy of the buggy code above. Find the bug, fix it here, then click "Check" — you\'ll get a green confirmation once it matches the "Expected Output":'}
             </div>
             <textarea
                 value={draft}
@@ -277,10 +279,15 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
     const fixedCode = pick(block.fixedCode, isTr)
     const starterCode = pick(block.starterCode, isTr) || buggyCode || codeText
     const solutionCode = pick(block.solutionCode, isTr) || fixedCode || codeText
+    // Practice mode is opt-in: a block must explicitly provide starterCode or
+    // solutionCode. Without this gate, every existing Fix-the-Bug exercise
+    // (which only sets buggyCode/fixedCode) would also show a redundant
+    // "Write Code" button doing the exact same thing as "Fix the Failing Test".
+    const hasExplicitPractice = Boolean(block.starterCode || block.solutionCode)
 
     const hasExpected = Boolean(expectedText)
     const hasFix = Boolean(buggyCode && fixedCode)
-    const hasPractice = Boolean(starterCode && solutionCode)
+    const hasPractice = hasExplicitPractice && Boolean(starterCode && solutionCode)
     const hasHints = Array.isArray(block.hints) && block.hints.length > 0
     const isDone = block.id ? completed.includes(block.id) : false
 
@@ -302,6 +309,17 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
         awardXpOnce()
     }
 
+    // Builds one guide sentence listing only the buttons that actually exist for
+    // this block, so the user knows which order to try them in before clicking.
+    const steps = []
+    if (hasPractice) steps.push(isTr ? '✍️ Kod Yaz ve Dene\'yi kullanarak kendi çözümünü yaz' : 'write your own solution with ✍️ Write Code')
+    if (hasExpected) steps.push(isTr ? '▶ Çalıştır\'a basıp tahminini kontrol et' : 'click ▶ Run to check your guess')
+    if (hasFix) steps.push(isTr ? '🐛 ile bozuk kodu düzeltmeyi dene' : 'try fixing the bug with 🐛')
+    if (hasHints) steps.push(isTr ? 'takılırsan 💡 İpucu\'na bak' : "if you're stuck, check 💡 Hint")
+    const guideText = steps.length
+        ? (isTr ? `Önce kodu oku, çıktıyı tahmin et; sonra ${steps.join(', ')}.` : `First read the code and guess the output; then ${steps.join(', ')}.`)
+        : ''
+
     return (
         <div>
             <XpSummaryBar xp={xp} completedCount={completed.length} pop={xpPop} isTr={isTr} panelClassName={panelCls(darkMode)} />
@@ -316,7 +334,20 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
                     {pick(block.task, isTr)}
                 </div>
             )}
+
+            {block.explanation && (
+                <div className={`mb-2 rounded-lg border-l-4 border-sky-500 px-3 py-2 text-xs font-bold ${darkMode ? 'bg-sky-500/10 text-sky-200' : 'bg-sky-50 text-sky-900'}`}>
+                    🎯 {pick(block.explanation, isTr)}
+                </div>
+            )}
+
             <CodeBlock code={codeText} language={block.language} darkMode={darkMode} />
+
+            {guideText && (
+                <div className={`mt-2 text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {guideText}
+                </div>
+            )}
 
             <div className="mt-2 flex flex-wrap gap-2">
                 {hasPractice && (

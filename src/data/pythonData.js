@@ -7239,6 +7239,509 @@ const challengeBugSpotException = {
   xpReward: 20,
 }
 
+// --- PILOT: drag-and-drop exercises placed right after their matching code
+// block (not bunched at tab-end) — see Operators / Conditions & Loops /
+// Functions & Lambda tab assembly below.
+const challengeOperatorPrecedenceOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-operator-precedence-01',
+  question: {
+    tr: 'result = 7 + 2 * 3 ** 2 % 5 satırını Python\'ın gerçekte hesapladığı sırayla diz (önce hangi operatör çalışır?).',
+    en: 'Arrange the steps in the order Python actually evaluates result = 7 + 2 * 3 ** 2 % 5 (which operator runs first?).',
+  },
+  items: [
+    { id: '1', text: { tr: '3 ** 2 → 9   (üs alma EN YÜKSEK önceliğe sahiptir)', en: '3 ** 2 → 9   (exponent has the HIGHEST precedence)' }, order: 1 },
+    { id: '2', text: { tr: '2 * 9 → 18   (çarpma, üsten sonra soldan sağa çalışır)', en: '2 * 9 → 18   (multiplication runs left-to-right, after exponent)' }, order: 2 },
+    { id: '3', text: { tr: '18 % 5 → 3   (mod, çarpma ile aynı önceliktedir, soldan sağa)', en: '18 % 5 → 3   (modulo shares precedence with *, evaluated left-to-right)' }, order: 3 },
+    { id: '4', text: { tr: '7 + 3 → 10   (toplama EN SON çalışır)', en: '7 + 3 → 10   (addition runs LAST)' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const challengeForLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-forloop-01',
+  question: {
+    tr: 'Bir for döngüsüyle API endpoint\'lerini test eden script\'i yazma adımlarını doğru sıraya diz.',
+    en: 'Arrange the steps for writing a for-loop that tests a list of API endpoints, in the correct order.',
+  },
+  items: [
+    { id: '1', text: { tr: 'Test edilecek endpoint\'leri bir liste içinde tanımla', en: 'Define the endpoints to test as a list' }, order: 1 },
+    { id: '2', text: { tr: "\"for endpoint in api_endpoints:\" ile döngüyü başlat", en: 'Start the loop with "for endpoint in api_endpoints:"' }, order: 2 },
+    { id: '3', text: { tr: 'Döngü GÖVDESİNDE (girintili) her endpoint için isteği çalıştır ve sonucu kontrol et', en: "Inside the loop BODY (indented), make the request for each endpoint and check the result" }, order: 3 },
+    { id: '4', text: { tr: 'Sonucu bir results listesine ekle veya print ile raporla', en: 'Append the result to a results list, or report it with print' }, order: 4 },
+    { id: '5', text: { tr: 'Döngü BİTTİKTEN SONRA (girintisiz), toplam pass/fail sayısını hesapla', en: 'AFTER the loop ends (no indent), calculate the total pass/fail count' }, order: 5 },
+  ],
+  xpReward: 15,
+}
+
+const challengeFunctionArgsOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-function-args-01',
+  question: {
+    tr: 'run_test(url, method="GET", timeout=30) çağrılırken Python parametreleri hangi sırayla eşleştirir?',
+    en: 'When calling run_test(url, method="GET", timeout=30), in what order does Python match the parameters?',
+  },
+  items: [
+    { id: '1', text: { tr: 'Önce pozisyonel (positional) argümanlar sırayla eşleştirilir', en: 'Positional arguments are matched first, in order' }, order: 1 },
+    { id: '2', text: { tr: 'Sonra keyword argümanlar isimlerine göre eşleştirilir', en: 'Then keyword arguments are matched by name' }, order: 2 },
+    { id: '3', text: { tr: 'Eşleşmeyen parametreler için tanımdaki varsayılan (default) değerler kullanılır', en: "Parameters still unmatched fall back to their default values from the definition" }, order: 3 },
+    { id: '4', text: { tr: 'Varsayılanı olmayan zorunlu bir parametre hâlâ karşılanmadıysa TypeError fırlatılır', en: 'If a required parameter with no default is still unfilled, Python raises a TypeError' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+// --- BATCH 2: step-animation + order-sort for Intro, Installation, Syntax,
+// Variables&Types, Strings&Booleans, Operators, Lists&Tuples, Sets&Dicts,
+// Conditions&Loops, Functions&Lambda, Classes&OOP (one of each per tab,
+// placed right after that tab's taught content, before the Feynman/playground
+// appendix already in the assembly line). ---
+
+const stepAnimationScriptRun = {
+  type: 'step-animation',
+  title: { tr: 'Bir Python Scripti Çalıştırıldığında Ne Olur', en: 'What Happens When a Python Script Runs' },
+  steps: [
+    { id: 1, icon: '💾', label: { tr: 'Dosya Kaydedilir', en: 'File Is Saved' }, detail: { tr: 'Kod ".py" uzantılı bir dosyaya kaydedilir, örneğin test_login.py.', en: 'Code is saved to a file ending in ".py", e.g. test_login.py.' } },
+    { id: 2, icon: '⌨️', label: { tr: 'Terminalden Çalıştırılır', en: 'Run From the Terminal' }, detail: { tr: 'Terminalde "python test_login.py" yazılır ve Enter\'a basılır.', en: 'You type "python test_login.py" in the terminal and press Enter.' } },
+    { id: 3, icon: '📖', label: { tr: 'Yorumlayıcı Satır Satır Okur', en: 'Interpreter Reads Line by Line' }, detail: { tr: 'Python yorumlayıcısı dosyayı üstten alta, satır satır okur — Java\'daki gibi önce derleme adımı yoktur.', en: 'The Python interpreter reads the file top-to-bottom, line by line — there is no separate compile step like in Java.' } },
+    { id: 4, icon: '⚙️', label: { tr: 'Kod Sırayla Çalışır', en: 'Code Executes in Order' }, detail: { tr: 'Her satır okunduğu anda hemen çalıştırılır; fonksiyon/class tanımları bu sırada belleğe alınır ama henüz çalışmaz.', en: 'Each line executes as soon as it is read; function/class definitions are stored in memory at this point but not run yet.' } },
+    { id: 5, icon: '✅', label: { tr: 'Program Sona Erer', en: 'Program Finishes' }, detail: { tr: 'Dosyanın sonuna gelindiğinde program sona erer ve çıktı terminalde görünür olur.', en: 'When the end of the file is reached, the program finishes and its output is visible in the terminal.' } },
+  ],
+}
+
+const challengeScriptRunOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-script-run-01',
+  question: { tr: 'Bir Python scriptini sıfırdan çalıştırma adımlarını doğru sıraya diz.', en: 'Arrange the steps for running a Python script from scratch, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Kodu bir .py dosyasına kaydet (örn. test_login.py)', en: 'Save the code to a .py file (e.g. test_login.py)' }, order: 1 },
+    { id: '2', text: { tr: 'Terminali aç ve dosyanın bulunduğu klasöre git', en: 'Open a terminal and navigate to the file\'s folder' }, order: 2 },
+    { id: '3', text: { tr: '"python test_login.py" komutunu yaz ve Enter\'a bas', en: 'Type "python test_login.py" and press Enter' }, order: 3 },
+    { id: '4', text: { tr: 'Çıktıyı terminalde oku', en: 'Read the output in the terminal' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationInstallFlow = {
+  type: 'step-animation',
+  title: { tr: 'Python Kurulum Akışı', en: 'Python Installation Flow' },
+  steps: [
+    { id: 1, icon: '⬇️', label: { tr: 'İndir', en: 'Download' }, detail: { tr: 'python.org/downloads adresinden işletim sistemine uygun yükleyici indirilir (Python 2 DEĞİL, Python 3.x).', en: 'Download the installer for your OS from python.org/downloads (Python 3.x, NOT Python 2).' } },
+    { id: 2, icon: '⚙️', label: { tr: 'Yükle', en: 'Install' }, detail: { tr: 'Yükleyici çalıştırılır. Windows\'ta KRİTİK adım: "Add Python to PATH" kutusu işaretlenmelidir.', en: 'Run the installer. On Windows, the CRITICAL step is checking "Add Python to PATH".' } },
+    { id: 3, icon: '✅', label: { tr: 'Doğrula', en: 'Verify' }, detail: { tr: 'Terminalde "python --version" çalıştırılır — bir sürüm numarası dönmelidir.', en: 'Run "python --version" in the terminal — it should print a version number.' } },
+    { id: 4, icon: '📦', label: { tr: 'Sanal Ortam Oluştur', en: 'Create a Virtual Environment' }, detail: { tr: '"python -m venv venv" ile her proje için izole bir ortam oluşturulur, bağımlılık çakışmaları önlenir.', en: 'Run "python -m venv venv" to create an isolated environment per project, avoiding dependency conflicts.' } },
+    { id: 5, icon: '⬇️', label: { tr: 'Bağımlılıkları Kur', en: 'Install Dependencies' }, detail: { tr: 'Sanal ortam aktifken "pip install -r requirements.txt" ile gerekli paketler kurulur.', en: 'With the virtual environment active, run "pip install -r requirements.txt" to install required packages.' } },
+  ],
+}
+
+const challengeVenvOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-venv-01',
+  question: { tr: 'Bir sanal ortam (venv) oluşturup aktifleştirme adımlarını doğru sıraya diz.', en: 'Arrange the steps for creating and activating a virtual environment (venv), in the correct order.' },
+  items: [
+    { id: '1', text: { tr: '"python -m venv venv" komutuyla sanal ortamı oluştur', en: 'Create the virtual environment with "python -m venv venv"' }, order: 1 },
+    { id: '2', text: { tr: 'Mac/Linux\'ta "source venv/bin/activate" ile aktifleştir', en: 'Activate it on Mac/Linux with "source venv/bin/activate"' }, order: 2 },
+    { id: '3', text: { tr: 'Terminal isteminde "(venv)" önekinin göründüğünü doğrula', en: 'Confirm the "(venv)" prefix now appears in the terminal prompt' }, order: 3 },
+    { id: '4', text: { tr: '"pip install -r requirements.txt" ile bağımlılıkları kur', en: 'Install dependencies with "pip install -r requirements.txt"' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationIndentationBlock = {
+  type: 'step-animation',
+  title: { tr: 'Python Bir Kod Bloğunu Nasıl Tanır', en: 'How Python Recognizes a Code Block' },
+  steps: [
+    { id: 1, icon: '🔹', label: { tr: 'Satır ":" ile Biter', en: 'Line Ends With ":"' }, detail: { tr: 'if, for, def, class gibi bir satır iki nokta (:) ile sona erer — bu, "bir blok başlıyor" sinyalidir.', en: 'A line like if, for, def, class ends with a colon (:) — this signals "a block is starting".' } },
+    { id: 2, icon: '➡️', label: { tr: 'Alt Satır Girintilenir', en: 'Next Line Is Indented' }, detail: { tr: 'Bir sonraki satır 4 boşluk (veya 1 tab) içeri kaydırılır — Java\'daki { ile aynı görevi görür.', en: 'The next line is indented by 4 spaces (or 1 tab) — this does the same job as { in Java.' } },
+    { id: 3, icon: '🟰', label: { tr: 'Aynı Girinti = Aynı Blok', en: 'Same Indent = Same Block' }, detail: { tr: 'Aynı girinti seviyesindeki ardışık satırlar aynı bloğa aittir.', en: 'Consecutive lines at the same indent level belong to the same block.' } },
+    { id: 4, icon: '⬅️', label: { tr: 'Girinti Azalınca Blok Biter', en: 'Block Ends on Dedent' }, detail: { tr: 'Girinti seviyesi geri azaldığında (dedent) blok sona erer — Java\'daki } ile aynı görevi görür.', en: 'When the indent level decreases (dedent), the block ends — this does the same job as } in Java.' } },
+    { id: 5, icon: '🚫', label: { tr: 'Tutarsız Girinti = Hata', en: 'Inconsistent Indent = Error' }, detail: { tr: 'Aynı blok içinde girintiler tutarsızsa (örn. 4 ve 5 boşluk karışık) Python IndentationError fırlatır.', en: 'If indentation within the same block is inconsistent (e.g. mixing 4 and 5 spaces), Python raises an IndentationError.' } },
+  ],
+}
+
+const challengeIfElseOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-ifelse-01',
+  question: { tr: 'Aşağıdaki satırları geçerli bir if/else bloğu oluşturacak şekilde sıraya diz.', en: 'Arrange the lines below into a valid if/else block, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'if age >= 18:', en: 'if age >= 18:' }, order: 1 },
+    { id: '2', text: { tr: '    print("Adult")   ← girintili', en: '    print("Adult")   ← indented' }, order: 2 },
+    { id: '3', text: { tr: 'else:   ← if ile aynı girinti', en: 'else:   ← same indent as if' }, order: 3 },
+    { id: '4', text: { tr: '    print("Minor")   ← girintili', en: '    print("Minor")   ← indented' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationVariableAssignment = {
+  type: 'step-animation',
+  title: { tr: 'Python\'da Değişken Ataması Ne Yapar', en: 'What a Python Variable Assignment Actually Does' },
+  steps: [
+    { id: 1, icon: '🆕', label: { tr: 'Nesne Oluşturulur', en: 'Object Is Created' }, detail: { tr: 'x = 5 yazıldığında Python bellekte bir int nesnesi (5) oluşturur.', en: 'When you write x = 5, Python creates an int object (5) in memory.' } },
+    { id: 2, icon: '🔗', label: { tr: 'İsim Nesneye Bağlanır', en: 'Name Is Bound to the Object' }, detail: { tr: '"x" bir kutu DEĞİLDİR — bu nesneye işaret eden bir ETİKETtir (referans).', en: '"x" is not a box — it is a LABEL (reference) pointing at that object.' } },
+    { id: 3, icon: '🔁', label: { tr: 'Yeniden Atama Yeni Nesne Oluşturur', en: 'Reassignment Creates a New Object' }, detail: { tr: 'x = "hello" yazıldığında Python YENİ bir string nesnesi oluşturur — eski int nesnesi değişmez.', en: 'When you write x = "hello", Python creates a NEW string object — the old int object is not modified.' } },
+    { id: 4, icon: '➡️', label: { tr: 'Etiket Yeni Nesneye Kayar', en: 'Label Moves to the New Object' }, detail: { tr: '"x" etiketi artık string nesnesine işaret eder; int nesnesine artık hiçbir isim bakmıyordur.', en: 'The "x" label now points at the string object; nothing points at the int object anymore.' } },
+    { id: 5, icon: '🗑️', label: { tr: 'Eski Nesne Çöp Toplanır', en: 'Old Object Gets Garbage Collected' }, detail: { tr: 'Kendisine bakan hiçbir isim kalmayan eski int nesnesi, Python\'ın garbage collector\'ı tarafından bellekten silinir.', en: 'With no names pointing at it, the old int object is eventually removed from memory by Python\'s garbage collector.' } },
+  ],
+}
+
+const challengeCastingOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-casting-01',
+  question: { tr: '"3.14" string\'ini güvenle bir tam sayıya çevirme adımlarını doğru sıraya diz.', en: 'Arrange the steps for safely converting the string "3.14" into an integer, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'user_input = "3.14"   ← bir string', en: 'user_input = "3.14"   ← a string' }, order: 1 },
+    { id: '2', text: { tr: 'as_float = float(user_input)   ← önce ondalıklı sayıya çevir', en: 'as_float = float(user_input)   ← convert to a decimal first' }, order: 2 },
+    { id: '3', text: { tr: 'as_int = int(as_float)   ← sonra tam sayıya çevir', en: 'as_int = int(as_float)   ← then convert to an integer' }, order: 3 },
+    { id: '4', text: { tr: 'int(user_input) doğrudan denenirse ValueError fırlatılır', en: 'Trying int(user_input) directly would raise a ValueError' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const stepAnimationStringSlicing = {
+  type: 'step-animation',
+  title: { tr: 'Python String Slicing Nasıl Çalışır', en: 'How Python String Slicing Works' },
+  steps: [
+    { id: 1, icon: '✂️', label: { tr: 'Sözdizimi: [start:stop:step]', en: 'Syntax: [start:stop:step]' }, detail: { tr: 'text[start:stop:step] ile string\'in bir parçası alınır.', en: 'text[start:stop:step] extracts a piece of the string.' } },
+    { id: 2, icon: '▶', label: { tr: 'start DAHİLDİR', en: 'start Is INCLUDED' }, detail: { tr: 'Kesme, start index\'indeki karakterle BAŞLAR (o karakter sonuca dahildir).', en: 'The slice STARTS at the start index (that character IS included).' } },
+    { id: 3, icon: '⏹', label: { tr: 'stop HARİÇ TUTULUR', en: 'stop Is EXCLUDED' }, detail: { tr: 'Kesme, stop index\'inden ÖNCE durur — o indexteki karakter sonuca dahil EDİLMEZ. En yaygın off-by-one hatası kaynağı budur.', en: 'The slice stops BEFORE the stop index — that character is NOT included. This is the most common off-by-one mistake.' } },
+    { id: 4, icon: '↔️', label: { tr: 'step Varsayılan 1\'dir', en: 'step Defaults to 1' }, detail: { tr: 'step belirtilmezse her karakter alınır; step=2 her ikinci karakteri atlar.', en: 'If step is omitted every character is taken; step=2 skips every other character.' } },
+    { id: 5, icon: '↩️', label: { tr: 'Negatif Index Sondan Sayar', en: 'Negative Index Counts From the End' }, detail: { tr: 'text[-1] son karakteri, text[-3:] son 3 karakteri verir.', en: 'text[-1] gives the last character, text[-3:] gives the last 3 characters.' } },
+  ],
+}
+
+const challengeStringCleanupOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-string-cleanup-01',
+  question: { tr: 'Bir test sonucu string\'ini temizleyip kontrol etme adımlarını doğru sıraya diz.', en: 'Arrange the steps for cleaning up and checking a test-result string, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'raw = "  PASSED  \\n"   ← ham, kirli veri', en: 'raw = "  PASSED  \\n"   ← raw, messy data' }, order: 1 },
+    { id: '2', text: { tr: 'cleaned = raw.strip()   ← baş/son boşlukları sil', en: 'cleaned = raw.strip()   ← remove leading/trailing whitespace' }, order: 2 },
+    { id: '3', text: { tr: 'normalized = cleaned.lower()   ← küçük harfe çevir', en: 'normalized = cleaned.lower()   ← convert to lowercase' }, order: 3 },
+    { id: '4', text: { tr: 'if normalized == "passed": ...   ← artık güvenle karşılaştır', en: 'if normalized == "passed": ...   ← now compare safely' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationShortCircuit = {
+  type: 'step-animation',
+  title: { tr: 'and / or Kısa Devre (Short-Circuit) Değerlendirmesi', en: 'and / or Short-Circuit Evaluation' },
+  steps: [
+    { id: 1, icon: '👈', label: { tr: 'Soldan Başlar', en: 'Starts From the Left' }, detail: { tr: 'Python bir "and"/"or" ifadesini SOLDAN SAĞA değerlendirir.', en: 'Python evaluates an "and"/"or" expression from LEFT to RIGHT.' } },
+    { id: 2, icon: '🛑', label: { tr: '"and" İlk False\'ta Durur', en: '"and" Stops at the First False' }, detail: { tr: 'a and b ifadesinde a False ise, b HİÇ ÇALIŞTIRILMAZ — sonuç zaten False olacaktır.', en: 'In a and b, if a is False, b is NEVER EVALUATED — the result is already known to be False.' } },
+    { id: 3, icon: '🛑', label: { tr: '"or" İlk True\'da Durur', en: '"or" Stops at the First True' }, detail: { tr: 'a or b ifadesinde a True ise, b HİÇ ÇALIŞTIRILMAZ — sonuç zaten True olacaktır.', en: 'In a or b, if a is True, b is NEVER EVALUATED — the result is already known to be True.' } },
+    { id: 4, icon: '🔒', label: { tr: 'Güvenli Kontrol İçin Kullanılır', en: 'Used for Safe Guard Checks' }, detail: { tr: 'Bu sayede "user is not None and user.is_active" güvenlidir — user None ise ikinci kısım HİÇ çalışmaz, AttributeError oluşmaz.', en: "This is why \"user is not None and user.is_active\" is safe — if user is None, the second part NEVER runs, avoiding an AttributeError." } },
+    { id: 5, icon: '📤', label: { tr: 'Son Değerlendirilen Değer Döner', en: 'The Last Evaluated Value Is Returned' }, detail: { tr: 'and/or, True/False yerine DURDUĞU noktadaki gerçek değeri döndürür (örn. "" or "default" → "default").', en: 'and/or return the actual value where they stopped, not just True/False (e.g. "" or "default" → "default").' } },
+  ],
+}
+
+const stepAnimationListAppend = {
+  type: 'step-animation',
+  title: { tr: 'append() Bir Listeye Eleman Eklerken Ne Olur', en: "What Happens When append() Adds to a List" },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Liste Bellekte Saklanır', en: 'List Lives in Memory' }, detail: { tr: 'Bir Python listesi, elemanlara işaret eden bir referans dizisi olarak saklanır.', en: 'A Python list is stored as an array of references pointing at its elements.' } },
+    { id: 2, icon: '➕', label: { tr: 'append(x) Çağrılır', en: 'append(x) Is Called' }, detail: { tr: 'results.append("PASS") çağrıldığında Python listenin SONUNA yeni bir referans eklemeye çalışır.', en: 'When results.append("PASS") is called, Python tries to add a new reference at the END of the list.' } },
+    { id: 3, icon: '📦', label: { tr: 'Yer Varsa Direkt Eklenir', en: 'If There Is Room, It Just Fits' }, detail: { tr: 'Listenin ayrılmış kapasitesinde yer varsa, ekleme anında (O(1)) gerçekleşir.', en: "If the list's reserved capacity has room, the addition happens instantly (O(1))." } },
+    { id: 4, icon: '🔄', label: { tr: 'Yer Yoksa Büyütülür', en: 'If Not, It Grows' }, detail: { tr: 'Yer yoksa Python daha büyük bir alan ayırır ve TÜM mevcut elemanları yeni alana kopyalar.', en: "If not, Python allocates a bigger block and copies ALL existing elements into it." } },
+    { id: 5, icon: '📈', label: { tr: 'len() Bir Artar', en: 'len() Increases by One' }, detail: { tr: 'İşlem bittiğinde liste artık x\'i de içerir ve len(results) bir artmıştır.', en: 'Once done, the list now contains x too, and len(results) has increased by one.' } },
+  ],
+}
+
+const challengeListFilterOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-list-filter-01',
+  question: { tr: 'Bir sonuç listesi oluşturup başarısızları filtreleme adımlarını doğru sıraya diz.', en: 'Arrange the steps for building a results list and filtering out failures, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'results = []   ← boş liste ile başla', en: 'results = []   ← start with an empty list' }, order: 1 },
+    { id: '2', text: { tr: 'for ile her test çalıştırılır, sonuç results.append() ile eklenir', en: 'A for loop runs each test and appends its result with results.append()' }, order: 2 },
+    { id: '3', text: { tr: 'failed = [r for r in results if r == "FAIL"]   ← list comprehension ile filtrele', en: 'failed = [r for r in results if r == "FAIL"]   ← filter with a list comprehension' }, order: 3 },
+    { id: '4', text: { tr: 'print(f"Failed: {len(failed)}")   ← sonucu raporla', en: 'print(f"Failed: {len(failed)}")   ← report the result' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationSetDedup = {
+  type: 'step-animation',
+  title: { tr: "Bir Set'e Eleman Eklerken Tekrarlar Nasıl Elenir", en: 'How Adding to a Set Eliminates Duplicates' },
+  steps: [
+    { id: 1, icon: '🆕', label: { tr: 'Boş Set Oluşturulur', en: 'Empty Set Is Created' }, detail: { tr: 'bug_ids = set() ile boş, sırasız ve tekrarsız bir koleksiyon oluşturulur.', en: 'bug_ids = set() creates an empty, unordered, duplicate-free collection.' } },
+    { id: 2, icon: '➕', label: { tr: 'add(x) Çağrılır', en: 'add(x) Is Called' }, detail: { tr: 'bug_ids.add(101) çağrıldığında Python 101\'in hash değerini hesaplar.', en: 'When bug_ids.add(101) is called, Python computes a hash value for 101.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Hash Tablosunda Aranır', en: 'Looked Up in the Hash Table' }, detail: { tr: 'Python bu hash değerinin set içinde zaten var olup olmadığını O(1) sürede kontrol eder.', en: 'Python checks in O(1) time whether that hash already exists in the set.' } },
+    { id: 4, icon: '🚫', label: { tr: 'Aynı Hash Varsa Eklenmez', en: 'If the Hash Exists, Nothing Is Added' }, detail: { tr: 'Aynı değer zaten set\'teyse, add() sessizce hiçbir şey yapmaz — hata FIRLATMAZ.', en: 'If the value is already in the set, add() silently does nothing — it does NOT raise an error.' } },
+    { id: 5, icon: '✅', label: { tr: 'Set Sadece Benzersizleri İçerir', en: 'The Set Only Holds Uniques' }, detail: { tr: 'Sonuçta set\'in boyutu (len) her zaman BENZERSİZ eleman sayısına eşittir.', en: "As a result, the set's size (len) always equals the number of UNIQUE elements." } },
+  ],
+}
+
+const challengeDictGetOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-dict-get-01',
+  question: { tr: 'dict.get() ile güvenli bir sözlük erişiminin adımlarını doğru sıraya diz.', en: 'Arrange the steps of a safe dictionary lookup with dict.get(), in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'config = {"timeout": 30}   ← "retries" key\'i YOK', en: 'config = {"timeout": 30}   ← no "retries" key' }, order: 1 },
+    { id: '2', text: { tr: 'config.get("retries", 3) çağrılır', en: 'config.get("retries", 3) is called' }, order: 2 },
+    { id: '3', text: { tr: 'Python "retries" key\'ini sözlükte arar, bulamaz', en: 'Python looks for the "retries" key, does not find it' }, order: 3 },
+    { id: '4', text: { tr: 'KeyError FIRLATMAZ — varsayılan değeri (3) döner', en: 'It does NOT raise KeyError — it returns the default value (3)' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationWhileLoop = {
+  type: 'step-animation',
+  title: { tr: 'Bir while Döngüsü Nasıl Çalışır', en: 'How a while Loop Executes' },
+  steps: [
+    { id: 1, icon: '❓', label: { tr: 'Koşul Kontrol Edilir', en: 'Condition Is Checked' }, detail: { tr: 'while koşul: satırına gelindiğinde koşul ÖNCE kontrol edilir.', en: 'When execution reaches while condition:, the condition is checked FIRST.' } },
+    { id: 2, icon: '▶', label: { tr: 'True İse Gövde Çalışır', en: 'If True, the Body Runs' }, detail: { tr: 'Koşul True ise girintili gövde bir kez çalıştırılır.', en: 'If the condition is True, the indented body executes once.' } },
+    { id: 3, icon: '↩️', label: { tr: 'Koşula Geri Dönülür', en: 'Control Returns to the Condition' }, detail: { tr: 'Gövde bittikten sonra Python OTOMATİK olarak koşula geri döner.', en: 'After the body finishes, Python AUTOMATICALLY jumps back to the condition.' } },
+    { id: 4, icon: '🔁', label: { tr: 'Tekrar Kontrol Edilir', en: 'Condition Is Checked Again' }, detail: { tr: 'Koşul tekrar değerlendirilir — hâlâ True ise gövde yeniden çalışır.', en: 'The condition is evaluated again — if still True, the body runs again.' } },
+    { id: 5, icon: '🛑', label: { tr: 'False Olunca Döngü Biter', en: 'Loop Ends When False' }, detail: { tr: 'Koşul False olduğu anda döngü durur ve sıradaki satıra geçilir — gövde içinde koşulu False yapan bir satır (örn. sayaç artırma) olmazsa döngü SONSUZA döner.', en: "The moment the condition is False, the loop stops and execution continues after it — if nothing inside the body ever makes the condition False (e.g. incrementing a counter), the loop runs FOREVER." } },
+  ],
+}
+
+const stepAnimationFunctionCall = {
+  type: 'step-animation',
+  title: { tr: 'Bir Fonksiyon Çağrıldığında Ne Olur', en: 'What Happens When a Function Is Called' },
+  steps: [
+    { id: 1, icon: '📞', label: { tr: 'Fonksiyon Çağrılır', en: 'The Function Is Called' }, detail: { tr: 'run_test("/api/login", "POST") yazıldığında Python o fonksiyonun tanımına atlar.', en: 'When you write run_test("/api/login", "POST"), Python jumps to that function\'s definition.' } },
+    { id: 2, icon: '📥', label: { tr: 'Argümanlar Parametrelere Kopyalanır', en: 'Arguments Are Copied to Parameters' }, detail: { tr: 'Verilen değerler, fonksiyon tanımındaki parametre isimlerine sırayla (veya keyword\'e göre) atanır.', en: 'The given values are assigned to the parameter names in the definition, by position (or by keyword).' } },
+    { id: 3, icon: '🆕', label: { tr: 'Yeni Bir Local Scope Açılır', en: 'A New Local Scope Opens' }, detail: { tr: 'Fonksiyon gövdesi, çağıran kodu ETKİLEMEYEN kendine ait yeni bir değişken alanında çalışır.', en: "The function body runs in its own fresh variable space that does NOT affect the calling code." } },
+    { id: 4, icon: '↩️', label: { tr: 'return Değeri Çağrı Noktasına Gönderir', en: 'return Sends the Value Back' }, detail: { tr: 'return ifadesi çalıştığı anda fonksiyon durur ve değeri çağrıldığı yere gönderir.', en: 'The moment return executes, the function stops and sends its value back to the call site.' } },
+    { id: 5, icon: '🗑️', label: { tr: 'Local Scope Silinir', en: 'The Local Scope Is Discarded' }, detail: { tr: 'Fonksiyon bitince içindeki tüm local değişkenler silinir — çağıran kodun değişkenleri ETKİLENMEZ.', en: "Once the function ends, all its local variables are discarded — the caller's variables are NOT affected." } },
+  ],
+}
+
+const stepAnimationObjectCreation = {
+  type: 'step-animation',
+  title: { tr: 'Bir Nesne (Object) Oluşturulduğunda Ne Olur', en: 'What Happens When an Object Is Created' },
+  steps: [
+    { id: 1, icon: '📞', label: { tr: 'Sınıf Çağrılır', en: 'The Class Is Called' }, detail: { tr: 'TestRunner("Login Test", "Chrome") yazıldığında Python o sınıftan yeni bir nesne oluşturmaya başlar.', en: 'Writing TestRunner("Login Test", "Chrome") tells Python to start creating a new object from that class.' } },
+    { id: 2, icon: '🆕', label: { tr: 'Boş Nesne Oluşturulur', en: 'An Empty Object Is Allocated' }, detail: { tr: 'Bellekte henüz hiçbir özelliği (attribute) olmayan boş bir nesne ayrılır.', en: 'An empty object with no attributes yet is allocated in memory.' } },
+    { id: 3, icon: '⚙️', label: { tr: '__init__ Otomatik Çağrılır', en: '__init__ Runs Automatically' }, detail: { tr: 'Python __init__ metodunu otomatik çağırır; verilen argümanlar parametrelere atanır.', en: "Python automatically calls __init__; the given arguments are assigned to its parameters." } },
+    { id: 4, icon: '🏷️', label: { tr: 'self ile Özellikler Atanır', en: 'Attributes Are Set via self' }, detail: { tr: '__init__ içindeki self.name = name gibi satırlar, değerleri YENİ nesneye yapıştırır.', en: 'Lines like self.name = name inside __init__ attach the values onto the NEW object.' } },
+    { id: 5, icon: '✅', label: { tr: 'Nesne Değişkene Atanır', en: 'The Object Is Assigned to a Variable' }, detail: { tr: 'Hazır nesne, çağrı noktasındaki değişkene (örn. runner = TestRunner(...)) bağlanır.', en: 'The finished object is bound to the variable at the call site (e.g. runner = TestRunner(...)).' } },
+  ],
+}
+
+// --- BATCH 3: step-animation + order-sort for Scope&Modules (order-sort only),
+// Helper Modules, Files&JSON, Exceptions&RegEx, Advanced Concepts, Ecosystem
+// (step-animation only), Troubleshooting, Java→Python, Practice Exercises. ---
+
+const challengeScopeLegbOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-scope-legb-01',
+  question: { tr: "Python bir değişkeni ararken hangi sırayla (LEGB) kapsamları tarar?", en: 'In what order (LEGB) does Python search scopes when looking up a variable?' },
+  items: [
+    { id: '1', text: { tr: 'Local — şu an çalışan fonksiyonun kendi içi', en: 'Local — inside the currently running function' }, order: 1 },
+    { id: '2', text: { tr: 'Enclosing — sarmalayan (varsa) dış fonksiyon', en: 'Enclosing — the surrounding outer function, if any' }, order: 2 },
+    { id: '3', text: { tr: 'Global — modülün en üst seviyesi', en: "Global — the module's top level" }, order: 3 },
+    { id: '4', text: { tr: 'Built-in — Python\'ın kendi yerleşik isimleri (len, print, ...)', en: "Built-in — Python's own built-in names (len, print, ...)" }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const stepAnimationRandomChoice = {
+  type: 'step-animation',
+  title: { tr: "random.choice() Bir Listeden Eleman Seçerken Ne Olur", en: 'What Happens When random.choice() Picks From a List' },
+  steps: [
+    { id: 1, icon: '📥', label: { tr: "Modül import Edilir", en: 'The Module Is Imported' }, detail: { tr: 'import random satırı, standart kütüphanedeki random modülünü kullanılabilir hale getirir.', en: 'The line import random makes the standard-library random module available.' } },
+    { id: 2, icon: '📞', label: { tr: 'choice(liste) Çağrılır', en: 'choice(list) Is Called' }, detail: { tr: 'random.choice(["a","b","c"]) çağrıldığında Python listenin uzunluğunu (3) alır.', en: 'When random.choice(["a","b","c"]) is called, Python takes the length of the list (3).' } },
+    { id: 3, icon: '🎲', label: { tr: 'Rastgele Bir Index Üretilir', en: 'A Random Index Is Generated' }, detail: { tr: '0 ile len-1 arasında (burada 0, 1 veya 2) sözde-rastgele bir tam sayı üretilir.', en: 'A pseudo-random integer between 0 and len-1 (here 0, 1, or 2) is generated.' } },
+    { id: 4, icon: '📍', label: { tr: 'O Index\'teki Eleman Bulunur', en: 'The Element at That Index Is Found' }, detail: { tr: "Üretilen index, listenin o pozisyonundaki elemana karşılık gelir.", en: "The generated index maps to the element at that position in the list." } },
+    { id: 5, icon: '✅', label: { tr: 'Eleman Döndürülür', en: 'The Element Is Returned' }, detail: { tr: 'Seçilen eleman çağrı noktasına döndürülür — orijinal liste DEĞİŞMEZ.', en: 'The chosen element is returned to the call site — the original list is NOT modified.' } },
+  ],
+}
+
+const challengeDatetimeOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-datetime-01',
+  question: { tr: 'Bir test raporuna zaman damgası (timestamp) ekleme adımlarını doğru sıraya diz.', en: 'Arrange the steps for adding a timestamp to a test report, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'import datetime   ← modülü içe aktar', en: 'import datetime   ← import the module' }, order: 1 },
+    { id: '2', text: { tr: 'now = datetime.datetime.now()   ← şu anki zamanı al', en: 'now = datetime.datetime.now()   ← get the current time' }, order: 2 },
+    { id: '3', text: { tr: 'formatted = now.strftime("%Y-%m-%d %H:%M")   ← biçimlendir', en: 'formatted = now.strftime("%Y-%m-%d %H:%M")   ← format it' }, order: 3 },
+    { id: '4', text: { tr: 'report += f"Run at: {formatted}"   ← rapora ekle', en: 'report += f"Run at: {formatted}"   ← add it to the report' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationJsonRead = {
+  type: 'step-animation',
+  title: { tr: 'Bir JSON Dosyası Okunurken Ne Olur', en: 'What Happens When a JSON File Is Read' },
+  steps: [
+    { id: 1, icon: '📂', label: { tr: 'Dosya Açılır', en: 'The File Is Opened' }, detail: { tr: 'with open("data.json") as f: ile dosya güvenle açılır.', en: 'with open("data.json") as f: opens the file safely.' } },
+    { id: 2, icon: '📞', label: { tr: 'json.load(f) Çağrılır', en: 'json.load(f) Is Called' }, detail: { tr: 'Dosya içeriği (ham metin) json modülüne verilir.', en: "The file's raw text content is handed to the json module." } },
+    { id: 3, icon: '🔍', label: { tr: 'Metin Ayrıştırılır (Parse)', en: 'The Text Is Parsed' }, detail: { tr: 'json modülü metni karakter karakter okuyup yapısını (obje, dizi, sayı, string) anlar.', en: 'The json module reads the text character by character and figures out its structure (object, array, number, string).' } },
+    { id: 4, icon: '🔄', label: { tr: 'Python Tiplerine Eşlenir', en: 'Mapped to Python Types' }, detail: { tr: 'JSON object → dict, JSON array → list, JSON string/number/bool → aynı Python karşılığı.', en: 'JSON object → dict, JSON array → list, JSON string/number/bool → the matching Python type.' } },
+    { id: 5, icon: '✅', label: { tr: 'Dict/List Olarak Döner', en: 'Returned as a dict/list' }, detail: { tr: 'Sonuç bir Python dict veya list olarak değişkene atanır; with bloğu bitince dosya OTOMATİK kapanır.', en: 'The result is assigned to a variable as a Python dict or list; the file is AUTOMATICALLY closed when the with block ends.' } },
+  ],
+}
+
+const challengeWithFileOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-with-file-01',
+  question: { tr: 'Bir dosyayı "with" bloğuyla güvenle okuma adımlarını doğru sıraya diz.', en: 'Arrange the steps for safely reading a file with a "with" block, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'with open("results.json") as f:   ← dosya açılır, f\'e bağlanır', en: 'with open("results.json") as f:   ← file opens, bound to f' }, order: 1 },
+    { id: '2', text: { tr: 'data = json.load(f)   ← blok içinde içerik okunur', en: 'data = json.load(f)   ← content is read inside the block' }, order: 2 },
+    { id: '3', text: { tr: 'Blok biter (girinti sona erer)', en: 'The block ends (indentation ends)' }, order: 3 },
+    { id: '4', text: { tr: 'Dosya OTOMATİK kapanır — f.close() yazmaya gerek yoktur', en: 'The file closes AUTOMATICALLY — no need to write f.close()' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationTryExcept = {
+  type: 'step-animation',
+  title: { tr: 'Bir try/except Bloğu Hata Yakalarken Ne Olur', en: 'What Happens When a try/except Block Catches an Error' },
+  steps: [
+    { id: 1, icon: '▶', label: { tr: 'try Bloğu Çalışır', en: 'The try Block Runs' }, detail: { tr: 'try: altındaki kod normal şekilde çalışmaya başlar.', en: 'The code under try: starts executing normally.' } },
+    { id: 2, icon: '💥', label: { tr: 'Bir Satırda Hata Oluşur', en: 'A Line Raises an Error' }, detail: { tr: 'Bir satır bir exception fırlatır (örn. requests.get() zaman aşımına uğrar).', en: 'A line raises an exception (e.g. requests.get() times out).' } },
+    { id: 3, icon: '⏭️', label: { tr: 'Kalan try Kodu ATLANIR', en: 'The Rest of try Is SKIPPED' }, detail: { tr: 'Hata oluşan satırdan sonraki tüm try satırları ÇALIŞTIRILMAZ.', en: 'Every line in try after the failing one is NOT executed.' } },
+    { id: 4, icon: '🔍', label: { tr: 'Uyan except Aranır', en: 'A Matching except Is Searched For' }, detail: { tr: 'Python, hatanın TİPİNE uyan ilk except bloğunu sırayla arar.', en: "Python looks, in order, for the first except block matching the error's TYPE." } },
+    { id: 5, icon: '✅', label: { tr: 'Uyan Blok Çalışır (veya Hata Yukarı Çıkar)', en: 'The Matching Block Runs (or the Error Propagates)' }, detail: { tr: 'Uyan bir except bulunursa o blok çalışır; hiçbiri uymazsa hata yukarıya fırlatılır ve program (yakalanmazsa) durur.', en: 'If a match is found, that block runs; if none match, the error propagates up and (if uncaught) stops the program.' } },
+  ],
+}
+
+const challengeRegexSearchOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-regex-search-01',
+  question: { tr: 're.search() ile bir pattern arama adımlarını doğru sıraya diz.', en: 'Arrange the steps for searching with re.search(), in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'import re   ← regex modülünü içe aktar', en: 'import re   ← import the regex module' }, order: 1 },
+    { id: '2', text: { tr: 'pattern = r"TC-\\d+"   ← aranacak kalıbı tanımla', en: 'pattern = r"TC-\\d+"   ← define the pattern to search for' }, order: 2 },
+    { id: '3', text: { tr: 'match = re.search(pattern, text)   ← metinde ara', en: 'match = re.search(pattern, text)   ← search inside the text' }, order: 3 },
+    { id: '4', text: { tr: 'if match: print(match.group())   ← bulunduysa eşleşeni al', en: 'if match: print(match.group())   ← if found, get the matched text' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const stepAnimationDecorator = {
+  type: 'step-animation',
+  title: { tr: 'Bir Decorator Bir Fonksiyonu Sarmalarken Ne Olur', en: 'What Happens When a Decorator Wraps a Function' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: '@decorator Satırı Görülür', en: 'The @decorator Line Is Seen' }, detail: { tr: '@my_decorator, hemen altındaki fonksiyon tanımının ÜSTÜNE yazılır.', en: '@my_decorator is written directly above the function definition.' } },
+    { id: 2, icon: '📥', label: { tr: 'Orijinal Fonksiyon Argüman Olarak Verilir', en: 'The Original Function Is Passed In' }, detail: { tr: 'Python orijinal fonksiyonu (örn. test_login) decorator\'a bir argüman olarak verir.', en: 'Python passes the original function (e.g. test_login) into the decorator as an argument.' } },
+    { id: 3, icon: '🆕', label: { tr: 'wrapper Fonksiyonu Tanımlanır', en: 'A wrapper Function Is Defined' }, detail: { tr: 'Decorator içinde, orijinal fonksiyonu çağırmadan önce/sonra ek kod çalıştıran bir wrapper fonksiyonu tanımlanır.', en: 'Inside the decorator, a wrapper function is defined that runs extra code before/after calling the original.' } },
+    { id: 4, icon: '🔁', label: { tr: 'İsim wrapper\'ı İşaret Eder', en: 'The Name Now Points to wrapper' }, detail: { tr: 'test_login ismi artık ORİJİNAL fonksiyonu değil, wrapper\'ı işaret eder.', en: 'The name test_login now refers to wrapper, not the original function.' } },
+    { id: 5, icon: '▶', label: { tr: 'Çağrıldığında wrapper Çalışır', en: 'Calling It Runs wrapper' }, detail: { tr: 'test_login() çağrıldığında önce wrapper\'ın ek kodu, sonra (genellikle) orijinal fonksiyon çalışır.', en: "Calling test_login() runs wrapper's extra code first, then (typically) the original function." } },
+  ],
+}
+
+const challengeGeneratorOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-generator-01',
+  question: { tr: 'Bir generator fonksiyonunun çalışma adımlarını doğru sıraya diz.', en: 'Arrange the steps of how a generator function executes, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'def my_gen(): içinde "yield" kullanılır', en: 'def my_gen(): contains a "yield"' }, order: 1 },
+    { id: '2', text: { tr: 'my_gen() çağrılır — kod HENÜZ çalışmaz, bir generator nesnesi döner', en: 'my_gen() is called — the code does NOT run yet, a generator object is returned' }, order: 2 },
+    { id: '3', text: { tr: 'next() çağrılır — kod yield\'e kadar çalışır ve DURAKLAR', en: 'next() is called — code runs up to yield and PAUSES' }, order: 3 },
+    { id: '4', text: { tr: 'Tekrar next() çağrılınca durduğu yerden devam eder', en: 'Calling next() again resumes right where it paused' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const stepAnimationPipInstall = {
+  type: 'step-animation',
+  title: { tr: 'pip install Bir Paket Kurarken Ne Olur', en: 'What Happens When pip install Installs a Package' },
+  steps: [
+    { id: 1, icon: '⌨️', label: { tr: 'Komut Yazılır', en: 'The Command Is Typed' }, detail: { tr: 'Terminalde "pip install requests" yazılır.', en: 'You type "pip install requests" in the terminal.' } },
+    { id: 2, icon: '🌐', label: { tr: 'PyPI\'a Bağlanılır', en: 'Connects to PyPI' }, detail: { tr: 'pip, Python Package Index (PyPI) sunucusuna bağlanır.', en: 'pip connects to the Python Package Index (PyPI) server.' } },
+    { id: 3, icon: '🔎', label: { tr: 'Uygun Sürüm Bulunur', en: 'A Compatible Version Is Found' }, detail: { tr: "Paketin ve bağımlılıklarının, kullandığın Python sürümüyle uyumlu en güncel hali bulunur.", en: "The latest version of the package (and its dependencies) compatible with your Python version is found." } },
+    { id: 4, icon: '⬇️', label: { tr: 'İndirilir ve Kurulur', en: 'Downloaded and Installed' }, detail: { tr: "Paket indirilir ve sanal ortamın (varsa) site-packages klasörüne kurulur.", en: "The package is downloaded and installed into the (virtual) environment's site-packages folder." } },
+    { id: 5, icon: '✅', label: { tr: 'import İçin Hazır', en: 'Ready to import' }, detail: { tr: 'Kurulum bitince "import requests" satırı artık hata vermeden çalışır.', en: 'Once installed, "import requests" now works without error.' } },
+  ],
+}
+
+const stepAnimationTracebackReading = {
+  type: 'step-animation',
+  title: { tr: 'Bir Python Hatasını (Traceback) Okuma Sırası', en: 'How to Read a Python Error (Traceback)' },
+  steps: [
+    { id: 1, icon: '⬇️', label: { tr: 'EN ALTTAN Başla', en: 'Start From the BOTTOM' }, detail: { tr: "Traceback'in en altındaki satır, hatanın TİPİNİ ve mesajını gösterir — burası en önemli kısımdır.", en: "The bottom line of a traceback shows the error's TYPE and message — this is the most important part." } },
+    { id: 2, icon: '🏷️', label: { tr: 'Hata Tipine Bak', en: 'Look at the Error Type' }, detail: { tr: 'KeyError, TypeError, AttributeError gibi tip, sorunun NE OLDUĞUNU söyler.', en: 'The type (KeyError, TypeError, AttributeError, ...) tells you WHAT kind of problem it is.' } },
+    { id: 3, icon: '🔼', label: { tr: 'Yukarı Doğru Çağrı Zincirini Takip Et', en: 'Follow the Call Chain Upward' }, detail: { tr: 'Üstteki her satır, bir fonksiyonun bir öncekini ÇAĞIRDIĞINI gösterir — en üst, en dıştaki çağrıdır.', en: 'Each line above shows one function CALLING the next — the topmost is the outermost call.' } },
+    { id: 4, icon: '📍', label: { tr: 'Dosya + Satır Numarasını Not Al', en: 'Note the File + Line Number' }, detail: { tr: 'Her satır "File ... line N" formatında hangi dosyada, hangi satırda olduğunu gösterir.', en: 'Each line shows "File ... line N" — exactly where in your code that step happened.' } },
+    { id: 5, icon: '🎯', label: { tr: 'SENİN Kodunu Bul', en: 'Find YOUR Code' }, detail: { tr: 'Genellikle senin yazdığın dosyaya ait en alttaki satır, hatanın gerçek kaynağıdır — kütüphane içi satırlar genelde sadece çağrı zincirini gösterir.', en: 'Usually the lowest line pointing at YOUR file is the real source — library-internal lines mostly just show the call chain.' } },
+  ],
+}
+
+const challengeFlakyDebugOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-flaky-debug-01',
+  question: { tr: '"Flaky" (kararsız) bir testi debug etme adımlarını doğru sıraya diz.', en: 'Arrange the steps for debugging a "flaky" test, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Testi art arda birkaç kez çalıştır, gerçekten kararsız mı doğrula', en: 'Run the test several times in a row to confirm it really is flaky' }, order: 1 },
+    { id: '2', text: { tr: 'Hata mesajını ve traceback\'i dikkatlice oku', en: 'Read the error message and traceback carefully' }, order: 2 },
+    { id: '3', text: { tr: 'Zamanlamaya bağlı bir sorun mu kontrol et (race condition, sabit sleep)', en: 'Check if it is timing-related (a race condition, a fixed sleep)' }, order: 3 },
+    { id: '4', text: { tr: 'Sabit sleep() yerine WebDriverWait/retry mekanizması ekle', en: 'Replace the fixed sleep() with a WebDriverWait/retry mechanism' }, order: 4 },
+  ],
+  xpReward: 15,
+}
+
+const stepAnimationJavaToPythonMethod = {
+  type: 'step-animation',
+  title: { tr: 'Bir Java Metodu Python Fonksiyonuna Çevrilirken Ne Değişir', en: 'What Changes When a Java Method Becomes a Python Function' },
+  steps: [
+    { id: 1, icon: '🚫', label: { tr: 'Erişim Belirleyici Kaldırılır', en: 'Access Modifier Is Dropped' }, detail: { tr: 'public/private/protected Python\'da YOKTUR — kaldırılır (isim "_" ile başlarsa "özel" kabul edilir, ama zorunlu değildir).', en: 'public/private/protected do not exist in Python — they are dropped (a leading "_" signals "private" by convention, not enforcement).' } },
+    { id: 2, icon: '↩️', label: { tr: 'Dönüş Tipi Opsiyonel Olur', en: 'Return Type Becomes Optional' }, detail: { tr: 'String yerine sadece "def greet(name):" yazılır; "-> str" type hint OPSİYONELDİR.', en: 'Instead of String, you just write "def greet(name):"; a "-> str" type hint is OPTIONAL.' } },
+    { id: 3, icon: '🏛️', label: { tr: '"static" Kaldırılır', en: '"static" Is Removed' }, detail: { tr: 'Python fonksiyonları class içine HAPSEDİLMEK ZORUNDA değildir — bağımsız (standalone) yazılabilir.', en: "Python functions don't have to live inside a class — they can be standalone." } },
+    { id: 4, icon: '📐', label: { tr: 'Süslü Parantez → Girinti', en: 'Curly Braces → Indentation' }, detail: { tr: '{ } yerine girinti (indentation) blok sınırını belirler.', en: '{ } is replaced by indentation to mark the block boundary.' } },
+    { id: 5, icon: '🔚', label: { tr: 'Noktalı Virgül Kaldırılır', en: 'Semicolons Are Dropped' }, detail: { tr: 'Her satırın sonundaki ";" Python\'da kullanılmaz — satır sonu yeterlidir.', en: 'The ";" at the end of each line is not used in Python — the line break is enough.' } },
+  ],
+}
+
+const challengeJavaForEachToPythonOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-java-foreach-01',
+  question: { tr: 'Bir Java for-each döngüsünü Python\'a çevirme adımlarını doğru sıraya diz.', en: 'Arrange the steps for converting a Java for-each loop to Python, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Java: for (String s : list) { ... }   ← başlangıç noktası', en: 'Java: for (String s : list) { ... }   ← starting point' }, order: 1 },
+    { id: '2', text: { tr: 'Süslü parantezler { } kaldırılır', en: 'The curly braces { } are removed' }, order: 2 },
+    { id: '3', text: { tr: '":" ile "for s in list:" yazılır', en: 'It becomes "for s in list:" with a colon' }, order: 3 },
+    { id: '4', text: { tr: 'Gövde 4 boşlukla girintilenir', en: 'The body is indented by 4 spaces' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const stepAnimationProblemSolvingStrategy = {
+  type: 'step-animation',
+  title: { tr: 'Bir Pratik Egzersizi Çözme Stratejisi', en: 'A Strategy for Solving a Practice Exercise' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Soruyu Net Oku', en: 'Read the Problem Clearly' }, detail: { tr: 'Girdi ve çıktının TAM olarak ne olduğunu, hangi formatta beklendiğini netleştir.', en: 'Clarify exactly what the input and output are, and in what format.' } },
+    { id: 2, icon: '✍️', label: { tr: 'Küçük Bir Örnek Üzerinde Elle Çöz', en: 'Solve a Small Example by Hand' }, detail: { tr: 'Kod yazmadan önce kalem-kağıtla küçük bir örnek üzerinde adımları elle takip et.', en: 'Before writing code, walk through a small example by hand on paper first.' } },
+    { id: 3, icon: '🧩', label: { tr: 'Küçük Parçalar Halinde Yaz', en: 'Write It in Small Pieces' }, detail: { tr: 'Tüm çözümü tek seferde yazmak yerine, her parçayı yazıp print() ile test et.', en: 'Instead of writing the whole solution at once, write and print()-test each piece.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Sınır Durumlarını (Edge Case) Kontrol Et', en: 'Check Edge Cases' }, detail: { tr: 'Boş liste, None, 0, negatif sayı gibi sınır durumlarını ayrıca dene.', en: 'Separately try edge cases like an empty list, None, 0, or a negative number.' } },
+    { id: 5, icon: '✨', label: { tr: 'Çalışan Kodu Sadeleştir', en: 'Simplify the Working Code' }, detail: { tr: 'Çözüm doğru çalıştıktan SONRA, list comprehension veya yerleşik fonksiyonlarla sadeleştir.', en: 'Only AFTER it works correctly, simplify it with a list comprehension or built-in functions.' } },
+  ],
+}
+
+const challengeTestDataFunctionOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-py-order-test-data-fn-01',
+  question: { tr: 'Bir test verisi üretme fonksiyonu yazma adımlarını doğru sıraya diz.', en: 'Arrange the steps for writing a test-data-generating function, in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Fonksiyonun parametrelerini ve ne döndüreceğini tanımla', en: "Define the function's parameters and what it will return" }, order: 1 },
+    { id: '2', text: { tr: 'Gerekli modülleri import et (örn. random, string)', en: 'Import the modules you need (e.g. random, string)' }, order: 2 },
+    { id: '3', text: { tr: 'Mantığı yaz ve küçük bir girdiyle test et', en: 'Write the logic and test it with a small input' }, order: 3 },
+    { id: '4', text: { tr: 'Sınır durumlarıyla (0, negatif, çok büyük) tekrar dene', en: 'Re-test it with edge cases (0, negative, very large)' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
 // --- TABS & HERO DEFINITIONS ---
 const trHero = {
   title: '🐍 Python',
@@ -7306,27 +7809,27 @@ const trTabs = [
 
 // --- FINAL SECTION MAPPING ---
 const finalEnSections = [
-  { ...sections[0], blocks: [...sections[0].blocks, ...getPlaygroundBlocksForTopic('intro')] },
-  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
-  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
-  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
-  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
-  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 65), feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
-  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 48), feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 63), feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
-  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
-  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
-  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
-  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
-  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
-  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
+  { ...sections[0], blocks: [...sections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro')] },
+  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
+  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
+  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
+  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
+  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
+  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
+  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
   { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
-  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
-  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
-  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
+  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
   {
     title: '🐞 Manual Testing Lab',
     blocks: [
@@ -7353,27 +7856,27 @@ const finalEnSections = [
 ];
 
 const finalTrSections = [
-  { ...trSections[0], blocks: [...trSections[0].blocks, ...getPlaygroundBlocksForTopic('intro')] },
-  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
-  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
-  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
-  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
-  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 65), feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
-  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 48), feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 63), feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
-  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
-  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
-  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
-  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
-  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
-  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
+  { ...trSections[0], blocks: [...trSections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro')] },
+  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation')]) },
+  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments')]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types')]) },
+  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans')]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples')]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts')]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops')]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda')]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules')]) },
+  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules')]) },
+  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith]) },
+  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException]) },
+  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts')]) },
   { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture]) },
-  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
-  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
-  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
+  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting')]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python')]) },
+  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark]) },
   {
     title: '🐞 Manuel Test Lab',
     blocks: [
