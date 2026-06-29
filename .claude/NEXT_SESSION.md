@@ -10,6 +10,48 @@
 
 ---
 
+## Branch Durumu (2026-06-30) — codex2 + main Merge Tamamlandi, Push Edildi
+
+Windows'ta Codex `codex2` branch'inde calisip commit+push yapmisti
+(`798e9fd feat(codex2): TypeScript i18n + bilingual editor blocks +
+interactive exercises`, Docker/Jenkins/Kubernetes interaktif rollout +
+TypeScript `_editorBilingual()` mekanizmasi). Bu Mac'te ayni anda `main`'de
+bugunku Python is'i (practice mode + 3x drag-and-drop + 43 analoji + CLAUDE.md
+kurallari) bekliyordu. Kullanicinin onayiyla su sira izlendi (kullanicinin
+onceden onaylanmis kendi onerisi):
+
+1. Mac `main`: bugunku degisiklikler commit (`6a51c7b`) + push edildi.
+2. `codex2` yerel branch olusturuldu (`origin/codex2` takip ederek), icine
+   `origin/main` merge edildi (`git merge origin/main`).
+   - **Tek cakisma:** `CodePlaygroundBlock.jsx` — HEM codex2 HEM main, PracticePanel'in
+     "gercek X degil" aciklama metnini AYNI satirda farkli sekilde genellestirmisti
+     (codex2: "kod veya komut" / runtime-terminal ifadesi — Docker/Jenkins komut
+     pratikleri icin; main: `${language}` dinamik interpolasyonu). **El ile cozuldu:
+     ikisi birlestirildi** — hem dinamik `${language}` hem "kod veya komut/derleyici/
+     yorumlayici/terminal" ifadesi tek cumlede birlikte kullanildi.
+   - `NEXT_SESSION.md` ve `typescriptData.js` cakismasiz otomatik merge oldu
+     (pythonData.js/pythonPlaygroundData.js codex2'de hic degismemisti, sifir risk).
+3. `typescriptData.js`'in incelenen `_editorBilingual(si, bi, trCode)` mekanizmasi
+   dogrulandi: `[typescriptData.en, typescriptData.tr].forEach(...)` ile HER cagri
+   iki kopyayi da SIMETRIK guncelliyor — onceden tahmin edilen en/tr drift riski
+   bu mekanizmada YOK (mekanizma tasarimca guvenli).
+4. `npm run build` + tam Playwright suite (76/76 PASS, 0 fail) `codex2` uzerinde
+   calistirildi, merge commit tamamlandi (`91d1294`).
+5. `codex2` -> `main`'e `--no-ff` merge edildi (`5ee8a94`) — cakismasiz (codex2
+   zaten main'i icermisti). `main` uzerinde TEKRAR build + tam suite (76/76 PASS)
+   calistirildi.
+6. `origin/main` VE `origin/codex2` push edildi.
+
+**Sonuc:** `origin/main` artik HEM bugunku Python calismasini HEM Windows/Codex'in
+TypeScript+Docker+Jenkins+Kubernetes calismasini iceriyor, tek bir cakisma
+(kucuk, metin duzeyinde) el ile cozuldu, her asamada build+test yesil.
+
+**Diger Mac icin not:** `origin/main` guncel; o makine `git fetch && git pull
+origin main` ile dogrudan senkronize olabilir, ek merge gerekmez (codex2 zaten
+main'e akitildi).
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30) — Dusunduren Analoji Standardi: Bruno -> Python + CLAUDE.md Kurali
 
 Kullanici `/bruno` sayfasindaki `simple-box` analojilerini (somut benzetme +
