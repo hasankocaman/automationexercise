@@ -401,7 +401,7 @@ const section2 = {
       type: 'code',
       language: 'Python',
       content: { tr: '# test_login.py — Mevcut Selenium testiniz (DEĞİŞTİRME)', en: '# test_login.py — Your existing Selenium test (DO NOT CHANGE)' },
-      code: `import pytest
+      code: { tr: `import pytest
 from selenium import webdriver                    # Normal Selenium import
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -409,8 +409,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 @pytest.fixture
 def driver():
-    """WebDriver fixture — SDK bu oluşturma sürecini otomatik yönetir"""
-    options = webdriver.ChromeOptions()           # Normal Chrome options
+    """WebDriver fixture — SDK bu setup sürecini otomatik yönetir"""
+    options = webdriver.ChromeOptions()           # Normal Chrome seçenekleri
     driver = webdriver.Chrome(options=options)    # Yerel ChromeDriver gibi görünür
     yield driver                                  # Testi çalıştır
     driver.quit()                                 # Temizlik yap
@@ -419,7 +419,25 @@ def test_login_page(driver):
     """Login sayfası başlık kontrolü"""
     driver.get("https://example.com/login")       # Siteye git
     title = driver.title                          # Başlığı al
-    assert "Login" in title, f"Başlık yanlış: {title}"  # Doğrula`
+    assert "Login" in title, f"Başlık yanlış: {title}"  # Doğrula`, en: `import pytest
+from selenium import webdriver                    # Normal Selenium import
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+@pytest.fixture
+def driver():
+    """WebDriver fixture — SDK automatically manages this setup process"""
+    options = webdriver.ChromeOptions()           # Normal Chrome options
+    driver = webdriver.Chrome(options=options)    # Looks like local ChromeDriver
+    yield driver                                  # Run the test
+    driver.quit()                                 # Cleanup
+
+def test_login_page(driver):
+    """Login page title check"""
+    driver.get("https://example.com/login")       # Navigate to site
+    title = driver.title                          # Get title
+    assert "Login" in title, f"Wrong title: {title}"  # Verify` }
     },
     {
       type: 'code',
@@ -446,7 +464,7 @@ browserstack-sdk pytest tests/ -v --tb=short`
       type: 'code',
       language: 'Python',
       content: { tr: '# Manuel RemoteWebDriver bağlantısı', en: '# Manual RemoteWebDriver connection' },
-      code: `import os
+      code: { tr: `import os
 from selenium import webdriver
 
 def get_bs_driver(test_name: str):
@@ -478,7 +496,39 @@ def get_bs_driver(test_name: str):
 driver = get_bs_driver("Checkout Flow Test")
 driver.get("https://shop.example.com")
 print(driver.title)
-driver.quit()`
+driver.quit()`, en: `import os
+from selenium import webdriver
+
+def get_bs_driver(test_name: str):
+    """Factory function that creates BrowserStack RemoteWebDriver"""
+
+    bs_options = {
+        "userName": os.environ["BROWSERSTACK_USERNAME"],    # Read from env
+        "accessKey": os.environ["BROWSERSTACK_ACCESS_KEY"],
+        "os": "Windows",
+        "osVersion": "11",
+        "sessionName": test_name,                          # Visible in the dashboard
+        "buildName": "Regression-Sprint42",
+        "networkLogs": True,                               # Record network logs
+        "consoleLogs": "errors",                           # Log only errors
+        "video": True,                                     # Enable video recording
+    }
+
+    options = webdriver.ChromeOptions()
+    options.browser_version = "latest"                     # Latest Chrome version
+    options.set_capability("bstack:options", bs_options)   # Add BS capabilities
+
+    driver = webdriver.Remote(
+        command_executor="https://hub.browserstack.com/wd/hub",  # BS hub
+        options=options
+    )
+    return driver
+
+# Usage
+driver = get_bs_driver("Checkout Flow Test")
+driver.get("https://shop.example.com")
+print(driver.title)
+driver.quit()` }
     },
     {
       type: 'heading',
@@ -495,7 +545,7 @@ driver.quit()`
       type: 'code',
       language: 'Python',
       content: { tr: '# Test sonucunu BrowserStack\'e bildir', en: '# Report test result to BrowserStack' },
-      code: `import pytest
+      code: { tr: `import pytest
 from selenium import webdriver
 
 @pytest.fixture
@@ -530,7 +580,42 @@ def pytest_runtest_makereport(item, call):
     """pytest hook — test sonucunu fixture'a taşı"""
     outcome = yield
     rep = outcome.get_result()
-    setattr(item, "rep_" + rep.when, rep)  # request.node.rep_call'u doldur`
+    setattr(item, "rep_" + rep.when, rep)  # request.node.rep_call'u doldur`, en: `import pytest
+from selenium import webdriver
+
+@pytest.fixture
+def driver(request):
+    """Driver fixture with pass/fail reporting"""
+    # ... driver setup ...
+    options = webdriver.ChromeOptions()
+    options.set_capability("bstack:options", {
+        "userName": "USER", "accessKey": "KEY"
+    })
+    driver = webdriver.Remote(
+        command_executor="https://hub.browserstack.com/wd/hub",
+        options=options
+    )
+    yield driver
+
+    # Test finished - report the result to BrowserStack
+    test_result = "passed" if not request.node.rep_call.failed else "failed"
+    reason = ""
+    if request.node.rep_call.failed:
+        reason = str(request.node.rep_call.longrepr)[:200]  # Error message
+
+    # Call the BS API via JavaScript executor
+    driver.execute_script(
+        f'browserstack_executor: {{"action": "setSessionStatus", '
+        f'"arguments": {{"status": "{test_result}", "reason": "{reason}"}}}}'
+    )
+    driver.quit()
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """pytest hook - move test result into the fixture"""
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)  # Populate request.node.rep_call` }
     },
     {
       type: 'java-compare',
@@ -634,7 +719,7 @@ driver = webdriver.Remote(
         tr: '"▶ Testi Çalıştır" butonuna bas: yerel terminalde başlayan pytest komutunun BrowserStack Hub\'a bağlanıp gerçek bulut tarayıcısında nasıl çalıştığını ve Automate Dashboard\'da oturumun nasıl belirdiğini izle.',
         en: 'Click "▶ Run Test": watch a pytest command that starts in your local terminal connect to the BrowserStack Hub, run on a real cloud browser, and appear as a live session on the Automate Dashboard.',
       },
-      code: `# Terminal — local makinende çalıştır
+      code: { tr: `# Terminal — local makinende çalıştır
 browserstack-sdk pytest test_login.py -v
 
 # Arka planda olan biten:
@@ -645,7 +730,18 @@ browserstack-sdk pytest test_login.py -v
 # 4) Test komutları (click, sendKeys...) o uzak tarayıcıda çalışır
 # 5) Video + network log + console log kaydedilir
 # 6) execute_script("browserstack_executor: ...") ile
-#    Pass/Fail durumu Dashboard'a bildirilir`,
+#    Pass/Fail durumu Dashboard'a bildirilir`, en: `# Terminal — run on your local machine
+browserstack-sdk pytest test_login.py -v
+
+# What's happening in the background:
+# 1) SDK intercepts WebDriver creation
+# 2) RemoteWebDriver connects to hub.browserstack.com via HTTPS
+# 3) BrowserStack provisions a real
+#    Chrome 122 / Windows 11 instance (provisioning)
+# 4) Test commands (click, sendKeys...) run on that remote browser
+# 5) Video + network log + console log are recorded
+# 6) execute_script("browserstack_executor: ...")
+#    reports Pass/Fail status to the Dashboard` },
     },
   ]
 }
@@ -771,7 +867,7 @@ browserstack-sdk pytest tests/ -n auto`
         'Playwright + BrowserStack'
       ],
       rows: [
-        ['Bağlantı', 'W3C WebDriver', 'CDP (Chrome DevTools Protocol)'],
+        [{ tr: 'Bağlantı', en: 'Connection' }, 'W3C WebDriver', 'CDP (Chrome DevTools Protocol)'],
         [{ tr: 'Driver kurulumu', en: 'Driver setup' }, { tr: 'ChromeDriver gerekir (SDK halleder)', en: 'Requires ChromeDriver (SDK handles)' }, { tr: 'Driver yok, doğrudan tarayıcı', en: 'No driver, direct browser control' }],
         [{ tr: 'Otomatik bekleme', en: 'Auto wait' }, { tr: 'Manuel WebDriverWait gerekir', en: 'Manual WebDriverWait required' }, { tr: 'Dahili auto-wait', en: 'Built-in auto-wait' }],
         [{ tr: 'iOS Safari', en: 'iOS Safari' }, { tr: 'Gerçek cihaz gerekir', en: 'Requires real device' }, { tr: 'playwright-webkit (simüle)', en: 'playwright-webkit (simulated)' }],
@@ -923,7 +1019,7 @@ jobs:
       rows: [
         [{ tr: 'Gerçek cihaz', en: 'Real devices' }, '✅ 3000+ cihaz', '✅ 800+ cihaz', '✅ 3000+ cihaz'],
         [{ tr: 'Ücretsiz plan', en: 'Free plan' }, '✅ 100 dk/ay', '❌ Yok', '✅ 100 dk/ay'],
-        ['Percy (görsel test)', '✅ Dahili', '❌ Ayrı ürün', '✅ Smart UI'],
+        [{ tr: 'Percy (görsel test)', en: 'Percy (visual testing)' }, { tr: '✅ Dahili', en: '✅ Built-in' }, { tr: '❌ Ayrı ürün', en: '❌ Separate product' }, '✅ Smart UI'],
         [{ tr: 'Türkiye sunucusu', en: 'Turkey server' }, '❌', '❌', '❌'],
         ['Selenium + Playwright', '✅ Her ikisi', '✅ Her ikisi', '✅ Her ikisi'],
         [{ tr: 'Fiyat (aylık)', en: 'Price (monthly)' }, '$399+', '$499+', '$199+']

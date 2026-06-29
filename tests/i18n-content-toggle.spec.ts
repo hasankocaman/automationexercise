@@ -72,12 +72,15 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
     });
 });
 
-// AC03 Koşul B — temsili bir sayfa örneklemi üzerinde, EN modda görünür metinde
-// Türkçeye özgü karakter taraması. Tüm 25+ TopicPage rotasını taramak yerine
-// (CLAUDE.md §13 — büyük görevleri parçala) farklı içerik ailelerinden 6 sayfa
-// seçildi: Docker (DevOps), Postman (API), Kubernetes (DevOps), Python/SQL/TypeScript
-// (2026-06-27'de interview-questions formatına taşınan, en yeni değişen sayfalar).
-const SAMPLE_ROUTES_FOR_EN_AUDIT = ['/docker', '/postman', '/kubernetes', '/python', '/sql', '/typescript'];
+// AC03 Koşul B — tüm TopicPage route'larında EN modda görünür metinde Türkçeye
+// özgü karakter taraması. topic-pages-ui.spec.ts'deki TOPIC_ROUTES listesiyle
+// eşleştirildi; /basit-backend, /security, /backend kalıcı istisnalar (CLAUDE.md §22.1).
+const SAMPLE_ROUTES_FOR_EN_AUDIT = [
+    '/jmeter', '/sql', '/typescript', '/javascript', '/python', '/test-frameworks',
+    '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/kubernetes',
+    '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
+    '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
+];
 
 test.describe('AC03 Koşul B — EN modda Türkçeye özgü karakter taraması', () => {
     for (const route of SAMPLE_ROUTES_FOR_EN_AUDIT) {

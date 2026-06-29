@@ -377,7 +377,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             scenario: 'jenkins-pipeline-visual',
             description: {
               tr: '"▶ Build Başlat" butonuna bas: Checkout → Compile → Run QA Tests → Deploy aşamalarını bir fabrika üretim bandı gibi canlı izle. Paralel çalışan agent\'ları ve hata durumunda çıkan dumanları gözlemle.',
-              en: 'Press "▶ Build Başlat": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
+              en: 'Press "▶ Start Build": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
             },
             code: `// Jenkinsfile — Parallel QA Stages
 pipeline {
@@ -1049,7 +1049,7 @@ stage('Flaky Tests') {
     scenario: 'jenkins-pipeline',
     description: {
       tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
-      en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+      en: 'Press "▶ Start Build": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
     },
     code: `// Jenkinsfile — Declarative Pipeline
 pipeline {
@@ -1671,7 +1671,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             scenario: 'jenkins-pipeline-visual',
             description: {
               tr: '"▶ Build Başlat" butonuna bas: Checkout → Compile → Run QA Tests → Deploy aşamalarını bir fabrika üretim bandı gibi canlı izle. Paralel çalışan agent\'ları ve hata durumunda çıkan dumanları gözlemle.',
-              en: 'Press "▶ Build Başlat": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
+              en: 'Press "▶ Start Build": Watch Checkout → Compile → Run QA Tests → Deploy stages execute live like a factory conveyor belt. Observe parallel agents and smoke rising on failures.'
             },
             code: `// Jenkinsfile — Parallel QA Stages
 pipeline {
@@ -2391,7 +2391,7 @@ stage('Flaky Testler') {
     scenario: 'jenkins-pipeline',
     description: {
       tr: '"▶ Build Başlat" butonuna bas: Checkout → Build → Test → SonarQube → Deploy aşamalarını canlı izle. Her stage tamamlanınca Jenkinsfile\'da yeşile döner.',
-      en: 'Press "▶ Build Başlat": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
+      en: 'Press "▶ Start Build": watch Checkout → Build → Test → SonarQube → Deploy stages execute live. Each stage turns green in the Jenkinsfile on the right as it completes.',
     },
     code: `// Jenkinsfile — Declarative Pipeline
 pipeline {

@@ -91,7 +91,7 @@ function TestFrameworksPage() {
                     </h1>
 
                     <div className="flex gap-2">
-                        <div className={`flex rounded-lg overflow-hidden border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+                        <div data-testid="language-toggle" className={`flex rounded-lg overflow-hidden border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
                             <button
                                 onClick={() => language === 'tr' && toggleLanguage()}
                                 className={`px-3 py-1.5 text-sm font-semibold transition-all ${language === 'en'

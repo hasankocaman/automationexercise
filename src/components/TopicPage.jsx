@@ -239,6 +239,103 @@ const codeCommentTranslations = [
     [/Kilidi kaldır/gi, 'release the lock'],
     [/Eşzamanlı sorgu artık anında çalışır:/gi, 'The concurrent query now runs instantly:'],
     [/HATA: Lock wait timeout/gi, 'ERROR: Lock wait timeout'],
+    // ── Playwright Java comment translations ──────────────────────────────────
+    [/her şey dahil/gi, 'including'],
+    [/Playwright'ın EN ÖNERİLEN locator'ı!/gi, "Playwright's most recommended locator!"],
+    [/role → HTML semantic rolü/gi, 'role → HTML semantic role'],
+    [/name → aria-label veya label metni/gi, 'name → aria-label or label text'],
+    [/data-testid attribute'ü ile — test için tasarlanmış/gi, 'data-testid attribute — designed for testing'],
+    [/Varsayılan: data-testid attribute'ünü arar/gi, 'Default: searches for the data-testid attribute'],
+    [/playwright\.config'de özelleştirilebilir:/gi, 'Configurable in playwright.config:'],
+    [/ile eşleştirir/gi, 'matches'],
+    [/Kısmi eşleşme \(exact: false\):/gi, 'Partial match (exact: false):'],
+    [/Kısmi eşleşme:/gi, 'Partial match:'],
+    [/Tam eşleşme \(varsayılan\):/gi, 'Exact match (default):'],
+    [/Selenium'da bunu By ile yapamazsın!/gi, "You can't do this with Selenium's By!"],
+    [/label → input ilişkisini otomatik çözer/gi, 'Automatically resolves the label → input relationship'],
+    [/Görünen metin içeriğine göre/gi, 'By visible text content'],
+    [/data-testid ile aynı anda \(chaining ile filtre\):/gi, 'combined with data-testid (filter via chaining):'],
+    [/Selenium karşılığı:/gi, 'Selenium equivalent:'],
+    [/DOM ilişkisi:/gi, 'DOM relationship:'],
+    [/try-with-resources → otomatik kapanır \(Java'da AutoCloseable gibi\)/gi, 'try-with-resources → auto-closes (like AutoCloseable in Java)'],
+    [/── Chromium \(Chrome\/Edge tabanlı\)/gi, '── Chromium (Chrome/Edge based)'],
+    [/görsel mod \(geliştirme\)/gi, 'visual mode (development)'],
+    [/her işlem arası 100ms bekle/gi, 'wait 100ms between actions'],
+    [/context ve page'ler otomatik kapanır/gi, 'context and pages close automatically'],
+    [/ağ sessizleşene kadar bekle/gi, 'wait until network is idle'],
+    [/Ağ sessizleşene kadar bekle/gi, 'Wait until network is idle'],
+    [/Ağ sessizleşene kadar/gi, 'Until network is idle'],
+    [/URL aç — DOM yüklenene kadar otomatik bekler/gi, 'Open URL — auto-waits until DOM is loaded'],
+    [/navigate\(\) seçenekleri/gi, 'navigate() options'],
+    [/Geri \/ İleri \/ Yenile — Selenium'da navigate\(\)\.back\(\) gibi/gi, 'Back / Forward / Reload — like navigate().back() in Selenium'],
+    [/Sayfa bilgileri/gi, 'Page info'],
+    [/Tüm HTML \(Selenium: getPageSource\(\)\)/gi, 'Full HTML (Selenium: getPageSource())'],
+    [/Popup \/ Yeni sekme bekle \(Selenium'da getWindowHandles\(\) yerine\)/gi, 'Wait for popup/new tab (replaces getWindowHandles() in Selenium)'],
+    [/İçeriği temizle/gi, 'Clear the content'],
+    [/Tıkla/gi, 'Click'],
+    [/Çift tıkla/gi, 'Double-click'],
+    [/Özel tuşlar \(Selenium'da sendKeys\(Keys\.ENTER\) gibi\)/gi, 'Special keys (like Selenium\'s sendKeys(Keys.ENTER))'],
+    [/Disabled mı\?/gi, 'Is it disabled?'],
+    [/Selenium'da Select sınıfına sarmaları gerekirdi/gi, 'Selenium required wrapping in the Select class'],
+    [/Artık direkt selectOption\(\) çağırabilirsin/gi, 'Now you can call selectOption() directly'],
+    [/Seçimi doğrula/gi, 'Verify the selection'],
+    [/Seçili option'ı oku/gi, 'Read the selected option'],
+    [/URL değişene kadar bekle/gi, 'Wait until the URL changes'],
+    [/Her adımda bunları tekrar yazmak zorunda!/gi, 'Must rewrite these at every step!'],
+    [/── PLAYWRIGHT: Hiçbir şey yazmana gerek yok/gi, '── PLAYWRIGHT: No wait code needed'],
+    [/Animasyonların bitmesini bekler/gi, 'Waits for animations to finish'],
+    [/SONRA işlemi yapar/gi, 'THEN performs the action'],
+    [/Altında şunlar otomatik olur:/gi, 'Automatically does the following:'],
+    [/enabled mı\? \(not disabled\)/gi, 'is it enabled? (not disabled)'],
+    [/stable mı\? \(animasyon bitmedi\)/gi, 'is it stable? (animation still running)'],
+    [/Exception yoksa başarılı/gi, 'Success if no exception thrown'],
+    [/tüm sayfayı yakala \(scroll dahil\)/gi, 'capture the full page (including scroll)'],
+    [/Sayfayı kaydır/gi, 'Scroll the page'],
+    [/Elemente kaydır/gi, 'Scroll to element'],
+    [/Değer döndür/gi, 'Return a value'],
+    [/Belirli koordinata kaydır/gi, 'Scroll to specific coordinate'],
+    [/Playwright'ın native yöntemi \(önerilen\):/gi, "Playwright's native method (recommended):"],
+    [/200px yukarı/gi, '200px up'],
+    [/yüklenmesi için kısa bekle/gi, 'short wait for loading'],
+    [/veya Playwright'ın kendi dispatchEvent metodu:/gi, "or Playwright's own dispatchEvent method:"],
+    [/Alt menü görünür olana kadar auto-wait çalışır/gi, 'auto-wait works until sub-menu becomes visible'],
+    [/Shift \+ Tıkla/gi, 'Shift + Click'],
+    [/Edit modu açıldı/gi, 'Edit mode opened'],
+    [/Önce handler'ı kaydet/gi, 'First register the handler'],
+    [/Sonra doğrula:/gi, 'Then verify:'],
+    [/Sepet hala dolu olmalı/gi, 'Cart should still have items'],
+    [/Playwright'ta HİÇBİR context değişimi yok:/gi, 'NO context switch needed in Playwright:'],
+    [/Selenium'da şunlar gerekirdi:/gi, 'Selenium required the following:'],
+    [/Tüm Playwright locator metodları çalışır!/gi, 'All Playwright locator methods work!'],
+    [/Her iki sayfada da işlem yap/gi, 'Perform actions on both pages'],
+    [/Ana sayfada işleme devam et \(zaten ana page nesnesi var\)/gi, 'Continue on main page (page object already exists)'],
+    [/context\.close\(\) → tüm sayfaları kapatır/gi, 'context.close() → closes all pages'],
+    [/Belirli bir sayfayı bul:/gi, 'Find a specific page:'],
+    [/Tek context — tek kullanıcı oturumu/gi, 'Single context — single user session'],
+    [/Müşteri oturumu/gi, 'Customer session'],
+    [/Müşteri senaryosu — adminTest ile paralel!/gi, 'Customer scenario — runs in parallel with adminTest!'],
+    [/Üçü aynı anda farklı URL'lerde — tamamen izole!/gi, 'All three at different URLs simultaneously — fully isolated!'],
+    [/adminPage da kapanır/gi, 'adminPage closes too'],
+    [/test işlemleri/gi, 'test operations'],
+    [/ctx\.close\(\) otomatik çağrılır/gi, 'ctx.close() is called automatically'],
+    [/kaynak kod satırları/gi, 'source code lines'],
+    [/başarısız test için explict screenshot/gi, 'explicit screenshot for failed test'],
+    [/Video kaydetmek için context\.close\(\) şart/gi, 'context.close() is required to save the video'],
+    [/Trace dosyasını artifact olarak kaydet/gi, 'Save trace file as artifact'],
+    [/trace\.pw\.dev sitesinde de açılabilir/gi, 'can also be opened at trace.pw.dev'],
+    [/Görünen metin ile eşleşme/gi, 'Match by Visible Text'],
+    [/30 saniye timeout/gi, '30 second timeout'],
+    [/Karakter karakter yaz \(masked input için\)/gi, 'Type character by character (for masked inputs)'],
+    [/Önce temizler sonra yazar/gi, 'Clears first then types'],
+    [/0'dan başlayan index ile seç/gi, 'Select by 0-based index'],
+    [/Her action için tekrar yazılır!/gi, 'Must write again for every action!'],
+    [/Tüm açık sayfaları listele/gi, 'List all open pages'],
+    [/Ayrıca:/gi, 'Also:'],
+    [/JUnit5 paralel test örneği/gi, 'JUnit5 parallel test example'],
+    [/Aynı site, farklı oturumlar:/gi, 'Same site, different sessions:'],
+    [/Playwright'ta: her test için yeni BrowserContext — çok daha hızlı!/gi, 'In Playwright: new BrowserContext for each test — much faster!'],
+    [/Trace başlat/gi, 'Start trace'],
+    [/dosyası oluşur/gi, 'file is created'],
 ]
 
 const englishToTurkishCodeComments = [
@@ -3746,6 +3843,9 @@ function LocatorVisualBlock({ block, darkMode, language }) {
     const [activeIdx, setActiveIdx] = useState(0)
     const isTr = language === 'tr'
     const loc = block.locators[activeIdx]
+    const htmlExample = typeof block.htmlExample === 'object'
+        ? (block.htmlExample[language] || block.htmlExample.en || block.htmlExample.tr || '')
+        : (block.htmlExample || '')
 
     const highlightHtml = (html, highlights) => {
         if (!highlights || highlights.length === 0) return html
@@ -3790,7 +3890,7 @@ function LocatorVisualBlock({ block, darkMode, language }) {
                     <pre
                         className={`text-xs leading-relaxed p-3 rounded-xl overflow-x-auto ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-700'}`}
                         style={{ border: `2px solid ${loc.color}44`, fontFamily: 'JetBrains Mono, monospace' }}
-                        dangerouslySetInnerHTML={{ __html: highlightHtml(block.htmlExample, loc.highlights) }}
+                        dangerouslySetInnerHTML={{ __html: highlightHtml(htmlExample, loc.highlights) }}
                     />
                     <div className={`mt-3 flex flex-wrap gap-2`}>
                         <span className={`px-2 py-1 rounded text-xs font-bold`} style={{ background: loc.color + '22', color: loc.color }}>
@@ -3808,7 +3908,7 @@ function LocatorVisualBlock({ block, darkMode, language }) {
                 {/* Code + tip + when */}
                 <div>
                     <div className={`text-xs font-semibold mb-2 uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{block.codeLabel || 'Java'}</div>
-                    <CodeBlock code={loc.code} language="java" darkMode={darkMode} />
+                    <CodeBlock code={getLocalizedCode(loc.code, language)} language="java" darkMode={darkMode} />
                     {(loc.when || loc.whenEn) && (
                         <div className={`mt-3 px-3 py-2 rounded-lg text-xs ${darkMode ? 'bg-indigo-900/40 text-indigo-300 border border-indigo-800' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
                             <span className="font-bold">📌 {isTr ? 'Ne zaman?' : 'When?'}</span> {isTr ? (loc.when || '') : (loc.whenEn || loc.when || '')}
@@ -4227,7 +4327,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                     <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                         {isTr ? step.description.tr : step.description.en}
                     </p>
-                    <CodeBlock code={step.code} language="java" darkMode={darkMode} />
+                    <CodeBlock code={getLocalizedCode(step.code, language)} language="java" darkMode={darkMode} />
                     {step.tip && (
                         <div className={`mt-3 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-yellow-300 border border-yellow-900' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>
                             {isTr ? step.tip.tr : step.tip.en}
@@ -4757,7 +4857,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 </div>
                 <div>
                     <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{isTr ? step.description.tr : step.description.en}</p>
-                    <CodeBlock code={step.code} language="java" darkMode={darkMode} />
+                    <CodeBlock code={getLocalizedCode(step.code, language)} language="java" darkMode={darkMode} />
                     {step.tip && <div className={`mt-3 px-3 py-2 rounded-lg text-xs leading-relaxed ${darkMode ? 'bg-gray-800 text-yellow-300 border border-yellow-900' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>{isTr ? step.tip.tr : step.tip.en}</div>}
                 </div>
             </div>
@@ -5822,8 +5922,8 @@ function SimulationBlock({ block, darkMode, language }) {
                             ['declare', 'int score; String name;'],
                             ['primitive', 'score = 75;        // value stack içinde'],
                             ['reference', 'name = "admin";    // reference stack içinde'],
-                            ['heap', '"admin" object heap içinde oluşur'],
-                            ['update', 'score = score + 5;   // stack value değişir'],
+                            ['heap', isTr ? '"admin" object heap içinde oluşur' : '"admin" object is created on the heap'],
+                            ['update', isTr ? 'score = score + 5;   // stack value değişir' : 'score = score + 5;   // stack value changes'],
                         ].map(([key, text]) => (
                             <div key={key} style={{ color: lineColor(key), fontSize: 10, lineHeight: 1.7 }}>{active(key) ? '➜ ' : done(key) ? '✓ ' : '  '}{text}</div>
                         ))}
@@ -15688,7 +15788,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         <span>💻</span>
                         <span className="font-semibold">{isTr ? 'Otomasyon Kodu — Bu Senaryoyu Test Et' : 'Automation Code — Test This Scenario'}</span>
                     </div>
-                    <CodeBlock code={block.code} language={block.language || 'java'} darkMode={darkMode} />
+                    <CodeBlock code={getLocalizedCode(block.code, language)} language={block.language || 'java'} darkMode={darkMode} />
                 </div>
             )}
         </div>
@@ -19210,7 +19310,7 @@ function JSEventLoopVisualBlock({ darkMode, language }) {
                     {/* CALL STACK (Dondurma Kuyruğu) */}
                     <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-emerald-500/5 border-emerald-500/20">
                         <div className="text-xs font-bold text-emerald-400 border-b border-emerald-500/20 pb-1 flex items-center justify-between">
-                            <span>🍦 Dondurma Kuyruğu (Call Stack)</span>
+                            <span>{isTr ? '🍦 Dondurma Kuyruğu (Call Stack)' : '🍦 Ice Cream Queue (Call Stack)'}</span>
                             <span className="text-[9px] opacity-70">Single-threaded</span>
                         </div>
                         <div className="flex-1 flex flex-col-reverse gap-2 justify-center items-center py-2">
@@ -19229,7 +19329,7 @@ function JSEventLoopVisualBlock({ darkMode, language }) {
                     {/* WEB APIS (Arka Bahçe) */}
                     <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-blue-500/5 border-blue-500/20">
                         <div className="text-xs font-bold text-blue-400 border-b border-blue-500/20 pb-1">
-                            🍀 Arka Bahçe (Web APIs)
+                            {isTr ? '🍀 Arka Bahçe (Web APIs)' : '🍀 Backyard (Web APIs)'}
                         </div>
                         <div className="flex-1 flex flex-col justify-center items-center gap-2 py-2">
                             {webApis.length > 0 ? (
@@ -19248,7 +19348,7 @@ function JSEventLoopVisualBlock({ darkMode, language }) {
                     {/* CALLBACK QUEUE (Waiting kids) */}
                     <div className="rounded-xl border p-4 min-h-[160px] flex flex-col justify-between bg-purple-500/5 border-purple-500/20">
                         <div className="text-xs font-bold text-purple-400 border-b border-purple-500/20 pb-1">
-                            🧒 Bekleyen Çocuklar (Callback Queue)
+                            {isTr ? '🧒 Bekleyen Çocuklar (Callback Queue)' : '🧒 Waiting Kids (Callback Queue)'}
                         </div>
                         <div className="flex-1 flex flex-col justify-center items-center gap-2 py-2">
                             {callbackQueue.length > 0 ? (

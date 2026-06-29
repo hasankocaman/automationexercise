@@ -327,7 +327,7 @@ const linuxErrors = [
     '1) `ulimit -n` ile mevcut limiti gör, gerekirse `ulimit -n 4096` ile artır. 2) Testlerde her `driver.quit()`/`connection.close()` çağrısının try/finally veya context manager içinde garanti çalıştığından emin ol.',
     '1) Check the current limit with `ulimit -n`, raise it with `ulimit -n 4096` if needed. 2) Make sure every `driver.quit()`/`connection.close()` call is guaranteed to run inside a try/finally or context manager.',
     '$ pytest -n8 tests/\nOSError: [Errno 24] Too many open files',
-    '$ ulimit -n 4096\n# + testlerde driver.quit() finally bloğuna taşındı\n$ pytest -n8 tests/\n========== 96 passed in 41.7s =========='
+    '$ ulimit -n 4096\n# + tests: driver.quit() moved to finally block\n$ pytest -n8 tests/\n========== 96 passed in 41.7s =========='
   ),
   errEntry(
     'Address already in use',

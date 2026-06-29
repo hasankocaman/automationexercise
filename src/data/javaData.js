@@ -10904,7 +10904,7 @@ System.out.println("Bulundu: " + el.getText());`,
       },
       { type: 'heading', text: { tr: 'Adım 7: Screenshot & JavaScript Executor', en: 'Step 7: Screenshot & JS Executor' } },
       {
-        type: 'code', language: 'java', label: 'Screenshot ve JavaScript işlemleri',
+        type: 'code', language: 'java', label: { tr: 'Screenshot ve JavaScript işlemleri', en: 'Screenshot and JavaScript operations' },
         code: `import org.openqa.selenium.*;
 import java.io.*;
 import java.nio.file.*;
@@ -11790,14 +11790,14 @@ driver.quit(); // always in finally!`,
         type: 'locator-visual',
         htmlExample: `<form id="loginForm" class="login-form">
 
-  <label for="username">Kullanıcı Adı</label>
+  <label for="username">Username</label>
 
   <input
     id="username"
     class="form-input"
     name="email"
     type="email"
-    placeholder="E-posta"
+    placeholder="Email"
     data-testid="username-input" />
 
   <button
@@ -11805,10 +11805,10 @@ driver.quit(); // always in finally!`,
     class="btn btn-primary"
     type="submit"
     data-testid="login-btn">
-    Giriş Yap
+    Login
   </button>
 
-  <a href="/forgot">Şifremi Unuttum</a>
+  <a href="/forgot">Forgot Password</a>
 
 </form>`,
         locators: [
@@ -11935,7 +11935,7 @@ driver.findElement(
 
 // By text:
 driver.findElement(
-    By.xpath("//button[text()='Giriş Yap']"));
+    By.xpath("//button[text()='Login']"));
 
 // Axis — DOM relationship (most powerful):
 driver.findElement(
@@ -12137,7 +12137,7 @@ const sPlaywright = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎭',
-        content: 'Playwright\'ı akıllı bir dedektif asistan gibi düşün: "Bu butonu bul ve tıkla" dediğinde, o butonu bekler, hazır olana kadar otomatik bekler, sonra tıklar. Selenium\'da kendinin "Bekle şunu, sonra yap bunu" dermen gerekirdi. Playwright\'ta sadece "yap" dersin — o gerisini düşünür.',
+        content: { tr: 'Playwright\'ı akıllı bir dedektif asistan gibi düşün: "Bu butonu bul ve tıkla" dediğinde, o butonu bekler, hazır olana kadar otomatik bekler, sonra tıklar. Selenium\'da kendinin "Bekle şunu, sonra yap bunu" dermen gerekirdi. Playwright\'ta sadece "yap" dersin — o gerisini düşünür.', en: 'Think of Playwright as a smart detective assistant: when you say "find this button and click it," it locates the button, auto-waits until it\'s ready, then clicks. With Selenium you had to say "wait for this, then do that" yourself. With Playwright you just say "do it" — it handles the rest.' },
       },
       { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
       {
@@ -12164,8 +12164,8 @@ const sPlaywright = {
       },
       { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
       {
-        type: 'code', language: 'java', label: 'Chromium / Firefox / WebKit başlatma',
-        code: `import com.microsoft.playwright.*;
+        type: 'code', language: 'java', label: { tr: 'Chromium / Firefox / WebKit başlatma', en: 'Chromium / Firefox / WebKit Launch' },
+        code: { tr: `import com.microsoft.playwright.*;
 
 public class BrowserSetup {
     public static void main(String[] args) {
@@ -12202,11 +12202,48 @@ public class BrowserSetup {
             browser.close(); // context ve page'ler otomatik kapanır
         }
     }
-}`,
+}`, en: `import com.microsoft.playwright.*;
+
+public class BrowserSetup {
+    public static void main(String[] args) {
+
+        // try-with-resources → auto-closes (like AutoCloseable in Java)
+        try (Playwright playwright = Playwright.create()) {
+
+            // ── Chromium (Chrome/Edge based) ─────────────────────
+            Browser browser = playwright.chromium().launch(
+                new BrowserType.LaunchOptions()
+                    .setHeadless(false)         // visual mode (development)
+                    .setSlowMo(100)             // wait 100ms between actions
+            );
+            // For CI/CD: .setHeadless(true)
+
+            // ── Firefox ──────────────────────────────────────────
+            // Browser browser = playwright.firefox().launch();
+
+            // ── WebKit (Safari) ──────────────────────────────────
+            // Browser browser = playwright.webkit().launch();
+
+            // BrowserContext → Page (like WebDriver → window in Selenium)
+            BrowserContext context = browser.newContext(
+                new Browser.NewContextOptions()
+                    .setViewportSize(1280, 720)
+                    .setLocale("en-US")
+            );
+            Page page = context.newPage();
+
+            page.navigate("https://automationexercise.com");
+            System.out.println("Title: " + page.title());
+            System.out.println("URL: " + page.url());
+
+            browser.close(); // context and pages close automatically
+        }
+    }
+}` },
       },
       { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
       {
-        type: 'code', language: 'java', label: 'Tüm navigasyon komutları',
+        type: 'code', language: 'java', label: { tr: 'Tüm navigasyon komutları', en: 'All navigation commands' },
         code: `Page page = context.newPage();
 
 // URL aç — DOM yüklenene kadar otomatik bekler
@@ -12247,7 +12284,8 @@ System.out.println("Popup URL: " + popup.url());`,
       {
         type: 'locator-visual',
         codeLabel: 'Playwright (Java)',
-        htmlExample: `<form id="loginForm" class="login-form">
+        htmlExample: {
+          tr: `<form id="loginForm" class="login-form">
 
   <label for="username">Kullanıcı Adı</label>
 
@@ -12271,6 +12309,31 @@ System.out.println("Popup URL: " + popup.url());`,
   <a href="/forgot">Şifremi Unuttum</a>
 
 </form>`,
+          en: `<form id="loginForm" class="login-form">
+
+  <label for="username">Username</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="Email"
+    data-testid="username-input"
+    aria-label="Email Address" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Login
+  </button>
+
+  <a href="/forgot">Forgot Password</a>
+
+</form>`
+        },
         locators: [
           {
             id: 'by-role', label: 'getByRole()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
@@ -12312,14 +12375,21 @@ Locator el = page.getByTestId("username-input");
           {
             id: 'by-label', label: 'getByLabel()', priority: 2, starRating: '⭐⭐⭐', color: '#3b82f6',
             highlights: ['for="username"', 'Kullanıcı Adı'],
-            code: `// <label for="username">Kullanıcı Adı</label> ile eşleştirir
+            code: { tr: `// <label for="username">Kullanıcı Adı</label> ile eşleştirir
 Locator el = page.getByLabel("Kullanıcı Adı");
 
 // Kısmi eşleşme:
 Locator el2 = page.getByLabel("Kullanıcı", new Page.GetByLabelOptions().setExact(false));
 
 // Selenium'da bunu By ile yapamazsın!
-// label → input ilişkisini otomatik çözer`,
+// label → input ilişkisini otomatik çözer`, en: `// Matches via <label for="username">Username</label>
+Locator el = page.getByLabel("Username");
+
+// Partial match:
+Locator el2 = page.getByLabel("User", new Page.GetByLabelOptions().setExact(false));
+
+// Can't do this with Selenium's By methods!
+// Automatically resolves the label → input relationship` },
             title: 'Form Alanları için Doğal Seçim',
             titleEn: 'Natural Choice for Form Fields',
             explanation: 'HTML label elementini bulur ve onun hedeflediği form input\'unu seçer. Selenium\'da bunu yapabilmek için XPath with following-sibling yazmak gerekirdi. Java\'da bir Builder pattern gibi — label adını bil, input\'u otomatik bul.',
@@ -12353,7 +12423,7 @@ Locator el2 = page.getByPlaceholder(
           {
             id: 'by-text', label: 'getByText()', priority: 4, starRating: '⭐⭐', color: '#f59e0b',
             highlights: ['Giriş Yap'],
-            code: `// Görünen metin içeriğine göre eşleştirir
+            code: { tr: `// Görünen metin içeriğine göre eşleştirir
 Locator btn = page.getByText("Giriş Yap");
 
 // Tam eşleşme (varsayılan):
@@ -12362,7 +12432,16 @@ Locator exact = page.getByText("Giriş Yap", new Page.GetByTextOptions().setExac
 // Kısmi eşleşme:
 Locator partial = page.getByText("Giriş", new Page.GetByTextOptions().setExact(false));
 
-// Selenium'da: By.xpath("//button[text()='Giriş Yap']")`,
+// Selenium'da: By.xpath("//button[text()='Giriş Yap']")`, en: `// Matches by visible text content
+Locator btn = page.getByText("Login");
+
+// Exact match (default):
+Locator exact = page.getByText("Login", new Page.GetByTextOptions().setExact(true));
+
+// Partial match:
+Locator partial = page.getByText("Log", new Page.GetByTextOptions().setExact(false));
+
+// Selenium equiv: By.xpath("//button[text()='Login']")` },
             title: 'Görünen Metin ile Eşleşme',
             titleEn: 'Match by Visible Text',
             explanation: 'Sayfadaki görünen metni hedefler. Buton, link, label, div — her tür element için çalışır. Selenium\'da linkText() sadece <a> için çalışırdı; getByText() tüm elementlerde çalışır.',
@@ -12415,7 +12494,7 @@ Locator el2 = page.locator("[data-testid='username-input'][type='email']");
           {
             id: 'by-xpath', label: 'locator(xpath=)', priority: 8, starRating: '⭐', color: '#ef4444',
             highlights: ['type="submit"'],
-            code: `// XPath — Playwright'ta "xpath=" prefix ile
+            code: { tr: `// XPath — Playwright'ta "xpath=" prefix ile
 Locator btn = page.locator("xpath=//button[@type='submit']");
 
 // Metin ile XPath:
@@ -12424,7 +12503,16 @@ Locator byText = page.locator("xpath=//button[text()='Giriş Yap']");
 // DOM ilişkisi:
 Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
 
-// NOT: getByText() XPath'ten çok daha iyidir — önce onu dene!`,
+// NOT: getByText() XPath'ten çok daha iyidir — önce onu dene!`, en: `// XPath — use "xpath=" prefix in Playwright
+Locator btn = page.locator("xpath=//button[@type='submit']");
+
+// By text with XPath:
+Locator byText = page.locator("xpath=//button[text()='Login']");
+
+// DOM relationship:
+Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
+
+// NOTE: getByText() is much better than XPath — try it first!` },
             title: 'En Güçlü — Ama Son Çare',
             titleEn: 'Most Powerful — But Last Resort',
             explanation: 'Playwright\'ta XPath, "xpath=" prefix ile kullanılır. Selenium\'daki By.xpath() ile birebir aynı güç — parent/child/sibling ilişkilerini ifade edebilir. Yavaş ve kırılgandır; getByRole(), getByText() veya CSS daha iyi seçenektir.',
@@ -12438,7 +12526,7 @@ Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling
       },
       { type: 'heading', text: { tr: 'Adım 5: Element İşlemleri', en: 'Step 5: Element Actions' } },
       {
-        type: 'code', language: 'java', label: 'Tüm element işlemleri — fill, click, check, okuma',
+        type: 'code', language: 'java', label: { tr: 'Tüm element işlemleri — fill, click, check, okuma', en: 'All element actions — fill, click, check, reading' },
         code: `Locator input = page.locator("#username");
 
 // ── YAZMA / TIKLAMA ─────────────────────────────────
@@ -12569,7 +12657,7 @@ for (int i = 0; i < total; i++) {
         },
       },
       {
-        type: 'code', language: 'java', label: 'Auto-Wait karşılaştırma — Selenium vs Playwright',
+        type: 'code', language: 'java', label: { tr: 'Auto-Wait karşılaştırma — Selenium vs Playwright', en: 'Auto-Wait comparison — Selenium vs Playwright' },
         code: `// ── SELENIUM: Her action için explicit wait zorunlu ──────────────────
 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 WebElement loginBtn = wait.until(
@@ -12692,7 +12780,7 @@ page.locator("#slowComponent").waitFor(
       },
       { type: 'heading', text: { tr: 'Adım 7: Screenshot & page.evaluate()', en: 'Step 7: Screenshot & page.evaluate()' } },
       {
-        type: 'code', language: 'java', label: 'Screenshot ve JavaScript işlemleri',
+        type: 'code', language: 'java', label: { tr: 'Screenshot ve JavaScript işlemleri', en: 'Screenshot and JavaScript operations' },
         code: `import java.nio.file.Paths;
 
 // ── SCREENSHOT ───────────────────────────────────────
@@ -13113,7 +13201,7 @@ String orderNo = page.locator("#orderNumber").textContent();`,
             id: 'single', label: 'Tek Sayfa', labelEn: 'Single Page',
             visualState: 'single',
             description: { tr: 'Başlangıçta tek sayfa. context.pages() tüm açık sayfaları List<Page> olarak döndürür — Selenium\'da getWindowHandles() Set<String> döndürürdü. Playwright\'ta her sayfa bir Page nesnesi, String ID değil.', en: 'Start with single page. context.pages() returns all open pages as List<Page> — Selenium\'s getWindowHandles() returned Set<String>. In Playwright, each page is a Page object, not a String ID.' },
-            code: `// context içindeki tüm açık sayfalar
+            code: { tr: `// context içindeki tüm açık sayfalar
 List<Page> pages = context.pages();
 System.out.println("Açık sayfa: " + pages.size()); // 1
 
@@ -13122,7 +13210,16 @@ Page currentPage = pages.get(0);
 
 // Selenium'da:
 // String mainHandle = driver.getWindowHandle();
-// Set<String> all   = driver.getWindowHandles();`,
+// Set<String> all   = driver.getWindowHandles();`, en: `// all open pages in context
+List<Page> pages = context.pages();
+System.out.println("Open pages: " + pages.size()); // 1
+
+// Current page
+Page currentPage = pages.get(0);
+
+// In Selenium:
+// String mainHandle = driver.getWindowHandle();
+// Set<String> all   = driver.getWindowHandles();` },
             tip: { tr: '✅ Page nesnesi çok daha güçlü — String handle\'ın aksine direkt page.title(), page.url() gibi metodlar kullanılır.', en: '✅ Page object is much more powerful — unlike String handle, directly use methods like page.title(), page.url().' },
           },
           {
@@ -13560,7 +13657,8 @@ System.out.println("Popup URL: " + popup.url());`,
       {
         type: 'locator-visual',
         codeLabel: 'Playwright (Java)',
-        htmlExample: `<form id="loginForm" class="login-form">
+        htmlExample: {
+          tr: `<form id="loginForm" class="login-form">
 
   <label for="username">Kullanıcı Adı</label>
 
@@ -13584,6 +13682,31 @@ System.out.println("Popup URL: " + popup.url());`,
   <a href="/forgot">Şifremi Unuttum</a>
 
 </form>`,
+          en: `<form id="loginForm" class="login-form">
+
+  <label for="username">Username</label>
+
+  <input
+    id="username"
+    class="form-input"
+    name="email"
+    type="email"
+    placeholder="Email"
+    data-testid="username-input"
+    aria-label="Email Address" />
+
+  <button
+    id="loginBtn"
+    class="btn btn-primary"
+    type="submit"
+    data-testid="login-btn">
+    Login
+  </button>
+
+  <a href="/forgot">Forgot Password</a>
+
+</form>`
+        },
         locators: [
           {
             id: 'by-role', label: 'getByRole()', priority: 1, starRating: '⭐⭐⭐', color: '#10b981',
@@ -13625,14 +13748,21 @@ Locator el = page.getByTestId("username-input");
           {
             id: 'by-label', label: 'getByLabel()', priority: 2, starRating: '⭐⭐⭐', color: '#3b82f6',
             highlights: ['for="username"', 'Kullanıcı Adı'],
-            code: `// Matches via <label for="username">Kullanıcı Adı</label>
+            code: { tr: `// <label for="username">Kullanıcı Adı</label> ile eşleştirir
 Locator el = page.getByLabel("Kullanıcı Adı");
 
-// Partial match:
+// Kısmi eşleşme:
 Locator el2 = page.getByLabel("Kullanıcı", new Page.GetByLabelOptions().setExact(false));
 
+// Selenium'da bunu By ile yapamazsın!
+// label → input ilişkisini otomatik çözer`, en: `// Matches via <label for="username">Username</label>
+Locator el = page.getByLabel("Username");
+
+// Partial match:
+Locator el2 = page.getByLabel("User", new Page.GetByLabelOptions().setExact(false));
+
 // Can't do this with Selenium's By methods!
-// Automatically resolves the label → input relationship`,
+// Automatically resolves the label → input relationship` },
             title: 'Natural Choice for Form Fields',
             titleEn: 'Natural Choice for Form Fields',
             explanation: 'Finds the HTML label element and selects the form input it targets. In Selenium, you\'d need XPath with following-sibling to do this. Like a Builder pattern in Java — know the label name, auto-find the input.',
@@ -13666,16 +13796,25 @@ Locator el2 = page.getByPlaceholder(
           {
             id: 'by-text', label: 'getByText()', priority: 4, starRating: '⭐⭐', color: '#f59e0b',
             highlights: ['Giriş Yap'],
-            code: `// Matches by visible text content
+            code: { tr: `// Görünen metin içeriğine göre eşleştirir
 Locator btn = page.getByText("Giriş Yap");
 
-// Exact match (default):
+// Tam eşleşme (varsayılan):
 Locator exact = page.getByText("Giriş Yap", new Page.GetByTextOptions().setExact(true));
 
-// Partial match:
+// Kısmi eşleşme:
 Locator partial = page.getByText("Giriş", new Page.GetByTextOptions().setExact(false));
 
-// Selenium equiv: By.xpath("//button[text()='Giriş Yap']")`,
+// Selenium'da: By.xpath("//button[text()='Giriş Yap']")`, en: `// Matches by visible text content
+Locator btn = page.getByText("Login");
+
+// Exact match (default):
+Locator exact = page.getByText("Login", new Page.GetByTextOptions().setExact(true));
+
+// Partial match:
+Locator partial = page.getByText("Log", new Page.GetByTextOptions().setExact(false));
+
+// Selenium equiv: By.xpath("//button[text()='Login']")` },
             title: 'Match by Visible Text',
             titleEn: 'Match by Visible Text',
             explanation: 'Targets visible text on the page. Works for any element type — button, link, label, div. In Selenium, linkText() only worked for <a>; getByText() works on all elements.',
@@ -13728,16 +13867,25 @@ Locator el2 = page.locator("[data-testid='username-input'][type='email']");
           {
             id: 'by-xpath', label: 'locator(xpath=)', priority: 8, starRating: '⭐', color: '#ef4444',
             highlights: ['type="submit"'],
-            code: `// XPath — in Playwright use "xpath=" prefix
+            code: { tr: `// XPath — Playwright'ta "xpath=" prefix ile
+Locator btn = page.locator("xpath=//button[@type='submit']");
+
+// Metin ile XPath:
+Locator byText = page.locator("xpath=//button[text()='Giriş Yap']");
+
+// DOM ilişkisi:
+Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
+
+// NOT: getByText() XPath'ten çok daha iyidir — önce onu dene!`, en: `// XPath — use "xpath=" prefix in Playwright
 Locator btn = page.locator("xpath=//button[@type='submit']");
 
 // By text with XPath:
-Locator byText = page.locator("xpath=//button[text()='Giriş Yap']");
+Locator byText = page.locator("xpath=//button[text()='Login']");
 
 // DOM relationship:
 Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling::input");
 
-// NOTE: getByText() is much better than XPath — try it first!`,
+// NOTE: getByText() is much better than XPath — try it first!` },
             title: 'Most Powerful — But Last Resort',
             titleEn: 'Most Powerful — But Last Resort',
             explanation: 'In Playwright, XPath is used with "xpath=" prefix. Exactly same power as Selenium\'s By.xpath(). Slow and brittle; getByRole(), getByText() or CSS are better options.',

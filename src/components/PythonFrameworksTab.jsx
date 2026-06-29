@@ -57,6 +57,7 @@ const codeCommentTranslations = [
     [/with bloğu ile otomatik giriş\/çıkış/g, 'automatic enter/exit with a with block'],
     [/Shadow DOM'a erişim — JavaScript ile/g, 'Access Shadow DOM with JavaScript'],
     [/Shadow host'un shadow root'unu döndürür/g, "Returns the shadow host's shadow root"],
+    [/Örnek: Chrome ayarları sayfasındaki shadow DOM/g, 'Example: Chrome settings page shadow DOM'],
     [/Örnek:/g, 'Example:'],
     [/Shadow host elementini bul/g, 'Find the shadow host element'],
     [/Shadow root içinde element bul \(CSS selector ile\)/g, 'Find an element inside shadow root (with CSS selector)'],

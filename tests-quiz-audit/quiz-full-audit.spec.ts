@@ -98,6 +98,30 @@ function quizBlockRoot(page: Page, quizIndexInTab: number): Locator {
         .locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " rounded-xl ") and contains(concat(" ", normalize-space(@class), " "), " border-2 ")][1]');
 }
 
+// AC06 — Her interview-questions bloğu olan sayfada minimum 50 soru (CLAUDE.md §10).
+// Tarayıcı gerektirmez: veri dosyası import edilip soru sayısı sayılır.
+for (const { route, dataVar, dataFile } of ROUTES) {
+    test(`${route} — interview-questions min 50 soru (AC06, data-level)`, async () => {
+        const mod = await import(`../src/data/${dataFile}.js`);
+        const data = mod[dataVar];
+        const trSections: any[] = data?.tr?.sections ?? data?.sections ?? [];
+        let total = 0;
+        for (const section of trSections) {
+            for (const block of section?.blocks ?? []) {
+                if (block?.type === 'interview-questions' && Array.isArray(block.questions)) {
+                    total += block.questions.length;
+                }
+            }
+        }
+        if (total > 0) {
+            expect(
+                total,
+                `${route}: interview-questions sorularının toplamı ${total}, minimum 50 olmalı (CLAUDE.md §10)`,
+            ).toBeGreaterThanOrEqual(50);
+        }
+    });
+}
+
 for (const { route, dataVar, dataFile } of ROUTES) {
     test(`${route} — her quiz bloğu: TR/EN doğru render + AC02 retry mekanizması`, async ({ page }) => {
         test.setTimeout(600_000);

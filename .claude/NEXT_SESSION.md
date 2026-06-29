@@ -10,222 +10,122 @@
 
 ---
 
-## Guncel Branch Durumu (2026-06-28)
+## Guncel Branch Durumu (2026-06-29)
 
 - Aktif branch: `test`.
-- Remote `origin/test` var ve local `test` branch fast-forward ile guncellendi.
-- Pull sonrasi temel remote HEAD: `23de8b7` (`fix(i18n): localize the leaked Turkish option text in the fixture-scope challenge`).
-- Calisma agacinda commit'e dahil EDILMEMESI gereken local izler olabilir:
-  - `.claude/settings.local.json` local ayar dosyasi, untracked kalmali.
-  - `dist/index.html` ve `public/sitemap.xml` onceki build dogrulamasindan sonra dirty gorunebilir; icerik degisikligi commitlenmeden once ayrica kontrol edilmeli.
-  - `Documents/acceptancecriterias.md` bu oturumda agent tarafindan degistirilmedi
-    ama `git status --short` icinde modified gorundu; commit oncesi sahibi/icerigi
-    ayrica kontrol edilmeli.
+- `test` branch, `origin/main`'den **17 commit onde** — `main`'de test'te
+  olmayan hicbir commit yok.
+- Merge yonu: `test → main` (fast-forward veya merge commit, kullanici karar verir).
+- Son commit: bu oturumda AC03 i18n duzeltmeleri + testcoverage.md + NEXT_SESSION
+  guncelleme commit'i.
 
 ---
 
-## Son Oturum Notu (2026-06-28)
+## Bu Oturumda Yapilan Is (2026-06-29)
 
-Bu oturumda kullanicinin istedigi iki entegrasyon duzeltmesi yapildi:
+### AC03 — EN Modda Turkce Karakter Temizligi (Tamamlandi ✅)
 
-1. **Python static SEO import fix tamamlandi.**
-   - `src/data/pythonData.js` icindeki
-     `./pythonPlaygroundData` import'u `./pythonPlaygroundData.js` yapildi.
-   - `npm run build` sonrasi `/python` icin onceki `Could not load SEO content`
-     uyarisi artik gorunmedi.
+AC03 testi (`tests/i18n-content-toggle.spec.ts`) artik **28 passed, 0 failed**.
+Onceki oturumdan gelen 3 fail'in tamamlandi:
 
-2. **Bruno global search index'e eklendi.**
-   - `src/utils/searchIndex.js` icine `brunoData` import'u eklendi.
-   - `ALL_DATA` listesine `{ data: brunoData, route: '/bruno', name: 'Bruno' }`
-     entry'si eklendi.
-   - UI smoke dogrulamasi: ana sayfada search modalinda `Bruno` arandi,
-     sonuc gorundu ve tiklayinca `http://127.0.0.1:5173/bruno` route'una gitti.
+1. **`/java` sekme 12: `// Ag sessizlesene kadar`**
+   - `TopicPage.jsx` `codeCommentTranslations` dizisine
+     `[/Ag sessizlesene kadar/gi, 'Until network is idle']` eklendi.
 
-**Dogrulama sonucu:**
+2. **`/browserstack` sekme 2: `Terminal — local makinende calistir`**
+   - `SimulationBlock` renderinda `block.code` → `getLocalizedCode(block.code, language)` yapildi.
+   - `browserstackData.js` ilgili simulation code block bilingual `{tr, en}` nesnesi yapildi.
 
-- `npm run build` PASS.
-  - SEO check passed for 39 routes.
-  - 38 static route HTML shell uretildi.
-  - Dist SEO check passed for 38 generated pages.
-- `npm run test:e2e` PASS.
-  - Sandbox icinde ilk deneme Node `EPERM: lstat 'C:\Users\1'` hatasiyla
-    baslamadan durdu; ayni komut escalation ile kosuldu.
-  - Sonuc: 54 passed, 6 skipped.
-- `npm run test:interview-flows` kosuldu ama full suite gercekten calismadi.
-  - Sonuc: 22 skipped.
-  - Sebep: `.env.local` icinde `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
-    `VITE_SUPABASE_URL` ve `VITE_SUPABASE_PUBLISHABLE_KEY` var.
-- Kullanici istegiyle tum runnable testler tekrar kosuldu.
-  - `npm run build` PASS.
-  - `npm run test:e2e` PASS: 54 passed, 6 skipped.
-  - `test:quiz-audit` tam kapsami route gruplarina bolunerek tamamlandi:
-    23/23 route passed.
-  - `npx playwright test tests/api-endpoints.spec.ts` PARTIAL: public
-    `get_leaderboard` passed, uyelik gerektiren 3 Edge Function testi skipped.
-  - `npm run test:interview-flows` PARTIAL: 22 skipped.
-  - Skip sebebi: `.env.local` icinde `VITE_SUPABASE_URL`,
-    `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_ENABLE_PREMIUM` var; fakat
-    `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
-  - Bu nedenle uyelik/AI happy-path testleri tamamlanmis sayilmaz; env'e test
-    kullanici bilgileri eklenirse tekrar kosulmali.
+3. **`/test-frameworks` timeout**
+   - `TestFrameworksPage.jsx`'teki dil toggle wrapper'ina `data-testid="language-toggle"` eklendi.
+   - Sonra gercek icerik ihlali da cikti: `PythonFrameworksTab.jsx`'te
+     `# Ornek: Chrome ayarlari sayfasindaki shadow DOM` yorumuna ozgul ceviri
+     kurali eklendi.
+
+### Diger Duzeltmeler (Ayni Oturum)
+
+- `javaData.js`:
+  - `Auto-Wait karsilastirma` label bilingual yapildi.
+  - `Screenshot ve JavaScript islemleri` label (sSelenium + sPlaywright) bilingual yapildi.
+  - Multi-page playwright-visual step kodu bilingual `{tr, en}` yapildi.
+  - `sSelenium.en` by-xpath locator kodundaki `Giris Yap` → `Login` duzeltildi.
+
+- `TopicPage.jsx`:
+  - `PlaywrightVisualBlock` `step.code` → `getLocalizedCode(step.code, language)`.
+  - `SimulationBlock` `block.code` → `getLocalizedCode(block.code, language)`.
+  - 10 yeni `codeCommentTranslations` kaydi eklendi (Trace baslat, dosyasi olusur,
+    JUnit5 paralel test ornegi, vb.).
+
+### Test Coverage Raporu Olusturuldu
+
+`Documents/testcoverage.md` dosyasi olusturuldu.
+- 78 test, 13 dosya analiz edildi.
+- AC bazinda kapsam tablosu (AC01–AC09).
+- Test teknikleri (BVA, negative, data-driven, network mock, backend state dogrulama).
+- Gercek bosluklar ve oncelikli iyilestirme onerileri belgelendi.
 
 ---
 
-## Son Proje Incelemesi - Neler Degisti?
+## Test Sonuclari (2026-06-29)
 
-`test` branch'ine gelen degisiklikler genis kapsamli. Ana hatlar:
-
-1. **Yeni `/bruno` sayfasi eklendi.**
-   - `src/components/BrunoPage.jsx` yeni route component'i.
-   - `src/data/brunoData.js` Bruno API Client egitim icerigi.
-   - `src/App.jsx`, `src/components/HomePage.jsx`, `src/utils/seo.js`,
-     `scripts/generate-static-routes.mjs` ve `public/sitemap.xml` tarafina
-     `/bruno` route/SEO/nav/static shell baglantilari eklendi.
-   - Bruno mulakat sekmesi EN/TR tarafinda 50 soru ve 15/20/15 dagilimiyle
-     kurala uygun.
-
-2. **Python sayfasina yeni interaktif ogrenme katmani geldi.**
-   - `ManualTestingLabBlock.jsx`, `BuggyLoginForm.jsx`,
-     `src/data/manualTestingLabBugs.js`: kasitli bug iceren login formu ve
-     rule-based bug report puanlama.
-   - `CodePlaygroundBlock.jsx`, `src/data/pythonPlaygroundData.js`: Run /
-     Show Expected Output / Fix the Failing Test / Hint akisli kod pratikleri.
-   - `src/lib/xp.js`, `src/components/XpStat.jsx`: Python sayfasi icin ortak
-     local-first XP havuzu (`learnqa_xp_python`).
-   - `GoodVsBadBlock.jsx`, `StepAnimationBlock.jsx`,
-     `InteractiveDiagramBlock.jsx`: gorsel/animasyonlu anlatim bloklari.
-   - `ChallengeBlock.jsx` ve `src/components/challenges/*`: multiple-choice,
-     order-sort, fill-blank, bug-spot mini gorevleri. Bu is artik "sirada"
-     degil, repoda tamamlanmis ve Python verisine baglanmis durumda.
-
-3. **`TopicPage.jsx` ortak renderer genisledi.**
-   - Yeni block type'lar eklendi:
-     `manual-testing-lab`, `code-playground`, `good-vs-bad`,
-     `step-animation`, `interactive-diagram`, `challenge`.
-   - `CodeBlock` export edildi ve playground tarafinda yeniden kullaniliyor.
-   - Mülakat akisi genisletildi: %80 altinda kalan kullanici icin sayfa
-     hard-reset akisi var.
-   - `ErrorDictionaryBlock` ve comparison/code yorum lokalizasyonu gibi i18n
-     duzeltmeleri geldi.
-
-4. **AI/quiz/interview kabul kriterleri icin test altyapisi genisledi.**
-   - Yeni Playwright spec'leri eklendi: quiz retry, i18n content toggle,
-     interview grading/reset, quiz AI explanation, API endpoint smoke,
-     topic/other pages UI kontrolleri.
-   - Ayrica uzun kosan ayri suite'ler geldi:
-     `tests-extended/interview-mastery-flows.spec.ts`,
-     `tests-quiz-audit/quiz-full-audit.spec.ts`.
-   - `playwright.interview-flows.config.ts`,
-     `playwright.quiz-audit.config.ts` ve `scripts/post-commit-tests.sh`
-     eklendi.
-   - `package.json` icine `test:interview-flows`, `test:quiz-audit` ve
-     `simple-git-hooks` post-commit hook eklendi.
-
-5. **Acceptance Criteria dokumani eklendi.**
-   - `Documents/acceptancecriterias.md` AC01-AC09 kurallarini topluyor:
-     navigasyon, quiz retry, i18n, %60 interview gate, AI aciklama,
-     interview AI grading, %80 completion badge/reset, tema/roadmap.
-   - `CLAUDE.md` bu dosyaya referans verecek sekilde guncellenmis.
+- `npm run build` PASS — 38 static route HTML shell, dist SEO check passed.
+- `npx playwright test tests/i18n-content-toggle.spec.ts` PASS — **28 passed, 0 failed**.
+- `npx playwright test tests/topic-pages-ui.spec.ts` son kosumda PASS (onceki oturumdan).
 
 ---
 
-## Dogru Yapilanlar
+## Bitmis / Kapanmis Konular
 
-- Mevcut data-driven mimari korunmus: yeni egitim icerikleri agirlikli olarak
-  `src/data/*Data.js` icinde, renderer ise `TopicPage.jsx` switch pattern'iyle
-  genisletilmis.
-- `/bruno` route'u sadece component olarak degil; nav, SEO metadata, sitemap ve
-  static route shell uretimine de baglanmis.
-- Bruno mulakat sorulari kural ile uyumlu: 50 soru, Basic 15 / Intermediate 20 /
-  Advanced 15.
-- Yeni Python ogrenme deneyimleri local-first calisiyor; XP localStorage ile
-  kaydediliyor ve tekrar XP kazanimi `completed` listesiyle sinirlanmis.
-- Challenge sistemi gercek component'lere bolunmus; ana `ChallengeBlock` sadece
-  ortak chrome/XP/status sorumlulugunu tasiyor.
-- Playwright test altyapisi sadece tek smoke testten ibaret kalmamis; AC02-AC07
-  gibi kritik akislari hedefleyen testler yazilmis.
-- Node 20+ ile `.env.local` yukleme `process.loadEnvFile` uzerinden yapiliyor;
-  mevcut local Node 22 ve GitHub Actions Node 20 ile uyumlu.
-- Build calisti: `npm run build` SEO check + static route generation +
-  dist SEO check zincirini gecirdi.
+- AC03 EN mod Turkce karakter ihlalleri: sifirdan basladik, tum 24 route temizlendi. ✅
+- `test` branch merge hazir. `test → main` merge yapilabilir.
 
 ---
 
-## Eksikler / Riskler
+## Eksikler / Riskler / Yapilacaklar (Oncelik Sirasi)
 
-1. **Supabase RLS SQL'leri kullanici tarafinda calistirilmali.**
-   - AC07 reset akisinda `AuthContext.resetLessonProgress()` hazir.
-   - `user_progress` delete policy yoksa Supabase tarafinda reset sessizce
-     basarisiz olabilir.
-   - Calistirilacak SQL:
-     ```sql
-     create policy "users delete own progress"
-     on public.user_progress
-     for delete
-     using (auth.uid() = user_id);
-     ```
-   - `user_badges` INSERT/upsert RLS policy'si de kontrol edilmeli.
+1. **`test → main` merge yapilmali.**
+   - 17 commit tek yone — fast-forward merge mumkun.
+   - Oncesinde: `npm run build` + `npm run test:e2e` son kez calistir (main branch'e
+     gecmeden once temiz build onaylanmali).
 
-2. **Uyelik gerektiren full AI/interview testleri env eksigi nedeniyle skip.**
-   - `.env.local` icinde `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` yok.
-   - Bu yuzden `tests/api-endpoints.spec.ts` icindeki 3 uyelikli Edge Function
-     testi ve `test:interview-flows` icindeki 22 full-flow test skip oluyor.
-   - Bu iki test kullanici degiskeni eklenirse uyelik/AI happy-path suite'leri
-     tekrar kosulmali.
+2. **Stale test dosyalari duzeltilmeli (testcoverage.md §7 referansi).**
+   - `python-page.spec.ts`: `/#/python` ve `/#/typescript` eski hash URL'ler.
+     Temiz path'e (`/python`, `/typescript`) guncellenmeli veya
+     `topic-pages-ui.spec.ts` kapsadigindan dosya silinmeli.
+   - `sql-page.spec.ts`: `expect(count).toBe(25)` hardcoded sayi → `toBeGreaterThan(20)`.
+   - `javascript-page.spec.ts` + `sql-page.spec.ts`: son sekme interview
+     varsayimi — `typescript-page.spec.ts`'deki `💼` emoji yontemi uygulanmali.
 
-3. **`/basit-backend` EN icerik eksigi bilerek duruyor.**
-   - Tab 0 ve tab 3'te TR'de quiz var, EN tarafinda yok.
-   - Kullanici talimati: onemsiz, zaman harcanmasin.
+3. **Uyelik gerektiren full AI/interview testleri kosturulmali.**
+   - `.env.local` icine `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` eklenerek
+     `npm run test:interview-flows` ve `tests/api-endpoints.spec.ts` uyelikli
+     testleri tamamlanmali.
 
-4. **AC08 coklu tema paleti eksik.**
-   - Platformda dark/light mode var.
-   - Acceptance Criteria alternatif renk paletleri istiyor.
-   - Kullanici "simdilik atla" dedigi icin kodlanmadi.
-
-5. **Bundle boyutu buyuk.**
-   - `TopicPage` chunk ~1.3MB+.
-   - `typescriptData`, `javaData`, `sqlData` 500KB+.
-   - Build'i bozmaz, fakat code-splitting/manual chunk adayi.
-
----
-
-## Yapilmasi Gerekenler (Oncelik Sirasi)
-
-1. **Supabase manuel isleri:**
-   - `learnqa-test` ve `learnqa-prod` icin `user_progress` DELETE RLS policy'sini
-     ekle.
-   - `user_badges` upsert/insert RLS policy'sini kontrol et.
-   - Uzun interview suite'i gercekten kosmak icin `.env.local` icine
-     `TEST_USER_EMAIL` ve `TEST_USER_PASSWORD` eklenmeli.
-
-2. **Python interaktif ozelliklerini onaydan sonra diger sayfalara yay:**
+4. **Python interaktif ozellikleri diger sayfalara yayilabilir.**
    - Selenium, Playwright, Java, API testing sayfalarina ayni block type'lari
-     veri/icerik ekleyerek tasinabilir.
-   - Component mimarisi hazir; yeni component yazmak yerine data eklemek yeterli.
+     (code-playground, good-vs-bad, challenge vb.) icerik ekleyerek tasinabilir.
+   - Component mimarisi hazir; yeni component gerekmez.
 
-3. **Opsiyonel teknik borc:**
-   - `TopicPage` ve buyuk data chunk'lari icin code-splitting/manualChunks
-     degerlendir.
-   - `test:quiz-audit` periyodik GitHub Actions job'ina baglanabilir.
+5. **AC08 coklu tema paleti eksik.**
+   - Kullanici "simdilik atla" demis. Gerekirse `Documents/acceptancecriterias.md`
+     Madde 11 plani hazir.
+
+6. **Bundle boyutu (teknik borc).**
+   - `TopicPage` chunk ~1.3MB+.
+   - Acil degil; code-splitting / manualChunks ile iyilestirilebilir.
 
 ---
 
 ## Onemli Dosyalar
 
-- `src/components/TopicPage.jsx` - ortak block renderer, quiz/interview gating,
-  reset akisi, simulation ve yeni block type case'leri.
-- `src/data/pythonData.js` - Python sayfasi tab/section kompozisyonu.
-- `src/data/pythonPlaygroundData.js` - Python code playground egzersiz verisi.
-- `src/components/ManualTestingLabBlock.jsx` - manual bug report lab.
-- `src/components/CodePlaygroundBlock.jsx` - Run/Fix/Hint playground.
-- `src/components/ChallengeBlock.jsx` ve `src/components/challenges/*` - mini
-  gorev sistemi.
-- `src/lib/xp.js` - Python XP localStorage havuzu.
-- `src/components/XpStat.jsx` - XP count-up ve toast UI.
-- `src/data/brunoData.js` - Bruno API Client icerigi.
-- `src/utils/searchIndex.js` - global search index; yeni public sayfa eklenirse
-  buraya da eklenmeli.
-- `Documents/acceptancecriterias.md` - AC01-AC09 kabul kriterleri.
+- `src/components/TopicPage.jsx` — ortak block renderer, getLocalizedCode,
+  codeCommentTranslations, quiz/interview gating, reset akisi.
+- `src/data/javaData.js` — sSelenium ve sPlaywright bilingual label/code fix'leri.
+- `src/components/PythonFrameworksTab.jsx` — kendi codeCommentTranslations dizisi var.
+- `src/components/TestFrameworksPage.jsx` — data-testid="language-toggle" eklendi.
+- `src/data/browserstackData.js` — simulation code bilingual.
+- `tests/i18n-content-toggle.spec.ts` — AC03 Kosul B, 28 test.
+- `Documents/testcoverage.md` — test kapsam raporu.
 
 ---
 

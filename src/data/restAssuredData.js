@@ -559,7 +559,7 @@ public class ConfigReader {
         scenario: 'rest-assured-chain',
         description: {
           tr: '"▶ Testi Çalıştır" butonuna bas: given() → when() → then() zincirinin adım adım nasıl çalıştığını, isteğin gönderilişini ve assertion\'ların koşmasını izle.',
-          en: 'Press "▶ Testi Çalıştır": watch the given() → when() → then() chain execute, the request being sent, and assertions running step by step.',
+          en: 'Press "▶ Run Test": watch the given() → when() → then() chain execute, the request being sent, and assertions running step by step.',
         },
         code: `// Java — REST Assured given/when/then zinciri
 @Test

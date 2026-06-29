@@ -170,10 +170,10 @@ console.log("Total Sum:", x + y);`
         retryQuestion: {
           question: { tr: "JavaScript'i diğer dillerden ayıran en temel özelliği nedir?", en: "What is the most fundamental feature that distinguishes JavaScript from most other languages?" },
           options: [
-            { id: "a", text: "Nesne yönelimli olması / Object-oriented" },
-            { id: "b", text: "Tarayıcıda çalışan tek dil / Only language running natively in browsers" },
-            { id: "c", text: "Derlenen bir dil olması / Being a compiled language" },
-            { id: "d", text: "Tip güvenli olması / Being type-safe" }
+            { id: "a", text: { tr: "Nesne yönelimli olması", en: "Object-oriented" } },
+            { id: "b", text: { tr: "Tarayıcıda çalışan tek dil", en: "Only language running natively in browsers" } },
+            { id: "c", text: { tr: "Derlenen bir dil olması", en: "Being a compiled language" } },
+            { id: "d", text: { tr: "Tip güvenli olması", en: "Being type-safe" } }
           ],
           correct: "b",
           explanation: { tr: "JavaScript, tarayıcılarda doğal olarak çalışan tek dildir. Bu benzersiz konumu onu web geliştirmenin zorunlu bir parçası yapar.", en: "JavaScript is the only language that runs natively in all web browsers — this unique position makes it an unavoidable part of web development." }
@@ -226,7 +226,8 @@ console.log("Total Sum:", x + y);`
         type: "code",
         language: "bash",
         label: { tr: "Windows (PowerShell / CMD)", en: "Windows (PowerShell / CMD)" },
-        content: `# 1. Node.js LTS indir: https://nodejs.org → Windows Installer (.msi)
+        content: {
+          tr: `# 1. Node.js LTS indir: https://nodejs.org → Windows Installer (.msi)
 # 2. Kurulumdan sonra yeni terminal aç ve doğrula:
 node --version   # Beklenen: v22.x.x
 npm --version    # Beklenen: 10.x.x
@@ -238,13 +239,28 @@ node -e "console.log('Node.js çalışıyor!')"
 # 4. Proje klasörü oluştur
 mkdir my-qa-project && cd my-qa-project
 npm init -y
-# Beklenen: package.json dosyası oluşturuldu`
+# Beklenen: package.json dosyası oluşturuldu`,
+          en: `# 1. Download Node.js LTS: https://nodejs.org → Windows Installer (.msi)
+# 2. Open a new terminal after install and verify:
+node --version   # Expected: v22.x.x
+npm --version    # Expected: 10.x.x
+
+# 3. Quick test
+node -e "console.log('Node.js is running!')"
+# Expected output: Node.js is running!
+
+# 4. Create a project folder
+mkdir my-qa-project && cd my-qa-project
+npm init -y
+# Expected: package.json file created`
+        }
       },
       {
         type: "code",
         language: "bash",
         label: { tr: "macOS (Homebrew)", en: "macOS (Homebrew)" },
-        content: `# 1. Homebrew yüklü değilse önce yükle:
+        content: {
+          tr: `# 1. Homebrew yüklü değilse önce yükle:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # 2. Node.js LTS kur
@@ -258,13 +274,30 @@ npm --version    # 10.x.x
 # 4. Versiyon yöneticisi (Önerilen — birden fazla proje için)
 brew install nvm
 nvm install --lts
+nvm use --lts`,
+          en: `# 1. Install Homebrew if not installed:
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Install Node.js LTS
+brew install node
+# Expected: Node.js and npm installed together
+
+# 3. Verify
+node --version   # v22.x.x
+npm --version    # 10.x.x
+
+# 4. Version manager (Recommended — for multiple projects)
+brew install nvm
+nvm install --lts
 nvm use --lts`
+        }
       },
       {
         type: "code",
         language: "bash",
         label: { tr: "Linux (Ubuntu/Debian)", en: "Linux (Ubuntu/Debian)" },
-        content: `# 1. NodeSource deposunu ekle ve Node.js kur
+        content: {
+          tr: `# 1. NodeSource deposunu ekle ve Node.js kur
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
 # Beklenen: "Processing triggers for man-db..."
@@ -277,13 +310,29 @@ npm --version    # 10.x.x
 mkdir ~/.npm-global
 npm config set prefix '~/.npm-global'
 # ~/.profile veya ~/.bashrc'ye ekle:
+# export PATH=~/.npm-global/bin:$PATH`,
+          en: `# 1. Add NodeSource repo and install Node.js
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+# Expected: "Processing triggers for man-db..."
+
+# 2. Verify
+node --version   # v22.x.x
+npm --version    # 10.x.x
+
+# 3. Fix global package permission error (npm EACCES)
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+# Add to ~/.profile or ~/.bashrc:
 # export PATH=~/.npm-global/bin:$PATH`
+        }
       },
       {
         type: "code",
         language: "bash",
         label: { tr: "Playwright Projesi Kurulumu (Tüm OS)", en: "Playwright Project Setup (All OS)" },
-        content: `# Yeni Playwright projesi oluştur
+        content: {
+          tr: `# Yeni Playwright projesi oluştur
 npm init playwright@latest
 
 # Beklenen sorular:
@@ -297,7 +346,23 @@ npx playwright test --list      # Test dosyalarını listeler
 
 # İlk testi çalıştır
 npx playwright test
-# Beklenen çıktı: X passed (Xm Xs)`
+# Beklenen çıktı: X passed (Xm Xs)`,
+          en: `# Create a new Playwright project
+npm init playwright@latest
+
+# Expected prompts:
+# > Where to put your end-to-end tests? tests/
+# > Add a GitHub Actions workflow? (y/N) N (for now)
+# > Install Playwright browsers? (Y/n) Y
+
+# Verify after setup
+npx playwright --version        # Playwright v1.x.x
+npx playwright test --list      # Lists all test files
+
+# Run first test
+npx playwright test
+# Expected output: X passed (Xm Xs)`
+        }
       },
       {
         type: "installation",
@@ -431,7 +496,7 @@ npx playwright test
           question: { tr: "`npm init -y` komutu ne yapar?", en: "What does `npm init -y` do?" },
           options: [
             { id: "a", text: "Node.js günceller / Updates Node.js" },
-            { id: "b", text: "Tüm soruları otomatik \"evet\" ile geçip package.json oluşturur / Creates package.json with all defaults" },
+            { id: "b", text: { tr: "Tüm soruları otomatik \"evet\" ile geçip package.json oluşturur", en: "Creates package.json with all defaults automatically" } },
             { id: "c", text: "Projeyi siler / Deletes the project" },
             { id: "d", text: "npm'i günceller / Updates npm" }
           ],
@@ -687,7 +752,8 @@ console.log("=== (Strict Equality):", a === b); // false`
         type: "code",
         language: "javascript",
         label: { tr: "Function Declaration vs Expression vs Arrow", en: "Function Declaration vs Expression vs Arrow" },
-        content: `// ─── 1. Function Declaration (Bildirim) ──────────────────────
+        content: {
+          tr: `// ─── 1. Function Declaration (Bildirim) ──────────────────────
 // Java'daki public static void / String methodName() gibi
 // Hoisting: tanımlanmadan ÖNCE çağrılabilir
 function add(a, b) {
@@ -708,7 +774,30 @@ const divide = (a, b) => a / b;           // tek satır → return örtük
 const greet  = name => \`Merhaba, \${name}!\`; // tek parametre → parantez opsiyonel
 
 console.log(divide(10, 2)); // 5
-console.log(greet("Hasan")); // Merhaba, Hasan!`
+console.log(greet("Hasan")); // Merhaba, Hasan!`,
+          en: `// ─── 1. Function Declaration ─────────────────────────────────
+// Like Java's public static void / String methodName()
+// Hoisting: callable BEFORE it is defined
+function add(a, b) {
+  return a + b;
+}
+console.log(add(3, 5)); // 8
+
+// ─── 2. Function Expression ───────────────────────────────────
+// Assigned to a variable; NO hoisting
+const multiply = function(a, b) {
+  return a * b;
+};
+console.log(multiply(4, 6)); // 24
+
+// ─── 3. Arrow Function (ES6) ──────────────────────────────────
+// Concise syntax; does NOT inherit its own 'this' (key difference!)
+const divide = (a, b) => a / b;           // single line → implicit return
+const greet  = name => \`Hello, \${name}!\`; // single param → parentheses optional
+
+console.log(divide(10, 2)); // 5
+console.log(greet("Hasan")); // Hello, Hasan!`
+        }
       },
       {
         type: "table",
@@ -961,7 +1050,8 @@ console.log(typeof "test", typeof 42, typeof true, typeof undefined, typeof null
         type: "code",
         language: "javascript",
         label: { tr: "Sayı Dönüşümleri ve Math Nesnesi", en: "Number Conversions and Math Object" },
-        content: `// ─── String → Number dönüşümleri ────────────────────────────
+        content: {
+          tr: `// ─── String → Number dönüşümleri ────────────────────────────
 let strNum = "42";
 console.log(Number(strNum));      // 42     ← güvenli dönüşüm
 console.log(parseInt("42px"));   // 42     ← sayıyı parse eder, sonrasını atar
@@ -984,7 +1074,32 @@ console.log(Math.abs(-15));     // 15  ← mutlak değer
 console.log(Math.max(1,9,3));   // 9
 console.log(Math.min(1,9,3));   // 1
 console.log(Math.random());     // 0–1 arası rastgele sayı
+console.log(Math.sqrt(16));     // 4`,
+          en: `// ─── String → Number conversions ────────────────────────────
+let strNum = "42";
+console.log(Number(strNum));      // 42     ← safe conversion
+console.log(parseInt("42px"));   // 42     ← parses number, drops rest
+console.log(parseFloat("3.14")); // 3.14
+console.log(+"99");               // 99     ← unary + shorthand
+console.log(Number("hello"));    // NaN    ← invalid conversion
+
+// ─── Number methods ───────────────────────────────────────────
+let price = 19.9876;
+console.log(price.toFixed(2));         // "19.99" — decimal rounding (returns string!)
+console.log(Number.isNaN(NaN));        // true
+console.log(Number.isFinite(1/0));     // false (Infinity)
+console.log(Number.isInteger(42.0));   // true
+
+// ─── Math object ─────────────────────────────────────────────
+console.log(Math.round(4.6));   // 5
+console.log(Math.floor(4.9));   // 4   ← floor (round down)
+console.log(Math.ceil(4.1));    // 5   ← ceil (round up)
+console.log(Math.abs(-15));     // 15  ← absolute value
+console.log(Math.max(1,9,3));   // 9
+console.log(Math.min(1,9,3));   // 1
+console.log(Math.random());     // random number between 0–1
 console.log(Math.sqrt(16));     // 4`
+        }
       },
       {
         type: "heading",
@@ -1173,7 +1288,8 @@ console.log("Split parts:", cleanText.split(": ")); // ["Report", "15 Passed"]`
         type: "code",
         language: "javascript",
         label: { tr: "Array map & filter Örnekleri", en: "Array map & filter Examples" },
-        content: `const fruits = ['🍎', '🍏', '🍊', '🍍'];
+        content: {
+          tr: `const fruits = ['🍎', '🍏', '🍊', '🍍'];
 
 // 1. map() ile her meyveyi meyve suyuna dönüştür
 const juices = fruits.map(fruit => fruit + '🥤');
@@ -1181,7 +1297,17 @@ console.log(juices); // ['🍎🥤', '🍏🥤', '🍊🥤', '🍍🥤']
 
 // 2. filter() ile sadece elma olanları seç
 const apples = fruits.filter(fruit => fruit === '🍎' || fruit === '🍏');
+console.log(apples); // ['🍎', '🍏']`,
+          en: `const fruits = ['🍎', '🍏', '🍊', '🍍'];
+
+// 1. map() — transform each fruit into juice
+const juices = fruits.map(fruit => fruit + '🥤');
+console.log(juices); // ['🍎🥤', '🍏🥤', '🍊🥤', '🍍🥤']
+
+// 2. filter() — keep only apples
+const apples = fruits.filter(fruit => fruit === '🍎' || fruit === '🍏');
 console.log(apples); // ['🍎', '🍏']`
+        }
       },
       {
         type: "editor",
@@ -1282,7 +1408,8 @@ console.log("Test Names:", testNames);`
         type: "code",
         language: "javascript",
         label: { tr: "reduce, find, some, every, sort — QA Örnekleri", en: "reduce, find, some, every, sort — QA Examples" },
-        content: `const tests = [
+        content: {
+          tr: `const tests = [
   { name: 'Login',   status: 'passed',  durationMs: 1200 },
   { name: 'Payment', status: 'failed',  durationMs: 3400 },
   { name: 'Signup',  status: 'passed',  durationMs: 900  },
@@ -1316,7 +1443,43 @@ console.log('En hızlı:', sorted[0].name);      // 'Logout' (400ms)
 
 // ─── flat(): İç içe dizileri düzleştir ───────────────────────
 const nested = [['TC-001', 'TC-002'], ['TC-003'], ['TC-004', 'TC-005']];
-console.log('Düz liste:', nested.flat());      // ['TC-001','TC-002','TC-003','TC-004','TC-005']`
+console.log('Düz liste:', nested.flat());      // ['TC-001','TC-002','TC-003','TC-004','TC-005']`,
+          en: `const tests = [
+  { name: 'Login',   status: 'passed',  durationMs: 1200 },
+  { name: 'Payment', status: 'failed',  durationMs: 3400 },
+  { name: 'Signup',  status: 'passed',  durationMs: 900  },
+  { name: 'Logout',  status: 'passed',  durationMs: 400  },
+];
+
+// ─── reduce(): Sum total duration ────────────────────────────
+// Java: stream().mapToInt(t -> t.durationMs).sum()
+const totalMs = tests.reduce((acc, t) => acc + t.durationMs, 0);
+console.log('Total time:', totalMs + 'ms');    // 5900ms
+
+// ─── find(): Get first failed test ───────────────────────────
+// Java: stream().filter(t -> t.status.equals("failed")).findFirst()
+const firstFail = tests.find(t => t.status === 'failed');
+console.log('First failure:', firstFail?.name); // 'Payment'
+
+// ─── some(): Any test failed? ────────────────────────────────
+// Java: stream().anyMatch(t -> "failed".equals(t.status))
+const hasFailed = tests.some(t => t.status === 'failed');
+console.log('Any failure?', hasFailed);        // true
+
+// ─── every(): Did all pass? ──────────────────────────────────
+// Java: stream().allMatch(t -> "passed".equals(t.status))
+const allPassed = tests.every(t => t.status === 'passed');
+console.log('All passed?', allPassed);         // false
+
+// ─── sort(): Sort by duration (mutates copy!) ────────────────
+// Java: Collections.sort(tests, Comparator.comparingInt(t -> t.durationMs))
+const sorted = [...tests].sort((a, b) => a.durationMs - b.durationMs);
+console.log('Fastest test:', sorted[0].name);  // 'Logout' (400ms)
+
+// ─── flat(): Flatten nested arrays ───────────────────────────
+const nested = [['TC-001', 'TC-002'], ['TC-003'], ['TC-004', 'TC-005']];
+console.log('Flat list:', nested.flat());      // ['TC-001','TC-002','TC-003','TC-004','TC-005']`
+        }
       },
       {
         type: "quiz",
@@ -1441,7 +1604,8 @@ console.log('Düz liste:', nested.flat());      // ['TC-001','TC-002','TC-003','
         type: "code",
         language: "javascript",
         label: { tr: "Koşul Yapıları Karşılaştırması", en: "Conditional Structures" },
-        content: `// ─── if / else if / else ─────────────────────────────────────
+        content: {
+          tr: `// ─── if / else if / else ─────────────────────────────────────
 let score = 75;
 
 if (score >= 90) {
@@ -1472,7 +1636,40 @@ switch (browser) {
     break;
   default:
     console.log("Bilinmeyen tarayıcı!");
+}`,
+          en: `// ─── if / else if / else ─────────────────────────────────────
+let score = 75;
+
+if (score >= 90) {
+  console.log("✅ Advanced");
+} else if (score >= 60) {
+  console.log("⚠️  Intermediate");  // this branch runs
+} else {
+  console.log("❌ Failed");
+}
+
+// ─── Ternary Operator ─────────────────────────────────────────
+// Short if/else — identical syntax to Java
+let status = score >= 60 ? "passed" : "failed";
+console.log("Test Status:", status); // "passed"
+
+// ─── switch / case ────────────────────────────────────────────
+let browser = "chromium";
+
+switch (browser) {
+  case "chromium":
+    console.log("Loading Chrome Driver...");
+    break;          // without break, falls through to next case!
+  case "firefox":
+    console.log("Loading Firefox Driver...");
+    break;
+  case "webkit":
+    console.log("Loading Safari Driver...");
+    break;
+  default:
+    console.log("Unknown browser!");
 }`
+        }
       },
       {
         type: "heading",
@@ -1523,7 +1720,8 @@ switch (browser) {
         type: "code",
         language: "javascript",
         label: { tr: "for...of ve for...in — Otomasyon Kullanımı", en: "for...of and for...in — Automation Usage" },
-        content: `const testResults = [
+        content: {
+          tr: `const testResults = [
   { id: 1, name: "Login Test",   status: "passed" },
   { id: 2, name: "Payment Test", status: "failed" },
   { id: 3, name: "Signup Test",  status: "passed" }
@@ -1546,7 +1744,32 @@ let retryCount = 0;
 while (retryCount < 3) {
   console.log(\`Deneme \${retryCount + 1}: Element aranıyor...\`);
   retryCount++;
+}`,
+          en: `const testResults = [
+  { id: 1, name: "Login Test",   status: "passed" },
+  { id: 2, name: "Payment Test", status: "failed" },
+  { id: 3, name: "Signup Test",  status: "passed" }
+];
+
+// for...of — iterate over array values (like Java's enhanced for)
+for (const test of testResults) {
+  const icon = test.status === "passed" ? "✅" : "❌";
+  console.log(\`\${icon} \${test.name}\`);
+}
+
+// for...in — iterate over object keys
+const apiResponse = { statusCode: 200, message: "OK", data: [] };
+for (const key in apiResponse) {
+  console.log(\`\${key}: \${apiResponse[key]}\`);
+}
+
+// while — Polling (simulate waiting until element appears)
+let retryCount = 0;
+while (retryCount < 3) {
+  console.log(\`Attempt \${retryCount + 1}: Searching for element...\`);
+  retryCount++;
 }`
+        }
       },
       {
         type: "editor",
@@ -1872,10 +2095,10 @@ console.log("3. Stack End");`
         retryQuestion: {
           question: { tr: "Call Stack nedir?", en: "What is the Call Stack?" },
           options: [
-            { id: "a", text: "Asenkron görevlerin beklediği yer / Where async tasks wait" },
-            { id: "b", text: "JavaScript'in şu anda yürüttüğü fonksiyonların listesi / The list of functions JS is currently executing" },
-            { id: "c", text: "setTimeout'ları tutan yapı / The structure holding setTimeouts" },
-            { id: "d", text: "DOM element listesi / List of DOM elements" }
+            { id: "a", text: { tr: "Asenkron görevlerin beklediği yer", en: "Where async tasks wait" } },
+            { id: "b", text: { tr: "JavaScript'in şu anda yürüttüğü fonksiyonların listesi", en: "The list of functions JS is currently executing" } },
+            { id: "c", text: { tr: "setTimeout'ları tutan yapı", en: "The structure holding setTimeouts" } },
+            { id: "d", text: { tr: "DOM element listesi", en: "List of DOM elements" } }
           ],
           correct: "b",
           explanation: { tr: "Call Stack, JavaScript motoru'nun şu anda yürütmekte olduğu fonksiyonların LIFO (Last In First Out) sırasıyla tutulduğu yapıdır.", en: "The Call Stack is a LIFO (Last In First Out) structure tracking which functions the JavaScript engine is currently executing." }
@@ -1925,7 +2148,8 @@ console.log("3. Stack End");`
         type: "code",
         language: "javascript",
         label: { tr: "Promise & Closure Örnekleri", en: "Promise & Closure Examples" },
-        content: `// 1. Bir Promise Tanımlama (Dondurma Sözü)
+        content: {
+          tr: `// 1. Bir Promise Tanımlama (Dondurma Sözü)
 const iceCreamPromise = new Promise((resolve, reject) => {
   const isReady = true;
   if (isReady) resolve('🍦 Dondurma Hazır!');
@@ -1941,7 +2165,25 @@ function createBackpack() {
   };
 }
 const myBackpack = createBackpack();
-console.log(myBackpack.getToy()); // '🧸 Ayıcık'`
+console.log(myBackpack.getToy()); // '🧸 Ayıcık'`,
+          en: `// 1. Defining a Promise (Ice Cream Pager)
+const iceCreamPromise = new Promise((resolve, reject) => {
+  const isReady = true;
+  if (isReady) resolve('🍦 Ice Cream Ready!');
+  else reject('😢 Ice Cream Sold Out.');
+});
+
+// 2. Closure Example (Backpack / Private Variable)
+function createBackpack() {
+  let toy = '🧸 Teddy Bear'; // private variable — not accessible from outside
+  return {
+    getToy: () => toy,
+    setToy: (newToy) => { toy = newToy; }
+  };
+}
+const myBackpack = createBackpack();
+console.log(myBackpack.getToy()); // '🧸 Teddy Bear'`
+        }
       },
       {
         type: "editor",
@@ -2075,7 +2317,7 @@ console.log("Count call 2:", counter());`
         retryQuestion: {
           question: { tr: "`async` fonksiyon içinde `return 42` yazdığında ne döner?", en: "What does returning `42` inside an `async` function actually return?" },
           options: [
-            { id: "a", text: "42 (sayı olarak) / 42 (as a number)" },
+            { id: "a", text: { tr: "42 (sayı olarak)", en: "42 (as a number)" } },
             { id: "b", text: "Promise.resolve(42)" },
             { id: "c", text: "undefined" },
             { id: "d", text: "Promise.reject(42)" }
@@ -2172,7 +2414,8 @@ console.log("Count call 2:", counter());`
         type: "code",
         language: "javascript",
         label: { tr: "ES6 Module: import / export Kullanımı", en: "ES6 Module: import / export Usage" },
-        content: `// ── pageObjects/BasePage.js ──────────────────────
+        content: {
+          tr: `// ── pageObjects/BasePage.js ──────────────────────
 export class BasePage {         // named export
   constructor(url) {
     this.url = url;
@@ -2182,7 +2425,7 @@ export class BasePage {         // named export
   }
 }
 
-export const BASE_URL = "https://learnqa.dev"; // named export (constant)
+export const BASE_URL = "https://learnqa.dev"; // named export (sabit)
 
 // ── pageObjects/LoginPage.js ─────────────────────
 import { BasePage, BASE_URL } from './BasePage.js'; // named import
@@ -2203,7 +2446,40 @@ import LoginPage from '../pageObjects/LoginPage.js'; // default import
 
 const page = new LoginPage();
 page.open();
+console.log(page.fillForm("hasan", "secret123"));`,
+          en: `// ── pageObjects/BasePage.js ──────────────────────
+export class BasePage {         // named export
+  constructor(url) {
+    this.url = url;
+  }
+  open() {
+    console.log("Navigating to:", this.url);
+  }
+}
+
+export const BASE_URL = "https://learnqa.dev"; // named export (constant)
+
+// ── pageObjects/LoginPage.js ─────────────────────
+import { BasePage, BASE_URL } from './BasePage.js'; // named import
+
+class LoginPage extends BasePage {
+  constructor() {
+    super(BASE_URL + "/login");   // calls parent constructor via super()
+  }
+  fillForm(user, pass) {
+    return \`Logging in as \${user}\`;
+  }
+}
+
+export default LoginPage;        // default export
+
+// ── tests/login.test.js ──────────────────────────
+import LoginPage from '../pageObjects/LoginPage.js'; // default import
+
+const page = new LoginPage();
+page.open();
 console.log(page.fillForm("hasan", "secret123"));`
+        }
       },
       {
         type: "heading",
@@ -2339,10 +2615,10 @@ console.log("Parsed Browser:", testData.browser);`
         retryQuestion: {
           question: { tr: "JavaScript'te `static` method nedir?", en: "What is a `static` method in JavaScript?" },
           options: [
-            { id: "a", text: "Yalnızca bir instance üzerinden çağrılabilen method / Method callable only on an instance" },
-            { id: "b", text: "Sınıfın instance'ı oluşturulmadan doğrudan sınıf üzerinden çağrılan method / Method called directly on the class without creating an instance" },
-            { id: "c", text: "Değiştirilemeyen method / Immutable method" },
-            { id: "d", text: "Private method / Private method" }
+            { id: "a", text: { tr: "Yalnızca bir instance üzerinden çağrılabilen method", en: "Method callable only on an instance" } },
+            { id: "b", text: { tr: "Sınıfın instance'ı oluşturulmadan doğrudan sınıf üzerinden çağrılan method", en: "Method called directly on the class without creating an instance" } },
+            { id: "c", text: { tr: "Değiştirilemeyen method", en: "Immutable method" } },
+            { id: "d", text: { tr: "Private method", en: "Private method" } }
           ],
           correct: "b",
           explanation: { tr: "`static` method'lar sınıf üzerinden çağrılır: `LoginPage.generateTestEmail()`. Instance oluşturmaya gerek yoktur. Yardımcı (utility) fonksiyonları için idealdir.", en: "`static` methods are called on the class itself: `LoginPage.generateTestEmail()`. No instance needed. Ideal for utility functions that belong conceptually to a class but don't need instance state." }
@@ -2392,7 +2668,8 @@ console.log("Parsed Browser:", testData.browser);`
         type: "code",
         language: "javascript",
         label: { tr: "Playwright ile Asenkron Test Yazımı", en: "Asynchronous Test with Playwright" },
-        content: `import { test, expect } from '@playwright/test';
+        content: {
+          tr: `import { test, expect } from '@playwright/test';
 
 test('Asenkron veri yükleme testi', async ({ page }) => {
   // 1. Web sitesine git (Promise döner, await ile yüklenmesini bekle)
@@ -2404,7 +2681,21 @@ test('Asenkron veri yükleme testi', async ({ page }) => {
   // 3. API'den veri dönüp ekranda belirene kadar bekle
   const welcomeText = page.locator('.welcome-msg');
   await expect(welcomeText).toBeVisible({ timeout: 5000 });
+});`,
+          en: `import { test, expect } from '@playwright/test';
+
+test('Async data loading test', async ({ page }) => {
+  // 1. Navigate to website (returns a Promise, await resolves it)
+  await page.goto('https://example.com');
+
+  // 2. Click the button (Playwright auto-waits until element is ready)
+  await page.click('#load-data-btn');
+
+  // 3. Wait until API data appears on screen
+  const welcomeText = page.locator('.welcome-msg');
+  await expect(welcomeText).toBeVisible({ timeout: 5000 });
 });`
+        }
       },
       {
         type: "editor",
@@ -2492,7 +2783,8 @@ submitBtn.click();`
         type: "code",
         language: "javascript",
         label: { tr: "querySelectorAll & NodeList üzerinde döngü", en: "querySelectorAll & NodeList Iteration" },
-        content: `// querySelectorAll — tüm eşleşen elementleri döndürür (NodeList)
+        content: {
+          tr: `// querySelectorAll — tüm eşleşen elementleri döndürür (NodeList)
 const items = document.querySelectorAll('.product-card');  // NodeList (dizi değil!)
 
 // Yöntem 1: forEach (NodeList doğrudan destekler)
@@ -2513,7 +2805,30 @@ const priceArr = Array.from(items).map(item => item.dataset.price);
 // Test Otomasyonu (Playwright) — benzer konsept:
 // const locators = page.locator('.product-card');
 // const count = await locators.count();
+// for (let i = 0; i < count; i++) { await locators.nth(i).click(); }`,
+          en: `// querySelectorAll — returns all matching elements (NodeList)
+const items = document.querySelectorAll('.product-card');  // NodeList (NOT an Array!)
+
+// Method 1: forEach (NodeList supports it natively)
+items.forEach(item => console.log(item.textContent));
+
+// Method 2: for...of (NodeList is iterable)
+for (const item of items) {
+  console.log(item.getAttribute('data-price'));
+}
+
+// Method 3: Convert to a real array (to use array methods)
+const priceArr = Array.from(items).map(item => item.dataset.price);
+
+// ⚠️ items.map() DOES NOT WORK — NodeList is not an Array!
+// items.map(...)  ← TypeError: items.map is not a function
+// Array.from(items).map(...)  ← ✅ Correct approach
+
+// Test Automation (Playwright) — same concept:
+// const locators = page.locator('.product-card');
+// const count = await locators.count();
 // for (let i = 0; i < count; i++) { await locators.nth(i).click(); }`
+        }
       },
       {
         type: "heading",
@@ -2531,7 +2846,8 @@ const priceArr = Array.from(items).map(item => item.dataset.price);
         type: "code",
         language: "javascript",
         label: { tr: "innerHTML vs textContent karşılaştırması", en: "innerHTML vs textContent comparison" },
-        content: `// ── textContent ─────────────────────────────
+        content: {
+          tr: `// ── textContent ─────────────────────────────
 const el = document.getElementById('output');
 
 // OKUMA: sadece metin döner (HTML etiketleri soyulur)
@@ -2552,7 +2868,30 @@ el.textContent = userInput;     // ← GÜVENLİ: düz metin olarak gösterir
 
 // ✅ Test otomasyonunda metin okuma:
 const buttonText = document.querySelector('#submit').textContent.trim();
+// Java/Selenium: driver.findElement(By.id("submit")).getText()`,
+          en: `// ── textContent ─────────────────────────────
+const el = document.getElementById('output');
+
+// READ: returns plain text only (HTML tags are stripped)
+el.innerHTML = '<b>Hello</b>';
+console.log(el.textContent);   // "Hello"       ← no tags
+console.log(el.innerHTML);     // "<b>Hello</b>" ← tags preserved
+
+// WRITE comparison:
+el.textContent = '<b>Bold?</b>';
+// Visible on screen: <b>Bold?</b>  ← HTML NOT PARSED, plain text
+el.innerHTML  = '<b>Bold!</b>';
+// Visible on screen: Bold!  ← HTML parsed, bold text rendered
+
+// ⚠️ XSS attack example — with innerHTML:
+const userInput = '<img src=x onerror="alert(\'XSS!\')">';
+// el.innerHTML = userInput;    // ← DANGER! Script executes
+el.textContent = userInput;     // ← SAFE: displayed as plain text
+
+// ✅ Reading text in test automation:
+const buttonText = document.querySelector('#submit').textContent.trim();
 // Java/Selenium: driver.findElement(By.id("submit")).getText()`
+        }
       },
       {
         type: "heading",
@@ -2570,7 +2909,8 @@ const buttonText = document.querySelector('#submit').textContent.trim();
         type: "code",
         language: "javascript",
         label: { tr: "MutationObserver ile DOM değişikliği izleme", en: "Watching DOM changes with MutationObserver" },
-        content: `// MutationObserver kurulumu
+        content: {
+          tr: `// MutationObserver kurulumu
 const targetNode = document.getElementById('chat-messages');
 
 const observer = new MutationObserver((mutationsList) => {
@@ -2608,7 +2948,47 @@ observer.disconnect();
 // Ancak manuel test sayfasında MutationObserver ile:
 // 1. "Gönder" butonuna tıkla
 // 2. Observer yeni mesaj elementini algılar
-// 3. Test assertion çalışır`
+// 3. Test assertion çalışır`,
+          en: `// MutationObserver setup
+const targetNode = document.getElementById('chat-messages');
+
+const observer = new MutationObserver((mutationsList) => {
+  for (const mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      // New message added
+      const newNodes = mutation.addedNodes;
+      newNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          console.log('New message:', node.textContent);
+        }
+      });
+    }
+    if (mutation.type === 'attributes') {
+      console.log('Attribute changed:', mutation.attributeName);
+    }
+  }
+});
+
+// Specify what changes to watch
+observer.observe(targetNode, {
+  childList: true,    // child elements added/removed
+  attributes: true,   // attribute changes
+  subtree: true       // also watch the subtree
+});
+
+// Stop observing (cleanup — prevents memory leaks)
+observer.disconnect();
+
+// ─────────────────────────────────────────────────────────────
+// Connection to Test Automation:
+// Equivalent wait in Playwright:
+// await expect(page.locator('.chat-message').last()).toBeVisible();
+//
+// With MutationObserver on a manual test page:
+// 1. Click "Send" button
+// 2. Observer detects new message element
+// 3. Test assertion runs`
+        }
       },
       {
         type: "quiz",
@@ -3266,7 +3646,8 @@ try {
         type: "code",
         language: "javascript",
         label: { tr: "addEventListener — Temel Kullanım", en: "addEventListener — Basic Usage" },
-        content: `// ─── addEventListener sözdizimi ──────────────────────────────
+        content: {
+          tr: `// ─── addEventListener sözdizimi ──────────────────────────────
 // element.addEventListener(eventType, handler, useCapture=false)
 
 // 1. Buton tıklama — en yaygın kullanım
@@ -3292,7 +3673,35 @@ emailInput.addEventListener('input', (e) => {
 // 4. Dinleyiciyi kaldırma (bellek sızıntısını önler)
 function handleClick(e) { console.log('Tıklandı'); }
 btn.addEventListener('click', handleClick);
-btn.removeEventListener('click', handleClick); // temizle`
+btn.removeEventListener('click', handleClick); // temizle`,
+          en: `// ─── addEventListener syntax ─────────────────────────────────
+// element.addEventListener(eventType, handler, useCapture=false)
+
+// 1. Button click — most common usage
+const btn = document.querySelector('#submit-btn');
+btn.addEventListener('click', function(event) {
+  console.log('Clicked! Target element:', event.target.id);
+  event.preventDefault(); // prevent form auto-submit
+});
+
+// 2. Arrow function (shorter — standard in Playwright tests)
+btn.addEventListener('click', (e) => {
+  console.log('Event type:', e.type, '| X,Y:', e.clientX, e.clientY);
+});
+
+// 3. Input event tracking (live form validation)
+const emailInput = document.querySelector('#email');
+emailInput.addEventListener('input', (e) => {
+  const val = e.target.value;
+  const isValid = val.includes('@');
+  console.log('Email valid?', isValid ? '✅' : '❌');
+});
+
+// 4. Removing a listener (prevents memory leaks)
+function handleClick(e) { console.log('Clicked'); }
+btn.addEventListener('click', handleClick);
+btn.removeEventListener('click', handleClick); // clean up`
+        }
       },
       {
         type: "editor",
@@ -3513,7 +3922,8 @@ mockElement.trigger('click', { clientX: 100, clientY: 200 });`
         type: "code",
         language: "javascript",
         label: { tr: "Tarih Karşılaştırma — QA Senaryosu", en: "Date Comparison — QA Scenario" },
-        content: `// ─── Şu anki tarihi al ───────────────────────────────────────
+        content: {
+          tr: `// ─── Şu anki tarihi al ───────────────────────────────────────
 const now = new Date();
 console.log("Şu an:", now.toISOString());  // 2025-06-24T...
 
@@ -3536,7 +3946,32 @@ console.log("Token süresi dolmuş mu?", isExpired ? "Evet" : "Hayır");
 // ─── Uyarı: getMonth() 0-indexed! ────────────────────────────
 const d = new Date('2025-03-15');
 console.log("Ay (yanlış):", d.getMonth());     // 2 (Mart = index 2!)
-console.log("Ay (doğru):",  d.getMonth() + 1); // 3 ✅`
+console.log("Ay (doğru):",  d.getMonth() + 1); // 3 ✅`,
+          en: `// ─── Get current date ───────────────────────────────────────
+const now = new Date();
+console.log("Now:", now.toISOString());  // 2025-06-24T...
+
+// ─── Calculate days between two dates ────────────────────────
+function daysBetween(d1, d2) {
+  const ms = Math.abs(d2 - d1);            // difference in milliseconds
+  return Math.floor(ms / (1000 * 60 * 60 * 24)); // convert to days
+}
+
+const created = new Date('2025-06-01');
+const today   = new Date();
+console.log("Days elapsed:", daysBetween(created, today));
+
+// ─── Token expiry check (invalid after 30 minutes) ───────────
+const tokenCreated = new Date();
+const expiry = new Date(tokenCreated.getTime() + 30 * 60 * 1000);
+const isExpired = new Date() > expiry;
+console.log("Token expired?", isExpired ? "Yes" : "No");
+
+// ─── Warning: getMonth() is 0-indexed! ───────────────────────
+const d = new Date('2025-03-15');
+console.log("Month (wrong):", d.getMonth());     // 2 (March = index 2!)
+console.log("Month (correct):",  d.getMonth() + 1); // 3 ✅`
+        }
       },
       {
         type: "editor",
@@ -3656,10 +4091,10 @@ console.log("7 days later:", nextWeek.toLocaleDateString('en-US'));`
         retryQuestion: {
           question: { tr: "İki tarih arasındaki gün farkını bulmak için en pratik yaklaşım hangisi?", en: "What is the most practical way to find the number of days between two dates?" },
           options: [
-            { id: "a", text: "Her tarihi string'e çevirip karşılaştır / Convert to strings and compare" },
-            { id: "b", text: "Her iki tarih için getTime() çağır, farkı al ve 86400000 (ms/gün) ile böl / Subtract timestamps and divide by 86400000" },
-            { id: "c", text: "for döngüsüyle günleri say / Count days with a for loop" },
-            { id: "d", text: "Mümkün değil / Not possible" }
+            { id: "a", text: { tr: "Her tarihi string'e çevirip karşılaştır", en: "Convert to strings and compare" } },
+            { id: "b", text: { tr: "Her iki tarih için getTime() çağır, farkı al ve 86400000 (ms/gün) ile böl", en: "Subtract timestamps and divide by 86400000" } },
+            { id: "c", text: { tr: "for döngüsüyle günleri say", en: "Count days with a for loop" } },
+            { id: "d", text: { tr: "Mümkün değil", en: "Not possible" } }
           ],
           correct: "b",
           explanation: { tr: "`(dateB.getTime() - dateA.getTime()) / (1000 * 60 * 60 * 24)` formülü, iki tarih arasındaki gün sayısını verir. `getTime()` Unix timestamp (milisaniye) döndürür.", en: "`(dateB.getTime() - dateA.getTime()) / (1000 * 60 * 60 * 24)` gives the days between two dates. `getTime()` returns the Unix timestamp in milliseconds." }
@@ -3715,7 +4150,7 @@ console.log("7 days later:", nextWeek.toLocaleDateString('en-US'));`
         rows: [
           [".", { tr: "Herhangi bir karakter (newline hariç)", en: "Any character except newline" }, `"a.c" → "abc", "a1c"`],
           ["*", { tr: "0 veya daha fazla tekrar", en: "0 or more repetitions" }, `"ab*c" → "ac", "abc", "abbc"`],
-          ["+", { tr: "1 veya daha fazla tekrar", en: "1 or more repetitions" }, `"ab+c" → "abc", "abbc" (ac değil)`],
+          ["+", { tr: "1 veya daha fazla tekrar", en: "1 or more repetitions" }, { tr: `"ab+c" → "abc", "abbc" (ac değil)`, en: `"ab+c" → "abc", "abbc" (not "ac")` }],
           ["?", { tr: "0 veya 1 kez (opsiyonel)", en: "0 or 1 time (optional)" }, `"colou?r" → "color", "colour"`],
           ["\\d", { tr: "Sayı [0-9]", en: "Digit [0-9]" }, `"\\d+" → "123", "42"`],
           ["\\w", { tr: "Harf, sayı, alt çizgi", en: "Word char (letter, digit, _)" }, `"\\w+" → "hello_123"`],
@@ -3731,7 +4166,8 @@ console.log("7 days later:", nextWeek.toLocaleDateString('en-US'));`
         type: "code",
         language: "javascript",
         label: { tr: "JS Regex Metodları — QA Örnekleri", en: "JS Regex Methods — QA Examples" },
-        content: `// ─── 1. test() — Boolean kontrol ─────────────────────────────
+        content: {
+          tr: `// ─── 1. test() — Boolean kontrol ─────────────────────────────
 // Java: Pattern.compile(re).matcher(str).matches()
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/;
 console.log(emailRegex.test('user@example.com'));  // true
@@ -3752,7 +4188,30 @@ console.log('Temiz:', clean); // 'Merhaba Dünya'
 // ─── 4. QA — URL format doğrulama ────────────────────────────
 const urlRegex = /^https?:\\/\\/[\\w-]+(\\.[\\w-]+)+/;
 console.log(urlRegex.test('https://learnqa.dev')); // true
+console.log(urlRegex.test('ftp://invalid'));        // false`,
+          en: `// ─── 1. test() — Boolean check ──────────────────────────────
+// Java: Pattern.compile(re).matcher(str).matches()
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/;
+console.log(emailRegex.test('user@example.com'));  // true
+console.log(emailRegex.test('invalid-email'));      // false
+
+// ─── 2. match() — Returns matches as an array ─────────────────
+// Java: Matcher.group()
+const text = 'Error code: 404, redirect: 301';
+const codes = text.match(/\\d+/g); // 'g' flag: global, find all
+console.log('Found codes:', codes); // ['404', '301']
+
+// ─── 3. replace() — Replace using regex ──────────────────────
+// Java: str.replaceAll(regex, replacement)
+const dirty = '  Hello   World  ';
+const clean = dirty.replace(/\\s+/g, ' ').trim();
+console.log('Clean:', clean); // 'Hello World'
+
+// ─── 4. QA — URL format validation ──────────────────────────
+const urlRegex = /^https?:\\/\\/[\\w-]+(\\.[\\w-]+)+/;
+console.log(urlRegex.test('https://learnqa.dev')); // true
 console.log(urlRegex.test('ftp://invalid'));        // false`
+        }
       },
       {
         type: "editor",
@@ -3880,10 +4339,10 @@ console.log("Email valid?", isValid);`
         retryQuestion: {
           question: { tr: "`str.replace(/foo/g, \"bar\")` ile `str.replace(/foo/, \"bar\")` arasındaki fark nedir?", en: "What is the difference between `str.replace(/foo/g, \"bar\")` and `str.replace(/foo/, \"bar\")`?" },
           options: [
-            { id: "a", text: "Hiçbir fark yoktur / No difference" },
-            { id: "b", text: "g flag tüm eşleşmeleri değiştirir; g olmadan yalnızca ilki değişir / g flag replaces ALL; without g only the first is replaced" },
-            { id: "c", text: "g flag regex'i daha hızlı yapar / g flag makes regex faster" },
-            { id: "d", text: "g flag büyük/küçük harf duyarsız yapar / g flag makes it case-insensitive" }
+            { id: "a", text: { tr: "Hiçbir fark yoktur", en: "No difference" } },
+            { id: "b", text: { tr: "g flag tüm eşleşmeleri değiştirir; g olmadan yalnızca ilki değişir", en: "g flag replaces ALL; without g only the first is replaced" } },
+            { id: "c", text: { tr: "g flag regex'i daha hızlı yapar", en: "g flag makes regex faster" } },
+            { id: "d", text: { tr: "g flag büyük/küçük harf duyarsız yapar", en: "g flag makes it case-insensitive" } }
           ],
           correct: "b",
           explanation: { tr: "`g` (global) flag olmadan `replace()` yalnızca ilk eşleşmeyi değiştirir. `g` ile tüm eşleşmeler değiştirilir. Çok sayıda yer değiştirme için `g` zorunludur.", en: "Without the `g` (global) flag, `replace()` changes only the first occurrence. With `g`, every occurrence is replaced. `g` is mandatory for bulk replacements." }
@@ -3949,7 +4408,8 @@ console.log("Email valid?", isValid);`
         type: "code",
         language: "javascript",
         label: { tr: "Set & Map — QA Otomasyon Örnekleri", en: "Set & Map — QA Automation Examples" },
-        content: `// ─── SET ─────────────────────────────────────────────────────
+        content: {
+          tr: `// ─── SET ─────────────────────────────────────────────────────
 // Java'da: Set<String> set = new HashSet<>();
 const errorSet = new Set();
 errorSet.add("ElementNotFound");
@@ -3978,7 +4438,38 @@ console.log("Toplam route:", statusMap.size);              // 3
 for (const [url, status] of statusMap) {
   const icon = status === 200 ? '✅' : '❌';
   console.log(\`\${icon} \${url} → \${status}\`);
+}`,
+          en: `// ─── SET ─────────────────────────────────────────────────────
+// Java equivalent: Set<String> set = new HashSet<>();
+const errorSet = new Set();
+errorSet.add("ElementNotFound");
+errorSet.add("TimeoutError");
+errorSet.add("ElementNotFound"); // Duplicate — ignored!
+
+console.log("Error count:", errorSet.size); // 2 (no duplicates)
+console.log("Set contains?", errorSet.has("TimeoutError")); // true
+
+// Deduplicate an array (most common Set use case)
+const rawLogs = ["INFO", "ERROR", "INFO", "WARN", "ERROR"];
+const uniqueLogs = [...new Set(rawLogs)];
+console.log("Unique logs:", uniqueLogs); // ['INFO','ERROR','WARN']
+
+// ─── MAP ─────────────────────────────────────────────────────
+// Java equivalent: Map<String,Integer> map = new HashMap<>();
+const statusMap = new Map();
+statusMap.set('/api/login',  200);
+statusMap.set('/api/logout', 200);
+statusMap.set('/api/admin',  403);
+
+console.log("Login status:", statusMap.get('/api/login')); // 200
+console.log("Total routes:", statusMap.size);              // 3
+
+// Iterate over Map (Java: entrySet().forEach())
+for (const [url, status] of statusMap) {
+  const icon = status === 200 ? '✅' : '❌';
+  console.log(\`\${icon} \${url} → \${status}\`);
 }`
+        }
       },
       {
         type: "editor",
@@ -4076,10 +4567,10 @@ drivers.forEach((driver, browser) => {
         retryQuestion: {
           question: { tr: "`Map` ile nesne (`{}`) arasındaki temel fark nedir?", en: "What is the key difference between `Map` and a plain object (`{}`)?" },
           options: [
-            { id: "a", text: "Map daha yavaştır / Map is slower" },
-            { id: "b", text: "Map'te key herhangi bir tip olabilir; nesnede yalnızca string/symbol / Map keys can be any type; object keys are only string/symbol" },
-            { id: "c", text: "Map yalnızca sayısal değerler tutar / Map only holds numeric values" },
-            { id: "d", text: "Fark yoktur / No difference" }
+            { id: "a", text: { tr: "Map daha yavaştır", en: "Map is slower" } },
+            { id: "b", text: { tr: "Map'te key herhangi bir tip olabilir; nesnede yalnızca string/symbol", en: "Map keys can be any type; object keys are only string/symbol" } },
+            { id: "c", text: { tr: "Map yalnızca sayısal değerler tutar", en: "Map only holds numeric values" } },
+            { id: "d", text: { tr: "Fark yoktur", en: "No difference" } }
           ],
           correct: "b",
           explanation: { tr: "`Map`'te key olarak nesne, fonksiyon, sayı gibi her türlü veri kullanılabilir. Plain nesne `{}`'de key'ler otomatik olarak string'e dönüştürülür. Karmaşık key'ler gerektiğinde `Map` tercih edilir.", en: "In `Map`, any value can be a key — objects, functions, numbers. In a plain object `{}`, keys are automatically converted to strings. Use `Map` when you need complex or non-string keys." }
