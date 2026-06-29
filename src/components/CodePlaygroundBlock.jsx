@@ -211,8 +211,8 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
-                    ? 'Bu alanda kodu kendin yazıp kontrollü şekilde sonucu görebilirsin. Gerçek javac değil; bu egzersizin beklenen çözümüyle karşılaştırır.'
-                    : 'Write the code yourself here and see a controlled result. This is not a real javac runner; it compares against this exercise solution.'}
+                    ? 'Bu alanda kodu veya komutu kendin yazıp kontrollü şekilde sonucu görebilirsin. Gerçek runtime/terminal değildir; bu egzersizin beklenen çözümüyle karşılaştırır.'
+                    : 'Write the code or command yourself here and see a controlled result. This is not a real runtime or terminal; it compares against this exercise solution.'}
             </div>
             <textarea
                 value={draft}

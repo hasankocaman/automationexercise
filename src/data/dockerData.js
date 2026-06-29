@@ -1,3 +1,521 @@
+const dockerIntroInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-intro-image-container-practice',
+    label: { tr: 'Pratik: Image\'dan çalışan container üret', en: 'Practice: Create a running container from an image' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Docker Image ile Docker Container farkını komut üzerinden hisset. Java analojisi: image class gibidir, docker run ise new ile canlı nesne üretmek gibidir.',
+      en: 'Goal: Feel the Image vs Container difference through commands. Java analogy: an image is like a class, docker run is like new creating a live object.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını doldur: image çek, aynı image\'dan isimli ve port eşlemeli bir container başlat, sonra docker ps ile canlı instance\'ı gör.',
+      en: 'Fill the TODO parts: pull an image, start a named container with port mapping, then inspect the live instance with docker ps.',
+    },
+    code: {
+      tr: `# Image'i indir
+docker pull nginx:latest
+
+# TODO: qa-nginx adında, 8080 -> 80 port eşlemeli container başlat
+docker run TODO
+
+# Çalışan instance'ı filtrele
+docker ps --filter name=qa-nginx`,
+      en: `# Download the image
+docker pull nginx:latest
+
+# TODO: start a container named qa-nginx with 8080 -> 80 port mapping
+docker run TODO
+
+# Filter the running instance
+docker ps --filter name=qa-nginx`,
+    },
+    starterCode: {
+      tr: `docker pull nginx:latest
+docker run TODO
+docker ps --filter name=qa-nginx`,
+      en: `docker pull nginx:latest
+docker run TODO
+docker ps --filter name=qa-nginx`,
+    },
+    solutionCode: {
+      tr: `docker pull nginx:latest
+docker run -d --name qa-nginx -p 8080:80 nginx:latest
+docker ps --filter name=qa-nginx`,
+      en: `docker pull nginx:latest
+docker run -d --name qa-nginx -p 8080:80 nginx:latest
+docker ps --filter name=qa-nginx`,
+    },
+    expected: {
+      tr: `nginx:latest image'i hazır.
+qa-nginx container'ı arka planda çalışıyor.
+PORTS: 0.0.0.0:8080->80/tcp`,
+      en: `nginx:latest image is ready.
+qa-nginx container is running in the background.
+PORTS: 0.0.0.0:8080->80/tcp`,
+    },
+    hints: [
+      { tr: 'Container arka planda çalışsın istiyorsan -d flag gerekir.', en: 'Use the -d flag when the container should run in the background.' },
+      { tr: 'Container adı için --name qa-nginx, port için -p 8080:80 kullanılır.', en: 'Use --name qa-nginx for the name and -p 8080:80 for port mapping.' },
+      { tr: 'Image adı komutun sonunda gelir: nginx:latest.', en: 'The image name belongs at the end of the command: nginx:latest.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Image\'dan Container\'a Yolculuk', en: 'Journey From Image to Container' },
+    steps: [
+      { id: 1, icon: '📦', label: { tr: 'Image seçilir', en: 'Image selected' }, detail: { tr: 'Docker Hub veya local registry\'den nginx:latest gibi salt okunur bir template seçilir. Java\'da class seçmek gibi.', en: 'A read-only template such as nginx:latest is selected from Docker Hub or a local registry. Like choosing a class in Java.' } },
+      { id: 2, icon: '⬇️', label: { tr: 'Pull yapılır', en: 'Pull happens' }, detail: { tr: 'Image local makinede yoksa Docker katmanları indirir ve cache\'e koyar.', en: 'If the image is missing locally, Docker downloads its layers and stores them in cache.' } },
+      { id: 3, icon: '▶️', label: { tr: 'Run edilir', en: 'Run executes' }, detail: { tr: 'docker run image\'dan yazılabilir bir container layer üretir ve ana process\'i başlatır.', en: 'docker run creates a writable container layer from the image and starts the main process.' } },
+      { id: 4, icon: '🌐', label: { tr: 'Port bağlanır', en: 'Port mapped' }, detail: { tr: '-p 8080:80 host portunu container içindeki 80 portuna bağlar; tarayıcı localhost:8080 üzerinden ulaşır.', en: '-p 8080:80 connects the host port to port 80 inside the container; the browser can reach it through localhost:8080.' } },
+      { id: 5, icon: '🧹', label: { tr: 'Stop/Rm yapılır', en: 'Stop/Rm cleanup' }, detail: { tr: 'İş bitince docker stop process\'i durdurur, docker rm container kayıtlarını temizler; image kalabilir.', en: 'When finished, docker stop ends the process and docker rm removes the container record; the image can remain cached.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-docker-image-container-order-01',
+    question: { tr: 'Bir image\'dan canlı container üretme akışını doğru sıraya diz.', en: 'Arrange the flow for creating a live container from an image.' },
+    items: [
+      { id: '1', text: { tr: 'Registry veya local cache içinden image seç', en: 'Choose the image from a registry or local cache' }, order: 1 },
+      { id: '2', text: { tr: 'Image localde yoksa docker pull ile katmanları indir', en: 'If missing locally, download layers with docker pull' }, order: 2 },
+      { id: '3', text: { tr: 'docker run ile image\'dan container instance oluştur', en: 'Create a container instance from the image with docker run' }, order: 3 },
+      { id: '4', text: { tr: 'Gerekirse port, volume ve environment ayarlarını bağla', en: 'Attach port, volume, and environment settings if needed' }, order: 4 },
+      { id: '5', text: { tr: 'docker ps/logs ile çalışan container\'ı doğrula', en: 'Verify the running container with docker ps/logs' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const dockerInstallationInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-install-verify-practice',
+    label: { tr: 'Pratik: Kurulum doğrulama komutlarını yaz', en: 'Practice: Write installation verification commands' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Docker Desktop gerçekten çalışıyor mu, sadece kurulu mu ayrımını yap. Java\'da javac -version ve java -version kontrolünü birlikte yapmak gibi düşün.',
+      en: 'Goal: Distinguish Docker being installed from Docker actually running. Think of checking both javac -version and java -version in Java.',
+    },
+    explanation: {
+      tr: 'Sıralama önemli: önce CLI sürümünü, sonra daemon bilgisini, en son hello-world container\'ını çalıştır.',
+      en: 'Order matters: check the CLI version first, then daemon info, then run the hello-world container.',
+    },
+    code: {
+      tr: `# TODO: CLI sürümünü kontrol et
+TODO
+
+# TODO: Docker daemon çalışıyor mu kontrol et
+TODO
+
+# TODO: test container'ı çalıştır
+TODO`,
+      en: `# TODO: check the CLI version
+TODO
+
+# TODO: check whether the Docker daemon is running
+TODO
+
+# TODO: run the test container
+TODO`,
+    },
+    starterCode: {
+      tr: `TODO
+TODO
+TODO`,
+      en: `TODO
+TODO
+TODO`,
+    },
+    solutionCode: {
+      tr: `docker --version
+docker info
+docker run hello-world`,
+      en: `docker --version
+docker info
+docker run hello-world`,
+    },
+    expected: {
+      tr: `Docker version 24.x.x
+Server: Docker Desktop çalışıyor
+Hello from Docker!`,
+      en: `Docker version 24.x.x
+Server: Docker Desktop is running
+Hello from Docker!`,
+    },
+    hints: [
+      { tr: 'Sürüm kontrolü için docker --version kullanılır.', en: 'Use docker --version for the version check.' },
+      { tr: 'Daemon çalışmıyorsa docker info hata verir; bu yüzden iyi bir sağlık kontrolüdür.', en: 'docker info fails when the daemon is not running, so it is a useful health check.' },
+      { tr: 'hello-world image\'ı kurulumun uçtan uca çalıştığını gösterir.', en: 'The hello-world image proves the full install path works end to end.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Docker Desktop İlk Çalıştırma Akışı', en: 'Docker Desktop First-Run Flow' },
+    steps: [
+      { id: 1, icon: '🧱', label: { tr: 'WSL 2 hazır olur', en: 'WSL 2 ready' }, detail: { tr: 'Windows tarafında Linux kernel sağlayan WSL 2 etkin olur; Docker Linux container\'larını burada çalıştırır.', en: 'On Windows, WSL 2 provides the Linux kernel Docker uses to run Linux containers.' } },
+      { id: 2, icon: '🐳', label: { tr: 'Docker Desktop açılır', en: 'Docker Desktop starts' }, detail: { tr: 'GUI açılır ama asıl önemli olan arka plandaki Docker daemon\'ının hazır hale gelmesidir.', en: 'The GUI opens, but the important part is the Docker daemon becoming ready in the background.' } },
+      { id: 3, icon: '⌨️', label: { tr: 'CLI konuşur', en: 'CLI talks' }, detail: { tr: 'docker komutu daemon\'a istek yollar; daemon kapalıysa "Cannot connect" hatası alınır.', en: 'The docker command sends requests to the daemon; if it is stopped you get a "Cannot connect" error.' } },
+      { id: 4, icon: '📦', label: { tr: 'hello-world çekilir', en: 'hello-world pulled' }, detail: { tr: 'Docker küçük bir image indirir ve container olarak çalıştırır.', en: 'Docker downloads a tiny image and runs it as a container.' } },
+      { id: 5, icon: '✅', label: { tr: 'Kurulum doğrulanır', en: 'Install verified' }, detail: { tr: '"Hello from Docker!" çıktısı CLI, daemon, network ve runtime yolunun tamamının çalıştığını gösterir.', en: '"Hello from Docker!" proves the CLI, daemon, network, and runtime path all work.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-docker-install-order-01',
+    question: { tr: 'Docker Desktop kurulumunu güvenli şekilde doğrulama adımlarını sırala.', en: 'Arrange the safe Docker Desktop verification steps.' },
+    items: [
+      { id: '1', text: { tr: 'Docker Desktop\'ı aç ve daemon hazır olana kadar bekle', en: 'Open Docker Desktop and wait until the daemon is ready' }, order: 1 },
+      { id: '2', text: { tr: 'docker --version ile CLI\'ın kurulu olduğunu doğrula', en: 'Confirm the CLI is installed with docker --version' }, order: 2 },
+      { id: '3', text: { tr: 'docker info ile daemon bağlantısını kontrol et', en: 'Check daemon connectivity with docker info' }, order: 3 },
+      { id: '4', text: { tr: 'docker run hello-world ile uçtan uca test yap', en: 'Run an end-to-end test with docker run hello-world' }, order: 4 },
+      { id: '5', text: { tr: 'docker ps -a ile oluşan test container kaydını gör', en: 'Inspect the test container record with docker ps -a' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const dockerCoreCommandInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-core-run-command-practice',
+    label: { tr: 'Pratik: Güvenli docker run komutu kur', en: 'Practice: Build a safe docker run command' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: docker run flag sırasını kas hafızasına çevirmek. Komut flag\'leri image adından önce gelir; image\'dan sonrası container içindeki komut olarak yorumlanabilir.',
+      en: 'Goal: Turn docker run flag order into muscle memory. Command flags belong before the image name; text after the image can be interpreted as the command inside the container.',
+    },
+    explanation: {
+      tr: 'TODO alanını detached, isimli, port eşlemeli ve volume mount\'lu çalışacak şekilde doldur.',
+      en: 'Fill TODO so the container runs detached, named, port-mapped, and with a mounted reports folder.',
+    },
+    code: {
+      tr: `# TODO: nginx'i arka planda çalıştır, ad ver, port ve rapor klasörü bağla
+docker run TODO nginx:latest`,
+      en: `# TODO: run nginx in the background, name it, map a port, and mount reports
+docker run TODO nginx:latest`,
+    },
+    starterCode: {
+      tr: `docker run TODO nginx:latest`,
+      en: `docker run TODO nginx:latest`,
+    },
+    solutionCode: {
+      tr: `docker run -d --name qa-nginx -p 8080:80 -v $(pwd)/reports:/usr/share/nginx/html/reports nginx:latest`,
+      en: `docker run -d --name qa-nginx -p 8080:80 -v $(pwd)/reports:/usr/share/nginx/html/reports nginx:latest`,
+    },
+    expected: {
+      tr: `qa-nginx arka planda çalışır.
+localhost:8080 container port 80'e gider.
+reports klasörü container içine mount edilir.`,
+      en: `qa-nginx runs in the background.
+localhost:8080 reaches container port 80.
+reports folder is mounted into the container.`,
+    },
+    hints: [
+      { tr: '-d, --name, -p ve -v flag\'leri image adından önce yazılır.', en: '-d, --name, -p, and -v should be written before the image name.' },
+      { tr: 'Port formatı host:container şeklindedir: -p 8080:80.', en: 'Port format is host:container: -p 8080:80.' },
+      { tr: 'Volume formatı hostPath:containerPath şeklindedir.', en: 'Volume format is hostPath:containerPath.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Container Komut Yaşam Döngüsü', en: 'Container Command Lifecycle' },
+    steps: [
+      { id: 1, icon: '📥', label: { tr: 'pull', en: 'pull' }, detail: { tr: 'Image localde yoksa docker pull ile indirilir veya docker run bunu otomatik yapar.', en: 'If the image is missing locally, docker pull downloads it, or docker run does this automatically.' } },
+      { id: 2, icon: '▶️', label: { tr: 'run', en: 'run' }, detail: { tr: 'docker run yeni bir container oluşturur ve process\'i başlatır.', en: 'docker run creates a new container and starts its process.' } },
+      { id: 3, icon: '🔎', label: { tr: 'ps/logs', en: 'ps/logs' }, detail: { tr: 'docker ps durumunu, docker logs ise container içindeki çıktıyı gösterir.', en: 'docker ps shows status, while docker logs shows output from inside the container.' } },
+      { id: 4, icon: '🛠️', label: { tr: 'exec/cp', en: 'exec/cp' }, detail: { tr: 'docker exec canlı container içinde komut çalıştırır; docker cp dosya alıp verir.', en: 'docker exec runs a command inside a live container; docker cp moves files in or out.' } },
+      { id: 5, icon: '🧹', label: { tr: 'stop/rm', en: 'stop/rm' }, detail: { tr: 'docker stop süreci durdurur, docker rm container kaydını siler. Image ayrı kaldığı için tekrar kullanılabilir.', en: 'docker stop ends the process, docker rm removes the container record. The image remains separate and reusable.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-docker-core-lifecycle-order-01',
+    question: { tr: 'Bir container\'ı debug edip temizleme akışını doğru sıraya diz.', en: 'Arrange the flow for debugging and cleaning up a container.' },
+    items: [
+      { id: '1', text: { tr: 'docker ps -a ile container gerçekten var mı bak', en: 'Use docker ps -a to check whether the container exists' }, order: 1 },
+      { id: '2', text: { tr: 'docker logs ile uygulama çıktısını oku', en: 'Read application output with docker logs' }, order: 2 },
+      { id: '3', text: { tr: 'Gerekirse docker exec ile container içine gir', en: 'Enter the container with docker exec if needed' }, order: 3 },
+      { id: '4', text: { tr: 'İş bitince docker stop ile süreci durdur', en: 'Stop the process with docker stop when done' }, order: 4 },
+      { id: '5', text: { tr: 'docker rm ile durdurulmuş container kaydını temizle', en: 'Remove the stopped container record with docker rm' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const dockerComposeInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-compose-cache-practice',
+    label: { tr: 'Pratik: Cache dostu Dockerfile yaz', en: 'Practice: Write a cache-friendly Dockerfile' },
+    language: 'dockerfile',
+    task: {
+      tr: 'Amaç: Docker layer cache mantığını doğru sıraya oturt. Java analojisi: Maven dependency çözümünü her küçük source değişikliğinde baştan yapmak istemezsin.',
+      en: 'Goal: Put Docker layer cache in the right order. Java analogy: you do not want Maven dependency resolution to restart after every tiny source change.',
+    },
+    explanation: {
+      tr: 'Önce dependency manifest dosyasını kopyala, install yap, sonra kaynak kodu kopyala.',
+      en: 'Copy the dependency manifest first, install dependencies, then copy the source code.',
+    },
+    code: {
+      tr: `FROM python:3.12-slim
+WORKDIR /app
+
+# TODO: cache dostu sırayı kur
+TODO
+
+CMD ["pytest", "tests/"]`,
+      en: `FROM python:3.12-slim
+WORKDIR /app
+
+# TODO: build a cache-friendly order
+TODO
+
+CMD ["pytest", "tests/"]`,
+    },
+    starterCode: {
+      tr: `FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["pytest", "tests/"]`,
+      en: `FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["pytest", "tests/"]`,
+    },
+    solutionCode: {
+      tr: `FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["pytest", "tests/"]`,
+      en: `FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["pytest", "tests/"]`,
+    },
+    expected: {
+      tr: `requirements.txt değişmediyse pip install katmanı cache'den gelir.
+Sadece test kodu değiştiğinde bağımlılıklar tekrar kurulmaz.`,
+      en: `If requirements.txt did not change, the pip install layer comes from cache.
+When only test code changes, dependencies are not reinstalled.`,
+    },
+    hints: [
+      { tr: 'COPY . . en başta olursa her source değişikliği install katmanını bozar.', en: 'If COPY . . comes first, every source change invalidates the install layer.' },
+      { tr: 'requirements.txt daha seyrek değiştiği için önce o kopyalanmalı.', en: 'requirements.txt changes less often, so copy it first.' },
+      { tr: 'RUN pip install adımı manifest kopyasından hemen sonra gelmeli.', en: 'RUN pip install should come right after copying the manifest.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Compose ile Sağlıklı Test Ortamı Başlatma', en: 'Starting a Healthy Test Environment With Compose' },
+    steps: [
+      { id: 1, icon: '📄', label: { tr: 'YAML okunur', en: 'YAML read' }, detail: { tr: 'Compose services, networks, volumes ve environment ayarlarını okur.', en: 'Compose reads services, networks, volumes, and environment settings.' } },
+      { id: 2, icon: '📦', label: { tr: 'Image hazırlanır', en: 'Images prepared' }, detail: { tr: 'Gerekli image\'lar pull edilir veya Dockerfile üzerinden build edilir.', en: 'Required images are pulled or built from Dockerfiles.' } },
+      { id: 3, icon: '🌐', label: { tr: 'Network kurulur', en: 'Network created' }, detail: { tr: 'Aynı Compose projesindeki servisler birbirini servis adıyla bulabilir: app, db, tests.', en: 'Services in the same Compose project can find each other by service name: app, db, tests.' } },
+      { id: 4, icon: '💓', label: { tr: 'Health beklenir', en: 'Health awaited' }, detail: { tr: 'depends_on + service_healthy, sadece container başladı demek yerine uygulamanın gerçekten hazır olmasını bekler.', en: 'depends_on + service_healthy waits for the app to be truly ready, not merely started.' } },
+      { id: 5, icon: '🧪', label: { tr: 'Test çalışır', en: 'Tests run' }, detail: { tr: 'Test runner app/db servislerine container adıyla bağlanır ve raporları volume üzerinden host\'a yazar.', en: 'The test runner reaches app/db by service name and writes reports to the host through a volume.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-dockerfile-cache-order-01',
+    question: { tr: 'Cache dostu Dockerfile layer sırasını doğru sıraya diz.', en: 'Arrange the cache-friendly Dockerfile layer order.' },
+    items: [
+      { id: '1', text: { tr: 'FROM ile base image seç', en: 'Choose the base image with FROM' }, order: 1 },
+      { id: '2', text: { tr: 'WORKDIR ile çalışma klasörünü ayarla', en: 'Set the working directory with WORKDIR' }, order: 2 },
+      { id: '3', text: { tr: 'requirements.txt/package.json gibi dependency manifest dosyasını kopyala', en: 'Copy the dependency manifest such as requirements.txt/package.json' }, order: 3 },
+      { id: '4', text: { tr: 'Dependency install komutunu çalıştır', en: 'Run the dependency install command' }, order: 4 },
+      { id: '5', text: { tr: 'En son sık değişen source/test dosyalarını kopyala', en: 'Copy frequently changing source/test files last' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const dockerQaInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-qa-playwright-volume-practice',
+    label: { tr: 'Pratik: Playwright testlerini rapor kalıcı olacak şekilde çalıştır', en: 'Practice: Run Playwright tests with persistent reports' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Test container\'ı silinse bile raporların host makinede kalmasını sağlamak. QA için bu, CI job bittikten sonra kanıtların kaybolmaması demektir.',
+      en: 'Goal: Keep reports on the host even after the test container is deleted. For QA, this means evidence survives after the CI job finishes.',
+    },
+    explanation: {
+      tr: 'Proje klasörünü /app olarak mount et, çalışma dizinini /app yap, rapor klasörünü ayrıca host\'a bağla.',
+      en: 'Mount the project folder as /app, set /app as the working directory, and mount the report folder back to the host.',
+    },
+    code: {
+      tr: `# TODO: Playwright container'ını raporlar host'ta kalacak şekilde çalıştır
+docker run --rm \\
+  TODO \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+      en: `# TODO: run the Playwright container while keeping reports on the host
+docker run --rm \\
+  TODO \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+    },
+    starterCode: {
+      tr: `docker run --rm \\
+  TODO \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+      en: `docker run --rm \\
+  TODO \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+    },
+    solutionCode: {
+      tr: `docker run --rm \\
+  -v $(pwd):/app \\
+  -v $(pwd)/playwright-report:/app/playwright-report \\
+  -w /app \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+      en: `docker run --rm \\
+  -v $(pwd):/app \\
+  -v $(pwd)/playwright-report:/app/playwright-report \\
+  -w /app \\
+  mcr.microsoft.com/playwright:v1.42.0-jammy \\
+  bash -c "npm ci && npx playwright test --reporter=html"`,
+    },
+    expected: {
+      tr: `Testler container içinde çalışır.
+playwright-report klasörü host makinede kalır.
+CI artifact olarak yayınlanabilir.`,
+      en: `Tests run inside the container.
+playwright-report remains on the host machine.
+It can be published as a CI artifact.`,
+    },
+    hints: [
+      { tr: 'Proje klasörü için -v $(pwd):/app gerekir.', en: 'Use -v $(pwd):/app for the project folder.' },
+      { tr: 'Çalışma dizini için -w /app yaz.', en: 'Set the working directory with -w /app.' },
+      { tr: 'Raporların kalması için playwright-report klasörünü ayrıca mount et.', en: 'Mount playwright-report separately so reports persist.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Container Tabanlı QA Koşumu', en: 'Container-Based QA Run' },
+    steps: [
+      { id: 1, icon: '🏗️', label: { tr: 'Test image hazırla', en: 'Prepare test image' }, detail: { tr: 'Tarayıcılar, test framework ve bağımlılıklar image içinde sabitlenir.', en: 'Browsers, test framework, and dependencies are pinned inside the image.' } },
+      { id: 2, icon: '🧱', label: { tr: 'Servisleri başlat', en: 'Start services' }, detail: { tr: 'App, DB ve Selenium/Grid gibi bağımlılıklar aynı network üzerinde ayağa kalkar.', en: 'App, DB, and Selenium/Grid dependencies start on the same network.' } },
+      { id: 3, icon: '💓', label: { tr: 'Hazırlığı bekle', en: 'Wait for readiness' }, detail: { tr: 'Healthcheck veya retry olmadan testler erken başlar ve connection refused hatası üretir.', en: 'Without healthchecks or retry, tests start too early and produce connection refused errors.' } },
+      { id: 4, icon: '🧪', label: { tr: 'Testleri çalıştır', en: 'Run tests' }, detail: { tr: 'Test runner container içinden app servisine container adıyla erişir; localhost tuzağına düşmez.', en: 'The test runner reaches the app service by container name from inside the network, avoiding the localhost trap.' } },
+      { id: 5, icon: '📄', label: { tr: 'Raporu sakla', en: 'Persist reports' }, detail: { tr: 'JUnit/HTML raporları volume ile host\'a yazılır; container silinse de kanıt kalır.', en: 'JUnit/HTML reports are written to the host via a volume; evidence remains after the container is removed.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-docker-qa-grid-order-01',
+    question: { tr: 'Docker üzerinde güvenilir Selenium/Grid test koşumu sırasını diz.', en: 'Arrange a reliable Selenium/Grid test run on Docker.' },
+    items: [
+      { id: '1', text: { tr: 'Hub veya router servisini başlat', en: 'Start the Hub or router service' }, order: 1 },
+      { id: '2', text: { tr: 'Chrome/Firefox node container\'larını aynı network\'e bağla', en: 'Attach Chrome/Firefox node containers to the same network' }, order: 2 },
+      { id: '3', text: { tr: 'Node\'ların Hub\'a kayıt olduğunu doğrula', en: 'Confirm nodes registered with the Hub' }, order: 3 },
+      { id: '4', text: { tr: 'Test runner\'ı SELENIUM_HUB environment variable ile çalıştır', en: 'Run the test runner with the SELENIUM_HUB environment variable' }, order: 4 },
+      { id: '5', text: { tr: 'Rapor ve screenshot klasörlerini volume ile host\'a al', en: 'Persist reports and screenshots to the host with volumes' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const dockerEcosystemInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'docker-ecosystem-ci-artifact-practice',
+    label: { tr: 'Pratik: CI için izlenebilir Docker artifact üret', en: 'Practice: Produce a traceable Docker artifact for CI' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Her commit için aynı image tag\'ini build, test ve push adımlarında kullan. Java analojisi: Maven artifact versiyonunu build/test/deploy boyunca değiştirmemek gibi.',
+      en: 'Goal: Use the same image tag across build, test, and push for each commit. Java analogy: keep the Maven artifact version stable through build/test/deploy.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını aynı $COMMIT_SHA tag\'iyle doldur; build edilen artifact ile test edilen artifact aynı olmalı.',
+      en: 'Fill TODO with the same $COMMIT_SHA tag; the artifact you build and the artifact you test must be identical.',
+    },
+    code: {
+      tr: `# TODO: aynı commit tag'i build, test ve push boyunca kullan
+docker build -t registry.example.com/qa-app:TODO .
+docker run --rm registry.example.com/qa-app:TODO pytest
+docker push registry.example.com/qa-app:TODO`,
+      en: `# TODO: use the same commit tag through build, test, and push
+docker build -t registry.example.com/qa-app:TODO .
+docker run --rm registry.example.com/qa-app:TODO pytest
+docker push registry.example.com/qa-app:TODO`,
+    },
+    starterCode: {
+      tr: `docker build -t registry.example.com/qa-app:TODO .
+docker run --rm registry.example.com/qa-app:TODO pytest
+docker push registry.example.com/qa-app:TODO`,
+      en: `docker build -t registry.example.com/qa-app:TODO .
+docker run --rm registry.example.com/qa-app:TODO pytest
+docker push registry.example.com/qa-app:TODO`,
+    },
+    solutionCode: {
+      tr: `docker build -t registry.example.com/qa-app:$COMMIT_SHA .
+docker run --rm registry.example.com/qa-app:$COMMIT_SHA pytest
+docker push registry.example.com/qa-app:$COMMIT_SHA`,
+      en: `docker build -t registry.example.com/qa-app:$COMMIT_SHA .
+docker run --rm registry.example.com/qa-app:$COMMIT_SHA pytest
+docker push registry.example.com/qa-app:$COMMIT_SHA`,
+    },
+    expected: {
+      tr: `Build edilen image, test edilen image ve registry'ye push edilen image aynı commit SHA tag'ini taşır.
+Kubernetes veya Jenkins hangi artifact'in deploy edildiğini izleyebilir.`,
+      en: `The built image, tested image, and pushed image all carry the same commit SHA tag.
+Kubernetes or Jenkins can trace exactly which artifact was deployed.`,
+    },
+    hints: [
+      { tr: 'latest tag\'i izlenebilir değildir; commit SHA tercih edilir.', en: 'latest is not traceable; prefer the commit SHA.' },
+      { tr: 'Build ve test farklı tag kullanırsa test ettiğin artifact deploy edilen artifact olmayabilir.', en: 'If build and test use different tags, the tested artifact may not be the deployed artifact.' },
+      { tr: '$COMMIT_SHA değişkenini üç satırda da aynı kullan.', en: 'Use $COMMIT_SHA the same way on all three lines.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Docker Artifact Pipeline Akışı', en: 'Docker Artifact Pipeline Flow' },
+    steps: [
+      { id: 1, icon: '🔁', label: { tr: 'Commit gelir', en: 'Commit arrives' }, detail: { tr: 'Jenkins/GitHub Actions yeni commit için pipeline tetikler.', en: 'Jenkins/GitHub Actions triggers the pipeline for a new commit.' } },
+      { id: 2, icon: '🏗️', label: { tr: 'Image build edilir', en: 'Image built' }, detail: { tr: 'Dockerfile aynı kaynak koddan immutable image üretir.', en: 'The Dockerfile produces an immutable image from the exact source code.' } },
+      { id: 3, icon: '🧪', label: { tr: 'Aynı image test edilir', en: 'Same image tested' }, detail: { tr: 'Testler build edilen image\'a karşı koşar; böylece deploy edilecek artifact doğrulanır.', en: 'Tests run against the built image, so the artifact that will be deployed is verified.' } },
+      { id: 4, icon: '📦', label: { tr: 'Registry\'ye push edilir', en: 'Pushed to registry' }, detail: { tr: 'Başarılı image commit SHA tag\'iyle Docker Hub/ECR/GCR gibi registry\'ye gönderilir.', en: 'The passing image is pushed to Docker Hub/ECR/GCR with a commit SHA tag.' } },
+      { id: 5, icon: '☸️', label: { tr: 'Orkestratör çeker', en: 'Orchestrator pulls' }, detail: { tr: 'Kubernetes veya başka runtime aynı tag\'li image\'ı çekip ortamda çalıştırır.', en: 'Kubernetes or another runtime pulls the same tagged image and runs it in the environment.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-docker-ecosystem-pipeline-order-01',
+    question: { tr: 'Docker\'ın CI/CD ekosistemindeki artifact akışını doğru sıraya diz.', en: 'Arrange Docker\'s artifact flow inside the CI/CD ecosystem.' },
+    items: [
+      { id: '1', text: { tr: 'CI yeni commit için pipeline tetikler', en: 'CI triggers a pipeline for a new commit' }, order: 1 },
+      { id: '2', text: { tr: 'Docker image commit SHA ile build edilir', en: 'Docker image is built with the commit SHA' }, order: 2 },
+      { id: '3', text: { tr: 'Testler aynı image tag\'i üzerinde çalışır', en: 'Tests run against the same image tag' }, order: 3 },
+      { id: '4', text: { tr: 'Başarılı image registry\'ye push edilir', en: 'The passing image is pushed to the registry' }, order: 4 },
+      { id: '5', text: { tr: 'Kubernetes/Jenkins deploy adımı registry\'den o tag\'i çeker', en: 'Kubernetes/Jenkins deploy pulls that tag from the registry' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
 export const dockerData = {
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
@@ -64,6 +582,7 @@ export const dockerData = {
               'Clean slate every run — no leftover state from previous tests',
             ],
           },
+          ...dockerIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: 'What is the key difference between a Docker Image and a Docker Container?',
@@ -207,6 +726,7 @@ docker info                # System-wide info (OS, memory, containers)
 docker ps                  # List running containers (should be empty)
 docker images              # List downloaded images (should be empty)`,
           },
+          ...dockerInstallationInteractiveBlocks,
           {
             type: 'tip',
             content: 'On Windows, make sure Docker Desktop is running (whale icon in system tray) before using Docker commands. If you get "Cannot connect to the Docker daemon", Docker Desktop is not running.',
@@ -422,6 +942,7 @@ docker network inspect qa-network
 # Connect existing container to a network
 docker network connect qa-network my-container`,
           },
+          ...dockerCoreCommandInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Which Docker command runs a container in the BACKGROUND (detached mode)?',
@@ -650,6 +1171,7 @@ docker compose run tests pytest tests/api/ -v
 # Check service status
 docker compose ps`,
           },
+          ...dockerComposeInteractiveBlocks,
           {
             type: 'quiz',
             question: 'In Docker Compose, which key ensures a service waits until another service is healthy?',
@@ -901,6 +1423,7 @@ docker run --rm \\
 
 # Results are saved in ./test-results on your host machine`,
           },
+          ...dockerQaInteractiveBlocks,
           { type: 'heading', text: 'Real-World Scenarios & Solutions' },
           {
             type: 'error-dictionary',
@@ -1064,6 +1587,7 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
             note: 'Each tool does one job well — Docker packages, CI builds, a registry stores, Kubernetes orchestrates, monitoring observes.',
           },
+          ...dockerEcosystemInteractiveBlocks,
           { type: 'heading', text: 'Three Key Relationships' },
           {
             type: 'table',
@@ -1311,6 +1835,7 @@ options.add_argument('--disable-dev-shm-usage')`,
               'Her çalışmada temiz sayfa — önceki testlerden kalan state yok',
             ],
           },
+          ...dockerIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Docker Image ile Docker Container arasındaki temel fark nedir?',
@@ -1435,6 +1960,7 @@ docker info                # Sistem geneli bilgiler (OS, bellek, container\'lar)
 docker ps                  # Çalışan container\'ları listele (boş olmalı)
 docker images              # İndirilen image\'ları listele (boş olmalı)`,
           },
+          ...dockerInstallationInteractiveBlocks,
           { type: 'tip', content: 'Windows\'ta Docker komutlarını kullanmadan önce Docker Desktop\'ın çalıştığından emin ol (sistem tepsisinde balina simgesi). "Cannot connect to the Docker daemon" hatası alıyorsan Docker Desktop çalışmıyordur.' },
           {
             type: 'quiz',
@@ -1645,6 +2171,7 @@ docker network inspect qa-network
 # Mevcut container\'ı network\'e bağla
 docker network connect qa-network my-container`,
           },
+          ...dockerCoreCommandInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Container\'ı ARKA PLANDA (detached mode) çalıştıran Docker komutu hangisidir?',
@@ -1866,6 +2393,7 @@ docker compose run tests pytest tests/api/ -v
 # Servis durumunu kontrol et
 docker compose ps`,
           },
+          ...dockerComposeInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Docker Compose\'da bir servisin başka bir servis hazır olana kadar beklemesini sağlayan key hangisidir?',
@@ -2092,6 +2620,7 @@ docker run --rm \\
 
 # ./test-results, host makinende kaydedilir`,
           },
+          ...dockerQaInteractiveBlocks,
           { type: 'heading', text: 'Gerçek Hayat Senaryoları ve Çözümleri' },
           {
             type: 'error-dictionary',
@@ -2255,6 +2784,7 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
             note: 'Her araç kendi işini iyi yapar — Docker paketler, CI build eder, registry saklar, Kubernetes orkestre eder, monitoring izler.',
           },
+          ...dockerEcosystemInteractiveBlocks,
           { type: 'heading', text: 'Üç Temel İlişki' },
           {
             type: 'table',

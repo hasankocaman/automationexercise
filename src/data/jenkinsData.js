@@ -1,3 +1,795 @@
+const jenkinsIntroInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-intro-ci-flow-practice',
+    label: { tr: 'Pratik: CI pipeline iskeletini tamamla', en: 'Practice: Complete the CI pipeline skeleton' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: Jenkins\'in her commit\'te build ve test çalıştırma mantığını kod üzerinde kurmak. Java analojisi: main method nasıl programın giriş noktasıysa, Jenkinsfile da pipeline\'ın giriş noktasıdır.',
+      en: 'Goal: Build the idea of Jenkins running build and tests on every commit in code. Java analogy: just as main is the entry point of a program, Jenkinsfile is the entry point of the pipeline.',
+    },
+    explanation: {
+      tr: 'TODO yerlerini doldur: checkout, build, test ve rapor yayınlama adımları CI\'ın temel omurgasıdır.',
+      en: 'Fill the TODO parts: checkout, build, test, and report publishing are the backbone of CI.',
+    },
+    code: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { TODO } }
+        stage('Build') { steps { TODO } }
+        stage('Test') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { TODO } }
+        stage('Build') { steps { TODO } }
+        stage('Test') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+    },
+    starterCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { TODO } }
+        stage('Build') { steps { TODO } }
+        stage('Test') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { TODO } }
+        stage('Build') { steps { TODO } }
+        stage('Test') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { checkout scm } }
+        stage('Build') { steps { sh 'mvn clean package' } }
+        stage('Test') { steps { sh 'mvn test' } }
+    }
+    post {
+        always { junit '**/target/surefire-reports/*.xml' }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Checkout') { steps { checkout scm } }
+        stage('Build') { steps { sh 'mvn clean package' } }
+        stage('Test') { steps { sh 'mvn test' } }
+    }
+    post {
+        always { junit '**/target/surefire-reports/*.xml' }
+    }
+}`,
+    },
+    expected: {
+      tr: `Checkout kodu alır.
+Build artifact üretir.
+Test raporu Jenkins tarafından her sonuçta okunur.`,
+      en: `Checkout fetches the code.
+Build produces the artifact.
+The test report is read by Jenkins on every result.`,
+    },
+    hints: [
+      { tr: 'Kaynak kodu almak için checkout scm kullanılır.', en: 'Use checkout scm to fetch the source code.' },
+      { tr: 'Maven projesinde build için sh \'mvn clean package\' yaygındır.', en: 'For a Maven project, sh \'mvn clean package\' is common for build.' },
+      { tr: 'Rapor yayınlama post { always } içinde olmalı; test fail olsa bile rapor görünmeli.', en: 'Report publishing belongs in post { always }; reports should be visible even if tests fail.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Commit Jenkins\'te Nasıl Kalite Kararına Dönüşür', en: 'How a Commit Becomes a Quality Decision in Jenkins' },
+    steps: [
+      { id: 1, icon: '🐙', label: { tr: 'Kod push edilir', en: 'Code pushed' }, detail: { tr: 'Developer veya QA test kodunu Git\'e gönderir; webhook Jenkins\'e haber verir.', en: 'A developer or QA pushes code to Git; a webhook notifies Jenkins.' } },
+      { id: 2, icon: '🔧', label: { tr: 'Pipeline başlar', en: 'Pipeline starts' }, detail: { tr: 'Jenkinsfile okunur ve hangi agent, stage ve step\'lerin çalışacağı belirlenir.', en: 'Jenkins reads the Jenkinsfile and decides which agent, stages, and steps will run.' } },
+      { id: 3, icon: '🏗️', label: { tr: 'Build alınır', en: 'Build runs' }, detail: { tr: 'Kod derlenir veya dependency kurulumu yapılır; Java\'da mvn clean package gibi.', en: 'Code is compiled or dependencies are installed; in Java this is similar to mvn clean package.' } },
+      { id: 4, icon: '🧪', label: { tr: 'Test koşar', en: 'Tests run' }, detail: { tr: 'Unit/API/UI testleri çalışır ve JUnit XML/HTML raporları üretilir.', en: 'Unit/API/UI tests run and produce JUnit XML/HTML reports.' } },
+      { id: 5, icon: '🚦', label: { tr: 'Geç/Kal kararı', en: 'Pass/fail decision' }, detail: { tr: 'Jenkins sonucu görünür yapar; merge veya deploy kararı artık kanıta dayanır.', en: 'Jenkins makes the result visible; merge or deploy decisions now depend on evidence.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-ci-flow-order-01',
+    question: { tr: 'Bir CI koşumunun temel akışını doğru sıraya diz.', en: 'Arrange the core CI run flow in the correct order.' },
+    items: [
+      { id: '1', text: { tr: 'Git push/PR webhook ile Jenkins\'i tetikler', en: 'Git push/PR triggers Jenkins through a webhook' }, order: 1 },
+      { id: '2', text: { tr: 'Jenkinsfile okunur ve agent seçilir', en: 'Jenkinsfile is read and an agent is selected' }, order: 2 },
+      { id: '3', text: { tr: 'Checkout ile kaynak kod alınır', en: 'Source code is fetched with checkout' }, order: 3 },
+      { id: '4', text: { tr: 'Build ve test stage\'leri çalışır', en: 'Build and test stages execute' }, order: 4 },
+      { id: '5', text: { tr: 'Raporlar yayınlanır ve ekip bilgilendirilir', en: 'Reports are published and the team is notified' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsInstallationInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-install-docker-practice',
+    label: { tr: 'Pratik: Docker ile Jenkins kurulum komutunu tamamla', en: 'Practice: Complete the Jenkins Docker install command' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Jenkins\'i kalıcı veriyle container olarak başlatmak. Docker volume, Jenkins restart olsa bile job/config/credential verilerinin kaybolmamasını sağlar.',
+      en: 'Goal: Start Jenkins as a container with persistent data. A Docker volume keeps jobs/config/credentials even if Jenkins restarts.',
+    },
+    explanation: {
+      tr: 'TODO alanını web UI portu, agent portu ve jenkins_home volume mount\'u ile tamamla.',
+      en: 'Fill TODO with the web UI port, agent port, and jenkins_home volume mount.',
+    },
+    code: {
+      tr: `docker run -d \\
+  --name jenkins \\
+  TODO \\
+  jenkins/jenkins:lts`,
+      en: `docker run -d \\
+  --name jenkins \\
+  TODO \\
+  jenkins/jenkins:lts`,
+    },
+    starterCode: {
+      tr: `docker run -d \\
+  --name jenkins \\
+  TODO \\
+  jenkins/jenkins:lts`,
+      en: `docker run -d \\
+  --name jenkins \\
+  TODO \\
+  jenkins/jenkins:lts`,
+    },
+    solutionCode: {
+      tr: `docker run -d \\
+  --name jenkins \\
+  -p 8080:8080 \\
+  -p 50000:50000 \\
+  -v jenkins_home:/var/jenkins_home \\
+  jenkins/jenkins:lts`,
+      en: `docker run -d \\
+  --name jenkins \\
+  -p 8080:8080 \\
+  -p 50000:50000 \\
+  -v jenkins_home:/var/jenkins_home \\
+  jenkins/jenkins:lts`,
+    },
+    expected: {
+      tr: `Jenkins UI: http://localhost:8080
+Agent portu: 50000
+JENKINS_HOME verisi jenkins_home volume içinde kalır.`,
+      en: `Jenkins UI: http://localhost:8080
+Agent port: 50000
+JENKINS_HOME data remains in the jenkins_home volume.`,
+    },
+    hints: [
+      { tr: 'Web arayüzü için -p 8080:8080 gerekir.', en: 'Use -p 8080:8080 for the web interface.' },
+      { tr: 'Agent iletişimi için -p 50000:50000 eklenir.', en: 'Add -p 50000:50000 for agent communication.' },
+      { tr: 'Kalıcı Jenkins verisi için -v jenkins_home:/var/jenkins_home kullanılır.', en: 'Use -v jenkins_home:/var/jenkins_home for persistent Jenkins data.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Jenkins İlk Kurulum Akışı', en: 'Jenkins First Setup Flow' },
+    steps: [
+      { id: 1, icon: '☕', label: { tr: 'Java hazır', en: 'Java ready' }, detail: { tr: 'Jenkins bir Java uygulamasıdır; Java 17 veya 21 LTS kurulu olmalıdır.', en: 'Jenkins is a Java application; Java 17 or 21 LTS must be installed.' } },
+      { id: 2, icon: '🔧', label: { tr: 'Jenkins başlar', en: 'Jenkins starts' }, detail: { tr: 'Servis veya Docker container başlatılır ve Jenkins 8080 portunda dinlemeye başlar.', en: 'The service or Docker container starts and Jenkins begins listening on port 8080.' } },
+      { id: 3, icon: '🔐', label: { tr: 'İlk parola alınır', en: 'Initial password read' }, detail: { tr: 'initialAdminPassword dosyası setup wizard için tek seferlik anahtardır.', en: 'The initialAdminPassword file is the one-time key for the setup wizard.' } },
+      { id: 4, icon: '🔌', label: { tr: 'Plugin kurulur', en: 'Plugins installed' }, detail: { tr: 'Git, Pipeline, JUnit/HTML Publisher, Docker ve Slack plugin\'leri QA pipeline\'ının temelidir.', en: 'Git, Pipeline, JUnit/HTML Publisher, Docker, and Slack plugins are the base of a QA pipeline.' } },
+      { id: 5, icon: '✅', label: { tr: 'Admin oluşturulur', en: 'Admin created' }, detail: { tr: 'Admin user oluşturulunca Jenkins job tanımlamaya ve webhook almaya hazırdır.', en: 'Once the admin user is created, Jenkins is ready to define jobs and receive webhooks.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-install-order-01',
+    question: { tr: 'Jenkins\'i ilk kez kurup doğrulama adımlarını sıraya diz.', en: 'Arrange the first-time Jenkins setup and verification steps.' },
+    items: [
+      { id: '1', text: { tr: 'Java 17/21 kurulu olduğunu doğrula', en: 'Verify Java 17/21 is installed' }, order: 1 },
+      { id: '2', text: { tr: 'Jenkins servisini veya Docker container\'ını başlat', en: 'Start the Jenkins service or Docker container' }, order: 2 },
+      { id: '3', text: { tr: 'http://localhost:8080 adresini aç', en: 'Open http://localhost:8080' }, order: 3 },
+      { id: '4', text: { tr: 'initialAdminPassword dosyasından ilk parolayı al', en: 'Read the first password from initialAdminPassword' }, order: 4 },
+      { id: '5', text: { tr: 'Önerilen plugin\'leri kur ve admin user oluştur', en: 'Install suggested plugins and create the admin user' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsPipelineInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-pipeline-stage-practice',
+    label: { tr: 'Pratik: Declarative Pipeline stage sırasını tamamla', en: 'Practice: Complete the Declarative Pipeline stage order' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: stage ve steps hiyerarşisini elinle yazmak. Java\'da class → method → statement hiyerarşisi gibi, Jenkins\'te pipeline → stages → stage → steps vardır.',
+      en: 'Goal: Write the stage and steps hierarchy yourself. Like class -> method -> statement in Java, Jenkins has pipeline -> stages -> stage -> steps.',
+    },
+    explanation: {
+      tr: 'TODO yerlerine doğru Jenkins syntax\'ını koy; komutlar stage içinde doğrudan değil, steps içinde yaşar.',
+      en: 'Put the correct Jenkins syntax in TODO; commands do not live directly inside a stage, they live inside steps.',
+    },
+    code: {
+      tr: `pipeline {
+    agent any
+    TODO {
+        stage('Build') {
+            TODO {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    TODO {
+        stage('Build') {
+            TODO {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+    },
+    starterCode: {
+      tr: `pipeline {
+    agent any
+    TODO {
+        stage('Build') {
+            TODO {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    TODO {
+        stage('Build') {
+            TODO {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+    }
+}`,
+    },
+    expected: {
+      tr: `pipeline -> stages -> stage -> steps hiyerarşisi doğru.
+sh komutu doğru yerde çalışır.`,
+      en: `pipeline -> stages -> stage -> steps hierarchy is correct.
+The sh command runs in the right place.`,
+    },
+    hints: [
+      { tr: 'Tüm stage\'leri saran blok stages adını alır.', en: 'The block wrapping all stages is named stages.' },
+      { tr: 'Bir stage içindeki gerçek komutlar steps içinde olmalıdır.', en: 'Actual commands inside a stage must be inside steps.' },
+      { tr: 'stage tekil, stages çoğuldur; bu küçük fark syntax hatası üretir.', en: 'stage is singular, stages is plural; this small difference causes syntax errors.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Jenkinsfile Nasıl Okunur', en: 'How Jenkins Reads a Jenkinsfile' },
+    steps: [
+      { id: 1, icon: '📄', label: { tr: 'pipeline bloğu', en: 'pipeline block' }, detail: { tr: 'Dosyanın kökü pipeline bloğudur; Declarative Pipeline burada başlar.', en: 'The root of the file is the pipeline block; Declarative Pipeline starts here.' } },
+      { id: 2, icon: '🖥️', label: { tr: 'agent seçilir', en: 'agent selected' }, detail: { tr: 'agent any veya agent docker, işin nerede çalışacağını belirler.', en: 'agent any or agent docker decides where the job will run.' } },
+      { id: 3, icon: '🏭', label: { tr: 'stages açılır', en: 'stages opened' }, detail: { tr: 'Build, Test, Deploy gibi mantıksal istasyonlar stages altında toplanır.', en: 'Logical stations such as Build, Test, Deploy are grouped under stages.' } },
+      { id: 4, icon: '⌨️', label: { tr: 'steps çalışır', en: 'steps execute' }, detail: { tr: 'sh, bat, checkout, junit gibi gerçek işler steps bloğunda çalışır.', en: 'Real work such as sh, bat, checkout, and junit runs inside steps.' } },
+      { id: 5, icon: '📦', label: { tr: 'post toparlar', en: 'post wraps up' }, detail: { tr: 'post always/success/failure rapor, temizlik ve bildirim gibi kapanış işlerini yapar.', en: 'post always/success/failure handles wrap-up work such as reports, cleanup, and notifications.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-pipeline-syntax-order-01',
+    question: { tr: 'Declarative Jenkinsfile hiyerarşisini doğru sıraya diz.', en: 'Arrange the Declarative Jenkinsfile hierarchy.' },
+    items: [
+      { id: '1', text: { tr: 'pipeline { ... } kök bloğunu aç', en: 'Open the root pipeline { ... } block' }, order: 1 },
+      { id: '2', text: { tr: 'agent ile çalışacak ortamı seç', en: 'Choose the execution environment with agent' }, order: 2 },
+      { id: '3', text: { tr: 'stages bloğunu aç', en: 'Open the stages block' }, order: 3 },
+      { id: '4', text: { tr: 'stage ile Build/Test/Deploy adımını tanımla', en: 'Define a Build/Test/Deploy step with stage' }, order: 4 },
+      { id: '5', text: { tr: 'steps içinde sh/bat/junit gibi gerçek işleri çalıştır', en: 'Run real work such as sh/bat/junit inside steps' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsQaInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-qa-report-practice',
+    label: { tr: 'Pratik: Test fail olsa bile raporu yayınla', en: 'Practice: Publish reports even when tests fail' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: QA için en kritik Jenkins alışkanlığını kurmak: test fail olduğunda rapor kaybolmamalı. Rapor yoksa debug kanıtı yoktur.',
+      en: 'Goal: Build the most important Jenkins habit for QA: reports must not disappear when tests fail. No report means no debug evidence.',
+    },
+    explanation: {
+      tr: 'TODO alanlarını test çalıştırma ve post always rapor yayınlama ile tamamla.',
+      en: 'Fill TODO with test execution and post always report publishing.',
+    },
+    code: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { TODO }
+        }
+    }
+    post {
+        always {
+            TODO
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { TODO }
+        }
+    }
+    post {
+        always {
+            TODO
+        }
+    }
+}`,
+    },
+    starterCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { TODO }
+        }
+    }
+    post {
+        always {
+            TODO
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { TODO }
+        }
+    }
+    post {
+        always {
+            TODO
+        }
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { sh 'pytest tests/api --junitxml=reports/api.xml' }
+        }
+    }
+    post {
+        always {
+            junit 'reports/*.xml'
+        }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('API Tests') {
+            steps { sh 'pytest tests/api --junitxml=reports/api.xml' }
+        }
+    }
+    post {
+        always {
+            junit 'reports/*.xml'
+        }
+    }
+}`,
+    },
+    expected: {
+      tr: `API testleri çalışır.
+Test fail olsa bile JUnit raporu Jenkins UI'da görünür.`,
+      en: `API tests run.
+Even if tests fail, the JUnit report is visible in Jenkins UI.`,
+    },
+    hints: [
+      { tr: 'pytest JUnit XML üretmek için --junitxml kullanabilir.', en: 'pytest can produce JUnit XML with --junitxml.' },
+      { tr: 'junit step\'i post { always } içinde olmalı.', en: 'The junit step belongs inside post { always }.' },
+      { tr: 'Raporu success içine koyarsan test fail olduğunda raporu kaybedersin.', en: 'If you put reports inside success, you lose them when tests fail.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'QA Raporu Jenkins\'te Nasıl Kanıta Dönüşür', en: 'How a QA Report Becomes Evidence in Jenkins' },
+    steps: [
+      { id: 1, icon: '🧪', label: { tr: 'Test koşar', en: 'Tests run' }, detail: { tr: 'pytest, Selenium, Playwright veya JMeter testleri agent üzerinde çalışır.', en: 'pytest, Selenium, Playwright, or JMeter tests run on the agent.' } },
+      { id: 2, icon: '📄', label: { tr: 'Rapor üretilir', en: 'Report produced' }, detail: { tr: 'Araç JUnit XML, HTML veya Allure çıktısı üretir.', en: 'The tool produces JUnit XML, HTML, or Allure output.' } },
+      { id: 3, icon: '📦', label: { tr: 'Artifact arşivlenir', en: 'Artifact archived' }, detail: { tr: 'Jenkins raporu build kaydına bağlar; agent silinse bile sonuç görünür kalır.', en: 'Jenkins attaches the report to the build record; the result stays visible even if the agent disappears.' } },
+      { id: 4, icon: '🔍', label: { tr: 'Hata incelenir', en: 'Failure inspected' }, detail: { tr: 'QA engineer failed test, stack trace, screenshot ve log linklerini tek yerden görür.', en: 'The QA engineer sees failed tests, stack traces, screenshots, and logs in one place.' } },
+      { id: 5, icon: '💬', label: { tr: 'Ekip uyarılır', en: 'Team notified' }, detail: { tr: 'Slack/email bildirimi build URL ve rapor linkleriyle ekibe gider.', en: 'Slack/email notification reaches the team with build URL and report links.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-qa-report-order-01',
+    question: { tr: 'Bir QA test stage\'inde raporu kaybetmeden ilerleme sırasını diz.', en: 'Arrange the QA test stage flow without losing reports.' },
+    items: [
+      { id: '1', text: { tr: 'Test komutunu JUnit/HTML rapor üretecek şekilde çalıştır', en: 'Run the test command so it produces JUnit/HTML reports' }, order: 1 },
+      { id: '2', text: { tr: 'Rapor dosyasının workspace içinde oluştuğunu varsay', en: 'Expect the report file to appear inside the workspace' }, order: 2 },
+      { id: '3', text: { tr: 'post { always } içinde junit/archiveArtifacts çalıştır', en: 'Run junit/archiveArtifacts inside post { always }' }, order: 3 },
+      { id: '4', text: { tr: 'Failure durumunda Slack/email ile build URL gönder', en: 'Send the build URL through Slack/email on failure' }, order: 4 },
+      { id: '5', text: { tr: 'QA debug için rapor, log ve screenshot linklerini açar', en: 'QA opens report, log, and screenshot links for debugging' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsAdvancedInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-advanced-parallel-practice',
+    label: { tr: 'Pratik: Paralel browser stage\'leri kur', en: 'Practice: Build parallel browser stages' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: Chrome ve Firefox testlerini sırayla değil, aynı parent stage altında paralel çalıştırmak. Bu, QA suite süresini doğrudan azaltır.',
+      en: 'Goal: Run Chrome and Firefox tests in parallel under one parent stage instead of sequentially. This directly reduces QA suite duration.',
+    },
+    explanation: {
+      tr: 'TODO yerine parallel bloğunu ve iki child stage\'i ekle.',
+      en: 'Replace TODO with the parallel block and two child stages.',
+    },
+    code: {
+      tr: `stage('Cross Browser Tests') {
+    TODO
+}`,
+      en: `stage('Cross Browser Tests') {
+    TODO
+}`,
+    },
+    starterCode: {
+      tr: `stage('Cross Browser Tests') {
+    TODO
+}`,
+      en: `stage('Cross Browser Tests') {
+    TODO
+}`,
+    },
+    solutionCode: {
+      tr: `stage('Cross Browser Tests') {
+    parallel {
+        stage('Chrome') {
+            steps { sh 'npm run test:chrome' }
+        }
+        stage('Firefox') {
+            steps { sh 'npm run test:firefox' }
+        }
+    }
+}`,
+      en: `stage('Cross Browser Tests') {
+    parallel {
+        stage('Chrome') {
+            steps { sh 'npm run test:chrome' }
+        }
+        stage('Firefox') {
+            steps { sh 'npm run test:firefox' }
+        }
+    }
+}`,
+    },
+    expected: {
+      tr: `Chrome ve Firefox stage'leri aynı anda başlar.
+Toplam süre yaklaşık en uzun branch süresi kadar olur.`,
+      en: `Chrome and Firefox stages start at the same time.
+Total duration is roughly the duration of the slowest branch.`,
+    },
+    hints: [
+      { tr: 'Declarative Pipeline\'da parallel bir stage içinde kullanılır.', en: 'In Declarative Pipeline, parallel is used inside a stage.' },
+      { tr: 'parallel altındaki her child stage kendi steps bloğuna sahip olabilir.', en: 'Each child stage under parallel can have its own steps block.' },
+      { tr: 'Paralel çalıştırma hız kazandırır ama agent/executor kapasitesini tüketir.', en: 'Parallel execution is faster but consumes agent/executor capacity.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Parallel Stage Kaynak Akışı', en: 'Parallel Stage Resource Flow' },
+    steps: [
+      { id: 1, icon: '📥', label: { tr: 'Parent stage başlar', en: 'Parent stage starts' }, detail: { tr: 'Cross Browser Tests gibi üst stage, parallel branch\'lerini başlatmaya hazırlanır.', en: 'A parent stage such as Cross Browser Tests prepares to start parallel branches.' } },
+      { id: 2, icon: '🍴', label: { tr: 'Branch ayrılır', en: 'Branches split' }, detail: { tr: 'Chrome, Firefox, Safari gibi child stage\'ler aynı anda planlanır.', en: 'Child stages such as Chrome, Firefox, Safari are scheduled at the same time.' } },
+      { id: 3, icon: '🖥️', label: { tr: 'Executor gerekir', en: 'Executors needed' }, detail: { tr: 'Her paralel branch bir executor/agent kapasitesi ister; kapasite yoksa kuyruk oluşur.', en: 'Each parallel branch needs executor/agent capacity; without capacity, it queues.' } },
+      { id: 4, icon: '🧪', label: { tr: 'Testler koşar', en: 'Tests run' }, detail: { tr: 'Branch\'ler bağımsız koşar, bu yüzden biri fail olsa bile raporları ayrı yakalamak gerekir.', en: 'Branches run independently, so reports should be captured separately even if one fails.' } },
+      { id: 5, icon: '🧾', label: { tr: 'Sonuç birleşir', en: 'Results merge' }, detail: { tr: 'Jenkins parent stage sonucunu branch sonuçlarından üretir; herhangi biri fail ise parent fail olur.', en: 'Jenkins computes the parent result from branch results; if any branch fails, the parent fails.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-parallel-order-01',
+    question: { tr: 'Paralel test stage\'ini doğru zihinsel sıraya diz.', en: 'Arrange the mental flow of a parallel test stage.' },
+    items: [
+      { id: '1', text: { tr: 'Üst stage içinde parallel bloğunu aç', en: 'Open the parallel block inside the parent stage' }, order: 1 },
+      { id: '2', text: { tr: 'Her browser/ortam için child stage tanımla', en: 'Define a child stage for each browser/environment' }, order: 2 },
+      { id: '3', text: { tr: 'Her child stage için uygun agent/executor ayır', en: 'Allocate a suitable agent/executor for each child stage' }, order: 3 },
+      { id: '4', text: { tr: 'Her branch kendi test komutunu ve raporunu üretir', en: 'Each branch runs its own test command and report output' }, order: 4 },
+      { id: '5', text: { tr: 'Parent stage tüm branch sonuçlarını tek karara toplar', en: 'The parent stage combines all branch results into one decision' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsRealWorldInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-realworld-pr-gate-practice',
+    label: { tr: 'Pratik: PR merge gate pipeline\'ını tamamla', en: 'Practice: Complete a PR merge-gate pipeline' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: Pull request merge edilmeden önce build, unit test, E2E ve rapor adımlarını tek Jenkinsfile içinde bağlamak.',
+      en: 'Goal: Connect build, unit test, E2E, and report steps in one Jenkinsfile before a pull request is merged.',
+    },
+    explanation: {
+      tr: 'TODO alanları merge kararını etkileyen kalite kapılarını temsil eder.',
+      en: 'The TODO fields represent quality gates that affect the merge decision.',
+    },
+    code: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { TODO } }
+        stage('Unit Tests') { steps { TODO } }
+        stage('E2E Tests') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { TODO } }
+        stage('Unit Tests') { steps { TODO } }
+        stage('E2E Tests') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+    },
+    starterCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { TODO } }
+        stage('Unit Tests') { steps { TODO } }
+        stage('E2E Tests') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { TODO } }
+        stage('Unit Tests') { steps { TODO } }
+        stage('E2E Tests') { steps { TODO } }
+    }
+    post {
+        always { TODO }
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { sh 'npm ci && npm run build' } }
+        stage('Unit Tests') { steps { sh 'npm test -- --reporters=jest-junit' } }
+        stage('E2E Tests') { steps { sh 'npx playwright test --reporter=junit' } }
+    }
+    post {
+        always { junit '**/junit*.xml' }
+    }
+}`,
+      en: `pipeline {
+    agent any
+    stages {
+        stage('Build') { steps { sh 'npm ci && npm run build' } }
+        stage('Unit Tests') { steps { sh 'npm test -- --reporters=jest-junit' } }
+        stage('E2E Tests') { steps { sh 'npx playwright test --reporter=junit' } }
+    }
+    post {
+        always { junit '**/junit*.xml' }
+    }
+}`,
+    },
+    expected: {
+      tr: `Build, unit test ve E2E kapıları PR merge kararına bağlanır.
+Raporlar her sonuçta Jenkins UI'da kalır.`,
+      en: `Build, unit test, and E2E gates are connected to the PR merge decision.
+Reports remain in Jenkins UI for every result.`,
+    },
+    hints: [
+      { tr: 'PR gate sadece build ile yetinmemeli; test stage\'leri de olmalı.', en: 'A PR gate should not stop at build; it should include test stages.' },
+      { tr: 'Playwright gibi UI testleri için reporter çıktısı Jenkins\'e uygun olmalı.', en: 'UI tests such as Playwright should produce reporter output Jenkins can read.' },
+      { tr: 'post always içindeki junit, başarısız PR\'da bile kanıtı saklar.', en: 'junit inside post always preserves evidence even for a failing PR.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'PR Merge Kararı Nasıl Oluşur', en: 'How a PR Merge Decision Forms' },
+    steps: [
+      { id: 1, icon: '🌿', label: { tr: 'PR açılır', en: 'PR opened' }, detail: { tr: 'GitHub webhook Jenkins multibranch pipeline\'ını tetikler.', en: 'A GitHub webhook triggers the Jenkins multibranch pipeline.' } },
+      { id: 2, icon: '🏗️', label: { tr: 'Build doğrulanır', en: 'Build verified' }, detail: { tr: 'Kod compile/build edilemiyorsa test koşmaya gerek kalmadan PR bloklanır.', en: 'If code cannot compile/build, the PR is blocked before tests even matter.' } },
+      { id: 3, icon: '🧪', label: { tr: 'Testler kanıt üretir', en: 'Tests create evidence' }, detail: { tr: 'Unit, API ve E2E testleri geç/kaldı sinyali ve rapor üretir.', en: 'Unit, API, and E2E tests produce pass/fail signals and reports.' } },
+      { id: 4, icon: '🔍', label: { tr: 'Quality gate bakar', en: 'Quality gate checks' }, detail: { tr: 'Coverage, SonarQube veya güvenlik taraması merge kararını güçlendirir.', en: 'Coverage, SonarQube, or security scans strengthen the merge decision.' } },
+      { id: 5, icon: '✅', label: { tr: 'Merge izni çıkar', en: 'Merge allowed' }, detail: { tr: 'Tüm kapılar geçerse PR merge edilebilir; fail varsa rapor linkiyle geri döner.', en: 'If all gates pass, the PR can merge; if not, it returns with report links.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-realworld-pr-order-01',
+    question: { tr: 'Gerçek bir PR merge gate akışını sırala.', en: 'Arrange a real PR merge-gate flow.' },
+    items: [
+      { id: '1', text: { tr: 'PR açılır veya güncellenir', en: 'PR is opened or updated' }, order: 1 },
+      { id: '2', text: { tr: 'Jenkins checkout ve build stage\'lerini çalıştırır', en: 'Jenkins runs checkout and build stages' }, order: 2 },
+      { id: '3', text: { tr: 'Unit/API/UI test stage\'leri rapor üretir', en: 'Unit/API/UI test stages produce reports' }, order: 3 },
+      { id: '4', text: { tr: 'Quality gate ve raporlar merge kararına bağlanır', en: 'Quality gates and reports are connected to the merge decision' }, order: 4 },
+      { id: '5', text: { tr: 'Başarısızsa PR yorumunda rapor/log linki paylaşılır', en: 'If failing, report/log links are shared back on the PR' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
+const jenkinsEcosystemInteractiveBlocks = [
+  {
+    type: 'code-playground',
+    id: 'jenkins-ecosystem-notify-practice',
+    label: { tr: 'Pratik: Jenkins ekosistem bildirim adımını tamamla', en: 'Practice: Complete the Jenkins ecosystem notification step' },
+    language: 'groovy',
+    task: {
+      tr: 'Amaç: Pipeline sonucunu insanlara geri bağlamak. Jenkins tek başına değerli değildir; sonucu Slack/email/PR status ile ekibe ulaştırınca döngü kapanır.',
+      en: 'Goal: Connect the pipeline result back to humans. Jenkins is not enough alone; the loop closes when Slack/email/PR status carries the result to the team.',
+    },
+    explanation: {
+      tr: 'TODO alanını failure durumunda Slack kanalına build linki gönderecek şekilde tamamla.',
+      en: 'Fill TODO so a failure sends the build link to a Slack channel.',
+    },
+    code: {
+      tr: `post {
+    failure {
+        TODO
+    }
+}`,
+      en: `post {
+    failure {
+        TODO
+    }
+}`,
+    },
+    starterCode: {
+      tr: `post {
+    failure {
+        TODO
+    }
+}`,
+      en: `post {
+    failure {
+        TODO
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `post {
+    failure {
+        slackSend(
+            channel: '#qa-results',
+            color: 'danger',
+            message: "FAILED: \${env.JOB_NAME} #\${env.BUILD_NUMBER} \${env.BUILD_URL}"
+        )
+    }
+}`,
+      en: `post {
+    failure {
+        slackSend(
+            channel: '#qa-results',
+            color: 'danger',
+            message: "FAILED: \${env.JOB_NAME} #\${env.BUILD_NUMBER} \${env.BUILD_URL}"
+        )
+    }
+}`,
+    },
+    expected: {
+      tr: `Pipeline fail olursa Slack mesajı gider.
+Mesajda job adı, build numarası ve build linki bulunur.`,
+      en: `When the pipeline fails, a Slack message is sent.
+The message includes job name, build number, and build link.`,
+    },
+    hints: [
+      { tr: 'Slack plugin step adı slackSend şeklindedir.', en: 'The Slack plugin step is named slackSend.' },
+      { tr: 'Failure bildirimi post { failure } içinde olmalı.', en: 'Failure notification belongs inside post { failure }.' },
+      { tr: 'Debug için env.BUILD_URL mesajda mutlaka olmalı.', en: 'For debugging, env.BUILD_URL should be included in the message.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'step-animation',
+    title: { tr: 'Jenkins Ekosisteminde Araçlar Nasıl Konuşur', en: 'How Tools Talk in the Jenkins Ecosystem' },
+    steps: [
+      { id: 1, icon: '🐙', label: { tr: 'Git tetikler', en: 'Git triggers' }, detail: { tr: 'GitHub/GitLab webhook, yeni push veya PR bilgisini Jenkins\'e yollar.', en: 'A GitHub/GitLab webhook sends new push or PR information to Jenkins.' } },
+      { id: 2, icon: '🔧', label: { tr: 'Jenkins orkestre eder', en: 'Jenkins orchestrates' }, detail: { tr: 'Jenkins stage sırasını, agent seçimini ve hangi aracın ne zaman çağrılacağını yönetir.', en: 'Jenkins manages stage order, agent selection, and which tool is called when.' } },
+      { id: 3, icon: '🐳', label: { tr: 'Docker izole eder', en: 'Docker isolates' }, detail: { tr: 'Build ve test agent\'ları sabit image\'larla çalışır; ortam drift\'i azalır.', en: 'Build and test agents run with pinned images; environment drift is reduced.' } },
+      { id: 4, icon: '🔍', label: { tr: 'Sonar kapılar', en: 'Sonar gates' }, detail: { tr: 'SonarQube coverage, code smell ve vulnerability sonuçlarını kalite kapısına çevirir.', en: 'SonarQube turns coverage, code smell, and vulnerability findings into quality gates.' } },
+      { id: 5, icon: '💬', label: { tr: 'Slack duyurur', en: 'Slack announces' }, detail: { tr: 'Sonuç ekibe linkli mesaj olarak döner; insanlar doğru build\'e tek tıkla gider.', en: 'The result returns to the team as a linked message; people reach the right build in one click.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-jenkins-ecosystem-order-01',
+    question: { tr: 'Jenkins ekosisteminde bir commit\'in araçlar arasında dolaşma sırasını diz.', en: 'Arrange how a commit moves through tools in the Jenkins ecosystem.' },
+    items: [
+      { id: '1', text: { tr: 'Git webhook Jenkins job\'ını tetikler', en: 'Git webhook triggers the Jenkins job' }, order: 1 },
+      { id: '2', text: { tr: 'Jenkins Docker veya agent üzerinde build başlatır', en: 'Jenkins starts the build on Docker or an agent' }, order: 2 },
+      { id: '3', text: { tr: 'Test ve quality gate araçları çalışır', en: 'Test and quality gate tools run' }, order: 3 },
+      { id: '4', text: { tr: 'Başarılı artifact registry veya deploy aşamasına gider', en: 'The passing artifact goes to registry or deploy stage' }, order: 4 },
+      { id: '5', text: { tr: 'Slack/email/PR status sonucu ekibe bildirir', en: 'Slack/email/PR status reports the result to the team' }, order: 5 },
+    ],
+    xpReward: 10,
+  },
+]
+
 export const jenkinsData = {
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
@@ -86,6 +878,7 @@ export const jenkinsData = {
               'Schedule nightly smoke tests on multiple browsers/environments',
             ],
           },
+          ...jenkinsIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: 'What does "Continuous Integration" primarily mean?',
@@ -251,6 +1044,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
               { icon: '📧', label: 'Email Extension', desc: 'Send detailed HTML emails on build failure.' },
             ],
           },
+          ...jenkinsInstallationInteractiveBlocks,
           {
             type: 'quiz',
             question: 'What is the default port for Jenkins web interface?',
@@ -482,6 +1276,7 @@ pipeline {
     }
 }`,
           },
+          ...jenkinsPipelineInteractiveBlocks,
           {
             type: 'quiz',
             question: 'In a Declarative Pipeline, which keyword contains the shell commands to run inside a stage?',
@@ -714,6 +1509,7 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
     }
 }`,
           },
+          ...jenkinsQaInteractiveBlocks,
           {
             type: 'quiz',
             question: 'In Jenkins post actions, which block should you use to ALWAYS publish test reports — even when the build fails?',
@@ -1004,6 +1800,7 @@ stage('Flaky Tests') {
               },
             ],
           },
+          ...jenkinsAdvancedInteractiveBlocks,
           {
             type: 'quiz',
             question: 'How do you run multiple Jenkins stages SIMULTANEOUSLY?',
@@ -1157,6 +1954,7 @@ pipeline {
 // Push this file, create a Jenkins Pipeline job pointing at the repo,
 // click "Build Now" — watch each stage light up green/red in real time.`
           },
+          ...jenkinsRealWorldInteractiveBlocks,
           {
             type: 'quiz',
             question: 'An organization needs self-hosted CI with full control and complex custom pipelines, and already has a large legacy plugin ecosystem. Which tool fits best, and why?',
@@ -1206,6 +2004,7 @@ pipeline {
             ],
             note: 'Each tool does one job well — Git triggers, Jenkins orchestrates, Docker isolates, SonarQube gates, Slack notifies.',
           },
+          ...jenkinsEcosystemInteractiveBlocks,
           { type: 'heading', text: 'Three Key Relationships' },
           {
             type: 'table',
@@ -1476,6 +2275,7 @@ pipeline {
               'Nightly smoke testleri birden fazla browser/ortamda zamanlı çalıştır',
             ],
           },
+          ...jenkinsIntroInteractiveBlocks,
           {
             type: 'quiz',
             question: '"Continuous Integration" öncelikle ne anlama gelir?',
@@ -1603,6 +2403,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
               { icon: '📧', label: 'Email Extension', desc: 'Başarısız build\'lerde detaylı HTML email gönder.' },
             ],
           },
+          ...jenkinsInstallationInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Jenkins web arayüzünün varsayılan portu hangisidir?',
@@ -1833,6 +2634,7 @@ pipeline {
     }
 }`,
           },
+          ...jenkinsPipelineInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Declarative Pipeline\'da, stage içinde çalıştırılacak shell komutlarını hangi keyword tanımlar?',
@@ -2058,6 +2860,7 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
     }
 }`,
           },
+          ...jenkinsQaInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Jenkins post action\'larında, build başarısız olsa bile test raporlarını HER ZAMAN yayınlamak için hangi blok kullanılır?',
@@ -2347,6 +3150,7 @@ stage('Flaky Testler') {
               },
             ],
           },
+          ...jenkinsAdvancedInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Birden fazla Jenkins stage\'ini AYNI ANDA çalıştırmak için hangi directive kullanılır?',
@@ -2500,6 +3304,7 @@ pipeline {
 // oluştur, "Build Now"a tıkla — her stage'in gerçek zamanlı olarak
 // yeşil/kırmızı yandığını izle.`
           },
+          ...jenkinsRealWorldInteractiveBlocks,
           {
             type: 'quiz',
             question: 'Bir organizasyon tam kontrole sahip self-hosted CI istiyor, karmaşık özel pipeline\'lara ihtiyacı var ve zaten büyük bir legacy plugin ekosistemine sahip. Hangi araç buna en uygun, ve neden?',
@@ -2549,6 +3354,7 @@ pipeline {
             ],
             note: 'Her araç kendi işini iyi yapar — Git tetikler, Jenkins orkestre eder, Docker izole eder, SonarQube kapılar, Slack bildirir.',
           },
+          ...jenkinsEcosystemInteractiveBlocks,
           { type: 'heading', text: 'Üç Temel İlişki' },
           {
             type: 'table',

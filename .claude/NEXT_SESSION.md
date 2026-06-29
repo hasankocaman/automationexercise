@@ -12,6 +12,11 @@
 
 ## Guncel Branch Durumu (2026-06-29)
 
+- Bu Codex oturumunda aktif branch `codex2` olarak dogrulandi. Calisma agacinda
+  oturum basinda kullaniciya/onceki ise ait oldugu varsayilan su degisiklikler
+  vardi ve geri alinmadi: `public/sitemap.xml`,
+  `supabase/functions/explain-quiz-answer/index.ts`, `.claude/settings.local.json`.
+
 - Aktif branch: `MacTest` (macOS case-insensitive fs nedeniyle `macTest` da gorunur, ayni branch).
 - `MacTest`, `origin/main`'in (`45a84ec` — Java interaktif bloklari + paralel test
   fix'leri) tam onunde/esiti durumdaydi (kendi unique commit'i yoktu), bu yuzden
@@ -49,6 +54,164 @@
   bozulmadi. `npm run build` + `topic-pages-ui` + `i18n-content-toggle` PASS.
 - `git commit` + `main`'e merge + `origin/main`'e push yapildi (kullanici
   acik talebiyle).
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29 — Codex2, Docker Interaktif Rollout)
+
+Kullanici Java ve Python sayfalarindaki `code-playground` + `step-animation` +
+`order-sort` desenini inceleyip hangi teknolojilere yayilabilecegini sordu ve
+uygun olanlarda sirayla uygulamamizi istedi.
+
+### Uygunluk analizi
+
+- Mevcut sayimda `code-playground`, `step-animation`, `order-sort` bloklari
+  pratikte sadece Python ve Java data dosyalarinda vardi.
+- En yuksek oncelikli adaylar: Docker, Jenkins, Kubernetes, JMeter,
+  Selenium/Playwright/Cypress, Postman/Bruno, Appium/BrowserStack, Kafka,
+  Git/GitHub ve Linux.
+- Ilk batch icin Docker secildi; cunku image -> container -> network/volume ->
+  compose -> CI artifact akisi hem gorsel zihinsel model hem dogru islem sirasi
+  hem de komut pratigine cok uygun.
+
+### Docker sayfasi tamamlanan batch
+
+- `src/data/dockerData.js` icine 6 tekrar kullanilabilir bilingual interaktif
+  blok dizisi eklendi:
+  - `dockerIntroInteractiveBlocks`
+  - `dockerInstallationInteractiveBlocks`
+  - `dockerCoreCommandInteractiveBlocks`
+  - `dockerComposeInteractiveBlocks`
+  - `dockerQaInteractiveBlocks`
+  - `dockerEcosystemInteractiveBlocks`
+- Her dizi 3 parcadan olusuyor:
+  - `code-playground` practice: kullanici komut/Dockerfile/YAML akisini kendisi
+    tamamliyor.
+  - `step-animation`: 5 adimli gorsel/animasyonlu akis.
+  - `challenge` + `variant: 'order-sort'`: drag-and-drop sira egzersizi.
+- Bu 6 dizi hem EN hem TR Docker section'larina yerlestirildi:
+  Giriş/Introduction, Kurulum/Installation, Temel Komutlar/Core Commands,
+  Dockerfile & Compose, QA Kullanimi/QA Use Cases, Ekosistem/Ecosystem.
+- `src/components/CodePlaygroundBlock.jsx` practice panelindeki "gercek javac
+  degil" metni dil/arac bagimsiz hale getirildi: "gercek runtime/terminal
+  degildir"; boylece Docker komut pratigi icin yanlis Java-only ifade kalmadi.
+
+### Dogrulama
+
+- `npm run build` PASS (SEO check, Vite build, static route shell, dist SEO).
+- Docker odakli Playwright:
+  - `npx playwright test tests/i18n-content-toggle.spec.ts --grep "docker|/docker|Docker" --reporter=list` PASS.
+  - `npx playwright test tests/topic-pages-ui.spec.ts --grep "docker|/docker|Docker" --reporter=list` PASS.
+- Iki dosyayi birlikte tam kosma denemesi (`topic-pages-ui` + `i18n-content-toggle`)
+  3 dakikada timeout oldu; bu nedenle Docker odakli hedefli kosumlarla dogrulandi.
+
+### Siradaki sirali rollout onerisi
+
+1. Jenkins: TAMAMLANDI (bkz. bir sonraki baslik).
+2. Kubernetes: Pod/Deployment/Service/Ingress/rollout/probe siralari.
+3. JMeter: test plan, thread group, sampler, assertion, listener ve ramp-up.
+4. Selenium/Playwright/Cypress: locator/wait/action/assertion/debug akislari.
+5. Postman/Bruno + Rest Assured: request lifecycle, collection/env/auth/test order.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29 — Codex2, Jenkins Interaktif Rollout)
+
+Docker batch'inden sonra kullanicinin "devam et" talebiyle siradaki sayfa olan
+Jenkins'e ayni `code-playground` + `step-animation` + `order-sort` deseni
+uygulandi.
+
+### Jenkins sayfasi tamamlanan batch
+
+- `src/data/jenkinsData.js` icine 7 tekrar kullanilabilir bilingual interaktif
+  blok dizisi eklendi:
+  - `jenkinsIntroInteractiveBlocks`
+  - `jenkinsInstallationInteractiveBlocks`
+  - `jenkinsPipelineInteractiveBlocks`
+  - `jenkinsQaInteractiveBlocks`
+  - `jenkinsAdvancedInteractiveBlocks`
+  - `jenkinsRealWorldInteractiveBlocks`
+  - `jenkinsEcosystemInteractiveBlocks`
+- Her dizi 3 parcadan olusuyor:
+  - `code-playground` practice: kullanici Jenkinsfile, shell veya post block
+    akisini kendisi tamamliyor.
+  - `step-animation`: 5 adimli gorsel/animasyonlu akis.
+  - `challenge` + `variant: 'order-sort'`: drag-and-drop sira egzersizi.
+- Bu 7 dizi hem EN hem TR Jenkins section'larina yerlestirildi:
+  Giriş/Introduction, Kurulum/Installation, Pipeline, QA Entegrasyonu,
+  İleri Seviye/Advanced, Gerçek Hayat/Real World, Ekosistem/Ecosystem.
+- Not: Jenkinsfile string'lerinde `\${env.*}` ifadeleri JavaScript template
+  interpolation'a donusmemesi icin kacirildi; bunlar Jenkinsfile metni olarak
+  kalir.
+
+### Dogrulama
+
+- Jenkins data import/sayim kontrolu PASS: TR tarafinda 7 `code-playground`,
+  7 `step-animation`, 7 `challenge` gorundu.
+- `npm run build` PASS (SEO check, Vite build, static route shell, dist SEO).
+- Jenkins odakli Playwright:
+  - `npx playwright test tests/i18n-content-toggle.spec.ts --grep "jenkins|/jenkins|Jenkins" --reporter=list` PASS.
+  - `npx playwright test tests/topic-pages-ui.spec.ts --grep "jenkins|/jenkins|Jenkins" --reporter=list` PASS.
+
+### Siradaki sirali rollout onerisi
+
+1. Kubernetes: TAMAMLANDI (bkz. bir sonraki baslik).
+2. JMeter: test plan, thread group, sampler, assertion, listener ve ramp-up.
+3. Selenium/Playwright/Cypress: locator/wait/action/assertion/debug akislari.
+4. Postman/Bruno + Rest Assured: request lifecycle, collection/env/auth/test order.
+5. Appium/BrowserStack: device/session/capability/debug akislari.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-29 — Codex2, Kubernetes Interaktif Rollout)
+
+Jenkins batch'inden sonra kullanicinin "devam et" talebiyle siradaki sayfa olan
+Kubernetes'e ayni `code-playground` + `step-animation` + `order-sort` deseni
+uygulandi.
+
+### Kubernetes sayfasi tamamlanan batch
+
+- `src/data/kubernetesData.js` icine 8 tekrar kullanilabilir bilingual interaktif
+  blok dizisi eklendi:
+  - `kubernetesIntroInteractiveBlocks`
+  - `kubernetesInstallationInteractiveBlocks`
+  - `kubernetesArchitectureInteractiveBlocks`
+  - `kubernetesCoreInteractiveBlocks`
+  - `kubernetesKubectlInteractiveBlocks`
+  - `kubernetesYamlInteractiveBlocks`
+  - `kubernetesEcosystemInteractiveBlocks`
+  - `kubernetesRealWorldInteractiveBlocks`
+- Her dizi 3 parcadan olusuyor:
+  - `code-playground` practice: kullanici kubectl, YAML, Helm veya rollout
+    komut akisini kendisi tamamliyor.
+  - `step-animation`: 5 adimli gorsel/animasyonlu akis.
+  - `challenge` + `variant: 'order-sort'`: drag-and-drop sira egzersizi.
+- Bu 8 dizi hem EN hem TR Kubernetes section'larina yerlestirildi:
+  Giriş/Introduction, Kurulum/Installation, Mimari/Architecture, Temel
+  Kavramlar/Core Concepts, kubectl Komutlari, YAML Manifestler, Ekosistem,
+  Gercek Hayat/Real World.
+- Odak konular: desired state, minikube dogrulama, API Server -> scheduler ->
+  kubelet akisi, Deployment/Service label-selector baglantisi, CrashLoopBackOff
+  debug sirasi, readiness/liveness probe, Helm tabanli CI/CD deploy, rolling
+  update ve rollback.
+
+### Dogrulama
+
+- Kubernetes data import/sayim kontrolu PASS: EN tarafinda 8 `code-playground`,
+  8 `step-animation`, 8 `challenge`; TR tarafinda da 8'er interaktif set
+  gorundu.
+- `npm run build` PASS (SEO check, Vite build, static route shell, dist SEO).
+- Kubernetes odakli Playwright:
+  - `npx playwright test tests/i18n-content-toggle.spec.ts --grep "kubernetes|/kubernetes|Kubernetes" --reporter=list` PASS.
+  - `npx playwright test tests/topic-pages-ui.spec.ts --grep "kubernetes|/kubernetes|Kubernetes" --reporter=list` PASS.
+
+### Siradaki sirali rollout onerisi
+
+1. JMeter: test plan, thread group, sampler, assertion, listener ve ramp-up.
+2. Selenium/Playwright/Cypress: locator/wait/action/assertion/debug akislari.
+3. Postman/Bruno + Rest Assured: request lifecycle, collection/env/auth/test order.
+4. Appium/BrowserStack: device/session/capability/debug akislari.
+5. Kafka/Git/Linux: event flow, branch flow, terminal command akislari.
 
 ---
 
@@ -335,10 +498,73 @@ Onceki oturumdan gelen 3 fail tamamlandi:
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-29 — TypeScript Interaktif Bloklar)
+
+### AI Aciklama Yabanci Karakter Sorunu Duzeltildi
+
+Python sayfasinda sayfa dili TR iken "AI Aciklama" panelinde Cince karakter
+(携带) gorunuyordu. Kok neden: llama-3.3-70b-versatile modeli "portability"
+gibi kavramlari anlatiinca egitim verisinden Cince token kariştiriyordu.
+SYSTEM_PROMPT muğlak "ogrencinin yazdigi dilde ver" ifadesi modele UI dilinden
+degil kullanicinin cevap metninden anliyordu.
+
+Duzeltme: `supabase/functions/explain-quiz-answer/index.ts` SYSTEM_PROMPT'una
+acik ve kesin dil yasagi eklendi: "DİL satiri hangi dili belirtiyorsa YALNIZCA
+o dilde yaz", "Cince, Japonca, Korece veya Latin alfabesi disindaki HICBIR
+karakter kullanma". Deploy komutu:
+  supabase functions deploy explain-quiz-answer --project-ref qmvurwmcuexvuwvaiuhj
+
+### Python Sayfasi Kapsamli Tarama — Sorun Yok
+
+23 sekme EN/TR block sayilari eslesip eslesmedigini, 58 mulakat sorusunu,
+49 quiz blogu gecerliligi, 21 step-anim + 21 order-sort + 42 code-playground,
+bilingual label/title eksiksizligi, 37 playground item bilingual title
+kontrollerin tumu PASS. Statik veride hata yok.
+
+### TypeScript Sayfasina Step-Animation + Order-Sort Eklendi (Tum 17 Sekme)
+
+Python/Java'nin interaktif blok pattern'i TypeScript sayfasina da yayildi.
+Onceki durumda TypeScript'te 0 step-animation, 0 order-sort vardi.
+
+**Teknik yaklasim:** Python Batch 2/3 ile ayni guvenli pattern — TypeScript
+veri dosyasi monolitik inline JSON oldugu icin Python'daki gibi ayri const +
+slice pattern kurulamaz; bunun yerine export'tan sonra bilingual `const` blok
+tanimlari + `_tsInsert.forEach` ile `splice` eklendi. Paylasilan dizi yok,
+cascading risk sifir.
+
+**Eklenen bloklar (her sekme icin 1 step-animation + 1 order-sort = toplam 34):**
+- [0] Intro & Why: TS compile flow (5 adim) + compile-flow order-sort
+- [1] Installation: Playwright+TS setup (5 adim) + install order-sort
+- [2] Simple & Special Types: tip anotasyonu nasil calisir (5 adim) + unknown/API order-sort
+- [3] Arrays & Tuples: array vs tuple farki (5 adim) + API list order-sort
+- [4] Object Types & Enums: enum+interface config (5 adim) + config order-sort
+- [5] Interface & Type Aliases: interface vs type alias (5 adim) + union narrowing order-sort
+- [6] Functions & Casting: fonksiyon tip anotasyonu (5 adim) + fonksiyon order-sort
+- [7] Classes & Decorators: POM class olusturma (5 adim) + POM order-sort
+- [8] Generics: generic fonksiyon nasil calisir (5 adim) + ApiResponse<T> order-sort
+- [9] Utility Types & Keyof: Partial/Required/Readonly/Pick (5 adim) + keyof order-sort
+- [10] Template Literals & Null: strictNullChecks (5 adim) + nullable string order-sort
+- [11] Error Handling & Advanced Types: @types kurulum akisi (5 adim) + @types order-sort
+- [12] QA Use Cases: POM yazimdan teste (5 adim) + POM+fixture order-sort
+- [13] Java → TS: Java'dan TS'e gecis (5 adim) + List<String> migrasyonu order-sort
+- [14] Test Runners: Vitest unit test (5 adim) + e2e Playwright order-sort
+- [15] Interview Q&A: mulakat cevap stratejisi (5 adim) + "any neden zararli" order-sort
+- [16] Practice & Reference: quick reference kullanim (5 adim) + JS→TS migrasyonu order-sort
+
+Her blok bilingual {tr, en} — tek blok her iki sekme icin calisir, render
+katmanindaki pick() dil secimini yapar.
+
+**Test sonuclari:** npm run build PASS (38 static route, SEO check gecti,
+typescriptData chunk 771KB). Playwright topic-pages-ui + i18n-content-toggle
+52 test PASS (0 fail).
+
+---
+
 ## Bitmis / Kapanmis Konular
 
 - AC03 EN mod Turkce karakter ihlalleri: tum 24 route temizlendi.
 - `test -> main` merge yapildi, `origin/main` push edildi.
+- TypeScript sayfasi interaktif blok rollout tamamlandi (17/17 sekme).
 
 ---
 
@@ -356,9 +582,8 @@ Onceki oturumdan gelen 3 fail tamamlandi:
      `npm run test:interview-flows` ve `tests/api-endpoints.spec.ts` uyelikli
      testleri tamamlanmali.
 
-3. **Python interaktif ozellikleri diger sayfalara yayilabilir.**
-   - Java sayfasina ilk yayilim yapildi: code-playground, good-vs-bad,
-     step-animation, interactive-diagram ve challenge bloklari eklendi.
+3. **Python/Java interaktif ozellikleri diger sayfalara yayilabilir.**
+   - TypeScript sayfasina rollout tamamlandi (17/17 sekme).
    - Selenium ve Playwright sayfalarina ayni block type'lari icerik ekleyerek
      tasinabilir.
    - Component mimarisi hazir; yeni component gerekmez.
