@@ -1,6 +1,7 @@
 // cypressData.js — Cypress tam öğrenme sayfası
 // 11 bölüm: Nedir, Kurulum, Komutlar&Selector, Aksiyonlar&Drag-Drop, Zaman Yolculuğu,
 // Network&Intercept, Gerçek Hayat, Ekosistem, Karşılaştırma, Yaygın Hatalar, 50 Mülakat
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
 const s0 = {
   tr: {
@@ -4552,3 +4553,5 @@ export const cypressData = {
     sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s11.en, s12.en, s13.en, s14.en, s15.en, s16.en, s17.en, s6.en, s7.en, s8.en, s9.en, s10.en],
   },
 }
+
+fillMissingCodeTrios(cypressData, 'cypress')

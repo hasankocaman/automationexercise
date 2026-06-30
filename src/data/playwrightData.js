@@ -2,6 +2,7 @@
 // 18 bölüm: Intro, Kurulum, Aksiyonlar, Locator, Wait, Assertions, Test Organizasyonu & Fixtures,
 // Page Object Model, iframe/Alert, Dosya/Network, Debugging & Trace, Codegen, Playwright MCP,
 // Paralel/CI-CD, Auth & Session, Gerçek Hayat, Hatalar, 50 Mülakat
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
 const s0 = {
   tr: {
@@ -5851,3 +5852,5 @@ export const playwrightData = {
     sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s10.en, s11.en, s12.en, s5.en, s6.en, s13.en, s16.en, s17.en, s14.en, s15.en, s7.en, s8.en, s9.en],
   },
 }
+
+fillMissingCodeTrios(playwrightData, 'playwright')

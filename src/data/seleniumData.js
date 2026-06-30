@@ -1,5 +1,6 @@
 // seleniumData.js — Selenium WebDriver tam öğrenme sayfası
 // Java + Python + TypeScript, 10 bölüm
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
 // ─── S0: GİRİŞ ───────────────────────────────────────────────────────────────
 const s0 = {
@@ -5986,6 +5987,8 @@ export const seleniumData = {
     sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en, s10.en, s11.en, s12.en, s13.en],
   },
 }
+
+fillMissingCodeTrios(seleniumData, 'selenium')
 
 
 

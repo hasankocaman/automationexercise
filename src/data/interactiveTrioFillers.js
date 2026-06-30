@@ -53,6 +53,9 @@ function resolveProfile(pageKey, block) {
 
   if (pageKey === 'typescript') return 'typescript'
   if (pageKey === 'python') return 'python'
+  if (pageKey === 'selenium') return 'selenium'
+  if (pageKey === 'playwright') return 'playwright'
+  if (pageKey === 'cypress') return 'cypress'
   if (pageKey === 'javascript') return 'javascript'
   if (pageKey === 'postman') return 'postman'
   if (pageKey === 'restassured') return 'restassured'
@@ -149,6 +152,36 @@ const PROFILE_TEXT = {
     orderEn: 'What is the safe order for running Python QA code?',
     itemsTr: ['Girdi ve veri tiplerini oku', 'Kritik satiri en kucuk degisiklikle tamamla', 'Kodu calistirip beklenen ciktiyi karsilastir', 'Hata varsa traceback veya assertion mesajini oku', 'Test raporu icin sonucu tekrar kullanilabilir hale getir'],
     itemsEn: ['Read inputs and data types', 'Complete the critical line with the smallest change', 'Run the code and compare expected output', 'If it fails, read traceback or assertion message', 'Make the result reusable for a test report'],
+  },
+  selenium: {
+    tr: 'Selenium WebDriver adim adim',
+    en: 'Selenium WebDriver step by step',
+    taskTr: 'Bu micro lab, Selenium ornegini aktif alistirmaya cevirir: WebDriver kurulumundan locator seciminden assertion\'a kadar her adimi sen tamamla ve hangi satirin ne isi yaptigini acikla.',
+    taskEn: 'This micro-lab turns the Selenium example into active practice: complete each step from WebDriver setup through locator selection to assertion and explain what each line does.',
+    orderTr: 'Selenium WebDriver test akisini dogru sirala.',
+    orderEn: 'Order the Selenium WebDriver test flow correctly.',
+    itemsTr: ['WebDriver olustur ve tarayiciyi ac', 'URL\'ye git ve sayfayi yukle', 'Element locator\'i sec (ID, CSS, XPath)', 'WebDriverWait ile elementin hazir olmasini bekle', 'Aksiyonu gerceklestir ve assertion ile dogrula'],
+    itemsEn: ['Create WebDriver and open the browser', 'Navigate to URL and load the page', 'Select element locator (ID, CSS, XPath)', 'Wait for element readiness with WebDriverWait', 'Perform the action and verify with assertion'],
+  },
+  playwright: {
+    tr: 'Playwright test yazma',
+    en: 'Playwright test writing',
+    taskTr: 'Bu micro lab, Playwright snippet\'ini aktif alistirmaya cevirir: locator zinciri, auto-wait ve expect assertion siralamasini sen kurarsun; gecen ile gecemeyen arasindaki farki gorursun.',
+    taskEn: 'This micro-lab turns the Playwright snippet into active practice: you build the locator chain, auto-wait, and expect assertion order; you see the difference between passing and failing.',
+    orderTr: 'Playwright test akisini dogru sirala.',
+    orderEn: 'Order the Playwright test flow correctly.',
+    itemsTr: ['page.goto() ile hedef URL\'yi yukle', 'page.locator() ile elementi sec', 'Aksiyonu gerceklestir (click, fill, press)', 'expect(locator) assertion ile sonucu dogrula', 'test.afterEach hook\'unda temizle veya ekran goruntusu al'],
+    itemsEn: ['Load the target URL with page.goto()', 'Select the element with page.locator()', 'Perform the action (click, fill, press)', 'Verify the result with expect(locator) assertion', 'Clean up or take screenshot in test.afterEach hook'],
+  },
+  cypress: {
+    tr: 'Cypress komutu yazma',
+    en: 'Cypress command writing',
+    taskTr: 'Bu micro lab, Cypress ornegini aktif alistirmaya cevirir: cy.get(), cy.intercept() ve assertion zincirini sen kurarsun; tarayici icinde calistigi icin neden farkli davrandigini gorursun.',
+    taskEn: 'This micro-lab turns the Cypress example into active practice: you build the cy.get(), cy.intercept() and assertion chain; you see why it behaves differently because it runs inside the browser.',
+    orderTr: 'Cypress test akisini dogru sirala.',
+    orderEn: 'Order the Cypress test flow correctly.',
+    itemsTr: ['cy.visit() ile sayfayi ac', 'cy.intercept() ile network istegini yakala (gerekirse)', 'cy.get() veya cy.contains() ile elementi sec', 'Aksiyon gerceklestir: click, type, select', 'should() veya expect() ile assertion yap'],
+    itemsEn: ['Open the page with cy.visit()', 'Intercept network request with cy.intercept() if needed', 'Select element with cy.get() or cy.contains()', 'Perform action: click, type, select', 'Assert with should() or expect()'],
   },
   javascript: {
     tr: 'JavaScript QA kod yazma',
