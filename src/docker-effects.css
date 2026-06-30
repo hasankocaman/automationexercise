@@ -1,0 +1,259 @@
+/* ═════════════════════════════════════════════════════════════════
+   Docker Page — Nexus-İlhamlı Görsel Efektler (Tam Sürüm)
+   Tüm stiller .docker-page wrapper'a scope'lu.
+   Fare imleci değiştirilmez — tamamen tarayıcı varsayılanı.
+   ═════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Ambient Arka Plan Işıması + Parallax Hedefi ───────────── */
+.docker-page {
+  position: relative;
+}
+
+/* --dp-scroll-y JS tarafından scroll'a göre güncellenir */
+.docker-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(6, 182, 212, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(59, 130, 246, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  animation: dp-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--dp-scroll-y, 0px));
+  will-change: transform;
+}
+
+@keyframes dp-glow-pulse {
+  from { opacity: 0.55; }
+  to   { opacity: 1.0; }
+}
+
+/* ── 2. Yüzen Parçacıklar ─────────────────────────────────────── */
+.dp-particle {
+  position: fixed;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: dp-float var(--dur, 14s) var(--delay, 0s) infinite linear;
+}
+
+@keyframes dp-float {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  8%   { opacity: 0.5; }
+  92%  { opacity: 0.5; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* ── 3. Scroll Reveal ─────────────────────────────────────────── */
+.dp-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.dp-reveal.dp-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 4. Sekme Başlığı — Hareketli Gradient Metin ──────────────── */
+.docker-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(135deg, #06b6d4, #60a5fa, #0ea5e9, #06b6d4);
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #06b6d4;
+  display: inline-block;
+  animation: dp-gradient-shift 5s ease infinite;
+}
+
+@keyframes dp-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 5. Ana İçerik Kartı — Glassmorphism ─────────────────────── */
+.docker-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(6, 182, 212, 0.18) !important;
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.06),
+    0 24px 64px rgba(6, 182, 212, 0.07) !important;
+  transform-style: preserve-3d;
+}
+
+.dark-mode .docker-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .docker-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(17, 24, 39, 0.84) !important;
+  border: 1px solid rgba(6, 182, 212, 0.14) !important;
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.05),
+    0 24px 64px rgba(6, 182, 212, 0.07) !important;
+}
+
+.docker-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(6, 182, 212, 0.35) !important;
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.12),
+    0 24px 64px rgba(6, 182, 212, 0.12) !important;
+}
+
+/* ── 6. İçerik Blokları (dp-block) — Cyan Glow + 3D Tilt ─────── */
+.docker-page .dp-block {
+  border-color: rgba(6, 182, 212, 0.14) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+  transform-style: preserve-3d;
+}
+
+.docker-page .dp-block:hover {
+  border-color: rgba(6, 182, 212, 0.38) !important;
+  box-shadow:
+    0 4px 24px rgba(6, 182, 212, 0.10),
+    0 1px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── 7. Hero Glitch Efekti ────────────────────────────────────── */
+.dp-glitch {
+  position: relative;
+}
+
+.dp-glitch::before,
+.dp-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Beyaz/açık efekt — hero'nun renkli arka planında görünür */
+.dp-glitch::before {
+  color: rgba(255, 255, 255, 0.80);
+  animation: dp-glitch-1 5s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  z-index: -1;
+}
+
+.dp-glitch::after {
+  color: rgba(6, 182, 212, 0.75);
+  animation: dp-glitch-2 5s infinite;
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  z-index: -2;
+}
+
+/* Efekt aralıklı (çoğunlukla durgun, nadiren titrer) */
+@keyframes dp-glitch-1 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%            { transform: translate(-3px,  1px); }
+  84%            { transform: translate( 2px, -2px); }
+  86%            { transform: translate(-1px,  2px); }
+  88%            { transform: translate(0, 0); }
+}
+
+@keyframes dp-glitch-2 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%            { transform: translate( 3px, -1px); }
+  84%            { transform: translate(-2px,  2px); }
+  86%            { transform: translate( 1px, -1px); }
+  88%            { transform: translate(0, 0); }
+}
+
+/* ── 8. Stats Bar (extraBanner) ───────────────────────────────── */
+.dp-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  background: rgba(6, 182, 212, 0.05);
+  border: 1px solid rgba(6, 182, 212, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@media (max-width: 640px) {
+  .dp-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+.dp-stat-item {
+  text-align: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Animasyon başlamadan önce JS tarafından eklenir */
+.dp-stat-item.dp-stat-pending {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.dp-stat-item.dp-stat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dp-stat-number-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.dp-stat-num {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #06b6d4;
+  line-height: 1.1;
+}
+
+.dp-stat-suffix {
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #06b6d4;
+}
+
+.dp-stat-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── 9. Magnetic Buton geçiş desteği ─────────────────────────── */
+/* JS tarafından inline style ile yönetilir; bu class sadece
+   index.css'teki !important scale geçişini override etmek için */
+.dp-magnetic-init.no-hover-scale {
+  /* no-hover-scale zaten scale'i kapatır; transition JS'den gelir */
+}
+
+/* ── 10. Reduced Motion — tüm animasyonları kapat ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .docker-page::before                                     { animation: none; opacity: 0.7; transform: none !important; }
+  .dp-particle                                             { animation: none; opacity: 0; }
+  .docker-page .flex-1.min-w-0 > div:first-child > h2    { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  .dp-reveal                                               { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .dp-glitch::before, .dp-glitch::after                   { animation: none; }
+  .dp-stat-item, .dp-stat-item.dp-stat-pending             { opacity: 1 !important; transform: none !important; transition: none !important; }
+}

@@ -10,6 +10,80 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-07-01, macOS — Docker Sayfasi Nexus Gorsel Efektleri)
+
+### Branch: `test`
+
+### Yapilan
+
+**1. `src/docker-effects.css` — YENİ DOSYA (tamamen sifirdan yazildi)**
+
+Tum stiller `.docker-page` wrapper'a scope'lu; baska sayfalara sifir etki.
+10 bolum:
+- Ambient arka plan isimasi (`radial-gradient` + `dp-glow-pulse` animasyonu)
+- Parallax: `--dp-scroll-y` CSS custom property JS scroll'a gore guncellenir;
+  `::before` pseudo-element `translateY(var(--dp-scroll-y))` ile kayar
+- Yüzen parçacıklar: 20 adet `.dp-particle`, `dp-float` keyframe, fixed pozisyon
+- Scroll reveal: `.dp-reveal` / `.dp-visible` sinif cifti (opacity+translateY)
+- Sekme h2 baslik: hareketli gradient metin (`dp-gradient-shift` keyframe,
+  `background-clip: text`, `-webkit-text-fill-color: transparent`)
+- Glassmorphism kart: `backdrop-filter: blur(10px)`, semi-transparent bg,
+  cyan border; dark mode icin ayri kural
+- `.dp-block` icin hover glow + `transform-style: preserve-3d`
+- Hero h1 glitch: `.dp-glitch::before` (beyaz) + `::after` (cyan), `clip-path`
+  split, aralikli `dp-glitch-1/2` keyframe (5s dongunun %80-88 arasi)
+- Stats bar: 4 kolonlu grid, glassmorphism bg, gradient sayi metni
+- `@media (prefers-reduced-motion)`: tum animasyonlar kapatilir
+
+**2. `src/components/DockerPage.jsx` — TAMAMEN YENIDEN YAZILDI**
+
+- `DockerStatsBanner` component: bilingual (useLanguage), 4 istatistik
+  (10B+ Hub Pull, 100K+ Image, 2013 kurulis, %99 ekosistem)
+- `extraBanner={<DockerStatsBanner />}` ile TopicPage'e gecirildi
+- `<div className="docker-page">` wrapper ile tum efektler scope'lu
+- `useEffect` icinde 8 JS efekti (tek hook, tam cleanup):
+  1. 20 yüzen parçacık (random boyut/renk/hiz)
+  2. Scroll reveal (IntersectionObserver, çift rAF, `data-dp-reveal` sentinel)
+  3. `dp-block` sinifi + tab degisimi icin MutationObserver (60ms debounce)
+  4. Stats sayac animasyonu (ease-out cubic, IntersectionObserver)
+  5. Hero h1 glitch (`data-text` + `dp-glitch` sinifi)
+  6. Manyetik butonlar (event delegation, `style.setProperty` ile `!important` override,
+     `no-hover-scale` sinifi ile index.css kuralini bypass etme)
+  7. Bireysel blok 3D tilt (event delegation, 6° maks, perspective 800px)
+  8. Parallax (scroll event → `--dp-scroll-y` CSS custom property)
+
+**Kural:** Fare imleci asla özellestirilmez — tarayici varsayilani korunur.
+Three.js kullanilmaz (proje bagimlilik siniri).
+
+**3. Bos alan (blank space) hatasi duzeltildi**
+
+Sorun: `.dp-stat-item` CSS'de `opacity: 0` ile basliyordu; `IntersectionObserver`
+`threshold: 0.3` ile tetikleniyordu — stats bar ekranin ustunde oldugunda %30
+gorunurluk hic saglanamiyordu → bos alan.
+
+Duzeltmeler:
+- `.dp-stat-item` varsayilan olarak `opacity: 1` (her zaman gorunur)
+- Animasyon isteyen elemanlara JS `dp-stat-pending` sinifi ekler (opacity: 0 yapar)
+- Threshold `0.3` → `0.05` indirildi
+- `statFallbackTimer` (1.2s): observer tetiklenmezse tum stats zorla acilir
+- `revealFallbackTimer` (1.5s): viewport'ta gizli kalan `dp-reveal` bloklar zorla acilir
+- `@media (prefers-reduced-motion)`: `dp-stat-pending` de animasyon kapatilinca gorunur
+
+### Build & Dogrulama
+
+`npm run build` → PASS (7.64s, 38 static route HTML shell, SEO check PASS).
+
+### Sonraki Oturumda Yapilabilecekler
+
+- Bu efektlerin diger yuksek trafikli sayfalara (Selenium, Playwright, Cypress,
+  Python, Git vb.) yayilmasi — her sayfanin renk paleti degisilebilir (cyan/mavi
+  yerine kendi rengi: yesil/turuncu/mor vb.), `DockerPage.jsx` + `docker-effects.css`
+  referans alinarak yeni `*Page.jsx` + `*-effects.css` ikilileri olusturulabilir
+- §9.3 4-katmanli analoji standardi: 21 sayfada hala eksik (bkz. bir sonraki bolum)
+- `git push origin main` (Windows'tan birikmis onceki is icin, bu PR'dan bagimsiz)
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30, devam 9 — Windows, CSS Animasyon Rollout + Pedagojik Tutarlilik Duzeltmeleri)
 
 ### Yapilan
