@@ -10,6 +10,74 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30, devam 2) — TypeScript Simple-Box Analojileri Bruno/Python Standardina Yukseltildi
+
+Kullanici TypeScript/Python/Docker/Jenkins/Kubernetes sayfalarini kullanici
+gozuyle inceleyip en iyi ogretme yontemlerini bulmami ve eksik sayfalara
+uygulamami istedi ("Ver gelistirmede iyi gordugun ozelligi eksik olan sayfaya
+uygula"), sonra "devam et" diyerek tum bulgulari uygulamami onayladi.
+
+**Tespit:** Onceki oturumlarda Docker/Jenkins/Kubernetes'in 44 `simple-box`
+analojisi (12+14+18) zaten Bolum 9.3 4-katmanli standarda yukseltilmisti ve
+TypeScript'e code-playground (Fix+Practice) eklenmisti — ama TypeScript'in
+KENDI 37 `simple-box` analojisi hala eski yuzeysel tek cumlelik haldeydi
+(Bruno/Python standardinin GERISINDE).
+
+**Yapilan:**
+1. **2 bozuk `content` alani bulundu ve duzeltildi** (typescriptData.js,
+   eski satir ~1314 ve ~1586): `content` objesinde gecerli `tr`/`en`
+   alanlarinin yaninda anlamsiz numerik key'ler vardi (`"0":"T","1":"u",...`)
+   — yakindaki baska bir basligin metninin karakter karakter sizmis hali
+   (kok neden belirsiz, muhtemelen eski hatali bir otomatik edit/spread
+   islemi). Cop key'ler silindi, alttaki gecerli `tr`/`en` icerik ayni
+   edit'te 4 katmanli standarda yukseltildi.
+2. **TypeScript'in 37 distinct `simple-box` analojisinin TUMU** (EN-tree +
+   TR-tree'de toplam 74 raw occurrence — TypeScript dosyasinda HER analoji
+   zaten kendi icinde bilingual `{tr,en}` oldugundan ve bu obje iki agacta
+   birebir ayni oldugundan `replace_all:true` ile tek Edit cagrisinda
+   ikisi de duzeltildi) Bruno/Python kalite barina yukseltildi: somut
+   mekanizma-orusen analoji + dusundurucu "neden" sorusu + Java
+   karsilastirmasi + QA/otomasyon is baglami tek akan paragrafta.
+3. **4 ayri syntax hatasi yakalandi ve duzeltildi** (yazim sirasinda,
+   `node -e` + `@babel/core` `babel.parse()` dogrulamasiyla her batch
+   sonrasi yakalandi): TR/EN metin icinde tirnak isareti (`"..."`) iceren
+   ornekler (`"25"`, `"durumm"`, `throw "basit string"` gibi) JS string
+   literal'ini erken kapattigi icin syntax hatasi veriyordu — her biri
+   tirnaksiz/backtick'li ifadeye cevrilerek cozuldu.
+4. **Build sonrasi kosulan Playwright testinde gercek bir bug bulundu ve
+   duzeltildi:** `topic-pages-ui.spec.ts`'deki `CRASH_MARKERS = ['[object
+   Object]']` kontrolu, "Functions & Casting" sekmesindeki YENI analoji
+   metninin KENDISI icinde (JS'in obje-to-string coercion davranisini
+   anlatirken) literal olarak `[object Object]` string'i gecirdigi icin
+   YANLIS POZITIF render-hatasi olarak isaretledi. Hem TR hem EN metin,
+   anlami koruyarak literal `[object Object]` ifadesi gecmeyecek sekilde
+   ("anlamsiz ve okunaksiz bir metin" / "a meaningless, unreadable string")
+   yeniden yazildi.
+
+**Dogrulama:** `npm run build` PASS (typescriptData chunk 1,084.84 kB / gzip
+337.34 kB — buyume beklenen, Bolum 14'teki mevcut uyariya yeni bir sey
+eklemiyor). `npx playwright test tests/topic-pages-ui.spec.ts --grep
+"typescript|TypeScript"` PASS (ilk kosumda FAIL etmisti, yukaridaki #4 ile
+duzeltildi). `npx playwright test tests/i18n-content-toggle.spec.ts --grep
+"typescript|TypeScript"` PASS.
+
+**Sonuc:** TypeScript sayfasi artik hem interaktif uclu (Bolum 9.2, onceki
+oturumdan) HEM dusunduren analoji standardi (Bolum 9.3) acisindan Bruno/Python
+ile ayni kalite seviyesinde. Docker/Jenkins/Kubernetes'in simple-box
+analojileri zaten onceki oturumda ayni standarda yukseltilmisti (bkz. asagidaki
+Docker/Jenkins/Kubernetes interaktif rollout basliklari — o oturumlarda
+EKLENEN bloklar interaktif ucluydu, simple-box analoji metinleri ayri bir
+gecisle 4 katmanli standarda tasinmisti).
+
+**Henuz 4-katmanli analoji standardina (Bolum 9.3) tasinmamis sayfalar:**
+Selenium, Playwright, Cypress, Java, JavaScript, SQL, Postman, Bruno (zaten
+referans), REST Assured, JMeter, Kafka, Appium, BrowserStack, AWS, Azure,
+Git & GitHub, Linux, test-frameworks, what-is-testing, manual-testing,
+algorithms, advanced-algorithms — kullanicidan oncelik onayi alinarak
+sirayla tasinmali (Bolum 9.2'deki genel yayilim kuraline tabi).
+
+---
+
 ## Branch Durumu (2026-06-30) — codex2 + main Merge Tamamlandi, Push Edildi
 
 Windows'ta Codex `codex2` branch'inde calisip commit+push yapmisti
@@ -814,6 +882,10 @@ typescriptData chunk 771KB). Playwright topic-pages-ui + i18n-content-toggle
 - AC03 EN mod Turkce karakter ihlalleri: tum 24 route temizlendi.
 - `test -> main` merge yapildi, `origin/main` push edildi.
 - TypeScript sayfasi interaktif blok rollout tamamlandi (17/17 sekme).
+- TypeScript'in 37 simple-box analojisi Bolum 9.3 4-katmanli standarda
+  yukseltildi (2 bozuk content alani + 4 syntax hatasi + 1 yanlis-pozitif
+  Playwright test hatasi bulunup duzeltildi); Docker/Jenkins/Kubernetes'in
+  44 analojisi de ayni standarda daha once yukseltilmisti.
 
 ---
 

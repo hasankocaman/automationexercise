@@ -535,7 +535,7 @@ export const dockerData = {
           {
             type: 'simple-box',
             emoji: '📦',
-            content: 'Docker is like a shipping container for software. A physical shipping container can carry any cargo — furniture, electronics, food — and any ship, truck, or crane knows how to handle it. Docker containers carry your code and ALL its dependencies, so your app runs the same way everywhere: your laptop, your colleague\'s machine, or a cloud server.',
+            content: 'Docker is like a shipping container for software: a physical container can carry furniture, electronics, or food, and any ship, truck, or crane knows how to load it — Docker containers carry your code AND every dependency it needs, so they run identically everywhere. So why not just zip the source code and ship that? Because a Java JAR already bundles your compiled classes, but NOT the OS packages, native libraries, or environment variables your app silently depends on — Docker packages those too. That\'s exactly the gap behind the classic "works on my machine" incident, where a CI agent\'s missing system library turns a green local test suite into a red pipeline.',
           },
           {
             type: 'text',
@@ -653,7 +653,7 @@ docker stop my-nginx`,
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Docker Desktop is the simplest way to get started on Windows and Mac. It includes Docker Engine, Docker CLI, Docker Compose, and a nice GUI. On Linux, you install the Docker Engine directly — lighter and faster.',
+            content: 'Docker Desktop on Windows/Mac is like an automatic-transmission rental car: it bundles the engine, CLI, Compose, and a GUI so you can drive immediately. Installing the Docker Engine directly on Linux is the manual-transmission version — lighter, faster, no extra layer. So why does Linux skip the GUI wrapper that Windows/Mac need? Because Linux containers run natively on a Linux kernel, while Windows/Mac need a lightweight VM underneath that Docker Desktop quietly manages for you — similar to how a JVM runs natively on Linux servers but needs extra runtime scaffolding in some embedded Windows/Mac setups. The QA risk: your CI pipeline almost always runs the lean Linux Engine, so a container that behaves fine on your Mac\'s Docker Desktop can still surprise you in the real CI environment — always verify on the actual pipeline, not just locally.',
           },
           { type: 'heading', text: 'Install Docker Desktop on Windows' },
           {
@@ -793,7 +793,7 @@ docker images              # List downloaded images (should be empty)`,
           {
             type: 'simple-box',
             emoji: '⌨️',
-            content: 'Docker commands follow a pattern: "docker [object] [action]". Like a library system — you search for books (images), borrow them (pull), read them (run), and return when done (stop/rm). Once you understand this pattern, all commands become intuitive.',
+            content: "Docker commands follow a strict 'docker [object] [action]' pattern — like a library system where you search for books (images), borrow them (pull), read them (run), and return them when done (stop/rm). So why not give every command its own unique name instead of memorizing flags? Because a consistent object+verb structure scales to dozens of resource types (image, container, volume, network) without forcing a new mental model each time — the same way Java's Collections framework or Stream API (filter/map/collect) lets you reuse one pattern across every collection type. In a CI script, this consistency means you can write one generic cleanup function that calls 'docker [object] prune' across images, containers, and volumes alike, instead of bespoke logic per resource.",
           },
           { type: 'heading', text: 'Image Commands' },
           {
@@ -990,7 +990,7 @@ docker network connect qa-network my-container`,
           {
             type: 'simple-box',
             emoji: '📝',
-            content: 'A Dockerfile is like a recipe for building your own Docker image. Docker Compose is like a conductor who starts multiple musicians at once — instead of running 5 separate "docker run" commands, one "docker compose up" starts your entire environment (app + database + test runner) in the right order.',
+            content: "A Dockerfile is a recipe for building your own image — each instruction is a step that gets baked into a layer. Docker Compose is the conductor who starts multiple musicians at once: instead of typing 5 separate 'docker run' commands by hand, one 'docker compose up' brings your app, database, and test runner online together, in the right order. So why not just write one giant Dockerfile that launches everything? Because a single image mixing app + database + test runner couples completely unrelated lifecycles — you'd rebuild your database image every time you fix one line of app code. It's the same reasoning behind not cramming unrelated responsibilities into one Java class: Compose's YAML is effectively dependency injection at the infrastructure level, wiring separate, independently-versioned services together. For a QA engineer, this distinction matters directly: a flaky integration test is often not your test code's fault at all, but a 'docker compose up' that started the test runner before the database container finished its health check.",
           },
           { type: 'heading', text: 'Writing a Dockerfile' },
           {
@@ -1295,7 +1295,7 @@ docker compose ps`,
           {
             type: 'simple-box',
             emoji: '🔬',
-            content: 'Docker transforms QA work. Instead of "install Chrome on every CI agent", one command gives you a fresh browser. Instead of "set up a test database", one command gives you a clean PostgreSQL. Your entire test environment becomes portable, reproducible, and disposable.',
+            content: "Docker turns your test environment into a disposable paper cup instead of a glass you have to wash and reuse. Need a fresh browser? One command spins up Chrome. Need a clean database? One command gives you a brand-new PostgreSQL, used once and thrown away. So why not just reset the existing test database between runs instead of recreating a whole container? Because a 'reset' script only clears the rows YOU know about — leftover indexes, schema drift, or a stray temp table from a previous failed test silently survive and contaminate the next run. It's the same trap as reusing a static Java test fixture across @Test methods without re-initializing it: state leaks invisibly. The QA payoff is concrete: a 'works on my machine' flaky test almost always traces back to a CI agent whose installed Chrome version or DB schema quietly drifted from yours — disposable containers remove that variable entirely.",
           },
           { type: 'heading', text: 'Selenium Grid with Docker Compose' },
           {
@@ -1568,7 +1568,7 @@ options.add_argument('--disable-dev-shm-usage')`,
       {
         title: '🔗 Ecosystem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "A single Docker container is like one shipping container on a truck — useful, but the real power shows up at the port: cranes that load/unload automatically (Kubernetes), a dispatcher that decides which ship goes where (Jenkins/CI), and a logbook tracking every container that ever passed through (a registry like Docker Hub)." },
+          { type: 'simple-box', emoji: '🔗', content: "A single Docker container is like one shipping container on a truck — useful, but the real power shows up at the port: cranes that load/unload automatically (Kubernetes), a dispatcher that decides which ship goes where (Jenkins/CI), and a logbook tracking every container that ever passed through (a registry like Docker Hub). So if a container already runs your app, why surround it with three more systems instead of just running 'docker run' on a bigger server? Because a single container has no memory of past versions, no automatic restart policy, and no way to coordinate with nine identical siblings during a deploy — exactly the gap between a single Java object and the framework (Spring's ApplicationContext, say) that manages its lifecycle, wiring, and recovery for you. In a real pipeline, skipping the registry layer is what causes the classic incident where a tester can't reproduce a bug because the image tag 'latest' silently pointed to a different build yesterday than it does today." },
           { type: 'heading', text: 'How Docker Fits Into the Bigger Picture' },
           { type: 'text', content: 'On its own, Docker builds and runs one container on one machine. Its real value in a QA/DevOps pipeline comes from being wired into four other systems: a CI/CD tool that builds and tests images on every push, a registry that stores and versions those images, an orchestrator that runs many containers reliably across machines, and a message broker or database that the containerized app talks to at runtime.' },
           {
@@ -1788,7 +1788,7 @@ options.add_argument('--disable-dev-shm-usage')`,
           {
             type: 'simple-box',
             emoji: '📦',
-            content: 'Docker, yazılım için bir kargo konteyner gibidir. Fiziksel bir kargo konteyneri mobilya, elektronik, yiyecek — her şeyi taşıyabilir ve her gemi, kamyon, vinç onu nasıl kullanacağını bilir. Docker container\'ları kodunu ve TÜM bağımlılıklarını taşır, böylece uygulaman her yerde aynı şekilde çalışır: laptop\'unda, meslektaşının makinesinde veya bulut sunucusunda.',
+            content: 'Docker, yazılım için bir kargo konteyneri gibidir: fiziksel bir konteyner mobilya, elektronik veya yiyecek taşıyabilir ve her gemi, kamyon, vinç onu nasıl yükleyeceğini bilir — Docker container\'ları ise kodunu VE ihtiyaç duyduğu her bağımlılığı taşır, böylece her yerde birebir aynı şekilde çalışır. Peki neden kaynak kodu zip\'leyip göndermek yetmiyor? Çünkü bir Java JAR dosyası zaten derlenmiş class\'larını paketler ama uygulamanın sessizce bağımlı olduğu işletim sistemi paketlerini, native kütüphaneleri veya ortam değişkenlerini PAKETLEMEZ — Docker bunları da paketler. İşte tam olarak bu boşluk, klasik "benim makinemde çalışıyordu" production incident\'inin arkasındaki sebeptir: CI agent\'ında eksik bir sistem kütüphanesi, yeşil geçen yerel test suite\'ini kırmızı bir pipeline\'a çevirir.',
           },
           {
             type: 'text',
@@ -1905,7 +1905,7 @@ docker stop my-nginx`,
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Docker Desktop, Windows ve Mac\'te başlamak için en kolay yoldur. Docker Engine, CLI, Docker Compose ve görsel arayüz içerir. Linux\'ta Docker Engine\'i doğrudan kurarsın — daha hafif ve hızlı.',
+            content: 'Windows/Mac\'te Docker Desktop, otomatik vitesli bir kiralık araba gibidir: motor, CLI, Compose ve görsel arayüz bir arada gelir, hemen sürmeye başlarsın. Linux\'ta Docker Engine\'i doğrudan kurmak ise manuel vites versiyonudur — daha hafif, daha hızlı, fazladan katman yok. Peki Linux neden Windows/Mac\'in ihtiyaç duyduğu o GUI katmanını atlıyor? Çünkü Linux container\'ları doğrudan bir Linux kernel\'i üzerinde native çalışır, Windows/Mac ise altta Docker Desktop\'ın senin için sessizce yönettiği hafif bir VM\'e ihtiyaç duyar — tıpkı bir JVM\'in Linux sunucularda native çalışırken bazı gömülü Windows/Mac kurulumlarında fazladan runtime altyapısına ihtiyaç duyması gibi. QA riski şurada: CI pipeline\'ın neredeyse her zaman sade Linux Engine üzerinde çalışır, yani Mac\'indeki Docker Desktop\'ta sorunsuz davranan bir container, gerçek CI ortamında seni şaşırtabilir — her zaman yerelde değil, gerçek pipeline üzerinde doğrula.',
           },
           { type: 'heading', text: 'Windows\'a Docker Desktop Kurulumu' },
           {
@@ -2023,7 +2023,7 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
           {
             type: 'simple-box',
             emoji: '⌨️',
-            content: 'Docker komutları bir kalıbı takip eder: "docker [nesne] [eylem]". Kütüphane sistemi gibi — kitap ara (image), ödünç al (pull), oku (run), bitince iade et (stop/rm). Bu kalıbı anlayınca tüm komutlar sezgisel hale gelir.',
+            content: 'Docker komutları katı bir "docker [nesne] [eylem]" kalıbını takip eder — kütüphane sistemi gibi: kitap ara (image), ödünç al (pull), oku (run), bitince iade et (stop/rm). Peki neden her komuta ayrı bir isim verip flag\'leri ezberletmiyorlar? Çünkü tutarlı bir nesne+fiil yapısı, her yeni kaynak tipinde (image, container, volume, network) yeni bir zihinsel model kurmaya zorlamadan onlarca kaynak tipine ölçeklenir — tıpkı Java\'da Collections framework\'ünün veya Stream API\'nin (filter/map/collect) tek bir kalıbı her koleksiyon tipinde tekrar kullandırması gibi. Bir CI script\'inde bu tutarlılık, her kaynak için ayrı özel mantık yazmak yerine "docker [nesne] prune" çağıran tek bir genel temizlik fonksiyonu yazabilmen anlamına gelir.',
           },
           { type: 'heading', text: 'Image Komutları' },
           {
@@ -2218,7 +2218,7 @@ docker network connect qa-network my-container`,
           {
             type: 'simple-box',
             emoji: '📝',
-            content: 'Dockerfile, kendi Docker image\'ını oluşturmak için bir tarif gibidir. Docker Compose ise aynı anda birden fazla müzisyeni başlatan bir şef gibidir — 5 ayrı "docker run" komutu yerine tek "docker compose up", tüm ortamını (uygulama + veritabanı + test runner) doğru sırayla başlatır.',
+            content: 'Dockerfile, kendi image\'ını inşa etmek için bir tariftir — her satır bir adımdır ve bir katman olarak pişer. Docker Compose ise aynı anda birden fazla müzisyeni başlatan şef gibidir: 5 ayrı "docker run" komutunu elle yazmak yerine, tek bir "docker compose up" uygulamanı, veritabanını ve test runner\'ını doğru sırayla bir arada ayağa kaldırır. Peki neden her şeyi tek bir dev Dockerfile\'da başlatmıyoruz? Çünkü uygulama + veritabanı + test runner\'ı tek bir image\'da karıştırmak, birbiriyle hiç ilgisi olmayan yaşam döngülerini birbirine kenetler — uygulama kodunda tek satır düzeltsen bile veritabanı image\'ını yeniden derlemiş olursun. Bu, Java\'da birbiriyle alakasız sorumlulukları tek bir class\'a tıkıştırmamanın arkasındaki mantıkla aynıdır; Compose\'un YAML\'ı aslında altyapı seviyesinde bir dependency injection\'dır, ayrı ayrı versiyonlanan servisleri birbirine bağlar. QA mühendisi için bunun somut karşılığı şudur: flaky bir integration testi çoğu zaman senin test kodundan değil, test runner\'ı veritabanı container\'ının health check\'i bitmeden başlatan bir "docker compose up"tan kaynaklanır.',
           },
           { type: 'heading', text: 'Dockerfile Yazma' },
           {
@@ -2517,7 +2517,7 @@ docker compose ps`,
           {
             type: 'simple-box',
             emoji: '🔬',
-            content: 'Docker, QA çalışmasını dönüştürür. "Her CI agent\'ına Chrome kur" yerine tek komutla taze browser. "Test veritabanı kur" yerine tek komutla temiz PostgreSQL. Tüm test ortamın taşınabilir, tekrarlanabilir ve tek kullanımlık hale gelir.',
+            content: 'Docker, test ortamını yıkayıp tekrar kullanman gereken bir bardak yerine, tek kullanımlık bir kağıt bardağa çevirir. Taze browser mı lazım? Tek komutla Chrome ayağa kalkar. Temiz veritabanı mı lazım? Tek komutla bir kez kullanılıp atılan, sıfırdan bir PostgreSQL gelir. Peki neden var olan test veritabanını her seferinde yeniden kurmak yerine basitçe sıfırlayan bir script kullanmıyoruz? Çünkü bir "reset" script\'i sadece SENİN bildiğin satırları temizler — önceki başarısız bir testten kalan bir index, schema sapması veya unutulmuş bir geçici tablo görünmeden hayatta kalır ve bir sonraki koşumu kirletir. Bu, statik bir Java test fixture\'ını @Test metodları arasında yeniden initialize etmeden tekrar kullanmakla aynı tuzaktır: state görünmeden sızar. QA tarafındaki somut kazanç şu: "benim makinemde çalışıyordu" tipi flaky bir test, neredeyse her zaman CI agent\'ındaki Chrome sürümünün veya DB schema\'sının senden sessizce sapmış olmasından kaynaklanır — tek kullanımlık container\'lar bu değişkeni tamamen ortadan kaldırır.',
           },
           { type: 'heading', text: 'Docker Compose ile Selenium Grid' },
           {
@@ -2765,7 +2765,7 @@ options.add_argument('--disable-dev-shm-usage')`,
       {
         title: '🔗 Ekosistem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "Tek bir Docker container'ı, bir kamyondaki tek bir konteyner gibidir — kullanışlıdır ama gerçek güç limanda ortaya çıkar: otomatik yükleme/boşaltma yapan vinçler (Kubernetes), hangi geminin nereye gideceğine karar veren bir dispeçer (Jenkins/CI), ve oradan geçen her container'ı kayıt altına alan bir defter (Docker Hub gibi bir registry)." },
+          { type: 'simple-box', emoji: '🔗', content: "Tek bir Docker container'ı, bir kamyondaki tek bir konteyner gibidir — kullanışlıdır ama gerçek güç limanda ortaya çıkar: otomatik yükleme/boşaltma yapan vinçler (Kubernetes), hangi geminin nereye gideceğine karar veren bir dispeçer (Jenkins/CI), ve oradan geçen her container'ı kayıt altına alan bir defter (Docker Hub gibi bir registry). Peki bir container zaten uygulamanı çalıştırıyorsa, neden onu üç sistemle daha sarmalayıp daha büyük bir sunucuda 'docker run' çalıştırmıyoruz? Çünkü tek başına bir container'ın geçmiş versiyonlara dair hafızası, otomatik restart politikası ve deploy sırasında dokuz aynı kardeşiyle koordine olma yeteneği yoktur — tıpkı tek bir Java nesnesi ile onun yaşam döngüsünü, wiring'ini ve recovery'sini senin yerine yöneten framework (örneğin Spring'in ApplicationContext'i) arasındaki fark gibi. Gerçek bir pipeline'da registry katmanını atlamak, bir test mühendisinin bir bug'ı tekrar üretemediği klasik incident'a yol açar: 'latest' image tag'i, dünkü build'den bugün sessizce farklı bir build'e işaret ediyordur." },
           { type: 'heading', text: 'Docker Büyük Resme Nasıl Uyuyor' },
           { type: 'text', content: 'Tek başına Docker, tek bir makinede tek bir container build edip çalıştırır. QA/DevOps pipeline\'ındaki gerçek değeri dört sisteme bağlanmasından gelir: her push\'ta image build edip test eden bir CI/CD aracı, bu image\'ları saklayıp versiyonlayan bir registry, container\'ları makineler arasında güvenilir şekilde çalıştıran bir orkestratör, ve containerized uygulamanın çalışma zamanında konuştuğu bir mesaj broker\'ı veya veritabanı.' },
           {

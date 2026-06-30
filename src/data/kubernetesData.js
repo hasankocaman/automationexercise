@@ -970,7 +970,7 @@ export const kubernetesData = {
           {
             type: 'simple-box',
             emoji: '☸️',
-            content: 'Kubernetes is like a smart shipping manager at a huge port. You don\'t tell each crane operator what to do step by step — you just say "I need 10 containers of goods delivered, always keep at least 5 ships loaded, and if one crane breaks, use another." Kubernetes does exactly this for your Docker containers: you declare what you want, and it figures out how to make it happen.',
+            content: "Kubernetes is a smart shipping manager at a huge port: you don't tell each crane operator what to do step by step, you just declare 'I need 10 containers of goods delivered, always keep at least 5 ships loaded, and if one crane breaks, use another' — and the port figures out how to make it happen. Kubernetes does exactly this for your Docker containers: you declare the desired state, not the steps to get there. So why declare the GOAL instead of scripting the steps yourself, the way a shell script chains 'docker run' commands? Because a script that says 'start 5 containers' has no idea what to do when one crashes at 3am — it already finished running. Kubernetes' control loop keeps checking 'is reality matching the declaration?' forever, the same way a Java `@Scheduled` health-check job keeps re-verifying state instead of running once and trusting it stays true. For a QA engineer, this is the difference between a flaky staging environment that silently drifts from its intended config over weeks, and one where Kubernetes self-heals back to the declared state the moment a pod dies.",
           },
           {
             type: 'text',
@@ -1090,7 +1090,7 @@ export const kubernetesData = {
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'For learning and local development you do NOT need a real cloud cluster. minikube creates a single-node K8s cluster on your laptop in minutes. For production, cloud providers (AWS EKS, Google GKE, Azure AKS) manage the Control Plane for you. Start with minikube, learn concepts, then move to cloud.',
+            content: "For learning and local development you do NOT need a real cloud cluster — minikube creates a single-node K8s cluster on your laptop in minutes. For production, cloud providers (AWS EKS, Google GKE, Azure AKS) manage the Control Plane for you instead. So why not just learn directly on a cloud cluster since that's what production actually uses? Because a cloud cluster costs money per hour and takes minutes to provision, while minikube boots locally in seconds and costs nothing to break — the same reason a Java developer runs unit tests against an in-memory H2 database before ever touching the real Postgres instance. The concepts (Pods, Services, Deployments) are IDENTICAL on minikube and EKS; only who manages the Control Plane changes. The QA risk worth knowing: a 'works on minikube' deployment can still fail on a real cloud cluster if it depends on node-specific storage or networking minikube doesn't enforce — always validate the YAML against a real cluster before calling it production-ready.",
           },
           { type: 'heading', text: 'Local vs Cloud Options' },
           {
@@ -1348,7 +1348,7 @@ eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'Think of a Kubernetes cluster as a company. The Control Plane is the management floor — CEO (API Server), memory/HR (etcd), scheduler (assigns tasks), and managers (controllers). The Worker Nodes are the actual offices where work happens — each has a supervisor (kubelet), mailroom (kube-proxy), and employees (containers in pods).',
+            content: "Think of a Kubernetes cluster as a company: the Control Plane is the management floor — CEO (API Server), memory/HR (etcd), scheduler (assigns tasks), managers (controllers) — while the Worker Nodes are the actual offices where work happens, each with a supervisor (kubelet), mailroom (kube-proxy), and employees (containers in pods). So why split 'decide what should happen' (Control Plane) from 'actually do the work' (Worker Nodes) instead of one component doing both? Because a single point that both decides AND executes can't keep deciding while it's busy executing — split the roles, and the company keeps making decisions (rescheduling a crashed pod) even while individual offices are under repair. It mirrors why a well-designed Java service separates its orchestration layer (a scheduler/coordinator) from its worker threads instead of doing everything on one thread. In production, this split is exactly why a single Worker Node going down doesn't take your whole cluster's decision-making down with it — the Control Plane just reschedules the affected pods elsewhere.",
           },
           {
             type: 'diagram-svg',
@@ -1563,7 +1563,7 @@ eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
           {
             type: 'simple-box',
             emoji: '🫘',
-            content: 'A Pod is like a shipping container (the physical box, not Docker). A Docker container is the goods inside. One pod usually has one container, but can have multiple containers that need to share network and storage — like a main app and a logging sidecar.',
+            content: "A Pod is the shipping container itself (the physical box, not the Docker concept) — the Docker container is the goods packed inside it. One Pod usually wraps one container, but can hold multiple containers that need to share network and storage, like a main app and a logging sidecar riding in the same box. So why does Kubernetes wrap containers in an extra layer (the Pod) instead of scheduling Docker containers directly? Because some things genuinely need to be scheduled, networked, and scaled together as one atomic unit — a sidecar that ships logs has no reason to exist on a different node than the app it's logging. It's the same reasoning behind a Java service bundling tightly-coupled helper threads into one process instead of deploying them as separate independently-scheduled services. The QA-relevant gotcha: containers WITHIN one Pod share localhost networking, so a test that assumes 'each container needs its own service to be reachable' will write unnecessary Service objects — and a Pod restart kills every container inside it together, not just the one that crashed.",
           },
           {
             type: 'grid',
@@ -1821,7 +1821,7 @@ spec:
           {
             type: 'simple-box',
             emoji: '⌨️',
-            content: 'kubectl is the CLI tool for talking to your Kubernetes cluster. Think of it as the remote control — you type commands and the API Server executes them. Every kubectl command goes through the API Server.',
+            content: "kubectl is the remote control for your cluster — you type a command, and it's the API Server, not kubectl itself, that actually executes it. Every single kubectl command, no exceptions, goes through the API Server. So why funnel even read-only commands like `kubectl get pods` through the API Server instead of letting kubectl talk to nodes directly? Because the API Server is the cluster's single source of truth and single security checkpoint — if kubectl could bypass it, every client would need its own authentication, authorization, and audit logic duplicated, the same risk a Java team takes when a service talks directly to another service's database instead of going through its API. This centralization is exactly why `kubectl logs <pod>` from your laptop can show you what's happening on a node thousands of miles away in a cloud datacenter, and why a leaked kubeconfig file is as dangerous as a leaked root password — it IS the key to that single checkpoint.",
           },
           { type: 'heading', text: 'Getting Information' },
           {
@@ -2030,7 +2030,7 @@ kubens production   # switches to production namespace`,
           {
             type: 'simple-box',
             emoji: '📝',
-            content: 'In Kubernetes, everything is described as YAML files called "manifests." Think of YAML as a letter you write to Kubernetes: "Dear K8s, please run 3 copies of my app, connect them to port 8080, and make sure they are always healthy." YAML indentation with 2 spaces is strictly required — wrong indentation = error.',
+            content: "In Kubernetes, everything is described as YAML files called 'manifests' — think of YAML as a letter you write to the cluster: 'Dear K8s, please run 3 copies of my app, connect them to port 8080, and make sure they stay healthy.' YAML indentation with 2 spaces is strictly required; wrong indentation breaks the letter. So why declarative YAML instead of an imperative script that runs `kubectl create` commands in sequence? Because a script describes STEPS, and steps go stale — re-running it twice might try to create the same Deployment twice and fail. A YAML manifest describes the DESIRED STATE, so applying it 100 times produces the same result as applying it once (`kubectl apply` is idempotent) — the same principle behind a Java REST API designing PUT as idempotent while POST is not. The QA risk: a manifest with broken indentation often doesn't fail loudly — it can silently parse into a DIFFERENT structure than intended (a field nested one level too deep gets ignored), which is why `kubectl apply --dry-run=client` before every real apply is a non-negotiable habit, not a nice-to-have.",
           },
           { type: 'heading', text: 'YAML Structure — Every K8s Object Has 4 Root Fields' },
           {
@@ -2233,7 +2233,7 @@ spec:
           {
             type: 'simple-box',
             emoji: '🔗',
-            content: 'Kubernetes is not a standalone tool — it is the hub of a modern DevOps ecosystem. Understanding how K8s connects with Docker, Jenkins, Kafka, and Helm is what separates a basic K8s user from a Senior DevOps/QA Engineer. These tools form a complete software delivery pipeline.',
+            content: "Kubernetes is not a standalone tool — it's the hub of a modern DevOps ecosystem, and understanding how it connects to Docker, Jenkins, Kafka, and Helm is exactly what separates a basic K8s user from a Senior DevOps/QA Engineer. So why does Kubernetes need all these other tools instead of doing everything itself (build images, run CI, manage messaging, template YAML)? Because Kubernetes's one job is running and healing containers reliably — bolting build, CI, messaging, and templating logic onto it would violate the same single-responsibility principle a Java architect applies when refusing to let one class also be its own database, scheduler, and logger. Docker builds the image, Jenkins decides WHEN to deploy it, Helm templates HOW it's deployed, Kafka lets the running pods talk to each other asynchronously — and Kubernetes just keeps whatever was declared, running. In a real incident, not knowing this boundary is how a team wastes hours debugging 'why is my pod unhealthy' when the real bug is in the Jenkins pipeline that built a broken image in the first place.",
           },
           { type: 'heading', text: 'Docker ↔ Kubernetes: The Foundation' },
           {
@@ -2421,7 +2421,7 @@ EOF`,
           {
             type: 'simple-box',
             emoji: '⚓',
-            content: 'Helm is like Maven/Gradle for Kubernetes. Instead of writing 10 YAML files to deploy Prometheus monitoring, you run: helm install monitoring prometheus-community/kube-prometheus-stack and it handles everything. A Helm Chart is a pre-packaged K8s application — like a Maven dependency but for infrastructure.',
+            content: "Helm is Maven/Gradle for Kubernetes: instead of hand-writing 10 YAML files to deploy Prometheus monitoring, you run `helm install monitoring prometheus-community/kube-prometheus-stack` and it handles everything. A Helm Chart is a pre-packaged K8s application — a Maven dependency, but for infrastructure instead of code. So why not just keep copy-pasting and tweaking raw YAML files between projects? Because raw YAML has no concept of versions, dependencies, or parameterization — exactly the problem Maven solved for Java by replacing manually-downloaded JARs with a `pom.xml` that declares versions and lets you override settings per environment. A Helm `values.yaml` is that override file: same Chart, different replica count or resource limits for staging vs. production. The QA payoff: when a `helm upgrade` goes wrong, `helm rollback` reverts the entire release atomically — no hunting through which of 10 YAML files changed and manually reverting each one by hand.",
           },
           {
             type: 'code',
@@ -2517,7 +2517,7 @@ helm uninstall monitoring -n monitoring`,
           {
             type: 'simple-box',
             emoji: '🚀',
-            content: 'This section walks you through a complete real-world scenario: deploying a Spring Boot REST API to Kubernetes from scratch. Follow every command step-by-step. By the end you will have a running, scaled, production-grade deployment — not just theory.',
+            content: "This section walks you through a complete real-world scenario — deploying a Spring Boot REST API to Kubernetes from scratch — the same way a flight simulator walks a pilot through an actual cockpit instead of a slideshow about cockpits. Follow every command step by step; by the end you'll have a running, scaled, production-grade deployment, not just theory. So why insist on hands-on commands instead of just reading the YAML and trusting you understand it? Because Kubernetes errors are famously indirect — a typo in a Service's selector doesn't throw 'wrong selector', it just silently routes zero traffic to your pods, and you only catch that by actually running `kubectl get endpoints` and seeing an empty list. It's the same gap between reading about Java's `equals`/`hashCode` contract and actually breaking a `HashMap` lookup by forgetting to override `hashCode` — the theory is identical, but only running it reveals the silent failure mode. In a real QA role, this exact debugging path (deploy → service not reachable → check endpoints → check selector) is what you do during your first production incident, so practicing it now, deliberately, is the entire point.",
           },
           { type: 'heading', text: 'Scenario: Deploy Spring Boot App to Kubernetes' },
           {
@@ -2907,7 +2907,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
           {
             type: 'simple-box',
             emoji: '☸️',
-            content: 'Kubernetes, büyük bir limandaki akıllı bir nakliye yöneticisi gibidir. Her vinç operatörüne adım adım ne yapacağını söylemezsin — sadece "10 kargo container\'ı teslim edilsin, en az 5 gemi her zaman yüklü olsun, bir vinç bozulursa diğerini kullan" dersin. Kubernetes, Docker container\'larında tam olarak bunu yapar: ne istediğini tanımlarsın, nasıl yapılacağını o bulur.',
+            content: 'Kubernetes, büyük bir limandaki akıllı bir nakliye yöneticisidir: her vinç operatörüne adım adım ne yapacağını söylemezsin, sadece "10 kargo container\'ı teslim edilsin, en az 5 gemi her zaman yüklü olsun, bir vinç bozulursa diğerini kullan" diye tanımlarsın — ve liman bunu nasıl yapacağını kendisi bulur. Kubernetes, Docker container\'larında tam olarak bunu yapar: adımları değil, istenen durumu (desired state) tanımlarsın. Peki neden adımları kendin script\'lemek yerine (bir shell script\'in "docker run" komutlarını zincirlemesi gibi) sadece HEDEFİ tanımlıyoruz? Çünkü "5 container başlat" diyen bir script, biri gece 3\'te çökünce ne yapacağını bilmez — zaten çalışmasını bitirmiştir. Kubernetes\'in kontrol döngüsü ise "gerçeklik tanımladığım duruma uyuyor mu?" sorusunu sonsuza dek sormaya devam eder — tıpkı bir Java `@Scheduled` health-check job\'unun, bir kez çalışıp durumun öyle kalacağına güvenmek yerine durumu sürekli yeniden doğrulaması gibi. Bir QA mühendisi için bu, haftalar içinde hedeflenen yapılandırmadan sessizce sapan flaky bir staging ortamı ile bir pod öldüğü anda Kubernetes\'in tanımlanan duruma kendi kendine geri döndüğü bir ortam arasındaki farktır.',
           },
           {
             type: 'text',
@@ -3037,7 +3037,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Öğrenme ve yerel geliştirme için gerçek bir bulut cluster\'ına ihtiyacınız yok. minikube, laptop\'ınızda birkaç dakikada tek-node\'lu bir K8s cluster\'ı oluşturur. Production için AWS EKS, Google GKE, Azure AKS gibi cloud provider\'lar Control Plane\'i sizin için yönetir. minikube\'la başla, kavramları öğren, sonra cloud\'a geç.',
+            content: 'Öğrenme ve yerel geliştirme için gerçek bir bulut cluster\'ına ihtiyacınız YOK — minikube, laptop\'ınızda birkaç dakikada tek-node\'lu bir K8s cluster\'ı oluşturur. Production için ise AWS EKS, Google GKE, Azure AKS gibi cloud provider\'lar Control Plane\'i sizin yerinize yönetir. Peki production\'da kullanılan asıl şey buysa, neden doğrudan bir cloud cluster\'da öğrenmiyoruz? Çünkü bir cloud cluster saat başına para tutar ve provision olması dakikalar sürer, minikube ise yerelde saniyeler içinde açılır ve kırmanın bedeli sıfırdır — tıpkı bir Java developer\'ın gerçek Postgres\'e dokunmadan önce unit testleri bellek-içi bir H2 veritabanına karşı çalıştırmasındaki mantık gibi. Kavramlar (Pod\'lar, Service\'ler, Deployment\'lar) minikube\'da ve EKS\'te BİREBİR AYNIDIR; sadece Control Plane\'i kimin yönettiği değişir. Bilinmesi gereken QA riski şu: "minikube\'da çalışıyor" bir deployment, node\'a özgü storage veya networking\'e bağımlıysa ve minikube bunu zorunlu kılmıyorsa, gerçek bir cloud cluster\'da yine de başarısız olabilir — production\'a hazır demeden önce her zaman gerçek bir cluster\'a karşı doğrula.',
           },
           { type: 'heading', text: 'Yerel vs Cloud Seçenekleri' },
           {
@@ -3210,7 +3210,7 @@ kubectl delete deployment hello-nginx # Temizlik`,
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'Kubernetes cluster\'ını bir şirket gibi düşün. Control Plane yönetim katıdır — CEO (API Server), hafıza/İK (etcd), planlayıcı (görev atar), yöneticiler (controller\'lar). Worker Node\'lar ise işin gerçekten yapıldığı ofislerdir — her birinde sorumlu (kubelet), posta odası (kube-proxy) ve çalışanlar (pod\'lardaki container\'lar) vardır.',
+            content: 'Kubernetes cluster\'ını bir şirket gibi düşün: Control Plane yönetim katıdır — CEO (API Server), hafıza/İK (etcd), planlayıcı (görev atar), yöneticiler (controller\'lar) — Worker Node\'lar ise işin gerçekten yapıldığı ofislerdir, her birinde sorumlu (kubelet), posta odası (kube-proxy) ve çalışanlar (pod\'lardaki container\'lar) vardır. Peki "neyin olması gerektiğine karar verme" (Control Plane) ile "işi gerçekten yapma" (Worker Node\'lar) neden tek bir bileşene değil de ayrı bileşenlere bölünüyor? Çünkü hem karar veren hem de uygulayan tek bir nokta, uygulamayla meşgulken karar vermeye devam edemez — rolleri ayırınca şirket, tek tek ofisler tamir altındayken bile karar vermeye (çökmüş bir pod\'u yeniden zamanlamaya) devam eder. Bu, iyi tasarlanmış bir Java servisinin her şeyi tek bir thread\'de yapmak yerine orkestrasyon katmanını (bir scheduler/coordinator) worker thread\'lerinden ayırmasıyla aynı mantıktır. Production\'da bu ayrım, tek bir Worker Node\'un çökmesinin tüm cluster\'ın karar verme mekanizmasını da düşürmemesinin tam olarak sebebidir — Control Plane etkilenen pod\'ları başka yere yeniden zamanlar.',
           },
           {
             type: 'diagram-svg',
@@ -3433,7 +3433,7 @@ kubectl get pods
           {
             type: 'simple-box',
             emoji: '🫘',
-            content: 'Pod, bir nakliye container\'ı gibidir (fiziksel kutu, Docker container değil). Docker container ise içindeki yüktür. Genellikle bir pod\'da bir container bulunur; ancak ağ ve depolama paylaşması gereken birden fazla container da olabilir — ana uygulama ve bir loglama sidecar gibi.',
+            content: 'Pod, nakliye container\'ının ta kendisidir (fiziksel kutu, Docker kavramı değil) — Docker container ise içine paketlenen yüktür. Genellikle bir Pod tek bir container\'ı sarar, ama ağ ve depolama paylaşması gereken birden fazla container\'ı da barındırabilir — aynı kutuda yolculuk eden bir ana uygulama ve bir loglama sidecar gibi. Peki Kubernetes neden Docker container\'larını doğrudan zamanlamak yerine onları ekstra bir katmana (Pod) sarıyor? Çünkü bazı şeylerin gerçekten birlikte zamanlanması, ağa bağlanması ve ölçeklenmesi gerekir tek bir atomik birim olarak — logları gönderen bir sidecar\'ın, logladığı uygulamadan farklı bir node\'da olmasının hiçbir anlamı yoktur. Bu, bir Java servisinin sıkı sıkıya bağlı yardımcı thread\'lerini ayrı, bağımsız zamanlanan servisler olarak deploy etmek yerine tek bir process içinde bir araya getirmesiyle aynı mantıktır. QA açısından önemli bir tuzak: AYNI Pod İÇİNDEKİ container\'lar localhost networking\'i paylaşır, yani "her container\'ın erişilebilir olması için kendi service\'i gerekir" varsayan bir test, gereksiz Service nesneleri yazar — ayrıca bir Pod restart\'ı, sadece çöken container\'ı değil, içindeki TÜM container\'ları birlikte öldürür.',
           },
           {
             type: 'grid',
@@ -3692,7 +3692,7 @@ spec:
           {
             type: 'simple-box',
             emoji: '⌨️',
-            content: 'kubectl, Kubernetes cluster\'ınla konuşmak için kullanılan CLI aracıdır. Uzaktan kumanda gibi — komut yazarsın, API Server çalıştırır. Her kubectl komutu API Server\'dan geçer.',
+            content: 'kubectl, cluster\'ın uzaktan kumandasıdır — bir komut yazarsın ama onu gerçekten çalıştıran kubectl\'in kendisi değil, API Server\'dır. İstisnasız her kubectl komutu API Server\'dan geçer. Peki `kubectl get pods` gibi salt-okunur bir komutu bile neden node\'larla doğrudan konuşmak yerine API Server üzerinden yönlendiriyoruz? Çünkü API Server, cluster\'ın tek doğruluk kaynağı ve tek güvenlik kontrol noktasıdır — kubectl bunu atlayabilseydi, her client kendi authentication, authorization ve audit mantığını tekrar uygulamak zorunda kalırdı; bu, bir servisin başka bir servisin veritabanına API\'sini atlayarak doğrudan bağlanmasıyla aynı riski taşır. Bu merkezileşme, tam olarak laptop\'ından çalıştırdığın `kubectl logs <pod>` komutunun, bir bulut veri merkezindeki binlerce kilometre uzaktaki bir node\'da neler olduğunu sana gösterebilmesinin ve sızdırılmış bir kubeconfig dosyasının sızdırılmış bir root şifresi kadar tehlikeli olmasının sebebidir — çünkü o, tam olarak o tek kontrol noktasının anahtarıdır.',
           },
           { type: 'heading', text: 'Bilgi Alma' },
           {
@@ -3867,7 +3867,7 @@ kubectl rollout history deployment/uygulama`,
           {
             type: 'simple-box',
             emoji: '📝',
-            content: 'Kubernetes\'te her şey "manifest" adı verilen YAML dosyaları olarak tanımlanır. YAML\'ı Kubernetes\'e yazdığın bir mektup gibi düşün: "Sevgili K8s, lütfen uygulamamın 3 kopyasını çalıştır, 8080 portuna bağla ve her zaman sağlıklı olduklarından emin ol." YAML girintisi kesinlikle 2 boşluk olmalıdır — yanlış girinti = hata.',
+            content: 'Kubernetes\'te her şey "manifest" adı verilen YAML dosyaları olarak tanımlanır — YAML\'ı cluster\'a yazdığın bir mektup gibi düşün: "Sevgili K8s, lütfen uygulamamın 3 kopyasını çalıştır, 8080 portuna bağla ve sağlıklı kalmalarını sağla." YAML girintisi kesinlikle 2 boşluk olmalıdır; yanlış girinti mektubu bozar. Peki `kubectl create` komutlarını sırayla çalıştıran imperative bir script yerine neden declarative YAML kullanıyoruz? Çünkü bir script ADIMLARI tarif eder ve adımlar eskir — onu iki kez çalıştırmak aynı Deployment\'ı iki kez oluşturmaya çalışıp başarısız olabilir. Bir YAML manifest ise İSTENEN DURUMU tarif eder, bu yüzden onu 100 kez uygulamak bir kez uygulamakla aynı sonucu verir (`kubectl apply` idempotent\'tir) — bu, bir Java REST API\'sinin PUT\'u idempotent tasarlarken POST\'u tasarlamamasıyla aynı prensiptir. QA riski şu: bozuk girintili bir manifest genellikle gürültülü bir şekilde başarısız olmaz — sessizce amaçlanandan FARKLI bir yapıya parse edilebilir (bir seviye fazla içeri girintilenmiş bir alan görmezden gelinir); bu yüzden her gerçek apply\'dan önce `kubectl apply --dry-run=client` çalıştırmak güzel bir ekstra değil, vazgeçilmez bir alışkanlıktır.',
           },
           { type: 'heading', text: 'YAML Yapısı — Her K8s Nesnesi 4 Kök Alana Sahiptir' },
           {
@@ -4040,7 +4040,7 @@ spec:
           {
             type: 'simple-box',
             emoji: '🔗',
-            content: 'Kubernetes tek başına bir araç değil — modern DevOps ekosisteminin merkezidir. K8s\'nin Docker, Jenkins, Kafka ve Helm ile nasıl bağlandığını anlamak, sizi temel K8s kullanıcısından Senior DevOps/QA Engineer\'a taşır. Bu araçlar birlikte tam bir yazılım teslimat hattı oluşturur.',
+            content: 'Kubernetes tek başına bir araç değil — modern DevOps ekosisteminin merkezidir, ve K8s\'nin Docker, Jenkins, Kafka ve Helm ile nasıl bağlandığını anlamak, seni temel K8s kullanıcısından Senior DevOps/QA Engineer\'a taşıyan tam olarak budur. Peki Kubernetes neden tüm bunları kendisi yapmıyor da (image build et, CI çalıştır, mesajlaşmayı yönet, YAML şablonla) bu kadar başka araca ihtiyaç duyuyor? Çünkü Kubernetes\'in tek işi container\'ları güvenilir şekilde çalıştırmak ve iyileştirmektir — build, CI, mesajlaşma ve şablonlama mantığını ona eklemek, bir Java mimarının tek bir class\'ın aynı zamanda kendi veritabanı, scheduler\'ı ve logger\'ı olmasına izin vermeyi reddetmesindeki aynı single-responsibility prensibini ihlal eder. Docker image\'ı inşa eder, Jenkins NE ZAMAN deploy edileceğine karar verir, Helm NASIL deploy edileceğini şablonlar, Kafka çalışan pod\'ların birbiriyle asenkron konuşmasını sağlar — Kubernetes ise sadece tanımlanan şeyi çalışır halde tutar. Gerçek bir incident\'ta bu sınırı bilmemek, bir ekibin gerçek bug Jenkins pipeline\'ının bozuk bir image inşa etmesindeyken saatlerce "neden pod\'um sağlıksız" diye debug etmesine yol açar.',
           },
           { type: 'heading', text: 'Docker ↔ Kubernetes: Temel' },
           {
@@ -4207,7 +4207,7 @@ EOF`,
           {
             type: 'simple-box',
             emoji: '⚓',
-            content: 'Helm, Kubernetes için Maven/Gradle gibidir. Prometheus monitoring\'i deploy etmek için 10 YAML dosyası yazmak yerine sadece: helm install monitoring prometheus-community/kube-prometheus-stack çalıştırırsın. Helm Chart, Maven dependency gibi önceden paketlenmiş K8s uygulamasıdır.',
+            content: 'Helm, Kubernetes için Maven/Gradle\'dır: Prometheus monitoring\'i deploy etmek için elle 10 YAML dosyası yazmak yerine sadece `helm install monitoring prometheus-community/kube-prometheus-stack` çalıştırırsın ve gerisini o halleder. Helm Chart, önceden paketlenmiş bir K8s uygulamasıdır — kod yerine altyapı için bir Maven dependency\'si gibi. Peki neden projeler arasında ham YAML dosyalarını kopyalayıp düzenlemeye devam etmiyoruz? Çünkü ham YAML\'ın versiyon, bağımlılık veya parametrizasyon kavramı yoktur — Maven\'in Java için elle indirilen JAR\'lar yerine versiyonları tanımlayan ve ortam başına ayar değiştirmeni sağlayan bir `pom.xml` ile çözdüğü tam olarak aynı sorun. Bir Helm `values.yaml` dosyası tam olarak o override dosyasıdır: aynı Chart, staging ile production için farklı replica sayısı veya kaynak limitleri. QA kazancı şu: bir `helm upgrade` ters giderse, `helm rollback` tüm release\'i atomik olarak geri alır — 10 YAML dosyasından hangisinin değiştiğini araştırıp her birini elle geri almak yerine.',
           },
           {
             type: 'code',
@@ -4274,7 +4274,7 @@ helm uninstall monitoring -n monitoring`,
           {
             type: 'simple-box',
             emoji: '🚀',
-            content: 'Bu bölüm sizi gerçek bir senaryodan geçirir: Spring Boot REST API\'sini sıfırdan Kubernetes\'e deploy etmek. Her komutu adım adım takip edin. Sonunda çalışan, scale edilebilir, production-grade bir deployment\'ınız olacak — sadece teori değil.',
+            content: 'Bu bölüm seni gerçek bir senaryodan geçirir — bir Spring Boot REST API\'sini sıfırdan Kubernetes\'e deploy etmek — tıpkı bir uçuş simülatörünün bir pilotu kokpit hakkında bir slayt sunumu yerine gerçek bir kokpitten geçirmesi gibi. Her komutu adım adım takip et; sonunda çalışan, scale edilebilir, production-grade bir deployment\'ın olacak, sadece teori değil. Peki YAML\'ı okuyup anladığına güvenmek yerine neden elle komut çalıştırmakta ısrar ediyoruz? Çünkü Kubernetes hataları meşhur şekilde dolaylıdır — bir Service\'in selector\'ındaki bir yazım hatası "yanlış selector" diye bir hata fırlatmaz, sadece pod\'larına sessizce sıfır trafik yönlendirir, ve bunu ancak gerçekten `kubectl get endpoints` çalıştırıp boş bir liste görerek fark edersin. Bu, Java\'nın `equals`/`hashCode` sözleşmesi hakkında okumak ile `hashCode`\'u override etmeyi unutarak bir `HashMap` lookup\'ını gerçekten bozmak arasındaki farkla aynıdır — teori birebir aynıdır ama sessiz hata modunu ancak çalıştırmak ortaya çıkarır. Gerçek bir QA rolünde, bu tam debug yolu (deploy et → service\'e erişilemiyor → endpoint\'leri kontrol et → selector\'ı kontrol et) ilk production incident\'ında yapacağın şeydir, bu yüzden şimdi bunu bilinçli olarak pratik etmek tam olarak bu bölümün amacıdır.',
           },
           { type: 'heading', text: 'Senaryo: Spring Boot Uygulamasını K8s\'e Deploy Et' },
           {

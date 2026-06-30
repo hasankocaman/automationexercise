@@ -350,8 +350,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛡️",
             "content": {
-              "tr": "TypeScript, emniyet kemeri takılmış bir araba gibidir. JavaScript ise kemersiz hız yapmaktır — kaza anında (hata durumunda) emniyet kemeri hayat kurtarır ve sizi korur.",
-              "en": "TypeScript is like a car with a seatbelt fastened. JavaScript is speeding without a belt — the seatbelt saves your life and protects you during an accident (error)."
+              "tr": "TypeScript, emniyet kemeri takılmış bir araba gibidir; JavaScript ise aynı arabayı kemersiz sürmektir — her ikisi de aynı hızda gidebilir, fark ancak kaza anında (çalışma zamanı hatasında) ortaya çıkar. Peki JavaScript zaten çalışıyorsa, neden fazladan bir kemer takma zahmetine girilsin? Çünkü kemer kazayı önlemez, kazanın ölümcül olmasını önler — TypeScript de hatayı engellemez, hatanın kullanıcıya ulaşmadan, derleme anında yakalanmasını sağlar; Java zaten doğuştan kemerli gelir (statik tip denetimi zorunludur), TypeScript bu kemeri sonradan JavaScript'e takan bir ek parçadır. QA'da bunun karşılığı şudur: kemersiz (plain JS) bir test paketinde bir fonksiyona yanlış tipte parametre geçtiğinizde test genelde 'geçti' der ama içeride sessizce yanlış çalışır; kemerli (TypeScript) pakette aynı hata, testi siz hiç çalıştırmadan kırmızı çizgiyle IDE'de görünür.",
+              "en": "TypeScript is like a car with the seatbelt fastened; JavaScript is driving the same car without one — both can go the same speed, the difference only shows up at the moment of a crash (a runtime error). So if JavaScript already runs fine, why bother with the extra seatbelt? Because a seatbelt doesn't prevent the crash, it prevents the crash from being fatal — TypeScript doesn't prevent the bug, it makes sure the bug is caught at compile time, before it ever reaches a user; Java is born with the seatbelt already on (static type checking is mandatory), and TypeScript is the add-on part that retrofits that same belt onto JavaScript. In QA this plays out concretely: in a seatbelt-less (plain JS) test suite, passing the wrong type of argument to a function often still reports the test as 'passed' while it misbehaves silently underneath; in a TypeScript suite, the same mistake shows up as a red squiggle in the IDE before the test is ever run."
             }
           },
           {
@@ -856,16 +856,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛠️",
             "content": {
-              "tr": "Node.js kurmak, mutfağa su ve gaz tesisatı çekmek gibidir. TypeScript ise bu mutfağa aldığınız akıllı kahve makinesi gibidir — çalışması için altyapıya ihtiyaç duyar.",
-              "en": "Installing Node.js is like laying down water and gas pipes in a kitchen. TypeScript is like the smart espresso machine you buy — it needs that infrastructure to run."
+              "tr": "Node.js kurmak, bir mutfağa su ve gaz tesisatı çekmek gibidir; TypeScript ise o mutfağa sonradan koyduğunuz akıllı kahve makinesidir — makine kendi başına çalışmaz, suyu ve gazı sağlayan altyapıya ihtiyaç duyar. Peki TypeScript koddur, neden çalışmak için ayrıca Node.js'e ihtiyaç duysun? Çünkü TypeScript tarayıcının veya Node'un anlayacağı bir dil değildir, sadece JavaScript'e dönüşmek (derlenmek/transpile edilmek) üzere yazılmış bir kaynak koddur — tıpkı Java kaynak kodunun JVM'de çalışmadan önce `.class` byte code'a derlenmesi gibi, TypeScript de `tsc` ile JavaScript'e derlenir ve asıl çalışan motor (Node.js veya tarayıcı) hep JavaScript'tir. QA'da bu ayrım önemlidir: bir CI pipeline'ında 'Node.js kurulu ama TypeScript derleyicisi (`tsc` veya `ts-node`) eksik' gibi bir hata aldığınızda, sorun Node'da değil, kahve makinesinin fişinin takılı olmamasındadır — yani derleme adımının pipeline'a hiç eklenmemiş olmasındadır.",
+              "en": "Installing Node.js is like running the water and gas lines into a kitchen; TypeScript is the smart espresso machine you later add to that kitchen — the machine can't run on its own, it needs the infrastructure that supplies water and gas. So if TypeScript is code, why does it need Node.js at all to run? Because TypeScript isn't a language the browser or Node understands directly — it's source code meant to be compiled (transpiled) down to JavaScript, the same way Java source code compiles to `.class` bytecode before the JVM can run it; TypeScript compiles to JavaScript via `tsc`, and the engine that actually executes anything (Node.js or the browser) is always JavaScript underneath. This distinction matters in QA: when a CI pipeline errors with something like 'Node.js is installed but the TypeScript compiler (`tsc` or `ts-node`) is missing,' the problem isn't Node — it's that the espresso machine was never plugged in, meaning the compile step was simply never added to the pipeline."
             }
           },
           {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "tsconfig.json dosyası, bir akıllı cihazın Türkçe/İngilizce kullanım kılavuzu ve ayar menüsü gibidir. Cihazın hangi kurallarla çalışacağını buradan seçersiniz.",
-              "en": "The tsconfig.json file is like the user manual and settings menu of a smart device. You configure the compilation rules and strictness options there."
+              "tr": "tsconfig.json dosyası, yeni aldığınız bir cihazın ayar menüsü gibidir — 'sıkı mod' (strict) açıksa cihaz size her şüpheli kullanımda uyarı verir, kapalıysa sessizce ne verirseniz onu yapar. Peki bu ayarları varsayılan bırakmak yerine neden elle düzenlemek gerekir? Çünkü `strict: false` ile başlayan bir proje, Java'da hiçbir derleyici uyarısı almadan `Object` tipiyle her şeyi geçiştirmeye benzer — kısa vadede kolay ama hata, derleme anında değil çalışma zamanında patlar; `strict: true` ise Java'nın doğuştan sahip olduğu zorunlu tip denetimini TypeScript'e geri kazandırır. QA'da bunun maliyeti somuttur: strict mod kapalı bir test projesinde `null` veya `undefined` bir elemana erişmek derleyiciyi hiç rahatsız etmez ve test çalışırken aniden çöker; strict mod açık bir projede aynı hata, kodu commit etmeden önce kırmızı çizgiyle gösterilir.",
+              "en": "The tsconfig.json file is like the settings menu of a newly purchased device — with 'strict mode' turned on, the device warns you on every questionable use; turned off, it silently does whatever you tell it. So why bother editing these settings instead of leaving the defaults? Because a project that starts with `strict: false` behaves like Java code that gets away with typing everything as `Object` without a single compiler warning — easy in the short term, but the bug explodes at runtime instead of compile time; `strict: true` restores the mandatory type checking that Java has built in from birth. The cost is concrete in QA: in a test project with strict mode off, accessing a `null` or `undefined` property doesn't bother the compiler at all and the test suite crashes mid-run; in a project with strict mode on, the same mistake is flagged with a red squiggle before the code is even committed."
             }
           },
           {
@@ -1112,8 +1112,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔷",
             "content": {
-              "tr": "TypeScript, JavaScript'in üzerine etiket takılmış hali. 'Bu kutu sadece sayı içerir' etiketi gibi — yanlış bir şey koymaya çalışırsan hemen uyarı alırsın. Java'da zaten böyleydi; TypeScript bunu JavaScript'e getiriyor.",
-              "en": "TypeScript is JavaScript with labels attached. Like a box labeled 'numbers only' — if you try to put the wrong thing in, you get an immediate warning. Java already had this; TypeScript brings it to JavaScript."
+              "tr": "TypeScript, JavaScript'in her değişkenine bir etiket asılmış hali — 'bu kutu sadece sayı içerir' etiketi gibi, yanlış bir şey koymaya çalıştığınızda kutu kapanmadan (derleme anında) uyarı alırsınız. Peki number, string gibi basit tipler bu kadar sezgiselse, neden ayrıca öğrenmeye değer bir konu olsun? Çünkü asıl güç tek bir değişkende değil, bu basit tiplerin fonksiyon parametrelerine, dönüş değerlerine ve nesne alanlarına tutarlı şekilde yayılmasındadır — Java'da bu zaten `int`, `String`, `boolean` ile doğuştan vardı, TypeScript aynı disiplini opsiyonel olan JavaScript'e sonradan ekliyor. QA'da fark şuradadır: plain JavaScript'te bir test fonksiyonuna `25` string'ini yaş olarak geçtiğinizde fonksiyon sessizce yanlış matematik yapar (`25 + 5` sayı toplaması yerine string birleştirip `255` üretir); basit tipleri doğru kullanan TypeScript kodu bu hatayı IDE'de anında, testi hiç çalıştırmadan gösterir.",
+              "en": "TypeScript is JavaScript where every variable gets a label attached — like a box marked 'numbers only,' where trying to put the wrong thing in trips a warning before the box even closes (at compile time). So if simple types like number and string are this intuitive, why is there a whole topic worth learning here? Because the real power isn't in one variable, it's in those simple types propagating consistently through function parameters, return values, and object fields — Java already had this built in from birth with `int`, `String`, `boolean`; TypeScript retrofits that same discipline onto JavaScript, where it was always optional. The QA-relevant difference: in plain JavaScript, passing the string `\"25\"` as an age into a test helper silently produces wrong math (`\"25\" + 5` becomes `\"255\"`); TypeScript code that uses simple types correctly flags that mistake instantly in the IDE, before the test is ever run."
             }
           },
           {
@@ -1314,17 +1314,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚠️",
             "content": {
-              "0": "T",
-              "1": "u",
-              "2": "p",
-              "3": "l",
-              "4": "e",
-              "5": "'",
-              "6": "l",
-              "7": "a",
-              "8": "r",
-              "tr": "Özel tipler, beklenmedik durumlar için. 'any' = her şey olabilir (kötü pratik), 'unknown' = bilinmiyor ama önce kontrol et, 'never' = bu kod asla çalışmaz, 'void' = fonksiyon bir şey döndürmez.",
-              "en": "Special types for unexpected situations. 'any' = can be anything (bad practice), 'unknown' = unknown but check first, 'never' = this code never runs, 'void' = function returns nothing."
+              "tr": "any, unknown, never ve void; bir gümrük memurunun dört farklı muamelesi gibidir. any = 'kimliğine bakmadan içeri al' (tehlikeli), unknown = 'içeri al ama kimliğini kontrol etmeden hiçbir işlem yaptırma', never = 'bu kapıdan kimse asla geçmeyecek' (fonksiyon hep hata fırlatıyorsa), void = 'memur işini yaptı ama eve hiçbir şey götürmedi' (fonksiyon değer döndürmez). Peki zaten 'any' her şeyi kabul ederken neden 'unknown' diye ayrı bir tip var? Çünkü any tip denetimini tamamen kapatır, unknown ise denetimi açık tutup sadece 'önce kontrol et' der — Java'da bunun tam karşılığı yok, en yakını her yerde instanceof zorunlu kılınan bir Object referansı gibi davranmaktır. QA tarafında fark kritik: any ile yazılmış bir API response parser, sunucu şemayı değiştirdiğinde sessizce çöker ve testin neden FAIL olduğunu saatlerce ararsınız; unknown kullanan aynı parser, derleme anında 'önce kontrol et' diyerek o hatayı production'a gitmeden yakalar.",
+              "en": "any, unknown, never, and void are like four different responses from a border officer. any = 'let anyone in without checking ID' (dangerous), unknown = 'let them in, but they can't do anything until they show ID' (must check before use), never = 'no one will ever pass through this gate' (a function that always throws), void = 'the officer did their job but carries nothing back' (a function returning no value). So if any already accepts everything, why does unknown need to exist separately? Because any switches type-checking off entirely, while unknown keeps it on and simply demands 'verify first' — Java has no exact equivalent, the closest analogue is an Object reference that forces an instanceof check everywhere it's used. The QA-relevant difference is real: an API response parser typed as any fails silently the moment the server changes its schema, and you lose hours hunting why a test FAILed; the same parser typed as unknown gets caught at compile time with 'check first,' before it ever reaches production."
             }
           },
           {
@@ -1455,16 +1446,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏷️",
             "content": {
-              "tr": "number, string ve boolean tipleri, oyuncak kutularının üzerindeki etiketler gibidir. 'Sadece Oyuncak Ayı' etiketli kutuya araba koyamazsınız.",
-              "en": "The number, string, and boolean types are like stickers on toy boxes. You can't put a toy car in a box labeled 'Teddy Bears Only'."
+              "tr": "number, string ve boolean tipleri, depodaki kutuların üzerine yapıştırılmış etiketler gibidir — 'Sadece Oyuncak Ayı' yazan kutuya araba koymaya çalıştığınızda depo görevlisi (derleyici) sizi daha kutuyu kapatmadan durdurur. Peki JavaScript zaten çalışırken bu hatayı 'undefined is not a function' diye haber veriyorken, neden TypeScript bunu kutuyu kapatmadan, yani derleme anında yakalamaya çalışır? Çünkü depoda yanlış ürünü fark etmek mağazaya gönderildikten (production'a deploy edildikten) sonra fark etmekten çok daha ucuzdur — Java'da bu zaten `int`, `String`, `boolean` ile zorunluydu, TypeScript bu disiplini opsiyonel olan JavaScript'e geri getiriyor. QA tarafında somut fark: bir test fonksiyonuna yanlışlıkla string yerine number geçtiğinizde, plain JavaScript testi 'geçti' gösterip içeride sessizce yanlış davranabilir, ama type-checked kod aynı hatayı IDE'de kırmızı çizgiyle, testi hiç çalıştırmadan gösterir.",
+              "en": "The number, string, and boolean types are like labels stuck on warehouse boxes — try to put a car in a box labeled 'Teddy Bears Only' and the warehouse clerk (the compiler) stops you before the box is even sealed. So if JavaScript already reports this mistake at runtime as 'undefined is not a function,' why does TypeScript insist on catching it before the box ships, i.e. at compile time? Because spotting the wrong product in the warehouse is far cheaper than discovering it after it reached the store (production) — Java already enforced this with `int`, `String`, `boolean`, and TypeScript brings that same discipline back to JavaScript, where it was always optional. The QA-relevant difference is concrete: pass a number where a test helper expects a string, and plain JavaScript may report the test as 'passed' while silently misbehaving inside, whereas type-checked code flags the same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🕵️",
             "content": {
-              "tr": "unknown tipi, hediye paketi sarılmış gizemli bir kutu gibidir. Ne olduğunu bilmediğin için açıp kontrol etmeden (narrowing) doğrudan içindekini çalıştıramazsın.",
-              "en": "The unknown type is like a wrapped mystery gift box. Since you don't know what is inside, you cannot interact with it until you check its contents (narrowing)."
+              "tr": "unknown tipi, üzeri kapalı, üstünde etiket olmayan bir paket gibidir — kuryeden teslim alırsınız ama içini açıp (typeof/instanceof ile narrowing yapıp) kontrol etmeden hiçbir işlem yapamazsınız, derleyici elinizi durdurur. Peki o zaman neden direkt any kullanıp paketi hiç açmadan kullanmıyoruz? Çünkü any 'paketin içini hiç sormadan kullan' der ve içinde bomba (yanlış tipte veri) olsa bile patlayana kadar fark etmezsiniz; unknown ise 'kullanmadan önce mutlaka kontrol et' diyerek Java'daki her Object referansını instanceof ile cast etmeden kullanamama disiplinini geri getirir. QA'da bu, dış bir API'den gelen JSON response'u parse ederken hayat kurtarır: unknown ile tip edilmiş bir response, beklenmeyen bir alan değiştiğinde testi derleme anında durdurur; any ile tip edilmiş aynı response, o değişikliği fark etmeden testi 'PASSED' gösterip gerçek bug'ı production'a kadar saklar.",
+              "en": "The unknown type is like a sealed, unlabeled package — the courier hands it to you, but you cannot do anything with it until you open it and verify what's inside (narrowing via typeof/instanceof); the compiler stops your hand. So why not just use any and skip opening the package entirely? Because any says 'use it without ever asking what's inside,' and if there's a bomb in there (data of the wrong type) you won't notice until it explodes; unknown instead says 'verify before you touch it,' bringing back the same discipline Java enforces when you can't use an Object reference without casting it via instanceof first. In QA this is a lifesaver when parsing a JSON response from an external API: a response typed as unknown stops your test at compile time the moment an unexpected field changes; the same response typed as any lets that change slip by unnoticed, reports the test as 'PASSED,' and hides the real bug until it reaches production."
             }
           },
           {
@@ -1586,31 +1577,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📚",
             "content": {
-              "0": "T",
-              "1": "y",
-              "2": "p",
-              "3": "e",
-              "4": " ",
-              "5": "A",
-              "6": "l",
-              "7": "i",
-              "8": "a",
-              "9": "s",
-              "10": " ",
-              "11": "v",
-              "12": "s",
-              "13": " ",
-              "14": "I",
-              "15": "n",
-              "16": "t",
-              "17": "e",
-              "18": "r",
-              "19": "f",
-              "20": "a",
-              "21": "c",
-              "22": "e",
-              "tr": "TypeScript array'i Java'nın typed ArrayList'i gibi. Java'da List<String> yazınca sadece String girebilirdin. TypeScript'te string[] yazarsan sadece string girebilirsin.",
-              "en": "TypeScript arrays are like Java's typed ArrayList. In Java, List<String> only accepts Strings. In TypeScript, string[] only accepts strings."
+              "tr": "TypeScript array'i, raflarındaki ürün tipini değiştirmeyen bir market koridoru gibidir — 'meyve koridoru' rafına sadece meyve koyabilirsiniz, ortasına bir laptop bırakamazsınız. Java'da bu zaten List<String> ile yapılıyordu: sadece String kabul eden bir liste. Peki Java zaten bunu yapıyorken TypeScript'in string[] yazımı neden farklı/daha kısa görünüyor? Çünkü TypeScript array tipini her elemanın yanına değil dizinin tamamına bir kere yazar (string[] = Java'daki List<String>'in kısaltılmış hali), generic syntax (Array<string>) de aynı şeyi söyler, sadece daha uzun yazılır. QA bağlamında bunun bedeli somut: test verisi dizisine yanlışlıkla bir number veya null karıştığında (örn. API'den dönen kullanıcı listesine bozuk bir kayıt sızdığında), tip kontrolü olmayan plain JavaScript bunu sessizce kabul edip ileride 'undefined is not a function' ile production'da patlar; typed array bunu derleme anında, testi bile çalıştırmadan yakalar.",
+              "en": "A TypeScript array is like a grocery aisle that won't let the product type drift — you can only put fruit on the 'fruit aisle' shelf, never a laptop in the middle of it. Java already did this with List<String>: a list that only accepts Strings. So if Java already solved this, why does TypeScript's string[] syntax look different/shorter? Because TypeScript writes the type once for the whole array instead of per element (string[] is shorthand for what Java's List<String> expresses), and the generic syntax (Array<string>) says the exact same thing, just more verbosely. The QA cost is concrete: when a number or null accidentally slips into a test-data array (say, a corrupted record leaking into a user list returned by an API), plain JavaScript with no type checking accepts it silently and only blows up in production with 'undefined is not a function'; a typed array catches that at compile time, before the test even runs."
             }
           },
           {
@@ -1722,8 +1690,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎁",
             "content": {
-              "tr": "Tuple, sabit boyutlu ve her pozisyonun tipi bilinen bir dizi. 'İlk eleman her zaman isim (string), ikincisi yaş (number)' gibi. Java'da tam karşılığı yok — ama Python'da tuple var ve aynı mantık.",
-              "en": "A tuple is a fixed-size array where each position has a known type. 'First element is always name (string), second is age (number).' Java has no direct equivalent — but Python has tuples with the same idea."
+              "tr": "Tuple, her gözünün ne içereceği önceden belirlenmiş, sabit bölmeli bir kalem kutusu gibidir — ilk göz her zaman kalem (string), ikinci göz her zaman silgi (number) olmak zorundadır, sırayı karıştıramaz veya fazladan göz ekleyemezsiniz. Madem zaten bir array türü olarak string[] veya number[] var, neden ayrıca tuple'a ihtiyaç duyulur? Çünkü normal array 'aynı tipten istediğin kadar eleman' der, tuple ise 'tam şu sırada, tam şu tipte, tam bu kadar eleman' der — Java'da bunun birebir karşılığı yoktur (en yakını sabit alanlı bir record/class yazmaktır), ama Python'daki tuple tam olarak aynı fikri taşır. QA'da bu fark, bir test adımının sonucunu [adımAdı, geçtiMi, süreMs] gibi sabit yapıda taşımak istediğinizde işe yarar: normal bir array burada elemanların sırasını veya sayısını yanlışlıkla karıştırsanız sessizce kabul eder, tuple ise 'ikinci eleman boolean olmalı, string değil' diyerek o hatayı derleme anında, testi koşturmadan yakalar.",
+              "en": "A tuple is like a pencil case with fixed compartments where each slot's contents are predetermined — the first slot must always hold a pencil (string), the second must always hold an eraser (number); you can't swap the order or add an extra slot. If string[] or number[] already exist as array types, why do we need tuples too? Because a regular array says 'any number of elements of the same type,' while a tuple says 'exactly this many elements, in exactly this order, of exactly these types' — Java has no direct equivalent (the closest is writing a fixed-field record/class), but Python's tuple carries the exact same idea. This matters in QA when you want to carry a test step's result as a fixed shape like [stepName, passed, durationMs]: a regular array would silently accept the elements in the wrong order or count, while a tuple says 'the second element must be a boolean, not a string' and catches that mistake at compile time, before the test ever runs."
             }
           },
           {
@@ -1855,16 +1823,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎒",
             "content": {
-              "tr": "Dizi, bir sınıftaki aynı boydaki sıralı öğrenciler gibidir. Herkes sırayla dizilmiştir ve listeye yeni öğrenciler ekleyebilirsiniz.",
-              "en": "An array is like a line of students of similar height. Everyone is ordered, and you can append new students to the end of the line."
+              "tr": "Dizi, bir okul gezisinde sıraya dizilmiş, hepsi aynı tür kıyafeti giyen öğrenciler gibidir — sıraya yeni bir öğrenci eklenebilir ama kıyafeti yine aynı tür olmak zorundadır. Peki tüm öğrenciler aynı tipteyse, ayrıca her birine tek tek etiket yapıştırmaya gerek var mı? Hayır, ve TypeScript de tam bunu yapar: `string[]` tüm sıranın 'bu kıyafet türünden' olduğunu bir kerede söyler — Java'da bu zaten `List<String>` ile zorunluydu, TypeScript aynı garantiyi opsiyonel olan JavaScript dizilerine geri getirir. QA'da fark şurada ortaya çıkar: bir test verisi dizisine API'den dönen bozuk bir kayıt (örneğin `null`) sızdığında, plain JavaScript bunu sessizce kabul edip ileride 'Cannot read property of null' ile production'da patlar; typed array aynı sızıntıyı derleme anında, daha test koşmadan yakalar.",
+              "en": "An array is like a line of students on a field trip, all wearing the same type of uniform — you can add a new student to the line, but their uniform has to match the same type. So if every student is the same type, is it worth labeling each one individually? No — and that's exactly what TypeScript avoids: `string[]` declares the entire line is 'this uniform type' once, for everyone — Java already enforced this with `List<String>`, and TypeScript brings that same guarantee back to JavaScript arrays, where it was always optional. The QA-relevant difference shows up when a corrupted record (say, a stray `null`) leaks into a test-data array from an API response: plain JavaScript accepts it silently and only blows up in production with 'Cannot read property of null'; a typed array catches that same leak at compile time, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "💳",
             "content": {
-              "tr": "Tuple, bir kimlik kartındaki ad soyad ve TC kimlik numarası gibidir. Boyutu sabittir ve ilk sıradaki verinin string, ikinci sıradakinin number olacağı kesindir.",
-              "en": "A tuple is like an ID card with a Name and an ID number. The length is fixed, and the first element is always a string, while the second is always a number."
+              "tr": "Tuple, bir kimlik kartındaki sabit alanlar gibidir — ilk alan her zaman ad soyad (string), ikinci alan her zaman TC kimlik numarası (number) olacak şekilde basılmıştır, kartı yeniden tasarlamadan sırayı değiştiremezsiniz. Madem array zaten var, neden bu kadar katı, sabit boyutlu bir yapıya ihtiyaç duyulsun? Çünkü array 'kaç tane olursa olsun aynı tipten' der, tuple ise 'tam bu kadar, tam bu sırada, tam bu tiplerde' der — Java'da kart tasarımına en yakın karşılık sabit alanlı bir record/class yazmaktır, TypeScript'te ise bunu tek satırda `[string, number]` ile ifade edersiniz. QA'da bu, bir API'den dönen `[durum, kodu]` çiftini işlerken işe yarar: array kullanırsanız birileri yanlışlıkla sırayı `[kodu, durum]` diye karıştırabilir ve derleyici sessiz kalır; tuple kullanırsanız bu karışıklık derleme anında, testi koşturmadan yakalanır.",
+              "en": "A tuple is like the fixed fields on an ID card — the first field is always printed as the full name (string), the second is always the ID number (number), and you can't reorder them without redesigning the card. If arrays already exist, why need such a rigid, fixed-size structure at all? Because an array says 'any number of these, same type,' while a tuple says 'exactly this many, in exactly this order, of exactly these types' — in Java the closest equivalent to the card design is writing a fixed-field record/class, while TypeScript lets you express the same thing in one line: `[string, number]`. This matters in QA when processing a `[status, code]` pair returned from an API: with a plain array, someone could accidentally flip the order to `[code, status]` and the compiler stays silent; with a tuple, that mix-up is caught at compile time, before the test ever runs."
             }
           },
           {
@@ -1998,8 +1966,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📋",
             "content": {
-              "tr": "Object type, bir nesnenin içinde ne olması gerektiğini söyleyen sözleşme. 'Test sonucu için mutlaka ad, durum ve süre lazım' gibi. Java'da interface veya class ile yapılır.",
-              "en": "Object type is a contract saying what must be inside an object. 'A test result must have a name, status, and duration.' In Java, this is done with an interface or class."
+              "tr": "Object type, bir kargo formuna benzer bir sözleşmedir — 'bu pakette mutlaka alıcı adı, takip kodu ve ağırlık olmalı' der; biri eksikse koli kargoya hiç verilmez. Peki bu kontrolü neden çalışma zamanında (paket fiilen elden çıktığında) değil de daha önce yapalım? Çünkü eksik alanı depoda fark etmek, müşteriye ulaştıktan sonra fark etmekten çok daha ucuzdur — Java'da bu sözleşme zaten bir interface veya class ile zorunluydu, TypeScript aynı garantiyi düz JavaScript nesnelerine sonradan ekliyor. QA'da somut karşılığı şudur: bir test sonucu nesnesinde `duration` alanı unutulduğunda, plain JavaScript'te bu hata raporlama aşamasında 'undefined ms' gibi sessiz bir görüntüyle fark edilmeden geçer; object type kullanan TypeScript kodunda aynı eksiklik, kodu commit etmeden önce derleyici tarafından söylenir.",
+              "en": "An object type is like a shipping manifest contract — it says 'this package must have a recipient name, a tracking code, and a weight,' and if one is missing, the box never leaves the warehouse. So why catch this before runtime, before the package actually ships, instead of after? Because spotting a missing field in the warehouse is far cheaper than discovering it after it reached the customer — Java already enforced this contract with an interface or class; TypeScript adds that same guarantee onto plain JavaScript objects, where it was always optional. The QA-relevant payoff: when a test-result object is missing its `duration` field, plain JavaScript lets that slip through quietly, showing up as 'undefined ms' somewhere in a report; TypeScript code using an object type gets the compiler to call out that same gap before the code is ever committed."
             }
           },
           {
@@ -2138,8 +2106,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎯",
             "content": {
-              "tr": "Enum, izin verilen değerlerin sabit listesi. 'Test durumu sadece PASS, FAIL veya SKIP olabilir — başka bir şey yazarsan hata alırsın.' Java'da enum zaten vardı — TypeScript'te de aynı mantık.",
-              "en": "An enum is a fixed list of allowed values. 'Test status can only be PASS, FAIL, or SKIP — write anything else and you get an error.' Java already had enums — TypeScript works the same way."
+              "tr": "Enum, bir asansörün düğme panosu gibidir — sadece basılı rakamlara (örn. 1, 2, 3) gidebilirsiniz, panoda olmayan bir kata 'git' diye bağırmanın hiçbir anlamı yoktur. Peki zaten string ile `\"PASS\"`, `\"FAIL\"`, `\"SKIP\"` yazabiliyorken neden ayrıca bir enum tanımlansın? Çünkü düz string ile yazınca yazım hatası (`\"PASSS\"`) sessizce kabul edilir ve hata ancak çalışma zamanında patlar; enum ise panodaki tuşlar dışında bir şeyi kabul etmez, hatayı derleme anında yakalar — Java'da enum zaten doğuştan bu güvenliği sağlardı, TypeScript aynı mantığı taşır. QA'da bu fark somuttur: bir test raporlama fonksiyonunda durum string olarak tutulduğunda biri yanlışlıkla `\"Pass\"` (büyük/küçük harf hatası) yazabilir ve raporlama sessizce o sonucu sayamaz; enum kullanıldığında bu yazım hatası IDE'de anında kırmızı çizgiyle görünür.",
+              "en": "An enum is like an elevator's button panel — you can only go to the floors that have a button (say, 1, 2, 3); shouting 'take me to floor 9' when there's no such button does nothing. So if you can already write `\"PASS\"`, `\"FAIL\"`, `\"SKIP\"` as plain strings, why bother defining an enum at all? Because a plain string silently accepts a typo (`\"PASSS\"`) and the bug only surfaces at runtime; an enum accepts nothing outside the buttons on the panel and catches that mistake at compile time — Java's enum already provided this safety from the start, and TypeScript carries the same idea forward. The QA-relevant difference is concrete: in a test-reporting function where status is kept as a plain string, someone can accidentally write `\"Pass\"` (wrong casing) and the report silently fails to count that result; with an enum, that same typo shows up instantly as a red squiggle in the IDE."
             }
           },
           {
@@ -2334,16 +2302,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📋",
             "content": {
-              "tr": "Nesne tipi, bir form şablonu gibidir. Formda 'Ad', 'Soyad' ve 'E-posta' alanlarının olacağını baştan belirlersiniz; kimse fazladan veya eksik alan dolduramaz.",
-              "en": "An object type is like a form template. You declare that 'Name', 'Surname', and 'Email' are required; no one can add random fields or leave out mandatory ones."
+              "tr": "Nesne tipi, bir resmi başvuru formu şablonu gibidir — 'Ad', 'Soyad' ve 'E-posta' alanları baştan basılıdır; kimse fazladan bir alan ekleyip kimse de zorunlu bir alanı boş bırakıp formu teslim edemez. Peki form zaten doldurulduktan sonra eksik alan kontrolü yapılabilirken, neden doldururken engellensin? Çünkü eksik formu masaya bıraktıktan (production'a deploy ettikten) sonra fark etmek, doldururken (derleme anında) fark etmekten çok daha pahalıdır — Java'da bu şablon zaten bir interface veya class ile sağlanıyordu, TypeScript aynı disiplini düz JavaScript nesnelerine kazandırır. QA'da somut örneği: bir kullanıcı kayıt testinde `email` alanı unutulduğunda, plain JavaScript bu eksik alanı sessizce `undefined` olarak taşır ve hata ancak sunucu 'email is required' dediğinde fark edilir; nesne tipi tanımlı TypeScript kodunda aynı eksiklik, testi koşturmadan IDE'de görünür.",
+              "en": "An object type is like a printed application form template — the 'Name', 'Surname', and 'Email' fields are pre-printed; no one can add an extra field or submit the form with a required field left blank. So why block this while filling it out instead of just checking afterward? Because discovering a missing field after the form was already turned in (deployed to production) is far costlier than catching it while filling it out (at compile time) — Java already provided this template via an interface or class; TypeScript brings that same discipline to plain JavaScript objects. The concrete QA payoff: when a user-registration test forgets the `email` field, plain JavaScript silently carries it as `undefined`, and the bug only surfaces when the server responds with 'email is required'; TypeScript code with an object type flags that same gap in the IDE, before the test is ever run."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🚦",
             "content": {
-              "tr": "Enum, bir trafik lambası gibidir. Lambanın renkleri sadece KIRMIZI, SARI ve YEŞİL olabilir; mor veya mavi gibi geçersiz bir renk seçme şansınız yoktur.",
-              "en": "An enum is like a traffic light. The lights can only be RED, YELLOW, or GREEN; there is no option to choose invalid colors like purple or cyan."
+              "tr": "Enum, bir trafik lambası gibidir — lamba sadece KIRMIZI, SARI ve YEŞİL yanabilir; üreticisi 'bu sefer mor yansın' diye bir seçenek sunmaz, çünkü panoda öyle bir renk hiç yoktur. Peki zaten string ile `\"red\"`, `\"yellow\"`, `\"green\"` yazılabiliyorken neden ayrı bir enum tipine ihtiyaç duyulsun? Çünkü string serbest yazıdır, biri yanlışlıkla `\"redd\"` yazabilir ve hiçbir uyarı almaz; enum ise panoda olmayan bir rengi temelde var etmez, derleyici böyle bir hatayı oluşmadan engeller — Java'da enum doğuştan bu garantiyi verir, TypeScript aynısını taşır. QA'da somut örneği: bir test senaryosu durumu string ile tutulduğunda biri `\"Red\"` yerine `\"red \"` (fazladan boşluk) yazarsa karşılaştırma sessizce false döner ve test yanlış sebepten FAIL/PASS gösterir; enum kullanıldığında bu tür yazım kazaları derleme anında imkansız hale gelir.",
+              "en": "An enum is like a traffic light — it can only show RED, YELLOW, or GREEN; the manufacturer doesn't offer 'let it glow purple this time' as an option, because that color simply doesn't exist on the panel. So if you can already write `\"red\"`, `\"yellow\"`, `\"green\"` as plain strings, why need a separate enum type at all? Because a string is free-form text — someone can accidentally type `\"redd\"` and get no warning whatsoever; an enum simply doesn't let a color outside the panel exist in the first place, so the compiler prevents that mistake before it's even created — Java's enum guarantees this from birth, and TypeScript carries the same guarantee forward. The concrete QA payoff: when a test-scenario status is kept as a plain string, someone typing `\"red \"` (a stray trailing space) instead of `\"Red\"` makes a comparison silently return false, and the test reports FAIL/PASS for the wrong reason; with an enum, that class of typo becomes impossible at compile time."
             }
           },
           {
@@ -2492,8 +2460,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔀",
             "content": {
-              "tr": "Union type, 'bu ya şu ya bu' demek. ID ya number ya string olabilir. Java'da bunu generic ya da overload ile yapardın — TypeScript daha zarif.",
-              "en": "A union type means 'this OR that.' An ID can be either a number or a string. In Java you'd use generics or overloads — TypeScript is more elegant."
+              "tr": "Union type, bir restoran menüsündeki 'tatlı seçiniz: baklava VEYA sütlaç' satırı gibidir — sadece bu ikisinden biri gelir, üçüncü bir şey (örneğin çorba) asla masaya konmaz. Peki neden direkt `any` yazıp 'ID her şey olabilir' demiyoruz? Çünkü any garson sınırı tamamen kaldırır ve mutfaktan ne çıkacağı belirsizleşir; union ise 'sadece bu ikisi' diyerek sınırı korur — Java'da bunun birebir karşılığı yoktur, en yakını generic veya method overload ile aynı sonucu daha kalabalık kodla taklit etmektir. QA'da somut faydası: bir API'den dönen `id` alanı bazen number bazen string geliyorsa, `id: number | string` ile tip edilmiş bir fonksiyon her iki durumu da ele almanızı derleme anında zorunlu kılar; tek tip varsayan bir fonksiyon ise diğer formatla karşılaştığında çalışma zamanında sessizce yanlış davranır.",
+              "en": "A union type is like a restaurant menu line reading 'choose a dessert: baklava OR rice pudding' — only one of those two ever arrives, a third option (say, soup) never shows up at the table. So why not just write `any` and say 'the ID can be anything'? Because any removes the waiter's boundary entirely, leaving what comes out of the kitchen completely unpredictable; a union keeps the boundary by saying 'only these two' — Java has no direct equivalent, the closest is faking the same result with generics or method overloads and noticeably more code. The concrete QA payoff: when an API's `id` field sometimes arrives as a number and sometimes as a string, a function typed as `id: number | string` forces you to handle both cases at compile time; a function that assumes a single type silently misbehaves at runtime the moment it meets the other format."
             }
           },
           {
@@ -2616,16 +2584,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🤝",
             "content": {
-              "tr": "Interface, iki şirket arasındaki sözleşme gibidir. 'Eğer bu projeyi yapacaksan, şu metotları teslim etmek zorundasın' der. Sınıflar bu sözleşmeye uymak zorundadır.",
-              "en": "An interface is like a business contract. It states: 'If you want this project, you must deliver these methods.' Classes implement this contract."
+              "tr": "Interface, iki şirket arasında imzalanan bir ihale sözleşmesi gibidir — 'bu işi alacaksan, şu üç teslimatı (metotları) sağlamak zorundasın' der; sözleşmenin kendisi işi yapmaz, sadece kim işi alırsa alsın aynı taahhütleri vermesini garanti eder. Peki sözleşmeyi yazmak yerine her yükleniciye sözlü talimat verip 'sen bunu yap' demek neden yetmez? Çünkü sözlü talimat unutulabilir, taraflar arasında yorum farkı doğurabilir; yazılı sözleşme ise ihlali derleme anında, iş başlamadan tespit eder — Java'da interface zaten bu işlevi görüyordu, TypeScript aynı sözleşme disiplinini taşır. QA'da fark şurada: bir `TestRunner` interface'i `run()` ve `getResult()` metotlarını zorunlu kılıyorsa, bu metotlardan biri eksik bir sınıf yazıldığında derleyici işi hiç başlatmaz; interface olmadan aynı eksiklik, o metot ilk çağrıldığı anda 'is not a function' hatasıyla çalışma zamanında ortaya çıkar.",
+              "en": "An interface is like a signed tender contract between two companies — 'if you want this job, you must deliver these three things (methods)'; the contract itself doesn't do the work, it just guarantees that whoever wins the job makes the same commitments. So why not skip the written contract and just verbally tell each contractor 'do this'? Because verbal instructions can be forgotten or misinterpreted between parties, while a written contract catches a breach at compile time, before work even starts — Java's interface already served this purpose, and TypeScript carries the same contractual discipline forward. The QA-relevant difference: if a `TestRunner` interface requires `run()` and `getResult()` methods, writing a class that's missing one of them never gets past the compiler; without the interface, the same gap only surfaces at runtime as an 'is not a function' error the first time that method is called."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔌",
             "content": {
-              "tr": "Union type, hem USB-C hem de Lightning şarj kablosu kabul eden ikili bir priz gibidir. Giriş ya A tipi ya da B tipi olabilir.",
-              "en": "A union type is like a charging block with dual inputs for both USB-C and Lightning. The input can be either type A or type B."
+              "tr": "Union type, hem USB-C hem Lightning kabul eden bir şarj soketi gibidir — sadece bu iki giriş türünden biri takılabilir, üçüncü bir konnektör (örneğin eski tip mini-USB) fiziksel olarak girmez. Peki soketi neden tek bir tipe (sadece USB-C) sabitlemiyoruz, daha basit olmaz mıydı? Çünkü gerçek dünyada gelen veri gerçekten iki farklı biçimde gelebiliyor (örn. bir API bazen sayısal ID, bazen UUID string döndürüyor) ve union, bu gerçeği gizlemek yerine açıkça modeller — Java'da en yakın karşılığı ortak bir interface'i implemente eden iki farklı sınıf kullanmaktır, TypeScript'te tek satırlık bir union yeter. QA'da somut faydası: union tipi olmayan bir fonksiyon iki farklı ID formatını da kabul ediyormuş gibi davranırsa, derleyici hiçbir uyarı vermez ve hatalı format çalışma zamanında 'cannot read property of undefined' ile patlar; union tipiyle yazılmış aynı fonksiyon her iki durumu da ele almanızı derleme anında zorunlu kılar.",
+              "en": "A union type is like a charging socket that accepts both USB-C and Lightning — only one of those two connector shapes fits, a third kind (say, an old mini-USB) simply won't physically go in. So why not just lock the socket to one type (USB-C only) — wouldn't that be simpler? Because real-world data genuinely arrives in two different shapes sometimes (an API might return a numeric ID sometimes and a UUID string other times), and a union models that reality openly instead of hiding it — the closest Java equivalent is using two different classes that implement a common interface; in TypeScript, a one-line union is enough. The concrete QA payoff: a function without a union type that just assumes it can handle both ID formats gets no warning from the compiler, and the wrong format blows up at runtime with 'cannot read property of undefined'; the same function written with a union type forces you to handle both cases at compile time."
             }
           },
           {
@@ -2747,8 +2715,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "TypeScript fonksiyonları Java metodlarına çok benzer — ama daha kısa syntax. Parametre tipleri ve dönüş tipi belirtilir.",
-              "en": "TypeScript functions are very similar to Java methods — but with shorter syntax. Parameter types and return types are specified."
+              "tr": "TypeScript fonksiyonu, bir vasiyetnamenin koşulları gibidir — 'sana bu iki şeyi (parametreleri) veriyorum, sen de bana şu türden bir şey (dönüş tipi) vermek zorundasın' der; vaat tutulmazsa imza atılmaz. Peki JavaScript fonksiyonu zaten parametre alıp değer döndürüyorken, neden ayrıca bu tipleri yazıya dökmek gerekir? Çünkü yazılı vaat olmadan, fonksiyonu çağıran kişi neyin geleceğini ancak çalıştırıp deneyerek öğrenir; tipli imza ise bunu çağırmadan, derleme anında söyler — Java'da method imzası zaten zorunluydu, TypeScript aynı vaadi JavaScript fonksiyonlarına ekler. QA'da somut faydası: bir `calculateScore(results: TestResult[]): number` fonksiyonuna yanlışlıkla tek bir obje (dizi değil) geçtiğinizde, tipsiz JavaScript bunu sessizce kabul edip içeride yanlış hesaplar; tipli imza aynı hatayı testi koşturmadan, IDE'de kırmızı çizgiyle gösterir.",
+              "en": "A TypeScript function is like the terms of a will — 'I'm giving you these two things (parameters), and in return you must give me back something of this kind (the return type)'; if the promise isn't kept, nothing gets signed. So if a JavaScript function already takes parameters and returns a value, why bother writing these types down? Because without the written promise, whoever calls the function only learns what's coming back by actually running it and seeing; a typed signature tells you that before you ever call it, at compile time — Java already required a method signature, and TypeScript adds that same promise to JavaScript functions. The concrete QA payoff: pass a single object (not an array) by mistake into a `calculateScore(results: TestResult[]): number` function, and untyped JavaScript accepts it silently and computes the wrong thing inside; a typed signature flags that same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
@@ -2905,8 +2873,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔄",
             "content": {
-              "tr": "Casting, TypeScript'e 'Biliyorum bu any tipinde görünüyor ama aslında string — güven bana' demek. 'as' keyword'ü kullanılır. Java'daki (String) obj gibi.",
-              "en": "Casting tells TypeScript 'I know this looks like any but it is actually a string — trust me.' Uses the 'as' keyword. Like (String) obj in Java."
+              "tr": "Casting, gümrükte bagajınızı açmadan 'içinde sadece kitap var, güvenin bana' demeye benzer — memur (derleyici) sizi durdurmaz, ama yalan söylüyorsanız sorumluluk tamamen sizdedir. Peki derleyici zaten tip kontrolü yapıyorken, neden ona 'bana güven, kontrol etme' deme hakkı verilsin? Çünkü bazı durumlarda (örn. `document.getElementById` her zaman `HTMLElement | null` döndürür ama siz o elementin kesin bir `<input>` olduğunu bilirsiniz) derleyicinin bilemeyeceği bağlamsal bilgiyi siz bilirsiniz — Java'daki `(String) obj` cast'i de aynı riski taşır: yanlışsa `ClassCastException` ile çalışma zamanında patlar. QA'da bunun bedeli somuttur: `as` ile yanlış casting yapılmış bir test yardımcı fonksiyonu, gerçek tip uyuşmadığında derleme anında hiç uyarı vermez ve hata ancak test çalışırken `Cannot read property of null` şeklinde ortaya çıkar — yani casting, tip güvenliğini kapatan, dikkatli kullanılması gereken bir 'arka kapı'dır.",
+              "en": "Casting is like telling a customs officer 'there's only books in this bag, trust me' without opening it — the officer (the compiler) won't stop you, but if you're lying, the consequences are entirely on you. So if the compiler already does type checking, why would it ever let you say 'trust me, don't check'? Because sometimes you genuinely know contextual information the compiler can't infer (e.g., `document.getElementById` always returns `HTMLElement | null`, but you know for certain that element is an `<input>`) — Java's `(String) obj` cast carries the exact same risk: get it wrong and it throws a `ClassCastException` at runtime. The QA cost is concrete: a test helper function that casts incorrectly with `as` gets no warning at compile time when the real type doesn't match, and the bug only surfaces while the test is running, as `Cannot read property of null` — casting is a 'back door' that turns off type safety and needs to be used carefully."
             }
           },
           {
@@ -3036,16 +3004,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "Fonksiyon, bir meyve sıkacağı gibidir. Girişte 'Portakal' (parametre tipi) bekler ve çıkışta 'Portakal Suyu' (dönüş tipi) vereceğini garanti eder.",
-              "en": "A function is like a juicer. It expects 'Oranges' at the input (parameter type) and guarantees 'Orange Juice' at the output (return type)."
+              "tr": "Fonksiyon, bir meyve sıkacağı gibidir — girişte sadece 'portakal' (parametre tipi) kabul eder ve çıkışta her zaman 'portakal suyu' (dönüş tipi) verir; makineye elma atarsanız çalışmayı reddeder. Peki sıkacak zaten görsel olarak hangi meyveyi kabul ettiğini belli ediyorsa, tip belirtmek neden gerekli? Çünkü kod, fiziksel bir makine gibi gözle görülmez — bir fonksiyonun ne beklediğini ancak içine bakarak veya deneyerek anlarsınız; parametre/dönüş tipi ise bunu çağırmadan, derleme anında söyler — Java'da method imzası zaten bu garantiyi veriyordu, TypeScript aynı garantiyi JavaScript fonksiyonlarına ekler. QA'da somut faydası: bir `formatTestName(name: string): string` fonksiyonuna yanlışlıkla bir obje geçtiğinizde, tipsiz JavaScript bunu sessizce anlamsız ve okunaksız bir metne çevirip devam eder; tipli fonksiyon aynı hatayı testi koşturmadan, IDE'de kırmızı çizgiyle gösterir.",
+              "en": "A function is like a juicer — it only accepts 'oranges' at the input (the parameter type) and always produces 'orange juice' at the output (the return type); feed it an apple and it refuses to run. So if the juicer is already visibly built for one type of fruit, why bother declaring types at all? Because code, unlike a physical machine, isn't visible — you only learn what a function expects by reading it or running it; a parameter/return type tells you that before you ever call it, at compile time — Java's method signature already provided this guarantee, and TypeScript adds the same guarantee to JavaScript functions. The concrete QA payoff: pass an object by mistake into a `formatTestName(name: string): string` function, and untyped JavaScript silently coerces it into a meaningless, unreadable string and keeps going; a typed function flags that same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔄",
             "content": {
-              "tr": "Casting (Tip dönüştürme), gümrükteki bir pakete 'Güvenlik Kontrolünden Geçti' etiketi yapıştırmak gibidir. İçeriğini değiştirmezsiniz ama görevliye güven telkin edersiniz.",
-              "en": "Casting is like slapping a 'Security Inspected' sticker on a package. You don't change the contents, but you assure the handler that it's safe."
+              "tr": "Casting, bir pakete 'Güvenlik Kontrolünden Geçti' etiketini siz kendiniz yapıştırmak gibidir — paketin gerçek içeriğini değiştirmez, sadece görevliye (derleyiciye) 'kontrol etmene gerek yok, ben zaten kontrol ettim' der. Peki etiketi gerçek bir güvenlik taramasından geçirmeden yapıştırmak neden mümkün olsun, bu güvenlik açığı değil mi? Çünkü bazı durumlarda gerçekten siz, derleyicinin bilemeyeceği bir bağlamı bilirsiniz (örn. bir test fixture'ının döndürdüğü `unknown` değerin aslında her zaman bir `User` nesnesi olduğunu); ama yanlış etiketlerseniz (yanlış cast), o paket gümrükten geçer ve bomba çalışma zamanında patlar — Java'da `(String) obj` cast'i yanlışsa `ClassCastException` fırlatır, TypeScript'in `as` keyword'ü de aynı riski taşır ama derleme anında sessiz kalır. QA'da bu yüzden casting'e güvenmek yerine, mümkün olduğunda gerçek bir type guard (typeof/instanceof kontrolü) tercih edilir — çünkü guard, etiketi yapıştırmadan önce paketi gerçekten açar.",
+              "en": "Casting is like slapping a 'Security Inspected' sticker on a package yourself — it doesn't change what's actually inside, it just tells the handler (the compiler) 'you don't need to check, I already did.' So why is it even possible to slap that label on without a real security scan — isn't that a vulnerability? Because sometimes you genuinely know context the compiler can't (say, a test fixture's `unknown` return value is always actually a `User` object); but mislabel it (cast it wrong) and that package sails through customs while the bomb explodes at runtime — Java's `(String) obj` cast throws a `ClassCastException` when it's wrong, and TypeScript's `as` keyword carries the same risk but stays silent at compile time. That's why in QA, a real type guard (a typeof/instanceof check) is preferred over casting whenever possible — because a guard actually opens the package before applying the label."
             }
           },
           {
@@ -3167,8 +3135,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏗️",
             "content": {
-              "tr": "TypeScript class'ları Java class'larına çok benzer ama daha kısa syntax. Java'da field tanımla, constructor'da this.field = value yaz. TypeScript'te constructor parametresine 'public' yaz — ikisi birden yapılır.",
-              "en": "TypeScript classes are very similar to Java classes but with shorter syntax. In Java, declare field, then write this.field = value. In TypeScript, add 'public' to constructor parameters — it does both at once."
+              "tr": "TypeScript class'ı, Java'daki aynı kalıbın kısaltılmış formu gibidir — Java'da bir mobilyayı kurmak için önce parçayı tanımlar (field), sonra elinizle vidalarsınız (constructor içinde `this.field = value`); TypeScript'te ise constructor parametresine `public` yazdığınızda parçayı tanımlama ve vidalama işlemi otomatik olarak tek adımda yapılır. Peki Java'nın iki adımlık yöntemi neden hâlâ var, TypeScript neden bu kısayolu sunma ihtiyacı duydu? Çünkü Java'da tip güvenliği zaten zorunluydu ve kısayol olmadan da field/constructor ayrımı net kalıyordu; TypeScript ise JavaScript'in esnekliğini korurken aynı tip güvenliğini daha az tekrarla sağlamak zorunda — fazla satır, fazla unutma riski demektir. QA'da somut faydası: bir `TestContext` class'ında `browser`, `page`, `baseUrl` gibi birçok alan varsa, Java tarzı uzun constructor'da bir alanı atamayı unutmak kolaydır ve hata ancak o alana erişilince çalışma zamanında patlar; `public` kısayolu kullanan TypeScript'te her parametre otomatik atandığı için bu sınıfta unutma riski yapısal olarak ortadan kalkar.",
+              "en": "A TypeScript class is like a shortened form of the same Java pattern — in Java, assembling a piece of furniture means first declaring the part (a field), then bolting it on by hand (`this.field = value` inside the constructor); in TypeScript, writing `public` on a constructor parameter declares the field and bolts it on in a single automatic step. So if Java's two-step approach already works, why did TypeScript bother offering this shortcut? Because Java's type safety was already mandatory and the field/constructor distinction stayed clear without a shortcut; TypeScript, while preserving JavaScript's flexibility, has to deliver that same type safety with less repetition — more lines means more chances to forget something. The concrete QA payoff: a `TestContext` class with many fields like `browser`, `page`, `baseUrl` makes it easy to forget assigning one of them in a Java-style long constructor, and the bug only explodes at runtime the moment that field is accessed; TypeScript's `public` shortcut assigns every parameter automatically, structurally eliminating that risk of forgetting."
             }
           },
           {
@@ -3379,8 +3347,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎗️",
             "content": {
-              "tr": "Decorator, hediye paketi sarmak gibidir. Bir sınıfın veya metodun kodunu değiştirmeden dışına yeni bir işlev (örneğin loglama, hata yakalama, yetki kontrolü) sarmalarsınız.",
-              "en": "A decorator is like wrapping a gift. Without modifying a class or method's internal code, you wrap it in new behaviors like logging, error handling, or access control."
+              "tr": "Decorator, hediyenin kendisine dokunmadan üzerine kağıt sarmak gibidir — içindeki hediye (sınıfın/metodun asıl mantığı) hiç değişmez, ama dışına eklenen kağıt (loglama, hata yakalama, yetki kontrolü) her açılışta otomatik olarak devreye girer. Peki bu davranışı neden metodun içine doğrudan yazmıyoruz, paketlemeye ne gerek var? Çünkü loglama veya yetki kontrolü onlarca metoda tekrar tekrar aynı şekilde eklenecekse, her birinin içine elle kod yazmak hem tekrar hem unutma riski demektir — Java'da bunun karşılığı annotation + AOP (Aspect-Oriented Programming, örn. Spring'in `@Transactional`'ı) ile sağlanırdı, TypeScript decorator'ları da kavramsal olarak aynı işi görür. QA'da somut faydası: bir `@LogExecutionTime` decorator'ü her test adımının süresini otomatik ölçüp loglarsa, yüzlerce test metodunun her birine elle zaman ölçüm kodu eklemek zorunda kalmazsınız ve biri yeni bir test eklediğinde o ölçümü unutma riski de ortadan kalkar.",
+              "en": "A decorator is like wrapping paper around a gift without touching the gift itself — the gift inside (the class's or method's actual logic) never changes, but the paper added around it (logging, error handling, access control) kicks in automatically every time it's opened. So why not just write that behavior directly inside the method instead of wrapping it? Because if logging or access control needs to be added the same way to dozens of methods, writing that code by hand inside each one means both repetition and a real risk of forgetting it somewhere — Java achieved the same thing with annotations plus AOP (Aspect-Oriented Programming, like Spring's `@Transactional`), and TypeScript decorators conceptually do the same job. The concrete QA payoff: a `@LogExecutionTime` decorator that automatically measures and logs every test step's duration means you never have to hand-add timing code to hundreds of test methods, and the risk of someone forgetting to add it to a new test disappears entirely."
             }
           },
           {
@@ -3563,8 +3531,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🧩",
             "content": {
-              "tr": "Generic, doldurulabilir şablon gibi. 'Liste' diyorsun ama ne listesi? Sayı listesi mi, isim listesi mi? Tip parametresi ile sonradan belirtiyorsun. Java'daki List<T> ile aynı mantık.",
-              "en": "A generic is like a fill-in-the-blank template. 'A list' — but a list of what? Numbers? Names? You specify the type later with a type parameter. Same concept as Java's List<T>."
+              "tr": "Generic, boş bırakılan kutucuklarla basılmış bir form şablonu gibidir — 'Liste' yazan formun kendisi henüz neyin listesi olduğunu söylemez, formu kullanan kişi 'Sayı Listesi' ya da 'İsim Listesi' diye doldurarak belirler. Peki her liste türü için ayrı ayrı form basmak (sayı için bir fonksiyon, isim için başka bir fonksiyon) yerine neden tek bir doldurulabilir şablona ihtiyaç duyulsun? Çünkü aynı mantığı (sıralama, filtreleme, ekleme) her tip için tekrar tekrar yazmak hem kod tekrarı hem de bakım kabusu demektir — Java'da `List<T>` zaten bu doldurulabilir şablon mantığını sağlıyordu, TypeScript'in generic'leri birebir aynı fikri taşır. QA'da somut faydası: `function getFirst<T>(items: T[]): T` gibi tek bir generic fonksiyon, hem test case listesinde hem kullanıcı listesinde hem hata mesajı listesinde çalışır ve her durumda doğru tipi geri döndürür — generic olmadan ya `any` ile tip güvenliğini kaybedersiniz ya da her liste tipi için ayrı fonksiyon yazmak zorunda kalırsınız.",
+              "en": "A generic is like a printed form with blank boxes left open — a form labeled 'List' doesn't say what kind of list yet; the person using it fills in 'Number List' or 'Name List' to decide. So instead of printing a separate form for every list type (one function for numbers, another for names), why not just have one fill-in-the-blank template? Because rewriting the same logic (sorting, filtering, appending) for every single type means both code duplication and a maintenance nightmare — Java's `List<T>` already provided this fill-in-the-blank idea, and TypeScript's generics carry the exact same concept forward. The concrete QA payoff: a single generic function like `function getFirst<T>(items: T[]): T` works on a list of test cases, a list of users, and a list of error messages alike, returning the correct type every time — without generics you'd either lose type safety with `any` or be forced to write a separate function for every list type."
             }
           },
           {
@@ -3720,16 +3688,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📦",
             "content": {
-              "tr": "Generic, kargo kolisi gibidir. Kolinin yapısı aynıdır ama içine ister 'Kitap' (T = Book) ister 'Giysi' (T = Clothing) koyabilirsiniz. Kutu her tipe uyum sağlar.",
-              "en": "A generic is like a shipping box. The box design is fixed, but you can fill it with either 'Books' (T = Book) or 'Clothes' (T = Clothing). It adapts to any type."
+              "tr": "Generic, standart bir kargo kolisi gibidir — kolinin boyutu, taşıma kulpları, dayanıklılığı (yani fonksiyonun mantığı) hep aynıdır; içine ister 'Kitap' (T = Book) ister 'Giysi' (T = Clothing) koyarsınız, koli her ikisine de uyar ama içeriği birbirine asla karıştırmaz. Peki tek tip kabul eden ayrı ayrı koliler (bir fonksiyon Book için, başka biri Clothing için) tasarlamak yerine neden tek bir uyumlu koli yeterli olsun? Çünkü kolinin kendisini (taşıma mantığını) her yeni eşya türü için yeniden tasarlamak hem zaman kaybıdır hem de bir gün biri yanlış koliye yanlış eşya koyabilir — Java'da `List<T>`, `Optional<T>` gibi generic sınıflar bu tek-koli-her-tipe-uyar fikrini zaten kullanıyordu. QA'da somut faydası: bir `ApiResponse<T>` generic tipi, hem `ApiResponse<User>` hem `ApiResponse<Product>` için aynı yapıyı (status, data, error alanları) garanti eder — koli karışmaz, T = User olan bir response'a yanlışlıkla Product alanı erişmeye çalışırsanız derleyici bunu daha test çalışmadan yakalar.",
+              "en": "A generic is like a standard shipping box — the box's size, handles, and durability (the function's actual logic) stay the same; you can put either 'Books' (T = Book) or 'Clothes' (T = Clothing) inside, and the box fits both without ever mixing up the contents. So instead of designing separate single-purpose boxes (one function for Book, another for Clothing), why is one adaptable box enough? Because redesigning the box itself (the handling logic) for every new item type wastes time, and someday someone will put the wrong item in the wrong box — Java's generic classes like `List<T>` and `Optional<T>` already relied on this same one-box-fits-every-type idea. The concrete QA payoff: a generic `ApiResponse<T>` type guarantees the same shape (status, data, error fields) for both `ApiResponse<User>` and `ApiResponse<Product>` — the contents never get mixed up, and trying to access a Product field on a response where T = User gets caught by the compiler before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🧴",
             "content": {
-              "tr": "Generic, boş bir plastik şişe gibidir. Üzerine etiket yapıştırmadan önce içine şampuan, sabun veya kolonya koyabilirsiniz; şişe içine konan sıvının şeklini alır.",
-              "en": "A generic is like an empty bottle. You can fill it with shampoo, soap, or water before labelling it; the bottle holds whatever liquid type you put inside."
+              "tr": "Generic, etiketsiz satılan boş bir şişe gibidir — fabrikada şişeyi tasarlayan kişi içine ne konacağını bilmez, ama şişeyi kim alırsa (T = Shampoo, T = Soap) o belirler ve şişe o sıvıya özel davranır (örneğin damlalıklı kapak şampuan için otomatik seçilir). Peki şişeyi baştan 'sadece şampuan' diye üretmek dururken, neden boş bırakıp sonradan belirlemeye ihtiyaç olsun? Çünkü bir gün aynı şişe tasarımını sabun için de kullanmak isteyebilirsiniz ve sıfırdan yeni bir şişe tasarlamak gereksiz tekrar olur — Java'da `Optional<T>` tam olarak bu boş şişe mantığını taşır: T = String için de T = User için de aynı `Optional` davranışı (var/yok kontrolü) çalışır. QA'da somut faydası: bir `TestFixture<T>` generic sınıfı, T = LoginPage için de T = CheckoutPage için de aynı setup/teardown mantığını çalıştırır; her sayfa için ayrı fixture sınıfı yazmak yerine tek bir şişe tasarımı yeterli olur, ve T yanlış kullanıldığında derleyici bunu fark eder.",
+              "en": "A generic is like an empty bottle sold without a label — the factory that designed the bottle has no idea what will go inside, but whoever fills it (T = Shampoo, T = Soap) decides, and the bottle then behaves specifically for that liquid (say, a dropper cap auto-selected for shampoo). So if the factory could just produce a bottle labeled 'shampoo only' from the start, why leave it blank and decide later? Because someday you might want that same bottle design for soap too, and designing a brand-new bottle from scratch every time is needless repetition — Java's `Optional<T>` carries exactly this empty-bottle idea: the same `Optional` behavior (presence/absence checking) works whether T = String or T = User. The concrete QA payoff: a generic `TestFixture<T>` class runs the same setup/teardown logic whether T = LoginPage or T = CheckoutPage; instead of writing a separate fixture class per page, one bottle design is enough, and the compiler catches it if T is ever used incorrectly."
             }
           },
           {
@@ -3863,8 +3831,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔧",
             "content": {
-              "tr": "Utility types, hazır tip dönüştürücüler. Bir tipin tüm alanlarını opsiyonel yap (Partial), sadece belirli alanları al (Pick), bir alanı çıkar (Omit). Java'da bunları manuel yapardın.",
-              "en": "Utility types are ready-made type transformers. Make all fields optional (Partial), pick specific fields (Pick), remove a field (Omit). In Java you'd do these manually."
+              "tr": "Utility type'lar, bir terzinin elinde hazır bulunan kalıplara benzer — orijinal kıyafeti (tipi) sıfırdan yeniden dikmek yerine, var olan kalıbı alıp 'tüm düğmeleri çıkar' (Partial), 'sadece yakayı al' (Pick) veya 'kolu kes' (Omit) der ve yeni bir tip türetirsiniz. Peki bu dönüşümleri neden elle, her seferinde yeni bir interface yazarak yapmıyoruz? Çünkü `User` tipinden türeyen `UpdateUserPayload` (tüm alanlar opsiyonel) gibi bir tip, User değişince elle senkronize tutulması gereken ayrı bir kopya olur — unutmak çok kolaydır; `Partial<User>` ise orijinal tip değiştikçe otomatik güncellenir. Java'da bu işlemler genelde manuel yeni sınıflar yazarak veya kütüphane (örn. Lombok) ile yapılırdı, TypeScript bunu dile gömülü olarak sunar. QA'da somut faydası: bir test senaryosunda kullanıcının sadece `email` alanını güncellediğiniz bir PATCH isteği için `Partial<User>` kullanırsanız, diğer alanları zorunlu kılan eski tip hatası vermez ama yine de yanlış bir alan adı yazarsanız derleyici bunu yakalar.",
+              "en": "Utility types are like ready-made patterns a tailor keeps on hand — instead of stitching the original garment (the type) from scratch, you take the existing pattern and say 'remove all the buttons' (Partial), 'keep only the collar' (Pick), or 'cut off the sleeve' (Omit), deriving a new type. So why not just write a brand-new interface by hand for each of these transformations? Because a type like `UpdateUserPayload` (all fields optional) derived manually from `User` becomes a separate copy that has to be kept in sync by hand whenever `User` changes — easy to forget; `Partial<User>` instead updates automatically as the original type changes. In Java this was usually done by writing new classes by hand or via a library (like Lombok); TypeScript builds it into the language itself. The concrete QA payoff: for a PATCH request where a test scenario only updates a user's `email` field, using `Partial<User>` avoids the old type's error about other required fields being missing, while still catching it at compile time if you typo a field name."
             }
           },
           {
@@ -3976,8 +3944,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔑",
             "content": {
-              "tr": "keyof, bir nesnenin tüm anahtar isimlerini tip olarak alır. 'Bu fonksiyon TestCase'in herhangi bir alanı ile çağrılabilir, ama sadece gerçek alan isimleriyle' — TypeScript bunu garantiler.",
-              "en": "keyof gets all the key names of an object as a type. 'This function can be called with any field of TestCase, but only with real field names' — TypeScript guarantees this."
+              "tr": "keyof, bir dosya dolabının üzerindeki etiket listesini otomatik çıkarmak gibidir — dolapta 'ad', 'durum', 'süre' çekmeceleri varsa, keyof size 'sadece bu üç isimden birini iste' der; dolapta olmayan bir çekmeceyi (`uydurma_alan`) istemeniz mümkün değildir. Peki bu listeyi neden elle yazmıyoruz, zaten alan isimlerini biliyoruz? Çünkü elle yazılan liste, dolaba yeni bir çekmece eklendiğinde (TestCase'e yeni bir alan eklendiğinde) güncel kalmaz — biri unutur, liste eskir; keyof ise dolabın kendisinden türediği için otomatik senkronize kalır. Java'da bunun birebir karşılığı yoktur — reflection ile çalışma zamanında alan isimlerini almak gerekirdi, TypeScript bunu derleme anında ve tip güvenli şekilde sunar. QA'da somut faydası: `function getField(tc: TestCase, key: keyof TestCase)` şeklinde yazılmış bir yardımcı fonksiyona yanlış yazılmış bir alan adı ('durumm') geçtiğinizde, derleyici bunu testi koşturmadan IDE'de kırmızı çizgiyle gösterir.",
+              "en": "keyof is like automatically extracting the label list off a filing cabinet — if the cabinet has drawers named 'name', 'status', 'duration', keyof tells you 'only ask for one of these three names'; asking for a drawer that doesn't exist (`madeUpField`) simply isn't possible. So why not just write that list of names by hand — we already know the field names, don't we? Because a hand-written list goes stale the moment a new drawer gets added to the cabinet (a new field gets added to TestCase) — someone forgets to update it, and the list drifts out of sync; keyof, by contrast, is derived from the cabinet itself, so it stays automatically in sync. Java has no direct equivalent — you'd need reflection to get field names at runtime; TypeScript offers this at compile time, type-safely. The concrete QA payoff: a helper function written as `function getField(tc: TestCase, key: keyof TestCase)` flags a misspelled field name (`\"statuss\"`) with a red squiggle in the IDE, before the test is ever run."
             }
           },
           {
@@ -4108,16 +4076,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "✂️",
             "content": {
-              "tr": "Utility type'lar, hazır kurabiye kalıpları gibidir. Mevcut bir kurabiyeyi alır, kenarlarını kesip (Omit) veya sadece ortasını çıkarıp (Pick) yeni şekiller üretir.",
-              "en": "Utility types are like cookie cutters. They take an existing cookie shape, trim the edges (Omit), or punch out the center (Pick) to make new shapes."
+              "tr": "Utility type'lar, mevcut bir hamuru sıfırdan yoğurmadan yeni şekiller çıkaran kurabiye kalıpları gibidir — kenarları kesersiniz (Omit) ya da sadece ortasını çıkarırsınız (Pick), ama hamurun kendisi (orijinal tip) hiç değişmez. Peki yeni şekil için yeni bir hamur (sıfırdan yeni bir interface) yoğurmak yerine neden var olan hamuru kesmeyi tercih edelim? Çünkü orijinal hamur (örn. `User` tipi) güncellendiğinde, kalıpla kesilen tüm şekiller (`Omit<User, 'password'>` gibi) otomatik olarak güncel kalır; ayrı yoğrulmuş hamurlar ise elle senkronize edilmesi gerekir ve bu kolayca unutulur — Java'da bu genelde ayrı DTO sınıfları elle yazılarak yapılırdı. QA'da somut faydası: bir login response'unu test ederken şifre alanını asla görmemeniz gereken bir `PublicUser` tipi gerekiyorsa, `Omit<User, 'password'>` kullanmak hem o alanın asla sızmayacağını derleme anında garanti eder hem de `User` tipine yeni bir hassas alan eklendiğinde bunu otomatik olarak dışarıda tutar.",
+              "en": "Utility types are like cookie cutters that produce a new shape from existing dough without kneading from scratch — you trim the edges (Omit) or punch out just the center (Pick), but the dough itself (the original type) never changes. So instead of kneading fresh dough (writing a brand-new interface) for every new shape, why cut from the existing one? Because when the original dough (say, the `User` type) gets updated, every shape cut from it (like `Omit<User, 'password'>`) stays automatically up to date; separately kneaded dough has to be synced by hand, and that's easy to forget — in Java this was usually done by hand-writing separate DTO classes. The concrete QA payoff: when testing a login response, you need a `PublicUser` type that should never expose the password field — using `Omit<User, 'password'>` guarantees at compile time that the field never leaks, and automatically excludes it again if a new sensitive field gets added to `User` later."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔑",
             "content": {
-              "tr": "keyof, bir nesnenin kapı anahtarları listesi gibidir. 'Bu evde sadece salon, mutfak ve banyo anahtarları var, başka anahtar getirme' kuralını koyar.",
-              "en": "keyof is like the ring of key labels for a house. It dictates: 'We only have keys labeled bedroom, kitchen, and attic. No other keys are accepted.'"
+              "tr": "keyof, bir evin anahtarlık panosu gibidir — panoda sadece 'salon', 'mutfak' ve 'banyo' anahtarları asılıysa, biri size 'bahçe' anahtarı uzattığında pano onu kabul etmez, çünkü öyle bir anahtar hiç basılmamıştır. Peki ev sahibi zaten hangi anahtarların var olduğunu biliyorken, panoyu ayrıca kodlamaya neden gerek var? Çünkü kod yazan kişi (veya ileride o kodu değiştiren başka biri) evin gerçek oda listesini ezbere bilmeyebilir ve yanlış bir oda adı yazıp derleyicinin hiç fark etmemesini ister; keyof ise panoyu evin kendisinden (tipin alan adlarından) türettiği için yanlış anahtar basılmasına izin vermez — Java'da bu garantiyi almak için reflection ile çalışma zamanında kontrol gerekirdi. QA'da somut faydası: bir test raporlama fonksiyonu `keyof TestCase` ile kısıtlanmışsa, raporun hangi alanı göstereceğini seçen kod yanlışlıkla var olmayan bir alan adı (`'sonuc'` yerine `'sonucc'`) yazarsa, bu hata testi koşturmadan derleme anında yakalanır.",
+              "en": "keyof is like a house's key rack — if the rack only has hooks labeled 'living room', 'kitchen', and 'bathroom', and someone hands you a 'garden' key, the rack won't accept it because that key was never cut in the first place. So if the homeowner already knows which keys exist, why bother coding the rack separately? Because whoever writes the code (or someone else who edits it later) might not have the house's exact room list memorized, and could type a wrong room name without the compiler ever noticing; keyof, by deriving the rack from the house itself (the type's field names), simply won't allow a key that was never cut to exist — in Java, getting this same guarantee would require reflection checked at runtime. The concrete QA payoff: if a test-reporting function is constrained with `keyof TestCase`, code that selects which field the report shows and accidentally types a field name that doesn't exist ('resultt' instead of 'result') gets caught at compile time, before the test ever runs."
             }
           },
           {
@@ -4239,8 +4207,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🚫",
             "content": {
-              "tr": "TypeScript null hataları derleme sırasında yakalar. Java'da NullPointerException çalışma sırasında patlardı — TypeScript bunu derlerken söyler. strictNullChecks açıksa, null/undefined kontrolü yapmadan değer kullanman engellenir.",
-              "en": "TypeScript catches null errors at compile time. Java's NullPointerException would crash at runtime — TypeScript warns you during compilation. With strictNullChecks enabled, you cannot use a value without checking for null/undefined first."
+              "tr": "strictNullChecks açık bir TypeScript projesi, asansöre binmeden önce 'kat boş mu, dolu mu?' diye soran bir görevli gibidir — boş olabilecek bir katı (null/undefined olabilecek bir değeri) kontrol etmeden kullanmaya çalıştığınızda sizi daha asansöre binmeden (derleme anında) durdurur. Peki Java'da zaten `NullPointerException` diye bir hata varken, TypeScript'in bunu önceden yakalaması neden bu kadar değerli? Çünkü Java'nın NPE'si tam olarak o satır çalıştığında, yani genelde production'da veya test koşarken patlar — milyonlarca 'Billion Dollar Mistake' (Tony Hoare'un kendi tabiriyle) buradan kaynaklanır; strictNullChecks ise aynı riski koda hiç yazılamayacak hale getirir. QA'da somut faydası: bir test yardımcı fonksiyonu `document.querySelector` ile bir elementi bulup hiç kontrol etmeden `.click()` çağırırsa, plain TypeScript (strict kapalı) veya JavaScript'te bu element bulunamazsa test çalışırken 'Cannot read property of null' ile çöker; strictNullChecks açıkken aynı kod derleyici tarafından 'önce null kontrolü yap' diyerek IDE'de durdurulur, test hiç çalıştırılmadan.",
+              "en": "A TypeScript project with strictNullChecks enabled is like an attendant who asks 'is this floor empty or occupied?' before you board the elevator — try to use a value that might be null/undefined without checking first, and you're stopped before you even board (at compile time). So if Java already has `NullPointerException` as an error, why is catching this ahead of time so valuable? Because Java's NPE explodes exactly when that line runs — usually in production or mid-test-run — and it's the source of what Tony Hoare himself called his 'billion dollar mistake'; strictNullChecks instead makes that same risk impossible to even write into the code. The concrete QA payoff: a test helper that finds an element with `document.querySelector` and calls `.click()` on it without checking first crashes mid-test with 'Cannot read property of null' in plain JavaScript or non-strict TypeScript; with strictNullChecks on, the compiler stops that same code in the IDE, demanding a null check first, before the test is ever run."
             }
           },
           {
@@ -4354,8 +4322,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📝",
             "content": {
-              "tr": "Template literal type, kelimeleri birleştirip yeni tip kuralları oluşturmaktır. 'staging' veya 'prod' kelimeleri ile '.myapp.com' adresini birleştirip sadece bu iki kalıba uyan URL'leri kabul eden bir kural yazar.",
-              "en": "Template literal types let you merge strings to create new type rules. Like combining 'staging' or 'prod' with '.myapp.com' to restrict values to only those two URL strings."
+              "tr": "Template literal type, bir matbaanın kalıp baskı şablonu gibidir — şablonda sabit bir çerçeve vardır ('___.myapp.com'), siz sadece boşluğa 'staging' veya 'prod' yazabilirsiniz; üçüncü bir kelime (örn. 'test') basmaya çalıştığınızda matbaa baskıyı reddeder. Peki bunu neden düz bir `string` tipiyle yapmıyoruz, zaten URL bir string değil mi? Çünkü düz string her şeyi kabul eder — biri yanlışlıkla `'staging.mayapp.com'` (yazım hatası) yazsa derleyici hiç fark etmez; template literal type ise kalıbın dışına çıkan her şeyi derleme anında reddeder. Java'da bunun birebir karşılığı yoktur — en yakını regex ile çalışma zamanında doğrulama yapmaktır, TypeScript ise bunu derleme anında, hiç çalıştırmadan sağlar. QA'da somut faydası: bir test ortamı seçici fonksiyon `env: \`${'staging' | 'prod'}.myapp.com\`` tipiyle yazıldığında, biri yanlış bir ortam URL'si geçmeye çalıştığında bu hata CI'da testler koşmadan, kodu derlerken yakalanır — yanlış ortama karşı test koşma riskini en baştan ortadan kaldırır.",
+              "en": "A template literal type is like a printing press's fixed-frame template — the frame itself is locked ('___.myapp.com'), and you can only fill the blank with 'staging' or 'prod'; try to print a third word (say, 'test') and the press refuses the job. So why not just use a plain `string` type — isn't a URL just a string anyway? Because a plain string accepts anything — someone could typo `'staging.mayapp.com'` and the compiler would never notice; a template literal type rejects anything outside the frame at compile time. Java has no direct equivalent — the closest is runtime validation via regex, while TypeScript provides this at compile time, without ever running the code. The concrete QA payoff: when a test-environment selector function is typed as `env: \`${'staging' | 'prod'}.myapp.com\``, passing a wrong environment URL gets caught while compiling the code in CI, before any tests even run — eliminating the risk of accidentally running tests against the wrong environment from the start."
             }
           },
           {
@@ -4499,8 +4467,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📦",
             "content": {
-              "tr": "@types paketi, bir JavaScript kütüphanesinin TypeScript rehber kitabı gibidir. Kütüphane TypeScript ile yazılmamışsa, bu paket TypeScript'e 'bu kütüphanede şu metodlar ve tipler var' der. Rehber olmadan TypeScript kütüphaneyi göremez.",
-              "en": "A @types package is TypeScript's manual for a JavaScript library. If the library isn't written in TypeScript, this package tells TypeScript 'this library has these methods and types'. Without the manual, TypeScript can't see the library."
+              "tr": "@types paketi, yurt dışından gelen bir cihazın çeviri kitapçığı gibidir — cihazın kendisi (JavaScript kütüphanesi) hiçbir dile çevrilmemiştir ama yanına eklenen kitapçık (DefinitelyTyped'dan gelen @types paketi) 'bu düğmeye basarsan şu olur, bu fonksiyon şu parametreleri ister' der. Peki kütüphane zaten çalışıyorsa, sadece tip bilgisi için neden ayrı bir paket kurulsun? Çünkü TypeScript'in editördeki otomatik tamamlama ve derleme-anı hata yakalama gücü, ancak fonksiyonların hangi parametreleri beklediğini, neyi döndürdüğünü bilmesiyle çalışır — çeviri kitapçığı olmadan TypeScript o kütüphaneyi 'her şey olabilir' (any) olarak görür ve tüm tip güvenliği orada kaybolur. Java'da bu sorun yoktur çünkü her .jar dosyası zaten kendi tip bilgisini (.class dosyalarında) taşır; JavaScript ekosisteminde tip bilgisi sonradan eklenen ayrı bir katmandır. QA'da somut faydası: `@types/node` kurulu olmadan `fs.readFileSync` çağırdığınızda TypeScript bu fonksiyonun ne döndürdüğünü bilemez ve hatalı kullanım derleme anında hiç yakalanmaz; paket kurulduğunda aynı hata IDE'de anında görünür.",
+              "en": "A @types package is like a translation booklet that comes with a device imported from abroad — the device itself (the JavaScript library) was never translated into any language, but the booklet that ships alongside it (a @types package from DefinitelyTyped) says 'press this button and that happens, this function expects these parameters.' So if the library already works, why install a separate package just for type information? Because TypeScript's editor autocomplete and compile-time error catching only work if it knows what parameters a function expects and what it returns — without the translation booklet, TypeScript sees that library as 'could be anything' (any), and all type safety evaporates right there. Java doesn't have this problem because every .jar file already carries its own type information (in its .class files); in the JavaScript ecosystem, type information is a separate layer bolted on afterward. The concrete QA payoff: call `fs.readFileSync` without `@types/node` installed, and TypeScript has no idea what it returns, so misuse is never caught at compile time; once the package is installed, the same mistake shows up instantly in the IDE."
             }
           },
           {
@@ -4668,8 +4636,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🗺️",
             "content": {
-              "tr": "Conditional type, 'eğer X ise A, değilse B' mantığında çalışan tip. Mapped type, bir nesnenin tüm alanlarını dönüştürür — her alanı opsiyonel yap, her alanı string yap gibi. Partial<T> aslında bir mapped type.",
-              "en": "A conditional type works like 'if X then A, else B' for types. A mapped type transforms all fields of an object — make every field optional, make every field a string. Partial<T> is actually a mapped type."
+              "tr": "Conditional type, bir gümrük memurunun 'eğer bu pasaport Türk ise şu kapıdan, değilse öbür kapıdan geç' kuralı gibi çalışır — tip seviyesinde bir if/else'dir. Mapped type ise bir fabrikada tüm ürün hattına aynı işlemi tek seferde uygulayan bir makine gibidir — 'her ürünü opsiyonel ambalajla' veya 'her ürünü string etikete çevir' der, tek tek elle dokunmaz; aslında `Partial<T>` dediğiniz şey de arka planda tam olarak böyle bir mapped type'tır. Peki bu iki kavram neden ayrı ayrı öğrenilmeli, zaten interface yazarak aynı sonuca ulaşılamaz mı? Çünkü elle yazılan bir interface, orijinal tip değiştiğinde elle güncellenmesi gerekir; conditional/mapped type'lar ise orijinal tipten otomatik türediği için kaynak değiştikçe kendiliğinden senkronize kalır — Java'da generic'lerle bu seviyede tip-zamanı mantık üretmek mümkün değildir, en yakını annotation processor yazmaktır. QA'da somut faydası: `type ApiResult<T> = T extends Error ? { success: false; error: T } : { success: true; data: T }` gibi bir conditional type, bir API çağrısının başarı/hata durumuna göre farklı şekil alan response'ları derleme anında doğru tipte zorlar — hangi dalda hangi alanın var olduğunu unutmak imkansız hale gelir.",
+              "en": "A conditional type works like a customs officer's rule — 'if this passport is Turkish, go through this gate, otherwise that one' — it's an if/else at the type level. A mapped type is like a factory machine that applies the same operation to an entire product line at once — 'wrap every product in optional packaging' or 'turn every product's label into a string,' without touching each one by hand; in fact, `Partial<T>` is itself exactly this kind of mapped type under the hood. So why learn these as two separate concepts — couldn't a hand-written interface achieve the same result? Because a hand-written interface needs manual updates whenever the original type changes; conditional/mapped types are derived automatically from the source type, so they stay in sync as it evolves — Java has no way to generate this kind of type-level logic with generics, the closest equivalent is writing an annotation processor. The concrete QA payoff: a conditional type like `type ApiResult<T> = T extends Error ? { success: false; error: T } : { success: true; data: T }` forces an API response that shapes itself differently on success vs. failure into the correct type at compile time — forgetting which field exists on which branch becomes impossible."
             }
           },
           {
@@ -4956,8 +4924,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛡️",
             "content": {
-              "tr": "Hata yönetimi, bilinmeyen bir kutuyu eldivenle açmak gibidir. Kutunun içinden ne çıkacağını bilmediğin (unknown) için önce kontrol edersin, sonra dokunursun.",
-              "en": "Error handling is like opening a mystery package with protective gloves. Since you don't know what is inside (unknown), you inspect it before handling it."
+              "tr": "TypeScript'te catch bloğundaki hata, laboratuvara gelen etiketsiz bir numune kutusu gibidir — eldiveni takmadan (tip kontrolü yapmadan) doğrudan içine elinizi sokamazsınız, çünkü kutunun içinde ne olduğu (`unknown`) baştan belli değildir. Peki Java'da `catch (Exception e)` yazıp `e.getMessage()` çağırmak hep güvenliyken, TypeScript neden `catch (e)` bloğunda `e`'yi `unknown` yapıp sizi zorluyor? Çünkü JavaScript'te `throw` ile fırlatılan şey bir Error nesnesi olmak zorunda değildir — biri `throw` ile basit bir metin (string) veya `throw 42` ile bir sayı bile fırlatabilir; Java'da her exception zorunlu olarak Throwable'dan türediği için bu belirsizlik hiç yoktur. QA'da somut faydası: bir test yardımcı fonksiyonu catch bloğunda doğrudan `e.message` okumaya çalışırsa ve birisi gerçekten string fırlatmışsa, plain JavaScript bunu sessizce `undefined` olarak geçiştirir ve hata raporu boş kalır; `unknown` ile tip edilmiş `e`, `instanceof Error` kontrolü yapmadan `.message`'a erişmenizi derleme anında engelleyerek bu sessiz veri kaybını önler.",
+              "en": "In TypeScript, the error caught in a catch block is like an unlabeled sample container arriving at a lab — you can't reach in without gloves (without a type check), because what's inside (`unknown`) is genuinely unknown at the outset. So if `catch (Exception e)` followed by `e.getMessage()` is always safe in Java, why does TypeScript type `e` as `unknown` in a `catch (e)` block and force extra work? Because in JavaScript, whatever gets thrown doesn't have to be an Error object at all — someone can write `throw \"just a string\"` or even `throw 42`; in Java, every exception is mandatorily derived from Throwable, so this ambiguity never exists there. The concrete QA payoff: if a test helper tries to read `e.message` directly inside a catch block and someone genuinely threw a plain string, plain JavaScript silently returns `undefined` and the error report comes back empty; with `e` typed as `unknown`, accessing `.message` without an `instanceof Error` check first is blocked at compile time, preventing that silent data loss."
             }
           },
           {
@@ -6427,8 +6395,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏃",
             "content": {
-              "tr": "Vitest, bir öğretmenin tüm öğrenci ödevlerini hızlıca tek tek kontrol edip yanına ✅ veya ❌ yazması gibidir. Her test dosyası bir ödev kağıdıdır; Vitest hepsini saniyeler içinde tarar ve hangisinin doğru hangisinin yanlış olduğunu renkli olarak gösterir.",
-              "en": "Vitest is like a teacher quickly checking every student's homework and marking it ✅ or ❌. Each test file is a homework sheet; Vitest scans them all in seconds and shows, in color, which ones are right and which are wrong."
+              "tr": "Vitest, bir öğretmenin sınıftaki tüm ödevleri aynı anda, ama sadece değişen sayfaları yeniden okuyarak kontrol etmesi gibidir — bir önceki kontrolden bu yana değişmeyen ödev kağıtlarını tekrar baştan okumaz, sadece dokunulan dosyaları (watch mode) yeniden tarar ve sonucu saniyeler içinde ✅/❌ olarak gösterir. Peki Jest gibi köklü bir test runner zaten varken neden Vitest gibi yeni bir araç çıktı? Çünkü Jest, TypeScript dosyalarını çalıştırmadan önce ayrı bir derleme adımından (genelde Babel veya ts-jest) geçirir ve bu, büyük projelerde gözle görülür bir yavaşlık yaratır; Vitest ise Vite'in zaten kullandığı esbuild tabanlı anlık derlemeyi kullanarak bu adımı neredeyse sıfıra indirir — Java'da bunun karşılığı, Maven'in her seferinde tüm projeyi yeniden derlemesi yerine artımlı (incremental) derleme yapmasına benzer. QA'da somut faydası: yüzlerce test dosyası olan bir TypeScript projesinde, sadece bir dosyayı değiştirdiğinizde Vitest watch mode sadece o dosyayla ilgili testleri saniyeler içinde yeniden çalıştırır; Jest'te aynı senaryo, derleme adımı yüzünden gözle görülür şekilde daha yavaş hissedilebilir.",
+              "en": "Vitest is like a teacher checking every assignment in the class at once, but only re-reading the pages that actually changed — sheets unchanged since the last check aren't read from scratch again; only the touched files get rescanned (watch mode), and results show up in seconds as ✅/❌. So if Jest is already an established test runner, why did a new tool like Vitest need to exist? Because Jest runs TypeScript files through a separate compile step first (usually Babel or ts-jest), and that creates a noticeable slowdown on large projects; Vitest instead reuses the esbuild-based instant compilation that Vite already runs internally, shrinking that step to nearly zero — the closest Java analogy is Maven doing incremental compilation instead of rebuilding the entire project every time. The concrete QA payoff: in a TypeScript project with hundreds of test files, changing just one file makes Vitest's watch mode re-run only the relevant tests within seconds; the same scenario under Jest can feel noticeably slower because of that compile step."
             }
           },
           {
@@ -7638,8 +7606,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛡️",
             "content": {
-              "tr": "TypeScript, emniyet kemeri takılmış bir araba gibidir. JavaScript ise kemersiz hız yapmaktır — kaza anında (hata durumunda) emniyet kemeri hayat kurtarır ve sizi korur.",
-              "en": "TypeScript is like a car with a seatbelt fastened. JavaScript is speeding without a belt — the seatbelt saves your life and protects you during an accident (error)."
+              "tr": "TypeScript, emniyet kemeri takılmış bir araba gibidir; JavaScript ise aynı arabayı kemersiz sürmektir — her ikisi de aynı hızda gidebilir, fark ancak kaza anında (çalışma zamanı hatasında) ortaya çıkar. Peki JavaScript zaten çalışıyorsa, neden fazladan bir kemer takma zahmetine girilsin? Çünkü kemer kazayı önlemez, kazanın ölümcül olmasını önler — TypeScript de hatayı engellemez, hatanın kullanıcıya ulaşmadan, derleme anında yakalanmasını sağlar; Java zaten doğuştan kemerli gelir (statik tip denetimi zorunludur), TypeScript bu kemeri sonradan JavaScript'e takan bir ek parçadır. QA'da bunun karşılığı şudur: kemersiz (plain JS) bir test paketinde bir fonksiyona yanlış tipte parametre geçtiğinizde test genelde 'geçti' der ama içeride sessizce yanlış çalışır; kemerli (TypeScript) pakette aynı hata, testi siz hiç çalıştırmadan kırmızı çizgiyle IDE'de görünür.",
+              "en": "TypeScript is like a car with the seatbelt fastened; JavaScript is driving the same car without one — both can go the same speed, the difference only shows up at the moment of a crash (a runtime error). So if JavaScript already runs fine, why bother with the extra seatbelt? Because a seatbelt doesn't prevent the crash, it prevents the crash from being fatal — TypeScript doesn't prevent the bug, it makes sure the bug is caught at compile time, before it ever reaches a user; Java is born with the seatbelt already on (static type checking is mandatory), and TypeScript is the add-on part that retrofits that same belt onto JavaScript. In QA this plays out concretely: in a seatbelt-less (plain JS) test suite, passing the wrong type of argument to a function often still reports the test as 'passed' while it misbehaves silently underneath; in a TypeScript suite, the same mistake shows up as a red squiggle in the IDE before the test is ever run."
             }
           },
           {
@@ -8144,16 +8112,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛠️",
             "content": {
-              "tr": "Node.js kurmak, mutfağa su ve gaz tesisatı çekmek gibidir. TypeScript ise bu mutfağa aldığınız akıllı kahve makinesi gibidir — çalışması için altyapıya ihtiyaç duyar.",
-              "en": "Installing Node.js is like laying down water and gas pipes in a kitchen. TypeScript is like the smart espresso machine you buy — it needs that infrastructure to run."
+              "tr": "Node.js kurmak, bir mutfağa su ve gaz tesisatı çekmek gibidir; TypeScript ise o mutfağa sonradan koyduğunuz akıllı kahve makinesidir — makine kendi başına çalışmaz, suyu ve gazı sağlayan altyapıya ihtiyaç duyar. Peki TypeScript koddur, neden çalışmak için ayrıca Node.js'e ihtiyaç duysun? Çünkü TypeScript tarayıcının veya Node'un anlayacağı bir dil değildir, sadece JavaScript'e dönüşmek (derlenmek/transpile edilmek) üzere yazılmış bir kaynak koddur — tıpkı Java kaynak kodunun JVM'de çalışmadan önce `.class` byte code'a derlenmesi gibi, TypeScript de `tsc` ile JavaScript'e derlenir ve asıl çalışan motor (Node.js veya tarayıcı) hep JavaScript'tir. QA'da bu ayrım önemlidir: bir CI pipeline'ında 'Node.js kurulu ama TypeScript derleyicisi (`tsc` veya `ts-node`) eksik' gibi bir hata aldığınızda, sorun Node'da değil, kahve makinesinin fişinin takılı olmamasındadır — yani derleme adımının pipeline'a hiç eklenmemiş olmasındadır.",
+              "en": "Installing Node.js is like running the water and gas lines into a kitchen; TypeScript is the smart espresso machine you later add to that kitchen — the machine can't run on its own, it needs the infrastructure that supplies water and gas. So if TypeScript is code, why does it need Node.js at all to run? Because TypeScript isn't a language the browser or Node understands directly — it's source code meant to be compiled (transpiled) down to JavaScript, the same way Java source code compiles to `.class` bytecode before the JVM can run it; TypeScript compiles to JavaScript via `tsc`, and the engine that actually executes anything (Node.js or the browser) is always JavaScript underneath. This distinction matters in QA: when a CI pipeline errors with something like 'Node.js is installed but the TypeScript compiler (`tsc` or `ts-node`) is missing,' the problem isn't Node — it's that the espresso machine was never plugged in, meaning the compile step was simply never added to the pipeline."
             }
           },
           {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "tsconfig.json dosyası, bir akıllı cihazın Türkçe/İngilizce kullanım kılavuzu ve ayar menüsü gibidir. Cihazın hangi kurallarla çalışacağını buradan seçersiniz.",
-              "en": "The tsconfig.json file is like the user manual and settings menu of a smart device. You configure the compilation rules and strictness options there."
+              "tr": "tsconfig.json dosyası, yeni aldığınız bir cihazın ayar menüsü gibidir — 'sıkı mod' (strict) açıksa cihaz size her şüpheli kullanımda uyarı verir, kapalıysa sessizce ne verirseniz onu yapar. Peki bu ayarları varsayılan bırakmak yerine neden elle düzenlemek gerekir? Çünkü `strict: false` ile başlayan bir proje, Java'da hiçbir derleyici uyarısı almadan `Object` tipiyle her şeyi geçiştirmeye benzer — kısa vadede kolay ama hata, derleme anında değil çalışma zamanında patlar; `strict: true` ise Java'nın doğuştan sahip olduğu zorunlu tip denetimini TypeScript'e geri kazandırır. QA'da bunun maliyeti somuttur: strict mod kapalı bir test projesinde `null` veya `undefined` bir elemana erişmek derleyiciyi hiç rahatsız etmez ve test çalışırken aniden çöker; strict mod açık bir projede aynı hata, kodu commit etmeden önce kırmızı çizgiyle gösterilir.",
+              "en": "The tsconfig.json file is like the settings menu of a newly purchased device — with 'strict mode' turned on, the device warns you on every questionable use; turned off, it silently does whatever you tell it. So why bother editing these settings instead of leaving the defaults? Because a project that starts with `strict: false` behaves like Java code that gets away with typing everything as `Object` without a single compiler warning — easy in the short term, but the bug explodes at runtime instead of compile time; `strict: true` restores the mandatory type checking that Java has built in from birth. The cost is concrete in QA: in a test project with strict mode off, accessing a `null` or `undefined` property doesn't bother the compiler at all and the test suite crashes mid-run; in a project with strict mode on, the same mistake is flagged with a red squiggle before the code is even committed."
             }
           },
           {
@@ -8400,8 +8368,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔷",
             "content": {
-              "tr": "TypeScript, JavaScript'in üzerine etiket takılmış hali. 'Bu kutu sadece sayı içerir' etiketi gibi — yanlış bir şey koymaya çalışırsan hemen uyarı alırsın. Java'da zaten böyleydi; TypeScript bunu JavaScript'e getiriyor.",
-              "en": "TypeScript is JavaScript with labels attached. Like a box labeled 'numbers only' — if you try to put the wrong thing in, you get an immediate warning. Java already had this; TypeScript brings it to JavaScript."
+              "tr": "TypeScript, JavaScript'in her değişkenine bir etiket asılmış hali — 'bu kutu sadece sayı içerir' etiketi gibi, yanlış bir şey koymaya çalıştığınızda kutu kapanmadan (derleme anında) uyarı alırsınız. Peki number, string gibi basit tipler bu kadar sezgiselse, neden ayrıca öğrenmeye değer bir konu olsun? Çünkü asıl güç tek bir değişkende değil, bu basit tiplerin fonksiyon parametrelerine, dönüş değerlerine ve nesne alanlarına tutarlı şekilde yayılmasındadır — Java'da bu zaten `int`, `String`, `boolean` ile doğuştan vardı, TypeScript aynı disiplini opsiyonel olan JavaScript'e sonradan ekliyor. QA'da fark şuradadır: plain JavaScript'te bir test fonksiyonuna `25` string'ini yaş olarak geçtiğinizde fonksiyon sessizce yanlış matematik yapar (`25 + 5` sayı toplaması yerine string birleştirip `255` üretir); basit tipleri doğru kullanan TypeScript kodu bu hatayı IDE'de anında, testi hiç çalıştırmadan gösterir.",
+              "en": "TypeScript is JavaScript where every variable gets a label attached — like a box marked 'numbers only,' where trying to put the wrong thing in trips a warning before the box even closes (at compile time). So if simple types like number and string are this intuitive, why is there a whole topic worth learning here? Because the real power isn't in one variable, it's in those simple types propagating consistently through function parameters, return values, and object fields — Java already had this built in from birth with `int`, `String`, `boolean`; TypeScript retrofits that same discipline onto JavaScript, where it was always optional. The QA-relevant difference: in plain JavaScript, passing the string `\"25\"` as an age into a test helper silently produces wrong math (`\"25\" + 5` becomes `\"255\"`); TypeScript code that uses simple types correctly flags that mistake instantly in the IDE, before the test is ever run."
             }
           },
           {
@@ -8602,17 +8570,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚠️",
             "content": {
-              "0": "T",
-              "1": "u",
-              "2": "p",
-              "3": "l",
-              "4": "e",
-              "5": "'",
-              "6": "l",
-              "7": "a",
-              "8": "r",
-              "tr": "Özel tipler, beklenmedik durumlar için. 'any' = her şey olabilir (kötü pratik), 'unknown' = bilinmiyor ama önce kontrol et, 'never' = bu kod asla çalışmaz, 'void' = fonksiyon bir şey döndürmez.",
-              "en": "Special types for unexpected situations. 'any' = can be anything (bad practice), 'unknown' = unknown but check first, 'never' = this code never runs, 'void' = function returns nothing."
+              "tr": "any, unknown, never ve void; bir gümrük memurunun dört farklı muamelesi gibidir. any = 'kimliğine bakmadan içeri al' (tehlikeli), unknown = 'içeri al ama kimliğini kontrol etmeden hiçbir işlem yaptırma', never = 'bu kapıdan kimse asla geçmeyecek' (fonksiyon hep hata fırlatıyorsa), void = 'memur işini yaptı ama eve hiçbir şey götürmedi' (fonksiyon değer döndürmez). Peki zaten 'any' her şeyi kabul ederken neden 'unknown' diye ayrı bir tip var? Çünkü any tip denetimini tamamen kapatır, unknown ise denetimi açık tutup sadece 'önce kontrol et' der — Java'da bunun tam karşılığı yok, en yakını her yerde instanceof zorunlu kılınan bir Object referansı gibi davranmaktır. QA tarafında fark kritik: any ile yazılmış bir API response parser, sunucu şemayı değiştirdiğinde sessizce çöker ve testin neden FAIL olduğunu saatlerce ararsınız; unknown kullanan aynı parser, derleme anında 'önce kontrol et' diyerek o hatayı production'a gitmeden yakalar.",
+              "en": "any, unknown, never, and void are like four different responses from a border officer. any = 'let anyone in without checking ID' (dangerous), unknown = 'let them in, but they can't do anything until they show ID' (must check before use), never = 'no one will ever pass through this gate' (a function that always throws), void = 'the officer did their job but carries nothing back' (a function returning no value). So if any already accepts everything, why does unknown need to exist separately? Because any switches type-checking off entirely, while unknown keeps it on and simply demands 'verify first' — Java has no exact equivalent, the closest analogue is an Object reference that forces an instanceof check everywhere it's used. The QA-relevant difference is real: an API response parser typed as any fails silently the moment the server changes its schema, and you lose hours hunting why a test FAILed; the same parser typed as unknown gets caught at compile time with 'check first,' before it ever reaches production."
             }
           },
           {
@@ -8743,16 +8702,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏷️",
             "content": {
-              "tr": "number, string ve boolean tipleri, oyuncak kutularının üzerindeki etiketler gibidir. 'Sadece Oyuncak Ayı' etiketli kutuya araba koyamazsınız.",
-              "en": "The number, string, and boolean types are like stickers on toy boxes. You can't put a toy car in a box labeled 'Teddy Bears Only'."
+              "tr": "number, string ve boolean tipleri, depodaki kutuların üzerine yapıştırılmış etiketler gibidir — 'Sadece Oyuncak Ayı' yazan kutuya araba koymaya çalıştığınızda depo görevlisi (derleyici) sizi daha kutuyu kapatmadan durdurur. Peki JavaScript zaten çalışırken bu hatayı 'undefined is not a function' diye haber veriyorken, neden TypeScript bunu kutuyu kapatmadan, yani derleme anında yakalamaya çalışır? Çünkü depoda yanlış ürünü fark etmek mağazaya gönderildikten (production'a deploy edildikten) sonra fark etmekten çok daha ucuzdur — Java'da bu zaten `int`, `String`, `boolean` ile zorunluydu, TypeScript bu disiplini opsiyonel olan JavaScript'e geri getiriyor. QA tarafında somut fark: bir test fonksiyonuna yanlışlıkla string yerine number geçtiğinizde, plain JavaScript testi 'geçti' gösterip içeride sessizce yanlış davranabilir, ama type-checked kod aynı hatayı IDE'de kırmızı çizgiyle, testi hiç çalıştırmadan gösterir.",
+              "en": "The number, string, and boolean types are like labels stuck on warehouse boxes — try to put a car in a box labeled 'Teddy Bears Only' and the warehouse clerk (the compiler) stops you before the box is even sealed. So if JavaScript already reports this mistake at runtime as 'undefined is not a function,' why does TypeScript insist on catching it before the box ships, i.e. at compile time? Because spotting the wrong product in the warehouse is far cheaper than discovering it after it reached the store (production) — Java already enforced this with `int`, `String`, `boolean`, and TypeScript brings that same discipline back to JavaScript, where it was always optional. The QA-relevant difference is concrete: pass a number where a test helper expects a string, and plain JavaScript may report the test as 'passed' while silently misbehaving inside, whereas type-checked code flags the same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🕵️",
             "content": {
-              "tr": "unknown tipi, hediye paketi sarılmış gizemli bir kutu gibidir. Ne olduğunu bilmediğin için açıp kontrol etmeden (narrowing) doğrudan içindekini çalıştıramazsın.",
-              "en": "The unknown type is like a wrapped mystery gift box. Since you don't know what is inside, you cannot interact with it until you check its contents (narrowing)."
+              "tr": "unknown tipi, üzeri kapalı, üstünde etiket olmayan bir paket gibidir — kuryeden teslim alırsınız ama içini açıp (typeof/instanceof ile narrowing yapıp) kontrol etmeden hiçbir işlem yapamazsınız, derleyici elinizi durdurur. Peki o zaman neden direkt any kullanıp paketi hiç açmadan kullanmıyoruz? Çünkü any 'paketin içini hiç sormadan kullan' der ve içinde bomba (yanlış tipte veri) olsa bile patlayana kadar fark etmezsiniz; unknown ise 'kullanmadan önce mutlaka kontrol et' diyerek Java'daki her Object referansını instanceof ile cast etmeden kullanamama disiplinini geri getirir. QA'da bu, dış bir API'den gelen JSON response'u parse ederken hayat kurtarır: unknown ile tip edilmiş bir response, beklenmeyen bir alan değiştiğinde testi derleme anında durdurur; any ile tip edilmiş aynı response, o değişikliği fark etmeden testi 'PASSED' gösterip gerçek bug'ı production'a kadar saklar.",
+              "en": "The unknown type is like a sealed, unlabeled package — the courier hands it to you, but you cannot do anything with it until you open it and verify what's inside (narrowing via typeof/instanceof); the compiler stops your hand. So why not just use any and skip opening the package entirely? Because any says 'use it without ever asking what's inside,' and if there's a bomb in there (data of the wrong type) you won't notice until it explodes; unknown instead says 'verify before you touch it,' bringing back the same discipline Java enforces when you can't use an Object reference without casting it via instanceof first. In QA this is a lifesaver when parsing a JSON response from an external API: a response typed as unknown stops your test at compile time the moment an unexpected field changes; the same response typed as any lets that change slip by unnoticed, reports the test as 'PASSED,' and hides the real bug until it reaches production."
             }
           },
           {
@@ -8874,31 +8833,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📚",
             "content": {
-              "0": "T",
-              "1": "y",
-              "2": "p",
-              "3": "e",
-              "4": " ",
-              "5": "A",
-              "6": "l",
-              "7": "i",
-              "8": "a",
-              "9": "s",
-              "10": " ",
-              "11": "v",
-              "12": "s",
-              "13": " ",
-              "14": "I",
-              "15": "n",
-              "16": "t",
-              "17": "e",
-              "18": "r",
-              "19": "f",
-              "20": "a",
-              "21": "c",
-              "22": "e",
-              "tr": "TypeScript array'i Java'nın typed ArrayList'i gibi. Java'da List<String> yazınca sadece String girebilirdin. TypeScript'te string[] yazarsan sadece string girebilirsin.",
-              "en": "TypeScript arrays are like Java's typed ArrayList. In Java, List<String> only accepts Strings. In TypeScript, string[] only accepts strings."
+              "tr": "TypeScript array'i, raflarındaki ürün tipini değiştirmeyen bir market koridoru gibidir — 'meyve koridoru' rafına sadece meyve koyabilirsiniz, ortasına bir laptop bırakamazsınız. Java'da bu zaten List<String> ile yapılıyordu: sadece String kabul eden bir liste. Peki Java zaten bunu yapıyorken TypeScript'in string[] yazımı neden farklı/daha kısa görünüyor? Çünkü TypeScript array tipini her elemanın yanına değil dizinin tamamına bir kere yazar (string[] = Java'daki List<String>'in kısaltılmış hali), generic syntax (Array<string>) de aynı şeyi söyler, sadece daha uzun yazılır. QA bağlamında bunun bedeli somut: test verisi dizisine yanlışlıkla bir number veya null karıştığında (örn. API'den dönen kullanıcı listesine bozuk bir kayıt sızdığında), tip kontrolü olmayan plain JavaScript bunu sessizce kabul edip ileride 'undefined is not a function' ile production'da patlar; typed array bunu derleme anında, testi bile çalıştırmadan yakalar.",
+              "en": "A TypeScript array is like a grocery aisle that won't let the product type drift — you can only put fruit on the 'fruit aisle' shelf, never a laptop in the middle of it. Java already did this with List<String>: a list that only accepts Strings. So if Java already solved this, why does TypeScript's string[] syntax look different/shorter? Because TypeScript writes the type once for the whole array instead of per element (string[] is shorthand for what Java's List<String> expresses), and the generic syntax (Array<string>) says the exact same thing, just more verbosely. The QA cost is concrete: when a number or null accidentally slips into a test-data array (say, a corrupted record leaking into a user list returned by an API), plain JavaScript with no type checking accepts it silently and only blows up in production with 'undefined is not a function'; a typed array catches that at compile time, before the test even runs."
             }
           },
           {
@@ -9010,8 +8946,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎁",
             "content": {
-              "tr": "Tuple, sabit boyutlu ve her pozisyonun tipi bilinen bir dizi. 'İlk eleman her zaman isim (string), ikincisi yaş (number)' gibi. Java'da tam karşılığı yok — ama Python'da tuple var ve aynı mantık.",
-              "en": "A tuple is a fixed-size array where each position has a known type. 'First element is always name (string), second is age (number).' Java has no direct equivalent — but Python has tuples with the same idea."
+              "tr": "Tuple, her gözünün ne içereceği önceden belirlenmiş, sabit bölmeli bir kalem kutusu gibidir — ilk göz her zaman kalem (string), ikinci göz her zaman silgi (number) olmak zorundadır, sırayı karıştıramaz veya fazladan göz ekleyemezsiniz. Madem zaten bir array türü olarak string[] veya number[] var, neden ayrıca tuple'a ihtiyaç duyulur? Çünkü normal array 'aynı tipten istediğin kadar eleman' der, tuple ise 'tam şu sırada, tam şu tipte, tam bu kadar eleman' der — Java'da bunun birebir karşılığı yoktur (en yakını sabit alanlı bir record/class yazmaktır), ama Python'daki tuple tam olarak aynı fikri taşır. QA'da bu fark, bir test adımının sonucunu [adımAdı, geçtiMi, süreMs] gibi sabit yapıda taşımak istediğinizde işe yarar: normal bir array burada elemanların sırasını veya sayısını yanlışlıkla karıştırsanız sessizce kabul eder, tuple ise 'ikinci eleman boolean olmalı, string değil' diyerek o hatayı derleme anında, testi koşturmadan yakalar.",
+              "en": "A tuple is like a pencil case with fixed compartments where each slot's contents are predetermined — the first slot must always hold a pencil (string), the second must always hold an eraser (number); you can't swap the order or add an extra slot. If string[] or number[] already exist as array types, why do we need tuples too? Because a regular array says 'any number of elements of the same type,' while a tuple says 'exactly this many elements, in exactly this order, of exactly these types' — Java has no direct equivalent (the closest is writing a fixed-field record/class), but Python's tuple carries the exact same idea. This matters in QA when you want to carry a test step's result as a fixed shape like [stepName, passed, durationMs]: a regular array would silently accept the elements in the wrong order or count, while a tuple says 'the second element must be a boolean, not a string' and catches that mistake at compile time, before the test ever runs."
             }
           },
           {
@@ -9143,16 +9079,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎒",
             "content": {
-              "tr": "Dizi, bir sınıftaki aynı boydaki sıralı öğrenciler gibidir. Herkes sırayla dizilmiştir ve listeye yeni öğrenciler ekleyebilirsiniz.",
-              "en": "An array is like a line of students of similar height. Everyone is ordered, and you can append new students to the end of the line."
+              "tr": "Dizi, bir okul gezisinde sıraya dizilmiş, hepsi aynı tür kıyafeti giyen öğrenciler gibidir — sıraya yeni bir öğrenci eklenebilir ama kıyafeti yine aynı tür olmak zorundadır. Peki tüm öğrenciler aynı tipteyse, ayrıca her birine tek tek etiket yapıştırmaya gerek var mı? Hayır, ve TypeScript de tam bunu yapar: `string[]` tüm sıranın 'bu kıyafet türünden' olduğunu bir kerede söyler — Java'da bu zaten `List<String>` ile zorunluydu, TypeScript aynı garantiyi opsiyonel olan JavaScript dizilerine geri getirir. QA'da fark şurada ortaya çıkar: bir test verisi dizisine API'den dönen bozuk bir kayıt (örneğin `null`) sızdığında, plain JavaScript bunu sessizce kabul edip ileride 'Cannot read property of null' ile production'da patlar; typed array aynı sızıntıyı derleme anında, daha test koşmadan yakalar.",
+              "en": "An array is like a line of students on a field trip, all wearing the same type of uniform — you can add a new student to the line, but their uniform has to match the same type. So if every student is the same type, is it worth labeling each one individually? No — and that's exactly what TypeScript avoids: `string[]` declares the entire line is 'this uniform type' once, for everyone — Java already enforced this with `List<String>`, and TypeScript brings that same guarantee back to JavaScript arrays, where it was always optional. The QA-relevant difference shows up when a corrupted record (say, a stray `null`) leaks into a test-data array from an API response: plain JavaScript accepts it silently and only blows up in production with 'Cannot read property of null'; a typed array catches that same leak at compile time, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "💳",
             "content": {
-              "tr": "Tuple, bir kimlik kartındaki ad soyad ve TC kimlik numarası gibidir. Boyutu sabittir ve ilk sıradaki verinin string, ikinci sıradakinin number olacağı kesindir.",
-              "en": "A tuple is like an ID card with a Name and an ID number. The length is fixed, and the first element is always a string, while the second is always a number."
+              "tr": "Tuple, bir kimlik kartındaki sabit alanlar gibidir — ilk alan her zaman ad soyad (string), ikinci alan her zaman TC kimlik numarası (number) olacak şekilde basılmıştır, kartı yeniden tasarlamadan sırayı değiştiremezsiniz. Madem array zaten var, neden bu kadar katı, sabit boyutlu bir yapıya ihtiyaç duyulsun? Çünkü array 'kaç tane olursa olsun aynı tipten' der, tuple ise 'tam bu kadar, tam bu sırada, tam bu tiplerde' der — Java'da kart tasarımına en yakın karşılık sabit alanlı bir record/class yazmaktır, TypeScript'te ise bunu tek satırda `[string, number]` ile ifade edersiniz. QA'da bu, bir API'den dönen `[durum, kodu]` çiftini işlerken işe yarar: array kullanırsanız birileri yanlışlıkla sırayı `[kodu, durum]` diye karıştırabilir ve derleyici sessiz kalır; tuple kullanırsanız bu karışıklık derleme anında, testi koşturmadan yakalanır.",
+              "en": "A tuple is like the fixed fields on an ID card — the first field is always printed as the full name (string), the second is always the ID number (number), and you can't reorder them without redesigning the card. If arrays already exist, why need such a rigid, fixed-size structure at all? Because an array says 'any number of these, same type,' while a tuple says 'exactly this many, in exactly this order, of exactly these types' — in Java the closest equivalent to the card design is writing a fixed-field record/class, while TypeScript lets you express the same thing in one line: `[string, number]`. This matters in QA when processing a `[status, code]` pair returned from an API: with a plain array, someone could accidentally flip the order to `[code, status]` and the compiler stays silent; with a tuple, that mix-up is caught at compile time, before the test ever runs."
             }
           },
           {
@@ -9286,8 +9222,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📋",
             "content": {
-              "tr": "Object type, bir nesnenin içinde ne olması gerektiğini söyleyen sözleşme. 'Test sonucu için mutlaka ad, durum ve süre lazım' gibi. Java'da interface veya class ile yapılır.",
-              "en": "Object type is a contract saying what must be inside an object. 'A test result must have a name, status, and duration.' In Java, this is done with an interface or class."
+              "tr": "Object type, bir kargo formuna benzer bir sözleşmedir — 'bu pakette mutlaka alıcı adı, takip kodu ve ağırlık olmalı' der; biri eksikse koli kargoya hiç verilmez. Peki bu kontrolü neden çalışma zamanında (paket fiilen elden çıktığında) değil de daha önce yapalım? Çünkü eksik alanı depoda fark etmek, müşteriye ulaştıktan sonra fark etmekten çok daha ucuzdur — Java'da bu sözleşme zaten bir interface veya class ile zorunluydu, TypeScript aynı garantiyi düz JavaScript nesnelerine sonradan ekliyor. QA'da somut karşılığı şudur: bir test sonucu nesnesinde `duration` alanı unutulduğunda, plain JavaScript'te bu hata raporlama aşamasında 'undefined ms' gibi sessiz bir görüntüyle fark edilmeden geçer; object type kullanan TypeScript kodunda aynı eksiklik, kodu commit etmeden önce derleyici tarafından söylenir.",
+              "en": "An object type is like a shipping manifest contract — it says 'this package must have a recipient name, a tracking code, and a weight,' and if one is missing, the box never leaves the warehouse. So why catch this before runtime, before the package actually ships, instead of after? Because spotting a missing field in the warehouse is far cheaper than discovering it after it reached the customer — Java already enforced this contract with an interface or class; TypeScript adds that same guarantee onto plain JavaScript objects, where it was always optional. The QA-relevant payoff: when a test-result object is missing its `duration` field, plain JavaScript lets that slip through quietly, showing up as 'undefined ms' somewhere in a report; TypeScript code using an object type gets the compiler to call out that same gap before the code is ever committed."
             }
           },
           {
@@ -9426,8 +9362,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎯",
             "content": {
-              "tr": "Enum, izin verilen değerlerin sabit listesi. 'Test durumu sadece PASS, FAIL veya SKIP olabilir — başka bir şey yazarsan hata alırsın.' Java'da enum zaten vardı — TypeScript'te de aynı mantık.",
-              "en": "An enum is a fixed list of allowed values. 'Test status can only be PASS, FAIL, or SKIP — write anything else and you get an error.' Java already had enums — TypeScript works the same way."
+              "tr": "Enum, bir asansörün düğme panosu gibidir — sadece basılı rakamlara (örn. 1, 2, 3) gidebilirsiniz, panoda olmayan bir kata 'git' diye bağırmanın hiçbir anlamı yoktur. Peki zaten string ile `\"PASS\"`, `\"FAIL\"`, `\"SKIP\"` yazabiliyorken neden ayrıca bir enum tanımlansın? Çünkü düz string ile yazınca yazım hatası (`\"PASSS\"`) sessizce kabul edilir ve hata ancak çalışma zamanında patlar; enum ise panodaki tuşlar dışında bir şeyi kabul etmez, hatayı derleme anında yakalar — Java'da enum zaten doğuştan bu güvenliği sağlardı, TypeScript aynı mantığı taşır. QA'da bu fark somuttur: bir test raporlama fonksiyonunda durum string olarak tutulduğunda biri yanlışlıkla `\"Pass\"` (büyük/küçük harf hatası) yazabilir ve raporlama sessizce o sonucu sayamaz; enum kullanıldığında bu yazım hatası IDE'de anında kırmızı çizgiyle görünür.",
+              "en": "An enum is like an elevator's button panel — you can only go to the floors that have a button (say, 1, 2, 3); shouting 'take me to floor 9' when there's no such button does nothing. So if you can already write `\"PASS\"`, `\"FAIL\"`, `\"SKIP\"` as plain strings, why bother defining an enum at all? Because a plain string silently accepts a typo (`\"PASSS\"`) and the bug only surfaces at runtime; an enum accepts nothing outside the buttons on the panel and catches that mistake at compile time — Java's enum already provided this safety from the start, and TypeScript carries the same idea forward. The QA-relevant difference is concrete: in a test-reporting function where status is kept as a plain string, someone can accidentally write `\"Pass\"` (wrong casing) and the report silently fails to count that result; with an enum, that same typo shows up instantly as a red squiggle in the IDE."
             }
           },
           {
@@ -9622,16 +9558,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📋",
             "content": {
-              "tr": "Nesne tipi, bir form şablonu gibidir. Formda 'Ad', 'Soyad' ve 'E-posta' alanlarının olacağını baştan belirlersiniz; kimse fazladan veya eksik alan dolduramaz.",
-              "en": "An object type is like a form template. You declare that 'Name', 'Surname', and 'Email' are required; no one can add random fields or leave out mandatory ones."
+              "tr": "Nesne tipi, bir resmi başvuru formu şablonu gibidir — 'Ad', 'Soyad' ve 'E-posta' alanları baştan basılıdır; kimse fazladan bir alan ekleyip kimse de zorunlu bir alanı boş bırakıp formu teslim edemez. Peki form zaten doldurulduktan sonra eksik alan kontrolü yapılabilirken, neden doldururken engellensin? Çünkü eksik formu masaya bıraktıktan (production'a deploy ettikten) sonra fark etmek, doldururken (derleme anında) fark etmekten çok daha pahalıdır — Java'da bu şablon zaten bir interface veya class ile sağlanıyordu, TypeScript aynı disiplini düz JavaScript nesnelerine kazandırır. QA'da somut örneği: bir kullanıcı kayıt testinde `email` alanı unutulduğunda, plain JavaScript bu eksik alanı sessizce `undefined` olarak taşır ve hata ancak sunucu 'email is required' dediğinde fark edilir; nesne tipi tanımlı TypeScript kodunda aynı eksiklik, testi koşturmadan IDE'de görünür.",
+              "en": "An object type is like a printed application form template — the 'Name', 'Surname', and 'Email' fields are pre-printed; no one can add an extra field or submit the form with a required field left blank. So why block this while filling it out instead of just checking afterward? Because discovering a missing field after the form was already turned in (deployed to production) is far costlier than catching it while filling it out (at compile time) — Java already provided this template via an interface or class; TypeScript brings that same discipline to plain JavaScript objects. The concrete QA payoff: when a user-registration test forgets the `email` field, plain JavaScript silently carries it as `undefined`, and the bug only surfaces when the server responds with 'email is required'; TypeScript code with an object type flags that same gap in the IDE, before the test is ever run."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🚦",
             "content": {
-              "tr": "Enum, bir trafik lambası gibidir. Lambanın renkleri sadece KIRMIZI, SARI ve YEŞİL olabilir; mor veya mavi gibi geçersiz bir renk seçme şansınız yoktur.",
-              "en": "An enum is like a traffic light. The lights can only be RED, YELLOW, or GREEN; there is no option to choose invalid colors like purple or cyan."
+              "tr": "Enum, bir trafik lambası gibidir — lamba sadece KIRMIZI, SARI ve YEŞİL yanabilir; üreticisi 'bu sefer mor yansın' diye bir seçenek sunmaz, çünkü panoda öyle bir renk hiç yoktur. Peki zaten string ile `\"red\"`, `\"yellow\"`, `\"green\"` yazılabiliyorken neden ayrı bir enum tipine ihtiyaç duyulsun? Çünkü string serbest yazıdır, biri yanlışlıkla `\"redd\"` yazabilir ve hiçbir uyarı almaz; enum ise panoda olmayan bir rengi temelde var etmez, derleyici böyle bir hatayı oluşmadan engeller — Java'da enum doğuştan bu garantiyi verir, TypeScript aynısını taşır. QA'da somut örneği: bir test senaryosu durumu string ile tutulduğunda biri `\"Red\"` yerine `\"red \"` (fazladan boşluk) yazarsa karşılaştırma sessizce false döner ve test yanlış sebepten FAIL/PASS gösterir; enum kullanıldığında bu tür yazım kazaları derleme anında imkansız hale gelir.",
+              "en": "An enum is like a traffic light — it can only show RED, YELLOW, or GREEN; the manufacturer doesn't offer 'let it glow purple this time' as an option, because that color simply doesn't exist on the panel. So if you can already write `\"red\"`, `\"yellow\"`, `\"green\"` as plain strings, why need a separate enum type at all? Because a string is free-form text — someone can accidentally type `\"redd\"` and get no warning whatsoever; an enum simply doesn't let a color outside the panel exist in the first place, so the compiler prevents that mistake before it's even created — Java's enum guarantees this from birth, and TypeScript carries the same guarantee forward. The concrete QA payoff: when a test-scenario status is kept as a plain string, someone typing `\"red \"` (a stray trailing space) instead of `\"Red\"` makes a comparison silently return false, and the test reports FAIL/PASS for the wrong reason; with an enum, that class of typo becomes impossible at compile time."
             }
           },
           {
@@ -9780,8 +9716,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔀",
             "content": {
-              "tr": "Union type, 'bu ya şu ya bu' demek. ID ya number ya string olabilir. Java'da bunu generic ya da overload ile yapardın — TypeScript daha zarif.",
-              "en": "A union type means 'this OR that.' An ID can be either a number or a string. In Java you'd use generics or overloads — TypeScript is more elegant."
+              "tr": "Union type, bir restoran menüsündeki 'tatlı seçiniz: baklava VEYA sütlaç' satırı gibidir — sadece bu ikisinden biri gelir, üçüncü bir şey (örneğin çorba) asla masaya konmaz. Peki neden direkt `any` yazıp 'ID her şey olabilir' demiyoruz? Çünkü any garson sınırı tamamen kaldırır ve mutfaktan ne çıkacağı belirsizleşir; union ise 'sadece bu ikisi' diyerek sınırı korur — Java'da bunun birebir karşılığı yoktur, en yakını generic veya method overload ile aynı sonucu daha kalabalık kodla taklit etmektir. QA'da somut faydası: bir API'den dönen `id` alanı bazen number bazen string geliyorsa, `id: number | string` ile tip edilmiş bir fonksiyon her iki durumu da ele almanızı derleme anında zorunlu kılar; tek tip varsayan bir fonksiyon ise diğer formatla karşılaştığında çalışma zamanında sessizce yanlış davranır.",
+              "en": "A union type is like a restaurant menu line reading 'choose a dessert: baklava OR rice pudding' — only one of those two ever arrives, a third option (say, soup) never shows up at the table. So why not just write `any` and say 'the ID can be anything'? Because any removes the waiter's boundary entirely, leaving what comes out of the kitchen completely unpredictable; a union keeps the boundary by saying 'only these two' — Java has no direct equivalent, the closest is faking the same result with generics or method overloads and noticeably more code. The concrete QA payoff: when an API's `id` field sometimes arrives as a number and sometimes as a string, a function typed as `id: number | string` forces you to handle both cases at compile time; a function that assumes a single type silently misbehaves at runtime the moment it meets the other format."
             }
           },
           {
@@ -9904,16 +9840,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🤝",
             "content": {
-              "tr": "Interface, iki şirket arasındaki sözleşme gibidir. 'Eğer bu projeyi yapacaksan, şu metotları teslim etmek zorundasın' der. Sınıflar bu sözleşmeye uymak zorundadır.",
-              "en": "An interface is like a business contract. It states: 'If you want this project, you must deliver these methods.' Classes implement this contract."
+              "tr": "Interface, iki şirket arasında imzalanan bir ihale sözleşmesi gibidir — 'bu işi alacaksan, şu üç teslimatı (metotları) sağlamak zorundasın' der; sözleşmenin kendisi işi yapmaz, sadece kim işi alırsa alsın aynı taahhütleri vermesini garanti eder. Peki sözleşmeyi yazmak yerine her yükleniciye sözlü talimat verip 'sen bunu yap' demek neden yetmez? Çünkü sözlü talimat unutulabilir, taraflar arasında yorum farkı doğurabilir; yazılı sözleşme ise ihlali derleme anında, iş başlamadan tespit eder — Java'da interface zaten bu işlevi görüyordu, TypeScript aynı sözleşme disiplinini taşır. QA'da fark şurada: bir `TestRunner` interface'i `run()` ve `getResult()` metotlarını zorunlu kılıyorsa, bu metotlardan biri eksik bir sınıf yazıldığında derleyici işi hiç başlatmaz; interface olmadan aynı eksiklik, o metot ilk çağrıldığı anda 'is not a function' hatasıyla çalışma zamanında ortaya çıkar.",
+              "en": "An interface is like a signed tender contract between two companies — 'if you want this job, you must deliver these three things (methods)'; the contract itself doesn't do the work, it just guarantees that whoever wins the job makes the same commitments. So why not skip the written contract and just verbally tell each contractor 'do this'? Because verbal instructions can be forgotten or misinterpreted between parties, while a written contract catches a breach at compile time, before work even starts — Java's interface already served this purpose, and TypeScript carries the same contractual discipline forward. The QA-relevant difference: if a `TestRunner` interface requires `run()` and `getResult()` methods, writing a class that's missing one of them never gets past the compiler; without the interface, the same gap only surfaces at runtime as an 'is not a function' error the first time that method is called."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔌",
             "content": {
-              "tr": "Union type, hem USB-C hem de Lightning şarj kablosu kabul eden ikili bir priz gibidir. Giriş ya A tipi ya da B tipi olabilir.",
-              "en": "A union type is like a charging block with dual inputs for both USB-C and Lightning. The input can be either type A or type B."
+              "tr": "Union type, hem USB-C hem Lightning kabul eden bir şarj soketi gibidir — sadece bu iki giriş türünden biri takılabilir, üçüncü bir konnektör (örneğin eski tip mini-USB) fiziksel olarak girmez. Peki soketi neden tek bir tipe (sadece USB-C) sabitlemiyoruz, daha basit olmaz mıydı? Çünkü gerçek dünyada gelen veri gerçekten iki farklı biçimde gelebiliyor (örn. bir API bazen sayısal ID, bazen UUID string döndürüyor) ve union, bu gerçeği gizlemek yerine açıkça modeller — Java'da en yakın karşılığı ortak bir interface'i implemente eden iki farklı sınıf kullanmaktır, TypeScript'te tek satırlık bir union yeter. QA'da somut faydası: union tipi olmayan bir fonksiyon iki farklı ID formatını da kabul ediyormuş gibi davranırsa, derleyici hiçbir uyarı vermez ve hatalı format çalışma zamanında 'cannot read property of undefined' ile patlar; union tipiyle yazılmış aynı fonksiyon her iki durumu da ele almanızı derleme anında zorunlu kılar.",
+              "en": "A union type is like a charging socket that accepts both USB-C and Lightning — only one of those two connector shapes fits, a third kind (say, an old mini-USB) simply won't physically go in. So why not just lock the socket to one type (USB-C only) — wouldn't that be simpler? Because real-world data genuinely arrives in two different shapes sometimes (an API might return a numeric ID sometimes and a UUID string other times), and a union models that reality openly instead of hiding it — the closest Java equivalent is using two different classes that implement a common interface; in TypeScript, a one-line union is enough. The concrete QA payoff: a function without a union type that just assumes it can handle both ID formats gets no warning from the compiler, and the wrong format blows up at runtime with 'cannot read property of undefined'; the same function written with a union type forces you to handle both cases at compile time."
             }
           },
           {
@@ -10035,8 +9971,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "TypeScript fonksiyonları Java metodlarına çok benzer — ama daha kısa syntax. Parametre tipleri ve dönüş tipi belirtilir.",
-              "en": "TypeScript functions are very similar to Java methods — but with shorter syntax. Parameter types and return types are specified."
+              "tr": "TypeScript fonksiyonu, bir vasiyetnamenin koşulları gibidir — 'sana bu iki şeyi (parametreleri) veriyorum, sen de bana şu türden bir şey (dönüş tipi) vermek zorundasın' der; vaat tutulmazsa imza atılmaz. Peki JavaScript fonksiyonu zaten parametre alıp değer döndürüyorken, neden ayrıca bu tipleri yazıya dökmek gerekir? Çünkü yazılı vaat olmadan, fonksiyonu çağıran kişi neyin geleceğini ancak çalıştırıp deneyerek öğrenir; tipli imza ise bunu çağırmadan, derleme anında söyler — Java'da method imzası zaten zorunluydu, TypeScript aynı vaadi JavaScript fonksiyonlarına ekler. QA'da somut faydası: bir `calculateScore(results: TestResult[]): number` fonksiyonuna yanlışlıkla tek bir obje (dizi değil) geçtiğinizde, tipsiz JavaScript bunu sessizce kabul edip içeride yanlış hesaplar; tipli imza aynı hatayı testi koşturmadan, IDE'de kırmızı çizgiyle gösterir.",
+              "en": "A TypeScript function is like the terms of a will — 'I'm giving you these two things (parameters), and in return you must give me back something of this kind (the return type)'; if the promise isn't kept, nothing gets signed. So if a JavaScript function already takes parameters and returns a value, why bother writing these types down? Because without the written promise, whoever calls the function only learns what's coming back by actually running it and seeing; a typed signature tells you that before you ever call it, at compile time — Java already required a method signature, and TypeScript adds that same promise to JavaScript functions. The concrete QA payoff: pass a single object (not an array) by mistake into a `calculateScore(results: TestResult[]): number` function, and untyped JavaScript accepts it silently and computes the wrong thing inside; a typed signature flags that same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
@@ -10193,8 +10129,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔄",
             "content": {
-              "tr": "Casting, TypeScript'e 'Biliyorum bu any tipinde görünüyor ama aslında string — güven bana' demek. 'as' keyword'ü kullanılır. Java'daki (String) obj gibi.",
-              "en": "Casting tells TypeScript 'I know this looks like any but it is actually a string — trust me.' Uses the 'as' keyword. Like (String) obj in Java."
+              "tr": "Casting, gümrükte bagajınızı açmadan 'içinde sadece kitap var, güvenin bana' demeye benzer — memur (derleyici) sizi durdurmaz, ama yalan söylüyorsanız sorumluluk tamamen sizdedir. Peki derleyici zaten tip kontrolü yapıyorken, neden ona 'bana güven, kontrol etme' deme hakkı verilsin? Çünkü bazı durumlarda (örn. `document.getElementById` her zaman `HTMLElement | null` döndürür ama siz o elementin kesin bir `<input>` olduğunu bilirsiniz) derleyicinin bilemeyeceği bağlamsal bilgiyi siz bilirsiniz — Java'daki `(String) obj` cast'i de aynı riski taşır: yanlışsa `ClassCastException` ile çalışma zamanında patlar. QA'da bunun bedeli somuttur: `as` ile yanlış casting yapılmış bir test yardımcı fonksiyonu, gerçek tip uyuşmadığında derleme anında hiç uyarı vermez ve hata ancak test çalışırken `Cannot read property of null` şeklinde ortaya çıkar — yani casting, tip güvenliğini kapatan, dikkatli kullanılması gereken bir 'arka kapı'dır.",
+              "en": "Casting is like telling a customs officer 'there's only books in this bag, trust me' without opening it — the officer (the compiler) won't stop you, but if you're lying, the consequences are entirely on you. So if the compiler already does type checking, why would it ever let you say 'trust me, don't check'? Because sometimes you genuinely know contextual information the compiler can't infer (e.g., `document.getElementById` always returns `HTMLElement | null`, but you know for certain that element is an `<input>`) — Java's `(String) obj` cast carries the exact same risk: get it wrong and it throws a `ClassCastException` at runtime. The QA cost is concrete: a test helper function that casts incorrectly with `as` gets no warning at compile time when the real type doesn't match, and the bug only surfaces while the test is running, as `Cannot read property of null` — casting is a 'back door' that turns off type safety and needs to be used carefully."
             }
           },
           {
@@ -10324,16 +10260,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "⚙️",
             "content": {
-              "tr": "Fonksiyon, bir meyve sıkacağı gibidir. Girişte 'Portakal' (parametre tipi) bekler ve çıkışta 'Portakal Suyu' (dönüş tipi) vereceğini garanti eder.",
-              "en": "A function is like a juicer. It expects 'Oranges' at the input (parameter type) and guarantees 'Orange Juice' at the output (return type)."
+              "tr": "Fonksiyon, bir meyve sıkacağı gibidir — girişte sadece 'portakal' (parametre tipi) kabul eder ve çıkışta her zaman 'portakal suyu' (dönüş tipi) verir; makineye elma atarsanız çalışmayı reddeder. Peki sıkacak zaten görsel olarak hangi meyveyi kabul ettiğini belli ediyorsa, tip belirtmek neden gerekli? Çünkü kod, fiziksel bir makine gibi gözle görülmez — bir fonksiyonun ne beklediğini ancak içine bakarak veya deneyerek anlarsınız; parametre/dönüş tipi ise bunu çağırmadan, derleme anında söyler — Java'da method imzası zaten bu garantiyi veriyordu, TypeScript aynı garantiyi JavaScript fonksiyonlarına ekler. QA'da somut faydası: bir `formatTestName(name: string): string` fonksiyonuna yanlışlıkla bir obje geçtiğinizde, tipsiz JavaScript bunu sessizce anlamsız ve okunaksız bir metne çevirip devam eder; tipli fonksiyon aynı hatayı testi koşturmadan, IDE'de kırmızı çizgiyle gösterir.",
+              "en": "A function is like a juicer — it only accepts 'oranges' at the input (the parameter type) and always produces 'orange juice' at the output (the return type); feed it an apple and it refuses to run. So if the juicer is already visibly built for one type of fruit, why bother declaring types at all? Because code, unlike a physical machine, isn't visible — you only learn what a function expects by reading it or running it; a parameter/return type tells you that before you ever call it, at compile time — Java's method signature already provided this guarantee, and TypeScript adds the same guarantee to JavaScript functions. The concrete QA payoff: pass an object by mistake into a `formatTestName(name: string): string` function, and untyped JavaScript silently coerces it into a meaningless, unreadable string and keeps going; a typed function flags that same mistake with a red squiggle in the IDE, before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔄",
             "content": {
-              "tr": "Casting (Tip dönüştürme), gümrükteki bir pakete 'Güvenlik Kontrolünden Geçti' etiketi yapıştırmak gibidir. İçeriğini değiştirmezsiniz ama görevliye güven telkin edersiniz.",
-              "en": "Casting is like slapping a 'Security Inspected' sticker on a package. You don't change the contents, but you assure the handler that it's safe."
+              "tr": "Casting, bir pakete 'Güvenlik Kontrolünden Geçti' etiketini siz kendiniz yapıştırmak gibidir — paketin gerçek içeriğini değiştirmez, sadece görevliye (derleyiciye) 'kontrol etmene gerek yok, ben zaten kontrol ettim' der. Peki etiketi gerçek bir güvenlik taramasından geçirmeden yapıştırmak neden mümkün olsun, bu güvenlik açığı değil mi? Çünkü bazı durumlarda gerçekten siz, derleyicinin bilemeyeceği bir bağlamı bilirsiniz (örn. bir test fixture'ının döndürdüğü `unknown` değerin aslında her zaman bir `User` nesnesi olduğunu); ama yanlış etiketlerseniz (yanlış cast), o paket gümrükten geçer ve bomba çalışma zamanında patlar — Java'da `(String) obj` cast'i yanlışsa `ClassCastException` fırlatır, TypeScript'in `as` keyword'ü de aynı riski taşır ama derleme anında sessiz kalır. QA'da bu yüzden casting'e güvenmek yerine, mümkün olduğunda gerçek bir type guard (typeof/instanceof kontrolü) tercih edilir — çünkü guard, etiketi yapıştırmadan önce paketi gerçekten açar.",
+              "en": "Casting is like slapping a 'Security Inspected' sticker on a package yourself — it doesn't change what's actually inside, it just tells the handler (the compiler) 'you don't need to check, I already did.' So why is it even possible to slap that label on without a real security scan — isn't that a vulnerability? Because sometimes you genuinely know context the compiler can't (say, a test fixture's `unknown` return value is always actually a `User` object); but mislabel it (cast it wrong) and that package sails through customs while the bomb explodes at runtime — Java's `(String) obj` cast throws a `ClassCastException` when it's wrong, and TypeScript's `as` keyword carries the same risk but stays silent at compile time. That's why in QA, a real type guard (a typeof/instanceof check) is preferred over casting whenever possible — because a guard actually opens the package before applying the label."
             }
           },
           {
@@ -10455,8 +10391,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏗️",
             "content": {
-              "tr": "TypeScript class'ları Java class'larına çok benzer ama daha kısa syntax. Java'da field tanımla, constructor'da this.field = value yaz. TypeScript'te constructor parametresine 'public' yaz — ikisi birden yapılır.",
-              "en": "TypeScript classes are very similar to Java classes but with shorter syntax. In Java, declare field, then write this.field = value. In TypeScript, add 'public' to constructor parameters — it does both at once."
+              "tr": "TypeScript class'ı, Java'daki aynı kalıbın kısaltılmış formu gibidir — Java'da bir mobilyayı kurmak için önce parçayı tanımlar (field), sonra elinizle vidalarsınız (constructor içinde `this.field = value`); TypeScript'te ise constructor parametresine `public` yazdığınızda parçayı tanımlama ve vidalama işlemi otomatik olarak tek adımda yapılır. Peki Java'nın iki adımlık yöntemi neden hâlâ var, TypeScript neden bu kısayolu sunma ihtiyacı duydu? Çünkü Java'da tip güvenliği zaten zorunluydu ve kısayol olmadan da field/constructor ayrımı net kalıyordu; TypeScript ise JavaScript'in esnekliğini korurken aynı tip güvenliğini daha az tekrarla sağlamak zorunda — fazla satır, fazla unutma riski demektir. QA'da somut faydası: bir `TestContext` class'ında `browser`, `page`, `baseUrl` gibi birçok alan varsa, Java tarzı uzun constructor'da bir alanı atamayı unutmak kolaydır ve hata ancak o alana erişilince çalışma zamanında patlar; `public` kısayolu kullanan TypeScript'te her parametre otomatik atandığı için bu sınıfta unutma riski yapısal olarak ortadan kalkar.",
+              "en": "A TypeScript class is like a shortened form of the same Java pattern — in Java, assembling a piece of furniture means first declaring the part (a field), then bolting it on by hand (`this.field = value` inside the constructor); in TypeScript, writing `public` on a constructor parameter declares the field and bolts it on in a single automatic step. So if Java's two-step approach already works, why did TypeScript bother offering this shortcut? Because Java's type safety was already mandatory and the field/constructor distinction stayed clear without a shortcut; TypeScript, while preserving JavaScript's flexibility, has to deliver that same type safety with less repetition — more lines means more chances to forget something. The concrete QA payoff: a `TestContext` class with many fields like `browser`, `page`, `baseUrl` makes it easy to forget assigning one of them in a Java-style long constructor, and the bug only explodes at runtime the moment that field is accessed; TypeScript's `public` shortcut assigns every parameter automatically, structurally eliminating that risk of forgetting."
             }
           },
           {
@@ -10667,8 +10603,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🎗️",
             "content": {
-              "tr": "Decorator, hediye paketi sarmak gibidir. Bir sınıfın veya metodun kodunu değiştirmeden dışına yeni bir işlev (örneğin loglama, hata yakalama, yetki kontrolü) sarmalarsınız.",
-              "en": "A decorator is like wrapping a gift. Without modifying a class or method's internal code, you wrap it in new behaviors like logging, error handling, or access control."
+              "tr": "Decorator, hediyenin kendisine dokunmadan üzerine kağıt sarmak gibidir — içindeki hediye (sınıfın/metodun asıl mantığı) hiç değişmez, ama dışına eklenen kağıt (loglama, hata yakalama, yetki kontrolü) her açılışta otomatik olarak devreye girer. Peki bu davranışı neden metodun içine doğrudan yazmıyoruz, paketlemeye ne gerek var? Çünkü loglama veya yetki kontrolü onlarca metoda tekrar tekrar aynı şekilde eklenecekse, her birinin içine elle kod yazmak hem tekrar hem unutma riski demektir — Java'da bunun karşılığı annotation + AOP (Aspect-Oriented Programming, örn. Spring'in `@Transactional`'ı) ile sağlanırdı, TypeScript decorator'ları da kavramsal olarak aynı işi görür. QA'da somut faydası: bir `@LogExecutionTime` decorator'ü her test adımının süresini otomatik ölçüp loglarsa, yüzlerce test metodunun her birine elle zaman ölçüm kodu eklemek zorunda kalmazsınız ve biri yeni bir test eklediğinde o ölçümü unutma riski de ortadan kalkar.",
+              "en": "A decorator is like wrapping paper around a gift without touching the gift itself — the gift inside (the class's or method's actual logic) never changes, but the paper added around it (logging, error handling, access control) kicks in automatically every time it's opened. So why not just write that behavior directly inside the method instead of wrapping it? Because if logging or access control needs to be added the same way to dozens of methods, writing that code by hand inside each one means both repetition and a real risk of forgetting it somewhere — Java achieved the same thing with annotations plus AOP (Aspect-Oriented Programming, like Spring's `@Transactional`), and TypeScript decorators conceptually do the same job. The concrete QA payoff: a `@LogExecutionTime` decorator that automatically measures and logs every test step's duration means you never have to hand-add timing code to hundreds of test methods, and the risk of someone forgetting to add it to a new test disappears entirely."
             }
           },
           {
@@ -10851,8 +10787,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🧩",
             "content": {
-              "tr": "Generic, doldurulabilir şablon gibi. 'Liste' diyorsun ama ne listesi? Sayı listesi mi, isim listesi mi? Tip parametresi ile sonradan belirtiyorsun. Java'daki List<T> ile aynı mantık.",
-              "en": "A generic is like a fill-in-the-blank template. 'A list' — but a list of what? Numbers? Names? You specify the type later with a type parameter. Same concept as Java's List<T>."
+              "tr": "Generic, boş bırakılan kutucuklarla basılmış bir form şablonu gibidir — 'Liste' yazan formun kendisi henüz neyin listesi olduğunu söylemez, formu kullanan kişi 'Sayı Listesi' ya da 'İsim Listesi' diye doldurarak belirler. Peki her liste türü için ayrı ayrı form basmak (sayı için bir fonksiyon, isim için başka bir fonksiyon) yerine neden tek bir doldurulabilir şablona ihtiyaç duyulsun? Çünkü aynı mantığı (sıralama, filtreleme, ekleme) her tip için tekrar tekrar yazmak hem kod tekrarı hem de bakım kabusu demektir — Java'da `List<T>` zaten bu doldurulabilir şablon mantığını sağlıyordu, TypeScript'in generic'leri birebir aynı fikri taşır. QA'da somut faydası: `function getFirst<T>(items: T[]): T` gibi tek bir generic fonksiyon, hem test case listesinde hem kullanıcı listesinde hem hata mesajı listesinde çalışır ve her durumda doğru tipi geri döndürür — generic olmadan ya `any` ile tip güvenliğini kaybedersiniz ya da her liste tipi için ayrı fonksiyon yazmak zorunda kalırsınız.",
+              "en": "A generic is like a printed form with blank boxes left open — a form labeled 'List' doesn't say what kind of list yet; the person using it fills in 'Number List' or 'Name List' to decide. So instead of printing a separate form for every list type (one function for numbers, another for names), why not just have one fill-in-the-blank template? Because rewriting the same logic (sorting, filtering, appending) for every single type means both code duplication and a maintenance nightmare — Java's `List<T>` already provided this fill-in-the-blank idea, and TypeScript's generics carry the exact same concept forward. The concrete QA payoff: a single generic function like `function getFirst<T>(items: T[]): T` works on a list of test cases, a list of users, and a list of error messages alike, returning the correct type every time — without generics you'd either lose type safety with `any` or be forced to write a separate function for every list type."
             }
           },
           {
@@ -11008,16 +10944,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📦",
             "content": {
-              "tr": "Generic, kargo kolisi gibidir. Kolinin yapısı aynıdır ama içine ister 'Kitap' (T = Book) ister 'Giysi' (T = Clothing) koyabilirsiniz. Kutu her tipe uyum sağlar.",
-              "en": "A generic is like a shipping box. The box design is fixed, but you can fill it with either 'Books' (T = Book) or 'Clothes' (T = Clothing). It adapts to any type."
+              "tr": "Generic, standart bir kargo kolisi gibidir — kolinin boyutu, taşıma kulpları, dayanıklılığı (yani fonksiyonun mantığı) hep aynıdır; içine ister 'Kitap' (T = Book) ister 'Giysi' (T = Clothing) koyarsınız, koli her ikisine de uyar ama içeriği birbirine asla karıştırmaz. Peki tek tip kabul eden ayrı ayrı koliler (bir fonksiyon Book için, başka biri Clothing için) tasarlamak yerine neden tek bir uyumlu koli yeterli olsun? Çünkü kolinin kendisini (taşıma mantığını) her yeni eşya türü için yeniden tasarlamak hem zaman kaybıdır hem de bir gün biri yanlış koliye yanlış eşya koyabilir — Java'da `List<T>`, `Optional<T>` gibi generic sınıflar bu tek-koli-her-tipe-uyar fikrini zaten kullanıyordu. QA'da somut faydası: bir `ApiResponse<T>` generic tipi, hem `ApiResponse<User>` hem `ApiResponse<Product>` için aynı yapıyı (status, data, error alanları) garanti eder — koli karışmaz, T = User olan bir response'a yanlışlıkla Product alanı erişmeye çalışırsanız derleyici bunu daha test çalışmadan yakalar.",
+              "en": "A generic is like a standard shipping box — the box's size, handles, and durability (the function's actual logic) stay the same; you can put either 'Books' (T = Book) or 'Clothes' (T = Clothing) inside, and the box fits both without ever mixing up the contents. So instead of designing separate single-purpose boxes (one function for Book, another for Clothing), why is one adaptable box enough? Because redesigning the box itself (the handling logic) for every new item type wastes time, and someday someone will put the wrong item in the wrong box — Java's generic classes like `List<T>` and `Optional<T>` already relied on this same one-box-fits-every-type idea. The concrete QA payoff: a generic `ApiResponse<T>` type guarantees the same shape (status, data, error fields) for both `ApiResponse<User>` and `ApiResponse<Product>` — the contents never get mixed up, and trying to access a Product field on a response where T = User gets caught by the compiler before the test ever runs."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🧴",
             "content": {
-              "tr": "Generic, boş bir plastik şişe gibidir. Üzerine etiket yapıştırmadan önce içine şampuan, sabun veya kolonya koyabilirsiniz; şişe içine konan sıvının şeklini alır.",
-              "en": "A generic is like an empty bottle. You can fill it with shampoo, soap, or water before labelling it; the bottle holds whatever liquid type you put inside."
+              "tr": "Generic, etiketsiz satılan boş bir şişe gibidir — fabrikada şişeyi tasarlayan kişi içine ne konacağını bilmez, ama şişeyi kim alırsa (T = Shampoo, T = Soap) o belirler ve şişe o sıvıya özel davranır (örneğin damlalıklı kapak şampuan için otomatik seçilir). Peki şişeyi baştan 'sadece şampuan' diye üretmek dururken, neden boş bırakıp sonradan belirlemeye ihtiyaç olsun? Çünkü bir gün aynı şişe tasarımını sabun için de kullanmak isteyebilirsiniz ve sıfırdan yeni bir şişe tasarlamak gereksiz tekrar olur — Java'da `Optional<T>` tam olarak bu boş şişe mantığını taşır: T = String için de T = User için de aynı `Optional` davranışı (var/yok kontrolü) çalışır. QA'da somut faydası: bir `TestFixture<T>` generic sınıfı, T = LoginPage için de T = CheckoutPage için de aynı setup/teardown mantığını çalıştırır; her sayfa için ayrı fixture sınıfı yazmak yerine tek bir şişe tasarımı yeterli olur, ve T yanlış kullanıldığında derleyici bunu fark eder.",
+              "en": "A generic is like an empty bottle sold without a label — the factory that designed the bottle has no idea what will go inside, but whoever fills it (T = Shampoo, T = Soap) decides, and the bottle then behaves specifically for that liquid (say, a dropper cap auto-selected for shampoo). So if the factory could just produce a bottle labeled 'shampoo only' from the start, why leave it blank and decide later? Because someday you might want that same bottle design for soap too, and designing a brand-new bottle from scratch every time is needless repetition — Java's `Optional<T>` carries exactly this empty-bottle idea: the same `Optional` behavior (presence/absence checking) works whether T = String or T = User. The concrete QA payoff: a generic `TestFixture<T>` class runs the same setup/teardown logic whether T = LoginPage or T = CheckoutPage; instead of writing a separate fixture class per page, one bottle design is enough, and the compiler catches it if T is ever used incorrectly."
             }
           },
           {
@@ -11151,8 +11087,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔧",
             "content": {
-              "tr": "Utility types, hazır tip dönüştürücüler. Bir tipin tüm alanlarını opsiyonel yap (Partial), sadece belirli alanları al (Pick), bir alanı çıkar (Omit). Java'da bunları manuel yapardın.",
-              "en": "Utility types are ready-made type transformers. Make all fields optional (Partial), pick specific fields (Pick), remove a field (Omit). In Java you'd do these manually."
+              "tr": "Utility type'lar, bir terzinin elinde hazır bulunan kalıplara benzer — orijinal kıyafeti (tipi) sıfırdan yeniden dikmek yerine, var olan kalıbı alıp 'tüm düğmeleri çıkar' (Partial), 'sadece yakayı al' (Pick) veya 'kolu kes' (Omit) der ve yeni bir tip türetirsiniz. Peki bu dönüşümleri neden elle, her seferinde yeni bir interface yazarak yapmıyoruz? Çünkü `User` tipinden türeyen `UpdateUserPayload` (tüm alanlar opsiyonel) gibi bir tip, User değişince elle senkronize tutulması gereken ayrı bir kopya olur — unutmak çok kolaydır; `Partial<User>` ise orijinal tip değiştikçe otomatik güncellenir. Java'da bu işlemler genelde manuel yeni sınıflar yazarak veya kütüphane (örn. Lombok) ile yapılırdı, TypeScript bunu dile gömülü olarak sunar. QA'da somut faydası: bir test senaryosunda kullanıcının sadece `email` alanını güncellediğiniz bir PATCH isteği için `Partial<User>` kullanırsanız, diğer alanları zorunlu kılan eski tip hatası vermez ama yine de yanlış bir alan adı yazarsanız derleyici bunu yakalar.",
+              "en": "Utility types are like ready-made patterns a tailor keeps on hand — instead of stitching the original garment (the type) from scratch, you take the existing pattern and say 'remove all the buttons' (Partial), 'keep only the collar' (Pick), or 'cut off the sleeve' (Omit), deriving a new type. So why not just write a brand-new interface by hand for each of these transformations? Because a type like `UpdateUserPayload` (all fields optional) derived manually from `User` becomes a separate copy that has to be kept in sync by hand whenever `User` changes — easy to forget; `Partial<User>` instead updates automatically as the original type changes. In Java this was usually done by writing new classes by hand or via a library (like Lombok); TypeScript builds it into the language itself. The concrete QA payoff: for a PATCH request where a test scenario only updates a user's `email` field, using `Partial<User>` avoids the old type's error about other required fields being missing, while still catching it at compile time if you typo a field name."
             }
           },
           {
@@ -11264,8 +11200,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🔑",
             "content": {
-              "tr": "keyof, bir nesnenin tüm anahtar isimlerini tip olarak alır. 'Bu fonksiyon TestCase'in herhangi bir alanı ile çağrılabilir, ama sadece gerçek alan isimleriyle' — TypeScript bunu garantiler.",
-              "en": "keyof gets all the key names of an object as a type. 'This function can be called with any field of TestCase, but only with real field names' — TypeScript guarantees this."
+              "tr": "keyof, bir dosya dolabının üzerindeki etiket listesini otomatik çıkarmak gibidir — dolapta 'ad', 'durum', 'süre' çekmeceleri varsa, keyof size 'sadece bu üç isimden birini iste' der; dolapta olmayan bir çekmeceyi (`uydurma_alan`) istemeniz mümkün değildir. Peki bu listeyi neden elle yazmıyoruz, zaten alan isimlerini biliyoruz? Çünkü elle yazılan liste, dolaba yeni bir çekmece eklendiğinde (TestCase'e yeni bir alan eklendiğinde) güncel kalmaz — biri unutur, liste eskir; keyof ise dolabın kendisinden türediği için otomatik senkronize kalır. Java'da bunun birebir karşılığı yoktur — reflection ile çalışma zamanında alan isimlerini almak gerekirdi, TypeScript bunu derleme anında ve tip güvenli şekilde sunar. QA'da somut faydası: `function getField(tc: TestCase, key: keyof TestCase)` şeklinde yazılmış bir yardımcı fonksiyona yanlış yazılmış bir alan adı ('durumm') geçtiğinizde, derleyici bunu testi koşturmadan IDE'de kırmızı çizgiyle gösterir.",
+              "en": "keyof is like automatically extracting the label list off a filing cabinet — if the cabinet has drawers named 'name', 'status', 'duration', keyof tells you 'only ask for one of these three names'; asking for a drawer that doesn't exist (`madeUpField`) simply isn't possible. So why not just write that list of names by hand — we already know the field names, don't we? Because a hand-written list goes stale the moment a new drawer gets added to the cabinet (a new field gets added to TestCase) — someone forgets to update it, and the list drifts out of sync; keyof, by contrast, is derived from the cabinet itself, so it stays automatically in sync. Java has no direct equivalent — you'd need reflection to get field names at runtime; TypeScript offers this at compile time, type-safely. The concrete QA payoff: a helper function written as `function getField(tc: TestCase, key: keyof TestCase)` flags a misspelled field name (`\"statuss\"`) with a red squiggle in the IDE, before the test is ever run."
             }
           },
           {
@@ -11396,16 +11332,16 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "✂️",
             "content": {
-              "tr": "Utility type'lar, hazır kurabiye kalıpları gibidir. Mevcut bir kurabiyeyi alır, kenarlarını kesip (Omit) veya sadece ortasını çıkarıp (Pick) yeni şekiller üretir.",
-              "en": "Utility types are like cookie cutters. They take an existing cookie shape, trim the edges (Omit), or punch out the center (Pick) to make new shapes."
+              "tr": "Utility type'lar, mevcut bir hamuru sıfırdan yoğurmadan yeni şekiller çıkaran kurabiye kalıpları gibidir — kenarları kesersiniz (Omit) ya da sadece ortasını çıkarırsınız (Pick), ama hamurun kendisi (orijinal tip) hiç değişmez. Peki yeni şekil için yeni bir hamur (sıfırdan yeni bir interface) yoğurmak yerine neden var olan hamuru kesmeyi tercih edelim? Çünkü orijinal hamur (örn. `User` tipi) güncellendiğinde, kalıpla kesilen tüm şekiller (`Omit<User, 'password'>` gibi) otomatik olarak güncel kalır; ayrı yoğrulmuş hamurlar ise elle senkronize edilmesi gerekir ve bu kolayca unutulur — Java'da bu genelde ayrı DTO sınıfları elle yazılarak yapılırdı. QA'da somut faydası: bir login response'unu test ederken şifre alanını asla görmemeniz gereken bir `PublicUser` tipi gerekiyorsa, `Omit<User, 'password'>` kullanmak hem o alanın asla sızmayacağını derleme anında garanti eder hem de `User` tipine yeni bir hassas alan eklendiğinde bunu otomatik olarak dışarıda tutar.",
+              "en": "Utility types are like cookie cutters that produce a new shape from existing dough without kneading from scratch — you trim the edges (Omit) or punch out just the center (Pick), but the dough itself (the original type) never changes. So instead of kneading fresh dough (writing a brand-new interface) for every new shape, why cut from the existing one? Because when the original dough (say, the `User` type) gets updated, every shape cut from it (like `Omit<User, 'password'>`) stays automatically up to date; separately kneaded dough has to be synced by hand, and that's easy to forget — in Java this was usually done by hand-writing separate DTO classes. The concrete QA payoff: when testing a login response, you need a `PublicUser` type that should never expose the password field — using `Omit<User, 'password'>` guarantees at compile time that the field never leaks, and automatically excludes it again if a new sensitive field gets added to `User` later."
             }
           },
           {
             "type": "simple-box",
             "emoji": "🔑",
             "content": {
-              "tr": "keyof, bir nesnenin kapı anahtarları listesi gibidir. 'Bu evde sadece salon, mutfak ve banyo anahtarları var, başka anahtar getirme' kuralını koyar.",
-              "en": "keyof is like the ring of key labels for a house. It dictates: 'We only have keys labeled bedroom, kitchen, and attic. No other keys are accepted.'"
+              "tr": "keyof, bir evin anahtarlık panosu gibidir — panoda sadece 'salon', 'mutfak' ve 'banyo' anahtarları asılıysa, biri size 'bahçe' anahtarı uzattığında pano onu kabul etmez, çünkü öyle bir anahtar hiç basılmamıştır. Peki ev sahibi zaten hangi anahtarların var olduğunu biliyorken, panoyu ayrıca kodlamaya neden gerek var? Çünkü kod yazan kişi (veya ileride o kodu değiştiren başka biri) evin gerçek oda listesini ezbere bilmeyebilir ve yanlış bir oda adı yazıp derleyicinin hiç fark etmemesini ister; keyof ise panoyu evin kendisinden (tipin alan adlarından) türettiği için yanlış anahtar basılmasına izin vermez — Java'da bu garantiyi almak için reflection ile çalışma zamanında kontrol gerekirdi. QA'da somut faydası: bir test raporlama fonksiyonu `keyof TestCase` ile kısıtlanmışsa, raporun hangi alanı göstereceğini seçen kod yanlışlıkla var olmayan bir alan adı (`'sonuc'` yerine `'sonucc'`) yazarsa, bu hata testi koşturmadan derleme anında yakalanır.",
+              "en": "keyof is like a house's key rack — if the rack only has hooks labeled 'living room', 'kitchen', and 'bathroom', and someone hands you a 'garden' key, the rack won't accept it because that key was never cut in the first place. So if the homeowner already knows which keys exist, why bother coding the rack separately? Because whoever writes the code (or someone else who edits it later) might not have the house's exact room list memorized, and could type a wrong room name without the compiler ever noticing; keyof, by deriving the rack from the house itself (the type's field names), simply won't allow a key that was never cut to exist — in Java, getting this same guarantee would require reflection checked at runtime. The concrete QA payoff: if a test-reporting function is constrained with `keyof TestCase`, code that selects which field the report shows and accidentally types a field name that doesn't exist ('resultt' instead of 'result') gets caught at compile time, before the test ever runs."
             }
           },
           {
@@ -11527,8 +11463,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🚫",
             "content": {
-              "tr": "TypeScript null hataları derleme sırasında yakalar. Java'da NullPointerException çalışma sırasında patlardı — TypeScript bunu derlerken söyler. strictNullChecks açıksa, null/undefined kontrolü yapmadan değer kullanman engellenir.",
-              "en": "TypeScript catches null errors at compile time. Java's NullPointerException would crash at runtime — TypeScript warns you during compilation. With strictNullChecks enabled, you cannot use a value without checking for null/undefined first."
+              "tr": "strictNullChecks açık bir TypeScript projesi, asansöre binmeden önce 'kat boş mu, dolu mu?' diye soran bir görevli gibidir — boş olabilecek bir katı (null/undefined olabilecek bir değeri) kontrol etmeden kullanmaya çalıştığınızda sizi daha asansöre binmeden (derleme anında) durdurur. Peki Java'da zaten `NullPointerException` diye bir hata varken, TypeScript'in bunu önceden yakalaması neden bu kadar değerli? Çünkü Java'nın NPE'si tam olarak o satır çalıştığında, yani genelde production'da veya test koşarken patlar — milyonlarca 'Billion Dollar Mistake' (Tony Hoare'un kendi tabiriyle) buradan kaynaklanır; strictNullChecks ise aynı riski koda hiç yazılamayacak hale getirir. QA'da somut faydası: bir test yardımcı fonksiyonu `document.querySelector` ile bir elementi bulup hiç kontrol etmeden `.click()` çağırırsa, plain TypeScript (strict kapalı) veya JavaScript'te bu element bulunamazsa test çalışırken 'Cannot read property of null' ile çöker; strictNullChecks açıkken aynı kod derleyici tarafından 'önce null kontrolü yap' diyerek IDE'de durdurulur, test hiç çalıştırılmadan.",
+              "en": "A TypeScript project with strictNullChecks enabled is like an attendant who asks 'is this floor empty or occupied?' before you board the elevator — try to use a value that might be null/undefined without checking first, and you're stopped before you even board (at compile time). So if Java already has `NullPointerException` as an error, why is catching this ahead of time so valuable? Because Java's NPE explodes exactly when that line runs — usually in production or mid-test-run — and it's the source of what Tony Hoare himself called his 'billion dollar mistake'; strictNullChecks instead makes that same risk impossible to even write into the code. The concrete QA payoff: a test helper that finds an element with `document.querySelector` and calls `.click()` on it without checking first crashes mid-test with 'Cannot read property of null' in plain JavaScript or non-strict TypeScript; with strictNullChecks on, the compiler stops that same code in the IDE, demanding a null check first, before the test is ever run."
             }
           },
           {
@@ -11642,8 +11578,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📝",
             "content": {
-              "tr": "Template literal type, kelimeleri birleştirip yeni tip kuralları oluşturmaktır. 'staging' veya 'prod' kelimeleri ile '.myapp.com' adresini birleştirip sadece bu iki kalıba uyan URL'leri kabul eden bir kural yazar.",
-              "en": "Template literal types let you merge strings to create new type rules. Like combining 'staging' or 'prod' with '.myapp.com' to restrict values to only those two URL strings."
+              "tr": "Template literal type, bir matbaanın kalıp baskı şablonu gibidir — şablonda sabit bir çerçeve vardır ('___.myapp.com'), siz sadece boşluğa 'staging' veya 'prod' yazabilirsiniz; üçüncü bir kelime (örn. 'test') basmaya çalıştığınızda matbaa baskıyı reddeder. Peki bunu neden düz bir `string` tipiyle yapmıyoruz, zaten URL bir string değil mi? Çünkü düz string her şeyi kabul eder — biri yanlışlıkla `'staging.mayapp.com'` (yazım hatası) yazsa derleyici hiç fark etmez; template literal type ise kalıbın dışına çıkan her şeyi derleme anında reddeder. Java'da bunun birebir karşılığı yoktur — en yakını regex ile çalışma zamanında doğrulama yapmaktır, TypeScript ise bunu derleme anında, hiç çalıştırmadan sağlar. QA'da somut faydası: bir test ortamı seçici fonksiyon `env: \`${'staging' | 'prod'}.myapp.com\`` tipiyle yazıldığında, biri yanlış bir ortam URL'si geçmeye çalıştığında bu hata CI'da testler koşmadan, kodu derlerken yakalanır — yanlış ortama karşı test koşma riskini en baştan ortadan kaldırır.",
+              "en": "A template literal type is like a printing press's fixed-frame template — the frame itself is locked ('___.myapp.com'), and you can only fill the blank with 'staging' or 'prod'; try to print a third word (say, 'test') and the press refuses the job. So why not just use a plain `string` type — isn't a URL just a string anyway? Because a plain string accepts anything — someone could typo `'staging.mayapp.com'` and the compiler would never notice; a template literal type rejects anything outside the frame at compile time. Java has no direct equivalent — the closest is runtime validation via regex, while TypeScript provides this at compile time, without ever running the code. The concrete QA payoff: when a test-environment selector function is typed as `env: \`${'staging' | 'prod'}.myapp.com\``, passing a wrong environment URL gets caught while compiling the code in CI, before any tests even run — eliminating the risk of accidentally running tests against the wrong environment from the start."
             }
           },
           {
@@ -11787,8 +11723,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "📦",
             "content": {
-              "tr": "@types paketi, bir JavaScript kütüphanesinin TypeScript rehber kitabı gibidir. Kütüphane TypeScript ile yazılmamışsa, bu paket TypeScript'e 'bu kütüphanede şu metodlar ve tipler var' der. Rehber olmadan TypeScript kütüphaneyi göremez.",
-              "en": "A @types package is TypeScript's manual for a JavaScript library. If the library isn't written in TypeScript, this package tells TypeScript 'this library has these methods and types'. Without the manual, TypeScript can't see the library."
+              "tr": "@types paketi, yurt dışından gelen bir cihazın çeviri kitapçığı gibidir — cihazın kendisi (JavaScript kütüphanesi) hiçbir dile çevrilmemiştir ama yanına eklenen kitapçık (DefinitelyTyped'dan gelen @types paketi) 'bu düğmeye basarsan şu olur, bu fonksiyon şu parametreleri ister' der. Peki kütüphane zaten çalışıyorsa, sadece tip bilgisi için neden ayrı bir paket kurulsun? Çünkü TypeScript'in editördeki otomatik tamamlama ve derleme-anı hata yakalama gücü, ancak fonksiyonların hangi parametreleri beklediğini, neyi döndürdüğünü bilmesiyle çalışır — çeviri kitapçığı olmadan TypeScript o kütüphaneyi 'her şey olabilir' (any) olarak görür ve tüm tip güvenliği orada kaybolur. Java'da bu sorun yoktur çünkü her .jar dosyası zaten kendi tip bilgisini (.class dosyalarında) taşır; JavaScript ekosisteminde tip bilgisi sonradan eklenen ayrı bir katmandır. QA'da somut faydası: `@types/node` kurulu olmadan `fs.readFileSync` çağırdığınızda TypeScript bu fonksiyonun ne döndürdüğünü bilemez ve hatalı kullanım derleme anında hiç yakalanmaz; paket kurulduğunda aynı hata IDE'de anında görünür.",
+              "en": "A @types package is like a translation booklet that comes with a device imported from abroad — the device itself (the JavaScript library) was never translated into any language, but the booklet that ships alongside it (a @types package from DefinitelyTyped) says 'press this button and that happens, this function expects these parameters.' So if the library already works, why install a separate package just for type information? Because TypeScript's editor autocomplete and compile-time error catching only work if it knows what parameters a function expects and what it returns — without the translation booklet, TypeScript sees that library as 'could be anything' (any), and all type safety evaporates right there. Java doesn't have this problem because every .jar file already carries its own type information (in its .class files); in the JavaScript ecosystem, type information is a separate layer bolted on afterward. The concrete QA payoff: call `fs.readFileSync` without `@types/node` installed, and TypeScript has no idea what it returns, so misuse is never caught at compile time; once the package is installed, the same mistake shows up instantly in the IDE."
             }
           },
           {
@@ -11956,8 +11892,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🗺️",
             "content": {
-              "tr": "Conditional type, 'eğer X ise A, değilse B' mantığında çalışan tip. Mapped type, bir nesnenin tüm alanlarını dönüştürür — her alanı opsiyonel yap, her alanı string yap gibi. Partial<T> aslında bir mapped type.",
-              "en": "A conditional type works like 'if X then A, else B' for types. A mapped type transforms all fields of an object — make every field optional, make every field a string. Partial<T> is actually a mapped type."
+              "tr": "Conditional type, bir gümrük memurunun 'eğer bu pasaport Türk ise şu kapıdan, değilse öbür kapıdan geç' kuralı gibi çalışır — tip seviyesinde bir if/else'dir. Mapped type ise bir fabrikada tüm ürün hattına aynı işlemi tek seferde uygulayan bir makine gibidir — 'her ürünü opsiyonel ambalajla' veya 'her ürünü string etikete çevir' der, tek tek elle dokunmaz; aslında `Partial<T>` dediğiniz şey de arka planda tam olarak böyle bir mapped type'tır. Peki bu iki kavram neden ayrı ayrı öğrenilmeli, zaten interface yazarak aynı sonuca ulaşılamaz mı? Çünkü elle yazılan bir interface, orijinal tip değiştiğinde elle güncellenmesi gerekir; conditional/mapped type'lar ise orijinal tipten otomatik türediği için kaynak değiştikçe kendiliğinden senkronize kalır — Java'da generic'lerle bu seviyede tip-zamanı mantık üretmek mümkün değildir, en yakını annotation processor yazmaktır. QA'da somut faydası: `type ApiResult<T> = T extends Error ? { success: false; error: T } : { success: true; data: T }` gibi bir conditional type, bir API çağrısının başarı/hata durumuna göre farklı şekil alan response'ları derleme anında doğru tipte zorlar — hangi dalda hangi alanın var olduğunu unutmak imkansız hale gelir.",
+              "en": "A conditional type works like a customs officer's rule — 'if this passport is Turkish, go through this gate, otherwise that one' — it's an if/else at the type level. A mapped type is like a factory machine that applies the same operation to an entire product line at once — 'wrap every product in optional packaging' or 'turn every product's label into a string,' without touching each one by hand; in fact, `Partial<T>` is itself exactly this kind of mapped type under the hood. So why learn these as two separate concepts — couldn't a hand-written interface achieve the same result? Because a hand-written interface needs manual updates whenever the original type changes; conditional/mapped types are derived automatically from the source type, so they stay in sync as it evolves — Java has no way to generate this kind of type-level logic with generics, the closest equivalent is writing an annotation processor. The concrete QA payoff: a conditional type like `type ApiResult<T> = T extends Error ? { success: false; error: T } : { success: true; data: T }` forces an API response that shapes itself differently on success vs. failure into the correct type at compile time — forgetting which field exists on which branch becomes impossible."
             }
           },
           {
@@ -12244,8 +12180,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🛡️",
             "content": {
-              "tr": "Hata yönetimi, bilinmeyen bir kutuyu eldivenle açmak gibidir. Kutunun içinden ne çıkacağını bilmediğin (unknown) için önce kontrol edersin, sonra dokunursun.",
-              "en": "Error handling is like opening a mystery package with protective gloves. Since you don't know what is inside (unknown), you inspect it before handling it."
+              "tr": "TypeScript'te catch bloğundaki hata, laboratuvara gelen etiketsiz bir numune kutusu gibidir — eldiveni takmadan (tip kontrolü yapmadan) doğrudan içine elinizi sokamazsınız, çünkü kutunun içinde ne olduğu (`unknown`) baştan belli değildir. Peki Java'da `catch (Exception e)` yazıp `e.getMessage()` çağırmak hep güvenliyken, TypeScript neden `catch (e)` bloğunda `e`'yi `unknown` yapıp sizi zorluyor? Çünkü JavaScript'te `throw` ile fırlatılan şey bir Error nesnesi olmak zorunda değildir — biri `throw` ile basit bir metin (string) veya `throw 42` ile bir sayı bile fırlatabilir; Java'da her exception zorunlu olarak Throwable'dan türediği için bu belirsizlik hiç yoktur. QA'da somut faydası: bir test yardımcı fonksiyonu catch bloğunda doğrudan `e.message` okumaya çalışırsa ve birisi gerçekten string fırlatmışsa, plain JavaScript bunu sessizce `undefined` olarak geçiştirir ve hata raporu boş kalır; `unknown` ile tip edilmiş `e`, `instanceof Error` kontrolü yapmadan `.message`'a erişmenizi derleme anında engelleyerek bu sessiz veri kaybını önler.",
+              "en": "In TypeScript, the error caught in a catch block is like an unlabeled sample container arriving at a lab — you can't reach in without gloves (without a type check), because what's inside (`unknown`) is genuinely unknown at the outset. So if `catch (Exception e)` followed by `e.getMessage()` is always safe in Java, why does TypeScript type `e` as `unknown` in a `catch (e)` block and force extra work? Because in JavaScript, whatever gets thrown doesn't have to be an Error object at all — someone can write `throw \"just a string\"` or even `throw 42`; in Java, every exception is mandatorily derived from Throwable, so this ambiguity never exists there. The concrete QA payoff: if a test helper tries to read `e.message` directly inside a catch block and someone genuinely threw a plain string, plain JavaScript silently returns `undefined` and the error report comes back empty; with `e` typed as `unknown`, accessing `.message` without an `instanceof Error` check first is blocked at compile time, preventing that silent data loss."
             }
           },
           {
@@ -13715,8 +13651,8 @@ export const typescriptData = {
             "type": "simple-box",
             "emoji": "🏃",
             "content": {
-              "tr": "Vitest, bir öğretmenin tüm öğrenci ödevlerini hızlıca tek tek kontrol edip yanına ✅ veya ❌ yazması gibidir. Her test dosyası bir ödev kağıdıdır; Vitest hepsini saniyeler içinde tarar ve hangisinin doğru hangisinin yanlış olduğunu renkli olarak gösterir.",
-              "en": "Vitest is like a teacher quickly checking every student's homework and marking it ✅ or ❌. Each test file is a homework sheet; Vitest scans them all in seconds and shows, in color, which ones are right and which are wrong."
+              "tr": "Vitest, bir öğretmenin sınıftaki tüm ödevleri aynı anda, ama sadece değişen sayfaları yeniden okuyarak kontrol etmesi gibidir — bir önceki kontrolden bu yana değişmeyen ödev kağıtlarını tekrar baştan okumaz, sadece dokunulan dosyaları (watch mode) yeniden tarar ve sonucu saniyeler içinde ✅/❌ olarak gösterir. Peki Jest gibi köklü bir test runner zaten varken neden Vitest gibi yeni bir araç çıktı? Çünkü Jest, TypeScript dosyalarını çalıştırmadan önce ayrı bir derleme adımından (genelde Babel veya ts-jest) geçirir ve bu, büyük projelerde gözle görülür bir yavaşlık yaratır; Vitest ise Vite'in zaten kullandığı esbuild tabanlı anlık derlemeyi kullanarak bu adımı neredeyse sıfıra indirir — Java'da bunun karşılığı, Maven'in her seferinde tüm projeyi yeniden derlemesi yerine artımlı (incremental) derleme yapmasına benzer. QA'da somut faydası: yüzlerce test dosyası olan bir TypeScript projesinde, sadece bir dosyayı değiştirdiğinizde Vitest watch mode sadece o dosyayla ilgili testleri saniyeler içinde yeniden çalıştırır; Jest'te aynı senaryo, derleme adımı yüzünden gözle görülür şekilde daha yavaş hissedilebilir.",
+              "en": "Vitest is like a teacher checking every assignment in the class at once, but only re-reading the pages that actually changed — sheets unchanged since the last check aren't read from scratch again; only the touched files get rescanned (watch mode), and results show up in seconds as ✅/❌. So if Jest is already an established test runner, why did a new tool like Vitest need to exist? Because Jest runs TypeScript files through a separate compile step first (usually Babel or ts-jest), and that creates a noticeable slowdown on large projects; Vitest instead reuses the esbuild-based instant compilation that Vite already runs internally, shrinking that step to nearly zero — the closest Java analogy is Maven doing incremental compilation instead of rebuilding the entire project every time. The concrete QA payoff: in a TypeScript project with hundreds of test files, changing just one file makes Vitest's watch mode re-run only the relevant tests within seconds; the same scenario under Jest can feel noticeably slower because of that compile step."
             }
           },
           {
@@ -15020,6 +14956,1375 @@ const _tsInsert = [
 _tsInsert.forEach(([pos, stepAnim, orderSort], sectionIdx) => {
   typescriptData.en.sections[sectionIdx].blocks.splice(pos, 0, stepAnim, orderSort);
   typescriptData.tr.sections[sectionIdx].blocks.splice(pos, 0, stepAnim, orderSort);
+});
+
+// ── Practice rollout: code-playground (Fix-the-Bug + "Kod Yaz ve Dene") ──
+// CLAUDE.md §9.1/9.2: her sekmede animasyon + drag-and-drop + practice üçlüsü
+// zorunlu. TypeScript'te step-animation/order-sort zaten vardı (yukarıdaki
+// _tsInsert), ama hiçbir sekmede code-playground (Docker/Jenkins/Kubernetes/
+// Python'daki Fix+Practice modu) yoktu — sadece pasif 'editor' (canlı çalıştır,
+// hint/diagnostic/practice-karşılaştırma YOK) vardı. Bu 17 blok o boşluğu kapatır.
+// Aynı pos değerleri kullanılır (_tsInsert ile aynı dizi), bu yüzden her blok
+// stepAnim+orderSort çiftinin TAM ÖNÜNE eklenir — sıra: code → practice →
+// animasyon → drag-and-drop (Docker'daki sıralamayla aynı).
+const _tsCodePlayground = [
+  [0, 14, {
+    type: 'code-playground',
+    id: 'ts-intro-typeerror-practice',
+    label: { tr: 'Pratik: TypeScript Tip Hatasını Derleme Anında Yakala', en: 'Practice: Catch the TypeScript Type Bug at Compile Time' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: TypeScript hatasını derleme anında (compile-time) yakalamayı hisset. Java analojisi: javac, kodu çalıştırmadan ÖNCE tip uyuşmazlıklarını yakalar — TypeScript de tsc ile aynısını yapar; JavaScript ise hatayı sadece runtime\'da (gerçek kullanıcı tıkladığında) gösterir.',
+      en: 'Goal: feel how TypeScript catches a type bug at compile time. Java analogy: javac catches type mismatches BEFORE you run the code — TypeScript\'s tsc does the same; plain JavaScript only reveals the bug at runtime, when a real user clicks.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: calculateDiscount fonksiyonunun parametresine doğru tip anotasyonunu ekle, böylece string gönderildiğinde derleyici hemen hata versin.',
+      en: 'Fill the TODO: add the correct type annotation to calculateDiscount\'s parameter so the compiler immediately flags a string argument.',
+    },
+    code: {
+      tr: `function calculateDiscount(price TODO): number {
+  return price * 0.9;
+}
+
+console.log(calculateDiscount(100));
+// console.log(calculateDiscount("100")); // bu satır derleyici tarafından yakalanmalı`,
+      en: `function calculateDiscount(price TODO): number {
+  return price * 0.9;
+}
+
+console.log(calculateDiscount(100));
+// console.log(calculateDiscount("100")); // this line should be caught by the compiler`,
+    },
+    starterCode: {
+      tr: `function calculateDiscount(price TODO): number {
+  return price * 0.9;
+}`,
+      en: `function calculateDiscount(price TODO): number {
+  return price * 0.9;
+}`,
+    },
+    solutionCode: {
+      tr: `function calculateDiscount(price: number): number {
+  return price * 0.9;
+}
+
+console.log(calculateDiscount(100));
+// console.log(calculateDiscount("100")); // Hata: Argument of type 'string' is not assignable to parameter of type 'number'.`,
+      en: `function calculateDiscount(price: number): number {
+  return price * 0.9;
+}
+
+console.log(calculateDiscount(100));
+// console.log(calculateDiscount("100")); // Error: Argument of type 'string' is not assignable to parameter of type 'number'.`,
+    },
+    expected: {
+      tr: `90\nString argümanı denersen: Hata: Argument of type 'string' is not assignable to parameter of type 'number'.`,
+      en: `90\nIf you try a string argument: Error: Argument of type 'string' is not assignable to parameter of type 'number'.`,
+    },
+    hints: [
+      { tr: 'Parametreye : number ekle.', en: 'Add : number to the parameter.' },
+      { tr: 'Tip anotasyonu parametre adından sonra, iki nokta ile gelir: price: number.', en: 'A type annotation comes right after the parameter name with a colon: price: number.' },
+      { tr: 'Doğru haliyle calculateDiscount("100") çağrısı artık editörde kırmızı çizilir — kodu çalıştırmadan bile hatayı görürsün.', en: 'With the fix, calling calculateDiscount("100") gets underlined red in the editor — you see the bug without even running the code.' },
+    ],
+    xpReward: 10,
+  }],
+  [1, 19, {
+    type: 'code-playground',
+    id: 'ts-install-tsconfig-practice',
+    label: { tr: 'Pratik: tsconfig.json ile Derleyiciyi Sıkılaştır', en: 'Practice: Tighten the Compiler with tsconfig.json' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: tsconfig.json\'daki strict modu açarak derleyiciyi Java\'nın javac kadar katı hale getirmeyi öğren. Java\'da tip güvenliği VARSAYILANDIR ve kapatılamaz; TypeScript\'te strict:false varsayılandır, güvenliği SEN açarsın.',
+      en: 'Goal: turn on strict mode in tsconfig.json to make the compiler as strict as Java\'s javac. In Java, type safety is the DEFAULT and cannot be turned off; in TypeScript strict:false is the default — you opt into safety yourself.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: tsconfig.json içinde strict modu aktif et, sonra tsc --noEmit ile projeyi dosya üretmeden sadece tip kontrolünden geçir.',
+      en: 'Fill the TODO: enable strict mode in tsconfig.json, then run tsc --noEmit to type-check the project without emitting any files.',
+    },
+    code: {
+      tr: `{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": TODO,
+    "outDir": "./dist"
+  }
+}
+
+# Terminalde calistir:
+# TODO`,
+      en: `{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": TODO,
+    "outDir": "./dist"
+  }
+}
+
+# Run in terminal:
+# TODO`,
+    },
+    starterCode: {
+      tr: `{
+  "compilerOptions": {
+    "strict": TODO
+  }
+}`,
+      en: `{
+  "compilerOptions": {
+    "strict": TODO
+  }
+}`,
+    },
+    solutionCode: {
+      tr: `{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": true,
+    "outDir": "./dist"
+  }
+}
+
+# Terminalde calistir:
+npx tsc --noEmit`,
+      en: `{
+  "compilerOptions": {
+    "target": "ES2020",
+    "strict": true,
+    "outDir": "./dist"
+  }
+}
+
+# Run in terminal:
+npx tsc --noEmit`,
+    },
+    expected: {
+      tr: `strict: true ile projedeki tum gizli "any" tipleri ve null/undefined riskleri derleyici tarafindan listelenir.\ntsc --noEmit cikti uretmeden sadece hata listesini gosterir.`,
+      en: `With strict: true, every hidden "any" type and null/undefined risk in the project gets listed by the compiler.\ntsc --noEmit shows only the error list, without emitting output.`,
+    },
+    hints: [
+      { tr: '"strict" değeri true olmalı (tırnaksız boolean).', en: 'The "strict" value should be true (boolean, no quotes).' },
+      { tr: 'Terminal komutu npx ile başlar: npx tsc ...', en: 'The terminal command starts with npx: npx tsc ...' },
+      { tr: '--noEmit, .js dosyası üretmeden SADECE tip hatalarını listeler — CI\'da hızlı bir "tip lint" adımı gibi kullanılır.', en: '--noEmit lists ONLY type errors without producing .js files — used as a fast "type lint" step in CI.' },
+    ],
+    xpReward: 10,
+  }],
+  [2, 12, {
+    type: 'code-playground',
+    id: 'ts-types-unknown-practice',
+    label: { tr: 'Pratik: any Yerine unknown ile Güvenli Tip Kontrolü', en: 'Practice: Safe Type Narrowing with unknown Instead of any' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: any\'in tip kontrolünü TAMAMEN kapattığını, unknown\'ın ise kullanmadan önce kontrol zorunluluğu getirdiğini hisset. Java analojisi: Object referansını String\'e cast etmeden önce instanceof ile kontrol etmen gibi — unknown da TypeScript\'i sana aynı kontrolü zorunlu kılar, any ise bu kontrolü es geçmene izin verir (sessiz bug kapısı).',
+      en: 'Goal: feel that any turns type-checking OFF completely, while unknown forces a check before use. Java analogy: like checking an Object reference with instanceof before casting to String — unknown forces TypeScript to demand the same check, while any lets you skip it (a silent-bug door).',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: parametre tipini any\'den unknown\'a çevir ve typeof kontrolü ekleyerek yalnızca number geldiğinde işlem yap.',
+      en: 'Fill the TODO: change the parameter type from any to unknown and add a typeof check so the calculation only runs when a number arrives.',
+    },
+    code: {
+      tr: `function parseTestDuration(raw TODO): number {
+  // TODO: typeof kontrolü ekle, number degilse Error fırlat
+  return raw * 1000;
+}
+
+console.log(parseTestDuration(3));
+// console.log(parseTestDuration("3")); // bug: sessizce NaN doner`,
+      en: `function parseTestDuration(raw TODO): number {
+  // TODO: add a typeof check, throw an Error if it's not a number
+  return raw * 1000;
+}
+
+console.log(parseTestDuration(3));
+// console.log(parseTestDuration("3")); // bug: silently returns NaN`,
+    },
+    starterCode: {
+      tr: `function parseTestDuration(raw TODO): number {
+  return raw * 1000;
+}`,
+      en: `function parseTestDuration(raw TODO): number {
+  return raw * 1000;
+}`,
+    },
+    solutionCode: {
+      tr: `function parseTestDuration(raw: unknown): number {
+  if (typeof raw !== 'number') {
+    throw new Error('Sure olmayan tip: ' + typeof raw);
+  }
+  return raw * 1000;
+}
+
+console.log(parseTestDuration(3));
+// console.log(parseTestDuration("3")); // artık derleme anında bile uyarir, calisirsa Error firlatir`,
+      en: `function parseTestDuration(raw: unknown): number {
+  if (typeof raw !== 'number') {
+    throw new Error('Unsafe type: ' + typeof raw);
+  }
+  return raw * 1000;
+}
+
+console.log(parseTestDuration(3));
+// console.log(parseTestDuration("3")); // now throws an Error instead of silently returning NaN`,
+    },
+    expected: {
+      tr: `3000\nString gönderirsen: Error: Sure olmayan tip: string`,
+      en: `3000\nIf you pass a string: Error: Unsafe type: string`,
+    },
+    hints: [
+      { tr: 'Parametre tipi unknown olmalı.', en: 'The parameter type should be unknown.' },
+      { tr: 'unknown bir değeri kullanmadan önce typeof veya instanceof ile DARALTMAN gerekir.', en: 'You must NARROW an unknown value with typeof or instanceof before using it.' },
+      { tr: 'Kontrol geçmezse throw new Error(...) ile fonksiyonu durdur — sessiz NaN bug\'ı yerine açık bir hata.', en: 'If the check fails, stop the function with throw new Error(...) — an explicit error instead of a silent NaN bug.' },
+    ],
+    xpReward: 10,
+  }],
+  [3, 10, {
+    type: 'code-playground',
+    id: 'ts-arrays-tuple-practice',
+    label: { tr: 'Pratik: Array Yerine Tuple ile Sabit Yapı Garantile', en: 'Practice: Guarantee Fixed Structure with a Tuple Instead of an Array' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: any[] kullanmanın test adımı sonucunu nasıl tip güvenliğinden çıkardığını gör, tuple ile pozisyona göre sabit bir yapı kur. Java analojisi: Java\'da bunun karşılığı bir record/class\'tır (StepResult(String name, boolean passed)) — TypeScript\'te tuple aynı garantiyi class yazmadan, hafif bir şekilde verir.',
+      en: 'Goal: see how using any[] strips type safety from a test step result, then lock a fixed structure with a tuple. Java analogy: the equivalent in Java is a record/class (StepResult(String name, boolean passed)) — a TypeScript tuple gives the same guarantee without writing a class.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: runStep fonksiyonunun dönüş tipini any[] yerine [string, boolean, number] tuple\'ına çevir.',
+      en: 'Fill the TODO: change runStep\'s return type from any[] to the tuple [string, boolean, number].',
+    },
+    code: {
+      tr: `function runStep(name: string, passed: boolean, ms: number) TODO {
+  return [name, passed, ms];
+}
+
+const result = runStep('Login testi', true, 240);
+console.log(result[0], result[1], result[2]);
+// result[1] = "evet"; // bug: any[] iken bu satir hata vermezdi`,
+      en: `function runStep(name: string, passed: boolean, ms: number) TODO {
+  return [name, passed, ms];
+}
+
+const result = runStep('Login test', true, 240);
+console.log(result[0], result[1], result[2]);
+// result[1] = "yes"; // bug: with any[] this line wouldn't error`,
+    },
+    starterCode: {
+      tr: `function runStep(name: string, passed: boolean, ms: number) TODO {
+  return [name, passed, ms];
+}`,
+      en: `function runStep(name: string, passed: boolean, ms: number) TODO {
+  return [name, passed, ms];
+}`,
+    },
+    solutionCode: {
+      tr: `function runStep(name: string, passed: boolean, ms: number): [string, boolean, number] {
+  return [name, passed, ms];
+}
+
+const result = runStep('Login testi', true, 240);
+console.log(result[0], result[1], result[2]);
+// result[1] = "evet"; // artik Hata: Type 'string' is not assignable to type 'boolean'.`,
+      en: `function runStep(name: string, passed: boolean, ms: number): [string, boolean, number] {
+  return [name, passed, ms];
+}
+
+const result = runStep('Login test', true, 240);
+console.log(result[0], result[1], result[2]);
+// result[1] = "yes"; // now Error: Type 'string' is not assignable to type 'boolean'.`,
+    },
+    expected: {
+      tr: `Login testi true 240\nresult[1]'e string atamayi denersen: Hata: Type 'string' is not assignable to type 'boolean'.`,
+      en: `Login test true 240\nIf you try assigning a string to result[1]: Error: Type 'string' is not assignable to type 'boolean'.`,
+    },
+    hints: [
+      { tr: 'Dönüş tipi [string, boolean, number] şeklinde köşeli parantezle yazılır.', en: 'The return type is written with square brackets: [string, boolean, number].' },
+      { tr: 'Tuple\'da her pozisyonun KENDİ sabit tipi vardır — array\'de ise tüm elemanlar aynı tip havuzunu paylaşır.', en: 'In a tuple, each position has its OWN fixed type — in an array, all elements share the same type pool.' },
+      { tr: 'result[1] = "evet" satırı tuple ile artık derleme hatası verir; any[] ile bu sessizce geçerdi.', en: 'The line result[1] = "yes" now causes a compile error with the tuple; with any[] it would have passed silently.' },
+    ],
+    xpReward: 10,
+  }],
+  [4, 12, {
+    type: 'code-playground',
+    id: 'ts-object-enum-practice',
+    label: { tr: 'Pratik: Enum + Interface ile Geçersiz Config Değerini Engelle', en: 'Practice: Block an Invalid Config Value with Enum + Interface' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: string literal yerine enum kullanmanın "magic string" yazım hatalarını nasıl derleme anında yakaladığını gör. Java analojisi: Java\'da enum zaten zorunlu bir tip güvenliği aracıdır (switch\'te exhaustive kontrol); TypeScript\'te enum kullanmazsan method: "GET" gibi serbest string\'ler yazım hatasına (örn. "Get") açık kalır.',
+      en: 'Goal: see how using an enum instead of a string literal catches "magic string" typos at compile time. Java analogy: in Java, enum is already a mandatory type-safety tool (exhaustive switch checks); without it in TypeScript, a free string like method: "GET" stays open to typos like "Get".',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: HttpMethod enum\'unu tanımla ve ApiCall interface\'indeki method alanını string yerine bu enum\'a bağla.',
+      en: 'Fill the TODO: define the HttpMethod enum and bind ApiCall\'s method field to that enum instead of a plain string.',
+    },
+    code: {
+      tr: `TODO
+  GET = 'GET',
+  POST = 'POST',
+}
+
+interface ApiCall {
+  endpoint: string;
+  method: TODO;
+}
+
+const call: ApiCall = { endpoint: '/api/users', method: HttpMethod.GET };
+console.log(call.method);
+// const bad: ApiCall = { endpoint: '/api/users', method: 'Get' }; // bug: kucuk harf yazim hatasi`,
+      en: `TODO
+  GET = 'GET',
+  POST = 'POST',
+}
+
+interface ApiCall {
+  endpoint: string;
+  method: TODO;
+}
+
+const call: ApiCall = { endpoint: '/api/users', method: HttpMethod.GET };
+console.log(call.method);
+// const bad: ApiCall = { endpoint: '/api/users', method: 'Get' }; // bug: lowercase typo`,
+    },
+    starterCode: {
+      tr: `TODO
+  GET = 'GET',
+  POST = 'POST',
+}`,
+      en: `TODO
+  GET = 'GET',
+  POST = 'POST',
+}`,
+    },
+    solutionCode: {
+      tr: `enum HttpMethod {
+  GET = 'GET',
+  POST = 'POST',
+}
+
+interface ApiCall {
+  endpoint: string;
+  method: HttpMethod;
+}
+
+const call: ApiCall = { endpoint: '/api/users', method: HttpMethod.GET };
+console.log(call.method);
+// const bad: ApiCall = { endpoint: '/api/users', method: 'Get' }; // artik Hata: Type '"Get"' is not assignable to type 'HttpMethod'.`,
+      en: `enum HttpMethod {
+  GET = 'GET',
+  POST = 'POST',
+}
+
+interface ApiCall {
+  endpoint: string;
+  method: HttpMethod;
+}
+
+const call: ApiCall = { endpoint: '/api/users', method: HttpMethod.GET };
+console.log(call.method);
+// const bad: ApiCall = { endpoint: '/api/users', method: 'Get' }; // now Error: Type '"Get"' is not assignable to type 'HttpMethod'.`,
+    },
+    expected: {
+      tr: `GET\n'Get' (kucuk harf) yazarsan: Hata: Type '"Get"' is not assignable to type 'HttpMethod'.`,
+      en: `GET\nIf you type 'Get' (wrong case): Error: Type '"Get"' is not assignable to type 'HttpMethod'.`,
+    },
+    hints: [
+      { tr: 'enum tanımı "enum HttpMethod {" ile başlar.', en: 'An enum definition starts with "enum HttpMethod {".' },
+      { tr: 'interface içindeki method alanının tipi HttpMethod olmalı, string değil.', en: 'The method field inside the interface should be typed HttpMethod, not string.' },
+      { tr: 'Enum sayesinde "Get" gibi büyük/küçük harf yazım hataları artık derleyici tarafından yakalanır — production\'da sessizce 404 dönen bir API çağrısını önler.', en: 'Thanks to the enum, case typos like "Get" are now caught by the compiler — preventing an API call that would silently 404 in production.' },
+    ],
+    xpReward: 10,
+  }],
+  [5, 4, {
+    type: 'code-playground',
+    id: 'ts-interface-typealias-practice',
+    label: { tr: 'Pratik: Union Type\'ı Interface Değil Type Alias ile Tanımla', en: 'Practice: Define a Union Type with type, Not interface' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: interface\'in union/intersection tanımlayamadığını, type alias\'ın bunu yapabildiğini hisset. Java analojisi: Java\'da interface\'ler birleşim (union) tipi tanımlayamaz, sadece kontrat tanımlar — TypeScript\'te de interface benzer şekilde sınırlıdır, union için type kullanman gerekir.',
+      en: 'Goal: feel that interface cannot define a union/intersection, but a type alias can. Java analogy: in Java, interfaces cannot express a union type, only a contract — TypeScript\'s interface is similarly limited; you need type for unions.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: TestStatus\'u interface yerine type alias olarak "pass" | "fail" | "skip" union\'ı şeklinde tanımla.',
+      en: 'Fill the TODO: define TestStatus as a type alias union of "pass" | "fail" | "skip" instead of an interface.',
+    },
+    code: {
+      tr: `TODO TestStatus = TODO;
+
+function report(status: TestStatus): string {
+  return 'Sonuc: ' + status;
+}
+
+console.log(report('pass'));
+// console.log(report('passed')); // bug: union disindaki deger derleyici tarafindan yakalanmali`,
+      en: `TODO TestStatus = TODO;
+
+function report(status: TestStatus): string {
+  return 'Result: ' + status;
+}
+
+console.log(report('pass'));
+// console.log(report('passed')); // bug: a value outside the union should be caught by the compiler`,
+    },
+    starterCode: {
+      tr: `TODO TestStatus = TODO;`,
+      en: `TODO TestStatus = TODO;`,
+    },
+    solutionCode: {
+      tr: `type TestStatus = 'pass' | 'fail' | 'skip';
+
+function report(status: TestStatus): string {
+  return 'Sonuc: ' + status;
+}
+
+console.log(report('pass'));
+// console.log(report('passed')); // artik Hata: Argument of type '"passed"' is not assignable to parameter of type 'TestStatus'.`,
+      en: `type TestStatus = 'pass' | 'fail' | 'skip';
+
+function report(status: TestStatus): string {
+  return 'Result: ' + status;
+}
+
+console.log(report('pass'));
+// console.log(report('passed')); // now Error: Argument of type '"passed"' is not assignable to parameter of type 'TestStatus'.`,
+    },
+    expected: {
+      tr: `Sonuc: pass\n'passed' yazarsan: Hata: Argument of type '"passed"' is not assignable to parameter of type 'TestStatus'.`,
+      en: `Result: pass\nIf you type 'passed': Error: Argument of type '"passed"' is not assignable to parameter of type 'TestStatus'.`,
+    },
+    hints: [
+      { tr: 'Tanım "type TestStatus = ..." şeklinde olmalı, interface değil.', en: 'The definition should be "type TestStatus = ...", not interface.' },
+      { tr: 'Union\'da seçenekler | (dik çizgi) ile ayrılır: \'pass\' | \'fail\' | \'skip\'.', en: 'Union options are separated by | (pipe): \'pass\' | \'fail\' | \'skip\'.' },
+      { tr: 'interface aynı union\'ı tanımlamaya ÇALIŞSAN derleyici hata verir — bu yüzden union/intersection için her zaman type kullanılır.', en: 'If you TRY to define the same union with interface, the compiler errors — that\'s why union/intersection always use type.' },
+    ],
+    xpReward: 10,
+  }],
+  [6, 11, {
+    type: 'code-playground',
+    id: 'ts-functions-optional-practice',
+    label: { tr: 'Pratik: Optional Parametre ile Eksik Argüman Hatasını Önle', en: 'Practice: Prevent the Missing-Argument Bug with an Optional Parameter' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: bir parametrenin optional (?) olup olmamasının çağrı tarafında nasıl fark yarattığını gör. Java analojisi: Java\'da bunun karşılığı method overloading\'dir (login(String u) ve login(String u, int timeout) gibi iki ayrı method) — TypeScript\'te tek imzada ? ile aynı esnekliği elde edersin.',
+      en: 'Goal: see how making a parameter optional (?) changes what\'s valid at the call site. Java analogy: the equivalent in Java is method overloading (two separate methods like login(String u) and login(String u, int timeout)) — TypeScript gets the same flexibility with ? in one signature.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: login fonksiyonundaki timeoutMs parametresini optional yap ve fonksiyon içinde varsayılan değer ata.',
+      en: 'Fill the TODO: make login\'s timeoutMs parameter optional and assign a default value inside the function.',
+    },
+    code: {
+      tr: `function login(username: string, timeoutMs TODO): string {
+  const t = timeoutMs TODO 5000;
+  return username + ' icin ' + t + 'ms timeout ile giris yapildi';
+}
+
+console.log(login('qa_user', 8000));
+console.log(login('qa_user'));
+// console.log(login()); // bug: username eksik, derleyici yakalamali`,
+      en: `function login(username: string, timeoutMs TODO): string {
+  const t = timeoutMs TODO 5000;
+  return 'Logged in as ' + username + ' with ' + t + 'ms timeout';
+}
+
+console.log(login('qa_user', 8000));
+console.log(login('qa_user'));
+// console.log(login()); // bug: username missing, compiler should catch this`,
+    },
+    starterCode: {
+      tr: `function login(username: string, timeoutMs TODO): string {
+  const t = timeoutMs TODO 5000;
+  return username;
+}`,
+      en: `function login(username: string, timeoutMs TODO): string {
+  const t = timeoutMs TODO 5000;
+  return username;
+}`,
+    },
+    solutionCode: {
+      tr: `function login(username: string, timeoutMs?: number): string {
+  const t = timeoutMs ?? 5000;
+  return username + ' icin ' + t + 'ms timeout ile giris yapildi';
+}
+
+console.log(login('qa_user', 8000));
+console.log(login('qa_user'));
+// console.log(login()); // Hata: Expected 1-2 arguments, but got 0.`,
+      en: `function login(username: string, timeoutMs?: number): string {
+  const t = timeoutMs ?? 5000;
+  return 'Logged in as ' + username + ' with ' + t + 'ms timeout';
+}
+
+console.log(login('qa_user', 8000));
+console.log(login('qa_user'));
+// console.log(login()); // Error: Expected 1-2 arguments, but got 0.`,
+    },
+    expected: {
+      tr: `qa_user icin 8000ms timeout ile giris yapildi\nqa_user icin 5000ms timeout ile giris yapildi\nlogin() cagrisi: Hata: Expected 1-2 arguments, but got 0.`,
+      en: `Logged in as qa_user with 8000ms timeout\nLogged in as qa_user with 5000ms timeout\nlogin() call: Error: Expected 1-2 arguments, but got 0.`,
+    },
+    hints: [
+      { tr: 'Optional parametre işareti ? parametre adından sonra gelir: timeoutMs?: number.', en: 'The optional marker ? comes right after the parameter name: timeoutMs?: number.' },
+      { tr: 'Varsayılan değer için nullish coalescing kullanılır: timeoutMs ?? 5000.', en: 'Use nullish coalescing for the default value: timeoutMs ?? 5000.' },
+      { tr: 'username optional DEĞİL — onsuz çağrı hâlâ derleme hatası vermeli; sadece timeoutMs optional.', en: 'username is NOT optional — calling without it should still be a compile error; only timeoutMs is optional.' },
+    ],
+    xpReward: 10,
+  }],
+  [7, 16, {
+    type: 'code-playground',
+    id: 'ts-classes-pageobject-practice',
+    label: { tr: 'Pratik: Constructor Parameter Property ile Page Object Kısalt', en: 'Practice: Shorten a Page Object with Constructor Parameter Properties' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: TypeScript\'in constructor parameter property kısayolunun Java\'daki gibi 3 satır (field tanımı + constructor parametresi + this.field = field ataması) yazmanı gerektirmediğini gör. Java analojisi: Java\'da private final Page page; alanını tanımlamak, constructor\'a parametre eklemek ve atama yapmak 3 ayrı satırdır — TypeScript\'te public/private anahtar kelimesini parametreye yazarsan derleyici bunu OTOMATİK yapar.',
+      en: 'Goal: see that TypeScript\'s constructor parameter property shortcut skips Java\'s 3-line pattern (declare the field + add a constructor parameter + assign this.field = field). Java analogy: in Java, declaring private final Page page, adding it as a constructor parameter, and assigning it are 3 separate lines — in TypeScript, writing public/private directly on the parameter makes the compiler do this AUTOMATICALLY.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: LoginPage class\'ının constructor\'ındaki page parametresine private readonly ekleyerek field tanımı ve atamayı tek satıra indir.',
+      en: 'Fill the TODO: add private readonly to LoginPage\'s constructor page parameter to collapse the field declaration and assignment into one line.',
+    },
+    code: {
+      tr: `class LoginPage {
+  constructor(TODO page: string) {}
+
+  open(): string {
+    return this.page + ' acildi';
+  }
+}
+
+const login = new LoginPage('/login');
+console.log(login.open());`,
+      en: `class LoginPage {
+  constructor(TODO page: string) {}
+
+  open(): string {
+    return this.page + ' opened';
+  }
+}
+
+const login = new LoginPage('/login');
+console.log(login.open());`,
+    },
+    starterCode: {
+      tr: `class LoginPage {
+  constructor(TODO page: string) {}
+}`,
+      en: `class LoginPage {
+  constructor(TODO page: string) {}
+}`,
+    },
+    solutionCode: {
+      tr: `class LoginPage {
+  constructor(private readonly page: string) {}
+
+  open(): string {
+    return this.page + ' acildi';
+  }
+}
+
+const login = new LoginPage('/login');
+console.log(login.open());`,
+      en: `class LoginPage {
+  constructor(private readonly page: string) {}
+
+  open(): string {
+    return this.page + ' opened';
+  }
+}
+
+const login = new LoginPage('/login');
+console.log(login.open());`,
+    },
+    expected: {
+      tr: `/login acildi`,
+      en: `/login opened`,
+    },
+    hints: [
+      { tr: 'TODO yerine private readonly yaz, parametre adından önce gelir.', en: 'Replace TODO with private readonly, placed right before the parameter name.' },
+      { tr: 'Bu anahtar kelimeler sayesinde ayrıca "private page: string;" satırı yazmana ve constructor body\'sinde "this.page = page;" yapmana gerek kalmaz.', en: 'Thanks to these keywords, you no longer need a separate "private page: string;" line or "this.page = page;" inside the constructor body.' },
+      { tr: 'Bu kısayol özellikle çok parametreli Page Object class\'larında kod tekrarını ciddi şekilde azaltır.', en: 'This shortcut especially cuts boilerplate in Page Object classes with many constructor parameters.' },
+    ],
+    xpReward: 10,
+  }],
+  [8, 6, {
+    type: 'code-playground',
+    id: 'ts-generics-practice',
+    label: { tr: 'Pratik: any Yerine Generic ile Tip Güvenliğini Geri Kazan', en: 'Practice: Recover Type Safety with a Generic Instead of any' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: any kullanan bir "ilk eleman getir" fonksiyonunun tip bilgisini nasıl kaybettiğini, generic <T> kullanarak bunu nasıl geri kazandığını gör. Java analojisi: Java\'da List<T>.get(0) çağrısı her zaman T tipinde döner — TypeScript\'te any[] kullanırsan bu garantiyi kaybedersin, <T> ile Java\'daki generic davranışına geri dönersin.',
+      en: 'Goal: see how a "get first item" function using any loses type information, and how a generic <T> restores it. Java analogy: Java\'s List<T>.get(0) always returns type T — using any[] in TypeScript loses that guarantee, while <T> brings back the same generic behavior.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: getFirst fonksiyonunu any[] yerine generic T[] ile yaz, dönüş tipi de T olsun.',
+      en: 'Fill the TODO: rewrite getFirst using a generic T[] instead of any[], with a T return type.',
+    },
+    code: {
+      tr: `function getFirst(items TODO) TODO {
+  return items[0];
+}
+
+const firstName = getFirst(['Ayse', 'Mehmet']);
+console.log(firstName.toUpperCase());
+const firstId = getFirst([101, 102]);
+// console.log(firstId.toUpperCase()); // bug: number'da toUpperCase olmamali`,
+      en: `function getFirst(items TODO) TODO {
+  return items[0];
+}
+
+const firstName = getFirst(['Alice', 'Bob']);
+console.log(firstName.toUpperCase());
+const firstId = getFirst([101, 102]);
+// console.log(firstId.toUpperCase()); // bug: a number shouldn't have toUpperCase`,
+    },
+    starterCode: {
+      tr: `function getFirst(items TODO) TODO {
+  return items[0];
+}`,
+      en: `function getFirst(items TODO) TODO {
+  return items[0];
+}`,
+    },
+    solutionCode: {
+      tr: `function getFirst<T>(items: T[]): T {
+  return items[0];
+}
+
+const firstName = getFirst(['Ayse', 'Mehmet']);
+console.log(firstName.toUpperCase());
+const firstId = getFirst([101, 102]);
+// console.log(firstId.toUpperCase()); // artik Hata: Property 'toUpperCase' does not exist on type 'number'.`,
+      en: `function getFirst<T>(items: T[]): T {
+  return items[0];
+}
+
+const firstName = getFirst(['Alice', 'Bob']);
+console.log(firstName.toUpperCase());
+const firstId = getFirst([101, 102]);
+// console.log(firstId.toUpperCase()); // now Error: Property 'toUpperCase' does not exist on type 'number'.`,
+    },
+    expected: {
+      tr: `AYSE\nfirstId.toUpperCase() denersen: Hata: Property 'toUpperCase' does not exist on type 'number'.`,
+      en: `ALICE\nIf you try firstId.toUpperCase(): Error: Property 'toUpperCase' does not exist on type 'number'.`,
+    },
+    hints: [
+      { tr: 'Fonksiyon adının hemen sonuna <T> ekle: getFirst<T>(...).', en: 'Add <T> right after the function name: getFirst<T>(...).' },
+      { tr: 'Parametre tipi T[], dönüş tipi T olmalı — items[0] her zaman T tipinde bir eleman döner.', en: 'The parameter type is T[], the return type is T — items[0] always returns an element of type T.' },
+      { tr: 'TypeScript çağrı anında T\'yi OTOMATİK çıkarır (string[] çağrısında T=string, number[] çağrısında T=number) — sen <string> yazmak zorunda değilsin.', en: 'TypeScript INFERS T automatically at the call site (T=string for a string[] call, T=number for a number[] call) — you don\'t have to write <string> yourself.' },
+    ],
+    xpReward: 10,
+  }],
+  [9, 10, {
+    type: 'code-playground',
+    id: 'ts-utility-partial-practice',
+    label: { tr: 'Pratik: Partial<T> ile Kısmi Güncelleme Fonksiyonu Yaz', en: 'Practice: Write a Partial Update Function with Partial<T>' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: tüm alanları yeniden yazmak zorunda kalmadan bir config\'i kısmen güncellemenin tip güvenli yolunu gör. Java analojisi: Java\'da bunun için genelde bir Builder pattern yazarsın (çok kod) — TypeScript\'te Partial<T> utility type aynı "bazı alanları opsiyonel yap" işini hazır bir tip dönüşümüyle, sıfır ek kod ile yapar.',
+      en: 'Goal: see the type-safe way to partially update a config without rewriting every field. Java analogy: in Java you\'d usually write a Builder pattern for this (lots of code) — TypeScript\'s Partial<T> utility type does the "make some fields optional" job with a ready-made type transform, zero extra code.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: updateConfig fonksiyonunun ikinci parametresini Config yerine Partial<Config> yap, böylece çağıran taraf sadece değişen alanları gönderebilsin.',
+      en: 'Fill the TODO: change updateConfig\'s second parameter from Config to Partial<Config>, so callers can send only the fields that changed.',
+    },
+    code: {
+      tr: `interface Config {
+  baseUrl: string;
+  timeoutMs: number;
+  retries: number;
+}
+
+function updateConfig(current: Config, changes TODO): Config {
+  return { ...current, ...changes };
+}
+
+const base: Config = { baseUrl: 'https://api.test', timeoutMs: 5000, retries: 3 };
+console.log(updateConfig(base, { retries: 5 }));
+// updateConfig(base, { baseUrl: '...', timeoutMs: 1, retries: 1 }); // eskiden TUM alanlar zorunluydu`,
+      en: `interface Config {
+  baseUrl: string;
+  timeoutMs: number;
+  retries: number;
+}
+
+function updateConfig(current: Config, changes TODO): Config {
+  return { ...current, ...changes };
+}
+
+const base: Config = { baseUrl: 'https://api.test', timeoutMs: 5000, retries: 3 };
+console.log(updateConfig(base, { retries: 5 }));
+// before this fix, ALL fields were required in the second argument`,
+    },
+    starterCode: {
+      tr: `function updateConfig(current: Config, changes TODO): Config {
+  return { ...current, ...changes };
+}`,
+      en: `function updateConfig(current: Config, changes TODO): Config {
+  return { ...current, ...changes };
+}`,
+    },
+    solutionCode: {
+      tr: `interface Config {
+  baseUrl: string;
+  timeoutMs: number;
+  retries: number;
+}
+
+function updateConfig(current: Config, changes: Partial<Config>): Config {
+  return { ...current, ...changes };
+}
+
+const base: Config = { baseUrl: 'https://api.test', timeoutMs: 5000, retries: 3 };
+console.log(updateConfig(base, { retries: 5 }));`,
+      en: `interface Config {
+  baseUrl: string;
+  timeoutMs: number;
+  retries: number;
+}
+
+function updateConfig(current: Config, changes: Partial<Config>): Config {
+  return { ...current, ...changes };
+}
+
+const base: Config = { baseUrl: 'https://api.test', timeoutMs: 5000, retries: 3 };
+console.log(updateConfig(base, { retries: 5 }));`,
+    },
+    expected: {
+      tr: `{ baseUrl: 'https://api.test', timeoutMs: 5000, retries: 5 }`,
+      en: `{ baseUrl: 'https://api.test', timeoutMs: 5000, retries: 5 }`,
+    },
+    hints: [
+      { tr: 'TODO yerine Partial<Config> yaz.', en: 'Replace TODO with Partial<Config>.' },
+      { tr: 'Partial<T>, T\'nin TÜM alanlarını otomatik olarak optional (?) yapan hazır bir utility type\'tır.', en: 'Partial<T> is a built-in utility type that automatically makes ALL of T\'s fields optional (?).' },
+      { tr: '{ ...current, ...changes } spread\'i, değişmeyen alanları current\'tan korur, sadece changes\'te gönderilenleri üzerine yazar.', en: 'The { ...current, ...changes } spread keeps unchanged fields from current and only overwrites the ones sent in changes.' },
+    ],
+    xpReward: 10,
+  }],
+  [10, 11, {
+    type: 'code-playground',
+    id: 'ts-null-optionalchaining-practice',
+    label: { tr: 'Pratik: Optional Chaining ile "Cannot read properties of undefined" Hatasını Önle', en: 'Practice: Prevent "Cannot read properties of undefined" with Optional Chaining' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: strictNullChecks açıkken undefined olabilecek bir alana güvenle erişmeyi öğren. Java analojisi: Java\'da bunun karşılığı Optional<T>.map(...) zinciridir — TypeScript\'te ?. (optional chaining) ve ?? (nullish coalescing) aynı "null/undefined ise kısa devre yap" davranışını çok daha az kodla verir.',
+      en: 'Goal: learn to safely access a field that might be undefined with strictNullChecks on. Java analogy: the equivalent in Java is an Optional<T>.map(...) chain — TypeScript\'s ?. (optional chaining) and ?? (nullish coalescing) give the same "short-circuit if null/undefined" behavior with much less code.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: lastRun alanı undefined olabileceği için ?. ile güvenli erişim, sonuç yoksa ?? ile varsayılan metin ver.',
+      en: 'Fill the TODO: since lastRun may be undefined, access it safely with ?. and provide a default text with ?? when there\'s no result.',
+    },
+    code: {
+      tr: `interface TestCase {
+  name: string;
+  lastRun?: { status: string };
+}
+
+function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun TODO.status TODO 'henuz calismadi');
+}
+
+console.log(summarize({ name: 'Login testi', lastRun: { status: 'PASS' } }));
+console.log(summarize({ name: 'Checkout testi' }));`,
+      en: `interface TestCase {
+  name: string;
+  lastRun?: { status: string };
+}
+
+function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun TODO.status TODO 'not run yet');
+}
+
+console.log(summarize({ name: 'Login test', lastRun: { status: 'PASS' } }));
+console.log(summarize({ name: 'Checkout test' }));`,
+    },
+    starterCode: {
+      tr: `function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun TODO.status TODO 'henuz calismadi');
+}`,
+      en: `function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun TODO.status TODO 'not run yet');
+}`,
+    },
+    solutionCode: {
+      tr: `interface TestCase {
+  name: string;
+  lastRun?: { status: string };
+}
+
+function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun?.status ?? 'henuz calismadi');
+}
+
+console.log(summarize({ name: 'Login testi', lastRun: { status: 'PASS' } }));
+console.log(summarize({ name: 'Checkout testi' }));`,
+      en: `interface TestCase {
+  name: string;
+  lastRun?: { status: string };
+}
+
+function summarize(tc: TestCase): string {
+  return tc.name + ': ' + (tc.lastRun?.status ?? 'not run yet');
+}
+
+console.log(summarize({ name: 'Login test', lastRun: { status: 'PASS' } }));
+console.log(summarize({ name: 'Checkout test' }));`,
+    },
+    expected: {
+      tr: `Login testi: PASS\nCheckout testi: henuz calismadi`,
+      en: `Login test: PASS\nCheckout test: not run yet`,
+    },
+    hints: [
+      { tr: 'İlk TODO yerine ?. (optional chaining), ikinci TODO yerine ?? (nullish coalescing) gelir.', en: 'The first TODO should be ?. (optional chaining), the second TODO should be ?? (nullish coalescing).' },
+      { tr: 'tc.lastRun?.status, lastRun undefined ise .status\'a hiç erişmeden direkt undefined döner — crash olmaz.', en: 'tc.lastRun?.status returns undefined directly (without even touching .status) when lastRun is undefined — no crash.' },
+      { tr: '?. olmadan (Checkout testi gibi lastRun\'ı olmayan bir kayıtta) "Cannot read properties of undefined (reading \'status\')" runtime hatası alırdın.', en: 'Without ?., a record without lastRun (like the Checkout test) would throw the runtime error "Cannot read properties of undefined (reading \'status\')".' },
+    ],
+    xpReward: 10,
+  }],
+  [11, 22, {
+    type: 'code-playground',
+    id: 'ts-discriminated-union-practice',
+    label: { tr: 'Pratik: Discriminated Union ile Exhaustive switch Yaz', en: 'Practice: Write an Exhaustive switch with a Discriminated Union' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: yeni bir test event tipi eklendiğinde, unutulan bir switch case\'inin derleyici tarafından nasıl yakalandığını gör. Java analojisi: Java\'da sealed interface + exhaustive switch (Java 17+) tam olarak bunu yapar — TypeScript\'te discriminated union + never kontrolü ile aynı "hiçbir case\'i unutamazsın" garantisini elde edersin.',
+      en: 'Goal: see how the compiler catches a forgotten switch case when a new test event type is added. Java analogy: Java\'s sealed interface + exhaustive switch (Java 17+) does exactly this — TypeScript\'s discriminated union + a never check gives the same "you can\'t forget a case" guarantee.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: switch\'in default dalına, hiçbir case eşleşmezse derleyicinin hata vermesini sağlayan bir "exhaustiveness check" (never\'a atama) ekle.',
+      en: 'Fill the TODO: in the switch\'s default branch, add an "exhaustiveness check" (assigning to never) that makes the compiler error if no case matches.',
+    },
+    code: {
+      tr: `type TestEvent =
+  | { type: 'pass'; name: string }
+  | { type: 'fail'; name: string; error: string }
+  | { type: 'skip'; name: string; reason: string };
+
+function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    default:
+      TODO;
+  }
+}
+// 'skip' case'i eksik birakildi — TODO bunu derleme anında yakalamali`,
+      en: `type TestEvent =
+  | { type: 'pass'; name: string }
+  | { type: 'fail'; name: string; error: string }
+  | { type: 'skip'; name: string; reason: string };
+
+function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    default:
+      TODO;
+  }
+}
+// the 'skip' case was left out — the TODO should catch this at compile time`,
+    },
+    starterCode: {
+      tr: `function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    default:
+      TODO;
+  }
+}`,
+      en: `function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    default:
+      TODO;
+  }
+}`,
+    },
+    solutionCode: {
+      tr: `type TestEvent =
+  | { type: 'pass'; name: string }
+  | { type: 'fail'; name: string; error: string }
+  | { type: 'skip'; name: string; reason: string };
+
+function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    case 'skip': return e.name + ': SKIP (' + e.reason + ')';
+    default:
+      const exhaustive: never = e;
+      return exhaustive;
+  }
+}
+// 'skip' case'i eksikken: Hata: Type '{ type: "skip"; ... }' is not assignable to type 'never'.`,
+      en: `type TestEvent =
+  | { type: 'pass'; name: string }
+  | { type: 'fail'; name: string; error: string }
+  | { type: 'skip'; name: string; reason: string };
+
+function describe(e: TestEvent): string {
+  switch (e.type) {
+    case 'pass': return e.name + ': PASS';
+    case 'fail': return e.name + ': FAIL (' + e.error + ')';
+    case 'skip': return e.name + ': SKIP (' + e.reason + ')';
+    default:
+      const exhaustive: never = e;
+      return exhaustive;
+  }
+}
+// while 'skip' was missing: Error: Type '{ type: "skip"; ... }' is not assignable to type 'never'.`,
+    },
+    expected: {
+      tr: `'skip' case'ini eklemeden derlersen: Hata: Type '{ type: "skip"; ... }' is not assignable to type 'never'.\nEklediginde: Login testi: SKIP (ortam hazir degil)`,
+      en: `If you compile without adding the 'skip' case: Error: Type '{ type: "skip"; ... }' is not assignable to type 'never'.\nOnce added: Login test: SKIP (environment not ready)`,
+    },
+    hints: [
+      { tr: 'default dalına "const exhaustive: never = e;" ekle.', en: 'Add "const exhaustive: never = e;" to the default branch.' },
+      { tr: 'Tüm case\'ler işlenmişse, default\'a düşen e tipi otomatik olarak never olur — eksik bir case varsa, kalan tip never\'a SIĞMAZ ve derleyici hata verir.', en: 'If every case is handled, the e reaching default is automatically never — if a case is missing, the remaining type does NOT FIT into never and the compiler errors.' },
+      { tr: 'Bu pattern, yeni bir TestEvent türü (örn. "retry") eklendiğinde TÜM ilgili switch\'lerin güncellenmesini ZORUNLU kılar — unutulan bir case production\'a sızmaz.', en: 'This pattern FORCES every related switch to be updated when a new TestEvent variant (e.g. "retry") is added — a forgotten case can\'t leak into production.' },
+    ],
+    xpReward: 15,
+  }],
+  [12, 17, {
+    type: 'code-playground',
+    id: 'ts-qa-pageobject-async-practice',
+    label: { tr: 'Pratik: Page Object Metodunda Eksik await Bug\'ını Düzelt', en: 'Practice: Fix the Missing await Bug in a Page Object Method' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: async fonksiyonda await unutmanın, testin elemana asıl görünmeden ASSERT yapmasına nasıl yol açtığını (flaky test\'in klasik nedeni) gör. Java analojisi: Java + Selenium\'da WebDriverWait.until(...) çağrısını unutmak gibi — TypeScript + Playwright\'te await unutmak, Promise\'in TAMAMLANMASINI beklemeden bir sonraki satıra geçmek demektir.',
+      en: 'Goal: see how forgetting await in an async function lets a test assert BEFORE the element actually appears (a classic flaky-test cause). Java analogy: like forgetting WebDriverWait.until(...) in Java + Selenium — forgetting await in TypeScript + Playwright means moving to the next line without waiting for the Promise to RESOLVE.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: login metodunun içindeki page.click ve page.fill çağrılarına await ekle, fonksiyonun kendisini de async yap.',
+      en: 'Fill the TODO: add await to the page.click and page.fill calls inside login, and make the function itself async.',
+    },
+    code: {
+      tr: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  TODO login(username: string, password: string) {
+    TODO this.page.fill('#username', username);
+    TODO this.page.fill('#password', password);
+    TODO this.page.click('#submit');
+  }
+}
+// await eksikken: click, fill bitmeden tetiklenebilir -> flaky test`,
+      en: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  TODO login(username: string, password: string) {
+    TODO this.page.fill('#username', username);
+    TODO this.page.fill('#password', password);
+    TODO this.page.click('#submit');
+  }
+}
+// without await: click can fire before fill finishes -> flaky test`,
+    },
+    starterCode: {
+      tr: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  TODO login(username: string, password: string) {
+    TODO this.page.fill('#username', username);
+    TODO this.page.fill('#password', password);
+    TODO this.page.click('#submit');
+  }
+}`,
+      en: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  TODO login(username: string, password: string) {
+    TODO this.page.fill('#username', username);
+    TODO this.page.fill('#password', password);
+    TODO this.page.click('#submit');
+  }
+}`,
+    },
+    solutionCode: {
+      tr: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  async login(username: string, password: string) {
+    await this.page.fill('#username', username);
+    await this.page.fill('#password', password);
+    await this.page.click('#submit');
+  }
+}
+// her cagri await ile bittikten sonra siradakine gecilir -> flaky degil`,
+      en: `class LoginPage {
+  constructor(private readonly page: any) {}
+
+  async login(username: string, password: string) {
+    await this.page.fill('#username', username);
+    await this.page.fill('#password', password);
+    await this.page.click('#submit');
+  }
+}
+// each call finishes via await before the next one starts -> not flaky`,
+    },
+    expected: {
+      tr: `await eklenmeden: ESLint/TS "no-floating-promises" uyarısı çıkar, test bazen PASS bazen flaky FAIL eder.\nawait eklendikten sonra: her adım sırayla biter, test deterministik PASS verir.`,
+      en: `Without await: ESLint/TS flags a "no-floating-promises" warning, the test sometimes PASSes and sometimes flaky-FAILs.\nWith await added: each step completes in order, the test passes deterministically.`,
+    },
+    hints: [
+      { tr: 'İlk TODO yerine async, diğer 3 TODO yerine await gelir.', en: 'The first TODO becomes async, the other 3 TODOs become await.' },
+      { tr: 'async olmayan bir fonksiyon içinde await KULLANILAMAZ — fonksiyon imzasını önce async yapman gerekir.', en: 'You CANNOT use await inside a non-async function — the function signature must be async first.' },
+      { tr: 'await olmadan page.click bir Promise döner ve hemen bir sonraki satıra geçilir; element henüz tıklanabilir olmayabilir — bu klasik bir "flaky test" kaynağıdır.', en: 'Without await, page.click returns a Promise and execution moves on immediately; the element may not be clickable yet — a classic source of flaky tests.' },
+    ],
+    xpReward: 15,
+  }],
+  [13, 22, {
+    type: 'code-playground',
+    id: 'ts-java-migration-practice',
+    label: { tr: 'Pratik: Java Getter/Setter Class\'ını TypeScript\'e Taşı', en: 'Practice: Migrate a Java Getter/Setter Class to TypeScript' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: Java\'daki "private field + getter + setter" kalıbının TypeScript\'te çoğu zaman GEREKSİZ olduğunu gör. Java analojisi: Java\'da getDurationMs()/setDurationMs() yazmak encapsulation için zorunludur — TypeScript\'te readonly alanlar ve doğrudan public erişim, aynı güvenliği daha az kodla sağlar (gerçek bir validasyon gerekmiyorsa getter/setter\'a gerek yoktur).',
+      en: 'Goal: see that Java\'s "private field + getter + setter" pattern is often UNNECESSARY in TypeScript. Java analogy: in Java, writing getDurationMs()/setDurationMs() is mandatory for encapsulation — in TypeScript, readonly fields with direct public access give the same safety with less code (you only need a getter/setter when real validation logic is involved).',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: TestResult class\'ındaki gereksiz getDurationMs() getter\'ını kaldır, durationMs alanını doğrudan public readonly yap.',
+      en: 'Fill the TODO: remove TestResult\'s unnecessary getDurationMs() getter, make durationMs a direct public readonly field instead.',
+    },
+    code: {
+      tr: `// Java tarzi: private alan + getter
+class TestResult {
+  TODO durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+
+  TODO // getter kaldirilacak
+}
+
+const r = new TestResult(1200);
+console.log(r.durationMs);`,
+      en: `// Java-style: private field + getter
+class TestResult {
+  TODO durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+
+  TODO // getter to be removed
+}
+
+const r = new TestResult(1200);
+console.log(r.durationMs);`,
+    },
+    starterCode: {
+      tr: `class TestResult {
+  TODO durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+}`,
+      en: `class TestResult {
+  TODO durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+}`,
+    },
+    solutionCode: {
+      tr: `class TestResult {
+  public readonly durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+}
+
+const r = new TestResult(1200);
+console.log(r.durationMs);
+// r.durationMs = 999; // Hata: Cannot assign to 'durationMs' because it is a read-only property.`,
+      en: `class TestResult {
+  public readonly durationMs: number;
+
+  constructor(durationMs: number) {
+    this.durationMs = durationMs;
+  }
+}
+
+const r = new TestResult(1200);
+console.log(r.durationMs);
+// r.durationMs = 999; // Error: Cannot assign to 'durationMs' because it is a read-only property.`,
+    },
+    expected: {
+      tr: `1200\nr.durationMs = 999 denersen: Hata: Cannot assign to 'durationMs' because it is a read-only property.`,
+      en: `1200\nIf you try r.durationMs = 999: Error: Cannot assign to 'durationMs' because it is a read-only property.`,
+    },
+    hints: [
+      { tr: 'Alan tanımı "public readonly durationMs: number;" olmalı.', en: 'The field declaration should be "public readonly durationMs: number;".' },
+      { tr: 'getDurationMs() metodunu TAMAMEN sil — readonly alana doğrudan r.durationMs ile erişilebilir.', en: 'DELETE the getDurationMs() method entirely — the readonly field is directly accessible as r.durationMs.' },
+      { tr: 'readonly, Java\'daki final alan gibi davranır: constructor dışında değer değiştirilemez, ama getter yazmaya gerek kalmaz.', en: 'readonly behaves like Java\'s final field: the value can\'t change outside the constructor, but you never need to write a getter.' },
+    ],
+    xpReward: 10,
+  }],
+  [14, 4, {
+    type: 'code-playground',
+    id: 'ts-vitest-practice',
+    label: { tr: 'Pratik: Vitest ile Bozuk Bir Unit Test\'i Düzelt', en: 'Practice: Fix a Broken Vitest Unit Test' },
+    language: 'bash',
+    task: {
+      tr: 'Amaç: Vitest\'in expect/toBe ile JUnit\'in assertEquals\'ına denk bir assertion sözdizimi sunduğunu gör. Java analojisi: JUnit\'te assertEquals(expected, actual) yazarsın — Vitest\'te expect(actual).toBe(expected) ile aynı kontrolü, parametre sırası TERS şekilde yaparsın (bu sık yapılan bir hata kaynağıdır).',
+      en: 'Goal: see that Vitest\'s expect/toBe assertion syntax maps to JUnit\'s assertEquals. Java analogy: in JUnit you write assertEquals(expected, actual) — Vitest does the same check with expect(actual).toBe(expected), with the argument order REVERSED (a common source of mistakes).',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: calculateTotal fonksiyonunun testindeki yanlış toBe değerini düzelt ve npx vitest run komutunu tamamla.',
+      en: 'Fill the TODO: fix the wrong toBe value in calculateTotal\'s test and complete the npx vitest run command.',
+    },
+    code: {
+      tr: `import { describe, it, expect } from 'vitest';
+
+function calculateTotal(price: number, qty: number): number {
+  return price * qty;
+}
+
+describe('calculateTotal', () => {
+  it('iki parametreyi carpar', () => {
+    expect(calculateTotal(10, 3)).toBe(TODO); // yanlis beklenen deger
+  });
+});
+
+# Terminalde calistir:
+# TODO`,
+      en: `import { describe, it, expect } from 'vitest';
+
+function calculateTotal(price: number, qty: number): number {
+  return price * qty;
+}
+
+describe('calculateTotal', () => {
+  it('multiplies two parameters', () => {
+    expect(calculateTotal(10, 3)).toBe(TODO); // wrong expected value
+  });
+});
+
+# Run in terminal:
+# TODO`,
+    },
+    starterCode: {
+      tr: `expect(calculateTotal(10, 3)).toBe(TODO);`,
+      en: `expect(calculateTotal(10, 3)).toBe(TODO);`,
+    },
+    solutionCode: {
+      tr: `import { describe, it, expect } from 'vitest';
+
+function calculateTotal(price: number, qty: number): number {
+  return price * qty;
+}
+
+describe('calculateTotal', () => {
+  it('iki parametreyi carpar', () => {
+    expect(calculateTotal(10, 3)).toBe(30);
+  });
+});
+
+# Terminalde calistir:
+npx vitest run`,
+      en: `import { describe, it, expect } from 'vitest';
+
+function calculateTotal(price: number, qty: number): number {
+  return price * qty;
+}
+
+describe('calculateTotal', () => {
+  it('multiplies two parameters', () => {
+    expect(calculateTotal(10, 3)).toBe(30);
+  });
+});
+
+# Run in terminal:
+npx vitest run`,
+    },
+    expected: {
+      tr: `✓ calculateTotal > iki parametreyi carpar\nTest Files  1 passed (1)\nTests  1 passed (1)`,
+      en: `✓ calculateTotal > multiplies two parameters\nTest Files  1 passed (1)\nTests  1 passed (1)`,
+    },
+    hints: [
+      { tr: 'calculateTotal(10, 3) = 10 * 3 = 30 olmalı, toBe(30) yaz.', en: 'calculateTotal(10, 3) = 10 * 3 = 30, so write toBe(30).' },
+      { tr: 'Terminal komutu: npx vitest run (watch modu olmadan tek seferlik çalıştırma).', en: 'Terminal command: npx vitest run (a single run, no watch mode).' },
+      { tr: 'expect(actual).toBe(expected) sırası JUnit\'in assertEquals(expected, actual) sırasının TERSİ — geçiş yapan Java geliştiriciler genelde bunu karıştırır.', en: 'expect(actual).toBe(expected) order is the REVERSE of JUnit\'s assertEquals(expected, actual) — Java developers switching over often mix this up.' },
+    ],
+    xpReward: 10,
+  }],
+  [15, 6, {
+    type: 'code-playground',
+    id: 'ts-interview-anyrisk-practice',
+    label: { tr: 'Pratik: Mülakatta Sorulan "any Neden Riskli?" Kod Örneğini Düzelt', en: 'Practice: Fix the "Why Is any Risky?" Interview Code Example' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: mülakatlarda en çok sorulan TypeScript sorularından birini ("any neden tehlikeli?") canlı bir bug üzerinden cevaplamayı öğren. Java analojisi: Java\'da ham (raw) Object tipini her yerde kullanıp sürekli cast etmek gibi — derleyici sana YARDIM EDEMEZ; any de TypeScript\'in tüm tip kontrolünü o değişken için kapatır.',
+      en: 'Goal: practice answering one of the most common TypeScript interview questions ("why is any risky?") through a live bug. Java analogy: like using the raw Object type everywhere and constantly casting — the compiler CAN\'T HELP you; any similarly turns off all of TypeScript\'s type-checking for that variable.',
+    },
+    explanation: {
+      tr: 'TODO\'yu doldur: getConfigValue fonksiyonunun dönüş tipini any\'den, çağıran tarafın güvenle daraltabileceği bir tipe (unknown) çevir.',
+      en: 'Fill the TODO: change getConfigValue\'s return type from any to a type the caller can safely narrow (unknown).',
+    },
+    code: {
+      tr: `function getConfigValue(key: string) TODO {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}
+
+const retries = getConfigValue('retries');
+console.log(retries.toFixed(2));
+// 'retries' aslinda string|number olabilir; any iken bu hic uyarmadan derlenirdi`,
+      en: `function getConfigValue(key: string) TODO {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}
+
+const retries = getConfigValue('retries');
+console.log(retries.toFixed(2));
+// 'retries' could actually be string|number; with any this compiled without any warning`,
+    },
+    starterCode: {
+      tr: `function getConfigValue(key: string) TODO {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}`,
+      en: `function getConfigValue(key: string) TODO {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}`,
+    },
+    solutionCode: {
+      tr: `function getConfigValue(key: string): unknown {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}
+
+const retries = getConfigValue('retries');
+// console.log(retries.toFixed(2)); // artik Hata: Object is of type 'unknown'.
+if (typeof retries === 'number') {
+  console.log(retries.toFixed(2));
+}`,
+      en: `function getConfigValue(key: string): unknown {
+  const store: Record<string, string | number> = { retries: 3, baseUrl: 'https://api.test' };
+  return store[key];
+}
+
+const retries = getConfigValue('retries');
+// console.log(retries.toFixed(2)); // now Error: Object is of type 'unknown'.
+if (typeof retries === 'number') {
+  console.log(retries.toFixed(2));
+}`,
+    },
+    expected: {
+      tr: `Dönüş tipi any iken: retries.toFixed(2) sessizce derlenir, baseUrl gibi bir string gelirse RUNTIME'da çöker.\nunknown ile: typeof kontrolü olmadan derleyici hata verir — bug derleme anında yakalanır.`,
+      en: `With return type any: retries.toFixed(2) compiles silently, and crashes at RUNTIME if a string like baseUrl is returned instead.\nWith unknown: the compiler errors without a typeof check — the bug is caught at compile time.`,
+    },
+    hints: [
+      { tr: 'TODO yerine : unknown yaz.', en: 'Replace TODO with : unknown.' },
+      { tr: 'unknown dönen bir değeri kullanmadan önce typeof veya başka bir type guard ile daraltman ZORUNLUDUR — any\'de bu zorunluluk yoktur.', en: 'You are REQUIRED to narrow an unknown value with typeof or another type guard before using it — any has no such requirement.' },
+      { tr: 'Mülakat cevabı: "any tip kontrolünü TAMAMEN kapatır, unknown ise kontrolü ZORUNLU kılar — bu yüzden any\'den kaçınıp unknown kullanmak best practice\'tir."', en: 'Interview answer: "any turns off type-checking COMPLETELY, while unknown FORCES a check — that\'s why avoiding any in favor of unknown is best practice."' },
+    ],
+    xpReward: 10,
+  }],
+  [16, 11, {
+    type: 'code-playground',
+    id: 'ts-practice-capstone',
+    label: { tr: 'Kapsamlı Pratik: Tek Snippet\'teki 3 Farklı Tip Bug\'ını Bul ve Düzelt', en: 'Capstone Practice: Find and Fix 3 Different Type Bugs in One Snippet' },
+    language: 'typescript',
+    task: {
+      tr: 'Amaç: sayfada öğrendiğin any/unknown, optional parametre ve null güvenliği konularını TEK bir gerçekçi QA fonksiyonunda birleştirerek tekrar et. Java analojisi: bu, gerçek bir code review\'da olduğu gibi — Java\'da derleyici bu 3 hatanın TAMAMINI zaten engellerdi, TypeScript\'te ise doğru tipleri SEN yazman gerekir.',
+      en: 'Goal: combine everything learned on this page (any/unknown, optional parameters, null safety) in one realistic QA function. Java analogy: like a real code review — in Java the compiler would already block ALL 3 of these mistakes; in TypeScript, YOU have to write the correct types yourself.',
+    },
+    explanation: {
+      tr: 'TODO\'ları doldur: (1) parametre tipini any yerine unknown yap, (2) retryCount\'u optional yap, (3) sonuç alanına optional chaining ekle.',
+      en: 'Fill the TODOs: (1) change the parameter type from any to unknown, (2) make retryCount optional, (3) add optional chaining to the result access.',
+    },
+    code: {
+      tr: `interface TestRun {
+  name: string;
+  result?: { passed: boolean };
+}
+
+function logTestRun(raw TODO, retryCount TODO): string {
+  const run = raw as TestRun;
+  const status = run.result TODO.passed ? 'PASS' : 'FAIL/bilinmiyor';
+  const retries = retryCount TODO 0;
+  return run.name + ': ' + status + ' (' + retries + ' tekrar)';
+}
+
+console.log(logTestRun({ name: 'Login testi', result: { passed: true } }, 2));
+console.log(logTestRun({ name: 'Checkout testi' }));`,
+      en: `interface TestRun {
+  name: string;
+  result?: { passed: boolean };
+}
+
+function logTestRun(raw TODO, retryCount TODO): string {
+  const run = raw as TestRun;
+  const status = run.result TODO.passed ? 'PASS' : 'FAIL/unknown';
+  const retries = retryCount TODO 0;
+  return run.name + ': ' + status + ' (' + retries + ' retries)';
+}
+
+console.log(logTestRun({ name: 'Login test', result: { passed: true } }, 2));
+console.log(logTestRun({ name: 'Checkout test' }));`,
+    },
+    starterCode: {
+      tr: `function logTestRun(raw TODO, retryCount TODO): string {
+  const run = raw as TestRun;
+  const status = run.result TODO.passed ? 'PASS' : 'FAIL/bilinmiyor';
+  const retries = retryCount TODO 0;
+  return run.name + ': ' + status;
+}`,
+      en: `function logTestRun(raw TODO, retryCount TODO): string {
+  const run = raw as TestRun;
+  const status = run.result TODO.passed ? 'PASS' : 'FAIL/unknown';
+  const retries = retryCount TODO 0;
+  return run.name + ': ' + status;
+}`,
+    },
+    solutionCode: {
+      tr: `interface TestRun {
+  name: string;
+  result?: { passed: boolean };
+}
+
+function logTestRun(raw: unknown, retryCount?: number): string {
+  const run = raw as TestRun;
+  const status = run.result?.passed ? 'PASS' : 'FAIL/bilinmiyor';
+  const retries = retryCount ?? 0;
+  return run.name + ': ' + status + ' (' + retries + ' tekrar)';
+}
+
+console.log(logTestRun({ name: 'Login testi', result: { passed: true } }, 2));
+console.log(logTestRun({ name: 'Checkout testi' }));`,
+      en: `interface TestRun {
+  name: string;
+  result?: { passed: boolean };
+}
+
+function logTestRun(raw: unknown, retryCount?: number): string {
+  const run = raw as TestRun;
+  const status = run.result?.passed ? 'PASS' : 'FAIL/unknown';
+  const retries = retryCount ?? 0;
+  return run.name + ': ' + status + ' (' + retries + ' retries)';
+}
+
+console.log(logTestRun({ name: 'Login test', result: { passed: true } }, 2));
+console.log(logTestRun({ name: 'Checkout test' }));`,
+    },
+    expected: {
+      tr: `Login testi: PASS (2 tekrar)\nCheckout testi: FAIL/bilinmiyor (0 tekrar)`,
+      en: `Login test: PASS (2 retries)\nCheckout test: FAIL/unknown (0 retries)`,
+    },
+    hints: [
+      { tr: '1. TODO: unknown, 2. TODO: ? (optional), 3. TODO: ?. (optional chaining), 4. TODO: ?? (nullish coalescing).', en: '1st TODO: unknown, 2nd TODO: ? (optional), 3rd TODO: ?. (optional chaining), 4th TODO: ?? (nullish coalescing).' },
+      { tr: 'raw\'ın tipi belirsiz olduğu için unknown + "as TestRun" ile kontrollü bir cast yapılır — bu, sayfanın başında öğrendiğin any/unknown farkının ta kendisidir.', en: 'Since raw\'s type is uncertain, unknown + "as TestRun" performs a controlled cast — this is exactly the any/unknown difference you learned at the start of this page.' },
+      { tr: 'Bu 4 düzeltmenin HER BİRİ, sayfada ayrı ayrı gördüğün bir konuyu (unknown, optional param, optional chaining, nullish coalescing) gerçek bir QA log fonksiyonunda birleştirir.', en: 'Each of these 4 fixes combines a topic you saw separately on this page (unknown, optional param, optional chaining, nullish coalescing) into one realistic QA log function.' },
+    ],
+    xpReward: 15,
+  }],
+];
+
+_tsCodePlayground.forEach(([sectionIdx, pos, block]) => {
+  typescriptData.en.sections[sectionIdx].blocks.splice(pos, 0, block);
+  typescriptData.tr.sections[sectionIdx].blocks.splice(pos, 0, block);
 });
 
 // ── TS i18n FIX: TR kod yorumları + label düzeltmeleri ──────────────────

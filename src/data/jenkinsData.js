@@ -809,7 +809,7 @@ export const jenkinsData = {
           {
             type: 'simple-box',
             emoji: '🤖',
-            content: 'Jenkins is like a tireless robot assistant on your team. Every time a developer pushes code, Jenkins automatically builds it, runs all tests, and tells you if something broke — without anyone pressing a button. It works 24/7 and never forgets a single step.',
+            content: "Jenkins is like a tireless robot assistant on your team: every time a developer pushes code, it automatically builds it, runs every test, and tells you if something broke — without anyone pressing a button, 24/7, never skipping a step. So why not just trust developers to run the build and tests themselves before pushing? Because under deadline pressure, manual steps are the first thing people skip — and 'it worked on my machine' is unverifiable once ten developers each have a slightly different local setup. It's the same reason a Java team adds a build server instead of trusting every engineer to run `mvn verify` honestly before every commit: automation removes the option to skip the step. The real cost shows up in production — a single commit that 'probably' passed tests, merged without Jenkins actually running them, is exactly how a silent regression reaches your customers.",
           },
           {
             type: 'text',
@@ -925,7 +925,7 @@ export const jenkinsData = {
           {
             type: 'simple-box',
             emoji: '📦',
-            content: 'Installing Jenkins is like setting up a dedicated workspace for your robot assistant. You set it up once, and it runs all your automation from that point forward. Three options: install on your OS, run via Docker (fastest), or use the cloud.',
+            content: "Installing Jenkins is like setting up a dedicated workspace for your robot assistant — you build it once, and it runs all your automation from that point forward. Three options: install on your OS, run via Docker (fastest), or use the cloud. So why does the Docker route get recommended as 'fastest' instead of a native OS install? Because a native install entangles Jenkins with your machine's Java version, system packages, and file permissions — exactly the dependency-drift problem Docker images solve by bundling everything Jenkins needs into one disposable, reproducible unit, the same way a Maven `pom.xml` pins exact dependency versions instead of trusting whatever JARs happen to be on a developer's classpath. The QA-relevant risk: a Jenkins instance installed directly on a shared server tends to accumulate undocumented plugin versions and OS patches over months, until nobody can reproduce the exact environment that a 'passing' pipeline ran in six months ago.",
           },
           { type: 'heading', text: 'Prerequisites' },
           {
@@ -1103,7 +1103,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'A Jenkins Pipeline is like a factory assembly line. Each "stage" is a workstation (Build, Test, Deploy). Items move through in order — if one station fails, the line stops and the team is alerted. You write this assembly line as code in a file called Jenkinsfile.',
+            content: "A Jenkins Pipeline is a factory assembly line: each 'stage' is a workstation (Build, Test, Deploy), items move through in order, and if one station fails, the whole line stops and the team is alerted. You write this assembly line as code, in a file called Jenkinsfile. So why write the pipeline as code instead of clicking through a UI to configure jobs (the old 'Freestyle Job' approach)? Because a UI-configured job lives only on the Jenkins server — nobody reviews it, nobody versions it, and it silently diverges from what the team thinks is running. A Jenkinsfile, by contrast, sits in the same repo as the source code and goes through the same pull-request review as any Java class change. That difference is exactly why a 'pipeline as code' incident is rare but a 'someone clicked a checkbox in the Jenkins UI six months ago and nobody remembers why' incident is common.",
           },
           { type: 'heading', text: 'Freestyle Job vs Declarative Pipeline' },
           {
@@ -1323,7 +1323,7 @@ pipeline {
           {
             type: 'simple-box',
             emoji: '🧪',
-            content: 'QA integration means Jenkins knows how to run your tests and publish beautiful reports. Every commit triggers your test suite. If something breaks, Jenkins sends a Slack message with a link to the failing test report — before anyone even notices something went wrong.',
+            content: "QA integration means Jenkins doesn't just run your tests — it publishes the report and pages the right people. Every commit triggers your suite; if something breaks, Jenkins posts a Slack message with a link to the failing report before a human even notices. So why route this through Jenkins instead of having pytest or JUnit just print results to a console log? Because a console log only helps the one engineer who happens to be watching the terminal at that exact moment — everyone else finds out about the failure hours later, if at all. This is the same reasoning behind a Java team wiring JUnit's XML reports into a dashboard instead of trusting developers to scroll through raw `mvn test` output. The QA payoff is concrete: a test failure that surfaces in Slack within two minutes of the commit gets fixed by the person who broke it, while one that nobody sees until the next morning's standup has already blocked three other developers' merges.",
           },
           { type: 'heading', text: 'Running pytest in Jenkins' },
           {
@@ -1634,7 +1634,7 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
           {
             type: 'simple-box',
             emoji: '⚡',
-            content: 'Advanced Jenkins means faster, smarter, more reliable pipelines. Run 500 tests in 10 minutes instead of 2 hours with parallelism, use Docker for perfect test isolation, trigger builds automatically from GitHub webhooks, and handle flaky tests gracefully.',
+            content: "Advanced Jenkins means faster, smarter, more reliable pipelines: run 500 tests in 10 minutes instead of 2 hours with parallelism, use Docker for perfect test isolation, trigger builds automatically from GitHub webhooks instead of polling, and handle flaky tests gracefully instead of ignoring them. So why does parallelism need Docker isolation to actually work safely? Because running 10 test workers on the same shared machine means they all fight over the same database, the same ports, and the same temp files — parallelism without isolation just turns flaky tests into guaranteed failures. It's the same trap as running JUnit tests in parallel against a single shared static field without thread-safety: speed without isolation just produces a faster way to get wrong results. In a real pipeline, this is the difference between a 10-minute CI run engineers trust and a 'just re-run it, it's flaky' culture that quietly erodes confidence in the whole test suite.",
           },
           { type: 'heading', text: 'Parallel Test Execution' },
           {
@@ -1885,7 +1885,7 @@ pipeline {
       {
         title: '🛠️ Real World Usage',
         blocks: [
-          { type: 'simple-box', emoji: '🛠️', content: "Jenkins is like a factory assembly-line foreman — the moment a new part (commit) arrives, the foreman automatically routes it through inspection (build), quality control (tests), and packaging (deploy), without anyone needing to push it by hand." },
+          { type: 'simple-box', emoji: '🛠️', content: "Jenkins is the factory assembly-line foreman — the moment a new part (commit) arrives, it automatically routes that part through inspection (build), quality control (tests), and packaging (deploy), without anyone pushing it by hand. So why does this matter more than just being convenient? Because a foreman who never gets tired, distracted, or pressured by a deadline applies the SAME quality checks to the commit pushed at 9am and the one rushed out at 11:58pm before a release freeze — exactly the consistency a Java team gets from a build server enforcing `mvn verify` on every PR instead of trusting a tired developer's judgment call to skip tests 'just this once'. That one skipped step, multiplied across a team, is how 'it worked in my testing' regressions reach production." },
           { type: 'heading', text: 'What Need Does This Fill? Life Without Jenkins' },
           { type: 'text', content: "Without a CI/CD server, every build and test run is a manual ritual: a developer pulls the latest code, runs the build locally, runs the test suite locally (if they remember to), and only then merges. Bugs slip through because 'it worked on my machine' is unverifiable, and nobody runs the full regression suite before every merge because it takes too long to do by hand. Jenkins automates this so every single commit gets built and tested the same way, every time, with no human skipping a step under deadline pressure." },
           { type: 'heading', text: 'Real-World Scenario: Spring Boot + React Monorepo' },
@@ -1985,7 +1985,7 @@ pipeline {
       {
         title: '🔗 Ecosystem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "Jenkins on its own is like a conductor with no orchestra — it knows when to start the music, but it needs Docker to provide the instruments (consistent environments), Git to provide the sheet music (the source of truth), and Slack to tell the audience how the performance went." },
+          { type: 'simple-box', emoji: '🔗', content: "Jenkins on its own is a conductor with no orchestra — it knows exactly when to start the music, but it needs Docker to provide the instruments (consistent environments), Git to provide the sheet music (the single source of truth), and Slack to tell the audience how the performance went. So if Jenkins can already run any shell command, why does it need these other tools instead of just scripting everything itself? Because Jenkins's job is orchestration, not state — it shouldn't own your source history, your runtime environment, or your notification channel any more than a Java `@Scheduled` job should also be your database and your logging framework. Each tool stays replaceable and independently testable. The QA cost of skipping this separation shows up fast: a pipeline that hand-rolls its own environment setup instead of using Docker drifts out of sync with what developers run locally, and 'green in Jenkins, red on my machine' becomes a recurring incident instead of a rare one." },
           { type: 'heading', text: 'How Jenkins Fits Into the Bigger Picture' },
           { type: 'text', content: 'On its own, Jenkins is an orchestrator — it does not build, test, or deploy anything itself, it calls out to other tools to do that work on a trigger. Its real value comes from being wired into a version control system that triggers it, a container runtime that gives every build a clean reproducible environment, a code quality scanner that gates merges on more than just "tests passed," and a notification system that closes the loop back to humans.' },
           {
@@ -2206,7 +2206,7 @@ pipeline {
           {
             type: 'simple-box',
             emoji: '🤖',
-            content: 'Jenkins, yazılım ekibindeki yorulmaz bir robot asistan gibidir. Bir developer kod push\'ladığında Jenkins otomatik olarak build eder, tüm testleri çalıştırır ve bir şey bozulduysa bildirir — kimsenin butona basmasına gerek kalmaz. 7/24 çalışır ve hiçbir adımı atlamaz.',
+            content: 'Jenkins, ekipteki yorulmaz bir robot asistan gibidir: bir developer kod push\'ladığında otomatik olarak build eder, her testi çalıştırır ve bir şey bozulduysa söyler — kimsenin butona basmasına gerek kalmadan, 7/24, hiçbir adımı atlamadan. Peki neden developer\'ların push\'lamadan önce build ve testleri kendi başlarına çalıştırmasına güvenmiyoruz? Çünkü deadline baskısı altında manuel adımlar insanların ilk atladığı şeydir — ve on developer\'ın her birinin yerel ortamı biraz farklıysa "benim makinemde çalışıyordu" doğrulanamaz hale gelir. Bu, bir Java ekibinin her commit öncesi `mvn verify`\'ı dürüstçe çalıştıracağına güvenmek yerine bir build server eklemesiyle aynı mantıktır: otomasyon, adımı atlama seçeneğini ortadan kaldırır. Gerçek maliyet production\'da ortaya çıkar — Jenkins\'in gerçekten çalıştırmadığı, "muhtemelen" testleri geçmiş tek bir commit\'in merge edilmesi, sessiz bir regresyonun müşteriye ulaşmasının tam olarak yoludur.',
           },
           {
             type: 'text',
@@ -2323,7 +2323,7 @@ pipeline {
           {
             type: 'simple-box',
             emoji: '📦',
-            content: 'Jenkins kurmak, robot asistanın için özel bir çalışma alanı kurmak gibidir. Bir kez kurarsın ve sonrasında tüm otomasyonunu buradan yönetir. Üç seçenek: doğrudan işletim sistemine kur, Docker ile çalıştır (en hızlı) veya cloud kullan.',
+            content: 'Jenkins kurmak, robot asistanın için özel bir çalışma alanı hazırlamak gibidir — bir kez kurarsın, sonrasında tüm otomasyonunu buradan yönetir. Üç seçenek: doğrudan işletim sistemine kur, Docker ile çalıştır (en hızlı) veya cloud kullan. Peki Docker yolu neden işletim sistemine doğrudan kurmaktan "en hızlı" olarak öneriliyor? Çünkü native kurulum Jenkins\'i makinenin Java sürümüne, sistem paketlerine ve dosya izinlerine bağımlı hale getirir — tam olarak Docker image\'larının, Jenkins\'in ihtiyaç duyduğu her şeyi tek, tek kullanımlık ve tekrarlanabilir bir birime paketleyerek çözdüğü bağımlılık kayması sorunu. Bu, bir Maven `pom.xml`\'in, bir developer\'ın classpath\'inde rastgele duran JAR\'lara güvenmek yerine bağımlılıkların tam sürümünü sabitlemesiyle aynı mantıktır. QA açısından risk şu: paylaşılan bir sunucuya doğrudan kurulan bir Jenkins, aylar içinde belgelenmemiş plugin sürümleri ve OS yamaları biriktirir, ta ki altı ay önce "geçen" bir pipeline\'ın tam olarak hangi ortamda çalıştığını kimse hatırlayamayana kadar.',
           },
           { type: 'heading', text: 'Ön Gereksinimler' },
           {
@@ -2462,7 +2462,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'Jenkins Pipeline, bir fabrika montaj hattı gibidir. Her "stage" bir iş istasyonudur (Build, Test, Deploy). Parçalar sırayla geçer ve bir istasyon başarısız olursa hat durur, ekip uyarılır. Bu montaj hattını Jenkinsfile adlı bir dosyada kod olarak yazarsın.',
+            content: 'Jenkins Pipeline bir fabrika montaj hattıdır: her "stage" bir iş istasyonudur (Build, Test, Deploy), parçalar sırayla geçer, bir istasyon başarısız olursa hattın tamamı durur ve ekip uyarılır. Bu montaj hattını Jenkinsfile adlı bir dosyada kod olarak yazarsın. Peki neden pipeline\'ı bir arayüzden tıklayarak yapılandırmak yerine (eski "Freestyle Job" yaklaşımı) kod olarak yazıyoruz? Çünkü arayüzden yapılandırılmış bir job sadece Jenkins sunucusunda yaşar — kimse review etmez, kimse versiyonlamaz ve ekibin "çalıştığını sandığı" şeyden sessizce sapar. Jenkinsfile ise kaynak kodla aynı repo\'da durur ve herhangi bir Java class değişikliği gibi aynı pull-request review sürecinden geçer. Bu fark tam olarak şu yüzden önemlidir: "pipeline kod olarak yazılmış" senaryosunda incident nadirdir, ama "biri altı ay önce Jenkins arayüzünde bir kutucuğu işaretlemiş ve kimse nedenini hatırlamıyor" senaryosu yaygındır.',
           },
           {
             type: 'simulation',
@@ -2681,7 +2681,7 @@ pipeline {
           {
             type: 'simple-box',
             emoji: '🧪',
-            content: 'QA entegrasyonu, Jenkins\'in testleri nasıl çalıştıracağını ve sonuçları güzel raporlar olarak yayınlayacağını bilmesi demektir. Her commit test suite\'ini tetikler. Bir şey bozulursa Jenkins, kimse fark etmeden önce başarısız test raporuna link içeren Slack mesajı gönderir.',
+            content: 'QA entegrasyonu, Jenkins\'in sadece testleri çalıştırmasından ibaret değildir — raporu yayınlar ve doğru kişileri bilgilendirir. Her commit test suite\'ini tetikler; bir şey bozulursa Jenkins, kimse fark etmeden önce başarısız rapora link içeren bir Slack mesajı gönderir. Peki neden bunu Jenkins üzerinden yapıyoruz da pytest veya JUnit\'in sonuçları konsola yazdırmasına güvenmiyoruz? Çünkü konsol log\'u sadece o anda terminale bakan tek mühendise yardımcı olur — geri kalan herkes hatayı saatler sonra, hatta hiç öğrenmeyebilir. Bu, bir Java ekibinin developer\'ların ham `mvn test` çıktısını kaydırarak okuyacağına güvenmek yerine JUnit\'in XML raporlarını bir dashboard\'a bağlamasıyla aynı mantıktır. QA kazancı somuttur: commit\'ten iki dakika sonra Slack\'te görünen bir test hatası, onu bozan kişi tarafından hemen düzeltilir; ertesi sabahki standup\'a kadar kimsenin görmediği bir hata ise o sırada üç developer\'ın merge\'ini çoktan bloke etmiştir.',
           },
           { type: 'heading', text: 'Jenkins\'te pytest Çalıştırma' },
           {
@@ -2984,7 +2984,7 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
           {
             type: 'simple-box',
             emoji: '⚡',
-            content: 'İleri seviye Jenkins, daha hızlı, akıllı ve güvenilir pipeline\'lar demektir. Paralellikle 500 testi 2 saat yerine 10 dakikada çalıştır, mükemmel izolasyon için Docker kullan, GitHub webhook\'larıyla build\'leri tetikle ve flaky testlerle zarif bir şekilde başa çık.',
+            content: 'İleri seviye Jenkins, daha hızlı, akıllı ve güvenilir pipeline\'lar demektir: paralellikle 500 testi 2 saat yerine 10 dakikada çalıştır, mükemmel izolasyon için Docker kullan, polling yerine GitHub webhook\'larıyla build\'leri otomatik tetikle ve flaky testlerle görmezden gelmek yerine zarif bir şekilde başa çık. Peki paralellik neden güvenli çalışmak için Docker izolasyonuna ihtiyaç duyuyor? Çünkü aynı paylaşılan makinede 10 test worker\'ı çalıştırmak, hepsinin aynı veritabanı, aynı port ve aynı geçici dosyalar için birbirleriyle kapışması demektir — izolasyonsuz paralellik, flaky testleri garantili başarısızlığa çevirir sadece. Bu, thread-safety olmadan tek bir paylaşılan static field\'a karşı JUnit testlerini paralel çalıştırmakla aynı tuzaktır: izolasyonsuz hız, sadece yanlış sonuca daha hızlı ulaşmanın bir yoludur. Gerçek bir pipeline\'da bu, mühendislerin güvendiği 10 dakikalık bir CI koşumu ile tüm test suite\'ine olan güveni sessizce aşındıran "tekrar çalıştır, zaten flaky" kültürü arasındaki farktır.',
           },
           { type: 'heading', text: 'Paralel Test Çalıştırma' },
           {
@@ -3234,7 +3234,7 @@ pipeline {
       {
         title: '🛠️ Gerçek Hayat',
         blocks: [
-          { type: 'simple-box', emoji: '🛠️', content: "Jenkins, bir fabrika montaj hattı ustabaşı gibidir — yeni bir parça (commit) geldiği anda, ustabaşı onu otomatik olarak muayeneden (build), kalite kontrolden (test) ve paketlemeden (deploy) geçirir, kimsenin elle itmesine gerek kalmadan." },
+          { type: 'simple-box', emoji: '🛠️', content: "Jenkins, fabrika montaj hattı ustabaşıdır — yeni bir parça (commit) geldiği anda onu otomatik olarak muayeneden (build), kalite kontrolden (test) ve paketlemeden (deploy) geçirir, kimsenin elle itmesine gerek kalmadan. Peki bu neden sadece bir kolaylıktan fazlasıdır? Çünkü hiç yorulmayan, dikkati dağılmayan, deadline baskısı hissetmeyen bir ustabaşı, sabah 9'da push'lanan commit'e de release freeze öncesi gece 11:58'de aceleyle gönderilen commit'e de AYNI kalite kontrolünü uygular — tam olarak bir Java ekibinin, yorgun bir developer'ın 'sadece bu sefer' testleri atlama kararına güvenmek yerine her PR'da `mvn verify`'ı zorunlu kılan bir build server'dan elde ettiği tutarlılık. Bir ekip genelinde çarpılan o tek atlanmış adım, 'kendi testimde çalışıyordu' regresyonlarının production'a ulaşmasının yoludur." },
           { type: 'heading', text: 'Hangi İhtiyaca Cevap Verir? Jenkins Olmadan Hayat Nasıl Zordu' },
           { type: 'text', content: "CI/CD sunucusu olmadan, her build ve test çalıştırması manuel bir ayindir: geliştirici en güncel kodu çeker, build\'i lokalde çalıştırır, test süitini lokalde çalıştırır (hatırlarsa) ve ancak ondan sonra merge eder. 'Benim makinemde çalışıyor' doğrulanamaz olduğu için hatalar sızar, ve elle yapması çok uzun sürdüğü için her merge öncesi kimse tam regresyon süitini çalıştırmaz. Jenkins bunu otomatikleştirir — böylece her tek commit her seferinde aynı şekilde build edilir ve test edilir, deadline baskısı altında hiçbir insan bir adımı atlayamaz." },
           { type: 'heading', text: 'Gerçek Senaryo: Spring Boot + React Monorepo' },
@@ -3335,7 +3335,7 @@ pipeline {
       {
         title: '🔗 Ekosistem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "Tek başına Jenkins, orkestrası olmayan bir şef gibidir — müziğin ne zaman başlayacağını bilir ama enstrümanları sağlaması için Docker'a (tutarlı ortamlar), notaları sağlaması için Git'e (tek doğruluk kaynağı), ve seyirciye performansın nasıl geçtiğini söylemesi için Slack'e ihtiyacı vardır." },
+          { type: 'simple-box', emoji: '🔗', content: "Tek başına Jenkins, orkestrası olmayan bir şeftir — müziğin tam olarak ne zaman başlayacağını bilir ama enstrümanları sağlaması için Docker'a (tutarlı ortamlar), notaları sağlaması için Git'e (tek doğruluk kaynağı) ve seyirciye performansın nasıl geçtiğini söylemesi için Slack'e ihtiyacı vardır. Peki Jenkins zaten herhangi bir shell komutunu çalıştırabiliyorsa, neden her şeyi kendi içinde scriptlemiyor da bu araçlara ihtiyaç duyuyor? Çünkü Jenkins'in işi orkestrasyondur, state değil — tıpkı bir Java `@Scheduled` job'ının aynı zamanda kendi veritabanı ve loglama framework'ü olmaması gerektiği gibi, Jenkins de kaynak geçmişini, runtime ortamını veya bildirim kanalını sahiplenmemelidir. Her araç ayrı, değiştirilebilir ve bağımsız test edilebilir kalır. Bu ayrımı atlamanın QA maliyeti hızla ortaya çıkar: kendi ortam kurulumunu Docker kullanmak yerine elle yazan bir pipeline, developer'ların yerelde çalıştırdığından zamanla sapar ve 'Jenkins'te yeşil, benim makinemde kırmızı' nadir değil tekrarlayan bir incident haline gelir." },
           { type: 'heading', text: 'Jenkins Büyük Resme Nasıl Uyuyor' },
           { type: 'text', content: 'Tek başına Jenkins bir orkestratördür — kendisi hiçbir şey build etmez, test etmez veya deploy etmez, bu işi yapması için bir tetikleyici üzerine diğer araçları çağırır. Gerçek değeri onu tetikleyen bir versiyon kontrol sistemine, her build\'e temiz ve tekrarlanabilir bir ortam veren bir container runtime\'a, merge\'leri sadece "testler geçti" den fazlasıyla kapılayan bir kod kalite tarayıcısına ve döngüyü insanlara geri kapatan bir bildirim sistemine bağlanmasından gelir.' },
           {
