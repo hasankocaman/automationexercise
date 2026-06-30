@@ -2,6 +2,8 @@
 // Fully bilingual structure (no applyTr shifts)
 // Satisfies W3Schools structure & 2-2-2-2 pedagogical standards
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 export const typescriptData = {
   "en": {
     "hero": {
@@ -18559,3 +18561,5 @@ function testAction() {
 }
 testAction();`
 );
+
+fillMissingCodeTrios(typescriptData, 'typescript')

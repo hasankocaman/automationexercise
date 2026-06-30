@@ -1,4 +1,5 @@
 import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData.js'
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
@@ -8735,3 +8736,5 @@ export const pythonData = {
   en: { hero: enHero, tabs: enTabs, sections: finalEnSections },
   tr: { hero: trHero, tabs: trTabs, sections: finalTrSections },
 }
+
+fillMissingCodeTrios(pythonData, 'python')
