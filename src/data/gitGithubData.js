@@ -1608,6 +1608,74 @@ export const gitGithubData = {
             ],
           },
           {
+            type: 'code',
+            label: 'Stage one test file and commit with a Conventional Commits message',
+            language: 'bash',
+            code: `# 1. Check what changed before staging anything\ngit status\n# modified:   tests/checkout.spec.js\n\n# 2. Stage ONLY the file you intend to commit (not "git add .")\ngit add tests/checkout.spec.js\n\n# 3. Confirm exactly what is staged\ngit diff --staged\n\n# 4. Commit with a Conventional Commits style message\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\n\n# 5. Verify the snapshot landed in history\ngit log --oneline -1\n# a1b2c3d fix(checkout): wait for payment iframe before asserting total`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-commit-practice-01',
+            label: { tr: 'Micro Lab: git commit', en: 'Micro Lab: git commit' },
+            language: 'bash',
+            task: {
+              tr: '`tests/checkout.spec.js` dosyasini stage et ve "fix(checkout): ..." formatinda bir Conventional Commits mesaji ile commitle. Java\'da bunu IDE\'nin "Commit" diyalogunda mesaj yazip "Stage + Commit" demeye benzet; Git\'te bu iki ayri adim (`git add` + `git commit -m`).',
+              en: 'Stage `tests/checkout.spec.js` and commit it with a Conventional Commits style message starting with "fix(checkout): ...". Think of it like your IDE\'s commit dialog where you type a message and hit "Stage + Commit" in Java/IntelliJ — except in Git these are two explicit steps (`git add` then `git commit -m`).',
+            },
+            explanation: {
+              tr: 'TODO satirini, gercek staging+commit komutuyla degistir. Bu sandbox gercek bir Git repo calistirmiyor; amac dogru komut+mesaj yapisini elinle yazmak.',
+              en: 'Replace the TODO line with the real staging+commit command. This sandbox does not run a real Git repo; the goal is to type the correct command+message structure by hand.',
+            },
+            code: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// EKSIK: tests/checkout.spec.js dosyasini "fix(checkout): ..." mesajiyla commitle\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// MISSING: commit tests/checkout.spec.js with a "fix(checkout): ..." message\ngit log --oneline -1`,
+            },
+            starterCode: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// TODO: tests/checkout.spec.js dosyasini "fix(checkout): ..." mesajiyla commitle\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// TODO: commit tests/checkout.spec.js with a "fix(checkout): ..." message\ngit log --oneline -1`,
+            },
+            solutionCode: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\ngit log --oneline -1`,
+            },
+            expected: {
+              tr: '`git log --oneline -1` ciktisi, dogru mesajli yeni commiti gosterir; staging area artik temizdir.',
+              en: '`git log --oneline -1` shows the new commit with the correct message; the staging area is now clean.',
+            },
+            hints: [
+              { tr: 'Komut sirasi: once `git add <dosya>`, sonra `git commit -m "..."`.', en: 'Order matters: `git add <file>` first, then `git commit -m "..."`.' },
+              { tr: 'Conventional Commits formati: `tip(kapsam): kisa aciklama`, orn. `fix(checkout): ...`.', en: 'Conventional Commits format is `type(scope): short description`, e.g. `fix(checkout): ...`.' },
+              { tr: '`git diff --staged` ile commitlemeden once neyin gittigini gor.', en: 'Use `git diff --staged` to see exactly what will be committed before you commit.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-commit-step-01',
+            title: { tr: 'Adim Adim: git commit', en: 'Step by Step: git commit' },
+            steps: [
+              { id: 1, icon: '📋', label: { tr: 'Durumu kontrol et', en: 'Check status' }, detail: { tr: '`git status` calistir: `modified: tests/checkout.spec.js` satirini gor, henuz hicbir sey staged degil.', en: 'Run `git status`: see `modified: tests/checkout.spec.js`, nothing staged yet.' } },
+              { id: 2, icon: '➕', label: { tr: 'Stage et', en: 'Stage it' }, detail: { tr: '`git add tests/checkout.spec.js` ile sadece o dosyayi staging area\'ya koy, `git add .` kullanma.', en: 'Run `git add tests/checkout.spec.js` to stage only that file — avoid `git add .`.' } },
+              { id: 3, icon: '🔍', label: { tr: 'Staged diff\'i incele', en: 'Inspect staged diff' }, detail: { tr: '`git diff --staged` ile tam olarak hangi satirlarin commit\'e gidecegini gor.', en: 'Run `git diff --staged` to see exactly which lines will go into the commit.' } },
+              { id: 4, icon: '✍️', label: { tr: 'Snapshot al', en: 'Take the snapshot' }, detail: { tr: '`git commit -m "fix(checkout): wait for payment iframe before asserting total"` ile kalici bir snapshot olustur.', en: 'Run `git commit -m "fix(checkout): wait for payment iframe before asserting total"` to create a permanent snapshot.' } },
+              { id: 5, icon: '🔗', label: { tr: 'Geçmişi doğrula', en: 'Verify history' }, detail: { tr: '`git log --oneline -1` ciktisinda `a1b2c3d fix(checkout): ...` gibi yeni bir hash ve mesaj gorursun.', en: '`git log --oneline -1` shows a new hash and message like `a1b2c3d fix(checkout): ...`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-commit-order-01',
+            question: { tr: 'Staging\'den commit\'e giden gercek akisi sirala.', en: 'Order the real staging-to-commit flow.' },
+            items: [
+              { id: '1', text: { tr: '`git status` ile degisen dosyalari gor', en: 'Run `git status` to see changed files' }, order: 1 },
+              { id: '2', text: { tr: '`git add tests/checkout.spec.js` ile dosyayi stage et', en: 'Run `git add tests/checkout.spec.js` to stage the file' }, order: 2 },
+              { id: '3', text: { tr: '`git diff --staged` ile stage edileni dogrula', en: 'Run `git diff --staged` to verify what is staged' }, order: 3 },
+              { id: '4', text: { tr: '`git commit -m "fix(checkout): ..."` ile snapshot al', en: 'Run `git commit -m "fix(checkout): ..."` to take the snapshot' }, order: 4 },
+              { id: '5', text: { tr: '`git log --oneline -1` ile commit\'in olustugunu dogrula', en: 'Run `git log --oneline -1` to confirm the commit landed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Do not use `git add .` blindly in QA projects. It can stage screenshots, videos, `.env`, generated reports or local notes. Prefer adding intentional files or inspect with `git diff --staged` before committing.',
           },
@@ -1864,6 +1932,74 @@ export const gitGithubData = {
             ],
           },
           {
+            type: 'code',
+            label: 'List, create, switch and rename branches',
+            language: 'bash',
+            code: `# 1. List all local branches, * marks the current one\ngit branch\n#   main\n# * develop\n\n# 2. Create a branch without switching to it\ngit branch bugfix/login-timeout\n\n# 3. Create AND switch in one step (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Rename the current branch\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Confirm the rename\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-branch-practice-01',
+            label: { tr: 'Micro Lab: git branch', en: 'Micro Lab: git branch' },
+            language: 'bash',
+            task: {
+              tr: '`bugfix/login-timeout` adinda bir branch olustur ve ayni anda ona gec (`git switch -c`), sonra `git branch -m` ile `bugfix/login-timeout-fix` olarak yeniden adlandir. Java\'da bunu bir feature branch acmak icin IDE\'nin "New Branch" diyaloguna benzet — burada komut iki ayri eylemi (`create` + `switch`) tek satirda birlestirir.',
+              en: 'Create a branch named `bugfix/login-timeout` and switch to it at the same time (`git switch -c`), then rename it to `bugfix/login-timeout-fix` with `git branch -m`. Think of this like your IDE\'s "New Branch" dialog when starting a feature branch in Java — except here one command combines two actions (`create` + `switch`).',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git switch -c` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru komut yapisini elinle kurmak.',
+              en: 'Replace the TODO line with the real `git switch -c` command. The sandbox does not run a real repo; the goal is to build the correct command structure by hand.',
+            },
+            code: {
+              tr: `git branch\n// EKSIK: bugfix/login-timeout branch'ini olustur ve ona gec\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\n// MISSING: create bugfix/login-timeout and switch to it\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            starterCode: {
+              tr: `git branch\n// TODO: bugfix/login-timeout branch'ini olustur ve ona gec\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\n// TODO: create bugfix/login-timeout and switch to it\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            solutionCode: {
+              tr: `git branch\ngit switch -c bugfix/login-timeout\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\ngit switch -c bugfix/login-timeout\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            expected: {
+              tr: 'Son `git branch` ciktisinda aktif (`*`) branch `bugfix/login-timeout-fix` olarak gorunur.',
+              en: 'The final `git branch` output shows the active (`*`) branch as `bugfix/login-timeout-fix`.',
+            },
+            hints: [
+              { tr: '`git switch -c <isim>` hem olusturur hem o branch\'e gecer.', en: '`git switch -c <name>` both creates and switches to that branch in one step.' },
+              { tr: '`git branch -m <yeni-isim>` SADECE aktif branch\'i yeniden adlandirir.', en: '`git branch -m <new-name>` renames ONLY the currently active branch.' },
+              { tr: 'Yildizli (`*`) satir, su an uzerinde oldugun branch\'i gosterir.', en: 'The starred (`*`) line shows which branch you are currently on.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-branch-step-01',
+            title: { tr: 'Adim Adim: git branch', en: 'Step by Step: git branch' },
+            steps: [
+              { id: 1, icon: '📂', label: { tr: 'Mevcut branch\'leri listele', en: 'List existing branches' }, detail: { tr: '`git branch` calistir: `* develop` satiri aktif branch\'i gosterir.', en: 'Run `git branch`: the `* develop` line shows the currently active branch.' } },
+              { id: 2, icon: '🌱', label: { tr: 'Olustur ve gec', en: 'Create and switch' }, detail: { tr: '`git switch -c bugfix/login-timeout` ile yeni branch\'i olustur ve aninda uzerine gec.', en: 'Run `git switch -c bugfix/login-timeout` to create the new branch and move onto it instantly.' } },
+              { id: 3, icon: '✏️', label: { tr: 'Yeniden adlandir', en: 'Rename it' }, detail: { tr: '`git branch -m bugfix/login-timeout-fix` SADECE aktif branch\'in adini degistirir.', en: 'Run `git branch -m bugfix/login-timeout-fix` to rename ONLY the active branch.' } },
+              { id: 4, icon: '🔎', label: { tr: 'Sonucu dogrula', en: 'Verify the result' }, detail: { tr: '`git branch` tekrar calistir: artik `* bugfix/login-timeout-fix` gorursun.', en: 'Run `git branch` again: now you see `* bugfix/login-timeout-fix`.' } },
+              { id: 5, icon: '🚀', label: { tr: 'Calismaya basla', en: 'Start working' }, detail: { tr: 'Bu branch artik izole; main\'e dokunmadan commit\'ler burada birikir.', en: 'This branch is now isolated; commits accumulate here without touching main.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-branch-order-01',
+            question: { tr: 'Branch olusturma, gecis ve yeniden adlandirma akisini sirala.', en: 'Order the branch create, switch and rename flow.' },
+            items: [
+              { id: '1', text: { tr: '`git branch` ile mevcut branch\'leri listele', en: 'Run `git branch` to list existing branches' }, order: 1 },
+              { id: '2', text: { tr: '`git switch -c bugfix/login-timeout` ile olustur ve gec', en: 'Run `git switch -c bugfix/login-timeout` to create and switch' }, order: 2 },
+              { id: '3', text: { tr: '`git branch -m bugfix/login-timeout-fix` ile yeniden adlandir', en: 'Run `git branch -m bugfix/login-timeout-fix` to rename it' }, order: 3 },
+              { id: '4', text: { tr: '`git branch` ile sonucu dogrula', en: 'Run `git branch` to verify the result' }, order: 4 },
+              { id: '5', text: { tr: 'Yeni isimli branch uzerinde calismaya basla', en: 'Start working on the newly named branch' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'If you have uncommitted changes, Git may block branch switching when those changes would be overwritten. First run `git status`; then commit the work, stash it, or intentionally discard it. Do not jump branches blindly.',
           },
@@ -1888,6 +2024,89 @@ export const gitGithubData = {
               ['`git stash list`', 'Shows all stashed entries', 'Check whether you have forgotten stashes'],
               ['`git stash drop`', 'Deletes a specific stash entry', 'Clean up a stash you no longer need'],
             ],
+          },
+          {
+            type: 'code',
+            label: 'Shelve work, switch branches, then bring it back',
+            language: 'bash',
+            code: `# 1. You are mid-edit on tests/login.spec.js but a hotfix is urgent
+git status
+# modified:   tests/login.spec.js
+
+# 2. Shelve the unfinished work
+git stash
+# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow
+
+# 3. Switch safely with a clean working tree
+git switch main
+# ...fix the hotfix, commit, push...
+
+# 4. Return to your branch and restore the shelved work
+git switch feature/hasan
+git stash pop
+# Dropped refs/stash@{0} (e4f5...)  -> tests/login.spec.js is back, modified`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-stash-practice-01',
+            label: { tr: 'Micro Lab: git stash', en: 'Micro Lab: git stash' },
+            language: 'bash',
+            task: {
+              tr: '`tests/login.spec.js` uzerinde commit edilmemis bir degisikligin var. `git stash` ile rafa kaldir, `git switch main` ile gec, sonra `git switch feature/hasan` ile geri don ve `git stash pop` ile isini geri al. Java\'da bunu IDE\'nin "Shelve Changes" ozelligine benzet — IntelliJ\'de degisiklikleri gecici olarak rafa kaldirip sonra "Unshelve" ile geri getirirsin.',
+              en: 'You have uncommitted changes in `tests/login.spec.js`. Shelve them with `git stash`, switch with `git switch main`, then return with `git switch feature/hasan` and bring the work back with `git stash pop`. Think of it like IntelliJ\'s "Shelve Changes" feature in Java — you temporarily shelve changes, then "Unshelve" them later.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git stash` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru komut yapisini elinle kurmak.',
+              en: 'Replace the TODO line with the real `git stash` command. The sandbox does not run a real repo; the goal is to build the correct command structure by hand.',
+            },
+            code: {
+              tr: `git status\n// EKSIK: degisiklikleri gecici rafa kaldir\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\n// MISSING: shelve the changes temporarily\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            starterCode: {
+              tr: `git status\n// TODO: degisiklikleri gecici rafa kaldir\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\n// TODO: shelve the changes temporarily\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            solutionCode: {
+              tr: `git status\ngit stash\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\ngit stash\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            expected: {
+              tr: '`git stash pop` calistiktan sonra `tests/login.spec.js` tekrar "modified" olarak gorunur ve stash listesi bosalir.',
+              en: 'After `git stash pop` runs, `tests/login.spec.js` shows as "modified" again and the stash list is empty.',
+            },
+            hints: [
+              { tr: 'Once `git stash` calistirmadan branch degistirmeye calismak Git\'i engelleyebilir.', en: 'Trying to switch branches before running `git stash` can get blocked by Git.' },
+              { tr: '`git stash pop` hem geri yukler hem stash listesinden siler; `apply` sadece geri yukler.', en: '`git stash pop` both restores and removes from the stash list; `apply` only restores.' },
+              { tr: 'Birden fazla stash varsa `git stash list` ile hangisinin uste oldugunu kontrol et.', en: 'If you have multiple stashes, check which one is on top with `git stash list`.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-stash-step-01',
+            title: { tr: 'Adim Adim: git stash', en: 'Step by Step: git stash' },
+            steps: [
+              { id: 1, icon: '📝', label: { tr: 'Yarim isi gor', en: 'See the unfinished work' }, detail: { tr: '`git status` ile `modified: tests/login.spec.js` satirini gor; commit etmeye hazir degilsin.', en: 'Run `git status` and see `modified: tests/login.spec.js`; you are not ready to commit yet.' } },
+              { id: 2, icon: '📦', label: { tr: 'Rafa kaldir', en: 'Shelve it' }, detail: { tr: '`git stash` calistir: "Saved working directory and index state WIP on feature/hasan: ..." mesajini gor.', en: 'Run `git stash`: see the message "Saved working directory and index state WIP on feature/hasan: ...".' } },
+              { id: 3, icon: '🔀', label: { tr: 'Guvenle gec', en: 'Switch safely' }, detail: { tr: 'Working tree artik temiz oldugu icin `git switch main` engellenmeden calisir.', en: 'Because the working tree is now clean, `git switch main` runs without being blocked.' } },
+              { id: 4, icon: '↩️', label: { tr: 'Branch\'ine don', en: 'Return to your branch' }, detail: { tr: '`git switch feature/hasan` ile geri don.', en: 'Run `git switch feature/hasan` to come back.' } },
+              { id: 5, icon: '🎁', label: { tr: 'Isini geri al', en: 'Bring your work back' }, detail: { tr: '`git stash pop` calistir: "Dropped refs/stash@{0}" mesaji ile `tests/login.spec.js` tekrar modified gorunur.', en: 'Run `git stash pop`: the "Dropped refs/stash@{0}" message appears and `tests/login.spec.js` shows modified again.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-stash-order-01',
+            question: { tr: 'Stash ile guvenli branch degisimi akisini sirala.', en: 'Order the safe branch-switch-with-stash flow.' },
+            items: [
+              { id: '1', text: { tr: '`git status` ile commit edilmemis degisikligi gor', en: 'Run `git status` to see the uncommitted change' }, order: 1 },
+              { id: '2', text: { tr: '`git stash` ile isini gecici rafa kaldir', en: 'Run `git stash` to shelve your work temporarily' }, order: 2 },
+              { id: '3', text: { tr: '`git switch main` ile temiz working tree ile gec', en: 'Run `git switch main` with a clean working tree' }, order: 3 },
+              { id: '4', text: { tr: '`git switch feature/hasan` ile geri don', en: 'Run `git switch feature/hasan` to return' }, order: 4 },
+              { id: '5', text: { tr: '`git stash pop` ile isini geri al', en: 'Run `git stash pop` to bring your work back' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           gitStashPractice,
           {
@@ -1973,6 +2192,85 @@ git push -u origin hasan`,
             help: { en: 'Do not run both first-publish methods. Pick `origin` or the direct repo URL, then use plain `git push` afterward.', tr: 'İlk publish için iki yöntemi birden çalıştırma. `origin` veya direkt repo URL yolundan birini seç; sonra normal `git push` kullan.' },
           },
           {
+            type: 'code',
+            label: 'fetch vs pull vs pull --rebase',
+            language: 'bash',
+            code: `# fetch: download remote history, do NOT touch your working branch
+git fetch origin
+# main: 3 new commits available, your local main is unchanged
+
+# pull: fetch + merge in one step (creates a merge commit if histories diverged)
+git pull origin main
+# Merge made by the 'ort' strategy. -> extra "Merge branch 'main'" commit appears
+
+# pull --rebase: fetch + replay YOUR commits on top of the updated main
+git pull --rebase origin main
+# Successfully rebased and updated refs/heads/feature/hasan
+# -> linear history, no extra merge commit`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-pull-practice-01',
+            label: { tr: 'Micro Lab: git pull / git fetch', en: 'Micro Lab: git pull / git fetch' },
+            language: 'bash',
+            task: {
+              tr: 'Once `git fetch origin` ile sadece indir (branch\'ine dokunma), sonra `git pull --rebase origin main` ile hem indir hem kendi commit\'lerini guncel main\'in ustune yeniden uygula. Java\'da `fetch`i bir Maven repository\'den metadata indirip henuz build\'e dahil etmemeye benzet; `pull --rebase` ise indirilenleri hemen entegre edip projeyi yeniden derlemek gibidir.',
+              en: 'First download only with `git fetch origin` (does not touch your branch), then download AND replay your commits on top of updated main with `git pull --rebase origin main`. Think of `fetch` like downloading metadata from a Maven repository without building yet in Java; `pull --rebase` is like immediately integrating it and rebuilding the project.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git pull --rebase origin main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac fetch ile pull --rebase arasindaki farki elinle yazarak pekistirmek.',
+              en: 'Replace the TODO line with the real `git pull --rebase origin main` command. The sandbox does not run a real repo; the goal is to reinforce the difference between fetch and pull --rebase by typing it.',
+            },
+            code: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\n// EKSIK: rebase ile fetch+entegre et\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\n// MISSING: fetch and integrate via rebase\ngit log --oneline -3`,
+            },
+            starterCode: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\n// TODO: rebase ile fetch+entegre et\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\n// TODO: fetch and integrate via rebase\ngit log --oneline -3`,
+            },
+            solutionCode: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\ngit pull --rebase origin main\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\ngit pull --rebase origin main\ngit log --oneline -3`,
+            },
+            expected: {
+              tr: '`git pull --rebase origin main` sonrasinda "Successfully rebased and updated" mesaji gorursun; history\'de ekstra bir merge commit YOKTUR.',
+              en: 'After `git pull --rebase origin main` you see "Successfully rebased and updated"; there is NO extra merge commit in the history.',
+            },
+            hints: [
+              { tr: '`git fetch` SADECE indirir; senin branch\'in ve working tree degismez.', en: '`git fetch` ONLY downloads; your branch and working tree stay unchanged.' },
+              { tr: 'Duz `git pull` = `fetch` + `merge`; diverge varsa ekstra bir "Merge branch" commiti olusur.', en: 'Plain `git pull` = `fetch` + `merge`; if histories diverged, an extra "Merge branch" commit appears.' },
+              { tr: '`git pull --rebase` = `fetch` + `rebase`; senin commit\'lerin guncel main\'in ustune yeniden uygulanir, ekstra commit olmaz.', en: '`git pull --rebase` = `fetch` + `rebase`; your commits are replayed on top of the updated main, no extra commit.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-pull-step-01',
+            title: { tr: 'Adim Adim: git pull / git fetch', en: 'Step by Step: git pull / git fetch' },
+            steps: [
+              { id: 1, icon: '📡', label: { tr: 'Sadece indir', en: 'Download only' }, detail: { tr: '`git fetch origin` calistir: "3 new commits available" gibi bir bilgi gorursun, working tree\'n DEGISMEZ.', en: 'Run `git fetch origin`: you see something like "3 new commits available", your working tree stays UNCHANGED.' } },
+              { id: 2, icon: '🔍', label: { tr: 'Farki incele', en: 'Inspect the difference' }, detail: { tr: '`git log origin/main --oneline -3` ile remote\'taki yeni commit\'leri merge/rebase yapmadan once gor.', en: 'Run `git log origin/main --oneline -3` to see the new remote commits before merging/rebasing.' } },
+              { id: 3, icon: '🔀', label: { tr: 'Duz pull riski', en: 'Plain pull risk' }, detail: { tr: 'Duz `git pull origin main` calistirsan ve historyler ayrismissa, otomatik bir "Merge branch \'main\'" commit\'i eklenir.', en: 'If you ran plain `git pull origin main` and histories diverged, an automatic "Merge branch \'main\'" commit gets added.' } },
+              { id: 4, icon: '🪜', label: { tr: 'Rebase ile entegre et', en: 'Integrate via rebase' }, detail: { tr: '`git pull --rebase origin main` calistir: senin commit\'lerin guncel main\'in ustune tek tek yeniden uygulanir.', en: 'Run `git pull --rebase origin main`: your commits are replayed one by one on top of the updated main.' } },
+              { id: 5, icon: '✅', label: { tr: 'Temiz history\'i dogrula', en: 'Verify the clean history' }, detail: { tr: '`git log --oneline -3` ile artik ekstra merge commit\'i olmayan duz bir cizgi gorursun.', en: 'Run `git log --oneline -3` and see a straight line with no extra merge commit.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-pull-order-01',
+            question: { tr: 'fetch ve pull --rebase ile guvenli guncelleme akisini sirala.', en: 'Order the safe update flow using fetch and pull --rebase.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile remote degisiklikleri indir', en: 'Run `git fetch origin` to download remote changes' }, order: 1 },
+              { id: '2', text: { tr: '`git log origin/main --oneline -3` ile yeni commit\'leri incele', en: 'Run `git log origin/main --oneline -3` to inspect the new commits' }, order: 2 },
+              { id: '3', text: { tr: '`git pull --rebase origin main` ile fetch+entegre et', en: 'Run `git pull --rebase origin main` to fetch and integrate' }, order: 3 },
+              { id: '4', text: { tr: 'Conflict cikarsa coz ve `git add` ile isaretle', en: 'Resolve any conflict and mark it with `git add`' }, order: 4 },
+              { id: '5', text: { tr: '`git log --oneline -3` ile temiz, dogrusal history\'i dogrula', en: 'Run `git log --oneline -3` to confirm a clean, linear history' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'simulation',
             title: { en: '3) Merge: bring main into your branch', tr: '3) Merge: main değişikliklerini branch içine al' },
             icon: '🔁',
@@ -2027,6 +2325,68 @@ git merge main                            # Merge fresh main into your branch
 # If a conflict appears, resolve it locally, run tests, git add, then finish the merge`,
           },
           {
+            type: 'code-playground',
+            id: 'git-merge-practice-01',
+            label: { tr: 'Micro Lab: git merge', en: 'Micro Lab: git merge' },
+            language: 'bash',
+            task: {
+              tr: '`feature/hasan` branch\'indeyken `main`i merge et: once `git switch main` + `git pull --ff-only origin main` ile main\'i guncelle, sonra `git switch feature/hasan` ile geri don ve `git merge main` calistir. Java\'da bunu iki ayri SVN working copy\'sini birlestirmeye benzet — ama Git\'te merge yerel ve hizlidir, network gerektirmez.',
+              en: 'While on `feature/hasan`, merge `main` into it: first update main with `git switch main` + `git pull --ff-only origin main`, then return with `git switch feature/hasan` and run `git merge main`. Think of it like reconciling two SVN working copies in Java tooling — except in Git, merge is local and fast, no network round-trip needed for the merge step itself.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git merge main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru sirayi elinle kurmak.',
+              en: 'Replace the TODO line with the real `git merge main` command. The sandbox does not run a real repo; the goal is to build the correct order by hand.',
+            },
+            code: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// EKSIK: main'i feature/hasan icine merge et\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// MISSING: merge main into feature/hasan\ngit status`,
+            },
+            starterCode: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// TODO: main'i feature/hasan icine merge et\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// TODO: merge main into feature/hasan\ngit status`,
+            },
+            solutionCode: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\ngit merge main\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\ngit merge main\ngit status`,
+            },
+            expected: {
+              tr: '`git merge main` calisir, conflict yoksa otomatik bir merge commit olusur; `git status` "nothing to commit" veya conflict listesi gosterir.',
+              en: '`git merge main` runs; if there is no conflict, an automatic merge commit is created and `git status` shows a clean tree or the conflict list.',
+            },
+            hints: [
+              { tr: 'Merge etmeden once dogru branch uzerinde oldugundan emin ol: `git switch feature/hasan`.', en: 'Make sure you are on the right branch before merging: `git switch feature/hasan`.' },
+              { tr: '`git merge main` aktif branch\'e main\'in commit\'lerini getirir.', en: '`git merge main` brings main\'s commits into the currently active branch.' },
+              { tr: 'Conflict cikarsa dosyalari duzelt, `git add`, sonra `git commit` ile merge\'i bitir.', en: 'If a conflict appears, fix the files, `git add`, then `git commit` to finish the merge.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-merge-step-01',
+            title: { tr: 'Adim Adim: git merge', en: 'Step by Step: git merge' },
+            steps: [
+              { id: 1, icon: '🔄', label: { tr: 'main\'i guncelle', en: 'Update main' }, detail: { tr: '`git switch main` sonra `git pull --ff-only origin main` ile remote\'taki son commit\'leri al.', en: 'Run `git switch main` then `git pull --ff-only origin main` to get the latest remote commits.' } },
+              { id: 2, icon: '↩️', label: { tr: 'Feature branch\'ine don', en: 'Return to feature branch' }, detail: { tr: '`git switch feature/hasan` ile kendi branch\'ine geri don.', en: 'Run `git switch feature/hasan` to go back to your own branch.' } },
+              { id: 3, icon: '🔀', label: { tr: 'Merge et', en: 'Run the merge' }, detail: { tr: '`git merge main` calistir: Git iki branch\'in ortak atasini bulup farkli commit\'leri birlestirir.', en: 'Run `git merge main`: Git finds the common ancestor of both branches and combines the diverging commits.' } },
+              { id: 4, icon: '⚠️', label: { tr: 'Conflict varsa coz', en: 'Resolve conflicts if any' }, detail: { tr: '`<<<<<<< HEAD` ile `>>>>>>> main` arasindaki kismi elle duzenle, `git add` ile isaretle.', en: 'Manually edit the section between `<<<<<<< HEAD` and `>>>>>>> main`, mark it resolved with `git add`.' } },
+              { id: 5, icon: '✅', label: { tr: 'Merge commit\'i tamamla', en: 'Complete the merge commit' }, detail: { tr: 'Conflict yoksa Git otomatik bir merge commit olusturur; varsa `git commit` ile sen tamamlarsin.', en: 'If there was no conflict, Git auto-creates a merge commit; if there was, you finish it with `git commit`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-merge-order-01',
+            question: { tr: 'Guvenli bir merge akisini gercek sirasiyla diz.', en: 'Order a safe merge flow in its real sequence.' },
+            items: [
+              { id: '1', text: { tr: '`git switch main` ile main\'e gec', en: 'Run `git switch main` to move to main' }, order: 1 },
+              { id: '2', text: { tr: '`git pull --ff-only origin main` ile main\'i guncelle', en: 'Run `git pull --ff-only origin main` to update main' }, order: 2 },
+              { id: '3', text: { tr: '`git switch feature/hasan` ile feature branch\'ine don', en: 'Run `git switch feature/hasan` to return to the feature branch' }, order: 3 },
+              { id: '4', text: { tr: '`git merge main` ile guncel main\'i icine al', en: 'Run `git merge main` to bring in the updated main' }, order: 4 },
+              { id: '5', text: { tr: 'Conflict varsa coz, `git add`, gerekirse `git commit`', en: 'Resolve any conflicts, `git add`, and `git commit` if needed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'git-practice',
             icon: '🧪',
             title: { en: 'Try it yourself: order a safe branch start', tr: 'Kendin dene: güvenli branch başlangıcını sırala' },
@@ -2058,6 +2418,90 @@ git push -u origin feature/checkout-tests`,
             ],
           },
           {
+            type: 'code',
+            label: 'Find one commit on another branch and cherry-pick it',
+            language: 'bash',
+            code: `# 1. Find the exact commit hash you need from another branch
+git log feature/hasan --oneline -5
+# d4e5f6a fix(login): handle empty password field
+# c3d4e5f test: add login error cases
+
+# 2. Switch to the branch that needs that single fix
+git switch hotfix/release-1.4
+
+# 3. Apply just that one commit here
+git cherry-pick d4e5f6a
+# [hotfix/release-1.4 9f8e7d6] fix(login): handle empty password field
+
+# If a conflict appears:
+git status                  # See the conflicted file
+# ...resolve manually...
+git add tests/login.spec.js
+git cherry-pick --continue`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-cherry-pick-practice-01',
+            label: { tr: 'Micro Lab: git cherry-pick', en: 'Micro Lab: git cherry-pick' },
+            language: 'bash',
+            task: {
+              tr: '`git log feature/hasan --oneline -5` ile `d4e5f6a` commit hash\'ini bul, `git switch hotfix/release-1.4` ile o branch\'e gec ve `git cherry-pick d4e5f6a` ile SADECE o commit\'i tasi. Java\'da bunu bir JAR\'dan tek bir sinifi baska bir projeye kopyalamaya benzet — tum tarihi degil, sadece o tek "parcayi" alirsin.',
+              en: 'Find the commit hash `d4e5f6a` with `git log feature/hasan --oneline -5`, switch to that branch with `git switch hotfix/release-1.4`, and apply ONLY that commit with `git cherry-pick d4e5f6a`. Think of it like copying a single class from one Java project\'s JAR into another — you take just that one "piece", not the whole history.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git cherry-pick d4e5f6a` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru hash ile dogru komutu elinle yazmak.',
+              en: 'Replace the TODO line with the real `git cherry-pick d4e5f6a` command. The sandbox does not run a real repo; the goal is to type the correct command with the correct hash by hand.',
+            },
+            code: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// EKSIK: sadece d4e5f6a commit'ini buraya tasi\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// MISSING: bring only commit d4e5f6a here\ngit log --oneline -1`,
+            },
+            starterCode: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// TODO: sadece d4e5f6a commit'ini buraya tasi\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// TODO: bring only commit d4e5f6a here\ngit log --oneline -1`,
+            },
+            solutionCode: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\ngit cherry-pick d4e5f6a\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\ngit cherry-pick d4e5f6a\ngit log --oneline -1`,
+            },
+            expected: {
+              tr: '`git log --oneline -1` artik `hotfix/release-1.4` uzerinde yeni bir commit (orijinal mesajla) gosterir; `feature/hasan`in geri kalani tasinmamistir.',
+              en: '`git log --oneline -1` now shows a new commit on `hotfix/release-1.4` (with the original message); the rest of `feature/hasan` was not brought along.',
+            },
+            hints: [
+              { tr: 'Once dogru hash\'i `git log <branch> --oneline` ile bul.', en: 'First find the right hash with `git log <branch> --oneline`.' },
+              { tr: '`git cherry-pick <hash>` SADECE o tek commit\'in degisikliklerini uygular, tum branch\'i degil.', en: '`git cherry-pick <hash>` applies ONLY that single commit\'s changes, not the whole branch.' },
+              { tr: 'Conflict cikarsa: duzelt, `git add`, sonra `git cherry-pick --continue`.', en: 'On conflict: fix it, `git add`, then `git cherry-pick --continue`.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-cherry-pick-step-01',
+            title: { tr: 'Adim Adim: git cherry-pick', en: 'Step by Step: git cherry-pick' },
+            steps: [
+              { id: 1, icon: '🔎', label: { tr: 'Commit\'i bul', en: 'Find the commit' }, detail: { tr: '`git log feature/hasan --oneline -5` ile `d4e5f6a fix(login): handle empty password field` satirini bul.', en: 'Run `git log feature/hasan --oneline -5` and find the line `d4e5f6a fix(login): handle empty password field`.' } },
+              { id: 2, icon: '🎯', label: { tr: 'Hedef branch\'e gec', en: 'Switch to the target branch' }, detail: { tr: '`git switch hotfix/release-1.4` ile o tek fix\'in gitmesi gereken branch\'e gec.', en: 'Run `git switch hotfix/release-1.4` to move to the branch that needs just that one fix.' } },
+              { id: 3, icon: '🍒', label: { tr: 'Cherry-pick et', en: 'Cherry-pick it' }, detail: { tr: '`git cherry-pick d4e5f6a` calistir: Git o commit\'in diff\'ini alip burada yeni bir commit olarak uygular.', en: 'Run `git cherry-pick d4e5f6a`: Git takes that commit\'s diff and applies it here as a new commit.' } },
+              { id: 4, icon: '⚠️', label: { tr: 'Conflict varsa coz', en: 'Resolve conflicts if any' }, detail: { tr: '`git status` ile conflict\'li dosyayi gor, duzelt, `git add` ile isaretle.', en: 'Run `git status` to see the conflicted file, fix it, mark it with `git add`.' } },
+              { id: 5, icon: '✅', label: { tr: 'Devam et veya dogrula', en: 'Continue or verify' }, detail: { tr: 'Conflict varsa `git cherry-pick --continue`; yoksa direkt `git log --oneline -1` ile yeni commit\'i dogrula.', en: 'If there was a conflict, run `git cherry-pick --continue`; otherwise verify directly with `git log --oneline -1`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-cherry-pick-order-01',
+            question: { tr: 'Tek bir commit\'i baska branch\'e tasima akisini sirala.', en: 'Order the flow for moving a single commit to another branch.' },
+            items: [
+              { id: '1', text: { tr: '`git log feature/hasan --oneline -5` ile hash\'i bul', en: 'Run `git log feature/hasan --oneline -5` to find the hash' }, order: 1 },
+              { id: '2', text: { tr: '`git switch hotfix/release-1.4` ile hedef branch\'e gec', en: 'Run `git switch hotfix/release-1.4` to move to the target branch' }, order: 2 },
+              { id: '3', text: { tr: '`git cherry-pick d4e5f6a` ile sadece o commit\'i uygula', en: 'Run `git cherry-pick d4e5f6a` to apply just that commit' }, order: 3 },
+              { id: '4', text: { tr: 'Conflict cikarsa duzelt ve `git add` ile isaretle', en: 'If a conflict appears, fix it and mark with `git add`' }, order: 4 },
+              { id: '5', text: { tr: '`git cherry-pick --continue` ile bitir', en: 'Run `git cherry-pick --continue` to finish' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Merge vs rebase rule of thumb: use the team convention. Never rebase a shared branch casually; if history rewrite is truly agreed, prefer `git push --force-with-lease`, not plain `--force`.',
           },
@@ -2071,6 +2515,68 @@ code tests/login.spec.js             # Read <<<<<<< ======= >>>>>>> markers
 npm test -- login.spec.js            # Prove the resolved behavior
 git add tests/login.spec.js          # Mark conflict as resolved
 git rebase --continue                # Or: git commit if you were merging`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-rebase-practice-01',
+            label: { tr: 'Micro Lab: git rebase', en: 'Micro Lab: git rebase' },
+            language: 'bash',
+            task: {
+              tr: '`feature/hasan` branch\'ini `git rebase main` ile main\'in ucuna tasi, conflict cikarsa `tests/login.spec.js` dosyasini duzelt, `git add` ile isaretle ve `git rebase --continue` ile devam et. Java\'da bunu bir Maven/Gradle dependency tree\'sini yeniden hesaplamaya benzet — rebase de commit\'lerin "temelini" yeniden hesaplar.',
+              en: 'Move `feature/hasan` onto the tip of main with `git rebase main`; if a conflict appears, fix `tests/login.spec.js`, mark it with `git add`, then continue with `git rebase --continue`. Think of it like recalculating a Maven/Gradle dependency tree in Java — rebase recalculates the commit "base" the same way.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git rebase main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru sirayi elinle kurmak.',
+              en: 'Replace the TODO line with the real `git rebase main` command. The sandbox does not run a real repo; the goal is to build the correct order by hand.',
+            },
+            code: {
+              tr: `git switch feature/hasan\n// EKSIK: feature/hasan'i main'in ucuna rebase et\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\n// MISSING: rebase feature/hasan onto main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            starterCode: {
+              tr: `git switch feature/hasan\n// TODO: feature/hasan'i main'in ucuna rebase et\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\n// TODO: rebase feature/hasan onto main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            solutionCode: {
+              tr: `git switch feature/hasan\ngit rebase main\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\ngit rebase main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            expected: {
+              tr: '`git rebase --continue` sonunda "Successfully rebased" mesaji gorursun; commit hash\'leri yeniden yazilmis olur.',
+              en: 'After `git rebase --continue` you see a "Successfully rebased" message; the commit hashes have been rewritten.',
+            },
+            hints: [
+              { tr: '`git rebase main` feature branch\'in commit\'lerini main\'in en tepesine tek tek yeniden uygular.', en: '`git rebase main` reapplies your feature branch\'s commits one by one on top of main.' },
+              { tr: 'Conflict cikinca once dosyayi elle duzelt, sonra `git add`, sonra `git rebase --continue`.', en: 'On conflict, fix the file by hand first, then `git add`, then `git rebase --continue`.' },
+              { tr: 'Paylasilmis (push edilmis) bir branch\'i rebase etmeden once takim ile anlas.', en: 'Agree with the team before rebasing a branch that has already been pushed/shared.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-rebase-step-01',
+            title: { tr: 'Adim Adim: git rebase', en: 'Step by Step: git rebase' },
+            steps: [
+              { id: 1, icon: '🎯', label: { tr: 'Hedef branch\'e bak', en: 'Target the base branch' }, detail: { tr: '`git switch feature/hasan` ile rebase edilecek branch\'te oldugunu dogrula.', en: 'Run `git switch feature/hasan` to confirm you are on the branch to be rebased.' } },
+              { id: 2, icon: '🪜', label: { tr: 'Rebase\'i baslat', en: 'Start the rebase' }, detail: { tr: '`git rebase main` calistir: Git senin commit\'lerini tek tek main\'in ucuna tasimaya baslar.', en: 'Run `git rebase main`: Git starts replaying your commits one by one on top of main.' } },
+              { id: 3, icon: '🧨', label: { tr: 'Conflict markerlarini gor', en: 'See the conflict markers' }, detail: { tr: '`<<<<<<< HEAD` / `=======` / `>>>>>>> main` arasinda hangi satirin kalacagina karar ver.', en: 'Decide which lines stay between `<<<<<<< HEAD` / `=======` / `>>>>>>> main`.' } },
+              { id: 4, icon: '✅', label: { tr: 'Cozumu isaretle', en: 'Mark the resolution' }, detail: { tr: '`git add tests/login.spec.js` ile bu commit adimi icin conflict\'in cozuldugunu Git\'e soyle.', en: 'Run `git add tests/login.spec.js` to tell Git this conflict is resolved for this replay step.' } },
+              { id: 5, icon: '➡️', label: { tr: 'Devam et', en: 'Continue the rebase' }, detail: { tr: '`git rebase --continue` ile bir sonraki commit\'in replay\'ine gec; tum commit\'ler bitince "Successfully rebased" mesaji gelir.', en: 'Run `git rebase --continue` to move to replaying the next commit; once all commits are done you see "Successfully rebased".' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-rebase-order-01',
+            question: { tr: 'Conflict\'li bir rebase\'i guvenli sirayla bitir.', en: 'Finish a conflicting rebase in the safe order.' },
+            items: [
+              { id: '1', text: { tr: '`git rebase main` ile rebase\'i baslat', en: 'Run `git rebase main` to start the rebase' }, order: 1 },
+              { id: '2', text: { tr: '`git status` ile conflict\'li dosyalari gor', en: 'Run `git status` to see the conflicted files' }, order: 2 },
+              { id: '3', text: { tr: 'Conflict marker\'lari arasinda dogru satiri elle sec', en: 'Manually choose the correct lines between the conflict markers' }, order: 3 },
+              { id: '4', text: { tr: '`git add tests/login.spec.js` ile cozumu isaretle', en: 'Run `git add tests/login.spec.js` to mark the resolution' }, order: 4 },
+              { id: '5', text: { tr: '`git rebase --continue` ile bir sonraki commit\'e gec', en: 'Run `git rebase --continue` to move to the next commit' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'git-practice',
@@ -2632,6 +3138,69 @@ jobs:
           gitSafeUndoPractice,
           {
             type: 'code',
+            label: 'Three reset modes on the same last commit',
+            language: 'bash',
+            code: `git log --oneline -3                      # a3f7c2d (HEAD) test: cover login errors
+
+git reset --soft HEAD~1                    # Commit removed, changes stay STAGED
+git status                                 # Changes: to be committed: tests/login.spec.js
+
+git reset HEAD~1                           # --mixed (default): commit removed, changes stay UNSTAGED
+git status                                 # Changes not staged for commit: tests/login.spec.js
+
+git reset --hard HEAD~1                    # Commit AND all changes destroyed, nothing remains
+git status                                 # Working tree clean`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-reset-practice-01',
+            label: { tr: 'Micro Lab: git reset modları', en: 'Micro Lab: git reset modes' },
+            language: 'bash',
+            task: {
+              tr: 'Son commit\'in mesajını düzeltmek istiyorsun ama dosya içeriğini kaybetmek istemiyorsun. TODO satırını, değişiklikleri staged halde bırakan reset moduyla tamamla. Java\'da bir nesneyi yok edip referansı null yapmak (`--hard`) ile sadece son atamayı geri almak (`--soft`) arasındaki fark gibi düşün.',
+              en: 'You want to fix the last commit message without losing the file content. Complete the TODO line with the reset mode that leaves changes staged. Think of it like the difference in Java between destroying an object and nulling the reference (`--hard`) versus just undoing the last assignment (`--soft`).',
+            },
+            code: { tr: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: correct message"' },
+            starterCode: { tr: 'git log --oneline -1\n// TODO: son commiti kaldir ama degisiklikleri staged birak\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\n// TODO: remove the last commit but keep changes staged\ngit status\ngit commit -m "fix: correct message"' },
+            solutionCode: { tr: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: correct message"' },
+            expected: {
+              tr: '`git status` çalıştırıldığında dosya "Changes to be committed" altında görünür — hiçbir şey kaybolmadı, sadece commit geri alındı.',
+              en: '`git status` shows the file under "Changes to be committed" — nothing was lost, only the commit was undone.',
+            },
+            hints: [
+              { tr: '--soft sadece commit\'i geri alır; staging area ve working tree dokunulmaz kalır.', en: '--soft only undoes the commit; the staging area and working tree stay untouched.' },
+              { tr: '--mixed (bayraksız varsayılan) staging\'i de geri alır; --hard hem staging hem working tree\'yi yok eder.', en: '--mixed (the flagless default) also unstages; --hard destroys both staging and the working tree.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-reset-step-01',
+            title: { tr: 'Adım Adım: git reset --soft vs --mixed vs --hard', en: 'Step by Step: git reset --soft vs --mixed vs --hard' },
+            steps: [
+              { id: 1, icon: '📍', label: { tr: 'Mevcut commit\'i gör', en: 'See the current commit' }, detail: { tr: 'git log --oneline -3 çalıştırılır: a3f7c2d (HEAD) en üstte görünür.', en: 'Run git log --oneline -3: a3f7c2d (HEAD) appears at the top.' } },
+              { id: 2, icon: '🟢', label: { tr: '--soft: en güvenli', en: '--soft: the safest' }, detail: { tr: 'git reset --soft HEAD~1 sonrası git status "Changes to be committed" gösterir — dosya hâlâ staged.', en: 'After git reset --soft HEAD~1, git status shows "Changes to be committed" — the file is still staged.' } },
+              { id: 3, icon: '🟡', label: { tr: '--mixed: varsayılan', en: '--mixed: the default' }, detail: { tr: 'git reset HEAD~1 (bayraksız) sonrası git status "Changes not staged for commit" gösterir — staging temizlendi ama dosya diskte duruyor.', en: 'After git reset HEAD~1 (no flag), git status shows "Changes not staged for commit" — staging is cleared but the file is still on disk.' } },
+              { id: 4, icon: '🔴', label: { tr: '--hard: geri dönüşsüz', en: '--hard: irreversible' }, detail: { tr: 'git reset --hard HEAD~1 sonrası git status "working tree clean" yazar — commit ve içerik birlikte yok oldu.', en: 'After git reset --hard HEAD~1, git status prints "working tree clean" — the commit and the content are both gone.' } },
+              { id: 5, icon: '🛡️', label: { tr: 'Güvenlik kuralı', en: 'Safety rule' }, detail: { tr: 'Push edilmiş bir commit üzerinde asla --hard kullanma; bunun yerine git revert kullan, çünkü revert tarihi yeni bir commit ile düzeltir, silmez.', en: 'Never run --hard on an already-pushed commit; use git revert instead, since revert fixes history with a new commit instead of deleting it.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-reset-order-01',
+            question: { tr: 'Yanlış commit mesajını güvenli şekilde düzeltme sırasını kur.', en: 'Order the safe sequence for fixing a wrong commit message.' },
+            items: [
+              { id: '1', text: { tr: 'git log --oneline -1 ile mevcut commit\'i kontrol et', en: 'Check the current commit with git log --oneline -1' }, order: 1 },
+              { id: '2', text: { tr: 'Commit\'in push edilip edilmediğini doğrula', en: 'Verify whether the commit was already pushed' }, order: 2 },
+              { id: '3', text: { tr: 'git reset --soft HEAD~1 ile commit\'i geri al, değişiklikleri staged bırak', en: 'Undo the commit with git reset --soft HEAD~1, keeping changes staged' }, order: 3 },
+              { id: '4', text: { tr: 'git status ile dosyanın hâlâ staged olduğunu doğrula', en: 'Confirm the file is still staged with git status' }, order: 4 },
+              { id: '5', text: { tr: 'git commit -m "doğru mesaj" ile yeniden commit at', en: 'Recommit with git commit -m "correct message"' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
             label: 'Safe pre-push checklist',
             language: 'bash',
             code: `git status                         # Working tree should only contain intended files
@@ -3186,6 +3755,74 @@ git push origin feature/my-branch   # Push only your branch`,
             ],
           },
           {
+            type: 'code',
+            label: 'Bir test dosyasını stage et ve Conventional Commits mesajıyla commitle',
+            language: 'bash',
+            code: `# 1. Stage etmeden önce ne değişti kontrol et\ngit status\n# modified:   tests/checkout.spec.js\n\n# 2. SADECE commitlemek istediğin dosyayı stage et ("git add ." değil)\ngit add tests/checkout.spec.js\n\n# 3. Stage edilenin tam olarak ne olduğunu doğrula\ngit diff --staged\n\n# 4. Conventional Commits formatında bir mesajla commitle\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\n\n# 5. Snapshot'ın history'ye düştüğünü doğrula\ngit log --oneline -1\n# a1b2c3d fix(checkout): wait for payment iframe before asserting total`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-commit-practice-01',
+            label: { tr: 'Micro Lab: git commit', en: 'Micro Lab: git commit' },
+            language: 'bash',
+            task: {
+              tr: '`tests/checkout.spec.js` dosyasini stage et ve "fix(checkout): ..." formatinda bir Conventional Commits mesaji ile commitle. Java\'da bunu IDE\'nin "Commit" diyalogunda mesaj yazip "Stage + Commit" demeye benzet; Git\'te bu iki ayri adim (`git add` + `git commit -m`).',
+              en: 'Stage `tests/checkout.spec.js` and commit it with a Conventional Commits style message starting with "fix(checkout): ...". Think of it like your IDE\'s commit dialog where you type a message and hit "Stage + Commit" in Java/IntelliJ — except in Git these are two explicit steps (`git add` then `git commit -m`).',
+            },
+            explanation: {
+              tr: 'TODO satirini, gercek staging+commit komutuyla degistir. Bu sandbox gercek bir Git repo calistirmiyor; amac dogru komut+mesaj yapisini elinle yazmak.',
+              en: 'Replace the TODO line with the real staging+commit command. This sandbox does not run a real Git repo; the goal is to type the correct command+message structure by hand.',
+            },
+            code: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// EKSIK: tests/checkout.spec.js dosyasini "fix(checkout): ..." mesajiyla commitle\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// MISSING: commit tests/checkout.spec.js with a "fix(checkout): ..." message\ngit log --oneline -1`,
+            },
+            starterCode: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// TODO: tests/checkout.spec.js dosyasini "fix(checkout): ..." mesajiyla commitle\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\n// TODO: commit tests/checkout.spec.js with a "fix(checkout): ..." message\ngit log --oneline -1`,
+            },
+            solutionCode: {
+              tr: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\ngit log --oneline -1`,
+              en: `git status\ngit add tests/checkout.spec.js\ngit diff --staged\ngit commit -m "fix(checkout): wait for payment iframe before asserting total"\ngit log --oneline -1`,
+            },
+            expected: {
+              tr: '`git log --oneline -1` ciktisi, dogru mesajli yeni commiti gosterir; staging area artik temizdir.',
+              en: '`git log --oneline -1` shows the new commit with the correct message; the staging area is now clean.',
+            },
+            hints: [
+              { tr: 'Komut sirasi: once `git add <dosya>`, sonra `git commit -m "..."`.', en: 'Order matters: `git add <file>` first, then `git commit -m "..."`.' },
+              { tr: 'Conventional Commits formati: `tip(kapsam): kisa aciklama`, orn. `fix(checkout): ...`.', en: 'Conventional Commits format is `type(scope): short description`, e.g. `fix(checkout): ...`.' },
+              { tr: '`git diff --staged` ile commitlemeden once neyin gittigini gor.', en: 'Use `git diff --staged` to see exactly what will be committed before you commit.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-commit-step-01',
+            title: { tr: 'Adim Adim: git commit', en: 'Step by Step: git commit' },
+            steps: [
+              { id: 1, icon: '📋', label: { tr: 'Durumu kontrol et', en: 'Check status' }, detail: { tr: '`git status` calistir: `modified: tests/checkout.spec.js` satirini gor, henuz hicbir sey staged degil.', en: 'Run `git status`: see `modified: tests/checkout.spec.js`, nothing staged yet.' } },
+              { id: 2, icon: '➕', label: { tr: 'Stage et', en: 'Stage it' }, detail: { tr: '`git add tests/checkout.spec.js` ile sadece o dosyayi staging area\'ya koy, `git add .` kullanma.', en: 'Run `git add tests/checkout.spec.js` to stage only that file — avoid `git add .`.' } },
+              { id: 3, icon: '🔍', label: { tr: 'Staged diff\'i incele', en: 'Inspect staged diff' }, detail: { tr: '`git diff --staged` ile tam olarak hangi satirlarin commit\'e gidecegini gor.', en: 'Run `git diff --staged` to see exactly which lines will go into the commit.' } },
+              { id: 4, icon: '✍️', label: { tr: 'Snapshot al', en: 'Take the snapshot' }, detail: { tr: '`git commit -m "fix(checkout): wait for payment iframe before asserting total"` ile kalici bir snapshot olustur.', en: 'Run `git commit -m "fix(checkout): wait for payment iframe before asserting total"` to create a permanent snapshot.' } },
+              { id: 5, icon: '🔗', label: { tr: 'Geçmişi doğrula', en: 'Verify history' }, detail: { tr: '`git log --oneline -1` ciktisinda `a1b2c3d fix(checkout): ...` gibi yeni bir hash ve mesaj gorursun.', en: '`git log --oneline -1` shows a new hash and message like `a1b2c3d fix(checkout): ...`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-commit-order-01',
+            question: { tr: 'Staging\'den commit\'e giden gercek akisi sirala.', en: 'Order the real staging-to-commit flow.' },
+            items: [
+              { id: '1', text: { tr: '`git status` ile degisen dosyalari gor', en: 'Run `git status` to see changed files' }, order: 1 },
+              { id: '2', text: { tr: '`git add tests/checkout.spec.js` ile dosyayi stage et', en: 'Run `git add tests/checkout.spec.js` to stage the file' }, order: 2 },
+              { id: '3', text: { tr: '`git diff --staged` ile stage edileni dogrula', en: 'Run `git diff --staged` to verify what is staged' }, order: 3 },
+              { id: '4', text: { tr: '`git commit -m "fix(checkout): ..."` ile snapshot al', en: 'Run `git commit -m "fix(checkout): ..."` to take the snapshot' }, order: 4 },
+              { id: '5', text: { tr: '`git log --oneline -1` ile commit\'in olustugunu dogrula', en: 'Run `git log --oneline -1` to confirm the commit landed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: '`git add .` komutunu QA projelerinde körlemesine kullanma. Screenshot, video, `.env`, generated report veya local notları stage edebilir. Belirli dosyayı ekle veya commit öncesi `git diff --staged` ile kontrol et.',
           },
@@ -3460,6 +4097,74 @@ git push origin feature/my-branch   # Push only your branch`,
             ],
           },
           {
+            type: 'code',
+            label: 'Branch listele, oluştur, geç ve yeniden adlandır',
+            language: 'bash',
+            code: `# 1. Tüm local branchleri listele, * aktif olanı gösterir\ngit branch\n#   main\n# * develop\n\n# 2. Geçmeden bir branch oluştur\ngit branch bugfix/login-timeout\n\n# 3. Tek adımda hem oluştur hem geç (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Aktif branch'i yeniden adlandır\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Rename'i doğrula\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-branch-practice-01',
+            label: { tr: 'Micro Lab: git branch', en: 'Micro Lab: git branch' },
+            language: 'bash',
+            task: {
+              tr: '`bugfix/login-timeout` adinda bir branch olustur ve ayni anda ona gec (`git switch -c`), sonra `git branch -m` ile `bugfix/login-timeout-fix` olarak yeniden adlandir. Java\'da bunu bir feature branch acmak icin IDE\'nin "New Branch" diyaloguna benzet — burada komut iki ayri eylemi (`create` + `switch`) tek satirda birlestirir.',
+              en: 'Create a branch named `bugfix/login-timeout` and switch to it at the same time (`git switch -c`), then rename it to `bugfix/login-timeout-fix` with `git branch -m`. Think of this like your IDE\'s "New Branch" dialog when starting a feature branch in Java — except here one command combines two actions (`create` + `switch`).',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git switch -c` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru komut yapisini elinle kurmak.',
+              en: 'Replace the TODO line with the real `git switch -c` command. The sandbox does not run a real repo; the goal is to build the correct command structure by hand.',
+            },
+            code: {
+              tr: `git branch\n// EKSIK: bugfix/login-timeout branch'ini olustur ve ona gec\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\n// MISSING: create bugfix/login-timeout and switch to it\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            starterCode: {
+              tr: `git branch\n// TODO: bugfix/login-timeout branch'ini olustur ve ona gec\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\n// TODO: create bugfix/login-timeout and switch to it\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            solutionCode: {
+              tr: `git branch\ngit switch -c bugfix/login-timeout\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+              en: `git branch\ngit switch -c bugfix/login-timeout\ngit branch -m bugfix/login-timeout-fix\ngit branch`,
+            },
+            expected: {
+              tr: 'Son `git branch` ciktisinda aktif (`*`) branch `bugfix/login-timeout-fix` olarak gorunur.',
+              en: 'The final `git branch` output shows the active (`*`) branch as `bugfix/login-timeout-fix`.',
+            },
+            hints: [
+              { tr: '`git switch -c <isim>` hem olusturur hem o branch\'e gecer.', en: '`git switch -c <name>` both creates and switches to that branch in one step.' },
+              { tr: '`git branch -m <yeni-isim>` SADECE aktif branch\'i yeniden adlandirir.', en: '`git branch -m <new-name>` renames ONLY the currently active branch.' },
+              { tr: 'Yildizli (`*`) satir, su an uzerinde oldugun branch\'i gosterir.', en: 'The starred (`*`) line shows which branch you are currently on.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-branch-step-01',
+            title: { tr: 'Adim Adim: git branch', en: 'Step by Step: git branch' },
+            steps: [
+              { id: 1, icon: '📂', label: { tr: 'Mevcut branch\'leri listele', en: 'List existing branches' }, detail: { tr: '`git branch` calistir: `* develop` satiri aktif branch\'i gosterir.', en: 'Run `git branch`: the `* develop` line shows the currently active branch.' } },
+              { id: 2, icon: '🌱', label: { tr: 'Olustur ve gec', en: 'Create and switch' }, detail: { tr: '`git switch -c bugfix/login-timeout` ile yeni branch\'i olustur ve aninda uzerine gec.', en: 'Run `git switch -c bugfix/login-timeout` to create the new branch and move onto it instantly.' } },
+              { id: 3, icon: '✏️', label: { tr: 'Yeniden adlandir', en: 'Rename it' }, detail: { tr: '`git branch -m bugfix/login-timeout-fix` SADECE aktif branch\'in adini degistirir.', en: 'Run `git branch -m bugfix/login-timeout-fix` to rename ONLY the active branch.' } },
+              { id: 4, icon: '🔎', label: { tr: 'Sonucu dogrula', en: 'Verify the result' }, detail: { tr: '`git branch` tekrar calistir: artik `* bugfix/login-timeout-fix` gorursun.', en: 'Run `git branch` again: now you see `* bugfix/login-timeout-fix`.' } },
+              { id: 5, icon: '🚀', label: { tr: 'Calismaya basla', en: 'Start working' }, detail: { tr: 'Bu branch artik izole; main\'e dokunmadan commit\'ler burada birikir.', en: 'This branch is now isolated; commits accumulate here without touching main.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-branch-order-01',
+            question: { tr: 'Branch olusturma, gecis ve yeniden adlandirma akisini sirala.', en: 'Order the branch create, switch and rename flow.' },
+            items: [
+              { id: '1', text: { tr: '`git branch` ile mevcut branch\'leri listele', en: 'Run `git branch` to list existing branches' }, order: 1 },
+              { id: '2', text: { tr: '`git switch -c bugfix/login-timeout` ile olustur ve gec', en: 'Run `git switch -c bugfix/login-timeout` to create and switch' }, order: 2 },
+              { id: '3', text: { tr: '`git branch -m bugfix/login-timeout-fix` ile yeniden adlandir', en: 'Run `git branch -m bugfix/login-timeout-fix` to rename it' }, order: 3 },
+              { id: '4', text: { tr: '`git branch` ile sonucu dogrula', en: 'Run `git branch` to verify the result' }, order: 4 },
+              { id: '5', text: { tr: 'Yeni isimli branch uzerinde calismaya basla', en: 'Start working on the newly named branch' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Commit edilmemiş değişikliğin varsa Git branch değiştirmeyi engelleyebilir; özellikle dosyan branch değişince ezilecekse durur. Önce `git status` bak; sonra işi commit et, stash’e al veya gerçekten silmek istiyorsan bilinçli sil. Körlemesine branch değiştirme.',
           },
@@ -3484,6 +4189,89 @@ git push origin feature/my-branch   # Push only your branch`,
               ['`git stash list`', 'Rafta bekleyen tüm stash kayıtlarını gösterir', 'Unutulmuş stash var mı kontrol etmek için'],
               ['`git stash drop`', 'Seçilen stash kaydını siler', 'Artık gerekmeyen geçici işi temizlemek için'],
             ],
+          },
+          {
+            type: 'code',
+            label: 'İşi rafa kaldır, branch değiştir, sonra geri al',
+            language: 'bash',
+            code: `# 1. tests/login.spec.js üzerinde yarım iş var ama acil bir hotfix çıktı
+git status
+# modified:   tests/login.spec.js
+
+# 2. Yarım işi geçici rafa kaldır
+git stash
+# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow
+
+# 3. Working tree temiz olduğu için güvenle geç
+git switch main
+# ...hotfix'i düzelt, commitle, push et...
+
+# 4. Kendi branch'ine dön ve rafa kaldırdığın işi geri al
+git switch feature/hasan
+git stash pop
+# Dropped refs/stash@{0} (e4f5...)  -> tests/login.spec.js tekrar modified`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-stash-practice-01',
+            label: { tr: 'Micro Lab: git stash', en: 'Micro Lab: git stash' },
+            language: 'bash',
+            task: {
+              tr: '`tests/login.spec.js` uzerinde commit edilmemis bir degisikligin var. `git stash` ile rafa kaldir, `git switch main` ile gec, sonra `git switch feature/hasan` ile geri don ve `git stash pop` ile isini geri al. Java\'da bunu IDE\'nin "Shelve Changes" ozelligine benzet — IntelliJ\'de degisiklikleri gecici olarak rafa kaldirip sonra "Unshelve" ile geri getirirsin.',
+              en: 'You have uncommitted changes in `tests/login.spec.js`. Shelve them with `git stash`, switch with `git switch main`, then return with `git switch feature/hasan` and bring the work back with `git stash pop`. Think of it like IntelliJ\'s "Shelve Changes" feature in Java — you temporarily shelve changes, then "Unshelve" them later.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git stash` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru komut yapisini elinle kurmak.',
+              en: 'Replace the TODO line with the real `git stash` command. The sandbox does not run a real repo; the goal is to build the correct command structure by hand.',
+            },
+            code: {
+              tr: `git status\n// EKSIK: degisiklikleri gecici rafa kaldir\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\n// MISSING: shelve the changes temporarily\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            starterCode: {
+              tr: `git status\n// TODO: degisiklikleri gecici rafa kaldir\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\n// TODO: shelve the changes temporarily\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            solutionCode: {
+              tr: `git status\ngit stash\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+              en: `git status\ngit stash\ngit switch main\ngit switch feature/hasan\ngit stash pop`,
+            },
+            expected: {
+              tr: '`git stash pop` calistiktan sonra `tests/login.spec.js` tekrar "modified" olarak gorunur ve stash listesi bosalir.',
+              en: 'After `git stash pop` runs, `tests/login.spec.js` shows as "modified" again and the stash list is empty.',
+            },
+            hints: [
+              { tr: 'Once `git stash` calistirmadan branch degistirmeye calismak Git\'i engelleyebilir.', en: 'Trying to switch branches before running `git stash` can get blocked by Git.' },
+              { tr: '`git stash pop` hem geri yukler hem stash listesinden siler; `apply` sadece geri yukler.', en: '`git stash pop` both restores and removes from the stash list; `apply` only restores.' },
+              { tr: 'Birden fazla stash varsa `git stash list` ile hangisinin uste oldugunu kontrol et.', en: 'If you have multiple stashes, check which one is on top with `git stash list`.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-stash-step-01',
+            title: { tr: 'Adim Adim: git stash', en: 'Step by Step: git stash' },
+            steps: [
+              { id: 1, icon: '📝', label: { tr: 'Yarim isi gor', en: 'See the unfinished work' }, detail: { tr: '`git status` ile `modified: tests/login.spec.js` satirini gor; commit etmeye hazir degilsin.', en: 'Run `git status` and see `modified: tests/login.spec.js`; you are not ready to commit yet.' } },
+              { id: 2, icon: '📦', label: { tr: 'Rafa kaldir', en: 'Shelve it' }, detail: { tr: '`git stash` calistir: "Saved working directory and index state WIP on feature/hasan: ..." mesajini gor.', en: 'Run `git stash`: see the message "Saved working directory and index state WIP on feature/hasan: ...".' } },
+              { id: 3, icon: '🔀', label: { tr: 'Guvenle gec', en: 'Switch safely' }, detail: { tr: 'Working tree artik temiz oldugu icin `git switch main` engellenmeden calisir.', en: 'Because the working tree is now clean, `git switch main` runs without being blocked.' } },
+              { id: 4, icon: '↩️', label: { tr: 'Branch\'ine don', en: 'Return to your branch' }, detail: { tr: '`git switch feature/hasan` ile geri don.', en: 'Run `git switch feature/hasan` to come back.' } },
+              { id: 5, icon: '🎁', label: { tr: 'Isini geri al', en: 'Bring your work back' }, detail: { tr: '`git stash pop` calistir: "Dropped refs/stash@{0}" mesaji ile `tests/login.spec.js` tekrar modified gorunur.', en: 'Run `git stash pop`: the "Dropped refs/stash@{0}" message appears and `tests/login.spec.js` shows modified again.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-stash-order-01',
+            question: { tr: 'Stash ile guvenli branch degisimi akisini sirala.', en: 'Order the safe branch-switch-with-stash flow.' },
+            items: [
+              { id: '1', text: { tr: '`git status` ile commit edilmemis degisikligi gor', en: 'Run `git status` to see the uncommitted change' }, order: 1 },
+              { id: '2', text: { tr: '`git stash` ile isini gecici rafa kaldir', en: 'Run `git stash` to shelve your work temporarily' }, order: 2 },
+              { id: '3', text: { tr: '`git switch main` ile temiz working tree ile gec', en: 'Run `git switch main` with a clean working tree' }, order: 3 },
+              { id: '4', text: { tr: '`git switch feature/hasan` ile geri don', en: 'Run `git switch feature/hasan` to return' }, order: 4 },
+              { id: '5', text: { tr: '`git stash pop` ile isini geri al', en: 'Run `git stash pop` to bring your work back' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           gitStashPractice,
           {
@@ -3569,6 +4357,85 @@ git push -u origin hasan`,
             help: { en: 'İlk publish için iki yöntemi birden çalıştırma. `origin` veya direkt repo URL yolundan birini seç; sonra normal `git push` kullan.', tr: 'İlk publish için iki yöntemi birden çalıştırma. `origin` veya direkt repo URL yolundan birini seç; sonra normal `git push` kullan.' },
           },
           {
+            type: 'code',
+            label: 'fetch vs pull vs pull --rebase',
+            language: 'bash',
+            code: `# fetch: remote history'yi indir, kendi branch'ine DOKUNMA
+git fetch origin
+# main: 3 yeni commit mevcut, local main'in değişmedi
+
+# pull: tek adımda fetch + merge (historyler ayrışmışsa bir merge commit'i oluşturur)
+git pull origin main
+# Merge made by the 'ort' strategy. -> ekstra "Merge branch 'main'" commit'i çıkar
+
+# pull --rebase: fetch + SENİN commit'lerini güncel main'in üstüne yeniden uygula
+git pull --rebase origin main
+# Successfully rebased and updated refs/heads/feature/hasan
+# -> doğrusal history, ekstra merge commit'i yok`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-pull-practice-01',
+            label: { tr: 'Micro Lab: git pull / git fetch', en: 'Micro Lab: git pull / git fetch' },
+            language: 'bash',
+            task: {
+              tr: 'Once `git fetch origin` ile sadece indir (branch\'ine dokunma), sonra `git pull --rebase origin main` ile hem indir hem kendi commit\'lerini guncel main\'in ustune yeniden uygula. Java\'da `fetch`i bir Maven repository\'den metadata indirip henuz build\'e dahil etmemeye benzet; `pull --rebase` ise indirilenleri hemen entegre edip projeyi yeniden derlemek gibidir.',
+              en: 'First download only with `git fetch origin` (does not touch your branch), then download AND replay your commits on top of updated main with `git pull --rebase origin main`. Think of `fetch` like downloading metadata from a Maven repository without building yet in Java; `pull --rebase` is like immediately integrating it and rebuilding the project.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git pull --rebase origin main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac fetch ile pull --rebase arasindaki farki elinle yazarak pekistirmek.',
+              en: 'Replace the TODO line with the real `git pull --rebase origin main` command. The sandbox does not run a real repo; the goal is to reinforce the difference between fetch and pull --rebase by typing it.',
+            },
+            code: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\n// EKSIK: rebase ile fetch+entegre et\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\n// MISSING: fetch and integrate via rebase\ngit log --oneline -3`,
+            },
+            starterCode: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\n// TODO: rebase ile fetch+entegre et\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\n// TODO: fetch and integrate via rebase\ngit log --oneline -3`,
+            },
+            solutionCode: {
+              tr: `git fetch origin\ngit log origin/main --oneline -3\ngit pull --rebase origin main\ngit log --oneline -3`,
+              en: `git fetch origin\ngit log origin/main --oneline -3\ngit pull --rebase origin main\ngit log --oneline -3`,
+            },
+            expected: {
+              tr: '`git pull --rebase origin main` sonrasinda "Successfully rebased and updated" mesaji gorursun; history\'de ekstra bir merge commit YOKTUR.',
+              en: 'After `git pull --rebase origin main` you see "Successfully rebased and updated"; there is NO extra merge commit in the history.',
+            },
+            hints: [
+              { tr: '`git fetch` SADECE indirir; senin branch\'in ve working tree degismez.', en: '`git fetch` ONLY downloads; your branch and working tree stay unchanged.' },
+              { tr: 'Duz `git pull` = `fetch` + `merge`; diverge varsa ekstra bir "Merge branch" commiti olusur.', en: 'Plain `git pull` = `fetch` + `merge`; if histories diverged, an extra "Merge branch" commit appears.' },
+              { tr: '`git pull --rebase` = `fetch` + `rebase`; senin commit\'lerin guncel main\'in ustune yeniden uygulanir, ekstra commit olmaz.', en: '`git pull --rebase` = `fetch` + `rebase`; your commits are replayed on top of the updated main, no extra commit.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-pull-step-01',
+            title: { tr: 'Adim Adim: git pull / git fetch', en: 'Step by Step: git pull / git fetch' },
+            steps: [
+              { id: 1, icon: '📡', label: { tr: 'Sadece indir', en: 'Download only' }, detail: { tr: '`git fetch origin` calistir: "3 new commits available" gibi bir bilgi gorursun, working tree\'n DEGISMEZ.', en: 'Run `git fetch origin`: you see something like "3 new commits available", your working tree stays UNCHANGED.' } },
+              { id: 2, icon: '🔍', label: { tr: 'Farki incele', en: 'Inspect the difference' }, detail: { tr: '`git log origin/main --oneline -3` ile remote\'taki yeni commit\'leri merge/rebase yapmadan once gor.', en: 'Run `git log origin/main --oneline -3` to see the new remote commits before merging/rebasing.' } },
+              { id: 3, icon: '🔀', label: { tr: 'Duz pull riski', en: 'Plain pull risk' }, detail: { tr: 'Duz `git pull origin main` calistirsan ve historyler ayrismissa, otomatik bir "Merge branch \'main\'" commit\'i eklenir.', en: 'If you ran plain `git pull origin main` and histories diverged, an automatic "Merge branch \'main\'" commit gets added.' } },
+              { id: 4, icon: '🪜', label: { tr: 'Rebase ile entegre et', en: 'Integrate via rebase' }, detail: { tr: '`git pull --rebase origin main` calistir: senin commit\'lerin guncel main\'in ustune tek tek yeniden uygulanir.', en: 'Run `git pull --rebase origin main`: your commits are replayed one by one on top of the updated main.' } },
+              { id: 5, icon: '✅', label: { tr: 'Temiz history\'i dogrula', en: 'Verify the clean history' }, detail: { tr: '`git log --oneline -3` ile artik ekstra merge commit\'i olmayan duz bir cizgi gorursun.', en: 'Run `git log --oneline -3` and see a straight line with no extra merge commit.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-pull-order-01',
+            question: { tr: 'fetch ve pull --rebase ile guvenli guncelleme akisini sirala.', en: 'Order the safe update flow using fetch and pull --rebase.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile remote degisiklikleri indir', en: 'Run `git fetch origin` to download remote changes' }, order: 1 },
+              { id: '2', text: { tr: '`git log origin/main --oneline -3` ile yeni commit\'leri incele', en: 'Run `git log origin/main --oneline -3` to inspect the new commits' }, order: 2 },
+              { id: '3', text: { tr: '`git pull --rebase origin main` ile fetch+entegre et', en: 'Run `git pull --rebase origin main` to fetch and integrate' }, order: 3 },
+              { id: '4', text: { tr: 'Conflict cikarsa coz ve `git add` ile isaretle', en: 'Resolve any conflict and mark it with `git add`' }, order: 4 },
+              { id: '5', text: { tr: '`git log --oneline -3` ile temiz, dogrusal history\'i dogrula', en: 'Run `git log --oneline -3` to confirm a clean, linear history' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'simulation',
             title: { en: '3) Merge: bring main into your branch', tr: '3) Merge: main değişikliklerini branch içine al' },
             icon: '🔁',
@@ -3623,6 +4490,68 @@ git merge main                            # Güncel main'i kendi branch'ine al
 # Conflict çıkarsa localde çöz, test çalıştır, git add yap ve merge'i tamamla`,
           },
           {
+            type: 'code-playground',
+            id: 'git-merge-practice-01',
+            label: { tr: 'Micro Lab: git merge', en: 'Micro Lab: git merge' },
+            language: 'bash',
+            task: {
+              tr: '`feature/hasan` branch\'indeyken `main`i merge et: once `git switch main` + `git pull --ff-only origin main` ile main\'i guncelle, sonra `git switch feature/hasan` ile geri don ve `git merge main` calistir. Java\'da bunu iki ayri SVN working copy\'sini birlestirmeye benzet — ama Git\'te merge yerel ve hizlidir, network gerektirmez.',
+              en: 'While on `feature/hasan`, merge `main` into it: first update main with `git switch main` + `git pull --ff-only origin main`, then return with `git switch feature/hasan` and run `git merge main`. Think of it like reconciling two SVN working copies in Java tooling — except in Git, merge is local and fast, no network round-trip needed for the merge step itself.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git merge main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru sirayi elinle kurmak.',
+              en: 'Replace the TODO line with the real `git merge main` command. The sandbox does not run a real repo; the goal is to build the correct order by hand.',
+            },
+            code: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// EKSIK: main'i feature/hasan icine merge et\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// MISSING: merge main into feature/hasan\ngit status`,
+            },
+            starterCode: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// TODO: main'i feature/hasan icine merge et\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\n// TODO: merge main into feature/hasan\ngit status`,
+            },
+            solutionCode: {
+              tr: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\ngit merge main\ngit status`,
+              en: `git switch main\ngit pull --ff-only origin main\ngit switch feature/hasan\ngit merge main\ngit status`,
+            },
+            expected: {
+              tr: '`git merge main` calisir, conflict yoksa otomatik bir merge commit olusur; `git status` "nothing to commit" veya conflict listesi gosterir.',
+              en: '`git merge main` runs; if there is no conflict, an automatic merge commit is created and `git status` shows a clean tree or the conflict list.',
+            },
+            hints: [
+              { tr: 'Merge etmeden once dogru branch uzerinde oldugundan emin ol: `git switch feature/hasan`.', en: 'Make sure you are on the right branch before merging: `git switch feature/hasan`.' },
+              { tr: '`git merge main` aktif branch\'e main\'in commit\'lerini getirir.', en: '`git merge main` brings main\'s commits into the currently active branch.' },
+              { tr: 'Conflict cikarsa dosyalari duzelt, `git add`, sonra `git commit` ile merge\'i bitir.', en: 'If a conflict appears, fix the files, `git add`, then `git commit` to finish the merge.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-merge-step-01',
+            title: { tr: 'Adim Adim: git merge', en: 'Step by Step: git merge' },
+            steps: [
+              { id: 1, icon: '🔄', label: { tr: 'main\'i guncelle', en: 'Update main' }, detail: { tr: '`git switch main` sonra `git pull --ff-only origin main` ile remote\'taki son commit\'leri al.', en: 'Run `git switch main` then `git pull --ff-only origin main` to get the latest remote commits.' } },
+              { id: 2, icon: '↩️', label: { tr: 'Feature branch\'ine don', en: 'Return to feature branch' }, detail: { tr: '`git switch feature/hasan` ile kendi branch\'ine geri don.', en: 'Run `git switch feature/hasan` to go back to your own branch.' } },
+              { id: 3, icon: '🔀', label: { tr: 'Merge et', en: 'Run the merge' }, detail: { tr: '`git merge main` calistir: Git iki branch\'in ortak atasini bulup farkli commit\'leri birlestirir.', en: 'Run `git merge main`: Git finds the common ancestor of both branches and combines the diverging commits.' } },
+              { id: 4, icon: '⚠️', label: { tr: 'Conflict varsa coz', en: 'Resolve conflicts if any' }, detail: { tr: '`<<<<<<< HEAD` ile `>>>>>>> main` arasindaki kismi elle duzenle, `git add` ile isaretle.', en: 'Manually edit the section between `<<<<<<< HEAD` and `>>>>>>> main`, mark it resolved with `git add`.' } },
+              { id: 5, icon: '✅', label: { tr: 'Merge commit\'i tamamla', en: 'Complete the merge commit' }, detail: { tr: 'Conflict yoksa Git otomatik bir merge commit olusturur; varsa `git commit` ile sen tamamlarsin.', en: 'If there was no conflict, Git auto-creates a merge commit; if there was, you finish it with `git commit`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-merge-order-01',
+            question: { tr: 'Guvenli bir merge akisini gercek sirasiyla diz.', en: 'Order a safe merge flow in its real sequence.' },
+            items: [
+              { id: '1', text: { tr: '`git switch main` ile main\'e gec', en: 'Run `git switch main` to move to main' }, order: 1 },
+              { id: '2', text: { tr: '`git pull --ff-only origin main` ile main\'i guncelle', en: 'Run `git pull --ff-only origin main` to update main' }, order: 2 },
+              { id: '3', text: { tr: '`git switch feature/hasan` ile feature branch\'ine don', en: 'Run `git switch feature/hasan` to return to the feature branch' }, order: 3 },
+              { id: '4', text: { tr: '`git merge main` ile guncel main\'i icine al', en: 'Run `git merge main` to bring in the updated main' }, order: 4 },
+              { id: '5', text: { tr: 'Conflict varsa coz, `git add`, gerekirse `git commit`', en: 'Resolve any conflicts, `git add`, and `git commit` if needed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'git-practice',
             icon: '🧪',
             title: { en: 'Try it yourself: order a safe branch start', tr: 'Kendin dene: güvenli branch başlangıcını sırala' },
@@ -3654,6 +4583,90 @@ git push -u origin feature/checkout-tests`,
             ],
           },
           {
+            type: 'code',
+            label: 'Başka branch\'teki tek bir commiti bul ve cherry-pick et',
+            language: 'bash',
+            code: `# 1. İhtiyacın olan commit hash'ini başka bir branch'te bul
+git log feature/hasan --oneline -5
+# d4e5f6a fix(login): handle empty password field
+# c3d4e5f test: add login error cases
+
+# 2. O tek fix'in gitmesi gereken branch'e geç
+git switch hotfix/release-1.4
+
+# 3. Sadece o tek commit'i burada uygula
+git cherry-pick d4e5f6a
+# [hotfix/release-1.4 9f8e7d6] fix(login): handle empty password field
+
+# Conflict çıkarsa:
+git status                  # Conflict'li dosyayı gör
+# ...elle çöz...
+git add tests/login.spec.js
+git cherry-pick --continue`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-cherry-pick-practice-01',
+            label: { tr: 'Micro Lab: git cherry-pick', en: 'Micro Lab: git cherry-pick' },
+            language: 'bash',
+            task: {
+              tr: '`git log feature/hasan --oneline -5` ile `d4e5f6a` commit hash\'ini bul, `git switch hotfix/release-1.4` ile o branch\'e gec ve `git cherry-pick d4e5f6a` ile SADECE o commit\'i tasi. Java\'da bunu bir JAR\'dan tek bir sinifi baska bir projeye kopyalamaya benzet — tum tarihi degil, sadece o tek "parcayi" alirsin.',
+              en: 'Find the commit hash `d4e5f6a` with `git log feature/hasan --oneline -5`, switch to that branch with `git switch hotfix/release-1.4`, and apply ONLY that commit with `git cherry-pick d4e5f6a`. Think of it like copying a single class from one Java project\'s JAR into another — you take just that one "piece", not the whole history.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git cherry-pick d4e5f6a` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru hash ile dogru komutu elinle yazmak.',
+              en: 'Replace the TODO line with the real `git cherry-pick d4e5f6a` command. The sandbox does not run a real repo; the goal is to type the correct command with the correct hash by hand.',
+            },
+            code: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// EKSIK: sadece d4e5f6a commit'ini buraya tasi\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// MISSING: bring only commit d4e5f6a here\ngit log --oneline -1`,
+            },
+            starterCode: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// TODO: sadece d4e5f6a commit'ini buraya tasi\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\n// TODO: bring only commit d4e5f6a here\ngit log --oneline -1`,
+            },
+            solutionCode: {
+              tr: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\ngit cherry-pick d4e5f6a\ngit log --oneline -1`,
+              en: `git log feature/hasan --oneline -5\ngit switch hotfix/release-1.4\ngit cherry-pick d4e5f6a\ngit log --oneline -1`,
+            },
+            expected: {
+              tr: '`git log --oneline -1` artik `hotfix/release-1.4` uzerinde yeni bir commit (orijinal mesajla) gosterir; `feature/hasan`in geri kalani tasinmamistir.',
+              en: '`git log --oneline -1` now shows a new commit on `hotfix/release-1.4` (with the original message); the rest of `feature/hasan` was not brought along.',
+            },
+            hints: [
+              { tr: 'Once dogru hash\'i `git log <branch> --oneline` ile bul.', en: 'First find the right hash with `git log <branch> --oneline`.' },
+              { tr: '`git cherry-pick <hash>` SADECE o tek commit\'in degisikliklerini uygular, tum branch\'i degil.', en: '`git cherry-pick <hash>` applies ONLY that single commit\'s changes, not the whole branch.' },
+              { tr: 'Conflict cikarsa: duzelt, `git add`, sonra `git cherry-pick --continue`.', en: 'On conflict: fix it, `git add`, then `git cherry-pick --continue`.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-cherry-pick-step-01',
+            title: { tr: 'Adim Adim: git cherry-pick', en: 'Step by Step: git cherry-pick' },
+            steps: [
+              { id: 1, icon: '🔎', label: { tr: 'Commit\'i bul', en: 'Find the commit' }, detail: { tr: '`git log feature/hasan --oneline -5` ile `d4e5f6a fix(login): handle empty password field` satirini bul.', en: 'Run `git log feature/hasan --oneline -5` and find the line `d4e5f6a fix(login): handle empty password field`.' } },
+              { id: 2, icon: '🎯', label: { tr: 'Hedef branch\'e gec', en: 'Switch to the target branch' }, detail: { tr: '`git switch hotfix/release-1.4` ile o tek fix\'in gitmesi gereken branch\'e gec.', en: 'Run `git switch hotfix/release-1.4` to move to the branch that needs just that one fix.' } },
+              { id: 3, icon: '🍒', label: { tr: 'Cherry-pick et', en: 'Cherry-pick it' }, detail: { tr: '`git cherry-pick d4e5f6a` calistir: Git o commit\'in diff\'ini alip burada yeni bir commit olarak uygular.', en: 'Run `git cherry-pick d4e5f6a`: Git takes that commit\'s diff and applies it here as a new commit.' } },
+              { id: 4, icon: '⚠️', label: { tr: 'Conflict varsa coz', en: 'Resolve conflicts if any' }, detail: { tr: '`git status` ile conflict\'li dosyayi gor, duzelt, `git add` ile isaretle.', en: 'Run `git status` to see the conflicted file, fix it, mark it with `git add`.' } },
+              { id: 5, icon: '✅', label: { tr: 'Devam et veya dogrula', en: 'Continue or verify' }, detail: { tr: 'Conflict varsa `git cherry-pick --continue`; yoksa direkt `git log --oneline -1` ile yeni commit\'i dogrula.', en: 'If there was a conflict, run `git cherry-pick --continue`; otherwise verify directly with `git log --oneline -1`.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-cherry-pick-order-01',
+            question: { tr: 'Tek bir commit\'i baska branch\'e tasima akisini sirala.', en: 'Order the flow for moving a single commit to another branch.' },
+            items: [
+              { id: '1', text: { tr: '`git log feature/hasan --oneline -5` ile hash\'i bul', en: 'Run `git log feature/hasan --oneline -5` to find the hash' }, order: 1 },
+              { id: '2', text: { tr: '`git switch hotfix/release-1.4` ile hedef branch\'e gec', en: 'Run `git switch hotfix/release-1.4` to move to the target branch' }, order: 2 },
+              { id: '3', text: { tr: '`git cherry-pick d4e5f6a` ile sadece o commit\'i uygula', en: 'Run `git cherry-pick d4e5f6a` to apply just that commit' }, order: 3 },
+              { id: '4', text: { tr: 'Conflict cikarsa duzelt ve `git add` ile isaretle', en: 'If a conflict appears, fix it and mark with `git add`' }, order: 4 },
+              { id: '5', text: { tr: '`git cherry-pick --continue` ile bitir', en: 'Run `git cherry-pick --continue` to finish' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Merge vs rebase pratik kuralı: ekip standardını kullan. Paylaşılmış branch’i gelişigüzel rebase etme; history rewrite gerçekten onaylandıysa plain `--force` yerine `git push --force-with-lease` tercih et.',
           },
@@ -3667,6 +4680,68 @@ code tests/login.spec.js             # <<<<<<< ======= >>>>>>> markerlarını ok
 npm test -- login.spec.js            # Çözülen davranışı kanıtla
 git add tests/login.spec.js          # Conflict resolved olarak işaretle
 git rebase --continue                # Merge yapıyorsan: git commit`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-rebase-practice-01',
+            label: { tr: 'Micro Lab: git rebase', en: 'Micro Lab: git rebase' },
+            language: 'bash',
+            task: {
+              tr: '`feature/hasan` branch\'ini `git rebase main` ile main\'in ucuna tasi, conflict cikarsa `tests/login.spec.js` dosyasini duzelt, `git add` ile isaretle ve `git rebase --continue` ile devam et. Java\'da bunu bir Maven/Gradle dependency tree\'sini yeniden hesaplamaya benzet — rebase de commit\'lerin "temelini" yeniden hesaplar.',
+              en: 'Move `feature/hasan` onto the tip of main with `git rebase main`; if a conflict appears, fix `tests/login.spec.js`, mark it with `git add`, then continue with `git rebase --continue`. Think of it like recalculating a Maven/Gradle dependency tree in Java — rebase recalculates the commit "base" the same way.',
+            },
+            explanation: {
+              tr: 'TODO satirini gercek `git rebase main` komutuyla degistir. Sandbox gercek bir repo calistirmiyor; amac dogru sirayi elinle kurmak.',
+              en: 'Replace the TODO line with the real `git rebase main` command. The sandbox does not run a real repo; the goal is to build the correct order by hand.',
+            },
+            code: {
+              tr: `git switch feature/hasan\n// EKSIK: feature/hasan'i main'in ucuna rebase et\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\n// MISSING: rebase feature/hasan onto main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            starterCode: {
+              tr: `git switch feature/hasan\n// TODO: feature/hasan'i main'in ucuna rebase et\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\n// TODO: rebase feature/hasan onto main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            solutionCode: {
+              tr: `git switch feature/hasan\ngit rebase main\ngit add tests/login.spec.js\ngit rebase --continue`,
+              en: `git switch feature/hasan\ngit rebase main\ngit add tests/login.spec.js\ngit rebase --continue`,
+            },
+            expected: {
+              tr: '`git rebase --continue` sonunda "Successfully rebased" mesaji gorursun; commit hash\'leri yeniden yazilmis olur.',
+              en: 'After `git rebase --continue` you see a "Successfully rebased" message; the commit hashes have been rewritten.',
+            },
+            hints: [
+              { tr: '`git rebase main` feature branch\'in commit\'lerini main\'in en tepesine tek tek yeniden uygular.', en: '`git rebase main` reapplies your feature branch\'s commits one by one on top of main.' },
+              { tr: 'Conflict cikinca once dosyayi elle duzelt, sonra `git add`, sonra `git rebase --continue`.', en: 'On conflict, fix the file by hand first, then `git add`, then `git rebase --continue`.' },
+              { tr: 'Paylasilmis (push edilmis) bir branch\'i rebase etmeden once takim ile anlas.', en: 'Agree with the team before rebasing a branch that has already been pushed/shared.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-rebase-step-01',
+            title: { tr: 'Adim Adim: git rebase', en: 'Step by Step: git rebase' },
+            steps: [
+              { id: 1, icon: '🎯', label: { tr: 'Hedef branch\'e bak', en: 'Target the base branch' }, detail: { tr: '`git switch feature/hasan` ile rebase edilecek branch\'te oldugunu dogrula.', en: 'Run `git switch feature/hasan` to confirm you are on the branch to be rebased.' } },
+              { id: 2, icon: '🪜', label: { tr: 'Rebase\'i baslat', en: 'Start the rebase' }, detail: { tr: '`git rebase main` calistir: Git senin commit\'lerini tek tek main\'in ucuna tasimaya baslar.', en: 'Run `git rebase main`: Git starts replaying your commits one by one on top of main.' } },
+              { id: 3, icon: '🧨', label: { tr: 'Conflict markerlarini gor', en: 'See the conflict markers' }, detail: { tr: '`<<<<<<< HEAD` / `=======` / `>>>>>>> main` arasinda hangi satirin kalacagina karar ver.', en: 'Decide which lines stay between `<<<<<<< HEAD` / `=======` / `>>>>>>> main`.' } },
+              { id: 4, icon: '✅', label: { tr: 'Cozumu isaretle', en: 'Mark the resolution' }, detail: { tr: '`git add tests/login.spec.js` ile bu commit adimi icin conflict\'in cozuldugunu Git\'e soyle.', en: 'Run `git add tests/login.spec.js` to tell Git this conflict is resolved for this replay step.' } },
+              { id: 5, icon: '➡️', label: { tr: 'Devam et', en: 'Continue the rebase' }, detail: { tr: '`git rebase --continue` ile bir sonraki commit\'in replay\'ine gec; tum commit\'ler bitince "Successfully rebased" mesaji gelir.', en: 'Run `git rebase --continue` to move to replaying the next commit; once all commits are done you see "Successfully rebased".' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-rebase-order-01',
+            question: { tr: 'Conflict\'li bir rebase\'i guvenli sirayla bitir.', en: 'Finish a conflicting rebase in the safe order.' },
+            items: [
+              { id: '1', text: { tr: '`git rebase main` ile rebase\'i baslat', en: 'Run `git rebase main` to start the rebase' }, order: 1 },
+              { id: '2', text: { tr: '`git status` ile conflict\'li dosyalari gor', en: 'Run `git status` to see the conflicted files' }, order: 2 },
+              { id: '3', text: { tr: 'Conflict marker\'lari arasinda dogru satiri elle sec', en: 'Manually choose the correct lines between the conflict markers' }, order: 3 },
+              { id: '4', text: { tr: '`git add tests/login.spec.js` ile cozumu isaretle', en: 'Run `git add tests/login.spec.js` to mark the resolution' }, order: 4 },
+              { id: '5', text: { tr: '`git rebase --continue` ile bir sonraki commit\'e gec', en: 'Run `git rebase --continue` to move to the next commit' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'git-practice',
@@ -4226,6 +5301,69 @@ jobs:
             ],
           },
           gitSafeUndoPractice,
+          {
+            type: 'code',
+            label: 'Aynı son commit üzerinde üç reset modu',
+            language: 'bash',
+            code: `git log --oneline -3                      # a3f7c2d (HEAD) test: cover login errors
+
+git reset --soft HEAD~1                    # Commit kaldırılır, değişiklikler STAGED kalır
+git status                                 # Changes: to be committed: tests/login.spec.js
+
+git reset HEAD~1                           # --mixed (varsayılan): commit kaldırılır, değişiklikler UNSTAGED kalır
+git status                                 # Changes not staged for commit: tests/login.spec.js
+
+git reset --hard HEAD~1                    # Commit VE tüm değişiklikler yok edilir, hiçbir şey kalmaz
+git status                                 # Working tree clean`,
+          },
+          {
+            type: 'code-playground',
+            id: 'git-reset-practice-01',
+            label: { tr: 'Micro Lab: git reset modları', en: 'Micro Lab: git reset modes' },
+            language: 'bash',
+            task: {
+              tr: 'Son commit\'in mesajını düzeltmek istiyorsun ama dosya içeriğini kaybetmek istemiyorsun. TODO satırını, değişiklikleri staged halde bırakan reset moduyla tamamla. Java\'da bir nesneyi yok edip referansı null yapmak (`--hard`) ile sadece son atamayı geri almak (`--soft`) arasındaki fark gibi düşün.',
+              en: 'You want to fix the last commit message without losing the file content. Complete the TODO line with the reset mode that leaves changes staged. Think of it like the difference in Java between destroying an object and nulling the reference (`--hard`) versus just undoing the last assignment (`--soft`).',
+            },
+            code: { tr: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: correct message"' },
+            starterCode: { tr: 'git log --oneline -1\n// TODO: son commiti kaldir ama degisiklikleri staged birak\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\n// TODO: remove the last commit but keep changes staged\ngit status\ngit commit -m "fix: correct message"' },
+            solutionCode: { tr: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: dogru mesaj"', en: 'git log --oneline -1\ngit reset --soft HEAD~1\ngit status\ngit commit -m "fix: correct message"' },
+            expected: {
+              tr: '`git status` çalıştırıldığında dosya "Changes to be committed" altında görünür — hiçbir şey kaybolmadı, sadece commit geri alındı.',
+              en: '`git status` shows the file under "Changes to be committed" — nothing was lost, only the commit was undone.',
+            },
+            hints: [
+              { tr: '--soft sadece commit\'i geri alır; staging area ve working tree dokunulmaz kalır.', en: '--soft only undoes the commit; the staging area and working tree stay untouched.' },
+              { tr: '--mixed (bayraksız varsayılan) staging\'i de geri alır; --hard hem staging hem working tree\'yi yok eder.', en: '--mixed (the flagless default) also unstages; --hard destroys both staging and the working tree.' },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-reset-step-01',
+            title: { tr: 'Adım Adım: git reset --soft vs --mixed vs --hard', en: 'Step by Step: git reset --soft vs --mixed vs --hard' },
+            steps: [
+              { id: 1, icon: '📍', label: { tr: 'Mevcut commit\'i gör', en: 'See the current commit' }, detail: { tr: 'git log --oneline -3 çalıştırılır: a3f7c2d (HEAD) en üstte görünür.', en: 'Run git log --oneline -3: a3f7c2d (HEAD) appears at the top.' } },
+              { id: 2, icon: '🟢', label: { tr: '--soft: en güvenli', en: '--soft: the safest' }, detail: { tr: 'git reset --soft HEAD~1 sonrası git status "Changes to be committed" gösterir — dosya hâlâ staged.', en: 'After git reset --soft HEAD~1, git status shows "Changes to be committed" — the file is still staged.' } },
+              { id: 3, icon: '🟡', label: { tr: '--mixed: varsayılan', en: '--mixed: the default' }, detail: { tr: 'git reset HEAD~1 (bayraksız) sonrası git status "Changes not staged for commit" gösterir — staging temizlendi ama dosya diskte duruyor.', en: 'After git reset HEAD~1 (no flag), git status shows "Changes not staged for commit" — staging is cleared but the file is still on disk.' } },
+              { id: 4, icon: '🔴', label: { tr: '--hard: geri dönüşsüz', en: '--hard: irreversible' }, detail: { tr: 'git reset --hard HEAD~1 sonrası git status "working tree clean" yazar — commit ve içerik birlikte yok oldu.', en: 'After git reset --hard HEAD~1, git status prints "working tree clean" — the commit and the content are both gone.' } },
+              { id: 5, icon: '🛡️', label: { tr: 'Güvenlik kuralı', en: 'Safety rule' }, detail: { tr: 'Push edilmiş bir commit üzerinde asla --hard kullanma; bunun yerine git revert kullan, çünkü revert tarihi yeni bir commit ile düzeltir, silmez.', en: 'Never run --hard on an already-pushed commit; use git revert instead, since revert fixes history with a new commit instead of deleting it.' } },
+            ],
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-reset-order-01',
+            question: { tr: 'Yanlış commit mesajını güvenli şekilde düzeltme sırasını kur.', en: 'Order the safe sequence for fixing a wrong commit message.' },
+            items: [
+              { id: '1', text: { tr: 'git log --oneline -1 ile mevcut commit\'i kontrol et', en: 'Check the current commit with git log --oneline -1' }, order: 1 },
+              { id: '2', text: { tr: 'Commit\'in push edilip edilmediğini doğrula', en: 'Verify whether the commit was already pushed' }, order: 2 },
+              { id: '3', text: { tr: 'git reset --soft HEAD~1 ile commit\'i geri al, değişiklikleri staged bırak', en: 'Undo the commit with git reset --soft HEAD~1, keeping changes staged' }, order: 3 },
+              { id: '4', text: { tr: 'git status ile dosyanın hâlâ staged olduğunu doğrula', en: 'Confirm the file is still staged with git status' }, order: 4 },
+              { id: '5', text: { tr: 'git commit -m "doğru mesaj" ile yeniden commit at', en: 'Recommit with git commit -m "correct message"' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
           {
             type: 'code',
             label: 'Güvenli pre-push checklist',
