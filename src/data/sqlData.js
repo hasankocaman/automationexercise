@@ -1522,6 +1522,19 @@ const finalEnSections = [
         "language": "sql"
       },
       {
+        "type": "simulation",
+        "scenario": "sql-interactive-terminal",
+        "icon": "💻",
+        "title": {
+          "tr": "Etkileşimli SQL Terminali",
+          "en": "Interactive SQL Terminal"
+        },
+        "description": {
+          "tr": "SELECT, INSERT, UPDATE, DELETE sorgularını çalıştır ve veri tabanı tablosunun anlık değişimini şemada izle.",
+          "en": "Run SELECT, INSERT, UPDATE, DELETE queries and see the database table update live on the diagram."
+        }
+      },
+      {
         "type": "visual",
         "variant": "table",
         "title": "Our Sample Data — test_results Table",
@@ -6793,6 +6806,19 @@ const finalTrSections = [
         },
         "code": "SELECT env, COUNT(*) AS count\nFROM test_results\nWHERE status = 'FAIL'\nGROUP BY env\nORDER BY count DESC\nLIMIT 1;",
         "language": "sql"
+      },
+      {
+        "type": "simulation",
+        "scenario": "sql-interactive-terminal",
+        "icon": "💻",
+        "title": {
+          "tr": "Etkileşimli SQL Terminali",
+          "en": "Interactive SQL Terminal"
+        },
+        "description": {
+          "tr": "SELECT, INSERT, UPDATE, DELETE sorgularını çalıştır ve veri tabanı tablosunun anlık değişimini şemada izle.",
+          "en": "Run SELECT, INSERT, UPDATE, DELETE queries and see the database table update live on the diagram."
+        }
       },
       {
         "type": "visual",

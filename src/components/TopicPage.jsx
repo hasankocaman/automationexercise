@@ -5792,6 +5792,745 @@ function SimulationBlock({ block, darkMode, language }) {
     // Python & SQL simulation states
     const [sqlTxIsolation, setSqlTxIsolation] = useState('read-committed')
 
+    // Linux Interactive Terminal states
+    const [linuxCurrentDir, setLinuxCurrentDir] = useState('/home/qa_tester')
+    const [linuxFiles, setLinuxFiles] = useState([
+        { path: '/home/qa_tester', type: 'dir' },
+        { path: '/home/qa_tester/readme.md', type: 'file' }
+    ])
+    const [linuxHistory, setLinuxHistory] = useState([
+        { type: 'input', text: 'pwd' },
+        { type: 'output', text: '/home/qa_tester' }
+    ])
+    const [linuxInput, setLinuxInput] = useState('')
+
+    // Git Interactive Terminal states
+    const [gitWorkingDir, setGitWorkingDir] = useState(['auth_spec.js (modified)'])
+    const [gitStagingArea, setGitStagingArea] = useState([])
+    const [gitCommits, setGitCommits] = useState([
+        { id: 'c1', message: 'initial commit', parent: null, branch: 'main' }
+    ])
+    const [gitBranches, setGitBranches] = useState({ main: 'c1' })
+    const [gitCurrentBranch, setGitCurrentBranch] = useState('main')
+    const [gitHistory, setGitHistory] = useState([
+        { type: 'input', text: 'git status' },
+        { type: 'output', text: 'On branch main\nChanges not staged for commit:\n  (use "git add <file>..." to update what will be committed)\n\tmodified:   auth_spec.js\n\nno changes added to commit (use "git add" and/or "git commit -a")' }
+    ])
+    const [gitInput, setGitInput] = useState('')
+
+    // SQL Interactive Terminal states
+    const [sqlUsers, setSqlUsers] = useState([
+        { id: 1, name: 'Hasan', role: 'QA', status: 'Active' },
+        { id: 2, name: 'John', role: 'Dev', status: 'Inactive' }
+    ])
+    const [sqlSelectedIds, setSqlSelectedIds] = useState([1, 2])
+    const [sqlHighlightedCell, setSqlHighlightedCell] = useState(null)
+    const [sqlHistory, setSqlHistory] = useState([
+        { type: 'input', text: 'SELECT * FROM users;' },
+        { type: 'output', text: 'Columns: id, name, role, status\nRows: 2' }
+    ])
+    const [sqlInput, setSqlInput] = useState('')
+
+    const handleLinuxCommand = (cmdStr) => {
+        const trimmed = cmdStr.trim()
+        if (!trimmed) return
+        setLinuxHistory(prev => [...prev, { type: 'input', text: trimmed }])
+        setLinuxInput('')
+
+        const parts = trimmed.split(/\s+/)
+        const baseCmd = parts[0]
+
+        if (baseCmd === 'clear') {
+            setLinuxHistory([])
+            return
+        }
+        if (baseCmd === 'pwd') {
+            setLinuxHistory(prev => [...prev, { type: 'output', text: linuxCurrentDir }])
+            return
+        }
+        if (baseCmd === 'ls') {
+            const list = linuxFiles
+                .filter(f => {
+                    const parent = f.path.substring(0, f.path.lastIndexOf('/'))
+                    return parent === linuxCurrentDir && f.path !== linuxCurrentDir
+                })
+                .map(f => {
+                    const name = f.path.substring(f.path.lastIndexOf('/') + 1)
+                    return f.type === 'dir' ? name + '/' : name
+                })
+            const output = list.length > 0 ? list.join('  ') : (isTr ? '(klasör boş)' : '(folder empty)')
+            setLinuxHistory(prev => [...prev, { type: 'output', text: output }])
+            return
+        }
+        if (baseCmd === 'mkdir') {
+            const dirName = parts[1]
+            if (!dirName) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: 'mkdir: missing operand' }])
+                return
+            }
+            const fullPath = linuxCurrentDir + '/' + dirName
+            if (linuxFiles.some(f => f.path === fullPath)) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: `mkdir: cannot create directory '${dirName}': File exists` }])
+                return
+            }
+            setLinuxFiles(prev => [...prev, { path: fullPath, type: 'dir' }])
+            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Klasör oluşturuldu: ${dirName}` : `Directory created: ${dirName}` }])
+            return
+        }
+        if (baseCmd === 'touch') {
+            const fileName = parts[1]
+            if (!fileName) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: 'touch: missing file operand' }])
+                return
+            }
+            const fullPath = linuxCurrentDir + '/' + fileName
+            if (linuxFiles.some(f => f.path === fullPath)) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Dosya güncellendi: ${fileName}` : `File updated: ${fileName}` }])
+                return
+            }
+            setLinuxFiles(prev => [...prev, { path: fullPath, type: 'file' }])
+            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Boş dosya oluşturuldu: ${fileName}` : `Empty file created: ${fileName}` }])
+            return
+        }
+        if (baseCmd === 'rm') {
+            const fileName = parts[1]
+            if (!fileName) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: 'rm: missing operand' }])
+                return
+            }
+            const fullPath = linuxCurrentDir + '/' + fileName
+            const target = linuxFiles.find(f => f.path === fullPath)
+            if (!target) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: `rm: cannot remove '${fileName}': No such file or directory` }])
+                return
+            }
+            if (target.type === 'dir') {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: `rm: cannot remove '${fileName}': Is a directory (use rmdir or rm -rf)` }])
+                return
+            }
+            setLinuxFiles(prev => prev.filter(f => f.path !== fullPath))
+            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Dosya silindi: ${fileName}` : `File deleted: ${fileName}` }])
+            return
+        }
+        if (baseCmd === 'rmdir' || (baseCmd === 'rm' && parts[1] === '-rf')) {
+            const dirName = baseCmd === 'rmdir' ? parts[1] : parts[2]
+            if (!dirName) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: 'missing operand' }])
+                return
+            }
+            const fullPath = linuxCurrentDir + '/' + dirName
+            const target = linuxFiles.find(f => f.path === fullPath)
+            if (!target) {
+                setLinuxHistory(prev => [...prev, { type: 'output', text: `No such directory '${dirName}'` }])
+                return
+            }
+            setLinuxFiles(prev => prev.filter(f => !f.path.startsWith(fullPath)))
+            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Klasör silindi: ${dirName}` : `Directory deleted: ${dirName}` }])
+            return
+        }
+
+        setLinuxHistory(prev => [...prev, { type: 'output', text: `bash: ${baseCmd}: command not found` }])
+    }
+
+    const handleGitCommand = (cmdStr) => {
+        const trimmed = cmdStr.trim()
+        if (!trimmed) return
+        setGitHistory(prev => [...prev, { type: 'input', text: trimmed }])
+        setGitInput('')
+
+        const parts = trimmed.split(/\s+/)
+        if (parts[0] !== 'git') {
+            if (trimmed === 'clear') {
+                setGitHistory([])
+            } else {
+                setGitHistory(prev => [...prev, { type: 'output', text: `git terminal: use commands starting with 'git' (or 'clear')` }])
+            }
+            return
+        }
+
+        const action = parts[1]
+        if (!action) {
+            setGitHistory(prev => [...prev, { type: 'output', text: 'usage: git [status|add|commit|branch|checkout|switch|merge|log]' }])
+            return
+        }
+
+        if (action === 'status') {
+            let output = `On branch ${gitCurrentBranch}\n`
+            if (gitStagingArea.length === 0 && gitWorkingDir.length === 0) {
+                output += 'nothing to commit, working tree clean'
+            } else {
+                if (gitStagingArea.length > 0) {
+                    output += 'Changes to be committed:\n'
+                    gitStagingArea.forEach(f => {
+                        output += `  (use "git restore --staged <file>..." to unstage)\n\tnew file:   ${f}\n`
+                    })
+                }
+                if (gitWorkingDir.length > 0) {
+                    output += 'Changes not staged for commit:\n'
+                    gitWorkingDir.forEach(f => {
+                        output += `  (use "git add <file>..." to update what will be committed)\n\tmodified:   ${f}\n`
+                    })
+                }
+            }
+            setGitHistory(prev => [...prev, { type: 'output', text: output }])
+            return
+        }
+
+        if (action === 'add') {
+            if (gitWorkingDir.length === 0) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'Nothing to add.' }])
+                return
+            }
+            setGitStagingArea(prev => [...prev, ...gitWorkingDir])
+            setGitWorkingDir([])
+            setGitHistory(prev => [...prev, { type: 'output', text: isTr ? 'Değişiklikler stage edildi (Staging Area).' : 'Changes staged (Staging Area).' }])
+            return
+        }
+
+        if (action === 'commit') {
+            const mIndex = parts.indexOf('-m')
+            const msg = mIndex !== -1 && parts[mIndex + 1] ? parts.slice(mIndex + 1).join(' ').replace(/['"]/g, '') : 'feat: update tests'
+            
+            if (gitStagingArea.length === 0) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'nothing to commit, working tree clean' }])
+                return
+            }
+
+            const parentId = gitBranches[gitCurrentBranch]
+            const newCommitId = 'c' + (gitCommits.length + 1)
+            const newCommit = {
+                id: newCommitId,
+                message: msg,
+                parent: parentId,
+                branch: gitCurrentBranch
+            }
+
+            setGitCommits(prev => [...prev, newCommit])
+            setGitBranches(prev => ({ ...prev, [gitCurrentBranch]: newCommitId }))
+            setGitStagingArea([])
+            
+            setTimeout(() => {
+                setGitWorkingDir(['auth_spec.js (modified)'])
+            }, 1000)
+
+            setGitHistory(prev => [...prev, { type: 'output', text: `[${gitCurrentBranch} ${newCommitId}] ${msg}\n 1 file changed, 10 insertions(+)` }])
+            return
+        }
+
+        if (action === 'branch') {
+            const bName = parts[2]
+            if (!bName) {
+                const bList = Object.keys(gitBranches).map(b => (b === gitCurrentBranch ? '* ' : '  ') + b).join('\n')
+                setGitHistory(prev => [...prev, { type: 'output', text: bList }])
+                return
+            }
+            if (gitBranches[bName]) {
+                setGitHistory(prev => [...prev, { type: 'output', text: `fatal: A branch named '${bName}' already exists.` }])
+                return
+            }
+            const currentCommit = gitBranches[gitCurrentBranch]
+            setGitBranches(prev => ({ ...prev, [bName]: currentCommit }))
+            setGitHistory(prev => [...prev, { type: 'output', text: isTr ? `Branch oluşturuldu: ${bName}` : `Branch created: ${bName}` }])
+            return
+        }
+
+        if (action === 'checkout' || action === 'switch') {
+            const bName = parts[2]
+            if (!bName) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'fatal: branch name required' }])
+                return
+            }
+            if (!gitBranches[bName]) {
+                setGitHistory(prev => [...prev, { type: 'output', text: `error: pathspec '${bName}' did not match any file(s) known to git` }])
+                return
+            }
+            setGitCurrentBranch(bName)
+            setGitHistory(prev => [...prev, { type: 'output', text: `Switched to branch '${bName}'` }])
+            return
+        }
+
+        if (action === 'merge') {
+            const bName = parts[2]
+            if (!bName) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'fatal: specify branch to merge' }])
+                return
+            }
+            if (!gitBranches[bName]) {
+                setGitHistory(prev => [...prev, { type: 'output', text: `fatal: ${bName} - not something we can merge` }])
+                return
+            }
+            if (bName === gitCurrentBranch) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'Already up to date.' }])
+                return
+            }
+
+            const parent1 = gitBranches[gitCurrentBranch]
+            const parent2 = gitBranches[bName]
+            const newCommitId = 'c' + (gitCommits.length + 1)
+            const newCommit = {
+                id: newCommitId,
+                message: `Merge branch '${bName}' into ${gitCurrentBranch}`,
+                parent: parent1,
+                parent2: parent2,
+                branch: gitCurrentBranch
+            }
+
+            setGitCommits(prev => [...prev, newCommit])
+            setGitBranches(prev => ({ ...prev, [gitCurrentBranch]: newCommitId }))
+            setGitHistory(prev => [...prev, { type: 'output', text: `Updating ${parent1.substring(0,7)}..${newCommitId.substring(0,7)}\nMerge made by the 'recursive' strategy.` }])
+            return
+        }
+
+        if (action === 'log') {
+            const logs = []
+            let curr = gitBranches[gitCurrentBranch]
+            while (curr) {
+                const commit = gitCommits.find(c => c.id === curr)
+                if (commit) {
+                    logs.push(`* ${commit.id} - ${commit.message} (${commit.branch})`)
+                    curr = commit.parent
+                } else {
+                    break
+                }
+            }
+            setGitHistory(prev => [...prev, { type: 'output', text: logs.length > 0 ? logs.join('\n') : 'No commits yet.' }])
+            return
+        }
+
+        setGitHistory(prev => [...prev, { type: 'output', text: `git: '${action}' is not a git command. See 'git --help'.` }])
+    }
+
+    const handleSqlCommand = (cmdStr) => {
+        const trimmed = cmdStr.trim().replace(/;$/, '')
+        if (!trimmed) return
+        setSqlHistory(prev => [...prev, { type: 'input', text: cmdStr }])
+        setSqlInput('')
+        setSqlHighlightedCell(null)
+
+        const lower = trimmed.toLowerCase()
+
+        if (trimmed === 'clear') {
+            setSqlHistory([])
+            return
+        }
+
+        if (lower.startsWith('select')) {
+            if (lower.includes("where role = 'qa'") || lower.includes("where role='qa'")) {
+                const qas = sqlUsers.filter(u => u.role === 'QA').map(u => u.id)
+                setSqlSelectedIds(qas)
+                setSqlHistory(prev => [...prev, { type: 'output', text: `Selected QA users. Rows: ${qas.length}` }])
+            } else if (lower.includes('where id =') || lower.includes('where id=')) {
+                const match = lower.match(/where id\s*=\s*(\d+)/)
+                const idVal = match ? parseInt(match[1]) : null
+                if (idVal && sqlUsers.some(u => u.id === idVal)) {
+                    setSqlSelectedIds([idVal])
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `Selected user with ID ${idVal}. Rows: 1` }])
+                } else {
+                    setSqlSelectedIds([])
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `Empty set.` }])
+                }
+            } else {
+                setSqlSelectedIds(sqlUsers.map(u => u.id))
+                setSqlHistory(prev => [...prev, { type: 'output', text: `Selected all users. Rows: ${sqlUsers.length}` }])
+            }
+            return
+        }
+
+        if (lower.startsWith('insert')) {
+            const match = trimmed.match(/values\s*\(\s*(\d+)\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*\)/i)
+            if (match) {
+                const newId = parseInt(match[1])
+                const name = match[2]
+                const role = match[3]
+                const status = match[4]
+
+                if (sqlUsers.some(u => u.id === newId)) {
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `❌ Error: UNIQUE constraint failed: users.id` }])
+                    return
+                }
+
+                const newUser = { id: newId, name, role, status }
+                setSqlUsers(prev => [...prev, newUser])
+                setSqlSelectedIds([newId])
+                setSqlHistory(prev => [...prev, { type: 'output', text: `✅ Query OK, 1 row affected (inserted ID: ${newId})` }])
+            } else {
+                const newId = sqlUsers.length > 0 ? Math.max(...sqlUsers.map(u => u.id)) + 1 : 1
+                const newUser = { id: newId, name: 'Ece', role: 'SDET', status: 'Active' }
+                setSqlUsers(prev => [...prev, newUser])
+                setSqlSelectedIds([newId])
+                setSqlHistory(prev => [...prev, { type: 'output', text: `✅ Query OK, 1 row affected (inserted ID: ${newId})` }])
+            }
+            return
+        }
+
+        if (lower.startsWith('update')) {
+            const matchRole = lower.match(/set role\s*=\s*'([^']+)'/i)
+            const matchId = lower.match(/where id\s*=\s*(\d+)/i)
+
+            if (matchRole && matchId) {
+                const newRole = matchRole[1]
+                const targetId = parseInt(matchId[1])
+
+                if (sqlUsers.some(u => u.id === targetId)) {
+                    setSqlUsers(prev => prev.map(u => u.id === targetId ? { ...u, role: newRole } : u))
+                    setSqlHighlightedCell({ id: targetId, field: 'role' })
+                    setSqlSelectedIds([targetId])
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `✅ Query OK, 1 row affected (updated ID: ${targetId})` }])
+                } else {
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `Query OK, 0 rows affected.` }])
+                }
+            } else {
+                setSqlHistory(prev => [...prev, { type: 'output', text: `❌ Syntax Error in UPDATE statement.` }])
+            }
+            return
+        }
+
+        if (lower.startsWith('delete')) {
+            const matchId = lower.match(/where id\s*=\s*(\d+)/i)
+            if (matchId) {
+                const targetId = parseInt(matchId[1])
+                if (sqlUsers.some(u => u.id === targetId)) {
+                    setSqlUsers(prev => prev.filter(u => u.id !== targetId))
+                    setSqlSelectedIds([])
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `✅ Query OK, 1 row affected (deleted ID: ${targetId})` }])
+                } else {
+                    setSqlHistory(prev => [...prev, { type: 'output', text: `Query OK, 0 rows affected.` }])
+                }
+            } else {
+                setSqlHistory(prev => [...prev, { type: 'output', text: `❌ Error: DELETE requires a WHERE clause.` }])
+            }
+            return
+        }
+
+        setSqlHistory(prev => [...prev, { type: 'output', text: `❌ Error: SQL statement not supported: '${trimmed}'` }])
+    }
+
+    const renderLinuxInteractiveTerminalPlayground = () => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                handleLinuxCommand(linuxInput)
+            }
+        }
+        const quickCmds = ['pwd', 'ls', 'mkdir docs', 'touch docs/test.txt', 'rm docs/test.txt', 'clear']
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="w-full max-w-md">
+                <div style={{ background: '#0b1329', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Linux Bash Simulator</span>
+                    </div>
+                    <div style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
+                        {linuxHistory.map((h, i) => (
+                            <div key={i} style={{ marginBottom: 4 }}>
+                                {h.type === 'input' ? (
+                                    <div className="text-sky-400 font-bold">$ {h.text}</div>
+                                ) : (
+                                    <div className="text-slate-300 whitespace-pre-wrap pl-2">{h.text}</div>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-1.5 text-sky-400">
+                            <span className="font-bold">$</span>
+                            <input
+                                type="text"
+                                value={linuxInput}
+                                onChange={e => setLinuxInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className="bg-transparent border-none outline-none text-slate-100 flex-1 font-mono p-0 m-0"
+                                placeholder={isTr ? "komut yazın..." : "type command..."}
+                            />
+                        </div>
+                    </div>
+                    <div className="p-3 bg-slate-900 border-t border-slate-800">
+                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-bold">{isTr ? 'Hızlı Komutlar (Tıkla ve Çalıştır)' : 'Quick Commands (Click to Run)'}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                            {quickCmds.map(c => (
+                                <button
+                                    key={c}
+                                    onClick={() => handleLinuxCommand(c)}
+                                    className="text-[10px] font-mono px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700/50 hover:border-sky-500/30 transition-all cursor-pointer"
+                                >
+                                    {c}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderLinuxInteractiveTerminalVisualizer = () => {
+        return (
+            <div className="space-y-3">
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {isTr ? '📁 Sanal Dosya Sistemi (Canlı Şema)' : '📁 Virtual File System (Live Diagram)'}
+                </div>
+                <div className={`p-4 rounded-xl border font-mono text-xs ${darkMode ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
+                    <div className="text-emerald-500 font-bold">/ (root)</div>
+                    <div className="pl-3 border-l border-slate-700/35 space-y-1">
+                        <div className="text-amber-500 font-semibold">home/</div>
+                        <div className="pl-3 border-l border-slate-700/35 space-y-1">
+                            <div className="text-amber-500 font-semibold">qa_tester/ <span className="text-[10px] text-sky-400 font-normal">(pwd)</span></div>
+                            <div className="pl-3 border-l border-slate-700/35 space-y-1">
+                                {linuxFiles.filter(f => f.path.startsWith('/home/qa_tester/') && f.path !== '/home/qa_tester').map(f => {
+                                    const relative = f.path.replace('/home/qa_tester/', '')
+                                    const isDir = f.type === 'dir'
+                                    return (
+                                        <div key={f.path} className={`flex items-center gap-1.5 py-0.5 animate-fadeIn transition-all duration-300`}>
+                                            <span>{isDir ? '📁' : '📄'}</span>
+                                            <span className={isDir ? 'text-amber-400 font-semibold' : 'text-sky-300'}>{relative}</span>
+                                        </div>
+                                    )
+                                })}
+                                {linuxFiles.filter(f => f.path.startsWith('/home/qa_tester/') && f.path !== '/home/qa_tester').length === 0 && (
+                                    <div className="text-slate-500 italic text-[11px]">{isTr ? '(klasör boş)' : '(folder empty)'}</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className={`text-xs p-3 rounded-lg border ${darkMode ? 'border-amber-900/30 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                    {isTr ? '💡 touch ile dosya, mkdir ile klasör oluşturduğunuzda bu şema anlık olarak güncellenir.' : '💡 The diagram updates instantly when you create files using touch or folders using mkdir.'}
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitInteractiveTerminalPlayground = () => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                handleGitCommand(gitInput)
+            }
+        }
+        const quickCmds = ['git status', 'git add .', 'git commit -m "feat: login test"', 'git branch feature/payment', 'git checkout feature/payment', 'git log', 'clear']
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="w-full max-w-md">
+                <div style={{ background: '#0b1329', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Git Terminal Simulator</span>
+                    </div>
+                    <div style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
+                        {gitHistory.map((h, i) => (
+                            <div key={i} style={{ marginBottom: 4 }}>
+                                {h.type === 'input' ? (
+                                    <div className="text-sky-400 font-bold">$ {h.text}</div>
+                                ) : (
+                                    <div className="text-slate-300 whitespace-pre-wrap pl-2">{h.text}</div>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-1.5 text-sky-400">
+                            <span className="font-bold">$</span>
+                            <input
+                                type="text"
+                                value={gitInput}
+                                onChange={e => setGitInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className="bg-transparent border-none outline-none text-slate-100 flex-1 font-mono p-0 m-0"
+                                placeholder={isTr ? "git komutu yazın..." : "type git command..."}
+                            />
+                        </div>
+                    </div>
+                    <div className="p-3 bg-slate-900 border-t border-slate-800">
+                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-bold">{isTr ? 'Hızlı Git Komutları' : 'Quick Git Commands'}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                            {quickCmds.map(c => (
+                                <button
+                                    key={c}
+                                    onClick={() => handleGitCommand(c)}
+                                    className="text-[10px] font-mono px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700/50 hover:border-sky-500/30 transition-all cursor-pointer"
+                                >
+                                    {c}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderGitInteractiveTerminalVisualizer = () => {
+        return (
+            <div className="space-y-4">
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {isTr ? '🌳 Git 3 Alan & Commit Ağacı (Canlı Şema)' : '🌳 Git Three Areas & Commit Tree (Live Diagram)'}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                    <div className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-900/50 border-red-900/30' : 'bg-red-50/20 border-red-200'}`}>
+                        <div className="text-xs font-bold text-red-400 mb-2">💻 Working Directory</div>
+                        {gitWorkingDir.map(f => (
+                            <div key={f} className="text-xs font-mono text-red-500 flex items-center gap-1">
+                                <span>❌</span> {f}
+                            </div>
+                        ))}
+                        {gitWorkingDir.length === 0 && <div className="text-xs text-slate-500 italic">{isTr ? 'Temiz' : 'Clean'}</div>}
+                    </div>
+                    <div className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-900/50 border-emerald-900/30' : 'bg-emerald-50/20 border-emerald-200'}`}>
+                        <div className="text-xs font-bold text-emerald-400 mb-2">🗂️ Staging Area</div>
+                        {gitStagingArea.map(f => (
+                            <div key={f} className="text-xs font-mono text-emerald-500 flex items-center gap-1">
+                                <span>➕</span> {f}
+                            </div>
+                        ))}
+                        {gitStagingArea.length === 0 && <div className="text-xs text-slate-500 italic">{isTr ? 'Boş' : 'Empty'}</div>}
+                    </div>
+                </div>
+                <div className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`}>
+                    <div className="text-xs font-bold mb-3">{isTr ? '📜 Yerel Depo (Local Commit Graph)' : '📜 Local Commit Graph'}</div>
+                    <div className="flex flex-col gap-3 relative pl-4 border-l border-slate-700/50">
+                        {gitCommits.slice().reverse().map((commit) => {
+                            const isHead = gitBranches[gitCurrentBranch] === commit.id
+                            const pointingBranches = Object.keys(gitBranches).filter(b => gitBranches[b] === commit.id)
+                            return (
+                                <div key={commit.id} className="flex items-center gap-3 relative">
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] z-10 transition-all duration-300 ${
+                                        isHead 
+                                            ? 'bg-sky-500 text-white ring-4 ring-sky-500/20 scale-110' 
+                                            : 'bg-slate-700 text-slate-300'
+                                    }`}>
+                                        {commit.id}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-xs font-bold truncate">{commit.message}</div>
+                                        <div className="flex gap-1.5 mt-1 flex-wrap">
+                                            {pointingBranches.map(b => (
+                                                <span key={b} className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                                                    b === gitCurrentBranch 
+                                                        ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 font-bold' 
+                                                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                                }`}>
+                                                    {b === gitCurrentBranch ? '👉 ' : ''}{b}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSqlInteractiveTerminalPlayground = () => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                handleSqlCommand(sqlInput)
+            }
+        }
+        const quickCmds = [
+            'SELECT * FROM users;',
+            "SELECT * FROM users WHERE role = 'QA';",
+            "INSERT INTO users (id, name, role, status) VALUES (3, 'Can', 'SDET', 'Active');",
+            "UPDATE users SET role = 'Lead' WHERE id = 1;",
+            'DELETE FROM users WHERE id = 2;',
+            'clear'
+        ]
+        return (
+            <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="w-full max-w-md">
+                <div style={{ background: '#0b1329', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>SQL Shell Simulator</span>
+                    </div>
+                    <div style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
+                        {sqlHistory.map((h, i) => (
+                            <div key={i} style={{ marginBottom: 4 }}>
+                                {h.type === 'input' ? (
+                                    <div className="text-cyan-400 font-bold">sqlite&gt; {h.text}</div>
+                                ) : (
+                                    <div className="text-slate-300 whitespace-pre-wrap pl-2">{h.text}</div>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-1.5 text-cyan-400">
+                            <span className="font-bold">sqlite&gt;</span>
+                            <input
+                                type="text"
+                                value={sqlInput}
+                                onChange={e => setSqlInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className="bg-transparent border-none outline-none text-slate-100 flex-1 font-mono p-0 m-0"
+                                placeholder={isTr ? "SQL sorgusu yazın..." : "type SQL query..."}
+                            />
+                        </div>
+                    </div>
+                    <div className="p-3 bg-slate-900 border-t border-slate-800">
+                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-bold">{isTr ? 'Hızlı SQL Sorguları' : 'Quick SQL Queries'}</div>
+                        <div className="flex flex-col gap-1">
+                            {quickCmds.map(c => (
+                                <button
+                                    key={c}
+                                    onClick={() => handleSqlCommand(c)}
+                                    className="text-[10px] font-mono px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700/50 hover:border-cyan-500/30 transition-all cursor-pointer text-left truncate"
+                                >
+                                    {c}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderSqlInteractiveTerminalVisualizer = () => {
+        return (
+            <div className="space-y-3">
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {isTr ? '📊 users Veri Tabanı Tablosu (Canlı Şema)' : '📊 users Database Table (Live Diagram)'}
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-slate-700/50">
+                    <table className="w-full text-left border-collapse text-xs font-mono">
+                        <thead>
+                            <tr className={`${darkMode ? 'bg-slate-900 text-slate-300' : 'bg-slate-100 text-slate-600'} border-b border-slate-700/50`}>
+                                <th className="p-2 border-r border-slate-700/30">id</th>
+                                <th className="p-2 border-r border-slate-700/30">name</th>
+                                <th className="p-2 border-r border-slate-700/30">role</th>
+                                <th className="p-2">status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sqlUsers.map((user) => {
+                                const isSelected = sqlSelectedIds.includes(user.id)
+                                const isRowHighlighted = sqlSelectedIds.length > 0 && isSelected
+                                return (
+                                    <tr key={user.id} className={`border-b border-slate-700/30 transition-all duration-500 ${
+                                        isRowHighlighted 
+                                            ? (darkMode ? 'bg-cyan-950/40 text-cyan-200 font-bold' : 'bg-cyan-50 text-cyan-900 font-bold') 
+                                            : (sqlSelectedIds.length > 0 ? 'opacity-40 text-slate-500' : '')
+                                    }`}>
+                                        <td className="p-2 border-r border-slate-700/30">{user.id}</td>
+                                        <td className="p-2 border-r border-slate-700/30">{user.name}</td>
+                                        <td className={`p-2 border-r border-slate-700/30 transition-all duration-1000 ${
+                                            sqlHighlightedCell && sqlHighlightedCell.id === user.id && sqlHighlightedCell.field === 'role'
+                                                ? 'bg-amber-500/30 text-amber-200 animate-pulse font-bold'
+                                                : ''
+                                        }`}>{user.role}</td>
+                                        <td className="p-2">{user.status}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className={`text-xs p-3 rounded-lg border ${darkMode ? 'border-cyan-900/30 bg-cyan-950/20 text-cyan-200' : 'border-cyan-200 bg-cyan-50 text-cyan-800'}`}>
+                    {isTr ? '💡 SELECT sorguları filtrelediğiniz satırları vurgular, INSERT yeni satır ekler, UPDATE hücreleri renklendirir.' : '💡 SELECT queries highlight matching rows, INSERT appends rows, and UPDATE highlights changed cells.'}
+                </div>
+            </div>
+        )
+    }
+
     const resetSim = () => {
         timersRef.current.forEach(t => clearTimeout(t))
         timersRef.current = []
@@ -12490,6 +13229,15 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
     // === DOM VISUALIZER (right pane) ===
     const renderDomVisualizer = () => {
+        if (block.scenario === 'linux-interactive-terminal') {
+            return renderLinuxInteractiveTerminalVisualizer()
+        }
+        if (block.scenario === 'git-interactive-terminal') {
+            return renderGitInteractiveTerminalVisualizer()
+        }
+        if (block.scenario === 'sql-interactive-terminal') {
+            return renderSqlInteractiveTerminalVisualizer()
+        }
         if (block.scenario === 'supabase-project-ui') {
             const rows = [
                 ['Project', isTr ? 'Backend için ayrı Supabase projesi açılır.' : 'Create a dedicated Supabase project for the backend.'],
@@ -15757,6 +16505,9 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                     {block.scenario === 'git-stash-flow' && renderGitStashFlowPlayground()}
                     {block.scenario === 'git-revert-vs-reset' && renderGitRevertVsResetPlayground()}
                     {block.scenario === 'linux-terminal-basics' && renderLinuxTerminalBasicsPlayground()}
+                    {block.scenario === 'linux-interactive-terminal' && renderLinuxInteractiveTerminalPlayground()}
+                    {block.scenario === 'git-interactive-terminal' && renderGitInteractiveTerminalPlayground()}
+                    {block.scenario === 'sql-interactive-terminal' && renderSqlInteractiveTerminalPlayground()}
                     {block.scenario === 'linux-permissions-lab' && renderLinuxPermissionsLabPlayground()}
                     {block.scenario === 'cypress-test-structure' && renderCypressTestStructurePlayground()}
                     {block.scenario === 'cypress-session-cache' && renderCypressSessionCachePlayground()}
