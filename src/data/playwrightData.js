@@ -3,6 +3,7 @@
 // Page Object Model, iframe/Alert, Dosya/Network, Debugging & Trace, Codegen, Playwright MCP,
 // Paralel/CI-CD, Auth & Session, Gerçek Hayat, Hatalar, 50 Mülakat
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
 const s0 = {
   tr: {
@@ -962,6 +963,7 @@ const s3 = {
         type: 'simple-box', emoji: '🔍',
         content: 'Locator, sayfada bir elementi bulmak için kullandığın "tarif"tir. "Sarı kapıdaki 3. katta mutfak" gibi — ne kadar özgün tarif edersen, yanlış yere gidilmez. Playwright\'ın önerdiği yöntem: önce role/text/testid kullan, XPath\'ı son çare bırak.',
       },
+      LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Türleri — Selenium vs Playwright' },
       {
         type: 'table',
@@ -1151,6 +1153,7 @@ def test_locators(page: Page):
         type: 'simple-box', emoji: '🔍',
         content: 'A locator is the "address" you use to find an element on the page — like "the kitchen on the 3rd floor with the yellow door." The more unique the description, the less chance of ending up in the wrong place. Playwright recommends: use role/text/testid first, leave XPath as a last resort.',
       },
+      LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Types — Selenium vs Playwright' },
       {
         type: 'table',

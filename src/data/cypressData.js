@@ -2,6 +2,7 @@
 // 11 bölüm: Nedir, Kurulum, Komutlar&Selector, Aksiyonlar&Drag-Drop, Zaman Yolculuğu,
 // Network&Intercept, Gerçek Hayat, Ekosistem, Karşılaştırma, Yaygın Hatalar, 50 Mülakat
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
 const s0 = {
   tr: {
@@ -501,6 +502,7 @@ const s2 = {
         type: 'text',
         content: 'Cypress\'te her komut cy ile başlar ve bir Promise benzeri ama "chainable" (zincirlenebilir) nesne döndürür. cy.visit() sayfaya gider, cy.get() CSS selector ile element bulur, cy.contains() ise görünür metne göre arar. Bu komutlar senkron gibi YAZILIR ama arka planda asenkron ve retry-ability\'lidir — yani await/async yazmana gerek yoktur, Cypress kuyruğu kendi yönetir.',
       },
+      LOCATOR_EXPLORER_BLOCK,
       {
         type: 'code', label: 'Temel Komutlar',
         language: 'javascript',
@@ -599,6 +601,7 @@ cy.get('[data-cy=submit]').click()
         type: 'text',
         content: "Every command in Cypress starts with cy and returns a Promise-like but \"chainable\" object. cy.visit() navigates to a page, cy.get() finds an element by CSS selector, and cy.contains() searches by visible text. These commands are WRITTEN as if synchronous but are asynchronous and retry-able under the hood — you never write await/async, Cypress manages its own queue.",
       },
+      LOCATOR_EXPLORER_BLOCK,
       {
         type: 'code', label: 'Basic Commands',
         language: 'javascript',

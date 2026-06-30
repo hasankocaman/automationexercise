@@ -16,6 +16,7 @@ import ChallengeBlock from './ChallengeBlock'
 import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
 import SecuritySimulation from './SecuritySimulations'
 import SecurityLegoVisual from './SecurityLegoVisual'
+import LocatorExplorerBlock from './LocatorExplorerBlock'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -17227,6 +17228,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                     />
                 </div>
             )
+
+        case 'locator-explorer':
+            return <LocatorExplorerBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'locator-visual':
             return <LocatorVisualBlock key={i} block={block} darkMode={darkMode} language={language} />

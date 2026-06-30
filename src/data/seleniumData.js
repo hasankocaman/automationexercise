@@ -1,6 +1,7 @@
 // seleniumData.js — Selenium WebDriver tam öğrenme sayfası
 // Java + Python + TypeScript, 10 bölüm
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
 // ─── S0: GİRİŞ ───────────────────────────────────────────────────────────────
 const s0 = {
@@ -542,6 +543,7 @@ const s2 = {
         type: 'simple-box', emoji: '🔍',
         content: 'Locator, sayfadaki bir elementi bulmak için kullandığınız "adres" gibidir. Tıpkı posta adresi gibi: "İstanbul, Kadıköy, Moda Caddesi No:5" — ne kadar spesifik olursa, o kadar doğru bulursunuz. Locator ne kadar özgün olursa, test o kadar güvenilir olur.',
       },
+      LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Türleri — Hızlı Karşılaştırma' },
       {
         type: 'table',
@@ -857,6 +859,7 @@ for (const link of links) {
         type: 'simple-box', emoji: '🔍',
         content: 'A locator is like an "address" for finding an element on the page. Just like a postal address: the more specific it is, the more accurately you find what you\'re looking for. The more unique a locator, the more reliable the test.',
       },
+      LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Types — Quick Comparison' },
       {
         type: 'table',
