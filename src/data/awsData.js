@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 export const awsData = {
   en: {
     hero: {
@@ -1734,3 +1736,5 @@ phases:
   },
 }
 
+
+fillMissingCodeTrios(awsData, 'aws')

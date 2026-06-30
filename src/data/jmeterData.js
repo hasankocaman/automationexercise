@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 export const jmeterData = {
   en: {
     hero: {
@@ -2211,3 +2213,5 @@ Thread Group:
     ],
   },
 }
+
+fillMissingCodeTrios(jmeterData, 'jmeter')

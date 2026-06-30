@@ -1,5 +1,7 @@
 // javaData.js — Java QA Öğrenme Sayfası
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 // ─── S0: GİRİŞ ────────────────────────────────────────────────────────────────
 const s0 = {
   tr: {
@@ -17373,5 +17375,7 @@ export const javaData = {
     ],
   },
 }
+
+fillMissingCodeTrios(javaData, 'java')
 
 

@@ -1,6 +1,8 @@
 // brunoData.js - Bruno API Client Learning Page
 // Git-native, offline-first API testing alternative to Postman
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const brunoArchSvg = `<svg viewBox='0 0 600 200' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
   <defs>
     <marker id='ar' markerWidth='8' markerHeight='6' refX='7' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#10b981'/></marker>
@@ -1558,3 +1560,5 @@ jobs:
     ],
   },
 }
+
+fillMissingCodeTrios(brunoData, 'bruno')

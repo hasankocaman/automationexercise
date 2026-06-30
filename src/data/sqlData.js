@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const trHero = {
   "title": "🗄️ SQL",
   "subtitle": "Sıfırdan Veritabanı Test Uzmanına",
@@ -10650,3 +10652,5 @@ export const sqlData = {
   en: { hero: enHero, tabs: enTabs, sections: finalEnSections },
   tr: { hero: trHero, tabs: trTabs, sections: finalTrSections },
 };
+
+fillMissingCodeTrios(sqlData, 'sql')

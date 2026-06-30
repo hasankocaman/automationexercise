@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -4326,3 +4328,5 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
     ],
   },
 }
+
+fillMissingCodeTrios(gitGithubData, 'git')
