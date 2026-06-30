@@ -13,6 +13,11 @@ const s0 = {
         content: 'Selenium\'u bir "robot asistan" olarak düşünün. Siz ona "şu butona tıkla, şu kutuya şunu yaz" diyorsunuz. O da gerçek bir insan gibi tarayıcıyı açıp bu işlemleri yapıyor. Tek fark: bu asistan hiç yorulmuyor, dakikada yüzlerce işlem yapıyor ve gece 3\'te bile çalışıyor.',
       },
       {
+        type: 'css-animation',
+        kind: 'selenium-flow',
+        label: { tr: 'WebDriver Komut Akışı', en: 'WebDriver Command Flow' },
+      },
+      {
         type: 'text',
         content: 'Selenium, web tarayıcılarını programatik olarak kontrol etmek için kullanılan açık kaynaklı bir test otomasyon çerçevesidir. 2004\'te Jason Huggins tarafından geliştirilmiş, bugün dünya genelinde en yaygın kullanılan web otomasyon aracıdır. Java\'da RemoteWebDriver arayüzüyle çalışır; Python ve TypeScript\'te de aynı WebDriver konseptini kullanır.',
       },
@@ -542,6 +547,11 @@ const s2 = {
       {
         type: 'simple-box', emoji: '🔍',
         content: 'Locator, sayfadaki bir elementi bulmak için kullandığınız "adres" gibidir. Tıpkı posta adresi gibi: "İstanbul, Kadıköy, Moda Caddesi No:5" — ne kadar spesifik olursa, o kadar doğru bulursunuz. Locator ne kadar özgün olursa, test o kadar güvenilir olur.',
+      },
+      {
+        type: 'css-animation',
+        kind: 'selenium-locator',
+        label: { tr: 'Locator Stratejileri Karşılaştırması', en: 'Locator Strategy Comparison' },
       },
       LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Türleri — Hızlı Karşılaştırma' },

@@ -14,6 +14,11 @@ const s0 = {
         content: 'Playwright\'ı bir oyun kumandasına benzetin. Siz düğmelere basarsınız (test kodu), kumanda (Playwright) sinyali iletir, ekrandaki oyun karakteri (tarayıcı) harekete geçer. Selenium da aynı işi yapıyor ama Playwright daha "akıllı" bir kumanda — beklemenize gerek kalmadan yüklenmeyi bekliyor.',
       },
       {
+        type: 'css-animation',
+        kind: 'playwright-autowait',
+        label: { tr: 'Auto-Wait Mekanizması', en: 'Auto-Wait Mechanism' },
+      },
+      {
         type: 'text',
         content: 'Playwright, Microsoft tarafından 2020\'de piyasaya sürülen açık kaynaklı tarayıcı otomasyon kütüphanesidir. Chromium (Chrome/Edge), Firefox ve WebKit (Safari) motorlarını TEK bir API ile kontrol eder. Java\'da Selenium WebDriver kullandıysanız, Playwright\'ı "Selenium\'un modern, daha güçlü kuzeni" olarak düşünebilirsiniz.',
       },

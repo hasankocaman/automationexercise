@@ -8,6 +8,11 @@ const sections = [
     blocks: [
       { type: 'text', content: 'Python is a high-level, interpreted programming language known for its clean, readable syntax — it reads almost like plain English. Created in 1991, it has become the world\'s most popular language for automation, data science, and web development.' },
       { type: 'text', content: 'For QA engineers, Python is the Swiss Army knife: you can write UI tests with Selenium/Playwright, API tests with requests, performance tests, data validation scripts, and CI/CD pipelines — all with the same language.' },
+      {
+        type: 'css-animation',
+        kind: 'python-flow',
+        label: { tr: 'Python Çalışma Akışı', en: 'Python Execution Flow' },
+      },
       { type: 'heading', text: 'Why Python for Test Automation?' },
       {
         type: 'grid', cols: 3,
@@ -5691,8 +5696,9 @@ const trSections = [
     blocks: {
       0: { content: "Python, temiz ve okunabilir söz dizimiyle tanınan yüksek seviyeli, yorumlanan bir programlama dilidir — neredeyse düz İngilizce gibi okunur. 1991\'de oluşturulan Python, otomasyon, veri bilimi ve web geliştirme için dünyanın en popüler dili haline gelmiştir." },
       1: { content: "QA mühendisleri için Python bir İsviçre çakısıdır: Selenium/Playwright ile UI testleri, requests ile API testleri, performans testleri, veri doğrulama scriptleri ve CI/CD pipeline\'ları — hepsini aynı dilde yazabilirsiniz." },
-      2: { text: 'Test Otomasyonu için Neden Python?' },
-      3: { items: [
+      // index 2 = css-animation (python-flow) — çeviri gerektirmez, label zaten bilingual
+      3: { text: 'Test Otomasyonu için Neden Python?' },
+      4: { items: [
         { icon: '📖', label: 'Okunabilir Söz Dizimi', desc: "Testler dokümantasyon gibi okunur — geliştirici olmayanlar bile neyin test edildiğini anlayabilir." },
         { icon: '🧰', label: 'Geniş Ekosistem', desc: 'pytest, Selenium, Playwright, requests, Faker, pandas — binlerce test kütüphanesi.' },
         { icon: '⚡', label: 'Hızlı Scripting', desc: 'Veri üretme scripti veya API testi dakikalar içinde yazılır.' },
@@ -5700,8 +5706,8 @@ const trSections = [
         { icon: '📊', label: 'Veri İşleme', desc: 'pandas, csv, json — test verilerini herhangi bir formattan okuyun.' },
         { icon: '🔄', label: 'CI/CD Uyumlu', desc: "Python scriptleri Jenkins, GitHub Actions ve Docker\'la sorunsuz çalışır." },
       ]},
-      4: { text: 'Test için Python vs Diğer Diller' },
-      5: {
+      5: { text: 'Test için Python vs Diğer Diller' },
+      6: {
         headers: ['Dil', 'Artılar', 'Eksiler', 'En İyi Kullanım'],
         rows: [
           ['Python', 'Okunabilir, hızlı yazım, geniş ekosistem', 'Derlenmiş dillerden yavaş çalışma', 'Otomasyon scriptleri, API testleri, pytest'],
@@ -5710,8 +5716,8 @@ const trSections = [
           ['C#', 'Microsoft stack, güçlü tipleme', 'Windows merkezli, daha az OSS', '.NET uygulamaları, SpecFlow, NUnit'],
         ]
       },
-      6: { text: 'Popüler Python Test Kütüphaneleri' },
-      7: {
+      7: { text: 'Popüler Python Test Kütüphaneleri' },
+      8: {
         headers: ['Kütüphane', 'Amaç', 'Kurulum Komutu'],
         rows: [
           ['pytest', 'Test runner, fixture\'lar, assertion\'lar', 'pip install pytest'],

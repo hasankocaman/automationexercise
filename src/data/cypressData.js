@@ -13,6 +13,11 @@ const s0 = {
         content: 'Cypress\'i bir film setine benzetin: yönetmen (test kodu) ve kamera (tarayıcı) AYNI odada, aynı anda çalışır — yönetmen "kes!" dediği anda her şeyi görür, geri sarıp tekrar izleyebilir. Selenium ise yönetmenin telefonla uzaktaki bir sete talimat verdiği bir çekim gibidir: talimatı gönderir, setin cevap vermesini bekler. Cypress\'in hızı ve "her şeyi gördüm" hissi buradan gelir.',
       },
       {
+        type: 'css-animation',
+        kind: 'cypress-retry',
+        label: { tr: 'Cypress Otomatik Yeniden Deneme', en: 'Cypress Retry Mechanism' },
+      },
+      {
         type: 'text',
         content: 'Cypress, 2015\'te yayınlanan, JavaScript/TypeScript ile yazılan açık kaynaklı bir uçtan uca (end-to-end) test framework\'üdür. Selenium ve Playwright\'tan en temel mimari farkı: Cypress, test kodunu tarayıcının İÇİNDE, uygulamayla AYNI run-loop\'ta çalıştırır. Bu sayede DOM\'a doğrudan erişir, ağ isteklerini gerçek zamanlı yakalar ve her komuttan sonra otomatik bir "anlık görüntü" (snapshot) alır — buna "time travel debugging" denir.',
       },

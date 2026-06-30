@@ -1188,6 +1188,11 @@ export const gitGithubData = {
             content: 'Git is like taking labeled photos of your project while you work. If something breaks, you can look at earlier photos, compare what changed, and return to a safe point. GitHub is the shared album where your team reviews, comments, runs checks, and publishes the result.',
           },
           {
+            type: 'css-animation',
+            kind: 'git-flow',
+            label: { tr: 'Git Yerel ↔ Uzak Repo Akışı', en: 'Git Local ↔ Remote Flow' },
+          },
+          {
             type: 'simulation',
             scenario: 'git-snapshot-story',
             icon: '📸',
@@ -1910,6 +1915,11 @@ export const gitGithubData = {
             type: 'simple-box',
             emoji: '🌱',
             content: 'A branch is a safe side road. First watch the road split visually, then watch the roads merge again, then practice what happens when two people edit the same place.',
+          },
+          {
+            type: 'css-animation',
+            kind: 'git-branch',
+            label: { tr: 'Git Branch & Merge Akışı', en: 'Git Branch & Merge Flow' },
           },
           {
             type: 'simulation',

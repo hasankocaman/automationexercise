@@ -386,6 +386,11 @@ export const postmanData = {
             emoji: '📱',
             content: 'Imagine you want to order food from a restaurant. You could walk in and order at the counter — that\'s like using a website. But you can also call them on the phone and place an order directly without going in person — that\'s Postman! It lets you "call" a website\'s hidden services (APIs) directly, test what they return, and verify they work correctly.',
           },
+          {
+            type: 'css-animation',
+            kind: 'postman-flow',
+            label: { tr: 'Postman İstek-Yanıt Akışı', en: 'Postman Request-Response Flow' },
+          },
           { type: 'heading', text: 'What is an API?' },
           { type: 'text', content: 'An API (Application Programming Interface) is a contract between a client (your app, browser, or test tool) and a server. It defines what requests the server accepts, what data it expects, and what it returns. Every modern application — weather apps, payment systems, social media — runs on APIs behind the scenes.' },
           {

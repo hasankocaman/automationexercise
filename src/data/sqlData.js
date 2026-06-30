@@ -78,6 +78,11 @@ const finalEnSections = [
         }
       },
       {
+        "type": "css-animation",
+        "kind": "sql-select",
+        "label": { "tr": "SQL Sorgu Yürütme Sırası", "en": "SQL Query Execution Order" }
+      },
+      {
         "type": "heading",
         "text": "What is a Database?"
       },
@@ -2048,6 +2053,11 @@ const finalEnSections = [
           "tr": "JOIN, iki listeyi ortak alana göre birleştirmek gibi. Öğrenci listesi + not listesi → öğrenci_id üzerinden birleşir. INNER JOIN sadece eşleşenleri getirir. LEFT JOIN sol tablonun tamamını korur, sağ tarafta eşleşme yoksa NULL koyar.",
           "en": "JOIN merges two lists by a common field. Student list + grade list joined on student_id. INNER JOIN returns only matching rows. LEFT JOIN keeps all rows from the left table — unmatched right side becomes NULL."
         }
+      },
+      {
+        "type": "css-animation",
+        "kind": "sql-join",
+        "label": { "tr": "SQL JOIN Görselleştirmesi", "en": "SQL JOIN Visualization" }
       },
       {
         "type": "heading",

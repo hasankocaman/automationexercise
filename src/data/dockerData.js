@@ -540,6 +540,11 @@ export const dockerData = {
             content: 'Docker is like a shipping container for software: a physical container can carry furniture, electronics, or food, and any ship, truck, or crane knows how to load it — Docker containers carry your code AND every dependency it needs, so they run identically everywhere. So why not just zip the source code and ship that? Because a Java JAR already bundles your compiled classes, but NOT the OS packages, native libraries, or environment variables your app silently depends on — Docker packages those too. That\'s exactly the gap behind the classic "works on my machine" incident, where a CI agent\'s missing system library turns a green local test suite into a red pipeline.',
           },
           {
+            type: 'css-animation',
+            kind: 'docker-build',
+            label: { tr: 'Docker Build & Run Akışı', en: 'Docker Build & Run Flow' },
+          },
+          {
             type: 'text',
             content: 'The classic developer problem: "It works on my machine!" Docker solves this. By packaging your application with its exact dependencies (Python 3.12, specific library versions, OS settings) into a container, you guarantee identical behavior everywhere the container runs.',
           },

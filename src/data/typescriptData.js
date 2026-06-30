@@ -357,6 +357,11 @@ export const typescriptData = {
             }
           },
           {
+            "type": "css-animation",
+            "kind": "ts-typecheck",
+            "label": { "tr": "TypeScript Tip Kontrolü", "en": "TypeScript Type Checking" }
+          },
+          {
             "type": "tip-box",
             "content": {
               "tr": "Neden Derleme Zamanı Kontrolü? JavaScript dinamik bir dildir; hatalar ancak kod çalışırken (runtime) ortaya çıkar. TypeScript ise kod çalışmadan önce türleri kontrol ederek olası çökmeleri önler.",
@@ -7611,6 +7616,11 @@ export const typescriptData = {
               "tr": "TypeScript, emniyet kemeri takılmış bir araba gibidir; JavaScript ise aynı arabayı kemersiz sürmektir — her ikisi de aynı hızda gidebilir, fark ancak kaza anında (çalışma zamanı hatasında) ortaya çıkar. Peki JavaScript zaten çalışıyorsa, neden fazladan bir kemer takma zahmetine girilsin? Çünkü kemer kazayı önlemez, kazanın ölümcül olmasını önler — TypeScript de hatayı engellemez, hatanın kullanıcıya ulaşmadan, derleme anında yakalanmasını sağlar; Java zaten doğuştan kemerli gelir (statik tip denetimi zorunludur), TypeScript bu kemeri sonradan JavaScript'e takan bir ek parçadır. QA'da bunun karşılığı şudur: kemersiz (plain JS) bir test paketinde bir fonksiyona yanlış tipte parametre geçtiğinizde test genelde 'geçti' der ama içeride sessizce yanlış çalışır; kemerli (TypeScript) pakette aynı hata, testi siz hiç çalıştırmadan kırmızı çizgiyle IDE'de görünür.",
               "en": "TypeScript is like a car with the seatbelt fastened; JavaScript is driving the same car without one — both can go the same speed, the difference only shows up at the moment of a crash (a runtime error). So if JavaScript already runs fine, why bother with the extra seatbelt? Because a seatbelt doesn't prevent the crash, it prevents the crash from being fatal — TypeScript doesn't prevent the bug, it makes sure the bug is caught at compile time, before it ever reaches a user; Java is born with the seatbelt already on (static type checking is mandatory), and TypeScript is the add-on part that retrofits that same belt onto JavaScript. In QA this plays out concretely: in a seatbelt-less (plain JS) test suite, passing the wrong type of argument to a function often still reports the test as 'passed' while it misbehaves silently underneath; in a TypeScript suite, the same mistake shows up as a red squiggle in the IDE before the test is ever run."
             }
+          },
+          {
+            "type": "css-animation",
+            "kind": "ts-typecheck",
+            "label": { "tr": "TypeScript Tip Kontrolü", "en": "TypeScript Type Checking" }
           },
           {
             "type": "tip-box",

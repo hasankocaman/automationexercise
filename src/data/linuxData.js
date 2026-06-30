@@ -372,6 +372,11 @@ export const linuxData = {
             content: 'Linux is like the kitchen behind a restaurant. Customers (your test scripts, browsers, apps) rarely see it directly, but almost every dish (test run, deployment, CI pipeline) is actually cooked on this kitchen\'s stove.',
           },
           {
+            type: 'css-animation',
+            kind: 'linux-pipe',
+            label: { tr: 'Linux Pipe Zinciri', en: 'Linux Pipe Chain' },
+          },
+          {
             type: 'text',
             content: 'Your laptop might run Windows or macOS, but the moment your tests move to a CI pipeline, a Docker container, or a cloud server, they almost always land on Linux. Jenkins agents, GitHub Actions runners (ubuntu-latest), Kubernetes nodes, and most Docker base images are Linux. If you can\'t read a Linux terminal, you can\'t fully debug your own test infrastructure.',
           },
