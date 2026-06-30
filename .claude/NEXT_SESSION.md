@@ -58,8 +58,27 @@ bir CI audit scripti olusturmamizi istedi.
 - REST Assured: code=23, cp=23, sa=23, ch=23, feynman=11 → ✓ COMPLETE
 - Toplam acik gap (diger sayfalar): 96 (Selenium=11, Playwright=14, Cypress=13, SQL=18, vb.)
 
+**Tamamlanan (devam / oturum sonu):**
+
+6. **`src/data/seleniumData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(seleniumData, 'selenium')`
+   - `selenium` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 49 code block, 49 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+7. **`src/data/playwrightData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(playwrightData, 'playwright')`
+   - `playwright` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 25 code block, 25 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+8. **`src/data/cypressData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(cypressData, 'cypress')`
+   - `cypress` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 23 code block, 23 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+**Commit:** `2548f4c` — `feature/feynman-audit-js-postman-restassured` branch'inde.
+
 **Dogrulama:** `npm run build` PASS (39 route SEO check, 38 static HTML shell, dist SEO PASS).
-Playwright i18n + topic-pages testleri calistirildi (sonuc bekleniyor).
+Playwright i18n + topic-pages testleri: exit code 0, PASS.
 
 **Feynman-checkpoint kalite notu:**
 - Her feynman blogu: `promptTr`, `promptEn`, `keywords` (gruplu synonym dizisi),
