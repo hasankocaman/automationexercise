@@ -10,6 +10,70 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30, macOS — Interaktif Uclu Rollout: Java/SQL/Git/Linux/JMeter/Appium/Kafka/AWS/Azure/Bruno)
+
+**Branch:** `feature/trio-devops-sql-java`, `origin/feature/feynman-audit-js-postman-restassured`
+(commit `788aab2`, Windows/Antigravity tarafindan push edildi) uzerinden turetildi.
+O branch'te `src/data/interactiveTrioFillers.js` icinde `fillMissingCodeTrios()` +
+`fillMissingFeynman()` ve `scripts/audit-interactive.mjs` (CI audit script, Bolum
+9.1/9.2'deki ucluyu sayan) zaten mevcuttu — bu oturumda SIFIRDAN yazilmadi, sadece
+kullanildi.
+
+**Yapilan:** Asagidaki 10 data dosyasinin basina `import { fillMissingCodeTrios }
+from './interactiveTrioFillers.js'` ve EN SONUNA `fillMissingCodeTrios(xData,
+'pagekey')` cagrisi eklendi — fonksiyon her `type:'code'` blogunun ardindaki
+eksik ucluyu (code-playground + step-animation + challenge/order-sort) otomatik
+olusturuyor, mevcut bloklara dokunmuyor:
+
+- `javaData.js` ('java') — ZATEN kismen doluydu (9 cp/13 sa/12 ch), fonksiyon
+  sadece eksik 6 bolumu (Installation, Common Errors, File Handling vb.) tamamladi.
+- `sqlData.js` ('sql'), `gitGithubData.js` ('git'), `linuxData.js` ('linux'),
+  `jmeterData.js` ('jmeter'), `appiumData.js` ('appium'), `kafkaData.js` ('kafka'),
+  `awsData.js` ('aws'), `azureData.js` ('azure'), `brunoData.js` ('bruno') —
+  hepsi sifirdan dolduruldu (interactiveTrioFillers.js'deki generic `'code'`
+  profili kullanildi, pageKey'e ozel profil yoktu, otomatik fallback calisti).
+
+`interactiveTrioFillers.js`'e HIC dokunulmadi (Windows tarafi orada Selenium/
+Playwright/Cypress profillerini ekliyor, cakisma riski sifir — degisen 10 dosya
+ile Windows'un degistirdigi dosyalar arasinda hic kesisim yok).
+
+**Dogrulama:**
+- `node scripts/audit-interactive.mjs java sql git linux jmeter appium kafka aws azure bruno`
+  → **10/10 sayfa ✓ complete, toplam gap: 0**.
+- `npm run build` → PASS (SEO check 39 route, Vite build, 38 static shell, dist SEO check).
+  `interactiveTrioFillers` artik ayri bir chunk (`interactiveTrioFillers-*.js`, ~17.7KB).
+- `npx playwright test tests/i18n-content-toggle.spec.ts tests/topic-pages-ui.spec.ts --reporter=dot`
+  → **49 passed + 3 flaky (retry sonrasi PASS) = 52/52**. Flaky olan 3 test
+  (`/cypress`, `/selenium`, `/playwright` sekme buton görünürlük testleri) bu
+  oturumda DOKUNULMAYAN sayfalarda — pre-existing flakiness, bu degisikliklerle
+  ilgisiz.
+
+**Sonuc:** §9.1/9.2'deki interaktif uclu rollout artik **Java, SQL, Git&GitHub,
+Linux, JMeter, Appium, Kafka, AWS, Azure, Bruno** sayfalarinda da tam (daha once
+Python/Java(kismi)/Docker/Jenkins/Kubernetes/TypeScript'te tamamlanmisti).
+JavaScript/Postman/REST Assured (Windows/Antigravity tarafi, ayni base branch'te)
+ve Selenium/Playwright/Cypress (Windows tarafinin bu oturumdaki kendi gorevi)
+durumu bu dosyada degil, kendi push'larinda raporlanacak.
+
+**Henuz interaktif ucluye sahip OLMAYAN sayfalar (bu oturum sonrasi guncel
+liste):** Selenium, Playwright, Cypress (Windows tarafi bu oturumda calisiyor
+olabilir, durumu push sonrasi netlesir), what-is-testing, manual-testing,
+algorithms, advanced-algorithms, test-frameworks.
+
+**Henuz §9.3 4-katmanli analoji standardina tasinmamis sayfalar (degismedi):**
+Selenium, Playwright, Cypress, JavaScript, SQL, Postman, REST Assured, JMeter,
+Kafka, Appium, BrowserStack, AWS, Azure, Git & GitHub, Linux, test-frameworks,
+what-is-testing, manual-testing, algorithms, advanced-algorithms. (Java/Docker/
+Jenkins/Kubernetes/TypeScript zaten yukseltilmisti; bu oturum sadece interaktif
+uclu ekledi, analoji standardina dokunmadi — bu ikisi ayri kalici hedefler,
+Bolum 9.2 ve 9.3.)
+
+**Sonraki adim:** `git push -u origin feature/trio-devops-sql-java` sonrasi PR
+acilabilir; Windows tarafinin JS/Postman/RestAssured + Selenium/Playwright/Cypress
+isi bittiginde iki branch bagimsiz merge edilebilir (hic ortak dosya yok).
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30, devam 6) — JS/Postman/REST Assured Interaktif Trio + Feynman + Audit Script
 
 ### Branch: `feature/feynman-audit-js-postman-restassured`

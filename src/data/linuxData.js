@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -2196,3 +2198,5 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
     ],
   },
 }
+
+fillMissingCodeTrios(linuxData, 'linux')

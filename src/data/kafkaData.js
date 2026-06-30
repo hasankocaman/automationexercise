@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 export const kafkaData = {
   en: {
     hero: {
@@ -2876,3 +2878,5 @@ public class KafkaConsumerConfig {
     ],
   },
 }
+
+fillMissingCodeTrios(kafkaData, 'kafka')

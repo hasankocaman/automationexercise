@@ -1,6 +1,8 @@
 // appiumData.js — Appium 3.x Mobil Test Otomasyonu
 // Her bölüm ayrı const ile tanımlanır, en altta birleştirilir.
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 // ─── SECTION 0: GİRİŞ & MİMARİ ──────────────────────────────────────────────
 const section0 = {
   tr: {
@@ -4069,3 +4071,5 @@ export const appiumData = {
   tr: buildLang('tr'),
   en: buildLang('en'),
 }
+
+fillMissingCodeTrios(appiumData, 'appium')

@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 export const azureData = {
   en: {
     hero: {
@@ -1808,3 +1810,5 @@ az storage blob generate-sas \\
   },
 }
 
+
+fillMissingCodeTrios(azureData, 'azure')
