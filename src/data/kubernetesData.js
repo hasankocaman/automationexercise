@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const kubernetesIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -1053,6 +1055,7 @@ export const kubernetesData = {
       "correct": "b",
       "explanation": "Kubernetes is specifically designed for container orchestration, meaning it handles the operational tasks of running containers, such as scaling, self-healing, and networking, across a distributed cluster."
 }
+
 },
           { type: 'heading', text: 'Why QA Engineers Need Kubernetes' },
           {
@@ -4550,3 +4553,5 @@ kubectl rollout undo deployment/spring-app`,
     ],
   },
 }
+
+fillMissingCodeTrios(kubernetesData, 'kubernetes')

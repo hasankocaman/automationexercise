@@ -10,6 +10,120 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30, devam 5) — Kod Bloklari Sonrasi Aktif Uclu Tamamlama
+
+Kullanici once hedef bes sayfada her kod blogundan sonra aktif ogrenme uclusu
+aciginin kapatilmasini istedi: Python, TypeScript, Docker, Jenkins, Kubernetes.
+Ek olarak Docker/Jenkins/Kubernetes icin gercekci lab senaryolari istendi.
+
+**Yapilan:**
+1. **Yeni ortak tamamlayici eklendi:** `src/data/interactiveTrioFillers.js`
+   - Data sayfalarindaki top-level `code` bloklarini tarar.
+   - Bir sonraki `code` bloguna kadar eksik olan ucluyu tamamlar:
+     `code-playground` (starter/solution), `step-animation`, `challenge`
+     (`variant: 'order-sort'`).
+   - Mevcut bloklari tekrar uretmez; sadece eksigi ekler.
+2. **Hedef sayfalara baglandi:**
+   - `src/data/pythonData.js`
+   - `src/data/typescriptData.js`
+   - `src/data/dockerData.js`
+   - `src/data/jenkinsData.js`
+   - `src/data/kubernetesData.js`
+3. **Gercekci lab profilleri eklendi:**
+   - Dockerfile repair / Dockerfile duzeltme
+   - Compose service ordering / Compose service siralama
+   - Docker command debug
+   - Jenkinsfile pipeline stage completion
+   - Kubernetes YAML manifest repair
+   - kubectl output diagnosis
+
+**Hedef audit sonucu:**
+- Python: `codeBlocks=50`, `fullTrioBeforeNextCode=50`, `missing=0`
+- TypeScript: `codeBlocks=35`, `fullTrioBeforeNextCode=35`, `missing=0`
+- Docker: `codeBlocks=13`, `fullTrioBeforeNextCode=13`, `missing=0`
+- Jenkins: `codeBlocks=12`, `fullTrioBeforeNextCode=12`, `missing=0`
+- Kubernetes: `codeBlocks=22`, `fullTrioBeforeNextCode=22`, `missing=0`
+
+**Dogrulama:** `npm run build` PASS. SEO check 39 route PASS, 38 static route
+HTML shell uretildi, dist SEO check 38 generated page PASS. Build sadece mevcut
+chunk-size ve Browserslist yas uyarilarini verdi; exit code 0.
+
+**Not:** Bu turda `TopicPage.jsx`, `CLAUDE.md` ve `Documents/acceptancecriterias.md`
+duzenlenmedi; onlar worktree'de onceki oturumdan gelen mevcut degisiklikler olarak
+duruyor.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-30, devam 4) — Tum Sayfalar TR Yorum Taranmasi + Kural Dokumantasyonu
+
+Kullanici tum sayfalari gözden gecirmemi, TR yorum kuralini CLAUDE.md'ye ve test
+kriterini `Documents/acceptancecriterias.md`'ye kalici olarak eklememi istedi.
+
+**Yapilan:**
+1. **`TopicPage.jsx > englishToTurkishCodeComments`'e 2 batch daha eklendi:**
+   - Batch 1 (onceki devam): ~200 Python-spesifik yorum cevirisi (degiskenler,
+     fonksiyonlar, OOP, dosya islemleri, scope, dekorator/generator, JSON, pip, regex)
+   - Batch 2 (bu devam): ~60 tum sayfalar icin gecerli genel ceviri (kurulum/dogrulama,
+     CI/CD, Docker, Appium, AWS/Azure, Git)
+2. **Script ile tum data dosyalari taranadi** (pythonData haric, 30+ dosya):
+   - 581 benzersiz cevrilmemis yorum bulundu
+   - Cogunlugu terminal ciktisi (surum numaralari, `✔` satrları) veya teknik terim —
+     bunlar kasitli olarak cevirilmedi, teknik terim olarak kalabilir
+   - Aciklamaci, cevirilebilir yorumlar icin ~60 yeni kural eklendi
+3. **CLAUDE.md §8'e 3 yeni kural eklendi:**
+   - Yeni kod blogu eklenirken zorunlu TR yorum kontrol protokolu (2 secenek:
+     bilingual {tr,en} ya da englishToTurkishCodeComments kaydı)
+   - "Terminal/program ciktisi istisna" anlasiminin net tanimi
+   - Kapsamin tum sayfalar icin gecerli oldugu (sadece Python degil) belirtildi
+4. **CLAUDE.md §11'e 1 yeni "yapma" maddesi eklendi:**
+   - Yeni blok eklerken TR yorum kontrolu yapmamak
+5. **`Documents/acceptancecriterias.md`'ye AC 10 eklendi:**
+   - TR modda kod blogu yorum dili kalitesi icin tam AC (kapsam, istisnalar,
+     teknik uygulama, Playwright test kriterleri, ilgili dosyalar)
+
+**Dogrulama:** `npm run build` PASS (38 static route). `i18n-content-toggle.spec.ts`
+28/28 PASS — yeni ceviri kurallarinin HICBIRI EN modda yanlis tetiklenmedi.
+
+**Kalan TR yorum boslugu:** ~520 terminal/program-ciktisi ve teknik-terim yorumu
+kasitli cevrilmedi (doğru). Gercek aciklamaci ama cevrilmemis yorumlar sayisi
+cok dusuk, kullanici belirli bir sayfada/sekmede bir ornek gosterirse ek ceviri
+ciftleri eklenebilir.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-30, devam 3) — Python Sayfasi TR Kod Yorum Eksikleri Tamamlandi
+
+Kullanici ekran goruntusunde Variables sekmesinde TR modda `# Multiple assignment`,
+`# Assign multiple at once`, `# Same value to multiple variables` gibi yorumlarin
+Ingilizce kaldıgını gosterdi ve python sayfasini genel olarak gozden gecirmemi istedi.
+
+**Tespit:** `localizeCodeComments` mekanizmasi calisiyordu (ornegin `# str (string)`
+→ `# str (metin)` dogru ceviriyordu) ama 549 Ingilizce kod yorumu carptirilmamis
+durumdaydi. Bunlarin buyuk cogunlugu aciklamaci Ingilizce cumle/ifadeydi (teknik
+terimler degil).
+
+**Yapilan:** `TopicPage.jsx`'teki `englishToTurkishCodeComments` dizisine ~200 yeni
+ceviri cifti eklendi — Degiskenler, Kosul&Dongu, Fonksiyon, OOP/Siniflar, Hata
+Yonetimi, Dosya Islemleri, Kapsam&Modueller, Ileri Seviye (decorator/generator),
+JSON/tarih, PIP/paketler, QA desenleri, Aritmetik, Regex kategorilerinde.
+
+**Ornek ceviriler:**
+- `# Multiple assignment` → `# Coklu atama`
+- `# Type can change (dynamic typing)` → `# Tip degisebilir (dinamik tipleme)`
+- `# ALWAYS runs — like Java finally` → `# HER ZAMAN calisir — Java finally gibi`
+- `# Generator function — simpler way to create iterators` → `# Generator fonksiyon...`
+
+**Dogrulama:** `npm run build` PASS (38 static route, SEO check gecti).
+`tests/i18n-content-toggle.spec.ts` 28/28 PASS (EN modda Turkce karakter sizintisi
+YOK — yeni ceviri kurallarinin hicbiri EN modda yanlis tetiklenmedi).
+`tests/topic-pages-ui.spec.ts` 24/24 PASS. Toplam 52/52 PASS.
+
+**Not:** Hala cevirilmemis bazi teknik-olmayan yorumlar kalabilir (toplam 549 yorumdan
+yaklaşik 200 eklendi). Kullanici belirli bir sekmeyi/yorumu gosterirsee ek ceviri
+ciftleri eklenebilir. EN modda yeni sizma YOK (28 test PASS).
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30, devam 2) — TypeScript Simple-Box Analojileri Bruno/Python Standardina Yukseltildi
 
 Kullanici TypeScript/Python/Docker/Jenkins/Kubernetes sayfalarini kullanici

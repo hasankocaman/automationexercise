@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const jenkinsIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -914,6 +916,7 @@ export const jenkinsData = {
       "correct": "b",
       "explanation": "Continuous Integration focuses on the frequent integration of code changes into a shared repository, which are then validated by an automated build and test suite to detect integration errors early."
 }
+
 },
         ],
       },
@@ -3538,3 +3541,5 @@ pipeline {
     ],
   },
 }
+
+fillMissingCodeTrios(jenkinsData, 'jenkins')

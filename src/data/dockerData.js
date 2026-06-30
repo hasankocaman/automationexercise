@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const dockerIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -979,6 +981,7 @@ docker network connect qa-network my-container`,
       "correct": "b",
       "explanation": "The '-d' flag stands for detached mode. It tells Docker to run the container in the background so that your current command-line interface is not occupied by the container's output. The other options are incorrect syntax."
 }
+
 },
         ],
       },
@@ -2967,3 +2970,5 @@ options.add_argument('--disable-dev-shm-usage')`,
     ],
   },
 }
+
+fillMissingCodeTrios(dockerData, 'docker')

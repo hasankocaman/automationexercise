@@ -96,6 +96,41 @@ Kullanıcı, ana sayfada yer alan tüm butonlara ve tıklanabilir ögelere sorun
 
 ---
 
+#### AC 10 — TR Modda Kod Bloğu Yorum Dili Kalitesi
+
+**Kapsam:** TÜM teknoloji sayfaları (Python, Selenium, Playwright, Cypress, TypeScript, Docker, Jenkins, Kubernetes, Git, Linux, SQL, Java, Postman, Bruno vb.)
+
+**Sayfa dili = Türkçe:**
+- `code` ve `editor` bloklarındaki açıklayıcı yorum satırları (`#`, `//`, `/* */`, `--`) Türkçe olmalıdır
+- **İngilizce kalabilecek istisnalar:**
+  - Yerleşik yazılım terimleri (`fixture`, `assert`, `CI/CD`, `JOIN`, `NULL`, `pipeline`, vb.)
+  - Gerçek terminal/program çıktısı satırları (versiyon numaraları, hata kodları, `✔ JAVA_HOME is set` gibi sistem çıktıları)
+  - Değişken/fonksiyon/sınıf isimleri
+
+**Sayfa dili = İngilizce:**
+- Yorum satırlarında Türkçe özel karakter (`ğ`, `ü`, `ş`, `ı`, `ö`, `ç`) bulunmamalıdır
+- Bu kural `tests/i18n-content-toggle.spec.ts` ile otomatik doğrulanır (28 test, tüm sayfalar)
+
+**Teknik uygulama:**
+- Düz string `code` blokları: `TopicPage.jsx > englishToTurkishCodeComments` dizisindeki çeviri kuralları `localizeCodeComments` mekanizmasıyla çalışma zamanında uygulanır
+- Bilingual `{tr, en}` `code` blokları: TR/EN içerik ayrı ayrı tutulur, `getLocalizedCode` doğrudan doğru versiyonu döndürür
+- Yeni yorum ifadesi eklenirken ya `englishToTurkishCodeComments`'e çeviri çifti eklenmeli ya da blok `{tr, en}` formatına dönüştürülmelidir
+
+**Test kriterleri (Playwright):**
+1. `/python` sayfası, "Variables & Types" sekmesi, TR modda:
+   - `# Multiple assignment` metni görünmemeli
+   - `# Çoklu atama` metni görünmeli
+2. `/python` sayfası, TR modda, tüm sekmelerde:
+   - Kod bloklarında `# Check type`, `# Basic function`, `# ALWAYS runs — like Java finally` gibi açıklayıcı İngilizce yorumlar görünmemeli
+3. Tüm sayfalar, EN modda:
+   - Yorum satırlarında `ğ`, `ü`, `ş`, `ı`, `ö`, `ç` karakterleri bulunmamalı (mevcut `i18n-content-toggle.spec.ts` bu kontrolü yapıyor)
+
+**Test dosyası:** `tests/i18n-content-toggle.spec.ts` (EN mod zaten kapsanıyor) + gerekirse `tests/tr-code-comments.spec.ts` (TR mod pozitif doğrulama için — opsiyonel, öncelik düşük)
+
+**İlgili CLAUDE.md bölümleri:** §8 (Türkçe yorum kuralı + yeni blok ekleme protokolü), §11 (yapma listesi)
+
+---
+
 ## ✅ Tamamlanan Geliştirmeler
 
 ### 1. Manual Testing Lab
