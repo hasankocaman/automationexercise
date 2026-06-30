@@ -280,17 +280,6 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
 // block.xpReward XP — once per exercise id, reduced 5pts per hint revealed.
 export default function CodePlaygroundBlock({ block, darkMode, language }) {
     const isTr = language === 'tr'
-    const [activePanel, setActivePanel] = useState(null)
-    const [runId, setRunId] = useState(0)
-    const [hintsUsed, setHintsUsed] = useState(0)
-    const [xp, setXp] = useState(getXP)
-    const [completed, setCompleted] = useState(getCompletedExercises)
-    const [xpPop, setXpPop] = useState(null)
-
-    useEffect(() => subscribeToXpChanges(() => {
-        setXp(getXP())
-        setCompleted(getCompletedExercises())
-    }), [])
 
     const codeText = pick(block.code, isTr)
     const expectedText = pick(block.expected, isTr)
@@ -308,6 +297,21 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
     const hasFix = Boolean(buggyCode && fixedCode)
     const hasPractice = hasExplicitPractice && Boolean(starterCode && solutionCode)
     const hasHints = Array.isArray(block.hints) && block.hints.length > 0
+
+    // Auto-open the write panel for pure practice blocks (no fix-the-bug mode).
+    // This way users see the editor immediately instead of having to click a button.
+    const [activePanel, setActivePanel] = useState(() => hasPractice && !hasFix ? 'practice' : null)
+    const [runId, setRunId] = useState(0)
+    const [hintsUsed, setHintsUsed] = useState(0)
+    const [xp, setXp] = useState(getXP)
+    const [completed, setCompleted] = useState(getCompletedExercises)
+    const [xpPop, setXpPop] = useState(null)
+
+    useEffect(() => subscribeToXpChanges(() => {
+        setXp(getXP())
+        setCompleted(getCompletedExercises())
+    }), [])
+
     const isDone = block.id ? completed.includes(block.id) : false
 
     const toggle = (panel) => setActivePanel(curr => (curr === panel ? null : panel))
