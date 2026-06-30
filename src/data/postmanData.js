@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
+
 const httpFlowSvg = `<svg viewBox='0 0 680 200' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
   <defs>
     <marker id='ag' markerWidth='8' markerHeight='6' refX='7' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#10b981'/></marker>
@@ -2782,3 +2784,74 @@ GET https://api.example.com/data
     ],
   },
 }
+
+fillMissingCodeTrios(postmanData, 'postman')
+
+// ─── Feynman checkpoints for sections that lack one ──────────────────────────
+const postmanFeynmanDefs = [
+  {
+    sectionIndex: 0,
+    promptTr: 'Postman nedir ve API testi yaparken ne işe yarar? Hiç Postman duymamış bir arkadaşına, teknik terim kullanmadan anlat.',
+    promptEn: 'What is Postman and why is it useful for API testing? Explain to a friend who has never heard of it, without jargon.',
+    keywords: [['request','istek'], ['response','yanıt','cevap'], ['api','endpoint'], ['test','doğrula'], ['ui','arayüz','gui']],
+    minScore: 3,
+    modelAnswerTr: 'Postman, bir API\'ye istek gönderip gelen yanıtı görmeni sağlayan görsel bir araçtır. Tıpkı tarayıcının web sayfasına GET isteği atması gibi, Postman da herhangi bir API\'ye GET, POST, PUT, DELETE istekleri gönderir. Yazılım testçileri Postman\'ı; API\'nin doğru veri döndürüp döndürmediğini, hata kodlarını düzgün verip vermediğini ve güvenlik kontrollerini geçip geçmediğini doğrulamak için kullanır.',
+    modelAnswerEn: 'Postman is a visual tool that lets you send requests to an API and see the response. Just like a browser sends GET requests to web pages, Postman sends GET, POST, PUT, DELETE requests to any API. QA engineers use it to verify that the API returns correct data, gives proper error codes, and passes security checks.',
+  },
+  {
+    sectionIndex: 1,
+    promptTr: 'Postman\'a ilk isteği nasıl atarsın? Adımları sırayla anlat ve "Collection" ne işe yarar?',
+    promptEn: 'How do you send your first request in Postman? Walk through the steps in order and explain what a Collection is.',
+    keywords: [['url','endpoint'], ['method','get','post'], ['send','gönder'], ['collection','koleksiyon'], ['response','yanıt']],
+    minScore: 3,
+    modelAnswerTr: 'Postman\'ı açıp yeni bir istek oluşturursun: HTTP metodunu seçersin (GET, POST...), URL\'yi girersin ve Send butonuna basarsın. Gelen yanıt; status code, body ve header olarak görünür. Collection ise birbiriyle ilgili istekleri bir klasörde toplar — tıpkı Java\'daki test sınıfları gibi. Newman ile bu collection\'ı CI/CD\'de otomatik çalıştırabilirsin.',
+    modelAnswerEn: 'You open Postman, create a new request, select the HTTP method (GET, POST...), enter the URL, and click Send. The response shows status code, body, and headers. A Collection groups related requests into a folder — like test classes in Java. With Newman you can run this collection automatically in CI/CD.',
+  },
+  {
+    sectionIndex: 3,
+    promptTr: 'Postman\'da otomatik test nasıl yazılır? pm.test() ve pm.expect() ne işe yarar? Bir login endpointi için örnek ver.',
+    promptEn: 'How do you write automated tests in Postman? What do pm.test() and pm.expect() do? Give an example for a login endpoint.',
+    keywords: [['pm.test','test'], ['pm.expect','expect'], ['status','code','durum'], ['body','json'], ['assert','doğrula']],
+    minScore: 3,
+    modelAnswerTr: 'Postman\'daki "Tests" sekmesine JavaScript kod yazarsın. pm.test() bir test durumu tanımlar — tıpkı JUnit\'teki @Test gibi. İçine pm.expect() ile assertion eklersin: pm.expect(pm.response.code).to.equal(200). Login testi için: status 200 kontrolü, body\'de token alanının varlığı ve token\'ın string olduğu doğrulanabilir.',
+    modelAnswerEn: 'You write JavaScript code in the Tests tab of Postman. pm.test() defines a test case — like @Test in JUnit. Inside you add assertions with pm.expect(): pm.expect(pm.response.code).to.equal(200). For a login test you can check: status is 200, body has a token field, and the token is a string.',
+  },
+  {
+    sectionIndex: 4,
+    promptTr: 'Postman\'ı gerçek bir projede nasıl kullanırsın? CI/CD\'ye nasıl entegre edersin? Newman nedir?',
+    promptEn: 'How do you use Postman in a real project? How do you integrate it with CI/CD? What is Newman?',
+    keywords: [['newman','cli'], ['collection','run'], ['environment','ortam'], ['ci','cd','pipeline'], ['report','raporla']],
+    minScore: 3,
+    modelAnswerTr: 'Gerçek projede collection\'ları dev/staging/prod ortam değişkenleriyle çalıştırırsın. Newman, Postman collection\'larını terminal üzerinden çalıştıran CLI aracıdır. CI/CD\'ye entegrasyon için: newman run collection.json -e env.json --reporters cli,junit komutunu Jenkins/GitHub Actions pipeline\'ına eklersin. Çıktıda her testin PASS/FAIL durumu ve detaylı rapor görünür.',
+    modelAnswerEn: 'In a real project you run collections with dev/staging/prod environment variables. Newman is the CLI tool that runs Postman collections from the terminal. For CI/CD integration: you add newman run collection.json -e env.json --reporters cli,junit to your Jenkins/GitHub Actions pipeline. The output shows each test\'s PASS/FAIL status and a detailed report.',
+  },
+  {
+    sectionIndex: 5,
+    promptTr: 'Postman ekosistemi nelerden oluşur? Mock Server, Monitor ve API Documentation ne işe yarar?',
+    promptEn: 'What does the Postman ecosystem consist of? What are Mock Server, Monitor, and API Documentation for?',
+    keywords: [['mock','sahte'], ['monitor','izle'], ['documentation','dokümantasyon'], ['team','takım'], ['newman']],
+    minScore: 3,
+    modelAnswerTr: 'Postman ekosistemi: Mock Server (backend hazır olmadan sahte yanıt döndürür), Monitor (collection\'ı zamanlı çalıştırır, uptime kontrolü yapar), API Documentation (collection\'dan otomatik dokümantasyon üretir), Team Workspace (takımla collection paylaşımı), Newman (CI/CD CLI runner). QA mühendisi olarak en çok Mock Server + Newman + Monitor üçlüsünü kullanırsın.',
+    modelAnswerEn: 'Postman ecosystem: Mock Server (returns fake responses when backend is not ready), Monitor (runs collections on a schedule for uptime checks), API Documentation (auto-generates docs from collections), Team Workspace (sharing collections with your team), Newman (CI/CD CLI runner). As a QA engineer you most often use the Mock Server + Newman + Monitor trio.',
+  },
+  {
+    sectionIndex: 6,
+    promptTr: 'Postman\'da en sık karşılaştığın hatalar neler? ECONNREFUSED veya 401 Unauthorized görünce ne yaparsın?',
+    promptEn: 'What are the most common errors in Postman? What do you do when you see ECONNREFUSED or 401 Unauthorized?',
+    keywords: [['econnrefused','bağlantı'], ['401','unauthorized','auth'], ['cors','cross'], ['timeout','zaman'], ['ssl','certificate']],
+    minScore: 3,
+    modelAnswerTr: 'ECONNREFUSED → sunucu çalışmıyor veya yanlış port, önce sunucuyu başlat. 401 Unauthorized → auth header veya token eksik/hatalı, Bearer token\'ı kontrol et. CORS hatası → bu frontend için sorun, Postman direkt API\'ye gittiğinden normalde etkilenmez. Timeout → ağ gecikmesi veya sunucu yük altında, timeout değerini artır veya stub kullan. SSL hataları → sertifika doğrulamayı geçici kapat (test ortamında).',
+    modelAnswerEn: 'ECONNREFUSED → server not running or wrong port, start the server first. 401 Unauthorized → auth header or token missing/wrong, check the Bearer token. CORS error → this is a frontend issue, Postman goes directly to the API so it is normally not affected. Timeout → network delay or server under load, increase timeout value or use a stub. SSL errors → temporarily disable certificate validation in test environments.',
+  },
+  {
+    sectionIndex: 7,
+    promptTr: 'Bir Postman mülakatında sana "Koleksiyon bazlı test stratejisi nedir?" diye sorsalar ne cevap verirsin?',
+    promptEn: 'If asked in a Postman interview "What is a collection-based testing strategy?", what would you say?',
+    keywords: [['collection','koleksiyon'], ['environment','ortam'], ['newman','cli'], ['chain','zincir'], ['ci','pipeline']],
+    minScore: 3,
+    modelAnswerTr: 'Koleksiyon bazlı test stratejisi: ilgili API isteklerini mantıksal koleksiyonlarda grupla (kullanıcı, sipariş, ödeme gibi). Her isteğin Tests sekmesine assertion ekle. Environment değişkenleriyle dev/staging/prod arası geç. İstekler arası zincir kur: login yanıtından token\'ı alıp sonraki isteğe aktar. Newman ile CI/CD\'ye entegre et. Böylece her deployment öncesinde otomatik smoke test çalışır.',
+    modelAnswerEn: 'Collection-based testing strategy: group related API requests into logical collections (users, orders, payments). Add assertions in the Tests tab of each request. Switch between dev/staging/prod with environment variables. Chain requests: grab the token from login response and pass it to the next request. Integrate with CI/CD via Newman. This way an automatic smoke test runs before every deployment.',
+  },
+]
+
+fillMissingFeynman(postmanData, postmanFeynmanDefs)

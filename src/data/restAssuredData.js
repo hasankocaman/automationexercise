@@ -1,6 +1,7 @@
 // ─── Shared bilingual sections ────────────────────────────────────────────────
 // All text fields use { tr, en } — tx() helper picks the right language.
 // Code blocks never change between languages.
+import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
 
 const sections = [
 
@@ -2530,3 +2531,101 @@ export const restAssuredData = {
   tr: { hero: trHero, tabs: trTabs, sections },
   en: { hero: enHero, tabs: enTabs, sections },
 }
+
+fillMissingCodeTrios(restAssuredData, 'restassured')
+
+// ─── Feynman checkpoints for sections missing one ────────────────────────────
+const restAssuredFeynmanDefs = [
+  {
+    sectionIndex: 0,
+    promptTr: 'REST Assured nedir ve neden Postman\'a alternatif olarak tercih edilir? Java geliştiricisi bakış açısıyla anlat.',
+    promptEn: 'What is REST Assured and why is it preferred as an alternative to Postman? Explain from a Java developer perspective.',
+    keywords: [['java','kod'], ['given','when','then'], ['junit','testng'], ['ci','pipeline'], ['assertion','doğrula']],
+    minScore: 3,
+    modelAnswerTr: 'REST Assured, Java\'da API testi yazmayı sağlayan bir kütüphanedir. Postman\'dan farkı: testlerin kaynak kodda, sürüm kontrolünde ve CI/CD pipeline\'ında yer almasını sağlar. given().when().then() zinciri, Java\'nın fluent builder desenine benzer. JUnit/TestNG ile doğrudan entegre olur; Postman\'ın Newman\'a ihtiyaç duyduğu şeyin yerini alır. Java bilen bir QA için en doğal seçimdir.',
+    modelAnswerEn: 'REST Assured is a Java library for writing API tests. Unlike Postman, tests live in source code, version control, and CI/CD pipelines. The given().when().then() chain resembles Java\'s fluent builder pattern. It integrates directly with JUnit/TestNG, replacing what Postman needs Newman for. For a Java-background QA engineer it is the most natural choice.',
+  },
+  {
+    sectionIndex: 1,
+    promptTr: 'REST Assured projesini nasıl kurarsın? Maven bağımlılıkları neler? İlk testi yazıp çalıştırmak için hangi adımları izlersin?',
+    promptEn: 'How do you set up a REST Assured project? What are the Maven dependencies? What steps do you follow to write and run your first test?',
+    keywords: [['maven','pom','dependency'], ['hamcrest','assertion'], ['junit','testng','@test'], ['basepath','baseuri'], ['import']],
+    minScore: 3,
+    modelAnswerTr: 'Maven pom.xml\'e rest-assured ve hamcrest bağımlılıklarını eklersin. Test sınıfı oluşturup @Test annotasyonu ile bir metod yazarsın. RestAssured.baseURI ile base URL\'yi ayarlarsın. given().when().get("/endpoint").then().statusCode(200) şeklinde ilk testi çalıştırırsın. JUnit runner ile mvn test komutunu kullanırsın.',
+    modelAnswerEn: 'You add rest-assured and hamcrest dependencies to Maven pom.xml. Create a test class and write a method with @Test annotation. Set the base URL with RestAssured.baseURI. Run your first test with given().when().get("/endpoint").then().statusCode(200). Use mvn test with the JUnit runner.',
+  },
+  {
+    sectionIndex: 2,
+    promptTr: 'REST Assured\'da GET, POST, PUT, DELETE istekleri nasıl gönderilir? given/when/then zincirini örnekle açıkla.',
+    promptEn: 'How do you send GET, POST, PUT, DELETE requests in REST Assured? Explain the given/when/then chain with an example.',
+    keywords: [['given','when','then'], ['get','post','put','delete'], ['body','json'], ['header','content-type'], ['response','statuscode']],
+    minScore: 3,
+    modelAnswerTr: 'given() → request yapılandırması (header, body, auth). when() → HTTP metodu ve endpoint (get(), post(), put(), delete()). then() → response doğrulaması (statusCode(), body() assertion). Örnek POST: given().contentType(JSON).body(payload).when().post("/users").then().statusCode(201).body("id", notNullValue()). Java Builder desenine çok benzediğinden Java bilenler için doğal hissettiriyor.',
+    modelAnswerEn: 'given() → request setup (header, body, auth). when() → HTTP method and endpoint (get(), post(), put(), delete()). then() → response validation (statusCode(), body() assertions). Example POST: given().contentType(JSON).body(payload).when().post("/users").then().statusCode(201).body("id", notNullValue()). It feels natural for Java developers because it resembles the Builder pattern.',
+  },
+  {
+    sectionIndex: 3,
+    promptTr: 'REST Assured\'da API kimlik doğrulama nasıl yapılır? Basic Auth, Bearer Token ve OAuth2 arasındaki fark nedir?',
+    promptEn: 'How do you handle API authentication in REST Assured? What is the difference between Basic Auth, Bearer Token, and OAuth2?',
+    keywords: [['auth','authentication','doğrulama'], ['basic','bearer','token'], ['header','authorization'], ['oauth','login'], ['session','cookie']],
+    minScore: 3,
+    modelAnswerTr: 'Basic Auth: given().auth().basic("user","pass"). Bearer Token: given().header("Authorization","Bearer "+token). OAuth2: önce token endpoint\'ine POST at, dönen token\'ı sonraki isteklerde Bearer olarak kullan. Fark: Basic Auth kullanıcı adı/parola gönderir, Bearer bir oturum token\'ı kullanır, OAuth2 ise yetkilendirme akışıyla token üretir. QA testlerinde genelde test ortamı için sabit token kullanılır.',
+    modelAnswerEn: 'Basic Auth: given().auth().basic("user","pass"). Bearer Token: given().header("Authorization","Bearer "+token). OAuth2: first POST to the token endpoint, then use the returned token as Bearer in subsequent requests. Difference: Basic Auth sends username/password, Bearer uses a session token, OAuth2 generates a token through an authorization flow. In QA tests you usually use a fixed token for test environments.',
+  },
+  {
+    sectionIndex: 4,
+    promptTr: 'REST Assured\'da POJO ve Jackson neden kullanılır? Type-safe API testi ne demektir? Örnek ver.',
+    promptEn: 'Why are POJO and Jackson used in REST Assured? What does type-safe API testing mean? Give an example.',
+    keywords: [['pojo','class','nesne'], ['jackson','objectmapper','serialize'], ['type','tip','dönüştür'], ['body','as'], ['null','npe']],
+    minScore: 3,
+    modelAnswerTr: 'POJO (Plain Old Java Object), API\'nin request/response body\'sini temsil eden Java sınıfıdır. Jackson kütüphanesi JSON ile POJO arasında dönüşüm yapar. Type-safe API testi: yanıtı string olarak işlemek yerine gerçek Java nesnesine dönüştürürsün. Örnek: .as(User.class) ile response\'u User sınıfına deserialize et, ardından assertEquals(expected.getEmail(), user.getEmail()) yap. Böylece alan adı yanlışsa derleme hatası alırsın — JSON path string\'iyle asla böyle koruma elde edemezsin.',
+    modelAnswerEn: 'POJO (Plain Old Java Object) is a Java class representing the API\'s request/response body. Jackson handles conversion between JSON and POJOs. Type-safe API testing: instead of parsing strings you deserialize the response into a real Java object. Example: .as(User.class) deserializes response to User class, then assertEquals(expected.getEmail(), user.getEmail()). If a field name is wrong you get a compile error — you never get this protection with a JSON path string.',
+  },
+  {
+    sectionIndex: 6,
+    promptTr: 'REST Assured\'da JSON Path ve Schema Validation nasıl yapılır? Neden JSON şema doğrulaması önemlidir?',
+    promptEn: 'How do you do JSON Path and Schema Validation in REST Assured? Why is JSON schema validation important?',
+    keywords: [['jsonpath','path','$.'], ['schema','şema'], ['hamcrest','matcher'], ['contract','kontrat'], ['validate','doğrula']],
+    minScore: 3,
+    modelAnswerTr: 'JSON Path: body("users[0].email", equalTo("test@example.com")) ile belirli bir alanı doğrularsın. $.users[0].email gibi path notasyonu Groovy tabanlıdır. JSON Schema Validation: API yanıtının önceden tanımlanmış şemaya uyduğunu doğrular — alan tiplerini, zorunlu alanları ve format kurallarını kontrol eder. Önemi: API kontratı değişince (alan adı değişirse veya tip bozulursa) testler anında yakaladığı için sessiz kırılmaları önler.',
+    modelAnswerEn: 'JSON Path: validate a specific field with body("users[0].email", equalTo("test@example.com")). Path notation like $.users[0].email is Groovy-based. JSON Schema Validation: verifies that the API response conforms to a predefined schema — checks field types, required fields, and format rules. Why it matters: if the API contract changes (field name changes or type breaks), tests catch it immediately and prevent silent failures.',
+  },
+  {
+    sectionIndex: 7,
+    promptTr: 'REST Assured\'da test zinciri (test chaining) nedir? Neden tek bir test içinde birden fazla istek zincirlersin?',
+    promptEn: 'What is test chaining in REST Assured? Why would you chain multiple requests in a single test?',
+    keywords: [['chain','zincir','sıra'], ['session','id','response'], ['extract','yanıt'], ['e2e','senaryo'], ['depend','bağımlı']],
+    minScore: 3,
+    modelAnswerTr: 'Test zinciri: bir API yanıtından alınan değeri (örn. kullanıcı ID veya token) sonraki isteğe parametre olarak geçirme işlemidir. Örnek: POST /login\'den token al → GET /users/{id}\'da kullan → DELETE /users/{id} ile temizle. .extract().path("token") veya .as(LoginResponse.class).getToken() ile değeri alırsın. Bunu yapmak zorunda olduğun durum: backend\'in durumlu (stateful) olduğu ve adımların birbirine bağlı olduğu gerçek E2E senaryoları.',
+    modelAnswerEn: 'Test chaining: passing a value extracted from one API response (e.g. user ID or token) as a parameter to the next request. Example: get token from POST /login → use in GET /users/{id} → clean up with DELETE /users/{id}. Extract the value with .extract().path("token") or .as(LoginResponse.class).getToken(). You need this when the backend is stateful and steps depend on each other — real E2E scenarios.',
+  },
+  {
+    sectionIndex: 8,
+    promptTr: 'REST Assured kullanırken karşılaştığın en yaygın sorunlar neler? 401, 500, SSL ve zaman aşımı hatalarını nasıl çözersin?',
+    promptEn: 'What are the most common issues when using REST Assured? How do you fix 401, 500, SSL, and timeout errors?',
+    keywords: [['401','auth','token'], ['500','server','sunucu'], ['ssl','certificate','sertifika'], ['timeout','zaman'], ['debug','log']],
+    minScore: 3,
+    modelAnswerTr: '401 → auth header veya token hatalı, önce login endpoint\'ini kontrol et. 500 → sunucu hatası, request body\'ni ve server loglarını incele. SSL hatası → test ortamında RelaxedHTTPSValidation() ekle. Timeout → Connection/Socket timeout değerlerini artır. Debug için: .log().all() ekleyerek tüm request/response detaylarını konsola yaz. NullPointerException → response body null, önce statusCode\'u doğrula.',
+    modelAnswerEn: '401 → wrong auth header or token, check the login endpoint first. 500 → server error, inspect request body and server logs. SSL error → add RelaxedHTTPSValidation() in test environment. Timeout → increase Connection/Socket timeout values. For debugging: add .log().all() to print all request/response details to console. NullPointerException → response body is null, first verify the statusCode.',
+  },
+  {
+    sectionIndex: 9,
+    promptTr: 'REST Assured, Postman ve Karate DSL arasındaki farkları özet olarak anlat. Hangi durumda hangisini seçersin?',
+    promptEn: 'Summarize the differences between REST Assured, Postman, and Karate DSL. When would you choose each?',
+    keywords: [['java','kod'], ['postman','gui','ui'], ['karate','dsl','gherkin'], ['ci','pipeline'], ['team','takım']],
+    minScore: 3,
+    modelAnswerTr: 'REST Assured: Java kod tabanlı, JUnit/TestNG entegrasyonu mükemmel, CI/CD dostu, Java bilen QA için en iyi seçim. Postman: UI tabanlı, hızlı keşif ve prototipler için ideal, Newman ile CI\'a entegre edilebilir, kod yazmayı sevmeyenler için. Karate DSL: Gherkin benzeri sözdizimi, Java bilmeden API testi yazmaya izin verir, ama bakımı zor olabilir. Seçim: Java ekibiyse REST Assured, hızlı keşif/takım iletişimiyse Postman, kod yazmak istemiyorsa Karate.',
+    modelAnswerEn: 'REST Assured: Java code-based, excellent JUnit/TestNG integration, CI/CD-friendly, best choice for Java-background QA. Postman: UI-based, ideal for quick exploration and prototypes, integrates with CI via Newman, good for those who dislike coding. Karate DSL: Gherkin-like syntax, allows writing API tests without deep Java knowledge but can be hard to maintain. Choice: REST Assured for Java teams, Postman for quick discovery/team communication, Karate for non-coders.',
+  },
+  {
+    sectionIndex: 10,
+    promptTr: 'REST Assured mülakat sorusunda "given/when/then nedir ve neden bu yapıyı kullanıyorsunuz?" deseler ne dersin?',
+    promptEn: 'In a REST Assured interview if asked "What is given/when/then and why do you use this structure?", what would you say?',
+    keywords: [['given','precondition','önceden'], ['when','action','eylem'], ['then','verify','doğrula'], ['bdd','gherkin'], ['readable','okunabilir']],
+    minScore: 3,
+    modelAnswerTr: 'given/when/then yapısı BDD (Behavior Driven Development) yaklaşımından gelir. given() → test ön koşullarını ve request yapılandırmasını kur. when() → tetikleyici eylemi gerçekleştir (HTTP isteğini gönder). then() → beklenen sonucu doğrula. Bu yapıyı kullanmamızın sebebi: testler insan tarafından okunabilir, teknik olmayan paydaşlara bile anlaşılır ve her bölüm tek bir sorumluluğa odaklanır. Java\'nın Builder deseniyle benzer mantığı taşır.',
+    modelAnswerEn: 'The given/when/then structure comes from BDD (Behavior Driven Development). given() → set up preconditions and request configuration. when() → perform the triggering action (send the HTTP request). then() → verify the expected result. We use this structure because tests are human-readable, understandable even to non-technical stakeholders, and each section focuses on a single responsibility. It mirrors the logic of Java\'s Builder pattern.',
+  },
+]
+
+fillMissingFeynman(restAssuredData, restAssuredFeynmanDefs)

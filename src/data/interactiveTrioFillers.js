@@ -53,6 +53,9 @@ function resolveProfile(pageKey, block) {
 
   if (pageKey === 'typescript') return 'typescript'
   if (pageKey === 'python') return 'python'
+  if (pageKey === 'javascript') return 'javascript'
+  if (pageKey === 'postman') return 'postman'
+  if (pageKey === 'restassured') return 'restassured'
   return 'code'
 }
 
@@ -146,6 +149,36 @@ const PROFILE_TEXT = {
     orderEn: 'What is the safe order for running Python QA code?',
     itemsTr: ['Girdi ve veri tiplerini oku', 'Kritik satiri en kucuk degisiklikle tamamla', 'Kodu calistirip beklenen ciktiyi karsilastir', 'Hata varsa traceback veya assertion mesajini oku', 'Test raporu icin sonucu tekrar kullanilabilir hale getir'],
     itemsEn: ['Read inputs and data types', 'Complete the critical line with the smallest change', 'Run the code and compare expected output', 'If it fails, read traceback or assertion message', 'Make the result reusable for a test report'],
+  },
+  javascript: {
+    tr: 'JavaScript QA kod yazma',
+    en: 'JavaScript QA coding practice',
+    taskTr: 'Bu micro lab, JavaScript snippet\'ini aktif alistirmaya cevirir: kritik satiri tamamla, async/await veya assertion mantigi uzerinden QA kaniti kur.',
+    taskEn: 'This micro-lab turns the JavaScript snippet into active practice: complete the critical line, build QA evidence through async/await or assertion logic.',
+    orderTr: 'JavaScript QA kodunu guvenli yazma ve test etme sirasi nedir?',
+    orderEn: 'What is the safe order for writing and testing JavaScript QA code?',
+    itemsTr: ['Amaci ve asenkron bagimliliklari oku', 'await / Promise zincirini dogru yere yerlestir', 'assertion veya beklenti satirini tamamla', 'Kodu calistirip console veya test ciktisini oku', 'Flaky olursa bekleme stratejisi veya retry ekle'],
+    itemsEn: ['Read the goal and async dependencies', 'Place await / Promise chain in the right spot', 'Complete the assertion or expectation line', 'Run and read console or test output', 'If flaky, add a wait strategy or retry'],
+  },
+  postman: {
+    tr: 'Postman test scripti yazma',
+    en: 'Postman test script writing',
+    taskTr: 'Bu micro lab, Postman ornegini pasif okumadan aktif alistirmaya tasir: pm.test / pm.expect satirini tamamla, response alanini dogrula ve Newman CI akisina dahil et.',
+    taskEn: 'This micro-lab moves the Postman example from passive reading to active practice: complete the pm.test / pm.expect line, verify the response field, and include it in the Newman CI flow.',
+    orderTr: 'Postman ile API test yazma ve CI\'a ekleme sirasi nedir?',
+    orderEn: 'What is the order for writing Postman API tests and adding them to CI?',
+    itemsTr: ['Request gonder ve status code\'u oku', 'pm.test ile response body alanini dogrula', 'Environment variable\'a dinamik degeri kaydet', 'Collection\'a dahil et ve Newman ile calistir', 'CI pipeline ciktisindan PASS/FAIL kanitini oku'],
+    itemsEn: ['Send the request and read the status code', 'Validate a response body field with pm.test', 'Save the dynamic value to an environment variable', 'Include in the collection and run with Newman', 'Read the PASS/FAIL evidence from CI pipeline output'],
+  },
+  restassured: {
+    tr: 'REST Assured assertion yazma',
+    en: 'REST Assured assertion writing',
+    taskTr: 'Bu micro lab, REST Assured ornegini aktif assertion alistirmasina cevirir: given/when/then zincirini tamamla, Hamcrest matcher\'ini dogru yere koy ve CI testini gec.',
+    taskEn: 'This micro-lab turns the REST Assured example into an active assertion exercise: complete the given/when/then chain, place the Hamcrest matcher correctly, and pass the CI test.',
+    orderTr: 'REST Assured ile API testi yazma ve dogrulama sirasi nedir?',
+    orderEn: 'What is the order for writing and validating a REST Assured API test?',
+    itemsTr: ['given() ile base URL ve auth\'u kur', 'when().get/post/put/delete ile istegi gonder', 'then().statusCode() ile HTTP kodunu dogrula', 'body() ve Hamcrest ile JSON alanlarini kontrol et', 'Testi JUnit/TestNG runner ve CI pipeline\'a dahil et'],
+    itemsEn: ['Set base URL and auth with given()', 'Send the request with when().get/post/put/delete', 'Validate the HTTP code with then().statusCode()', 'Check JSON fields with body() and Hamcrest matchers', 'Include the test in JUnit/TestNG runner and CI pipeline'],
   },
   code: {
     tr: 'Kod yazma',
@@ -270,6 +303,37 @@ function sectionNeedsTrioAfterCode(blocks, codeIndex) {
     step: segment.some((block) => block?.type === 'step-animation'),
     order: segment.some((block) => block?.type === 'challenge' && block.variant === 'order-sort'),
   }
+}
+
+// defs: array of { sectionIndex, promptTr, promptEn, keywords, minScore, modelAnswerTr, modelAnswerEn }
+// Adds a feynman-checkpoint block to the end of each section that is missing one.
+// Works with both shared-sections (restAssured, javascript) and separate en/tr (postman).
+export function fillMissingFeynman(data, defs) {
+  const roots = data?.en || data?.tr ? [data.en, data.tr].filter(Boolean) : [data]
+  const seenBlocks = new WeakSet()
+
+  roots.forEach((root) => {
+    const sections = root?.sections || []
+    defs.forEach(({ sectionIndex, promptTr, promptEn, keywords, minScore, modelAnswerTr, modelAnswerEn }) => {
+      const section = sections[sectionIndex]
+      if (!section) return
+      const blocks = section.blocks
+      if (!Array.isArray(blocks)) return
+      if (seenBlocks.has(blocks)) return
+      const hasFeynman = blocks.some((b) => b?.type === 'feynman-checkpoint')
+      if (hasFeynman) return
+      seenBlocks.add(blocks)
+      blocks.push({
+        type: 'feynman-checkpoint',
+        promptTr,
+        promptEn,
+        keywords,
+        minScore: minScore ?? Math.ceil(keywords.length * 0.5),
+        modelAnswerTr,
+        modelAnswerEn,
+      })
+    })
+  })
 }
 
 export function fillMissingCodeTrios(data, pageKey) {
