@@ -1,5 +1,6 @@
 // JavaScript Learning Platform Data
 // Fully bilingual structure for TopicPage renderer
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
 const sections = [
   // ─────────────────────────────────────────────
@@ -5754,3 +5755,5 @@ export const javascriptData = {
     sections: sections
   }
 };
+
+fillMissingCodeTrios(javascriptData, 'javascript')

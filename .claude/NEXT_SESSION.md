@@ -10,6 +10,84 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30, devam 6) — JS/Postman/REST Assured Interaktif Trio + Feynman + Audit Script
+
+### Branch: `feature/feynman-audit-js-postman-restassured`
+
+Kullanici JavaScript, Postman ve REST Assured sayfalarini interaktif uclu (trio) ile
+tamamlamamizi, her bolume Feynman checkpoint'i eklememizi ve tum sayfalar icin
+bir CI audit scripti olusturmamizi istedi.
+
+**Yapilan:**
+
+1. **`src/data/interactiveTrioFillers.js` — 3 yeni profil + fillMissingFeynman fonksiyonu:**
+   - `javascript` profili: async/await + QA assertion yapisi
+   - `postman` profili: pm.test/pm.expect + Newman akisi
+   - `restassured` profili: given/when/then + Hamcrest zinciri
+   - `resolveProfile()` fonksiyonuna 3 yeni `if` eklendi
+   - `fillMissingFeynman(data, defs)` export fonksiyonu eklendi — sectionIndex
+     bazinda, sadece eksik olan bolume, `seenBlocks` WeakSet ile duplicate
+     kontrollu, bilingual feynman-checkpoint bloklari ekler
+
+2. **`src/data/javascriptData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(javascriptData, 'javascript')`
+   - Sonuc: 19 sekme, 21 code block — 21 cp/sa/ch hepsi eklendi; feynman 17 (zaten vardi)
+
+3. **`src/data/postmanData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios, fillMissingFeynman }`
+   - `fillMissingCodeTrios(postmanData, 'postman')` → 14 code block, 14 cp/sa/ch
+   - `postmanFeynmanDefs` (7 section tanimi) + `fillMissingFeynman(postmanData, ...)` →
+     8 bolumun tumu feynman'a sahip (biri onceden vardi, 7 yeni eklendi)
+
+4. **`src/data/restAssuredData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios, fillMissingFeynman }`
+   - `fillMissingCodeTrios(restAssuredData, 'restassured')` → 23 code block, 23 cp/sa/ch
+   - `restAssuredFeynmanDefs` (10 section tanimi) + `fillMissingFeynman(...)` →
+     11 bolumun tumu feynman'a sahip (biri onceden vardi, 10 yeni eklendi)
+
+5. **`scripts/audit-interactive.mjs`** — yeni audit scripti:
+   - 21 sayfayi tarar: code/cp/sa/ch/feynman sayilarini section bazinda raporlar
+   - `--missing` flag: sadece gap olan sayfalari gosterir
+   - `--fail-on-missing` flag: CI gate modu (exit 1 ile biter)
+   - `node scripts/audit-interactive.mjs python postman` gibi tek sayfa da taranabilir
+   - Yeni npm scriptleri: `audit:interactive`, `audit:interactive:missing`
+
+**Audit sonuclari (bu oturum sonrasi):**
+- JavaScript: code=21, cp=21, sa=21, ch=21, feynman=17 → ✓ COMPLETE
+- Postman: code=14, cp=14, sa=14, ch=14, feynman=8 → ✓ COMPLETE
+- REST Assured: code=23, cp=23, sa=23, ch=23, feynman=11 → ✓ COMPLETE
+- Toplam acik gap (diger sayfalar): 96 (Selenium=11, Playwright=14, Cypress=13, SQL=18, vb.)
+
+**Tamamlanan (devam / oturum sonu):**
+
+6. **`src/data/seleniumData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(seleniumData, 'selenium')`
+   - `selenium` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 49 code block, 49 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+7. **`src/data/playwrightData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(playwrightData, 'playwright')`
+   - `playwright` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 25 code block, 25 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+8. **`src/data/cypressData.js`** — filler'a baglandi:
+   - `import { fillMissingCodeTrios }` + `fillMissingCodeTrios(cypressData, 'cypress')`
+   - `cypress` profili interactiveTrioFillers.js'e eklendi
+   - Sonuc: 23 code block, 23 cp/sa/ch → ✓ COMPLETE (0 gap)
+
+**Commit:** `2548f4c` — `feature/feynman-audit-js-postman-restassured` branch'inde.
+
+**Dogrulama:** `npm run build` PASS (39 route SEO check, 38 static HTML shell, dist SEO PASS).
+Playwright i18n + topic-pages testleri: exit code 0, PASS.
+
+**Feynman-checkpoint kalite notu:**
+- Her feynman blogu: `promptTr`, `promptEn`, `keywords` (gruplu synonym dizisi),
+  `minScore` (keywords.length * 0.5), `modelAnswerTr`, `modelAnswerEn`
+- REST Assured'in 10 yeni blogu ve Postman'in 7 yeni blogu her bolumun
+  konusuna ozel (given/when/then, pm.test/pm.expect, POJO/Jackson, auth stratejileri vb.)
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30, devam 5) — Kod Bloklari Sonrasi Aktif Uclu Tamamlama
 
 Kullanici once hedef bes sayfada her kod blogundan sonra aktif ogrenme uclusu
