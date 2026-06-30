@@ -11,7 +11,10 @@ function compact(value) {
 }
 
 function codeFor(block, lang) {
-  return pickLocalized(block.code, lang)
+  // Some data files use `code` (e.g. pythonData plain string),
+  // others use `content` with bilingual objects (e.g. javascriptData).
+  const source = block.code != null ? block.code : block.content
+  return pickLocalized(source, lang)
 }
 
 function makeStarterFromCode(code) {
@@ -495,7 +498,7 @@ const PROFILE_TEXT = {
     stepIcons: ['🎯', '👁️', '📝', '🏷️', '💬'],
     stepLabelsTr: ['Ne dogrulanacak?', 'Gorunurluk', 'Metin kontrol', 'Attribute kontrol', 'Fail mesajini oku'],
     stepLabelsEn: ['What to assert?', 'Visibility', 'Text check', 'Attribute check', 'Read fail message'],
-    itemsTr: ['Neyi dogrulayacagini belirle: gorunurluk / metin / CSS / attribute', '.should("be.visible") ile elementin gorunur oldugunu dogrula', '.should("contain.text", "Giris Basarili") ile metin iceriginii kontrol et', '.should("have.attr", "disabled") veya "href" ile attribute dogrula', 'Test fail ettiginde Cypress hata mesajini oku: expected X to ... but got Y'],
+    itemsTr: ['Neyi dogrulayacagini belirle: gorunurluk / metin / CSS / attribute', '.should("be.visible") ile elementin gorunur oldugunu dogrula', '.should("contain.text", "Giris Basarili") ile metin içeriğini kontrol et', '.should("have.attr", "disabled") veya "href" ile attribute dogrula', 'Test fail ettiginde Cypress hata mesajini oku: expected X to ... but got Y'],
     itemsEn: ['Determine what to assert: visibility / text / CSS / attribute', 'Verify element is visible with .should("be.visible")', 'Check text content with .should("contain.text", "Login Successful")', 'Verify attribute with .should("have.attr", "disabled") or "href"', 'When test fails, read Cypress error: expected X to ... but got Y'],
     hintsTr: ['.should("be.visible") elementin DOM\'da VE gorunur oldugunu kontrol eder — element DOM\'da ama hidden olsa dahi bu fail eder.', '.should("have.text", x) tam metin eslesimi yapar; .should("contain.text", x) kismi metin icin — icerigi tum bos bosluklar dahil eslestirir.', 'TODO satiri buyuk ihtimalle .should("be.visible") veya .should("contain.text", "...") satiridir.'],
     hintsEn: ['.should("be.visible") checks the element is in the DOM AND visible — it fails even if the element is in the DOM but hidden.', '.should("have.text", x) is an exact text match; .should("contain.text", x) is for partial text — it matches including all whitespace.', 'The TODO line is likely .should("be.visible") or .should("contain.text", "...").'],
@@ -668,393 +671,532 @@ function profileText(profile) {
 // Generates 3 hints by analyzing the ACTUAL code content of the block —
 // not the profile. Each block gets hints that describe what that specific
 // code does, not what the section is about.
-function hintsForCode(block) {
+// Generates 3 code-specific hints by looking at what the code block actually
+// contains. Scoped by pageKey so Selenium hints use Selenium Java syntax,
+// Cypress hints use Cypress syntax — no cross-framework contamination.
+function hintsForCode(block, pageKey) {
   const raw = codeFor(block, 'en') || codeFor(block, 'tr') || ''
-  const c = raw.toLowerCase() // compare lowercase
+  const c = raw.toLowerCase()
 
   const candidates = []
 
   // ── SELENIUM ────────────────────────────────────────────────────────────────
-  if (c.includes('by.id(')) candidates.push({
-    tr: 'By.ID locator kullaniyor — HTML\'deki id="..." degeri benzersiz ve sabit olmali; ayni ID iki elementte varsa test yanlis elementi bulur.',
-    en: 'Uses By.ID — the id="..." value in HTML must be unique and stable; if two elements share an ID the test finds the wrong one.',
-  })
-  if (c.includes('by.xpath(')) candidates.push({
-    tr: 'XPath ifadesini kisa tut — //tag[@attr="val"] formati, //div/ul/li/span gibi uzun zincirlere gore cok daha saglamdir.',
-    en: 'Keep XPath short — //tag[@attr="val"] is far more stable than long chains like //div/ul/li/span.',
-  })
-  if (c.includes('by.cssselector(') || c.includes('by.css(')) candidates.push({
-    tr: 'CSS selector\'u ID veya data-testid ile kisa yaz — .parent .child .grandchild gibi uzun zincirler UI yapisi degisince kirilir.',
-    en: 'Write CSS selectors short with ID or data-testid — long chains like .parent .child .grandchild break when UI structure changes.',
-  })
-  if (c.includes('sendkeys(')) candidates.push({
-    tr: 'sendKeys() oncesinde clear() cagirmazsan form alaninda onceki metin kalir ve test yanlis veriyle devam eder.',
-    en: 'Without calling clear() before sendKeys(), leftover text in the field causes the test to continue with wrong data.',
-  })
-  if (c.includes('webdriverwait') || c.includes('expectedconditions')) candidates.push({
-    tr: 'WebDriverWait(driver, Duration.ofSeconds(N)) ile maksimum N saniye bekler; kosul saglanir saglanmaz devam eder — timeout artirma, locator\'i duzelt.',
-    en: 'WebDriverWait(driver, Duration.ofSeconds(N)) waits max N seconds; it continues the moment the condition is met — do not increase the timeout, fix the locator.',
-  })
-  if (c.includes('elementtobeclickable')) candidates.push({
-    tr: 'elementToBeClickable hem gorunurlugu hem tiklanabilirligini kontrol eder — visibilityOf sadece gorunurlugu test eder; form butonlari icin elementToBeClickable kullan.',
-    en: 'elementToBeClickable checks both visibility and clickability — visibilityOf only tests visibility; use elementToBeClickable for form buttons.',
-  })
-  if (c.includes('switchto().frame') || c.includes('switchto().defaultcontent')) candidates.push({
-    tr: 'switchTo().frame() ile iframe\'e gectikten sonra isi bitince switchTo().defaultContent() ile ana icerige don — yoksa sonraki elementler "no such element" verir.',
-    en: 'After switchTo().frame(), return to main content with switchTo().defaultContent() — otherwise the next elements give "no such element".',
-  })
-  if (c.includes('switchto().alert') || c.includes('.alert()')) candidates.push({
-    tr: 'JavaScript alert icin switchTo().alert() ile alerte gec; getText() ile mesaji oku, accept() ile onayla veya dismiss() ile iptal et.',
-    en: 'For JavaScript alerts, switch with switchTo().alert(); read the message with getText(), confirm with accept() or cancel with dismiss().',
-  })
-  if (c.includes('getscreenshotas(') || c.includes('outputtype')) candidates.push({
-    tr: 'getScreenshotAs(OutputType.FILE) kullanmak icin driver\'i TakesScreenshot\'a cast et: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)',
-    en: 'To use getScreenshotAs(OutputType.FILE), cast the driver to TakesScreenshot: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)',
-  })
-  if (c.includes('actions') && (c.includes('dragand') || c.includes('movetoelement') || c.includes('build()'))) candidates.push({
-    tr: 'Actions zinciri: her adimi ekle (movetoelement, click, sendKeys vb.), en sona build().perform() ile calistir — perform olmadan hicbir hareket gerceklesmez.',
-    en: 'Actions chain: add each step (moveToElement, click, sendKeys, etc.), then execute with build().perform() at the end — without perform, nothing happens.',
-  })
-  if (c.includes('select ') && c.includes('new select(')) candidates.push({
-    tr: 'Select API\'si sadece <select> HTML elementiyle calisir; selectByVisibleText("Secenek") gorunen metne gore, selectByValue("val") value attribute\'una gore secer.',
-    en: 'Select API only works with <select> HTML elements; selectByVisibleText("Option") selects by visible text, selectByValue("val") by value attribute.',
-  })
-  if (c.includes('navigate().back()') || c.includes('navigate().forward()') || c.includes('navigate().refresh()')) candidates.push({
-    tr: 'driver.navigate().back() tarayici gecmisinde geri gider — yeni sekme veya pencere acilmissa once gecerli pencereye donmek gerekebilir.',
-    en: 'driver.navigate().back() goes back in browser history — if a new tab or window was opened, you may need to switch back to the current window first.',
-  })
-  if (c.includes('getwindowhandles') || c.includes('switchto().window')) candidates.push({
-    tr: 'getWindowHandles() tum acik pencerelerin handle set\'ini dondurur; for-each ile yeni handle\'i bul ve switchTo().window(handle) ile gec.',
-    en: 'getWindowHandles() returns a Set of all open window handles; iterate to find the new handle and switch with switchTo().window(handle).',
-  })
-  if (c.includes('remotewebdriver') || c.includes('desiredcapabilities')) candidates.push({
-    tr: 'RemoteWebDriver\'i olustururken Hub URL (http://hub:4444/wd/hub) ve DesiredCapabilities dogru olmali — yanlis URL veya capabilities Node bulunamamasina neden olur.',
-    en: 'When creating RemoteWebDriver, Hub URL (http://hub:4444/wd/hub) and DesiredCapabilities must be correct — wrong URL or capabilities means no Node is found.',
-  })
-  if (c.includes('thread.sleep(') || c.includes('implicit')) candidates.push({
-    tr: 'Thread.sleep() ve implicit wait flaky testin ana kaynagidir — bunlar yerine WebDriverWait + ExpectedConditions kullan; test 10 kat hizlanabilir.',
-    en: 'Thread.sleep() and implicit wait are the main source of flaky tests — replace them with WebDriverWait + ExpectedConditions; tests can run 10x faster.',
-  })
+  if (pageKey === 'selenium') {
+    if (c.includes('by.id(')) candidates.push({
+      tr: 'By.id("...") ile elementleri HTML id attribute\'una gore buluyorsun. id benzersiz olmali — sayfada iki elementte ayni id varsa findElement ilkini alir.',
+      en: 'By.id("...") finds elements by their HTML id attribute. id must be unique — if two elements share the same id, findElement picks the first one.',
+    })
+    if (c.includes('by.xpath(')) candidates.push({
+      tr: 'XPath ifadesini kisa tut. //tag[@attr="val"] gibi kisa form, //div/ul/li/span gibi uzun zincirden cok daha saglamdir; UI degisince uzun zincir kirilir.',
+      en: 'Keep XPath short. A form like //tag[@attr="val"] is far more stable than a long chain like //div/ul/li/span; the long chain breaks when the UI changes.',
+    })
+    if (c.includes('by.cssselector(') || c.includes('by.css(')) candidates.push({
+      tr: 'CSS selector kisa tut. "#id" veya "[data-testid=btn]" gibi tekil stabil attribute yeterli — .parent > .child gibi uzun zincir gerekirse yeniden dusun.',
+      en: 'Keep CSS selectors short. A single stable attribute like "#id" or "[data-testid=btn]" is enough — if you need a long chain like .parent > .child, reconsider.',
+    })
+    if (c.includes('sendkeys(')) candidates.push({
+      tr: 'sendKeys() metni alana yazar. Alan dolu ise onceki metin kalir ve yeni metin ardindan eklenir — once element.clear() cagirmayi unutma.',
+      en: 'sendKeys() types text into the field. If the field already has content it appends — remember to call element.clear() first.',
+    })
+    if (c.includes('webdriverwait') || c.includes('expectedconditions')) candidates.push({
+      tr: 'WebDriverWait kosul saglandigi anda devam eder, sabit beklemez. Timeout suresi fazlaysa artirma — locatoru veya sayfayi duzelt.',
+      en: 'WebDriverWait continues the moment the condition is met. If you hit a timeout, do not increase the duration — fix the locator or the page.',
+    })
+    if (c.includes('elementtobeclickable')) candidates.push({
+      tr: 'elementToBeClickable hem gorunur hem tiklanabilir olmasi gerektigini kontrol eder. visibilityOf sadece gorunurlugu test eder — aktif elementler icin elementToBeClickable kullan.',
+      en: 'elementToBeClickable checks that the element is both visible AND clickable. visibilityOf only tests visibility — use elementToBeClickable for interactive elements.',
+    })
+    if (c.includes('switchto()') && c.includes('frame')) candidates.push({
+      tr: 'switchTo().frame() ile iframe\'e girince driver baglamini degistirdin. Isi bitince switchTo().defaultContent() ile ana icerige don — yoksa sonraki findElement "no such element" verir.',
+      en: 'switchTo().frame() switches the driver context into the iframe. When done, return with switchTo().defaultContent() — otherwise the next findElement throws "no such element".',
+    })
+    if (c.includes('switchto()') && c.includes('alert')) candidates.push({
+      tr: 'JavaScript alert icin switchTo().alert() ile alerte bak; alert.getText() ile mesaji oku, accept() ile onayla, dismiss() ile kapat.',
+      en: 'For a JavaScript alert, switch with switchTo().alert(); read the message with alert.getText(), confirm with accept() or cancel with dismiss().',
+    })
+    if (c.includes('getscreenshotas') || c.includes('outputtype')) candidates.push({
+      tr: 'Screenshot icin driver\'i TakesScreenshot\'a cast et: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE). Her WebDriver bunu destekler.',
+      en: 'To take a screenshot, cast the driver: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE). Every WebDriver implementation supports this.',
+    })
+    if (c.includes('actions') && (c.includes('movetoelement') || c.includes('dragand') || c.includes('build()'))) candidates.push({
+      tr: 'Actions zincirinde her adimi builder\'a ekle, en son build().perform() ile calistir — perform() olmadan hicbir hareket gerceklesmez.',
+      en: 'In an Actions chain, add each step to the builder, then execute with build().perform() at the end — without perform() nothing happens.',
+    })
+    if (c.includes('new select(')) candidates.push({
+      tr: 'Select sinifi yalnizca HTML <select> elementi ile calisir. selectByVisibleText() gorunen metne, selectByValue() value attribute\'una gore secer.',
+      en: 'The Select class only works with an HTML <select> element. selectByVisibleText() by visible text, selectByValue() by value attribute.',
+    })
+    if (c.includes('navigate()')) candidates.push({
+      tr: 'driver.navigate().back/forward/refresh() tarayici gecmisinde hareket eder. Yeni sekme acilmissa once switchTo().window() ile dogru sekmeye gec.',
+      en: 'driver.navigate().back/forward/refresh() moves through browser history. If a new tab was opened, switch to it first with switchTo().window().',
+    })
+    if (c.includes('getwindowhandles') || (c.includes('switchto()') && c.includes('window'))) candidates.push({
+      tr: 'getWindowHandles() tum acik pencerelerin String Set\'ini dondurur. Yeni sekme sondadir — for-each ile son handle\'i al ve switchTo().window() ile gec.',
+      en: 'getWindowHandles() returns a String Set of all open window handles. The new tab is last — iterate to the last element and switch with switchTo().window().',
+    })
+    if (c.includes('thread.sleep(')) candidates.push({
+      tr: 'Thread.sleep() sabit bekler ve flaky testin kaynagindan biridir. Yerine WebDriverWait + ExpectedConditions kullan — test 10 kat hizlanabilir.',
+      en: 'Thread.sleep() blindly waits and is a main source of flaky tests. Replace with WebDriverWait + ExpectedConditions — tests can run 10x faster.',
+    })
+    if (c.includes('isdisplayed()')) candidates.push({
+      tr: 'isDisplayed() elementin gorunur olup olmadigini dondurur. DOM\'da varsa ama display:none ise false gelir. Assertion icin assertTrue(element.isDisplayed()) kullan.',
+      en: 'isDisplayed() returns whether the element is visible. In the DOM but display:none returns false. For assertion use assertTrue(element.isDisplayed()).',
+    })
+    if (c.includes('isenabled()')) candidates.push({
+      tr: 'isEnabled() elementin etkilesime acik olup olmadigini dondurur. disabled attribute olan form alani veya buton false dondurur.',
+      en: 'isEnabled() returns whether the element is interactive. A form field or button with the disabled attribute returns false.',
+    })
+    if (c.includes('getattribute(')) candidates.push({
+      tr: 'getAttribute("attr") HTML attribute degerini string olarak dondurur. Boolean attribute (disabled, checked) icin null veya "true" gelir — null, attribute yok demektir.',
+      en: 'getAttribute("attr") returns the HTML attribute value as string. For boolean attributes (disabled, checked) returns null or "true" — null means the attribute is absent.',
+    })
+    if (c.includes('gettext()') || (c.includes('.text') && !c.includes('getbytext') && !c.includes('bytext'))) candidates.push({
+      tr: 'getText() elementin gorunur metin icerigini dondurur. Input alanindaki deger icin getAttribute("value") kullan — getText() input\'ta bos string dondurur.',
+      en: 'getText() returns the visible text content. For the value inside an input field, use getAttribute("value") — getText() returns empty string for inputs.',
+    })
+    if (c.includes('remotewebdriver') || c.includes('desiredcapabilities')) candidates.push({
+      tr: 'RemoteWebDriver Grid Hub\'e baglanir. Hub URL ve DesiredCapabilities dogru olmali — yanlis olursa "no such session" hatasi gelir.',
+      en: 'RemoteWebDriver connects to the Grid Hub. Hub URL and DesiredCapabilities must be correct — otherwise you get "no such session".',
+    })
+    if (c.includes('.click()') && !c.includes('webdriverwait') && !c.includes('elementtobeclickable')) candidates.push({
+      tr: 'click() cagirmadan once WebDriverWait ile elementToBeClickable kosulunu bekle — element gorunur ama disabled olabilir, o durumda click yutulur.',
+      en: 'Before click(), wait with WebDriverWait for elementToBeClickable — the element may be visible but disabled; in that case click is silently ignored.',
+    })
+  }
 
   // ── PLAYWRIGHT ──────────────────────────────────────────────────────────────
-  if (c.includes('getbyrole(')) candidates.push({
-    tr: 'getByRole ARIA role\'unu kullanir — buton veya form etiketini CSS class veya ID degismeden bulur; en kirilmaz locator cesididir.',
-    en: 'getByRole uses the ARIA role — it finds buttons or form labels without relying on CSS class or ID; it is the most resilient locator type.',
-  })
-  if (c.includes('getbylabel(')) candidates.push({
-    tr: 'getByLabel form alanini HTML <label> ile iliskilendirir — data-testid gerekmeden semantik olarak bulur; erisim ve test ikisi icin de iyidir.',
-    en: 'getByLabel associates the form field with its HTML <label> — finds it semantically without data-testid; good for both accessibility and testing.',
-  })
-  if (c.includes('getbytext(')) candidates.push({
-    tr: 'getByText tam metin icin kesin eslesme yapar; kIsmi metin icin { exact: false } sec — ceviri veya dinamik metin varsa dikkatli kullan.',
-    en: 'getByText does exact matching by default; use { exact: false } for partial text — be careful with translated or dynamic text.',
-  })
-  if (c.includes('getbytestid(')) candidates.push({
-    tr: 'getByTestId data-testid attribute\'unu arar — en stabil locatordur, stil ve yapi degisikliklerinden etkilenmez; HTML\'e data-testid="..." eklemen gerekir.',
-    en: 'getByTestId looks for the data-testid attribute — the most stable locator, unaffected by style or structure changes; requires adding data-testid="..." to HTML.',
-  })
-  if (c.includes('tobevisible()')) candidates.push({
-    tr: 'toBeVisible() elementi DOM\'da VE gorunur halde kontrol eder — element DOM\'da ama display:none ise toBeVisible FAIL eder, toHaveText PASS edebilir; ikisini karistirma.',
-    en: 'toBeVisible() checks the element is in the DOM AND visible — if it is in the DOM but display:none, toBeVisible FAILS while toHaveText may PASS; do not mix them.',
-  })
-  if (c.includes('tohavetext(')) candidates.push({
-    tr: 'toHaveText() varsayilan olarak tam metin eslesimi yapar; { exact: false } ile kIsmi eslesmeye gec — bos bosluklar dahil eslestirir.',
-    en: 'toHaveText() does exact text matching by default; switch to partial matching with { exact: false } — it matches including all whitespace.',
-  })
-  if (c.includes('tohaveurl(')) candidates.push({
-    tr: 'toHaveURL() string veya regex kabul eder — /api\\/success/ ile URL\'nin sadece o kismi eslemesi saglanir, tam URL yazmana gerek yok.',
-    en: 'toHaveURL() accepts a string or regex — /api\\/success/ ensures only that part of the URL matches, no need to write the full URL.',
-  })
-  if (c.includes('page.route(') || c.includes('route.fulfill(')) candidates.push({
-    tr: 'page.route() glob pattern kabul eder: "**/api/**" tum /api/ isteklerini yakalar — route.fulfill() ile status, body ve headers ayri ayri belirtilebilir.',
-    en: 'page.route() accepts glob patterns: "**/api/**" catches all /api/ requests — with route.fulfill() you can set status, body, and headers separately.',
-  })
-  if (c.includes('waitforresponse(') || c.includes('waitfornavigation(')) candidates.push({
-    tr: 'waitForResponse() agi dinler ve belirli bir response geldikten sonra devam eder — API tetikleyen bir click ile birlikte Promise.all ile kullan.',
-    en: 'waitForResponse() listens to the network and continues after a specific response arrives — use with Promise.all alongside a click that triggers the API.',
-  })
-  if (c.includes('page.fill(') || c.includes('await') && c.includes('.fill(')) candidates.push({
-    tr: 'fill() once alani temizler sonra doldurur — type() karakter karakter yazar; form testlerinde fill() tercih et, klavye davranisi simule etmek icin type() kullan.',
-    en: 'fill() clears the field first then fills — type() types character by character; prefer fill() for form tests, use type() to simulate keyboard behavior.',
-  })
-  if (c.includes('beforeeach(') || c.includes('aftereach(') || c.includes('test.use(')) candidates.push({
-    tr: 'test.beforeEach her test oncesinde calisir — paylasilan kurulumu buraya koy; but fixture\'lar daha esnektir cunku scope param ile session veya worker bazli olabilir.',
-    en: 'test.beforeEach runs before each test — put shared setup here; but fixtures are more flexible because the scope param allows session or worker level.',
-  })
-  if (c.includes('browser.newcontext(') || c.includes('context.newpage(')) candidates.push({
-    tr: 'Her BrowserContext kendi cookie/session izolasyonunu saglar — farkli kullanici rolleri icin her role ayri context olustur, tek page paylasma.',
-    en: 'Each BrowserContext has its own cookie/session isolation — create a separate context for each user role; do not share a single page across roles.',
-  })
+  if (pageKey === 'playwright') {
+    if (c.includes('getbyrole(')) candidates.push({
+      tr: 'getByRole() elementin ARIA rolunu kullanir. Buton label\'i veya CSS class degisse bile calisir cunku semantik katmana bakar, gorunum katmanina degil.',
+      en: 'getByRole() uses the element ARIA role. It keeps working even if the button label or CSS class changes because it reads the semantic layer, not the visual layer.',
+    })
+    if (c.includes('getbylabel(')) candidates.push({
+      tr: 'getByLabel() form alanini HTML <label> ile iliskilendirir. data-testid gerekmeden semantik olarak bulur — erisebilirlik ve test icin iyi pratik.',
+      en: 'getByLabel() associates the field with its HTML <label>. Finds it semantically without data-testid — good practice for both accessibility and testing.',
+    })
+    if (c.includes('getbytext(')) candidates.push({
+      tr: 'getByText() varsayilan tam metin eslesmesi yapar. Kismi metin icin { exact: false } sec. Dinamik veya cevrilmis metin varsa dikkatli kullan.',
+      en: 'getByText() does exact text matching by default. Use { exact: false } for partial text. Be careful with dynamic or translated text.',
+    })
+    if (c.includes('getbytestid(')) candidates.push({
+      tr: 'getByTestId() data-testid attribute\'unu arar. Stil ve yapi degisikliklerinden etkilenmez — ama HTML\'e data-testid="..." eklemen gerekir.',
+      en: 'getByTestId() looks for the data-testid attribute. Unaffected by style or structure changes — but requires adding data-testid="..." to HTML.',
+    })
+    if (c.includes('.filter(')) candidates.push({
+      tr: 'Locator birden fazla element donduruyorsa .filter({ hasText: "..." }) veya .first() / .nth(N) ile daralt — yoksa Playwright hangi elementi kullanacagini bilemez.',
+      en: 'If a locator returns multiple elements, narrow it with .filter({ hasText: "..." }) or .first() / .nth(N) — otherwise Playwright does not know which element to use.',
+    })
+    if (c.includes('tobevisible()')) candidates.push({
+      tr: 'toBeVisible() elementi DOM\'da ve gorunur halde kontrol eder. display:none ise toBeVisible FAIL eder ama toHaveText PASS edebilir — ikisini karistirma.',
+      en: 'toBeVisible() checks the element is in the DOM AND visible. If display:none, toBeVisible FAILS but toHaveText may PASS — do not mix them.',
+    })
+    if (c.includes('tohavetext(')) candidates.push({
+      tr: 'toHaveText() varsayilan tam eslesme; { exact: false } ile kismi eslesmeye gec. Bos bosluklar dahil eslestirir.',
+      en: 'toHaveText() does exact matching by default; use { exact: false } for partial matching. It matches including all whitespace.',
+    })
+    if (c.includes('tohaveurl(')) candidates.push({
+      tr: 'toHaveURL() string veya regex kabul eder. /dashboard/ gibi regex ile URL\'nin sadece o kisminin icerdigi dogrulanabilir.',
+      en: 'toHaveURL() accepts a string or regex. A regex like /dashboard/ verifies only that part of the URL — no need to write the full URL.',
+    })
+    if (c.includes('page.route(')) candidates.push({
+      tr: 'page.route() glob pattern kabul eder. "**/api/**" tum /api/ isteklerini, "**/users*" sadece /users ile baslayan istekleri yakalar.',
+      en: 'page.route() accepts glob patterns. "**/api/**" catches all /api/ requests, "**/users*" catches only requests starting with /users.',
+    })
+    if (c.includes('route.fulfill(')) candidates.push({
+      tr: 'route.fulfill({ status, body, headers }) ile tam kontrollu sahte yanit dondur. 500 senaryosu icin { status: 500, body: "error" } ver.',
+      en: 'Return a controlled fake response with route.fulfill({ status, body, headers }). For a 500 scenario pass { status: 500, body: "error" }.',
+    })
+    if (c.includes('waitforresponse(')) candidates.push({
+      tr: 'waitForResponse() bir click ile Promise.all\'da kullan: const [res] = await Promise.all([page.waitForResponse("**/api"), page.click("btn")]). Boylece race condition olmaz.',
+      en: 'Use waitForResponse() with Promise.all alongside a click: const [res] = await Promise.all([page.waitForResponse("**/api"), page.click("btn")]). This avoids race conditions.',
+    })
+    if (c.includes('.fill(')) candidates.push({
+      tr: 'fill() once alani temizler sonra doldurur. type() karakter karakter simule eder. Form doldurmada fill() daha hizli ve guvenilir.',
+      en: 'fill() clears the field first then writes the value. type() simulates typing character by character. For form filling, fill() is faster and more reliable.',
+    })
+    if (c.includes('.click(')) candidates.push({
+      tr: 'Playwright click() zaten actionable olana kadar bekler — element disabled veya gorunmez ise otomatik bekler. Ayri wait kodu yazmana gerek yok.',
+      en: 'Playwright click() already waits until the element is actionable — if disabled or not visible it waits automatically. No separate wait code needed.',
+    })
+    if (c.includes('beforeeach(') || c.includes('test.use(')) candidates.push({
+      tr: 'test.beforeEach her test oncesinde calisir. Fixture daha esnektir: scope="worker" ile login gibi pahalı islemleri worker basina bir kez yapabilirsin.',
+      en: 'test.beforeEach runs before each test. Fixtures are more flexible: with scope="worker" you can do expensive operations like login once per worker.',
+    })
+    if (c.includes('newcontext(') || c.includes('context.newpage(')) candidates.push({
+      tr: 'Her BrowserContext kendi cookie ve session izolasyonunu saglar. Farkli kullanici rolleri icin ayri context olustur, tek page paylasma.',
+      en: 'Each BrowserContext has its own cookie and session isolation. For different user roles create a separate context per role, do not share a single page.',
+    })
+  }
 
   // ── CYPRESS ─────────────────────────────────────────────────────────────────
-  if (c.includes('cy.get(')) candidates.push({
-    tr: 'cy.get() otomatik retry yapar — 4 saniye icinde element DOM\'a eklenene kadar tekrar dener; ayri bekleme kodu yazmana gerek yok.',
-    en: 'cy.get() auto-retries — it keeps trying until the element appears in the DOM within 4 seconds; no need to write separate wait code.',
-  })
-  if (c.includes('[data-cy=') || c.includes('[data-testid=')) candidates.push({
-    tr: 'data-cy/data-testid attribute test icin ozel tasarlanmistir — production\'a etki etmez, CSS ve yapi degisikliklerinden bagimsiz, en stabil locator.',
-    en: 'data-cy/data-testid attribute is designed specifically for testing — it does not affect production, independent of CSS and structure changes, the most stable locator.',
-  })
-  if (c.includes('cy.contains(')) candidates.push({
-    tr: 'cy.contains("metin") DOM\'da o metni iceren ilk elementi bulur — cy.get() ile zincirlenirse sadece o container icinde arar.',
-    en: 'cy.contains("text") finds the first element containing that text in the DOM — when chained with cy.get(), it searches only inside that container.',
-  })
-  if (c.includes('.should') && c.includes('be.visible')) candidates.push({
-    tr: '.should("be.visible") elementin DOM\'da VE gorunur oldugunu dogrular — visibility:hidden veya display:none olan element fail eder.',
-    en: '.should("be.visible") verifies the element is in the DOM AND visible — an element with visibility:hidden or display:none fails this assertion.',
-  })
-  if (c.includes('.should') && c.includes('contain')) candidates.push({
-    tr: '.should("have.text", x) tam metin, .should("contain.text", x) kIsmi metin icin — bos bosluklar dahil eslestirir; dinamik metinlerde contain kullan.',
-    en: '.should("have.text", x) exact text, .should("contain.text", x) partial text — matches including whitespace; use contain for dynamic text.',
-  })
-  if (c.includes('cy.intercept(')) candidates.push({
-    tr: 'cy.intercept() tanimini cy.visit()\'ten ONCE yap — istek visit ile tetiklenir; sonradan tanimlarsaN istek zaten geçmis ve yakalayamazsin.',
-    en: 'Define cy.intercept() BEFORE cy.visit() — the request is triggered by the visit; if you define it after, the request has already passed and cannot be captured.',
-  })
-  if (c.includes('cy.wait(') && c.includes('@')) candidates.push({
-    tr: 'cy.wait("@alias") intercept ateslenene kadar test bekler — response gelmeden assertion yaparsan yanlis PASS veya undefined alirsin.',
-    en: 'cy.wait("@alias") holds the test until the intercept fires — asserting before the response arrives gives a wrong PASS or undefined.',
-  })
-  if (c.includes('cy.fixture(')) candidates.push({
-    tr: 'cy.fixture("dosya.json") fixtures/ klasorunundeki JSON\'u yukler — { fixture: "dosya.json" } ile intercept\'e direk verebilirsin, manuel parse gerekmez.',
-    en: 'cy.fixture("file.json") loads JSON from the fixtures/ folder — you can pass { fixture: "file.json" } directly to intercept, no manual parsing needed.',
-  })
-  if (c.includes('.type(')) candidates.push({
-    tr: '.type() oncesinde .clear() kullanmayi unutma — onceki metin kalirsa test belirsiz PASS veya yanlis veriyle devam eder.',
-    en: 'Do not forget .clear() before .type() — leftover text causes an ambiguous PASS or the test continues with wrong data.',
-  })
-  if (c.includes('.click()')) candidates.push({
-    tr: '.click() cagirmadan once elementin gorunur ve etkilesime acik oldugunu kontrol et — .should("be.visible").click() zinciri bunu saglar.',
-    en: 'Verify the element is visible and interactive before .click() — chaining .should("be.visible").click() ensures this.',
-  })
+  if (pageKey === 'cypress') {
+    if (c.includes('cy.get(') || c.includes('cy.find(')) candidates.push({
+      tr: 'cy.get() her denemede DOM\'u yeniden sorgular ve 4 saniyeye kadar retry yapar. Element gecikmeyle yukleniyor olsa bile ayri bekleme kodu yazmana gerek yok.',
+      en: 'cy.get() re-queries the DOM on every attempt and retries for up to 4 seconds. Even if the element loads with a delay, no separate wait code is needed.',
+    })
+    if (c.includes('[data-cy=') || c.includes('[data-testid=')) candidates.push({
+      tr: 'data-cy/data-testid attribute test icin ayri tutulur. CSS sinifi veya metin degisse bile bu attribute kalir — production\'u etkilemez.',
+      en: 'data-cy/data-testid attribute is reserved for testing. Even if CSS class or text changes this attribute stays — it does not affect production.',
+    })
+    if (c.includes('cy.contains(')) candidates.push({
+      tr: 'cy.contains("metin") DOM\'da o metni iceren ilk elementi arar. cy.get(".list").contains("Item") ile kombinlince sadece .list icinde arar.',
+      en: 'cy.contains("text") searches for the first element containing that text. Combined as cy.get(".list").contains("Item") it only searches inside .list.',
+    })
+    if (c.includes('.should') && c.includes('be.visible')) candidates.push({
+      tr: '.should("be.visible") Cypress\'in retry ile dogruladigi assertion. Element DOM\'da var ama display:none ise fail eder — visibility:hidden da fail eder.',
+      en: '.should("be.visible") is a Cypress assertion that retries. If the element is in the DOM but display:none or visibility:hidden this assertion fails.',
+    })
+    if (c.includes('.should') && (c.includes('have.text') || c.includes('contain.text'))) candidates.push({
+      tr: '.should("have.text", x) tam metin, .should("contain.text", x) kismi metin icin. Dinamik veya fazla bosluklu metin icin contain daha guvenli.',
+      en: '.should("have.text", x) is exact text, .should("contain.text", x) is partial. For dynamic or whitespace-heavy text, contain is safer.',
+    })
+    if (c.includes('cy.intercept(')) candidates.push({
+      tr: 'cy.intercept() tanimini cy.visit() veya aksiyondan ONCE yap. Intercept kurulmadan request atilirsa artik yakalanamaz — siralama kritiktir.',
+      en: 'Define cy.intercept() BEFORE cy.visit() or the triggering action. If the request fires before the intercept is set, it cannot be captured — order is critical.',
+    })
+    if (c.includes('cy.wait(') && c.includes('@')) candidates.push({
+      tr: 'cy.wait("@alias") intercept ateslenene kadar testi bekletir. Response gelmeden assertion yapilirsa undefined veya eski veriyle karsilasabilirsin.',
+      en: 'cy.wait("@alias") holds the test until the intercept fires. Asserting before the response arrives may give undefined or stale data.',
+    })
+    if (c.includes('cy.fixture(')) candidates.push({
+      tr: 'cy.fixture("dosya.json") fixtures/ klasorunundeki JSON\'u yukler. cy.intercept(..., { fixture: "dosya.json" }) ile direk kullanabilirsin.',
+      en: 'cy.fixture("file.json") loads JSON from the fixtures/ folder. Use it directly as cy.intercept(..., { fixture: "file.json" }), no separate parsing needed.',
+    })
+    if (c.includes('.type(')) candidates.push({
+      tr: '.type() yazmadan once alan dolu olabilir. Once .clear() ile temizle, sonra .type() — yoksa eski metin kalir ve test yanlis veri girebilir.',
+      en: 'Before .type() the field might already have content. Clear it first with .clear(), then .type() — otherwise old text stays and the test may enter wrong data.',
+    })
+    if (c.includes('.click()')) candidates.push({
+      tr: '.click() otomatik retry yapar. Element gizli veya disabled ise fail eder. Gerekirse once .should("be.visible") ile gorundugunu dogrula, sonra click yap.',
+      en: 'Cypress .click() auto-retries. If the element is hidden or disabled the click fails. If needed, first assert with .should("be.visible"), then click.',
+    })
+    if (c.includes('cy.request(')) candidates.push({
+      tr: 'cy.request() dogrudan HTTP istegi gonderir, tarayici uzerinden gitmez. API testleri veya auth token almak icin kullanilir.',
+      en: 'cy.request() sends an HTTP request directly, bypassing the browser. Use it for API tests or getting an auth token.',
+    })
+  }
 
   // ── SQL ──────────────────────────────────────────────────────────────────────
-  if (c.includes('select ') && !c.includes('insert') && !c.includes('update') && !c.includes('delete')) {
-    if (c.includes('select *')) candidates.push({
-      tr: 'SELECT * yerine acik sutun listesi yaz — gereksiz sutun cekilmez, performans artar ve query amaci okunabilir olur.',
-      en: 'Write an explicit column list instead of SELECT * — no unnecessary columns fetched, better performance and readable query intent.',
+  if (pageKey === 'sql') {
+    // SQLite CLI dot-commands — önce kontrol et, yorum içindeki "CREATE TABLE" metnini tetiklememek için
+    const isSqliteCli = c.includes('sqlite3 ') || (c.includes('.tables') && c.includes('.quit')) || c.includes('.schema ') || c.includes('.headers on') || c.includes('.mode column')
+    if (isSqliteCli) {
+      candidates.push({
+        tr: 'sqlite3 komutundan sonra veritabanı adını yaz (sqlite3 mytest.db). Dosya yoksa sıfırdan oluşturur; varsa açar. `.quit` ile çıkana kadar bağlantı açık kalır.',
+        en: 'Write the database name after sqlite3 (sqlite3 mytest.db). If the file does not exist it is created; if it does, it is opened. The connection stays open until you type `.quit`.',
+      })
+      candidates.push({
+        tr: '`.tables` tüm tabloları listeler, `.schema tablo_adı` o tablonun CREATE TABLE ifadesini gösterir. `.headers on` ve `.mode column` birlikte çıktıyı sütun hizalı ve başlıklı yapar.',
+        en: '`.tables` lists all tables, `.schema tablename` shows that table\'s CREATE TABLE statement. `.headers on` and `.mode column` together make output column-aligned with headers.',
+      })
+      candidates.push({
+        tr: '`SELECT sqlite_version()` bağlantının gerçekten çalıştığını doğrular. Kurulum sorunlarını debug ederken ilk yazman gereken komuttur.',
+        en: '`SELECT sqlite_version()` verifies the connection is truly working. It\'s the first command to write when debugging installation issues.',
+      })
+    }
+    if (!isSqliteCli && c.includes('select *')) candidates.push({
+      tr: 'SELECT * tum sutunlari ceker. Buyuk tablolarda gereksiz veri tasir. Hangi sutunlara ihtiyacin var, sadece onlari yaz.',
+      en: 'SELECT * fetches all columns. On large tables this transfers unnecessary data. Write only the columns you actually need.',
     })
-    if (c.includes('where ')) candidates.push({
-      tr: 'WHERE yurutme sirasinda FROM\'dan hemen sonra calisir — SELECT\'ten oncedir; alias\'lara where icinde erisemezsin.',
-      en: 'WHERE runs immediately after FROM in execution order — it comes before SELECT; you cannot access aliases inside WHERE.',
+    if (!isSqliteCli && c.includes('where ') && (c.includes('update ') || c.includes('delete '))) candidates.push({
+      tr: 'WHERE olmadan UPDATE veya DELETE tum tabloyu etkiler. Once SELECT ile kac satir etkilenecegini gor, sonra yap.',
+      en: 'UPDATE or DELETE without WHERE affects the entire table. First run a SELECT to see how many rows are affected, then make the change.',
     })
-    if (c.includes('order by')) candidates.push({
-      tr: 'ORDER BY olmadan SQL satirlarin dondurme sirasi tanimsizdır — ciktinin hep ayni sira gelecegini varsayma, production\'da farkli gelebilir.',
-      en: 'Without ORDER BY, the row return order in SQL is undefined — do not assume it will always be the same order; production may return differently.',
+    if (!isSqliteCli && c.includes('where ') && c.includes('select ') && !c.includes('update') && !c.includes('delete')) candidates.push({
+      tr: 'WHERE yurutme sirasinda FROM\'dan hemen sonra calisir. SELECT\'te kullandigin alias\'lara WHERE icinde erisemezsin — alias henuz tanimlanmamistir.',
+      en: 'WHERE runs immediately after FROM in execution order. You cannot access SELECT aliases inside WHERE — the alias is not defined yet at that point.',
     })
-    if (c.includes('limit ')) candidates.push({
-      tr: 'LIMIT sonuc sayisini kisitlar ama OFFSET ile birlikte sayfalama yapar: LIMIT 10 OFFSET 20 dorduncu sayfayi dondurur.',
-      en: 'LIMIT restricts the result count but with OFFSET enables pagination: LIMIT 10 OFFSET 20 returns the fourth page.',
+    if (!isSqliteCli && c.includes('join ') && !c.includes(' on ')) candidates.push({
+      tr: 'JOIN ifadesinde ON kosulunu yazmayi unutursan kartezyen carpim olusur: 1000 satir x 1000 satir = 1.000.000 satir. ON her zaman olmali.',
+      en: 'Forgetting the ON condition in a JOIN creates a Cartesian product: 1000 rows x 1000 rows = 1,000,000 rows. ON must always be present.',
+    })
+    if (!isSqliteCli && c.includes('left join')) candidates.push({
+      tr: 'LEFT JOIN soldaki tum satirlari, sagdaki tablodan eslesenleri dondurur. Eslesme yoksa sagdaki sutunlar NULL gelir — IS NULL ile filtreleyebilirsin.',
+      en: 'LEFT JOIN returns all rows from the left and matched rows from the right. When there is no match, right table columns come as NULL — filter with IS NULL.',
+    })
+    if (!isSqliteCli && c.includes('inner join')) candidates.push({
+      tr: 'INNER JOIN sadece her iki tabloda da eslesen satirlari dondurur. Sadece bir tarafta olan kayit sonuca dahil edilmez.',
+      en: 'INNER JOIN only returns rows that match in both tables. A record that exists only on one side is excluded from results.',
+    })
+    if (!isSqliteCli && c.includes('insert into')) candidates.push({
+      tr: 'INSERT INTO\'da sutun listesi yaz: INSERT INTO tablo (s1, s2) VALUES (...). Listeyi atlarsan tablo yeni sutun alinca degerler yanlis sutuna gidebilir.',
+      en: 'Write the column list in INSERT INTO: INSERT INTO table (c1, c2) VALUES (...). Skip it and adding a new column may send values to the wrong column.',
+    })
+    if (!isSqliteCli && c.includes('group by')) candidates.push({
+      tr: 'HAVING GROUP BY SONRASINDA filtreler. WHERE satirlari filtreler, HAVING grupları filtreler. Bir grubun min/max/sum degerine gore filtre icin HAVING kullan.',
+      en: 'HAVING filters AFTER GROUP BY. WHERE filters rows, HAVING filters groups. Use HAVING to filter by a group min/max/sum value.',
+    })
+    if (!isSqliteCli && (c.includes('over(') || c.includes('over ('))) candidates.push({
+      tr: 'Window fonksiyonu OVER() satirlari cokmez — her satir hesabini alinirken liste korunur. SUM(fiyat) OVER (PARTITION BY kategori) her satira kategorinin toplaminı yazar.',
+      en: 'Window function with OVER() does not collapse rows — each row gets its own calculation while the list is preserved. SUM(price) OVER (PARTITION BY category) writes the category total on every row.',
+    })
+    if (!isSqliteCli && c.includes('with ') && c.includes(' as (')) candidates.push({
+      tr: 'CTE (WITH x AS ...) karmasik sorguyu adli bloklara boler. Tekrar kullanman gerekecek alt sorguyu CTE\'ye al — ic ice zincirden cok daha okunabilir.',
+      en: 'CTE (WITH x AS ...) breaks a complex query into named blocks. Move a reused subquery into a CTE — far more readable than nested subquery chains.',
+    })
+    // Yalnızca gerçek CREATE TABLE ifadesi varsa tetikle (yorum içindeki "CREATE TABLE" metnini es geç)
+    if (!isSqliteCli && c.includes('create table') && c.includes('(')) candidates.push({
+      tr: 'PRIMARY KEY otomatik NOT NULL icerir. FOREIGN KEY taniminda ON DELETE CASCADE veya SET NULL davranisini sec.',
+      en: 'PRIMARY KEY includes NOT NULL automatically. In FOREIGN KEY, choose ON DELETE CASCADE or SET NULL behavior.',
+    })
+    if (!isSqliteCli && c.includes('order by')) candidates.push({
+      tr: 'ORDER BY olmadan sonuc sirasi belirsizdir. Deterministik siralama icin ORDER BY her zaman yaz.',
+      en: 'Without ORDER BY the result order is undefined. Always write ORDER BY for deterministic sorting.',
     })
   }
-  if (c.includes('join ')) {
-    candidates.push({
-      tr: 'ON kosulunu mutlaka yaz — kosulsuz JOIN kartezyen carpim uretir: 1000 satir x 1000 satir = 1.000.000 satir yanlis sonuc.',
-      en: 'Always write the ON condition — a JOIN without ON produces a Cartesian product: 1000 rows × 1000 rows = 1,000,000 wrong result rows.',
-    })
-    if (c.includes('left join')) candidates.push({
-      tr: 'LEFT JOIN\'de eslesme olmayan sagdaki satirlar NULL olarak gelir — eslesmeyen kayitlari bulmak icin WHERE sag_tablo.id IS NULL ile kullan.',
-      en: 'In a LEFT JOIN, unmatched rows from the right side come as NULL — to find records without a match, use WHERE right_table.id IS NULL.',
-    })
-    if (c.includes('inner join')) candidates.push({
-      tr: 'INNER JOIN sadece her iki tabloda da eslesen satIrlari dondurur — iki taraftan birinde kayit yoksa o satir sonuca dahil edilmez.',
-      en: 'INNER JOIN only returns rows that match in both tables — if a record is missing from either side, that row is excluded from results.',
-    })
-  }
-  if (c.includes('insert into')) candidates.push({
-    tr: 'Sutun listesini her zaman yaz: INSERT INTO tablo (sutun1, sutun2) VALUES (...) — listeyi atlarsan tablo yeni sutun alinca degerler yanlis sutuna gidebilir.',
-    en: 'Always write the column list: INSERT INTO table (col1, col2) VALUES (...) — skip it and values may go to the wrong column when the table gets a new column.',
-  })
-  if (c.includes('on conflict')) candidates.push({
-    tr: 'ON CONFLICT DO NOTHING ayni primary key ikinci kez eklenmeye calisilinca hatanin sessizce yutulmasini saglar — idempotent veri yuklemelerinde kullan.',
-    en: 'ON CONFLICT DO NOTHING silently absorbs a duplicate primary key insertion — use for idempotent data loads.',
-  })
-  if (c.includes('update ') && c.includes('set ')) candidates.push({
-    tr: 'UPDATE\'i her zaman BEGIN TRANSACTION icine sar; once SELECT ile etkilenecek satirlari gor, sonra calistir, dogru ise COMMIT et.',
-    en: 'Always wrap UPDATE in BEGIN TRANSACTION; first see affected rows with SELECT, then run it, COMMIT if correct.',
-  })
-  if (c.includes('delete from')) candidates.push({
-    tr: 'DELETE FROM tablo WHERE olmadan tum tabloyu siler — once SELECT COUNT(*) FROM tablo WHERE kosul ile kac satir silinecegini gor.',
-    en: 'DELETE FROM table without WHERE deletes the entire table — first see how many rows with SELECT COUNT(*) FROM table WHERE condition.',
-  })
-  if (c.includes('create table')) candidates.push({
-    tr: 'PRIMARY KEY otomatik NOT NULL demektir, ayrica yazmana gerek yok — ama FOREIGN KEY taniminda ON DELETE CASCADE veya SET NULL davranisini sec.',
-    en: 'PRIMARY KEY implies NOT NULL automatically, no need to write it again — but for FOREIGN KEY, choose ON DELETE CASCADE or SET NULL behavior.',
-  })
-  if (c.includes('group by')) candidates.push({
-    tr: 'HAVING GROUP BY SONRASINDA filtreler — WHERE satIrlari GROUP BY oncesinde filtreler; HAVING\'e sadece aggregate fonksiyon veya GROUP BY sutunu yazabilirsin.',
-    en: 'HAVING filters AFTER GROUP BY — WHERE filters rows before GROUP BY; in HAVING you can only write aggregate functions or GROUP BY columns.',
-  })
-  if (c.includes('over(') || c.includes('over (')) candidates.push({
-    tr: 'Window fonksiyonu OVER() ile satir bazli hesap yapar — GROUP BY\'dan farki: satirlari gruplamaz, her satir tek tek hesaplanir ve liste korunur.',
-    en: 'Window function with OVER() computes row-by-row — unlike GROUP BY, it does not collapse rows; each row is computed separately and the list is preserved.',
-  })
-  if (c.includes('with ') && c.includes(' as (')) candidates.push({
-    tr: 'CTE (WITH x AS ...) karmasik sorgulari parcalara boler ve her parcayi adlandirir — alt sorgu zincirleri yerine CTE okunurlugu cok arttirir.',
-    en: 'CTE (WITH x AS ...) breaks complex queries into named parts — using CTEs instead of subquery chains greatly improves readability.',
-  })
 
   // ── PYTHON / PYTEST ──────────────────────────────────────────────────────────
-  if (c.includes('@pytest.fixture')) candidates.push({
-    tr: '@pytest.fixture Java\'daki @BeforeEach gibi calisir ama scope="session" ile tum oturum icin, scope="module" ile dosya icin bir kez calisir.',
-    en: '@pytest.fixture works like Java @BeforeEach but scope="session" runs once for the full session, scope="module" runs once per file.',
-  })
-  if (c.includes('def test_')) candidates.push({
-    tr: 'pytest test fonksiyonu "test_" ile baslamali — baslamazsa pytest tarafindan kesfedilmez ve calistirilmaz.',
-    en: 'pytest test functions must start with "test_" — without the prefix, pytest does not discover and run them.',
-  })
-  if (c.includes('assert ')) candidates.push({
-    tr: 'pytest assert\'te == degere gore, is kimlige gore karsilastirir — iki farkli None degeri is ile True verir ama == ile True vermeyebilir.',
-    en: 'In pytest assert, == compares by value, is compares by identity — two separate None objects give True with is but may not with ==.',
-  })
-  if (c.includes('requests.get(') || c.includes('requests.post(')) candidates.push({
-    tr: 'response.status_code HTTP kodunu, response.json() body\'yi dict olarak verir; json() decode edemezse JSONDecodeError firlatir — once status_code kontrol et.',
-    en: 'response.status_code gives the HTTP code, response.json() returns the body as dict; if json() cannot decode it raises JSONDecodeError — check status_code first.',
-  })
-  if (c.includes('parametrize') || c.includes('pytest.mark.parametrize')) candidates.push({
-    tr: '@pytest.mark.parametrize farkli deger kombinasyonlariyla ayni testi otomatik calistirir — Java\'daki TestNG @DataProvider gibi dusun.',
-    en: '@pytest.mark.parametrize runs the same test automatically with different value combinations — think of it like TestNG @DataProvider in Java.',
-  })
-  if (c.includes('with pytest.raises(')) candidates.push({
-    tr: 'with pytest.raises(ExceptionType) blogu icindeki kod o hatayi firlatmali — firlatmazsa test FAIL eder; hata mesajini excinfo.value ile kontrol edebilirsin.',
-    en: 'Code inside with pytest.raises(ExceptionType) must raise that exception — if it does not, the test FAILS; check the error message with excinfo.value.',
-  })
+  if (pageKey === 'python') {
+    if (c.includes('@pytest.fixture')) candidates.push({
+      tr: '@pytest.fixture Java @BeforeEach gibi calisir ama scope parametresiyle daha esnektir. scope="session" tum oturum icin bir kez calisir.',
+      en: '@pytest.fixture works like Java @BeforeEach but is more flexible with scope. scope="session" runs once for the whole session — ideal for expensive setups like login.',
+    })
+    if (c.includes('def test_')) candidates.push({
+      tr: 'pytest test fonksiyonu test_ ile baslamali, yoksa kesfedilmez. Fonksiyon adi ne test ettigini aciklamali: test_login_with_invalid_password gibi.',
+      en: 'pytest test functions must start with test_, otherwise not discovered. The function name should explain what is tested: test_login_with_invalid_password.',
+    })
+    if (c.includes('assert ')) candidates.push({
+      tr: 'pytest assert\'te == deger eslesmesi, is kimlik eslesmesi yapar. None kontrolu icin assert result is None kullan.',
+      en: 'In pytest assert, == checks value equality, is checks identity. For None checks use assert result is None.',
+    })
+    if (c.includes('requests.get(') || c.includes('requests.post(')) candidates.push({
+      tr: 'response.json() body\'yi dict\'e cevirir — JSON olmasi gerekir, yoksa JSONDecodeError firlatir. Once response.status_code == 200 kontrol et, sonra json() cagir.',
+      en: 'response.json() converts the body to dict — needs valid JSON, otherwise throws JSONDecodeError. Check response.status_code == 200 first, then call json().',
+    })
+    if (c.includes('pytest.mark.parametrize')) candidates.push({
+      tr: '@pytest.mark.parametrize ayni test fonksiyonunu farkli parametrelerle calistirir. Java TestNG @DataProvider gibi.',
+      en: '@pytest.mark.parametrize runs the same test with different parameters. Like Java TestNG @DataProvider.',
+    })
+    if (c.includes('with pytest.raises(')) candidates.push({
+      tr: 'with pytest.raises(HataAdi) blogu icindeki kod o hatayi firlatmali. Firlatmazsa test FAIL eder. Hata mesajini str(excinfo.value) ile kontrol edebilirsin.',
+      en: 'Code inside with pytest.raises(ErrorName) must raise that exception. If not, the test FAILS. Check the error message with str(excinfo.value).',
+    })
+    if (c.includes('def ') && c.includes('yield')) candidates.push({
+      tr: 'pytest fixture\'da yield once setup, sonra teardown demektir. yield\'dan sonraki kod her testten sonra calisir — try/finally ile teardown guvence altina alinir.',
+      en: 'In a pytest fixture, yield separates setup from teardown. Code after yield runs after each test — use try/finally to ensure teardown always runs.',
+    })
+    if (c.includes('.click()') || c.includes('find_element') || c.includes('send_keys')) candidates.push({
+      tr: 'Python Selenium\'da driver metotlari Java ile ayni anlama sahip: find_element, send_keys, click. Tek fark: Java camelCase, Python snake_case kullanir.',
+      en: 'Python Selenium driver methods have the same meaning as Java: find_element, send_keys, click. The only difference: Java uses camelCase, Python uses snake_case.',
+    })
+  }
 
   // ── TYPESCRIPT ───────────────────────────────────────────────────────────────
-  if (c.includes('interface ')) candidates.push({
-    tr: 'interface nesne sozlesmeleri icin kullanilir — type alias ise union (A | B) ve intersection (A & B) tanimlari icin daha uygun.',
-    en: 'interface is used for object contracts — type alias is more suitable for union (A | B) and intersection (A & B) definitions.',
-  })
-  if (c.includes(': string') || c.includes(': number') || c.includes(': boolean')) candidates.push({
-    tr: 'TypeScript tip hatasi calisma zamaninda degil derleme zamaninda yakalanir — Java derleyicisinin tip hatasi gibi, Runtime\'a hic gelmez.',
-    en: 'TypeScript type errors are caught at compile time, not runtime — like a Java compiler type error, they never reach the runtime.',
-  })
-  if (c.includes('as ') && (c.includes(' as string') || c.includes(' as number') || c.includes(' as any'))) candidates.push({
-    tr: '"as any" tip guvencesini tamamen kapatir; "as unknown as X" ise adim adim donusumu zorlar ve daha guvenlidir.',
-    en: '"as any" completely disables type safety; "as unknown as X" forces a step-by-step cast and is safer.',
-  })
-  if (c.includes('generic') || c.includes('<t>') || c.includes('<t,') || c.includes('<k,')) candidates.push({
-    tr: 'Generic tip <T> fonksiyon veya sinifi farkli tiplerle calistirir — Java\'daki List<E> gibi; T yerine anlamli isim (Item, Response) kullanmak okunurlugu arttirir.',
-    en: 'Generic type <T> makes a function or class work with different types — like Java\'s List<E>; using a meaningful name (Item, Response) instead of T improves readability.',
-  })
-  if (c.includes('async ') || c.includes('await ') || c.includes('promise<')) candidates.push({
-    tr: 'async fonksiyon Promise<T> dondurur — await olmadan cagirilirsa Promise nesnesi gelir, T degeri gelmez; await mutlaka async icinde kullanilmali.',
-    en: 'An async function returns Promise<T> — calling it without await gives the Promise object, not the T value; await must be used inside an async function.',
-  })
+  if (pageKey === 'typescript') {
+    if (c.includes('interface ')) candidates.push({
+      tr: 'interface nesne sozlesmesi tanimlar. type alias daha geneldir: union (A | B), intersection (A & B) gibi yapilar icin type kullan.',
+      en: 'interface defines an object contract. type alias is more general: use type for unions (A | B), intersections (A & B), and utility types (Partial<T>).',
+    })
+    if (c.includes(': string') || c.includes(': number') || c.includes(': boolean')) candidates.push({
+      tr: 'TypeScript tipleri derleme zamaninda kontrol edilir — Java derleyicisi gibi, runtime\'a gelmez. Editorde gordugun hatayi orada duzelt.',
+      en: 'TypeScript types are checked at compile time — like a Java compiler, errors never reach runtime. Fix the error in the editor; it will not exist at runtime.',
+    })
+    if (c.includes(' as any')) candidates.push({
+      tr: '"as any" tip denetimini tamamen kapatir — runtime hatasi alabilirsin. "as unknown as Tip" daha guvenli: adim adim cast eder.',
+      en: '"as any" completely disables type checking — you can get runtime errors. "as unknown as Type" is safer: it forces step-by-step casting.',
+    })
+    if (c.includes('<t>') || c.includes('<t,') || (c.includes('<') && c.includes('>') && c.includes('function '))) candidates.push({
+      tr: 'Generic <T> fonksiyon veya sinifi farkli tiplerle calistirir. Java List<E> gibi. T yerine anlam tasiyan isim (Item, Response) kullanmak okunurlugu arttirir.',
+      en: 'Generic <T> makes a function or class reusable with different types. Like Java List<E>. Using a meaningful name (Item, Response) instead of T improves readability.',
+    })
+    if (c.includes('async ') || c.includes('await ') || c.includes('promise<')) candidates.push({
+      tr: 'async fonksiyon Promise<T> dondurur. await olmadan cagirilirsa Promise nesnesi gelir, T degeri degil. await her zaman async icinde kullanilmali.',
+      en: 'An async function returns Promise<T>. Calling without await gives the Promise object, not T. await must always be used inside an async function.',
+    })
+    if (c.includes('partial<') || c.includes('required<') || c.includes('pick<') || c.includes('omit<')) candidates.push({
+      tr: 'Utility tip: Partial<T> tum fieldlari opsiyonel, Required<T> zorunlu yapar. Pick<T,"a"> sadece secili fieldlari alir, Omit<T,"a"> secili fieldi cikarir.',
+      en: 'Utility types: Partial<T> makes all fields optional, Required<T> makes all mandatory. Pick<T,"a"> takes selected fields, Omit<T,"a"> removes the selected field.',
+    })
+  }
 
   // ── DOCKER ───────────────────────────────────────────────────────────────────
-  if (c.startsWith('from ') || c.includes('\nfrom ')) candidates.push({
-    tr: 'FROM satirindaki base image ilk katmani olusturur — buyuk base image (ubuntu:22.04) yerine kucuk image (node:alpine, python:slim) kullan; build ve pull suresi kisalir.',
-    en: 'The FROM base image creates the first layer — use a small image (node:alpine, python:slim) instead of a large one (ubuntu:22.04); build and pull time shortens.',
-  })
-  if (c.includes('copy ') && c.includes('package')) candidates.push({
-    tr: 'COPY package*.json ./ satirini RUN npm install\'dan ONCE yaz — boylece sadece package.json degisince install katmani yeniden calisir; kaynak kodu her degisince calismaZ.',
-    en: 'Put COPY package*.json ./ BEFORE RUN npm install — so the install layer only reruns when package.json changes; not every time source code changes.',
-  })
-  if (c.includes('run ') && (c.includes('apt') || c.includes('pip install') || c.includes('npm install'))) candidates.push({
-    tr: 'Birden fazla RUN komutu birden fazla layer olusturur — bunlari tek RUN ile && ile birlestirir ve layer sayisini azaltirsin.',
-    en: 'Multiple RUN commands create multiple layers — combine them in a single RUN with && to reduce the layer count.',
-  })
-  if (c.includes('docker run')) candidates.push({
-    tr: '-it interaktif terminal acar, -d arka planda calistirir, --rm cikinca container\'i siler — uc flag bir arada kullanilabilir: docker run -it --rm image.',
-    en: '-it opens an interactive terminal, -d runs in background, --rm removes the container on exit — all three can be combined: docker run -it --rm image.',
-  })
-  if (c.includes('docker-compose') || c.includes('docker compose') || c.includes('services:')) candidates.push({
-    tr: 'depends_on servisi baslAtir ama hazirligini garantilemez — healthcheck tanimla veya wait-for-it kullan; yoksa app db ayaga kalkmadan baglanti dener.',
-    en: 'depends_on starts the service but does not guarantee readiness — define a healthcheck or use wait-for-it; otherwise app tries to connect before db is up.',
-  })
+  if (pageKey === 'docker') {
+    if (c.match(/^from /m) || c.includes('\nfrom ')) candidates.push({
+      tr: 'FROM satiri base image\'i sectigin ilk katmandir. node:alpine veya python:slim gibi kucuk image\'ler hem boyutu azaltir hem guvenlik acigini.',
+      en: 'The FROM line selects the base image as the first layer. Small images like node:alpine or python:slim reduce both image size and the attack surface.',
+    })
+    if (c.includes('copy ') && c.includes('package')) candidates.push({
+      tr: 'COPY package*.json ./ satirini RUN npm install\'dan ONCE yaz. Kaynak kodu degisince install katmani cache\'den gelir.',
+      en: 'Put COPY package*.json ./ BEFORE RUN npm install. When source code changes, the install layer comes from cache.',
+    })
+    if (c.includes('run ') && (c.includes('&&') || c.includes('apt') || c.includes('pip') || c.includes('npm'))) candidates.push({
+      tr: 'Her RUN satirı ayri bir layer olusturur. Birbirine bagli komutlari && ile tek RUN\'da birlestir — toplam layer sayisi ve image boyutu azalir.',
+      en: 'Every RUN line creates a separate layer. Combine related commands in a single RUN with && — this reduces the total layer count and image size.',
+    })
+    if (c.includes('docker run')) candidates.push({
+      tr: '-d arka planda calistirir, -p 8080:80 port yonlendirir, --name isim verir, --rm cikinca siler. Birlikte: docker run -d -p 8080:80 --name app image.',
+      en: '-d runs in background, -p 8080:80 forwards a port, --name gives a name, --rm removes on exit. Together: docker run -d -p 8080:80 --name app image.',
+    })
+    if (c.includes('services:') || c.includes('depends_on')) candidates.push({
+      tr: 'depends_on servisi baslAtir ama hazirligini garantilemez. Healthcheck tanimla ya da wait-for-it kullan — yoksa app servis db hazir olmadan baglanti dener.',
+      en: 'depends_on starts the service but does not guarantee readiness. Define a healthcheck or use wait-for-it — otherwise the app tries to connect before db is ready.',
+    })
+    if (c.includes('env') || c.includes('environment')) candidates.push({
+      tr: 'Hassas degerleri Dockerfile\'a yazma. Docker secrets veya .env dosyasi kullan — .env\'i .gitignore\'a ekle.',
+      en: 'Do not write sensitive values in the Dockerfile. Use Docker secrets or a .env file — add .env to .gitignore.',
+    })
+  }
 
   // ── JENKINS ──────────────────────────────────────────────────────────────────
-  if (c.includes('pipeline {') || c.includes('stages {') || c.includes('stage(')) candidates.push({
-    tr: 'post { always { ... } } blogu test fail etse bile calisir — JUnit raporu, artifact ve bildirimler buraya gider; yoksa fail\'de rapor kaybolur.',
-    en: 'The post { always { ... } } block runs even when tests fail — JUnit reports, artifacts, and notifications go here; otherwise reports are lost on failure.',
-  })
-  if (c.includes('environment {') || c.includes('env.')) candidates.push({
-    tr: 'environment blogu pipeline seviyesinde env var tanimlar — credentials() ile hassas verileri Jenkins Credentials Store\'dan al, direk YAML\'a yazma.',
-    en: 'The environment block defines env vars at pipeline level — use credentials() to pull sensitive data from Jenkins Credentials Store, do not write them directly in YAML.',
-  })
-  if (c.includes('sh ') || c.includes('bat ')) candidates.push({
-    tr: 'sh Linux/Mac\'te, bat Windows\'ta calisir — cross-platform pipeline icin her zaman sh kullan; Jenkins agent Linux ise bat gereksiz.',
-    en: 'sh runs on Linux/Mac, bat on Windows — always use sh for cross-platform pipelines; if the Jenkins agent is Linux, bat is unnecessary.',
-  })
+  if (pageKey === 'jenkins') {
+    if (c.includes('pipeline {') || c.includes('stage(') || c.includes('stages {')) candidates.push({
+      tr: 'post { always { ... } } blogu stage fail etse bile calisir. JUnit raporu ve bildirimler buraya koy — yoksa test basarisiz olunca rapor kaybolur.',
+      en: 'The post { always { ... } } block runs even if a stage fails. Put JUnit reports and notifications here — otherwise reports are lost when a test fails.',
+    })
+    if (c.includes('environment {') || c.includes('env.')) candidates.push({
+      tr: 'credentials("id") ile hassas veriyi Jenkins Credentials Store\'dan al. Sifre veya token Jenkinsfile\'a dogrudan yazilirsa git gecmisinde sonsuza kalir.',
+      en: 'Use credentials("id") to pull sensitive data from Jenkins Credentials Store. Writing a password or token directly in the Jenkinsfile makes it permanent in git history.',
+    })
+    if (c.includes('sh ') || c.includes('bat ')) candidates.push({
+      tr: 'sh Linux agent\'ta, bat Windows agent\'ta calisir. Agent Linux ise sh yeterli; cross-platform pipeline\'da agent etiketiyle isletim sistemini kontrol et.',
+      en: 'sh runs on a Linux agent, bat on Windows. If the agent is Linux, sh is enough; in cross-platform pipelines control the OS via the agent label.',
+    })
+    if (c.includes('parallel {') || c.includes('parallel(')) candidates.push({
+      tr: 'parallel blok ile birden fazla stage ayni anda calistirilabilir. Test suitesini paralel stage\'lere bolerek toplam sure kisaltilebilir.',
+      en: 'The parallel block can run multiple stages simultaneously. Split test suites into parallel stages to reduce total pipeline duration.',
+    })
+  }
 
   // ── KUBERNETES ───────────────────────────────────────────────────────────────
-  if (c.includes('kubectl get') || c.includes('kubectl describe')) candidates.push({
-    tr: 'kubectl get ozet verir (STATUS, READY), kubectl describe Events bolumunu gosterir — sorun teshisinde her zaman describe ile basla.',
-    en: 'kubectl get gives a summary (STATUS, READY), kubectl describe shows the Events section — always start diagnosis with describe.',
-  })
-  if (c.includes('kubectl logs')) candidates.push({
-    tr: 'kubectl logs --previous son olumunden onceki container loglarini gosterir — CrashLoopBackOff teshisinde bu kritiktir.',
-    en: 'kubectl logs --previous shows logs from before the last container death — this is critical for diagnosing CrashLoopBackOff.',
-  })
-  if (c.includes('kubectl apply') || c.includes('kubectl create')) candidates.push({
-    tr: 'kubectl apply idempotent\'tir — ayni manifest tekrar uygulaninca sadece degisen alan guncellenir; kubectl create varolan kaynakta hata verir.',
-    en: 'kubectl apply is idempotent — applying the same manifest again only updates changed fields; kubectl create errors on an already-existing resource.',
-  })
-  if (c.includes('matchlabels:') || c.includes('labels:')) candidates.push({
-    tr: 'spec.selector.matchLabels ile Pod template.metadata.labels birebir eslesmeli — tek harf farki bile Deployment\'in Pod bulmamamasina neden olur.',
-    en: 'spec.selector.matchLabels must exactly match Pod template.metadata.labels — a single character difference causes the Deployment to find no Pods.',
-  })
+  if (pageKey === 'kubernetes') {
+    if (c.includes('kubectl get')) candidates.push({
+      tr: 'kubectl get ozet verir: NAME, STATUS, READY. Detay ve Events icin kubectl describe kullan — teshis her zaman describe ile baslar.',
+      en: 'kubectl get gives a summary: NAME, STATUS, READY. For details and Events use kubectl describe — diagnosis always starts with describe.',
+    })
+    if (c.includes('kubectl describe')) candidates.push({
+      tr: 'kubectl describe ciktisindaki Events bolumu sorun teshisinin en onemli kismidir. "FailedScheduling", "CrashLoopBackOff" gibi olaylar orada gorulur.',
+      en: 'The Events section in kubectl describe is the most important part for diagnosis. Events like "FailedScheduling" or "CrashLoopBackOff" appear there.',
+    })
+    if (c.includes('kubectl logs')) candidates.push({
+      tr: 'kubectl logs PODADI mevcut container logunu gosterir. Container yeniden baslatilmissa --previous ile son olum oncesinin loglarini al.',
+      en: 'kubectl logs PODNAME shows the current container log. If the container was restarted, use --previous to get logs from before the last death.',
+    })
+    if (c.includes('kubectl apply')) candidates.push({
+      tr: 'kubectl apply idempotent\'tir — ayni manifest tekrar gonderilince sadece degisen alan guncellenir, kaynak silinip yeniden olusturulmaz.',
+      en: 'kubectl apply is idempotent — sending the same manifest again only updates changed fields, it does not delete and recreate the resource.',
+    })
+    if (c.includes('matchlabels:') || (c.includes('labels:') && c.includes('selector:'))) candidates.push({
+      tr: 'spec.selector.matchLabels ile Pod template.metadata.labels birebir eslesmeli. Tek harf farki bile Deployment\'in Pod bulmamamasina neden olur.',
+      en: 'spec.selector.matchLabels must exactly match Pod template.metadata.labels. Even a single character difference causes the Deployment to find no Pods.',
+    })
+  }
 
   // ── REST ASSURED ─────────────────────────────────────────────────────────────
-  if (c.includes('given()') || c.includes('when()') || c.includes('.then()')) candidates.push({
-    tr: 'given/when/then zinciri okunurlugu arttirir ve her methodu zincirler — ara degisken atama; hepsini tek zincirde yaz.',
-    en: 'The given/when/then chain improves readability and links each method — do not assign intermediate variables; write all in one chain.',
-  })
-  if (c.includes('body(') && c.includes('equalto(')) candidates.push({
-    tr: 'body("kullanici.adi", equalTo("test")) ile JSON alanini nokta notasyonuyla dogrula — JsonPath kullanir, ic ice alanlar icin "data.user.name" gibi yaz.',
-    en: 'body("user.name", equalTo("test")) verifies a JSON field with dot notation — it uses JsonPath; for nested fields write "data.user.name" style.',
-  })
-  if (c.includes('statuscode(')) candidates.push({
-    tr: 'then().statusCode(200) HTTP status kodunu dogrular — 2xx basari, 4xx istemci hatasi, 5xx sunucu hatasidir; test her senaryoyu kapsamali.',
-    en: 'then().statusCode(200) verifies the HTTP status code — 2xx success, 4xx client error, 5xx server error; tests should cover each scenario.',
-  })
+  if (pageKey === 'restassured') {
+    if (c.includes('given()') || c.includes('when()') || c.includes('.then()')) candidates.push({
+      tr: 'given/when/then zinciri okunurlugu arttirir. given() kurulum, when() istek, then() dogrulama. Hepsini tek zincirde yaz.',
+      en: 'given/when/then chain improves readability. given() is setup, when() is the request, then() is verification. Write all in one chain.',
+    })
+    if (c.includes('body(') && (c.includes('equalto(') || c.includes('hasitems('))) candidates.push({
+      tr: 'body("alan.adi", equalTo("deger")) JSON alanini JsonPath ile dogrular. Ic ice alan icin nokta notasyonu: "data.user.name". Dizi icin "items[0].id".',
+      en: 'body("field.name", equalTo("value")) verifies a JSON field with JsonPath. For nested fields use dot notation: "data.user.name". For arrays: "items[0].id".',
+    })
+    if (c.includes('statuscode(')) candidates.push({
+      tr: 'then().statusCode(200) HTTP status kodunu dogrular. Sadece 200 degil, 201, 204, 400, 404 gibi tum senaryolari ayri testlerle kapsa.',
+      en: 'then().statusCode(200) verifies the HTTP status code. Cover all scenarios with separate tests — not just 200, but also 201, 204, 400, 404.',
+    })
+  }
 
   // ── POSTMAN ──────────────────────────────────────────────────────────────────
-  if (c.includes('pm.test(') || c.includes('pm.expect(')) candidates.push({
-    tr: 'pm.test("aciklama", () => { pm.expect(pm.response.json().alan).to.equal(deger) }) seklinde yaz — test ismi aciklayici ve benzersiz olmali.',
-    en: 'Write: pm.test("description", () => { pm.expect(pm.response.json().field).to.equal(value) }) — the test name should be descriptive and unique.',
-  })
-  if (c.includes('pm.environment.set(') || c.includes('pm.variables.set(')) candidates.push({
-    tr: 'pm.environment.set("anahtar", deger) ile bir sonraki requeste dinamik degeri aktar — token, id gibi degerler icin manuel kopyalama gerekmez.',
-    en: 'Transfer dynamic values to the next request with pm.environment.set("key", value) — no manual copying needed for tokens, ids, etc.',
-  })
-  if (c.includes('pm.response.json()')) candidates.push({
-    tr: 'pm.response.json() body\'yi obje olarak verir; pm.response.code HTTP statusu, pm.response.responseTime gecikmeyi milisaniye olarak verir.',
-    en: 'pm.response.json() gives the body as an object; pm.response.code gives HTTP status, pm.response.responseTime gives latency in milliseconds.',
-  })
+  if (pageKey === 'postman') {
+    if (c.includes('pm.test(')) candidates.push({
+      tr: 'pm.test("aciklama", () => { ... }) seklinde yaz. Test ismi ne dogrulandigini aciklamali: "Status 200 dondurur" gibi.',
+      en: 'Write pm.test("description", () => { ... }). The name should explain what is verified: "Returns status 200".',
+    })
+    if (c.includes('pm.expect(')) candidates.push({
+      tr: 'pm.expect(pm.response.json().alan).to.equal(deger) ile JSON alanini dogrula. .to.include() kismi string, .to.have.lengthOf() dizi uzunlugu icin.',
+      en: 'Verify a JSON field with pm.expect(pm.response.json().field).to.equal(value). Use .to.include() for partial string, .to.have.lengthOf() for array length.',
+    })
+    if (c.includes('pm.environment.set(') || c.includes('pm.variables.set(')) candidates.push({
+      tr: 'pm.environment.set("anahtar", deger) ile dinamik degeri bir sonraki request\'e aktar. Token, id veya URL parcalari icin kullan.',
+      en: 'Transfer dynamic values to the next request with pm.environment.set("key", value). Use this for tokens, ids, or URL parts.',
+    })
+    if (c.includes('pm.response.json()')) candidates.push({
+      tr: 'pm.response.json() body\'yi parse eder. Body JSON degilse hata firlatir — once pm.response.code kontrolu yap, sonra json() cagir.',
+      en: 'pm.response.json() parses the body. If not JSON it throws — check pm.response.code first, then call json().',
+    })
+  }
 
   // ── JAVASCRIPT ───────────────────────────────────────────────────────────────
-  if (c.includes('async ') && c.includes('await ')) candidates.push({
-    tr: 'async fonksiyon icinde await olmadan Promise beklenmez — sonucu almadan devam edersen undefined veya yanlis deger ile calismaya devam edersin.',
-    en: 'Without await inside an async function, the Promise is not awaited — continuing without the result means working with undefined or wrong value.',
-  })
-  if (c.includes('try {') && c.includes('catch')) candidates.push({
-    tr: 'try/catch ile asenkron hatalari yakala — fetch veya API cagrisi 4xx/5xx donerse catch blogu devreye girer; hatay handle etmeden assertion yapma.',
-    en: 'Use try/catch to catch async errors — if fetch or an API call returns 4xx/5xx the catch block runs; do not assert without handling the error.',
-  })
-  if (c.includes('promise.all(')) candidates.push({
-    tr: 'Promise.all([]) tum promise\'leri paralel calistirir; biri basarisiz olursa hepsi fail eder — Promise.allSettled() her birinin sonucunu ayri verir.',
-    en: 'Promise.all([]) runs all promises in parallel; if one fails, all fail — Promise.allSettled() gives each result separately.',
-  })
-  if (c.includes('.foreach(') || c.includes('.map(') || c.includes('.filter(')) candidates.push({
-    tr: 'forEach, map ve filter async callback desteklemez — async loop icin for...of veya Promise.all ile .map() kullan.',
-    en: 'forEach, map and filter do not support async callbacks — use for...of or Promise.all with .map() for async loops.',
-  })
+  if (pageKey === 'javascript') {
+    if (c.includes('async ') && c.includes('await ')) candidates.push({
+      tr: 'async fonksiyon Promise dondurur. await olmadan cagirilirsa Promise nesnesi gelir, asil deger gelmez. await her zaman async fonksiyon icinde kullan.',
+      en: 'An async function returns a Promise. Calling without await gives the Promise object, not the actual value. Always use await inside an async function.',
+    })
+    if (c.includes('fetch(')) candidates.push({
+      tr: 'fetch() network hatalarinda reject eder ama 4xx/5xx durumlarinda reject ETMEZ — response.ok veya response.status kontrolunu yapman gerekir.',
+      en: 'fetch() rejects on network errors but does NOT reject on 4xx/5xx — you must check response.ok or response.status yourself.',
+    })
+    if (c.includes('promise.all(') || c.includes('promise.allsettled(')) candidates.push({
+      tr: 'Promise.all() herhangi birinde basarisiz olunca hepsini iptal eder. Her istegin sonucunu ayri gormek icin Promise.allSettled() kullan.',
+      en: 'Promise.all() cancels all if one fails. Use Promise.allSettled() to see each request\'s result separately.',
+    })
+    if (c.includes('try {') && c.includes('catch')) candidates.push({
+      tr: 'fetch veya await hata verdiginde catch blogu devreye girer. catch olmadan assertion yazarsan 4xx/5xx\'de test yanlis hata verir.',
+      en: 'When fetch or await errors, the catch block runs. Writing assertions without catch produces misleading errors on 4xx/5xx.',
+    })
+    if (c.includes('new promise(') || (c.includes('resolve') && c.includes('reject'))) candidates.push({
+      tr: 'new Promise() icinde resolve() basari, reject() hata bildirir. Sadece birini cagirmali ve return etmelisin — ikisin de cagirirsan sadece ilki gerceklenir.',
+      en: 'Inside new Promise(), resolve() signals success, reject() signals failure. Call only one and return — if you call both, only the first takes effect.',
+    })
+    if (c.includes('addeventlistener(')) candidates.push({
+      tr: 'addEventListener ikinci parametresi fonksiyon referansidir. Arrow function kullanirsan this kapsayici scope\'dan gelir; normal function kullanirsan this elementi isaret eder.',
+      en: 'The second parameter of addEventListener is a function reference. With arrow function this comes from the enclosing scope; with normal function this points to the element.',
+    })
+    if (c.includes('innerhtml') || c.includes('textcontent')) candidates.push({
+      tr: 'innerHTML HTML parse eder ve XSS riski tasir. Kullanici girdisi olusecekse textContent kullan — sadece metin yazar, HTML calistirmaz.',
+      en: 'innerHTML parses HTML and carries XSS risk. Use textContent when content comes from user input — it writes text only, does not run HTML.',
+    })
+    if (c.includes('queryselectorall(') || c.includes('queryselector(')) candidates.push({
+      tr: 'querySelectorAll() NodeList dondurur, bu bir Array degildir. forEach calisir ama map/filter calistirmak icin Array.from() ile diziye donustur.',
+      en: 'querySelectorAll() returns a NodeList, which is not an Array. forEach works on it, but for map/filter convert it with Array.from().',
+    })
+    if (c.includes('export class') || c.includes('export const') || (c.includes('import ') && c.includes(' from '))) candidates.push({
+      tr: 'named export birden fazla seyi paylasir (import { A, B }), default export tek seyi paylasir (import X from ...). Birini karmasan SyntaxError alirsin.',
+      en: 'Named export shares multiple things (import { A, B }), default export shares one thing (import X from ...). Mixing them causes SyntaxError.',
+    })
+    if (c.includes('.reduce(')) candidates.push({
+      tr: 'reduce() ikinci parametresi baslangic degeridir. Unutursan ilk eleman baslangic kabul edilir ve sayi/obje toplama gibi senaryolarda yanlis sonuc verir.',
+      en: 'The second parameter of reduce() is the initial value. Forgetting it uses the first element as start and gives wrong results in number/object accumulation.',
+    })
+    if (c.includes('.find(') || c.includes('.some(') || c.includes('.every(')) candidates.push({
+      tr: 'find() bulamazsa undefined dondurur — sonucu kullanmadan once null/undefined kontrolu yap. some() ve every() boolean dondurur, element degil.',
+      en: 'find() returns undefined when not found — check for null/undefined before using the result. some() and every() return boolean, not an element.',
+    })
+    if (c.includes('.map(') || c.includes('.filter(')) candidates.push({
+      tr: 'map() ve filter() orijinal diziyi degistirmez, yeni dizi dondurur. Sonucu bir degiskene ataman gerekir — yoksa islem kaybolur.',
+      en: 'map() and filter() do not modify the original array, they return a new one. You must assign the result to a variable — otherwise the operation is lost.',
+    })
+    if (c.includes('math.') || c.includes('parseint') || c.includes('parsefloat') || c.includes('.tofixed(')) candidates.push({
+      tr: 'NaN === NaN her zaman false\'dur — NaN kontrolu icin Number.isNaN() kullan, == veya === kullanma. toFixed() string dondurur, number degil.',
+      en: 'NaN === NaN is always false — use Number.isNaN() for NaN checks, not == or ===. toFixed() returns a string, not a number.',
+    })
+    if (c.includes('function ') || (c.includes('=>') && c.includes('const '))) candidates.push({
+      tr: 'Function declaration hoisting destekler — tanimlanmadan once cagirabilirsin. Arrow function \'this\'i devralir; normal function\'da this cagiran nesneye baglidir.',
+      en: 'Function declarations support hoisting — you can call them before definition. Arrow functions inherit \'this\'; in normal functions this depends on who calls them.',
+    })
+    if (c.includes('class ') && c.includes('constructor')) candidates.push({
+      tr: 'ES6 class\'ta constructor this. ile property atar. Method\'u baska bir degiskene atayip cagirirsan this undefined olabilir — bind(this) veya arrow function kullan.',
+      en: 'In ES6 class constructor assigns properties with this. Assigning a method to another variable and calling it may make this undefined — use bind(this) or arrow function.',
+    })
+    if (c.includes('if (') && c.includes('else')) candidates.push({
+      tr: 'if/else zinciri okunabilirlik sinirina gelince switch veya lookup object kullanimini dusun. Ternary ( ? : ) kisaysa guzel, uzun ifadeler icin degil.',
+      en: 'When if/else chains reach a readability limit, consider switch or a lookup object. Ternary ( ? : ) is good for short expressions, not long ones.',
+    })
+  }
 
   // ── GENERIC FALLBACK ─────────────────────────────────────────────────────────
   if (candidates.length === 0) {
     candidates.push(
-      { tr: 'Yukaridaki kod bloguna bak ve TODO satirini orijinal koddaki ilk anlamli satirla degistir.', en: 'Look at the code block above and replace the TODO line with the first meaningful line from the original code.' },
-      { tr: 'Cozumle birebir eslesme gerekir — bosluk, girintileme ve satir sirasini dikkatli koru.', en: 'The solution must match exactly — preserve spacing, indentation, and line order carefully.' },
-      { tr: 'Takilirsan solutionCode\'a bak; sadece TODO olan satiri yaz, geri kalani dokunma.', en: 'If stuck, look at the solutionCode; only write the TODO line, leave the rest unchanged.' },
+      { tr: 'Yukaridaki kod bloguna bak. Bu alandaki TODO satirini orijinal koddaki ilk anlamli satirla degistir.', en: 'Look at the code block above. Replace the TODO line in this field with the first meaningful line from the original code.' },
+      { tr: 'Cozumle birebir eslesme gerekir — bosluk, girintileme ve satir sirasina dikkat et.', en: 'The solution must match exactly — pay attention to spacing, indentation, and line order.' },
+      { tr: 'Takilirsan sadece TODO olan satiri yaz, geri kalanina dokunma.', en: 'If stuck, write only the TODO line, leave everything else unchanged.' },
     )
   }
 
-  // Pad to 3 hints if fewer candidates were found
   const fallbacks = [
     { tr: 'Yukaridaki kod bloguna bak ve TODO\'yu orijinal satirla degistir.', en: 'Look at the code block above and replace TODO with the original line.' },
-    { tr: 'Cozumle birebir eslesme gerekir — girintileme ve satir sirasin koru.', en: 'The solution must match exactly — preserve indentation and line order.' },
+    { tr: 'Cozumle birebir eslesme gerekir — girintileme ve satir sirasini koru.', en: 'The solution must match exactly — preserve indentation and line order.' },
     { tr: 'Takilirsan sadece TODO satirini yaz, geri kalanina dokunma.', en: 'If stuck, write only the TODO line, leave everything else unchanged.' },
   ]
   while (candidates.length < 3) {
@@ -1063,11 +1205,489 @@ function hintsForCode(block) {
 
   return candidates.slice(0, 3)
 }
+// Generates a code-SPECIFIC task description by analysing what the block
+// actually contains.  Returns {tr, en} or null (fall back to profile text).
+function taskDescForCode(block, pageKey) {
+  const raw = codeFor(block, 'en') || codeFor(block, 'tr') || ''
+  const c = raw.toLowerCase()
+
+  // ── SELENIUM ────────────────────────────────────────────────────────────────
+  if (pageKey === 'selenium') {
+    if (c.includes('webdriverwait') || c.includes('expectedconditions')) return {
+      tr: 'Bu kodda WebDriverWait ile akıllı bekleme kuruyorsun. Thread.sleep() yerine "element hazır olana kadar max N saniye bekle" mantığıyla çalışır — TODO satırı wait nesnesini veya until() çağrısını oluşturuyor.',
+      en: 'This code sets up intelligent waiting with WebDriverWait. Instead of Thread.sleep() it works as "wait at most N seconds until element is ready" — the TODO line creates the wait object or the until() call.',
+    }
+    if (c.includes('by.id(') && !c.includes('xpath') && !c.includes('css')) return {
+      tr: 'Bu kodda By.id() ile element arıyorsun. HTML id attribute\'u benzersiz olduğunda en hızlı locator stratejisidir — TODO satırı bu findElement çağrısını oluşturuyor.',
+      en: 'This code finds an element with By.id(). When the HTML id attribute is unique this is the fastest locator strategy — the TODO line creates this findElement call.',
+    }
+    if (c.includes('by.xpath(')) return {
+      tr: 'Bu kodda XPath ile element arıyorsun. Güçlü ama kırılgan olabilir — mümkün olan en kısa ifadeyi kullan. TODO satırı XPath locator çağrısını oluşturuyor.',
+      en: 'This code finds elements with XPath. Powerful but can be brittle — use the shortest possible expression. The TODO line creates the XPath locator call.',
+    }
+    if (c.includes('by.cssselector(') || c.includes('by.css(')) return {
+      tr: 'Bu kodda CSS selector ile element arıyorsun. "#id" veya "[data-testid=x]" gibi kısa ve stabil selektörler tercih et — TODO satırı bu CSS selector çağrısını oluşturuyor.',
+      en: 'This code finds elements with CSS selector. Prefer short stable selectors like "#id" or "[data-testid=x]" — the TODO line creates this CSS selector call.',
+    }
+    if (c.includes('actions') && (c.includes('build()') || c.includes('movetoelement') || c.includes('perform'))) return {
+      tr: 'Bu kodda Actions sınıfı ile karmaşık UI hareketleri yapıyorsun. Her adımı builder\'a ekle, build().perform() ile çalıştır — TODO satırı bu zincirin kritik adımı.',
+      en: 'This code performs complex UI moves with the Actions class. Add each step to the builder, run with build().perform() — the TODO line is the critical step in this chain.',
+    }
+    if (c.includes('switchto()') && (c.includes('frame') || c.includes('alert') || c.includes('window'))) return {
+      tr: 'Bu kodda switchTo() ile driver bağlamını değiştiriyorsun. iframe veya alert\'e geçince işin bitince defaultContent() veya window\'a geri dönmeyi unutma — TODO satırı bu bağlam geçişini yapıyor.',
+      en: 'This code switches driver context with switchTo(). After entering an iframe or alert, remember to return with defaultContent() or to the window — the TODO line performs this context switch.',
+    }
+    if (c.includes('getscreenshotas') || c.includes('takescreenshot')) return {
+      tr: 'Bu kodda test screenshot alıyorsun. Test fail ettiğinde görsel kanıt için driver\'ı TakesScreenshot\'a cast et — TODO satırı bu cast ve kayıt işlemini yapıyor.',
+      en: 'This code takes a test screenshot. Cast the driver to TakesScreenshot for visual evidence when tests fail — the TODO line performs this cast and save operation.',
+    }
+    if (c.includes('new select(')) return {
+      tr: 'Bu kodda Select sınıfı ile HTML dropdown yönetiyorsun. Yalnızca <select> elementiyle çalışır — selectByVisibleText() veya selectByValue() kullanılır. TODO satırı bu seçim işlemini yapıyor.',
+      en: 'This code manages an HTML dropdown with the Select class. Only works with <select> elements — use selectByVisibleText() or selectByValue(). The TODO line performs this selection.',
+    }
+    if (c.includes('sendkeys(')) return {
+      tr: 'Bu kodda sendKeys() ile forma metin giriyorsun. Alan doluysa önce clear() çağırman gerekir — TODO satırı bu metin girişini veya clear() çağrısını yapıyor.',
+      en: 'This code types text into a field with sendKeys(). If the field has content, call clear() first — the TODO line performs this text input or clear() call.',
+    }
+    if (c.includes('remotewebdriver')) return {
+      tr: 'Bu kodda RemoteWebDriver ile Selenium Grid\'e bağlanıyorsun. Hub URL ve browser capabilities doğru olmalı — TODO satırı bu bağlantı kurulumunu yapıyor.',
+      en: 'This code connects to Selenium Grid with RemoteWebDriver. Hub URL and browser capabilities must be correct — the TODO line sets up this connection.',
+    }
+    if (c.includes('isdisplayed()') || c.includes('isenabled()') || c.includes('getattribute(') || c.includes('gettext()')) return {
+      tr: 'Bu kodda element durumunu sorguluyorsun. isDisplayed() görünürlük, isEnabled() etkileşim, getAttribute() attribute değeri, getText() görünür metin döner — TODO satırı bu sorguyu yapıyor.',
+      en: 'This code queries element state. isDisplayed() checks visibility, isEnabled() interactivity, getAttribute() returns attribute value, getText() returns visible text — the TODO line performs this query.',
+    }
+    return {
+      tr: 'Bu Selenium kodunun eksik satırını tamamla. Kodun tamamını oku, locator stratejisini ve aksiyon sırasını anla, sonra TODO\'yu orijinal satırla değiştir.',
+      en: 'Complete the missing line in this Selenium code. Read all the code, understand the locator strategy and action order, then replace TODO with the original line.',
+    }
+  }
+
+  // ── PLAYWRIGHT ──────────────────────────────────────────────────────────────
+  if (pageKey === 'playwright') {
+    if (c.includes('page.route(') || c.includes('route.fulfill(')) return {
+      tr: 'Bu kodda page.route() ile API isteğini mock\'luyorsun. Backend olmadan UI testleri çalıştırmak veya hata senaryosu üretmek için kullanılır — TODO satırı bu intercept veya fulfill adımını kuruyor.',
+      en: 'This code mocks an API request with page.route(). Used to run UI tests without a backend or to produce error scenarios — the TODO line sets up this intercept or fulfill step.',
+    }
+    if (c.includes('waitforresponse(')) return {
+      tr: 'Bu kodda waitForResponse() ile ağ yanıtı bekliyorsun. Promise.all ile click\'ten önce tanımla — race condition olmaz. TODO satırı bu bekleyişi kuruyor.',
+      en: 'This code waits for a network response with waitForResponse(). Define with Promise.all before the click — no race condition. The TODO line sets up this wait.',
+    }
+    if (c.includes('tobevisible()') || c.includes('tohavetext(') || c.includes('tohaveurl(') || c.includes('tohavevalue(') || c.includes('tobeenabled(')) return {
+      tr: 'Bu kodda Playwright expect() assertion yazıyorsun. Doğru matcher seçmek kritik: toBeVisible() görünürlük, toHaveText() içerik, toHaveURL() URL — TODO satırı bu assertion\'ı oluşturuyor.',
+      en: 'This code writes Playwright expect() assertions. Choosing the right matcher is critical: toBeVisible() for visibility, toHaveText() for content, toHaveURL() for URL — the TODO line creates this assertion.',
+    }
+    if (c.includes('getbyrole(')) return {
+      tr: 'Bu kodda getByRole() ile semantik locator kullanıyorsun. ARIA role kullandığı için ID/CSS değişse bile çalışır — TODO satırı bu locator çağrısını yapıyor.',
+      en: 'This code uses getByRole() for semantic locating. Since it uses ARIA role it works even when ID/CSS changes — the TODO line creates this locator call.',
+    }
+    if (c.includes('getbylabel(') || c.includes('getbyplaceholder(')) return {
+      tr: 'Bu kodda getByLabel() veya getByPlaceholder() ile form alanı arıyorsun. HTML <label> ile ilişkilendirir, data-testid gerekmez — TODO satırı bu semantik locator çağrısını yapıyor.',
+      en: 'This code finds form fields with getByLabel() or getByPlaceholder(). Associates with HTML <label>, no data-testid needed — the TODO line creates this semantic locator call.',
+    }
+    if (c.includes('getbytext(') || c.includes('getbytestid(')) return {
+      tr: 'Bu kodda getByText() veya getByTestId() ile element arıyorsun. getByText() metin içeriğine, getByTestId() data-testid attribute\'una bakarak çalışır — TODO satırı bu locator çağrısını yapıyor.',
+      en: 'This code finds elements with getByText() or getByTestId(). getByText() matches text content, getByTestId() matches data-testid attribute — the TODO line creates this locator call.',
+    }
+    if (c.includes('beforeeach(') || c.includes('test.use(') || c.includes('fixture') || c.includes('newcontext(')) return {
+      tr: 'Bu kodda test fixture veya context kuruyorsun. Java @BeforeEach gibi; ama scope ile worker başına bir kez yapılabilir — TODO satırı bu kurulum adımını oluşturuyor.',
+      en: 'This code sets up a test fixture or context. Like Java @BeforeEach; but with scope it can run once per worker — the TODO line creates this setup step.',
+    }
+    if (c.includes('.fill(') || c.includes('.click(') || c.includes('.press(') || c.includes('.selectoption(')) return {
+      tr: 'Bu kodda Playwright aksiyonu yapıyorsun. click/fill/press auto-wait içerir — element actionable olana kadar otomatik bekler. TODO satırı bu aksiyonu tamamlıyor.',
+      en: 'This code performs a Playwright action. click/fill/press include auto-wait — they automatically wait until the element is actionable. The TODO line completes this action.',
+    }
+    return {
+      tr: 'Bu Playwright kodunun eksik satırını tamamla. Locator stratejisini ve assertion mantığını kodun tamamından okuyarak anla, sonra TODO\'yu yerine yaz.',
+      en: 'Complete the missing line in this Playwright code. Read the full code to understand locator strategy and assertion logic, then write the original line in place of TODO.',
+    }
+  }
+
+  // ── CYPRESS ──────────────────────────────────────────────────────────────────
+  if (pageKey === 'cypress') {
+    if (c.includes('cy.intercept(')) return {
+      tr: 'Bu kodda cy.intercept() ile ağ isteğini yakalıyorsun. intercept\'i visit() veya aksiyondan ÖNCE tanımla — sıralama kritik, sonradan tanımlanırsa yakalanmaz. TODO satırı bu intercept kurulumunu yapıyor.',
+      en: 'This code intercepts network requests with cy.intercept(). Define the intercept BEFORE visit() or the triggering action — it cannot be captured if defined afterward. The TODO line sets up this intercept.',
+    }
+    if (c.includes('cy.wait(') && c.includes('@')) return {
+      tr: 'Bu kodda cy.wait("@alias") ile intercept\'in ateşlenmesini bekliyorsun. Yanıt gelmeden assertion yaparsan eski veri veya undefined ile karşılaşabilirsin — TODO satırı bu bekleme adımını oluşturuyor.',
+      en: 'This code waits for an intercept to fire with cy.wait("@alias"). Asserting before the response may give stale data or undefined — the TODO line creates this wait step.',
+    }
+    if (c.includes('.should(') && c.includes('be.visible')) return {
+      tr: 'Bu kodda .should("be.visible") ile element görünürlüğünü doğruluyorsun. Cypress retry ile dener — display:none veya visibility:hidden ise fail eder. TODO satırı bu assertion\'ı oluşturuyor.',
+      en: 'This code verifies element visibility with .should("be.visible"). Cypress retries — fails if display:none or visibility:hidden. The TODO line creates this assertion.',
+    }
+    if (c.includes('.should(') && (c.includes('have.text') || c.includes('contain.text') || c.includes('have.value'))) return {
+      tr: 'Bu kodda .should() ile metin veya değer doğruluyorsun. have.text tam eşleşme, contain.text kısmi eşleşme yapar — dinamik içerik için contain daha güvenli. TODO satırı bu assertion\'ı oluşturuyor.',
+      en: 'This code validates text or value with .should(). have.text is exact match, contain.text is partial — for dynamic content contain is safer. The TODO line creates this assertion.',
+    }
+    if (c.includes('cy.fixture(')) return {
+      tr: 'Bu kodda cy.fixture() ile fixtures/ klasöründen test verisi yüklüyorsun. intercept ile birlikte mock response olarak kullanılabilir — TODO satırı bu yükleme veya eşleştirme adımını yapıyor.',
+      en: 'This code loads test data from fixtures/ with cy.fixture(). Can be used as mock response together with intercept — the TODO line performs this loading or matching step.',
+    }
+    if (c.includes('cy.get(') || c.includes('cy.find(') || c.includes('cy.contains(')) return {
+      tr: 'Bu kodda cy.get() veya cy.contains() ile DOM\'dan element arıyorsun. Her denemede DOM\'u yeniden sorgular, 4 saniyeye kadar retry yapar — TODO satırı bu element bulma çağrısını yapıyor.',
+      en: 'This code finds elements from the DOM with cy.get() or cy.contains(). Re-queries the DOM on every attempt, retries for up to 4 seconds — the TODO line creates this element-finding call.',
+    }
+    return {
+      tr: 'Bu Cypress kodunun eksik satırını tamamla. cy komutları zincirlenebilir ve retry içerir — TODO\'nun üstündeki ve altındaki komutları okuyarak bağlamı anla.',
+      en: 'Complete the missing line in this Cypress code. cy commands are chainable and include retry — read the commands above and below TODO to understand the context.',
+    }
+  }
+
+  // ── PYTHON ───────────────────────────────────────────────────────────────────
+  if (pageKey === 'python') {
+    if (c.includes('@pytest.fixture')) return {
+      tr: 'Bu kodda pytest fixture tanımlıyorsun. Java @BeforeEach gibi çalışır ama scope parametresiyle her test, worker veya session için ayrı oluşturulabilir — TODO satırı bu fixture\'ın kritik kısmını tamamlıyor.',
+      en: 'This code defines a pytest fixture. Works like Java @BeforeEach but with scope parameter can be created per test, worker or session — the TODO line completes the critical part of this fixture.',
+    }
+    if (c.includes('@pytest.mark.parametrize')) return {
+      tr: 'Bu kodda pytest parametrize ile aynı testi farklı verilerle çalıştırıyorsun. Java @ParameterizedTest gibi — tek fonksiyon, birden fazla veri seti — TODO satırı bu parametre tanımını tamamlıyor.',
+      en: 'This code runs the same test with different data using pytest parametrize. Like Java @ParameterizedTest — one function, multiple data sets — the TODO line completes this parameter definition.',
+    }
+    if (c.includes('def test_')) return {
+      tr: 'Bu kodda pytest test fonksiyonu yazıyorsun. pytest, test_ ile başlayan fonksiyonları otomatik keşfeder — Java @Test annotation\'ının Python karşılığıdır. TODO satırı bu fonksiyonun kritik adımını tamamlıyor.',
+      en: 'This code writes a pytest test function. pytest auto-discovers functions starting with test_ — the Python equivalent of Java @Test annotation. The TODO line completes the critical step of this function.',
+    }
+    if (c.includes('class ') && c.includes(':') && !c.includes('def test_')) return {
+      tr: 'Bu kodda Python sınıfı tanımlıyorsun. Java\'dan farkı: constructor __init__ olarak adlandırılır, self parametresi her metoda açıkça geçilir — TODO satırı bu sınıf yapısının kritik kısmını tamamlıyor.',
+      en: 'This code defines a Python class. Different from Java: constructor is named __init__, self is explicitly passed to every method — the TODO line completes the critical part of this class structure.',
+    }
+    if (c.includes('try:') && (c.includes('except') || c.includes('finally'))) return {
+      tr: 'Bu kodda try/except ile hata yönetimi yapıyorsun. Java try/catch gibi çalışır; except Exception as e: ile hata nesnesine erişilir — TODO satırı bu hata yönetiminin kritik kısmı.',
+      en: 'This code handles errors with try/except. Works like Java try/catch; except Exception as e: gives access to the error object — the TODO line is the critical part of this error handling.',
+    }
+    if (c.includes('assert ')) return {
+      tr: 'Bu kodda Python assert kullanıyorsun. pytest bu ifadeyi yakalar ve başarısız olunca ne beklendi/ne geldi bilgisini ayrıntılı gösterir — Java assertEquals\'dan daha okunabilir. TODO satırı bu assertion\'ı tamamlıyor.',
+      en: 'This code uses Python assert. pytest intercepts this statement and shows detailed expected/got information on failure — more readable than Java assertEquals. The TODO line completes this assertion.',
+    }
+    if (c.includes('for ') && c.includes(' in ')) return {
+      tr: 'Bu kodda Python for-in döngüsü kullanıyorsun. Java for-each gibi — koleksiyon veya range üzerinde doğrudan iterasyon. TODO satırı bu döngünün kritik kısmını tamamlıyor.',
+      en: 'This code uses a Python for-in loop. Like Java for-each — iterates directly over a collection or range. The TODO line completes the critical part of this loop.',
+    }
+    if (c.includes('def ') && !c.includes('def test_') && !c.includes('@pytest')) return {
+      tr: 'Bu kodda Python fonksiyonu tanımlıyorsun. Girintileme {} yerine blok sınırını belirler; return tipi yazılmaz (dinamik tipleme). TODO satırı bu fonksiyonun kritik adımını tamamlıyor.',
+      en: 'This code defines a Python function. Indentation replaces {} for block boundaries; no return type declaration (dynamic typing). The TODO line completes the critical step of this function.',
+    }
+    if (c.includes('import ') || c.includes('from ')) return {
+      tr: 'Bu kodda Python modül import\'u yapıyorsun. Java import gibi ama paket yönetimi pip ile, modül keşfi sys.path ile yapılır — TODO satırı bu import yapısını tamamlıyor.',
+      en: 'This code imports Python modules. Like Java import but package management is with pip and module discovery is with sys.path — the TODO line completes this import structure.',
+    }
+    return {
+      tr: 'Bu Python kodunun eksik satırını tamamla. Girintileme kritik — 4 boşluk standardını koru. TODO\'nun üstündeki ve altındaki satırları okuyarak bağlamı anla.',
+      en: 'Complete the missing line in this Python code. Indentation is critical — maintain the 4-space standard. Read the lines above and below TODO to understand the context.',
+    }
+  }
+
+  // ── TYPESCRIPT ───────────────────────────────────────────────────────────────
+  if (pageKey === 'typescript') {
+    if (c.includes('interface ')) return {
+      tr: 'Bu kodda TypeScript interface tanımlıyorsun. Nesne veri sözleşmesini belirler; farklı sınıflar bu sözleşmeyi örtük olarak uygulayabilir — Java interface\'e benzer. TODO satırı bu tanımı tamamlıyor.',
+      en: 'This code defines a TypeScript interface. Specifies the object data contract; different classes can implement it implicitly — similar to Java interface. The TODO line completes this definition.',
+    }
+    if (c.includes(' type ') && !c.includes('typeof ') && !c.includes('getbytype')) return {
+      tr: 'Bu kodda TypeScript type alias tanımlıyorsun. Union/intersection tipler ve utility tipler için tercih edilir — TODO satırı bu tip tanımını tamamlıyor.',
+      en: 'This code defines a TypeScript type alias. Preferred for union/intersection types and utility types — the TODO line completes this type definition.',
+    }
+    if ((c.includes('<t>') || c.includes('<t,') || c.includes('generic')) && c.includes('function ')) return {
+      tr: 'Bu kodda TypeScript generics kullanıyorsun. Java generic\'leri gibi, tip güvenliğini koruyarak farklı tiplerle çalışır — TODO satırı bu generic yapının kritik kısmını tamamlıyor.',
+      en: 'This code uses TypeScript generics. Like Java generics, works with different types while maintaining type safety — the TODO line completes the critical part of this generic structure.',
+    }
+    if (c.includes('async ') && c.includes('await ')) return {
+      tr: 'Bu kodda async/await ile asenkron işlem yönetiyorsun. Playwright testlerinde her page action await gerektirir — TODO satırı bu asenkron çağrıyı tamamlıyor.',
+      en: 'This code manages async operations with async/await. In Playwright tests every page action needs await — the TODO line completes this async call.',
+    }
+    if (c.includes('class ')) return {
+      tr: 'Bu kodda TypeScript sınıfı tanımlıyorsun. Java sınıfına benzer ama constructor parametrelerine erişim modifier eklenerek field otomatik oluşturulur — TODO satırı bu sınıf yapısını tamamlıyor.',
+      en: 'This code defines a TypeScript class. Similar to Java class but adding an access modifier to constructor parameters auto-creates fields — the TODO line completes this class structure.',
+    }
+    if (c.includes('partial<') || c.includes('required<') || c.includes('readonly<') || c.includes('pick<') || c.includes('omit<') || c.includes('record<')) return {
+      tr: 'Bu kodda TypeScript utility tipi kullanıyorsun. Partial<T> tüm alanları opsiyonel yapar, Pick<T,K> alt küme alır, Readonly<T> değişmez yapar — TODO satırı bu tip dönüşümünü tamamlıyor.',
+      en: 'This code uses a TypeScript utility type. Partial<T> makes all fields optional, Pick<T,K> takes a subset, Readonly<T> makes immutable — the TODO line completes this type transformation.',
+    }
+    return {
+      tr: 'Bu TypeScript kodunun eksik satırını tamamla. tsc\'nin bu satırda ne kontrol ettiğini düşün — tip hatası derleme zamanında yakalanır, runtime\'da değil. TODO\'nun bağlamını oku.',
+      en: 'Complete the missing line in this TypeScript code. Think about what tsc checks at this line — type errors are caught at compile time, not runtime. Read the TODO\'s context.',
+    }
+  }
+
+  // ── JAVASCRIPT ───────────────────────────────────────────────────────────────
+  if (pageKey === 'javascript') {
+    // Async/await ve Playwright testleri
+    if (c.includes('async ') && c.includes('await ') && (c.includes('page.') || c.includes('playwright'))) return {
+      tr: 'Bu Playwright JS testinde async/await ile tarayıcı işlemleri yapıyorsun. Her page aksiyonu await gerektirir — yoksa test element hazır olmadan geçer gibi görünür. TODO satırı bu await çağrısını tamamlıyor.',
+      en: 'This Playwright JS test uses async/await for browser actions. Every page action needs await — without it the test appears to pass before the element is ready. The TODO line completes this await call.',
+    }
+    if (c.includes('async ') && c.includes('await ')) return {
+      tr: 'Bu kodda async/await kullanıyorsun. await olmadan çağrılan async fonksiyon gerçek değer yerine Promise nesnesi döner — TODO satırı bu asenkron çağrıyı tamamlıyor.',
+      en: 'This code uses async/await. Calling an async function without await returns the Promise object, not the real value — the TODO line completes this async call.',
+    }
+    // fetch API
+    if (c.includes('fetch(')) return {
+      tr: 'Bu kodda fetch() ile HTTP isteği yapıyorsun. fetch() 4xx/5xx\'de reject ETMEZ — response.ok veya response.status kontrolü şart. TODO satırı bu istek veya yanıt işleme adımını tamamlıyor.',
+      en: 'This code makes HTTP requests with fetch(). fetch() does NOT reject on 4xx/5xx — checking response.ok or response.status is required. The TODO line completes this request or response-handling step.',
+    }
+    // Promise kombinatörleri
+    if (c.includes('promise.all(') || c.includes('promise.allsettled(') || c.includes('promise.race(')) return {
+      tr: 'Bu kodda paralel Promise yönetiyorsun. Promise.all() birinde hata varsa hepsini iptal eder; allSettled() her sonucu ayrı saklar — QA testlerinde hangi sayfa/API başarısız olduğunu görmek için allSettled() daha bilgilendirici. TODO satırı bu zinciri tamamlıyor.',
+      en: 'This code manages parallel Promises. Promise.all() cancels all if one fails; allSettled() stores each result separately — in QA tests allSettled() is more informative to see which page/API failed. The TODO line completes this chain.',
+    }
+    // try/catch
+    if (c.includes('try {') && c.includes('catch')) return {
+      tr: 'Bu kodda try/catch ile hata yönetimi yapıyorsun. fetch veya await hata verirse catch bloğu devreye girer — assertion\'ı catch bloğu olmadan yazarsan 4xx/5xx\'de test yanlış hata üretir. TODO satırı bu hata yakalama mantığını tamamlıyor.',
+      en: 'This code handles errors with try/catch. If fetch or await errors, the catch block runs — writing assertions without a catch block produces misleading errors on 4xx/5xx. The TODO line completes this error-catching logic.',
+    }
+    // new Promise / resolve / reject
+    if (c.includes('new promise(') || (c.includes('resolve') && c.includes('reject'))) return {
+      tr: 'Bu kodda new Promise() ile manuel Promise oluşturuyorsun. resolve() başarıyı, reject() hatayı bildirir — Java\'da Future.complete() / completeExceptionally() gibi. TODO satırı bu Promise yapısının kritik adımını tamamlıyor.',
+      en: 'This code creates a manual Promise with new Promise(). resolve() signals success, reject() signals failure — like Java\'s Future.complete() / completeExceptionally(). The TODO line completes the critical step in this Promise structure.',
+    }
+    // Closure
+    if (c.includes('closure') || (c.includes('function') && c.includes('return') && c.includes('function'))) return {
+      tr: 'Bu kodda closure (kapatma) kullanıyorsun. İç fonksiyon, dış fonksiyonun değişkenlerine kendi scope\'u bittikten sonra da erişebilir — private state için güçlü bir pattern. TODO satırı bu closure yapısını tamamlıyor.',
+      en: 'This code uses a closure. The inner function can still access the outer function\'s variables after its scope ends — a powerful pattern for private state. The TODO line completes this closure structure.',
+    }
+    // addEventListener
+    if (c.includes('addeventlistener(')) return {
+      tr: 'Bu kodda addEventListener() ile DOM eventi dinliyorsun. İkinci parametre event handler fonksiyonu — arrow function kullanırsan \'this\' otomatik capture olmaz, dikkat et. TODO satırı bu event kurulumunu tamamlıyor.',
+      en: 'This code listens to DOM events with addEventListener(). The second parameter is the event handler function — using an arrow function means \'this\' is not auto-captured, be careful. The TODO line completes this event setup.',
+    }
+    // DOM manipülasyon
+    if (c.includes('innerhtml') || c.includes('textcontent')) return {
+      tr: 'Bu kodda DOM element içeriğini değiştiriyorsun. innerHTML HTML parçalıyor ve XSS riski taşıyor — kullanıcı girdisi içeriyorsa textContent kullan. TODO satırı bu DOM güncellemesini tamamlıyor.',
+      en: 'This code changes DOM element content. innerHTML parses HTML and carries XSS risk — use textContent when content comes from user input. The TODO line completes this DOM update.',
+    }
+    // querySelectorAll / querySelector / DOM sorgulama
+    if (c.includes('queryselectorall(') || c.includes('queryselector(') || c.includes('getelementbyid(')) return {
+      tr: 'Bu kodda DOM\'dan element seçiyorsun. querySelector() ilk eşleşmeyi, querySelectorAll() NodeList döner — NodeList bir Array değildir, dizi metodları için Array.from() kullan. TODO satırı bu seçim işlemini tamamlıyor.',
+      en: 'This code selects elements from the DOM. querySelector() returns the first match, querySelectorAll() returns a NodeList — NodeList is not an Array, use Array.from() for array methods. The TODO line completes this selection.',
+    }
+    // import / export (ES6 modüller)
+    if (c.includes('export class') || c.includes('export const') || c.includes('export function') || (c.includes('import ') && c.includes(' from '))) return {
+      tr: 'Bu kodda ES6 modül sistemi kullanıyorsun. named export/import ile birden fazla şey paylaşılır, default export ile tek şey paylaşılır — Page Object pattern\'de her sayfa kendi named export\'unu yapar. TODO satırı bu modül yapısını tamamlıyor.',
+      en: 'This code uses the ES6 module system. Named export/import shares multiple items, default export shares one thing — in the Page Object pattern each page makes its own named export. The TODO line completes this module structure.',
+    }
+    // class ES6
+    if (c.includes('class ') && c.includes('constructor')) return {
+      tr: 'Bu kodda ES6 sınıfı tanımlıyorsun. Java sınıfına benzer ama `this` bağlamına dikkat et — method\'u ayrı bir değişkene atarsan `this` kaybolur. TODO satırı bu sınıf yapısını tamamlıyor.',
+      en: 'This code defines an ES6 class. Similar to Java class but watch out for `this` binding — if you assign a method to a separate variable, `this` is lost. The TODO line completes this class structure.',
+    }
+    // Dizi yüksek dereceli fonksiyonlar: reduce, find, some, every
+    if (c.includes('.reduce(')) return {
+      tr: 'Bu kodda .reduce() ile dizi elemanlarını tek bir değere indirgiyorsun. İkinci parametre başlangıç değeri — unutursan ilk eleman başlangıç sayılır ve tiplerde hata alabilirsin. TODO satırı bu reduce adımını tamamlıyor.',
+      en: 'This code uses .reduce() to reduce array elements to a single value. The second parameter is the initial value — without it the first element is used as start and you may get type errors. The TODO line completes this reduce step.',
+    }
+    if (c.includes('.find(') || c.includes('.some(') || c.includes('.every(')) return {
+      tr: 'Bu kodda dizi arama metodları kullanıyorsun. find() ilk eşleşmeyi döner (bulamazsa undefined), some() herhangi biri eşleşirse true, every() hepsi eşleşirse true döner — Java stream().findFirst(), anyMatch(), allMatch() gibi. TODO satırı bu işlemi tamamlıyor.',
+      en: 'This code uses array search methods. find() returns the first match (undefined if not found), some() returns true if any matches, every() returns true if all match — like Java stream().findFirst(), anyMatch(), allMatch(). The TODO line completes this operation.',
+    }
+    if (c.includes('.map(') || c.includes('.filter(')) return {
+      tr: 'Bu kodda .map() veya .filter() ile dizi dönüşümü yapıyorsun. map() her elemanı dönüştürür (yeni dizi), filter() koşula uymayanları atar — orijinal diziyi değiştirmez, yeni dizi döner. TODO satırı bu dönüşüm adımını tamamlıyor.',
+      en: 'This code transforms arrays with .map() or .filter(). map() transforms each element (new array), filter() removes non-matching elements — neither modifies the original array, both return a new one. The TODO line completes this transformation step.',
+    }
+    // Koşul yapıları
+    if (c.includes('if (') && c.includes('else')) return {
+      tr: 'Bu kodda if/else veya ternary ile koşul kontrol ediyorsun. Birden fazla koşul varsa else if zinciri yerine switch daha okunabilir olabilir — TODO satırı bu koşul mantığını tamamlıyor.',
+      en: 'This code controls conditions with if/else or ternary. For many conditions switch may be more readable than else if chains — the TODO line completes this conditional logic.',
+    }
+    // Math / Number
+    if (c.includes('math.') || c.includes('parseint') || c.includes('parsefloat') || c.includes('.tofixed(') || c.includes('number.isnan')) return {
+      tr: 'Bu kodda JavaScript sayı işlemleri yapıyorsun. parseInt("42px") sayıyı parse eder ve sonrasını atar; Number("hello") NaN döner — NaN kontrolü için Number.isNaN() kullan, çünkü NaN === NaN her zaman false\'dur. TODO satırı bu sayı işlemini tamamlıyor.',
+      en: 'This code performs JavaScript number operations. parseInt("42px") parses the number and drops the rest; Number("hello") returns NaN — use Number.isNaN() for NaN checks because NaN === NaN is always false. The TODO line completes this number operation.',
+    }
+    // Function declarations/expressions/arrow
+    if (c.includes('function ') || (c.includes('=>') && c.includes('const '))) return {
+      tr: 'Bu kodda JavaScript fonksiyon tanımı yapıyorsun. function declaration hoisting destekler (tanımlanmadan önce çağrılabilir); arrow function ise \'this\'i kapsayıcı scope\'dan devralır — TODO satırı bu fonksiyon yapısını tamamlıyor.',
+      en: 'This code defines JavaScript functions. Function declarations support hoisting (callable before definition); arrow functions inherit \'this\' from the enclosing scope — the TODO line completes this function structure.',
+    }
+    return {
+      tr: 'Bu JavaScript kodunun eksik satırını tamamla. Kodun hangi konsepti öğrettiğini üst satırlardan anla, ardından TODO\'yu uygun JavaScript sözdizimiyle değiştir.',
+      en: 'Complete the missing line in this JavaScript code. Understand what concept the code teaches from the lines above, then replace TODO with the correct JavaScript syntax.',
+    }
+  }
+
+  // ── POSTMAN ──────────────────────────────────────────────────────────────────
+  if (pageKey === 'postman') {
+    if (c.includes('pm.test(')) return {
+      tr: 'Bu kodda Postman pm.test() ile API yanıtını doğruluyorsun. Test açıklaması anlamlı olmalı — Newman CI\'da test ismi hatanın nerede olduğunu gösterir. TODO satırı bu testi tamamlıyor.',
+      en: 'This code validates API responses with Postman pm.test(). The test description should be meaningful — Newman CI shows test name to locate the error. The TODO line completes this test.',
+    }
+    if (c.includes('pm.environment.set(') || c.includes('pm.globals.set(') || c.includes('pm.collectionvariables.set(')) return {
+      tr: 'Bu kodda Postman değişkenine dinamik değer kaydediyorsun. Auth token gibi değerleri bir sonraki isteğe taşımak için kullan — manuel kopyalama gerekmez. TODO satırı bu kaydı yapıyor.',
+      en: 'This code saves a dynamic value to a Postman variable. Use it to pass values like auth tokens to the next request — no manual copying needed. The TODO line performs this save.',
+    }
+    if (c.includes('pm.expect(')) return {
+      tr: 'Bu kodda pm.expect() ile Chai assertion zinciri kuruyorsun. .to.equal(), .to.include(), .to.have.property() gibi matcher\'lar kullanılır — TODO satırı bu assertion\'ı tamamlıyor.',
+      en: 'This code builds a Chai assertion chain with pm.expect(). Matchers like .to.equal(), .to.include(), .to.have.property() are used — the TODO line completes this assertion.',
+    }
+    return {
+      tr: 'Bu Postman test scriptinin eksik satırını tamamla. pm.response, pm.environment veya pm.expect zincirini okuyarak hangi adımın eksik olduğunu bul.',
+      en: 'Complete the missing line in this Postman test script. Read the pm.response, pm.environment or pm.expect chain to find which step is missing.',
+    }
+  }
+
+  // ── REST ASSURED ─────────────────────────────────────────────────────────────
+  if (pageKey === 'restassured') {
+    if ((c.includes('given()') || c.includes('.given()')) && c.includes('when()')) return {
+      tr: 'Bu kodda REST Assured given/when/then zinciri kuruyorsun. Java stream gibi metodları zincirliyorsun — given() kurulum, when() istek, then() doğrulama. TODO satırı bu zincirin kritik halkasını tamamlıyor.',
+      en: 'This code builds the REST Assured given/when/then chain. Chains methods like a Java stream — given() setup, when() request, then() validation. The TODO line completes the critical link in this chain.',
+    }
+    if (c.includes('statuscode(') || c.includes('.statuscode(')) return {
+      tr: 'Bu kodda HTTP yanıt kodunu doğruluyorsun. statusCode(200) gibi basit bir doğrulama CI\'da hızlı geri bildirim sağlar — TODO satırı bu doğrulamayı tamamlıyor.',
+      en: 'This code validates the HTTP response code. A simple check like statusCode(200) gives fast CI feedback — the TODO line completes this validation.',
+    }
+    if (c.includes('.body(') || c.includes('equalto(') || c.includes('hasitem(') || c.includes('containsstring(')) return {
+      tr: 'Bu kodda REST Assured body() ve Hamcrest matcher ile JSON alanı doğruluyorsun. Nokta notasyonu ile nested JSON erişimi yapılır (ör: body("user.name", equalTo(...))) — TODO satırı bu assertion\'ı tamamlıyor.',
+      en: 'This code validates a JSON field with REST Assured body() and Hamcrest matcher. Dot notation accesses nested JSON (e.g., body("user.name", equalTo(...))) — the TODO line completes this assertion.',
+    }
+    if (c.includes('headers(') || c.includes('contenttype(') || c.includes('accept(')) return {
+      tr: 'Bu kodda REST Assured header veya content type ayarlıyorsun. given().header() veya contentType() ile istek hazırlığı yapılır — TODO satırı bu header adımını tamamlıyor.',
+      en: 'This code sets REST Assured headers or content type. Request preparation is done with given().header() or contentType() — the TODO line completes this header step.',
+    }
+    return {
+      tr: 'Bu REST Assured test kodunun eksik satırını tamamla. given/when/then zincirinin hangi halkasında olduğunu kodun tamamından okuyarak anla.',
+      en: 'Complete the missing line in this REST Assured test code. Read the full code to understand which link in the given/when/then chain is missing.',
+    }
+  }
+
+  // ── SQL ──────────────────────────────────────────────────────────────────────
+  if (pageKey === 'sql') {
+    // SQLite CLI dot-commands — gerçek SQL sorgusu değil, kabuk komutları
+    if (c.includes('sqlite3 ') || (c.includes('.tables') && c.includes('.quit')) || c.includes('.schema ') || c.includes('.headers on')) return {
+      tr: 'Bu SQLite CLI komutları veritabanına bağlanmayı ve temel navigasyonu gösteriyor. `sqlite3 dosya.db` ile bağlan, `.tables` ile mevcut tabloları gör, `.schema tablo` ile yapıyı incele, `.quit` ile çık. TODO satırını doğru CLI komutuyla tamamla.',
+      en: 'These SQLite CLI commands show how to connect and navigate the database. Connect with `sqlite3 file.db`, view tables with `.tables`, inspect structure with `.schema table`, exit with `.quit`. Complete the TODO line with the correct CLI command.',
+    }
+    if (c.includes(' join ') && c.includes(' on ')) return {
+      tr: 'Bu SQL sorgusunda JOIN ile tabloları birleştiriyorsun. ON koşulunu doğru kur — yanlış JOIN katlanan satırlar veya kayıp veri üretir. TODO satırı bu JOIN veya ON koşulunu tamamlıyor.',
+      en: 'This SQL query joins tables with JOIN. Set the ON condition correctly — a wrong JOIN produces multiplied rows or missing data. The TODO line completes this JOIN or ON condition.',
+    }
+    if (c.includes('group by ') || c.includes('having ')) return {
+      tr: 'Bu SQL sorgusunda GROUP BY ile grupluyorsun. HAVING gruplara filtre uygular — WHERE değil, aggregation sonrası koşul için kullanılır. TODO satırı bu gruplama veya filtre adımını tamamlıyor.',
+      en: 'This SQL query groups data with GROUP BY. HAVING filters groups — not WHERE, used for conditions after aggregation. The TODO line completes this grouping or filter step.',
+    }
+    if (c.includes('insert into ')) return {
+      tr: 'Bu SQL sorgusunda INSERT INTO ile veri ekliyorsun. Sütun listesi ve VALUES sırası ve tipi uyumlu olmalı — TODO satırı bu INSERT ifadesini tamamlıyor.',
+      en: 'This SQL query inserts data with INSERT INTO. Column list and VALUES must match in order and type — the TODO line completes this INSERT statement.',
+    }
+    if (c.includes('update ') && c.includes('set ')) return {
+      tr: 'Bu SQL sorgusunda UPDATE ile kayıt güncelliyorsun. WHERE olmadan tüm satırları günceller — production\'da çalıştırmadan önce dikkat et. TODO satırı bu UPDATE veya WHERE koşulunu tamamlıyor.',
+      en: 'This SQL query updates records with UPDATE. Without WHERE it updates all rows — be careful before running in production. The TODO line completes this UPDATE or WHERE condition.',
+    }
+    if (c.includes('delete from ')) return {
+      tr: 'Bu SQL sorgusunda DELETE FROM ile kayıt siliyorsun. WHERE olmadan tüm satırları siler — production\'da önce SELECT ile doğrula. TODO satırı bu DELETE veya WHERE koşulunu tamamlıyor.',
+      en: 'This SQL query deletes records with DELETE FROM. Without WHERE it deletes all rows — verify with SELECT before running in production. The TODO line completes this DELETE or WHERE condition.',
+    }
+    if (c.includes('create table ') || c.includes('create index ') || c.includes('alter table ')) return {
+      tr: 'Bu SQL sorgusunda DDL (Data Definition Language) kullanıyorsun. Tablo yapısı, index veya constraint değişikliği yapar — TODO satırı bu DDL ifadesini tamamlıyor.',
+      en: 'This SQL query uses DDL (Data Definition Language). Changes table structure, index or constraint — the TODO line completes this DDL statement.',
+    }
+    if (c.includes('over(') || c.includes('over (') || c.includes('partition by') || c.includes('with ') || c.includes('cte')) return {
+      tr: 'Bu SQL sorgusunda Window fonksiyonu veya CTE kullanıyorsun. OVER(PARTITION BY) satır bazlı hesap yapar, WITH bir sorguyu modüler hale getirir — TODO satırı bu ileri SQL yapısını tamamlıyor.',
+      en: 'This SQL query uses a Window function or CTE. OVER(PARTITION BY) computes row-by-row, WITH makes a query modular — the TODO line completes this advanced SQL structure.',
+    }
+    return {
+      tr: 'Bu SQL sorgusunun eksik kısmını tamamla. Yürütme sırasına dikkat et: FROM → WHERE → SELECT → ORDER BY — yazdığın sıra değil bu sıra. TODO\'yu orijinal satırla değiştir.',
+      en: 'Complete the missing part of this SQL query. Note execution order: FROM → WHERE → SELECT → ORDER BY — not the order you wrote it. Replace TODO with the original line.',
+    }
+  }
+
+  // ── JAVA ─────────────────────────────────────────────────────────────────────
+  if (pageKey === 'java') {
+    if (c.includes('webdriverwait') || c.includes('expectedconditions')) return {
+      tr: 'Bu Java Selenium kodunda WebDriverWait ile akıllı bekleme kuruyorsun. Thread.sleep() flaky testlerin ana kaynağı — WebDriverWait element hazır olana kadar bekler. TODO satırı bu wait yapısını tamamlıyor.',
+      en: 'This Java Selenium code sets up intelligent waiting with WebDriverWait. Thread.sleep() is a main source of flaky tests — WebDriverWait waits until the element is ready. The TODO line completes this wait structure.',
+    }
+    if (c.includes('@test') || c.includes('@test\n')) return {
+      tr: 'Bu Java kodunda JUnit/TestNG test metodu yazıyorsun. @Test annotation metodu test runner\'a bildirir — Java\'da explicit annotation gerekir, Python\'da test_ ön eki yeterli. TODO satırı bu test adımını tamamlıyor.',
+      en: 'This Java code writes a JUnit/TestNG test method. @Test annotation registers the method with the test runner — Java needs explicit annotation, Python just needs the test_ prefix. The TODO line completes this test step.',
+    }
+    if (c.includes('assertequals') || c.includes('asserttrue') || c.includes('assertnotnull') || c.includes('assertthat')) return {
+      tr: 'Bu Java kodunda assertion ile test doğrulaması yapıyorsun. assertEquals(expected, actual) sırası önemli — hata mesajı bu sıraya göre "beklenen X ama Y geldi" der. TODO satırı bu assertion\'ı tamamlıyor.',
+      en: 'This Java code writes test assertions. assertEquals(expected, actual) order matters — the error message says "expected X but got Y" based on this order. The TODO line completes this assertion.',
+    }
+    if (c.includes('arraylist') || c.includes('hashmap') || c.includes('linkedlist') || c.includes('hashset')) return {
+      tr: 'Bu Java kodunda Collections API kullanıyorsun. ArrayList dinamik dizi, HashMap anahtar-değer, LinkedList çift yönlü liste — her birinin farklı O(n) karmaşıklığı var. TODO satırı bu koleksiyon adımını tamamlıyor.',
+      en: 'This Java code uses the Collections API. ArrayList is a dynamic array, HashMap is key-value, LinkedList is doubly-linked — each has different O(n) complexity. The TODO line completes this collection step.',
+    }
+    if (c.includes('webdriver ') || c.includes('driver.') || c.includes('findelement')) return {
+      tr: 'Bu Java Selenium kodunda WebDriver ile tarayıcıyı kontrol ediyorsun. driver her test başında oluşturulur, teardown\'da quit() ile kapatılır — TODO satırı bu driver adımını tamamlıyor.',
+      en: 'This Java Selenium code controls the browser with WebDriver. driver is created at test start and closed with quit() in teardown — the TODO line completes this driver step.',
+    }
+    if (c.includes('interface ')) return {
+      tr: 'Bu Java kodunda interface tanımlıyorsun. Interface uygulama bağımlılığını kırar — test sırasında gerçek implementasyon yerine mock/stub kullanabilirsin. TODO satırı bu tanımı tamamlıyor.',
+      en: 'This Java code defines an interface. Interfaces break implementation dependencies — you can use a mock/stub instead of real implementation during testing. The TODO line completes this definition.',
+    }
+    return {
+      tr: 'Bu Java kodunun eksik satırını tamamla. Java\'da tip güvenliği zorunlu — TODO\'nun tipi ve metodun imzasını üst/alt satırlardan okuyarak anla.',
+      en: 'Complete the missing line in this Java code. Java enforces type safety — read the type and method signature from lines above and below TODO to understand what is needed.',
+    }
+  }
+
+  // ── GIT ──────────────────────────────────────────────────────────────────────
+  if (pageKey === 'git') {
+    if (c.includes('git commit')) return {
+      tr: 'Bu Git komutunda commit ile değişiklikleri Git tarihine kaydediyorsun. Her commit mantıksal bir değişiklik birimi olmalı — TODO satırı bu commit adımını veya mesajını tamamlıyor.',
+      en: 'This Git command saves changes to Git history with commit. Each commit should be a logical unit of change — the TODO line completes this commit step or message.',
+    }
+    if (c.includes('git merge') || c.includes('git rebase')) return {
+      tr: 'Bu Git komutunda branch\'leri birleştiriyorsun. merge commit tarihini korur, rebase lineer geçmiş oluşturur — public branch\'leri rebase etme. TODO satırı bu adımı tamamlıyor.',
+      en: 'This Git command merges branches. merge preserves commit history, rebase creates linear history — do not rebase public branches. The TODO line completes this step.',
+    }
+    if (c.includes('git pull') || c.includes('git push') || c.includes('git fetch')) return {
+      tr: 'Bu Git komutunda uzak depo ile senkronizasyon yapıyorsun. pull = fetch + merge; fetch sadece indirir merge yapmaz — TODO satırı bu remote işlemini tamamlıyor.',
+      en: 'This Git command syncs with the remote repository. pull = fetch + merge; fetch only downloads without merging — the TODO line completes this remote operation.',
+    }
+    if (c.includes('git branch') || c.includes('git checkout') || c.includes('git switch')) return {
+      tr: 'Bu Git komutunda branch yönetimi yapıyorsun. Feature branch\'te çalış, main\'i temiz tut — her yeni özellik için yeni branch aç. TODO satırı bu branch adımını tamamlıyor.',
+      en: 'This Git command manages branches. Work in feature branches, keep main clean — open a new branch for each new feature. The TODO line completes this branch step.',
+    }
+    if (c.includes('git stash')) return {
+      tr: 'Bu Git komutunda stash ile yarım kalan değişiklikleri geçici olarak saklıyorsun. Başka bir branch\'e geçmeden önce commit etmeden saklamak için idealdir — TODO satırı bu stash adımını tamamlıyor.',
+      en: 'This Git command temporarily stores unfinished changes with stash. Ideal for saving without committing before switching branches — the TODO line completes this stash step.',
+    }
+    return {
+      tr: 'Bu Git komutunun eksik kısmını tamamla. Git komutları object-verb sırasıyla çalışır — TODO\'nun üst satırındaki komutu ve amacı okuyarak ne yazılması gerektiğini anla.',
+      en: 'Complete the missing part of this Git command. Git commands follow object-verb order — read the command and its purpose in the lines above TODO to understand what is needed.',
+    }
+  }
+
+  // ── LINUX ─────────────────────────────────────────────────────────────────────
+  if (pageKey === 'linux') {
+    if (c.includes('chmod') || c.includes('chown')) return {
+      tr: 'Bu Linux komutunda dosya izinlerini yönetiyorsun. chmod 755 = rwxr-xr-x (owner tüm izinler, group+diğerleri okuma+çalıştırma) — TODO satırı bu izin adımını tamamlıyor.',
+      en: 'This Linux command manages file permissions. chmod 755 = rwxr-xr-x (owner all permissions, group+others read+execute) — the TODO line completes this permission step.',
+    }
+    if (c.includes('grep ') || c.includes('sed ') || c.includes('awk ') || c.includes('cut ') || c.includes('sort ') || c.includes('uniq ')) return {
+      tr: 'Bu Linux komutunda metin işleme yapıyorsun. grep arar, sed değiştirir, awk sütun işler — pipeline ile birleştirince güçlü veri dönüştürme aracı olur. TODO satırı bu adımı tamamlıyor.',
+      en: 'This Linux command processes text. grep searches, sed substitutes, awk processes columns — combining with pipeline creates a powerful data transformation tool. The TODO line completes this step.',
+    }
+    if (c.includes('| ') || c.includes('> ') || c.includes('>> ') || c.includes('< ')) return {
+      tr: 'Bu Linux komutunda pipe veya yönlendirme kullanıyorsun. | çıktıyı sonraki komuta geçirir, > üzerine yazar, >> sona ekler — TODO satırı bu komut zincirini tamamlıyor.',
+      en: 'This Linux command uses pipe or redirection. | passes output to the next command, > overwrites, >> appends — the TODO line completes this command chain.',
+    }
+    if (c.includes('systemctl') || c.includes('service ') || c.includes('journalctl')) return {
+      tr: 'Bu Linux komutunda servis yönetimi yapıyorsun. systemctl start/stop/status ile servis kontrolü, journalctl ile log okuma yapılır — TODO satırı bu servis adımını tamamlıyor.',
+      en: 'This Linux command manages services. Use systemctl start/stop/status for service control, journalctl for log reading — the TODO line completes this service step.',
+    }
+    return {
+      tr: 'Bu Linux komutunun eksik kısmını tamamla. Komut seçeneklerini (flag\'leri) ve argüman sırasını dikkatli oku — Linux komutlarında sıralama ve boşluk önemlidir.',
+      en: 'Complete the missing part of this Linux command. Read the options (flags) and argument order carefully — in Linux commands, ordering and spacing matter.',
+    }
+  }
+
+  // ── JMETER, KAFKA, APPIUM, BROWSERSTACK, AWS, AZURE, BRUNO, vb. ─────────────
+  // Bu sayfalar için genel bir kod-bilinçli açıklama döndür
+  return {
+    tr: 'Yukarıdaki kod bloğunu dikkatlice oku, sonra bu micro lab\'da TODO satırını tamamla. Hint düğmesiyle ipuçlarına, "Beklenen Çıktıyı Göster" ile çözüme bakabilirsin.',
+    en: 'Read the code block above carefully, then complete the TODO line in this micro lab. Use the Hint button for clues and "Show Expected Output" to see the solution.',
+  }
+}
 
 function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
   const info = profileText(profile)
   const trCode = codeFor(block, 'tr') || codeFor(block, 'en')
   const enCode = codeFor(block, 'en') || codeFor(block, 'tr')
+  const codeTask = taskDescForCode(block, pageKey)
 
   return {
     type: 'code-playground',
@@ -1078,8 +1698,8 @@ function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
     },
     language: block.language || 'text',
     task: {
-      tr: info.taskTr,
-      en: info.taskEn,
+      tr: codeTask?.tr ?? info.taskTr,
+      en: codeTask?.en ?? info.taskEn,
     },
     explanation: {
       tr: 'TODO satirini beklenen cozumdeki kritik satirla degistir. Bu gercek runtime degil; amac dogru yapinin yazilmasini kontrollu olarak pekistirmek.',
@@ -1101,7 +1721,7 @@ function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
       tr: 'Cozum beklenen kod yapisiyla eslesti. Artik ayni ornegi sadece okumakla kalmadin; kritik satiri elinle yeniden kurdun.',
       en: 'The solution matches the expected code structure. You did not just read the example; you rebuilt the critical line by hand.',
     },
-    hints: hintsForCode(block),
+    hints: hintsForCode(block, pageKey),
     xpReward: 10,
   }
 }
@@ -1231,6 +1851,13 @@ export function fillMissingCodeTrios(data, pageKey) {
       for (let index = blocks.length - 1; index >= 0; index -= 1) {
         const block = blocks[index]
         if (block?.type !== 'code') continue
+
+        // Terminal/shell commands are shown for reference, not for interactive practice
+        const blockLang = compact(block?.language || '')
+        if (
+          blockLang === 'bash' || blockLang === 'shell' || blockLang === 'sh' ||
+          blockLang === 'powershell' || blockLang === 'cmd' || blockLang === 'text'
+        ) continue
 
         const state = sectionNeedsTrioAfterCode(blocks, index)
         const profile = resolveProfile(pageKey, block, sectionTitle)
