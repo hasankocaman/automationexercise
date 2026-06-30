@@ -10,6 +10,134 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-06-30, devam 9 — Windows, CSS Animasyon Rollout + Pedagojik Tutarlilik Duzeltmeleri)
+
+### Yapilan
+
+**1. CSS animasyon bloklari 9 data dosyasina eklendi (`CssAnimationBlock.jsx`'teki yeni kind'lar kullanilarak):**
+
+| Dosya | Eklenen kind | Ekleme noktasi |
+|---|---|---|
+| `playwrightData.js` | `playwright-autowait` | Intro simple-box'tan sonra |
+| `pythonData.js` | `python-flow` | "Swiss Army knife" text blogundan sonra |
+| `gitGithubData.js` | `git-flow` | "Labeled photos" simple-box'tan sonra |
+| `gitGithubData.js` | `git-branch` | Branching sekmesi simple-box'tan sonra |
+| `dockerData.js` | `docker-build` | "Shipping container" simple-box'tan sonra |
+| `linuxData.js` | `linux-pipe` | "Restaurant kitchen" simple-box'tan sonra |
+| `cypressData.js` | `cypress-retry` | "Film seti" simple-box'tan sonra |
+| `postmanData.js` | `postman-flow` | "Restoran telefon" simple-box'tan sonra |
+| `typescriptData.js` | `ts-typecheck` | "Emniyet kemeri" simple-box'tan sonra (replace_all: her iki TR/EN sekmesi) |
+| `sqlData.js` | `sql-select` | Intro simple-box'tan sonra |
+| `sqlData.js` | `sql-join` | JOINs sekmesi simple-box'tan sonra |
+
+Build: `npm run build` PASS (14.39s, 38 static route HTML shell, SEO check PASS).
+
+**2. TR dil kayması hatası düzeltildi (`pythonData.js`):**
+
+Sorun: `python-flow` animasyonu sections[0].blocks dizisine index 2'ye eklendi.
+`applyTr(sections[0], ...)` fonksiyonu index bazlı override kullandigindan tüm
+TR metnleri 1 index kaydı: `2: { text: 'Test Otomasyonu için...' }` override'i
+artık animasyon bloğunu hedef alıyordu, heading bloğunu değil.
+
+Düzeltme: `trSections[0]` override index'leri 2→3, 3→4, 4→5, 5→6, 6→7, 7→8
+olarak güncellendi. Index 2 (css-animation) için yorum satırı eklendi.
+
+Not: `typescriptData.js` etkilenmedi — o dosya tamamen bilingual format kullanıyor,
+`applyTr` mekanizması yok.
+
+**3. SQLite CLI için yanlış ipucu hatası düzeltildi (`interactiveTrioFillers.js`):**
+
+Sorun: `.schema users -- CREATE TABLE ifadesini göster` yorumundaki "CREATE TABLE"
+metni `c.includes('create table')` kontrolünü tetikliyordu → alakasız PRIMARY KEY
+ipucu çıkıyordu.
+
+Çözüm (2 katmanlı):
+- SQLite CLI tespiti: `isSqliteCli` flag'i `.tables`, `.quit`, `sqlite3 `, `.schema `,
+  `.headers on` içeren kodları ayırt eder → spesifik SQLite CLI ipuçları gösterir.
+- `create table` kontrolü güçlendirildi: artık `c.includes('create table') && c.includes('(')` —
+  gerçek DDL ifadesi parantez içerir, yorum metni içermez.
+- `taskDescForCode` için de SQLite CLI özel açıklaması eklendi.
+
+**4. Yazım hatası düzeltildi (`interactiveTrioFillers.js`):**
+
+"iceriginii" → "içeriğini" (Cypress sayfası order-sort items metninde).
+
+### Build & Doğrulama
+
+`npm run build` → PASS (15.31s ve 14.39s iki ayrı koşumda), 38 static route, SEO check PASS.
+
+---
+
+## Bu Oturumda Yapilan Is (2026-06-30, devam 8 — Windows, hintsForCode Framework-Aware Yeniden Yazimi)
+
+### Sorun
+
+Kullanici Selenium sayfasindaki "Kendin Yaz ve Dene" (code-playground) ipucu butonuna
+bastiginda, `.click()` icerikli Selenium kodunda `.should("be.visible").click()` gibi
+**Cypress syntax'li** ipucu gorunuyordu. Ayni sekilde diger ipuclari da konuya ozel
+degil, tum bloklar icin hep ayni (profil bazli) metnler veriyordu.
+
+Bunun yani sira, bir onceki oturumda asagidaki 2 hata da duzeltilmis ve bu oturumda
+dogrulandi:
+- **Fix 1 (onceki oturum):** Bir sekme icerisinde ayni profilde birden fazla `code` bloku
+  varsa, `step-animation` ve `order-sort` bloklari katlanerark tekrarlaniyordu (ornegin
+  Selenium Actions sekmesinde 5 özdeş "Adım Adım: Selenium Actions" blogu).
+  `addedStepProfiles` / `addedOrderProfiles` Set'leri ile section bazinda deduplication
+  eklenerek cozuldu.
+
+### Yapilan
+
+**`src/data/interactiveTrioFillers.js` — `hintsForCode` tamamen yeniden yazildi:**
+
+**Kok neden:** `hintsForCode(block)` fonksiyonu `pageKey` parametresine sahip degildi.
+`.click()`, `by.id()`, `.should()` gibi anahtar kelimeler TUM framework'lerde
+ayni sinama yapiliyordu — Selenium sayfasinda `.click()` bulununca Cypress syntax'li
+`.should("be.visible").click()` ipucu cikiyordu.
+
+**Cozum:** Fonksiyon imzasi `hintsForCode(block, pageKey)` olarak degistirildi ve
+tum icerik `if (pageKey === 'xxx') { ... }` bloklarina bolundu:
+
+| `pageKey` | Ipucu kaynagi |
+|---|---|
+| `selenium` | Selenium Java API: `WebDriverWait`, `elementToBeClickable`, `TakesScreenshot`, `Actions`, `Select`, `switchTo()`, `isDisplayed()`, `isEnabled()`, `getAttribute()`, `getText()` |
+| `playwright` | Playwright: `getByRole`, `getByLabel`, `toBeVisible`, `page.route`, `waitForResponse`, `.fill()` |
+| `cypress` | Cypress: `cy.get` retry, `cy.intercept` siralama, `cy.wait("@alias")`, `.should("be.visible")` |
+| `sql` | SQL: `SELECT *`, `WHERE` execution order, `HAVING vs WHERE`, `JOIN ON`, `CTE`, `ORDER BY` |
+| `python` | pytest: `@pytest.fixture scope`, `def test_` kesfedilme kurali, `assert is vs ==`, `parametrize` |
+| `typescript` | TS: `interface vs type`, generics `<T>`, `as any` uyarisi, utility types |
+| `docker` | Docker: FROM layer, COPY package once, RUN && birlestirme, depends_on readiness |
+| `jenkins` | Jenkins: `post { always }`, `credentials()`, `sh vs bat`, `parallel` |
+| `kubernetes` | K8s: `kubectl describe Events`, `--previous` flag, `kubectl apply idempotent`, `matchLabels` |
+| `restassured` | REST Assured: `given/when/then`, `body(JsonPath)`, `statusCode()` |
+| `postman` | Postman: `pm.test`, `pm.expect`, `pm.environment.set`, `pm.response.json()` |
+| `javascript` | JS: `async/await`, `fetch` 4xx reject etmez, `Promise.all vs allSettled`, `forEach async` |
+| Generic fallback | Simdi hicbir pattern eslesmezse, generic "TODO satirini yaz" mesajlari gelir |
+
+**`makePracticeBlock` cagri noktasi guncellendi (satir ~1181):**
+```js
+hints: hintsForCode(block, pageKey),  // pageKey artik iletiliyor
+```
+
+**Script ile yapildi:**
+- `C:\Users\1\AppData\Local\Temp\...\scratchpad\replace_hints.mjs` Node.js scripti
+  kullanilarak 671-1065. satirlar (396 satir eski fonksiyon) yeni 473 satirlik
+  framework-aware versiyonla degistirildi.
+
+**Dogrulama:**
+- `node --check src/data/interactiveTrioFillers.js` → **Syntax OK**
+- Dev server `http://localhost:5175` → calisiyor (5173/5174 port doluydu)
+- Production build (`npm run build`) bu makinede ENOMEM nedeniyle calismiyor —
+  bilinen pre-existing kisit, kod duzeyinde hata yok.
+
+**Bekleyen:**
+- Tarayicide Selenium, Playwright ve Cypress sayfalarinda ipucu metinlerini gorsel
+  olarak kontrol et — `.click()` olan Selenium kodunda artik `WebDriverWait +
+  elementToBeClickable` hint'i gelmeli; Cypress'te `.should("be.visible")` gelmeli.
+- Push henuz yapilmadi (`git push origin main` kullanicinin onayini bekliyor —
+  bkz. madde 1 asagida).
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-06-30, devam 7 — Windows, Son Durum)
 
 ### Branch Merge + Locator Explorer + Branch Temizligi
