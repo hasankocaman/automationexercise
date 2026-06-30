@@ -145,6 +145,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Read base image', 'Copy dependencies', 'Install layer', 'Add source', 'Verify command'],
     itemsTr: ['Base image ve calisma dizinini oku', 'Dependency manifestini kaynak koddan once kopyala', 'Install/build katmanini cache dostu calistir', 'Uygulama kaynaklarini en sona kopyala', 'Container komutu ve test kanitini dogrula'],
     itemsEn: ['Read the base image and workdir', 'Copy dependency manifests before source code', 'Run the install/build layer in a cache-friendly way', 'Copy application source last', 'Verify the container command and test evidence'],
+    hintsTr: ['FROM satirindaki base image katman olustururken cache dongusuyle calisir — once bagimliliklari kopyala, sonra kaynak kodu koy; sira degisince her build sifirdan baslar.', 'COPY package*.json ./ satirini RUN npm install den once yaz — boylece sadece package.json degisince install katmani yeniden calisir, kaynak kodu degisince calismaZ.', 'TODO satiri buyuk ihtimalle RUN install/build komutu veya son COPY satirıdır; katman sirasini boz.'],
+    hintsEn: ['The base image in FROM works with the layer cache — copy dependency files first, then source; reversing the order invalidates cache on every build.', 'Put COPY package*.json ./ before RUN npm install — so the install layer only reruns when package.json changes, not when source changes.', 'The TODO line is likely the RUN install/build command or the final COPY line; do not break layer order.'],
   },
   compose: {
     tr: 'Compose service siralama',
@@ -158,6 +160,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Define network/volume', 'Declare dependency', 'Prove readiness', 'Connect app', 'Run tests'],
     itemsTr: ['Ortak network ve volume ihtiyacini belirle', 'DB/cache gibi bagimliliklari tanimla', 'Healthcheck veya retry ile hazirligi kanitla', 'App servisini dogru hostname ile bagla', 'Test runner ve rapor volume adimini calistir'],
     itemsEn: ['Identify shared network and volume needs', 'Define dependencies such as db/cache', 'Prove readiness with healthcheck or retry', 'Connect the app service with the correct hostname', 'Run the test runner and report volume step'],
+    hintsTr: ['depends_on servisi baslatar ama hazirligini garantilemez; healthcheck tanimla veya wait-for-it scripti kullan — yoksa app, db ayaga kalkmadan baglanti dener.', 'Compose servis adi otomatik olarak hostname olur: app servisi db\'ye "db:5432" ile erisir, "localhost:5432" ile degil.', 'TODO satiri buyuk ihtimalle environment degiskeni, depends_on veya healthcheck satiridir; servis iliskisini dogru kur.'],
+    hintsEn: ['depends_on starts the service but does not guarantee readiness; define a healthcheck or use wait-for-it — otherwise the app tries to connect before db is up.', 'The Compose service name is automatically the hostname: app reaches db at "db:5432", not "localhost:5432".', 'The TODO line is likely an environment variable, depends_on, or healthcheck line; wire service relationships correctly.'],
   },
   docker: {
     tr: 'Docker komut debug',
@@ -171,6 +175,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Identify object', 'Flag order', 'Run command', 'Collect evidence', 'Clean up'],
     itemsTr: ['Komutun hangi nesneyi hedefledigini belirle', 'Flagleri image adindan once dogru yere koy', 'Komutu calistir ve cikis kodunu oku', 'ps/logs/inspect ile kanit topla', 'Gerekirse stop/rm/prune ile temizle'],
     itemsEn: ['Identify which object the command targets', 'Put flags in the right place before the image name', 'Run the command and read the exit code', 'Collect evidence with ps/logs/inspect', 'Clean up with stop/rm/prune if needed'],
+    hintsTr: ['Docker komutlari object-verb sirasiyla okunur: "docker container run", "docker image ls" — nesne once, eylem sonra gelir.', '-it interaktif terminal acar, -d arka planda calistirir, --rm cikinca container\'i siler; flaglerin konumu onemlidir.', 'TODO satiri buyuk ihtimalle flag veya image adi satiridır; siralamaya dikkat et.'],
+    hintsEn: ['Docker commands read as object-verb: "docker container run", "docker image ls" — object first, action second.', '-it opens an interactive terminal, -d runs in background, --rm removes the container on exit; flag placement matters.', 'The TODO line is likely a flag or image name line; pay attention to ordering.'],
   },
   // ── JENKINS ───────────────────────────────────────────────────────────────
   jenkins: {
@@ -185,6 +191,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Select agent', 'Checkout', 'Build/deps', 'Test evidence', 'Publish report'],
     itemsTr: ['pipeline ve agent ile calisma yerini sec', 'checkout ile kaynak kodu al', 'build/dependency stageini calistir', 'test stageinde kanit uret', 'post always icinde rapor ve bildirim yayinla'],
     itemsEn: ['Choose execution place with pipeline and agent', 'Fetch source code with checkout', 'Run the build/dependency stage', 'Produce evidence in the test stage', 'Publish reports and notifications inside post always'],
+    hintsTr: ['Jenkinsfile hiyerarsisi Java class-method-statement gibidir: pipeline > stages > stage > steps — her katman bir ust katmani gerektirir.', 'post { always { ... } } blogu test fail etse bile calisir; JUnit raporu ve bildirim buraya gider — yoksa fail\'de rapor kaybolur.', 'TODO satiri buyuk ihtimalle stage adi veya steps icindeki sh/bat komutudur.'],
+    hintsEn: ['Jenkinsfile hierarchy is like Java class-method-statement: pipeline > stages > stage > steps — each layer requires its parent.', 'The post { always { ... } } block runs even when tests fail; JUnit reports and notifications go here — otherwise reports are lost on failure.', 'The TODO line is likely a stage name or an sh/bat command inside steps.'],
   },
   // ── KUBERNETES ────────────────────────────────────────────────────────────
   'k8s-manifest': {
@@ -199,6 +207,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Resource type', 'Namespace', 'Label/selector', 'Repair spec', 'Prove rollout'],
     itemsTr: ['apiVersion ve kind ile kaynak tipini dogrula', 'metadata.name ve namespace kapsamlarini oku', 'selector ile pod label eslesmesini kontrol et', 'probe/resource/port gibi spec alanlarini onar', 'apply sonrasi rollout ve endpoint kanitini topla'],
     itemsEn: ['Verify resource type with apiVersion and kind', 'Read metadata.name and namespace scope', 'Check selector to pod label matching', 'Repair spec fields such as probes, resources, and ports', 'Collect rollout and endpoint evidence after apply'],
+    hintsTr: ['spec.selector.matchLabels ile Pod template.metadata.labels birebir eslesmeli — tek harf farki bile Deployment\'in Pod bulmamisina neden olur.', 'readinessProbe trafigi ne zaman alacagini, livenessProbe container canliligini kontrol eder; ikisi farkli amac tasiyor, birbiriyle karıstirma.', 'TODO satiri buyuk ihtimalle metadata.name, image tag veya port satiridir.'],
+    hintsEn: ['spec.selector.matchLabels must exactly match Pod template.metadata.labels — a single character difference causes the Deployment to find no Pods.', 'readinessProbe controls when traffic is received, livenessProbe checks container liveness; they serve different purposes, do not mix them up.', 'The TODO line is likely metadata.name, image tag, or a port line.'],
   },
   kubectl: {
     tr: 'kubectl output diagnosis',
@@ -212,6 +222,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Read status', 'Check events', 'Search logs', 'Apply fix', 'Prove result'],
     itemsTr: ['get ile STATUS ve READY sutunlarini oku', 'describe ile Events bolumunu incele', 'logs veya logs --previous ile uygulama hatasini ara', 'manifest/image/config duzeltmesini uygula', 'rollout status ve get ile sonucu kanitla'],
     itemsEn: ['Read STATUS and READY columns with get', 'Inspect the Events section with describe', 'Search app errors with logs or logs --previous', 'Apply the manifest/image/config fix', 'Prove the result with rollout status and get'],
+    hintsTr: ['kubectl get ozet verir, kubectl describe Events bolumunu gosterir — teshis always describe ile baslar, get ile degil.', 'logs --previous son olum oncesi container\'in loglarini gosterir; CrashLoopBackOff teshisinde bu kritiktir.', 'TODO satiri buyuk ihtimalle -n namespace flag veya kaynak tipidir (pod/deployment/service).'],
+    hintsEn: ['kubectl get gives a summary, kubectl describe shows the Events section — diagnosis always starts with describe, not get.', 'logs --previous shows logs from the container before its last death; this is critical for CrashLoopBackOff diagnosis.', 'The TODO line is likely the -n namespace flag or the resource type (pod/deployment/service).'],
   },
   'k8s-pipeline': {
     tr: 'Kubernetes pipeline dogrulama',
@@ -225,6 +237,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Pin image tag', 'Update manifest', 'Verify namespace', 'Wait rollout', 'Publish report'],
     itemsTr: ['Build edilen image tagini sabitle', 'Manifest veya Helm values icine ayni tagi gec', 'Namespace ve credential kapsamlarini dogrula', 'Rollout tamamlanana kadar bekle', 'Smoke test, logs ve raporu yayinla'],
     itemsEn: ['Pin the built image tag', 'Pass the same tag into manifests or Helm values', 'Verify namespace and credential scope', 'Wait until rollout completes', 'Publish smoke test, logs, and reports'],
+    hintsTr: ['Image tag olarak "latest" kullanma — commit SHA veya CI build numarasi kullan; yoksa hangi kod deploy oldu takip edilemez.', 'kubectl rollout status deployment/app-name ile deploy tamamlanmadan CI gecmemeli — yoksa yetersiz pod sayisiyla trafik gelir.', 'TODO satiri buyuk ihtimalle image tag veya namespace satiridir.'],
+    hintsEn: ['Do not use "latest" as image tag — use commit SHA or CI build number; otherwise you cannot track which code was deployed.', 'CI should not pass before kubectl rollout status deployment/app-name completes — otherwise traffic hits an insufficient number of pods.', 'The TODO line is likely the image tag or namespace line.'],
   },
   // ── TYPESCRIPT ────────────────────────────────────────────────────────────
   typescript: {
@@ -239,6 +253,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Define contract', 'Annotate type', 'Catch error', 'Verify test', 'Add to CI'],
     itemsTr: ['Veri sozlesmesini interface/type ile tanimla', 'Fonksiyon veya degiskene acik tip ver', 'tsc/editor hatasini kodu calistirmadan yakala', 'Runtime test veya assertion ile davranisi dogrula', 'CI icine tsc --noEmit kontrolu ekle'],
     itemsEn: ['Define the data contract with interface/type', 'Give the function or variable an explicit type', 'Catch the tsc/editor error before runtime', 'Verify behavior with runtime test or assertion', 'Add tsc --noEmit to CI'],
+    hintsTr: ['TypeScript tip hatası calisma zamanında degil derleme zamanında yakalanır — Java\'da compiler\'in yakalayacagi hata gibi; ancak .js dosyasinda bu koruma yoktur.', 'interface nesne sozlesmeleri icin, type alias union/intersection icin tercih edilir; ikisi de calısır ama iyi pratik ayrimi kullan.', 'TODO satiri buyuk ihtimalle tip annotation (:string, :number) veya return tip bildirimi satiridir.'],
+    hintsEn: ['TypeScript type errors are caught at compile time, not runtime — like a Java compiler error; without it, a .js file has no such protection.', 'interface is preferred for object contracts, type alias for union/intersection; both work but follow the good-practice distinction.', 'The TODO line is likely a type annotation (:string, :number) or return type declaration.'],
   },
   // ── PYTHON ────────────────────────────────────────────────────────────────
   python: {
@@ -253,6 +269,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Read input', 'Complete line', 'Compare output', 'Read error', 'Reuse result'],
     itemsTr: ['Girdi ve veri tiplerini oku', 'Kritik satiri en kucuk degisiklikle tamamla', 'Kodu calistirip beklenen ciktiyi karsilastir', 'Hata varsa traceback veya assertion mesajini oku', 'Test raporu icin sonucu tekrar kullanilabilir hale getir'],
     itemsEn: ['Read inputs and data types', 'Complete the critical line with the smallest change', 'Run the code and compare expected output', 'If it fails, read traceback or assertion message', 'Make the result reusable for a test report'],
+    hintsTr: ['Python\'da girinti (indentation) Java\'daki {} yerine blok sinirlarini belirler — 4 bosluk standardi; tab ile bosluk karistirma.', 'pytest fixture\'lari Java\'daki @BeforeEach gibi calisir ama scope parametresiyle her test, her session veya her modul icin ayri olusturulabilir.', 'TODO satiri buyuk ihtimalle assert, return veya ilk anlamli islem satirıdır.'],
+    hintsEn: ['In Python, indentation defines block boundaries instead of {} like Java — 4-space standard; do not mix tabs and spaces.', 'pytest fixtures work like Java @BeforeEach but can be scoped per test, session, or module with the scope parameter.', 'The TODO line is likely an assert, return, or the first meaningful operation line.'],
   },
   // ── SELENIUM ──────────────────────────────────────────────────────────────
   'selenium-locator': {
@@ -267,6 +285,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Check ID', 'Stable attribute', 'Write CSS', 'XPath last resort', 'Verify in CI'],
     itemsTr: ['Elementin ID attribute\'u var mi kontrol et — varsa By.ID kullan', 'ID yoksa data-testid, name gibi stabil attribute dene', 'Attribute yoksa CSS selector yaz (.class, #id, tag[attr="val"])', 'CSS de calismazsa XPath yaz — ama mumkun oldugunca kisa tut', 'Test calisinca locator\'in CI\'da da stabil oldugunu dogrula'],
     itemsEn: ['Check if element has an ID attribute — if yes, use By.ID', 'If no ID, try stable attributes like data-testid or name', 'If no attribute, write a CSS selector (.class, #id, tag[attr="val"])', 'If CSS also fails, write XPath — but keep it as short as possible', 'After test runs, verify the locator is also stable in CI'],
+    hintsTr: ['By.ID en hizli ve guvenilir locatordur — sayfada benzersiz bir ID varsa her zaman bunu sec; CSS veya XPath gereksiz kırılganlık ekler.', '//div[@class="x"]//button gibi uzun XPath zincirleri UI degisince kirilir; By.cssSelector("[data-testid=btn]") gibi kisa ve stabil bir alternatif tercih et.', 'TODO satiri buyuk ihtimalle By.ID("x"), By.cssSelector(".class") veya By.xpath("...") satiridır.'],
+    hintsEn: ['By.ID is the fastest and most reliable locator — if there is a unique ID on the page, always use it; CSS or XPath adds unnecessary fragility.', 'Long XPath chains like //div[@class="x"]//button break when UI changes; prefer a short stable alternative like By.cssSelector("[data-testid=btn]").', 'The TODO line is likely By.ID("x"), By.cssSelector(".class"), or By.xpath("...").'],
   },
   'selenium-wait': {
     tr: 'Selenium — Wait stratejisi',
@@ -280,6 +300,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Remove sleep', 'Create WebDriverWait', 'Select condition', 'Write wait.until()', 'Read timeout message'],
     itemsTr: ['Thread.sleep veya implicit wait kullaniliyorsa kaldir', 'WebDriverWait nesnesi olustur: new WebDriverWait(driver, Duration.ofSeconds(10))', 'ExpectedConditions ile kosulu sec: visibilityOf, elementToBeClickable', 'wait.until(ExpectedConditions.X(locator)) ile elementi bekle', 'Timeout hatasi alirsan sureyi artirma — locator veya sayfayi duzelt'],
     itemsEn: ['Remove Thread.sleep or implicit wait if present', 'Create WebDriverWait: new WebDriverWait(driver, Duration.ofSeconds(10))', 'Set the condition with ExpectedConditions: visibilityOf, elementToBeClickable', 'Wait for element with wait.until(ExpectedConditions.X(locator))', 'If you get a timeout error, do not increase the time — fix the locator or the page'],
+    hintsTr: ['Thread.sleep(5000) agin hizına korkek bir guvence verir — 5sn beklesen de hata beklesen de 5sn sur; WebDriverWait ise element hazir olmaz olmaz devam eder.', 'ExpectedConditions.elementToBeClickable hem gorunur hem tiklanabilir olmayi bekler — visibilityOf sadece gorunurlugu kontrol eder.', 'TODO satiri buyuk ihtimalle new WebDriverWait(...) olusturma veya wait.until(...) satiridir.'],
+    hintsEn: ['Thread.sleep(5000) is a fearful bet on network speed — it waits 5s whether it errors in 0.5s or takes 5s; WebDriverWait continues the moment the element is ready.', 'ExpectedConditions.elementToBeClickable waits for both visible AND clickable — visibilityOf only checks visibility.', 'The TODO line is likely the new WebDriverWait(...) creation or the wait.until(...) call.'],
   },
   'selenium-action': {
     tr: 'Selenium — UI Aksiyonlari',
@@ -293,6 +315,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Find element', 'Is visible?', 'Perform action', 'Watch DOM change', 'Add assertion'],
     itemsTr: ['Locator ile elementi bul (By.ID, By.CSS veya By.XPath)', 'WebDriverWait ile elementin tiklanabilir oldugunu dogrula', 'click() / sendKeys() / select() aksiyonunu gerceklestir', 'Aksiyon sonrasi DOM degisikligini gozlemle (alert, yeni sayfa, renk vs.)', 'assertEquals / assertTrue ile beklenen durumu kanitla'],
     itemsEn: ['Find element with locator (By.ID, By.CSS or By.XPath)', 'Verify element is clickable with WebDriverWait', 'Perform the click() / sendKeys() / select() action', 'Observe the DOM change after action (alert, new page, color, etc.)', 'Prove the expected state with assertEquals / assertTrue'],
+    hintsTr: ['click() cagirmadan once WebDriverWait ile tiklanabilir oldugunu dogrula — yoksa StaleElementReferenceException alabilirsin.', 'sendKeys() metni girer, clear() onceki metni temizler — form alanına yazarken once .clear() sonra .sendKeys("yeni") dene.', 'TODO satiri buyuk ihtimalle findElement(), click() veya sendKeys() satiridir.'],
+    hintsEn: ['Verify the element is clickable with WebDriverWait before calling click() — otherwise you may get StaleElementReferenceException.', 'sendKeys() types text, clear() clears existing text — when filling a form field, try .clear() then .sendKeys("new") in sequence.', 'The TODO line is likely a findElement(), click(), or sendKeys() call.'],
   },
   'selenium-frames': {
     tr: 'Selenium — Frame ve Alert yonetimi',
@@ -306,6 +330,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Frame or alert?', 'Enter switchTo()', 'Perform action', 'Return to defaultContent', 'Handle alert if present'],
     itemsTr: ['iframe mi JavaScript alert mi? Onu belirle', 'driver.switchTo().frame(id veya WebElement) ile iframe\'e gec', 'iframe icindeki elementi bul ve aksiyon gerceklestir', 'driver.switchTo().defaultContent() ile ana icerge don', 'Alert varsa accept() veya dismiss() ile kapat'],
     itemsEn: ['Is it an iframe or JavaScript alert? Determine that first', 'Switch to iframe with driver.switchTo().frame(id or WebElement)', 'Find the element inside the iframe and perform the action', 'Return to main content with driver.switchTo().defaultContent()', 'If alert, close with accept() or dismiss()'],
+    hintsTr: ['switchTo().frame() sonrasinda defaultContent()\'e donmeyi unutursan ana sayfadaki elementler "no such element" verir — baglam degismeden bulunmazlar.', 'Alert handle etmek icin switchTo().alert() ile alerte gec, getText() ile mesaji al, accept() veya dismiss() ile kapat.', 'TODO satiri buyuk ihtimalle switchTo().frame(...) veya switchTo().defaultContent() satiridir.'],
+    hintsEn: ['If you forget to call defaultContent() after switchTo().frame(), elements on the main page give "no such element" — they cannot be found without context switch.', 'To handle an alert, switch with switchTo().alert(), get the message with getText(), then close with accept() or dismiss().', 'The TODO line is likely switchTo().frame(...) or switchTo().defaultContent().'],
   },
   'selenium-debug': {
     tr: 'Selenium — Debug ve Screenshot',
@@ -319,6 +345,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Test fails', 'Take screenshot', 'Save HTML', 'Read console log', 'Add CI artifact'],
     itemsTr: ['Test fail ettiginde hata mesajini ve stack trace\'i oku', 'getScreenshotAs(OutputType.FILE) ile anlik goruntu al', 'driver.getPageSource() ile HTML dumpini kaydet', 'browser.manage().logs() ile JS console hatalarini incele', 'CI\'a screenshot/log artifact olarak ekle, tekrar uretebilir ol'],
     itemsEn: ['When test fails, read the error message and stack trace', 'Take a snapshot with getScreenshotAs(OutputType.FILE)', 'Save the HTML dump with driver.getPageSource()', 'Inspect JS console errors with browser.manage().logs()', 'Add screenshot/log as CI artifact, make failure reproducible'],
+    hintsTr: ['Screenshot almak icin WebDriver\'i TakesScreenshot\'a cast et: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)', 'driver.getPageSource() test anindaki HTML dumpini verir — locator bulmada "element neden gorunmuyor" sorusunun cevabini gosteriyor.', 'TODO satiri buyuk ihtimalle getScreenshotAs(OutputType.FILE) veya getPageSource() satiridir.'],
+    hintsEn: ['To take a screenshot, cast WebDriver to TakesScreenshot: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)', 'driver.getPageSource() returns the HTML dump at test time — it shows why an element is "not visible" when the locator cannot find it.', 'The TODO line is likely getScreenshotAs(OutputType.FILE) or getPageSource().'],
   },
   'selenium-grid': {
     tr: 'Selenium Grid — Paralel test',
@@ -332,6 +360,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Set up Grid', 'Add Node', 'Set capabilities', 'Run in parallel', 'Collect results'],
     itemsTr: ['Grid Hub\'i baslat veya Standalone modunu yap', 'Test makinelerini Node olarak Hub\'a bagla', 'RemoteWebDriver icinde DesiredCapabilities ile hedef tarayici/OS sec', 'Test suite\'ini paralel modda calistir (TestNG paralel, JUnit parallel runner)', 'Raporu topla, hata alan Node\'u teshis et'],
     itemsEn: ['Start the Grid Hub or configure Standalone mode', 'Connect test machines as Nodes to the Hub', 'Select target browser/OS with DesiredCapabilities inside RemoteWebDriver', 'Run the test suite in parallel mode (TestNG parallel, JUnit parallel runner)', 'Collect reports, diagnose the failing Node'],
+    hintsTr: ['RemoteWebDriver\'i olustururken Hub URL (http://hub:4444/wd/hub) ve DesiredCapabilities (browserName, platform) dogru olmali — aksi halde Node bulunamaz.', 'Paralel testte TestNG paralel="methods" her metodu, paralel="tests" her test tag\'ini farkli thread\'de calistirir; WebDriver instance thread-safe olmali.', 'TODO satiri buyuk ihtimalle RemoteWebDriver olusturma veya capabilities ayarlama satiridir.'],
+    hintsEn: ['When creating RemoteWebDriver, Hub URL (http://hub:4444/wd/hub) and DesiredCapabilities (browserName, platform) must be correct — otherwise no Node is found.', 'In parallel testing, TestNG parallel="methods" runs each method in a separate thread, parallel="tests" runs each test tag; WebDriver instances must be thread-safe.', 'The TODO line is likely the RemoteWebDriver creation or capabilities setup.'],
   },
   // ── PLAYWRIGHT ────────────────────────────────────────────────────────────
   'playwright-locator': {
@@ -346,6 +376,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Try semantic', 'Use TestId', 'Write CSS/locator()', 'Verify toBeVisible', 'Narrow with filter()'],
     itemsTr: ['Once getByRole, getByLabel, getByPlaceholder gibi semantic locator dene', 'Semantic bulamazsan getByText veya getByTestId kullan', 'CSS/XPath gerekiyorsa page.locator("css") veya page.locator("xpath=...") yaz', 'await expect(locator).toBeVisible() ile locatorin calistigini dogrula', 'Birden fazla element eslesiryorsa .first() / .nth() / .filter() ile daralt'],
     itemsEn: ['Try semantic locators first: getByRole, getByLabel, getByPlaceholder', 'If not semantic, use getByText or getByTestId', 'If CSS/XPath needed, write page.locator("css") or page.locator("xpath=...")', 'Verify locator works with await expect(locator).toBeVisible()', 'If multiple elements match, narrow with .first() / .nth() / .filter()'],
+    hintsTr: ['getByRole semantic locator olarak ARIA role kullanir — buton ID veya class degisince bile calisir; CSS locator bu durumda kirilir.', 'Bir locator birden fazla element donuyorsa .first() veya .filter({ hasText: "..." }) ile daralt — yoksa Playwright hangi elementi kullanacagini bilemez.', 'TODO satiri buyuk ihtimalle getByRole(), getByLabel() veya page.locator() satiridir.'],
+    hintsEn: ['getByRole uses ARIA role as a semantic locator — it keeps working even when button IDs or classes change; a CSS locator would break in that scenario.', 'If a locator returns multiple elements, narrow with .first() or .filter({ hasText: "..." }) — otherwise Playwright does not know which element to use.', 'The TODO line is likely getByRole(), getByLabel(), or page.locator().'],
   },
   'playwright-action': {
     tr: 'Playwright — Aksiyonlar',
@@ -359,6 +391,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Prepare locator', 'Understand auto-wait', 'Perform action', 'Watch DOM', 'Add expect()'],
     itemsTr: ['page.locator() veya getByRole() ile locatoru hazirla', 'Playwright\'in auto-wait mantigini hatirla: actionable olana kadar bekler', 'click(), fill(), press(), selectOption() aksiyonunu gerceklestir', 'Aksiyon sonrasi DOM degisikligini takip et (yeni sayfa, modal, hata mesaji)', 'await expect(locator).toBeVisible() veya toHaveText() ile sonucu kanitla'],
     itemsEn: ['Prepare the locator with page.locator() or getByRole()', 'Remember Playwright auto-wait logic: waits until actionable', 'Perform click(), fill(), press(), selectOption() action', 'Track DOM change after action (new page, modal, error message)', 'Prove the result with await expect(locator).toBeVisible() or toHaveText()'],
+    hintsTr: ['Playwright auto-wait icerdigindan ayri bir bekleme kodu yazmana gerek yok — ama timeout artirmak cop cozum; "neden element actionable degil" sorusunu sor.', 'fill() once alani temizler sonra doldurur; type() karakter karakter yazar — form testlerinde fill() tercih et.', 'TODO satiri buyuk ihtimalle click(), fill(), press() veya selectOption() satiridir.'],
+    hintsEn: ['Playwright includes auto-wait so you do not need separate wait code — but increasing timeout is a bad solution; ask "why is the element not actionable?".', 'fill() clears the field first then fills it; type() types character by character — prefer fill() in form tests.', 'The TODO line is likely click(), fill(), press(), or selectOption().'],
   },
   'playwright-assertion': {
     tr: 'Playwright — Assertion yazma',
@@ -372,6 +406,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['What to assert?', 'Select matcher', 'Write assertion', 'Read fail message', 'CI stability'],
     itemsTr: ['Ne dogulanacagini belirle: gorunurluk mu? metin mi? URL mi? attribute mu?', 'Dogru matcher\'i sec: toBeVisible / toHaveText / toHaveURL / toHaveAttribute', 'await expect(locator).matcher(beklenenDeger) seklinde yaz', 'Test fail ettiginde olusan hata mesajini oku — hangi deger beklendi vs geldi?', 'Ayni assertion CI\'da farkli ortamlarda da geciyor mu dogrula'],
     itemsEn: ['Determine what to assert: visibility? text? URL? attribute?', 'Select the right matcher: toBeVisible / toHaveText / toHaveURL / toHaveAttribute', 'Write: await expect(locator).matcher(expectedValue)', 'When test fails, read the error message — which value was expected vs received?', 'Verify the same assertion also passes in CI across different environments'],
+    hintsTr: ['toBeVisible() element DOM\'da VE gorunur olmasi icin kontrol eder; toHaveText() icerigi kontrol eder — ikisini karistirma, ikisi farkli seyler sorar.', 'Yanlis matcher yanlis PASS verebilir: element gizli olsa dahi toHaveText gecer — once toBeVisible(), sonra toHaveText() yaz.', 'TODO satiri buyuk ihtimalle expect(locator).toBeVisible() veya toHaveText("...") satiridir.'],
+    hintsEn: ['toBeVisible() checks the element is in the DOM AND visible; toHaveText() checks content — do not mix them, they ask different questions.', 'A wrong matcher gives wrong PASS: toHaveText may pass even if the element is hidden — write toBeVisible() first, then toHaveText().', 'The TODO line is likely expect(locator).toBeVisible() or toHaveText("...").'],
   },
   'playwright-network': {
     tr: 'Playwright — Network mock',
@@ -385,6 +421,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Identify endpoint', 'Set page.route()', 'Write mock response', 'Run test', 'Clean route'],
     itemsTr: ['Hangi API endpoint mock\'lanacak belirle (URL pattern)', 'await page.route("**/api/endpoint", ...) ile intercept\'i kur', 'route.fulfill({ status: 200, body: JSON.stringify(mockData) }) ile response ver', 'Testi calistir: UI mock veriye gore cevap veriyor mu dogrula', 'Test sonrasi await page.unroute() ile mock\'u iptal et'],
     itemsEn: ['Determine which API endpoint to mock (URL pattern)', 'Set up intercept with await page.route("**/api/endpoint", ...)', 'Return response with route.fulfill({ status: 200, body: JSON.stringify(mockData) })', 'Run the test: verify that UI responds correctly to mock data', 'Cancel mock after test with await page.unroute()'],
+    hintsTr: ['page.route() glob pattern kabul eder: "**/api/**" tum /api/ altindaki istekleri yakalar; sadece belirli endpoint icin "**users**" gibi yazilabilir.', 'route.fulfill() ile status, body ve headers ayri ayri belirtilebilir — 500 hata senaryosu test etmek icin { status: 500, body: "Server Error" } ver.', 'TODO satiri buyuk ihtimalle route.fulfill({...}) veya waitForResponse() satiridir.'],
+    hintsEn: ['page.route() accepts glob patterns: "**/api/**" catches all requests under /api/; use "**users**" to target a specific endpoint.', 'With route.fulfill() you can set status, body and headers separately — for a 500 error scenario, pass { status: 500, body: "Server Error" }.', 'The TODO line is likely route.fulfill({...}) or waitForResponse().'],
   },
   'playwright-fixture': {
     tr: 'Playwright — Fixture ve Setup',
@@ -398,6 +436,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['What to share?', 'Create context', 'Prepare page', 'Run test', 'Teardown'],
     itemsTr: ['Testler arasi paylasılacak kodu belirle: login, URL, cookie', 'test.beforeEach(() => ...) veya fixture ile context/page olustur', 'await page.goto(baseURL) ile baslangic durumunu hazirla', 'Test icinde sadece o teste ozel aksiyonlari yap', 'test.afterEach veya scope\'dan cikinca Playwright otomatik temizler'],
     itemsEn: ['Identify what to share between tests: login, URL, cookie', 'Create context/page with test.beforeEach(() => ...) or fixture', 'Prepare the initial state with await page.goto(baseURL)', 'Only perform actions specific to that test inside the test body', 'test.afterEach or Playwright auto-cleans when scope exits'],
+    hintsTr: ['Playwright fixture\'larinda scope: "test" her test icin, scope: "worker" worker basina bir kez olusturur — login pahaliysa worker scope daha verimli.', 'beforeEach icinde page hazirlanmis olsa da goto() test baslamadan URL\'de olmani gerektirir — yoksa tests bos sayfayla baslayabilir.', 'TODO satiri buyuk ihtimalle fixture tanimlama veya beforeEach icindeki goto() satiridir.'],
+    hintsEn: ['In Playwright fixtures, scope: "test" creates one per test, scope: "worker" creates once per worker — if login is expensive, worker scope is more efficient.', 'Even if page is prepared in beforeEach, goto() requires you to already be at the URL before tests start — otherwise tests may begin on a blank page.', 'The TODO line is likely the fixture definition or goto() inside beforeEach.'],
   },
   // ── CYPRESS ───────────────────────────────────────────────────────────────
   'cypress-get': {
@@ -412,6 +452,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Check data-cy', 'Write cy.get()', 'Filter by text', 'Find child', 'Chain assertion'],
     itemsTr: ['data-cy attribute var mi kontrol et — varsa cy.get("[data-cy=btn]") kullan', 'data-cy yoksa cy.get("#id") veya cy.get(".class") yaz', 'Metin icerigi onemse cy.contains("Giris Yap") veya .contains() zincirle', 'Ic iceye yapi gerekiyorsa .find("button") ile cocuk elementi ara', 'Assertion: .should("be.visible"), .should("have.text", "...")'],
     itemsEn: ['Check if data-cy attribute exists — if yes, use cy.get("[data-cy=btn]")', 'If no data-cy, write cy.get("#id") or cy.get(".class")', 'If text content matters, use cy.contains("Login") or chain .contains()', 'If nested structure needed, find child element with .find("button")', 'Assert: .should("be.visible"), .should("have.text", "...")'],
+    hintsTr: ['data-cy attribute test icin ozel tasarlanmistir — production\'a etki etmez, stilden bagimsizdir, UI yeniden yapilaninca bile sabit kalir.', 'cy.contains() metin aramayi retry ile yapar: element DOM\'da guncellense bile Cypress 4sn icinde tekrar dener — ayri bekleme kodu gerekmez.', 'TODO satiri buyuk ihtimalle cy.get("[data-cy=...]") veya cy.contains("metin") satiridir.'],
+    hintsEn: ['The data-cy attribute is designed specifically for testing — it does not affect production, is style-independent, and stays stable even when UI is restructured.', 'cy.contains() does text search with retry: even if the element updates in the DOM, Cypress retries within 4s — no separate wait code needed.', 'The TODO line is likely cy.get("[data-cy=...]") or cy.contains("text").'],
   },
   'cypress-intercept': {
     tr: 'Cypress — API Intercept',
@@ -425,6 +467,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Identify endpoint', 'Set cy.intercept()', 'Run cy.visit()', 'Wait with cy.wait()', 'Verify response'],
     itemsTr: ['Hangi endpoint yakalanacak belirle: URL pattern veya method + pattern', 'cy.intercept("GET", "**/api/users", { fixture: "users.json" }).as("getUsers") kur', 'cy.visit() veya aksiyonu tetikle, intercept\'in ateşlenmesini bekle', 'cy.wait("@getUsers") ile istek gerceklesene kadar bekle', 'cy.get("@getUsers").its("response.statusCode").should("eq", 200) dogrula'],
     itemsEn: ['Determine which endpoint to capture: URL pattern or method + pattern', 'Set up: cy.intercept("GET", "**/api/users", { fixture: "users.json" }).as("getUsers")', 'Trigger cy.visit() or action, wait for the intercept to fire', 'Wait for the request with cy.wait("@getUsers")', 'Verify: cy.get("@getUsers").its("response.statusCode").should("eq", 200)'],
+    hintsTr: ['cy.intercept() visit\'ten ONCE tanimlanmali — request visit ile tetiklenir; sonra tanimlarsan yakalanamaz.', 'cy.wait("@alias") ile istek gerceklesene kadar bekleme yapilir — response olmadan assertion yaparsan yanlis PASS alabilirsin.', 'TODO satiri buyuk ihtimalle cy.intercept() kurulumu veya cy.wait("@alias") satiridir.'],
+    hintsEn: ['cy.intercept() must be defined BEFORE cy.visit() — the request is triggered by the visit; defining it after means it cannot be captured.', 'cy.wait("@alias") waits until the request fires — if you assert before the response arrives you may get a wrong PASS.', 'The TODO line is likely the cy.intercept() setup or cy.wait("@alias").'],
   },
   'cypress-command': {
     tr: 'Cypress — Komut zinciri',
@@ -438,6 +482,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Select with cy.get()', 'Chain command', 'Wait retry', 'Add should()', 'Test in CI'],
     itemsTr: ['cy.get(locator) ile hedef elementi se', 'Aksiyon komutunu zincirle: .click() / .type("metin") / .select("secenek")', 'Cypress otomatik retry yapar — 4s icinde komut basarili olmassa fail eder', '.should("have.value", "metin") ile DOM degisikligini dogrula', 'Ayni zinciri CI\'da farkli viewport\'ta da calistir, responsive kontrol et'],
     itemsEn: ['Select the target element with cy.get(locator)', 'Chain the action command: .click() / .type("text") / .select("option")', 'Cypress auto-retries — if command does not succeed within 4s it fails', 'Verify DOM change with .should("have.value", "text")', 'Run the same chain in CI with a different viewport, check responsive behavior'],
+    hintsTr: ['Cypress komutlari senkron gibi gorunur ama her biri kuyruga girer ve oncekinin tamamlanmasini bekler — manuel await yazmana gerek yok.', '.type() oncesinde .clear() kullanmayi unutma — onceki metin kalirsa test belirsiz PASS veya yanlis veri ile devam eder.', 'TODO satiri buyuk ihtimalle .type("metin"), .click() veya .select("secenek") satiridir.'],
+    hintsEn: ['Cypress commands look synchronous but each enters a queue and waits for the previous to complete — no manual await needed.', 'Do not forget to use .clear() before .type() — leftover text causes an ambiguous PASS or tests continuing with wrong data.', 'The TODO line is likely .type("text"), .click(), or .select("option").'],
   },
   'cypress-assert': {
     tr: 'Cypress — Assertion yazma',
@@ -451,6 +497,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['What to assert?', 'Visibility', 'Text check', 'Attribute check', 'Read fail message'],
     itemsTr: ['Neyi dogrulayacagini belirle: gorunurluk / metin / CSS / attribute', '.should("be.visible") ile elementin gorunur oldugunu dogrula', '.should("contain.text", "Giris Basarili") ile metin iceriginii kontrol et', '.should("have.attr", "disabled") veya "href" ile attribute dogrula', 'Test fail ettiginde Cypress hata mesajini oku: expected X to ... but got Y'],
     itemsEn: ['Determine what to assert: visibility / text / CSS / attribute', 'Verify element is visible with .should("be.visible")', 'Check text content with .should("contain.text", "Login Successful")', 'Verify attribute with .should("have.attr", "disabled") or "href"', 'When test fails, read Cypress error: expected X to ... but got Y'],
+    hintsTr: ['.should("be.visible") elementin DOM\'da VE gorunur oldugunu kontrol eder — element DOM\'da ama hidden olsa dahi bu fail eder.', '.should("have.text", x) tam metin eslesimi yapar; .should("contain.text", x) kismi metin icin — icerigi tum bos bosluklar dahil eslestirir.', 'TODO satiri buyuk ihtimalle .should("be.visible") veya .should("contain.text", "...") satiridir.'],
+    hintsEn: ['.should("be.visible") checks the element is in the DOM AND visible — it fails even if the element is in the DOM but hidden.', '.should("have.text", x) is an exact text match; .should("contain.text", x) is for partial text — it matches including all whitespace.', 'The TODO line is likely .should("be.visible") or .should("contain.text", "...").'],
   },
   // ── SQL ───────────────────────────────────────────────────────────────────
   'sql-create': {
@@ -465,6 +513,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Define entity', 'Select type', 'PRIMARY KEY', 'NOT NULL constraint', 'FOREIGN KEY'],
     itemsTr: ['Tablonun hangi varligi temsil ettigini belirle (users, orders, products)', 'Her sutun icin isim ve uygun veri tipi sec (INT, VARCHAR(255), DATE, BOOLEAN)', 'PRIMARY KEY sutununu belirle — benzersiz, degismez, NULL olamaz', 'NOT NULL kisitini zorunlu is alanlarina ekle', 'FOREIGN KEY ile iliskili tabloya referans ver, ON DELETE davranisini sec'],
     itemsEn: ['Determine what entity the table represents (users, orders, products)', 'Choose name and appropriate data type for each column (INT, VARCHAR(255), DATE, BOOLEAN)', 'Identify PRIMARY KEY column — unique, immutable, cannot be NULL', 'Add NOT NULL constraint to mandatory business fields', 'Reference the related table with FOREIGN KEY, choose ON DELETE behavior'],
+    hintsTr: ['PRIMARY KEY otomatik NOT NULL demektir — ayrica NOT NULL yazman gerekmez; ama bunu bilmeden iki kez yazabilirsin, hata vermez sadece gereksiz olur.', 'VARCHAR(255) cok kullanilir ama uygun uzunluk sec — e-mail icin 320, telefon icin 20 yeter; gereksiz buyuk alan disk israf eder.', 'TODO satiri buyuk ihtimalle sutun tanimlama satiri veya PRIMARY KEY/NOT NULL kisit bildirimidir.'],
+    hintsEn: ['PRIMARY KEY implies NOT NULL automatically — you do not need to write NOT NULL again; writing it twice is harmless but redundant.', 'VARCHAR(255) is common but choose an appropriate length — 320 for email, 20 for phone is enough; unnecessarily large fields waste disk.', 'The TODO line is likely a column definition line or a PRIMARY KEY/NOT NULL constraint declaration.'],
   },
   'sql-insert': {
     tr: 'SQL — Veri ekleme',
@@ -478,6 +528,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['List table and columns', 'Prepare VALUES', 'Identify NULL fields', 'Read result', 'Conflict strategy'],
     itemsTr: ['INSERT INTO tabloadi (sutun1, sutun2) seklinde sutunlari ac.a yaz', 'VALUES (deger1, deger2) ile her sutun icin deger sagla', 'NULL olabilecek alanlari NULL olarak ya da default deger ile gec', 'RETURNING id veya SELECT son satir ile eklenen kaydı dogrula', 'Cakisma ihtimali varsa ON CONFLICT DO NOTHING / UPDATE ile strateji belirle'],
     itemsEn: ['Write column names explicitly: INSERT INTO tablename (col1, col2)', 'Provide a value for each column with VALUES (val1, val2)', 'Pass nullable fields as NULL or with default value', 'Verify the inserted record with RETURNING id or SELECT last row', 'If conflict is possible, set strategy with ON CONFLICT DO NOTHING / UPDATE'],
+    hintsTr: ['Sutun listesi yazmayi atlarsan tablo yeni sutun alinca sorgu bozulur veya yanlis sutuna veri gider — her INSERT\'te sutun listesi yaz.', 'ON CONFLICT DO NOTHING ayni PRIMARY KEY ikinci kez eklenmeye calisilinca hatayi sessizce yutar — idempotent veri yuklemelerinde kullanilir.', 'TODO satiri buyuk ihtimalle VALUES listesi veya eksik olan sutun deger satiridır.'],
+    hintsEn: ['Skipping the column list means your query breaks when the table gets a new column, or data goes to the wrong column — always write the column list in INSERT.', 'ON CONFLICT DO NOTHING silently absorbs a duplicate PRIMARY KEY insertion — used for idempotent data loads.', 'The TODO line is likely the VALUES list or a missing column value.'],
   },
   'sql-select': {
     tr: 'SQL — Veri sorgulama',
@@ -491,6 +543,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['FROM — source', 'WHERE — filter', 'SELECT — columns', 'ORDER BY — sort', 'LIMIT — count limit'],
     itemsTr: ['FROM ile hangi tablodan veri cekecegini belirle', 'WHERE ile satrılari filtrele — calistirilacak ilk mantiksal adim', 'SELECT ile hangi sutunları gorecegini sec — * yerine acik sutun adi yaz', 'ORDER BY ile siralama sutununu ve yonunu (ASC/DESC) belirle', 'LIMIT ile donecek maksimum satir sayisini kisıtla'],
     itemsEn: ['Determine which table to query with FROM', 'Filter rows with WHERE — the first logical step that runs', 'Select which columns to see with SELECT — write explicit column names, not *', 'Set sorting column and direction (ASC/DESC) with ORDER BY', 'Limit the maximum number of rows returned with LIMIT'],
+    hintsTr: ['SQL yurütme sirasi ile yazma sirasi farklıdır: FROM → WHERE → SELECT → ORDER BY → LIMIT; ama yazarken SELECT once, FROM sonra yazılır.', 'SELECT * yerine acik sutun listesi yaz — bu hem performansi iyilestrir (gereksiz veri cekilmez) hem de sorgu amacini netlestirir.', 'TODO satiri buyuk ihtimalle WHERE kosulu veya SELECT edilen sutun listesidir.'],
+    hintsEn: ['SQL execution order differs from writing order: FROM → WHERE → SELECT → ORDER BY → LIMIT; but you write SELECT first, then FROM.', 'Write an explicit column list instead of SELECT * — it improves performance (no unnecessary data fetched) and clarifies query intent.', 'The TODO line is likely the WHERE condition or the list of columns in SELECT.'],
   },
   'sql-modify': {
     tr: 'SQL — Guncelleme ve Silme',
@@ -504,6 +558,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Begin transaction', 'Check with SELECT', 'Write WHERE', 'Run UPDATE/DELETE', 'COMMIT/ROLLBACK'],
     itemsTr: ['BEGIN TRANSACTION ile islemleri sardır — hata durumunda geri alinabilir ol', 'Once SELECT * FROM tablo WHERE kosul ile etkilenecek kayitları goruntule', 'WHERE kosulunu yazarken PRIMARY KEY veya benzersiz sutun kullan', 'UPDATE tablo SET sutun=deger WHERE kosul veya DELETE FROM tablo WHERE kosul calistir', 'Sonucu dogrulayip COMMIT et; sorun varsa ROLLBACK ile geri don'],
     itemsEn: ['Wrap operations with BEGIN TRANSACTION — make it reversible on error', 'First view affected records with SELECT * FROM table WHERE condition', 'Use PRIMARY KEY or unique column when writing WHERE condition', 'Run UPDATE table SET col=value WHERE condition or DELETE FROM table WHERE condition', 'Verify the result and COMMIT; if there is a problem, use ROLLBACK'],
+    hintsTr: ['WHERE OLMADAN UPDATE tum tabloyu degistirir — once SELECT ile kac satir etkilenecegini gor, sonra UPDATE yaz.', 'ROLLBACK\'in calismasi icin BEGIN TRANSACTION ile baslamis olmalisin — yoksa geri alma imkani yok.', 'TODO satiri buyuk ihtimalle WHERE kosulu veya SET deger atamasidir.'],
+    hintsEn: ['UPDATE without WHERE changes the ENTIRE TABLE — first see how many rows will be affected with SELECT, then write the UPDATE.', 'ROLLBACK only works if you started with BEGIN TRANSACTION — otherwise there is no way to undo.', 'The TODO line is likely the WHERE condition or the SET value assignment.'],
   },
   'sql-join': {
     tr: 'SQL — JOIN sorgulari',
@@ -517,6 +573,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Select JOIN type', 'Write ON condition', 'Specify columns', 'Interpret NULLs', 'Check index'],
     itemsTr: ['Hangi JOIN turu lazim: kesisim icin INNER, sol tam icin LEFT, sag tam icin RIGHT', 'ON tablo1.id = tablo2.foreign_key ile tablolar arasi baglantı kur', 'SELECT komutu ile tablo.sutun formatinda hangi sutunlar gorunecek belirt', 'LEFT JOIN sonucunda NULL gelen satirlari yorumla: esleme yok demek', 'JOIN yapilan sutunlar icin INDEX var mi kontrol et — performans kritik'],
     itemsEn: ['Which JOIN type: INNER for intersection, LEFT for full left, RIGHT for full right', 'Connect tables with ON table1.id = table2.foreign_key', 'Specify which columns appear in SELECT with table.column format', 'Interpret NULL rows in LEFT JOIN result: no match found', 'Check if INDEX exists on JOIN columns — performance is critical'],
+    hintsTr: ['ON kosulsuz JOIN kartezyen carpim uretir: 1000 satır x 1000 satir = 1.000.000 satir sonuc — her zaman ON kosulunu yaz.', 'LEFT JOIN\'de sagdaki tablodan esleme yoksa NULL gelir — hangi siparislerin musteri kaydı yok bulmak icin IS NULL kosuluyla kullan.', 'TODO satiri buyuk ihtimalle JOIN turu (INNER/LEFT) secimi veya ON kosulunun tamamlanmasidir.'],
+    hintsEn: ['A JOIN without ON produces a Cartesian product: 1000 rows × 1000 rows = 1,000,000 result rows — always write the ON condition.', 'In a LEFT JOIN, NULL comes from the right table when there is no match — use with IS NULL to find orders that have no customer record.', 'The TODO line is likely the JOIN type selection (INNER/LEFT) or completing the ON condition.'],
   },
   'sql-advanced': {
     tr: 'SQL — GROUP BY / CTE / Window',
@@ -530,6 +588,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Aggregation or Window?', 'Select GROUP BY', 'Filter with HAVING', 'Make modular with CTE', 'Add OVER(PARTITION BY)'],
     itemsTr: ['Aggregation (ozetleme) mi Window (satir bazli hesap) mi? Onu belirle', 'Aggregation icin GROUP BY ile ozetlenecek sutunu sec', 'HAVING ile gruplara kosul uygula — WHERE gibi ama agregasyon sonrasinda', 'WITH cte_adi AS (...) SELECT ... FROM cte_adi ile sorguyu modülerlestir', 'Window icin SUM(col) OVER (PARTITION BY bolum ORDER BY siralama) kullan'],
     itemsEn: ['Determine: aggregation (summarizing) or Window (row-by-row computing)?', 'For aggregation, select the summary column with GROUP BY', 'Apply condition on groups with HAVING — like WHERE but after aggregation', 'Modularize query with WITH cte_name AS (...) SELECT ... FROM cte_name', 'For Window, use SUM(col) OVER (PARTITION BY partition ORDER BY sort)'],
+    hintsTr: ['HAVING WHERE gibi calisir ama GROUP BY SONRASINDA filtreler — WHERE satirlari GROUP BY oncesinde filtreler; HAVING gruplanmis sonuclara kosul uygulamak icin kullanilir.', 'CTE (WITH x AS ...) sorguyu parcalara boler ve her parcayi adlandirabilirsin — karmasik JOIN ve alt sorgu zincirlerini okunabilir yapar.', 'TODO satiri buyuk ihtimalle OVER(PARTITION BY ...) veya HAVING kosulunun tamamlanmasidir.'],
+    hintsEn: ['HAVING works like WHERE but filters AFTER GROUP BY — WHERE filters rows before GROUP BY; HAVING applies conditions to grouped results.', 'CTE (WITH x AS ...) breaks the query into named parts — it makes complex JOIN and subquery chains readable.', 'The TODO line is likely OVER(PARTITION BY ...) or completing the HAVING condition.'],
   },
   // ── JAVASCRIPT ────────────────────────────────────────────────────────────
   javascript: {
@@ -544,6 +604,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Read goal', 'Async dependency', 'Complete assertion', 'Read output', 'Strategy if flaky'],
     itemsTr: ['Amaci ve asenkron bagimliliklari oku', 'await / Promise zincirini dogru yere yerlestir', 'assertion veya beklenti satirini tamamla', 'Kodu calistirip console veya test ciktisini oku', 'Flaky olursa bekleme stratejisi veya retry ekle'],
     itemsEn: ['Read the goal and async dependencies', 'Place await / Promise chain in the right spot', 'Complete the assertion or expectation line', 'Run and read console or test output', 'If flaky, add a wait strategy or retry'],
+    hintsTr: ['async fonksiyon icinde await yazmadan Promise beklenmez — sonucu almadan assertion yaparsan yanlis PASS verebilirsin.', 'try/catch ile asenkron hatalari yakala — test senaryolarinda 4xx/5xx yaniti bekleniyorsa bu kritiktir.', 'TODO satiri buyuk ihtimalle await, return veya assertion satiridir.'],
+    hintsEn: ['Without await inside an async function, the Promise is not awaited — asserting before getting the result may give a wrong PASS.', 'Use try/catch to catch async errors — critical in test scenarios where 4xx/5xx responses are expected.', 'The TODO line is likely await, return, or an assertion line.'],
   },
   // ── POSTMAN ───────────────────────────────────────────────────────────────
   postman: {
@@ -558,6 +620,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Send request', 'Write pm.test', 'Save variable', 'Add to collection', 'Read CI evidence'],
     itemsTr: ['Request gonder ve status code\'u oku', 'pm.test ile response body alanini dogrula', 'Environment variable\'a dinamik degeri kaydet', 'Collection\'a dahil et ve Newman ile calistir', 'CI pipeline ciktisindan PASS/FAIL kanitini oku'],
     itemsEn: ['Send the request and read the status code', 'Validate a response body field with pm.test', 'Save the dynamic value to an environment variable', 'Include in the collection and run with Newman', 'Read the PASS/FAIL evidence from CI pipeline output'],
+    hintsTr: ['pm.test("aciklama", () => { pm.expect(pm.response.json().field).to.equal("deger") }) seklinde yaz — test ismi aciklayici olmali.', 'pm.environment.set("token", pm.response.json().token) ile auth token\'i bir sonraki request\'e aktar — manuel kopyalama gerekmez.', 'TODO satiri buyuk ihtimalle pm.expect() assertion veya pm.environment.set() satiridir.'],
+    hintsEn: ['Write: pm.test("description", () => { pm.expect(pm.response.json().field).to.equal("value") }) — test name should be descriptive.', 'Pass the auth token to the next request with pm.environment.set("token", pm.response.json().token) — no manual copying needed.', 'The TODO line is likely a pm.expect() assertion or pm.environment.set().'],
   },
   // ── REST ASSURED ──────────────────────────────────────────────────────────
   restassured: {
@@ -572,6 +636,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Set up given()', 'Send with when()', 'Verify statusCode', 'Check body()', 'CI runner'],
     itemsTr: ['given() ile base URL ve auth\'u kur', 'when().get/post/put/delete ile istegi gonder', 'then().statusCode() ile HTTP kodunu dogrula', 'body() ve Hamcrest ile JSON alanlarini kontrol et', 'Testi JUnit/TestNG runner ve CI pipeline\'a dahil et'],
     itemsEn: ['Set base URL and auth with given()', 'Send the request with when().get/post/put/delete', 'Validate the HTTP code with then().statusCode()', 'Check JSON fields with body() and Hamcrest matchers', 'Include the test in JUnit/TestNG runner and CI pipeline'],
+    hintsTr: ['given/when/then zinciri okunurlugu arttirir ve Java stream\'i gibi metodlari zincirler — hepsini tek satirda yaz, ara degisken atama.', 'body("kullanici.adi", equalTo("test")) ile nested JSON alanini nokta noktasyonuyla dogrula; JsonPath kullanir.', 'TODO satiri buyuk ihtimalle .statusCode(200) veya .body("field", equalTo(...)) assertion satiridir.'],
+    hintsEn: ['The given/when/then chain improves readability and chains methods like a Java stream — write all in one chain, do not assign intermediate variables.', 'Verify a nested JSON field with dot notation: body("user.name", equalTo("test")); it uses JsonPath internally.', 'The TODO line is likely .statusCode(200) or .body("field", equalTo(...)).'],
   },
   // ── GENERIC FALLBACK ──────────────────────────────────────────────────────
   code: {
@@ -586,6 +652,8 @@ const PROFILE_TEXT = {
     stepLabelsEn: ['Identify goal', 'Complete line', 'Check output', 'Read error', 'Run again'],
     itemsTr: ['Amaci ve girdiyi belirle', 'Kritik satiri tamamla', 'Cikti veya davranisi kontrol et', 'Hata mesajini kanit olarak oku', 'Duzeltmeyi tekrar calistir'],
     itemsEn: ['Identify goal and input', 'Complete the critical line', 'Check output or behavior', 'Read the error message as evidence', 'Run the fix again'],
+    hintsTr: ['TODO satiri, orijinal kod ornegindeki ilk anlamli satirin yerine kondu.', 'Cozumle birebir eslesme gerekir; bosluk ve satir sirasini dikkatli koru.', 'Takilirsan Beklenen Cikti veya orijinal kod blogundaki akisi oku, sonra yalnizca TODO satirini degistir.'],
+    hintsEn: ['The TODO line replaces the first meaningful line in the original code sample.', 'The solution must match exactly; preserve spacing and line order carefully.', 'If stuck, read the expected output or the original code flow, then change only the TODO line.'],
   },
 }
 
@@ -634,11 +702,13 @@ function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
       tr: 'Cozum beklenen kod yapisiyla eslesti. Artik ayni ornegi sadece okumakla kalmadin; kritik satiri elinle yeniden kurdun.',
       en: 'The solution matches the expected code structure. You did not just read the example; you rebuilt the critical line by hand.',
     },
-    hints: [
-      { tr: 'TODO satiri, orijinal kod ornegindeki ilk anlamli satirin yerine kondu.', en: 'The TODO line replaces the first meaningful line in the original code sample.' },
-      { tr: 'Cozumle birebir eslesme gerekir; bosluk ve satir sirasini dikkatli koru.', en: 'The solution must match exactly; preserve spacing and line order carefully.' },
-      { tr: 'Takilirsan Beklenen Cikti veya orijinal kod blogundaki akisi oku, sonra yalnizca TODO satirini degistir.', en: 'If stuck, read the expected output or the original code flow, then change only the TODO line.' },
-    ],
+    hints: info.hintsTr
+      ? info.hintsTr.map((tr, i) => ({ tr, en: info.hintsEn[i] }))
+      : [
+          { tr: 'TODO satiri, orijinal kod ornegindeki ilk anlamli satirin yerine kondu.', en: 'The TODO line replaces the first meaningful line in the original code sample.' },
+          { tr: 'Cozumle birebir eslesme gerekir; bosluk ve satir sirasini dikkatli koru.', en: 'The solution must match exactly; preserve spacing and line order carefully.' },
+          { tr: 'Takilirsan Beklenen Cikti veya orijinal kod blogundaki akisi oku, sonra yalnizca TODO satirini degistir.', en: 'If stuck, read the expected output or the original code flow, then change only the TODO line.' },
+        ],
     xpReward: 10,
   }
 }
@@ -761,18 +831,33 @@ export function fillMissingCodeTrios(data, pageKey) {
         ? section.title
         : (section.title?.en || section.title?.tr || section.label || '')
 
+      // Per-section dedup: step-animation and order-sort added at most once per profile
+      const addedStepProfiles = new Set()
+      const addedOrderProfiles = new Set()
+
       for (let index = blocks.length - 1; index >= 0; index -= 1) {
         const block = blocks[index]
         if (block?.type !== 'code') continue
 
         const state = sectionNeedsTrioAfterCode(blocks, index)
-        if (state.practice && state.step && state.order) continue
-
         const profile = resolveProfile(pageKey, block, sectionTitle)
+
+        const needsPractice = !state.practice
+        const needsStep = !state.step && !addedStepProfiles.has(profile)
+        const needsOrder = !state.order && !addedOrderProfiles.has(profile)
+
+        if (!needsPractice && !needsStep && !needsOrder) continue
+
         const additions = []
-        if (!state.practice) additions.push(makePracticeBlock(pageKey, sectionIndex, index, block, profile))
-        if (!state.step) additions.push(makeStepBlock(pageKey, sectionIndex, index, profile))
-        if (!state.order) additions.push(makeOrderBlock(pageKey, sectionIndex, index, profile))
+        if (needsPractice) additions.push(makePracticeBlock(pageKey, sectionIndex, index, block, profile))
+        if (needsStep) {
+          additions.push(makeStepBlock(pageKey, sectionIndex, index, profile))
+          addedStepProfiles.add(profile)
+        }
+        if (needsOrder) {
+          additions.push(makeOrderBlock(pageKey, sectionIndex, index, profile))
+          addedOrderProfiles.add(profile)
+        }
 
         blocks.splice(index + 1, 0, ...additions)
       }
