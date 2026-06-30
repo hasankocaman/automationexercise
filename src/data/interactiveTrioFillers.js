@@ -665,6 +665,405 @@ function profileText(profile) {
   return PROFILE_TEXT[profile] ?? PROFILE_TEXT.code
 }
 
+// Generates 3 hints by analyzing the ACTUAL code content of the block —
+// not the profile. Each block gets hints that describe what that specific
+// code does, not what the section is about.
+function hintsForCode(block) {
+  const raw = codeFor(block, 'en') || codeFor(block, 'tr') || ''
+  const c = raw.toLowerCase() // compare lowercase
+
+  const candidates = []
+
+  // ── SELENIUM ────────────────────────────────────────────────────────────────
+  if (c.includes('by.id(')) candidates.push({
+    tr: 'By.ID locator kullaniyor — HTML\'deki id="..." degeri benzersiz ve sabit olmali; ayni ID iki elementte varsa test yanlis elementi bulur.',
+    en: 'Uses By.ID — the id="..." value in HTML must be unique and stable; if two elements share an ID the test finds the wrong one.',
+  })
+  if (c.includes('by.xpath(')) candidates.push({
+    tr: 'XPath ifadesini kisa tut — //tag[@attr="val"] formati, //div/ul/li/span gibi uzun zincirlere gore cok daha saglamdir.',
+    en: 'Keep XPath short — //tag[@attr="val"] is far more stable than long chains like //div/ul/li/span.',
+  })
+  if (c.includes('by.cssselector(') || c.includes('by.css(')) candidates.push({
+    tr: 'CSS selector\'u ID veya data-testid ile kisa yaz — .parent .child .grandchild gibi uzun zincirler UI yapisi degisince kirilir.',
+    en: 'Write CSS selectors short with ID or data-testid — long chains like .parent .child .grandchild break when UI structure changes.',
+  })
+  if (c.includes('sendkeys(')) candidates.push({
+    tr: 'sendKeys() oncesinde clear() cagirmazsan form alaninda onceki metin kalir ve test yanlis veriyle devam eder.',
+    en: 'Without calling clear() before sendKeys(), leftover text in the field causes the test to continue with wrong data.',
+  })
+  if (c.includes('webdriverwait') || c.includes('expectedconditions')) candidates.push({
+    tr: 'WebDriverWait(driver, Duration.ofSeconds(N)) ile maksimum N saniye bekler; kosul saglanir saglanmaz devam eder — timeout artirma, locator\'i duzelt.',
+    en: 'WebDriverWait(driver, Duration.ofSeconds(N)) waits max N seconds; it continues the moment the condition is met — do not increase the timeout, fix the locator.',
+  })
+  if (c.includes('elementtobeclickable')) candidates.push({
+    tr: 'elementToBeClickable hem gorunurlugu hem tiklanabilirligini kontrol eder — visibilityOf sadece gorunurlugu test eder; form butonlari icin elementToBeClickable kullan.',
+    en: 'elementToBeClickable checks both visibility and clickability — visibilityOf only tests visibility; use elementToBeClickable for form buttons.',
+  })
+  if (c.includes('switchto().frame') || c.includes('switchto().defaultcontent')) candidates.push({
+    tr: 'switchTo().frame() ile iframe\'e gectikten sonra isi bitince switchTo().defaultContent() ile ana icerige don — yoksa sonraki elementler "no such element" verir.',
+    en: 'After switchTo().frame(), return to main content with switchTo().defaultContent() — otherwise the next elements give "no such element".',
+  })
+  if (c.includes('switchto().alert') || c.includes('.alert()')) candidates.push({
+    tr: 'JavaScript alert icin switchTo().alert() ile alerte gec; getText() ile mesaji oku, accept() ile onayla veya dismiss() ile iptal et.',
+    en: 'For JavaScript alerts, switch with switchTo().alert(); read the message with getText(), confirm with accept() or cancel with dismiss().',
+  })
+  if (c.includes('getscreenshotas(') || c.includes('outputtype')) candidates.push({
+    tr: 'getScreenshotAs(OutputType.FILE) kullanmak icin driver\'i TakesScreenshot\'a cast et: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)',
+    en: 'To use getScreenshotAs(OutputType.FILE), cast the driver to TakesScreenshot: ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)',
+  })
+  if (c.includes('actions') && (c.includes('dragand') || c.includes('movetoelement') || c.includes('build()'))) candidates.push({
+    tr: 'Actions zinciri: her adimi ekle (movetoelement, click, sendKeys vb.), en sona build().perform() ile calistir — perform olmadan hicbir hareket gerceklesmez.',
+    en: 'Actions chain: add each step (moveToElement, click, sendKeys, etc.), then execute with build().perform() at the end — without perform, nothing happens.',
+  })
+  if (c.includes('select ') && c.includes('new select(')) candidates.push({
+    tr: 'Select API\'si sadece <select> HTML elementiyle calisir; selectByVisibleText("Secenek") gorunen metne gore, selectByValue("val") value attribute\'una gore secer.',
+    en: 'Select API only works with <select> HTML elements; selectByVisibleText("Option") selects by visible text, selectByValue("val") by value attribute.',
+  })
+  if (c.includes('navigate().back()') || c.includes('navigate().forward()') || c.includes('navigate().refresh()')) candidates.push({
+    tr: 'driver.navigate().back() tarayici gecmisinde geri gider — yeni sekme veya pencere acilmissa once gecerli pencereye donmek gerekebilir.',
+    en: 'driver.navigate().back() goes back in browser history — if a new tab or window was opened, you may need to switch back to the current window first.',
+  })
+  if (c.includes('getwindowhandles') || c.includes('switchto().window')) candidates.push({
+    tr: 'getWindowHandles() tum acik pencerelerin handle set\'ini dondurur; for-each ile yeni handle\'i bul ve switchTo().window(handle) ile gec.',
+    en: 'getWindowHandles() returns a Set of all open window handles; iterate to find the new handle and switch with switchTo().window(handle).',
+  })
+  if (c.includes('remotewebdriver') || c.includes('desiredcapabilities')) candidates.push({
+    tr: 'RemoteWebDriver\'i olustururken Hub URL (http://hub:4444/wd/hub) ve DesiredCapabilities dogru olmali — yanlis URL veya capabilities Node bulunamamasina neden olur.',
+    en: 'When creating RemoteWebDriver, Hub URL (http://hub:4444/wd/hub) and DesiredCapabilities must be correct — wrong URL or capabilities means no Node is found.',
+  })
+  if (c.includes('thread.sleep(') || c.includes('implicit')) candidates.push({
+    tr: 'Thread.sleep() ve implicit wait flaky testin ana kaynagidir — bunlar yerine WebDriverWait + ExpectedConditions kullan; test 10 kat hizlanabilir.',
+    en: 'Thread.sleep() and implicit wait are the main source of flaky tests — replace them with WebDriverWait + ExpectedConditions; tests can run 10x faster.',
+  })
+
+  // ── PLAYWRIGHT ──────────────────────────────────────────────────────────────
+  if (c.includes('getbyrole(')) candidates.push({
+    tr: 'getByRole ARIA role\'unu kullanir — buton veya form etiketini CSS class veya ID degismeden bulur; en kirilmaz locator cesididir.',
+    en: 'getByRole uses the ARIA role — it finds buttons or form labels without relying on CSS class or ID; it is the most resilient locator type.',
+  })
+  if (c.includes('getbylabel(')) candidates.push({
+    tr: 'getByLabel form alanini HTML <label> ile iliskilendirir — data-testid gerekmeden semantik olarak bulur; erisim ve test ikisi icin de iyidir.',
+    en: 'getByLabel associates the form field with its HTML <label> — finds it semantically without data-testid; good for both accessibility and testing.',
+  })
+  if (c.includes('getbytext(')) candidates.push({
+    tr: 'getByText tam metin icin kesin eslesme yapar; kIsmi metin icin { exact: false } sec — ceviri veya dinamik metin varsa dikkatli kullan.',
+    en: 'getByText does exact matching by default; use { exact: false } for partial text — be careful with translated or dynamic text.',
+  })
+  if (c.includes('getbytestid(')) candidates.push({
+    tr: 'getByTestId data-testid attribute\'unu arar — en stabil locatordur, stil ve yapi degisikliklerinden etkilenmez; HTML\'e data-testid="..." eklemen gerekir.',
+    en: 'getByTestId looks for the data-testid attribute — the most stable locator, unaffected by style or structure changes; requires adding data-testid="..." to HTML.',
+  })
+  if (c.includes('tobevisible()')) candidates.push({
+    tr: 'toBeVisible() elementi DOM\'da VE gorunur halde kontrol eder — element DOM\'da ama display:none ise toBeVisible FAIL eder, toHaveText PASS edebilir; ikisini karistirma.',
+    en: 'toBeVisible() checks the element is in the DOM AND visible — if it is in the DOM but display:none, toBeVisible FAILS while toHaveText may PASS; do not mix them.',
+  })
+  if (c.includes('tohavetext(')) candidates.push({
+    tr: 'toHaveText() varsayilan olarak tam metin eslesimi yapar; { exact: false } ile kIsmi eslesmeye gec — bos bosluklar dahil eslestirir.',
+    en: 'toHaveText() does exact text matching by default; switch to partial matching with { exact: false } — it matches including all whitespace.',
+  })
+  if (c.includes('tohaveurl(')) candidates.push({
+    tr: 'toHaveURL() string veya regex kabul eder — /api\\/success/ ile URL\'nin sadece o kismi eslemesi saglanir, tam URL yazmana gerek yok.',
+    en: 'toHaveURL() accepts a string or regex — /api\\/success/ ensures only that part of the URL matches, no need to write the full URL.',
+  })
+  if (c.includes('page.route(') || c.includes('route.fulfill(')) candidates.push({
+    tr: 'page.route() glob pattern kabul eder: "**/api/**" tum /api/ isteklerini yakalar — route.fulfill() ile status, body ve headers ayri ayri belirtilebilir.',
+    en: 'page.route() accepts glob patterns: "**/api/**" catches all /api/ requests — with route.fulfill() you can set status, body, and headers separately.',
+  })
+  if (c.includes('waitforresponse(') || c.includes('waitfornavigation(')) candidates.push({
+    tr: 'waitForResponse() agi dinler ve belirli bir response geldikten sonra devam eder — API tetikleyen bir click ile birlikte Promise.all ile kullan.',
+    en: 'waitForResponse() listens to the network and continues after a specific response arrives — use with Promise.all alongside a click that triggers the API.',
+  })
+  if (c.includes('page.fill(') || c.includes('await') && c.includes('.fill(')) candidates.push({
+    tr: 'fill() once alani temizler sonra doldurur — type() karakter karakter yazar; form testlerinde fill() tercih et, klavye davranisi simule etmek icin type() kullan.',
+    en: 'fill() clears the field first then fills — type() types character by character; prefer fill() for form tests, use type() to simulate keyboard behavior.',
+  })
+  if (c.includes('beforeeach(') || c.includes('aftereach(') || c.includes('test.use(')) candidates.push({
+    tr: 'test.beforeEach her test oncesinde calisir — paylasilan kurulumu buraya koy; but fixture\'lar daha esnektir cunku scope param ile session veya worker bazli olabilir.',
+    en: 'test.beforeEach runs before each test — put shared setup here; but fixtures are more flexible because the scope param allows session or worker level.',
+  })
+  if (c.includes('browser.newcontext(') || c.includes('context.newpage(')) candidates.push({
+    tr: 'Her BrowserContext kendi cookie/session izolasyonunu saglar — farkli kullanici rolleri icin her role ayri context olustur, tek page paylasma.',
+    en: 'Each BrowserContext has its own cookie/session isolation — create a separate context for each user role; do not share a single page across roles.',
+  })
+
+  // ── CYPRESS ─────────────────────────────────────────────────────────────────
+  if (c.includes('cy.get(')) candidates.push({
+    tr: 'cy.get() otomatik retry yapar — 4 saniye icinde element DOM\'a eklenene kadar tekrar dener; ayri bekleme kodu yazmana gerek yok.',
+    en: 'cy.get() auto-retries — it keeps trying until the element appears in the DOM within 4 seconds; no need to write separate wait code.',
+  })
+  if (c.includes('[data-cy=') || c.includes('[data-testid=')) candidates.push({
+    tr: 'data-cy/data-testid attribute test icin ozel tasarlanmistir — production\'a etki etmez, CSS ve yapi degisikliklerinden bagimsiz, en stabil locator.',
+    en: 'data-cy/data-testid attribute is designed specifically for testing — it does not affect production, independent of CSS and structure changes, the most stable locator.',
+  })
+  if (c.includes('cy.contains(')) candidates.push({
+    tr: 'cy.contains("metin") DOM\'da o metni iceren ilk elementi bulur — cy.get() ile zincirlenirse sadece o container icinde arar.',
+    en: 'cy.contains("text") finds the first element containing that text in the DOM — when chained with cy.get(), it searches only inside that container.',
+  })
+  if (c.includes('.should') && c.includes('be.visible')) candidates.push({
+    tr: '.should("be.visible") elementin DOM\'da VE gorunur oldugunu dogrular — visibility:hidden veya display:none olan element fail eder.',
+    en: '.should("be.visible") verifies the element is in the DOM AND visible — an element with visibility:hidden or display:none fails this assertion.',
+  })
+  if (c.includes('.should') && c.includes('contain')) candidates.push({
+    tr: '.should("have.text", x) tam metin, .should("contain.text", x) kIsmi metin icin — bos bosluklar dahil eslestirir; dinamik metinlerde contain kullan.',
+    en: '.should("have.text", x) exact text, .should("contain.text", x) partial text — matches including whitespace; use contain for dynamic text.',
+  })
+  if (c.includes('cy.intercept(')) candidates.push({
+    tr: 'cy.intercept() tanimini cy.visit()\'ten ONCE yap — istek visit ile tetiklenir; sonradan tanimlarsaN istek zaten geçmis ve yakalayamazsin.',
+    en: 'Define cy.intercept() BEFORE cy.visit() — the request is triggered by the visit; if you define it after, the request has already passed and cannot be captured.',
+  })
+  if (c.includes('cy.wait(') && c.includes('@')) candidates.push({
+    tr: 'cy.wait("@alias") intercept ateslenene kadar test bekler — response gelmeden assertion yaparsan yanlis PASS veya undefined alirsin.',
+    en: 'cy.wait("@alias") holds the test until the intercept fires — asserting before the response arrives gives a wrong PASS or undefined.',
+  })
+  if (c.includes('cy.fixture(')) candidates.push({
+    tr: 'cy.fixture("dosya.json") fixtures/ klasorunundeki JSON\'u yukler — { fixture: "dosya.json" } ile intercept\'e direk verebilirsin, manuel parse gerekmez.',
+    en: 'cy.fixture("file.json") loads JSON from the fixtures/ folder — you can pass { fixture: "file.json" } directly to intercept, no manual parsing needed.',
+  })
+  if (c.includes('.type(')) candidates.push({
+    tr: '.type() oncesinde .clear() kullanmayi unutma — onceki metin kalirsa test belirsiz PASS veya yanlis veriyle devam eder.',
+    en: 'Do not forget .clear() before .type() — leftover text causes an ambiguous PASS or the test continues with wrong data.',
+  })
+  if (c.includes('.click()')) candidates.push({
+    tr: '.click() cagirmadan once elementin gorunur ve etkilesime acik oldugunu kontrol et — .should("be.visible").click() zinciri bunu saglar.',
+    en: 'Verify the element is visible and interactive before .click() — chaining .should("be.visible").click() ensures this.',
+  })
+
+  // ── SQL ──────────────────────────────────────────────────────────────────────
+  if (c.includes('select ') && !c.includes('insert') && !c.includes('update') && !c.includes('delete')) {
+    if (c.includes('select *')) candidates.push({
+      tr: 'SELECT * yerine acik sutun listesi yaz — gereksiz sutun cekilmez, performans artar ve query amaci okunabilir olur.',
+      en: 'Write an explicit column list instead of SELECT * — no unnecessary columns fetched, better performance and readable query intent.',
+    })
+    if (c.includes('where ')) candidates.push({
+      tr: 'WHERE yurutme sirasinda FROM\'dan hemen sonra calisir — SELECT\'ten oncedir; alias\'lara where icinde erisemezsin.',
+      en: 'WHERE runs immediately after FROM in execution order — it comes before SELECT; you cannot access aliases inside WHERE.',
+    })
+    if (c.includes('order by')) candidates.push({
+      tr: 'ORDER BY olmadan SQL satirlarin dondurme sirasi tanimsizdır — ciktinin hep ayni sira gelecegini varsayma, production\'da farkli gelebilir.',
+      en: 'Without ORDER BY, the row return order in SQL is undefined — do not assume it will always be the same order; production may return differently.',
+    })
+    if (c.includes('limit ')) candidates.push({
+      tr: 'LIMIT sonuc sayisini kisitlar ama OFFSET ile birlikte sayfalama yapar: LIMIT 10 OFFSET 20 dorduncu sayfayi dondurur.',
+      en: 'LIMIT restricts the result count but with OFFSET enables pagination: LIMIT 10 OFFSET 20 returns the fourth page.',
+    })
+  }
+  if (c.includes('join ')) {
+    candidates.push({
+      tr: 'ON kosulunu mutlaka yaz — kosulsuz JOIN kartezyen carpim uretir: 1000 satir x 1000 satir = 1.000.000 satir yanlis sonuc.',
+      en: 'Always write the ON condition — a JOIN without ON produces a Cartesian product: 1000 rows × 1000 rows = 1,000,000 wrong result rows.',
+    })
+    if (c.includes('left join')) candidates.push({
+      tr: 'LEFT JOIN\'de eslesme olmayan sagdaki satirlar NULL olarak gelir — eslesmeyen kayitlari bulmak icin WHERE sag_tablo.id IS NULL ile kullan.',
+      en: 'In a LEFT JOIN, unmatched rows from the right side come as NULL — to find records without a match, use WHERE right_table.id IS NULL.',
+    })
+    if (c.includes('inner join')) candidates.push({
+      tr: 'INNER JOIN sadece her iki tabloda da eslesen satIrlari dondurur — iki taraftan birinde kayit yoksa o satir sonuca dahil edilmez.',
+      en: 'INNER JOIN only returns rows that match in both tables — if a record is missing from either side, that row is excluded from results.',
+    })
+  }
+  if (c.includes('insert into')) candidates.push({
+    tr: 'Sutun listesini her zaman yaz: INSERT INTO tablo (sutun1, sutun2) VALUES (...) — listeyi atlarsan tablo yeni sutun alinca degerler yanlis sutuna gidebilir.',
+    en: 'Always write the column list: INSERT INTO table (col1, col2) VALUES (...) — skip it and values may go to the wrong column when the table gets a new column.',
+  })
+  if (c.includes('on conflict')) candidates.push({
+    tr: 'ON CONFLICT DO NOTHING ayni primary key ikinci kez eklenmeye calisilinca hatanin sessizce yutulmasini saglar — idempotent veri yuklemelerinde kullan.',
+    en: 'ON CONFLICT DO NOTHING silently absorbs a duplicate primary key insertion — use for idempotent data loads.',
+  })
+  if (c.includes('update ') && c.includes('set ')) candidates.push({
+    tr: 'UPDATE\'i her zaman BEGIN TRANSACTION icine sar; once SELECT ile etkilenecek satirlari gor, sonra calistir, dogru ise COMMIT et.',
+    en: 'Always wrap UPDATE in BEGIN TRANSACTION; first see affected rows with SELECT, then run it, COMMIT if correct.',
+  })
+  if (c.includes('delete from')) candidates.push({
+    tr: 'DELETE FROM tablo WHERE olmadan tum tabloyu siler — once SELECT COUNT(*) FROM tablo WHERE kosul ile kac satir silinecegini gor.',
+    en: 'DELETE FROM table without WHERE deletes the entire table — first see how many rows with SELECT COUNT(*) FROM table WHERE condition.',
+  })
+  if (c.includes('create table')) candidates.push({
+    tr: 'PRIMARY KEY otomatik NOT NULL demektir, ayrica yazmana gerek yok — ama FOREIGN KEY taniminda ON DELETE CASCADE veya SET NULL davranisini sec.',
+    en: 'PRIMARY KEY implies NOT NULL automatically, no need to write it again — but for FOREIGN KEY, choose ON DELETE CASCADE or SET NULL behavior.',
+  })
+  if (c.includes('group by')) candidates.push({
+    tr: 'HAVING GROUP BY SONRASINDA filtreler — WHERE satIrlari GROUP BY oncesinde filtreler; HAVING\'e sadece aggregate fonksiyon veya GROUP BY sutunu yazabilirsin.',
+    en: 'HAVING filters AFTER GROUP BY — WHERE filters rows before GROUP BY; in HAVING you can only write aggregate functions or GROUP BY columns.',
+  })
+  if (c.includes('over(') || c.includes('over (')) candidates.push({
+    tr: 'Window fonksiyonu OVER() ile satir bazli hesap yapar — GROUP BY\'dan farki: satirlari gruplamaz, her satir tek tek hesaplanir ve liste korunur.',
+    en: 'Window function with OVER() computes row-by-row — unlike GROUP BY, it does not collapse rows; each row is computed separately and the list is preserved.',
+  })
+  if (c.includes('with ') && c.includes(' as (')) candidates.push({
+    tr: 'CTE (WITH x AS ...) karmasik sorgulari parcalara boler ve her parcayi adlandirir — alt sorgu zincirleri yerine CTE okunurlugu cok arttirir.',
+    en: 'CTE (WITH x AS ...) breaks complex queries into named parts — using CTEs instead of subquery chains greatly improves readability.',
+  })
+
+  // ── PYTHON / PYTEST ──────────────────────────────────────────────────────────
+  if (c.includes('@pytest.fixture')) candidates.push({
+    tr: '@pytest.fixture Java\'daki @BeforeEach gibi calisir ama scope="session" ile tum oturum icin, scope="module" ile dosya icin bir kez calisir.',
+    en: '@pytest.fixture works like Java @BeforeEach but scope="session" runs once for the full session, scope="module" runs once per file.',
+  })
+  if (c.includes('def test_')) candidates.push({
+    tr: 'pytest test fonksiyonu "test_" ile baslamali — baslamazsa pytest tarafindan kesfedilmez ve calistirilmaz.',
+    en: 'pytest test functions must start with "test_" — without the prefix, pytest does not discover and run them.',
+  })
+  if (c.includes('assert ')) candidates.push({
+    tr: 'pytest assert\'te == degere gore, is kimlige gore karsilastirir — iki farkli None degeri is ile True verir ama == ile True vermeyebilir.',
+    en: 'In pytest assert, == compares by value, is compares by identity — two separate None objects give True with is but may not with ==.',
+  })
+  if (c.includes('requests.get(') || c.includes('requests.post(')) candidates.push({
+    tr: 'response.status_code HTTP kodunu, response.json() body\'yi dict olarak verir; json() decode edemezse JSONDecodeError firlatir — once status_code kontrol et.',
+    en: 'response.status_code gives the HTTP code, response.json() returns the body as dict; if json() cannot decode it raises JSONDecodeError — check status_code first.',
+  })
+  if (c.includes('parametrize') || c.includes('pytest.mark.parametrize')) candidates.push({
+    tr: '@pytest.mark.parametrize farkli deger kombinasyonlariyla ayni testi otomatik calistirir — Java\'daki TestNG @DataProvider gibi dusun.',
+    en: '@pytest.mark.parametrize runs the same test automatically with different value combinations — think of it like TestNG @DataProvider in Java.',
+  })
+  if (c.includes('with pytest.raises(')) candidates.push({
+    tr: 'with pytest.raises(ExceptionType) blogu icindeki kod o hatayi firlatmali — firlatmazsa test FAIL eder; hata mesajini excinfo.value ile kontrol edebilirsin.',
+    en: 'Code inside with pytest.raises(ExceptionType) must raise that exception — if it does not, the test FAILS; check the error message with excinfo.value.',
+  })
+
+  // ── TYPESCRIPT ───────────────────────────────────────────────────────────────
+  if (c.includes('interface ')) candidates.push({
+    tr: 'interface nesne sozlesmeleri icin kullanilir — type alias ise union (A | B) ve intersection (A & B) tanimlari icin daha uygun.',
+    en: 'interface is used for object contracts — type alias is more suitable for union (A | B) and intersection (A & B) definitions.',
+  })
+  if (c.includes(': string') || c.includes(': number') || c.includes(': boolean')) candidates.push({
+    tr: 'TypeScript tip hatasi calisma zamaninda degil derleme zamaninda yakalanir — Java derleyicisinin tip hatasi gibi, Runtime\'a hic gelmez.',
+    en: 'TypeScript type errors are caught at compile time, not runtime — like a Java compiler type error, they never reach the runtime.',
+  })
+  if (c.includes('as ') && (c.includes(' as string') || c.includes(' as number') || c.includes(' as any'))) candidates.push({
+    tr: '"as any" tip guvencesini tamamen kapatir; "as unknown as X" ise adim adim donusumu zorlar ve daha guvenlidir.',
+    en: '"as any" completely disables type safety; "as unknown as X" forces a step-by-step cast and is safer.',
+  })
+  if (c.includes('generic') || c.includes('<t>') || c.includes('<t,') || c.includes('<k,')) candidates.push({
+    tr: 'Generic tip <T> fonksiyon veya sinifi farkli tiplerle calistirir — Java\'daki List<E> gibi; T yerine anlamli isim (Item, Response) kullanmak okunurlugu arttirir.',
+    en: 'Generic type <T> makes a function or class work with different types — like Java\'s List<E>; using a meaningful name (Item, Response) instead of T improves readability.',
+  })
+  if (c.includes('async ') || c.includes('await ') || c.includes('promise<')) candidates.push({
+    tr: 'async fonksiyon Promise<T> dondurur — await olmadan cagirilirsa Promise nesnesi gelir, T degeri gelmez; await mutlaka async icinde kullanilmali.',
+    en: 'An async function returns Promise<T> — calling it without await gives the Promise object, not the T value; await must be used inside an async function.',
+  })
+
+  // ── DOCKER ───────────────────────────────────────────────────────────────────
+  if (c.startsWith('from ') || c.includes('\nfrom ')) candidates.push({
+    tr: 'FROM satirindaki base image ilk katmani olusturur — buyuk base image (ubuntu:22.04) yerine kucuk image (node:alpine, python:slim) kullan; build ve pull suresi kisalir.',
+    en: 'The FROM base image creates the first layer — use a small image (node:alpine, python:slim) instead of a large one (ubuntu:22.04); build and pull time shortens.',
+  })
+  if (c.includes('copy ') && c.includes('package')) candidates.push({
+    tr: 'COPY package*.json ./ satirini RUN npm install\'dan ONCE yaz — boylece sadece package.json degisince install katmani yeniden calisir; kaynak kodu her degisince calismaZ.',
+    en: 'Put COPY package*.json ./ BEFORE RUN npm install — so the install layer only reruns when package.json changes; not every time source code changes.',
+  })
+  if (c.includes('run ') && (c.includes('apt') || c.includes('pip install') || c.includes('npm install'))) candidates.push({
+    tr: 'Birden fazla RUN komutu birden fazla layer olusturur — bunlari tek RUN ile && ile birlestirir ve layer sayisini azaltirsin.',
+    en: 'Multiple RUN commands create multiple layers — combine them in a single RUN with && to reduce the layer count.',
+  })
+  if (c.includes('docker run')) candidates.push({
+    tr: '-it interaktif terminal acar, -d arka planda calistirir, --rm cikinca container\'i siler — uc flag bir arada kullanilabilir: docker run -it --rm image.',
+    en: '-it opens an interactive terminal, -d runs in background, --rm removes the container on exit — all three can be combined: docker run -it --rm image.',
+  })
+  if (c.includes('docker-compose') || c.includes('docker compose') || c.includes('services:')) candidates.push({
+    tr: 'depends_on servisi baslAtir ama hazirligini garantilemez — healthcheck tanimla veya wait-for-it kullan; yoksa app db ayaga kalkmadan baglanti dener.',
+    en: 'depends_on starts the service but does not guarantee readiness — define a healthcheck or use wait-for-it; otherwise app tries to connect before db is up.',
+  })
+
+  // ── JENKINS ──────────────────────────────────────────────────────────────────
+  if (c.includes('pipeline {') || c.includes('stages {') || c.includes('stage(')) candidates.push({
+    tr: 'post { always { ... } } blogu test fail etse bile calisir — JUnit raporu, artifact ve bildirimler buraya gider; yoksa fail\'de rapor kaybolur.',
+    en: 'The post { always { ... } } block runs even when tests fail — JUnit reports, artifacts, and notifications go here; otherwise reports are lost on failure.',
+  })
+  if (c.includes('environment {') || c.includes('env.')) candidates.push({
+    tr: 'environment blogu pipeline seviyesinde env var tanimlar — credentials() ile hassas verileri Jenkins Credentials Store\'dan al, direk YAML\'a yazma.',
+    en: 'The environment block defines env vars at pipeline level — use credentials() to pull sensitive data from Jenkins Credentials Store, do not write them directly in YAML.',
+  })
+  if (c.includes('sh ') || c.includes('bat ')) candidates.push({
+    tr: 'sh Linux/Mac\'te, bat Windows\'ta calisir — cross-platform pipeline icin her zaman sh kullan; Jenkins agent Linux ise bat gereksiz.',
+    en: 'sh runs on Linux/Mac, bat on Windows — always use sh for cross-platform pipelines; if the Jenkins agent is Linux, bat is unnecessary.',
+  })
+
+  // ── KUBERNETES ───────────────────────────────────────────────────────────────
+  if (c.includes('kubectl get') || c.includes('kubectl describe')) candidates.push({
+    tr: 'kubectl get ozet verir (STATUS, READY), kubectl describe Events bolumunu gosterir — sorun teshisinde her zaman describe ile basla.',
+    en: 'kubectl get gives a summary (STATUS, READY), kubectl describe shows the Events section — always start diagnosis with describe.',
+  })
+  if (c.includes('kubectl logs')) candidates.push({
+    tr: 'kubectl logs --previous son olumunden onceki container loglarini gosterir — CrashLoopBackOff teshisinde bu kritiktir.',
+    en: 'kubectl logs --previous shows logs from before the last container death — this is critical for diagnosing CrashLoopBackOff.',
+  })
+  if (c.includes('kubectl apply') || c.includes('kubectl create')) candidates.push({
+    tr: 'kubectl apply idempotent\'tir — ayni manifest tekrar uygulaninca sadece degisen alan guncellenir; kubectl create varolan kaynakta hata verir.',
+    en: 'kubectl apply is idempotent — applying the same manifest again only updates changed fields; kubectl create errors on an already-existing resource.',
+  })
+  if (c.includes('matchlabels:') || c.includes('labels:')) candidates.push({
+    tr: 'spec.selector.matchLabels ile Pod template.metadata.labels birebir eslesmeli — tek harf farki bile Deployment\'in Pod bulmamamasina neden olur.',
+    en: 'spec.selector.matchLabels must exactly match Pod template.metadata.labels — a single character difference causes the Deployment to find no Pods.',
+  })
+
+  // ── REST ASSURED ─────────────────────────────────────────────────────────────
+  if (c.includes('given()') || c.includes('when()') || c.includes('.then()')) candidates.push({
+    tr: 'given/when/then zinciri okunurlugu arttirir ve her methodu zincirler — ara degisken atama; hepsini tek zincirde yaz.',
+    en: 'The given/when/then chain improves readability and links each method — do not assign intermediate variables; write all in one chain.',
+  })
+  if (c.includes('body(') && c.includes('equalto(')) candidates.push({
+    tr: 'body("kullanici.adi", equalTo("test")) ile JSON alanini nokta notasyonuyla dogrula — JsonPath kullanir, ic ice alanlar icin "data.user.name" gibi yaz.',
+    en: 'body("user.name", equalTo("test")) verifies a JSON field with dot notation — it uses JsonPath; for nested fields write "data.user.name" style.',
+  })
+  if (c.includes('statuscode(')) candidates.push({
+    tr: 'then().statusCode(200) HTTP status kodunu dogrular — 2xx basari, 4xx istemci hatasi, 5xx sunucu hatasidir; test her senaryoyu kapsamali.',
+    en: 'then().statusCode(200) verifies the HTTP status code — 2xx success, 4xx client error, 5xx server error; tests should cover each scenario.',
+  })
+
+  // ── POSTMAN ──────────────────────────────────────────────────────────────────
+  if (c.includes('pm.test(') || c.includes('pm.expect(')) candidates.push({
+    tr: 'pm.test("aciklama", () => { pm.expect(pm.response.json().alan).to.equal(deger) }) seklinde yaz — test ismi aciklayici ve benzersiz olmali.',
+    en: 'Write: pm.test("description", () => { pm.expect(pm.response.json().field).to.equal(value) }) — the test name should be descriptive and unique.',
+  })
+  if (c.includes('pm.environment.set(') || c.includes('pm.variables.set(')) candidates.push({
+    tr: 'pm.environment.set("anahtar", deger) ile bir sonraki requeste dinamik degeri aktar — token, id gibi degerler icin manuel kopyalama gerekmez.',
+    en: 'Transfer dynamic values to the next request with pm.environment.set("key", value) — no manual copying needed for tokens, ids, etc.',
+  })
+  if (c.includes('pm.response.json()')) candidates.push({
+    tr: 'pm.response.json() body\'yi obje olarak verir; pm.response.code HTTP statusu, pm.response.responseTime gecikmeyi milisaniye olarak verir.',
+    en: 'pm.response.json() gives the body as an object; pm.response.code gives HTTP status, pm.response.responseTime gives latency in milliseconds.',
+  })
+
+  // ── JAVASCRIPT ───────────────────────────────────────────────────────────────
+  if (c.includes('async ') && c.includes('await ')) candidates.push({
+    tr: 'async fonksiyon icinde await olmadan Promise beklenmez — sonucu almadan devam edersen undefined veya yanlis deger ile calismaya devam edersin.',
+    en: 'Without await inside an async function, the Promise is not awaited — continuing without the result means working with undefined or wrong value.',
+  })
+  if (c.includes('try {') && c.includes('catch')) candidates.push({
+    tr: 'try/catch ile asenkron hatalari yakala — fetch veya API cagrisi 4xx/5xx donerse catch blogu devreye girer; hatay handle etmeden assertion yapma.',
+    en: 'Use try/catch to catch async errors — if fetch or an API call returns 4xx/5xx the catch block runs; do not assert without handling the error.',
+  })
+  if (c.includes('promise.all(')) candidates.push({
+    tr: 'Promise.all([]) tum promise\'leri paralel calistirir; biri basarisiz olursa hepsi fail eder — Promise.allSettled() her birinin sonucunu ayri verir.',
+    en: 'Promise.all([]) runs all promises in parallel; if one fails, all fail — Promise.allSettled() gives each result separately.',
+  })
+  if (c.includes('.foreach(') || c.includes('.map(') || c.includes('.filter(')) candidates.push({
+    tr: 'forEach, map ve filter async callback desteklemez — async loop icin for...of veya Promise.all ile .map() kullan.',
+    en: 'forEach, map and filter do not support async callbacks — use for...of or Promise.all with .map() for async loops.',
+  })
+
+  // ── GENERIC FALLBACK ─────────────────────────────────────────────────────────
+  if (candidates.length === 0) {
+    candidates.push(
+      { tr: 'Yukaridaki kod bloguna bak ve TODO satirini orijinal koddaki ilk anlamli satirla degistir.', en: 'Look at the code block above and replace the TODO line with the first meaningful line from the original code.' },
+      { tr: 'Cozumle birebir eslesme gerekir — bosluk, girintileme ve satir sirasini dikkatli koru.', en: 'The solution must match exactly — preserve spacing, indentation, and line order carefully.' },
+      { tr: 'Takilirsan solutionCode\'a bak; sadece TODO olan satiri yaz, geri kalani dokunma.', en: 'If stuck, look at the solutionCode; only write the TODO line, leave the rest unchanged.' },
+    )
+  }
+
+  // Pad to 3 hints if fewer candidates were found
+  const fallbacks = [
+    { tr: 'Yukaridaki kod bloguna bak ve TODO\'yu orijinal satirla degistir.', en: 'Look at the code block above and replace TODO with the original line.' },
+    { tr: 'Cozumle birebir eslesme gerekir — girintileme ve satir sirasin koru.', en: 'The solution must match exactly — preserve indentation and line order.' },
+    { tr: 'Takilirsan sadece TODO satirini yaz, geri kalanina dokunma.', en: 'If stuck, write only the TODO line, leave everything else unchanged.' },
+  ]
+  while (candidates.length < 3) {
+    candidates.push(fallbacks[candidates.length % fallbacks.length])
+  }
+
+  return candidates.slice(0, 3)
+}
+
 function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
   const info = profileText(profile)
   const trCode = codeFor(block, 'tr') || codeFor(block, 'en')
@@ -702,13 +1101,7 @@ function makePracticeBlock(pageKey, sectionIndex, codeIndex, block, profile) {
       tr: 'Cozum beklenen kod yapisiyla eslesti. Artik ayni ornegi sadece okumakla kalmadin; kritik satiri elinle yeniden kurdun.',
       en: 'The solution matches the expected code structure. You did not just read the example; you rebuilt the critical line by hand.',
     },
-    hints: info.hintsTr
-      ? info.hintsTr.map((tr, i) => ({ tr, en: info.hintsEn[i] }))
-      : [
-          { tr: 'TODO satiri, orijinal kod ornegindeki ilk anlamli satirin yerine kondu.', en: 'The TODO line replaces the first meaningful line in the original code sample.' },
-          { tr: 'Cozumle birebir eslesme gerekir; bosluk ve satir sirasini dikkatli koru.', en: 'The solution must match exactly; preserve spacing and line order carefully.' },
-          { tr: 'Takilirsan Beklenen Cikti veya orijinal kod blogundaki akisi oku, sonra yalnizca TODO satirini degistir.', en: 'If stuck, read the expected output or the original code flow, then change only the TODO line.' },
-        ],
+    hints: hintsForCode(block),
     xpReward: 10,
   }
 }
