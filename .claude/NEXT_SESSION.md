@@ -17,7 +17,7 @@
 | **Aktif branch** | `test` |
 | **Uzak takip** | `origin/test` |
 | **Son commit (önceki)** | `136e4a0` — feat(governance): content integrity script + build/pre-commit |
-| **Bu oturum commit** | `995941f` — feat(test): Docker 3D effects, AI CJK sanitization, E2E stability |
+| **Bu oturum commit** | `2b12519` — feat(test): Docker 3D effects, AI CJK sanitization, E2E stability |
 | **Push hedefi** | `git push origin test` (bu oturum) |
 
 ### Bu Commit'e Dahil Olan Değişiklikler (özet)
