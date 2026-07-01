@@ -5218,6 +5218,7 @@ const finalEnSections = [
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'sql',
         topic: 'SQL',
         questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -10514,6 +10515,7 @@ const finalTrSections = [
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'sql',
         topic: 'SQL',
         questions: [
               // ── BASIC ──────────────────────────────────────────

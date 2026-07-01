@@ -605,6 +605,7 @@ def send_alert(message):
           },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'aws-errors',
             framework: 'AWS',
             errors: [
               {
@@ -695,6 +696,7 @@ def send_alert(message):
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'aws',
             topic: 'AWS',
             questions: [
               // ── BASIC (15) ─────────────────────────────────────────────────
@@ -1381,6 +1383,7 @@ phases:
           },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'aws-errors',
             framework: 'AWS',
             errors: [
               {
@@ -1471,6 +1474,7 @@ phases:
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'aws',
             topic: 'AWS',
             questions: [
               // ── TEMEL (15) ─────────────────────────────────────────────────

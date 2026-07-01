@@ -3349,6 +3349,7 @@ observer.disconnect();
       },
       {
         type: "error-dictionary",
+          relatedTopicId: 'javascript-errors',
         errors: [
           {
             code: "TypeError: Assignment to constant variable",
@@ -4626,6 +4627,7 @@ drivers.forEach((driver, browser) => {
     blocks: [
       {
         type: "interview-questions",
+          relatedTopicId: 'javascript',
         topic: "JavaScript",
         questions: [
           // ==========================================

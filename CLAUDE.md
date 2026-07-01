@@ -28,7 +28,7 @@ Bu proje birden fazla AI aracıyla (Claude Code, Antigravity, Windsurf, Trae) ge
 | **`codexSeo.md`** | SEO kurallarının ve mimarisinin **kalıcı** referansı (nasıl çalışır, hangi script ne yapar, GSC checklist, uzun vadeli SEO stratejisi). | SEO/routing/metadata işi yaparken. |
 | **`DEPLOY.md`** | Netlify/GitHub Pages yayın adımları, Google Search Console kurulum adımları. | Yayın veya GSC işlerinde. |
 | **`promptkurallar.md`** | Kullanıcının (Hasan) AI araçlarına nasıl prompt yazacağına dair rehber. | Kullanıcı nasıl prompt yazacağını sorduğunda. |
-| **`.claude/CONTENT_RULES.md`** | İçerik yazım kuralları: block formatları, mülakat sorusu formatı, hata sözlüğü formatı, kurulum formatı. | İçerik yazarken, W3Schools kapsam kontrolü yaparken. |
+| **`.claude/CONTENT_RULES.md`** | İçerik yazım kuralları: block formatları, mülakat sorusu formatı, hata sözlüğü formatı, kurulum formatı. **KURAL 12:** dil/tutarlılık zorunlulukları — `relatedTopicId` zorunluluğu, tekrar yasağı, yorum kapsamı. | İçerik yazarken, W3Schools kapsam kontrolü yaparken, yeni block eklerken. |
 | **`.claude/UI_STANDARDS.md`** | Görsel/animasyon/renk standartları. | UI bileşeni eklerken. |
 | **`.claude/TECH_SPEC.md`** | Editör, toggle, localStorage, performans teknik gereksinimleri. | Etkileşimli editör/teknik altyapı işlerinde. |
 | **`.claude/QA_FRAMEWORK_SPEC.md`** | pytest/Selenium/Playwright derinlik kuralları. | Test framework içeriği yazarken. |
@@ -60,6 +60,25 @@ self-contained bir React + Vite öğrenme platformudur.
   gibi terimler aynen kalır)
 - Python/TypeScript/QA anlatımlarında Java analojisi **zorunlu**
   ("Java'da X şöyle yapılır, burada ise...")
+
+---
+
+## 1.1. Hız Değil Doğruluk Önceliklidir (Zorunlu Checklist)
+
+> **Bu bölüm tüm geliştirme oturumlarında bağlayıcıdır — atlanamaz, ihmal edilemez.**
+
+**Bir görevi "tamamladım", "bitirdi", "hazır" olarak raporlamadan önce aşağıdaki 4 maddeyi KENDİN çalıştır ve her birini tek tek doğrula:**
+
+1. **İçerik bütünlük kontrolü:** `node scripts/check-content-integrity.mjs` çalıştırıldı mı, sıfır ihlal var mı?
+2. **İpucu-konu bağı doğrulaması:** Eklenen/değiştirilen her `code-playground`/hint/practice bloğu, anlatılan konudan bağımsız test edildi mi — yani "bu ipucu gerçekten bir önceki koda mı ait?" diye kendi kendine soruldu mu?
+3. **TR yorum taraması:** Türkçe sayfa bağlamında eklenen TÜM yorum satırları (`#`, `//`, `/* */`, `--`) tek tek okundu mu, İngilizce kalan var mı?
+4. **Build doğrulaması:** `npm run build` hatasız geçti mi?
+
+**Bu dört maddeden biri bile doğrulanmadan "tamamlandı", "bitirdi", "hazır" gibi ifadeler KULLANILMAZ.**
+
+Şüpheli veya emin olunmayan bir nokta varsa: `"tamamladım"` yerine `"şunu kontrol etmen gerekebilir: ..."` şeklinde raporla.
+
+Görev büyükse (birden fazla dosya/blok), tek seferde hepsini bitirmeye çalışmak yerine **parça parça ilerle**, her parçadan sonra bu 4 maddeyi tekrar çalıştır.
 
 ---
 
@@ -285,6 +304,25 @@ Bu kalıp **Python sayfasıyla sınırlı bir deney değildir** — tüm teknolo
 
 Bu 4 katman, Bölüm 9'daki "ilk block `simple-box` olmalı" kuralının **uygulama standardıdır** ve eski "teknik terim kullanmadan, 10 yaşındaki çocuğa anlatır gibi" ifadesinin yerine geçer — hedef kitle yetişkin bir QA mühendisi olduğundan teknik terim kullanmak sorun değildir; asıl hedef kullanıcıyı düşündürmek ve meslekle bağ kurdurmaktır. Bu standart yeni yazılan veya güncellenen **her** `simple-box` bloğuna uygulanır; hangi sayfanın bu standarda ne kadar yükseltildiği `NEXT_SESSION.md`'de takip edilir, bu dosyada değil (bkz. Bölüm 0).
 
+### 9.4. İçerik Bütünlüğü ve Dil Tutarlılığı
+
+Bu bölümdeki kurallar `scripts/check-content-integrity.mjs` script'i tarafından otomatik denetlenir. İhlal varsa build kırılır.
+
+**Dil kapsamı (genişletilmiş):**
+"Türkçe sayfalarda kod ve komut yorumları Türkçe olmalıdır" kuralı (Bölüm 8) yalnızca `type: 'code'`/`type: 'editor'` bloklarını değil, yorum satırı (`#`, `//`, `/* */`, `--`) içeren **HER** block tipini kapsar:
+- `code-playground` — `starterCode`, `solutionCode`, `hint` alanları dahil
+- `interview-questions` — cevaplardaki kod örnekleri dahil
+- `error-dictionary` — `codeWrong`/`codeFixed` alanları dahil
+- Yorum satırı içeren diğer tüm block tipleri
+
+Kapsam dışı bırakılan hiçbir alan olamaz.
+
+**İçerik ilişkisellik zorunluluğu:**
+Her `code-playground`, `interview-questions` ve `error-dictionary` bloğu, hangi konu/kod bloğunun devamı olduğunu belirten zorunlu bir **`relatedTopicId`** alanı taşımalıdır. Bu alan olmadan blok eklenemez — `check-content-integrity.mjs` "ilişkisiz blok" olarak raporlar ve build'i kırar.
+
+**Tekrar yasağı:**
+Aynı veya birbirine %85'ten fazla benzeyen hint/ipucu/practice metni birden fazla farklı `topicId` altında kullanılamaz. Yeni bir ipucu/practice eklemeden önce mevcut projede aynı/benzer bir ipucunun olup olmadığını kontrol et (`check-content-integrity.mjs` bunu otomatik tespit eder).
+
 ---
 
 ## 10. KESİN KURAL — Mülakat Soruları (Esnek Değildir)
@@ -321,6 +359,10 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Bir kod bloğu eklerken animasyon + drag-and-drop + practice üçlüsünden birini atlamak — bu üçü her atomik kod bloğunun ardına, sadece sekme başına bir kez değil tekrarlanmalıdır (Bölüm 9.1).
 - ❌ Bu interaktif kalıbı (playground/practice + step-animation + drag-and-drop) sadece Python sayfasında bırakmak — Python referans uygulamadır, diğer tüm teknoloji sayfalarına da yayılması kalıcı bir hedeftir (Bölüm 9.2).
 - ❌ Tek cümlelik, yüzeysel bir `simple-box` analojisi yazmak ("X, Y gibidir" ve bitirmek) — Bölüm 9.3'teki 4 katman (somut analoji + düşündürücü "neden" sorusu + Java/karşılaştırma + iş dünyası/QA bağlamı) eksiksiz olmalıdır.
+- ❌ Türkçe bağlamdaki `code-playground`, `interview-questions`, `error-dictionary` bloklarındaki yorum satırlarını İngilizce bırakmak — kapsam yalnızca `code`/`editor` değil, yorum satırı içeren HER block tipini kapsar (Bölüm 9.4).
+- ❌ `code-playground`, `interview-questions`, `error-dictionary` bloğuna `relatedTopicId` alanı koymadan eklemek — bu alan zorunludur, eksik blok build'i kırar (Bölüm 9.4).
+- ❌ Aynı veya %85'ten fazla benzer hint/ipucu metnini farklı `topicId`'ler altında tekrarlamak — her ipucu benzersiz ve konuya özgü olmalıdır (Bölüm 9.4).
+- ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
 
 ---
 

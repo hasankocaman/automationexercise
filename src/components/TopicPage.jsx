@@ -1244,6 +1244,46 @@ const englishToTurkishCodeComments = [
     [/1\. Start emulator/gi, '1. Emülatörü başlat'],
     [/2\. Start Appium server/gi, '2. Appium sunucusunu başlat'],
     [/3\. Then run tests/gi, '3. Sonra testleri çalıştır'],
+
+    // --- Genel kurulum / ortam ---
+    [/Mac\/Linux — add to ~\/\.zshrc or ~\/\.bashrc/gi, 'Mac/Linux — ~/.zshrc veya ~/.bashrc dosyasına ekle'],
+    [/add to ~\/\.profile or ~\/\.bashrc:/gi, '~/.profile veya ~/.bashrc dosyasına ekle:'],
+    [/add to ~\/\.bashrc or ~\/\.zshrc/gi, '~/.bashrc veya ~/.zshrc dosyasına ekle'],
+    [/add to ~\/\.bash_profile or ~\/\.zshrc/gi, '~/.bash_profile veya ~/.zshrc dosyasına ekle'],
+    [/macOS \/ Linux \(add to ~\/\.bash_profile or ~\/\.zshrc\):/gi, 'macOS / Linux (~/.bash_profile veya ~/.zshrc dosyasına ekle):'],
+    [/If not installed, download from:/gi, 'Kurulu değilse şuradan indir:'],
+    [/WebdriverIO CLI \(recommended\)/gi, 'WebdriverIO CLI (önerilen)'],
+
+    // --- Appium ---
+    [/If APK is already installed, use package \+ activity instead/gi, 'APK zaten yüklüyse package + activity kullan'],
+    [/Shortcut: old TouchAction API is deprecated, use W3C Actions instead/gi, 'Kısayol: eski TouchAction API artık kullanımdan kalktı (deprecated), bunun yerine W3C Actions kullan'],
+    [/Tap Add to Cart button/gi, 'Sepete Ekle butonuna dokun'],
+
+    // --- Java / Selenium / Playwright ---
+    [/This is the field name submitted to the backend/gi, 'Bu, backend\'e gönderilen alan adıdır'],
+    [/EXPLICIT WAIT \(RECOMMENDED\)/gi, 'EXPLICIT WAIT (ÖNERİLEN)'],
+    [/Work on both pages/gi, 'Her iki sayfada da çalış'],
+    [/Automatic \(try-with-resources — recommended\):/gi, 'Otomatik (try-with-resources — önerilen):'],
+    [/Method 2: Wait for specific element \(recommended\)/gi, 'Yöntem 2: Belirli element için bekle (önerilen)'],
+    [/Role-based \(RECOMMENDED\)/gi, 'Role tabanlı (ÖNERİLEN)'],
+    [/Skip a test only when a browser has a known issue/gi, 'Bir testi yalnızca tarayıcıda bilinen bir sorun varsa atla'],
+    [/Add to cart/gi, 'Sepete ekle'],
+
+    // --- JMeter / Kafka ---
+    [/against a free public API you should see near-zero errors/gi, 'ücretsiz bir public API\'ye karşı neredeyse sıfır hata görmelisin'],
+    [/Both TERMINAL 1 and TERMINAL 2 receive ALL messages/gi, 'HEM TERMINAL 1 HEM DE TERMINAL 2 TÜM mesajları alır'],
+
+    // --- Kubernetes ---
+    [/Option A: winget \(recommended\)/gi, 'Seçenek A: winget (önerilen)'],
+    [/USEFUL ALIASES/gi, 'KULLANIŞLI ALIAS\'LAR'],
+    [/Check events \(great for debugging why pod won't start\)/gi, 'Olayları kontrol et (pod neden başlamıyor — debug için harika)'],
+    [/Wait for rollout to complete before running smoke tests/gi, 'Smoke testleri çalıştırmadan önce rollout\'un tamamlanmasını bekle'],
+    [/Or use this minimal Dockerfile for ANY Spring Boot app:/gi, 'Ya da HERHANGİ bir Spring Boot uygulaması için bu minimal Dockerfile\'ı kullan:'],
+
+    // --- Locator / Genel ---
+    [/both fullName AND email input!/gi, 'hem fullName HEM DE email input!'],
+    [/Run both with Collection Runner/gi, 'Her ikisini de Collection Runner ile çalıştır'],
+    [/Why preemptive\(\)\?/gi, 'Neden preemptive()?'],
 ];
 
 function translateCodeComment(comment, language) {

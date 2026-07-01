@@ -7578,14 +7578,14 @@ const s7 = {
     title: '💼 Java QA Mülakat Soruları (50 Soru)',
     blocks: [
       { type: 'simple-box', emoji: '💼', content: 'Bu sorular gerçek mülakatlarda soruldu. Senaryo bazlı — her cevabı kendi projenle ilişkilendir. Önce anla, sonra anlat. Her soru için Java analoji, kod örneği ve mülakat notu içerir.' },
-      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q },
+      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
   en: {
     title: '💼 Java QA Interview Questions (50 Questions)',
     blocks: [
       { type: 'simple-box', emoji: '💼', content: 'Real interview questions in scenario-based format — each answer includes Java analogy, code example, and interview tip. Understand first, then explain.' },
-      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q },
+      { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
 }
@@ -15540,6 +15540,7 @@ const sInteractivePractice = {
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
 const javaPlaygroundMainMethod = {
   type: 'code-playground',
+    relatedTopicId: 'java-syntax-main-01',
   id: 'java-syntax-main-01',
   xpReward: 15,
   label: { tr: '☕ Egzersiz 1 — JVM\'nin giriş noktası: main method', en: '☕ Exercise 1 — JVM entry point: main method' },
@@ -15589,6 +15590,7 @@ const javaPlaygroundMainMethod = {
 
 const javaPlaygroundJUnitAssertion = {
   type: 'code-playground',
+    relatedTopicId: 'java-junit-assertion-01',
   id: 'java-junit-assertion-01',
   xpReward: 20,
   label: { tr: '🧪 Egzersiz 2 — JUnit5 ile test yaz ve geçir', en: '🧪 Exercise 2 — Write and pass a JUnit5 test' },
@@ -16210,6 +16212,7 @@ const javaChallengeOrderOopCreation = {
 
 const javaPlaygroundStringMethods = {
   type: 'code-playground',
+    relatedTopicId: 'java-strings-01',
   id: 'java-strings-01',
   xpReward: 15,
   label: { tr: '🔤 Egzersiz 3 — String karşılaştırma tuzağı: trim() + equals()', en: '🔤 Exercise 3 — String comparison trap: trim() + equals()' },
@@ -16333,6 +16336,7 @@ const javaChallengeOrderStringChain = {
 
 const javaPlaygroundIfElse = {
   type: 'code-playground',
+    relatedTopicId: 'java-ifelse-01',
   id: 'java-ifelse-01',
   xpReward: 15,
   label: { tr: '🔀 Egzersiz 4 — if/else merdiveni: koşul sırası kritik', en: '🔀 Exercise 4 — if/else ladder: condition order is critical' },
@@ -16472,6 +16476,7 @@ const javaChallengeOrderIfElse = {
 
 const javaPlaygroundArrays = {
   type: 'code-playground',
+    relatedTopicId: 'java-arrays-01',
   id: 'java-arrays-01',
   xpReward: 15,
   label: { tr: '📦 Egzersiz 5 — Array: index ve for-each döngüsü', en: '📦 Exercise 5 — Array: index and for-each loop' },
@@ -16599,6 +16604,7 @@ const javaChallengeOrderArrayLifecycle = {
 
 const javaPlaygroundMethods = {
   type: 'code-playground',
+    relatedTopicId: 'java-methods-01',
   id: 'java-methods-01',
   xpReward: 20,
   label: { tr: '🔧 Egzersiz 6 — Method: return değeri ve void farkı', en: '🔧 Exercise 6 — Method: return value vs void difference' },
@@ -16742,6 +16748,7 @@ const javaChallengeOrderMethodAnatomy = {
 
 const javaPlaygroundEnum = {
   type: 'code-playground',
+    relatedTopicId: 'java-enum-01',
   id: 'java-enum-01',
   xpReward: 20,
   label: { tr: '🎯 Egzersiz 7 — switch fall-through tuzağı: break eksikliği', en: '🎯 Exercise 7 — switch fall-through trap: missing break' },
@@ -16879,6 +16886,7 @@ const javaChallengeOrderTryCatch = {
 
 const javaPlaygroundCucumber = {
   type: 'code-playground',
+    relatedTopicId: 'java-cucumber-01',
   id: 'java-cucumber-01',
   xpReward: 20,
   label: { tr: '🥒 Egzersiz 8 — Cucumber: Given→When→Then adım sırası', en: '🥒 Exercise 8 — Cucumber: Given→When→Then step order' },
@@ -17059,6 +17067,7 @@ const javaChallengeOrderCucumber = {
 
 const javaPlaygroundPlaywright = {
   type: 'code-playground',
+    relatedTopicId: 'java-playwright-01',
   id: 'java-playwright-01',
   xpReward: 20,
   label: { tr: '🎭 Egzersiz 9 — Playwright Java: test adım sırası', en: '🎭 Exercise 9 — Playwright Java: test step order' },

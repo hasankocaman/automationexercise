@@ -6549,6 +6549,7 @@ export const typescriptData = {
         "blocks": [
                     {
             type: 'interview-questions',
+              relatedTopicId: 'typescript',
             topic: 'TypeScript',
             questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -13810,6 +13811,7 @@ export const typescriptData = {
         "blocks": [
                     {
             type: 'interview-questions',
+              relatedTopicId: 'typescript',
             topic: 'TypeScript',
             questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -14982,6 +14984,7 @@ _tsInsert.forEach(([pos, stepAnim, orderSort], sectionIdx) => {
 const _tsCodePlayground = [
   [0, 14, {
     type: 'code-playground',
+      relatedTopicId: 'ts-intro-typeerror-practice',
     id: 'ts-intro-typeerror-practice',
     label: { tr: 'Pratik: TypeScript Tip Hatasını Derleme Anında Yakala', en: 'Practice: Catch the TypeScript Type Bug at Compile Time' },
     language: 'typescript',
@@ -15042,6 +15045,7 @@ console.log(calculateDiscount(100));
   }],
   [1, 19, {
     type: 'code-playground',
+      relatedTopicId: 'ts-install-tsconfig-practice',
     id: 'ts-install-tsconfig-practice',
     label: { tr: 'Pratik: tsconfig.json ile Derleyiciyi Sıkılaştır', en: 'Practice: Tighten the Compiler with tsconfig.json' },
     language: 'bash',
@@ -15122,6 +15126,7 @@ npx tsc --noEmit`,
   }],
   [2, 12, {
     type: 'code-playground',
+      relatedTopicId: 'ts-types-unknown-practice',
     id: 'ts-types-unknown-practice',
     label: { tr: 'Pratik: any Yerine unknown ile Güvenli Tip Kontrolü', en: 'Practice: Safe Type Narrowing with unknown Instead of any' },
     language: 'typescript',
@@ -15190,6 +15195,7 @@ console.log(parseTestDuration(3));
   }],
   [3, 10, {
     type: 'code-playground',
+      relatedTopicId: 'ts-arrays-tuple-practice',
     id: 'ts-arrays-tuple-practice',
     label: { tr: 'Pratik: Array Yerine Tuple ile Sabit Yapı Garantile', en: 'Practice: Guarantee Fixed Structure with a Tuple Instead of an Array' },
     language: 'typescript',
@@ -15254,6 +15260,7 @@ console.log(result[0], result[1], result[2]);
   }],
   [4, 12, {
     type: 'code-playground',
+      relatedTopicId: 'ts-object-enum-practice',
     id: 'ts-object-enum-practice',
     label: { tr: 'Pratik: Enum + Interface ile Geçersiz Config Değerini Engelle', en: 'Practice: Block an Invalid Config Value with Enum + Interface' },
     language: 'typescript',
@@ -15344,6 +15351,7 @@ console.log(call.method);
   }],
   [5, 4, {
     type: 'code-playground',
+      relatedTopicId: 'ts-interface-typealias-practice',
     id: 'ts-interface-typealias-practice',
     label: { tr: 'Pratik: Union Type\'ı Interface Değil Type Alias ile Tanımla', en: 'Practice: Define a Union Type with type, Not interface' },
     language: 'typescript',
@@ -15408,6 +15416,7 @@ console.log(report('pass'));
   }],
   [6, 11, {
     type: 'code-playground',
+      relatedTopicId: 'ts-functions-optional-practice',
     id: 'ts-functions-optional-practice',
     label: { tr: 'Pratik: Optional Parametre ile Eksik Argüman Hatasını Önle', en: 'Practice: Prevent the Missing-Argument Bug with an Optional Parameter' },
     language: 'typescript',
@@ -15478,6 +15487,7 @@ console.log(login('qa_user'));
   }],
   [7, 16, {
     type: 'code-playground',
+      relatedTopicId: 'ts-classes-pageobject-practice',
     id: 'ts-classes-pageobject-practice',
     label: { tr: 'Pratik: Constructor Parameter Property ile Page Object Kısalt', en: 'Practice: Shorten a Page Object with Constructor Parameter Properties' },
     language: 'typescript',
@@ -15554,6 +15564,7 @@ console.log(login.open());`,
   }],
   [8, 6, {
     type: 'code-playground',
+      relatedTopicId: 'ts-generics-practice',
     id: 'ts-generics-practice',
     label: { tr: 'Pratik: any Yerine Generic ile Tip Güvenliğini Geri Kazan', en: 'Practice: Recover Type Safety with a Generic Instead of any' },
     language: 'typescript',
@@ -15622,6 +15633,7 @@ const firstId = getFirst([101, 102]);
   }],
   [9, 10, {
     type: 'code-playground',
+      relatedTopicId: 'ts-utility-partial-practice',
     id: 'ts-utility-partial-practice',
     label: { tr: 'Pratik: Partial<T> ile Kısmi Güncelleme Fonksiyonu Yaz', en: 'Practice: Write a Partial Update Function with Partial<T>' },
     language: 'typescript',
@@ -15708,6 +15720,7 @@ console.log(updateConfig(base, { retries: 5 }));`,
   }],
   [10, 11, {
     type: 'code-playground',
+      relatedTopicId: 'ts-null-optionalchaining-practice',
     id: 'ts-null-optionalchaining-practice',
     label: { tr: 'Pratik: Optional Chaining ile "Cannot read properties of undefined" Hatasını Önle', en: 'Practice: Prevent "Cannot read properties of undefined" with Optional Chaining' },
     language: 'typescript',
@@ -15788,6 +15801,7 @@ console.log(summarize({ name: 'Checkout test' }));`,
   }],
   [11, 22, {
     type: 'code-playground',
+      relatedTopicId: 'ts-discriminated-union-practice',
     id: 'ts-discriminated-union-practice',
     label: { tr: 'Pratik: Discriminated Union ile Exhaustive switch Yaz', en: 'Practice: Write an Exhaustive switch with a Discriminated Union' },
     language: 'typescript',
@@ -15894,6 +15908,7 @@ function describe(e: TestEvent): string {
   }],
   [12, 17, {
     type: 'code-playground',
+      relatedTopicId: 'ts-qa-pageobject-async-practice',
     id: 'ts-qa-pageobject-async-practice',
     label: { tr: 'Pratik: Page Object Metodunda Eksik await Bug\'ını Düzelt', en: 'Practice: Fix the Missing await Bug in a Page Object Method' },
     language: 'typescript',
@@ -15982,6 +15997,7 @@ function describe(e: TestEvent): string {
   }],
   [13, 22, {
     type: 'code-playground',
+      relatedTopicId: 'ts-java-migration-practice',
     id: 'ts-java-migration-practice',
     label: { tr: 'Pratik: Java Getter/Setter Class\'ını TypeScript\'e Taşı', en: 'Practice: Migrate a Java Getter/Setter Class to TypeScript' },
     language: 'typescript',
@@ -16074,6 +16090,7 @@ console.log(r.durationMs);
   }],
   [14, 4, {
     type: 'code-playground',
+      relatedTopicId: 'ts-vitest-practice',
     id: 'ts-vitest-practice',
     label: { tr: 'Pratik: Vitest ile Bozuk Bir Unit Test\'i Düzelt', en: 'Practice: Fix a Broken Vitest Unit Test' },
     language: 'bash',
@@ -16162,6 +16179,7 @@ npx vitest run`,
   }],
   [15, 6, {
     type: 'code-playground',
+      relatedTopicId: 'ts-interview-anyrisk-practice',
     id: 'ts-interview-anyrisk-practice',
     label: { tr: 'Pratik: Mülakatta Sorulan "any Neden Riskli?" Kod Örneğini Düzelt', en: 'Practice: Fix the "Why Is any Risky?" Interview Code Example' },
     language: 'typescript',
@@ -16236,6 +16254,7 @@ if (typeof retries === 'number') {
   }],
   [16, 11, {
     type: 'code-playground',
+      relatedTopicId: 'ts-practice-capstone',
     id: 'ts-practice-capstone',
     label: { tr: 'Kapsamlı Pratik: Tek Snippet\'teki 3 Farklı Tip Bug\'ını Bul ve Düzelt', en: 'Capstone Practice: Find and Fix 3 Different Type Bugs in One Snippet' },
     language: 'typescript',

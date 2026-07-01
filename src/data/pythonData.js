@@ -2003,7 +2003,7 @@ print("\nFailures:", [r["test"] for r in failures])` },
 },
 
       // Section interview questions
-      { type: 'interview-questions', topic: 'Python Intermediate', questions: [
+      { type: 'interview-questions', topic: 'Python Intermediate', relatedTopicId: 'python-intermediate', questions: [
         { level: 'basic', q: { tr: "Python\'da list ve tuple arasındaki fark nedir?", en: 'What is the difference between a list and a tuple in Python?' }, a: { tr: 'List değiştirilebilir (mutable) — append, remove, değiştirme yapabilirsiniz. Tuple değiştirilemez (immutable) — oluşturduktan sonra element ekleyip çıkaramazsınız. List [] ile, tuple () ile tanımlanır. Tuple daha hızlıdır çünkü Python onu optimize edebilir.', en: 'List is mutable — you can append, remove, and change elements. Tuple is immutable — you cannot change it after creation. List uses [], tuple uses (). Tuples are faster because Python can optimize them.' } },
         { level: 'basic', q: { tr: "Python\'da dictionary\'ye vs listelere erişimin zaman karmaşıklığı nedir?", en: 'What is the time complexity of dict vs list lookup in Python?' }, a: { tr: 'Dict lookup O(1) — anahtarı hash\'ler ve direkt gider. List lookup by index de O(1)\'dir. Ama "x in list" O(n)\'dir — her eleman kontrol edilir. "x in dict" ise O(1). Bu yüzden QA\'da büyük veri setlerinde dict tercih edilir.', en: "Dict lookup is O(1) — it hashes the key and jumps directly. List by index is also O(1). But \"x in list\" is O(n) — checks every element. \"x in dict\" is O(1). That\'s why dict is preferred for large datasets in QA." } },
         { level: 'intermediate', q: { tr: "Python\'da *args ve **kwargs ne işe yarar?", en: 'What are *args and **kwargs in Python?' }, a: { tr: '*args, belirsiz sayıda pozisyonel argüman alır — tuple olarak gelir. **kwargs, belirsiz sayıda keyword argüman alır — dict olarak gelir. def log(*args, **kwargs) hem log("msg1", "msg2") hem de log(level="INFO", test="login") çağrılarını kabul eder.', en: '*args accepts a variable number of positional arguments — arrives as a tuple. **kwargs accepts variable keyword arguments — arrives as a dict. def log(*args, **kwargs) can accept both log("msg1", "msg2") and log(level="INFO", test="login").' } },
@@ -3239,7 +3239,7 @@ print(suite.get_test(99))   # Should return None` },
 },
 
       // ─── Interview Questions for Advanced Topics ───────────────────────────
-      { type: 'interview-questions', topic: 'Python Advanced', questions: [
+      { type: 'interview-questions', topic: 'Python Advanced', relatedTopicId: 'python-advanced', questions: [
         { level: 'basic', q: { tr: "Python'da decorator ne işe yarar? Bir örnek ver.", en: 'What does a decorator do in Python? Give an example.' }, a: { tr: "Decorator, bir fonksiyonun davranışını değiştirmek veya genişletmek için kullanılır — orijinal fonksiyona dokunmadan. @retry, @timer, @cache gibi. def retry(func): wrapper(*args): try: func(*args) except: retry... Bir QA test framework'ünde flaky testler için @retry(times=3) dekoratörü kullanılabilir.", en: "A decorator modifies or extends a function's behavior without touching the original. Examples: @retry, @timer, @cache. In a QA test framework, @retry(times=3) can automatically retry flaky tests." } },
         { level: 'basic', q: { tr: "Python'da 'with' statement ne zaman kullanılır?", en: "When do you use the 'with' statement in Python?" }, a: { tr: "Kaynak yönetimi gereken yerlerde: dosya açma, veritabanı bağlantısı, network bağlantısı. with open('file.txt') as f: otomatik kapatır. Hata olsa bile __exit__ çalışır — Java'daki try-with-resources gibi.", en: "When resource management is needed: file operations, database connections, network connections. with open('file.txt') as f: closes automatically. __exit__ runs even if an error occurs — like Java's try-with-resources." } },
         { level: 'intermediate', q: { tr: "Python'da generator ve list arasındaki fark nedir? QA'de neden generator kullanırsın?", en: 'What is the difference between a generator and a list in Python? Why use generators in QA?' }, a: { tr: "List tüm elemanları bellekte tutar. Generator lazy — her seferinde bir eleman üretir, bellekte hepsi tutulmaz. QA'de 100.000 test verisi üretmek için generator idealdir: def gen_users(): for i in range(100000): yield {...}. Bellek tasarrufu büyük.", en: "A list holds all elements in memory. A generator is lazy — produces one element at a time, not all in memory. In QA, generators are ideal for producing large test datasets: def gen_users(): for i in range(100000): yield {...}. Significant memory savings." } },
@@ -4730,6 +4730,7 @@ def test_order_placed(sample_order, db):
       { type: 'heading', text: '🚨 Common Errors & How to Fix Them' },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'selenium-errors',
         framework: 'Selenium',
         errors: [
           {
@@ -4778,6 +4779,7 @@ driver.execute_script("arguments[0].click();", element)`,
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'pytest-errors',
         framework: 'pytest',
         errors: [
           {
@@ -4804,6 +4806,7 @@ driver.execute_script("arguments[0].click();", element)`,
       { type: 'text', content: { tr: 'Model cevabı görmek için her soruya tıklayın. Zorluk düzeyine göre sıralanmıştır.', en: 'Click each question to expand the model answer. Organized by difficulty.' } },
       {
         type: 'interview-questions',
+          relatedTopicId: 'python',
         topic: 'Python',
         questions: [
       // ── BASIC ──────────────────────────────────────────
@@ -6369,6 +6372,7 @@ const pythonEcosystemBlocks = [
 // --- CODE PLAYGROUND BLOCKS (Run / Show Expected Output / Fix the Failing Test / Hint) ---
 const playgroundSyntax = {
   type: 'code-playground',
+    relatedTopicId: 'py-syntax-01',
   id: 'py-syntax-01',
   xpReward: 15,
   label: { tr: 'Dene: Girinti ve İki Nokta', en: 'Try it: Indentation and Colon' },
@@ -6425,6 +6429,7 @@ check_status(200)`,
 
 const playgroundVariables = {
   type: 'code-playground',
+    relatedTopicId: 'py-variables-01',
   id: 'py-variables-01',
   xpReward: 15,
   label: { tr: 'Dene: String vs Int Karşılaştırma', en: 'Try it: String vs Int Comparison' },
@@ -6469,6 +6474,7 @@ else:
 
 const playgroundLoops = {
   type: 'code-playground',
+    relatedTopicId: 'py-loops-01',
   id: 'py-loops-01',
   xpReward: 15,
   label: { tr: 'Dene: range() ile Off-by-One Hatası', en: 'Try it: Off-by-One Error with range()' },
@@ -6517,6 +6523,7 @@ print(test_ids)`,
 
 const playgroundFunctions = {
   type: 'code-playground',
+    relatedTopicId: 'py-functions-01',
   id: 'py-functions-01',
   xpReward: 20,
   label: { tr: 'Dene: Mutable Default Argument Tuzağı', en: 'Try it: The Mutable Default Argument Trap' },
@@ -6577,6 +6584,7 @@ print(add_test_case("logout"))`,
 
 const playgroundClasses = {
   type: 'code-playground',
+    relatedTopicId: 'py-classes-01',
   id: 'py-classes-01',
   xpReward: 20,
   label: { tr: 'Dene: super().__init__() Unutmak', en: 'Try it: Forgetting super().__init__()' },

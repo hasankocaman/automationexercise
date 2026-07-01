@@ -2547,6 +2547,7 @@ const s8 = {
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'playwright-errors',
         framework: 'Playwright',
         errors: [
           {
@@ -2665,6 +2666,7 @@ with sync_playwright() as p:
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'playwright-errors',
         framework: 'Playwright',
         errors: [
           {
@@ -2739,6 +2741,7 @@ const s9 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'playwright',
         topic: 'Playwright',
         questions: [
           { level: 'basic', q: 'Playwright nedir ve Selenium\'dan farkı nedir?', a: 'Playwright, Microsoft\'un 2020\'de geliştirdiği modern tarayıcı otomasyon kütüphanesidir. TypeScript, JavaScript, Python, Java ve C# destekler. En önemli farkı: auto-wait sayesinde elementlerin yüklenmesini otomatik bekler, explicit wait yazmak gerekmez. Tek API ile Chromium, Firefox ve WebKit kontrolü sağlar.' },
@@ -2804,6 +2807,7 @@ const s9 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'playwright',
         topic: 'Playwright',
         questions: [
           { level: 'basic', q: 'What is Playwright and how does it differ from Selenium?', a: 'Playwright is a modern browser automation library by Microsoft (2020). Supports TypeScript, JavaScript, Python, Java, C#. Key difference: auto-wait automatically waits for elements to load, eliminating explicit waits. Single API controls Chromium, Firefox, and WebKit.' },

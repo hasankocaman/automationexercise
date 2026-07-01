@@ -1734,6 +1734,7 @@ print(average)`,
 export function toPlaygroundBlock(item) {
   return {
     type: 'code-playground',
+      relatedTopicId: 'pythonplayground-playground-1736',
     id: item.id,
     label: item.title,
     language: 'python',

@@ -1395,6 +1395,7 @@ const sections = [
     blocks: [
       {
         type: 'interview-questions',
+          relatedTopicId: 'cyber-security-penetration-testing',
         topic: 'Cyber Security & Penetration Testing',
         questions: [
           // Basic Level (1-15)

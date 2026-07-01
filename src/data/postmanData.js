@@ -1067,6 +1067,7 @@ jobs:
           { type: 'heading', text: 'Common Postman Errors & Solutions' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'postman-errors',
             framework: 'Postman',
             errors: [
               {
@@ -1359,6 +1360,7 @@ pm.test("All posts belong to chained userId", () => {
           { type: 'heading', text: 'Real Errors You Will Hit — and How to Fix Them' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'postman-errors',
             framework: 'Postman',
             errors: [
               {
@@ -1503,6 +1505,7 @@ GET https://api.example.com/data
           },
           {
             type: 'interview-questions',
+              relatedTopicId: 'postman-api-testing',
             topic: 'Postman & API Testing',
             questions: [
               { level: 'basic', q: "What is Postman and why do QA engineers use it?", a: "Postman is a GUI-based API testing platform for sending HTTP requests, inspecting responses, and writing automated test scripts without code. QA engineers use it for manual API testing, automated regression suites, environment management, and team sharing. Faster than Java/Python code for exploratory testing; collections automate via Newman in CI/CD." },
@@ -2311,6 +2314,7 @@ jobs:
           { type: 'heading', text: 'Sık Karşılaşılan Postman Hataları ve Çözümleri' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'postman-errors',
             framework: 'Postman',
             errors: [
               {
@@ -2569,6 +2573,7 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
           { type: 'heading', text: 'Karşılaşacağın Gerçek Hatalar ve Çözümleri' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'postman-errors',
             framework: 'Postman',
             errors: [
               {
@@ -2713,6 +2718,7 @@ GET https://api.example.com/data
           },
           {
             type: 'interview-questions',
+              relatedTopicId: 'postman-ve-api-testi',
             topic: 'Postman ve API Testi',
             questions: [
               { level: 'basic', q: { tr: 'Postman nedir ve QA mühendisleri neden kullanır?', en: 'What is Postman and why do QA engineers use it?' }, a: { tr: 'Postman, uygulama kodu yazmadan HTTP istekleri göndermeye, yanıtları incelemeye ve otomatik test scriptleri yazmaya yarayan GUI tabanlı bir API test platformudur. QA mühendisleri şu amaçlarla kullanır: manuel API testi (API\'nin çalışıp çalışmadığını keşif amaçlı doğrulama), otomatik regresyon süitleri, dev/staging/prod ortam yönetimi ve koleksiyonları ekiple paylaşma. Keşif testi için Java/Python test kodu yazmaktan çok daha hızlıdır. Koleksiyonlar daha sonra Newman üzerinden CI/CD\'de otomatikleştirilebilir.', en: 'Postman is a GUI-based API testing platform for sending HTTP requests, inspecting responses, and writing automated test scripts without code. QA engineers use it for manual API testing, automated regression suites, environment management, and team sharing. Faster than Java/Python code for exploratory testing; collections automate via Newman in CI/CD.' } },

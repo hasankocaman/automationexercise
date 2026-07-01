@@ -3,6 +3,7 @@ import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 const kubernetesIntroInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-intro-desired-state-practice',
     id: 'kubernetes-intro-desired-state-practice',
     label: { tr: 'Pratik: İstenen durumu komutla tarif et', en: 'Practice: Describe desired state with commands' },
     language: 'bash',
@@ -103,6 +104,7 @@ Service provides a stable endpoint even when pods change.`,
 const kubernetesInstallationInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-install-minikube-practice',
     id: 'kubernetes-install-minikube-practice',
     label: { tr: 'Pratik: minikube kurulumunu doğrula', en: 'Practice: Verify a minikube setup' },
     language: 'bash',
@@ -203,6 +205,7 @@ kube-system pods become Running or Completed.`,
 const kubernetesArchitectureInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-architecture-inspect-practice',
     id: 'kubernetes-architecture-inspect-practice',
     label: { tr: 'Pratik: Cluster mimarisini kubectl ile oku', en: 'Practice: Read cluster architecture with kubectl' },
     language: 'bash',
@@ -303,6 +306,7 @@ kube-system shows scheduler, controller, CoreDNS, and networking pods.`,
 const kubernetesCoreInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-core-deployment-service-practice',
     id: 'kubernetes-core-deployment-service-practice',
     label: { tr: 'Pratik: Deployment ve Service bağlantısını tamamla', en: 'Practice: Complete the Deployment and Service link' },
     language: 'yaml',
@@ -503,6 +507,7 @@ The Service endpoint list does not stay empty.`,
 const kubernetesKubectlInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-kubectl-debug-practice',
     id: 'kubernetes-kubectl-debug-practice',
     label: { tr: 'Pratik: CrashLoopBackOff debug akışını tamamla', en: 'Practice: Complete the CrashLoopBackOff debug flow' },
     language: 'bash',
@@ -613,6 +618,7 @@ Events may reveal image pull, probe, or scheduling failures.
 const kubernetesYamlInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-yaml-probes-practice',
     id: 'kubernetes-yaml-probes-practice',
     label: { tr: 'Pratik: Readiness ve liveness probe ekle', en: 'Practice: Add readiness and liveness probes' },
     language: 'yaml',
@@ -759,6 +765,7 @@ QA can measure health behavior during rollout.`,
 const kubernetesEcosystemInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-ecosystem-helm-ci-practice',
     id: 'kubernetes-ecosystem-helm-ci-practice',
     label: { tr: 'Pratik: CI/CD ile Helm deploy komutunu tamamla', en: 'Practice: Complete a CI/CD Helm deploy command' },
     language: 'bash',
@@ -855,6 +862,7 @@ The chart uses the build-128 image tag.
 const kubernetesRealWorldInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'kubernetes-realworld-rollout-practice',
     id: 'kubernetes-realworld-rollout-practice',
     label: { tr: 'Pratik: Rolling update ve rollback komutlarını tamamla', en: 'Practice: Complete rolling update and rollback commands' },
     language: 'bash',
@@ -2699,6 +2707,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
           { type: 'heading', text: 'Common Errors & Solutions' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'kubernetes-errors',
             errors: [
               {
                 error: 'CrashLoopBackOff',
@@ -2774,6 +2783,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'kubernetes',
             topic: 'Kubernetes',
             questions: [
               {
@@ -4365,6 +4375,7 @@ kubectl rollout undo deployment/spring-app`,
           { type: 'heading', text: 'Yaygın Hatalar ve Çözümler' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'kubernetes-errors',
             errors: [
               {
                 error: 'CrashLoopBackOff',
@@ -4440,6 +4451,7 @@ kubectl rollout undo deployment/spring-app`,
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'kubernetes',
             topic: 'Kubernetes',
             questions: [
               {

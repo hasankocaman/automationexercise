@@ -4829,6 +4829,7 @@ const s12 = {
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'selenium-webdriver-errors',
         framework: 'Selenium WebDriver',
         errors: [
           {
@@ -4971,6 +4972,7 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'selenium-webdriver-errors',
         framework: 'Selenium WebDriver',
         errors: [
           {
@@ -5080,6 +5082,7 @@ const s13 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'selenium-webdriver',
         topic: 'Selenium WebDriver',
         questions: [
           // BASIC (15 soru)
@@ -5846,6 +5849,7 @@ Assert.assertEquals(violations.size(), 0, "Erişilebilirlik ihlali var!");` },
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'selenium-webdriver',
         topic: 'Selenium WebDriver',
         questions: [
           { level: 'basic', q: { en: 'Your web form test sometimes throws NoSuchElementException but the page looks fine manually. What could be the cause?' }, a: { en: 'The most common cause is a timing issue. Even if the page appears ready, DOM elements may be added later by JavaScript. Solution: use WebDriverWait + ExpectedConditions instead of Thread.sleep(). Also check for iframes — call switchTo().frame() first. Another cause: CI/CD runs slower than local, increase the timeout.' }, analogy: { en: 'This is like reading an asynchronously populated object too early in Java. The line of code may be correct, but the data has not arrived yet; in Selenium, the locator may also be correct while the element is still not accessible at that moment.' }, keyPoints: [{ en: 'First distinction: is the locator wrong, or is the element simply not ready yet?' }, { en: 'Name the readiness signal clearly: visible, clickable, or an iframe context switch.' }, { en: 'Increasing the timeout alone is not a fix; it must be paired with the right wait condition.' }], tip: { en: 'In the interview, answer in this order: classify it as a timing issue, state which wait condition you would choose, then explain how you verified the fix.' } },

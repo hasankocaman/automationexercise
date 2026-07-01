@@ -675,6 +675,7 @@ jobs:
           { type: 'heading', text: `8 Real Errors You Will Hit — and How to Fix Them` },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'bruno-errors',
             framework: 'Bruno',
             errors: [
               {
@@ -783,6 +784,7 @@ jobs:
           },
           {
             type: 'interview-questions',
+              relatedTopicId: 'bruno-api-client',
             topic: 'Bruno API Client',
             questions: [
               { level: 'basic', q: `Your team lead hands you a laptop with Bruno already installed and asks you to send your first request. Walk through exactly what you click and type to GET a list of users from a test API.`, a: `First, create or open a Collection, then click "New Request". Leave the method as GET, type the URL (e.g. https://jsonplaceholder.typicode.com/users), and click "Send". The Response panel below fills in with the status code and JSON body within a second. No login or account setup is required before any of this — that's a deliberate Bruno design choice versus Postman, which nudges you toward signing in.` },
@@ -1378,6 +1380,7 @@ jobs:
           { type: 'heading', text: `Karşılaşacağın 8 Gerçek Hata — ve Çözümleri` },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'bruno-errors',
             framework: 'Bruno',
             errors: [
               {
@@ -1486,6 +1489,7 @@ jobs:
           },
           {
             type: 'interview-questions',
+              relatedTopicId: 'bruno-api-client',
             topic: 'Bruno API Client',
             questions: [
               { level: 'basic', q: `Takım liderin sana Bruno kurulu bir laptop veriyor ve ilk isteğini göndermeni istiyor. Bir test API'sinden kullanıcı listesi GET etmek için tam olarak ne tıklayıp ne yazacağını anlat.`, a: `Önce bir Collection oluştur veya aç, sonra "New Request" tıkla. Method'u GET olarak bırak, URL'i yaz (örn. https://jsonplaceholder.typicode.com/users), ve "Send" tıkla. Aşağıdaki Response paneli bir saniye içinde status code ve JSON body ile dolar. Bunlardan hiçbiri öncesinde login veya hesap kurulumu gerekmez — bu, login olmaya iten Postman'a karşı bilinçli bir Bruno tasarım kararıdır.` },

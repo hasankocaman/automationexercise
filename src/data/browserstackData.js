@@ -1231,6 +1231,7 @@ const section6 = {
     },
     {
       type: 'error-dictionary',
+        relatedTopicId: 'browserstack-errors',
       framework: 'BrowserStack',
       errors: [
         {
@@ -1399,6 +1400,7 @@ const section7 = {
     },
     {
       type: 'interview-questions',
+        relatedTopicId: 'browserstack',
       topic: 'BrowserStack',
       questions: [
         // ── BASIC (15) ──

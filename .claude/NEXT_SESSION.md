@@ -10,6 +10,95 @@
 
 ---
 
+## Canliya Cikmadan Once Zorunlu Kontrol Listesi
+
+Her `git push` veya deploy öncesi bu 4 adim sirayla calistirilmalidir:
+
+```
+1. node scripts/check-content-integrity.mjs   # [A] TR yorum, [B] relatedTopicId, [C] duplikat — 0 ihlal olmali
+2. node scripts/check-seo.mjs                 # SEO metadata kontrolu
+3. npm run build                              # check-seo + check-content-integrity + vite build + static shells + dist seo
+4. npx playwright test                        # E2E suiti — 0 fail (flaky kabul: önceden biliniyorsa)
+```
+
+`npm run build` adimi (3) zaten 1 ve 2'yi iceriyor; ayri kosturmak sadece
+erken hata yakalamak icindir. Hepsi yesil olmadan "tamamlandi" denmez (bkz. CLAUDE.md §1.1).
+
+---
+
+## Bu Oturumda Yapilan Is (2026-07-01, macOS — Icerik Butunlugu Yonetim Sistemi)
+
+### Branch: `test`
+
+### Yapilan
+
+**1. CLAUDE.md'ye kalici kurallar eklendi:**
+- **§1.1 "Hiz Degil Dogruluk Onceliklidir":** Her oturum sonu zorunlu 4-adim
+  kontrol listesi (check-content-integrity + hint-topic link + TR yorum + build).
+- **§9.4 "Icerik Butunlugu ve Dil Tutarliligi":** TR yorum kapsaminin tum blok
+  turlerine (code, editor, code-playground hint/starter/solution,
+  error-dictionary codeWrong/codeFixed, interview-questions) yayilmasi;
+  `relatedTopicId` zorunlulugu; %85+ hint duplikasyonu yasagi.
+- **Bolum 0 tablosu:** CONTENT_RULES.md satiri KURAL 12 referansiyla guncellendi.
+- **Bolum 11 (Yapma listesi):** 5 yeni ❌ maddesi eklendi.
+
+**2. `.claude/CONTENT_RULES.md`'ye KURAL 12 eklendi:**
+- 12.1: Hangi blok turlerinde TR yorum zorunlu (tablo).
+- 12.2: `relatedTopicId` zorunlu format ve ornek.
+- 12.3: Tekrar yasagi (>%85 kelime ortusumu farkli topicId'ler arasinda yasak).
+- 12.4: Blok ekleme kontrol listesi (checkbox).
+
+**3. `scripts/check-content-integrity.mjs` OLUSTURULDU:**
+- [A] TR-context kod bloklarinda Ingilizce yorum ihlali kontrolu (dar ENGLISH_INDICATOR_RE,
+  en:/tr: context stack ile bilingual bolumler atlanir).
+- [B] 3 blok turunde `relatedTopicId` eksikligi (code-playground, interview-questions,
+  error-dictionary) — 60-satir lookahead penceresiyle.
+- [C] Jaccard benzerligi ile duplikat hint tespiti (>=0.85); TR/EN bilingual
+  ciftler (biri TR karakter icerip digeri icermiyorsa) atlanir.
+- `node scripts/check-content-integrity.mjs` → "TUM KONTROLLER GECTI ✓" (0 ihlal).
+
+**4. `package.json` guncellendi:**
+- `build` scripti: `check-seo → check-content-integrity → generate-seo-files → vite build → ...`
+- `"content:check": "node scripts/check-content-integrity.mjs"` kolaylik scripti.
+- `simple-git-hooks` → `pre-commit: "node scripts/check-content-integrity.mjs"`.
+
+**5. Pre-commit hook kurulumu dogrulandi:**
+```
+[INFO] Successfully set the pre-commit with command: node scripts/check-content-integrity.mjs
+[INFO] Successfully set the post-commit with command: bash scripts/post-commit-tests.sh
+```
+
+**6. 181 ihlal duzeltildi (B kategorisi — relatedTopicId eksikligi):**
+- Fixer script ile 24 `*Data.js` dosyasina 181 `relatedTopicId` alani eklendi.
+- Yanlis yerlestirilen (single-line block'a dis ekleme) 8 ihlal el ile duzeltildi:
+  `javaData.js` (2), `linuxData.js` (4), `pythonData.js` (2).
+
+**7. 1 ihlal duzeltildi (C kategorisi — duplikat hint):**
+- `pythonData.js:4953 ↔ 5966` yanlis pozitif: `extractStringValue()` tek tirnak
+  icindeki gomulu tirnak isaretinde durup yanlis string kesti.
+  Duzeltme: ayri single-quote ve double-quote regex ile yeniden yazildi.
+
+**8. A ihlalleri (EN yorum) icin 28 yeni ceviri eklendi (`TopicPage.jsx`):**
+- `englishToTurkishCodeComments` dizisine AppiumData, Playwright, Java, JMeter,
+  Kafka, Kubernetes, Postman, REST Assured spesifik ceviriler eklendi.
+
+### Build & Dogrulama (Son Kosum)
+
+```
+check-content-integrity.mjs → TUM KONTROLLER GECTI ✓ (A=0, B=0, C=0)
+npm run build               → ✓ built in 6.67s
+38 static route HTML shell  → olusturuldu
+dist SEO check              → PASS
+```
+
+### Sonraki Oturumda Yapilabilecekler
+
+- `git push origin main` (birikimli is — kullanici onayiyla).
+- `npm run content:check` komutu yeni blok eklendikten sonra otomatik calismali;
+  pre-commit hook bunu sağliyor.
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-07-01, Windows — test branch, E2E Test Investigasyon ve Docker Fix)
 
 ### Branch: `test`
@@ -1574,6 +1663,7 @@ typescriptData chunk 771KB). Playwright topic-pages-ui + i18n-content-toggle
 - `src/data/locatorExplorerData.js` — YENİ: paylasilan LOCATOR_EXPLORER_BLOCK.
 - `src/data/interactiveTrioFillers.js` — fillMissingCodeTrios + fillMissingFeynman; tum sayfalar bagli.
 - `scripts/audit-interactive.mjs` — CI audit: `node scripts/audit-interactive.mjs --missing`
+- `scripts/check-content-integrity.mjs` — YENİ: TR yorum + relatedTopicId + duplikat hint kontrolu (build + pre-commit hook'a bagli)
 - `src/data/javaData.js` — sSelenium ve sPlaywright bilingual label/code fix'leri.
 - `src/components/PythonFrameworksTab.jsx` — kendi codeCommentTranslations dizisi var.
 - `src/components/TestFrameworksPage.jsx` — data-testid="language-toggle" eklendi.

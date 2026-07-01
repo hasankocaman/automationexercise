@@ -1896,6 +1896,7 @@ const s9 = {
     blocks: [
       {
         type: 'error-dictionary',
+          relatedTopicId: 'cypress-errors',
         framework: 'Cypress',
         errors: [
           {
@@ -1990,6 +1991,7 @@ const s9 = {
     blocks: [
       {
         type: 'error-dictionary',
+          relatedTopicId: 'cypress-errors',
         framework: 'Cypress',
         errors: [
           {
@@ -2091,6 +2093,7 @@ const s10 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'cypress',
         topic: 'Cypress',
         questions: [
           { level: 'basic', q: 'Cypress nedir ve Selenium\'dan en temel farkı nedir?', a: 'Cypress, JavaScript/TypeScript ile yazılan, test kodunu tarayıcının İÇİNDE çalıştıran açık kaynaklı bir uçtan uca test framework\'üdür. Selenium ise WebDriver protokolü üzerinden tarayıcıya "uzaktan" komut gönderir — bu yüzden Cypress daha hızlıdır ama sadece JavaScript/TypeScript ile yazılabilir, Java/Python/C# desteklemez. Java\'da Selenium kullanan bir ekip Cypress\'e geçtiğinde dil değişikliği en büyük adaptasyon noktasıdır.' },
@@ -2158,6 +2161,7 @@ const s10 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'cypress',
         topic: 'Cypress',
         questions: [
           { level: 'basic', q: 'What is Cypress and what is its most fundamental difference from Selenium?', a: "Cypress is an open-source end-to-end testing framework written in JavaScript/TypeScript that runs test code INSIDE the browser. Selenium sends commands to the browser \"remotely\" over the WebDriver protocol — this makes Cypress faster, but it can only be written in JavaScript/TypeScript, not Java/Python/C#. For a team coming from Java/Selenium, the language switch is the biggest adaptation point." },

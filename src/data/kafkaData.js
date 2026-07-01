@@ -1407,6 +1407,7 @@ public void handleDeadLetter(
           { type: 'heading', text: 'Common Kafka Errors & Solutions' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'kafka-errors',
             errors: [
               {
                 error: 'LEADER_NOT_AVAILABLE',
@@ -1481,6 +1482,7 @@ public void handleDeadLetter(
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'apache-kafka',
             topic: 'Apache Kafka',
             questions: [
               {
@@ -2704,6 +2706,7 @@ public class KafkaConsumerConfig {
           { type: 'heading', text: 'Yaygın Kafka Hataları ve Çözümleri' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'kafka-errors',
             errors: [
               {
                 error: 'LEADER_NOT_AVAILABLE',
@@ -2773,6 +2776,7 @@ public class KafkaConsumerConfig {
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'apache-kafka',
             topic: 'Apache Kafka',
             questions: [
               {

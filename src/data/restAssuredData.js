@@ -1796,6 +1796,7 @@ UserResponse user = res.as(UserResponse.class); // Only parse on 200`,
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'rest-assured-errors',
         framework: 'REST Assured',
         errors: [
           {
@@ -2071,6 +2072,7 @@ Scenario: Create user with POST
     blocks: [
       {
         type: 'interview-questions',
+          relatedTopicId: 'rest-assured',
         topic: 'REST Assured',
         questions: [
           // ── BASIC (15) ───────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 const dockerIntroInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-intro-image-container-practice',
     id: 'docker-intro-image-container-practice',
     label: { tr: 'Pratik: Image\'dan çalışan container üret', en: 'Practice: Create a running container from an image' },
     language: 'bash',
@@ -93,6 +94,7 @@ PORTS: 0.0.0.0:8080->80/tcp`,
 const dockerInstallationInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-install-verify-practice',
     id: 'docker-install-verify-practice',
     label: { tr: 'Pratik: Kurulum doğrulama komutlarını yaz', en: 'Practice: Write installation verification commands' },
     language: 'bash',
@@ -193,6 +195,7 @@ Hello from Docker!`,
 const dockerCoreCommandInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-core-run-command-practice',
     id: 'docker-core-run-command-practice',
     label: { tr: 'Pratik: Güvenli docker run komutu kur', en: 'Practice: Build a safe docker run command' },
     language: 'bash',
@@ -263,6 +266,7 @@ reports folder is mounted into the container.`,
 const dockerComposeInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-compose-cache-practice',
     id: 'docker-compose-cache-practice',
     label: { tr: 'Pratik: Cache dostu Dockerfile yaz', en: 'Practice: Write a cache-friendly Dockerfile' },
     language: 'dockerfile',
@@ -367,6 +371,7 @@ When only test code changes, dependencies are not reinstalled.`,
 const dockerQaInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-qa-playwright-volume-practice',
     id: 'docker-qa-playwright-volume-practice',
     label: { tr: 'Pratik: Playwright testlerini rapor kalıcı olacak şekilde çalıştır', en: 'Practice: Run Playwright tests with persistent reports' },
     language: 'bash',
@@ -467,6 +472,7 @@ It can be published as a CI artifact.`,
 const dockerEcosystemInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'docker-ecosystem-ci-artifact-practice',
     id: 'docker-ecosystem-ci-artifact-practice',
     label: { tr: 'Pratik: CI için izlenebilir Docker artifact üret', en: 'Practice: Produce a traceable Docker artifact for CI' },
     language: 'bash',
@@ -1461,6 +1467,7 @@ docker run --rm \\
           { type: 'heading', text: 'Real-World Scenarios & Solutions' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'docker-errors',
             framework: 'Docker',
             errors: [
               {
@@ -1679,6 +1686,7 @@ options.add_argument('--disable-dev-shm-usage')`,
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'docker',
             topic: 'Docker',
             questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -2658,6 +2666,7 @@ docker run --rm \\
           { type: 'heading', text: 'Gerçek Hayat Senaryoları ve Çözümleri' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'docker-errors',
             framework: 'Docker',
             errors: [
               {
@@ -2876,6 +2885,7 @@ options.add_argument('--disable-dev-shm-usage')`,
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'docker',
             topic: 'Docker',
             questions: [
               // ── TEMEL ──────────────────────────────────────────

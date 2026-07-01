@@ -979,6 +979,7 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
           { type: 'text', content: 'These are the most frequently asked JMeter interview questions. Click each question to see the detailed answer.' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'jmeter-errors',
             framework: 'JMeter',
             errors: [
               {
@@ -1075,6 +1076,7 @@ Response Assertion on Login:
           },
           {
             type: 'interview-questions',
+              relatedTopicId: 'jmeter',
             topic: 'JMeter',
             questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -2063,6 +2065,7 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
           // JMeter interview-questions blokları
           {
             type: 'interview-questions',
+              relatedTopicId: 'jmeter',
             topic: 'JMeter',
             questions: [
               // ── TEMEL ──────────────────────────────────────────
@@ -2122,6 +2125,7 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
           },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'jmeter-errors',
             framework: 'JMeter',
             errors: [
               {

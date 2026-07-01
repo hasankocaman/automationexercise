@@ -3,6 +3,7 @@ import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 const jenkinsIntroInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-intro-ci-flow-practice',
     id: 'jenkins-intro-ci-flow-practice',
     label: { tr: 'Pratik: CI pipeline iskeletini tamamla', en: 'Practice: Complete the CI pipeline skeleton' },
     language: 'groovy',
@@ -131,6 +132,7 @@ The test report is read by Jenkins on every result.`,
 const jenkinsInstallationInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-install-docker-practice',
     id: 'jenkins-install-docker-practice',
     label: { tr: 'Pratik: Docker ile Jenkins kurulum komutunu tamamla', en: 'Practice: Complete the Jenkins Docker install command' },
     language: 'bash',
@@ -221,6 +223,7 @@ JENKINS_HOME data remains in the jenkins_home volume.`,
 const jenkinsPipelineInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-pipeline-stage-practice',
     id: 'jenkins-pipeline-stage-practice',
     label: { tr: 'Pratik: Declarative Pipeline stage sırasını tamamla', en: 'Practice: Complete the Declarative Pipeline stage order' },
     language: 'groovy',
@@ -341,6 +344,7 @@ The sh command runs in the right place.`,
 const jenkinsQaInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-qa-report-practice',
     id: 'jenkins-qa-report-practice',
     label: { tr: 'Pratik: Test fail olsa bile raporu yayınla', en: 'Practice: Publish reports even when tests fail' },
     language: 'groovy',
@@ -479,6 +483,7 @@ Even if tests fail, the JUnit report is visible in Jenkins UI.`,
 const jenkinsAdvancedInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-advanced-parallel-practice',
     id: 'jenkins-advanced-parallel-practice',
     label: { tr: 'Pratik: Paralel browser stage\'leri kur', en: 'Practice: Build parallel browser stages' },
     language: 'groovy',
@@ -571,6 +576,7 @@ Total duration is roughly the duration of the slowest branch.`,
 const jenkinsRealWorldInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-realworld-pr-gate-practice',
     id: 'jenkins-realworld-pr-gate-practice',
     label: { tr: 'Pratik: PR merge gate pipeline\'ını tamamla', en: 'Practice: Complete a PR merge-gate pipeline' },
     language: 'groovy',
@@ -697,6 +703,7 @@ Reports remain in Jenkins UI for every result.`,
 const jenkinsEcosystemInteractiveBlocks = [
   {
     type: 'code-playground',
+      relatedTopicId: 'jenkins-ecosystem-notify-practice',
     id: 'jenkins-ecosystem-notify-practice',
     label: { tr: 'Pratik: Jenkins ekosistem bildirim adımını tamamla', en: 'Practice: Complete the Jenkins ecosystem notification step' },
     language: 'groovy',
@@ -1725,6 +1732,7 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
           { type: 'heading', text: 'Real-World Scenarios & Solutions' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'jenkins-errors',
             framework: 'Jenkins',
             errors: [
               {
@@ -2066,6 +2074,7 @@ pipeline {
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'jenkins-ci-cd',
             topic: 'Jenkins CI/CD',
             questions: [
               // ── BASIC ──────────────────────────────────────────
@@ -3075,6 +3084,7 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
           { type: 'heading', text: 'Gerçek Hayat Senaryoları ve Çözümleri' },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'jenkins-errors',
             framework: 'Jenkins',
             errors: [
               {
@@ -3416,6 +3426,7 @@ pipeline {
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'jenkins-ci-cd',
             topic: 'Jenkins CI/CD',
             questions: [
               // ── TEMEL ──────────────────────────────────────────

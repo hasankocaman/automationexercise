@@ -658,6 +658,7 @@ stages:
           },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'azure-errors',
             framework: 'Azure',
             errors: [
               {
@@ -748,6 +749,7 @@ stages:
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'azure',
             topic: 'Azure',
             questions: [
               // ── BASIC (15) ─────────────────────────────────────────────────
@@ -1455,6 +1457,7 @@ az storage blob generate-sas \\
           },
           {
             type: 'error-dictionary',
+              relatedTopicId: 'azure-errors',
             framework: 'Azure',
             errors: [
               {
@@ -1545,6 +1548,7 @@ az storage blob generate-sas \\
         blocks: [
           {
             type: 'interview-questions',
+              relatedTopicId: 'azure',
             topic: 'Azure',
             questions: [
               // ── TEMEL (15) ─────────────────────────────────────────────────

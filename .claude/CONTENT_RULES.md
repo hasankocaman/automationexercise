@@ -417,3 +417,61 @@ Kurulum talimatları satır satır, her satırın açıklamasıyla verilmeli.
 | `comparison` | Yan yana dil karşılaştırma (Java vs Python vs TS) |
 | `tip-box` | Mavi arka planlı ipucu kutusu |
 | `warning-box` | Turuncu arka planlı uyarı kutusu |
+
+---
+
+## KURAL 12 — Dil ve İlişkisellik Zorunlulukları
+
+> **Otomatik denetim:** `scripts/check-content-integrity.mjs` bu kuralı her build'de ve her commit öncesi kontrol eder. İhlal varsa build/commit engellenir.
+
+### 12.1. Türkçe Yorum Kapsam Genişletmesi
+
+"Türkçe sayfalarda yorum satırları Türkçe olmalıdır" kuralı (CLAUDE.md Bölüm 8) yalnızca `type: 'code'`/`type: 'editor'` bloklarını değil, `#`, `//`, `/* */`, `--` gibi yorum satırı içeren **TÜM** block tiplerini kapsar:
+
+| Block Tipi | Türkçe Zorunlu Alanlar |
+|-----------|------------------------|
+| `code` | tüm string veya `{tr}` değeri |
+| `editor` | tüm string veya `{tr}` değeri |
+| `code-playground` | `starterCode`, `solutionCode`, `hint` |
+| `error-dictionary` | `codeWrong`, `codeFixed` |
+| `interview-questions` | cevaplardaki (`a`) inline kod örnekleri |
+
+**İstisna (İngilizce kalabilir):**
+- Yerleşik teknik terimler: `assert`, `fixture`, `SELECT`, `JOIN`, `NULL`, `push`, `commit` vb.
+- Terminal/program çıktısı satırları (gerçek çıktı, sürüm numaraları)
+
+### 12.2. `relatedTopicId` Zorunluluğu
+
+Aşağıdaki block tiplerinin her biri zorunlu olarak **`relatedTopicId`** string alanı taşımalıdır:
+- `code-playground`
+- `interview-questions`
+- `error-dictionary`
+
+`relatedTopicId`, bu bloğun hangi konu/sekme/`topicId`'nin devamı olduğunu belirtir. Jenerik, kopyala-yapıştır bir değer kabul edilmez — hangi konunun pratiği/sorusu/hatası olduğunu açıkça ifade etmelidir (örn. `'python-lists-basics'`, `'selenium-explicit-wait'`).
+
+**Zorunlu alanlar (code-playground):**
+```js
+{
+  type: 'code-playground',
+  relatedTopicId: 'python-functions-scope',  // zorunlu
+  starterCode: '...',                          // zorunlu
+  solutionCode: '...',                         // zorunlu
+  hint: '...'                                  // zorunlu, konuya özgü
+}
+```
+
+### 12.3. Tekrar Yasağı
+
+- Aynı veya birbirine **%85'ten fazla benzeyen** hint/ipucu/practice metni birden fazla farklı `topicId` altında kullanılamaz.
+- "Jenerik/kopyala-yapıştır ipucu" yasaktır: "Kodu dikkatlice incele", "Eksik paranteze bak" gibi konuya bağlı olmayan metinler kabul edilmez.
+- Yeni bir ipucu/practice eklemeden önce `check-content-integrity.mjs` raporunu kontrol et; benzer içerik varsa mevcut bloğu güncelle, yenisini ekleme.
+
+### 12.4. Uygulama Kontrol Listesi (Blok Eklerken)
+
+Her yeni `code-playground` / `interview-questions` / `error-dictionary` bloğu eklenirken:
+
+- [ ] `relatedTopicId` alanı var mı?
+- [ ] Yorum satırları Türkçe bağlamda Türkçe mi?
+- [ ] `hint`/`starterCode`/`solutionCode` anlatılan konuyla doğrudan ilgili mi?
+- [ ] Benzer bir ipucu projede zaten var mı? (`check-content-integrity.mjs` çalıştır)
+- [ ] `node scripts/check-content-integrity.mjs` — sıfır ihlal mi?

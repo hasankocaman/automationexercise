@@ -148,6 +148,7 @@ const section0 = {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'appium-temelleri',
         topic: 'Appium Temelleri',
         questions: [
           {
@@ -317,6 +318,7 @@ const section0 = {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'appium-fundamentals',
         topic: 'Appium Fundamentals',
         questions: [
           {
@@ -636,6 +638,7 @@ npx wdio --version`,
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'appium-kurulum',
         topic: 'Appium Kurulum',
         questions: [
           {
@@ -946,6 +949,7 @@ npx wdio --version`,
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'appium-installation',
         topic: 'Appium Installation',
         questions: [
           {
@@ -1217,6 +1221,7 @@ export const config: Options.Testrunner = {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'desired-capabilities',
         topic: 'Desired Capabilities',
         questions: [
           {
@@ -1472,6 +1477,7 @@ export const config: Options.Testrunner = {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'desired-capabilities',
         topic: 'Desired Capabilities',
         questions: [
           {
@@ -1906,6 +1912,7 @@ describe('Login Akışı', () => {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'locator-pom',
         topic: 'Locator & POM',
         questions: [
           {
@@ -2353,6 +2360,7 @@ describe('Login Flow', () => {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'locator-pom',
         topic: 'Locator & POM',
         questions: [
           {
@@ -2770,6 +2778,7 @@ describe('Automation Exercise — E2E Ürün Akışı', () => {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'e2e-test-senaryosu',
         topic: 'E2E Test Senaryosu',
         questions: [
           {
@@ -3184,6 +3193,7 @@ describe('Automation Exercise — E2E Product Flow', () => {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'e2e-test-scenario',
         topic: 'E2E Test Scenario',
         questions: [
           {
@@ -3251,6 +3261,7 @@ const section5 = {
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'appium-3-x-errors',
         framework: 'Appium 3.x',
         errors: [
           {
@@ -3455,6 +3466,7 @@ stage('Run Appium Tests') {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'hata-ay-klama',
         topic: 'Hata Ayıklama',
         questions: [
           {
@@ -3486,6 +3498,7 @@ stage('Run Appium Tests') {
       },
       {
         type: 'error-dictionary',
+          relatedTopicId: 'appium-3-x-errors',
         framework: 'Appium 3.x',
         errors: [
           {
@@ -3689,6 +3702,7 @@ stage('Run Appium Tests') {
 },
       {
         type: 'interview-questions',
+          relatedTopicId: 'debugging',
         topic: 'Debugging',
         questions: [
           {
@@ -3724,6 +3738,7 @@ const section6 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'temel-sorular-1-15',
         topic: 'Temel Sorular (1–15)',
         questions: [
           { level: 'basic', q: '1. Appium nedir ve hangi platformları destekler?', a: 'Appium, iOS, Android ve Windows masaüstü uygulamalarını test etmek için açık kaynaklı bir otomasyon aracıdır. W3C WebDriver protokolünü kullanır. Gerçek cihaz, emülatör (Android) ve simülatör (iOS) üzerinde çalışır. Java, Python, JavaScript, Ruby gibi birden fazla dili destekler.' },
@@ -3745,6 +3760,7 @@ const section6 = {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'orta-seviye-sorular-16-35',
         topic: 'Orta Seviye Sorular (16–35)',
         questions: [
           { level: 'intermediate', q: '16. Context switching nedir? Hybrid uygulamada nasıl yapılır?', a: 'Hybrid uygulamalar hem native UI hem de WebView içerir. Context switching, test kodunun native ve web context arasında geçiş yapmasını sağlar. Java: Set<String> contexts = driver.getContextHandles(); // [NATIVE_APP, WEBVIEW_xxx] driver.context("WEBVIEW_xxx"); // Web elementlere erişim driver.context("NATIVE_APP"); // Geri dön', code: `// Java
@@ -3809,6 +3825,7 @@ driver.executeScript("mobile: deepLink", Map.of(
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'i-leri-seviye-sorular-36-50',
         topic: 'İleri Seviye Sorular (36–50)',
         questions: [
           { level: 'advanced', q: '36. Appium Grid ile paralel test nasıl kurulur?', a: 'Selenium Grid 4 + Appium node\'ları ile kurulur. Her node farklı cihaz/emülatör bağlar. Grid Hub merkezi koordinasyon sağlar. Alternatif: wdio.conf.ts\'de maxInstances artır + her capability farklı udid. Cloud çözüm: BrowserStack Automate, LambdaTest. systemPort capability farklı set edilmeli (8200, 8201...) — her Appium session kendi port\'unu kullanır.', code: `// wdio.conf.ts — Parallel (2 emülatör)
@@ -3888,6 +3905,7 @@ class ProductPage {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'basic-questions-1-15',
         topic: 'Basic Questions (1–15)',
         questions: [
           { level: 'basic', q: '1. What is Appium and which platforms does it support?', a: 'Appium is an open-source automation tool for testing iOS, Android, and Windows desktop applications. It uses W3C WebDriver protocol. Works on real devices, emulators (Android), and simulators (iOS). Supports Java, Python, JavaScript, Ruby and other language bindings.' },
@@ -3909,6 +3927,7 @@ class ProductPage {
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'intermediate-questions-16-35',
         topic: 'Intermediate Questions (16–35)',
         questions: [
           { level: 'intermediate', q: '16. What is context switching? How is it done in hybrid apps?', a: 'Hybrid apps contain both native UI and WebView. Context switching lets test code move between them. Java: Set<String> contexts = driver.getContextHandles(); // [NATIVE_APP, WEBVIEW_xxx] driver.context("WEBVIEW_xxx"); // Access web elements driver.context("NATIVE_APP"); // Go back', code: `// Java
@@ -3973,6 +3992,7 @@ driver.executeScript("mobile: deepLink", Map.of(
       },
       {
         type: 'interview-questions',
+          relatedTopicId: 'advanced-questions-36-50',
         topic: 'Advanced Questions (36–50)',
         questions: [
           { level: 'advanced', q: '36. How do you set up Appium Grid for parallel testing?', a: 'Set up with Selenium Grid 4 + Appium nodes. Each node connects a different device/emulator. Grid Hub provides central coordination. Alternative: increase maxInstances in wdio.conf.ts + each capability has different udid. Cloud solution: BrowserStack Automate, LambdaTest. systemPort capability must differ (8200, 8201...) — each Appium session uses its own port.', code: `// wdio.conf.ts — Parallel (2 emulators)
