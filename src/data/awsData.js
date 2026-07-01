@@ -1,5 +1,3 @@
-import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
-
 export const awsData = {
   en: {
     hero: {
@@ -23,7 +21,7 @@ export const awsData = {
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'Imagine you need office space. Instead of buying a building, you rent exactly the rooms you need — and only pay for the hours you use them. AWS is the same idea but for computers: instead of buying physical servers, you rent them from Amazon by the hour. When your test run finishes, you stop the machine and stop paying.',
+            content: 'AWS is the JVM for the internet age: just as your Java application does not care which physical machine runs the JVM — it runs anywhere identically — your test infrastructure does not care which rack holds the server. But here is the question that trips up every engineer who first encounters cloud: if you already have a server in your office, why pay Amazon by the hour? Because a physical server costs the same whether it runs for 3 minutes or 3 months, sits idle all weekend, and needs a human to replace the failed hard drive. AWS bills per second of actual use, scales from 1 to 1,000 instances in 90 seconds, and replaces failed hardware invisibly — Java analogy: EC2 is a rented JVM process. You call `RunInstances`, it starts. You call `TerminateInstances`, billing halts. In QA terms, the stakes are real: a team that waits until Monday morning to run Friday-night tests on a shared server is the team that ships bugs over the weekend because no CI environment was available — AWS eliminates that gap at a cost of pennies per run.',
           },
           {
             type: 'text',
@@ -143,7 +141,7 @@ export const awsData = {
           {
             type: 'simple-box',
             emoji: '🖥️',
-            content: 'The AWS CLI (Command Line Interface) is your remote control for AWS. Instead of clicking through the web console, you type commands like "aws s3 cp report.html s3://my-bucket/" and everything happens instantly. Think of it like a TV remote vs walking to the TV to change channels.',
+            content: 'The AWS CLI is to the AWS Console what a Maven command is to clicking through IntelliJ\'s GUI — both reach the same outcome, but one can run unattended inside a script at 2 AM. Think about it: if the AWS Console were enough, why does every CI/CD pipeline use the CLI instead? Because a pipeline is just a script, and scripts need commands that return an exit code, pipe their output, and never wait for a human to click "Confirm." Java analogy: the Console is `java -jar` with a friendly GUI wrapper; the CLI is invoking the Java class directly via `ProcessBuilder` — same JVM, full programmatic control. For QA engineers, the operational consequence is concrete: a pipeline that uploads 200 Selenium screenshots to S3 after a test run needs one `aws s3 sync` command, not 200 manual drag-and-drops — and if that command is not in the pipeline script, the screenshots disappear when the CI agent resets.',
           },
           { type: 'heading', text: 'Step 1 — Create an AWS Account' },
           {
@@ -305,7 +303,7 @@ aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
           {
             type: 'simple-box',
             emoji: '🏗️',
-            content: 'Imagine a QA team at an e-commerce company. Black Friday is coming. They need to test if the site handles 10,000 simultaneous users. Without AWS: rent a server for 3 months = $3,000. With AWS: spin up 20 EC2 instances for 4 hours = $6. Test done, instances deleted, bill $6.',
+            content: 'Real-world AWS QA is not about learning commands — it is about designing a workflow where infrastructure is disposable. Picture an e-commerce team preparing for Black Friday: their load test requires 20 EC2 instances running JMeter for 4 hours. On dedicated hardware, those 20 servers cost $3,000 per month and sit idle 27 days before the test. But why is disposable infrastructure hard to trust? Because Java developers are trained to treat servers as persistent state — you SSH in, configure the JDK, tune the JVM flags, and never want to redo that work. AWS forces the opposite mindset: every instance must be reproducible from a script, or it is a ticking time bomb. Java analogy: EC2 instances are like JUnit test lifecycle — `@BeforeAll` provisions the instance, `@AfterAll` terminates it, and the test body runs in between. In a real QA incident, the team that cannot reproduce the exact environment where a test ran cannot answer "was the failure real or was it a flaky environment?" — AWS with tagged, scripted environments answers that question automatically.',
           },
           { type: 'heading', text: 'Scenario: Selenium Grid on AWS EC2' },
           {
@@ -471,7 +469,7 @@ echo "✅ Report: https://$BUCKET.s3.amazonaws.com/$(date +%Y-%m-%d_%H-%M)/index
           {
             type: 'simple-box',
             emoji: '🧩',
-            content: 'AWS services are like departments in a city. EC2 is the housing department (gives you a place to run things), S3 is the post office (stores and delivers files), IAM is the security guard (controls who enters), and CodePipeline is the assembly line (automates the build-test-deploy process). Each department talks to the others.',
+            content: 'AWS services are like the standard library packages of a Java project: you do not build a HashMap from scratch — you import `java.util.HashMap`. Similarly, you do not build a file server from scratch — you call the S3 API. But here is the question that reveals whether someone truly understands cloud: why do these services need to talk to each other at all? Could one service not do everything? No — and the reason is the same as why Java separates `java.io` from `java.net`: each service is optimized for exactly one job, and the power comes from wiring them together. Java analogy: EC2 is a running `Thread`, S3 is a persistent `ObjectOutputStream`, IAM is a `SecurityManager`, and CodePipeline is a `CompletableFuture` chain — each composable, each replaceable. In a QA pipeline with no ecosystem thinking, a Selenium test that passes on a developer laptop but fails in CI is almost always caused by missing wiring: the test runner cannot reach the right S3 bucket, the IAM role has no permission to write reports, or CloudWatch never received the failure log — and no one knows the test failed until a production bug surfaces.',
           },
           { type: 'heading', text: 'QA-Relevant AWS Services Map' },
           {
@@ -601,11 +599,11 @@ def send_alert(message):
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'Most AWS errors fall into 3 categories: (1) Permission denied — IAM policy is missing a rule, (2) Resource not found — wrong region or typo in name, (3) Quota exceeded — AWS limits how many resources you can create. Once you know these patterns, 90% of errors become easy to fix.',
+            content: 'AWS errors are almost always one of three root causes — and recognizing the pattern saves hours of debugging. Think of it like Java\'s exception hierarchy: `AccessDeniedException` maps to IAM permission missing (the security manager said no), `NoSuchElementException` maps to wrong region or typo (the object you expected is not in the scope you are looking at), and `OutOfMemoryError` maps to quota exceeded (the JVM\'s heap is the account limit). But why do these errors look so cryptic when they first hit? Because AWS API error messages describe what broke at the network/API layer, not why your intention failed — exactly like a `NullPointerException` stack trace tells you the line number but not which upstream call returned null. The QA cost of misreading an AWS error is real: a pipeline that silently fails with `AccessDenied` at the `s3:PutObject` step uploads nothing to the report bucket, the test suite appears to have run but produced no artifacts, and the team discovers 3 days later that 72 hours of CI results were lost — not because the tests failed, but because no one read the error log.',
           },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'aws-errors',
+              relatedTopicId: 'aws-errors-en',
             framework: 'AWS',
             errors: [
               {
@@ -696,7 +694,7 @@ def send_alert(message):
         blocks: [
           {
             type: 'interview-questions',
-              relatedTopicId: 'aws',
+              relatedTopicId: 'aws-interview-en',
             topic: 'AWS',
             questions: [
               // ── BASIC (15) ─────────────────────────────────────────────────
@@ -983,7 +981,7 @@ def send_alert(message):
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'Ofise ihtiyacın olduğunu hayal et. Bina satın almak yerine, tam olarak ihtiyacın kadar oda kiralıyorsun — ve sadece kullandığın saatler için ödüyorsun. AWS de aynı fikir ama bilgisayarlar için: fiziksel sunucu satın almak yerine Amazon\'dan saatlik kiralıyorsun. Test çalışman bitince makineyi durduruyorsun, ödeme de bitiyor.',
+            content: 'AWS, internet çağının JVM\'idir: Java uygulamanın hangi fiziksel makinede çalıştığını umursamadığı gibi — her yerde aynı şekilde çalışır — test altyapın da sunucunun hangi rafta durduğunu umursamaz. Ama her mühendisi tökezleten asıl soru şudur: ofisinizde zaten bir sunucu varken neden saatlik Amazon\'a ödeyesiniz? Çünkü fiziksel bir sunucu 3 dakika da çalışsa 3 ay da, aynı ücrete mal olur; hafta sonu boşta duran sunucu için de ödeme yapılır; arızalanan diski değiştirmek için bir insan gerekir. AWS ise gerçek kullanım başına saniye bazında faturalandırır, 90 saniyede 1\'den 1.000 instance\'a ölçeklenir ve arızalı donanımı sessizce değiştirir. Java analojisi: EC2, kiralık bir JVM process\'i gibidir — `RunInstances` çağırırsın, başlar; `TerminateInstances` çağırırsın, fatura durur. QA açısından sonuç somuttur: Cuma gecesi yapılan push\'u Pazartesi sabahına kadar test edemeyen ekip, hafta sonu CI ortamı olmadığı için production\'a bug gönderen ekiptir — AWS bu açığı çalışma başına birkaç kuruşa kapatır.',
           },
           {
             type: 'text',
@@ -1062,7 +1060,7 @@ def send_alert(message):
           {
             type: 'simple-box',
             emoji: '🖥️',
-            content: 'AWS CLI (Command Line Interface), AWS için uzaktan kumandan gibidir. Web konsolunda tıklamak yerine "aws s3 cp report.html s3://my-bucket/" yazıyorsun ve her şey anında oluyor. TV\'yi değiştirmek için televizyona yürümek yerine uzaktan kumanda kullanmak gibi.',
+            content: 'AWS CLI, Maven komutunun IntelliJ GUI\'sine olan ilişkisi gibidir — ikisi de aynı sonuca ulaşır, ama biri sabah 2\'de script içinde gözetimsiz çalışabilir. Şunu düşün: AWS Console yeterli olsaydı, neden her CI/CD pipeline CLI kullanır? Çünkü bir pipeline sadece bir script\'tir ve script\'lerin çıkış kodu döndüren, çıktısını pipe\'layabilen, "Onayla" düğmesine tıklamak için insan beklemeyen komutlara ihtiyacı vardır. Java analojisi: Console, `java -jar` komutunu sarmalayan kullanıcı dostu bir GUI gibidir; CLI ise `ProcessBuilder` ile Java sınıfını doğrudan çağırmak gibi — aynı JVM, tam programatik kontrol. QA mühendisi için pratik sonuç nettir: test çalışmasından sonra 200 Selenium screenshot\'ını S3\'e yükleyen bir pipeline, tek bir `aws s3 sync` komutuna ihtiyaç duyar; bu komut pipeline script\'inde yoksa CI agent sıfırlandığında screenshot\'lar kaybolur ve bir daha erişilemez.',
           },
           { type: 'heading', text: 'Adım 1 — AWS Hesabı Oluştur' },
           {
@@ -1177,7 +1175,7 @@ aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
           {
             type: 'simple-box',
             emoji: '🏗️',
-            content: 'Bir e-ticaret şirketindeki QA ekibini hayal et. Black Friday geliyor. Sitenin aynı anda 10.000 kullanıcıyı kaldırıp kaldırmadığını test etmeleri gerekiyor. AWS olmadan: 3 ay için sunucu kirala = $3.000. AWS ile: 4 saat için 20 EC2 instance başlat = $6. Test bitti, instance\'lar silindi, fatura $6.',
+            content: 'Gerçek dünya AWS QA\'sı komut öğrenmekten ibaret değildir — altyapının tek kullanımlık olduğu bir iş akışı tasarlamakla ilgilidir. Bir e-ticaret ekibinin Black Friday hazırlığını düşün: yük testi için 4 saat çalışacak 20 EC2 instance gerekiyor. Dedicated donanımda bu 20 sunucu aylık $3.000\'e mal olur ve testten 27 gün önce boşta bekler. Ama neden tek kullanımlık altyapıya güvenmek zordur? Çünkü Java geliştiricileri sunucuları kalıcı durum olarak görmeye alışkındır — SSH ile bağlanır, JDK kurar, JVM flag\'lerini ayarlar ve bu işi bir daha yapmak istemez. AWS tam tersini zorlar: her instance bir script\'ten yeniden oluşturulabilir olmalıdır, yoksa zamanla bozulan bir ortama dönüşür. Java analojisi: EC2 instance\'ları JUnit test yaşam döngüsü gibidir — `@BeforeAll` instance\'ı kurar, `@AfterAll` sonlandırır, test gövdesi arada çalışır. Gerçek bir QA olayında, testin çalıştığı ortamı tam olarak yeniden üretemeyen ekip "hata gerçek miydi yoksa ortam mı flakeydi?" sorusunu cevaplayamaz — etiketlenmiş, script\'lenmiş AWS ortamları bu soruyu otomatik olarak yanıtlar.',
           },
           { type: 'heading', text: 'Senaryo: EC2\'de Selenium Grid' },
           {
@@ -1315,7 +1313,7 @@ phases:
           {
             type: 'simple-box',
             emoji: '🧩',
-            content: 'AWS servisleri bir şehirdeki departmanlar gibidir. EC2 konut departmanıdır (çalıştıracak yer verir), S3 postanedir (dosya saklar ve iletir), IAM güvenlik görevlisidir (kimin girebileceğini kontrol eder), CodePipeline ise montaj hattıdır (build-test-deploy sürecini otomatikleştirir). Her departman birbiriyle konuşur.',
+            content: 'AWS servisleri, bir Java projesinin standart kütüphane paketleri gibidir: `HashMap`\'i sıfırdan yazmazsın — `java.util.HashMap`\'i import edersin. Benzer şekilde, dosya sunucusunu sıfırdan inşa etmezsin — S3 API\'sini çağırırsın. Ama buradaki asıl soru şudur: bu servisler neden birbiriyle konuşmak zorundadır? Neden tek bir servis her şeyi yapamaz? Yapamaz — ve bunun nedeni `java.io`\'nun `java.net`\'ten ayrı tutulmasıyla aynıdır: her servis tam olarak tek bir iş için optimize edilmiştir ve güç bunları birbirine bağlamaktan gelir. Java analojisi: EC2 çalışan bir `Thread`\'dir, S3 kalıcı bir `ObjectOutputStream`\'dir, IAM bir `SecurityManager`\'dır, CodePipeline ise bir `CompletableFuture` zinciridir — her biri bağımsız, her biri değiştirilebilir. Ekosistem düşüncesi olmayan bir QA pipeline\'ında, geliştirici laptopunda geçen ama CI\'da başarısız olan Selenium testi neredeyse her zaman eksik bir bağlantıdan kaynaklanır: test runner\'ı doğru S3 bucket\'ına ulaşamıyor, IAM rolünün rapor yazma izni yok, ya da CloudWatch hiç hata logu almadı — ve production bug ortaya çıkana dek kimse testin başarısız olduğunu bilmiyor.',
           },
           { type: 'heading', text: 'QA İçin AWS Servis Haritası' },
           {
@@ -1379,11 +1377,11 @@ phases:
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'AWS hatalarının büyük çoğunluğu 3 kategoriye girer: (1) İzin reddedildi — IAM policy\'de eksik kural var, (2) Resource bulunamadı — yanlış region veya isim yazım hatası, (3) Kota aşıldı — AWS kaç resource oluşturabileceğini sınırlandırıyor. Bu kalıpları bir kez öğrenince hataların %90\'ı kolaylaşıyor.',
+            content: 'AWS hataları neredeyse her zaman üç temel nedenden birinden kaynaklanır — ve kalıbı tanımak saatlerce debug süresinden kurtarır. Java\'nın exception hiyerarşisi gibi düşün: `AccessDeniedException`, IAM izninin eksik olmasına karşılık gelir (security manager hayır dedi); `NoSuchElementException`, yanlış region veya yazım hatasına karşılık gelir (beklediğin nesne baktığın scope\'ta yok); `OutOfMemoryError`, kota aşımına karşılık gelir (JVM\'in heap\'i, hesap limitidir). Ama bu hatalar ilk geldiğinde neden bu kadar şifreli görünür? Çünkü AWS API hata mesajları, ağ/API katmanında neyin kırıldığını anlatır — niyetinin neden başarısız olduğunu değil. Bu, bir `NullPointerException` stack trace\'inin satır numarasını söylemesi ama hangi upstream çağrısının null döndürdüğünü söylememesiyle tamamen aynıdır. AWS hatasını yanlış okumanın QA maliyeti gerçektir: `s3:PutObject` adımında sessizce `AccessDenied` ile başarısız olan bir pipeline rapor bucket\'ına hiçbir şey yüklemez, test suite çalışmış gibi görünür ama hiç artifact üretmez — ve ekip 3 gün sonra fark eder ki 72 saatlik CI sonuçları yok olmuştur, testler başarısız olduğu için değil, kimse hata logunu okumadığı için.',
           },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'aws-errors',
+              relatedTopicId: 'aws-errors-tr',
             framework: 'AWS',
             errors: [
               {
@@ -1474,7 +1472,7 @@ phases:
         blocks: [
           {
             type: 'interview-questions',
-              relatedTopicId: 'aws',
+              relatedTopicId: 'aws-interview-tr',
             topic: 'AWS',
             questions: [
               // ── TEMEL (15) ─────────────────────────────────────────────────
@@ -1740,5 +1738,3 @@ phases:
   },
 }
 
-
-fillMissingCodeTrios(awsData, 'aws')

@@ -1,8 +1,6 @@
 // appiumData.js — Appium 3.x Mobil Test Otomasyonu
 // Her bölüm ayrı const ile tanımlanır, en altta birleştirilir.
 
-import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
-
 // ─── SECTION 0: GİRİŞ & MİMARİ ──────────────────────────────────────────────
 const section0 = {
   tr: {
@@ -11,7 +9,7 @@ const section0 = {
       {
         type: 'simple-box',
         emoji: '📺',
-        content: 'Appium\'u bir uzaktan kumanda sistemi gibi düşünün. Test kodunuz (Java/TS) uzaktan kumandadır, Appium Server sinyal ileticidir, telefondaki uygulama ise TV\'dir. Siz düğmeye basarsınız (test kodu çalışır), sinyal Appium\'a gider, Appium UIAutomator2 aracılığıyla Android\'e iletir, Android uygulamayı kontrol eder.',
+        content: 'Appium\'u bir uzaktan kumanda sistemi gibi düşünün — ama tek bir TV için değil, her üretici kendi dilini konuşan binlerce farklı model için. Test kodunuz uzaktan kumandadır; Appium Server ise evrensel tercüman: aynı "kanalı değiştir" komutunu hem Samsung\'un UIAutomator2\'sinin, hem Apple\'ın XCUITest\'inin anlayacağı platforma özgü dile çevirir. Peki Selenium zaten web testleri için yeterliyken neden Appium\'a ayrıca ihtiyaç var? Çünkü mobil ekranda "butona tıkla" demek, HTML DOM\'unda bir element bulmakla aynı şey değildir — cihazın işletim sistemi, erişilebilirlik ağacını ve native UI hiyerarşisini bambaşka bir protokolle sunar, ve bunu HTTP üzerinden konuşturmak için köklü farklı bir köprü gerekir. Java\'daki `RemoteWebDriver extends WebDriver` interface kalıtımını biliyorsanız şunu görün: `AppiumDriver extends RemoteWebDriver` — aynı `findElement`, `click`, `sendKeys` metodları, sadece arkada UIAutomator2 ya da XCUITest var. QA açısından kritik olan: üretimde bir mobil checkout akışı sessizce bozulduğunda, bunu CI pipeline\'ında otomatik yakalamak için Appium olmadan gerçek cihaz davranışını test edemezsiniz — emülatör simüle eder, gerçek cihaz ancak Appium ile CI\'da doğrular.',
       },
       {
         type: 'text',
@@ -148,7 +146,7 @@ const section0 = {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'appium-temelleri',
+          relatedTopicId: 'appium-interview-setup',
         topic: 'Appium Temelleri',
         questions: [
           {
@@ -186,7 +184,7 @@ const section0 = {
       {
         type: 'simple-box',
         emoji: '📺',
-        content: 'Think of Appium like a remote control system. Your test code (Java/TS) is the remote, Appium Server is the signal transmitter, and the mobile app is the TV. You press a button (test code runs), signal goes to Appium, Appium forwards it via UIAutomator2 to Android, Android controls the app.',
+        content: 'Think of Appium as a universal translator for a world where every TV brand speaks a completely different language — your test code is the remote, but Appium Server is the interpreter that converts "press channel up" into the exact native command Samsung\'s UIAutomator2 or Apple\'s XCUITest understands. But if Selenium already handles web testing, why do we need yet another tool that literally opens a mobile app? Because tapping a button on a mobile screen is not the same as clicking an HTML element in a DOM — the OS exposes its UI through an accessibility tree with a fundamentally different structure, and bridging that to HTTP WebDriver commands requires a dedicated protocol layer. If you know Java\'s `RemoteWebDriver extends WebDriver` inheritance, see this: `AppiumDriver extends RemoteWebDriver` — the exact same `findElement`, `click`, `sendKeys` interface, with UIAutomator2 or XCUITest behind it instead of a browser driver. The critical QA truth: when a mobile checkout flow silently breaks in production, you cannot automatically catch it in a CI pipeline without Appium — emulators simulate, real devices connected via Appium verify.',
       },
       {
         type: 'text',
@@ -318,7 +316,7 @@ const section0 = {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'appium-fundamentals',
+          relatedTopicId: 'appium-interview-locators',
         topic: 'Appium Fundamentals',
         questions: [
           {
@@ -350,7 +348,7 @@ const section1 = {
       {
         type: 'simple-box',
         emoji: '🍳',
-        content: 'Kurulumu bir mutfak kurmak gibi düşünün: önce tüpü (Java JDK), sonra ocağı (Android SDK), sonra mutfağı (Appium Server), son olarak tavayı takarsınız (UIAutomator2 driver). Sıra önemlidir, her adım bir sonrakine bağlıdır.',
+        content: 'Appium kurulumunu bir aşçı mutfağı kurmak gibi düşünün — ve buradaki sıra gerçekten hayati, tıpkı önce gaz hattını bağlamadan ocağı çalıştırmaya çalışmak gibi: önce enerji kaynağını (Java JDK + JAVA_HOME) kurmadan Android SDK çalışmaz, Android SDK olmadan ADB komutları bulunamaz, ADB olmadan UIAutomator2 cihaza bağlanamaz, UIAutomator2 olmadan Appium Server başlatılsa bile teste başlayamazsınız. Peki Maven veya Gradle ile Java projenizi zaten yönetiyorsanız neden ayrıca Node.js kurmanız gerekiyor? Çünkü Appium Server\'ın kendisi Node.js ile yazılmıştır — Java test kodunuz sadece HTTP client, asıl sunucu Node.js prosesidir. Java\'da Maven bağımlılıklarını doğru sıraya koymanız gerektiği gibi, burada da sistem bağımlılıklarını doğru sıraya kurmak zorundasınız: JDK → Android SDK → Node.js → Appium → UIAutomator2 driver. QA açısından kritik olan: bu zincirden herhangi biri eksik veya yanlış versiyonda olursa, CI/CD pipeline\'ınız "başlatılamadı" hatasıyla sessizce çöker ve gerçek test sonuçları yerine ortam hataları görürsünüz.',
       },
       { type: 'heading', text: '1. Ön Gereksinimler — Node.js & JDK' },
       {
@@ -638,7 +636,7 @@ npx wdio --version`,
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'appium-kurulum',
+          relatedTopicId: 'appium-interview-gestures',
         topic: 'Appium Kurulum',
         questions: [
           {
@@ -666,7 +664,7 @@ npx wdio --version`,
       {
         type: 'simple-box',
         emoji: '🍳',
-        content: 'Think of setup like equipping a kitchen: first the gas line (Java JDK), then the stove (Android SDK), then the kitchen itself (Appium Server), finally the pan (UIAutomator2 driver). Order matters — each step depends on the previous one.',
+        content: 'Think of Appium setup like equipping a professional kitchen — the order is life-or-death, just like you cannot ignite a stove before the gas line is connected: without JDK + JAVA_HOME, Android SDK tools cannot run; without Android SDK, ADB cannot find devices; without ADB, UIAutomator2 cannot bridge to the device; without UIAutomator2, even a running Appium Server cannot start a session. But if you already manage a Java project with Maven or Gradle, why do you need to install Node.js separately? Because Appium Server itself is written in Node.js — your Java test code is only the HTTP client, the actual server is a Node.js process. Just as you must order Maven dependencies correctly, here you must install system dependencies in sequence: JDK → Android SDK → Node.js → Appium → UIAutomator2 driver. The critical QA truth: if any link in this chain is missing or on the wrong version, your CI/CD pipeline fails silently with an "environment not ready" error — you get no test results, just setup noise that masks real bugs.',
       },
       { type: 'heading', text: '1. Prerequisites — Node.js & JDK' },
       {
@@ -949,7 +947,7 @@ npx wdio --version`,
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'appium-installation',
+          relatedTopicId: 'appium-interview-sync',
         topic: 'Appium Installation',
         questions: [
           {
@@ -981,7 +979,7 @@ const section2 = {
       {
         type: 'simple-box',
         emoji: '🚕',
-        content: 'Capabilities bir taksi şoförüne verdiğiniz talimatlara benzer: "İstanbul, Türkçe konuşuyor, siyah Toyota, 4 kişilik". Appium\'a da "Android cihaz, Samsung emülatörü, bu APK dosyasını aç, versiyon 13" şeklinde söylüyorsunuz. Eksik veya yanlış capability = taksi yanlış yere gider.',
+        content: 'Capabilities\'i bir taksi şoförüne verdiğiniz iş emri gibi düşünün — ve bu emir sadece "nereye git" değil, "hangi araçla, hangi yoldan, hangi müşteriyle" gibi çok boyutlu bir bağlam paketidir: `platformName: Android`, `deviceName: emulator-5554`, `appium:app: /apk/app.apk`, `appium:automationName: UiAutomator2`. Peki Java\'da basit bir `ChromeOptions` veya `DesiredCapabilities` yazarken bu kadar detay gerekmiyordu — neden Appium\'da bu kadar fazla parametre var? Çünkü bir tarayıcı her makinede aynı şekilde başlarken, mobil ortam son derece parçalı: aynı Android sürümü farklı cihazlarda farklı davranır, aynı APK farklı mimarilerde (ARM vs x86) farklı kurulur, ve Appium\'un doğru driver\'ı devreye alabilmesi için tüm bu bağlamı önceden bilmesi gerekir. Java\'daki `DesiredCapabilities` ile kıyaslamanın tam yeri burası: Appium 3\'te W3C standardı gereği, `appPackage` veya `appActivity` gibi Appium\'a özgü her capability artık `"appium:"` prefix\'iyle gönderilmelidir — tıpkı Java\'da vendor-specific annotation\'ların özel package altında olması gibi. QA açısından kritik olan: yanlış ya da eksik bir capability ile başlatılan test, CI\'da "session açılamadı" hatasıyla düşer ve hangi parametrenin yanlış olduğunu logdan okumak saatler alabilir.',
       },
       { type: 'heading', text: 'Appium 3 Capability Prefix Kuralı' },
       {
@@ -1221,7 +1219,7 @@ export const config: Options.Testrunner = {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'desired-capabilities',
+          relatedTopicId: 'appium-interview-pageobject',
         topic: 'Desired Capabilities',
         questions: [
           {
@@ -1264,7 +1262,7 @@ capabilities: [
       {
         type: 'simple-box',
         emoji: '🚕',
-        content: 'Think of capabilities like instructions to a taxi driver: "Istanbul, Turkish speaker, black Toyota, 4 seats". You tell Appium: "Android device, Samsung emulator, open this APK, version 13". Wrong or missing capability = taxi goes to the wrong place.',
+        content: 'Think of capabilities as a multi-dimensional work order for a taxi dispatcher — not just "where to go" but which vehicle, which route, which passenger: `platformName: Android`, `deviceName: emulator-5554`, `appium:app: /apk/app.apk`, `appium:automationName: UiAutomator2`. But when you write a simple `ChromeOptions` in Java you don\'t need this many parameters — so why does Appium demand so much context upfront? Because a browser starts identically on every machine, while the mobile environment is massively fragmented: the same Android version behaves differently across devices, the same APK installs differently on ARM vs x86 architectures, and Appium must know the full context before it can select and initialize the right driver. This is exactly where the comparison with Java\'s `DesiredCapabilities` lands: in Appium 3, W3C standard requires that all Appium-specific capabilities like `appPackage` or `appActivity` are sent with the `"appium:"` prefix — just like vendor-specific annotations live under dedicated packages in Java. The critical QA truth: a test launched with a wrong or missing capability fails in CI with "session not created" — and reading which parameter was wrong from the logs can cost hours of debugging time.',
       },
       { type: 'heading', text: 'Appium 3 Capability Prefix Rule' },
       {
@@ -1477,7 +1475,7 @@ export const config: Options.Testrunner = {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'desired-capabilities',
+          relatedTopicId: 'appium-interview-ci',
         topic: 'Desired Capabilities',
         questions: [
           {
@@ -1524,7 +1522,7 @@ const section3 = {
       {
         type: 'simple-box',
         emoji: '🗺️',
-        content: 'Locator\'lar haritalardaki adresler gibidir. "resource-id" kapı numarası gibi kesin ve hızlı. "accessibility id" bina ismi gibi güvenilir. "xpath" ise "çarşıdan sola dön, iki blok yürü, kahvecinin yanındaki bina" gibi — her zaman çalışır ama yavaş ve kırılgan.',
+        content: 'Mobil element locator\'larını bir şehir adres sistemi gibi düşünün: `resource-id` kapı numarası gibi çalışır — doğrudan ve benzersiz, "Atatürk Bulvarı 42, Daire 3" gibi. `accessibility id` ise bina ismi gibi: "Merkez Postanesi" herkesçe bilinir ve platform değişse bile genellikle geçerli kalır. `xpath` ise "çarşıdan çıkıp sola dön, ikinci blokta kahvecinin yanındaki bina" tarifi gibi — her zaman bir yere ulaşırsınız ama yol tarifi uzun, kırılgan ve yavaş. Peki `By.id()` veya `By.cssSelector()` ile çalışmaya alışmış bir Selenium geliştiricisi neden `MobileBy.AccessibilityId()` öğrenmek zorunda? Çünkü native mobile UI\'da HTML id veya CSS class yoktur — aksine accessibility tree node\'ları, content-desc alanları ve UI hiyerarşisi üzerinden element tanımlanır; bu, Selenium\'un web locator sistemiyle aynı kavramsal çerçevede ama tamamen farklı teknik gerçekliktir. Java\'da `By.id("loginButton")` yazarken DOM\'daki `id` attribute\'unu hedefliyorsunuz; Appium\'da `MobileBy.AccessibilityId("loginButton")` ise UIAutomator2\'nin görünürlük ağacındaki `content-desc`\'i hedefler. QA açısından kritik olan: xpath\'e bağımlı testler, UI\'daki en küçük hiyerarşi değişikliğinde (buton bir `LinearLayout`\'un içine taşındı gibi) kırılır ve flaky test alarmlarıyla CI pipeline\'ınız gürültüye boğulur.',
       },
       { type: 'heading', text: 'Locator Stratejileri Karşılaştırması' },
       {
@@ -1674,7 +1672,7 @@ class LocatorExamples {
       {
         type: 'simple-box',
         emoji: '📖',
-        content: 'POM\'u IKEA kataloğu gibi düşünün: her oda için ayrı sayfa. "Oturma Odası" sayfasında kanepe, sehpa, TV listesi var. Test senaryonuz bu sayfalardaki nesneleri kullanarak hikayeyi anlatır. Her sayfa değişirse sadece o sayfanın dosyasını güncellersiniz.',
+        content: 'Page Object Model\'i bir IKEA kataloğu olarak düşünün — ama sadece ürün listesi değil, her odanın kendi düzeni, ölçüleri ve montaj kurallarıyla ayrı bir bölüm: LoginPage sadece giriş ekranının element\'lerini ve aksiyonlarını bilir, HomeScreen kendi navigasyon öğelerini, ProductPage ise ürün detay aksiyonlarını. Test senaryonuz bu sayfaların hazır metodlarını çağırarak hikayeyi anlatır — `loginPage.enterCredentials()`, `homePage.searchProduct()` — kendi locator\'ını hiç yazmaz. Peki Appium testlerini zaten çalıştırabiliyorsanız neden POM katmanına yatırım yapmak gerekiyor? Çünkü mobil UI\'lar sık değişir: uygulamanın yeni bir sürümünde "Giriş Yap" butonu yeni bir `resource-id` alabilir ve bu değişiklik locator\'ı kullanan her test dosyasını tek tek kırar — POM olmadan. POM ile sadece `LoginPage.java` dosyasındaki tek bir satırı değiştirirsiniz. Java\'daki `@FindBy(id = "loginBtn")` + `PageFactory.initElements()` kalıbını biliyorsanız, Appium POM\'u neredeyse aynıdır — fark yalnızca `AppiumDriver` kullanmanız ve locator\'ların `MobileBy` veya `AppiumBy` ile tanımlanmasıdır. QA açısından kritik olan: POM olmayan Appium projesinde bir locator değişikliği domino etkisiyle onlarca testi kırabilir ve sprint teslimatını bloke eder.',
       },
       { type: 'heading', text: 'Java — Tam POM Örneği' },
       {
@@ -1912,7 +1910,7 @@ describe('Login Akışı', () => {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'locator-pom',
+          relatedTopicId: 'appium-interview-en',
         topic: 'Locator & POM',
         questions: [
           {
@@ -1971,7 +1969,7 @@ WebElement title = driver.findElement(
       {
         type: 'simple-box',
         emoji: '🗺️',
-        content: 'Locators are like addresses on a map. "resource-id" is like a door number — precise and fast. "accessibility id" is like a building name — reliable. "xpath" is like "turn left at the square, walk two blocks, building next to the coffee shop" — always works but slow and brittle.',
+        content: 'Think of mobile element locators as a city addressing system: `resource-id` works like a door number — direct and unique, like "42 Main Street, Apt 3." `accessibility id` is like a building name — "Central Post Office" is universally known and usually survives platform changes. `xpath` is like giving directions by landmarks — "leave the market, turn left, second block, building next to the coffee shop" — you always arrive eventually, but the route is long, fragile, and slow. But if you\'re used to `By.id()` or `By.cssSelector()` in Selenium, why must you learn `MobileBy.AccessibilityId()` at all? Because native mobile UI has no HTML IDs or CSS classes — instead, elements are identified through accessibility tree nodes, content-desc fields, and UI hierarchy; same conceptual framework as Selenium\'s locator system, completely different technical reality. In Java Selenium, `By.id("loginButton")` targets the `id` attribute in the DOM; in Appium, `MobileBy.AccessibilityId("loginButton")` targets the `content-desc` in UIAutomator2\'s visibility tree. The critical QA truth: tests that rely on xpath break with the smallest UI hierarchy change — one button moved inside a `LinearLayout` — and flaky test alarms drown your CI pipeline in noise while the real bugs go undetected.',
       },
       { type: 'heading', text: 'Locator Strategies Comparison' },
       {
@@ -2121,7 +2119,7 @@ class LocatorExamples {
       {
         type: 'simple-box',
         emoji: '📖',
-        content: 'Think of POM like an IKEA catalog: a separate page for each room. The "Living Room" page lists sofa, coffee table, TV. Your test scenario tells the story using objects from these pages. If any room changes, you only update that page\'s file.',
+        content: 'Think of Page Object Model like an IKEA catalog — but not just a product list; each room has its own section with dimensions, layout, and assembly rules: LoginPage knows only the login screen\'s elements and actions, HomeScreen owns its own navigation items, ProductPage holds the product detail actions. Your test scenarios call these pages\' ready-made methods to tell the story — `loginPage.enterCredentials()`, `homePage.searchProduct()` — without ever writing their own locators. But if your Appium tests are already running, why invest in a POM layer at all? Because mobile UIs change frequently: a new app release might give the "Login" button a new `resource-id`, and without POM that single locator change breaks every test file that references it directly. With POM, you change exactly one line in `LoginPage.java`. If you know the Java `@FindBy(id = "loginBtn")` + `PageFactory.initElements()` pattern, Appium POM is nearly identical — the only difference is using `AppiumDriver` and defining locators with `MobileBy` or `AppiumBy`. The critical QA truth: in an Appium project without POM, one locator change can trigger a domino effect that breaks dozens of tests and blocks your sprint delivery.',
       },
       { type: 'heading', text: 'Java — Full POM Example' },
       {
@@ -2360,7 +2358,7 @@ describe('Login Flow', () => {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'locator-pom',
+          relatedTopicId: 'appium-interview-en',
         topic: 'Locator & POM',
         questions: [
           {
@@ -2778,7 +2776,7 @@ describe('Automation Exercise — E2E Ürün Akışı', () => {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'e2e-test-senaryosu',
+          relatedTopicId: 'appium-interview-en',
         topic: 'E2E Test Senaryosu',
         questions: [
           {
@@ -3193,7 +3191,7 @@ describe('Automation Exercise — E2E Product Flow', () => {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'e2e-test-scenario',
+          relatedTopicId: 'appium-errors-en',
         topic: 'E2E Test Scenario',
         questions: [
           {
@@ -3261,7 +3259,7 @@ const section5 = {
       },
       {
         type: 'error-dictionary',
-          relatedTopicId: 'appium-3-x-errors',
+          relatedTopicId: 'appium-errors-en',
         framework: 'Appium 3.x',
         errors: [
           {
@@ -3466,7 +3464,7 @@ stage('Run Appium Tests') {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'hata-ay-klama',
+          relatedTopicId: 'appium-interview-tr-setup',
         topic: 'Hata Ayıklama',
         questions: [
           {
@@ -3498,7 +3496,7 @@ stage('Run Appium Tests') {
       },
       {
         type: 'error-dictionary',
-          relatedTopicId: 'appium-3-x-errors',
+          relatedTopicId: 'appium-errors-tr',
         framework: 'Appium 3.x',
         errors: [
           {
@@ -3702,7 +3700,7 @@ stage('Run Appium Tests') {
 },
       {
         type: 'interview-questions',
-          relatedTopicId: 'debugging',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Debugging',
         questions: [
           {
@@ -3738,7 +3736,7 @@ const section6 = {
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'temel-sorular-1-15',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Temel Sorular (1–15)',
         questions: [
           { level: 'basic', q: '1. Appium nedir ve hangi platformları destekler?', a: 'Appium, iOS, Android ve Windows masaüstü uygulamalarını test etmek için açık kaynaklı bir otomasyon aracıdır. W3C WebDriver protokolünü kullanır. Gerçek cihaz, emülatör (Android) ve simülatör (iOS) üzerinde çalışır. Java, Python, JavaScript, Ruby gibi birden fazla dili destekler.' },
@@ -3760,7 +3758,7 @@ const section6 = {
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'orta-seviye-sorular-16-35',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Orta Seviye Sorular (16–35)',
         questions: [
           { level: 'intermediate', q: '16. Context switching nedir? Hybrid uygulamada nasıl yapılır?', a: 'Hybrid uygulamalar hem native UI hem de WebView içerir. Context switching, test kodunun native ve web context arasında geçiş yapmasını sağlar. Java: Set<String> contexts = driver.getContextHandles(); // [NATIVE_APP, WEBVIEW_xxx] driver.context("WEBVIEW_xxx"); // Web elementlere erişim driver.context("NATIVE_APP"); // Geri dön', code: `// Java
@@ -3825,7 +3823,7 @@ driver.executeScript("mobile: deepLink", Map.of(
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'i-leri-seviye-sorular-36-50',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'İleri Seviye Sorular (36–50)',
         questions: [
           { level: 'advanced', q: '36. Appium Grid ile paralel test nasıl kurulur?', a: 'Selenium Grid 4 + Appium node\'ları ile kurulur. Her node farklı cihaz/emülatör bağlar. Grid Hub merkezi koordinasyon sağlar. Alternatif: wdio.conf.ts\'de maxInstances artır + her capability farklı udid. Cloud çözüm: BrowserStack Automate, LambdaTest. systemPort capability farklı set edilmeli (8200, 8201...) — her Appium session kendi port\'unu kullanır.', code: `// wdio.conf.ts — Parallel (2 emülatör)
@@ -3905,7 +3903,7 @@ class ProductPage {
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'basic-questions-1-15',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Basic Questions (1–15)',
         questions: [
           { level: 'basic', q: '1. What is Appium and which platforms does it support?', a: 'Appium is an open-source automation tool for testing iOS, Android, and Windows desktop applications. It uses W3C WebDriver protocol. Works on real devices, emulators (Android), and simulators (iOS). Supports Java, Python, JavaScript, Ruby and other language bindings.' },
@@ -3927,7 +3925,7 @@ class ProductPage {
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'intermediate-questions-16-35',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Intermediate Questions (16–35)',
         questions: [
           { level: 'intermediate', q: '16. What is context switching? How is it done in hybrid apps?', a: 'Hybrid apps contain both native UI and WebView. Context switching lets test code move between them. Java: Set<String> contexts = driver.getContextHandles(); // [NATIVE_APP, WEBVIEW_xxx] driver.context("WEBVIEW_xxx"); // Access web elements driver.context("NATIVE_APP"); // Go back', code: `// Java
@@ -3992,7 +3990,7 @@ driver.executeScript("mobile: deepLink", Map.of(
       },
       {
         type: 'interview-questions',
-          relatedTopicId: 'advanced-questions-36-50',
+          relatedTopicId: 'appium-interview-tr',
         topic: 'Advanced Questions (36–50)',
         questions: [
           { level: 'advanced', q: '36. How do you set up Appium Grid for parallel testing?', a: 'Set up with Selenium Grid 4 + Appium nodes. Each node connects a different device/emulator. Grid Hub provides central coordination. Alternative: increase maxInstances in wdio.conf.ts + each capability has different udid. Cloud solution: BrowserStack Automate, LambdaTest. systemPort capability must differ (8200, 8201...) — each Appium session uses its own port.', code: `// wdio.conf.ts — Parallel (2 emulators)
@@ -4091,5 +4089,3 @@ export const appiumData = {
   tr: buildLang('tr'),
   en: buildLang('en'),
 }
-
-fillMissingCodeTrios(appiumData, 'appium')

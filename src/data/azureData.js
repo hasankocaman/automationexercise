@@ -1,5 +1,3 @@
-import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
-
 export const azureData = {
   en: {
     hero: {
@@ -23,7 +21,7 @@ export const azureData = {
           {
             type: 'simple-box',
             emoji: '🏙️',
-            content: 'Imagine a city that rents you apartments, offices, warehouses, and a whole road network — and you only pay for what you use each day. Microsoft Azure is that city for software: it rents you virtual computers, databases, networks, and software services by the hour. When your tests are done, you "move out" and stop paying.',
+            content: 'Azure is what happens when Microsoft — the company that runs Windows on millions of enterprise desktops — builds a cloud platform: the identity layer, the CI/CD tooling, the test management, and the Windows VMs all speak the same language from day one. But ask yourself: if AWS already exists and has a 10-year head start, why does Azure have 22% of the cloud market and growing? Because choosing a cloud platform is not just a technical decision — it is an organizational one. A company already running Active Directory, Teams, and Visual Studio does not want to maintain a separate identity system just because a competitor has more S3-compatible tutorials. Java analogy: Azure is like running your entire Java ecosystem on a JVM that the IDE vendor ships — IntelliJ, the JDK, the build tool, and the deployment target all from JetBrains. The integration benefit is real, but only if you are already in that ecosystem. For QA engineers at Microsoft-stack enterprises, this means one login for your email, your pipeline, your test plan, and your bug tracker — and a failed test automatically becomes a bug work item without copy-pasting a single line.',
           },
           {
             type: 'text',
@@ -142,7 +140,7 @@ export const azureData = {
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Azure has two entry points: the Azure Portal (web UI at portal.azure.com) and Azure CLI (command-line tool). Think of the Portal as a car\'s dashboard and the CLI as the engine you control directly. For QA automation you need the CLI — it runs in scripts and pipelines without a human clicking around.',
+            content: 'The Azure Portal and Azure CLI are two interfaces to the same API — the Portal is the visual dashboard a human clicks through to understand Azure, while the CLI is the engine that a pipeline drives programmatically with no human in the loop. Think of it this way: you would not write a JUnit test that requires a developer to manually click a button in IntelliJ to proceed — the test must be fully automated and exit with a code. The same logic applies to cloud automation. But here is the distinction that trips up QA engineers new to Azure: the Portal is essential for learning and debugging (it shows you relationships between resources visually), while the CLI is essential for production pipelines (it gives you scriptable, repeatable, auditable commands). Java analogy: Portal is `jconsole` — a GUI for monitoring a running JVM; CLI is writing a `JMXConnector` call — same data, but scriptable. In practice, the QA incident that bites teams hardest is this: someone provisions a test environment in the Portal by clicking, cannot remember the exact steps 3 weeks later, and cannot reproduce the environment for the regression suite. The CLI version of that same provisioning is a 10-line bash script — committable to git, runnable by anyone.',
           },
           { type: 'heading', text: 'Step 1 — Create Azure Account' },
           {
@@ -313,7 +311,7 @@ az storage blob list \\
           {
             type: 'simple-box',
             emoji: '🏗️',
-            content: 'Picture a QA team at a bank. They use Microsoft 365 for email, Teams for chat, Visual Studio for development — and Azure DevOps for test management. Everything is already in the Microsoft ecosystem. Adding Azure cloud for test environments means zero additional logins, zero extra tools — everything just works together.',
+            content: 'Real-world Azure for QA is best understood through the friction it eliminates rather than the features it adds. Picture a QA team at a bank: they use Microsoft 365 for email, Teams for chat, and Active Directory for single sign-on. Without Azure DevOps, running a CI/CD pipeline means a separate tool (Jenkins), a separate identity system (LDAP config), a separate test management platform (TestRail subscription), and a separate notification system (Slack webhook). Every cross-system link is manual. But ask the harder question: why does integration matter if the individual tools are better in isolation? Because broken handoffs are where QA visibility dies. A test that fails in Jenkins but whose result never reaches the bug tracker is a test that silently fails — the developer sees no evidence, ships the broken feature, and the regression is discovered in production. Java analogy: Azure DevOps is like Spring\'s dependency injection container for QA tooling — each component (repo, pipeline, test plan, board) is injected with the context of the others, so a failed test result automatically carries the PR ID, the work item, and the team member responsible, all the way from the pipeline log to the stakeholder dashboard.',
           },
           { type: 'heading', text: 'Scenario: Azure DevOps Pipeline for Playwright' },
           {
@@ -546,7 +544,7 @@ stages:
           {
             type: 'simple-box',
             emoji: '🧩',
-            content: 'Azure services for QA work like a relay race: Azure DevOps starts the baton (triggers pipeline on code push), Azure Pipelines runs the first leg (builds and tests), Azure Container Instances sprints the second leg (runs test containers), and Azure Blob Storage crosses the finish line (stores the report). Each service hands off to the next automatically.',
+            content: 'The Azure ecosystem for QA works like a well-designed Java application where each class has a single responsibility and communicates through interfaces: Azure Repos holds the source (the model), Azure Pipelines orchestrates the workflow (the controller), ACI/AKS runs the test containers (the worker threads), and Blob Storage persists the artifacts (the data layer). But the question that reveals ecosystem maturity is this: what happens when one component fails? In a poorly wired system, a failing test container means the report never lands in Blob Storage, the Boards bug is never opened, and the Teams notification never fires — the failure is invisible. In a properly wired Azure ecosystem, a container failure triggers the pipeline\'s failure condition, which publishes partial results to Test Plans, creates a draft bug in Boards with the container logs attached, and sends a Teams message — all without manual intervention. Java analogy: this is the difference between a system that throws an unhandled `RuntimeException` and crashes silently, versus one that has a structured `ExceptionHandler` that logs, notifies, and recovers. The QA consequence: at 2 AM, a flaky Playwright test that crashes the container either wakes up the on-call engineer with a Slack alert and a direct link to the failure — or it silently corrupts the test result history for the next 8 hours.',
           },
           { type: 'heading', text: 'Azure DevOps Deep Dive' },
           {
@@ -654,11 +652,11 @@ stages:
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'Azure errors tend to fall into 4 categories: (1) Authorization failed — RBAC role is missing, (2) Resource not found — wrong subscription or resource group, (3) Quota exceeded — subscription limits, (4) Name already taken — storage accounts and other resources have globally unique name requirements. Once you know these patterns, most errors resolve quickly.',
+            content: 'Azure errors have a pattern that mirrors Java\'s checked exception model: the error names are descriptive, but they describe what the API rejected — not why your intent failed. `AuthorizationFailed` is Azure\'s `AccessControlException`: the RBAC role system said your identity does not have the right, which is almost never about the identity itself but about which role was assigned to which scope. `StorageAccountAlreadyTaken` is Azure\'s `IllegalArgumentException`: the constraint (globally unique name) exists at the platform level and cannot be negotiated away. But here is the question that deepens understanding: why does Azure use RBAC roles on resource group scopes rather than simple per-user permissions? Because the same Service Principal that runs your QA pipeline in the morning should not be able to delete production databases in the afternoon — RBAC scope boundaries enforce that separation at the platform level, not at the application level. Java analogy: RBAC scopes are like Java module system boundaries (`module-info.java`) — you cannot access what is not explicitly exported, even if you own the JVM. The QA incident that stems from misreading these errors is consistently the same: a pipeline fails with `AuthorizationFailed` at 11 PM before a release, the on-call engineer adds `Contributor` role at the subscription level to "just make it work," and the next morning the QA pipeline has write access to the production environment it was never supposed to touch.',
           },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'azure-errors',
+              relatedTopicId: 'azure-errors-en',
             framework: 'Azure',
             errors: [
               {
@@ -749,7 +747,7 @@ stages:
         blocks: [
           {
             type: 'interview-questions',
-              relatedTopicId: 'azure',
+              relatedTopicId: 'azure-interview-en',
             topic: 'Azure',
             questions: [
               // ── BASIC (15) ─────────────────────────────────────────────────
@@ -1041,7 +1039,7 @@ stages:
           {
             type: 'simple-box',
             emoji: '🏙️',
-            content: 'Sana daire, ofis, depo ve bir yol ağı kiralayan ve yalnızca her gün kullandığın kadar ücret alan bir şehir hayal et. Microsoft Azure, yazılım için o şehirdir: sanal bilgisayarlar, veritabanları, ağlar ve yazılım servislerini saatlik kiralar. Testlerin bittiğinde "taşınırsın" ve ödemeyi bırakırsın.',
+            content: 'Azure, milyonlarca kurumsal masaüstünde Windows çalıştıran Microsoft\'un bir cloud platformu inşa ettiğinde ne olduğunun somut yanıtıdır: kimlik katmanı, CI/CD araçları, test yönetimi ve Windows VM\'leri başlangıçtan itibaren aynı dili konuşur. Ama şu soruyu sor: AWS zaten mevcuttu ve 10 yıllık baş start\'ı vardı, neden Azure %22 pazar payıyla büyümeye devam ediyor? Çünkü cloud platform seçimi sadece teknik bir karar değildir — kurumsal bir karardır. Active Directory, Teams ve Visual Studio ile çalışan bir şirket, rakibin S3-uyumlu daha fazla tutorial yazıyor diye ayrı bir kimlik sistemi yönetmek istemez. Java analojisi: Azure, tüm Java ekosistemini IDE üreticisinin ship ettiği bir JVM\'de çalıştırmak gibidir — IntelliJ, JDK, build aracı ve deployment hedefi hepsi JetBrains\'den. Entegrasyon faydası gerçektir, ama sadece zaten o ekosistemindeysek. Microsoft stack kullanan kurumlardaki QA mühendisleri için bu şu anlama gelir: e-posta, pipeline, test planı ve hata takibi için tek giriş — ve başarısız bir test, tek bir satır kopyala-yapıştır olmadan otomatik olarak bir bug work item\'ına dönüşür.',
           },
           {
             type: 'text',
@@ -1121,7 +1119,7 @@ stages:
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Azure\'nun iki giriş noktası var: Azure Portal (portal.azure.com\'daki web arayüzü) ve Azure CLI (komut satırı aracı). Portal arabağlantı paneli gibidir, CLI ise doğrudan kontrol ettiğin motor gibi. QA otomasyonu için CLI\'a ihtiyacın var — bir insanın tıklamaması gereksinmeden script\'lerde ve pipeline\'larda çalışır.',
+            content: 'Azure Portal ve Azure CLI, aynı API\'ye iki farklı arayüzdür — Portal insanın tıklayarak Azure\'u anladığı görsel dashboard, CLI ise pipeline\'ın insan müdahalesi olmadan programatik olarak yönettiği motor. Şöyle düşün: bir JUnit testini, geliştiricinin devam etmesi için IntelliJ\'de manuel bir düğmeye tıklamasını gerektirerek yazmazsın — test tamamen otomatik olmalı ve bir çıkış koduyla sonuçlanmalıdır. Aynı mantık cloud otomasyonuna da uygulanır. Ama Azure\'a yeni başlayan QA mühendislerini tökezleten şu ayrımı kavramak önemlidir: Portal, öğrenmek ve debug etmek için zorunludur (kaynaklar arasındaki ilişkileri görsel olarak gösterir); CLI ise production pipeline\'ları için zorunludur (script\'lenebilir, tekrarlanabilir, denetlenebilir komutlar sağlar). Java analojisi: Portal, çalışan bir JVM\'i izlemek için `jconsole`\'dur; CLI ise bir `JMXConnector` çağrısı yazmaktır — aynı veri, ama script\'lenebilir. Pratikte QA ekiplerini en çok ısıran olay şudur: birisi Portal\'da tıklayarak bir test ortamı kurar, 3 hafta sonra tam adımları hatırlayamaz ve regression suite için ortamı yeniden oluşturamaz. Aynı kurulumun CLI versiyonu 10 satırlık bir bash script\'idir — git\'e commit edilebilir, herkes tarafından çalıştırılabilir.',
           },
           { type: 'heading', text: 'Adım 1 — Azure Hesabı Oluştur' },
           {
@@ -1237,7 +1235,7 @@ az storage blob upload \\
           {
             type: 'simple-box',
             emoji: '🏗️',
-            content: 'Bir bankadaki QA ekibini hayal et. E-posta için Microsoft 365, sohbet için Teams, geliştirme için Visual Studio ve test yönetimi için Azure DevOps kullanıyorlar. Her şey zaten Microsoft ekosisteminde. Test ortamları için Azure cloud eklemek, sıfır ek giriş, sıfır ekstra araç anlamına gelir — her şey birlikte çalışır.',
+            content: 'Gerçek dünya Azure QA\'sını en iyi anlamanın yolu, Azure\'un eklediği özelliklerden değil, ortadan kaldırdığı sürtünmeden hareketle düşünmektir. Bir bankadaki QA ekibini düşün: e-posta için Microsoft 365, sohbet için Teams, tek oturum için Active Directory kullanıyorlar. Azure DevOps olmadan CI/CD pipeline çalıştırmak ayrı bir araç (Jenkins), ayrı bir kimlik sistemi (LDAP yapılandırması), ayrı bir test yönetim platformu (TestRail aboneliği) ve ayrı bir bildirim sistemi (Slack webhook) anlamına gelir. Her sistem arası bağlantı manueldir. Ama daha derin soruyu sormak gerekir: tek tek araçlar daha iyiyse entegrasyon neden önemlidir? Çünkü kırık el değişimleri QA görünürlüğünün öldüğü yerdir. Jenkins\'te başarısız olan ama sonucu hiçbir zaman hata takibine ulaşmayan bir test, sessizce başarısız olan bir testtir — geliştirici hiç kanıt görmez, bozuk özelliği gönderir ve regresyon production\'da keşfedilir. Java analojisi: Azure DevOps, QA araçları için Spring\'in bağımlılık enjeksiyon container\'ı gibidir — her bileşen (repo, pipeline, test planı, board) diğerlerinin bağlamıyla enjekte edilir; başarısız bir test sonucu, PR kimliğini, work item\'ı ve sorumlu ekip üyesini otomatik olarak pipeline logdan paydaş dashboard\'una kadar taşır.',
           },
           { type: 'heading', text: 'Senaryo: Playwright için Azure DevOps Pipeline' },
           {
@@ -1393,7 +1391,7 @@ az storage blob generate-sas \\
           {
             type: 'simple-box',
             emoji: '🧩',
-            content: 'QA için Azure servisleri bir bayrak yarışı gibi çalışır: Azure DevOps bayraği başlatır (kod push\'unda pipeline tetikler), Azure Pipelines birinci ayağı koşar (build ve test), Azure Container Instances ikinci ayağı sprint yapar (test container\'ları çalıştırır), Azure Blob Storage bitiş çizgisini geçer (raporu saklar). Her servis sonrakine otomatik olarak devam eder.',
+            content: 'QA için Azure ekosistemi, her sınıfın tek bir sorumluluğu olan ve arayüzler üzerinden iletişim kurduğu iyi tasarlanmış bir Java uygulaması gibi çalışır: Azure Repos kaynağı tutar (model), Azure Pipelines iş akışını orkestre eder (controller), ACI/AKS test container\'larını çalıştırır (worker thread\'ler), Blob Storage artifact\'ları kalıcı hale getirir (veri katmanı). Ama ekosistem olgunluğunu ortaya çıkaran soru şudur: bir bileşen başarısız olduğunda ne olur? Kötü bağlı bir sistemde, başarısız bir test container\'ı raporun Blob Storage\'a hiç düşmemesi, Boards\'da hiç bug açılmaması ve Teams bildiriminin hiç ateşlenmesi anlamına gelir — başarısızlık görünmezdir. Doğru bağlanmış bir Azure ekosisteminde ise container başarısızlığı pipeline\'ın hata koşulunu tetikler; bu, kısmi sonuçları Test Plans\'a yayımlar, container logları eklenmiş Boards\'da taslak bir bug oluşturur ve Teams\'e mesaj gönderir — tüm bunlar manuel müdahale olmadan. Java analojisi: bu, işlenmeyen `RuntimeException` fırlatarak sessizce çöken bir sistem ile yapılandırılmış bir `ExceptionHandler`\'ı olan, loglayan, bildiren ve kurtaran bir sistem arasındaki farktır. QA sonucu: gece 2\'de container\'ı çökerten bir flaky Playwright testi, on-call mühendisini Slack alarmı ve hataya doğrudan bağlantıyla uyandırır — ya da 8 saat boyunca test sonuç geçmişini sessizce bozar.',
           },
           { type: 'heading', text: 'Azure DevOps Derinlemesine' },
           {
@@ -1453,11 +1451,11 @@ az storage blob generate-sas \\
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'Azure hataları genellikle 4 kategoriye girer: (1) Yetkilendirme başarısız — RBAC rolü eksik, (2) Resource bulunamadı — yanlış subscription veya resource group, (3) Kota aşıldı — subscription limitleri, (4) Ad zaten alınmış — storage account\'ları ve diğer resource\'ların global olarak benzersiz ad gereksinimleri var. Bu kalıpları bir kez öğrenince çoğu hata hızla çözülür.',
+            content: 'Azure hataları, Java\'nın checked exception modelini yansıtan bir kalıba sahiptir: hata adları açıklayıcıdır, ama API\'nin neyi reddettiğini anlatır — niyetinin neden başarısız olduğunu değil. `AuthorizationFailed`, Azure\'un `AccessControlException`\'ıdır: RBAC rol sistemi kimliğinin bu hakka sahip olmadığını söyledi, ve bu neredeyse hiçbir zaman kimliğin kendisiyle değil, hangi rolün hangi kapsama atandığıyla ilgilidir. `StorageAccountAlreadyTaken` ise Azure\'un `IllegalArgumentException`\'ıdır: kısıtlama (global olarak benzersiz ad) platform seviyesinde var ve müzakere edilemez. Ama anlayışı derinleştiren soru şudur: Azure neden basit kullanıcı başına izinler yerine resource group kapsamlarında RBAC rolleri kullanır? Çünkü sabah QA pipeline\'ınızı çalıştıran Service Principal\'in öğleden sonra production veritabanlarını silebilmemesi gerekir — RBAC kapsam sınırları bu ayrımı uygulama seviyesinde değil platform seviyesinde uygular. Java analojisi: RBAC kapsamları, Java modül sistemi sınırları gibidir (`module-info.java`) — JVM\'e sahip olsan bile açıkça export edilmeyen şeye erişemezsin. Bu hataları yanlış okumanın QA olayı tutarlı biçimde aynıdır: bir pipeline gece 11\'de sürümden önce `AuthorizationFailed` ile başarısız olur, on-call mühendisi "sadece çalıştırmak için" subscription seviyesinde `Contributor` rolü ekler ve ertesi sabah QA pipeline\'ının hiç erişmemesi gereken production ortamına yazma yetkisi vardır.',
           },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'azure-errors',
+              relatedTopicId: 'azure-errors-tr',
             framework: 'Azure',
             errors: [
               {
@@ -1548,7 +1546,7 @@ az storage blob generate-sas \\
         blocks: [
           {
             type: 'interview-questions',
-              relatedTopicId: 'azure',
+              relatedTopicId: 'azure-interview-tr',
             topic: 'Azure',
             questions: [
               // ── TEMEL (15) ─────────────────────────────────────────────────
@@ -1814,5 +1812,3 @@ az storage blob generate-sas \\
   },
 }
 
-
-fillMissingCodeTrios(azureData, 'azure')

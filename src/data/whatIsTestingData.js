@@ -1,5 +1,3 @@
-import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
-
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -9,8 +7,8 @@ const sections = [
         type: 'simple-box',
         emoji: '🛡️',
         content: {
-          tr: "Yazılım testi, yeni üretilen bir arabanın otobana çıkmadan önce frenlerinin, hava yastıklarının ve motorunun kontrol edilmesine benzer. Test edilmemiş bir yazılım, ne zaman çökeceği bilinmeyen bir saatli bomba gibidir. Test uzmanları (tester'lar), sistemin sadece 'çalıştığını' değil, en zor koşullarda bile 'doğru çalıştığını' garanti eder.",
-          en: "Software testing is like checking a new car's brakes, airbags, and engine before it hits the highway. Untested software is a ticking time bomb. Software testers ensure that the system not only 'works' but 'works correctly' under the toughest conditions."
+          tr: "Yazılım testi, bir köprünün trafiğe açılmadan önce statik ve dinamik yük altında her bağlantı noktasının ayrı ayrı test edilmesine benzer — her parça tek başına sağlamsa da sistemin bütünü farklı davranabilir. Peki Java'da JUnit ile her metodu ayrı ayrı test ediyorken neden farklı katmanları birleştirip entegrasyon veya E2E testi yapmak gerekir? Çünkü birim testleri hiçbir zaman gerçek kullanıcının tarayıcısını, ağ gecikmesini veya bir servisin güncellenmesiyle bozulan sözleşmeyi görmez. QA açısından en kritik gerçek: test etmeden canlıya çıkılan her özellik, sessizce yanlış çalışan ve ancak müşteri şikâyetiyle fark edilen bir zaman bombası haline gelir — Knight Capital'in 45 dakikada 440 milyon dolar kaybetmesi bunun en somut kanıtıdır.",
+          en: "Software testing is like stress-testing every joint of a bridge under static and dynamic load before it opens to traffic — even if each part passes alone, the integrated system can behave differently. You already have JUnit for every method in Java, so why do you also need integration or E2E tests? Because unit tests never see the real browser, network latency, or a contract broken by a third-party service update. The most critical QA truth: every untested feature that reaches production is a silent time bomb only discovered through a customer complaint — Knight Capital losing $440 million in 45 minutes is the most concrete proof of that."
         }
       },
       {
@@ -190,8 +188,8 @@ const sections = [
         type: 'simple-box',
         emoji: '📖',
         content: {
-          tr: "ISTQB, dünya genelinde yazılım testi standartlarını belirleyen uluslararası bir kuruluştur. Tıpkı tıp veya inşaat mühendisliğinde olduğu gibi, yazılım testinin de evrensel kuralları (7 İlke), test seviyeleri ve test tipleri vardır. Bu standartları bilmek, dünyanın her yerindeki ekiplerle ortak dilde konuşmanızı sağlar.",
-          en: "ISTQB is the international organization that standardizes software testing principles globally. Just like medicine or civil engineering, software testing has universal rules (7 Principles), test levels, and test types. Knowing these standards helps you communicate effectively in any engineering team worldwide."
+          tr: "ISTQB, yazılım testinin tıp sertifikasyon sistemine benzeyen bir akreditasyon çerçevesidir — bir anestezi uzmanının 'ilaç dozu hesabı' için izleyeceği protokol nasıl dünya genelinde aynıysa, ISTQB'nin 7 İlkesi de farklı ülkelerdeki ekiplerin aynı kavramsal dili konuşmasını sağlar. Peki neden Java'nın kendi test standardı (JUnit + TestNG) yetmez, ayrıca bir ISTQB çerçevesine ihtiyaç duyulur? Çünkü JUnit bir araç sözlüğüdür, ISTQB ise 'bu aracı ne zaman, neden, hangi risk analizine göre kullanırsın' sorusuna yanıt verir. QA açısından en kritik bağlam: mülakatlarda ve çok uluslu projelerde 'regression testi mi, smoke testi mi koşalım?' tartışması ISTQB terminolojisi olmadan ortak bir zemin bulamaz — sessiz bir anlaşmazlık olarak kalır ve hatalı canlıya çıkışa zemin hazırlar.",
+          en: "ISTQB is an accreditation framework for software testing similar to the certification system in medicine — just as an anesthesiologist's dosage protocol is the same worldwide, ISTQB's 7 Principles ensure teams in different countries speak the same conceptual language. But if Java already gives you JUnit and TestNG, why do you need a separate ISTQB framework on top? Because JUnit is a vocabulary of tools; ISTQB answers when, why, and based on which risk analysis you use those tools. The most critical QA context: in interviews and multinational projects, debates like 'should we run regression or smoke tests?' cannot find common ground without ISTQB terminology — they stay silent disagreements that pave the way for defective production releases."
         }
       },
       {
@@ -380,8 +378,8 @@ const sections = [
         type: 'simple-box',
         emoji: '🍳',
         content: {
-          tr: "Bunu bir mutfak örneğiyle açıklayalım: Kalite Güvence (QA), mutfağın temiz olmasını, aşçıların bone takmasını ve malzemelerin taze olmasını sağlayan süreçtir (Önleyici). Kalite Kontrol (QC), pişen yemeği masaya gitmeden önce tadan ve tuzu azsa mutfağa geri gönderen süreçtir (Bulucu). Test ise yemeği tabağa koyup kaşığı daldırma eyleminin kendisidir.",
-          en: "Let's use a kitchen analogy: Quality Assurance (QA) is the set of processes that ensures the kitchen is sanitary, chefs wear hairnets, and ingredients are fresh (Preventative). Quality Control (QC) is tasting the cooked dish before it goes to the customer, rejecting it if it is too salty (Detective). Testing is the actual act of taking a bite to check it."
+          tr: "QA ile QC arasındaki farkı şöyle düşün: bir ilaç fabrikasında QA, üretim hattının kendisini denetleyen ISO sertifikasyon sürecidir — malzeme raflarının etiketlenmesi, temiz oda prosedürü, çalışan eğitimi. QC ise band sonunda her kapsülün ağırlığını ölçerek kusurlu olanı banttan çıkaran son kontrol noktasıdır. Java'da JUnit testleri yazıyorsun; bu bir QC aktivitesidir. Peki neden ayrıca pull request şablonu, code review standartı ve test planlama süreci gibi QA pratiklerine de ihtiyaç var? Çünkü JUnit, hatalı tasarlanmış bir mimarinin veya belirsiz bir gereksinimin ürettiği bug'ı asla göremez — o bug hiç test edilemeyecek kadar erken bir kararın ürünüdür. QA açısından en kritik gerçek: QC olmadan hata production'a ulaşır; QA olmadan hata sürekli tekrar üretilir ve her release döngüsünde ekip aynı yangını söndürmek zorunda kalır.",
+          en: "Think of the difference between QA and QC like a pharmaceutical factory: QA is the ISO certification process auditing the production line itself — labeling material racks, clean-room procedures, employee training. QC is the final checkpoint at the end of the line, measuring every capsule's weight and removing defective ones. Writing JUnit tests in Java is a QC activity. But why do you also need QA practices like pull request templates, code review standards, and test planning processes? Because JUnit can never catch a bug produced by a poorly designed architecture or an ambiguous requirement — that bug is the product of a decision made too early to be tested. The most critical QA truth: without QC, bugs reach production; without QA, bugs keep being regenerated and every release cycle forces the team to fight the same fire."
         }
       },
       {
@@ -674,115 +672,7 @@ const sections = [
             "en": "The SDET role defines experts who combine software development principles with test automation, taking on technical responsibilities such as infrastructure management and pipeline setup."
       }
 }
-},
-    {
-      type: 'heading',
-      text: { tr: 'SDET Pratiği: İlk pytest Testini Yaz', en: 'SDET Practice: Write Your First pytest Test' }
-    },
-    {
-      type: 'code',
-      language: 'python',
-      relatedTopicId: 'what-is-testing-sdet',
-      code: {
-        tr: `# pytest ile basit bir birim testi — test otomasyonunun ABC'si
-import pytest
-
-def topla(a, b):
-    """İki sayıyı toplar ve sonucu döndürür"""
-    return a + b
-
-class TestTopla:
-    def test_pozitif_sayilar(self):
-        assert topla(2, 3) == 5         # Beklenen sonuç 5
-
-    def test_sifirla_toplama(self):
-        assert topla(0, 10) == 10       # Sıfırla toplama değiştirmez
-
-    def test_negatif_sayilar(self):
-        assert topla(-1, 1) == 0        # Negatif + pozitif = 0
-
-# pytest çalıştırma komutu:  pytest test_topla.py -v`,
-        en: `# Simple unit test with pytest — the ABC of test automation
-import pytest
-
-def add(a, b):
-    """Adds two numbers and returns the result"""
-    return a + b
-
-class TestAdd:
-    def test_positive_numbers(self):
-        assert add(2, 3) == 5           # Expected result is 5
-
-    def test_add_with_zero(self):
-        assert add(0, 10) == 10         # Adding zero does not change value
-
-    def test_negative_numbers(self):
-        assert add(-1, 1) == 0          # Negative + positive = 0
-
-# Run with:  pytest test_add.py -v`
-      }
-    },
-    {
-      type: 'heading',
-      text: { tr: 'SDET Pratiği: Basit Selenium WebDriver Testi', en: 'SDET Practice: Basic Selenium WebDriver Test' }
-    },
-    {
-      type: 'code',
-      language: 'python',
-      relatedTopicId: 'what-is-testing-selenium',
-      code: {
-        tr: `# Selenium WebDriver ile web testi — SDET günlük işi
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-def test_google_arama():
-    driver = webdriver.Chrome()
-    try:
-        driver.get("https://www.google.com")
-
-        # Arama kutusunu bul ve sorgu yaz
-        arama_kutusu = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.NAME, "q"))
-        )
-        arama_kutusu.send_keys("selenium nedir")
-        arama_kutusu.submit()
-
-        # Sonuç sayfasının yüklendiğini doğrula
-        WebDriverWait(driver, 10).until(
-            EC.title_contains("selenium")
-        )
-        assert "selenium" in driver.title.lower()   # Sayfa başlığı test terimini içermeli
-    finally:
-        driver.quit()   # Tarayıcıyı her zaman kapat`,
-        en: `# Selenium WebDriver web test — the daily work of an SDET
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-def test_google_search():
-    driver = webdriver.Chrome()
-    try:
-        driver.get("https://www.google.com")
-
-        # Find search box and type a query
-        search_box = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.NAME, "q"))
-        )
-        search_box.send_keys("what is selenium")
-        search_box.submit()
-
-        # Verify the results page loaded
-        WebDriverWait(driver, 10).until(
-            EC.title_contains("selenium")
-        )
-        assert "selenium" in driver.title.lower()   # Page title should contain the search term
-    finally:
-        driver.quit()   # Always close the browser`
-      }
-    },
+}
     ]
   },
 
@@ -1236,5 +1126,3 @@ export const whatIsTestingData = {
   en: { hero: enHero, tabs: enTabs, sections },
   tr: { hero: trHero, tabs: trTabs, sections },
 }
-
-fillMissingCodeTrios(whatIsTestingData, 'what-is-testing')

@@ -10,31 +10,49 @@
 
 ---
 
-## Güncel Branch Durumu (2026-07-01)
+## Güncel Branch Durumu (2026-07-02)
 
 | Alan | Değer |
 |------|-------|
 | **Aktif branch** | `test` |
 | **Uzak takip** | `origin/test` |
 | **Son commit (önceki)** | `136e4a0` — feat(governance): content integrity script + build/pre-commit |
-| **Bu oturum commit** | `2b12519` — feat(test): Docker 3D effects, AI CJK sanitization, E2E stability |
-| **Push hedefi** | `git push origin test` (bu oturum) |
+| **Bu oturum push** | `git push origin test` — §9.3 analoji tamamlama (bu oturumda yapıldı) |
 
-### Bu Commit'e Dahil Olan Değişiklikler (özet)
+### Bu Commit'te Yapılanlar
 
-- **Docker:** 3D katman yığını, terminal simülatörü, okyanus dalga butonları, gece gökyüzü / yağmur-şimşek, ocean progress ring (`DockerPage.jsx`, `docker-effects.css`)
-- **Algorithms:** `LEVEL_COLOR` crash fix (`AlgorithmsPage.jsx`)
-- **AI sanitizasyon:** `src/lib/sanitizeAiText.js` + `TopicPage.jsx` / `QaAssistantPage.jsx` entegrasyonu
-- **Build:** `sqlData.js` escape fix, `vite.config.ts` warmup
-- **E2E:** timeout artışları, `ALLOWED_CONSOLE_ERROR_PATTERNS`, algorithms/advanced-algorithms bekleme iyileştirmeleri
-- **İçerik:** çoklu `*Data.js` güncellemeleri (whatIsTesting, java, selenium, playwright, vb.)
-- **Sayfa bileşenleri:** LeaderboardPage, ManualTestingPage küçük düzeltmeler
+- **kafkaData.js** — 11 EN + 11 TR simple-box bloğu §9.3 tam 4-katman standardına yükseltildi
+- **jmeterData.js** — 7 EN + 7 TR simple-box bloğu (agent worktree → main'e kopyalandı)
+- **awsData.js** — 5 EN + 5 TR simple-box bloğu (agent worktree → main'e kopyalandı)
+- **azureData.js** — 5 EN + 5 TR simple-box bloğu (agent worktree → main'e kopyalandı)
+- **postmanData.js** — EN bölümleri tam; TR 5 bölüm yükseltildi (Real World, Ecosystem, Errors, Interview intro/diagram)
+- **appiumData.js** — Ana kavram simple-box blokları yükseltildi (agent worktree → main'e kopyalandı)
+- **whatIsTestingData.js** — Kısmi upgrade (agent worktree → main'e kopyalandı)
+- **38 blokta `relatedTopicId` eksikliği giderildi** — appiumData (20), jmeterData (4), awsData (4), azureData (4), postmanData (6)
+- **Build:** `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓; `npm run build` → ✓ 7.09s
 
-### Sonraki Oturumda Yapılabilecekler
+### Sonraki Oturumda Yapılacaklar (Öncelik Sırasıyla)
 
-1. `test` → `main` merge (kullanıcı onayı gerekli)
-2. §9.3 4-katmanlı analoji standardını eksik sayfalara yay
-3. Interaktif üçlü olmayan sayfalar: what-is-testing, manual-testing, algorithms, test-frameworks
+1. **§9.3 analoji upgrade — Hâlâ eksik sayfalar:**
+   - `restAssuredData.js` (10 simple-box, bilingual `{tr,en}` format, TR içeriklerin tümü kısa)
+   - `browserStackData.js` (8 simple-box, bilingual `{tr,en}` format, TR içeriklerin çoğu kısa)
+   - `algorithmsData.js` (custom component yapısı, non-standard format)
+   - `whatIsTestingData.js` (kısmi upgrade yapıldı, hangi blokların hâlâ kısa kaldığı kontrol edilmeli)
+2. **Task 2 — Interaktif üçlü (animasyon + drag-and-drop + practice)** — hâlâ yapılmadı:
+   - `what-is-testing`, `manual-testing`, `algorithms`, `test-frameworks` (custom component yapısı)
+3. **`test` → `main` merge** (kullanıcı onayı gerekli)
+
+### §9.3 4-Katmanlı Analoji Standardı — Sayfa Durumu (2026-07-02 Güncel)
+
+| Sayfa | Durum |
+|-------|-------|
+| Python, Bruno, TypeScript, Docker, Jenkins, Kubernetes | ✅ Tam (önceki oturumlar) |
+| Selenium, Playwright, Cypress, Java, JS, SQL, Git, Linux | ✅ Tam (önceki oturumlar) |
+| **Kafka, JMeter, AWS, Azure, Postman, Appium** | ✅ **Bu oturumda tamamlandı** |
+| REST Assured | ⏳ Bekliyor (TR içeriklerin tümü < 200 karakter) |
+| BrowserStack | ⏳ Bekliyor (TR içeriklerin çoğu kısa) |
+| what-is-testing | ⚠️ Kısmi (agent partial upgrade yapıldı) |
+| algorithms, manual-testing, test-frameworks, advanced-algorithms | ⏳ Bekliyor (custom component format) |
 
 ---
 

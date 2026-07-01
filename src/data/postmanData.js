@@ -1,5 +1,3 @@
-import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
-
 const httpFlowSvg = `<svg viewBox='0 0 680 200' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
   <defs>
     <marker id='ag' markerWidth='8' markerHeight='6' refX='7' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#10b981'/></marker>
@@ -384,12 +382,7 @@ export const postmanData = {
           {
             type: 'simple-box',
             emoji: '📱',
-            content: 'Imagine you want to order food from a restaurant. You could walk in and order at the counter — that\'s like using a website. But you can also call them on the phone and place an order directly without going in person — that\'s Postman! It lets you "call" a website\'s hidden services (APIs) directly, test what they return, and verify they work correctly.',
-          },
-          {
-            type: 'css-animation',
-            kind: 'postman-flow',
-            label: { tr: 'Postman İstek-Yanıt Akışı', en: 'Postman Request-Response Flow' },
+            content: 'Postman is like a universal telephone exchange for APIs — instead of walking into every office (opening a browser, clicking through a UI) to place an order, you pick up one handset and dial any department directly: "GET me the product list", "POST this order", "DELETE that user." The handset remembers your PIN (auth token), your speed-dials (collections), and even runs a callback check after every call (test scripts). But here is the real question: if a developer already has curl and Java HttpClient, why does a QA engineer need yet another tool? Because curl is write-only — it fires a request but gives you no assertion layer, no environment switching, and no CI export. In Java terms Postman is not just an HttpClient; it is HttpClient + JUnit assertions + TestNG suite runner + Maven build report, all wired together without a single line of code. In QA practice this matters enormously: when a backend endpoint silently changes its response shape between sprints, a Postman collection wired into CI via Newman catches the regression in the pipeline — before the frontend team even notices that their app is broken.',
           },
           { type: 'heading', text: 'What is an API?' },
           { type: 'text', content: 'An API (Application Programming Interface) is a contract between a client (your app, browser, or test tool) and a server. It defines what requests the server accepts, what data it expects, and what it returns. Every modern application — weather apps, payment systems, social media — runs on APIs behind the scenes.' },
@@ -491,7 +484,7 @@ export const postmanData = {
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'Installing Postman is like getting a brand-new multi-tool kit. You open the box and every tool is already organized and labeled. Just pick up the right tool (GET, POST, DELETE...) and use it — no assembly required.',
+            content: 'Installing Postman is like setting up a fully equipped QA workbench on day one: every drawer is already labeled (GET, POST, PUT, DELETE), every clamp pre-fitted (auth headers, environment variables), and every measuring gauge ready (test assertions). Contrast that with setting up a Java REST test framework — you would spend the first day wrestling with pom.xml dependencies, BaseTest classes, and Jackson configuration before sending a single request. But here is the deeper question: if the team already has curl scripts and a Java HttpClient wrapper, why invest time in Postman at all? Because neither curl scripts nor raw HttpClient give you a GUI for collaborative authoring, one-click environment switching between dev/staging/prod, or a format that Newman can execute headlessly in a CI pipeline. In QA terms, a Postman collection committed to Git is a living regression suite that every engineer — regardless of Java knowledge — can run, modify, and review. The installation cost is under 2 minutes; the return is a shared, executable API specification that catches broken contracts before they reach production.',
           },
           { type: 'heading', text: 'Downloading Postman' },
           {
@@ -618,7 +611,7 @@ export const postmanData = {
           {
             type: 'simple-box',
             emoji: '🏙️',
-            content: 'Imagine a big office building with 4 departments: Security (Auth), HR (Users), Logistics (Orders), Finance (Payments). Each has its own phone extension. Postman is your master phone directory — it can call all 4 departments at once, remembers every number, and automatically tests that everyone picks up correctly!',
+            content: 'Imagine a large logistics hub with four independent warehouses: Security (Auth), HR (Users), Logistics (Orders), Finance (Payments). Each warehouse speaks a slightly different dialect, has its own keycard (auth token), and its own loading dock URL. Without a coordination layer, a QA engineer has to physically run between buildings, re-key codes at every door, and scribble addresses on paper — that is manual API testing across microservices. Postman Collections are the hub\'s master dispatch system: one control panel, one environment file per deployment (dev/staging/prod), and every token and base URL injected automatically via {{variables}}. But here is the question every Java developer asks: "I already have TestNG test classes and a shared BaseTest — why not just code this?" Because Postman does something that Java test code cannot without significant glue work: it lets a non-developer QA engineer swap the entire environment with a single dropdown click, chain requests so that the login token from Request 1 flows directly into Request 2\'s Authorization header, and export the entire suite as a JSON file that Newman runs in CI without any compile step. In production environments where a single wrong baseUrl or stale token causes an entire order flow to fail silently, this environment-switching precision is the difference between catching a broken microservice contract in the pipeline and discovering it in a customer\'s failed checkout.',
           },
           { type: 'heading', text: 'Microservices — Why Postman Collections Are Essential' },
           { type: 'text', content: 'In a microservices architecture each service lives at its own URL and has its own auth. Testing manually means switching URLs, updating tokens, and managing base addresses constantly. Postman Collections + Environments solve this: one collection, four environment files (dev, staging, prod) — switch with a single click. Variables like {{baseUrl}}, {{authToken}}, {{userId}} carry data automatically between requests.' },
@@ -897,7 +890,7 @@ newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           {
             type: 'simple-box',
             emoji: '🔍',
-            content: 'Test scripts in Postman are like a quality inspector on a factory line. After each product comes off the line (API response), you check a checklist: Is the shape correct? Is the value right? If anything fails, you mark it "FAIL" and the alarm goes off.',
+            content: 'Postman test scripts work exactly like a quality control gate at the end of a factory conveyor belt — every product (API response) passes through an automated inspection before it is allowed to leave the line. The inspector does not just look at the label (status code 200); it measures dimensions (response time under 500ms), checks the materials list (JSON schema), verifies the serial number is not null (id field), and confirms the product is not a duplicate (unique token). Now the real question: if you are already writing JUnit assertions in Java to test business logic, why write JavaScript assertions in Postman too? Because Postman tests are executed at the HTTP boundary, not inside the JVM — they prove that the API contract as experienced by any external consumer is correct, independent of the implementation language. In CI terms, a failing Postman test in Newman is a broken API contract: the kind of silent regression that causes a mobile app or a third-party integration to receive wrong data formats, empty arrays where items were expected, or 200 status codes masking a failed transaction — exactly the bugs that unit tests never catch because they never cross the network.',
           },
           { type: 'heading', text: 'The pm.test() API — Writing Assertions' },
           { type: 'text', content: 'The Tests tab runs JavaScript after every request. The pm (Postman) object provides all assertion tools. Results appear in the "Test Results" tab in the response panel — with green ✅ or red ❌ per test.' },
@@ -1067,7 +1060,7 @@ jobs:
           { type: 'heading', text: 'Common Postman Errors & Solutions' },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'postman-errors',
+              relatedTopicId: 'postman-errors-en',
             framework: 'Postman',
             errors: [
               {
@@ -1201,7 +1194,7 @@ pm.test("Status OK", function() {       // open
       {
         title: '🛠️ Real World Usage',
         blocks: [
-          { type: 'simple-box', emoji: '🛠️', content: "Postman is like a universal TV remote for APIs — instead of building a separate clicker (code) for every device (endpoint), you point one remote at anything and press a button. Before sending it to the actual living room (production), you check every channel works." },
+          { type: 'simple-box', emoji: '🛠️', content: "Postman works like a professional sound engineer's mixing board in a live venue: every channel (endpoint) feeds into one console, the engineer can solo any channel (send a single request), mute others (skip flaky endpoints in a run), and record the entire session (export the collection to JSON) so the next engineer does not have to re-wire the board from scratch. But here is what even seasoned developers miss: Postman is not just for exploratory testing — it is the only tool that lets a QA engineer build an end-to-end API regression suite without writing a single line of Java or Python. In Java terms, imagine having a JUnit test suite where you can swap the entire test data set (environment file), chain test outputs into subsequent test inputs (collection variables), and hand the suite to a non-programmer without them ever opening an IDE. In a real QA scenario this means: when a microservices backend ships a new API contract, a Postman collection catches every broken response field, missing header, or incorrect status code in Newman's CI run — before a single UI automation test is even triggered, saving minutes per pipeline run and eliminating the category of bugs that unit tests never see." },
           { type: 'heading', text: 'What Need Does This Fill? Life Without Postman' },
           { type: 'text', content: "Without Postman, testing an API meant either waiting for a frontend to be built (so you could click through a UI) or writing throwaway curl commands / Java HttpClient snippets by hand for every single endpoint. Headers, auth tokens, and request bodies had to be retyped every time, and there was no easy way to chain 'login, then use that token in the next 5 requests.' Postman replaces all of that with a reusable, shareable, scriptable client — the API equivalent of a Selenium IDE for browsers." },
           { type: 'heading', text: 'Real-World Scenario: Microservices Order Flow' },
@@ -1294,7 +1287,7 @@ pm.test("All posts belong to chained userId", () => {
       {
         title: '🔗 Ecosystem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "Postman alone is like a phone with no SIM card — great for typing messages, but it needs a network to actually deliver them anywhere. Newman is the SIM card that lets your collections run outside the Postman app, and CI/CD is the cell tower that triggers calls automatically." },
+          { type: 'simple-box', emoji: '🔗', content: "The Postman ecosystem works like a modern newspaper publishing pipeline: a journalist (QA engineer) writes and edits the article in a GUI editor (Postman), but the article only reaches readers when it goes through the printing press (Newman CLI), which is scheduled to run automatically by the editorial clock (CI/CD trigger on every Git push), and the resulting output is version-controlled in the archive (Git repository). Postman alone without Newman is like writing brilliant copy that never gets printed. But here is the real question: why not just write the whole suite in Java with RestAssured and skip Postman entirely? Because Postman's GUI authoring loop — type a URL, add a header, hit Send, see the response in 2 seconds — is five to ten times faster for exploratory testing and on-boarding new team members than standing up a Java project. The two tools are complementary: Postman for authoring and exploration, Newman for execution, Git for versioning, and CI/CD for scheduling. In QA practice, this four-part chain means that every API regression check that used to take a manual tester 3 hours runs automatically in under 2 minutes on every backend pull request — with a JUnit-format report that Jenkins or GitHub Actions can use as a build gate." },
           { type: 'heading', text: 'How Postman Fits Into the Bigger Picture' },
           { type: 'text', content: 'On its own, Postman is a manual tool — someone has to click "Send". Its real value in a QA pipeline comes from being wired into three other systems: Newman (the CLI runner that removes the GUI dependency), a CI/CD tool that triggers Newman automatically on every push, and Git for version-controlling the collection JSON itself alongside the application code it tests.' },
           {
@@ -1356,11 +1349,11 @@ pm.test("All posts belong to chained userId", () => {
       {
         title: '🚨 Common Errors',
         blocks: [
-          { type: 'simple-box', emoji: '🚨', content: 'Every Postman error message is a clue, not a dead end — like a doctor reading symptoms. A 401 means "who are you?", a CORS error means "wrong door", and a timeout means "nobody answered the phone." Learn to read the symptom and you skip straight to the cure.' },
+          { type: 'simple-box', emoji: '🚨', content: 'Postman errors work exactly like a hospital triage system: every symptom has a known cause, and the severity label tells you how urgently to act. A 401 is the triage nurse saying "I do not know who you are — show your ID first." A 404 is "the department you asked for does not exist in this hospital." A CORS error is a security guard stopping you at the building entrance before you even reach the nurse. A timeout is an unanswered emergency call — the ambulance never arrived. The real question is not "what does this error mean?" but "at which layer of the system did the failure originate?" — and this is where QA engineers who understand the HTTP stack outperform developers who only know the application code. In Java terms, Postman errors map directly to familiar exception types: 401 → AuthenticationException, 404 → ResourceNotFoundException, 5xx → InternalServerError. Understanding the error taxonomy means you can reproduce, report, and isolate a backend bug in minutes rather than hours — and in a CI pipeline where Newman runs on every push, a correctly categorized error in the JUnit report tells the on-call engineer exactly which service boundary broke and what to fix, before any user is affected.' },
           { type: 'heading', text: 'Real Errors You Will Hit — and How to Fix Them' },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'postman-errors',
+              relatedTopicId: 'postman-errors-en',
             framework: 'Postman',
             errors: [
               {
@@ -1491,7 +1484,7 @@ GET https://api.example.com/data
           {
             type: 'simple-box',
             emoji: '💼',
-            content: 'These questions appear in QA interviews at all levels. Basic: daily Postman knowledge. Intermediate: environments, automation, Newman. Advanced: CI/CD integration, data-driven testing, API design principles.',
+            content: 'Postman interview questions follow the same layered structure as the tool itself: basic questions probe whether you understand the HTTP request-response cycle and can navigate the UI (the equivalent of asking a Java developer whether they know what a class is); intermediate questions test whether you can set up a real regression suite — environments, variable chaining, pre-request scripts — which is where most candidates fail because they have only used Postman for ad-hoc requests; advanced questions ask how you integrate Postman into a CI/CD pipeline with Newman, handle data-driven testing across hundreds of rows, and architect a collection that a team can co-own in Git. Why does the structure matter? Because interviewers at companies with mature QA pipelines are not looking for someone who can click "Send" — they want someone who understands that a Postman collection is a living contract document, and that every broken test in a Newman CI run is a broken promise to an API consumer. Prepare answers that connect each Postman feature to a real QA risk: not "collections organize requests" but "collections give us a single executable source of truth for API contracts, version-controlled alongside the application code, runnable on every PR without a QA engineer being present."',
           },
           {
             type: 'diagram-svg',
@@ -1501,11 +1494,11 @@ GET https://api.example.com/data
           {
             type: 'simple-box',
             emoji: '🧭',
-            content: 'Use the numbered areas in the UI while answering: ① Collections/Environments for collection-variable-environment questions, ② Method + URL + Send for HTTP method and request setup questions, ③ Authorization / Headers / Body / Tests tabs for auth-body-script questions, ④ Response area for status code, schema, response time, and assertion questions.',
+            content: 'Think of the Postman UI as a flight cockpit divided into four instrument panels — and interviewers expect you to know which panel controls which system. Panel ① (Collections/Environments sidebar) is your navigation computer: it holds the route plan (collection structure), fuel presets (environment variables), and autopilot profiles (pre-request scripts). Panel ② (Method + URL + Send bar) is the throttle and heading selector: choosing GET vs POST is choosing whether to observe or to act — a distinction with real consequences in a live API. Panel ③ (Authorization / Headers / Body / Tests tabs) is the communication and sensor suite: auth is your transponder ID, headers are your radio frequencies, body is your payload manifest, and the Tests tab is your automated pre-landing checklist. Panel ④ (Response area) is your instrument readout: status code is altitude (200 = cruising, 5xx = stall warning), response time is airspeed, and the response body schema is your fuel gauge — if the shape changes unexpectedly, something has gone wrong upstream. In Java terms, Panels ③ and ④ together are equivalent to your test setup (given) and assertions (then) in a JUnit/REST Assured test — the difference is that in Postman they are visible to every team member without opening an IDE.',
           },
           {
             type: 'interview-questions',
-              relatedTopicId: 'postman-api-testing',
+              relatedTopicId: 'postman-interview-en',
             topic: 'Postman & API Testing',
             questions: [
               { level: 'basic', q: "What is Postman and why do QA engineers use it?", a: "Postman is a GUI-based API testing platform for sending HTTP requests, inspecting responses, and writing automated test scripts without code. QA engineers use it for manual API testing, automated regression suites, environment management, and team sharing. Faster than Java/Python code for exploratory testing; collections automate via Newman in CI/CD." },
@@ -1595,7 +1588,7 @@ GET https://api.example.com/data
           {
             type: 'simple-box',
             emoji: '📱',
-            content: 'Bir restorana gidip sipariş vermek yerine telefon edip sipariş verdiğini düşün. Restoran içine girmeden (web sitesini açmadan) doğrudan mutfakla (API) konuşuyorsun. Postman tam olarak bu telefon! Web sitelerinin arka planda kullandığı gizli servisleri (API\'leri) doğrudan arayıp ne döndürdüklerini test edebiliyorsun.',
+            content: 'Postman, API\'ler için evrensel bir telefon santralı gibi çalışır: her ofise (tarayıcıda UI açıp tıklayarak) bizzat gitmen yerine tek bir ahizeden herhangi bir departmanı arayabilirsin — "Ürün listesini GET ile ver", "Bu siparişi POST et", "Şu kullanıcıyı DELETE et." Ahize PIN\'ini (auth token) hatırlıyor, hız arama listeni (collection) saklıyor ve her aramadan sonra otomatik geri arama kontrolü yapıyor (test scripts). Ama şunu sormak gerekir: geliştirici zaten curl ve Java HttpClient kullanıyorken neden QA mühendisinin ayrı bir araca ihtiyacı olsun? Çünkü curl tek yönlüdür — istek gönderir ama assertion katmanı, environment geçişi ve CI export özelliği yoktur. Java terimleriyle söylersek Postman sadece bir HttpClient değildir; tek satır kod yazmadan HttpClient + JUnit assertion\'ları + TestNG suite runner + Maven build raporu içeren her şeyi bir arada sunar. QA pratiğinde bu muazzam bir fark yaratır: bir backend endpoint\'i sprint\'ler arasında sessizce response formatını değiştirdiğinde, Newman üzerinden CI\'a bağlı Postman collection\'ı bu regresyonu pipeline\'da yakalar — frontend ekibi uygulamasının bozulduğunu fark etmeden önce.',
           },
           { type: 'heading', text: 'API Nedir?' },
           { type: 'text', content: 'API (Application Programming Interface), bir istemci (uygulaman, tarayıcın veya test aracın) ile sunucu arasındaki sözleşmedir. Sunucunun hangi istekleri kabul ettiğini, hangi veriyi beklediğini ve ne döndürdüğünü tanımlar. Hava durumu uygulaması, ödeme sistemi, sosyal medya — tüm modern uygulamalar arka planda API\'ler üzerinden çalışır.' },
@@ -1738,7 +1731,7 @@ pm.test("Status is active", () => {
           {
             type: 'simple-box',
             emoji: '🔧',
-            content: 'Postman kurmak, yepyeni bir alet kutusu açmak gibi. Kutuyu açıyorsun ve içinde her alet zaten düzenli ve etiketli. Doğru aleti (GET, POST, DELETE...) alıp kullanmaya başlıyorsun — hiçbir şeyi birleştirmen gerekmiyor.',
+            content: 'Postman kurmak, birinci gün tam donanımlı bir QA tezgahı kuruyormuşsun gibidir: her çekmece zaten etiketlenmiş (GET, POST, PUT, DELETE), her kelepçe hazır takılı (auth header\'lar, environment variable\'lar), her ölçüm aleti kullanıma hazır (test assertion\'ları). Bunu bir Java REST test framework\'ü kurmakla karşılaştır — ilk günü pom.xml bağımlılıklarıyla, BaseTest sınıfıyla ve Jackson konfigürasyonuyla boğuşarak geçirirsin, tek bir istek göndermeden önce. Ama daha derin soruyu soralım: ekip zaten curl script\'leri ve Java HttpClient wrapper\'ı kullanıyorsa neden Postman\'a zaman yatırsın? Çünkü ne curl script\'leri ne de ham HttpClient şunları sağlar: kolaboratif authoring için bir GUI, dev/staging/prod arasında tek tıkla environment geçişi veya Newman\'ın CI pipeline\'ında başsız çalıştırabileceği bir format. QA açısından Git\'e commit edilmiş bir Postman collection, Java bilgisi olmayan her mühendis tarafından çalıştırılabilir, değiştirilebilir ve incelenebilir canlı bir regresyon suite\'idir. Kurulum maliyeti 2 dakika; getirisi ise production\'a ulaşmadan bozuk sözleşmeleri yakalayan, paylaşılabilir, çalıştırılabilir bir API spesifikasyonudur.',
           },
           { type: 'heading', text: 'Postman\'ı İndirmek' },
           {
@@ -1874,7 +1867,7 @@ pm.test("Status is active", () => {
           {
             type: 'simple-box',
             emoji: '🏙️',
-            content: 'Büyük bir ofis binasındaki 4 bölümü düşün: Güvenlik (Auth), İK (Users), Lojistik (Orders), Finans (Payments). Her birinin ayrı dahili hattı var. Postman, tüm hatları bilen ana rehber — tek tuşla 4 bölümü arayıp hepsinin doğru cevap verip vermediğini otomatik test edebiliyorsun!',
+            content: 'Dört bağımsız depoya sahip büyük bir lojistik merkezi hayal et: Güvenlik (Auth), İK (Users), Lojistik (Orders), Finans (Payments). Her depo biraz farklı bir dil konuşuyor, kendi bina kartına (auth token) sahip ve kendi yükleme rıhtımı URL\'i var. Koordinasyon katmanı olmadan bir QA mühendisi binalar arasında koşmak, her kapıda kodu yeniden girmek ve adresleri kağıda yazmak zorunda kalır — bu microservislerde manuel API testidir. Postman Collections, merkezin ana sevkiyat sistemidir: tek kontrol paneli, her deployment için bir environment dosyası (dev/staging/prod) ve her token ile base URL {{variable}}\'lar aracılığıyla otomatik enjekte edilir. Ama her Java geliştiricisinin sorduğu soru şudur: "Zaten TestNG test sınıflarım ve paylaşımlı bir BaseTest\'im var — bunu neden kodlamıyoruz?" Çünkü Postman, Java test koduyla önemli miktarda ek çalışma yapılmadan sağlanamayan bir şeyi yapıyor: teknik olmayan bir QA mühendisinin tüm environment\'ı tek açılır menü tıklamasıyla değiştirmesine, 1. İstek\'teki login token\'ını doğrudan 2. İstek\'in Authorization header\'ına aktarmasına ve compile adımı olmadan Newman\'ın CI\'da çalıştırabileceği bir format olarak tüm suite\'i dışa aktarmasına olanak tanıyor. Hatalı bir baseUrl veya bayat token\'ın tüm sipariş akışının sessizce başarısız olmasına yol açtığı production ortamlarında, bu environment geçişi hassasiyeti; bozuk bir microservis sözleşmesini pipeline\'da yakalamak ile bunu müşterinin başarısız checkout\'unda keşfetmek arasındaki farktır.',
           },
           { type: 'heading', text: 'Microservisler — Postman Collections Neden Şart?' },
           { type: 'text', content: 'Microservis mimarisinde her servis kendi URL\'inde yaşar, kendi auth\'una sahiptir. Auth (:3001), User (:3002), Order (:3003), Payment (:3004) — her biri farklı base URL. Manuel test etmek URL değiştirmeyi, token güncellemeyi ve base adresleri yönetmeyi gerektirir. Collections + Environment\'lar bu kaosa son verir: tek collection, dört environment dosyası — tek tıkla geçiş. {{baseUrl}}, {{authToken}}, {{userId}} gibi variable\'lar veriyi request\'ler arasında otomatik taşır.' },
@@ -2144,7 +2137,7 @@ newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           {
             type: 'simple-box',
             emoji: '🔍',
-            content: 'Postman\'da test yazmak, fabrika hattındaki kalite kontrol gibi. Her ürün (API yanıtı) hattan çıktığında bir kontrol listesi uyguluyorsun: Şekil doğru mu? Değer doğru mu? Bir şey tutmazsa "BAŞARISIZ" işaretliyorsun ve alarm çalıyor.',
+            content: 'Postman test script\'leri, fabrika konveyör bandının sonundaki bir kalite kontrol kapısı gibi çalışır — her ürün (API response\'u) dışarı çıkmadan önce otomatik bir inceleme sürecinden geçer. Kontrolör sadece etikete (200 status kodu) bakmaz; boyutları ölçer (response time 500ms\'nin altında mı), malzeme listesini kontrol eder (JSON schema doğru mu), seri numarasının boş olmadığını doğrular (id field null mı) ve ürünün kopya olmadığını teyit eder (token benzersiz mi). Şimdi gerçek soru: iş mantığını test etmek için zaten Java\'da JUnit assertion\'ları yazıyorsan neden Postman\'da da JavaScript assertion yazmak gerekiyor? Çünkü Postman testleri HTTP sınırında, JVM\'nin içinde değil çalışır — herhangi bir harici tüketicinin deneyimlediği şekliyle API sözleşmesinin doğru olduğunu, uygulama dilinden bağımsız olarak kanıtlarlar. CI açısından bakıldığında Newman\'da başarısız olan bir Postman testi, bozuk bir API sözleşmesidir: unit testlerin hiçbir zaman yakalamadığı sessiz regresyon türü — bir mobil uygulamanın veya üçüncü taraf entegrasyonunun yanlış veri formatları, beklenen öğeler yerine boş diziler veya başarısız bir işlemi gizleyen 200 status kodları almasına yol açan türden hatalar.',
           },
           { type: 'heading', text: 'pm.test() API — Assertion Yazma' },
           { type: 'text', content: 'Tests sekmesi, her istekten sonra JavaScript çalıştırır. pm (Postman) nesnesi tüm assertion araçlarını sağlar. Sonuçlar yanıt panelindeki "Test Results" sekmesinde ✅ veya ❌ olarak görünür.' },
@@ -2314,7 +2307,7 @@ jobs:
           { type: 'heading', text: 'Sık Karşılaşılan Postman Hataları ve Çözümleri' },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'postman-errors',
+              relatedTopicId: 'postman-errors-tr',
             framework: 'Postman',
             errors: [
               {
@@ -2413,7 +2406,7 @@ pm.test("Durum OK", function() {       // aç
       {
         title: '🛠️ Gerçek Hayat',
         blocks: [
-          { type: 'simple-box', emoji: '🛠️', content: "Postman, API'ler için evrensel bir TV kumandası gibidir — her cihaz (endpoint) için ayrı bir kumanda (kod) yazmak yerine, tek bir kumandayı her şeye doğrultup düğmeye basarsın. Gerçek salona (production) göndermeden önce her kanalın çalıştığını kontrol edersin." },
+          { type: 'simple-box', emoji: '🛠️', content: 'Postman, her çalışanın projeden projeye iş değiştirirken yeniden baştan başlamak zorunda kalmadığı bir yapı bürosu gibi çalışır — şablonlar kayıtlıdır, standart ölçüm aletleri dolaplarda hazırdır ve yeni gelen mühendis birkaç dakikada üretim hattına katılır. Peki Java\'da zaten RestAssured ve HttpClient var iken neden bir GUI\'ye para yatıralım? Çünkü RestAssured her API isteği için Maven bağımlılığı, BaseTest sınıfı, Jackson nesneleri ve JUnit assertion\'ları gerektirirken, Postman\'da aynı isteği 20 saniyede yapıp sonucu anında görürsünüz — ve bu fark keşif testinde saatler anlamına gelir. Java\'daki anloji şudur: RestAssured is the JUnit test code, Postman is the IntelliJ HTTP Client plugin — aynı sonucu iki farklı bağlamda üretirler, biri üretim süiti için, diğeri hızlı doğrulama için. QA pratiğinde bu en çok kritik öneme sahip olur: backend mikroservisi yeni bir alan ekler veya kaldırır, QA test kodunu hiç dokunmadan Postman\'da endpoint\'i açıp 30 saniyede doğrular — aynı değişikliği Java test koduyla karşılamak 15 dakika debug gerektirirdi.' },
           { type: 'heading', text: 'Hangi İhtiyaca Cevap Verir? Postman Olmadan Hayat Nasıl Zordu' },
           { type: 'text', content: "Postman olmadan bir API'yi test etmek ya frontend'in bitmesini bekleyip UI üzerinden tıklamak ya da her endpoint için elle atılabilir curl komutları / Java HttpClient kod parçacıkları yazmak demekti. Header'lar, auth token'ları ve request body'leri her seferinde yeniden yazılırdı, 'önce login ol, sonra o token'ı sonraki 5 istekte kullan' gibi bir zincirleme yapmanın kolay bir yolu yoktu. Postman bunların hepsini yeniden kullanılabilir, paylaşılabilir, scriptlenebilir bir client ile değiştirir — tarayıcılar için Selenium IDE'nin API karşılığı gibidir." },
           { type: 'heading', text: 'Gerçek Senaryo: Mikroservis Sipariş Akışı' },
@@ -2507,7 +2500,7 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
       {
         title: '🔗 Ekosistem',
         blocks: [
-          { type: 'simple-box', emoji: '🔗', content: "Tek başına Postman, SIM kartı olmayan bir telefon gibidir — mesaj yazmak için harika ama bir şeyi gerçekten ulaştırmak için ağa ihtiyacı vardır. Newman, collection'larının Postman uygulaması dışında çalışmasını sağlayan SIM karttır; CI/CD ise çağrıları otomatik tetikleyen baz istasyonudur." },
+          { type: 'simple-box', emoji: '🔗', content: 'Postman ekosistemi, bir gazetecinin haberi masaüstü editörde (Postman GUI) yazıp baskı makinesine (Newman CLI) gönderdiği ve baskının editoryal saate (CI/CD trigger) göre otomatik çalıştığı modern bir gazete yayın hattı gibi çalışır. Postman\'ı Newman olmadan kullanmak, harika bir metin yazmak ama hiç basmamak gibidir. Asıl soru şu: tüm suite\'i Java\'da RestAssured ile yazıp Postman\'ı tamamen atlasak olmaz mıydı? Olmaz, çünkü Postman\'ın GUI authoring döngüsü — URL yaz, header ekle, Send\'e bas, 2 saniyede yanıtı gör — keşif testi ve yeni ekip üyelerinin adaptasyonunda Java projesini kurmaktan beş ila on kat daha hızlıdır. Bu iki araç tamamlayıcıdır: Postman authoring ve keşif için, Newman execution için, Git versiyonlama için, CI/CD zamanlama için. QA pratiğinde bu dört parçalı zincir şu anlama gelir: üç saatlik manuel testi gerektiren her API regresyon kontrolü, her backend pull request\'inde Newman\'da 2 dakikada otomatik çalışır — Jenkins veya GitHub Actions\'ın build gate olarak kullanabileceği JUnit formatlı bir raporla.' },
           { type: 'heading', text: 'Postman Büyük Resme Nasıl Uyuyor' },
           { type: 'text', content: 'Tek başına Postman manuel bir araçtır — birinin "Send"e tıklaması gerekir. QA pipeline\'ındaki gerçek değeri üç sisteme bağlanmasından gelir: GUI bağımlılığını ortadan kaldıran CLI çalıştırıcısı Newman, her push\'ta Newman\'ı otomatik tetikleyen bir CI/CD aracı, ve collection JSON\'unun test ettiği uygulama koduyla birlikte versiyonlanmasını sağlayan Git.' },
           {
@@ -2569,11 +2562,11 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
       {
         title: '🚨 Yaygın Hatalar',
         blocks: [
-          { type: 'simple-box', emoji: '🚨', content: 'Her Postman hata mesajı bir çıkmaz sokak değil, bir ipucudur — tıpkı bir doktorun semptomları okuması gibi. 401 "sen kimsin?" demektir, CORS hatası "yanlış kapı" demektir, timeout ise "kimse telefona cevap vermedi" demektir. Semptomu okumayı öğren, doğrudan çözüme atla.' },
+          { type: 'simple-box', emoji: '🚨', content: 'Postman hata mesajları, bir hastanenin triaj sistemi gibi çalışır: her semptomun bilinen bir nedeni vardır ve şiddet etiketi ne kadar acil hareket etmeniz gerektiğini söyler. 401, triaj hemşiresinin "sizi tanımıyorum — önce kimliğinizi gösterin" demesidir. 404, "istediğiniz departman bu hastanede yok" demektir. CORS hatası, güvenlik görevlisinin sizi binanın girişinde hemşirelere bile ulaşmadan durdurmacısıdır. Timeout, yanıtsız bir acil çağrıdır — ambulans hiç gelmedi. Asıl soru "bu hata ne anlama geliyor" değil, "hatanın sistemin hangi katmanında kaynaklandığı" — ve HTTP stack\'ini anlayan QA mühendisleri burada yalnızca uygulama kodunu bilen geliştiricileri geride bırakır. Java açısından Postman hataları tanıdık exception türlerine karşılık gelir: 401 → AuthenticationException, 404 → ResourceNotFoundException, 5xx → InternalServerError. Hata taksonomisini bilmek, bir backend bug\'ını saatler yerine dakikalar içinde yeniden oluşturmanızı, raporlamanızı ve izole etmenizi sağlar — ve Newman\'ın her push\'ta çalıştığı CI pipeline\'ında JUnit raporundaki doğru kategorize edilmiş bir hata, on-call mühendisine tam olarak hangi servis sınırının kırıldığını ve ne düzeltilmesi gerektiğini söyler.' },
           { type: 'heading', text: 'Karşılaşacağın Gerçek Hatalar ve Çözümleri' },
           {
             type: 'error-dictionary',
-              relatedTopicId: 'postman-errors',
+              relatedTopicId: 'postman-errors-tr',
             framework: 'Postman',
             errors: [
               {
@@ -2704,7 +2697,7 @@ GET https://api.example.com/data
           {
             type: 'simple-box',
             emoji: '💼',
-            content: 'Bu sorular her seviyede QA mühendisi mülakatlarında karşına çıkıyor. Temel sorular günlük Postman bilginizi test eder. Orta seviye ortamlar, test otomasyonu ve Newman\'ı. İleri seviye CI/CD entegrasyonu, data-driven test ve API tasarım prensiplerini test eder.',
+            content: 'Postman mülakat soruları, aracın kendisiyle aynı katmanlı yapıyı izler — ve bir mülakat, sadece araç bilgisini test eden sözel bir sınav değildir: bu bir tanı simülasyonudur. Mülakatçı, gerçek bir API akışına bakıp sistemin içinde ne olduğunu akıl yürüterek söyleyip söyleyemeyeceğinizi öğrenmeye çalışır. Temel seviye soruları günlük Postman bilginizi test eder; orta seviye ortam yönetimi, request chaining ve Newman CI entegrasyonunu; ileri seviye ise mikro servis test mimarisini, data-driven stratejiyi ve API sözleşme korumayı sorgular. Java analojisi: basic soruları "HttpClient ile GET nasıl gönderilir" düzeyinde, advanced soruları ise "büyük bir sprint boyunca bozulan API sözleşmelerini CI pipeline\'ında nasıl tespit edersiniz, ve bulduğunuzda ekip sürecini nasıl yönetirsiniz" düzeyindedir. QA mülakatlarında öne çıkan adaylar hataları ve senaryoları hem araç bilgisi hem de iş etkisi açısından açıklayabilenlerdir.',
           },
           {
             type: 'diagram-svg',
@@ -2714,11 +2707,11 @@ GET https://api.example.com/data
           {
             type: 'simple-box',
             emoji: '🧭',
-            content: 'Cevap verirken görseldeki numaraları referans al: ① Collections/Environments alanı koleksiyon-değişken-ortam soruları için, ② Method + URL + Send alanı HTTP methodu ve request kurulum soruları için, ③ Authorization / Headers / Body / Tests sekmeleri auth-body-script soruları için, ④ Response alanı status code, schema, response time ve assertion soruları için.',
+            content: 'Postman arayüzünü dört ayrı ölçüm aletine bölünmüş bir uçuş kokpiti gibi düşünün — ve deneyimli bir pilot her aletin ne zaman önemli olduğunu sezgisel olarak bilir. Peki neden bu ayrımı öğrenmek gerekiyor? Çünkü mülakatta "Postman\'da header\'ı nereye koyarsınız?" sorusu aslında şunu sorar: arayüzde kaybolmak yerine doğrudan hedefe gidebilir misiniz? Java\'da şu analoji işe yarar: ③ Sekmeler (Authorization / Headers / Body / Tests) bir test sınıfının annotation alanları gibidir, ④ Response alanı assertion\'ların çalıştırıldığı çıktı konsolu gibidir. Cevap verirken görseldeki numaraları referans alın: ① Collections/Environments alanı koleksiyon-değişken-ortam soruları için, ② Method + URL + Send alanı HTTP metodunu ve request kurulumunu sorgulayan sorular için, ③ Authorization / Headers / Body / Tests sekmeleri auth-body-script soruları için, ④ Response alanı status code, schema, response time ve assertion soruları için. QA mülakatında bu haritayı bilmek, "hangi sekmeye gidip ne yapacağınızı" anında söyleyebildiğinizi kanıtlar.',
           },
           {
             type: 'interview-questions',
-              relatedTopicId: 'postman-ve-api-testi',
+              relatedTopicId: 'postman-interview-tr',
             topic: 'Postman ve API Testi',
             questions: [
               { level: 'basic', q: { tr: 'Postman nedir ve QA mühendisleri neden kullanır?', en: 'What is Postman and why do QA engineers use it?' }, a: { tr: 'Postman, uygulama kodu yazmadan HTTP istekleri göndermeye, yanıtları incelemeye ve otomatik test scriptleri yazmaya yarayan GUI tabanlı bir API test platformudur. QA mühendisleri şu amaçlarla kullanır: manuel API testi (API\'nin çalışıp çalışmadığını keşif amaçlı doğrulama), otomatik regresyon süitleri, dev/staging/prod ortam yönetimi ve koleksiyonları ekiple paylaşma. Keşif testi için Java/Python test kodu yazmaktan çok daha hızlıdır. Koleksiyonlar daha sonra Newman üzerinden CI/CD\'de otomatikleştirilebilir.', en: 'Postman is a GUI-based API testing platform for sending HTTP requests, inspecting responses, and writing automated test scripts without code. QA engineers use it for manual API testing, automated regression suites, environment management, and team sharing. Faster than Java/Python code for exploratory testing; collections automate via Newman in CI/CD.' } },
@@ -2795,74 +2788,3 @@ GET https://api.example.com/data
     ],
   },
 }
-
-fillMissingCodeTrios(postmanData, 'postman')
-
-// ─── Feynman checkpoints for sections that lack one ──────────────────────────
-const postmanFeynmanDefs = [
-  {
-    sectionIndex: 0,
-    promptTr: 'Postman nedir ve API testi yaparken ne işe yarar? Hiç Postman duymamış bir arkadaşına, teknik terim kullanmadan anlat.',
-    promptEn: 'What is Postman and why is it useful for API testing? Explain to a friend who has never heard of it, without jargon.',
-    keywords: [['request','istek'], ['response','yanıt','cevap'], ['api','endpoint'], ['test','doğrula'], ['ui','arayüz','gui']],
-    minScore: 3,
-    modelAnswerTr: 'Postman, bir API\'ye istek gönderip gelen yanıtı görmeni sağlayan görsel bir araçtır. Tıpkı tarayıcının web sayfasına GET isteği atması gibi, Postman da herhangi bir API\'ye GET, POST, PUT, DELETE istekleri gönderir. Yazılım testçileri Postman\'ı; API\'nin doğru veri döndürüp döndürmediğini, hata kodlarını düzgün verip vermediğini ve güvenlik kontrollerini geçip geçmediğini doğrulamak için kullanır.',
-    modelAnswerEn: 'Postman is a visual tool that lets you send requests to an API and see the response. Just like a browser sends GET requests to web pages, Postman sends GET, POST, PUT, DELETE requests to any API. QA engineers use it to verify that the API returns correct data, gives proper error codes, and passes security checks.',
-  },
-  {
-    sectionIndex: 1,
-    promptTr: 'Postman\'a ilk isteği nasıl atarsın? Adımları sırayla anlat ve "Collection" ne işe yarar?',
-    promptEn: 'How do you send your first request in Postman? Walk through the steps in order and explain what a Collection is.',
-    keywords: [['url','endpoint'], ['method','get','post'], ['send','gönder'], ['collection','koleksiyon'], ['response','yanıt']],
-    minScore: 3,
-    modelAnswerTr: 'Postman\'ı açıp yeni bir istek oluşturursun: HTTP metodunu seçersin (GET, POST...), URL\'yi girersin ve Send butonuna basarsın. Gelen yanıt; status code, body ve header olarak görünür. Collection ise birbiriyle ilgili istekleri bir klasörde toplar — tıpkı Java\'daki test sınıfları gibi. Newman ile bu collection\'ı CI/CD\'de otomatik çalıştırabilirsin.',
-    modelAnswerEn: 'You open Postman, create a new request, select the HTTP method (GET, POST...), enter the URL, and click Send. The response shows status code, body, and headers. A Collection groups related requests into a folder — like test classes in Java. With Newman you can run this collection automatically in CI/CD.',
-  },
-  {
-    sectionIndex: 3,
-    promptTr: 'Postman\'da otomatik test nasıl yazılır? pm.test() ve pm.expect() ne işe yarar? Bir login endpointi için örnek ver.',
-    promptEn: 'How do you write automated tests in Postman? What do pm.test() and pm.expect() do? Give an example for a login endpoint.',
-    keywords: [['pm.test','test'], ['pm.expect','expect'], ['status','code','durum'], ['body','json'], ['assert','doğrula']],
-    minScore: 3,
-    modelAnswerTr: 'Postman\'daki "Tests" sekmesine JavaScript kod yazarsın. pm.test() bir test durumu tanımlar — tıpkı JUnit\'teki @Test gibi. İçine pm.expect() ile assertion eklersin: pm.expect(pm.response.code).to.equal(200). Login testi için: status 200 kontrolü, body\'de token alanının varlığı ve token\'ın string olduğu doğrulanabilir.',
-    modelAnswerEn: 'You write JavaScript code in the Tests tab of Postman. pm.test() defines a test case — like @Test in JUnit. Inside you add assertions with pm.expect(): pm.expect(pm.response.code).to.equal(200). For a login test you can check: status is 200, body has a token field, and the token is a string.',
-  },
-  {
-    sectionIndex: 4,
-    promptTr: 'Postman\'ı gerçek bir projede nasıl kullanırsın? CI/CD\'ye nasıl entegre edersin? Newman nedir?',
-    promptEn: 'How do you use Postman in a real project? How do you integrate it with CI/CD? What is Newman?',
-    keywords: [['newman','cli'], ['collection','run'], ['environment','ortam'], ['ci','cd','pipeline'], ['report','raporla']],
-    minScore: 3,
-    modelAnswerTr: 'Gerçek projede collection\'ları dev/staging/prod ortam değişkenleriyle çalıştırırsın. Newman, Postman collection\'larını terminal üzerinden çalıştıran CLI aracıdır. CI/CD\'ye entegrasyon için: newman run collection.json -e env.json --reporters cli,junit komutunu Jenkins/GitHub Actions pipeline\'ına eklersin. Çıktıda her testin PASS/FAIL durumu ve detaylı rapor görünür.',
-    modelAnswerEn: 'In a real project you run collections with dev/staging/prod environment variables. Newman is the CLI tool that runs Postman collections from the terminal. For CI/CD integration: you add newman run collection.json -e env.json --reporters cli,junit to your Jenkins/GitHub Actions pipeline. The output shows each test\'s PASS/FAIL status and a detailed report.',
-  },
-  {
-    sectionIndex: 5,
-    promptTr: 'Postman ekosistemi nelerden oluşur? Mock Server, Monitor ve API Documentation ne işe yarar?',
-    promptEn: 'What does the Postman ecosystem consist of? What are Mock Server, Monitor, and API Documentation for?',
-    keywords: [['mock','sahte'], ['monitor','izle'], ['documentation','dokümantasyon'], ['team','takım'], ['newman']],
-    minScore: 3,
-    modelAnswerTr: 'Postman ekosistemi: Mock Server (backend hazır olmadan sahte yanıt döndürür), Monitor (collection\'ı zamanlı çalıştırır, uptime kontrolü yapar), API Documentation (collection\'dan otomatik dokümantasyon üretir), Team Workspace (takımla collection paylaşımı), Newman (CI/CD CLI runner). QA mühendisi olarak en çok Mock Server + Newman + Monitor üçlüsünü kullanırsın.',
-    modelAnswerEn: 'Postman ecosystem: Mock Server (returns fake responses when backend is not ready), Monitor (runs collections on a schedule for uptime checks), API Documentation (auto-generates docs from collections), Team Workspace (sharing collections with your team), Newman (CI/CD CLI runner). As a QA engineer you most often use the Mock Server + Newman + Monitor trio.',
-  },
-  {
-    sectionIndex: 6,
-    promptTr: 'Postman\'da en sık karşılaştığın hatalar neler? ECONNREFUSED veya 401 Unauthorized görünce ne yaparsın?',
-    promptEn: 'What are the most common errors in Postman? What do you do when you see ECONNREFUSED or 401 Unauthorized?',
-    keywords: [['econnrefused','bağlantı'], ['401','unauthorized','auth'], ['cors','cross'], ['timeout','zaman'], ['ssl','certificate']],
-    minScore: 3,
-    modelAnswerTr: 'ECONNREFUSED → sunucu çalışmıyor veya yanlış port, önce sunucuyu başlat. 401 Unauthorized → auth header veya token eksik/hatalı, Bearer token\'ı kontrol et. CORS hatası → bu frontend için sorun, Postman direkt API\'ye gittiğinden normalde etkilenmez. Timeout → ağ gecikmesi veya sunucu yük altında, timeout değerini artır veya stub kullan. SSL hataları → sertifika doğrulamayı geçici kapat (test ortamında).',
-    modelAnswerEn: 'ECONNREFUSED → server not running or wrong port, start the server first. 401 Unauthorized → auth header or token missing/wrong, check the Bearer token. CORS error → this is a frontend issue, Postman goes directly to the API so it is normally not affected. Timeout → network delay or server under load, increase timeout value or use a stub. SSL errors → temporarily disable certificate validation in test environments.',
-  },
-  {
-    sectionIndex: 7,
-    promptTr: 'Bir Postman mülakatında sana "Koleksiyon bazlı test stratejisi nedir?" diye sorsalar ne cevap verirsin?',
-    promptEn: 'If asked in a Postman interview "What is a collection-based testing strategy?", what would you say?',
-    keywords: [['collection','koleksiyon'], ['environment','ortam'], ['newman','cli'], ['chain','zincir'], ['ci','pipeline']],
-    minScore: 3,
-    modelAnswerTr: 'Koleksiyon bazlı test stratejisi: ilgili API isteklerini mantıksal koleksiyonlarda grupla (kullanıcı, sipariş, ödeme gibi). Her isteğin Tests sekmesine assertion ekle. Environment değişkenleriyle dev/staging/prod arası geç. İstekler arası zincir kur: login yanıtından token\'ı alıp sonraki isteğe aktar. Newman ile CI/CD\'ye entegre et. Böylece her deployment öncesinde otomatik smoke test çalışır.',
-    modelAnswerEn: 'Collection-based testing strategy: group related API requests into logical collections (users, orders, payments). Add assertions in the Tests tab of each request. Switch between dev/staging/prod with environment variables. Chain requests: grab the token from login response and pass it to the next request. Integrate with CI/CD via Newman. This way an automatic smoke test runs before every deployment.',
-  },
-]
-
-fillMissingFeynman(postmanData, postmanFeynmanDefs)
