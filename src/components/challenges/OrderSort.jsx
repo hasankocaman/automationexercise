@@ -85,7 +85,7 @@ export default function OrderSort({ block, isTr, darkMode, onResult }) {
                     {isTr ? 'Kontrol Et' : 'Check Order'}
                 </button>
             ) : (
-                <div className={`mt-3 rounded-lg border px-3 py-2 text-xs font-bold ${items.every((it, idx) => it.order === idx + 1) ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/40 bg-rose-500/10 text-rose-300'}`}>
+                <div className={`mt-3 rounded-lg border px-3 py-2 text-xs font-bold ${items.every((it, idx) => it.order === idx + 1) ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-rose-500/40 bg-rose-500/10 ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}`}>
                     {items.every((it, idx) => it.order === idx + 1)
                         ? (isTr ? '🎉 Doğru sıra!' : '🎉 Correct order!')
                         : (isTr ? '🔧 Kırmızı satırlar yanlış yerde — Tekrar Dene ile yeni bir karışık sıra dene.' : '🔧 The red rows are out of place — hit Try Again for a fresh shuffle.')}

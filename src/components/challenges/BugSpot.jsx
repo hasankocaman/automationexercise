@@ -8,7 +8,7 @@ function pick(value, isTr) {
 
 // Click the line that contains the bug. Locks after the first click; reveals
 // the actual buggy line (and its explanation) regardless of whether the pick was right.
-export default function BugSpot({ block, isTr, onResult }) {
+export default function BugSpot({ block, isTr, darkMode, onResult }) {
     const [clickedId, setClickedId] = useState(null)
     const lines = block.lines
     const buggyLine = lines.find(l => l.hasBug)
@@ -55,7 +55,7 @@ export default function BugSpot({ block, isTr, onResult }) {
             </div>
 
             {answered && (
-                <div className={`mt-3 rounded-lg border px-3 py-2 text-xs font-bold ${clickedId === buggyLine.id ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/40 bg-rose-500/10 text-rose-300'}`}>
+                <div className={`mt-3 rounded-lg border px-3 py-2 text-xs font-bold ${clickedId === buggyLine.id ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-rose-500/40 bg-rose-500/10 ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}`}>
                     {clickedId === buggyLine.id
                         ? '✓ '
                         : `⚠ ${isTr ? `Hata satır ${buggyLine.id}'de` : `The bug is on line ${buggyLine.id}`} — `}

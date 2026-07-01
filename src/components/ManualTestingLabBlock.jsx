@@ -128,30 +128,36 @@ function BugReportForm({ isTr, darkMode, onSubmit }) {
     )
 }
 
-const PILL_TONE_CLS = {
-    emerald: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-    amber: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
-    rose: 'border-rose-500/40 bg-rose-500/10 text-rose-300',
+function pillToneCls(tone, darkMode) {
+    const map = {
+        emerald: darkMode ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-emerald-500/40 bg-emerald-50 text-emerald-700',
+        amber:   darkMode ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'       : 'border-amber-500/40 bg-amber-50 text-amber-700',
+        rose:    darkMode ? 'border-rose-500/40 bg-rose-500/10 text-rose-300'           : 'border-rose-500/40 bg-rose-50 text-rose-700',
+    }
+    return map[tone] || map.amber
 }
 
-const RESULT_TONE_CLS = {
-    emerald: { panel: 'border-emerald-500/40 bg-emerald-500/10', text: 'text-emerald-300' },
-    sky: { panel: 'border-sky-500/40 bg-sky-500/10', text: 'text-sky-300' },
-    amber: { panel: 'border-amber-500/40 bg-amber-500/10', text: 'text-amber-300' },
-    rose: { panel: 'border-rose-500/40 bg-rose-500/10', text: 'text-rose-300' },
+function resultToneCls(tone, darkMode) {
+    const map = {
+        emerald: { panel: darkMode ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-emerald-500/40 bg-emerald-50', text: darkMode ? 'text-emerald-300' : 'text-emerald-700' },
+        sky:     { panel: darkMode ? 'border-sky-500/40 bg-sky-500/10'         : 'border-sky-500/40 bg-sky-50',         text: darkMode ? 'text-sky-300'     : 'text-sky-700' },
+        amber:   { panel: darkMode ? 'border-amber-500/40 bg-amber-500/10'     : 'border-amber-500/40 bg-amber-50',     text: darkMode ? 'text-amber-300'   : 'text-amber-700' },
+        rose:    { panel: darkMode ? 'border-rose-500/40 bg-rose-500/10'       : 'border-rose-500/40 bg-rose-50',       text: darkMode ? 'text-rose-300'    : 'text-rose-700' },
+    }
+    return map[tone] || map.amber
 }
 
-function ScorePill({ score, max }) {
+function ScorePill({ score, max, darkMode }) {
     const ratio = max ? score / max : 0
     const tone = ratio >= 0.8 ? 'emerald' : ratio >= 0.5 ? 'amber' : 'rose'
     return (
-        <span className={`rounded-md border px-2 py-0.5 text-xs font-black ${PILL_TONE_CLS[tone]}`}>
+        <span className={`rounded-md border px-2 py-0.5 text-xs font-black ${pillToneCls(tone, darkMode)}`}>
             {score}/{max}
         </span>
     )
 }
 
-function ResultFeedback({ result, isTr }) {
+function ResultFeedback({ result, isTr, darkMode }) {
     const { total, titleScore, stepsScore, eaScore, sevScore, xpEarned } = result
     const tone = total >= 80 ? 'emerald' : total >= 60 ? 'sky' : total >= 40 ? 'amber' : 'rose'
     const headline = total >= 80
@@ -161,15 +167,16 @@ function ResultFeedback({ result, isTr }) {
             : total >= 40
                 ? (isTr ? '🙂 Fena değil, ama eksikler var.' : '🙂 Not bad, but missing some parts.')
                 : (isTr ? '🔧 Bu rapor yeniden üretilemez/anlaşılmaz olabilir.' : '🔧 This report may not be reproducible or clear.')
+    const toneCls = resultToneCls(tone, darkMode)
 
     return (
-        <div className={`rounded-lg border p-4 ${RESULT_TONE_CLS[tone].panel}`}>
-            <div className={`text-sm font-black ${RESULT_TONE_CLS[tone].text}`}>{headline} ({total}/100, +{xpEarned} XP)</div>
+        <div className={`rounded-lg border p-4 ${toneCls.panel}`}>
+            <div className={`text-sm font-black ${toneCls.text}`}>{headline} ({total}/100, +{xpEarned} XP)</div>
             <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                <span>{isTr ? 'Başlık' : 'Title'} <ScorePill score={titleScore} max={20} /></span>
-                <span>{isTr ? 'Adımlar' : 'Steps'} <ScorePill score={stepsScore} max={30} /></span>
-                <span>{isTr ? 'Beklenen/Gerçek' : 'Expected/Actual'} <ScorePill score={eaScore} max={30} /></span>
-                <span>{isTr ? 'Severity' : 'Severity'} <ScorePill score={sevScore} max={20} /></span>
+                <span>{isTr ? 'Başlık' : 'Title'} <ScorePill score={titleScore} max={20} darkMode={darkMode} /></span>
+                <span>{isTr ? 'Adımlar' : 'Steps'} <ScorePill score={stepsScore} max={30} darkMode={darkMode} /></span>
+                <span>{isTr ? 'Beklenen/Gerçek' : 'Expected/Actual'} <ScorePill score={eaScore} max={30} darkMode={darkMode} /></span>
+                <span>{isTr ? 'Severity' : 'Severity'} <ScorePill score={sevScore} max={20} darkMode={darkMode} /></span>
             </div>
         </div>
     )
@@ -263,7 +270,7 @@ export default function ManualTestingLabBlock({ darkMode, language }) {
                 <BuggyLoginForm isTr={isTr} darkMode={darkMode} />
                 <BugReportForm isTr={isTr} darkMode={darkMode} onSubmit={handleReportSubmit} />
             </div>
-            {lastResult && <ResultFeedback result={lastResult} isTr={isTr} />}
+            {lastResult && <ResultFeedback result={lastResult} isTr={isTr} darkMode={darkMode} />}
         </div>
     )
 }

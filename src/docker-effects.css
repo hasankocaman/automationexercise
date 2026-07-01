@@ -1,23 +1,45 @@
 /* ═════════════════════════════════════════════════════════════════
-   Docker Page — Nexus-İlhamlı Görsel Efektler (Tam Sürüm)
+   Docker Page — Sıcak Orman Paleti + Squash/Ripple/LayerCake
    Tüm stiller .docker-page wrapper'a scope'lu.
    Fare imleci değiştirilmez — tamamen tarayıcı varsayılanı.
    ═════════════════════════════════════════════════════════════════ */
 
-/* ── 1. Ambient Arka Plan Işıması + Parallax Hedefi ───────────── */
+/* ── 0. Palette CSS Variables ────────────────────────────────── */
+/* WCAG AA kontrastları (hesaplandı):
+   text-primary (#e8ecdf) / bg-primary (#1a2420) → 13.3:1  ✅
+   text-muted   (#9aa896) / bg-primary           →  6.4:1  ✅
+   accent       (#e2843d) / bg-primary           →  5.8:1  ✅
+   accent       (#e2843d) / bg-secondary         →  5.0:1  ✅
+   accent       (#e2843d) / bg-tertiary (#273830)→  4.6:1  ✅  (darkened)
+   success      (#6fbf73) / bg-primary           →  7.1:1  ✅
+   warning      (#f0b84e) / bg-primary           →  8.9:1  ✅
+   error        (#e26a5c) / bg-primary           →  4.9:1  ✅               */
 .docker-page {
+  --docker-bg-primary:   #1a2420;
+  --docker-bg-secondary: #22302a;
+  --docker-bg-tertiary:  #273830;
+  --docker-text-primary: #e8ecdf;
+  --docker-text-muted:   #9aa896;
+  --docker-accent:       #e2843d;
+  --docker-accent-light: #f2a865;
+  --docker-success:      #6fbf73;
+  --docker-warning:      #f0b84e;
+  --docker-error:        #e26a5c;
   position: relative;
 }
 
-/* --dp-scroll-y JS tarafından scroll'a göre güncellenir */
+/* ── 1. Ambient Arka Plan Işıması + Parallax ─────────────────── */
+/* --dp-scroll-y JS tarafından güncellenir */
 .docker-page::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse at 15% 20%, rgba(6, 182, 212, 0.09) 0%, transparent 52%),
-    radial-gradient(ellipse at 85% 80%, rgba(59, 130, 246, 0.09) 0%, transparent 52%),
-    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 65%);
+    radial-gradient(ellipse at 15% 20%, rgba(226, 132,  61, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(111, 191, 115, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(226, 132,  61, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(240, 184,  78, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(111, 191, 115, 0.05) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
   animation: dp-glow-pulse 9s ease-in-out infinite alternate;
@@ -42,8 +64,8 @@
 
 @keyframes dp-float {
   0%   { transform: translateY(105vh); opacity: 0; }
-  8%   { opacity: 0.5; }
-  92%  { opacity: 0.5; }
+  8%   { opacity: 0.45; }
+  92%  { opacity: 0.45; }
   100% { transform: translateY(-10vh); opacity: 0; }
 }
 
@@ -61,12 +83,18 @@
 
 /* ── 4. Sekme Başlığı — Hareketli Gradient Metin ──────────────── */
 .docker-page .flex-1.min-w-0 > div:first-child > h2 {
-  background: linear-gradient(135deg, #06b6d4, #60a5fa, #0ea5e9, #06b6d4);
+  background: linear-gradient(
+    135deg,
+    var(--docker-accent),
+    var(--docker-accent-light),
+    var(--docker-success),
+    var(--docker-accent)
+  );
   background-size: 260% 260%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #06b6d4;
+  color: var(--docker-accent);
   display: inline-block;
   animation: dp-gradient-shift 5s ease infinite;
 }
@@ -77,49 +105,56 @@
   100% { background-position: 0% 50%; }
 }
 
-/* ── 5. Ana İçerik Kartı — Glassmorphism ─────────────────────── */
+/* ── 5. Ana İçerik Kartı — Amber/Orman Glassmorphism ─────────── */
 .docker-page .flex-1.min-w-0 > div:first-child {
-  background: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(6, 182, 212, 0.18) !important;
+  background: rgba(254, 252, 248, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(226, 132, 61, 0.16) !important;
   box-shadow:
-    0 0 0 1px rgba(6, 182, 212, 0.06),
-    0 24px 64px rgba(6, 182, 212, 0.07) !important;
-  transform-style: preserve-3d;
+    0 0 0 1px rgba(226, 132,  61, 0.05),
+    0 0 0 3px rgba(111, 191, 115, 0.03),
+    0 24px 64px rgba(226, 132,  61, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
 }
 
 .dark-mode .docker-page .flex-1.min-w-0 > div:first-child,
 [data-theme="dark"] .docker-page .flex-1.min-w-0 > div:first-child {
-  background: rgba(17, 24, 39, 0.84) !important;
-  border: 1px solid rgba(6, 182, 212, 0.14) !important;
+  background: rgba(26, 36, 32, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(226, 132, 61, 0.13) !important;
   box-shadow:
-    0 0 0 1px rgba(6, 182, 212, 0.05),
-    0 24px 64px rgba(6, 182, 212, 0.07) !important;
+    0 0 0 1px rgba(226, 132,  61, 0.04),
+    0 0 0 3px rgba(111, 191, 115, 0.02),
+    0 24px 64px rgba(226, 132,  61, 0.06),
+    inset 0 1px 0 rgba(111, 191, 115, 0.06) !important;
 }
 
 .docker-page .flex-1.min-w-0 > div:first-child:hover {
-  border-color: rgba(6, 182, 212, 0.35) !important;
+  border-color: rgba(226, 132, 61, 0.30) !important;
   box-shadow:
-    0 0 0 1px rgba(6, 182, 212, 0.12),
-    0 24px 64px rgba(6, 182, 212, 0.12) !important;
+    0 0 0 1px rgba(226, 132,  61, 0.10),
+    0 0 0 3px rgba(111, 191, 115, 0.04),
+    0 24px 64px rgba(226, 132,  61, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
 }
 
-/* ── 6. İçerik Blokları (dp-block) — Cyan Glow + 3D Tilt ─────── */
+/* ── 6. İçerik Blokları (dp-block) — Amber Glow + 3D Tilt ───── */
 .docker-page .dp-block {
-  border-color: rgba(6, 182, 212, 0.14) !important;
+  border-color: rgba(226, 132, 61, 0.11) !important;
   transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
   transform-style: preserve-3d;
 }
 
 .docker-page .dp-block:hover {
-  border-color: rgba(6, 182, 212, 0.38) !important;
+  border-color: rgba(226, 132, 61, 0.28) !important;
   box-shadow:
-    0 4px 24px rgba(6, 182, 212, 0.10),
-    0 1px 4px rgba(0, 0, 0, 0.06) !important;
+    0 4px 24px rgba(226, 132, 61, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* ── 7. Hero Glitch Efekti ────────────────────────────────────── */
+/* ── 7. Hero Glitch — Amber + Orman Yeşili ────────────────────── */
 .dp-glitch {
   position: relative;
 }
@@ -132,57 +167,76 @@
   pointer-events: none;
 }
 
-/* Beyaz/açık efekt — hero'nun renkli arka planında görünür */
 .dp-glitch::before {
-  color: rgba(255, 255, 255, 0.80);
+  color: rgba(226, 132,  61, 0.72);
   animation: dp-glitch-1 5s infinite;
   clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
   z-index: -1;
 }
 
 .dp-glitch::after {
-  color: rgba(6, 182, 212, 0.75);
+  color: rgba(111, 191, 115, 0.60);
   animation: dp-glitch-2 5s infinite;
   clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
   z-index: -2;
 }
 
-/* Efekt aralıklı (çoğunlukla durgun, nadiren titrer) */
 @keyframes dp-glitch-1 {
   0%, 80%, 100% { transform: translate(0, 0); }
-  82%            { transform: translate(-3px,  1px); }
-  84%            { transform: translate( 2px, -2px); }
-  86%            { transform: translate(-1px,  2px); }
-  88%            { transform: translate(0, 0); }
+  82%           { transform: translate(-3px,  1px); }
+  84%           { transform: translate( 2px, -2px); }
+  86%           { transform: translate(-1px,  2px); }
+  88%           { transform: translate(0, 0); }
 }
 
 @keyframes dp-glitch-2 {
   0%, 80%, 100% { transform: translate(0, 0); }
-  82%            { transform: translate( 3px, -1px); }
-  84%            { transform: translate(-2px,  2px); }
-  86%            { transform: translate( 1px, -1px); }
-  88%            { transform: translate(0, 0); }
+  82%           { transform: translate( 3px, -1px); }
+  84%           { transform: translate(-2px,  2px); }
+  86%           { transform: translate( 1px, -1px); }
+  88%           { transform: translate(0, 0); }
 }
 
-/* ── 8. Stats Bar (extraBanner) ───────────────────────────────── */
+/* ── 8. Asimetrik Hero Banner Düzeni ─────────────────────────── */
+/* Sol: Layer Cake (1.4fr), Sağ: Stats 2×2 (1fr) */
+.dp-hero-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 680px) {
+  .dp-hero-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 9. Stats Panel (sağ bölme) ───────────────────────────────── */
 .dp-stats-bar {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
-  border-radius: 16px;
-  background: rgba(6, 182, 212, 0.05);
-  border: 1px solid rgba(6, 182, 212, 0.16);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(226, 132, 61, 0.04);
+  border: 1px solid rgba(226, 132, 61, 0.16);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow:
+    0 0 0 1px rgba(111, 191, 115, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: dp-stats-border-pulse 4s ease-in-out infinite alternate;
 }
 
-@media (max-width: 640px) {
-  .dp-stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    padding: 0.75rem;
+@keyframes dp-stats-border-pulse {
+  from {
+    border-color: rgba(226, 132,  61, 0.16);
+    box-shadow: 0 0 0 1px rgba(111, 191, 115, 0.04), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  to {
+    border-color: rgba(111, 191, 115, 0.26);
+    box-shadow: 0 0 0 1px rgba(226, 132, 61, 0.09), 0 0 14px rgba(111, 191, 115, 0.06), inset 0 1px 0 rgba(255,255,255,0.04);
   }
 }
 
@@ -193,7 +247,6 @@
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-/* Animasyon başlamadan önce JS tarafından eklenir */
 .dp-stat-item.dp-stat-pending {
   opacity: 0;
   transform: translateY(20px);
@@ -212,43 +265,158 @@
 }
 
 .dp-stat-num {
-  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  background: linear-gradient(135deg, var(--docker-accent, #e2843d), var(--docker-success, #6fbf73));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #06b6d4;
+  color: var(--docker-accent, #e2843d);
   line-height: 1.1;
 }
 
 .dp-stat-suffix {
-  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
   font-weight: 700;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  background: linear-gradient(135deg, var(--docker-accent, #e2843d), var(--docker-success, #6fbf73));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #06b6d4;
+  color: var(--docker-accent, #e2843d);
 }
 
 .dp-stat-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
   margin-top: 0.2rem;
 }
 
-/* ── 9. Magnetic Buton geçiş desteği ─────────────────────────── */
-/* JS tarafından inline style ile yönetilir; bu class sadece
-   index.css'teki !important scale geçişini override etmek için */
-.dp-magnetic-init.no-hover-scale {
-  /* no-hover-scale zaten scale'i kapatır; transition JS'den gelir */
+/* ── 10. Layer Cake Paneli (sol bölme) ────────────────────────── */
+.dp-layer-cake {
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(111, 191, 115, 0.04);
+  border: 1px solid rgba(111, 191, 115, 0.13);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;       /* grid hücresinin taşmasını önler */
+  overflow: visible;  /* fan açılması için kesilmez */
 }
 
-/* ── 10. Reduced Motion — tüm animasyonları kapat ─────────────── */
+.dp-layer-cake-title {
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--docker-text-muted, #9aa896);
+  margin-bottom: 0.65rem;
+  position: relative;  /* stacking context */
+  z-index: 20;         /* tüm katmanların (max z-index: 5) üzerinde kalır */
+}
+
+/* Katman yığını — hover'da fan açılır */
+.dp-layers {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem; /* fan açılırken aşağı taşma için */
+  isolation: isolate;     /* z-index değerlerini bu container'la sınırlar */
+}
+
+.dp-layer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: default;
+  user-select: none;
+  margin-bottom: -3px; /* hafif üst üste — katman etkisi */
+  transform: translateY(0) translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease;
+  position: relative;
+  z-index: var(--layer-z, 1);
+  will-change: transform;
+  min-width: 0;
+  overflow: hidden; /* metin taşmasını önler */
+}
+
+.dp-layer-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.dp-layer-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Fan açılma: container hover'ında her katman farklı mesafeye kayar */
+.dp-layers:hover .dp-layer:nth-child(1) { transform: translateY(-30px) translateZ(0); }
+.dp-layers:hover .dp-layer:nth-child(2) { transform: translateY(-18px) translateZ(0); }
+.dp-layers:hover .dp-layer:nth-child(3) { transform: translateY( -8px) translateZ(0); }
+.dp-layers:hover .dp-layer:nth-child(4) { transform: translateY(  2px) translateZ(0); }
+.dp-layers:hover .dp-layer:nth-child(5) { transform: translateY(  9px) translateZ(0); }
+
+.dp-layers:hover .dp-layer {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* ── 11. Squash & Stretch Buton Animasyonu ────────────────────── */
+.docker-page .dp-magnetic-init {
+  position: relative;
+  overflow: hidden;
+}
+
+/* JS tarafından pointerdown'da eklenir/kaldırılır */
+.dp-squash {
+  animation: dp-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important;
+  transform: none !important; /* magnetic transform'u geçersiz kıl */
+}
+
+@keyframes dp-squash-anim {
+  0%   { transform: scale(1.00, 1.00); }
+  22%  { transform: scaleX(1.16) scaleY(0.84); }
+  55%  { transform: scaleX(0.96) scaleY(1.05); }
+  80%  { transform: scaleX(1.01) scaleY(0.99); }
+  100% { transform: scale(1.00, 1.00); }
+}
+
+/* ── 12. Ripple — JS tarafından span oluşturulur ─────────────── */
+.dp-ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0.30;
+  pointer-events: none;
+  animation: dp-ripple-anim 0.55s ease-out forwards;
+}
+
+@keyframes dp-ripple-anim {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* ── 13. Reduced Motion — tüm animasyonları kapat ─────────────── */
 @media (prefers-reduced-motion: reduce) {
   .docker-page::before                                     { animation: none; opacity: 0.7; transform: none !important; }
   .dp-particle                                             { animation: none; opacity: 0; }
@@ -256,4 +424,9 @@
   .dp-reveal                                               { opacity: 1 !important; transform: none !important; transition: none !important; }
   .dp-glitch::before, .dp-glitch::after                   { animation: none; }
   .dp-stat-item, .dp-stat-item.dp-stat-pending             { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .dp-stats-bar                                            { animation: none; }
+  .dp-squash                                               { animation: none !important; }
+  .dp-ripple-span                                          { display: none; }
+  .dp-layers .dp-layer                                     { transition: none !important; }
+  .dp-layers:hover .dp-layer                               { transform: none !important; }
 }

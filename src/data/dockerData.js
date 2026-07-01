@@ -11,33 +11,33 @@ const dockerIntroInteractiveBlocks = [
       en: 'Goal: Feel the Image vs Container difference through commands. Java analogy: an image is like a class, docker run is like new creating a live object.',
     },
     explanation: {
-      tr: 'TODO alanlarını doldur: image çek, aynı image\'dan isimli ve port eşlemeli bir container başlat, sonra docker ps ile canlı instance\'ı gör.',
-      en: 'Fill the TODO parts: pull an image, start a named container with port mapping, then inspect the live instance with docker ps.',
+      tr: 'Yukarıdaki referansa bakarak boşlukları doldur: image çek, aynı image\'dan isimli ve port eşlemeli container başlat, sonra docker ps ile canlı instance\'ı gör.',
+      en: 'Using the reference above, fill in the blanks: pull an image, start a named container with port mapping, then inspect the live instance with docker ps.',
     },
     code: {
       tr: `# Image'i indir
 docker pull nginx:latest
 
-# TODO: qa-nginx adında, 8080 -> 80 port eşlemeli container başlat
-docker run TODO
+# qa-nginx adında, 8080 -> 80 port eşlemeli container başlat
+docker run -d --name qa-nginx -p 8080:80 nginx:latest
 
 # Çalışan instance'ı filtrele
 docker ps --filter name=qa-nginx`,
       en: `# Download the image
 docker pull nginx:latest
 
-# TODO: start a container named qa-nginx with 8080 -> 80 port mapping
-docker run TODO
+# Start a container named qa-nginx with 8080 -> 80 port mapping
+docker run -d --name qa-nginx -p 8080:80 nginx:latest
 
 # Filter the running instance
 docker ps --filter name=qa-nginx`,
     },
     starterCode: {
       tr: `docker pull nginx:latest
-docker run TODO
+docker run ___ --name qa-nginx ___ nginx:latest
 docker ps --filter name=qa-nginx`,
       en: `docker pull nginx:latest
-docker run TODO
+docker run ___ --name qa-nginx ___ nginx:latest
 docker ps --filter name=qa-nginx`,
     },
     solutionCode: {
@@ -105,30 +105,40 @@ const dockerInstallationInteractiveBlocks = [
       en: 'Order matters: check the CLI version first, then daemon info, then run the hello-world container.',
     },
     code: {
-      tr: `# TODO: CLI sürümünü kontrol et
-TODO
+      tr: `# CLI sürümünü kontrol et
+docker --version
 
-# TODO: Docker daemon çalışıyor mu kontrol et
-TODO
+# Docker daemon çalışıyor mu kontrol et (daemon kapalıysa hata verir)
+docker info
 
-# TODO: test container'ı çalıştır
-TODO`,
-      en: `# TODO: check the CLI version
-TODO
+# Uçtan uca kurulum testi — image indir ve container çalıştır
+docker run hello-world`,
+      en: `# Check the CLI version
+docker --version
 
-# TODO: check whether the Docker daemon is running
-TODO
+# Check whether the Docker daemon is running (errors if daemon is stopped)
+docker info
 
-# TODO: run the test container
-TODO`,
+# End-to-end install test — download image and run container
+docker run hello-world`,
     },
     starterCode: {
-      tr: `TODO
-TODO
-TODO`,
-      en: `TODO
-TODO
-TODO`,
+      tr: `# CLI sürümünü kontrol et
+docker ___
+
+# Daemon sağlık kontrolü
+docker ___
+
+# Test container'ı çalıştır
+docker run ___`,
+      en: `# Check the CLI version
+docker ___
+
+# Daemon health check
+docker ___
+
+# Run the test container
+docker run ___`,
     },
     solutionCode: {
       tr: `docker --version
@@ -191,18 +201,18 @@ const dockerCoreCommandInteractiveBlocks = [
       en: 'Goal: Turn docker run flag order into muscle memory. Command flags belong before the image name; text after the image can be interpreted as the command inside the container.',
     },
     explanation: {
-      tr: 'TODO alanını detached, isimli, port eşlemeli ve volume mount\'lu çalışacak şekilde doldur.',
-      en: 'Fill TODO so the container runs detached, named, port-mapped, and with a mounted reports folder.',
+      tr: 'Referanstaki tam komutu incele, sonra editörde boşlukları doldur: -d, --name, -p ve -v flag\'lerini doğru sırayla yaz.',
+      en: 'Study the complete command in the reference above, then fill the blanks in the editor: write -d, --name, -p, and -v flags in the right order.',
     },
     code: {
-      tr: `# TODO: nginx'i arka planda çalıştır, ad ver, port ve rapor klasörü bağla
-docker run TODO nginx:latest`,
-      en: `# TODO: run nginx in the background, name it, map a port, and mount reports
-docker run TODO nginx:latest`,
+      tr: `# nginx'i arka planda çalıştır, ad ver, port ve rapor klasörü bağla
+docker run -d --name qa-nginx -p 8080:80 -v $(pwd)/reports:/usr/share/nginx/html/reports nginx:latest`,
+      en: `# Run nginx in the background, name it, map a port, and mount reports
+docker run -d --name qa-nginx -p 8080:80 -v $(pwd)/reports:/usr/share/nginx/html/reports nginx:latest`,
     },
     starterCode: {
-      tr: `docker run TODO nginx:latest`,
-      en: `docker run TODO nginx:latest`,
+      tr: `docker run ___ --name qa-nginx ___ nginx:latest`,
+      en: `docker run ___ --name qa-nginx ___ nginx:latest`,
     },
     solutionCode: {
       tr: `docker run -d --name qa-nginx -p 8080:80 -v $(pwd)/reports:/usr/share/nginx/html/reports nginx:latest`,
@@ -268,15 +278,23 @@ const dockerComposeInteractiveBlocks = [
       tr: `FROM python:3.12-slim
 WORKDIR /app
 
-# TODO: cache dostu sırayı kur
-TODO
+# Önce bağımlılık manifestini kopyala (az değişen katman)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Sonra kaynak kodu kopyala (sık değişen katman)
+COPY . .
 
 CMD ["pytest", "tests/"]`,
       en: `FROM python:3.12-slim
 WORKDIR /app
 
-# TODO: build a cache-friendly order
-TODO
+# Copy the dependency manifest first (rarely changing layer)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code last (frequently changing layer)
+COPY . .
 
 CMD ["pytest", "tests/"]`,
     },
@@ -361,24 +379,32 @@ const dockerQaInteractiveBlocks = [
       en: 'Mount the project folder as /app, set /app as the working directory, and mount the report folder back to the host.',
     },
     code: {
-      tr: `# TODO: Playwright container'ını raporlar host'ta kalacak şekilde çalıştır
+      tr: `# Playwright container'ını raporlar host'ta kalacak şekilde çalıştır
 docker run --rm \\
-  TODO \\
+  -v $(pwd):/app \\
+  -v $(pwd)/playwright-report:/app/playwright-report \\
+  -w /app \\
   mcr.microsoft.com/playwright:v1.42.0-jammy \\
   bash -c "npm ci && npx playwright test --reporter=html"`,
-      en: `# TODO: run the Playwright container while keeping reports on the host
+      en: `# Run the Playwright container while keeping reports on the host
 docker run --rm \\
-  TODO \\
+  -v $(pwd):/app \\
+  -v $(pwd)/playwright-report:/app/playwright-report \\
+  -w /app \\
   mcr.microsoft.com/playwright:v1.42.0-jammy \\
   bash -c "npm ci && npx playwright test --reporter=html"`,
     },
     starterCode: {
       tr: `docker run --rm \\
-  TODO \\
+  ___ \\
+  ___ \\
+  -w /app \\
   mcr.microsoft.com/playwright:v1.42.0-jammy \\
   bash -c "npm ci && npx playwright test --reporter=html"`,
       en: `docker run --rm \\
-  TODO \\
+  ___ \\
+  ___ \\
+  -w /app \\
   mcr.microsoft.com/playwright:v1.42.0-jammy \\
   bash -c "npm ci && npx playwright test --reporter=html"`,
     },
@@ -449,26 +475,26 @@ const dockerEcosystemInteractiveBlocks = [
       en: 'Goal: Use the same image tag across build, test, and push for each commit. Java analogy: keep the Maven artifact version stable through build/test/deploy.',
     },
     explanation: {
-      tr: 'TODO alanlarını aynı $COMMIT_SHA tag\'iyle doldur; build edilen artifact ile test edilen artifact aynı olmalı.',
-      en: 'Fill TODO with the same $COMMIT_SHA tag; the artifact you build and the artifact you test must be identical.',
+      tr: 'Referanstaki üç satırda da ___ yerine aynı $COMMIT_SHA değişkenini yaz; build edilen artifact ile test edilen artifact aynı olmalı.',
+      en: 'Replace ___ on all three lines with the same $COMMIT_SHA variable; the artifact you build and the artifact you test must be identical.',
     },
     code: {
-      tr: `# TODO: aynı commit tag'i build, test ve push boyunca kullan
-docker build -t registry.example.com/qa-app:TODO .
-docker run --rm registry.example.com/qa-app:TODO pytest
-docker push registry.example.com/qa-app:TODO`,
-      en: `# TODO: use the same commit tag through build, test, and push
-docker build -t registry.example.com/qa-app:TODO .
-docker run --rm registry.example.com/qa-app:TODO pytest
-docker push registry.example.com/qa-app:TODO`,
+      tr: `# Aynı commit tag'i build, test ve push boyunca kullan
+docker build -t registry.example.com/qa-app:$COMMIT_SHA .
+docker run --rm registry.example.com/qa-app:$COMMIT_SHA pytest
+docker push registry.example.com/qa-app:$COMMIT_SHA`,
+      en: `# Use the same commit tag through build, test, and push
+docker build -t registry.example.com/qa-app:$COMMIT_SHA .
+docker run --rm registry.example.com/qa-app:$COMMIT_SHA pytest
+docker push registry.example.com/qa-app:$COMMIT_SHA`,
     },
     starterCode: {
-      tr: `docker build -t registry.example.com/qa-app:TODO .
-docker run --rm registry.example.com/qa-app:TODO pytest
-docker push registry.example.com/qa-app:TODO`,
-      en: `docker build -t registry.example.com/qa-app:TODO .
-docker run --rm registry.example.com/qa-app:TODO pytest
-docker push registry.example.com/qa-app:TODO`,
+      tr: `docker build -t registry.example.com/qa-app:___ .
+docker run --rm registry.example.com/qa-app:___ pytest
+docker push registry.example.com/qa-app:___`,
+      en: `docker build -t registry.example.com/qa-app:___ .
+docker run --rm registry.example.com/qa-app:___ pytest
+docker push registry.example.com/qa-app:___`,
     },
     solutionCode: {
       tr: `docker build -t registry.example.com/qa-app:$COMMIT_SHA .

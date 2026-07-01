@@ -79,13 +79,13 @@ function ScenarioVisual({ lesson, darkMode }) {
             <div className={`rounded-lg border p-4 ${panel}`}>
                 <div className="grid gap-3 md:grid-cols-[1fr_1fr]">
                     <div className="rounded-lg border border-rose-400/40 bg-rose-500/10 p-3">
-                        <div className="text-xs font-black text-rose-300">Actual</div>
+                        <div className={`text-xs font-black ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>Actual</div>
                         <div className="mt-2 h-28 rounded-lg border border-rose-400/50 bg-slate-950 p-3">
                             <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-rose-300 border-t-transparent" />
                         </div>
                     </div>
                     <div className="rounded-lg border border-emerald-400/40 bg-emerald-500/10 p-3">
-                        <div className="text-xs font-black text-emerald-300">Evidence</div>
+                        <div className={`text-xs font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>Evidence</div>
                         <div className="mt-2 space-y-2 font-mono text-xs">
                             <div>device: Pixel 8</div>
                             <div>version: 2.8.1</div>
@@ -130,16 +130,16 @@ function ScenarioVisual({ lesson, darkMode }) {
     )
 }
 
-function Result({ show, solved, success, labels }) {
+function Result({ show, solved, success, labels, darkMode }) {
     if (!show) return null
     return (
-        <div className={`mt-3 rounded-lg border px-3 py-2 text-sm font-black ${solved ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+        <div className={`mt-3 rounded-lg border px-3 py-2 text-sm font-black ${solved ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
             {solved ? success : labels.wrong}
         </div>
     )
 }
 
-function ChecklistGame({ lesson, labels, onComplete }) {
+function ChecklistGame({ lesson, labels, onComplete, darkMode }) {
     const [selected, setSelected] = useState([])
     const [checked, setChecked] = useState(false)
     const required = lesson.game.required
@@ -165,12 +165,12 @@ function ChecklistGame({ lesson, labels, onComplete }) {
                 ))}
             </div>
             <button onClick={() => setChecked(true)} className="mt-3 min-h-10 rounded-lg bg-sky-600 px-4 text-sm font-black text-white">{labels.check}</button>
-            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} />
+            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} darkMode={darkMode} />
         </div>
     )
 }
 
-function SequenceGame({ lesson, labels, onComplete }) {
+function SequenceGame({ lesson, labels, onComplete, darkMode }) {
     const [items, setItems] = useState(lesson.game.items)
     const [dragIndex, setDragIndex] = useState(null)
     const [checked, setChecked] = useState(false)
@@ -219,12 +219,12 @@ function SequenceGame({ lesson, labels, onComplete }) {
                 ))}
             </div>
             <button onClick={() => setChecked(true)} className="mt-3 min-h-10 rounded-lg bg-emerald-600 px-4 text-sm font-black text-white">{labels.check}</button>
-            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} />
+            <Result show={checked} solved={solved} success={lesson.game.success} labels={labels} darkMode={darkMode} />
         </div>
     )
 }
 
-function ChoiceGame({ lesson, labels, onComplete }) {
+function ChoiceGame({ lesson, labels, onComplete, darkMode }) {
     const [selected, setSelected] = useState(null)
     const picked = lesson.game.options.find(option => option.id === selected)
     const solved = selected === lesson.game.correct
@@ -244,7 +244,7 @@ function ChoiceGame({ lesson, labels, onComplete }) {
                 ))}
             </div>
             {picked && (
-                <div className={`mt-3 rounded-lg border p-3 text-sm font-bold ${solved ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                <div className={`mt-3 rounded-lg border p-3 text-sm font-bold ${solved ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                     {picked.output || (solved ? lesson.game.success : labels.wrong)}
                 </div>
             )}
@@ -252,7 +252,7 @@ function ChoiceGame({ lesson, labels, onComplete }) {
     )
 }
 
-function SeverityGame({ lesson, labels, onComplete }) {
+function SeverityGame({ lesson, labels, onComplete, darkMode }) {
     const [assignments, setAssignments] = useState({})
     const [dragId, setDragId] = useState(null)
     const columns = ['critical', 'major', 'minor']
@@ -296,7 +296,7 @@ function SeverityGame({ lesson, labels, onComplete }) {
                     </div>
                 ))}
             </div>
-            {solved && <div className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black text-emerald-300">{lesson.game.success}</div>}
+            {solved && <div className={`mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{lesson.game.success}</div>}
         </div>
     )
 }
@@ -316,8 +316,8 @@ function DefectCard({ card, labels, onDragStart, onAssign }) {
     )
 }
 
-function GameBlock({ lesson, labels, onComplete }) {
-    const props = { lesson, labels, onComplete }
+function GameBlock({ lesson, labels, onComplete, darkMode }) {
+    const props = { lesson, labels, onComplete, darkMode }
 
     return (
         <div className="rounded-lg border border-slate-700 bg-slate-900/90 p-4">
@@ -604,7 +604,7 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode 
                         {lesson.shortTitle}
                     </span>
                     {complete && (
-                        <span className="inline-flex min-h-9 items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 text-xs font-black text-emerald-300">
+                        <span className={`inline-flex min-h-9 items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 text-xs font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
                             {labels.complete}
                         </span>
                     )}
@@ -619,7 +619,7 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode 
                     </div>
                     <div className="grid gap-4">
                         <ScenarioVisual lesson={lesson} darkMode={darkMode} />
-                        <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} />
+                        <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} darkMode={darkMode} />
                     </div>
                 </div>
 
@@ -666,7 +666,7 @@ function FinalQuiz({ quiz, labels, darkMode }) {
                                 </button>
                             ))}
                         </div>
-                        {answers[index] && <div className={`mt-3 text-sm font-bold ${answers[index] === item.answer ? 'text-emerald-300' : 'text-amber-300'}`}>{item.feedback}</div>}
+                        {answers[index] && <div className={`mt-3 text-sm font-bold ${answers[index] === item.answer ? (darkMode ? 'text-emerald-300' : 'text-emerald-700') : (darkMode ? 'text-amber-300' : 'text-amber-700')}`}>{item.feedback}</div>}
                     </div>
                 ))}
             </div>
@@ -726,7 +726,7 @@ function ManualTestingPage() {
                 <section className={`overflow-hidden rounded-lg border p-4 shadow-xl md:p-7 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
                     <div className="grid gap-6 lg:grid-cols-[1fr_460px] lg:items-center">
                         <div>
-                            <div className="inline-flex min-h-9 items-center rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 text-xs font-black uppercase text-sky-300">
+                            <div className={`inline-flex min-h-9 items-center rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 text-xs font-black uppercase ${darkMode ? 'text-sky-300' : 'text-sky-700'}`}>
                                 {data.hero.eyebrow}
                             </div>
                             <h1 className={`mt-4 text-3xl font-black leading-tight md:text-5xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.hero.title}</h1>

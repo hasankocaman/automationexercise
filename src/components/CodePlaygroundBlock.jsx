@@ -57,11 +57,11 @@ function nextSafeStep(diff, isTr) {
         : `Compare line ${diff.line} with "Expected", fix just that line, then check again.`
 }
 
-function DiagnosticPanel({ diff, isTr }) {
+function DiagnosticPanel({ diff, isTr, darkMode }) {
     if (!diff) return null
 
     return (
-        <div className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+        <div className={`mt-2 rounded-lg border border-amber-500/40 px-3 py-2 text-xs font-bold ${darkMode ? 'bg-amber-500/10 text-amber-300' : 'bg-amber-50 text-amber-700'}`}>
             <div>{isTr ? `Satır ${diff.line} farklı görünüyor.` : `Line ${diff.line} looks different.`}</div>
             <div className="mt-1 font-mono">
                 {isTr ? 'Beklenen' : 'Expected'}: {diff.expected || '(empty)'}
@@ -120,7 +120,7 @@ function HintPanel({ hints, isTr, darkMode, onReveal }) {
             {revealed.length > 0 && (
                 <div className="mb-2 grid gap-1.5">
                     {revealed.map((hint, idx) => (
-                        <div key={idx} className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-bold text-amber-300">
+                        <div key={idx} className={`rounded-md border border-amber-500/40 px-2 py-1.5 text-xs font-bold ${darkMode ? 'bg-amber-500/10 text-amber-300' : 'bg-amber-50 text-amber-700'}`}>
                             💡 {isTr ? `İpucu ${idx + 1}` : `Hint ${idx + 1}`}: {pick(hint, isTr)}
                         </div>
                     ))}
@@ -186,16 +186,16 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
                 )}
             </div>
             {result === 'pass' && (
-                <div className="mt-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-black text-emerald-300">
+                <div className={`mt-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-black ${darkMode ? 'bg-emerald-500/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700'}`}>
                     🎉 {isTr ? 'Doğru! Test artık geçiyor.' : 'Correct! The test passes now.'}
                 </div>
             )}
             {result === 'fail' && (
-                <div className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+                <div className={`mt-2 rounded-lg border border-amber-500/40 px-3 py-2 text-xs font-bold ${darkMode ? 'bg-amber-500/10 text-amber-300' : 'bg-amber-50 text-amber-700'}`}>
                     {isTr ? '🔧 Henüz değil, tekrar dene — İpucu butonuna göz at.' : "🔧 Not yet, try again — check the Hint button."}
                 </div>
             )}
-            <DiagnosticPanel diff={diff} isTr={isTr} />
+            <DiagnosticPanel diff={diff} isTr={isTr} darkMode={darkMode} />
         </div>
     )
 }
@@ -257,7 +257,7 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
 
             {result === 'pass' && (
                 <>
-                    <div className="mt-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-black text-emerald-300">
+                    <div className={`mt-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-black ${darkMode ? 'bg-emerald-500/10 text-emerald-300' : 'bg-emerald-50 text-emerald-700'}`}>
                         {isTr ? 'Doğru! Kod beklenen çözümle eşleşti.' : 'Correct! Your code matches the expected solution.'}
                     </div>
                     <TerminalRun text={expected || (isTr ? 'Test geçti.' : 'Test passed.')} isTr={isTr} runId={runId} />
@@ -265,10 +265,10 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
             )}
             {result === 'fail' && (
                 <>
-                    <div className="mt-2 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300">
+                    <div className={`mt-2 rounded-lg border border-rose-500/40 px-3 py-2 text-xs font-bold ${darkMode ? 'bg-rose-500/10 text-rose-300' : 'bg-rose-50 text-rose-700'}`}>
                         {isTr ? 'Henüz değil. Önce farklı satırı düzelt, sonra tekrar çalıştır.' : 'Not yet. Fix the different line first, then run again.'}
                     </div>
-                    <DiagnosticPanel diff={diff} isTr={isTr} />
+                    <DiagnosticPanel diff={diff} isTr={isTr} darkMode={darkMode} />
                 </>
             )}
         </div>

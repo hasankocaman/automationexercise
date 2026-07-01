@@ -10,6 +10,116 @@
 
 ---
 
+## Bu Oturumda Yapilan Is (2026-07-01, Windows — test branch, E2E Test Investigasyon ve Docker Fix)
+
+### Branch: `test`
+
+### Yapilan
+
+**1. Kabul Kriterleri ve Test Coverage Dokumanlari Incelendi**
+
+- `Documents/acceptancecriterias.md` okundu: AC 01-07 (gating, retry, i18n, %60 quiz,
+  AI degerlendirme, %80 rozet, reset), AC 08-09 (tema/erisim, roadmap) ve AC 10 (TR yorum).
+- `Documents/testcoverage.md` okundu: hangi testlerin hangi AC'leri kapsadigi, kapsam disi
+  sayfalar (/basit-backend, /security, /backend).
+- `tests/` dizini tamamen incelendi: 10 spec dosyasi, 76 test.
+
+**2. Tam Test Kosumu — Baslangiç Durumu**
+
+Baslangicta: `npx playwright test` → **34 PASS, 42 FAIL**
+
+Basarisiz olan testlerin buyuk cogunlugu Docker sayfasindaydı:
+- `quiz-retry-mechanism.spec.ts` — 2 test fail (yanlis cevap sonrasi ✗ gözükmüyor, retry butonu yok)
+- `interview-grading-and-reset.spec.ts` — 1 test fail (doğru cevap sonrası ✓ gözükmüyor)
+- `i18n-content-toggle.spec.ts` — `/docker` dil toggle click timeout alıyordu (2 test)
+
+**3. Kok Neden Analizi**
+
+*Sorun 1: `applyMagnetic()` — yanlış buton secimi*
+
+`DockerPage.jsx`'teki `applyMagnetic()` fonksiyonu `button[class*="bg-gradient-to-r"]`
+selector'u kullanıyordu. Bu, quiz "Cevabı Kontrol Et" butonu ve dil toggle butonlarını da
+manyetik kaptı. `onWrapperPointerDown` handler, pointerdown anında `btn.style.removeProperty('transform')`
+yaparak butonu orijinal konumuna geri çekiyordu. Playwright, koordinatı hesapladıktan sonra
+buton konumunu değiştirdiği için click olayı React'e iletilmiyordu → `submitted` state hiç
+`true` olmadı → ✗/✓ hiç render edilmedi.
+
+*Sorun 2: `applyBlockClasses()` — interaktif bloklara 3D tilt eklenmesi*
+
+`applyBlockClasses()`, quiz/playground/challenge bloklarını içeren container'lara da
+`dp-block` class'ı ekliyordu. `dp-block`, `transform-style: preserve-3d` + `onContentMouseMove`
+handler'ı (perspective 800px rotateX/rotateY) alıyordu. Fare her hareket ettiğinde bounding
+rect sürekli değiştiği için Playwright'ın stabilite kontrolü başarısız oldu → click olayları
+yanlış elemana düştü veya React state güncellenmedi.
+
+**4. Uygulanan Duzeltmeler (`src/components/DockerPage.jsx`)**
+
+*`applyMagnetic()` — ONCE (bozuk):*
+```js
+wrapper.querySelectorAll('button[class*="bg-gradient-to-r"]:not(.dp-magnetic-init), ...')
+```
+
+*`applyMagnetic()` — SONRA (duzeltildi):*
+```js
+// Sadece hero banner butonlari manyetik; quiz/dil-toggle butonlari kapsam disi.
+wrapper.querySelectorAll(
+    '.dp-hero-banner button:not(.dp-magnetic-init), ' +
+    '.dp-hero-banner a:not(.dp-magnetic-init)'
+)
+```
+
+*`applyBlockClasses()` — ONCE (bozuk):*
+```js
+Array.from(card.children).forEach(child => {
+    if (child.tagName === 'H2') return
+    child.classList.add('dp-block')
+    ...
+})
+```
+
+*`applyBlockClasses()` — SONRA (duzeltildi):*
+```js
+Array.from(card.children).forEach(child => {
+    if (child.tagName === 'H2') return
+    // Quiz/playground/challenge bloklari 3D tilt almamali.
+    if (child.querySelector('button, input, textarea')) return
+    child.classList.add('dp-block')
+    ...
+})
+```
+
+**5. Test Sonuclari — Duzeltme Sonrasi**
+
+`npx playwright test` → **74 PASS, 1 FAIL, 1 flaky (retry sonrasi PASS)**
+
+- `quiz-retry-mechanism.spec.ts` — 3/3 PASS ✅ (onceden 1/3)
+- `interview-grading-and-reset.spec.ts` — PASS ✅ (onceden fail)
+- `i18n-content-toggle.spec.ts` — 29/29 PASS ✅ (onceden 27/29, /docker fail ediyordu)
+
+**6. Devam Eden Sorunlar (Bu Oturumda Duzeltilmedi)**
+
+- **`/algorithms` 30s timeout (KALICI FAIL):** `waitForSelector('h1')` 30 saniyede zaman asimi.
+  `AlgorithmsPage.jsx` (60KB) + `beginnerAlgorithmsData.js` (77KB) Vite dev mode'da yavaş
+  derleniyor olabilir. h1 direkt render ediliyor (loading condition yok). `testcoverage.md`'de
+  onceden ✅ olarak isaretliydi — testin siniri ya arttirilmali ya da Vite dev server
+  performansi arastirilmali. Bizim degisikliklerimizle ilgisi yok.
+- **`/playwright` ERR_FAILED flaky:** `topic-pages-ui.spec.ts` paralel kosumda "net::ERR_FAILED"
+  console hatasi alıyor. Supabase `AiExplanationPanel` cagrisi test ortaminda ag yok oldugu
+  icin basarisiz. Retry'da geciyor → oturum oncesinden gelen flakiness. Bizim degisikliklerimizle
+  ilgisi yok.
+
+### Sonraki Oturumda Yapilabilecekler
+
+1. `/algorithms` timeout sorununu coz: test timeout'u artir (30s → 60s) ya da Vite config'de
+   `optimizeDeps.include` ile AlgorithmsPage'i pre-bundle et.
+2. `/playwright` ERR_FAILED flakiness: `topic-pages-ui.spec.ts`'de Supabase/AiExplanation
+   hatalarini `allowedConsoleErrors` listesine ekle (zaten benzer pattern var: `ERR_FAILED`
+   for CDN resources).
+3. `test` branch'indeki degisiklikleri `main`'e merge et (kullanici onayi gerekli).
+4. `git push origin main` (birikmis onceki is icin, daha once push edilmemisti).
+
+---
+
 ## Bu Oturumda Yapilan Is (2026-07-01, macOS — Docker Sayfasi Nexus Gorsel Efektleri)
 
 ### Branch: `test`

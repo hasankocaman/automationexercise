@@ -87,12 +87,12 @@ export default function BuggyLoginForm({ isTr, darkMode }) {
                 </div>
             </form>
             {message && (
-                <div className="mt-3 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm font-bold text-rose-300">
+                <div className={`mt-3 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm font-bold ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>
                     {message}
                 </div>
             )}
             {requestCount > 1 && (
-                <div className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300">
+                <div className={`mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
                     ⚠️ {isTr ? `${requestCount} kez istek gönderildi` : `${requestCount} requests sent`}
                 </div>
             )}

@@ -53,7 +53,7 @@ export default function MultipleChoice({ block, isTr, darkMode, onResult }) {
             })}
 
             {picked && (
-                <div className={`mt-1 rounded-lg border px-3 py-2 text-xs font-bold ${picked.correct ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/40 bg-rose-500/10 text-rose-300'}`}>
+                <div className={`mt-1 rounded-lg border px-3 py-2 text-xs font-bold ${picked.correct ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-rose-500/40 bg-rose-500/10 ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}`}>
                     {picked.correct ? '✓ ' : '⚠ '}{pick(picked.explanation, isTr)}
                 </div>
             )}

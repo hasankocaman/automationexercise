@@ -28,10 +28,10 @@ const DIFFICULTY_LABEL = {
     hard: { tr: 'Zor', en: 'Hard' },
 }
 
-const DIFFICULTY_CLS = {
-    easy: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-    medium: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
-    hard: 'border-rose-500/40 bg-rose-500/10 text-rose-300',
+function difficultyCls(level, darkMode) {
+    if (level === 'easy')   return darkMode ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-emerald-500/40 bg-emerald-50 text-emerald-700'
+    if (level === 'medium') return darkMode ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'   : 'border-amber-500/40 bg-amber-50 text-amber-700'
+    return darkMode ? 'border-rose-500/40 bg-rose-500/10 text-rose-300' : 'border-rose-500/40 bg-rose-50 text-rose-700'
 }
 
 const ANIM_KEYFRAMES = `
@@ -291,7 +291,7 @@ export default function ChallengeBlock({ block, darkMode, language }) {
                 className={`relative rounded-xl border-2 p-4 ${panelCls(darkMode)} ${status === 'correct' ? 'border-emerald-500/60' : status === 'wrong' ? 'border-rose-500/60' : 'border-sky-500/30'}`}
                 style={{ animation: shaking ? 'challengeShake 0.5s ease' : status === 'correct' ? 'challengePulseSuccess 0.8s ease' : undefined }}
             >
-                <span className={`absolute right-3 top-3 rounded-full border px-2 py-0.5 text-[10px] font-black uppercase ${DIFFICULTY_CLS[difficulty]}`}>
+                <span className={`absolute right-3 top-3 rounded-full border px-2 py-0.5 text-[10px] font-black uppercase ${difficultyCls(difficulty, darkMode)}`}>
                     {pick(DIFFICULTY_LABEL[difficulty], isTr)}
                 </span>
 

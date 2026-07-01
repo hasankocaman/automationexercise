@@ -466,7 +466,7 @@ function CodeBlock({ code, darkMode }) {
     )
 }
 
-function CompletionToggle({ id, label, doneLabel }) {
+function CompletionToggle({ id, label, doneLabel, darkMode }) {
     const storageKey = 'qa-platform-completed'
     const topicId = `algorithms-${id}`
     const [done, setDone] = useState(() => {
@@ -490,7 +490,7 @@ function CompletionToggle({ id, label, doneLabel }) {
     }
 
     return (
-        <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 text-xs font-bold text-emerald-300">
+        <label className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 text-xs font-bold ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
             <input type="checkbox" checked={done} onChange={toggle} className="h-4 w-4 accent-emerald-500" />
             <span>{done ? doneLabel : label}</span>
         </label>
@@ -523,9 +523,9 @@ function QuizCard({ quiz, labels, darkMode }) {
 
                     if (checked) {
                         if (isCorrectOption) {
-                            buttonStyle = 'border-emerald-500 bg-emerald-500/15 text-emerald-300 font-black'
+                            buttonStyle = `border-emerald-500 bg-emerald-500/15 font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`
                         } else if (isPicked) {
-                            buttonStyle = 'border-rose-500 bg-rose-500/15 text-rose-300 font-black'
+                            buttonStyle = `border-rose-500 bg-rose-500/15 font-black ${darkMode ? 'text-rose-300' : 'text-rose-700'}`
                         }
                     } else if (isPicked) {
                         buttonStyle = 'border-violet-500 bg-violet-500/15 text-violet-200 font-black'
@@ -686,7 +686,7 @@ function SortLab({ section, labels, darkMode }) {
                     )
                 })}
             </div>
-            <div className={`mt-3 rounded-lg border px-3 py-2 text-sm font-bold ${solved ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+            <div className={`mt-3 rounded-lg border px-3 py-2 text-sm font-bold ${solved ? `border-emerald-500/50 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                 {solved ? section.lab.success : `${correctCount}/${expected.length} ${labels.correct}. ${section.lab.hint}`}
             </div>
         </div>
@@ -874,14 +874,14 @@ function GraphLab({ section, labels, darkMode }) {
             <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div className={`rounded-lg border p-3 text-xs ${darkMode ? 'border-slate-700 bg-slate-900 text-slate-300' : 'border-slate-200 bg-white text-slate-700'}`}>
                     <div className="mb-2 font-bold">Visited</div>
-                    <div className="flex flex-wrap gap-2">{visited.length ? visited.map(item => <span key={item} className="rounded-lg bg-emerald-500/15 px-2 py-1 font-mono text-emerald-300">{item}</span>) : '-'}</div>
+                    <div className="flex flex-wrap gap-2">{visited.length ? visited.map(item => <span key={item} className={`rounded-lg bg-emerald-500/15 px-2 py-1 font-mono ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{item}</span>) : '-'}</div>
                 </div>
                 <div className={`rounded-lg border p-3 text-xs ${darkMode ? 'border-slate-700 bg-slate-900 text-slate-300' : 'border-slate-200 bg-white text-slate-700'}`}>
                     <div className="mb-2 font-bold">Queue</div>
                     <div className="flex flex-wrap gap-2">{queue.length ? queue.map(item => <span key={item} className="rounded-lg bg-blue-500/15 px-2 py-1 font-mono text-blue-300">{item}</span>) : '-'}</div>
                 </div>
             </div>
-            {done && <div className="mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm font-bold text-emerald-300">{section.lab.success}</div>}
+            {done && <div className={`mt-3 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-sm font-bold ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{section.lab.success}</div>}
         </div>
     )
 }
@@ -935,12 +935,12 @@ function StateMachineLab({ section, labels, darkMode }) {
                                 key={state}
                                 className={`rounded-lg border p-3 text-center transition-all ${active ? 'scale-105 border-amber-400 bg-amber-500/15' : passed ? 'border-emerald-500/50 bg-emerald-500/10' : darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}
                             >
-                                <div className={`text-xs font-bold uppercase ${active ? 'text-amber-300' : passed ? 'text-emerald-300' : darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{state}</div>
+                                <div className={`text-xs font-bold uppercase ${active ? (darkMode ? 'text-amber-300' : 'text-amber-700') : passed ? (darkMode ? 'text-emerald-300' : 'text-emerald-700') : darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{state}</div>
                             </div>
                         )
                     })}
                 </div>
-                <div className={`rounded-lg border p-3 text-sm font-bold ${done ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                <div className={`rounded-lg border p-3 text-sm font-bold ${done ? `border-emerald-500/50 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                     {message}
                 </div>
             </div>
@@ -1057,7 +1057,7 @@ function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgres
                                 {section.tag}
                             </span>
                             <DifficultyBadge level={section.difficulty} />
-                            <CompletionToggle id={section.id} label={labels.markDone} doneLabel={labels.done} />
+                            <CompletionToggle id={section.id} label={labels.markDone} doneLabel={labels.done} darkMode={darkMode} />
                         </div>
 
                         <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{section.title}</h2>

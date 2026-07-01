@@ -556,7 +556,7 @@ function SequenceGame({ lesson, labels, darkMode }) {
                     </div>
                 ))}
             </div>
-            <GameResult checked={checked} solved={solved} success={lesson.game.success} labels={labels} onCheck={() => setChecked(true)} />
+            <GameResult checked={checked} solved={solved} success={lesson.game.success} labels={labels} onCheck={() => setChecked(true)} darkMode={darkMode} />
         </div>
     )
 }
@@ -576,7 +576,7 @@ function MachineGame({ lesson, labels, darkMode }) {
                 ))}
             </div>
             {picked && (
-                <div className={`mt-3 rounded-lg border p-3 text-sm font-bold ${picked.valid ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                <div className={`mt-3 rounded-lg border p-3 text-sm font-bold ${picked.valid ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                     {labels.result}: {picked.output}
                 </div>
             )}
@@ -584,7 +584,7 @@ function MachineGame({ lesson, labels, darkMode }) {
     )
 }
 
-function DecisionGame({ lesson, labels }) {
+function DecisionGame({ lesson, labels, darkMode }) {
     const [selected, setSelected] = useState(lesson.game.options[0])
 
     return (
@@ -597,14 +597,14 @@ function DecisionGame({ lesson, labels }) {
                     </button>
                 ))}
             </div>
-            <div className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm font-black text-amber-300">
+            <div className={`mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm font-black ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
                 {labels.result}: {selected.output}
             </div>
         </div>
     )
 }
 
-function LoopGame({ lesson, labels }) {
+function LoopGame({ lesson, labels, darkMode }) {
     const [count, setCount] = useState(0)
     const total = lesson.game.total
     const done = count >= total
@@ -621,12 +621,12 @@ function LoopGame({ lesson, labels }) {
                 <button onClick={() => setCount(Math.min(total, count + 1))} disabled={done} className="min-h-10 rounded-lg bg-emerald-600 px-4 text-sm font-black text-white disabled:opacity-40">{labels.play}</button>
                 <button onClick={() => setCount(0)} className="min-h-10 rounded-lg bg-slate-700 px-4 text-sm font-black text-white">{labels.reset}</button>
             </div>
-            {done && <div className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black text-emerald-300">{lesson.game.success}</div>}
+            {done && <div className={`mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{lesson.game.success}</div>}
         </div>
     )
 }
 
-function MemoryGame({ lesson, labels }) {
+function MemoryGame({ lesson, labels, darkMode }) {
     const [score, setScore] = useState(0)
     const done = score >= lesson.game.target
 
@@ -641,7 +641,7 @@ function MemoryGame({ lesson, labels }) {
                 <button onClick={() => setScore(score + 1)} className="min-h-10 rounded-lg bg-blue-600 px-4 text-sm font-black text-white">+1</button>
                 <button onClick={() => setScore(0)} className="min-h-10 rounded-lg bg-slate-700 px-4 text-sm font-black text-white">{labels.reset}</button>
             </div>
-            {done && <div className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black text-emerald-300">{lesson.game.success}</div>}
+            {done && <div className={`mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{lesson.game.success}</div>}
         </div>
     )
 }
@@ -661,12 +661,12 @@ function DebugGame({ lesson, labels, darkMode }) {
                     </button>
                 ))}
             </div>
-            <GameResult checked={checked} solved={solved} success={lesson.game.success} labels={labels} />
+            <GameResult checked={checked} solved={solved} success={lesson.game.success} labels={labels} darkMode={darkMode} />
         </div>
     )
 }
 
-function FlowchartGame({ lesson, labels }) {
+function FlowchartGame({ lesson, labels, darkMode }) {
     const [selected, setSelected] = useState(null)
     const picked = lesson.game.options.find(item => item.id === selected)
 
@@ -686,7 +686,7 @@ function FlowchartGame({ lesson, labels }) {
                 ))}
             </div>
             {picked && (
-                <div className={`mt-3 rounded-lg border p-3 text-sm font-black ${picked.valid ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                <div className={`mt-3 rounded-lg border p-3 text-sm font-black ${picked.valid ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                     {picked.valid ? lesson.game.success : labels.wrong}
                 </div>
             )}
@@ -694,7 +694,7 @@ function FlowchartGame({ lesson, labels }) {
     )
 }
 
-function GameResult({ checked, solved, success, labels, onCheck }) {
+function GameResult({ checked, solved, success, labels, onCheck, darkMode }) {
     return (
         <div className="mt-3 flex flex-wrap items-center gap-3">
             {onCheck && (
@@ -703,7 +703,7 @@ function GameResult({ checked, solved, success, labels, onCheck }) {
                 </button>
             )}
             {checked && (
-                <div className={`rounded-lg border px-3 py-2 text-sm font-black ${solved ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}`}>
+                <div className={`rounded-lg border px-3 py-2 text-sm font-black ${solved ? `border-emerald-500/40 bg-emerald-500/10 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}` : `border-amber-500/40 bg-amber-500/10 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}`}>
                     {solved ? success : labels.wrong}
                 </div>
             )}
@@ -729,14 +729,14 @@ function GameBlock({ lesson, labels, darkMode }) {
     )
 }
 
-const LEVEL_COLOR = {
-    easy: { text: 'text-emerald-300', border: 'border-emerald-500/40', bg: 'bg-emerald-500/10' },
-    medium: { text: 'text-amber-300', border: 'border-amber-500/40', bg: 'bg-amber-500/10' },
-    hard: { text: 'text-rose-300', border: 'border-rose-500/40', bg: 'bg-rose-500/10' },
+function levelColor(level, darkMode) {
+    if (level === 'easy')   return { text: darkMode ? 'text-emerald-300' : 'text-emerald-700', border: 'border-emerald-500/40', bg: darkMode ? 'bg-emerald-500/10' : 'bg-emerald-50' }
+    if (level === 'medium') return { text: darkMode ? 'text-amber-300'   : 'text-amber-700',   border: 'border-amber-500/40',   bg: darkMode ? 'bg-amber-500/10'   : 'bg-amber-50' }
+    return                         { text: darkMode ? 'text-rose-300'    : 'text-rose-700',    border: 'border-rose-500/40',    bg: darkMode ? 'bg-rose-500/10'    : 'bg-rose-50' }
 }
 
 function QuestionItem({ item, index, labels, darkMode, open, onToggle }) {
-    const level = LEVEL_COLOR[item.level]
+    const level = levelColor(item.level, darkMode)
     const levelLabel = item.level === 'easy' ? labels.levelEasy : item.level === 'medium' ? labels.levelMedium : labels.levelHard
 
     return (

@@ -853,7 +853,7 @@ export default function GitDocPage() {
                             }`}>
                                 {/* Fallback Banner */}
                                 {language === 'tr' && activeChapter?.isFallback && (
-                                    <div className="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-2">
+                                    <div className={`mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-xs flex items-center gap-2 ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
                                         <span>💡</span>
                                         <span>Bu bölüm henüz Türkçe'ye çevrilmemiştir. Orijinal İngilizce içerik gösterilmektedir.</span>
                                     </div>
