@@ -10,7 +10,7 @@ const s0 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🤖',
-        content: 'Selenium\'u bir "robot asistan" olarak düşünün. Siz ona "şu butona tıkla, şu kutuya şunu yaz" diyorsunuz. O da gerçek bir insan gibi tarayıcıyı açıp bu işlemleri yapıyor. Tek fark: bu asistan hiç yorulmuyor, dakikada yüzlerce işlem yapıyor ve gece 3\'te bile çalışıyor.',
+        content: 'Selenium, bir tarayıcı üzerinde insan parmaklarının yerine geçen W3C standardı bir protokoldür — tıpkı Java\'nın JDBC\'si gibi: sen standart bir arayüz yazıyorsun, altta kimin sürücüsü olduğu değişiyor (ChromeDriver, GeckoDriver, EdgeDriver). Peki Java\'da JUnit + Mockito varken neden tarayıcıyı bizzat açan bir araca ihtiyacımız var? Çünkü bir uygulamanın gerçekten "çalıştığını" kanıtlamanın tek yolu onu bir kullanıcı gibi açmak ve neyin göründüğünü, neyin tıklandığında ne olduğunu DOM üzerinde ölçmektir — unit test bu katmana hiç ulaşamaz. Java\'da RemoteWebDriver interface\'ini implement ederek başladığın bu model, Python\'da webdriver.Chrome() ve TypeScript\'te de aynı kavramsal API olarak devam eder; sadece sözdizimi değişir, WebDriver kontratı değişmez. QA açısından en kritik gerçek şu: Selenium olmadan "buton göründü mü, modal açıldı mı, redirect doğru URL\'e gitti mi?" sorularını CI pipeline\'ında otomatik cevaplamak mümkün değildir — cevapsız her soru, production\'da sessizce yanlış giden bir özellik, müşterinin fark ettiği bir bug demektir.',
       },
       {
         type: 'css-animation',
@@ -122,7 +122,7 @@ const s0 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🤖',
-        content: 'Think of Selenium as a "robot assistant." You tell it "click this button, type this in that box." It opens the browser and does these things just like a human would. The difference: this assistant never gets tired, can do hundreds of actions per minute, and works at 3am without complaint.',
+        content: 'Selenium is a W3C-standard protocol that replaces human fingers on a browser — analogous to Java\'s JDBC: you write against a standard interface and the underlying driver implementation (ChromeDriver, GeckoDriver, EdgeDriver) is swappable. But if you already have JUnit + Mockito in Java, why do you need a tool that actually opens a browser? Because the only way to prove an application truly works is to open it like a user and measure what appears in the DOM and what happens when you click — a unit test never reaches that layer. The RemoteWebDriver interface you implement in Java is the same conceptual API in Python (webdriver.Chrome()) and TypeScript; only the syntax changes, the WebDriver contract stays identical. For QA, the critical implication is this: without Selenium you cannot automatically answer "did the button appear, did the modal open, did the redirect go to the right URL?" in a CI pipeline — every unanswered question is a feature silently broken in production, a bug the customer discovers first.',
       },
       {
         type: 'text',
@@ -233,7 +233,7 @@ const s1 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Kurulum şöyle: tarayıcın zaten var (Chrome). Sürücüyü (ChromeDriver) yüklemen gerekiyor — bu, Selenium\'un tarayıcıyla konuşmasını sağlayan çevirmen. Selenium 4\'te "Selenium Manager" bunu otomatik yapıyor.',
+        content: 'Selenium kurulumu, Java\'da Maven\'a bağımlılık eklemek gibi çalışır — ama bir katman daha var: test kodun, tarayıcı sürücüsüne (ChromeDriver), o da asıl Chrome\'a bağlanır. Tıpkı JDBC driver\'ı ile veritabanı arasındaki köprü gibi. Peki Java ile Selenium\'u zaten dene-koştur-düzelt döngüsünde kullanıyorken neden sürücü versiyonunu takip etmek zorundayız? Çünkü Chrome her 4-6 haftada güncellenir ve eşleşmeyen ChromeDriver sürümü "session not created: This version of ChromeDriver only supports Chrome version X" hatasıyla tüm CI pipeline\'ını durdurur. Selenium 4\'teki Selenium Manager bunu otomatik çözer — Java\'daki Gradle\'ın bağımlılık version resolution\'ı gibi, uyumlu sürücüyü kendisi indirir. Buna rağmen kurulum adımlarını elle de bilmek gerekir: production CI ortamında Selenium Manager\'ın internete erişimi olmayabilir, o zaman driver\'ı proje artifact olarak kendin yönetirsin.',
       },
       { type: 'heading', text: '1️⃣ Java ile Selenium Kurulumu' },
       {
@@ -418,7 +418,7 @@ main();`,
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Installation is simple: you already have Chrome. You need the driver (ChromeDriver) — it\'s the translator that lets Selenium talk to the browser. In Selenium 4, "Selenium Manager" handles this automatically.',
+        content: 'Setting up Selenium mirrors adding a Maven dependency in Java — but with an extra layer: your test code connects to a browser driver (ChromeDriver), which in turn connects to the actual Chrome binary. Just like a JDBC driver bridges Java code to a database. But if you already have Java + Selenium working in your IDE, why do you still need to track the driver version? Because Chrome auto-updates every 4–6 weeks, and a mismatched ChromeDriver version throws "session not created: This version of ChromeDriver only supports Chrome version X", halting the entire CI pipeline. Selenium 4\'s Selenium Manager solves this automatically — like Gradle\'s dependency resolution, it fetches the compatible driver at runtime. Still, knowing the manual steps matters: in a locked-down production CI environment where Selenium Manager has no internet access, you must ship the driver as a project artifact and manage it yourself.',
       },
       { type: 'heading', text: '1️⃣ Java Selenium Setup' },
       {
@@ -546,7 +546,7 @@ const s2 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔍',
-        content: 'Locator, sayfadaki bir elementi bulmak için kullandığınız "adres" gibidir. Tıpkı posta adresi gibi: "İstanbul, Kadıköy, Moda Caddesi No:5" — ne kadar spesifik olursa, o kadar doğru bulursunuz. Locator ne kadar özgün olursa, test o kadar güvenilir olur.',
+        content: 'Locator seçimi, Java\'da bir koleksiyona erişim yöntemini seçmekle birebir örtüşür: By.id bir Map\'te key ile lookup yapmak kadar hızlı (O(1)), By.xpath ise unsorted List\'te değer aramak gibi — tüm DOM ağacını gezerek çalışır. Peki her sayfada id var gibi görünüyorken neden XPath veya CSS selector kullanmak gerekiyor? Çünkü front-end framework\'leri (React, Angular) DOM\'u yeniden render ettiğinde id\'ler değişebilir ya da hiç olmayabilir; bu durumda XPath\'teki `//button[normalize-space()=\'Satın Al\']` gibi yapısal ilişki sorguları hayat kurtarır. Java\'da By.id("loginBtn") yazıyordun; Python\'da By.ID, TypeScript\'te de aynı — sözdizimi değişir, strateji değişmez. QA açısından en tehlikeli locator tipi ise `By.className("btn")`: CSS class\'lar tasarımcı tarafından refactor edildiğinde sessizce başka elementleri eşler, test yanlış PASS verir ve hiçbir exception fırlatmaz; bu, bulması en zor flaky test türüdür.',
       },
       {
         type: 'css-animation',
@@ -867,7 +867,7 @@ for (const link of links) {
     blocks: [
       {
         type: 'simple-box', emoji: '🔍',
-        content: 'A locator is like an "address" for finding an element on the page. Just like a postal address: the more specific it is, the more accurately you find what you\'re looking for. The more unique a locator, the more reliable the test.',
+        content: 'Choosing a locator directly mirrors choosing a collection access strategy in Java: By.id is a Map key lookup — O(1), the browser calls getElementById internally. By.xpath, by contrast, works like scanning an unsorted List — it may traverse the entire DOM tree. So if pages seem to always have IDs, why do you ever need XPath or CSS selectors? Because front-end frameworks (React, Angular) can regenerate the DOM on each render, making IDs unstable or absent; in those cases structural queries like `//button[normalize-space()=\'Buy\']` become the only reliable anchor. In Java you wrote By.id("loginBtn"); in Python it is By.ID, in TypeScript the same — only syntax differs, the locator strategy stays constant. The most dangerous locator for QA is By.className("btn"): when a designer refactors CSS class names, the locator silently starts matching different elements, the test returns a false PASS, and no exception is thrown — the hardest category of flaky test to diagnose.',
       },
       LOCATOR_EXPLORER_BLOCK,
       { type: 'heading', text: 'Locator Types — Quick Comparison' },
@@ -1030,7 +1030,7 @@ const s3 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🕹️',
-        content: 'Aksiyonlar, tarayıcıda bir kullanıcının yapabileceği her şeydir: tıklama, yazma, kaydırma, sürükleme, sağ tık. Selenium bu eylemlerin tamamını kod ile yapabilir — aynı bir insan gibi ama çok daha hızlı.',
+        content: 'Selenium\'daki Actions API, Java\'daki Builder pattern\'in tarayıcı eylemleri için uygulamasıdır: tek tek komut göndermek yerine bir dizi hareketi zincire ekleyip tek seferde `.perform()` ile çalıştırırsın — tıpkı StringBuilder\'a append edip sonunda toString() çağırmak gibi. Peki basit element.click() varken neden ayrıca Actions API\'ye ihtiyaç var? Çünkü bazı UI bileşenleri gerçek mouse olaylarına (mouseover, mousedown, mouseup) tepki verir — sadece click event\'ine değil; tooltip\'lerin açılması, drag-and-drop widget\'ları ve context menu\'ler bu kategoridedir. element.click() ise tarayıcıya "tıklamış gibi davran" demek olup eksik mouse event\'lerini tetiklemez. Java\'da Actions actions = new Actions(driver) ile başlattığın zincir Python\'da ActionChains ve TypeScript Playwright\'ta page.mouse olarak karşına çıkar; kavram aynıdır. QA açısından en sık gözden kaçan senaryo şudur: drag-and-drop testi element.click() ile yazıldığında lokal ortamda "çalışıyor" gibi görünür ama staging\'de gerçek JavaScript event listener\'ları devreye girer ve test sessizce yanlış PASS verir.',
       },
       { type: 'heading', text: '1. Temel Aksiyonlar (Click, Type, Clear, Submit)' },
       {
@@ -1650,7 +1650,7 @@ fs.writeFileSync('element.png', elemImg, 'base64');`,
     blocks: [
       {
         type: 'simple-box', emoji: '🕹️',
-        content: 'Actions are everything a user can do in a browser: clicking, typing, scrolling, dragging, right-clicking. Selenium can do all of these with code — just like a human but much faster.',
+        content: 'Selenium\'s Actions API is the Builder pattern applied to browser gestures: instead of sending commands one by one, you chain moves together and dispatch the whole sequence with a single .perform() — just like appending to a Java StringBuilder and calling toString() at the end. But if element.click() already exists, why does a separate Actions API need to exist? Because certain UI components react to the full chain of real mouse events (mouseover, mousedown, mouseup), not just the click event — tooltips, drag-and-drop widgets, and context menus all fall into this category. element.click() tells the browser to simulate a click but skips intermediate events that those components rely on. In Java you start with new Actions(driver); in Python it is ActionChains; in TypeScript/Playwright it is page.mouse — same concept, different syntax. The QA trap to watch for: a drag-and-drop test written with element.click() appears to "work" locally, but in staging the real JavaScript event listeners kick in and the test returns a silent false PASS — no failure, no exception, just wrong results shipped to production.',
       },
       { type: 'heading', text: '1. Basic Actions (Click, Type, Clear, Submit)' },
       {
@@ -1807,7 +1807,7 @@ const s4 = {
     blocks: [
       {
         type: 'simple-box', emoji: '⏰',
-        content: 'Web sayfaları an anda yüklenmez — sunucudan veri gelir, JavaScript çalışır, animasyonlar biter. "Wait" stratejisi, Selenium\'un sabırsızca hata vermesi yerine sabırla beklemesidir. Tıpkı bir kırmızı ışıkta bekleyip yeşile geçince geçen araba gibi.',
+        content: 'Wait stratejisi, Java\'da CompletableFuture üzerinde bloklu get(timeout, SECONDS) çağrısına benzer — ama hangi koşulu beklediğini sen belirlersin. Thread.sleep(3000) ise tarihlenmiş bir Thread.sleep() kullanmak gibi: asıl sonuç 0.5 saniyede gelse de 3 saniye bekler; ya da 3 saniyede gelmezse yine hata verir. Peki ImplicitWait var zaten, neden ExplicitWait de kullanalım? Çünkü ImplicitWait tüm findElement çağrıları için tek bir timeout uygular — ama sayfadaki farklı elementlerin farklı hazır olma süreleri vardır; bir butonu 2 saniyede, bir API tablosunu 8 saniyede beklemek zorundasın. ExplicitWait + ExpectedConditions, her beklemeyi bir koşula (elementToBeClickable, visibilityOfElementLocated, textToBePresentInElement) bağlar; hem gereksiz bekleme süresini hem de premature exception\'ı önler. QA için en tehlikeli seçenek Thread.sleep()\'in CI pipeline\'ına girmesidir: 50 test × ortalama 2 saniyelik sleep = 100 saniye saf israf, üstelik ağ gecikmesi arttığında hâlâ race condition\'a düşürsün ve flaky test alırsın.',
       },
       { type: 'heading', text: 'Wait Türleri Karşılaştırma' },
       {
@@ -2157,7 +2157,7 @@ result = wait.until(
     blocks: [
       {
         type: 'simple-box', emoji: '⏰',
-        content: 'Web pages don\'t load instantly — data comes from the server, JavaScript runs, animations complete. A "wait" strategy is Selenium patiently waiting instead of immediately failing. Like a car waiting at a red light and going when it turns green.',
+        content: 'A wait strategy in Selenium maps directly to a blocking get(timeout, SECONDS) on a Java CompletableFuture — except you define the condition you are waiting for, not just a duration. Thread.sleep(3000) is the equivalent of an outdated busy-wait loop: if the result arrives in 0.5 s you still block for 3 s; if the result takes 3.5 s you still throw an error. So if ImplicitWait already exists and handles every findElement, why is ExplicitWait also needed? Because different elements on the same page become ready at different times: a button may appear in 2 s while an API-driven table takes 8 s; a single global timeout cannot satisfy both. ExplicitWait + ExpectedConditions ties each wait to a semantic condition (elementToBeClickable, visibilityOfElementLocated, textToBePresentInElement) that eliminates both unnecessary wait time and premature exceptions. The QA danger is letting Thread.sleep() slip into a CI pipeline: 50 tests × an average 2-second sleep = 100 seconds of pure waste, and when network latency spikes in a shared environment you still get a race condition and a flaky test — the worst outcome because it neither reliably passes nor reliably fails.',
       },
       { type: 'heading', text: 'Wait Types Comparison' },
       {
@@ -2308,7 +2308,7 @@ const s5 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🖼️',
-        content: 'iframe, sayfa içinde ayrı bir küçük sayfa gibidir — tıpkı büyük bir kitabın içinde ayrı bir broşür olması gibi. Alert ise tarayıcının sizi durduran bir uyarı ekranıdır. Ayrı pencereler ise bilgisayarda birden fazla tarayıcı sekmesi açmak gibi — Selenium\'un hangisinde olduğunu takip etmesi gerekir.',
+        content: 'iframe, sayfa içindeki ayrı bir DOM bağlamıdır — tıpkı Java\'da bir ClassLoader içine başka bir ClassLoader yüklemek gibi: dış context\'ten findElement ile içerideki elementlere erişemezsin, önce driver.switchTo().frame() ile o bağlama geçmen gerekir. Peki sayfa görsel olarak tek parçaymış gibi görünüyorken neden ayrı context gerekiyor? Çünkü tarayıcı, iframe\'in güvenlik ve kaynak yalıtımını korumak zorundadır; ödeme formları (Stripe, iyzico) ve CAPTCHA widget\'ları bu yüzden her zaman ayrı iframe\'de yaşar. Alert\'ler ise farklı bir kategori: bunlar DOM elementleri değil, tarayıcı seviyesi native dialog\'lardır — driver.switchTo().alert() ile yakalanmazsa tüm test bloke olur. Çoklu pencere yönetimi, Java\'daki WeakReference\'lı thread ID takibine benzer: her window handle bir String ID\'dir, driver.getWindowHandles() ile alınır ve switchTo().window(handle) ile odak değiştirilir. QA\'da en sık production bug\'a dönüşen senaryo şudur: ödeme sayfasındaki iframe context değiştirme eksik bırakılırsa, "Satın Al" butonu bulunur ama tıklanamaz — exception yoktur, sadece test yanlış PASS verir ve ödeme akışı hiç test edilmemiş olur.',
       },
       { type: 'heading', text: '1. Alert / Confirm / Prompt Yönetimi' },
       {
@@ -2783,7 +2783,7 @@ innerBtn.click();
     blocks: [
       {
         type: 'simple-box', emoji: '🖼️',
-        content: 'An iframe is like a mini page within a page — like a brochure inside a book. An alert is a browser warning that stops you. Multiple windows are like having several browser tabs open — Selenium needs to track which one it\'s on.',
+        content: 'An iframe is a separate DOM context embedded inside the main page — analogous to loading a second ClassLoader inside a Java ClassLoader: you cannot reach inner elements with findElement from the outer context; you must call driver.switchTo().frame() first to enter that context. But if the page looks like a single visual surface, why is a separate context even necessary? Because the browser must enforce security and resource isolation for the iframe\'s origin; payment forms (Stripe, iyzico) and CAPTCHA widgets always live in their own iframe for exactly this reason. Alerts are a different category altogether: they are not DOM elements but native browser-level dialogs — if you do not capture them with driver.switchTo().alert() the entire test blocks indefinitely. Multiple-window management resembles tracking thread IDs with Java WeakReferences: each window handle is a String ID returned by driver.getWindowHandles(), and focus changes via switchTo().window(handle). The QA scenario that most reliably escapes detection is this: if the iframe context switch is missing on a payment page, the "Buy" button is found and clicked without error — the test returns a false PASS and the checkout flow is never actually tested.',
       },
       { type: 'heading', text: '1. Alert / Confirm / Prompt' },
       {
@@ -2911,7 +2911,7 @@ const s6 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🛒',
-        content: 'Teorik bilgi yeterli değil — gerçek bir projede Selenium nasıl kullanılır? Bir e-ticaret sitesinde "kullanıcı giriş yapar, ürün arar, sepete ekler, ödeme yapar" senaryosunu uçtan uca test edelim.',
+        content: 'E2E test senaryosu yazmak, Java\'da entegrasyon testi yazmakla aynı mantık üzerine kuruludur: izole unit değil, gerçek bağımlılıklarla birlikte bir kullanıcı akışını uçtan uca doğrularsın. E-ticaret senaryosu bunun en somut örneğidir: giriş → ürün arama → sepete ekleme → ödeme bir funnel\'dır ve bu funnel\'ın her adımı birbirinin ön koşuludur. Peki unit testler var zaten, neden saatler süren tarayıcı testlerine gerek var? Çünkü "ürün sepete eklendi" iddiasını unit test backend mantığını izole ederek doğrular; tarayıcı testi ise "kullanıcı sepet simgesini gördü, sayım güncellenemiştir, ödeme sayfasına geçilebildi" gibi frontend state\'ini doğrular — bunların ikisi bambaşka şeyleri test eder. Java\'da Page Object Model (POM) kullandığında, her sayfa bir class olur ve test kodu presentation layer\'dan ayrılır; aynı pattern Python\'da page class + fixture ile, TypeScript\'te ise Playwright\'ın Page Object fixture sistemiyle hayata geçer. QA açısından gerçek risk: e-ticaret sitesinde ödeme adımı test edilmemişse, "sepete ekle" düğmesi çalışıyor ama ödeme butonu broken olsa bile CI yeşil kalır — bu tür bir bug production\'da revenue kaybına yol açar ve son kullanıcı raporlayana kadar kimse fark etmez.',
       },
       {
         type: 'callout', color: 'blue', emoji: '🎯',
@@ -3261,7 +3261,7 @@ describe('E-Commerce Tests', function () {
     blocks: [
       {
         type: 'simple-box', emoji: '🛒',
-        content: 'Theory isn\'t enough — how is Selenium used in a real project? Let\'s test an e-commerce site end-to-end: user logs in, searches for a product, adds to cart, and checks out.',
+        content: 'Writing an E2E test scenario follows the same logic as an integration test in Java: instead of isolated units, you verify a full user flow against real dependencies. The e-commerce scenario is the most concrete example of this — login → search → add to cart → checkout is a funnel where each step is a prerequisite for the next. But if unit tests already exist, why do we need time-consuming browser tests? Because a unit test validates the backend\'s cart logic in isolation; a browser test validates that "the cart icon updated, the count changed, the checkout page opened" — these two are testing entirely different things. In Java, Page Object Model separates test code from the presentation layer by making each page a class; the same pattern appears in Python as page classes + fixtures, and in TypeScript as Playwright\'s Page Object fixture system. The real QA risk: if only the "add to cart" step is tested but the checkout button is broken, CI stays green while a revenue-killing bug ships to production — and no one finds out until a customer reports it.',
       },
       { type: 'heading', text: 'Java — E2E Test with Page Object Model' },
       {
@@ -3370,7 +3370,7 @@ const s7 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🏗️',
-        content: 'Selenium tek başına sadece tarayıcıyı kontrol eder. Gerçek bir proje için diğer araçlara ihtiyaç var: TestNG testleri organize eder (JUnit gibi), Maven bağımlılıkları yönetir (Gradle gibi), Jenkins otomatik çalıştırır (CI/CD), Grid paralel çalıştırır.',
+        content: 'Selenium ekosistemi, Java geliştirme zincirinin test otomasyonuna taşınmış halidir: Maven → bağımlılık yönetimi (pom.xml\'e selenium-java eklersin), TestNG → @BeforeMethod/@AfterMethod ile test lifecycle yönetimi (JUnit\'in @BeforeEach/@AfterEach muadili), Jenkins → her commit\'te testleri tetikleyen CI sunucusu, Selenium Grid ise JUnit\'in paralel runner\'ının tarayıcı boyutuna genişlemesi. Peki tek bir bilgisayarda Selenium testleri çalışıyorken neden Grid eklemek gerekiyor? Çünkü 200 E2E test tek bir Node\'da sırayla çalıştığında CI pipeline\'ı 40-60 dakika bloklayabilir; Grid ile bu testler aynı anda 20 paralel Node\'a dağıtılır, toplam süre 3-4 dakikaya düşer. QA ekibi için bu fark somuttur: bir Jenkins job\'ı 60 dakika sürerse geliştiriciler "zaten bekleyemem" deyip commit\'in üzerine commit atmaya başlar, hatalar yığılır ve test sonuçları kimsenin önemsemediği bir rapora dönüşür — hızlı feedback loop, test kültürünün hayatta kalma koşuludur.',
       },
       { type: 'heading', text: 'Selenium Ekosistem Haritası' },
       {
@@ -3601,7 +3601,7 @@ jobs:
     blocks: [
       {
         type: 'simple-box', emoji: '🏗️',
-        content: 'Selenium alone just controls the browser. A real project needs more: TestNG organizes tests (like JUnit), Maven manages dependencies (like Gradle), Jenkins runs them automatically (CI/CD), Grid runs them in parallel.',
+        content: 'The Selenium ecosystem is the Java development toolchain ported to test automation: Maven handles dependency management (you add selenium-java to pom.xml), TestNG manages the test lifecycle with @BeforeMethod/@AfterMethod — the direct equivalent of JUnit\'s @BeforeEach/@AfterEach — Jenkins triggers tests on every commit as the CI server, and Selenium Grid extends JUnit\'s parallel runner into the browser dimension. So if Selenium already runs on a single machine, why bother adding Grid? Because 200 E2E tests executed serially on one Node can block the CI pipeline for 40–60 minutes; with Grid, those same tests are distributed across 20 parallel Nodes and finish in 3–4 minutes. For a QA team, this gap is culturally decisive: when a Jenkins job takes 60 minutes, developers stop waiting for results and stack commit on commit, bugs accumulate, and the test report becomes noise nobody reads — a fast feedback loop is the survival condition for a healthy test culture.',
       },
       { type: 'heading', text: 'TestNG Annotations' },
       {
@@ -3684,7 +3684,7 @@ const s8 = {
     blocks: [
       {
         type: 'simple-box', emoji: '📡',
-        content: 'Selenium 4\'e kadar test kodumuz tarayıcıya sadece "şuna tıkla, bunu yaz" diyordu ve tarayıcıdan anlık haber alamıyordu. WebDriver BiDi (çift yönlü telsiz gibi) ve CDP sayesinde artık tarayıcının iç dünyasını (konsol hataları, ağ istekleri, konum bilgisi) canlı dinleyip kontrol edebiliyoruz.',
+        content: 'Selenium 4 öncesinde WebDriver ile tarayıcı iletişimi tek yönlüydü: test kodu komut gönderir, tarayıcı uygular, sonucu HTTP response olarak döner — tıpkı Java\'da klasik blocking REST çağrısı gibi. WebDriver BiDi (Bidirectional Protocol) ise bu ilişkiyi kalıcı bir WebSocket tüneline dönüştürür: Java\'daki CompletableFuture + event listener mimarisine benzer şekilde, tarayıcıdan gerçek zamanlı event\'ler dinleyebilirsin (konsol hatası oluştu, ağ isteği kesildi, JavaScript exception fırladı). Peki HTTP tabanlı WebDriver çalışıyorken neden BiDi\'ye ihtiyaç var? Çünkü bazı test senaryoları "bir şey olduğunda tepki ver" gerektirir: authentication dialog\'u açıldığında bunu tespit et, broken image için network failure event\'ini yakala, console.error() çıktısını CI log\'una yaz. Bunlar klasik WebDriver ile yapılamaz. QA için somut kazanım: BiDi sayesinde "JavaScript hatası olan tüm sayfaları tespit et" gibi bir assertion artık mümkün; kaynak kodunu değiştirmeden her E2E testin yanına otomatik JS error monitoring ekleyebilirsin ve production\'a çıkmadan önce sessiz JavaScript exception\'larını yakalayabilirsin.',
       },
       {
         type: 'text',
@@ -3859,7 +3859,7 @@ driver.get("https://www.google.com/maps");`,
     blocks: [
       {
         type: 'simple-box', emoji: '📡',
-        content: 'Before Selenium 4, our test code could only tell the browser "click this, type that" without hearing back in real time. Thanks to WebDriver BiDi (like a two-way radio) and CDP, we can now listen to and control the browser\'s internal state (console errors, network requests, geolocation) dynamically.',
+        content: 'Before Selenium 4, WebDriver communication with the browser was strictly one-directional: test code sends a command, the browser executes it, the result comes back as an HTTP response — identical to a classical blocking REST call in Java. WebDriver BiDi (Bidirectional Protocol) converts this into a persistent WebSocket tunnel: similar to a Java CompletableFuture + event listener architecture, you can now receive real-time events pushed from the browser (console error fired, network request intercepted, JavaScript exception thrown). If HTTP-based WebDriver already works, why does BiDi matter? Because certain test scenarios require reacting to events as they happen: detect when an authentication dialog appears, capture a network failure event for a broken image, pipe console.error() output into your CI log. None of this is possible with classic WebDriver. The concrete QA gain: with BiDi you can add "assert no JavaScript errors occurred during this page interaction" to every E2E test without touching the source code — effectively catching silent JavaScript exceptions before they reach production.',
       },
       {
         type: 'text',
@@ -4003,7 +4003,7 @@ const s9 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔑',
-        content: 'Biyometrik parmak izi okuyucuları veya USB güvenlik anahtarlarını (Passkey) Selenium testinde nasıl kullanırsınız? Gerçek bir insan gibi parmak izi basamayacağımıza göre, Selenium 4 bize sanal bir doğrulayıcı (Virtual Authenticator) oluşturup şifresiz giriş senaryolarını test etme imkanı sunar.',
+        content: 'Virtual Authenticator, WebAuthn (FIDO2/Passkey) akışlarını test etmek için Selenium\'un CI ortamına enjekte ettiği yazılım tabanlı bir donanım simülatörüdür — tıpkı Java testlerinde gerçek veritabanı yerine H2 in-memory DB kullanmak gibi: arayüz aynı, alttaki implementasyon test için değiştirilmiş. Peki Mockito ile servis katmanını mock\'layabiliyorken neden tarayıcı testinde fiziksel donanım simülasyonu gerekiyor? Çünkü Passkey doğrulaması uygulama kodunda değil, tarayıcının WebAuthn API\'sinde gerçekleşir; bu API\'yi Mockito ile mock\'layamazsın, tarayıcıya "sanal bir authenticator var" demen gerekir. Java\'da addVirtualAuthenticator(options) ile eklenen bu sanal cihaz, gerçek USB key yerine geçer ve FIDO2 akışını uçtan uca tetikler. QA açısından kritik senaryo: şirket "password\'ları kaldırıyoruz, Passkey geçiyoruz" kararını uygulamaya koyduğunda, giriş akışının regresyon testi artık fiziksel USB dongle olmadan CI pipeline\'ında otomatik çalışabilir — Virtual Authenticator olmadan bu test sadece manuel yapılabilir, otomasyon boşluğu kalır.',
       },
       {
         type: 'text',
@@ -4147,7 +4147,7 @@ new Actions(driver)
     blocks: [
       {
         type: 'simple-box', emoji: '🔑',
-        content: 'How do you test biometric fingerprint scanners or USB security keys (Passkeys) in a Selenium test? Since we can\'t press a physical fingerprint reader on a CI server, Selenium 4 allows us to add a Virtual Authenticator to mock these passwordless login flows.',
+        content: 'Virtual Authenticator is a software-based hardware simulator that Selenium injects into the browser for testing WebAuthn (FIDO2/Passkey) flows — exactly like using an H2 in-memory database instead of a real database in Java tests: the interface is identical, only the underlying implementation is swapped for the test context. If you can already mock the service layer with Mockito, why do you need a hardware simulator at the browser level? Because Passkey authentication happens inside the browser\'s own WebAuthn API, not in your application code — you cannot Mockito-mock a browser API; instead, you must tell the browser "a virtual authenticator is present." In Java you call addVirtualAuthenticator(options) to inject the virtual device, which replaces the physical USB security key and drives the full FIDO2 flow end-to-end. The critical QA scenario: when your company decides to drop passwords in favor of Passkeys, regression tests for the login flow can now run automatically in a CI pipeline without a physical dongle — without Virtual Authenticator, this test category can only be executed manually, leaving a permanent gap in your automation coverage.',
       },
       {
         type: 'text',
@@ -4280,7 +4280,7 @@ const s10 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎥',
-        content: 'Selenium IDE, test yazmayı bilmeyenlerin kullandığı basit bir tarayıcı eklentisinden ibaret değildir. Kayıt & oynatmanın ötesinde, içinde if-else koşulları, döngüler kurabilir, testleri komut satırından paralel çalıştırabilir ve bunları doğrudan Java JUnit koduna dönüştürebilirsiniz.',
+        content: 'Selenium IDE, bir test akışının "kaba taslak" çizmesini sağlayan tarayıcı tabanlı bir prototipleme aracıdır — tıpkı Java\'da IntelliJ\'in "Generate" menüsüyle getter/setter iskelet kodu üretmesi gibi: elle yazılacak boilerplate\'i otomatize eder, ama çıktıyı olduğu gibi production\'a göndermezsin. Peki zaten Java ile Selenium kodu yazabiliyorken neden IDE ile kayıt yapmak gerekiyor? Çünkü yeni bir uygulama veya sayfa keşfederken hangi locator\'ın stabil olduğunu, navigasyon sırasının ne olduğunu ve hangi wait koşulunun gerektiğini önceden bilemezsin; IDE ile tarayıcıyı kullanarak akışı kayıt edip locator önerilerini keşfeder, sonra üretilen kodu Java JUnit formatına export ederek refactor edersin. Java\'da `if/else + for` döngülerinle entegrasyon yaparken, IDE\'nin `.side` formatında da aynı control flow primitifleri (if/else/while) mevcuttur. QA ekiplerinde gerçek değeri şurada: manuel testçi kod yazmadan bir senaryoyu IDE\'de kaydeder, export eder ve QA mühendisi bu export\'u gerçek test suite\'ine entegre eder — iki profile arasında köprü kurar, "neden bu test yok?" sorusunu engeller.',
       },
       {
         type: 'text',
@@ -4399,7 +4399,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
     blocks: [
       {
         type: 'simple-box', emoji: '🎥',
-        content: 'Selenium IDE is not just a simple recorder for non-technical users. Beyond recording, it supports conditional execution (if-else), loops, running tests in parallel via CLI, and exporting steps directly to clean JUnit/TestNG Java code.',
+        content: 'Selenium IDE is a browser-based prototyping tool for sketching a test flow in rough strokes — analogous to IntelliJ\'s "Generate" menu producing getter/setter boilerplate in Java: it automates what you would otherwise write by hand, but you do not ship the output to production as-is. If you can already write Selenium code in Java, why record with the IDE at all? Because when exploring an unfamiliar application or page, you do not yet know which locator will be stable, what the correct navigation order is, or which wait conditions are needed; recording the flow in the browser reveals the IDE\'s locator suggestions and the action sequence, then you export to Java JUnit format and refactor the result into production-quality code. The same control flow primitives (if/else/while) available in your Java tests also exist inside the IDE\'s .side format. In a QA team, the real value is as a bridge: a manual tester records a scenario without writing code, exports it, and the automation engineer integrates the export into the real test suite — connecting two skill profiles and eliminating the "why is there no test for this?" conversation.',
       },
       {
         type: 'text',
@@ -4518,7 +4518,7 @@ const s11 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🚢',
-        content: '100 adet testi tek bir bilgisayarda sırayla çalıştırmak saatler sürer. Selenium Grid 4, testleri bir limandaki konteynerler gibi farklı işletim sistemleri (Linux, Windows, macOS) ve tarayıcılara (Chrome, Firefox, Safari) paralel olarak dağıtıp saniyeler içinde koşturan filo komutanıdır.',
+        content: 'Selenium Grid 4, Java\'nın ForkJoinPool paralel executor\'ının tarayıcı testlerine uygulanmasıdır: tek bir JVM thread yerine farklı makinelerdeki (Node) tarayıcı process\'lerini paralel olarak koordine eder. Ama zaten JUnit 5 ile @Execution(CONCURRENT) var, neden ayrı bir Grid altyapısı kurulsun? Çünkü cross-browser gereksinimleri burada devreye girer: aynı testi Chrome/Firefox/Safari\'de ve hem Linux hem Windows üzerinde paralel koşturmak, tek bir makinenin kaldırabileceğinin çok ötesindedir; Grid farklı OS/tarayıcı matrisini gerçek dağıtık Node\'lara yayar. Grid 4, eski Hub/Node mimarisini mikroservis mimarisine (Router, Distributor, Session Map, Event Bus) dönüştürmüş olması ile Grid 3\'ten ayrışır — tıpkı monolith Java uygulamasının microservice\'lere bölünmesi gibi, her bileşen bağımsız scale edilebilir. QA için kritik senaryo: bir e-ticaret platformu "Safari\'de ödeme sayfası bozuk mu değil mi bilmiyoruz" sorusunu CI\'da otomatik cevaplamak istiyorsa, Grid olmadan bu kontrol ya elle ya da pahalı cloud servis aboneliğiyle yapılır; Grid ile kendi altyapında tarayıcı matrisi oluşturup her commit\'te regresyon koşabilirsin.',
       },
       {
         type: 'text',
@@ -4670,7 +4670,7 @@ driver.quit();`,
     blocks: [
       {
         type: 'simple-box', emoji: '🚢',
-        content: 'Running 100 E2E tests on a single machine sequentially takes hours. Selenium Grid 4 distributes tests across various OS platforms (Linux, Windows, macOS) and browsers (Chrome, Firefox, Safari) in parallel like shipping containers at a port, completing runs in seconds.',
+        content: 'Selenium Grid 4 is the application of Java\'s ForkJoinPool parallel executor to browser tests: instead of coordinating threads in a single JVM, it coordinates browser processes running on separate machines (Nodes) in parallel. But JUnit 5 already has @Execution(CONCURRENT) — why set up a whole separate Grid infrastructure? Because cross-browser requirements step in: running the same test against Chrome, Firefox, and Safari simultaneously, across both Linux and Windows, is well beyond what a single machine can handle; Grid spreads the OS/browser matrix across genuinely distributed Nodes. Grid 4 distinguishes itself from Grid 3 by replacing the monolithic Hub/Node model with a microservices architecture (Router, Distributor, Session Map, Event Bus) — exactly like splitting a Java monolith into independent microservices, each component scales independently. The critical QA scenario: an e-commerce platform asking "is the checkout page broken in Safari?" must answer that question automatically in CI; without Grid it falls back to manual verification or expensive cloud service subscriptions, while Grid lets you build your own browser matrix on-premise and run regression on every commit.',
       },
       {
         type: 'text',
@@ -4825,7 +4825,7 @@ const s12 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Selenium öğrenirken herkes aynı hataları yapar. Bu bölüm en sık karşılaşılan 10 hatayı ve çözümlerini içerir — copy-paste yapıp gerçek hata mesajınızla karşılaştırabilirsiniz.',
+        content: 'Selenium\'daki hata mesajları, Java\'nın checked exception\'ları gibi davranır: mesajı yüzeysel okursun, yanlış yere bakarsın, saatlerce debug edersin. Örneğin NoSuchElementException bir "locator yanlış" hatası gibi görünür ama çoğu zaman locator doğrudur — element henüz DOM\'a eklenmemiştir; bu, Java\'da bir Future\'ı .get() olmadan okumaya çalışmaya benzer. Peki bu hatalar belgelenmiş ve bilinen hatalarsa neden herkes aynı tuzağa düşüyor? Çünkü hata mesajı kök nedeni değil belirtiyi gösterir; "Unable to locate element" diyince akıl "locator\'ı düzelt" der ama gerçek sorun genellikle timing, iframe context veya DOM yeniden render olmasıdır. StaleElementReferenceException ise Java\'da WeakReference\'a GC sonrası erişmek gibidir: element yakalanmış, DOM yeniden render edilmiş, referans artık geçersiz — bunu anlamadan "bir daha findElement" demek sorunu gizler. QA\'da bu hataların birikimi flaky test report\'larına dönüşür: CI yeşil görünür ama aynı test bazen geçer bazen geçmez; bu güvensizlik, ekibin tüm test sonuçlarını görmezden gelmesine zemin hazırlar.',
       },
       {
         type: 'error-dictionary',
@@ -4968,7 +4968,7 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Everyone hits the same errors when learning Selenium. This section covers the 10 most common errors with real error messages and solutions — copy-paste to match your error.',
+        content: 'Selenium error messages behave like Java\'s checked exceptions: you read the message at face value, look in the wrong place, and spend hours debugging. For example, NoSuchElementException looks like "your locator is wrong" — but most of the time the locator is correct and the element simply has not been added to the DOM yet, analogous to reading a Java Future without calling .get() first. If these errors are documented and well-known, why does everyone fall into the same traps? Because the error message reports the symptom, not the root cause: "Unable to locate element" makes the mind jump to "fix the locator," but the actual problem is usually timing, a missing iframe context switch, or a DOM re-render. StaleElementReferenceException is like accessing a Java WeakReference after garbage collection: the element was captured, the DOM re-rendered, and the reference is no longer valid — papering over it with another findElement hides the problem. In QA, accumulating these errors produces flaky test reports: CI appears green but the same test passes intermittently; this unreliability creates a culture where the team ignores all test results, which is far more dangerous than a test suite that simply fails.',
       },
       {
         type: 'error-dictionary',
@@ -5078,7 +5078,7 @@ const s13 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎓',
-        content: 'Mülakatta "Selenium nedir?" sorusu yerine "Production\'da şu hatayla karşılaştın, ne yaparsın?" sorusu sorulur. Bu 50 soru, gerçek iş hayatından senaryolar içeriyor.',
+        content: 'Selenium mülakat soruları, Java Core sorularından farklı bir zihinsel modeli test eder: "API\'yi ezberledin mi?" değil, "gerçek bir otomasyon projesinde sorun çözebiliyor musun?" Tıpkı Java\'da "Collections nedir?" yerine "HashMap ile ConcurrentHashMap arasındaki farkı production threading senaryosunda anlat" diye sorulması gibi — doğru cevap belleği değil, kök-neden analizi yapabilme kapasitesini ölçer. Peki Selenium öğrendikten sonra bu soruları çalışmak neden hâlâ gerekiyor? Çünkü mülakatta karşılaştığın senaryo ("CI\'da aralıklı başarısız olan testler var, nasıl stabilize edersin?") kendi projende hiç görmediğin bir durumu tarif edebilir; bu 50 soru her senaryo kategorisini önceden yaşatır, mülakatta "buna benzeri bir şeyle karşılaştım" hissini verir. Java bilgini avantaja dönüştür: "Java\'daki Future timeout mekanizması gibi ExplicitWait..." şeklinde çapraz bağ kurabilmek, aynı soruyu Selenium-only bilen birine göre çok daha güçlü bir cevap üretir ve mülakatçıda derin teknik anlayış izlenimi bırakır.',
       },
       {
         type: 'interview-questions',
@@ -5845,7 +5845,7 @@ Assert.assertEquals(violations.size(), 0, "Erişilebilirlik ihlali var!");` },
     blocks: [
       {
         type: 'simple-box', emoji: '🎓',
-        content: 'Real interviews don\'t ask "what is Selenium?" — they ask "You hit this error in production, what do you do?" These 50 questions cover real-world scenarios.',
+        content: 'Selenium interview questions test a different mental model than Java Core questions: not "did you memorize the API?" but "can you solve real problems in an automation project?" Just as Java interviews ask "explain the difference between HashMap and ConcurrentHashMap in a production threading scenario" instead of "what is a Collection?" — the right answer measures root-cause analytical capacity, not memory. If you already learned Selenium, why study these questions separately? Because the scenario you face in an interview ("tests are intermittently failing in CI — how do you stabilize them?") may describe a situation you have never personally encountered; these 50 questions pre-load each scenario category so that in the interview you can genuinely say "I\'ve dealt with something like this." Use your Java background as a differentiator: framing an answer as "similar to a Java Future timeout mechanism, ExplicitWait..." creates cross-domain connections that someone with Selenium-only knowledge cannot make, and leaves the interviewer with a strong impression of deep technical understanding rather than surface-level tool familiarity.',
       },
       {
         type: 'interview-questions',

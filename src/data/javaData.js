@@ -9,7 +9,7 @@ const s0 = {
     blocks: [
       {
         type: 'simple-box', emoji: '☕',
-        content: 'Java\'yı bir "evrensel tercüman" gibi düşün. Türkçe yazdığın bir mektubu, dünyanın her yerindeki insanlar kendi dillerinde okuyabiliyor. Java da böyle: bir kere kod yaz, JVM sayesinde Windows\'ta, Mac\'te, Linux\'ta — her yerde çalışır. "Write Once, Run Anywhere" sloganı buradan geliyor.',
+        content: 'Java\'nın JVM katmanı, kaynak kodu doğrudan işletim sistemine değil, platformdan bağımsız bir ara dile (bytecode) çevirir; her makinedeki JVM ise bu tek bytecode\'u kendi işletim sistemine özgü komutlara tercüme eder — tıpkı bir konferansta konuşmacının tek bir metni okuması ama her kabindeki tercümanın onu kendi diline aynı anda çevirmesi gibi: metni bir kez yazarsın, tercüman ordusu geri kalanını halleder. Peki C++ gibi diller de derleniyorken neden Java araya JVM koyup fazladan bir katman ekliyor? Çünkü C++ her platform için ayrı ayrı derlenip yeniden test edilmek zorundadır; Java\'da bytecode her yerde aynıdır, sadece JVM değişir — "Write Once, Run Anywhere" bu demektir. C++\'ta Windows testin geçse bile Linux binary\'sinin farklı davranma riski varken, Java\'da aynı .class dosyası her CI runner\'ında birebir aynı çalışır. QA mühendisi için bu kritik: Selenium test suite\'ini geliştirici Windows\'ta yazar, CI pipeline Linux container\'da koşar, ama JVM sayesinde "bende çalışıyordu" tarzı platform kaynaklı flaky test riski neredeyse sıfırlanır.',
       },
       {
         type: 'text',
@@ -125,7 +125,7 @@ Merhaba QA!`,
     blocks: [
       {
         type: 'simple-box', emoji: '☕',
-        content: 'Think of Java as a "universal translator." A letter you write in English can be read by people everywhere in their own context. Java works the same way: write code once, and thanks to the JVM, it runs on Windows, Mac, Linux — everywhere. That\'s where the "Write Once, Run Anywhere" slogan comes from.',
+        content: 'Java\'s JVM layer does not compile source code directly to the operating system; it compiles to a platform-independent intermediate language (bytecode), and the JVM on each machine translates that single bytecode into OS-specific instructions — like a conference speaker reading one script while an interpreter in each booth simultaneously renders it into a different language: you write the script once, and the army of interpreters handles the rest. But if languages like C++ already compile too, why does Java insert the JVM as an extra layer? Because C++ must be recompiled and retested separately for every platform, whereas in Java the bytecode is identical everywhere and only the JVM changes — that is exactly what "Write Once, Run Anywhere" means. In C++ a passing Windows test can still behave differently on the Linux binary, but in Java the same .class file runs identically on every CI runner. For a QA engineer this is critical: a developer writes the Selenium suite on Windows, the CI pipeline runs it in a Linux container, yet thanks to the JVM the risk of platform-driven "it worked on my machine" flaky tests is virtually eliminated.',
       },
       {
         type: 'text',
@@ -779,7 +779,7 @@ const s1 = {
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'Java öğrenme sırası basittir: önce JDK kurulur, sonra `javac` ile tek dosya elle derlenir, ardından IntelliJ gibi bir IDE ile proje yazma alışkanlığı kazanılır. Maven ise ilk gün şart değildir; proje büyüyüp dependency, test ve paketleme ihtiyacı başladığında devreye girer.',
+        content: 'JDK\'yı elektrik şebekesine bağlanmaya, `javac` ile tek dosya derlemeyi bir prizin çalışıp çalışmadığını el feneriyle test etmeye, Maven\'ı ise tüm evin kablolamasını yöneten sigorta panosuna benzet: önce akımın geldiğini tek prizle doğrularsın, sonra ölçek büyüyünce her şeyi tek panodan yönetirsin — bu yüzden JDK gün 1, Maven ise ihtiyaç doğunca gelir. Peki IntelliJ zaten kod yazıp çalıştırabiliyorken neden ayrıca Maven gibi bir build tool\'a ihtiyaç var? Çünkü IDE tek makinende çalışır ama Maven `pom.xml` ile bağımlılıkları, sürümleri ve derleme adımlarını herkeste aynı olacak şekilde standartlaştırır. Bu, .NET dünyasındaki NuGet + MSBuild ikilisinin Java karşılığıdır; Python\'daki `pip install`\'in tek tek elle kurulmasına kıyasla Maven her şeyi tek komutta deterministik olarak indirir. QA mühendisi için fark hayatidir: Selenium ve JUnit5 sürümlerini `pom.xml`\'de sabitlersen CI pipeline\'ın herkesin makinesinde aynı jar\'ları kullanır ve "bende geçti sende kaldı" tarzı sürüm kaynaklı sahte FAIL\'ler ortadan kalkar.',
       },
       {
         type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
@@ -948,7 +948,7 @@ mvn test`,
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'The Java learning order is simple: install the JDK first, compile one file manually with `javac`, then use an IDE such as IntelliJ to build project habits. Maven is not required on day one; it becomes useful when you need dependencies, tests, and packaging.',
+        content: 'Think of the JDK as connecting to the power grid, compiling a single file with `javac` as testing one outlet with a flashlight, and Maven as the breaker panel that manages the wiring of the whole house: first you confirm current flows through one outlet, then as the scale grows you manage everything from one panel — which is why the JDK comes on day 1 and Maven arrives once the need appears. But if IntelliJ can already write and run code, why do you also need a build tool like Maven? Because the IDE runs on your one machine, whereas Maven standardizes dependencies, versions, and build steps via `pom.xml` so they are identical for everyone. This is the Java equivalent of NuGet + MSBuild in the .NET world; compared to installing each package by hand with Python\'s `pip install`, Maven downloads everything deterministically in one command. For a QA engineer the difference is vital: pinning Selenium and JUnit5 versions in `pom.xml` makes your CI pipeline use the same jars on everyone\'s machine, eliminating version-driven false FAILs of the "passed for me, failed for you" kind.',
       },
       {
         type: 'heading', text: { tr: '🪟 Windows Kurulumu', en: '🪟 Windows Installation' },
@@ -1090,7 +1090,7 @@ const s2 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🧱',
-        content: 'OOP\'yi LEGO seti gibi düşün. Her LEGO parçası (class) kendi içinde tamamdır — rengi, şekli, yapısı var. Parçaları birbirine takarak (composition) büyük yapılar oluşturuyorsun. Collections ise bu parçaları sakladığın kutu.',
+        content: 'OOP\'de bir class, veriyi (fields) ve o veriyle ne yapılabileceğini (methods) tek bir kapsülde birleştirir — tıpkı bir LEGO parçasının hem şeklini (veri) hem de nereye takılabileceğini belirleyen çıkıntılarını (davranış) tek parçada taşıması gibi: parçayı bir kez tasarlarsın, sonra binlerce kez güvenle birleştirirsin çünkü her parça kendi kurallarını içinde taşır. Peki her şeyi tek bir dev fonksiyonda tutabiliyorken neden veriyi class\'lara bölüp encapsulation ile uğraşmak gerekiyor? Çünkü tek dev blokta bir alanı değiştirdiğinde nerede kırılacağını bilemezsin; class\'lar sorumluluğu izole eder, değişiklik yalnızca ilgili parçayı etkiler. Java\'da Collections (ArrayList, HashMap, HashSet) bu parçaları sakladığın tip-güvenli kutulardır; Python\'daki gevşek list/dict\'in aksine Java\'da `List<User>` derleme zamanında yanlış tip eklemeni engeller. QA mühendisi için bu izolasyon paha biçilmezdir: Page Object Model tam olarak OOP\'dir — her sayfa bir class olur, locator değişince yalnızca o class güncellenir, 200 test dosyasını tek tek elle düzeltmek zorunda kalmazsın ve bakım kaynaklı bozuk testler önlenir.',
       },
       {
         type: 'visual', variant: 'boxes',
@@ -1322,7 +1322,7 @@ userIds.add(1002);`,
     blocks: [
       {
         type: 'simple-box', emoji: '🧱',
-        content: 'Think of OOP as a LEGO set. Each LEGO piece (class) is complete in itself — it has color, shape, structure. You connect pieces (composition) to build large structures. Collections is the box where you store these pieces.',
+        content: 'In OOP a class bundles the data (fields) and what can be done with that data (methods) into a single capsule — just as a LEGO piece carries both its shape (data) and the studs that dictate where it can attach (behavior) in one part: you design the piece once, then combine it thousands of times safely because each piece carries its own rules inside. But if you could keep everything in one giant function, why bother splitting data into classes and dealing with encapsulation? Because in one giant block you cannot tell where changing a field will break things; classes isolate responsibility so a change affects only the relevant piece. In Java, Collections (ArrayList, HashMap, HashSet) are the type-safe boxes where you store these pieces; unlike Python\'s loose list/dict, Java\'s `List<User>` prevents you from adding the wrong type at compile time. For a QA engineer this isolation is priceless: the Page Object Model is exactly OOP — each page becomes a class, and when a locator changes you update only that class instead of hand-fixing 200 test files, preventing maintenance-driven broken tests.',
       },
       {
         type: 'visual', variant: 'boxes',
@@ -1484,7 +1484,7 @@ const s3 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🧪',
-        content: 'JUnit5 ve TestNG\'yi iki farklı banka gibi düşün. Her ikisi de işini yapıyor — para yatırıp çekebiliyorsun. Ama biri belki daha fazla şube açmış (TestNG\'nin daha fazla annotation\'ı var), diğeri daha modern ve hızlı büyüyor (JUnit5 modüler yapı). Hangisini seçeceğin işvereninin tercihine göre değişir.',
+        content: 'Bir test framework\'ü, testlerini bulan, sırayla çalıştıran, sonuçları raporlayan ve `@BeforeEach`/`@AfterEach` gibi kancalarla kurulum-temizlik yapan bir "otomatik hakem"dir — tıpkı bir yarışta koşucuları sıraya dizen, başlat düdüğünü çalan, bitiş zamanını ölçen ve herkes için aynı kuralı işleten hakem gibi: sen yalnızca testi yazarsın, hakem geri kalan tüm koreografiyi yönetir. Peki testleri düz bir `main` metodunda `if (sonuç != beklenen) System.out.println("hata")` diyerek de çalıştırabiliyorken neden JUnit5/TestNG gerekiyor? Çünkü elle yazılmış kontroller ilk hatada durur, hangi testin geçtiğini/kaldığını raporlamaz ve CI ile entegre olmaz; framework her testi izole çalıştırıp yeşil/kırmızı rapor üretir. JUnit5 modüler ve modern assertion API\'siyle öne çıkarken TestNG `@DataProvider` ve gelişmiş paralel çalıştırmada güçlüdür — seçim işverenin stack\'ine bağlıdır. QA mühendisi için bu fark somut sonuç doğurur: 50 senaryolu bir regression suite\'inde framework her senaryoyu bağımsız raporlar, böylece tek bir kırık test tüm koşumu çökertmez ve gerçekten hangi özelliğin bozulduğunu anında görürsün.',
       },
       {
         type: 'table',
@@ -1742,7 +1742,7 @@ public class LoginTest {
     blocks: [
       {
         type: 'simple-box', emoji: '🧪',
-        content: 'Think of JUnit5 and TestNG as two different banks. Both get the job done. But one has more branches open (TestNG has more annotations), while the other is more modern and growing faster (JUnit5 with modular architecture). Which you choose depends on your employer\'s preference.',
+        content: 'A test framework is an "automatic referee" that discovers your tests, runs them in order, reports results, and performs setup-teardown via hooks like `@BeforeEach`/`@AfterEach` — like a race referee who lines runners up, blows the start whistle, times the finish, and enforces the same rule for everyone: you only write the test, and the referee manages all the remaining choreography. But if you could run tests in a plain `main` method with `if (result != expected) System.out.println("error")`, why do you need JUnit5/TestNG? Because hand-written checks stop at the first failure, do not report which test passed or failed, and do not integrate with CI; the framework runs each test in isolation and produces a green/red report. JUnit5 stands out with its modular, modern assertion API while TestNG is strong in `@DataProvider` and advanced parallel execution — the choice depends on your employer\'s stack. For a QA engineer this difference has concrete consequences: in a 50-scenario regression suite the framework reports each scenario independently, so one broken test does not crash the entire run and you instantly see which feature actually regressed.',
       },
       {
         type: 'table',
@@ -1861,7 +1861,7 @@ const s4 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🛠️',
-        content: 'Gerçek bir QA işini düşün: e-ticaret sitesi, günde 10.000 kullanıcı. Her deploy öncesi login, ürün arama, sepete ekleme testlerini elle yapmak imkansız. Java + Selenium + JUnit5 ile 3 dakikada otomatik çalıştırırsın.',
+        content: 'Otomasyon suite\'i, elle tekrarladığın tıklama-yaz-doğrula adımlarını kaydedip bir düğmeye basınca hatasız tekrar oynatan bir "robot pilot" gibidir — tıpkı bir uçağın autopilot\'unun rotayı bir kez programlayıp her uçuşta aynı hassasiyetle uygulaması gibi: senaryoyu bir kez kodlarsın, robot her deploy\'da yorulmadan aynı kontrolü yapar. Peki elle test zaten çalışıyorken neden Java + Selenium + JUnit5 ile otomasyona zaman harcanıyor? Çünkü elle test 10.000 kullanıcılı bir e-ticaret sitesinde her deploy öncesi login, arama, sepet akışını saatlerce tekrarlamayı gerektirir ve insan yorulunca adım atlar; otomasyon aynı akışı 3 dakikada, atlama yapmadan koşar. Bu, Python + pytest kombinasyonuyla aynı işi yapar ama Java\'nın statik tip güvenliği büyük ekipte refactor sırasında Selenium API çağrılarını derleme zamanında doğrular, Python\'da ancak çalışma zamanında patlayan hataları önler. QA mühendisi için asıl kazanç güvenilirliktir: gece yarısı deploy edilen bir hotfix\'i otomasyon suite\'i saniyeler içinde doğrular, elle test edilemeyecek kadar hızlı giden pipeline\'da production incident\'a dönüşecek regresyonları daha CI aşamasında yakalar.',
       },
       {
         type: 'heading', text: { tr: 'Proje Yapısı — Maven Page Object Model', en: 'Project Structure — Maven POM' },
@@ -1990,7 +1990,7 @@ public class DriverFactory {
     blocks: [
       {
         type: 'simple-box', emoji: '🛠️',
-        content: 'Think of a real QA job: e-commerce site with 10,000 users/day. Running login, search, cart tests manually before every deploy is impossible. With Java + Selenium + JUnit5, run all tests automatically in 3 minutes.',
+        content: 'An automation suite is like a "robot pilot" that records the click-type-verify steps you repeat by hand and replays them flawlessly at the press of a button — like an aircraft autopilot that you program the route into once and it executes with the same precision on every flight: you code the scenario once, and the robot performs the same check tirelessly on every deploy. But if manual testing already works, why spend time on automation with Java + Selenium + JUnit5? Because on an e-commerce site with 10,000 users, manual testing means repeating the login, search, and cart flow for hours before every deploy, and tired humans skip steps; automation runs the same flow in 3 minutes without skipping. This does the same job as Python + pytest, but Java\'s static type safety validates Selenium API calls at compile time during a refactor in a large team, preventing errors that in Python only blow up at runtime. For a QA engineer the real gain is reliability: the automation suite validates a midnight hotfix in seconds and catches, already at the CI stage, regressions that would otherwise become production incidents in a pipeline moving too fast for manual checks.',
       },
       {
         type: 'code', language: 'java',
@@ -2074,7 +2074,7 @@ const s5 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔗',
-        content: 'Java ekosistemini bir şehir gibi düşün. JDK yollar ve elektrik, Maven lojistik şirket, Selenium araç, TestNG trafik kuralları, Allure şehir haritası. Hepsi bir arada çalışarak seni iş hayatına hazırlar.',
+        content: 'Java QA ekosistemi, her biri tek başına anlamsız ama birleştiğinde bir üretim hattı oluşturan makineler zinciri gibidir: JDK ham maddeyi işler (kod→bytecode), Maven parçaları tedarik eder (dependency), Selenium montajı yapar (tarayıcı sürücüsü), TestNG/JUnit5 kalite kontrol istasyonudur, Allure ise müşteriye giden rapor etiketidir — hiçbiri diğeri olmadan bitmiş ürün üretemez, ama birlikte kesintisiz akar. Peki tek bir dev kütüphane her şeyi yapabiliyorken neden bu kadar ayrı araç kullanmak gerekiyor? Çünkü her araç tek bir işi çok iyi yapar ve bağımsız güncellenebilir; Selenium yeni tarayıcıya uyum sağlarken TestNG\'yi değiştirmen gerekmez. Bu, Python\'daki pytest + requests + allure-pytest ayrışmasının Java karşılığıdır ve Unix felsefesiyle aynı mantığı taşır. QA mühendisi için bu modülerlik güvenilirlik demektir: Selenium\'da bir CVE çıkarsa yalnızca o `pom.xml` sürümünü yükseltirsin, tüm suite\'i baştan yazmazsın; araçların gevşek bağlı olması, tek bir bağımlılık güncellemesinin tüm pipeline\'ı beklenmedik şekilde kırma riskini azaltır.',
       },
       {
         type: 'visual', variant: 'flow', title: 'Java QA Ekosistemi',
@@ -2219,7 +2219,7 @@ const s5 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔗',
-        content: 'Think of the Java ecosystem as a city. JDK is roads and electricity, Maven is logistics, Selenium is the vehicle, TestNG is traffic rules, Allure is the city map. Together they prepare you for professional QA work.',
+        content: 'The Java QA ecosystem is like a chain of machines that are meaningless alone but form a production line when combined: the JDK processes the raw material (code→bytecode), Maven supplies the parts (dependencies), Selenium does the assembly (browser driver), TestNG/JUnit5 is the quality-control station, and Allure is the report label that ships to the customer — none can produce the finished product without the others, but together they flow seamlessly. But if a single giant library could do everything, why use so many separate tools? Because each tool does one job very well and can be updated independently; when Selenium adapts to a new browser, you do not have to change TestNG. This is the Java equivalent of the pytest + requests + allure-pytest split in Python and carries the same Unix-philosophy logic. For a QA engineer this modularity means reliability: if a CVE appears in Selenium you bump only that `pom.xml` version rather than rewriting the whole suite; the loose coupling of tools reduces the risk that a single dependency update unexpectedly breaks the entire pipeline.',
       },
       {
         type: 'visual', variant: 'flow', title: 'Java QA Ecosystem',
@@ -2298,7 +2298,7 @@ const s6 = {
   tr: {
     title: '🚨 Yaygın Java QA Hataları',
     blocks: [
-      { type: 'simple-box', emoji: '🚨', content: 'Her hata mesajının bir imzası var. Doktor gibi: ateş varsa enfeksiyon olabilir. Hata mesajını oku, imzayı tanı, çözümü uygula.' },
+      { type: 'simple-box', emoji: '🚨', content: 'Java\'nın stack trace\'i, hatanın nerede doğduğunu en üstte, oraya nasıl gelindiğini ise satır satır aşağıda gösteren bir "olay yeri zaman çizelgesi" gibidir — tıpkı bir doktorun ateş+öksürük+yorgunluk imzasından enfeksiyonu teşhis etmesi gibi: `NullPointerException` mı `ClassCastException` mı, imza sana kök nedeni söyler. Peki hata zaten "bir şeyler patladı" diyorken neden stack trace\'i satır satır okumak gerekiyor? Çünkü çoğu bug, mesajın işaret ettiği satırda değil, ona veri gönderen bir üst çağrıda saklıdır; imzayı tanımadan yanlış yeri düzeltirsin. Python\'ın traceback\'i benzer çalışır ama en son çağrıyı en altta gösterir; Java tersine en üstte verir, bu yön farkını bilmek okumayı hızlandırır. QA mühendisi için bu beceri kritiktir: CI\'da kırmızı olan bir testin log\'unda doğru imzayı okuyabilirsen, saatlerce yanlış locator\'la uğraşmak yerine gerçek kök nedeni dakikalar içinde bulur ve flaky mi gerçek bug mı olduğunu ayırt edersin.' },
       { type: 'heading', text: { tr: '1. NoSuchElementException', en: '1. NoSuchElementException' } },
       { type: 'code', language: 'bash', label: 'Hata', code: `org.openqa.selenium.NoSuchElementException: 
 Unable to locate element: {"method":"id","selector":"loginBtn"}` },
@@ -2388,7 +2388,7 @@ assertThat(element.getText().trim()).isEqualTo("Welcome, Admin!");` },
   en: {
     title: '🚨 Common Java QA Errors',
     blocks: [
-      { type: 'simple-box', emoji: '🚨', content: 'Each error has a "signature." Like a doctor: fever could mean infection. Read the error message, recognize the signature, apply the solution.' },
+      { type: 'simple-box', emoji: '🚨', content: 'Java\'s stack trace is like a "crime-scene timeline" that shows where the error was born at the top and, line by line below, how you got there — like a doctor diagnosing an infection from the fever+cough+fatigue signature: whether it is a `NullPointerException` or a `ClassCastException`, the signature tells you the root cause. But if the error already says "something blew up," why read the stack trace line by line? Because most bugs hide not in the line the message points to but in a caller one level up that sent it bad data; without recognizing the signature you fix the wrong place. Python\'s traceback works similarly but shows the last call at the bottom; Java shows it at the top, and knowing this directional difference speeds up your reading. For a QA engineer this skill is critical: if you can read the correct signature in the log of a red CI test, you find the true root cause in minutes instead of fighting the wrong locator for hours, and you can tell whether it is flaky or a real bug.' },
       { type: 'heading', text: { en: '1. NoSuchElementException' } },
       { type: 'code', language: 'java', label: 'Solution', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();` },
@@ -7577,14 +7577,14 @@ const s7 = {
   tr: {
     title: '💼 Java QA Mülakat Soruları (50 Soru)',
     blocks: [
-      { type: 'simple-box', emoji: '💼', content: 'Bu sorular gerçek mülakatlarda soruldu. Senaryo bazlı — her cevabı kendi projenle ilişkilendir. Önce anla, sonra anlat. Her soru için Java analoji, kod örneği ve mülakat notu içerir.' },
+      { type: 'simple-box', emoji: '💼', content: 'Mülakat, ezberlediğin tanımları değil bir sorunu nasıl çözdüğünü ölçen bir "pilot testi" gibidir — tıpkı bir pilotun simülatörde motor arızası senaryosuyla sınanması gibi: mülakatçı senden "flaky test\'i nasıl stabilize edersin?" der, cevabın gerçek deneyimini ele verir. Peki teoriyi biliyorken neden senaryo bazlı hazırlanmak gerekiyor? Çünkü "explicit wait nedir?" sorusuna tanım vermek kolaydır ama "CI\'da rastgele kalan bir testi nasıl teşhis ettin?" sorusu senin gerçekten sahada durup durmadığını gösterir. Cevaplarını Java bağlamında kur (JUnit5 vs TestNG, WebDriverWait vs Thread.sleep, HashMap vs TreeMap seçimleri gibi) ve her yanıtı kendi projenle ilişkilendir. QA mühendisi için bu hazırlık doğrudan iş demektir: senaryo bazlı düşünme alışkanlığı hem mülakatı geçmeni sağlar hem de gerçek işte production incident anında sakin ve sistematik davranmanı öğretir.' },
       { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
   en: {
     title: '💼 Java QA Interview Questions (50 Questions)',
     blocks: [
-      { type: 'simple-box', emoji: '💼', content: 'Real interview questions in scenario-based format — each answer includes Java analogy, code example, and interview tip. Understand first, then explain.' },
+      { type: 'simple-box', emoji: '💼', content: 'An interview is like a "pilot test" that measures how you solve a problem rather than the definitions you memorized — like a pilot being tested with an engine-failure scenario in a simulator: the interviewer says "how do you stabilize a flaky test?" and your answer reveals your real experience. But if you already know the theory, why prepare in a scenario-based way? Because giving a definition to "what is an explicit wait?" is easy, but "how did you diagnose a test that randomly fails in CI?" shows whether you have actually stood in the field. Frame your answers in the Java context (choices like JUnit5 vs TestNG, WebDriverWait vs Thread.sleep, HashMap vs TreeMap) and tie each response to your own project. For a QA engineer this preparation is directly job-relevant: the habit of scenario-based thinking both gets you through the interview and teaches you to stay calm and systematic during a real production incident.' },
       { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
@@ -7597,7 +7597,7 @@ const sA = {
     blocks: [
       {
         type: 'simple-box', emoji: '📝',
-        content: 'Java\'da bir program yazmak tıpkı bir yemek tarifi yazmak gibi: önce malzemeleri (değişkenler) tanımlarsın, sonra ne yapılacağını (operatörler) belirtirsin. Bilgisayar da bu tarifi adım adım uygular.',
+        content: 'Java\'da bir değişken tanımlarken tipini de yazarsın (`int sayi = 5;`), çünkü Java statik tipli bir dildir — tıpkı bir yemek tarifinde "2 su bardağı un" derken hem miktarı hem birimi sabitlemen gibi: birimi baştan belirlersin, sonradan yanlış malzeme koyamazsın. Peki Python\'da `sayi = 5` deyip geçebiliyorken neden Java\'da her değişkene tip yazma zahmetine giriliyor? Çünkü tip bildirimi derleyicinin hataları çalışmadan önce yakalamasını sağlar; `int`\'e string atamaya kalkarsan kod hiç çalışmaz. Python\'da bu hata ancak o satıra ulaşan test koşulunca ortaya çıkar, Java\'da derleme zamanında anında görünür. QA mühendisi için bu erken uyarı değerlidir: 500 satırlık bir test util\'inde yanlış tip kullanımı Java\'da CI daha başlamadan compile hatasıyla yakalanır, Python\'da ise ancak o kod yolundan geçen belirli bir senaryo koşulduğunda patlayarak sana sahte-yeşil bir güven verir.',
       },
       {
         type: 'visual', variant: 'boxes',
@@ -7839,7 +7839,7 @@ System.out.println(name);  // admin`,
     blocks: [
       {
         type: 'simple-box', emoji: '📝',
-        content: 'Writing a Java program is like writing a recipe: first define ingredients (variables), then specify what to do (operators). The computer executes the recipe step by step.',
+        content: 'When you declare a variable in Java you also write its type (`int count = 5;`), because Java is a statically typed language — like fixing both the amount and the unit when a recipe says "2 cups of flour": you set the unit up front so you cannot later add the wrong ingredient. But if Python lets you just write `count = 5`, why bother writing a type for every variable in Java? Because the type declaration lets the compiler catch errors before the code runs; if you try to assign a string to an `int`, the code never runs at all. In Python that error only surfaces when a test happens to reach that line, whereas in Java it appears instantly at compile time. For a QA engineer this early warning is valuable: in a 500-line test util, a wrong type usage is caught in Java by a compile error before CI even starts, while in Python it explodes only when a specific scenario passing through that code path runs, giving you a false-green sense of confidence until then.',
       },
       {
         type: 'visual', variant: 'boxes',
@@ -8005,7 +8005,7 @@ const sB = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔤',
-        content: 'String\'i bir kelime zinciri gibi düşün — harfleri bir ipe dizdik. Java\'da String nesneleri değiştirilemez (immutable): bir kez oluşturulunca bellekte değişmez, yeni bir string oluşturulur. Bu nedenle çok fazla string birleştirmesi yapıyorsan StringBuilder kullan.',
+        content: 'Java\'da String immutable\'dır: bir kez oluşturulan metin bellekte asla değişmez, her "değişiklik" aslında yeni bir String nesnesi doğurur — tıpkı taşa kazınmış bir yazı gibi: yazıyı düzeltmek istersen taşı silmezsin, yeni bir taş yontarsın, eski taş olduğu gibi kalır. Peki değiştirilemezlik zahmetliyken neden Java String\'i böyle tasarlamış, neden StringBuilder ayrı bir sınıf? Çünkü immutability\'nin String\'i thread-safe ve HashMap key olarak güvenli yapması gibi büyük avantajları var; ama döngüde 10.000 kez `+` ile birleştirme yaparsan her adımda yeni nesne yaratıp çöp üretir, işte tam bu yüzden değiştirilebilir StringBuilder kullanılır. Python\'da str de immutable\'dır ve `join` ile aynı sorun çözülür; C++\'ta ise string mutable olduğu için bu ayrım yoktur. QA mühendisi için bu fark performans testlerinde ortaya çıkar: büyük bir CSV\'yi satır satır `+` ile birleştiren bir raporlama util\'i, StringBuilder\'a çevrilmediğinde test suite\'ini gözle görülür yavaşlatır ve zamanlamaya duyarlı testlerde beklenmedik timeout kaynaklı flaky sonuçlar üretebilir.',
       },
       { type: 'heading', text: { tr: 'String Metotları', en: 'String Methods' } },
       {
@@ -8239,7 +8239,7 @@ const sB = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔤',
-        content: 'Think of a String as a chain of characters — letters threaded on a rope. Java Strings are immutable: once created, they cannot be changed in memory. Use StringBuilder for heavy concatenation.',
+        content: 'In Java a String is immutable: once created, the text never changes in memory, and every "change" actually produces a brand-new String object — like text carved in stone: to fix it you do not erase the stone, you carve a new one while the old stone stays intact. But if immutability is inconvenient, why did Java design String this way and make StringBuilder a separate class? Because immutability has big advantages such as making String thread-safe and safe as a HashMap key; yet if you concatenate with `+` 10,000 times in a loop, each step creates a new object and generates garbage — which is exactly why the mutable StringBuilder exists. In Python str is also immutable and the same problem is solved with `join`; in C++ strings are mutable so this distinction does not exist. For a QA engineer this difference shows up in performance tests: a reporting util that joins a large CSV line by line with `+`, if not converted to StringBuilder, visibly slows the test suite and can produce timeout-driven flaky results in timing-sensitive tests.',
       },
       { type: 'heading', text: { en: 'String Methods' } },
       {
@@ -8339,7 +8339,7 @@ const sC = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔀',
-        content: 'Akış kontrolü, programın karar verme mekanizmasıdır. Tıpkı GPS gibi: "Sola mı döneyim, düz mü gideyim?" — if/else karar verir. "Her kavşakta kontrol et" — döngü tekrar eder.',
+        content: 'Akış kontrolü (if/else, switch, döngüler), programın hangi kodun ne zaman ve kaç kez çalışacağına bir koşula bakarak karar verdiği mekanizmadır — tıpkı bir demiryolu makasçısının gelen trene bakıp rayı bir yöne çevirmesi gibi: aynı ray sistemi, koşula göre treni farklı hatta gönderir, karar bir kez kurulur ama her tren için otomatik işler. Peki tüm satırları sırayla yazsak yeter miydi, neden if/else ve döngü gibi yapılara ihtiyaç var? Çünkü gerçek programlar duruma göre farklı davranmalı ve tekrarı elle yüzlerce kez yazmak yerine döngüyle özetlemeli; koşulsuz düz kod ne karar verebilir ne de veriyle ölçeklenir. Java\'da `switch` artık pattern matching ile Python\'daki `match` ve TypeScript\'teki `switch`\'e yaklaşır, ama Java\'nın tip güvenliği kollarda yanlış tip karşılaştırmasını derleme zamanında yakalar. QA mühendisi için akış kontrolü test mantığının kalbidir: bir test verisine göre farklı doğrulama yolu seçen (`if (env == "prod") ... else ...`) veya bir listedeki her elemanı tek tek assert eden döngüler yanlış kurulursa test hiçbir şeyi kontrol etmeden sessizce PASS verir — bu da en tehlikeli hata türü olan sahte yeşildir.',
       },
       { type: 'heading', text: { tr: 'if / else if / else', en: 'if / else if / else' } },
       {
@@ -8636,7 +8636,7 @@ if (score >= 90) {
     blocks: [
       {
         type: 'simple-box', emoji: '🔀',
-        content: 'Control flow is the program\'s decision-making mechanism. Like a GPS: "Turn left or go straight?" — if/else decides. "Check at every junction" — loops repeat.',
+        content: 'Control flow (if/else, switch, loops) is the mechanism by which a program decides which code runs, when, and how many times based on a condition — like a railway switchman who looks at the incoming train and turns the track one way: the same rail system routes the train to a different line depending on the condition, and the decision is set up once but works automatically for every train. But would writing all lines in sequence be enough — why do we need structures like if/else and loops? Because real programs must behave differently depending on the situation and must summarize repetition with a loop instead of writing it by hand hundreds of times; unconditional straight-line code can neither decide nor scale with data. In Java `switch` now approaches Python\'s `match` and TypeScript\'s `switch` with pattern matching, but Java\'s type safety catches wrong-type comparisons in the arms at compile time. For a QA engineer control flow is the heart of test logic: if a loop that asserts each element of a list, or a branch that picks a different validation path based on test data (`if (env == "prod") ... else ...`), is built wrong, the test silently PASSes without checking anything — the most dangerous error type, the false green.',
       },
       { type: 'heading', text: { en: 'if / else if / else' } },
       {
@@ -8768,7 +8768,7 @@ const sD = {
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'Array\'i bir otopark gibi düşün: her otopark yeri (index) numaralıdır ve sadece bir araba (değer) alır. 0\'dan başlar! 5 yerli bir otopark: [0], [1], [2], [3], [4]. Doluluğu baştan belirlenir, sonra değiştirilemez.',
+        content: 'Java\'da array, bellekte yan yana ayrılmış sabit boyutlu, numaralı hücreler bloğudur ve indeks 0\'dan başlar — tıpkı baştan kaç yerli olacağı betonla dökülmüş numaralı bir otopark gibi: her yer (index) tek araba (değer) alır, [0]\'dan [4]\'e kadar gider, ama beton döküldükten sonra yeni yer ekleyemezsin. Peki Java\'da zaten esnek büyüyen ArrayList varken neden hâlâ sabit boyutlu array öğrenmek gerekiyor? Çünkü array bellekte bitişik olduğu için erişimi en hızlısıdır ve ArrayList aslında içeride bir array kullanır; temeli bilmezsen "index out of bounds" hatalarını çözemezsin. Bu, Python\'daki dinamik list\'in tersine C dizisine yakındır; büyümek istersen `Arrays.copyOf` ile yeni array\'e kopyalaman gerekir. QA mühendisi için off-by-one riski kritiktir: sabit boyutlu bir array\'e döngüyle veri yazarken `<= length` yazmak `ArrayIndexOutOfBoundsException` fırlatır ve bu tür sınır hataları, test verisi büyüdüğünde ortaya çıkan tipik "belli koşulda kırılan" flaky hataların kaynağıdır.',
       },
       {
         type: 'visual',
@@ -8950,7 +8950,7 @@ public class Main {
     blocks: [
       {
         type: 'simple-box', emoji: '📦',
-        content: 'Think of an array like a numbered parking lot: each spot (index) has a number starting from 0, and holds one value. Size is fixed at creation.',
+        content: 'In Java an array is a fixed-size block of numbered cells allocated side by side in memory, with indexing starting at 0 — like a numbered parking lot whose capacity is poured in concrete up front: each spot (index) holds one car (value), running from [0] to [4], but once the concrete is set you cannot add new spots. But if Java already has the flexibly growing ArrayList, why still learn fixed-size arrays? Because an array is contiguous in memory so access is the fastest, and ArrayList actually uses an array inside; without knowing the foundation you cannot solve "index out of bounds" errors. This is close to a C array, unlike Python\'s dynamic list; to grow you must copy into a new array with `Arrays.copyOf`. For a QA engineer the off-by-one risk is critical: writing `<= length` in a loop that fills a fixed-size array throws `ArrayIndexOutOfBoundsException`, and such boundary errors are the source of typical "breaks under certain conditions" flaky bugs that appear when the test data grows.',
       },
       {
         type: 'visual',
@@ -9055,7 +9055,7 @@ const sE = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Method\'u bir kısa yol tuşu gibi düşün: "Ctrl+S" bastığında aynı birkaç adım her seferinde otomatik yapılır. Metot da böyle: bir kere yaz, istediğin kadar çağır. Kod tekrarını önler ve okunabilirliği artırır.',
+        content: 'Bir method, girdi alan (parametre), bir iş yapan ve çıktı döndüren (return) yeniden kullanılabilir bir kod paketidir — tıpkı bir kahve makinesinin tuşuna basmak gibi: içine su ve çekirdek verirsin (parametre), makine hep aynı işlemi yapar, sana kahve döndürür; makinenin içini her seferinde yeniden kurmazsın. Peki aynı kodu ihtiyaç olan her yere kopyala-yapıştır yapsak olmaz mıydı, neden method\'a ihtiyaç var? Çünkü kopyalanan kodda bir hata bulunca onu 20 yerde ayrı ayrı düzeltmek zorunda kalırsın ve birini unutursun; method\'da tek yeri düzeltince her çağrı otomatik güncellenir (DRY prensibi). Java\'da method\'lar overload edilebilir (aynı isim, farklı parametre) ve statik tip sayesinde yanlış argüman tipi derleme zamanında yakalanır; Python\'da bu ancak çalışma zamanında ortaya çıkar. QA mühendisi için method\'lar test bakımının temelidir: `login(user, pass)` gibi ortak bir helper method yazarsan, login akışı değiştiğinde 50 testte tek tek adım güncellemek yerine sadece o method\'u değiştirirsin — bu, bakım kaynaklı kırık testleri kökten önler.',
       },
       {
         type: 'visual', variant: 'flow',
@@ -9267,7 +9267,7 @@ public class Main {
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Think of a method like a keyboard shortcut: "Ctrl+S" triggers the same sequence every time. Write once, call many times. Prevents code repetition.',
+        content: 'A method is a reusable package of code that takes input (parameters), does a job, and returns output (return) — like pressing a button on a coffee machine: you give it water and beans (parameters), the machine always performs the same operation and returns coffee to you; you do not rebuild the machine\'s internals each time. But could we not just copy-paste the same code wherever it is needed — why do we need a method? Because when you find a bug in copied code you must fix it separately in 20 places and you will forget one; with a method you fix a single place and every call updates automatically (the DRY principle). In Java methods can be overloaded (same name, different parameters), and thanks to static typing a wrong argument type is caught at compile time; in Python this only surfaces at runtime. For a QA engineer methods are the foundation of test maintenance: if you write a shared helper like `login(user, pass)`, then when the login flow changes you edit only that method instead of updating steps in 50 tests one by one — which fundamentally prevents maintenance-driven broken tests.',
       },
       {
         type: 'visual', variant: 'flow',
@@ -9371,7 +9371,7 @@ const sF = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎯',
-        content: 'Enum\'u trafik ışığı gibi düşün: sadece 3 seçenek var — KIRMIZI, SARI, YEŞİL. Başka şey olamaz. Exceptions ise otoyoldaki kaza gibi: normal akış bozulur, hata yönetimi devreye girer. Lambda ise kısayol yöntemi — tek satırda fonksiyon.',
+        content: 'Enum, izin verilen değerleri baştan sabitleyen kapalı bir tip kümesidir (`RED, YELLOW, GREEN`), Exception normal akışı kesip hatayı yukarı taşıyan bir sinyaldir, Lambda ise küçük bir davranışı tek satırda paketleyip parametre olarak geçmeni sağlayan kısa yazımdır — tıpkı bir trafik ışığının yalnızca üç renge izin vermesi (enum), bir kazanın normal trafiği durdurup acil protokolü tetiklemesi (exception) ve bir trafik polisinin tek el hareketiyle "geç" komutu vermesi (lambda) gibi. Peki Enum yerine düz `String status = "RED"` kullanabiliyorken neden Enum gerekiyor? Çünkü String\'de yanlışlıkla `"Red"` veya `"GREN"` yazarsan derleyici uyarmaz ve bug çalışma zamanına saklanır; Enum ise geçersiz değeri derleme zamanında imkânsız kılar. Java\'nın checked exception zorunluluğu, Python\'ın tamamen isteğe bağlı istisna yakalamasına kıyasla hataları ele almaya zorlar; lambda ise Java 8 ile geldi ve TypeScript\'teki arrow function\'a benzer. QA mühendisi için bu üçü doğrudan güvenilirlik sağlar: test durumlarını Enum ile modellemek yazım hatası kaynaklı sahte PASS\'i önler, exception\'ı doğru yakalamak testin gerçek hatayı raporlamasını garanti eder, lambda ise Stream ile assertion\'ları okunabilir ve kısa tutar.',
       },
       { type: 'heading', text: { tr: 'Enums — Sabit Değer Kümeleri', en: 'Enums' } },
       {
@@ -9682,7 +9682,7 @@ public class Main {
     blocks: [
       {
         type: 'simple-box', emoji: '🎯',
-        content: 'Think of Enum like a traffic light: only 3 options — RED, YELLOW, GREEN. Nothing else. Exceptions are like accidents on the highway: normal flow is disrupted, error handling kicks in. Lambda is a shorthand method — function in one line.',
+        content: 'An Enum is a closed set of types that fixes the allowed values up front (`RED, YELLOW, GREEN`), an Exception is a signal that interrupts normal flow and carries the error upward, and a Lambda is a concise syntax that packages a small behavior in one line so you can pass it as a parameter — like a traffic light allowing only three colors (enum), an accident stopping normal traffic and triggering the emergency protocol (exception), and a traffic officer giving a "go" command with a single hand gesture (lambda). But if you could use a plain `String status = "RED"` instead of an Enum, why is an Enum needed? Because with a String, if you accidentally write `"Red"` or `"GREN"` the compiler does not warn you and the bug hides until runtime; an Enum makes an invalid value impossible at compile time. Java\'s checked-exception requirement forces you to handle errors, unlike Python\'s entirely optional exception catching; lambdas arrived with Java 8 and resemble TypeScript\'s arrow functions. For a QA engineer these three directly boost reliability: modeling test states with an Enum prevents typo-driven false PASS, catching the right exception guarantees the test reports the real error, and lambdas keep Stream-based assertions readable and short.',
       },
       { type: 'heading', text: { en: 'Enums' } },
       {
@@ -9835,7 +9835,7 @@ const sCucumber = {
     blocks: [
       {
         type: 'simple-box', emoji: '🥒',
-        content: 'Cucumber\'ı bir çeviri servisi gibi düşün: iş analisti "Kullanıcı giriş yapmalı" yazıyor, QA mühendisi bu cümleyi otomatik teste çeviriyor. Herkes aynı Gherkin dilini konuşuyor. Java\'da JUnit5 veya TestNG runner\'ı ile birlikte çalışır — ikisi de desteklenir.',
+        content: 'Cucumber, doğal dilde yazılmış Gherkin senaryolarını (`Given/When/Then`) adım tanımlarıyla (step definitions) gerçek Java koduna bağlayan bir köprüdür — tıpkı iki dilli bir sözleşme gibi: bir sütunda herkesin anladığı düz cümle, diğer sütunda o cümleyi çalıştıran teknik madde vardır ve ikisi satır satır eşleşir. Peki testi doğrudan JUnit5 ile Java\'da yazabiliyorken neden araya Gherkin katmanı ekleyip fazladan iş yaratmak gerekiyor? Çünkü saf JUnit5 kodunu yalnızca geliştiriciler okuyabilir; Gherkin sayesinde iş analisti, ürün sahibi ve QA aynı senaryoyu tek bir "doğruluk kaynağı" olarak paylaşır ve yanlış anlaşılma azalır. Java tarafında Cucumber hem JUnit5 hem TestNG runner ile çalışır; bu, Python\'daki `behave` veya JS\'deki `cucumber-js`\'in Java karşılığıdır. QA mühendisi için asıl kazanç iletişimdir: bir kabul kriteri Gherkin ile yazıldığında hem yaşayan dokümantasyon olur hem test olur, böylece "gereksinim buydu ama test başka şeyi kontrol ediyor" tarzı sessiz kapsam boşlukları önlenir.',
       },
       {
         type: 'table',
@@ -10242,7 +10242,7 @@ public class CartSteps {
     blocks: [
       {
         type: 'simple-box', emoji: '🥒',
-        content: 'Think of Cucumber as a translation service: the business analyst writes "User should log in," the QA engineer converts that sentence into an automated test. Everyone speaks the same Gherkin language. In Java, it works with a JUnit5 or TestNG runner — both are supported.',
+        content: 'Cucumber is a bridge that connects Gherkin scenarios written in natural language (`Given/When/Then`) to real Java code via step definitions — like a bilingual contract: one column has a plain sentence everyone understands, the other has the technical clause that executes it, and the two match line by line. But if you can write the test directly in Java with JUnit5, why add a Gherkin layer and create extra work? Because pure JUnit5 code can only be read by developers; with Gherkin the business analyst, product owner, and QA share the same scenario as a single "source of truth," reducing misunderstandings. On the Java side Cucumber works with both the JUnit5 and TestNG runners; this is the Java equivalent of `behave` in Python or `cucumber-js` in JS. For a QA engineer the real gain is communication: when an acceptance criterion is written in Gherkin it becomes both living documentation and a test, preventing silent coverage gaps of the "this was the requirement but the test checks something else" kind.',
       },
       {
         type: 'table',
@@ -10433,7 +10433,7 @@ const sSelenium = {
     blocks: [
       {
         type: 'simple-box', emoji: '🌐',
-        content: 'Selenium WebDriver\'ı bir robot gibi düşün: "Şu butona tıkla, bu kutuya yaz, yüklenmesini bekle." Java\'da bu komutları yazıyorsun, robot tarayıcıda çalıştırıyor. Selenium 4, Java\'nın en olgun test kütüphanesidir: Chrome, Firefox, Edge, Safari — hepsini destekler.',
+        content: 'Selenium WebDriver, Java\'da yazdığın komutları tarayıcının kendi otomasyon protokolüne (W3C WebDriver) çevirip gerçek bir Chrome/Firefox penceresini uzaktan kumanda eden bir sürücüdür — tıpkı bir vinç operatörünün kaldıraç kollarına basması gibi: sen soyut komutu verirsin (`click`, `sendKeys`), sürücü onu tarayıcının anlayacağı fiziksel eyleme dönüştürür. Peki gerçek bir tarayıcı zaten fareyle çalışırken neden Selenium ile programatik olarak sürmek gerekiyor? Çünkü fareyle test etmek yorucu, tekrarlanamaz ve ölçeklenemezdir; Selenium aynı senaryoyu her deploy\'da, birden çok tarayıcıda, insan hatası olmadan koşar. Java binding\'i Selenium\'un en olgunu ve en geniş topluluğa sahip olanıdır; Python binding\'i daha kısa yazılır ama Java\'nın statik tipi büyük test projelerinde API değişikliklerini derleme zamanında yakalar. QA mühendisi için asıl mesele stabilitedir: Selenium komutlarını doğru wait stratejisiyle birleştirmezsen "element not interactable" gibi zamanlama hataları çıkar ve bunlar flaky test\'in bir numaralı kaynağıdır.',
       },
       { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
       {
@@ -10546,8 +10546,8 @@ driver.switchTo().window(mainWin); // Ana pencereye dön`,
         type: 'simple-box',
         emoji: '🔍',
         content: {
-          tr: 'Locator, otomasyon kodunuzun sayfadaki bir elementi "tanımlama yöntemi"dir. Tıpkı bir kütüphanede kitabı rafta bulmak gibi — raf numarasıyla (id) gidersen en hızlı, "kapağı kırmızı" (class) dersen risk var çünkü birden fazla kırmızı kapak olabilir.',
-          en: 'A locator is the method your automation code uses to "identify" an element on the page — like finding a book in a library. Going by shelf number (id) is fastest; searching by "red cover" (class) is risky because multiple red covers may exist.',
+          tr: 'Locator, Selenium\'un DOM ağacında bir elementi hangi kritere göre bulacağını tarif eden bir sorgudur (`By.id`, `By.cssSelector`, `By.xpath`) — tıpkı bir kütüphanede kitabı bulmak gibi: raf numarasıyla (id) gitmek benzersiz ve en hızlıdır, "kırmızı kapaklı" (class) demek risklidir çünkü onlarca kırmızı kapak olabilir ve yanlış kitabı alırsın. Peki her elementi XPath ile de bulabiliyorken neden id/CSS gibi farklı locator türlerini bilmek gerekiyor? Çünkü locator seçimi doğrudan testin stabilitesini belirler; kırılgan bir uzun XPath, sayfa yapısı azıcık değişince kopar ama sağlam bir id yıllarca yaşar. Bu, Playwright\'ın `getByRole` gibi kullanıcı-odaklı locator felsefesiyle karşılaştırılabilir; Selenium daha düşük seviyeli ama daha esnektir. QA mühendisi için doğru locator seçimi flaky test\'in kaderini belirler: geliştirici bir div ekleyince kopan `/html/body/div[3]/span` tarzı locator\'lar CI\'da rastgele kırmızılar üretir, oysa `data-testid` tabanlı locator\'lar yapı değişse bile ayakta kalır.',
+          en: 'A locator is a query describing by what criterion Selenium should find an element in the DOM tree (`By.id`, `By.cssSelector`, `By.xpath`) — like finding a book in a library: going by shelf number (id) is unique and fastest, while saying "red cover" (class) is risky because there may be dozens of red covers and you grab the wrong book. But if you could find every element with XPath, why bother knowing different locator types like id/CSS? Because the locator choice directly determines the test\'s stability; a brittle long XPath breaks when the page structure changes slightly, but a solid id lives for years. This can be compared to Playwright\'s user-centric locator philosophy such as `getByRole`; Selenium is lower level but more flexible. For a QA engineer the right locator choice decides the fate of flaky tests: locators like `/html/body/div[3]/span` that break when a developer adds a div produce random reds in CI, whereas `data-testid`-based locators stay standing even when the structure changes.',
         },
       },
       {
@@ -11733,7 +11733,7 @@ public class EcommerceE2ETest {
     blocks: [
       {
         type: 'simple-box', emoji: '🌐',
-        content: 'Think of Selenium WebDriver as a robot: "Click that button, type in this field, wait for the page." You write the commands in Java, the robot runs them in the browser. Selenium 4 is the most mature Java test library: Chrome, Firefox, Edge, Safari — all supported.',
+        content: 'Selenium WebDriver is a driver that translates the commands you write in Java into the browser\'s own automation protocol (W3C WebDriver) and remotely controls a real Chrome/Firefox window — like a crane operator pulling the levers: you give the abstract command (`click`, `sendKeys`) and the driver turns it into the physical action the browser understands. But if a real browser already works with a mouse, why drive it programmatically with Selenium? Because testing by mouse is tiring, non-repeatable, and does not scale; Selenium runs the same scenario on every deploy, across multiple browsers, without human error. The Java binding is Selenium\'s most mature with the largest community; the Python binding is shorter to write, but Java\'s static typing catches API changes at compile time in large test projects. For a QA engineer the key issue is stability: if you do not combine Selenium commands with the right wait strategy, timing errors like "element not interactable" appear, and these are the number-one source of flaky tests.',
       },
       { type: 'heading', text: { en: 'Step 1: Maven Setup' } },
       {
@@ -11784,8 +11784,8 @@ driver.quit(); // always in finally!`,
         type: 'simple-box',
         emoji: '🔍',
         content: {
-          en: 'A locator is how your automation code identifies an element on the page — like finding a book in a library. Going by shelf number (id) is fastest; searching by "red cover" (class) is risky because multiple red covers may exist.',
-          tr: 'Locator, otomasyon kodunuzun sayfadaki bir elementi tanımlama yöntemidir. Kütüphanede kitabı raf numarasıyla (id) bulmak en hızlısı; "kırmızı kapaklı" (class) ile aramak riskli çünkü birden fazla kırmızı kapak olabilir.',
+          en: 'A locator is a query describing by what criterion Selenium should find an element in the DOM tree (`By.id`, `By.cssSelector`, `By.xpath`) — like finding a book in a library: going by shelf number (id) is unique and fastest, while saying "red cover" (class) is risky because there may be dozens of red covers and you grab the wrong book. But if you could find every element with XPath, why bother knowing different locator types like id/CSS? Because the locator choice directly determines the test\'s stability; a brittle long XPath breaks when the page structure changes slightly, but a solid id lives for years. This can be compared to Playwright\'s user-centric locator philosophy such as `getByRole`; Selenium is lower level but more flexible. For a QA engineer the right locator choice decides the fate of flaky tests: locators like `/html/body/div[3]/span` that break when a developer adds a div produce random reds in CI, whereas `data-testid`-based locators stay standing even when the structure changes.',
+          tr: 'Locator, Selenium\'un DOM ağacında bir elementi hangi kritere göre bulacağını tarif eden bir sorgudur (`By.id`, `By.cssSelector`, `By.xpath`) — tıpkı bir kütüphanede kitabı bulmak gibi: raf numarasıyla (id) gitmek benzersiz ve en hızlıdır, "kırmızı kapaklı" (class) demek risklidir çünkü onlarca kırmızı kapak olabilir ve yanlış kitabı alırsın. Peki her elementi XPath ile de bulabiliyorken neden id/CSS gibi farklı locator türlerini bilmek gerekiyor? Çünkü locator seçimi doğrudan testin stabilitesini belirler; kırılgan bir uzun XPath, sayfa yapısı azıcık değişince kopar ama sağlam bir id yıllarca yaşar. Bu, Playwright\'ın `getByRole` gibi kullanıcı-odaklı locator felsefesiyle karşılaştırılabilir; Selenium daha düşük seviyeli ama daha esnektir. QA mühendisi için doğru locator seçimi flaky test\'in kaderini belirler: geliştirici bir div ekleyince kopan `/html/body/div[3]/span` tarzı locator\'lar CI\'da rastgele kırmızılar üretir, oysa `data-testid` tabanlı locator\'lar yapı değişse bile ayakta kalır.',
         },
       },
       {
@@ -12139,7 +12139,7 @@ const sPlaywright = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎭',
-        content: { tr: 'Playwright\'ı akıllı bir dedektif asistan gibi düşün: "Bu butonu bul ve tıkla" dediğinde, o butonu bekler, hazır olana kadar otomatik bekler, sonra tıklar. Selenium\'da kendinin "Bekle şunu, sonra yap bunu" dermen gerekirdi. Playwright\'ta sadece "yap" dersin — o gerisini düşünür.', en: 'Think of Playwright as a smart detective assistant: when you say "find this button and click it," it locates the button, auto-waits until it\'s ready, then clicks. With Selenium you had to say "wait for this, then do that" yourself. With Playwright you just say "do it" — it handles the rest.' },
+        content: { tr: 'Playwright, her locator eylemi öncesinde elementin DOM\'da, görünür, enabled ve stabil olmasını kendiliğinden bekleyen (auto-waiting) bir otomasyon kütüphanesidir — tıpkı deneyimli bir asansör operatörü gibi: sen sadece kata basarsın, operatör kapının tam kapandığını, kabinin hazır olduğunu kontrol edip sonra hareket eder; sen zamanlamayı düşünmezsin. Peki Selenium\'da da `WebDriverWait` ile bekleyebiliyorken neden Playwright\'ın otomatik beklemesine ihtiyaç var? Çünkü Selenium\'da wait\'i her adımda elle yazmayı unutursan test flaky olur; Playwright bunu her eyleme yerleşik yaptığı için insan hatasını baştan eler. Java tarafında Playwright, Selenium\'un `Thread.sleep`\'ine kıyasla akıllı bekleme sunar ve `microsoft/playwright-java` binding\'iyle gelir. QA mühendisi için bu fark doğrudan güvenilirliktir: flaky testlerin ezici çoğunluğu eksik/yanlış wait\'ten doğar, Playwright\'ın auto-wait\'i bu kategorideki sahte FAIL\'leri büyük ölçüde ortadan kaldırır.', en: 'Playwright is an automation library that automatically waits (auto-waiting) before each locator action for the element to be in the DOM, visible, enabled, and stable — like an experienced elevator operator: you just press the floor, and the operator checks that the doors are fully closed and the cabin is ready before moving; you never think about timing. But if Selenium can also wait with `WebDriverWait`, why do we need Playwright\'s automatic waiting? Because in Selenium, if you forget to write a wait at any step the test becomes flaky; Playwright builds this into every action, eliminating human error from the start. On the Java side Playwright offers smart waiting compared to Selenium\'s `Thread.sleep` and ships with the `microsoft/playwright-java` binding. For a QA engineer this difference is directly reliability: the overwhelming majority of flaky tests stem from missing/wrong waits, and Playwright\'s auto-wait largely eliminates false FAILs in this category.' },
       },
       { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
       {
@@ -12279,8 +12279,8 @@ System.out.println("Popup URL: " + popup.url());`,
         type: 'simple-box',
         emoji: '🔍',
         content: {
-          tr: 'Playwright locator\'ları, Selenium\'un By.* metodlarından çok daha akıllıdır: element DOM\'a eklenene kadar otomatik bekler, ayrıca görünür ve enabled olmasını da bekler. Java\'da bir Future<WebElement> gibi — hazır olunca verir.',
-          en: 'Playwright locators are much smarter than Selenium\'s By.* methods: they auto-wait until the element is in the DOM and also wait for it to be visible and enabled. Like a Future<WebElement> in Java — gives it when ready.',
+          tr: 'Playwright locator\'ı, elementi hemen bulmaya çalışmaz; eylem anına kadar bekleyen tembel (lazy) bir tanımdır ve `click`/`fill` çağrılınca elementin DOM\'da, görünür ve enabled olmasını otomatik bekler — tıpkı Java\'daki bir Future<WebElement> gibi: sonucu hazır olmadan istemezsin, hazır olunca teslim alırsın. Peki Selenium\'un `findElement` ile By.* metodları zaten element buluyorken neden Playwright\'ın locator\'ı daha iyi? Çünkü Selenium\'da `findElement` çağrıldığı an elementi arar, sayfa henüz yüklenmediyse `NoSuchElementException` fırlatır; Playwright locator\'ı ise eylem anına kadar değerlendirmeyi erteleyerek bu yarış koşulunu (race condition) baştan çözer. Bu tembel değerlendirme, Selenium\'un anlık (eager) sorgusuna kıyasla stabiliteyi artırır. QA mühendisi için sonuç nettir: Selenium\'da yükleme yavaşladığında rastgele kırılan testler Playwright locator\'ının otomatik beklemesiyle stabil kalır, böylece CI\'daki zamanlama kaynaklı flaky kırmızılar dramatik biçimde azalır.',
+          en: 'A Playwright locator does not try to find the element immediately; it is a lazy definition that waits until the moment of action, and when `click`/`fill` is called it automatically waits for the element to be in the DOM, visible, and enabled — like a Future<WebElement> in Java: you do not demand the result before it is ready, you receive it when it is. But if Selenium\'s `findElement` with By.* methods already finds elements, why is Playwright\'s locator better? Because in Selenium `findElement` searches the moment it is called and throws `NoSuchElementException` if the page has not loaded yet; Playwright\'s locator defers evaluation until the moment of action, solving this race condition from the start. This lazy evaluation improves stability compared to Selenium\'s eager query. For a QA engineer the result is clear: tests that break randomly in Selenium when loading slows down stay stable with Playwright locator\'s automatic waiting, dramatically reducing timing-driven flaky reds in CI.',
         },
       },
       {
@@ -12654,8 +12654,8 @@ for (int i = 0; i < total; i++) {
         type: 'simple-box',
         emoji: '⏱️',
         content: {
-          tr: 'Selenium\'da yüklenmeyi bekleme sorumluluğu sende. Playwright\'ta bu sorumluluk otomatik: her locator işlemi öncesinde element DOM\'da mı, görünür mü, enabled mı diye kontrol eder. Sanki asistan her komutu "hazır olduğunda çalıştır" şeklinde kuyrukta tutuyor.',
-          en: 'In Selenium, the responsibility for waiting is yours. In Playwright, it\'s automatic: before each locator action, it checks if the element is in the DOM, visible, and enabled. Like an assistant queuing every command as "execute when ready."',
+          tr: 'Auto-waiting, Playwright\'ın her eylemden önce elementin hazır olmasını (DOM\'da, görünür, enabled, stabil) sana sormadan bekleyen yerleşik davranışıdır — tıpkı bir asistanın her komutu "koşullar oluşunca çalıştır" diye kuyrukta tutması gibi: sen zamanlamayı hiç düşünmezsin, asistan doğru anı seçer. Peki Selenium\'da da `WebDriverWait` + `ExpectedConditions` ile aynısı yazılabiliyorken neden Playwright\'ın otomatik yaklaşımı tercih edilir? Çünkü Selenium\'da wait yazmak opt-in\'dir ve tek bir adımda unutulursa test flaky olur; Playwright\'ta wait opt-out\'tur, yani varsayılan güvenlidir. Bu, "güvenli varsayılan" ilkesidir ve Selenium\'un elle wait kurma zorunluluğuna kıyasla insan hatasını kökten azaltır. QA mühendisi için bu ayrım flaky test istatistiklerini değiştirir: ekip büyüdükçe biri mutlaka bir yerde `Thread.sleep` bırakır veya wait\'i atlar; Playwright\'ın auto-wait\'i bu bireysel hataların suite genelinde flaky FAIL\'e dönüşmesini önler.',
+          en: 'Auto-waiting is Playwright\'s built-in behavior of waiting, without you asking, for the element to be ready (in the DOM, visible, enabled, stable) before every action — like an assistant queuing every command as "run when the conditions are met": you never think about timing, and the assistant picks the right moment. But if Selenium can write the same thing with `WebDriverWait` + `ExpectedConditions`, why is Playwright\'s automatic approach preferred? Because in Selenium writing a wait is opt-in and if forgotten at a single step the test becomes flaky; in Playwright the wait is opt-out, meaning the default is safe. This is the "safe defaults" principle and fundamentally reduces human error compared to Selenium\'s requirement to set up waits by hand. For a QA engineer this distinction changes flaky-test statistics: as the team grows, someone will inevitably leave a `Thread.sleep` somewhere or skip a wait; Playwright\'s auto-wait prevents these individual mistakes from turning into suite-wide flaky FAILs.',
         },
       },
       {
@@ -13549,7 +13549,7 @@ Allure.addAttachment("Playwright Trace",
     blocks: [
       {
         type: 'simple-box', emoji: '🎭',
-        content: 'Think of Playwright as a smart detective assistant: when you say "find this button and click it," it waits for the button, automatically waits until it\'s ready, then clicks. With Selenium, you had to say "wait for this, then do that." With Playwright, you just say "do it" — it handles the rest.',
+        content: 'Playwright is an automation library that automatically waits (auto-waiting) before each locator action for the element to be in the DOM, visible, enabled, and stable — like an experienced elevator operator: you just press the floor, and the operator checks that the doors are fully closed and the cabin is ready before moving; you never think about timing. But if Selenium can also wait with `WebDriverWait`, why do we need Playwright\'s automatic waiting? Because in Selenium, if you forget to write a wait at any step the test becomes flaky; Playwright builds this into every action, eliminating human error from the start. On the Java side Playwright offers smart waiting compared to Selenium\'s `Thread.sleep` and ships with the `microsoft/playwright-java` binding. For a QA engineer this difference is directly reliability: the overwhelming majority of flaky tests stem from missing/wrong waits, and Playwright\'s auto-wait largely eliminates false FAILs in this category.',
       },
       { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
       {
@@ -13652,8 +13652,8 @@ System.out.println("Popup URL: " + popup.url());`,
         type: 'simple-box',
         emoji: '🔍',
         content: {
-          tr: 'Playwright locator\'ları, Selenium\'un By.* metodlarından çok daha akıllıdır: element DOM\'a eklenene kadar otomatik bekler, ayrıca görünür ve enabled olmasını da bekler. Java\'da bir Future<WebElement> gibi — hazır olunca verir.',
-          en: 'Playwright locators are much smarter than Selenium\'s By.* methods: they auto-wait until the element is in the DOM and also wait for it to be visible and enabled. Like a Future<WebElement> in Java — gives it when ready.',
+          tr: 'Playwright locator\'ı, elementi hemen bulmaya çalışmaz; eylem anına kadar bekleyen tembel (lazy) bir tanımdır ve `click`/`fill` çağrılınca elementin DOM\'da, görünür ve enabled olmasını otomatik bekler — tıpkı Java\'daki bir Future<WebElement> gibi: sonucu hazır olmadan istemezsin, hazır olunca teslim alırsın. Peki Selenium\'un `findElement` ile By.* metodları zaten element buluyorken neden Playwright\'ın locator\'ı daha iyi? Çünkü Selenium\'da `findElement` çağrıldığı an elementi arar, sayfa henüz yüklenmediyse `NoSuchElementException` fırlatır; Playwright locator\'ı ise eylem anına kadar değerlendirmeyi erteleyerek bu yarış koşulunu (race condition) baştan çözer. Bu tembel değerlendirme, Selenium\'un anlık (eager) sorgusuna kıyasla stabiliteyi artırır. QA mühendisi için sonuç nettir: Selenium\'da yükleme yavaşladığında rastgele kırılan testler Playwright locator\'ının otomatik beklemesiyle stabil kalır, böylece CI\'daki zamanlama kaynaklı flaky kırmızılar dramatik biçimde azalır.',
+          en: 'A Playwright locator does not try to find the element immediately; it is a lazy definition that waits until the moment of action, and when `click`/`fill` is called it automatically waits for the element to be in the DOM, visible, and enabled — like a Future<WebElement> in Java: you do not demand the result before it is ready, you receive it when it is. But if Selenium\'s `findElement` with By.* methods already finds elements, why is Playwright\'s locator better? Because in Selenium `findElement` searches the moment it is called and throws `NoSuchElementException` if the page has not loaded yet; Playwright\'s locator defers evaluation until the moment of action, solving this race condition from the start. This lazy evaluation improves stability compared to Selenium\'s eager query. For a QA engineer the result is clear: tests that break randomly in Selenium when loading slows down stay stable with Playwright locator\'s automatic waiting, dramatically reducing timing-driven flaky reds in CI.',
         },
       },
       {
@@ -14013,8 +14013,8 @@ for (int i = 0; i < total; i++) {
         type: 'simple-box',
         emoji: '⏱️',
         content: {
-          tr: 'Selenium\'da yüklenmeyi bekleme sorumluluğu sende. Playwright\'ta bu sorumluluk otomatik: her locator işlemi öncesinde element DOM\'da mı, görünür mü, enabled mı diye kontrol eder.',
-          en: 'In Selenium, the responsibility for waiting is yours. In Playwright, it\'s automatic: before each locator action, it checks if the element is in the DOM, visible, and enabled.',
+          tr: 'Auto-waiting, Playwright\'ın her eylemden önce elementin hazır olmasını (DOM\'da, görünür, enabled, stabil) sana sormadan bekleyen yerleşik davranışıdır — tıpkı bir asistanın her komutu "koşullar oluşunca çalıştır" diye kuyrukta tutması gibi: sen zamanlamayı hiç düşünmezsin, asistan doğru anı seçer. Peki Selenium\'da da `WebDriverWait` + `ExpectedConditions` ile aynısı yazılabiliyorken neden Playwright\'ın otomatik yaklaşımı tercih edilir? Çünkü Selenium\'da wait yazmak opt-in\'dir ve tek bir adımda unutulursa test flaky olur; Playwright\'ta wait opt-out\'tur, yani varsayılan güvenlidir. Bu, "güvenli varsayılan" ilkesidir ve Selenium\'un elle wait kurma zorunluluğuna kıyasla insan hatasını kökten azaltır. QA mühendisi için bu ayrım flaky test istatistiklerini değiştirir: ekip büyüdükçe biri mutlaka bir yerde `Thread.sleep` bırakır veya wait\'i atlar; Playwright\'ın auto-wait\'i bu bireysel hataların suite genelinde flaky FAIL\'e dönüşmesini önler.',
+          en: 'Auto-waiting is Playwright\'s built-in behavior of waiting, without you asking, for the element to be ready (in the DOM, visible, enabled, stable) before every action — like an assistant queuing every command as "run when the conditions are met": you never think about timing, and the assistant picks the right moment. But if Selenium can write the same thing with `WebDriverWait` + `ExpectedConditions`, why is Playwright\'s automatic approach preferred? Because in Selenium writing a wait is opt-in and if forgotten at a single step the test becomes flaky; in Playwright the wait is opt-out, meaning the default is safe. This is the "safe defaults" principle and fundamentally reduces human error compared to Selenium\'s requirement to set up waits by hand. For a QA engineer this distinction changes flaky-test statistics: as the team grows, someone will inevitably leave a `Thread.sleep` somewhere or skip a wait; Playwright\'s auto-wait prevents these individual mistakes from turning into suite-wide flaky FAILs.',
         },
       },
       {
@@ -14814,7 +14814,7 @@ const sFileIO = {
     blocks: [
       {
         type: 'simple-box', emoji: '📁',
-        content: 'Dosya işlemleri tıpkı bir kasadan belge çıkarıp koymak gibi: önce kasayı aç, belgeyi yaz, oku, işin bitince kapat. Iterator ise bir kitaplıktaki kitapları sırayla gösteren tur rehberi — koleksiyonu manuel döngü olmadan gezer. Generics ise "her tür için çalışan kalıp" — tek kod, tüm tipler.',
+        content: 'File handling bir kaynağı açıp kullanıp kapatmayı (aksi halde bellek/handle sızar), Iterator bir koleksiyonu iç yapısını bilmeden sırayla gezmeyi, Generics ise tek bir kodu farklı tiplerle tip-güvenli çalıştırmayı sağlar — tıpkı bir kasadan belge alıp iş bitince kilitlemek, bir tur rehberinin kitapları raf düzenini ezberlemeden sırayla göstermesi ve tek bir kalıbın hem `List<String>` hem `List<Integer>` dökebilmesi gibi. Peki Generics olmadan `Object` kullanıp her şeyi tutabiliyorken neden `List<User>` gibi tip parametresine ihtiyaç var? Çünkü `Object` ile listeye yanlış tip koyabilirsin ve hata ancak çalışma zamanında `ClassCastException` olarak patlar; Generics bunu derleme zamanında imkânsız kılar. Bu, Java\'nın statik tip gücüdür; Python\'ın tip ipuçları (type hints) opsiyoneldir ve çalışma zamanında zorlamaz, TypeScript\'in generic\'leri ise Java\'ya en yakın modeldir. QA mühendisi için üçü de güvenilirlik sağlar: test raporunu dosyaya yazarken kaynağı kapatmazsan uzun koşumda handle sızması testleri bozar, Generics ise bir test-data util\'ine yanlış tip veri geçmeni derleme zamanında engelleyerek çalışma zamanında ortaya çıkan sinsi flaky hataları önler.',
       },
       { type: 'heading', text: { tr: 'File Oluşturma ve Yazma', en: 'File Creation and Writing' } },
       {
@@ -15367,7 +15367,7 @@ public class Main {
     blocks: [
       {
         type: 'simple-box', emoji: '📁',
-        content: 'File operations are like putting documents in and out of a safe: open the safe (Files.createFile), write the document (Files.write), read it (Files.readAllLines), close when done. Iterator is like a tour guide through a library — visits each item in a collection without a manual loop. Generics is "one template, all types."',
+        content: 'File handling means opening, using, and closing a resource (otherwise memory/handles leak), Iterator means traversing a collection in order without knowing its internal structure, and Generics means running a single piece of code with different types in a type-safe way — like taking a document from a safe and locking it when done, a tour guide showing books in order without memorizing the shelf layout, and one template able to produce both a `List<String>` and a `List<Integer>`. But if without Generics you could use `Object` and hold anything, why do you need a type parameter like `List<User>`? Because with `Object` you can put the wrong type into the list and the error only explodes at runtime as a `ClassCastException`; Generics makes this impossible at compile time. This is the power of Java\'s static typing; Python\'s type hints are optional and not enforced at runtime, while TypeScript\'s generics are the model closest to Java. For a QA engineer all three provide reliability: if you do not close the resource when writing a test report to a file, handle leaks break tests over a long run, and Generics prevents passing the wrong type of data into a test-data util at compile time, avoiding insidious flaky bugs that surface at runtime.',
       },
       { type: 'heading', text: { en: 'File Write & Read' } },
       {

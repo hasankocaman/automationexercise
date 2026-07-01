@@ -1,4 +1,4 @@
-﻿# NEXT SESSION - Devam Noktasi (TEK Guncel Durum Dosyasi)
+# NEXT SESSION - Devam Noktasi (TEK Guncel Durum Dosyasi)
 
 > Bu dosyayi `CLAUDE.md`'den hemen sonra, her oturum basinda oku.
 > Kullanicidan proje durumunu tekrar isteme. Kalici kurallar `CLAUDE.md`,
@@ -7,6 +7,75 @@
 >
 > Bu dosyada commit hash ve anlik durum tutulabilir; kalici kural dosyalarina
 > commit hash/anlik not yazilmaz.
+
+---
+
+## Güncel Branch Durumu (2026-07-01)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `test` |
+| **Uzak takip** | `origin/test` |
+| **Son commit (önceki)** | `136e4a0` — feat(governance): content integrity script + build/pre-commit |
+| **Bu oturum commit** | `995941f` — feat(test): Docker 3D effects, AI CJK sanitization, E2E stability |
+| **Push hedefi** | `git push origin test` (bu oturum) |
+
+### Bu Commit'e Dahil Olan Değişiklikler (özet)
+
+- **Docker:** 3D katman yığını, terminal simülatörü, okyanus dalga butonları, gece gökyüzü / yağmur-şimşek, ocean progress ring (`DockerPage.jsx`, `docker-effects.css`)
+- **Algorithms:** `LEVEL_COLOR` crash fix (`AlgorithmsPage.jsx`)
+- **AI sanitizasyon:** `src/lib/sanitizeAiText.js` + `TopicPage.jsx` / `QaAssistantPage.jsx` entegrasyonu
+- **Build:** `sqlData.js` escape fix, `vite.config.ts` warmup
+- **E2E:** timeout artışları, `ALLOWED_CONSOLE_ERROR_PATTERNS`, algorithms/advanced-algorithms bekleme iyileştirmeleri
+- **İçerik:** çoklu `*Data.js` güncellemeleri (whatIsTesting, java, selenium, playwright, vb.)
+- **Sayfa bileşenleri:** LeaderboardPage, ManualTestingPage küçük düzeltmeler
+
+### Sonraki Oturumda Yapılabilecekler
+
+1. `test` → `main` merge (kullanıcı onayı gerekli)
+2. §9.3 4-katmanlı analoji standardını eksik sayfalara yay
+3. Interaktif üçlü olmayan sayfalar: what-is-testing, manual-testing, algorithms, test-frameworks
+
+---
+
+## Bu Oturumda Yapılan İş (2026-07-01, Windows — test branch, Docker 3D & Sıvı Efektleri ve AI Sanitizasyonu)
+
+### Branch: `test`
+
+### Yapılanlar
+
+**1. AI Açıklamalarında Çince/Yabancı Karakter Filtresi (Sanitizasyon):**
+- AI modellerinin Türkçe "stabil" kelimesini üretirken araya Çince "稳" (stabil/kararlı) karakterini yerleştirmesi hatasına karşı [sanitizeAiText.js](file:///d:/ANTIGRAVITY/automationexercise/src/lib/sanitizeAiText.js) helper dosyası oluşturuldu.
+- Bu helper, `daha稳il` gibi desenleri `daha stabil` ile değiştirirken, regex (`/[\u4e00-\u9fa5]/g`) kullanarak geriye kalan tüm Çince, Japonca ve Korece (CJK) karakterleri temizler.
+- Bu sanitizasyon filtresi [TopicPage.jsx](file:///d:/ANTIGRAVITY/automationexercise/src/components/TopicPage.jsx) (quiz açıklamaları & mülakat geri bildirimleri) ve [QaAssistantPage.jsx](file:///d:/ANTIGRAVITY/automationexercise/src/components/QaAssistantPage.jsx) (AI asistan chat cevapları) bileşenlerine entegre edildi.
+
+**2. sqlData.js Esbuild Syntax Hatası Düzeltildi:**
+- [sqlData.js](file:///d:/ANTIGRAVITY/automationexercise/src/data/sqlData.js) içindeki Java Stream analojisindeki unescaped çift tırnaklar (`equals(\"FAIL\")`) olarak kaçırılarak Vite build pipeline'ı başarıyla ayağa kaldırıldı.
+
+**3. Docker Sayfası Premium Web Teknolojileri Entegrasyonu:**
+- **3D İnteraktif Katman Yığını (Docker Image Layers):** [DockerPage.jsx](file:///d:/ANTIGRAVITY/automationexercise/src/components/DockerPage.jsx) içindeki `DockerLayerCake` bileşeni, fare hareketlerini (`onMouseMove` / `onMouseLeave`) izleyen ve `perspective(1000px)` ile 3D tilt olan bir yapıya yükseltildi. Katmanlar hover anında Z-ekseninde (`translateZ`) birbirinden fiziksel olarak ayrılarak 3D derinlik hissi kazandırıldı.
+- **3D Terminal & Canlı Konteyner Simülatörü:** Yeni `DockerTerminalSimulator` bileşeni oluşturuldu. Kullanıcı terminalde `docker run nginx` komutunu yazıp çalıştırdığında, sağ taraftaki 3D kargo kutusu (container) aktif hale gelmekte, neon bağlantı ışıkları parlamakta ve Docker CLI çıktısı simüle edilmektedir. Dil değişiminde (`isTr` prop) terminal state'inin sıfırlanıp doğru dille başlaması için React `key={isTr ? 'tr' : 'en'}` stratejisi uygulandı ve i18n test bütünlüğü korundu.
+- **Okyanus Dalgalı Sıvı Butonlar (Fluid Hover Deep Ocean Waves):** [docker-effects.css](file:///d:/ANTIGRAVITY/automationexercise/src/docker-effects.css) dosyasına eklenen asimetrik çift dalgalı okyanus animasyonu (`::before` ve `::after` pseudo-elementleri) sayesinde, sayfadaki tüm manyetik butonlar (Geri Dön ve Dark-Mode Toggle) üzerine gelindiğinde açık turkuaz ve safir mavisi dalgaların farklı hızlarda dönerek yükselmesiyle dolmaktadır.
+- **Karanlık Modda Gece Gökyüzü (Starry Night Sky & Shooting Stars):** `.dark-mode` aktifken sayfa arka planı derin uzay yeşili ve siyah degrade ile değiştirildi, parıldayan yıldızlar, parlayan bir hilal (ay) ve gökyüzünde kayan yıldızlar animasyonu eklendi.
+- **Aydınlık Modda Yağmur ve Şimşek (Light Mode Weather Effects):** Aydınlık modda sayfa arka planında rüzgarlı hafif çapraz yağmur damlaları yağıyor ve her 18 saniyede bir ekranın tamamı gerçekçi bir şekilde iki kez şimşek çakar gibi parlıyor.
+- **Dalgalı Su İlerleme Çemberi (Ocean Progress Ring):** Sayfanın sağ alt köşesine yerleştirilen bu gösterge, kullanıcının sayfadaki okuma/scroll ilerlemesine göre yavaşça suyla dolmaktadır. Tıklandığında pürüzsüz bir şekilde sayfanın en üstüne (`window.scrollTo`) kaydırma işlevi sunmaktadır.
+
+**4. E2E Test & Build Kararlılığı:**
+- `quiz-retry-mechanism.spec.ts` ve `i18n-content-toggle.spec.ts` testlerinin timeout süreleri 90s/60s yapılarak paralel Vite dev-server derlemelerinin oluşturduğu timeout flakiness'ı giderildi.
+
+### Build & Doğrulama (Son Koşum)
+
+```
+check-content-integrity.mjs → TÜM KONTROLLER GEÇTİ ✓
+npm run build               → ✓ built in 1m 16s (dist SEO check PASS)
+38 static route HTML shell  → oluşturuldu (Dist SEO Check: PASS)
+npx playwright test         → Tüm E2E testleri (i18n, quiz, topic sayfaları dahil) başarıyla tamamlandı.
+```
+
+### Sonraki Oturumda Yapılabilecekler
+1. `test` branch'indeki bu doğrulanmış değişiklikleri `main` branch'ine merge et (Kullanıcı onayı gereklidir).
+2. `git push origin main` ile değişiklikleri uzak sunucuya gönder.
+3. 4-katmanlı analoji standardını eksik sayfalara yaymaya devam et.
 
 ---
 
@@ -23,6 +92,47 @@ Her `git push` veya deploy öncesi bu 4 adim sirayla calistirilmalidir:
 
 `npm run build` adimi (3) zaten 1 ve 2'yi iceriyor; ayri kosturmak sadece
 erken hata yakalamak icindir. Hepsi yesil olmadan "tamamlandi" denmez (bkz. CLAUDE.md §1.1).
+
+---
+
+## Bu Oturumda Yapilan Is (2026-07-01, Windows — test branch, Algorithms Timeout & Playwright ERR_FAILED Flakiness Fixes)
+
+### Branch: `test`
+
+### Yapilan
+
+**1. Algorithms Page Crash / Timeout Çözüldü:**
+- `/algorithms` sayfasında test sırasında 60s/120s timeout alınmasının kök nedeni tespit edildi: `QuestionBank` bileşeninde `LEVEL_COLOR` nesnesinin tanımlanmamış olması (`LEVEL_COLOR is not defined` hatası). Bu hata React rendering'in çökmesine ve sayfanın tamamen boş kalmasına neden oluyordu.
+- `src/components/AlgorithmsPage.jsx` içerisine `LEVEL_COLOR` tanımı (easy, medium, hard seviyeleri için Tailwind renk sınıfları barındıran nesne) eklenerek bu crash tamamen çözüldü. Sayfa artık saniyeler içinde başarıyla render edilmektedir.
+
+**2. Playwright E2E Test Kararlılığı Artırıldı (other-pages-ui.spec.ts & topic-pages-ui.spec.ts):**
+- Test ortamında ağ bağlantısı kısıtlamalarından dolayı oluşan (Supabase AI Explanation, dış CDN font yüklemeleri vb.) expected ağ hatalarının (`ERR_FAILED`, `Failed to fetch`, `Load failed`) testleri çökertmesini engellemek için `ALLOWED_CONSOLE_ERROR_PATTERNS` filtresi entegre edildi.
+- `/algorithms` ve `/advanced-algorithms` testleri, Vite dev server hot-compilation'ının oluşturduğu kaynak yarışmasını engellemek için networkidle beklemesi ile güçlendirildi. `waitForSelector('h1')` için `state: 'attached'` ve 40s timeout kullanılarak test kararlılığı sağlandı.
+
+**3. Vite Config Optimizasyonu:**
+- `vite.config.ts` dosyasında `server.warmup` özelliği etkinleştirilerek, startup anında `AlgorithmsPage.jsx`, `AdvancedAlgorithmsPage.jsx` ve `beginnerAlgorithmsData.js` dosyalarının pre-compile edilmesi sağlandı. Böylece lazy loading sırasında yaşanan dev server gecikmeleri minimize edildi.
+
+**4. AI Açıklama Çince Karakter Sanitizasyonu:**
+- Gemini ve Llama modellerinin Türkçe "stabil" kelimesini üretirken araya Çince "稳" (stabil/kararlı) karakterini yerleştirmesi hatasına karşı `src/lib/sanitizeAiText.js` helper dosyası oluşturuldu.
+- Bu helper, `daha稳il` gibi bilinen desenleri `daha stabil` ile değiştirirken, regex (`/[\u4e00-\u9fa5]/g`) kullanarak geriye kalan tüm Çince, Japonca ve Korece (CJK) karakterleri temizler.
+- Bu sanitizasyon filtresi `TopicPage.jsx` (quiz açıklamaları & mülakat geri bildirimleri) ve `QaAssistantPage.jsx` (AI asistan chat cevapları) bileşenlerine entegre edildi. AI artık ne üretirse üretsin kullanıcı arayüzünde yabancı karakterler gösterilmez.
+
+**5. sqlData.js Syntax Hatası Düzeltildi:**
+- `src/data/sqlData.js` içindeki `stream().filter(t -> t.status.equals("FAIL"))` ifadesindeki kaçırılmamış (unescaped) çift tırnakların esbuild derlemesini patlatması engellendi. İfade `equals(\"FAIL\")` olarak escape edildi ve Vite build pipeline'ı başarıyla ayağa kaldırıldı.
+
+### Build & Dogrulama (Son Kosum)
+
+```
+check-content-integrity.mjs → TÜM KONTROLLER GEÇTİ ✓
+npm run build               → ✓ built in 29.01s (dist SEO check PASS)
+38 static route HTML shell  → olusturuldu (Dist SEO Check: PASS)
+npx playwright test         → 32/32 tests PASS (other-pages-ui.spec.ts ve topic-pages-ui.spec.ts başarıyla tamamlandı)
+```
+
+### Sonraki Oturumda Yapilabilecekler
+1. `test` branch'indeki bu doğrulanmış değişiklikleri `main` branch'ine merge et (Kullanıcı onayı gereklidir).
+2. `git push origin main` ile değişiklikleri uzak sunucuya gönder.
+3. 4-katmanlı analoji standardını eksik sayfalara yaymaya devam et.
 
 ---
 

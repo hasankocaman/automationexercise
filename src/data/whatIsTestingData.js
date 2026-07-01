@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -672,7 +674,115 @@ const sections = [
             "en": "The SDET role defines experts who combine software development principles with test automation, taking on technical responsibilities such as infrastructure management and pipeline setup."
       }
 }
-}
+},
+    {
+      type: 'heading',
+      text: { tr: 'SDET Pratiği: İlk pytest Testini Yaz', en: 'SDET Practice: Write Your First pytest Test' }
+    },
+    {
+      type: 'code',
+      language: 'python',
+      relatedTopicId: 'what-is-testing-sdet',
+      code: {
+        tr: `# pytest ile basit bir birim testi — test otomasyonunun ABC'si
+import pytest
+
+def topla(a, b):
+    """İki sayıyı toplar ve sonucu döndürür"""
+    return a + b
+
+class TestTopla:
+    def test_pozitif_sayilar(self):
+        assert topla(2, 3) == 5         # Beklenen sonuç 5
+
+    def test_sifirla_toplama(self):
+        assert topla(0, 10) == 10       # Sıfırla toplama değiştirmez
+
+    def test_negatif_sayilar(self):
+        assert topla(-1, 1) == 0        # Negatif + pozitif = 0
+
+# pytest çalıştırma komutu:  pytest test_topla.py -v`,
+        en: `# Simple unit test with pytest — the ABC of test automation
+import pytest
+
+def add(a, b):
+    """Adds two numbers and returns the result"""
+    return a + b
+
+class TestAdd:
+    def test_positive_numbers(self):
+        assert add(2, 3) == 5           # Expected result is 5
+
+    def test_add_with_zero(self):
+        assert add(0, 10) == 10         # Adding zero does not change value
+
+    def test_negative_numbers(self):
+        assert add(-1, 1) == 0          # Negative + positive = 0
+
+# Run with:  pytest test_add.py -v`
+      }
+    },
+    {
+      type: 'heading',
+      text: { tr: 'SDET Pratiği: Basit Selenium WebDriver Testi', en: 'SDET Practice: Basic Selenium WebDriver Test' }
+    },
+    {
+      type: 'code',
+      language: 'python',
+      relatedTopicId: 'what-is-testing-selenium',
+      code: {
+        tr: `# Selenium WebDriver ile web testi — SDET günlük işi
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_google_arama():
+    driver = webdriver.Chrome()
+    try:
+        driver.get("https://www.google.com")
+
+        # Arama kutusunu bul ve sorgu yaz
+        arama_kutusu = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.NAME, "q"))
+        )
+        arama_kutusu.send_keys("selenium nedir")
+        arama_kutusu.submit()
+
+        # Sonuç sayfasının yüklendiğini doğrula
+        WebDriverWait(driver, 10).until(
+            EC.title_contains("selenium")
+        )
+        assert "selenium" in driver.title.lower()   # Sayfa başlığı test terimini içermeli
+    finally:
+        driver.quit()   # Tarayıcıyı her zaman kapat`,
+        en: `# Selenium WebDriver web test — the daily work of an SDET
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_google_search():
+    driver = webdriver.Chrome()
+    try:
+        driver.get("https://www.google.com")
+
+        # Find search box and type a query
+        search_box = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.NAME, "q"))
+        )
+        search_box.send_keys("what is selenium")
+        search_box.submit()
+
+        # Verify the results page loaded
+        WebDriverWait(driver, 10).until(
+            EC.title_contains("selenium")
+        )
+        assert "selenium" in driver.title.lower()   # Page title should contain the search term
+    finally:
+        driver.quit()   # Always close the browser`
+      }
+    },
     ]
   },
 
@@ -1126,3 +1236,5 @@ export const whatIsTestingData = {
   en: { hero: enHero, tabs: enTabs, sections },
   tr: { hero: trHero, tabs: trTabs, sections },
 }
+
+fillMissingCodeTrios(whatIsTestingData, 'what-is-testing')

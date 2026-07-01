@@ -43,6 +43,9 @@ function resolveProfile(pageKey, block, sectionTitle) {
   const code = compact(codeFor(block, 'en') || codeFor(block, 'tr'))
   const title = compact(sectionTitle || '')
 
+  // ── WHAT IS TESTING ──────────────────────────────────────────────────────────
+  if (pageKey === 'what-is-testing') return 'testing-fundamentals'
+
   // ── DOCKER ────────────────────────────────────────────────────────────────
   if (pageKey === 'docker') {
     if (language.includes('dockerfile') || code.includes(' from ') || code.startsWith('from ')) return 'dockerfile'
@@ -657,6 +660,34 @@ const PROFILE_TEXT = {
     itemsEn: ['Identify goal and input', 'Complete the critical line', 'Check output or behavior', 'Read the error message as evidence', 'Run the fix again'],
     hintsTr: ['TODO satiri, orijinal kod ornegindeki ilk anlamli satirin yerine kondu.', 'Cozumle birebir eslesme gerekir; bosluk ve satir sirasini dikkatli koru.', 'Takilirsan Beklenen Cikti veya orijinal kod blogundaki akisi oku, sonra yalnizca TODO satirini degistir.'],
     hintsEn: ['The TODO line replaces the first meaningful line in the original code sample.', 'The solution must match exactly; preserve spacing and line order carefully.', 'If stuck, read the expected output or the original code flow, then change only the TODO line.'],
+  },
+  // ── WHAT IS TESTING ──────────────────────────────────────────────────────────
+  'testing-fundamentals': {
+    tr: 'Test dongusunu tamamla',
+    en: 'Complete the test cycle',
+    taskTr: 'Bu micro lab, pasif pytest ornegini aktif bir test yazma ve kosturma alistirmasina cevirir. Amac test sozlugunu ezberlemek degil; assert-pass-fail mantigini ellerin ile kurmaktir.',
+    taskEn: 'This micro-lab turns a passive pytest example into an active test writing and running exercise. The goal is not memorizing the test vocabulary — it is wiring assert-pass-fail logic by hand.',
+    orderTr: 'Yazilim test dongusunu dogru siraya koy.',
+    orderEn: 'Put the software test cycle in the correct order.',
+    stepIcons: ['📋', '🎯', '▶️', '🐛', '✅'],
+    stepLabelsTr: ['Gereksinim ana', 'Test tasarla', 'Kostu', 'Buglari raporla', 'Dogrula & kapat'],
+    stepLabelsEn: ['Understand requirement', 'Design test', 'Execute', 'Report bugs', 'Verify & close'],
+    itemsTr: [
+      'Gereksinimi oku ve beklenen davranisi somutlastir (Kullanici X yapinca Y olmali)',
+      'Test senaryosunu yaz: giris, adimlar, beklenen sonuc — assertion once gelmeli',
+      'Testi calistir ve gercek ciktiyi beklenen ciktiyla karsilastir',
+      'Fark varsa defect raporla: hangi adim, ne beklendi, ne geldi',
+      'Duzeltme sonrasi testi tekrar kostu (retest), gectigini belgele ve kapat',
+    ],
+    itemsEn: [
+      'Read the requirement and make expected behaviour concrete (When user does X, Y must happen)',
+      'Write the test scenario: input, steps, expected result — assertion must come first',
+      'Execute the test and compare actual output with expected output',
+      'If there is a difference, report a defect: which step, what was expected, what was received',
+      'After the fix, re-run the test (retest), document that it passed, and close it',
+    ],
+    hintsTr: ['assert ifadesi Python test motorunun kalp atiisidir: assert gercek == beklenen yazar — sol taraf hep gercek deger, sag taraf hep beklenen.', 'Test sinifi adi Test ile baslamali, test metodu adi test_ ile baslamali — pytest bulmak icin bu isimlendirmeyi zorunlu kirkar.', 'TODO satiri buyuk ihtimalle assert veya return satiridır; beklenen deger ile gercek deger arasinadki iliskiyi kur.'],
+    hintsEn: ['The assert statement is the heartbeat of the Python test engine: write assert actual == expected — left is always actual, right is always expected.', 'The test class name must start with Test, the test method name must start with test_ — pytest makes this naming mandatory to discover tests.', 'The TODO line is likely the assert or return statement; wire the relationship between expected and actual value.'],
   },
 }
 

@@ -1185,7 +1185,7 @@ export const gitGithubData = {
           {
             type: 'simple-box',
             emoji: '📸',
-            content: 'Git is like taking labeled photos of your project while you work. If something breaks, you can look at earlier photos, compare what changed, and return to a safe point. GitHub is the shared album where your team reviews, comments, runs checks, and publishes the result.',
+            content: 'Git is like a medical record system for your project: every meaningful change is written down with a timestamp, a doctor\'s signature, and a reason — not just the final diagnosis but the entire history of how the patient arrived there. But here is the real question: if you already save files on your hard drive, why do you need Git on top of that? Because Ctrl+Z only remembers one session, and your teammate\'s "save" on the same file silently erases yours. Java analogy: think of each Git commit as an immutable value object — once created it cannot change, and you can always compare two of them with a diff just like comparing two object snapshots in a unit test assertion. In real QA work, without Git you cannot answer "which test script version was running when this CI failure happened?" — with Git you just look up the commit SHA from the Actions run and reproduce the exact state in seconds.',
           },
           {
             type: 'css-animation',
@@ -1309,7 +1309,7 @@ export const gitGithubData = {
           {
             type: 'simple-box',
             emoji: '🧰',
-            content: 'Installing Git is like putting a toolbox on your desk. Before building anything, you label the toolbox with your name and email so every saved change is traceable.',
+            content: 'Installing Git is like registering as an official contractor before stepping onto a building site: the gate logs your badge number, your name, and which door you entered — every nail you hammer is traceable to you. The question to sit with before moving to commands is: why does Git need your name and email at all, given that you are the only one at your keyboard right now? Because six months later, when the CI pipeline breaks on a specific commit, "who changed this?" is the first question the team asks — and without proper author metadata, you are all anonymous. Java analogy: in Maven or Gradle you declare coordinates — groupId, artifactId, version — before the project can be published anywhere; `git config --global user.name` is the same declaration layer for your commits. In QA, wrong or missing identity in commits means audit logs are useless, CODEOWNERS triggers cannot auto-assign reviewers, and GDPR-relevant code change traceability breaks.',
           },
           {
             type: 'heading',
@@ -1542,7 +1542,7 @@ export const gitGithubData = {
           {
             type: 'simple-box',
             emoji: '🧺',
-            content: 'Staging is like choosing which items go into a delivery box. You may have ten changed files on the table, but only the staged files go into the next commit.',
+            content: 'The staging area works exactly like a shopping cart that sits between the store shelves and the checkout counter: you can put things in the cart, take them out, swap them — and the receipt is only printed when you actually check out. The "why" worth pausing on: if Git is going to take a snapshot anyway, why not just snapshot everything that changed in one step? Because a QA engineer who fixed a flaky test and unrelated whitespace in the same session wants two separate, reviewable commits — one that says "fix: stabilize login test" and another that says "style: trim trailing whitespace". Java analogy: this maps directly to the Builder pattern — you call setter methods (git add) to configure the object, then call build() (git commit) when the state is exactly right; nobody can see the half-built object from outside. Without this two-step model, CI pipelines receive commits that bundle unrelated changes, making bisect and rollback precision impossible when a flaky test suddenly appears.',
           },
           {
             type: 'simulation',
@@ -1772,7 +1772,7 @@ export const gitGithubData = {
           {
             type: 'simple-box',
             emoji: '🗄️',
-            content: 'Imagine your desk has a couple of drawers with a sticky note that says "never photograph this drawer." Every time you take a memory-photo of your desk, those drawers are skipped automatically — they still exist, you just never see them in the picture. The .gitignore file is exactly that sticky note for your project folder.',
+            content: '.gitignore works like the "do not publish" stamp a legal team puts on internal draft documents before sending a contract packet to the client: the drafts still exist in the office filing cabinet, they just never leave the building. The critical "why" question here is: if a file is already in the repository, does adding it to .gitignore make it disappear from Git history? No — .gitignore only blocks untracked files from being accidentally staged; anything already committed stays in history forever until explicitly purged. Java analogy: Maven\'s default .gitignore excludes the `target/` directory the same reason no one commits compiled `.class` files — the build tool regenerates them deterministically, so shipping the source (pom.xml + src/) is sufficient, and committing target/ would bloat the repository by megabytes on every build. For QA automation this matters when someone accidentally commits a Playwright `test-results/` folder with video recordings — clone time triples overnight and sensitive test data about production URLs leaks into the public repository history.',
           },
           {
             type: 'heading',
@@ -1915,7 +1915,7 @@ export const gitGithubData = {
           {
             type: 'simple-box',
             emoji: '🌱',
-            content: 'A branch is a safe side road. First watch the road split visually, then watch the roads merge again, then practice what happens when two people edit the same place.',
+            content: 'A Git branch is like a parallel universe copy of your codebase that costs nothing to create — you are not duplicating files, you are only moving a pointer one step sideways, the same way a train switches track without physically duplicating the train. The thought-provoking question before you write a single branch command: if your work takes three hours, why not just commit directly to main and be done? Because in a QA team, main is the branch CI deploys from — one broken test file pushed directly to main fails every colleague\'s build and blocks the release pipeline until it is reverted. Java analogy: think of each branch as a separate thread with its own stack frame — threads in Java share heap memory until you explicitly synchronize, but each branch in Git keeps its own isolated snapshot and only merges when you decide to call join(). The real automation cost of skipping branches shows up during incidents: without a clean branch per fix, cherry-picking a specific bug fix to a hotfix release means manually hunting which commits to include instead of just merging one targeted branch.',
           },
           {
             type: 'css-animation',
@@ -2660,7 +2660,7 @@ git status`,
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'GitHub is like the team office for your code. Your branch is your desk, the Pull Request is the meeting table, and main is the approved cabinet.',
+            content: 'GitHub is the air traffic control tower for your team\'s code: every pilot (developer) has their own runway (branch), but before any plane lands on the main runway (main), the tower approves the flight path, checks for conflicts with other aircraft, and only then clears landing. The "why" question that unlocks real understanding: if Git already lets you push to main directly, why does GitHub add this entire pull request layer on top? Because Git is a solo tool — it only tracks history; GitHub is the collaboration protocol that enforces review, runs automated checks, and creates an audit trail that answers "who approved this security patch and what did the CI report look like when it merged?" Java analogy: GitHub\'s repository model is like Maven Central with access control — pushing to it requires authentication, versioning, and meeting standards, not just copying a jar onto a server. In QA automation, the GitHub workflow catches test files pushed without running locally, detects secrets accidentally included in environment setup scripts, and provides the paper trail needed for compliance audits.',
           },
           {
             type: 'simulation',
@@ -2724,7 +2724,7 @@ git push -u origin feature/login-tests
           {
             type: 'simple-box',
             emoji: '🧾',
-            content: 'A Pull Request is a controlled discussion before code enters main. It shows the diff, explains the reason, runs checks, collects review decisions and keeps a clear audit trail.',
+            content: 'A Pull Request is the same as submitting a scientific paper for peer review before publication: you do not just email the final PDF to the journal — you submit it through a structured process where reviewers see exactly what changed from the previous version, leave line-level comments, and the paper is only published after passing both human review and automated editorial checks. The question that reveals depth: why not just review code by reading it on Slack or in a shared doc — what does a PR add that a chat message cannot? A PR preserves the review conversation permanently next to the exact lines that were discussed, links the CI result to the specific commit, and creates a merge decision record that is auditable months later when a compliance team asks "who verified this authentication change?" Java analogy: a PR is like a formal code review gate in a Java team\'s Definition of Done — the code exists in a feature branch (like a local branch in development), and only after static analysis (CI checks), unit test coverage (test jobs), and peer sign-off (approvals) does it get merged, mirroring how a class gets promoted from dev to production artifact. For QA, a PR blocked by a failing Playwright test is the mechanism that stops a broken login flow from reaching users — without it, the flaky test is just a local annoyance that sneaks into production.',
           },
           {
             type: 'simulation',
@@ -2849,7 +2849,7 @@ git push -u origin feature/login-tests
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'GitHub Actions is like a factory line. Every time code arrives, machines install dependencies, run tests, build the app and publish reports without asking your laptop.',
+            content: 'GitHub Actions is like the automatic quality checkpoint belt at an airport security lane: every bag (commit or PR) that passes the sensor triggers the same sequence of checks — X-ray, metal detector, weight limit — and the bag only exits the lane if all checks pass, regardless of which passenger carried it or how confident they felt about it. The "why" question worth holding: your tests already pass locally, so why run them again on GitHub\'s machines? Because "works on my laptop" is not a contract — it depends on your specific OS, Node version, installed browser binaries, and the environment variables that happen to be set. Java analogy: GitHub Actions plays the role of a Maven CI build server like Jenkins did in Java teams — the YAML workflow file is your pipeline definition, jobs are your build phases (compile → test → package → deploy), and the runner is the clean-room JVM that has never seen your local .m2 cache. The QA business case is stark: without Actions, a test that only fails on Linux/Chrome goes undetected until a user reports it in production, because the Windows/Firefox developer never hit it; Actions matrix builds catch exactly that class of environment-specific regression before merge.',
           },
           {
             type: 'simulation',
@@ -2973,7 +2973,7 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🏡',
-            content: 'GitHub Pages is like giving your built website a public address. It can serve ready-made files, but it will not run a backend kitchen behind the door.',
+            content: 'GitHub Pages is like a vending machine for your website: you load the pre-packaged products (HTML, CSS, JS files) into the slots, the machine dispenses them on demand to anyone who walks up — but it cannot cook anything fresh, it can only serve what was already sealed inside. The "why" question that sharpens the concept: if you have a React app that works perfectly in your browser after `npm run build`, why does directly opening the `/login` URL on Pages return a 404? Because Pages is a file server, not a router — it looks for a literal file at `dist/login/index.html`, but a Single Page Application has only one real HTML file (`dist/index.html`) and handles all routing in JavaScript. Java analogy: deploying to GitHub Pages is the opposite of deploying a Spring Boot JAR — a JAR brings its own embedded Tomcat server that handles dynamic routes at runtime, while Pages deployment is like publishing only the static assets that Tomcat would have served, with no Tomcat present. For QA, this means automated tests that hit `/dashboard` directly via `page.goto()` will fail on the deployed Pages site unless you have added a static fallback shell for that route — a gap that only shows up in end-to-end tests against the deployed URL, not in local dev.',
           },
           {
             type: 'simulation',
@@ -3116,7 +3116,7 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🚧',
-            content: 'Some Git commands are like heavy machinery. They are useful in the right hands, but you check the area, warn the team and keep a backup before touching them.',
+            content: 'Some Git commands work like a controlled demolition charge: `git reset --hard`, `git push --force`, and `git rebase` on a shared branch are legitimate tools that professionals use deliberately — but they rewrite what already exists rather than adding something new, which means a split-second mistake in the wrong context permanently erases a colleague\'s committed work from the shared history. The "why" question that separates experienced engineers from beginners: if `git push --force-with-lease` is safer than `--force`, why does `--force` even exist? Because there are valid solo-branch scenarios — rebasing a personal feature branch before opening a PR — where force-pushing is exactly the right thing to do; the danger is only when the branch is shared. Java analogy: `git reset --hard` is like calling `System.exit(0)` mid-transaction — everything in memory that was not persisted to the database is gone, there is no rollback handle, and no exception is thrown to warn you. In QA automation, the most expensive real-world incident from this mistake pattern is accidentally force-pushing over a colleague\'s hotfix branch ten minutes before a production deployment window, requiring manual SHA recovery, emergency coordination, and a post-mortem — all because the engineer did not run `git fetch` first.',
           },
           gitRecoveryPractice,
           {
@@ -3265,7 +3265,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🧯',
-            content: 'Git errors are usually signposts, not disasters. Read the first line, check where you are, then choose the smallest safe fix.',
+            content: 'Git error messages are like the warning lights on a car dashboard: they look alarming in isolation, but each one pinpoints a specific system fault — the oil pressure light does not mean the engine is destroyed, it means check the oil level before driving further. The "why" worth understanding before you rush to Stack Overflow: why does Git output errors that look like sentences but are not actionable on their own? Because Git was designed for command-line piping and scripting, so its messages are precise technical statements rather than user-friendly suggestions — learning to parse "fatal: refusing to merge unrelated histories" as "these two repos were initialized separately and share no common ancestor commit" takes practice but pays off every single time. Java analogy: Git error messages are like Java\'s checked exceptions — they force you to acknowledge the failure condition explicitly rather than silently continuing; `fatal: not a git repository` is Git\'s equivalent of a `FileNotFoundException` that the caller must handle, not ignore. In QA, the highest-risk moment for misreading a Git error is during a CI incident at deploy time: a `! [rejected] main -> main (non-fast-forward)` error in an Actions log is not a permissions problem or infrastructure failure — it means someone pushed to main between your last fetch and your push, and the correct response is fetch-then-merge, not force-push.',
           },
           {
             type: 'error-dictionary',
@@ -3334,7 +3334,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '📸',
-            content: 'Git, çalışırken projenin etiketli fotoğraflarını çekmek gibidir. Bir şey bozulursa eski fotoğrafa bakar, ne değişmiş görür ve güvenli noktaya dönebilirsin. GitHub ise takımın bu fotoğrafları incelediği, yorumladığı, test koşturduğu ve yayınladığı ortak albümdür.',
+            content: 'Git, projen için bir tıbbi kayıt sistemi gibi çalışır: her anlamlı değişiklik zaman damgası, imzalayanın adı ve gerekçesiyle kaydedilir — sadece son teşhis değil, hastanın o noktaya nasıl geldiğinin tüm geçmişi tutulur. Ama asıl soru şu: dosyaları zaten sabit diske kaydediyorken Git\'e neden ihtiyaç var? Çünkü Ctrl+Z sadece o oturumu hatırlar ve takım arkadaşının aynı dosyayı "kaydetmesi" seninkini sessizce ezer. Java analojisi: her Git commit\'i değiştirilemez bir value object gibi düşün — bir kez oluşturulunca değişmez ve iki commit\'i diff ile karşılaştırmak, unit test assertion\'ında iki object snapshot\'ını karşılaştırmakla birebir aynı mantıktır. QA\'da Git olmadan "bu CI hatası hangi test script versiyonuyla çıktı?" sorusuna cevap veremezsin; Git ile Actions run\'ındaki commit SHA\'yı bakıp tam o state\'i saniyeler içinde yeniden üretebilirsin.',
           },
           {
             type: 'simulation',
@@ -3471,7 +3471,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🧰',
-            content: 'Git kurmak masaya bir araç çantası koymak gibidir. Bir şey inşa etmeden önce çantaya adını ve emailini yazarsın; böylece her kaydedilen değişikliğin kimden geldiği izlenir.',
+            content: 'Git kurmak, bir şantiyeye girmeden önce resmi yüklenici kaydı yaptırmak gibidir: kapı her rozetini, adını ve hangi kapıdan girdiğini kaydeder; çaktığın her çivi sana izlenebilir. Komutlara geçmeden önce üzerinde durmaya değer soru şu: şu an tek başınayken Git\'in adını ve email\'ini neden bilmesi gerekiyor? Çünkü altı ay sonra CI pipeline belirli bir commit\'te bozulduğunda takımın ilk sorusu "bunu kim değiştirdi?" olur ve author metadata eksikse tüm audit log anlamsızlaşır. Java analojisi: Maven veya Gradle\'da projeyi herhangi bir yere yayınlamadan önce groupId, artifactId, version koordinatlarını tanımlarsın; `git config --global user.name` da commit\'lerin yayınlanabilmesi için gereken aynı tanımlama katmanıdır. QA\'da hatalı veya eksik commit kimliği; audit loglarını kullanılamaz hale getirir, CODEOWNERS otomatik reviewer atamasını kırar ve GDPR kapsamındaki kod değişikliği izlenebilirliğini bozar.',
           },
           {
             type: 'heading',
@@ -3934,7 +3934,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🗄️',
-            content: 'Masanda üzerine "bu çekmecenin asla fotoğrafını çekme" notu yapıştırılmış birkaç çekmece olduğunu düşün. Masanın hafıza fotoğrafını her çektiğinde o çekmeceler otomatik atlanır — hâlâ oradalar, sadece resme hiç girmezler. .gitignore dosyası, proje klasörün için tam olarak bu yapışkan nottur.',
+            content: '.gitignore, bir hukuk ekibinin müşteriye gönderilecek sözleşme paketine bastığı "yayınlanmasın" damgası gibi çalışır: taslaklar ofis dosya dolabında durmaya devam eder, sadece hiçbir zaman binadan çıkmazlar. Burada kavramayı netleştiren kritik soru: bir dosya zaten repository\'ye commit edildiyse onu .gitignore\'a eklemek Git geçmişinden siler mi? Hayır — .gitignore yalnızca izlenmeyen (untracked) dosyaların yanlışlıkla stage\'lenmesini engeller; daha önce commit edilmiş her şey açıkça temizlenene kadar tarihte kalır. Java analojisi: Maven\'ın varsayılan .gitignore\'u `target/` klasörünü aynı nedenle dışlar — build aracı bu dosyaları deterministik biçimde yeniden üretir, dolayısıyla kaynağı (pom.xml + src/) göndermek yeterlidir ve target/\'ı commit etmek her build\'de repository\'yi megabaytlarca şişirir. QA otomasyonunda bu sorun, biri Playwright `test-results/` klasörünü içinde video kayıtlarıyla birlikte yanlışlıkla commit ettiğinde kendini gösterir — clone süresi bir gecede üçe katlanır ve production URL\'leri hakkındaki hassas test verisi genel repository geçmişine sızar.',
           },
           {
             type: 'heading',
@@ -4835,7 +4835,7 @@ git status`,
           {
             type: 'simple-box',
             emoji: '🏢',
-            content: 'GitHub kodun takım ofisi gibidir. Branch senin masan, Pull Request toplantı masası, main ise onaylanmış işlerin dolabıdır.',
+            content: 'GitHub, takımın kodu için bir hava trafik kontrol kulesi gibidir: her pilot\'un (developer) kendi pisti (branch) vardır ama herhangi bir uçak ana piste (main) inmeden önce kule uçuş yolunu onaylar, diğer uçaklarla çakışma kontrolü yapar ve ancak o zaman inişe izin verir. Gerçek kavrayışı açan soru şu: Git zaten doğrudan main\'e push etmeye izin veriyorken GitHub neden bu pull request katmanını üstüne ekliyor? Çünkü Git bir solo araçtır — yalnızca geçmişi izler; GitHub ise review\'u zorunlu kılan, otomatik kontroller çalıştıran ve "bu güvenlik yamasını kim onayladı, merge\'lendiğinde CI raporu nasıldı?" sorusunu cevaplayabilecek audit trail oluşturan iş birliği protokolüdür. Java analojisi: GitHub\'ın repository modeli, erişim kontrolüne sahip Maven Central gibidir — oraya yayınlamak kimlik doğrulama, versiyonlama ve standartlara uyumu gerektirir, sunucuya dosya kopyalamak yeterli değildir. QA otomasyonunda GitHub akışı, lokalde çalıştırılmadan push edilen test dosyalarını yakalar, environment kurulum script\'lerine yanlışlıkla dahil edilen secret\'ları tespit eder ve uyumluluk denetimleri için gereken yazılı iz\'i sağlar.',
           },
           {
             type: 'simulation',

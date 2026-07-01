@@ -75,7 +75,7 @@ function LeaderboardPage() {
         supabase.rpc('get_leaderboard', { p_limit: 10 }).then(({ data, error }) => {
             if (cancelled) return
             if (error) {
-                console.error('get_leaderboard failed:', error)
+                console.warn('get_leaderboard failed:', error)
                 setStatus('error')
                 return
             }

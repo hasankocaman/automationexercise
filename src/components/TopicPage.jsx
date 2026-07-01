@@ -17,6 +17,7 @@ import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
 import SecuritySimulation from './SecuritySimulations'
 import SecurityLegoVisual from './SecurityLegoVisual'
 import LocatorExplorerBlock from './LocatorExplorerBlock'
+import { sanitizeAiText } from '../lib/sanitizeAiText'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -1501,7 +1502,7 @@ function AiExplanationPanel({ question, correctAnswer, userAnswer, isCorrect, st
         }).then(({ data, error: invokeError }) => {
             if (invokeError) throw invokeError
             if (data?.error) throw new Error(data.error)
-            setExplanation(data.explanation)
+            setExplanation(sanitizeAiText(data.explanation))
         }).catch(async (err) => {
             console.error('explain-quiz-answer failed:', err)
             const detail = await extractFunctionErrorDetail(err)
@@ -2537,7 +2538,7 @@ function JavaPracticeBlock({ block, darkMode, language }) {
                             ))}
                             <div>
                                 <div className={`text-xs font-bold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Console</div>
-                                <pre className={`rounded-lg p-3 text-xs min-h-[70px] whitespace-pre-wrap ${darkMode ? 'bg-black text-green-300' : 'bg-slate-900 text-green-300'}`}>{result.output || (language === 'tr' ? '(çıktı yok)' : '(no output)')}</pre>
+                                <pre className={`rounded-lg p-3 text-xs min-h-[70px] whitespace-pre-wrap ${darkMode ? 'bg-black text-cyan-300' : 'bg-slate-50 text-cyan-700 border border-slate-200'}`}>{result.output || (language === 'tr' ? '(çıktı yok)' : '(no output)')}</pre>
                             </div>
                         </div>
                     )}
@@ -3659,7 +3660,17 @@ function InterviewPracticeBlock({ allQuestions, darkMode, onMasteryAchieved, alr
     // Yeni bir skor geldiğinde (ilk değerlendirme ya da itiraz sonrası revize) skoru
     // kaydeder ve tüm sorular en az bir kez değerlendirildiyse ortalamayı kontrol eder.
     function applyScore(idx, data) {
-        const nextScores = { ...scores, [idx]: data }
+        let sanitizedData = data
+        if (data) {
+            sanitizedData = { ...data }
+            if (typeof sanitizedData.feedback === 'string') {
+                sanitizedData.feedback = sanitizeAiText(sanitizedData.feedback)
+            }
+            if (Array.isArray(sanitizedData.pointsFeedback)) {
+                sanitizedData.pointsFeedback = sanitizedData.pointsFeedback.map(f => typeof f === 'string' ? sanitizeAiText(f) : f)
+            }
+        }
+        const nextScores = { ...scores, [idx]: sanitizedData }
         setScores(nextScores)
 
         const nextGradedCount = Object.values(nextScores).filter((s) => typeof s?.percent === 'number').length
@@ -5636,7 +5647,7 @@ function GitPracticeBlock({ block, darkMode, language }) {
                             ))}
                             <div>
                                 <div className={`text-xs font-bold mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Terminal Preview</div>
-                                <pre className={`rounded-lg p-3 text-xs min-h-[74px] whitespace-pre-wrap ${darkMode ? 'bg-black text-green-300' : 'bg-slate-900 text-green-300'}`}>{result.output || (language === 'tr' ? 'Komut akışı kontrol edildi.' : 'Command flow checked.')}</pre>
+                                <pre className={`rounded-lg p-3 text-xs min-h-[74px] whitespace-pre-wrap ${darkMode ? 'bg-black text-cyan-300' : 'bg-slate-50 text-cyan-700 border border-slate-200'}`}>{result.output || (language === 'tr' ? 'Komut akışı kontrol edildi.' : 'Command flow checked.')}</pre>
                             </div>
                         </div>
                     )}
@@ -13678,12 +13689,12 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         ['read', 'order updated_at desc limit 1'],
                         ['resume', '/route + tab + scroll position'],
                     ].map(([label, value]) => (
-                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-green-800 bg-green-950/20' : 'border-green-200 bg-green-50'}`}>
-                            <div className={`text-xs font-bold ${darkMode ? 'text-green-200' : 'text-green-800'}`}>{label}</div>
-                            <code className={`text-xs ${darkMode ? 'text-green-300' : 'text-green-700'}`}>{value}</code>
+                        <div key={label} className={`rounded-lg border p-3 ${darkMode ? 'border-cyan-800/40 bg-cyan-950/20' : 'border-cyan-200 bg-cyan-50/50'}`}>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-cyan-200' : 'text-cyan-800'}`}>{label}</div>
+                            <code className={`text-xs ${darkMode ? 'text-cyan-300' : 'text-cyan-700'}`}>{value}</code>
                         </div>
                     ))}
-                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-cyan-800/40 bg-cyan-950/20 text-cyan-300' : 'border-cyan-200 bg-cyan-50/50 text-cyan-800'}`}>
                         {isTr ? 'Java analojisi: UserProgress entity’sinde composite unique constraint koymak gibi.' : 'Java analogy: like adding a composite unique constraint to a UserProgress entity.'}
                     </div>
                 </div>
@@ -13911,13 +13922,13 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         const active = order.indexOf(key) === cur
                         const done = order.indexOf(key) < cur && s !== 'idle'
                         return (
-                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-cyan-500 bg-cyan-950/30' : 'border-cyan-300 bg-cyan-50/50') : done ? (darkMode ? 'border-cyan-700/60 bg-cyan-950/20' : 'border-cyan-200/80 bg-cyan-50/30') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
                                 <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
                                 <div className={`text-xs mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</div>
                             </div>
                         )
                     })}
-                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-green-800 bg-green-950/30 text-green-200' : 'border-green-200 bg-green-50 text-green-800'}`}>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-cyan-800/40 bg-cyan-950/20 text-cyan-300' : 'border-cyan-200 bg-cyan-50/50 text-cyan-800'}`}>
                         {isTr ? 'Mini kontrol: terminal açılınca önce `pwd` veya CMD’de prompt satırına bak. Klasör doğruysa komut yazmaya başla.' : 'Mini check: when the terminal opens, first look at `pwd` or the CMD prompt. If the folder is correct, start typing commands.'}
                     </div>
                 </div>
@@ -14375,13 +14386,13 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         const active = order.indexOf(key) === cur
                         const done = order.indexOf(key) < cur && s !== 'idle'
                         return (
-                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-green-500 bg-green-950/30' : 'border-green-300 bg-green-50') : done ? (darkMode ? 'border-emerald-700 bg-emerald-950/25' : 'border-emerald-300 bg-emerald-50') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
+                            <div key={key} className={`rounded-lg border p-3 ${active ? (darkMode ? 'border-cyan-500 bg-cyan-950/30' : 'border-cyan-300 bg-cyan-50/50') : done ? (darkMode ? 'border-cyan-700/60 bg-cyan-950/20' : 'border-cyan-200/80 bg-cyan-50/30') : (darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50')}`}>
                                 <div className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{done ? '✓' : active ? '→' : i + 1} {label}</div>
                                 <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</div>
                             </div>
                         )
                     })}
-                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-green-800 bg-green-950/30 text-green-200' : 'border-green-200 bg-green-50 text-green-800'}`}>
+                    <div className={`text-xs rounded-lg p-3 border ${darkMode ? 'border-cyan-800/40 bg-cyan-950/20 text-cyan-300' : 'border-cyan-200 bg-cyan-50/50 text-cyan-800'}`}>
                         {isTr ? 'Java analojisi: public API’yi bozmadan önce private bir methodda deneme yapmak gibi; branch main’i koruyan deneme alanıdır.' : 'Java analogy: like experimenting in a private method before exposing a public API; a branch protects main while you work.'}
                     </div>
                 </div>
@@ -17221,12 +17232,12 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                     <div className="space-y-2">
                         {block.steps?.map((step, j) => (
                             <div key={j} className={`rounded-xl border overflow-hidden ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                                <div className="bg-slate-900 px-4 py-2.5 flex items-center gap-3">
-                                    <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-700 text-gray-200'}`}>{j + 1}</span>
-                                    <code className="font-mono text-sm text-green-400 flex-1">{step.cmd}</code>
-                                    {step.cmd_mac && <code className="font-mono text-xs text-gray-500 hidden md:block">{step.cmd_mac}</code>}
+                                <div className={`px-4 py-2.5 flex items-center gap-3 ${darkMode ? 'bg-slate-900' : 'bg-slate-100'}`}>
+                                    <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700 border border-gray-200'}`}>{j + 1}</span>
+                                    <code className={`font-mono text-sm flex-1 font-semibold ${darkMode ? 'text-cyan-300' : 'text-cyan-700'}`}>{step.cmd}</code>
+                                    {step.cmd_mac && <code className={`font-mono text-xs hidden md:block ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{step.cmd_mac}</code>}
                                 </div>
-                                <div className={`px-4 py-2 text-sm ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-600'}`}>
+                                <div className={`px-4 py-2 text-sm ${darkMode ? 'bg-gray-850 text-gray-400' : 'bg-white text-gray-600'}`}>
                                     {tx(step.explanation, language)}
                                 </div>
                             </div>
@@ -20515,20 +20526,20 @@ function JSEventLoopVisualBlock({ darkMode, language }) {
                 </div>
 
                 {/* Console Output Screen */}
-                <div className="rounded-xl bg-gray-950 text-green-400 p-3 font-mono text-xs mb-4 min-h-[60px] border border-gray-800">
-                    <div className="text-[9px] text-gray-500 uppercase font-bold border-b border-gray-800/80 pb-1 mb-2">
+                <div className={`rounded-xl p-3 font-mono text-xs mb-4 min-h-[60px] border ${darkMode ? 'bg-gray-950 text-cyan-300 border-gray-800' : 'bg-slate-50 text-cyan-700 border-slate-200'}`}>
+                    <div className={`text-[9px] uppercase font-bold border-b pb-1 mb-2 ${darkMode ? 'text-gray-500 border-gray-800/80' : 'text-gray-400 border-slate-200'}`}>
                         🖥️ Console / Terminal
                     </div>
                     {consoleOutput.length > 0 ? (
                         <div className="flex gap-2 text-sm font-bold">
                             {consoleOutput.map((val, i) => (
-                                <span key={i} className="js-pop bg-gray-900 px-2 py-1 border border-green-500/20 rounded">
+                                <span key={i} className={`js-pop px-2 py-1 rounded border ${darkMode ? 'bg-gray-900 border-cyan-500/20 text-cyan-200' : 'bg-white border-cyan-200 text-cyan-800 shadow-sm'}`}>
                                     {val}
                                 </span>
                             ))}
                         </div>
                     ) : (
-                        <span className="opacity-30 text-[10px]">{isTr ? 'Kodu çalıştırmak için Başlat\'a basın...' : 'Press Play to run code...'}</span>
+                        <span className="opacity-40 text-[10px]">{isTr ? 'Kodu çalıştırmak için Başlat\'a basın...' : 'Press Play to run code...'}</span>
                     )}
                 </div>
 

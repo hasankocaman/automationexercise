@@ -10,7 +10,7 @@ const s0 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎬',
-        content: 'Cypress\'i bir film setine benzetin: yönetmen (test kodu) ve kamera (tarayıcı) AYNI odada, aynı anda çalışır — yönetmen "kes!" dediği anda her şeyi görür, geri sarıp tekrar izleyebilir. Selenium ise yönetmenin telefonla uzaktaki bir sete talimat verdiği bir çekim gibidir: talimatı gönderir, setin cevap vermesini bekler. Cypress\'in hızı ve "her şeyi gördüm" hissi buradan gelir.',
+        content: 'Cypress, tarayıcıyla aynı süreçte çalışır — tıpkı bir cerrahın ameliyat sahasına dışarıdan talimat vermek yerine elleriyle doğrudan müdahale etmesi gibi: her kesim anlık, her tepki gerçek zamanlı, araya hiçbir gecikme girmiyor. Peki Selenium zaten onlarca yıldır iş görüyorken neden farklı bir mimari gerekti? Çünkü Selenium\'un WebDriver protokolü her komut için tarayıcıyla bir HTTP round-trip yapar — bu "uzaktan kumanda" modeli ağ gecikmesini teste dahil eder ve yarış koşullarına (race condition) kapı aralar. Java\'da JUnit testleri JVM içinde, uygulama kodunuzla aynı hafızada çalışır; Cypress\'in tarayıcıyla kurduğu ilişki tam olarak budur — yalnızca ortam JVM değil Chromium\'dur. QA perspektifinden kritik sonuç: her komuttan sonra otomatik DOM snapshot\'ı alındığı için flaky test analiz ederken saatlerce log karıştırmak yerine time-travel ile tam olarak hangi elementin hangi anda ne gösterdiğini bir tıkla görebilirsin — bu, CI\'da sessizce geçen ama aslında yanlış olan PASS\'leri yakalamayı dramatik biçimde kolaylaştırır.',
       },
       {
         type: 'css-animation',
@@ -135,7 +135,7 @@ const s0 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎬',
-        content: "Think of Cypress like a film set where the director (test code) and the camera (browser) are in the SAME room at the same time — the moment the director says \"cut!\", they see everything and can rewind and replay it. Selenium is more like a director giving instructions to a remote set over the phone: it sends an instruction and waits for the set to respond. That's where Cypress's speed and \"I saw everything\" feeling comes from.",
+        content: "Cypress runs inside the same process as the browser — like a surgeon operating with their own hands rather than giving instructions to a remote team over a phone: every cut is immediate, every reaction in real time, with zero round-trip delay. But if Selenium has worked for decades, why did we need a different architecture? Because Selenium's WebDriver protocol makes an HTTP round-trip to the browser for every command — that \"remote control\" model introduces network latency into your tests and opens the door to race conditions. In Java, JUnit tests run inside the JVM alongside your application code; that's exactly the relationship Cypress has with the browser — except the runtime is Chromium instead of the JVM. The practical QA consequence: since Cypress automatically snapshots the DOM after every command, when a test fails in CI you don't comb through logs for hours — you time-travel to the exact moment and see precisely what the DOM showed, making it far easier to catch tests that silently PASS while the UI is actually broken.",
       },
       {
         type: 'text',
@@ -2089,7 +2089,7 @@ const s10 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎯',
-        content: 'Bu 50 soru, Junior → Senior Cypress QA mülakatlarında gerçekten sorulan sorulardır. "Basic" seviyeyi geçemeden "Advanced"e bakma — temeli sağlam tut.',
+        content: 'Bir mülakatta Cypress bilgisi iki kademede ölçülür: önce "ne olduğunu" bilip bilmediğin, sonra "neden öyle tasarlandığını" açıklayıp açıklayamadığın. cy.intercept() nedir Basic\'tir; ama "production\'da bir servis %5 oranında 500 döndürüyor, bunu CI\'da stabil tutmak için nasıl bir strateji kurarsın?" Advanced\'tir — tıpkı Java\'da Mockito\'yu öğrenmek ile onu gerçek bir regression suite\'ine entegre etmenin farklı şeyler olması gibi. Peki bu iki seviye arasındaki mesafeyi geçmek için ne gerekiyor? Temeli eksik geçmek Advanced\'de birinci detaylı soruyla tökezlemeye neden olur; bu 50 soru o köprüyü adım adım kurar: Basic sorular temeli sağlamlaştırmak, Intermediate sorular gerçek iş senaryolarını (flaky test, race condition, test isolation çöküşü) çözmek, Advanced sorular ise CI pipeline tasarımı ve mimari tercihleri tartışmak için hazırlar.',
       },
       {
         type: 'interview-questions',
@@ -2157,7 +2157,7 @@ const s10 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎯',
-        content: 'These 50 questions are actually asked in Junior → Senior Cypress QA interviews. Don\'t skip to Advanced before mastering Basic — a solid foundation is everything.',
+        content: 'Cypress interview questions test two distinct layers: whether you know what something is, and whether you can explain why it was designed that way. "What is cy.intercept()?" is Basic; "A service returns 500 errors 5% of the time in production — how do you build a strategy to keep your CI suite stable?" is Advanced. The gap between those two levels is the same gap as knowing Mockito\'s API versus knowing when and how to reach for it in a real regression suite. What\'s the fastest way to close that gap? Skipping Basic means hitting a wall at the first follow-up question in an interview; these 50 questions build the bridge step by step — Basic to solidify the fundamentals, Intermediate to solve real-world scenarios (flaky tests, race conditions, test isolation failures), Advanced to discuss CI pipeline design and architectural trade-offs.',
       },
       {
         type: 'interview-questions',
@@ -2228,7 +2228,7 @@ const s11 = {
     blocks: [
       {
         type: 'simple-box', emoji: '📚',
-        content: 'Bir test dosyasını bir kitap gibi düşün: describe() bir BÖLÜM başlığıdır, it() o bölümün içindeki bir SAYFA/olaydır. before()/after() bölüme başlarken ve biterken bir kez yapılan ritüellerdir (ışığı aç/kapat); beforeEach()/afterEach() ise her sayfayı okumadan önce/sonra tekrar eden küçük alışkanlıklardır (yer imini koy/kaldır).',
+        content: 'describe() ve it() bloklarının yapısını bir hukuki belge hiyerarşisi gibi düşün: describe() dava dosyasının başlığıdır (davranış kapsamını tanımlar), it() ise tek bir iddia — mahkemede "sanık X tarihinde Y yaptı" gibi, kesin ve bağımsız, diğer iddiaların doğruluğuna bakılmaksızın değerlendirilebilir. Ama şunu sor kendine: before() ve beforeEach() ikisi de kurulum yapıyor — aralarında ne fark var ki? before() dava başlamadan tüm dosyayı bir kez hazırlar (veritabanı seed\'i gibi); beforeEach() ise her iddia okunmadan önce masayı siler ve tazeleyerek başlar — yani testlerin birbiri üzerinde yan etki bırakıp bırakmadığını bu ayrım kontrol eder. Java\'da JUnit\'in @BeforeAll / @BeforeEach ayrımının birebir karşılığıdır, yalnızca adlar farklıdır. QA\'nın gerçek iş riski şudur: beforeEach() olmadan çalışan bir test suite\'i, testlerin çalışma sırasına bağımlı hale gelir — sıra değiştiğinde PASS olan testler FAIL olmaya başlar, flaky kabul edilen ama aslında düzensiz test izolasyonundan kaynaklanan bir "hantu" (phantom failure) ortaya çıkar.',
       },
       {
         type: 'text',
@@ -2390,7 +2390,7 @@ before(() => cy.task('db:seed'))`,
     blocks: [
       {
         type: 'simple-box', emoji: '📚',
-        content: "Think of a test file like a book: describe() is a CHAPTER title, it() is a PAGE/event inside that chapter. before()/after() are rituals done once at the start and end of the chapter (turn the light on/off); beforeEach()/afterEach() are small habits repeated before/after reading every page (place/remove a bookmark).",
+        content: "Think of the describe() / it() structure like a legal document hierarchy: describe() is the case heading (defines the scope of the behavior under scrutiny), and it() is a single individual claim — precise and independent, evaluable on its own regardless of whether other claims are true. But here's the question worth pausing on: both before() and beforeEach() set things up — so what exactly distinguishes them? before() prepares the entire case file once before any claim is heard (like seeding a database); beforeEach() wipes the table clean and resets before each individual claim is read — meaning it's this distinction that controls whether tests can leave side effects on each other. It's the direct equivalent of JUnit's @BeforeAll / @BeforeEach split in Java — only the names differ. The real QA risk: a test suite without beforeEach() becomes order-dependent; change the execution order and PASSing tests start FAILing, producing phantom failures that get labeled 'flaky' but are actually caused by broken test isolation.",
       },
       {
         type: 'text',
@@ -2555,7 +2555,7 @@ const s12 = {
     blocks: [
       {
         type: 'simple-box', emoji: '📝',
-        content: 'Bir alias (.as()), bir post-it nota benzer: o anki bir bilgiyi yapışkan nota yazıp panoya yapıştırırsın (.as(\'users\')), sonra istediğin an panodan okursun (cy.get(\'@users\')). Test Isolation ise her testten önce masanı tertemiz bir şekilde sıfırlaman gibidir — önceki testin not kağıtları, kahve fincanı (cookie/localStorage) hiçbiri kalmaz.',
+        content: 'Cypress komutları asenkron çalıştığı için bir komutun sonucunu doğrudan bir değişkene atayamazsın — tıpkı bir fabrika bandının ortasından ürünü kapıp yan masaya koymaya çalışmak gibi: bant dönerken üretim devam eder, elini uzattığında ürün zaten orada değildir. Peki o zaman bir komutun sonucuna nasıl güvenli erişirsin? .as(\'siparisId\') komutu, o sonucu adlandırılmış bir rafın üzerine koyar; cy.get(\'@siparisId\') ise doğru anda o raftan alır — zincirin sonuna kadar bant durmak zorunda kalmaz. Java\'da CompletableFuture\'dan bir değer almak için thenApply() kullanırsın, doğrudan .get() çağırmak bloklama riski taşır; .as()/.get(\'@\') çifti de tam bu mantıkla çalışır: Cypress ne zaman hazır olduğunu bilir, sen sadece adı söylersin. Test Isolation ise bu resmin arka planıdır: cookie, localStorage ve oturum bilgileri testler arasında sızmaya başlarsa bir testin yarattığı alias bir sonrakini kirletir, PASS gözüken test aslında önceki testin bıraktığı state\'e yaslanıyor olabilir — CI\'da sırasız çalışmaya geçtiğinde tüm suite çöker.',
       },
       {
         type: 'text',
@@ -2731,7 +2731,7 @@ cy.get('header').should('contain', this.users[0].name)`,
     blocks: [
       {
         type: 'simple-box', emoji: '📝',
-        content: "An alias (.as()) is like a sticky note: you write down a piece of information and stick it on a board (.as('users')), then read it back from the board whenever you need it (cy.get('@users')). Test Isolation is like wiping your desk completely clean before every test — none of the previous test's notes or coffee cups (cookies/localStorage) are left behind.",
+        content: "Because Cypress commands are asynchronous, you can't grab a command's result mid-chain and assign it to a plain variable — like trying to pluck a product off a moving conveyor belt and set it on a side table: the belt keeps moving and by the time you reach, the product is already gone. So how do you safely access a command's result later in the chain? .as('orderId') places that result on a named shelf; cy.get('@orderId') retrieves it at exactly the right moment — the belt never has to stop. In Java, you use thenApply() to work with a CompletableFuture's result rather than calling .get() directly, which risks blocking; the .as()/.get('@') pair operates on the same principle: Cypress knows when it's ready, you just provide the name. Test Isolation is the backdrop to all of this: if cookies, localStorage, and session data leak between tests, one test's alias can corrupt the next, and a test that appears to PASS is actually leaning on state left behind by a previous one — when CI switches to parallel or randomized execution order, the entire suite collapses.",
       },
       {
         type: 'text',
@@ -2914,7 +2914,7 @@ const s13 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: 'Bütün arabayı pist üzerinde test etmek yerine, direksiyonu tezgaha bağlayıp tek başına test ettiğini düşün: motor, şanzıman, yol — hiçbiri gerekmez, sadece direksiyon doğru dönüyor mu diye bakarsın. Component Testing, tüm uygulamayı (server, router, diğer sayfalar) açmadan SADECE bir tek React/Vue/Angular bileşenini gerçek bir tarayıcıda izole olarak çalıştırmaktır.',
+        content: 'Component Testing, bir React bileşenini gerçek bir tarayıcıda — ama tüm uygulamayı başlatmadan — izole olarak çalıştırmaktır: tıpkı bir uçak motorunu test pistine çekmeden önce fabrika tezgahına bağlayıp tek başına çalıştırman gibi — pist, gövde, yakıt sistemi, pilot kabini hiçbiri gerekmez, yalnızca motorun kendi parametreleri içinde doğru çalışıp çalışmadığına bakarsın. Peki E2E testleri zaten tarayıcıda çalışıyorken neden ayrı bir Component Testing altyapısına ihtiyaç var? Çünkü bir bileşenin edge case\'lerini (hata durumu, boş state, erişilebilirlik) E2E akışı üzerinden tetiklemek çok pahalıdır — 3 sayfalık bir login akışı geçmeden "ödeme butonu disabled iken tooltip gösteriyor mu?" sorusunu soramazsın. Java\'da Spring\'te @WebMvcTest yalnızca MVC katmanını başlatır, servis ve repository bean\'lerini mocklar — Component Testing de bileşenin Spring\'i gibidir: sadece o katmanı başlatıp yüksek hızda test edersin. QA için kritik risk: jsdom tabanlı unit testler (Jest + RTL) gerçek tarayıcı DOM\'unu çalıştırmaz, CSS/layout/scroll sorunlarını göremez; Component Testing ise Chromium içinde koştuğu için o sınıf görsel hataları da yakalar — E2E\'ye geç kalınmadan önce bir filtre görevi görür.',
       },
       {
         type: 'text',
@@ -3080,7 +3080,7 @@ Install the suggested dependencies (adapter)`,
     blocks: [
       {
         type: 'simple-box', emoji: '🔧',
-        content: "Instead of testing a whole car on a track, imagine bolting just the steering wheel to a workbench and testing it alone: no engine, no transmission, no road needed — you only check if the wheel turns correctly. Component Testing means running ONLY a single React/Vue/Angular component in isolation, in a real browser, without launching the entire app (server, router, other pages).",
+        content: "Component Testing means running a single React/Vue/Angular component in a real browser in isolation — like mounting an aircraft engine on a factory test stand before rolling the plane out to the runway: the fuselage, cockpit, and fuel system are completely absent; you verify only whether the engine itself performs within its own parameters. But if E2E tests already run in the browser, why invest in a separate Component Testing infrastructure? Because triggering a component's edge cases (error state, empty state, accessibility behavior) through a full E2E flow is expensive — you can't ask \"does the payment button show a tooltip when disabled?\" without first navigating through a three-page login flow. In Java, Spring's @WebMvcTest boots only the MVC layer and mocks the service and repository beans; Component Testing is the browser equivalent: only that layer spins up, so the feedback loop is fast. The critical QA risk: jsdom-based unit tests (Jest + RTL) don't run a real browser DOM and miss CSS, layout, and scroll bugs; Component Testing runs in Chromium and catches that entire class of visual defects before they ever reach an E2E suite.",
       },
       {
         type: 'text',
@@ -3237,7 +3237,7 @@ const s14 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎭',
-        content: 'cy.stub(), bir filmdeki DUBLÖR gibidir: orijinal aktör (gerçek fonksiyon) yerine geçer ve sahneyi senin istediğin gibi oynar (sahte cevap döner). cy.spy() ise gizli bir KAMERA gibidir: orijinal aktör normal oynamaya devam eder ama sen her hareketini (her çağrısını, hangi parametrelerle) kayda alırsın.',
+        content: 'cy.stub() bir fonksiyonun orijinal davranışını tamamen devre dışı bırakır ve senin söylediğin yanıtı döndürür — tıpkı uçuş simülatöründeki "motor arızası" düğmesi gibi: gerçek motor çalışmaz, çalışmamalıdır da, ama pilotun tepkisini test etmek için tam olarak o senaryoya ihtiyacın var. cy.spy() ise davranışı değiştirmeden gözlemler — gerçek motor açık kalır ama kaç devir yaptığını, hangi parametreyle çalıştığını kayıt altına alırsın. Ama şunu sor kendine: cy.intercept() de ağ çağrılarını taklit ediyor — o varken neden cy.stub() da gerekli? Çünkü cy.intercept() yalnızca HTTP katmanını yakalar; uygulama içindeki bir analitik fonksiyonu, bir tarih API\'sini veya dosya sistemi çağrısını taklit etmek için cy.stub() şarttır. Java\'da bu Mockito\'nun mock() ve spy() ayrımının birebir karşılığıdır: mock() tüm davranışı kontrol eder, spy() gerçek nesneyi sarar ve yalnızca seçili çağrıları izler. QA\'nın gerçek iş riski şudur: ödeme servisini gerçekten çağıran bir test, her çalıştırmada canlı bir işlem yapar, para hareketi oluşabilir — cy.stub() ile ödeme gateway\'ini saralmazsan CI pipeline\'ında gerçek para kaybedebilirsin.',
       },
       {
         type: 'text',
@@ -3393,7 +3393,7 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
     blocks: [
       {
         type: 'simple-box', emoji: '🎭',
-        content: "cy.stub() is like a STUNT DOUBLE in a movie: it stands in for the original actor (the real function) and plays the scene however you tell it to (returns a fake response). cy.spy() is like a hidden CAMERA: the original actor keeps performing normally, but you record every move it makes (every call, with what arguments).",
+        content: "cy.stub() completely replaces a function's original behavior and returns whatever you tell it to — like a flight simulator's \"engine failure\" button: the real engine doesn't run (and shouldn't), but you need exactly that scenario to test the pilot's response. cy.spy() observes without intervening — the real engine stays on, but you record every RPM, every parameter. Here's the question worth asking: cy.intercept() already mocks network calls — so when do you actually need cy.stub()? Because cy.intercept() only intercepts the HTTP layer; to fake an in-app analytics function, a date API, or a third-party SDK method, cy.stub() is essential. In Java, this is the direct equivalent of Mockito's mock() vs spy() split: mock() controls all behavior, spy() wraps the real object and only intercepts selected calls. The real QA business risk: a test that calls the real payment service executes a live transaction on every run — if you don't wrap the payment gateway with cy.stub(), your CI pipeline can lose real money.",
       },
       {
         type: 'text',
@@ -3552,7 +3552,7 @@ const s15 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🔍',
-        content: 'Bir dedektif gibi düşün: cy.pause(), olay yerinde donup her ipucunu tek tek incelemektir. cy.debug(), eldivenle tuttuğun kanıtı (DOM elementini) doğrudan büyüteç altına (DevTools console\'a) koymaktır. Selector Playground ise dedektifin parmak izi tarama cihazıdır — bir şeye dokunur dokunmaz, onu tekilce tanımlayan "parmak izini" (selector\'ı) anında verir.',
+        content: 'Cypress\'in debugging üstünlüğü şuradan gelir: her komuttan sonra otomatik DOM snapshot alındığı için test başarısız olduğunda zaten elinizde tam bir kara kutu kaydı vardır — tıpkı bir uçak kazasında kara kutu açıldığında son 30 dakikanın sesinin ve telemetrisinin orada olması gibi, hiçbir şey ekstra kayıt etmek zorunda kalmadan. Peki o zaman cy.pause() ve cy.debug() neden gerekli, kara kutu yetmiyor mu? Çünkü kara kutu kazadan sonra okunur; canlı geliştirme sırasında, test daha başarısız olmadan önce nereye gitmekte olduğunu görmek istiyorsun — cy.pause() testi tam o anda dondurur ve DOM\'u serbestçe inceleme fırsatı verir. cy.debug() ise o anki DOM elementini doğrudan DevTools konsoluna aktarır ve jQuery metodlarıyla sorgulayabilirsin. Java\'da bunu Eclipse veya IntelliJ debugger\'ında breakpoint koyarak Watches panelinden değişkeni incelemekle kıyaslayabilirsin. Selector Playground ise QA\'nın gerçek iş sorununu çözer: bir elementi bulmak için XPath mı, CSS mi, data-cy mi kullanmalısın — Playground önce kırılganlık sırasına göre önerir, tek bir eşleşme verip vermediğini anında test edersin, CI\'da "element bulunamadı" hatasını yazarken değil, yazarken önlersin.',
       },
       {
         type: 'text',
@@ -3707,7 +3707,7 @@ Re-run the test to confirm`,
     blocks: [
       {
         type: 'simple-box', emoji: '🔍',
-        content: "Think like a detective: cy.pause() freezes the scene so you can examine every clue one by one. cy.debug() puts the evidence you're holding (the DOM element) directly under a magnifying glass (the DevTools console). The Selector Playground is the detective's fingerprint scanner — the moment you touch something, it instantly gives you the \"fingerprint\" (selector) that uniquely identifies it.",
+        content: "Cypress's debugging advantage comes from this: since it automatically snapshots the DOM after every command, when a test fails you already have a full black-box recording — like the flight data recorder on an aircraft: after an incident, the last 30 minutes of audio and telemetry are right there without any extra recording step. But if the black box is already there, why do you need cy.pause() and cy.debug()? Because a black box is read after the crash; during live development you want to see where the test is heading before it fails — cy.pause() freezes the test at exactly that moment and lets you explore the DOM freely. cy.debug() pushes the current DOM element directly into the DevTools console where you can query it with jQuery methods. In Java, this is like setting a breakpoint in the Eclipse or IntelliJ debugger and inspecting variables in the Watches panel. The Selector Playground solves the real QA business problem: should you use XPath, CSS, or data-cy to find an element? The Playground recommends options in order of fragility, immediately verifies whether it produces a single unique match, and prevents \"element not found\" failures before they ever reach CI.",
       },
       {
         type: 'text',
@@ -3865,7 +3865,7 @@ const s16 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🎻',
-        content: 'Bir orkestra şefini düşün: tek bir kemancıyı dinlemek yerine, 3 farklı enstrüman grubunu (Chrome, Firefox, Edge) AYNI ANDA çalıştırır ve hepsinin uyumlu çaldığından emin olur. CI/CD\'de cypress run, testlerini "konser günü" (her push/PR\'da) otomatik ve paralel olarak farklı tarayıcılarda çalıştıran şeftir.',
+        content: 'CI/CD pipeline\'ına entegre edilmiş cypress run, kalite kapısı (quality gate) görevi görür: her pull request birleştirilmeden önce tüm testler otomatik olarak çalışır — tıpkı bir fabrikada montaj hattının sonundaki kalite kontrol istasyonu gibi: ürün kutusuna girmeden önce her bant katında otomatik ölçüm yapılır, standart dışı olan bant dışına düşer ve insanların gözden kaçırdığı %2\'lik sapma gün sonunu beklemeden durdurulur. Peki "testleri lokal çalıştırıyorum, neden CI\'a da ihtiyaç var?" diye sorabilirsin — çünkü geliştiricinin makinesi tek bir işletim sistemi, tek bir tarayıcı, tek bir ekran çözünürlüğüdür; CI matrisi ise aynı kodu Chrome\'da, Firefox\'ta ve Edge\'de Ubuntu üzerinde aynı anda koşturur. Java\'da Maven\'in mvn verify hedefi tüm testleri derleme ardından çalıştırır ve hata varsa build\'i durdurur — cypress run CI içindeki rolü tam olarak budur. QA için gerçek iş riski şudur: lokal PASS olan bir PR, CI matrisinde Safari/Firefox\'ta kırıksa ve o matris eksikse üretimde sadece belirli tarayıcı kullanıcıları etkilenen sessiz bir bug oluşur — tespit edilene kadar müşteri şikayetleriyle bulunur.',
       },
       {
         type: 'text',
@@ -4040,7 +4040,7 @@ Install dependencies with npm ci`,
     blocks: [
       {
         type: 'simple-box', emoji: '🎻',
-        content: 'Think of a conductor: instead of listening to a single violinist, they run 3 different instrument groups (Chrome, Firefox, Edge) AT THE SAME TIME and make sure they all play in tune. In CI/CD, cypress run is the conductor that automatically and in parallel runs your tests across different browsers on "concert day" (every push/PR).',
+        content: "A cypress run integrated into a CI/CD pipeline acts as a quality gate: every pull request gets tested automatically before it's merged — like a quality control station at the end of a factory assembly line: every measurement is taken automatically before the product goes into the box, and any unit that falls outside spec is pulled from the line before humans miss that 2% drift. But you might ask: \"I run tests locally, why do I need CI as well?\" Because a developer's machine is a single OS, a single browser, a single screen resolution; a CI matrix runs the same code in Chrome, Firefox, and Edge on Ubuntu simultaneously. In Java, Maven's mvn verify goal runs all tests after compilation and stops the build on failure — that's exactly cypress run's role in CI. The real QA business risk: a PR that PASSes locally but breaks on Firefox in the CI matrix, with that matrix missing or skipped, produces a silent browser-specific bug in production — discovered via customer complaints by the time anyone notices.",
       },
       {
         type: 'text',
@@ -4218,7 +4218,7 @@ const s17 = {
     blocks: [
       {
         type: 'simple-box', emoji: '🦄',
-        content: 'Selenium ve Playwright sana bir bıçak verir (CSS3/XPath selector\'lar). Cypress ise gerçek bir İsviçre çakısı verir: çünkü Cypress\'in motoru aslında jQuery\'dir — bu yüzden jQuery\'nin onlarca yıllık özel "süper güçlerini" (pseudo-class\'lar, .invoke(), .its()) hiçbir ek kütüphane kurmadan, doğrudan cy.get() içinde kullanırsın.',
+        content: 'Cypress\'in selector motoru CSS3 standardını değil jQuery\'nin Sizzle motorunu çalıştırır — bu, :visible, :contains(), :eq(), :first gibi jQuery pseudo-class\'larının doğrudan cy.get() içinde çalışması anlamına gelir, tıpkı düz SQL yerine SQL\'in üzerine kurulmuş ve onun sözdizimini genişleten bir ORM sorgu dilini kullanmak gibi: taban katmanın tüm gücüne sahipsin ama üstüne daha ifadeli bir sözdizimi eklendi. Peki Selenium ve Playwright CSS3 standardını tam desteklerken neden Cypress bu jQuery motorunu tercih ediyor? Çünkü Cypress\'in Node.js sunucu katmanı değil, tarayıcı içi katmanı vardır ve jQuery zaten tarayıcıda yüklüdür — bu mimari tercih sayesinde .invoke(\'val\'), .its(\'length\'), .trigger() gibi jQuery zincirleme metodları da ücretsiz gelir. Java\'da bunu Apache Commons koleksiyonlarının JDK\'nın temel koleksiyon API\'si üzerine eklediği yardımcı metodlara benzetebilirsin: standart olmamasına rağmen gerçek işlerde çok daha hızlı yazmana izin verir. QA\'nın pratik faydası şudur: :visible pseudo-class\'ı olmadan CSS3\'te "görünür olan tüm liste elemanlarını" seçmek için ya JavaScript ile DOM\'u elle dolaşırsın ya da testi daha kırılgan hale getiren ek mantık eklersin — Cypress\'te tek satır yeterlidir ve bu, yanlış elementin tıklandığı flaky testlerin önüne geçer.',
       },
       {
         type: 'text',
@@ -4383,7 +4383,7 @@ cy.get('[data-cy=cherry-item]').click()`,
     blocks: [
       {
         type: 'simple-box', emoji: '🦄',
-        content: "Selenium and Playwright hand you a knife (CSS3/XPath selectors). Cypress hands you an actual Swiss Army knife: because Cypress's engine is literally jQuery, you get decades of jQuery's special \"superpowers\" (pseudo-classes, .invoke(), .its()) directly inside cy.get(), with zero extra libraries to install.",
+        content: "Cypress's selector engine runs jQuery's Sizzle motor rather than the CSS3 standard — meaning jQuery pseudo-classes like :visible, :contains(), :eq(), and :first work directly inside cy.get(), like using an ORM query language built on top of plain SQL: you have all the power of the base layer, but with a more expressive syntax layered on top. But if Selenium and Playwright fully support the CSS3 standard, why did Cypress choose the jQuery engine? Because Cypress runs inside the browser rather than in a separate Node.js server process, and jQuery is already loaded there — that architectural choice also delivers jQuery chaining methods like .invoke('val'), .its('length'), and .trigger() at no extra cost. In Java, think of it like Apache Commons Collections layering utility methods on top of the JDK's core collection API: non-standard, but it lets you write real-world code far faster. The practical QA payoff: without the :visible pseudo-class, selecting \"all currently visible list items\" in CSS3 requires either manually traversing the DOM with JavaScript or adding extra logic that makes the test more fragile — in Cypress a single line does it, which directly prevents the category of flaky tests caused by clicking a hidden element that matched the selector.",
       },
       {
         type: 'text',

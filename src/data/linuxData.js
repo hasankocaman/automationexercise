@@ -369,7 +369,7 @@ export const linuxData = {
           {
             type: 'simple-box',
             emoji: '🏠',
-            content: 'Linux is like the kitchen behind a restaurant. Customers (your test scripts, browsers, apps) rarely see it directly, but almost every dish (test run, deployment, CI pipeline) is actually cooked on this kitchen\'s stove.',
+            content: 'Linux is the operating system running beneath almost every CI agent, Docker container, Kubernetes node, and cloud VM you will ever touch as a QA engineer — not as a visible surface, but as the invisible load-bearing wall the whole building stands on. But here is the real question: if you can already write Selenium tests on Windows, why does knowing Linux matter at all? Because the moment your test runs "in CI" it is no longer on your machine — it is inside a Ubuntu container, reading files from a Linux filesystem, resolving paths with Linux rules, and failing for Linux-specific reasons like a missing execute bit or a mismatched line ending. In Java terms, the shell is like the JVM\'s runtime environment: your test code (`.jar`) runs the same everywhere in theory, but in practice `ClassNotFoundException` only shows up in one environment because the classpath was set up differently there. For QA work, this translates directly: a flaky failure that "only happens in CI" is almost always a Linux environment issue — wrong PATH, missing permission, wrong user — and you can only debug it if you can read a Linux terminal.',
           },
           {
             type: 'css-animation',
@@ -464,7 +464,7 @@ export const linuxData = {
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Getting a Linux environment is like getting a practice field before the real match. WSL2 gives you a real Linux field running right inside your Windows machine — no separate computer needed.',
+            content: 'WSL2 (Windows Subsystem for Linux 2) is not a simulator or an emulator — it runs a genuine Linux kernel inside a lightweight VM right alongside Windows, the same way Docker Desktop does it under the hood. Think of it like a flight simulator that uses a real aircraft engine: the controls look like a game, but the physics are authentic. But consider this: if you already have Docker on Windows, why bother with WSL2 at all? Because when a `chmod +x` command behaves differently, a bash script line-ending breaks inside a container, or a `grep` pattern works on your machine but not in CI, you need to reproduce that exact Linux environment locally and step through it — Docker is for shipping, WSL2 is for debugging. In Java terms, WSL2 is to Linux what the JVM is to bytecode: it provides the real execution environment on your local hardware, not just a thin wrapper. In QA practice, this closes the most expensive class of bugs — the ones that are invisible on your laptop but block the entire nightly regression run at 3 AM on a GitHub Actions ubuntu-latest runner.',
           },
           { type: 'heading', text: 'Windows → WSL2 (Windows Subsystem for Linux)' },
           {
@@ -572,7 +572,7 @@ pwd                    # Your current working directory`,
           {
             type: 'simple-box',
             emoji: '📚',
-            content: 'A filesystem is like a library: shelves contain rows, rows contain books, and every book has a full address. An absolute path is the full address from the library entrance; a relative path is "the next shelf over from where you are standing".',
+            content: 'The Linux filesystem is a single upside-down tree rooted at `/` — every file, every device, every mounted volume hangs from that one root, with no `C:\` or `D:\` drive letters anywhere. But here is the question that trips up Windows and Java developers alike: if there are no drive letters, how does Linux know where your test reports actually are? The answer is that every location is described by how many branches you traverse from the root — `/home/qa/projects/tests/` is an unambiguous address no matter which directory you happen to be sitting in right now (absolute path), while `../logs` means "go up one level from wherever I am standing" (relative path) and is therefore context-dependent. In Java terms, an absolute path is like a fully-qualified class name (`com.myapp.service.UserService`) — it resolves the same everywhere — while a relative path is like using just `UserService` inside the same package, which only works if the package context is what you expect. For QA work in CI, this distinction is load-bearing: a bash script that uses `cd reports && tar -czf archive.tar.gz .` works perfectly when run from the project root but silently archives the wrong directory when Jenkins triggers it from `/var/jenkins/workspace/job-name/` instead — an absolute path would have caught that immediately.',
           },
           { type: 'heading', text: 'The Linux Filesystem Tree — Key Directories' },
           {
@@ -743,7 +743,7 @@ pwd                          # /home/qa/test-suite`,
           {
             type: 'simple-box',
             emoji: '🔐',
-            content: 'File permissions are like a school locker. You (the owner) can open it freely, your classmates (the group) might only be allowed to peek inside, and strangers (other) cannot touch it at all.',
+            content: 'Linux file permissions are a three-audience access control system: every file has exactly three answers to "who can do what" — for the owner, for anyone in the same group, and for everyone else — and each answer is three bits: read (r), write (w), execute (x). The mechanism mirrors Java\'s access modifiers almost exactly: `private` (owner only, `chmod 700`), package-private (group can access, `chmod 750`), `public` (everyone can read, `chmod 644`) — except Linux applies this at the OS level to actual files, not just class members. But here is the question every QA engineer hits on their first CI failure: if I can read the script on my laptop, why does the pipeline say "Permission denied"? Because reading and executing are two completely separate bits — a file can be readable but not executable, and a test runner that tries to call `./run-tests.sh` needs the `x` bit set, not just `r`. In practice, forgetting to commit the execute bit (`git update-index --chmod=+x`) is one of the most common causes of CI-only failures in QA automation: the script looks fine in the editor, the test looks fine locally, and then every pipeline run fails immediately on line one with an opaque "Permission denied" that takes thirty minutes to trace back to a missing `chmod +x`.',
           },
           { type: 'heading', text: 'Reading "ls -l" Output' },
           {
@@ -902,7 +902,7 @@ ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'A pipe (|) is like a factory conveyor belt — the output of one machine becomes the raw material for the very next machine, without you having to carry it by hand in between.',
+            content: 'The Linux pipe (`|`) connects the standard output (stdout) of one process directly to the standard input (stdin) of the next, building a data-processing pipeline from small, single-purpose tools without any intermediate files. Think of it the same way Java\'s Stream API chains operations: `lines.filter(...).map(...).count()` — each step transforms the data and hands it to the next, and no intermediate `List` is ever materialised on disk. But here is the thought experiment: if `grep` already exists as a standalone command, why do we chain it with `cat` and `wc -l` instead of building one big "count matching lines" command? Because composability beats monolithic tools — `grep "FAILED"` is useful alone, combined with `wc -l` it counts failures, combined with `sort | uniq -c` it ranks them by frequency, and none of those combinations require a new command to be written. For QA work in CI this is the difference between manually opening a 50,000-line test log in an editor and running `grep "ERROR" test.log | grep -v "ExpectedError" | wc -l` in two seconds to get an exact failure count — the pipe chain is your command-line Stream API, and every QA automation engineer should be able to build one without looking up the syntax.',
           },
           { type: 'heading', text: 'Viewing Files' },
           {
@@ -1102,7 +1102,7 @@ grep -v "PASSED" app.log    # invert match: lines that do NOT contain PASSED`,
           {
             type: 'simple-box',
             emoji: '👨‍🍳',
-            content: 'Processes are like restaurant staff currently on shift. Some take orders right in front of you (foreground), some work quietly in the back kitchen (background/daemon), and sometimes you need to tell one of them to stop immediately (kill).',
+            content: 'Every running program on Linux is a process — an isolated unit with its own PID (process ID), memory space, file descriptors, and signal handlers — and the OS scheduler hands each one CPU time in turn, just as Java\'s JVM schedules threads. But here is the question: if a process is running fine, why would you ever need `ps`, `kill`, or `systemctl`? Because in QA automation, processes get stuck. A Selenium Grid hub that was supposed to stop after the test suite keeps listening on port 4444 and blocks the next pipeline run. A pytest session that hit an unhandled exception left a zombie process consuming memory. A mock server launched with `nohup` in the background is still running two hours after the test ended, and now the disk is 98% full of its access logs. In Java terms, managing Linux processes is like managing `Thread` lifecycle — you need `isAlive()` (`ps aux | grep`), `interrupt()` (`kill SIGTERM`), and sometimes `stop()` (`kill -9 SIGKILL`), plus the wisdom to know that `SIGTERM` should always be tried first because it lets the process clean up its resources and close open files, while `SIGKILL` bypasses all cleanup and can leave corrupted temp files or locked ports behind.',
           },
           { type: 'heading', text: 'Viewing & Controlling Processes' },
           {
@@ -1314,7 +1314,7 @@ journalctl -u nginx -f        # follow that service's logs live`,
           {
             type: 'simple-box',
             emoji: '🏎️',
-            content: 'Debugging test infrastructure under pressure is like being a pit crew during a race — you have a short window to diagnose the real problem and get the car (the pipeline) back on track.',
+            content: 'Debugging a failing CI pipeline on a live Linux agent is like performing surgery on a running engine — the system cannot be stopped, the environment cannot be changed, and every action you take might make things worse if you misdiagnose. The real-world QA scenario looks like this: your nightly regression suite started failing at 2 AM, the error is "Connection refused on port 5432", the logs show nothing useful, and you have 45 minutes before the next meeting. This is where Linux command fluency pays for itself — `ss -tulpn | grep 5432` tells you in two seconds whether the database is running at all; `journalctl -u postgresql -n 50` shows you the last fifty log lines; `df -h` tells you if the disk is full (a surprisingly common cause of database crashes). But here is the deeper question: why does this happen only in CI and not locally? Because CI containers are ephemeral — they start fresh from an image, they have strict memory and disk limits, they do not preserve state between runs, and they run as a restricted user without the environment variables your local shell defines automatically. In Java terms, debugging a CI-only failure is like debugging a `ClassNotFoundException` that only appears in production: the code is identical, but the runtime environment — classpath, user, permissions, available memory — is completely different.',
           },
           { type: 'heading', text: 'SSH into a CI Agent' },
           {
@@ -1513,7 +1513,7 @@ find . -size +100M                  # find suspiciously large files`,
           {
             type: 'simple-box',
             emoji: '🌱',
-            content: 'Linux is like the soil everything else in modern QA grows from. Docker, Kubernetes, CI/CD runners, and most cloud servers are all rooted in it.',
+            content: 'Linux is not just one tool in the QA ecosystem — it is the shared kernel that every other tool in your stack is built on top of. Docker containers share the host\'s Linux kernel. Kubernetes nodes run Linux. GitHub Actions `ubuntu-latest` runners are Linux VMs. Even Jenkins agents on AWS or Azure are almost always Linux unless explicitly configured otherwise. But consider this: if all these tools abstract Linux away behind their own CLIs, why do you need to understand the underlying OS at all? Because every abstraction leaks under pressure. When a Docker container says "exec format error", that is a Linux binary architecture mismatch. When a Kubernetes pod crashes with "OOMKilled", that is the Linux OOM killer terminating your process. When a Jenkins pipeline says "permission denied on the workspace", that is a Linux file permission problem — and the Docker CLI, kubectl, or Jenkins UI will not fix it for you, because fixing it requires understanding what Linux is actually doing underneath. In Java terms, this is the difference between knowing how to use `ArrayList` versus understanding that it is backed by an array with `O(n)` insertion at position 0 — you can ignore the internals until the day performance breaks, and then not knowing costs you hours.',
           },
           { type: 'heading', text: 'Linux & Docker — The Real Relationship' },
           {
@@ -1660,7 +1660,7 @@ find . -size +100M                  # find suspiciously large files`,
           {
             type: 'simple-box',
             emoji: '🏠',
-            content: 'Linux, bir restoranın mutfağı gibidir. Müşteriler (test script\'lerin, tarayıcılar, uygulamalar) onu genelde doğrudan görmez, ama her yemek (test çalıştırması, deployment, CI pipeline) gerçekte bu mutfağın ocağında pişer.',
+            content: 'Linux, dokunacağın neredeyse her CI agent\'ının, Docker container\'ının, Kubernetes node\'unun ve cloud VM\'inin altında çalışan işletim sistemidir — görünür bir yüzey olarak değil, tüm binanın üzerine inşa edildiği görünmez taşıyıcı duvar olarak. Ama şu soruyu sormadan geçemeyiz: Windows\'ta Selenium testi yazabiliyorken Linux bilmek neden önemli? Çünkü testlerin "CI\'da çalışıyor" dediğin anda artık senin makinende değil — bir Ubuntu container\'ı içinde, Linux dosya sistemi kurallarıyla path okuyor, Linux izin bitleriyle çalışıyor ve tamamen Linux\'a özgü sebeplerle (eksik execute biti, satır sonu uyumsuzluğu) başarısız oluyor. Java\'daki benzetimle: shell, JVM\'in runtime ortamı gibidir — test kodun (`.jar`) teoride her yerde aynı çalışır, ama pratikte `ClassNotFoundException` sadece bir ortamda çıkar çünkü classpath farklı kurulmuştur. QA çalışması için bu şu anlama gelir: "sadece CI\'da olur" diyen flaky hatalar neredeyse her zaman bir Linux ortam sorunudur — yanlış PATH, eksik izin, yanlış kullanıcı — ve bunları yalnızca Linux terminalini okuyabilirsen debug edebilirsin.',
           },
           {
             type: 'text',
@@ -1768,7 +1768,7 @@ find . -size +100M                  # find suspiciously large files`,
           {
             type: 'simple-box',
             emoji: '🛠️',
-            content: 'Bir Linux ortamı edinmek, gerçek maça çıkmadan önce bir antrenman sahası bulmak gibidir. WSL2 sana Windows makinenin içinde çalışan gerçek bir Linux sahası verir — ayrı bir bilgisayara gerek yoktur.',
+            content: 'WSL2 (Windows Subsystem for Linux 2) bir simülatör ya da emülatör değildir — tıpkı Docker Desktop\'ın arka planda yaptığı gibi, Windows\'un yanında hafif bir VM içinde gerçek bir Linux kernel çalıştırır. Bunu, gerçek bir uçak motoru kullanan bir uçuş simülatörü gibi düşün: kontroller oyun gibi görünür, ama fizik gerçektir. Ama şu soruyu sor: zaten Windows\'ta Docker varsa WSL2\'ye neden ihtiyaç var? Çünkü bir `chmod +x` komutu farklı davranıyor, container içinde bir bash script satır sonu yüzünden kırılıyor veya bir `grep` pattern kendi makinende çalışıyor ama CI\'da çalışmıyor olduğunda, o Linux ortamını local\'de birebir yeniden üretip adım adım incelemeye ihtiyaç duyarsın — Docker göndermek içindir, WSL2 debug etmek içindir. Java\'daki benzetimle: WSL2, Linux için JVM ne ise odur — bytecode için ne kadar gerçek bir runtime ortamı sağlıyorsa, WSL2 de Linux için o kadar gerçek bir execution environment sağlar, sadece ince bir sarmalayıcı değil. QA pratiğinde bu, en pahalı hata sınıfını kapatır: kendi laptop\'unda görünmez ama GitHub Actions ubuntu-latest runner\'ında gece 3\'te tüm nightly regression\'ı bloke eden hatalar.',
           },
           { type: 'heading', text: 'Windows → WSL2 (Windows Subsystem for Linux)' },
           {
@@ -1876,7 +1876,7 @@ pwd                    # Şu anki çalışma dizinin`,
           {
             type: 'simple-box',
             emoji: '📚',
-            content: 'Dosya sistemi bir kütüphane gibidir: raflar sıralar içerir, sıralar kitaplar içerir, her kitabın tam bir adresi vardır. Absolute path, kütüphane girişinden başlayan tam adrestir; relative path ise "şu an durduğun yerden bir raf öteki" demektir.',
+            content: 'Linux dosya sistemi, kökü `/` olan tek bir baş aşağı ağaçtır — her dosya, her cihaz, her bağlı volume bu tek kökten sarkar; hiçbir yerde `C:\` veya `D:\` sürücü harfi yoktur. Ama Windows ve Java geliştiricilerinin takıldığı asıl soru şudur: sürücü harfi yoksa Linux test raporlarının gerçekte nerede olduğunu nasıl biliyor? Cevap şu: her konum, kökten kaç dal geçildiğiyle tarif edilir — `/home/qa/projects/tests/` şu an hangi klasörde oturduğundan bağımsız net bir adrestir (absolute path), `../logs` ise "şu an durduğum yerden bir üst seviyeye git" anlamına gelir (relative path) ve dolayısıyla bağlam-bağımlıdır. Java\'daki benzetimle: absolute path tam nitelikli sınıf adı gibidir (`com.myapp.service.UserService`) — her yerde aynı şekilde çözümlenir; relative path ise aynı paketten sadece `UserService` yazmak gibidir, sadece paket bağlamı beklediğin gibiyse çalışır. CI\'daki QA çalışması için bu ayrım hayati önem taşır: `cd reports && tar -czf archive.tar.gz .` kullanan bir bash script proje kökünden çalıştırıldığında mükemmel çalışır ama Jenkins onu `/var/jenkins/workspace/job-name/`\'den tetiklediğinde sessizce yanlış klasörü arşivler — absolute path bunu hemen yakalardı.',
           },
           { type: 'heading', text: 'Linux Dosya Sistemi Ağacı — Kilit Klasörler' },
           {
@@ -2047,7 +2047,7 @@ pwd                          # /home/qa/test-suite`,
           {
             type: 'simple-box',
             emoji: '🔐',
-            content: 'Dosya izinleri bir okul dolabı gibidir. Sen (owner) onu serbestçe açabilirsin, sınıf arkadaşların (group) belki sadece içine bakabilir, yabancılar (other) ise ona hiç dokunamaz.',
+            content: 'Linux dosya izinleri üç-kitleli bir erişim kontrol sistemidir: her dosyanın "kim ne yapabilir" sorusuna tam üç cevabı vardır — owner (sahip), aynı gruptakiler ve diğer herkes — ve her cevap üç bittir: okuma (r), yazma (w), çalıştırma (x). Mekanizma, Java\'nın access modifier\'larını neredeyse birebir yansıtır: `private` (sadece sahip, `chmod 700`), package-private (grup erişebilir, `chmod 750`), `public` (herkes okuyabilir, `chmod 644`) — fark şu ki Linux bunu gerçek dosyalara işletim sistemi seviyesinde uygular, sadece sınıf üyelerine değil. Ama her QA mühendisinin ilk CI hatasında karşılaştığı soru şudur: script\'i kendi laptop\'umda okuyabiliyorsam pipeline neden "Permission denied" diyor? Çünkü okuma (r) ve çalıştırma (x) tamamen ayrı iki bittir — bir dosya okunabilir ama çalıştırılamaz olabilir; `./run-tests.sh` çağırmaya çalışan bir test runner\'ın `x` biti set edilmiş olmasına ihtiyacı vardır, sadece `r` yetmez. Pratikte execute bitini commit\'e dahil etmeyi unutmak (`git update-index --chmod=+x`), QA otomasyonunda en yaygın CI-only hata nedenlerinden biridir: script editörde düzgün görünür, test local\'de geçer, sonra her pipeline çalıştırması hemen birinci satırda anlaşılması zor bir "Permission denied" ile patlar ve bunu `chmod +x` eksikliğine bağlamak otuz dakika alır.',
           },
           { type: 'heading', text: '"ls -l" Çıktısını Okumak' },
           {
@@ -2206,7 +2206,7 @@ ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'Pipe (|), bir fabrika konveyör bandı gibidir — bir makinenin çıktısı, sen elinle taşımana gerek kalmadan tam bir sonraki makinenin hammaddesi olur.',
+            content: 'Linux pipe (`|`), bir process\'in standart çıktısını (stdout) doğrudan bir sonraki process\'in standart girdisine (stdin) bağlar; ara dosya olmadan küçük, tek amaçlı araçlardan veri-işleme pipeline\'ı kurar. Bunu Java\'nın Stream API\'sindeki zincirlemeyle aynı şekilde düşün: `lines.filter(...).map(...).count()` — her adım veriyi dönüştürür ve bir sonrakine teslim eder, hiçbir ara `List` diske yazılmaz. Ama şu düşünce deneyi: `grep` zaten bağımsız bir komut olarak varken, neden onu `cat` ve `wc -l` ile zincirleyip tek büyük bir "eşleşen satırları say" komutu yazmıyoruz? Çünkü birleştirilebilirlik, monolitik araçları geçer — `grep "FAILED"` tek başına kullanışlıdır, `wc -l` ile birleşince hata sayar, `sort | uniq -c` ile birleşince hataları frekansa göre sıralar; bu kombinasyonların hiçbiri için yeni bir komut yazılmasına gerek yoktur. QA çalışması için CI\'daki pratik fark şudur: 50.000 satırlık bir test logunu bir editörde manuel açmak yerine `grep "ERROR" test.log | grep -v "ExpectedError" | wc -l` yazıp iki saniyede kesin hata sayısını almak — pipe zinciri senin komut satırı Stream API\'ndir ve her QA automation mühendisi sözdizimini araştırmaya gerek kalmadan bir tane kurabilmelidir.',
           },
           { type: 'heading', text: 'Dosyaları Görüntülemek' },
           {
@@ -2406,7 +2406,7 @@ grep -v "PASSED" app.log    # ters eşleşme: PASSED İÇERMEYEN satırlar`,
           {
             type: 'simple-box',
             emoji: '👨‍🍳',
-            content: 'Process\'ler şu an mesaide olan restoran personeli gibidir. Bazıları doğrudan önünde sipariş alır (foreground), bazıları arka mutfakta sessizce çalışır (background/daemon) ve bazen birine hemen durmasını söylemen gerekir (kill).',
+            content: 'Linux\'ta çalışan her program bir process\'tir — kendi PID\'i (process ID), bellek alanı, dosya descriptor\'ları ve signal handler\'larıyla izole bir birimdir — ve OS zamanlayıcısı her birine sırayla CPU zamanı verir, tıpkı Java\'nın JVM\'inin thread\'leri zamanlaması gibi. Ama şu soruyu sor: bir process düzgün çalışıyorsa `ps`, `kill` veya `systemctl` neden gerekli olsun ki? Çünkü QA otomasyonunda process\'ler takılır. Test suite\'i bittikten sonra durması gereken Selenium Grid hub, port 4444\'ü dinlemeye devam eder ve bir sonraki pipeline çalıştırmasını bloke eder. İşlenmemiş bir exception yakalayan pytest oturumu bellekte yer tüketen bir zombie process bırakır. `nohup` ile arka plana alınan mock server test bittikten iki saat sonra hâlâ çalışıyordur ve disk artık %98 dolup loglarıyla taşmaktadır. Java\'daki benzetimle: Linux process\'lerini yönetmek, `Thread` yaşam döngüsünü yönetmek gibidir — `isAlive()` (`ps aux | grep`), `interrupt()` (`kill SIGTERM`) ve bazen `stop()` (`kill -9 SIGKILL`) gerekir; `SIGTERM`\'ın her zaman önce denenmesi gerektiğini bilmek önemlidir çünkü process kaynaklarını temizleyip açık dosyaları kapatmasına izin verir, `SIGKILL` ise tüm temizliği atlar ve geride bozulmuş geçici dosyalar veya kilitli port\'lar bırakabilir.',
           },
           { type: 'heading', text: 'Process\'leri Görüntülemek & Kontrol Etmek' },
           {
@@ -2618,7 +2618,7 @@ journalctl -u nginx -f        # o servisin loglarını canlı takip et`,
           {
             type: 'simple-box',
             emoji: '🏎️',
-            content: 'Baskı altında test altyapısını debug etmek, bir yarış pit crew\'u olmak gibidir — gerçek sorunu teşhis edip arabayı (pipeline\'ı) tekrar pistte yarışacak hale getirmek için kısa bir zaman penceresine sahipsin.',
+            content: 'Canlı bir Linux agent\'ında başarısız olan bir CI pipeline\'ını debug etmek, çalışan bir motorun üzerinde ameliyat yapmak gibidir — sistem durdurulamaz, ortam değiştirilemez ve yanlış teşhis koyarsan her adım işleri daha da kötüleştirebilir. Gerçek dünyadan QA senaryosu şöyle görünür: nightly regression suite\'i sabah 2\'de başarısız olmaya başladı, hata "Connection refused on port 5432", loglarda işe yarar bir şey yok ve bir sonraki toplantıya 45 dakikan kaldı. İşte burada Linux komut akıcılığı kendini geri öder — `ss -tulpn | grep 5432` iki saniyede veritabanının çalışıp çalışmadığını söyler; `journalctl -u postgresql -n 50` son elli log satırını gösterir; `df -h` diskin dolu olup olmadığını söyler (veritabanı çökmelerinin şaşırtıcı derecede yaygın bir nedeni). Ama daha derin soru şudur: bu neden sadece CI\'da olur, local\'de değil? Çünkü CI container\'ları kısa ömürlüdür — bir image\'den sıfırdan başlarlar, katı bellek ve disk limitleri vardır, çalıştırmalar arasında durum korumaz ve local shell\'inin otomatik olarak tanımladığı environment variable\'lar olmadan kısıtlı bir kullanıcı olarak çalışırlar. Java\'daki benzetimle: CI-only hatayı debug etmek, production\'da çıkan `ClassNotFoundException`\'ı debug etmek gibidir — kod aynıdır ama runtime ortamı (classpath, kullanıcı, izinler, mevcut bellek) tamamen farklıdır.',
           },
           { type: 'heading', text: 'Bir CI Agent\'ına SSH ile Bağlanmak' },
           {
@@ -2817,7 +2817,7 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
           {
             type: 'simple-box',
             emoji: '🌱',
-            content: 'Linux, modern QA\'daki her şeyin üzerinde büyüdüğü toprak gibidir. Docker, Kubernetes, CI/CD runner\'ları ve çoğu cloud sunucu hepsi onun üzerine kuruludur.',
+            content: 'Linux, QA ekosistemindeki tek bir araç değildir — stack\'indeki diğer her aracın üzerine inşa edildiği ortak kernel\'dir. Docker container\'ları host\'un Linux kernel\'ini paylaşır. Kubernetes node\'ları Linux çalıştırır. GitHub Actions `ubuntu-latest` runner\'ları Linux VM\'dir. Jenkins agent\'ları AWS veya Azure\'da açıkça yapılandırılmadıkça neredeyse her zaman Linux\'tur. Ama şunu düşün: tüm bu araçlar Linux\'u kendi CLI\'larının arkasına saklıyorsa, altındaki işletim sistemini neden anlamak gereksin? Çünkü her soyutlama baskı altında sızar. Docker container "exec format error" dediğinde bu bir Linux binary mimari uyumsuzluğudur. Kubernetes pod "OOMKilled" ile çöktüğünde bu Linux OOM killer\'ın process\'ini sonlandırmasıdır. Jenkins pipeline "workspace\'te permission denied" dediğinde bu bir Linux dosya izin sorunudur — ve Docker CLI, kubectl veya Jenkins UI bunu senin için çözmez, çünkü çözmek Linux\'un altta gerçekte ne yaptığını anlamayı gerektirir. Java\'daki benzetimle: bu, `ArrayList`\'i nasıl kullanacağını bilmek ile 0. konuma eklemenin `O(n)` olduğunu anlamak arasındaki fark gibidir — performans kırılana kadar iç yapıyı görmezden gelebilirsin, ama o an bilmemek sana saatler kaybettirir.',
           },
           { type: 'heading', text: 'Linux & Docker — Gerçek İlişki' },
           {

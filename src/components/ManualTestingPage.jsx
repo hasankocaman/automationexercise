@@ -159,7 +159,7 @@ function ChecklistGame({ lesson, labels, onComplete, darkMode }) {
             <p className="text-sm opacity-80">{lesson.game.prompt}</p>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
                 {lesson.game.options.map(option => (
-                    <button key={option.id} onClick={() => toggle(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected.includes(option.id) ? 'border-sky-400 bg-sky-500/15 text-sky-200' : 'border-slate-700 bg-slate-950 text-slate-200'}`}>
+                    <button key={option.id} onClick={() => toggle(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected.includes(option.id) ? (darkMode ? 'border-sky-400 bg-sky-500/15 text-sky-200' : 'border-sky-500 bg-sky-100 text-sky-800') : (darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}`}>
                         {option.label}
                     </button>
                 ))}
@@ -209,7 +209,7 @@ function SequenceGame({ lesson, labels, onComplete, darkMode }) {
                             setDragIndex(null)
                         }}
                         onDragEnd={() => setDragIndex(null)}
-                        className={`flex cursor-grab items-center gap-2 rounded-lg border border-slate-700 bg-slate-950 p-3 text-slate-200 transition active:cursor-grabbing ${dragIndex === index ? 'scale-[1.02] border-emerald-400 opacity-80' : ''}`}
+                        className={`flex cursor-grab items-center gap-2 rounded-lg border p-3 transition active:cursor-grabbing ${dragIndex === index ? 'scale-[1.02] border-emerald-400 opacity-80' : ''} ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
                     >
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-black text-white" style={{ background: lesson.color }}>{index + 1}</div>
                         <div className="min-w-0 flex-1 text-sm font-bold">{item.text}</div>
@@ -238,7 +238,7 @@ function ChoiceGame({ lesson, labels, onComplete, darkMode }) {
             <p className="text-sm opacity-80">{lesson.game.prompt}</p>
             <div className="mt-3 grid gap-2">
                 {lesson.game.options.map(option => (
-                    <button key={option.id} onClick={() => setSelected(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected === option.id ? 'border-amber-400 bg-amber-500/15 text-amber-200' : 'border-slate-700 bg-slate-950 text-slate-200'}`}>
+                    <button key={option.id} onClick={() => setSelected(option.id)} className={`min-h-12 rounded-lg border px-3 text-left text-sm font-bold transition ${selected === option.id ? (darkMode ? 'border-amber-400 bg-amber-500/15 text-amber-200' : 'border-amber-500 bg-amber-100 text-amber-900') : (darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}`}>
                         {option.label}
                     </button>
                 ))}
@@ -268,11 +268,11 @@ function SeverityGame({ lesson, labels, onComplete, darkMode }) {
     return (
         <div>
             <p className="text-sm opacity-80">{lesson.game.prompt}</p>
-            <div className="mt-3 rounded-lg border border-slate-700 bg-slate-950 p-3">
+            <div className={`mt-3 rounded-lg border p-3 ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-white text-slate-750'}`}>
                 <div className="mb-2 text-xs font-black text-slate-400">Backlog</div>
                 <div className="grid gap-2 md:grid-cols-3">
                     {cardsFor('backlog').map(card => (
-                        <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} />
+                        <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} darkMode={darkMode} />
                     ))}
                 </div>
             </div>
@@ -285,12 +285,12 @@ function SeverityGame({ lesson, labels, onComplete, darkMode }) {
                             if (dragId) assign(dragId, column)
                             setDragId(null)
                         }}
-                        className="min-h-36 rounded-lg border border-dashed border-slate-600 bg-slate-950/70 p-3"
+                        className={`min-h-36 rounded-lg border border-dashed p-3 ${darkMode ? 'border-slate-600 bg-slate-950/70 text-slate-200' : 'border-slate-300 bg-slate-50 text-slate-750'}`}
                     >
-                        <div className="mb-2 text-sm font-black text-white">{labels.columns[column]}</div>
+                        <div className={`mb-2 text-sm font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>{labels.columns[column]}</div>
                         <div className="grid gap-2">
                             {cardsFor(column).map(card => (
-                                <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} />
+                                <DefectCard key={card.id} card={card} labels={labels} onDragStart={setDragId} onAssign={assign} darkMode={darkMode} />
                             ))}
                         </div>
                     </div>
@@ -301,13 +301,13 @@ function SeverityGame({ lesson, labels, onComplete, darkMode }) {
     )
 }
 
-function DefectCard({ card, labels, onDragStart, onAssign }) {
+function DefectCard({ card, labels, onDragStart, onAssign, darkMode }) {
     return (
-        <div draggable onDragStart={() => onDragStart(card.id)} className="cursor-grab rounded-lg border border-violet-400/40 bg-violet-500/10 p-3 text-sm font-bold text-violet-100 active:cursor-grabbing">
+        <div draggable onDragStart={() => onDragStart(card.id)} className={`cursor-grab rounded-lg border p-3 text-sm font-bold active:cursor-grabbing transition ${darkMode ? 'border-violet-400/40 bg-violet-500/10 text-violet-200' : 'border-violet-200 bg-violet-50 text-violet-850'}`}>
             <div>{card.label}</div>
             <div className="mt-2 flex flex-wrap gap-1">
                 {Object.keys(labels.columns).map(column => (
-                    <button key={column} onClick={() => onAssign(card.id, column)} className="min-h-8 rounded-md bg-slate-800 px-2 text-[11px] font-black text-slate-200 hover:bg-slate-700">
+                    <button key={column} onClick={() => onAssign(card.id, column)} className={`min-h-8 rounded-md px-2 text-[11px] font-black transition ${darkMode ? 'bg-slate-800 text-slate-200 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}>
                         {labels.columns[column]}
                     </button>
                 ))}
@@ -320,7 +320,7 @@ function GameBlock({ lesson, labels, onComplete, darkMode }) {
     const props = { lesson, labels, onComplete, darkMode }
 
     return (
-        <div className="rounded-lg border border-slate-700 bg-slate-900/90 p-4">
+        <div className={`rounded-lg border p-4 transition-all duration-300 ${darkMode ? 'border-slate-700 bg-slate-900/90 text-slate-200' : 'border-slate-200 bg-indigo-50/70 text-slate-800'}`}>
             <div className="mb-3 text-sm font-black" style={{ color: lesson.color }}>{lesson.game.title}</div>
             {lesson.game.type === 'checklist' && <ChecklistGame {...props} />}
             {lesson.game.type === 'sequence' && <SequenceGame {...props} />}

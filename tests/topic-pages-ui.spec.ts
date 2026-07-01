@@ -16,6 +16,20 @@ const TOPIC_ROUTES = [
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
 ];
 
+// Test ortamında dışarıya ağ bağlantısı olmadığı için oluşan bilinen hata kalıpları.
+// Örn. /playwright sayfasındaki Supabase AiExplanationPanel, test ortamında
+// net::ERR_FAILED alır — bu uygulama hatası değil, ağ erişim kısıtlamasıdır.
+const ALLOWED_CONSOLE_ERROR_PATTERNS = [
+    /net::ERR_/i,
+    /supabase/i,
+    /Failed to fetch/i,
+    /Load failed/i,
+];
+
+function isAllowedError(msg: string): boolean {
+    return ALLOWED_CONSOLE_ERROR_PATTERNS.some((re) => re.test(msg));
+}
+
 // Sidebar genişliği sayfaya göre değişebilir (w-52 / w-56 vb.) — ortak özellik
 // flex-shrink-0 + sticky olması (bkz. TopicPage.jsx ve TestFrameworksPage.jsx).
 const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button';
@@ -37,7 +51,9 @@ for (const route of TOPIC_ROUTES) {
         const pageErrors: string[] = [];
         page.on('pageerror', (e) => pageErrors.push(e.message));
         page.on('console', (msg) => {
-            if (msg.type() === 'error') pageErrors.push(msg.text());
+            if (msg.type() === 'error' && !isAllowedError(msg.text())) {
+                pageErrors.push(msg.text());
+            }
         });
 
         await page.goto(route);

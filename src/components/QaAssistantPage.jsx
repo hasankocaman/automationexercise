@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import TopicHeader from './TopicHeader'
+import { sanitizeAiText } from '../lib/sanitizeAiText'
 
 function useDarkModeState() {
     const [darkMode, setDarkMode] = useState(() => {
@@ -125,7 +126,7 @@ function QaAssistantPage() {
             if (error) throw error
             if (data?.error) throw new Error(data.error)
 
-            setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
+            setMessages((prev) => [...prev, { role: 'assistant', content: sanitizeAiText(data.reply) }])
         } catch (error) {
             console.error('qa-assistant invoke failed:', error)
             setErrorMsg(
