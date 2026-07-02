@@ -10,14 +10,15 @@
 
 ---
 
-## Güncel Branch Durumu (2026-07-02)
+## Güncel Branch Durumu (2026-07-02, branch temizliği sonrası)
 
 | Alan | Değer |
 |------|-------|
-| **Aktif branch** | `test` |
-| **Uzak takip** | `origin/test` |
-| **Son commit** | `21a6e6c` — feat(content): §9.3 analogy upgrades + interactive trio for 4 custom-component pages |
-| **Bu oturum push** | Yapılmadı — test branch commit edildi, main'e merge edilmedi |
+| **Aktif branch** | `main` (tek branch) |
+| **Uzak takip** | `origin/main` |
+| **Son commit** | `657a6be` — docs(session): record commit 21a6e6c |
+| **Branch temizliği** | Kullanıcı isteğiyle `main` dışındaki TÜM branch'ler hem local'de hem GitHub'da silindi: `test`, `feature/specific-git-linux-content` ve 11 adet `worktree-agent-*` branch (bunlara bağlı `.claude/worktrees/agent-*` worktree'leri de kaldırıldı). Silinen `worktree-agent-*` branch'lerinde commit edilmemiş değişiklikler vardı (Antigravity aracının yarım kalmış oturumları, `a5f88fb` üzerinde) — kullanıcı onayıyla kalıcı olarak kaybedildi. `test` branch'i `main`'e zaten `90cd439`'a kadar ortak ataydı, ekstra kaybolan iş yoktu. |
+| **Not** | Bundan sonra tüm çalışma doğrudan `main` üzerinde yapılmalı; `test`/`worktree-agent-*` branch adları artık geçersiz, referans verilmemeli. |
 
 ### Bu Oturumda Yapılanlar (2026-07-02, devam — 4 custom sayfa tamamlandı)
 
@@ -33,9 +34,8 @@
 
 ### Sonraki Oturumda Yapılacaklar (Öncelik Sırasıyla)
 
-1. **`test` → `main` merge** (kullanıcı onayı gerekli) — `21a6e6c` commit hazır
-2. **`git push origin main`** ile uzak sunucuya gönder
-3. **FrameworkComparison + PlaywrightLangCompare** — SimpleBox / interaktif trio yok; düşük öncelik (karşılaştırma tabloları format olarak üçlüye uymuyor)
+1. **FrameworkComparison + PlaywrightLangCompare** — SimpleBox / interaktif trio yok; düşük öncelik (karşılaştırma tabloları format olarak üçlüye uymuyor)
+2. Yeni işler artık doğrudan `main` üzerinde commit edilmeli — ayrı `test` branch'i yok.
 
 ### §9.3 4-Katmanlı Analoji Standardı — Sayfa Durumu (2026-07-02 Güncel)
 
