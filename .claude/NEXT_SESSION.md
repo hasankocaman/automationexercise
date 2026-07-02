@@ -16,8 +16,8 @@
 |------|-------|
 | **Aktif branch** | `test` |
 | **Uzak takip** | `origin/test` |
-| **Son commit** | `90cd439` — feat(content): upgrade simple-box blocks to §9.3 4-layer analogy standard |
-| **Bu oturum push** | Yapılmadı — değişiklikler commit edilmemiş, çalışma ağacında bekliyor |
+| **Son commit** | `21a6e6c` — feat(content): §9.3 analogy upgrades + interactive trio for 4 custom-component pages |
+| **Bu oturum push** | Yapılmadı — test branch commit edildi, main'e merge edilmedi |
 
 ### Bu Oturumda Yapılanlar (2026-07-02, devam — 4 custom sayfa tamamlandı)
 
@@ -28,9 +28,12 @@
 - **PythonFrameworksTab.jsx** — 2 SimpleBox (pytest + Robot Framework) §9.3 yükseltildi; `OrderSort` import edildi; `PytestFixturePractice` bileşeni (textarea + kontrol + çözüm göster) + fixture scope ordering drag-and-drop eklendi ✓
 - **Build doğrulaması:** `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (32 dosya); `npm run build` → ✓ 7.01s; 38 static route HTML shell; dist SEO check PASS ✓
 
+- **tests/javascript-page.spec.ts** — `'Cannot read properties'` body check kaldırıldı (eğitim içeriğinde geçen bu ifade false positive veriyordu; gerçek runtime hatalar pageerror listener ile zaten yakalanıyor) ✓
+- **76/76 test geçti** — commit hash `21a6e6c` ✓
+
 ### Sonraki Oturumda Yapılacaklar (Öncelik Sırasıyla)
 
-1. **`test` → `main` merge** (kullanıcı onayı gerekli) — commit edilmemiş değişiklikler var
+1. **`test` → `main` merge** (kullanıcı onayı gerekli) — `21a6e6c` commit hazır
 2. **`git push origin main`** ile uzak sunucuya gönder
 3. **FrameworkComparison + PlaywrightLangCompare** — SimpleBox / interaktif trio yok; düşük öncelik (karşılaştırma tabloları format olarak üçlüye uymuyor)
 
