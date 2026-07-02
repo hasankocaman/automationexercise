@@ -1,3 +1,5 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -444,6 +446,49 @@ const sections = [
         }
       },
       {
+        type: 'code',
+        topicId: 'qa-test-levels-example',
+        language: 'python',
+        code: {
+          tr: `# Test seviyeleri: Birim → Entegrasyon → E2E
+# Birim Testi: sadece bir fonksiyon test edilir
+def test_login_gecerli_kullanici():
+    sonuc = login("admin", "sifre123")
+    assert sonuc["basarili"] == True
+
+# Entegrasyon Testi: servis + veritabanı birlikte test edilir
+def test_kullanici_kaydedildi_mi(db_baglantisi):
+    kullanici = KullaniciServisi(db_baglantisi)
+    kullanici.olustur("yeni@test.com", "test123")
+    assert db_baglantisi.bul(email="yeni@test.com") is not None
+
+# E2E Testi: gerçek tarayıcı + tüm sistem test edilir
+def test_urun_satin_alma(tarayici):
+    tarayici.get("https://example.com")
+    tarayici.find_element("id", "urun-ekle").click()
+    tarayici.find_element("id", "odeme-yap").click()
+    assert "Sipariş onaylandı" in tarayici.page_source`,
+          en: `# Test levels: Unit → Integration → E2E
+# Unit Test: only one function is tested
+def test_login_valid_user():
+    result = login("admin", "password123")
+    assert result["success"] == True
+
+# Integration Test: service + database tested together
+def test_user_was_saved(db_connection):
+    user_service = UserService(db_connection)
+    user_service.create("new@test.com", "test123")
+    assert db_connection.find(email="new@test.com") is not None
+
+# E2E Test: real browser + full system tested
+def test_product_purchase(browser):
+    browser.get("https://example.com")
+    browser.find_element("id", "add-product").click()
+    browser.find_element("id", "checkout").click()
+    assert "Order confirmed" in browser.page_source`,
+        },
+      },
+      {
         type: 'quiz',
         question: {
           tr: 'Yazılım geliştirme sürecinin kalitesini iyileştirerek hataların oluşmasını en baştan önlemeyi hedefleyen disiplin hangisidir?',
@@ -514,8 +559,8 @@ const sections = [
         type: 'simple-box',
         emoji: '💻',
         content: {
-          tr: "Manuel Test uzmanı, kapıdaki güvenlik görevlisinin gelen herkesi tek tek aramasına benzer. Test Otomasyon Mühendisi, kişilerin kart basarak geçebileceği otomatik turnikeyi kuran kişidir. SDET (Software Development Engineer in Test) ise turnikenin yazılımını yazan, bunu şirketin veritabanıyla konuşturan, sunucu çöktüğünde otomatik ayağa kalkacak sistemi kuran mühendistir.",
-          en: "A Manual Tester is like a security guard manually checking everyone at the gate. An Automation Engineer builds an automatic badge scanner. An SDET (Software Development Engineer in Test) is the engineer who writes the scanner firmware, integrates it with the employee database, and builds a self-healing cluster for when servers fail."
+          tr: "Manuel Test, Otomasyon ve SDET rolleri arasındaki farkı bir hastanenin acil servisine benzetebiliriz: acil doktor (Manuel Tester) hasta önüne geldiğinde durumu gerçek zamanlı değerlendirir ve sezgisel kararlar alır — robot yapamaz bunu; tıbbi cihaz teknisyeni (Otomasyon Mühendisi) rutin EKG, tansiyon, oksijen ölçümlerini otomatik çalıştıran sistemleri kurar ve insanı bu rutinden kurtarır; biyomedikal mühendis (SDET) ise bu cihazların yazılımını yazar, test eder, hastane bilgi sistemiyle konuşturur ve sistem çöktüğünde onu ayağa kaldırır. Peki 'otomasyon her şeyi yapabiliyorsa neden hâlâ manuel tester\'a ihtiyaç var?' Çünkü otomasyon ancak önceden tanımlı senaryoları kontrol eder; kullanıcının 'checkout formuna emoji yazması' gibi hiçbir spesifikasyon metninde geçmeyen kenar senaryolar ancak insan sezgisiyle keşfedilir. Java\'da bu rolleri JUnit testlerine benzetebilirsin: @Test metotları SDET\'in yazdığı otomasyondur, CI pipeline\'ındaki smoke suite Otomasyon Mühendisi\'nin kurduğu sistemdir; ama pre-launch exploratory session\'ı düzenleyen deneyimli QA Manuel Tester\'dır. QA kariyeri açısından pratik strateji: yeni başlayan bir QA Manuel Test becerisiyle neyin test edilmesi gerektiğini anlar; sonra otomasyonla bunu ölçeklendirir; SDET seviyesinde ise test altyapısını tasarlar — bu üç seviye birbiriyle rekabet etmez, birbirinin üzerine inşa edilir.",
+          en: "The difference between Manual Testing, Automation, and SDET roles can be compared to a hospital emergency room: the emergency doctor (Manual Tester) evaluates the patient in real time and makes intuitive decisions that a robot cannot; the medical device technician (Automation Engineer) sets up systems that automatically run routine ECG, blood pressure, and oxygen measurements, freeing humans from that repetition; the biomedical engineer (SDET) writes and tests the software for those devices, makes them talk to the hospital information system, and brings the system back up when it crashes. 'If automation can do everything, why do we still need manual testers?' Because automation only checks pre-defined scenarios; edge cases like 'a user types an emoji into the checkout form' — never appearing in any specification — can only be discovered by human intuition. In Java you can map these roles to JUnit tests: the @Test methods are what the SDET writes, the smoke suite in the CI pipeline is the system the Automation Engineer set up, but the experienced QA who runs the pre-launch exploratory session is the Manual Tester. The practical QA career strategy: a new QA starts with Manual Testing to understand what needs to be tested; then learns automation to scale it; at SDET level, designs test infrastructure and manages the team's test process with an engineering mindset — these three levels do not compete with each other, they are built one on top of the other."
         }
       },
       {
@@ -614,6 +659,57 @@ const sections = [
         }
       },
       {
+        type: 'code',
+        topicId: 'sdet-pytest-basics',
+        language: 'python',
+        code: {
+          tr: `# SDET'in yazdığı tipik bir pytest testi
+# Aşama 1: Arrange — test verisi hazırla
+def hesapla_indirim(fiyat, oran):
+    """İndirim hesaplayan fonksiyon."""
+    return fiyat * (1 - oran / 100)
+
+# Aşama 2: Test sınıfı — pytest otomatik keşfeder
+class TestIndirimHesaplama:
+
+    def test_standart_indirim(self):
+        # Act — fonksiyonu çağır
+        sonuc = hesapla_indirim(100, 20)
+        # Assert — beklenen ile gerçeği karşılaştır
+        assert sonuc == 80.0, f"Beklenen 80, gelen: {sonuc}"
+
+    def test_sifir_indirim(self):
+        sonuc = hesapla_indirim(100, 0)
+        assert sonuc == 100.0  # İndirim yoksa fiyat değişmemeli
+
+    def test_tam_indirim(self):
+        sonuc = hesapla_indirim(100, 100)
+        assert sonuc == 0.0   # %100 indirimde fiyat sıfır olmalı`,
+          en: `# A typical pytest test written by an SDET
+# Stage 1: Arrange — prepare test data
+def calculate_discount(price, rate):
+    """Function that calculates discount."""
+    return price * (1 - rate / 100)
+
+# Stage 2: Test class — pytest auto-discovers it
+class TestDiscountCalculation:
+
+    def test_standard_discount(self):
+        # Act — call the function
+        result = calculate_discount(100, 20)
+        # Assert — compare expected vs actual
+        assert result == 80.0, f"Expected 80, got: {result}"
+
+    def test_zero_discount(self):
+        result = calculate_discount(100, 0)
+        assert result == 100.0  # No discount means no price change
+
+    def test_full_discount(self):
+        result = calculate_discount(100, 100)
+        assert result == 0.0   # 100% discount should make price zero`,
+        },
+      },
+      {
         type: 'quiz',
         question: {
           tr: "Bir yazılım projesinde test otomasyon mimarisini sıfırdan tasarlayan, testleri Docker üzerinde ayağa kaldıran ve CI/CD pipeline'ını kurgulayan role ne ad verilir?",
@@ -684,8 +780,8 @@ const sections = [
         type: 'simple-box',
         emoji: '🍽️',
         content: {
-          tr: "Bir web sitesini restoran gibi düşün: müşterinin gördüğü masalar, menü ve dekorasyon UI/Frontend'dir. Siparişi hazırlayan mutfak Backend'dir. Malzemelerin saklandığı depo Database'dir. Garson ise siparişi mutfağa taşıyıp yemeği müşteriye getiren API'dir — iki tarafın birbirini görmeden konuşmasını sağlar.",
-          en: "Think of a website like a restaurant: the dining room, menu, and decor the customer sees is the UI/Frontend. The kitchen preparing the order is the Backend. The pantry storing ingredients is the Database. The waiter carrying orders between the kitchen and the customer is the API — letting two sides talk without seeing each other directly."
+          tr: "Web mimarisini bir şehrin belediye sistemi gibi düşünebilirsin: vatandaş (kullanıcı) belediye binasına (Frontend/UI) gelir; gişe görevlisi (API) vatandaşın talebini alır ve doğru departmana iletir; arka ofisteki bürokratlar (Backend) talebi işler; arşiv odası (Database) tüm kayıtları tutar. Peki 'test ederken sadece UI\'yı tıklamak yeterli değil mi?' Çünkü gişe görevlisi 'başvurunuzu aldım' dese bile arka ofis süreci başlatmamış olabilir — bir ödeme formu 'tamamlandı' mesajı gösterse bile backend transaction kaydetmemiş olabilir; bu sessiz başarısızlığı ancak API seviyesinde assertion yaparak veya database\'i sorgulayarak yakalarsın. Java\'da bu mimariyi Spring Boot projesi olarak düşünebilirsin: Controller → Service → Repository → Entity katmanları; her katmanı birim testi yazmak önemli ama sadece `@SpringBootTest` ile tüm yığını entegrasyon testi yapmak gerçek akışı valide eder. QA açısından kritik fark: UI testi 'onay sayfasını gördüğünde' geçer; API testi `/payment` endpoint\'inin 200 döndürdüğünü kontrol eder; entegrasyon testi ise database\'deki `orders` tablosunda kayıt oluştuğunu doğrular — üçünü birden yapan QA 'ödeme sayfası açılıyor ama para çekilmiyor' gibi katman sınırındaki hataları yakalar, sadece UI testi yapan ise bu hataları müşteri şikayetiyle öğrenir.",
+          en: "Think of web architecture like a city's municipal system: a citizen (user) comes to the municipal building (Frontend/UI); the counter clerk (API) takes the citizen's request and routes it to the right department; the back-office staff (Backend) process the request; the archive room (Database) holds all the records. 'When testing, isn't clicking the UI enough?' Because even if the counter clerk says 'your application has been received,' the back office may not have started the process — even if a payment form shows 'completed,' the backend may not have recorded the transaction. You can only catch this silent failure by asserting at the API level or querying the database. In Java you can map this architecture to a Spring Boot project: Controller → Service → Repository → Entity layers; writing unit tests for each layer matters, but only `@SpringBootTest` with a full-stack integration test validates the real flow. The critical QA difference: a UI test passes when it sees the 'confirmation page'; an API test checks that `/payment` returned 200; an integration test verifies that a record was created in the `orders` table. A QA who does all three catches boundary-layer bugs like 'the payment page loads but no money is charged' — a QA who only does UI testing learns about those bugs from customer complaints."
         }
       },
       {
@@ -960,8 +1056,8 @@ const sections = [
         type: 'simple-box',
         emoji: '🗺️',
         content: {
-          tr: "Bu sekmeyi bir alışveriş merkezinin giriş katındaki kat planı gibi düşün: hangi konuda ne öğreneceğini bilmiyorsan, aşağıdaki kategorilere bakıp doğru 'mağazaya' (sayfaya) doğrudan gidebilirsin. Her kart, ilgili konunun detaylı anlatıldığı sayfayı açar.",
-          en: "Think of this tab like the directory board at the entrance of a shopping mall: if you're not sure what to learn next, browse the categories below and jump straight to the right 'store' (page). Each card opens the page with the full, detailed lesson."
+          tr: "Yazılım testi öğrenmek, bir şehirde ilk kez navigasyon kullanmak gibidir: GPS seni doğrudan hedefe götürür ama etraftaki sokakları, kestirmeleri ve tehlikeli bölgeleri ancak biraz dolaşarak öğrenirsin — o dolaşmayı doğru haritayla yapman zamandan kazandırır. 'Önce hangi konuyu öğreneyim sorusunu kendim çözemez miyim; neden bir roadmap\'e ihtiyacım var?' Çünkü 'Selenium mi önce, pytest mi?' sorusuna yanlış cevap versen Selenium öğrenmeye çalışırken Python\'u da sıfırdan öğrenmek zorunda olduğunu sonradan keşfedersin — önce Python → sonra pytest → sonra Selenium Page Object sıralaması hem öğrenme hızını artırır hem motivasyonu korur. Java\'da sertifikalı bir öğrenme yolun var: Syntax → OOP → Collections → Generics → Concurrency; test otomasyonunda da benzer bir hiyerarşi geçerlidir: Temel Test Kavramları → Programlama Dili → Test Framework → Araç → CI/CD Entegrasyonu. QA kariyeri açısından pratik değer: roadmap\'e göre ilerlediğinde her yeni konunun önceki konuya oturduğunu görürsün — hedefsiz atlama yöntemiyle ise 3 ayda 10 araç tanıyıp hiçbirini gerçek projede kullanamaz hale gelirsin.",
+          en: "Learning software testing is like using GPS navigation in a city for the first time: the GPS takes you straight to the destination, but you only truly learn the surrounding streets, shortcuts, and dangerous zones by exploring a little — doing that exploring with the right map saves you time. 'Can't I figure out which topic to learn first on my own — why do I need a roadmap?' Because if you answer 'Selenium first or pytest first?' incorrectly you discover only later that learning Selenium requires also learning Python from scratch — the Python → pytest → Selenium Page Object sequence both speeds up learning and keeps motivation intact. In Java you have a certified learning path: Syntax → OOP → Collections → Generics → Concurrency; a similar hierarchy applies in test automation: Basic Testing Concepts → Programming Language → Test Framework → Tool → CI/CD Integration. The practical career value: following the roadmap, you find that every new topic builds on the previous one — the 'jump around randomly' approach results in knowing 10 tools after 3 months but being unable to use any of them in a real project."
         }
       },
       {
@@ -1126,3 +1222,5 @@ export const whatIsTestingData = {
   en: { hero: enHero, tabs: enTabs, sections },
   tr: { hero: trHero, tabs: trTabs, sections },
 }
+
+fillMissingCodeTrios(whatIsTestingData, 'what-is-testing')

@@ -38,8 +38,9 @@ test('JavaScript tabs load and render without crash', async ({ page }) => {
         await page.waitForTimeout(500);
 
         const bodyContent = await page.locator('body').innerText();
+        // 'Cannot read properties' removed — this phrase appears in educational content
+        // (explaining JS TypeError). Actual runtime errors are caught by pageerror listener.
         const hasErrorText = bodyContent.includes('Objects are not valid') ||
-                             bodyContent.includes('Cannot read properties') ||
                              bodyContent.includes('Render Error') ||
                              bodyContent.includes('something went wrong') ||
                              bodyContent.includes('[object Object]');

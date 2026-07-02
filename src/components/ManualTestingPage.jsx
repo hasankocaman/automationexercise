@@ -74,6 +74,117 @@ function FlowVisual({ labels, darkMode }) {
 function ScenarioVisual({ lesson, darkMode }) {
     const panel = darkMode ? 'border-slate-700 bg-slate-950 text-slate-200' : 'border-slate-200 bg-slate-50 text-slate-700'
 
+    if (lesson.id === 'mindset') {
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="text-[10px] font-black uppercase tracking-widest mb-3 opacity-60">Happy path → Edge cases</div>
+                <div className="grid gap-2">
+                    {[
+                        { label: 'Ödeme başarılı ✓', color: '#22c55e', delay: '0s', width: 'w-full' },
+                        { label: 'Kupon süresi doldu?', color: '#f59e0b', delay: '0.3s', width: 'w-4/5' },
+                        { label: 'Stok son anda bitti?', color: '#f97316', delay: '0.6s', width: 'w-3/5' },
+                        { label: 'Kart reddedildi?', color: '#ef4444', delay: '0.9s', width: 'w-2/5' },
+                    ].map((step) => (
+                        <div key={step.label} className="flex items-center gap-2">
+                            <div
+                                className={`h-7 rounded-lg text-white text-[10px] font-black flex items-center px-2 transition-all ${step.width}`}
+                                style={{ background: step.color, animationDelay: step.delay }}
+                            >
+                                {step.label}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className={`mt-3 text-[10px] opacity-60 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Manuel test happy path&apos;in ötesini görür
+                </div>
+            </div>
+        )
+    }
+
+    if (lesson.id === 'test-case') {
+        const steps = [
+            { num: 'Pre', label: 'Kayıtlı kullanıcı hazır', color: '#7c3aed' },
+            { num: '1', label: 'Login sayfasını aç', color: '#0891b2' },
+            { num: '2', label: 'Email + şifre gir', color: '#0891b2' },
+            { num: '3', label: 'Login butonuna bas', color: '#0891b2' },
+            { num: 'Exp', label: 'Dashboard görünür', color: '#22c55e' },
+        ]
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="text-[10px] font-black uppercase tracking-widest mb-3 opacity-60">Precondition → Steps → Expected</div>
+                <div className="grid gap-1.5">
+                    {steps.map((s) => (
+                        <div key={s.num} className="flex items-center gap-2">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-black text-white" style={{ background: s.color }}>{s.num}</div>
+                            <div className={`text-xs font-bold ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}>{s.label}</div>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: '#0891b215' }}>
+                    <div className="h-full rounded-full animate-pulse" style={{ width: '100%', background: 'linear-gradient(90deg,#7c3aed,#0891b2,#22c55e)' }} />
+                </div>
+            </div>
+        )
+    }
+
+    if (lesson.id === 'exploratory') {
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="text-[10px] font-black uppercase tracking-widest mb-3 opacity-60">Charter → Keşif → Not</div>
+                <div className="relative h-40 overflow-hidden rounded-lg" style={{ background: darkMode ? '#0f172a' : '#f8fafc' }}>
+                    {[
+                        { left: '10%', top: '15%', size: 'h-8 w-8', color: '#7c3aed', label: '🎯', delay: '0s' },
+                        { left: '55%', top: '10%', size: 'h-6 w-6', color: '#0891b2', label: '?', delay: '0.4s' },
+                        { left: '30%', top: '55%', size: 'h-6 w-6', color: '#f59e0b', label: '!', delay: '0.8s' },
+                        { left: '70%', top: '60%', size: 'h-5 w-5', color: '#ef4444', label: '🐛', delay: '1.2s' },
+                        { left: '20%', top: '78%', size: 'h-5 w-5', color: '#22c55e', label: '✓', delay: '1.6s' },
+                    ].map((node, i) => (
+                        <div
+                            key={i}
+                            className={`absolute flex items-center justify-center rounded-full text-white text-xs font-black animate-bounce ${node.size}`}
+                            style={{ left: node.left, top: node.top, background: node.color, animationDelay: node.delay, animationDuration: '2s' }}
+                        >
+                            {node.label}
+                        </div>
+                    ))}
+                    <div className="absolute bottom-2 right-2 rounded bg-slate-700/60 px-2 py-1 text-[9px] text-slate-300 font-mono">
+                        hipotez → gözlem → not
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (lesson.id === 'regression') {
+        const flows = [
+            { label: 'Kupon fix', done: true, color: '#22c55e' },
+            { label: 'Normal ödeme', done: true, color: '#22c55e' },
+            { label: 'Havale', done: true, color: '#22c55e' },
+            { label: 'İade', done: false, color: '#ef4444' },
+            { label: 'Sipariş maili', done: false, color: '#f59e0b' },
+        ]
+        return (
+            <div className={`rounded-lg border p-4 ${panel}`}>
+                <div className="text-[10px] font-black uppercase tracking-widest mb-3 opacity-60">Smoke Test — Etkilenen Akışlar</div>
+                <div className="grid gap-1.5">
+                    {flows.map((f) => (
+                        <div key={f.label} className="flex items-center gap-2">
+                            <div className="h-2 w-2 shrink-0 rounded-full" style={{ background: f.color }} />
+                            <div className={`text-xs font-bold flex-1 ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}>{f.label}</div>
+                            <div className="text-[10px] font-black" style={{ color: f.color }}>
+                                {f.done ? '✓ PASS' : '— bekliyor'}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className={`mt-3 text-[10px] opacity-60 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Yeni fix → tüm ilgili akışlar kontrol edilir
+                </div>
+            </div>
+        )
+    }
+
     if (lesson.id === 'bug-report') {
         return (
             <div className={`rounded-lg border p-4 ${panel}`}>

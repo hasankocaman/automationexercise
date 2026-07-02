@@ -16,31 +16,23 @@
 |------|-------|
 | **Aktif branch** | `test` |
 | **Uzak takip** | `origin/test` |
-| **Son commit (önceki)** | `136e4a0` — feat(governance): content integrity script + build/pre-commit |
-| **Bu oturum push** | `git push origin test` — §9.3 analoji tamamlama (bu oturumda yapıldı) |
+| **Son commit** | `90cd439` — feat(content): upgrade simple-box blocks to §9.3 4-layer analogy standard |
+| **Bu oturum push** | Yapılmadı — değişiklikler commit edilmemiş, çalışma ağacında bekliyor |
 
-### Bu Commit'te Yapılanlar
+### Bu Oturumda Yapılanlar (2026-07-02, devam — 4 custom sayfa tamamlandı)
 
-- **kafkaData.js** — 11 EN + 11 TR simple-box bloğu §9.3 tam 4-katman standardına yükseltildi
-- **jmeterData.js** — 7 EN + 7 TR simple-box bloğu (agent worktree → main'e kopyalandı)
-- **awsData.js** — 5 EN + 5 TR simple-box bloğu (agent worktree → main'e kopyalandı)
-- **azureData.js** — 5 EN + 5 TR simple-box bloğu (agent worktree → main'e kopyalandı)
-- **postmanData.js** — EN bölümleri tam; TR 5 bölüm yükseltildi (Real World, Ecosystem, Errors, Interview intro/diagram)
-- **appiumData.js** — Ana kavram simple-box blokları yükseltildi (agent worktree → main'e kopyalandı)
-- **whatIsTestingData.js** — Kısmi upgrade (agent worktree → main'e kopyalandı)
-- **38 blokta `relatedTopicId` eksikliği giderildi** — appiumData (20), jmeterData (4), awsData (4), azureData (4), postmanData (6)
-- **Build:** `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓; `npm run build` → ✓ 7.09s
+- **manualTestingData.js** — 6 TR + 6 EN ders §9.3 4-katman yükseltmesi (mindset, test-case, exploratory, bug-report, severity, regression) ✓
+- **ManualTestingPage.jsx** — 4 dersin ScenarioVisual bileşenine adım animasyonları eklendi (mindset: coverage bars, test-case: step boxes, exploratory: bouncing nodes, regression: flow items) ✓
+- **beginnerAlgorithmsData.js** — 7 TR + 7 EN ders §9.3 4-katman yükseltmesi (recipe, input-output, decision, loop, memory, debug, flowchart) ✓
+- **algorithmsData.js** — 6 TR + 6 EN section `analogy` alanı §9.3 4-katman standardına yükseltildi (AdvancedAlgorithmsPage bileşeni `blocks` array'ini değil `analogy` alanını render ediyor — doğrulandı) ✓
+- **PythonFrameworksTab.jsx** — 2 SimpleBox (pytest + Robot Framework) §9.3 yükseltildi; `OrderSort` import edildi; `PytestFixturePractice` bileşeni (textarea + kontrol + çözüm göster) + fixture scope ordering drag-and-drop eklendi ✓
+- **Build doğrulaması:** `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (32 dosya); `npm run build` → ✓ 7.01s; 38 static route HTML shell; dist SEO check PASS ✓
 
 ### Sonraki Oturumda Yapılacaklar (Öncelik Sırasıyla)
 
-1. **§9.3 analoji upgrade — Hâlâ eksik sayfalar:**
-   - `restAssuredData.js` (10 simple-box, bilingual `{tr,en}` format, TR içeriklerin tümü kısa)
-   - `browserStackData.js` (8 simple-box, bilingual `{tr,en}` format, TR içeriklerin çoğu kısa)
-   - `algorithmsData.js` (custom component yapısı, non-standard format)
-   - `whatIsTestingData.js` (kısmi upgrade yapıldı, hangi blokların hâlâ kısa kaldığı kontrol edilmeli)
-2. **Task 2 — Interaktif üçlü (animasyon + drag-and-drop + practice)** — hâlâ yapılmadı:
-   - `what-is-testing`, `manual-testing`, `algorithms`, `test-frameworks` (custom component yapısı)
-3. **`test` → `main` merge** (kullanıcı onayı gerekli)
+1. **`test` → `main` merge** (kullanıcı onayı gerekli) — commit edilmemiş değişiklikler var
+2. **`git push origin main`** ile uzak sunucuya gönder
+3. **FrameworkComparison + PlaywrightLangCompare** — SimpleBox / interaktif trio yok; düşük öncelik (karşılaştırma tabloları format olarak üçlüye uymuyor)
 
 ### §9.3 4-Katmanlı Analoji Standardı — Sayfa Durumu (2026-07-02 Güncel)
 
@@ -48,11 +40,24 @@
 |-------|-------|
 | Python, Bruno, TypeScript, Docker, Jenkins, Kubernetes | ✅ Tam (önceki oturumlar) |
 | Selenium, Playwright, Cypress, Java, JS, SQL, Git, Linux | ✅ Tam (önceki oturumlar) |
-| **Kafka, JMeter, AWS, Azure, Postman, Appium** | ✅ **Bu oturumda tamamlandı** |
-| REST Assured | ⏳ Bekliyor (TR içeriklerin tümü < 200 karakter) |
-| BrowserStack | ⏳ Bekliyor (TR içeriklerin çoğu kısa) |
-| what-is-testing | ⚠️ Kısmi (agent partial upgrade yapıldı) |
-| algorithms, manual-testing, test-frameworks, advanced-algorithms | ⏳ Bekliyor (custom component format) |
+| Kafka, JMeter, AWS, Azure, Postman, Appium | ✅ Tam (önceki oturumlar) |
+| REST Assured, BrowserStack, what-is-testing | ✅ Tam (önceki oturum) |
+| **manual-testing** | ✅ **Bu oturumda tamamlandı** (6 TR + 6 EN ders) |
+| **algorithms (AlgorithmsPage — beginner)** | ✅ **Bu oturumda tamamlandı** (7 TR + 7 EN ders) |
+| **advanced-algorithms** | ✅ **Bu oturumda tamamlandı** (6 TR + 6 EN section analogy) |
+| **test-frameworks (PythonFrameworksTab)** | ✅ **Bu oturumda tamamlandı** (2 SimpleBox: pytest + Robot) |
+| FrameworkComparison, PlaywrightLangCompare | ⏳ SimpleBox yok — düşük öncelik |
+
+### Interaktif Üçlü (animasyon + drag-and-drop + practice) — Sayfa Durumu
+
+| Sayfa | Durum |
+|-------|-------|
+| Python, TypeScript, Docker, Jenkins, Kubernetes, JS, Postman, REST Assured, Selenium, Playwright, Cypress, Java, SQL, Git, Linux, JMeter, Appium, Kafka, AWS, Azure, Bruno, what-is-testing | ✅ Tam |
+| **manual-testing** | ✅ **Bu oturumda tamamlandı** (4 yeni ScenarioVisual animasyonu; game/feynman/recall zaten mevcuttu) |
+| **algorithms (AlgorithmsPage)** | ✅ Mevcut (game=drag-drop, visual=animasyon, feynman=practice — custom format) |
+| **advanced-algorithms** | ✅ Mevcut (VisualLab=animasyon, lab=sürükle/BFS, quiz=practice — custom format) |
+| **test-frameworks (PythonFrameworksTab)** | ✅ **Bu oturumda tamamlandı** (PytestRunnerSim=animasyon, OrderSort=drag-drop, PytestFixturePractice=practice) |
+| FrameworkComparison, PlaywrightLangCompare | ⏳ Karşılaştırma tabloları — üçlüye uygun değil |
 
 ---
 

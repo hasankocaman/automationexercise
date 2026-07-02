@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import OrderSort from './challenges/OrderSort'
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -171,6 +172,119 @@ function JavaBox({ darkMode, tr, children }) {
     )
 }
 
+// ─── PYTEST FIXTURE PRACTICE ─────────────────────────────────────────────────
+
+const FIXTURE_STARTER_TR = `import pytest
+
+# Bu fixture'ı tamamla: browser driver'ı başlat ve test bittikten sonra kapat
+@pytest.fixture(scope="???")   # Her test için ayrı driver istiyoruz
+def driver():
+    from selenium import webdriver
+    drv = webdriver.Chrome()
+    ???                         # test fonksiyonuna driver'ı ver
+    drv.???()                   # test bittikten sonra kapat`
+
+const FIXTURE_SOLUTION_TR = `import pytest
+
+@pytest.fixture(scope="function")  # Her test için ayrı driver
+def driver():
+    from selenium import webdriver
+    drv = webdriver.Chrome()
+    yield drv                       # test fonksiyonuna driver'ı ver
+    drv.quit()                      # test bittikten sonra kapat`
+
+const FIXTURE_STARTER_EN = `import pytest
+
+# Complete this fixture: start a browser driver and quit after each test
+@pytest.fixture(scope="???")   # We want a fresh driver for every test
+def driver():
+    from selenium import webdriver
+    drv = webdriver.Chrome()
+    ???                         # hand the driver to the test function
+    drv.???()                   # quit after the test finishes`
+
+const FIXTURE_SOLUTION_EN = `import pytest
+
+@pytest.fixture(scope="function")  # Fresh driver for each test
+def driver():
+    from selenium import webdriver
+    drv = webdriver.Chrome()
+    yield drv                       # hand the driver to the test function
+    drv.quit()                      # quit after the test finishes`
+
+function PytestFixturePractice({ darkMode, tr }) {
+    const [code, setCode] = useState(tr ? FIXTURE_STARTER_TR : FIXTURE_STARTER_EN)
+    const [result, setResult] = useState(null)
+
+    const check = () => {
+        const clean = code.replace(/\s+/g, ' ').trim()
+        const hasYield = /\byield\b/.test(clean)
+        const hasQuit = /\.quit\(\)/.test(clean)
+        const hasFunctionScope = /scope\s*=\s*["']function["']/.test(clean)
+        const missing = []
+        if (!hasYield) missing.push(tr ? 'yield' : 'yield')
+        if (!hasQuit) missing.push(tr ? '.quit()' : '.quit()')
+        if (!hasFunctionScope) missing.push(tr ? 'scope="function"' : 'scope="function"')
+        if (missing.length === 0) {
+            setResult({ ok: true, msg: tr ? '✅ Mükemmel! yield drv driver\'ı teslim eder, drv.quit() teardown\'ı yapar — scope="function" her teste taze driver sağlar.' : '✅ Perfect! yield drv hands the driver over, drv.quit() is the teardown — scope="function" gives every test a fresh driver.' })
+        } else {
+            setResult({ ok: false, msg: (tr ? '❌ Eksik: ' : '❌ Missing: ') + missing.join(', ') })
+        }
+    }
+
+    const reset = () => {
+        setCode(tr ? FIXTURE_STARTER_TR : FIXTURE_STARTER_EN)
+        setResult(null)
+    }
+
+    const panel = darkMode ? 'bg-gray-900 border-gray-700 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-800'
+
+    return (
+        <div>
+            <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {tr
+                    ? '??? olan yerleri doldur: scope değeri, driver\'ı teslim eden ifade ve kapatma metodu. Çözümü kontrol et.'
+                    : 'Fill in the ??? placeholders: the scope value, the expression that hands the driver to the test, and the cleanup call. Then check.'}
+            </p>
+            <textarea
+                value={code}
+                onChange={e => { setCode(e.target.value); setResult(null) }}
+                rows={9}
+                spellCheck={false}
+                className={`w-full rounded-lg border p-3 font-mono text-xs leading-relaxed resize-none ${panel}`}
+                style={{ background: darkMode ? '#1e2030' : '#f8fafc' }}
+            />
+            <div className="flex gap-2 mt-2">
+                <button
+                    onClick={check}
+                    className="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+                >
+                    {tr ? '✅ Kontrol Et' : '✅ Check'}
+                </button>
+                <button
+                    onClick={reset}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                    {tr ? '🔄 Sıfırla' : '🔄 Reset'}
+                </button>
+                {result && (
+                    <button
+                        onClick={() => setCode(tr ? FIXTURE_SOLUTION_TR : FIXTURE_SOLUTION_EN)}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${darkMode ? 'bg-yellow-800 text-yellow-200 hover:bg-yellow-700' : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'}`}
+                    >
+                        {tr ? '💡 Çözümü Gör' : '💡 Show Solution'}
+                    </button>
+                )}
+            </div>
+            {result && (
+                <div className={`mt-3 rounded-lg p-3 text-sm font-medium ${result.ok ? (darkMode ? 'bg-emerald-900/40 text-emerald-300' : 'bg-emerald-50 text-emerald-800') : (darkMode ? 'bg-red-900/40 text-red-300' : 'bg-red-50 text-red-800')}`}>
+                    {result.msg}
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ─── LIVE PYTEST RUNNER SIMULATION ────────────────────────────────────────────
 
 function PytestRunnerSim({ darkMode, tr }) {
@@ -308,8 +422,8 @@ function PytestTab({ darkMode, tr }) {
         <div>
             <SimpleBox emoji="🐍">
                 {tr
-                    ? 'pytest, Python için JUnit\'ın daha güçlü versiyonu gibidir. "@Test" yazmak yerine fonksiyon adı "test_" ile başlarsa otomatik test olarak tanır. Kurumsal proje mi, küçük script mi fark etmez — pytest her yerde çalışır.'
-                    : 'pytest is like a more powerful version of JUnit for Python. Instead of @Test, any function starting with test_ is automatically a test. Whether enterprise project or quick script — pytest works everywhere.'}
+                    ? 'pytest, bir levye gibi çalışır — az kuvvetle çok iş yapar, ama mekanizma önemli: Java\'da JUnit için sınıf + @Test + assertion import gerekir; pytest\'te fonksiyon adı test_ ile başlarsa yeterlidir ve assert a == b satırı hata mesajını kendisi üretir. Yalnızca sözdizimi değil, işin kendisi daha az bürokratik. Peki JUnit yeteri kadar güçlüyken neden pytest\'i öğrenmek zorunlu? Çünkü Python QA ekosisteminin standartı: bir CI pipeline\'ı, bir Dockerfile veya bir Makefile\'daki pytest komutu gördüğünde anlayamıyorsan, takımın kolektif hafızasının dışındasın. Mülakatlarda "neden pytest seçtiniz?" sorusu fixture scope kontrolünü ve plugin ekosistemini cevap bekler — "çünkü Java\'da JUnit vardı" cevabı değil.'
+                    : 'pytest works like a crowbar — it does more with less effort, but the mechanism matters: in Java you need a class, @Test, and an assertion import; in pytest any function starting with test_ qualifies and assert a == b generates its own failure message. It is not just different syntax — the bureaucratic overhead is genuinely lower. Why learn pytest if JUnit was already powerful enough? Because pytest is the standard of the Python QA ecosystem: if you cannot read a pytest command in a CI pipeline, Dockerfile, or Makefile, you are outside the team\'s collective knowledge. In QA interviews, "why pytest?" expects an answer about fixture scope control and the plugin ecosystem — not "because we had JUnit in Java."'}
             </SimpleBox>
 
             {/* Why pytest */}
@@ -705,6 +819,39 @@ pytest -v -x`}</Code>
                 </p>
                 <PytestRunnerSim darkMode={darkMode} tr={tr} />
             </Section>
+
+            {/* Drag-and-drop: fixture scope ordering */}
+            <Section title={tr ? '🔀 Sürükle-Sırala: Fixture Scope Sıralaması' : '🔀 Drag & Sort: Fixture Scope Order'} darkMode={darkMode}>
+                <p className={`text-sm leading-relaxed mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {tr
+                        ? 'pytest fixture scope\'larını en dar kapsamdan (her test) en geniş kapsama (tüm oturum) doğru sırala. Java\'daki @BeforeEach → @BeforeAll mantığının pytest karşılığı budur.'
+                        : 'Sort pytest fixture scopes from narrowest (per test) to broadest (whole session). This is the pytest equivalent of @BeforeEach → @BeforeAll in Java.'}
+                </p>
+                <OrderSort
+                    block={{
+                        variant: 'order-sort',
+                        id: 'ch-pytest-fixture-scope-01',
+                        question: {
+                            tr: 'Fixture scope\'larını en dar kapsamdan en geniş kapsama doğru sırala.',
+                            en: 'Sort fixture scopes from narrowest to broadest.',
+                        },
+                        items: [
+                            { id: '1', text: { tr: 'function — Her test için ayrı setup (varsayılan)', en: 'function — fresh setup for each test (default)' }, order: 1 },
+                            { id: '2', text: { tr: 'class — Aynı sınıftaki testler fixture\'ı paylaşır', en: 'class — tests in the same class share the fixture' }, order: 2 },
+                            { id: '3', text: { tr: 'module — Aynı .py dosyasındaki testler paylaşır', en: 'module — tests in the same .py file share it' }, order: 3 },
+                            { id: '4', text: { tr: 'session — Tüm test oturumu boyunca tek instance', en: 'session — one instance for the entire test session' }, order: 4 },
+                        ],
+                    }}
+                    isTr={tr}
+                    darkMode={darkMode}
+                    onResult={() => {}}
+                />
+            </Section>
+
+            {/* Practice: write a fixture */}
+            <Section title={tr ? '✍️ Kendin Yaz: Fixture + Test' : '✍️ Write It Yourself: Fixture + Test'} darkMode={darkMode}>
+                <PytestFixturePractice darkMode={darkMode} tr={tr} />
+            </Section>
         </div>
     )
 }
@@ -718,8 +865,8 @@ function RobotTab({ darkMode, tr }) {
         <div>
             <SimpleBox emoji="🤖">
                 {tr
-                    ? 'Robot Framework, test adımlarını düz İngilizce kelimelerle yazmanı sağlar. "Click Button  Login" yazan bir test case\'i developer olmayan bir QA da anlayabilir. SAP, ERP gibi kurumsal sistemlerde ve manual test ağırlıklı ekiplerde çok kullanılır.'
-                    : 'Robot Framework lets you write test steps in plain English keywords. "Click Button  Login" is a test case even a non-developer QA can read and write. Very popular in enterprise systems (SAP, ERP) and teams with manual testers.'}
+                    ? 'Robot Framework, talimat kartlarıyla çalışan bir otomasyon fabrikası gibidir — ama mekanizma şu: her kart bir keyword\'dür ve keyword\'ler Python veya Java\'da yazılmış gerçek koda çağrı yapar; "Click Button  Login" satırı arka planda Selenium\'un click() metodunu tetikler, kullanıcı bunu görmez. pytest\'te her şey Python\'du; burada soyutlama katmanı ayrı bir dil gibi çalışır. Peki pytest öğrenilmişken neden Robot öğrenmek gerekir? Çünkü büyük kurumsal projelerde (SAP, ERP, telekom), test senaryolarını baştan sona Python yazan bir QA yoktur — BA ve manual tester\'lar da katkı verir ve o ekiplerde Robot Framework standarttır. Mülakatta "keyword-driven testing ne zaman tercih edilir?" sorusu tam bunu sorar: takımın teknik seviyesi mi yüksek, yoksa karma mı?'
+                    : 'Robot Framework is like an automation factory that runs on instruction cards — but the mechanism is: each card is a keyword that calls real code written in Python or Java; the line "Click Button  Login" triggers Selenium\'s click() method behind the scenes, invisible to the writer. With pytest everything was Python; here an abstraction layer works like a separate language. Why learn Robot if you already know pytest? Because in large enterprise projects (SAP, ERP, telecom) there is no team where every QA writes Python from scratch — business analysts and manual testers also contribute, and in those teams Robot Framework is the standard. A QA interview question "when do you prefer keyword-driven testing?" is asking exactly this: is the team technically homogeneous or mixed?'}
             </SimpleBox>
 
             {/* Why Robot */}
