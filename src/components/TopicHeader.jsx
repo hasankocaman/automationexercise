@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext'
 import ZoomControls from './ZoomControls'
 import AccountMenu from './AccountMenu'
 
-function TopicHeader({ darkMode, setDarkMode }) {
+function TopicHeader({ darkMode, setDarkMode, soundToggle }) {
     const { language, t, toggleLanguage } = useLanguage()
     const navigate = useNavigate()
 
@@ -50,6 +50,7 @@ function TopicHeader({ darkMode, setDarkMode }) {
                             {darkMode ? `☀️ ` : `🌙 `}
                             <span className="hidden md:inline">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
                         </button>
+                        {soundToggle}
                     </div>
                 </div>
             </div>

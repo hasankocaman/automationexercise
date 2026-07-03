@@ -1,0 +1,729 @@
+/* ═════════════════════════════════════════════════════════════════
+   Python Page — Lacivert + Altın/Amber + Camgöbeği Paleti
+   docker-effects.css / selenium-effects.css / playwright-effects.css /
+   cypress-effects.css referans alınarak üretildi (§9.2 rollout hedefi).
+   Marka renginden bağımsız, cesur bir kombinasyon.
+   Tüm stiller .python-page wrapper'a scope'lu.
+   Fare imleci değiştirilmez — tamamen tarayıcı varsayılanı.
+   ═════════════════════════════════════════════════════════════════ */
+
+/* ── 0. Palette CSS Variables ─────────────────────────────────── */
+.python-page {
+  --py-bg-primary:    #0f1a2e;
+  --py-bg-secondary:  #16233d;
+  --py-bg-tertiary:   #1c2d4d;
+  --py-text-primary:  #eaf0fb;
+  --py-accent:        #f2b134;
+  --py-accent-light:  #ffd166;
+  --py-cyan:          #4fd1e8;
+  --py-success:       #6fbf73;
+  --py-warning:       #f0b84e;
+  --py-error:         #e26a5c;
+  /* Light mode varsayılanı: hero banner panelleri açık pastel arka plan
+     üzerine oturur — metin/etiket renkleri burada KOYU tanımlanır. */
+  --py-text-muted:    #3c4a63;
+  --py-role-accent:   #a97a12;
+  --py-role-accent-2: #1f7a8c;
+  --py-role-muted:    #4a5568;
+  --py-role-success:  #2f8f4e;
+  position: relative;
+}
+
+.dark-mode .python-page,
+[data-theme="dark"] .python-page {
+  --py-text-muted:    #b7c3d9;
+  --py-role-accent:   #f2b134;
+  --py-role-accent-2: #4fd1e8;
+  --py-role-muted:    #b7c3d9;
+  --py-role-success:  #6fbf73;
+}
+
+/* ── 1. Ambient Arka Plan Işıması + Parallax ─────────────────── */
+.python-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(242, 177, 52, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(79, 209, 232, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(242, 177, 52, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(255, 209, 102, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(79, 209, 232, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: py-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--py-scroll-y, 0px));
+  will-change: transform;
+}
+
+@keyframes py-glow-pulse {
+  from { opacity: 0.55; }
+  to   { opacity: 1.0; }
+}
+
+/* ── 2. Yüzen Parçacıklar ─────────────────────────────────────── */
+.py-particle {
+  position: fixed;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: py-float var(--dur, 14s) var(--delay, 0s) infinite linear;
+}
+
+@keyframes py-float {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  8%   { opacity: 0.45; }
+  92%  { opacity: 0.45; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* ── 3. Scroll Reveal ─────────────────────────────────────────── */
+.py-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.py-reveal.py-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 4. Sekme Başlığı — Hareketli Gradient Metin ──────────────── */
+.python-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(
+    135deg,
+    var(--py-accent),
+    var(--py-accent-light),
+    var(--py-cyan),
+    var(--py-accent)
+  );
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--py-accent);
+  display: inline-block;
+  animation: py-gradient-shift 5s ease infinite;
+}
+
+@keyframes py-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 5. Ana İçerik Kartı — Lacivert/Altın Glassmorphism ───────── */
+.python-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(250, 251, 254, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(242, 177, 52, 0.16) !important;
+  box-shadow:
+    0 0 0 1px rgba(242, 177, 52, 0.05),
+    0 0 0 3px rgba(79, 209, 232, 0.04),
+    0 24px 64px rgba(242, 177, 52, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-mode .python-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .python-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(15, 26, 46, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(242, 177, 52, 0.13) !important;
+  box-shadow:
+    0 0 0 1px rgba(242, 177, 52, 0.04),
+    0 0 0 3px rgba(79, 209, 232, 0.03),
+    0 24px 64px rgba(242, 177, 52, 0.08),
+    inset 0 1px 0 rgba(79, 209, 232, 0.06) !important;
+}
+
+.python-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(242, 177, 52, 0.30) !important;
+  box-shadow:
+    0 0 0 1px rgba(242, 177, 52, 0.10),
+    0 0 0 3px rgba(79, 209, 232, 0.05),
+    0 24px 64px rgba(242, 177, 52, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+}
+
+/* ── 6. İçerik Blokları (py-block) — Altın Glow + 3D Tilt ─────── */
+.python-page .py-block {
+  border-color: rgba(242, 177, 52, 0.11) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+  transform-style: preserve-3d;
+}
+
+.python-page .py-block:hover {
+  border-color: rgba(79, 209, 232, 0.28) !important;
+  box-shadow:
+    0 4px 24px rgba(242, 177, 52, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── 7. Hero Glitch — Altın + Camgöbeği ────────────────────────── */
+.py-glitch {
+  position: relative;
+}
+
+.py-glitch::before,
+.py-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.py-glitch::before {
+  color: rgba(242, 177, 52, 0.72);
+  animation: py-glitch-1 5s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  z-index: -1;
+}
+
+.py-glitch::after {
+  color: rgba(79, 209, 232, 0.60);
+  animation: py-glitch-2 5s infinite;
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  z-index: -2;
+}
+
+@keyframes py-glitch-1 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate(-3px,  1px); }
+  84%           { transform: translate( 2px, -2px); }
+  86%           { transform: translate(-1px,  2px); }
+  88%           { transform: translate(0, 0); }
+}
+
+@keyframes py-glitch-2 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate( 3px, -1px); }
+  84%           { transform: translate(-2px,  2px); }
+  86%           { transform: translate( 1px, -1px); }
+  88%           { transform: translate(0, 0); }
+}
+
+/* ── 8. Asimetrik Hero Banner Düzeni ─────────────────────────── */
+.py-hero-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 680px) {
+  .py-hero-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.py-hero-banner-container {
+  position: relative;
+}
+
+/* ── 9. Stats Panel (sağ bölme) ───────────────────────────────── */
+.py-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(79, 209, 232, 0.04);
+  border: 1px solid rgba(242, 177, 52, 0.16);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow:
+    0 0 0 1px rgba(79, 209, 232, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: py-stats-border-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes py-stats-border-pulse {
+  from {
+    border-color: rgba(242, 177, 52, 0.16);
+    box-shadow: 0 0 0 1px rgba(79, 209, 232, 0.04), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  to {
+    border-color: rgba(79, 209, 232, 0.26);
+    box-shadow: 0 0 0 1px rgba(242, 177, 52, 0.09), 0 0 14px rgba(79, 209, 232, 0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+}
+
+.py-stat-item {
+  text-align: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.py-stat-item.py-stat-pending {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.py-stat-item.py-stat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.py-stat-number-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.py-stat-num {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--py-accent, #f2b134), var(--py-cyan, #4fd1e8));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--py-accent, #f2b134);
+  line-height: 1.1;
+}
+
+.py-stat-suffix {
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--py-accent, #f2b134), var(--py-cyan, #4fd1e8));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--py-accent, #f2b134);
+}
+
+.py-stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── 10. pytest Yaşam Döngüsü Paneli (sol bölme) ──────────────── */
+.py-pipeline {
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(242, 177, 52, 0.04);
+  border: 1px solid rgba(242, 177, 52, 0.15);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: visible;
+}
+
+.py-pipeline-title {
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--py-text-muted);
+  margin-bottom: 0.65rem;
+  position: relative;
+  z-index: 20;
+}
+
+.py-stages {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  isolation: isolate;
+}
+
+.py-stage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: default;
+  user-select: none;
+  margin-bottom: -3px;
+  transform: translateY(0) translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease;
+  position: relative;
+  z-index: var(--stage-z, 1);
+  will-change: transform;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.py-stage-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.py-stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.py-stages:hover .py-stage:nth-child(1) { transform: translateY(-30px) translateZ(0); }
+.py-stages:hover .py-stage:nth-child(2) { transform: translateY(-18px) translateZ(0); }
+.py-stages:hover .py-stage:nth-child(3) { transform: translateY( -8px) translateZ(0); }
+.py-stages:hover .py-stage:nth-child(4) { transform: translateY(  2px) translateZ(0); }
+.py-stages:hover .py-stage:nth-child(5) { transform: translateY(  9px) translateZ(0); }
+
+.py-stages:hover .py-stage {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* ── 11. Squash & Stretch Buton Animasyonu ────────────────────── */
+.python-page .py-magnetic-init {
+  position: relative;
+  overflow: hidden;
+}
+
+.py-squash {
+  animation: py-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important;
+  transform: none !important;
+}
+
+@keyframes py-squash-anim {
+  0%   { transform: scale(1.00, 1.00); }
+  22%  { transform: scaleX(1.16) scaleY(0.84); }
+  55%  { transform: scaleX(0.96) scaleY(1.05); }
+  80%  { transform: scaleX(1.01) scaleY(0.99); }
+  100% { transform: scale(1.00, 1.00); }
+}
+
+/* ── 12. Ripple ─────────────────────────────────────────────── */
+.py-ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0.30;
+  pointer-events: none;
+  animation: py-ripple-anim 0.55s ease-out forwards;
+}
+
+@keyframes py-ripple-anim {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* ── 13. Sıvı Dolgulu Butonlar (Fluid Hover - Altın/Camgöbeği) ─── */
+.python-page .py-magnetic-init {
+  z-index: 1;
+  overflow: hidden;
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.python-page .py-magnetic-init::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(255, 209, 102, 0.45);
+  border-radius: 38% 42% 40% 45%;
+  transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -2;
+  pointer-events: none;
+}
+.python-page .py-magnetic-init::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -48%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #0f4c5c, #1f7a8c, #4fd1e8);
+  border-radius: 43% 39% 45% 40%;
+  transition: all 0.78s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -1;
+  pointer-events: none;
+}
+.python-page .py-magnetic-init:hover::before {
+  top: -40%;
+  transform: rotate(320deg);
+}
+.python-page .py-magnetic-init:hover::after {
+  top: -38%;
+  transform: rotate(360deg);
+}
+.python-page .py-magnetic-init:hover {
+  color: #0f1a2e !important;
+  border-color: #f2b134 !important;
+  box-shadow: 0 0 14px rgba(242, 177, 52, 0.45);
+}
+
+/* ── 14. Dalgalı İlerleme Göstergesi ──────────────────────────── */
+.py-wave-progress {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--py-bg-secondary, #16233d);
+  border: 2px solid rgba(242, 177, 52, 0.30);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.py-wave-progress:hover {
+  transform: scale(1.1);
+  border-color: var(--py-cyan, #4fd1e8);
+}
+.py-wave-water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--scroll-percent, 0%);
+  background: linear-gradient(180deg, rgba(242, 177, 52, 0.65), rgba(15, 26, 46, 0.95));
+  transition: height 0.15s ease-out;
+}
+.py-wave-water::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -50%;
+  width: 200%;
+  height: 12px;
+  background: var(--py-cyan, #4fd1e8);
+  border-radius: 40%;
+  animation: py-wave-flow 2.2s infinite linear;
+}
+@keyframes py-wave-flow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.py-wave-percent {
+  position: relative;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--py-text-primary, #eaf0fb);
+  z-index: 10;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ── 15. 3D pytest Yaşam Döngüsü (Interactive) ────────────────── */
+.py-pipeline-interactive {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+.py-stages-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.py-stages-3d:hover .py-stage {
+  transform: translateY(var(--ty, 0px)) translateZ(calc(var(--stage-z) * 12px)) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--py-cyan, #4fd1e8) !important;
+}
+.py-stage {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* ── 16. pytest CLI Konsolu & Test Sonuç Panosu ────────────────── */
+.py-console-box {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 14px;
+  background: rgba(28, 45, 77, 0.35);
+  border: 1px solid rgba(242, 177, 52, 0.15);
+  backdrop-filter: blur(12px);
+  margin-top: 0.6rem;
+  transform-style: preserve-3d;
+}
+@media (max-width: 680px) {
+  .py-console-box {
+    grid-template-columns: 1fr;
+    grid-column: span 1;
+  }
+}
+.py-console {
+  background: #0a1120;
+  border: 1px solid rgba(242, 177, 52, 0.25);
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+}
+.py-console-header {
+  font-size: 0.6rem;
+  color: #9fb0cc;
+  border-bottom: 1px solid rgba(242, 177, 52, 0.14);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.py-console-body {
+  font-size: 0.7rem;
+  color: #ffd166;
+  line-height: 1.4;
+  flex-grow: 1;
+  white-space: pre-wrap;
+}
+.py-console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.py-console-prompt {
+  color: var(--py-cyan, #4fd1e8);
+  font-weight: bold;
+}
+.py-console-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.72rem;
+  width: 100%;
+}
+
+/* Test sonuç panosu — pytest CLI'ye eşlik eden görsel */
+.py-result-board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  justify-content: center;
+  background: rgba(10, 17, 32, 0.4);
+  border-radius: 8px;
+  border: 1px dashed rgba(79, 209, 232, 0.18);
+  min-height: 150px;
+  padding: 0.9rem;
+}
+.py-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.62rem;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--py-text-muted);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+.py-result-item.pending {
+  opacity: 0.4;
+}
+.py-result-item.pass {
+  opacity: 1;
+  color: var(--py-success, #6fbf73);
+}
+.py-result-item.fail {
+  opacity: 1;
+  color: var(--py-error, #e26a5c);
+}
+.py-result-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition: box-shadow 0.3s ease;
+}
+.py-result-item.pass .py-result-dot {
+  box-shadow: 0 0 8px currentColor;
+}
+.py-result-item.fail .py-result-dot {
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ── 17. Light Mode Yağmur ve Şimşek Efektleri (Python'a Özel) ── */
+.python-page .min-h-screen:not(.dark-mode) {
+  animation: py-lightning-flash 10s infinite ease-in-out;
+  transition: filter 0.15s ease;
+}
+
+@keyframes py-lightning-flash {
+  0%, 92%, 94.5%, 96%, 100% {
+    filter: brightness(1) contrast(1);
+  }
+  93% {
+    filter: brightness(1.25) contrast(1.06) saturate(1.1);
+  }
+  94% {
+    filter: brightness(1.08);
+  }
+  95% {
+    filter: brightness(1.3) contrast(1.1) saturate(1.15);
+  }
+}
+
+.python-page .min-h-screen:not(.dark-mode)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1.2px 25px at 30px 10px, rgba(242, 177, 52, 0.16), transparent),
+    radial-gradient(1.2px 32px at 130px 90px, rgba(79, 209, 232, 0.14), transparent),
+    radial-gradient(1.2px 22px at 250px 30px, rgba(242, 177, 52, 0.16), transparent),
+    radial-gradient(1.2px 35px at 70px 190px, rgba(79, 209, 232, 0.14), transparent),
+    radial-gradient(1.2px 26px at 210px 110px, rgba(242, 177, 52, 0.16), transparent),
+    radial-gradient(1.8px 30px at 310px 240px, rgba(79, 209, 232, 0.18), transparent);
+  background-size: 380px 380px;
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 999;
+  animation: py-rain-anim 0.7s infinite linear;
+}
+
+@keyframes py-rain-anim {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 38px 380px; }
+}
+
+/* ── 18. Reduced Motion — tüm animasyonları kapat ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .python-page::before                                    { animation: none; opacity: 0.7; transform: none !important; }
+  .py-particle                                             { animation: none; opacity: 0; }
+  .python-page .flex-1.min-w-0 > div:first-child > h2    { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  .py-reveal                                               { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .py-glitch::before, .py-glitch::after                   { animation: none; }
+  .py-stat-item, .py-stat-item.py-stat-pending             { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .py-stats-bar                                            { animation: none; }
+  .py-squash                                               { animation: none !important; }
+  .py-ripple-span                                          { display: none; }
+  .py-stages .py-stage                                     { transition: none !important; }
+  .py-stages:hover .py-stage                               { transform: none !important; }
+  .py-wave-water::before                                   { animation: none !important; }
+  .python-page .py-magnetic-init::after                   { display: none !important; }
+  .python-page .py-magnetic-init::before                  { display: none !important; }
+  .python-page .min-h-screen:not(.dark-mode)              { animation: none !important; }
+  .python-page .min-h-screen:not(.dark-mode)::before       { animation: none !important; display: none !important; }
+}

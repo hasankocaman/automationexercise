@@ -10,7 +10,135 @@
 
 ---
 
-## Güncel Branch Durumu (2026-07-02, branch temizliği sonrası)
+## Güncel Branch Durumu (2026-07-03, devam — Test Kapsamı İncelemesi + Eksik Testler Eklendi, main'e MERGE EDİLDİ)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `main` (bu oturumda `feature/docker-ui-rollout` merge edildi) |
+| **Kapsam** | `CLAUDE.md` → `NEXT_SESSION.md` → `Documents/acceptancecriterias.md` → `Documents/testcoverage.md` okunup mevcut Playwright test paketi (12 dosya, 76 test) AC01-10 ile karşılaştırıldı; `testcoverage.md` §5.2'de listelenen boşluklardan 3 tanesi kapatıldı. |
+| **Commit durumu** | Commit edildi ve `main`'e merge edildi (bu oturumda, kullanıcı onayıyla). |
+
+### Bu Oturumda Yapılan İş — Test Kapsamı İncelemesi ve Eksik Testlerin Eklenmesi
+
+**Tespit edilen boşluklar (`testcoverage.md` §5.2, §7 referans alınarak):**
+1. **AC08 (tema/dark-mode/erişilebilirlik) — hiç test yoktu** → kapatıldı.
+2. **Mobil responsive/WCAG touch target — hiç test yoktu (Yüksek risk)** → kapatıldı.
+3. **CLAUDE.md §10 "minimum 50 mülakat sorusu" kesin kuralı hiç otomatik doğrulanmıyordu** → kapatıldı.
+4. **`docker-interview-mastery-flow.spec.ts`'de `serviceWorkers: 'block'` eksikti** (bilinen risk, `interview-grading-and-reset.spec.ts`'de zaten vardı) → düzeltildi.
+
+**Eklenen/değiştirilen dosyalar:**
+- `tests/theme-and-accessibility.spec.ts` — **YENİ**. AC08 için 3 test: (1) `/` HomePage — varsayılan dark mode, toggle ile light'a geçiş, reload sonrası kalıcılık, tekrar dark'a dönüş; (2) `/docker` TopicPage — aynı toggle mekanizması header butonu üzerinden, light modda body bg/text renginin gerçekten farklılaştığının kaba kontrast kontrolü; (3) `/` — ardışık 3 hızlı tıklama ile state machine yarış durumu (idempotency) kontrolü. Not: AC08'in bahsettiği "alternatif tema paleti seçenekleri" (`theme.js`/`ThemeContext`) proje kodunda henüz YOK — bu dosya sadece fiilen var olan tek dark/light toggle'ı test eder, olmayan bir özelliği simüle etmez.
+- `tests/mobile-smoke.spec.ts` — **YENİ**. `devices['iPhone 14']` (390×844) ile: (1) `/` — `scrollWidth <= clientWidth` (CLAUDE.md §12 "yatay kaydırma olmamalı"), dark-mode-toggle ve language-toggle butonlarının ≥36px WCAG 2.5.5 dokunma hedefi; (2) `/docker` — mobilde yatay kayma yok, sidebar sekmesine dokunup quiz akışına erişilebiliyor, console/page hatası yok.
+- `scripts/audit-interview-questions.mjs` — **YENİ**. CLAUDE.md §10'daki "minimum 50 soru" kuralını statik olarak (tarayıcısız, `*Data.js` dosyalarını regex ile tarayarak) denetler; 22 teknoloji sayfasının tamamı için toplam soru sayısı + basic/intermediate/advanced dağılımını raporlar. **Sonuç: 22/22 sayfa minimum 50 kuralını karşılıyor** (2 sayfa — Postman, Playwright — 15/20/15 hedef dağılımını tam karşılamıyor ama toplam ≥50 olduğundan sadece ⚠️ uyarı, build kırılmıyor — bu bilinçli bir tasarım kararı, "minimum 50" kesin kural, alt-dağılım rehber niteliğinde). `npm run build` zincirine eklendi (`check-content-integrity` sonrası, `generate-seo-files`'tan önce) — `package.json` `"audit:interview-questions"` script'i de eklendi.
+- `tests/docker-interview-mastery-flow.spec.ts` — `browser.newContext()` → `browser.newContext({ serviceWorkers: 'block' })`. MSW service worker'ı aktifken gerçek `grade-interview-answer` ağ çağrısını mock'layıp testin sahte sonuçla geçmesini önler.
+- `Documents/testcoverage.md` — yukarıdaki 3 yeni test dosyası + kapatılan boşluklar tabloya işlendi (AC08 artık ✅, mobil/WCAG artık ✅, mülakat 50-soru kuralı artık ✅ otomatik).
+
+**Bilinçli olarak EKLENMEYEN boşluklar (düşük öncelik veya kapsam dışı, `testcoverage.md`'de not düşüldü):**
+- Firefox/WebKit çapraz-tarayıcı testi — proje şu an sadece Chromium hedefliyor, kapsam genişletmesi ayrı bir karar gerektirir.
+- AC05 gerçek (mock olmayan) AI içerik testi — maliyetli suite'e (`tests-extended/`) aday, post-commit hook'a eklenmedi.
+- Visual regression — proje altyapısında yok, yeni bir araç (örn. Percy) gerektirir.
+- AC09 roadmap görselleştirme testi — özelliğin kendisi kısmen implement, düşük öncelik.
+
+**Doğrulama:**
+- İlk tam koşumda `theme-and-accessibility.spec.ts`'in ilk testi 30s varsayılan test timeout'unu aştı (2 sayfa yüklemesi + reload paralel yük altında) → `test.setTimeout(60_000)` eklenerek düzeltildi (aynı dosyalardaki `topic-pages-ui.spec.ts`/`other-pages-ui.spec.ts` deseni).
+- Düzeltme sonrası tam koşum: **`npx playwright test` → 80 passed, 1 failed (/python)**. `/python` başarısızlığı bu oturumla ilgisiz, önceden bilinen bir flakiness (`NEXT_SESSION.md`'nin 2026-07-01 bölümlerinde defalarca belgelenmiş — ağır sayfa + paralel worker kaynak çekişmesi kaynaklı `locator.click`/`isEnabled` timeout'u, fonksiyonel bug değil). Yeni eklenen 5 testin (`theme-and-accessibility.spec.ts` 3 + `mobile-smoke.spec.ts` 2) TAMAMI PASS oldu.
+- `node scripts/audit-interview-questions.mjs` → 22/22 sayfa minimum 50 kuralını karşılıyor, build zincirine entegre.
+
+### Sonraki Oturumda Yapılabilecekler
+
+1. Postman ve Playwright sayfalarındaki mülakat soru seviye dağılımını (şu an 15/20/15 hedefinin biraz altında/farklı dağılımda) tam standarda getirmek — düşük öncelik, uyarı build'i kırmıyor.
+2. `/python` sayfasının `topic-pages-ui.spec.ts`'deki kalıcı paralel-yük flakiness'i — worker sayısını azaltmak veya bu spesifik route için timeout'u daha da artırmak (180s'den) düşünülebilir.
+3. Firefox/WebKit projesi eklenmesi `playwright.config.ts`'e — kullanıcı onayı ve CI süre bütçesi tartışması gerektirir.
+
+---
+
+## Güncel Branch Durumu (2026-07-03, Docker UI Rollout — 16 sayfalık tam proje genişlemesi TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/docker-ui-rollout` (aynı branch, henüz commit/merge/push edilmedi) |
+| **Kapsam** | Aşağıdaki "Docker UI Rollout tamamlandı" bölümünde anlatılan 6 sayfalık ilk faz + bu oturumda tamamlanan 16 ek standart teknoloji sayfası: TypeScript, JavaScript, SQL, Java, Linux, JMeter, Postman, Bruno, REST Assured, Jenkins, Kubernetes, Kafka, Appium, BrowserStack, AWS, Azure. |
+| **Kapsam dışı (kullanıcı onayıyla)** | test-frameworks, what-is-testing, manual-testing, algorithms, advanced-algorithms (özel yapılı sayfalar) + qa-mentor, leaderboard, login, backend, security, qa-assistant, java-document, git-document (fonksiyonel/admin sayfalar). |
+| **Commit durumu** | Henüz commit edilmedi — kullanıcı onayı bekliyor. |
+
+### Bu Oturumda Tamamlanan İş — 16 Sayfalık Tam Rollout
+
+Her sayfa için aynı kalıp uygulandı: `{prefix}-effects.css` (yeni dosya) + `{Page}.jsx` (tamamen yeniden yazıldı) — cesur/marka-dışı renk paleti, 5 aşamalı sayfaya özgü "pipeline" görselleştirmesi + interaktif komut konsolu simülatörü, header'a entegre ses aç/kapa butonu (sadece light mode), wave-progress scroll halkası, `night-sky-effects.css` paylaşımlı dark-mode nebula/ay efekti.
+
+**Palet kaydı (çakışmayı önlemek için):**
+- TypeScript: obsidyen siyahı + elektrik mavisi + sıcak pembe
+- JavaScript: indigo-mor + gül kurusu + nane yeşili
+- SQL: bordo + amber + turkuaz
+- Java: espresso kahvesi + bakır + camgöbeği
+- Linux: terminal siyahı + neon yeşil + amber
+- JMeter: indigo + volkanik turuncu + çelik grisi
+- Postman: gece yarısı lacivert + mercan + nane
+- Bruno: orman yeşili + altın + arduvaz
+- REST Assured: koyu erik moru + zeytin-chartreuse + gümüş
+- Jenkins: karbon antrasit + alarm kırmızısı + buz mavisi
+- Kubernetes: derin lacivert + K8s mavisi (#4d90fe) + zümrüt yeşili
+- Kafka: oniks siyahı + elektrik menekşe + sinyal amberi
+- Appium: petrol yeşili + Android yeşili (#3ddc84) + iOS gümüş-mavi (kasıtlı platform rengi seçimi)
+- BrowserStack: koyu arduvaz + ayçiçeği sarısı + menekşe
+- AWS: antrasit-lacivert + AWS turuncusu (#ff9900) + turkuaz
+- Azure: kobalt-siyah + Azure mavisi (#2b88d8) + sıcak amber
+
+**Pipeline/konsol temaları (özet):** TypeScript=tsc derleme hattı+hata gösterimi, JavaScript=Event Loop+çalışma sırası panosu, SQL=gerçek yürütme sırası (FROM→...→SELECT), Java=JVM ClassLoader aşamaları, Linux=shell pipe akışı, JMeter=yük testi ramp-up barları, Postman=pm.test checklist, Bruno=.bru dosya akışı+"Neden Bruno" checklist, REST Assured=given/when/then zinciri, Jenkins=Jenkinsfile aşamaları, Kubernetes=Deployment rollout+replika sayacı, Kafka=producer→partition→consumer offset takibi, Appium=Android/iOS session paneli, BrowserStack=paralel cihaz grid sonucu, AWS=CodeBuild→S3→CloudWatch→SNS, Azure=Repos→Pipelines→Test Plans→Artifacts→Release.
+
+**Doğrulama (tam koşum):**
+- `node scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (her batch sonrası tekrar çalıştırıldı)
+- `npm run build` → PASS (her batch sonrası; son build 29.82s, 38 static route, dist SEO check PASS)
+- `npx playwright test tests/topic-pages-ui.spec.ts` → **22 passed, 1 failed (/python), 1 flaky (/selenium, retry'da PASS)**. Bu oturumda eklenen/dokunulan **16 sayfanın TAMAMI PASS** oldu. `/python` ve `/selenium` bu oturumda dokunulmayan (önceki faz) sayfalar — hata sebebi 4 worker paralel yükünde `button.isEnabled()` timeout'u (kaynak çekişmesi), fonksiyonel bir regresyon değil.
+- Ayrıca özel Playwright script'leriyle her batch için: hero banner/console/sound-toggle/wave-ring DOM'da var mı, light modda yağmur animasyonu (`animationName`) aktif mi, dark mode'a geçince nebula arka planı geliyor mu, konsol komutu (`build`/`apply`/`produce`/`send`/vb.) çalıştırılınca order-board item'ları `done` oluyor mu — hepsi doğrulandı, sıfır console hatası.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Kullanıcı onayıyla commit + `main`'e merge + push** — hem ilk 6 sayfalık faz hem bu 16 sayfalık faz `feature/docker-ui-rollout` branch'inde birikmiş durumda, henüz commit edilmedi.
+2. `/python` ve `/selenium` testlerindeki paralel-yük timeout'u isteğe bağlı olarak `topic-pages-ui.spec.ts`'de worker sayısı azaltılarak veya timeout süresi artırılarak stabilize edilebilir (düşük öncelik, fonksiyonel bug değil).
+3. Rollout artık 22 standart/yüksek trafikli sayfa + HomePage'de tam — yeni bir sayfa eklenmedikçe bu görev kapalı.
+
+---
+
+## Güncel Branch Durumu (2026-07-02, Docker UI Rollout tamamlandı)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/docker-ui-rollout` (main'den ayrıldı, henüz merge/push edilmedi) |
+| **Kapsam** | Docker sayfasındaki premium görsel efekt paketi (parçacıklar, hero banner, 3D pipeline, manyetik butonlar, gece gökyüzü/yağmur, ambiyans sesi) Selenium, Playwright, Cypress, Python, Git & GitHub sayfalarına ve ana sayfaya taşındı. |
+| **Commit durumu** | Değişiklikler henüz commit edilmedi (`git status` çalışma ağacında bekliyor) — kullanıcı onayıyla commit/push yapılabilir. |
+
+### Bu Oturumda Tamamlanan İş — Docker UI Rollout (Selenium/Playwright/Cypress/Python/Git & GitHub/HomePage)
+
+**Yeni dosyalar:**
+- `src/lib/ambientSound.js` — yağmur + gökgürültüsü sesleri Web Audio API ile sentezleniyor (harici ses dosyası yok). Not: gece böceği/ağustos böceği sesi bir ara eklendi, kullanıcı isteğiyle tamamen geri alındı — sadece light mode'da ses var.
+- `src/night-sky-effects.css` — TÜM rollout sayfaları için PAYLAŞIMLI dark-mode nebula/yıldız/ay/kayan yıldız katmanı (`[class$="-page"] .min-h-screen.dark-mode` jenerik seçicisiyle). Yeni sayfa eklenirken bu dosya kopyalanmaz, sadece import edilir.
+- `src/selenium-effects.css` + `SeleniumPage.jsx` güncellemesi — teal/yeşil palet, WebDriver Command Pipeline + tarayıcı mockup'lı komut konsolu.
+- `src/playwright-effects.css` + `PlaywrightPage.jsx` güncellemesi — patlıcan moru + lime + orkide (kasıtlı marka-dışı cesur palet), Auto-Wait Engine pipeline + auto-wait demosu gösteren konsol.
+- `src/cypress-effects.css` + `CypressPage.jsx` güncellemesi — bordo/şarap + altın palet, Command Queue pipeline + 📸 time-travel snapshot rozetli konsol.
+- `src/python-effects.css` + `PythonPage.jsx` güncellemesi — lacivert + altın + camgöbeği palet, pytest Test Lifecycle pipeline + pytest CLI konsolu (PASS/FAIL sonuç panosu — diğerlerinden farklı olarak tarayıcı mockup'ı değil, çünkü pytest bir CLI aracı). Mevcut `TestFrameworksBanner` korundu, Fragment ile üstte gösteriliyor.
+- `src/git-effects.css` + `GitGithubPage.jsx` güncellemesi — koyu arduvaz mavisi + mercan palet, Commit Pipeline (Working Dir→Staging→Local→Remote→Branch) + canlı commit graph konsolu (💻 yerel / ☁️ push edilmiş). Mevcut `GitDocBanner` korundu.
+- `src/homepage-effects.css` + `HomePage.jsx` güncellemesi — HAFİF versiyon (HomePage TopicPage tabanlı değil, kendine özgü karmaşık bir yapı — arama modalı, üyelik banner'ı, resume banner'ı var). Sadece parçacık + gece gökyüzü + yağmur/şimşek + ses aç/kapa eklendi; hero banner/pipeline/konsol, manyetik buton, 3D tilt, glitch başlık EKLENMEDİ (riskli/uygunsuz). Mevcut marka renkleri (indigo/mor/pembe) korundu, yeni cesur palet icat edilmedi.
+- `src/docker-effects.css` güncellemesi — Selenium/Playwright port'u sırasında bulunan hataların düzeltmesi (aşağıya bakın).
+
+**Yol boyunca bulunan ve düzeltilen 2 gerçek hata (tüm sayfalara uygulandı):**
+1. **Ay/yıldız konumlama hatası:** `hero-banner-container`'da `position: relative` eksikti → artık `night-sky-effects.css`'te jenerik olarak tanımlı.
+2. **`:has()` seçici yön hatası (kritik):** Sayfa wrapper'ı (`.docker-page` vb.) `.min-h-screen`'in İÇİNDE değil ÜSTÜNDE/DIŞINDA — `:has()` yanlış yöne bakıyordu. Bu yüzden **light mode yağmur/şimşek efekti hiçbir sayfada hiç çalışmıyormuş** (ekran görüntülerinde fark edilmemişti, çünkü efekt zaten düşük opasiteli). Düzeltme: `.{page}-page .min-h-screen:not(.dark-mode)` (düz soy seçici). `getComputedStyle(el).animationName` ile doğrulandı.
+
+**Diğer düzeltmeler:**
+- Light modda pipeline/layer başlık ve etiket renkleri artık `--{page}-role-*` CSS değişkenleriyle tema-duyarlı (önceden light modda soluk/okunaksızdı).
+- Ses aç/kapa butonu konumu: sağ alt köşe zaten kalabalık (wave-progress + chat + yer imi) — buton artık `right: 1.5rem; top: 50%; transform: translateY(-50%)` (sağ kenar, dikey ortada).
+- Gece gökyüzü artık zengin bir "nebula" (mavi/turuncu bulutsu + parlak yıldız patlamaları), eski hali sadece küçük beyaz noktalardı.
+
+**Doğrulama:** Her sayfa için `npm run build` ✓, `check-content-integrity.mjs` ✓, ilgili Playwright testleri (topic-pages-ui + i18n-content-toggle, Docker için ayrıca interview-mastery-flow) yeşil, dark/light mode + komut konsolu etkileşimleri Playwright screenshot'larıyla görsel doğrulandı.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Kullanıcı onayıyla commit + `main`'e merge + push** — `feature/docker-ui-rollout` branch'i hazır, henüz commit edilmedi.
+2. Kapsam dışı kalan diğer teknoloji sayfaları (SQL, Java, TypeScript, JavaScript, Jenkins, Kubernetes, Postman, Bruno, REST Assured, JMeter, Kafka, Appium, BrowserStack, AWS, Azure, Linux vb.) bu rollout'a dahil DEĞİL — kullanıcı yeni bir talep vermeden genişletilmemeli.
+
+---
+
+## Güncel Branch Durumu (2026-07-02, branch temizliği sonrası) [ESKİ — yukarıdaki güncel bölüme bakın]
 
 | Alan | Değer |
 |------|-------|

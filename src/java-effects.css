@@ -1,0 +1,255 @@
+/* ═════════════════════════════════════════════════════════════════
+   Java Page — Espresso Kahvesi + Bakır + Koyu Teal Paleti
+   docker-effects.css ve türevleri referans alınarak üretildi (§9.2
+   rollout hedefi). Marka renginden bağımsız, cesur bir kombinasyon.
+   Tüm stiller .java-page wrapper'a scope'lu.
+   ═════════════════════════════════════════════════════════════════ */
+
+.java-page {
+  --java-bg-primary:    #1f140d;
+  --java-bg-secondary:  #2b1c12;
+  --java-bg-tertiary:   #382517;
+  --java-text-primary:  #f7ede0;
+  --java-accent:        #c97b3d;
+  --java-accent-light:  #e0a366;
+  --java-teal:          #2f9e8f;
+  --java-success:       #6fbf73;
+  --java-warning:       #f0b84e;
+  --java-error:         #e26a5c;
+  --java-text-muted:    #4a3626;
+  --java-role-accent:   #8a4f1f;
+  --java-role-accent-2: #1a6b60;
+  --java-role-muted:    #5c4f42;
+  --java-role-success:  #2f8f4e;
+  position: relative;
+}
+
+.dark-mode .java-page,
+[data-theme="dark"] .java-page {
+  --java-text-muted:    #d4c2ae;
+  --java-role-accent:   #c97b3d;
+  --java-role-accent-2: #2f9e8f;
+  --java-role-muted:    #d4c2ae;
+  --java-role-success:  #6fbf73;
+}
+
+.java-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(201, 123, 61, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(47, 158, 143, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(201, 123, 61, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(224, 163, 102, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(47, 158, 143, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: java-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--java-scroll-y, 0px));
+  will-change: transform;
+}
+@keyframes java-glow-pulse { from { opacity: 0.55; } to { opacity: 1.0; } }
+
+.java-particle { position: fixed; border-radius: 50%; opacity: 0; pointer-events: none; z-index: 1; animation: java-float var(--dur, 14s) var(--delay, 0s) infinite linear; }
+@keyframes java-float { 0% { transform: translateY(105vh); opacity: 0; } 8% { opacity: 0.45; } 92% { opacity: 0.45; } 100% { transform: translateY(-10vh); opacity: 0; } }
+
+.java-reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.java-reveal.java-visible { opacity: 1; transform: translateY(0); }
+
+.java-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(135deg, var(--java-accent), var(--java-accent-light), var(--java-teal), var(--java-accent));
+  background-size: 260% 260%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--java-accent); display: inline-block;
+  animation: java-gradient-shift 5s ease infinite;
+}
+@keyframes java-gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+.java-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(253, 250, 247, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(201, 123, 61, 0.16) !important;
+  box-shadow: 0 0 0 1px rgba(201, 123, 61, 0.05), 0 0 0 3px rgba(47, 158, 143, 0.04), 0 24px 64px rgba(201, 123, 61, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+.dark-mode .java-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .java-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(31, 20, 13, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(201, 123, 61, 0.13) !important;
+  box-shadow: 0 0 0 1px rgba(201, 123, 61, 0.04), 0 0 0 3px rgba(47, 158, 143, 0.03), 0 24px 64px rgba(201, 123, 61, 0.08), inset 0 1px 0 rgba(47, 158, 143, 0.06) !important;
+}
+.java-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(201, 123, 61, 0.30) !important;
+  box-shadow: 0 0 0 1px rgba(201, 123, 61, 0.10), 0 0 0 3px rgba(47, 158, 143, 0.05), 0 24px 64px rgba(201, 123, 61, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+}
+
+.java-page .java-block { border-color: rgba(201, 123, 61, 0.11) !important; transition: border-color 0.3s ease, box-shadow 0.3s ease !important; transform-style: preserve-3d; }
+.java-page .java-block:hover { border-color: rgba(47, 158, 143, 0.30) !important; box-shadow: 0 4px 24px rgba(201, 123, 61, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05) !important; }
+
+.java-glitch { position: relative; }
+.java-glitch::before, .java-glitch::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; }
+.java-glitch::before { color: rgba(201, 123, 61, 0.72); animation: java-glitch-1 5s infinite; clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%); z-index: -1; }
+.java-glitch::after { color: rgba(47, 158, 143, 0.60); animation: java-glitch-2 5s infinite; clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%); z-index: -2; }
+@keyframes java-glitch-1 { 0%, 80%, 100% { transform: translate(0, 0); } 82% { transform: translate(-3px, 1px); } 84% { transform: translate(2px, -2px); } 86% { transform: translate(-1px, 2px); } 88% { transform: translate(0, 0); } }
+@keyframes java-glitch-2 { 0%, 80%, 100% { transform: translate(0, 0); } 82% { transform: translate(3px, -1px); } 84% { transform: translate(-2px, 2px); } 86% { transform: translate(1px, -1px); } 88% { transform: translate(0, 0); } }
+
+.java-hero-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.875rem; margin-bottom: 1rem; }
+@media (max-width: 680px) { .java-hero-banner { grid-template-columns: 1fr; } }
+.java-hero-banner-container { position: relative; }
+
+.java-stats-bar {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; padding: 1rem 1.1rem; border-radius: 14px;
+  background: rgba(47, 158, 143, 0.04); border: 1px solid rgba(201, 123, 61, 0.16);
+  backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: 0 0 0 1px rgba(47, 158, 143, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: java-stats-border-pulse 4s ease-in-out infinite alternate;
+}
+@keyframes java-stats-border-pulse {
+  from { border-color: rgba(201, 123, 61, 0.16); box-shadow: 0 0 0 1px rgba(47, 158, 143, 0.04), inset 0 1px 0 rgba(255,255,255,0.04); }
+  to   { border-color: rgba(47, 158, 143, 0.26); box-shadow: 0 0 0 1px rgba(201, 123, 61, 0.09), 0 0 14px rgba(47, 158, 143, 0.06), inset 0 1px 0 rgba(255,255,255,0.04); }
+}
+.java-stat-item { text-align: center; opacity: 1; transform: translateY(0); transition: opacity 0.5s ease, transform 0.5s ease; }
+.java-stat-item.java-stat-pending { opacity: 0; transform: translateY(20px); }
+.java-stat-item.java-stat-visible { opacity: 1; transform: translateY(0); }
+.java-stat-number-wrap { display: flex; align-items: baseline; justify-content: center; gap: 1px; }
+.java-stat-num {
+  font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--java-accent, #c97b3d), var(--java-teal, #2f9e8f));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--java-accent, #c97b3d); line-height: 1.1;
+}
+.java-stat-suffix {
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem); font-weight: 700;
+  background: linear-gradient(135deg, var(--java-accent, #c97b3d), var(--java-teal, #2f9e8f));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--java-accent, #c97b3d);
+}
+.java-stat-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-top: 0.2rem; }
+
+.java-pipeline {
+  padding: 1rem 1.1rem; border-radius: 14px; background: rgba(201, 123, 61, 0.04); border: 1px solid rgba(201, 123, 61, 0.15);
+  backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex; flex-direction: column; justify-content: center; min-width: 0; overflow: visible;
+}
+.java-pipeline-title { font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--java-text-muted); margin-bottom: 0.65rem; position: relative; z-index: 20; }
+.java-stages { position: relative; display: flex; flex-direction: column; padding-bottom: 0.5rem; isolation: isolate; }
+.java-stage {
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.42rem 0.7rem; border-radius: 8px; border: 1px solid;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; cursor: default; user-select: none; margin-bottom: -3px;
+  transform: translateY(0) translateZ(0);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+  position: relative; z-index: var(--stage-z, 1); will-change: transform; min-width: 0; overflow: hidden;
+}
+.java-stage-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.java-stage-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.java-stages:hover .java-stage:nth-child(1) { transform: translateY(-30px) translateZ(0); }
+.java-stages:hover .java-stage:nth-child(2) { transform: translateY(-18px) translateZ(0); }
+.java-stages:hover .java-stage:nth-child(3) { transform: translateY(-8px) translateZ(0); }
+.java-stages:hover .java-stage:nth-child(4) { transform: translateY(2px) translateZ(0); }
+.java-stages:hover .java-stage:nth-child(5) { transform: translateY(9px) translateZ(0); }
+.java-stages:hover .java-stage { box-shadow: 0 5px 16px rgba(0, 0, 0, 0.20); }
+
+.java-page .java-magnetic-init { position: relative; overflow: hidden; }
+.java-squash { animation: java-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important; transform: none !important; }
+@keyframes java-squash-anim { 0% { transform: scale(1.00, 1.00); } 22% { transform: scaleX(1.16) scaleY(0.84); } 55% { transform: scaleX(0.96) scaleY(1.05); } 80% { transform: scaleX(1.01) scaleY(0.99); } 100% { transform: scale(1.00, 1.00); } }
+.java-ripple-span { position: absolute; border-radius: 50%; transform: scale(0); opacity: 0.30; pointer-events: none; animation: java-ripple-anim 0.55s ease-out forwards; }
+@keyframes java-ripple-anim { to { transform: scale(3); opacity: 0; } }
+
+.java-page .java-magnetic-init { z-index: 1; overflow: hidden; transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+.java-page .java-magnetic-init::before { content: ''; position: absolute; top: 100%; left: -50%; width: 200%; height: 200%; background: rgba(224, 163, 102, 0.45); border-radius: 38% 42% 40% 45%; transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1); z-index: -2; pointer-events: none; }
+.java-page .java-magnetic-init::after { content: ''; position: absolute; top: 100%; left: -48%; width: 200%; height: 200%; background: linear-gradient(45deg, #123f38, #1a6b60, #2f9e8f); border-radius: 43% 39% 45% 40%; transition: all 0.78s cubic-bezier(0.25, 1, 0.5, 1); z-index: -1; pointer-events: none; }
+.java-page .java-magnetic-init:hover::before { top: -40%; transform: rotate(320deg); }
+.java-page .java-magnetic-init:hover::after { top: -38%; transform: rotate(360deg); }
+.java-page .java-magnetic-init:hover { color: #fff !important; border-color: #2f9e8f !important; box-shadow: 0 0 14px rgba(47, 158, 143, 0.45); }
+
+.java-wave-progress {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 58px; height: 58px; border-radius: 50%;
+  background: var(--java-bg-secondary, #2b1c12); border: 2px solid rgba(201, 123, 61, 0.30); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1000; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.java-wave-progress:hover { transform: scale(1.1); border-color: var(--java-teal, #2f9e8f); }
+.java-wave-water { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--scroll-percent, 0%); background: linear-gradient(180deg, rgba(201, 123, 61, 0.65), rgba(31, 20, 13, 0.95)); transition: height 0.15s ease-out; }
+.java-wave-water::before { content: ''; position: absolute; top: -6px; left: -50%; width: 200%; height: 12px; background: var(--java-teal, #2f9e8f); border-radius: 40%; animation: java-wave-flow 2.2s infinite linear; }
+@keyframes java-wave-flow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.java-wave-percent { position: relative; font-size: 0.68rem; font-weight: 900; color: var(--java-text-primary, #f7ede0); z-index: 10; user-select: none; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+
+.java-pipeline-interactive { perspective: 1000px; transform-style: preserve-3d; }
+.java-stages-3d { transform-style: preserve-3d; transition: transform 0.25s ease-out; }
+.java-stages-3d:hover .java-stage { transform: translateY(var(--ty, 0px)) translateZ(calc(var(--stage-z) * 12px)) scale(1.02); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border-color: var(--java-teal, #2f9e8f) !important; }
+.java-stage { transform-style: preserve-3d; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease !important; }
+
+.java-console-box {
+  grid-column: span 2; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1rem; padding: 1.2rem; border-radius: 14px;
+  background: rgba(56, 37, 23, 0.35); border: 1px solid rgba(201, 123, 61, 0.15); backdrop-filter: blur(12px);
+  margin-top: 0.6rem; transform-style: preserve-3d;
+}
+@media (max-width: 680px) { .java-console-box { grid-template-columns: 1fr; grid-column: span 1; } }
+.java-console {
+  background: #100a06; border: 1px solid rgba(201, 123, 61, 0.25); border-radius: 8px; font-family: 'Courier New', Courier, monospace;
+  padding: 0.8rem; display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;
+}
+.java-console-header { font-size: 0.6rem; color: #c4ab98; border-bottom: 1px solid rgba(201, 123, 61, 0.14); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.java-console-body { font-size: 0.7rem; color: #e0a366; line-height: 1.4; flex-grow: 1; white-space: pre-wrap; }
+.java-console-input-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.java-console-prompt { color: var(--java-teal, #2f9e8f); font-weight: bold; }
+.java-console-input { background: transparent; border: none; outline: none; color: #f8fafc; font-family: inherit; font-size: 0.72rem; width: 100%; }
+
+/* JVM Sınıf Yükleme Aşamaları Panosu */
+.java-order-board {
+  display: flex; flex-direction: column; gap: 0.4rem; justify-content: center;
+  background: rgba(16, 10, 6, 0.4); border-radius: 8px; border: 1px dashed rgba(47, 158, 143, 0.2);
+  min-height: 150px; padding: 0.9rem;
+}
+.java-order-item {
+  display: flex; align-items: center; gap: 0.5rem; font-size: 0.62rem; font-family: 'Courier New', Courier, monospace;
+  color: var(--java-text-muted); opacity: 0.4; transition: opacity 0.3s ease, color 0.3s ease;
+}
+.java-order-item.done { opacity: 1; color: var(--java-text-primary, #f7ede0); }
+.java-order-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: currentColor; box-shadow: 0 0 0 rgba(0,0,0,0); transition: box-shadow 0.3s ease; }
+.java-order-item.done .java-order-dot { box-shadow: 0 0 8px currentColor; color: var(--java-teal, #2f9e8f); }
+
+.java-page .min-h-screen:not(.dark-mode) {
+  animation: java-lightning-flash 10s infinite ease-in-out; transition: filter 0.15s ease;
+}
+@keyframes java-lightning-flash {
+  0%, 92%, 94.5%, 96%, 100% { filter: brightness(1) contrast(1); }
+  93% { filter: brightness(1.25) contrast(1.06) saturate(1.1); }
+  94% { filter: brightness(1.08); }
+  95% { filter: brightness(1.3) contrast(1.1) saturate(1.15); }
+}
+.java-page .min-h-screen:not(.dark-mode)::before {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    radial-gradient(1.2px 25px at 30px 10px, rgba(201, 123, 61, 0.16), transparent),
+    radial-gradient(1.2px 32px at 130px 90px, rgba(47, 158, 143, 0.14), transparent),
+    radial-gradient(1.2px 22px at 250px 30px, rgba(201, 123, 61, 0.16), transparent),
+    radial-gradient(1.2px 35px at 70px 190px, rgba(47, 158, 143, 0.14), transparent),
+    radial-gradient(1.2px 26px at 210px 110px, rgba(201, 123, 61, 0.16), transparent),
+    radial-gradient(1.8px 30px at 310px 240px, rgba(47, 158, 143, 0.18), transparent);
+  background-size: 380px 380px; opacity: 0.95; pointer-events: none; z-index: 999;
+  animation: java-rain-anim 0.7s infinite linear;
+}
+@keyframes java-rain-anim { 0% { background-position: 0px 0px; } 100% { background-position: 38px 380px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .java-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  .java-particle { animation: none; opacity: 0; }
+  .java-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  .java-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .java-glitch::before, .java-glitch::after { animation: none; }
+  .java-stat-item, .java-stat-item.java-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .java-stats-bar { animation: none; }
+  .java-squash { animation: none !important; }
+  .java-ripple-span { display: none; }
+  .java-stages .java-stage { transition: none !important; }
+  .java-stages:hover .java-stage { transform: none !important; }
+  .java-wave-water::before { animation: none !important; }
+  .java-page .java-magnetic-init::after { display: none !important; }
+  .java-page .java-magnetic-init::before { display: none !important; }
+  .java-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  .java-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+}

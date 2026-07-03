@@ -2,15 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
 import { dockerData } from '../data/dockerData'
 import { useLanguage } from '../context/LanguageContext'
+import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../docker-effects.css'
+import '../night-sky-effects.css'
+
+const SOUND_PREF_KEY = 'ambientSoundEnabled'
+const THUNDER_INTERVAL_MS = 10000 // dp-lightning-flash CSS animasyonuyla aynı 10s döngü
 
 /* ─── Layer Cake: Docker katmanlarını üst üste gösteren SVG-free görsel ─── */
 function DockerLayerCake({ isTr }) {
     const cakeRef = useRef(null)
+    // Renkler CSS değişkeni referansı olarak tutulur (--docker-role-*): light modda
+    // koyu, dark modda pastel ton kullanılır — açık arka planda soluk/okunaksız
+    // metin oluşmasını önler (bkz. docker-effects.css §0).
     const layers = [
         {
             label: 'ENTRYPOINT / CMD',
-            color: '#e2843d',
+            color: 'var(--docker-role-accent)',
             bg: 'rgba(226,132,61,0.13)',
             border: 'rgba(226,132,61,0.38)',
             z: 5,
@@ -18,7 +26,7 @@ function DockerLayerCake({ isTr }) {
         },
         {
             label: isTr ? 'Uygulama Kodu' : 'App Code',
-            color: '#f2a865',
+            color: 'var(--docker-role-accent-2)',
             bg: 'rgba(242,168,101,0.11)',
             border: 'rgba(242,168,101,0.32)',
             z: 4,
@@ -26,7 +34,7 @@ function DockerLayerCake({ isTr }) {
         },
         {
             label: isTr ? 'Bağımlılıklar' : 'Dependencies',
-            color: '#9aa896',
+            color: 'var(--docker-role-muted)',
             bg: 'rgba(154,168,150,0.11)',
             border: 'rgba(154,168,150,0.30)',
             z: 3,
@@ -34,7 +42,7 @@ function DockerLayerCake({ isTr }) {
         },
         {
             label: 'Runtime',
-            color: '#6fbf73',
+            color: 'var(--docker-role-success)',
             bg: 'rgba(111,191,115,0.11)',
             border: 'rgba(111,191,115,0.30)',
             z: 2,
@@ -42,7 +50,7 @@ function DockerLayerCake({ isTr }) {
         },
         {
             label: isTr ? 'Temel İmaj' : 'Base Image',
-            color: '#9aa896',
+            color: 'var(--docker-role-muted)',
             bg: 'rgba(154,168,150,0.08)',
             border: 'rgba(154,168,150,0.22)',
             z: 1,
@@ -221,10 +229,29 @@ function DockerStatsBanner() {
 
 /* ─── DockerPage ─────────────────────────────────────────────── */
 function DockerPage() {
+    const [soundOn, setSoundOn] = useState(() => {
+        try { return localStorage.getItem(SOUND_PREF_KEY) === 'true' } catch { return false }
+    })
+    const [isLightMode, setIsLightMode] = useState(true)
+    const audioNodesRef = useRef(null) // { ctx, rain: {source, gain} }
+    const thunderTimerRef = useRef(null)
+
     useEffect(() => {
         const wrapper = document.querySelector('.docker-page')
         if (!wrapper) return
         const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+        /* ── 0. Light/Dark Mode İzleme (yağmur sesi sadece light modda) ── */
+        const themeEl = wrapper.querySelector('.min-h-screen')
+        let cleanupThemeObserver = () => {}
+        if (themeEl) {
+            setIsLightMode(!themeEl.classList.contains('dark-mode'))
+            const themeObserver = new MutationObserver(() => {
+                setIsLightMode(!themeEl.classList.contains('dark-mode'))
+            })
+            themeObserver.observe(themeEl, { attributes: true, attributeFilter: ['class'] })
+            cleanupThemeObserver = () => themeObserver.disconnect()
+        }
 
         /* ── 1. Yüzen Parçacıklar (amber + orman yeşili) ───────── */
         const particles = []
@@ -503,6 +530,7 @@ function DockerPage() {
 
         /* ── Cleanup ───────────────────────────────────────────── */
         return () => {
+            cleanupThemeObserver()
             particles.forEach(p => p.remove())
             mutObserver.disconnect()
             revealObserver.disconnect()
@@ -532,11 +560,77 @@ function DockerPage() {
         }
     }, [])
 
+    /* ── Yağmur/Gökgürültüsü Ambiyansı (yalnızca soundOn && light mode) ──
+       Ses dosyası kullanılmaz — Web Audio API ile sentezlenir (bkz. lib/ambientSound.js).
+       Tarayıcı autoplay kısıtı nedeniyle AudioContext yalnızca kullanıcının
+       "sesi aç" butonuna tıklamasıyla (handleToggleSound içinde) oluşturulur;
+       bu effect sadece o context zaten varsa başlatma/durdurma yapar. */
+    useEffect(() => {
+        if (!soundOn || !isLightMode) {
+            if (audioNodesRef.current) {
+                stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx)
+                audioNodesRef.current = null
+            }
+            if (thunderTimerRef.current) {
+                clearInterval(thunderTimerRef.current)
+                thunderTimerRef.current = null
+            }
+            return
+        }
+
+        const ctx = getAudioContext()
+        const rain = createRainLoop(ctx)
+        fadeGain(ctx, rain.gain, 0.06, 1.2)
+        audioNodesRef.current = { ctx, rain }
+
+        thunderTimerRef.current = setInterval(() => {
+            playThunder(ctx, 0.35)
+        }, THUNDER_INTERVAL_MS)
+
+        return () => {
+            if (audioNodesRef.current) {
+                stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx)
+                audioNodesRef.current = null
+            }
+            if (thunderTimerRef.current) {
+                clearInterval(thunderTimerRef.current)
+                thunderTimerRef.current = null
+            }
+        }
+    }, [soundOn, isLightMode])
+
+    function handleToggleSound() {
+        // AudioContext ilk kez burada (kullanıcı tıklaması içinde) oluşturulur/resume
+        // edilir — tarayıcıların autoplay kısıtlaması kullanıcı jesti gerektirir.
+        getAudioContext()
+        setSoundOn(prev => {
+            const next = !prev
+            try { localStorage.setItem(SOUND_PREF_KEY, String(next)) } catch { /* localStorage kapalı olabilir */ }
+            return next
+        })
+    }
+
     const { language } = useLanguage()
 
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
+
+    const soundToggleButton = isLightMode ? (
+        <button
+            type="button"
+            className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-semibold text-xs md:text-sm bg-white/20 text-white hover:bg-white/30 border border-white/30 transition-all duration-300${soundOn ? ' ring-2 ring-amber-300' : ''}`}
+            onClick={handleToggleSound}
+            title={
+                language === 'tr'
+                    ? (soundOn ? 'Yağmur sesini kapat' : 'Yağmur sesini aç')
+                    : (soundOn ? 'Mute rain sound' : 'Unmute rain sound')
+            }
+            data-testid="docker-sound-toggle"
+        >
+            {soundOn ? '🔊' : '🔇'}
+        </button>
+    ) : null
 
     return (
         <div className="docker-page">
@@ -545,6 +639,7 @@ function DockerPage() {
                 gradient="from-amber-500 to-green-700"
                 bgLight="bg-gradient-to-br from-amber-50 via-green-50 to-slate-50"
                 extraBanner={<DockerStatsBanner />}
+                headerExtra={soundToggleButton}
             />
             {/* Dalgalı Su İlerleme Çemberi (Ocean Progress Ring) */}
             <div

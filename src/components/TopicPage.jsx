@@ -19676,7 +19676,7 @@ function TSErrorAnimationBlock({ block, darkMode, language }) {
 
 // ─── TopicPage ────────────────────────────────────────────────────────────────
 
-function TopicPage({ data, gradient, bgLight, extraBanner }) {
+function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const { language } = useLanguage()
     const location = useLocation()
     const { markTopicCompleted, resetLessonProgress } = useAuth()
@@ -19945,7 +19945,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner }) {
                     </div>
                 </div>
             )}
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} soundToggle={headerExtra} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">
                 {/* Hero */}

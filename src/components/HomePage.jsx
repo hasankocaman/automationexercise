@@ -18,6 +18,12 @@ import PlaywrightLangCompare from './PlaywrightLangCompare'
 import NeuroLocateLab from './NeuroLocateLab'
 import MembershipPromo from './MembershipPromo'
 import CommentsSection from './CommentsSection'
+import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
+import '../homepage-effects.css'
+import '../night-sky-effects.css'
+
+const SOUND_PREF_KEY = 'ambientSoundEnabled'
+const THUNDER_INTERVAL_MS = 10000 // home-lightning-flash CSS animasyonuyla aynı 10s döngü
 
 // Resume banner'da rota yerine okunabilir ders adı göstermek için (lessonSlug
 // sayfa başlığından türetildiği için düzensiz olabilir, routePath sabit kalır).
@@ -77,6 +83,11 @@ function HomePage() {
     const searchInputRef = useRef(null)
     const practiceSectionRef = useRef(null)
     const contentSectionRef = useRef(null)
+    const [soundOn, setSoundOn] = useState(() => {
+        try { return localStorage.getItem(SOUND_PREF_KEY) === 'true' } catch { return false }
+    })
+    const audioNodesRef = useRef(null) // { ctx, rain: {source, gain} }
+    const thunderTimerRef = useRef(null)
 
     useEffect(() => {
         getResumePoint().then(setResumePoint).catch(() => setResumePoint(null))
@@ -111,6 +122,76 @@ function HomePage() {
         window.addEventListener('keydown', handler)
         return () => window.removeEventListener('keydown', handler)
     }, [])
+
+    // Yüzen parçacıklar (indigo/mor/pembe — homepage-effects.css §Ambient)
+    useEffect(() => {
+        const wrapper = document.querySelector('.homepage-page')
+        if (!wrapper) return
+        const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (noMotion) return
+
+        const particles = []
+        const pColors = ['#818cf8', '#c084fc', '#f472b6']
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div')
+            p.className = 'home-particle'
+            const size = 2 + Math.random() * 3.5
+            p.style.left = `${Math.random() * 100}%`
+            p.style.width = p.style.height = `${size}px`
+            p.style.setProperty('--dur',   `${10 + Math.random() * 10}s`)
+            p.style.setProperty('--delay', `${Math.random() * 13}s`)
+            p.style.background = pColors[Math.floor(Math.random() * pColors.length)]
+            wrapper.appendChild(p)
+            particles.push(p)
+        }
+
+        return () => particles.forEach(p => p.remove())
+    }, [])
+
+    // Yağmur/Gökgürültüsü Ambiyansı (yalnızca soundOn && light mode) — ses
+    // dosyası kullanılmaz, Web Audio API ile sentezlenir (bkz. lib/ambientSound.js).
+    useEffect(() => {
+        if (!soundOn || darkMode) {
+            if (audioNodesRef.current) {
+                stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx)
+                audioNodesRef.current = null
+            }
+            if (thunderTimerRef.current) {
+                clearInterval(thunderTimerRef.current)
+                thunderTimerRef.current = null
+            }
+            return
+        }
+
+        const ctx = getAudioContext()
+        const rain = createRainLoop(ctx)
+        fadeGain(ctx, rain.gain, 0.06, 1.2)
+        audioNodesRef.current = { ctx, rain }
+
+        thunderTimerRef.current = setInterval(() => {
+            playThunder(ctx, 0.35)
+        }, THUNDER_INTERVAL_MS)
+
+        return () => {
+            if (audioNodesRef.current) {
+                stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx)
+                audioNodesRef.current = null
+            }
+            if (thunderTimerRef.current) {
+                clearInterval(thunderTimerRef.current)
+                thunderTimerRef.current = null
+            }
+        }
+    }, [soundOn, darkMode])
+
+    function handleToggleSound() {
+        getAudioContext()
+        setSoundOn(prev => {
+            const next = !prev
+            try { localStorage.setItem(SOUND_PREF_KEY, String(next)) } catch { /* localStorage kapalı olabilir */ }
+            return next
+        })
+    }
 
     // Auto-focus input when modal opens
     useEffect(() => {
@@ -186,6 +267,7 @@ function HomePage() {
 
 
     return (
+        <div className="homepage-page">
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50'}`}>
 
             {/* Header */}
@@ -241,6 +323,21 @@ function HomePage() {
                                 {darkMode ? '☀️' : '🌙'}
                                 <span className="hidden md:inline ml-1">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
                             </button>
+                            {!darkMode && (
+                                <button
+                                    type="button"
+                                    onClick={handleToggleSound}
+                                    className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 bg-white/20 text-white hover:bg-white/30${soundOn ? ' ring-2 ring-pink-300' : ''}`}
+                                    title={
+                                        language === 'tr'
+                                            ? (soundOn ? 'Yağmur sesini kapat' : 'Yağmur sesini aç')
+                                            : (soundOn ? 'Mute rain sound' : 'Unmute rain sound')
+                                    }
+                                    data-testid="homepage-sound-toggle"
+                                >
+                                    {soundOn ? '🔊' : '🔇'}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -773,6 +870,7 @@ function HomePage() {
             >
                 🏠
             </button>
+        </div>
         </div>
     )
 }

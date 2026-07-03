@@ -1,9 +1,9 @@
 # LearnQA.dev — Test Coverage Raporu
 
-> **Son güncelleme:** 2026-06-29 (3. güncelleme)  
+> **Son güncelleme:** 2026-07-03 (4. güncelleme — AC08/mobil boşlukları kapatıldı)  
 > **Test Framework:** Playwright 1.57  
 > **Tarayıcı:** Chromium (Desktop Chrome)  
-> **Toplam test sayısı:** ~76 test · 12 dosya (python-page.spec.ts silindi)  
+> **Toplam test sayısı:** ~84 test · 15 dosya (+ ayrı `audit:interview-questions` statik script)  
 > **Base URL:** `http://localhost:5173` (Vite dev server)
 
 ---
@@ -19,8 +19,10 @@
 | AC05 | AI quiz açıklaması butonu (anonim kilit + üye hata akışı) | ⚠️ Kısmi | `quiz-ai-explanation-access.spec.ts` |
 | AC06 | Mülakat AI değerlendirme döngüsü (input validasyon + hata dayanıklılığı) | ✅ Tam | `docker-interview-mastery-flow.spec.ts`, `interview-grading-and-reset.spec.ts` |
 | AC07 | Kurs bitirme rozeti (%80 eşiği) + reset mekanizması | ✅ Kısmen | `docker-interview-mastery-flow.spec.ts`, `interview-grading-and-reset.spec.ts` |
-| AC08 | Tema / dark mode / erişilebilirlik | ❌ Boşluk | Test yok |
-| AC09 | Yol haritası ve ilerleme takibi görselleştirme | ❌ Boşluk | Test yok |
+| AC08 | Tema / dark mode / erişilebilirlik | ✅ Kısmen (2026-07-03 eklendi) | `theme-and-accessibility.spec.ts` — sadece fiilen var olan dark/light toggle'ı kapsar; "alternatif renk paleti temaları" alt-maddesi henüz implemente edilmemiş bir özellik (kod tabanında yok), test edilmedi |
+| AC09 | Yol haritası ve ilerleme takibi görselleştirme | ❌ Boşluk | Test yok (özellik büyük ölçüde implement edilmemiş) |
+| §10 (CLAUDE.md) | Min. 50 mülakat sorusu / sayfa (15/20/15 dağılım) | ✅ Tam (2026-07-03 eklendi) | `scripts/audit-interview-questions.mjs` — statik denetim, `npm run build` zincirine bağlı |
+| CLAUDE.md §12 | Mobil responsive + WCAG 36px touch target | ✅ Kısmen (2026-07-03 eklendi) | `mobile-smoke.spec.ts` — iPhone 14 emülasyonu, yatay kaydırma + touch target boyutu |
 
 ---
 
@@ -232,6 +234,45 @@ Hash URL (`/#/python`, `/#/typescript`) kullandığı için yanlış sayfada ça
 
 ---
 
+### 2.14 `theme-and-accessibility.spec.ts` — AC08: Dark/Light Mode Toggle (2026-07-03 eklendi)
+
+**Ne test eder:** HomePage ve TopicPage'de (temsilen `/docker`) ortak dark/light mode mekanizmasını (`document.documentElement` class'ları + `localStorage.darkMode`).
+
+| # | Senaryo | Adımlar | Beklenen Sonuç | Teknik |
+|---|---------|---------|----------------|--------|
+| 1 | HomePage: varsayılan dark → light → reload kalıcı → tekrar dark | Toggle tıkla → class/localStorage kontrol et → reload → tekrar toggle | `dark-mode`/`light-mode-forced` class'ları ve `localStorage` doğru senkron | State + persistence |
+| 2 | `/docker`: aynı mekanizma header butonu üzerinden | Toggle → class değişimi → kaba kontrast farkı (`body` bg≠color) → geri dön | Class değişir, sayfa çökmez, kontrast farkı var | Cross-page consistency |
+| 3 | Ardışık 3 hızlı tıklama (dark→light→dark→light) idempotent | 3× toggle.click() | Son durumda class/localStorage tutarlı (yarış durumu yok) | Negative/race-condition |
+
+**Kapsam dışı bırakılan (bilinçli):** AC08'in "alternatif renk paleti temaları" alt-maddesi — kod tabanında `theme.js`/`ThemeContext`/`learnqa_theme` YOK, henüz implemente edilmemiş bir özellik. Var olmayan bir özellik test edilmedi; bu özellik eklendiğinde bu dosyaya yeni testler eklenmelidir.
+
+---
+
+### 2.15 `mobile-smoke.spec.ts` — Mobil Responsive + WCAG Touch Target (2026-07-03 eklendi)
+
+**Ne test eder:** `devices['iPhone 14']` (390×844) emülasyonuyla CLAUDE.md §12'deki kuralları doğrudan doğrular.
+
+| # | Senaryo | Adımlar | Beklenen Sonuç | Teknik |
+|---|---------|---------|----------------|--------|
+| 1 | `/` — yatay kayma yok + touch target ≥36px | `scrollWidth` vs `clientWidth` karşılaştır; dark-mode-toggle + language-toggle butonlarının `boundingBox().height` ölç | `scrollWidth <= clientWidth`; tüm ölçülen butonlar ≥36px | Viewport overflow + WCAG 2.5.5 |
+| 2 | `/docker` mobilde sekme geçişi + quiz etkileşimi | Sidebar sekmesine dokun → quiz seçeneği görünür mü | Yatay kayma yok, console/page hatası yok | Mobil E2E interaksiyon |
+
+**Kapsam dışı (düşük öncelik, gelecek iş):** Firefox/WebKit çapraz tarayıcı testi, visual regression, tüm 24 sayfanın mobilde tek tek taranması (şu an sadece `/` ve `/docker` temsili).
+
+---
+
+### 2.16 `scripts/audit-interview-questions.mjs` — CLAUDE.md §10: Min. 50 Mülakat Sorusu (2026-07-03 eklendi)
+
+**Ne test eder:** Playwright testi DEĞİL — saf Node.js statik denetim scripti. 22 teknoloji sayfasının `*Data.js` modüllerini gerçek ES module olarak dinamik `import()` eder (regex değil, gerçek JS obje ağacını gezer — kaynak formatından bağımsız: tek/çift tırnak, `iq()` factory fonksiyonu, harici array referansı hepsi doğru sayılır), her sayfanın `interview-questions` bloklarındaki soruları `level` alanına göre sayar.
+
+**Neden gerekli:** CLAUDE.md §10 "KESİN KURAL — Mülakat Soruları (Esnek Değildir)" minimum 50 soru (15 basic/20 intermediate/15 advanced) şartı koşuyor, ama bu rapor hazırlanana kadar HİÇBİR otomatik doğrulama yoktu (bkz. eski §7 tablosu: "Mülakat 50 soru kuralı — ⏳ Bekliyor").
+
+**Çalıştırma:** `npm run audit:interview-questions` (bağımsız) veya `npm run build` zincirinin bir parçası (check-content-integrity'den hemen sonra) — eşik altına düşen bir sayfa olursa **build kırılır**.
+
+**İlk koşum sonucu (2026-07-03):** 22/22 sayfa ≥50 soru şartını karşılıyor. 2 sayfa (`/postman`: 16/19/15, `/playwright`: 15/15/20) tam 15/20/15 dağılımını karşılamıyor ama toplamları ≥50 olduğu için sadece **uyarı** verir, build'i kırmaz (bilgi amaçlı — dağılım kuralının build-breaking hale getirilip getirilmeyeceği kullanıcı kararına bağlı).
+
+---
+
 ## 3. Test Teknikleri — Kullanılan Yaklaşımlar
 
 | Teknik | Nerede Kullanıldı |
@@ -305,16 +346,15 @@ Hash URL (`/#/python`, `/#/typescript`) kullandığı için yanlış sayfada ça
 
 | Boşluk | Risk Seviyesi | Detay |
 |--------|--------------|-------|
-| **AC08 — Tema/dark mode/erişilebilirlik** | Orta | Hiç test yok. Dark mode geçişinde renk/okunabilirlik sorunları gözden kaçabilir |
-| **AC09 — Roadmap progress** | Düşük | Özellik kısmen implement; test yok |
+| ~~**AC08 — Tema/dark mode**~~ | ~~Orta~~ | ✅ **Kapatıldı (2026-07-03)** — `theme-and-accessibility.spec.ts`. Not: "alternatif renk paleti" alt-maddesi özellik olarak yok, o kısım hâlâ kapsam dışı |
+| **AC09 — Roadmap progress** | Düşük | Özellik büyük ölçüde implement edilmemiş; test yok (özellik tamamlanınca test eklenmeli) |
 | **AC05 — AI açıklama başarılı içerik** | Orta | AI'ın ürettiği açıklamanın konu ile ilgili ve dil uyumlu olduğu doğrulanmıyor |
 | **Tarayıcı çaprazlığı** | Yüksek | Yalnızca Chromium. Firefox ve Safari/WebKit test edilmiyor |
-| **Tarayıcı çaprazlığı** | Yüksek | Yalnızca Chromium. Firefox ve Safari/WebKit test edilmiyor |
-| **Mobil responsive** | Yüksek | Playwright'ta mobile viewport testi yok. WCAG touch target (36px) doğrulaması yok |
+| ~~**Mobil responsive**~~ | ~~Yüksek~~ | ✅ **Kısmen kapatıldı (2026-07-03)** — `mobile-smoke.spec.ts` (iPhone 14, `/` ve `/docker`). Kalan: diğer 22 sayfanın mobilde taranması, çoklu cihaz boyutu |
 | **Visual regression** | Orta | Tasarım değişikliklerinde görsel bozulmalar gözden kaçar |
-| **Performans/yük** | Düşük | JS chunk boyutu uyarıları var (TopicPage: ~1.3MB); yük testi yok |
-| **docker-mastery — MSW çakışması** | Orta | `serviceWorkers: 'block'` yok; MSW aktifse AI çağrıları mock edilemeyebilir |
-| **Mülakat 50 soru kuralı (AC06)** | Orta | Her sayfada 50+ mülakat sorusu olduğu otomatik doğrulanmıyor |
+| **Performans/yük** | Düşük | JS chunk boyutu uyarıları var (TopicPage: ~1.4MB); yük testi yok |
+| ~~**docker-mastery — MSW çakışması**~~ | ~~Orta~~ | ✅ **Düzeltildi (2026-07-03)** — `docker-interview-mastery-flow.spec.ts`'e `serviceWorkers: 'block'` eklendi (interview-grading-and-reset.spec.ts ile aynı önlem) |
+| ~~**Mülakat 50 soru kuralı**~~ | ~~Orta~~ | ✅ **Kapatıldı (2026-07-03)** — `scripts/audit-interview-questions.mjs`, `npm run build` zincirine bağlı, statik ve maliyetsiz |
 
 ---
 
@@ -349,8 +389,10 @@ Hash URL (`/#/python`, `/#/typescript`) kullandığı için yanlış sayfada ça
 | 🔴 | `/python` topic-pages-ui paralel kosumda fail (1 fail + 3 flaky) | `TopicPage.jsx` Pyodide CDN `.catch()` + `s.onerror` handler eklendi; unhandled promise rejection önlendi | ✅ **Düzeltildi** (2026-06-29) |
 | 🟡 | Chromium-only | `playwright.config.ts`'e Firefox projesi ekle | ⏳ Bekliyor |
 | 🟡 | AC05 AI başarılı içerik | Mock yerine gerçek Groq çağrısı ile response ilgililik ve dil testi (maliyetli suite'e taşı) | ⏳ Bekliyor |
-| 🟡 | AC08 dark mode | En az: dark mode toggle → body'de `dark-mode` class; `--tw-bg-opacity` değeri değişti mi | ⏳ Bekliyor |
-| 🟡 | Mülakat 50 soru kuralı | `interview-questions` block'larını `pages.length >= 50` ile doğrulayan statik audit testi | ⏳ Bekliyor |
+| 🟡 | AC08 dark mode | En az: dark mode toggle → body'de `dark-mode` class; `--tw-bg-opacity` değeri değişti mi | ✅ **Yapıldı (2026-07-03)** — `theme-and-accessibility.spec.ts` |
+| 🟡 | Mülakat 50 soru kuralı | `interview-questions` block'larını `pages.length >= 50` ile doğrulayan statik audit testi | ✅ **Yapıldı (2026-07-03)** — `scripts/audit-interview-questions.mjs`, build zincirine bağlandı |
 | 🟡 | `code-playground` `buggyCode`/`fixedCode` içindeki Türkçe yorumlar | Şu an body scan'e girmiyor (panel kapalı). i18n testi panel açmaya genişlerse ihlal çıkar. Bilingual yapılmalı. | ⚠️ Bilinen risk |
-| 🟢 | `docker-mastery` — `serviceWorkers: 'block'` | MSW çakışmasına karşı koruma | ⏳ Bekliyor |
-| 🟢 | Mobile viewport | `devices['iPhone 14']` ile en az bir kritik flow (quiz cevaplama, dil toggle) | ⏳ Bekliyor |
+| 🟢 | `docker-mastery` — `serviceWorkers: 'block'` | MSW çakışmasına karşı koruma | ✅ **Yapıldı (2026-07-03)** |
+| 🟢 | Mobile viewport | `devices['iPhone 14']` ile en az bir kritik flow (quiz cevaplama, dil toggle) | ✅ **Yapıldı (2026-07-03)** — `mobile-smoke.spec.ts` |
+| 🟡 | Mobil kapsamı genişletme | Şu an sadece `/` ve `/docker` mobilde test ediliyor; diğer 20 sayfa mobilde hiç doğrulanmadı | ⏳ Bekliyor |
+| 🟡 | 15/20/15 seviye dağılım denetimi build-breaking mi olmalı | Şu an `/postman` ve `/playwright` sadece UYARI veriyor (toplamları ≥50 olduğu için); kullanıcı isterse `audit-interview-questions.mjs`'de `meetsTiers` de hata fırlatacak şekilde sıkılaştırılabilir | ⏳ Kullanıcı kararı bekliyor |

@@ -1,13 +1,500 @@
+import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
 import { kafkaData } from '../data/kafkaData'
+import { useLanguage } from '../context/LanguageContext'
+import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
+import '../kafka-effects.css'
+import '../night-sky-effects.css'
 
-function KafkaPage() {
+const SOUND_PREF_KEY = 'ambientSoundEnabled'
+const THUNDER_INTERVAL_MS = 10000 // kf-lightning-flash CSS animasyonuyla aynı 10s döngü
+
+/* ─── Mesaj Akışı: bir event producer'dan consumer'a kadar nasıl yolculuk eder ─── */
+function KafkaPipeline({ isTr }) {
+    const pipelineRef = useRef(null)
+    const stages = [
+        { label: isTr ? 'Producer (Mesaj Gönder)' : 'Producer (Send Message)', color: 'var(--kf-role-accent)', bg: 'rgba(192,38,211,0.13)', border: 'rgba(192,38,211,0.38)', z: 5, ty: -30 },
+        { label: isTr ? 'Topic (Partition)' : 'Topic (Partition)', color: 'var(--kf-role-amber)', bg: 'rgba(245,166,35,0.12)', border: 'rgba(245,166,35,0.36)', z: 4, ty: -18 },
+        { label: isTr ? 'Broker (Replikasyon)' : 'Broker (Replication)', color: 'var(--kf-role-muted)', bg: 'rgba(211,198,224,0.11)', border: 'rgba(211,198,224,0.30)', z: 3, ty: -8 },
+        { label: isTr ? 'Consumer Group' : 'Consumer Group', color: 'var(--kf-role-success)', bg: 'rgba(74,222,128,0.11)', border: 'rgba(74,222,128,0.30)', z: 2, ty: 2 },
+        { label: isTr ? 'Offset Commit' : 'Offset Commit', color: 'var(--kf-role-muted)', bg: 'rgba(211,198,224,0.08)', border: 'rgba(211,198,224,0.22)', z: 1, ty: 9 },
+    ]
+
+    function handleMouseMove(e) {
+        const el = pipelineRef.current
+        if (!el) return
+        const r = el.getBoundingClientRect()
+        const x = (e.clientX - r.left) / r.width - 0.5
+        const y = (e.clientY - r.top) / r.height - 0.5
+        el.style.setProperty('--rx', `${-y * 24}deg`)
+        el.style.setProperty('--ry', `${x * 24}deg`)
+        el.style.setProperty('transform', 'rotateX(var(--rx)) rotateY(var(--ry))')
+    }
+    function handleMouseLeave() {
+        const el = pipelineRef.current
+        if (!el) return
+        el.style.setProperty('transition', 'transform 0.5s ease-out')
+        el.style.setProperty('transform', 'rotateX(0deg) rotateY(0deg)')
+        setTimeout(() => { if (el) el.style.removeProperty('transition') }, 500)
+    }
+
     return (
-        <TopicPage
-            data={kafkaData}
-            gradient="from-orange-500 to-red-600"
-            bgLight="bg-gradient-to-br from-orange-50 via-red-50 to-amber-50"
-        />
+        <div className="kf-pipeline kf-pipeline-interactive" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+            <div className="kf-pipeline-title">{isTr ? 'Kafka Mesaj Akışı' : 'Kafka Message Flow'}</div>
+            <div ref={pipelineRef} className="kf-stages kf-stages-3d">
+                {stages.map((stage, idx) => (
+                    <div key={idx} className="kf-stage" style={{ '--stage-z': stage.z, '--ty': `${stage.ty}px`, background: stage.bg, borderColor: stage.border, color: stage.color }}>
+                        <span className="kf-stage-dot" style={{ background: stage.color }} />
+                        <span className="kf-stage-label">{stage.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+/* ─── Kafka CLI Konsolu & Partition/Offset Takip Panosu ────────── */
+function KafkaConsoleSimulator({ isTr }) {
+    const [inputValue, setInputValue] = useState('')
+    const [consoleOutput, setConsoleOutput] = useState(
+        isTr
+            ? 'Kafka konsoluna hoş geldiniz.\nÇalıştırmak için produce yazın...'
+            : 'Welcome to the Kafka console.\nType produce to execute...'
+    )
+    const checks = [
+        { id: 'c1', label: isTr ? 'Mesaj partition-2\'ye atandı' : 'Message assigned to partition-2' },
+        { id: 'c2', label: isTr ? 'Broker replikasyonu tamam (ack=all)' : 'Broker replication done (ack=all)' },
+        { id: 'c3', label: isTr ? 'Consumer group offset commit: 1041' : 'Consumer group offset commit: 1041' },
+    ]
+    const [doneIds, setDoneIds] = useState([])
+    const timersRef = useRef([])
+
+    useEffect(() => () => timersRef.current.forEach(t => clearTimeout(t)), [])
+
+    function runDemo(raw) {
+        setDoneIds([])
+        timersRef.current.forEach(t => clearTimeout(t))
+        timersRef.current = []
+        checks.forEach((c, idx) => {
+            const t = setTimeout(() => setDoneIds(prev => [...prev, c.id]), idx * 350)
+            timersRef.current.push(t)
+        })
+        const finalTimer = setTimeout(() => {
+            setConsoleOutput(prev => prev + `\n> ${raw}\n` + 'topic: orders | partition: 2 | offset: 1041\n\n' + (isTr ? 'Mesaj kalıcı olarak diske yazıldı ✓' : 'Message durably written to disk ✓'))
+        }, checks.length * 350 + 100)
+        timersRef.current.push(finalTimer)
+    }
+
+    function handleCommandSubmit(e) {
+        if (e.key !== 'Enter') return
+        const raw = inputValue.trim()
+        const cmd = raw.toLowerCase()
+        setInputValue('')
+
+        if (cmd.includes('produce')) {
+            runDemo(raw)
+        } else {
+            setConsoleOutput(prev => prev + `\n> ${raw}\n` + (
+                isTr
+                    ? `Komut anlaşılamadı: "${raw}". Deneyebileceğiniz komut:\n- produce`
+                    : `Command not recognized: "${raw}". Try command:\n- produce`
+            ))
+        }
+    }
+
+    return (
+        <div className="kf-console-box kf-reveal">
+            <div className="kf-console">
+                <div className="kf-console-header">
+                    <span>kafka-console-producer</span>
+                    <span>{isTr ? 'ÇALIŞIYOR' : 'RUNNING'}</span>
+                </div>
+                <div className="kf-console-body">
+                    {consoleOutput}
+                    <div className="kf-console-input-row">
+                        <span className="kf-console-prompt">$</span>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleCommandSubmit}
+                            className="kf-console-input"
+                            placeholder={isTr ? 'Komut yazın...' : 'Type a command...'}
+                        />
+                    </div>
+                </div>
+            </div>
+            <div className="kf-order-board">
+                {checks.map(c => (
+                    <div key={c.id} className={`kf-order-item${doneIds.includes(c.id) ? ' done' : ''}`}>
+                        <span>{doneIds.includes(c.id) ? '✓' : '○'}</span>
+                        <span>{c.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+/* ─── Stats + Mesaj Akışı Pipeline asimetrik hero banner ──────────────── */
+function KafkaStatsBanner() {
+    const { language } = useLanguage()
+    const isTr = language === 'tr'
+
+    const stats = [
+        { target: 2011, suffix: '',  tr: 'Yayın Yılı',              en: 'Founded'              },
+        { target: 100,  suffix: '%', tr: 'Açık Kaynak',             en: 'Open Source'          },
+        { target: 5,    suffix: '',  tr: 'Akış Aşaması',            en: 'Flow Stages'          },
+        { target: 1,    suffix: 'M+', tr: 'Saniyede Mesaj (Örnek)', en: 'Msgs/sec (Sample)'    },
+    ]
+
+    return (
+        <div className="kf-hero-banner-container">
+            <div className="kf-hero-banner">
+                <KafkaPipeline isTr={isTr} />
+                <div className="kf-stats-bar">
+                    {stats.map(s => (
+                        <div key={s.tr} className="kf-stat-item">
+                            <div className="kf-stat-number-wrap">
+                                <span className="kf-stat-num" data-target={s.target}>0</span>
+                                {s.suffix && <span className="kf-stat-suffix">{s.suffix}</span>}
+                            </div>
+                            <p className="kf-stat-label">{isTr ? s.tr : s.en}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <KafkaConsoleSimulator key={isTr ? 'tr' : 'en'} isTr={isTr} />
+        </div>
+    )
+}
+
+/* ─── KafkaPage ────────────────────────────────────────────────── */
+function KafkaPage() {
+    const [soundOn, setSoundOn] = useState(() => {
+        try { return localStorage.getItem(SOUND_PREF_KEY) === 'true' } catch { return false }
+    })
+    const [isLightMode, setIsLightMode] = useState(true)
+    const audioNodesRef = useRef(null)
+    const thunderTimerRef = useRef(null)
+
+    useEffect(() => {
+        const wrapper = document.querySelector('.kafka-page')
+        if (!wrapper) return
+        const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+        const themeEl = wrapper.querySelector('.min-h-screen')
+        let cleanupThemeObserver = () => {}
+        if (themeEl) {
+            setIsLightMode(!themeEl.classList.contains('dark-mode'))
+            const themeObserver = new MutationObserver(() => {
+                setIsLightMode(!themeEl.classList.contains('dark-mode'))
+            })
+            themeObserver.observe(themeEl, { attributes: true, attributeFilter: ['class'] })
+            cleanupThemeObserver = () => themeObserver.disconnect()
+        }
+
+        const particles = []
+        const pColors = ['#c026d3', '#e879f9', '#f5a623', '#fbc665', '#4ade80']
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div')
+            p.className = 'kf-particle'
+            const size = 2 + Math.random() * 3.5
+            p.style.left = `${Math.random() * 100}%`
+            p.style.width = p.style.height = `${size}px`
+            p.style.setProperty('--dur',   `${10 + Math.random() * 10}s`)
+            p.style.setProperty('--delay', `${Math.random() * 13}s`)
+            p.style.background = pColors[Math.floor(Math.random() * pColors.length)]
+            wrapper.appendChild(p)
+            particles.push(p)
+        }
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return
+                if (e.target.classList.contains('kf-reveal')) {
+                    requestAnimationFrame(() => requestAnimationFrame(() => e.target.classList.add('kf-visible')))
+                }
+                revealObserver.unobserve(e.target)
+            })
+        }, { threshold: 0.06 })
+
+        function setupReveal(el) {
+            if (el.dataset.kfReveal) return
+            el.dataset.kfReveal = '1'
+            const inVP = el.getBoundingClientRect().top < window.innerHeight
+            if (!inVP && !noMotion) el.classList.add('kf-reveal')
+            revealObserver.observe(el)
+        }
+
+        function applyBlockClasses() {
+            const card = wrapper.querySelector('.flex-1.min-w-0 > div:first-child')
+            if (!card) return
+            Array.from(card.children).forEach(child => {
+                if (child.tagName === 'H2') return
+                if (child.querySelector('button, input, textarea')) return
+                if (!child.classList.contains('kf-block')) child.classList.add('kf-block')
+                setupReveal(child)
+            })
+        }
+        applyBlockClasses()
+
+        let mutTimer
+        const mutObserver = new MutationObserver(() => {
+            clearTimeout(mutTimer)
+            mutTimer = setTimeout(() => { applyBlockClasses(); applyMagnetic() }, 60)
+        })
+        mutObserver.observe(wrapper, { childList: true, subtree: true })
+
+        function animateCounter(el, target) {
+            const startTime = performance.now()
+            const duration = target > 1000 ? 2200 : 1600
+            function step(now) {
+                const elapsed = Math.min(now - startTime, duration)
+                const progress = 1 - Math.pow(1 - elapsed / duration, 3)
+                const current = Math.floor(progress * target)
+                el.textContent = current
+                if (elapsed < duration) requestAnimationFrame(step)
+                else el.textContent = target
+            }
+            requestAnimationFrame(step)
+        }
+
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return
+                const item = e.target
+                item.classList.remove('kf-stat-pending')
+                item.classList.add('kf-stat-visible')
+                const num = item.querySelector('.kf-stat-num')
+                if (num && !noMotion) animateCounter(num, parseInt(num.dataset.target, 10))
+                else if (num) num.textContent = num.dataset.target
+                statObserver.unobserve(item)
+            })
+        }, { threshold: 0.05 })
+
+        wrapper.querySelectorAll('.kf-stat-item').forEach((el, i) => {
+            if (!noMotion) { el.classList.add('kf-stat-pending'); el.style.transitionDelay = `${i * 0.12}s` }
+            statObserver.observe(el)
+        })
+
+        const statFallbackTimer = setTimeout(() => {
+            wrapper.querySelectorAll('.kf-stat-item.kf-stat-pending').forEach(el => {
+                el.classList.remove('kf-stat-pending')
+                el.classList.add('kf-stat-visible')
+                const num = el.querySelector('.kf-stat-num')
+                if (num && num.textContent === '0') num.textContent = num.dataset.target
+            })
+        }, 1200)
+
+        const heroH1 = wrapper.querySelector('main > div > div:first-child h1')
+        if (heroH1) {
+            heroH1.setAttribute('data-text', heroH1.textContent.trim())
+            heroH1.classList.add('kf-glitch')
+        }
+
+        let currentMagBtn = null
+        function applyMagnetic() {
+            wrapper.querySelectorAll(
+                '[data-testid="topic-back-btn"]:not(.kf-magnetic-init), ' +
+                '[data-testid="dark-mode-toggle"]:not(.kf-magnetic-init)'
+            ).forEach(btn => { btn.classList.add('kf-magnetic-init', 'no-hover-scale') })
+        }
+        applyMagnetic()
+
+        function onWrapperMouseMove(e) {
+            if (noMotion) return
+            const btn = e.target.closest('button.kf-magnetic-init, a.kf-magnetic-init')
+            if (btn !== currentMagBtn) {
+                if (currentMagBtn) resetMagnetic(currentMagBtn, true)
+                currentMagBtn = btn
+            }
+            if (!btn) return
+            const r = btn.getBoundingClientRect()
+            const x = e.clientX - r.left - r.width / 2
+            const y = e.clientY - r.top - r.height / 2
+            btn.style.setProperty('transition', 'transform 0.15s ease', 'important')
+            btn.style.setProperty('transform', `translate(${x * 0.28}px, ${y * 0.28}px)`, 'important')
+        }
+        function resetMagnetic(btn, spring = false) {
+            if (!btn) return
+            btn.style.setProperty('transition', spring ? 'transform 0.55s cubic-bezier(0.23,1,0.32,1)' : 'transform 0.3s ease', 'important')
+            btn.style.setProperty('transform', 'translate(0,0)', 'important')
+            setTimeout(() => { btn.style.removeProperty('transition'); btn.style.removeProperty('transform') }, 600)
+        }
+        function onWrapperMouseLeave() { if (currentMagBtn) { resetMagnetic(currentMagBtn, true); currentMagBtn = null } }
+
+        wrapper.addEventListener('mousemove', onWrapperMouseMove)
+        wrapper.addEventListener('mouseleave', onWrapperMouseLeave)
+
+        function onWrapperPointerDown(e) {
+            if (noMotion) return
+            const btn = e.target.closest('button.kf-magnetic-init, a.kf-magnetic-init')
+            if (!btn) return
+            btn.style.removeProperty('transform')
+            btn.style.removeProperty('transition')
+            btn.classList.remove('kf-squash')
+            void btn.offsetWidth
+            btn.classList.add('kf-squash')
+            btn.addEventListener('animationend', () => btn.classList.remove('kf-squash'), { once: true })
+            const r = btn.getBoundingClientRect()
+            const size = Math.max(r.width, r.height) * 1.8
+            const span = document.createElement('span')
+            span.className = 'kf-ripple-span'
+            span.style.width = span.style.height = `${size}px`
+            span.style.left = `${e.clientX - r.left - size / 2}px`
+            span.style.top = `${e.clientY - r.top - size / 2}px`
+            span.style.background = 'rgba(238, 245, 236, 0.45)'
+            btn.appendChild(span)
+            span.addEventListener('animationend', () => span.remove(), { once: true })
+        }
+        wrapper.addEventListener('pointerdown', onWrapperPointerDown)
+
+        const MAX_DEG = 6
+        let currentTiltBlock = null
+        function onContentMouseMove(e) {
+            if (noMotion) return
+            const block = e.target.closest('.kf-block')
+            if (block !== currentTiltBlock) {
+                if (currentTiltBlock) {
+                    currentTiltBlock.style.setProperty('transition', 'transform 0.5s ease', 'important')
+                    currentTiltBlock.style.removeProperty('transform')
+                    setTimeout(() => currentTiltBlock?.style.removeProperty('transition'), 520)
+                }
+                currentTiltBlock = block
+            }
+            if (!block) return
+            const r = block.getBoundingClientRect()
+            const x = (e.clientX - r.left) / r.width - 0.5
+            const y = (e.clientY - r.top) / r.height - 0.5
+            block.style.setProperty('transition', 'transform 0.12s ease', 'important')
+            block.style.setProperty('transform', `perspective(800px) rotateX(${-y * MAX_DEG}deg) rotateY(${x * MAX_DEG}deg) scale(1.01)`, 'important')
+        }
+        function onContentMouseLeave() {
+            if (!currentTiltBlock) return
+            currentTiltBlock.style.setProperty('transition', 'transform 0.55s ease', 'important')
+            currentTiltBlock.style.removeProperty('transform')
+            setTimeout(() => currentTiltBlock?.style.removeProperty('transition'), 580)
+            currentTiltBlock = null
+        }
+        const contentArea = wrapper.querySelector('.flex-1.min-w-0')
+        if (contentArea) {
+            contentArea.addEventListener('mousemove', onContentMouseMove)
+            contentArea.addEventListener('mouseleave', onContentMouseLeave)
+        }
+
+        const revealFallbackTimer = setTimeout(() => {
+            wrapper.querySelectorAll('.kf-reveal:not(.kf-visible)').forEach(el => {
+                const top = el.getBoundingClientRect().top
+                if (top < window.innerHeight * 1.5) el.classList.add('kf-visible')
+            })
+        }, 1500)
+
+        function onScroll() {
+            if (noMotion) return
+            const sY = window.scrollY
+            wrapper.style.setProperty('--kf-scroll-y', `${sY * 0.08}px`)
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight
+            const progress = totalHeight > 0 ? (sY / totalHeight) * 100 : 0
+            wrapper.style.setProperty('--scroll-percent', `${progress}%`)
+            const pctEl = wrapper.querySelector('.kf-wave-percent')
+            if (pctEl) pctEl.textContent = `${Math.round(progress)}%`
+            wrapper.querySelectorAll('.kf-reveal:not(.kf-visible)').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight + 120) {
+                    requestAnimationFrame(() => el.classList.add('kf-visible'))
+                }
+            })
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+
+        return () => {
+            cleanupThemeObserver()
+            particles.forEach(p => p.remove())
+            mutObserver.disconnect()
+            revealObserver.disconnect()
+            statObserver.disconnect()
+            clearTimeout(mutTimer)
+            clearTimeout(statFallbackTimer)
+            clearTimeout(revealFallbackTimer)
+            if (heroH1) { heroH1.classList.remove('kf-glitch'); heroH1.removeAttribute('data-text') }
+            wrapper.querySelectorAll('.kf-magnetic-init').forEach(btn => {
+                btn.classList.remove('kf-magnetic-init', 'no-hover-scale', 'kf-squash')
+                btn.style.removeProperty('transform')
+                btn.style.removeProperty('transition')
+            })
+            wrapper.removeEventListener('mousemove', onWrapperMouseMove)
+            wrapper.removeEventListener('mouseleave', onWrapperMouseLeave)
+            wrapper.removeEventListener('pointerdown', onWrapperPointerDown)
+            if (contentArea) {
+                contentArea.removeEventListener('mousemove', onContentMouseMove)
+                contentArea.removeEventListener('mouseleave', onContentMouseLeave)
+            }
+            window.removeEventListener('scroll', onScroll)
+            wrapper.style.removeProperty('--kf-scroll-y')
+            wrapper.style.removeProperty('--scroll-percent')
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!soundOn || !isLightMode) {
+            if (audioNodesRef.current) { stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx); audioNodesRef.current = null }
+            if (thunderTimerRef.current) { clearInterval(thunderTimerRef.current); thunderTimerRef.current = null }
+            return
+        }
+        const ctx = getAudioContext()
+        const rain = createRainLoop(ctx)
+        fadeGain(ctx, rain.gain, 0.06, 1.2)
+        audioNodesRef.current = { ctx, rain }
+        thunderTimerRef.current = setInterval(() => { playThunder(ctx, 0.35) }, THUNDER_INTERVAL_MS)
+        return () => {
+            if (audioNodesRef.current) { stopRainLoop(audioNodesRef.current.rain, audioNodesRef.current.ctx); audioNodesRef.current = null }
+            if (thunderTimerRef.current) { clearInterval(thunderTimerRef.current); thunderTimerRef.current = null }
+        }
+    }, [soundOn, isLightMode])
+
+    function handleToggleSound() {
+        getAudioContext()
+        setSoundOn(prev => {
+            const next = !prev
+            try { localStorage.setItem(SOUND_PREF_KEY, String(next)) } catch { /* localStorage kapalı olabilir */ }
+            return next
+        })
+    }
+
+    const { language } = useLanguage()
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
+
+    const soundToggleButton = isLightMode ? (
+        <button
+            type="button"
+            className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-semibold text-xs md:text-sm bg-white/20 text-white hover:bg-white/30 border border-white/30 transition-all duration-300${soundOn ? ' ring-2 ring-yellow-300' : ''}`}
+            onClick={handleToggleSound}
+            title={language === 'tr' ? (soundOn ? 'Yağmur sesini kapat' : 'Yağmur sesini aç') : (soundOn ? 'Mute rain sound' : 'Unmute rain sound')}
+            data-testid="kafka-sound-toggle"
+        >
+            {soundOn ? '🔊' : '🔇'}
+        </button>
+    ) : null
+
+    return (
+        <div className="kafka-page">
+            <TopicPage
+                data={kafkaData}
+                gradient="from-orange-500 to-red-600"
+                bgLight="bg-gradient-to-br from-orange-50 via-red-50 to-amber-50"
+                extraBanner={<KafkaStatsBanner />}
+                headerExtra={soundToggleButton}
+            />
+            <div
+                className="kf-wave-progress"
+                onClick={scrollToTop}
+                title={language === 'tr' ? 'Yukarı Git' : 'Scroll to Top'}
+                data-testid="ocean-progress"
+            >
+                <div className="kf-wave-water" />
+                <span className="kf-wave-percent">0%</span>
+            </div>
+        </div>
     )
 }
 

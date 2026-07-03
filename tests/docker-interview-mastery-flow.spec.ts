@@ -69,7 +69,11 @@ test.describe('Docker — quiz gating + mülakat AI değerlendirme akışı (hap
         const projectRef = new URL(SUPABASE_URL!).hostname.split('.')[0];
         const storageKey = `sb-${projectRef}-auth-token`;
 
-        const context = await browser.newContext();
+        // serviceWorkers: 'block' ZORUNLU — proje dev modunda MSW service worker'ı
+        // aktifse gerçek grade-interview-answer ağ çağrısını mock'layıp bu testin
+        // gerçek bir AI değerlendirmesi yapmasını engelleyebilir (bkz.
+        // interview-grading-and-reset.spec.ts'teki aynı önlem).
+        const context = await browser.newContext({ serviceWorkers: 'block' });
         await context.addInitScript(([key, sessionJson]) => {
             window.localStorage.setItem(key as string, sessionJson as string);
         }, [storageKey, JSON.stringify(session)]);
