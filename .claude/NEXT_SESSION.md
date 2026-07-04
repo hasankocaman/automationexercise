@@ -10,13 +10,30 @@
 
 ---
 
-## Güncel Branch Durumu (2026-07-04, `feature/pedagogy-improvements` — fableplan.md WP1-4 uygulanıyor)
+## Güncel Branch Durumu (2026-07-04, `feature/pedagogy-improvements` — fableplan.md WP1-4 TAMAMLANDI, WP5 KULLANICI KARARIYLA ERTELENDİ)
 
 | Alan | Değer |
 |------|-------|
-| **Aktif branch** | `feature/pedagogy-improvements` |
-| **Kapsam** | `fableplan.md` (Fable 5'in pedagojik inceleme raporuna dayanan iş planı) — Sonnet WP1→WP2→WP3→WP4 sırayla uyguluyor, her WP kendi commit'i. |
-| **Commit durumu** | WP1 commit edildi: `95fba87`. WP2-4 henüz başlamadı. |
+| **Aktif branch** | `feature/pedagogy-improvements` (main'e henüz merge/push edilmedi) |
+| **Kapsam** | `fableplan.md` (Fable 5'in pedagojik inceleme raporuna dayanan iş planı) — WP1→WP2→WP3→WP4 sırayla uygulandı, her biri ayrı commit. |
+| **Commit durumu** | WP1: `95fba87` (+ doc `a0be1c7`). WP2: `ece8e93`. WP3: `f3ad4a0`. WP4: `07b4667`. |
+| **WP5 durumu** | **Kullanıcı kararıyla ERTELENDİ** (2026-07-04) — "riskli geliştirmeyi sonra ele alacağım" denildi. Aşağıdaki "WP5 Riskleri" bölümündeki 6 risk (özellikle Risk 1: review-queue MCQ şeması ile mülakat pratiğinin serbest-metin şeması uyumsuzluğu) kullanıcıya sunuldu, henüz onay verilmedi. Bir sonraki oturumda WP5'e başlanacaksa önce kullanıcıdan AÇIK onay alınmalı, bu bölüm tekrar okunmalı. |
+| **Doğrulama oturumu (2026-07-04, WP4 sonrası)** | `Documents/acceptancecriterias.md` + `CLAUDE.md` okundu, tüm test paketi (84 test) + build + content-integrity + SEO + mülakat-soru-sayısı denetimi çalıştırıldı. **Sonuç: 0 regresyon.** Detay aşağıdaki "Doğrulama Oturumu Sonuçları" bölümünde. |
+| **Sonraki adım** | Kullanıcı WP5'e ne zaman hazır olduğuna karar verecek; o ana kadar bu branch ya `main`'e merge/push edilebilir ya da olduğu gibi bekletilebilir (kullanıcı onayı gerekir). |
+
+### Doğrulama Oturumu Sonuçları (2026-07-04, WP1-4 sonrası — kod değişikliği YOK, sadece kontrol)
+
+Kullanıcı isteğiyle `Documents/acceptancecriterias.md` + `CLAUDE.md` okunup mevcut test paketiyle karşılaştırıldı, ardından WP1-4'ün herhangi bir defect yaratıp yaratmadığı test edildi:
+
+- **`Documents/acceptancecriterias.md` notu:** Dosyanın "Tamamlanan/Yapılması Gereken Geliştirmeler" bölümleri projenin eski, sadece-Python-sayfası fazından kalma (referans verdiği `src/lib/theme.js`, `src/lib/ai.js`, `learnqa_xp_python` gibi yapılar artık mevcut mimariyle — Supabase backend + Groq AI grading — örtüşmüyor). **AC 01-10 tanımları hâlâ güncel ve otoriter** — test dosyalarındaki yorumlar bunlara sürekli referans veriyor, güncelleme gerektirmiyor.
+- **Test yapısı:** 15 spec dosyası, varsayılan `playwright.config.ts`'te 84 test. Ayrı config'lerle çalışan 2 ek suite: `tests-extended/interview-mastery-flows.spec.ts` (gerçek AI çağrıları, maliyetli, post-commit'e kasıtlı dahil değil) ve `quiz-audit` config'i.
+- **`node scripts/check-content-integrity.mjs`** → ✅ 0 ihlal
+- **`node scripts/check-seo.mjs`** → ✅ 39 route PASS
+- **`node scripts/audit-interview-questions.mjs`** → ✅ 22/22 sayfa min-50 kuralını karşılıyor (Postman/Playwright'taki 2 dağılım uyarısı önceden bilinen, değişmedi)
+- **`npm run build`** → ✅ PASS (1m25s, sadece bilinen chunk-size uyarıları)
+- **`npx playwright test` (tam suite, 84 test)** → **83 PASS, 1 FAIL** (`/python`, `topic-pages-ui.spec.ts`). İzole çalıştırıldığında (`--workers=1`) `/python` testi **57.9s'de temiz PASS** oluyor — bu, önceden defalarca belgelenmiş paralel-worker kaynak çekişmesi flakiness'i (ağır sayfa + `button.isEnabled()` timeout), WP1-4 değişiklikleriyle İLGİSİZ, **regresyon DEĞİL**.
+
+**Genel sonuç: WP1-4'ün hiçbiri mevcut hiçbir testi veya build adımını bozmadı.**
 
 ### WP1 — QA Mentor Yol Haritası Sıra Düzeltmesi ✅ TAMAMLANDI (commit `95fba87`)
 
@@ -60,12 +77,82 @@
 - **Test — yeni dosya `tests/review-queue.spec.ts`** (`serviceWorkers: 'block'` ile): (a) `/docker`'da ilk quiz sorusunu bilinçli yanlış cevapla (Docker'ın tab-0 quiz'inde doğru cevap her zaman index 1 olduğundan index 0 deterministik yanlış) → kuyrukta 1 kayıt, `nextDue` ~+1 gün, ana sayfa kartı henüz görünmüyor; (b) `context.addInitScript` ile `nextDue`'su geçmişte sahte kayıt enjekte → kart görünür → doğru cevapla → `streak=1`, `nextDue` ~+3 gün.
 - Doğrulama: `check-content-integrity` ✓, `npm run build` ✓, `review-queue.spec.ts` 2/2 PASS, ayrıca regresyon kontrolü: `quiz-ai-explanation-access`, `quiz-retry-mechanism`, `interview-grading-and-reset` (7/7 PASS — `handleQuizAnswered` imza değişikliği mevcut akışları bozmadı), `mobile-smoke` + `theme-and-accessibility` (6/6 PASS, WP3 dahil).
 
+### WP5 Riskleri — "Rozet Sınavına Karışık Soru" (Sonraki Aşama, HENÜZ BAŞLANMADI)
+
+> Bu bölüm sadece plan metnini tekrar etmiyor — `InterviewPracticeBlock` ve
+> `grade-interview-answer` akışının gerçek kodu incelenerek (2026-07-04) çıkarılan
+> somut risklerdir. WP5'e başlamadan önce kullanıcı bu listeyi görmeli.
+
+**Fikir neydi:** Bitirme rozeti sınavında (AC06, %80 eşiği) sorulan 5 sorunun
+%20-30'unu (yani 1-2 soru) başka sayfalardan/derslerden karıştırmak (interleaving),
+`learnqa_review_queue` altyapısını "diğer sayfaların soru havuzu" olarak yeniden
+kullanarak.
+
+**Risk 1 — Şema uyumsuzluğu (en kritik, planın kendi öncülü hatalı olabilir):**
+`learnqa_review_queue`'daki kayıtlar (WP4) **MCQ formatındadır** —
+`{question, options[], correctIndex, explanation}`. Ama `InterviewPracticeBlock`
+(`TopicPage.jsx:3654`) tamamen farklı bir şema kullanır: her soru `{q, a, keyPoints[]}`
+(serbest metin cevap + AI'nin karşılaştıracağı model cevap/kontrol noktaları),
+`grade-interview-answer` Edge Function'a `question/modelAnswer/keyPoints/userAnswer`
+gönderilir (bkz. `TopicPage.jsx:3711-3719`). **Review queue'daki MCQ kayıtları,
+mülakat pratiğinin serbest-metin+AI-değerlendirme modeline hiç uymuyor** — plandaki
+"review-queue altyapısını yeniden kullan" önerisi bu haliyle uygulanamaz. Gerçekte
+yapılması gereken, review-queue'dan bağımsız, YENİ bir "diğer sayfaların mülakat
+soru havuzu" kaynağı tasarlamak (örn. her `*Data.js`'teki `interviewQuestions`
+dizisinden örnekleme) — bu, planda yazılandan daha büyük bir iştir.
+
+**Risk 2 — Chunk/bundle şişmesi:** Her teknoloji sayfası şu an SADECE kendi
+`*Data.js` dosyasını import ediyor (React.lazy ile route bazlı code-splitting).
+Interleaving için "başka sayfalardan soru" çekmek, o sayfaların (bazıları
+600KB-1MB+, bkz. CLAUDE.md §14 — `javaData` ~640KB, `typescriptData` ~1MB)
+data dosyalarını da bundle'a dahil etmeyi gerektirebilir; bu ya devasa bir
+chunk şişmesine ya da runtime'da dinamik import + async soru havuzu oluşturmaya
+(ek karmaşıklık, loading-state yönetimi) yol açar.
+
+**Risk 3 — Rozet/sertifika anlam bütünlüğü:** `notifyTopicCompleted` →
+`markTopicCompleted` (AuthContext) → Supabase RPC, `lessonSlug: pageKey` ile
+XP/rozet/sertifika veriyor. Kullanıcı "Docker" sertifikası alırken puanının
+%20-30'u aslında başka bir teknolojinin (örn. Selenium) sorusundan geliyorsa,
+sertifikanın temsil ettiği "bu konuda ustalaştı" iddiası zayıflar —
+`/verify-certificate/:id` sayfasında bunun nasıl açıklanacağı (kullanıcıya
+"karışık soru" olduğu gösterilecek mi?) bir ÜRÜN kararı, sadece mühendislik
+kararı değil.
+
+**Risk 4 — Mevcut E2E testleri kırılabilir:** `interview-grading-and-reset.spec.ts`
+ve `docker-interview-mastery-flow.spec.ts` (+ `tests-extended/interview-mastery-flows.spec.ts`)
+`grade-interview-answer` çağrılarını MSW ile mock'larken muhtemelen sabit
+soru/cevap içerikleri varsayıyor (aynı sayfanın `allQuestions` havuzundan
+geldiğini varsayarak). Karışık soru başka bir sayfadan geliyorsa mock eşleştirme
+mantığı, `sampleInterviewQuestions` çağrı imzası ve reset akışı (`handleHardResetPage`,
+AC07) yeniden gözden geçirilmeli — CLAUDE.md §22'deki 6 zorunlu E2E kontrolünün
+TAMAMI (özellikle 3, 5, 6) bu değişiklikten sonra yeniden doğrulanmalı.
+
+**Risk 5 — Rastgelelik/test edilebilirlik:** `sample` state'i `Math.random()` ile
+her mount'ta karışıyor (`sampleInterviewQuestions`, satır 3635-3637), zaten
+deterministik olmayan bir seçim. Interleaving eklemek bu rastgeleliği ikinci bir
+kaynağa (başka sayfanın soru havuzu) yayar — Playwright testlerinin sabit
+soru/cevap beklentisiyle yazıldığı düşünülürse, test edilebilirlik için ya
+sampling fonksiyonunun mock'lanabilir/inject edilebilir hale getirilmesi ya da
+seed'li rastgelelik gerekir (şu an yok).
+
+**Risk 6 — Groq/AI maliyet ve rate limit:** CLAUDE.md §22 zaten Groq rate limit
+riskini not düşüyor. Interleaving, çağrı SAYISINI artırmaz (hâlâ 5 soru) ama
+her çağrının payload'ını (başka sayfadan gelen `modelAnswer`/`keyPoints`)
+doğru şekilde hazırlamak için ekstra veri kaynağı yönetimi gerektirir — hata
+senaryoları (başka sayfanın verisi yüklenemezse ne olur?) yeni bir katman.
+
+**Sonuç:** WP5, plan metninde göründüğünden daha büyük ve daha çok "ürün kararı"
+gerektiren bir iş. Kullanıcı onayı istenirken bu 6 risk madde madde sunulmalı;
+özellikle Risk 1 (şema uyumsuzluğu) nedeniyle "review-queue'yu yeniden kullan"
+yaklaşımının BAŞTAN revize edilmesi gerekebilir.
+
 ### Sonraki Oturumda Yapılacaklar (fableplan.md sırası)
 
-1. WP5 ("Rozet Sınavına Karışık Soru") — OPSİYONEL, sadece WP4 canlıda veri biriktirmeye başladıktan sonra kullanıcıdan ayrıca onay alınarak ele alınmalı. Şimdilik dokunulmadı.
+1. WP5 ("Rozet Sınavına Karışık Soru") — OPSİYONEL, yukarıdaki risk listesi kullanıcıya sunulup AÇIK onay alınmadan başlanmayacak.
 2. "Sonnet'in Yapmayacağı İşler" bölümü (Python/Java atomikleştirme, Capstone sayfası, CLAUDE.md çelişki çözümü) kapsam dışı — dokunulmayacak.
 3. (Düşük öncelik, WP3'ten miras) 3D tilt blokları (`-block` class) için `transform: none !important` CSS override'ı, JS'in AKTİF hover sırasında uyguladığı inline `!important` transform karşısında bazen etkisiz kalabilir — bilinen/kabul edilmiş bir sınır, düzeltme JS'e dokunmayı gerektirir (plan bunu yasaklıyor), bu yüzden değiştirilmedi.
 4. (Düşük öncelik, WP4'ten miras) `QuizFillBlock` (boşluk doldurma) review kuyruğu kapsamı dışında bırakıldı — ileride dahil edilmek istenirse ayrı bir şema/karar gerekir (MCQ olmayan bir soru tipi için "options" kavramı yeniden tasarlanmalı).
+5. `feature/pedagogy-improvements` branch'i henüz `main`'e merge/push edilmedi — kullanıcı onayı bekliyor.
 
 ---
 
