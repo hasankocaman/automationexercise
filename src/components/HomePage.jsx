@@ -18,6 +18,8 @@ import PlaywrightLangCompare from './PlaywrightLangCompare'
 import NeuroLocateLab from './NeuroLocateLab'
 import MembershipPromo from './MembershipPromo'
 import CommentsSection from './CommentsSection'
+import ReviewQueuePanel from './ReviewQueuePanel'
+import { getQueueStats } from '../lib/reviewQueue'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../homepage-effects.css'
 import '../night-sky-effects.css'
@@ -89,6 +91,10 @@ function HomePage() {
         }
         return isFocus
     })
+    // WP4 "Bugünkü Tekrar": daha önce yanlış cevaplanmış, tekrar zamanı gelmiş
+    // quiz sorusu sayısı — 0 ise kart hiç gösterilmez.
+    const [dueReviewCount, setDueReviewCount] = useState(0)
+    const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState([])
@@ -100,6 +106,10 @@ function HomePage() {
     })
     const audioNodesRef = useRef(null) // { ctx, rain: {source, gain} }
     const thunderTimerRef = useRef(null)
+
+    useEffect(() => {
+        setDueReviewCount(getQueueStats(Date.now()).dueCount)
+    }, [])
 
     useEffect(() => {
         getResumePoint().then(setResumePoint).catch(() => setResumePoint(null))
@@ -535,6 +545,48 @@ function HomePage() {
                     </div>
                 </Link>
             </div>
+
+            {/* ── "Bugünkü Tekrar" kartı (WP4) — sadece tekrar zamanı gelmiş soru varsa görünür ── */}
+            {dueReviewCount > 0 && (
+                <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                    <button
+                        onClick={() => setReviewPanelOpen(true)}
+                        data-testid="review-queue-card"
+                        className={`group w-full flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 text-left transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${darkMode
+                            ? 'border-emerald-700/60 bg-gradient-to-r from-emerald-900/40 via-teal-900/30 to-emerald-900/40 hover:border-emerald-500/80'
+                            : 'border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 hover:border-emerald-400'
+                            }`}
+                    >
+                        <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg transition-transform duration-200 group-hover:scale-110 ${darkMode ? 'bg-emerald-700/60' : 'bg-emerald-600'}`}>
+                            <span className="text-2xl md:text-3xl">🔄</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {language === 'tr' ? '🔄 Bugünkü Tekrar' : '🔄 Today\'s Review'}
+                            </h2>
+                            <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-emerald-200/80' : 'text-emerald-700'}`}>
+                                {language === 'tr'
+                                    ? `${dueReviewCount} soru seni bekliyor — daha önce yanlış yaptıkların.`
+                                    : `${dueReviewCount} question${dueReviewCount === 1 ? '' : 's'} waiting for you — ones you got wrong before.`}
+                            </p>
+                        </div>
+                        <div className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap ${darkMode ? 'bg-emerald-600' : 'bg-emerald-600'}`}>
+                            {language === 'tr' ? 'Başla' : 'Start'} →
+                        </div>
+                    </button>
+                </div>
+            )}
+
+            {reviewPanelOpen && (
+                <ReviewQueuePanel
+                    darkMode={darkMode}
+                    language={language}
+                    onClose={() => {
+                        setReviewPanelOpen(false)
+                        setDueReviewCount(getQueueStats(Date.now()).dueCount)
+                    }}
+                />
+            )}
 
             {/* ── Ders Tamamlama Kuralları — herkese açık, şeffaflık için ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">

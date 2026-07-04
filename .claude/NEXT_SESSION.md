@@ -50,11 +50,22 @@
 - `tests/theme-and-accessibility.spec.ts`'e yeni `describe('WP3 — Odak Modu...')` bloğu: `/docker`'da toggle → `focus-mode` class + particle `toBeHidden()` → reload kalıcılık → tekrar tıkla → particle geri gelir.
 - Doğrulama: `check-content-integrity` ✓, `npm run build` ✓, `theme-and-accessibility.spec.ts` (--workers=1) 4/4 PASS (paralel koşumda 2 test zaten bilinen dev-server soğuk-başlangıç flakiness'iyle timeout aldı, seri koşumda hepsi geçti — regresyon DEĞİL), `mobile-smoke` + `other-pages-ui` 10/10 PASS, ayrıca geçici bir script ile Selenium/Playwright/Python/Kafka sayfalarında da focus mode'un particle'ları gizlediği ve sound toggle'ı kapattığı, console hatası olmadığı doğrulandı.
 
+### WP4 — 🔄 Bugünkü Tekrar (Spaced Repetition Lite) ✅ TAMAMLANDI (henüz commit edilmedi)
+
+- **Yeni dosya `src/lib/reviewQueue.js`** — saf fonksiyonlar (`addWrongAnswer`, `getDueItems`, `recordReviewResult`, `getQueueStats`), tüm localStorage erişimi try/catch içinde, eşikler (`REVIEW_QUEUE_MAX_SIZE=100`, `REVIEW_QUEUE_INTERVALS_DAYS=[1,3,7]`, `REVIEW_QUEUE_GRADUATION_STREAK=3`, `REVIEW_QUEUE_SESSION_SIZE=5`) named const olarak dosya başında.
+  - **Geliştirme sırasında bulunan gerçek bug:** `recordReviewResult`'ta interval hesaplaması `INTERVALS[nextStreak - 1]` yazılmıştı — bu, ilk doğru tekrarda 1 gün (INTERVALS[0]) veriyordu, oysa giriş anında zaten 1 gün uygulanmıştı; doğru mantık `INTERVALS[nextStreak]` (streak 0→1: 3 gün, 1→2: 7 gün, 2→3: mezuniyet). Yeni yazılan Playwright testi bunu yakaladı, düzeltildi.
+- **Yakalama noktası — `TopicPage.jsx`:** `QuizBlock` artık cevap gönderiminde `activeQuestion`'dan (main veya retry, hangisi ekrandaysa — CLAUDE.md §18 alternatif soru kuralına uyularak) bir `questionSnapshot` (`{question, options, correctIndex, explanation}`, hepsi `{tr, en}` bilingual) inşa edip `onAnswered(isCorrect, questionSnapshot)` ile yukarı iletiyor. `renderBlock`'un `case 'quiz'` dalı ve `handleQuizAnswered(blockIndex, isCorrect, questionSnapshot)` bu üçüncü parametreyi taşıyacak şekilde güncellendi. Yanlış cevapta `addWrongAnswer({id: `${pageKey}:${activeTab}:${blockIndex}`, route: location.pathname, pageTitle: hero?.title, ...questionSnapshot})` çağrılıyor.
+  - **Bilinçli kapsam daraltması (plandan sapma, gerekçeli):** `QuizFillBlock` (boşluk doldurma) review kuyruğuna DAHİL EDİLMEDİ — bu blok tipinde discrete `options` yok (serbest metin girişi), plan'ın MCQ tabanlı şeması (`options[]` + `correctIndex`) ile uyuşmuyor; sahte options uydurmak yerine kapsam dışı bırakıldı.
+- **UI — yeni dosya `src/components/ReviewQueuePanel.jsx`** + `HomePage.jsx` entegrasyonu: QA Mentor banner'ının altına, `getQueueStats().dueCount > 0` olduğunda "🔄 Bugünkü Tekrar" kartı; tıklanınca modal panel açılır, en fazla 5 due soru tek tek MCQ olarak sorulur, cevap sonrası doğru/yanlış geri bildirim + açıklama + `recordReviewResult` çağrısı + "Konuya git →" linki (`route`). Panel kapanınca kart sayısı yeniden hesaplanır.
+- **Test — yeni dosya `tests/review-queue.spec.ts`** (`serviceWorkers: 'block'` ile): (a) `/docker`'da ilk quiz sorusunu bilinçli yanlış cevapla (Docker'ın tab-0 quiz'inde doğru cevap her zaman index 1 olduğundan index 0 deterministik yanlış) → kuyrukta 1 kayıt, `nextDue` ~+1 gün, ana sayfa kartı henüz görünmüyor; (b) `context.addInitScript` ile `nextDue`'su geçmişte sahte kayıt enjekte → kart görünür → doğru cevapla → `streak=1`, `nextDue` ~+3 gün.
+- Doğrulama: `check-content-integrity` ✓, `npm run build` ✓, `review-queue.spec.ts` 2/2 PASS, ayrıca regresyon kontrolü: `quiz-ai-explanation-access`, `quiz-retry-mechanism`, `interview-grading-and-reset` (7/7 PASS — `handleQuizAnswered` imza değişikliği mevcut akışları bozmadı), `mobile-smoke` + `theme-and-accessibility` (6/6 PASS, WP3 dahil).
+
 ### Sonraki Oturumda Yapılacaklar (fableplan.md sırası)
 
-1. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
-2. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
+1. WP5 ("Rozet Sınavına Karışık Soru") — OPSİYONEL, sadece WP4 canlıda veri biriktirmeye başladıktan sonra kullanıcıdan ayrıca onay alınarak ele alınmalı. Şimdilik dokunulmadı.
+2. "Sonnet'in Yapmayacağı İşler" bölümü (Python/Java atomikleştirme, Capstone sayfası, CLAUDE.md çelişki çözümü) kapsam dışı — dokunulmayacak.
 3. (Düşük öncelik, WP3'ten miras) 3D tilt blokları (`-block` class) için `transform: none !important` CSS override'ı, JS'in AKTİF hover sırasında uyguladığı inline `!important` transform karşısında bazen etkisiz kalabilir — bilinen/kabul edilmiş bir sınır, düzeltme JS'e dokunmayı gerektirir (plan bunu yasaklıyor), bu yüzden değiştirilmedi.
+4. (Düşük öncelik, WP4'ten miras) `QuizFillBlock` (boşluk doldurma) review kuyruğu kapsamı dışında bırakıldı — ileride dahil edilmek istenirse ayrı bir şema/karar gerekir (MCQ olmayan bir soru tipi için "options" kavramı yeniden tasarlanmalı).
 
 ---
 

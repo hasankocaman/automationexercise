@@ -18,6 +18,7 @@ import SecuritySimulation from './SecuritySimulations'
 import SecurityLegoVisual from './SecurityLegoVisual'
 import LocatorExplorerBlock from './LocatorExplorerBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
+import { addWrongAnswer } from '../lib/reviewQueue'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -1542,6 +1543,14 @@ function AiExplanationPanel({ question, correctAnswer, userAnswer, isCorrect, st
 
 // ─── QuizBlock ────────────────────────────────────────────────────────────────
 
+// WP4 "Bugünkü Tekrar": review kuyruğu her zaman {tr, en} bilingual snapshot
+// bekler — blok düz string ise aynı metni her iki alana da kopyalar.
+const toBilingualPair = (val) => {
+    if (val && typeof val === 'object') return { tr: val.tr ?? val.en ?? '', en: val.en ?? val.tr ?? '' }
+    const str = val || ''
+    return { tr: str, en: str }
+}
+
 function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
     const { t } = useLanguage()
     const [selected, setSelected] = useState(null)
@@ -1624,7 +1633,16 @@ function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
                         setSubmitted(true)
                         if (!answeredFired) {
                             setAnsweredFired(true)
-                            onAnswered?.(isCorrect)
+                            // Yanlış cevapta alternatif soru mekanizması var (CLAUDE.md §18) —
+                            // snapshot'ı KULLANICININ CEVAPLADIĞI activeQuestion'dan al (main ya
+                            // da retry, hangisi o an ekrandaysa), block'un orijinalinden değil.
+                            const questionSnapshot = {
+                                question: toBilingualPair(activeQuestion.question),
+                                options: options.map((opt) => toBilingualPair(opt.text)),
+                                correctIndex: options.findIndex((opt) => opt.id === normalizedCorrect),
+                                explanation: toBilingualPair(activeQuestion.explanation),
+                            }
+                            onAnswered?.(isCorrect, questionSnapshot)
                         }
                     }}
                     className="mt-4 px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:shadow-md transition-all active:scale-95"
@@ -17106,7 +17124,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'comparison':
             return <ComparisonBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'quiz':
-            return <QuizBlock key={i} block={block} darkMode={darkMode} language={language} onAnswered={(isCorrect) => onQuizCorrect(i, isCorrect)} />
+            return <QuizBlock key={i} block={block} darkMode={darkMode} language={language} onAnswered={(isCorrect, questionSnapshot) => onQuizCorrect(i, isCorrect, questionSnapshot)} />
         case 'visual':
             return <VisualBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'callout':
@@ -19883,12 +19901,25 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     // sekme tamamlanır (önceden tek bir doğru cevap yetiyordu — artık her quiz
     // bloğu ayrı sayılıyor). Yanlış cevaplar da "denendi" olarak kaydedilir ki
     // sidebar'da boş kutu (hiç denenmedi) ile ✗ (denendi, geçemedi) ayrılabilsin.
-    const handleQuizAnswered = (blockIndex, isCorrect) => {
+    const handleQuizAnswered = (blockIndex, isCorrect, questionSnapshot) => {
         const prevAttemptSet = quizAttempted[activeTab] || {}
         if (!prevAttemptSet[blockIndex]) {
             const updatedAttemptAll = { ...quizAttempted, [activeTab]: { ...prevAttemptSet, [blockIndex]: true } }
             setQuizAttempted(updatedAttemptAll)
             try { localStorage.setItem(`quizAttempted_${pageKey}`, JSON.stringify(updatedAttemptAll)) } catch { }
+        }
+
+        // WP4 "Bugünkü Tekrar": sadece yanlış cevaplanan MCQ quiz'leri kuyruğa girer
+        // (QuizFillBlock/boşluk-doldur soruları discrete "options" içermediğinden
+        // review-queue şemasına uymuyor — kasıtlı olarak kapsam dışı, questionSnapshot
+        // sadece QuizBlock'tan gelir).
+        if (!isCorrect && questionSnapshot) {
+            addWrongAnswer({
+                id: `${pageKey}:${activeTab}:${blockIndex}`,
+                route: location.pathname,
+                pageTitle: hero?.title || pageKey,
+                ...questionSnapshot,
+            })
         }
 
         if (!isCorrect) return
