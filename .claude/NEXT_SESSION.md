@@ -10,6 +10,34 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-04, `feature/pedagogy-improvements` — fableplan.md WP1-4 uygulanıyor)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` |
+| **Kapsam** | `fableplan.md` (Fable 5'in pedagojik inceleme raporuna dayanan iş planı) — Sonnet WP1→WP2→WP3→WP4 sırayla uyguluyor, her WP kendi commit'i. |
+| **Commit durumu** | WP1 commit edildi: `95fba87`. WP2-4 henüz başlamadı. |
+
+### WP1 — QA Mentor Yol Haritası Sıra Düzeltmesi ✅ TAMAMLANDI (commit `95fba87`)
+
+- `src/data/qaMentorData.js`: MAP_A/MAP_B/MAP_B_SEL/MAP_C1/MAP_C2'nin hepsinde Jenkins, Docker'dan önce geliyordu (container kavramı Docker'sız anlaşılmaz) → tüm haritalarda **Docker → Jenkins → AWS** sırasına düzeltildi.
+- Linux artık hiçbir haritada "bonus" değil — her 5 haritada da Docker/Jenkins öncesi **ana hatta** bir düğüm (`LINUX_MAIN_NODE(id)` helper'ı eklendi, kullanılmayan `LINUX_BONUS_NODE` silindi).
+- MAP_A'ya yeni başlangıç düğümü eklendi: `/what-is-testing` (🛡️ Test Temelleri, id=1).
+- Kafka (niş konu) MAP_A ve MAP_C1'de ana hattan `extras`'a taşındı.
+- Tüm 5 haritanın `mentorNote` metinleri (TR+EN) yeni sırayı yansıtacak şekilde yeniden yazıldı.
+- **Risk kontrolü yapıldı ve güvenli bulundu:** `QaMentorPage.jsx:504`'teki progress hesaplaması `node.route`'a göre çalışıyor (`completedSet.has(node.route)`), `node.id`'ye değil — dolayısıyla id'lerin yeniden numaralandırılması localStorage'daki tamamlanmış ders verisini bozmuyor.
+- Test kapsamı doğrulandı: `tests/other-pages-ui.spec.ts`'deki `/qa-mentor` testi node adı/sırası assert etmiyor, sadece buton tıklanabilirliğini kontrol ediyor — bozulmadı.
+- Doğrulama: `check-content-integrity.mjs` ✓, `npm run build` ✓ (38 static route, SEO PASS), `npx playwright test tests/other-pages-ui.spec.ts -g qa-mentor` ✓ PASS, ayrıca geçici bir Playwright script'iyle MAP_A'nın tam node sırası ("Test Temelleri, Algoritma Temeli, Manuel Test, Java, Git & GitHub, Selenium, Postman, SQL, REST Assured, Linux, Docker, Jenkins, AWS, Kubernetes") ve 5 haritanın tamamının id sekansı/route listesi manuel olarak doğrulandı, console hatası yok.
+
+### Sonraki Oturumda Yapılacaklar (fableplan.md sırası)
+
+1. **WP2** — Ana sayfada "Önerilen Sıra" sinyali (`HomePage.jsx` kart rozetleri: `/what-is-testing`→"Buradan başla", `/algorithms`/`/manual-testing`/`/java`→①②③).
+2. **WP3** — 🎯 Odak Modu toggle (`focusMode` localStorage, `focus-mode` CSS class, tüm effects dosyalarının reduced-motion kurallarının tekrarı).
+3. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
+4. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
+
+---
+
 ## Güncel Branch Durumu (2026-07-03, devam — Test Kapsamı İncelemesi + Eksik Testler Eklendi, main'e MERGE EDİLDİ)
 
 | Alan | Değer |
