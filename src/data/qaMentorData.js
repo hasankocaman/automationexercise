@@ -164,14 +164,17 @@ const GIT_GITHUB_NODE = (id) => ({
     isMain: true,
 })
 
-// Linux bonus node
-const LINUX_BONUS_NODE = {
+// Linux ana düğüm (tüm haritalarda Docker/Jenkins ana hatta olduğundan Linux artık her yerde ana düğüm)
+const LINUX_MAIN_NODE = (id) => ({
+    id,
     emoji: '🐧',
     title: { tr: 'Linux', en: 'Linux' },
     desc: { tr: 'Temel komutlar, dosya izinleri, log analizi, bash scripting', en: 'Basic commands, file permissions, log analysis, bash scripting' },
     route: '/linux',
     color: '#ea580c',
-}
+    glow: 'rgba(234,88,12,0.4)',
+    isMain: true,
+})
 
 // ─── MAP_A: Tamamen sıfırdan başlayanlar ───────────────────────────────────
 export const MAP_A = {
@@ -182,6 +185,16 @@ export const MAP_A = {
     nodes: [
         {
             id: 1,
+            emoji: '🛡️',
+            title: { tr: 'Test Temelleri', en: 'Testing Fundamentals' },
+            desc: { tr: 'Yazılım testi nedir, QA vs QC, SDLC, test seviyeleri', en: 'What is software testing, QA vs QC, SDLC, test levels' },
+            route: '/what-is-testing',
+            color: '#0e7490',
+            glow: 'rgba(14,116,144,0.4)',
+            isMain: true,
+        },
+        {
+            id: 2,
             emoji: '🔢',
             title: { tr: 'Algoritma Temeli', en: 'Algorithm Basics' },
             desc: { tr: 'Mantıksal düşünme, pseudocode, flowchart', en: 'Logical thinking, pseudocode, flowcharts' },
@@ -191,7 +204,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 2,
+            id: 3,
             emoji: '🧪',
             title: { tr: 'Manuel Test', en: 'Manual Testing' },
             desc: { tr: 'Test case, bug report, exploratory testing', en: 'Test cases, bug reports, exploratory testing' },
@@ -201,7 +214,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 3,
+            id: 4,
             emoji: '☕',
             title: { tr: 'Java', en: 'Java' },
             desc: { tr: 'OOP, Collections, JUnit — otomasyon dili', en: 'OOP, Collections, JUnit — automation language' },
@@ -210,9 +223,9 @@ export const MAP_A = {
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
         },
-        GIT_GITHUB_NODE(4),
+        GIT_GITHUB_NODE(5),
         {
-            id: 5,
+            id: 6,
             emoji: '🔵',
             title: { tr: 'Selenium', en: 'Selenium' },
             desc: { tr: 'WebDriver, locator, wait stratejileri', en: 'WebDriver, locators, wait strategies' },
@@ -222,7 +235,7 @@ export const MAP_A = {
             isMain: true,
         },
         {
-            id: 6,
+            id: 7,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, request, assertion, Newman', en: 'REST API, requests, assertions, Newman' },
@@ -231,9 +244,9 @@ export const MAP_A = {
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
         },
-        SQL_NODE(7),
+        SQL_NODE(8),
         {
-            id: 8,
+            id: 9,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java tabanlı API otomasyon framework\'ü', en: 'Java-based API automation framework' },
@@ -242,26 +255,7 @@ export const MAP_A = {
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
         },
-        {
-            id: 9,
-            emoji: '🔧',
-            title: { tr: 'Jenkins', en: 'Jenkins' },
-            desc: { tr: 'CI/CD pipeline, build, test trigger', en: 'CI/CD pipeline, build, test triggers' },
-            route: '/jenkins',
-            color: '#6d28d9',
-            glow: 'rgba(109,40,217,0.4)',
-            isMain: true,
-        },
-        {
-            id: 10,
-            emoji: '☁️',
-            title: { tr: 'AWS', en: 'AWS' },
-            desc: { tr: 'Cloud test ortamı, EC2, S3, Lambda', en: 'Cloud test environment, EC2, S3, Lambda' },
-            route: '/aws',
-            color: '#b45309',
-            glow: 'rgba(180,83,9,0.4)',
-            isMain: true,
-        },
+        LINUX_MAIN_NODE(10),
         {
             id: 11,
             emoji: '🐳',
@@ -274,6 +268,26 @@ export const MAP_A = {
         },
         {
             id: 12,
+            emoji: '🔧',
+            title: { tr: 'Jenkins', en: 'Jenkins' },
+            desc: { tr: 'CI/CD pipeline, build, test trigger', en: 'CI/CD pipeline, build, test triggers' },
+            route: '/jenkins',
+            color: '#6d28d9',
+            glow: 'rgba(109,40,217,0.4)',
+            isMain: true,
+        },
+        {
+            id: 13,
+            emoji: '☁️',
+            title: { tr: 'AWS', en: 'AWS' },
+            desc: { tr: 'Cloud test ortamı, EC2, S3, Lambda', en: 'Cloud test environment, EC2, S3, Lambda' },
+            route: '/aws',
+            color: '#b45309',
+            glow: 'rgba(180,83,9,0.4)',
+            isMain: true,
+        },
+        {
+            id: 14,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Orchestration, pod, deployment, scale', en: 'Orchestration, pods, deployments, scaling' },
@@ -282,19 +296,15 @@ export const MAP_A = {
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
         },
-        {
-            id: 13,
-            emoji: '📡',
-            title: { tr: 'Kafka', en: 'Kafka' },
-            desc: { tr: 'Event-driven mimari, consumer, producer test', en: 'Event-driven architecture, consumer/producer testing' },
-            route: '/kafka',
-            color: '#1e1b4b',
-            glow: 'rgba(30,27,75,0.5)',
-            isMain: true,
-        },
     ],
     extras: [
-        LINUX_BONUS_NODE,
+        {
+            emoji: '📡',
+            title: { tr: 'Kafka', en: 'Kafka' },
+            desc: { tr: 'Event-driven mimari, consumer, producer test — kariyer +1', en: 'Event-driven architecture, consumer/producer testing — +1 to your career' },
+            route: '/kafka',
+            color: '#1e1b4b',
+        },
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -320,18 +330,18 @@ export const MAP_A = {
     mentorNote: {
         tr: `**Doğru yoldasın!** Yazılım geçmişi olmadan QA mühendisliğine başlamak tamamen mümkün — ve bu sıra bunu en hızlı öğrenmenin kanıtlanmış yolu.
 
-Önce **mantığını** kur (Algoritma), sonra **test refleksini** geliştir (Manuel Test), ardından **Java** ile kod yazmayı öğren. Selenium ile UI otomasyona geçtiğinde zaten sağlam bir temel üzerinde olacaksın. **SQL** ise seni çoğu QA mühendisinden ayıran kritik bir beceri — veritabanı doğrulaması yapmadan tam bir test süreci yürütemezsin.
+Önce **testin ne olduğunu** anla (Test Temelleri), sonra **mantığını** kur (Algoritma), ardından **test refleksini** geliştir (Manuel Test) ve **Java** ile kod yazmayı öğren. Git & GitHub ile versiyon kontrolünü öğrendikten sonra Selenium ile UI otomasyonuna geçtiğinde zaten sağlam bir temel üzerinde olacaksın. **SQL** ise seni çoğu QA mühendisinden ayıran kritik bir beceri — veritabanı doğrulaması yapmadan tam bir test süreci yürütemezsin.
 
-REST Assured ile Java üzerinden API testini kapattıktan sonra Jenkins → AWS → Docker → Kubernetes → Kafka zinciri seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪
+REST Assured ile Java üzerinden API testini kapattıktan sonra sırada **Linux** var — artık bir "bonus" değil, ana hatta: çünkü Docker container'ları, Jenkins agent'ları ve cloud sunucuların hepsi Linux üzerinde çalışır, önce bu işletim sistemini tanımadan container/CI kavramları havada kalır. Bu yüzden **Docker → Jenkins → AWS → Kubernetes** zinciri bu sırada ilerliyor: önce container'ı (Docker) anla, sonra onu CI/CD pipeline'ında (Jenkins) otomatik çalıştırmayı öğren, ardından cloud'a (AWS) taşı, son olarak Kubernetes ile ölçeklendir. Bu zincir seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪
 
-💡 **Tavsiye:** Jenkins, Docker veya Kubernetes aşamalarına geçmeden önce, altyapıyı daha iyi anlamak için **Linux** sayfamıza da mutlaka bakmanı öneririm.`,
+💡 **Kafka** artık ana yolda değil — event-driven mimari niş bir konu, temel yığını tamamladıktan sonra bakılacak bir "kariyer +1" ekstrası olarak aşağıda duruyor.`,
         en: `**You're on the right path!** Starting QA engineering without a software background is completely possible — and this sequence is the proven fastest way to get there.
 
-First build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing), then learn to write code with **Java**. When you move to Selenium for UI automation, you'll already have a solid foundation. **SQL** is a critical skill that separates you from most QA engineers — you can't run a complete test process without database validation.
+First understand **what testing actually is** (Testing Fundamentals), then build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing) and learn to write code with **Java**. After learning version control with Git & GitHub, when you move to Selenium for UI automation, you'll already have a solid foundation. **SQL** is a critical skill that separates you from most QA engineers — you can't run a complete test process without database validation.
 
-After covering API testing with REST Assured, the Jenkins → AWS → Docker → Kubernetes → Kafka chain will turn you into a real **SDET (Software Development Engineer in Test)** profile. 💪
+After covering API testing with REST Assured, **Linux** comes next — no longer a "bonus," but part of the main track: Docker containers, Jenkins agents, and cloud servers all run on Linux, so without knowing this operating system first, container/CI concepts stay abstract. That's why the **Docker → Jenkins → AWS → Kubernetes** chain follows this order: first understand containers (Docker), then learn to run them automatically in a CI/CD pipeline (Jenkins), then move to the cloud (AWS), and finally scale with Kubernetes. This chain will turn you into a real **SDET (Software Development Engineer in Test)** profile. 💪
 
-💡 **Tip:** Before moving on to Jenkins, Docker, or Kubernetes, I highly recommend checking out our **Linux** page to build a better understanding of the underlying system.`,
+💡 **Kafka** is no longer on the main path — event-driven architecture is a niche topic, listed below as a "career +1" extra to explore once you've completed the core stack.`,
     },
 }
 
@@ -384,16 +394,7 @@ export const MAP_B = {
             isMain: true,
         },
         SQL_NODE(6),   // ← SQL: Postman'dan sonra
-        {
-            id: 7,
-            emoji: '🔧',
-            title: { tr: 'Jenkins', en: 'Jenkins' },
-            desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
-            route: '/jenkins',
-            color: '#6d28d9',
-            glow: 'rgba(109,40,217,0.4)',
-            isMain: true,
-        },
+        LINUX_MAIN_NODE(7),
         {
             id: 8,
             emoji: '🐳',
@@ -406,6 +407,16 @@ export const MAP_B = {
         },
         {
             id: 9,
+            emoji: '🔧',
+            title: { tr: 'Jenkins', en: 'Jenkins' },
+            desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
+            route: '/jenkins',
+            color: '#6d28d9',
+            glow: 'rgba(109,40,217,0.4)',
+            isMain: true,
+        },
+        {
+            id: 10,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -416,7 +427,6 @@ export const MAP_B = {
         },
     ],
     extras: [
-        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -458,16 +468,12 @@ export const MAP_B = {
 
 **Playwright**'ı tavsiye etmemizin nedeni: Hem Python hem TypeScript'i mükemmel destekler, **auto-wait** ile flaky test sorunu minimuma iner, **Trace Viewer** ile hataları video/screenshot/network üzerinden debug edebilirsin ve büyük kurumsal projelerde giderek artan talep görüyor.
 
-**SQL** bilgisi seni çoğu QA mühendisinden ayıran kritik bir beceri — veri doğrulaması olmadan tam bir test süreci yürütülemez. Jenkins → Docker → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀
-
-💡 **Tavsiye:** Jenkins veya Docker gibi DevOps araçlarına geçmeden önce **Linux** sayfamıza da bakmanı tavsiye ederim.`,
+**SQL** bilgisi seni çoğu QA mühendisinden ayıran kritik bir beceri — veri doğrulaması olmadan tam bir test süreci yürütülemez. **Linux** artık ana hatta: Docker container'ları ve Jenkins agent'ları Linux üzerinde çalıştığından, önce bu işletim sistemini kavraman gerekiyor. Docker → Jenkins → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀`,
         en: `**Excellent choice!** The Python + TypeScript + Playwright combination equips you with the most modern QA stack in the industry.
 
 Why we recommend **Playwright**: It perfectly supports both Python and TypeScript, **auto-wait** minimizes flaky test issues, **Trace Viewer** lets you debug failures via video/screenshot/network recordings, and it's seeing increasing demand in large enterprise projects.
 
-**SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. The Jenkins → Docker → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀
-
-💡 **Tip:** Before diving into DevOps tools like Jenkins or Docker, I highly suggest taking a look at our **Linux** page first.`,
+**SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. **Linux** is now part of the main track: since Docker containers and Jenkins agents run on Linux, understanding this operating system first is essential. The Docker → Jenkins → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀`,
     },
 }
 
@@ -530,16 +536,7 @@ export const MAP_B_SEL = {
             isMain: true,
         },
         SQL_NODE(7),   // ← SQL: Postman'dan sonra
-        {
-            id: 8,
-            emoji: '🔧',
-            title: { tr: 'Jenkins', en: 'Jenkins' },
-            desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
-            route: '/jenkins',
-            color: '#6d28d9',
-            glow: 'rgba(109,40,217,0.4)',
-            isMain: true,
-        },
+        LINUX_MAIN_NODE(8),
         {
             id: 9,
             emoji: '🐳',
@@ -552,6 +549,16 @@ export const MAP_B_SEL = {
         },
         {
             id: 10,
+            emoji: '🔧',
+            title: { tr: 'Jenkins', en: 'Jenkins' },
+            desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
+            route: '/jenkins',
+            color: '#6d28d9',
+            glow: 'rgba(109,40,217,0.4)',
+            isMain: true,
+        },
+        {
+            id: 11,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -562,7 +569,6 @@ export const MAP_B_SEL = {
         },
     ],
     extras: [
-        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -604,16 +610,12 @@ export const MAP_B_SEL = {
 
 Selenium ile Python'un birlikteliği kurumsal projelerde hâlâ yaygın — özellikle legacy test altyapılarında vazgeçilmez. **Playwright** ise onu tamamlıyor: auto-wait, trace viewer ve paralel çalıştırma ile modern projelerin gözdesi. İki aracı da bilen biri olarak "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranacaksın.
 
-**SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. Jenkins → Docker → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆
-
-💡 **Tavsiye:** Jenkins veya Docker aşamalarından önce **Linux** sayfamıza göz atman, sunucu ortamlarını kavramana büyük katkı sağlar.`,
+**SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. **Linux** artık ana hatta: Selenium Grid ve Playwright container'ları sunucularda Linux üzerinde çalışır. Docker → Jenkins → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆`,
         en: `**A powerful choice!** As a QA engineer who knows both **Selenium** and **Playwright**, you'll appeal to a very wide job pool.
 
 Selenium's combination with Python is still common in enterprise projects — especially indispensable in legacy test infrastructures. **Playwright** complements it: the darling of modern projects with auto-wait, trace viewer, and parallel execution. Knowing both, you'll be specifically sought out for "Selenium to Playwright migration" projects.
 
-**SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. The Jenkins → Docker → AWS chain lets you move everything into a CI/CD environment. 🏆
-
-💡 **Tip:** Before stepping into Jenkins or Docker, checking out our **Linux** page will help you understand server environments much better.`,
+**SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. **Linux** is now part of the main track: Selenium Grid and Playwright containers run on Linux servers. The Docker → Jenkins → AWS chain lets you move everything into a CI/CD environment. 🏆`,
     },
 }
 
@@ -666,16 +668,7 @@ export const MAP_C1 = {
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
         },
-        {
-            id: 7,
-            emoji: '🔧',
-            title: { tr: 'Jenkins', en: 'Jenkins' },
-            desc: { tr: 'CI/CD pipeline, Maven/Gradle entegrasyonu', en: 'CI/CD pipelines, Maven/Gradle integration' },
-            route: '/jenkins',
-            color: '#6d28d9',
-            glow: 'rgba(109,40,217,0.4)',
-            isMain: true,
-        },
+        LINUX_MAIN_NODE(7),
         {
             id: 8,
             emoji: '🐳',
@@ -688,6 +681,16 @@ export const MAP_C1 = {
         },
         {
             id: 9,
+            emoji: '🔧',
+            title: { tr: 'Jenkins', en: 'Jenkins' },
+            desc: { tr: 'CI/CD pipeline, Maven/Gradle entegrasyonu', en: 'CI/CD pipelines, Maven/Gradle integration' },
+            route: '/jenkins',
+            color: '#6d28d9',
+            glow: 'rgba(109,40,217,0.4)',
+            isMain: true,
+        },
+        {
+            id: 10,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud ölçekli test çalıştırma ortamı', en: 'Cloud-scale test execution environment' },
@@ -697,7 +700,7 @@ export const MAP_C1 = {
             isMain: true,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed test execution, pod yönetimi', en: 'Distributed test execution, pod management' },
@@ -708,7 +711,6 @@ export const MAP_C1 = {
         },
     ],
     extras: [
-        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -743,16 +745,12 @@ export const MAP_C1 = {
 
 Yazılım geçmişin varsa **Java**'ya adaptasyon çok hızlı olacak. Selenium ile **Page Object Model (POM)** öğrendiğinde test kodunu maintainable tutmanın gerçek anlamını kavrayacaksın. **SQL** ise seni rakiplerinden ayıran kritik beceri — Postman ile API testi yaparken bile veritabanındaki gerçek veriye bakman gerekiyor.
 
-REST Assured ile Java üzerinden API testini kapattığında UI + API testini tek dilde yöneteceksin. Jenkins → Docker → AWS → Kubernetes zinciri seni tam **DevOps-aware SDET** profiline götürür. 🏆
-
-💡 **Tavsiye:** Jenkins, Docker veya Kubernetes konularına geçmeden önce **Linux** sayfamızı incelemeni tavsiye ederim.`,
+REST Assured ile Java üzerinden API testini kapattığında UI + API testini tek dilde yöneteceksin. Sırada **Linux** var — artık ana hatta, çünkü Selenium Grid'i containerize edeceğin Docker ve onu tetikleyen Jenkins agent'ları Linux sunucularda çalışır. Docker → Jenkins → AWS → Kubernetes zinciri seni tam **DevOps-aware SDET** profiline götürür. 🏆`,
         en: `**A classic but powerful choice!** The Java + Selenium stack is still the most widely used combination in the industry — the vast majority of large enterprise companies work in this ecosystem.
 
 If you have a software background, **Java** adaptation will be very quick. Learning the **Page Object Model (POM)** with Selenium will make you truly understand what maintainable test code means. **SQL** is the critical skill that separates you from competitors — even when API testing with Postman, you often need to check the actual data in the database.
 
-When you complete API testing with REST Assured, you'll manage UI + API testing in a single language. The Jenkins → Docker → AWS → Kubernetes chain takes you to a full **DevOps-aware SDET** profile. 🏆
-
-💡 **Tip:** Before working with Jenkins, Docker, or Kubernetes, I highly recommend visiting our **Linux** page.`,
+When you complete API testing with REST Assured, you'll manage UI + API testing in a single language. **Linux** comes next — now part of the main track, since the Docker containers hosting your Selenium Grid and the Jenkins agents triggering them both run on Linux servers. The Docker → Jenkins → AWS → Kubernetes chain takes you to a full **DevOps-aware SDET** profile. 🏆`,
     },
 }
 
@@ -795,16 +793,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         SQL_NODE(5),   // ← SQL: REST Assured'dan sonra
-        {
-            id: 6,
-            emoji: '🔧',
-            title: { tr: 'Jenkins', en: 'Jenkins' },
-            desc: { tr: 'CI/CD, paralel Playwright test koşusu', en: 'CI/CD, parallel Playwright test runs' },
-            route: '/jenkins',
-            color: '#6d28d9',
-            glow: 'rgba(109,40,217,0.4)',
-            isMain: true,
-        },
+        LINUX_MAIN_NODE(6),
         {
             id: 7,
             emoji: '🐳',
@@ -817,6 +806,16 @@ export const MAP_C2 = {
         },
         {
             id: 8,
+            emoji: '🔧',
+            title: { tr: 'Jenkins', en: 'Jenkins' },
+            desc: { tr: 'CI/CD, paralel Playwright test koşusu', en: 'CI/CD, parallel Playwright test runs' },
+            route: '/jenkins',
+            color: '#6d28d9',
+            glow: 'rgba(109,40,217,0.4)',
+            isMain: true,
+        },
+        {
+            id: 9,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Serverless test çalıştırma, cloud altyapı', en: 'Serverless test execution, cloud infrastructure' },
@@ -826,7 +825,7 @@ export const MAP_C2 = {
             isMain: true,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed Playwright koşusu, pod scaling', en: 'Distributed Playwright runs, pod scaling' },
@@ -837,7 +836,6 @@ export const MAP_C2 = {
         },
     ],
     extras: [
-        LINUX_BONUS_NODE,
         {
             emoji: '📱',
             title: { tr: 'Appium', en: 'Appium' },
@@ -879,16 +877,12 @@ export const MAP_C2 = {
 
 Playwright'ın **auto-wait** mekanizması Selenium'un flaky test sorunlarını büyük ölçüde ortadan kaldırıyor. **Trace Viewer** ile test hatalarını video/screenshot/network kaydı üzerinden debug edebileceksin — hiçbir Selenium suite'inde bu out-of-the-box gelmiyor.
 
-**SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. **Appium** ile Java bilgini mobil otomasyona taşıyabilir, **JMeter** ile performans testini de kapabilirsin. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟
-
-💡 **Tavsiye:** Jenkins, Docker veya Kubernetes gibi DevOps/altyapı araçlarından önce **Linux** sayfasına göz atmak işini çok kolaylaştıracaktır.`,
+**SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. Sırada **Linux** var — artık ana hatta, çünkü Playwright'ı containerize edeceğin Docker ve onu tetikleyen Jenkins pipeline'ları Linux sunucularda çalışır. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟`,
         en: `**An excellent future-oriented choice!** The Java + Playwright combination merges enterprise power with modern speed.
 
 Playwright's **auto-wait** mechanism largely eliminates Selenium's flaky test problems. With **Trace Viewer**, you'll debug failures via video/screenshot/network recordings — nothing comes out-of-the-box like this in Selenium suites.
 
-**SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. With **Appium** you can apply your Java knowledge to mobile automation, and with **JMeter** you can cover performance testing too. Companies doing "Playwright migration" projects will specifically seek you out. 🌟
-
-💡 **Tip:** Before exploring DevOps/infrastructure tools like Jenkins, Docker, or Kubernetes, reading through our **Linux** page will make things much easier.`,
+**SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. **Linux** comes next — now part of the main track, since the Docker containers hosting your Playwright runs and the Jenkins pipelines triggering them both run on Linux servers. Companies doing "Playwright migration" projects will specifically seek you out. 🌟`,
     },
 }
 
