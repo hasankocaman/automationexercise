@@ -584,19 +584,25 @@ function HomePage() {
                                 <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>{t('home.category.languages')}</span>
                             </div>
                             <div className="p-2 flex flex-wrap gap-1">
-                                <Link to="/java" data-testid="nav-java" className={nb('orange')}>☕ Java</Link>
+                                <span className="relative inline-block">
+                                    <Link to="/java" data-testid="nav-java" className={nb('orange')}>☕ Java</Link>
+                                    <span aria-hidden="true" className="absolute -top-2 -right-1.5 z-10 flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black leading-none pointer-events-none shadow-sm bg-amber-400 text-gray-900">③</span>
+                                </span>
                                 <Link to="/python" data-testid="nav-python" className={nb('yellow')}>🐍 Python</Link>
                                 <Link to="/typescript" data-testid="nav-typescript" className={nb('indigo')}>💻 TS</Link>
                                 <Link to="/javascript" data-testid="nav-javascript" className={nb('yellow')}>🟨 JS</Link>
                                 <Link to="/sql" data-testid="nav-sql" className={nb('blue')}>🗄️ SQL</Link>
-                                <Link
-                                    to="/algorithms"
-                                    data-testid="nav-algorithms"
-                                    className={`${nb('violet')} hover:scale-125 hover:backdrop-blur-xl hover:bg-white/20 hover:border-white/40 hover:shadow-[0_12px_32px_rgba(34,211,238,0.35)]`}
-                                    style={{ backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
-                                >
-                                    {t('home.learnAlgorithms')}
-                                </Link>
+                                <span className="relative inline-block">
+                                    <Link
+                                        to="/algorithms"
+                                        data-testid="nav-algorithms"
+                                        className={`${nb('violet')} hover:scale-125 hover:backdrop-blur-xl hover:bg-white/20 hover:border-white/40 hover:shadow-[0_12px_32px_rgba(34,211,238,0.35)]`}
+                                        style={{ backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
+                                    >
+                                        {t('home.learnAlgorithms')}
+                                    </Link>
+                                    <span aria-hidden="true" className="absolute -top-2 -right-1.5 z-10 flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black leading-none pointer-events-none shadow-sm bg-amber-400 text-gray-900">①</span>
+                                </span>
                                 <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
                                 <button onClick={() => { setActiveSection('lang-compare'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>🔀 3 Dil</button>
                             </div>
@@ -609,8 +615,16 @@ function HomePage() {
                                 <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{t('home.category.testTools')}</span>
                             </div>
                             <div className="p-2 flex flex-wrap gap-1">
-                                <Link to="/what-is-testing" className={nb('violet')}>{t('home.learnTesting')}</Link>
-                                <Link to="/manual-testing" data-testid="nav-manual-testing" className={nb('blue')}>{t('home.learnManualTesting')}</Link>
+                                <span className="relative inline-block">
+                                    <Link to="/what-is-testing" className={nb('violet')}>{t('home.learnTesting')}</Link>
+                                    <span aria-hidden="true" className="absolute -top-2.5 -left-1.5 z-10 px-1.5 py-0.5 rounded-full text-[8px] font-black leading-none whitespace-nowrap pointer-events-none shadow-sm bg-rose-500 text-white">
+                                        {language === 'tr' ? '🚀 Buradan başla' : '🚀 Start here'}
+                                    </span>
+                                </span>
+                                <span className="relative inline-block">
+                                    <Link to="/manual-testing" data-testid="nav-manual-testing" className={nb('blue')}>{t('home.learnManualTesting')}</Link>
+                                    <span aria-hidden="true" className="absolute -top-2 -right-1.5 z-10 flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black leading-none pointer-events-none shadow-sm bg-amber-400 text-gray-900">②</span>
+                                </span>
                                 <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>🟢 Selenium</Link>
                                 <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
                                 <Link to="/cypress" data-testid="nav-cypress" className={nb('purple')}>🌲 Cypress</Link>

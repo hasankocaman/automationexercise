@@ -29,12 +29,22 @@
 - Test kapsamı doğrulandı: `tests/other-pages-ui.spec.ts`'deki `/qa-mentor` testi node adı/sırası assert etmiyor, sadece buton tıklanabilirliğini kontrol ediyor — bozulmadı.
 - Doğrulama: `check-content-integrity.mjs` ✓, `npm run build` ✓ (38 static route, SEO PASS), `npx playwright test tests/other-pages-ui.spec.ts -g qa-mentor` ✓ PASS, ayrıca geçici bir Playwright script'iyle MAP_A'nın tam node sırası ("Test Temelleri, Algoritma Temeli, Manuel Test, Java, Git & GitHub, Selenium, Postman, SQL, REST Assured, Linux, Docker, Jenkins, AWS, Kubernetes") ve 5 haritanın tamamının id sekansı/route listesi manuel olarak doğrulandı, console hatası yok.
 
+### WP2 — Ana Sayfada "Önerilen Sıra" Sinyali ✅ TAMAMLANDI (henüz commit edilmedi)
+
+- `src/components/HomePage.jsx`, "Navigasyon — Kategori Kartları" bölümü (satır ~586-630): kart etiketlerine dokunulmadı, mevcut `nb()` pill'lerinin köşesine `position: relative` wrapper + `absolute` konumlu küçük rozet span'ları eklendi.
+- `/what-is-testing` pill'i → "🚀 Buradan başla" / "🚀 Start here" rozeti (rose-500 bg, beyaz metin, sol üst köşe).
+- `/algorithms` → ①, `/manual-testing` → ②, `/java` → ③ rozetleri (amber-400 bg, koyu metin, sağ üst köşe, `w-4 h-4` daire).
+- Rozetler `aria-hidden="true"` ve `pointer-events-none` — ekran okuyucuyu ve tıklama hedefini bozmuyor, sadece görsel ipucu.
+- Pill'lerin mevcut DOM sırası DEĞİŞTİRİLMEDİ (sadece her birine `<span className="relative inline-block">` wrapper eklendi) — plan "kart etiketlerine dokunma" talimatına sadık kalındı.
+- Dark/light kontrastı: sabit yüksek kontrastlı renkler (amber+koyu metin, rose+beyaz metin) kullanıldığı için `darkMode` koşuluna gerek kalmadı, her iki temada da okunaklı.
+- Mobil taşma riski yok: rozetlerin bulunduğu kategori kartları zaten `overflow-hidden` — rozet card sınırının dışına taşarsa yerel olarak kırpılır, global `body` scroll'a etkisi yok.
+- Doğrulama: `check-content-integrity.mjs` ✓, `npm run build` ✓, `npx playwright test tests/mobile-smoke.spec.ts tests/theme-and-accessibility.spec.ts tests/other-pages-ui.spec.ts tests/example.spec.ts` → 14/14 PASS, ayrıca geçici bir script ile TR+EN modda 4 rozetin de doğru metinle render olduğu ve console hatası olmadığı doğrulandı.
+
 ### Sonraki Oturumda Yapılacaklar (fableplan.md sırası)
 
-1. **WP2** — Ana sayfada "Önerilen Sıra" sinyali (`HomePage.jsx` kart rozetleri: `/what-is-testing`→"Buradan başla", `/algorithms`/`/manual-testing`/`/java`→①②③).
-2. **WP3** — 🎯 Odak Modu toggle (`focusMode` localStorage, `focus-mode` CSS class, tüm effects dosyalarının reduced-motion kurallarının tekrarı).
-3. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
-4. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
+1. **WP3** — 🎯 Odak Modu toggle (`focusMode` localStorage, `focus-mode` CSS class, tüm effects dosyalarının reduced-motion kurallarının tekrarı).
+2. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
+3. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
 
 ---
 
