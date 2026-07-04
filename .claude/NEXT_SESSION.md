@@ -40,11 +40,21 @@
 - Mobil taşma riski yok: rozetlerin bulunduğu kategori kartları zaten `overflow-hidden` — rozet card sınırının dışına taşarsa yerel olarak kırpılır, global `body` scroll'a etkisi yok.
 - Doğrulama: `check-content-integrity.mjs` ✓, `npm run build` ✓, `npx playwright test tests/mobile-smoke.spec.ts tests/theme-and-accessibility.spec.ts tests/other-pages-ui.spec.ts tests/example.spec.ts` → 14/14 PASS, ayrıca geçici bir script ile TR+EN modda 4 rozetin de doğru metinle render olduğu ve console hatası olmadığı doğrulandı.
 
+### WP3 — 🎯 Odak Modu (Focus Mode) Toggle ✅ TAMAMLANDI (henüz commit edilmedi)
+
+- **Yeni dosya `src/focus-mode.css`** — 23 `*-effects.css` dosyasının (+ `night-sky-effects.css`) `@media (prefers-reduced-motion)` bloklarındaki TÜM kurallar (`366/366`, mekanik script ile üretildi, tek satır bile kaybolmadı — bir parser hatası bulunup düzeltildi: yorum satırı bir sonraki seçiciyle birleşip 3 dosyada [`docker`, `selenium`, `playwright`] 1'er kural sessizce düşüyordu, script fix'lendi ve tekrar üretildi) `:root.focus-mode` öneki ile mirror'landı. Üstüne "Ek Katman" bölümü eklendi: parçacıklar (`display:none`), gece gökyüzü/ay/kayan yıldız (`display:none`), glitch pseudo-elementleri (`content:none`), 3D tilt blokları (`transform:none !important`, bilinen sınır: aktif hover sırasında JS'in inline `!important` stili öncelikli kalabilir), ambiyans sesi butonu (`[data-testid$="-sound-toggle"]` → `display:none`).
+- `js-confetti-particle` (quiz doğru cevap kutlaması) BİLİNÇLİ OLARAK dahil edilmedi — dekoratif ambiyans değil, öğrenme sonucu geri bildirimi.
+- `src/main.jsx`'e global import edildi (`dark-overrides.css` ile aynı satır grubu).
+- `TopicPage.jsx` + `HomePage.jsx`: `focusMode`/`setFocusMode` state'i `darkMode` ile birebir aynı kalıp (`localStorage.focusMode`, `document.documentElement.classList` → `focus-mode`, default `false`).
+- `TopicHeader.jsx`: dark-mode-toggle'ın yanına `data-testid="focus-mode-toggle"` 🎯 butonu (min 36px touch target, aktifken emerald ring). `HomePage.jsx`'e de aynı buton eklendi.
+- `tests/theme-and-accessibility.spec.ts`'e yeni `describe('WP3 — Odak Modu...')` bloğu: `/docker`'da toggle → `focus-mode` class + particle `toBeHidden()` → reload kalıcılık → tekrar tıkla → particle geri gelir.
+- Doğrulama: `check-content-integrity` ✓, `npm run build` ✓, `theme-and-accessibility.spec.ts` (--workers=1) 4/4 PASS (paralel koşumda 2 test zaten bilinen dev-server soğuk-başlangıç flakiness'iyle timeout aldı, seri koşumda hepsi geçti — regresyon DEĞİL), `mobile-smoke` + `other-pages-ui` 10/10 PASS, ayrıca geçici bir script ile Selenium/Playwright/Python/Kafka sayfalarında da focus mode'un particle'ları gizlediği ve sound toggle'ı kapattığı, console hatası olmadığı doğrulandı.
+
 ### Sonraki Oturumda Yapılacaklar (fableplan.md sırası)
 
-1. **WP3** — 🎯 Odak Modu toggle (`focusMode` localStorage, `focus-mode` CSS class, tüm effects dosyalarının reduced-motion kurallarının tekrarı).
-2. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
-3. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
+1. **WP4** — 🔄 Bugünkü Tekrar (Leitner-lite spaced repetition, `learnqa_review_queue` localStorage, `src/lib/reviewQueue.js`).
+2. WP5 ve "Sonnet'in Yapmayacağı İşler" bölümü kapsam dışı — dokunulmayacak.
+3. (Düşük öncelik, WP3'ten miras) 3D tilt blokları (`-block` class) için `transform: none !important` CSS override'ı, JS'in AKTİF hover sırasında uyguladığı inline `!important` transform karşısında bazen etkisiz kalabilir — bilinen/kabul edilmiş bir sınır, düzeltme JS'e dokunmayı gerektirir (plan bunu yasaklıyor), bu yüzden değiştirilmedi.
 
 ---
 

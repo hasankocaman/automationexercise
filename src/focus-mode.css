@@ -1,0 +1,512 @@
+/* src/focus-mode.css — TR: "Odak Modu" (Focus Mode) toggle stilleri
+ * Bu dosya elle yazılmadı — her *-effects.css dosyasının @media (prefers-reduced-motion)
+ * bloğu, ":root.focus-mode" öneki ile buraya mekanik olarak taşındı (fableplan.md WP3).
+ * Amaç: dekoratif efektleri SADECE CSS ile kapatmak — JS efekt kodlarına dokunulmadı,
+ * elemanlar DOM'da kalıyor, sadece görünmez/hareketsiz hale geliyor.
+ */
+
+/* ── appium-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .appium-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .ap-particle { animation: none; opacity: 0; }
+  :root.focus-mode .appium-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .ap-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ap-glitch::before, :root.focus-mode .ap-glitch::after { animation: none; }
+  :root.focus-mode .ap-stat-item, :root.focus-mode .ap-stat-item.ap-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ap-stats-bar { animation: none; }
+  :root.focus-mode .ap-squash { animation: none !important; }
+  :root.focus-mode .ap-ripple-span { display: none; }
+  :root.focus-mode .ap-stages .ap-stage { transition: none !important; }
+  :root.focus-mode .ap-stages:hover .ap-stage { transform: none !important; }
+  :root.focus-mode .ap-wave-water::before { animation: none !important; }
+  :root.focus-mode .appium-page .ap-magnetic-init::after { display: none !important; }
+  :root.focus-mode .appium-page .ap-magnetic-init::before { display: none !important; }
+  :root.focus-mode .appium-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .appium-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── aws-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .aws-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .aw-particle { animation: none; opacity: 0; }
+  :root.focus-mode .aws-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .aw-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .aw-glitch::before, :root.focus-mode .aw-glitch::after { animation: none; }
+  :root.focus-mode .aw-stat-item, :root.focus-mode .aw-stat-item.aw-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .aw-stats-bar { animation: none; }
+  :root.focus-mode .aw-squash { animation: none !important; }
+  :root.focus-mode .aw-ripple-span { display: none; }
+  :root.focus-mode .aw-stages .aw-stage { transition: none !important; }
+  :root.focus-mode .aw-stages:hover .aw-stage { transform: none !important; }
+  :root.focus-mode .aw-wave-water::before { animation: none !important; }
+  :root.focus-mode .aws-page .aw-magnetic-init::after { display: none !important; }
+  :root.focus-mode .aws-page .aw-magnetic-init::before { display: none !important; }
+  :root.focus-mode .aws-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .aws-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── azure-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .azure-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .az-particle { animation: none; opacity: 0; }
+  :root.focus-mode .azure-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .az-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .az-glitch::before, :root.focus-mode .az-glitch::after { animation: none; }
+  :root.focus-mode .az-stat-item, :root.focus-mode .az-stat-item.az-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .az-stats-bar { animation: none; }
+  :root.focus-mode .az-squash { animation: none !important; }
+  :root.focus-mode .az-ripple-span { display: none; }
+  :root.focus-mode .az-stages .az-stage { transition: none !important; }
+  :root.focus-mode .az-stages:hover .az-stage { transform: none !important; }
+  :root.focus-mode .az-wave-water::before { animation: none !important; }
+  :root.focus-mode .azure-page .az-magnetic-init::after { display: none !important; }
+  :root.focus-mode .azure-page .az-magnetic-init::before { display: none !important; }
+  :root.focus-mode .azure-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .azure-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── browserstack-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .browserstack-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .bs-particle { animation: none; opacity: 0; }
+  :root.focus-mode .browserstack-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .bs-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .bs-glitch::before, :root.focus-mode .bs-glitch::after { animation: none; }
+  :root.focus-mode .bs-stat-item, :root.focus-mode .bs-stat-item.bs-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .bs-stats-bar { animation: none; }
+  :root.focus-mode .bs-squash { animation: none !important; }
+  :root.focus-mode .bs-ripple-span { display: none; }
+  :root.focus-mode .bs-stages .bs-stage { transition: none !important; }
+  :root.focus-mode .bs-stages:hover .bs-stage { transform: none !important; }
+  :root.focus-mode .bs-wave-water::before { animation: none !important; }
+  :root.focus-mode .browserstack-page .bs-magnetic-init::after { display: none !important; }
+  :root.focus-mode .browserstack-page .bs-magnetic-init::before { display: none !important; }
+  :root.focus-mode .browserstack-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .browserstack-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── bruno-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .bruno-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .br-particle { animation: none; opacity: 0; }
+  :root.focus-mode .bruno-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .br-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .br-glitch::before, :root.focus-mode .br-glitch::after { animation: none; }
+  :root.focus-mode .br-stat-item, :root.focus-mode .br-stat-item.br-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .br-stats-bar { animation: none; }
+  :root.focus-mode .br-squash { animation: none !important; }
+  :root.focus-mode .br-ripple-span { display: none; }
+  :root.focus-mode .br-stages .br-stage { transition: none !important; }
+  :root.focus-mode .br-stages:hover .br-stage { transform: none !important; }
+  :root.focus-mode .br-wave-water::before { animation: none !important; }
+  :root.focus-mode .bruno-page .br-magnetic-init::after { display: none !important; }
+  :root.focus-mode .bruno-page .br-magnetic-init::before { display: none !important; }
+  :root.focus-mode .bruno-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .bruno-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── cypress-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .cypress-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .cy-particle { animation: none; opacity: 0; }
+  :root.focus-mode .cypress-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .cy-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .cy-glitch::before, :root.focus-mode .cy-glitch::after { animation: none; }
+  :root.focus-mode .cy-stat-item, :root.focus-mode .cy-stat-item.cy-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .cy-stats-bar { animation: none; }
+  :root.focus-mode .cy-squash { animation: none !important; }
+  :root.focus-mode .cy-ripple-span { display: none; }
+  :root.focus-mode .cy-stages .cy-stage { transition: none !important; }
+  :root.focus-mode .cy-stages:hover .cy-stage { transform: none !important; }
+  :root.focus-mode .cy-wave-water::before { animation: none !important; }
+  :root.focus-mode .cy-browser-window { transition: none !important; }
+  :root.focus-mode .cypress-page .cy-magnetic-init::after { display: none !important; }
+  :root.focus-mode .cypress-page .cy-magnetic-init::before { display: none !important; }
+  :root.focus-mode .cypress-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .cypress-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── docker-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .docker-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .dp-particle { animation: none; opacity: 0; }
+  :root.focus-mode .docker-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .dp-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .dp-glitch::before, :root.focus-mode .dp-glitch::after { animation: none; }
+  :root.focus-mode .dp-stat-item, :root.focus-mode .dp-stat-item.dp-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .dp-stats-bar { animation: none; }
+  :root.focus-mode .dp-squash { animation: none !important; }
+  :root.focus-mode .dp-ripple-span { display: none; }
+  :root.focus-mode .dp-layers .dp-layer { transition: none !important; }
+  :root.focus-mode .dp-layers:hover .dp-layer { transform: none !important; }
+  :root.focus-mode .dp-ocean-water::before { animation: none !important; }
+  :root.focus-mode .dp-cube-3d.active { animation: none !important; }
+  :root.focus-mode .dp-cube-3d.active + .dp-neon-line { animation: none !important; }
+  :root.focus-mode .docker-page .dp-magnetic-init::after { display: none !important; }
+  :root.focus-mode .docker-page .dp-magnetic-init::before { display: none !important; }
+  :root.focus-mode .docker-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .docker-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── git-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .git-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .git-particle { animation: none; opacity: 0; }
+  :root.focus-mode .git-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .git-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .git-glitch::before, :root.focus-mode .git-glitch::after { animation: none; }
+  :root.focus-mode .git-stat-item, :root.focus-mode .git-stat-item.git-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .git-stats-bar { animation: none; }
+  :root.focus-mode .git-squash { animation: none !important; }
+  :root.focus-mode .git-ripple-span { display: none; }
+  :root.focus-mode .git-stages .git-stage { transition: none !important; }
+  :root.focus-mode .git-stages:hover .git-stage { transform: none !important; }
+  :root.focus-mode .git-wave-water::before { animation: none !important; }
+  :root.focus-mode .git-page .git-magnetic-init::after { display: none !important; }
+  :root.focus-mode .git-page .git-magnetic-init::before { display: none !important; }
+  :root.focus-mode .git-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .git-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── homepage-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .homepage-page::before { animation: none; opacity: 0.6; }
+  :root.focus-mode .home-particle { animation: none; opacity: 0; }
+  :root.focus-mode .homepage-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .homepage-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── java-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .java-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .java-particle { animation: none; opacity: 0; }
+  :root.focus-mode .java-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .java-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .java-glitch::before, :root.focus-mode .java-glitch::after { animation: none; }
+  :root.focus-mode .java-stat-item, :root.focus-mode .java-stat-item.java-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .java-stats-bar { animation: none; }
+  :root.focus-mode .java-squash { animation: none !important; }
+  :root.focus-mode .java-ripple-span { display: none; }
+  :root.focus-mode .java-stages .java-stage { transition: none !important; }
+  :root.focus-mode .java-stages:hover .java-stage { transform: none !important; }
+  :root.focus-mode .java-wave-water::before { animation: none !important; }
+  :root.focus-mode .java-page .java-magnetic-init::after { display: none !important; }
+  :root.focus-mode .java-page .java-magnetic-init::before { display: none !important; }
+  :root.focus-mode .java-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .java-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── javascript-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .javascript-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .js-particle { animation: none; opacity: 0; }
+  :root.focus-mode .javascript-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .js-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .js-glitch::before, :root.focus-mode .js-glitch::after { animation: none; }
+  :root.focus-mode .js-stat-item, :root.focus-mode .js-stat-item.js-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .js-stats-bar { animation: none; }
+  :root.focus-mode .js-squash { animation: none !important; }
+  :root.focus-mode .js-ripple-span { display: none; }
+  :root.focus-mode .js-stages .js-stage { transition: none !important; }
+  :root.focus-mode .js-stages:hover .js-stage { transform: none !important; }
+  :root.focus-mode .js-wave-water::before { animation: none !important; }
+  :root.focus-mode .javascript-page .js-magnetic-init::after { display: none !important; }
+  :root.focus-mode .javascript-page .js-magnetic-init::before { display: none !important; }
+  :root.focus-mode .javascript-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .javascript-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── jenkins-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .jenkins-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .jk-particle { animation: none; opacity: 0; }
+  :root.focus-mode .jenkins-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .jk-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .jk-glitch::before, :root.focus-mode .jk-glitch::after { animation: none; }
+  :root.focus-mode .jk-stat-item, :root.focus-mode .jk-stat-item.jk-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .jk-stats-bar { animation: none; }
+  :root.focus-mode .jk-squash { animation: none !important; }
+  :root.focus-mode .jk-ripple-span { display: none; }
+  :root.focus-mode .jk-stages .jk-stage { transition: none !important; }
+  :root.focus-mode .jk-stages:hover .jk-stage { transform: none !important; }
+  :root.focus-mode .jk-wave-water::before { animation: none !important; }
+  :root.focus-mode .jenkins-page .jk-magnetic-init::after { display: none !important; }
+  :root.focus-mode .jenkins-page .jk-magnetic-init::before { display: none !important; }
+  :root.focus-mode .jenkins-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .jenkins-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── jmeter-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .jmeter-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .jm-particle { animation: none; opacity: 0; }
+  :root.focus-mode .jmeter-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .jm-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .jm-glitch::before, :root.focus-mode .jm-glitch::after { animation: none; }
+  :root.focus-mode .jm-stat-item, :root.focus-mode .jm-stat-item.jm-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .jm-stats-bar { animation: none; }
+  :root.focus-mode .jm-squash { animation: none !important; }
+  :root.focus-mode .jm-ripple-span { display: none; }
+  :root.focus-mode .jm-stages .jm-stage { transition: none !important; }
+  :root.focus-mode .jm-stages:hover .jm-stage { transform: none !important; }
+  :root.focus-mode .jm-wave-water::before { animation: none !important; }
+  :root.focus-mode .jmeter-page .jm-magnetic-init::after { display: none !important; }
+  :root.focus-mode .jmeter-page .jm-magnetic-init::before { display: none !important; }
+  :root.focus-mode .jmeter-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .jmeter-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── kafka-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .kafka-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .kf-particle { animation: none; opacity: 0; }
+  :root.focus-mode .kafka-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .kf-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .kf-glitch::before, :root.focus-mode .kf-glitch::after { animation: none; }
+  :root.focus-mode .kf-stat-item, :root.focus-mode .kf-stat-item.kf-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .kf-stats-bar { animation: none; }
+  :root.focus-mode .kf-squash { animation: none !important; }
+  :root.focus-mode .kf-ripple-span { display: none; }
+  :root.focus-mode .kf-stages .kf-stage { transition: none !important; }
+  :root.focus-mode .kf-stages:hover .kf-stage { transform: none !important; }
+  :root.focus-mode .kf-wave-water::before { animation: none !important; }
+  :root.focus-mode .kafka-page .kf-magnetic-init::after { display: none !important; }
+  :root.focus-mode .kafka-page .kf-magnetic-init::before { display: none !important; }
+  :root.focus-mode .kafka-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .kafka-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── kubernetes-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .kubernetes-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .kb-particle { animation: none; opacity: 0; }
+  :root.focus-mode .kubernetes-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .kb-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .kb-glitch::before, :root.focus-mode .kb-glitch::after { animation: none; }
+  :root.focus-mode .kb-stat-item, :root.focus-mode .kb-stat-item.kb-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .kb-stats-bar { animation: none; }
+  :root.focus-mode .kb-squash { animation: none !important; }
+  :root.focus-mode .kb-ripple-span { display: none; }
+  :root.focus-mode .kb-stages .kb-stage { transition: none !important; }
+  :root.focus-mode .kb-stages:hover .kb-stage { transform: none !important; }
+  :root.focus-mode .kb-wave-water::before { animation: none !important; }
+  :root.focus-mode .kubernetes-page .kb-magnetic-init::after { display: none !important; }
+  :root.focus-mode .kubernetes-page .kb-magnetic-init::before { display: none !important; }
+  :root.focus-mode .kubernetes-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .kubernetes-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── linux-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .linux-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .linux-particle { animation: none; opacity: 0; }
+  :root.focus-mode .linux-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .linux-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .linux-glitch::before, :root.focus-mode .linux-glitch::after { animation: none; }
+  :root.focus-mode .linux-stat-item, :root.focus-mode .linux-stat-item.linux-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .linux-stats-bar { animation: none; }
+  :root.focus-mode .linux-squash { animation: none !important; }
+  :root.focus-mode .linux-ripple-span { display: none; }
+  :root.focus-mode .linux-stages .linux-stage { transition: none !important; }
+  :root.focus-mode .linux-stages:hover .linux-stage { transform: none !important; }
+  :root.focus-mode .linux-wave-water::before { animation: none !important; }
+  :root.focus-mode .linux-page .linux-magnetic-init::after { display: none !important; }
+  :root.focus-mode .linux-page .linux-magnetic-init::before { display: none !important; }
+  :root.focus-mode .linux-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .linux-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── night-sky-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode [class$="-page"] .min-h-screen.dark-mode::before { animation: none !important; opacity: 0.35; }
+  :root.focus-mode .dark-mode [class$="-hero-banner-container"]::before { animation: none !important; }
+  :root.focus-mode .dark-mode [class$="-hero-banner-container"]::after { display: none !important; }
+  :root.focus-mode .dark-mode [class$="-stats-bar"]::after { display: none !important; }
+
+/* ── playwright-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .playwright-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .pw-particle { animation: none; opacity: 0; }
+  :root.focus-mode .playwright-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .pw-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .pw-glitch::before, :root.focus-mode .pw-glitch::after { animation: none; }
+  :root.focus-mode .pw-stat-item, :root.focus-mode .pw-stat-item.pw-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .pw-stats-bar { animation: none; }
+  :root.focus-mode .pw-squash { animation: none !important; }
+  :root.focus-mode .pw-ripple-span { display: none; }
+  :root.focus-mode .pw-stages .pw-stage { transition: none !important; }
+  :root.focus-mode .pw-stages:hover .pw-stage { transform: none !important; }
+  :root.focus-mode .pw-wave-water::before { animation: none !important; }
+  :root.focus-mode .pw-browser-window { transition: none !important; }
+  :root.focus-mode .playwright-page .pw-magnetic-init::after { display: none !important; }
+  :root.focus-mode .playwright-page .pw-magnetic-init::before { display: none !important; }
+  :root.focus-mode .playwright-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .playwright-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── postman-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .postman-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .pm-particle { animation: none; opacity: 0; }
+  :root.focus-mode .postman-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .pm-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .pm-glitch::before, :root.focus-mode .pm-glitch::after { animation: none; }
+  :root.focus-mode .pm-stat-item, :root.focus-mode .pm-stat-item.pm-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .pm-stats-bar { animation: none; }
+  :root.focus-mode .pm-squash { animation: none !important; }
+  :root.focus-mode .pm-ripple-span { display: none; }
+  :root.focus-mode .pm-stages .pm-stage { transition: none !important; }
+  :root.focus-mode .pm-stages:hover .pm-stage { transform: none !important; }
+  :root.focus-mode .pm-wave-water::before { animation: none !important; }
+  :root.focus-mode .postman-page .pm-magnetic-init::after { display: none !important; }
+  :root.focus-mode .postman-page .pm-magnetic-init::before { display: none !important; }
+  :root.focus-mode .postman-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .postman-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── python-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .python-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .py-particle { animation: none; opacity: 0; }
+  :root.focus-mode .python-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .py-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .py-glitch::before, :root.focus-mode .py-glitch::after { animation: none; }
+  :root.focus-mode .py-stat-item, :root.focus-mode .py-stat-item.py-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .py-stats-bar { animation: none; }
+  :root.focus-mode .py-squash { animation: none !important; }
+  :root.focus-mode .py-ripple-span { display: none; }
+  :root.focus-mode .py-stages .py-stage { transition: none !important; }
+  :root.focus-mode .py-stages:hover .py-stage { transform: none !important; }
+  :root.focus-mode .py-wave-water::before { animation: none !important; }
+  :root.focus-mode .python-page .py-magnetic-init::after { display: none !important; }
+  :root.focus-mode .python-page .py-magnetic-init::before { display: none !important; }
+  :root.focus-mode .python-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .python-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── restassured-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .restassured-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .ra-particle { animation: none; opacity: 0; }
+  :root.focus-mode .restassured-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .ra-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ra-glitch::before, :root.focus-mode .ra-glitch::after { animation: none; }
+  :root.focus-mode .ra-stat-item, :root.focus-mode .ra-stat-item.ra-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ra-stats-bar { animation: none; }
+  :root.focus-mode .ra-squash { animation: none !important; }
+  :root.focus-mode .ra-ripple-span { display: none; }
+  :root.focus-mode .ra-stages .ra-stage { transition: none !important; }
+  :root.focus-mode .ra-stages:hover .ra-stage { transform: none !important; }
+  :root.focus-mode .ra-wave-water::before { animation: none !important; }
+  :root.focus-mode .restassured-page .ra-magnetic-init::after { display: none !important; }
+  :root.focus-mode .restassured-page .ra-magnetic-init::before { display: none !important; }
+  :root.focus-mode .restassured-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .restassured-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── selenium-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .selenium-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .se-particle { animation: none; opacity: 0; }
+  :root.focus-mode .selenium-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .se-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .se-glitch::before, :root.focus-mode .se-glitch::after { animation: none; }
+  :root.focus-mode .se-stat-item, :root.focus-mode .se-stat-item.se-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .se-stats-bar { animation: none; }
+  :root.focus-mode .se-squash { animation: none !important; }
+  :root.focus-mode .se-ripple-span { display: none; }
+  :root.focus-mode .se-stages .se-stage { transition: none !important; }
+  :root.focus-mode .se-stages:hover .se-stage { transform: none !important; }
+  :root.focus-mode .se-wave-water::before { animation: none !important; }
+  :root.focus-mode .se-browser-window { transition: none !important; }
+  :root.focus-mode .se-cursor { transition: none !important; }
+  :root.focus-mode .selenium-page .se-magnetic-init::after { display: none !important; }
+  :root.focus-mode .selenium-page .se-magnetic-init::before { display: none !important; }
+  :root.focus-mode .selenium-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .selenium-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── sql-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .sql-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .sql-particle { animation: none; opacity: 0; }
+  :root.focus-mode .sql-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .sql-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .sql-glitch::before, :root.focus-mode .sql-glitch::after { animation: none; }
+  :root.focus-mode .sql-stat-item, :root.focus-mode .sql-stat-item.sql-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .sql-stats-bar { animation: none; }
+  :root.focus-mode .sql-squash { animation: none !important; }
+  :root.focus-mode .sql-ripple-span { display: none; }
+  :root.focus-mode .sql-stages .sql-stage { transition: none !important; }
+  :root.focus-mode .sql-stages:hover .sql-stage { transform: none !important; }
+  :root.focus-mode .sql-wave-water::before { animation: none !important; }
+  :root.focus-mode .sql-page .sql-magnetic-init::after { display: none !important; }
+  :root.focus-mode .sql-page .sql-magnetic-init::before { display: none !important; }
+  :root.focus-mode .sql-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .sql-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ── typescript-effects.css ────────────────────────────────────────────── */
+  :root.focus-mode .typescript-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  :root.focus-mode .ts-particle { animation: none; opacity: 0; }
+  :root.focus-mode .typescript-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  :root.focus-mode .ts-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ts-glitch::before, :root.focus-mode .ts-glitch::after { animation: none; }
+  :root.focus-mode .ts-stat-item, :root.focus-mode .ts-stat-item.ts-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  :root.focus-mode .ts-stats-bar { animation: none; }
+  :root.focus-mode .ts-squash { animation: none !important; }
+  :root.focus-mode .ts-ripple-span { display: none; }
+  :root.focus-mode .ts-stages .ts-stage { transition: none !important; }
+  :root.focus-mode .ts-stages:hover .ts-stage { transform: none !important; }
+  :root.focus-mode .ts-wave-water::before { animation: none !important; }
+  :root.focus-mode .typescript-page .ts-magnetic-init::after { display: none !important; }
+  :root.focus-mode .typescript-page .ts-magnetic-init::before { display: none !important; }
+  :root.focus-mode .typescript-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  :root.focus-mode .typescript-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * EK KATMAN — sadece animasyonu durdurmak yetmez, dekoratif katmanı TAMAMEN
+ * gizle (fableplan.md WP3, madde 1 "Ek olarak" listesi). Yukarıdaki mekanik
+ * mirror'dan farkı: burada display:none / content:none gibi elemanı görünmez
+ * kılan kurallar var, sadece animasyonu durduran değil.
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+/* Parçacık katmanları (yüzen noktacıklar) — 23 rollout sayfasının tamamı.
+   NOT: js-confetti-particle (quiz doğru cevap kutlaması) burada KASITLI OLARAK
+   yok — bu dekoratif ambiyans değil, öğrenme sonucuna bağlı ödül geri bildirimi. */
+:root.focus-mode .ap-particle,
+:root.focus-mode .aw-particle,
+:root.focus-mode .az-particle,
+:root.focus-mode .br-particle,
+:root.focus-mode .bs-particle,
+:root.focus-mode .cy-particle,
+:root.focus-mode .dp-particle,
+:root.focus-mode .git-particle,
+:root.focus-mode .home-particle,
+:root.focus-mode .java-particle,
+:root.focus-mode .jk-particle,
+:root.focus-mode .jm-particle,
+:root.focus-mode .js-particle,
+:root.focus-mode .kb-particle,
+:root.focus-mode .kf-particle,
+:root.focus-mode .linux-particle,
+:root.focus-mode .pm-particle,
+:root.focus-mode .pw-particle,
+:root.focus-mode .py-particle,
+:root.focus-mode .ra-particle,
+:root.focus-mode .se-particle,
+:root.focus-mode .sql-particle,
+:root.focus-mode .ts-particle {
+  display: none !important;
+}
+
+/* Gece gökyüzü: yıldız tozu / ay / kayan yıldızlar — night-sky-effects.css'in
+   jenerik `[class$="-page"]` / `[class$="-hero-banner-container"]` seçicileriyle
+   aynı desen, sadece display:none ile güçlendirildi. */
+:root.focus-mode [class$="-page"] .min-h-screen.dark-mode::before,
+:root.focus-mode .dark-mode [class$="-hero-banner-container"]::before,
+:root.focus-mode .dark-mode [class$="-hero-banner-container"]::after,
+:root.focus-mode .dark-mode [class$="-stats-bar"]::after {
+  display: none !important;
+}
+
+/* Glitch başlık pseudo-elementleri — animasyonu durdurmanın ötesinde
+   pseudo-element'in kendisini de kaldır (content: none). */
+:root.focus-mode .ap-glitch::before, :root.focus-mode .ap-glitch::after,
+:root.focus-mode .aw-glitch::before, :root.focus-mode .aw-glitch::after,
+:root.focus-mode .az-glitch::before, :root.focus-mode .az-glitch::after,
+:root.focus-mode .br-glitch::before, :root.focus-mode .br-glitch::after,
+:root.focus-mode .bs-glitch::before, :root.focus-mode .bs-glitch::after,
+:root.focus-mode .cy-glitch::before, :root.focus-mode .cy-glitch::after,
+:root.focus-mode .dp-glitch::before, :root.focus-mode .dp-glitch::after,
+:root.focus-mode .git-glitch::before, :root.focus-mode .git-glitch::after,
+:root.focus-mode .java-glitch::before, :root.focus-mode .java-glitch::after,
+:root.focus-mode .jk-glitch::before, :root.focus-mode .jk-glitch::after,
+:root.focus-mode .jm-glitch::before, :root.focus-mode .jm-glitch::after,
+:root.focus-mode .js-glitch::before, :root.focus-mode .js-glitch::after,
+:root.focus-mode .kb-glitch::before, :root.focus-mode .kb-glitch::after,
+:root.focus-mode .kf-glitch::before, :root.focus-mode .kf-glitch::after,
+:root.focus-mode .linux-glitch::before, :root.focus-mode .linux-glitch::after,
+:root.focus-mode .pm-glitch::before, :root.focus-mode .pm-glitch::after,
+:root.focus-mode .pw-glitch::before, :root.focus-mode .pw-glitch::after,
+:root.focus-mode .py-glitch::before, :root.focus-mode .py-glitch::after,
+:root.focus-mode .ra-glitch::before, :root.focus-mode .ra-glitch::after,
+:root.focus-mode .se-glitch::before, :root.focus-mode .se-glitch::after,
+:root.focus-mode .sql-glitch::before, :root.focus-mode .sql-glitch::after,
+:root.focus-mode .ts-glitch::before, :root.focus-mode .ts-glitch::after {
+  content: none !important;
+}
+
+/* 3D tilt blokları — fare hareketiyle JS'in uyguladığı rotateX/rotateY inline
+   stilini boşa çıkarır (dinlenme durumunda; aktif hover sırasında JS'in
+   `!important` inline stili öncelikli kalabilir — bilinen sınır, JS'e dokunulmadı). */
+:root.focus-mode .ap-block, :root.focus-mode .aw-block, :root.focus-mode .az-block,
+:root.focus-mode .br-block, :root.focus-mode .bs-block, :root.focus-mode .cy-block,
+:root.focus-mode .dp-block, :root.focus-mode .git-block, :root.focus-mode .java-block,
+:root.focus-mode .jk-block, :root.focus-mode .jm-block, :root.focus-mode .js-block,
+:root.focus-mode .kb-block, :root.focus-mode .kf-block, :root.focus-mode .linux-block,
+:root.focus-mode .pm-block, :root.focus-mode .pw-block, :root.focus-mode .py-block,
+:root.focus-mode .ra-block, :root.focus-mode .se-block, :root.focus-mode .sql-block,
+:root.focus-mode .ts-block {
+  transform: none !important;
+}
+
+/* Ambiyans sesi aç/kapa butonu — odak modunda anlamsız, tamamen gizlenir. */
+:root.focus-mode [data-testid$="-sound-toggle"] {
+  display: none !important;
+}

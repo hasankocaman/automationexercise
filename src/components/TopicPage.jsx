@@ -19694,6 +19694,18 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
         }
         return isDark
     })
+    // Odak Modu — dekoratif efektleri (parçacık, gece gökyüzü, glitch, 3D tilt, ambiyans sesi)
+    // sadece CSS ile kapatır (bkz. src/focus-mode.css). darkMode ile birebir aynı kalıp.
+    const [focusMode, setFocusMode] = useState(() => {
+        const saved = localStorage.getItem('focusMode')
+        const isFocus = saved !== null ? JSON.parse(saved) : false
+        if (isFocus) {
+            document.documentElement.classList.add('focus-mode')
+        } else {
+            document.documentElement.classList.remove('focus-mode')
+        }
+        return isFocus
+    })
     const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
     const isInitialTabRender = useRef(true)
     const tabsLayoutRef = useRef(null)
@@ -19745,6 +19757,15 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
             document.documentElement.classList.add('light-mode-forced')
         }
     }, [darkMode])
+
+    useEffect(() => {
+        localStorage.setItem('focusMode', JSON.stringify(focusMode))
+        if (focusMode) {
+            document.documentElement.classList.add('focus-mode')
+        } else {
+            document.documentElement.classList.remove('focus-mode')
+        }
+    }, [focusMode])
 
     useEffect(() => {
         if (isInitialTabRender.current) {
@@ -19945,7 +19966,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                     </div>
                 </div>
             )}
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} soundToggle={headerExtra} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={focusMode} setFocusMode={setFocusMode} soundToggle={headerExtra} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">
                 {/* Hero */}

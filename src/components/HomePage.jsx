@@ -77,6 +77,18 @@ function HomePage() {
         }
         return isDark
     })
+    // Odak Modu — dekoratif efektleri (parçacık, gece gökyüzü, glitch, 3D tilt, ambiyans sesi)
+    // sadece CSS ile kapatır (bkz. src/focus-mode.css). darkMode ile birebir aynı kalıp.
+    const [focusMode, setFocusMode] = useState(() => {
+        const saved = localStorage.getItem('focusMode')
+        const isFocus = saved !== null ? JSON.parse(saved) : false
+        if (isFocus) {
+            document.documentElement.classList.add('focus-mode')
+        } else {
+            document.documentElement.classList.remove('focus-mode')
+        }
+        return isFocus
+    })
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState([])
@@ -106,6 +118,15 @@ function HomePage() {
             document.documentElement.classList.add('light-mode-forced')
         }
     }, [darkMode])
+
+    useEffect(() => {
+        localStorage.setItem('focusMode', JSON.stringify(focusMode))
+        if (focusMode) {
+            document.documentElement.classList.add('focus-mode')
+        } else {
+            document.documentElement.classList.remove('focus-mode')
+        }
+    }, [focusMode])
 
     // Debounced search
     useEffect(() => {
@@ -322,6 +343,20 @@ function HomePage() {
                             >
                                 {darkMode ? '☀️' : '🌙'}
                                 <span className="hidden md:inline ml-1">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
+                            </button>
+                            <button
+                                onClick={() => setFocusMode(!focusMode)}
+                                data-testid="focus-mode-toggle"
+                                aria-label={language === 'tr' ? 'Odak modu — dekoratif efektleri kapat' : 'Focus mode — turn off decorative effects'}
+                                title={language === 'tr' ? 'Odak modu — dekoratif efektleri kapat' : 'Focus mode — turn off decorative effects'}
+                                className={`min-w-[36px] min-h-[36px] px-2 md:px-3 py-1 md:py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 ${focusMode
+                                    ? 'bg-emerald-500 text-white hover:bg-emerald-400 ring-2 ring-emerald-300'
+                                    : darkMode
+                                        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                                        : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+                                    }`}
+                            >
+                                🎯
                             </button>
                             {!darkMode && (
                                 <button

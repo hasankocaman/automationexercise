@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext'
 import ZoomControls from './ZoomControls'
 import AccountMenu from './AccountMenu'
 
-function TopicHeader({ darkMode, setDarkMode, soundToggle }) {
+function TopicHeader({ darkMode, setDarkMode, focusMode, setFocusMode, soundToggle }) {
     const { language, t, toggleLanguage } = useLanguage()
     const navigate = useNavigate()
 
@@ -49,6 +49,20 @@ function TopicHeader({ darkMode, setDarkMode, soundToggle }) {
                         >
                             {darkMode ? `☀️ ` : `🌙 `}
                             <span className="hidden md:inline">{darkMode ? t('buttons.lightMode') : t('buttons.darkMode')}</span>
+                        </button>
+                        <button
+                            onClick={() => setFocusMode(!focusMode)}
+                            data-testid="focus-mode-toggle"
+                            aria-label={language === 'tr' ? 'Odak modu — dekoratif efektleri kapat' : 'Focus mode — turn off decorative effects'}
+                            title={language === 'tr' ? 'Odak modu — dekoratif efektleri kapat' : 'Focus mode — turn off decorative effects'}
+                            className={`min-w-[36px] min-h-[36px] px-2 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 ${focusMode
+                                ? 'bg-emerald-500 text-white hover:bg-emerald-400 ring-2 ring-emerald-300'
+                                : darkMode
+                                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                                    : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+                                }`}
+                        >
+                            🎯
                         </button>
                         {soundToggle}
                     </div>

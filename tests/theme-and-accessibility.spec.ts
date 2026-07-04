@@ -88,3 +88,42 @@ test.describe('AC08 — Dark/Light mode toggle davranışı', () => {
         await expect.poll(() => page.evaluate(() => localStorage.getItem('darkMode'))).toBe('false');
     });
 });
+
+// WP3 (fableplan.md) — Odak Modu: dekoratif efektleri (parçacık, gece gökyüzü,
+// glitch, 3D tilt, ambiyans sesi) SADECE CSS ile kapatan toggle. JS efekt
+// kodlarına dokunulmadı — parçacık elemanı DOM'da kalır, sadece görünmez olur
+// (bkz. src/focus-mode.css, TopicHeader.jsx `focus-mode-toggle`).
+test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
+    test('/docker — odak modu açılınca parçacıklar gizlenir, reload sonrası kalıcı, tekrar basınca geri gelir', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        // Başlangıçta odak modu kapalı olmalı (default focusMode='false').
+        await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
+        const particle = page.locator('.dp-particle').first();
+        await expect(particle).toBeVisible();
+
+        const toggle = page.locator('[data-testid="focus-mode-toggle"]');
+        await expect(toggle).toBeVisible();
+        await expect(toggle).toBeEnabled();
+
+        // Odak modunu aç.
+        await toggle.click();
+        await expect(page.locator('html')).toHaveClass(/focus-mode/);
+        await expect(particle).toBeHidden();
+        await expect.poll(() => page.evaluate(() => localStorage.getItem('focusMode'))).toBe('true');
+
+        // Reload sonrası kalıcı olmalı.
+        await page.reload();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await expect(page.locator('html')).toHaveClass(/focus-mode/);
+        await expect(page.locator('.dp-particle').first()).toBeHidden();
+
+        // Tekrar basınca efektler geri gelmeli.
+        await page.locator('[data-testid="focus-mode-toggle"]').click();
+        await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
+        await expect(page.locator('.dp-particle').first()).toBeVisible();
+        await expect.poll(() => page.evaluate(() => localStorage.getItem('focusMode'))).toBe('false');
+    });
+});
