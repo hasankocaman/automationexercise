@@ -10,6 +10,42 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05, `feature/pedagogy-improvements` devam — Test Kapsamı Denetimi: WP1-4 için Eksik Testler Eklendi)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (henüz commit edilmedi — çalışma ağacında bekliyor) |
+| **Kapsam** | Kullanıcı isteğiyle `Documents/acceptancecriterias.md` + `CLAUDE.md` okunup mevcut Playwright paketi (16 dosya, 84+ test) yeniden değerlendirildi. Genel kapsam sağlam bulundu (AC01-10'un çoğu iyi test edilmiş), ama bu branch'teki WP1-4 için sadece geçici/manuel script'lerle doğrulanmış, KALICI testi olmayan 4 nokta tespit edildi ve kapatıldı. |
+| **Commit durumu** | Henüz commit edilmedi — kullanıcı onayı bekliyor (WP1-4'ün kendisi de zaten commit edilmemiş haldeydi, bkz. aşağıdaki 2026-07-04 bölümü). |
+
+### Bu Oturumda Eklenen Testler
+
+1. **`tests/qa-mentor-roadmap-order.spec.ts`** (YENİ) — WP1'in MAP_A düğüm sırasını (Test Temelleri→Algoritma→Manuel Test→Java→Git&GitHub→Selenium→Postman→SQL→REST Assured→**Linux→Docker→Jenkins→AWS**→Kubernetes) ve Kafka'nın artık `extras`'ta (ana hatta değil, `<a href="/kafka">` ile) render edildiğini kilitler. Önceden bu sadece bir kerelik manuel script ile doğrulanmıştı, kalıcı test yoktu.
+2. **`tests/homepage-recommended-badges.spec.ts`** (YENİ) — WP2'nin 4 "önerilen sıra" rozetini (🚀 Buradan başla / Start here, ①②③) doğru linklerin köşesinde, TR+EN'de, `aria-hidden`+`pointer-events:none` ile doğrular.
+3. **`tests/theme-and-accessibility.spec.ts`** — WP3 Odak Modu describe bloğuna `/selenium` testi eklendi (önceden sadece `/docker` test ediliyordu). `focus-mode.css`'in 23 sayfaya mekanik mirror'landığı ve 3 dosyada (`docker`, `selenium`, `playwright`) daha önce bir parser hatası bulunduğu göz önüne alınırsa, ikinci bir sayfada da mekanizmanın çalıştığını doğrulamak anlamlı bir regresyon testi.
+4. **`tests/review-queue.spec.ts`** — WP4'e 2 yeni test eklendi: (a) streak=2 olan kayıt doğru cevaplanınca **mezuniyet** (kayıt kuyruktan tamamen silinir, `recordReviewResult`'taki mezuniyet dalı), (b) tekrar panelinde **yanlış** cevap verilince streak sıfırlanır + nextDue yarına çekilir. Önceden sadece streak 0→1 (ilk doğru tekrar) akışı test ediliyordu — tam da daha önce gerçek bir interval-hesaplama bug'ının bulunduğu, en kritik ve en az test edilmiş mantık burasıydı.
+
+**Test yazarken bulunan/düzeltilen bir hata (test kodunda, üründe değil):** İlk yazımda mezuniyet testinde `page.reload()` kullanılmıştı; `context.addInitScript` her yeni doküman yüklemesinde (reload dahil) tekrar çalışıp sahte kaydı yeniden enjekte ettiğinden test yanlış şekilde fail ediyordu. Düzeltme: reload yerine panel kapatma (`onClose` → `getQueueStats()` yeniden okunuyor) üzerinden doğrulandı.
+
+### Doğrulama (bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (32 dosya)
+- `npm run build` → ✅ PASS (6.72s, 38 static route, dist SEO PASS)
+- Yeni eklenen/değiştirilen 4 test dosyası izole (`--workers=1`) → **12/12 PASS**
+- Tam suite (`npx playwright test --workers=2`, ~90 test) → **79 passed, 7 flaky (retry'da PASS), 4 failed**. Failed'lerin hepsi bu oturumun değişiklikleriyle İLGİSİZ, ortam kaynaklı çıktı:
+  - `mobile-smoke.spec.ts` 2 test — `devices['iPhone 14']` WebKit engine gerektiriyor, bu makinede WebKit browser binary'si hiç kurulu değildi (`npx playwright install webkit` ile kuruldu, sonrasında 2/2 PASS doğrulandı).
+  - `topic-pages-ui.spec.ts` `/sql` ve `/typescript` — izole `--workers=1` ile tekrar çalıştırıldığında ikisi de PASS oldu (biri flaky/retry'da, biri direkt) — önceden defalarca belgelenmiş paralel-worker kaynak çekişmesi flakiness'i (bkz. `/python` için aynı desen), fonksiyonel regresyon DEĞİL.
+  - 7 flaky test (docker-mastery, interview-grading-reset, javascript-page, + 4× topic-pages-ui sayfası) hepsi retry'da PASS oldu — 1.4 saatlik sürekli paralel koşumun yarattığı bilinen kaynak çekişmesi, yeni testlerle ilgisi yok.
+- **Sonuç: WP1-4 testleri eklendikten sonra hiçbir gerçek regresyon yok, WebKit artık kurulu.**
+
+### Sonraki Oturumda Yapılacaklar
+
+1. Bu oturumda eklenen 4 test dosyası + WP1-4'ün kendisi hâlâ commit edilmedi — kullanıcı onayı bekliyor.
+2. `Documents/testcoverage.md` bu oturumda eklenen testleri yansıtacak şekilde güncellenebilir (düşük öncelik, dokunulmadı).
+3. `testcoverage.md`'de önceden belgelenmiş, bu oturumda dokunulmayan bilinen boşluklar hâlâ geçerli: AC09 (roadmap görselleştirme, özellik büyük ölçüde yok), AC05 başarılı AI içeriği testi yok, Firefox/WebKit çapraz tarayıcı projesi `playwright.config.ts`'e eklenmedi, visual regression yok, 15/20/15 mülakat seviye dağılımının build-breaking yapılıp yapılmayacağı kullanıcı kararı bekliyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-04, `feature/pedagogy-improvements` — fableplan.md WP1-4 TAMAMLANDI, WP5 KULLANICI KARARIYLA ERTELENDİ)
 
 | Alan | Değer |

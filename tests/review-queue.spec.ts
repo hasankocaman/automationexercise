@@ -104,4 +104,123 @@ test.describe('WP4 — Review Queue (Bugünkü Tekrar)', () => {
 
         await context.close();
     });
+
+    // src/lib/reviewQueue.js `recordReviewResult`'ta streak REVIEW_QUEUE_GRADUATION_STREAK'e
+    // (3) ulaşınca kayıt kuyruktan TAMAMEN silinir ("mezuniyet"). Geliştirme sırasında
+    // gerçek bir bug burada bulunmuştu (interval INTERVALS[nextStreak-1] yerine
+    // INTERVALS[nextStreak] olmalıydı, bkz. NEXT_SESSION.md WP4 notu) — bu test o
+    // düzeltmenin kalıcı olduğunu, streak=2'den 3'e çıkan kaydın gerçekten silindiğini kilitler.
+    test('/ — streak=2 olan kayıt doğru cevaplanınca mezun olur ve kuyruktan tamamen silinir', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        const now = Date.now();
+        const fakeRecord = {
+            id: 'docker:0:graduating',
+            route: '/docker',
+            pageTitle: '🐳 Docker',
+            question: { tr: 'Mezuniyet sorusu?', en: 'Graduation question?' },
+            options: [
+                { tr: 'Seçenek A', en: 'Option A' },
+                { tr: 'Seçenek B', en: 'Option B' },
+            ],
+            correctIndex: 0,
+            explanation: { tr: 'Açıklama.', en: 'Explanation.' },
+            wrongCount: 1,
+            streak: 2,
+            nextDue: now - DAY_MS,
+            addedAt: now - DAY_MS * 8,
+        };
+
+        await context.addInitScript(([key, recordJson]) => {
+            window.localStorage.setItem(key as string, JSON.stringify([JSON.parse(recordJson as string)]));
+        }, [REVIEW_QUEUE_KEY, JSON.stringify(fakeRecord)]);
+
+        await page.goto('/');
+        await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
+
+        const card = page.locator('[data-testid="review-queue-card"]');
+        await expect(card).toBeVisible();
+        await card.click();
+
+        const panelOptions = page.locator('[data-testid="review-queue-options"] button');
+        await expect(panelOptions.first()).toBeVisible();
+        await panelOptions.nth(0).click(); // doğru seçenek (correctIndex: 0)
+        await page.locator('[data-testid="review-queue-submit"]').click();
+
+        const updatedQueue = await page.evaluate((key) => {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : [];
+        }, REVIEW_QUEUE_KEY);
+
+        expect(updatedQueue.find((item: { id: string }) => item.id === 'docker:0:graduating')).toBeUndefined();
+        expect(updatedQueue.length).toBe(0);
+
+        // Paneli kapat — HomePage onClose'da getQueueStats()'i yeniden okur (bkz.
+        // HomePage.jsx `onClose={() => { ...; setDueReviewCount(getQueueStats(...).dueCount) }}`).
+        // NOT: burada bilinçli olarak page.reload() YAPILMIYOR — context.addInitScript
+        // her yeni doküman yüklemesinde (reload dahil) tekrar çalışıp sahte kaydı
+        // yeniden enjekte eder; asıl doğrulama zaten yukarıdaki localStorage kontrolü.
+        await page.locator('[data-testid="review-queue-close"]').click();
+        await expect(page.locator('[data-testid="review-queue-card"]')).toHaveCount(0);
+
+        await context.close();
+    });
+
+    // recordReviewResult'ın YANLIŞ cevap dalı (`!isCorrect`): streak sıfırlanır,
+    // wrongCount artar, nextDue tekrar yarına çekilir. Önceki iki test sadece DOĞRU
+    // cevap akışını kapsıyordu — bu test panel içi yanlış cevaplama akışını kilitler.
+    test('/ — tekrar panelinde yanlış cevap verilince streak sıfırlanır ve nextDue yarına çekilir', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        const now = Date.now();
+        const fakeRecord = {
+            id: 'docker:0:regressing',
+            route: '/docker',
+            pageTitle: '🐳 Docker',
+            question: { tr: 'Yanlış cevap sorusu?', en: 'Wrong answer question?' },
+            options: [
+                { tr: 'Seçenek A', en: 'Option A' },
+                { tr: 'Seçenek B', en: 'Option B' },
+            ],
+            correctIndex: 1,
+            explanation: { tr: 'Açıklama.', en: 'Explanation.' },
+            wrongCount: 1,
+            streak: 1,
+            nextDue: now - DAY_MS,
+            addedAt: now - DAY_MS * 4,
+        };
+
+        await context.addInitScript(([key, recordJson]) => {
+            window.localStorage.setItem(key as string, JSON.stringify([JSON.parse(recordJson as string)]));
+        }, [REVIEW_QUEUE_KEY, JSON.stringify(fakeRecord)]);
+
+        await page.goto('/');
+        await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
+
+        const card = page.locator('[data-testid="review-queue-card"]');
+        await expect(card).toBeVisible();
+        await card.click();
+
+        const panelOptions = page.locator('[data-testid="review-queue-options"] button');
+        await expect(panelOptions.first()).toBeVisible();
+        await panelOptions.nth(0).click(); // yanlış seçenek (correctIndex: 1)
+        await page.locator('[data-testid="review-queue-submit"]').click();
+
+        const updatedQueue = await page.evaluate((key) => {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : [];
+        }, REVIEW_QUEUE_KEY);
+
+        const updated = updatedQueue.find((item: { id: string }) => item.id === 'docker:0:regressing') as { streak: number; wrongCount: number; nextDue: number } | undefined;
+        expect(updated).toBeTruthy();
+        expect(updated!.streak).toBe(0);
+        expect(updated!.wrongCount).toBe(2);
+        expect(Math.abs(updated!.nextDue - (now + DAY_MS))).toBeLessThan(60_000);
+
+        await context.close();
+    });
 });

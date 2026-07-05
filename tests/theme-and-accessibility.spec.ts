@@ -126,4 +126,31 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
         await expect(page.locator('.dp-particle').first()).toBeVisible();
         await expect.poll(() => page.evaluate(() => localStorage.getItem('focusMode'))).toBe('false');
     });
+
+    // focus-mode.css, 23 sayfanın `*-effects.css` dosyasındaki `prefers-reduced-motion`
+    // kurallarını mekanik olarak `:root.focus-mode` önekiyle mirror'lıyor (bkz.
+    // NEXT_SESSION.md WP3 notu — 3 dosyada [docker, selenium, playwright] bir parser
+    // hatasıyla kural sessizce düşmüştü). Docker dışında ikinci bir sayfada da
+    // mekanizmanın çalıştığını doğrulamak, sayfaya-özel bir CSS regresyonunu yakalar.
+    test('/selenium — odak modu diğer bir sayfada da parçacıkları ve ambiyans ses butonunu gizler', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/selenium');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
+        const particle = page.locator('.se-particle').first();
+        await expect(particle).toBeVisible();
+
+        // Ambiyans ses butonu sadece light mode'da JS tarafından render edilir
+        // (bkz. SeleniumPage.jsx `isLightMode ? <button data-testid="selenium-sound-toggle">`)
+        // — anlamlı bir doğrulama için önce light mode'a geçilmeli.
+        await page.locator('[data-testid="dark-mode-toggle"]').click();
+        const soundToggle = page.locator('[data-testid="selenium-sound-toggle"]');
+        await expect(soundToggle).toBeVisible();
+
+        await page.locator('[data-testid="focus-mode-toggle"]').click();
+        await expect(page.locator('html')).toHaveClass(/focus-mode/);
+        await expect(particle).toBeHidden();
+        await expect(soundToggle).toBeHidden();
+    });
 });
