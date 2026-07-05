@@ -14,8 +14,9 @@ test.describe('CP1 — Docker Sandbox (interaktif terminal)', () => {
         await page.goto('/docker');
         await page.waitForSelector('h1', { timeout: 30_000 });
 
-        // "Temel Komutlar" sekmesine geç (sol dikey sidebar — kısa sekme adı, section title değil)
-        await page.getByRole('button', { name: /Temel Komutlar/ }).first().click();
+        // Sandbox, CP3 sekme atomikleştirmesinden beri "🔄 Yaşam Döngüsü & Debug"
+        // sekmesinde (sol dikey sidebar — kısa sekme adı, section title değil)
+        await page.getByRole('button', { name: /Yaşam Döngüsü/ }).first().click();
 
         const sandbox = page.getByTestId('docker-sandbox');
         await sandbox.scrollIntoViewIfNeeded();
@@ -75,7 +76,7 @@ test.describe('CP1 — Docker Sandbox (interaktif terminal)', () => {
 
         // Dili EN'e çevir (sağ üst toggle içindeki ENG butonu) ve EN sekme adıyla ilerle
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
-        await page.getByRole('button', { name: /Core Commands/ }).first().click();
+        await page.getByRole('button', { name: /Lifecycle & Debug/ }).first().click();
 
         await expect(page.getByTestId('mission-pull-hello')).toContainText('Pull the hello-world image');
 

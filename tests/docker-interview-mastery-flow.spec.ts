@@ -34,18 +34,27 @@ const configured = Boolean(
 const LOCK_TEXT = 'Mülakat sorularına geçmeden önce diğer sekmelerdeki quizlerin en az %60\'ını doğru cevaplamalısın.';
 const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button';
 
-// dockerData.tr.sections sırasıyla: 0 Giriş, 1 Kurulum, 2 Temel Komutlar,
-// 3 Dockerfile & Compose, 4 QA Kullanımı, 5 Ekosistem (her biri 1 quiz içerir),
-// 6 💼 Mülakat S&C (interview-questions). 4/6 doğru = %66.7 (>=%60 eşiğini geçer).
-const QUIZ_TAB_INDEXES_TO_ANSWER_CORRECTLY = [0, 1, 2, 3];
-const INTERVIEW_TAB_INDEX = 6;
+// CP3 sekme atomikleştirmesi sonrası dockerData.tr.sections (14 sekme):
+// 0 Giriş (2 quiz), 1 Kurulum (1), 2 Image'lar, 3 docker run, 4 Yaşam Döngüsü,
+// 5 Volume'ler, 6 Network'ler (1), 7 Dockerfile, 8 Compose (1), 9 Selenium Grid,
+// 10 Playwright & CI, 11 Yaygın Hatalar (1), 12 Ekosistem (1), 13 💼 Mülakat S&C.
+// Sayfa TOPLAMI 7 quiz; gating eşiği sayfa geneli >=%60 → en az 5/7 (%71.4) gerekir.
+const QUIZ_TAB_INDEXES_TO_ANSWER_CORRECTLY = [0, 1, 6, 8];
+const INTERVIEW_TAB_INDEX = 13;
 
 async function answerActiveTabQuizCorrectly(page: Page, tabIndex: number) {
-    const block = dockerData.tr.sections[tabIndex].blocks.find((b: any) => b.type === 'quiz');
-    const correctOption = block.options.find((o: any) => o.id === block.correct);
-    await page.locator('button', { hasText: correctOption.text }).first().click();
-    await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
-    await expect(page.locator('button', { hasText: correctOption.text }).first()).toContainText('✓');
+    // Bir sekmede birden fazla quiz olabilir (sekme 0'da 2 adet) — sekme ilerlemesi
+    // quiz bloklarının >=%60'ını istediğinden HEPSİNİ cevaplıyoruz. Her quiz kendi
+    // kartı (rounded-xl border-2) içinde hedeflenir; global buton araması birden
+    // çok quiz varken Playwright strict-mode ihlali verir.
+    const quizBlocks = dockerData.tr.sections[tabIndex].blocks.filter((b: any) => b.type === 'quiz');
+    for (const block of quizBlocks) {
+        const container = page.locator('div.rounded-xl.border-2', { hasText: String(block.question).slice(0, 60) }).first();
+        const correctOption = block.options.find((o: any) => o.id === block.correct);
+        await container.locator('button', { hasText: correctOption.text }).first().click();
+        await container.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
+        await expect(container.locator('button', { hasText: correctOption.text }).first()).toContainText('✓');
+    }
 }
 
 test.describe('Docker — quiz gating + mülakat AI değerlendirme akışı (happy path)', () => {
@@ -91,19 +100,19 @@ test.describe('Docker — quiz gating + mülakat AI değerlendirme akışı (hap
         await tabButtons.nth(INTERVIEW_TAB_INDEX).click();
         await expect(page.getByText(LOCK_TEXT)).toBeVisible();
 
-        // 2) 2/6 quiz doğru (%33 < %60) — hâlâ kilitli olmalı.
+        // 2) 3/7 quiz doğru (%42.9 < %60) — hâlâ kilitli olmalı.
         await tabButtons.nth(0).click();
-        await answerActiveTabQuizCorrectly(page, 0);
+        await answerActiveTabQuizCorrectly(page, 0); // 2 quiz
         await tabButtons.nth(1).click();
-        await answerActiveTabQuizCorrectly(page, 1);
+        await answerActiveTabQuizCorrectly(page, 1); // 1 quiz
         await tabButtons.nth(INTERVIEW_TAB_INDEX).click();
         await expect(page.getByText(LOCK_TEXT)).toBeVisible();
 
-        // 3) 4/6 quiz doğru (%66.7 >= %60) — kilit açılmalı.
-        await tabButtons.nth(2).click();
-        await answerActiveTabQuizCorrectly(page, 2);
-        await tabButtons.nth(3).click();
-        await answerActiveTabQuizCorrectly(page, 3);
+        // 3) 5/7 quiz doğru (%71.4 >= %60) — kilit açılmalı.
+        await tabButtons.nth(6).click();
+        await answerActiveTabQuizCorrectly(page, 6); // Network'ler — 1 quiz
+        await tabButtons.nth(8).click();
+        await answerActiveTabQuizCorrectly(page, 8); // Docker Compose — 1 quiz
         await tabButtons.nth(INTERVIEW_TAB_INDEX).click();
         await expect(page.getByText(LOCK_TEXT)).not.toBeVisible();
         await expect(page.getByText('Mülakat Pratiği — Sekmeyi Tamamla')).toBeVisible();

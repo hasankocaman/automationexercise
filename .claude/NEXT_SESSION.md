@@ -37,20 +37,83 @@
 - **Kubernetes:** Helm, Ingress, HPA, Strimzi Kafka, `port-forward`, `rollout undo/status/history`, `set image`, namespace/context komutları sandbox'a eklenmedi — statik YAML + mevcut anlatım yeterli, bunlar toy bir sandbox'ta simüle edilecek kadar atomik değil.
 - **`linux-permissions-lab`, `renderK8sPodPlayground` gibi pasif "▶ çalıştır" demoları SİLİNMEDİ** — yeni gerçek terminaller yanlarında ek bir görsel giriş olarak kalabilir, üst üste binme yok.
 
-### CP3 — Sekme Atomikleştirme (HENÜZ BAŞLANMADI — kullanıcı kararı bekliyor)
+### CP3 — Sekme Atomikleştirme: ✅ TAMAMLANDI (2026-07-05 devam #8 — detay aşağıdaki tarihli bölümde, HENÜZ COMMIT EDİLMEDİ)
 
-**Ne:** Docker'ın 7 mega-sekmesini (§16 W3Schools atomik standardı gereği) ~15 atomik başlığa bölmek: Docker Nedir / Kurulum / Image'lar / Container'lar / docker run / exec & logs / Dockerfile / Docker Compose / Volumes / Networks / QA: Selenium Grid / QA: CI'da Docker / Yaygın Hatalar / Ekosistem / Mülakat.
+Kullanıcı "riskleri analiz et, devam edilecekse ya sen yap ya Sonnet için prompt yaz" dedi.
+Riskler zaten koda karşı doğrulanmış olduğu ve iş, aşağıdaki (arşiv) risk 4'te "Sonnet
+sınıfının üstü" olarak işaretlendiği için Fable kendisi uyguladı (Sonnet promptu yazmak
+katma değersizdi — contentplan.md'de zaten vardı). Sonuç: Docker 7 → **14 atomik sekme**;
+localStorage index migrasyonu (`dockerData.progressMigration` + `TopicPage.migrateTabProgress`)
+yazıldı ve gerçek tarayıcıda eski-veri-enjeksiyonu testiyle doğrulandı; etkilenen testler
+güncellendi — bu sırada `docker-interview-mastery-flow.spec.ts`'in CP4'ten beri sessizce
+kırık olan "4/6 quiz" varsayımı (gerçekte 4/7=%57<%60) da bulunup düzeltildi.
 
-**Neden riskli — 4 somut risk (bu oturumda `grep` ile DOĞRULANDI, artık varsayım değil):**
+**(ARŞİV) Uygulama öncesi risk analizi — 4 somut risk (grep ile doğrulanmıştı):**
 
 1. **localStorage veri kaybı riski — DOĞRULANDI (`TopicPage.jsx`):** Anahtarın kendisi `progress_${pageKey}` / `quizProgress_${pageKey}` / `quizScore_${pageKey}` / `quizAttempted_${pageKey}` şeklinde PER-SAYFA'dır (satır ~20014-20042 okuma, ~20148-20212 yazma) — ama bu anahtarların DEĞERİ, tab INDEX'ini nesne anahtarı olarak kullanan bir JSON obje: `completedTabs[tabIndex]`, `quizVerifiedTabs[tabIndex]`, `quizAttempted[i]` (satır ~20109, ~20161, ~20326 — örn. `Object.keys(quizAttempted[i] || {})`). Yani localStorage'da fiilen `{"0": true, "2": true, "5": true}` gibi bir şey saklanıyor. Docker'ın sekme SAYISI/SIRASI 7'den ~15'e çıkarsa, eskiden "index 2 = Filesystem & Navigation" iken yeni düzende "index 2" TAMAMEN FARKLI bir sekme olur — kullanıcının localStorage'ındaki `{"2": true}` artık YANLIŞ sekmeyi tamamlanmış gösterir. Bu spekülasyon değil, kod okunarak doğrulanmış bir mekanizma. **Çözüm önerisi (kararı CP3 uygulayıcısına kalır):** ya index yerine `route`/sabit-id bazlı anahtarlamaya geçiş (migrasyon gerektirir — eski `{index: bool}` verisini okuyup yeni şemaya çevirecek bir tek-seferlik migrasyon fonksiyonu), ya da CP3'ü YENİ bir sayfa/route gibi ele alıp eski Docker sekme verisini kasıtlı olarak sıfırlamak (kullanıcıya açıkça söylenmeli).
 2. **Test kırılması — DOĞRULANDI:** `tests/topic-pages-ui.spec.ts` sekmeleri POZİSYONEL index ile geziyor (`tabButtons.nth(i)`, satır ~70) — sekme sayısı değişince bu döngü otomatik uyum sağlar (kırılmaz) AMA `tests/quiz-retry-mechanism.spec.ts` gibi dosyalar `dockerData.tr.sections[0].blocks.find(b => b.type==='quiz')` şeklinde SABİT bir section INDEX'ine (`sections[0]`) doğrudan referans veriyor — CP3 sekmeleri yeniden sıralarsa/bölerse `sections[0]`'ın hangi konuya karşılık geldiği değişir ve bu testler YANLIŞ bloğu hedefleyip sessizce yanlış assert etmeye başlayabilir (bu oturumda CP2/CP4 sırasında `sections[0]`'a yeni quiz eklenince tam olarak bu sınıfta bir regresyon zaten yaşandı, bkz. aşağıdaki CP4 bölümü). `docker-sandbox.spec.ts`, `docker-interview-mastery-flow.spec.ts` gibi dosyalarda da sekme adına göre `getByRole('button', { name: /.../ })` araması var — sekme adları/sayısı değişince bu selector'lar güncellenmeli.
 3. **Mülakat gating bozulma riski:** %60 quiz eşiği (AC02-03) `countQuizBlocksInTab(tabIndex)` ile sekme bazında hesaplanıyor (satır ~20109) — sekmeler bölününce her sekmenin quiz SAYISI ve dolayısıyla toplam dağılım değişir, CLAUDE.md §22'deki 2. ve 3. E2E kontrolleri (gating kapalı/açık durum) yeniden doğrulanmalı.
 4. **Büyüklük sınıfı:** Bu, fableplan.md'nin "Sonnet'in yapmayacağı işler" listesindeki Python/Java atomikleştirmesiyle AYNI SINIF bir iştir (küçük ölçekli pilot olarak Docker seçildi) — Docker pilotu başarılı olursa Python/Java için emsal oluşturacağından karar ağırlığı yüksek.
 
-**Uygulama planı hazır:** `contentplan.md`'de CP3 için kullanıcı onayından SONRA kullanılacak tam bir Sonnet promptu zaten yazılı (3 adımlı: keşif → kullanıcıya rapor+onay → uygulama). Onay gelirse doğrudan o prompt kullanılabilir, yeniden tasarım gerekmez.
+**Risklerin akıbeti:** Risk 1 → migrasyon mekanizmasıyla çözüldü (veri sıfırlanMADI, cömert
+taşıma). Risk 2 → `docker-sandbox.spec.ts` (sekme adı), `docker-interview-mastery-flow` ve
+`interview-grading-and-reset` (index + çoklu-quiz helper) güncellendi; `sections[0]`'a bağımlı
+testler (quiz-retry, i18n, quiz-ai, review-queue) sekme 0 değişmediği için etkilenmedi ve
+koşularak doğrulandı. Risk 3 → §22 kontrol 2-6 gerçek AI çağrısı dahil koşuldu, PASS.
+Risk 4 → pilot başarılı; Python/Java atomikleştirmesi için emsal mekanizma
+(`progressMigration`) artık hazır ve generic.
 
-**Sonraki adım:** Kullanıcı CP3'e ne zaman hazır olduğuna karar verecek. O ana kadar contentplan.md'nin geri kalanı (CP1-CP5.3) tamamlanmış sayılır; CP5 yayılımının başka sayfalara (opsiyonel, contentplan.md'de "sonra kararlaştırılacak" notuyla) genişletilmesi CP3'ten bağımsız olarak istenebilir.
+**Sonraki adım:** contentplan.md'nin TÜM iş paketleri (CP1-CP5.3 + CP3) tamamlandı. CP3 işi
+commit onayı bekliyor (aşağıdaki devam #8 bölümü). İstenirse sıradaki doğal adımlar: (a) CP3
+kalıbını Python/Java'ya taşımak (büyük iş, ayrı planlama ister), (b) CP5 yayılımını yeni
+sayfalara genişletmek.
+
+---
+
+## Güncel Branch Durumu (2026-07-05 devam #8, `feature/pedagogy-improvements` — CP3: Docker Sekme Atomikleştirme TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP5.3 `abaaa5a` + docs `9679f13`/`902c97a`'ya kadar commit edilmiş; bu oturumun CP3 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı: "NEXT_SESSION.md'yi oku, riskleri analiz et, devam edilecekse ya sen yap ya Sonnet için prompt yaz." Riskler önceden koda karşı doğrulanmış olduğundan ve iş Sonnet-üstü sınıfta işaretlendiğinden Fable CP3'ü kendisi uyguladı (contentplan.md'deki 3 adımlı plan izlendi: keşif → tasarım → uygulama). |
+
+### Yeni sekme yapısı (7 → 14, EN/TR simetrik)
+
+`0 🎯 Giriş (2 quiz) | 1 ⚙️ Kurulum (1) | 2 📥 Image'lar | 3 🚀 Container: docker run | 4 🔄 Yaşam Döngüsü & Debug (Docker Sandbox burada) | 5 💾 Volume'ler | 6 🌐 Network'ler (1) | 7 📝 Dockerfile (+multi-stage +.dockerignore) | 8 🧩 Docker Compose (1) | 9 🧪 QA: Selenium Grid | 10 🎭 QA: Playwright & CI | 11 🩺 Yaygın Hatalar (1) | 12 🔗 Ekosistem (1) | 13 💼 Mülakat S&C`
+
+Tasarım notları:
+- **Blok sırası korundu** (bölme = sınır ekleme; içerik taşınmadı/yeniden sıralanmadı) — contentplan'ın "docker run / exec & logs" ayrı sekmeleri yerine Container Commands 2'ye bölündü (run | lifecycle+debug); exec&logs tek başına 3 bloktu, aşırı parçalama olurdu.
+- **W3Schools kontrolü (contentplan Adım 1c):** W3Schools'ta bağımsız bir Docker müfredatı YOK (sadece DevOps bootcamp içinde) — §16'nın "atomik dikey hiyerarşi" STİLİ esas alındı, birebir konu listesi kıyası mümkün değildi.
+- **7 yeni §9.3-standardında simple-box yazıldı** (×2 dil: run, lifecycle, volumes, networks, compose, playwright-CI, troubleshooting); mevcut 3 simple-box (komut grameri/kütüphane, Dockerfile/tarif+orkestra, kullan-at bardak) kendi yeni sekmelerinin başında kaldı.
+- **2 bayat callout düzeltildi** (×2 kopya EN/TR section): Images sekmesindeki "bu sekmenin altındaki sandbox" ve run sekmesindeki "aşağıdaki sandbox" metinleri, sandbox artık "🔄 Yaşam Döngüsü & Debug" sekmesinde olduğundan yeni sekmeyi işaret edecek şekilde güncellendi (bölmenin kendisi metinleri yanlışlaştırıyordu — içerik-dokunma yasağının bilinçli istisnası).
+
+### localStorage Migrasyonu (Risk 1'in çözümü — veri sıfırlanMADI)
+
+- **`dockerData.js` → `progressMigration: { version: 2, tabMap: {0:[0],1:[1],2:[2,3,4,5,6],3:[7,8],4:[9,10,11],5:[12],6:[13]} }`** exportu eklendi.
+- **`TopicPage.jsx` → `migrateTabProgress(data)`** (generic, her sayfada kullanılabilir — Python/Java atomikleştirmesi için hazır emsal): useState initializer'larından önce çağrılır, `progressVersion_<pageKey>` damgasıyla idempotent. Kurallar: `progress`/`quizProgress` işaretleri tabMap'teki TÜM torunlara taşınır (cömert yorum); 1:1 taşınan sekmelerde `quizScore`/`quizAttempted` blok-index verisi AYNEN kopyalanır (içerik değişmedi, sadece index kaydı); bölünen sekmelerin quiz-doğrulanmış torunlarında o sekmedeki tüm quiz blokları doğru sayılır (sidebar ✓ ile %60 gating tutarlı kalsın diye).
+- **Gerçek tarayıcıda doğrulandı:** eski 7-sekme verisi enjekte eden geçici bir Playwright testi yazıldı-koşuldu-silindi (1/1 PASS: doğru remap + kısmi skorun korunması + idempotentlik + 14 sekme render).
+- **Bilinen sınır (kabul edildi):** Supabase `user_progress.topic_slug` eski index'lerle kalır (rozet sayımı kümülatif olduğundan zarar yok, en kötü hafif enflasyon); `SaveProgressButton` "kaldığı yerden devam" kaydı eski index'i işaret edebilir (yanlış sekme açılır, veri bozulmaz). İkisi de local-first mimaride kabul edilebilir bulundu, CP3 kapsamı dışı.
+
+### Test Güncellemeleri (Risk 2)
+
+- `docker-sandbox.spec.ts`: sekme adı `/Temel Komutlar/` → `/Yaşam Döngüsü/`, `/Core Commands/` → `/Lifecycle & Debug/`.
+- `docker-interview-mastery-flow.spec.ts` + `interview-grading-and-reset.spec.ts`: `INTERVIEW_TAB_INDEX` 6→13; quiz sekmeleri [0,1,2,3]→[0,1,6,8]; helper artık sekmedeki TÜM quizleri kendi kartı (`div.rounded-xl.border-2` container) içinde cevaplıyor (tek-quiz `.find()` + global buton araması, 2 quizli sekmede strict-mode ihlali/eksik sayım veriyordu).
+- **Yol boyunca bulunan GERÇEK kırık test (CP3'ten bağımsız):** mastery-flow CP4'ün 2. quiz'i eklemesinden beri "4/6=%66" varsayımıyla yaşıyordu — gerçekte 4/7=%57<%60 olduğundan test (env-gated olduğu için hiç koşulmadan) sessizce kırıktı. CP3 güncellemesiyle 5/7=%71.4 olarak düzeltildi ve gerçek AI çağrısıyla koşulup doğrulandı.
+- Değişiklik GEREKTİRMEYENLER (sekme 0 aynen kaldığı için): `quiz-retry-mechanism`, `i18n-content-toggle`, `quiz-ai-explanation-access`, `review-queue`, `mobile-smoke` (pozisyonel), `topic-pages-ui` (pozisyonel döngü, 14 sekmeye otomatik uyum).
+
+### Doğrulama (CLAUDE.md §1.1 + §22 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (32 dosya)
+- `npm run build` → ✅ PASS (14.8s, 38 static route, dist SEO PASS)
+- Playwright (hepsi --workers=1): `docker-sandbox` 2/2 ✅, `quiz-retry-mechanism` 3/3 ✅, `review-queue` 4/4 ✅, `topic-pages-ui -g docker` ✅, `i18n-content-toggle` tam suite (docker dahil 28) + `quiz-ai-explanation-access` 3 → 31/31 ✅, `mobile-smoke -g docker` ✅, geçici migrasyon testi 1/1 ✅ (sonra silindi).
+- **§22 kontrol 2-6 (gating + AI):** `interview-grading-and-reset` ✅ 1/1 (5/7 gate açılışı + textarea + mock-AI hata dayanıklılığı + reset akışı + Supabase doğrulaması); `docker-interview-mastery-flow` ✅ 1/1 (kilitli %0 ve %42.9'da, açık %71.4'te, GERÇEK Groq AI değerlendirmesi ≥%80, sekme tamamlama + Supabase satırı).
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar/simple-box'lar Türkçe (EN section kopyaları İngilizce — tasarım gereği); i18n EN-modda-Türkçe-karakter testi docker dahil PASS.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP3 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosyalar: `src/data/dockerData.js`, `src/components/TopicPage.jsx`, `tests/docker-sandbox.spec.ts`, `tests/docker-interview-mastery-flow.spec.ts`, `tests/interview-grading-and-reset.spec.ts`, `.claude/NEXT_SESSION.md`.
+2. contentplan.md'nin tüm iş paketleri bitti. Doğal adaylar: CP3 kalıbını (migrasyon mekanizması hazır) Python/Java'ya taşımak; veya CP5 yayılımını yeni sayfalara genişletmek; veya branch'i main'e merge/push etmek (tümü kullanıcı kararı).
+3. Bilinen küçük borçlar: Supabase topic_slug eski-index kalıntısı (yukarıda), TR'de Playwright compose bloğu asimetrisi (CP2'den beri biliniyor, ayrı çeviri görevi).
 
 ---
 

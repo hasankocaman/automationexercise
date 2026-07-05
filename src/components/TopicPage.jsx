@@ -19974,6 +19974,89 @@ function TSErrorAnimationBlock({ block, darkMode, language }) {
 
 // ─── TopicPage ────────────────────────────────────────────────────────────────
 
+// CP3 sekme atomikleştirme migrasyonu: Bir sayfanın sekme SAYISI/SIRASI değiştiğinde
+// (örn. Docker 7 → 14 sekme) localStorage'daki index-anahtarlı ilerleme verisi
+// (`progress_*`, `quizProgress_*`, `quizScore_*`, `quizAttempted_*` — hepsi
+// { [tabIndex]: ... } şeklinde) eski düzene göre yazılmış olur ve YANLIŞ sekmeyi
+// tamamlanmış gösterir. Data dosyası `progressMigration: { version, tabMap }`
+// export ederse bu fonksiyon eski index'leri yeni index'lere TEK SEFERLİK çevirir:
+//  - `progress`/`quizProgress`: eski sekmenin işareti, tabMap'teki TÜM torun
+//    sekmelere taşınır (kullanıcının kazanılmış ilerlemesi cömert yorumla korunur).
+//  - `quizScore`/`quizAttempted`: blok index'leri bölünme sonrası genel olarak
+//    hesaplanamayacağından, 1:1 taşınan sekmelerde (içerik aynı, sadece index
+//    kaydı) olduğu gibi kopyalanır; quiz ile DOĞRULANMIŞ eski sekmelerin torun
+//    sekmelerinde ise o sekmedeki tüm quiz blokları "doğru" sayılır — böylece
+//    sidebar ✓'leri ile mülakat gating (%60) birbiriyle tutarlı kalır.
+// Migrasyon idempotenttir: `progressVersion_<pageKey>` damgası yazılır, StrictMode
+// çift render'ında ve sonraki ziyaretlerde tekrar çalışmaz.
+const migratedProgressPages = new Set()
+function migrateTabProgress(data) {
+    const migration = data?.progressMigration
+    if (!migration?.version || !migration?.tabMap) return
+    const d = data['tr'] || data['en']
+    const pageKey = (d?.hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+    if (!pageKey || migratedProgressPages.has(pageKey)) return
+    migratedProgressPages.add(pageKey)
+    try {
+        const versionKey = `progressVersion_${pageKey}`
+        const storedVersion = parseInt(localStorage.getItem(versionKey) || '1', 10)
+        if (storedVersion >= migration.version) return
+        const read = (prefix) => {
+            try { return JSON.parse(localStorage.getItem(`${prefix}_${pageKey}`)) || {} } catch { return {} }
+        }
+        const oldCompleted = read('progress')
+        const oldVerified = read('quizProgress')
+        const oldScore = read('quizScore')
+        const oldAttempted = read('quizAttempted')
+        const hasAnyData = [oldCompleted, oldVerified, oldScore, oldAttempted]
+            .some((obj) => Object.keys(obj).length > 0)
+        if (hasAnyData) {
+            const newCompleted = {}
+            const newVerified = {}
+            const newScore = {}
+            const newAttempted = {}
+            // Yeni sekmedeki tüm quiz/quiz-fill bloklarının blok index'lerini işaretler.
+            const allQuizMarksInTab = (tabIndex) => {
+                const marks = {}
+                const blocks = d?.sections?.[tabIndex]?.blocks || []
+                blocks.forEach((b, i) => { if (b.type === 'quiz' || b.type === 'quiz-fill') marks[i] = true })
+                return marks
+            }
+            Object.entries(migration.tabMap).forEach(([oldIdx, descendants]) => {
+                (descendants || []).forEach((newIdx) => {
+                    if (oldCompleted[oldIdx]) newCompleted[newIdx] = true
+                    if (descendants.length === 1) {
+                        // İçeriği değişmeden sadece index'i kayan sekme: blok index'leri
+                        // hâlâ geçerli, quiz verisi olduğu gibi taşınır.
+                        if (oldScore[oldIdx]) newScore[newIdx] = oldScore[oldIdx]
+                        if (oldAttempted[oldIdx]) newAttempted[newIdx] = oldAttempted[oldIdx]
+                    }
+                    if (oldVerified[oldIdx]) {
+                        newVerified[newIdx] = true
+                        // Bölünmüş sekmenin torunları: kazanılmış doğrulamayı korumak için
+                        // torun sekmedeki tüm quiz blokları doğru/denendi sayılır.
+                        if (descendants.length > 1) {
+                            const marks = allQuizMarksInTab(newIdx)
+                            if (Object.keys(marks).length > 0) {
+                                newScore[newIdx] = { ...marks }
+                                newAttempted[newIdx] = { ...marks }
+                            }
+                        }
+                    }
+                })
+            })
+            const write = (prefix, value) => {
+                try { localStorage.setItem(`${prefix}_${pageKey}`, JSON.stringify(value)) } catch { }
+            }
+            write('progress', newCompleted)
+            write('quizProgress', newVerified)
+            write('quizScore', newScore)
+            write('quizAttempted', newAttempted)
+        }
+        localStorage.setItem(versionKey, String(migration.version))
+    } catch { /* migrasyon başarısız olsa da sayfa normal açılmaya devam etmeli */ }
+}
+
 function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const { language } = useLanguage()
     const location = useLocation()
@@ -20007,6 +20090,10 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
     const isInitialTabRender = useRef(true)
     const tabsLayoutRef = useRef(null)
+    // Aşağıdaki dört useState initializer'ı localStorage'ı OKUMADAN ÖNCE, sekme
+    // yapısı değişmiş sayfalarda eski index-bazlı veriyi yeni düzene çevir
+    // (idempotent — bkz. migrateTabProgress tanımı).
+    migrateTabProgress(data)
     const [completedTabs, setCompletedTabs] = useState(() => {
         try {
             const d = data['tr'] || data['en']

@@ -551,6 +551,24 @@ Kubernetes or Jenkins can trace exactly which artifact was deployed.`,
 ]
 
 export const dockerData = {
+  // CP3 sekme atomikleştirme (2026-07-05): 7 mega-sekme → 14 atomik sekme.
+  // Eski localStorage ilerlemesi (index-anahtarlı) bu haritayla yeni düzene
+  // çevrilir — TopicPage.jsx'teki migrateTabProgress bunu okur. Sekme yapısı
+  // ileride TEKRAR değişirse: version'ı artır ve tabMap'i o değişikliğe göre
+  // güncelle (harita her zaman "bir önceki yayınlanmış düzen → güncel düzen"
+  // dönüşümünü tanımlar).
+  progressMigration: {
+    version: 2,
+    tabMap: {
+      0: [0],                // Giriş → Giriş
+      1: [1],                // Kurulum → Kurulum
+      2: [2, 3, 4, 5, 6],    // Temel Komutlar → Image'lar / docker run / Yaşam Döngüsü & Debug / Volume'ler / Network'ler
+      3: [7, 8],             // Dockerfile & Compose → Dockerfile / Docker Compose
+      4: [9, 10, 11],        // QA Kullanımı → Selenium Grid / Playwright & CI / Yaygın Hatalar
+      5: [12],               // Ekosistem → Ekosistem
+      6: [13],               // Mülakat → Mülakat
+    },
+  },
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
   // ══════════════════════════════════════════════════════════════
@@ -560,7 +578,7 @@ export const dockerData = {
       subtitle: 'Containerization for Developers & QA Engineers',
       intro: 'Master Docker from zero to interview level. Learn how to containerize your test environments, run Selenium Grid and Playwright in Docker, and ensure "it works on my machine" becomes "it works everywhere."',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '📦 Core Commands', '🗂️ Dockerfile & Compose', '🧪 QA Use Cases', '🔗 Ecosystem', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '📥 Images', '🚀 Containers: docker run', '🔄 Lifecycle & Debug', '💾 Volumes', '🌐 Networks', '📝 Dockerfile', '🧩 Docker Compose', '🧪 QA: Selenium Grid', '🎭 QA: Playwright & CI', '🩺 Troubleshooting', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
       {
@@ -850,7 +868,7 @@ docker images              # List downloaded images (should be empty)`,
 
       // ── SECTION 2: CORE COMMANDS ───────────────────────────────────────────
       {
-        title: '📦 Core Docker Commands',
+        title: '📥 Images',
         blocks: [
           {
             type: 'simple-box',
@@ -874,8 +892,8 @@ docker search selenium`,
             type: 'callout',
             icon: '🧪',
             content: {
-              tr: 'Yukarıdaki "📦 Temel Komutlar" sekmesinin altındaki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
-              en: 'Try it in the Docker Sandbox further down this "Core Commands" tab: type docker pull nginx and watch the IMAGES shelf update live.',
+              tr: '"🔄 Yaşam Döngüsü & Debug" sekmesindeki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
+              en: 'Try it in the Docker Sandbox in the "🔄 Lifecycle & Debug" tab: type docker pull nginx and watch the IMAGES shelf update live.',
             },
           },
           {
@@ -910,6 +928,17 @@ docker image prune -a`,
             ],
             xpReward: 10,
           },
+        ],
+      },
+      // ── SECTION: CONTAINERS — DOCKER RUN ──────────────────────────────────
+      {
+        title: '🚀 Containers: docker run',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🚀',
+            content: "docker run is the moment a blueprint becomes a building: the image is the frozen architectural plan, and 'docker run' pours the concrete, wires the electricity, and hands over the keys — a live container with its own filesystem, network port, and name. So why does one single command need flags like -d, -p, and --name instead of just 'launch it'? Because each flag configures a DIFFERENT layer of that construction — exactly the way a Java constructor's parameters configure one object instance while the class file stays untouched: you can 'new' ten instances from one class, and you can run ten containers from one image. For QA this is daily bread: a wrong -p port mapping is the classic reason your Selenium test suddenly cannot reach localhost:8080 even though the app container looks 'green' — the app is fine, your door number is wrong.",
+          },
           { type: 'heading', text: 'Container Commands' },
           {
             type: 'code',
@@ -925,8 +954,8 @@ docker run -d -p 8080:80 nginx     # -p host:container port mapping`,
             type: 'callout',
             icon: '🧪',
             content: {
-              tr: 'Bu tam olarak aşağıdaki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
-              en: 'This is exactly mission 2 in the sandbox below: type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
+              tr: 'Bu tam olarak bir sonraki "🔄 Yaşam Döngüsü & Debug" sekmesindeki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
+              en: 'This is exactly mission 2 in the sandbox in the next tab ("🔄 Lifecycle & Debug"): type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
             },
           },
           {
@@ -1012,6 +1041,17 @@ It will restart automatically if it crashes.`,
               { tr: 'Otomatik yeniden başlatma politikası --restart flag\'i ile verilir, örn: --restart unless-stopped.', en: 'The auto-restart policy is given with the --restart flag, e.g. --restart unless-stopped.' },
             ],
             xpReward: 15,
+          },
+        ],
+      },
+      // ── SECTION: CONTAINER LIFECYCLE & DEBUG ──────────────────────────────
+      {
+        title: '🔄 Lifecycle & Debug',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔄',
+            content: "A container's life is like a hotel guest's stay: docker ps is the reception desk listing who is currently checked in, stop/start is stepping out and returning to the room, rm is checking out for good — and logs/exec are the room's security camera and the master key that lets you walk in while the guest is still inside. Why do stop and rm exist as two separate steps instead of one 'kill it' command? For the same reason Java separates close() from letting the object be garbage-collected: a stopped container keeps its filesystem — invaluable evidence — while rm destroys it permanently. In real QA work this order matters: when a test container crashes in CI at 3 AM, the engineer who ran 'docker logs' BEFORE 'docker rm' has the stack trace; the one who cleaned up first has nothing to attach to the bug report.",
           },
           {
             type: 'code',
@@ -1135,6 +1175,17 @@ docker run -d -p 8080:80 --name my-running-app my-app
 # 3. Scale and persist data with volumes
 docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
             language: 'bash'
+          },
+        ],
+      },
+      // ── SECTION: VOLUMES ──────────────────────────────────────────────────
+      {
+        title: '💾 Volumes',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '💾',
+            content: "A container's filesystem is a whiteboard in a rented meeting room: the moment your booking ends (docker rm), the cleaning crew wipes it clean. A volume is the binder you carry out of the room — it survives every meeting. But wait — if containers are supposed to be disposable, why do we need persistence at all? Because SOME state is the product, not the pollution: test reports, failure screenshots, database data you seeded for a demo. Java has the same split — objects on the heap vanish when the JVM exits, which is exactly why you serialize what matters to disk. For QA the distinction is a daily trap: run your Selenium suite in a container without mounting a volume for the report folder, and a red pipeline leaves you with no HTML report and no failure screenshots — the evidence died with the container.",
           },
           { type: 'heading', text: 'Volume Commands (Persistent Storage)' },
           {
@@ -1301,6 +1352,17 @@ junit.xml still exists on the host in ./allure-results.`,
             ],
             xpReward: 15,
           },
+        ],
+      },
+      // ── SECTION: NETWORKS ─────────────────────────────────────────────────
+      {
+        title: '🌐 Networks',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🌐',
+            content: "A Docker network is an office phone directory: containers on the same network call each other by NAME (extension 'db'), instead of memorizing desk coordinates (IP addresses that change on every restart). Why does Docker insist on name-based discovery instead of letting you hardcode container IPs? For the same reason Java code depends on interfaces instead of concrete classes: the implementation (IP) can be swapped on every restart while the contract (service name) stays stable. This is the single most common beginner failure in QA automation: your test container calls localhost:5432 and gets 'connection refused' — but localhost inside a container is the container ITSELF, not your machine. Put the test and the database on one network and dial 'db:5432' — call the directory, not the desk.",
+          },
           { type: 'heading', text: 'Network Commands' },
           {
             type: 'code',
@@ -1368,7 +1430,7 @@ docker network connect qa-network my-container`,
 
       // ── SECTION 3: DOCKERFILE & COMPOSE ───────────────────────────────────
       {
-        title: '🗂️ Dockerfile & Docker Compose',
+        title: '📝 Dockerfile',
         blocks: [
           {
             type: 'simple-box',
@@ -1629,6 +1691,17 @@ Build time and image size dropped noticeably.`,
               { tr: 'Aradığın klasör adı "node_modules/" — sonunda / olmalı çünkü bir klasördür.', en: 'The folder you need is "node_modules/" — it ends with / because it is a directory.' },
             ],
             xpReward: 10,
+          },
+        ],
+      },
+      // ── SECTION: DOCKER COMPOSE ───────────────────────────────────────────
+      {
+        title: '🧩 Docker Compose',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧩',
+            content: "docker compose up is a theatre director's single clap that sends the whole cast on stage: app, database, and Selenium Grid enter together, in the right order, each knowing its role from one shared script (the YAML file). If you can already start each container with docker run, why learn a whole new tool? Count the flags: three services with ports, volumes, networks, and env vars means ~15 hand-typed arguments across 3 commands, in the right order, every single time — Compose is to docker run what Maven is to hand-typing javac with a 200-entry classpath: the build recipe lives in a versioned file, not in your shell history. For QA this file IS the test environment's single source of truth: when a teammate says 'integration tests fail on my machine', your first question stops being 'what did you type?' and becomes 'did you git pull the latest compose.yml?'",
           },
           { type: 'heading', text: 'Docker Compose — Multi-Container Setup' },
           {
@@ -1975,7 +2048,7 @@ Only the tests under tests/smoke/ ran, in verbose mode.`,
 
       // ── SECTION 4: QA USE CASES ────────────────────────────────────────────
       {
-        title: '🧪 Docker for QA',
+        title: '🧪 QA: Selenium Grid',
         blocks: [
           {
             type: 'simple-box',
@@ -2140,6 +2213,17 @@ No local Chrome installation is required.`,
             ],
             xpReward: 15,
           },
+        ],
+      },
+      // ── SECTION: QA — PLAYWRIGHT & CI ─────────────────────────────────────
+      {
+        title: '🎭 QA: Playwright & CI',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: "Running Playwright in Docker is shipping the whole laboratory, not just the experiment: the official image freezes the browser binaries, system fonts, and OS libraries at exact versions, so the pixel your test sees in CI is the pixel you saw locally. Why isn't 'npm install' enough — it already pins the Playwright version, doesn't it? Because your test's behavior also depends on what npm does NOT install: system-level Chromium dependencies, font rendering, timezone, and locale — the same reason a Java team pins the exact JDK image in CI instead of trusting 'whatever Java 17 the agent happens to have'. The QA payoff is retiring the most expensive sentence in test automation, 'flaky — passes on rerun': when your CI browser is bit-for-bit identical to your local one, a red test stops being weather and starts being evidence.",
+          },
           { type: 'heading', text: 'Running Playwright Tests in Docker' },
           {
             type: 'code',
@@ -2235,6 +2319,17 @@ docker run --rm \\
 # Results are saved in ./test-results on your host machine`,
           },
           ...dockerQaInteractiveBlocks,
+        ],
+      },
+      // ── SECTION: TROUBLESHOOTING ──────────────────────────────────────────
+      {
+        title: '🩺 Troubleshooting',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🩺',
+            content: "Docker error messages are like a car dashboard: 'port is already allocated' is not the engine exploding — it is one specific warning light pointing at one specific subsystem, and this tab is the manual that maps each light to its fuse box. Why memorize error patterns instead of just googling each one as it appears? Because in a broken CI pipeline the clock runs differently: recognizing 'Cannot connect to the Docker daemon' as a service-not-running problem in 10 seconds versus 30 minutes of trial-and-error is the difference between a footnote and a blocked release — exactly like a seasoned Java developer telling NullPointerException from ClassNotFoundException across the room, because each points at a completely different layer. Every error below is real and harvested from actual QA pipelines; learn the shape of each one now, while nothing is on fire.",
+          },
           { type: 'heading', text: 'Real-World Scenarios & Solutions' },
           {
             type: 'error-dictionary',
@@ -2592,7 +2687,7 @@ options.add_argument('--disable-dev-shm-usage')`,
       subtitle: 'Developer ve QA Mühendisleri İçin Containerization',
       intro: 'Docker\'ı sıfırdan mülakat seviyesine taşı. Test ortamlarını containerize et, Selenium Grid ve Playwright\'ı Docker\'da çalıştır ve "bende çalışıyor" sorununu "her yerde çalışıyor" çözümüne dönüştür.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '📦 Temel Komutlar', '🗂️ Dockerfile & Compose', '🧪 QA Kullanımı', '🔗 Ekosistem', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '📥 Image\'lar', '🚀 Container: docker run', '🔄 Yaşam Döngüsü & Debug', '💾 Volume\'ler', '🌐 Network\'ler', '📝 Dockerfile', '🧩 Docker Compose', '🧪 QA: Selenium Grid', '🎭 QA: Playwright & CI', '🩺 Yaygın Hatalar', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────
       {
@@ -2854,7 +2949,7 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
 
       // ── SECTION 2: CORE COMMANDS (TR) ─────────────────────────────────────
       {
-        title: '📦 Temel Docker Komutları',
+        title: '📥 Image\'lar',
         blocks: [
           {
             type: 'simple-box',
@@ -2878,8 +2973,8 @@ docker search selenium`,
             type: 'callout',
             icon: '🧪',
             content: {
-              tr: 'Yukarıdaki "📦 Temel Komutlar" sekmesinin altındaki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
-              en: 'Try it in the Docker Sandbox further down this "Core Commands" tab: type docker pull nginx and watch the IMAGES shelf update live.',
+              tr: '"🔄 Yaşam Döngüsü & Debug" sekmesindeki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
+              en: 'Try it in the Docker Sandbox in the "🔄 Lifecycle & Debug" tab: type docker pull nginx and watch the IMAGES shelf update live.',
             },
           },
           {
@@ -2914,6 +3009,17 @@ docker image prune -a`,
             ],
             xpReward: 10,
           },
+        ],
+      },
+      // ── SECTION (TR): CONTAINER — DOCKER RUN ──────────────────────────────
+      {
+        title: '🚀 Container: docker run',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🚀',
+            content: "docker run, mimari planın binaya dönüştüğü andır: image donmuş bir projedir; 'docker run' betonu döker, elektriği bağlar ve anahtarı teslim eder — kendi dosya sistemi, network portu ve adı olan canlı bir container. Peki tek bir komutun neden 'başlat' demek yerine -d, -p, --name gibi flag'lere ihtiyacı var? Çünkü her flag inşaatın FARKLI bir katmanını yapılandırır — tıpkı Java'da constructor parametrelerinin class dosyasına hiç dokunmadan tek bir nesne örneğini yapılandırması gibi: bir class'tan on kez 'new' yapabilirsin, bir image'dan da on container çalıştırabilirsin. QA için bu günlük ekmektir: yanlış bir -p port eşlemesi, uygulama container'ı 'yeşil' görünürken Selenium testinin localhost:8080'e ulaşamamasının klasik sebebidir — uygulama sağlamdır, senin kapı numaran yanlıştır.",
+          },
           { type: 'heading', text: 'Container Komutları' },
           {
             type: 'code',
@@ -2929,8 +3035,8 @@ docker run -d -p 8080:80 nginx     # -p host:container port eşlemesi`,
             type: 'callout',
             icon: '🧪',
             content: {
-              tr: 'Bu tam olarak aşağıdaki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
-              en: 'This is exactly mission 2 in the sandbox below: type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
+              tr: 'Bu tam olarak bir sonraki "🔄 Yaşam Döngüsü & Debug" sekmesindeki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
+              en: 'This is exactly mission 2 in the sandbox in the next tab ("🔄 Lifecycle & Debug"): type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
             },
           },
           {
@@ -3016,6 +3122,17 @@ It will restart automatically if it crashes.`,
               { tr: 'Otomatik yeniden başlatma politikası --restart flag\'i ile verilir, örn: --restart unless-stopped.', en: 'The auto-restart policy is given with the --restart flag, e.g. --restart unless-stopped.' },
             ],
             xpReward: 15,
+          },
+        ],
+      },
+      // ── SECTION (TR): CONTAINER YAŞAM DÖNGÜSÜ & DEBUG ─────────────────────
+      {
+        title: '🔄 Yaşam Döngüsü & Debug',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔄',
+            content: "Bir container'ın hayatı otel misafirinin konaklamasına benzer: docker ps resepsiyondaki 'şu an içeride kim var' listesidir, stop/start odadan çıkıp geri dönmektir, rm kesin çıkış (check-out) yapmaktır — logs ve exec ise odanın güvenlik kamerası ile misafir hâlâ içerideyken odaya girmeni sağlayan ana anahtardır. Peki stop ve rm neden tek bir 'öldür' komutu değil de iki ayrı adım? Java'nın close() çağrısını nesnenin garbage-collect edilmesinden ayırmasıyla aynı sebepten: durdurulmuş bir container dosya sistemini — yani paha biçilmez kanıtı — korur, rm ise kalıcı olarak yok eder. Gerçek QA işinde bu sıra kritiktir: CI'da gece 3'te çöken test container'ında 'docker rm'den ÖNCE 'docker logs' çalıştıran mühendisin elinde stack trace vardır; önce temizlik yapanın bug raporuna ekleyecek hiçbir şeyi yoktur.",
           },
           {
             type: 'code',
@@ -3139,6 +3256,17 @@ docker run -d -p 8080:80 --name my-running-app my-app
 # 3. Scale and persist data with volumes
 docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
             language: 'bash'
+          },
+        ],
+      },
+      // ── SECTION (TR): VOLUME'LER ──────────────────────────────────────────
+      {
+        title: '💾 Volume\'ler',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '💾',
+            content: "Container'ın dosya sistemi, kiralık toplantı odasındaki beyaz tahtadır: rezervasyonun bittiği anda (docker rm) temizlik ekibi onu siler. Volume ise odadan çıkarken yanına aldığın klasördür — her toplantıdan sağ çıkar. Ama dur — container'lar madem 'kullan-at' olacaktı, kalıcılığa neden ihtiyaç var? Çünkü BAZI state kirlilik değil, ürünün ta kendisidir: test raporları, hata ekran görüntüleri, demo için doldurduğun veritabanı verisi. Java'da da aynı ayrım vardır — heap'teki nesneler JVM kapanınca yok olur, önemli olanı tam da bu yüzden diske serialize edersin. QA için bu ayrım günlük bir tuzaktır: Selenium suite'ini rapor klasörü için volume mount etmeden container'da koşturursan, kırmızı biten pipeline'dan elinde ne HTML rapor ne de hata screenshot'ı kalır — kanıt, container'la birlikte ölmüştür.",
           },
           { type: 'heading', text: 'Volume Komutları (Kalıcı Depolama)' },
           {
@@ -3305,6 +3433,17 @@ junit.xml still exists on the host in ./allure-results.`,
             ],
             xpReward: 15,
           },
+        ],
+      },
+      // ── SECTION (TR): NETWORK'LER ─────────────────────────────────────────
+      {
+        title: '🌐 Network\'ler',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🌐',
+            content: "Docker network bir ofis telefon rehberidir: aynı network'teki container'lar birbirini masa koordinatı (her restart'ta değişen IP adresi) ezberleyerek değil, İSİMLE arar (dahili hat 'db'). Peki Docker neden container IP'lerini hardcode etmene izin vermek yerine isim tabanlı keşifte ısrar eder? Java kodunun somut class yerine interface'e bağımlı olmasıyla aynı sebepten: implementasyon (IP) her restart'ta değişebilirken sözleşme (servis adı) sabit kalır. Bu, QA otomasyonundaki en yaygın acemi hatasıdır: test container'ın localhost:5432'yi arar ve 'connection refused' alır — çünkü container İÇİNDE localhost, senin makinen değil container'ın KENDİSİDİR. Testi ve veritabanını aynı network'e koy ve 'db:5432'yi çevir — masayı değil, rehberi ara.",
+          },
           { type: 'heading', text: 'Network Komutları' },
           {
             type: 'code',
@@ -3370,7 +3509,7 @@ docker network connect qa-network my-container`,
 
       // ── SECTION 3: DOCKERFILE & COMPOSE (TR) ──────────────────────────────
       {
-        title: '🗂️ Dockerfile ve Docker Compose',
+        title: '📝 Dockerfile',
         blocks: [
           {
             type: 'simple-box',
@@ -3625,6 +3764,17 @@ Build time and image size dropped noticeably.`,
               { tr: 'Aradığın klasör adı "node_modules/" — sonunda / olmalı çünkü bir klasördür.', en: 'The folder you need is "node_modules/" — it ends with / because it is a directory.' },
             ],
             xpReward: 10,
+          },
+        ],
+      },
+      // ── SECTION (TR): DOCKER COMPOSE ──────────────────────────────────────
+      {
+        title: '🧩 Docker Compose',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧩',
+            content: "docker compose up, tiyatro yönetmeninin tek alkışla bütün kadroyu sahneye göndermesidir: uygulama, veritabanı ve Selenium Grid doğru sırayla, her biri rolünü tek bir ortak senaryodan (YAML dosyası) bilerek sahneye çıkar. Her container'ı zaten docker run ile başlatabiliyorsan, neden yepyeni bir araç öğrenesin? Flag'leri say: portları, volume'leri, network'leri ve env değişkenleri olan üç servis, her seferinde doğru sırayla elle yazılan 3 komut ve ~15 argüman demektir — Compose'un docker run'a oranı, Maven'ın 200 girişli classpath'i elle javac'a yazmaya oranıyla aynıdır: build tarifi shell geçmişinde değil, versiyonlanan bir dosyada yaşar. QA için bu dosya test ortamının tek doğruluk kaynağıdır: takım arkadaşın 'entegrasyon testleri bende patlıyor' dediğinde ilk sorun artık 'ne yazdın?' değil, 'git pull yaptın mı, compose.yml güncel mi?' olur.",
           },
           { type: 'heading', text: 'Docker Compose — Çoklu Container Kurulumu' },
           {
@@ -3971,7 +4121,7 @@ Only the tests under tests/smoke/ ran, in verbose mode.`,
 
       // ── SECTION 4: QA USE CASES (TR) ──────────────────────────────────────
       {
-        title: '🧪 QA İçin Docker',
+        title: '🧪 QA: Selenium Grid',
         blocks: [
           {
             type: 'simple-box',
@@ -4135,6 +4285,17 @@ No local Chrome installation is required.`,
             ],
             xpReward: 15,
           },
+        ],
+      },
+      // ── SECTION (TR): QA — PLAYWRIGHT & CI ────────────────────────────────
+      {
+        title: '🎭 QA: Playwright & CI',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: "Playwright'ı Docker'da koşturmak, deneyi değil laboratuvarın tamamını kargolamaktır: resmi image tarayıcı binary'lerini, sistem fontlarını ve OS kütüphanelerini tam sürümleriyle dondurur — CI'da testinin gördüğü piksel, lokalde gördüğün pikselin aynısıdır. Peki 'npm install' neden yetmez — Playwright sürümünü zaten sabitliyor ya? Çünkü testinin davranışı npm'in KURMADIĞI şeylere de bağlıdır: sistem seviyesi Chromium bağımlılıkları, font render'ı, timezone ve locale — bir Java ekibinin CI'da 'agent'ta hangi Java 17 varsa o' demek yerine tam JDK image'ını sabitlemesiyle aynı sebep. QA kazancı, test otomasyonunun en pahalı cümlesini emekliye ayırmaktır — 'flaky, rerun'da geçiyor': CI tarayıcın lokaldekiyle bit-bit aynı olduğunda kırmızı test hava durumu olmaktan çıkar, kanıta dönüşür.",
+          },
           { type: 'heading', text: 'Docker\'da Playwright Testleri' },
           {
             type: 'code',
@@ -4151,6 +4312,17 @@ docker run --rm \\
 # ./test-results, host makinende kaydedilir`,
           },
           ...dockerQaInteractiveBlocks,
+        ],
+      },
+      // ── SECTION (TR): YAYGIN HATALAR ──────────────────────────────────────
+      {
+        title: '🩺 Yaygın Hatalar',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🩺',
+            content: "Docker hata mesajları araba göstergesi gibidir: 'port is already allocated' motorun patlaması değil, tek bir alt sisteme işaret eden belirli bir uyarı ışığıdır — bu sekme de her ışığı kendi sigorta kutusuyla eşleştiren kılavuzdur. Peki her hatayı çıktıkça google'lamak varken kalıpları neden ezbere tanıyasın? Çünkü kırık bir CI pipeline'ında saat farklı işler: 'Cannot connect to the Docker daemon' mesajını 10 saniyede 'servis çalışmıyor' diye teşhis etmekle 30 dakika deneme-yanılma arasındaki fark, sürüm notunda bir dipnot ile bloklanmış bir release arasındaki farktır — tıpkı deneyimli bir Java geliştiricisinin NullPointerException ile ClassNotFoundException'ı odanın öbür ucundan ayırt etmesi gibi; ikisi bambaşka katmanlara işaret eder. Aşağıdaki her hata gerçektir, gerçek QA pipeline'larından derlenmiştir; şekillerini şimdi, hiçbir şey yanmıyorken öğren.",
+          },
           { type: 'heading', text: 'Gerçek Hayat Senaryoları ve Çözümleri' },
           {
             type: 'error-dictionary',
