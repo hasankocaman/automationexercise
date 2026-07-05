@@ -1952,6 +1952,16 @@ kubectl rollout status deployment/my-app
 # View rollout history
 kubectl rollout history deployment/my-app`,
           },
+          {
+            type: 'k8s-sandbox',
+            missions: [
+              { id: 'apply-deployment', text: { tr: "deployment.yaml'ı apply et (kubectl apply -f deployment.yaml)", en: 'Apply deployment.yaml (kubectl apply -f deployment.yaml)' } },
+              { id: 'get-pods', text: { tr: "Çalışan pod'ları listele (kubectl get pods)", en: 'List the running pods (kubectl get pods)' } },
+              { id: 'scale-up', text: { tr: "Deployment'ı 5 replikaya ölçekle (kubectl scale deployment nginx-deployment --replicas=5)", en: 'Scale the deployment to 5 replicas (kubectl scale deployment nginx-deployment --replicas=5)' } },
+              { id: 'logs-viewed', text: { tr: "Bir pod'un loglarına bak (kubectl logs <pod-adı>)", en: 'Check a pod\'s logs (kubectl logs <pod-name>)' } },
+              { id: 'self-heal', text: { tr: "Bir pod'u sil ve Kubernetes'in onu otomatik yeniden oluşturmasını izle (kubectl delete pod <pod-adı>)", en: 'Delete a pod and watch Kubernetes recreate it automatically (kubectl delete pod <pod-name>)' } },
+            ],
+          },
           { type: 'heading', text: 'Namespace & Context Management' },
           {
             type: 'code',
@@ -3824,6 +3834,16 @@ kubectl rollout status deployment/uygulama
 
 # Rollout geçmişini görüntüle
 kubectl rollout history deployment/uygulama`,
+          },
+          {
+            type: 'k8s-sandbox',
+            missions: [
+              { id: 'apply-deployment', text: { tr: "deployment.yaml'ı apply et (kubectl apply -f deployment.yaml)", en: 'Apply deployment.yaml (kubectl apply -f deployment.yaml)' } },
+              { id: 'get-pods', text: { tr: "Çalışan pod'ları listele (kubectl get pods)", en: 'List the running pods (kubectl get pods)' } },
+              { id: 'scale-up', text: { tr: "Deployment'ı 5 replikaya ölçekle (kubectl scale deployment nginx-deployment --replicas=5)", en: 'Scale the deployment to 5 replicas (kubectl scale deployment nginx-deployment --replicas=5)' } },
+              { id: 'logs-viewed', text: { tr: "Bir pod'un loglarına bak (kubectl logs <pod-adı>)", en: 'Check a pod\'s logs (kubectl logs <pod-name>)' } },
+              { id: 'self-heal', text: { tr: "Bir pod'u sil ve Kubernetes'in onu otomatik yeniden oluşturmasını izle (kubectl delete pod <pod-adı>)", en: 'Delete a pod and watch Kubernetes recreate it automatically (kubectl delete pod <pod-name>)' } },
+            ],
           },
           {
             type: 'callout',

@@ -10,6 +10,59 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05 devam #7, `feature/pedagogy-improvements` — CP5.3: Kubernetes Sandbox Rollout TAMAMLANDI — CP5 (Docker/Linux/Git/K8s) TAMAMEN BİTTİ)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP1 `5b5782f`, CP2 `4118c1d`, CP4 `7bff1d8`, CP5.1 `213b500`, CP5.2 `af5b837`'e kadar commit edilmiş; bu oturumun CP5.3 işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | contentplan.md CP5'in son hedefi: Kubernetes sayfası. Aynı keşif disiplini uygulandı. |
+
+### Keşif — Linux/Git'ten farklı: gerçek bir kubectl terminali HİÇ yoktu
+
+Docker/Linux/Git'in aksine Kubernetes sayfasında "kullanıcı komutu kendi yazar" tarzı gerçek bir interaktif terminal **hiç yoktu** — sadece `renderK8sPodPlayground` gibi PASİF "▶ çalıştır" canned-demo'lar vardı (sabit bir adım dizisini otomatik oynatan, kullanıcının hiçbir şey yazmadığı). Kod duvarı taraması: 49 code bloğundan çoğu (Pod/Deployment/Service/ConfigMap YAML manifestleri, Jenkinsfile, Strimzi Kafka) tek parça config dosyası niteliğinde (Docker'ın Dockerfile/compose.yml muamelesiyle aynı mantık, CP2 kapsamı dışı) — ama `kubectl` komutlarının kendisi (GET/DESCRIBE/LOGS-EXEC/APPLY-DELETE-SCALE, "⌨️ kubectl Commands" sekmesinde) gerçek bir sandbox için MÜKEMMEL aday, çünkü hiçbir gerçek terminal yoktu.
+
+### Bu Oturumda Yapılan İş — CP5.3 (Kubernetes Sandbox, sıfırdan)
+
+Linux/Git'in aksine (mevcut inline terminali genişletme), burada **CP1'in Docker Sandbox mimarisiyle birebir aynı desende sıfırdan yeni bir component** yazıldı — çünkü genişletilecek gerçek bir terminal yoktu:
+- **Yeni dosya `src/components/KubernetesSandboxBlock.jsx`**: sahte ama durumlu cluster engine'i — `kubectl apply -f <dosya>` (sahte manifest kayıt defteri: `deployment.yaml`→nginx deployment 3 replika, `service.yaml`→ClusterIP service), `get pods/deployments/services/all`, `describe pod/deployment`, `logs`, `exec`, `scale deployment --replicas=N`, `delete pod/deployment`. Gerçekçi hatalar: bilinmeyen manifest → "path does not exist"; olmayan kaynak → "Error from server (NotFound)".
+  - **Kubernetes'e özgü öne çıkan özellik — self-healing simülasyonu:** yönetilen (deployment'a bağlı) bir pod silinince, ~1.8sn sonra ReplicaSet controller'ın yerine YENİ bir pod oluşturduğu simüle edilir — Docker container'larının ASLA yapmadığı bir şey, bu yüzden bilinçli olarak ayrı bir "aha" öğretme anı (§CLAUDE.md 20 "önce mantık sonra komut" felsefesiyle uyumlu).
+  - Docker Sandbox'la aynı mimari: `execute()` saf fonksiyon yeni state döndürür, `events` Set'i stateless komutları (get-pods, logs, deleted-managed-pod) takip eder, `MISSION_CHECKS` state-bazlı görev tespiti yapar.
+- **`TopicPage.jsx`**: `k8s-sandbox` block tipi kaydedildi (import + renderBlock case, Docker Sandbox'la birebir aynı kalıp).
+- **`kubernetesData.js`** (EN+TR): "⌨️ kubectl Commands" sekmesine, APPLY/DELETE/SCALE kod bloğundan sonra `k8s-sandbox` bloğu + 5 görev eklendi (apply→get pods→scale to 5→logs→delete+self-heal izle).
+- **Yeni dosya `tests/kubernetes-sandbox.spec.ts`**: apply/get/scale/logs/delete + self-healing akışı + 5 görev + EN i18n testi.
+- **Test yazarken bulunan/düzeltilen bir hata (test kodunda, üründe değil):** Self-heal mesajı doğrulaması İngilizce metinle yazılmıştı ama sayfa varsayılan TR modda açılıyor — self-heal satırı TR render ediliyordu ("ReplicaSet controller yeni pod oluşturdu"). Düzeltme: iki dilde de ortak olan "ReplicaSet controller" alt-dizesi + deployment panelinin (5/5) oranına dönmesi kontrol edildi (dilden bağımsız, daha sağlam).
+
+### Bilinçli Kapsam Kararları
+
+- Helm, Ingress, HPA, Strimzi Kafka gibi ileri seviye kaynaklar sandbox'a EKLENMEDİ — statik YAML + mevcut anlatım yeterli, bunlar zaten "tek komutla kurulum" seviyesinde araçlar, bir toy sandbox'ta simüle edilecek kadar atomik değiller.
+- `kubectl port-forward`, `rollout undo/status/history`, `set image`, namespace/context komutları sandbox'a eklenmedi — kapsam bilinçli olarak Docker Sandbox'ın orijinal scope'una benzer, sınırlı ama gerçekçi bir alt kümeyle tutuldu (apply/get/describe/logs/exec/scale/delete).
+- `renderK8sPodPlayground`/`renderK8sClusterMapPlayground` (pasif demolar) SİLİNMEDİ — yanlarında ek bir görsel giriş olarak kalabilirler, artık gerçek terminalde de aynı komutlar çalıştığı için üst üste binme yok.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (14.74s, 38 static route, dist SEO PASS) — `KubernetesSandboxBlock.jsx`'in sözdizimi bu adımda doğrulandı (JSX olduğu için `node --check` çalışmıyor)
+- `tests/kubernetes-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS (1 test-kodu hatası düzeltildikten sonra)
+- Regresyon: `topic-pages-ui.spec.ts -g kubernetes` + `i18n-content-toggle -g kubernetes` → ✅ 2/2 PASS
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar Türkçe.
+
+### CP5 Genel Durumu — TAMAMLANDI
+
+Docker (CP1+CP2+CP4) → Linux (CP5.1) → Git (CP5.2) → Kubernetes (CP5.3) sırasıyla tamamlandı. Her sayfada önce KEŞİF (mevcut interaktif terminal var mı, çalışıyor mu, eksik ne var), sonra SCOPE'A UYGUN müdahale yapıldı — hiçbir sayfada körü körüne aynı kalıp kopyalanmadı:
+- Docker: hiç sandbox yoktu → CP1 sıfırdan yazıldı + CP2 kod duvarları kırıldı.
+- Linux: sandbox vardı ama `cd` kritik bug'ı vardı → düzeltildi + cat/grep/chmod/find eklendi.
+- Git: sandbox iyi çalışıyordu → sadece 2 eksik komut (diff/stash) eklendi.
+- Kubernetes: sandbox hiç yoktu → Docker'ın mimarisiyle sıfırdan yazıldı (self-healing özel özelliğiyle).
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP5.3 işi commit edilmedi** — kullanıcı onayı bekliyor.
+2. **CP5 artık tamamen bitti** — contentplan.md'nin önerdiği 3 sayfa (Linux/Git/Kubernetes) hepsi tamamlandı. Yeni bir sayfa eklenmek istenirse (contentplan.md'de yoktu) yeni bir CP5.x olarak keşif-önce disipliniyle planlanmalı.
+3. **CP3 (sekme atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz, contentplan.md'de bekliyor.
+4. Önceki oturumlardaki tüm iş (WP1-4, CP1/CP2/CP4/CP5.1/CP5.2/CP5.3) main'e merge/push edilmedi — `feature/pedagogy-improvements` branch'inde birikiyor, kullanıcı ne zaman isterse merge/push kararı verecek.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam #6, `feature/pedagogy-improvements` — CP5.2: Git Sandbox Rollout TAMAMLANDI)
 
 | Alan | Değer |
