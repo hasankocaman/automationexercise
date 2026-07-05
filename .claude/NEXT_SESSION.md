@@ -10,6 +10,42 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05 devam #3, `feature/pedagogy-improvements` — CP2: Kod Duvarlarını Kırma TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP1 commit `5b5782f`'e kadar push edildi/pull edildi; bu oturumun CP2 işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | `contentplan.md` CP2 promptu Sonnet tarafından uygulandı: `src/data/dockerData.js`'teki "kod duvarı" bloklar (8+ satır komut) kavram bazlı 2-4 satırlık parçalara bölündü, her parçanın ardına en az 1 etkileşim eklendi (öncelik: CP1 sandbox'a yönlendiren callout → order-sort challenge → code-playground). |
+
+### Bu Oturumda Yapılan İş — CP2
+
+- **Image Commands** (EN+TR): pull/search vs list/inspect/remove olarak 2'ye bölündü; sandbox-yönlendirme callout + "image yaşam döngüsü" order-sort eklendi.
+- **Container Commands** (EN+TR, orijinal 26 satırlık "kod duvarı" — raporda özellikle işaret edilen örnek): 7 atomik parçaya bölündü (run temelleri → tam flag'li run → ps → lifecycle → remove → logs → exec+cp). Her parçanın ardına CP1 sandbox'ın İLGİLİ görevine yönlendiren bir callout eklendi (ör. "-f'siz rm dene, sandbox'ta AYNI hatayı göreceksin"); tam flag'li run'a code-playground, exec+cp'ye debug-flow order-sort.
+- **Volume Commands** (EN+TR): named-volume CRUD / mount / bind-mount+QA senaryosu olarak 3'e bölündü; her birine order-sort veya code-playground eklendi.
+- **Dockerfile, Multi-stage Dockerfile, .dockerignore, docker-compose.yml, Docker Compose Commands, Selenium Grid compose, Selenium connect script** (EN+TR): tek dosya/config bloklarının SÖZDİZİMİ bozulmadan (YAML/Dockerfile parçalanınca geçersiz olur) her birine TEK bir etkileşim eklendi — Dockerfile→order-sort, multi-stage→code-playground (COPY --from), .dockerignore→code-playground (eksik node_modules/ satırı), compose.yml→code-playground (yanlış DB hostname), Compose Commands→2 parça (lifecycle order-sort + run/ps code-playground), Selenium Grid compose→order-sort, Selenium connect script→code-playground (webdriver.Remote).
+- **Bilinçli kapsam kararı:** Playwright compose bloğuna (EN) volume-mount code-playground eklendi; TR karşılığı YOK çünkü TR section'da bu blok baştan beri (CP2'den önce) hiç mevcut değildi — pre-existing bir EN/TR içerik asimetrisi, bu oturumda keşfedildi ama CP2 kapsamı dışında (yeni çeviri eklemek CP2'nin görevi değildi), düzeltilmedi.
+- **Yol boyunca bulunan ve düzeltilen gerçek hata (üründe, TR volume commands bloğunda):** TR "Çalıştırırken volume mount et" örneğinde `python:3.12-slim` image satırı eksikti (`docker run -d -v test-data:/app/data \` sonrasında komut yarım kalıyordu) — EN karşılığıyla aynı hale getirildi.
+- **`callout` block tipi** ilk kez `dockerData.js`'de kullanıldı (proje genelinde zaten mevcut ve `TopicPage.jsx`'te tanımlı, `tx()` helper'ı ile bilingual `{tr,en}` content destekliyor) — CP1 sandbox'a yönlendiren mini not'lar için.
+- Yeni `code-playground`/`challenge` bloklarının tamamına `relatedTopicId` (code-playground için zorunlu) eklendi; EN/TR arasında aynı `id` bilinçli olarak tekrar kullanıldı (projedeki mevcut `dockerIntroInteractiveBlocks` paylaşımlı-dizi deseniyle aynı mantık — sadece spread yerine literal duplikasyon, DRY kaygısı CP2 kapsamında ikincil).
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node --check src/data/dockerData.js` → ✅ her ara adımda sözdizimi doğrulandı (EN sonrası, TR Container Commands sonrası, TR tamamı sonrası)
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (32 dosya)
+- `npm run build` → ✅ PASS (15.7s, 38 static route, dist SEO PASS)
+- `npx playwright test tests/topic-pages-ui.spec.ts -g docker tests/i18n-content-toggle.spec.ts tests/docker-sandbox.spec.ts` (--workers=1) → ✅ 4/4 PASS
+- Regresyon: `tests/review-queue.spec.ts` + `tests/quiz-retry-mechanism.spec.ts` (--workers=1) → ✅ 7/7 PASS — yeni challenge/code-playground blokları quiz sırasını (§9.1) ve WP4 review-queue snapshot mekanizmasını bozmadı.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP2 işi commit edilmedi** — kullanıcı onayı bekliyor.
+2. **CP4 (sayfa içi ilerleme + tempo)** — `contentplan.md`'deki hazır Sonnet promptu ile başlatılabilir, CP2'den bağımsız.
+3. **CP3 (sekme atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz; `contentplan.md` CP3'teki riskler geçerli.
+4. Keşfedilen pre-existing EN/TR asimetri (TR'de Playwright docker-compose.yml bloğu hiç yok) — düzeltilmek istenirse ayrı, küçük bir çeviri-tamamlama görevi olarak ele alınmalı, CP2'nin parçası değildi.
+5. Docker sayfasındaki kod bloğu başına etkileşim oranı artık raporun hedeflediği "≥1 etkileşim" seviyesinde; CP5 yayılımı (Linux/Git/K8s) için bu CP1+CP2 kalıbı referans alınabilir.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam, `feature/pedagogy-improvements` — İçerik Mükemmelliği Raporu + contentplan.md + CP1 Docker Sandbox TAMAMLANDI)
 
 | Alan | Değer |

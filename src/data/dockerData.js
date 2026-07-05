@@ -838,76 +838,250 @@ docker images              # List downloaded images (should be empty)`,
           {
             type: 'code',
             language: 'bash',
-            label: 'Working with Docker images',
+            label: 'Pulling and searching images',
             code: `# Pull an image from Docker Hub
 docker pull python:3.12-slim       # Download Python 3.12 slim image
 docker pull nginx:latest           # Download latest Nginx
 docker pull postgres:16            # Download PostgreSQL 16
 
-# List downloaded images
+# Search images on Docker Hub
+docker search selenium`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Yukarıdaki "📦 Temel Komutlar" sekmesinin altındaki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
+              en: 'Try it in the Docker Sandbox further down this "Core Commands" tab: type docker pull nginx and watch the IMAGES shelf update live.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Listing, inspecting and removing images',
+            code: `# List downloaded images
 docker images
 docker image ls                    # Same thing
 
-# Search images on Docker Hub
-docker search selenium
+# Inspect image details
+docker inspect python:3.12-slim
 
 # Remove an image (must stop all containers using it first)
 docker rmi python:3.12-slim        # Remove by name:tag
 docker image rm abc123def456       # Remove by image ID
 
 # Remove all unused images (cleanup)
-docker image prune -a
-
-# Inspect image details
-docker inspect python:3.12-slim`,
+docker image prune -a`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-image-lifecycle-order-01',
+            question: { tr: 'Bir image ile ilk defa çalışırken doğru komut sırasını diz.', en: 'Arrange the correct command order for working with an image for the first time.' },
+            items: [
+              { id: '1', text: { tr: 'Docker Hub\'da image ara (docker search)', en: 'Search Docker Hub for the image (docker search)' }, order: 1 },
+              { id: '2', text: { tr: 'Image\'ı indir (docker pull)', en: 'Download the image (docker pull)' }, order: 2 },
+              { id: '3', text: { tr: 'İndirilen image\'ları listele (docker images)', en: 'List downloaded images (docker images)' }, order: 3 },
+              { id: '4', text: { tr: 'Detaylarını incele (docker inspect)', en: 'Inspect its details (docker inspect)' }, order: 4 },
+              { id: '5', text: { tr: 'Artık kullanmıyorsan sil (docker rmi)', en: 'Remove it once no longer needed (docker rmi)' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'Container Commands' },
           {
             type: 'code',
             language: 'bash',
-            label: 'Working with Docker containers',
+            label: 'Starting a container — the basics',
             code: `# Run a container (creates AND starts)
 docker run nginx                   # Run nginx (foreground — blocks terminal)
 docker run -d nginx                # -d = detached (background)
 docker run -d --name my-nginx nginx    # --name = custom name
-docker run -d -p 8080:80 nginx     # -p host:container port mapping
-
-# Common run flags:
-docker run -d \\
+docker run -d -p 8080:80 nginx     # -p host:container port mapping`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Bu tam olarak aşağıdaki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
+              en: 'This is exactly mission 2 in the sandbox below: type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Production-style run — all common flags together',
+            code: `docker run -d \\
   --name my-container \\           # Name the container
   -p 8080:80 \\                    # Map host port 8080 → container port 80
   -e APP_ENV=staging \\            # Set environment variable
   -v /host/path:/container/path \\ # Mount volume
   --restart unless-stopped \\     # Auto-restart policy
   python:3.12-slim \\              # Image to use
-  python app.py                    # Command to run
-
-# List containers
+  python app.py                    # Command to run`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-run-flags-practice',
+            id: 'docker-core-run-flags-practice',
+            label: { tr: 'Pratik: Production tarzı run flag\'lerini tamamla', en: 'Practice: Complete a production-style run command' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: staging ortamında, 9090 host portunu 80 container portuna bağlayan ve container çökerse otomatik yeniden başlayan bir python:3.12-slim container\'ı çalıştır.',
+              en: 'Goal: run a python:3.12-slim container in the staging environment, mapping host port 9090 to container port 80, that restarts automatically if it crashes.',
+            },
+            explanation: {
+              tr: 'Ortam değişkeni için -e, port eşlemesi için -p, otomatik yeniden başlatma için --restart flag\'lerini doğru sırayla doldur.',
+              en: 'Fill in -e for the environment variable, -p for the port mapping, and --restart for the auto-restart policy, in the right places.',
+            },
+            code: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+            },
+            starterCode: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  ___ 9090:80 \\
+  ___ APP_ENV=staging \\
+  ___ unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  ___ 9090:80 \\
+  ___ APP_ENV=staging \\
+  ___ unless-stopped \\
+  python:3.12-slim`,
+            },
+            solutionCode: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+            },
+            expected: {
+              tr: `staging-app container'ı 9090:80 port eşlemesiyle çalışıyor.
+APP_ENV=staging olarak ayarlandı.
+Çökerse otomatik yeniden başlayacak.`,
+              en: `staging-app container is running with port mapping 9090:80.
+APP_ENV is set to staging.
+It will restart automatically if it crashes.`,
+            },
+            hints: [
+              { tr: 'Port eşlemesi her zaman -p HOST:CONTAINER şeklindedir.', en: 'Port mapping always follows -p HOST:CONTAINER.' },
+              { tr: 'Ortam değişkeni tanımlamak için -e ANAHTAR=DEĞER kullanılır.', en: 'Use -e KEY=VALUE to define an environment variable.' },
+              { tr: 'Otomatik yeniden başlatma politikası --restart flag\'i ile verilir, örn: --restart unless-stopped.', en: 'The auto-restart policy is given with the --restart flag, e.g. --restart unless-stopped.' },
+            ],
+            xpReward: 15,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Listing containers',
+            code: `# List containers
 docker ps                          # Running containers only
-docker ps -a                       # ALL containers (including stopped)
-
-# Stop/Start/Restart
+docker ps -a                       # ALL containers (including stopped)`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker ps yaz — 3. görev bu şekilde tamamlanır ve çalışan container\'ların tablosunu terminalde canlı görürsün.',
+              en: 'Type docker ps in the sandbox — this completes mission 3 and shows you a live table of running containers right in the terminal.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Lifecycle — stop, start, restart',
+            code: `# Stop/Start/Restart
 docker stop my-container           # Graceful stop (SIGTERM, then SIGKILL)
 docker start my-container          # Start a stopped container
-docker restart my-container        # Stop then start
-
-# Remove containers
+docker restart my-container        # Stop then start`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker stop web dene — 5. görevin ilk adımı budur. Container yeşilden griye döner ama silinmez, tıpkı yukarıdaki komutta olduğu gibi.',
+              en: 'Try docker stop web in the sandbox — this is the first half of mission 5. The container turns from green to grey but is not removed, exactly like the command above.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Removing containers',
+            code: `# Remove containers
 docker rm my-container             # Remove stopped container
 docker rm -f my-container          # Force remove (even if running)
-docker container prune             # Remove ALL stopped containers
-
-# Logs
+docker container prune             # Remove ALL stopped containers`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta ÇALIŞAN bir container\'ı -f\'siz docker rm ile silmeyi dene — gerçek Docker daemon\'ının verdiği "container is running" hatasını birebir göreceksin, sonra docker rm -f ile zorla sil ve 5. görevi tamamla.',
+              en: 'Try running docker rm without -f on a RUNNING container in the sandbox — you will see the exact "container is running" error the real Docker daemon returns, then force it with docker rm -f to complete mission 5.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Reading logs',
+            code: `# Logs
 docker logs my-container           # Print all logs
 docker logs -f my-container        # Follow logs in real-time (like tail -f)
-docker logs --tail 50 my-container # Last 50 lines
-
-# Execute command inside running container
+docker logs --tail 50 my-container # Last 50 lines`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker logs web yaz — 4. görev bu satırla tamamlanır ve nginx\'in gerçekçi başlangıç log satırlarını görürsün.',
+              en: 'Type docker logs web in the sandbox — this completes mission 4 and shows nginx\'s realistic startup log lines.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Executing commands inside a container and copying files',
+            code: `# Execute command inside running container
 docker exec -it my-container bash  # Open interactive bash shell
 docker exec my-container ls /app   # Run command without interactive shell
 
 # Copy files between host and container
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-debug-flow-order-01',
+            question: { tr: 'Çalışan bir container içindeki test raporlarını incelemek için doğru akışı diz.', en: 'Arrange the correct flow for inspecting test reports inside a running container.' },
+            items: [
+              { id: '1', text: { tr: 'docker ps ile container\'ın çalıştığını doğrula', en: 'Verify the container is running with docker ps' }, order: 1 },
+              { id: '2', text: { tr: 'docker exec -it ile container içine gir', en: 'Enter the container with docker exec -it' }, order: 2 },
+              { id: '3', text: { tr: 'ls /app/reports ile dosyaları listele', en: 'List the files with ls /app/reports' }, order: 3 },
+              { id: '4', text: { tr: 'docker cp ile raporu host makineye kopyala', en: 'Copy the report to the host machine with docker cp' }, order: 4 },
+              { id: '5', text: { tr: 'Host\'taki raporu tarayıcıda aç', en: 'Open the report on the host in a browser' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'docker-sandbox',
@@ -943,20 +1117,99 @@ docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
           {
             type: 'code',
             language: 'bash',
-            label: 'Managing Docker volumes',
+            label: 'Named volumes — create, list, inspect, remove',
             code: `# Named volumes — managed by Docker
 docker volume create test-data         # Create a named volume
 docker volume ls                        # List all volumes
 docker volume inspect test-data         # Show volume details
 docker volume rm test-data             # Remove volume
-docker volume prune                    # Remove all unused volumes
-
-# Mount a volume when running
+docker volume prune                    # Remove all unused volumes`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-volume-lifecycle-order-01',
+            question: { tr: 'Kalıcı bir test veritabanı volume\'ünün yaşam döngüsünü doğru sıraya diz.', en: 'Arrange the lifecycle of a persistent test-database volume in the correct order.' },
+            items: [
+              { id: '1', text: { tr: 'Adlandırılmış volume\'ü oluştur (docker volume create)', en: 'Create the named volume (docker volume create)' }, order: 1 },
+              { id: '2', text: { tr: 'Container\'ı bu volume\'ü mount ederek çalıştır (-v)', en: 'Run the container mounting that volume (-v)' }, order: 2 },
+              { id: '3', text: { tr: 'Container durdurulup silinse bile veri volume\'de kalır', en: 'Data survives in the volume even if the container is stopped and removed' }, order: 3 },
+              { id: '4', text: { tr: 'İçeriğini doğrulamak için docker volume inspect kullan', en: 'Use docker volume inspect to verify its contents' }, order: 4 },
+              { id: '5', text: { tr: 'Artık ihtiyaç yoksa docker volume rm ile temizle', en: 'Clean it up with docker volume rm once no longer needed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Mounting a named volume at run time',
+            code: `# Mount a volume when running
 docker run -d \\
   -v test-data:/app/data \\  # Named volume: test-data → /app/data in container
-  python:3.12-slim
-
-# Bind mount — mount a host directory
+  python:3.12-slim`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-volume-mount-practice',
+            id: 'docker-core-volume-mount-practice',
+            label: { tr: 'Pratik: Adlandırılmış volume\'ü doğru mount et', en: 'Practice: Mount a named volume correctly' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: qa-db-data adında bir volume\'ü postgres:16 container\'ının /var/lib/postgresql/data dizinine bağlayarak çalıştır — veritabanı verisi container silinse bile hayatta kalsın.',
+              en: 'Goal: run postgres:16 mounting a volume named qa-db-data at /var/lib/postgresql/data — so database data survives even if the container is removed.',
+            },
+            explanation: {
+              tr: '-v flag\'inin sözdizimi her zaman KAYNAK:HEDEF şeklindedir; kaynak burada volume adıdır, hedef container içindeki dizindir.',
+              en: 'The -v flag syntax is always SOURCE:TARGET; here the source is the volume name and the target is the directory inside the container.',
+            },
+            code: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+            },
+            starterCode: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v ___:___ \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v ___:___ \\
+  postgres:16`,
+            },
+            solutionCode: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+            },
+            expected: {
+              tr: `qa-db container'ı çalışıyor.
+Volume: qa-db-data → /var/lib/postgresql/data bağlandı.`,
+              en: `qa-db container is running.
+Volume: qa-db-data → /var/lib/postgresql/data mounted.`,
+            },
+            hints: [
+              { tr: '-v flag\'inin sol tarafı volume adı, sağ tarafı container içindeki dizin yoludur.', en: 'The left side of -v is the volume name, the right side is the path inside the container.' },
+              { tr: 'PostgreSQL veritabanı dosyalarını her zaman /var/lib/postgresql/data dizininde tutar.', en: 'PostgreSQL always keeps its database files under /var/lib/postgresql/data.' },
+              { tr: 'İki nokta üst üste (:) volume adını hedef yoldan ayırır, boşluk değil.', en: 'A colon (:) separates the volume name from the target path — not a space.' },
+            ],
+            xpReward: 15,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Bind mounts and a real QA use case',
+            code: `# Bind mount — mount a host directory
 docker run -d \\
   -v $(pwd)/tests:/app/tests \\  # Host ./tests → container /app/tests
   -v $(pwd)/reports:/app/reports \\  # Host ./reports → container /app/reports
@@ -967,6 +1220,63 @@ docker run --rm \\
   -v $(pwd)/results:/app/results \\   # results/ persists on host
   my-test-image \\
   pytest tests/ --junitxml=/app/results/junit.xml`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-bind-mount-practice',
+            id: 'docker-core-bind-mount-practice',
+            label: { tr: 'Pratik: Test sonuçlarını host makinede kalıcı tut', en: 'Practice: Persist test results on the host machine' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: my-test-image\'i --rm ile bir kerelik çalıştır ama JUnit raporunun host\'taki ./allure-results klasöründe kalıcı olmasını sağla.',
+              en: 'Goal: run my-test-image once with --rm, but make sure the JUnit report persists in the ./allure-results folder on the host.',
+            },
+            explanation: {
+              tr: 'Bind mount ile host\'taki bir klasörü ($(pwd)/allure-results) container içindeki /app/results ile eşleştir, sonra pytest çıktısını o dizine yönlendir.',
+              en: 'Bind-mount a host folder ($(pwd)/allure-results) to /app/results inside the container, then point the pytest output at that directory.',
+            },
+            code: {
+              tr: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            starterCode: {
+              tr: `docker run --rm \\
+  -v $(pwd)/___:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/___:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            solutionCode: {
+              tr: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            expected: {
+              tr: `Test koşumu bitince container --rm ile otomatik silindi.
+junit.xml host'ta ./allure-results klasöründe hâlâ duruyor.`,
+              en: `The container was auto-removed by --rm after the test run.
+junit.xml still exists on the host in ./allure-results.`,
+            },
+            hints: [
+              { tr: '$(pwd) her zaman şu anki host dizinini verir — klasör adını onun yanına ekle.', en: '$(pwd) always resolves to the current host directory — append the folder name to it.' },
+              { tr: 'İstenen host klasörü "allure-results" olarak belirtiliyor, boşluğa onu yaz.', en: 'The requested host folder is "allure-results" — write it in the blank.' },
+              { tr: '--rm container\'ı siler ama bind mount edilen host klasörü SİLİNMEZ, veri orada kalır.', en: '--rm removes the container, but the bind-mounted host folder is NOT deleted — the data stays there.' },
+            ],
+            xpReward: 15,
           },
           { type: 'heading', text: 'Network Commands' },
           {
@@ -1081,6 +1391,20 @@ CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]
 # Alternative: ENTRYPOINT — always runs this command
 # ENTRYPOINT ["python", "-m"]  # CMD would then append arguments`,
           },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-dockerfile-order-01',
+            question: { tr: 'Bir Dockerfile\'ın cache-dostu talimat sırasını diz.', en: 'Arrange the cache-friendly instruction order for a Dockerfile.' },
+            items: [
+              { id: '1', text: { tr: 'FROM ile temel image seçilir', en: 'FROM selects the base image' }, order: 1 },
+              { id: '2', text: { tr: 'WORKDIR ile çalışma dizini ayarlanır', en: 'WORKDIR sets the working directory' }, order: 2 },
+              { id: '3', text: { tr: 'Sadece requirements.txt kopyalanır ve bağımlılıklar kurulur (RUN)', en: 'Only requirements.txt is copied and dependencies are installed (RUN)' }, order: 3 },
+              { id: '4', text: { tr: 'Projenin geri kalanı kopyalanır (COPY . .)', en: 'The rest of the project is copied (COPY . .)' }, order: 4 },
+              { id: '5', text: { tr: 'CMD ile container başlayınca çalışacak komut belirlenir', en: 'CMD defines the command that runs when the container starts' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
           { type: 'heading', text: 'Multi-Stage Builds (Advanced)' },
           {
             type: 'code',
@@ -1106,6 +1430,93 @@ CMD ["pytest", "tests/"]
 
 # Result: final image is much smaller — no build tools included`,
           },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-multistage-practice',
+            id: 'docker-core-multistage-practice',
+            label: { tr: 'Pratik: Multi-stage build\'de builder aşamasından dosya taşı', en: 'Practice: Copy files from the builder stage in a multi-stage build' },
+            language: 'dockerfile',
+            task: {
+              tr: 'Amaç: builder aşamasında kurulan bağımlılıkları, runtime aşamasına build araçlarını TEKRAR kurmadan taşı.',
+              en: 'Goal: carry the dependencies installed in the builder stage into the runtime stage WITHOUT reinstalling build tools.',
+            },
+            explanation: {
+              tr: 'COPY --from=<aşama adı> ile önceki aşamadan dosya kopyalanır. Aşama adı FROM ... AS builder satırındaki isimdir.',
+              en: 'COPY --from=<stage name> copies files from a previous stage. The stage name is whatever follows FROM ... AS builder.',
+            },
+            code: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+            },
+            starterCode: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY ___=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY ___=builder /root/.local /root/.local
+COPY . .`,
+            },
+            solutionCode: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+            },
+            expected: {
+              tr: `runtime aşaması builder'daki paketleri devralır.
+Final image build araçlarını içermez, daha küçüktür.`,
+              en: `The runtime stage inherits the builder's packages.
+The final image excludes build tools and is smaller.`,
+            },
+            hints: [
+              { tr: 'Bir önceki aşamadan dosya taşımak için özel bir COPY seçeneği vardır.', en: 'There is a special COPY option for pulling files from a previous stage.' },
+              { tr: 'Bu seçenek --from= şeklinde yazılır, sonrasında aşama adı gelir.', en: 'That option is written as --from=, followed by the stage name.' },
+              { tr: 'Aşama adı, ilk FROM satırındaki "AS builder" ifadesiyle verilen isimdir.', en: 'The stage name is whatever was given after "AS builder" in the first FROM line.' },
+            ],
+            xpReward: 15,
+          },
           { type: 'heading', text: '.dockerignore — Exclude Unnecessary Files' },
           {
             type: 'code',
@@ -1126,6 +1537,75 @@ venv/                # Virtual env — rebuild inside container
 node_modules/        # Node dependencies — reinstall inside container
 .pytest_cache/
 .coverage`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-dockerignore-practice',
+            id: 'docker-core-dockerignore-practice',
+            label: { tr: 'Pratik: Build\'i yavaşlatan eksik satırı bul', en: 'Practice: Spot the missing line slowing down the build' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: .dockerignore\'da node_modules/ satırı unutulmuş — bu, build context\'in gereksiz yere yüzlerce MB büyümesine ve build\'in yavaşlamasına yol açar. Eksik satırı ekle.',
+              en: 'Goal: the node_modules/ line is missing from .dockerignore — this bloats the build context by hundreds of MB and slows down the build. Add the missing line.',
+            },
+            explanation: {
+              tr: '.dockerignore\'daki her satır, Docker\'ın build context\'e hiç dahil etmeyeceği bir dosya/klasör deseni tanımlar — .gitignore ile aynı sözdizimi.',
+              en: 'Each line in .dockerignore defines a file/folder pattern Docker will never include in the build context — same syntax as .gitignore.',
+            },
+            code: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+            },
+            starterCode: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+___
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+___
+.pytest_cache/`,
+            },
+            solutionCode: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+            },
+            expected: {
+              tr: `Build context artık node_modules/ içermiyor.
+Build süresi ve image boyutu belirgin şekilde küçüldü.`,
+              en: `The build context no longer includes node_modules/.
+Build time and image size dropped noticeably.`,
+            },
+            hints: [
+              { tr: 'Bu proje JavaScript bağımlılıkları için npm/node kullanıyor.', en: 'This project uses npm/node for JavaScript dependencies.' },
+              { tr: 'Node.js projelerinde bağımlılıklar hep aynı isimli klasörde toplanır.', en: 'In Node.js projects, dependencies always live in a folder with the same name.' },
+              { tr: 'Aradığın klasör adı "node_modules/" — sonunda / olmalı çünkü bir klasördür.', en: 'The folder you need is "node_modules/" — it ends with / because it is a directory.' },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'Docker Compose — Multi-Container Setup' },
           {
@@ -1187,11 +1667,86 @@ services:
 volumes:
   postgres_data:    # Named volume for DB persistence`,
           },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-compose-healthcheck-practice',
+            id: 'docker-core-compose-healthcheck-practice',
+            label: { tr: 'Pratik: app servisinin doğru host adına bağlandığından emin ol', en: 'Practice: Make sure the app service points at the correct hostname' },
+            language: 'yaml',
+            task: {
+              tr: 'Amaç: app servisinin DATABASE_URL\'i localhost\'a değil, Compose\'daki db servisinin adına işaret etmeli — Compose network\'ünde container\'lar birbirine servis adıyla ulaşır, localhost ile değil.',
+              en: 'Goal: the app service\'s DATABASE_URL must point at the db SERVICE NAME, not localhost — inside a Compose network, containers reach each other by service name, not localhost.',
+            },
+            explanation: {
+              tr: 'docker-compose.yml\'deki "db:" servis adı, aynı network\'teki diğer container\'lar için bir DNS hostname\'idir. localhost her container kendi İÇİNİ işaret eder.',
+              en: 'The "db:" service name in docker-compose.yml is a DNS hostname for other containers on the same network. localhost always points INSIDE each container itself.',
+            },
+            code: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            starterCode: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@___:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@___:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            solutionCode: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            expected: {
+              tr: `app container'ı db'ye "db" hostname'i üzerinden bağlanıyor.
+Bağlantı hatası (ECONNREFUSED) yok.`,
+              en: `The app container connects to db via the "db" hostname.
+No connection error (ECONNREFUSED).`,
+            },
+            hints: [
+              { tr: 'Compose network\'ünde host adı, docker-compose.yml\'deki servis adıyla AYNIDIR.', en: 'The hostname on a Compose network is IDENTICAL to the service name in docker-compose.yml.' },
+              { tr: 'Bu dosyada veritabanı servisinin adı "db:" olarak tanımlı.', en: 'In this file, the database service is defined under the name "db:".' },
+              { tr: 'localhost yazarsan app container kendi içindeki (var olmayan) bir veritabanına bağlanmaya çalışır.', en: 'If you write localhost, the app container tries to reach a (nonexistent) database inside itself.' },
+            ],
+            xpReward: 15,
+          },
           { type: 'heading', text: 'Docker Compose Commands' },
           {
             type: 'code',
             language: 'bash',
-            label: 'Common docker compose commands',
+            label: 'Starting, stopping and rebuilding services',
             code: `# Start all services (detached)
 docker compose up -d
 
@@ -1208,9 +1763,27 @@ docker compose down -v
 docker compose up --build
 
 # Scale a service (e.g., run 3 test containers in parallel)
-docker compose up --scale tests=3
-
-# View logs
+docker compose up --scale tests=3`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-compose-workflow-order-01',
+            question: { tr: 'Bir QA test ortamını Compose ile sıfırdan ayağa kaldırma akışını diz.', en: 'Arrange the flow for bringing up a QA test environment with Compose from scratch.' },
+            items: [
+              { id: '1', text: { tr: 'Dockerfile değiştiyse image\'ları yeniden derle (up --build)', en: 'Rebuild images if the Dockerfile changed (up --build)' }, order: 1 },
+              { id: '2', text: { tr: 'Tüm servisleri arka planda başlat (up -d)', en: 'Start all services in the background (up -d)' }, order: 2 },
+              { id: '3', text: { tr: 'Test runner loglarını canlı takip et (logs -f)', en: 'Follow the test runner logs live (logs -f)' }, order: 3 },
+              { id: '4', text: { tr: 'Testler bitince ortamı kapat (down)', en: 'Shut the environment down when tests finish (down)' }, order: 4 },
+              { id: '5', text: { tr: 'Veritabanını da tamamen sıfırlamak istiyorsan volume\'leri de sil (down -v)', en: 'If you also want a clean database, remove volumes too (down -v)' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Logs, one-off commands and status',
+            code: `# View logs
 docker compose logs               # All services
 docker compose logs app           # Single service
 docker compose logs -f app        # Follow (real-time)
@@ -1220,6 +1793,45 @@ docker compose run tests pytest tests/api/ -v
 
 # Check service status
 docker compose ps`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-compose-run-oneoff-practice',
+            id: 'docker-core-compose-run-oneoff-practice',
+            label: { tr: 'Pratik: Sadece bir API test alt kümesini bir kerelik çalıştır', en: 'Practice: Run just one API test subset as a one-off command' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: Tüm ortamı yeniden başlatmadan, sadece tests servisini kullanarak tests/smoke/ klasöründeki testleri -v (verbose) modda bir kerelik çalıştır.',
+              en: 'Goal: without restarting the whole environment, run just the tests in tests/smoke/ once, in verbose (-v) mode, using the tests service.',
+            },
+            explanation: {
+              tr: 'docker compose run <servis> <komut> ilgili servisin image\'ından YENİ, TEK SEFERLİK bir container başlatır; docker compose up gibi kalıcı servisi ayağa kaldırmaz.',
+              en: 'docker compose run <service> <command> starts a NEW, ONE-OFF container from that service\'s image; unlike docker compose up, it does not bring up a persistent service.',
+            },
+            code: {
+              tr: `docker compose run tests pytest tests/smoke/ -v`,
+              en: `docker compose run tests pytest tests/smoke/ -v`,
+            },
+            starterCode: {
+              tr: `docker compose ___ tests pytest tests/smoke/ -v`,
+              en: `docker compose ___ tests pytest tests/smoke/ -v`,
+            },
+            solutionCode: {
+              tr: `docker compose run tests pytest tests/smoke/ -v`,
+              en: `docker compose run tests pytest tests/smoke/ -v`,
+            },
+            expected: {
+              tr: `tests servisinden tek seferlik bir container başlatıldı.
+Sadece tests/smoke/ altındaki testler verbose modda çalıştı.`,
+              en: `A one-off container was started from the tests service.
+Only the tests under tests/smoke/ ran, in verbose mode.`,
+            },
+            hints: [
+              { tr: 'docker compose up kalıcı servisi ayağa kaldırır; sen tek seferlik bir komut istiyorsun.', en: 'docker compose up brings up a persistent service; you want a one-off command instead.' },
+              { tr: 'Aradığın alt komut, bir servisin image\'ını kullanıp geçici bir container açar.', en: 'The subcommand you need spins up a temporary container using a service\'s image.' },
+              { tr: 'Bu alt komutun adı "run" — docker compose run <servis> <komut> şeklinde kullanılır.', en: 'That subcommand is "run" — used as docker compose run <service> <command>.' },
+            ],
+            xpReward: 10,
           },
           ...dockerComposeInteractiveBlocks,
           {
@@ -1400,6 +2012,20 @@ services:
       - ./reports:/app/reports`,
           },
           {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-selenium-grid-order-01',
+            question: { tr: 'Selenium Grid\'in Compose ile başlatılma bağımlılık sırasını diz.', en: 'Arrange the dependency startup order for Selenium Grid with Compose.' },
+            items: [
+              { id: '1', text: { tr: 'selenium-hub önce ayağa kalkar (bağımlılığı yok)', en: 'selenium-hub comes up first (no dependencies)' }, order: 1 },
+              { id: '2', text: { tr: 'chrome ve firefox node\'ları hub\'a kayıt olur (depends_on: selenium-hub)', en: 'chrome and firefox nodes register with the hub (depends_on: selenium-hub)' }, order: 2 },
+              { id: '3', text: { tr: 'test-runner, chrome ve firefox\'un ayakta olmasını bekler (depends_on)', en: 'test-runner waits for chrome and firefox to be up (depends_on)' }, order: 3 },
+              { id: '4', text: { tr: 'test-runner SELENIUM_HUB adresine bağlanıp testleri paralel çalıştırır', en: 'test-runner connects to SELENIUM_HUB and runs tests in parallel' }, order: 4 },
+              { id: '5', text: { tr: 'Sonuçlar ./reports volume\'ü üzerinden host\'a yazılır', en: 'Results are written to the host through the ./reports volume' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'code',
             language: 'python',
             label: 'Connect Selenium to Docker Grid',
@@ -1434,6 +2060,63 @@ def test_login(browser='chrome'):
     # ... test code ...
     driver.quit()`,
           },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-selenium-remote-practice',
+            id: 'docker-core-selenium-remote-practice',
+            label: { tr: 'Pratik: WebDriver\'ı localhost yerine Docker Grid\'e bağla', en: 'Practice: Point WebDriver at the Docker Grid instead of localhost' },
+            language: 'python',
+            task: {
+              tr: 'Amaç: Yerel bir ChromeDriver yerine, Docker Compose\'daki selenium-hub servisine bağlanan bir Remote WebDriver oluştur.',
+              en: 'Goal: instead of a local ChromeDriver, create a Remote WebDriver that connects to the selenium-hub service in Docker Compose.',
+            },
+            explanation: {
+              tr: 'webdriver.Remote(), command_executor parametresiyle hub\'ın adresini alır — webdriver.Chrome() gibi yerel bir binary aramaz.',
+              en: 'webdriver.Remote() takes the hub\'s address via the command_executor parameter — unlike webdriver.Chrome(), it never looks for a local binary.',
+            },
+            code: {
+              tr: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            starterCode: {
+              tr: `driver = webdriver.___(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.___(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            solutionCode: {
+              tr: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            expected: {
+              tr: `driver artık selenium-hub üzerinden çalışan bir uzak tarayıcıyı kontrol ediyor.
+Yerel makinede Chrome kurulu olmasına gerek yok.`,
+              en: `driver now controls a remote browser running through selenium-hub.
+No local Chrome installation is required.`,
+            },
+            hints: [
+              { tr: 'webdriver.Chrome() her zaman yerel bir binary arar — burada onu istemiyoruz.', en: 'webdriver.Chrome() always looks for a local binary — that is not what we want here.' },
+              { tr: 'Uzak bir Grid\'e bağlanmak için WebDriver sınıfının farklı bir adı vardır.', en: 'There is a different WebDriver class name for connecting to a remote Grid.' },
+              { tr: 'Aradığın sınıf adı "Remote" — webdriver.Remote(command_executor=...) şeklinde kullanılır.', en: 'The class you need is "Remote" — used as webdriver.Remote(command_executor=...).' },
+            ],
+            xpReward: 15,
+          },
           { type: 'heading', text: 'Running Playwright Tests in Docker' },
           {
             type: 'code',
@@ -1458,6 +2141,61 @@ services:
                npx playwright test
                --reporter=html
                --reporter=junit,outputFile=test-results/junit.xml"`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-playwright-volume-practice',
+            id: 'docker-core-playwright-volume-practice',
+            label: { tr: 'Pratik: HTML raporunun host\'ta kalıcı olmasını sağla', en: 'Practice: Make the HTML report persist on the host' },
+            language: 'yaml',
+            task: {
+              tr: 'Amaç: playwright-report/ klasörü sadece container\'ın içinde kalıyor ve container silinince kayboluyor. Volume tanımını ekleyerek host\'ta kalıcı hale getir.',
+              en: 'Goal: the playwright-report/ folder currently only lives inside the container and disappears when it is removed. Add the volume mapping so it persists on the host.',
+            },
+            explanation: {
+              tr: 'volumes altındaki her satır HOST_YOLU:CONTAINER_YOLU şeklindedir; test-results zaten doğru mount edilmiş, playwright-report için de aynı deseni uygula.',
+              en: 'Each line under volumes follows HOST_PATH:CONTAINER_PATH; test-results is already mounted correctly — apply the same pattern for playwright-report.',
+            },
+            code: {
+              tr: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ./playwright-report:/app/playwright-report`,
+              en: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ./playwright-report:/app/playwright-report`,
+            },
+            starterCode: {
+              tr: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ___:/app/playwright-report`,
+              en: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ___:/app/playwright-report`,
+            },
+            solutionCode: {
+              tr: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ./playwright-report:/app/playwright-report`,
+              en: `volumes:
+  - .:/app
+  - ./test-results:/app/test-results
+  - ./playwright-report:/app/playwright-report`,
+            },
+            expected: {
+              tr: `HTML raporu artık container silinse bile host'taki ./playwright-report klasöründe duruyor.`,
+              en: `The HTML report now survives on the host in ./playwright-report even if the container is removed.`,
+            },
+            hints: [
+              { tr: 'Bir satır önceki test-results satırının aynı desenini takip et.', en: 'Follow the exact same pattern as the test-results line right above it.' },
+              { tr: 'Host tarafındaki klasör adı container yolundakiyle aynı olmalı: playwright-report.', en: 'The host-side folder name should match the container path: playwright-report.' },
+              { tr: 'Doğru satır: ./playwright-report:/app/playwright-report', en: 'The correct line is: ./playwright-report:/app/playwright-report' },
+            ],
+            xpReward: 10,
           },
           {
             type: 'code',
@@ -2081,76 +2819,250 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
           {
             type: 'code',
             language: 'bash',
-            label: 'Docker image\'larıyla çalışma',
+            label: 'Image çekme ve arama',
             code: `# Docker Hub\'dan image çek
 docker pull python:3.12-slim       # Python 3.12 slim image\'ı indir
 docker pull nginx:latest           # Son Nginx sürümünü indir
 docker pull postgres:16            # PostgreSQL 16\'yı indir
 
-# İndirilen image\'ları listele
+# Docker Hub\'da image ara
+docker search selenium`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Yukarıdaki "📦 Temel Komutlar" sekmesinin altındaki Docker Sandbox\'ta dene: docker pull nginx yaz ve IMAGES rafının canlı güncellendiğini gör.',
+              en: 'Try it in the Docker Sandbox further down this "Core Commands" tab: type docker pull nginx and watch the IMAGES shelf update live.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Image\'ları listeleme, inceleme ve silme',
+            code: `# İndirilen image\'ları listele
 docker images
 docker image ls                    # Aynı şey
 
-# Docker Hub\'da image ara
-docker search selenium
+# Image detaylarını incele
+docker inspect python:3.12-slim
 
 # Image\'ı sil (önce kullanan tüm container\'ları durdur)
 docker rmi python:3.12-slim        # Ad:etiket ile sil
 docker image rm abc123def456       # Image ID ile sil
 
 # Kullanılmayan tüm image\'ları sil (temizlik)
-docker image prune -a
-
-# Image detaylarını incele
-docker inspect python:3.12-slim`,
+docker image prune -a`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-image-lifecycle-order-01',
+            question: { tr: 'Bir image ile ilk defa çalışırken doğru komut sırasını diz.', en: 'Arrange the correct command order for working with an image for the first time.' },
+            items: [
+              { id: '1', text: { tr: 'Docker Hub\'da image ara (docker search)', en: 'Search Docker Hub for the image (docker search)' }, order: 1 },
+              { id: '2', text: { tr: 'Image\'ı indir (docker pull)', en: 'Download the image (docker pull)' }, order: 2 },
+              { id: '3', text: { tr: 'İndirilen image\'ları listele (docker images)', en: 'List downloaded images (docker images)' }, order: 3 },
+              { id: '4', text: { tr: 'Detaylarını incele (docker inspect)', en: 'Inspect its details (docker inspect)' }, order: 4 },
+              { id: '5', text: { tr: 'Artık kullanmıyorsan sil (docker rmi)', en: 'Remove it once no longer needed (docker rmi)' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'Container Komutları' },
           {
             type: 'code',
             language: 'bash',
-            label: 'Docker container\'larıyla çalışma',
+            label: 'Container başlatma temelleri',
             code: `# Container çalıştır (oluştur VE başlat)
 docker run nginx                   # Nginx çalıştır (ön planda — terminal bloke)
 docker run -d nginx                # -d = detached (arka planda)
 docker run -d --name my-nginx nginx    # --name = özel ad
-docker run -d -p 8080:80 nginx     # -p host:container port eşlemesi
-
-# Sık kullanılan run flag\'leri:
-docker run -d \\
+docker run -d -p 8080:80 nginx     # -p host:container port eşlemesi`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Bu tam olarak aşağıdaki sandbox\'ın 2. görevi: docker run -d -p 8080:80 --name web nginx yaz ve CONTAINERS panelinde yeşil nabız atan kutuyu izle.',
+              en: 'This is exactly mission 2 in the sandbox below: type docker run -d -p 8080:80 --name web nginx and watch the green pulsing box appear in the CONTAINERS panel.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Production tarzı run — tüm flag\'lerle birlikte',
+            code: `docker run -d \\
   --name my-container \\           # Container\'a ad ver
   -p 8080:80 \\                    # Host 8080 → Container 80
   -e APP_ENV=staging \\            # Environment variable ayarla
   -v /host/dizin:/container/dizin \\ # Volume mount et
   --restart unless-stopped \\     # Otomatik yeniden başlatma
   python:3.12-slim \\              # Kullanılacak image
-  python app.py                    # Çalıştırılacak komut
-
-# Container\'ları listele
+  python app.py                    # Çalıştırılacak komut`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-run-flags-practice',
+            id: 'docker-core-run-flags-practice',
+            label: { tr: 'Pratik: Production tarzı run flag\'lerini tamamla', en: 'Practice: Complete a production-style run command' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: staging ortamında, 9090 host portunu 80 container portuna bağlayan ve container çökerse otomatik yeniden başlayan bir python:3.12-slim container\'ı çalıştır.',
+              en: 'Goal: run a python:3.12-slim container in the staging environment, mapping host port 9090 to container port 80, that restarts automatically if it crashes.',
+            },
+            explanation: {
+              tr: 'Ortam değişkeni için -e, port eşlemesi için -p, otomatik yeniden başlatma için --restart flag\'lerini doğru sırayla doldur.',
+              en: 'Fill in -e for the environment variable, -p for the port mapping, and --restart for the auto-restart policy, in the right places.',
+            },
+            code: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+            },
+            starterCode: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  ___ 9090:80 \\
+  ___ APP_ENV=staging \\
+  ___ unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  ___ 9090:80 \\
+  ___ APP_ENV=staging \\
+  ___ unless-stopped \\
+  python:3.12-slim`,
+            },
+            solutionCode: {
+              tr: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+              en: `docker run -d \\
+  --name staging-app \\
+  -p 9090:80 \\
+  -e APP_ENV=staging \\
+  --restart unless-stopped \\
+  python:3.12-slim`,
+            },
+            expected: {
+              tr: `staging-app container'ı 9090:80 port eşlemesiyle çalışıyor.
+APP_ENV=staging olarak ayarlandı.
+Çökerse otomatik yeniden başlayacak.`,
+              en: `staging-app container is running with port mapping 9090:80.
+APP_ENV is set to staging.
+It will restart automatically if it crashes.`,
+            },
+            hints: [
+              { tr: 'Port eşlemesi her zaman -p HOST:CONTAINER şeklindedir.', en: 'Port mapping always follows -p HOST:CONTAINER.' },
+              { tr: 'Ortam değişkeni tanımlamak için -e ANAHTAR=DEĞER kullanılır.', en: 'Use -e KEY=VALUE to define an environment variable.' },
+              { tr: 'Otomatik yeniden başlatma politikası --restart flag\'i ile verilir, örn: --restart unless-stopped.', en: 'The auto-restart policy is given with the --restart flag, e.g. --restart unless-stopped.' },
+            ],
+            xpReward: 15,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Container\'ları listeleme',
+            code: `# Container\'ları listele
 docker ps                          # Sadece çalışan container\'lar
-docker ps -a                       # TÜM container\'lar (durdurulmuş dahil)
-
-# Durdur/Başlat/Yeniden Başlat
+docker ps -a                       # TÜM container\'lar (durdurulmuş dahil)`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker ps yaz — 3. görev bu şekilde tamamlanır ve çalışan container\'ların tablosunu terminalde canlı görürsün.',
+              en: 'Type docker ps in the sandbox — this completes mission 3 and shows you a live table of running containers right in the terminal.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Yaşam döngüsü — durdur, başlat, yeniden başlat',
+            code: `# Durdur/Başlat/Yeniden Başlat
 docker stop my-container           # Zarif durdur (SIGTERM, sonra SIGKILL)
 docker start my-container          # Durdurulmuş container\'ı başlat
-docker restart my-container        # Durdur sonra başlat
-
-# Container\'ları sil
+docker restart my-container        # Durdur sonra başlat`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker stop web dene — 5. görevin ilk adımı budur. Container yeşilden griye döner ama silinmez, tıpkı yukarıdaki komutta olduğu gibi.',
+              en: 'Try docker stop web in the sandbox — this is the first half of mission 5. The container turns from green to grey but is not removed, exactly like the command above.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Container\'ları silme',
+            code: `# Container\'ları sil
 docker rm my-container             # Durdurulmuş container\'ı sil
 docker rm -f my-container          # Zorla sil (çalışıyor olsa bile)
-docker container prune             # Durdurulmuş TÜM container\'ları sil
-
-# Log\'lar
+docker container prune             # Durdurulmuş TÜM container\'ları sil`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta ÇALIŞAN bir container\'ı -f\'siz docker rm ile silmeyi dene — gerçek Docker daemon\'ının verdiği "container is running" hatasını birebir göreceksin, sonra docker rm -f ile zorla sil ve 5. görevi tamamla.',
+              en: 'Try running docker rm without -f on a RUNNING container in the sandbox — you will see the exact "container is running" error the real Docker daemon returns, then force it with docker rm -f to complete mission 5.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Log inceleme',
+            code: `# Log\'lar
 docker logs my-container           # Tüm log\'ları yazdır
 docker logs -f my-container        # Log\'ları gerçek zamanlı takip et (tail -f gibi)
-docker logs --tail 50 my-container # Son 50 satır
-
-# Çalışan container içinde komut çalıştır
+docker logs --tail 50 my-container # Son 50 satır`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: {
+              tr: 'Sandbox\'ta docker logs web yaz — 4. görev bu satırla tamamlanır ve nginx\'in gerçekçi başlangıç log satırlarını görürsün.',
+              en: 'Type docker logs web in the sandbox — this completes mission 4 and shows nginx\'s realistic startup log lines.',
+            },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Container içinde komut çalıştırma ve dosya kopyalama',
+            code: `# Çalışan container içinde komut çalıştır
 docker exec -it my-container bash  # İnteraktif bash shell aç
 docker exec my-container ls /app   # İnteraktif olmadan komut çalıştır
 
 # Host ve container arasında dosya kopyala
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-debug-flow-order-01',
+            question: { tr: 'Çalışan bir container içindeki test raporlarını incelemek için doğru akışı diz.', en: 'Arrange the correct flow for inspecting test reports inside a running container.' },
+            items: [
+              { id: '1', text: { tr: 'docker ps ile container\'ın çalıştığını doğrula', en: 'Verify the container is running with docker ps' }, order: 1 },
+              { id: '2', text: { tr: 'docker exec -it ile container içine gir', en: 'Enter the container with docker exec -it' }, order: 2 },
+              { id: '3', text: { tr: 'ls /app/reports ile dosyaları listele', en: 'List the files with ls /app/reports' }, order: 3 },
+              { id: '4', text: { tr: 'docker cp ile raporu host makineye kopyala', en: 'Copy the report to the host machine with docker cp' }, order: 4 },
+              { id: '5', text: { tr: 'Host\'taki raporu tarayıcıda aç', en: 'Open the report on the host in a browser' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'docker-sandbox',
@@ -2186,19 +3098,99 @@ docker run -d -p 8081:80 -v db_data:/app/data --name my-persistent-app my-app`,
           {
             type: 'code',
             language: 'bash',
-            label: 'Docker volume yönetimi',
+            label: 'Adlandırılmış volume\'ler — oluştur, listele, incele, sil',
             code: `# Adlandırılmış volume\'ler — Docker tarafından yönetilir
 docker volume create test-data         # Adlandırılmış volume oluştur
 docker volume ls                        # Tüm volume\'leri listele
 docker volume inspect test-data         # Volume detaylarını göster
 docker volume rm test-data             # Volume sil
-docker volume prune                    # Kullanılmayan volume\'leri sil
-
-# Çalıştırırken volume mount et
+docker volume prune                    # Kullanılmayan volume\'leri sil`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-volume-lifecycle-order-01',
+            question: { tr: 'Kalıcı bir test veritabanı volume\'ünün yaşam döngüsünü doğru sıraya diz.', en: 'Arrange the lifecycle of a persistent test-database volume in the correct order.' },
+            items: [
+              { id: '1', text: { tr: 'Adlandırılmış volume\'ü oluştur (docker volume create)', en: 'Create the named volume (docker volume create)' }, order: 1 },
+              { id: '2', text: { tr: 'Container\'ı bu volume\'ü mount ederek çalıştır (-v)', en: 'Run the container mounting that volume (-v)' }, order: 2 },
+              { id: '3', text: { tr: 'Container durdurulup silinse bile veri volume\'de kalır', en: 'Data survives in the volume even if the container is stopped and removed' }, order: 3 },
+              { id: '4', text: { tr: 'İçeriğini doğrulamak için docker volume inspect kullan', en: 'Use docker volume inspect to verify its contents' }, order: 4 },
+              { id: '5', text: { tr: 'Artık ihtiyaç yoksa docker volume rm ile temizle', en: 'Clean it up with docker volume rm once no longer needed' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Çalıştırırken adlandırılmış volume mount etme',
+            code: `# Çalıştırırken volume mount et
 docker run -d \\
-  -v test-data:/app/data \\  # Adlandırılmış volume
-
-# Bind mount — host dizini mount et
+  -v test-data:/app/data \\  # Adlandırılmış volume: test-data → container içinde /app/data
+  python:3.12-slim`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-volume-mount-practice',
+            id: 'docker-core-volume-mount-practice',
+            label: { tr: 'Pratik: Adlandırılmış volume\'ü doğru mount et', en: 'Practice: Mount a named volume correctly' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: qa-db-data adında bir volume\'ü postgres:16 container\'ının /var/lib/postgresql/data dizinine bağlayarak çalıştır — veritabanı verisi container silinse bile hayatta kalsın.',
+              en: 'Goal: run postgres:16 mounting a volume named qa-db-data at /var/lib/postgresql/data — so database data survives even if the container is removed.',
+            },
+            explanation: {
+              tr: '-v flag\'inin sözdizimi her zaman KAYNAK:HEDEF şeklindedir; kaynak burada volume adıdır, hedef container içindeki dizindir.',
+              en: 'The -v flag syntax is always SOURCE:TARGET; here the source is the volume name and the target is the directory inside the container.',
+            },
+            code: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+            },
+            starterCode: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v ___:___ \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v ___:___ \\
+  postgres:16`,
+            },
+            solutionCode: {
+              tr: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+              en: `docker run -d \\
+  --name qa-db \\
+  -v qa-db-data:/var/lib/postgresql/data \\
+  postgres:16`,
+            },
+            expected: {
+              tr: `qa-db container'ı çalışıyor.
+Volume: qa-db-data → /var/lib/postgresql/data bağlandı.`,
+              en: `qa-db container is running.
+Volume: qa-db-data → /var/lib/postgresql/data mounted.`,
+            },
+            hints: [
+              { tr: '-v flag\'inin sol tarafı volume adı, sağ tarafı container içindeki dizin yoludur.', en: 'The left side of -v is the volume name, the right side is the path inside the container.' },
+              { tr: 'PostgreSQL veritabanı dosyalarını her zaman /var/lib/postgresql/data dizininde tutar.', en: 'PostgreSQL always keeps its database files under /var/lib/postgresql/data.' },
+              { tr: 'İki nokta üst üste (:) volume adını hedef yoldan ayırır, boşluk değil.', en: 'A colon (:) separates the volume name from the target path — not a space.' },
+            ],
+            xpReward: 15,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Bind mount ve gerçek bir QA senaryosu',
+            code: `# Bind mount — host dizini mount et
 docker run -d \\
   -v $(pwd)/tests:/app/tests \\      # Host ./tests → Container /app/tests
   -v $(pwd)/reports:/app/reports \\  # Host ./reports → Container /app/reports
@@ -2209,6 +3201,63 @@ docker run --rm \\
   -v $(pwd)/results:/app/results \\   # results/ host\'ta kalır
   my-test-image \\
   pytest tests/ --junitxml=/app/results/junit.xml`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-bind-mount-practice',
+            id: 'docker-core-bind-mount-practice',
+            label: { tr: 'Pratik: Test sonuçlarını host makinede kalıcı tut', en: 'Practice: Persist test results on the host machine' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: my-test-image\'i --rm ile bir kerelik çalıştır ama JUnit raporunun host\'taki ./allure-results klasöründe kalıcı olmasını sağla.',
+              en: 'Goal: run my-test-image once with --rm, but make sure the JUnit report persists in the ./allure-results folder on the host.',
+            },
+            explanation: {
+              tr: 'Bind mount ile host\'taki bir klasörü ($(pwd)/allure-results) container içindeki /app/results ile eşleştir, sonra pytest çıktısını o dizine yönlendir.',
+              en: 'Bind-mount a host folder ($(pwd)/allure-results) to /app/results inside the container, then point the pytest output at that directory.',
+            },
+            code: {
+              tr: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            starterCode: {
+              tr: `docker run --rm \\
+  -v $(pwd)/___:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/___:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            solutionCode: {
+              tr: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+              en: `docker run --rm \\
+  -v $(pwd)/allure-results:/app/results \\
+  my-test-image \\
+  pytest tests/ --junitxml=/app/results/junit.xml`,
+            },
+            expected: {
+              tr: `Test koşumu bitince container --rm ile otomatik silindi.
+junit.xml host'ta ./allure-results klasöründe hâlâ duruyor.`,
+              en: `The container was auto-removed by --rm after the test run.
+junit.xml still exists on the host in ./allure-results.`,
+            },
+            hints: [
+              { tr: '$(pwd) her zaman şu anki host dizinini verir — klasör adını onun yanına ekle.', en: '$(pwd) always resolves to the current host directory — append the folder name to it.' },
+              { tr: 'İstenen host klasörü "allure-results" olarak belirtiliyor, boşluğa onu yaz.', en: 'The requested host folder is "allure-results" — write it in the blank.' },
+              { tr: '--rm container\'ı siler ama bind mount edilen host klasörü SİLİNMEZ, veri orada kalır.', en: '--rm removes the container, but the bind-mounted host folder is NOT deleted — the data stays there.' },
+            ],
+            xpReward: 15,
           },
           { type: 'heading', text: 'Network Komutları' },
           {
@@ -2318,6 +3367,20 @@ EXPOSE 8080
 # CMD — Container başladığında çalıştırılacak varsayılan komut
 CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]`,
           },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-dockerfile-order-01',
+            question: { tr: 'Bir Dockerfile\'ın cache-dostu talimat sırasını diz.', en: 'Arrange the cache-friendly instruction order for a Dockerfile.' },
+            items: [
+              { id: '1', text: { tr: 'FROM ile temel image seçilir', en: 'FROM selects the base image' }, order: 1 },
+              { id: '2', text: { tr: 'WORKDIR ile çalışma dizini ayarlanır', en: 'WORKDIR sets the working directory' }, order: 2 },
+              { id: '3', text: { tr: 'Sadece requirements.txt kopyalanır ve bağımlılıklar kurulur (RUN)', en: 'Only requirements.txt is copied and dependencies are installed (RUN)' }, order: 3 },
+              { id: '4', text: { tr: 'Projenin geri kalanı kopyalanır (COPY . .)', en: 'The rest of the project is copied (COPY . .)' }, order: 4 },
+              { id: '5', text: { tr: 'CMD ile container başlayınca çalışacak komut belirlenir', en: 'CMD defines the command that runs when the container starts' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
           { type: 'heading', text: 'Multi-Stage Build (Gelişmiş)' },
           {
             type: 'code',
@@ -2343,6 +3406,93 @@ CMD ["pytest", "tests/"]
 
 # Sonuç: final image çok daha küçük — build araçları dahil değil`,
           },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-multistage-practice',
+            id: 'docker-core-multistage-practice',
+            label: { tr: 'Pratik: Multi-stage build\'de builder aşamasından dosya taşı', en: 'Practice: Copy files from the builder stage in a multi-stage build' },
+            language: 'dockerfile',
+            task: {
+              tr: 'Amaç: builder aşamasında kurulan bağımlılıkları, runtime aşamasına build araçlarını TEKRAR kurmadan taşı.',
+              en: 'Goal: carry the dependencies installed in the builder stage into the runtime stage WITHOUT reinstalling build tools.',
+            },
+            explanation: {
+              tr: 'COPY --from=<aşama adı> ile önceki aşamadan dosya kopyalanır. Aşama adı FROM ... AS builder satırındaki isimdir.',
+              en: 'COPY --from=<stage name> copies files from a previous stage. The stage name is whatever follows FROM ... AS builder.',
+            },
+            code: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+            },
+            starterCode: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY ___=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY ___=builder /root/.local /root/.local
+COPY . .`,
+            },
+            solutionCode: {
+              tr: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+              en: `FROM python:3.12 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .`,
+            },
+            expected: {
+              tr: `runtime aşaması builder'daki paketleri devralır.
+Final image build araçlarını içermez, daha küçüktür.`,
+              en: `The runtime stage inherits the builder's packages.
+The final image excludes build tools and is smaller.`,
+            },
+            hints: [
+              { tr: 'Bir önceki aşamadan dosya taşımak için özel bir COPY seçeneği vardır.', en: 'There is a special COPY option for pulling files from a previous stage.' },
+              { tr: 'Bu seçenek --from= şeklinde yazılır, sonrasında aşama adı gelir.', en: 'That option is written as --from=, followed by the stage name.' },
+              { tr: 'Aşama adı, ilk FROM satırındaki "AS builder" ifadesiyle verilen isimdir.', en: 'The stage name is whatever was given after "AS builder" in the first FROM line.' },
+            ],
+            xpReward: 15,
+          },
           { type: 'heading', text: '.dockerignore — Gereksiz Dosyaları Hariç Tut' },
           {
             type: 'code',
@@ -2360,6 +3510,75 @@ venv/                # Sanal ortam — container içinde yeniden kur
 node_modules/        # Node bağımlılıkları — container içinde yeniden kur
 .pytest_cache/
 .coverage`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-dockerignore-practice',
+            id: 'docker-core-dockerignore-practice',
+            label: { tr: 'Pratik: Build\'i yavaşlatan eksik satırı bul', en: 'Practice: Spot the missing line slowing down the build' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: .dockerignore\'da node_modules/ satırı unutulmuş — bu, build context\'in gereksiz yere yüzlerce MB büyümesine ve build\'in yavaşlamasına yol açar. Eksik satırı ekle.',
+              en: 'Goal: the node_modules/ line is missing from .dockerignore — this bloats the build context by hundreds of MB and slows down the build. Add the missing line.',
+            },
+            explanation: {
+              tr: '.dockerignore\'daki her satır, Docker\'ın build context\'e hiç dahil etmeyeceği bir dosya/klasör deseni tanımlar — .gitignore ile aynı sözdizimi.',
+              en: 'Each line in .dockerignore defines a file/folder pattern Docker will never include in the build context — same syntax as .gitignore.',
+            },
+            code: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+            },
+            starterCode: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+___
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+___
+.pytest_cache/`,
+            },
+            solutionCode: {
+              tr: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+              en: `__pycache__/
+*.pyc
+.env
+.git/
+node_modules/
+.pytest_cache/`,
+            },
+            expected: {
+              tr: `Build context artık node_modules/ içermiyor.
+Build süresi ve image boyutu belirgin şekilde küçüldü.`,
+              en: `The build context no longer includes node_modules/.
+Build time and image size dropped noticeably.`,
+            },
+            hints: [
+              { tr: 'Bu proje JavaScript bağımlılıkları için npm/node kullanıyor.', en: 'This project uses npm/node for JavaScript dependencies.' },
+              { tr: 'Node.js projelerinde bağımlılıklar hep aynı isimli klasörde toplanır.', en: 'In Node.js projects, dependencies always live in a folder with the same name.' },
+              { tr: 'Aradığın klasör adı "node_modules/" — sonunda / olmalı çünkü bir klasördür.', en: 'The folder you need is "node_modules/" — it ends with / because it is a directory.' },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'Docker Compose — Çoklu Container Kurulumu' },
           {
@@ -2421,11 +3640,86 @@ services:
 volumes:
   postgres_data:`,
           },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-compose-healthcheck-practice',
+            id: 'docker-core-compose-healthcheck-practice',
+            label: { tr: 'Pratik: app servisinin doğru host adına bağlandığından emin ol', en: 'Practice: Make sure the app service points at the correct hostname' },
+            language: 'yaml',
+            task: {
+              tr: 'Amaç: app servisinin DATABASE_URL\'i localhost\'a değil, Compose\'daki db servisinin adına işaret etmeli — Compose network\'ünde container\'lar birbirine servis adıyla ulaşır, localhost ile değil.',
+              en: 'Goal: the app service\'s DATABASE_URL must point at the db SERVICE NAME, not localhost — inside a Compose network, containers reach each other by service name, not localhost.',
+            },
+            explanation: {
+              tr: 'docker-compose.yml\'deki "db:" servis adı, aynı network\'teki diğer container\'lar için bir DNS hostname\'idir. localhost her container kendi İÇİNİ işaret eder.',
+              en: 'The "db:" service name in docker-compose.yml is a DNS hostname for other containers on the same network. localhost always points INSIDE each container itself.',
+            },
+            code: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testkullanici:testparola@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            starterCode: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testkullanici:testparola@___:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@___:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            solutionCode: {
+              tr: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testkullanici:testparola@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+              en: `app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      db:
+        condition: service_healthy`,
+            },
+            expected: {
+              tr: `app container'ı db'ye "db" hostname'i üzerinden bağlanıyor.
+Bağlantı hatası (ECONNREFUSED) yok.`,
+              en: `The app container connects to db via the "db" hostname.
+No connection error (ECONNREFUSED).`,
+            },
+            hints: [
+              { tr: 'Compose network\'ünde host adı, docker-compose.yml\'deki servis adıyla AYNIDIR.', en: 'The hostname on a Compose network is IDENTICAL to the service name in docker-compose.yml.' },
+              { tr: 'Bu dosyada veritabanı servisinin adı "db:" olarak tanımlı.', en: 'In this file, the database service is defined under the name "db:".' },
+              { tr: 'localhost yazarsan app container kendi içindeki (var olmayan) bir veritabanına bağlanmaya çalışır.', en: 'If you write localhost, the app container tries to reach a (nonexistent) database inside itself.' },
+            ],
+            xpReward: 15,
+          },
           { type: 'heading', text: 'Docker Compose Komutları' },
           {
             type: 'code',
             language: 'bash',
-            label: 'Yaygın docker compose komutları',
+            label: 'Servisleri başlatma, durdurma ve yeniden derleme',
             code: `# Tüm servisleri başlat (arka planda)
 docker compose up -d
 
@@ -2442,9 +3736,27 @@ docker compose down -v
 docker compose up --build
 
 # Servisi ölçeklendir (örn: 3 test container paralel)
-docker compose up --scale tests=3
-
-# Log\'ları görüntüle
+docker compose up --scale tests=3`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-compose-workflow-order-01',
+            question: { tr: 'Bir QA test ortamını Compose ile sıfırdan ayağa kaldırma akışını diz.', en: 'Arrange the flow for bringing up a QA test environment with Compose from scratch.' },
+            items: [
+              { id: '1', text: { tr: 'Dockerfile değiştiyse image\'ları yeniden derle (up --build)', en: 'Rebuild images if the Dockerfile changed (up --build)' }, order: 1 },
+              { id: '2', text: { tr: 'Tüm servisleri arka planda başlat (up -d)', en: 'Start all services in the background (up -d)' }, order: 2 },
+              { id: '3', text: { tr: 'Test runner loglarını canlı takip et (logs -f)', en: 'Follow the test runner logs live (logs -f)' }, order: 3 },
+              { id: '4', text: { tr: 'Testler bitince ortamı kapat (down)', en: 'Shut the environment down when tests finish (down)' }, order: 4 },
+              { id: '5', text: { tr: 'Veritabanını da tamamen sıfırlamak istiyorsan volume\'leri de sil (down -v)', en: 'If you also want a clean database, remove volumes too (down -v)' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'Log\'lar, tek seferlik komutlar ve durum',
+            code: `# Log\'ları görüntüle
 docker compose logs               # Tüm servisler
 docker compose logs app           # Tek servis
 docker compose logs -f app        # Takip et (gerçek zamanlı)
@@ -2454,6 +3766,45 @@ docker compose run tests pytest tests/api/ -v
 
 # Servis durumunu kontrol et
 docker compose ps`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-compose-run-oneoff-practice',
+            id: 'docker-core-compose-run-oneoff-practice',
+            label: { tr: 'Pratik: Sadece bir API test alt kümesini bir kerelik çalıştır', en: 'Practice: Run just one API test subset as a one-off command' },
+            language: 'bash',
+            task: {
+              tr: 'Amaç: Tüm ortamı yeniden başlatmadan, sadece tests servisini kullanarak tests/smoke/ klasöründeki testleri -v (verbose) modda bir kerelik çalıştır.',
+              en: 'Goal: without restarting the whole environment, run just the tests in tests/smoke/ once, in verbose (-v) mode, using the tests service.',
+            },
+            explanation: {
+              tr: 'docker compose run <servis> <komut> ilgili servisin image\'ından YENİ, TEK SEFERLİK bir container başlatır; docker compose up gibi kalıcı servisi ayağa kaldırmaz.',
+              en: 'docker compose run <service> <command> starts a NEW, ONE-OFF container from that service\'s image; unlike docker compose up, it does not bring up a persistent service.',
+            },
+            code: {
+              tr: `docker compose run tests pytest tests/smoke/ -v`,
+              en: `docker compose run tests pytest tests/smoke/ -v`,
+            },
+            starterCode: {
+              tr: `docker compose ___ tests pytest tests/smoke/ -v`,
+              en: `docker compose ___ tests pytest tests/smoke/ -v`,
+            },
+            solutionCode: {
+              tr: `docker compose run tests pytest tests/smoke/ -v`,
+              en: `docker compose run tests pytest tests/smoke/ -v`,
+            },
+            expected: {
+              tr: `tests servisinden tek seferlik bir container başlatıldı.
+Sadece tests/smoke/ altındaki testler verbose modda çalıştı.`,
+              en: `A one-off container was started from the tests service.
+Only the tests under tests/smoke/ ran, in verbose mode.`,
+            },
+            hints: [
+              { tr: 'docker compose up kalıcı servisi ayağa kaldırır; sen tek seferlik bir komut istiyorsun.', en: 'docker compose up brings up a persistent service; you want a one-off command instead.' },
+              { tr: 'Aradığın alt komut, bir servisin image\'ını kullanıp geçici bir container açar.', en: 'The subcommand you need spins up a temporary container using a service\'s image.' },
+              { tr: 'Bu alt komutun adı "run" — docker compose run <servis> <komut> şeklinde kullanılır.', en: 'That subcommand is "run" — used as docker compose run <service> <command>.' },
+            ],
+            xpReward: 10,
           },
           ...dockerComposeInteractiveBlocks,
           {
@@ -2634,6 +3985,20 @@ services:
       - ./reports:/app/reports`,
           },
           {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'ch-docker-selenium-grid-order-01',
+            question: { tr: 'Selenium Grid\'in Compose ile başlatılma bağımlılık sırasını diz.', en: 'Arrange the dependency startup order for Selenium Grid with Compose.' },
+            items: [
+              { id: '1', text: { tr: 'selenium-hub önce ayağa kalkar (bağımlılığı yok)', en: 'selenium-hub comes up first (no dependencies)' }, order: 1 },
+              { id: '2', text: { tr: 'chrome ve firefox node\'ları hub\'a kayıt olur (depends_on: selenium-hub)', en: 'chrome and firefox nodes register with the hub (depends_on: selenium-hub)' }, order: 2 },
+              { id: '3', text: { tr: 'test-runner, chrome ve firefox\'un ayakta olmasını bekler (depends_on)', en: 'test-runner waits for chrome and firefox to be up (depends_on)' }, order: 3 },
+              { id: '4', text: { tr: 'test-runner SELENIUM_HUB adresine bağlanıp testleri paralel çalıştırır', en: 'test-runner connects to SELENIUM_HUB and runs tests in parallel' }, order: 4 },
+              { id: '5', text: { tr: 'Sonuçlar ./reports volume\'ü üzerinden host\'a yazılır', en: 'Results are written to the host through the ./reports volume' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'code',
             language: 'python',
             label: 'Selenium\'u Docker Grid\'e bağlama',
@@ -2666,6 +4031,63 @@ def test_giris(browser='chrome'):
     driver.get('https://uygulamaniz.com')
     # ... test kodu ...
     driver.quit()`,
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'docker-core-selenium-remote-practice',
+            id: 'docker-core-selenium-remote-practice',
+            label: { tr: 'Pratik: WebDriver\'ı localhost yerine Docker Grid\'e bağla', en: 'Practice: Point WebDriver at the Docker Grid instead of localhost' },
+            language: 'python',
+            task: {
+              tr: 'Amaç: Yerel bir ChromeDriver yerine, Docker Compose\'daki selenium-hub servisine bağlanan bir Remote WebDriver oluştur.',
+              en: 'Goal: instead of a local ChromeDriver, create a Remote WebDriver that connects to the selenium-hub service in Docker Compose.',
+            },
+            explanation: {
+              tr: 'webdriver.Remote(), command_executor parametresiyle hub\'ın adresini alır — webdriver.Chrome() gibi yerel bir binary aramaz.',
+              en: 'webdriver.Remote() takes the hub\'s address via the command_executor parameter — unlike webdriver.Chrome(), it never looks for a local binary.',
+            },
+            code: {
+              tr: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            starterCode: {
+              tr: `driver = webdriver.___(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.___(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            solutionCode: {
+              tr: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+              en: `driver = webdriver.Remote(
+    command_executor='http://selenium-hub:4444/wd/hub',
+    options=webdriver.ChromeOptions()
+)`,
+            },
+            expected: {
+              tr: `driver artık selenium-hub üzerinden çalışan bir uzak tarayıcıyı kontrol ediyor.
+Yerel makinede Chrome kurulu olmasına gerek yok.`,
+              en: `driver now controls a remote browser running through selenium-hub.
+No local Chrome installation is required.`,
+            },
+            hints: [
+              { tr: 'webdriver.Chrome() her zaman yerel bir binary arar — burada onu istemiyoruz.', en: 'webdriver.Chrome() always looks for a local binary — that is not what we want here.' },
+              { tr: 'Uzak bir Grid\'e bağlanmak için WebDriver sınıfının farklı bir adı vardır.', en: 'There is a different WebDriver class name for connecting to a remote Grid.' },
+              { tr: 'Aradığın sınıf adı "Remote" — webdriver.Remote(command_executor=...) şeklinde kullanılır.', en: 'The class you need is "Remote" — used as webdriver.Remote(command_executor=...).' },
+            ],
+            xpReward: 15,
           },
           { type: 'heading', text: 'Docker\'da Playwright Testleri' },
           {
