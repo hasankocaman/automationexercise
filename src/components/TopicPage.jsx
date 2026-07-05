@@ -20133,13 +20133,36 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                     </p>
                                 </div>
                             ) : (
-                                sections[activeTab]?.blocks?.map((block, i) => renderBlock(
-                                    block, i, darkMode, language, handleQuizAnswered,
-                                    tx(sections[activeTab]?.title, language),
-                                    handleInterviewMastery,
-                                    !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab],
-                                    handleHardResetPage
-                                ))
+                                <>
+                                    {sections[activeTab]?.blocks?.map((block, i) => renderBlock(
+                                        block, i, darkMode, language, handleQuizAnswered,
+                                        tx(sections[activeTab]?.title, language),
+                                        handleInterviewMastery,
+                                        !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab],
+                                        handleHardResetPage
+                                    ))}
+                                    {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && (
+                                        activeTab < tabs.length - 1 ? (
+                                            <button
+                                                onClick={() => setActiveTab(activeTab + 1)}
+                                                className={`mt-5 md:mt-6 w-full flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${darkMode ? 'bg-green-900/20 border-green-700 hover:bg-green-900/30' : 'bg-green-50 border-green-300 hover:bg-green-100'}`}
+                                            >
+                                                <span className={`text-xs md:text-sm font-semibold ${darkMode ? 'text-green-300' : 'text-green-800'}`}>
+                                                    ✅ {language === 'tr' ? 'Bu bölümü bitirdin' : 'You finished this section'}
+                                                </span>
+                                                <span className={`flex items-center gap-1.5 text-xs md:text-sm font-bold ${darkMode ? 'text-green-200' : 'text-green-900'}`}>
+                                                    {language === 'tr' ? 'Sıradaki:' : 'Next up:'} {tabs[activeTab + 1]} →
+                                                </span>
+                                            </button>
+                                        ) : (
+                                            <div className={`mt-5 md:mt-6 w-full rounded-xl border-2 px-4 py-3 text-center ${darkMode ? 'bg-purple-900/20 border-purple-700' : 'bg-purple-50 border-purple-300'}`}>
+                                                <span className={`text-xs md:text-sm font-bold ${darkMode ? 'text-purple-200' : 'text-purple-800'}`}>
+                                                    🎉 {language === 'tr' ? 'Dersi bitirdin!' : 'You completed the lesson!'}
+                                                </span>
+                                            </div>
+                                        )
+                                    )}
+                                </>
                             )}
                         </div>
 

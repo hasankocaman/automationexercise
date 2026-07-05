@@ -10,6 +10,44 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05 devam #4, `feature/pedagogy-improvements` — CP4: Sayfa İçi İlerleme + Tempo TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP1 `5b5782f`, CP2 `4118c1d`'e kadar commit edilmiş; bu oturumun CP4 işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | `contentplan.md` CP4 promptu uygulandı: sidebar tamamlanma göstergesi (mevcut olduğu keşfedildi, dokunulmadı), "Sırada ne var" kartı (yeni), Docker "Nedir?" sekmesine mikro-quiz (EN+TR, yeni). |
+
+### Bu Oturumda Yapılan İş — CP4
+
+1. **Görev 1 (Sidebar ✓ işaretleri) — ATLANDI, zaten mevcuttu:** `TopicPage.jsx` sidebar'ı incelendiğinde tamamlanan sekmeler için hem masaüstünde tam bir yeşil ✓ checkbox (satır ~20094-20106, `isCompleted` state'ine bağlı) hem mobilde yeşil nokta (satır ~20069-20074) zaten render ediliyordu — bu özellik contentplan.md yazılırken (Fable'ın hızlı taramasında) gözden kaçmış olmalı. Kod tekrarı/duplikasyon yaratmamak için DOKUNULMADI, plan sapması olarak burada not düşüldü.
+2. **Görev 2 (Sırada ne var kartı) — YENİ, `TopicPage.jsx`'e eklendi** (satır ~20135-20166): Sekmedeki blokların render edildiği ternary'nin false-branch'i bir `<>` fragment'e çevrildi; `blocks.map(...)`'ten SONRA, sekme tamamlandığında (`completedTabs[activeTab] || quizVerifiedTabs[activeTab]`) görünen bir kart eklendi — son sekme değilse "✅ Bu bölümü bitirdin → Sıradaki: [sekme adı] →" (tıklanınca `setActiveTab(activeTab+1)`), son sekmeyse "🎉 Dersi bitirdin!" varyantı. Data dosyası değişikliği YOK, TÜM sayfalarda otomatik çalışır (plan gereği).
+3. **Görev 3 (Docker "Nedir?" mikro-quiz) — YENİ, `dockerData.js`'e eklendi (EN+TR):** simple-box + text bloklarından SONRA, VM karşılaştırma tablosundan ÖNCE ("Kodu zip'leyip göndermek neden yetmez?" — simple-box'taki JAR/OS-bağımlılık analojisinden türetilmiş), `retryQuestion` (§18) dahil.
+
+### Yol Boyunca Bulunan ve Düzeltilen Gerçek Regresyon
+
+**`tests/quiz-retry-mechanism.spec.ts`** testinin 2. senaryosu ("retry sorusuna doğru cevap verilirse... sekme ilerlemesine katkı sağlar") FAIL etti. Kök neden: test, `/docker` sayfasının 0. sekmesinde (Docker Nedir?) **TEK bir quiz bloğu olduğunu** varsayıyordu (`.find(b => b.type==='quiz')` ile ilk quiz'i alıp onu cevaplayınca sekmenin %100 tamamlanacağını assert ediyordu). CP4'ün 3. görevi bu sekmeye İKİNCİ bir quiz bloğu ekleyince, `TopicPage.jsx`'teki "sekmedeki quiz'lerin ≥%60'ı doğru cevaplanınca tamamlanır" mantığı gereği 1/2 doğru = %50 artık eşiği geçmiyordu, tab tamamlanmıyordu.
+**Düzeltme (test kodunda, üründe değil):** Test, `filter(b => b.type==='quiz')` ile sekmedeki TÜM quiz bloklarını alacak şekilde güncellendi; senaryo 2 artık retry-quiz'i cevapladıktan sonra sekmedeki İKİNCİ (orijinal "Image vs Container") quiz'i de doğru cevaplayıp öyle %100 tamamlanmayı doğruluyor. Yorum satırları bu yeni gerçeği (2 quiz bloğu, ≥%60 eşiği) açıklayacak şekilde güncellendi.
+
+### Bu Oturumda Karşılaşılan Ortam Sorunu (kod değil)
+
+`npm run build` art arda birkaç kez **sistem düşük belleği** yüzünden çöktü ("JavaScript heap out of memory" / esbuild native allocation hatası) — dockerData.js ve TopicPage.jsx'in büyümesiyle ilgisi yok, makinede o an sadece ~2.4-2.7GB boş RAM vardı (16GB'ın çoğu tarayıcı sekmeleri + **iki adet unutulmuş `vite --host` dev server** [~3.1GB, PID 23160/16488] tarafından tüketiliyordu). Kullanıcının onayıyla bu 2 zombi dev server durduruldu, boş bellek ~5.8GB'a çıktı, build sonrasında temiz PASS etti. **Ders:** bu makinede build denemeden önce `Get-Process | Where node/chrome` ile bellek kontrolü faydalı olabilir; unutulmuş dev server'lar tekrar oluşabilir.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (21.9s, 38 static route, dist SEO PASS) — bellek sorunu çözüldükten sonra
+- `npx playwright test tests/topic-pages-ui.spec.ts tests/quiz-retry-mechanism.spec.ts tests/mobile-smoke.spec.ts` (--workers=1) → topic-pages-ui 29/29 PASS; quiz-retry-mechanism İLK koşumda 1 fail (yukarıdaki regresyon) → düzeltildi → 3/3 PASS (tekrar koşum); mobile-smoke 1 flaky (retry'da PASS, `/` ana sayfa, Docker/TopicPage değişiklikleriyle ilgisiz, önceden belgelenmiş dev-server soğuk-başlangıç deseni) + 1 doğrudan PASS.
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP4 işi commit edilmedi** — kullanıcı onayı bekliyor.
+2. **CP3 (sekme atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz; `contentplan.md` CP3'teki riskler geçerli.
+3. contentplan.md CP1→CP2→CP4 artık Docker'da tamamlandı; CP5 yayılımı (Linux/Git/K8s) bu kalıbı referans alabilir, ama CP3 kararı beklemeden başlanabilir (CP5 sadece "CP1-CP4 Docker'da doğrulanmadan başlanmaz" diyor, CP3'ü şart koşmuyor).
+4. "Sırada ne var" kartı TÜM teknoloji sayfalarında otomatik aktif (TopicPage-level component) — yeni bir sayfa eklendiğinde ekstra iş gerekmiyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam #3, `feature/pedagogy-improvements` — CP2: Kod Duvarlarını Kırma TAMAMLANDI)
 
 | Alan | Değer |

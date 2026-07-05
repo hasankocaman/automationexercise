@@ -10,8 +10,12 @@ import { dockerData } from '../src/data/dockerData.js';
 // çalışır (quiz cevaplama auth gerektirmez) — gerçek AI çağrısı YOK, maliyetsiz,
 // her commit'te koşulabilir.
 //
-// Docker /docker sayfasının 0. sekmesi (tek quiz bloğu) referans alınıyor —
-// dockerData.tr'de retryQuestion içeriği zaten bilinen ve sabit.
+// Docker /docker sayfasının 0. sekmesi referans alınıyor — dockerData.tr'de
+// retryQuestion içeriği zaten bilinen ve sabit. Bu sekmede artık İKİ quiz
+// bloğu var (CP4 ile eklenen "zip neden yetmez?" mikro-quiz'i + orijinal
+// "Image vs Container" quiz'i) — sekme tamamlama eşiği ≥%60 olduğundan
+// (TopicPage.jsx "Sekmedeki TOPLAM quiz... ≥%60'ı doğru cevaplanınca"),
+// tab'ı tamamlamak için İKİSİNİN de doğru cevaplanması gerekir (1/2 = %50 yetmez).
 
 const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button';
 
@@ -19,12 +23,18 @@ function optionLabel(opt: { id: string; text: string }) {
     return `${opt.id.toUpperCase()}.${opt.text}`;
 }
 
-const quizBlock = dockerData.tr.sections[0].blocks.find((b: any) => b.type === 'quiz')!;
+const tabZeroQuizBlocks = dockerData.tr.sections[0].blocks.filter((b: any) => b.type === 'quiz');
+const quizBlock = tabZeroQuizBlocks[0];
 const mainCorrect = quizBlock.options.find((o: any) => o.id === quizBlock.correct);
 const mainWrong = quizBlock.options.find((o: any) => o.id !== quizBlock.correct);
 const retryBlock = quizBlock.retryQuestion;
 const retryCorrect = retryBlock.options.find((o: any) => o.id === retryBlock.correct);
 const retryWrong = retryBlock.options.find((o: any) => o.id !== retryBlock.correct);
+
+// Sekmedeki İKİNCİ quiz bloğu (orijinal "Image vs Container") — sadece
+// completion testinde (test 2) tabı %100'e tamamlamak için kullanılır.
+const secondQuizBlock = tabZeroQuizBlocks[1];
+const secondQuizCorrect = secondQuizBlock.options.find((o: any) => o.id === secondQuizBlock.correct);
 
 test.describe('AC02 — quiz yanlış cevap sonrası bir defaya mahsus alternatif soru', () => {
     test.beforeEach(async () => {
@@ -73,8 +83,14 @@ test.describe('AC02 — quiz yanlış cevap sonrası bir defaya mahsus alternati
         await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
         await expect(page.locator('button', { hasText: optionLabel(retryCorrect) }).first()).toContainText('✓');
 
-        // Bu sekmenin TEK quiz bloğu var — retry üzerinden doğru cevaplamak da
-        // handleQuizAnswered(blockIndex, true) tetikler, sekme %100 ile tamamlanmalı.
+        // Sekmede 2. bir quiz bloğu daha var (orijinal "Image vs Container") —
+        // ≥%60 eşiğini geçip sekmeyi tamamlamak için onu da doğru cevapla.
+        await page.locator('button', { hasText: optionLabel(secondQuizCorrect) }).first().click();
+        await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
+        await expect(page.locator('button', { hasText: optionLabel(secondQuizCorrect) }).first()).toContainText('✓');
+
+        // Artık sekmedeki 2 quiz bloğunun ikisi de doğru cevaplandı (2/2 = %100 ≥ %60eşik),
+        // handleQuizAnswered(blockIndex, true) tetiklenir, sekme tamamlanmalı.
         await expect(tab0Checkbox).toHaveAttribute('aria-checked', 'true');
     });
 

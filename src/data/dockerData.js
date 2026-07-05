@@ -580,6 +580,29 @@ export const dockerData = {
             type: 'text',
             content: 'The classic developer problem: "It works on my machine!" Docker solves this. By packaging your application with its exact dependencies (Python 3.12, specific library versions, OS settings) into a container, you guarantee identical behavior everywhere the container runs.',
           },
+          {
+            type: 'quiz',
+            question: 'Why isn\'t it enough to just zip your source code and ship that instead of using Docker?',
+            options: [
+              { id: 'a', text: 'Zip files are always corrupted during transfer' },
+              { id: 'b', text: 'A zip only contains your code, not the OS packages, native libraries, or environment variables it silently depends on' },
+              { id: 'c', text: 'Zip files cannot be uploaded to Docker Hub' },
+              { id: 'd', text: 'Source code needs to be compiled before zipping' },
+            ],
+            correct: 'b',
+            explanation: 'A zip (or a Java JAR) bundles your compiled code, but never the OS-level dependencies — system libraries, exact runtime version, environment variables — that your app silently relies on. Docker packages the whole environment, not just the code, which is exactly why it fixes "works on my machine".',
+            retryQuestion: {
+              question: 'A JAR file already bundles your compiled classes. What does it fail to bundle that a Docker image includes?',
+              options: [
+                { id: 'a', text: 'The .java source files' },
+                { id: 'b', text: 'OS packages, native libraries, and environment variables the app depends on' },
+                { id: 'c', text: 'The unit tests' },
+                { id: 'd', text: 'The version control history' },
+              ],
+              correct: 'b',
+              explanation: 'JARs package compiled bytecode only. A Docker image additionally packages the operating system layer, native libraries, and environment configuration — the parts that differ between "my machine" and the CI agent.',
+            },
+          },
           { type: 'heading', text: 'Containers vs Virtual Machines (VMs)' },
           {
             type: 'table',
@@ -2583,6 +2606,29 @@ options.add_argument('--disable-dev-shm-usage')`,
           {
             type: 'text',
             content: 'Klasik developer problemi: "Bende çalışıyor!" Docker bunu çözer. Uygulamanı tam bağımlılıklarıyla (Python 3.12, belirli kütüphane versiyonları, OS ayarları) bir container\'a paketleyerek, container\'ın çalıştığı her yerde özdeş davranışı garanti edersin.',
+          },
+          {
+            type: 'quiz',
+            question: 'Docker kullanmak yerine sadece kaynak kodu zip\'leyip göndermek neden yeterli değildir?',
+            options: [
+              { id: 'a', text: 'Zip dosyaları transfer sırasında her zaman bozulur' },
+              { id: 'b', text: 'Zip sadece kodu içerir; kodun sessizce bağımlı olduğu işletim sistemi paketlerini, native kütüphaneleri veya ortam değişkenlerini içermez' },
+              { id: 'c', text: 'Zip dosyaları Docker Hub\'a yüklenemez' },
+              { id: 'd', text: 'Kaynak kod zip\'lenmeden önce derlenmelidir' },
+            ],
+            correct: 'b',
+            explanation: 'Bir zip dosyası (veya bir Java JAR) derlenmiş kodunu paketler, ama uygulamanın sessizce bağlı olduğu OS seviyesindeki bağımlılıkları — sistem kütüphaneleri, tam runtime sürümü, ortam değişkenleri — asla paketlemez. Docker sadece kodu değil, TÜM ortamı paketler — "benim makinemde çalışıyordu" sorununu tam olarak bu yüzden çözer.',
+            retryQuestion: {
+              question: 'Bir JAR dosyası zaten derlenmiş class\'larını paketler. Bir Docker image\'ının ek olarak paketlediği ama JAR\'ın paketlemediği şey nedir?',
+              options: [
+                { id: 'a', text: '.java kaynak dosyaları' },
+                { id: 'b', text: 'Uygulamanın bağımlı olduğu OS paketleri, native kütüphaneler ve ortam değişkenleri' },
+                { id: 'c', text: 'Unit testler' },
+                { id: 'd', text: 'Versiyon kontrol geçmişi' },
+              ],
+              correct: 'b',
+              explanation: 'JAR\'lar sadece derlenmiş bytecode\'u paketler. Bir Docker image ise ek olarak işletim sistemi katmanını, native kütüphaneleri ve ortam yapılandırmasını da paketler — "benim makinem" ile CI agent\'ı arasında farklılık gösteren tam olarak bu parçalar.',
+            },
           },
           { type: 'heading', text: 'Container vs Sanal Makine (VM) Karşılaştırması' },
           {
