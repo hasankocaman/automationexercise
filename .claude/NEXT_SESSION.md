@@ -10,6 +10,49 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05 devam #6, `feature/pedagogy-improvements` — CP5.2: Git Sandbox Rollout TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP1 `5b5782f`, CP2 `4118c1d`, CP4 `7bff1d8`, CP5.1 `213b500`'e kadar commit edilmiş; bu oturumun CP5.2 işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | contentplan.md CP5 sırasındaki 2. hedef: Git & GitHub sayfası. CP5.1'deki keşif disiplini tekrarlandı: önce mevcut `git-interactive-terminal`ın gerçek durumu incelendi, KÖRÜ KÖRÜNE yeni kod yazılmadı. |
+
+### Keşif — Linux'taki gibi kritik bir bug YOK, ama iki gerçek eksik bulundu
+
+Git sayfası zaten güçlü bir temele sahipti: `handleGitCommand` status/add/commit/branch/checkout/switch/merge/log komutlarının HEPSİNİ doğru çalıştırıyordu (Linux'taki `cd` gibi "hiç implemente edilmemiş" bir kritik bug YOKTU). Kod duvarı taraması da CP2 tarzı bölme gerektirmedi — 8+ satırlık birkaç blok (SSH kurulum rehberi, .gitignore, GitHub Actions YAML) var ama bunlar ya adım-adım rehber ya da tek parça config dosyası, Docker'daki Dockerfile/compose.yml gibi zaten CP2 kapsamı dışında kalması gereken türden (kod duvarı kırma bu oturumda YAPILMADI — kapsam dışı bırakıldı, gerekçesi aşağıda). Ancak: (1) `git diff` hiç desteklenmiyordu, (2) `git stash`/`git stash pop` hiç desteklenmiyordu — ikisi de sayfanın ayrı, PASİF "▶ izle" demolarında (`git-diff-reader`, `git-stash-flow`) anlatılıyor ama gerçek yazılabilir terminalde çalışmıyordu (Linux'taki chmod'un `linux-permissions-lab` pasif demosuyla aynı desen).
+
+### Bu Oturumda Yapılan İş — CP5.2
+
+- **`handleGitCommand`a `git diff` ve `git stash`/`stash pop`/`stash list` eklendi** (`TopicPage.jsx`): diff, `gitWorkingDir`'deki dosyalar için sahte ama gerçekçi bir unified diff çıktısı üretir; stash, workingDir'i `gitStash` dizisine taşır (LIFO), pop geri getirir, list mevcut girişleri gösterir.
+- **5 görevlik mission sistemi eklendi** (Docker/Linux Sandbox'la aynı state-bazlı `MISSION_CHECKS` deseni): stage+commit, branch+switch, merge, diff incele, stash+stash-pop workflow'u. `gitEvents` Set'i (Linux'taki `linuxEvents` gibi) stateless komutları (diff/stash/branch-switch) takip etmek için eklendi.
+- **`renderGitInteractiveTerminalPlayground`**: görev listesi UI'ı + canlı branch adı breadcrumb'ı + genişletilmiş `quickCmds` (diff/stash/stash pop eklendi) + test-id'ler.
+- **`renderGitInteractiveTerminalVisualizer`**: Working Directory/Staging Area kutularının arasına yeni bir **📦 Stash paneli** eklendi.
+- **Yeni dosya `tests/git-sandbox.spec.ts`**: commit/branch/merge/diff/stash akışı + 5 görev + EN i18n testi.
+- **Test yazarken bulunan/düzeltilen bir zamanlama tuzağı (test kodunda, üründe değil):** İlk yazımda stash testi commit SONRASINA konulmuştu; commit handler'ındaki `setTimeout(..., 1000)` (workingDir'i "yeni bir değişiklik" ile yapay olarak dolduran demo efekti) test çok hızlı çalıştığında henüz tetiklenmemiş oluyordu, `git stash`'in "kaydedilecek değişiklik yok" dalına düşmesine yol açıyordu. Düzeltme: diff+stash+stash-pop adımları, seed edilmiş İLK workingDir içeriğini kullanacak şekilde testin EN BAŞINA taşındı — zamanlamaya bağımlılık ortadan kalktı.
+
+### Bilinçli Kapsam Kararları
+
+- **Kod duvarı bölme (CP2 tarzı) Git'e UYGULANMADI**: SSH kurulum rehberi (94/115 satır) ve .gitignore (102/115 satır) tek parça, adım-adım veya config dosyası niteliğinde — Docker'ın Dockerfile/compose.yml muamelesiyle aynı mantıkla parçalanmamalı. GitHub Actions YAML (35 satır) da tek parça bir workflow dosyası. Genel interaktif üçlü oranı zaten Docker'ın CP2-öncesi haline göre çok daha iyi (34 code bloğuna karşı 16 code-playground + 16 challenge + 16 step-animation + 62 simulation) — kapsamlı bir CP2 taraması bu oturumda YAPILMADI, gerek görülmedi. Kullanıcı isterse ayrı bir CP olarak ele alınabilir.
+- `git init`/`git clone`/`git reset`/`git revert`/`git remote push/pull` gerçek terminale EKLENMEDİ — bunlar ayrı, adanmış pasif demolarda (`git-clone-vs-init`, `git-revert-vs-reset` vb.) zaten iyi anlatılıyor; kapsam bilinçli olarak sadece "sayfanın ana ders akışında (Git Basics/Branching sekmeleri) öğretilen ama gerçek terminalde çalışmayan" diff/stash'e daraltıldı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (data dosyası değişikliği yok)
+- `npm run build` → ✅ PASS (14.69s, 38 static route, dist SEO PASS)
+- `tests/git-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS (1 timing bug'ı düzeltildikten sonra)
+- Regresyon: `topic-pages-ui.spec.ts -g git-github` + `i18n-content-toggle -g git-github` → ✅ 2/2 PASS
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP5.2 işi commit edilmedi** — kullanıcı onayı bekliyor.
+2. **CP5.3 (Kubernetes rollout)** — contentplan.md'nin önerdiği sıradaki hedef; aynı keşif disipliniyle (`kubectl` için gerçek bir interaktif terminal var mı, varsa eksik/bozuk bir şey var mı?) başlanmalı.
+3. Git sayfasında opsiyonel, düşük öncelikli bir CP2-tarzı kod duvarı taraması hâlâ mümkün ama bu oturumda gerekli görülmedi (yukarıdaki gerekçe).
+4. **CP3 (sekme atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz.
+5. Önceki oturumlardaki tüm iş (WP1-4, CP1/CP2/CP4/CP5.1/CP5.2) main'e merge/push edilmedi — `feature/pedagogy-improvements` branch'inde birikiyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam #5, `feature/pedagogy-improvements` — CP5.1: Linux Sandbox Rollout TAMAMLANDI)
 
 | Alan | Değer |

@@ -6230,6 +6230,9 @@ function SimulationBlock({ block, darkMode, language }) {
         { type: 'output', text: 'On branch main\nChanges not staged for commit:\n  (use "git add <file>..." to update what will be committed)\n\tmodified:   auth_spec.js\n\nno changes added to commit (use "git add" and/or "git commit -a")' }
     ])
     const [gitInput, setGitInput] = useState('')
+    const [gitStash, setGitStash] = useState([])
+    const [gitEvents, setGitEvents] = useState(() => new Set())
+    const [gitMissionsDone, setGitMissionsDone] = useState(() => new Set())
 
     // SQL Interactive Terminal states
     const [sqlUsers, setSqlUsers] = useState([
@@ -6473,6 +6476,34 @@ function SimulationBlock({ block, darkMode, language }) {
         pushHistory(`bash: ${baseCmd}: command not found`)
     }
 
+    // CP5.2 — Git Sandbox görev listesi (UI'da gösterilen bilingual metinler).
+    const GIT_MISSIONS = [
+        { id: 'stage-commit', text: { tr: 'Bir değişikliği stage et ve commitle (git add, git commit -m "...")', en: 'Stage a change and commit it (git add, git commit -m "...")' } },
+        { id: 'branch-switch', text: { tr: 'Yeni bir branch oluşturup üzerine geç (git branch, git checkout)', en: 'Create a new branch and switch onto it (git branch, git checkout)' } },
+        { id: 'merge-done', text: { tr: 'Bir branch\'i main\'e merge et (git merge)', en: "Merge a branch into main (git merge)" } },
+        { id: 'diff-inspected', text: { tr: "Bekleyen değişiklikleri diff ile incele (git diff)", en: 'Inspect pending changes with git diff' } },
+        { id: 'stash-workflow', text: { tr: "İşi rafa kaldır ve geri getir (git stash, git stash pop)", en: 'Shelve work and bring it back (git stash, git stash pop)' } },
+    ]
+
+    // Docker/Linux Sandbox'la aynı state-bazlı MISSION_CHECKS deseni.
+    const GIT_MISSION_CHECKS = {
+        'stage-commit': (commits) => commits.some(c => c.id !== 'c1' && !c.parent2),
+        'branch-switch': (commits, branches, events) => events.has('switched-branch'),
+        'merge-done': (commits) => commits.some(c => !!c.parent2),
+        'diff-inspected': (commits, branches, events) => events.has('diff'),
+        'stash-workflow': (commits, branches, events) => events.has('stash') && events.has('stash-pop'),
+    }
+
+    const checkGitMissions = (commits, branches, events) => {
+        setGitMissionsDone(prev => {
+            const next = new Set(prev)
+            Object.keys(GIT_MISSION_CHECKS).forEach((id) => {
+                if (!next.has(id) && GIT_MISSION_CHECKS[id](commits, branches, events)) next.add(id)
+            })
+            return next
+        })
+    }
+
     const handleGitCommand = (cmdStr) => {
         const trimmed = cmdStr.trim()
         if (!trimmed) return
@@ -6491,7 +6522,7 @@ function SimulationBlock({ block, darkMode, language }) {
 
         const action = parts[1]
         if (!action) {
-            setGitHistory(prev => [...prev, { type: 'output', text: 'usage: git [status|add|commit|branch|checkout|switch|merge|log]' }])
+            setGitHistory(prev => [...prev, { type: 'output', text: 'usage: git [status|add|commit|branch|checkout|switch|merge|log|diff|stash]' }])
             return
         }
 
@@ -6546,15 +6577,17 @@ function SimulationBlock({ block, darkMode, language }) {
                 branch: gitCurrentBranch
             }
 
-            setGitCommits(prev => [...prev, newCommit])
+            const nextCommits = [...gitCommits, newCommit]
+            setGitCommits(nextCommits)
             setGitBranches(prev => ({ ...prev, [gitCurrentBranch]: newCommitId }))
             setGitStagingArea([])
-            
+
             setTimeout(() => {
                 setGitWorkingDir(['auth_spec.js (modified)'])
             }, 1000)
 
             setGitHistory(prev => [...prev, { type: 'output', text: `[${gitCurrentBranch} ${newCommitId}] ${msg}\n 1 file changed, 10 insertions(+)` }])
+            checkGitMissions(nextCommits, gitBranches, gitEvents)
             return
         }
 
@@ -6587,6 +6620,12 @@ function SimulationBlock({ block, darkMode, language }) {
             }
             setGitCurrentBranch(bName)
             setGitHistory(prev => [...prev, { type: 'output', text: `Switched to branch '${bName}'` }])
+            if (bName !== 'main') {
+                const nextEvents = new Set(gitEvents)
+                nextEvents.add('switched-branch')
+                setGitEvents(nextEvents)
+                checkGitMissions(gitCommits, gitBranches, nextEvents)
+            }
             return
         }
 
@@ -6616,9 +6655,11 @@ function SimulationBlock({ block, darkMode, language }) {
                 branch: gitCurrentBranch
             }
 
-            setGitCommits(prev => [...prev, newCommit])
+            const nextCommits = [...gitCommits, newCommit]
+            setGitCommits(nextCommits)
             setGitBranches(prev => ({ ...prev, [gitCurrentBranch]: newCommitId }))
             setGitHistory(prev => [...prev, { type: 'output', text: `Updating ${parent1.substring(0,7)}..${newCommitId.substring(0,7)}\nMerge made by the 'recursive' strategy.` }])
+            checkGitMissions(nextCommits, gitBranches, gitEvents)
             return
         }
 
@@ -6635,6 +6676,56 @@ function SimulationBlock({ block, darkMode, language }) {
                 }
             }
             setGitHistory(prev => [...prev, { type: 'output', text: logs.length > 0 ? logs.join('\n') : 'No commits yet.' }])
+            return
+        }
+
+        if (action === 'diff') {
+            const nextEvents = new Set(gitEvents)
+            nextEvents.add('diff')
+            setGitEvents(nextEvents)
+            checkGitMissions(gitCommits, gitBranches, nextEvents)
+            if (gitWorkingDir.length === 0) {
+                setGitHistory(prev => [...prev, { type: 'output', text: isTr ? '(bekleyen değişiklik yok)' : '(no pending changes)' }])
+                return
+            }
+            const diffText = gitWorkingDir.map(f => `diff --git a/${f.replace(' (modified)', '')} b/${f.replace(' (modified)', '')}\n--- a/${f.replace(' (modified)', '')}\n+++ b/${f.replace(' (modified)', '')}\n@@ -1,3 +1,4 @@\n test('login flow', async () => {\n+  // new assertion added\n   await expect(page).toHaveURL('/dashboard')\n })`).join('\n')
+            setGitHistory(prev => [...prev, { type: 'output', text: diffText }])
+            return
+        }
+
+        if (action === 'stash') {
+            const sub = parts[2]
+            if (sub === 'pop') {
+                if (gitStash.length === 0) {
+                    setGitHistory(prev => [...prev, { type: 'output', text: 'No stash entries found.' }])
+                    return
+                }
+                const [restored, ...rest] = gitStash
+                setGitStash(rest)
+                setGitWorkingDir(prev => [...prev, ...restored.files])
+                const nextEvents = new Set(gitEvents)
+                nextEvents.add('stash-pop')
+                setGitEvents(nextEvents)
+                checkGitMissions(gitCommits, gitBranches, nextEvents)
+                setGitHistory(prev => [...prev, { type: 'output', text: isTr ? `Dropped ${restored.id} — ${restored.files.join(', ')} geri getirildi.` : `Dropped ${restored.id} — restored ${restored.files.join(', ')}.` }])
+                return
+            }
+            if (sub === 'list') {
+                setGitHistory(prev => [...prev, { type: 'output', text: gitStash.length > 0 ? gitStash.map(s => `${s.id}: WIP on ${gitCurrentBranch}: ${s.files.join(', ')}`).join('\n') : (isTr ? '(rafta bir şey yok)' : '(no stash entries)') }])
+                return
+            }
+            if (gitWorkingDir.length === 0) {
+                setGitHistory(prev => [...prev, { type: 'output', text: 'No local changes to save' }])
+                return
+            }
+            const stashId = `stash@{${gitStash.length}}`
+            setGitStash(prev => [{ id: stashId, files: gitWorkingDir }, ...prev])
+            setGitWorkingDir([])
+            const nextEvents = new Set(gitEvents)
+            nextEvents.add('stash')
+            setGitEvents(nextEvents)
+            checkGitMissions(gitCommits, gitBranches, nextEvents)
+            setGitHistory(prev => [...prev, { type: 'output', text: `Saved working directory and index state WIP on ${gitCurrentBranch}: ${stashId}` }])
             return
         }
 
@@ -6863,17 +6954,37 @@ function SimulationBlock({ block, darkMode, language }) {
                 handleGitCommand(gitInput)
             }
         }
-        const quickCmds = ['git status', 'git add .', 'git commit -m "feat: login test"', 'git branch feature/payment', 'git checkout feature/payment', 'git log', 'clear']
+        const quickCmds = ['git status', 'git add .', 'git commit -m "feat: login test"', 'git diff', 'git branch feature/payment', 'git checkout feature/payment', 'git stash', 'git stash pop', 'git merge feature/payment', 'git log', 'clear']
+        const doneCount = GIT_MISSIONS.filter(m => gitMissionsDone.has(m.id)).length
         return (
             <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="w-full max-w-md">
+                <div className="mb-2 rounded-xl border border-emerald-800/40 bg-emerald-950/20 px-3 py-2">
+                    <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">{isTr ? '🧪 Görevler' : '🧪 Missions'}</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-900 text-emerald-300">{doneCount}/{GIT_MISSIONS.length}</span>
+                    </div>
+                    <ol className="space-y-0.5">
+                        {GIT_MISSIONS.map((m) => {
+                            const done = gitMissionsDone.has(m.id)
+                            const isNext = !done && GIT_MISSIONS.find(x => !gitMissionsDone.has(x.id)) === m
+                            return (
+                                <li key={m.id} data-testid={`git-mission-${m.id}`} data-done={done ? 'true' : 'false'} className={`text-[11px] flex items-start gap-1.5 ${done ? 'opacity-70' : ''}`}>
+                                    <span>{done ? '✅' : isNext ? '👉' : '⬜'}</span>
+                                    <span className={`${done ? 'line-through text-emerald-400' : 'text-slate-300'} ${isNext ? 'font-bold' : ''}`}>{tx(m.text, language)}</span>
+                                </li>
+                            )
+                        })}
+                    </ol>
+                </div>
                 <div style={{ background: '#0b1329', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
                         <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Git Terminal Simulator</span>
+                        <span className="ml-auto font-mono" style={{ fontSize: 10, color: '#38bdf8' }}>{gitCurrentBranch}</span>
                     </div>
-                    <div style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
+                    <div data-testid="git-terminal-output" style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
                         {gitHistory.map((h, i) => (
                             <div key={i} style={{ marginBottom: 4 }}>
                                 {h.type === 'input' ? (
@@ -6886,6 +6997,7 @@ function SimulationBlock({ block, darkMode, language }) {
                         <div className="flex items-center gap-1.5 text-sky-400">
                             <span className="font-bold">$</span>
                             <input
+                                data-testid="git-terminal-input"
                                 type="text"
                                 value={gitInput}
                                 onChange={e => setGitInput(e.target.value)}
@@ -6939,6 +7051,15 @@ function SimulationBlock({ block, darkMode, language }) {
                         ))}
                         {gitStagingArea.length === 0 && <div className="text-xs text-slate-500 italic">{isTr ? 'Boş' : 'Empty'}</div>}
                     </div>
+                </div>
+                <div data-testid="git-stash-panel" className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-900/50 border-amber-900/30' : 'bg-amber-50/20 border-amber-200'}`}>
+                    <div className="text-xs font-bold text-amber-400 mb-2">📦 Stash</div>
+                    {gitStash.map(s => (
+                        <div key={s.id} data-testid={`git-stash-entry-${s.id.replace(/\W/g, '-')}`} className="text-xs font-mono text-amber-500 flex items-center gap-1">
+                            <span>📥</span> {s.id}: {s.files.join(', ')}
+                        </div>
+                    ))}
+                    {gitStash.length === 0 && <div className="text-xs text-slate-500 italic">{isTr ? 'Rafta bir şey yok' : 'Nothing stashed'}</div>}
                 </div>
                 <div className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`}>
                     <div className="text-xs font-bold mb-3">{isTr ? '📜 Yerel Depo (Local Commit Graph)' : '📜 Local Commit Graph'}</div>
