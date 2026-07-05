@@ -10,6 +10,49 @@
 
 ---
 
+## contentplan.md — Genel Durum Özeti (KONSOLİDE, tüm oturumlar) — 2026-07-05
+
+> Bu bölüm, aşağıdaki tarihli oturum kayıtlarının contentplan.md'ye özel kısmının
+> tek bakışta özetidir — detay/gerekçe/doğrulama sonuçları için ilgili tarihli
+> bölüme bak. `contentplan.md`'nin kendisi bu özetle çelişirse `contentplan.md`
+> tasarım kararları için otoritedir, bu bölüm sadece İLERLEME durumunu izler.
+
+### Tamamlanan iş paketleri (hepsi `feature/pedagogy-improvements` branch'inde commit edildi — main'e HENÜZ merge/push edilmedi)
+
+| CP | Konu | Commit | Tek cümlelik özet |
+|----|------|--------|--------------------|
+| CP1 | Docker Sandbox | `5b5782f` | Sıfırdan durum-makineli interaktif terminal (`DockerSandboxBlock.jsx`) — kullanıcı `docker pull/run/ps/stop/rm/...` yazar, sahte cluster canlı güncellenir, gerçekçi hatalar + 5 görev. |
+| CP2 | Docker kod duvarlarını kırma | `4118c1d` | `dockerData.js`'teki 8+ satırlık komut blokları (özellikle 26 satırlık Container Commands) kavram bazlı parçalara bölündü, her parçaya callout/order-sort/code-playground eklendi. |
+| CP4 | Sayfa içi ilerleme + tempo | `7bff1d8` | "Sırada ne var / Dersi bitirdin" kartı `TopicPage.jsx`'e eklendi (data değişikliği yok, TÜM sayfalarda otomatik aktif) + Docker "Nedir?" sekmesine 1 mikro-quiz. Sidebar ✓ işareti zaten mevcuttu (dokunulmadı). |
+| CP5.1 | Linux Sandbox rollout | `213b500` | **Kritik bug bulundu ve düzeltildi:** mevcut interaktif terminalde `cd` hiç implemente edilmemişti (state hiç güncellenmiyordu). Ayrıca `cat`/`grep`/`chmod`/`find` eklendi + 5 görev. |
+| CP5.2 | Git Sandbox rollout | `af5b837` | Terminal zaten sağlamdı (status/add/commit/branch/checkout/merge/log çalışıyordu) — sadece eksik olan `diff` ve `stash`/`stash pop` eklendi + 5 görev. |
+| CP5.3 | Kubernetes Sandbox rollout | `abaaa5a` | Gerçek terminal hiç yoktu (sadece pasif "▶ çalıştır" demo) — Docker Sandbox mimarisiyle sıfırdan yazıldı (`KubernetesSandboxBlock.jsx`), self-healing simülasyonu (silinen pod deployment'a bağlıysa otomatik yeniden oluşur) dahil + 5 görev. |
+
+**Ortak desen:** Her sandbox/rollout adımında ÖNCE keşif yapıldı (mevcut interaktif terminal var mı, çalışıyor mu, neyi eksik?), SONRA o sayfaya özgü ölçekte müdahale edildi — hiçbir sayfada körü körüne aynı kalıp kopyalanmadı (Docker/K8s = sıfırdan yazım, Linux = kritik bug fix, Git = küçük eksik tamamlama).
+
+### Bilinçli olarak kapsam dışı bırakılanlar
+
+- **CP2 tarzı kod duvarı bölme** Linux/Git/Kubernetes'e uygulanmadı: Linux zaten atomikti (8+ satır blok yoktu), Git/Kubernetes'teki uzun bloklar çoğunlukla tek parça config/manifest dosyası (SSH kurulum rehberi, .gitignore, GitHub Actions YAML, Pod/Deployment/Service YAML, Jenkinsfile, Strimzi) — Docker'ın Dockerfile/compose.yml muamelesiyle aynı mantıkla parçalanmaması gerekiyordu.
+- **Git:** `git init/clone/reset/revert/remote push-pull` gerçek terminale eklenmedi — bunlar sayfada zaten ayrı, adanmış pasif demolarda (`git-clone-vs-init`, `git-revert-vs-reset` vb.) iyi anlatılıyor.
+- **Kubernetes:** Helm, Ingress, HPA, Strimzi Kafka, `port-forward`, `rollout undo/status/history`, `set image`, namespace/context komutları sandbox'a eklenmedi — statik YAML + mevcut anlatım yeterli, bunlar toy bir sandbox'ta simüle edilecek kadar atomik değil.
+- **`linux-permissions-lab`, `renderK8sPodPlayground` gibi pasif "▶ çalıştır" demoları SİLİNMEDİ** — yeni gerçek terminaller yanlarında ek bir görsel giriş olarak kalabilir, üst üste binme yok.
+
+### CP3 — Sekme Atomikleştirme (HENÜZ BAŞLANMADI — kullanıcı kararı bekliyor)
+
+**Ne:** Docker'ın 7 mega-sekmesini (§16 W3Schools atomik standardı gereği) ~15 atomik başlığa bölmek: Docker Nedir / Kurulum / Image'lar / Container'lar / docker run / exec & logs / Dockerfile / Docker Compose / Volumes / Networks / QA: Selenium Grid / QA: CI'da Docker / Yaygın Hatalar / Ekosistem / Mülakat.
+
+**Neden riskli — 4 somut risk (`contentplan.md` CP3'te detaylı):**
+1. **localStorage veri kaybı riski:** Sekme-bazlı quiz/progress anahtarları `pageKey:tabIndex` formatını kullanıyorsa, sekme sayısı/sırası değişince INDEX KAYMASI olur ve eski kullanıcıların tamamlama kaydı yanlış sekmeye eşlenebilir. Başlamadan önce anahtar formatı grep'lenip doğrulanmalı, gerekirse migrasyon ya da index yerine route/id bazlı anahtarlama gerekir.
+2. **Test kırılması:** Sekme yapısına/sayısına bağımlı Playwright testleri (`topic-pages-ui.spec.ts`, `docker-interview-mastery-flow.spec.ts`, `docker-mastery` vb.) sekme sayısı değişince güncellenmesi gerekir.
+3. **Mülakat gating bozulma riski:** %60 quiz eşiği (AC02-03) sekme başına quiz dağılımına duyarlı — sekmeler bölününce dağılım değişir, CLAUDE.md §22'deki 2. ve 3. E2E kontrolleri (gating kapalı/açık durum) yeniden doğrulanmalı.
+4. **Büyüklük sınıfı:** Bu, fableplan.md'nin "Sonnet'in yapmayacağı işler" listesindeki Python/Java atomikleştirmesiyle AYNI SINIF bir iştir (küçük ölçekli pilot olarak Docker seçildi) — Docker pilotu başarılı olursa Python/Java için emsal oluşturacağından karar ağırlığı yüksek.
+
+**Uygulama planı hazır:** `contentplan.md`'de CP3 için kullanıcı onayından SONRA kullanılacak tam bir Sonnet promptu zaten yazılı (3 adımlı: keşif → kullanıcıya rapor+onay → uygulama). Onay gelirse doğrudan o prompt kullanılabilir, yeniden tasarım gerekmez.
+
+**Sonraki adım:** Kullanıcı CP3'e ne zaman hazır olduğuna karar verecek. O ana kadar contentplan.md'nin geri kalanı (CP1-CP5.3) tamamlanmış sayılır; CP5 yayılımının başka sayfalara (opsiyonel, contentplan.md'de "sonra kararlaştırılacak" notuyla) genişletilmesi CP3'ten bağımsız olarak istenebilir.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam #7, `feature/pedagogy-improvements` — CP5.3: Kubernetes Sandbox Rollout TAMAMLANDI — CP5 (Docker/Linux/Git/K8s) TAMAMEN BİTTİ)
 
 | Alan | Değer |
