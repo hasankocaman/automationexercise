@@ -10,6 +10,51 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-05 devam #5, `feature/pedagogy-improvements` — CP5.1: Linux Sandbox Rollout TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (CP1 `5b5782f`, CP2 `4118c1d`, CP4 `7bff1d8`'e kadar commit edilmiş; bu oturumun CP5.1 işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | Kullanıcı "CP5'e geç" dedi (CP3 sekme atomikleştirmesi kullanıcı kararına ertelendi). `contentplan.md` CP5'in kendisi bir prompt değil, sadece yayılım sırası öneriyordu (Linux → Git → Kubernetes) — bu oturumda Linux için somut bir alt-plan (CP5.1) tasarlanıp uygulandı. |
+
+### Keşif — CP2 (kod duvarı) Linux'ta gerekmiyor, ama KRİTİK bir bug bulundu
+
+Linux'ta 8+ satırlık "kod duvarı" code bloğu YOK (en uzunu 7 satır) — CP2 tarzı bölme işi gereksiz, sayfa zaten atomik. İnteraktif üçlü oranı da Docker'ın CP2-öncesi haline göre çok daha iyi (14 code bloğuna karşı 16 code-playground + 16 challenge + 16 step-animation). **Ancak** sayfada ZATEN VAR olan `linux-interactive-terminal` simülasyonu (Filesystem & Navigation sekmesi) incelenince kritik bir gerçek ürün hatası bulundu: **`cd` komutu hiç implemente edilmemişti** — `linuxCurrentDir` state'i sadece OKUNUYOR, hiçbir yerde `setLinuxCurrentDir` çağrılmıyordu. Sayfa `cd`'yi yoğun şekilde öğretirken (kod örnekleri, code-playground, step-animation, order-sort challenge, Absolute vs Relative Paths tablosu), tek gerçek interaktif terminalde kullanıcı `cd` yazınca hiçbir şey olmuyordu. Ayrıca `cat`/`grep`/`chmod`/`find` de desteklenmiyordu (sayfa bunları da öğretiyor); `chmod` sadece AYRI, PASİF bir "▶ çalıştır" canned-demo'da vardı (`linux-permissions-lab` — Docker'ın CP1-öncesi `simulation` bloklarıyla birebir aynı "izle, yazma" sorunu).
+
+### Bu Oturumda Yapılan İş — CP5.1 (Linux Sandbox güçlendirmesi)
+
+Yeni bir component dosyası YAZILMADI — mevcut kalıp (Linux/Git/SQL terminallerinin `TopicPage.jsx` içinde inline state+handler olması) korunarak GENİŞLETİLDİ, tutarlılık için:
+- **`handleLinuxCommand` tamamen yeniden yazıldı** (`TopicPage.jsx` ~satır 6247+): `cd` düzeltildi (relative/absolute/`..`/`~`/`-` destekli, gerçekçi "No such file or directory" hatası); `cat`, `grep <pattern> <file>`, `chmod <mode> <file>` (sembolik `+x`/`-x` ve numerik `755` gibi), `find <isim>` eklendi. Path çözümleme için `resolveLinuxPath` helper'ı, chmod mod dönüşümü için `permsFromChmodMode` helper'ı eklendi.
+- **`linuxFiles` seed verisi genişletildi**: `content`/`perms` alanları eklendi; `test-suite/test.log` (PASS/FAIL satırlı, grep pratiği için) ve `test-suite/deploy.sh` (chmod pratiği için) seed edildi.
+- **Görev sistemi eklendi** (Docker Sandbox'ın state-bazlı `MISSION_CHECKS` deseniyle aynı mantık): `LINUX_MISSION_CHECKS` + `LINUX_MISSIONS` (5 görev: test-suite'e gir, test.log'da FAIL ara, reports klasörü oluştur, içine summary.txt oluştur, deploy.sh'ı çalıştırılabilir yap), `linuxMissionsDone` state ile takip ediliyor.
+- **`renderLinuxInteractiveTerminalPlayground`** güncellendi: görev listesi UI'ı (✅/👉/⬜ + ilerleme sayacı) terminal'in üstüne eklendi, başlık şeridine canlı `linuxCurrentDir` breadcrumb'ı eklendi, `quickCmds` yeni komut setini yansıtacak şekilde güncellendi, test-id'ler eklendi (`linux-terminal-input/output`, `linux-mission-*`).
+- **`renderLinuxInteractiveTerminalVisualizer`** yeniden yazıldı: artık TÜM `linuxFiles`'ı derinliğe göre girintili, `(pwd)` etiketini GERÇEK `linuxCurrentDir`'e göre dinamik gösteren, izin (`perms`) rozetli bir liste render ediyor (önceden hardcoded tek seviye + sabit "(pwd)" etiketiydi — artık `cd` çalıştığı için doğru olması gerekiyordu).
+- **Yeni dosya `tests/linux-sandbox.spec.ts`**: CP1'in `docker-sandbox.spec.ts`'iyle aynı ruhta — cd/grep/mkdir/touch/chmod akışı + görev tamamlanmaları + EN i18n testi. `serviceWorkers: 'block'` ile.
+
+### Bilinçli Kapsam Kararları
+
+- `linux-permissions-lab` (pasif chmod demo'su) SİLİNMEDİ/değiştirilmedi — ek bir görsel giriş olarak kalabilir, artık gerçek terminalde de chmod çalıştığı için üst üste binme yok, sadece fazladan bir tanıtım.
+- `find` basitleştirilmiş (gerçek `-name`/glob sözdizimini tam desteklemiyor, substring eşleşmesi yapıyor) — öğretim amaçlı yeterli, bilinen bir sınır.
+- CP2 (kod duvarı bölme) ve CP4 (sayfa içi ilerleme) Linux'a UYGULANMADI çünkü gerek yoktu: CP2 zaten atomik, CP4 zaten TopicPage-level global bir bileşen olduğu için Linux dahil TÜM sayfalarda otomatik aktif.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (14.95s, 38 static route, dist SEO PASS)
+- `tests/linux-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS
+- Regresyon: `topic-pages-ui.spec.ts -g linux` + `i18n-content-toggle -g linux` → ✅ 2/2 PASS; `topic-pages-ui.spec.ts -g "git-github|sql"` (aynı `SimulationBlock`'u paylaşan sayfalar, yeni state hook'larının başka sayfayı etkilemediğini doğrulamak için) → ✅ 2/2 PASS.
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP5.1 işi commit edilmedi** — kullanıcı onayı bekliyor.
+2. **CP5.2 (Git rollout)** — contentplan.md'nin önerdiği sıradaki hedef; Git sayfasında zaten `git-interactive-terminal` + commit graph visualizer var (bu oturumda incelendi) — CP5.1'deki gibi önce "mevcut terminalde çalışmayan/eksik bir komut var mı?" keşfiyle başlanmalı, körü körüne yeni sandbox yazılmamalı.
+3. **CP5.3 (Kubernetes rollout)** — henüz hiç incelenmedi.
+4. **CP3 (sekme atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz.
+5. Önceki oturumlarda WP1-4 (fableplan.md) + CP1/CP2/CP4 (contentplan.md) + bu oturumun CP5.1'i main'e merge/push edilmedi — hepsi `feature/pedagogy-improvements` branch'inde birikiyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-05 devam #4, `feature/pedagogy-improvements` — CP4: Sayfa İçi İlerleme + Tempo TAMAMLANDI)
 
 | Alan | Değer |

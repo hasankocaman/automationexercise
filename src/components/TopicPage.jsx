@@ -6203,13 +6203,19 @@ function SimulationBlock({ block, darkMode, language }) {
     const [linuxCurrentDir, setLinuxCurrentDir] = useState('/home/qa_tester')
     const [linuxFiles, setLinuxFiles] = useState([
         { path: '/home/qa_tester', type: 'dir' },
-        { path: '/home/qa_tester/readme.md', type: 'file' }
+        { path: '/home/qa_tester/readme.md', type: 'file', content: 'Welcome to the QA workspace.', perms: 'rw-r--r--' },
+        { path: '/home/qa_tester/test-suite', type: 'dir' },
+        { path: '/home/qa_tester/test-suite/test.log', type: 'file', content: 'PASS test_login\nFAIL test_checkout\nPASS test_logout\nFAIL test_payment', perms: 'rw-r--r--' },
+        { path: '/home/qa_tester/test-suite/deploy.sh', type: 'file', content: '#!/bin/bash\necho "deploying..."', perms: 'rw-r--r--' },
     ])
     const [linuxHistory, setLinuxHistory] = useState([
         { type: 'input', text: 'pwd' },
         { type: 'output', text: '/home/qa_tester' }
     ])
     const [linuxInput, setLinuxInput] = useState('')
+    const [linuxPrevDir, setLinuxPrevDir] = useState('/home/qa_tester')
+    const [linuxEvents, setLinuxEvents] = useState(() => new Set())
+    const [linuxMissionsDone, setLinuxMissionsDone] = useState(() => new Set())
 
     // Git Interactive Terminal states
     const [gitWorkingDir, setGitWorkingDir] = useState(['auth_spec.js (modified)'])
@@ -6238,10 +6244,60 @@ function SimulationBlock({ block, darkMode, language }) {
     ])
     const [sqlInput, setSqlInput] = useState('')
 
+    // CP5 — Linux Sandbox görev listesi (UI'da gösterilen bilingual metinler).
+    const LINUX_MISSIONS = [
+        { id: 'nav-test-suite', text: { tr: "test-suite proje klasörüne gir (cd test-suite)", en: 'Enter the test-suite project folder (cd test-suite)' } },
+        { id: 'grep-fail', text: { tr: "test.log içinde başarısız testleri bul (grep FAIL test.log)", en: 'Find failing tests inside test.log (grep FAIL test.log)' } },
+        { id: 'mkdir-reports', text: { tr: "Bir reports klasörü oluştur (mkdir reports)", en: 'Create a reports folder (mkdir reports)' } },
+        { id: 'touch-summary', text: { tr: "reports içine boş bir summary.txt oluştur (cd reports, touch summary.txt)", en: 'Create an empty summary.txt inside reports (cd reports, touch summary.txt)' } },
+        { id: 'chmod-exec', text: { tr: "deploy.sh'ı çalıştırılabilir yap (chmod +x deploy.sh)", en: 'Make deploy.sh executable (chmod +x deploy.sh)' } },
+    ]
+
+    // CP5 — Linux Sandbox görev tanımları (Docker Sandbox'ın state-bazlı MISSION_CHECKS
+    // deseniyle aynı mantık): her görev, komuttan SONRAKİ dosya/dizin/olay durumuna bakar.
+    const LINUX_MISSION_CHECKS = {
+        'nav-test-suite': (files, dir) => dir === '/home/qa_tester/test-suite' || dir.startsWith('/home/qa_tester/test-suite/'),
+        'grep-fail': (files, dir, events) => events.has('grep:test.log'),
+        'mkdir-reports': (files) => files.some(f => f.path === '/home/qa_tester/test-suite/reports' && f.type === 'dir'),
+        'touch-summary': (files) => files.some(f => f.path === '/home/qa_tester/test-suite/reports/summary.txt'),
+        'chmod-exec': (files) => {
+            const f = files.find(x => x.path === '/home/qa_tester/test-suite/deploy.sh')
+            return !!f && (f.perms || '').includes('x')
+        },
+    }
+
+    const checkLinuxMissions = (files, dir, events) => {
+        setLinuxMissionsDone(prev => {
+            const next = new Set(prev)
+            Object.keys(LINUX_MISSION_CHECKS).forEach((id) => {
+                if (!next.has(id) && LINUX_MISSION_CHECKS[id](files, dir, events)) next.add(id)
+            })
+            return next
+        })
+    }
+
+    // Göreceli ("reports/x.txt") veya mutlak ("/home/...") yolu tam yola çevirir.
+    const resolveLinuxPath = (p, currentDir) => {
+        if (!p) return currentDir
+        if (p.startsWith('/')) return p.replace(/\/$/, '') || '/'
+        return (currentDir === '/' ? '' : currentDir) + '/' + p
+    }
+
+    // chmod modunu (sembolik +x veya numerik 755/644) rwx string'ine çevirir.
+    const permsFromChmodMode = (mode, current) => {
+        const base = current || 'rw-r--r--'
+        if (mode === '+x') return base.slice(0, 2) + 'x' + base.slice(3)
+        if (mode === '-x') return base.slice(0, 2) + '-' + base.slice(3)
+        if (/^[0-7]{3}$/.test(mode)) {
+            const map = { '0': '---', '1': '--x', '2': '-w-', '3': '-wx', '4': 'r--', '5': 'r-x', '6': 'rw-', '7': 'rwx' }
+            return mode.split('').map((d) => map[d]).join('')
+        }
+        return base
+    }
+
     const handleLinuxCommand = (cmdStr) => {
         const trimmed = cmdStr.trim()
         if (!trimmed) return
-        setLinuxHistory(prev => [...prev, { type: 'input', text: trimmed }])
         setLinuxInput('')
 
         const parts = trimmed.split(/\s+/)
@@ -6251,8 +6307,14 @@ function SimulationBlock({ block, darkMode, language }) {
             setLinuxHistory([])
             return
         }
+
+        const pushHistory = (outputText) => {
+            setLinuxHistory(prev => [...prev, { type: 'input', text: trimmed }, { type: 'output', text: outputText }])
+        }
+
         if (baseCmd === 'pwd') {
-            setLinuxHistory(prev => [...prev, { type: 'output', text: linuxCurrentDir }])
+            pushHistory(linuxCurrentDir)
+            checkLinuxMissions(linuxFiles, linuxCurrentDir, linuxEvents)
             return
         }
         if (baseCmd === 'ls') {
@@ -6263,80 +6325,152 @@ function SimulationBlock({ block, darkMode, language }) {
                 })
                 .map(f => {
                     const name = f.path.substring(f.path.lastIndexOf('/') + 1)
-                    return f.type === 'dir' ? name + '/' : name
+                    const perms = f.perms ? (f.type === 'dir' ? `d${f.perms}` : `-${f.perms}`) : ''
+                    return parts.includes('-l') || parts.includes('-la') || parts.includes('-al')
+                        ? `${perms || (f.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--')}  ${name}${f.type === 'dir' ? '/' : ''}`
+                        : (f.type === 'dir' ? name + '/' : name)
                 })
-            const output = list.length > 0 ? list.join('  ') : (isTr ? '(klasör boş)' : '(folder empty)')
-            setLinuxHistory(prev => [...prev, { type: 'output', text: output }])
+            const output = list.length > 0 ? list.join(parts.some(p => p.startsWith('-l')) ? '\n' : '  ') : (isTr ? '(klasör boş)' : '(folder empty)')
+            pushHistory(output)
+            setLinuxEvents(prev => { const next = new Set(prev); next.add('ls'); checkLinuxMissions(linuxFiles, linuxCurrentDir, next); return next })
+            return
+        }
+        if (baseCmd === 'cd') {
+            const target = parts[1]
+            let newDir
+            if (!target || target === '~') {
+                newDir = '/home/qa_tester'
+            } else if (target === '-') {
+                newDir = linuxPrevDir
+            } else if (target === '..') {
+                const segments = linuxCurrentDir.split('/').filter(Boolean)
+                segments.pop()
+                newDir = '/' + segments.join('/')
+            } else {
+                newDir = resolveLinuxPath(target, linuxCurrentDir)
+            }
+            const knownAncestors = ['/', '/home', '/home/qa_tester']
+            const dirEntry = linuxFiles.find(f => f.path === newDir && f.type === 'dir')
+            if (!knownAncestors.includes(newDir) && !dirEntry) {
+                setLinuxHistory(prev => [...prev, { type: 'input', text: trimmed }, { type: 'output', text: `bash: cd: ${target}: No such file or directory` }])
+                return
+            }
+            setLinuxHistory(prev => [...prev, { type: 'input', text: trimmed }])
+            setLinuxPrevDir(linuxCurrentDir)
+            setLinuxCurrentDir(newDir)
+            checkLinuxMissions(linuxFiles, newDir, linuxEvents)
+            return
+        }
+        if (baseCmd === 'cat') {
+            const target = parts[1]
+            if (!target) { pushHistory('cat: missing operand'); return }
+            const fullPath = resolveLinuxPath(target, linuxCurrentDir)
+            const entry = linuxFiles.find(f => f.path === fullPath)
+            if (!entry) pushHistory(`cat: ${target}: No such file or directory`)
+            else if (entry.type === 'dir') pushHistory(`cat: ${target}: Is a directory`)
+            else {
+                pushHistory(entry.content || (isTr ? '(boş dosya)' : '(empty file)'))
+                setLinuxEvents(prev => { const next = new Set(prev); next.add(`cat:${target}`); checkLinuxMissions(linuxFiles, linuxCurrentDir, next); return next })
+            }
+            return
+        }
+        if (baseCmd === 'grep') {
+            const pattern = parts[1]
+            const target = parts[2]
+            if (!pattern || !target) { pushHistory('usage: grep <pattern> <file>'); return }
+            const fullPath = resolveLinuxPath(target, linuxCurrentDir)
+            const entry = linuxFiles.find(f => f.path === fullPath)
+            if (!entry) { pushHistory(`grep: ${target}: No such file or directory`); return }
+            if (entry.type === 'dir') { pushHistory(`grep: ${target}: Is a directory`); return }
+            const lines = (entry.content || '').split('\n').filter(l => l.includes(pattern))
+            pushHistory(lines.length ? lines.join('\n') : (isTr ? '(eşleşme yok)' : '(no matches)'))
+            setLinuxEvents(prev => {
+                const next = new Set(prev)
+                next.add(`grep:${target}`)
+                checkLinuxMissions(linuxFiles, linuxCurrentDir, next)
+                return next
+            })
+            return
+        }
+        if (baseCmd === 'chmod') {
+            const mode = parts[1]
+            const target = parts[2]
+            if (!mode || !target) { pushHistory('usage: chmod <mode> <file>'); return }
+            const fullPath = resolveLinuxPath(target, linuxCurrentDir)
+            const idx = linuxFiles.findIndex(f => f.path === fullPath)
+            if (idx === -1) { pushHistory(`chmod: cannot access '${target}': No such file or directory`); return }
+            const newPerms = permsFromChmodMode(mode, linuxFiles[idx].perms)
+            const nextFiles = linuxFiles.map((f, i) => (i === idx ? { ...f, perms: newPerms } : f))
+            setLinuxFiles(nextFiles)
+            pushHistory(isTr ? `İzinler güncellendi: ${target} → ${newPerms}` : `Permissions updated: ${target} → ${newPerms}`)
+            checkLinuxMissions(nextFiles, linuxCurrentDir, linuxEvents)
+            return
+        }
+        if (baseCmd === 'find') {
+            const rawNeedle = parts[parts.length - 1] || ''
+            const needle = rawNeedle.replace(/["']/g, '').replace(/^\*/, '').replace(/\*$/, '')
+            const matches = linuxFiles
+                .filter(f => f.path.startsWith(linuxCurrentDir) && f.path !== linuxCurrentDir)
+                .filter(f => !needle || needle === '.' || f.path.includes(needle))
+                .map(f => f.path)
+            pushHistory(matches.length ? matches.join('\n') : (isTr ? '(sonuç yok)' : '(no results)'))
             return
         }
         if (baseCmd === 'mkdir') {
             const dirName = parts[1]
-            if (!dirName) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: 'mkdir: missing operand' }])
-                return
-            }
+            if (!dirName) { pushHistory('mkdir: missing operand'); return }
             const fullPath = linuxCurrentDir + '/' + dirName
             if (linuxFiles.some(f => f.path === fullPath)) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: `mkdir: cannot create directory '${dirName}': File exists` }])
+                pushHistory(`mkdir: cannot create directory '${dirName}': File exists`)
                 return
             }
-            setLinuxFiles(prev => [...prev, { path: fullPath, type: 'dir' }])
-            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Klasör oluşturuldu: ${dirName}` : `Directory created: ${dirName}` }])
+            const nextFiles = [...linuxFiles, { path: fullPath, type: 'dir' }]
+            setLinuxFiles(nextFiles)
+            pushHistory(isTr ? `Klasör oluşturuldu: ${dirName}` : `Directory created: ${dirName}`)
+            checkLinuxMissions(nextFiles, linuxCurrentDir, linuxEvents)
             return
         }
         if (baseCmd === 'touch') {
             const fileName = parts[1]
-            if (!fileName) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: 'touch: missing file operand' }])
-                return
-            }
+            if (!fileName) { pushHistory('touch: missing file operand'); return }
             const fullPath = linuxCurrentDir + '/' + fileName
             if (linuxFiles.some(f => f.path === fullPath)) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Dosya güncellendi: ${fileName}` : `File updated: ${fileName}` }])
+                pushHistory(isTr ? `Dosya güncellendi: ${fileName}` : `File updated: ${fileName}`)
                 return
             }
-            setLinuxFiles(prev => [...prev, { path: fullPath, type: 'file' }])
-            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Boş dosya oluşturuldu: ${fileName}` : `Empty file created: ${fileName}` }])
+            const nextFiles = [...linuxFiles, { path: fullPath, type: 'file', content: '', perms: 'rw-r--r--' }]
+            setLinuxFiles(nextFiles)
+            pushHistory(isTr ? `Boş dosya oluşturuldu: ${fileName}` : `Empty file created: ${fileName}`)
+            checkLinuxMissions(nextFiles, linuxCurrentDir, linuxEvents)
             return
         }
         if (baseCmd === 'rm') {
             const fileName = parts[1]
-            if (!fileName) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: 'rm: missing operand' }])
-                return
-            }
+            if (!fileName) { pushHistory('rm: missing operand'); return }
             const fullPath = linuxCurrentDir + '/' + fileName
             const target = linuxFiles.find(f => f.path === fullPath)
-            if (!target) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: `rm: cannot remove '${fileName}': No such file or directory` }])
-                return
-            }
-            if (target.type === 'dir') {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: `rm: cannot remove '${fileName}': Is a directory (use rmdir or rm -rf)` }])
-                return
-            }
-            setLinuxFiles(prev => prev.filter(f => f.path !== fullPath))
-            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Dosya silindi: ${fileName}` : `File deleted: ${fileName}` }])
+            if (!target) { pushHistory(`rm: cannot remove '${fileName}': No such file or directory`); return }
+            if (target.type === 'dir') { pushHistory(`rm: cannot remove '${fileName}': Is a directory (use rmdir or rm -rf)`); return }
+            const nextFiles = linuxFiles.filter(f => f.path !== fullPath)
+            setLinuxFiles(nextFiles)
+            pushHistory(isTr ? `Dosya silindi: ${fileName}` : `File deleted: ${fileName}`)
+            checkLinuxMissions(nextFiles, linuxCurrentDir, linuxEvents)
             return
         }
         if (baseCmd === 'rmdir' || (baseCmd === 'rm' && parts[1] === '-rf')) {
             const dirName = baseCmd === 'rmdir' ? parts[1] : parts[2]
-            if (!dirName) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: 'missing operand' }])
-                return
-            }
+            if (!dirName) { pushHistory('missing operand'); return }
             const fullPath = linuxCurrentDir + '/' + dirName
             const target = linuxFiles.find(f => f.path === fullPath)
-            if (!target) {
-                setLinuxHistory(prev => [...prev, { type: 'output', text: `No such directory '${dirName}'` }])
-                return
-            }
-            setLinuxFiles(prev => prev.filter(f => !f.path.startsWith(fullPath)))
-            setLinuxHistory(prev => [...prev, { type: 'output', text: isTr ? `Klasör silindi: ${dirName}` : `Directory deleted: ${dirName}` }])
+            if (!target) { pushHistory(`No such directory '${dirName}'`); return }
+            const nextFiles = linuxFiles.filter(f => !f.path.startsWith(fullPath))
+            setLinuxFiles(nextFiles)
+            pushHistory(isTr ? `Klasör silindi: ${dirName}` : `Directory deleted: ${dirName}`)
+            checkLinuxMissions(nextFiles, linuxCurrentDir, linuxEvents)
             return
         }
 
-        setLinuxHistory(prev => [...prev, { type: 'output', text: `bash: ${baseCmd}: command not found` }])
+        pushHistory(`bash: ${baseCmd}: command not found`)
     }
 
     const handleGitCommand = (cmdStr) => {
@@ -6618,17 +6752,37 @@ function SimulationBlock({ block, darkMode, language }) {
                 handleLinuxCommand(linuxInput)
             }
         }
-        const quickCmds = ['pwd', 'ls', 'mkdir docs', 'touch docs/test.txt', 'rm docs/test.txt', 'clear']
+        const quickCmds = ['cd test-suite', 'grep FAIL test.log', 'mkdir reports', 'cd reports', 'touch summary.txt', 'cd ..', 'chmod +x deploy.sh', 'clear']
+        const doneCount = LINUX_MISSIONS.filter(m => linuxMissionsDone.has(m.id)).length
         return (
             <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="w-full max-w-md">
+                <div className="mb-2 rounded-xl border border-emerald-800/40 bg-emerald-950/20 px-3 py-2">
+                    <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">{isTr ? '🧪 Görevler' : '🧪 Missions'}</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-900 text-emerald-300">{doneCount}/{LINUX_MISSIONS.length}</span>
+                    </div>
+                    <ol className="space-y-0.5">
+                        {LINUX_MISSIONS.map((m) => {
+                            const done = linuxMissionsDone.has(m.id)
+                            const isNext = !done && LINUX_MISSIONS.find(x => !linuxMissionsDone.has(x.id)) === m
+                            return (
+                                <li key={m.id} data-testid={`linux-mission-${m.id}`} data-done={done ? 'true' : 'false'} className={`text-[11px] flex items-start gap-1.5 ${done ? 'opacity-70' : ''}`}>
+                                    <span>{done ? '✅' : isNext ? '👉' : '⬜'}</span>
+                                    <span className={`${done ? 'line-through text-emerald-400' : 'text-slate-300'} ${isNext ? 'font-bold' : ''}`}>{tx(m.text, language)}</span>
+                                </li>
+                            )
+                        })}
+                    </ol>
+                </div>
                 <div style={{ background: '#0b1329', color: '#e2e8f0', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#ef4444' }} />
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#f59e0b' }} />
                         <span style={{ width: 10, height: 10, borderRadius: 999, background: '#22c55e' }} />
                         <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Linux Bash Simulator</span>
+                        <span className="ml-auto font-mono" style={{ fontSize: 10, color: '#38bdf8' }}>{linuxCurrentDir}</span>
                     </div>
-                    <div style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
+                    <div data-testid="linux-terminal-output" style={{ padding: 12, background: '#030712', minHeight: 180, maxHeight: 220, overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', lineHeight: 1.5 }}>
                         {linuxHistory.map((h, i) => (
                             <div key={i} style={{ marginBottom: 4 }}>
                                 {h.type === 'input' ? (
@@ -6641,6 +6795,7 @@ function SimulationBlock({ block, darkMode, language }) {
                         <div className="flex items-center gap-1.5 text-sky-400">
                             <span className="font-bold">$</span>
                             <input
+                                data-testid="linux-terminal-input"
                                 type="text"
                                 value={linuxInput}
                                 onChange={e => setLinuxInput(e.target.value)}
@@ -6670,6 +6825,7 @@ function SimulationBlock({ block, darkMode, language }) {
     }
 
     const renderLinuxInteractiveTerminalVisualizer = () => {
+        const sortedFiles = [...linuxFiles].sort((a, b) => a.path.localeCompare(b.path))
         return (
             <div className="space-y-3">
                 <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -6678,29 +6834,24 @@ function SimulationBlock({ block, darkMode, language }) {
                 <div className={`p-4 rounded-xl border font-mono text-xs ${darkMode ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
                     <div className="text-emerald-500 font-bold">/ (root)</div>
                     <div className="pl-3 border-l border-slate-700/35 space-y-1">
-                        <div className="text-amber-500 font-semibold">home/</div>
-                        <div className="pl-3 border-l border-slate-700/35 space-y-1">
-                            <div className="text-amber-500 font-semibold">qa_tester/ <span className="text-[10px] text-sky-400 font-normal">(pwd)</span></div>
-                            <div className="pl-3 border-l border-slate-700/35 space-y-1">
-                                {linuxFiles.filter(f => f.path.startsWith('/home/qa_tester/') && f.path !== '/home/qa_tester').map(f => {
-                                    const relative = f.path.replace('/home/qa_tester/', '')
-                                    const isDir = f.type === 'dir'
-                                    return (
-                                        <div key={f.path} className={`flex items-center gap-1.5 py-0.5 animate-fadeIn transition-all duration-300`}>
-                                            <span>{isDir ? '📁' : '📄'}</span>
-                                            <span className={isDir ? 'text-amber-400 font-semibold' : 'text-sky-300'}>{relative}</span>
-                                        </div>
-                                    )
-                                })}
-                                {linuxFiles.filter(f => f.path.startsWith('/home/qa_tester/') && f.path !== '/home/qa_tester').length === 0 && (
-                                    <div className="text-slate-500 italic text-[11px]">{isTr ? '(klasör boş)' : '(folder empty)'}</div>
-                                )}
-                            </div>
-                        </div>
+                        {sortedFiles.map((f) => {
+                            const depth = f.path.split('/').filter(Boolean).length
+                            const name = f.path.substring(f.path.lastIndexOf('/') + 1)
+                            const isDir = f.type === 'dir'
+                            const isPwd = f.path === linuxCurrentDir
+                            return (
+                                <div key={f.path} data-testid={`linux-fs-${f.path.replace(/\W/g, '-')}`} className="flex items-center gap-1.5 py-0.5 animate-fadeIn transition-all duration-300" style={{ paddingLeft: `${(depth - 1) * 14}px` }}>
+                                    <span>{isDir ? '📁' : '📄'}</span>
+                                    <span className={isDir ? 'text-amber-400 font-semibold' : 'text-sky-300'}>{name}{isDir ? '/' : ''}</span>
+                                    {f.perms && <span className="text-[9px] text-slate-500">{f.perms}</span>}
+                                    {isPwd && <span className="text-[10px] text-emerald-400 font-normal">(pwd)</span>}
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
                 <div className={`text-xs p-3 rounded-lg border ${darkMode ? 'border-amber-900/30 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
-                    {isTr ? '💡 touch ile dosya, mkdir ile klasör oluşturduğunuzda bu şema anlık olarak güncellenir.' : '💡 The diagram updates instantly when you create files using touch or folders using mkdir.'}
+                    {isTr ? '💡 cd ile gezin, touch/mkdir ile oluşturun, chmod ile izin değiştirin — bu şema ve (pwd) etiketi anlık güncellenir.' : '💡 Navigate with cd, create with touch/mkdir, change permissions with chmod — this diagram and the (pwd) tag update instantly.'}
                 </div>
             </div>
         )
