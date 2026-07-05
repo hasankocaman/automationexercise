@@ -910,6 +910,16 @@ docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
           },
           {
+            type: 'docker-sandbox',
+            missions: [
+              { id: 'pull-hello', text: { tr: "hello-world image'ını pull et", en: 'Pull the hello-world image' } },
+              { id: 'run-web', text: { tr: "nginx'i arka planda (-d), 8080:80 port eşlemesiyle ve 'web' adıyla çalıştır", en: "Run nginx detached (-d) with port mapping 8080:80, named 'web'" } },
+              { id: 'ps-list', text: { tr: "Çalışan container'ları listele (docker ps)", en: 'List running containers (docker ps)' } },
+              { id: 'logs-web', text: { tr: "'web' container'ının loglarına bak", en: "Check the logs of the 'web' container" } },
+              { id: 'clean-web', text: { tr: "'web'i durdur ve sil (stop + rm)", en: "Stop and remove 'web' (stop + rm)" } },
+            ],
+          },
+          {
             type: 'simulation',
             icon: '🐳',
             color: '#0369a1',
@@ -2141,6 +2151,16 @@ docker exec my-container ls /app   # İnteraktif olmadan komut çalıştır
 # Host ve container arasında dosya kopyala
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
+          },
+          {
+            type: 'docker-sandbox',
+            missions: [
+              { id: 'pull-hello', text: { tr: "hello-world image'ını pull et", en: 'Pull the hello-world image' } },
+              { id: 'run-web', text: { tr: "nginx'i arka planda (-d), 8080:80 port eşlemesiyle ve 'web' adıyla çalıştır", en: "Run nginx detached (-d) with port mapping 8080:80, named 'web'" } },
+              { id: 'ps-list', text: { tr: "Çalışan container'ları listele (docker ps)", en: 'List running containers (docker ps)' } },
+              { id: 'logs-web', text: { tr: "'web' container'ının loglarına bak", en: "Check the logs of the 'web' container" } },
+              { id: 'clean-web', text: { tr: "'web'i durdur ve sil (stop + rm)", en: "Stop and remove 'web' (stop + rm)" } },
+            ],
           },
           {
             type: 'simulation',

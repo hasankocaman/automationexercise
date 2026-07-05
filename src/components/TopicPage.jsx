@@ -17,6 +17,7 @@ import SOLVER_QUESTIONS from '../data/javaInteractiveQuestions.json'
 import SecuritySimulation from './SecuritySimulations'
 import SecurityLegoVisual from './SecurityLegoVisual'
 import LocatorExplorerBlock from './LocatorExplorerBlock'
+import DockerSandboxBlock from './DockerSandboxBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17387,6 +17388,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'challenge':
             return <ChallengeBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'docker-sandbox':
+            return <DockerSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

@@ -10,7 +10,41 @@
 
 ---
 
-## Güncel Branch Durumu (2026-07-05, `feature/pedagogy-improvements` devam — Test Kapsamı Denetimi: WP1-4 için Eksik Testler Eklendi)
+## Güncel Branch Durumu (2026-07-05 devam, `feature/pedagogy-improvements` — İçerik Mükemmelliği Raporu + contentplan.md + CP1 Docker Sandbox TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/pedagogy-improvements` (önceki oturumun WP1-4 + test commit'leri `a3aee51`'e kadar pull edildi; bu oturumun işi HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor) |
+| **Kapsam** | Kullanıcı isteğiyle Docker dersi örneklem alınarak "sıfırdan öğrenen biri için en iyi kaynak mıyız?" değerlendirmesi yapıldı (Fable 5), rapor + iş planı **`contentplan.md`** (yeni dosya, kök dizinde) olarak yazıldı ve planın ilk paketi (CP1) uygulandı. |
+| **İş bölümü** | contentplan.md'de her CP'nin uygulayıcısı belirtildi: CP1=FABLE (bu oturumda yapıldı), CP2/CP4=SONNET (hazır kopyala-yapıştır promptlar dosyanın içinde), CP3=KULLANICI ONAYI + SONNET (riskler + prompt hazır), CP5=ertelendi. |
+
+### Bu Oturumda Yapılan İş — CP1: Docker Sandbox (durum-makineli interaktif terminal)
+
+- **Yeni dosya `src/components/DockerSandboxBlock.jsx`** — sahte ama durumlu (stateful) Docker engine: kullanıcı `docker pull/run/ps/stop/start/rm/rmi/logs/exec` komutlarını KENDİSİ yazar; image rafı + container kutuları + port eşlemeleri sağdaki görsel panelde canlı güncellenir. Gerçekçi hata simülasyonları: bilinmeyen image → pull access denied; port çakışması → "port is already allocated"; çalışan container'ı `-f`'siz silme → gerçek daemon hatası; ad çakışması → Conflict. Her hatanın altında bilingual "💡 Neden?" açıklaması. Görev sistemi: 5 görev (pull hello-world → run nginx 8080:80 'web' → ps → logs → stop+rm), engine state'inden otomatik tespit, tamamlanınca 🎉. Terminal ÇIKTILARI İngilizce (gerçek Docker çıktısı = terminal çıktısı istisnası, CLAUDE.md §8), UI/görev/açıklama metinleri bilingual. localStorage YOK — sandbox bilinçli olarak session-only (contentplan.md CP1 tasarım kararı).
+- **`TopicPage.jsx`** — `docker-sandbox` block tipi kaydedildi (import + renderBlock case, mevcut kalıpla birebir).
+- **`src/data/dockerData.js`** — "📦 Temel Komutlar"/"Core Commands" sekmesine (EN + TR, container komutları kod bloğundan sonra) `docker-sandbox` bloğu + 5 görev eklendi.
+- **Yeni dosya `tests/docker-sandbox.spec.ts`** — 2 test: (a) pull → image rafta, hatalı komut → gerçekçi hata, run → çalışan kutu + görev ✓, port çakışması hatası, `-f`'siz rm hatası, stop+rm → temizlik görevi ✓; (b) EN modda görev metinleri İngilizce. `serviceWorkers: 'block'` ile.
+- **Test yazarken düzeltilen tuzak:** sidebar butonları section title'ı değil KISA sekme adını kullanıyor (`tabs` dizisi: "📦 Temel Komutlar" / "📦 Core Commands") — ilk yazım section title'a göre arıyordu, düzeltildi.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (17.5s, 38 static route, dist SEO PASS, sadece bilinen chunk uyarıları)
+- `tests/docker-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS
+- Regresyon (`topic-pages-ui -g docker` + `i18n-content-toggle` /docker EN taraması + `review-queue` docker testi, --workers=1) → ✅ 3/3 PASS (i18n taraması sandbox sekmesi dahil tüm sekmelerde Türkçe karakter sızıntısı olmadığını doğruladı)
+- TR yorum taraması → ✅ component/test/plan dosyalarındaki tüm yorumlar Türkçe; sandbox terminal çıktıları bilinçli İngilizce (§8 istisnası)
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun işi commit edilmedi** (contentplan.md + DockerSandboxBlock.jsx + TopicPage.jsx + dockerData.js + docker-sandbox.spec.ts) — kullanıcı onayı bekliyor. Önceki oturumların WP1-4 + test commit'leri de hâlâ main'e merge/push edilmedi.
+2. **CP2 (kod duvarlarını kırma)** — Sonnet'e verilecek prompt `contentplan.md` CP2 bölümünde hazır.
+3. **CP4 (sayfa içi ilerleme)** — Sonnet promptu hazır; CP2'den bağımsız çalıştırılabilir.
+4. **CP3 (sekme atomikleştirme)** — KULLANICI ONAYI OLMADAN BAŞLANMAZ; riskler contentplan.md CP3'te.
+5. Sandbox bilinen sınırları (bilinçli, düzeltme GEREKMEZ): `docker search/inspect/cp/build` desteklenmiyor (help listesinde de yok); görev ilerlemesi session-only; `-it` flag'leri yutulur (exec'te flagless parse).
+
+---
+
+## Güncel Branch Durumu (2026-07-05, `feature/pedagogy-improvements` devam — Test Kapsamı Denetimi: WP1-4 için Eksik Testler Eklendi) [ÖNCEKİ OTURUM — commit `a3aee51` ile tamamlandı]
 
 | Alan | Değer |
 |------|-------|
