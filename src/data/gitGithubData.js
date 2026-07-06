@@ -1171,13 +1171,36 @@ const githubSettingsPractice = {
 }
 
 export const gitGithubData = {
+  // CP6 sekme atomikleştirme (2026-07-06): 12 mega-sekme → 14 atomik sekme.
+  // Sadece eski [4] "Branching, Merge, Rebase and Conflicts" 3'e bölündü
+  // (Branch & Switch / Merge & Conflict / Rebase & Advanced Flow); diğer
+  // 11 sekme aynı index'te kaldı. Eski localStorage ilerlemesi (index-anahtarlı)
+  // bu haritayla yeni düzene çevrilir — TopicPage.jsx'teki migrateTabProgress
+  // bunu okur (Docker CP3 emsali, TopicPage'e dokunulmadı).
+  progressMigration: {
+    version: 2,
+    tabMap: {
+      0: [0],        // Giriş → Giriş
+      1: [1],        // Kurulum → Kurulum
+      2: [2],        // Git Temelleri → Git Temelleri
+      3: [3],        // .gitignore → .gitignore
+      4: [4, 5, 6],  // Branching → Branch & Switch / Merge & Conflict / Rebase & Advanced
+      5: [7],        // GitHub Workflow → GitHub Workflow
+      6: [8],        // Pull Request → Pull Request
+      7: [9],        // Actions → Actions
+      8: [10],       // Pages → Pages
+      9: [11],       // Real Work Risks → Real Work Risks
+      10: [12],      // Error Dictionary → Error Dictionary
+      11: [13],      // Interview Q&A → Interview Q&A
+    },
+  },
   en: {
     hero: {
       title: '🔀 Git & GitHub',
       subtitle: 'Version Control, Collaboration, CI/CD and Pages for QA Engineers',
       intro: 'Learn Git and GitHub visually: snapshots, branches, pull requests, Actions, Pages deployment, production safety rules and hands-on command practice.',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Workflow', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '⌨️ Git Basics', '🚫 .gitignore', '🌿 Branch & Switch', '🔀 Merge & Conflict', '🧬 Rebase & Advanced', '🐙 GitHub Workflow', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ Real Work Risks', '🚨 Error Dictionary', '💼 Interview Q&A'],
     sections: [
       {
         title: '🎯 What are Git and GitHub?',
@@ -1910,7 +1933,7 @@ export const gitGithubData = {
         ],
       },
       {
-        title: '🌿 Branching, Merge, Rebase and Conflicts',
+        title: '🌿 Branch & Switch: Create, Rename and Shelve Work',
         blocks: [
           {
             type: 'simple-box',
@@ -1946,9 +1969,20 @@ export const gitGithubData = {
           },
           {
             type: 'code',
-            label: 'List, create, switch and rename branches',
+            label: 'List and create a branch without switching',
             language: 'bash',
-            code: `# 1. List all local branches, * marks the current one\ngit branch\n#   main\n# * develop\n\n# 2. Create a branch without switching to it\ngit branch bugfix/login-timeout\n\n# 3. Create AND switch in one step (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Rename the current branch\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Confirm the rename\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
+            code: `# 1. List all local branches, * marks the current one\ngit branch\n#   main\n# * develop\n\n# 2. Create a branch without switching to it\ngit branch bugfix/login-timeout`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: yeni bir branch oluşturup üzerine geç (`git branch`, `git switch`/`git checkout`) — sandbox\'taki "Yeni bir branch oluşturup üzerine geç" görevi tam bunu istiyor.', en: 'Try it now in the real terminal on the Git Basics tab: create a new branch and switch onto it (`git branch`, `git switch`/`git checkout`) — the sandbox\'s "Create a new branch and switch onto it" mission asks for exactly this.' },
+          },
+          {
+            type: 'code',
+            label: 'Create and switch in one step, then rename and confirm',
+            language: 'bash',
+            code: `# 3. Create AND switch in one step (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Rename the current branch\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Confirm the rename\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
           },
           {
             type: 'code-playground',
@@ -2041,7 +2075,7 @@ export const gitGithubData = {
           },
           {
             type: 'code',
-            label: 'Shelve work, switch branches, then bring it back',
+            label: 'See the unfinished work, then shelve it',
             language: 'bash',
             code: `# 1. You are mid-edit on tests/login.spec.js but a hotfix is urgent
 git status
@@ -2049,9 +2083,18 @@ git status
 
 # 2. Shelve the unfinished work
 git stash
-# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow
-
-# 3. Switch safely with a clean working tree
+# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: işi rafa kaldır ve geri getir (`git stash`, `git stash pop`) — sandbox\'taki "İşi rafa kaldır ve geri getir" görevi bu adımların birebir aynısı.', en: 'Try it now in the real terminal on the Git Basics tab: shelve work and bring it back (`git stash`, `git stash pop`) — the sandbox\'s "Shelve work and bring it back" mission is exactly this sequence.' },
+          },
+          {
+            type: 'code',
+            label: 'Switch safely, then restore the shelved work',
+            language: 'bash',
+            code: `# 3. Switch safely with a clean working tree
 git switch main
 # ...fix the hotfix, commit, push...
 
@@ -2174,14 +2217,30 @@ git branch`,
           },
           {
             type: 'code',
-            label: 'First remote publish: choose one method once',
+            label: 'Switch, then publish the branch once',
             language: 'bash',
             code: `git switch hasan                                      # Move to your local branch
 
 # Method 1 - preferred when origin exists:
-git push -u origin hasan                              # Create remote branch and set upstream
-
-# Method 2 - alternative with direct repo URL:
+git push -u origin hasan                              # Create remote branch and set upstream`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-remote-publish-order-01',
+            question: { tr: 'Bir local branch\'i GitHub\'da ilk kez yayınlama sırasını diz.', en: 'Order the sequence for publishing a local branch to GitHub for the first time.' },
+            items: [
+              { id: '1', text: { tr: '`git switch hasan` ile paylaşılacak branch\'e geç', en: 'Run `git switch hasan` to move to the branch you want to share' }, order: 1 },
+              { id: '2', text: { tr: '`git push -u origin hasan` ile remote branch\'i oluştur ve upstream kur', en: 'Run `git push -u origin hasan` to create the remote branch and set upstream' }, order: 2 },
+              { id: '3', text: { tr: '`git branch -vv` ile upstream bağlantısını doğrula', en: 'Run `git branch -vv` to verify the upstream connection' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Alternative method, then verify and simplify future pushes',
+            language: 'bash',
+            code: `# Method 2 - alternative with direct repo URL:
 git push -u https://github.com/hasankocaman/deneme2.git hasan
 
 git branch -vv                                        # Verify: hasan tracks origin/hasan
@@ -2208,7 +2267,7 @@ git push -u origin hasan`,
           },
           {
             type: 'code',
-            label: 'fetch vs pull vs pull --rebase',
+            label: 'fetch vs plain pull',
             language: 'bash',
             code: `# fetch: download remote history, do NOT touch your working branch
 git fetch origin
@@ -2216,9 +2275,25 @@ git fetch origin
 
 # pull: fetch + merge in one step (creates a merge commit if histories diverged)
 git pull origin main
-# Merge made by the 'ort' strategy. -> extra "Merge branch 'main'" commit appears
-
-# pull --rebase: fetch + replay YOUR commits on top of the updated main
+# Merge made by the 'ort' strategy. -> extra "Merge branch 'main'" commit appears`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-fetch-vs-pull-order-01',
+            question: { tr: 'fetch ile düz pull arasındaki farkı görme sırasını diz.', en: 'Order the sequence for seeing the difference between fetch and plain pull.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile SADECE indir, branch\'ine dokunma', en: 'Run `git fetch origin` to ONLY download, without touching your branch' }, order: 1 },
+              { id: '2', text: { tr: 'Working tree\'nin değişmediğini gör', en: 'See that your working tree has not changed' }, order: 2 },
+              { id: '3', text: { tr: 'Düz `git pull origin main` çalıştırsan, history\'ler ayrışmışsa ekstra bir merge commit oluşabileceğini bil', en: 'Know that plain `git pull origin main` can add an extra merge commit if histories diverged' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'pull --rebase: the cleaner alternative',
+            language: 'bash',
+            code: `# pull --rebase: fetch + replay YOUR commits on top of the updated main
 git pull --rebase origin main
 # Successfully rebased and updated refs/heads/feature/hasan
 # -> linear history, no extra merge commit`,
@@ -2287,6 +2362,52 @@ git pull --rebase origin main
             xpReward: 10,
           },
           {
+            type: 'quiz',
+            question: 'Every time you run `git pull origin main` on your feature branch, Git creates an unwanted "Merge branch \'main\'" commit. Which command gets the same update without that extra commit?',
+            options: [
+              { id: 'a', text: 'git fetch origin' },
+              { id: 'b', text: 'git pull --rebase origin main' },
+              { id: 'c', text: 'git push --force' },
+              { id: 'd', text: 'git branch -m main' },
+            ],
+            correct: 'b',
+            explanation: '`git pull --rebase` fetches the remote history and replays your local commits on top of it, producing a linear history with no extra merge commit. Plain `git pull` merges by default and creates one whenever the histories have diverged.',
+
+        retryQuestion: {
+      "question": "A teammate ran `git fetch origin` and says nothing changed in their working files or branch. Why is that the expected behavior?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "git fetch is broken; only git pull actually works"
+            },
+            {
+                  "id": "b",
+                  "text": "git fetch only downloads remote history into origin/* references — it never touches your local branch or working tree"
+            },
+            {
+                  "id": "c",
+                  "text": "git fetch requires --force to apply anything"
+            },
+            {
+                  "id": "d",
+                  "text": "git fetch automatically stashes uncommitted work first"
+            }
+      ],
+      "correct": "b",
+      "explanation": "`git fetch` is a read-only download: it updates your local copies of the remote branches (`origin/main`, etc.) but leaves your current branch and working tree completely untouched until you explicitly merge, rebase, or pull."
+}
+},
+        ],
+      },
+      {
+        title: '🔀 Merge & Conflict: Bring Changes Together Safely',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `A Git merge is like a court stenographer reconciling two witnesses' testimony of the same event: wherever their stories don't overlap, Git combines them automatically, but the moment two people changed the exact same line, it stops guessing and hands you the conflict markers instead. The thought-provoking question before you touch a single marker: if Git can auto-merge most of the time, why does it even bother stopping you for the rest? Because if it asked on every line, nobody would use branches at all — the whole point of parallel branches is that most changes don't actually collide, so the tool should only interrupt at the rare point a human decision is truly required. Java analogy: this is the same tension as two developers editing the same class in a shared IDE without a lock — a build tool can merge two developers' work automatically only when they touched different methods, never when they overrode the exact same method body, exactly like Git can only auto-merge non-overlapping lines. In real QA work this is precisely why a conflict resolved by quietly keeping the wrong line of an assertion is more dangerous than a build that fails loudly — a wrongly resolved marker can ship a test that passes for the wrong reason, and nobody notices until production.`,
+          },
+          {
             type: 'simulation',
             title: { en: '3) Merge: bring main into your branch', tr: '3) Merge: main değişikliklerini branch içine al' },
             icon: '🔁',
@@ -2313,27 +2434,65 @@ git pull --rebase origin main
           },
           {
             type: 'code',
-            label: 'Daily branch workflow after seeing the animation',
+            label: 'Sync main, then branch off',
             language: 'bash',
             code: `git fetch origin                         # Refresh remote branches
 git switch main                          # Move to local main
 git pull --ff-only origin main            # Update main without surprise merge commits
-git switch -c feature/checkout-tests      # Create a feature branch
-
-# edit tests/checkout.spec.js             # Make focused QA changes
+git switch -c feature/checkout-tests      # Create a feature branch`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-daily-sync-order-01',
+            question: { tr: 'Yeni bir feature branch\'e güncel main üzerinden başlama sırasını diz.', en: 'Order the sequence for starting a new feature branch from an updated main.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile remote branch bilgisini yenile', en: 'Run `git fetch origin` to refresh remote branch info' }, order: 1 },
+              { id: '2', text: { tr: '`git switch main` ile local main\'e geç', en: 'Run `git switch main` to move to local main' }, order: 2 },
+              { id: '3', text: { tr: '`git pull --ff-only origin main` ile sürpriz merge commit\'siz güncelle', en: 'Run `git pull --ff-only origin main` to update without a surprise merge commit' }, order: 3 },
+              { id: '4', text: { tr: '`git switch -c feature/checkout-tests` ile feature branch oluştur', en: 'Run `git switch -c feature/checkout-tests` to create the feature branch' }, order: 4 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Make focused changes, then publish',
+            language: 'bash',
+            code: `# edit tests/checkout.spec.js             # Make focused QA changes
 git add tests/checkout.spec.js            # Stage only the intended file
 git commit -m "test: cover checkout tax"  # Commit a small snapshot
 git push -u origin feature/checkout-tests # Push branch and set upstream`,
           },
           {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-daily-publish-order-01',
+            question: { tr: 'Odaklı bir değişikliği commitleyip push etme sırasını diz.', en: 'Order the sequence for committing and pushing one focused change.' },
+            items: [
+              { id: '1', text: { tr: 'Sadece amaçlanan dosyayı stage et: `git add tests/checkout.spec.js`', en: 'Stage only the intended file: `git add tests/checkout.spec.js`' }, order: 1 },
+              { id: '2', text: { tr: 'Küçük, açıklayıcı bir commit at: `git commit -m "test: cover checkout tax"`', en: 'Make a small, descriptive commit: `git commit -m "test: cover checkout tax"`' }, order: 2 },
+              { id: '3', text: { tr: '`git push -u origin feature/checkout-tests` ile branch\'i push et ve upstream kur', en: 'Run `git push -u origin feature/checkout-tests` to push the branch and set upstream' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'code',
-            label: 'Safe switch + pull + local merge flow',
+            label: 'Commit your own branch state first',
             language: 'bash',
             code: `git status                              # Check uncommitted work before switching
 git add tests/login.spec.js               # Stage your focused change
-git commit -m "test: cover login errors"  # Save your branch state first
-
-git switch main                           # Move to the shared base branch
+git commit -m "test: cover login errors"  # Save your branch state first`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: bir değişikliği stage et ve commitle (`git add`, `git commit -m "..."`) — sandbox\'taki "Bir değişikliği stage et ve commitle" görevi bu adımların ta kendisi.', en: 'Try it now in the real terminal on the Git Basics tab: stage a change and commit it (`git add`, `git commit -m "..."`) — the sandbox\'s "Stage a change and commit it" mission is exactly this.' },
+          },
+          {
+            type: 'code',
+            label: 'Update main, return, and merge',
+            language: 'bash',
+            code: `git switch main                           # Move to the shared base branch
 git pull --ff-only origin main             # Get remote changes safely
 
 git switch feature/hasan                  # Return to your own branch
@@ -2425,6 +2584,52 @@ git push -u origin feature/checkout-tests`,
             help: { en: 'This checker focuses on the branch-start order, not on changing a real repository.', tr: 'Bu kontrol gerçek repo değiştirmez; sadece branch başlangıç sırasına bakar.' },
           },
           {
+            type: 'quiz',
+            question: 'You are resolving a merge conflict and see `<<<<<<< HEAD`, `=======`, and `>>>>>>> main` markers inside a test file. What is the correct next step once you have decided which lines to keep?',
+            options: [
+              { id: 'a', text: 'Delete the whole file and recreate it from scratch' },
+              { id: 'b', text: 'Remove the conflict markers, save the final version, run the test, then `git add` the file and finish with `git commit`' },
+              { id: 'c', text: 'Run `git merge --abort` immediately' },
+              { id: 'd', text: 'Push the file with the markers still inside so a teammate can review them' },
+            ],
+            correct: 'b',
+            explanation: 'The markers are a decision point, not an error to escape from: remove them, keep the correct final logic, verify it with a test run, mark the file resolved with `git add`, and complete the merge with `git commit`.',
+
+        retryQuestion: {
+      "question": "When does Git complete a merge automatically, without ever asking you to resolve anything?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "When the merge is a fast-forward, or the two branches changed different, non-overlapping lines"
+            },
+            {
+                  "id": "b",
+                  "text": "Always — merges never require manual resolution"
+            },
+            {
+                  "id": "c",
+                  "text": "Only when you pass a --no-conflict flag"
+            },
+            {
+                  "id": "d",
+                  "text": "Only when both branches have completely identical content"
+            }
+      ],
+      "correct": "a",
+      "explanation": "Git can auto-combine changes whenever it can prove there is no real overlap — a fast-forward, or edits to different lines/files. It only stops and hands you conflict markers when two branches changed the exact same lines in incompatible ways."
+}
+},
+        ],
+      },
+      {
+        title: '🧬 Rebase & Advanced Flow: Cherry-pick and Rewriting History',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🪄',
+            content: `Rebase and cherry-pick are both time-machine tools that rewrite WHERE a commit sits in history, but they answer two different questions: rebase asks "what if my whole branch had started from a later point in time?" and replays every one of your commits on the new base, while cherry-pick asks "can I copy just this ONE change elsewhere, without dragging its neighbors along?" and applies a single commit's diff as a brand-new commit somewhere else. The thought-provoking question: if merge already exists and preserves the true history, why would a team ever choose to rewrite commit hashes with rebase at all? Because a history full of "fix typo" and "oops" commits on a shared branch is not honesty, it is noise — rebase lets you present the story as it should have been told, one clean logical commit at a time, before anyone reviews it. Java analogy: rebase is like regenerating a Gradle/Maven dependency tree after changing a version — every downstream artifact gets recalculated against the new base, exactly like every commit's hash changes once the base commit changes; cherry-pick is closer to copying one compiled class out of someone else's JAR into your own project, without pulling in the rest of that JAR's history. In real QA work, this is precisely why a hotfix branch pulls in ONE specific bug-fix commit with cherry-pick instead of merging an entire in-progress feature branch that might also carry untested, unrelated changes — and why rebasing a branch a teammate has already pulled can silently break their local history unless the whole team explicitly agreed to it first.`,
+          },
+          {
             type: 'table',
             headers: ['Operation', 'Use when', 'Risk'],
             rows: [
@@ -2436,7 +2641,7 @@ git push -u origin feature/checkout-tests`,
           },
           {
             type: 'code',
-            label: 'Find one commit on another branch and cherry-pick it',
+            label: 'Find the exact commit, then switch to the target branch',
             language: 'bash',
             code: `# 1. Find the exact commit hash you need from another branch
 git log feature/hasan --oneline -5
@@ -2444,9 +2649,25 @@ git log feature/hasan --oneline -5
 # c3d4e5f test: add login error cases
 
 # 2. Switch to the branch that needs that single fix
-git switch hotfix/release-1.4
-
-# 3. Apply just that one commit here
+git switch hotfix/release-1.4`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-cherry-pick-find-order-01',
+            question: { tr: 'Başka bir branch\'teki tek bir commit\'i hedeflemenin ilk adımlarını diz.', en: 'Order the first steps for targeting a single commit on another branch.' },
+            items: [
+              { id: '1', text: { tr: '`git log feature/hasan --oneline -5` ile commit hash\'ini bul', en: 'Run `git log feature/hasan --oneline -5` to find the commit hash' }, order: 1 },
+              { id: '2', text: { tr: 'O tek fix\'in gitmesi gereken branch\'i belirle', en: 'Identify the branch that needs just that one fix' }, order: 2 },
+              { id: '3', text: { tr: '`git switch hotfix/release-1.4` ile o branch\'e geç', en: 'Run `git switch hotfix/release-1.4` to move to that branch' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Cherry-pick it, then handle a conflict if one appears',
+            language: 'bash',
+            code: `# 3. Apply just that one commit here
 git cherry-pick d4e5f6a
 # [hotfix/release-1.4 9f8e7d6] fix(login): handle empty password field
 
@@ -3326,7 +3547,7 @@ git push origin feature/my-branch   # Push only your branch`,
       subtitle: 'QA mühendisleri için version control, takım akışı, CI/CD ve Pages',
       intro: 'Git ve GitHub’ı görsel öğren: snapshot, branch, pull request, GitHub Actions, Pages deploy, gerçek iş güvenliği ve komut alıştırmaları.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🚫 .gitignore', '🌿 Branching', '🐙 GitHub Akışı', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '⌨️ Git Temelleri', '🚫 .gitignore', '🌿 Branch & Switch', '🔀 Merge & Conflict', '🧬 Rebase & İleri Akış', '🐙 GitHub Akışı', '🧾 Pull Request', '🚀 Actions', '🌐 Pages', '⚠️ İş Riskleri', '🚨 Hata Sözlüğü', '💼 Mülakat S&C'],
     sections: [
       {
         title: '🎯 Git ve GitHub nedir?',
@@ -4090,7 +4311,7 @@ git push origin feature/my-branch   # Push only your branch`,
         ],
       },
       {
-        title: '🌿 Branch, Merge, Rebase ve Conflict',
+        title: '🌿 Branch & Switch: Oluştur, Yeniden Adlandır ve Rafa Kaldır',
         blocks: [
           {
             type: 'simple-box',
@@ -4121,9 +4342,20 @@ git push origin feature/my-branch   # Push only your branch`,
           },
           {
             type: 'code',
-            label: 'Branch listele, oluştur, geç ve yeniden adlandır',
+            label: 'Branch listele ve geçmeden oluştur',
             language: 'bash',
-            code: `# 1. Tüm local branchleri listele, * aktif olanı gösterir\ngit branch\n#   main\n# * develop\n\n# 2. Geçmeden bir branch oluştur\ngit branch bugfix/login-timeout\n\n# 3. Tek adımda hem oluştur hem geç (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Aktif branch'i yeniden adlandır\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Rename'i doğrula\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
+            code: `# 1. Tüm local branchleri listele, * aktif olanı gösterir\ngit branch\n#   main\n# * develop\n\n# 2. Geçmeden bir branch oluştur\ngit branch bugfix/login-timeout`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: yeni bir branch oluşturup üzerine geç (`git branch`, `git switch`/`git checkout`) — sandbox\'taki "Yeni bir branch oluşturup üzerine geç" görevi tam bunu istiyor.', en: 'Try it now in the real terminal on the Git Basics tab: create a new branch and switch onto it (`git branch`, `git switch`/`git checkout`) — the sandbox\'s "Create a new branch and switch onto it" mission asks for exactly this.' },
+          },
+          {
+            type: 'code',
+            label: 'Tek adımda oluştur+geç, yeniden adlandır ve doğrula',
+            language: 'bash',
+            code: `# 3. Tek adımda hem oluştur hem geç (modern syntax)\ngit switch -c bugfix/login-timeout\n\n# 4. Aktif branch'i yeniden adlandır\ngit branch -m bugfix/login-timeout-fix\n\n# 5. Rename'i doğrula\ngit branch\n# main\n#   develop\n# * bugfix/login-timeout-fix`,
           },
           {
             type: 'code-playground',
@@ -4216,7 +4448,7 @@ git push origin feature/my-branch   # Push only your branch`,
           },
           {
             type: 'code',
-            label: 'İşi rafa kaldır, branch değiştir, sonra geri al',
+            label: 'Yarım işi gör, sonra rafa kaldır',
             language: 'bash',
             code: `# 1. tests/login.spec.js üzerinde yarım iş var ama acil bir hotfix çıktı
 git status
@@ -4224,9 +4456,18 @@ git status
 
 # 2. Yarım işi geçici rafa kaldır
 git stash
-# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow
-
-# 3. Working tree temiz olduğu için güvenle geç
+# Saved working directory and index state WIP on feature/hasan: a1b2c3d test: login flow`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: işi rafa kaldır ve geri getir (`git stash`, `git stash pop`) — sandbox\'taki "İşi rafa kaldır ve geri getir" görevi bu adımların birebir aynısı.', en: 'Try it now in the real terminal on the Git Basics tab: shelve work and bring it back (`git stash`, `git stash pop`) — the sandbox\'s "Shelve work and bring it back" mission is exactly this sequence.' },
+          },
+          {
+            type: 'code',
+            label: 'Güvenle geç, sonra rafa kaldırdığın işi geri al',
+            language: 'bash',
+            code: `# 3. Working tree temiz olduğu için güvenle geç
 git switch main
 # ...hotfix'i düzelt, commitle, push et...
 
@@ -4349,14 +4590,30 @@ git branch`,
           },
           {
             type: 'code',
-            label: 'Remote branch’i ilk kez açma: bir yöntemi seç',
+            label: 'Geç, sonra branch\'i bir kez yayınla',
             language: 'bash',
             code: `git switch hasan                                      # Local branch'ine geç
 
 # 1. yöntem - origin zaten doğru repo ise:
-git push -u origin hasan                              # Remote branch açılır ve upstream kurulur
-
-# 2. yöntem - direkt repo URL'iyle alternatif:
+git push -u origin hasan                              # Remote branch açılır ve upstream kurulur`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-remote-publish-order-01',
+            question: { tr: 'Bir local branch\'i GitHub\'da ilk kez yayınlama sırasını diz.', en: 'Order the sequence for publishing a local branch to GitHub for the first time.' },
+            items: [
+              { id: '1', text: { tr: '`git switch hasan` ile paylaşılacak branch\'e geç', en: 'Run `git switch hasan` to move to the branch you want to share' }, order: 1 },
+              { id: '2', text: { tr: '`git push -u origin hasan` ile remote branch\'i oluştur ve upstream kur', en: 'Run `git push -u origin hasan` to create the remote branch and set upstream' }, order: 2 },
+              { id: '3', text: { tr: '`git branch -vv` ile upstream bağlantısını doğrula', en: 'Run `git branch -vv` to verify the upstream connection' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Alternatif yöntem, sonra doğrula ve sonraki push\'ları kısalt',
+            language: 'bash',
+            code: `# 2. yöntem - direkt repo URL'iyle alternatif:
 git push -u https://github.com/hasankocaman/deneme2.git hasan
 
 git branch -vv                                        # Kontrol: hasan, origin/hasan takip ediyor mu?
@@ -4383,7 +4640,7 @@ git push -u origin hasan`,
           },
           {
             type: 'code',
-            label: 'fetch vs pull vs pull --rebase',
+            label: 'fetch ve düz pull',
             language: 'bash',
             code: `# fetch: remote history'yi indir, kendi branch'ine DOKUNMA
 git fetch origin
@@ -4391,9 +4648,25 @@ git fetch origin
 
 # pull: tek adımda fetch + merge (historyler ayrışmışsa bir merge commit'i oluşturur)
 git pull origin main
-# Merge made by the 'ort' strategy. -> ekstra "Merge branch 'main'" commit'i çıkar
-
-# pull --rebase: fetch + SENİN commit'lerini güncel main'in üstüne yeniden uygula
+# Merge made by the 'ort' strategy. -> ekstra "Merge branch 'main'" commit'i çıkar`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-fetch-vs-pull-order-01',
+            question: { tr: 'fetch ile düz pull arasındaki farkı görme sırasını diz.', en: 'Order the sequence for seeing the difference between fetch and plain pull.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile SADECE indir, branch\'ine dokunma', en: 'Run `git fetch origin` to ONLY download, without touching your branch' }, order: 1 },
+              { id: '2', text: { tr: 'Working tree\'nin değişmediğini gör', en: 'See that your working tree has not changed' }, order: 2 },
+              { id: '3', text: { tr: 'Düz `git pull origin main` çalıştırsan, history\'ler ayrışmışsa ekstra bir merge commit oluşabileceğini bil', en: 'Know that plain `git pull origin main` can add an extra merge commit if histories diverged' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'pull --rebase: daha temiz alternatif',
+            language: 'bash',
+            code: `# pull --rebase: fetch + SENİN commit'lerini güncel main'in üstüne yeniden uygula
 git pull --rebase origin main
 # Successfully rebased and updated refs/heads/feature/hasan
 # -> doğrusal history, ekstra merge commit'i yok`,
@@ -4462,6 +4735,52 @@ git pull --rebase origin main
             xpReward: 10,
           },
           {
+            type: 'quiz',
+            question: 'Feature branch\'inde her `git pull origin main` çalıştırdığında Git istenmeyen bir "Merge branch \'main\'" commit\'i oluşturuyor. Aynı güncellemeyi bu ekstra commit olmadan almak için hangi komutu kullanmalısın?',
+            options: [
+              { id: 'a', text: 'git fetch origin' },
+              { id: 'b', text: 'git pull --rebase origin main' },
+              { id: 'c', text: 'git push --force' },
+              { id: 'd', text: 'git branch -m main' },
+            ],
+            correct: 'b',
+            explanation: '`git pull --rebase`, remote history\'yi indirir ve senin local commit\'lerini onun üstüne yeniden oynatır; sonuç doğrusal bir history\'dir, ekstra merge commit\'i oluşmaz. Düz `git pull` varsayılan olarak merge eder ve historyler ayrışmışsa ekstra bir commit oluşturur.',
+
+        retryQuestion: {
+      "question": "Bir takım arkadaşın `git fetch origin` çalıştırdı ve çalışma dosyalarında veya branch'inde hiçbir şey değişmediğini söylüyor. Bu neden beklenen bir davranıştır?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "git fetch bozuktur; sadece git pull gerçekten çalışır"
+            },
+            {
+                  "id": "b",
+                  "text": "git fetch SADECE remote history'yi origin/* referanslarına indirir — local branch'ine veya working tree'ne asla dokunmaz"
+            },
+            {
+                  "id": "c",
+                  "text": "git fetch bir şeyi uygulamak için --force gerektirir"
+            },
+            {
+                  "id": "d",
+                  "text": "git fetch commit edilmemiş işi otomatik olarak önce stash'ler"
+            }
+      ],
+      "correct": "b",
+      "explanation": "`git fetch`, salt-okunur bir indirmedir: remote branch'lerin local kopyalarını (`origin/main` gibi) günceller ama sen açıkça merge, rebase veya pull yapana kadar aktif branch'ine ve working tree'ne hiç dokunmaz."
+}
+},
+        ],
+      },
+      {
+        title: '🔀 Merge & Conflict: Değişiklikleri Güvenle Birleştir',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `Bir Git merge işlemi, aynı olayı anlatan iki tanığın ifadesini uzlaştıran bir mahkeme stenografına benzer: hikayeleri çakışmadığı her yerde Git otomatik birleştirir, ama iki kişi TAM OLARAK aynı satırı değiştirdiği anda tahmin etmeyi bırakır ve sana conflict marker'larını uzatır. Bir marker'a dokunmadan önce düşündürücü soru şu: Git çoğu zaman otomatik merge edebiliyorsa, neden geri kalanında seni durduruyor? Çünkü her satırda sana sorsaydı, kimse branch kullanmazdı — paralel branch'lerin bütün amacı çoğu değişikliğin aslında çakışmaması, bu yüzden araç sadece gerçekten insan kararı gerektiren o nadir noktada durmalı. Java benzetmesi: bu, iki geliştiricinin paylaşılan bir IDE'de kilit olmadan aynı class'ı düzenlemesiyle aynı gerilimdir — bir build aracı iki geliştiricinin işini SADECE farklı metodlara dokunduklarında otomatik birleştirebilir, aynı metodun gövdesini iki kişi override ettiğinde asla; tıpkı Git'in de sadece çakışmayan satırları otomatik merge edebilmesi gibi. Gerçek QA işinde bu yüzden bir conflict'i sessizce yanlış satırı tutarak çözmek, yüksek sesle patlayan bir build'den daha tehlikelidir — yanlış çözülmüş bir marker, yanlış nedenle her zaman geçen bir testi production'a gönderebilir ve kimse fark etmez.`,
+          },
+          {
             type: 'simulation',
             title: { en: '3) Merge: bring main into your branch', tr: '3) Merge: main değişikliklerini branch içine al' },
             icon: '🔁',
@@ -4488,27 +4807,65 @@ git pull --rebase origin main
           },
           {
             type: 'code',
-            label: 'Animasyondan sonra günlük branch workflow',
+            label: 'main\'i senkronize et, sonra branch aç',
             language: 'bash',
             code: `git fetch origin                         # Remote branch bilgisini güncelle
 git switch main                          # Local main'e geç
 git pull --ff-only origin main            # Sürpriz merge commit olmadan main'i güncelle
-git switch -c feature/checkout-tests      # Feature branch oluştur
-
-# tests/checkout.spec.js düzenlenir        # Odaklı QA değişikliğini yap
+git switch -c feature/checkout-tests      # Feature branch oluştur`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-daily-sync-order-01',
+            question: { tr: 'Yeni bir feature branch\'e güncel main üzerinden başlama sırasını diz.', en: 'Order the sequence for starting a new feature branch from an updated main.' },
+            items: [
+              { id: '1', text: { tr: '`git fetch origin` ile remote branch bilgisini yenile', en: 'Run `git fetch origin` to refresh remote branch info' }, order: 1 },
+              { id: '2', text: { tr: '`git switch main` ile local main\'e geç', en: 'Run `git switch main` to move to local main' }, order: 2 },
+              { id: '3', text: { tr: '`git pull --ff-only origin main` ile sürpriz merge commit\'siz güncelle', en: 'Run `git pull --ff-only origin main` to update without a surprise merge commit' }, order: 3 },
+              { id: '4', text: { tr: '`git switch -c feature/checkout-tests` ile feature branch oluştur', en: 'Run `git switch -c feature/checkout-tests` to create the feature branch' }, order: 4 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Odaklı değişikliği yap, sonra yayınla',
+            language: 'bash',
+            code: `# tests/checkout.spec.js düzenlenir        # Odaklı QA değişikliğini yap
 git add tests/checkout.spec.js            # Sadece hedef dosyayı stage et
 git commit -m "test: cover checkout tax"  # Küçük snapshot oluştur
 git push -u origin feature/checkout-tests # Branch'i gönder ve upstream ayarla`,
           },
           {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-daily-publish-order-01',
+            question: { tr: 'Odaklı bir değişikliği commitleyip push etme sırasını diz.', en: 'Order the sequence for committing and pushing one focused change.' },
+            items: [
+              { id: '1', text: { tr: 'Sadece amaçlanan dosyayı stage et: `git add tests/checkout.spec.js`', en: 'Stage only the intended file: `git add tests/checkout.spec.js`' }, order: 1 },
+              { id: '2', text: { tr: 'Küçük, açıklayıcı bir commit at: `git commit -m "test: cover checkout tax"`', en: 'Make a small, descriptive commit: `git commit -m "test: cover checkout tax"`' }, order: 2 },
+              { id: '3', text: { tr: '`git push -u origin feature/checkout-tests` ile branch\'i push et ve upstream kur', en: 'Run `git push -u origin feature/checkout-tests` to push the branch and set upstream' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'code',
-            label: 'Güvenli switch + pull + local merge akışı',
+            label: 'Önce kendi branch state\'ini commitle',
             language: 'bash',
             code: `git status                              # Branch değiştirmeden önce kaydedilmemiş iş var mı bak
 git add tests/login.spec.js               # Odaklı değişikliğini stage et
-git commit -m "test: cover login errors"  # Önce kendi branch state'ini kaydet
-
-git switch main                           # Ortak ana branch'e geç
+git commit -m "test: cover login errors"  # Önce kendi branch state'ini kaydet`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Git Temelleri sekmesindeki gerçek terminalde dene: bir değişikliği stage et ve commitle (`git add`, `git commit -m "..."`) — sandbox\'taki "Bir değişikliği stage et ve commitle" görevi bu adımların ta kendisi.', en: 'Try it now in the real terminal on the Git Basics tab: stage a change and commit it (`git add`, `git commit -m "..."`) — the sandbox\'s "Stage a change and commit it" mission is exactly this.' },
+          },
+          {
+            type: 'code',
+            label: 'main\'i güncelle, geri dön ve merge et',
+            language: 'bash',
+            code: `git switch main                           # Ortak ana branch'e geç
 git pull --ff-only origin main             # Remote değişiklikleri güvenli çek
 
 git switch feature/hasan                  # Kendi branch'ine geri dön
@@ -4600,6 +4957,52 @@ git push -u origin feature/checkout-tests`,
             help: { en: 'This checker focuses on the branch-start order, not on changing a real repository.', tr: 'Bu kontrol gerçek repo değiştirmez; sadece branch başlangıç sırasına bakar.' },
           },
           {
+            type: 'quiz',
+            question: 'Bir merge conflict\'ini çözerken bir test dosyasının içinde `<<<<<<< HEAD`, `=======` ve `>>>>>>> main` marker\'larını görüyorsun. Hangi satırların kalacağına karar verdikten sonra doğru bir sonraki adım nedir?',
+            options: [
+              { id: 'a', text: 'Tüm dosyayı silip sıfırdan yeniden oluştur' },
+              { id: 'b', text: 'Conflict marker\'larını kaldır, final versiyonu kaydet, testi çalıştır, sonra dosyayı `git add` ile işaretle ve `git commit` ile bitir' },
+              { id: 'c', text: 'Hemen `git merge --abort` çalıştır' },
+              { id: 'd', text: 'Dosyayı marker\'lar hala içindeyken push et, böylece bir takım arkadaşı review edebilsin' },
+            ],
+            correct: 'b',
+            explanation: 'Marker\'lar kaçılması gereken bir hata değil, bir karar noktasıdır: onları kaldır, doğru final mantığı tut, bir testle doğrula, dosyayı `git add` ile resolved işaretle ve `git commit` ile merge\'i tamamla.',
+
+        retryQuestion: {
+      "question": "Git bir merge'i sana hiçbir şey çözdürmeden ne zaman otomatik olarak tamamlar?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Merge bir fast-forward olduğunda, ya da iki branch farklı, çakışmayan satırları değiştirdiğinde"
+            },
+            {
+                  "id": "b",
+                  "text": "Her zaman — merge'ler asla manuel çözüm gerektirmez"
+            },
+            {
+                  "id": "c",
+                  "text": "Sadece --no-conflict flag'i geçirdiğinde"
+            },
+            {
+                  "id": "d",
+                  "text": "Sadece iki branch tamamen aynı içeriğe sahip olduğunda"
+            }
+      ],
+      "correct": "a",
+      "explanation": "Git, gerçek bir çakışma olmadığını kanıtlayabildiği her yerde otomatik birleştirir — bir fast-forward, ya da farklı satır/dosyalara yapılan değişiklikler. Sadece iki branch TAM OLARAK aynı satırları uyumsuz şekilde değiştirdiğinde durur ve sana conflict marker'larını uzatır."
+}
+},
+        ],
+      },
+      {
+        title: '🧬 Rebase & İleri Akış: Cherry-pick ve Geçmişi Yeniden Yaz',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🪄',
+            content: `Rebase ve cherry-pick, bir commit'in history'de NEREDE durduğunu yeniden yazan iki zaman makinesidir, ama iki farklı soruya cevap verirler: rebase "bütün branch'im daha sonraki bir noktadan başlasaydı ne olurdu?" diye sorar ve tüm commit'lerini yeni bir temelin üzerine yeniden oynatır; cherry-pick ise "komşularını sürüklemeden SADECE bu tek değişikliği başka yere kopyalayabilir miyim?" diye sorar ve tek bir commit'in diff'ini başka bir yerde yepyeni bir commit olarak uygular. Düşündürücü soru şu: merge zaten varken ve gerçek history'yi koruyorken, bir takım neden commit hash'lerini rebase ile yeniden yazmayı seçsin ki? Çünkü paylaşılan bir branch'te "fix typo" ve "oops" commit'leriyle dolu bir history dürüstlük değil, gürültüdür — rebase, review edilmeden önce hikayeyi anlatılması GEREKTİĞİ gibi, her seferinde tek bir temiz mantıksal commit olarak sunmanı sağlar. Java benzetmesi: rebase, bir versiyon değiştirdikten sonra Gradle/Maven dependency tree'sini yeniden hesaplamak gibidir — her downstream artifact yeni temele göre yeniden hesaplanır, tıpkı temel commit değişince her commit'in hash'inin değişmesi gibi; cherry-pick ise başkasının JAR'ından tek bir derlenmiş class'ı, o JAR'ın geri kalan history'sini çekmeden kendi projene kopyalamaya daha yakındır. Gerçek QA işinde bu yüzden bir hotfix branch'i, test edilmemiş ilgisiz değişiklikler de taşıyabilecek tüm bir devam eden feature branch'ini merge etmek yerine cherry-pick ile SADECE tek bir bug-fix commit'ini içine alır — ve bir takım arkadaşının zaten çektiği bir branch'i rebase etmek, tüm takım açıkça anlaşmadıkça onun local history'sini sessizce bozabilir.`,
+          },
+          {
             type: 'table',
             headers: ['Operasyon', 'Ne zaman?', 'Risk'],
             rows: [
@@ -4611,7 +5014,7 @@ git push -u origin feature/checkout-tests`,
           },
           {
             type: 'code',
-            label: 'Başka branch\'teki tek bir commiti bul ve cherry-pick et',
+            label: 'Commit hash\'ini bul, sonra hedef branch\'e geç',
             language: 'bash',
             code: `# 1. İhtiyacın olan commit hash'ini başka bir branch'te bul
 git log feature/hasan --oneline -5
@@ -4619,9 +5022,25 @@ git log feature/hasan --oneline -5
 # c3d4e5f test: add login error cases
 
 # 2. O tek fix'in gitmesi gereken branch'e geç
-git switch hotfix/release-1.4
-
-# 3. Sadece o tek commit'i burada uygula
+git switch hotfix/release-1.4`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-cherry-pick-find-order-01',
+            question: { tr: 'Başka bir branch\'teki tek bir commit\'i hedeflemenin ilk adımlarını diz.', en: 'Order the first steps for targeting a single commit on another branch.' },
+            items: [
+              { id: '1', text: { tr: '`git log feature/hasan --oneline -5` ile commit hash\'ini bul', en: 'Run `git log feature/hasan --oneline -5` to find the commit hash' }, order: 1 },
+              { id: '2', text: { tr: 'O tek fix\'in gitmesi gereken branch\'i belirle', en: 'Identify the branch that needs just that one fix' }, order: 2 },
+              { id: '3', text: { tr: '`git switch hotfix/release-1.4` ile o branch\'e geç', en: 'Run `git switch hotfix/release-1.4` to move to that branch' }, order: 3 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'code',
+            label: 'Cherry-pick et, sonra conflict çıkarsa çöz',
+            language: 'bash',
+            code: `# 3. Sadece o tek commit'i burada uygula
 git cherry-pick d4e5f6a
 # [hotfix/release-1.4 9f8e7d6] fix(login): handle empty password field
 

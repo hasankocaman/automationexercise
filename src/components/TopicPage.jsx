@@ -19,6 +19,7 @@ import SecurityLegoVisual from './SecurityLegoVisual'
 import LocatorExplorerBlock from './LocatorExplorerBlock'
 import DockerSandboxBlock from './DockerSandboxBlock'
 import KubernetesSandboxBlock from './KubernetesSandboxBlock'
+import JenkinsSandboxBlock from './JenkinsSandboxBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17667,6 +17668,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'k8s-sandbox':
             return <KubernetesSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'jenkins-sandbox':
+            return <JenkinsSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

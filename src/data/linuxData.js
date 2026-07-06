@@ -857,6 +857,11 @@ ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
             retryOutput: 'ls -l deploy.sh → chmod +x deploy.sh → ./deploy.sh sırasını tamamla.',
           },
           {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Dosya Sistemi & Navigasyon sekmesindeki gerçek terminalde dene: deploy.sh\'ı çalıştırılabilir yap (`chmod +x deploy.sh`) — sandbox\'taki "deploy.sh\'ı çalıştırılabilir yap" görevi bu adımın ta kendisi.', en: 'Try it now in the real terminal on the Filesystem & Navigation tab: make deploy.sh executable (`chmod +x deploy.sh`) — the sandbox\'s "Make deploy.sh executable" mission is exactly this step.' },
+          },
+          {
             type: 'quiz',
             question: 'A CI pipeline fails with "Permission denied" when running a freshly checked-out script. What is the most likely fix?',
             options: [
@@ -969,6 +974,11 @@ grep -v "PASSED" app.log    # invert match: lines that do NOT contain PASSED`,
               { id: '5', text: { tr: 'Çıktıdaki satır numaralarını okuyup log dosyasında o satırlara bak', en: 'Read the line numbers in the output and check those lines in the log file' }, order: 5 },
             ],
             xpReward: 10,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Dosya Sistemi & Navigasyon sekmesindeki gerçek terminalde dene: test.log içinde başarısız testleri bul (`grep FAIL test.log`) — sandbox\'taki "test.log içinde başarısız testleri bul" görevi bu adımın ta kendisi.', en: 'Try it now in the real terminal on the Filesystem & Navigation tab: find failing tests inside test.log (`grep FAIL test.log`) — the sandbox\'s "Find failing tests inside test.log" mission is exactly this step.' },
           },
           { type: 'heading', text: 'Redirection' },
           {
@@ -1383,20 +1393,42 @@ find /var/log -name "*.log" -mtime +30 -delete   # delete logs older than 30 day
           {
             type: 'code',
             language: 'bash',
-            label: 'run-regression.sh',
+            label: 'run-regression.sh: safety flags and a timestamped log',
             code: `#!/bin/bash
 set -euo pipefail              # stop on error, undefined var, or failed pipe
 
 LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"   # unique timestamped log name
 
-echo "Starting regression suite..." | tee "$LOG_FILE"   # log and print at once
-
-if ! pytest tests/ --maxfail=5 -v >> "$LOG_FILE" 2>&1; then  # run tests, capture all output
+echo "Starting regression suite..." | tee "$LOG_FILE"   # log and print at once`,
+          },
+          {
+            type: 'callout',
+            icon: '🛡️',
+            content: { tr: 'Neden `set -euo pipefail` VE zaman damgalı bir log dosyası adı? `-e` bir komut başarısız olur olmaz script\'i durdurur (aksi halde bozuk bir test suite\'i "başarılı" gibi raporlamaya devam edebilirdi); `-u` tanımsız bir değişken kullanılırsa hata verir; `-o pipefail` bir pipe (`|`) içindeki HERHANGİ bir komut başarısız olursa tüm pipe\'ı başarısız sayar. `$(date +%Y%m%d-%H%M%S)` ile isimlendirme ise her çalıştırmanın kendi log dosyasını yazmasını sağlar — sabit bir isim kullansaydın, bir önceki başarısız koşumun kanıtı bir sonraki koşum tarafından sessizce üzerine yazılırdı.', en: 'Why `set -euo pipefail` AND a timestamped log filename? `-e` stops the script the moment a command fails (otherwise it could keep running and report a broken test suite as "successful"); `-u` errors out on an undefined variable; `-o pipefail` fails the WHOLE pipe if ANY command inside it (`|`) fails. Naming the file with `$(date +%Y%m%d-%H%M%S)` means every run gets its own log — with a fixed name, the evidence of a failed run would be silently overwritten by the next run.' },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'run-regression.sh: run tests and report the outcome',
+            code: `if ! pytest tests/ --maxfail=5 -v >> "$LOG_FILE" 2>&1; then  # run tests, capture all output
     echo "Tests failed — see $LOG_FILE" >&2                  # print error to stderr
     exit 1                                                   # exit with failure code
 fi
 
 echo "All tests passed!" | tee -a "$LOG_FILE"   # append success message`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'linux-script-run-order-01',
+            question: { tr: 'Bir QA regresyon script\'inin test çalıştırma ve hata yönetimi sırasını diz.', en: 'Order the test-run and error-handling sequence of a QA regression script.' },
+            items: [
+              { id: '1', text: { tr: '`pytest tests/ --maxfail=5 -v` çalıştır, tüm çıktıyı log dosyasına yönlendir (`>> "$LOG_FILE" 2>&1`)', en: 'Run `pytest tests/ --maxfail=5 -v`, redirecting all output into the log file (`>> "$LOG_FILE" 2>&1`)' }, order: 1 },
+              { id: '2', text: { tr: 'Çıkış kodunu kontrol et: `if ! ... ; then`', en: 'Check the exit code: `if ! ... ; then`' }, order: 2 },
+              { id: '3', text: { tr: 'Başarısızsa hatayı stderr\'e yaz ve `exit 1` ile çık', en: 'On failure, print the error to stderr and exit with `exit 1`' }, order: 3 },
+              { id: '4', text: { tr: 'Başarılıysa "All tests passed!" mesajını log dosyasına ekle (`tee -a`)', en: 'On success, append "All tests passed!" to the log file (`tee -a`)' }, order: 4 },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'Networking Basics for API Testing' },
           {
@@ -2161,6 +2193,11 @@ ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
             retryOutput: 'ls -l deploy.sh → chmod +x deploy.sh → ./deploy.sh sırasını tamamla.',
           },
           {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Dosya Sistemi & Navigasyon sekmesindeki gerçek terminalde dene: deploy.sh\'ı çalıştırılabilir yap (`chmod +x deploy.sh`) — sandbox\'taki "deploy.sh\'ı çalıştırılabilir yap" görevi bu adımın ta kendisi.', en: 'Try it now in the real terminal on the Filesystem & Navigation tab: make deploy.sh executable (`chmod +x deploy.sh`) — the sandbox\'s "Make deploy.sh executable" mission is exactly this step.' },
+          },
+          {
             type: 'quiz',
             question: 'Bir CI pipeline\'ı az önce checkout edilen bir script\'i çalıştırırken "Permission denied" veriyor. En olası çözüm nedir?',
             options: [
@@ -2273,6 +2310,11 @@ grep -v "PASSED" app.log    # ters eşleşme: PASSED İÇERMEYEN satırlar`,
               { id: '5', text: { tr: 'Çıktıdaki satır numaralarını okuyup log dosyasında o satırlara bak', en: 'Read the line numbers in the output and check those lines in the log file' }, order: 5 },
             ],
             xpReward: 10,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi Dosya Sistemi & Navigasyon sekmesindeki gerçek terminalde dene: test.log içinde başarısız testleri bul (`grep FAIL test.log`) — sandbox\'taki "test.log içinde başarısız testleri bul" görevi bu adımın ta kendisi.', en: 'Try it now in the real terminal on the Filesystem & Navigation tab: find failing tests inside test.log (`grep FAIL test.log`) — the sandbox\'s "Find failing tests inside test.log" mission is exactly this step.' },
           },
           { type: 'heading', text: 'Redirection (Yönlendirme)' },
           {
@@ -2687,20 +2729,42 @@ find /var/log -name "*.log" -mtime +30 -delete   # 30 günden eski logları sil`
           {
             type: 'code',
             language: 'bash',
-            label: 'run-regression.sh',
+            label: 'run-regression.sh: güvenlik bayrakları ve zaman damgalı log',
             code: `#!/bin/bash
 set -euo pipefail              # hata, tanımsız değişken veya başarısız pipe'da dur
 
 LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"   # zaman damgalı benzersiz log adı
 
-echo "Starting regression suite..." | tee "$LOG_FILE"   # hem logla hem ekrana yaz
-
-if ! pytest tests/ --maxfail=5 -v >> "$LOG_FILE" 2>&1; then  # testleri çalıştır, tüm çıktıyı yakala
+echo "Starting regression suite..." | tee "$LOG_FILE"   # hem logla hem ekrana yaz`,
+          },
+          {
+            type: 'callout',
+            icon: '🛡️',
+            content: { tr: 'Neden `set -euo pipefail` VE zaman damgalı bir log dosyası adı? `-e` bir komut başarısız olur olmaz script\'i durdurur (aksi halde bozuk bir test suite\'i "başarılı" gibi raporlamaya devam edebilirdi); `-u` tanımsız bir değişken kullanılırsa hata verir; `-o pipefail` bir pipe (`|`) içindeki HERHANGİ bir komut başarısız olursa tüm pipe\'ı başarısız sayar. `$(date +%Y%m%d-%H%M%S)` ile isimlendirme ise her çalıştırmanın kendi log dosyasını yazmasını sağlar — sabit bir isim kullansaydın, bir önceki başarısız koşumun kanıtı bir sonraki koşum tarafından sessizce üzerine yazılırdı.', en: 'Why `set -euo pipefail` AND a timestamped log filename? `-e` stops the script the moment a command fails (otherwise it could keep running and report a broken test suite as "successful"); `-u` errors out on an undefined variable; `-o pipefail` fails the WHOLE pipe if ANY command inside it (`|`) fails. Naming the file with `$(date +%Y%m%d-%H%M%S)` means every run gets its own log — with a fixed name, the evidence of a failed run would be silently overwritten by the next run.' },
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            label: 'run-regression.sh: testleri çalıştır ve sonucu raporla',
+            code: `if ! pytest tests/ --maxfail=5 -v >> "$LOG_FILE" 2>&1; then  # testleri çalıştır, tüm çıktıyı yakala
     echo "Tests failed — see $LOG_FILE" >&2                  # hatayı stderr'e yaz
     exit 1                                                   # başarısızlık koduyla çık
 fi
 
 echo "All tests passed!" | tee -a "$LOG_FILE"   # başarı mesajını sona ekle`,
+          },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'linux-script-run-order-01',
+            question: { tr: 'Bir QA regresyon script\'inin test çalıştırma ve hata yönetimi sırasını diz.', en: 'Order the test-run and error-handling sequence of a QA regression script.' },
+            items: [
+              { id: '1', text: { tr: '`pytest tests/ --maxfail=5 -v` çalıştır, tüm çıktıyı log dosyasına yönlendir (`>> "$LOG_FILE" 2>&1`)', en: 'Run `pytest tests/ --maxfail=5 -v`, redirecting all output into the log file (`>> "$LOG_FILE" 2>&1`)' }, order: 1 },
+              { id: '2', text: { tr: 'Çıkış kodunu kontrol et: `if ! ... ; then`', en: 'Check the exit code: `if ! ... ; then`' }, order: 2 },
+              { id: '3', text: { tr: 'Başarısızsa hatayı stderr\'e yaz ve `exit 1` ile çık', en: 'On failure, print the error to stderr and exit with `exit 1`' }, order: 3 },
+              { id: '4', text: { tr: 'Başarılıysa "All tests passed!" mesajını log dosyasına ekle (`tee -a`)', en: 'On success, append "All tests passed!" to the log file (`tee -a`)' }, order: 4 },
+            ],
+            xpReward: 10,
           },
           { type: 'heading', text: 'API Testi için Ağ Temelleri' },
           {

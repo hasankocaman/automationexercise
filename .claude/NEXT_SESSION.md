@@ -10,6 +10,151 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-06 devam #3, `feature/contentplan-git-jenkins-linux` — CP8: Jenkins Atomikleştirme TAMAMLANDI — GJL Planı (CP6-CP9) TAMAMEN BİTTİ)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP9 commit `5dd5ff0`'a kadar; bu oturumun CP8 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı "onaylıyorum devam et" dedi (CP8'e genel onay). CP6 emsaliyle keşif yapıldı (kod yazmadan önce blok sınırları çıkarıldı, bulgular raporlandı), ardından uygulandı. |
+
+### Keşif sonucu — contentplan'ın "[3] 4/4 playground" varsayımı YANLIŞ çıktı
+
+contentplan.md CP8, QA Tool Integration'da pytest/JMeter/Playwright/Slack'in HER BİRİNİN kendi code-playground'u olduğunu varsaymıştı ("keşifte doğrulandı: [3] 4/4"). Bu oturumdaki gerçek dosya okumasında bunun **yanlış** olduğu ortaya çıktı: aslında TÜM 4 araç için TEK bir paylaşılan interaktif üçlü (`jenkinsQaInteractiveBlocks`) sekmenin en sonunda duruyordu. Bölününce pytest&JMeter ve Playwright sekmeleri etkileşimsiz kalacaktı — bu yüzden CP8 kural 2'nin ("hiç etkileşimsiz kalan parçaya yeni etkileşim ekle") gerektirdiği şekilde ikisine de birer YENİ etkileşim eklendi (aşağıda).
+
+### Bu oturumda yapılan iş — CP8
+
+- **8 → 11 sekme (EN+TR simetrik):** `[2] Pipeline Basics` (19 blok) → **🔁 First Jenkinsfile** (CP7 sandbox burada kalır) + **🔐 Environment & Credentials**; `[3] QA Tool Integration` (20 blok) → **🧪 pytest & JMeter** + **🎭 Playwright** + **📢 Slack & QA Reporting**. `[4] Advanced` **bilinçli olarak bölünmedi** (contentplan "gerekirse" diyordu; 17 blokta tek quiz var, bölmek CP6'daki quiz-gating sorununu gereksiz yere tekrarlardı).
+- **Quiz-gating politikası (CP6'da onaylanan politika tekrar uygulandı, yeniden sorulmadı):** bölünme sonucu quiz'siz kalacak 3 sekmeye (First Jenkinsfile, pytest&JMeter, Playwright) birer yeni mikro-quiz (retryQuestion dahil) yazıldı.
+- **3 yeni §9.3-standardında simple-box** (Environment&Credentials: zarf/maskeleme analojisi; Playwright: kamyon/Docker image analojisi; Slack&QAReporting: duman dedektörü analojisi).
+- **2 yeni etkileşim** (contentplan'ın varsaymadığı ama gerekli çıkan): pytest&JMeter'a order-sort, Playwright'a CP7 sandbox'a yönlendiren callout.
+- **`progressMigration` exportu eklendi** (Docker CP3/Git CP6 emsali): `{2:[2,3], 3:[4,5,6], diğerleri 1:1}`.
+- **Test güncellemesi:** `jenkins-sandbox.spec.ts`'teki `/Pipeline/` sekme regex'i `/First Jenkinsfile|İlk Jenkinsfile/` olarak güncellendi (tek etkilenen test dosyası).
+
+### Doğrulama (CLAUDE.md §1.1 + §22 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (38.6s, 38 static route, dist SEO PASS, jenkins mülakat 50 soru hâlâ ✅ OK)
+- Geçici migrasyon testi (yaz-koş-sil): eski 8-sekme `progress_jenkinscicd`/`quizScore_jenkinscicd` verisi enjekte edildi → reload → sekme 2→[2,3], sekme 3→[4,5,6] doğru remap oldu (cömert taşıma), `progressVersion_jenkinscicd`="2", idempotent → ✅ PASS, silindi.
+- `tests/jenkins-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g jenkins` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g jenkins` → ✅ 1/1 PASS
+- §22 kontrol 2 (gating kapalı durum): geçici spot-check (yaz-koş-sil) 0% quiz'de Mülakat S&C'nin 🔒 gösterdiğini doğruladı.
+- TR yorum taraması → ✅ yeni simple-box/quiz/callout/order-sort içerikleri Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP8 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosyalar: `src/data/jenkinsData.js`, `tests/jenkins-sandbox.spec.ts`.
+2. **contentplan.md'nin GJL planı (CP6-CP9) artık TAMAMEN BİTTİ** (CP6 `2642b99`, CP7 `8527136`, CP9 `5dd5ff0`, CP8 bu oturumda — commit bekliyor). Sıradaki doğal adımlar: (a) branch'i main'e merge/push etmek, (b) yeni bir CP planı (kullanıcı kararı).
+3. Önceki oturumların tüm işi main'e merge/push edilmedi — `feature/contentplan-git-jenkins-linux` branch'inde birikiyor.
+
+---
+
+## Güncel Branch Durumu (2026-07-06 devam #2, `feature/contentplan-git-jenkins-linux` — CP9: Linux İnce Ayar TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP6 commit `2642b99`'a kadar; bu oturumun CP9 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı "commit yap ve devam et" dedi. CP6 commit edildi (`2642b99`); CP8 (Jenkins atomikleştirme) hâlâ kullanıcı onayı gerektirdiğinden atlandı, onay istenmeden başlanmadı. Onay gerektirmeyen **CP9 (Linux ince ayar)** hemen uygulandı. |
+
+### Bu oturumda yapılan iş — CP9
+
+`src/data/linuxData.js`, contentplan.md CP9 tasarım kararlarına göre (atomikleştirme YOK — Linux zaten atomik, sadece küçük ince ayar):
+1. **`[6] Real-World QA` sekmesindeki 13 satırlık `run-regression.sh` duvarı 2 parçaya bölündü** (EN+TR simetrik): "safety flags + timestamped log" / "run tests + report outcome". İlk parçanın ardına `set -euo pipefail` + zaman damgalı log adının NEDEN önemli olduğunu açıklayan bir `callout` eklendi; ikinci parçanın ardına pytest çalıştırma/hata yönetimi sırasını pekiştiren 4 maddelik bir `order-sort` challenge eklendi (Linux Sandbox'ın mission'larıyla eşleşen bir konu olmadığından mekanizma sandbox-callout değil order-sort oldu).
+2. **`[3] Permissions & Users`** sekmesindeki "Script'i Çalıştırılabilir Yap" (`chmod +x deploy.sh`) git-practice bloğunun hemen ardına, Filesystem & Navigation sekmesindeki gerçek terminalin `chmod-exec` görevine yönlendiren bir `callout` eklendi (EN+TR).
+3. **`[4] Text & Pipes`** sekmesindeki grep order-sort'un hemen ardına, aynı sandbox'ın `grep-fail` görevine (`grep FAIL test.log`) yönlendiren bir `callout` eklendi (EN+TR).
+4. Yeni code-playground eklenmedi (sadece callout/order-sort), bu yüzden `relatedTopicId` zorunluluğu bu oturumda devreye girmedi.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (31.3s, 38 static route, dist SEO PASS)
+- `tests/linux-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g linux` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g linux` → ✅ 1/1 PASS (EN modda Türkçe karakter sızıntısı yok)
+- TR yorum taraması → ✅ yeni eklenen tüm callout/order-sort içerikleri Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP9 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosya: sadece `src/data/linuxData.js`.
+2. **contentplan.md'nin GJL planı (CP6-CP9) artık sadece CP8'e kaldı** — Jenkins atomikleştirme, hâlâ KULLANICI ONAYI OLMADAN başlanmaz (localStorage migrasyonu + test güncellemesi içeriyor, CP7 Jenkins Sandbox'ın merge edilmiş olması ön koşul — CP7 zaten bu branch'te `8527136` ile mevcut).
+3. Önceki oturumların tüm işi (CP7 Jenkins Sandbox `8527136`, CP6 Git atomikleştirme `2642b99`) main'e merge/push edilmedi — `feature/contentplan-git-jenkins-linux` branch'inde birikiyor.
+
+---
+
+## Güncel Branch Durumu (2026-07-06 devam, `feature/contentplan-git-jenkins-linux` — CP6: Git Branching Atomikleştirme TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP7 Jenkins Sandbox commit'i `8527136`'ya kadar; bu oturumun CP6 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı model'i Sonnet'e çevirip contentplan.md'deki hazır CP6 promptunu verdi ("kullanıcı CP6'ya onay verdi"). CP6 Adım 1 (keşif) çalıştırıldı, bulgular + quiz-gating karar noktası kullanıcıya raporlandı, `AskUserQuestion` ile onay alındı ("2 yeni mikro-quiz yaz"), sonra Adım 2 (uygulama) yapıldı. |
+
+### Keşif sonucu (kesinleşen tasarım)
+
+`gitGithubData.js` sekme [4] "🌿 Branching, Merge, Rebase and Conflicts" (EN 49 blok, TR 48 blok — TR'de EN'deki dekoratif `css-animation` bloğu hiç yoktu, önceden var olan asimetri, CP6 kapsamı dışı) 3'e bölündü: **Branch & Switch** (branch list/create/switch/rename + stash + remote publish + fetch/pull) / **Merge & Conflict** (merge+conflict simülasyonları + günlük workflow + merge) / **Rebase & İleri Akış** (cherry-pick + rebase + final force-push quiz'i). 7 kod duvarı (contentplan'da öngörülen 19,16,10,12,9,10,17 satır) kavram başına 2-4 komutluk parçalara bölündü.
+
+**Keşifte bulunan ek karar noktası (contentplan'da öngörülmemişti):** Sayfadaki HER mevcut sekmede tam olarak 1 gating quiz'i vardı; 3'e bölününce quiz sadece "Rebase & İleri Akış"a düşüp diğer 2 yeni sekme quiz'siz (serbestçe tıklanarak tamamlanabilir) kalıyordu — sayfanın "✓ = gerçekten doğru cevapladın" ilkesini bozardı. Kullanıcıya soruldu, **"2 yeni mikro-quiz yaz" seçildi.**
+
+### Bu oturumda yapılan iş
+
+- **14 sekme (EN+TR simetrik):** `tabs` dizisi ve `sections` dizisi güncellendi; yeni 2 sekmenin ilk bloğu §9.3 standardında (4 katman: somut analoji + düşündürücü soru + Java karşılaştırması + QA bağlamı) yeni `simple-box` (Merge&Conflict: mahkeme stenografı analojisi; Rebase&İleri Akış: zaman makinesi analojisi).
+- **2 yeni mikro-quiz** (retryQuestion dahil, §18): Branch & Switch sonuna (fetch/pull --rebase farkı), Merge & Conflict sonuna (conflict marker çözme adımı) — ikisi de EN+TR ayrı plain-string obje (dosyanın mevcut quiz formatı).
+- **7 kod duvarı kırıldı**, her yeni parçanın ardına CP6 öncelik sırasıyla (a) Git Basics sandbox'ın (CP5.2, 5 görevli) ilgili göreviyle eşleşen `callout` (3 adet: branch-switch, stash-workflow, stage-commit görevlerine), (b) `order-sort` challenge (5 adet, komutlar duvarın kendisinden türetildi) eklendi.
+- **`progressMigration` exportu eklendi** (Docker CP3 emsali, `TopicPage.migrateTabProgress` generic — TopicPage'e DOKUNULMADI): `{version:2, tabMap:{4:[4,5,6], diğerleri 1:1}}`.
+- **Test dosyası değişikliği GEREKMEDİ**: keşifte `git-sandbox.spec.ts`'in sadece "Git Temelleri" (index 2, dokunulmadı) sekmesini adla aradığı, `topic-pages-ui`/`i18n-content-toggle`'ın pozisyonel/route-döngüsü olduğu ve git-github için hiç dedicated interview-mastery testi olmadığı doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 + §22 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (46.7s, 38 static route, dist SEO PASS, git-github mülakat 52 soru hâlâ ✅ OK)
+- Geçici migrasyon testi (yaz-koş-sil, Docker CP3 emsali): eski 12-sekme `progress_gitvegithub`/`quizScore_gitvegithub` verisi enjekte edildi → reload → sekme 4'ün verisi 4,5,6'ya doğru remap oldu (cömert taşıma: torun sekmelerdeki TÜM quiz blokları doğru sayıldı), `progressVersion_gitvegithub` = "2", ikinci reload'da idempotent kaldı → ✅ PASS, sonra silindi.
+- `tests/git-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g git-github` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g git-github` → ✅ 1/1 PASS (14 sekme dahil EN modda Türkçe karakter sızıntısı yok)
+- **§22 kontrol 2 (gating kapalı durum):** geçici spot-check testiyle (yaz-koş-sil) 0% quiz'de Mülakat S&C sekmesinin 🔒 gösterdiği doğrulandı. **Kontrol 3 (açık durum):** ayrı test yok ama mekanizma (`globalQuizPercent = correctQuizOnPage/totalQuizOnPage*100`) sayfa genelinde dinamik hesaplanıyor, TopicPage.jsx'e dokunulmadı, yeni 2 quiz `totalQuizOnPage`'e otomatik dahil oluyor (yapısal olarak doğrulandı) — hardcoded index/sayı YOK, bu yüzden ayrı test gerekmedi.
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar/simple-box/quiz/callout Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP6 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosya: sadece `src/data/gitGithubData.js`.
+2. **CP8 (Jenkins atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz; contentplan.md BÖLÜM 2'de prompt hazır, CP7 (Jenkins Sandbox) zaten bu branch'te mevcut.
+3. **CP9 (Linux ince ayar)** — onay gerekmez, prompt contentplan.md'de hazır, hemen başlatılabilir.
+4. Bilinen pre-existing asimetri (CP6 kapsamı dışı, düzeltilmedi): TR section'da EN'deki dekoratif `css-animation` bloğu (Git Branch & Merge Flow) hiç yok.
+
+---
+
+## Güncel Branch Durumu (2026-07-06, `feature/contentplan-git-jenkins-linux` — GJL Planı (CP6-CP9) yazıldı + CP7 Jenkins Sandbox TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (main `7624431`'den açıldı — önceki tüm CP işleri main'e merge edilmiş durumda; bu oturumun işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı: "Docker için yaptığın planlamayı git-github → jenkins → linux için yap (tek plan olabilir); FABLE işlerini kendin yap, SONNET işleri için prompt yaz; yeni branch aç." |
+
+### Bu Oturumda Yapılan İş
+
+1. **Keşif:** üç sayfanın data dosyaları script'le analiz edildi (sekme/blok/kod-duvarı/mülakat dökümü). Sonuç: Git 12 sekme ama `[4] Branching` mega-sekmesi (43 blok, 7 kod duvarı); Jenkins 8 sekmede HİÇ sandbox yok (4 pasif "▶ Build Başlat" demosu) + Pipeline/QA Integration mega-sekmeleri; Linux zaten iyi durumda (tek 13 satırlık duvar, sandbox CP5.1'de tamam).
+2. **`contentplan.md` → "BÖLÜM 2 — GJL Planı" eklendi (CP6-CP9):**
+   - **CP6** Git Branching atomikleştirme (12→14) + duvar kırma — SONNET, **kullanıcı onayı şart**, prompt hazır.
+   - **CP7** Jenkins Sandbox — FABLE, **bu oturumda uygulandı** (aşağıda).
+   - **CP8** Jenkins atomikleştirme (8→~12) — SONNET, **kullanıcı onayı şart**, prompt hazır (ön koşul: CP7 merge).
+   - **CP9** Linux ince ayar (callout'lar + son duvar) — SONNET, onay gerekmez, prompt hazır.
+3. **CP7 uygulandı — Jenkins Sandbox (diğer sandbox'lardan farklı biçim):** Jenkins'in öğrenme engeli CLI değil Jenkinsfile sözdizimi + stage/post akışı olduğundan terminal DEĞİL, **düzenlenebilir Jenkinsfile editörü + "▶ Build Now" + canlı Stage View** yazıldı:
+   - **Yeni dosya `src/components/JenkinsSandboxBlock.jsx`**: basitleştirilmiş declarative parser (pipeline/agent/stages/stage/steps/sh/echo/post), gerçek Jenkins derleme hataları (`Missing required section "agent"`, `Nothing to execute within stage`, dengesiz parantez), stage'ler animasyonlu koşar, `sh 'exit 1'` build'i kırar → sonraki stage'ler SKIPPED + `post{failure}` koşar, Build History + post rozetleri, 5 görev (ilk yeşil → Deploy ekle → build'i kır → post failure → tekrar yeşil).
+   - `TopicPage.jsx`: `jenkins-sandbox` block tipi kaydı; `jenkinsData.js`: Pipeline sekmesine (EN+TR) blok + 5 görev; **yeni dosya `tests/jenkins-sandbox.spec.ts`** (2 test).
+   - **Bulunan/düzeltilen gerçek bug (component'te):** `mountedRef` cleanup'ı StrictMode'un mount→cleanup→mount döngüsünde ref'i kalıcı `false` bırakıyordu → build butonu sonsuza dek "⏳ Build çalışıyor" kilitleniyordu. Effect her mount'ta `true`'ya çekecek şekilde düzeltildi ve testle doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (32 dosya)
+- `npm run build` → ✅ PASS (15.45s, 38 static route, dist SEO PASS)
+- `tests/jenkins-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS (StrictMode bug'ı düzeltildikten sonra)
+- Regresyon: `topic-pages-ui.spec.ts -g jenkins` + `i18n-content-toggle -g jenkins` → ✅ 2/2 PASS
+- TR yorum taraması → ✅ yeni yorumların tümü Türkçe; sandbox konsol çıktıları bilinçli İngilizce (§8 terminal istisnası), görev/ipucu metinleri bilingual.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosyalar: `contentplan.md`, `src/components/JenkinsSandboxBlock.jsx` (yeni), `src/components/TopicPage.jsx`, `src/data/jenkinsData.js`, `tests/jenkins-sandbox.spec.ts` (yeni), `.claude/NEXT_SESSION.md`.
+2. **CP9 (Linux)** Sonnet promptu ile hemen başlatılabilir (onay gerekmez); **CP6 (Git)** ve **CP8 (Jenkins)** atomikleştirmeleri KULLANICI ONAYI bekliyor — promptlar contentplan.md BÖLÜM 2'de hazır.
+3. Sandbox bilinen sınırları (bilinçli): parser declarative alt kümesi (parallel/when/environment sandbox'ta yok — sayfada statik anlatılıyor); görev ilerlemesi session-only.
+
+---
+
 ## contentplan.md — Genel Durum Özeti (KONSOLİDE, tüm oturumlar) — 2026-07-05
 
 > Bu bölüm, aşağıdaki tarihli oturum kayıtlarının contentplan.md'ye özel kısmının
