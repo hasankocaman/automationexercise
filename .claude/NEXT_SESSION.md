@@ -10,6 +10,37 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-06 devam #2, `feature/contentplan-git-jenkins-linux` — CP9: Linux İnce Ayar TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP6 commit `2642b99`'a kadar; bu oturumun CP9 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı "commit yap ve devam et" dedi. CP6 commit edildi (`2642b99`); CP8 (Jenkins atomikleştirme) hâlâ kullanıcı onayı gerektirdiğinden atlandı, onay istenmeden başlanmadı. Onay gerektirmeyen **CP9 (Linux ince ayar)** hemen uygulandı. |
+
+### Bu oturumda yapılan iş — CP9
+
+`src/data/linuxData.js`, contentplan.md CP9 tasarım kararlarına göre (atomikleştirme YOK — Linux zaten atomik, sadece küçük ince ayar):
+1. **`[6] Real-World QA` sekmesindeki 13 satırlık `run-regression.sh` duvarı 2 parçaya bölündü** (EN+TR simetrik): "safety flags + timestamped log" / "run tests + report outcome". İlk parçanın ardına `set -euo pipefail` + zaman damgalı log adının NEDEN önemli olduğunu açıklayan bir `callout` eklendi; ikinci parçanın ardına pytest çalıştırma/hata yönetimi sırasını pekiştiren 4 maddelik bir `order-sort` challenge eklendi (Linux Sandbox'ın mission'larıyla eşleşen bir konu olmadığından mekanizma sandbox-callout değil order-sort oldu).
+2. **`[3] Permissions & Users`** sekmesindeki "Script'i Çalıştırılabilir Yap" (`chmod +x deploy.sh`) git-practice bloğunun hemen ardına, Filesystem & Navigation sekmesindeki gerçek terminalin `chmod-exec` görevine yönlendiren bir `callout` eklendi (EN+TR).
+3. **`[4] Text & Pipes`** sekmesindeki grep order-sort'un hemen ardına, aynı sandbox'ın `grep-fail` görevine (`grep FAIL test.log`) yönlendiren bir `callout` eklendi (EN+TR).
+4. Yeni code-playground eklenmedi (sadece callout/order-sort), bu yüzden `relatedTopicId` zorunluluğu bu oturumda devreye girmedi.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (31.3s, 38 static route, dist SEO PASS)
+- `tests/linux-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g linux` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g linux` → ✅ 1/1 PASS (EN modda Türkçe karakter sızıntısı yok)
+- TR yorum taraması → ✅ yeni eklenen tüm callout/order-sort içerikleri Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP9 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosya: sadece `src/data/linuxData.js`.
+2. **contentplan.md'nin GJL planı (CP6-CP9) artık sadece CP8'e kaldı** — Jenkins atomikleştirme, hâlâ KULLANICI ONAYI OLMADAN başlanmaz (localStorage migrasyonu + test güncellemesi içeriyor, CP7 Jenkins Sandbox'ın merge edilmiş olması ön koşul — CP7 zaten bu branch'te `8527136` ile mevcut).
+3. Önceki oturumların tüm işi (CP7 Jenkins Sandbox `8527136`, CP6 Git atomikleştirme `2642b99`) main'e merge/push edilmedi — `feature/contentplan-git-jenkins-linux` branch'inde birikiyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-06 devam, `feature/contentplan-git-jenkins-linux` — CP6: Git Branching Atomikleştirme TAMAMLANDI)
 
 | Alan | Değer |
