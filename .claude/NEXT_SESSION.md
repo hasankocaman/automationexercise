@@ -10,6 +10,46 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-06 devam, `feature/contentplan-git-jenkins-linux` — CP6: Git Branching Atomikleştirme TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP7 Jenkins Sandbox commit'i `8527136`'ya kadar; bu oturumun CP6 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı model'i Sonnet'e çevirip contentplan.md'deki hazır CP6 promptunu verdi ("kullanıcı CP6'ya onay verdi"). CP6 Adım 1 (keşif) çalıştırıldı, bulgular + quiz-gating karar noktası kullanıcıya raporlandı, `AskUserQuestion` ile onay alındı ("2 yeni mikro-quiz yaz"), sonra Adım 2 (uygulama) yapıldı. |
+
+### Keşif sonucu (kesinleşen tasarım)
+
+`gitGithubData.js` sekme [4] "🌿 Branching, Merge, Rebase and Conflicts" (EN 49 blok, TR 48 blok — TR'de EN'deki dekoratif `css-animation` bloğu hiç yoktu, önceden var olan asimetri, CP6 kapsamı dışı) 3'e bölündü: **Branch & Switch** (branch list/create/switch/rename + stash + remote publish + fetch/pull) / **Merge & Conflict** (merge+conflict simülasyonları + günlük workflow + merge) / **Rebase & İleri Akış** (cherry-pick + rebase + final force-push quiz'i). 7 kod duvarı (contentplan'da öngörülen 19,16,10,12,9,10,17 satır) kavram başına 2-4 komutluk parçalara bölündü.
+
+**Keşifte bulunan ek karar noktası (contentplan'da öngörülmemişti):** Sayfadaki HER mevcut sekmede tam olarak 1 gating quiz'i vardı; 3'e bölününce quiz sadece "Rebase & İleri Akış"a düşüp diğer 2 yeni sekme quiz'siz (serbestçe tıklanarak tamamlanabilir) kalıyordu — sayfanın "✓ = gerçekten doğru cevapladın" ilkesini bozardı. Kullanıcıya soruldu, **"2 yeni mikro-quiz yaz" seçildi.**
+
+### Bu oturumda yapılan iş
+
+- **14 sekme (EN+TR simetrik):** `tabs` dizisi ve `sections` dizisi güncellendi; yeni 2 sekmenin ilk bloğu §9.3 standardında (4 katman: somut analoji + düşündürücü soru + Java karşılaştırması + QA bağlamı) yeni `simple-box` (Merge&Conflict: mahkeme stenografı analojisi; Rebase&İleri Akış: zaman makinesi analojisi).
+- **2 yeni mikro-quiz** (retryQuestion dahil, §18): Branch & Switch sonuna (fetch/pull --rebase farkı), Merge & Conflict sonuna (conflict marker çözme adımı) — ikisi de EN+TR ayrı plain-string obje (dosyanın mevcut quiz formatı).
+- **7 kod duvarı kırıldı**, her yeni parçanın ardına CP6 öncelik sırasıyla (a) Git Basics sandbox'ın (CP5.2, 5 görevli) ilgili göreviyle eşleşen `callout` (3 adet: branch-switch, stash-workflow, stage-commit görevlerine), (b) `order-sort` challenge (5 adet, komutlar duvarın kendisinden türetildi) eklendi.
+- **`progressMigration` exportu eklendi** (Docker CP3 emsali, `TopicPage.migrateTabProgress` generic — TopicPage'e DOKUNULMADI): `{version:2, tabMap:{4:[4,5,6], diğerleri 1:1}}`.
+- **Test dosyası değişikliği GEREKMEDİ**: keşifte `git-sandbox.spec.ts`'in sadece "Git Temelleri" (index 2, dokunulmadı) sekmesini adla aradığı, `topic-pages-ui`/`i18n-content-toggle`'ın pozisyonel/route-döngüsü olduğu ve git-github için hiç dedicated interview-mastery testi olmadığı doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 + §22 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (46.7s, 38 static route, dist SEO PASS, git-github mülakat 52 soru hâlâ ✅ OK)
+- Geçici migrasyon testi (yaz-koş-sil, Docker CP3 emsali): eski 12-sekme `progress_gitvegithub`/`quizScore_gitvegithub` verisi enjekte edildi → reload → sekme 4'ün verisi 4,5,6'ya doğru remap oldu (cömert taşıma: torun sekmelerdeki TÜM quiz blokları doğru sayıldı), `progressVersion_gitvegithub` = "2", ikinci reload'da idempotent kaldı → ✅ PASS, sonra silindi.
+- `tests/git-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g git-github` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g git-github` → ✅ 1/1 PASS (14 sekme dahil EN modda Türkçe karakter sızıntısı yok)
+- **§22 kontrol 2 (gating kapalı durum):** geçici spot-check testiyle (yaz-koş-sil) 0% quiz'de Mülakat S&C sekmesinin 🔒 gösterdiği doğrulandı. **Kontrol 3 (açık durum):** ayrı test yok ama mekanizma (`globalQuizPercent = correctQuizOnPage/totalQuizOnPage*100`) sayfa genelinde dinamik hesaplanıyor, TopicPage.jsx'e dokunulmadı, yeni 2 quiz `totalQuizOnPage`'e otomatik dahil oluyor (yapısal olarak doğrulandı) — hardcoded index/sayı YOK, bu yüzden ayrı test gerekmedi.
+- TR yorum taraması → ✅ yeni eklenen tüm yorumlar/simple-box/quiz/callout Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP6 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosya: sadece `src/data/gitGithubData.js`.
+2. **CP8 (Jenkins atomikleştirme)** — hâlâ KULLANICI ONAYI OLMADAN başlanmaz; contentplan.md BÖLÜM 2'de prompt hazır, CP7 (Jenkins Sandbox) zaten bu branch'te mevcut.
+3. **CP9 (Linux ince ayar)** — onay gerekmez, prompt contentplan.md'de hazır, hemen başlatılabilir.
+4. Bilinen pre-existing asimetri (CP6 kapsamı dışı, düzeltilmedi): TR section'da EN'deki dekoratif `css-animation` bloğu (Git Branch & Merge Flow) hiç yok.
+
+---
+
 ## Güncel Branch Durumu (2026-07-06, `feature/contentplan-git-jenkins-linux` — GJL Planı (CP6-CP9) yazıldı + CP7 Jenkins Sandbox TAMAMLANDI)
 
 | Alan | Değer |

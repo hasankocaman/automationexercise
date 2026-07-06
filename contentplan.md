@@ -494,12 +494,12 @@ i18n-content-toggle linux kısmı. NEXT_SESSION.md'ye işle. Commit için onay i
 
 ## GJL Uygulama Sırası ve Durum
 
-| CP | Sayfa | Uygulayıcı | Ön koşul |
+| CP | Sayfa | Uygulayıcı | Durum |
 |----|-------|-----------|----------|
-| CP7 | Jenkins sandbox | **FABLE** | yok — ilk uygulanan |
-| CP6 | Git atomikleştirme | SONNET | **kullanıcı onayı** |
-| CP8 | Jenkins atomikleştirme | SONNET | **kullanıcı onayı** + CP7 merge edilmiş olmalı (callout'lar sandbox'a işaret ediyor) |
-| CP9 | Linux ince ayar | SONNET | yok |
+| CP7 | Jenkins sandbox | **FABLE** | ✅ TAMAMLANDI (commit `8527136`) |
+| CP6 | Git atomikleştirme | SONNET | ✅ TAMAMLANDI (2026-07-06 — kullanıcı onayı sonrası uygulandı, henüz commit edilmedi) |
+| CP8 | Jenkins atomikleştirme | SONNET | **kullanıcı onayı bekliyor** + CP7 merge edilmiş olmalı (callout'lar sandbox'a işaret ediyor) |
+| CP9 | Linux ince ayar | SONNET | onay gerekmez, henüz başlanmadı |
 
 ---
 
