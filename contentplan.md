@@ -268,6 +268,241 @@ kanıtla).
 
 ---
 
+## BÖLÜM 2 — GJL Planı: Git & GitHub → Jenkins → Linux (2026-07-06)
+
+> Docker pilotu (CP1-CP5) tamamlandıktan sonra kullanıcı isteğiyle aynı planlama
+> disiplini üç sayfaya uygulandı. Keşif (2026-07-06, `analyze-pages.mjs` ile üç
+> data dosyasının sekme/blok/kod-duvarı dökümü) şu tabloyu verdi:
+>
+> | Sayfa | Sekme | Sandbox | Kod duvarı (8+ satır) | En büyük boşluk |
+> |-------|-------|---------|------------------------|-----------------|
+> | git-github | 12 | ✅ CP5.2'de tamam | Sekme[4]'te 7 adet (9-19 satır komut duvarı) + config'ler | `[4] Branching/Merge/Rebase/Conflict` mega-sekmesi (43 blok) |
+> | jenkins | 8 | ❌ HİÇ YOK (sadece pasif "▶ Build Başlat" demoları) | Jenkinsfile'lar (24-46 satır, tek dosya = bölünmez) | Gerçek, YAZILABİLİR pipeline deneyimi yok — Docker'ın CP1 öncesi durumu |
+> | linux | 10 | ✅ CP5.1'de tamam | 1 adet (13 satır, Real-World QA) | Küçük: sandbox'a yönlendiren callout'lar yok, 1 duvar |
+>
+> Docker emsalleri artık generic: `TopicPage.migrateTabProgress` + data dosyasına
+> `progressMigration` exportu (CP3), sandbox mimarisi (CP1/CP5.3), callout'lu
+> duvar kırma (CP2). Aşağıdaki paketler bu emsalleri uygular.
+
+---
+
+## CP6 — Git & GitHub: Branching Mega-Sekme Atomikleştirme + Kod Duvarı Kırma
+**UYGULAYICI: SONNET — ANCAK KULLANICI ONAYI OLMADAN BAŞLANMAZ** (CP3 emsali:
+localStorage migrasyonu + test güncellemesi içerir; mekanizma kanıtlandığı için
+artık Sonnet yapabilir ama başlama kararı kullanıcınındır.)
+
+**Tasarım kararları (verildi):**
+1. **12 → 14 sekme:** Sadece `[4] 🌿 Branching, Merge, Rebase ve Conflict`
+   bölünür (43 blok, 8 code + 6 playground + 6 challenge + 6 step-animation).
+   Hedef bölünme: `🌿 Branch & Switch` / `🔀 Merge & Conflict` / `🧬 Rebase &
+   İleri Akış`. Kesin sınırlar keşifte blok listesine bakılarak çizilir; blok
+   SIRASI korunur (bölme = sınır ekleme, içerik taşınmaz — CP3 kuralı).
+   Diğer 11 sekme zaten atomik, DOKUNULMAZ.
+2. **`gitGithubData.js`'e `progressMigration` exportu:**
+   `{ version: 2, tabMap: {0:[0],1:[1],2:[2],3:[3],4:[4,5,6],5:[7],6:[8],7:[9],8:[10],9:[11],10:[12],11:[13]} }`
+   (bölünme 3'lü değilse tabMap buna göre güncellenir). `TopicPage.migrateTabProgress`
+   zaten generic — TopicPage'de kod değişikliği GEREKMEZ.
+3. **Eski sekme [4]'teki 7 komut duvarı** (19,16,10,12,9,10,17 satır) kavram
+   başına 2-4 komutluk parçalara bölünür (CP2 kuralları aynen). Her parçanın
+   ardına öncelik sırasıyla: (a) Git Basics sekmesindeki GERÇEK terminale
+   (CP5.2 sandbox, 5 görevli) yönlendiren callout — özellikle branch/merge/diff/
+   stash görevleriyle örtüşen yerlerde, (b) `order-sort` challenge, (c)
+   `code-playground` (`relatedTopicId` zorunlu, hint benzersiz).
+4. **Bölünmeyen duvarlar (bilinçli istisna, Docker Dockerfile emsali):**
+   `.gitignore` (35 satır, tek config), Pages workflow (40), Actions YAML (10),
+   Kurulum adım rehberleri (11,15), PR örneği (9), Risks (10) — bunlar tek
+   dosya/adım-rehberi; sadece ardında hiç etkileşim yoksa BİR etkileşim eklenir.
+5. Yeni sekmelerin ilk bloğu `simple-box` olmalı — bölünen 2 yeni sekme için
+   §9.3 standardında (4 katman) yeni simple-box yazılır (×2 dil).
+6. **Test etkisi (keşifte doğrulanacak):** `tests/` altında gitGithub
+   `sections[4]`/sekme-index/sekme-adı bağımlılıkları grep'lenir
+   (`INTERVIEW_TAB_INDEX` benzeri sabitler, `getByRole('button', {name: ...})`
+   sekme aramaları). Mülakat sekmesi 11→13'e kayar — gating testleri güncellenir.
+
+### SONNET PROMPTU (CP6) — kullanıcı onayından SONRA kopyala-yapıştır
+
+```
+CLAUDE.md ve .claude/NEXT_SESSION.md'yi oku, sonra contentplan.md CP6'yı oku.
+Kullanıcı CP6'ya onay verdi. SADECE CP6'yı uygula.
+
+Adım 1 — Keşif (kod yazmadan): (a) src/data/gitGithubData.js sekme [4]'ün
+(Branching/Merge/Rebase/Conflict, EN+TR) blok listesini çıkar, CP6'daki 3'lü
+bölünme için kesin blok sınırlarını belirle. (b) tests/ altında git-github
+sekme index'ine/adına/sections[4]'e bağımlı assert'leri grep'le listele
+(mülakat sekmesi 11→13 kayacak). (c) Bulguları ve kesin tabMap'i bana raporla,
+onayımı al.
+
+Adım 2 — Uygula: sekmeyi böl (blok sırası korunur, içerik taşınmaz; 2 yeni
+sekme başına §9.3 standardında simple-box ×2 dil), gitGithubData.js'e
+progressMigration exportunu ekle (TopicPage.migrateTabProgress generic,
+TopicPage'e DOKUNMA), eski [4]'teki 7 komut duvarını CP6 kural 3'e göre kır
+(callout'lar Git Basics'teki gerçek terminalin 5 görevine yönlendirsin),
+etkilenen testleri güncelle. EN/TR simetrik.
+
+Doğrulama: CLAUDE.md §1.1 checklist + §22 kontrol 2-3 (git-github mülakat
+gating yeni index'le) + npx playwright test tests/git-sandbox.spec.ts
+tests/topic-pages-ui.spec.ts -g git-github + i18n-content-toggle git kısmı.
+Eski 12-sekme localStorage verisi enjekte eden geçici bir migrasyon testi
+yaz-koş-sil (Docker CP3 emsali). NEXT_SESSION.md'ye işle. Commit için onay iste.
+```
+
+---
+
+## CP7 — Jenkins Sandbox: Yazılabilir Jenkinsfile + Canlı Stage View
+**UYGULAYICI: FABLE** (tasarım yoğun — Jenkinsfile parser'ı, build engine,
+stage görselleştirmesi; Docker CP1 ile aynı sınıf)
+
+**Neden:** Jenkins'te kullanıcının YAZDIĞI hiçbir şey çalışmıyor — mevcut 4
+`simulation` bloğu pasif "▶ Build Başlat" demoları (`jenkins-pipeline-visual`).
+Jenkins diğer sandbox'lardan farklı: öğrenme engeli bir CLI değil, Jenkinsfile
+SÖZDİZİMİ + stage/post akış mantığı. Bu yüzden terminal değil, **düzenlenebilir
+Jenkinsfile editörü + "▶ Build Now" + canlı Stage View** simüle edilir:
+kullanıcı Jenkinsfile'ı KENDİSİ değiştirir, build'i kendisi kırar, post{failure}
+ve SKIPPED stage'leri kendi gözüyle görür, sonra yeşile çevirir.
+
+**Tasarım kararları (verildi):**
+- **Yeni dosya `src/components/JenkinsSandboxBlock.jsx`** — block tipi
+  **`jenkins-sandbox`** (TopicPage import + renderBlock case, K8s kalıbı).
+- **Sol panel:** monospace `<textarea>` (starter Jenkinsfile: agent any + Build
+  + Test stage'leri, post YOK — görevler ekletecek) + "▶ Build Now" butonu.
+- **Parser (basitleştirilmiş declarative subset):** `pipeline{}`, `agent any`,
+  `stages{}`, `stage('Ad'){}`, `steps{}`, `sh '...'`, `echo '...'`,
+  `post{ always/success/failure{} }`. Gerçekçi hatalar (gerçek Jenkins
+  mesajları örnek alınır): `agent` silinirse → `WorkflowScript: 1: Missing
+  required section "agent"`; `stages` yoksa → `Missing required section
+  "stages"`; steps'siz stage → `Nothing to execute within stage "X"`; dengesiz
+  süslü parantez → Groovy `unexpected token` hatası. Hata altında bilingual
+  "💡 Neden?" satırı; hatalı build history'ye FAILURE olarak düşer.
+- **Build engine:** stage'ler sırayla, kısa gecikmeli (≈500ms) animasyonla
+  koşar. `sh` simülasyonu: `exit 1`/`false` içeren komut → stage FAIL, sonraki
+  stage'ler SKIPPED, `post{failure}` koşar; diğer komutlar bilinen sahte
+  çıktılarla başarılı (`npm install` → "added 1290 packages...", `npm test` /
+  `pytest` → sahte test özeti). Konsol çıktısı gerçek Jenkins log biçiminde
+  (`[Pipeline] stage (Build)`, `+ npm install`, `Finished: SUCCESS/FAILURE`)
+  ve İngilizce (terminal çıktısı istisnası, CLAUDE.md §8).
+- **Sağ panel:** Stage View — bağlantı çizgili stage baloncukları (pending gri
+  / running mavi nabız / success yeşil / failed kırmızı + "Cızz" flash /
+  skipped çizgili gri) + post rozetleri (always/success/failure koştu mu) +
+  Build History listesi (#1 ✅ SUCCESS, #2 ❌ FAILURE — kırılan stage adıyla).
+  Başarıda konfeti benzeri kutlama, hatada panel kenarı kırmızı parlar (§20).
+- **5 görev (state-bazlı `MISSION_CHECKS`, Docker deseni):**
+  1. `first-green` — Starter Jenkinsfile'ı olduğu gibi çalıştır, ilk yeşil build'i al.
+  2. `add-deploy` — `Deploy` adında 3. bir stage ekle, build yeşil bitsin.
+  3. `break-build` — Test stage'ine `sh 'exit 1'` ekleyerek build'i KIR;
+     Deploy'un SKIPPED kaldığını gör.
+  4. `post-failure` — `post { failure { echo ... } }` ekle; kırık build'de
+     koştuğunu gör.
+  5. `back-to-green` — Build'i tekrar yeşile çevir (history'de FAILURE'dan
+     SONRA gelen bir SUCCESS).
+- **Yerleşim:** `jenkinsData.js` → "🔁 Pipeline" sekmesi (EN satır ~1222 sonrası,
+  TR simetrik): İlk Jenkinsfile `code` bloğu → pasif simulation → SANDBOX
+  (pasif demo SİLİNMEZ, Docker/K8s emsali). State session-only, localStorage YOK.
+- **Test — yeni dosya `tests/jenkins-sandbox.spec.ts`:** (a) TR: Build Now →
+  SUCCESS + görev 1 ✓; textarea'ya `exit 1` enjekte et → FAILURE + SKIPPED
+  stage + post rozetleri; düzeltip yeşile çevir → görev 5 ✓; (b) `agent any`
+  silinmiş dosya → gerçekçi "Missing required section" hatası; (c) EN modda
+  görev metinleri İngilizce. `serviceWorkers: 'block'`.
+
+**Doğrulama:** integrity ✓, build ✓, yeni spec + `topic-pages-ui -g jenkins` +
+`i18n-content-toggle` jenkins kısmı ✓.
+
+---
+
+## CP8 — Jenkins Sekme Atomikleştirme (8 → ~12)
+**UYGULAYICI: SONNET — ANCAK KULLANICI ONAYI OLMADAN BAŞLANMAZ**
+
+**Tasarım kararları (verildi):**
+1. Bölünecek mega-sekmeler: `[2] Pipeline Basics` (38/25/29 satır Jenkinsfile +
+   env/credentials konuları) → `🔁 İlk Jenkinsfile` / `🔐 Environment &
+   Credentials` (+ CP7 sandbox'ı İlk Jenkinsfile'da kalır); `[3] QA Tool
+   Integration` (46/37/41/36 satırlık 4 dev Jenkinsfile — muhtemelen araç
+   başına) → araç bazlı 2-3 sekme (kesin sınır keşifte); `[4] Advanced`
+   (30/29) → gerekirse 2'ye. Hedef ≈12 sekme; [0],[1],[5],[6],[7] DOKUNULMAZ.
+2. Jenkinsfile duvarları TEK DOSYA config'dir — BÖLÜNMEZ (Docker
+   Dockerfile/compose emsali). Zaten her birinin ardında code-playground var
+   (keşifte doğrulandı: [2] 3 code/3 playground, [3] 4/4) — yeni etkileşim
+   sadece hiç etkileşimsiz kalan parça olursa eklenir; CP7 sandbox'a
+   yönlendiren callout'lar Pipeline/QA sekmelerine serpiştirilir.
+3. `jenkinsData.js`'e `progressMigration` exportu (kesin tabMap keşif sonrası;
+   TopicPage'e DOKUNULMAZ).
+4. Yeni sekme başlarına §9.3 simple-box (×2 dil); mülakat sekmesi index'i
+   kayar → gating testleri güncellenir.
+
+### SONNET PROMPTU (CP8) — kullanıcı onayından SONRA kopyala-yapıştır
+
+```
+CLAUDE.md ve .claude/NEXT_SESSION.md'yi oku, sonra contentplan.md CP8'i oku.
+Kullanıcı CP8'e onay verdi. SADECE CP8'i uygula.
+
+Adım 1 — Keşif (kod yazmadan): (a) src/data/jenkinsData.js sekme [2],[3],[4]
+(EN+TR) blok listelerini çıkar; CP8 kural 1'deki hedefe göre kesin bölünme
+sınırlarını ve tabMap'i belirle (blok sırası korunur, içerik taşınmaz).
+(b) tests/ altında jenkins sekme index/adı bağımlılıklarını grep'le listele.
+(c) Raporla, onayımı al.
+
+Adım 2 — Uygula: sekmeleri böl, yeni sekme başlarına §9.3 standardında
+simple-box (×2 dil) yaz, jenkinsData.js'e progressMigration exportu ekle
+(TopicPage.migrateTabProgress generic — TopicPage'e DOKUNMA), CP7 sandbox'a
+yönlendiren callout'ları pipeline/QA sekmelerine ekle, etkilenen testleri
+güncelle. Jenkinsfile bloklarını BÖLME (tek dosya config). EN/TR simetrik;
+TR yorumlar Türkçe.
+
+Doğrulama: CLAUDE.md §1.1 checklist + §22 kontrol 2-3 (jenkins gating yeni
+index'le) + npx playwright test tests/jenkins-sandbox.spec.ts
+tests/topic-pages-ui.spec.ts -g jenkins + i18n-content-toggle jenkins kısmı.
+Eski 8-sekme localStorage verisi enjekte eden geçici migrasyon testi
+yaz-koş-sil. NEXT_SESSION.md'ye işle. Commit için onay iste.
+```
+
+---
+
+## CP9 — Linux İnce Ayar: Sandbox Callout'ları + Son Duvar
+**UYGULAYICI: SONNET** (küçük, mekanik — onay gerekmez)
+
+**Tasarım kararları (verildi):**
+1. Linux'ta atomikleştirme YAPILMAZ (10 sekme zaten atomik — bilinçli karar).
+2. `[6] Real-World QA` sekmesindeki 13 satırlık tek kod duvarı kavram başına
+   2-3 parçaya bölünür (CP2 kuralları; TR yorumlar Türkçe, EN/TR simetrik).
+3. **Sandbox yönlendirme callout'ları (Docker CP2 deseni):** `[3] Permissions &
+   Users` sekmesine chmod anlatımından sonra ("🧪 Filesystem & Navigation
+   sekmesindeki gerçek terminalde dene: deploy.sh'ı çalıştırılabilir yap" —
+   sandbox görevi 5) ve `[4] Text & Pipes` sekmesine grep anlatımından sonra
+   ("test.log'da FAIL satırlarını ara" — sandbox görevi 2) birer bilingual
+   callout eklenir. Sekme adları birebir mevcut adlardan alınır.
+4. Yeni code-playground eklenirse `relatedTopicId` zorunlu, hint benzersiz.
+
+### SONNET PROMPTU (CP9) — kopyala-yapıştır
+
+```
+CLAUDE.md ve .claude/NEXT_SESSION.md'yi oku, sonra contentplan.md CP9'u oku ve
+SADECE CP9'u uygula.
+
+Görev: (1) src/data/linuxData.js [6] Real-World QA sekmesindeki 13 satırlık
+code bloğunu kavram başına 2-3 parçaya böl, her parçaya kendi label'ı +
+ardına en az 1 etkileşim (callout/order-sort/code-playground önceliğiyle).
+(2) [3] Permissions & Users ve [4] Text & Pipes sekmelerine, Filesystem &
+Navigation sekmesindeki gerçek terminalin ilgili görevlerine (chmod deploy.sh
+/ grep FAIL) yönlendiren birer bilingual callout ekle. EN/TR simetrik, TR
+yorumlar Türkçe, yeni code-playground'lara relatedTopicId.
+
+Doğrulama: CLAUDE.md §1.1 checklist + npx playwright test
+tests/linux-sandbox.spec.ts tests/topic-pages-ui.spec.ts -g linux +
+i18n-content-toggle linux kısmı. NEXT_SESSION.md'ye işle. Commit için onay iste.
+```
+
+---
+
+## GJL Uygulama Sırası ve Durum
+
+| CP | Sayfa | Uygulayıcı | Ön koşul |
+|----|-------|-----------|----------|
+| CP7 | Jenkins sandbox | **FABLE** | yok — ilk uygulanan |
+| CP6 | Git atomikleştirme | SONNET | **kullanıcı onayı** |
+| CP8 | Jenkins atomikleştirme | SONNET | **kullanıcı onayı** + CP7 merge edilmiş olmalı (callout'lar sandbox'a işaret ediyor) |
+| CP9 | Linux ince ayar | SONNET | yok |
+
+---
+
 ## İş Paketi Kapanış Ritüeli (her CP sonunda, atlanamaz)
 
 ```

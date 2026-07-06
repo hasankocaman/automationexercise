@@ -1220,6 +1220,36 @@ pipeline {
 }`,
             language: 'groovy'
           },
+          {
+            // CP7 (contentplan.md): pasif "▶ Build Başlat" demosunun aksine burada
+            // kullanıcı Jenkinsfile'ı KENDİSİ değiştirir — build'i kırar, post{failure}
+            // ve SKIPPED stage'leri kendi gözüyle görür, sonra yeşile çevirir.
+            type: 'jenkins-sandbox',
+            starterFile: `pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                sh 'npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+    }
+}`,
+            missions: [
+              { id: 'first-green', text: { tr: "Jenkinsfile'ı olduğu gibi çalıştır: '▶ Build Now' ile ilk YEŞİL build'ini al", en: "Run the Jenkinsfile as-is: get your first GREEN build with '▶ Build Now'" } },
+              { id: 'add-deploy', text: { tr: "'Deploy' adında üçüncü bir stage ekle (içinde bir echo adımı yeterli) ve build'i yeşil bitir", en: "Add a third stage named 'Deploy' (an echo step is enough) and finish the build green" } },
+              { id: 'break-build', text: { tr: "Test stage'ine sh 'exit 1' ekleyerek build'i KIR — Deploy'un SKIPPED kaldığını gör", en: "Break the build by adding sh 'exit 1' to the Test stage — watch Deploy get SKIPPED" } },
+              { id: 'post-failure', text: { tr: "pipeline'a post { failure { echo '...' } } bloğu ekle ve kırık build'de koştuğunu gör", en: "Add a post { failure { echo '...' } } block to the pipeline and see it run on the broken build" } },
+              { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
+            ],
+          },
           { type: 'heading', text: 'Environment Variables' },
           {
             type: 'code',
@@ -2579,6 +2609,36 @@ pipeline {
         }
     }
 }`,
+          },
+          {
+            // CP7 (contentplan.md): pasif "▶ Build Başlat" demosunun aksine burada
+            // kullanıcı Jenkinsfile'ı KENDİSİ değiştirir — build'i kırar, post{failure}
+            // ve SKIPPED stage'leri kendi gözüyle görür, sonra yeşile çevirir.
+            type: 'jenkins-sandbox',
+            starterFile: `pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                sh 'npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+    }
+}`,
+            missions: [
+              { id: 'first-green', text: { tr: "Jenkinsfile'ı olduğu gibi çalıştır: '▶ Build Now' ile ilk YEŞİL build'ini al", en: "Run the Jenkinsfile as-is: get your first GREEN build with '▶ Build Now'" } },
+              { id: 'add-deploy', text: { tr: "'Deploy' adında üçüncü bir stage ekle (içinde bir echo adımı yeterli) ve build'i yeşil bitir", en: "Add a third stage named 'Deploy' (an echo step is enough) and finish the build green" } },
+              { id: 'break-build', text: { tr: "Test stage'ine sh 'exit 1' ekleyerek build'i KIR — Deploy'un SKIPPED kaldığını gör", en: "Break the build by adding sh 'exit 1' to the Test stage — watch Deploy get SKIPPED" } },
+              { id: 'post-failure', text: { tr: "pipeline'a post { failure { echo '...' } } bloğu ekle ve kırık build'de koştuğunu gör", en: "Add a post { failure { echo '...' } } block to the pipeline and see it run on the broken build" } },
+              { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
+            ],
           },
           { type: 'heading', text: 'Environment Variable Kullanımı' },
           {

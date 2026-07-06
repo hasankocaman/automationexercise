@@ -10,6 +10,42 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-06, `feature/contentplan-git-jenkins-linux` — GJL Planı (CP6-CP9) yazıldı + CP7 Jenkins Sandbox TAMAMLANDI)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (main `7624431`'den açıldı — önceki tüm CP işleri main'e merge edilmiş durumda; bu oturumun işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı: "Docker için yaptığın planlamayı git-github → jenkins → linux için yap (tek plan olabilir); FABLE işlerini kendin yap, SONNET işleri için prompt yaz; yeni branch aç." |
+
+### Bu Oturumda Yapılan İş
+
+1. **Keşif:** üç sayfanın data dosyaları script'le analiz edildi (sekme/blok/kod-duvarı/mülakat dökümü). Sonuç: Git 12 sekme ama `[4] Branching` mega-sekmesi (43 blok, 7 kod duvarı); Jenkins 8 sekmede HİÇ sandbox yok (4 pasif "▶ Build Başlat" demosu) + Pipeline/QA Integration mega-sekmeleri; Linux zaten iyi durumda (tek 13 satırlık duvar, sandbox CP5.1'de tamam).
+2. **`contentplan.md` → "BÖLÜM 2 — GJL Planı" eklendi (CP6-CP9):**
+   - **CP6** Git Branching atomikleştirme (12→14) + duvar kırma — SONNET, **kullanıcı onayı şart**, prompt hazır.
+   - **CP7** Jenkins Sandbox — FABLE, **bu oturumda uygulandı** (aşağıda).
+   - **CP8** Jenkins atomikleştirme (8→~12) — SONNET, **kullanıcı onayı şart**, prompt hazır (ön koşul: CP7 merge).
+   - **CP9** Linux ince ayar (callout'lar + son duvar) — SONNET, onay gerekmez, prompt hazır.
+3. **CP7 uygulandı — Jenkins Sandbox (diğer sandbox'lardan farklı biçim):** Jenkins'in öğrenme engeli CLI değil Jenkinsfile sözdizimi + stage/post akışı olduğundan terminal DEĞİL, **düzenlenebilir Jenkinsfile editörü + "▶ Build Now" + canlı Stage View** yazıldı:
+   - **Yeni dosya `src/components/JenkinsSandboxBlock.jsx`**: basitleştirilmiş declarative parser (pipeline/agent/stages/stage/steps/sh/echo/post), gerçek Jenkins derleme hataları (`Missing required section "agent"`, `Nothing to execute within stage`, dengesiz parantez), stage'ler animasyonlu koşar, `sh 'exit 1'` build'i kırar → sonraki stage'ler SKIPPED + `post{failure}` koşar, Build History + post rozetleri, 5 görev (ilk yeşil → Deploy ekle → build'i kır → post failure → tekrar yeşil).
+   - `TopicPage.jsx`: `jenkins-sandbox` block tipi kaydı; `jenkinsData.js`: Pipeline sekmesine (EN+TR) blok + 5 görev; **yeni dosya `tests/jenkins-sandbox.spec.ts`** (2 test).
+   - **Bulunan/düzeltilen gerçek bug (component'te):** `mountedRef` cleanup'ı StrictMode'un mount→cleanup→mount döngüsünde ref'i kalıcı `false` bırakıyordu → build butonu sonsuza dek "⏳ Build çalışıyor" kilitleniyordu. Effect her mount'ta `true`'ya çekecek şekilde düzeltildi ve testle doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (32 dosya)
+- `npm run build` → ✅ PASS (15.45s, 38 static route, dist SEO PASS)
+- `tests/jenkins-sandbox.spec.ts` (--workers=1) → ✅ 2/2 PASS (StrictMode bug'ı düzeltildikten sonra)
+- Regresyon: `topic-pages-ui.spec.ts -g jenkins` + `i18n-content-toggle -g jenkins` → ✅ 2/2 PASS
+- TR yorum taraması → ✅ yeni yorumların tümü Türkçe; sandbox konsol çıktıları bilinçli İngilizce (§8 terminal istisnası), görev/ipucu metinleri bilingual.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosyalar: `contentplan.md`, `src/components/JenkinsSandboxBlock.jsx` (yeni), `src/components/TopicPage.jsx`, `src/data/jenkinsData.js`, `tests/jenkins-sandbox.spec.ts` (yeni), `.claude/NEXT_SESSION.md`.
+2. **CP9 (Linux)** Sonnet promptu ile hemen başlatılabilir (onay gerekmez); **CP6 (Git)** ve **CP8 (Jenkins)** atomikleştirmeleri KULLANICI ONAYI bekliyor — promptlar contentplan.md BÖLÜM 2'de hazır.
+3. Sandbox bilinen sınırları (bilinçli): parser declarative alt kümesi (parallel/when/environment sandbox'ta yok — sayfada statik anlatılıyor); görev ilerlemesi session-only.
+
+---
+
 ## contentplan.md — Genel Durum Özeti (KONSOLİDE, tüm oturumlar) — 2026-07-05
 
 > Bu bölüm, aşağıdaki tarihli oturum kayıtlarının contentplan.md'ye özel kısmının
