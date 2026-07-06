@@ -10,11 +10,46 @@
 
 ---
 
+## Test Kapsamı Denetimi — CLAUDE.md + acceptancecriterias.md (2026-07-06, main)
+
+> Kullanıcı GJL branch'i main'e merge ettikten sonra "test kapsamı bu iki dosyada
+> yazılanların hepsini kapsıyor mu" diye sordu. Aşağı bulgular `tests/` (21 dosya,
+> post-commit'te otomatik), `tests-extended/` (manuel, `test:interview-flows`) ve
+> `tests-quiz-audit/` (manuel, `test:quiz-audit`) okunarak çıkarıldı.
+
+**Üç katmanlı test altyapısı:** `tests/` her commit'te otomatik koşar; `tests-extended/interview-mastery-flows.spec.ts` (TÜM interview-questions sayfaları için tam AC04/06/07 koşumu) ve `tests-quiz-audit/quiz-full-audit.spec.ts` (346 quiz bloğunun TAMAMI için AC02/03) sadece MANUEL komutlarla çalışır — Groq rate limit / süre nedeniyle post-commit'e bağlanmamışlar.
+
+**AC bazlı sonuç (Documents/acceptancecriterias.md):**
+
+| AC | Durum | Not |
+|----|-------|-----|
+| AC01 Navigasyon | ✅ Tam | `topic-pages-ui` (24 route) + `other-pages-ui` |
+| AC02 Quiz retry | ✅ Tam | `quiz-retry-mechanism` + `quiz-full-audit` (346 blok, ama manuel suite) |
+| AC03 i18n | ✅ Mekanik / ⚠️ format | `i18n-content-toggle` (28 test) — "Terim (Türkçe Karşılığı)" format kuralı hiç test edilmiyor |
+| AC04 Mülakat gating | ✅ Tam ama **env-bağımlı** | `docker-interview-mastery-flow` — `.env.local` Supabase/test-user yoksa SESSİZCE skip |
+| AC05 AI quiz açıklama | ⚠️ Kısmi | Kilit + hata yolu ✅; **gerçek AI happy-path (soruyla ilişkili içerik) hiç test edilmiyor** (dosyanın kendi yorumu bunu itiraf ediyor) |
+| AC06 Mülakat AI değerlendirme | ✅ Tam, env-bağımlı | `docker-interview-mastery-flow` + `interview-grading-and-reset` + `tests-extended` (manuel) |
+| AC07 Bitirme rozeti + reset | ✅ Tam, env-bağımlı | `interview-grading-and-reset` — hard-reset, Supabase silme, ilk sekmeye dönüş dahil |
+| AC08 Tema/erişilebilirlik | ⚠️ Özellik eksik | dark/light toggle ✅ test edilmiş — ama AC08'in istediği "en az 3 alternatif tema (Okyanus/Orman)" **kodda hiç yok**, test edilecek bir şey yok |
+| AC09 Roadmap ilerleme | ⚠️ Kısmi | `qa-mentor-roadmap-order` sadece SIRALAMAYI test ediyor; QAMentorPage'deki gerçek % ilerleme görselleştirmesi (kod mevcut) doğrulanmıyor |
+| AC10 TR yorum kalitesi | ✅ EN-mod / ⚠️ TR-mod pozitif eksik | `i18n-content-toggle` EN'de Türkçe karakter taraması tüm route'larda; dosyanın kendi notu "TR-mod pozitif testi (`tests/tr-code-comments.spec.ts`) opsiyonel, öncelik düşük" diyor — o dosya yok |
+| AC11 Sekme prev/next | ✅ Tam | `topic-pages-ui` — her route/sekme, komşu doğruluğu + ilk/son'da render edilmeme |
+
+**CLAUDE.md kuralları:** §1.1 (check-content-integrity.mjs) ✅, §10 (audit-interview-questions.mjs) ✅, §22.1 istisna listesi ✅ doğrulandı (basit-backend/security/backend hiçbir suite'te yok).
+
+**Net sonuç — iki sınıf sorun:**
+1. **Gerçek boşluklar:** AC05 happy-path, AC08 çoklu-tema özelliği (kod yok), AC09 ilerleme görselleştirme testi, AC10 TR-mod pozitif testi.
+2. **Görünmez risk:** AC04/05/06/07'nin en derin testleri `.env.local` Supabase/test-user kimlik bilgisi yoksa (CI veya yeni clone) SESSİZCE skip olur — fail değil, hiç çalışmamış gibi.
+
+**Sonraki oturumda ele alınabilir (kullanıcı kararı bekliyor, hiçbiri şimdi yapılmadı):** AC05 happy-path testi (gerçek/mock AI yanıt-içerik ilişkisi), AC09 ilerleme görselleştirme testi, `tests/tr-code-comments.spec.ts` (AC10 TR-mod pozitif), `test:quiz-audit`'in CI'da/skip-görünürlüğü için bir uyarı mekanizması, AC08 çoklu-tema özelliğinin gerçekten yapılıp yapılmayacağı kararı.
+
+---
+
 ## Güncel Branch Durumu (2026-07-06 devam #3, `feature/contentplan-git-jenkins-linux` — CP8: Jenkins Atomikleştirme TAMAMLANDI — GJL Planı (CP6-CP9) TAMAMEN BİTTİ)
 
 | Alan | Değer |
 |------|-------|
-| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP9 commit `5dd5ff0`'a kadar; bu oturumun CP8 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Aktif branch** | ~~`feature/contentplan-git-jenkins-linux`~~ → **main'e merge edildi** (commit `150f96d`, merge commit `73e2d9e`). GJL planı artık main'de. |
 | **Kapsam** | Kullanıcı "onaylıyorum devam et" dedi (CP8'e genel onay). CP6 emsaliyle keşif yapıldı (kod yazmadan önce blok sınırları çıkarıldı, bulgular raporlandı), ardından uygulandı. |
 
 ### Keşif sonucu — contentplan'ın "[3] 4/4 playground" varsayımı YANLIŞ çıktı
