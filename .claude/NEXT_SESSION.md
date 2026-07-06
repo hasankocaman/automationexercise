@@ -10,6 +10,40 @@
 
 ---
 
+## Eksik Testlerin Tamamlanması + pre-push Hook (2026-07-06 devam, main)
+
+> Önceki denetimde bulunan boşluklardan kullanıcı isteğiyle 3'ü kapatıldı (AC08
+> hariç — özelliğin kendisi kodda yok, test yazılamaz, kullanıcıya bildirildi).
+> Ayrıca "testlerin main'de her push öncesi çalıştığından emin ol" isteğiyle
+> **engelleyici bir `pre-push` git hook'u eklendi.**
+
+### Eklenen testler
+
+1. **`tests/tr-code-comments.spec.ts` (YENİ, AC10 TR-mod pozitif doğrulama):** `/python` "Değişkenler & Tipler" sekmesinde TR modda "Multiple assignment" DEĞİL "Çoklu atama" görünüyor mu (AC10'un birebir test kriteri) + tüm 23 sekmede bilinen İngilizce yorumların (`englishToTurkishCodeComments` çeviri çiftleri) sızmadığını doğrular.
+2. **`tests/quiz-ai-explanation-access.spec.ts`'e AC05 happy-path eklendi (2 yeni test, TR+EN):** Daha önce sadece kilit + hata yolu test ediliyordu. Şimdi: `explain-quiz-answer`'a giden payload'daki `question`/`correctAnswer`/`lang` alanlarının GERÇEKTEN cevaplanan soruyla eşleştiği + panelde gösterilen metnin mock API yanıtının ta kendisi olduğu (component hardcoded değil, gerçekten API'yi render ediyor) doğrulanıyor.
+3. **`tests/qa-mentor-progress-tracking.spec.ts` (YENİ, AC09):** QAMentorPage'in gerçek % ilerleme hesaplamasını (CircularProgress + `getCompletedRoutePaths`) test eder. **Önemli keşif:** paylaşılan test hesabı uzun süredir kullanıldığından MAP_A'nın çoğu node'u zaten completed'dı — sabit "2/14" beklemek yerine test GERÇEK baseline'ı okuyup eksik BİR node bulup ekliyor, sayının tam +1 arttığını doğruluyor, sonunda SADECE kendi eklediği satırı silip career_goal'ı sıfırlıyor (paylaşılan hesabı bozmaz, doğrulandı).
+4. **AC08 (çoklu tema):** Test YAZILMADI — kodda `learnqa_theme`, tema seçici veya "Okyanus/Orman" gibi bir özellik yok, sadece dark/light toggle var (zaten test ediliyor). Test edilecek bir özellik olmadığından fabrikasyon test yazılmadı; kullanıcıya bildirildi. **Karar bekliyor:** özellik yapılsın mı, yoksa acceptancecriterias.md AC08 güncel gerçekliğe göre revize mi edilsin?
+
+### pre-push hook (YENİ)
+
+`scripts/pre-push-tests.sh` + `package.json > simple-git-hooks.pre-push` — `git push` öncesi `npm run build` (SEO+içerik bütünlüğü+mülakat denetimi dahil) ve `npm run test:e2e` (tam `tests/` suite'i) çalışır, **herhangi biri FAIL ederse push İPTAL edilir** (post-commit'in aksine bu gerçekten engelleyici). Atlamak için: `SKIP_PRE_PUSH_HOOK=1 git push`. `npx simple-git-hooks` ile hemen kuruldu ve doğrulandı (`.git/hooks/pre-push` içeriği kontrol edildi).
+
+**Bilinen maliyet:** Her push artık ~15-20 dakika sürebilir (tam Playwright suite'i). Kullanıcı bunu kabul ederek istedi.
+
+### Doğrulama — tam e2e suite (105 test) + gerçek bir altyapı bulgusu
+
+İlk koşumda **2 test timeout ile FAIL etti** (`/typescript`, `/python` — projenin en büyük 2 veri paketi) ve suite 20 dakikaya yakın sürdü (normalde ~13 dk). Kök neden araştırıldı: sistemde sadece 2.9GB boş bellek vardı, `Get-Process` ile **iki unutulmuş `vite --host` dev server** bulundu (biri sabah 08:38'den beri, ~2.25GB; diğeri aynı gün 16:58'den beri) — NEXT_SESSION.md'de daha önce de belgelenmiş bilinen bir sınıf sorun. Kullanıcıya soruldu, onay alınıp ikisi durduruldu (bellek 2.9GB→5.8GB), ardından 2 başarısız test tek başına tekrar koşturuldu → **ikisi de PASS** (1.7 dk) — bu, orijinal 2 hatanın gerçek bir regresyon DEĞİL, tamamen ortam kaynaklı (bellek açlığı) olduğunu kanıtlar.
+
+**Net sonuç: 105/105 test PASS** (102 ilk koşumda + 1 flaky-ama-retry'da geçti + 2 memory-fix sonrası tekrar koşulup geçti).
+
+### Sonraki Oturumda Yapılacaklar
+
+1. Bu oturumun işi (4 dosya: `package.json`, `scripts/pre-push-tests.sh`, `tests/quiz-ai-explanation-access.spec.ts`, `tests/qa-mentor-progress-tracking.spec.ts`, `tests/tr-code-comments.spec.ts`) main'de commit edilecek (kullanıcı onayı bekleniyor, sonra push kararı kullanıcının).
+2. **AC08 kararı bekliyor:** çoklu tema özelliği (Okyanus/Orman vb.) yapılsın mı, yoksa AC doküman revize mi edilsin.
+3. Bu makinede build/test öncesi `Get-Process | Where node/chrome` ile bellek kontrolü faydalı olmaya devam ediyor — unutulmuş dev server'lar tekrar oluşabilir (artık `pre-push` hook'u da bundan etkilenebileceğinden özellikle önemli).
+
+---
+
 ## Test Kapsamı Denetimi — CLAUDE.md + acceptancecriterias.md (2026-07-06, main)
 
 > Kullanıcı GJL branch'i main'e merge ettikten sonra "test kapsamı bu iki dosyada

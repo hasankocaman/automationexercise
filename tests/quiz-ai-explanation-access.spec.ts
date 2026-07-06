@@ -107,4 +107,105 @@ test.describe('AC05 — üye kullanıcı için AI açıklama akışı', () => {
 
         await context.close();
     });
+
+    // AC05 happy-path (bu oturumda eklendi — daha önce sadece kilit + hata yolu
+    // kapsanıyordu): "AI yanıtı doğrudan ilgili soruyla ilişkili olmalıdır" ve
+    // "sayfa dili Türkçe → AI yanıtı Türkçe; İngilizce → İngilizce" gereksinimlerini
+    // gerçek (maliyetli) bir Groq çağrısı yapmadan, ama GERÇEKÇİ şekilde doğrular:
+    // 1) İstemcinin explain-quiz-answer'a gönderdiği payload'daki `question` alanı
+    //    GERÇEKTEN cevaplanan soruyla birebir eşleşiyor mu (ilişki sahte değil).
+    // 2) Panelde gösterilen metin, mock yanıttan GELEN metnin ta kendisi mi
+    //    (component hardcoded bir şey göstermiyor, gerçekten API yanıtını render ediyor).
+    // 3) TR modda `lang: 'tr'`, EN modda `lang: 'en'` gönderiliyor mu.
+    test('üye: TR modda AI paneli, GERÇEK soruyla eşleşen payload gönderir ve mock yanıtı birebir render eder', async ({ browser }) => {
+        const authClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
+        const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
+            email: TEST_USER_EMAIL!, password: TEST_USER_PASSWORD!,
+        });
+        if (authError || !authData.session) throw new Error(`Giriş başarısız: ${authError?.message}`);
+        const { session } = authData;
+        const projectRef = new URL(SUPABASE_URL!).hostname.split('.')[0];
+        const storageKey = `sb-${projectRef}-auth-token`;
+
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        await context.addInitScript(([key, sessionJson]) => {
+            window.localStorage.setItem(key as string, sessionJson as string);
+        }, [storageKey, JSON.stringify(session)]);
+        const page = await context.newPage();
+
+        const MOCK_EXPLANATION_TR = 'Mock AI mentor notu: bu soru Docker image ile container arasındaki farkı test ediyor — bir image salt-okunur bir şablon, container ise onun çalışan bir örneğidir.';
+        let capturedBody: any = null;
+        await page.route('**/functions/v1/explain-quiz-answer', async (route) => {
+            capturedBody = JSON.parse(route.request().postData() || '{}');
+            await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ explanation: MOCK_EXPLANATION_TR }) });
+        });
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
+
+        await page.locator('button', { hasText: optionLabel(correctTr) }).first().click();
+        await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
+
+        const aiButton = page.getByRole('button', { name: "AI'dan bu cevaba özel ek açıklama iste" });
+        await expect(aiButton).toBeVisible();
+        await aiButton.click();
+
+        await expect(page.getByText(MOCK_EXPLANATION_TR)).toBeVisible({ timeout: 10_000 });
+
+        // İlişki sahte değil: gönderilen payload'daki soru/cevap GERÇEKTEN bu quiz'e ait.
+        expect(capturedBody).not.toBeNull();
+        expect(capturedBody.question).toBe(quizBlockTr.question);
+        expect(capturedBody.correctAnswer).toBe(correctTr.text);
+        expect(capturedBody.userAnswer).toBe(correctTr.text);
+        expect(capturedBody.isCorrect).toBe(true);
+        expect(capturedBody.lang).toBe('tr');
+
+        await context.close();
+    });
+
+    test('üye: EN modda AI paneli lang="en" gönderir ve mock yanıtı render eder', async ({ browser }) => {
+        const authClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
+        const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
+            email: TEST_USER_EMAIL!, password: TEST_USER_PASSWORD!,
+        });
+        if (authError || !authData.session) throw new Error(`Giriş başarısız: ${authError?.message}`);
+        const { session } = authData;
+        const projectRef = new URL(SUPABASE_URL!).hostname.split('.')[0];
+        const storageKey = `sb-${projectRef}-auth-token`;
+
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        await context.addInitScript(([key, sessionJson]) => {
+            window.localStorage.setItem(key as string, sessionJson as string);
+        }, [storageKey, JSON.stringify(session)]);
+        const page = await context.newPage();
+
+        const MOCK_EXPLANATION_EN = 'Mock AI mentor note: this question tests the difference between a Docker image and a container — an image is a read-only template, a container is a running instance of it.';
+        let capturedBody: any = null;
+        await page.route('**/functions/v1/explain-quiz-answer', async (route) => {
+            capturedBody = JSON.parse(route.request().postData() || '{}');
+            await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ explanation: MOCK_EXPLANATION_EN }) });
+        });
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
+        await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
+
+        await page.locator('button', { hasText: optionLabel(correctEn) }).first().click();
+        await page.getByRole('button', { name: 'Check Answer' }).click();
+
+        const aiButton = page.getByRole('button', { name: 'Ask AI for an explanation tailored to your answer' });
+        await expect(aiButton).toBeVisible();
+        await aiButton.click();
+
+        await expect(page.getByText(MOCK_EXPLANATION_EN)).toBeVisible({ timeout: 10_000 });
+
+        expect(capturedBody).not.toBeNull();
+        expect(capturedBody.question).toBe(quizBlockEn.question);
+        expect(capturedBody.correctAnswer).toBe(correctEn.text);
+        expect(capturedBody.lang).toBe('en');
+
+        await context.close();
+    });
 });

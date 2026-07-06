@@ -23,7 +23,8 @@
   },
   "simple-git-hooks": {
     "pre-commit": "node scripts/check-content-integrity.mjs",
-    "post-commit": "bash scripts/post-commit-tests.sh"
+    "post-commit": "bash scripts/post-commit-tests.sh",
+    "pre-push": "bash scripts/pre-push-tests.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
