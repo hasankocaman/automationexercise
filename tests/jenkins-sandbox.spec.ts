@@ -47,7 +47,7 @@ test.describe('CP7 — Jenkins Sandbox (yazılabilir Jenkinsfile + canlı Stage 
         await page.goto('/jenkins');
         await page.waitForSelector('h1', { timeout: 30_000 });
 
-        await page.getByRole('button', { name: /Pipeline/ }).first().click();
+        await page.getByRole('button', { name: /First Jenkinsfile|İlk Jenkinsfile/ }).first().click();
 
         const editor = page.getByTestId('jenkins-sandbox-editor');
         await expect(editor).toBeVisible();
@@ -94,7 +94,7 @@ test.describe('CP7 — Jenkins Sandbox (yazılabilir Jenkinsfile + canlı Stage 
         await page.waitForSelector('h1', { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
-        await page.getByRole('button', { name: /Pipeline/ }).first().click();
+        await page.getByRole('button', { name: /First Jenkinsfile|İlk Jenkinsfile/ }).first().click();
 
         await expect(page.getByTestId('jenkins-mission-first-green')).toContainText('Run the Jenkinsfile as-is');
 

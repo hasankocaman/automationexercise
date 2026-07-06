@@ -10,6 +10,44 @@
 
 ---
 
+## Güncel Branch Durumu (2026-07-06 devam #3, `feature/contentplan-git-jenkins-linux` — CP8: Jenkins Atomikleştirme TAMAMLANDI — GJL Planı (CP6-CP9) TAMAMEN BİTTİ)
+
+| Alan | Değer |
+|------|-------|
+| **Aktif branch** | `feature/contentplan-git-jenkins-linux` (CP9 commit `5dd5ff0`'a kadar; bu oturumun CP8 işi **HENÜZ COMMIT EDİLMEDİ — kullanıcı onayı bekliyor**) |
+| **Kapsam** | Kullanıcı "onaylıyorum devam et" dedi (CP8'e genel onay). CP6 emsaliyle keşif yapıldı (kod yazmadan önce blok sınırları çıkarıldı, bulgular raporlandı), ardından uygulandı. |
+
+### Keşif sonucu — contentplan'ın "[3] 4/4 playground" varsayımı YANLIŞ çıktı
+
+contentplan.md CP8, QA Tool Integration'da pytest/JMeter/Playwright/Slack'in HER BİRİNİN kendi code-playground'u olduğunu varsaymıştı ("keşifte doğrulandı: [3] 4/4"). Bu oturumdaki gerçek dosya okumasında bunun **yanlış** olduğu ortaya çıktı: aslında TÜM 4 araç için TEK bir paylaşılan interaktif üçlü (`jenkinsQaInteractiveBlocks`) sekmenin en sonunda duruyordu. Bölününce pytest&JMeter ve Playwright sekmeleri etkileşimsiz kalacaktı — bu yüzden CP8 kural 2'nin ("hiç etkileşimsiz kalan parçaya yeni etkileşim ekle") gerektirdiği şekilde ikisine de birer YENİ etkileşim eklendi (aşağıda).
+
+### Bu oturumda yapılan iş — CP8
+
+- **8 → 11 sekme (EN+TR simetrik):** `[2] Pipeline Basics` (19 blok) → **🔁 First Jenkinsfile** (CP7 sandbox burada kalır) + **🔐 Environment & Credentials**; `[3] QA Tool Integration` (20 blok) → **🧪 pytest & JMeter** + **🎭 Playwright** + **📢 Slack & QA Reporting**. `[4] Advanced` **bilinçli olarak bölünmedi** (contentplan "gerekirse" diyordu; 17 blokta tek quiz var, bölmek CP6'daki quiz-gating sorununu gereksiz yere tekrarlardı).
+- **Quiz-gating politikası (CP6'da onaylanan politika tekrar uygulandı, yeniden sorulmadı):** bölünme sonucu quiz'siz kalacak 3 sekmeye (First Jenkinsfile, pytest&JMeter, Playwright) birer yeni mikro-quiz (retryQuestion dahil) yazıldı.
+- **3 yeni §9.3-standardında simple-box** (Environment&Credentials: zarf/maskeleme analojisi; Playwright: kamyon/Docker image analojisi; Slack&QAReporting: duman dedektörü analojisi).
+- **2 yeni etkileşim** (contentplan'ın varsaymadığı ama gerekli çıkan): pytest&JMeter'a order-sort, Playwright'a CP7 sandbox'a yönlendiren callout.
+- **`progressMigration` exportu eklendi** (Docker CP3/Git CP6 emsali): `{2:[2,3], 3:[4,5,6], diğerleri 1:1}`.
+- **Test güncellemesi:** `jenkins-sandbox.spec.ts`'teki `/Pipeline/` sekme regex'i `/First Jenkinsfile|İlk Jenkinsfile/` olarak güncellendi (tek etkilenen test dosyası).
+
+### Doğrulama (CLAUDE.md §1.1 + §22 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (38.6s, 38 static route, dist SEO PASS, jenkins mülakat 50 soru hâlâ ✅ OK)
+- Geçici migrasyon testi (yaz-koş-sil): eski 8-sekme `progress_jenkinscicd`/`quizScore_jenkinscicd` verisi enjekte edildi → reload → sekme 2→[2,3], sekme 3→[4,5,6] doğru remap oldu (cömert taşıma), `progressVersion_jenkinscicd`="2", idempotent → ✅ PASS, silindi.
+- `tests/jenkins-sandbox.spec.ts` + `tests/topic-pages-ui.spec.ts -g jenkins` → ✅ 3/3 PASS
+- `tests/i18n-content-toggle.spec.ts -g jenkins` → ✅ 1/1 PASS
+- §22 kontrol 2 (gating kapalı durum): geçici spot-check (yaz-koş-sil) 0% quiz'de Mülakat S&C'nin 🔒 gösterdiğini doğruladı.
+- TR yorum taraması → ✅ yeni simple-box/quiz/callout/order-sort içerikleri Türkçe.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CP8 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen dosyalar: `src/data/jenkinsData.js`, `tests/jenkins-sandbox.spec.ts`.
+2. **contentplan.md'nin GJL planı (CP6-CP9) artık TAMAMEN BİTTİ** (CP6 `2642b99`, CP7 `8527136`, CP9 `5dd5ff0`, CP8 bu oturumda — commit bekliyor). Sıradaki doğal adımlar: (a) branch'i main'e merge/push etmek, (b) yeni bir CP planı (kullanıcı kararı).
+3. Önceki oturumların tüm işi main'e merge/push edilmedi — `feature/contentplan-git-jenkins-linux` branch'inde birikiyor.
+
+---
+
 ## Güncel Branch Durumu (2026-07-06 devam #2, `feature/contentplan-git-jenkins-linux` — CP9: Linux İnce Ayar TAMAMLANDI)
 
 | Alan | Değer |

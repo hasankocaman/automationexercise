@@ -800,6 +800,26 @@ The message includes job name, build number, and build link.`,
 ]
 
 export const jenkinsData = {
+  // CP8 sekme atomikleştirme (2026-07-06): 8 mega-sekme → 11 atomik sekme.
+  // Eski [2] "Pipeline Basics" 2'ye (First Jenkinsfile / Environment &
+  // Credentials), eski [3] "QA Tool Integration" 3'e (pytest & JMeter /
+  // Playwright / Slack & QA Reporting) bölündü; diğer sekmeler aynı index'te
+  // kaldı. Eski localStorage ilerlemesi bu haritayla yeni düzene çevrilir —
+  // TopicPage.jsx'teki migrateTabProgress bunu okur (Docker CP3 / Git CP6
+  // emsali, TopicPage'e dokunulmadı).
+  progressMigration: {
+    version: 2,
+    tabMap: {
+      0: [0],        // Introduction → Introduction
+      1: [1],        // Installation → Installation
+      2: [2, 3],     // Pipeline Basics → First Jenkinsfile / Environment & Credentials
+      3: [4, 5, 6],  // QA Tool Integration → pytest & JMeter / Playwright / Slack & QA Reporting
+      4: [7],        // Advanced → Advanced
+      5: [8],        // Real World → Real World
+      6: [9],        // Ecosystem → Ecosystem
+      7: [10],       // Interview Q&A → Interview Q&A
+    },
+  },
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
   // ══════════════════════════════════════════════════════════════
@@ -809,7 +829,7 @@ export const jenkinsData = {
       subtitle: 'Continuous Integration & Continuous Delivery',
       intro: 'Master Jenkins from zero to interview level. Automate your builds, run tests on every commit, integrate with JMeter/Selenium/Playwright, and deliver software faster and with confidence.',
     },
-    tabs: ['🎯 Introduction', '⚙️ Installation', '🔁 Pipeline', '🧪 QA Integration', '🚀 Advanced', '🛠️ Real World', '🔗 Ecosystem', '💼 Interview Q&A'],
+    tabs: ['🎯 Introduction', '⚙️ Installation', '🔁 First Jenkinsfile', '🔐 Environment & Credentials', '🧪 pytest & JMeter', '🎭 Playwright', '📢 Slack & QA Reporting', '🚀 Advanced', '🛠️ Real World', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
       {
@@ -1108,7 +1128,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 
       // ── SECTION 2: PIPELINE ────────────────────────────────────────────────
       {
-        title: '🔁 Jenkins Pipeline Basics',
+        title: '🔁 First Jenkinsfile',
         blocks: [
           {
             type: 'simple-box',
@@ -1250,6 +1270,52 @@ pipeline {
               { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
             ],
           },
+          {
+            type: 'quiz',
+            question: 'In the Jenkins Sandbox, removing the `agent any` line from a Jenkinsfile causes the build to fail with a compile error before any stage even starts. Why is `agent` mandatory at the top of a declarative pipeline?',
+            options: [
+              { id: 'a', text: 'agent defines WHERE the pipeline executes (any available node, a specific label, or inside a Docker container) — without it Jenkins has no machine to run the stages on' },
+              { id: 'b', text: 'agent is only needed for parallel stages' },
+              { id: 'c', text: 'agent is optional and only affects logging verbosity' },
+              { id: 'd', text: 'agent must be defined inside each individual step, not at the pipeline level' },
+            ],
+            correct: 'a',
+            explanation: "Every declarative pipeline must declare where its stages execute — agent any lets Jenkins pick any available executor, agent { docker { ... } } runs inside a container. Without an agent, there's nothing to schedule the work onto, so Jenkins refuses to even start.",
+
+        retryQuestion: {
+      "question": "A team lead pushes back: 'Why should we rewrite our GUI-configured Freestyle Jobs as Jenkinsfile code? The UI works fine.' What is the strongest technical reason to prefer a Jenkinsfile?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "A Jenkinsfile runs faster than a Freestyle Job"
+            },
+            {
+                  "id": "b",
+                  "text": "A Jenkinsfile lives in the same repo as the source code and goes through the same pull-request review as any code change, while a GUI-configured job is invisible to version control and code review"
+            },
+            {
+                  "id": "c",
+                  "text": "Freestyle Jobs cannot use agents"
+            },
+            {
+                  "id": "d",
+                  "text": "A Jenkinsfile is required for Jenkins to start at all"
+            }
+      ],
+      "correct": "b",
+      "explanation": "The core advantage isn't speed — it's traceability. A Jenkinsfile is versioned and reviewed like any other code, so nobody can silently change the CI/CD process without a visible diff. A Freestyle Job's configuration only lives on the Jenkins server."
+}
+},
+        ],
+      },
+      {
+        title: '🔐 Environment & Credentials',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '✉️',
+            content: "A Jenkins `environment` block is like a sealed envelope handed to a courier: the courier (the pipeline) can use what's inside — a password, an API token — to complete the delivery, but they can never open the envelope and read the contents out loud, because Jenkins automatically masks any credential value the moment it would appear in a console log. The thought-provoking question: if `sh 'echo $DB_CREDS_PSW'` would just print the password in plaintext to the log, doesn't the whole masking mechanism fall apart with one careless line? Not quite — Jenkins scans the raw output BEFORE it's written to the log and replaces any substring matching a known credential value with ****, which is exactly why you should never manually construct a secret from fragments. Java analogy: this is the same discipline as never logging a raw `Exception` that might contain a `getMessage()` with an embedded password — the masking has to happen at the sink (the log itself), not by trusting every caller to remember not to print it. In real QA work, a leaked database credential in a public Jenkins console log — visible to anyone with read access to the job — has caused real production incidents; the `credentials()` binding exists specifically so a QA automation engineer writing a Jenkinsfile never has to paste a raw password into version-controlled code in the first place.",
+          },
           { type: 'heading', text: 'Environment Variables' },
           {
             type: 'code',
@@ -1358,7 +1424,7 @@ pipeline {
 
       // ── SECTION 3: QA INTEGRATION ──────────────────────────────────────────
       {
-        title: '🧪 QA Tool Integration',
+        title: '🧪 pytest & JMeter in Jenkins',
         blocks: [
           {
             type: 'simple-box',
@@ -1460,6 +1526,65 @@ pipeline {
     }
 }`,
           },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'jenkins-pytest-jmeter-order-01',
+            question: { tr: 'Bir pytest Jenkins stage\'inin rapor kaybetmeyen akışını diz.', en: 'Order a pytest Jenkins stage flow that never loses its report.' },
+            items: [
+              { id: '1', text: { tr: 'venv oluştur ve bağımlılıkları kur', en: 'Create a venv and install dependencies' }, order: 1 },
+              { id: '2', text: { tr: 'pytest\'i --junitxml ve --html bayraklarıyla çalıştır', en: 'Run pytest with the --junitxml and --html flags' }, order: 2 },
+              { id: '3', text: { tr: 'post { always } içinde junit ve publishHTML çalıştır', en: 'Run junit and publishHTML inside post { always }' }, order: 3 },
+              { id: '4', text: { tr: 'post { failure } içinde Slack\'e hata gönder', en: 'Send the error to Slack inside post { failure }' }, order: 4 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'quiz',
+            question: 'A teammate\'s Jenkinsfile runs JMeter with the GUI mode flag inside a CI stage, and the build hangs indefinitely. What is the correct fix?',
+            options: [
+              { id: 'a', text: 'Increase the pipeline timeout' },
+              { id: 'b', text: 'Always run JMeter with the -n (non-GUI) flag in CI — the GUI mode opens an interactive window that has no display and never returns control to the pipeline' },
+              { id: 'c', text: 'Switch the agent to a Windows machine' },
+              { id: 'd', text: 'Add a post { always { ... } } block' },
+            ],
+            correct: 'b',
+            explanation: "JMeter's GUI mode is for local test authoring only — in a headless CI agent there's no display to render the window, and the pipeline blocks forever waiting for a UI that can never appear. -n is mandatory in any CI/CD JMeter stage.",
+
+        retryQuestion: {
+      "question": "Why does the pytest stage in a Jenkinsfile pass --junitxml=reports/junit.xml even when --html is already being used for a human-readable report?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "--junitxml is required syntax and has no functional purpose"
+            },
+            {
+                  "id": "b",
+                  "text": "Jenkins' built-in junit post-build step only understands the JUnit XML format to build its test-trend graph and pass/fail count in the UI — the HTML report is for humans, the XML is for Jenkins itself to parse"
+            },
+            {
+                  "id": "c",
+                  "text": "--html and --junitxml cannot be used in the same pytest run"
+            },
+            {
+                  "id": "d",
+                  "text": "--junitxml makes the tests run faster"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Jenkins' junit step parses JUnit-format XML to populate its native test result UI (trend graphs, pass/fail counts per build). The HTML report is a separate, human-facing artifact — they serve different consumers (Jenkins itself vs. a person clicking through the build page)."
+}
+},
+        ],
+      },
+      {
+        title: '🎭 Playwright in Jenkins',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: "Running Playwright inside Jenkins with a plain Linux agent is like asking a delivery courier to also personally manufacture the truck, the tires, and the fuel before every single delivery — technically possible, but fragile and slow, and the moment a browser version silently drifts out of sync with the Playwright test runner version, tests start failing for a reason that has nothing to do with your code. Official Docker images solve this by shipping the exact matching browser binaries INSIDE the same image as the test runner, so `agent { docker { image 'mcr.microsoft.com/playwright:v1.42.0-jammy' } }` guarantees the courier arrives with the correct truck already built. The thought-provoking question: if `npm install` already installs Playwright's own browser binaries locally, why bother with a whole separate Docker image at all? Because a shared Jenkins agent runs MANY different jobs with MANY different Playwright versions over time — without an isolated container, one job's browser install can silently overwrite or conflict with another's, exactly the kind of 'works on my machine but not in CI' bug that has no clean local reproduction. Java analogy: this is the same reasoning behind pinning an exact JDK version inside a Docker image for a build agent instead of trusting whatever JDK happens to be globally installed on a shared build server — reproducibility beats convenience. In real QA work, 'browser executable not found' or a mysteriously different rendering result between two CI runs of the identical test is almost always this exact problem, and it disappears the moment the pipeline runs inside a version-pinned container instead of a bare shared agent.",
+          },
           { type: 'heading', text: 'Running Playwright Tests in Jenkins (Best Practice)' },
           {
             type: 'code',
@@ -1506,6 +1631,57 @@ pipeline {
         }
     }
 }`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi İlk Jenkinsfile sekmesindeki Jenkins Sandbox\'ta dene: yukarıdaki gibi resmi bir Docker image kullanan bir stage ekle (mevcut \'Deploy\' stage\'ine benzer şekilde, içinde bir echo adımı yeterli) ve build\'i yeşil bitir.', en: 'Try it now in the Jenkins Sandbox on the First Jenkinsfile tab: add a stage that uses an official Docker image like the one above (similar to the existing "Deploy" stage, an echo step is enough) and finish the build green.' },
+          },
+          {
+            type: 'quiz',
+            question: "A Jenkinsfile runs Playwright tests on a plain `agent any` Linux node and consistently fails with 'browser executable not found'. What is the recommended fix shown in this lesson?",
+            options: [
+              { id: 'a', text: 'Install Chrome manually with apt-get in every stage' },
+              { id: 'b', text: "Use the official mcr.microsoft.com/playwright Docker image as the pipeline's agent — it ships with all browsers pre-installed, so there is nothing to install or drift out of sync" },
+              { id: 'c', text: 'Skip the E2E stage entirely' },
+              { id: 'd', text: 'Run the tests with --headed instead of headless mode' },
+            ],
+            correct: 'b',
+            explanation: "Manually installing browsers on a shared Jenkins node is fragile — versions drift, and other jobs can conflict. The official Playwright Docker image bundles matching browser binaries with the test runner version, so agent { docker { image 'mcr.microsoft.com/playwright:...' } } guarantees a clean, reproducible environment every run.",
+
+        retryQuestion: {
+      "question": "Inside the Playwright Jenkinsfile, why does the Docker agent block include args '-u root'?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "It has no real effect and is a leftover from copy-pasting"
+            },
+            {
+                  "id": "b",
+                  "text": "The official Playwright image's default user lacks permission to install/write certain files inside the container during the test run, so running as root avoids permission errors in CI"
+            },
+            {
+                  "id": "c",
+                  "text": "It disables headless mode"
+            },
+            {
+                  "id": "d",
+                  "text": "It is required to enable networking inside the container"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Some CI operations (installing dependencies, writing to certain directories) need elevated permissions inside the container. -u root runs the container's process as root to avoid permission-denied errors — a common, pragmatic CI Docker pattern (though in a production deploy container you'd typically want a non-root user for security)."
+}
+},
+        ],
+      },
+      {
+        title: '📢 Slack & QA Reporting',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📢',
+            content: "A Jenkins pipeline that runs tests but never tells anyone the result is like a smoke detector with its battery removed — technically present, technically 'working' in the sense that it would detect smoke if anyone happened to be standing there watching it, but useless the moment nobody is looking. Routing `post { failure { slackSend(...) } }` into a team channel converts a silent log file that only helps whoever happens to be staring at the Jenkins UI at that exact moment into an active page that reaches the person who broke the build within minutes, not hours. The thought-provoking question: if you can already see failures by opening the Jenkins UI, why is a push notification necessary at all? Because a QA engineer or developer only opens Jenkins when they already suspect something is wrong — Slack notifications flip the model from 'pull only when I remember to check' to 'push the moment something breaks', and the difference in mean-time-to-fix is measured in hours, not a matter of taste. Java analogy: this is the same reasoning behind wiring a Java application's uncaught exception handler to page on-call instead of trusting an engineer to notice a stack trace buried in a log file. In real QA work, a test failure that surfaces in Slack within two minutes of the triggering commit gets fixed by the person who broke it before they've moved on to something else, while the same failure discovered at the next morning's standup has already blocked three other people's merges on top of it.",
           },
           { type: 'heading', text: 'Slack Notifications — Rich Format' },
           {
@@ -2239,7 +2415,7 @@ pipeline {
       subtitle: 'Sürekli Entegrasyon ve Sürekli Dağıtım',
       intro: 'Jenkins\'i sıfırdan mülakat seviyesine taşı. Her commit\'te build\'leri otomatikleştir, QA araçlarınla entegre et ve yazılımı daha hızlı ve güvenle teslim et.',
     },
-    tabs: ['🎯 Giriş', '⚙️ Kurulum', '🔁 Pipeline', '🧪 QA Entegrasyonu', '🚀 İleri Seviye', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '💼 Mülakat S&C'],
+    tabs: ['🎯 Giriş', '⚙️ Kurulum', '🔁 İlk Jenkinsfile', '🔐 Environment & Credentials', '🧪 pytest & JMeter', '🎭 Playwright', '📢 Slack & QA Reporting', '🚀 İleri Seviye', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────
       {
@@ -2499,7 +2675,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 
       // ── SECTION 2: PIPELINE (TR) ───────────────────────────────────────────
       {
-        title: '🔁 Jenkins Pipeline Temelleri',
+        title: '🔁 İlk Jenkinsfile',
         blocks: [
           {
             type: 'simple-box',
@@ -2640,6 +2816,52 @@ pipeline {
               { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
             ],
           },
+          {
+            type: 'quiz',
+            question: 'Jenkins Sandbox\'ta bir Jenkinsfile\'dan `agent any` satırını silmek, hiçbir stage başlamadan bir derleme hatasıyla build\'i başarısız kılar. `agent` bir declarative pipeline\'ın başında neden zorunludur?',
+            options: [
+              { id: 'a', text: 'agent, pipeline\'ın NEREDE çalışacağını tanımlar (herhangi bir uygun node, belirli bir label veya bir Docker container içi) — bu olmadan Jenkins\'in stage\'leri çalıştıracağı bir makine yoktur' },
+              { id: 'b', text: 'agent sadece paralel stage\'ler için gereklidir' },
+              { id: 'c', text: 'agent isteğe bağlıdır ve sadece log ayrıntı seviyesini etkiler' },
+              { id: 'd', text: 'agent pipeline seviyesinde değil, her bir step\'in içinde tanımlanmalıdır' },
+            ],
+            correct: 'a',
+            explanation: 'Her declarative pipeline stage\'lerinin nerede çalışacağını bildirmek zorundadır — agent any Jenkins\'in herhangi bir uygun executor seçmesine izin verir, agent { docker { ... } } bir container içinde çalışır. Bir agent olmadan işi zamanlayacak hiçbir şey yoktur, bu yüzden Jenkins başlamayı bile reddeder.',
+
+        retryQuestion: {
+      "question": "Bir takım lideri itiraz ediyor: 'Neden GUI ile yapılandırdığımız Freestyle Job\'ları Jenkinsfile koduna çevirelim ki? Arayüz gayet iyi çalışıyor.' Bir Jenkinsfile\'ı tercih etmek için en güçlü teknik neden nedir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Bir Jenkinsfile bir Freestyle Job'dan daha hızlı çalışır"
+            },
+            {
+                  "id": "b",
+                  "text": "Bir Jenkinsfile kaynak kodla aynı repoda durur ve herhangi bir kod değişikliği gibi aynı pull-request review sürecinden geçer; GUI ile yapılandırılmış bir job ise version control ve code review için görünmezdir"
+            },
+            {
+                  "id": "c",
+                  "text": "Freestyle Job'lar agent kullanamaz"
+            },
+            {
+                  "id": "d",
+                  "text": "Jenkins'in başlaması için bir Jenkinsfile zorunludur"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Asıl avantaj hız değil — izlenebilirliktir. Bir Jenkinsfile diğer her kod gibi versiyonlanır ve review edilir, bu yüzden kimse görünür bir diff olmadan CI/CD sürecini sessizce değiştiremez. Bir Freestyle Job'ın yapılandırması sadece Jenkins sunucusunda yaşar."
+}
+},
+        ],
+      },
+      {
+        title: '🔐 Environment & Credentials',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '✉️',
+            content: 'Bir Jenkins `environment` bloğu, bir kuryeye verilmiş mühürlü bir zarf gibidir: kurye (pipeline) zarfın içindekini — bir şifre, bir API token\'ı — teslimatı tamamlamak için kullanabilir, ama zarfı açıp içeriğini yüksek sesle okuyamaz, çünkü Jenkins bir credential değeri console log\'da görünmek üzereyken onu otomatik olarak maskeler. Düşündürücü soru şu: `sh \'echo $DB_CREDS_PSW\'` çalıştırırsan şifreyi zaten düz metin olarak log\'a yazdırmış olmaz mısın, o zaman bütün maskeleme mekanizması bir dikkatsiz satırla çökmez mi? Tam olarak değil — Jenkins ham çıktıyı log\'a yazılmadan ÖNCE tarar ve bilinen bir credential değerine uyan her alt-diziyi **** ile değiştirir; tam da bu yüzden bir secret\'ı parçalardan elle birleştirmemelisin. Java benzetmesi: bu, içinde şifre geçebilecek bir `getMessage()` barındıran ham bir `Exception`\'ı asla loglamamakla aynı disiplindir — maskeleme sink\'te (log\'un kendisinde) olmalı, her çağıranın onu yazdırmamayı hatırlamasına güvenerek değil. Gerçek QA işinde, herkese açık bir Jenkins console log\'unda sızan bir database credential\'ı — job\'a okuma erişimi olan herkese görünür — gerçek production incident\'larına yol açmıştır; `credentials()` bağlama mekanizması tam olarak bu yüzden var: bir QA automation mühendisinin Jenkinsfile\'a hiçbir zaman ham bir şifre yapıştırmasına gerek kalmasın diye.',
+          },
           { type: 'heading', text: 'Environment Variable Kullanımı' },
           {
             type: 'code',
@@ -2748,7 +2970,7 @@ pipeline {
 
       // ── SECTION 3: QA INTEGRATION (TR) ────────────────────────────────────
       {
-        title: '🧪 QA Araç Entegrasyonu',
+        title: '🧪 pytest & JMeter in Jenkins',
         blocks: [
           {
             type: 'simple-box',
@@ -2850,6 +3072,65 @@ pipeline {
     }
 }`,
           },
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'jenkins-pytest-jmeter-order-01',
+            question: { tr: 'Bir pytest Jenkins stage\'inin rapor kaybetmeyen akışını diz.', en: 'Order a pytest Jenkins stage flow that never loses its report.' },
+            items: [
+              { id: '1', text: { tr: 'venv oluştur ve bağımlılıkları kur', en: 'Create a venv and install dependencies' }, order: 1 },
+              { id: '2', text: { tr: 'pytest\'i --junitxml ve --html bayraklarıyla çalıştır', en: 'Run pytest with the --junitxml and --html flags' }, order: 2 },
+              { id: '3', text: { tr: 'post { always } içinde junit ve publishHTML çalıştır', en: 'Run junit and publishHTML inside post { always }' }, order: 3 },
+              { id: '4', text: { tr: 'post { failure } içinde Slack\'e hata gönder', en: 'Send the error to Slack inside post { failure }' }, order: 4 },
+            ],
+            xpReward: 10,
+          },
+          {
+            type: 'quiz',
+            question: 'Bir takım arkadaşının Jenkinsfile\'ı bir CI stage\'inde JMeter\'ı GUI mode bayrağıyla çalıştırıyor ve build sonsuza dek asılı kalıyor. Doğru çözüm nedir?',
+            options: [
+              { id: 'a', text: 'Pipeline timeout\'unu artır' },
+              { id: 'b', text: 'CI\'da JMeter\'ı her zaman -n (non-GUI) bayrağıyla çalıştır — GUI mode, ekranı olmayan interaktif bir pencere açar ve pipeline\'a kontrolü asla geri vermez' },
+              { id: 'c', text: 'Agent\'ı bir Windows makinesine çevir' },
+              { id: 'd', text: 'Bir post { always { ... } } bloğu ekle' },
+            ],
+            correct: 'b',
+            explanation: 'JMeter\'ın GUI mode\'u sadece local test yazımı içindir — headless bir CI agent\'ında pencereyi render edecek bir ekran yoktur ve pipeline, asla belirmeyecek bir arayüzü bekleyerek sonsuza dek bloklanır. -n, herhangi bir CI/CD JMeter stage\'inde zorunludur.',
+
+        retryQuestion: {
+      "question": "Bir Jenkinsfile'daki pytest stage'i, --html zaten insan-okunabilir bir rapor için kullanılıyorken neden ayrıca --junitxml=reports/junit.xml de gönderir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "--junitxml zorunlu bir syntax'tır ve işlevsel bir amacı yoktur"
+            },
+            {
+                  "id": "b",
+                  "text": "Jenkins'in yerleşik junit post-build step'i, test-trend grafiğini ve build başına pass/fail sayısını arayüzde oluşturmak için SADECE JUnit XML formatını anlar — HTML rapor insanlar içindir, XML ise Jenkins'in kendisinin parse etmesi içindir"
+            },
+            {
+                  "id": "c",
+                  "text": "--html ve --junitxml aynı pytest koşumunda birlikte kullanılamaz"
+            },
+            {
+                  "id": "d",
+                  "text": "--junitxml testlerin daha hızlı çalışmasını sağlar"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Jenkins'in junit step'i, kendi yerleşik test sonucu arayüzünü (trend grafikleri, build başına pass/fail sayıları) doldurmak için JUnit formatındaki XML'i parse eder. HTML rapor ayrı, insana yönelik bir artifact'tir — ikisi farklı tüketicilere hizmet eder (Jenkins'in kendisi ile build sayfasında tıklayan bir kişi)."
+}
+},
+        ],
+      },
+      {
+        title: '🎭 Playwright in Jenkins',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: 'Jenkins içinde Playwright\'i düz bir Linux agent üzerinde çalıştırmak, bir kurye şoförüne her tek teslimattan önce kamyonu, lastikleri ve yakıtı bizzat üretmesini istemek gibidir — teknik olarak mümkündür ama kırılgandır ve yavaştır; bir browser sürümü Playwright test runner sürümüyle sessizce senkron dışı kaldığı anda testler, kodunla hiçbir ilgisi olmayan bir nedenle başarısız olmaya başlar. Resmi Docker image\'ları bunu, tam olarak eşleşen browser binary\'lerini test runner\'la AYNI image\'ın İÇİNE koyarak çözer — `agent { docker { image \'mcr.microsoft.com/playwright:v1.42.0-jammy\' } }` kuryenin doğru şekilde inşa edilmiş kamyonla geldiğini garanti eder. Düşündürücü soru şu: `npm install` zaten Playwright\'in kendi browser binary\'lerini local\'e kuruyorsa, neden ayrıca bütün bir Docker image\'a ihtiyaç duyalım ki? Çünkü paylaşılan bir Jenkins agent\'ı zaman içinde ÇOK FARKLI job\'ları ÇOK FARKLI Playwright sürümleriyle çalıştırır — izole bir container olmadan, bir job\'ın browser kurulumu sessizce bir başkasınınkinin üzerine yazabilir veya onunla çakışabilir; tam da \'benim makinemde çalışıyor ama CI\'da çalışmıyor\' tarzı, temiz bir local tekrarı olmayan bug\'lardan biri. Java benzetmesi: bu, bir build agent\'ı için tam bir JDK sürümünü Docker image\'ının içine sabitlemekle aynı mantıktır — paylaşılan bir build sunucusunda global olarak hangi JDK kuruluysa ona güvenmek yerine. Gerçek QA işinde, \'browser executable not found\' hatası veya aynı testin iki CI koşumu arasında gizemli şekilde farklı bir render sonucu, neredeyse her zaman tam olarak bu problemdir ve pipeline çıplak paylaşılan bir agent yerine sürüm-sabitlenmiş bir container içinde çalıştığı anda kaybolur.',
+          },
           { type: 'heading', text: 'Jenkins\'te Playwright Testleri (En İyi Pratik)' },
           {
             type: 'code',
@@ -2896,6 +3177,57 @@ pipeline {
         }
     }
 }`,
+          },
+          {
+            type: 'callout',
+            icon: '🧪',
+            content: { tr: 'Şimdi İlk Jenkinsfile sekmesindeki Jenkins Sandbox\'ta dene: yukarıdaki gibi resmi bir Docker image kullanan bir stage ekle (mevcut \'Deploy\' stage\'ine benzer şekilde, içinde bir echo adımı yeterli) ve build\'i yeşil bitir.', en: 'Try it now in the Jenkins Sandbox on the First Jenkinsfile tab: add a stage that uses an official Docker image like the one above (similar to the existing "Deploy" stage, an echo step is enough) and finish the build green.' },
+          },
+          {
+            type: 'quiz',
+            question: 'Bir Jenkinsfile, Playwright testlerini düz bir `agent any` Linux node\'unda çalıştırıyor ve sürekli "browser executable not found" hatasıyla başarısız oluyor. Bu derste gösterilen önerilen çözüm nedir?',
+            options: [
+              { id: 'a', text: 'Her stage\'de apt-get ile Chrome\'u elle kur' },
+              { id: 'b', text: 'Pipeline\'ın agent\'ı olarak resmi mcr.microsoft.com/playwright Docker image\'ını kullan — tüm browser\'lar önceden kurulu gelir, kurulacak veya senkron dışı kalacak hiçbir şey yoktur' },
+              { id: 'c', text: 'E2E stage\'ini tamamen atla' },
+              { id: 'd', text: 'Testleri headless yerine --headed ile çalıştır' },
+            ],
+            correct: 'b',
+            explanation: 'Paylaşılan bir Jenkins node\'unda browser\'ları elle kurmak kırılgandır — sürümler senkron dışı kalır ve diğer job\'lar çakışabilir. Resmi Playwright Docker image\'ı, test runner sürümüyle eşleşen browser binary\'lerini birlikte paketler, bu yüzden agent { docker { image \'mcr.microsoft.com/playwright:...\' } } her koşumda temiz, tekrarlanabilir bir ortam garanti eder.',
+
+        retryQuestion: {
+      "question": "Playwright Jenkinsfile'ının içinde, Docker agent bloğu neden args '-u root' içerir?",
+      "options": [
+            {
+                  "id": "a",
+                  "text": "Gerçek bir etkisi yoktur ve copy-paste'ten kalma bir kalıntıdır"
+            },
+            {
+                  "id": "b",
+                  "text": "Resmi Playwright image'ının varsayılan kullanıcısı, test koşumu sırasında container içinde bazı dosyaları kurma/yazma izninden yoksundur, bu yüzden root olarak çalışmak CI'da izin hatalarını önler"
+            },
+            {
+                  "id": "c",
+                  "text": "Headless mode'u devre dışı bırakır"
+            },
+            {
+                  "id": "d",
+                  "text": "Container içinde network'ü etkinleştirmek için gereklidir"
+            }
+      ],
+      "correct": "b",
+      "explanation": "Bazı CI işlemleri (bağımlılık kurma, belirli dizinlere yazma) container içinde yükseltilmiş izin gerektirir. -u root, container'ın sürecini root olarak çalıştırarak izin-reddedildi hatalarını önler — yaygın, pragmatik bir CI Docker kalıbıdır (ancak production deploy container'ında güvenlik için genelde root olmayan bir kullanıcı tercih edilir)."
+}
+},
+        ],
+      },
+      {
+        title: '📢 Slack & QA Reporting',
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📢',
+            content: 'Test çalıştıran ama sonucu kimseye söylemeyen bir Jenkins pipeline\'ı, pili çıkarılmış bir duman dedektörü gibidir — teknik olarak oradadır, teknik olarak "çalışır" çünkü biri tam o an durup izliyorsa dumanı algılayabilir, ama kimse bakmıyorsa tamamen işe yaramazdır. `post { failure { slackSend(...) } }`\'i bir takım kanalına yönlendirmek, sadece o anda Jenkins arayüzüne bakan kişiye yardımcı olan sessiz bir log dosyasını, build\'i bozan kişiye dakikalar içinde ulaşan aktif bir uyarıya çevirir — saatler içinde değil. Düşündürücü soru şu: Jenkins arayüzünü açarak zaten hataları görebiliyorsan, neden bir push bildirimine ihtiyaç var ki? Çünkü bir QA mühendisi veya geliştirici Jenkins\'i genelde ancak bir şeyin ters gittiğinden ZATEN şüphelendiğinde açar — Slack bildirimleri modeli "hatırladığımda kontrol ederim (pull)"dan "bir şey bozulduğu an it (push)"e çevirir ve ortalama düzeltme süresindeki fark bir zevk meselesi değil, saatlerle ölçülür. Java benzetmesi: bu, bir Java uygulamasının yakalanmamış exception handler\'ını, bir log dosyasının içine gömülü bir stack trace\'i bir mühendisin fark etmesine güvenmek yerine on-call\'a sayfalama yapacak şekilde bağlamakla aynı mantıktır. Gerçek QA işinde, tetikleyen commit\'ten iki dakika içinde Slack\'te görünen bir test hatası, kişi başka bir işe geçmeden ONU BOZAN kişi tarafından düzeltilir; aynı hata bir sonraki sabahki standup\'ta keşfedilirse üzerine zaten üç kişinin daha merge\'ini bloklamıştır.',
           },
           { type: 'heading', text: 'Zengin Slack Bildirimleri' },
           {
