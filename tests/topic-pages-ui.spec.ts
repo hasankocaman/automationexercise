@@ -63,6 +63,14 @@ for (const route of TOPIC_ROUTES) {
         const tabCount = await tabButtons.count();
         expect(tabCount, `${route}: sidebar sekmesi bulunamadı`).toBeGreaterThan(0);
 
+        // Sekme başlıkları `title` attribute'unda temiz (ikon/kilit eklentisiz)
+        // haliyle duruyor — sekme sayfaya AÇILMADAN ÖNCE, sabit bir referans
+        // olarak topluca okunuyor (AC 11: sekme alt gezinme doğruluğu).
+        const tabTitles: string[] = [];
+        for (let i = 0; i < tabCount; i++) {
+            tabTitles.push(((await tabButtons.nth(i).getAttribute('title')) || '').trim());
+        }
+
         const disabledButtonsFound: string[] = [];
 
         for (let i = 0; i < tabCount; i++) {
@@ -76,6 +84,37 @@ for (const route of TOPIC_ROUTES) {
             const bodyText = await page.locator('body').innerText();
             const hasCrash = CRASH_MARKERS.some((needle) => bodyText.includes(needle));
             expect(hasCrash, `${route} sekme ${i}: render hatası tespit edildi`).toBe(false);
+
+            // AC 11 — Sekme alt gezinme (prev/next) doğruluğu: footer'daki
+            // "← Önceki" / "Sonraki →" butonları GERÇEK komşu sekmenin adını
+            // göstermeli ve asla birbirinin AYNISI olmamalı (bkz. 2026-07-05
+            // /docker'da bildirilen "her zaman Image'lar yazıyor" raporu).
+            const prevBtn = page.getByTestId('tab-nav-prev');
+            const nextBtn = page.getByTestId('tab-nav-next');
+            const hasPrev = i > 0;
+            const hasNext = i < tabCount - 1;
+            let prevText = '';
+            let nextText = '';
+            if (hasPrev) {
+                await expect(prevBtn, `${route} sekme ${i}: prev butonu görünmüyor`).toBeVisible();
+                prevText = (await prevBtn.innerText()).trim();
+                expect(prevText, `${route} sekme ${i}: prev butonu "${tabTitles[i - 1]}" içermeli, "${prevText}" bulundu`)
+                    .toContain(tabTitles[i - 1]);
+            } else {
+                await expect(prevBtn, `${route} sekme ${i} (ilk sekme): prev butonu görünmemeli`).toHaveCount(0);
+            }
+            if (hasNext) {
+                await expect(nextBtn, `${route} sekme ${i}: next butonu görünmüyor`).toBeVisible();
+                nextText = (await nextBtn.innerText()).trim();
+                expect(nextText, `${route} sekme ${i}: next butonu "${tabTitles[i + 1]}" içermeli, "${nextText}" bulundu`)
+                    .toContain(tabTitles[i + 1]);
+            } else {
+                await expect(nextBtn, `${route} sekme ${i} (son sekme): next butonu görünmemeli`).toHaveCount(0);
+            }
+            if (hasPrev && hasNext) {
+                expect(prevText, `${route} sekme ${i}: prev ve next butonu AYNI metni gösteriyor ("${prevText}")`)
+                    .not.toBe(nextText);
+            }
 
             // İçerik alanındaki butonlar görünür olmalı. Enabled durumu burada hard-fail
             // yapmıyoruz: birçok aksiyon butonu (AI değerlendir, mesaj gönder vb.) kasıtlı

@@ -131,6 +131,46 @@ Kullanıcı, ana sayfada yer alan tüm butonlara ve tıklanabilir ögelere sorun
 
 ---
 
+#### AC 11 — Sekme Alt Gezinme (Prev/Next) Doğruluğu
+
+**Kapsam:** TopicPage tabanlı TÜM teknoloji sayfaları (Docker, Python, Selenium,
+Playwright, Cypress, SQL, TypeScript, JavaScript, Java, Git & GitHub, Linux,
+Kubernetes, Jenkins, Postman, Bruno, REST Assured, JMeter, Kafka, Appium,
+BrowserStack, AWS, Azure, what-is-testing, test-frameworks vb.)
+
+- Her sekmenin altındaki "← Önceki sekme" ve "Sonraki sekme →" gezinme
+  butonları, o an aktif olan sekmenin GERÇEK bir önceki/bir sonraki komşusunun
+  adını göstermelidir.
+- İlk sekmede "← Önceki" butonu, son sekmede "Sonraki →" butonu HİÇ
+  render edilmemelidir (gizli değil, DOM'da bulunmamalı).
+- "← Önceki" ve "Sonraki →" butonları **asla aynı metni** göstermemelidir.
+- Bu kural, sekmenin altındaki yeşil "✅ Bu bölümü bitirdin → Sıradaki: X"
+  kartı için de geçerlidir (aynı `tabs[activeTab±1]` mantığını kullanır).
+
+**Bulgu (2026-07-05):** Kullanıcı, `/docker` sayfasında sekme sırası ne olursa
+olsun alt gezinme butonlarının hep "Image'lar" gösterdiğini bildirdi
+(ekran görüntüsüyle). Kapsamlı inceleme (kod okuma + TR/EN/masaüstü/mobil
+canlı Playwright testi + `src/data/*Data.js` genelinde `tabs` dizilerinde
+mükerrer sekme adı taraması) mevcut `main` HEAD'inde bu davranışı YENİDEN
+ÜRETEMEDİ — muhtemelen deploy/cache zamanlama sorunuydu. Kök neden kesin
+doğrulanamadığından, kalıcı bir regresyon testi eklendi (aşağıya bak) —
+bu sınıf bir hata gelecekte HERHANGİ bir sayfada oluşursa artık build/commit
+aşamasında yakalanır.
+
+**Teknik uygulama:**
+- `TopicPage.jsx` ve `TestFrameworksPage.jsx`'teki pagination butonlarına
+  `data-testid="tab-nav-prev"` / `data-testid="tab-nav-next"` eklendi
+  (görsel/davranışsal değişiklik yok, sadece test kancası).
+- `TopicPage.jsx`'teki "Sıradaki" tamamlama kartına `data-testid="tab-nav-next-suggestion"` eklendi.
+
+**Test dosyası:** `tests/topic-pages-ui.spec.ts` — her route için, sekme
+döngüsünün HER adımında prev/next butonlarının doğru komşu sekmeyi
+gösterdiği ve birbirinden farklı olduğu doğrulanır. Bu dosya `npm run test:e2e`
+kapsamında olduğundan **her commit sonrası `post-commit` hook'u ile otomatik
+çalışır** (bkz. CLAUDE.md §22, `scripts/post-commit-tests.sh`).
+
+---
+
 ## ✅ Tamamlanan Geliştirmeler
 
 ### 1. Manual Testing Lab

@@ -182,6 +182,7 @@ function TestFrameworksPage() {
                         <div className="flex justify-between mt-4 md:mt-6 gap-4">
                             {activeSection > 0 && (
                                 <button
+                                    data-testid="tab-nav-prev"
                                     onClick={() => setActiveSection(activeSection - 1)}
                                     className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
                                 >
@@ -190,6 +191,7 @@ function TestFrameworksPage() {
                             )}
                             {activeSection < sections.length - 1 && (
                                 <button
+                                    data-testid="tab-nav-next"
                                     onClick={() => setActiveSection(activeSection + 1)}
                                     className={`ml-auto flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all bg-gradient-to-r ${gradient} text-white hover:shadow-lg`}
                                 >
