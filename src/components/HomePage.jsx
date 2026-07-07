@@ -718,6 +718,12 @@ function HomePage() {
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
+                                <span className="relative inline-block">
+                                    <Link to="/claude-ai" data-testid="nav-claude-ai" className={nb('orange')}>🤖 Claude AI</Link>
+                                    <span aria-hidden="true" className="absolute -top-2.5 -right-1.5 z-10 px-1.5 py-0.5 rounded-full text-[8px] font-black leading-none whitespace-nowrap pointer-events-none shadow-sm bg-rose-500 text-white">
+                                        {language === 'tr' ? 'YENİ' : 'NEW'}
+                                    </span>
+                                </span>
                                 {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>}
                                 <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
                             </div>
