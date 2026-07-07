@@ -179,6 +179,11 @@ export const ROUTE_SEO = [
         description: 'Learn how QA engineers use Claude AI from junior to senior: prompt engineering, test case generation, Selenium and Playwright automation, Claude Code and MCP.',
     },
     {
+        path: '/llm-agents',
+        title: 'LLM and AI Agents Explained for QA Testers | LearnQA.dev',
+        description: 'Understand what LLMs and AI agents are, how they are trained, and how a QA tester builds a simple test agent with the OpenAI API, with hands-on labs.',
+    },
+    {
         path: '/auth/callback',
         title: 'Signing you in | LearnQA.dev',
         description: 'Completing your LearnQA.dev sign-in. You will be redirected automatically once authentication finishes.',

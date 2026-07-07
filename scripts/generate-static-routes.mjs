@@ -40,6 +40,7 @@ const DATA_MODULES = {
     '/backend': { file: '../src/data/backendData.js', exportName: 'backendData' },
     '/basit-backend': { file: '../src/data/basitBackendData.js', exportName: 'basitBackendData' },
     '/claude-ai': { file: '../src/data/claudeAiData.js', exportName: 'claudeAiData' },
+    '/llm-agents': { file: '../src/data/llmAgentsData.js', exportName: 'llmAgentsData' },
 }
 
 function escapeHtml(value) {

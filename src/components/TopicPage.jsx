@@ -21,6 +21,7 @@ import DockerSandboxBlock from './DockerSandboxBlock'
 import KubernetesSandboxBlock from './KubernetesSandboxBlock'
 import JenkinsSandboxBlock from './JenkinsSandboxBlock'
 import ClaudePromptLabBlock from './ClaudePromptLabBlock'
+import TokenPredictorBlock from './TokenPredictorBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17675,6 +17676,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'claude-prompt-lab':
             return <ClaudePromptLabBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'token-lab':
+            return <TokenPredictorBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null

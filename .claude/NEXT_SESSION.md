@@ -10,7 +10,78 @@
 
 ---
 
-## /claude-ai — CS5 TAMAMLANDI: Mülakat (50 Soru) + Denetim/Test Entegrasyonu — SAYFA MAIN'E MERGE'E HAZIR (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+## YENİ SAYFA: /llm-agents "LLM & AI Agents" — LC1 TAMAMLANDI (2026-07-07, `feature/llm-agents-page`)
+
+> Kullanıcı sordu: "LLM nedir, agent nedir, nasıl eğitilir, tester OpenAI ile
+> kendi agent'ını kurabilir/eğitebilir mi — /claude-ai'ye mi eklensin, ayrı
+> sayfa mı olsun?" **Karar: AYRI SAYFA** (`/llm-agents`) — 4 gerekçe
+> `llmcreate.md` "Karar" bölümünde (özet: araç iş-akışı sayfası vs temel
+> bilgi + kendi elinle üretme sayfası; ayrı SEO arama niyeti; /claude-ai'nin
+> araç tarafsızlığı; 13+13 sekme tek sayfada gezilemez).
+
+### Yapılan iş — LC1 (FABLE)
+
+1. **`llmcreate.md` (YENİ, repo kökü):** 13 sekmelik mimari (temelden üretime:
+   AI/ML/LLM haritası → token/tahmin → pretraining → fine-tuning/RLHF → context
+   & halüsinasyon → agent → function calling → OpenAI API → kendi test agent'ın
+   → "agent eğitilir mi?" (prompt vs RAG vs fine-tune) → üretim/evals → riskler
+   → 50 soruluk mülakat), LC1-LC6 iş paketleri, LC2-LC6 için HAZIR Sonnet
+   promptları. Kritik kararlar: sayfa LC6 bitmeden main'e merge edilmez;
+   sayfada canlı API çağrısı yok; kod örnekleri Python + TR yorum; model
+   adı/fiyat sabitleme YASAK (yer tutucu + "resmi docs'a bak"); ana sayfa
+   butonu LC6'da eklenir; framework turu (LangChain vb.) kapsam dışı.
+2. **Branch stratejisi:** `feature/llm-agents-page`, `feature/claude-ai-page`
+   ucundan (bd3c939) açıldı — ortak dosyalarda (App.jsx, seo.js,
+   generate-static-routes.mjs) merge çakışmasını sıfırlar. Merge sırası:
+   önce claude-ai → main, sonra bu branch.
+3. **Route iskeleti:** `src/App.jsx` (`/llm-agents` + lazy), `src/utils/seo.js`,
+   `src/components/LlmAgentsPage.jsx` (YENİ, violet/purple gradient),
+   `scripts/generate-static-routes.mjs`.
+4. **`src/components/TokenPredictorBlock.jsx` (YENİ interaktif bileşen — Token Lab):**
+   LLM'in next-token prediction mekanizmasını yaşatan deterministik simülatör:
+   3 senaryo (Selenium cümlesi + İKİZ Jaguar bağlam-kayması senaryoları), aday
+   token'lar olasılık çubuklarıyla, GERÇEK softmax temperature matematiği
+   (p^(1/T) normalize), greedy/sample/elle seçim, turuncu düşük-olasılık
+   "halüsinasyon yolu", 5 görev. `TopicPage.jsx`'e `token-lab` tipi kaydedildi.
+5. **`src/data/llmAgentsData.js` (YENİ):** hero + 2 sekme EN+TR simetrik:
+   "🎯 Giriş: AI, ML ve LLM Haritası" (harita/zoom analojili §9.3 simple-box,
+   5 katman tablosu, deterministik/olasılıksal ayrımı, step-animation,
+   order-sort, /claude-ai çapraz callout, quiz+retry) ve "🧱 LLM Nedir: Token
+   ve Tahmin Motoru" (klavye-önerisi analojili §9.3 simple-box, tokenization
+   code bloğu + tokenize code-playground'u (relatedTopicId'li), üretim döngüsü
+   step-animation, Token Lab + 5 görev, order-sort, quiz+retry).
+6. **`tests/token-lab.spec.ts` (YENİ, 2 test):** greedy tamamlama + halüsinasyon
+   yolu + temperature/sample + Jaguar bağlam-kayması → 5/5 görev; EN mod render.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- `npm run build` → ✅ PASS (29.3s, **40 static route** — /llm-agents dahil, dist SEO PASS)
+- `tests/token-lab.spec.ts` --workers=1 → ✅ 2/2 PASS
+- Regresyon: `tests/claude-prompt-lab.spec.ts` → ✅ 2/2 PASS (TopicPage değişikliği güvenli)
+- EN ağacı scriptli Türkçe-karakter taraması (`.tr` alt-alanları hariç) → ✅ 0 sızıntı
+- TR metin taraması → ✅ tüm TR içerik Türkçe, teknik terimler İngilizce
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **LC1 işi bu oturumda commit edildi** (`feature/llm-agents-page`). Dosyalar:
+   `llmcreate.md`, `src/components/LlmAgentsPage.jsx`, `src/components/TokenPredictorBlock.jsx`,
+   `src/data/llmAgentsData.js`, `tests/token-lab.spec.ts` (yeniler);
+   `src/App.jsx`, `src/utils/seo.js`, `scripts/generate-static-routes.mjs`,
+   `src/components/TopicPage.jsx`, `.claude/NEXT_SESSION.md` (değişenler).
+2. **LC2 (Sonnet):** Pretraining + Fine-tuning/RLHF + Context & Halüsinasyon
+   sekmeleri — prompt `llmcreate.md` LC2 bölümünde HAZIR, hemen verilebilir.
+3. LC3 (Agent/Function Calling/OpenAI API), LC4 (Kendi Agent'ın + "Eğitilir mi"),
+   LC5 (Üretim + Riskler), LC6 (mülakat + audit + test listeleri + ana sayfa
+   butonu + /claude-ai callout + merge hazırlığı) sırayla — promptlar hazır.
+4. `/llm-agents` henüz test route listelerinde ve audit PAGES'te YOK — bilinçli,
+   LC6'da eklenecek.
+5. **/claude-ai branch'i hâlâ main'e merge edilmedi** — merge sırası: önce
+   `feature/claude-ai-page` → main, sonra `feature/llm-agents-page` → main.
+
+---
+
+## /claude-ai — CS5 TAMAMLANDI: Mülakat (50 Soru) + Denetim/Test Entegrasyonu — SAYFA MAIN'E MERGE'E HAZIR (2026-07-07, `feature/claude-ai-page` — commit `1115073`, ana sayfa butonu `bd3c939`)
 
 > CS4 `208623f` ile commit edildi. Bu oturumda Sonnet, `claudesayfa.md`'deki hazır
 > CS5 promptuyla planın SON içerik paketini uyguladı. **Bu paketle birlikte
