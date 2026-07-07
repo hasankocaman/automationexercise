@@ -994,7 +994,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '🚨 Risks & Common Mistakes'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -1238,7 +1238,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           { type: 'heading', text: `Which Language Should You Write Prompts In?` },
           {
             type: 'text',
-            content: `You can write prompts to Claude in Turkish or English with no functional restriction — the model handles both fluently. What actually affects answer quality is consistency with your codebase's vocabulary: if your test framework, error messages and documentation use English technical terms (assertion, locator, fixture), keep those terms in English inside your prompt even when the surrounding sentence is Turkish — mixing a Turkified term ("doğrulayıcı" instead of "assertion") can make the model guess which concept you mean instead of matching it directly to a known API. This mirrors the exact rule this platform itself follows: Turkish explanation, English technical terms unchanged.`,
+            content: `You can write prompts to Claude in Turkish or English with no functional restriction — the model handles both fluently. What actually affects answer quality is consistency with your codebase's vocabulary: if your test framework, error messages and documentation use English technical terms (assertion, locator, fixture), keep those terms in English inside your prompt even when the surrounding sentence is Turkish — translating a term into its native-language equivalent can make the model guess which concept you mean instead of matching it directly to a known API. This mirrors the exact rule this platform itself follows: local-language explanation, English technical terms unchanged.`,
           },
           claudeCliInstallStepAnimation,
           claudeCliInstallOrder,
@@ -2144,6 +2144,271 @@ git push origin claude-generated-fix
           },
         ],
       },
+      {
+        title: `💼 Interview Q&A`,
+        blocks: [
+          {
+            type: 'interview-questions',
+            relatedTopicId: 'claude-ai-interview-questions',
+            topic: 'Claude AI for QA Testers',
+            questions: [
+              // ── BASIC ──────────────────────────────────────────
+              {
+                level: 'basic',
+                q: { en: 'You ask Claude for 20 test cases and get them instantly. A teammate says the feature is now "fully tested". What is wrong with that claim?' },
+                a: { en: 'Speed and volume are not correctness — this is the oracle problem: only your acceptance criteria and domain knowledge define what "correct" behavior actually is, and Claude only knows the rules you gave it. Java comparison: it is like assuming a class is correct because it has 20 JUnit tests, without checking whether the assertion values match the actual specification. "Fully tested" requires the cases to be verified against real requirements, not just counted.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'A junior only ever pastes error messages into claude.ai to understand them. What is the natural next skill to build toward mid-level Claude use?' },
+                a: { en: 'Generating test cases and test data from user stories and acceptance criteria — moving from reactive Q&A to proactive artifact generation, while still verifying every output against the real requirements. Java comparison: this mirrors going from "I ask a senior to explain a stack trace" to "I write my own JUnit test cases from a spec". The skill that matters is not the prompt itself but the verification habit that comes with it.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Two testers ask Claude about the same login feature. One gets a generic 3-bullet answer; the other gets a professional test case table. What is most likely missing from the first prompt?' },
+                a: { en: 'The four ingredients of a strong prompt — role, context (the actual acceptance criteria), task with a constraint, and output format. A vague prompt like "write tests for login" leaves the model to guess, so it returns the safest generic answer. Java comparison: it is like calling an overloaded method with everything typed as Object — you get the most generic match instead of the precise one.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Your first Claude answer to a bug analysis request misses an edge case you actually care about. What should you do?' },
+                a: { en: 'Treat the first answer as a draft and iterate — point out exactly what is missing or wrong ("this misses the case where the session already expired") and ask again, rather than starting over or accepting it as final. Java comparison: this is red-green-refactor from TDD — the first red run is information, not failure. Iteration is the normal path to a usable answer, not a sign that the tool failed.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'You need Claude to open a specific failing test file, run it, and edit the fix in the same session. Which access method actually supports this?' },
+                a: { en: 'Claude Code (the CLI) or an IDE extension wrapping the same agent — the web chat at claude.ai cannot read your repository or execute commands, it only sees what you paste. Java comparison: it is the difference between emailing a colleague a stack trace and having them sit at your keyboard with IDE and terminal access. Only an agent with real file and shell access can run the test and apply a fix directly.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'A teammate wants to verify their ANTHROPIC_API_KEY is correctly formatted by pasting it into a Claude conversation. Is this safe?' },
+                a: { en: 'No — an API key should be treated exactly like a database password: never typed into any conversation, local or remote, since a model transcript is not a secure secrets store. Java comparison: this is the same discipline as keeping database credentials in a gitignored environment variable instead of hardcoding them into a Java class. If exposure is suspected, the correct response is to rotate the key, not to hope no one saw it.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Claude generates 8 Gherkin test cases for a checkout feature without ever asking about an ambiguous "partial refund" rule in the story. What process step was skipped?' },
+                a: { en: 'The ambiguity-first step — asking Claude to list every unclear or missing rule BEFORE generating any test, so a human can confirm the real answer. Skipping it means the model fills the gap with a plausible but unverified assumption. Java comparison: it is like writing a JUnit test against an interface method with no Javadoc — you compile a guess instead of testing the actual contract.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Why ask Claude to generate test cases in Gherkin format instead of a plain bullet list of test ideas?' },
+                a: { en: `Given/When/Then forces an explicit precondition, action and expected result for every scenario, which is exactly the structure needed to avoid vague output — the format itself is a forcing function for specificity. Java comparison: it works like a strongly-typed method signature that forces every parameter to be supplied before the code compiles. A bullet list leaves room for missing pieces that Gherkin's structure does not.` },
+              },
+              {
+                level: 'basic',
+                q: { en: 'You want a root-cause hypothesis for a login error, but the log contains a real customer email and a session token. What must happen before you paste it into Claude?' },
+                a: { en: 'The log must be sanitized — replace the email, token and any credential-shaped value with a placeholder like <REDACTED> before pasting, regardless of how urgent the debugging feels. Java comparison: this is the same discipline as never logging a raw exception message that might contain a database connection string with a password. Once a secret leaves your terminal, you cannot revoke that exposure the way you can rotate a key you control.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'You ask Claude to "generate test data for an age field" with no further detail. What will the output most likely miss?' },
+                a: { en: 'It will likely miss the actual boundary values that matter for your rule, because Claude cannot invent business rules it was never given — it needs the valid/invalid ranges and exact boundary numbers stated explicitly. Java comparison: this is like asking for equivalence-partitioning data without specifying the partitions — the generator has no rule to partition around. Naming the classes explicitly is what lets Claude produce one representative value per class instead of guessing.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Claude generates a working XPath locator from your pasted HTML, and the test passes today. Two weeks later, after an unrelated frontend refactor, the same test fails. Why?' },
+                a: { en: 'The XPath most likely encoded the DOM\'s incidental structure — element position or a generated class name — rather than a stable, developer-owned attribute like data-testid, and refactors change incidental structure freely. Java comparison: this is the same fragility as a reflection call that depends on a field\'s exact declaration order — it compiles and runs today, but the "contract" it relies on was never guaranteed. The fix is instructing Claude to prefer stable attributes up front.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'An API test suite is 100% green, but it only ever asserts on 200 OK responses. What is the real state of this suite\'s coverage?' },
+                a: { en: 'It is incomplete — "100% green" only describes what was actually asserted, not what the API contract promises; the documented 4xx/5xx behaviors, which is exactly where real production incidents happen, were never exercised. Java comparison: this is like writing JUnit assertions purely from one passing run\'s captured output instead of the actual interface contract. A fully green suite with a coverage gap gives false confidence in exactly the wrong place.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Why would a tester deliberately pick a read-only permission mode for Claude Code, even though a write-capable mode would fix a failing test faster?' },
+                a: { en: 'A read-only mode is safe by construction — there is nothing to undo — while a write-capable agent on a shared branch needs the same diff-review discipline you would apply to any new team member\'s unsupervised first week. Java comparison: this is access control the same way a role-based permission system separates "can read" from "can write/execute" a resource. Speed and blast radius are separate axes, and the narrower mode trades some speed for a guarantee that nothing happens without review.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'What can an MCP-connected agent do that a code-generating request (e.g. "write me a Playwright script") cannot?' },
+                a: { en: 'It can perceive real results directly — navigate a live browser, read the actual DOM, query a real database — and decide its next action in the same loop, instead of requiring you to run the generated code and report results back manually. Java comparison: this is the same leap as JDBC standardizing "any Java program can talk to any database" instead of a custom driver per vendor. Generated code keeps a human as the messenger; an MCP connection removes that hop.' },
+              },
+              {
+                level: 'basic',
+                q: { en: 'Claude confidently suggests a Selenium method name you have never seen before, and the code looks syntactically clean. What is the professional first move?' },
+                a: { en: 'Verify the method actually exists — check IDE autocomplete or the official documentation — before running anything, since an LLM can hallucinate a plausible-looking API that was never real. Java comparison: this is no different from double-checking an unfamiliar library call against its Javadoc before relying on it. Confident phrasing is not evidence; only an external source (compiler, docs, IDE) is.' },
+              },
+              // ── INTERMEDIATE ────────────────────────────────────
+              {
+                level: 'intermediate',
+                q: { en: 'Mechanically, how does adding "You are a senior QA engineer" to a prompt change Claude\'s output?' },
+                a: { en: 'It sets the perspective and vocabulary the model predicts from — the answer starts using concepts like severity, prioritization and edge-case coverage that a generic answer would skip. It does not add new facts about your project; it narrows which style of continuation is most statistically likely. Java comparison: it is closer to selecting the right overloaded method by specifying argument types more precisely, rather than adding new data to the call.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A generated Gherkin scenario reads perfectly and uses correct syntax. Is that enough to add it to your test suite?' },
+                a: { en: 'No — fluent syntax is not proof of correctness; you are the oracle, and you must check the scenario against your actual acceptance criteria before trusting it, since Claude may have filled a gap with a plausible but unconfirmed assumption. Java comparison: this is the same gap between "the code compiles" and "the code is correct" — a compiler cannot catch a wrong business rule. Review is a separate step from generation, never optional.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A test fails intermittently. You paste only the latest failure log and ask Claude for the root cause. What is missing from your approach?' },
+                a: { en: 'A single run cannot reveal a pattern — flakiness is, by definition, a property across runs, not of any one run; pasting 3-5 logs lets Claude spot what actually changes between failures (timing, test order, shared state). Java comparison: debugging a flaky JUnit test from one stack trace is like debugging a race condition from one thread dump — you need multiple samples to see the pattern. One log gives the model the same blind spot it gives you.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Claude suggests "Critical" severity for a bug you described. Should you accept it as-is?' },
+                a: { en: 'No — ask for the severity suggestion WITH its justification, and make the final call yourself, because severity depends on today\'s actual production impact and business context that Claude cannot see from a bug description alone. Java comparison: this is like a static analyzer flagging a "Critical" code smell — useful signal, but a human still decides real-world priority. Claude proposes; the tester with domain context disposes.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'You need 1,000 realistic fake customer emails for a nightly load test in CI. Should you generate them with Claude or with a library like Java Faker?' },
+                a: { en: 'Use Faker — it is deterministic, fast, offline and purpose-built for bulk generic field generation, while an LLM call per CI run adds latency and cost with no design benefit for a task that has no ambiguity to resolve. Java comparison: this is exactly why Faker.name().fullName() exists — nobody hand-writes or AI-generates a thousand names when a tested utility already does it instantly. Reach for Claude when the DATA SHAPE needs judgment, not when it just needs volume.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Generated test data happens to match a real national ID number format exactly, and the check digit is valid. What is the real risk here, beyond "it looks fake"?' },
+                a: { en: 'An LLM-generated ID-shaped number can, by chance, collide with a real valid identifier, especially at volume — a "make it clearly fake" instruction alone does not guarantee non-collision, and your team\'s data policy may not even allow format-valid synthetic IDs in that environment. Java comparison: this is why Faker-style tools use documented reserved ranges or prefixes instead of pure randomization for ID-shaped fields. The safer fix is a deterministic generator with a guaranteed fake range, not a "clearly fake" instruction to an LLM.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Claude generates a complete Page Object Model class with method names and locators. What must you still verify before trusting it in your suite?' },
+                a: { en: 'Run it against the live page to confirm the locators actually resolve, and check that the method names match your test\'s real vocabulary rather than Claude\'s guess at it — a class that compiles is not the same as one that works. Java comparison: this mirrors reviewing a generated DAO class — the structure can be mechanically correct while the actual queries or bindings are wrong. The skeleton is where Claude is strong; the specifics still need your review.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A locator breaks. You tell Claude "this test broke, fix it" without pasting the exact error or current code. What goes wrong?' },
+                a: { en: 'Claude has no way to distinguish what actually changed, so it is likely to guess a new fragile selector rather than diagnosing the real DOM change — you should paste the exact failure message and current locator, and explicitly ask it to prefer a stable attribute. Java comparison: this is like asking a colleague to fix a bug from "it broke" instead of the actual stack trace — a vague repro produces a vague, possibly wrong fix. The fix loop only works when the real error feeds back into the next attempt.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Why does pasting an OpenAPI spec into Claude tend to produce better API test assertions than describing the endpoint informally in words?' },
+                a: { en: 'An OpenAPI definition is already the same Given/When/Then-style forcing function as Gherkin — it names every parameter, its required/optional flag and the response schema explicitly, removing the kind of oracle ambiguity a verbal description leaves open. Java comparison: it is the difference between generating code from an interface with full Javadoc versus a one-line description of "what it roughly does". Without a spec, expect more of the output to be flagged assumptions rather than confirmed rules.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Claude hypothesizes that a malformed email should return a 422 with a specific error body, but you have never actually triggered this response. What must happen before this assertion enters your suite?' },
+                a: { en: 'You must reproduce the actual 422 response yourself by sending a malformed email, and confirm the real shape matches the hypothesis before adding the assertion — an unverified "fix it later" habit lets a suite assert on behavior that was never real. Java comparison: this is like writing a JUnit assertion for an exception you have only read about in documentation but never actually caught in a debugger. A plausible error shape is still a guess until reproduced.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Why would a team write project rules into a file the agent reads at the start of every session (like this platform\'s own CLAUDE.md), instead of repeating them in every prompt?' },
+                a: { en: 'Such a file is read once per session and then silently informs every subsequent action, the same reason a team writes a CONTRIBUTING.md instead of re-explaining code style in every pull request review. It reduces repeated, error-prone manual context-setting and keeps the rules versioned alongside the code they govern. Java comparison: this is the same value as a documented style guide referenced by a linter config, rather than reviewers repeating the rules by memory each time.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A tester tells Claude Code to "fix all the tests" on the main branch with auto-approve-all permissions enabled. What is the risk, independent of whether the fixes turn out correct?' },
+                a: { en: 'The scope is unbounded, so the agent can modify any number of unrelated files without review — the instruction should be scoped to a specific file or test and should ask to show the fix before applying it. Java comparison: this is like giving a new hire unrestricted commit access to main on day one instead of scoping their first task to a specific module with review. Correctness of the eventual fixes does not retroactively make the missing scope and review safe.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'What is the practical difference between asking Claude to generate a Playwright script and using an MCP-driven browser session for the same task?' },
+                a: { en: 'With generated code, you remain the manual relay — you run it and report results back; with an MCP connection, the agent sees the actual DOM directly and decides its next action in the same conversation, which is what enables exploratory tasks with no pre-written script. Java comparison: it is the difference between a code reviewer reading a diff description versus actually running the code and seeing the output. The MCP connection closes a loop that generated code leaves open.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A teammate configures a database MCP connection with full write access and points it at the database used for production reporting, "to save setup time". What is wrong here?' },
+                a: { en: 'An agent with write access to a production-adjacent database can alter real data as a side effect of pursuing its own task, regardless of whether any individual action it takes looks like a "mistake" — the fix is the narrowest permission and environment the task actually needs (read-only, a real test instance). Java comparison: this is the same risk class as a test suite accidentally pointed at a production JDBC connection string. Convenience is not a substitute for environment isolation.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A GitHub Actions workflow posts Claude\'s "✅ looks good" comment on every PR, and a junior merges based on that comment alone. What is the flaw in this workflow?' },
+                a: { en: 'AI review is a first-pass supplement, not a merge decision — it lacks full visibility into the codebase, team standards and release timing that a human reviewer accounts for, so the human must still own the merge. Java comparison: this is like treating a passing linter as equivalent to a code review — useful, but it checks a narrower thing than what "safe to merge" actually means. The comment should surface obvious gaps faster, not replace judgment.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'If every tester on a team can already write working prompts individually, why maintain a shared team prompt library?' },
+                a: { en: '"Working" and "consistently good" are different bars — without a shared, reviewed template, different testers produce different quality (some skip the ambiguity-first step, some skip PII scrubbing), and a shared library raises the floor for the whole team, not just the ceiling of the best prompt-writer. Java comparison: this is the same reasoning for extracting a repeated snippet into a reviewed shared utility method instead of trusting every future caller to copy it correctly by hand. Individual skill varies; a shared artifact does not.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'A test suite is green, but a bug you know is real is still reproducible manually. What risk category does this suggest, and how do you confirm it?' },
+                a: { en: 'This suggests a tautological assertion (a "fake PASS") — check by intentionally mutating the code to break the feature and re-running; a real assertion should turn red on a real bug, and if it stays green, the check was never testing the real behavior. Java comparison: this is the mutation-testing idea applied manually — a test that survives every mutation you introduce was never actually verifying anything. A green suite is not evidence by itself; it is only evidence once you have watched it fail on a real defect.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Generated code calls an API that was removed in the version of the library your project actually has installed. What is the root cause, and what is the fix?' },
+                a: { en: 'The model\'s training data spans years of documentation across many library versions, so without being told your exact installed version it defaults to the most commonly-seen (often older) API shape — state your exact framework/library version in the prompt and cross-check unfamiliar methods against your installed version\'s changelog. Java comparison: this is the same class of issue as code generated against an old version of a Maven dependency\'s API — the fix is always specifying the actual version in use, not assuming the model knows it.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'In a very long conversation, Claude starts ignoring a rule you set 40 messages ago ("base everything only on confirmed acceptance criteria"). What should you do?' },
+                a: { en: 'Start a fresh conversation for the new task and re-paste the essential confirmed context, rather than continuing an old, long thread indefinitely — very long conversations can push earlier decisions out of effective focus across many topic switches. Java comparison: this is similar to why a long-lived, heavily-mutated object can drift from its original invariants — sometimes the cheaper fix is a fresh instance with the correct initial state, not patching the old one further.' },
+              },
+              {
+                level: 'intermediate',
+                q: { en: 'Should a Turkish-speaking QA team write their Claude prompts in Turkish or in English for the best results?' },
+                a: { en: 'Either works functionally, but consistency with the codebase\'s vocabulary matters more than the sentence language — if the test framework and docs use English technical terms (assertion, locator, fixture), keep those terms in English inside an otherwise Turkish prompt, since a Turkified term can make the model guess which concept you mean. Java comparison: this is the same discipline as keeping API and library terminology untranslated in Turkish code comments and documentation, so nothing is lost matching a term to its real API.' },
+              },
+              // ── ADVANCED ────────────────────────────────────────
+              {
+                level: 'advanced',
+                q: { en: 'Mechanically, why does adding role, context, format and constraint to a prompt improve output quality more than simply making the prompt longer?' },
+                a: { en: 'An LLM predicts the most plausible continuation of text; a vague prompt leaves millions of plausible continuations, so the model returns the safest generic one, while each ingredient eliminates wrong continuations — context in particular injects project rules (like a lockout policy) that exist nowhere in the training data. Length alone adds no information; specificity narrows the prediction space. Java comparison: this is closer to method overload resolution than to verbosity — the compiler (or model) picks the right match only when the argument types (the prompt\'s specific ingredients) are precise enough, not merely more numerous.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Claude generates 50 test cases for a payment feature in 10 seconds. What ultimately determines whether those cases are correct?' },
+                a: { en: 'Your acceptance criteria and domain knowledge — the oracle that defines expected behavior lives with the tester, not inside the model, so speed and volume are presentation qualities while correctness is a judgment only you can make against the real specification. This is the oracle problem in its purest form: testing\'s oldest question, "who decides what correct behavior is," is never answered by the AI itself. Java comparison: Claude is like a code generator that writes JUnit tests with perfect syntax — only the person who knows the expected behavior can write correct assertion values, no matter how fast the boilerplate arrives.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Why does pasting 3-5 runs of a flaky test\'s logs reveal more to Claude than pasting one exceptionally detailed single log?' },
+                a: { en: 'Flakiness is, by definition, a property that only shows up ACROSS runs — timing differences, test order dependency, shared state — and no single log, however detailed, can expose a pattern that only exists in the variation between runs. Multiple logs let the model compare what changed between a pass and a fail, which is the actual signal. Java comparison: this is the same reasoning behind capturing multiple thread dumps to debug a race condition instead of relying on one very thorough dump — the bug lives in the difference, not in any single snapshot.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Design a safer approach than raw LLM output for generating 500 realistic-looking national ID numbers for a shared test database.' },
+                a: { en: 'Use a deterministic generator with a documented, reserved fake-range or prefix (so every generated ID is provably fake and cannot collide with a real one), and if Claude is used at all, use it only to help DESIGN that reserved-range scheme in small batches with spot-checking, not to mass-produce the final 500 records directly. Confirm the team\'s data policy explicitly allows format-valid synthetic IDs in that environment before seeding anything. Java comparison: this mirrors how Faker-style libraries use reserved test ranges for fields like SSNs rather than pure randomization — the safety property comes from a documented, provable non-collision guarantee, not from an instruction like "make it clearly fake".' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Compare the risk profile of a Claude-generated locator used in a single one-off test versus the same kind of locator embedded inside a shared Page Object Model.' },
+                a: { en: 'A fragile locator in one test has a small, contained blast radius — it breaks one test, and the fix is local; the same fragility inside a shared POM method multiplies the impact across every test that reuses it, so review scrutiny should scale with reuse, not just with how the locator was produced. Java comparison: this is the same reasoning behind extra code-review rigor for a shared utility method versus a one-off script — a bug in shared code affects every caller, so the review bar for centralized code is inherently higher regardless of who or what wrote it.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Explain why writing API assertions purely from a single captured response is systematically different from writing them from an actual OpenAPI contract.' },
+                a: { en: 'A captured response tells you what happened ONCE, under one set of conditions, while a contract tells you what is PROMISED across all valid and invalid conditions — assertions built only from a capture will perfectly test that one instance and silently miss required fields, optional fields, and every documented error status the capture never exercised. This is not a volume problem (more captures do not fix it) but a category difference: observation versus specification. Java comparison: this is the same gap between characterization tests (locking in current behavior, bugs included) and specification-based tests (verifying the documented contract) — useful for different purposes, but only one of them catches a violation of what the API actually promises.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Design a safe way to let Claude Code fix a failing test on a shared branch, balancing speed and review discipline.' },
+                a: { en: 'Scope the task to the specific failing file, require the agent to show the proposed fix before applying it (even under an otherwise permissive mode), and route the resulting change through the same human diff review as any other change before it reaches the shared branch — narrowing scope and requiring a review checkpoint are two independent safeguards that should both be present. Java comparison: this mirrors how a new team member\'s first unsupervised task is deliberately scoped to a single module with a mandatory review, rather than given open write access to the whole codebase on day one, regardless of how capable they seem.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Explain the JDBC-to-MCP analogy in your own words, and why it matters specifically for QA automation.' },
+                a: { en: 'JDBC standardized "any Java program can talk to any database" instead of requiring a custom driver per vendor; MCP standardizes "any AI agent can talk to any external tool" the same way, so a browser or a database becomes just another MCP-shaped connector instead of needing a bespoke integration. For QA specifically, this means the SAME permission and review discipline that applies to a database connection in production code — least privilege, environment scoping — must be applied to an agent\'s MCP connections, because the underlying credential is just as real. Java comparison: nobody would grant a JDBC connection full production write access "to save setup time"; an MCP database connection deserves the identical scrutiny.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Why can an MCP-connected agent handle an exploratory task like "log in and tell me what breaks", when a generated Playwright script cannot?' },
+                a: { en: 'A generated script can only execute exactly what was written in advance — it has no branch for "something unexpected happened, investigate further" — while an MCP-connected agent perceives the real DOM after each action and can improvise its next step the way a manual tester does, because it is reasoning over live results rather than executing a fixed plan. Java comparison: this is the difference between a hardcoded test script and a human exploratory tester who adapts based on what the application actually shows them — MCP gives the agent that same live feedback loop.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'A production incident traces back to an unreviewed, AI-generated test fix that merged with a tautological assertion masking a real regression for three weeks. Design a team rule that would have prevented it.' },
+                a: { en: 'A standing rule that no AI-generated test or code change merges without a human diff review — with no exception for "an AI already checked it" — combined with a review checklist item specifically asking "does this assertion fail if the feature is intentionally broken?" for any new or modified assertion. The rule needs to be a process control, not a technical one, since the failure mode here was organizational (skipped review), not purely technical. Java comparison: this is the same reasoning behind requiring code review for auto-generated boilerplate (e.g. generated DTOs or mappers) — generation quality does not exempt code from the review process a team has for every other change.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Claude summarizes a large test report as "12 failures, mostly in the checkout module" for a team standup. What could go wrong if this summary is repeated in a meeting unverified, and how do you prevent it?' },
+                a: { en: 'The summarized grouping could be subtly wrong — miscounting failures, misattributing a module, or missing a critical failure buried in a different category — and once repeated as fact in a meeting, that error propagates into planning decisions with no easy way to trace it back to the source. The prevention is simple: confirm the specific numbers and groupings against the actual report before stating them as fact, treating the summary as a draft, not a source of truth. Java comparison: this is the same discipline as never quoting a build log\'s tail output as the definitive failure count without checking the full CI report — a truncated or paraphrased view can hide the real picture.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'A junior says they do not need to fully understand a Claude-generated fix because the test is green. What should a senior require before merging, and why does a green test not settle the question?' },
+                a: { en: 'The senior should require the junior to explain the fix in their own words — the same Feynman-style check this platform teaches for learning any concept — because a green test confirms only the immediate symptom disappeared, not that the underlying cause was correctly understood or that a related edge case was not silently broken. Skipping this check is how over-reliance (skill atrophy) compounds: the junior never builds the independent debugging instinct needed for the next bug Claude cannot solve alone. Java comparison: this is the same gap between "the build passes" and "I understand why the build passes" — the former is necessary, never sufficient, for trusting a change.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'A company policy restricts pasting customer code into third-party AI tools. A tester pastes a snippet with customer names and emails removed, believing that sanitization alone satisfies the policy. What is the gap?' },
+                a: { en: 'Sanitizing PII addresses a privacy risk, but a company policy restricting code-pasting is very likely also about intellectual property and confidentiality of proprietary logic itself — removing names does not remove the fact that the company\'s actual business logic, algorithms or architecture were shared with a third-party service. The tester needs to know and follow the ACTUAL policy text, not substitute their own judgment about what "safe enough" means; "I sanitized it" is not automatically the same as "I complied with the policy." Java comparison: this is like assuming that removing a comment with a client\'s name from a code snippet makes it safe to post publicly — the proprietary algorithm inside is still exposed regardless of whether names are present.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Contrast the risk profile of Claude as a read-only web advisor versus Claude Code with full write-and-execute permissions on a shared branch.' },
+                a: { en: 'A read-only advisor is safe by construction — every output must still be manually copied, reviewed and applied by a human, so there is a guaranteed human checkpoint before anything takes effect; a write-and-execute agent on a shared branch can make changes that take effect immediately and are visible to every other person building on that branch, meaning an error propagates before a human necessarily notices. The risk difference is not about the model\'s accuracy in either mode — it is entirely about how many actions occur before a human review point is reached. Java comparison: this is the same reasoning behind why "-DdryRun=true" and an actual "mvn deploy" carry very different risk even when running identical logic — the blast radius depends on what the action is permitted to actually do, not on how likely it is to be correct.' },
+              },
+              {
+                level: 'advanced',
+                q: { en: 'Across test case generation, bug analysis, UI automation and API testing, what single habit recurs as the actual safeguard against AI-generated errors?' },
+                a: { en: 'Verification against an external source of truth before trusting the output — acceptance criteria for test cases, a reproduced error for bug hypotheses, the live DOM for locators, and a real triggered response for API assertions. In every case, the failure mode is the same shape: confident, syntactically correct output that has not been checked against reality, and the fix is always the same shape too: run it, reproduce it, or compare it against the actual specification before it enters your suite or your codebase. Java comparison: this is the same principle behind never trusting a compiler-clean build as proof of correctness — compiling and being correct are two different, independently-verified properties, in AI-assisted QA work exactly as in ordinary software engineering.' },
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   tr: {
@@ -2152,7 +2417,7 @@ git push origin claude-generated-fix
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '🚨 Riskler & Yaygın Hatalar'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -3299,6 +3564,271 @@ git push origin claude-generated-fix
               correct: 'b',
               explanation: `Yeşil bir test, anlık semptomu doğrular, altta yatan nedenin anlaşıldığını değil — bu sekmenin tamamında geçen "derlenir" ile "doğrudur" arasındaki aynı ayrım. Junior'dan kendi cümleleriyle bir açıklama istemek, beceri erimesine karşı doğrudan, pratik bir kontroldür, angarya değil.`,
             },
+          },
+        ],
+      },
+      {
+        title: `💼 Mülakat Soruları & Cevapları`,
+        blocks: [
+          {
+            type: 'interview-questions',
+            relatedTopicId: 'claude-ai-interview-questions',
+            topic: 'Tester için Claude AI',
+            questions: [
+              // ── BASIC ──────────────────────────────────────────
+              {
+                level: 'basic',
+                q: { tr: `Claude'dan 20 test case istiyorsun ve anında geliyor. Bir ekip arkadaşın "özellik artık tamamen test edildi" diyor. Bu iddianın sorunu nedir?` },
+                a: { tr: `Hız ve hacim, doğruluk değildir — bu oracle problemidir: "doğru" davranışın ne olduğunu yalnızca senin kabul kriterlerin ve domain bilgin tanımlar, Claude ise sadece verdiğin kuralları bilir. Java karşılaştırması: bu, bir sınıfın 20 JUnit testi olduğu için doğru olduğunu varsaymak gibidir, assertion değerlerinin gerçek spesifikasyonla eşleşip eşleşmediğini kontrol etmeden. "Tamamen test edildi" demek için case'lerin gerçek gereksinimlere karşı doğrulanmış olması gerekir, sadece sayılmış olmaları değil.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir junior sadece hata mesajlarını anlamak için claude.ai'ye yapıştırıyor. Mid seviye Claude kullanımına doğru geliştirilecek doğal bir sonraki beceri nedir?` },
+                a: { tr: `User story ve kabul kriterlerinden test case ve test verisi üretmek — reaktif soru-cevaptan proaktif çıktı üretimine geçmek, her çıktıyı gerçek gereksinimlere karşı doğrulamaya devam ederek. Java karşılaştırması: bu, "bir stack trace'i bir senior'a açıklattırmak"tan "bir spesifikasyondan kendi JUnit test case'lerimi yazmak"a geçmeye benzer. Önemli olan beceri prompt'un kendisi değil, onunla birlikte gelen doğrulama alışkanlığıdır.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `İki tester aynı login özelliği hakkında Claude'a soruyor. Biri jenerik 3 maddelik bir cevap alıyor, diğeri profesyonel bir test case tablosu. İlk prompt'ta muhtemelen eksik olan nedir?` },
+                a: { tr: `Güçlü bir prompt'un dört bileşeni — rol, bağlam (gerçek kabul kriterleri), kısıtlı görev ve çıktı formatı. "Login için test yaz" gibi belirsiz bir prompt modelin tahmin etmesine bırakır, o da en güvenli jenerik cevabı döndürür. Java karşılaştırması: bu, her şeyi Object olarak tipleyerek overload edilmiş bir metodu çağırmak gibidir — kesin eşleşme yerine en jenerik eşleşmeyi alırsın.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir bug analizi isteğine Claude'un ilk cevabı gerçekten önemsediğin bir edge case'i kaçırıyor. Ne yapmalısın?` },
+                a: { tr: `İlk cevabı bir taslak say ve iterasyon yap — tam olarak neyin eksik veya yanlış olduğunu belirt ("session zaten süresi dolmuşken durumu kaçırıyor") ve tekrar sor, baştan başlamak veya olduğu gibi kabul etmek yerine. Java karşılaştırması: bu, TDD'deki red-green-refactor döngüsüdür — ilk kırmızı koşum başarısızlık değil, bilgidir. İterasyon, kullanılabilir bir cevaba giden normal yoldur, aracın başarısız olduğunun işareti değil.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Claude'un belirli bir başarısız test dosyasını açmasını, çalıştırmasını ve düzeltmeyi aynı oturumda düzenlemesini istiyorsun. Hangi erişim yöntemi bunu gerçekten destekler?` },
+                a: { tr: `Claude Code (CLI) veya aynı ajanı saran bir IDE eklentisi — claude.ai web sohbeti repository'ni okuyamaz veya komut çalıştıramaz, sadece yapıştırdığını görür. Java karşılaştırması: bu, bir meslektaşına stack trace e-postalamak ile onu klavyene, IDE'ne ve terminaline erişimle oturtmak arasındaki farktır. Sadece gerçek dosya ve shell erişimi olan bir ajan testi çalıştırıp düzeltmeyi doğrudan uygulayabilir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir ekip arkadaşın ANTHROPIC_API_KEY'inin doğru formatta olup olmadığını bir Claude konuşmasına yapıştırarak kontrol etmek istiyor. Bu güvenli mi?` },
+                a: { tr: `Hayır — bir API key'e tam olarak bir veritabanı şifresi gibi davranılmalıdır: yerel veya uzak hiçbir konuşmaya asla yazılmamalıdır, çünkü bir model transkripti güvenli bir secret deposu değildir. Java karşılaştırması: bu, veritabanı kimlik bilgilerini bir Java sınıfına gömmek yerine gitignore'lanmış bir environment variable'da tutmakla aynı disiplindir. Sızıntıdan şüpheleniliyorsa doğru tepki kimsenin görmediğini ummak değil, key'i döndürmektir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Claude, story'deki belirsiz bir "kısmi iade" kuralını hiç sormadan bir checkout özelliği için tek seferde 8 Gherkin test case'i üretti. Hangi süreç adımı atlandı?` },
+                a: { tr: `Belirsizlik-önce adımı — herhangi bir test üretmeden ÖNCE Claude'dan belirsiz veya eksik olan her kuralı listelemesini istemek, böylece bir insan gerçek cevabı onaylayabilir. Bunu atlamak, modelin boşluğu olası ama doğrulanmamış bir varsayımla doldurması demektir. Java karşılaştırması: bu, Javadoc'u olmayan bir interface metoduna karşı JUnit testi yazmak gibidir — gerçek kontrat yerine bir tahmini derlersin.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Neden Claude'dan test case'leri düz bir madde listesi yerine Gherkin formatında üretmesini istersin?` },
+                a: { tr: `Given/When/Then, her senaryo için açık bir ön koşul, eylem ve beklenen sonuç zorunlu kılar, ki bu belirsiz çıktıdan kaçınmak için gereken tam yapıdır — format kendisi spesifiklik için zorlayıcı bir mekanizmaya dönüşür. Java karşılaştırması: bu, kod derlenmeden önce her parametrenin verilmesini zorlayan güçlü tipli bir metod imzası gibi çalışır. Bir madde listesi, Gherkin'in yapısının bırakmadığı eksik parçalara yer bırakır.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir login hatası için kök neden hipotezi istiyorsun ama log'da gerçek bir müşteri e-postası var. Claude'a yapıştırmadan önce ne olmalı?` },
+                a: { tr: `Log temizlenmelidir — debug ne kadar acil hissettirirse hissettirsin, yapıştırmadan önce e-postayı, token'ı ve kimlik-bilgisi-şeklindeki her değeri <REDACTED> gibi bir yer tutucuyla değiştir. Java karşılaştırması: bu, şifre içeren ham bir veritabanı bağlantı dizesi taşıyabilecek bir exception mesajını asla loglamamakla aynı disiplindir. Bir sır terminalinden çıktığı an, kontrolündeki bir key'i döndürebildiğin gibi bu maruziyeti geri alamazsın.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Claude'dan "yaş alanı için test verisi üret" diye başka detay vermeden istiyorsun. Çıktı muhtemelen neyi kaçıracak?` },
+                a: { tr: `Muhtemelen kuralın için önemli olan gerçek sınır değerlerini kaçıracaktır, çünkü Claude hiç verilmediği iş kurallarını icat edemez — geçerli/geçersiz aralıkların ve tam sınır sayılarının açıkça belirtilmesi gerekir. Java karşılaştırması: bu, partisyonları belirtmeden equivalence-partitioning verisi istemek gibidir — üreticinin etrafında bölecek bir kuralı yoktur. Sınıfları açıkça isimlendirmek, Claude'un tahmin etmek yerine her sınıftan bir temsilci değer üretmesini sağlayan şeydir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Claude, yapıştırdığın HTML'den çalışan bir XPath locator üretiyor ve test bugün geçiyor. İki hafta sonra, ilgisiz bir frontend refactor'ünün ardından aynı test başarısız oluyor. Neden?` },
+                a: { tr: `XPath büyük olasılıkla data-testid gibi kararlı, geliştiricinin sahip olduğu bir nitelik yerine DOM'un tesadüfi yapısını — element pozisyonu veya üretilmiş bir class ismini — kodladı, ve refactor'ler tesadüfi yapıyı serbestçe değiştirir. Java karşılaştırması: bu, bir alanın tam bildirim sırasına bağlı bir reflection çağrısıyla aynı kırılganlıktır — bugün derlenir ve çalışır ama dayandığı "kontrat" hiçbir zaman garanti edilmemişti. Düzeltme, Claude'a baştan kararlı niteliklere öncelik vermesini söylemektir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir API test seti %100 yeşil ama sadece 200 OK yanıtları üzerine assertion yapıyor. Bu setin kapsamının gerçek durumu nedir?` },
+                a: { tr: `Eksiktir — "%100 yeşil" sadece gerçekten doğrulananı tanımlar, API kontratının vaat ettiğini değil; gerçek production olaylarının tam olarak yaşandığı yer olan dokümante edilmiş 4xx/5xx davranışları hiç çalıştırılmadı. Java karşılaştırması: bu, gerçek interface kontratı yerine tek bir geçen koşumun kaydedilmiş çıktısından JUnit assertion'ları yazmak gibidir. Tamamen yeşil ama kapsam boşluğu olan bir set, tam olarak yanlış yerde sahte güven verir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Tam erişimli bir mod başarısız bir testi daha hızlı düzeltecek olsa bile, bir tester Claude Code için neden bilinçli olarak salt-okunur izin modunu seçer?` },
+                a: { tr: `Salt-okunur bir mod yapısı gereği güvenlidir — geri alınacak hiçbir şey yok — oysa paylaşılan bir branch'te yazma yapabilen bir ajan, herhangi bir yeni ekip üyesinin gözetimsiz ilk haftasına uygulayacağın aynı diff-inceleme disiplinini gerektirir. Java karşılaştırması: bu, rol-bazlı bir izin sisteminin bir kaynağı "okuyabilir" ile "yazabilir/çalıştırabilir" arasında ayrım yapmasıyla aynı erişim kontrolüdür. Hız ve etki alanı ayrı eksenlerdir, ve daha dar mod, incelemesiz hiçbir şeyin olmayacağı garantisi için biraz hızdan ödün verir.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Bir kod üretme isteğinin (örn. "bana bir Playwright script'i yaz") yapamadığı neyi MCP bağlantılı bir ajan yapabilir?` },
+                a: { tr: `Gerçek sonuçları doğrudan algılayabilir — canlı bir tarayıcıda gezinebilir, gerçek DOM'u okuyabilir, gerçek bir veritabanını sorgulayabilir — ve senin üretilen kodu çalıştırıp sonuçları elle bildirmen yerine bir sonraki eylemine aynı döngüde karar verebilir. Java karşılaştırması: bu, JDBC'nin her satıcı için özel bir sürücü yerine "herhangi bir Java programı herhangi bir veritabanıyla konuşabilir" diye standartlaştırmasıyla aynı sıçramadır. Üretilen kod bir insanı mesajcı olarak tutar; bir MCP bağlantısı bu sıçramayı kaldırır.` },
+              },
+              {
+                level: 'basic',
+                q: { tr: `Claude, hiç görmediğin bir Selenium metod ismini kendinden emin şekilde öneriyor ve kod sözdizimsel olarak temiz görünüyor. Profesyonel ilk hamle nedir?` },
+                a: { tr: `Herhangi bir şey çalıştırmadan önce metodun gerçekten var olduğunu doğrula — IDE otomatik tamamlamasını veya resmi dokümantasyonu kontrol et — çünkü bir LLM gerçekte hiç var olmamış, inandırıcı görünen bir API uydurabilir (halüsinasyon). Java karşılaştırması: bu, tanıdık olmayan bir kütüphane çağrısına güvenmeden önce onu Javadoc'una karşı çift kontrol etmekten farklı değildir. Kendinden emin bir ifade tarzı kanıt değildir; sadece dış bir kaynak (derleyici, dokümantasyon, IDE) kanıttır.` },
+              },
+              // ── INTERMEDIATE ────────────────────────────────────
+              {
+                level: 'intermediate',
+                q: { tr: `Mekanik olarak, bir prompt'a "Sen kıdemli bir QA mühendisisin" eklemek Claude'un çıktısını nasıl değiştirir?` },
+                a: { tr: `Modelin tahmin ettiği bakış açısını ve söz dağarcığını belirler — cevap, jenerik bir cevabın atlayacağı severity, önceliklendirme ve edge-case kapsamı gibi kavramları kullanmaya başlar. Projen hakkında yeni bir gerçek eklemez; hangi tamamlama tarzının istatistiksel olarak en olası olduğunu daraltır. Java karşılaştırması: bu, çağrıya yeni veri eklemekten çok, argüman tiplerini daha spesifik belirterek doğru overload edilmiş metodu seçmeye benzer.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Üretilen bir Gherkin senaryosu kusursuz okunuyor ve doğru sözdizimi kullanıyor. Bunu test setine eklemek için yeterli mi?` },
+                a: { tr: `Hayır — akıcı sözdizimi doğruluğun kanıtı değildir; oracle sensin, ve senaryoyu güvenmeden önce gerçek kabul kriterlerine karşı kontrol etmelisin, çünkü Claude bir boşluğu olası ama onaylanmamış bir varsayımla doldurmuş olabilir. Java karşılaştırması: bu, "kod derleniyor" ile "kod doğru" arasındaki aynı boşluktur — bir derleyici yanlış bir iş kuralını yakalayamaz. İnceleme, üretimden ayrı bir adımdır, asla opsiyonel değil.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir test aralıklı olarak başarısız oluyor. Sadece en son başarısızlık log'unu yapıştırıp Claude'dan kök neden istiyorsun. Yaklaşımından eksik olan nedir?` },
+                a: { tr: `Tek bir koşum bir örüntüyü ortaya çıkaramaz — flaky'lik, tanımı gereği, herhangi bir tek koşumun değil, koşumlar arası bir özelliktir; 3-5 log yapıştırmak Claude'un başarısızlıklar arasında gerçekten neyin değiştiğini (zamanlama, test sırası, paylaşılan state) görmesini sağlar. Java karşılaştırması: flaky bir JUnit testini tek bir stack trace'ten debug etmek, bir race condition'ı tek bir thread dump'ından debug etmeye benzer — örüntüyü görmek için birden fazla örneğe ihtiyacın var. Tek bir log, modele de sana verdiği aynı kör noktayı verir.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Claude, tarif ettiğin bir bug için "Kritik" severity öneriyor. Bunu olduğu gibi kabul etmeli misin?` },
+                a: { tr: `Hayır — severity önerisini GEREKÇESİYLE birlikte iste ve nihai kararı kendin ver, çünkü severity bugünkü gerçek production etkisine ve Claude'un tek bir bug açıklamasından göremeyeceği iş bağlamına bağlıdır. Java karşılaştırması: bu, statik bir analiz aracının "Kritik" bir kod kokusu işaretlemesi gibidir — kullanışlı bir sinyal, ama gerçek dünya önceliğine hâlâ bir insan karar verir. Claude önerir; domain bağlamına sahip tester karar verir.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `CI'da her gece çalışan bir yük testi için 1.000 gerçekçi sahte müşteri e-postasına ihtiyacın var. Bunları Claude ile mi yoksa Java Faker gibi bir kütüphaneyle mi üretmelisin?` },
+                a: { tr: `Faker kullan — deterministik, hızlı, çevrimdışıdır ve tam olarak toplu jenerik alan üretimi için tasarlanmıştır, oysa her CI koşumunda bir LLM çağrısı, çözülecek bir belirsizliği olmayan bir görev için hiçbir tasarım faydası olmadan gecikme ve maliyet ekler. Java karşılaştırması: Faker.name().fullName() tam olarak bu yüzden vardır — test edilmiş bir utility zaten anında yapıyorken kimse bin ismi elle yazmaz veya AI ile ürettirmez. VERİ ŞEKLİ hüküm gerektirdiğinde Claude'a başvur, sadece hacim gerektiğinde değil.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Üretilen test verisi tesadüfen gerçek bir kimlik numarası formatıyla birebir eşleşiyor ve kontrol hanesi geçerli. "Sahte görünüyor" olmasının ötesinde buradaki gerçek risk nedir?` },
+                a: { tr: `LLM tarafından üretilen kimlik-şeklindeki bir sayı, özellikle hacimde, tesadüfen gerçek geçerli bir kimlikle çakışabilir — "açıkça sahte yap" talimatı tek başına çakışmamayı garanti etmez, ve ekibinin veri politikası o ortamda format olarak geçerli sentetik kimliklere bile izin vermeyebilir. Java karşılaştırması: Faker tarzı araçların kimlik-şeklindeki alanlar için saf rastgeleleştirme yerine belgelenmiş rezerve aralıklar veya önekler kullanmasının sebebi budur. Daha güvenli düzeltme, bir LLM'e "açıkça sahte yap" talimatı değil, garantili sahte aralığa sahip deterministik bir üreticidir.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Claude, metod isimleri ve locator'lar dahil eksiksiz bir Page Object Model sınıfı üretti. Sete güvenmeden önce hâlâ ne doğrulamalısın?` },
+                a: { tr: `Locator'ların gerçekten çözümlendiğini doğrulamak için canlı sayfaya karşı çalıştır, ve metod isimlerinin Claude'un tahmini yerine testinin gerçek söz dağarcığıyla eşleştiğini kontrol et — derlenen bir sınıf, çalışan bir sınıfla aynı şey değildir. Java karşılaştırması: bu, üretilen bir DAO sınıfını incelemeye benzer — yapı mekanik olarak doğru olabilirken gerçek sorgular veya binding'ler yanlış olabilir. İskelet Claude'un güçlü olduğu yerdir; detaylar hâlâ senin incelemene ihtiyaç duyar.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir locator kırılıyor. Claude'a tam hatayı veya mevcut kodu yapıştırmadan "bu test kırıldı, düzelt" diyorsun. Ne ters gider?` },
+                a: { tr: `Claude'un gerçekte neyin değiştiğini ayırt edecek hiçbir yolu yoktur, bu yüzden gerçek DOM değişikliğini teşhis etmek yerine muhtemelen başka kırılgan bir selector tahmin eder — tam hata mesajını ve mevcut locator'ı yapıştırmalı ve açıkça kararlı bir niteliğe öncelik vermesini istemelisin. Java karşılaştırması: bu, bir meslektaşından "kırıldı" demekle gerçek stack trace yerine bir bug'ı düzeltmesini istemek gibidir — belirsiz bir repro belirsiz, muhtemelen yanlış bir düzeltme üretir. Düzeltme döngüsü sadece gerçek hatanın bir sonraki denemeye geri beslendiğinde çalışır.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Neden bir OpenAPI spec'ini Claude'a yapıştırmak, endpoint'i sözlerle gayriresmi olarak anlatmaktan daha iyi API test assertion'ları üretme eğilimindedir?` },
+                a: { tr: `Bir OpenAPI tanımı zaten Gherkin ile aynı Given/When/Then tarzı zorlayıcı mekanizmadır — her parametreyi, zorunlu/opsiyonel bayrağını ve response şemasını açıkça isimlendirir, sözel bir açıklamanın açık bıraktığı oracle belirsizliğini ortadan kaldırır. Java karşılaştırması: bu, tam Javadoc'lu bir interface'ten kod üretmekle "kabaca ne yaptığı"nın tek satırlık bir açıklamasından üretmek arasındaki farktır. Spec olmadan, çıktının daha fazlasının onaylanmış kural yerine işaretli varsayım olmasını bekle.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Claude, bozuk bir e-postanın belirli bir hata gövdesiyle 422 döndürmesi gerektiğini hipotez ediyor ama sen bu yanıtı hiç gerçekten tetiklemedin. Bu assertion sete girmeden önce ne olmalı?` },
+                a: { tr: `Bozuk bir e-posta göndererek gerçek 422 yanıtını kendin tekrar üretmeli ve assertion'ı eklemeden önce gerçek şeklin hipotezle eşleştiğini doğrulamalısın — doğrulanmamış bir "sonra düzelt" alışkanlığı, bir setin hiç gerçek olmamış bir davranış üzerine assertion yazmasına yol açar. Java karşılaştırması: bu, sadece dokümantasyonda okuduğun ama debugger'da hiç yakalamadığın bir exception için JUnit assertion'ı yazmak gibidir. İnandırıcı bir hata şekli, tekrar üretilene kadar hâlâ bir tahmindir.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir ekip, her prompt'ta tekrarlamak yerine neden proje kurallarını ajanın her oturum başında okuduğu bir dosyaya (bu platformun kendi CLAUDE.md'si gibi) yazsın?` },
+                a: { tr: `Böyle bir dosya oturum başına bir kez okunur ve sonrasında sonraki her eylemi sessizce bilgilendirir, bir ekibin kod stilini her pull request incelemesinde yeniden anlatmak yerine bir CONTRIBUTING.md yazmasıyla aynı sebep. Tekrarlanan, hataya açık manuel bağlam kurmayı azaltır ve kuralları yönettikleri kodla birlikte versiyonlu tutar. Java karşılaştırması: bu, reviewer'ların kuralları her seferinde ezbere tekrarlaması yerine bir linter config'inin referans aldığı belgelenmiş bir stil kılavuzuyla aynı değeri taşır.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir tester, main branch'inde otomatik-onay-tümü izinleri açıkken Claude Code'a "bütün testleri düzelt" diyor. Düzeltmeler doğru çıksa bile risk nedir?` },
+                a: { tr: `Kapsam sınırsız, bu yüzden ajan incelemeden sayısız ilgisiz dosyayı değiştirebilir — talimat belirli bir dosyaya veya teste kapsamlanmalı ve uygulamadan önce düzeltmeyi göstermesi istenmelidir. Java karşılaştırması: bu, ilk günden itibaren yeni bir işe alınana main'e sınırsız commit erişimi vermek gibidir, ilk görevini belirli bir modüle ve incelemeye kapsamlamak yerine. Nihai düzeltmelerin doğruluğu, eksik kapsam ve incelemeyi geriye dönük olarak güvenli hale getirmez.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Claude'dan bir Playwright script'i üretmesini istemekle aynı görev için MCP tabanlı bir tarayıcı oturumu kullanmak arasındaki pratik fark nedir?` },
+                a: { tr: `Üretilen kodla sen manuel aktarıcı olarak kalırsın — çalıştırır ve sonuçları geri bildirirsin; bir MCP bağlantısıyla ajan gerçek DOM'u doğrudan görür ve bir sonraki eylemine aynı konuşmada karar verir, ki bu önceden yazılmış bir script'i olmayan keşifsel görevleri mümkün kılan şeydir. Java karşılaştırması: bu, bir code reviewer'ın bir diff açıklamasını okumasıyla kodu gerçekten çalıştırıp çıktıyı görmesi arasındaki farktır. MCP bağlantısı, üretilen kodun açık bıraktığı bir döngüyü kapatır.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir ekip arkadaşın, "kurulum zamanından tasarruf etmek için" tam yazma erişimli bir veritabanı MCP bağlantısını yapılandırıp production raporlaması için kullanılan veritabanına yönlendiriyor. Burada yanlış olan nedir?` },
+                a: { tr: `Production'a yakın bir veritabanına yazma erişimi olan bir ajan, aldığı herhangi bir eylemin "hata" gibi görünüp görünmediğinden bağımsız olarak, kendi görevini sürdürmenin bir yan etkisi olarak gerçek veriyi değiştirebilir — düzeltme, görevin gerçekten ihtiyaç duyduğu en dar izin ve ortamdır (salt-okunur, gerçek bir test instance'ı). Java karşılaştırması: bu, bir test setinin yanlışlıkla bir production JDBC bağlantı dizesine yönlendirilmesiyle aynı risk sınıfıdır. Kolaylık, ortam izolasyonunun yerini tutmaz.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir GitHub Actions workflow'u her PR'da Claude'un "✅ sorun görünmüyor" yorumunu bırakıyor ve bir junior sadece bu yoruma dayanarak merge ediyor. Bu workflow'un kusuru nedir?` },
+                a: { tr: `AI review bir ilk-geçiş ekidir, bir merge kararı değildir — bir insan reviewer'ın hesaba kattığı kod tabanı, ekip standartları ve release zamanlamasına tam görünürlüğü yoktur, bu yüzden merge kararının sahibi hâlâ insan olmalıdır. Java karşılaştırması: bu, geçen bir linter'ı bir code review'a eşdeğer saymak gibidir — kullanışlıdır ama "merge etmek güvenli" demenin gerçekte anlamından daha dar bir şeyi kontrol eder. Yorum açık boşlukları daha hızlı yüzeye çıkarmalı, hükmün yerine geçmemelidir.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir ekipteki her tester zaten tek başına çalışan prompt'lar yazabiliyorsa, paylaşılan bir ekip prompt kütüphanesini sürdürmeye neden zahmet edilsin?` },
+                a: { tr: `"Çalışan" ile "tutarlı şekilde iyi" farklı çıtalardır — paylaşılan, incelenmiş bir şablon olmadan farklı tester'lar farklı kalite üretir (kimi belirsizlik-önce adımını atlar, kimi PII temizlemeyi atlar), ve paylaşılan bir kütüphane sadece en iyi prompt yazarının tavanını değil, tüm ekibin tabanını yükseltir. Java karşılaştırması: bu, tekrarlanan bir kod parçasını her gelecek çağıranın elle doğru kopyalamasına güvenmek yerine incelenmiş paylaşılan bir utility metoduna çıkarmakla aynı akıl yürütmedir. Bireysel beceri değişkendir; paylaşılan bir eser değişmez.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Bir test seti yeşil ama gerçek olduğunu bildiğin bir bug hâlâ elle tekrar üretilebiliyor. Bu hangi risk kategorisini düşündürür ve bunu nasıl doğrularsın?` },
+                a: { tr: `Bu, tautolojik bir assertion (bir "sahte PASS") düşündürür — özelliği kasıtlı olarak bozmak için kodu mutasyona uğratıp tekrar çalıştırarak kontrol et; gerçek bir assertion gerçek bir bug'da kırmızıya dönmelidir, ve yeşil kalıyorsa kontrol hiçbir zaman gerçek davranışı test etmiyordu. Java karşılaştırması: bu, manuel olarak uygulanan mutation-testing fikridir — tanıttığın her mutasyona hayatta kalan bir test hiçbir zaman gerçekten bir şey doğrulamıyordu. Yeşil bir set tek başına kanıt değildir; sadece gerçek bir kusurda başarısız olduğunu gördükten sonra kanıt olur.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Üretilen kod, projenin gerçekte kurulu olan kütüphane sürümünde kaldırılmış bir API'yi çağırıyor. Kök neden nedir ve düzeltme nedir?` },
+                a: { tr: `Modelin eğitim verisi birçok kütüphane sürümü boyunca yıllarca süren dokümantasyonu kapsar, bu yüzden tam olarak kurulu sürümün söylenmemesi halinde en yaygın görülen (genellikle daha eski) API şeklini varsayar — prompt'ta tam framework/kütüphane sürümünü belirt ve tanıdık gelmeyen metodları kurulu sürümünün changelog'una karşı çapraz kontrol et. Java karşılaştırması: bu, bir Maven bağımlılığının eski bir sürümünün API'sine karşı üretilen kodla aynı sorun sınıfıdır — düzeltme her zaman kullanılan gerçek sürümü belirtmektir, modelin bunu bildiğini varsaymak değil.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Çok uzun bir konuşmada, Claude 40 mesaj önce belirttiğin bir kuralı ("her şeyi sadece onaylanmış kabul kriterlerine dayandır") görmezden gelmeye başlıyor. Ne yapmalısın?` },
+                a: { tr: `Yeni görev için taze bir konuşma başlat ve temel onaylanmış bağlamı yeniden yapıştır, eski ve uzun bir thread'i sonsuza dek sürdürmek yerine — çok uzun konuşmalar, birçok konu değişikliği boyunca, önceki kararları etkili odağın dışına itebilir. Java karşılaştırması: bu, uzun ömürlü, ağır mutasyona uğramış bir nesnenin orijinal değişmezlerinden sapabilmesine benzer — bazen daha ucuz düzeltme, eskisini daha fazla yamalamak değil, doğru başlangıç durumuyla taze bir örnek oluşturmaktır.` },
+              },
+              {
+                level: 'intermediate',
+                q: { tr: `Türkçe konuşan bir QA ekibi, en iyi sonuçlar için Claude prompt'larını Türkçe mi yoksa İngilizce mi yazmalı?` },
+                a: { tr: `İkisi de işlevsel olarak çalışır, ama cümle diliden daha önemli olan kod tabanının söz dağarcığıyla tutarlılıktır — test framework'ü ve dokümantasyon İngilizce teknik terimler (assertion, locator, fixture) kullanıyorsa, aksi halde Türkçe olan bir prompt içinde bu terimleri İngilizce bırak, çünkü Türkçeleştirilmiş bir terim modelin hangi kavramı kastettiğini tahmin etmesine yol açabilir. Java karşılaştırması: bu, Türkçe kod yorumlarında ve dokümantasyonda API ve kütüphane terminolojisini çevirmeden bırakmakla aynı disiplindir, böylece bir terimi gerçek API'sine eşlerken hiçbir şey kaybolmaz.` },
+              },
+              // ── ADVANCED ────────────────────────────────────────
+              {
+                level: 'advanced',
+                q: { tr: `Mekanik olarak, bir prompt'a rol, bağlam, format ve kısıt eklemek, prompt'u sadece uzatmaktan neden çıktı kalitesini daha çok artırır?` },
+                a: { tr: `Bir LLM metnin en olası devamını tahmin eder; belirsiz bir prompt milyonlarca olası devam bırakır, bu yüzden model en güvenli jenerik olanı döndürür, oysa her bileşen yanlış devamları eler — özellikle bağlam, eğitim verisinin hiçbir yerinde olmayan proje kurallarını (bir kilitlenme politikası gibi) enjekte eder. Uzunluk tek başına bilgi eklemez; spesifiklik tahmin uzayını daraltır. Java karşılaştırması: bu, ayrıntılı olmaktan çok method overload çözümlemesine benzer — derleyici (veya model) doğru eşleşmeyi ancak argüman tipleri (prompt'un spesifik bileşenleri) yeterince kesinse seçer, sadece sayıca daha fazlaysa değil.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Claude, bir ödeme özelliği için 10 saniyede 50 test case üretti. Bu case'lerin doğru olup olmadığını nihai olarak ne belirler?` },
+                a: { tr: `Kabul kriterlerin ve domain bilgin — beklenen davranışı tanımlayan oracle modelin içinde değil, tester'da yaşar, bu yüzden hız ve hacim sunum kaliteleridir, doğruluk ise yalnızca senin gerçek spesifikasyona karşı verebileceğin bir hükümdür. Bu, oracle probleminin en saf halidir: testin en eski sorusu, "doğru davranışa kim karar verir," hiçbir zaman AI'ın kendisi tarafından cevaplanmaz. Java karşılaştırması: Claude, kusursuz syntax'la JUnit testleri yazan bir kod üreticisi gibidir — boilerplate ne kadar hızlı gelirse gelsin, doğru assertion değerlerini yalnızca beklenen davranışı bilen kişi yazabilir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Flaky bir testin 3-5 koşumunun log'unu yapıştırmak, Claude'a olağanüstü ayrıntılı tek bir log yapıştırmaktan neden daha fazlasını gösterir?` },
+                a: { tr: `Flaky'lik, tanımı gereği, sadece KOŞUMLAR ARASINDA görünen bir özelliktir — zamanlama farkları, test sırası bağımlılığı, paylaşılan state — ve tek bir log, ne kadar ayrıntılı olursa olsun, sadece koşumlar arasındaki değişimde var olan bir örüntüyü ortaya çıkaramaz. Birden fazla log, modelin geçme ile başarısızlık arasında neyin değiştiğini karşılaştırmasını sağlar, ki gerçek sinyal budur. Java karşılaştırması: bu, bir race condition'ı debug etmek için tek bir çok kapsamlı dump'a güvenmek yerine birden fazla thread dump'ı yakalamanın ardındaki aynı akıl yürütmedir — bug, herhangi bir tekil anlık görüntüde değil, farkta yaşar.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Paylaşılan bir test veritabanı için 500 gerçekçi görünen kimlik numarası üretmede ham LLM çıktısından daha güvenli bir yaklaşım tasarla.` },
+                a: { tr: `Belgelenmiş, rezerve bir sahte-aralık veya önek kullanan deterministik bir üretici kullan (böylece üretilen her kimlik kanıtlanabilir şekilde sahte olur ve gerçek biriyle çakışamaz); Claude kullanılacaksa bile, son 500 kaydı doğrudan toplu üretmek için değil, sadece o rezerve-aralık şemasını küçük partiler halinde spot-check ile TASARLAMAYA yardım etmek için kullan. Herhangi bir şey seed etmeden önce ekibin veri politikasının o ortamda format olarak geçerli sentetik kimliklere açıkça izin verdiğini doğrula. Java karşılaştırması: bu, Faker tarzı kütüphanelerin SSN gibi alanlar için saf rastgeleleştirme yerine rezerve test aralıkları kullanmasını yansıtır — güvenlik özelliği, "açıkça sahte yap" gibi bir talimattan değil, belgelenmiş, kanıtlanabilir çakışmama garantisinden gelir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Tek seferlik bir testte kullanılan Claude tarafından üretilmiş bir locator ile paylaşılan bir Page Object Model içine gömülü aynı türden bir locator'ın risk profilini karşılaştır.` },
+                a: { tr: `Bir testte kırılgan bir locator küçük, sınırlı bir etki alanına sahiptir — bir testi bozar ve düzeltme yereldir; paylaşılan bir POM metodu içindeki aynı kırılganlık etkiyi onu tekrar kullanan her teste çarpar, bu yüzden inceleme titizliği locator'ın nasıl üretildiğine değil, tekrar kullanıma göre ölçeklenmelidir. Java karşılaştırması: bu, tek seferlik bir script'e karşı paylaşılan bir utility metodu için ekstra code-review titizliğinin ardındaki aynı akıl yürütmedir — paylaşılan koddaki bir bug her çağıranı etkiler, bu yüzden merkezi kod için inceleme çıtası kimin veya neyin yazdığından bağımsız olarak doğası gereği daha yüksektir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `API assertion'larını sadece tek bir yakalanmış yanıttan yazmanın gerçek bir OpenAPI kontratından yazmaktan sistematik olarak neden farklı olduğunu açıkla.` },
+                a: { tr: `Yakalanmış bir yanıt sana BİR KEZ, bir koşul setinde ne olduğunu söyler, oysa bir kontrat tüm geçerli ve geçersiz koşullar boyunca ne VAAT EDİLDİĞİNİ söyler — sadece bir yakalamadan kurulan assertion'lar o tek örneği kusursuzca test eder ama zorunlu alanları, opsiyonel alanları ve yakalamanın hiç çalıştırmadığı her dokümante edilmiş hata durumunu sessizce kaçırır. Bu bir hacim sorunu değildir (daha fazla yakalama bunu düzeltmez) ama bir kategori farkıdır: gözlem ile spesifikasyon. Java karşılaştırması: bu, karakterizasyon testleri (mevcut davranışı, bug'lar dahil, sabitleyen) ile spesifikasyon-tabanlı testler (dokümante edilmiş kontratı doğrulayan) arasındaki aynı boşluktur — farklı amaçlar için kullanışlıdır, ama sadece biri API'nin gerçekte vaat ettiğinin ihlalini yakalar.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Claude Code'un paylaşılan bir branch'te başarısız bir testi düzeltmesine izin vermenin, hız ve inceleme disiplinini dengeleyen güvenli bir yolunu tasarla.` },
+                a: { tr: `Görevi belirli başarısız dosyayla kapsamla, ajanın önerilen düzeltmeyi uygulamadan önce göstermesini iste (aksi halde izinkâr bir modda bile), ve ortaya çıkan değişikliği paylaşılan branch'e ulaşmadan önce diğer her değişiklikle aynı insan diff review'undan geçir — kapsamı daraltmak ve bir inceleme kontrol noktası gerektirmek, ikisi de mevcut olması gereken bağımsız iki güvenlik önlemidir. Java karşılaştırması: bu, yeni bir ekip üyesinin ilk gözetimsiz görevinin, ne kadar yetenekli görünürse görünsün, ilk günden tüm kod tabanına açık yazma erişimi yerine bilinçli olarak tek bir modüle zorunlu incelemeyle kapsamlanmasıyla aynıdır.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `JDBC-MCP analojisini kendi cümlelerinle açıkla ve özellikle QA otomasyonu için neden önemli olduğunu anlat.` },
+                a: { tr: `JDBC, her satıcı için özel bir sürücü gerektirmek yerine "herhangi bir Java programı herhangi bir veritabanıyla konuşabilir" diye standartlaştırdı; MCP, "herhangi bir AI ajanı herhangi bir dış araçla konuşabilir" diye aynı şekilde standartlaştırır, bu yüzden bir tarayıcı veya veritabanı, özel bir entegrasyon gerektirmek yerine sadece başka bir MCP-şeklinde konektöre dönüşür. Özellikle QA için bu, production kodundaki bir veritabanı bağlantısına uygulanan AYNI izin ve inceleme disiplininin — en az ayrıcalık, ortam kapsamlama — bir ajanın MCP bağlantılarına da uygulanması gerektiği anlamına gelir, çünkü alttaki kimlik bilgisi tam olarak aynı derecede gerçektir. Java karşılaştırması: kimse "kurulum zamanından tasarruf etmek için" bir JDBC bağlantısına tam production yazma erişimi vermez; bir MCP veritabanı bağlantısı da birebir aynı titizliği hak eder.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Üretilen bir Playwright script'i yapamazken, MCP bağlantılı bir ajan "giriş yap ve neyin bozulduğunu söyle" gibi keşifsel bir görevi neden yapabilir?` },
+                a: { tr: `Üretilen bir script sadece önceden yazılanı tam olarak çalıştırabilir — "beklenmedik bir şey oldu, daha fazla araştır" için bir dalı yoktur — oysa MCP bağlantılı bir ajan her eylemden sonra gerçek DOM'u algılar ve elle test eden birinin yaptığı gibi bir sonraki adımını doğaçlayabilir, çünkü sabit bir planı çalıştırmak yerine canlı sonuçlar üzerinde akıl yürütür. Java karşılaştırması: bu, sabit kodlanmış bir test script'i ile uygulamanın kendisine gösterdiğine göre uyum sağlayan keşifsel bir insan test uzmanı arasındaki farktır — MCP, ajana aynı canlı geri bildirim döngüsünü verir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Bir production olayı, gerçek bir regresyonu üç hafta boyunca gizleyen tautolojik bir assertion'la merge edilmiş, incelenmemiş bir AI üretimi test düzeltmesine kadar izleniyor. Bunu önleyecek bir ekip kuralı tasarla.` },
+                a: { tr: `"Bir AI zaten kontrol etti" istisnası olmadan, hiçbir AI üretimi test veya kod değişikliğinin insan diff review'u olmadan merge edilemeyeceğine dair sabit bir kural, artı yeni veya değiştirilmiş her assertion için özellikle "özellik kasıtlı olarak bozulursa bu assertion başarısız oluyor mu?" diye soran bir inceleme kontrol listesi maddesiyle birleştirilmiş. Kural bir süreç kontrolü olmalıdır, teknik bir kontrol değil, çünkü buradaki hata modu organizasyoneldi (atlanan inceleme), salt teknik değil. Java karşılaştırması: bu, otomatik üretilen boilerplate için (örn. üretilen DTO'lar veya mapper'lar) code review gerektirmenin ardındaki aynı akıl yürütmedir — üretim kalitesi, kodu bir ekibin diğer her değişiklik için sahip olduğu inceleme sürecinden muaf tutmaz.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Claude, bir ekip standup'ı için büyük bir test raporunu "12 başarısızlık, çoğunlukla checkout modülünde" diye özetliyor. Bu özet bir toplantıda doğrulanmadan tekrarlanırsa ne ters gidebilir ve bunu nasıl önlersin?` },
+                a: { tr: `Özetlenen gruplama ince bir şekilde yanlış olabilir — başarısızlıkları yanlış sayma, bir modülü yanlış atfetme veya farklı bir kategoriye gömülü kritik bir başarısızlığı kaçırma — ve bir kez toplantıda gerçek diye tekrarlandığında, bu hata, kaynağına geri izlenmesi kolay olmayan planlama kararlarına yayılır. Önleme basittir: gerçek diye ifade etmeden önce spesifik sayıları ve gruplamaları gerçek rapora karşı doğrula, özeti bir kaynak gerçek değil bir taslak olarak ele al. Java karşılaştırması: bu, tam CI raporunu kontrol etmeden bir build log'unun kuyruk çıktısını nihai başarısızlık sayısı olarak asla alıntılamamakla aynı disiplindir — kısaltılmış veya parafraze edilmiş bir görünüm gerçek tabloyu gizleyebilir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Bir junior, test yeşil olduğu için Claude'un ürettiği bir düzeltmeyi tam anlamaya gerek duymadığını söylüyor. Bir senior merge etmeden önce ne istemeli ve yeşil bir test soruyu neden çözmüyor?` },
+                a: { tr: `Senior, junior'dan düzeltmeyi kendi cümleleriyle açıklamasını istemelidir — bu platformun herhangi bir kavramı öğrenmek için öğrettiği aynı Feynman-tarzı kontrol — çünkü yeşil bir test sadece anlık semptomun kaybolduğunu doğrular, altta yatan nedenin doğru anlaşıldığını veya ilgili bir edge case'in sessizce bozulmadığını değil. Bu kontrolü atlamak, aşırı bağımlılığın (beceri erimesinin) nasıl biriktiğidir: junior, Claude'un tek başına çözemeyeceği bir sonraki bug için gereken bağımsız debug içgüdüsünü asla geliştirmez. Java karşılaştırması: bu, "build geçiyor" ile "build'in neden geçtiğini anlıyorum" arasındaki aynı boşluktur — birincisi bir değişikliğe güvenmek için gereklidir ama asla yeterli değildir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Bir şirket politikası müşteri kodunu üçüncü parti AI araçlarına yapıştırmayı kısıtlıyor. Bir tester, müşteri adları ve e-postalarını kaldırılmış bir kod parçacığı yapıştırıyor, sadece bu temizlemenin politikayı karşıladığını düşünerek. Buradaki boşluk nedir?` },
+                a: { tr: `Kişisel veriyi temizlemek bir gizlilik riskini ele alır, ama kod yapıştırmayı kısıtlayan bir şirket politikası çok büyük olasılıkla fikri mülkiyet ve şirketin kendi tescilli mantığının gizliliğiyle de ilgilidir — isimleri kaldırmak, şirketin gerçek iş mantığının, algoritmalarının veya mimarisinin bir üçüncü parti servisle paylaşıldığı gerçeğini ortadan kaldırmaz. Tester'ın "yeterince güvenli"nin ne anlama geldiğine dair kendi yargısını ikame etmek yerine GERÇEK politika metnini bilmesi ve ona uyması gerekir; "onu temizledim" otomatik olarak "politikaya uydum" ile aynı şey değildir. Java karşılaştırması: bu, bir kod parçacığından bir müşteri adı içeren bir yorumu kaldırmanın onu herkese açık paylaşmayı güvenli hale getirdiğini varsaymak gibidir — içindeki tescilli algoritma, isimler olsun olmasın hâlâ ifşa edilmiştir.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Claude'un salt-okunur bir web danışmanı olarak risk profiliyle paylaşılan bir branch'te tam yazma-ve-çalıştırma izinlerine sahip Claude Code'un risk profilini karşılaştır.` },
+                a: { tr: `Salt-okunur bir danışman yapısı gereği güvenlidir — her çıktı hâlâ bir insan tarafından elle kopyalanmalı, incelenmeli ve uygulanmalıdır, bu yüzden herhangi bir şey etkili olmadan önce garantili bir insan kontrol noktası vardır; paylaşılan bir branch'te yazma-ve-çalıştırma yapan bir ajan, anında etkili olan ve o branch üzerine inşa eden diğer her kişiye görünen değişiklikler yapabilir, yani bir hata bir insan mutlaka fark etmeden önce yayılır. Risk farkı, her iki moddaki modelin doğruluğuyla ilgili değildir — tamamen bir insan inceleme noktasına ulaşılmadan önce kaç eylemin gerçekleştiğiyle ilgilidir. Java karşılaştırması: bu, "-DdryRun=true" ile gerçek bir "mvn deploy"'un aynı mantığı çalıştırsa bile çok farklı risk taşımasının ardındaki aynı akıl yürütmedir — etki alanı, eylemin ne kadar muhtemelen doğru olduğuna değil, gerçekte ne yapmasına izin verildiğine bağlıdır.` },
+              },
+              {
+                level: 'advanced',
+                q: { tr: `Test case üretimi, bug analizi, UI otomasyonu ve API testi boyunca, AI üretimi hatalara karşı gerçek güvenlik önlemi olarak tekrarlanan tek alışkanlık nedir?` },
+                a: { tr: `Güvenmeden önce dış bir doğruluk kaynağına karşı doğrulama — test case'ler için kabul kriterleri, bug hipotezleri için tekrar üretilmiş bir hata, locator'lar için canlı DOM, ve API assertion'ları için gerçekten tetiklenmiş bir yanıt. Her durumda hata modu aynı şekildedir: kendinden emin, sözdizimsel olarak doğru ama gerçekliğe karşı kontrol edilmemiş çıktı, ve düzeltme de her zaman aynı şekildedir: sete veya kod tabanına girmeden önce çalıştır, tekrar üret veya gerçek spesifikasyona karşı karşılaştır. Java karşılaştırması: bu, derleyici-temiz bir build'e asla doğruluğun kanıtı olarak güvenmemenin ardındaki aynı ilkedir — derlenmek ve doğru olmak, AI destekli QA işinde tam olarak sıradan yazılım mühendisliğinde olduğu gibi, iki farklı, bağımsız olarak doğrulanması gereken özelliktir.` },
+              },
+            ],
           },
         ],
       },

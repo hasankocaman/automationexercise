@@ -31,6 +31,7 @@ const PAGES = [
     { route: '/git-github', file: 'gitGithubData.js', exportName: 'gitGithubData' },
     { route: '/linux', file: 'linuxData.js', exportName: 'linuxData' },
     { route: '/java', file: 'javaData.js', exportName: 'javaData' },
+    { route: '/claude-ai', file: 'claudeAiData.js', exportName: 'claudeAiData' },
 ];
 
 const MIN_TOTAL = 50;

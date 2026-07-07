@@ -10,7 +10,87 @@
 
 ---
 
-## /claude-ai — CS4 TAMAMLANDI: CI/CD & Ekipte AI + Riskler & Yaygın Hatalar (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+## /claude-ai — CS5 TAMAMLANDI: Mülakat (50 Soru) + Denetim/Test Entegrasyonu — SAYFA MAIN'E MERGE'E HAZIR (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> CS4 `208623f` ile commit edildi. Bu oturumda Sonnet, `claudesayfa.md`'deki hazır
+> CS5 promptuyla planın SON içerik paketini uyguladı. **Bu paketle birlikte
+> claudesayfa.md'nin CS1-CS5 planı tamamen bitti** — sayfa artık main'e
+> merge'e hazır durumda, ama merge/push kararı kullanıcının (plan böyle
+> tasarlanmıştı). Ana sayfadaki 🤖 Claude AI butonu (`HomePage.jsx`) hâlâ ayrı,
+> commit'siz duruyor.
+
+### Yapılan iş — CS5 (SONNET, 3 parça)
+
+1. **`src/data/claudeAiData.js`'e son sekme eklendi (13. sekme, EN+TR simetrik):**
+   💼 Mülakat Soruları & Cevapları — `interview-questions` bloğu, **tam 50 soru,
+   15/20/15 dağılımı birebir** (CLAUDE.md §10). Salt tanım sorusu YOK — hepsi
+   senaryo tabanlı ("İki tester aynı login özelliği hakkında Claude'a soruyor,
+   biri jenerik cevap alıyor..." gibi). Her cevap 3-6 cümle + Java/klasik-otomasyon
+   karşılaştırması içeriyor. Sorular sayfanın 12 sekmesinin TAMAMINDAN geliyor
+   (prompt mühendisliği, oracle problemi, halüsinasyon, MCP güvenliği, CI/CD
+   review disiplini, gizlilik/telif, aşırı bağımlılık...). relatedTopicId tek
+   blok için tanımlı.
+2. **`scripts/audit-interview-questions.mjs`** PAGES listesine
+   `{ route: '/claude-ai', file: 'claudeAiData.js', exportName: 'claudeAiData' }`
+   eklendi — artık her build'de otomatik denetleniyor.
+3. **Test route listeleri güncellendi:** `tests/topic-pages-ui.spec.ts` ve
+   `tests/i18n-content-toggle.spec.ts`'deki route dizilerine `/claude-ai` eklendi
+   — sayfa artık istisna değil, tüm otomatik suite'lere dahil.
+
+### Yazım sırasında bulunan ve düzeltilen 2 gerçek sorun
+
+1. **Syntax hataları (2 adet):** Nested backtick (`` `-DdryRun=true` `` bir
+   template literal içinde) ve tek bir kaçırılmamış apostrof (`Gherkin's`) —
+   ikisi de `node --check` ile bulunup düzeltildi.
+2. **AC03 Koşul B ihlali (gerçek i18n testi FAIL etti, düzeltildi):** Erişim &
+   Kurulum sekmesinin EN metninde, "Türkçeleştirilmiş terim" örneği olarak
+   gerçek bir Türkçe kelime ("doğrulayıcı") kullanılmıştı — bu, EN modda sıfır
+   Türkçe karakter kuralını (§8/AC03) ihlal ediyordu.
+   `tests/i18n-content-toggle.spec.ts -g claude-ai` bunu YAKALADI (1 fail).
+   Cümle, aynı öğretim noktasını Türkçe kelime alıntılamadan yeniden yazılarak
+   düzeltildi ve test tekrar PASS etti. **Ayrıca EN veri ağacının tamamı
+   scriptli olarak (`.tr` bilingual alt-alanları hariç tutarak) Türkçe karakter
+   sızıntısına karşı tarandı — 0 ek ihlal bulundu.**
+
+### Doğrulama — CS5 bitirme kriterinin a-g maddelerinin TAMAMI (claudesayfa.md)
+
+- a) `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- b) `npm run audit:interview-questions` → **`/claude-ai  50  15  20  15  ✅ OK`**
+- c) `npm run build` → ✅ PASS (39 static route, dist SEO PASS)
+- d) `npx playwright test tests/topic-pages-ui.spec.ts -g claude-ai` → ✅ 1/1 PASS
+  (13 sekmenin tamamı render oluyor, butonlar görünür)
+- e) `npx playwright test tests/i18n-content-toggle.spec.ts -g claude-ai` → ✅ 1/1
+  PASS (yukarıdaki düzeltmeden sonra)
+- f) `npx playwright test tests/claude-prompt-lab.spec.ts` → ✅ 2/2 PASS (regresyon yok)
+- g) **Mülakat gating spot-check** (§22 kontrol 2 deseni, geçici yaz-koş-sil testiyle
+  doğrulandı, sonra silindi): quiz'ler %0 iken Mülakat sekmesi (index 12) kilit
+  metnini gösteriyor → ✅ PASS
+
+Sayfa artık **13 sekme, 13 section** (EN+TR simetrik) — CS1-CS5 planının tamamı bitti.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CS5 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen
+   dosyalar: `src/data/claudeAiData.js`, `scripts/audit-interview-questions.mjs`,
+   `tests/topic-pages-ui.spec.ts`, `tests/i18n-content-toggle.spec.ts` (+ bu
+   `.claude/NEXT_SESSION.md` güncellemesi). `feature/claude-ai-page`
+   branch'inde CS4 (`208623f`) üzerine beşinci commit olarak eklenmesi planlanıyor.
+2. **Hâlâ commit edilmemiş, sayfa içeriğinden bağımsız bir değişiklik var:** ana
+   sayfadaki 🤖 Claude AI butonu (`src/components/HomePage.jsx`).
+3. **claudesayfa.md planı TAMAMEN BİTTİ (CS1-CS5).** Sıradaki doğal adımlar
+   kullanıcı kararı: (a) bu son commit'i onaylamak, (b) `feature/claude-ai-page`
+   branch'ini main'e merge/push etmek (plan gereği bu karar kullanıcının), (c)
+   merge öncesi tam Playwright suite'ini (`npm run test:e2e`) bir kez daha tam
+   koşmak isteyip istemediği (bu oturumda sadece CS5'in istediği hedefli testler
+   koşuldu, ayrıca her commit'in kendi post-commit hook'u zaten tam suite'i
+   otomatik koşuyor).
+4. Bu makinede bellek durumu (CS3/CS4 commit'lerinin post-commit suite'leri art
+   arda tetiklendiğinden) bu oturumda geçici olarak düşüktü (~2.2GB); build/test
+   koşumları öncesi kontrol edilip beklenerek yönetildi, sorun oluşmadı.
+
+---
+
+## /claude-ai — CS4 TAMAMLANDI: CI/CD & Ekipte AI + Riskler & Yaygın Hatalar (2026-07-07, `feature/claude-ai-page` — commit `208623f`)
 
 > CS3 `0eaaeb3` ile commit edildi (kullanıcı "commit yap ve devam et" dedi).
 > Bu oturumda Sonnet, `claudesayfa.md`'deki hazır CS4 promptuyla sekme 10-11'i
