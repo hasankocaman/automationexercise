@@ -10,6 +10,21 @@
 
 ---
 
+## AC08 Kararı — Çoklu Tema Backlog'a Alındı (2026-07-07, main)
+
+> Önceki oturumda "AC08 kararı bekliyor" olarak bırakılmıştı (çoklu tema özelliği
+> yapılsın mı, yoksa AC revize mi edilsin). Kullanıcı **revize** seçeneğini seçti.
+
+**Yapılan değişiklik — `Documents/acceptancecriterias.md`:**
+1. **AC 08** metni değiştirildi: "kullanıcıya en az 3 alternatif renk paleti (temalar) sunulmalı" beklentisi kaldırıldı, AC artık sadece mevcut dark/light kontrast standardını (gözü yormayan renkler, okunabilir fontlar, tutarlı erişilebilir kontrast) kapsıyor. AC metnine, önceki beklentinin neden kaldırıldığını açıklayan kısa bir "Revize" notu eklendi.
+2. **"11. Tema / Renk Paleti Seçici"** roadmap maddesi **silinmedi**, `← BACKLOG (AC 08 kapsamı dışına alındı)` olarak yeniden etiketlendi — `theme.js`/`learnqa_theme`/3-tema tasarımı ileride istenirse başlangıç noktası olarak dosyada duruyor, ama artık hiçbir AC'ye bağlı değil.
+
+**Kod tarafında değişiklik yapılmadı** — bu sadece bir doküman/AC revizyonu, `src/` dokunulmadı. Kod denetiminde zaten doğrulanmıştı: `src/lib/theme.js` yok, `learnqa_theme` hiçbir yerde geçmiyor, sadece mevcut `darkMode` toggle'ı var.
+
+**Sonraki oturumda yapılacak:** Bu değişiklik (`Documents/acceptancecriterias.md`) henüz commit edilmedi — kullanıcı onayı bekliyor.
+
+---
+
 ## Eksik Testlerin Tamamlanması + pre-push Hook (2026-07-06 devam, main)
 
 > Önceki denetimde bulunan boşluklardan kullanıcı isteğiyle 3'ü kapatıldı (AC08

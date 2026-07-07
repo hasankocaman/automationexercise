@@ -85,8 +85,9 @@ Kullanıcı, ana sayfada yer alan tüm butonlara ve tıklanabilir ögelere sorun
 #### AC 08 — UI/UX: Tema ve Erişilebilirlik
 - Light/Dark mode geçişlerinde gözü yormayan renk kombinasyonları kullanılmalıdır
 - Fontlar tüm ekranlarda yüksek okunabilirliğe sahip olmalıdır
-- Kullanıcıya **alternatif renk paleti seçenekleri (temalar)** sunulmalıdır
-- Tema seçildiğinde sayfa arka planı ve font renkleri dinamik olarak değişmelidir
+- Dark/Light mode geçişi tüm sayfalarda tutarlı ve erişilebilir kontrastta olmalıdır
+
+> **Revize (kod denetimiyle uyum):** Bu AC önceden "kullanıcıya en az 3 alternatif renk paleti (temalar) sunulmalı" beklentisini içeriyordu. Kod denetiminde bu özelliğin (çoklu tema seçici) hiç uygulanmadığı görüldü — yalnızca dark/light toggle mevcut. AC, mevcut gerçekliğe uyacak şekilde dark/light kontrast standardına indirildi. Çoklu tema fikri "11. Tema / Renk Paleti Seçici" roadmap maddesinde backlog olarak saklanıyor, artık bu AC'nin kapsamında değil.
 
 ---
 
@@ -404,8 +405,8 @@ kapsamında olduğundan **her commit sonrası `post-commit` hook'u ile otomatik
 
 ---
 
-### 11. Tema / Renk Paleti Seçici ← **YENİ**
-**Hedef:** AC 08 gereği kullanıcıya alternatif renk temaları sunulmalı
+### 11. Tema / Renk Paleti Seçici ← **BACKLOG (AC 08 kapsamı dışına alındı)**
+**Not:** AC 08 revize edildi, artık yalnızca mevcut dark/light kontrast standardını kapsıyor. Çoklu tema (Okyanus/Orman) zorunlu bir kabul kriteri DEĞİL — bu madde ileride istenirse uygulanabilecek bir backlog fikri olarak saklanıyor, tasarımı hâlâ geçerli bir başlangıç noktası:
 
 **Yapılacaklar:**
 - `src/lib/theme.js` oluşturulacak — `getTheme()`, `setTheme(themeId)`
@@ -414,7 +415,7 @@ kapsamında olduğundan **her commit sonrası `post-commit` hook'u ile otomatik
 - En az 3 tema: Varsayılan (mevcut), Okyanus (mavi tonlar), Orman (yeşil tonlar)
 - Tema seçici UI: ayarlar menüsü veya sayfanın köşesinde küçük palet ikonu
 
-**İlgili AC'ler:** AC 08
+**İlgili AC'ler:** Hiçbiri (backlog, AC 08 kapsamı dışına alındı)
 
 ---
 
