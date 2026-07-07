@@ -10,6 +10,67 @@
 
 ---
 
+## YENİ SAYFA: /claude-ai "Tester için Claude AI" — CS1 TAMAMLANDI (2026-07-07, main — HENÜZ COMMIT EDİLMEDİ)
+
+> Kullanıcı istedi: "Bir tester Claude yapay zekayı nasıl kullanır" sayfası;
+> plan dosyası (`claudesayfa.md`) + Fable işleri kodlandı + Sonnet işleri için
+> hazır promptlar yazıldı.
+
+### Yapılan iş — CS1 (FABLE)
+
+1. **`claudesayfa.md` (YENİ, repo kökü):** 13 sekmelik nihai mimari (junior→senior),
+   CS1-CS5 iş paketleri, CS2/CS3/CS4/CS5 için HAZIR Sonnet promptları. Kritik
+   kararlar: sayfa CS5 bitmeden main'e merge edilmez/prod'a çıkmaz (bu sayede
+   `progressMigration` gerekmez, sekmeler hep sona eklenir); tüm Claude cevapları
+   deterministik simülasyon (gerçek API çağrısı yok); mülakat 50-soru denetimi ve
+   test route listeleri CS5'te eklenir.
+2. **Route iskeleti:** `src/App.jsx` (`/claude-ai` + lazy), `src/utils/seo.js`
+   (ROUTE_SEO girişi), `src/components/ClaudeAiPage.jsx` (YENİ, sade TopicPage
+   sarmalayıcı, turuncu/amber gradient), `scripts/generate-static-routes.mjs`
+   (DATA_MODULES girişi).
+3. **`src/components/ClaudePromptLabBlock.jsx` (YENİ interaktif bileşen):**
+   sayfanın "sandbox"ı — kullanıcı login user-story senaryosu için simüle Claude'a
+   gerçek prompt yazar; deterministik analizör 5 bileşeni (rol/bağlam/format/
+   negatif/kısıt) tespit eder, skora göre 3 kademe cevap üretir (jenerik→orta→
+   profesyonel tablo), 5 mission. `TopicPage.jsx`'e `claude-prompt-lab` tipi
+   kaydedildi (import + renderBlock case — 2 satır).
+4. **`src/data/claudeAiData.js` (YENİ):** hero + 2 sekme EN+TR simetrik:
+   "🎯 Giriş: AI Destekli Test" (§9.3 simple-box, junior→senior merdiven tablosu,
+   step-animation, order-sort, /qa-assistant callout, quiz+retry) ve
+   "✍️ Prompt Mühendisliği" (§9.3 simple-box, 4-bileşen code bloğu bilingual,
+   step-animation, Prompt Lab, order-sort, code-playground `claude-prompt-rewrite-practice`
+   relatedTopicId'li, quiz+retry).
+5. **`tests/claude-prompt-lab.spec.ts` (YENİ, 2 test):** zayıf prompt → 1/5 skor +
+   jenerik cevap; güçlü prompt → 5/5 + TC04 tablosu + mission'lar `data-done=true`;
+   EN modda İngilizce render.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (33 dosya)
+- `npm run build` → ✅ PASS (19.1s, **39 static route** — /claude-ai dahil, dist SEO PASS)
+- `tests/claude-prompt-lab.spec.ts` --workers=1 → ✅ 2/2 PASS
+- Regresyon: `topic-pages-ui.spec.ts -g jenkins` → ✅ 1/1 PASS (TopicPage değişikliği güvenli)
+- TR yorum taraması → ✅ yeni data/bileşen içeriklerinde TR bağlamda İngilizce açıklama yok
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CS1 işi commit edilmedi** — kullanıcı onayı bekliyor. Değişen/yeni
+   dosyalar: `claudesayfa.md` (yeni), `src/components/ClaudeAiPage.jsx` (yeni),
+   `src/components/ClaudePromptLabBlock.jsx` (yeni), `src/data/claudeAiData.js` (yeni),
+   `tests/claude-prompt-lab.spec.ts` (yeni), `src/App.jsx`, `src/utils/seo.js`,
+   `scripts/generate-static-routes.mjs`, `src/components/TopicPage.jsx`,
+   `.claude/NEXT_SESSION.md`. **Öneri:** commit'ler `feature/claude-ai-page`
+   branch'inde biriksin (claudesayfa.md'deki merge stratejisi).
+2. **CS2 (Sonnet):** Erişim & Kurulum + Test Case + Bug Analizi + Test Verisi
+   sekmeleri — prompt `claudesayfa.md` CS2 bölümünde HAZIR, hemen verilebilir.
+3. CS3 (UI Otomasyon/API/Claude Code/MCP), CS4 (CI-CD/Riskler), CS5 (50 mülakat
+   sorusu + audit + test listeleri + merge hazırlığı) sırayla — promptlar hazır.
+4. Not: `/claude-ai` henüz `tests/topic-pages-ui.spec.ts`, `tests/i18n-content-toggle.spec.ts`
+   route listelerinde ve `scripts/audit-interview-questions.mjs` PAGES'te YOK —
+   bilinçli, CS5'te eklenecek (sayfa tamamlanmadan 50-soru denetimi build'i kırardı).
+
+---
+
 ## AC08 Kararı — Çoklu Tema Backlog'a Alındı (2026-07-07, main)
 
 > Önceki oturumda "AC08 kararı bekliyor" olarak bırakılmıştı (çoklu tema özelliği

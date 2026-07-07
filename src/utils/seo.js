@@ -174,6 +174,11 @@ export const ROUTE_SEO = [
         description: 'Practice e-commerce backend testing with DBeaver PostgreSQL schema, mock data, Next.js TypeScript API routes, endpoints and headers.',
     },
     {
+        path: '/claude-ai',
+        title: 'Claude AI for QA Testers: Prompts, Automation and MCP | LearnQA.dev',
+        description: 'Learn how QA engineers use Claude AI from junior to senior: prompt engineering, test case generation, Selenium and Playwright automation, Claude Code and MCP.',
+    },
+    {
         path: '/auth/callback',
         title: 'Signing you in | LearnQA.dev',
         description: 'Completing your LearnQA.dev sign-in. You will be redirected automatically once authentication finishes.',

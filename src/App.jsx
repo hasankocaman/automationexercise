@@ -45,6 +45,7 @@ const BasitBackendPage = lazy(() => import('./components/BasitBackendPage'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
 const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
 const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
+const ClaudeAiPage = lazy(() => import('./components/ClaudeAiPage'))
 
 function RouteFallback() {
     return (
@@ -89,6 +90,7 @@ function App() {
                     <Route path="/java-document" element={<JavaDocPage />} />
                     <Route path="/git-document" element={<GitDocPage />} />
                     <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
+                    <Route path="/claude-ai" element={<ClaudeAiPage />} />
                     <Route path="/security" element={<RequireAdmin><SecurityPage /></RequireAdmin>} />
                     <Route path="/manual-testing" element={<ManualTestingPage />} />
                     <Route path="/algorithms" element={<AlgorithmsPage />} />
