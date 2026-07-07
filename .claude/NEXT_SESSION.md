@@ -10,6 +10,76 @@
 
 ---
 
+## /claude-ai — CS2 TAMAMLANDI: Erişim & Kurulum + Test Case + Bug Analizi + Test Verisi (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> CS1 `fbe29ce` ile `feature/claude-ai-page` branch'ine commit edilmişti (bkz. aşağıdaki
+> CS1 bölümü). Bu oturumda Sonnet, `claudesayfa.md`'deki hazır CS2 promptuyla
+> sekme 2-5'i uyguladı. Ana sayfadaki 🤖 Claude AI butonu (`HomePage.jsx`) bu
+> oturumdan önce zaten working tree'de commit'siz duruyordu — CS2 işi ona
+> dokunmadı, `claudeAiData.js`/`.claude/NEXT_SESSION.md` dışında değişiklik yapmadı.
+
+### Yapılan iş — CS2 (SONNET)
+
+`src/data/claudeAiData.js`'e 4 yeni sekme eklendi (mevcut 2 sekmenin ARKASINA,
+EN+TR simetrik, `claudesayfa.md` CS2 bölümündeki kapsam sınırlarına birebir uyularak):
+
+1. **⚙️ Erişim & Kurulum / Access & Setup:** claude.ai web vs Claude Code CLI vs IDE
+   eklentileri (WebDriver/ChromeDriver-FirefoxDriver-EdgeDriver analojisiyle §9.3
+   simple-box), erişim yöntemi karşılaştırma tablosu, Windows (PowerShell) +
+   macOS/Linux için ayrı `code` blokları (her komuttan sonra beklenen çıktı +
+   doğrulama komutu, §9), IDE eklentileri, API key güvenliği (YANLIŞ/DOĞRU kod
+   örneği, .env/gitignore), "prompt'u hangi dilde yazmalı" alt konusu, kurulum
+   step-animation + order-sort, kurulum hatası troubleshooting code-playground.
+2. **📋 Test Case Üretimi / Test Case Generation:** "önce belirsizlikleri
+   sordur, sonra üret" tekniği, Gherkin formatında üretim (bilingual `gherkin`
+   code bloğu), oracle problemi vurgusu, Prompt Lab'a çapraz referans (`callout`),
+   step-animation + order-sort + code-playground.
+3. **🐛 Bug Analizi & Rapor / Bug Analysis & Reporting:** log/stack trace
+   temizleme zorunluluğu (kurye/cüzdan analojisiyle §9.3 simple-box, YANLIŞ/DOĞRU
+   log örneği), flaky test için çoklu-koşum log analizi, gerekçeli severity/priority
+   önerisiyle bug raporu üretimi, step-animation + order-sort + code-playground.
+4. **🧬 Test Verisi Üretimi / Test Data Generation:** equivalence
+   partitioning + sınır değer verisi, gerçek PII kullanmama kuralı, JSON/CSV/SQL
+   INSERT çıktı formatları, Java Faker karşılaştırma tablosu (ne zaman Faker ne
+   zaman Claude), step-animation + order-sort + code-playground.
+
+Her sekme: 1 adet §9.3 standardında (4 katmanlı) `simple-box` + ≥1 `step-animation`
++ ≥1 `challenge(order-sort)` + ≥1 `code-playground` (relatedTopicId + benzersiz
+hint'lerle) + sekme sonunda `quiz` + `retryQuestion` (§18). Sayfa artık **6 sekme,
+6 section** (EN+TR simetrik).
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (33 dosya)
+- `npm run build` → ✅ PASS (16.5s, 39 static route, dist SEO PASS)
+- `tests/claude-prompt-lab.spec.ts` --workers=1 → ✅ 2/2 PASS (yeni sekmeler Prompt
+  Lab sekmesinin index'ini bozmadı — hâlâ index 1)
+- TR yorum/metin taraması → ✅ tüm yeni `code` blok yorumları (bash `#`, JS `//`,
+  Gherkin `#`, SQL `--`) ve tüm simple-box/text/table/quiz metinleri tek tek
+  okunarak doğrulandı; TR tarafta stray İngilizce açıklama cümlesi yok, teknik
+  terimler (CLI, IDE, PATH, mvn test, WebDriver, Gherkin, checksum, Faker, LLM)
+  platformun mevcut kuralına uygun İngilizce kalmış.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CS2 işi commit edilmedi** — kullanıcı onayı bekliyor. Tek değişen
+   dosya: `src/data/claudeAiData.js` (+ bu `.claude/NEXT_SESSION.md` güncellemesi).
+   `feature/claude-ai-page` branch'inde CS1 (`fbe29ce`) üzerine ikinci commit olarak
+   eklenmesi planlanıyor.
+2. **Hâlâ commit edilmemiş, CS2'den bağımsız bir değişiklik var:** ana sayfadaki
+   🤖 Claude AI butonu (`src/components/HomePage.jsx`) — CS2 buna dokunmadı, ayrı
+   ele alınmalı (kullanıcı zaten bunu biliyor, bkz. konuşma geçmişi).
+3. **CS3 (Sonnet):** UI Otomasyonu (Selenium/Playwright) + API Testi + Claude Code
+   + MCP sekmeleri — prompt `claudesayfa.md` CS3 bölümünde HAZIR; CS2'nin bitmiş
+   olduğu (sekme 2-5 mevcut) bu commit sonrası doğrulanabilir olacak.
+4. CS4 (CI/CD & Riskler) ve CS5 (50 mülakat sorusu + audit + test route listeleri
+   + merge hazırlığı) sırayla kalıyor — promptlar claudesayfa.md'de hazır.
+5. `/claude-ai` hâlâ `tests/topic-pages-ui.spec.ts`, `tests/i18n-content-toggle.spec.ts`
+   route listelerinde ve `scripts/audit-interview-questions.mjs` PAGES'te YOK —
+   bilinçli, CS5'te eklenecek.
+
+---
+
 ## YENİ SAYFA: /claude-ai "Tester için Claude AI" — CS1 TAMAMLANDI (2026-07-07, main — HENÜZ COMMIT EDİLMEDİ)
 
 > Kullanıcı istedi: "Bir tester Claude yapay zekayı nasıl kullanır" sayfası;
