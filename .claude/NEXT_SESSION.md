@@ -10,7 +10,77 @@
 
 ---
 
-## /claude-ai — CS3 TAMAMLANDI: UI Otomasyonu + API Testi + Claude Code + MCP (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+## /claude-ai — CS4 TAMAMLANDI: CI/CD & Ekipte AI + Riskler & Yaygın Hatalar (2026-07-07, `feature/claude-ai-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> CS3 `0eaaeb3` ile commit edildi (kullanıcı "commit yap ve devam et" dedi).
+> Bu oturumda Sonnet, `claudesayfa.md`'deki hazır CS4 promptuyla sekme 10-11'i
+> uyguladı. Ana sayfadaki 🤖 Claude AI butonu (`HomePage.jsx`) hâlâ ayrı,
+> commit'siz duruyor — CS4 işi ona dokunmadı.
+
+### Yapılan iş — CS4 (SONNET)
+
+`src/data/claudeAiData.js`'e 2 yeni sekme eklendi (mevcutların ARKASINA, EN+TR
+simetrik, `claudesayfa.md` CS4 bölümündeki kapsam sınırlarına birebir uyularak):
+
+1. **🏗️ CI/CD & Ekipte AI:** paylaşılan prompt kütüphanesi kavramı (Java utility
+   sınıfı analojisiyle §9.3 simple-box — "en iyi prompt yazarının tavanı değil,
+   tüm ekibin tabanı yükselir"), Claude'un PR review döngüsündeki rolü ("Claude
+   onayladı" kategori hatası vurgusu, merge kararı hâlâ insanda), test raporu
+   özetletme disiplini, tek seferlik prompt'u {{yer_tutucu}}lu ekip şablonuna
+   dönüştürme code-playground'u.
+2. **🚨 Riskler & Yaygın Hatalar:** 4 risk kategorisi (halüsinasyon/gizlilik/telif
+   ve şirket politikası/aşırı bağımlılık) "senior böyle korunur" tonunda (korkutma
+   tonunda DEĞİL) anlatıldı (kendinden emin ama şirkette hiç çalışmamış stajyer
+   analojisiyle §9.3 simple-box). **`error-dictionary` bloğu, plandaki 8
+   senaryonun TAMAMIYLA** (relatedTopicId'li, EN+TR ayrı, codeWrong/codeFixed TR
+   yorumları Türkçe): (1) var olmayan Selenium metodu, (2) ilk DOM değişiminde
+   kırılan XPath, (3) sahte PASS veren tautolojik assertion, (4) prompt'a
+   yapıştırılan log'da API token, (5) gerçek TC kimlik formatında ve GEÇERLİ
+   çıkan test verisi, (6) eski kütüphane syntax'ı, (7) uzun konuşmada bağlam
+   kaybı, (8) AI çıktısının review'suz merge edilmesi. Ayrıca Claude'a kendi
+   belirsizliğini işaretlettiren bir code-playground.
+
+Her sekme: 1 adet §9.3 standardında (4 katmanlı) `simple-box` + ≥1
+`step-animation` + ≥1 `challenge(order-sort)` + ≥1 `code-playground`
+(relatedTopicId + benzersiz hint'lerle) + sekme sonunda `quiz` + `retryQuestion`
+(§18). Sayfa artık **12 sekme, 12 section** (EN+TR simetrik) — CS4, planın son
+içerik paketiydi; sadece CS5 (mülakat + audit + test entegrasyonu) kaldı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node --check` + yapı kontrolü → temiz, 12/12 sekme-section, error-dictionary
+  her iki dilde de tam 8 senaryo doğrulandı.
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (33 dosya, 8
+  relatedTopicId'li error-dictionary senaryosu dahil)
+- `npm run build` → ✅ PASS (39 static route, dist SEO PASS — bu koşum arka
+  planda CS3'ün post-commit suite'i çalışırken yapıldığından normalden yavaştı,
+  ~1.4dk, ama sonuç değişmedi)
+- `tests/claude-prompt-lab.spec.ts` --workers=1 → ✅ 2/2 PASS (regresyon yok)
+- TR yorum/metin taraması → ✅ tüm yeni `code`/error-dictionary yorumları (bash
+  `#`, JS `//`, markdown) ve tüm simple-box/text/table/quiz metinleri tek tek
+  okunarak doğrulandı; 8 error-dictionary senaryosunun TR/EN codeWrong/codeFixed
+  çiftleri satır satır karşılaştırıldı (grep ile ❌/✅ işaretli tüm satırlar) —
+  TR tarafta stray İngilizce yok, teknik terimler (Selenium, XPath, data-testid,
+  LLM, changelog, PR, CI/CD) İngilizce kalmış.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun CS4 işi commit edilmedi** — kullanıcı onayı bekliyor (veya
+   önceki 2 paketteki gibi "commit yap ve devam et" onayı). Tek değişen dosya:
+   `src/data/claudeAiData.js` (+ bu `.claude/NEXT_SESSION.md` güncellemesi).
+   `feature/claude-ai-page` branch'inde CS3 (`0eaaeb3`) üzerine dördüncü commit
+   olarak eklenmesi planlanıyor.
+2. **Hâlâ commit edilmemiş, CS4'ten bağımsız bir değişiklik var:** ana
+   sayfadaki 🤖 Claude AI butonu (`src/components/HomePage.jsx`).
+3. **CS5 (Sonnet, SON paket):** 50 mülakat sorusu (15/20/15 dağılım) +
+   `scripts/audit-interview-questions.mjs` PAGES kaydı + `tests/topic-pages-ui.spec.ts`/
+   `tests/i18n-content-toggle.spec.ts` route listelerine `/claude-ai` eklenmesi +
+   mülakat gating spot-check. CS5 bitince sayfa "main'e merge'e hazır" olacak —
+   promptu claudesayfa.md CS5 bölümünde HAZIR. **Merge/push kararı kullanıcının.**
+
+---
+
+## /claude-ai — CS3 TAMAMLANDI: UI Otomasyonu + API Testi + Claude Code + MCP (2026-07-07, `feature/claude-ai-page` — commit `0eaaeb3`)
 
 > CS2 `c664f64` ile commit edildi (kullanıcı "commit yap ve sıradaki prompt ile
 > devam et" dedi). Bu oturumda Sonnet, `claudesayfa.md`'deki hazır CS3 promptuyla

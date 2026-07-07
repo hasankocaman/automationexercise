@@ -815,6 +815,176 @@ Try the login flow and verify the test user's seed data actually exists in the d
   xpReward: 15,
 }
 
+// ─── CS4 paylaşılan bloklar: CI/CD & Ekipte AI ───────────────────────────────
+
+const promptLibraryLifecycleAnimation = {
+  type: 'step-animation',
+  id: 'claude-prompt-library-step-01',
+  title: { tr: 'Adım Adım: Ekip Prompt Kütüphanesinin Yaşam Döngüsü', en: 'Step by Step: The Team Prompt Library Lifecycle' },
+  steps: [
+    { id: 1, icon: '🔁', label: { tr: 'Bir prompt\'u iterasyonla olgunlaştır', en: 'Iterate a prompt to maturity' }, detail: { tr: 'Bir tester, gerçek bir görev için (Prompt Mühendisliği sekmesindeki disiplinle) güvenilir sonuç verene kadar bir prompt\'u iyileştirir.', en: 'A tester refines a prompt for a real task until it produces reliable results (the discipline from the Prompt Engineering tab).' } },
+    { id: 2, icon: '📐', label: { tr: 'Yer tutuculu şablona dönüştür', en: 'Turn it into a placeholder template' }, detail: { tr: 'İşe yarayan prompt, özellik adı gibi sabit detaylar yerine {{yer_tutucu}} içeren tekrar kullanılabilir bir şablona çevrilir.', en: 'The working prompt is turned into a reusable template with {{placeholders}} instead of hardcoded specifics like the feature name.' } },
+    { id: 3, icon: '👀', label: { tr: 'Ekip incelemesinden geçir', en: 'Get it reviewed by the team' }, detail: { tr: 'Şablon, paylaşılan bir utility metodu gibi ekip tarafından incelenir — kalite tek bir kişinin onayına bağlı kalmaz.', en: 'The template is reviewed by the team, like a shared utility method — quality doesn\'t depend on a single person\'s approval.' } },
+    { id: 4, icon: '📚', label: { tr: 'Kütüphaneye ekle', en: 'Add it to the library' }, detail: { tr: 'Onaylanan şablon, paylaşılan ve versiyon kontrollü bir prompt kütüphanesine eklenir.', en: 'The approved template is added to a shared, version-controlled prompt library.' } },
+    { id: 5, icon: '♻️', label: { tr: 'Tekrar kullan ve geliştir', en: 'Reuse and improve it' }, detail: { tr: 'Ekip, her seferinde sıfırdan icat etmek yerine zaman içinde şablonu tekrar kullanır ve geliştirir.', en: 'The team reuses and improves the template over time instead of reinventing it per person.' } },
+  ],
+}
+
+const promptLibraryLifecycleOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-prompt-library-order-01',
+  question: { tr: 'Tek seferlik bir prompt\'tan paylaşılan bir ekip şablonuna giden akışı doğru sıraya diz.', en: 'Arrange the flow from a one-off prompt to a shared team template in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Prompt\'u gerçek bir görevde güvenilir sonuç verene kadar iyileştir', en: 'Refine the prompt on a real task until it produces reliable results' }, order: 1 },
+    { id: '2', text: { tr: 'Sabit detayları yer tutucuyla değiştirip şablonlaştır', en: 'Replace hardcoded specifics with placeholders to templatize it' }, order: 2 },
+    { id: '3', text: { tr: 'Şablonu ekip incelemesinden geçir', en: 'Get the template reviewed by the team' }, order: 3 },
+    { id: '4', text: { tr: 'Paylaşılan prompt kütüphanesine ekle', en: 'Add it to the shared prompt library' }, order: 4 },
+    { id: '5', text: { tr: 'Zaman içinde tekrar kullan ve geliştir', en: 'Reuse and improve it over time' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const promptTemplatePlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-prompt-template-practice',
+  id: 'claude-prompt-template-practice',
+  label: { tr: 'Pratik: Tek seferlik bir prompt\'u tekrar kullanılabilir bir ekip şablonuna dönüştür', en: 'Practice: Turn a one-off prompt into a reusable team template' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: sadece "kayıt ol" özelliğine özel, sabit kodlanmış bir prompt\'u; herhangi bir teammate\'in herhangi bir özellik için doldurabileceği yer tutuculu bir şablona dönüştürmek.',
+    en: 'Goal: turn a prompt hardcoded to the "sign-up" feature specifically into a placeholder template any teammate can fill in for any feature.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: özellik adı ve user story\'yi sabit metin yerine yer tutucuyla değiştir.',
+    en: 'Fill in the TODO lines: replace the feature name and user story with placeholders instead of fixed text.',
+  },
+  code: {
+    tr: `Sen kıdemli bir QA mühendisisin.
+Önce, aşağıdaki user story ve kabul kriterlerinde belirsiz veya eksik olan HER kuralı listele.
+Kayıt ol özelliği: [buraya kayıt ol story'si sabit yapıştırıldı].
+TODO (özellik adı ve story'yi yer tutucuyla değiştir)
+Onaylandıktan sonra 5 adet Gherkin senaryosu yaz.`,
+    en: `You are a senior QA engineer.
+First, list every rule in the user story and acceptance criteria below that is ambiguous or missing.
+Sign-up feature: [the sign-up story is hardcoded here].
+TODO (replace the feature name and story with placeholders)
+Once confirmed, write 5 Gherkin scenarios.`,
+  },
+  starterCode: {
+    tr: `Sen kıdemli bir QA mühendisisin.
+Önce, aşağıdaki user story ve kabul kriterlerinde belirsiz veya eksik olan HER kuralı listele.
+Kayıt ol özelliği: [buraya kayıt ol story'si sabit yapıştırıldı].
+TODO (özellik adı ve story'yi yer tutucuyla değiştir)
+Onaylandıktan sonra 5 adet Gherkin senaryosu yaz.`,
+    en: `You are a senior QA engineer.
+First, list every rule in the user story and acceptance criteria below that is ambiguous or missing.
+Sign-up feature: [the sign-up story is hardcoded here].
+TODO (replace the feature name and story with placeholders)
+Once confirmed, write 5 Gherkin scenarios.`,
+  },
+  solutionCode: {
+    tr: `Sen kıdemli bir QA mühendisisin.
+Önce, aşağıdaki user story ve kabul kriterlerinde belirsiz veya eksik olan HER kuralı listele.
+Özellik: {{ozellik_adi}}
+User story + kabul kriterleri: {{user_story}}
+Onaylandıktan sonra {{n}} adet Gherkin senaryosu yaz.`,
+    en: `You are a senior QA engineer.
+First, list every rule in the user story and acceptance criteria below that is ambiguous or missing.
+Feature: {{feature_name}}
+User story + acceptance criteria: {{user_story}}
+Once confirmed, write {{n}} Gherkin scenarios.`,
+  },
+  expected: {
+    tr: `Prompt artık "kayıt ol"a özel değil — {{özellik_adı}}, {{user_story}} ve {{n}} yer tutucularıyla herhangi bir teammate, herhangi bir özellik için doldurup kullanabilir. Kalite tek bir kişinin o günkü prompt yazma becerisine bağlı kalmaz.`,
+    en: `The prompt is no longer specific to "sign-up" — with {{feature_name}}, {{user_story}} and {{n}} placeholders, any teammate can fill it in for any feature. Quality no longer depends on one person's prompt-writing skill that day.`,
+  },
+  hints: [
+    { tr: 'Özellik adını sabit yazmak, şablonu SADECE o özellik için kullanılabilir kılar — bir sonraki kişi baştan yazmak zorunda kalır.', en: 'Hardcoding the feature name makes the template usable ONLY for that feature — the next person has to write it from scratch.' },
+    { tr: 'Yer tutucu sayısı ({{n}}) bile parametrelenebilir — her ekip üyesi kaç senaryo istediğine kendi karar verir.', en: 'Even the count ({{n}}) can be parametrized — each team member decides how many scenarios they want.' },
+    { tr: 'Şablonun kalitesi hâlâ ekip incelemesinden geçmelidir — paylaşılan olması onu otomatik doğru yapmaz.', en: 'The template\'s quality still needs team review — being shared doesn\'t automatically make it correct.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── CS4 paylaşılan bloklar: Riskler & Yaygın Hatalar ────────────────────────
+
+const riskVerificationAnimation = {
+  type: 'step-animation',
+  id: 'claude-risk-verification-step-01',
+  title: { tr: 'Adım Adım: Güvenmeden Önce Doğrulama', en: 'Step by Step: Verifying Before Trusting' },
+  steps: [
+    { id: 1, icon: '🔍', label: { tr: 'Halüsinasyonu kontrol et', en: 'Check for hallucination' }, detail: { tr: 'Önerilen her API/metodu dokümantasyona veya IDE otomatik tamamlamaya karşı doğrula.', en: 'Verify every suggested API/method against the docs or IDE autocomplete.' } },
+    { id: 2, icon: '🔒', label: { tr: 'Gizlilik maruziyetini kontrol et', en: 'Check for privacy exposure' }, detail: { tr: 'Temizlenmemiş kişisel veri veya kimlik bilgisi yapıştırılmadığını doğrula.', en: 'Confirm no unsanitized PII or credentials were pasted.' } },
+    { id: 3, icon: '📜', label: { tr: 'Şirket politikasını kontrol et', en: 'Check company policy' }, detail: { tr: 'Bu görevin şirketinin AI kullanım politikasına uygun olduğunu doğrula.', en: 'Confirm this task is allowed by your company\'s AI usage policy.' } },
+    { id: 4, icon: '🧠', label: { tr: 'Aşırı bağımlılığı kontrol et', en: 'Check for over-reliance' }, detail: { tr: 'Düzeltmenin sadece çalıştığını değil, NEDEN çalıştığını açıklayabildiğini doğrula.', en: 'Confirm you can explain WHY the fix works, not just that it works.' } },
+    { id: 5, icon: '✅', label: { tr: 'İnsan incelemesi iste', en: 'Require human review' }, detail: { tr: 'Çıktı, diğer her kod gibi aynı inceleme çıtasından geçer.', en: 'The output goes through the same review bar as any other code.' } },
+  ],
+}
+
+const riskVerificationOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-risk-verification-order-01',
+  question: { tr: 'Bir Claude çıktısına güvenmeden önceki doğrulama kontrol listesini doğru sıraya diz.', en: 'Arrange the verification checklist before trusting a Claude output in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Önerilen API/metodun gerçekten var olduğunu doğrula', en: 'Verify the suggested API/method actually exists' }, order: 1 },
+    { id: '2', text: { tr: 'Hassas veri/kimlik bilgisi maruziyeti olmadığını kontrol et', en: 'Check there is no PII/credential exposure' }, order: 2 },
+    { id: '3', text: { tr: 'Şirket AI kullanım politikasına uygun olduğunu doğrula', en: 'Confirm it complies with company AI usage policy' }, order: 3 },
+    { id: '4', text: { tr: 'Düzeltmeyi kendi cümlelerinle açıklayabildiğini doğrula', en: 'Confirm you can explain the fix in your own words' }, order: 4 },
+    { id: '5', text: { tr: 'Normal insan kod review\'undan geçir', en: 'Send it through normal human code review' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const uncertaintyFlagPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-risk-uncertainty-flag-practice',
+  id: 'claude-risk-uncertainty-flag-practice',
+  label: { tr: 'Pratik: Claude\'a kendi belirsizliğini işaretlettir', en: 'Practice: Make Claude flag its own uncertainty' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: sıradan bir kod üretim isteğini; kullanılan framework sürümünü belirten ve Claude\'un emin olmadığı herhangi bir API\'yi açıkça işaretlemesini isteyen bir prompt\'a dönüştürerek halüsinasyon riskini görünür kılmak.',
+    en: 'Goal: turn an ordinary code-generation request into a prompt that states the framework version and asks Claude to explicitly flag any API it is not certain exists, making hallucination risk visible.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: framework sürümü ve "emin olmadığını işaretle" talimatı.',
+    en: 'Fill in the TODO lines: the framework version and the "flag uncertainty" instruction.',
+  },
+  code: {
+    tr: `TODO (kullandığın Selenium sürümü)
+Bu senaryo için Selenium kodu yaz.
+TODO ("emin olmadığın API'yi işaretle" talimatı)`,
+    en: `TODO (the Selenium version you use)
+Write Selenium code for this scenario.
+TODO ("flag any API you're not certain about" instruction)`,
+  },
+  starterCode: {
+    tr: `TODO (kullandığın Selenium sürümü)
+Bu senaryo için Selenium kodu yaz.
+TODO ("emin olmadığın API'yi işaretle" talimatı)`,
+    en: `TODO (the Selenium version you use)
+Write Selenium code for this scenario.
+TODO ("flag any API you're not certain about" instruction)`,
+  },
+  solutionCode: {
+    tr: `Sen kıdemli bir QA otomasyon mühendisisin. Kullandığım Selenium sürümü: 4.18.
+Bu senaryo için kod yaz; emin olmadığın herhangi bir metod veya API varsa sessizce var saymak yerine açıkça "⚠ doğrulanmadı" diye işaretle.`,
+    en: `You are a senior QA automation engineer. My Selenium version is: 4.18.
+Write code for this scenario; if there is any method or API you are not certain about, explicitly mark it "⚠ unverified" instead of silently assuming it exists.`,
+  },
+  expected: {
+    tr: `Bu teknik halüsinasyon riskini SIFIRLAMAZ, ama görünür kılar — Claude, "⚠ doğrulanmadı" etiketiyle kendinden emin görünen ama aslında tahmin olan kısımları işaretler. Doğrulama adımı hâlâ senin sorumluluğundadır.`,
+    en: `This technique does NOT eliminate hallucination risk, but it makes it visible — Claude marks the parts that look confident but are actually guesses with an "⚠ unverified" tag. The verification step is still your responsibility.`,
+  },
+  hints: [
+    { tr: 'Sürüm bilgisi vermeden Claude en yaygın (genelde eski) API şeklini varsayar.', en: 'Without version info, Claude defaults to the most commonly-seen (often older) API shape.' },
+    { tr: '"Emin olmadığını işaretle" talimatı olmadan, bir halüsinasyon gerçek bir cevaptan görsel olarak ayırt edilemez.', en: 'Without the "flag uncertainty" instruction, a hallucination is visually indistinguishable from a real answer.' },
+    { tr: 'Bu teknik riski azaltır, ortadan kaldırmaz — işaretlenmeyen kısımlar da hâlâ senin doğrulamana ihtiyaç duyar.', en: 'This technique reduces the risk, it doesn\'t remove it — unflagged parts still need your verification too.' },
+  ],
+  xpReward: 15,
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const claudeAiData = {
@@ -824,7 +994,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '🚨 Risks & Common Mistakes'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -1730,6 +1900,250 @@ claude mcp add test-database --read-only`,
           },
         ],
       },
+      {
+        title: `🏗️ CI/CD & AI in the Team`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧰',
+            content: `A team's shared prompt library is like a shared Java utility class (a StringUtils or DateUtils) — the mechanism is exact: instead of every developer re-inventing "how do I ask Claude to write boundary test data" from scratch each time, with subtly different quality every time, the team writes ONE well-tuned prompt template once, and everyone reuses it, the same way nobody rewrites their own leftPad() when a tested utility already exists. Here is the question worth sitting with: if every tester on the team can already write working prompts individually, why bother maintaining a shared library at all? Because "working" and "consistently good" are different bars — without a shared template, five testers produce five different qualities of Gherkin scenario or bug report, some skipping the ambiguity-first step, some skipping PII scrubbing; a shared, reviewed template raises the FLOOR for the whole team, not just the ceiling for the best prompt-writer. Java comparison: this is exactly the reasoning for extracting a repeated snippet into a shared utility method reviewed once in a pull request, instead of trusting every future caller to copy it correctly by hand. The QA stake: a team without a shared prompt library relearns the same lessons (forgetting to ask for negative scenarios, pasting unsanitized logs) independently and repeatedly — the same class of avoidable waste as not having a shared Page Object Model.`,
+          },
+          { type: 'heading', text: `Claude in the PR Review Loop` },
+          {
+            type: 'text',
+            content: `Using Claude (via GitHub Actions or manually) for a first-pass PR review — summarizing a diff, drafting a commit/PR description, flagging an obviously risky change — is a supplement to human review, not a replacement. The human reviewer still owns the merge decision.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why is "Claude approved this PR" a category error? Approval is a judgment about whether a change is safe for THIS codebase, THIS team's standards and THIS release timing — none of which Claude has full visibility into from a diff alone. Its real value is surfacing what a tired human reviewer might miss (an unhandled edge case, a missing test) — a first pass, not a final say.`,
+          },
+          { type: 'heading', text: `Summarizing Test Reports for the Team` },
+          {
+            type: 'text',
+            content: `Pasting a large test run's failure summary and asking Claude to produce a short, human-readable summary for a standup or a team update is genuinely useful — but the same "verify before repeating a number" discipline applies: if Claude says "12 failures, mostly in the checkout module," confirm that grouping against the actual report before stating it as fact in a meeting.`,
+          },
+          { type: 'heading', text: `Building a Team Prompt Library` },
+          {
+            type: 'text',
+            content: `Once a prompt proves itself through the iteration discipline from the Prompt Engineering tab, promote it into a shared, version-controlled file the whole team can reuse and improve — reviewed the same way a shared utility method would be, not copy-pasted ad hoc from person to person.`,
+          },
+          {
+            type: 'table',
+            headers: ['Team Practice', 'Why It Matters', 'Who Owns It'],
+            rows: [
+              ['Shared prompt library (test case, bug report, test data templates)', 'Raises the floor for the whole team, not just the best prompt-writer', 'Reviewed and versioned like shared code, not copy-pasted informally'],
+              ['AI-assisted PR review (summary, first-pass risk flags)', 'Catches obvious gaps faster, before a human review round', 'The human reviewer, who still owns the final merge decision'],
+              ['Team rule: no AI-generated test/code merges without a human diff review', 'Protects junior testers from confidently-wrong output reaching production', 'Senior engineers, who set and enforce the review bar'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            label: 'prompt-templates/test-case-from-story.md',
+            code: {
+              tr: `Sen kıdemli bir QA mühendisisin.
+Önce belirsizlikleri listele: {{user_story}}
+Onaylandıktan sonra {{n}} adet Gherkin senaryosu yaz.`,
+              en: `You are a senior QA engineer.
+First list the ambiguities: {{user_story}}
+Once confirmed, write {{n}} Gherkin scenarios.`,
+            },
+          },
+          promptLibraryLifecycleAnimation,
+          promptLibraryLifecycleOrder,
+          promptTemplatePlayground,
+          {
+            type: 'quiz',
+            question: `A GitHub Actions workflow runs Claude on every PR and posts "✅ Looks good" as a comment. A junior treats this comment as approval and merges without further review. What is the flaw in this workflow?`,
+            options: [
+              { id: 'a', text: 'There is no flaw — an AI comment is equivalent to a human approval' },
+              { id: 'b', text: 'AI review is a first-pass supplement, not a merge decision — it lacks full visibility into the codebase, team standards and release timing that a human reviewer accounts for; the human must still own the merge' },
+              { id: 'c', text: 'GitHub Actions cannot run AI tools at all' },
+              { id: 'd', text: 'The workflow is fine as long as the comment is worded confidently' },
+            ],
+            correct: 'b',
+            explanation: `"Approved" is a judgment call about safety for a specific codebase and team, made from a diff alone with no deeper context. Treating an AI comment as equivalent to human sign-off removes the review step it was only ever meant to supplement.`,
+            retryQuestion: {
+              question: `Five testers on a team each write their own prompt for generating bug reports, with noticeably different quality — some remember to ask for a severity suggestion, others don't. What structural fix addresses this, beyond telling everyone to "write better prompts"?`,
+              options: [
+                { id: 'a', text: 'Nothing — prompt quality is a personal skill that can\'t be standardized' },
+                { id: 'b', text: 'Promote the best-performing prompt into a shared, reviewed template in a team prompt library — this raises the floor for everyone, not just the individual skill of the best prompt-writer' },
+                { id: 'c', text: 'Require everyone to use the exact same wording, with zero customization ever allowed' },
+                { id: 'd', text: 'Switch to a different AI tool — the model is the source of the inconsistency' },
+              ],
+              correct: 'b',
+              explanation: `Individual skill varies; a shared, reviewed template is a structural fix that doesn't depend on everyone independently reaching the same quality bar — the same reasoning that justifies a shared Page Object Model instead of five people writing their own locators.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🚨 Risks & Common Mistakes`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: `Trusting Claude's confident-sounding output without verification is like trusting a very well-read intern who has never actually worked at your company but speaks with total confidence — the mechanism is exact: the intern has read every textbook (an enormous training corpus) but has zero memory of YOUR specific codebase's quirks, so a confidently delivered answer and a CORRECT answer are two independent properties that happen to often coincide, not the same thing. Here is the question worth sitting with: if Claude is right most of the time, why build a whole tab of "risks" around the rare times it's wrong? Because the failure mode isn't random noise you can average away — it's SYSTEMATICALLY invisible: a hallucinated method looks exactly like a real one, a tautological assertion looks exactly like a real check, right up until it silently fails in production. Java comparison: it's the difference between a compiler error (loud, blocks the build) and a logic bug that compiles fine and passes a rushed review (silent, ships) — most of these risks are the second kind, precisely because they're syntactically perfect. The QA stake: this whole page has taught active verification habits (run it, reproduce it, check it against the acceptance criteria) — this tab collects the concrete failure shapes those habits exist to catch, so treat it as the reference checklist you hold yourself to, not a warning meant to scare you off using the tool.`,
+          },
+          { type: 'heading', text: `Four Risk Categories, One Discipline: Verify` },
+          {
+            type: 'text',
+            content: `Hallucination: Claude can state a nonexistent API or method with full confidence because it predicts plausible text, not verified fact — the counter, covered in the UI Automation tab, is to always verify against the compiler, IDE or official docs before running anything. Privacy: pasting customer data, tokens or credentials into any AI conversation is an exposure the moment it's sent — the counter, covered in depth in the Bug Analysis tab, is to sanitize before pasting, every time.`,
+          },
+          {
+            type: 'text',
+            content: `Copyright & company policy: some organizations restrict what code or data can be pasted into third-party AI tools, or require review before AI-assisted code ships — the counter is knowing and following your company's actual AI usage policy; "I didn't know" is not a defense a reviewer accepts. Over-reliance (skill atrophy): a tester who always asks Claude first and never builds independent debugging instincts loses the skill of spotting a wrong assertion or a bad locator on their own — the counter is using Claude to accelerate work you already understand, not to substitute for understanding you haven't built yet; the verification habits from earlier tabs ARE that understanding, in practice.`,
+          },
+          {
+            type: 'error-dictionary',
+            relatedTopicId: 'claude-ai-risks-error-dictionary',
+            framework: 'Claude AI',
+            errors: [
+              {
+                error: 'Claude suggested a Selenium method that doesn\'t exist',
+                fullMessage: `AttributeError: 'WebDriver' object has no attribute 'findElementByAI'`,
+                cause: {
+                  en: 'An LLM predicts plausible-looking API names; a method that matches Selenium\'s naming convention can be entirely invented (a hallucination), and nothing about its confident phrasing signals that.',
+                },
+                solution: {
+                  en: 'Verify every suggested method against the IDE\'s autocomplete or the official Selenium docs before running it — never trust a method name because it "looks right".',
+                },
+                codeWrong: `# ❌ findElementByAI does not exist in Selenium — a hallucination
+element = driver.findElementByAI("login button")`,
+                codeFixed: `# ✅ Real Selenium API, verified against IDE autocomplete
+element = driver.find_element(By.CSS_SELECTOR, "[data-testid='login-button']")`,
+              },
+              {
+                error: 'The generated XPath broke on the first DOM change',
+                fullMessage: `NoSuchElementException: Unable to locate element: //div[3]/div[2]/button`,
+                cause: {
+                  en: 'Claude generated a positional XPath from a frozen HTML snapshot without being told to prefer a stable attribute (see the UI Automation tab) — position is never a contract a frontend team promises to preserve.',
+                },
+                solution: {
+                  en: 'Always instruct Claude to prefer data-testid or aria-label over positional selectors; if neither exists in the markup, ask it to flag that gap instead of guessing.',
+                },
+                codeWrong: `# ❌ Position-dependent, fragile XPath
+driver.find_element(By.XPATH, "//div[3]/div[2]/button")`,
+                codeFixed: `# ✅ A stable attribute is used instead
+driver.find_element(By.CSS_SELECTOR, "[data-testid='submit-button']")`,
+              },
+              {
+                error: 'The AI-written assertion always returned true (a fake PASS)',
+                fullMessage: `Test suite: 47 passed, 0 failed (but the login bug is still reproducible manually)`,
+                cause: {
+                  en: 'A generated assertion checked a value against itself or a trivially-true condition instead of the actual expected value — a tautology that passes regardless of the real behavior.',
+                },
+                solution: {
+                  en: 'Read every generated assertion and confirm it turns red when you intentionally break the feature (mutate the code and re-run) — a real assertion should fail on a real bug.',
+                },
+                codeWrong: `# ❌ Tautology — this assertion always passes
+assert response.status_code == response.status_code`,
+                codeFixed: `# ✅ Checked against the real expected value
+assert response.status_code == 200`,
+              },
+              {
+                error: 'The log pasted into the prompt contained an API token',
+                fullMessage: `[ERROR] Authorization: Bearer eyJhbGciOiJIUzI1NiIs... request failed`,
+                cause: {
+                  en: 'The raw log was pasted without scrubbing sensitive fields first — the same mistake covered in the Bug Analysis tab, shown here as a real incident shape.',
+                },
+                solution: {
+                  en: 'Sanitize every log or response before pasting — replace tokens, emails and any credential-shaped value with a placeholder like <REDACTED>, regardless of how urgent the debugging feels.',
+                },
+                codeWrong: `# ❌ Raw log, token pasted without scrubbing
+[ERROR] Authorization: Bearer eyJhbGciOiJIUzI1NiIs...`,
+                codeFixed: `# ✅ Token scrubbed before pasting
+[ERROR] Authorization: Bearer <REDACTED>`,
+              },
+              {
+                error: 'Generated test data came out in the exact format of a real national ID number and was VALID',
+                fullMessage: `One of 500 records inserted into the test database happened to match a real citizen's ID number exactly (a coincidence, unnoticed until much later)`,
+                cause: {
+                  en: 'LLM-generated ID-shaped numbers can, by chance, collide with a real valid identifier, especially at volume — a "make it clearly fake" instruction alone does not guarantee non-collision.',
+                },
+                solution: {
+                  en: 'For bulk realistic-ID-shaped data, prefer a deterministic generator with a documented fake-range or reserved-prefix guarantee over ad hoc LLM output; if using Claude, generate small batches and spot-check, and confirm your team\'s data policy allows format-valid synthetic IDs in that environment at all.',
+                },
+                codeWrong: `# ❌ Used directly, with no reserved-range or collision check
+INSERT INTO test_users (national_id) VALUES ('...LLM-generated number...');`,
+                codeFixed: `# ✅ Generated from a documented fake-range / reserved prefix
+INSERT INTO test_users (national_id) VALUES ('00000000001'); -- reserved test prefix`,
+              },
+              {
+                error: 'Claude used the syntax of an outdated library version',
+                fullMessage: `TypeError: page.waitForSelector is not a function (the generated code used an API removed in the project's installed Playwright version)`,
+                cause: {
+                  en: 'The model\'s training data spans years of documentation across many library versions; without being told your exact installed version, it defaults to the most commonly-seen (often older) API shape.',
+                },
+                solution: {
+                  en: 'State your exact framework/library version in the prompt, and cross-check any unfamiliar-looking method against your installed version\'s changelog before trusting it.',
+                },
+                codeWrong: `// ❌ Outdated Playwright API (removed)
+await page.waitForSelector('[data-testid="submit"]');`,
+                codeFixed: `// ✅ Current Playwright locator API
+await page.getByTestId('submit').waitFor();`,
+              },
+              {
+                error: 'In a long conversation, context was lost and earlier decisions were forgotten',
+                fullMessage: `Claude forgot the rule stated 40 messages earlier — "base it only on confirmed acceptance criteria" — and started inventing assumptions again`,
+                cause: {
+                  en: 'Very long conversations can push earlier context out of effective focus, especially across many topic switches — earlier decisions compete with everything said since, without a hard memory failure being visible.',
+                },
+                solution: {
+                  en: 'For a new feature or task, start a fresh conversation and re-paste the essential confirmed context, rather than continuing an old, long thread indefinitely.',
+                },
+                codeWrong: `# ❌ Continuing a 40-message-old unrelated thread for a new feature
+(...40 messages of unrelated history...)
+Now write tests for the payment feature.`,
+                codeFixed: `# ✅ A fresh conversation, confirmed context re-pasted
+You are a senior QA engineer.
+Payment feature acceptance criteria: [...confirmed rules here...]`,
+              },
+              {
+                error: 'AI output was merged without a code review',
+                fullMessage: `Production incident: PR #482 (a Claude-generated test fix) merged with auto-approve, introduced a tautological assertion that masked a real regression for 3 weeks`,
+                cause: {
+                  en: 'Treating AI-generated code as exempt from the team\'s normal review process because "an AI already checked it" — but Claude\'s own output was never independently verified, violating the CI/CD tab\'s team-rule discipline.',
+                },
+                solution: {
+                  en: 'Apply the same review bar to AI-generated code as to human-written code, with no exceptions — this is exactly what the CI/CD tab\'s "no AI merges without human diff review" rule exists to prevent.',
+                },
+                codeWrong: `# ❌ Team rule: "if AI wrote it, no review needed" (WRONG)
+git merge --no-verify claude-generated-fix`,
+                codeFixed: `# ✅ Team rule: AI-generated code goes through human diff review too
+git push origin claude-generated-fix
+# -> a PR is opened, at least 1 human approval is required, no unreviewed merges`,
+              },
+            ],
+          },
+          riskVerificationAnimation,
+          riskVerificationOrder,
+          uncertaintyFlagPlayground,
+          {
+            type: 'quiz',
+            question: `A generated assertion always passes, even when you intentionally break the feature it's supposed to test. Which risk category is this, and what habit catches it?`,
+            options: [
+              { id: 'a', text: 'This is a privacy risk — the assertion is leaking data' },
+              { id: 'b', text: 'A tautological assertion (a "fake PASS") — the counter-habit is mutating the code to intentionally break the feature and confirming the assertion actually turns red' },
+              { id: 'c', text: 'This is a copyright risk related to the assertion library' },
+              { id: 'd', text: 'This cannot be detected until the feature reaches production' },
+            ],
+            correct: 'b',
+            explanation: `A tautology (checking a value against itself, or a condition that's always true) passes regardless of real behavior — it looks identical to a working assertion until you deliberately break the thing it claims to test and watch it stay green.`,
+            retryQuestion: {
+              question: `A junior says: "I don't need to fully understand this fix — Claude explained it works, and the test is green." What risk does this represent, and what should a senior require before merging?`,
+              options: [
+                { id: 'a', text: 'No risk — a green test is sufficient proof regardless of who understands the fix' },
+                { id: 'b', text: 'Over-reliance (skill atrophy) — a senior should ask the junior to explain the fix in their own words before merging, the same Feynman-style check this platform teaches for learning any concept' },
+                { id: 'c', text: 'This is a hallucination risk, unrelated to the junior\'s understanding' },
+                { id: 'd', text: 'This is only a problem if the test later starts failing' },
+              ],
+              correct: 'b',
+              explanation: `A green test confirms the immediate symptom, not that the underlying cause was understood — the same distinction between "compiles" and "is correct" that runs through this whole tab. Requiring an explanation in the junior's own words is a direct, practical check against skill atrophy, not busywork.`,
+            },
+          },
+        ],
+      },
     ],
   },
   tr: {
@@ -1738,7 +2152,7 @@ claude mcp add test-database --read-only`,
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '🚨 Riskler & Yaygın Hatalar'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -2640,6 +3054,250 @@ claude mcp add test-database --read-only`,
               ],
               correct: 'b',
               explanation: `Buradaki güvenlik önlemi doğruluk değil, kapsamdır. Production raporlaması için kullanılan bir sisteme yazma erişimi olan bir ajan, aldığı herhangi bir eylemin "hata" olup olmadığından bağımsız olarak, görevini sürdürmenin bir yan etkisi olarak gerçek veriyi değiştirebilir. Düzeltme, Claude Code'daki ile aynıdır: görevin gerçekten ihtiyaç duyduğu en dar izni ve ortamı ver.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🏗️ CI/CD & Ekipte AI`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧰',
+            content: `Bir ekibin paylaşılan prompt kütüphanesi, paylaşılan bir Java utility sınıfına (bir StringUtils veya DateUtils'e) benzer — mekanizma birebirdir: her geliştiricinin "Claude'a sınır değer test verisi nasıl yazdırırım"ı her seferinde sıfırdan, her defasında hafifçe farklı bir kaliteyle icat etmesi yerine, ekip BİR KEZ iyi ayarlanmış bir prompt şablonu yazar ve herkes onu tekrar kullanır — tıpkı test edilmiş bir utility zaten varken kimsenin kendi leftPad()'ini yeniden yazmaması gibi. Üzerinde durulmaya değer soru şu: ekipteki her tester zaten tek başına çalışan prompt'lar yazabiliyorsa, paylaşılan bir kütüphaneyi sürdürmeye neden zahmet edilsin? Çünkü "çalışan" ile "tutarlı şekilde iyi" farklı çıtalardır — paylaşılan bir şablon olmadan beş tester beş farklı kalitede Gherkin senaryosu veya bug raporu üretir, kimi belirsizlik-önce adımını atlar, kimi PII temizlemeyi atlar; paylaşılan, incelenmiş bir şablon sadece en iyi prompt yazarının tavanını değil, TÜM EKİBİN TABANINI yükseltir. Java karşılaştırması: bu, tekrarlanan bir kod parçasını her gelecek çağıranın elle doğru kopyalamasına güvenmek yerine, bir pull request'te bir kez incelenmiş paylaşılan bir utility metoduna çıkarmakla aynı akıl yürütmedir. QA tarafındaki bedel: paylaşılan bir prompt kütüphanesi olmayan bir ekip, aynı dersleri (negatif senaryo istemeyi unutmak, temizlenmemiş log yapıştırmak) bağımsız ve tekrar tekrar yeniden öğrenir — paylaşılan bir Page Object Model'e sahip olmamakla aynı sınıftan kaçınılabilir bir israf.`,
+          },
+          { type: 'heading', text: `PR Review Döngüsünde Claude` },
+          {
+            type: 'text',
+            content: `Claude'u (GitHub Actions üzerinden veya elle) bir PR'ın ilk-geçiş incelemesi için kullanmak — bir diff'i özetletmek, bir commit/PR açıklaması taslağı yazdırmak, açıkça riskli bir değişikliği işaretletmek — insan incelemesinin YERİNE değil, ONA EK olarak yapılır. Merge kararının sahibi hâlâ insan reviewer'dır.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: "Claude bu PR'ı onayladı" neden bir kategori hatasıdır? Onay, bir değişikliğin BU kod tabanı, BU ekibin standartları ve BU release zamanlaması için güvenli olup olmadığına dair bir yargıdır — Claude'un tek bir diff'ten bunların hiçbirine tam görünürlüğü yoktur. Gerçek değeri, yorgun bir insan reviewer'ın kaçırabileceğini yüzeye çıkarmaktır (ele alınmamış bir edge case, eksik bir test) — bir ilk geçiş, nihai söz değil.`,
+          },
+          { type: 'heading', text: `Ekip için Test Raporlarını Özetletme` },
+          {
+            type: 'text',
+            content: `Büyük bir test koşumunun başarısızlık özetini yapıştırıp Claude'dan bir standup veya ekip güncellemesi için kısa, okunabilir bir özet istemek gerçekten kullanışlıdır — ama "bir sayıyı tekrarlamadan önce doğrula" disiplini burada da geçerlidir: Claude "12 başarısızlık, çoğunlukla checkout modülünde" derse, bunu bir toplantıda gerçek diye tekrarlamadan önce gerçek rapora karşı doğrula.`,
+          },
+          { type: 'heading', text: `Ekip Prompt Kütüphanesi Kurma` },
+          {
+            type: 'text',
+            content: `Bir prompt, Prompt Mühendisliği sekmesindeki iterasyon disipliniyle kendini kanıtladıktan sonra, onu tüm ekibin tekrar kullanıp geliştirebileceği paylaşılan, versiyon kontrollü bir dosyaya yükselt — paylaşılan bir utility metodunun inceleneceği gibi incelenir, kişiden kişiye gelişigüzel kopyala-yapıştır edilmez.`,
+          },
+          {
+            type: 'table',
+            headers: ['Ekip Pratiği', 'Neden Önemli', 'Kime Ait'],
+            rows: [
+              ['Paylaşılan prompt kütüphanesi (test case, bug raporu, test verisi şablonları)', 'En iyi prompt yazarının değil, tüm ekibin tabanını yükseltir', 'Paylaşılan kod gibi incelenir ve versiyonlanır, gelişigüzel kopyala-yapıştır edilmez'],
+              ['AI destekli PR review (özet, ilk-geçiş risk işaretleri)', 'İnsan inceleme turundan önce açık boşlukları daha hızlı yakalar', 'Nihai merge kararının sahibi olmaya devam eden insan reviewer'],
+              ['Ekip kuralı: insan diff review\'u olmadan AI üretimi test/kod merge edilemez', 'Junior tester\'ları kendinden emin ama yanlış çıktının production\'a ulaşmasından korur', 'Review çıtasını belirleyen ve uygulayan senior mühendisler'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            label: 'prompt-templates/test-case-from-story.md',
+            code: {
+              tr: `Sen kıdemli bir QA mühendisisin.
+Önce belirsizlikleri listele: {{user_story}}
+Onaylandıktan sonra {{n}} adet Gherkin senaryosu yaz.`,
+              en: `You are a senior QA engineer.
+First list the ambiguities: {{user_story}}
+Once confirmed, write {{n}} Gherkin scenarios.`,
+            },
+          },
+          promptLibraryLifecycleAnimation,
+          promptLibraryLifecycleOrder,
+          promptTemplatePlayground,
+          {
+            type: 'quiz',
+            question: `Bir GitHub Actions workflow'u her PR'da Claude'u çalıştırıp "✅ Sorun görünmüyor" diye bir yorum bırakıyor. Bir junior bu yorumu onay sayıp başka bir inceleme yapmadan merge ediyor. Bu workflow'un kusuru nedir?`,
+            options: [
+              { id: 'a', text: 'Kusur yok — bir AI yorumu bir insan onayına eşdeğerdir' },
+              { id: 'b', text: 'AI review bir ilk-geçiş ekidir, bir merge kararı değildir — bir insan reviewer\'ın hesaba kattığı kod tabanı, ekip standartları ve release zamanlamasına tam görünürlüğü yoktur; merge kararının sahibi hâlâ insan olmalıdır' },
+              { id: 'c', text: 'GitHub Actions AI araçlarını hiç çalıştıramaz' },
+              { id: 'd', text: 'Yorum kendinden emin bir dille yazıldığı sürece workflow sorunsuzdur' },
+            ],
+            correct: 'b',
+            explanation: `"Onaylandı", tek bir diff'ten, daha derin bir bağlam olmadan verilen, belirli bir kod tabanı ve ekip için güvenlik hakkında bir yargıdır. Bir AI yorumunu insan onayına eşdeğer saymak, onun sadece tamamlamak için var olduğu inceleme adımını ortadan kaldırır.`,
+            retryQuestion: {
+              question: `Bir ekipteki beş tester, bug raporu üretimi için kendi prompt'unu yazıyor ve kalite belirgin şekilde farklı — kimi severity önerisi istemeyi hatırlıyor, kimi hatırlamıyor. Herkese "daha iyi prompt yaz" demenin ötesinde bunu çözen yapısal düzeltme nedir?`,
+              options: [
+                { id: 'a', text: 'Hiçbir şey — prompt kalitesi standartlaştırılamayan kişisel bir beceridir' },
+                { id: 'b', text: 'En iyi performans gösteren prompt\'u ekip prompt kütüphanesinde paylaşılan, incelenmiş bir şablona yükselt — bu, sadece en iyi prompt yazarının bireysel becerisini değil, herkesin tabanını yükseltir' },
+                { id: 'c', text: 'Herkesi hiç özelleştirmeye izin vermeden aynı kelimeleri kullanmaya zorla' },
+                { id: 'd', text: 'Farklı bir AI aracına geç — tutarsızlığın kaynağı modeldir' },
+              ],
+              correct: 'b',
+              explanation: `Bireysel beceri değişkendir; paylaşılan, incelenmiş bir şablon, herkesin bağımsız olarak aynı kalite çıtasına ulaşmasına bağlı olmayan yapısal bir düzeltmedir — beş kişinin kendi locator'larını yazması yerine paylaşılan bir Page Object Model'i haklı çıkaran aynı akıl yürütme.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🚨 Riskler & Yaygın Hatalar`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎭',
+            content: `Claude'un kendinden emin görünen çıktısına doğrulamadan güvenmek, şirketinde hiç çalışmamış ama tam bir özgüvenle konuşan, çok okumuş bir stajyere güvenmeye benzer — mekanizma birebirdir: stajyer her ders kitabını okumuştur (devasa bir eğitim korpüsü) ama SENİN spesifik kod tabanının tuhaflıkları hakkında hiçbir hafızası yoktur, yani kendinden emin verilmiş bir cevap ile DOĞRU bir cevap sık sık çakışan ama birbirinden BAĞIMSIZ iki özelliktir, aynı şey değildir. Üzerinde durulmaya değer soru şu: Claude çoğu zaman doğruysa, nadiren yanlış olduğu zamanlar etrafında bütün bir "riskler" sekmesi kurmaya neden zahmet edilsin? Çünkü hata modu, ortalamasını alabileceğin rastgele bir gürültü değildir — SİSTEMATİK OLARAK GÖRÜNMEZDİR: uydurulmuş bir metod gerçek bir metodla birebir aynı görünür, tautolojik bir assertion gerçek bir kontrolle birebir aynı görünür, ta ki production'da sessizce başarısız olana kadar. Java karşılaştırması: bu, bir derleyici hatası (gürültülü, build'i durdurur) ile derlenip aceleyle yapılan bir review'dan geçen bir mantık hatası (sessiz, yayına çıkar) arasındaki farktır — bu risklerin çoğu tam olarak sözdizimsel açıdan kusursuz oldukları için ikinci türdendir. QA tarafındaki bedel: bu sayfanın tamamı aktif doğrulama alışkanlıkları öğretti (çalıştır, tekrar üret, kabul kriterlerine karşı kontrol et) — bu sekme, o alışkanlıkların yakalamak için var olduğu somut hata şekillerini toplar, o yüzden bunu aracı kullanmaktan seni korkutmaya yönelik bir uyarı değil, kendine karşı tuttuğun bir referans kontrol listesi olarak ele al.`,
+          },
+          { type: 'heading', text: `4 Risk Kategorisi, Tek Disiplin: Doğrula` },
+          {
+            type: 'text',
+            content: `Halüsinasyon: Claude, doğrulanmış bir gerçeği değil olası bir metni tahmin ettiği için var olmayan bir API veya metodu tam bir özgüvenle söyleyebilir — UI Otomasyonu sekmesinde ele alınan karşı önlem, çalıştırmadan önce her zaman derleyiciye, IDE'ye veya resmi dokümantasyona karşı doğrulamaktır. Gizlilik: müşteri verisini, token'ları veya kimlik bilgilerini herhangi bir AI konuşmasına yapıştırmak, gönderildiği an bir maruziyettir — Bug Analizi sekmesinde derinlemesine ele alınan karşı önlem, her seferinde yapıştırmadan önce temizlemektir.`,
+          },
+          {
+            type: 'text',
+            content: `Telif hakkı ve şirket politikası: bazı kurumlar üçüncü parti AI araçlarına ne tür kod veya verinin yapıştırılabileceğini kısıtlar veya AI destekli kodun yayına çıkmadan önce incelenmesini zorunlu kılar — karşı önlem, şirketinin gerçek AI kullanım politikasını bilmek ve ona uymaktır; "bilmiyordum" bir reviewer'ın kabul edeceği bir savunma değildir. Aşırı bağımlılık (beceri erimesi): her zaman önce Claude'a soran ve hiç kendi bağımsız debug içgüdülerini geliştirmeyen bir tester, yanlış bir assertion'ı veya kötü bir locator'ı kendi başına fark etme becerisini kaybeder — karşı önlem, Claude'u zaten anladığın işi hızlandırmak için kullanmak, henüz kurmadığın bir anlayışın yerine geçirmek için değil; önceki sekmelerdeki doğrulama alışkanlıkları pratikte tam olarak o anlayıştır.`,
+          },
+          {
+            type: 'error-dictionary',
+            relatedTopicId: 'claude-ai-risks-error-dictionary',
+            framework: 'Claude AI',
+            errors: [
+              {
+                error: 'Claude var olmayan bir Selenium metodu önerdi',
+                fullMessage: `AttributeError: 'WebDriver' object has no attribute 'findElementByAI'`,
+                cause: {
+                  tr: 'Bir LLM, olası görünen API isimlerini tahmin eder; Selenium\'un isimlendirme kuralına uyan bir metod tamamen uydurma (bir halüsinasyon) olabilir ve kendinden emin ifade tarzında bunu gösteren hiçbir işaret yoktur.',
+                },
+                solution: {
+                  tr: 'Önerilen her metodu çalıştırmadan önce IDE\'nin otomatik tamamlamasına veya resmi Selenium dokümantasyonuna karşı doğrula — bir metod ismine "doğru görünüyor" diye güvenme.',
+                },
+                codeWrong: `# ❌ findElementByAI Selenium'da yok — bir halüsinasyon
+element = driver.findElementByAI("login button")`,
+                codeFixed: `# ✅ Gerçek Selenium API'si, IDE otomatik tamamlamayla doğrulandı
+element = driver.find_element(By.CSS_SELECTOR, "[data-testid='login-button']")`,
+              },
+              {
+                error: 'Üretilen XPath ilk DOM değişiminde kırıldı',
+                fullMessage: `NoSuchElementException: Unable to locate element: //div[3]/div[2]/button`,
+                cause: {
+                  tr: 'Claude, kararlı bir niteliğe öncelik vermesi söylenmeden dondurulmuş bir HTML anlık görüntüsünden pozisyonel bir XPath üretti (bkz. UI Otomasyonu sekmesi) — pozisyon, bir frontend ekibinin korumayı taahhüt ettiği bir kontrat asla değildir.',
+                },
+                solution: {
+                  tr: 'Claude\'a her zaman pozisyonel selector\'lar yerine data-testid veya aria-label\'a öncelik vermesini söyle; markup\'ta ikisi de yoksa, tahmin etmek yerine bu boşluğu işaretlemesini iste.',
+                },
+                codeWrong: `# ❌ Pozisyona bağlı, kırılgan XPath
+driver.find_element(By.XPATH, "//div[3]/div[2]/button")`,
+                codeFixed: `# ✅ Bunun yerine kararlı bir nitelik kullanılıyor
+driver.find_element(By.CSS_SELECTOR, "[data-testid='submit-button']")`,
+              },
+              {
+                error: 'AI\'ın yazdığı assertion her zaman true dönüyordu (sahte PASS)',
+                fullMessage: `Test suite: 47 passed, 0 failed (ama login bug'ı hâlâ elle tekrar üretilebiliyor)`,
+                cause: {
+                  tr: 'Üretilen bir assertion, gerçek beklenen değer yerine bir değeri kendisiyle veya önemsiz derecede doğru bir koşulla karşılaştırdı — gerçek davranıştan bağımsız olarak geçen bir tautoloji.',
+                },
+                solution: {
+                  tr: 'Üretilen her assertion\'ı oku ve özelliği kasıtlı olarak bozduğunda (kodu mutasyona uğratıp tekrar çalıştırarak) kırmızıya döndüğünü doğrula — gerçek bir assertion gerçek bir bug\'da başarısız olmalıdır.',
+                },
+                codeWrong: `# ❌ Tautoloji — bu assertion her zaman geçer
+assert response.status_code == response.status_code`,
+                codeFixed: `# ✅ Gerçek beklenen değere karşı kontrol edildi
+assert response.status_code == 200`,
+              },
+              {
+                error: `Prompt'a yapıştırılan log'da API token vardı`,
+                fullMessage: `[ERROR] Authorization: Bearer eyJhbGciOiJIUzI1NiIs... request failed`,
+                cause: {
+                  tr: 'Ham log, önce hassas alanlar temizlenmeden yapıştırıldı — Bug Analizi sekmesinde ele alınan aynı hata, burada gerçek bir olay şekli olarak gösteriliyor.',
+                },
+                solution: {
+                  tr: 'Yapıştırmadan önce her log veya yanıtı temizle — debug ne kadar acil hissettirirse hissettirsin, token\'ları, e-postaları ve kimlik-bilgisi-şeklindeki her değeri <REDACTED> gibi bir yer tutucuyla değiştir.',
+                },
+                codeWrong: `# ❌ Ham log, token temizlenmeden yapıştırıldı
+[ERROR] Authorization: Bearer eyJhbGciOiJIUzI1NiIs...`,
+                codeFixed: `# ✅ Token, yapıştırmadan önce temizlendi
+[ERROR] Authorization: Bearer <REDACTED>`,
+              },
+              {
+                error: 'Üretilen test verisi gerçek bir kimlik numarası formatında ve GEÇERLİ çıktı',
+                fullMessage: `Test veritabanına eklenen 500 kayıttan biri, gerçek bir vatandaşın kimlik numarasıyla birebir eşleşti (bir tesadüf, çok sonrasına kadar fark edilmedi)`,
+                cause: {
+                  tr: 'LLM tarafından üretilen kimlik-şeklindeki sayılar, özellikle hacimde, tesadüfen gerçek geçerli bir kimlikle çakışabilir — "açıkça sahte yap" talimatı tek başına çakışmamayı garanti etmez.',
+                },
+                solution: {
+                  tr: 'Toplu, gerçekçi-kimlik-şeklindeki veri için ad hoc LLM çıktısı yerine, belgelenmiş bir sahte-aralık veya rezerve-önek garantisi olan deterministik bir üreticiyi tercih et; Claude kullanıyorsan küçük partiler üret ve spot-check yap, ayrıca ekibinin veri politikasının o ortamda format olarak geçerli sentetik kimliklere izin verip vermediğini doğrula.',
+                },
+                codeWrong: `# ❌ Rezerve aralık veya çakışma kontrolü olmadan doğrudan kullanıldı
+INSERT INTO test_users (national_id) VALUES ('...LLM-üretilen sayı...');`,
+                codeFixed: `# ✅ Belgelenmiş bir sahte-aralık / rezerve önekten üretildi
+INSERT INTO test_users (national_id) VALUES ('00000000001'); -- rezerve test öneki`,
+              },
+              {
+                error: 'Claude eski kütüphane sürümünün syntax\'ını kullandı',
+                fullMessage: `TypeError: page.waitForSelector is not a function (üretilen kod, projenin kurulu Playwright sürümünde kaldırılmış bir API kullandı)`,
+                cause: {
+                  tr: 'Modelin eğitim verisi, birçok kütüphane sürümü boyunca yıllarca süren dokümantasyonu kapsar; tam olarak kurulu sürümün söylenmemesi halinde, en yaygın görülen (genellikle daha eski) API şeklini varsayar.',
+                },
+                solution: {
+                  tr: 'Prompt\'ta tam framework/kütüphane sürümünü belirt ve tanıdık gelmeyen herhangi bir metodu güvenmeden önce kurulu sürümünün changelog\'una karşı çapraz kontrol et.',
+                },
+                codeWrong: `// ❌ Eski Playwright API'si (kaldırılmış)
+await page.waitForSelector('[data-testid="submit"]');`,
+                codeFixed: `// ✅ Güncel Playwright locator API'si
+await page.getByTestId('submit').waitFor();`,
+              },
+              {
+                error: 'Uzun konuşmada bağlam kaybolup önceki kararlar unutuldu',
+                fullMessage: `Claude, 40 mesaj önce belirtilen "sadece onaylanmış kabul kriterlerine dayan" kuralını unutup tekrar varsayım uydurmaya başladı`,
+                cause: {
+                  tr: 'Çok uzun konuşmalar, özellikle birçok konu değişikliği boyunca, önceki bağlamı etkili odağın dışına itebilir — sert bir hafıza hatası görünmeden, önceki kararlar o zamandan beri söylenen her şeyle yarışır.',
+                },
+                solution: {
+                  tr: 'Yeni bir özellik veya görev için, eski ve uzun bir thread\'i sonsuza dek sürdürmek yerine yeni bir konuşma başlat ve temel onaylanmış bağlamı yeniden yapıştır.',
+                },
+                codeWrong: `# ❌ Yeni bir özellik için 40 mesajlık ilgisiz bir thread'e devam ediliyor
+(...40 mesajlık ilgisiz geçmiş...)
+Şimdi ödeme özelliği için test yaz.`,
+                codeFixed: `# ✅ Taze bir konuşma, onaylanmış bağlam yeniden yapıştırıldı
+Sen kıdemli bir QA mühendisisin.
+Ödeme özelliği kabul kriterleri: [...onaylanmış kurallar buraya...]`,
+              },
+              {
+                error: `AI çıktısı code review'suz merge edildi`,
+                fullMessage: `Production olayı: PR #482 (Claude'un ürettiği bir test düzeltmesi) otomatik-onayla merge edildi, gerçek bir regresyonu 3 hafta boyunca gizleyen tautolojik bir assertion içeriyordu`,
+                cause: {
+                  tr: '"Bir AI zaten kontrol etti" diyerek AI üretimi kodu ekibin normal inceleme sürecinden muaf tutmak — ama Claude\'un kendi çıktısı hiç bağımsız olarak doğrulanmadı, bu da CI/CD sekmesinin ekip-kuralı disiplinini ihlal etti.',
+                },
+                solution: {
+                  tr: 'AI üretimi koda, istisnasız, insan yazımı kodla aynı inceleme çıtasını uygula — CI/CD sekmesinin "insan diff review\'u olmadan AI merge yok" kuralının önlemek için var olduğu tam olarak budur.',
+                },
+                codeWrong: `# ❌ Ekip kuralı: "AI yazdıysa review gerekmez" (YANLIŞ)
+git merge --no-verify claude-generated-fix`,
+                codeFixed: `# ✅ Ekip kuralı: AI üretimi kod da insan diff review'undan geçer
+git push origin claude-generated-fix
+# -> bir PR açılır, en az 1 insan onayı gerekir, incelenmemiş merge YOK`,
+              },
+            ],
+          },
+          riskVerificationAnimation,
+          riskVerificationOrder,
+          uncertaintyFlagPlayground,
+          {
+            type: 'quiz',
+            question: `Üretilen bir assertion, test ettiği özelliği kasıtlı olarak bozsan bile her zaman geçiyor. Bu hangi risk kategorisidir ve hangi alışkanlık onu yakalar?`,
+            options: [
+              { id: 'a', text: 'Bu bir gizlilik riskidir — assertion veri sızdırıyor' },
+              { id: 'b', text: 'Tautolojik bir assertion (bir "sahte PASS") — karşı alışkanlık, özelliği kasıtlı olarak bozmak için kodu mutasyona uğratmak ve assertion\'ın gerçekten kırmızıya döndüğünü doğrulamaktır' },
+              { id: 'c', text: 'Bu, assertion kütüphanesiyle ilgili bir telif hakkı riskidir' },
+              { id: 'd', text: 'Bu, özellik production\'a ulaşana kadar tespit edilemez' },
+            ],
+            correct: 'b',
+            explanation: `Bir tautoloji (bir değeri kendisiyle veya her zaman doğru olan bir koşulla karşılaştırmak), gerçek davranıştan bağımsız olarak geçer — iddia ettiği şeyi kasıtlı olarak bozup yeşil kaldığını görene kadar çalışan bir assertion'la birebir aynı görünür.`,
+            retryQuestion: {
+              question: `Bir junior şöyle diyor: "Bu düzeltmeyi tam anlamama gerek yok — Claude çalıştığını açıkladı ve test yeşil." Bu hangi riski temsil eder ve bir senior merge etmeden önce ne istemelidir?`,
+              options: [
+                { id: 'a', text: 'Risk yok — düzeltmeyi kim anlarsa anlasın yeşil bir test yeterli kanıttır' },
+                { id: 'b', text: 'Aşırı bağımlılık (beceri erimesi) — bir senior, merge etmeden önce junior\'dan düzeltmeyi kendi cümleleriyle açıklamasını istemelidir, bu platformun herhangi bir kavramı öğrenmek için öğrettiği aynı Feynman-tarzı kontrol' },
+                { id: 'c', text: 'Bu, junior\'ın anlayışıyla ilgisi olmayan bir halüsinasyon riskidir' },
+                { id: 'd', text: 'Bu sadece test daha sonra başarısız olmaya başlarsa bir sorundur' },
+              ],
+              correct: 'b',
+              explanation: `Yeşil bir test, anlık semptomu doğrular, altta yatan nedenin anlaşıldığını değil — bu sekmenin tamamında geçen "derlenir" ile "doğrudur" arasındaki aynı ayrım. Junior'dan kendi cümleleriyle bir açıklama istemek, beceri erimesine karşı doğrudan, pratik bir kontroldür, angarya değil.`,
             },
           },
         ],
