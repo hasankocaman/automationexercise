@@ -489,6 +489,332 @@ Output: SQL INSERT format, with an expected-result column (ACCEPTED/REJECTED) on
   xpReward: 15,
 }
 
+// ─── CS3 paylaşılan bloklar: UI Otomasyonu ───────────────────────────────────
+
+const uiFixLoopAnimation = {
+  type: 'step-animation',
+  id: 'claude-ui-fix-loop-step-01',
+  title: { tr: 'Adım Adım: Kırık Testten Doğrulanmış Düzeltmeye', en: 'Step by Step: From Broken Test to Verified Fix' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Tam hatayı yapıştır', en: 'Paste the exact failure' }, detail: { tr: 'Hatanın açıklaması değil, gerçek hata mesajı/stack trace ve mevcut locator/kod yapıştırılır.', en: 'Not a description of the bug, but the actual error message/stack trace and the current locator/code are pasted.' } },
+    { id: 2, icon: '🧠', label: { tr: 'Gerekçeli düzeltme iste', en: 'Ask for a reasoned fix' }, detail: { tr: 'Sadece yeni bir selector tahmini değil, neden kırıldığının açıklamasıyla birlikte bir düzeltme istenir.', en: 'A fix is requested with an explanation of why it broke, not just a new selector guess.' } },
+    { id: 3, icon: '▶️', label: { tr: 'Canlı sayfada çalıştır', en: 'Run it against the live page' }, detail: { tr: 'Düzeltme, güvenilmeden önce SEN tarafından gerçek sayfaya karşı çalıştırılır.', en: 'The fix is run against the real page by YOU before it is trusted.' } },
+    { id: 4, icon: '🔁', label: { tr: 'Hâlâ kırıksa yeni hatayı yapıştır', en: 'If still broken, paste the new failure' }, detail: { tr: 'Claude\'un iki kez körlemesine tahmin etmesine izin verilmez — her koşumun gerçek çıktısı geri beslenir.', en: 'Claude is not allowed to guess blindly twice — the real output of each run is fed back.' } },
+    { id: 5, icon: '🔍', label: { tr: 'Kararlılığı gözden geçir', en: 'Review for stability' }, detail: { tr: 'Yeşile dönünce, düzeltmenin kararlı bir nitelik mi yoksa başka bir kırılgan selector mü kullandığı kontrol edilir.', en: 'Once green, it is checked whether the fix used a stable attribute or another fragile selector.' } },
+  ],
+}
+
+const uiFixLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-ui-fix-loop-order-01',
+  question: { tr: 'Kırık bir UI testini Claude ile güvenli şekilde düzeltme akışını doğru sıraya diz.', en: 'Arrange the flow for safely fixing a broken UI test with Claude in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Gerçek hata mesajını ve mevcut kodu yapıştır', en: 'Paste the real error message and the current code' }, order: 1 },
+    { id: '2', text: { tr: 'Gerekçeli bir düzeltme iste', en: 'Ask for a fix with reasoning' }, order: 2 },
+    { id: '3', text: { tr: 'Düzeltmeyi canlı sayfaya karşı kendin çalıştır', en: 'Run the fix against the live page yourself' }, order: 3 },
+    { id: '4', text: { tr: 'Hâlâ kırıksa yeni hata çıktısını geri yapıştır', en: 'If still broken, paste the new error output back' }, order: 4 },
+    { id: '5', text: { tr: 'Yeşil olunca kullanılan selector\'ın kararlılığını gözden geçir', en: 'Once green, review the stability of the selector used' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const uiLocatorFixPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-ui-locator-fix-practice',
+  id: 'claude-ui-locator-fix-practice',
+  label: { tr: 'Pratik: Kırık bir locator\'ı güvenli bir düzeltme prompt\'una dönüştür', en: 'Practice: Turn a broken locator into a safe fix prompt' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "Bu test kırıldı, düzelt" gibi belirsiz bir isteği; tam hata mesajı, mevcut kod ve kararlı nitelik tercihi içeren bir prompt\'a dönüştürmek.',
+    en: 'Goal: turn a vague request like "This test broke, fix it" into a prompt containing the exact error message, the current code and a preference for stable attributes.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: rol, tam hata mesajı + mevcut locator kodu, kararlı nitelik tercihi.',
+    en: 'Fill in the TODO lines: role, exact error message + current locator code, stable-attribute preference.',
+  },
+  code: {
+    tr: `TODO (rol)
+TODO (tam hata mesajı + mevcut locator kodu)
+Bu test kırıldı, düzelt.
+TODO (kararlı nitelik tercihi)`,
+    en: `TODO (role)
+TODO (exact error message + current locator code)
+This test broke, fix it.
+TODO (stable-attribute preference)`,
+  },
+  starterCode: {
+    tr: `TODO (rol)
+TODO (tam hata mesajı + mevcut locator kodu)
+Bu test kırıldı, düzelt.
+TODO (kararlı nitelik tercihi)`,
+    en: `TODO (role)
+TODO (exact error message + current locator code)
+This test broke, fix it.
+TODO (stable-attribute preference)`,
+  },
+  solutionCode: {
+    tr: `Sen kıdemli bir QA otomasyon mühendisisin.
+Hata: "NoSuchElementException: Unable to locate element: //div[3]/div[2]/button". Mevcut kod: driver.findElement(By.xpath("//div[3]/div[2]/button")).click();
+Bu locator'ı düzelt; eğer sayfada data-testid veya aria-label gibi kararlı bir nitelik varsa onu kullan, yoksa bunun eksik olduğunu açıkça belirt, kırılgan bir XPath'i sessizce uydurma.`,
+    en: `You are a senior QA automation engineer.
+Error: "NoSuchElementException: Unable to locate element: //div[3]/div[2]/button". Current code: driver.findElement(By.xpath("//div[3]/div[2]/button")).click();
+Fix this locator; if the page has a stable attribute like data-testid or aria-label, use it — if not, explicitly flag that gap instead of silently inventing another fragile XPath.`,
+  },
+  expected: {
+    tr: `Prompt artık tam hatayı, mevcut kodu ve "kararlı nitelik yoksa söyle" talimatını taşıyor. Claude, çalışmayacağını bilmeden bir XPath tahmini uydurmak yerine, ya kararlı bir nitelik önerir ya da eksikliği açıkça bildirir.`,
+    en: `The prompt now carries the exact error, the current code and the "flag it if no stable attribute exists" instruction. Instead of inventing another XPath guess it cannot verify, Claude either proposes a stable attribute or explicitly reports the gap.`,
+  },
+  hints: [
+    { tr: 'Hatayı "kırıldı" diye özetlemek yerine tam exception mesajını yapıştırmak, Claude\'un DOM\'un nasıl değiştiğini tahmin etmesine yardımcı olur.', en: 'Pasting the exact exception message instead of summarizing it as "broke" helps Claude guess how the DOM actually changed.' },
+    { tr: '"Kararlı nitelik yoksa söyle" talimatı olmadan Claude, çalışıp çalışmayacağını bilmediği başka bir kırılgan XPath uydurabilir.', en: 'Without the "flag it if no stable attribute exists" instruction, Claude may invent another fragile XPath it has no way of knowing will work.' },
+    { tr: 'Üretilen düzeltmeyi çalıştırmadan güvenmek, bu sekmenin ana disiplin kuralını çiğnemektir.', en: 'Trusting the generated fix without running it violates this tab\'s core discipline.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── CS3 paylaşılan bloklar: API Testinde Claude ─────────────────────────────
+
+const apiAssertionAnimation = {
+  type: 'step-animation',
+  id: 'claude-api-assertion-step-01',
+  title: { tr: 'Adım Adım: Endpoint\'ten Doğrulanmış Assertion\'lara', en: 'Step by Step: From Endpoint to Verified Assertions' },
+  steps: [
+    { id: 1, icon: '📄', label: { tr: 'Tanımı ve gerçek yanıtı yapıştır', en: 'Paste the definition and a real response' }, detail: { tr: 'OpenAPI/endpoint tanımı ve gerçek bir 200 OK yanıtı bağlam olarak yapıştırılır.', en: 'The OpenAPI/endpoint definition and a real 200 OK response are pasted as context.' } },
+    { id: 2, icon: '✅', label: { tr: 'Mutlu yol assertion\'larını iste', en: 'Ask for positive scenarios' }, detail: { tr: 'Dokümante edilmiş her alanı kapsayan pozitif senaryolar istenir.', en: 'Positive scenarios covering every documented field are requested.' } },
+    { id: 3, icon: '🚨', label: { tr: 'Negatif senaryoları açıkça sor', en: 'Explicitly ask for negative scenarios' }, detail: { tr: '4xx/5xx senaryoları istenir, ama bunlar doğrulanana kadar hipotez olarak işaretlenir.', en: '4xx/5xx scenarios are requested, but flagged as hypotheses until confirmed.' } },
+    { id: 4, icon: '🧰', label: { tr: 'Framework\'ü seç', en: 'Pick the framework' }, detail: { tr: 'REST Assured veya Postman/Bruno belirtilir — çıktı doğrudan projene düşer.', en: 'REST Assured or Postman/Bruno is specified — the output drops directly into your project.' } },
+    { id: 5, icon: '🔬', label: { tr: 'En az bir negatifi gerçekten tekrar üret', en: 'Reproduce at least one negative for real' }, detail: { tr: 'Hipotez edilen assertion, güvenilmeden önce en az bir kez gerçek bir hata yanıtına karşı doğrulanır.', en: 'The hypothesized assertion is verified against at least one real error response before being trusted.' } },
+  ],
+}
+
+const apiAssertionOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-api-assertion-order-01',
+  question: { tr: 'Bir endpoint tanımından güvenilir API assertion\'larına giden akışı doğru sıraya diz.', en: 'Arrange the flow from an endpoint definition to reliable API assertions in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'OpenAPI/endpoint tanımı + gerçek bir yanıtı yapıştır', en: 'Paste the OpenAPI/endpoint definition + a real response' }, order: 1 },
+    { id: '2', text: { tr: 'Dokümante edilmiş her alan için pozitif senaryo iste', en: 'Ask for positive scenarios for every documented field' }, order: 2 },
+    { id: '3', text: { tr: 'Negatif/hata senaryolarını (4xx/5xx) açıkça sor', en: 'Explicitly ask for negative/error scenarios (4xx/5xx)' }, order: 3 },
+    { id: '4', text: { tr: 'Framework\'ü seç (REST Assured veya Postman/Bruno)', en: 'Pick the framework (REST Assured or Postman/Bruno)' }, order: 4 },
+    { id: '5', text: { tr: 'En az bir negatif senaryoyu gerçekten tekrar üretip doğrula', en: 'Reproduce at least one negative scenario for real to verify it' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const apiAssertionPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-api-assertion-practice',
+  id: 'claude-api-assertion-practice',
+  label: { tr: 'Pratik: Yanıt JSON\'ından hata senaryolu bir assertion prompt\'u kur', en: 'Practice: Build an assertion prompt with error scenarios from a response JSON' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "Bu response için test yaz" gibi belirsiz bir isteği; gerçek yanıt, framework seçimi ve açık hata senaryosu talebi içeren bir prompt\'a dönüştürmek.',
+    en: 'Goal: turn a vague request like "Write tests for this response" into a prompt containing the real response, the framework choice and an explicit error-scenario request.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: rol, gerçek response JSON\'ı, framework + hata senaryosu talebi.',
+    en: 'Fill in the TODO lines: role, real response JSON, framework + error-scenario request.',
+  },
+  code: {
+    tr: `TODO (rol)
+TODO (gerçek response JSON'ı)
+Bu response için test yaz.
+TODO (framework + hata senaryosu talebi)`,
+    en: `TODO (role)
+TODO (real response JSON)
+Write tests for this response.
+TODO (framework + error-scenario request)`,
+  },
+  starterCode: {
+    tr: `TODO (rol)
+TODO (gerçek response JSON'ı)
+Bu response için test yaz.
+TODO (framework + hata senaryosu talebi)`,
+    en: `TODO (role)
+TODO (real response JSON)
+Write tests for this response.
+TODO (framework + error-scenario request)`,
+  },
+  solutionCode: {
+    tr: `Sen kıdemli bir QA API test mühendisisin.
+Gerçek 200 OK yanıtı: { "id": 42, "email": "user@test.com" }.
+Bu alanlar için REST Assured (Java) assertion'ları yaz; ayrıca id geçersizse (404) ve email formatı bozuksa (422) beklenen yanıt şeklini hipotez olarak öner, doğrulanana kadar "onaylanmamış" diye işaretle.`,
+    en: `You are a senior QA API test engineer.
+Real 200 OK response: { "id": 42, "email": "user@test.com" }.
+Write REST Assured (Java) assertions for these fields; also hypothesize the expected response shape for an invalid id (404) and a malformed email (422), marking them "unconfirmed" until verified.`,
+  },
+  expected: {
+    tr: `Prompt artık gerçek yanıtı, framework seçimini ve açık hata senaryosu talebini taşıyor. Claude hem mutlu yol assertion'larını hem de doğrulanana kadar işaretli hata hipotezlerini üretir — hiçbiri sessizce "kesin doğru" gibi sunulmaz.`,
+    en: `The prompt now carries the real response, the framework choice and an explicit error-scenario request. Claude produces both happy-path assertions and flagged error hypotheses — none presented silently as "definitely correct".`,
+  },
+  hints: [
+    { tr: 'Gerçek bir yanıt yapıştırmadan "test yaz" demek, Claude\'un alan adlarını ve tiplerini tahmin etmesine yol açar.', en: 'Saying "write tests" without pasting a real response makes Claude guess field names and types.' },
+    { tr: 'Hata senaryolarını "hipotez, onaylanana kadar işaretli" olarak istemek, uydurma bir 404 şeklinin gerçekmiş gibi sete girmesini engeller.', en: 'Requesting error scenarios as "hypothesis, flagged until confirmed" prevents a made-up 404 shape from entering the suite as if it were real.' },
+    { tr: 'Framework belirtmezsen (REST Assured mı, Postman/Bruno script\'i mi), çıktıyı elle uyarlaman gerekir.', en: 'If you don\'t specify the framework (REST Assured or a Postman/Bruno script), you\'ll have to manually adapt the output.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── CS3 paylaşılan bloklar: Claude Code ─────────────────────────────────────
+
+const claudeCodeLoopAnimation = {
+  type: 'step-animation',
+  id: 'claude-code-loop-step-01',
+  title: { tr: 'Adım Adım: Claude Code\'un Döngüsü', en: 'Step by Step: The Claude Code Loop' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Oku', en: 'Read' }, detail: { tr: 'Ajan, başarısız test dosyasını ve ilgili kaynak kodu okur.', en: 'The agent reads the failing test file and the related source code.' } },
+    { id: 2, icon: '▶️', label: { tr: 'Çalıştır', en: 'Run' }, detail: { tr: 'Testi (veya test setini) terminalde çalıştırır.', en: 'It executes the test (or the suite) in the terminal.' } },
+    { id: 3, icon: '🩺', label: { tr: 'Teşhis et', en: 'Diagnose' }, detail: { tr: 'Gerçek hata çıktısını okur ve bir hipotez kurar.', en: 'It reads the actual error output and forms a hypothesis.' } },
+    { id: 4, icon: '✏️', label: { tr: 'Düzenle', en: 'Edit' }, detail: { tr: 'Bir düzeltme önerir ve iznin varsa uygular.', en: 'It proposes a fix and, with your permission, applies it.' } },
+    { id: 5, icon: '🔁', label: { tr: 'Tekrar çalıştır', en: 'Re-run' }, detail: { tr: 'Testi tekrar çalıştırarak doğrular; hâlâ kırıksa döngü tekrarlanır.', en: 'It runs the test again to confirm; if still red, the loop repeats.' } },
+  ],
+}
+
+const claudeCodeLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-code-loop-order-01',
+  question: { tr: 'Claude Code\'un başarısız bir testle çalışırken izlediği döngüyü doğru sıraya diz.', en: 'Arrange the loop Claude Code follows when working on a failing test in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Başarısız test dosyasını ve ilgili kodu oku', en: 'Read the failing test file and related code' }, order: 1 },
+    { id: '2', text: { tr: 'Testi terminalde çalıştır', en: 'Run the test in the terminal' }, order: 2 },
+    { id: '3', text: { tr: 'Gerçek hata çıktısını okuyup hipotez kur', en: 'Read the actual error output and form a hypothesis' }, order: 3 },
+    { id: '4', text: { tr: 'İzinle bir düzeltme öner ve uygula', en: 'Propose and, with permission, apply a fix' }, order: 4 },
+    { id: '5', text: { tr: 'Testi tekrar çalıştırıp doğrula', en: 'Re-run the test to confirm' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const claudeCodeScopedTaskPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-code-scoped-task-practice',
+  id: 'claude-code-scoped-task-practice',
+  label: { tr: 'Pratik: "Her şeyi düzelt" komutunu kapsamlı, izin-bilinçli bir göreve dönüştür', en: 'Practice: Turn a "fix everything" command into a scoped, permission-aware task' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "Bütün testleri düzelt" gibi geniş ve riskli bir komutu; tek bir dosyaya kapsamlı, uygulamadan önce göstermesini isteyen bir göreve dönüştürmek.',
+    en: 'Goal: turn a broad, risky command like "Fix all the tests" into a task scoped to a single file that asks to show the fix before applying it.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: kapsam (tek dosya), teşhis adımı, uygulamadan önce göster talimatı.',
+    en: 'Fill in the TODO lines: scope (a single file), the diagnose step, the "show before applying" instruction.',
+  },
+  code: {
+    tr: `TODO (kapsam: tek dosya)
+Bütün testleri düzelt.
+TODO (uygulamadan önce göster talimatı)`,
+    en: `TODO (scope: a single file)
+Fix all the tests.
+TODO (show-before-applying instruction)`,
+  },
+  starterCode: {
+    tr: `TODO (kapsam: tek dosya)
+Bütün testleri düzelt.
+TODO (uygulamadan önce göster talimatı)`,
+    en: `TODO (scope: a single file)
+Fix all the tests.
+TODO (show-before-applying instruction)`,
+  },
+  solutionCode: {
+    tr: `Sadece tests/login.spec.ts dosyasındaki başarısız testi oku ve çalıştır; kök nedeni bul.
+Düzeltmeyi uygulamadan önce bana göster, ben onaylamadan dosyayı değiştirme.`,
+    en: `Read and run only the failing test in tests/login.spec.ts; find the root cause.
+Show me the fix before applying it — do not modify the file until I approve.`,
+  },
+  expected: {
+    tr: `Görev artık tek bir dosyayla sınırlı ve uygulamadan önce onay istiyor — ajanın etki alanı, "bütün testleri düzelt" komutunun tüm repository'ye açık bıraktığı riskten çok daha küçük.`,
+    en: `The task is now scoped to a single file and asks for approval before applying — the agent's blast radius is far smaller than the one "fix all the tests" leaves open across the whole repository.`,
+  },
+  hints: [
+    { tr: '"Bütün testleri düzelt" demek, ajana ilgisiz onlarca dosyayı değiştirme yetkisi verir — kapsam daraltılmalı.', en: 'Saying "fix all the tests" grants the agent authority to change dozens of unrelated files — the scope must be narrowed.' },
+    { tr: '"Uygulamadan önce bana göster" talimatı, otomatik-onaylı bir izin modunda bile bir inceleme adımı ekler.', en: 'The "show me before applying" instruction adds a review step even under an auto-approve permission mode.' },
+    { tr: 'Kapsamı tek bir dosyaya indirmek, düzeltmenin etki alanını (blast radius) küçültür.', en: 'Narrowing the scope to a single file shrinks the fix\'s blast radius.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── CS3 paylaşılan bloklar: MCP ──────────────────────────────────────────────
+
+const mcpFlowAnimation = {
+  type: 'step-animation',
+  id: 'claude-mcp-flow-step-01',
+  title: { tr: 'Adım Adım: MCP İstek Akışı', en: 'Step by Step: The MCP Request Flow' },
+  steps: [
+    { id: 1, icon: '💬', label: { tr: 'Görevi sor', en: 'Ask the task' }, detail: { tr: 'Konuşmada bir görev istenir: "login bug\'ının gerçekten düzeldiğini kontrol et".', en: 'A task is requested in the conversation: "check if the login bug is actually fixed".' } },
+    { id: 2, icon: '🔧', label: { tr: 'Ajan bir araç çağrısına karar verir', en: 'The agent decides a tool call is needed' }, detail: { tr: 'Bir MCP araç çağrısı gerektiğine karar verilir (örn. tarayıcıda gezinme).', en: 'It decides an MCP tool call is needed (e.g. browser navigation).' } },
+    { id: 3, icon: '⚙️', label: { tr: 'MCP server gerçek eylemi yapar', en: 'The MCP server executes the real action' }, detail: { tr: 'Server gerçek sayfayı açar ve sonucu döndürür.', en: 'The server opens the real page and returns the result.' } },
+    { id: 4, icon: '🧠', label: { tr: 'Ajan gerçek sonucu okur', en: 'The agent reads the real result' }, detail: { tr: 'Gerçek DOM çıktısını veya sorgu sonucunu okuyup bir sonraki adımı akıl yürütür.', en: 'It reads the real DOM or query result and reasons about the next step.' } },
+    { id: 5, icon: '🔁', label: { tr: 'Döngü tamamlanana kadar tekrarlanır', en: 'The loop repeats until done' }, detail: { tr: 'Görev bitene veya ajan sana rapor verene kadar döngü sürer.', en: 'The loop continues until the task is done or the agent reports back to you.' } },
+  ],
+}
+
+const mcpFlowOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-claude-mcp-flow-order-01',
+  question: { tr: 'MCP bağlantılı bir ajanın bir görevi tamamlama akışını doğru sıraya diz.', en: 'Arrange the flow an MCP-connected agent follows to complete a task in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Konuşmada bir görev iste', en: 'Request a task in the conversation' }, order: 1 },
+    { id: '2', text: { tr: 'Ajan bir MCP araç çağrısı gerektiğine karar verir', en: 'The agent decides an MCP tool call is needed' }, order: 2 },
+    { id: '3', text: { tr: 'MCP server gerçek eylemi yapıp sonucu döndürür', en: 'The MCP server executes the real action and returns the result' }, order: 3 },
+    { id: '4', text: { tr: 'Ajan gerçek sonucu okuyup bir sonraki adımı akıl yürütür', en: 'The agent reads the real result and reasons about the next step' }, order: 4 },
+    { id: '5', text: { tr: 'Döngü, görev bitene kadar tekrarlanır', en: 'The loop repeats until the task is done' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const mcpScopedTaskPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'claude-mcp-scoped-task-practice',
+  id: 'claude-mcp-scoped-task-practice',
+  label: { tr: 'Pratik: MCP bağlantılı bir görevi ortam ve izin sınırıyla kapsamla', en: 'Practice: Scope an MCP-connected task with environment and permission boundaries' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "MCP ile login\'i test et" gibi tehlikeli derecede belirsiz bir görevi; ortam (asla production), izin sınırı (salt-okunur) ve net görev içeren bir talimata dönüştürmek.',
+    en: 'Goal: turn a dangerously vague task like "Test login with MCP" into an instruction containing the environment (never production), a permission boundary (read-only) and a clear task.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: ortam kısıtı, izin sınırı, net görev.',
+    en: 'Fill in the TODO lines: environment constraint, permission boundary, clear task.',
+  },
+  code: {
+    tr: `TODO (ortam kısıtı: asla production)
+TODO (izin sınırı: salt-okunur)
+MCP ile login'i test et.`,
+    en: `TODO (environment constraint: never production)
+TODO (permission boundary: read-only)
+Test login with MCP.`,
+  },
+  starterCode: {
+    tr: `TODO (ortam kısıtı: asla production)
+TODO (izin sınırı: salt-okunur)
+MCP ile login'i test et.`,
+    en: `TODO (environment constraint: never production)
+TODO (permission boundary: read-only)
+Test login with MCP.`,
+  },
+  solutionCode: {
+    tr: `Sadece staging ortamında çalış, asla production'a bağlanma.
+Veritabanı MCP bağlantısını salt-okunur modda kullan.
+Login akışını dene ve test kullanıcısının seed verisinin gerçekten veritabanında var olduğunu doğrula.`,
+    en: `Work only in the staging environment, never connect to production.
+Use the database MCP connection in read-only mode.
+Try the login flow and verify the test user's seed data actually exists in the database.`,
+  },
+  expected: {
+    tr: `Görev artık ortamı (staging, asla production) ve izin sınırını (salt-okunur) açıkça taşıyor. Ajan gerçek bir tarayıcı/veritabanı bağlantısını kullanır ama etki alanı önceden daraltılmıştır.`,
+    en: `The task now explicitly carries the environment (staging, never production) and the permission boundary (read-only). The agent uses a real browser/database connection, but its blast radius has already been narrowed.`,
+  },
+  hints: [
+    { tr: 'Ortamı belirtmeden bir MCP görevi vermek, ajanın hangi sunucuya bağlanacağını varsaymasına yol açar — bu asla production olmamalı.', en: 'Giving an MCP task without naming the environment leaves the agent to assume which server to connect to — that must never be production.' },
+    { tr: '"Salt-okunur" sınırı, veritabanı MCP bağlantısının yanlışlıkla veri değiştirmesini engeller.', en: 'The "read-only" boundary prevents the database MCP connection from accidentally modifying data.' },
+    { tr: 'Net bir görev (hangi kullanıcı, hangi veri) olmadan ajan neyi doğrulayacağını tahmin etmek zorunda kalır.', en: 'Without a clear task (which user, which data), the agent has to guess what to verify.' },
+  ],
+  xpReward: 15,
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const claudeAiData = {
@@ -498,7 +824,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -999,6 +1325,411 @@ INSERT INTO test_users (id, age, expected_result) VALUES
           },
         ],
       },
+      {
+        title: `🤖 UI Automation: Selenium & Playwright`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🗝️',
+            content: `Asking Claude to generate a locator from a pasted HTML snippet is like asking a locksmith to cut a key from a PHOTOGRAPH of a lock instead of the lock itself — the mechanism is exact: a photograph (a static HTML snippet) shows the lock's shape at one instant, but if the actual lock (the live DOM) has a slightly different keyway the next time the page renders (a re-ordered class list, a dynamically generated id), the cut key (the generated locator) may not fit. Here is the question worth sitting with: if Claude produced a working XPath from your snippet, why does it break on the next deploy when nothing about the FEATURE changed? Because a fragile locator (a deep XPath position, a framework-generated class hash) encodes the DOM's accidental structure, not the developer's intent — and Claude, working only from a frozen HTML snapshot, has no way to know which attributes are STABLE (a QA-owned data-testid) versus INCIDENTAL (a CSS-module hash) unless you tell it to prefer the former. Java comparison: this is the same fragility class as hardcoding a reflection call to a private field by its exact declaration order — it happens to compile and run today, but the contract you're actually relying on was never a guarantee. The QA stake: a CI suite full of Claude-generated XPath locators that quietly break on every unrelated frontend refactor is slower to maintain than the manual locators it replaced — the fix is prompting Claude to prefer data-testid, not accepting whatever selector it invents first.`,
+          },
+          { type: 'heading', text: `From HTML Snippet to a Locator That Survives a Refactor` },
+          {
+            type: 'text',
+            content: `Paste the actual HTML element (not a description of it), and explicitly instruct Claude to prefer a stable attribute (data-testid, aria-label, a role) over positional/structural selectors (nth-child, deep XPath). If no stable attribute exists in the pasted HTML, ask Claude to flag that gap explicitly rather than silently inventing a fragile fallback.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why generate a full Page Object Model skeleton instead of one-off locators? A POM centralizes exactly the fragility risk above into ONE file per page — if a locator breaks, you fix it in one place instead of hunting through every test that duplicated it inline. Claude is good at the MECHANICAL skeleton (class structure, constructor, method names mirroring user actions) once you give it the page's HTML and the actions you need — but the actual selector STRINGS inside it still need your review for stability, exactly like the previous point.`,
+          },
+          {
+            type: 'table',
+            headers: ['Task', 'Prompt Element to Include', 'What You Still Verify'],
+            rows: [
+              ['Generate a locator', 'The actual pasted HTML element + "prefer data-testid/aria-label over XPath position"', 'Run it against the live page before trusting it — a plausible selector is not a working one'],
+              ['Generate a Page Object skeleton', 'The page\'s key elements + the actions your tests perform (login, submit, navigate)', 'That method names match your test\'s actual vocabulary, not Claude\'s guess at it'],
+              ['Fix a broken test', 'The exact failure message/stack trace + the current locator/code, not a description of the bug', 'That the fix addresses the real DOM change, not just silences the assertion'],
+            ],
+          },
+          { type: 'heading', text: `Page Object Model: Java Selenium vs TypeScript Playwright` },
+          {
+            type: 'code',
+            language: 'java',
+            label: 'Java (Selenium)',
+            code: {
+              tr: `public class LoginPage {
+    private WebDriver driver;
+
+    // Konum yerine kararlı data-testid nitelikleri kullanılır
+    private By emailInput = By.cssSelector("[data-testid='login-email']");
+    private By passwordInput = By.cssSelector("[data-testid='login-password']");
+    private By submitButton = By.cssSelector("[data-testid='login-submit']");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void login(String email, String password) {
+        driver.findElement(emailInput).sendKeys(email);
+        driver.findElement(passwordInput).sendKeys(password);
+        driver.findElement(submitButton).click();
+    }
+}`,
+              en: `public class LoginPage {
+    private WebDriver driver;
+
+    // Stable data-testid attributes are used instead of position
+    private By emailInput = By.cssSelector("[data-testid='login-email']");
+    private By passwordInput = By.cssSelector("[data-testid='login-password']");
+    private By submitButton = By.cssSelector("[data-testid='login-submit']");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void login(String email, String password) {
+        driver.findElement(emailInput).sendKeys(email);
+        driver.findElement(passwordInput).sendKeys(password);
+        driver.findElement(submitButton).click();
+    }
+}`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'typescript',
+            label: 'TypeScript (Playwright)',
+            code: {
+              tr: `export class LoginPage {
+  constructor(private page: Page) {}
+
+  // Aynı kararlı data-testid nitelikleri, Playwright locator API'si
+  private email = this.page.getByTestId('login-email');
+  private password = this.page.getByTestId('login-password');
+  private submit = this.page.getByTestId('login-submit');
+
+  async login(email: string, password: string) {
+    await this.email.fill(email);
+    await this.password.fill(password);
+    await this.submit.click();
+  }
+}`,
+              en: `export class LoginPage {
+  constructor(private page: Page) {}
+
+  // Same stable data-testid attributes, Playwright locator API
+  private email = this.page.getByTestId('login-email');
+  private password = this.page.getByTestId('login-password');
+  private submit = this.page.getByTestId('login-submit');
+
+  async login(email: string, password: string) {
+    await this.email.fill(email);
+    await this.password.fill(password);
+    await this.submit.click();
+  }
+}`,
+            },
+          },
+          uiFixLoopAnimation,
+          uiFixLoopOrder,
+          uiLocatorFixPlayground,
+          {
+            type: 'quiz',
+            question: `Claude generates a working XPath locator from your pasted HTML, and the test passes today. Two weeks later, after an unrelated frontend refactor, the same test fails. What is the most likely explanation?`,
+            options: [
+              { id: 'a', text: 'Claude\'s model quality degraded over the two weeks' },
+              { id: 'b', text: 'The XPath likely encoded the DOM\'s incidental structure (element position, generated class names) rather than a stable, developer-owned attribute — refactors change incidental structure freely' },
+              { id: 'c', text: 'XPath locators always break regardless of how they are written' },
+              { id: 'd', text: 'The test itself must have a logic bug unrelated to the locator' },
+            ],
+            correct: 'b',
+            explanation: `Position and structure are never a contract a frontend team promises to preserve; a data-testid or aria-label is. A locator generated from a frozen HTML snapshot, without an explicit instruction to prefer stable attributes, has no way to distinguish the two.`,
+            retryQuestion: {
+              question: `Claude generates a complete Page Object Model class for your login page, including method names and locators. What must you still do before trusting it in your suite?`,
+              options: [
+                { id: 'a', text: 'Nothing — a generated POM skeleton is always production-ready' },
+                { id: 'b', text: 'Run it against the live page to confirm the locators actually resolve, and check that method names match your test\'s real vocabulary rather than Claude\'s guess at it' },
+                { id: 'c', text: 'Rewrite the entire class manually, since generated code is never usable' },
+                { id: 'd', text: 'Only check that the class compiles — a compiling locator is a working locator' },
+              ],
+              correct: 'b',
+              explanation: `Compiling is not the same as resolving on the live DOM — a plausible selector string is not a verified one. The mechanical skeleton (structure, naming) is where Claude is strong; whether the specific selectors and method names actually match your app and your team's vocabulary is still your call.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔌 Claude for API Testing`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🏢',
+            content: `Asking Claude to write API test assertions from a pasted response JSON is like asking an inspector to write a building code checklist after seeing photos of ONE finished room — the mechanism is exact: the photo shows what the response happened to look like this once (the actual JSON), but a good assertion set also needs to cover what happens when the room ISN'T finished correctly (a missing field, a wrong type, an error status) — information the happy-path response alone never shows you. Here is the question worth sitting with: if Claude can read your 200 OK JSON and write perfect assertions for every field in it, why is that suite still incomplete? Because it only saw the happy path — nobody showed it what a 422 validation error or a 500 looks like, so it cannot assert on failure shapes it never saw; you must supply or explicitly request those scenarios. Java comparison: this is like writing JUnit assertions purely from a single passing run's captured output instead of from the actual API contract (the OpenAPI spec) — you'll perfectly test what happened once, and miss what the contract actually promises for edge cases. The QA stake: an API suite that's 100% green but never asserts on a documented 400/401/404/500 behavior gives false confidence exactly where production incidents (bad input, auth failures, downstream timeouts) actually happen.`,
+          },
+          { type: 'heading', text: `From Response JSON to Real Assertions` },
+          {
+            type: 'text',
+            content: `Paste one real response and add the explicit constraint "also ask what happens for X invalid input" — Claude then proposes assertions for the happy path field-by-field and, if asked, hypothesizes plausible 4xx/5xx shapes to also assert once you confirm the real contract.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why paste the OpenAPI spec instead of just describing the endpoint in words? An OpenAPI definition is already the same Given/When/Then-style forcing function as Gherkin — it names every parameter, its required/optional flag and the response schema explicitly, removing exactly the kind of oracle ambiguity discussed in the Test Case Generation tab. If you don't have an OpenAPI spec, describing the endpoint informally still works, but expect more of Claude's output to be flagged assumptions rather than confirmed rules.`,
+          },
+          {
+            type: 'table',
+            headers: ['Input', 'What to Ask For', 'Framework Output'],
+            rows: [
+              ['OpenAPI/endpoint definition', 'Generate positive + negative test scenarios covering every documented status code', 'REST Assured (Java) test class OR a Postman/Bruno test script — specify which'],
+              ['A real 200 OK response body', 'Field-by-field assertions, plus what a missing/null/wrong-type field SHOULD look like', 'Assertion code in your chosen framework'],
+              ['(no real response for the error path)', 'Hypothesize the likely 4xx/5xx shape based on the spec, flagged as unconfirmed until reproduced', 'A draft assertion you verify against a real error response before trusting it'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'java',
+            label: 'REST Assured (Java)',
+            code: {
+              tr: `given()
+    .header("Authorization", "Bearer " + token)
+.when()
+    .get("/api/users/{id}", 42)
+.then()
+    .statusCode(200)
+    .body("id", equalTo(42))
+    .body("email", notNullValue())
+    // Sözleşmeye göre henüz doğrulanmamış: 404 durumunda body şekli
+    .body("email", containsString("@"));`,
+              en: `given()
+    .header("Authorization", "Bearer " + token)
+.when()
+    .get("/api/users/{id}", 42)
+.then()
+    .statusCode(200)
+    .body("id", equalTo(42))
+    .body("email", notNullValue())
+    // Not yet confirmed against the contract: the body shape on a 404
+    .body("email", containsString("@"));`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'javascript',
+            label: 'Postman / Bruno test script',
+            code: {
+              tr: `// tests bloğu - Postman/Bruno ikisinde de aynı sözdizimi
+pm.test("status is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("email field is valid", function () {
+    const json = pm.response.json();
+    pm.expect(json.email).to.include("@");
+});`,
+              en: `// tests block - same syntax in both Postman and Bruno
+pm.test("status is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("email field is valid", function () {
+    const json = pm.response.json();
+    pm.expect(json.email).to.include("@");
+});`,
+            },
+          },
+          apiAssertionAnimation,
+          apiAssertionOrder,
+          apiAssertionPlayground,
+          {
+            type: 'quiz',
+            question: `An API test suite is 100% green: every assertion on the 200 OK response passes. The suite has never once asserted on the documented 404 or 422 behavior. What is the real state of this suite's coverage?`,
+            options: [
+              { id: 'a', text: 'Complete — a fully green suite means the API is fully tested' },
+              { id: 'b', text: 'Incomplete — it only validated the happy path; the documented error behaviors, which is exactly where real production incidents (bad input, missing auth) occur, were never exercised' },
+              { id: 'c', text: 'Error status codes cannot be tested with Claude\'s help' },
+              { id: 'd', text: 'The suite is complete as long as REST Assured is used' },
+            ],
+            correct: 'b',
+            explanation: `"100% green" only describes what was actually asserted, not what the contract promises. A suite that never touches documented 4xx/5xx behavior has a coverage gap in exactly the area most likely to cause a real incident.`,
+            retryQuestion: {
+              question: `Claude hypothesizes that a malformed email should return a 422 with { "error": "invalid_email" }, but you have never actually triggered this response. What must happen before this assertion enters your suite?`,
+              options: [
+                { id: 'a', text: 'Nothing — Claude\'s hypothesis is trained on real API conventions, so it is safe to trust' },
+                { id: 'b', text: 'You reproduce the actual 422 response by sending a malformed email yourself, and confirm the real shape matches the hypothesis before adding the assertion' },
+                { id: 'c', text: 'The hypothesis should be discarded — AI cannot reason about error responses' },
+                { id: 'd', text: 'Add it directly, then fix it later if it turns out wrong' },
+              ],
+              correct: 'b',
+              explanation: `A plausible error shape is still a guess until reproduced. Adding an unverified assertion "to fix later" is how a suite ends up asserting on behavior that was never real, silently passing for the wrong reason if the actual API ever matches the guess by coincidence.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `💻 Claude Code: Agent in the Terminal`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧑‍💼',
+            content: `Claude Code is like handing a very capable new team member a keyboard and telling them "you may touch these files, run these commands, but ask before doing THAT" — the mechanism is exact: permission modes (ask-every-time vs. auto-approve for read-only vs. full access) are literally the boundary of what the new hire is allowed to do without a manager present, the same distinction between a junior who needs sign-off on every commit and a senior with merge rights. Here is the question worth sitting with: if Claude Code can read a failing test, run it, and edit the fix itself, why would you ever want it to ASK before running a command instead of just doing it? Because the blast radius of an autonomous agent scales with what it's allowed to touch — a read-only permission mode is safe by construction (nothing to undo), while a mode that can run arbitrary shell commands or push to a branch needs the same review discipline you'd apply to a new hire's first unsupervised week. Java comparison: this is access control the same way a role-based permission system draws a line between "can read this resource" and "can write/execute" it — you don't grant the wider permission just because the narrower one works fine. The QA stake: an agent given unreviewed write+execute access to a shared CI runner or a production-adjacent branch, without a human checking its diffs, is a supply-chain-shaped risk — the same category of concern covered on this platform's own security page, just with an AI as the actor instead of a human attacker.`,
+          },
+          { type: 'heading', text: `The Read → Run → Fix → Re-run Loop` },
+          {
+            type: 'text',
+            content: `Once given permission, Claude Code reads the failing test file, executes it, reads the actual error output, proposes an edit, and re-runs — the same debugging loop a developer does manually, but the agent does it in the same terminal session without you retyping every command in between.`,
+          },
+          {
+            type: 'text',
+            content: `Meta-example — this very platform: this project's own repository has a CLAUDE.md file at its root, a written constitution the agent reads at the start of every session so it doesn't have to be told the same project rules over and over. A representative excerpt (not the real file, a stand-in of the same shape):`,
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            code: {
+              tr: `# CLAUDE.md (örnek özet, gerçek dosya değil)
+## Kurallar
+- İçerik değişikliği src/data/*.js dışına taşmaz.
+- Her yeni kod bloğu bir practice/animasyon ile eşleşmeli.
+- Build'i her değişiklikten sonra çalıştır.`,
+              en: `# CLAUDE.md (representative summary, not the real file)
+## Rules
+- Content changes stay within src/data/*.js.
+- Every new code block must pair with a practice/animation.
+- Run the build after every change.`,
+            },
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why write project rules into a file the agent reads, instead of repeating them in every prompt? Because a file like this is read ONCE per session and then silently informs every subsequent action — the same reason a team writes a CONTRIBUTING.md instead of re-explaining code style in every pull request review.`,
+          },
+          { type: 'heading', text: `Permission Modes and Safe Usage` },
+          {
+            type: 'text',
+            content: `Ask-every-time, auto-approve-read-only, and auto-approve-all are different points on the same blast-radius scale. Pick the narrowest mode that lets the agent do the task, and review diffs before accepting write actions on shared or production-adjacent branches — the same discipline you'd apply to any new team member's unsupervised first week.`,
+          },
+          { type: 'heading', text: `Command-Line Patterns` },
+          {
+            type: 'code',
+            language: 'bash',
+            code: {
+              tr: `# İnteraktif ajan oturumu başlat
+claude
+
+# Tek seferlik, headless bir görev çalıştır (CI'da kullanışlı)
+claude -p "flaky testleri bul ve nedenini raporla"
+
+# Belirli bir görevle başlat, sonra manuel devam et
+claude "son commit'teki başarısız testi düzelt"`,
+              en: `# Start an interactive agent session
+claude
+
+# Run a one-off, headless task (useful in CI)
+claude -p "find flaky tests and report why"
+
+# Start with a specific task, then continue manually
+claude "fix the failing test from the last commit"`,
+            },
+          },
+          claudeCodeLoopAnimation,
+          claudeCodeLoopOrder,
+          claudeCodeScopedTaskPlayground,
+          {
+            type: 'quiz',
+            question: `Why would a senior tester deliberately choose a read-only permission mode for Claude Code on a shared branch, even though a full-access mode would let it fix the failing test faster?`,
+            options: [
+              { id: 'a', text: 'Read-only mode is always slower and offers no real safety benefit' },
+              { id: 'b', text: 'A read-only mode is safe by construction — nothing to undo — while a write-capable agent on a shared branch needs the same diff-review discipline as any new hire\'s unsupervised changes' },
+              { id: 'c', text: 'Claude Code cannot run tests in read-only mode' },
+              { id: 'd', text: 'Permission modes only affect speed, not risk' },
+            ],
+            correct: 'b',
+            explanation: `Speed and blast radius are separate axes. A faster, write-capable agent on a branch other people rely on introduces a real risk (an unreviewed change landing where others build on it); the narrower mode trades some speed for the guarantee that nothing happens without your review.`,
+            retryQuestion: {
+              question: `You tell Claude Code "fix all the tests" on your main branch with auto-approve-all permissions enabled. What is the most likely problem with this instruction, independent of whether the fixes turn out correct?`,
+              options: [
+                { id: 'a', text: 'Nothing — a broader instruction just means more gets fixed faster' },
+                { id: 'b', text: 'The scope is unbounded, so the agent can modify any number of unrelated files without your review — the instruction should be scoped to a specific file or test with a request to show the fix before applying it' },
+                { id: 'c', text: 'Claude Code cannot process instructions covering multiple files' },
+                { id: 'd', text: 'This is only a problem if the tests were already passing' },
+              ],
+              correct: 'b',
+              explanation: `An unbounded instruction combined with auto-approve-all permissions removes both scope AND review — exactly the two safeguards that limit an autonomous agent's blast radius. Correctness of the eventual fixes does not retroactively make the missing safeguards safe.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔗 MCP (Model Context Protocol)`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔌',
+            content: `MCP is like a hospital's standardized equipment port — the mechanism is exact: before a standard port existed, every device (an infusion pump, a monitor) needed its own custom connector built for each specific hospital bed; MCP defines one standard interface that any tool (a browser driver, a database reader, a ticketing system) can plug into, and any AI agent that speaks the protocol can use it without a custom integration per tool. Here is the question worth sitting with: if Claude could already "browse the web" by generating Selenium code for you to run, why do we need a SEPARATE protocol for it to control a browser directly? Because generating code you run yourself and an agent directly driving a live browser through a standardized tool interface are different capability classes — the first still requires you to execute and report results back manually; MCP lets the agent see the actual DOM or query result and decide its next action in the same loop, without you being the messenger. Java comparison: this is the same leap as JDBC standardizing "any Java program can talk to any database" instead of writing a custom driver per vendor — MCP standardizes "any AI agent can talk to any external tool," and a browser or database becomes just another JDBC-shaped connector. The QA stake: an MCP-connected agent that can query your test database directly is powerful for verifying seeded data, but the same connection is a real credential with real write access if misconfigured — the permission boundary matters exactly as much as it did for Claude Code CLI in the previous tab, just extended to external systems instead of your local filesystem.`,
+          },
+          { type: 'heading', text: `Real Browser Control vs. Generated Code` },
+          {
+            type: 'text',
+            content: `Without MCP, asking Claude for browser automation gets you Selenium/Playwright CODE that YOU must run and report results from. With a Playwright-MCP-style connection, Claude can drive an actual browser session directly — navigate, click, read the resulting DOM — and decide its next step in the same conversation, closing the loop that previously required you as a manual relay.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why would a QA engineer want an agent to control a REAL browser instead of just generating a script? Because some tasks are exploratory, not scripted — "log in and tell me what breaks" has no pre-written test to run; a live-browser-connected agent can improvise the way a manual tester does, while a generated script can only execute exactly what was written in advance.`,
+          },
+          { type: 'heading', text: `Database MCP for Test Data Verification` },
+          {
+            type: 'text',
+            content: `A database-connected MCP server lets Claude query a test database directly to verify seeded data or confirm a bug's actual state, instead of you copy-pasting query results back and forth. The same read-only-first discipline as Claude Code applies: a read-only DB connection is safe by construction, while a write-capable one needs the same review discipline as a write-capable CLI permission mode.`,
+          },
+          {
+            type: 'table',
+            headers: ['MCP Connection', 'What It Enables', 'Permission Boundary to Set'],
+            rows: [
+              ['Browser (Playwright-style)', 'The agent navigates, clicks and reads a live page directly, without you relaying results', 'Which environment it may open — never point it at production by default'],
+              ['Database', 'The agent queries test data directly to verify seeding or reproduce a bug', 'Read-only by default; write access reviewed the same as a CLI write permission'],
+              ['(any third-party tool server)', 'The agent calls that tool\'s actions as part of its own reasoning loop', 'Scope credentials to the narrowest tool/action the task actually needs'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            code: {
+              tr: `# Örnek: bir tarayıcı MCP server'ını projeye ekle (isim/sürüm kavramsaldır)
+claude mcp add playwright-browser
+
+# Örnek: salt-okunur bir veritabanı MCP server'ı ekle
+claude mcp add test-database --read-only`,
+              en: `# Example: add a browser MCP server to the project (name/version is conceptual)
+claude mcp add playwright-browser
+
+# Example: add a read-only database MCP server
+claude mcp add test-database --read-only`,
+            },
+          },
+          mcpFlowAnimation,
+          mcpFlowOrder,
+          mcpScopedTaskPlayground,
+          {
+            type: 'quiz',
+            question: `What is the key capability difference between "Claude generates Playwright code for you to run" and "Claude drives a browser through an MCP connection"?`,
+            options: [
+              { id: 'a', text: 'There is no real difference — both approaches produce the same test coverage' },
+              { id: 'b', text: 'With MCP, the agent sees the actual DOM/response and decides its next action directly, closing the loop; with generated code, you remain the manual relay who runs it and reports results back' },
+              { id: 'c', text: 'MCP is only useful for database access, never for browsers' },
+              { id: 'd', text: 'Generated code is always more reliable than a live MCP connection' },
+            ],
+            correct: 'b',
+            explanation: `Generating code you must execute yourself keeps a human in the loop as the messenger between the agent and the real system. An MCP connection removes that hop — the agent perceives real results and acts on them directly, which is what enables exploratory, non-scripted tasks.`,
+            retryQuestion: {
+              question: `A teammate configures a database MCP connection with full write access and points it at the same database used for production reporting, "just to save time setting up a separate test instance." What is the risk here?`,
+              options: [
+                { id: 'a', text: 'None — MCP connections are inherently safe regardless of scope' },
+                { id: 'b', text: 'An agent with write access to a production-adjacent database can modify real data as part of its own reasoning loop — the same blast-radius concern as an unreviewed CLI write permission, just extended to a live database' },
+                { id: 'c', text: 'This is only a problem if the agent makes a mistake' },
+                { id: 'd', text: 'Database MCP connections cannot have write access by design' },
+              ],
+              correct: 'b',
+              explanation: `Correctness is not the safeguard here — scope is. An agent with write access to a system used for production reporting can alter real data as a side effect of pursuing its task, regardless of whether any individual action it takes is a "mistake". The fix is the same one from Claude Code: grant the narrowest permission and environment the task actually needs.`,
+            },
+          },
+        ],
+      },
     ],
   },
   tr: {
@@ -1007,7 +1738,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -1504,6 +2235,411 @@ INSERT INTO test_users (id, age, expected_result) VALUES
               ],
               correct: 'b',
               explanation: `Bir LLM, gerçek kimliklerle çakışmayacağını garanti etmez ve format olarak geçerli sahte veri bazı kurumlarda hâlâ uyumluluk kurallarına takılabilir. "Claude uydurdu" ifadesi, ekibinin gerçek veri işleme politikasının yerini tutmaz.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🤖 UI Otomasyonu: Selenium & Playwright`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🗝️',
+            content: `Claude'dan yapıştırılan bir HTML parçasından locator ürettirmek, bir çilingirden kilidin kendisi yerine bir FOTOĞRAFINDAN anahtar kesmesini istemeye benzer — mekanizma birebirdir: bir fotoğraf (statik bir HTML parçası) kilidin şeklini o anki haliyle gösterir, ama gerçek kilit (canlı DOM) sayfa bir sonraki render'da hafifçe farklı bir anahtar deliğine sahipse (yeniden sıralanmış bir class listesi, dinamik üretilmiş bir id), kesilen anahtar (üretilen locator) uymayabilir. Üzerinde durulmaya değer soru şu: Claude senin parçandan çalışan bir XPath ürettiyse, ÖZELLİK'te hiçbir şey değişmediği halde bu neden bir sonraki deploy'da kırılıyor? Çünkü kırılgan bir locator (derin bir XPath pozisyonu, framework'ün ürettiği bir class hash'i) DOM'un tesadüfi yapısını kodlar, geliştiricinin niyetini değil — ve sadece dondurulmuş bir HTML anlık görüntüsüyle çalışan Claude, hangi niteliklerin KARARLI (QA'nın sahip olduğu bir data-testid) hangilerinin TESADÜFİ (bir CSS-modül hash'i) olduğunu, ona öncelik vermesini söylemedikçe bilemez. Java karşılaştırması: bu, bir private field'a tam bildirim sırasına göre bir reflection çağrısını gömmekle aynı kırılganlık sınıfındadır — bugün derlenir ve çalışır ama aslında güvendiğin kontrat hiçbir zaman bir garanti değildi. QA tarafındaki bedel: ilgisiz her frontend refactor'ünde sessizce kıran, Claude'un ürettiği XPath locator'larla dolu bir CI seti, yerini aldığı elle yazılmış locator'lardan bakımı daha yavaştır — düzeltme, Claude'a data-testid'e öncelik vermesini prompt'lamaktır, ilk ürettiği selector'ı kabul etmek değil.`,
+          },
+          { type: 'heading', text: `HTML Parçasından Refactor'e Dayanıklı Bir Locator'a` },
+          {
+            type: 'text',
+            content: `Gerçek HTML elementini yapıştır (bir açıklamasını değil) ve Claude'a pozisyonel/yapısal selector'lar (nth-child, derin XPath) yerine kararlı bir niteliğe (data-testid, aria-label, bir role) öncelik vermesini açıkça söyle. Yapıştırılan HTML'de kararlı bir nitelik yoksa, Claude'dan bu boşluğu sessizce kırılgan bir fallback uydurmak yerine açıkça bildirmesini iste.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: neden tek seferlik locator'lar yerine tam bir Page Object Model iskeleti üretilsin? Bir POM, yukarıdaki kırılganlık riskini tam olarak sayfa başına TEK bir dosyada merkezileştirir — bir locator kırılırsa, onu satır içinde tekrarlayan her testi aramak yerine tek bir yerde düzeltirsin. Claude, sayfanın HTML'ini ve ihtiyacın olan eylemleri verdiğinde MEKANİK iskelette (sınıf yapısı, constructor, kullanıcı eylemlerini yansıtan metod isimleri) iyidir — ama içindeki gerçek selector DİZİLERİ, tıpkı bir önceki noktadaki gibi, hâlâ senin kararlılık incelemene ihtiyaç duyar.`,
+          },
+          {
+            type: 'table',
+            headers: ['Görev', 'Prompt\'a Dahil Edilecek Eleman', 'Hâlâ Senin Doğrulaman Gereken'],
+            rows: [
+              ['Bir locator üret', 'Gerçek yapıştırılmış HTML elementi + "XPath pozisyonu yerine data-testid/aria-label\'a öncelik ver"', 'Güvenmeden önce canlı sayfaya karşı çalıştır — inandırıcı bir selector, çalışan bir selector değildir'],
+              ['Bir Page Object iskeleti üret', 'Sayfanın anahtar elementleri + testlerinin yaptığı eylemler (login, gönder, gezin)', 'Metod isimlerinin Claude\'un tahmini değil, testinin gerçek söz dağarcığıyla eşleştiğini'],
+              ['Kırık bir testi düzelt', 'Hatanın açıklaması değil, tam hata mesajı/stack trace + mevcut locator/kod', 'Düzeltmenin assertion\'ı sessizce susturmak yerine gerçek DOM değişikliğini ele aldığını'],
+            ],
+          },
+          { type: 'heading', text: `Page Object Model: Java Selenium ve TypeScript Playwright` },
+          {
+            type: 'code',
+            language: 'java',
+            label: 'Java (Selenium)',
+            code: {
+              tr: `public class LoginPage {
+    private WebDriver driver;
+
+    // Konum yerine kararlı data-testid nitelikleri kullanılır
+    private By emailInput = By.cssSelector("[data-testid='login-email']");
+    private By passwordInput = By.cssSelector("[data-testid='login-password']");
+    private By submitButton = By.cssSelector("[data-testid='login-submit']");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void login(String email, String password) {
+        driver.findElement(emailInput).sendKeys(email);
+        driver.findElement(passwordInput).sendKeys(password);
+        driver.findElement(submitButton).click();
+    }
+}`,
+              en: `public class LoginPage {
+    private WebDriver driver;
+
+    // Stable data-testid attributes are used instead of position
+    private By emailInput = By.cssSelector("[data-testid='login-email']");
+    private By passwordInput = By.cssSelector("[data-testid='login-password']");
+    private By submitButton = By.cssSelector("[data-testid='login-submit']");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void login(String email, String password) {
+        driver.findElement(emailInput).sendKeys(email);
+        driver.findElement(passwordInput).sendKeys(password);
+        driver.findElement(submitButton).click();
+    }
+}`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'typescript',
+            label: 'TypeScript (Playwright)',
+            code: {
+              tr: `export class LoginPage {
+  constructor(private page: Page) {}
+
+  // Aynı kararlı data-testid nitelikleri, Playwright locator API'si
+  private email = this.page.getByTestId('login-email');
+  private password = this.page.getByTestId('login-password');
+  private submit = this.page.getByTestId('login-submit');
+
+  async login(email: string, password: string) {
+    await this.email.fill(email);
+    await this.password.fill(password);
+    await this.submit.click();
+  }
+}`,
+              en: `export class LoginPage {
+  constructor(private page: Page) {}
+
+  // Same stable data-testid attributes, Playwright locator API
+  private email = this.page.getByTestId('login-email');
+  private password = this.page.getByTestId('login-password');
+  private submit = this.page.getByTestId('login-submit');
+
+  async login(email: string, password: string) {
+    await this.email.fill(email);
+    await this.password.fill(password);
+    await this.submit.click();
+  }
+}`,
+            },
+          },
+          uiFixLoopAnimation,
+          uiFixLoopOrder,
+          uiLocatorFixPlayground,
+          {
+            type: 'quiz',
+            question: `Claude, yapıştırdığın HTML'den çalışan bir XPath locator üretiyor ve test bugün geçiyor. İki hafta sonra, ilgisiz bir frontend refactor'ünün ardından aynı test başarısız oluyor. En olası açıklama nedir?`,
+            options: [
+              { id: 'a', text: 'Claude\'un model kalitesi iki hafta içinde düştü' },
+              { id: 'b', text: 'XPath büyük olasılıkla kararlı, geliştiricinin sahip olduğu bir nitelik yerine DOM\'un tesadüfi yapısını (element pozisyonu, üretilmiş class isimleri) kodladı — refactor\'ler tesadüfi yapıyı serbestçe değiştirir' },
+              { id: 'c', text: 'XPath locator\'ları nasıl yazılırsa yazılsın her zaman kırılır' },
+              { id: 'd', text: 'Testin kendisinde locator\'la ilgisiz bir mantık hatası olmalı' },
+            ],
+            correct: 'b',
+            explanation: `Pozisyon ve yapı, bir frontend ekibinin korumayı taahhüt ettiği bir kontrat asla değildir; data-testid veya aria-label ise öyledir. Dondurulmuş bir HTML anlık görüntüsünden, kararlı niteliklere öncelik verme talimatı olmadan üretilen bir locator, ikisini ayırt edecek hiçbir yola sahip değildir.`,
+            retryQuestion: {
+              question: `Claude, login sayfan için metod isimleri ve locator'lar dahil eksiksiz bir Page Object Model sınıfı üretti. Sete güvenmeden önce hâlâ ne yapman gerekir?`,
+              options: [
+                { id: 'a', text: 'Hiçbir şey — üretilen bir POM iskeleti her zaman production\'a hazırdır' },
+                { id: 'b', text: 'Locator\'ların gerçekten çözümlendiğini doğrulamak için canlı sayfaya karşı çalıştır, ve metod isimlerinin Claude\'un tahmini yerine testinin gerçek söz dağarcığıyla eşleştiğini kontrol et' },
+                { id: 'c', text: 'Sınıfın tamamını elle yeniden yaz — üretilen kod asla kullanılamaz' },
+                { id: 'd', text: 'Sadece sınıfın derlendiğini kontrol et — derlenen bir locator, çalışan bir locator\'dur' },
+              ],
+              correct: 'b',
+              explanation: `Derlenmek, canlı DOM'da çözümlenmekle aynı şey değildir — inandırıcı bir selector dizesi, doğrulanmış bir selector değildir. Mekanik iskelet (yapı, isimlendirme) Claude'un güçlü olduğu yerdir; spesifik selector'ların ve metod isimlerinin gerçekten uygulamana ve ekibinin söz dağarcığına uyup uymadığı hâlâ senin kararındır.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔌 API Testinde Claude`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🏢',
+            content: `Claude'a yapıştırılan bir response JSON'ından API test assertion'ları yazdırmak, bir müfettişten TEK bir bitmiş odanın fotoğraflarını gördükten sonra bir yapı yönetmeliği kontrol listesi yazmasını istemeye benzer — mekanizma birebirdir: fotoğraf, yanıtın o an nasıl göründüğünü gösterir (gerçek JSON), ama iyi bir assertion seti odanın DOĞRU bitmediğinde (eksik bir alan, yanlış bir tip, bir hata durumu) ne olacağını da kapsamalıdır — bu bilgiyi mutlu yol yanıtının tek başına asla göstermediği bir şey. Üzerinde durulmaya değer soru şu: Claude senin 200 OK JSON'ını okuyup içindeki her alan için kusursuz assertion yazabiliyorsa, o set neden hâlâ eksik? Çünkü sadece mutlu yolu gördü — ona bir 422 doğrulama hatasının veya bir 500'ün neye benzediğini kimse göstermedi, o yüzden hiç görmediği hata şekilleri üzerine assertion yazamaz; bu senaryoları sen sağlamalı veya açıkça istemelisin. Java karşılaştırması: bu, gerçek API kontratından (OpenAPI spec) değil, tek bir geçen koşumun kaydedilmiş çıktısından JUnit assertion'ları yazmak gibidir — bir kere olanı kusursuzca test edersin ama kontratın edge case'ler için gerçekte vaat ettiğini kaçırırsın. QA tarafındaki bedel: %100 yeşil ama dokümante edilmiş bir 400/401/404/500 davranışını hiç doğrulamamış bir API seti, tam olarak gerçek production olaylarının (kötü girdi, auth hataları, downstream timeout'lar) yaşandığı yerde sahte güven verir.`,
+          },
+          { type: 'heading', text: `Response JSON'ından Gerçek Assertion'lara` },
+          {
+            type: 'text',
+            content: `Gerçek bir yanıt yapıştır ve açık kısıtı ekle: "X geçersiz girdi için ne olacağını da sor" — Claude bundan sonra mutlu yol için alan alan assertion önerir ve istenirse, gerçek kontratı onayladıktan sonra da doğrulanacak olası 4xx/5xx şekillerini hipotez eder.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: neden endpoint'i sadece kelimelerle anlatmak yerine OpenAPI spec'ini yapıştırasın? Bir OpenAPI tanımı zaten Gherkin ile aynı Given/When/Then tarzı zorlayıcı mekanizmadır — her parametreyi, zorunlu/opsiyonel bayrağını ve response şemasını açıkça isimlendirir, tam olarak Test Case Üretimi sekmesinde tartışılan türden oracle belirsizliğini ortadan kaldırır. OpenAPI spec'in yoksa endpoint'i gayriresmi olarak anlatmak da işe yarar, ama Claude'un çıktısının daha fazlasının onaylanmış kural yerine işaretli varsayım olmasını bekle.`,
+          },
+          {
+            type: 'table',
+            headers: ['Girdi', 'Ne İstersin', 'Framework Çıktısı'],
+            rows: [
+              ['OpenAPI/endpoint tanımı', 'Dokümante edilmiş her status code\'u kapsayan pozitif + negatif test senaryoları üret', 'REST Assured (Java) test sınıfı YA DA Postman/Bruno test script\'i — hangisini belirt'],
+              ['Gerçek bir 200 OK response body\'si', 'Alan alan assertion\'lar, artı eksik/null/yanlış-tip bir alanın NASIL görünmesi gerektiği', 'Seçtiğin framework\'te assertion kodu'],
+              ['(hata yolu için gerçek yanıt yok)', 'Spec\'e dayanarak olası 4xx/5xx şeklini hipotez et, tekrar üretilene kadar onaylanmamış işaretle', 'Güvenmeden önce gerçek bir hata yanıtına karşı doğrulayacağın bir taslak assertion'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'java',
+            label: 'REST Assured (Java)',
+            code: {
+              tr: `given()
+    .header("Authorization", "Bearer " + token)
+.when()
+    .get("/api/users/{id}", 42)
+.then()
+    .statusCode(200)
+    .body("id", equalTo(42))
+    .body("email", notNullValue())
+    // Sözleşmeye göre henüz doğrulanmamış: 404 durumunda body şekli
+    .body("email", containsString("@"));`,
+              en: `given()
+    .header("Authorization", "Bearer " + token)
+.when()
+    .get("/api/users/{id}", 42)
+.then()
+    .statusCode(200)
+    .body("id", equalTo(42))
+    .body("email", notNullValue())
+    // Not yet confirmed against the contract: the body shape on a 404
+    .body("email", containsString("@"));`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'javascript',
+            label: 'Postman / Bruno test script',
+            code: {
+              tr: `// tests bloğu - Postman/Bruno ikisinde de aynı sözdizimi
+pm.test("status is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("email field is valid", function () {
+    const json = pm.response.json();
+    pm.expect(json.email).to.include("@");
+});`,
+              en: `// tests block - same syntax in both Postman and Bruno
+pm.test("status is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("email field is valid", function () {
+    const json = pm.response.json();
+    pm.expect(json.email).to.include("@");
+});`,
+            },
+          },
+          apiAssertionAnimation,
+          apiAssertionOrder,
+          apiAssertionPlayground,
+          {
+            type: 'quiz',
+            question: `Bir API test seti %100 yeşil: 200 OK yanıtındaki her assertion geçiyor. Set, dokümante edilmiş 404 veya 422 davranışını hiç doğrulamamış. Bu setin kapsamının gerçek durumu nedir?`,
+            options: [
+              { id: 'a', text: 'Tam — tamamen yeşil bir set, API\'nin tam test edildiği anlamına gelir' },
+              { id: 'b', text: 'Eksik — sadece mutlu yolu doğruladı; gerçek production olaylarının (kötü girdi, eksik auth) tam olarak yaşandığı yer olan dokümante edilmiş hata davranışları hiç çalıştırılmadı' },
+              { id: 'c', text: 'Hata status kodları Claude yardımıyla test edilemez' },
+              { id: 'd', text: 'REST Assured kullanıldığı sürece set tamdır' },
+            ],
+            correct: 'b',
+            explanation: `"%100 yeşil", sadece gerçekten doğrulananı tanımlar, kontratın vaat ettiğini değil. Dokümante edilmiş 4xx/5xx davranışına hiç dokunmayan bir set, gerçek bir olaya yol açması en olası alanda bir kapsam boşluğuna sahiptir.`,
+            retryQuestion: {
+              question: `Claude, bozuk bir e-postanın { "error": "invalid_email" } içeren bir 422 döndürmesi gerektiğini hipotez ediyor ama sen bu yanıtı hiç gerçekten tetiklemedin. Bu assertion sete girmeden önce ne olmalı?`,
+              options: [
+                { id: 'a', text: 'Hiçbir şey — Claude\'un hipotezi gerçek API kurallarıyla eğitilmiş, güvenmek güvenlidir' },
+                { id: 'b', text: 'Gerçek 422 yanıtını bozuk bir e-posta göndererek kendin tekrar üretirsin ve assertion\'ı eklemeden önce gerçek şeklin hipotezle eşleştiğini doğrularsın' },
+                { id: 'c', text: 'Hipotez atılmalı — AI hata yanıtları hakkında akıl yürütemez' },
+                { id: 'd', text: 'Doğrudan ekle, yanlış çıkarsa sonra düzelt' },
+              ],
+              correct: 'b',
+              explanation: `İnandırıcı bir hata şekli, tekrar üretilene kadar hâlâ bir tahmindir. "Sonra düzelt" diyerek doğrulanmamış bir assertion eklemek, gerçek API tesadüfen tahminle eşleşirse yanlış sebepten sessizce geçen, hiç gerçek olmamış bir davranış üzerine assertion yazan bir setle sonuçlanır.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `💻 Claude Code: Terminalde Ajan`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧑‍💼',
+            content: `Claude Code, çok yetenekli yeni bir ekip üyesine bir klavye verip "bu dosyalara dokunabilirsin, bu komutları çalıştırabilirsin, ama ŞUNU yapmadan önce sor" demeye benzer — mekanizma birebirdir: izin modları (her seferinde sor vs. salt-okunur için otomatik onay vs. tam erişim), yöneticisi yokken yeni işe alınanın izinsiz yapabileceklerinin tam sınırıdır, her commit'e onay gerektiren bir junior ile merge yetkisi olan bir senior arasındaki aynı ayrım. Üzerinde durulmaya değer soru şu: Claude Code başarısız bir testi okuyup çalıştırabiliyor ve düzeltmeyi kendisi düzenleyebiliyorsa, neden bir komutu çalıştırmadan önce SORMASINI, sadece yapması yerine istiyorsun? Çünkü özerk bir ajanın etki alanı, dokunmasına izin verilen şeyle ölçeklenir — salt-okunur bir izin modu yapısı gereği güvenlidir (geri alınacak hiçbir şey yok), oysa keyfi shell komutları çalıştırabilen veya bir branch'e push edebilen bir mod, yeni işe alınanın gözetimsiz ilk haftasına uygulayacağın aynı inceleme disiplinini gerektirir. Java karşılaştırması: bu, rol-bazlı bir izin sisteminin "bu kaynağı okuyabilir" ile "yazabilir/çalıştırabilir" arasında çizgi çekmesiyle aynı erişim kontrolüdür — dar olan iyi çalışıyor diye geniş olanı vermezsin. QA tarafındaki bedel: diff'lerini kontrol eden bir insan olmadan paylaşılan bir CI runner'a veya production'a yakın bir branch'e incelenmemiş yazma+çalıştırma erişimi verilen bir ajan, bu platformun kendi security sayfasının kapsadığı aynı kategoride bir tedarik zinciri riskidir — sadece aktör bir insan saldırgan yerine bir AI'dır.`,
+          },
+          { type: 'heading', text: `Oku → Çalıştır → Düzelt → Tekrar Çalıştır Döngüsü` },
+          {
+            type: 'text',
+            content: `İzin verildiğinde Claude Code, başarısız test dosyasını okur, çalıştırır, gerçek hata çıktısını okur, bir düzenleme önerir ve tekrar çalıştırır — bir geliştiricinin elle yaptığı aynı debug döngüsü, ama ajan bunu her komutu yeniden yazmana gerek kalmadan aynı terminal oturumunda yapar.`,
+          },
+          {
+            type: 'text',
+            content: `Meta-örnek — tam olarak bu platform: bu projenin kendi repository'sinin kökünde bir CLAUDE.md dosyası vardır, ajanın her oturum başında okuduğu, aynı proje kurallarının tekrar tekrar söylenmesine gerek kalmayan yazılı bir anayasa. Aynı şekle sahip temsili bir alıntı (gerçek dosya değil, bir yer tutucu):`,
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            code: {
+              tr: `# CLAUDE.md (örnek özet, gerçek dosya değil)
+## Kurallar
+- İçerik değişikliği src/data/*.js dışına taşmaz.
+- Her yeni kod bloğu bir practice/animasyon ile eşleşmeli.
+- Build'i her değişiklikten sonra çalıştır.`,
+              en: `# CLAUDE.md (representative summary, not the real file)
+## Rules
+- Content changes stay within src/data/*.js.
+- Every new code block must pair with a practice/animation.
+- Run the build after every change.`,
+            },
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: proje kurallarını her prompt'ta tekrarlamak yerine neden ajanın okuduğu bir dosyaya yazasın? Çünkü böyle bir dosya oturum başına BİR KEZ okunur ve sonrasında sonraki her eylemi sessizce bilgilendirir — bir ekibin kod stilini her pull request incelemesinde yeniden anlatmak yerine bir CONTRIBUTING.md yazmasıyla aynı sebep.`,
+          },
+          { type: 'heading', text: `İzin Modları ve Güvenli Kullanım` },
+          {
+            type: 'text',
+            content: `Her seferinde sor, salt-okunur için otomatik onay ve tam erişim için otomatik onay, aynı etki-alanı ölçeğinde farklı noktalardır. Ajanın görevi yapmasına izin veren en dar modu seç, paylaşılan veya production'a yakın branch'lerde yazma eylemlerini kabul etmeden önce diff'leri incele — herhangi bir yeni ekip üyesinin gözetimsiz ilk haftasına uygulayacağın aynı disiplin.`,
+          },
+          { type: 'heading', text: `Komut Satırı Kalıpları` },
+          {
+            type: 'code',
+            language: 'bash',
+            code: {
+              tr: `# İnteraktif ajan oturumu başlat
+claude
+
+# Tek seferlik, headless bir görev çalıştır (CI'da kullanışlı)
+claude -p "flaky testleri bul ve nedenini raporla"
+
+# Belirli bir görevle başlat, sonra manuel devam et
+claude "son commit'teki başarısız testi düzelt"`,
+              en: `# Start an interactive agent session
+claude
+
+# Run a one-off, headless task (useful in CI)
+claude -p "find flaky tests and report why"
+
+# Start with a specific task, then continue manually
+claude "fix the failing test from the last commit"`,
+            },
+          },
+          claudeCodeLoopAnimation,
+          claudeCodeLoopOrder,
+          claudeCodeScopedTaskPlayground,
+          {
+            type: 'quiz',
+            question: `Tam erişim modu başarısız testi daha hızlı düzelttirecek olsa bile, bir senior tester paylaşılan bir branch'te Claude Code için neden bilinçli olarak salt-okunur izin modunu seçer?`,
+            options: [
+              { id: 'a', text: 'Salt-okunur mod her zaman daha yavaştır ve gerçek bir güvenlik faydası sağlamaz' },
+              { id: 'b', text: 'Salt-okunur bir mod yapısı gereği güvenlidir — geri alınacak hiçbir şey yok — oysa paylaşılan bir branch\'te yazma yapabilen bir ajan, herhangi bir yeni işe alınanın gözetimsiz değişiklikleriyle aynı diff-inceleme disiplinini gerektirir' },
+              { id: 'c', text: 'Claude Code salt-okunur modda test çalıştıramaz' },
+              { id: 'd', text: 'İzin modları sadece hızı etkiler, riski değil' },
+            ],
+            correct: 'b',
+            explanation: `Hız ve etki alanı ayrı eksenlerdir. Başkalarının güvendiği bir branch'te daha hızlı, yazma yapabilen bir ajan gerçek bir risk taşır (başkalarının üzerine inşa ettiği bir yere incelenmemiş bir değişiklik gitmesi); daha dar mod, senin incelemen olmadan hiçbir şeyin olmayacağı garantisi için biraz hızdan ödün verir.`,
+            retryQuestion: {
+              question: `Main branch'inde, otomatik-onay-tümü izinleri açıkken Claude Code'a "bütün testleri düzelt" diyorsun. Düzeltmeler doğru çıksa bile bu talimatın en olası sorunu nedir?`,
+              options: [
+                { id: 'a', text: 'Hiçbir şey — daha geniş bir talimat sadece daha fazlasının daha hızlı düzeltilmesi demektir' },
+                { id: 'b', text: 'Kapsam sınırsız, bu yüzden ajan senin incelemen olmadan sayısız ilgisiz dosyayı değiştirebilir — talimat belirli bir dosyaya veya teste kapsamlanmalı ve uygulamadan önce düzeltmeyi göstermesi istenmeli' },
+                { id: 'c', text: 'Claude Code birden fazla dosyayı kapsayan talimatları işleyemez' },
+                { id: 'd', text: 'Bu sadece testler zaten geçiyorsa bir sorundur' },
+              ],
+              correct: 'b',
+              explanation: `Sınırsız bir talimat, otomatik-onay-tümü izinleriyle birleşince hem kapsamı HEM incelemeyi ortadan kaldırır — özerk bir ajanın etki alanını sınırlayan tam olarak iki güvenlik önlemi. Nihai düzeltmelerin doğruluğu, eksik güvenlik önlemlerini geriye dönük olarak güvenli hale getirmez.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔗 MCP (Model Context Protocol)`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔌',
+            content: `MCP, bir hastanenin standartlaştırılmış ekipman portuna benzer — mekanizma birebirdir: standart bir port var olmadan önce, her cihaz (bir infüzyon pompası, bir monitör) her spesifik hastane yatağı için özel yapılmış kendi konektörüne ihtiyaç duyardı; MCP, herhangi bir aracın (bir tarayıcı sürücüsü, bir veritabanı okuyucusu, bir bilet sistemi) takılabileceği TEK bir standart arayüz tanımlar ve protokolü konuşan herhangi bir AI ajanı, araç başına özel bir entegrasyon olmadan onu kullanabilir. Üzerinde durulmaya değer soru şu: Claude zaten senin çalıştırman için Selenium kodu üreterek "web'de gezinebiliyorsa", bir tarayıcıyı doğrudan kontrol etmesi için AYRI bir protokole neden ihtiyacımız var? Çünkü senin çalıştırdığın kod üretmek ile bir ajanın standart bir araç arayüzü üzerinden canlı bir tarayıcıyı doğrudan sürmesi farklı yetenek sınıflarıdır — birincisi hâlâ senin çalıştırıp sonuçları elle bildirmeni gerektirir; MCP, ajanın gerçek DOM'u veya sorgu sonucunu görmesine ve bir sonraki eylemine aynı döngüde karar vermesine izin verir, sen mesajcı olmadan. Java karşılaştırması: bu, JDBC'nin her satıcı için özel bir sürücü yazmak yerine "herhangi bir Java programı herhangi bir veritabanıyla konuşabilir" diye standartlaştırmasıyla aynı sıçramadır — MCP, "herhangi bir AI ajanı herhangi bir dış araçla konuşabilir" diye standartlaştırır ve bir tarayıcı veya veritabanı sadece başka bir JDBC-şekilli konektöre dönüşür. QA tarafındaki bedel: test veritabanını doğrudan sorgulayabilen MCP bağlantılı bir ajan, seed edilen veriyi doğrulamak için güçlüdür, ama yanlış yapılandırılırsa aynı bağlantı gerçek yazma erişimine sahip gerçek bir kimlik bilgisidir — izin sınırı, bir önceki sekmede Claude Code CLI için olduğu kadar önemlidir, sadece yerel dosya sistemin yerine dış sistemlere genişletilmiştir.`,
+          },
+          { type: 'heading', text: `Gerçek Tarayıcı Kontrolü vs Üretilen Kod` },
+          {
+            type: 'text',
+            content: `MCP olmadan, Claude'dan tarayıcı otomasyonu istemek sana SENİN çalıştırıp sonuçlarını bildirmen gereken Selenium/Playwright KODU verir. Playwright-MCP tarzı bir bağlantıyla Claude gerçek bir tarayıcı oturumunu doğrudan sürebilir — gezinebilir, tıklayabilir, ortaya çıkan DOM'u okuyabilir — ve bir sonraki adımına aynı konuşmada karar verebilir, daha önce seni manuel bir aktarıcı olarak gerektiren döngüyü kapatarak.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: bir QA mühendisi neden sadece bir script ürettirmek yerine bir ajanın GERÇEK bir tarayıcıyı kontrol etmesini istesin? Çünkü bazı görevler betiklenmiş değil, keşifseldir — "giriş yap ve neyin bozulduğunu söyle" görevinin çalıştırılacak önceden yazılmış bir testi yoktur; canlı-tarayıcı-bağlantılı bir ajan, elle test eden birinin yaptığı gibi doğaçlama yapabilirken, üretilen bir script sadece önceden yazılanı olduğu gibi çalıştırabilir.`,
+          },
+          { type: 'heading', text: `Test Verisi Doğrulama için Veritabanı MCP` },
+          {
+            type: 'text',
+            content: `Veritabanı bağlantılı bir MCP server, Claude'un seed edilen veriyi doğrulamak veya bir bug'ın gerçek durumunu teyit etmek için doğrudan bir test veritabanını sorgulamasına izin verir, sen sorgu sonuçlarını ileri geri kopyala-yapıştır yapmak yerine. Claude Code'la aynı önce-salt-okunur disiplini geçerlidir: salt-okunur bir DB bağlantısı yapısı gereği güvenlidir, yazma yapabilen bir tanesi ise yazma yapabilen bir CLI izin moduyla aynı inceleme disiplinini gerektirir.`,
+          },
+          {
+            type: 'table',
+            headers: ['MCP Bağlantısı', 'Neyi Mümkün Kılar', 'Belirlenecek İzin Sınırı'],
+            rows: [
+              ['Tarayıcı (Playwright tarzı)', 'Ajan, sonuçları sen aktarmadan doğrudan canlı bir sayfada gezinir, tıklar ve okur', 'Hangi ortamı açabileceği — varsayılan olarak asla production\'a yönlendirme'],
+              ['Veritabanı', 'Ajan, seed\'i doğrulamak veya bir bug\'ı tekrar üretmek için test verisini doğrudan sorgular', 'Varsayılan olarak salt-okunur; yazma erişimi yazma yapabilen bir CLI izniyle aynı şekilde incelenir'],
+              ['(herhangi bir üçüncü parti araç server\'ı)', 'Ajan, o aracın eylemlerini kendi akıl yürütme döngüsünün parçası olarak çağırır', 'Kimlik bilgilerini görevin gerçekten ihtiyaç duyduğu en dar araç/eyleme kapsamla'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'bash',
+            code: {
+              tr: `# Örnek: bir tarayıcı MCP server'ını projeye ekle (isim/sürüm kavramsaldır)
+claude mcp add playwright-browser
+
+# Örnek: salt-okunur bir veritabanı MCP server'ı ekle
+claude mcp add test-database --read-only`,
+              en: `# Example: add a browser MCP server to the project (name/version is conceptual)
+claude mcp add playwright-browser
+
+# Example: add a read-only database MCP server
+claude mcp add test-database --read-only`,
+            },
+          },
+          mcpFlowAnimation,
+          mcpFlowOrder,
+          mcpScopedTaskPlayground,
+          {
+            type: 'quiz',
+            question: `"Claude senin çalıştırman için Playwright kodu üretiyor" ile "Claude bir MCP bağlantısı üzerinden bir tarayıcıyı sürüyor" arasındaki temel yetenek farkı nedir?`,
+            options: [
+              { id: 'a', text: 'Gerçek bir fark yok — iki yaklaşım da aynı test kapsamını üretir' },
+              { id: 'b', text: 'MCP ile ajan, gerçek DOM\'u/yanıtı görür ve döngüyü kapatarak bir sonraki eylemine doğrudan karar verir; üretilen kodla sen, çalıştıran ve sonuçları geri bildiren manuel aktarıcı olarak kalırsın' },
+              { id: 'c', text: 'MCP sadece veritabanı erişimi için kullanışlıdır, tarayıcılar için asla' },
+              { id: 'd', text: 'Üretilen kod her zaman canlı bir MCP bağlantısından daha güvenilirdir' },
+            ],
+            correct: 'b',
+            explanation: `Kendi çalıştırman gereken kod üretmek, ajan ile gerçek sistem arasında mesajcı olarak bir insanı döngüde tutar. Bir MCP bağlantısı bu sıçramayı kaldırır — ajan gerçek sonuçları algılar ve doğrudan onlara göre hareket eder, ki bu da keşifsel, betiklenmemiş görevleri mümkün kılan şeydir.`,
+            retryQuestion: {
+              question: `Bir ekip arkadaşın, "ayrı bir test instance'ı kurmaktan tasarruf etmek için" tam yazma erişimli bir veritabanı MCP bağlantısını yapılandırıp production raporlaması için kullanılan aynı veritabanına yönlendiriyor. Buradaki risk nedir?`,
+              options: [
+                { id: 'a', text: 'Hiçbiri — MCP bağlantıları kapsamdan bağımsız olarak doğası gereği güvenlidir' },
+                { id: 'b', text: 'Production\'a yakın bir veritabanına yazma erişimi olan bir ajan, kendi akıl yürütme döngüsünün parçası olarak gerçek veriyi değiştirebilir — incelenmemiş bir CLI yazma izniyle aynı etki-alanı endişesi, sadece canlı bir veritabanına genişletilmiş' },
+                { id: 'c', text: 'Bu sadece ajan bir hata yaparsa bir sorundur' },
+                { id: 'd', text: 'Veritabanı MCP bağlantıları tasarım gereği yazma erişimine sahip olamaz' },
+              ],
+              correct: 'b',
+              explanation: `Buradaki güvenlik önlemi doğruluk değil, kapsamdır. Production raporlaması için kullanılan bir sisteme yazma erişimi olan bir ajan, aldığı herhangi bir eylemin "hata" olup olmadığından bağımsız olarak, görevini sürdürmenin bir yan etkisi olarak gerçek veriyi değiştirebilir. Düzeltme, Claude Code'daki ile aynıdır: görevin gerçekten ihtiyaç duyduğu en dar izni ve ortamı ver.`,
             },
           },
         ],
