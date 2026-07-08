@@ -724,6 +724,7 @@ function HomePage() {
                                         {language === 'tr' ? 'YENİ' : 'NEW'}
                                     </span>
                                 </span>
+                                <Link to="/llm-agents" data-testid="nav-llm-agents" className={nb('violet')}>🧠 LLM & Agents</Link>
                                 {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>}
                                 <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
                             </div>
