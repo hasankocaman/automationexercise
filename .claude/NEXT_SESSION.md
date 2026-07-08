@@ -10,7 +10,180 @@
 
 ---
 
-## /llm-agents — LC5 TAMAMLANDI: Üretimde AI (Maliyet/Evals/Güvenlik) + Riskler & Yaygın Hatalar (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+## /claude-ai + /llm-agents — Docker UI Rollout Paritesi + Anasayfa Claude İkonu (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> Kullanıcı fark etti: LC1-6 boyunca `/claude-ai` ve `/llm-agents` hâlâ eski
+> düz gradient hero'yu kullanıyordu — Docker'dan başlayıp Selenium/Playwright/
+> Cypress/Python/Git'e yayılan görsel efekt paketi (bkz. `project_docker_effects_pattern.md`
+> hafıza kaydı) bu ikisine hiç uygulanmamıştı. Kullanıcıya kapsam soruldu
+> ("tam paket" mi "sadece arkaplan" mı), **"Tam paket"** seçildi.
+
+### Yapılan iş
+
+1. **Araştırma:** Bir subagent Docker/Git referans implementasyonunu inceledi
+   (`DockerPage.jsx`, `GitGithubPage.jsx`, `git-effects.css`, `night-sky-effects.css`)
+   — desen: `.{prefix}-page` wrapper + `{prefix}-effects.css` + ortak
+   `night-sky-effects.css` (gece gökyüzü, ay, kayan yıldız — jenerik
+   `[class$="-page"]` seçicilerle otomatik çalışır) + özel interaktif
+   "hero banner" (pipeline + stats + console simülatörü) + ~300 satırlık
+   `useEffect` animasyon rig'i (parçacıklar, scroll-reveal, 3D tilt, glitch h1,
+   manyetik butonlar, squash/ripple, ocean progress ring) + ambient
+   yağmur/gökgürültü sesi (`lib/ambientSound.js`, TÜM rollout sayfalarında
+   aynı — sayfanın kendi light-mode temasından bağımsız, jenerik paylaşılan
+   özellik).
+2. **`src/claude-ai-effects.css`** (yeni) — terrakota turuncu (`#d97a4d`) +
+   çamgöbeği (`#4a8c94`) karşıtlığı. Light-mode'a özel efekt: 10s döngülü
+   diyagonal "ışık taraması" (spotlight sweep) — sayfanın "AI çıktısını
+   doğrula" temasıyla örtüşüyor.
+3. **`src/llm-agents-effects.css`** (yeni) — menekşe (`#8b5cf6`) + sıcak altın
+   (`#d4a24c`) karşıtlığı — jenerik "AI moru" klişesinden kaçınmak için tek
+   başına mor değil, altın vurgu rengiyle eşleştirildi (bkz.
+   `feedback_docker_effects_rollout.md`). Light-mode'a özel efekt: 10s döngülü
+   merkezden genişleyen "sinyal nabzı" (radar/token-tahmin metaforu).
+4. **`ClaudeAiPage.jsx`** yeniden yazıldı: `claude-ai-page` wrapper,
+   `ClaudeAiStatsBanner` (sol: "Prompt Anatomisi" pipeline — Rol/Bağlam/Görev/
+   Çıktı Formatı/Doğrula, 3D tilt; sağ: 4 istatistik — 4 Prompt Bileşeni/
+   5 Kariyer Seviyesi/3 Erişim Yöntemi/50+ Mülakat Sorusu — hepsi sayfa
+   içeriğinden türetildi, güncelliğini kaybetmeyecek), altında
+   `ClaudeConsoleSimulator` (deterministik anahtar-kelime tabanlı "prompt güç
+   ölçer" — gerçek API çağrısı YOK, mevcut Prompt Lab'ın tekrarı değil, ayrı
+   bir dekoratif teaser). Tam `useEffect` rig + ambient ses.
+5. **`LlmAgentsPage.jsx`** yeniden yazıldı: `llm-agents-page` wrapper,
+   `LlmAgentsStatsBanner` (sol: "Agent Döngüsü" pipeline — Algıla/Düşün/Eyle/
+   Gözle, sayfada öğretilen döngüyle birebir; sağ: 4 istatistik — 4 Eğitim
+   Seviyesi/4 Döngü Adımı/8 Risk Senaryosu/100% Simüle Edilmiş), altında
+   `LlmAgentConsoleSimulator` (deterministik "agent döngüsü" simülatörü —
+   "flaky/test/bug" anahtar kelimesi varsa `report_flaky_test()` aracını
+   çağırıyormuş gibi 4 adım gösterir, yoksa doğrudan cevap adımları — sayfanın
+   gerçek flaky-test-agent örneğine doğrudan referans). Tam `useEffect` rig +
+   ambient ses.
+6. **`HomePage.jsx`:** Claude AI butonuna satır içi SVG "Claude simgesi"
+   eklendi (8 köşeli sunburst/asterisk, `fill="currentColor"` — dış görsel
+   dosyası yok, LinkedIn ikonundaki inline-SVG deseniyle aynı yöntem);
+   `🤖` emoji'si kaldırıldı, buton `inline-flex items-center gap-1.5` oldu.
+
+### Doğrulama
+
+- `npm run build` → ✅ PASS (2 kere, hem başlangıç hem final değişikliklerden sonra)
+- `npx playwright test tests/token-lab.spec.ts tests/claude-prompt-lab.spec.ts` → ✅ 4/4 PASS (regresyon yok)
+- `npx playwright test tests/topic-pages-ui.spec.ts -g "claude-ai|llm-agents"` → ✅ 2/2 PASS
+- `npx playwright test tests/i18n-content-toggle.spec.ts -g "claude-ai|llm-agents"` → ✅ 2/2 PASS (EN modda TR karakter sızıntısı yok)
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- **Görsel doğrulama (yaz-koş-sil Playwright screenshot):** her iki sayfa hem
+  dark hem light modda tam sayfa ekran görüntüsüyle incelendi — ay/kayan
+  yıldız (dark), ışık taraması/sinyal nabzı (light), pipeline 3D tilt, stats
+  counter, console/meter kutuları, manyetik buton alanı hepsi doğru
+  render oluyor; console'da JS hatası yok. Ocean-progress çemberinin sağ-alt
+  köşede mevcut `HomeButton` ile kısmi üst üste binmesi TÜM rollout
+  sayfalarında (Docker/Git dahil) zaten var olan, bilinçli/pre-existing bir
+  durum — yeni bir sorun değil.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu değişiklikler commit edilmedi** — LC6 (mülakat sekmesi + audit + test
+   route + claude-ai callout) İLE BİRLİKTE hâlâ bekliyor, kullanıcı onayı
+   gerekiyor. Değişen/yeni dosyalar: `src/claude-ai-effects.css` (yeni),
+   `src/llm-agents-effects.css` (yeni), `src/components/ClaudeAiPage.jsx`,
+   `src/components/LlmAgentsPage.jsx`, `src/components/HomePage.jsx` (+ LC6'nın
+   `src/data/*.js`, `scripts/audit-interview-questions.mjs`, `tests/*.spec.ts`
+   değişiklikleri).
+2. Kullanıcı bu UI paritesini ayrı bir commit olarak mı yoksa LC6 ile birlikte
+   tek commit olarak mı istediğini henüz belirtmedi — commit sırasında sor.
+
+---
+
+## /llm-agents — LC6 TAMAMLANDI (SON PAKET): Mülakat (51 soru) + Denetim/Test Entegrasyonu + Anasayfa Butonu (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> LC5 `5a349be` ile commit edildi. Bu oturumda kullanıcı önce "anasayfada
+> buton yok" tespitini yaptı (LC1-5 boyunca unutulmuş bir adımdı — plan
+> LC6'ya bırakmıştı ama sayfa 5 pakettir yayında değildi), bu yüzden akış:
+> (1) anasayfa butonu ayrı commit `f6e0d72`, (2) LC5 içerik commit `5a349be`,
+> (3) LC6 promptu tam uygulandı. LC6, planın SON paketiydi — sayfa artık
+> "main'e merge'e hazır" durumda.
+
+### Yapılan iş — LC6 (SONNET, 5 parça)
+
+1. **Anasayfa butonu** (ayrı commit `f6e0d72`, LC6 promptunun 4. maddesi
+   önceden yapıldı): `HomePage.jsx` "Test Otomasyon" kategorisinde, Claude AI
+   butonunun hemen ardına `🧠 LLM & Agents` (`nb('violet')`,
+   `data-testid="nav-llm-agents"`) eklendi — rozet YOK (Claude AI'nın "YENİ"
+   rozeti enflasyon yaratmaması için, plandaki karar).
+2. **Sekme 13 💼 Mülakat Soruları & Cevapları:** `llmAgentsData.js`'e EN+TR
+   simetrik eklendi — **51 soru** (15 basic / 21 intermediate / 15 advanced,
+   §10 minimumlarının hepsi karşılandı), senaryo tabanlı, `relatedTopicId:
+   'llm-agents-interview-questions'`, her cevap 3-6 cümle + Java karşılaştırması.
+   Konular 12 sekmenin TAMAMINDAN dağıtıldı (token/tahmin, temperature,
+   pretraining/cutoff, RAG vs fine-tune, RLHF, context window/halüsinasyon,
+   agent döngüsü, function calling güvenliği, OpenAI API stateless mekanizması,
+   whitelist/en-dar-yetki, 4 seviyeli eğitim çerçevesi, token maliyeti, evals,
+   rate-limit, prompt injection savunması, 8 senaryolu error-dictionary'nin
+   konuları). Advanced katman mimari/CI-CD odaklı (katmanlı güvenlik tasarımı,
+   eval pipeline, LLM-as-judge doğrulama, context-window mimarisi, prompt
+   versiyonlama). Sayfa artık **13 sekme, 13 section** (EN+TR simetrik).
+3. **`scripts/audit-interview-questions.mjs`:** PAGES listesine
+   `{ route: '/llm-agents', file: 'llmAgentsData.js', exportName: 'llmAgentsData' }`
+   eklendi — `npm run audit:interview-questions` çıktısında `/llm-agents ✅ OK`.
+4. **Test route listeleri:** `tests/topic-pages-ui.spec.ts` ve
+   `tests/i18n-content-toggle.spec.ts`'deki route dizilerine `/llm-agents`
+   eklendi (artık §22.1 istisna listesinde DEĞİL, tam kapsamda).
+5. **`claudeAiData.js` Giriş sekmesine tek callout:** yeni `llmAgentsCrossCallout`
+   const'ı (🧠 ikon) hem EN hem TR Giriş sekmesinde `qaAssistantCallout`'un
+   hemen ardına eklendi — "/llm-agents sayfasına bak" yönlendirmesi.
+   `claudeAiData.js`'e başka HİÇBİR dokunuş yapılmadı.
+
+### Yazım sırasında bulunan ve düzeltilen sorunlar
+
+**6 nested-backtick syntax hatası (TR mülakat cevapları):** TR cevap
+metinlerinde inline kod referansları (`` `messages` ``, `` `report_flaky_test` ``,
+`` `tool_calls` ``, `` `delete_all_reports` ``, `` `temperature=0` ``,
+`` `MAX_STEPS = 10` ``) template-literal (backtick) ile sarılmış bir string
+İÇİNDE yine backtick kullanılınca string'i erken kapattı — hepsi düz çift
+tırnağa (`"messages"` vb.) çevrilerek düzeltildi, `node --check` ile tek tek
+doğrulandı. **Advanced kategori 14/15 minimumun altında kaldı** — bir soru
+daha eklenerek (prompt versiyonlama/eval pipeline ilişkisi) 15'e tamamlandı,
+toplam 50'den 51'e çıktı.
+
+### Doğrulama (CLAUDE.md §1.1 + LC6 promptunun a-h bitirme kriteri — hepsi PASS)
+
+- a) `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- b) `npm run audit:interview-questions` → ✅ `/llm-agents` OK (51 soru, 15/21/15)
+- c) `npm run build` → ✅ PASS (45sn, 40 static route, dist SEO PASS)
+- d) `npx playwright test tests/topic-pages-ui.spec.ts -g llm-agents` → ✅ 1/1 PASS
+- e) `npx playwright test tests/i18n-content-toggle.spec.ts -g llm-agents` → ✅ 1/1 PASS
+  (EN modda Türkçeye özgü karakter sızıntısı yok)
+- f) `npx playwright test tests/token-lab.spec.ts` → ✅ 2/2 PASS (regresyon yok)
+- g) `npx playwright test tests/claude-prompt-lab.spec.ts` → ✅ 2/2 PASS
+  (claudeAiData.js callout dokunuşunun regresyonu yok)
+- h) Mülakat gating spot-check (yaz-koş-sil, §22 kontrol 2): quiz %0 iken
+  `/llm-agents` Mülakat sekmesi 🔒 kilitli mesajı gösteriyor (`isDedicatedInterviewTab`
+  💼 emoji konvansiyonu doğru eşleşti) → ✅ PASS, geçici test dosyası silindi.
+- Ayrıca: `node --check` (tüm dosya, EN+TR ekleme sonrası ayrı ayrı), yapısal
+  script (13/13 sekme-section EN/TR simetrik, 51/51 soru EN/TR).
+- TR mülakat cevapları (51 adet) tek tek yazım sırasında okunarak oluşturuldu;
+  teknik terimler İngilizce kalmış, Java karşılaştırması her cevapta mevcut.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun LC6 işi commit edilmedi** — kullanıcı onayı bekliyor.
+   Değişen dosyalar: `src/data/llmAgentsData.js`, `src/data/claudeAiData.js`,
+   `scripts/audit-interview-questions.mjs`, `tests/topic-pages-ui.spec.ts`,
+   `tests/i18n-content-toggle.spec.ts` (+ bu `.claude/NEXT_SESSION.md`
+   güncellemesi). `feature/llm-agents-page` branch'inde LC5 (`5a349be`) üzerine
+   altıncı commit olarak eklenmesi planlanıyor.
+2. **Plan tamamlandı — LC1-LC6 hepsi bitti.** `/llm-agents` sayfası artık
+   "main'e merge'e hazır" durumda: 13 sekme, Token Lab, tam interaktif üçlü
+   (animasyon+drag-drop+practice) her atomik kod bloğunun ardında, 51 mülakat
+   sorusu, anasayfa butonu, denetim/test entegrasyonu tam.
+3. **İki branch de hâlâ main'e merge edilmedi** — merge sırası: önce
+   `feature/claude-ai-page` → main, sonra `feature/llm-agents-page` → main.
+   Merge/push kararı kullanıcının, otomatik yapılmayacak.
+4. Bilinçli kapsam dışı bırakılanlar (`llmcreate.md` "Kapsam Dışı" bölümü):
+   matematik derinliği, canlı API çağrıları, framework turu (LangChain vb.),
+   multimodal, vendor karşılaştırma tablosu.
+
+---
+
+## /llm-agents — LC5 TAMAMLANDI: Üretimde AI (Maliyet/Evals/Güvenlik) + Riskler & Yaygın Hatalar (2026-07-08, `feature/llm-agents-page` — commit `5a349be`)
 
 > LC4 `9f165ee` ile commit edildi (kullanıcı "LC4'ü commit et ve LC5'e devam et,
 > promptu uygula" dedi). Bu oturumda Sonnet, `llmcreate.md`'deki hazır LC5

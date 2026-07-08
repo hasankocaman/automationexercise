@@ -719,7 +719,21 @@ function HomePage() {
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
                                 <span className="relative inline-block">
-                                    <Link to="/claude-ai" data-testid="nav-claude-ai" className={nb('orange')}>🤖 Claude AI</Link>
+                                    <Link to="/claude-ai" data-testid="nav-claude-ai" className={`inline-flex items-center gap-1.5 ${nb('orange')}`}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" className="flex-shrink-0" aria-hidden="true">
+                                            <g>
+                                                <rect x="10.4" y="1" width="3.2" height="9.2" rx="1.6" />
+                                                <rect x="10.4" y="13.8" width="3.2" height="9.2" rx="1.6" />
+                                                <rect x="1" y="10.4" width="9.2" height="3.2" rx="1.6" />
+                                                <rect x="13.8" y="10.4" width="9.2" height="3.2" rx="1.6" />
+                                                <rect x="10.4" y="1" width="3.2" height="9.2" rx="1.6" transform="rotate(45 12 12)" />
+                                                <rect x="10.4" y="13.8" width="3.2" height="9.2" rx="1.6" transform="rotate(45 12 12)" />
+                                                <rect x="1" y="10.4" width="9.2" height="3.2" rx="1.6" transform="rotate(45 12 12)" />
+                                                <rect x="13.8" y="10.4" width="9.2" height="3.2" rx="1.6" transform="rotate(45 12 12)" />
+                                            </g>
+                                        </svg>
+                                        Claude AI
+                                    </Link>
                                     <span aria-hidden="true" className="absolute -top-2.5 -right-1.5 z-10 px-1.5 py-0.5 rounded-full text-[8px] font-black leading-none whitespace-nowrap pointer-events-none shadow-sm bg-rose-500 text-white">
                                         {language === 'tr' ? 'YENİ' : 'NEW'}
                                     </span>

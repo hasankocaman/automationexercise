@@ -1,0 +1,746 @@
+/* ═════════════════════════════════════════════════════════════════
+   LLM & Agents Page — Menekşe (Violet) + Sıcak Altın Karşıtlık
+   docker-effects.css / .../ git-effects.css / claude-ai-effects.css
+   referans alınarak üretildi (§9.2 rollout hedefi — Docker'dan başlayıp
+   diğer sayfalara yayılan görsel efekt paketi, bkz. NEXT_SESSION.md).
+   Tüm stiller .llm-agents-page wrapper'a scope'lu. Jenerik "AI mor"
+   klişesinden kaçınmak için menekşe, sıcak altın vurgu rengiyle
+   eşleştirildi (bkz. feedback_docker_effects_rollout.md).
+   Fare imleci değiştirilmez — tamamen tarayıcı varsayılanı.
+   ═════════════════════════════════════════════════════════════════ */
+
+/* ── 0. Palette CSS Variables ─────────────────────────────────── */
+.llm-agents-page {
+  --llm-bg-primary:    #180f28;
+  --llm-bg-secondary:  #221536;
+  --llm-bg-tertiary:   #2a1c42;
+  --llm-text-primary:  #f3edfb;
+  --llm-accent:        #8b5cf6;
+  --llm-accent-light:  #b794f6;
+  --llm-gold:          #d4a24c;
+  --llm-success:       #6fbf73;
+  --llm-warning:       #f0b84e;
+  --llm-error:         #e26a5c;
+  /* Light mode varsayılanı: hero banner panelleri açık pastel arka plan
+     üzerine oturur — metin/etiket renkleri burada KOYU tanımlanır. */
+  --llm-text-muted:    #4d3d63;
+  --llm-role-accent:   #6d28d9;
+  --llm-role-accent-2: #a06a1e;
+  --llm-role-muted:    #6b5f7d;
+  --llm-role-success:  #2f8f4e;
+  position: relative;
+}
+
+.dark-mode .llm-agents-page,
+[data-theme="dark"] .llm-agents-page {
+  --llm-text-muted:    #d5c5ea;
+  --llm-role-accent:   #b794f6;
+  --llm-role-accent-2: #e0b566;
+  --llm-role-muted:    #d5c5ea;
+  --llm-role-success:  #6fbf73;
+}
+
+/* ── 1. Ambient Arka Plan Işıması + Parallax ─────────────────── */
+.llm-agents-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(139, 92, 246, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(212, 162, 76, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(183, 148, 246, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(212, 162, 76, 0.06) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: llm-agents-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--llm-scroll-y, 0px));
+  will-change: transform;
+}
+
+@keyframes llm-agents-glow-pulse {
+  from { opacity: 0.55; }
+  to   { opacity: 1.0; }
+}
+
+/* ── 2. Yüzen Parçacıklar ─────────────────────────────────────── */
+.llm-agents-particle {
+  position: fixed;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: llm-agents-float var(--dur, 14s) var(--delay, 0s) infinite linear;
+}
+
+@keyframes llm-agents-float {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  8%   { opacity: 0.45; }
+  92%  { opacity: 0.45; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* ── 3. Scroll Reveal ─────────────────────────────────────────── */
+.llm-agents-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.llm-agents-reveal.llm-agents-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 4. Sekme Başlığı — Hareketli Gradient Metin ──────────────── */
+.llm-agents-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(
+    135deg,
+    var(--llm-accent),
+    var(--llm-accent-light),
+    var(--llm-gold),
+    var(--llm-accent)
+  );
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--llm-accent);
+  display: inline-block;
+  animation: llm-agents-gradient-shift 5s ease infinite;
+}
+
+@keyframes llm-agents-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 5. Ana İçerik Kartı — Menekşe/Altın Glassmorphism ────────── */
+.llm-agents-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(250, 248, 253, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(139, 92, 246, 0.16) !important;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.05),
+    0 0 0 3px rgba(212, 162, 76, 0.05),
+    0 24px 64px rgba(139, 92, 246, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-mode .llm-agents-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .llm-agents-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(24, 15, 40, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(139, 92, 246, 0.13) !important;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.04),
+    0 0 0 3px rgba(212, 162, 76, 0.04),
+    0 24px 64px rgba(139, 92, 246, 0.08),
+    inset 0 1px 0 rgba(212, 162, 76, 0.06) !important;
+}
+
+.llm-agents-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(139, 92, 246, 0.30) !important;
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.10),
+    0 0 0 3px rgba(212, 162, 76, 0.06),
+    0 24px 64px rgba(139, 92, 246, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+}
+
+/* ── 6. İçerik Blokları (llm-agents-block) — Menekşe Glow + 3D Tilt ── */
+.llm-agents-page .llm-agents-block {
+  border-color: rgba(139, 92, 246, 0.11) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+  transform-style: preserve-3d;
+}
+
+.llm-agents-page .llm-agents-block:hover {
+  border-color: rgba(212, 162, 76, 0.32) !important;
+  box-shadow:
+    0 4px 24px rgba(139, 92, 246, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── 7. Hero Glitch — Menekşe + Altın ──────────────────────────── */
+.llm-agents-glitch {
+  position: relative;
+}
+
+.llm-agents-glitch::before,
+.llm-agents-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.llm-agents-glitch::before {
+  color: rgba(139, 92, 246, 0.72);
+  animation: llm-agents-glitch-1 5s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  z-index: -1;
+}
+
+.llm-agents-glitch::after {
+  color: rgba(212, 162, 76, 0.60);
+  animation: llm-agents-glitch-2 5s infinite;
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  z-index: -2;
+}
+
+@keyframes llm-agents-glitch-1 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate(-3px,  1px); }
+  84%           { transform: translate( 2px, -2px); }
+  86%           { transform: translate(-1px,  2px); }
+  88%           { transform: translate(0, 0); }
+}
+
+@keyframes llm-agents-glitch-2 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate( 3px, -1px); }
+  84%           { transform: translate(-2px,  2px); }
+  86%           { transform: translate( 1px, -1px); }
+  88%           { transform: translate(0, 0); }
+}
+
+/* ── 8. Asimetrik Hero Banner Düzeni ─────────────────────────── */
+.llm-agents-hero-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 680px) {
+  .llm-agents-hero-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.llm-agents-hero-banner-container {
+  position: relative;
+}
+
+/* ── 9. Stats Panel (sağ bölme) ───────────────────────────────── */
+.llm-agents-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(212, 162, 76, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.16);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow:
+    0 0 0 1px rgba(212, 162, 76, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: llm-agents-stats-border-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes llm-agents-stats-border-pulse {
+  from {
+    border-color: rgba(139, 92, 246, 0.16);
+    box-shadow: 0 0 0 1px rgba(212, 162, 76, 0.05), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  to {
+    border-color: rgba(212, 162, 76, 0.28);
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.09), 0 0 14px rgba(212, 162, 76, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+}
+
+.llm-agents-stat-item {
+  text-align: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.llm-agents-stat-item.llm-agents-stat-pending {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.llm-agents-stat-item.llm-agents-stat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.llm-agents-stat-number-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.llm-agents-stat-num {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--llm-accent, #8b5cf6), var(--llm-gold, #d4a24c));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--llm-accent, #8b5cf6);
+  line-height: 1.1;
+}
+
+.llm-agents-stat-suffix {
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--llm-accent, #8b5cf6), var(--llm-gold, #d4a24c));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--llm-accent, #8b5cf6);
+}
+
+.llm-agents-stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--llm-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── 10. Agent Loop Pipeline Paneli (sol bölme) ────────────────── */
+.llm-agents-pipeline {
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(139, 92, 246, 0.04);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: visible;
+}
+
+.llm-agents-pipeline-title {
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--llm-text-muted);
+  margin-bottom: 0.65rem;
+  position: relative;
+  z-index: 20;
+}
+
+.llm-agents-stages {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  isolation: isolate;
+}
+
+.llm-agents-stage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: default;
+  user-select: none;
+  margin-bottom: -3px;
+  transform: translateY(0) translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease;
+  position: relative;
+  z-index: var(--stage-z, 1);
+  will-change: transform;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.llm-agents-stage-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.llm-agents-stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.llm-agents-stages:hover .llm-agents-stage:nth-child(1) { transform: translateY(-22px) translateZ(0); }
+.llm-agents-stages:hover .llm-agents-stage:nth-child(2) { transform: translateY( -8px) translateZ(0); }
+.llm-agents-stages:hover .llm-agents-stage:nth-child(3) { transform: translateY(  4px) translateZ(0); }
+.llm-agents-stages:hover .llm-agents-stage:nth-child(4) { transform: translateY( 14px) translateZ(0); }
+
+.llm-agents-stages:hover .llm-agents-stage {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* ── 11. Squash & Stretch Buton Animasyonu ────────────────────── */
+.llm-agents-page .llm-agents-magnetic-init {
+  position: relative;
+  overflow: hidden;
+}
+
+.llm-agents-squash {
+  animation: llm-agents-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important;
+  transform: none !important;
+}
+
+@keyframes llm-agents-squash-anim {
+  0%   { transform: scale(1.00, 1.00); }
+  22%  { transform: scaleX(1.16) scaleY(0.84); }
+  55%  { transform: scaleX(0.96) scaleY(1.05); }
+  80%  { transform: scaleX(1.01) scaleY(0.99); }
+  100% { transform: scale(1.00, 1.00); }
+}
+
+/* ── 12. Ripple ─────────────────────────────────────────────── */
+.llm-agents-ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0.30;
+  pointer-events: none;
+  animation: llm-agents-ripple-anim 0.55s ease-out forwards;
+}
+
+@keyframes llm-agents-ripple-anim {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* ── 13. Sıvı Dolgulu Butonlar (Fluid Hover - Menekşe/Altın) ───── */
+.llm-agents-page .llm-agents-magnetic-init {
+  z-index: 1;
+  overflow: hidden;
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.llm-agents-page .llm-agents-magnetic-init::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(183, 148, 246, 0.45);
+  border-radius: 38% 42% 40% 45%;
+  transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -2;
+  pointer-events: none;
+}
+.llm-agents-page .llm-agents-magnetic-init::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -48%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #4a3416, #7a561e, #d4a24c);
+  border-radius: 43% 39% 45% 40%;
+  transition: all 0.78s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -1;
+  pointer-events: none;
+}
+.llm-agents-page .llm-agents-magnetic-init:hover::before {
+  top: -40%;
+  transform: rotate(320deg);
+}
+.llm-agents-page .llm-agents-magnetic-init:hover::after {
+  top: -38%;
+  transform: rotate(360deg);
+}
+.llm-agents-page .llm-agents-magnetic-init:hover {
+  color: #fff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.45);
+}
+
+/* ── 14. Dalgalı İlerleme Göstergesi ──────────────────────────── */
+.llm-agents-wave-progress {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--llm-bg-secondary, #221536);
+  border: 2px solid rgba(139, 92, 246, 0.30);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.llm-agents-wave-progress:hover {
+  transform: scale(1.1);
+  border-color: var(--llm-gold, #d4a24c);
+}
+.llm-agents-wave-water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--scroll-percent, 0%);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.65), rgba(24, 15, 40, 0.95));
+  transition: height 0.15s ease-out;
+}
+.llm-agents-wave-water::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -50%;
+  width: 200%;
+  height: 12px;
+  background: var(--llm-gold, #d4a24c);
+  border-radius: 40%;
+  animation: llm-agents-wave-flow 2.2s infinite linear;
+}
+@keyframes llm-agents-wave-flow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.llm-agents-wave-percent {
+  position: relative;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--llm-text-primary, #f3edfb);
+  z-index: 10;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ── 15. 3D Agent Loop Pipeline (Interactive) ─────────────────── */
+.llm-agents-pipeline-interactive {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+.llm-agents-stages-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.llm-agents-stages-3d:hover .llm-agents-stage {
+  transform: translateY(var(--ty, 0px)) translateZ(calc(var(--stage-z) * 12px)) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--llm-gold, #d4a24c) !important;
+}
+.llm-agents-stage {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* ── 16. Agent Konsolu & Döngü İzleyici Simülatörü ─────────────── */
+.llm-agents-console-box {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 14px;
+  background: rgba(42, 28, 66, 0.35);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  backdrop-filter: blur(12px);
+  margin-top: 0.6rem;
+  transform-style: preserve-3d;
+}
+@media (max-width: 680px) {
+  .llm-agents-console-box {
+    grid-template-columns: 1fr;
+    grid-column: span 1;
+  }
+}
+.llm-agents-console {
+  background: #100a1c;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+}
+.llm-agents-console-header {
+  font-size: 0.6rem;
+  color: #b3a2c9;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.14);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.llm-agents-console-body {
+  font-size: 0.72rem;
+  color: #b794f6;
+  line-height: 1.4;
+  flex-grow: 1;
+  white-space: pre-wrap;
+}
+.llm-agents-console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.llm-agents-console-prompt {
+  color: var(--llm-gold, #d4a24c);
+  font-weight: bold;
+}
+.llm-agents-console-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.72rem;
+  width: 100%;
+}
+
+/* Döngü izleme paneli */
+.llm-agents-loop-log {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  background: rgba(16, 10, 28, 0.4);
+  border-radius: 8px;
+  border: 1px dashed rgba(212, 162, 76, 0.2);
+  min-height: 150px;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+.llm-agents-loop-empty {
+  font-size: 0.62rem;
+  color: var(--llm-text-muted);
+  opacity: 0.6;
+  font-style: italic;
+}
+.llm-agents-loop-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--llm-text-muted);
+  animation: llm-agents-loop-appear 0.35s ease;
+}
+@keyframes llm-agents-loop-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.llm-agents-loop-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--llm-accent, #8b5cf6);
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.llm-agents-loop-row.acted .llm-agents-loop-dot {
+  background: var(--llm-success, #6fbf73);
+  box-shadow: 0 0 6px rgba(111, 191, 115, 0.5);
+}
+.llm-agents-loop-msg {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--llm-text-primary, #f3edfb);
+}
+.llm-agents-loop-badge {
+  font-size: 0.5rem;
+  opacity: 0.7;
+}
+
+/* ── 17. Light Mode Sinyal Nabzı (LLM & Agents'a Özel) ─────────── */
+.llm-agents-page .min-h-screen:not(.dark-mode) {
+  animation: llm-agents-pulse-flash 10s infinite ease-in-out;
+  transition: filter 0.15s ease;
+}
+
+@keyframes llm-agents-pulse-flash {
+  0%, 92%, 94.5%, 96%, 100% {
+    filter: brightness(1) contrast(1);
+  }
+  93% {
+    filter: brightness(1.18) contrast(1.05) saturate(1.1);
+  }
+  94% {
+    filter: brightness(1.06);
+  }
+  95% {
+    filter: brightness(1.22) contrast(1.08) saturate(1.14);
+  }
+}
+
+.llm-agents-page .min-h-screen:not(.dark-mode)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.16) 0%, transparent 2%),
+    radial-gradient(circle at 50% 50%, rgba(212, 162, 76, 0.12) 0%, transparent 2%);
+  background-size: 100% 100%, 100% 100%;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 999;
+  animation: llm-agents-pulse-rings 10s infinite ease-in-out;
+}
+
+@keyframes llm-agents-pulse-rings {
+  0%, 88% {
+    background-image:
+      radial-gradient(circle at 50% 45%, rgba(139, 92, 246, 0.18) 0%, transparent 1%),
+      radial-gradient(circle at 50% 45%, rgba(212, 162, 76, 0.14) 0%, transparent 1%);
+  }
+  96% {
+    background-image:
+      radial-gradient(circle at 50% 45%, rgba(139, 92, 246, 0.10) 0%, transparent 65%),
+      radial-gradient(circle at 50% 45%, rgba(212, 162, 76, 0.08) 0%, transparent 80%);
+  }
+  100% {
+    background-image:
+      radial-gradient(circle at 50% 45%, rgba(139, 92, 246, 0.10) 0%, transparent 65%),
+      radial-gradient(circle at 50% 45%, rgba(212, 162, 76, 0.08) 0%, transparent 80%);
+  }
+}
+
+/* ── 18. Reduced Motion — tüm animasyonları kapat ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .llm-agents-page::before                                    { animation: none; opacity: 0.7; transform: none !important; }
+  .llm-agents-particle                                         { animation: none; opacity: 0; }
+  .llm-agents-page .flex-1.min-w-0 > div:first-child > h2    { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  .llm-agents-reveal                                           { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .llm-agents-glitch::before, .llm-agents-glitch::after       { animation: none; }
+  .llm-agents-stat-item, .llm-agents-stat-item.llm-agents-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .llm-agents-stats-bar                                        { animation: none; }
+  .llm-agents-squash                                           { animation: none !important; }
+  .llm-agents-ripple-span                                      { display: none; }
+  .llm-agents-stages .llm-agents-stage                         { transition: none !important; }
+  .llm-agents-stages:hover .llm-agents-stage                   { transform: none !important; }
+  .llm-agents-wave-water::before                               { animation: none !important; }
+  .llm-agents-page .llm-agents-magnetic-init::after           { display: none !important; }
+  .llm-agents-page .llm-agents-magnetic-init::before          { display: none !important; }
+  .llm-agents-page .min-h-screen:not(.dark-mode)              { animation: none !important; }
+  .llm-agents-page .min-h-screen:not(.dark-mode)::before       { animation: none !important; display: none !important; }
+}

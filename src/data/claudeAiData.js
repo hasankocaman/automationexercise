@@ -138,6 +138,15 @@ const qaAssistantCallout = {
   },
 }
 
+const llmAgentsCrossCallout = {
+  type: 'callout',
+  icon: '🧠',
+  content: {
+    tr: 'Bu sayfa Claude\'u bir tester olarak nasıl kullanacağını öğretir. Motorun içini merak ediyorsan — bir LLM tam olarak nasıl çalışır, bir agent nasıl "eğitilir", OpenAI API ile kendi agent\'ını nasıl yazarsın — /llm-agents sayfasına bak.',
+    en: 'This page teaches you how to use Claude as a tester. If you are curious about what is under the hood — exactly how an LLM works, how an agent is "trained," how to write your own agent with the OpenAI API — check out the /llm-agents page.',
+  },
+}
+
 // ─── CS2 paylaşılan bloklar: Erişim & Kurulum ────────────────────────────────
 
 const claudeCliInstallStepAnimation = {
@@ -1028,6 +1037,7 @@ export const claudeAiData = {
           claudeDailyLoopAnimation,
           claudeWorkflowOrder,
           qaAssistantCallout,
+          llmAgentsCrossCallout,
           {
             type: 'quiz',
             question: `Claude confidently generates a Selenium test using driver.findElementByAI("login button") and the code looks clean. What should you do first?`,
@@ -2451,6 +2461,7 @@ git push origin claude-generated-fix
           claudeDailyLoopAnimation,
           claudeWorkflowOrder,
           qaAssistantCallout,
+          llmAgentsCrossCallout,
           {
             type: 'quiz',
             question: `Claude, driver.findElementByAI("login button") kullanan bir Selenium testi üretti ve kod tertemiz görünüyor. İlk yapman gereken nedir?`,

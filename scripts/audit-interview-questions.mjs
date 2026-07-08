@@ -32,6 +32,7 @@ const PAGES = [
     { route: '/linux', file: 'linuxData.js', exportName: 'linuxData' },
     { route: '/java', file: 'javaData.js', exportName: 'javaData' },
     { route: '/claude-ai', file: 'claudeAiData.js', exportName: 'claudeAiData' },
+    { route: '/llm-agents', file: 'llmAgentsData.js', exportName: 'llmAgentsData' },
 ];
 
 const MIN_TOTAL = 50;

@@ -1,0 +1,748 @@
+/* ═════════════════════════════════════════════════════════════════
+   Claude AI Page — Sıcak Terrakota Turuncu + Çamgöbeği Karşıtlık
+   docker-effects.css / selenium-effects.css / .../ git-effects.css
+   referans alınarak üretildi (§9.2 rollout hedefi — Docker'dan başlayıp
+   diğer sayfalara yayılan görsel efekt paketi, bkz. NEXT_SESSION.md).
+   Tüm stiller .claude-ai-page wrapper'a scope'lu.
+   Fare imleci değiştirilmez — tamamen tarayıcı varsayılanı.
+   ═════════════════════════════════════════════════════════════════ */
+
+/* ── 0. Palette CSS Variables ─────────────────────────────────── */
+.claude-ai-page {
+  --claude-bg-primary:    #1f140d;
+  --claude-bg-secondary:  #2a1c12;
+  --claude-bg-tertiary:   #33241a;
+  --claude-text-primary:  #fbf1e8;
+  --claude-accent:        #d97a4d;
+  --claude-accent-light:  #f0a575;
+  --claude-teal:          #4a8c94;
+  --claude-success:       #6fbf73;
+  --claude-warning:       #f0b84e;
+  --claude-error:         #e26a5c;
+  /* Light mode varsayılanı: hero banner panelleri açık pastel arka plan
+     üzerine oturur — metin/etiket renkleri burada KOYU tanımlanır. */
+  --claude-text-muted:    #5c4535;
+  --claude-role-accent:   #b2542f;
+  --claude-role-accent-2: #2e6b73;
+  --claude-role-muted:    #6b5847;
+  --claude-role-success:  #2f8f4e;
+  position: relative;
+}
+
+.dark-mode .claude-ai-page,
+[data-theme="dark"] .claude-ai-page {
+  --claude-text-muted:    #e2c9b4;
+  --claude-role-accent:   #f0a575;
+  --claude-role-accent-2: #7fc3cb;
+  --claude-role-muted:    #e2c9b4;
+  --claude-role-success:  #6fbf73;
+}
+
+/* ── 1. Ambient Arka Plan Işıması + Parallax ─────────────────── */
+.claude-ai-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(217, 122, 77, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(74, 140, 148, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(217, 122, 77, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(240, 165, 117, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(74, 140, 148, 0.06) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: claude-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--claude-scroll-y, 0px));
+  will-change: transform;
+}
+
+@keyframes claude-glow-pulse {
+  from { opacity: 0.55; }
+  to   { opacity: 1.0; }
+}
+
+/* ── 2. Yüzen Parçacıklar ─────────────────────────────────────── */
+.claude-ai-particle {
+  position: fixed;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: claude-ai-float var(--dur, 14s) var(--delay, 0s) infinite linear;
+}
+
+@keyframes claude-ai-float {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  8%   { opacity: 0.45; }
+  92%  { opacity: 0.45; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* ── 3. Scroll Reveal ─────────────────────────────────────────── */
+.claude-ai-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.claude-ai-reveal.claude-ai-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 4. Sekme Başlığı — Hareketli Gradient Metin ──────────────── */
+.claude-ai-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(
+    135deg,
+    var(--claude-accent),
+    var(--claude-accent-light),
+    var(--claude-teal),
+    var(--claude-accent)
+  );
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--claude-accent);
+  display: inline-block;
+  animation: claude-ai-gradient-shift 5s ease infinite;
+}
+
+@keyframes claude-ai-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 5. Ana İçerik Kartı — Terrakota/Çamgöbeği Glassmorphism ──── */
+.claude-ai-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(253, 249, 246, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(217, 122, 77, 0.16) !important;
+  box-shadow:
+    0 0 0 1px rgba(217, 122, 77, 0.05),
+    0 0 0 3px rgba(74, 140, 148, 0.05),
+    0 24px 64px rgba(217, 122, 77, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-mode .claude-ai-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .claude-ai-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(31, 20, 13, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(217, 122, 77, 0.13) !important;
+  box-shadow:
+    0 0 0 1px rgba(217, 122, 77, 0.04),
+    0 0 0 3px rgba(74, 140, 148, 0.04),
+    0 24px 64px rgba(217, 122, 77, 0.08),
+    inset 0 1px 0 rgba(74, 140, 148, 0.06) !important;
+}
+
+.claude-ai-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(217, 122, 77, 0.30) !important;
+  box-shadow:
+    0 0 0 1px rgba(217, 122, 77, 0.10),
+    0 0 0 3px rgba(74, 140, 148, 0.06),
+    0 24px 64px rgba(217, 122, 77, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+}
+
+/* ── 6. İçerik Blokları (claude-ai-block) — Terrakota Glow + 3D Tilt ── */
+.claude-ai-page .claude-ai-block {
+  border-color: rgba(217, 122, 77, 0.11) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+  transform-style: preserve-3d;
+}
+
+.claude-ai-page .claude-ai-block:hover {
+  border-color: rgba(74, 140, 148, 0.32) !important;
+  box-shadow:
+    0 4px 24px rgba(217, 122, 77, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── 7. Hero Glitch — Terrakota + Çamgöbeği ────────────────────── */
+.claude-ai-glitch {
+  position: relative;
+}
+
+.claude-ai-glitch::before,
+.claude-ai-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.claude-ai-glitch::before {
+  color: rgba(217, 122, 77, 0.72);
+  animation: claude-ai-glitch-1 5s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  z-index: -1;
+}
+
+.claude-ai-glitch::after {
+  color: rgba(74, 140, 148, 0.60);
+  animation: claude-ai-glitch-2 5s infinite;
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  z-index: -2;
+}
+
+@keyframes claude-ai-glitch-1 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate(-3px,  1px); }
+  84%           { transform: translate( 2px, -2px); }
+  86%           { transform: translate(-1px,  2px); }
+  88%           { transform: translate(0, 0); }
+}
+
+@keyframes claude-ai-glitch-2 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82%           { transform: translate( 3px, -1px); }
+  84%           { transform: translate(-2px,  2px); }
+  86%           { transform: translate( 1px, -1px); }
+  88%           { transform: translate(0, 0); }
+}
+
+/* ── 8. Asimetrik Hero Banner Düzeni ─────────────────────────── */
+.claude-ai-hero-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 680px) {
+  .claude-ai-hero-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.claude-ai-hero-banner-container {
+  position: relative;
+}
+
+/* ── 9. Stats Panel (sağ bölme) ───────────────────────────────── */
+.claude-ai-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(74, 140, 148, 0.05);
+  border: 1px solid rgba(217, 122, 77, 0.16);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow:
+    0 0 0 1px rgba(74, 140, 148, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: claude-ai-stats-border-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes claude-ai-stats-border-pulse {
+  from {
+    border-color: rgba(217, 122, 77, 0.16);
+    box-shadow: 0 0 0 1px rgba(74, 140, 148, 0.05), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  to {
+    border-color: rgba(74, 140, 148, 0.28);
+    box-shadow: 0 0 0 1px rgba(217, 122, 77, 0.09), 0 0 14px rgba(74, 140, 148, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+}
+
+.claude-ai-stat-item {
+  text-align: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.claude-ai-stat-item.claude-ai-stat-pending {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.claude-ai-stat-item.claude-ai-stat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.claude-ai-stat-number-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.claude-ai-stat-num {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--claude-accent, #d97a4d), var(--claude-teal, #4a8c94));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--claude-accent, #d97a4d);
+  line-height: 1.1;
+}
+
+.claude-ai-stat-suffix {
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--claude-accent, #d97a4d), var(--claude-teal, #4a8c94));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--claude-accent, #d97a4d);
+}
+
+.claude-ai-stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--claude-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── 10. Prompt Anatomy Pipeline Paneli (sol bölme) ────────────── */
+.claude-ai-pipeline {
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: rgba(217, 122, 77, 0.04);
+  border: 1px solid rgba(217, 122, 77, 0.15);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: visible;
+}
+
+.claude-ai-pipeline-title {
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--claude-text-muted);
+  margin-bottom: 0.65rem;
+  position: relative;
+  z-index: 20;
+}
+
+.claude-ai-stages {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  isolation: isolate;
+}
+
+.claude-ai-stage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: default;
+  user-select: none;
+  margin-bottom: -3px;
+  transform: translateY(0) translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease;
+  position: relative;
+  z-index: var(--stage-z, 1);
+  will-change: transform;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.claude-ai-stage-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.claude-ai-stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.claude-ai-stages:hover .claude-ai-stage:nth-child(1) { transform: translateY(-30px) translateZ(0); }
+.claude-ai-stages:hover .claude-ai-stage:nth-child(2) { transform: translateY(-18px) translateZ(0); }
+.claude-ai-stages:hover .claude-ai-stage:nth-child(3) { transform: translateY( -8px) translateZ(0); }
+.claude-ai-stages:hover .claude-ai-stage:nth-child(4) { transform: translateY(  2px) translateZ(0); }
+.claude-ai-stages:hover .claude-ai-stage:nth-child(5) { transform: translateY(  9px) translateZ(0); }
+
+.claude-ai-stages:hover .claude-ai-stage {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* ── 11. Squash & Stretch Buton Animasyonu ────────────────────── */
+.claude-ai-page .claude-ai-magnetic-init {
+  position: relative;
+  overflow: hidden;
+}
+
+.claude-ai-squash {
+  animation: claude-ai-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important;
+  transform: none !important;
+}
+
+@keyframes claude-ai-squash-anim {
+  0%   { transform: scale(1.00, 1.00); }
+  22%  { transform: scaleX(1.16) scaleY(0.84); }
+  55%  { transform: scaleX(0.96) scaleY(1.05); }
+  80%  { transform: scaleX(1.01) scaleY(0.99); }
+  100% { transform: scale(1.00, 1.00); }
+}
+
+/* ── 12. Ripple ─────────────────────────────────────────────── */
+.claude-ai-ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0.30;
+  pointer-events: none;
+  animation: claude-ai-ripple-anim 0.55s ease-out forwards;
+}
+
+@keyframes claude-ai-ripple-anim {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* ── 13. Sıvı Dolgulu Butonlar (Fluid Hover - Terrakota/Çamgöbeği) ── */
+.claude-ai-page .claude-ai-magnetic-init {
+  z-index: 1;
+  overflow: hidden;
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.claude-ai-page .claude-ai-magnetic-init::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(240, 165, 117, 0.45);
+  border-radius: 38% 42% 40% 45%;
+  transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -2;
+  pointer-events: none;
+}
+.claude-ai-page .claude-ai-magnetic-init::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -48%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #1f4a50, #2e6b73, #4a8c94);
+  border-radius: 43% 39% 45% 40%;
+  transition: all 0.78s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -1;
+  pointer-events: none;
+}
+.claude-ai-page .claude-ai-magnetic-init:hover::before {
+  top: -40%;
+  transform: rotate(320deg);
+}
+.claude-ai-page .claude-ai-magnetic-init:hover::after {
+  top: -38%;
+  transform: rotate(360deg);
+}
+.claude-ai-page .claude-ai-magnetic-init:hover {
+  color: #fff !important;
+  border-color: #d97a4d !important;
+  box-shadow: 0 0 14px rgba(217, 122, 77, 0.45);
+}
+
+/* ── 14. Dalgalı İlerleme Göstergesi ──────────────────────────── */
+.claude-ai-wave-progress {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--claude-bg-secondary, #2a1c12);
+  border: 2px solid rgba(217, 122, 77, 0.30);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.claude-ai-wave-progress:hover {
+  transform: scale(1.1);
+  border-color: var(--claude-teal, #4a8c94);
+}
+.claude-ai-wave-water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--scroll-percent, 0%);
+  background: linear-gradient(180deg, rgba(217, 122, 77, 0.65), rgba(31, 20, 13, 0.95));
+  transition: height 0.15s ease-out;
+}
+.claude-ai-wave-water::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -50%;
+  width: 200%;
+  height: 12px;
+  background: var(--claude-teal, #4a8c94);
+  border-radius: 40%;
+  animation: claude-ai-wave-flow 2.2s infinite linear;
+}
+@keyframes claude-ai-wave-flow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.claude-ai-wave-percent {
+  position: relative;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--claude-text-primary, #fbf1e8);
+  z-index: 10;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ── 15. 3D Prompt Pipeline (Interactive) ─────────────────────── */
+.claude-ai-pipeline-interactive {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+.claude-ai-stages-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.claude-ai-stages-3d:hover .claude-ai-stage {
+  transform: translateY(var(--ty, 0px)) translateZ(calc(var(--stage-z) * 12px)) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--claude-teal, #4a8c94) !important;
+}
+.claude-ai-stage {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* ── 16. Prompt Konsolu & Güç Ölçer Simülatörü ─────────────────── */
+.claude-ai-console-box {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 14px;
+  background: rgba(51, 36, 26, 0.35);
+  border: 1px solid rgba(217, 122, 77, 0.15);
+  backdrop-filter: blur(12px);
+  margin-top: 0.6rem;
+  transform-style: preserve-3d;
+}
+@media (max-width: 680px) {
+  .claude-ai-console-box {
+    grid-template-columns: 1fr;
+    grid-column: span 1;
+  }
+}
+.claude-ai-console {
+  background: #170f0a;
+  border: 1px solid rgba(217, 122, 77, 0.25);
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+}
+.claude-ai-console-header {
+  font-size: 0.6rem;
+  color: #c4a89f;
+  border-bottom: 1px solid rgba(217, 122, 77, 0.14);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.claude-ai-console-body {
+  font-size: 0.72rem;
+  color: #f0a575;
+  line-height: 1.4;
+  flex-grow: 1;
+  white-space: pre-wrap;
+}
+.claude-ai-console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.claude-ai-console-prompt {
+  color: var(--claude-teal, #4a8c94);
+  font-weight: bold;
+}
+.claude-ai-console-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.72rem;
+  width: 100%;
+}
+
+/* Güç ölçer paneli */
+.claude-ai-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  background: rgba(23, 15, 10, 0.4);
+  border-radius: 8px;
+  border: 1px dashed rgba(74, 140, 148, 0.2);
+  min-height: 150px;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+.claude-ai-meter-empty {
+  font-size: 0.62rem;
+  color: var(--claude-text-muted);
+  opacity: 0.6;
+  font-style: italic;
+}
+.claude-ai-meter-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(217, 122, 77, 0.12);
+  overflow: hidden;
+  margin: 0.2rem 0 0.4rem;
+}
+.claude-ai-meter-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--claude-error, #e26a5c), var(--claude-warning, #f0b84e), var(--claude-success, #6fbf73));
+  transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.claude-ai-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.62rem;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--claude-text-muted);
+  animation: claude-ai-meter-appear 0.35s ease;
+}
+@keyframes claude-ai-meter-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.claude-ai-meter-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--claude-error, #e26a5c);
+  box-shadow: 0 0 6px rgba(226, 106, 92, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.claude-ai-meter-row.claude-ai-meter-ok .claude-ai-meter-dot {
+  background: var(--claude-success, #6fbf73);
+  box-shadow: 0 0 6px rgba(111, 191, 115, 0.5);
+}
+.claude-ai-meter-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--claude-text-primary, #fbf1e8);
+}
+
+/* ── 17. Light Mode Işık Taraması (Claude AI'ya Özel) ──────────── */
+.claude-ai-page .min-h-screen:not(.dark-mode) {
+  animation: claude-ai-lightsweep-flash 10s infinite ease-in-out;
+  transition: filter 0.15s ease;
+}
+
+@keyframes claude-ai-lightsweep-flash {
+  0%, 92%, 94.5%, 96%, 100% {
+    filter: brightness(1) contrast(1);
+  }
+  93% {
+    filter: brightness(1.2) contrast(1.05) saturate(1.08);
+  }
+  94% {
+    filter: brightness(1.06);
+  }
+  95% {
+    filter: brightness(1.25) contrast(1.08) saturate(1.12);
+  }
+}
+
+.claude-ai-page .min-h-screen:not(.dark-mode)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 220, 180, 0.16) 48%,
+    rgba(255, 200, 150, 0.22) 50%,
+    rgba(255, 220, 180, 0.16) 52%,
+    transparent 60%
+  );
+  background-size: 300% 300%;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 999;
+  animation: claude-ai-lightsweep-move 10s infinite ease-in-out;
+}
+
+@keyframes claude-ai-lightsweep-move {
+  0%, 88% { background-position: 130% 0%; }
+  96%     { background-position: -30% 0%; }
+  100%    { background-position: -30% 0%; }
+}
+
+/* ── 18. Reduced Motion — tüm animasyonları kapat ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .claude-ai-page::before                                    { animation: none; opacity: 0.7; transform: none !important; }
+  .claude-ai-particle                                         { animation: none; opacity: 0; }
+  .claude-ai-page .flex-1.min-w-0 > div:first-child > h2    { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
+  .claude-ai-reveal                                           { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .claude-ai-glitch::before, .claude-ai-glitch::after        { animation: none; }
+  .claude-ai-stat-item, .claude-ai-stat-item.claude-ai-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .claude-ai-stats-bar                                        { animation: none; }
+  .claude-ai-squash                                           { animation: none !important; }
+  .claude-ai-ripple-span                                      { display: none; }
+  .claude-ai-stages .claude-ai-stage                          { transition: none !important; }
+  .claude-ai-stages:hover .claude-ai-stage                    { transform: none !important; }
+  .claude-ai-wave-water::before                               { animation: none !important; }
+  .claude-ai-page .claude-ai-magnetic-init::after            { display: none !important; }
+  .claude-ai-page .claude-ai-magnetic-init::before           { display: none !important; }
+  .claude-ai-page .min-h-screen:not(.dark-mode)              { animation: none !important; }
+  .claude-ai-page .min-h-screen:not(.dark-mode)::before       { animation: none !important; display: none !important; }
+}
