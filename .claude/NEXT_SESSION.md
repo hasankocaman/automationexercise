@@ -10,7 +10,91 @@
 
 ---
 
-## /llm-agents — LC3 TAMAMLANDI: Agent Nedir + Function Calling + OpenAI API (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+## /llm-agents — LC4 TAMAMLANDI: Kendi Test Agent'ını Yaz + Agent "Eğitilir mi"? (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> LC3 `d6084b4` ile commit edildi (kullanıcı "LC3'ü commit edip sıradaki
+> pakete LC4 geç, LC4 promptu uygula" dedi). Bu oturumda Sonnet,
+> `llmcreate.md`'deki hazır LC4 promptuyla sekme 8-9'u uyguladı. LC4, planın
+> içerik derinliği açısından en yoğun paketiydi — kullanıcının orijinal
+> sorusunun ("tester kendi başına OpenAI ile agent kullanabilir mi, eğitebilir
+> mi") TAM cevabı bu iki sekmede veriliyor.
+
+### Yapılan iş — LC4 (SONNET)
+
+`src/data/llmAgentsData.js`'e 2 yeni sekme eklendi (mevcut 8 sekmenin ARKASINA,
+EN+TR simetrik, `llmcreate.md` LC4 bölümündeki kapsam sınırlarına birebir uyularak):
+
+1. **🛠️ Kendi Test Agent'ını Yaz:** LEGO seti analojisiyle §9.3 simple-box
+   (Java switch+while ile durum makinesi karşılaştırması). Uçtan uca GERÇEK bir
+   örnek — "flaky test raporu agent'ı": test log'unu okuyan, function calling ile
+   OpenAI'a veren, model `report_flaky_test` aracını çağırmak isteyince script'in
+   GERÇEK Python fonksiyonunu çalıştırıp sonucu geri verdiği, final cevaba kadar
+   dönen bir döngü. **Kod TEK duvar olarak verilmedi** — 3 parçaya bölündü
+   (kurulum+log okuma / araç şeması+gerçek implementasyon+whitelist / agent
+   döngüsü), aralarına Function Calling sekmesine çapraz callout (whitelist
+   deseni tekrar kullanımı) yerleştirildi. Güvenlik sınırı: agent'a SADECE okuma
+   + tek bir dar araç çağırma yetkisi verildi, dosya silme YOK — bir ekip
+   arkadaşının "otomatik temizlik için delete_old_logs ekleyelim" önerisini
+   riski isimlendirip reddeden bir code-playground ile pekiştirildi (prompt
+   injection kavramına hafif bir önizleme, Riskler sekmesine bırakıldı).
+2. **🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune:** yeni çalışan analojisiyle
+   §9.3 simple-box (Java erken-soyutlama karşılaştırması). Kullanıcının sorusunun
+   TAM cevabı: 4 seviyeli çerçeve — Seviye 1 Prompt (ücretsiz/anında/%90),
+   Seviye 2 RAG (açık kitap sınavı, "eğitim" değil), Seviye 3 Fine-tuning
+   (OpenAI fine-tuning API'si, JSONL veri seti örneği, **"ne zaman GEREKMEZ"
+   listesi "ne zaman gerekir"den bilinçli olarak daha uzun**), Seviye 4 Sıfırdan
+   Eğitim (Pretraining sekmesine callout, "senin liginde değil"). **Zorunlu
+   karar tablosu** (senaryo → doğru seviye, 5 satır). Final quiz çifti kullanıcının
+   iki sorusunu doğrudan cevaplıyor: "OpenAI ile agent kullanabilir miyim?" → EVET
+   (sekme 7-8 bunu zaten yaptırdı); "eğitebilir miyim?" → fine-tuning API'siyle
+   davranış düzeyinde EVET ama çoğu QA ihtiyacında yanlış ilk hamle.
+
+Her sekme: 1 adet §9.3 standardında (4 katmanlı) `simple-box` + `step-animation`
++ `challenge(order-sort)` + `code-playground` (relatedTopicId + benzersiz
+hint'lerle) + sekme sonunda `quiz` + `retryQuestion`. Sayfa artık **10 sekme,
+10 section** (EN+TR simetrik).
+
+### Yazım sırasında bulunan ve düzeltilen sorun
+
+**2 kaçırılmamış apostrof (syntax hatası):** TR quiz seçeneklerinde `script'i` ve
+`API'si` gibi Türkçe iyelik ekli kelimeler tek-tırnaklı string içinde string'i
+erken kapatıyordu — ikisi de template literal'a (backtick) çevrilerek düzeltildi,
+`node --check` ile doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum, düzeltmelerden SONRAKİ son koşum)
+
+- `node --check` + yapı kontrolü → temiz, 10/10 sekme-section EN/TR simetrik.
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- `npm run build` → ✅ PASS (1dk19sn, 40 static route, dist SEO PASS)
+- `tests/token-lab.spec.ts` --workers=1 → ✅ 2/2 PASS (regresyon yok)
+- EN ağacı scriptli Türkçe-karakter taraması (`.tr` alt-alanları hariç) → ✅ 0 sızıntı
+- TR metin taraması → ✅ tüm TR içerik (3 kod parçası + karar tablosu + JSONL
+  örneği dahil) tek tek okundu, temiz; teknik terimler (RAG, fine-tuning, JSONL,
+  API, system prompt, context window) İngilizce kalmış; "ne zaman gerekmez"
+  listesinin "ne zaman gerekir"den uzun olması kuralı sağlandı.
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun LC4 işi commit edilmedi** — kullanıcı onayı bekliyor. Tek
+   değişen dosya: `src/data/llmAgentsData.js` (+ bu `.claude/NEXT_SESSION.md`
+   güncellemesi). `feature/llm-agents-page` branch'inde LC3 (`d6084b4`) üzerine
+   dördüncü commit olarak eklenmesi planlanıyor.
+2. **LC5 (Sonnet):** Üretimde AI (Maliyet/Evals/Güvenlik/Prompt Injection) +
+   Riskler & Yaygın Hatalar (≥8 senaryolu error-dictionary) sekmeleri — prompt
+   `llmcreate.md` LC5 bölümünde HAZIR, hemen verilebilir. LC4'teki prompt
+   injection önizlemesi LC5'te derinleştirilecek.
+3. **LC6 (SON paket):** 50 mülakat sorusu + audit + test route listeleri +
+   ana sayfa butonu (🧠 LLM & Agents) + /claude-ai'ye tek callout + merge
+   hazırlığı kalıyor — prompt hazır. LC6 bitince sayfa "main'e merge'e hazır"
+   olacak, merge/push kararı kullanıcının.
+4. `/llm-agents` hâlâ test route listelerinde ve audit PAGES'te YOK — bilinçli,
+   LC6'da eklenecek.
+5. **İki branch de hâlâ main'e merge edilmedi** — merge sırası: önce
+   `feature/claude-ai-page` → main, sonra `feature/llm-agents-page` → main.
+
+---
+
+## /llm-agents — LC3 TAMAMLANDI: Agent Nedir + Function Calling + OpenAI API (2026-07-08, `feature/llm-agents-page` — commit `d6084b4`)
 
 > LC2 `604f68b` ile commit edildi (kullanıcı "commit yap ve LC3 promptunu
 > uygula" dedi). Bu oturumda Sonnet, `llmcreate.md`'deki hazır LC3 promptuyla
