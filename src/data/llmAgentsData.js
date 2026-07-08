@@ -124,6 +124,253 @@ The| tests| act| fl|aky| when| running| night|ly`,
   xpReward: 15,
 }
 
+// ─── LC2 paylaşılan bloklar: Pretraining ─────────────────────────────────────
+
+const pretrainingLoopAnimation = {
+  type: 'step-animation',
+  id: 'llm-pretraining-loop-step-01',
+  title: { tr: 'Adım Adım: Ham Metinden Pretrained Modele', en: 'Step by Step: From Raw Text to a Pretrained Model' },
+  steps: [
+    { id: 1, icon: '📚', label: { tr: 'Devasa metni topla', en: 'Collect' }, detail: { tr: 'Kitaplar, kod, forumlar, dokümantasyon — devasa ve çeşitli bir metin dilimi bir araya getirilir.', en: 'Books, code, forums, docs — a massive, diverse slice of text is gathered.' } },
+    { id: 2, icon: '🙈', label: { tr: 'Sıradaki token\'ı gizle', en: 'Mask' }, detail: { tr: 'Bir metin parçasının sıradaki token\'ı modelden saklanır — model onu tahmin etmeye zorlanır.', en: 'The next token of a passage is hidden from the model — it is forced to guess it.' } },
+    { id: 3, icon: '📏', label: { tr: 'Tahmin et ve ölç', en: 'Predict & measure' }, detail: { tr: 'Model tahmin eder, tahmin gerçek token ile karşılaştırılır; fark "loss" (kayıp) olarak ölçülür.', en: 'The model guesses, the guess is compared to the real token, and the gap is measured as "loss".' } },
+    { id: 4, icon: '⚙️', label: { tr: 'Ağırlıkları ayarla', en: 'Adjust' }, detail: { tr: 'Milyarlarca iç ağırlık, kaybı azaltacak yönde ÇOK küçük adımlarla güncellenir.', en: 'Billions of internal weights are nudged very slightly toward reducing that loss.' } },
+    { id: 5, icon: '🔁', label: { tr: 'Ölçekte tekrarla', en: 'Repeat at scale' }, detail: { tr: '2-4. adımlar tüm veri setinde trilyonlarca kez tekrarlanır — "pretrained base model" bunun sonucudur.', en: 'Steps 2-4 repeat trillions of times across the whole dataset, producing the pretrained "base model".' } },
+  ],
+}
+
+const pretrainingLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-pretraining-loop-order-01',
+  question: { tr: 'Pretraining döngüsünü doğru sıraya diz.', en: 'Arrange the pretraining loop in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Devasa ve çeşitli bir metin dilimi topla', en: 'Collect a massive, diverse slice of text' }, order: 1 },
+    { id: '2', text: { tr: 'Bir metin parçasının sıradaki token\'ını gizle', en: 'Hide the next token of a passage' }, order: 2 },
+    { id: '3', text: { tr: 'Model tahmin etsin, gerçekle karşılaştırıp kaybı ölç', en: 'Let the model predict, compare to the real token, measure the loss' }, order: 3 },
+    { id: '4', text: { tr: 'Ağırlıkları kaybı azaltacak yönde çok küçük adımlarla güncelle', en: 'Adjust the weights very slightly to reduce that loss' }, order: 4 },
+    { id: '5', text: { tr: 'Tüm veri setinde trilyonlarca kez tekrarla', en: 'Repeat trillions of times across the whole dataset' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const trainingCutoffPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-training-cutoff-diagnosis-practice',
+  id: 'llm-training-cutoff-diagnosis-practice',
+  label: { tr: 'Pratik: "Bozuk" bir AI çıktısını mekanik bir teşhise dönüştür', en: 'Practice: Turn a "broken" AI output into a mechanistic diagnosis' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "Model eski kod yazdı, bozuk" gibi belirsiz bir gözlemi; hangi API\'nin kaldırıldığını, kök nedeni (eğitim kesim tarihinde donmuş ağırlıklar) ve düzeltmeyi içeren mekanik bir teşhise dönüştürmek.',
+    en: 'Goal: turn a vague observation like "The model wrote old code, it\'s broken" into a mechanistic diagnosis naming the removed API, the root cause (weights frozen at the training cutoff), and the fix.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: tam olarak hangi eski API kullanıldı, kök neden, düzeltme.',
+    en: 'Fill in the TODO lines: exactly which old API was used, the root cause, the fix.',
+  },
+  code: {
+    tr: `TODO (hangi eski API kullanıldı)
+Model eski kod yazdı, bozuk.
+TODO (kök neden + düzeltme)`,
+    en: `TODO (which old API was used)
+The model wrote old code, it's broken.
+TODO (root cause + fix)`,
+  },
+  starterCode: {
+    tr: `TODO (hangi eski API kullanıldı)
+Model eski kod yazdı, bozuk.
+TODO (kök neden + düzeltme)`,
+    en: `TODO (which old API was used)
+The model wrote old code, it's broken.
+TODO (root cause + fix)`,
+  },
+  solutionCode: {
+    tr: `Gözlem: Model, Playwright'ın kaldırılmış bir eski API'sini kullandı (page.waitForSelector).
+Kök neden: Modelin ağırlıkları eğitim kesim tarihinde donduruldu; o tarihte bu API hâlâ yaygındı, sonradan kaldırıldı — model "dikkatsiz" değil, bilgisi o tarihte dondu.
+Düzeltme: Prompt'a tam kurulu sürümü ekle ("Playwright 1.45 kullanıyorum") ve tanıdık olmayan metodları changelog'a karşı kontrol et.`,
+    en: `Observation: The model used a removed Playwright API (page.waitForSelector).
+Root cause: The model's weights were frozen at its training cutoff; that API was still common back then and was removed later — the model isn't "careless", its knowledge simply froze at that date.
+Fix: State your exact installed version in the prompt ("I'm using Playwright 1.45") and cross-check unfamiliar methods against the changelog.`,
+  },
+  expected: {
+    tr: `Teşhis artık "modelin hatası" yerine "donmuş ağırlıklar, eğitim kesim tarihi" mekanizmasını adlandırıyor — bu, aynı hatayı bir sonraki prompt'ta tekrar yapmamak için gereken doğru zihinsel modeldir.`,
+    en: `The diagnosis now names the "frozen weights, training cutoff" mechanism instead of "the model's mistake" — this is the correct mental model for not repeating the same error in the next prompt.`,
+  },
+  hints: [
+    { tr: '"Bozuk" demek yerine TAM olarak hangi API\'nin kaldırıldığını belirtmek, teşhisi kanıta dayalı yapar.', en: 'Saying exactly which API was removed, instead of "broken", makes the diagnosis evidence-based.' },
+    { tr: '"Eğitim kesim tarihi" kavramını kök neden olarak adlandırmak, sorunu "modelin hatası" yerine "donmuş ağırlıklar" çerçevesine oturtur.', en: `Naming "training cutoff" as the root cause reframes the problem from "the model's mistake" to "frozen weights".` },
+    { tr: 'Düzeltme her zaman aynı şekildedir: tam sürüm bilgisini prompt\'a ekle.', en: 'The fix is always the same shape: state your exact version in the prompt.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── LC2 paylaşılan bloklar: Fine-tuning & RLHF ──────────────────────────────
+
+const alignmentPipelineAnimation = {
+  type: 'step-animation',
+  id: 'llm-alignment-pipeline-step-01',
+  title: { tr: 'Adım Adım: Base Model\'den Yardımcı Asistana', en: 'Step by Step: From Base Model to Helpful Assistant' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Pretrained base model', en: 'Pretrained base' }, detail: { tr: 'Ham bir sıradaki-token tahmincisi — henüz "yardımcı olma" diye bir kavramı yok.', en: 'A raw next-token predictor — no notion of "helpful" yet.' } },
+    { id: 2, icon: '📝', label: { tr: 'SFT ile örnek göster', en: 'SFT' }, detail: { tr: 'İstenen format ve tonu gösteren, özenle seçilmiş örnek diyaloglarla eğitilir.', en: 'Trained on curated example conversations showing the desired format and tone.' } },
+    { id: 3, icon: '🔀', label: { tr: 'İki aday cevap üret', en: 'Generate candidate pairs' }, detail: { tr: 'Model aynı prompt için iki farklı cevap üretir.', en: 'The model produces two different answers to the same prompt.' } },
+    { id: 4, icon: '👍', label: { tr: 'İnsan tercihi', en: 'Human preference' }, detail: { tr: 'Bir insan hangisinin daha iyi olduğunu değerlendirir; bir ödül modeli bu sinyali öğrenir.', en: 'A human rates which answer is better; a reward model learns this signal.' } },
+    { id: 5, icon: '🎯', label: { tr: 'RLHF ile ince ayar', en: 'RLHF fine-tune' }, detail: { tr: 'Base model, ödül modelinin yüksek puan verdiği cevaplara doğru, ölçekte itilir.', en: 'The base model is nudged, at scale, toward answers the reward model scores highly.' } },
+  ],
+}
+
+const alignmentPipelineOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-alignment-pipeline-order-01',
+  question: { tr: 'Pretrained bir base model\'in yardımcı bir asistana dönüşüm sırasını diz.', en: 'Arrange the sequence turning a pretrained base model into a helpful assistant.' },
+  items: [
+    { id: '1', text: { tr: 'Pretrained base model ile başla (ham tahminci)', en: 'Start with the pretrained base model (raw predictor)' }, order: 1 },
+    { id: '2', text: { tr: 'SFT: özenle seçilmiş örnek diyaloglarla eğit', en: 'SFT: train on curated example conversations' }, order: 2 },
+    { id: '3', text: { tr: 'Aynı prompt için iki aday cevap üret', en: 'Generate two candidate answers for the same prompt' }, order: 3 },
+    { id: '4', text: { tr: 'İnsan hangisinin daha iyi olduğunu değerlendirir', en: 'A human rates which one is better' }, order: 4 },
+    { id: '5', text: { tr: 'RLHF: modeli ödül modelinin puanına göre ince ayar yap', en: 'RLHF: fine-tune the model according to the reward model\'s score' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const alignmentDiagnosisPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-alignment-diagnosis-practice',
+  id: 'llm-alignment-diagnosis-practice',
+  label: { tr: 'Pratik: Bir model davranışını doğru eğitim aşamasına bağla', en: 'Practice: Attribute a model behavior to the correct training stage' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: gözlemlenen bir model davranışını ("model asla \'emin değilim\' demiyor") doğru aşamaya (pretraining/SFT/RLHF) bağlamak ve buna karşı QA alışkanlığını yazmak.',
+    en: 'Goal: attribute an observed model behavior ("the model never says \'I\'m not sure\'") to the correct stage (pretraining/SFT/RLHF) and write the QA counter-habit for it.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: hangi aşama sorumlu, ve QA karşı alışkanlığı ne.',
+    en: 'Fill in the TODO lines: which stage is responsible, and what the QA counter-habit is.',
+  },
+  code: {
+    tr: `Davranış: Model asla "emin değilim" demiyor, hep kendinden emin cevap veriyor.
+TODO (hangi aşama sorumlu ve neden)
+TODO (QA karşı alışkanlığı)`,
+    en: `Behavior: The model never says "I'm not sure", it always answers confidently.
+TODO (which stage is responsible and why)
+TODO (QA counter-habit)`,
+  },
+  starterCode: {
+    tr: `Davranış: Model asla "emin değilim" demiyor, hep kendinden emin cevap veriyor.
+TODO (hangi aşama sorumlu ve neden)
+TODO (QA karşı alışkanlığı)`,
+    en: `Behavior: The model never says "I'm not sure", it always answers confidently.
+TODO (which stage is responsible and why)
+TODO (QA counter-habit)`,
+  },
+  solutionCode: {
+    tr: `Davranış: Model asla "emin değilim" demiyor, hep kendinden emin cevap veriyor.
+Aşama: RLHF — insan değerlendiriciler kör karşılaştırmalarda genelde kendinden emin bir cevabı çekingen bir "bilmiyorum"dan daha "iyi" puanlamış olabilir, model bu tercihi öğrendi.
+QA karşı alışkanlığı: Çıktıyı asla kendinden emin tonuna göre değil, dış bir kaynağa (dokümantasyon, çalıştırma, kabul kriterleri) karşı doğrula.`,
+    en: `Behavior: The model never says "I'm not sure", it always answers confidently.
+Stage: RLHF — human raters in blind comparisons may have rated a confident answer as "better" than a hedged "I don't know", and the model learned that preference.
+QA counter-habit: Never verify output by its confident tone — verify against an external source (docs, a run, the acceptance criteria).`,
+  },
+  expected: {
+    tr: `Teşhis, davranışı "modelin kişiliği" yerine RLHF'in ödüllendirdiği somut bir tercihe bağlıyor — bu da halüsinasyonun neden bir arıza değil, kısmen optimize edilmiş bir yan etki olduğunu açıklıyor.`,
+    en: `The diagnosis ties the behavior to a concrete preference RLHF rewarded, rather than "the model's personality" — explaining why hallucination is not a malfunction but partly an optimized side effect.`,
+  },
+  hints: [
+    { tr: 'Pretraining sadece sıradaki-token tahminini öğretir — "kendinden emin ton" pretraining\'in değil, sonraki bir aşamanın ürünüdür.', en: 'Pretraining only teaches next-token prediction — "confident tone" is a product of a later stage, not pretraining.' },
+    { tr: 'RLHF, insan tercihlerinden öğrenir — insanların ne tercih ettiği (kendinden emin ton) modelin davranışına sızar.', en: 'RLHF learns from human preferences — what humans prefer (confident tone) leaks into the model\'s behavior.' },
+    { tr: 'QA karşı alışkanlığı her zaman aynıdır: tona değil, dış kaynağa güven.', en: 'The QA counter-habit is always the same: trust the external source, not the tone.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── LC2 paylaşılan bloklar: Context Window & Halüsinasyon ───────────────────
+
+const tokenLabBackCallout = {
+  type: 'callout',
+  icon: '🧪',
+  content: {
+    tr: 'Bunu daha önce kendi ellerinle denemiştin: LLM Nedir sekmesindeki Token Lab\'da turuncu, düşük olasılıklı bir token\'a tıklayıp akıcı-ama-yanlış bir cümle üretmiştin. Halüsinasyon, tam olarak o küçük ölçekli deneyin büyük ölçekli halidir — burada NEDEN olduğunu görüyorsun.',
+    en: 'You already tried this with your own hands: in the What Is an LLM tab\'s Token Lab, you clicked an orange, low-probability token and produced a fluent-but-wrong sentence. Hallucination is exactly the large-scale version of that small experiment — here you see WHY it happens.',
+  },
+}
+
+const contextDriftAnimation = {
+  type: 'step-animation',
+  id: 'llm-context-drift-step-01',
+  title: { tr: 'Adım Adım: Bir Kural Uzun Bir Konuşmada Nasıl Kaybolur', en: 'Step by Step: How a Rule Falls Out of Reach in a Long Conversation' },
+  steps: [
+    { id: 1, icon: '📌', label: { tr: 'Erken talimat', en: 'Early instruction' }, detail: { tr: 'Konuşmanın başında bir kural açıkça belirtilir.', en: 'A rule is stated clearly, early in the conversation.' } },
+    { id: 2, icon: '💬', label: { tr: 'Konuşma büyür', en: 'Conversation grows' }, detail: { tr: 'Token limitinin hâlâ altında, birçok ilgisiz konu değişimi yaşanır.', en: 'Many unrelated exchanges follow, still within the token limit.' } },
+    { id: 3, icon: '🌫️', label: { tr: 'Dikkat seyrelir', en: 'Attention dilutes' }, detail: { tr: 'Erken kural teknik olarak hâlâ orada ama o zamandan beri söylenen her şeyle yarışıyor.', en: 'The early rule is technically present but competes with everything said since.' } },
+    { id: 4, icon: '↩️', label: { tr: 'Model kayar', en: 'Model drifts' }, detail: { tr: 'Sonraki bir cevap, orijinal kuralı sessizce takip etmemeye başlar.', en: 'A later answer quietly stops following the original rule.' } },
+    { id: 5, icon: '🔄', label: { tr: 'Düzeltme: taze bağlam', en: 'Fix: fresh context' }, detail: { tr: 'Yeni bir konuşma başlatıp temel kuralı yeniden yapıştırmak uyumu geri getirir.', en: 'Starting a new conversation and re-stating the essential rule restores compliance.' } },
+  ],
+}
+
+const contextDriftOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-context-drift-order-01',
+  question: { tr: 'Bir kuralın uzun bir konuşmada odaktan düşme sürecini doğru sıraya diz.', en: 'Arrange the process of a rule falling out of focus in a long conversation in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Konuşmanın başında bir kural açıkça belirtilir', en: 'A rule is stated clearly early in the conversation' }, order: 1 },
+    { id: '2', text: { tr: 'Token limitinin altında birçok ilgisiz konu değişimi olur', en: 'Many unrelated exchanges happen, still under the token limit' }, order: 2 },
+    { id: '3', text: { tr: 'Erken kural o zamandan beri söylenenlerle yarışmaya başlar', en: 'The early rule starts competing with everything said since' }, order: 3 },
+    { id: '4', text: { tr: 'Bir sonraki cevap orijinal kuralı sessizce takip etmez', en: 'A later answer quietly stops following the original rule' }, order: 4 },
+    { id: '5', text: { tr: 'Yeni konuşma + kuralın yeniden yapıştırılması uyumu geri getirir', en: 'A new conversation + re-pasting the rule restores compliance' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const contextResetPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-context-reset-practice',
+  id: 'llm-context-reset-practice',
+  label: { tr: 'Pratik: "Aynı thread\'de hatırlat" alışkanlığını "taze bağlam" alışkanlığına dönüştür', en: 'Practice: Turn the "remind in the same thread" habit into the "fresh context" habit' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: 40 mesajlık eski bir thread\'de "kuralı unuttun, tekrar hatırlat" demek yerine, yeni bir konuşma başlatıp sadece gerekli bağlamı yeniden yapıştıran bir yaklaşım yazmak.',
+    en: 'Goal: instead of saying "you forgot the rule, remember it" in an old 40-message thread, write the approach of starting a fresh conversation and re-pasting only the necessary context.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: neden aynı thread\'de ısrar etmek yanlış, ve doğru yaklaşım ne.',
+    en: 'Fill in the TODO lines: why insisting on the same thread is wrong, and what the correct approach is.',
+  },
+  code: {
+    tr: `(40 mesajlık eski thread'de)
+TODO (yanlış yaklaşım: neden aynı thread'de ısrar etmek işe yaramaz)
+TODO (doğru yaklaşım: taze konuşma + yeniden yapıştırılan bağlam)`,
+    en: `(in an old 40-message thread)
+TODO (wrong approach: why insisting on the same thread doesn't work)
+TODO (correct approach: fresh conversation + re-pasted context)`,
+  },
+  starterCode: {
+    tr: `(40 mesajlık eski thread'de)
+TODO (yanlış yaklaşım: neden aynı thread'de ısrar etmek işe yaramaz)
+TODO (doğru yaklaşım: taze konuşma + yeniden yapıştırılan bağlam)`,
+    en: `(in an old 40-message thread)
+TODO (wrong approach: why insisting on the same thread doesn't work)
+TODO (correct approach: fresh conversation + re-pasted context)`,
+  },
+  solutionCode: {
+    tr: `Yanlış yaklaşım: Aynı 40 mesajlık thread'de "kuralı unuttun, tekrar hatırlat" demek — sorunun kaynağı (thread'in uzunluğu, dikkat seyrelmesi) hâlâ orada durur, daha güçlü bir hatırlatma bunu düzeltmez.
+Doğru yaklaşım: Yeni bir konuşma başlat. "Ödeme özelliği kabul kriterleri: [...onaylanmış kurallar buraya...]" gibi sadece ESAS bağlamı yeniden yapıştır — thread'in tamamını değil.`,
+    en: `Wrong approach: Saying "you forgot the rule, remember it" in the same 40-message thread — the source of the problem (thread length, attention dilution) is still there; a stronger reminder does not fix it.
+Correct approach: Start a new conversation. Re-paste only the ESSENTIAL context, e.g. "Payment feature acceptance criteria: [...confirmed rules here...]" — not the entire old thread.`,
+  },
+  expected: {
+    tr: `Çözüm, eski thread içinde savaşmak yerine dikkat-seyrelme sorununu TAMAMEN ortadan kaldırıyor — bu, sorunu düzeltmek ile sorunu kaçınmak arasındaki farktır.`,
+    en: `The fix removes the attention-dilution problem ENTIRELY instead of fighting it inside the old thread — this is the difference between fixing a problem and avoiding it.`,
+  },
+  hints: [
+    { tr: 'Eski thread\'in uzunluğu sorunun ta kendisidir — içinde daha güçlü bir hatırlatma bunu düzeltmez.', en: 'The old thread\'s length is the problem itself — a stronger reminder inside it doesn\'t fix that.' },
+    { tr: 'Sadece ESAS bağlamı yeniden yapıştırmak, aynı seyrelme sorununu hemen yeniden yaratmaktan kaçınır.', en: 'Re-pasting only the ESSENTIAL context avoids immediately recreating the same dilution problem.' },
+    { tr: 'Bu teknik, /claude-ai Riskler sekmesindeki "uzun konuşmada bağlam kaybı" hatasının doğrudan düzeltmesidir.', en: 'This technique is the direct fix for the "context loss in a long conversation" risk from the /claude-ai Risks tab.' },
+  ],
+  xpReward: 15,
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const llmAgentsData = {
@@ -133,7 +380,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination'],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -263,6 +510,250 @@ Rare word   -> breaks apart ("flaky" -> "fl" + "aky")`,
           },
         ],
       },
+      {
+        title: `🎓 How LLMs Are Trained: Pretraining`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📸',
+            content: `Pretraining a model is like a photography student who studies millions of photographs without ever being told explicitly "this composition is good, this one is bad" — the mechanism is exact: instead the student is given ONE recurring drill, "given the first 90% of a photo, guess what the missing corner looks like," and doing that billions of times across millions of photos forces the student to internalize composition, lighting and subject matter without anyone hand-labeling "composition" as a concept. Here is the question worth sitting with: if nobody explicitly taught the model grammar or Python syntax, how does it end up knowing both? Because predicting the next token accurately, at internet scale, is only possible if you have implicitly absorbed the regularities underneath — grammar, syntax, factual patterns — the prediction objective forces the competence in as a side effect, never as an explicit lesson. Java comparison: this is like a compiled .class file — it carries the DISTILLED behavior of the source, not the source itself; pretrained model "weights" are the compiled artifact of billions of next-token predictions, and you can no more read the original training text back out of the weights than you can recover Java source from bytecode. The QA stake: since the model's "knowledge" is frozen at the moment its training data was collected (the training cutoff), it will confidently use syntax that was correct then but deprecated now — this is the mechanical root of the "outdated library syntax" risk covered on the Claude AI page; knowing WHY it happens (frozen weights, not carelessness) is what leads a tester to always state their exact library version in a prompt.`,
+          },
+          { type: 'heading', text: `The One Drill: Predict the Missing Piece` },
+          {
+            type: 'text',
+            content: `Pretraining feeds a model enormous slices of internet text — books, code, forums, documentation — and repeats one exercise: hide the next token, ask the model to guess it, measure how wrong the guess was (this gap is called "loss"), and nudge the model's billions of internal weights very slightly toward a better guess. Repeat this drill trillions of times.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why does this require GPUs, months, and enormous cost, when the "exercise" sounds so simple? Because "very slightly nudge billions of weights" must happen after EVERY single prediction, across trillions of predictions, and each nudge requires enormous matrix computation. Java comparison: it is like recompiling a massive shared codebase after every single line changes, except the "codebase" has billions of parameters and this happens trillions of times — the sheer volume of repeated computation, not conceptual difficulty, is what demands specialized hardware running for months.`,
+          },
+          {
+            type: 'table',
+            headers: ['Term', 'Plain Meaning', 'Java Analogy'],
+            rows: [
+              ['Pretraining', 'Learning next-token prediction from massive raw text', 'Compiling from a huge shared codebase — happens once, is expensive, is not repeated per feature'],
+              ['Loss', 'How wrong the model\'s guess was, measured and used to improve', 'Similar to a failing test driving a fix — but here the "fix" is an automatic, tiny weight adjustment'],
+              ['Weights', 'Billions of numbers encoding learned patterns', 'The compiled .class/.jar output — carries distilled behavior, not the original source'],
+              ['Training cutoff', 'The date after which the model has seen no new text', 'A dependency version frozen at build time — the app doesn\'t know about releases after that date'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# Pretraining döngüsünün basitleştirilmiş özeti (gerçek kod değil, kavramsal)
+for metin_parcasi in devasa_internet_metni:
+    baglam, gercek_sonraki_token = metin_parcasi.ayir()
+    tahmin = model.tahmin_et(baglam)          # model bir sonraki token'ı tahmin eder
+    hata = kayip_hesapla(tahmin, gercek_sonraki_token)  # "loss": tahmin ne kadar yanlış?
+    model.agirliklari_hafifce_guncelle(hata)  # milyarlarca ağırlık ÇOK küçük adımlarla düzelir
+# Bu döngü trilyonlarca kez tekrarlanır — aylar süren GPU hesaplaması budur`,
+              en: `# Simplified summary of the pretraining loop (conceptual, not real code)
+for text_chunk in massive_internet_text:
+    context, real_next_token = text_chunk.split()
+    prediction = model.predict(context)          # the model guesses the next token
+    error = compute_loss(prediction, real_next_token)  # "loss": how wrong was the guess?
+    model.nudge_weights_slightly(error)  # billions of weights shift by a tiny amount
+# This loop repeats trillions of times — this is the months of GPU computation`,
+            },
+          },
+          pretrainingLoopAnimation,
+          pretrainingLoopOrder,
+          trainingCutoffPlayground,
+          {
+            type: 'quiz',
+            question: `A model confidently writes code using a method that was removed from a library two years ago. Given what pretraining actually does, what is the most accurate mechanistic explanation?`,
+            options: [
+              { id: 'a', text: 'The model is being lazy and not trying hard enough' },
+              { id: 'b', text: 'The model\'s weights were frozen at its training cutoff; that method was common in the training data available then, and the model has no way to know about a later removal unless told' },
+              { id: 'c', text: 'The model deliberately prefers old syntax because it is simpler' },
+              { id: 'd', text: 'This proves LLMs cannot write code reliably at all' },
+            ],
+            correct: 'b',
+            explanation: `Weights are a compiled artifact of the data seen up to the training cutoff — not a live connection to the internet. A method that was standard back then, later removed, has no way of being "known as removed" unless the fact is stated in the prompt.`,
+            retryQuestion: {
+              question: `Why does "just retrain the model on newer data every day" not solve the training-cutoff problem for most teams?`,
+              options: [
+                { id: 'a', text: 'It would work, but nobody has thought of doing this yet' },
+                { id: 'b', text: 'Pretraining requires enormous compute, time and cost (months, specialized hardware) — it is not something a team can casually redo daily; this is exactly why prompting with current context (stating your version, or RAG) is the practical fix, not retraining' },
+                { id: 'c', text: 'Training data cannot be updated once collected' },
+                { id: 'd', text: 'Models are not allowed to be retrained more than once' },
+              ],
+              correct: 'b',
+              explanation: `Pretraining's cost is precisely why it happens rarely and at a small number of organizations — daily retraining is not a scaling problem to be solved, it is economically and practically off the table. The scalable fix lives at the prompt/context layer, not at the retraining layer.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🎯 Fine-tuning & RLHF`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎓',
+            content: `A pretrained base model fresh out of pretraining is like a brilliant new hire who has read every book in the company library but has never once been shown what a GOOD answer to a customer actually looks like — the mechanism is exact: pretraining only teaches "predict plausible next text," not "be a helpful, on-topic assistant that admits uncertainty" — those are entirely separate skills taught AFTER pretraining, through fine-tuning. Here is the question worth sitting with: if the base model already knows grammar, facts and code from pretraining, why does it need MORE training just to become a chatbot? Because a raw pretrained model, given "How do I center a div in CSS?", is just as likely to continue with "...is a common question on Stack Overflow, asked 47,000 times" (a plausible CONTINUATION) as it is to actually answer the question — pretraining never taught it "the user wants a direct helpful answer," only "predict likely next text." Java comparison: this is like the difference between a compiler that only checks syntax validity (pretraining: is this a plausible sentence?) and a code reviewer who checks whether the code actually serves the ticket's intent (fine-tuning: is this actually a HELPFUL response to what the user wanted?) — two different, sequential quality gates. The QA stake: RLHF specifically trains the model to prefer confident, complete-sounding answers, since human raters in blind comparisons tend to rate a hedgy "I don't know" as less helpful than a confident wrong answer — this is the BEHAVIORAL root of hallucination covered on the Claude AI page: the model is not malfunctioning, it was optimized, in part, toward exactly the confident tone that makes an occasional wrong answer dangerous.`,
+          },
+          { type: 'heading', text: `SFT: Showing, Not Just Predicting` },
+          {
+            type: 'text',
+            content: `Supervised Fine-Tuning (SFT) takes the pretrained base model and continues training it, but now on a much smaller, curated set of example conversations — a prompt and a genuinely good, human-written or human-approved response — teaching the model the FORMAT and TONE of being a helpful assistant, not new facts.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why is RLHF needed on top of SFT — why isn't "show good examples" enough? Because writing enough example responses to cover every possible way a user might ask something is combinatorially impossible. RLHF instead trains the model with a cheaper signal: humans just RANK two of the model's own candidate answers ("which is better?"), a reward model learns to predict that ranking, and the base model is nudged to produce answers the reward model scores highly — turning a small amount of human JUDGMENT into a scalable training signal, instead of needing infinite hand-written examples.`,
+          },
+          { type: 'heading', text: `Alignment, in One Paragraph` },
+          {
+            type: 'text',
+            content: `"Alignment" is the umbrella term for this whole post-pretraining process (SFT + RLHF + other techniques) — the goal is making the model's behavior match human intent and values (helpful, harmless, honest), not just "predicts plausible text." It is an ongoing area of research, not a solved problem, which is exactly why the risks covered later on this page — and on the Claude AI page — still exist even in well-aligned, modern models.`,
+          },
+          {
+            type: 'table',
+            headers: ['Stage', 'What It Does', 'What It Does NOT Do'],
+            rows: [
+              ['Pretraining', 'Learns next-token prediction from raw internet-scale text', 'Does not teach the model to be helpful, follow instructions, or refuse harmful requests'],
+              ['SFT (Supervised Fine-Tuning)', 'Trains on curated example conversations (prompt + good response)', 'Does not add new facts or knowledge the base model didn\'t have from pretraining'],
+              ['RLHF', 'Trains a reward model on human preference rankings, then nudges the model toward high-reward answers', 'Does not eliminate hallucination — it can inadvertently reward confident-sounding wrong answers if raters preferred them'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# RLHF döngüsünün basitleştirilmiş özeti (kavramsal, gerçek kod değil)
+for prompt in ornek_promptlar:
+    cevap_a, cevap_b = model.iki_farkli_cevap_uret(prompt)
+    tercih = insan_degerlendirici.hangisi_daha_iyi(cevap_a, cevap_b)
+    odul_modeli.bu_tercihten_ogren(cevap_a, cevap_b, tercih)
+# Ödül modeli eğitildikten sonra:
+for prompt in cok_daha_genis_veri:
+    cevap = model.cevap_uret(prompt)
+    odul = odul_modeli.puanla(cevap)          # insan olmadan otomatik puan
+    model.agirliklari_odule_gore_guncelle(odul)  # yüksek puanlı cevaplara doğru it`,
+              en: `# Simplified summary of the RLHF loop (conceptual, not real code)
+for prompt in example_prompts:
+    answer_a, answer_b = model.generate_two_different_answers(prompt)
+    preference = human_rater.which_is_better(answer_a, answer_b)
+    reward_model.learn_from_this_preference(answer_a, answer_b, preference)
+# Once the reward model is trained:
+for prompt in much_larger_dataset:
+    answer = model.generate_answer(prompt)
+    reward = reward_model.score(answer)          # automatic score, no human needed
+    model.update_weights_toward_reward(reward)   # nudge toward high-scoring answers`,
+            },
+          },
+          alignmentPipelineAnimation,
+          alignmentPipelineOrder,
+          alignmentDiagnosisPlayground,
+          {
+            type: 'quiz',
+            question: `Why can RLHF, despite improving helpfulness, inadvertently make hallucination WORSE in some cases?`,
+            options: [
+              { id: 'a', text: 'RLHF has nothing to do with hallucination — only pretraining does' },
+              { id: 'b', text: 'If human raters in blind comparisons rated confident-sounding wrong answers as better than hedged uncertain ones, the reward model learns to favor confidence — nudging the model toward a more assertive tone regardless of whether the underlying fact is correct' },
+              { id: 'c', text: 'RLHF adds new incorrect facts to the model\'s knowledge' },
+              { id: 'd', text: 'RLHF always fixes every accuracy problem completely' },
+            ],
+            correct: 'b',
+            explanation: `RLHF optimizes toward whatever humans preferred in the ranking data — if confidence was preferred over honest hedging, the model learns confidence as a rewarded trait, independent of whether the confident answer happens to be correct.`,
+            retryQuestion: {
+              question: `A pretrained base model (before any fine-tuning) is given a direct question. Why is it LESS likely to give a direct helpful answer than the final fine-tuned assistant?`,
+              options: [
+                { id: 'a', text: 'Base models are always broken and unusable' },
+                { id: 'b', text: 'Pretraining only optimizes for "plausible next text" — continuing with a plausible-sounding tangent or restating the question is just as valid a completion as answering it; SFT/RLHF are the stages that specifically teach "answer directly and helpfully"' },
+                { id: 'c', text: 'Base models refuse to answer questions on purpose' },
+                { id: 'd', text: 'Base models have less knowledge than fine-tuned ones' },
+              ],
+              correct: 'b',
+              explanation: `A base model has no notion of "the user wants a direct answer" — that expectation is entirely a product of SFT and RLHF. Without them, any plausible continuation of the prompt text is an equally valid completion in the model's eyes.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🧠 Context Window & the Root of Hallucination`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧽',
+            content: `The context window is like a whiteboard that gets erased the moment a meeting ends — the mechanism is exact: everything the model "knows" about your specific conversation lives ONLY in the text currently inside that window, and the instant the conversation ends (or scrolls past the token limit), that information is gone as completely as marker wiped off a whiteboard, no matter how important it was. Here is the question worth sitting with: if the model was trained on trillions of tokens, why does it forget something you told it 5 minutes ago in the SAME conversation? Because "trained on" and "currently remembers" are two completely different kinds of memory: training baked general patterns into permanent weights, frozen and shared across every conversation; the context window is a SEPARATE, temporary, per-conversation memory that holds only what is currently pasted in. Java comparison: this is exactly the difference between a static final field (baked in at compile time, shared everywhere) and a method-local variable (exists only for the duration of one call, then garbage collected) — confusing the two is exactly the mistake behind expecting a model to "remember" something from training that was actually only ever in one conversation's context. The QA stake: this is the precise mechanism behind the "context loss in a long conversation" risk covered on the Claude AI page — as a conversation grows past the practical attention span for older content, earlier instructions effectively fall out of reach even though they are technically still in history, which is exactly why starting a fresh conversation for a new task (with the essential context re-pasted) is the fix, not "asking the model to try harder to remember".`,
+          },
+          { type: 'heading', text: `The Window Has a Size, Measured in Tokens` },
+          {
+            type: 'text',
+            content: `Every model has a maximum context window, measured in tokens, not words or messages — the total budget for everything in a conversation: your instructions, pasted code, and the model's own replies so far all count against the same limit. Once a conversation exceeds it, the oldest content must be dropped or summarized, whether or not it mattered.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why does an LLM sometimes seem to "forget" something well within the token limit, not just when it is actually pushed out? Because attention across a long context is not uniform — content buried in the middle of a very long conversation, surrounded by many unrelated topic switches, effectively competes for the model's limited attention with everything said since, so a rule stated once early on can be technically present in the context yet functionally deprioritized. Java comparison: this is like a variable that is technically still in scope but that a reader skimming a very long method body easily misses — being "in scope" and being "actually noticed" are not the same guarantee.`,
+          },
+          { type: 'heading', text: `Hallucination's Real Root Cause` },
+          {
+            type: 'text',
+            content: `A model has no dedicated "I don't know" mechanism — every single output, including a correct fact and a fabricated one, comes from the exact same process of picking the next most probable token. When the true, correct continuation and a plausible-but-wrong continuation both have meaningful probability — because the training data was ambiguous or sparse, or the context window has lost the disambiguating detail — the sampling process can pick the wrong one just as fluently as the right one. Hallucination is not a bug in a separate "lying module"; it is the SAME single mechanism producing an unlucky draw.`,
+          },
+          {
+            type: 'table',
+            headers: ['Cause', 'Mechanism', 'QA Counter-Habit'],
+            rows: [
+              ['Context window overflow', 'Oldest content is dropped or summarized once the token budget is exceeded', 'Start a fresh conversation for a new task instead of extending one indefinitely'],
+              ['Attention dilution in long conversations', 'An early instruction is technically present but competes with everything said since', 'Re-state critical constraints periodically in long sessions — don\'t assume saying it once is enough'],
+              ['No "I don\'t know" token', 'Every output, correct or wrong, comes from the same next-token sampling process', 'Verify against an external source (docs, a run, the acceptance criteria) — confidence in the text is never evidence'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# Context window'un basitleştirilmiş modeli (kavramsal, gerçek kod değil)
+context = []
+TOKEN_LIMITI = 128000
+
+def mesaj_ekle(yeni_mesaj):
+    context.append(yeni_mesaj)
+    while token_say(context) > TOKEN_LIMITI:
+        context.pop(0)  # en eski mesaj atılır — SİLİNİR, özetlenmezse tamamen kaybolur
+    return context`,
+              en: `# Simplified model of the context window (conceptual, not real code)
+context = []
+TOKEN_LIMIT = 128000
+
+def add_message(new_message):
+    context.append(new_message)
+    while count_tokens(context) > TOKEN_LIMIT:
+        context.pop(0)  # the oldest message is dropped — GONE, unless summarized first
+    return context`,
+            },
+          },
+          tokenLabBackCallout,
+          contextDriftAnimation,
+          contextDriftOrder,
+          contextResetPlayground,
+          {
+            type: 'quiz',
+            question: `A model gives a fluent, confident, but factually wrong answer. Based on the context-window and sampling mechanism covered in this tab, what is the most accurate explanation?`,
+            options: [
+              { id: 'a', text: 'The model has a separate "lying" module that activated' },
+              { id: 'b', text: 'There is no dedicated "I don\'t know" output — every token, correct or wrong, comes from the same next-most-probable-token process; when the training data was ambiguous or the disambiguating context was lost, an unlucky-but-plausible draw is exactly as easy to produce as a correct one' },
+              { id: 'c', text: 'The model ran out of context window entirely' },
+              { id: 'd', text: 'This never happens in models trained on enough data' },
+            ],
+            correct: 'b',
+            explanation: `Correctness and hallucination are produced by the identical token-sampling mechanism — there is no separate "truth check" step. This is precisely the large-scale version of the low-probability path exercised in the Token Lab.`,
+            retryQuestion: {
+              question: `In a very long conversation, Claude appears to have stopped following a formatting rule you set 40 messages ago, even though the token limit was never exceeded. What is the most accurate diagnosis?`,
+              options: [
+                { id: 'a', text: 'The rule was technically deleted from memory once the limit was approached' },
+                { id: 'b', text: 'The rule is still technically present in the context, but competes with everything said since for the model\'s limited attention — this is attention dilution, not a hard deletion; starting a fresh conversation with the rule re-stated is the practical fix' },
+                { id: 'c', text: 'The model intentionally decided to stop following the rule' },
+                { id: 'd', text: 'This only happens with old, less capable models' },
+              ],
+              correct: 'b',
+              explanation: `Attention dilution is a "functionally deprioritized" problem, not a hard-deletion problem — the token limit is a separate, harder cutoff. The fix (fresh context) works by removing the dilution problem entirely rather than fighting it within an ever-growing thread.`,
+            },
+          },
+        ],
+      },
     ],
   },
   tr: {
@@ -271,7 +762,7 @@ Rare word   -> breaks apart ("flaky" -> "fl" + "aky")`,
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni'],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -397,6 +888,250 @@ Rare word   -> breaks apart ("flaky" -> "fl" + "aky")`,
               ],
               correct: 'b',
               explanation: `Döngüde "yalan söyleme" de yoktur, bir doğruluk-kontrol modülü de — sadece sıradaki-token olasılıkları vardır. İnandırıcı okunan yanlış bir devam örnekleme adımını kazanabilir; her seçim bir sonrakini beslediği için hata akıcı biçimde birikir. Akıcılık ve doğruluk aynı mekanizmadan üretilir — akıcılığın asla kanıt olmamasının sebebi tam olarak budur.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🎓 LLM Nasıl Eğitilir: Pretraining`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📸',
+            content: `Bir modeli pretraining'den geçirmek, milyonlarca fotoğrafı incelerken hiçbirinde açıkça "bu kompozisyon iyi, bu kötü" diye söylenmeyen bir fotoğrafçılık öğrencisine benzer — mekanizma birebirdir: öğrenciye tek bir tekrarlayan alıştırma verilir, "bir fotoğrafın ilk %90'ını gördüğünde, eksik köşesinin neye benzediğini tahmin et" — ve bunu milyonlarca fotoğrafta milyarlarca kez yapmak, öğrenciyi "kompozisyon" diye bir kavramı kimse elle etiketlemeden kompozisyonu, ışığı ve konuyu içselleştirmeye zorlar. Üzerinde durulmaya değer soru şu: modele kimse açıkça dilbilgisi veya Python sözdizimi öğretmediyse, ikisini de nasıl biliyor? Çünkü internet ölçeğinde sıradaki token'ı isabetle tahmin etmek, ancak altındaki düzenlilikleri — dilbilgisini, sözdizimini, olgusal kalıpları — zımnen özümsemişsen mümkündür; tahmin hedefi, yetkinliği bir yan etki olarak zorla içeri sokar, asla açık bir ders olarak değil. Java karşılaştırması: bu, derlenmiş bir .class dosyası gibidir — kaynağın kendisini değil, DAMITILMIŞ davranışını taşır; pretrained model "ağırlıkları", milyarlarca sıradaki-token tahmininin derlenmiş çıktısıdır, ve Java kaynağını bytecode'dan geri kazanamayacağın gibi orijinal eğitim metnini de ağırlıklardan geri okuyamazsın. QA tarafındaki bedel: modelin "bilgisi" eğitim verisinin toplandığı an (eğitim kesim tarihi) donduğu için, o zaman doğru olan ama şimdi kullanımdan kaldırılmış bir sözdizimini kendinden emin şekilde kullanır — bu, Claude AI sayfasında ele alınan "eski kütüphane syntax'ı" riskinin mekanik köküdür; NEDEN olduğunu bilmek (dikkatsizlik değil, donmuş ağırlıklar) bir tester'ı prompt'ta her zaman tam kütüphane sürümünü belirtmeye götürür.`,
+          },
+          { type: 'heading', text: `Tek Alıştırma: Eksik Parçayı Tahmin Et` },
+          {
+            type: 'text',
+            content: `Pretraining, bir modele devasa internet metni dilimleri verir — kitaplar, kod, forumlar, dokümantasyon — ve tek bir alıştırmayı tekrarlar: sıradaki token'ı gizle, modelden tahmin etmesini iste, tahminin ne kadar yanlış olduğunu ölç (bu farka "loss" denir), ve modelin milyarlarca iç ağırlığını daha iyi bir tahmine doğru ÇOK küçük bir adımla it. Bu alıştırmayı trilyonlarca kez tekrarla.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: "alıştırma" bu kadar basit görünürken bu neden GPU, aylar ve devasa maliyet gerektirir? Çünkü "milyarlarca ağırlığı çok hafifçe it" işlemi HER TEK tahminden sonra, trilyonlarca tahmin boyunca gerçekleşmeli, ve her itiş devasa bir matris hesaplaması gerektirir. Java karşılaştırması: bu, her tek satır değiştiğinde devasa paylaşılan bir kod tabanını yeniden derlemek gibidir, ama "kod tabanı" milyarlarca parametreye sahiptir ve bu trilyonlarca kez olur — kavramsal zorluk değil, tekrarlanan hesaplamanın saf hacmi özel donanımı aylarca çalıştırmayı gerektirir.`,
+          },
+          {
+            type: 'table',
+            headers: ['Terim', 'Sade Anlamı', 'Java Karşılaştırması'],
+            rows: [
+              ['Pretraining', 'Devasa ham metinden sıradaki-token tahminini öğrenmek', 'Devasa paylaşılan bir kod tabanından derlemek — bir kez olur, pahalıdır, özellik başına tekrarlanmaz'],
+              ['Loss', 'Modelin tahmininin ne kadar yanlış olduğu, ölçülüp iyileştirme için kullanılır', 'Bir düzeltmeyi tetikleyen başarısız bir teste benzer — ama buradaki "düzeltme" otomatik, minik bir ağırlık ayarıdır'],
+              ['Ağırlıklar (weights)', 'Öğrenilen kalıpları kodlayan milyarlarca sayı', 'Derlenmiş .class/.jar çıktısı — damıtılmış davranışı taşır, orijinal kaynağı değil'],
+              ['Eğitim kesim tarihi', 'Modelin bu tarihten sonra hiç yeni metin görmediği tarih', 'Build zamanında donmuş bir bağımlılık sürümü — uygulama o tarihten sonraki sürümlerden habersizdir'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# Pretraining döngüsünün basitleştirilmiş özeti (gerçek kod değil, kavramsal)
+for metin_parcasi in devasa_internet_metni:
+    baglam, gercek_sonraki_token = metin_parcasi.ayir()
+    tahmin = model.tahmin_et(baglam)          # model bir sonraki token'ı tahmin eder
+    hata = kayip_hesapla(tahmin, gercek_sonraki_token)  # "loss": tahmin ne kadar yanlış?
+    model.agirliklari_hafifce_guncelle(hata)  # milyarlarca ağırlık ÇOK küçük adımlarla düzelir
+# Bu döngü trilyonlarca kez tekrarlanır — aylar süren GPU hesaplaması budur`,
+              en: `# Simplified summary of the pretraining loop (conceptual, not real code)
+for text_chunk in massive_internet_text:
+    context, real_next_token = text_chunk.split()
+    prediction = model.predict(context)          # the model guesses the next token
+    error = compute_loss(prediction, real_next_token)  # "loss": how wrong was the guess?
+    model.nudge_weights_slightly(error)  # billions of weights shift by a tiny amount
+# This loop repeats trillions of times — this is the months of GPU computation`,
+            },
+          },
+          pretrainingLoopAnimation,
+          pretrainingLoopOrder,
+          trainingCutoffPlayground,
+          {
+            type: 'quiz',
+            question: `Bir model, iki yıl önce bir kütüphaneden kaldırılmış bir metodu kullanarak kendinden emin şekilde kod yazıyor. Pretraining'in gerçekte ne yaptığı düşünüldüğünde, en isabetli mekanik açıklama nedir?`,
+            options: [
+              { id: 'a', text: 'Model tembellik ediyor, yeterince çaba göstermiyor' },
+              { id: 'b', text: 'Modelin ağırlıkları eğitim kesim tarihinde donduruldu; o metod o zaman mevcut eğitim verisinde yaygındı, ve model kendisine söylenmedikçe daha sonraki bir kaldırmadan haberdar olamaz' },
+              { id: 'c', text: 'Model daha basit olduğu için kasıtlı olarak eski sözdizimini tercih ediyor' },
+              { id: 'd', text: 'Bu, LLM\'lerin güvenilir kod yazamayacağını kanıtlar' },
+            ],
+            correct: 'b',
+            explanation: `Ağırlıklar, eğitim kesim tarihine kadar görülen verinin derlenmiş bir çıktısıdır — internete canlı bir bağlantı değildir. O zaman standart olan, sonradan kaldırılan bir metodun "kaldırıldığının bilinmesi" mümkün değildir, bu gerçek prompt'ta belirtilmedikçe.`,
+            retryQuestion: {
+              question: `"Modeli her gün daha yeni veriyle yeniden eğit" yaklaşımı çoğu ekip için eğitim-kesim-tarihi sorununu neden çözmez?`,
+              options: [
+                { id: 'a', text: 'Çözerdi, ama henüz kimse bunu yapmayı düşünmedi' },
+                { id: 'b', text: 'Pretraining devasa hesaplama, zaman ve maliyet gerektirir (aylar, özel donanım) — bir ekibin günlük olarak rahatça tekrarlayabileceği bir şey değildir; bu tam olarak neden güncel bağlamla prompt yazmanın (sürümünü belirtmek veya RAG) pratik düzeltme olduğunun, yeniden eğitimin olmadığının sebebidir' },
+                { id: 'c', text: 'Eğitim verisi bir kez toplandıktan sonra güncellenemez' },
+                { id: 'd', text: 'Modellerin birden fazla kez yeniden eğitilmesine izin verilmez' },
+              ],
+              correct: 'b',
+              explanation: `Pretraining'in maliyeti tam olarak neden nadiren ve az sayıda kurumda gerçekleştiğinin sebebidir — günlük yeniden eğitim çözülecek bir ölçekleme sorunu değil, ekonomik ve pratik olarak masada olmayan bir seçenektir. Ölçeklenebilir düzeltme yeniden-eğitim katmanında değil, prompt/bağlam katmanında yaşar.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🎯 Fine-tuning & RLHF`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🎓',
+            content: `Pretraining'den yeni çıkmış bir base model, şirketin kütüphanesindeki her kitabı okumuş ama bir müşteriye İYİ bir cevabın gerçekte neye benzediği hiç gösterilmemiş, parlak yeni bir işe alınana benzer — mekanizma birebirdir: pretraining sadece "olası sıradaki metni tahmin et"i öğretir, "yardımcı, konuya odaklı ve belirsizliği kabul eden bir asistan ol"u değil — bunlar tamamen ayrı becerilerdir ve pretraining'den SONRA, fine-tuning yoluyla öğretilir. Üzerinde durulmaya değer soru şu: base model pretraining'den zaten dilbilgisini, olguları ve kodu biliyorsa, sadece bir chatbot olmak için neden DAHA FAZLA eğitime ihtiyaç duyar? Çünkü ham bir pretrained model, "CSS'te bir div'i nasıl ortalarım?" sorusuna, gerçekten cevap vermek kadar "...Stack Overflow'da sık sorulan bir sorudur, 47.000 kez sorulmuştur" diye devam etmeye de (olası bir DEVAM) eşit derecede eğilimlidir — pretraining ona hiçbir zaman "kullanıcı doğrudan yardımcı bir cevap istiyor"u öğretmedi, sadece "olası sıradaki metni tahmin et"i öğretti. Java karşılaştırması: bu, sadece sözdizimi geçerliliğini kontrol eden bir derleyici (pretraining: bu olası bir cümle mi?) ile kodun ticket'ın niyetine gerçekten hizmet edip etmediğini kontrol eden bir code reviewer (fine-tuning: bu gerçekten kullanıcının istediğine YARDIMCI bir cevap mı?) arasındaki farktır — iki farklı, ardışık kalite kapısı. QA tarafındaki bedel: RLHF özellikle modeli kendinden emin, tam görünen cevapları tercih etmeye eğitir, çünkü insan değerlendiriciler kör karşılaştırmalarda çekingen bir "bilmiyorum"u kendinden emin ama yanlış bir cevaptan daha az yardımcı olarak puanlama eğilimindedir — bu, Claude AI sayfasında ele alınan halüsinasyonun DAVRANIŞSAL köküdür: model arızalı değildir, kısmen tam olarak ara sıra yanlış bir cevabı tehlikeli kılan o kendinden emin tona doğru optimize edilmiştir.`,
+          },
+          { type: 'heading', text: `SFT: Sadece Tahmin Etmek Değil, Göstermek` },
+          {
+            type: 'text',
+            content: `Supervised Fine-Tuning (SFT), pretrained base model'i alıp eğitime devam eder, ama artık çok daha küçük, özenle seçilmiş bir örnek konuşma setinde — bir prompt ve gerçekten iyi, insan tarafından yazılmış veya onaylanmış bir cevap — modele yardımcı bir asistan olmanın FORMATINI ve TONUNU öğretir, yeni olgular değil.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: SFT'nin üzerine RLHF neden gerekli — "iyi örnekler göster" neden yeterli değil? Çünkü bir kullanıcının bir şeyi soracağı her olası yolu kapsayacak kadar örnek cevap yazmak kombinatoryal olarak imkansızdır. RLHF bunun yerine modeli daha ucuz bir sinyalle eğitir: insanlar sadece modelin kendi iki aday cevabını SIRALAR ("hangisi daha iyi?"), bir ödül modeli bu sıralamayı tahmin etmeyi öğrenir, ve base model ödül modelinin yüksek puan verdiği cevapları üretmeye doğru itilir — küçük bir miktar insan YARGISINI, sonsuz elle yazılmış örneğe ihtiyaç duymak yerine ölçeklenebilir bir eğitim sinyaline dönüştürür.`,
+          },
+          { type: 'heading', text: `Alignment, Tek Paragrafta` },
+          {
+            type: 'text',
+            content: `"Alignment", pretraining-sonrası bu sürecin tamamı (SFT + RLHF + diğer teknikler) için şemsiye terimdir — hedef, modelin davranışını insan niyeti ve değerleriyle (yardımcı, zararsız, dürüst) eşleştirmektir, sadece "olası metni tahmin eder" değil. Bu, çözülmüş bir problem değil, devam eden bir araştırma alanıdır — bu sayfanın ilerisinde ve Claude AI sayfasında ele alınan risklerin, iyi hizalanmış modern modellerde bile hâlâ var olmasının sebebi tam olarak budur.`,
+          },
+          {
+            type: 'table',
+            headers: ['Aşama', 'Ne Yapar', 'Ne YAPMAZ'],
+            rows: [
+              ['Pretraining', 'Ham internet-ölçeğinde metinden sıradaki-token tahminini öğrenir', 'Modele yardımcı olmayı, talimat izlemeyi veya zararlı istekleri reddetmeyi öğretmez'],
+              ['SFT (Supervised Fine-Tuning)', 'Özenle seçilmiş örnek konuşmalarla (prompt + iyi cevap) eğitir', 'Base model\'in pretraining\'den sahip olmadığı yeni olgu veya bilgi eklemez'],
+              ['RLHF', 'İnsan tercih sıralamalarıyla bir ödül modeli eğitir, sonra modeli yüksek-ödüllü cevaplara doğru iter', 'Halüsinasyonu ortadan kaldırmaz — değerlendiriciler tercih ettiyse kendinden emin görünen yanlış cevapları istemeden ödüllendirebilir'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# RLHF döngüsünün basitleştirilmiş özeti (kavramsal, gerçek kod değil)
+for prompt in ornek_promptlar:
+    cevap_a, cevap_b = model.iki_farkli_cevap_uret(prompt)
+    tercih = insan_degerlendirici.hangisi_daha_iyi(cevap_a, cevap_b)
+    odul_modeli.bu_tercihten_ogren(cevap_a, cevap_b, tercih)
+# Ödül modeli eğitildikten sonra:
+for prompt in cok_daha_genis_veri:
+    cevap = model.cevap_uret(prompt)
+    odul = odul_modeli.puanla(cevap)          # insan olmadan otomatik puan
+    model.agirliklari_odule_gore_guncelle(odul)  # yüksek puanlı cevaplara doğru it`,
+              en: `# Simplified summary of the RLHF loop (conceptual, not real code)
+for prompt in example_prompts:
+    answer_a, answer_b = model.generate_two_different_answers(prompt)
+    preference = human_rater.which_is_better(answer_a, answer_b)
+    reward_model.learn_from_this_preference(answer_a, answer_b, preference)
+# Once the reward model is trained:
+for prompt in much_larger_dataset:
+    answer = model.generate_answer(prompt)
+    reward = reward_model.score(answer)          # automatic score, no human needed
+    model.update_weights_toward_reward(reward)   # nudge toward high-scoring answers`,
+            },
+          },
+          alignmentPipelineAnimation,
+          alignmentPipelineOrder,
+          alignmentDiagnosisPlayground,
+          {
+            type: 'quiz',
+            question: `RLHF, yardımcı olma becerisini artırmasına rağmen, bazı durumlarda halüsinasyonu neden İSTEMEDEN KÖTÜLEŞTİREBİLİR?`,
+            options: [
+              { id: 'a', text: 'RLHF\'in halüsinasyonla hiçbir ilgisi yoktur — sadece pretraining\'in vardır' },
+              { id: 'b', text: 'Kör karşılaştırmalarda insan değerlendiriciler kendinden emin görünen yanlış cevapları çekingen, belirsiz olanlardan daha iyi puanladıysa, ödül modeli özgüveni tercih etmeyi öğrenir — altta yatan olgunun doğru olup olmadığından bağımsız olarak modeli daha iddialı bir tona doğru iter' },
+              { id: 'c', text: 'RLHF modelin bilgisine yeni yanlış olgular ekler' },
+              { id: 'd', text: 'RLHF her zaman her doğruluk sorununu tamamen düzeltir' },
+            ],
+            correct: 'b',
+            explanation: `RLHF, sıralama verisinde insanların tercih ettiği her şeye doğru optimize eder — eğer dürüst çekingenlik yerine özgüven tercih edildiyse, model özgüveni, kendinden emin cevabın doğru olup olmadığından bağımsız olarak ödüllendirilen bir özellik olarak öğrenir.`,
+            retryQuestion: {
+              question: `Pretrained bir base model'e (hiçbir fine-tuning öncesi) doğrudan bir soru soruluyor. Nihai fine-tuned asistandan daha az doğrudan yardımcı bir cevap vermesi neden daha olasıdır?`,
+              options: [
+                { id: 'a', text: 'Base modeller her zaman bozuktur ve kullanılamaz' },
+                { id: 'b', text: 'Pretraining sadece "olası sıradaki metin" için optimize eder — olası görünen bir konu dışına kaymayla veya soruyu yeniden ifade etmeyle devam etmek, ona cevap vermek kadar geçerli bir tamamlamadır; "doğrudan ve yardımcı şekilde cevap ver"i özellikle öğreten aşamalar SFT/RLHF\'dir' },
+                { id: 'c', text: 'Base modeller kasıtlı olarak soruları cevaplamayı reddeder' },
+                { id: 'd', text: 'Base modellerin fine-tuned olanlardan daha az bilgisi vardır' },
+              ],
+              correct: 'b',
+              explanation: `Base bir modelin "kullanıcı doğrudan bir cevap istiyor" diye bir kavramı yoktur — bu beklenti tamamen SFT ve RLHF'in ürünüdür. Onlar olmadan, prompt metninin herhangi bir olası devamı, modelin gözünde eşit derecede geçerli bir tamamlamadır.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🧠 Context Window & Halüsinasyonun Kökeni`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🧽',
+            content: `Context window, bir toplantı bittiği an silinen bir yazı tahtasına benzer — mekanizma birebirdir: modelin senin spesifik konuşman hakkında "bildiği" her şey SADECE o pencerenin içindeki metinde yaşar, ve konuşma bittiği (veya token limitini aşıp kaydığı) an, o bilgi ne kadar önemli olursa olsun bir tahtadan silinen kalem izi kadar tamamen kaybolur. Üzerinde durulmaya değer soru şu: model trilyonlarca token üzerinde eğitildiyse, AYNI konuşmada 5 dakika önce söylediğin bir şeyi neden unutuyor? Çünkü "üzerinde eğitildi" ile "şu an hatırlıyor" tamamen farklı iki hafıza türüdür: eğitim, genel kalıpları kalıcı ağırlıklara pişirdi, dondu ve her konuşmada paylaşıldı; context window ise sadece o an yapıştırılanı tutan AYRI, geçici, konuşma-başına bir hafızadır. Java karşılaştırması: bu, tam olarak static final bir alan (derleme zamanında pişirilmiş, her yerde paylaşılan) ile bir metod-local değişken (sadece bir çağrının süresi boyunca var olan, sonra garbage collect edilen) arasındaki farktır — ikisini karıştırmak, bir modelin aslında sadece bir konuşmanın bağlamında olan bir şeyi eğitimden "hatırlamasını" beklemenin ta kendisi olan hatadır. QA tarafındaki bedel: bu, Claude AI sayfasında ele alınan "uzun bir konuşmada bağlam kaybı" riskinin tam mekanizmasıdır — bir konuşma eski içerik için pratik dikkat süresini aştıkça, erken talimatlar teknik olarak hâlâ geçmişte olsalar bile etkili biçimde erişilemez hale gelir, bu da yeni bir görev için taze bir konuşma başlatmanın (temel bağlam yeniden yapıştırılarak) neden düzeltme olduğunun, "modelden daha çok çaba göstermesini istemenin" değil, sebebidir.`,
+          },
+          { type: 'heading', text: `Pencerenin Bir Boyutu Var, Token'la Ölçülür` },
+          {
+            type: 'text',
+            content: `Her modelin, kelime veya mesaj değil TOKEN'la ölçülen maksimum bir context window'u vardır — bir konuşmadaki her şeyin toplam bütçesi: talimatların, yapıştırdığın kod ve modelin şimdiye kadarki cevapları hepsi aynı limite sayılır. Bir konuşma bunu aştığında, önemli olsun olmasın en eski içerik atılmalı veya özetlenmelidir.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: bir LLM neden bazen, gerçekten dışarı itilmeden ÇOK ÖNCE, token limitinin rahatlıkla içindeyken bile bir şeyi "unutmuş" gibi görünür? Çünkü uzun bir bağlam boyunca dikkat tekdüze değildir — çok uzun bir konuşmanın ortasına gömülü, birçok ilgisiz konu değişimiyle çevrili içerik, o zamandan beri söylenen her şeyle modelin sınırlı dikkati için etkili biçimde yarışır, bu yüzden erken bir kez belirtilen bir kural teknik olarak bağlamda hazır olsa bile işlevsel olarak öncelik dışına düşebilir. Java karşılaştırması: bu, teknik olarak hâlâ scope'ta olan ama çok uzun bir metod gövdesini göz gezdiren bir okuyucunun kolayca kaçırdığı bir değişken gibidir — "scope'ta olmak" ile "gerçekten fark edilmek" aynı garanti değildir.`,
+          },
+          { type: 'heading', text: `Halüsinasyonun Gerçek Kök Nedeni` },
+          {
+            type: 'text',
+            content: `Bir modelin özel bir "bilmiyorum" mekanizması yoktur — doğru bir olgu ve uydurma bir olgu dahil her tek çıktı, sıradaki en olası token'ı seçmenin tam olarak aynı sürecinden gelir. Gerçek, doğru devam ile olası-ama-yanlış devamın ikisi de anlamlı bir olasılığa sahip olduğunda — çünkü eğitim verisi belirsizdi veya seyrekti, veya context window ayırt edici detayı kaybetti — örnekleme süreci yanlış olanı doğru olan kadar akıcı biçimde seçebilir. Halüsinasyon, ayrı bir "yalan söyleme modülü"ndeki bir hata değildir; şanssız bir çekiliş üreten AYNI tek mekanizmadır.`,
+          },
+          {
+            type: 'table',
+            headers: ['Neden', 'Mekanizma', 'QA Karşı Alışkanlığı'],
+            rows: [
+              ['Context window taşması', 'Token bütçesi aşılınca en eski içerik atılır veya özetlenir', 'Bir görevi sonsuza dek uzatmak yerine yeni görev için taze bir konuşma başlat'],
+              ['Uzun konuşmalarda dikkat seyrelmesi', 'Erken bir talimat teknik olarak hazırdır ama o zamandan beri söylenen her şeyle yarışır', 'Uzun oturumlarda kritik kısıtları periyodik olarak yeniden belirt — bir kez söylemenin yeterli olduğunu varsayma'],
+              ['"Bilmiyorum" token\'ı yok', 'Doğru veya yanlış her çıktı aynı sıradaki-token örnekleme sürecinden gelir', 'Dış bir kaynağa (dokümantasyon, bir çalıştırma, kabul kriterleri) karşı doğrula — metindeki özgüven asla kanıt değildir'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: {
+              tr: `# Context window'un basitleştirilmiş modeli (kavramsal, gerçek kod değil)
+context = []
+TOKEN_LIMITI = 128000
+
+def mesaj_ekle(yeni_mesaj):
+    context.append(yeni_mesaj)
+    while token_say(context) > TOKEN_LIMITI:
+        context.pop(0)  # en eski mesaj atılır — SİLİNİR, özetlenmezse tamamen kaybolur
+    return context`,
+              en: `# Simplified model of the context window (conceptual, not real code)
+context = []
+TOKEN_LIMIT = 128000
+
+def add_message(new_message):
+    context.append(new_message)
+    while count_tokens(context) > TOKEN_LIMIT:
+        context.pop(0)  # the oldest message is dropped — GONE, unless summarized first
+    return context`,
+            },
+          },
+          tokenLabBackCallout,
+          contextDriftAnimation,
+          contextDriftOrder,
+          contextResetPlayground,
+          {
+            type: 'quiz',
+            question: `Bir model akıcı, kendinden emin ama olgusal olarak yanlış bir cevap veriyor. Bu sekmede ele alınan context-window ve örnekleme mekanizmasına göre en isabetli açıklama nedir?`,
+            options: [
+              { id: 'a', text: 'Model aktifleşen ayrı bir "yalan söyleme" modülüne sahip' },
+              { id: 'b', text: 'Özel bir "bilmiyorum" çıktısı yoktur — doğru veya yanlış her token, aynı sıradaki-en-olası-token sürecinden gelir; eğitim verisi belirsizse veya ayırt edici bağlam kaybolduysa, şanssız-ama-olası bir çekiliş, doğru bir çekiliş kadar kolay üretilir' },
+              { id: 'c', text: 'Modelin context window\'u tamamen doldu' },
+              { id: 'd', text: 'Bu, yeterli veriyle eğitilmiş modellerde asla olmaz' },
+            ],
+            correct: 'b',
+            explanation: `Doğruluk ve halüsinasyon, birebir aynı token-örnekleme mekanizmasından üretilir — ayrı bir "doğruluk kontrolü" adımı yoktur. Bu, tam olarak Token Lab'da çalıştırdığın düşük-olasılık yolunun büyük ölçekli halidir.`,
+            retryQuestion: {
+              question: `Çok uzun bir konuşmada, token limiti hiç aşılmamış olsa bile, Claude 40 mesaj önce belirlediğin bir format kuralını takip etmeyi bırakmış görünüyor. En isabetli teşhis nedir?`,
+              options: [
+                { id: 'a', text: 'Limite yaklaşılınca kural teknik olarak hafızadan silindi' },
+                { id: 'b', text: 'Kural teknik olarak bağlamda hâlâ hazır ama o zamandan beri söylenen her şeyle modelin sınırlı dikkati için yarışıyor — bu sert bir silme değil, dikkat seyrelmesidir; kuralı yeniden belirterek taze bir konuşma başlatmak pratik düzeltmedir' },
+                { id: 'c', text: 'Model kasıtlı olarak kuralı takip etmemeye karar verdi' },
+                { id: 'd', text: 'Bu sadece eski, daha az yetenekli modellerde olur' },
+              ],
+              correct: 'b',
+              explanation: `Dikkat seyrelmesi "işlevsel olarak öncelik dışına düşme" sorunudur, sert-silme sorunu değil — token limiti ayrı, daha katı bir kesimdir. Düzeltme (taze bağlam), sürekli büyüyen bir thread içinde savaşmak yerine seyrelme sorununu tamamen ortadan kaldırarak işe yarar.`,
             },
           },
         ],

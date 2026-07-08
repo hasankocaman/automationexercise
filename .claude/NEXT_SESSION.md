@@ -10,6 +10,76 @@
 
 ---
 
+## /llm-agents — LC2 TAMAMLANDI: Pretraining + Fine-tuning/RLHF + Context & Halüsinasyon (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> LC1 `087bec1` ile commit edilmişti (bkz. aşağıdaki LC1 bölümü). Bu oturumda
+> Sonnet, `llmcreate.md`'deki hazır LC2 promptuyla sekme 2-4'ü uyguladı.
+
+### Yapılan iş — LC2 (SONNET)
+
+`src/data/llmAgentsData.js`'e 3 yeni sekme eklendi (mevcut 2 sekmenin ARKASINA,
+EN+TR simetrik, `llmcreate.md` LC2 bölümündeki kapsam sınırlarına birebir uyularak):
+
+1. **🎓 LLM Nasıl Eğitilir: Pretraining:** fotoğrafçılık öğrencisi analojisiyle
+   §9.3 simple-box (eksik köşeyi tahmin etme alıştırması), "loss"/"ağırlıklar"/
+   "eğitim kesim tarihi" kavramları (Java'da derlenmiş .class dosyası ve donmuş
+   bağımlılık sürümü analojileriyle), pretraining döngüsü pseudocode'u,
+   eğitim-kesim-tarihi teşhis code-playground'u (relatedTopicId'li) — bu
+   sekme /claude-ai Riskler sekmesindeki "eski kütüphane syntax'ı" hatasının
+   MEKANİK kökenini açıklıyor.
+2. **🎯 Fine-tuning & RLHF:** "kütüphaneyi okumuş ama iyi cevabı hiç görmemiş
+   yeni işe alınan" analojisiyle §9.3 simple-box, SFT vs RLHF ayrımı, alignment
+   tek paragraf, RLHF döngüsü pseudocode'u, model-davranışını-aşamaya-bağlama
+   code-playground'u — RLHF'in kendinden-emin-ton tercihini halüsinasyonun
+   DAVRANIŞSAL köküne bağlıyor (/claude-ai Riskler sekmesine köprü).
+3. **🧠 Context Window & Halüsinasyonun Kökeni:** yazı tahtası analojisiyle
+   §9.3 simple-box (Java static final vs method-local karşılaştırması),
+   dikkat-seyrelmesi mekanizması, halüsinasyonun "ayrı bilmiyorum mekanizması
+   yok" kök nedeni, context window pseudocode'u, **Token Lab'a (sekme 1) geri
+   referans veren callout** (görevde istenen ek), taze-bağlam code-playground'u.
+
+Her sekme: 1 adet §9.3 standardında (4 katmanlı) `simple-box` + `step-animation`
++ `challenge(order-sort)` + `code-playground` (relatedTopicId + benzersiz
+hint'lerle) + sekme sonunda `quiz` + `retryQuestion`. Sayfa artık **5 sekme,
+5 section** (EN+TR simetrik).
+
+### Yazım sırasında bulunan ve düzeltilen 2 sorun
+
+1. **Syntax hatası (kaçırılmamış apostrof):** EN metinde `"the model's mistake"`
+   içindeki apostrof tek-tırnaklı string'i erken kapatıyordu — template literal'a
+   çevrilerek düzeltildi, `node --check` ile doğrulandı.
+2. **TR dilbilgisi hatası:** Context Window sekmesindeki bir akıl yürütme
+   cümlesinde "neden" sorusu eksik kalmıştı ("bir LLM bazen ... unutmuş gibi
+   görünür?" → doğrusu "bir LLM NEDEN bazen ... görünür?"). Manuel TR
+   taramasında bulunup düzeltildi, build+test yeniden koşulup doğrulandı.
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum, düzeltmelerden SONRAKİ son koşum)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- `npm run build` → ✅ PASS (40.1s, 40 static route, dist SEO PASS)
+- `tests/token-lab.spec.ts` --workers=1 → ✅ 2/2 PASS (regresyon yok)
+- EN ağacı scriptli Türkçe-karakter taraması (`.tr` alt-alanları hariç) → ✅ 0 sızıntı
+- TR metin taraması → ✅ tüm TR içerik tek tek okundu, 1 dilbilgisi hatası
+  bulunup düzeltildi, teknik terimler İngilizce kalmış
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun LC2 işi commit edilmedi** — kullanıcı onayı bekliyor. Tek
+   değişen dosya: `src/data/llmAgentsData.js` (+ bu `.claude/NEXT_SESSION.md`
+   güncellemesi). `feature/llm-agents-page` branch'inde LC1 (`087bec1`) üzerine
+   ikinci commit olarak eklenmesi planlanıyor.
+2. **LC3 (Sonnet):** Agent Nedir + Function Calling + OpenAI API sekmeleri —
+   prompt `llmcreate.md` LC3 bölümünde HAZIR, hemen verilebilir.
+3. LC4 (Kendi Agent'ın + "Eğitilir mi"), LC5 (Üretim + Riskler), LC6 (mülakat +
+   audit + test listeleri + ana sayfa butonu + /claude-ai callout + merge
+   hazırlığı) sırayla kalıyor — promptlar hazır.
+4. `/llm-agents` hâlâ test route listelerinde ve audit PAGES'te YOK — bilinçli,
+   LC6'da eklenecek.
+5. **İki branch de hâlâ main'e merge edilmedi** — merge sırası: önce
+   `feature/claude-ai-page` → main, sonra `feature/llm-agents-page` → main.
+
+---
+
 ## YENİ SAYFA: /llm-agents "LLM & AI Agents" — LC1 TAMAMLANDI (2026-07-07, `feature/llm-agents-page`)
 
 > Kullanıcı sordu: "LLM nedir, agent nedir, nasıl eğitilir, tester OpenAI ile
