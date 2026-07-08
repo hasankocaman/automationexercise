@@ -2202,6 +2202,13 @@ messages = [{"role": "user", "content": relevant_section}]`,
         title: `💼 Interview Q&A`,
         blocks: [
           {
+            type: 'callout',
+            icon: '🔮',
+            content: {
+              en: 'A heads-up before you dive in: these questions might never come up in a typical QA/tester interview — most interviews today still focus on test design, automation, and process knowledge, not LLM internals. But given how fast AI is entering testing work, nobody can guarantee what interviewers will ask a few years from now, so treat this tab as a forward-looking extra, not a mandatory checkbox to pass an interview. If you are just starting out in testing, do not feel like you must master this before anything else — focus on core testing fundamentals and automation first, and come back here as a bonus once that foundation is solid.',
+            },
+          },
+          {
             type: 'interview-questions',
             relatedTopicId: 'llm-agents-interview-questions',
             topic: 'LLMs & Agents for QA Testers',
@@ -3675,6 +3682,13 @@ messages = [{"role": "user", "content": relevant_section}]`,
       {
         title: `💼 Mülakat Soruları & Cevapları`,
         blocks: [
+          {
+            type: 'callout',
+            icon: '🔮',
+            content: {
+              tr: `Başlamadan önce bir not: bu sekmedeki sorular klasik bir QA/tester mülakatında hiç karşına çıkmayabilir — bugün mülakatların çoğu hâlâ test tasarımı, otomasyon ve süreç bilgisi üzerine kurulu, LLM'lerin iç işleyişi üzerine değil. Ama yapay zekanın test işine bu kadar hızlı girdiğini görünce, birkaç yıl sonra karşımıza hangi soruların çıkacağını kimse garanti edemez — bu yüzden bu sekmeyi "mülakatı geçmek için zorunlu" değil, geleceğe hazırlıklı olmak için fazladan bir adım olarak düşün. Testerliğe yeni başlıyorsan, bunu her şeyden önce öğrenmen gerektiğini hissetme — önce temel test bilgisine ve otomasyona odaklan, o temel oturduktan sonra buraya bir bonus olarak dön.`,
+            },
+          },
           {
             type: 'interview-questions',
             relatedTopicId: 'llm-agents-interview-questions',
