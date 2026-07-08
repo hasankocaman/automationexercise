@@ -371,6 +371,288 @@ Correct approach: Start a new conversation. Re-paste only the ESSENTIAL context,
   xpReward: 15,
 }
 
+// ─── LC3 paylaşılan bloklar: Agent Nedir ─────────────────────────────────────
+
+const claudeAiAgentCrossCallout = {
+  type: 'callout',
+  icon: '🤖',
+  content: {
+    tr: 'Bu döngünün iki ticari örneğini zaten gördün: Claude AI sayfasındaki Claude Code (başarısız testi algıla → çalıştırmaya karar ver → çalıştır → gerçek hatayı gözle → tekrarla) ve MCP (görevi algıla → araç çağrısına karar ver → MCP server üzerinden çalıştır → gerçek sonucu gözle → tekrarla). Bu sekme, o iki ürünün uyguladığı genel mekanizmayı isimlendiriyor.',
+    en: 'You have already seen two commercial examples of exactly this loop: Claude Code on the Claude AI page (perceive a failing test → decide to run it → act by executing → observe the real error → repeat) and MCP (perceive a task → decide a tool call is needed → act via the MCP server → observe the real result → repeat). This tab names the general mechanism those two products implement.',
+  },
+}
+
+const agentLoopAnimation = {
+  type: 'step-animation',
+  id: 'llm-agent-loop-step-01',
+  title: { tr: 'Adım Adım: Çalışırken Agent Döngüsü', en: 'Step by Step: The Agent Loop in Action' },
+  steps: [
+    { id: 1, icon: '👁️', label: { tr: 'Algıla', en: 'Perceive' }, detail: { tr: 'Agent mevcut durumu okur — başarısız bir test dosyası, bir kullanıcı isteği.', en: 'The agent reads the current state — a failing test file, a user request.' } },
+    { id: 2, icon: '🧠', label: { tr: 'Düşün', en: 'Think' }, detail: { tr: 'LLM, o duruma dayanarak sıradaki eylemin ne olması gerektiğine karar verir.', en: 'The LLM decides the next action based on that state.' } },
+    { id: 3, icon: '⚡', label: { tr: 'Eyle', en: 'Act' }, detail: { tr: 'Bir araç veya fonksiyon gerçekten çağrılır ve GERÇEKTEN çalışır.', en: 'A tool or function is actually called and executes for real.' } },
+    { id: 4, icon: '📡', label: { tr: 'Gözle', en: 'Observe' }, detail: { tr: 'O eylemin gerçek sonucu geri okunur.', en: 'The real result of that action is read back.' } },
+    { id: 5, icon: '🔁', label: { tr: 'Tekrarla veya bitir', en: 'Repeat or finish' }, detail: { tr: 'Döngü güncellenmiş durumla algılamaya döner, veya görev bittiyse durur.', en: 'The loop returns to perceive with updated state, or stops if the task is done.' } },
+  ],
+}
+
+const agentLoopOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-agent-loop-order-01',
+  question: { tr: 'Bir agent\'ın algıla-düşün-eyle-gözle döngüsünü doğru sıraya diz.', en: 'Arrange an agent\'s perceive-think-act-observe loop in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Mevcut durumu algıla (dosya, test sonucu, istek)', en: 'Perceive the current state (a file, a test result, a request)' }, order: 1 },
+    { id: '2', text: { tr: 'LLM sıradaki eylemi düşünüp karar versin', en: 'Let the LLM think and decide the next action' }, order: 2 },
+    { id: '3', text: { tr: 'Bir aracı gerçekten çağırıp çalıştır', en: 'Actually call and execute a tool' }, order: 3 },
+    { id: '4', text: { tr: 'Eylemin gerçek sonucunu gözle', en: 'Observe the real result of the action' }, order: 4 },
+    { id: '5', text: { tr: 'Görev bitene kadar güncellenmiş durumla tekrarla', en: 'Repeat with the updated state until the task is done' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const agentVsChatbotPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-agent-vs-chatbot-diagnosis-practice',
+  id: 'llm-agent-vs-chatbot-diagnosis-practice',
+  label: { tr: 'Pratik: "AI agent" pazarlama iddiasını mekanik bir teşhise dönüştür', en: 'Practice: Turn an "AI agent" marketing claim into a mechanistic diagnosis' },
+  language: 'text',
+  task: {
+    tr: 'Amaç: "Bu araç \'AI agent\' diye satılıyor, agent mı değil mi bilmiyorum" gibi belirsiz bir soruyu; döngü/araç-erişimi kriterine dayanan mekanik bir teşhise dönüştürmek.',
+    en: 'Goal: turn a vague question like "This tool is marketed as an \'AI agent\', I don\'t know if it actually is one" into a mechanistic diagnosis based on the loop/tool-access criterion.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: aracın gerçekte ne yaptığının gözlemi, ve kriter + sonuç.',
+    en: 'Fill in the TODO lines: the observation of what the tool actually does, and the criterion + verdict.',
+  },
+  code: {
+    tr: `TODO (araç gerçekte ne yapıyor: dosya okuyor mu, komut çalıştırıyor mu?)
+Bu araç "AI agent" diye satılıyor, agent mı değil mi bilmiyorum.
+TODO (kriter + sonuç)`,
+    en: `TODO (what the tool actually does: does it read files, run commands?)
+This tool is marketed as an "AI agent", I don't know if it actually is one.
+TODO (criterion + verdict)`,
+  },
+  starterCode: {
+    tr: `TODO (araç gerçekte ne yapıyor: dosya okuyor mu, komut çalıştırıyor mu?)
+Bu araç "AI agent" diye satılıyor, agent mı değil mi bilmiyorum.
+TODO (kriter + sonuç)`,
+    en: `TODO (what the tool actually does: does it read files, run commands?)
+This tool is marketed as an "AI agent", I don't know if it actually is one.
+TODO (criterion + verdict)`,
+  },
+  solutionCode: {
+    tr: `Gözlem: Araç sadece bir metin kutusuna soru yazıp cevap alıyor; hiçbir dosya okumuyor, hiçbir komut çalıştırmıyor.
+Kriter: Gerçek bir araç çağrısı + gözlemlenen gerçek bir sonuç + bunu tekrarlayan bir döngü var mı?
+Sonuç: Yok — bu mimari olarak bir chatbot'tur. "Agent" burada bir pazarlama etiketidir, bir mekanizma değil.`,
+    en: `Observation: The tool only sends a question to a text box and displays the answer; it reads no files and runs no commands.
+Criterion: Is there a real tool call + an observed real result + a loop that repeats this?
+Verdict: No — this is architecturally a chatbot. "Agent" here is a marketing label, not a mechanism.`,
+  },
+  expected: {
+    tr: `Teşhis artık "agent" kelimesinin kendisine değil, döngü + gerçek araç erişimi kriterine dayanıyor — bu, bir pazarlama iddiasını doğrulanabilir bir mimari sorusuna çeviren doğru zihinsel model.`,
+    en: `The diagnosis now rests on the loop + real tool-access criterion, not on the word "agent" itself — this is the correct mental model for turning a marketing claim into a verifiable architecture question.`,
+  },
+  hints: [
+    { tr: 'Bir ürünün "agent" diye adlandırılması, onun gerçekten bir döngüde araç çalıştırdığı anlamına gelmez.', en: 'A product being called an "agent" doesn\'t mean it actually executes tools in a loop.' },
+    { tr: 'Kriter her zaman aynıdır: gerçek araç çağrısı + gerçek sonuç gözlemi + tekrarlayan döngü.', en: 'The criterion is always the same: real tool call + real result observation + a repeating loop.' },
+    { tr: 'Sadece metin üreten bir sistem, ne kadar akıllı görünürse görünsün, bu tanıma göre bir chatbot\'tur.', en: 'A system that only produces text, no matter how intelligent it seems, is a chatbot by this definition.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── LC3 paylaşılan bloklar: Function Calling ────────────────────────────────
+
+const toolExecutionAnimation = {
+  type: 'step-animation',
+  id: 'llm-tool-execution-step-01',
+  title: { tr: 'Adım Adım: Araç İsteğinden Gerçek Çalıştırmaya', en: 'Step by Step: From Tool Request to Real Execution' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Aracı kaydet', en: 'Register' }, detail: { tr: 'Kodun, bir aracın adını, parametrelerini ve amacını modele tanımlar.', en: 'Your code describes a tool\'s name, parameters and purpose to the model.' } },
+    { id: 2, icon: '🧠', label: { tr: 'Model karar verir', en: 'Model decides' }, detail: { tr: 'Bir görev verildiğinde, model bu aracın gerekli olduğuna karar verir.', en: 'Given a task, the model decides this tool is needed.' } },
+    { id: 3, icon: '📝', label: { tr: 'Model istek üretir', en: 'Model requests' }, detail: { tr: 'Model, aracı ve argüman değerlerini adlandıran YAPILANDIRILMIŞ bir istek üretir — bu hâlâ sadece metindir.', en: 'The model outputs a structured request naming the tool + arguments — this is still just text.' } },
+    { id: 4, icon: '⚙️', label: { tr: 'Kodun çalıştırır', en: 'Your code executes' }, detail: { tr: 'Kodun isteği okur ve gerçek fonksiyonu GERÇEKTEN çağırır.', en: 'Your code reads the request and actually calls the real function.' } },
+    { id: 5, icon: '↩️', label: { tr: 'Sonuç geri akar', en: 'Result flows back' }, detail: { tr: 'Gerçek sonuç, modelin sıradaki gözlemi olur.', en: 'The real result becomes the model\'s next observation.' } },
+  ],
+}
+
+const toolExecutionOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-tool-execution-order-01',
+  question: { tr: 'Bir araç isteğinin gerçek çalıştırmaya giden akışını doğru sıraya diz.', en: 'Arrange the flow from a tool request to real execution in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'Kod, aracın adını ve parametrelerini modele tanımlar', en: 'Code describes the tool\'s name and parameters to the model' }, order: 1 },
+    { id: '2', text: { tr: 'Model bu aracın gerekli olduğuna karar verir', en: 'The model decides this tool is needed' }, order: 2 },
+    { id: '3', text: { tr: 'Model aracı ve argümanları adlandıran yapılandırılmış bir istek üretir', en: 'The model outputs a structured request naming the tool and arguments' }, order: 3 },
+    { id: '4', text: { tr: 'Kod isteği okuyup gerçek fonksiyonu çağırır', en: 'Code reads the request and calls the real function' }, order: 4 },
+    { id: '5', text: { tr: 'Gerçek sonuç modelin sıradaki gözlemi olarak geri akar', en: 'The real result flows back as the model\'s next observation' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const functionCallGatePlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-function-calling-gate-practice',
+  id: 'llm-function-calling-gate-practice',
+  label: { tr: 'Pratik: Korumasız bir araç çalıştırmasını doğrulamalı hale getir', en: 'Practice: Turn an unguarded tool execution into a validated one' },
+  language: 'python',
+  task: {
+    tr: 'Amaç: modelin istediği HERHANGİ bir aracı sorgusuzca çalıştıran kodu; sadece kayıtlı/izin verilen araçları çalıştıran bir koda dönüştürmek.',
+    en: 'Goal: turn code that blindly executes WHATEVER tool the model requested into code that only executes registered/allowed tools.',
+  },
+  explanation: {
+    tr: 'TODO satırını, kayıtlı araçlar listesine karşı doğrulama yapan kodla değiştir.',
+    en: 'Replace the TODO line with code that validates against the list of registered tools.',
+  },
+  code: {
+    tr: `istek = model.arac_cagrisi_iste(durum)
+TODO (doğrulama olmadan doğrudan çalıştır)`,
+    en: `request = model.request_tool_call(state)
+TODO (execute directly, no validation)`,
+  },
+  starterCode: {
+    tr: `istek = model.arac_cagrisi_iste(durum)
+TODO (doğrulama olmadan doğrudan çalıştır)`,
+    en: `request = model.request_tool_call(state)
+TODO (execute directly, no validation)`,
+  },
+  solutionCode: {
+    tr: `istek = model.arac_cagrisi_iste(durum)
+if istek.arac_adi not in KAYITLI_ARACLAR:
+    hata_dondur(f"Bilinmeyen arac: {istek.arac_adi}")
+else:
+    sonuc = KAYITLI_ARACLAR[istek.arac_adi].calistir(istek.parametreler)`,
+    en: `request = model.request_tool_call(state)
+if request.tool_name not in REGISTERED_TOOLS:
+    return_error(f"Unknown tool: {request.tool_name}")
+else:
+    result = REGISTERED_TOOLS[request.tool_name].execute(request.parameters)`,
+  },
+  expected: {
+    tr: `Modelin isteği artık kör güvenle çalıştırılmıyor — kayıtlı araçlar listesine karşı doğrulama, modelin hiç tanımlanmamış bir aracı "uydurmasını" (halüsinasyon) zararsız hale getirir. Bu, /claude-ai'deki izin modu disiplininin kod seviyesindeki karşılığıdır.`,
+    en: `The model's request is no longer executed with blind trust — validating against the registered tools list makes it harmless if the model "invents" (hallucinates) a tool that was never defined. This is the code-level counterpart of the permission-mode discipline from the Claude AI page.`,
+  },
+  hints: [
+    { tr: 'Model\'in "şu aracı çağır" demesi, o aracın var olduğu veya çalıştırılmasının güvenli olduğu anlamına gelmez.', en: 'The model saying "call this tool" doesn\'t mean the tool exists or is safe to run.' },
+    { tr: 'Kayıtlı araçlar listesine karşı kontrol etmek, modelin hiç tanımlanmamış bir aracı uydurmasını zararsız hale getirir.', en: 'Checking against the registered tools list makes it harmless if the model invents a tool that was never defined.' },
+    { tr: 'Bu tam olarak Claude AI sayfasındaki izin modu disiplininin kod seviyesindeki karşılığıdır.', en: 'This is exactly the code-level counterpart of the permission-mode discipline from the Claude AI page.' },
+  ],
+  xpReward: 15,
+}
+
+// ─── LC3 paylaşılan bloklar: OpenAI API ──────────────────────────────────────
+
+const apiKeyCrossCallout = {
+  type: 'callout',
+  icon: '🔑',
+  content: {
+    tr: 'Bu disiplini Claude AI sayfasının Erişim & Kurulum sekmesinde zaten öğrendin: bir API key\'i asla koda gömme, her zaman bir ortam değişkeninden oku. Kural burada da birebir aynıdır, sadece sağlayıcı farklı.',
+    en: 'You already learned this exact discipline on the Claude AI page\'s Access & Setup tab: never hardcode an API key, always read it from an environment variable. The rule is identical here, just a different provider.',
+  },
+}
+
+const apiCallStepAnimation = {
+  type: 'step-animation',
+  id: 'llm-api-call-step-01',
+  title: { tr: 'Adım Adım: pip install\'dan Yazdırılan Cevaba', en: 'Step by Step: From pip install to a Printed Response' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Kur', en: 'Install' }, detail: { tr: 'pip install openai — resmi istemci kütüphanesi.', en: 'pip install openai — the official client library.' } },
+    { id: 2, icon: '🔑', label: { tr: 'Kimlik doğrula', en: 'Authenticate' }, detail: { tr: 'İstemci, API key\'i bir ortam değişkeninden okur — asla kaynak koddan değil.', en: 'The client reads the API key from an environment variable, never from source code.' } },
+    { id: 3, icon: '📝', label: { tr: 'Mesaj listesini kur', en: 'Build the messages list' }, detail: { tr: 'system rolü kalıcı davranışı belirler, user rolü isteği belirtir.', en: 'The system role sets persona, the user role states the request.' } },
+    { id: 4, icon: '📤', label: { tr: 'İsteği gönder', en: 'Send the request' }, detail: { tr: 'Tek bir HTTP çağrısı, mesaj listesinin TAMAMINI API\'ye taşır.', en: 'One HTTP call carries the entire messages list to the API.' } },
+    { id: 5, icon: '📥', label: { tr: 'Cevabı oku', en: 'Read the response' }, detail: { tr: 'Modelin cevabı öngörülebilir, ayrıştırılabilir bir şekilde gelir.', en: 'The model\'s reply arrives in a predictable, parseable shape.' } },
+  ],
+}
+
+const apiCallOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-llm-api-call-order-01',
+  question: { tr: 'İlk OpenAI API çağrısına giden adımları doğru sıraya diz.', en: 'Arrange the steps to your first OpenAI API call in the correct order.' },
+  items: [
+    { id: '1', text: { tr: 'pip install openai ile istemci kütüphanesini kur', en: 'Install the client library with pip install openai' }, order: 1 },
+    { id: '2', text: { tr: 'API key\'in bir ortam değişkeninde olduğunu doğrula', en: 'Make sure the API key is in an environment variable' }, order: 2 },
+    { id: '3', text: { tr: 'system + user rolleriyle mesaj listesini kur', en: 'Build the messages list with system + user roles' }, order: 3 },
+    { id: '4', text: { tr: 'chat.completions.create() ile isteği gönder', en: 'Send the request with chat.completions.create()' }, order: 4 },
+    { id: '5', text: { tr: 'Cevabı response.choices[0].message.content\'tan oku', en: 'Read the response from response.choices[0].message.content' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const openaiFirstCallPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'llm-openai-first-call-practice',
+  id: 'llm-openai-first-call-practice',
+  label: { tr: 'Pratik: Güvensiz bir API çağrısını düzelt', en: 'Practice: Fix an unsafe API call' },
+  language: 'python',
+  task: {
+    tr: 'Amaç: API key\'i koda gömen ve tek bir rolsüz user mesajı gönderen bir kod parçasını; ortam değişkeni kullanan ve system+user rolleriyle kurulmuş bir koda dönüştürmek.',
+    en: 'Goal: turn code that hardcodes the API key and sends a single unstructured user message into code that uses an environment variable and a proper system+user messages list.',
+  },
+  explanation: {
+    tr: 'TODO satırlarını doldur: API key güvenliği ve mesaj listesi yapısı.',
+    en: 'Fill in the TODO lines: API key security and messages list structure.',
+  },
+  code: {
+    tr: `from openai import OpenAI
+istemci = OpenAI(api_key="sk-abc123...")  # TODO: bunu düzelt
+yanit = istemci.chat.completions.create(
+    model="<guncel-model-adi>",
+    messages=[{"role": "user", "content": "test yaz"}]  # TODO: rol yapısını iyileştir
+)`,
+    en: `from openai import OpenAI
+client = OpenAI(api_key="sk-abc123...")  # TODO: fix this
+response = client.chat.completions.create(
+    model="<current-model-name>",
+    messages=[{"role": "user", "content": "write tests"}]  # TODO: improve the role structure
+)`,
+  },
+  starterCode: {
+    tr: `from openai import OpenAI
+istemci = OpenAI(api_key="sk-abc123...")  # TODO: bunu düzelt
+yanit = istemci.chat.completions.create(
+    model="<guncel-model-adi>",
+    messages=[{"role": "user", "content": "test yaz"}]  # TODO: rol yapısını iyileştir
+)`,
+    en: `from openai import OpenAI
+client = OpenAI(api_key="sk-abc123...")  # TODO: fix this
+response = client.chat.completions.create(
+    model="<current-model-name>",
+    messages=[{"role": "user", "content": "write tests"}]  # TODO: improve the role structure
+)`,
+  },
+  solutionCode: {
+    tr: `from openai import OpenAI
+istemci = OpenAI()  # API key ortam değişkeninden (OPENAI_API_KEY) otomatik okunur
+yanit = istemci.chat.completions.create(
+    model="<guncel-model-adi>",  # Güncel model adını resmi OpenAI docs'undan al
+    messages=[
+        {"role": "system", "content": "Sen kıdemli bir QA mühendisisin."},
+        {"role": "user", "content": "Login özelliği için 3 sınır değer test case'i yaz."},
+    ]
+)`,
+    en: `from openai import OpenAI
+client = OpenAI()  # API key is read automatically from the OPENAI_API_KEY environment variable
+response = client.chat.completions.create(
+    model="<current-model-name>",  # Get the current model name from the official OpenAI docs
+    messages=[
+        {"role": "system", "content": "You are a senior QA engineer."},
+        {"role": "user", "content": "Write 3 boundary-value test cases for the login feature."},
+    ]
+)`,
+  },
+  expected: {
+    tr: `İki düzeltme de adlandırılıyor: key kaynak koddan kaldırıldı (Claude AI Erişim sekmesindeki aynı disiplin), ve system rolü eklendi — Prompt Mühendisliği sekmesindeki "rol" bileşeninin API karşılığı, tek başına bir user mesajına güvenmek yerine kalıcı davranışı belirliyor.`,
+    en: `Both fixes are explicit: the key is removed from source code (the same discipline from the Claude AI Access tab), and a system role is added — the API counterpart of the "role" ingredient from the Prompt Engineering tab, setting persistent behavior instead of relying on a bare user message alone.`,
+  },
+  hints: [
+    { tr: 'API key\'i doğrudan kodda yazmak, Claude AI Erişim & Kurulum sekmesinde öğrendiğin aynı güvenlik hatasıdır.', en: 'Hardcoding the API key is the same security mistake covered in the Claude AI Access & Setup tab.' },
+    { tr: 'system rolü, Prompt Mühendisliği sekmesindeki "rol" bileşeninin API karşılığıdır — kalıcı davranışı belirler.', en: 'The system role is the API counterpart of the "role" ingredient from the Prompt Engineering tab — it sets persistent behavior.' },
+    { tr: 'Bağlam ve kısıt olmadan tek bir user mesajı, jenerik bir cevap alma riskini taşır — aynı 4 bileşen kuralı burada da geçerli.', en: 'A bare user message without context or constraint risks a generic answer — the same 4-ingredient rule applies here too.' },
+  ],
+  xpReward: 15,
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const llmAgentsData = {
@@ -380,7 +662,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -754,6 +1036,298 @@ def add_message(new_message):
           },
         ],
       },
+      {
+        title: `🤖 What Is an Agent: LLM + Tools + Loop`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔑',
+            content: `A chatbot is a brilliant consultant sitting behind a glass wall in a room full of tools; an agent is that SAME consultant handed a key to walk through the glass and actually use the tools — the mechanism is exact: the consultant's expertise (the LLM) doesn't change between the two, what changes is whether anything connects their words to actual effects in the world. Here is the question worth sitting with: if the LLM inside a chatbot and the LLM inside an agent can be the exact same model, what makes one "just answer" and the other "get things done"? Because the agent architecture wraps that same model in a LOOP with access to tools: the model perceives the current state, decides on an action, a tool actually executes and returns a real result, and the model observes that real result before deciding the next action — a chatbot stops after one turn of "decide," an agent keeps looping through "perceive → decide → act → observe" until the task is done. Java comparison: this is the Strategy design pattern living inside a while loop — the LLM is a pluggable "decide what to do next" strategy object, called repeatedly inside a loop that also calls into real APIs/tools and feeds results back as the strategy's next input; swap the strategy (a different model) and the loop architecture doesn't change, exactly like swapping a Comparator without touching the sort algorithm around it. The QA stake: you already saw two commercial examples of exactly this loop on the Claude AI page — Claude Code and MCP — this tab names the general mechanism those two specific products implement.`,
+          },
+          { type: 'heading', text: `Chatbot vs Agent: Answering vs Acting` },
+          {
+            type: 'text',
+            content: `A chatbot's job ends the moment it produces a text response — even a very good one. An agent's job is not producing text, it's accomplishing a task, and text (specifically, a request to call a tool) is just one of the things it can produce along the way. The dividing line is not intelligence, it's architecture: does anything wrap the model in a loop with real tool access?`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why can't a plain chatbot "just decide" to run a command on its own? Because a chatbot has no execution environment connected to it — it can WRITE the text of a command, but nothing in a pure chat interface takes that text and actually runs it against a real file system or terminal. An agent framework is precisely the missing wiring that connects "the model wants to do X" to "X actually happens," plus feeds the real outcome back in.`,
+          },
+          { type: 'heading', text: `The Loop: Perceive → Think → Act → Observe` },
+          {
+            type: 'text',
+            content: `Every agent, regardless of product, runs the same four-step loop: 1) perceive the current state (a file, a test result, a user request), 2) think — decide the next action based on that state, 3) act — call a tool or function, 4) observe the real result of that action, then loop back to perceive with the updated state. The loop ends when the model decides the task is complete, or a safety limit is hit (covered in the Risks tab later).`,
+          },
+          {
+            type: 'table',
+            headers: ['Concept', 'Chatbot', 'Agent'],
+            rows: [
+              ['What it produces', 'A text response, once, per turn', 'A sequence of decide→act→observe cycles until the task is done'],
+              ['Connection to the real world', 'None — output is only ever text you read', 'Tool/function calls that actually execute and return real results'],
+              ['When it stops', 'After one response', 'When the task is complete or a safety limit (max steps) is reached'],
+              ['Example from the Claude AI page', 'A plain claude.ai conversation', 'Claude Code (file/test loop), MCP (tool-server loop)'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'python',
+            code: {
+              tr: `# Agent döngüsünün basitleştirilmiş özeti (kavramsal, gerçek kod değil)
+gorev_tamamlandi = False
+durum = ilk_durumu_algila()
+
+while not gorev_tamamlandi:
+    eylem = model.karar_ver(durum)              # LLM: sıradaki adım ne olmalı?
+    if eylem.tur == "gorev_tamamlandi":
+        gorev_tamamlandi = True
+    else:
+        sonuc = arac_calistir(eylem.arac_adi, eylem.parametreler)  # GERÇEK eylem
+        durum = sonucu_guncelle(durum, sonuc)    # gözlem: gerçek sonuç geri beslenir`,
+              en: `# Simplified summary of the agent loop (conceptual, not real code)
+task_done = False
+state = perceive_initial_state()
+
+while not task_done:
+    action = model.decide(state)                # LLM: what should the next step be?
+    if action.type == "task_done":
+        task_done = True
+    else:
+        result = run_tool(action.tool_name, action.parameters)  # a REAL action
+        state = update_state(state, result)      # observation: the real result feeds back in`,
+            },
+          },
+          claudeAiAgentCrossCallout,
+          agentLoopAnimation,
+          agentLoopOrder,
+          agentVsChatbotPlayground,
+          {
+            type: 'quiz',
+            question: `A product is marketed as an "AI agent" but under the hood it only sends your message to an LLM and displays the text response, with no execution environment connected. Based on the loop/tool-access criterion, is this accurately called an agent?`,
+            options: [
+              { id: 'a', text: 'Yes, because it uses an LLM' },
+              { id: 'b', text: 'No — without a loop that actually executes a tool call and observes a real result, this is architecturally a chatbot; "agent" is a marketing label here, not a mechanism' },
+              { id: 'c', text: 'Yes, because it produces confident-sounding responses' },
+              { id: 'd', text: 'It depends only on how large the model is' },
+            ],
+            correct: 'b',
+            explanation: `The defining feature of an agent is the loop with real tool execution and observation, not the model's size or confidence. A system with no execution environment connected cannot cross that architectural line no matter what it is called.`,
+            retryQuestion: {
+              question: `Why is the Strategy design pattern a fitting Java analogy for an agent's LLM component specifically?`,
+              options: [
+                { id: 'a', text: 'Because Strategy always requires exactly one implementation' },
+                { id: 'b', text: 'Because the LLM plays the role of a pluggable "decide what to do next" strategy object called repeatedly inside a loop that also handles real tool execution and feedback — swapping the model doesn\'t require changing the surrounding loop, just like swapping a Strategy implementation doesn\'t require changing the algorithm that calls it' },
+                { id: 'c', text: 'Because the Strategy pattern is specific to chatbots' },
+                { id: 'd', text: 'Because Java agents and AI agents are the same concept' },
+              ],
+              correct: 'b',
+              explanation: `The loop (perceive-act-observe) is the stable structure; the LLM is the interchangeable decision-making component plugged into it — exactly the separation of concerns Strategy provides between an algorithm's fixed structure and its swappable behavior.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔧 Function Calling: The Agent's Hands`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '☎️',
+            content: `Function calling is like a call center operator who can only fill out a request form ("please transfer $50 from account X to account Y") and hand it to a human teller — the operator NEVER touches the vault themselves, no matter how confidently they wrote the form. The mechanism is exact: the LLM, given a tool's name and expected parameters, produces a structured request (typically JSON) naming the tool and filling in argument values — that is the ENTIRE extent of what "the LLM does" in function calling; a separate piece of code (yours) reads that structured request and is the only thing that actually executes anything. Here is the question worth sitting with: if the model can write a perfectly formed request to delete a file, why is that fundamentally different from the model actually deleting the file? Because the model's output is still just TEXT (structured text, but text) — it has zero ability to touch a file system, a database, or a network socket on its own; the gap between "wrote a request" and "the file is deleted" is entirely bridged by code you wrote and chose to run, which means YOU decide whether the model's request is trustworthy enough to execute, with what permissions, and whether to ask for confirmation first. Java comparison: this is precisely an interface/implementation split — the LLM sees an interface (a tool's name, parameter types, and a description of what it should do) the same way calling code sees a Java interface, but the LLM never provides the implementation; your code is the concrete class that implements what actually happens when the "method" is called, and the model has no visibility into or control over that implementation. The QA stake: this distinction is the entire safety model behind the permission modes discussed on the Claude AI page — because the model can only ever REQUEST a tool call, never force its execution, every genuine safety boundary lives entirely in the code that decides whether to honor that request, not in the model.`,
+          },
+          { type: 'heading', text: `The Model Requests, Your Code Executes` },
+          {
+            type: 'text',
+            content: `The split has exactly two steps: (1) you register a tool by describing its name, its parameters and what it does — usually as a JSON schema — so the model knows it exists and how to ask for it; (2) when the model decides that tool is needed, it does not run anything — it outputs a structured object naming the tool and the argument values it wants to use. Your code then reads that object, decides whether to actually call the real function, executes it if so, and feeds the real result back to the model as the next observation in the loop from the previous tab.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why go through the trouble of a rigid JSON schema instead of just letting the model describe in plain English what it wants to do? Because plain English is ambiguous and not machine-parseable at the reliability level code requires — "check the flaky test log" could mean a dozen different function calls with different parameters. A schema forces the model to commit to an exact, parseable, executable request (tool name + typed parameters) the same way a strongly-typed method signature forces a caller to commit to specific argument types instead of a vague natural-language description of intent.`,
+          },
+          { type: 'heading', text: `A Tool Definition, in JSON Schema` },
+          {
+            type: 'code',
+            language: 'json',
+            code: {
+              tr: `{
+  "name": "report_flaky_test",
+  "description": "Bilinen bir flaky testi test yönetim sistemine kaydeder",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "test_name": { "type": "string", "description": "Testin tam adı" },
+      "reason": { "type": "string", "description": "Neden flaky olduğuna dair kısa açıklama" }
+    },
+    "required": ["test_name", "reason"]
+  }
+}`,
+              en: `{
+  "name": "report_flaky_test",
+  "description": "Records a known flaky test in the test management system",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "test_name": { "type": "string", "description": "The full name of the test" },
+      "reason": { "type": "string", "description": "A short explanation of why it is flaky" }
+    },
+    "required": ["test_name", "reason"]
+  }
+}`,
+            },
+          },
+          {
+            type: 'table',
+            headers: ['Step', 'Who Does It', 'What Happens'],
+            rows: [
+              ['Register the tool', 'You (in code)', 'Describe the tool\'s name, parameters and purpose so the model knows it exists'],
+              ['Request the call', 'The model', 'Outputs a structured object naming the tool + argument values — this is TEXT, nothing executes yet'],
+              ['Execute the call', 'Your code', 'Reads the structured request, decides whether to run it, and actually calls the real function'],
+              ['Observe the result', 'The model (next turn)', 'Receives the real function\'s output as context for its next decision'],
+            ],
+          },
+          toolExecutionAnimation,
+          toolExecutionOrder,
+          functionCallGatePlayground,
+          {
+            type: 'quiz',
+            question: `The model outputs a perfectly formed request to call a delete_all_test_data tool. What happens next, mechanically?`,
+            options: [
+              { id: 'a', text: 'The tool is executed immediately because the model requested it' },
+              { id: 'b', text: 'Nothing executes on its own — the model\'s output is still just structured text; whether the tool actually runs depends entirely on whether your code chooses to read that request and call the real function' },
+              { id: 'c', text: 'The model directly modifies the database' },
+              { id: 'd', text: 'The request is automatically rejected because it sounds dangerous' },
+            ],
+            correct: 'b',
+            explanation: `The model has no execution ability of its own — a "request" is text, no matter how dangerous-sounding or well-formed. Execution is a decision made entirely by the code that reads that request, exactly like a Java interface having no runtime behavior until a concrete class implements it.`,
+            retryQuestion: {
+              question: `Why is a rigid JSON schema used for tool definitions instead of letting the model just describe its intent in plain English?`,
+              options: [
+                { id: 'a', text: 'JSON is required because models cannot understand English' },
+                { id: 'b', text: 'A schema forces the model to commit to an exact, machine-parseable request (tool name + typed parameters) instead of an ambiguous natural-language description — the same reason a strongly-typed method signature forces a caller to commit to specific argument types' },
+                { id: 'c', text: 'JSON schemas make the model respond faster' },
+                { id: 'd', text: 'Plain English requests are always more accurate' },
+              ],
+              correct: 'b',
+              explanation: `Code needs to reliably parse and act on the model's request — natural language is too ambiguous for that reliability bar. A schema is the type signature that makes the request machine-actionable.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🐍 OpenAI API: A Tester's First Call`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📞',
+            content: `Calling the OpenAI API for the first time is like ordering from a restaurant menu over the phone instead of walking into the kitchen yourself — the mechanism is exact: you don't need to know how the kitchen (the model's internals) works; you send a structured order (a list of "messages" with roles) to an address (an API endpoint) with your credentials (an API key), and a response comes back in a predictable, parseable shape — the entire pretraining/fine-tuning/RLHF machinery from earlier tabs is completely hidden behind that one HTTP call. Here is the question worth sitting with: if a tester has never trained a model and never will, why does understanding pretraining and RLHF from the earlier tabs matter for using this simple API call at all? Because the API call's behavior IS the trained model's behavior — knowing that weights are frozen at a training cutoff tells you why the model won't know your newest library version regardless of how you phrase the API call; knowing RLHF taught confidence tells you why a wrong API response still reads persuasively — the mechanism explains the API's behavior, the API is just the door into it. Java comparison: this is exactly like calling a well-documented third-party library method without needing to read its internal implementation — you trust the documented contract (send messages, get a response), the same way you'd call a JDBC driver's executeQuery() without needing to understand the database engine underneath it. The QA stake: this is the FIRST tab on this page where you write real, runnable code — but the discipline from the Claude AI page's Access & Setup tab applies identically here: the API key is a credential exactly like a database password, and it must never be hardcoded or pasted anywhere outside your own environment variables.`,
+          },
+          { type: 'heading', text: `Installing and Authenticating` },
+          {
+            type: 'text',
+            content: `pip install openai gets the official client library. The API key must be read from an environment variable, never hardcoded in source — this is the exact same discipline covered on the Claude AI page's Access & Setup tab.`,
+          },
+          apiKeyCrossCallout,
+          { type: 'heading', text: `Your First Chat Completion Call` },
+          {
+            type: 'code',
+            language: 'python',
+            code: {
+              tr: `from openai import OpenAI
+
+istemci = OpenAI()  # API key'i OPENAI_API_KEY ortam değişkeninden otomatik okur
+
+yanit = istemci.chat.completions.create(
+    model="<guncel-model-adi>",  # Güncel model adını resmi OpenAI docs'undan al
+    messages=[
+        {"role": "system", "content": "Sen kıdemli bir QA mühendisisin."},
+        {"role": "user", "content": "Login testi için 3 sınır değer senaryosu yaz."},
+    ],
+)
+
+print(yanit.choices[0].message.content)`,
+              en: `from openai import OpenAI
+
+client = OpenAI()  # Reads the API key automatically from the OPENAI_API_KEY environment variable
+
+response = client.chat.completions.create(
+    model="<current-model-name>",  # Get the current model name from the official OpenAI docs
+    messages=[
+        {"role": "system", "content": "You are a senior QA engineer."},
+        {"role": "user", "content": "Write 3 boundary-value scenarios for the login test."},
+    ],
+)
+
+print(response.choices[0].message.content)`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'text',
+            label: 'Static example output — not a live call',
+            code: {
+              tr: `1. Sınır: Şifre tam olarak minimum uzunlukta (8 karakter) -> kabul edilmeli
+2. Sınır: Şifre minimum uzunluğun 1 eksiği (7 karakter) -> reddedilmeli
+3. Sınır: E-posta alanı maksimum izin verilen karakter sayısında -> kabul edilmeli`,
+              en: `1. Boundary: password at exactly the minimum length (8 chars) -> should be accepted
+2. Boundary: password one character below the minimum (7 chars) -> should be rejected
+3. Boundary: email field at the maximum allowed character count -> should be accepted`,
+            },
+          },
+          { type: 'heading', text: `The Messages List: Three Roles` },
+          {
+            type: 'text',
+            content: `system sets persistent behavior and persona — the API counterpart of the "role" ingredient from the Prompt Engineering tab. user is the actual request. assistant is used to show the model its own prior turns when continuing a multi-turn conversation. Every call is stateless by default: the ENTIRE conversation history must be resent every time — there is no server-side memory, which is the same context-window mechanism covered two tabs ago.`,
+          },
+          {
+            type: 'text',
+            content: `Reasoning: why does the API require you to resend the whole message history every single call, instead of the server just "remembering" the conversation? Because there is no persistent per-conversation memory on the server side — the "memory" IS the messages list you send. If you want a multi-turn conversation, YOUR code is responsible for accumulating and resending prior turns; if you drop a message, the model genuinely has no other way to know it happened.`,
+          },
+          { type: 'heading', text: `Tokens and Cost, Without a Price Tag` },
+          {
+            type: 'text',
+            content: `Every API call is billed per token, both what you send (input) and what the model generates (output) — the tokenization concept from earlier applies directly: a longer, more verbose prompt costs more, and a huge pasted log file can be surprisingly expensive. Exact prices are deliberately not stated here since they change; check the official current pricing page before running anything at scale.`,
+          },
+          { type: 'heading', text: `Same Concepts, Different Provider` },
+          {
+            type: 'text',
+            content: `The examples on this page use OpenAI's API because it is a widely used reference implementation, but every concept here — a messages list with roles, a tool/function definition, a system instruction — exists in the Anthropic API in essentially the same shape. Learning one transfers almost directly to the other.`,
+          },
+          {
+            type: 'table',
+            headers: ['Concept', 'OpenAI API', 'Anthropic API (conceptually identical)'],
+            rows: [
+              ['Client setup', 'OpenAI() reads OPENAI_API_KEY from env', 'Anthropic() reads ANTHROPIC_API_KEY from env'],
+              ['Message roles', 'system / user / assistant', 'system (separate parameter) / user / assistant'],
+              ['Tool/function definition', 'JSON schema passed as tools', 'JSON schema passed as tools (same shape)'],
+              ['Conversation memory', 'None server-side — resend full history', 'None server-side — resend full history'],
+            ],
+          },
+          apiCallStepAnimation,
+          apiCallOrder,
+          openaiFirstCallPlayground,
+          {
+            type: 'quiz',
+            question: `Why must the ENTIRE conversation history be resent with every single API call, instead of the server remembering it automatically?`,
+            options: [
+              { id: 'a', text: 'This is just an arbitrary limitation that will be removed soon' },
+              { id: 'b', text: 'There is no persistent server-side memory per conversation — the context window mechanism means the messages list you send IS the model\'s only memory of the conversation; your code is responsible for accumulating and resending it' },
+              { id: 'c', text: 'Resending history makes the API cheaper' },
+              { id: 'd', text: 'Only the system role needs to be resent, not user/assistant messages' },
+            ],
+            correct: 'b',
+            explanation: `This is the direct, practical consequence of the context-window mechanism from two tabs ago: there is no hidden server memory, so the messages list you send is the entirety of what the model can know about the conversation.`,
+            retryQuestion: {
+              question: `A tester hardcodes their OpenAI API key directly into a Python script and commits it to a public repository. Applying the discipline from the Claude AI page, what is the correct response?`,
+              options: [
+                { id: 'a', text: 'Nothing, as long as the repository is deleted quickly' },
+                { id: 'b', text: 'Rotate the key immediately (treat it as compromised, since it left version control) and move the real key to an environment variable that is never committed — the exact same discipline as any other credential' },
+                { id: 'c', text: 'Rename the variable holding the key so it is harder to find' },
+                { id: 'd', text: 'This is only a problem if someone actually uses the key' },
+              ],
+              correct: 'b',
+              explanation: `Deleting a public repository does not un-expose a key that was already visible — the only safe response to any credential leaving version control is rotation, exactly as covered for API keys on the Claude AI page.`,
+            },
+          },
+        ],
+      },
     ],
   },
   tr: {
@@ -762,7 +1336,7 @@ def add_message(new_message):
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -1132,6 +1706,298 @@ def add_message(new_message):
               ],
               correct: 'b',
               explanation: `Dikkat seyrelmesi "işlevsel olarak öncelik dışına düşme" sorunudur, sert-silme sorunu değil — token limiti ayrı, daha katı bir kesimdir. Düzeltme (taze bağlam), sürekli büyüyen bir thread içinde savaşmak yerine seyrelme sorununu tamamen ortadan kaldırarak işe yarar.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🤖 Agent Nedir: LLM + Araçlar + Döngü`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔑',
+            content: `Chatbot, araçlarla dolu bir odada cam duvarın arkasında oturan parlak bir danışmandır; agent ise camdan geçip araçları GERÇEKTEN kullanması için elle anahtar verilmiş AYNI danışmandır — mekanizma birebirdir: danışmanın uzmanlığı (LLM) ikisi arasında değişmez, değişen şey sözlerini dünyadaki gerçek etkilere bağlayan bir şeyin olup olmadığıdır. Üzerinde durulmaya değer soru şu: bir chatbot'un içindeki LLM ile bir agent'ın içindeki LLM birebir aynı model olabiliyorsa, birini "sadece cevap ver"e, diğerini "işi hallet"e dönüştüren nedir? Çünkü agent mimarisi o aynı modeli araç erişimi olan bir DÖNGÜYE sarar: model mevcut durumu algılar, bir eyleme karar verir, bir araç gerçekten çalışır ve gerçek bir sonuç döndürür, ve model sıradaki eyleme karar vermeden önce o gerçek sonucu gözler — bir chatbot bir "karar ver" turundan sonra durur, bir agent görev bitene kadar "algıla → karar ver → eyle → gözle" döngüsünde dönmeye devam eder. Java karşılaştırması: bu, bir while döngüsü içinde yaşayan Strategy tasarım desenidir — LLM, gerçek API'lere/araçlara da çağrı yapan ve sonuçları stratejinin sıradaki girdisi olarak geri besleyen bir döngü içinde tekrar tekrar çağrılan, takılıp çıkarılabilir bir "sıradaki ne yapılacağına karar ver" strateji nesnesidir; stratejiyi (farklı bir model) değiştir, döngü mimarisi değişmez — tıpkı etrafındaki sıralama algoritmasına dokunmadan bir Comparator'ı değiştirmek gibi. QA tarafındaki bedel: bu döngünün iki ticari örneğini Claude AI sayfasında zaten gördün — Claude Code ve MCP — bu sekme, o iki ürünün uyguladığı genel mekanizmayı isimlendiriyor.`,
+          },
+          { type: 'heading', text: `Chatbot vs Agent: Cevap Vermek ile Eylem Yapmak` },
+          {
+            type: 'text',
+            content: `Bir chatbot'un işi, çok iyi olsa bile, bir metin cevabı ürettiği an biter. Bir agent'ın işi metin üretmek değildir, bir görevi başarmaktır, ve metin (özellikle bir araç çağırma isteği) yol boyunca üretebileceği şeylerden sadece biridir. Ayrım çizgisi zeka değil, mimaridir: modeli gerçek araç erişimi olan bir döngüye saran bir şey var mı?`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: sıradan bir chatbot neden "kendi başına" bir komut çalıştırmaya karar veremez? Çünkü bir chatbot'a bağlı hiçbir çalıştırma ortamı yoktur — bir komutun metnini YAZABİLİR, ama saf bir sohbet arayüzünde hiçbir şey o metni alıp gerçek bir dosya sistemine veya terminale karşı çalıştırmaz. Bir agent framework'ü tam olarak "model X'i yapmak istiyor" ile "X gerçekten oluyor"u birbirine bağlayan, artı gerçek sonucu geri besleyen eksik kablolamadır.`,
+          },
+          { type: 'heading', text: `Döngü: Algıla → Düşün → Eyle → Gözle` },
+          {
+            type: 'text',
+            content: `Ürün ne olursa olsun her agent aynı dört adımlı döngüyü çalıştırır: 1) mevcut durumu algıla (bir dosya, bir test sonucu, bir kullanıcı isteği), 2) düşün — o duruma dayanarak sıradaki eyleme karar ver, 3) eyle — bir araç veya fonksiyon çağır, 4) o eylemin gerçek sonucunu gözle, sonra güncellenmiş durumla algılamaya geri dön. Döngü, model görevin tamamlandığına karar verdiğinde veya bir güvenlik sınırına (ileride Riskler sekmesinde ele alınır) ulaşıldığında biter.`,
+          },
+          {
+            type: 'table',
+            headers: ['Kavram', 'Chatbot', 'Agent'],
+            rows: [
+              ['Ne üretir', 'Tur başına bir kez, bir metin cevabı', 'Görev bitene kadar bir karar-ver→eyle→gözle döngü dizisi'],
+              ['Gerçek dünyayla bağlantı', 'Yok — çıktı sadece okuduğun metindir', 'Gerçekten çalışan ve gerçek sonuç döndüren araç/fonksiyon çağrıları'],
+              ['Ne zaman durur', 'Bir cevaptan sonra', 'Görev tamamlandığında veya bir güvenlik sınırına (maksimum adım) ulaşıldığında'],
+              ['Claude AI sayfasından örnek', 'Sade bir claude.ai konuşması', 'Claude Code (dosya/test döngüsü), MCP (araç-server döngüsü)'],
+            ],
+          },
+          {
+            type: 'code',
+            language: 'python',
+            code: {
+              tr: `# Agent döngüsünün basitleştirilmiş özeti (kavramsal, gerçek kod değil)
+gorev_tamamlandi = False
+durum = ilk_durumu_algila()
+
+while not gorev_tamamlandi:
+    eylem = model.karar_ver(durum)              # LLM: sıradaki adım ne olmalı?
+    if eylem.tur == "gorev_tamamlandi":
+        gorev_tamamlandi = True
+    else:
+        sonuc = arac_calistir(eylem.arac_adi, eylem.parametreler)  # GERÇEK eylem
+        durum = sonucu_guncelle(durum, sonuc)    # gözlem: gerçek sonuç geri beslenir`,
+              en: `# Simplified summary of the agent loop (conceptual, not real code)
+task_done = False
+state = perceive_initial_state()
+
+while not task_done:
+    action = model.decide(state)                # LLM: what should the next step be?
+    if action.type == "task_done":
+        task_done = True
+    else:
+        result = run_tool(action.tool_name, action.parameters)  # a REAL action
+        state = update_state(state, result)      # observation: the real result feeds back in`,
+            },
+          },
+          claudeAiAgentCrossCallout,
+          agentLoopAnimation,
+          agentLoopOrder,
+          agentVsChatbotPlayground,
+          {
+            type: 'quiz',
+            question: `Bir ürün "AI agent" diye pazarlanıyor ama kaputun altında sadece mesajını bir LLM'e gönderip metin cevabını gösteriyor, bağlı hiçbir çalıştırma ortamı yok. Döngü/araç-erişimi kriterine göre, buna gerçekten agent denebilir mi?`,
+            options: [
+              { id: 'a', text: 'Evet, çünkü bir LLM kullanıyor' },
+              { id: 'b', text: 'Hayır — bir araç çağrısını gerçekten çalıştıran ve gerçek bir sonucu gözlemleyen bir döngü olmadan, bu mimari olarak bir chatbot\'tur; "agent" burada bir pazarlama etiketidir, bir mekanizma değil' },
+              { id: 'c', text: 'Evet, çünkü kendinden emin görünen cevaplar üretiyor' },
+              { id: 'd', text: 'Sadece modelin ne kadar büyük olduğuna bağlıdır' },
+            ],
+            correct: 'b',
+            explanation: `Bir agent'ı tanımlayan özellik, gerçek araç çalıştırma ve gözlemle döngüdür, modelin boyutu veya özgüveni değil. Bağlı bir çalıştırma ortamı olmayan bir sistem, ne diye adlandırılırsa adlandırılsın bu mimari çizgiyi geçemez.`,
+            retryQuestion: {
+              question: `Strategy tasarım deseni özellikle bir agent'ın LLM bileşeni için neden uygun bir Java karşılaştırması?`,
+              options: [
+                { id: 'a', text: 'Çünkü Strategy her zaman tam olarak tek bir implementasyon gerektirir' },
+                { id: 'b', text: 'Çünkü LLM, gerçek araç çalıştırma ve geri bildirimi de ele alan bir döngü içinde tekrar tekrar çağrılan, takılıp çıkarılabilir bir "sıradaki ne yapılacağına karar ver" strateji nesnesi rolünü oynar — modeli değiştirmek çevredeki döngüyü değiştirmeyi gerektirmez, tıpkı bir Strategy implementasyonunu değiştirmenin onu çağıran algoritmayı değiştirmeyi gerektirmemesi gibi' },
+                { id: 'c', text: 'Çünkü Strategy deseni sadece chatbot\'lara özgüdür' },
+                { id: 'd', text: 'Çünkü Java agent\'ları ve AI agent\'ları aynı kavramdır' },
+              ],
+              correct: 'b',
+              explanation: `Döngü (algıla-eyle-gözle) sabit yapıdır; LLM ise ona takılan, değiştirilebilir karar-verme bileşenidir — tam olarak Strategy'nin bir algoritmanın sabit yapısı ile değiştirilebilir davranışı arasında sağladığı sorumluluk ayrımı.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔧 Function Calling: Agent'ın Elleri`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '☎️',
+            content: `Function calling, sadece bir talep formu doldurabilen ("lütfen X hesabından Y hesabına 50 dolar transfer et") ve bunu bir insan veznedara elden veren bir çağrı merkezi operatörüne benzer — operatör formu ne kadar kendinden emin doldurursa doldursun kasaya ASLA kendisi dokunmaz. Mekanizma birebirdir: LLM, bir aracın adı ve beklenen parametreleri verildiğinde, aracı adlandıran ve argüman değerlerini dolduran yapılandırılmış bir istek (genelde JSON) üretir — function calling'de "LLM'in yaptığı"nın TAMAMI budur; ayrı bir kod parçası (senin kodun) o yapılandırılmış isteği okur ve gerçekten bir şey çalıştıran tek şey odur. Üzerinde durulmaya değer soru şu: model bir dosyayı silmek için kusursuz biçimlendirilmiş bir istek yazabiliyorsa, bu modelin dosyayı gerçekten silmesinden neden temelde farklıdır? Çünkü modelin çıktısı hâlâ sadece METİNDİR (yapılandırılmış metin, ama metin) — bir dosya sistemine, bir veritabanına veya bir ağ soketine kendi başına dokunma yeteneği sıfırdır; "bir istek yazdı" ile "dosya silindi" arasındaki boşluk tamamen senin yazıp çalıştırmayı SEÇTİĞİN kodla köprülenir, ki bu da modelin isteğinin çalıştırılacak kadar güvenilir olup olmadığına, hangi izinlerle, ve önce onay istenip istenmeyeceğine SENİN karar verdiğin anlamına gelir. Java karşılaştırması: bu tam olarak bir interface/implementation ayrımıdır — LLM, çağıran kodun bir Java interface'i gördüğü gibi bir interface görür (bir aracın adı, parametre tipleri ve ne yapması gerektiğinin bir açıklaması), ama LLM implementasyonu asla sağlamaz; senin kodun, "metod" çağrıldığında gerçekte ne olacağını uygulayan somut sınıftır, ve modelin o implementasyona görünürlüğü veya kontrolü yoktur. QA tarafındaki bedel: bu ayrım, Claude AI sayfasında ele alınan izin modlarının arkasındaki güvenlik modelinin tamamıdır — çünkü model bir araç çağrısını sadece İSTEYEBİLİR, asla çalıştırmasını zorlayamaz, her gerçek güvenlik sınırı tamamen o isteği onaylayıp onaylamayacağına karar veren kodda yaşar, modelde değil.`,
+          },
+          { type: 'heading', text: `Model İster, Kodun Çalıştırır` },
+          {
+            type: 'text',
+            content: `Ayrım tam olarak iki adımdır: (1) bir aracı adını, parametrelerini ve ne yaptığını tanımlayarak — genelde bir JSON şema olarak — kaydedersin, böylece model onun var olduğunu ve nasıl isteneceğini bilir; (2) model o aracın gerekli olduğuna karar verdiğinde, hiçbir şey çalıştırmaz — aracı ve kullanmak istediği argüman değerlerini adlandıran yapılandırılmış bir nesne üretir. Kodun sonra o nesneyi okur, gerçek fonksiyonu gerçekten çağırıp çağırmayacağına karar verir, öyleyse çalıştırır, ve gerçek sonucu bir önceki sekmedeki döngünün sıradaki gözlemi olarak modele geri besler.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: modelin ne yapmak istediğini düz İngilizce anlatmasına izin vermek yerine katı bir JSON şemasıyla uğraşmaya neden değer? Çünkü düz dil belirsizdir ve kodun gerektirdiği güvenilirlik seviyesinde makine tarafından ayrıştırılamaz — "flaky test log'unu kontrol et", farklı parametrelerle bir düzine farklı fonksiyon çağrısı anlamına gelebilir. Bir şema, modeli niyetin belirsiz bir doğal-dil açıklaması yerine kesin, ayrıştırılabilir, çalıştırılabilir bir isteğe (araç adı + tipli parametreler) angaje olmaya zorlar — tıpkı güçlü tipli bir metod imzasının çağıranı belirli argüman tiplerine angaje olmaya zorlaması gibi.`,
+          },
+          { type: 'heading', text: `Bir Araç Tanımı, JSON Şemasında` },
+          {
+            type: 'code',
+            language: 'json',
+            code: {
+              tr: `{
+  "name": "report_flaky_test",
+  "description": "Bilinen bir flaky testi test yönetim sistemine kaydeder",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "test_name": { "type": "string", "description": "Testin tam adı" },
+      "reason": { "type": "string", "description": "Neden flaky olduğuna dair kısa açıklama" }
+    },
+    "required": ["test_name", "reason"]
+  }
+}`,
+              en: `{
+  "name": "report_flaky_test",
+  "description": "Records a known flaky test in the test management system",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "test_name": { "type": "string", "description": "The full name of the test" },
+      "reason": { "type": "string", "description": "A short explanation of why it is flaky" }
+    },
+    "required": ["test_name", "reason"]
+  }
+}`,
+            },
+          },
+          {
+            type: 'table',
+            headers: ['Adım', 'Kim Yapar', 'Ne Olur'],
+            rows: [
+              ['Aracı kaydet', 'Sen (kodda)', 'Modelin var olduğunu bilmesi için aracın adını, parametrelerini ve amacını tanımla'],
+              ['Çağrıyı iste', 'Model', 'Aracı ve argüman değerlerini adlandıran yapılandırılmış bir nesne üretir — bu METİNDİR, henüz hiçbir şey çalışmaz'],
+              ['Çağrıyı çalıştır', 'Kodun', 'Yapılandırılmış isteği okur, çalıştırıp çalıştırmayacağına karar verir, ve gerçek fonksiyonu gerçekten çağırır'],
+              ['Sonucu gözle', 'Model (sıradaki tur)', 'Gerçek fonksiyonun çıktısını sıradaki kararı için bağlam olarak alır'],
+            ],
+          },
+          toolExecutionAnimation,
+          toolExecutionOrder,
+          functionCallGatePlayground,
+          {
+            type: 'quiz',
+            question: `Model, bir delete_all_test_data aracını çağırmak için kusursuz biçimlendirilmiş bir istek üretiyor. Mekanik olarak sırada ne olur?`,
+            options: [
+              { id: 'a', text: 'Araç, model istediği için hemen çalıştırılır' },
+              { id: 'b', text: 'Kendiliğinden hiçbir şey çalışmaz — modelin çıktısı hâlâ sadece yapılandırılmış metindir; aracın gerçekten çalışıp çalışmayacağı tamamen kodun o isteği okuyup gerçek fonksiyonu çağırmayı seçip seçmediğine bağlıdır' },
+              { id: 'c', text: 'Model veritabanını doğrudan değiştirir' },
+              { id: 'd', text: 'İstek tehlikeli göründüğü için otomatik olarak reddedilir' },
+            ],
+            correct: 'b',
+            explanation: `Modelin kendi başına hiçbir çalıştırma yeteneği yoktur — ne kadar tehlikeli görünürse görünsün veya ne kadar iyi biçimlendirilirse biçimlendirilsin bir "istek" metindir. Çalıştırma, tamamen o isteği okuyan kodun verdiği bir karardır — tıpkı bir Java interface'inin somut bir sınıf onu implemente edene kadar hiçbir çalışma zamanı davranışı olmaması gibi.`,
+            retryQuestion: {
+              question: `Araç tanımları için, modelin niyetini düz İngilizce anlatmasına izin vermek yerine neden katı bir JSON şeması kullanılır?`,
+              options: [
+                { id: 'a', text: 'JSON gereklidir çünkü modeller İngilizceyi anlayamaz' },
+                { id: 'b', text: 'Bir şema, modeli belirsiz bir doğal-dil açıklaması yerine kesin, makine tarafından ayrıştırılabilir bir isteğe (araç adı + tipli parametreler) angaje olmaya zorlar — güçlü tipli bir metod imzasının çağıranı belirli argüman tiplerine angaje olmaya zorlamasıyla aynı sebep' },
+                { id: 'c', text: 'JSON şemaları modelin daha hızlı cevap vermesini sağlar' },
+                { id: 'd', text: 'Düz İngilizce istekler her zaman daha isabetlidir' },
+              ],
+              correct: 'b',
+              explanation: `Kodun, modelin isteğini güvenilir şekilde ayrıştırıp ona göre hareket etmesi gerekir — doğal dil bu güvenilirlik çıtası için fazla belirsizdir. Bir şema, isteği makine tarafından uygulanabilir kılan tip imzasıdır.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🐍 OpenAI API: Tester'ın İlk Çağrısı`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📞',
+            content: `OpenAI API'sini ilk kez çağırmak, mutfağa kendin girmek yerine telefonla bir restoran menüsünden sipariş vermeye benzer — mekanizma birebirdir: mutfağın (modelin iç işleyişinin) nasıl çalıştığını bilmen gerekmez; kimlik bilgilerinle (bir API key) bir adrese (bir API endpoint'i) yapılandırılmış bir sipariş (roller içeren bir "mesajlar" listesi) gönderirsin, ve öngörülebilir, ayrıştırılabilir bir şekilde bir cevap gelir — önceki sekmelerdeki tüm pretraining/fine-tuning/RLHF makinesi o tek HTTP çağrısının arkasında tamamen gizlidir. Üzerinde durulmaya değer soru şu: bir tester hiçbir zaman bir model eğitmediyse ve etmeyecekse, önceki sekmelerdeki pretraining ve RLHF'i anlamak bu basit API çağrısını kullanmak için neden önemli? Çünkü API çağrısının davranışı, eğitilmiş modelin davranışının TA KENDİSİDİR — ağırlıkların eğitim kesim tarihinde dondurulduğunu bilmek, API çağrısını nasıl ifade edersen et modelin en yeni kütüphane sürününü neden bilmeyeceğini söyler; RLHF'in özgüven öğrettiğini bilmek, yanlış bir API yanıtının neden hâlâ ikna edici okunduğunu söyler — mekanizma API'nin davranışını açıklar, API sadece ona giden kapıdır. Java karşılaştırması: bu, iyi belgelenmiş bir üçüncü parti kütüphane metodunu, iç implementasyonunu okumana gerek kalmadan çağırmakla birebir aynıdır — belgelenmiş kontrata güvenirsin (mesaj gönder, cevap al), tıpkı bir JDBC sürücüsünün executeQuery()'sini altındaki veritabanı motorunu anlamana gerek kalmadan çağırman gibi. QA tarafındaki bedel: bu, bu sayfada gerçek, çalıştırılabilir kod yazdığın İLK sekmedir — ama Claude AI sayfasının Erişim & Kurulum sekmesindeki disiplin burada da birebir geçerlidir: API key tam olarak bir veritabanı şifresi gibi bir kimlik bilgisidir, ve asla kendi ortam değişkenlerinin dışında hiçbir yere gömülmemeli veya yapıştırılmamalıdır.`,
+          },
+          { type: 'heading', text: `Kurulum ve Kimlik Doğrulama` },
+          {
+            type: 'text',
+            content: `pip install openai, resmi istemci kütüphanesini kurar. API key, kaynak kodda asla gömülü olmayıp bir ortam değişkeninden okunmalıdır — bu, Claude AI sayfasının Erişim & Kurulum sekmesinde ele alınan aynı disiplindir.`,
+          },
+          apiKeyCrossCallout,
+          { type: 'heading', text: `İlk Chat Completion Çağrın` },
+          {
+            type: 'code',
+            language: 'python',
+            code: {
+              tr: `from openai import OpenAI
+
+istemci = OpenAI()  # API key'i OPENAI_API_KEY ortam değişkeninden otomatik okur
+
+yanit = istemci.chat.completions.create(
+    model="<guncel-model-adi>",  # Güncel model adını resmi OpenAI docs'undan al
+    messages=[
+        {"role": "system", "content": "Sen kıdemli bir QA mühendisisin."},
+        {"role": "user", "content": "Login testi için 3 sınır değer senaryosu yaz."},
+    ],
+)
+
+print(yanit.choices[0].message.content)`,
+              en: `from openai import OpenAI
+
+client = OpenAI()  # Reads the API key automatically from the OPENAI_API_KEY environment variable
+
+response = client.chat.completions.create(
+    model="<current-model-name>",  # Get the current model name from the official OpenAI docs
+    messages=[
+        {"role": "system", "content": "You are a senior QA engineer."},
+        {"role": "user", "content": "Write 3 boundary-value scenarios for the login test."},
+    ],
+)
+
+print(response.choices[0].message.content)`,
+            },
+          },
+          {
+            type: 'code',
+            language: 'text',
+            label: 'Statik örnek çıktı — canlı bir çağrı değil',
+            code: {
+              tr: `1. Sınır: Şifre tam olarak minimum uzunlukta (8 karakter) -> kabul edilmeli
+2. Sınır: Şifre minimum uzunluğun 1 eksiği (7 karakter) -> reddedilmeli
+3. Sınır: E-posta alanı maksimum izin verilen karakter sayısında -> kabul edilmeli`,
+              en: `1. Boundary: password at exactly the minimum length (8 chars) -> should be accepted
+2. Boundary: password one character below the minimum (7 chars) -> should be rejected
+3. Boundary: email field at the maximum allowed character count -> should be accepted`,
+            },
+          },
+          { type: 'heading', text: `Mesajlar Listesi: Üç Rol` },
+          {
+            type: 'text',
+            content: `system, kalıcı davranışı ve persona'yı belirler — Prompt Mühendisliği sekmesindeki "rol" bileşeninin API karşılığı. user, gerçek istektir. assistant, çok-turlu bir konuşmaya devam ederken modele kendi önceki turlarını göstermek için kullanılır. Her çağrı varsayılan olarak stateless'tır: konuşma geçmişinin TAMAMI her seferinde yeniden gönderilmelidir — sunucu tarafında bir hafıza yoktur, ki bu iki sekme önce ele alınan aynı context-window mekanizmasıdır.`,
+          },
+          {
+            type: 'text',
+            content: `Akıl yürütme: API, sunucunun konuşmayı sadece "hatırlaması" yerine her tek çağrıda tüm mesaj geçmişini yeniden göndermeni neden gerektirir? Çünkü sunucu tarafında konuşma-başına kalıcı bir hafıza yoktur — "hafıza" gönderdiğin mesajlar listesinin TA KENDİSİDİR. Çok-turlu bir konuşma istiyorsan, önceki turları biriktirip yeniden göndermekten SENİN kodun sorumludur; bir mesajı düşürürsen, modelin bunun olduğunu bilmesinin gerçekten başka bir yolu yoktur.`,
+          },
+          { type: 'heading', text: `Token ve Maliyet, Fiyat Etiketi Olmadan` },
+          {
+            type: 'text',
+            content: `Her API çağrısı token başına faturalandırılır, hem gönderdiğin (girdi) hem modelin ürettiği (çıktı) — daha önceki tokenization kavramı doğrudan geçerlidir: daha uzun, daha ayrıntılı bir prompt daha pahalıya mal olur, ve devasa yapıştırılmış bir log dosyası şaşırtıcı derecede pahalı olabilir. Tam fiyatlar burada bilerek belirtilmiyor çünkü değişirler; ölçekte herhangi bir şey çalıştırmadan önce resmi güncel fiyatlandırma sayfasını kontrol et.`,
+          },
+          { type: 'heading', text: `Aynı Kavramlar, Farklı Sağlayıcı` },
+          {
+            type: 'text',
+            content: `Bu sayfadaki örnekler OpenAI'ın API'sini kullanıyor çünkü yaygın kullanılan bir referans implementasyondur, ama buradaki her kavram — rollerle bir mesajlar listesi, bir araç/fonksiyon tanımı, bir sistem talimatı — Anthropic API'sinde de esasen aynı şekilde var. Birini öğrenmek neredeyse doğrudan diğerine aktarılır.`,
+          },
+          {
+            type: 'table',
+            headers: ['Kavram', 'OpenAI API', 'Anthropic API (kavramsal olarak aynı)'],
+            rows: [
+              ['İstemci kurulumu', 'OpenAI(), OPENAI_API_KEY\'i env\'den okur', 'Anthropic(), ANTHROPIC_API_KEY\'i env\'den okur'],
+              ['Mesaj rolleri', 'system / user / assistant', 'system (ayrı bir parametre) / user / assistant'],
+              ['Araç/fonksiyon tanımı', 'tools olarak geçirilen JSON şema', 'tools olarak geçirilen JSON şema (aynı şekil)'],
+              ['Konuşma hafızası', 'Sunucu tarafında yok — tüm geçmişi yeniden gönder', 'Sunucu tarafında yok — tüm geçmişi yeniden gönder'],
+            ],
+          },
+          apiCallStepAnimation,
+          apiCallOrder,
+          openaiFirstCallPlayground,
+          {
+            type: 'quiz',
+            question: `Sunucu konuşmayı otomatik olarak hatırlamak yerine, her tek API çağrısında konuşma geçmişinin TAMAMININ neden yeniden gönderilmesi gerekir?`,
+            options: [
+              { id: 'a', text: 'Bu sadece yakında kaldırılacak keyfi bir kısıtlamadır' },
+              { id: 'b', text: 'Konuşma başına kalıcı bir sunucu-tarafı hafıza yoktur — context-window mekanizması, gönderdiğin mesajlar listesinin modelin konuşma hakkındaki TEK hafızası olduğu anlamına gelir; onu biriktirip yeniden göndermek senin kodunun sorumluluğundadır' },
+              { id: 'c', text: 'Geçmişi yeniden göndermek API\'yi daha ucuz yapar' },
+              { id: 'd', text: 'Sadece system rolünün yeniden gönderilmesi gerekir, user/assistant mesajlarının değil' },
+            ],
+            correct: 'b',
+            explanation: `Bu, iki sekme önceki context-window mekanizmasının doğrudan, pratik sonucudur: gizli bir sunucu hafızası yoktur, bu yüzden gönderdiğin mesajlar listesi modelin konuşma hakkında bilebileceği her şeyin tamamıdır.`,
+            retryQuestion: {
+              question: `Bir tester, OpenAI API key'ini doğrudan bir Python script'ine gömüyor ve public bir repository'ye commit ediyor. Claude AI sayfasındaki disiplini uygularsak, doğru tepki nedir?`,
+              options: [
+                { id: 'a', text: 'Repository hızlıca silinirse hiçbir şey yapmaya gerek yok' },
+                { id: 'b', text: 'Key\'i hemen döndür (version control\'den çıktığı için ele geçirilmiş say) ve gerçek key\'i asla commit edilmeyen bir ortam değişkenine taşı — herhangi bir başka kimlik bilgisiyle birebir aynı disiplin' },
+                { id: 'c', text: 'Key\'i tutan değişkenin adını, bulunması zor olsun diye değiştir' },
+                { id: 'd', text: 'Bu sadece birisi key\'i gerçekten kullanırsa bir sorundur' },
+              ],
+              correct: 'b',
+              explanation: `Public bir repository'yi silmek, zaten görünür olmuş bir key'in maruziyetini geri almaz — version control'den çıkan herhangi bir kimlik bilgisine karşı tek güvenli tepki, Claude AI sayfasında API key'ler için ele alınanla birebir aynı şekilde, döndürmektir.`,
             },
           },
         ],

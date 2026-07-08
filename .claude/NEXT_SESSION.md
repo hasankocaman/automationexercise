@@ -10,7 +10,74 @@
 
 ---
 
-## /llm-agents — LC2 TAMAMLANDI: Pretraining + Fine-tuning/RLHF + Context & Halüsinasyon (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+## /llm-agents — LC3 TAMAMLANDI: Agent Nedir + Function Calling + OpenAI API (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
+
+> LC2 `604f68b` ile commit edildi (kullanıcı "commit yap ve LC3 promptunu
+> uygula" dedi). Bu oturumda Sonnet, `llmcreate.md`'deki hazır LC3 promptuyla
+> sekme 5-7'yi uyguladı.
+
+### Yapılan iş — LC3 (SONNET)
+
+`src/data/llmAgentsData.js`'e 3 yeni sekme eklendi (mevcut 5 sekmenin ARKASINA,
+EN+TR simetrik, `llmcreate.md` LC3 bölümündeki kapsam sınırlarına birebir uyularak):
+
+1. **🤖 Agent Nedir: LLM + Araçlar + Döngü:** cam duvarın arkasındaki danışman
+   analojisiyle §9.3 simple-box (Java Strategy deseni karşılaştırması), chatbot
+   vs agent ayrımı (cevap üretmek vs görev başarmak), algıla→düşün→eyle→gözle
+   döngüsü pseudocode'u, **Claude AI sayfasındaki Claude Code ve MCP'ye çapraz
+   callout** (görevde istenen), "agent mı chatbot mu" teşhis code-playground'u.
+2. **🔧 Function Calling: Agent'ın Elleri:** çağrı merkezi operatörü analojisiyle
+   §9.3 simple-box (Java interface/implementation karşılaştırması), "LLM asla
+   kod çalıştırmaz, sadece yapılandırılmış istek üretir" ayrımı (bir quiz
+   sorusunun doğrudan konusu — görevde istenen), JSON şema araç tanımı örneği,
+   korumasız araç çalıştırmayı whitelist kontrolüne çeviren code-playground'u.
+3. **🐍 OpenAI API: Tester'ın İlk Çağrısı:** restoran siparişi analojisiyle
+   §9.3 simple-box, `pip install openai` + ortam değişkeninde API key (Claude AI
+   Erişim & Kurulum sekmesine çapraz callout — disiplin tekrar anlatılmadı),
+   ilk chat completion çağrısı (Python, TR yorumlu, `model="<guncel-model-adi>"`
+   yer tutucu, fiyat YAZILMADI), messages listesi (system/user/assistant),
+   statik örnek çıktı (canlı çağrı yok), **"aynı kavramlar Anthropic API'de
+   birebir var" paragrafı** (Genel Kurallar madde 7 — zorunlu), API key
+   güvenliği + system-rolü-eksik prompt'u düzelten code-playground'u.
+
+Her sekme: 1 adet §9.3 standardında (4 katmanlı) `simple-box` + `step-animation`
++ `challenge(order-sort)` + `code-playground` (relatedTopicId + benzersiz
+hint'lerle) + sekme sonunda `quiz` + `retryQuestion`. Sayfa artık **8 sekme,
+8 section** (EN+TR simetrik).
+
+### Doğrulama (CLAUDE.md §1.1 — bu oturum)
+
+- `node --check` + yapı kontrolü → temiz, 8/8 sekme-section EN/TR simetrik.
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- `npm run build` → ✅ PASS (2dk16sn — bu koşum arka planda LC2'nin post-commit
+  suite'i çalışırken yapıldığından normalden yavaştı, ama sonuç değişmedi;
+  40 static route, dist SEO PASS)
+- `tests/token-lab.spec.ts` --workers=1 → ✅ 2/2 PASS (regresyon yok)
+- EN ağacı scriptli Türkçe-karakter taraması (`.tr` alt-alanları hariç) → ✅ 0 sızıntı
+- TR metin taraması → ✅ tüm TR içerik tek tek okundu, temiz; teknik terimler
+  (API, JSON, LLM, chatbot, Strategy, interface/implementation, tool/function)
+  İngilizce kalmış
+
+### Sonraki Oturumda Yapılacaklar
+
+1. **Bu oturumun LC3 işi commit edilmedi** — kullanıcı onayı bekliyor. Tek
+   değişen dosya: `src/data/llmAgentsData.js` (+ bu `.claude/NEXT_SESSION.md`
+   güncellemesi). `feature/llm-agents-page` branch'inde LC2 (`604f68b`) üzerine
+   üçüncü commit olarak eklenmesi planlanıyor.
+2. **LC4 (Sonnet):** Kendi Test Agent'ını Yaz + Agent "Eğitilir mi?" (Prompt vs
+   RAG vs Fine-tune karar çerçevesi) sekmeleri — prompt `llmcreate.md` LC4
+   bölümünde HAZIR, hemen verilebilir.
+3. LC5 (Üretim/Evals/Riskler), LC6 (mülakat + audit + test listeleri + ana
+   sayfa butonu + /claude-ai callout + merge hazırlığı) sırayla kalıyor —
+   promptlar hazır.
+4. `/llm-agents` hâlâ test route listelerinde ve audit PAGES'te YOK — bilinçli,
+   LC6'da eklenecek.
+5. **İki branch de hâlâ main'e merge edilmedi** — merge sırası: önce
+   `feature/claude-ai-page` → main, sonra `feature/llm-agents-page` → main.
+
+---
+
+## /llm-agents — LC2 TAMAMLANDI: Pretraining + Fine-tuning/RLHF + Context & Halüsinasyon (2026-07-08, `feature/llm-agents-page` — commit `604f68b`)
 
 > LC1 `087bec1` ile commit edilmişti (bkz. aşağıdaki LC1 bölümü). Bu oturumda
 > Sonnet, `llmcreate.md`'deki hazır LC2 promptuyla sekme 2-4'ü uyguladı.
