@@ -479,3 +479,14 @@ button, a, [role="button"] {
     padding: 0.875rem;
   }
 }
+/* ─── Modül L-2: Deterministik vs Stokastik blok pop animasyonu ─── */
+@keyframes detVsStochPop {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.det-vs-stoch-pop {
+  animation: detVsStochPop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .det-vs-stoch-pop { animation: none; }
+}

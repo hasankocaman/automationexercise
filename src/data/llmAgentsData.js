@@ -993,6 +993,94 @@ while True:
   xpReward: 15,
 }
 
+// ─── Modül L-2: Deterministik vs Stokastik interaktif lab (EN + TR paylaşımlı) ───
+const detVsStochLab = {
+  type: 'det-vs-stoch',
+  id: 'llm-det-vs-stoch-lab',
+  deterministic: {
+    label: { tr: 'Deterministik (Playwright)', en: 'Deterministic (Playwright)' },
+    // Yorumlar Türkçe (Bölüm 8) — TR versiyonunda açıklama satırları Türkçe.
+    code: {
+      tr: `// Login formu: sabit DOM durumu, tek doğru sonuç
+await page.fill('#user', 'ada')
+await page.fill('#pass', 'gizli')
+await page.click('#login')
+// assertion tek bir beklenen değere karşı
+await expect(page).toHaveURL('/dashboard')`,
+      en: `// Login form: fixed DOM state, one correct result
+await page.fill('#user', 'ada')
+await page.fill('#pass', 'secret')
+await page.click('#login')
+// assertion against a single expected value
+await expect(page).toHaveURL('/dashboard')`,
+    },
+    result: { text: { tr: 'toHaveURL(/dashboard) — PASS', en: 'toHaveURL(/dashboard) — PASS' }, verdict: 'pass' },
+  },
+  stochastic: {
+    label: { tr: 'Stokastik (LLM-judge)', en: 'Stochastic (LLM-judge)' },
+    code: {
+      tr: `// Chatbot: aynı soru, olası yanıtlar
+const reply = await chatbot.ask('İadeyi nasıl yaparım?')
+// tek string'e değil, rubriğe göre puanla
+const score = await judge(reply, rubric)
+expect(score.overall).toBeGreaterThanOrEqual(4)`,
+      en: `// Chatbot: same question, probable answers
+const reply = await chatbot.ask('How do I return an item?')
+// judge against a rubric, not one string
+const score = await judge(reply, rubric)
+expect(score.overall).toBeGreaterThanOrEqual(4)`,
+    },
+    runs: [
+      {
+        answer: { tr: 'İade için 14 gün içinde hesabından "Siparişlerim" > "İade Talebi" adımını izleyebilirsin.', en: 'To return an item, within 14 days go to "My Orders" > "Request Return" in your account.' },
+        scores: { accuracy: 5, relevance: 5, safety: 5 },
+        verdict: 'pass',
+      },
+      {
+        answer: { tr: 'Tabii, yardımcı olayım! Ürünü 14 gün içinde iade edebilirsin; "Siparişlerim" bölümünden talebi başlat.', en: 'Sure, happy to help! You can return the item within 14 days; start the request from "My Orders".' },
+        scores: { accuracy: 5, relevance: 4, safety: 5 },
+        verdict: 'pass',
+      },
+      {
+        answer: { tr: 'İadeler 30 gün içinde ücretsiz yapılır ve para aynı gün iade edilir.', en: 'Returns are free within 30 days and the money is refunded the same day.' },
+        scores: { accuracy: 2, relevance: 4, safety: 3 },
+        verdict: 'fail',
+      },
+    ],
+  },
+  whyDifferent: {
+    tr: 'Playwright çıktısı sabit bir DOM/HTTP durumundan gelir; assertion tek bir beklenen değere karşıdır, o yüzden her koşuda birebir aynıdır. LLM ise her token\'ı bir olasılık dağılımından örnekler — temperature > 0 olduğunda aynı prompt farklı yollar üretir. 3. koşuda modelin "30 gün / aynı gün iade" uydurması bunun kanıtı: akıcı ama yanlış. Bu yüzden AI testinde "== beklenen" yerine "rubriği karşılıyor mu?" sorulur ve pass/fail bir güven eşiğine (örn. overall ≥ 4) bağlanır. Java analojisi: deterministik test bir assertEquals gibidir; stokastik test ise bir kod review\'e benzer — tek "doğru" satır yoktur, bir kriter listesine göre puan verirsin.',
+    en: 'Playwright output comes from a fixed DOM/HTTP state; the assertion is against a single expected value, so it is identical on every run. An LLM samples each token from a probability distribution — with temperature > 0 the same prompt yields different paths. Run #3\'s invented "30 days / same-day refund" is the proof: fluent but wrong. That is why AI testing asks "does it satisfy the rubric?" instead of "== expected", tying pass/fail to a confidence threshold (e.g. overall ≥ 4). Java analogy: a deterministic test is like assertEquals; a stochastic test is like a code review — there is no single "correct" line, you score against a checklist of criteria.',
+  },
+  scenarios: [
+    {
+      text: { tr: 'Bir login formunun geçerli kimlik bilgileriyle kullanıcıyı /dashboard\'a yönlendirdiğini test etmek.', en: 'Testing that a login form redirects the user to /dashboard with valid credentials.' },
+      answer: 'det',
+      explain: { tr: 'Girdi ve beklenen çıktı sabit — tek bir doğru URL var. assertEquals mantığıyla deterministik kapı olarak test edilir.', en: 'Input and expected output are fixed — there is one correct URL. Tested as a deterministic gate with assertEquals logic.' },
+    },
+    {
+      text: { tr: 'Bir müşteri hizmetleri chatbot\'unun "kargom nerede?" sorusuna verdiği yanıtın kalitesini değerlendirmek.', en: 'Evaluating the quality of a customer-service chatbot\'s answer to "where is my order?".' },
+      answer: 'stoch',
+      explain: { tr: 'Yanıt her seferinde farklı kelimelerle gelebilir; tek doğru string yok. Rubrik (doğruluk, alaka, güvenlik) ile puanlanır — stokastik.', en: 'The answer can come in different words each time; there is no single correct string. Scored with a rubric (accuracy, relevance, safety) — stochastic.' },
+    },
+    {
+      text: { tr: 'Bir REST API\'nin GET /users/1 çağrısına 200 ve doğru JSON şeması döndürdüğünü doğrulamak.', en: 'Verifying a REST API returns 200 and the correct JSON schema for GET /users/1.' },
+      answer: 'det',
+      explain: { tr: 'Status kodu ve şema sabittir; schema validation deterministik bir kontroldür. AI\'a gerek yok.', en: 'The status code and schema are fixed; schema validation is a deterministic check. No AI needed.' },
+    },
+    {
+      text: { tr: 'Bir RAG asistanının şirket politikası belgesinden ürettiği özetin halüsinasyon içerip içermediğini kontrol etmek.', en: 'Checking whether a RAG assistant\'s summary of a company policy document contains hallucinations.' },
+      answer: 'stoch',
+      explain: { tr: 'Özet metni koşudan koşuya değişir ve "kaynağa dayanıyor mu?" sorusu bir grounding rubriğiyle ölçülür — stokastik değerlendirme.', en: 'The summary text varies run to run, and "is it grounded in the source?" is measured with a grounding rubric — stochastic evaluation.' },
+    },
+    {
+      text: { tr: 'Bir alışveriş sepeti toplamının 3 ürün eklendiğinde doğru tutarı gösterdiğini test etmek.', en: 'Testing that a shopping cart total shows the correct amount when 3 items are added.' },
+      answer: 'det',
+      explain: { tr: 'Aritmetik sabittir; beklenen toplam tek bir değerdir. Klasik deterministik assertion.', en: 'The arithmetic is fixed; the expected total is a single value. A classic deterministic assertion.' },
+    },
+  ],
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const llmAgentsData = {
@@ -1002,7 +1090,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🏭 AI in Production: Cost, Evals, Security', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🏭 AI in Production: Cost, Evals, Security', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -1129,6 +1217,61 @@ Rare word   -> breaks apart ("flaky" -> "fl" + "aky")`,
               correct: 'b',
               explanation: `There is no "lying" and no fact-checking module in the loop — only next-token probabilities. A wrong continuation that reads plausibly can win the sampling step, and because each pick feeds the next, the error compounds fluently. Fluency and truth are produced by the same mechanism, which is exactly why fluency is never evidence.`,
             },
+          },
+        ],
+      },
+      {
+        title: `⚖️ Deterministic vs Stochastic Testing`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `A deterministic test is a vending machine; a stochastic test is a job interview — and the mechanism matches one-to-one, not loosely. Press B4 on a vending machine and the same chocolate bar drops every single time; a broken machine is one that does NOT do that. Ask an interview candidate the same question on Monday and Friday and you get two differently-worded answers — yet a good interviewer still decides fairly, because they score against a rubric ("did they cover trade-offs? give a concrete example?"), not against one memorized sentence. Here is the question worth sitting on: if the answer legitimately changes every run, what does "the test passed" even mean — and how do you write an assertion for a moving target? Because the moment you stop asserting "output == expected" and start asserting "output satisfies rubric ≥ threshold", pass/fail becomes measurable again without pretending the output is fixed. Java comparison: a deterministic test is assertEquals(expected, actual) — one true value; a stochastic test is closer to a code review — there is no single correct line, you grade against a checklist and accept several valid shapes. The QA stake: mixing these two worlds is where AI test suites rot — asserting an exact chatbot string makes a green suite flaky and useless, while "eyeballing" a login redirect wastes an LLM call on something a fixed assertion nails for free. Knowing which world a check lives in is the first real AI-QA skill, and the lab below lets you feel the difference by re-running both sides yourself.`,
+          },
+          { type: 'heading', text: `Two Assertions, Two Worlds` },
+          {
+            type: 'text',
+            content: `The split is not about the tool — it is about whether the output is fixed. A deterministic check has one correct answer, so you assert equality and any deviation is a bug: URL, status code, computed total, schema shape. A stochastic check has many acceptable answers, so you cannot assert one string; instead you define a rubric (accuracy, relevance, safety…), score the output against it — usually with an LLM-as-a-judge — and gate on a threshold like "overall ≥ 4". A mature AI test plan keeps both: deterministic "gates" for anything with a fixed truth, and probabilistic "checks" for anything a model generates. Confusing the two is the most common way an AI test suite becomes either flaky (asserting exact generated text) or blind (never checking generated quality at all).`,
+          },
+          {
+            type: 'text',
+            content: `Run the left and right panels below a few times. The Playwright side returns the identical PASS on every run because the DOM state is fixed. The chatbot side returns a different answer each run — and on one of them the model invents a "30-day / same-day refund" policy that never existed: fluent, confident, and wrong. A single-string assertion would either flake on the harmless wording changes or miss the dangerous hallucination entirely; a rubric score catches the bad run while accepting the two good ones.`,
+          },
+          detVsStochLab,
+          {
+            type: 'quiz',
+            question: `Your teammate writes an AI chatbot test as: expect(reply).toBe("You can return items within 14 days."). It passes today but goes red tomorrow with the reply "Returns are accepted within 14 days." What is the real problem?`,
+            options: [
+              { id: 'a', text: 'The chatbot is broken and returned a wrong answer' },
+              { id: 'b', text: 'The test applied a deterministic (exact-string) assertion to a stochastic output — the two answers are equally correct, so it should score against a rubric (e.g. "states the 14-day window") and gate on a threshold, not match one exact string' },
+              { id: 'c', text: 'The test needs a longer timeout' },
+              { id: 'd', text: 'The chatbot should be retrained to always return the exact same sentence' },
+            ],
+            correct: 'b',
+            explanation: `Both replies convey the same correct fact in different words — that variation is inherent to a stochastic output. Asserting one exact string turns harmless rewording into a false failure. The fix is to judge the meaning against a rubric and pass when it clears a threshold, exactly like the right-hand panel in the lab.`,
+            retryQuestion: {
+              question: `On a QA plan for an AI feature, which check belongs in the "deterministic gate" bucket rather than the "probabilistic check" bucket?`,
+              options: [
+                { id: 'a', text: 'Whether the assistant\'s tone stays friendly across a long conversation' },
+                { id: 'b', text: 'Whether GET /api/orders/42 returns HTTP 200 and a body matching the order schema' },
+                { id: 'c', text: 'Whether a summary is faithful to its source document' },
+                { id: 'd', text: 'Whether the chatbot\'s answer is relevant to the question' },
+              ],
+              correct: 'b',
+              explanation: `The API status code and schema are fixed truths with one correct answer — a classic deterministic assertion, no AI needed. Tone, faithfulness and relevance are all generated, vary run to run, and must be scored against a rubric — those are probabilistic checks.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `Why does raising an LLM's temperature make a "assert exact output" test strategy fail more often, while it has zero effect on a Playwright toHaveURL assertion?`,
+            options: [
+              { id: 'a', text: 'Temperature slows the model down so the test times out' },
+              { id: 'b', text: 'Temperature flattens the token-sampling distribution, so the model picks varied continuations run to run — the output stops being fixed, which breaks equality assertions; a Playwright URL check reads a deterministic browser state that has no sampling step at all' },
+              { id: 'c', text: 'Temperature changes the browser\'s rendering engine' },
+              { id: 'd', text: 'Higher temperature always makes the model produce wrong answers' },
+            ],
+            correct: 'b',
+            explanation: `Temperature is a dial on the picking step of next-token prediction: higher temperature gives low-probability tokens a real chance, so the same prompt produces different valid outputs. Equality assertions assume a fixed output, so they break. A browser URL is a deterministic piece of state — there is no distribution to reshape, so temperature is irrelevant to it.`,
           },
         ],
       },
@@ -2483,7 +2626,7 @@ messages = [{"role": "user", "content": relevant_section}]`,
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -2610,6 +2753,61 @@ Rare word   -> breaks apart ("flaky" -> "fl" + "aky")`,
               correct: 'b',
               explanation: `Döngüde "yalan söyleme" de yoktur, bir doğruluk-kontrol modülü de — sadece sıradaki-token olasılıkları vardır. İnandırıcı okunan yanlış bir devam örnekleme adımını kazanabilir; her seçim bir sonrakini beslediği için hata akıcı biçimde birikir. Akıcılık ve doğruluk aynı mekanizmadan üretilir — akıcılığın asla kanıt olmamasının sebebi tam olarak budur.`,
             },
+          },
+        ],
+      },
+      {
+        title: `⚖️ Deterministik vs Stokastik Test`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `Deterministik bir test bir otomat makinesidir; stokastik bir test ise bir iş görüşmesidir — ve mekanizma gevşek değil, birebir örtüşür. Otomatta B4'e basarsın, HER seferinde aynı çikolata düşer; bozuk otomat tam da bunu YAPMAYANdır. Bir adaya aynı soruyu Pazartesi ve Cuma sorarsan farklı kelimelerle iki cevap alırsın — yine de iyi bir mülakatçı adil karar verir, çünkü ezberlenmiş tek bir cümleye değil bir rubriğe göre puan verir ("trade-off'ları söyledi mi? somut örnek verdi mi?"). Üzerinde durmaya değer soru şu: eğer cevap her koşuda meşru biçimde değişiyorsa, "test geçti" ne anlama gelir — ve hareketli bir hedefe nasıl assertion yazarsın? Çünkü "çıktı == beklenen" demeyi bırakıp "çıktı rubriği ≥ eşik karşılıyor mu?" demeye başladığın an, çıktının sabit olduğunu varsaymadan pass/fail yeniden ölçülebilir hale gelir. Java karşılaştırması: deterministik test assertEquals(expected, actual) gibidir — tek bir doğru değer; stokastik test ise bir code review'e daha yakındır — tek doğru satır yoktur, bir kontrol listesine göre puan verir ve birden fazla geçerli biçimi kabul edersin. QA açısından önemi: bu iki dünyayı karıştırmak AI test suite'lerinin çürüdüğü yerdir — bir chatbot'un tam string'ini assert etmek yeşil bir suite'i flaky ve işe yaramaz yapar; bir login yönlendirmesini "gözle kontrol etmek" ise sabit bir assertion'ın bedavaya yakaladığı şey için bir LLM çağrısı harcar. Bir kontrolün hangi dünyada yaşadığını bilmek ilk gerçek AI-QA becerisidir ve aşağıdaki lab, iki tarafı da kendin tekrar koşarak farkı hissetmeni sağlar.`,
+          },
+          { type: 'heading', text: `İki Assertion, İki Dünya` },
+          {
+            type: 'text',
+            content: `Ayrım araçla ilgili değildir — çıktının sabit olup olmamasıyla ilgilidir. Deterministik kontrolün tek doğru cevabı vardır; eşitlik assert edersin ve her sapma bir bug'dır: URL, status kodu, hesaplanan toplam, şema yapısı. Stokastik kontrolün ise birden çok kabul edilebilir cevabı vardır; tek bir string'i assert edemezsin. Bunun yerine bir rubrik (doğruluk, alaka, güvenlik…) tanımlar, çıktıyı buna göre puanlar — genelde LLM-as-a-judge ile — ve "overall ≥ 4" gibi bir eşiğe göre geçirirsin. Olgun bir AI test planı ikisini birden tutar: sabit gerçeği olan her şey için deterministik "gate"ler ve bir modelin ürettiği her şey için olasılıksal "check"ler. İkisini karıştırmak, bir AI test suite'ini ya flaky (üretilen tam metni assert etmek) ya da kör (üretilen kaliteyi hiç kontrol etmemek) yapmanın en yaygın yoludur.`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıdaki sol ve sağ paneli birkaç kez koştur. Playwright tarafı her koşuda birebir aynı PASS'i döndürür çünkü DOM durumu sabittir. Chatbot tarafı ise her koşuda farklı bir cevap döndürür — ve birinde model hiç var olmamış bir "30 gün / aynı gün iade" politikası uydurur: akıcı, kendinden emin ve yanlış. Tek string'lik bir assertion ya zararsız kelime değişikliklerinde flaky olurdu ya da tehlikeli halüsinasyonu tamamen kaçırırdı; bir rubrik puanı ise kötü koşuyu yakalar, iki iyi koşuyu kabul eder.`,
+          },
+          detVsStochLab,
+          {
+            type: 'quiz',
+            question: `Bir takım arkadaşın AI chatbot testini şöyle yazıyor: expect(reply).toBe("Ürünleri 14 gün içinde iade edebilirsin."). Bugün geçiyor ama yarın "İadeler 14 gün içinde kabul edilir." cevabıyla kırmızıya dönüyor. Asıl sorun nedir?`,
+            options: [
+              { id: 'a', text: 'Chatbot bozuk ve yanlış cevap döndürdü' },
+              { id: 'b', text: 'Test, stokastik bir çıktıya deterministik (tam-string) assertion uyguladı — iki cevap da eşit derecede doğru, o yüzden tek string yerine bir rubriğe göre (örn. "14 gün penceresini belirtiyor") puanlanıp bir eşiğe göre geçirilmeli' },
+              { id: 'c', text: 'Testin daha uzun bir timeout\'a ihtiyacı var' },
+              { id: 'd', text: 'Chatbot her zaman aynı cümleyi döndürecek şekilde yeniden eğitilmeli' },
+            ],
+            correct: 'b',
+            explanation: `İki cevap da aynı doğru bilgiyi farklı kelimelerle iletiyor — bu varyasyon stokastik çıktının doğasında var. Tek bir tam string'i assert etmek zararsız kelime değişimini sahte bir başarısızlığa çevirir. Çözüm, anlamı bir rubriğe göre değerlendirip bir eşiği geçtiğinde PASS vermektir — tıpkı lab'daki sağ panel gibi.`,
+            retryQuestion: {
+              question: `Bir AI özelliği için hazırlanan QA planında, hangi kontrol "olasılıksal check" değil "deterministik gate" kovasına aittir?`,
+              options: [
+                { id: 'a', text: 'Asistanın uzun bir konuşma boyunca tonunun dostça kalıp kalmadığı' },
+                { id: 'b', text: 'GET /api/orders/42\'nin HTTP 200 ve sipariş şemasına uyan bir gövde döndürüp döndürmediği' },
+                { id: 'c', text: 'Bir özetin kaynak belgesine sadık olup olmadığı' },
+                { id: 'd', text: 'Chatbot\'un cevabının soruyla alakalı olup olmadığı' },
+              ],
+              correct: 'b',
+              explanation: `API status kodu ve şeması tek doğru cevabı olan sabit gerçeklerdir — klasik deterministik assertion, AI gerekmez. Ton, sadakat ve alaka ise üretilen, koşudan koşuya değişen ve bir rubriğe göre puanlanması gereken şeylerdir — bunlar olasılıksal check'lerdir.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `Bir LLM'in temperature değerini yükseltmek neden "tam çıktıyı assert et" test stratejisini daha sık kırar, ama bir Playwright toHaveURL assertion'ına sıfır etki eder?`,
+            options: [
+              { id: 'a', text: 'Temperature modeli yavaşlatır, böylece test timeout olur' },
+              { id: 'b', text: 'Temperature token-örnekleme dağılımını düzleştirir, böylece model koşudan koşuya farklı devamlar seçer — çıktı sabit olmaktan çıkar, bu da eşitlik assertion\'larını kırar; Playwright URL kontrolü ise hiç örnekleme adımı olmayan deterministik bir tarayıcı durumunu okur' },
+              { id: 'c', text: 'Temperature tarayıcının render motorunu değiştirir' },
+              { id: 'd', text: 'Yüksek temperature her zaman modeli yanlış cevap üretmeye zorlar' },
+            ],
+            correct: 'b',
+            explanation: `Temperature, sıradaki-token tahmininin seçim adımındaki bir ayardır: daha yüksek temperature düşük olasılıklı token'lara gerçek bir şans verir, böylece aynı prompt farklı ama geçerli çıktılar üretir. Eşitlik assertion'ları sabit bir çıktı varsayar, o yüzden kırılır. Tarayıcı URL'i ise deterministik bir durumdur — yeniden şekillendirilecek bir dağılım yoktur, dolayısıyla temperature onun için alakasızdır.`,
           },
         ],
       },

@@ -10,6 +10,59 @@
 
 ---
 
+## AIQA_ROADMAP Faz 1 — Modül L-2 TAMAMLANDI (2026-07-09 — HENÜZ COMMIT EDİLMEDİ)
+
+> `AIQA_ROADMAP.md` okundu, fizibilite değerlendirildi (8 modül = 5-8 haftalık iş,
+> tek oturumda tamamı yapılamaz). Fable/Sonnet iş bölümü tanımlandı ve en kritik +
+> en bağımsız modül (L-2) uçtan uca inşa edilip doğrulandı — diğer modüllerin
+> kavramsal zemini ve tamamen deterministik (Groq/Supabase/edge function gerekmez).
+
+### Yapılan iş (Fable = bileşen, "Sonnet-kapsamı" = data içeriği — ikisi de bu oturumda yazıldı)
+
+1. **`src/components/DeterministicVsStochasticBlock.jsx`** (YENİ, Fable) — `det-vs-stoch`
+   block tipi. İki interaktif eleman: (a) "İki Ekran" — sol deterministik Playwright
+   (her koşuda aynı PASS), sağ stokastik LLM-judge (3 el-yazımı varyasyon arasında
+   döner, biri halüsinasyon; rubrik skoru + eşik). "Tekrar Koş" + "Neden farklı?".
+   (b) "Hangi Strateji?" — 5 senaryo, deterministik/stokastik sınıflandırma oyunu,
+   anlık geri bildirim + skor. **Gerçek API çağrısı YOK**, tüm varyasyon veriden.
+2. **`src/components/TopicPage.jsx`** — `import` + `case 'det-vs-stoch'` dispatch eklendi.
+3. **`src/index.css`** — `detVsStochPop` keyframe (reduced-motion korumalı).
+4. **`src/data/llmAgentsData.js`** — paylaşılan bilingual `detVsStochLab` const +
+   YENİ sekme (index 2, "⚖️ Deterministik vs Stokastik Test") hem EN hem TR
+   `sections` VE `tabs` dizilerine hizalı eklendi: simple-box (§9.3 4-katman analoji:
+   otomat vs iş görüşmesi + Java assertEquals/code-review karşılaştırması), 2 heading/
+   text, `detVsStochLab`, 2 quiz (retry'lı). Java analojisi zorunlu kuralına uygun.
+
+### Doğrulama (§1.1 checklist)
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- `npm run build` → ✅ PASS (40 statik route shell, dist SEO geçti)
+- **Runtime (yaz-koş-sil Playwright):** /llm-agents → yeni sekme → blok görünür,
+  Tekrar Koş / Neden farklı / sınıflandırma seçimi çalıştı, **konsol hatası yok**,
+  dark mode Türkçe render doğru.
+- TR kod yorumları Türkçe (`// Login formu:`, `// assertion tek bir...`); tech
+  terimler (assertion, toHaveURL, expect) İngilizce kaldı — kurala uygun.
+
+### AIQA_ROADMAP kalan modüller — Fable/Sonnet iş bölümü ve sıra
+> Kalan 7 modülün her biri aynı desende: **Fable** = yeni interaktif React bileşeni
+> (+ gerekirse Groq edge function), **Sonnet** = `*Data.js` bilingual içerik.
+- **C-3 LLM-as-a-Judge** (🔴, /claude-ai): Fable → `JudgePlaygroundBlock` + YENİ
+  `judge-eval` edge function (mevcut `_shared/groq.ts callGroq` deseniyle, temp 0.1,
+  JSON rubrik skoru). Sonnet → sekme içeriği + rubrik örnekleri.
+- **L-4 RAG Lab** (🔴, /llm-agents): Fable → `RagLabBlock` (3 adım: context/soru/
+  metrik ring'leri) + judge edge function'ı paylaşır. Sonnet → örnek bilgi tabanları.
+- **L-6 Prompt Injection Arena** (🟡): Fable → `InjectionArenaBlock` (deterministik
+  savunma-kural motoru; canlı API opsiyonel). Sonnet → saldırı kategorisi rehberi.
+- **L-3 Multi-turn Drift** (🟡): Fable → `DriftMeterBlock`. Sonnet → konuşma senaryoları.
+- **L-5 Observability Dashboard** (🟡): Fable → `ObservabilityMockBlock` (statik+animasyon).
+- **C-5 Edge Case Fabrikası** (🟢) + **C-4 Visual Regression** (🟢, Anthropic Vision
+  istisnası — API kısıtı, en son).
+> Supabase tabloları (`judge_evaluations`, `rag_lab_sessions`, `injection_attempts`,
+> `conversation_sessions`) roadmap §3.2'de hazır — XP kaydı için gerektiğinde eklenir.
+> Not: L-2 bilinçli olarak Supabase'siz/edge-function'sız tutuldu; canlı-AI modüllerde
+> Groq rate-limit riski var, ilk sürümleri deterministik yapıp canlı-AI'ı flag ardına al.
+
+---
+
 ## /claude-ai + /llm-agents — Docker UI Rollout Paritesi + Anasayfa Claude İkonu (2026-07-08, `feature/llm-agents-page` — HENÜZ COMMIT EDİLMEDİ)
 
 > Kullanıcı fark etti: LC1-6 boyunca `/claude-ai` ve `/llm-agents` hâlâ eski
