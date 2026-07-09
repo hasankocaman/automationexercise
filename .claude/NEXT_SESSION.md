@@ -10,6 +10,59 @@
 
 ---
 
+## AIQA_ROADMAP Faz 2 — L-6 Prompt Injection Arena TAMAMLANDI (2026-07-09, tek oturumda hem bileşen hem içerik)
+
+> Kullanıcı "en uygun sıralamayla sen devam et" dedi — Fable/Sonnet model
+> değiştirme seremonisi bu modül için atlandı, tek oturumda (bileşen + data)
+> tamamlandı. Sıradaki modüller için aynı yaklaşım mı yoksa tekrar Fable/Sonnet
+> ayrımına mı dönüleceği kullanıcıya sorulmalı/onaylatılmalı.
+
+### Yapılan iş
+1. **`src/components/PromptInjectionArenaBlock.jsx`** (YENİ, `injection-arena`
+   block) — sabit kurallı bir müşteri hizmetleri botuna karşı 5 kategoriden
+   (Doğrudan/Rol/Bağlam/Hedef/Dolaylı Injection) hazır saldırı denemesi seç
+   veya kendi metnini yaz → "Bota Gönder" → 🚨 İHLAL / 🛡️ ENGELLENDİ + savunma
+   açıklaması + kategori bazlı başarı-oranı skor tablosu. Kendi metin için
+   deterministik keyword-tabanlı kategori/ihlal tespiti (gerçek API çağrısı
+   YOK). Yerleşik 5 örnek + 3 kural default (biri — Hedef Ele Geçirme —
+   bilinçli olarak BAŞARISIZ, somut/soyut kural karşıtlığını öğretmek için).
+2. **`src/components/TopicPage.jsx`** — import + `case 'injection-arena'` dispatch.
+3. **`src/data/llmAgentsData.js`** — yeni sekme **"🕵️‍♂️ Adversarial Testing &
+   Red Teaming"** / TR "🕵️‍♂️ Kırmızı Takım Testi (Red Teaming)", "AI in
+   Production" ile "Risks & Common Mistakes" arasına, EN+TR hizalı (16/16).
+   İçerik: §9.3 4-katman simple-box (etik hırsız analojisi + Java private/public
+   alan karşılaştırması), `table` bloğu (5 saldırı kategorisi), text,
+   `{ type: 'injection-arena' }` (component default'ları kullanıldı), 2 quiz
+   (yapısal düzeltme = koda taşımak; somut vs soyut kural direnci).
+4. Bileşen data'sız (`{ type: 'injection-arena' }`) eklendi — component'in
+   yerleşik varsayılanları zaten sayfaya özel/zengin, override gerekmedi.
+
+### ÖNEMLİ HATA VE DÜZELTMESİ (gelecek oturumlar için ders)
+İlk yazımda EN ve TR simple-box içeriklerinde Java karşılaştırması yaparken
+template literal (backtick) İÇİNDE literal `` `private` `` / `` `public` ``
+backtick'leri kullanıldı — bu, JS template string'ini ORTASINDA sonlandırıp
+geri kalan metni kod olarak parse ettirdi (`Unexpected strict mode reserved
+word` hatası, "private"in reserved word olması yüzünden). **Kural: `*Data.js`
+içindeki backtick-template içeriklerde ASLA literal backtick kullanma — kod
+terimi vurgulamak için düz tırnak (`"private"`) kullan.** Hata,
+`node --input-type=module -e "import('./src/data/llmAgentsData.js')..."` ile
+yakalanıp düzeltildi; `npm run build` bu tür bir hatayı SESSİZCE geçebilir
+(Vite/esbuild bazen farklı parse edebilir) — bu yüzden yeni eklenen data
+dosyalarını build'e ek olarak doğrudan Node ESM import ile de doğrulamak
+güvenli bir ek adımdır.
+
+### Doğrulama (§1.1 checklist)
+- Node ESM import syntax kontrolü (yukarıdaki hatayı yakalayan asıl adım) → ✅
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama → ✅ llmAgentsData 16/16
+- `npm run build` → ✅ PASS
+- **Runtime (Playwright, gerçek data ile):** /llm-agents → "Kırmızı Takım Testi"
+  sekmesi → blok görünür, doğrudan-injection denemesi İHLAL, hedef-ele-geçirme
+  denemesi ENGELLENDİ olarak doğru sonuçlandı, skor tablosu güncellendi,
+  **konsol hatası yok**, sekme navigasyonu doğru sırada.
+
+---
+
 ## AIQA_ROADMAP Faz 1 — C-3 + L-4 TAMAMLANDI (2026-07-09, Sonnet içerik + Fable altyapı)
 
 > Fable altyapısı (`b56a348`) üzerine Sonnet içerik eklendi: iki sekme de artık
