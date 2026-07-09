@@ -1090,7 +1090,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '📉 Multi-turn Conversation & Drift Testing', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testing', '🏭 AI in Production: Cost, Evals, Security', '🕵️‍♂️ Adversarial Testing & Red Teaming', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '📉 Multi-turn Conversation & Drift Testing', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testing', '🏭 AI in Production: Cost, Evals, Security', '📡 AI Observability', '🕵️‍♂️ Adversarial Testing & Red Teaming', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -2264,6 +2264,60 @@ while True:
         ],
       },
       {
+        title: `📡 AI Observability`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📡',
+            content: `AI observability is a hospital's vital-signs monitor, not a one-time checkup — and the mechanism matches one-to-one, not loosely: a checkup catches a problem AT THAT MOMENT, in the room, while a vital-signs monitor watches continuously and alerts BEFORE a crisis becomes visible to the naked eye. Here is the question worth sitting on: you already have an eval set that passed with green checkmarks the day this feature shipped — why isn't that enough? Why would you need to keep watching afterward? Because an eval run is a snapshot exactly like that checkup, and nothing about a passing snapshot on day one tells you anything about a retrieval setting silently lowered during an unrelated deploy on day five — the exact "AI in Production" tab's evals catch regressions when you RUN them, but running them once at ship time only proves the system was healthy in that one moment, not that it stays healthy. Java comparison: this is the precise difference between a unit test suite that runs once at CI time and an APM tool (Datadog, New Relic) watching a running service continuously — green tests before deploy say nothing about a slow memory leak or a degrading dependency that only shows up hours or days into production, and a silently-lowered retrieval top_k is the AI-pipeline equivalent of that memory leak. The QA stake: a hallucination rate creeping from 3% up to 11% over a week is invisible to anyone glancing at the app, because every individual answer still sounds fluent and confident — observability is the only mechanism that catches this specific kind of drift before it becomes a flood of support tickets or a real incident, which is exactly the spike you are about to investigate in the dashboard below.`,
+          },
+          { type: 'heading', text: `What a Dashboard Actually Watches` },
+          {
+            type: 'text',
+            content: `A real AI observability setup tracks three distinct kinds of signal, and each answers a different question. Hallucination rate (or grounding/faithfulness score, from a continuously-running eval sample) answers "is quality degrading over time?" — the same rubric-based scoring from the Judge Playground and RAG Lab, just run repeatedly in production instead of once, offline. Latency and token-cost distribution answers "did a change make calls slower or more expensive even if the output still looks fine?" — a completely separate axis from correctness. Trace-level detail — the exact retrieval step, prompt, and token breakdown of ONE specific call — answers the question an aggregate number never can: not "that something changed" but "which stage of the pipeline changed and why".`,
+          },
+          {
+            type: 'text',
+            content: `Below, the hallucination-rate trend crosses its threshold on the final day — the aggregate metric tells you something is wrong, but not what. Press "Investigate the Spike" and work through the trace one stage at a time: prompt, token count, retrieval, model version, latency. Four of the five will report "looks normal" — exactly the trap of the "Deterministic vs Stochastic" tab's fluent-but-wrong answers, except here it's a metric that looks fine, not an answer. Only checking each stage individually isolates the one that silently regressed.`,
+          },
+          { type: 'observability-dashboard' },
+          { type: 'heading', text: `Platform Landscape` },
+          {
+            type: 'table',
+            headers: ['Platform', 'What it specializes in'],
+            rows: [
+              ['Phoenix (Arize open-source)', 'Free, self-hosted tracing and evaluation — a good starting point for a team without a monitoring budget yet'],
+              ['Arize (enterprise)', 'Full production observability with automated drift detection across large-scale deployments'],
+              ['Giskard', 'Model testing and vulnerability scanning — automatically probes a model for bias and robustness issues, closer to the Red Teaming tab\'s concerns than day-to-day monitoring'],
+              ['WhyLabs', 'Data and model monitoring at scale, covering drift detection for ML pipelines broadly, not only LLM-specific metrics'],
+            ],
+          },
+          {
+            type: 'quiz',
+            question: `A feature shipped with a fully green eval set on day one. On day five, hallucination rate has crept up silently due to an unrelated deploy. Why doesn't the day-one green eval result protect against this?`,
+            options: [
+              { id: 'a', text: 'The day-one eval set must have had a bug in it' },
+              { id: 'b', text: 'An eval run is a snapshot in time — it proves the system was healthy at the moment it ran, and says nothing about a later, unrelated change (like a silently-lowered retrieval setting) that degrades behavior afterward; only continuous monitoring, not a one-time check, can catch a regression that happens after ship day' },
+              { id: 'c', text: 'Eval sets expire automatically after 24 hours' },
+              { id: 'd', text: 'Green results only apply to the specific user who ran the test' },
+            ],
+            correct: 'b',
+            explanation: `A passing eval is true at the moment it runs and carries no guarantee about tomorrow — exactly like a green CI run before deploy says nothing about a slow leak discovered days later. Observability exists specifically to catch what only shows up AFTER the one-time check already passed.`,
+            retryQuestion: {
+              question: `In the dashboard above, the hallucination-rate line alone told you THAT something was wrong on the final day, but not WHAT changed. What actually let you isolate the root cause?`,
+              options: [
+                { id: 'a', text: 'Waiting longer for the aggregate metric to get even worse' },
+                { id: 'b', text: 'Checking each pipeline stage individually in the trace (prompt, tokens, retrieval, model version, latency) — the aggregate number only reveals that a regression exists, while stage-by-stage trace analysis is what reveals which specific stage silently changed' },
+                { id: 'c', text: 'Restarting the AI service' },
+                { id: 'd', text: 'Increasing the model\'s temperature' },
+              ],
+              correct: 'b',
+              explanation: `An aggregate metric and a per-stage trace answer different questions on purpose: the aggregate says something regressed, the trace says exactly where. Four of the five stages reporting "normal" is not a dead end — it is precisely how elimination narrows down to the one stage (retrieval's top_k) that actually changed.`,
+            },
+          },
+        ],
+      },
+      {
         title: `🕵️‍♂️ Adversarial Testing & Red Teaming`,
         blocks: [
           {
@@ -2786,7 +2840,7 @@ messages = [{"role": "user", "content": relevant_section}]`,
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '📉 Çok Turlu Konuşma ve Drift Testi', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testi', '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🕵️‍♂️ Kırmızı Takım Testi (Red Teaming)', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '📉 Çok Turlu Konuşma ve Drift Testi', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testi', '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '📡 AI Observability', '🕵️‍♂️ Kırmızı Takım Testi (Red Teaming)', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -3955,6 +4009,60 @@ while True:
               ],
               correct: 'b',
               explanation: `Manuel bir inceleme belirli bir andaki anlık görüntüdür; bir sonraki sessiz değişiklik (model güncellemesi, prompt düzenlemesi, veri kayması) sonrasındaki davranış hakkında hiçbir şey söylemez. Evals tam olarak tek seferlik bir kontrolün yakalayamadığını yakalamak için var.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `📡 AI Observability`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📡',
+            content: `AI observability, tek seferlik bir check-up değil, bir hastanenin vital signs monitörüdür — ve mekanizma gevşek değil, birebir örtüşür: bir check-up bir sorunu O ANDA, odada yakalar, oysa bir vital signs monitörü sürekli izler ve bir kriz çıplak gözle görünür hale gelmeden ÖNCE uyarır. Üzerinde durmaya değer soru şu: bu özellik yayınlandığı gün yeşil onaylı bir eval setin zaten vardı — bu neden yeterli değil? Sonrasında izlemeye devam etmene neden ihtiyaç var? Çünkü bir eval koşumu tam olarak o check-up gibi bir anlık görüntüdür ve birinci gündeki geçen bir anlık görüntü, beşinci gün ilgisiz bir deploy sırasında sessizce düşürülen bir retrieval ayarı hakkında hiçbir şey söylemez — "Üretimde AI" sekmesindeki evals, onları ÇALIŞTIRDIĞINDA regresyonları yakalar, ama onları yayın gününde bir kez çalıştırmak sadece sistemin o tek anda sağlıklı olduğunu kanıtlar, sağlıklı KALDIĞINI değil. Java karşılaştırması: bu, CI zamanında bir kez çalışan bir unit test suite'i ile çalışan bir servisi sürekli izleyen bir APM aracı (Datadog, New Relic) arasındaki tam farktır — deploy öncesi yeşil testler, saatler veya günler sonra production'da ortaya çıkan yavaş bir memory leak veya bozulan bir bağımlılık hakkında hiçbir şey söylemez, ve sessizce düşürülmüş bir retrieval top_k'sı bu memory leak'in AI-pipeline karşılığıdır. QA açısından önemi: bir hafta boyunca %3'ten %11'e sessizce süren bir halüsinasyon oranı, uygulamaya göz atan hiç kimse için görünmezdir, çünkü her bir yanıt hâlâ akıcı ve kendinden emin görünür — observability, bu spesifik kayma türünü bir destek-tiketi selinden veya gerçek bir olaydan ÖNCE yakalayan tek mekanizmadır; bu tam olarak aşağıdaki dashboard'da inceleyeceğin spike'tır.`,
+          },
+          { type: 'heading', text: `Bir Dashboard Gerçekte Neyi İzler` },
+          {
+            type: 'text',
+            content: `Gerçek bir AI observability kurulumu üç ayrı sinyal türünü izler ve her biri farklı bir soruya cevap verir. Halüsinasyon oranı (ya da sürekli çalışan bir eval örnekleminden grounding/faithfulness puanı) "kalite zamanla mı bozuluyor?" sorusuna cevap verir — Yargıç Oyun Alanı ve RAG Lab'daki aynı rubrik-tabanlı puanlama, sadece bir kez offline değil, production'da tekrar tekrar çalıştırılıyor. Latency ve token-maliyeti dağılımı "çıktı hâlâ iyi görünse bile bir değişiklik çağrıları daha yavaş veya daha pahalı yaptı mı?" sorusuna cevap verir — doğruluktan tamamen ayrı bir eksen. Trace seviyesinde detay — TEK bir spesifik çağrının tam retrieval adımı, promptu ve token dökümü — toplu bir sayının asla cevaplayamayacağı soruyu cevaplar: "bir şey değişti" değil, "pipeline'ın hangi aşaması değişti ve neden".`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıda, halüsinasyon-oranı trendi son günde eşiğini aşıyor — toplu metrik bir şeyin yanlış olduğunu söylüyor, ama neyin olduğunu söylemiyor. "Spike'ı İncele"ye bas ve trace'i sırayla tek tek incele: prompt, token sayısı, retrieval, model versiyonu, latency. Beşinden dördü "normal görünüyor" diyecek — tam olarak "Deterministik vs Stokastik" sekmesinin akıcı-ama-yanlış cevaplarının tuzağı, ama burada iyi görünen bir cevap değil bir metrik. Sadece her aşamayı tek tek kontrol etmek, sessizce regresyona uğrayan tek aşamayı izole eder.`,
+          },
+          { type: 'observability-dashboard' },
+          { type: 'heading', text: `Platform Manzarası` },
+          {
+            type: 'table',
+            headers: ['Platform', 'Neyde uzmanlaşıyor'],
+            rows: [
+              ['Phoenix (Arize açık kaynak)', 'Ücretsiz, kendi sunucunda barındırılan tracing ve değerlendirme — henüz izleme bütçesi olmayan bir ekip için iyi bir başlangıç noktası'],
+              ['Arize (kurumsal)', 'Büyük ölçekli dağıtımlarda otomatik drift tespitiyle tam production observability'],
+              ['Giskard', 'Model testi ve zafiyet taraması — bir modeli bias ve robustness sorunları için otomatik olarak sondalar, günlük izlemeden çok Kırmızı Takım sekmesinin ilgi alanına yakındır'],
+              ['WhyLabs', 'Ölçekte veri ve model izleme, sadece LLM-spesifik metrikleri değil, ML pipeline\'ları için genel drift tespitini kapsar'],
+            ],
+          },
+          {
+            type: 'quiz',
+            question: `Bir özellik birinci gün tamamen yeşil bir eval setiyle yayınlandı. Beşinci günde, ilgisiz bir deploy yüzünden halüsinasyon oranı sessizce yükseldi. Birinci gündeki yeşil eval sonucu buna karşı neden koruma sağlamıyor?`,
+            options: [
+              { id: 'a', text: 'Birinci gündeki eval setinde bir hata olmuş olmalı' },
+              { id: 'b', text: 'Bir eval koşumu belirli bir andaki anlık görüntüdür — çalıştığı anda sistemin sağlıklı olduğunu kanıtlar, ama sonrasında davranışı bozan daha sonraki, ilgisiz bir değişiklik (sessizce düşürülmüş bir retrieval ayarı gibi) hakkında hiçbir şey söylemez; yayın gününden sonra olan bir regresyonu sadece sürekli izleme yakalayabilir, tek seferlik bir kontrol değil' },
+              { id: 'c', text: 'Eval setleri 24 saat sonra otomatik olarak süresi dolar' },
+              { id: 'd', text: 'Yeşil sonuçlar sadece testi çalıştıran spesifik kullanıcı için geçerlidir' },
+            ],
+            correct: 'b',
+            explanation: `Geçen bir eval, çalıştığı anda doğrudur ve yarın hakkında hiçbir garanti taşımaz — tıpkı deploy öncesi yeşil bir CI koşumunun günler sonra keşfedilen yavaş bir leak hakkında hiçbir şey söylememesi gibi. Observability, tam olarak tek seferlik kontrol zaten geçtikten SONRA ortaya çıkan şeyi yakalamak için var.`,
+            retryQuestion: {
+              question: `Yukarıdaki dashboard'da, halüsinasyon-oranı çizgisi tek başına son günde bir şeyin yanlış olduğunu söyledi, ama NEYİN değiştiğini söylemedi. Kök nedeni izole etmeni gerçekte ne sağladı?`,
+              options: [
+                { id: 'a', text: 'Toplu metriğin daha da kötüleşmesi için daha uzun beklemek' },
+                { id: 'b', text: 'Trace\'deki her pipeline aşamasını tek tek kontrol etmek (prompt, token, retrieval, model versiyonu, latency) — toplu sayı sadece bir regresyonun var olduğunu ortaya çıkarır, aşama-aşama trace analizi ise hangi spesifik aşamanın sessizce değiştiğini ortaya çıkarır' },
+                { id: 'c', text: 'AI servisini yeniden başlatmak' },
+                { id: 'd', text: 'Modelin temperature\'ını yükseltmek' },
+              ],
+              correct: 'b',
+              explanation: `Toplu bir metrik ile aşama-bazlı bir trace kasıtlı olarak farklı sorulara cevap verir: toplu metrik bir şeyin regresyona uğradığını söyler, trace ise tam olarak nerede olduğunu söyler. Beş aşamadan dördünün "normal" raporlaması bir çıkmaz değildir — tam olarak elemenin gerçekten değişen tek aşamayı (retrieval'ın top_k'sı) nasıl daralttığıdır.`,
             },
           },
         ],

@@ -10,6 +10,55 @@
 
 ---
 
+## AIQA_ROADMAP Faz 2 — L-5 AI Observability Dashboard TAMAMLANDI (2026-07-09)
+
+> Faz 2'nin son "Yüksek" öncelikli modülü. Bileşen + içerik tek oturumda.
+> Faz 2 (L-6, L-3, L-5) artık tamamlandı — sırada Faz 3 (🟢 Orta öncelik) var.
+
+### Yapılan iş
+1. **`src/components/ObservabilityDashboardBlock.jsx`** (YENİ,
+   `observability-dashboard` block) — 3 parçalı mock dashboard: (a) 7 günlük
+   halüsinasyon oranı trend çizgisi (SVG polyline) + eşik çizgisi, eşik aşılınca
+   🚨 KIRMIZI ALERT rozeti; (b) latency dağılımı mini histogram; (c) "Spike'ı
+   İncele" butonuyla açılan Trace Analizi — kullanıcı 5 pipeline aşamasını
+   (prompt/token/retrieval/model versiyonu/latency) tek tek tıklayarak kök
+   nedeni arar, yanlış aşamada kısa "normal görünüyor" ipucu, doğru aşamada
+   (retrieval top_k sessizce düşürülmüş) yeşil vurgulu açıklama. Gerçek
+   API/veri çağrısı YOK, tamamı el yazımı deterministik mock veri.
+2. **`src/components/TopicPage.jsx`** — import + `case 'observability-dashboard'`.
+3. **`src/data/llmAgentsData.js`** — yeni sekme **"📡 AI Observability"**,
+   "AI in Production: Cost, Evals, Security" ile "Adversarial Testing & Red
+   Teaming" arasına, EN+TR hizalı (18/18). İçerik: §9.3 4-katman simple-box
+   (hastane vital-signs monitörü analojisi + Java APM/CI karşılaştırması,
+   "AI in Production" sekmesindeki evals kavramına geri referans), 2 text,
+   `{ type: 'observability-dashboard' }` (component default), `table` bloğu
+   (Phoenix/Arize/Giskard/WhyLabs platform karşılaştırması), 2 quiz (tek
+   seferlik eval'in neden yetmediği; toplu metrik vs trace-seviyeli teşhis).
+
+### Doğrulama (§1.1 checklist)
+- Node ESM import syntax kontrolü → ✅ OK
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama → ✅ llmAgentsData 18/18
+- `npm run build` → ✅ PASS
+- **Runtime (Playwright, gerçek data ile):** /llm-agents → "AI Observability"
+  sekmesi → dashboard görünür, KIRMIZI ALERT doğru tetiklendi, "Spike'ı İncele"
+  → yanlış aşama (Prompt Şablonu) kırmızı işaretlendi, doğru aşama (Retrieval
+  top_k) yeşil vurgulu kök-neden açıklamasıyla bulundu, platform tablosu ve
+  quiz render oldu, **konsol hatası yok**, sekme navigasyonu doğru sırada.
+- **Araç kullanım notu:** Bu doğrulamada `getByText(...).click()` bir kez
+  "elemente bulundu ama stabil değil" timeout'una takıldı (sidebar/scroll
+  animasyonu yüzünden) — `scrollIntoViewIfNeeded()` + `{ force: true }` click
+  ile çözüldü. Ayrıca script'i Bash `run_in_background: true` ile çalıştırıp
+  bildirimi beklemek (elle `sleep` zincirlemek yerine) doğru yaklaşım oldu.
+
+### Faz 3 (🟢 Orta öncelik) — sıradaki modüller
+C-5 Edge Case Fabrikası, C-4 Visual Regression (Anthropic Vision istisnası —
+API kısıtları nedeniyle en son, roadmap §3.1'deki 3 seçenekten birine karar
+verilmeli: kullanıcı kendi API key'i / Supabase Edge Function arkasında saklı
+key / Groq vision modeli).
+
+---
+
 ## AIQA_ROADMAP Faz 2 — L-3 Multi-turn Drift Testing TAMAMLANDI (2026-07-09)
 
 > "En uygun sıralamayla sen devam et" yaklaşımı sürdürüldü — L-6'dan sonra
