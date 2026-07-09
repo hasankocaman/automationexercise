@@ -10,7 +10,61 @@
 
 ---
 
-## AIQA_ROADMAP Faz 1 — Modül L-2 TAMAMLANDI (2026-07-09 — HENÜZ COMMIT EDİLMEDİ)
+## AIQA_ROADMAP Faz 1 — C-3 + L-4 FABLE ALTYAPISI HAZIR, SONNET İÇERİK BEKLİYOR (2026-07-09)
+
+> L-2 commit `da17c23` ile indi. Bu adımda C-3 (Judge Playground) ve L-4 (RAG Lab)
+> modüllerinin **Fable kısmı** (yeniden kullanılabilir React bileşenleri + Groq
+> edge function + TopicPage dispatch) tamamlandı ve doğrulandı. **Sıradaki iş
+> Sonnet'e ait:** `*Data.js` bilingual içeriğini yazıp bu blokları sayfalara bağlamak.**
+
+### Yapılan iş (FABLE)
+1. **`supabase/functions/judge-eval/index.ts`** (YENİ edge function) — LLM-as-a-Judge
+   backend. İki mod: `rubric` (C-3: N kritere göre 1-5 skor) ve `rag` (L-4: grounding/
+   relevance/faithfulness 1-5). `_shared/groq.ts callGroq` (temp 0.1, JSON), üye-only
+   maliyet koruması (grade-interview-answer ile aynı guard), skorlar 1-5'e clamp.
+   **DEPLOY GEREKLİ (manuel):** `supabase functions deploy judge-eval --project-ref <ref>`
+   — mevcut `GROQ_API_KEY` secret'ını paylaşır, ek secret yok.
+2. **`src/components/JudgePlaygroundBlock.jsx`** (YENİ, `judge-playground` block) —
+   kullanıcı chatbot yanıtı seçer/yazar + rubrik kriterlerini toggle eder →
+   "Değerlendir" → bar-chart skor. **Canlı mod:** kendi metni + Supabase varsa
+   `judge-eval` çağrılır; **Demo mod:** hazır örnek el-yazımı puanlar / sezgisel
+   skorlayıcı (prod'da secret yoksa da öğretir). Yerleşik 3 örnek + 4 kriter default.
+3. **`src/components/RagLabBlock.jsx`** (YENİ, `rag-lab` block) — 3 adım (bağlam→soru+
+   aday yanıt→metrikler). Grounding/Relevance/Faithfulness SVG progress ring'leri +
+   dedektif notu. Canlı `judge-eval` mode:'rag' veya demo. Yerleşik iade-politikası
+   örneği (iyi vs halüsinasyon adayı).
+4. **`src/components/TopicPage.jsx`** — 2 import + `case 'judge-playground'` /
+   `case 'rag-lab'` dispatch.
+
+### Doğrulama
+- content-integrity ✅ 0 ihlal · `npm run build` ✅ PASS
+- **Runtime (geçici enjeksiyon + yaz-koş-sil Playwright):** iki blok da /llm-agents'e
+  geçici eklenip build+preview'de ekran görüntüsüyle doğrulandı — Judge bar-chart'ları
+  (halüsinasyonlu örnek: Doğruluk 2/5), RAG ring'leri (Grounding 2/Relevance 4/
+  Faithfulness 1) + dedektif notu doğru render. Canlı-çağrı başarısızlığında amber
+  "demo moduna düşüldü" uyarısı tasarlandığı gibi çalıştı. Geçici enjeksiyon geri alındı.
+- **Not:** Bloklar şu an HİÇBİR data dosyasında referanslı DEĞİL (dispatch case'leri
+  hazır, ama sekme yok) — bu bilinçli Fable/Sonnet devir noktası.
+
+### ▶ SONNET'İN YAPACAĞI (sıradaki prompt) — model = Sonnet seç
+1. **C-3 → `src/data/claudeAiData.js`:** yeni sekme (öneri: "⚖️ LLM-as-a-Judge" veya
+   mevcut bir sekmeye ekle) EN+TR `sections` VE `tabs` HİZALI (L-2'deki gibi index
+   ekleme kritik). İçerik: §9.3 4-katman `simple-box` (öğretmenin sınav notlaması
+   analojisi + Java assertEquals karşılaştırması), açıklama text'leri, `{ type:
+   'judge-playground', scenario:{tr,en}, examples:[...], rubric:[...] }` bloğu (kendi
+   senaryo/örnek/rubriğini ver ya da default'ları kullan), 2+ quiz. Java analojisi zorunlu.
+2. **L-4 → `src/data/llmAgentsData.js`:** yeni sekme "🔍 RAG Pipeline Testi" EN+TR
+   hizalı. §9.3 simple-box (araştırmacı analojisi), text, `{ type:'rag-lab',
+   contexts:[{label,text,question,candidates:[...]}] }`, "Halüsinasyon Avı" quiz'leri.
+3. Her ikisinde de: TR yorum kuralı, `relatedTopicId` (varsa interview/error blokları),
+   §1.1 checklist (content-integrity + build). Bloklar veri olmadan da default'la çalışır,
+   ama sekme + öğretici metin + quiz Sonnet tarafından yazılmalı.
+> Bileşen prop şekilleri dosya başı yorumlarında yazılı (JudgePlaygroundBlock.jsx,
+> RagLabBlock.jsx). Sonnet component'e DOKUNMAZ — sadece data ekler.
+
+---
+
+## AIQA_ROADMAP Faz 1 — Modül L-2 TAMAMLANDI (2026-07-09, commit `da17c23`)
 
 > `AIQA_ROADMAP.md` okundu, fizibilite değerlendirildi (8 modül = 5-8 haftalık iş,
 > tek oturumda tamamı yapılamaz). Fable/Sonnet iş bölümü tanımlandı ve en kritik +

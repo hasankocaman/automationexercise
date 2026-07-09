@@ -23,6 +23,8 @@ import JenkinsSandboxBlock from './JenkinsSandboxBlock'
 import ClaudePromptLabBlock from './ClaudePromptLabBlock'
 import TokenPredictorBlock from './TokenPredictorBlock'
 import DeterministicVsStochasticBlock from './DeterministicVsStochasticBlock'
+import JudgePlaygroundBlock from './JudgePlaygroundBlock'
+import RagLabBlock from './RagLabBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17683,6 +17685,12 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'det-vs-stoch':
             return <DeterministicVsStochasticBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'judge-playground':
+            return <JudgePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'rag-lab':
+            return <RagLabBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null
