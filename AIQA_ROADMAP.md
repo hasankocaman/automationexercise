@@ -8,6 +8,11 @@
 
 ## 0. Mevcut Durum Fotoğrafı
 
+> **GÜNCELLEME (2026-07-09): Bu bölümdeki durum aşağıda ✅ ile güncellendi —
+> tüm modüller implemente edildi ve `main`'e commit edildi. Bu tabloların
+> kendisi artık "yapılacaklar" değil, "ne zaman/nasıl yapıldığının" kaydıdır;
+> hangi commit'in hangi modülü getirdiği için `.claude/NEXT_SESSION.md`'ye bak.**
+
 ### `/claude-ai` — Ne var, ne eksik?
 
 | Mevcut Modül | Durum |
@@ -19,10 +24,10 @@
 | Test Data Generation | ✅ Var |
 | UI Automation (Selenium/PW) | ✅ Var |
 | API Testing | ✅ Var |
-| **LLM-as-a-Judge / Prompt-Based Testing** | ❌ Yok |
-| **Claude Vision → Visual Regression** | ❌ Yok |
-| **Edge-case üretimi + QA değerlendirme** | ❌ Yok |
-| **Non-deterministic davranış test etme** | ❌ Yok |
+| **LLM-as-a-Judge / Prompt-Based Testing** | ✅ Yapıldı — Modül C-3, "⚖️ Yargıç Olarak Claude" sekmesi |
+| **Claude Vision → Visual Regression** | ✅ Yapıldı — Modül C-4, "🕵️ AI Vision: Visual Regression Testing" sekmesi (Anthropic Claude Vision yerine Groq vision modeliyle, bkz. §3.1 istisna notu) |
+| **Edge-case üretimi + QA değerlendirme** | ✅ Yapıldı — Modül C-5, "🏭 Edge Case Factory" sekmesi |
+| **Non-deterministic davranış test etme** | ✅ Yapıldı — Modül L-2 olarak `/llm-agents` sayfasında (bu tablo `/claude-ai` için ama kapsam mantığı gereği L-2 diğer sayfaya kondu) |
 
 ### `/llm-agents` — Ne var, ne eksik?
 
@@ -36,13 +41,13 @@
 | Agent = LLM + Tools + Loop | ✅ Var |
 | Function Calling | ✅ Var |
 | OpenAI API basics | ✅ Var |
-| **Deterministik vs Stokastik Test (görsel)** | ❌ Yok |
-| **Multi-turn Conversation Testing** | ❌ Yok |
-| **Memory / Context Drift Testing** | ❌ Yok |
-| **RAG Pipeline Testing (hallucination, grounding, relevance)** | ❌ Yok |
-| **Adversarial Testing & Red Teaming / Prompt Injection oyunu** | ❌ Yok |
-| **AI Observability (Phoenix/Giskard mantığı)** | ❌ Yok |
-| **Evaluation Reports & Structured Test Summaries** | ❌ Yok |
+| **Deterministik vs Stokastik Test (görsel)** | ✅ Yapıldı — Modül L-2, "⚖️ Deterministic vs Stochastic Testing" sekmesi |
+| **Multi-turn Conversation Testing** | ✅ Yapıldı — Modül L-3, "📉 Multi-turn Conversation & Drift Testing" sekmesi |
+| **Memory / Context Drift Testing** | ✅ Yapıldı — L-3'ün Drift Metre bileşeni içinde (ayrı bir modül olarak değil, L-3 ile birleşik) |
+| **RAG Pipeline Testing (hallucination, grounding, relevance)** | ✅ Yapıldı — Modül L-4, "🔍 RAG Pipeline Testing" sekmesi |
+| **Adversarial Testing & Red Teaming / Prompt Injection oyunu** | ✅ Yapıldı — Modül L-6, "🕵️‍♂️ Adversarial Testing & Red Teaming" sekmesi |
+| **AI Observability (Phoenix/Giskard mantığı)** | ✅ Yapıldı — Modül L-5, "📡 AI Observability" sekmesi (mock dashboard + platform karşılaştırma tablosu) |
+| **Evaluation Reports & Structured Test Summaries** | ⚠️ Kısmen — L-5'in metninde kavramsal olarak değinildi ("evaluation report nasıl yazılır" pratiği), ama Faz 3 tablosundaki ayrı "L-5: Evaluation Report Şablonu" alt-kalemi (bağımsız bir rapor-yazma şablonu/egzersizi) HENÜZ ayrı bir interaktif araç olarak yapılmadı — bkz. §8 not |
 
 ### İş İlanı Gap Analizi (QualityKiosk AI QA Engineer)
 
@@ -50,15 +55,15 @@
 
 | İlan Kriteri | Mevcut Kapsam | Eklenecek |
 |---|---|---|
-| GenAI bots / chatbots / copilots testi | %10 | Modül C-4, L-3 |
-| RAG pipeline testi | %0 | Modül L-4 |
-| AI evaluation platforms (Arize, Phoenix…) | %0 | Modül L-5 |
-| Prompt-based test senaryoları | %20 | Modül C-3 |
-| Multi-turn conversation tests | %0 | Modül L-3 |
-| Hallucination / Grounding / Drift tespiti | %5 | Modül L-4 |
-| Adversarial evaluations | %0 | Modül L-6 |
-| Non-deterministic AI behavior anlayışı | %15 | Modül L-2 |
-| Evaluation reports / dashboards | %0 | Modül L-5 |
+| GenAI bots / chatbots / copilots testi | ✅ Yapıldı | Modül C-4, L-3 |
+| RAG pipeline testi | ✅ Yapıldı | Modül L-4 |
+| AI evaluation platforms (Arize, Phoenix…) | ✅ Yapıldı | Modül L-5 |
+| Prompt-based test senaryoları | ✅ Yapıldı | Modül C-3 |
+| Multi-turn conversation tests | ✅ Yapıldı | Modül L-3 |
+| Hallucination / Grounding / Drift tespiti | ✅ Yapıldı | Modül L-4 |
+| Adversarial evaluations | ✅ Yapıldı | Modül L-6 |
+| Non-deterministic AI behavior anlayışı | ✅ Yapıldı | Modül L-2 |
+| Evaluation reports / dashboards | ✅ Dashboard yapıldı (L-5) — ayrı rapor şablonu egzersizi kısmen | Modül L-5 |
 
 ---
 
@@ -507,5 +512,40 @@ Yeni iş ilanı geldiğinde → Gap Analizi tablosu güncellenir
 
 ---
 
-*Son güncelleme: Temmuz 2025*  
-*Sonraki adım: Faz 1 → L-2 modülünün JSX bileşeni tasarımı*
+## 9. Tamamlanma Durumu (2026-07-09)
+
+**Faz 1, Faz 2 ve Faz 3'teki 8 modülün tamamı implemente edildi ve `main`
+branch'ine commit edildi.** Detaylı commit listesi, doğrulama adımları ve
+her modülün hangi dosyalarda yaşadığı için **`.claude/NEXT_SESSION.md`**
+otoritedir (bkz. CLAUDE.md §0 — anlık/tamamlanma durumu bu dosyada tutulur).
+
+| Modül | Sayfa | Sekme | Commit |
+|---|---|---|---|
+| L-2 Deterministik vs Stokastik | `/llm-agents` | ⚖️ Deterministic vs Stochastic Testing | `da17c23` |
+| C-3 LLM-as-a-Judge | `/claude-ai` | ⚖️ Yargıç Olarak Claude | `b56a348` + `7376585` |
+| L-4 RAG Pipeline Testing | `/llm-agents` | 🔍 RAG Pipeline Testing | `b56a348` + `7376585` |
+| L-6 Prompt Injection Arena | `/llm-agents` | 🕵️‍♂️ Adversarial Testing & Red Teaming | `4a6b806` |
+| L-3 Multi-turn Drift Testing | `/llm-agents` | 📉 Multi-turn Conversation & Drift Testing | `88a4641` |
+| L-5 AI Observability | `/llm-agents` | 📡 AI Observability | `a10ee7b` |
+| C-5 Edge Case Factory | `/claude-ai` | 🏭 Edge Case Factory | `773c2ac` |
+| C-4 AI Vision Visual Regression | `/claude-ai` | 🕵️ AI Vision: Visual Regression Testing | `0db48b5` |
+
+**Bilinen tek eksik:** Faz 3 tablosundaki ayrı "L-5: Evaluation Report
+Şablonu" alt-kalemi (bağımsız bir rapor-yazma egzersizi/şablonu) henüz ayrı
+bir interaktif araç olarak yapılmadı — sadece AI Observability sekmesinin
+metninde kavramsal olarak değinildi. İhtiyaç olursa ayrı bir modül olarak
+eklenebilir.
+
+**Manuel doğrulama için:**
+1. `npm run dev` çalıştır, `/claude-ai` ve `/llm-agents` sayfalarına git,
+   yukarıdaki tablodaki sekme adlarını sol sidebar'da ara ve tıkla.
+2. `node scripts/check-content-integrity.mjs` — 0 ihlal vermeli.
+3. `npm run build` — hatasız tamamlanmalı.
+4. `git log --oneline -8` — yukarıdaki 8 commit hash'ini (veya sonrasını)
+   görmelisin.
+
+---
+
+*Son güncelleme: 2026-07-09 — Faz 1/2/3 tamamlandı.*  
+*Sonraki adım: (opsiyonel) L-5 Evaluation Report Şablonu, ya da yeni bir iş
+ilanı geldiğinde Gap Analizi tablosunun güncellenmesi.*
