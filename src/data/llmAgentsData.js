@@ -1090,7 +1090,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testing', '🏭 AI in Production: Cost, Evals, Security', '🕵️‍♂️ Adversarial Testing & Red Teaming', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '📉 Multi-turn Conversation & Drift Testing', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testing', '🏭 AI in Production: Cost, Evals, Security', '🕵️‍♂️ Adversarial Testing & Red Teaming', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -1516,6 +1516,61 @@ def add_message(new_message):
               correct: 'b',
               explanation: `Attention dilution is a "functionally deprioritized" problem, not a hard-deletion problem — the token limit is a separate, harder cutoff. The fix (fresh context) works by removing the dilution problem entirely rather than fighting it within an ever-growing thread.`,
             },
+          },
+        ],
+      },
+      {
+        title: `📉 Multi-turn Conversation & Drift Testing`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📉',
+            content: `Testing a chatbot across a long conversation is reviewing a full customer-service call recording, not grading a single transcript line — and the mechanism matches one-to-one, not loosely: a QA auditor listening to a 45-minute call does not just check "was the first answer correct?", they listen for whether tone, policy adherence and topic focus hold steady from minute one to minute forty-five, because social pressure and rapport build up over the CALL, not within any single sentence. Here is the question worth sitting on: if a chatbot answers turn 1 perfectly and is running the exact same system prompt on turn 20 — nothing about its rules has changed — why would its behavior on turn 20 ever be any different? Because every token the model generates is conditioned on the entire prior context, not just the system prompt in isolation; as more turns accumulate — especially emotionally loaded or persuasive ones — that accumulated context genuinely shifts the probability distribution over the model's next output, the exact attention-dilution mechanism from the previous tab, now happening across real conversation turns instead of abstractly. Java comparison: this is not one assertEquals per request — it is closer to an integration test that asserts an invariant HOLDS across a sequence of stateful operations (an account balance never goes negative across N transactions), where a single isolated-request test tells you nothing about what accumulates. The QA stake: a support bot that holds its policy perfectly on turns 1 through 3 and breaks it by turn 10 passes every single-message test suite ever written, while still costing real money in unauthorized discounts the moment a real customer reaches turn 10 — which is exactly the failure the Drift Meter below lets you watch happen, turn by turn, instead of discovering it in a production incident report.`,
+          },
+          { type: 'heading', text: `Why Turn 1 Isn't Turn 20` },
+          {
+            type: 'text',
+            content: `A single-turn regression test starts from a fresh, empty context every time — it can never reproduce a failure that only emerges from several turns of accumulated pressure, because by construction it never accumulates anything. This is why "just add more turn-1 tests" cannot catch drift: the failure mode does not live in any individual turn, it lives in the trajectory across turns. A real multi-turn test suite scripts an escalating scenario — a customer who starts reasonable and gradually applies social or emotional pressure over several turns — and checks the SAME constraint at every turn, specifically watching for the turn where adherence crosses a threshold.`,
+          },
+          {
+            type: 'text',
+            content: `Below, reveal the conversation one turn at a time and watch three metrics update after every assistant reply: consistency, on-topic relevance, and constraint adherence. Notice the softening at turn 3 — the assistant's language shifts from a flat rule statement to a hedged "I want to help, but" — before the actual rule violation happens at turn 4. That softening is not noise; it is the same accumulating-context mechanism already visibly shifting the model's output, just not yet enough to flip the final decision. Catching that early signal, rather than only the eventual break, is what turns a drift meter into an early-warning test instead of a post-mortem.`,
+          },
+          { type: 'drift-meter' },
+          {
+            type: 'quiz',
+            question: `A QA team's regression suite only contains single-turn tests (one message in, one reply out, fresh context every time). What specific kind of failure will this suite always miss, and why can't adding more single-turn tests fix it?`,
+            options: [
+              { id: 'a', text: 'Nothing — turn-1 behavior generalizes reliably to later turns' },
+              { id: 'b', text: 'It misses behavior that only emerges from context accumulated across several turns — no number of independent turn-1 tests can reveal a failure that requires several turns of building social/emotional pressure, because each turn-1 test starts from a fresh, empty context by definition' },
+              { id: 'c', text: 'Turn-1 tests are simply too slow to run, so the team should skip them entirely' },
+              { id: 'd', text: 'You would need a larger, more expensive model to catch this' },
+            ],
+            correct: 'b',
+            explanation: `A single-turn test's context is empty by construction, so it cannot contain the accumulated pressure that causes drift — that failure mode lives in the trajectory across turns, not in any individual message. More turn-1 tests, however numerous, cannot reproduce a multi-turn phenomenon.`,
+            retryQuestion: {
+              question: `To actually catch the kind of drift shown in the Drift Meter before it ships, what should a QA team's regression suite include that a single-turn suite structurally cannot provide?`,
+              options: [
+                { id: 'a', text: 'More single-turn tests with more forcefully worded prompts' },
+                { id: 'b', text: 'Scripted multi-turn conversation scenarios that escalate social/emotional pressure over several turns (like the "we\'re friends" framing above), re-checking the SAME constraint at every turn and flagging the specific turn where adherence crosses a threshold — exactly what the Drift Meter runner does' },
+                { id: 'c', text: 'Raising the model\'s temperature so it behaves more consistently' },
+                { id: 'd', text: 'Testing only with anonymous, one-off conversations that never resemble real usage' },
+              ],
+              correct: 'b',
+              explanation: `Only a scripted, escalating multi-turn scenario can reproduce the accumulated-context conditions that cause drift, and only re-checking the same constraint turn-by-turn can pinpoint exactly where adherence breaks — which is precisely the mechanism the Drift Meter demonstrates.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `In the Drift Meter, the assistant's language softened from a flat rule statement to "I want to help, but..." at turn 3 — a full turn before the actual policy violation at turn 4. Mechanically, what does this early softening represent?`,
+            options: [
+              { id: 'a', text: 'The model got confused and briefly forgot its own rules, unrelated to anything that follows' },
+              { id: 'b', text: 'It is an early, weaker signal of the exact same mechanism that later causes the full violation — the accumulating emotional context is already shifting the probability distribution over the model\'s next tokens, just not yet enough to flip the final decision; catching this signal before the hard failure is what makes a drift meter an early-warning tool instead of a post-mortem' },
+              { id: 'c', text: 'It is random noise with no relationship to the eventual rule violation' },
+              { id: 'd', text: 'The model is deliberately warning the tester before it breaks a rule' },
+            ],
+            correct: 'b',
+            explanation: `Nothing about the model's rules changed between turn 3 and turn 4 — what changed is the accumulated context, which shifts the next-token probability distribution continuously, not in one sudden jump. The turn-3 softening is that same continuous shift, visible one step before it becomes large enough to flip the actual decision.`,
           },
         ],
       },
@@ -2731,7 +2786,7 @@ messages = [{"role": "user", "content": relevant_section}]`,
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testi', '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🕵️‍♂️ Kırmızı Takım Testi (Red Teaming)', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '📉 Çok Turlu Konuşma ve Drift Testi', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testi', '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🕵️‍♂️ Kırmızı Takım Testi (Red Teaming)', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -3157,6 +3212,61 @@ def add_message(new_message):
               correct: 'b',
               explanation: `Dikkat seyrelmesi "işlevsel olarak öncelik dışına düşme" sorunudur, sert-silme sorunu değil — token limiti ayrı, daha katı bir kesimdir. Düzeltme (taze bağlam), sürekli büyüyen bir thread içinde savaşmak yerine seyrelme sorununu tamamen ortadan kaldırarak işe yarar.`,
             },
+          },
+        ],
+      },
+      {
+        title: `📉 Çok Turlu Konuşma ve Drift Testi`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '📉',
+            content: `Bir chatbot'u uzun bir konuşma boyunca test etmek, tek bir transkript satırını notlamak değil, tam bir müşteri hizmetleri çağrı kaydını incelemektir — ve mekanizma gevşek değil, birebir örtüşür: 45 dakikalık bir çağrıyı dinleyen bir QA denetçisi sadece "ilk cevap doğru muydu?" diye sormaz, tonun, politika uyumunun ve konu odağının birinci dakikadan kırk beşinci dakikaya kadar sabit kalıp kalmadığını dinler, çünkü sosyal baskı ve yakınlık ÇAĞRI boyunca birikir, tek bir cümle içinde değil. Üzerinde durmaya değer soru şu: bir chatbot 1. turda mükemmel cevap veriyorsa ve 20. turda tam olarak aynı sistem promptunu çalıştırıyorsa — kurallarında hiçbir şey değişmedi — 20. turdaki davranışı neden hiç farklı olsun ki? Çünkü modelin ürettiği her token, sadece sistem promptuna değil, önceki TÜM bağlama koşulludur; daha fazla tur birikince — özellikle duygusal yüklü veya ikna edici olanlar — bu birikmiş bağlam modelin bir sonraki çıktısı üzerindeki olasılık dağılımını gerçekten kaydırır; bu, bir önceki sekmedeki dikkat-seyrelmesi mekanizmasının aynısıdır, şimdi soyut değil gerçek konuşma turları üzerinde gerçekleşiyor. Java karşılaştırması: bu tek bir assertEquals per request değildir — daha çok, bir dizi stateful işlem boyunca bir değişmezin TUTTUĞUNU doğrulayan bir entegrasyon testine benzer (N işlem boyunca bir hesap bakiyesinin asla negatif olmaması gibi) — tek, izole bir istek testi neyin biriktiği hakkında hiçbir şey söylemez. QA açısından önemi: 1-3. turlarda politikasını mükemmel koruyan ama 10. turda bunu kıran bir destek botu, şimdiye kadar yazılmış her tek-mesaj test suite'ini geçer, ama gerçek bir müşteri 10. tura ulaştığı anda yetkisiz indirimlerle gerçek paraya mal olmaya devam eder — aşağıdaki Drift Metre'nin tam olarak bunu, bir production olay raporunda keşfetmek yerine, tur tur izlemene izin verdiği başarısızlık tam olarak budur.`,
+          },
+          { type: 'heading', text: `1. Tur Neden 20. Tur Değildir` },
+          {
+            type: 'text',
+            content: `Tek-turlu bir regresyon testi her seferinde taze, boş bir bağlamdan başlar — birkaç tur birikmiş baskıdan doğan bir başarısızlığı asla yeniden üretemez, çünkü tanımı gereği hiçbir şey biriktirmez. "Sadece daha fazla 1. tur testi ekle"nin drift'i yakalayamamasının nedeni budur: başarısızlık modu tek bir turda değil, turlar arasındaki yörüngede yaşar. Gerçek bir çok-turlu test suite'i, makul başlayıp birkaç tur boyunca kademeli olarak sosyal veya duygusal baskı uygulayan bir müşteri senaryosunu betimler ve HER turda AYNI kısıtlamayı kontrol eder, özellikle uyumun bir eşiği geçtiği turu izler.`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıda, konuşmayı tek seferde bir tur açığa çıkar ve her asistan yanıtından sonra üç metriğin güncellendiğini izle: tutarlılık, konu alakası ve kısıtlamaya uyum. 3. turdaki yumuşamaya dikkat et — asistanın dili düz bir kural ifadesinden yumuşatılmış bir "yardımcı olmak istiyorum ama"ya kayar — bu, 4. turdaki gerçek kural ihlalinden bir tam tur önce olur. Bu yumuşama gürültü değildir; birikmiş-bağlam mekanizmasının aynısının modelin çıktısını zaten görünür şekilde kaydırdığının, ama henüz nihai kararı çevirmeye yetecek kadar olmadığının kanıtıdır. Bu erken sinyali, sadece nihai kırılmayı değil, yakalamak, bir drift metreyi bir post-mortem yerine bir erken-uyarı aracına dönüştüren şeydir.`,
+          },
+          { type: 'drift-meter' },
+          {
+            type: 'quiz',
+            question: `Bir QA ekibinin regresyon suite'i sadece tek-turlu testler içeriyor (bir mesaj girer, bir cevap çıkar, her seferinde taze bağlam). Bu suite hangi spesifik başarısızlık türünü her zaman kaçıracak ve daha fazla tek-turlu test eklemek bunu neden düzeltemez?`,
+            options: [
+              { id: 'a', text: 'Hiçbir şey — 1. tur davranışı sonraki turlara güvenilir biçimde genellenir' },
+              { id: 'b', text: 'Birkaç tur boyunca biriken bağlamdan doğan davranışı kaçırır — hiçbir sayıda bağımsız 1. tur testi, birkaç tur boyunca sosyal/duygusal baskı birikmesini gerektiren bir başarısızlığı ortaya çıkaramaz, çünkü her 1. tur testi tanımı gereği taze, boş bir bağlamdan başlar' },
+              { id: 'c', text: '1. tur testleri çalıştırmak için çok yavaştır, o yüzden ekip bunları tamamen atlamalı' },
+              { id: 'd', text: 'Bunu yakalamak için daha büyük, daha pahalı bir modele ihtiyaç olurdu' },
+            ],
+            correct: 'b',
+            explanation: `Tek-turlu bir testin bağlamı tanımı gereği boştur, o yüzden drift'e yol açan birikmiş baskıyı içeremez — bu başarısızlık modu tek bir mesajda değil, turlar arasındaki yörüngede yaşar. Ne kadar çok olursa olsun 1. tur testleri çok-turlu bir fenomeni yeniden üretemez.`,
+            retryQuestion: {
+              question: `Drift Metre'de gösterilen türden bir kaymayı yayınlanmadan önce gerçekten yakalamak için, bir QA ekibinin regresyon suite'i tek-turlu bir suite'in yapısal olarak sağlayamayacağı neyi içermeli?`,
+              options: [
+                { id: 'a', text: 'Daha zorlayıcı ifade edilmiş prompt\'larla daha fazla tek-turlu test' },
+                { id: 'b', text: 'Birkaç tur boyunca sosyal/duygusal baskıyı kademeli artıran betimlenmiş çok-turlu konuşma senaryoları (yukarıdaki "biz arkadaşız" çerçevelemesi gibi), her turda AYNI kısıtlamayı yeniden kontrol edip uyumun bir eşiği geçtiği spesifik turu işaretleyerek — tam olarak Drift Metre koşucusunun yaptığı şey' },
+                { id: 'c', text: 'Modelin temperature\'ını yükseltmek, böylece daha tutarlı davranır' },
+                { id: 'd', text: 'Sadece gerçek kullanımı hiç yansıtmayan anonim, tek seferlik konuşmalarla test etmek' },
+              ],
+              correct: 'b',
+              explanation: `Sadece betimlenmiş, kademeli artan çok-turlu bir senaryo, drift'e yol açan birikmiş-bağlam koşullarını yeniden üretebilir ve sadece aynı kısıtlamayı tur tur yeniden kontrol etmek uyumun tam olarak nerede kırıldığını işaretleyebilir — bu tam olarak Drift Metre'nin gösterdiği mekanizmadır.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `Drift Metre'de, asistanın dili 3. turda düz bir kural ifadesinden "yardımcı olmak istiyorum ama..."ya yumuşadı — 4. turdaki gerçek politika ihlalinden tam bir tur önce. Mekanik olarak, bu erken yumuşama neyi temsil ediyor?`,
+            options: [
+              { id: 'a', text: 'Model kafası karıştı ve kendi kurallarını kısaca unuttu, sonrasıyla ilgisiz' },
+              { id: 'b', text: 'Daha sonra tam ihlale neden olan aynı mekanizmanın erken, daha zayıf bir sinyali — birikmiş duygusal bağlam, modelin sıradaki token\'ları üzerindeki olasılık dağılımını zaten kaydırıyor, sadece henüz nihai kararı çevirmeye yetecek kadar değil; bu sinyali sert başarısızlıktan ÖNCE yakalamak, bir drift metreyi bir post-mortem yerine bir erken-uyarı aracı yapan şeydir' },
+              { id: 'c', text: 'Nihai kural ihlaliyle hiçbir ilişkisi olmayan rastgele gürültü' },
+              { id: 'd', text: 'Model, bir kuralı kırmadan önce test uzmanını kasıtlı olarak uyarıyor' },
+            ],
+            correct: 'b',
+            explanation: `3. tur ile 4. tur arasında modelin kurallarında hiçbir şey değişmedi — değişen şey birikmiş bağlamdır, bu da sıradaki-token olasılık dağılımını ani bir sıçramayla değil sürekli olarak kaydırır. 3. turdaki yumuşama, gerçek kararı çevirecek kadar büyümeden bir adım önce görünür hale gelen aynı sürekli kaymadır.`,
           },
         ],
       },

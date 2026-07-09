@@ -10,6 +10,49 @@
 
 ---
 
+## AIQA_ROADMAP Faz 2 — L-3 Multi-turn Drift Testing TAMAMLANDI (2026-07-09)
+
+> "En uygun sıralamayla sen devam et" yaklaşımı sürdürüldü — L-6'dan sonra
+> sıradaki en uygun modül olarak L-3 seçildi (roadmap'te 🟡 Yüksek, "iş ilanı
+> multi-turn'ü açıkça istiyor"). Tek oturumda bileşen + içerik.
+
+### Yapılan iş
+1. **`src/components/DriftMeterBlock.jsx`** (YENİ, `drift-meter` block) —
+   "Sonraki Tur →" ile açılan bir konuşma; her asistan turundan sonra 3 metrik
+   (tutarlılık/konu alakası/kısıtlamaya uyum, 1-5) güncellenir, bar'lar ve
+   tur-tur sparkline noktaları renklenir, bir metrik eşiğin (≤2) altına
+   düşünce 🚨 DRIFT ALARMI rozeti + o turun açıklama notu gösterilir. Yerleşik
+   4 turluk varsayılan senaryo (müşteri "arkadaşlık" çerçevesiyle bir destek
+   botunu 4 turda indirime ikna ediyor — 3. turda erken yumuşama sinyali,
+   4. turda gerçek ihlal). Gerçek API çağrısı YOK.
+2. **`src/components/TopicPage.jsx`** — import + `case 'drift-meter'` dispatch.
+3. **`src/data/llmAgentsData.js`** — yeni sekme **"📉 Multi-turn Conversation &
+   Drift Testing"** / TR "📉 Çok Turlu Konuşma ve Drift Testi", "Context Window
+   & the Root of Hallucination" ile "What Is an Agent" arasına (mantıksal akış:
+   context/halüsinasyon mekanizmasını öğren → bunu gerçek konuşmada test et →
+   agent'lara geç), EN+TR hizalı (17/17). İçerik: §9.3 4-katman simple-box
+   (45 dakikalık çağrı denetimi analojisi + Java "N işlem boyunca invariant
+   testi" karşılaştırması, "Context Window" sekmesine geri referans), 2 text,
+   `{ type: 'drift-meter' }` (component default kullanıldı), 2 quiz (tek-turlu
+   testin neden drift'i kaçırdığı; erken yumuşama sinyalinin mekanizması).
+
+### Doğrulama (§1.1 checklist)
+- Node ESM import syntax kontrolü (önceki L-6 backtick hatasından ders alınarak
+  ÖNCE çalıştırıldı) → ✅ OK
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama → ✅ llmAgentsData 17/17
+- `npm run build` → ✅ PASS
+- **Runtime (Playwright, gerçek data ile):** /llm-agents → "Çok Turlu Konuşma"
+  sekmesi → blok görünür, 3× "Sonraki Tur" tıklandı, 4. turda DRIFT ALARMI
+  doğru tetiklendi (Tutarlılık 2/5, Kısıtlamaya Uyum 1/5), sparkline ve not
+  doğru render oldu, **konsol hatası yok**, sekme navigasyonu doğru sırada.
+- **Not (araç kullanım dersi):** Playwright doğrulama script'i ilk denemede
+  bash tool timeout'una takıldı (muhtemelen önceki oturumlardan kalan başıboş
+  chrome süreçleri yüzünden) — arka planda (`run_in_background` benzeri,
+  `&` ile) çalıştırıp log dosyasından okumak sorunu çözdü.
+
+---
+
 ## AIQA_ROADMAP Faz 2 — L-6 Prompt Injection Arena TAMAMLANDI (2026-07-09, tek oturumda hem bileşen hem içerik)
 
 > Kullanıcı "en uygun sıralamayla sen devam et" dedi — Fable/Sonnet model

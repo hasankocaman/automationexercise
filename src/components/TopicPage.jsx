@@ -26,6 +26,7 @@ import DeterministicVsStochasticBlock from './DeterministicVsStochasticBlock'
 import JudgePlaygroundBlock from './JudgePlaygroundBlock'
 import RagLabBlock from './RagLabBlock'
 import PromptInjectionArenaBlock from './PromptInjectionArenaBlock'
+import DriftMeterBlock from './DriftMeterBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17695,6 +17696,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'injection-arena':
             return <PromptInjectionArenaBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'drift-meter':
+            return <DriftMeterBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null
