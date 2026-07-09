@@ -1003,7 +1003,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '⚖️ LLM-as-a-Judge', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '⚖️ LLM-as-a-Judge', '🏭 Edge Case Factory', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -2093,6 +2093,49 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
         ],
       },
       {
+        title: `🏭 Edge Case Factory`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🏭',
+            content: `Using Claude as an edge-case factory is a materials-testing lab that never just checks whether a bridge holds normal traffic — it deliberately tests the load limit, freezing cold, a slightly overweight truck, and someone actively trying to break it — and the mechanism matches one-to-one, not loosely: equivalence-class partitioning already taught you to group possible inputs into a handful of representative classes (valid, invalid, boundary...); asking Claude to GENERATE concrete values for each class turns a manual, error-prone brainstorming step into a fast, systematic one. Here is the question worth sitting on: you already know equivalence-class partitioning as a technique — why do you need Claude for this at all, isn't listing "boundary, empty, special character" just something a QA engineer already does from memory? Because knowing the CATEGORIES is not the same skill as producing realistic, varied VALUES inside each one under time pressure — most testers, typing from memory, reach for the same three familiar special characters and never think to try an actual right-to-left script, an actual combining-character Unicode edge case, or an actual XSS payload shape a real attacker would use. Java comparison: this is the difference between hand-writing every @ParameterizedTest case for a validator and using a property-based testing library (in the JVM world, jqwik or QuickCheck-style generators) that produces the input space for you — you still design the CATEGORIES, that remains the QA judgment call, but the generator (here, Claude) fills each one with realistic representative values faster and with more genuine variety than typing from memory ever would. The QA stake: a form validator tested only with English names that silently mangles a real customer's "İpek Yılmaz", or a field that happily accepts 5,000 characters and crashes a downstream database column, are real production incidents — the 8-category factory below exists specifically to turn "did we even try a Unicode name?" into a checkbox, not a forgotten afterthought.`,
+          },
+          { type: 'heading', text: `The Logic of the 8 Categories` },
+          {
+            type: 'text',
+            content: `Each category targets a distinct, real failure mode, not an arbitrary checklist item. Valid is the happy-path baseline everything else is compared against. Invalid is classic negative testing. Boundary catches off-by-one and min/max errors. Empty triggers null-object and required-field logic. Special characters expose parsing and injection assumptions. Unicode catches internationalization bugs — the Turkish dotted/dotless "İ/ı" case-folding bug below is a real, recurring example, not a hypothetical. XSS is a security check specifically for anywhere user input is later rendered as HTML. Too long targets buffer limits and database column overflows. Missing any one of these leaves a specific, nameable class of production bug untested — not a vague "more testing is better" gap.`,
+          },
+          {
+            type: 'text',
+            content: `Pick a field type below and browse all 8 categories — each one is copyable, and the full set downloads as JSON for a real test suite. The two prompt templates underneath are meant to be reused: swap in your own field name and format description to have Claude generate the same 8-category breakdown for a field this factory doesn't already cover.`,
+          },
+          { type: 'edge-case-factory' },
+          {
+            type: 'quiz',
+            question: `A teammate says: "We already tested the email field with 5 valid addresses, we're done." Looking at the 8-category factory, what does this reveal about their test coverage?`,
+            options: [
+              { id: 'a', text: 'Nothing is missing — 5 valid addresses is already thorough coverage' },
+              { id: 'b', text: 'Only 1 of 8 categories (valid) was covered at all — invalid, boundary, empty, special characters, Unicode, XSS, and too-long remain completely untested, which is a common and easy-to-miss under-testing shape precisely because the happy path is the most obvious one to think of' },
+              { id: 'c', text: 'They should test with 10 valid addresses instead of 5' },
+              { id: 'd', text: 'Email fields don\'t need any category besides valid' },
+            ],
+            correct: 'b',
+            explanation: `Testing only the happy path is the single most common coverage gap, precisely because it's the first thing anyone thinks of. The factory's real value is making the other 7 categories just as visible and just as easy to generate as the first one.`,
+            retryQuestion: {
+              question: `Why might a form that works perfectly for "John Smith" silently corrupt "İpek Yılmaz" — a concrete example of exactly what the Unicode category is meant to catch?`,
+              options: [
+                { id: 'a', text: 'Turkish names are simply too long for most database columns' },
+                { id: 'b', text: 'Case-folding (uppercase/lowercase conversion) for the dotted/dotless "İ/ı" pair is locale-specific — calling a case-conversion function without the Turkish locale can turn "İ" into "i̇" (with a combining dot) instead of a plain "i", silently breaking a naive string-equality or username-generation check that assumes case-folding is universal' },
+                { id: 'c', text: 'The letter "İ" is not a valid Unicode character' },
+                { id: 'd', text: 'This only happens with right-to-left scripts, never with Turkish' },
+              ],
+              correct: 'b',
+              explanation: `Case-folding rules are not universal — they depend on locale, and the Turkish dotted/dotless I pair is the textbook example that breaks code assuming otherwise. This is precisely why "Unicode" is its own category instead of being folded into "special characters": it targets a distinct, internationalization-specific failure mode.`,
+            },
+          },
+        ],
+      },
+      {
         title: `🚨 Risks & Common Mistakes`,
         blocks: [
           {
@@ -2539,7 +2582,7 @@ git push origin claude-generated-fix
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '⚖️ Yargıç Olarak Claude', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '⚖️ Yargıç Olarak Claude', '🏭 Edge Case Fabrikası', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -3625,6 +3668,49 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             ],
             correct: 'b',
             explanation: `Tek bir bütünsel karar, birkaç bağımsız niteliği tek bir bite sıkıştırır, böylece bir rubriğin koruduğu tam olarak tanısal bilgiyi — hangi özelliğin başarısız olduğunu — kaybedersin. Dar, adlandırılmış kriterler ayrıca yargıcın tek bir belirsiz "bu iyi mi" yargısından daha tutarlı uygulaması için daha kolaydır — oyun alanının tekrar üretilebilirlik, önem derecesi, anlaşılırlık ve aksiyon alınabilirliği ayrı ayrı puanlamasının nedeni budur.`,
+          },
+        ],
+      },
+      {
+        title: `🏭 Edge Case Fabrikası`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🏭',
+            content: `Claude'u bir edge case fabrikası olarak kullanmak, bir malzeme test laboratuvarının bir köprünün sadece normal trafiği taşıyıp taşımadığını kontrol etmesi değil, kasıtlı olarak yük limitinde, dondurucu soğukta, biraz aşırı yüklü bir kamyonla ve onu kırmaya çalışan biriyle test etmesidir — ve mekanizma gevşek değil, birebir örtüşür: eşdeğer sınıf ayrımı (equivalence-class partitioning) sana zaten olası girdileri birkaç temsili sınıfa gruplamayı öğretti (geçerli, geçersiz, sınır değer...); Claude'a her sınıf için somut değerler ÜRETTİRMEK, elle yapılan, hataya açık bir beyin fırtınası adımını hızlı ve sistematik bir adıma dönüştürür. Üzerinde durmaya değer soru şu: eşdeğer sınıf ayrımını zaten bir teknik olarak biliyorsun — bunun için Claude'a neden ihtiyacın var, "sınır değer, boş, özel karakter" listelemek zaten bir QA mühendisinin ezberden yaptığı bir şey değil mi? Çünkü KATEGORİLERİ bilmek, zaman baskısı altında her birinin içine gerçekçi, çeşitli DEĞERLER üretmekle aynı beceri değildir — ezberden yazan çoğu test uzmanı aynı üç tanıdık özel karaktere uzanır ve gerçek bir sağdan-sola yazılan script, gerçek bir birleşik-karakter Unicode sınır durumu veya gerçek bir saldırganın kullanacağı gerçek bir XSS payload şekli denemeyi hiç düşünmez. Java karşılaştırması: bu, bir validator için her @ParameterizedTest vakasını elle yazmak ile girdi uzayını senin için üreten property-based bir test kütüphanesi (JVM dünyasında jqwik veya QuickCheck tarzı üreteçler) kullanmak arasındaki farktır — KATEGORİLERİ hâlâ sen tasarlarsın, bu QA karar verme becerisi olarak kalır, ama üreteç (burada Claude) her birini ezberden yazmaktan çok daha hızlı ve çok daha gerçek çeşitlilikle gerçekçi temsili değerlerle doldurur. QA açısından önemi: sadece İngilizce isimlerle test edilmiş, gerçek bir müşterinin "İpek Yılmaz" adını sessizce bozan bir form validator'ı, ya da 5.000 karakteri mutlu bir şekilde kabul edip alt akıştaki bir veritabanı sütununu çökerten bir alan, gerçek production olaylarıdır — aşağıdaki 8-kategori fabrikası tam olarak "Unicode bir isim denedik mi?" sorusunu unutulmuş bir ayrıntı yerine bir kontrol kutusuna dönüştürmek için var.`,
+          },
+          { type: 'heading', text: `8 Kategorinin Mantığı` },
+          {
+            type: 'text',
+            content: `Her kategori keyfi bir kontrol listesi maddesi değil, ayrı, gerçek bir başarısızlık modunu hedefler. Geçerli, her şeyin karşılaştırıldığı happy-path temelidir. Geçersiz, klasik negatif testtir. Sınır Değer, off-by-one ve min/max hatalarını yakalar. Boş, null-object ve zorunlu-alan mantığını tetikler. Özel Karakter, parsing ve injection varsayımlarını ortaya çıkarır. Unicode, uluslararasılaştırma hatalarını yakalar — aşağıdaki Türkçe noktalı/noktasız "İ/ı" case-folding hatası varsayımsal değil, gerçek ve tekrarlayan bir örnektir. XSS, kullanıcı girdisinin daha sonra HTML olarak render edildiği her yer için özel bir güvenlik kontrolüdür. Çok Uzun, buffer limitlerini ve veritabanı sütun taşmalarını hedefler. Bunlardan herhangi birinin eksik olması, belirsiz bir "daha fazla test iyidir" boşluğu değil, spesifik, adlandırılabilir bir production bug sınıfının test edilmemiş kalması demektir.`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıda bir alan tipi seç ve 8 kategorinin tamamına göz at — her biri kopyalanabilir, ve tüm set gerçek bir test suite'i için JSON olarak indirilebilir. Alttaki iki prompt şablonu yeniden kullanılmak üzere tasarlandı: kendi alan adını ve format açıklamanı yerleştirerek, bu fabrikanın henüz kapsamadığı bir alan için Claude'a aynı 8-kategori dökümünü ürettirebilirsin.`,
+          },
+          { type: 'edge-case-factory' },
+          {
+            type: 'quiz',
+            question: `Bir takım arkadaşın "E-posta alanını zaten 5 geçerli adresle test ettik, işimiz bitti" diyor. 8-kategori fabrikasına bakınca, bu onların test kapsamı hakkında ne ortaya koyuyor?`,
+            options: [
+              { id: 'a', text: 'Hiçbir şey eksik değil — 5 geçerli adres zaten kapsamlı bir kapsamdır' },
+              { id: 'b', text: '8 kategoriden sadece 1 tanesi (geçerli) hiç kapsanmış — geçersiz, sınır değer, boş, özel karakter, Unicode, XSS ve çok-uzun tamamen test edilmemiş kalmış; bu yaygın ve kolayca kaçırılan bir eksik-test şeklidir, tam olarak çünkü happy path akla gelen en belirgin şeydir' },
+              { id: 'c', text: '5 yerine 10 geçerli adresle test etmeliler' },
+              { id: 'd', text: 'E-posta alanlarının geçerli dışında hiçbir kategoriye ihtiyacı yok' },
+            ],
+            correct: 'b',
+            explanation: `Sadece happy path'i test etmek en yaygın kapsam boşluğudur, tam olarak çünkü herkesin aklına gelen ilk şey odur. Fabrikanın gerçek değeri, diğer 7 kategoriyi ilki kadar görünür ve ilki kadar kolay üretilebilir yapmaktır.`,
+            retryQuestion: {
+              question: `"John Smith" için mükemmel çalışan bir form neden "İpek Yılmaz"ı sessizce bozabilir — Unicode kategorisinin tam olarak yakalamayı amaçladığı somut bir örnek?`,
+              options: [
+                { id: 'a', text: 'Türkçe isimler çoğu veritabanı sütunu için basitçe çok uzundur' },
+                { id: 'b', text: 'Noktalı/noktasız "İ/ı" çifti için case-folding (büyük/küçük harf dönüşümü) locale-spesifiktir — Türkçe locale olmadan bir case-dönüşüm fonksiyonu çağırmak "İ"yi düz bir "i" yerine (birleşik nokta ile) "i̇"ye dönüştürebilir, case-folding\'in evrensel olduğunu varsayan saf bir string-eşitlik veya kullanıcı adı üretme kontrolünü sessizce bozar' },
+                { id: 'c', text: '"İ" harfi geçerli bir Unicode karakteri değildir' },
+                { id: 'd', text: 'Bu sadece sağdan-sola yazılan scriptlerde olur, Türkçede asla' },
+              ],
+              correct: 'b',
+              explanation: `Case-folding kuralları evrensel değildir — locale'e bağlıdır, ve Türkçe noktalı/noktasız I çifti aksini varsayan kodu bozan ders kitabı örneğidir. "Unicode"nun "özel karakterler"e katılmak yerine kendi kategorisi olmasının nedeni tam olarak budur: ayrı, uluslararasılaştırmaya-özgü bir başarısızlık modunu hedefler.`,
+            },
           },
         ],
       },

@@ -10,6 +10,70 @@
 
 ---
 
+## AIQA_ROADMAP Faz 3 — C-5 Edge Case Fabrikası TAMAMLANDI (2026-07-09)
+
+> Faz 3'ün ilk modülü (🟢 Orta öncelik), `/claude-ai` sayfası. C-3'ün doğal
+> devamı olarak roadmap'te işaretliydi. Bileşen + içerik tek oturumda.
+
+### Yapılan iş
+1. **`src/components/EdgeCaseFactoryBlock.jsx`** (YENİ, `edge-case-factory`
+   block) — kullanıcı bir alan tipi seçer (TR Kimlik No / E-posta Adresi
+   default), 8 kategoride (geçerli/geçersiz/sınır değer/boş/özel karakter/
+   Unicode/XSS girişimi/çok uzun) örnek test verisi görür, her kategori
+   panoya kopyalanabilir (`navigator.clipboard.writeText`), tüm set JSON
+   olarak indirilebilir (`Blob` + `URL.createObjectURL`, backend yok). Altta
+   2 hazır prompt şablonu (chatbot + form validasyon), kopyalanabilir. Gerçek
+   API çağrısı YOK — tüm örnekler el yazımı deterministik veri.
+2. **`src/components/TopicPage.jsx`** — import + `case 'edge-case-factory'`.
+3. **`src/data/claudeAiData.js`** — yeni sekme **"🏭 Edge Case Factory"** /
+   TR "🏭 Edge Case Fabrikası", "⚖️ LLM-as-a-Judge" (C-3) ile "Riskler &
+   Yaygın Hatalar" arasına, EN+TR hizalı (15/15). İçerik: §9.3 4-katman
+   simple-box (malzeme test laboratuvarı analojisi + Java property-based
+   testing/jqwik karşılaştırması), 2 text, `{ type: 'edge-case-factory' }`
+   (component default), 2 quiz (biri retry'lı — Türkçe "İ/ı" case-folding
+   Unicode bug'ı somut örnek olarak işlendi).
+
+### ÖNEMLİ HATA VE DÜZELTMESİ (yeni bir ders — L-6'daki backtick hatasından FARKLI)
+Bu kez hata backtick'te değil, **tek tırnaklı bir `text: '...'` string'i
+içinde escape edilmemiş bir apostrof**tan geldi: `"case-folding'in evrensel..."`
+metnindeki `'in` apostrofu string'i erken sonlandırdı (`Unexpected identifier
+'olduğunu'` hatası). **Kural: Bu dosyalardaki tek tırnaklı `text:`/option
+string'lerinde Türkçe iyelik/hal eki apostrofu (`'in`, `'ın`, `'a`, `'e` vb.)
+geçiyorsa MUTLAKA `\'` ile escape et** — dosyada zaten `'Claude\'s model...'`
+gibi doğru örnekler var, yeni içerik yazarken bu örneklere bak. Hem backtick
+hem apostrof hatası `npm run build`'i SESSİZCE geçebilir (bu oturumda ikisi de
+build'den önce Node ESM import kontrolüyle yakalandı) — **her yeni data
+dosyası değişikliğinden sonra Node ESM import kontrolü build'den ÖNCE
+çalıştırılmalı**, sadece build'e güvenmek yetmez.
+
+### Doğrulama (§1.1 checklist)
+- Node ESM import syntax kontrolü → önce ERR yakaladı (apostrof), düzeltme
+  sonrası ✅ OK
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama → ✅ claudeAiData 15/15
+- `npm run build` → ✅ PASS (6dk10sn, arka planda)
+- **Runtime (Playwright, gerçek data ile):** /claude-ai → "Edge Case
+  Fabrikası" sekmesi → blok görünür, alan tipi değiştirme (TR Kimlik No →
+  E-posta) çalıştı, 8 kategori + JSON indir butonu + 2 prompt şablonu render
+  oldu, **konsol hatası yok**.
+- **Araç kullanım notu:** Bu doğrulamada `page.screenshot({fullPage:true})`
+  "waiting for fonts to load" adımında tekrar tekrar timeout'a takıldı
+  (muhtemelen Google Fonts CDN'ine sınırlı/offline ortam erişimi) — çözüm,
+  tam sayfa yerine sadece hedef elementin (`locator(...).screenshot()`)
+  görüntüsünü almaktı; bu aynı zamanda clipboard-izni gerektiren buton
+  tıklamalarının headless ortamda takılmasını da (izin diyaloğu hiç
+  açılmadığı için) bypass etti.
+
+### Faz 3 kalan — sıradaki modül
+**C-4 Visual Regression (Claude Vision)** — roadmap'in "en son" olarak
+işaretlediği, API kısıtları olan tek modül. Karar gerekiyor: 3 seçenekten
+biri (kullanıcı kendi Anthropic API key'i / Supabase Edge Function arkasında
+saklı key, ücretli risk / Groq vision modeliyle değiştirme). Bu modülde
+devam etmeden önce kullanıcıya hangi seçeneğin tercih edildiği sorulmalı —
+diğer tüm modüllerin aksine burada gerçek bir mimari/maliyet kararı var.
+
+---
+
 ## AIQA_ROADMAP Faz 2 — L-5 AI Observability Dashboard TAMAMLANDI (2026-07-09)
 
 > Faz 2'nin son "Yüksek" öncelikli modülü. Bileşen + içerik tek oturumda.
