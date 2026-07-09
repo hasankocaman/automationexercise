@@ -10,7 +10,54 @@
 
 ---
 
-## AIQA_ROADMAP Faz 1 — C-3 + L-4 FABLE ALTYAPISI HAZIR, SONNET İÇERİK BEKLİYOR (2026-07-09)
+## AIQA_ROADMAP Faz 1 — C-3 + L-4 TAMAMLANDI (2026-07-09, Sonnet içerik + Fable altyapı)
+
+> Fable altyapısı (`b56a348`) üzerine Sonnet içerik eklendi: iki sekme de artık
+> gerçek sayfalarda görünür ve tam çalışır durumda, henüz commit edilmedi.
+
+### Yapılan iş (SONNET)
+1. **`src/data/claudeAiData.js`** — yeni sekme **"⚖️ Yargıç Olarak Claude"**
+   (EN: "⚖️ LLM-as-a-Judge"), "CI/CD & Ekipte AI" ile "Riskler & Yaygın Hatalar"
+   arasına, EN+TR `sections`+`tabs` hizalı (14/14). İçerik: §9.3 4-katman
+   simple-box (öğretmen-rubrik analojisi + Java Hamcrest matcher karşılaştırması,
+   "Bug Analizi & Rapor" sekmesine geri referans), 2 text, `judge-playground`
+   bloğu (özel senaryo: Claude'un ürettiği bug raporunu puanlama — 4 kriter:
+   reproducibility/severity/clarity/actionability, 3 örnek: güçlü/belirsiz/abartılı),
+   2 quiz (biri retry'lı, inter-rater reliability kavramını işliyor).
+2. **`src/data/llmAgentsData.js`** — yeni sekme **"🔍 RAG Pipeline Testi"**,
+   "Agent Eğitilir mi? Prompt vs RAG vs Fine-tune" ile "Üretimde AI" arasına,
+   EN+TR hizalı (15/15). İçerik: §9.3 simple-box (araştırma makalesi hakemi
+   analojisi + Java 3-assertion karşılaştırması, Token Lab'a geri referans),
+   `rag-lab` bloğu (component default: iade politikası bağlamı, grounded vs
+   halüsinasyonlu aday), 2 quiz (grounding/relevance kombinasyon teşhisi,
+   RAGAS'ın neden 3 ayrı skor kullandığı).
+3. Bileşenlere (JudgePlaygroundBlock/RagLabBlock) DOKUNULMADI — sadece data.
+
+### Doğrulama (§1.1 checklist)
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama kontrolü → ✅ claudeAiData 14/14,
+  llmAgentsData 15/15, tüm index'ler eşleşiyor
+- `npm run build` → ✅ PASS (40 static route shell)
+- **Runtime (Playwright, gerçek data ile):** her iki sekme de kendi sayfasında
+  sidebar'dan seçilip ekran görüntüsüyle doğrulandı — Judge Playground (rubrik
+  toggle, örnek seçici, quiz'ler) ve RAG Lab (3 adım, ring'ler, quiz'ler)
+  eksiksiz render oldu, **konsol hatası yok**, sekme ileri/geri navigasyonu
+  doğru sırada ("← CI/CD & Ekipte AI" / "Riskler & Yaygın Hatalar →" ve
+  "← Agent Eğitilir mi?" / "Üretimde AI →").
+- TR yorum kuralı: yeni bloklarda `code` tipi kullanılmadı (risk yok).
+
+### Kalan modüller (aynı Fable→Sonnet döngüsü ile devam)
+Sırada: L-6 Prompt Injection Arena (🟡), L-3 Multi-turn Drift (🟡), L-5
+Observability Dashboard (🟡), C-5 Edge Case Fabrikası (🟢), C-4 Visual
+Regression (🟢, Anthropic Vision istisnası — en son). Her modül için önce
+Fable yeni bileşen+dispatch (+gerekirse edge function) kodlar ve doğrular,
+sonra Sonnet ilgili `*Data.js`'e sekme içeriği ekler.
+> `judge-eval` edge function hâlâ deploy edilmedi (manuel adım, roadmap notunda
+> yazılı) — deploy edilmeden bloklar sorunsuz demo modunda çalışıyor.
+
+---
+
+## AIQA_ROADMAP Faz 1 — C-3 + L-4 FABLE ALTYAPISI HAZIR, SONNET İÇERİK BEKLİYOR (2026-07-09, ARŞİV)
 
 > L-2 commit `da17c23` ile indi. Bu adımda C-3 (Judge Playground) ve L-4 (RAG Lab)
 > modüllerinin **Fable kısmı** (yeniden kullanılabilir React bileşenleri + Groq

@@ -1090,7 +1090,7 @@ export const llmAgentsData = {
       subtitle: `From Token Prediction to Your Own Test Agent`,
       intro: `You learned how to USE AI for testing on the Claude AI page — this page opens the hood. What is an LLM really doing, how is it trained, what turns it into an agent, and can a tester build and even fine-tune one alone with the OpenAI API? Everything here is hands-on and simulation-backed: you will predict tokens like a model does before you ever call one.`,
     },
-    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🏭 AI in Production: Cost, Evals, Security', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: The AI, ML & LLM Map', '🧱 What Is an LLM: Tokens & Prediction', '⚖️ Deterministic vs Stochastic Testing', '🎓 How LLMs Are Trained: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & the Root of Hallucination', '🤖 What Is an Agent: LLM + Tools + Loop', `🔧 Function Calling: The Agent's Hands`, `🐍 OpenAI API: A Tester's First Call`, `🛠️ Build Your Own Test Agent`, `🎓 Can You "Train" an Agent? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testing', '🏭 AI in Production: Cost, Evals, Security', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: The AI, ML & LLM Map`,
@@ -2076,6 +2076,49 @@ while True:
         ],
       },
       {
+        title: `🔍 RAG Pipeline Testing`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔍',
+            content: `Testing a RAG pipeline is grading a research paper, not fact-checking a single sentence — and the mechanism matches one-to-one, not loosely: a reviewer does not just ask "is this conclusion true?", they ask three separate questions that can each fail independently — were the RIGHT sources cited (retrieval), does each CLAIM actually trace back to a cited source (grounding/faithfulness), and does the paper actually ANSWER the research question (relevance)? A brilliant, well-written paper that cites the wrong sources fails just as hard as a sloppy one that cites the right sources but draws unsupported conclusions from them. Here is the question worth sitting on: your RAG chatbot retrieved the correct policy document AND its answer sounds completely confident — so why isn't a single "does the answer look right?" check enough? Because a model can retrieve the perfect context and still invent a detail that was never in it — the retrieval succeeding tells you nothing about whether the GENERATION step stayed faithful to what it was given, which is exactly the gap between the previous tab's "prompt vs RAG vs fine-tune" decision and this one: choosing RAG only solves WHERE the model gets facts from, not whether it actually uses them correctly. Java comparison: this is not one assertTrue(response.contains(expected)) — it is three independent assertions, like assertSourceMatches(), assertClaimsAreGrounded() and assertAnswersQuestion(), each catching a failure the others would miss. The QA stake: a RAG-powered support bot that hallucinates a wrong refund window is worse than one that says "I don't know" — measuring grounding separately from relevance is how you catch a fluent-sounding, confident, and completely wrong answer before a customer does, which is the exact mechanism you exercised in the Token Lab's orange low-probability path, now applied to a real business document.`,
+          },
+          { type: 'heading', text: `Three Independent Failure Points` },
+          {
+            type: 'text',
+            content: `A RAG pipeline has three stages, and each one can fail on its own: (1) Retrieval — did the system fetch the passage that actually contains the answer, out of everything in the knowledge base? (2) Grounding / Faithfulness — does every concrete claim in the generated answer trace back to something actually present in the retrieved context, or did the model add details that were never there? (3) Relevance — does the answer actually address the user's question, independent of whether it's grounded? A model can be perfectly grounded (every word traceable to the source) while being irrelevant (answering a different question than the one asked), and it can be relevant and fluent while being completely ungrounded (a confident hallucination). RAGAS and similar evaluation frameworks score these as separate numbers for exactly this reason — collapsing them into one "quality" score hides which stage actually broke.`,
+          },
+          {
+            type: 'text',
+            content: `Below, the same return-policy knowledge base is used to answer the same question with two candidate answers — one grounded, one that quietly invents extra policy details. Run the analysis on both and watch which of the three rings drops: the grounded answer scores high on all three; the hallucinated one keeps a reasonable relevance score (it is still "about" the right topic) while grounding and faithfulness collapse, because the invented details (a longer window, a same-day refund, a policy exception) simply are not in the source text — the same mechanism as the Judge Playground's "vague report", but applied to an entire generated paragraph checked against a document instead of a rubric of testable properties.`,
+          },
+          { type: 'rag-lab' },
+          {
+            type: 'quiz',
+            question: `A RAG chatbot's answer scores relevance: 4/5 but grounding: 1/5 on the same question. What does this specific combination tell you about where the pipeline broke?`,
+            options: [
+              { id: 'a', text: 'The retrieval step failed to fetch any context at all, so the model had nothing to work with' },
+              { id: 'b', text: 'The model is answering the right question (high relevance) but is inventing the specific facts in its answer instead of pulling them from the retrieved context (low grounding) — a fluent, on-topic hallucination' },
+              { id: 'c', text: 'The user asked an unclear question, which is why grounding is low' },
+              { id: 'd', text: 'The knowledge base itself is factually wrong' },
+            ],
+            correct: 'b',
+            explanation: `Relevance and grounding are independent axes precisely so a combination like this is diagnosable: high relevance means the answer is on-topic; low grounding means its concrete claims are not traceable to the source. That is the signature of a model confidently inventing details about the right subject — exactly the "30-day / same-day refund" pattern from the RAG Lab's hallucinated candidate.`,
+            retryQuestion: {
+              question: `Why do RAGAS-style evaluation frameworks report grounding, relevance and faithfulness as three separate scores instead of one combined "RAG quality" number?`,
+              options: [
+                { id: 'a', text: 'Because computing three numbers is technically easier than computing one' },
+                { id: 'b', text: 'Because each axis can fail independently of the others, and a single combined score would hide WHICH stage of the pipeline (retrieval, generation-faithfulness, or topical relevance) actually needs fixing — exactly like a bug-report rubric hides less than a single yes/no verdict' },
+                { id: 'c', text: 'Because users only ever care about relevance, so the other two are just for show' },
+                { id: 'd', text: 'Because a single score would always average out to the same result anyway' },
+              ],
+              correct: 'b',
+              explanation: `Diagnostic value is the entire point of decomposition: if you only had one blended score, a highly relevant-but-hallucinated answer and a grounded-but-off-topic answer could land on the identical number, giving you no idea which stage to fix. Separate scores tell an engineer exactly where to look — swap the retriever, tighten the generation prompt, or re-check the source documents.`,
+            },
+          },
+        ],
+      },
+      {
         title: `🏭 AI in Production: Cost, Evals, Security`,
         blocks: [
           {
@@ -2626,7 +2669,7 @@ messages = [{"role": "user", "content": relevant_section}]`,
       subtitle: `Token Tahmininden Kendi Test Agent'ına`,
       intro: `Yapay zekayı test işinde KULLANMAYI /claude-ai sayfasında öğrendin — bu sayfa kaputu açıyor. Bir LLM gerçekte ne yapıyor, nasıl eğitiliyor, onu agent'a dönüştüren ne, ve bir tester OpenAI API ile tek başına agent kurabilir hatta eğitebilir mi? Buradaki her şey uygulamalı ve simülasyon destekli: daha bir modeli çağırmadan önce, token'ları bir model gibi kendin tahmin edeceksin.`,
     },
-    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI, ML ve LLM Haritası', '🧱 LLM Nedir: Token ve Tahmin Motoru', '⚖️ Deterministik vs Stokastik Test', '🎓 LLM Nasıl Eğitilir: Pretraining', '🎯 Fine-tuning & RLHF', '🧠 Context Window & Halüsinasyonun Kökeni', '🤖 Agent Nedir: LLM + Araçlar + Döngü', `🔧 Function Calling: Agent'ın Elleri`, `🐍 OpenAI API: Tester'ın İlk Çağrısı`, `🛠️ Kendi Test Agent'ını Yaz`, `🎓 Agent "Eğitilir mi"? Prompt vs RAG vs Fine-tune`, '🔍 RAG Pipeline Testi', '🏭 Üretimde AI: Maliyet, Evals, Güvenlik', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI, ML ve LLM Haritası`,
@@ -3607,6 +3650,49 @@ while True:
               ],
               correct: 'b',
               explanation: `"Eğitmek" tek bir şey değildir — çok farklı maliyet ve çaba seviyesindeki dört katmana yayılır. Bir tester gerçekçi olarak Seviye 3'e (fine-tuning) ulaşabilir, ama karar tablosu tam olarak çoğu ihtiyacın Seviye 1 veya 2'nin ötesine hiç geçmesi gerekmediği için var.`,
+            },
+          },
+        ],
+      },
+      {
+        title: `🔍 RAG Pipeline Testi`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🔍',
+            content: `Bir RAG pipeline'ını test etmek, tek bir cümleyi doğrulamak değil, bir araştırma makalesini notlamaktır — ve mekanizma gevşek değil, birebir örtüşür: bir hakem sadece "bu sonuç doğru mu?" diye sormaz, her biri bağımsız olarak başarısız olabilecek üç ayrı soru sorar — DOĞRU kaynaklar mı gösterildi (retrieval), her İDDİA gerçekten gösterilen bir kaynağa mı dayanıyor (grounding/faithfulness) ve makale gerçekten araştırma sorusunu CEVAPLIYOR mu (relevance)? Yanlış kaynakları gösteren parlak, iyi yazılmış bir makale, doğru kaynakları gösterip onlardan desteksiz sonuçlar çıkaran özensiz bir makale kadar başarısız olur. Üzerinde durmaya değer soru şu: RAG chatbot'un doğru politika belgesini getirdi VE yanıtı tamamen kendinden emin görünüyor — o zaman neden tek bir "yanıt doğru görünüyor mu?" kontrolü yeterli değil? Çünkü bir model mükemmel bağlamı getirip yine de içinde hiç olmayan bir detay uydurabilir — retrieval'ın başarılı olması, ÜRETIM adımının kendisine verilene sadık kalıp kalmadığı hakkında hiçbir şey söylemez; bu tam olarak bir önceki sekmenin "prompt vs RAG vs fine-tune" kararıyla bu sekme arasındaki farktır: RAG'ı seçmek sadece modelin bilgiyi NEREDEN aldığını çözer, onu doğru KULLANIP kullanmadığını değil. Java karşılaştırması: bu tek bir assertTrue(response.contains(expected)) değildir — assertSourceMatches(), assertClaimsAreGrounded() ve assertAnswersQuestion() gibi üç bağımsız assertion'dır, her biri diğerlerinin kaçıracağı bir hatayı yakalar. QA açısından önemi: yanlış bir iade penceresi uyduran RAG destekli bir destek botu, "bilmiyorum" diyen bir bottan daha kötüdür — grounding'i relevance'tan ayrı ölçmek, akıcı, kendinden emin ve tamamen yanlış bir yanıtı bir müşteri yakalamadan ÖNCE yakalamanın yoludur; bu tam olarak Token Lab'ın turuncu düşük-olasılık yolunda yaşadığın mekanizmanın, şimdi gerçek bir iş belgesine uygulanmış halidir.`,
+          },
+          { type: 'heading', text: `Üç Bağımsız Başarısızlık Noktası` },
+          {
+            type: 'text',
+            content: `Bir RAG pipeline'ının üç aşaması vardır ve her biri kendi başına başarısız olabilir: (1) Retrieval — sistem, bilgi tabanındaki her şey arasından gerçekten cevabı içeren pasajı mı getirdi? (2) Grounding / Faithfulness — üretilen yanıttaki her somut iddia, getirilen bağlamda gerçekten var olan bir şeye mi dayanıyor, yoksa model orada hiç olmayan detaylar mı ekledi? (3) Relevance — yanıt, grounded olup olmadığından bağımsız olarak, gerçekten kullanıcının sorusunu ele alıyor mu? Bir model mükemmel şekilde grounded olabilir (her kelime kaynağa kadar izlenebilir) ama alakasız olabilir (sorulan sorudan farklı bir soruyu cevaplıyor), ve tamamen grounded olmadan alakalı ve akıcı olabilir (kendinden emin bir halüsinasyon). RAGAS ve benzeri değerlendirme çerçeveleri tam olarak bu yüzden bunları ayrı sayılar olarak puanlar — hepsini tek bir "kalite" puanına sıkıştırmak hangi aşamanın gerçekten bozulduğunu gizler.`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıda, aynı iade-politikası bilgi tabanı, aynı soruyu iki aday yanıtla cevaplamak için kullanılır — biri grounded, diğeri sessizce ekstra politika detayları uyduruyor. Analizi ikisinde de çalıştır ve üç ring'den hangisinin düştüğünü izle: grounded yanıt üçünde de yüksek puan alır; halüsinasyonlu olan makul bir relevance puanı korur (hâlâ doğru konu "hakkında"dır) ama grounding ve faithfulness çöker, çünkü uydurulan detaylar (daha uzun bir pencere, aynı gün iade, bir politika istisnası) kaynak metinde basitçe yoktur — Yargıç Oyun Alanı'nın "belirsiz rapor"uyla aynı mekanizma, ama bu sefer bir rubrik yerine bir belgeye karşı kontrol edilen tüm bir üretilmiş paragrafa uygulanmış hali.`,
+          },
+          { type: 'rag-lab' },
+          {
+            type: 'quiz',
+            question: `Bir RAG chatbot'un yanıtı aynı soruda relevance: 4/5 ama grounding: 1/5 alıyor. Bu spesifik kombinasyon pipeline'ın nerede bozulduğu hakkında ne söylüyor?`,
+            options: [
+              { id: 'a', text: 'Retrieval adımı hiç bağlam getiremedi, o yüzden modelin elinde hiçbir şey yoktu' },
+              { id: 'b', text: 'Model doğru soruyu cevaplıyor (yüksek relevance) ama yanıtındaki spesifik gerçekleri getirilen bağlamdan çekmek yerine uyduruyor (düşük grounding) — akıcı, konuya uygun bir halüsinasyon' },
+              { id: 'c', text: 'Kullanıcı belirsiz bir soru sordu, bu yüzden grounding düşük' },
+              { id: 'd', text: 'Bilgi tabanının kendisi olgusal olarak yanlış' },
+            ],
+            correct: 'b',
+            explanation: `Relevance ve grounding tam olarak böyle bir kombinasyonun teşhis edilebilir olması için bağımsız eksenlerdir: yüksek relevance yanıtın konuya uygun olduğu anlamına gelir; düşük grounding ise somut iddialarının kaynağa izlenemediği anlamına gelir. Bu, bir modelin doğru konu hakkında kendinden emin şekilde detay uydurmasının imzasıdır — RAG Lab'ın halüsinasyonlu adayındaki "30 gün / aynı gün iade" örüntüsünün tam olarak aynısı.`,
+            retryQuestion: {
+              question: `RAGAS tarzı değerlendirme çerçeveleri neden grounding, relevance ve faithfulness'ı tek bir birleşik "RAG kalitesi" sayısı yerine üç ayrı puan olarak raporlar?`,
+              options: [
+                { id: 'a', text: 'Çünkü üç sayı hesaplamak teknik olarak birini hesaplamaktan daha kolaydır' },
+                { id: 'b', text: 'Çünkü her eksen diğerlerinden bağımsız olarak başarısız olabilir ve tek bir birleşik puan pipeline\'ın HANGİ aşamasının (retrieval, üretim-sadakati veya konu alakası) düzeltilmesi gerektiğini gizler — tıpkı bir bug-raporu rubriğinin tek bir evet/hayır kararından daha az şey gizlemesi gibi' },
+                { id: 'c', text: 'Çünkü kullanıcılar sadece relevance\'ı önemser, diğer ikisi sadece gösteriş içindir' },
+                { id: 'd', text: 'Çünkü tek bir puan zaten her zaman aynı sonuca ortalama alınırdı' },
+              ],
+              correct: 'b',
+              explanation: `Ayrıştırmanın tüm amacı tanısal değerdir: eğer tek bir karışık puanın olsaydı, çok alakalı-ama-halüsinasyonlu bir yanıt ile grounded-ama-konu-dışı bir yanıt aynı sayıya düşebilirdi, hangi aşamanın düzeltileceği hakkında hiçbir fikir vermezdi. Ayrı puanlar bir mühendise tam olarak nereye bakması gerektiğini söyler — retriever'ı değiştir, üretim promptunu sıkılaştır ya da kaynak belgeleri yeniden kontrol et.`,
             },
           },
         ],

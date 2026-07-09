@@ -1003,7 +1003,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '⚖️ LLM-as-a-Judge', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -1988,6 +1988,111 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
         ],
       },
       {
+        title: `⚖️ LLM-as-a-Judge`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `LLM-as-a-Judge is grading a free-form essay with a rubric, not checking it against a memorized model answer — and the mechanism matches one-to-one, not loosely: a teacher who already knows the subject reads an essay that could be phrased a thousand different ways and checks specific things off a list ("is the thesis clearly stated? is evidence cited? does the conclusion follow?"), never comparing it word-for-word to one "correct" essay. A judge model does exactly that to an AI output — it does not diff characters, it checks whether each rubric item is satisfied. Here is the question worth sitting on: if a human tester could already read a chatbot's replies and score them, why introduce a second, unpredictable AI model to grade an unpredictable AI model — doesn't that just stack uncertainty on top of uncertainty? Because the human does not scale: reading 50 free-text replies after every deploy is a real bottleneck, while a rubric a human writes ONCE and calibrates against a small hand-scored sample (checking the judge's scores agree with a human's — this is "inter-rater reliability", not blind trust) can be applied by a cheap model consistently, release after release. Java comparison: this is not assertEquals(expected, actual) — it is closer to writing one custom Hamcrest matcher, like hasSeverityJustification(), once, and reusing it across thousands of differently-worded inputs instead of hardcoding one expected string per case. The QA stake: back on the "Bug Analysis & Reporting" tab you turned a raw log into a report by hand; at 50 AI-generated reports a day, a rubric-scored judge is the only way to catch a quality regression (vague repro steps, unjustified severity) before a developer wastes an hour on an unusable ticket — provided you calibrated it first instead of trusting its first output.`,
+          },
+          { type: 'heading', text: `From Assertion to Rubric` },
+          {
+            type: 'text',
+            content: `A traditional QA assertion is binary and has one correct value: assertEquals("200", actual). An AI output has many acceptable phrasings, so "correct" stops being a single string and becomes "satisfies these N independent, checkable properties" — a rubric. Each property gets its own 1-5 score from the judge model (not a pass/fail), which is what lets you see WHICH dimension failed instead of just "it's bad": a report can be perfectly clear (5/5) while being completely non-reproducible (1/5), and only a rubric shows you that split. This decomposition is exactly what tools like RAGAS do for RAG pipelines — score grounding, relevance and faithfulness separately instead of one fuzzy "quality" number.`,
+          },
+          {
+            type: 'text',
+            content: `Below, three drafts of the same bug report are scored against a 4-criterion rubric: reproducibility, severity justification, clarity, and actionability. Toggle criteria on or off, or write your own draft report, then press Evaluate. Notice that the "vague" draft reads as complete, grammatical prose — a simple "is the description field non-empty?" check would pass it instantly. The rubric catches what that check cannot: it asks whether the STEPS are numbered and specific, whether the SEVERITY is backed by concrete impact, and whether a developer could act on it without asking a follow-up question.`,
+          },
+          {
+            type: 'judge-playground',
+            scenario: {
+              tr: `Claude'un bir hata log'undan ürettiği bug raporunu, ekibinizin kalite standardına göre puanlıyorsun.`,
+              en: `You are scoring a bug report Claude generated from an error log, against your team's quality bar.`,
+            },
+            rubric: [
+              { name: 'reproducibility', tr: 'Tekrar Üretilebilirlik', en: 'Reproducibility', desc: { tr: 'Adımlar net, numaralı ve tekrarlanabilir mi?', en: 'Are the steps clear, numbered and repeatable?' } },
+              { name: 'severity', tr: 'Önem Derecesi Gerekçesi', en: 'Severity Justification', desc: { tr: 'Önem derecesi somut bir etkiyle gerekçelendirilmiş mi?', en: 'Is the severity backed by concrete impact?' } },
+              { name: 'clarity', tr: 'Anlaşılırlık', en: 'Clarity', desc: { tr: 'QA olmayan biri bile raporu anlar mı?', en: 'Would a non-QA teammate understand it?' } },
+              { name: 'actionability', tr: 'Aksiyon Alınabilirlik', en: 'Actionability', desc: { tr: 'Geliştirici ek soru sormadan aksiyon alabilir mi?', en: 'Can a developer act on it without a follow-up question?' } },
+            ],
+            examples: [
+              {
+                label: { tr: '✅ Güçlü rapor', en: '✅ Strong report' },
+                text: {
+                  tr: `Adımlar: 1) /login sayfasına git 2) "test@x.com" ile 5 kez yanlış şifre dene 3) 6. denemede hesap kilitlenmesi beklenirken sistem kilitlemeden girişe izin veriyor. Etki: brute-force koruması devre dışı kalıyor — güvenlik açığı, P1 önerilir. Ortam: Staging, Chrome 124.`,
+                  en: `Steps: 1) Go to /login 2) Try the wrong password 5 times with "test@x.com" 3) On the 6th attempt, the account should lock but the system allows login without locking. Impact: brute-force protection is disabled — security issue, P1 recommended. Environment: Staging, Chrome 124.`,
+                },
+                scores: { reproducibility: 5, severity: 5, clarity: 5, actionability: 5 },
+                reasoning: {
+                  tr: `Adımlar numaralı ve kesin, önem derecesi somut güvenlik etkisiyle gerekçeli, ortam bilgisi var — geliştirici hiçbir ek soru sormadan başlayabilir.`,
+                  en: `Steps are numbered and exact, severity is justified by a concrete security impact, environment is given — a developer can start with zero follow-up questions.`,
+                },
+              },
+              {
+                label: { tr: '⚠️ Belirsiz rapor', en: '⚠️ Vague report' },
+                text: {
+                  tr: `Login bazen bozuk oluyor, bazı kullanıcılar giriş yapamıyor. Önemli olabilir, bir bakılmalı.`,
+                  en: `Login is sometimes broken, some users can't log in. Might be important, should be checked.`,
+                },
+                scores: { reproducibility: 1, severity: 2, clarity: 3, actionability: 1 },
+                reasoning: {
+                  tr: `Ne "bazen" ne "bazı kullanıcılar" tanımlı — bu tam gramatik bir cümle ama geliştirici nereden başlayacağını bilemez.`,
+                  en: `Neither "sometimes" nor "some users" is defined — it reads as a complete sentence, but a developer has no idea where to start.`,
+                },
+              },
+              {
+                label: { tr: '❌ Abartılı rapor', en: '❌ Overstated report' },
+                text: {
+                  tr: `Bu KESİNLİKLE production'ı çökertecek bir felaket, herkes hemen bakmalı! (Not: yalnızca artık kullanılmayan eski bir ayarlar sayfasında, sadece Internet Explorer 8'de oluyor.)`,
+                  en: `This will DEFINITELY crash production, everyone needs to look right now! (Note: it only happens on an unused legacy settings page, only on Internet Explorer 8.)`,
+                },
+                scores: { reproducibility: 3, severity: 1, clarity: 2, actionability: 2 },
+                reasoning: {
+                  tr: `Ton aciliyeti abartıyor ama parantezdeki gerçek bilgi önemin aslında çok düşük olduğunu gösteriyor — güven kaybettiren bir rapor.`,
+                  en: `The tone overstates urgency, but the real information in the parenthetical shows the severity is actually very low — an untrustworthy report.`,
+                },
+              },
+            ],
+          },
+          {
+            type: 'quiz',
+            question: `In the Judge Playground, the "vague report" draft is a complete, grammatical sentence, yet it scores 1/5 on reproducibility and actionability. Why does the rubric catch this when a simple "is the description field non-empty?" check would not?`,
+            options: [
+              { id: 'a', text: 'Because the judge model is smarter than the tester who wrote the rubric' },
+              { id: 'b', text: 'Because the rubric decomposes "good bug report" into independent, checkable properties (are steps numbered and specific? can a developer act without a follow-up?) — a presence check only verifies text exists, not whether it satisfies any of those properties' },
+              { id: 'c', text: 'Because vague reports are always shorter than good ones, and length is what the judge measures' },
+              { id: 'd', text: 'Because the judge model automatically rejects any report under a fixed word count' },
+            ],
+            correct: 'b',
+            explanation: `A rubric is a decomposition of "good" into named, independently checkable properties. A non-empty check only proves text exists; it says nothing about whether the steps are numbered, the trigger condition is specific, or a developer could act without asking a question — exactly the properties the rubric scores separately.`,
+            retryQuestion: {
+              question: `Before trusting an LLM-judge's scores across 50 real bug reports a day, what should a QA team do first — and why?`,
+              options: [
+                { id: 'a', text: 'Nothing — a capable model like Claude will score correctly by default' },
+                { id: 'b', text: 'Hand-score a small sample themselves, compare it to the judge\'s scores on the same sample, and adjust the rubric wording until the two agree closely (inter-rater reliability) — only then trust the judge on the full volume' },
+                { id: 'c', text: 'Raise the judge model\'s temperature so it considers more possibilities' },
+                { id: 'd', text: 'Skip the rubric entirely and ask the judge for a single yes/no verdict' },
+              ],
+              correct: 'b',
+              explanation: `A judge model is itself a stochastic system with its own failure modes — trusting it blind stacks one AI's uncertainty on another's. Calibrating against a small human-labeled sample first (checking agreement, i.e. inter-rater reliability) is what turns "an AI grading an AI" from a coin flip into a measured, trustworthy process.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `A teammate suggests skipping the rubric and just asking Claude "Is this a good bug report — yes or no?" What is the concrete flaw compared to the rubric approach the playground uses?`,
+            options: [
+              { id: 'a', text: 'Claude cannot answer yes/no questions' },
+              { id: 'b', text: 'A single yes/no verdict gives no per-dimension feedback (which of reproducibility, severity, clarity, actionability failed?) and is less stable run-to-run than several narrower, independently-scored criteria — you lose exactly the information you need to fix the report' },
+              { id: 'c', text: 'Yes/no questions always cost more tokens than rubric scoring' },
+              { id: 'd', text: 'A yes/no verdict is actually more accurate because it forces a firm decision' },
+            ],
+            correct: 'b',
+            explanation: `A single holistic verdict collapses several independent qualities into one bit, so you lose exactly the diagnostic information a rubric preserves — which property failed. Narrower, named criteria are also easier for the judge to apply consistently than one vague "is this good" judgment, which is why the playground scores reproducibility, severity, clarity and actionability separately.`,
+          },
+        ],
+      },
+      {
         title: `🚨 Risks & Common Mistakes`,
         blocks: [
           {
@@ -2434,7 +2539,7 @@ git push origin claude-generated-fix
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '⚖️ Yargıç Olarak Claude', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -3415,6 +3520,111 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
               correct: 'b',
               explanation: `Bireysel beceri değişkendir; paylaşılan, incelenmiş bir şablon, herkesin bağımsız olarak aynı kalite çıtasına ulaşmasına bağlı olmayan yapısal bir düzeltmedir — beş kişinin kendi locator'larını yazması yerine paylaşılan bir Page Object Model'i haklı çıkaran aynı akıl yürütme.`,
             },
+          },
+        ],
+      },
+      {
+        title: `⚖️ Yargıç Olarak Claude`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '⚖️',
+            content: `LLM-as-a-Judge, serbest yazılmış bir kompozisyonu ezberlenmiş bir model cevaba karşı değil, bir rubriğe göre notlamaktır — ve mekanizma gevşek değil, birebir örtüşür: konuyu zaten bilen bir öğretmen, bin farklı şekilde ifade edilebilecek bir kompozisyonu okur ve belirli maddeleri kontrol eder ("tez açıkça belirtilmiş mi? kanıt gösterilmiş mi? sonuç öncülden çıkıyor mu?") — asla tek bir "doğru" kompozisyonla kelime kelime karşılaştırmaz. Bir yargıç model, bir AI çıktısına tam olarak bunu yapar — karakterleri diff'lemez, her rubrik maddesinin karşılanıp karşılanmadığını kontrol eder. Üzerinde durmaya değer soru şu: bir insan test uzmanı zaten chatbot'un yanıtlarını okuyup puanlayabiliyorsa, tahmin edilemez bir AI modelini notlamak için ikinci, tahmin edilemez bir AI modeli devreye sokmak, belirsizliği belirsizliğin üstüne yığmak değil mi? Çünkü insan ölçeklenmez: her deploy sonrası 50 serbest metin yanıtı okumak gerçek bir darboğazdır; oysa bir insanın BİR KEZ yazdığı ve küçük bir elle-puanlanmış örnekle kalibre ettiği (yargıcın puanlarının bir insanınkiyle ne kadar örtüştüğünü kontrol etmek — buna "inter-rater reliability" denir, körü körüne güven değil) bir rubrik, ucuz bir model tarafından her sürümde tutarlı biçimde uygulanabilir. Java karşılaştırması: bu assertEquals(expected, actual) değildir — daha çok, hasSeverityJustification() gibi özel bir Hamcrest matcher'ı BİR KEZ yazıp, her vaka için tek bir beklenen string hardcode etmek yerine binlerce farklı ifade edilmiş girdide yeniden kullanmaya benzer. QA açısından önemi: "Bug Analizi & Rapor" sekmesinde bir ham log'u elle bir rapora dönüştürmüştün; günde 50 AI-üretimi rapor olduğunda, rubrikle puanlanan bir yargıç, bir kalite regresyonunu (belirsiz repro adımları, gerekçesiz önem derecesi) bir geliştirici kullanılamaz bir tikete bir saat harcamadan ÖNCE yakalamanın tek yoludur — tabii önce kalibre ettiysen, ilk çıktısına körü körüne güvenmek yerine.`,
+          },
+          { type: 'heading', text: `Assertion'dan Rubriğe` },
+          {
+            type: 'text',
+            content: `Geleneksel bir QA assertion'ı ikilidir ve tek doğru değeri vardır: assertEquals("200", actual). Bir AI çıktısının ise kabul edilebilir birçok ifade biçimi vardır, o yüzden "doğru" tek bir string olmaktan çıkıp "şu N bağımsız, kontrol edilebilir özelliği karşılıyor mu?" haline gelir — bir rubrik. Her özellik yargıç modelden kendi 1-5 puanını alır (pass/fail değil), bu da SADECE "kötü" demek yerine HANGİ boyutun başarısız olduğunu görmeni sağlar: bir rapor tamamen anlaşılır olabilir (5/5) ama tamamen tekrar üretilemez olabilir (1/5) — bu ayrımı sadece bir rubrik gösterir. Bu ayrıştırma tam olarak RAGAS gibi araçların RAG pipeline'ları için yaptığı şeydir — bulanık tek bir "kalite" puanı yerine grounding, relevance ve faithfulness'ı ayrı ayrı puanlamak.`,
+          },
+          {
+            type: 'text',
+            content: `Aşağıda, aynı bug raporunun üç farklı taslağı 4 kriterlik bir rubriğe göre puanlanır: tekrar üretilebilirlik, önem derecesi gerekçesi, anlaşılırlık ve aksiyon alınabilirlik. Kriterleri aç/kapat ya da kendi taslağını yaz, sonra Değerlendir'e bas. "Belirsiz" taslağın tam ve gramatik bir cümle olduğuna dikkat et — basit bir "açıklama alanı boş değil mi?" kontrolü onu anında geçirirdi. Rubrik, o kontrolün yakalayamadığını yakalar: ADIMLARIN numaralı ve spesifik olup olmadığını, ÖNEM DERECESİNİN somut bir etkiyle desteklenip desteklenmediğini ve bir geliştiricinin ek soru sormadan aksiyon alıp alamayacağını sorar.`,
+          },
+          {
+            type: 'judge-playground',
+            scenario: {
+              tr: `Claude'un bir hata log'undan ürettiği bug raporunu, ekibinizin kalite standardına göre puanlıyorsun.`,
+              en: `You are scoring a bug report Claude generated from an error log, against your team's quality bar.`,
+            },
+            rubric: [
+              { name: 'reproducibility', tr: 'Tekrar Üretilebilirlik', en: 'Reproducibility', desc: { tr: 'Adımlar net, numaralı ve tekrarlanabilir mi?', en: 'Are the steps clear, numbered and repeatable?' } },
+              { name: 'severity', tr: 'Önem Derecesi Gerekçesi', en: 'Severity Justification', desc: { tr: 'Önem derecesi somut bir etkiyle gerekçelendirilmiş mi?', en: 'Is the severity backed by concrete impact?' } },
+              { name: 'clarity', tr: 'Anlaşılırlık', en: 'Clarity', desc: { tr: 'QA olmayan biri bile raporu anlar mı?', en: 'Would a non-QA teammate understand it?' } },
+              { name: 'actionability', tr: 'Aksiyon Alınabilirlik', en: 'Actionability', desc: { tr: 'Geliştirici ek soru sormadan aksiyon alabilir mi?', en: 'Can a developer act on it without a follow-up question?' } },
+            ],
+            examples: [
+              {
+                label: { tr: '✅ Güçlü rapor', en: '✅ Strong report' },
+                text: {
+                  tr: `Adımlar: 1) /login sayfasına git 2) "test@x.com" ile 5 kez yanlış şifre dene 3) 6. denemede hesap kilitlenmesi beklenirken sistem kilitlemeden girişe izin veriyor. Etki: brute-force koruması devre dışı kalıyor — güvenlik açığı, P1 önerilir. Ortam: Staging, Chrome 124.`,
+                  en: `Steps: 1) Go to /login 2) Try the wrong password 5 times with "test@x.com" 3) On the 6th attempt, the account should lock but the system allows login without locking. Impact: brute-force protection is disabled — security issue, P1 recommended. Environment: Staging, Chrome 124.`,
+                },
+                scores: { reproducibility: 5, severity: 5, clarity: 5, actionability: 5 },
+                reasoning: {
+                  tr: `Adımlar numaralı ve kesin, önem derecesi somut güvenlik etkisiyle gerekçeli, ortam bilgisi var — geliştirici hiçbir ek soru sormadan başlayabilir.`,
+                  en: `Steps are numbered and exact, severity is justified by a concrete security impact, environment is given — a developer can start with zero follow-up questions.`,
+                },
+              },
+              {
+                label: { tr: '⚠️ Belirsiz rapor', en: '⚠️ Vague report' },
+                text: {
+                  tr: `Login bazen bozuk oluyor, bazı kullanıcılar giriş yapamıyor. Önemli olabilir, bir bakılmalı.`,
+                  en: `Login is sometimes broken, some users can't log in. Might be important, should be checked.`,
+                },
+                scores: { reproducibility: 1, severity: 2, clarity: 3, actionability: 1 },
+                reasoning: {
+                  tr: `Ne "bazen" ne "bazı kullanıcılar" tanımlı — bu tam gramatik bir cümle ama geliştirici nereden başlayacağını bilemez.`,
+                  en: `Neither "sometimes" nor "some users" is defined — it reads as a complete sentence, but a developer has no idea where to start.`,
+                },
+              },
+              {
+                label: { tr: '❌ Abartılı rapor', en: '❌ Overstated report' },
+                text: {
+                  tr: `Bu KESİNLİKLE production'ı çökertecek bir felaket, herkes hemen bakmalı! (Not: yalnızca artık kullanılmayan eski bir ayarlar sayfasında, sadece Internet Explorer 8'de oluyor.)`,
+                  en: `This will DEFINITELY crash production, everyone needs to look right now! (Note: it only happens on an unused legacy settings page, only on Internet Explorer 8.)`,
+                },
+                scores: { reproducibility: 3, severity: 1, clarity: 2, actionability: 2 },
+                reasoning: {
+                  tr: `Ton aciliyeti abartıyor ama parantezdeki gerçek bilgi önemin aslında çok düşük olduğunu gösteriyor — güven kaybettiren bir rapor.`,
+                  en: `The tone overstates urgency, but the real information in the parenthetical shows the severity is actually very low — an untrustworthy report.`,
+                },
+              },
+            ],
+          },
+          {
+            type: 'quiz',
+            question: `Yargıç Oyun Alanı'nda "belirsiz rapor" taslağı tam, gramatik bir cümledir, yine de tekrar üretilebilirlik ve aksiyon alınabilirlikte 1/5 puan alır. Basit bir "açıklama alanı boş değil mi?" kontrolü bunu yakalayamazken rubrik neden yakalıyor?`,
+            options: [
+              { id: 'a', text: 'Çünkü yargıç model, rubriği yazan test uzmanından daha akıllı' },
+              { id: 'b', text: 'Çünkü rubrik "iyi bug raporu"nu bağımsız, kontrol edilebilir özelliklere ayrıştırıyor (adımlar numaralı ve spesifik mi? geliştirici ek soru sormadan aksiyon alabilir mi?) — bir varlık kontrolü sadece metnin var olduğunu doğrular, bu özelliklerden herhangi birini karşılayıp karşılamadığını değil' },
+              { id: 'c', text: 'Çünkü belirsiz raporlar her zaman iyi raporlardan daha kısadır ve yargıç uzunluğu ölçer' },
+              { id: 'd', text: 'Çünkü yargıç model, belirli bir kelime sayısının altındaki her raporu otomatik reddeder' },
+            ],
+            correct: 'b',
+            explanation: `Rubrik, "iyi"yi adlandırılmış, bağımsız olarak kontrol edilebilir özelliklere ayrıştırmaktır. Boş-olmama kontrolü sadece metnin var olduğunu kanıtlar; adımların numaralı olup olmadığı, tetikleme koşulunun spesifik olup olmadığı veya geliştiricinin soru sormadan aksiyon alıp alamayacağı hakkında hiçbir şey söylemez — tam olarak rubriğin ayrı ayrı puanladığı özellikler bunlar.`,
+            retryQuestion: {
+              question: `Günde 50 gerçek bug raporu üzerinde bir LLM-yargıcın puanlarına güvenmeden önce bir QA ekibi ne yapmalı — ve neden?`,
+              options: [
+                { id: 'a', text: 'Hiçbir şey — Claude gibi yetenekli bir model varsayılan olarak doğru puanlar' },
+                { id: 'b', text: 'Kendileri küçük bir örneği elle puanlar, aynı örnekte yargıcın puanlarıyla karşılaştırır ve ikisi yakından örtüşene kadar rubrik ifadesini ayarlar (inter-rater reliability) — ancak o zaman yargıca tam hacimde güvenir' },
+                { id: 'c', text: 'Yargıç modelin temperature\'ını yükseltir, böylece daha fazla ihtimali göz önünde bulundurur' },
+                { id: 'd', text: 'Rubriği tamamen atlayıp yargıçtan tek bir evet/hayır kararı ister' },
+              ],
+              correct: 'b',
+              explanation: `Yargıç model kendisi de kendi hata modlarına sahip stokastik bir sistemdir — körü körüne güvenmek bir AI'ın belirsizliğini bir diğerininkinin üstüne yığar. Önce küçük, insan-etiketli bir örnekle kalibre etmek (örtüşmeyi kontrol etmek, yani inter-rater reliability) "bir AI'ın bir AI'ı notlaması"nı yazı-tura atmaktan ölçülebilir, güvenilir bir sürece dönüştüren şeydir.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `Bir takım arkadaşın rubriği atlayıp Claude'a doğrudan "Bu iyi bir bug raporu mu — evet mi hayır mı?" diye sormayı öneriyor. Oyun alanının kullandığı rubrik yaklaşımına kıyasla somut kusuru ne?`,
+            options: [
+              { id: 'a', text: 'Claude evet/hayır sorularını yanıtlayamaz' },
+              { id: 'b', text: 'Tek bir evet/hayır kararı, boyut-bazlı hiçbir geri bildirim vermez (tekrar üretilebilirlik, önem derecesi, anlaşılırlık, aksiyon alınabilirlikten hangisi başarısız oldu?) ve birkaç dar, bağımsız puanlanan kriterden koşudan koşuya daha az kararlıdır — raporu düzeltmek için tam olarak ihtiyacın olan bilgiyi kaybedersin' },
+              { id: 'c', text: 'Evet/hayır soruları her zaman rubrik puanlamadan daha fazla token maliyeti getirir' },
+              { id: 'd', text: 'Evet/hayır kararı aslında daha doğrudur çünkü kesin bir karar vermeye zorlar' },
+            ],
+            correct: 'b',
+            explanation: `Tek bir bütünsel karar, birkaç bağımsız niteliği tek bir bite sıkıştırır, böylece bir rubriğin koruduğu tam olarak tanısal bilgiyi — hangi özelliğin başarısız olduğunu — kaybedersin. Dar, adlandırılmış kriterler ayrıca yargıcın tek bir belirsiz "bu iyi mi" yargısından daha tutarlı uygulaması için daha kolaydır — oyun alanının tekrar üretilebilirlik, önem derecesi, anlaşılırlık ve aksiyon alınabilirliği ayrı ayrı puanlamasının nedeni budur.`,
           },
         ],
       },
