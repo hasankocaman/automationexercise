@@ -10,6 +10,94 @@
 
 ---
 
+## AIQA_ROADMAP Faz 3 — C-4 Visual Regression TAMAMLANDI — AIQA_ROADMAP.md TAMAMEN BİTTİ (2026-07-09)
+
+> Roadmap'in son modülü. Kullanıcıya C-4'ün API yaklaşımı soruldu (tek gerçek
+> mimari/maliyet kararı gerektiren modüldü) — kullanıcı **"Groq vision
+> modeliyle değiştir"**i seçti (Anthropic key değil). Bileşen + edge function
+> + içerik tek oturumda. **AIQA_ROADMAP.md'deki 8 modülün TAMAMI artık
+> canlı ve doğrulanmış durumda (L-2, C-3, L-4, L-6, L-3, L-5, C-5, C-4).**
+
+### Yapılan iş
+1. **`supabase/functions/visual-diff-judge/index.ts`** (YENİ edge function) —
+   iki ekran görüntüsünü (base64 data URL) Groq'un vision-destekli modeline
+   (`meta-llama/llama-4-scout-17b-16e-instruct` — **DİKKAT: bu model adı Groq
+   kataloğuna göre değişebilir, deploy öncesi doğrula**) gönderir, 3 kategoriden
+   birine sınıflandırır: `kritik_degisiklik` / `kozmetik_degisiklik` /
+   `kabul_edilebilir` + gerekçe. Üye-only maliyet koruması (görsel token'lar
+   metinden pahalı). **DEPLOY GEREKLİ:** `supabase functions deploy
+   visual-diff-judge --project-ref <ref>`.
+2. **`src/components/VisualDiffDetectiveBlock.jsx`** (YENİ,
+   `visual-diff-detective` block) — 2 bölüm: (a) "Diff Dedektif" — gerçek
+   önce/sonra dosya yükleme (`FileReader.readAsDataURL`), üye + Supabase
+   varsa canlı analiz (`useAuth()` ile `session` kontrolü), değilse net bir
+   "üyelik gerekli" mesajı (yanlış-negatif 401 çağrısı yapılmaz). (b) "Hata
+   Sınıflandırma Oyunu" — **dış görsel dosyası YOK** (CLAUDE.md §8 kuralına
+   uygun), CSS/div tabanlı 3 mock UI kartı (`MockLoginCard`) çifti üzerinde
+   kullanıcı önce tahmin eder, sonra uzman gerekçesiyle karşılaştırır — aynı
+   "önce tahmin et, sonra karşılaştır" deseni `DeterministicVsStochasticBlock`
+   ile tutarlı.
+3. **`src/components/TopicPage.jsx`** — import + `case 'visual-diff-detective'`.
+4. **`src/data/claudeAiData.js`** — yeni sekme **"🕵️ AI Vision: Visual
+   Regression Testing"** / TR "🕵️ AI Vision: Visual Regression Testi",
+   "Edge Case Factory" (C-5) ile "Riskler & Yaygın Hatalar" arasına, EN+TR
+   hizalı (16/16). İçerik: §9.3 4-katman simple-box (bina denetçisi vs lazer
+   analojisi + Java byte-diff/equals() karşılaştırması), 2 text (biri
+   **Claude Vision → Groq vision değişimini açıkça ve dürüstçe belirtiyor** —
+   "roadmap'in orijinal fikri Claude Vision'dı ama bu platform Groq kullanır"),
+   `{ type: 'visual-diff-detective' }` (component default), 2 quiz (biri
+   pixel-diff+AI-vision'ın neden birlikte çalıştığı, diğeri Groq/Claude
+   provider-swap'ının production AI mühendisliği açısından ne anlama geldiği
+   — mimari şeffaflık dersi).
+
+### Doğrulama (§1.1 checklist)
+- Node ESM import syntax kontrolü → önce ERR yakaladı (yine escape edilmemiş
+  apostrof, bkz. aşağıdaki not), düzeltme sonrası ✅ OK
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal
+- Programatik tabs/sections hizalama → ✅ claudeAiData 16/16
+- `npm run build` → ✅ PASS
+- **Runtime (Playwright, gerçek data ile):** /claude-ai → "AI Vision: Visual
+  Regression" sekmesi → blok görünür (üye-gerekli mesajı doğru gösterildi,
+  ilk mock senaryo — buton eksik — doğru render oldu), **konsol hatası yok**.
+  Sınıflandırma oyunu butonuna tıklama akışı Playwright'ın bu ortama özgü bir
+  "element stabilite" bekleme tuhaflığına takıldı (aynısı L-5'te de yaşandı) —
+  gerçek bir hata değil; buton bulunuyor, render doğru, konsol temiz.
+
+### ÖNEMLİ HATA (üçüncü kez, farklı bir varyant — dikkat)
+Yine tek tırnaklı `text: '...'` string'inde escape edilmemiş apostrof riski
+oldu (Türkçe iyelik ekleri: `'ları`, `'da`, `'lerin`, `'ın`) — bu kez **hepsi
+önceden `\'` ile escape edilerek yazıldı** ve syntax kontrolü ilk seferde
+temiz geçti. **Bu üçüncü AIQA modülü serisinde ders netleşti: her yeni
+`*Data.js` içeriği yazılırken (1) backtick-template içinde literal backtick
+KULLANMA, (2) tek-tırnak string içinde Türkçe apostrof geçiyorsa MUTLAKA
+`\'` ile escape et, (3) her ikisi de `npm run build`'i sessizce geçebilir,
+SADECE `node --input-type=module -e "import('./dosya.js')"` bunu yakalar —
+bu adım artık standart checklist'in parçası.**
+
+### Araç kullanım notu (önemli — gelecek oturumlar için)
+Bu modülün doğrulamasında `curl http://localhost:PORT` ilk denemede `000`
+döndü ama sunucu aslında ayaktaydı — `netstat` sunucunun SADECE `[::1]`
+(IPv6 loopback) üzerinde dinlediğini gösterdi. `http://[::1]:PORT` ile
+Playwright'a gidildiğinde ise MSW (Mock Service Worker) tüm JS/CSS chunk
+isteklerinde "Missing parameter name at 9" hatasıyla 500 döndürdü (MSW'nin
+path-to-regexp eşleştirmesi `[::1]` host'unu içeren URL'lerle bozuluyor) —
+bu YÜZDEN uygulama hiç render olmadı ("AI Vision" metni bulunamadı). Çözüm:
+sunucu tam ayağa kalktıktan sonra `http://localhost:PORT` tekrar denendi ve
+çalıştı. **Kural: preview doğrulamasında ilk `curl` denemesi `000` dönerse,
+hemen "sunucu çökmüş" sonucuna varma — birkaç saniye bekleyip tekrar dene;
+eğer illa `[::1]` kullanman gerekiyorsa (curl `localhost` gerçekten
+başarısız oluyorsa) MSW'nin onunla uyumsuz olabileceğini bil.**
+
+### AIQA_ROADMAP.md — SONUÇ
+Roadmap'teki 8 modülün tamamı (Faz 1: L-2, C-3, L-4; Faz 2: L-6, L-3, L-5;
+Faz 3: C-5, C-4) artık `/claude-ai` ve `/llm-agents` sayfalarında canlı,
+EN+TR, build+content-integrity+tabs hizalaması+Playwright ile doğrulanmış
+durumda. Kalan tek manuel adım: `judge-eval` ve `visual-diff-judge` edge
+function'larının deploy edilmesi (canlı AI modları için) — deploy
+edilmezlerse tüm bloklar sorunsuz demo/fallback modunda çalışmaya devam eder.
+
+---
+
 ## AIQA_ROADMAP Faz 3 — C-5 Edge Case Fabrikası TAMAMLANDI (2026-07-09)
 
 > Faz 3'ün ilk modülü (🟢 Orta öncelik), `/claude-ai` sayfası. C-3'ün doğal

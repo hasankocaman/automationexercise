@@ -1003,7 +1003,7 @@ export const claudeAiData = {
       subtitle: `From Junior Prompts to Senior Agent Workflows`,
       intro: `AI will not replace testers — but testers who use AI well will replace testers who do not. This page teaches you, hands-on, how a QA engineer uses Claude at every career stage: writing prompts that actually work, generating test cases and automation code you can trust, and graduating to Claude Code and MCP-driven workflows.`,
     },
-    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '⚖️ LLM-as-a-Judge', '🏭 Edge Case Factory', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
+    tabs: ['🎯 Intro: AI-Assisted Testing', '✍️ Prompt Engineering', '⚙️ Access & Setup', '📋 Test Case Generation', '🐛 Bug Analysis & Reporting', '🧬 Test Data Generation', '🤖 UI Automation: Selenium & Playwright', '🔌 Claude for API Testing', '💻 Claude Code: Agent in the Terminal', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & AI in the Team', '⚖️ LLM-as-a-Judge', '🏭 Edge Case Factory', '🕵️ AI Vision: Visual Regression Testing', '🚨 Risks & Common Mistakes', '💼 Interview Q&A'],
     sections: [
       {
         title: `🎯 Intro: AI-Assisted Testing`,
@@ -2136,6 +2136,61 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
         ],
       },
       {
+        title: `🕵️ AI Vision: Visual Regression Testing`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🕵️',
+            content: `AI vision triage is a building inspector walking through a renovated house, not a laser-measuring tool reporting every millimeter of change — and the mechanism matches one-to-one, not loosely: a pixel-diff tool like Percy or Applitools IS the laser: it detects every changed pixel with perfect precision and zero judgment. An inspector looks at the exact same differences and asks a different question entirely: does this change the load-bearing wall, or is it a repainted door? Here is the question worth sitting on: if a pixel-diff tool already catches literally every changed pixel with perfect precision, why would a team want a fuzzier, less precise AI judgment layered on top of that? Because "changed" and "matters" are not the same fact, and a pixel-diff tool structurally cannot tell them apart — it flags a 1-pixel anti-aliasing shift with the exact same severity as a vanished submit button, which either floods a team with so much noise that alerts get ignored (and a real regression gets lost in that noise), or forces a human to manually eyeball every single diff on every single deploy. Java comparison: this is the difference between a byte-for-byte comparison of two serialized objects (Arrays.equals on the raw bytes — catches everything, means nothing on its own) and the equals()/hashCode() override a team writes themselves to say two objects are semantically equal even when their internal representation differs — pixel-diff is the byte comparison, AI vision triage is the semantic equals() a human actually cares about. The QA stake: this is the exact rubric-based judging principle from the Judge Playground and the RAG Lab, applied to images instead of text — a pixel-diff tool remains the exhaustive, deterministic detector (never remove it), while an AI triage layer on top is what makes an automated severity decision possible instead of a human eyeballing every single screenshot forever.`,
+          },
+          { type: 'heading', text: `Pixel Diff vs Meaning Diff` },
+          {
+            type: 'text',
+            content: `Percy and Applitools perform exact pixel comparison — a necessary, deterministic baseline that catches everything a pixel-diff can catch, and it should never be removed from a pipeline. But run alone, it produces overwhelming noise on any dynamic content: fonts rendering a hair differently across environments, anti-aliasing, timestamps, animation timing. AI vision triage takes that same flagged diff and asks a semantically-aware question on top of it: does this break the user experience, is it cosmetic, or is it noise? This is a second pass layered ON TOP of pixel-diff, not a replacement for it — exactly the same "deterministic gate plus probabilistic check" split from the very first tab on this page's sibling course.`,
+          },
+          {
+            type: 'text',
+            content: `A note on the tool this course actually runs: the original idea for this module used Anthropic's Claude Vision, but this platform's production AI service is Groq (see the "AI in Production" course for why) — so the live analysis below calls a Groq vision-capable model instead, behind the exact same interface: two images in, a category and a one-sentence reasoning out. Below, upload your own before/after screenshots for a real, live classification (signing in is required — image tokens cost more than text, so this call is gated the same way the Judge Playground's live mode is). Underneath that, a fully offline classification game lets anyone practice the judgment call on three built-in mock UI diffs with no upload and no login required.`,
+          },
+          { type: 'visual-diff-detective' },
+          {
+            type: 'quiz',
+            question: `Why does a mature visual-regression pipeline run BOTH a pixel-diff tool (Percy/Applitools) AND an AI vision triage step, instead of picking just one?`,
+            options: [
+              { id: 'a', text: 'Pixel-diff alone floods a team with false-positive noise on cosmetic/rendering changes while never judging severity, and AI-vision alone has no deterministic, exhaustive baseline to compare against and could plausibly miss or misjudge a change a byte-for-byte comparison catches with certainty — each tool covers the other one\'s blind spot' },
+              { id: 'b', text: 'Running two tools is only for redundancy in case one has an outage' },
+              { id: 'c', text: 'Pixel-diff tools are being phased out industry-wide in favor of AI vision entirely' },
+              { id: 'd', text: 'AI vision is strictly more accurate at the pixel level, so pixel-diff is now obsolete' },
+            ],
+            correct: 'a',
+            explanation: `Each tool structurally cannot do the other's job: pixel-diff is exhaustive but has zero concept of severity, while AI vision judges severity but is not a guaranteed, deterministic detector of every single pixel change. Running both means nothing is missed and nothing floods the team with unjudged noise.`,
+            retryQuestion: {
+              question: `A pixel-diff tool flags a change on a deploy. The AI vision triage classifies it "kabul_edilebilir" (acceptable / noise). Should the team just delete that pixel-diff check going forward, since the AI already handled it?`,
+              options: [
+                { id: 'a', text: 'Yes — if the AI can classify it, the pixel-diff check is now redundant and should be removed' },
+                { id: 'b', text: 'No — the pixel-diff check should keep running on every deploy exactly as before (it is the exhaustive, deterministic detector); AI triage is only meant to auto-triage which flagged diffs need a human\'s attention versus which can be safely auto-dismissed, the same automation-reduces-toil principle from the Evals and Observability courses, not a replacement for detection' },
+                { id: 'c', text: 'Only the AI triage step matters, pixel-diff was only ever a stopgap tool' },
+                { id: 'd', text: 'Delete both checks since a single acceptable classification proves the pipeline is stable' },
+              ],
+              correct: 'b',
+              explanation: `Removing the deterministic detector because a probabilistic judge cleared one instance would defeat the entire point of running both — the pixel-diff's job (catch everything) and the AI's job (decide what matters) are permanently different jobs, not a sequence where one replaces the other over time.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `This module was originally designed around "Claude Vision" in the source roadmap, but the actual tool above calls a Groq vision-capable model instead. What does this substitution demonstrate about production AI engineering?`,
+            options: [
+              { id: 'a', text: '"AI vision" is one interchangeable capability class behind a stable interface (two images in, a category and reasoning out) — a team can and should swap the specific provider/model as cost, availability, or quality trade-offs change, exactly what the visual-diff-judge function does without touching the component that calls it' },
+              { id: 'b', text: 'The module is now technically inaccurate and should be renamed to remove any mention of AI vision entirely' },
+              { id: 'c', text: 'Groq and Anthropic produce byte-identical outputs, so the swap has zero practical effect' },
+              { id: 'd', text: 'Vision-capable models cannot be swapped once a QA process depends on one' },
+            ],
+            correct: 'a',
+            explanation: `The entire point of designing the edge function's interface around "two images in, category and reasoning out" is that the specific model behind that interface becomes a swappable implementation detail — exactly the same reasoning that already justified using Groq instead of Anthropic for grading and judging elsewhere on this platform.`,
+          },
+        ],
+      },
+      {
         title: `🚨 Risks & Common Mistakes`,
         blocks: [
           {
@@ -2582,7 +2637,7 @@ git push origin claude-generated-fix
       subtitle: `Junior Prompt'lardan Senior Ajan İş Akışlarına`,
       intro: `Yapay zeka tester'ın yerini almayacak — ama yapay zekayı iyi kullanan tester, kullanmayanın yerini alacak. Bu sayfa bir QA mühendisinin Claude'u kariyerinin her aşamasında nasıl kullandığını uygulamalı öğretir: gerçekten çalışan prompt'lar yazmak, güvenebileceğin test case ve otomasyon kodu ürettirmek, Claude Code ve MCP tabanlı iş akışlarına yükselmek.`,
     },
-    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '⚖️ Yargıç Olarak Claude', '🏭 Edge Case Fabrikası', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
+    tabs: ['🎯 Giriş: AI Destekli Test', '✍️ Prompt Mühendisliği', '⚙️ Erişim & Kurulum', '📋 Test Case Üretimi', '🐛 Bug Analizi & Rapor', '🧬 Test Verisi Üretimi', '🤖 UI Otomasyonu: Selenium & Playwright', '🔌 API Testinde Claude', '💻 Claude Code: Terminalde Ajan', '🔗 MCP (Model Context Protocol)', '🏗️ CI/CD & Ekipte AI', '⚖️ Yargıç Olarak Claude', '🏭 Edge Case Fabrikası', '🕵️ AI Vision: Visual Regression Testi', '🚨 Riskler & Yaygın Hatalar', '💼 Mülakat Soruları & Cevapları'],
     sections: [
       {
         title: `🎯 Giriş: AI Destekli Test`,
@@ -3711,6 +3766,61 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
               correct: 'b',
               explanation: `Case-folding kuralları evrensel değildir — locale'e bağlıdır, ve Türkçe noktalı/noktasız I çifti aksini varsayan kodu bozan ders kitabı örneğidir. "Unicode"nun "özel karakterler"e katılmak yerine kendi kategorisi olmasının nedeni tam olarak budur: ayrı, uluslararasılaştırmaya-özgü bir başarısızlık modunu hedefler.`,
             },
+          },
+        ],
+      },
+      {
+        title: `🕵️ AI Vision: Visual Regression Testi`,
+        blocks: [
+          {
+            type: 'simple-box',
+            emoji: '🕵️',
+            content: `AI vision triyajı, her milimetrelik değişikliği raporlayan bir lazer-ölçüm aleti değil, yenilenmiş bir evi gezen bir bina denetçisidir — ve mekanizma gevşek değil, birebir örtüşür: Percy veya Applitools gibi bir pixel-diff aracı tam olarak o lazerdir — değişen her pikseli mükemmel bir hassasiyetle ve sıfır yargıyla tespit eder. Bir denetçi ise tam olarak aynı farklara bakar ve tamamen farklı bir soru sorar: bu, taşıyıcı duvarı mı değiştiriyor, yoksa yeniden boyanmış bir kapı mı? Üzerinde durmaya değer soru şu: bir pixel-diff aracı zaten değişen HER pikseli mükemmel hassasiyetle yakalıyorsa, bir ekip neden bunun üzerine daha bulanık, daha az hassas bir AI yargısı katmanı istesin ki? Çünkü "değişti" ile "önemli" aynı gerçek değildir ve bir pixel-diff aracı bunları yapısal olarak ayırt edemez — 1 piksellik bir anti-aliasing kaymasını, kaybolmuş bir submit butonuyla TAM OLARAK aynı önem derecesiyle işaretler; bu da ya bir ekibi o kadar çok gürültüyle boğar ki uyarılar görmezden gelinir (ve gerçek bir regresyon o gürültüde kaybolur), ya da bir insanı her deploy'da her tek diff'i elle incelemeye zorlar. Java karşılaştırması: bu, iki serileştirilmiş nesnenin byte-byte karşılaştırılması (ham byte'lar üzerinde Arrays.equals — her şeyi yakalar, tek başına hiçbir anlam ifade etmez) ile bir ekibin iki nesnenin iç temsili farklı olsa bile anlamsal olarak eşit olduğunu söylemek için kendi yazdığı equals()/hashCode() override'ı arasındaki farktır — pixel-diff byte karşılaştırmasıdır, AI vision triyajı ise bir insanın gerçekten önemsediği anlamsal equals()'tır. QA açısından önemi: bu, Yargıç Oyun Alanı ve RAG Lab'daki tam olarak aynı rubrik-tabanlı yargılama ilkesidir, metin yerine görsellere uygulanmış hali — bir pixel-diff aracı kapsamlı, deterministik dedektör olarak kalmaya devam eder (asla kaldırılmamalı), üstüne eklenen bir AI triyaj katmanı ise bir insanın sonsuza kadar her tek ekran görüntüsünü elle incelemesi yerine otomatik bir önem-derecesi kararını mümkün kılan şeydir.`,
+          },
+          { type: 'heading', text: `Pixel Diff vs Anlam Diff` },
+          {
+            type: 'text',
+            content: `Percy ve Applitools tam pixel karşılaştırması yapar — gerekli, deterministik bir temel, bir pixel-diff'in yakalayabileceği her şeyi yakalar ve bir pipeline'dan asla kaldırılmamalıdır. Ama tek başına çalıştırıldığında, herhangi bir dinamik içerikte ezici bir gürültü üretir: ortamlar arasında hafifçe farklı render edilen fontlar, anti-aliasing, zaman damgaları, animasyon zamanlaması. AI vision triyajı, işaretlenen aynı diff'i alır ve üstüne anlamsal-farkında bir soru sorar: bu kullanıcı deneyimini mi bozuyor, kozmetik mi, yoksa gürültü mü? Bu, pixel-diff'in ÜSTÜNE eklenen ikinci bir geçiştir, onun yerine geçen bir şey değil — tam olarak bu sayfanın kardeş dersindeki ilk sekmedeki "deterministik gate artı olasılıksal check" ayrımının aynısı.`,
+          },
+          {
+            type: 'text',
+            content: `Bu dersin gerçekte çalıştırdığı araç hakkında bir not: bu modülün orijinal fikri Anthropic'in Claude Vision'ını kullanıyordu, ama bu platformun production AI servisi Groq'tur ("Üretimde AI" dersine bak, nedeni orada) — bu yüzden aşağıdaki canlı analiz, aynı arayüzün arkasında Groq'un vision-destekli bir modelini çağırır: iki görsel girer, bir kategori ve tek cümlelik bir gerekçe çıkar. Aşağıda, kendi önce/sonra ekran görüntülerini gerçek, canlı bir sınıflandırma için yükle (giriş yapman gerekiyor — görsel token'lar metinden daha pahalıdır, bu yüzden bu çağrı Yargıç Oyun Alanı'nın canlı modunun aynı şekilde kısıtlanmıştır). Altında, tamamen çevrimdışı bir sınıflandırma oyunu, herkesin 3 yerleşik mockup UI diff'inde yükleme veya giriş gerektirmeden yargılama becerisini pratik yapmasını sağlar.`,
+          },
+          { type: 'visual-diff-detective' },
+          {
+            type: 'quiz',
+            question: `Olgun bir visual-regression pipeline'ı neden hem bir pixel-diff aracı (Percy/Applitools) HEM DE bir AI vision triyaj adımı çalıştırır, sadece birini seçmek yerine?`,
+            options: [
+              { id: 'a', text: 'Sadece pixel-diff, kozmetik/render değişikliklerinde bir ekibi yanlış-pozitif gürültüyle boğarken önem derecesini hiç yargılamaz, sadece AI-vision ise karşılaştıracağı deterministik, kapsamlı bir temele sahip değildir ve byte-byte bir karşılaştırmanın kesinlikle yakaladığı bir değişikliği gözden kaçırabilir veya yanlış yargılayabilir — her araç diğerinin kör noktasını kapatır' },
+              { id: 'b', text: 'İki araç çalıştırmak sadece biri kesintiye uğrarsa yedeklilik içindir' },
+              { id: 'c', text: 'Pixel-diff araçları sektör genelinde tamamen AI vision lehine kaldırılıyor' },
+              { id: 'd', text: 'AI vision piksel seviyesinde kesinlikle daha doğrudur, bu yüzden pixel-diff artık kullanılmıyor' },
+            ],
+            correct: 'a',
+            explanation: `Her araç yapısal olarak diğerinin işini yapamaz: pixel-diff kapsamlıdır ama önem derecesi kavramı sıfırdır, AI vision ise önem derecesini yargılar ama her tek piksel değişikliğinin garantili, deterministik bir dedektörü değildir. İkisini birden çalıştırmak, hiçbir şeyin kaçırılmamasını VE ekibin yargılanmamış gürültüyle boğulmamasını sağlar.`,
+            retryQuestion: {
+              question: `Bir pixel-diff aracı bir deploy'da bir değişikliği işaretliyor. AI vision triyajı bunu "kabul_edilebilir" (gürültü) olarak sınıflandırıyor. Ekip artık bu pixel-diff kontrolünü tamamen silmeli mi, madem AI zaten hallediyor?`,
+              options: [
+                { id: 'a', text: 'Evet — AI sınıflandırabiliyorsa, pixel-diff kontrolü artık gereksizdir ve kaldırılmalı' },
+                { id: 'b', text: 'Hayır — pixel-diff kontrolü her deploy\'da tam olarak eskisi gibi çalışmaya devam etmeli (o kapsamlı, deterministik dedektördür); AI triyajının amacı sadece hangi işaretlenmiş diff\'lerin bir insanın dikkatini gerektirdiğini, hangilerinin güvenle otomatik reddedilebileceğini belirlemektir — Evals ve Observability derslerindeki aynı "otomasyon angaryayı azaltır" ilkesi, tespitin yerine geçen bir şey değil' },
+                { id: 'c', text: 'Sadece AI triyaj adımı önemlidir, pixel-diff zaten sadece geçici bir çözümdü' },
+                { id: 'd', text: 'İkisini de sil, çünkü tek bir kabul edilebilir sınıflandırma pipeline\'ın kararlı olduğunu kanıtlar' },
+              ],
+              correct: 'b',
+              explanation: `Olasılıksal bir yargıç tek bir örneği temizlediği için deterministik dedektörü kaldırmak, ikisini birden çalıştırmanın tüm amacını boşa çıkarır — pixel-diff'in işi (her şeyi yakala) ve AI'ın işi (neyin önemli olduğuna karar ver) kalıcı olarak farklı işlerdir, biri diğerinin yerini zamanla alan bir sıra değil.`,
+            },
+          },
+          {
+            type: 'quiz',
+            question: `Bu modül kaynak roadmap'te orijinal olarak "Claude Vision" etrafında tasarlanmıştı, ama yukarıdaki gerçek araç bunun yerine bir Groq vision-destekli modeli çağırıyor. Bu değişim, production AI mühendisliği hakkında neyi gösteriyor?`,
+            options: [
+              { id: 'a', text: '"AI vision", kararlı bir arayüzün (iki görsel girer, bir kategori ve gerekçe çıkar) arkasındaki değiştirilebilir bir yetenek sınıfıdır — bir ekip, maliyet, erişilebilirlik veya kalite trade-off\'ları değiştikçe arkasındaki spesifik sağlayıcıyı/modeli değiştirebilir ve değiştirmelidir, tam olarak visual-diff-judge fonksiyonunun onu çağıran bileşene hiç dokunmadan yaptığı şey' },
+              { id: 'b', text: 'Modül artık teknik olarak yanlış ve AI vision\'dan herhangi bir bahsi tamamen kaldıracak şekilde yeniden adlandırılmalı' },
+              { id: 'c', text: 'Groq ve Anthropic byte-özdeş çıktılar üretir, bu yüzden değişimin pratik hiçbir etkisi yok' },
+              { id: 'd', text: 'Bir QA süreci bir kez bir vision-destekli modele bağımlı olduğunda o model asla değiştirilemez' },
+            ],
+            correct: 'a',
+            explanation: `Edge function'ın arayüzünü "iki görsel girer, kategori ve gerekçe çıkar" etrafında tasarlamanın tüm amacı, o arayüzün arkasındaki spesifik modelin değiştirilebilir bir uygulama detayına dönüşmesidir — bu platformda başka yerlerde notlama ve yargılama için Anthropic yerine Groq kullanmayı zaten haklı çıkaran aynı akıl yürütme.`,
           },
         ],
       },

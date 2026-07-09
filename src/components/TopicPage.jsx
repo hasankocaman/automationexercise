@@ -29,6 +29,7 @@ import PromptInjectionArenaBlock from './PromptInjectionArenaBlock'
 import DriftMeterBlock from './DriftMeterBlock'
 import ObservabilityDashboardBlock from './ObservabilityDashboardBlock'
 import EdgeCaseFactoryBlock from './EdgeCaseFactoryBlock'
+import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 
@@ -17707,6 +17708,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'edge-case-factory':
             return <EdgeCaseFactoryBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'visual-diff-detective':
+            return <VisualDiffDetectiveBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         default:
             return null
