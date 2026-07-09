@@ -3526,14 +3526,145 @@ typescriptData chunk 771KB). Playwright topic-pages-ui + i18n-content-toggle
 
 ---
 
+## manual-testing — interaktif uclu (drag-drop + practice) eklendi (2026-07-09, main, COMMIT EDILDI)
+
+> Kullanici karari: no-code sayfalara code-playground zorlamak tasarim
+> felsefesiyle celisebilir uyarisina ragmen, kullanici manual-testing'den
+> baslamayi ve kurali yok saymayi secti. algorithms ise "hic kod bilmeyen
+> biri icin" tasarlandigi gerekcesiyle HENUZ ele alinmadi (bkz. asagidaki
+> Eksikler listesi madde 4).
+
+### Yapilan is
+
+`manualTestingData.js`'in ozel `lessons`/`game` yapisi standart `blocks`
+formatinda OLMADIGI icin `fillMissingCodeTrios` dogrudan uygulanamadi
+(bkz. onceki Explore taramasi). Bunun yerine, mevcut `game` alanina hic
+dokunmadan (regresyon riski sifir), her 6 derse (mindset/test-case/
+exploratory/bug-report/severity/regression) TR+EN simetrik iki YENI alan
+eklendi:
+
+1. **`dragDrop`** — surec-siralama drag-and-drop gorevi (`items`/`expected`,
+   SequenceGame'in reorder mantigi + native HTML5 DnD + Yukari/Asagi
+   erisilebilir fallback ayni sekilde tekrar kullanildi). Her ders icin
+   mevcut `game` alaninDAN FARKLI bir konu isliyor (surec sirasi), boylece
+   icerik tekrari olusmuyor.
+2. **`practice`** — serbest metin "kendin yaz" gorevi (`prompt`/`keywords`/
+   `modelAnswer`), FeynmanWorkspace'in anahtar-kelime eslestirme mantigi
+   tekrar kullanildi ama YENI, her zaman gorunur (neuroMode'a baglı DEGIL)
+   bir `PracticeWorkspace` component'i olarak.
+
+`ManualTestingPage.jsx`'e `DragDropChallenge` ve `PracticeWorkspace`
+component'leri eklendi, `LessonCard` icinde `GameBlock`'un hemen altina
+kalici (toggle'siz) grid olarak yerlestirildi. `ui` objesine 6 yeni TR+EN
+label eklendi (`dragDropTitle`, `practiceTitle`, `practiceCheck`,
+`practiceKeywords`, `practiceModelLabel`, `practiceSuccess`).
+
+### Dogrulama (CLAUDE.md §1.1)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya —
+  bu sayfanin veri yapisi script'in taradigi `code-playground`/
+  `interview-questions`/`error-dictionary` block tiplerini kullanmadigi
+  icin zaten kapsam disi, relatedTopicId kurali uygulanmiyor)
+- `npm run build` → ✅ PASS (40 static route, dist SEO PASS)
+- `npx playwright test tests/other-pages-ui.spec.ts -g manual-testing` →
+  ✅ 1/1 PASS (mevcut buton-tiklanabilirlik testi regresyonsuz gecti)
+- Gorsel dogrulama (yaz-koş-sil Playwright screenshot, dark+light):
+  her iki yeni blok (mor "Sürükle-Bırak", yesil "Pratik") duzgun render
+  oluyor, kontrast okunur seviyede.
+- Fonksiyonel dogrulama (yaz-koş-sil): drag-drop "Kontrol et" tiklandi →
+  yanlis sirada "Tekrar dene" (amber) geri bildirimi dogru calisti;
+  practice textarea'ya metin yazilip "Cevabımı Kontrol Et" tiklandi →
+  anahtar kelime eslestirme (3/4 yesil tik) ve ornek cevap dogru
+  gosterildi. Konsol/page hatasi YOK.
+
+### Sonraki Oturumda Yapilacaklar
+
+1. **Commit edildi** (bu oturumda, algorithms degisiklikleriyle birlikte tek
+   commit — bkz. asagidaki "algorithms" bolumu). Degisen dosyalar:
+   `src/data/manualTestingData.js`, `src/components/ManualTestingPage.jsx`.
+2. Kalan 2 sayfa (advanced-algorithms, test-frameworks) hala ayni
+   "interaktif uclu eksik" durumunda — her biri ayri bir muhendislik isi
+   (bkz. asagidaki Eksikler madde 4 detaylari).
+
+---
+
+## algorithms — interaktif uclu (drag-drop + practice) eklendi (2026-07-09, main, COMMIT EDILDI)
+
+> Kullanici karari: "algorithms bilincli olarak no-code tasarlanmis, code-playground
+> zorlamak celisebilir" uyarisina ragmen kullanici "algorithms ile devam et" dedi —
+> manual-testing'de kullanilan ayni yontem (mevcut `game` alanina dokunmadan yeni
+> `dragDrop` + `practice` alanlari eklemek) burada da uygulandi.
+
+### Yapilan is
+
+`beginnerAlgorithmsData.js`'in (route: `/algorithms`) ozel `lessons`/`game` yapisi
+(recipe/input-output/decision/loop/memory/debug/flowchart — 7 ders) standart
+`blocks` formatinda OLMADIGI icin `fillMissingCodeTrios` uygulanamadi. Onceki
+Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
+
+1. Her 7 derse TR+EN simetrik **`dragDrop`** (surec-siralama, SequenceGame'in
+   reorder mantigi + native HTML5 DnD + Yukari/Asagi fallback tekrar kullanildi)
+   ve **`practice`** (serbest metin + anahtar kelime kontrolu + ornek cevap)
+   alanlari eklendi — mevcut `game` alaniyla konu CAKISMIYOR (orn. `recipe`
+   dersinin `game`'i "tost sirasi" iken yeni `dragDrop`'u "algoritma yazma
+   surecinin adimlari").
+2. `AlgorithmsPage.jsx`'e `DragDropChallenge` ve `PracticeWorkspace`
+   component'leri eklendi (mor/yesil renk, manual-testing ile ayni gorsel dil).
+3. Yeni bloklar `LessonCard` icinde `GameBlock`'un hemen altina, sayfanin
+   MEVCUT kilit/blur mantigina (Active Recall gate, neuroMode varsayilan
+   ACIK) dahil olacak sekilde yerlestirildi — bu, manual-testing'deki
+   "neuroMode toggle'ina bagli olmadan her zaman gorunur" yaklasimindan
+   FARKLIDIR: burada sayfanin TUM icerigi zaten bu kilit mekanizmasina tabi,
+   yeni bloklar da ayni tutarli davranisi izliyor (neuroMode kapaliyken
+   veya recall sorusu cevaplandiktan sonra gorunur).
+4. `page` objesine 6 yeni TR+EN label eklendi (`dragDropTitle`,
+   `practiceTitle`, `practiceCheck`, `practiceKeywords`, `practiceModelLabel`,
+   `practiceSuccess`).
+
+### Dogrulama (CLAUDE.md §1.1)
+
+- `node scripts/check-content-integrity.mjs` → ✅ 0 ihlal (34 dosya)
+- `npm run build` → ✅ PASS (40 static route, dist SEO PASS)
+- `npx playwright test tests/other-pages-ui.spec.ts -g algorithms` →
+  ✅ 2/2 PASS (`/algorithms` + `/advanced-algorithms`, regresyonsuz)
+- Gorsel dogrulama (yaz-koş-sil Playwright screenshot, dark+light,
+  `algorithms_neuro_mode=false` ile kilit atlanarak): yeni bloklar
+  (mor "Sürükle-Bırak", yesil "Pratik") duzgun render oluyor.
+- Fonksiyonel dogrulama (yaz-koş-sil): drag-drop "Kontrol Et" → yanlis
+  sirada "Bir daha dene" (amber) dogru calisti; practice textarea +
+  "Cevabımı Kontrol Et" → anahtar kelime eslestirme (4/4, %100) ve ornek
+  cevap dogru gosterildi. Konsol/page hatasi YOK.
+- **Not:** Active Recall flip-card mekanizmasi (mevcut, degistirilmedi)
+  Playwright `text=` locator'iyla test edilirken beklenmedik davranis
+  gozlemlendi (locator 2 eslesme buluyor, biri viewport disinda) — bu
+  YENI eklenen kodun degil, ONCEDEN VAR OLAN RecallFlashcard component'inin
+  test edilebilirligiyle ilgili bir gozlem, henuz kok nedeni arastirilmadi.
+  Gercek kullanici tiklamasi (mouse click, JS degil) muhtemelen sorunsuz
+  calisir; ileride bu sayfa icin E2E test yazilacaksa dikkate alinmali.
+
+### Sonraki Oturumda Yapilacaklar
+
+1. **Commit edildi** (manual-testing degisiklikleriyle birlikte tek commit,
+   bkz. yukaridaki bolum). Degisen dosyalar: `src/data/beginnerAlgorithmsData.js`,
+   `src/components/AlgorithmsPage.jsx`.
+2. Kalan 2 sayfa (advanced-algorithms, test-frameworks) hala "interaktif
+   uclu eksik" durumunda.
+3. Active Recall flip-card'in Playwright ile test edilebilirligi (yukaridaki
+   not) ileride incelenebilir — fonksiyonel bir bug degil, sadece test
+   yazarken dikkat edilmesi gereken bir davranis.
+
+---
+
 ## Eksikler / Riskler / Yapilacaklar (Oncelik Sirasi)
 
-1. **`git push origin main` — EN KRITIK, BEKLEYEN EYLEM.**
-   - Kullanicinin "push islemini beraberce test ettikten sonra yapalim" talimatiyla
-     ertelendi. Manuel tarayici testinden sonra yapilmali.
-   - Komut: `git push origin main`
+1. **`git push origin main` — ✅ TAMAMLANDI (2026-07-09).**
+   - Local main ve remote origin/main aynı commit'te (`f72feeb`). Sync'te.
 
-2. **Locator Explorer manuel tarayici testi yapilmali (push oncesi).**
+2. **Branch temizleme — ✅ TAMAMLANDI (2026-07-09).**
+   - `feature/claude-ai-page` ve `feature/llm-agents-page` silinmiş (local).
+   - Remote'da sadece `origin/main` kaldı.
+
+3. **Locator Explorer manuel tarayici testi yapilmali (sonraki oturum).**
    - `/selenium`, `/playwright`, `/cypress` sayfalarinda:
      - Locators sekmesinde `LOCATOR_EXPLORER_BLOCK` gorünüyor mu?
      - Bir ozellige tiklaninca sag panelde kod aciliyor mu?
@@ -3546,15 +3677,47 @@ typescriptData chunk 771KB). Playwright topic-pages-ui + i18n-content-toggle
      Selenium/Playwright/Cypress/Java/SQL/Git/Linux/JMeter/Appium/Kafka/AWS/Azure/Bruno
    - Audit: `node scripts/audit-interactive.mjs --missing` → gap 0
 
-4. **Henuz interaktif ucluye (fillMissingCodeTrios) sahip OLMAYAN sayfalar:**
-   - what-is-testing, manual-testing, algorithms, advanced-algorithms, test-frameworks
-   - Bu sayfalarin veri yapisi farkli olabilir; alinmadan once incelenmeli.
+4. **Interaktif uclu (fillMissingCodeTrios) — 5 sayfa incelendi (2026-07-09, iki Explore agent taramasi):**
+   - **what-is-testing** → ✅ TAMAMLANDI (zaten standart `sections/blocks` formatinda,
+     `fillMissingCodeTrios(whatIsTestingData, 'what-is-testing')` cagriliyor, 2 kod
+     blogu otomatik trio aliyor).
+   - **manual-testing** (`manualTestingData.js`) → ✅ TAMAMLANDI (2026-07-09, henuz commit
+     edilmedi). Standart `fillMissingCodeTrios` uygulanamadigi icin manuel muhendislik
+     yapildi: mevcut `game` alanina dokunmadan her 6 derse yeni `dragDrop` (surec siralama)
+     ve `practice` (serbest metin + anahtar kelime kontrolu) alanlari + iki yeni component
+     (`DragDropChallenge`, `PracticeWorkspace`) eklendi. Detay: yukaridaki
+     "manual-testing — interaktif uclu eklendi" bolumu.
+   - **algorithms** (`beginnerAlgorithmsData.js`) → ✅ TAMAMLANDI (2026-07-09, henuz
+     commit edilmedi). "No-code sayfa" itirazi kullaniciya soruldu, kullanici yine de
+     devam edilmesini istedi. manual-testing ile ayni yontemle 7 derse `dragDrop` +
+     `practice` alanlari + iki yeni component eklendi. Detay: yukaridaki
+     "algorithms — interaktif uclu eklendi" bolumu.
+   - **advanced-algorithms** (`algorithmsData.js` — DIKKAT: dosya adi `/algorithms`
+     degil `/advanced-algorithms` route'una ait, isimlendirme kafa karistirici) →
+     `sections/blocks` var ama kod `blocks` disinda bagimsiz `code:` string olarak
+     tutuluyor, `fillMissingCodeTrios` bunu gormuyor. Kod verisini `blocks` icine
+     `type:'code'` olarak tasimak (veri modeli refactor) gerekir.
+   - **test-frameworks** → hic `src/data/*.js` dosyasi yok, icerik 3 alt component'te
+     (`FrameworkComparison.jsx`, `PlaywrightLangCompare.jsx`, `PythonFrameworksTab.jsx`)
+     hardcoded JSX. En buyuk manuel muhendislik gerektiren — once bir veri modeline
+     refactor ya da component'e ozel trio-ekleme mantigi yazilmali.
+   - **Sonuc:** Bu 4 sayfanin (manual-testing/algorithms/advanced-algorithms/
+     test-frameworks) her biri ayri bir muhendislik projesi, "blocks dizisine 3 blok
+     ekle" gibi basit bir is degil. Hangi sayfadan baslanacagi ve algorithms/
+     manual-testing icin "code-playground sayfanin no-code felsefesiyle celisir mi"
+     sorusu kullaniciya soruldu, cevap bekleniyor.
 
-5. **Henuz §9.3 4-katmanli analoji standardina tasinmamis sayfalar:**
-   - Selenium, Playwright, Cypress, Java, JavaScript, SQL, Postman, REST Assured,
-     JMeter, Kafka, Appium, BrowserStack, AWS, Azure, Git & GitHub, Linux,
-     test-frameworks, what-is-testing, manual-testing, algorithms, advanced-algorithms
-   - Python/Bruno/TypeScript/Docker/Jenkins/Kubernetes tamamlandi.
+5. **§9.3 4-katmanli analoji standardi — Selenium/Playwright/Cypress taramasi (2026-07-09):**
+   - ✅ TAMAMLANDI — 41 `simple-box` blogunun (14 Selenium + 18 Playwright + 9 Cypress)
+     TAMAMI zaten 4 katmanli standardi (somut analoji + dusundurucu "neden" sorusu +
+     Java karsilastirmasi + is/QA baglami) karsiliyor, `brunoData.js` referans kalitesiyle
+     esdeger. Yukseltme gerektiren blok bulunamadi.
+   - **Henuz taranmamis/dogrulanmamis sayfalar (bilinmiyor, kontrol edilmeli):**
+     Java, JavaScript, SQL, Postman, REST Assured, JMeter, Kafka, Appium, BrowserStack,
+     AWS, Azure, Git & GitHub, Linux, test-frameworks, what-is-testing, manual-testing,
+     algorithms, advanced-algorithms.
+   - Python/Bruno/TypeScript/Docker/Jenkins/Kubernetes daha once tamamlandigi bilinen
+     sayfalar (Selenium/Playwright/Cypress de artik bu listeye eklendi).
 
 6. **Stale test dosyalari duzeltilmeli (testcoverage.md paragraf 7 referansi).**
    - `python-page.spec.ts`: hash URL kullaniyordu — SILINDI.

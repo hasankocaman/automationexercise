@@ -61,6 +61,12 @@ export const manualTestingData = {
             activeRecallFlip: 'Kartı Çevir',
             activeRecallGotIt: 'Hatırladım ✓',
             activeRecallFailed: 'Tekrar Bak ✗',
+            dragDropTitle: '🔀 Sürükle-Bırak: Süreci Sırala',
+            practiceTitle: '✍️ Pratik: Sen Yaz ve Karşılaştır',
+            practiceCheck: 'Cevabımı Kontrol Et',
+            practiceKeywords: 'Değinmen gereken anahtar noktalar:',
+            practiceModelLabel: 'Örnek Cevap',
+            practiceSuccess: 'Kendi cevabını örnek cevapla karşılaştır — birebir aynı olmak zorunda değil, mantığı yakalaman yeterli.',
         },
         lessons: [
             {
@@ -91,7 +97,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Manuel test neden sadece ekrana rastgele tiklamak degildir?',
                     answer: 'Cunku sistemli bir risk arama surecidir. Kullanici zihniyetiyle dusunup urunun nerelerde hata verebilecegini (edge case\'ler) bulmayi ve bunlari somut adimlarla kanitlamayi gerektirir.'
-                }
+                },
+                dragDrop: {
+                    title: 'Kullanici zihniyetiyle test surecini sirala',
+                    prompt: 'Bir ozelligi kullanici gozuyle test ederken izlenecek dogru dusunce sirasini olustur.',
+                    success: 'Dogru sira. Once gozlemle, sonra beklentiyi dusun, riskleri hayal et, dene ve karsilastir.',
+                    expected: ['observe', 'expect', 'imagine', 'try', 'compare'],
+                    items: [
+                        { id: 'try', text: 'Hayal ettigin riskli senaryolari gercekten dene' },
+                        { id: 'observe', text: 'Ozelligin ne yaptigini gozlemle (buton calisiyor mu?)' },
+                        { id: 'compare', text: 'Sonucu kullanicinin beklentisiyle karsilastir' },
+                        { id: 'expect', text: 'Kullanicinin bu ozellikten ne bekledigini dusun' },
+                        { id: 'imagine', text: 'Neyin ters gidebilecegini hayal et (su bitmesi, bardak olmamasi gibi)' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Gunluk kullandigin bir uygulamayi (ornegin bir yemek siparis uygulamasi) dusun. Happy path disinda test etmen gereken 2 edge case yaz.',
+                    keywords: ['bos', 'hata', 'sinir', 'beklenmeyen'],
+                    modelAnswer: 'Ornek: Sepette hic urun yokken "Siparis Ver" butonuna basilirsa ne olur? Teslimat adresi secilmeden odeme ekranina gecilmeye calisilirsa ne olur? Bu ikisi de happy path\'in disinda kalan, kullaniciyi gercekten yaralayabilecek edge case\'lerdir.',
+                },
             },
             {
                 id: 'test-case',
@@ -122,7 +146,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Bir test case\'i kaliteli ve kanitlanabilir yapan uc temel bilesen nedir?',
                     answer: '1. On Kosul (Precondition): Testten onceki sistem durumu. 2. Adimlar (Steps): Yapilacak eylemler. 3. Beklenen Sonuc (Expected Result): Sistemden beklenen dogru tepki.'
-                }
+                },
+                dragDrop: {
+                    title: 'Iyi bir test case yazma surecini sirala',
+                    prompt: 'Bir test case yazmadan once ve yazarken izlenen dusunce sirasini olustur.',
+                    success: 'Dogru sira. Once ozelligi anla, sonra precondition, adimlar ve beklenen sonucu netlestir, en son calistir.',
+                    expected: ['understand', 'precondition', 'steps', 'expected', 'run'],
+                    items: [
+                        { id: 'run', text: 'Test case\'i calistir ve sonucu dogrula' },
+                        { id: 'understand', text: 'Test edilecek ozelligi ve amacini anla' },
+                        { id: 'expected', text: 'Beklenen sonucu net bir cumleyle tanimla' },
+                        { id: 'precondition', text: 'Testten once sistemin hangi durumda olmasi gerektigini belirle' },
+                        { id: 'steps', text: 'Numarali, tekrarlanabilir adimlari yaz' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Bir "sifremi unuttum" akisi icin precondition / steps / expected result formatinda kisa bir test case yaz.',
+                    keywords: ['precondition', 'adim', 'beklenen'],
+                    modelAnswer: 'Precondition: Kayitli bir email adresi var. Steps: 1) Login sayfasinda "Sifremi unuttum" linkine tikla, 2) Email adresini gir, 3) Gonder butonuna bas. Expected Result: "Sifre sifirlama linki email adresinize gonderildi" mesaji gorunur.',
+                },
             },
             {
                 id: 'exploratory',
@@ -151,7 +193,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Kesifci test (exploratory testing) ile rastgele tiklama (adhoc) arasindaki fark nedir?',
                     answer: 'Kesifci test sistematiktir. Bir charter (hedef) etrafinda donecegimiz hipotezleri kurariz, test esnasinda ogrendiklerimizle yeni testler uretiriz ve sureci mutlaka gunluk veya notla belgeleriz.'
-                }
+                },
+                dragDrop: {
+                    title: 'Kesifci test oturumunun adimlarini sirala',
+                    prompt: 'Bir exploratory test oturumunu (session) sistematik hale getiren adim sirasini olustur.',
+                    success: 'Dogru sira. Charter, hipotez, kesif ve not alma dongusu kesifci testi rastgele tiklamadan ayirir.',
+                    expected: ['charter', 'hypothesis', 'explore', 'note', 'newHypothesis'],
+                    items: [
+                        { id: 'newHypothesis', text: 'Bulgulara gore yeni bir hipotez uret ve tekrar kesfet' },
+                        { id: 'charter', text: 'Oturumun hedefini (charter) belirle' },
+                        { id: 'note', text: 'Bulduklarini not al veya belgeler' },
+                        { id: 'hypothesis', text: 'Riskin nerede olabilecegine dair bir hipotez kur' },
+                        { id: 'explore', text: 'Urunu kurcalayarak hipotezini gozlemle' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Bir arama kutusu icin 5 dakikalik bir exploratory test charter\'i (hedef) ve deneyecegin 2 farkli girdi yaz.',
+                    keywords: ['hedef', 'charter', 'dene'],
+                    modelAnswer: 'Charter: Arama kutusunun ozel karakterlere ve bos girdiye nasil tepki verdigini kesfet. Denenecekler: 1) Sadece bosluk karakteri girip aratmak, 2) SQL karakterleri iceren bir metin (%, \' gibi) girip aratmak.',
+                },
             },
             {
                 id: 'bug-report',
@@ -180,7 +240,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Yazilimcinin hatayi hemen anlayabilmesi icin bug raporundaki en kritik alan hangisidir?',
                     answer: 'Yeniden Uretme Adimlari (Steps to Reproduce). Net adimlar olmadan yazilimci hatanin nerede ve nasil tetiklendigini bulamaz ve vakit kaybeder.'
-                }
+                },
+                dragDrop: {
+                    title: 'Eksiksiz bug raporu yazma sirasini olustur',
+                    prompt: 'Bir developer\'in hatayi hemen anlayabilecegi bug raporunu yazma sirasini kur.',
+                    success: 'Dogru sira. Ortam, adimlar, beklenen, gerceklesen ve kanit — bu sira developer\'in tahmin yurutmesini engeller.',
+                    expected: ['environment', 'steps', 'expected', 'actual', 'evidence'],
+                    items: [
+                        { id: 'evidence', text: 'Ekran goruntusu veya log ekle (Evidence)' },
+                        { id: 'environment', text: 'Cihaz, tarayici ve app versiyonunu not et (Environment)' },
+                        { id: 'actual', text: 'Ne oldugunu yaz (Actual Result)' },
+                        { id: 'steps', text: 'Numarali yeniden uretme adimlarini yaz (Steps to Reproduce)' },
+                        { id: 'expected', text: 'Ne olmasi gerektigini yaz (Expected Result)' },
+                    ],
+                },
+                practice: {
+                    prompt: '"Profil fotografi yuklenmiyor" hatasi icin eksiksiz bir bug raporu yaz (ortam, adimlar, beklenen, gerceklesen).',
+                    keywords: ['ortam', 'adim', 'beklenen', 'gerceklesen'],
+                    modelAnswer: 'Ortam: iPhone 14, app v3.2.0. Adimlar: 1) Profil sayfasini ac, 2) Fotograf ikonuna bas, 3) Galeriden bir fotograf sec. Beklenen: Fotograf profile yuklenir. Gerceklesen: Yukleme cubugu donuyor ama fotograf hic gorunmuyor.',
+                },
             },
             {
                 id: 'severity',
@@ -208,7 +286,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Severity (Hata Derecesi) nedir ve nasil belirlenir?',
                     answer: 'Hatanin fonksiyonel etkisidir. Eger ana is akisi (core flow) engelleniyorsa Critical, alternatif akislarda hata varsa Major, sadece görsel/typo ise Minor derecesindedir.'
-                }
+                },
+                dragDrop: {
+                    title: 'Severity belirleme sorularini sirala',
+                    prompt: 'Bir hataya severity atarken sordugun sorularin mantikli sirasini kur.',
+                    success: 'Dogru sira. Once etki, sonra kapsam, sonra workaround — bu sira dogru severity kararini uretir.',
+                    expected: ['impact', 'scope', 'workaround', 'assign', 'notify'],
+                    items: [
+                        { id: 'notify', text: 'Belirlenen severity ile ekibi bilgilendir' },
+                        { id: 'impact', text: 'Bu hata hangi is akisini engelliyor?' },
+                        { id: 'assign', text: 'Toplanan bilgilerle severity degerini sec' },
+                        { id: 'scope', text: 'Kac kullaniciyi/senaryoyu etkiliyor?' },
+                        { id: 'workaround', text: 'Gecici bir cozum (workaround) var mi?' },
+                    ],
+                },
+                practice: {
+                    prompt: '"Arama sonuclari sayfasi 2 saniye gec aciliyor" hatasina bir severity ver ve nedenini yaz.',
+                    keywords: ['etki', 'kullanici', 'is akisi'],
+                    modelAnswer: 'Severity: Minor/Major sinirinda. Ana is akisini (satin alma) tamamen durdurmuyor, kullanici sonucta arama sonucunu goruyor; ama kullanici deneyimini ve donusum oranini olumsuz etkiledigi icin Major olarak da savunulabilir — karar, sirket icin arama ozelliginin ne kadar kritik oldugunu etkiler.',
+                },
             },
             {
                 id: 'regression',
@@ -263,7 +359,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Yeni bir kod veya hata duzeltmesi sonrasi neden regression testi yapariz?',
                     answer: 'Yazilim karmasik bir ag gibidir. Bir yerdeki degisiklik alakasiz baska bir yeri bozabilir (side effect). Regression testi, eski calisan yerlerin hala saglam oldugunu garanti eder.'
-                }
+                },
+                dragDrop: {
+                    title: 'Regression surecinin adimlarini sirala',
+                    prompt: 'Bir fix sonrasi izlenmesi gereken regression test surecinin dogru sirasini kur.',
+                    success: 'Dogru sira. Once etkilenen akislari belirle, once smoke, sonra derin regression uygula.',
+                    expected: ['identify', 'list', 'smoke', 'deep', 'report'],
+                    items: [
+                        { id: 'report', text: 'Sonuclari raporla' },
+                        { id: 'identify', text: 'Degisen kodu veya moduli belirle' },
+                        { id: 'deep', text: 'Riskli alanlara derinlemesine regression uygula' },
+                        { id: 'list', text: 'Bu degisiklikle iliskili is akislarini listele' },
+                        { id: 'smoke', text: 'Once kritik akislari smoke test ile hizlica kontrol et' },
+                    ],
+                },
+                practice: {
+                    prompt: '"Sepete urun ekleme" ozelliginde kucuk bir fix yapildi. Hangi 3 akisi regression olarak test edersin, yaz.',
+                    keywords: ['odeme', 'sepet', 'fiyat'],
+                    modelAnswer: 'Ornek: 1) Sepete birden fazla urun eklenince toplam fiyat dogru mu hesaplaniyor? 2) Sepetten urun silinince fiyat guncelleniyor mu? 3) Sepetteki urunlerle odeme (checkout) akisi hala sorunsuz tamamlaniyor mu?',
+                },
             },
         ],
         quiz: [
@@ -349,6 +463,12 @@ export const manualTestingData = {
             activeRecallFlip: 'Flip Card',
             activeRecallGotIt: 'I Recalled ✓',
             activeRecallFailed: 'Review Again ✗',
+            dragDropTitle: '🔀 Drag & Drop: Order the Process',
+            practiceTitle: '✍️ Practice: Write It Yourself',
+            practiceCheck: 'Check My Answer',
+            practiceKeywords: 'Key points you should cover:',
+            practiceModelLabel: 'Model Answer',
+            practiceSuccess: 'Compare your answer with the model answer — it does not need to match word for word, just capture the reasoning.',
         },
         lessons: [
             {
@@ -379,7 +499,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Why is manual testing not just randomly clicking on the screen?',
                     answer: 'Because it is a systematic risk-finding process. It requires user empathy to find where things can break (edge cases) and proving them with concrete, repeatable steps.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the user-mindset testing process',
+                    prompt: 'Build the correct thinking order for testing a feature through the user\'s eyes.',
+                    success: 'Correct order. Observe first, then think about expectation, imagine risks, try them, and compare.',
+                    expected: ['observe', 'expect', 'imagine', 'try', 'compare'],
+                    items: [
+                        { id: 'try', text: 'Actually try the risky scenarios you imagined' },
+                        { id: 'observe', text: 'Observe what the feature does (does the button work?)' },
+                        { id: 'compare', text: 'Compare the result with the user\'s expectation' },
+                        { id: 'expect', text: 'Think about what the user expects from this feature' },
+                        { id: 'imagine', text: 'Imagine what could go wrong (water running out, no cup, etc.)' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Think of an app you use daily (for example, a food delivery app). Write 2 edge cases you should test beyond the happy path.',
+                    keywords: ['empty', 'error', 'boundary', 'unexpected'],
+                    modelAnswer: 'Example: What happens if the user taps "Place Order" with an empty cart? What happens if they try to proceed to payment without selecting a delivery address? Both fall outside the happy path and could genuinely hurt the user experience.',
+                },
             },
             {
                 id: 'test-case',
@@ -410,7 +548,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'What are the three main components that make a test case high quality and verifiable?',
                     answer: '1. Precondition: The system state before testing. 2. Steps: The actions to execute. 3. Expected Result: The expected correct system behavior.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the process of writing a good test case',
+                    prompt: 'Build the thinking order followed before and while writing a test case.',
+                    success: 'Correct order. Understand the feature first, then nail down precondition, steps, and expected result, then run it.',
+                    expected: ['understand', 'precondition', 'steps', 'expected', 'run'],
+                    items: [
+                        { id: 'run', text: 'Run the test case and verify the result' },
+                        { id: 'understand', text: 'Understand the feature under test and its purpose' },
+                        { id: 'expected', text: 'Define the expected result in a clear sentence' },
+                        { id: 'precondition', text: 'Decide what state the system must be in before testing' },
+                        { id: 'steps', text: 'Write numbered, repeatable steps' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Write a short test case for a "forgot password" flow using precondition / steps / expected result format.',
+                    keywords: ['precondition', 'step', 'expected'],
+                    modelAnswer: 'Precondition: A registered email address exists. Steps: 1) Click "Forgot password" on the login page, 2) Enter the email address, 3) Click Submit. Expected Result: A "Password reset link sent to your email" message is displayed.',
+                },
             },
             {
                 id: 'exploratory',
@@ -439,7 +595,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'What is the main difference between exploratory testing and random (ad-hoc) clicking?',
                     answer: 'Exploratory testing is systematic. We set charters (targets), establish hypotheses, generate tests based on real-time learning, and record findings in logs or session reports.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the exploratory testing session steps',
+                    prompt: 'Build the step order that makes an exploratory session systematic.',
+                    success: 'Correct order. The charter, hypothesis, explore, and note loop is what separates exploratory testing from random clicking.',
+                    expected: ['charter', 'hypothesis', 'explore', 'note', 'newHypothesis'],
+                    items: [
+                        { id: 'newHypothesis', text: 'Form a new hypothesis from findings and explore again' },
+                        { id: 'charter', text: 'Define the session goal (charter)' },
+                        { id: 'note', text: 'Take notes or document findings' },
+                        { id: 'hypothesis', text: 'Form a hypothesis about where the risk might be' },
+                        { id: 'explore', text: 'Poke at the product to observe your hypothesis' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Write a 5-minute exploratory test charter (goal) for a search box, plus 2 different inputs you would try.',
+                    keywords: ['goal', 'charter', 'try'],
+                    modelAnswer: 'Charter: Discover how the search box reacts to special characters and empty input. Inputs to try: 1) Searching with only a space character, 2) Searching with SQL-like characters (%, \') in the text.',
+                },
             },
             {
                 id: 'bug-report',
@@ -468,7 +642,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'What is the most critical area of a bug report so developers can understand it instantly?',
                     answer: 'Steps to Reproduce. Without clear, numbered steps, a developer cannot recreate the exact environment or trigger conditions that lead to the bug.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the parts of a complete bug report',
+                    prompt: 'Build the order for writing a bug report a developer can act on immediately.',
+                    success: 'Correct order. Environment, steps, expected, actual, and evidence — this order stops the developer from guessing.',
+                    expected: ['environment', 'steps', 'expected', 'actual', 'evidence'],
+                    items: [
+                        { id: 'evidence', text: 'Attach a screenshot or log (Evidence)' },
+                        { id: 'environment', text: 'Note the device, browser, and app version (Environment)' },
+                        { id: 'actual', text: 'Write what actually happened (Actual Result)' },
+                        { id: 'steps', text: 'Write numbered reproduction steps (Steps to Reproduce)' },
+                        { id: 'expected', text: 'Write what should have happened (Expected Result)' },
+                    ],
+                },
+                practice: {
+                    prompt: 'Write a complete bug report for "profile photo fails to upload" (environment, steps, expected, actual).',
+                    keywords: ['environment', 'step', 'expected', 'actual'],
+                    modelAnswer: 'Environment: iPhone 14, app v3.2.0. Steps: 1) Open profile page, 2) Tap the photo icon, 3) Choose a photo from the gallery. Expected: The photo uploads to the profile. Actual: The loading spinner keeps spinning but the photo never appears.',
+                },
             },
             {
                 id: 'severity',
@@ -496,7 +688,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'What is Severity and how is it determined?',
                     answer: 'It is the functional impact of a defect. If the core user flow is blocked (e.g., cannot check out), it is Critical. If alternative flows fail, it is Major. If it is only cosmetic or minor text, it is Minor.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the severity-decision questions',
+                    prompt: 'Build the logical order of questions you ask when assigning severity to a bug.',
+                    success: 'Correct order. Impact first, then scope, then workaround — this order produces the right severity decision.',
+                    expected: ['impact', 'scope', 'workaround', 'assign', 'notify'],
+                    items: [
+                        { id: 'notify', text: 'Notify the team with the assigned severity' },
+                        { id: 'impact', text: 'Which business flow does this block?' },
+                        { id: 'assign', text: 'Assign the severity value using the gathered facts' },
+                        { id: 'scope', text: 'How many users or scenarios are affected?' },
+                        { id: 'workaround', text: 'Is there a temporary workaround?' },
+                    ],
+                },
+                practice: {
+                    prompt: 'The "search results page loads 2 seconds slower" bug is reported. Assign it a severity and write why.',
+                    keywords: ['impact', 'user', 'workflow'],
+                    modelAnswer: 'Severity: borderline Minor/Major. It does not fully block the core flow (purchase) since the user eventually sees results; but it can also be argued as Major because it hurts user experience and conversion — the final call depends on how business-critical search is for the product.',
+                },
             },
             {
                 id: 'regression',
@@ -551,7 +761,25 @@ export const manualTestingData = {
                 recall: {
                     question: 'Why do we perform regression testing after new code is added or a bug is fixed?',
                     answer: 'Software is highly interconnected. A change in one area can cause unintended side effects elsewhere. Regression testing guarantees that existing stable features remain working.'
-                }
+                },
+                dragDrop: {
+                    title: 'Order the regression testing process',
+                    prompt: 'Build the correct order for the regression process to follow after a fix.',
+                    success: 'Correct order. Identify affected flows first, smoke test, then go deeper on regression.',
+                    expected: ['identify', 'list', 'smoke', 'deep', 'report'],
+                    items: [
+                        { id: 'report', text: 'Report the results' },
+                        { id: 'identify', text: 'Identify the changed code or module' },
+                        { id: 'deep', text: 'Apply deeper regression on risky areas' },
+                        { id: 'list', text: 'List the business flows related to this change' },
+                        { id: 'smoke', text: 'Smoke test critical flows quickly first' },
+                    ],
+                },
+                practice: {
+                    prompt: 'A small fix was made to the "add item to cart" feature. Write 3 flows you would test as regression.',
+                    keywords: ['payment', 'cart', 'price'],
+                    modelAnswer: 'Example: 1) Is the total price still calculated correctly when multiple items are added? 2) Does the price update correctly when an item is removed? 3) Does checkout with items in the cart still complete without errors?',
+                },
             },
         ],
         quiz: [

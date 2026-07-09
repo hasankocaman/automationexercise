@@ -711,6 +711,157 @@ function GameResult({ checked, solved, success, labels, onCheck, darkMode }) {
     )
 }
 
+function DragDropChallenge({ lesson, labels, darkMode }) {
+    const [items, setItems] = useState(lesson.dragDrop.items)
+    const [dragIndex, setDragIndex] = useState(null)
+    const [checked, setChecked] = useState(false)
+    const solved = items.every((item, index) => item.id === lesson.dragDrop.expected[index])
+
+    useEffect(() => {
+        setItems(lesson.dragDrop.items)
+        setChecked(false)
+        setDragIndex(null)
+    }, [lesson])
+
+    const reorder = (from, to) => {
+        if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return
+        const next = [...items]
+        const [item] = next.splice(from, 1)
+        next.splice(to, 0, item)
+        setItems(next)
+        setChecked(false)
+    }
+
+    const move = (index, direction) => reorder(index, index + direction)
+
+    return (
+        <div className={`rounded-lg border p-4 transition-all duration-300 ${darkMode ? 'border-violet-500/30 bg-violet-950/20 text-slate-200' : 'border-violet-200 bg-violet-50/60 text-slate-800'}`}>
+            <div className="mb-3 text-sm font-black text-violet-500">{labels.dragDropTitle}</div>
+            <div className="mb-2 text-xs font-black opacity-70">{lesson.dragDrop.title}</div>
+            <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{lesson.dragDrop.prompt}</p>
+            <div className="mt-3 grid gap-2">
+                {items.map((item, index) => (
+                    <div
+                        key={item.id}
+                        draggable
+                        onDragStart={() => setDragIndex(index)}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => {
+                            if (dragIndex !== null) reorder(dragIndex, index)
+                            setDragIndex(null)
+                        }}
+                        onDragEnd={() => setDragIndex(null)}
+                        className={`flex cursor-grab items-center gap-2 rounded-lg border p-3 transition active:cursor-grabbing ${dragIndex === index ? 'scale-[1.02] border-violet-400 opacity-80' : ''} ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}
+                    >
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500 text-sm font-black text-white">{index + 1}</div>
+                        <div className="min-w-0 flex-1 text-sm font-bold">{item.text}</div>
+                        <button onClick={() => move(index, -1)} disabled={index === 0} className="min-h-9 rounded-lg bg-slate-700 px-2 text-xs font-bold text-white disabled:opacity-30">{labels.moveUp}</button>
+                        <button onClick={() => move(index, 1)} disabled={index === items.length - 1} className="min-h-9 rounded-lg bg-slate-700 px-2 text-xs font-bold text-white disabled:opacity-30">{labels.moveDown}</button>
+                    </div>
+                ))}
+            </div>
+            <GameResult checked={checked} solved={solved} success={lesson.dragDrop.success} labels={labels} onCheck={() => setChecked(true)} darkMode={darkMode} />
+        </div>
+    )
+}
+
+function PracticeWorkspace({ lesson, labels, darkMode }) {
+    const [text, setText] = useState('')
+    const [checked, setChecked] = useState(false)
+
+    const normalize = (str) => {
+        return str
+            .toLowerCase()
+            .replace(/ı/g, 'i')
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+    }
+
+    const keywords = lesson.practice.keywords || []
+
+    const keywordMatches = useMemo(() => {
+        const normText = normalize(text)
+        return keywords.map(kw => {
+            const normKw = normalize(kw)
+            return { word: kw, matched: normText.includes(normKw) }
+        })
+    }, [text, keywords])
+
+    const matchCount = keywordMatches.filter(m => m.matched).length
+    const scorePercentage = keywords.length > 0 ? (matchCount / keywords.length) * 100 : 0
+
+    useEffect(() => {
+        setText('')
+        setChecked(false)
+    }, [lesson])
+
+    return (
+        <div className={`rounded-lg border p-4 transition-all duration-300 ${darkMode ? 'border-emerald-500/30 bg-emerald-950/10 text-slate-200' : 'border-emerald-200 bg-emerald-50/50 text-slate-800'}`}>
+            <div className="mb-2 text-sm font-black text-emerald-500">{labels.practiceTitle}</div>
+            <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{lesson.practice.prompt}</p>
+
+            <textarea
+                value={text}
+                onChange={(event) => {
+                    setText(event.target.value)
+                    setChecked(false)
+                }}
+                className={`mt-3 w-full min-h-[96px] rounded-lg border p-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-emerald-500 ${darkMode ? 'border-slate-700 bg-slate-900 text-slate-200 placeholder-slate-500' : 'border-slate-300 bg-white text-slate-800 placeholder-slate-400'}`}
+                placeholder="..."
+            />
+
+            <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                    onClick={() => setChecked(true)}
+                    disabled={!text.trim()}
+                    className="min-h-9 rounded-lg bg-emerald-600 px-4 text-xs font-black text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                >
+                    {labels.practiceCheck}
+                </button>
+                <button
+                    onClick={() => {
+                        setText('')
+                        setChecked(false)
+                    }}
+                    className={`min-h-9 rounded-lg px-4 text-xs font-black transition ${darkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                >
+                    {labels.reset}
+                </button>
+            </div>
+
+            {checked && (
+                <div className="mt-4 space-y-3 border-t border-slate-700/30 pt-4">
+                    <div>
+                        <div className="text-xs font-black opacity-75">{labels.practiceKeywords}</div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                            {keywordMatches.map((item) => (
+                                <span
+                                    key={item.word}
+                                    className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-bold border ${item.matched ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-500/10 border-slate-800 text-slate-400'}`}
+                                >
+                                    {item.word} {item.matched ? '✓' : '✗'}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className={`rounded-lg border p-3 ${darkMode ? 'border-slate-850 bg-slate-900/60' : 'border-slate-200 bg-white'}`}>
+                        <div className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">{labels.practiceModelLabel}</div>
+                        <p className="mt-1.5 text-xs leading-relaxed font-medium">{lesson.practice.modelAnswer}</p>
+                    </div>
+
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs font-black text-emerald-500">
+                        {labels.practiceSuccess} (%{Math.round(scorePercentage)})
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
 function GameBlock({ lesson, labels, darkMode }) {
     const game = lesson.game
     const common = { lesson, labels, darkMode }
@@ -894,6 +1045,11 @@ function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRec
                         <div className="mt-5">
                             <div className="mb-3 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.tryIt}</div>
                             <GameBlock lesson={lesson} labels={labels} darkMode={darkMode} />
+                        </div>
+
+                        <div className="mt-5 grid gap-4 md:grid-cols-2">
+                            <DragDropChallenge lesson={lesson} labels={labels} darkMode={darkMode} />
+                            <PracticeWorkspace lesson={lesson} labels={labels} darkMode={darkMode} />
                         </div>
                     </div>
                 </div>
