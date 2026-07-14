@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import TopicHeader from './TopicHeader'
+import VideoSceneBlock from './VideoSceneBlock'
 import { useLanguage } from '../context/LanguageContext'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 
@@ -987,7 +988,7 @@ function QuestionBank({ data, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels }) {
+function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels, language }) {
     const isUnlocked = !neuroMode || recallProgress[lesson.id] === 'recalled';
 
     return (
@@ -1041,6 +1042,11 @@ function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRec
                                 <ConceptVisual lesson={lesson} labels={labels} darkMode={darkMode} />
                             </div>
                         </div>
+
+                        {/* İzle → dene sırası: film (varsa) try-it oyunundan önce gelir */}
+                        {lesson.film && (
+                            <VideoSceneBlock block={lesson.film} darkMode={darkMode} language={language} />
+                        )}
 
                         <div className="mt-5">
                             <div className="mb-3 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.tryIt}</div>
@@ -1229,15 +1235,16 @@ function AlgorithmsPage() {
 
                     <div className="grid gap-6">
                         {interleavedLessons.map(lesson => (
-                            <LessonCard 
-                                key={lesson.id} 
-                                lesson={lesson} 
-                                labels={data.page} 
-                                darkMode={darkMode} 
+                            <LessonCard
+                                key={lesson.id}
+                                lesson={lesson}
+                                labels={data.page}
+                                darkMode={darkMode}
                                 neuroMode={neuroMode}
                                 recallProgress={recallProgress}
                                 onRecallUpdate={handleRecallUpdate}
                                 nLabels={nLabels}
+                                language={language}
                             />
                         ))}
 

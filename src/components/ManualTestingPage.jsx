@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import TopicHeader from './TopicHeader'
+import VideoSceneBlock from './VideoSceneBlock'
 import { useLanguage } from '../context/LanguageContext'
 import { manualTestingData } from '../data/manualTestingData'
 
@@ -856,7 +857,7 @@ function RecallFlashcard({ lesson, labels, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode }) {
+function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode, language }) {
     return (
         <section id={lesson.id} className="scroll-mt-24">
             <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/95' : 'border-slate-200 bg-white'}`}>
@@ -883,6 +884,11 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode 
                         <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} darkMode={darkMode} />
                     </div>
                 </div>
+
+                {/* İzle → dene sırası: film (varsa) drag-drop/practice alıştırmalarından önce gelir */}
+                {lesson.film && (
+                    <VideoSceneBlock block={lesson.film} darkMode={darkMode} language={language} />
+                )}
 
                 <div className="mt-5 border-t border-slate-700/30 pt-5 grid gap-4 md:grid-cols-2">
                     <DragDropChallenge lesson={lesson} labels={labels} darkMode={darkMode} />
@@ -1064,6 +1070,7 @@ function ManualTestingPage() {
                                 complete={Boolean(completed[lesson.id])}
                                 onComplete={() => setCompleted(current => current[lesson.id] ? current : { ...current, [lesson.id]: true })}
                                 neuroMode={neuroMode}
+                                language={language}
                             />
                         ))}
                         <FinalQuiz quiz={data.quiz} labels={data.ui} darkMode={darkMode} />

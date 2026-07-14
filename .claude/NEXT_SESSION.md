@@ -10,13 +10,65 @@
 
 ---
 
-## Video-Scene (Film Bloğu) Pilotu — Fable payı TAMAM, Sonnet payı BEKLİYOR (2026-07-14)
+## Video-Scene Dalga 2 — Fable payı TAMAM, Sonnet payı bekliyor (2026-07-14)
+
+> Plan + film spesifikasyonları + Sonnet promptu: **`Documents/video-rollout-plan.md`**.
+> Kullanıcı hedefi: git-github, linux, docker(2. film), algorithms,
+> manual-testing, gauge sayfalarına da film eklensin; uzun vadede mümkün
+> olduğunca her sayfada video/animasyon olsun (backlog planın Bölüm 6'sında).
+
+| Sayfa | Film id | Kim | Durum |
+|---|---|---|---|
+| `/algorithms` (ÖZEL sayfa) | `algorithms-linear-search-film` | Fable | ✅ TAMAM (henüz commit edilmedi) |
+| `/manual-testing` (ÖZEL sayfa) | `manual-bug-lifecycle-film` | Fable | ✅ TAMAM (henüz commit edilmedi) |
+| `/git-github` | `git-commit-journey-film` | Sonnet | ⬜ bekliyor |
+| `/linux` | `linux-pipe-chain-film` | Sonnet | ⬜ bekliyor |
+| `/docker` (Compose sekmesi, 2. film) | `docker-compose-startup-film` | Sonnet | ⬜ bekliyor |
+| `/gauge` (tek ağaç veri — filme DİKKAT: tek yere) | `gauge-run-chain-film` | Sonnet | ⬜ bekliyor |
+
+### Fable payında yapılanlar (bu oturum)
+1. **BONUS BUG DÜZELTMESİ — `beginnerAlgorithmsData.js` TR ağacı:** TR
+   `lessons` dizisinde `loop`, `memory`, `debug`, `flowchart` derslerinin
+   nesne sınırları ve `id` alanları EKSİKTİ — duplicate key nedeniyle 4 ders
+   `decision` nesnesinin içine yutulmuştu; TR (varsayılan dil!) sayfada 3
+   kart görünüyordu, EN'de 7. Dört `},\n{ id: ... }` sınırı eklendi; Node ile
+   doğrulandı: TR artık 7 ders, decision/loop başlıkları doğru içerikte.
+2. **Özel-sayfa entegrasyon kalıbı (plan §1):** `AlgorithmsPage.jsx` ve
+   `ManualTestingPage.jsx`'e `VideoSceneBlock` import edildi; `LessonCard`'lara
+   `language` prop'u geçirildi; `{lesson.film && <VideoSceneBlock .../>}`
+   render satırı eklendi (algorithms: try-it oyunundan önce; manual-testing:
+   drag-drop/practice'ten önce — izle → dene sırası).
+3. **`algorithms-linear-search-film`** (7 sahne, 8 aktör: hedef 42 + 5 dizi
+   kutusu + imleç + bulundu; loop dersinin `checkEachTime` drag-drop maddesine
+   ve advanced-algorithms binary search köprüsüne bağlı) — `loop` dersine
+   TR+EN her iki ağaçta `film:` alanı olarak eklendi.
+4. **`manual-bug-lifecycle-film`** (8 sahne: keşif → New → Triage → In
+   Progress → Resolved → Retest → Closed + Reopened alternatif finali) —
+   `bug-report` dersine TR+EN eklendi.
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → temiz (41 shell) ✓
+- Runtime smoke (vite preview + headless Chromium): **13/13 PASS** — TR'de
+  7 ders kartı (bug fix kanıtı), iki filmde render/next/pip-seek/done/XP
+  kaydı, EN caption geçişi, 380px taşma yok, 0 konsol hatası.
+- `npx playwright test tests/other-pages-ui.spec.ts -g "manual-testing|algorithms"`
+  → 3/3 PASS (buton görünürlük + konsol hatası kontrolleri).
+
+### Sıradaki adım
+`Documents/video-rollout-plan.md` Bölüm 4'teki Sonnet promptunu çalıştır
+(git-github/linux/docker-compose/gauge filmleri + test genişletme).
+
+---
+
+## Video-Scene Dalga 1 (Pilot + Faz 2-5) — TAMAMLANDI ve commit edildi (2026-07-14)
 
 > Branch: `feature/llm-agents-interactive-pilot`. Plan + Sonnet master prompt:
 > `PILOT_PLAN_ve_PROMPT.md` (Rev 2 — ilk plan repo incelemesiyle büyük ölçüde
 > değiştirildi; önerdiği 3 bileşen zaten mevcut çıktı, yeni hedef "video
 > benzeri film bloğu" oldu). Plan dosyası `main`'e `5a9cabf` ile commit
-> edilmişti; Rev 2 + kod henüz commit EDİLMEDİ (kullanıcı onayı bekleniyor).
+> edilmişti; bileşen + 5 film + smoke test `509ea5a` ile commit edildi
+> (push HENÜZ yapılmadı).
 
 ### Yapılan (Fable)
 1. **`src/components/VideoSceneBlock.jsx` (yeni):** generic, veri-güdümlü mini
@@ -84,8 +136,8 @@ lab/challenge/quiz'den ÖNCE yerleştirildi (CLAUDE.md §9.1 sırası):
 - 6 deterministik auth-injection test hatası hâlâ duruyor (bkz. yukarıdaki
   Gauge bölümü, kök neden orada belgeli) — bu oturumun konusuyla ilgisiz,
   push'ta pre-push hook'u yine reddedebilir.
-- Değişiklikler `feature/llm-agents-interactive-pilot` branch'inde, henüz
-  commit EDİLMEDİ (kullanıcı onayı bekleniyor).
+- Değişiklikler `feature/llm-agents-interactive-pilot` branch'inde `509ea5a`
+  ile commit edildi; `origin`'e push henüz yapılmadı.
 - Plan §7 kontrol listesindeki "Mobil 380px + reduced-motion + TR/EN"
   maddesi sadece pilot filmde (RAG) runtime smoke ile doğrulandı; 4 yeni
   filmde ayrıca doğrulanmadı — bileşen aynı olduğu için risk düşük, ama
