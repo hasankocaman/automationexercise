@@ -1,0 +1,130 @@
+/* ═════════════════════════════════════════════════════════════════
+   Gauge Page — Amber/Turuncu + Fildişi Paleti
+   restassured-effects.css referans alınarak sadeleştirilmiş çekirdek
+   efekt paketi (hero banner + konsol + reveal). Tam görsel paket
+   (§9.2 Docker rollout kalıbı) ayrı bir iş paketinde genişletilecek.
+   Tüm stiller .gauge-page wrapper'a scope'lu.
+   ═════════════════════════════════════════════════════════════════ */
+
+.gauge-page {
+  --gg-bg-primary:    #1f1408;
+  --gg-bg-secondary:  #2b1c0c;
+  --gg-text-primary:  #faf3e8;
+  --gg-accent:        #facc15;
+  --gg-accent-2:      #fb923c;
+  --gg-ivory:         #e2d3c5;
+  --gg-success:       #86efac;
+  --gg-text-muted:    #4a3a24;
+  --gg-role-accent:   #8a6d0b;
+  --gg-role-accent-2: #b45309;
+  --gg-role-muted:    #6b5744;
+  --gg-role-success:  #15803d;
+  position: relative;
+}
+
+.dark-mode .gauge-page,
+[data-theme="dark"] .gauge-page {
+  --gg-text-muted:    #e2d3c5;
+  --gg-role-accent:   #facc15;
+  --gg-role-accent-2: #fb923c;
+  --gg-role-muted:    #e2d3c5;
+  --gg-role-success:  #86efac;
+}
+
+/* Scroll ile yumuşak görünme */
+.gg-reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.gg-reveal.gg-visible { opacity: 1; transform: translateY(0); }
+
+/* ── Hero banner ızgarası ── */
+.gg-hero-banner-container { position: relative; }
+.gg-hero-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.875rem; margin-bottom: 1rem; }
+@media (max-width: 680px) { .gg-hero-banner { grid-template-columns: 1fr; } }
+
+/* ── İstatistik çubuğu ── */
+.gg-stats-bar {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; padding: 1rem 1.1rem; border-radius: 14px;
+  background: rgba(250, 204, 21, 0.05); border: 1px solid rgba(250, 204, 21, 0.18);
+  backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: gg-stats-border-pulse 4s ease-in-out infinite alternate;
+}
+@keyframes gg-stats-border-pulse {
+  from { border-color: rgba(250, 204, 21, 0.18); }
+  to   { border-color: rgba(251, 146, 60, 0.32); box-shadow: 0 0 14px rgba(251, 146, 60, 0.08); }
+}
+.gg-stat-item { text-align: center; }
+.gg-stat-number-wrap { display: flex; align-items: baseline; justify-content: center; gap: 1px; }
+.gg-stat-num {
+  font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--gg-accent), var(--gg-accent-2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--gg-accent); line-height: 1.1;
+}
+.gg-stat-suffix {
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem); font-weight: 700;
+  background: linear-gradient(135deg, var(--gg-accent), var(--gg-accent-2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--gg-accent);
+}
+.gg-stat-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gg-text-muted); margin-top: 0.2rem; }
+
+/* ── Koşum zinciri (pipeline) ── */
+.gg-pipeline {
+  padding: 1rem 1.1rem; border-radius: 14px; background: rgba(250, 204, 21, 0.05); border: 1px solid rgba(250, 204, 21, 0.16);
+  backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
+  display: flex; flex-direction: column; justify-content: center; min-width: 0; overflow: visible;
+}
+.gg-pipeline-title { font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gg-text-muted); margin-bottom: 0.65rem; position: relative; z-index: 20; }
+.gg-stages { position: relative; display: flex; flex-direction: column; padding-bottom: 0.5rem; isolation: isolate; }
+.gg-stage {
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.42rem 0.7rem; border-radius: 8px; border: 1px solid;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; cursor: default; user-select: none; margin-bottom: -3px;
+  transform: translateY(0) translateZ(0);
+  position: relative; z-index: var(--stage-z, 1); will-change: transform; min-width: 0; overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.gg-stage-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.gg-stage-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.gg-pipeline-interactive { perspective: 1000px; transform-style: preserve-3d; }
+.gg-stages-3d { transform-style: preserve-3d; transition: transform 0.25s ease-out; }
+.gg-stages-3d:hover .gg-stage {
+  transform: translateY(var(--ty, 0px)) translateZ(calc(var(--stage-z) * 12px)) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border-color: var(--gg-accent) !important;
+}
+
+/* ── gauge run konsolu + eşleşme panosu ── */
+.gg-console-box {
+  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1rem; padding: 1.2rem; border-radius: 14px;
+  background: rgba(43, 28, 12, 0.35); border: 1px solid rgba(250, 204, 21, 0.16); backdrop-filter: blur(12px);
+  margin-top: 0.6rem;
+}
+@media (max-width: 680px) { .gg-console-box { grid-template-columns: 1fr; } }
+.gg-console {
+  background: #140d05; border: 1px solid rgba(250, 204, 21, 0.25); border-radius: 8px; font-family: 'Courier New', Courier, monospace;
+  padding: 0.8rem; display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;
+}
+.gg-console-header { font-size: 0.6rem; color: #c0b0a0; border-bottom: 1px solid rgba(250, 204, 21, 0.14); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.gg-console-body { font-size: 0.7rem; color: #fde68a; line-height: 1.4; flex-grow: 1; white-space: pre-wrap; }
+.gg-console-input-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.gg-console-prompt { color: var(--gg-accent-2); font-weight: bold; }
+.gg-console-input { background: transparent; border: none; outline: none; color: #f8fafc; font-family: inherit; font-size: 0.72rem; width: 100%; }
+
+.gg-order-board {
+  display: flex; flex-direction: column; gap: 0.4rem; justify-content: center;
+  background: rgba(20, 13, 5, 0.4); border-radius: 8px; border: 1px dashed rgba(226, 211, 197, 0.25);
+  min-height: 150px; padding: 0.9rem;
+}
+.gg-order-item {
+  display: flex; align-items: center; gap: 0.5rem; font-size: 0.62rem; font-family: 'Courier New', Courier, monospace;
+  color: #a08c74; opacity: 0.45; transition: opacity 0.3s ease, color 0.3s ease;
+}
+.gg-order-item.done { opacity: 1; color: var(--gg-success); }
+
+/* Erişilebilirlik: hareket azaltma tercihi */
+@media (prefers-reduced-motion: reduce) {
+  .gg-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .gg-stats-bar { animation: none; }
+  .gg-stages-3d, .gg-stage { transition: none; }
+}

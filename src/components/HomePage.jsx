@@ -43,6 +43,7 @@ const RESUME_LESSON_NAMES = {
     '/postman': { tr: 'Postman', en: 'Postman' },
     '/bruno': { tr: 'Bruno', en: 'Bruno' },
     '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
+    '/gauge': { tr: 'Gauge', en: 'Gauge' },
     '/docker': { tr: 'Docker', en: 'Docker' },
     '/jenkins': { tr: 'Jenkins', en: 'Jenkins' },
     '/kubernetes': { tr: 'Kubernetes', en: 'Kubernetes' },
@@ -722,6 +723,7 @@ function HomePage() {
                                 <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
                                 <Link to="/cypress" data-testid="nav-cypress" className={nb('purple')}>🌲 Cypress</Link>
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
+                                <Link to="/gauge" data-testid="nav-gauge" className={nb('orange')}>📏 Gauge</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
                                 <span className="relative inline-block">
@@ -888,6 +890,7 @@ function HomePage() {
                                     { to: '/playwright', label: '🎭 Playwright' },
                                     { to: '/appium', label: '📱 Appium' },
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
+                                    { to: '/gauge', label: '📏 Gauge' },
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },

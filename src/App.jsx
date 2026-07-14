@@ -26,6 +26,7 @@ const AppiumPage = lazy(() => import('./components/AppiumPage'))
 const PlaywrightPage = lazy(() => import('./components/PlaywrightPage'))
 const CypressPage = lazy(() => import('./components/CypressPage'))
 const SeleniumPage = lazy(() => import('./components/SeleniumPage'))
+const GaugePage = lazy(() => import('./components/GaugePage'))
 const AWSPage = lazy(() => import('./components/AWSPage'))
 const AzurePage = lazy(() => import('./components/AzurePage'))
 const BrowserStackPage = lazy(() => import('./components/BrowserStackPage'))
@@ -82,6 +83,7 @@ function App() {
                     <Route path="/playwright" element={<PlaywrightPage />} />
                     <Route path="/cypress" element={<CypressPage />} />
                     <Route path="/selenium" element={<SeleniumPage />} />
+                    <Route path="/gauge" element={<GaugePage />} />
                     <Route path="/aws" element={<AWSPage />} />
                     <Route path="/azure" element={<AzurePage />} />
                     <Route path="/browserstack" element={<BrowserStackPage />} />

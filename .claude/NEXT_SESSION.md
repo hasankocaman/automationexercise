@@ -10,6 +10,127 @@
 
 ---
 
+## Gauge Sayfası — Fable çekirdeği tamamlandı, Sonnet WP'leri bekliyor (2026-07-14)
+
+> Plan + Sonnet promptları: `Documents/gauge-plan.md` (iş bölümü, mimari
+> kararlar ve 4 hazır WP promptu orada). Çalışma `main` üzerinde, COMMIT
+> EDİLMEDİ — kullanıcı commit istemedi, working tree'de duruyor.
+
+### Yapılan iş (Fable)
+1. **`src/data/gaugeData.js` (yeni, ~1560 satır):** 6 sekme — 🏠 Neden Gauge?,
+   ⚙️ Kurulum (Win/mac/Linux + plugin + `gauge init java` + pom.xml + beklenen
+   çıktılar), 📝 Spec & Step Temelleri (spec anatomisi, @Step, veri tablosu,
+   concept, hook'lar, koşum komutları), 🎯 By ile Locator Yazma (8 By stratejisi
+   + kırılganlık tablosu + CSS/XPath derinliği + **@FindBy/PageFactory lazy
+   proxy** + @FindBys/@FindAll/@CacheLookup), 🗂️ JSON Locator Deposu
+   (**kullanıcının özel isteği**: locators.json → Jackson/TypeReference →
+   LocatorRepository fail-fast → Gauge step'inde kullanım + @FindBy
+   karşılaştırma tablosu), 🚨 Gerçek Hayat Sorunları (8'li error-dictionary).
+   Her sekmede: 4 katmanlı simple-box, 2 quiz + retryQuestion, bilingual kod
+   (TR yorumlar Türkçe — englishToTurkishCodeComments'e bağımlılık yok).
+   6 Feynman tanımı (`gaugeFeynmanDefs`).
+2. **`interactiveTrioFillers.js`:** `gauge-spec` + `gauge-locator` profilleri,
+   resolveProfile gauge branch'i (başlıkta "locator" → gauge-locator),
+   hintsForCode'a 6 içerik-anahtarlı gauge hint'i.
+3. **`GaugePage.jsx` + `gauge-effects.css` (yeni):** TopicPage + hero banner
+   (koşum zinciri 3D pipeline, sayaçlı 4 istatistik, `gauge run` konsol
+   simülatörü) + scroll-reveal. Amber/turuncu palet, prefers-reduced-motion
+   destekli. Tam efekt paketi (Docker rollout kalıbı) bilerek WP-S3'e bırakıldı.
+4. **Route altyapısı:** App.jsx (lazy + route), seo.js (`/gauge` ROUTE_SEO),
+   generate-static-routes.mjs (DATA_MODULES), HomePage (RESUME_LESSON_NAMES +
+   nav chip `nb('orange')` data-testid="nav-gauge" + footer Test Araçları).
+
+### Doğrulama (§1.1)
+- `node scripts/check-content-integrity.mjs` → 35 dosya, TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → check-seo + generate-seo-files + vite + 41 static shell +
+  check-dist-seo hepsi ✓ (bilinen chunk-size uyarıları hariç temiz).
+- Runtime smoke (vite preview + headless Chromium): H1 "📏 Gauge", pipeline/
+  konsol/istatistikler render, locator sekmesi geçişi çalışıyor, ilk simple-box
+  ve quiz içeriği görünür, **konsol hatası 0**.
+
+### WP-S1 tamamlandı (Sonnet, aynı oturum)
+- **`gaugeData.js`'e 7. sekme eklendi:** "💼 Mülakat Soruları" / "💼 Interview
+  Q&A" — trTabs/enTabs güncellendi, `sections` dizisine yeni bölüm (index 6)
+  eklendi.
+- İlk blok: uçuş simülatörü analojili 4 katmanlı simple-box (senaryo tabanlı
+  mülakat sorusunun "neden" tanım sorusundan üstün olduğunu anlatıyor).
+- Tek `interview-questions` bloğu, `relatedTopicId: 'gauge-interview'`,
+  **tam 50 soru** (15 basic + 20 intermediate + 15 advanced — grep ile
+  doğrulandı). Hepsi senaryo tabanlı ("Production'da/CI'da X ile karşılaştın,
+  ne yaparsın?" kalıbı), "X nedir?" tarzı tanım sorusu yok. Her cevap Java/
+  TestNG karşılaştırması içeriyor.
+- Konular: kurulum/plugin/gauge run/concept/veri tablosu (basic); hook
+  yaşam döngüsü, By önceliği, @FindBy proxy, @FindBys/@FindAll, JSON locator
+  deposu, @CacheLookup, env/tags, CI (intermediate); Gauge vs Cucumber/TestNG
+  mimari kararı, ScenarioDataStore/SpecDataStore/SuiteDataStore, flaky teşhis,
+  locator deposu ölçekleme, custom screenshot hook, gauge-maven-plugin
+  pipeline tasarımı (advanced).
+- `gaugeFeynmanDefs`'e sectionIndex: 6 eklendi (aynı uçuş simülatörü
+  analojisiyle tutarlı Feynman sorusu).
+
+**Doğrulama (§1.1):**
+- `node scripts/check-content-integrity.mjs` → 35 dosya, TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → temiz geçti (41 static shell, dist SEO kontrolü dahil).
+- Manuel TR yorum taraması: yeni bölümde hiç `#`/`//`/`--` yorum satırı veya
+  code-block backtick'i yok (restAssuredData'daki mülakat bölümü kalıbıyla
+  aynı — inline düz metin), bu yüzden çeviri gereken bir şey yok.
+- Runtime smoke (vite preview + headless Chromium, iki aşamalı): (1) taze
+  session'da mülakat sekmesine tıklanınca **gating kilidi doğru görünüyor**
+  ("%60" mesajı, CLAUDE.md §22 AC2 ile tutarlı — bug değil, beklenen
+  davranış), (2) `quizProgress_gauge` localStorage flag'i ile gate bypass
+  edilince simple-box analojisi + ilk basic soru + son advanced soru DOM'da
+  görünüyor, **konsol hatası 0**.
+
+### WP-S2 tamamlandı (Sonnet, aynı oturum)
+- **`gaugeData.js`'e yeni sekme eklendi:** "🌍 Ekosistem & CI/CD" — `sections`
+  dizisinde **index 5**'e (Gerçek Hayat Sorunları'ndan ÖNCE) eklendi. Bu yüzden
+  sekme sırası kaydı: Gerçek Hayat Sorunları 5→6, Mülakat Soruları 6→7 (hem
+  section yorum başlıkları hem `gaugeFeynmanDefs` içindeki `sectionIndex`
+  değerleri buna göre güncellendi — `// ── 0..7:` yorumları ve Feynman 0-7
+  artık birebir eşleşiyor, grep ile doğrulandı).
+- İlk blok: tiyatro turnesi analojili 4 katmanlı simple-box (env/ klasörünün
+  konfigürasyonu koddan neden ayırdığını anlatıyor).
+- İçerik: env/default vs env/test .properties dosyaları + `System.getProperty`
+  ile okuma + Maven profiles (`-P`) karşılaştırma tablosu; GitHub Actions
+  workflow (checkout → JDK → gauge CLI+java plugin → smoke run → artifact
+  upload, plugin doğrulama adımı ayrı vurgulandı); Jenkinsfile karşılığı
+  (`post { always { junit + archiveArtifacts } }`); paralel koşum derinliği —
+  `ScenarioDataStore`/`SpecDataStore`/`SuiteDataStore` örnek Java kodu + TestNG
+  karşılığı tablosu; rapor ekosistemi (`html-report`/`xml-report`/`spectacle`,
+  `gauge run --failed`) + karşılaştırma tablosu.
+- 2 quiz + 2 retryQuestion (plugin doğrulama adımı / `post always`; DataStore
+  izolasyonu / Spec vs Scenario vs Suite kapsamı) — §18 kuralına uygun.
+- `gaugeFeynmanDefs`'e yeni **sectionIndex: 5** tanımı eklendi (env/ + DataStore
+  izolasyonu konusu, ThreadLocal karşılaştırmasıyla).
+
+**Doğrulama (§1.1):**
+- `node scripts/check-content-integrity.mjs` → 35 dosya, TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → temiz geçti (41 static shell, dist SEO kontrolü dahil).
+- Manuel TR yorum taraması: yeni bölümdeki tüm `#`/`//` yorum satırları
+  (properties dosyaları, YAML, Groovy, Java DataStore örneği) tr/en context'e
+  göre doğru dilde — grep ile satır satır kontrol edildi.
+- Runtime smoke (vite preview + headless Chromium): Ekosistem sekmesi bulundu
+  ve tıklanınca tiyatro analojisi + GitHub Actions YAML + Jenkinsfile +
+  DataStore tablosu + spectacle içeriği DOM'da görünüyor; **index kaymasından
+  sonra** Gerçek Hayat Sorunları (doktor analojisi) ve Mülakat (gating kilidi,
+  "%60" mesajı) sekmeleri hâlâ doğru çalışıyor; **konsol hatası 0**.
+
+### Kalan işler (Sonnet — promptlar gauge-plan.md §4'te hazır)
+1. ~~**WP-S1:** 💼 Mülakat Soruları sekmesi~~ — ✅ tamamlandı.
+2. ~~**WP-S2:** 🌍 Ekosistem & CI/CD sekmesi~~ — ✅ tamamlandı (yukarı bakın).
+3. **WP-S3:** Tam görsel efekt paketi (Docker rollout kuralları: 10s döngü,
+   hero-banner-container position:relative, role-bazlı light-mode kontrast).
+4. **WP-S4:** E2E suite'lerine /gauge ekleme — artık ön koşulu (WP-S1) hazır,
+   bu iş paketi şimdi çalıştırılabilir. Not: sekme sırası artık 8 sekmeye çıktı
+   (Neden Gauge?/Kurulum/Spec & Step/By ile Locator/JSON Locator Deposu/
+   **Ekosistem & CI/CD**/Gerçek Hayat Sorunları/Mülakat Soruları) — E2E
+   testleri yazan Sonnet güncel sekme sırasını gauge-plan.md veya bu dosyadan
+   teyit etmeli, WP-S1 zamanındaki 7 sekmelik listeyi referans almamalı.
+5. Kullanıcıya sorulacak: değişiklikler commit edilsin mi (şu an working
+   tree'de), Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
+
+---
+
 ## Trending Skills Widget — WP-C/D tamamlandı, main'e merge edildi (2026-07-14)
 
 > Plan dosyası: `Documents/trending-skills-plan.md` (referans olarak duruyor,

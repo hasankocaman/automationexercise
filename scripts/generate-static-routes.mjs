@@ -21,6 +21,7 @@ const DATA_MODULES = {
     '/postman': { file: '../src/data/postmanData.js', exportName: 'postmanData' },
     '/bruno': { file: '../src/data/brunoData.js', exportName: 'brunoData' },
     '/rest-assured': { file: '../src/data/restAssuredData.js', exportName: 'restAssuredData' },
+    '/gauge': { file: '../src/data/gaugeData.js', exportName: 'gaugeData' },
     '/docker': { file: '../src/data/dockerData.js', exportName: 'dockerData' },
     '/jenkins': { file: '../src/data/jenkinsData.js', exportName: 'jenkinsData' },
     '/kubernetes': { file: '../src/data/kubernetesData.js', exportName: 'kubernetesData' },

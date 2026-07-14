@@ -134,6 +134,13 @@ function resolveProfile(pageKey, block, sectionTitle) {
   if (pageKey === 'javascript') return 'javascript'
   if (pageKey === 'postman') return 'postman'
   if (pageKey === 'restassured') return 'restassured'
+
+  // ── GAUGE — locator bolumleri ayri profil, geri kalani spec akisi ──────────
+  if (pageKey === 'gauge') {
+    if (title.includes('locator') || code.includes('@findby') || code.includes('locatorrepository')) return 'gauge-locator'
+    return 'gauge-spec'
+  }
+
   return 'code'
 }
 
@@ -645,6 +652,37 @@ const PROFILE_TEXT = {
     hintsTr: ['given/when/then zinciri okunurlugu arttirir ve Java stream\'i gibi metodlari zincirler — hepsini tek satirda yaz, ara degisken atama.', 'body("kullanici.adi", equalTo("test")) ile nested JSON alanini nokta noktasyonuyla dogrula; JsonPath kullanir.', 'TODO satiri buyuk ihtimalle .statusCode(200) veya .body("field", equalTo(...)) assertion satiridir.'],
     hintsEn: ['The given/when/then chain improves readability and chains methods like a Java stream — write all in one chain, do not assign intermediate variables.', 'Verify a nested JSON field with dot notation: body("user.name", equalTo("test")); it uses JsonPath internally.', 'The TODO line is likely .statusCode(200) or .body("field", equalTo(...)).'],
   },
+  // ── GAUGE ─────────────────────────────────────────────────────────────────
+  'gauge-spec': {
+    tr: 'Gauge spec-step zinciri kurma',
+    en: 'Gauge spec-step binding practice',
+    taskTr: 'Bu micro lab, Gauge ornegini pasif okumadan cikarir: spec cumlesi ile @Step annotation metni arasindaki birebir bagi kritik satiri tamamlayarak kendin kur.',
+    taskEn: 'This micro-lab moves the Gauge example beyond passive reading: build the exact binding between the spec sentence and the @Step annotation text by completing the critical line yourself.',
+    orderTr: 'Gauge senaryosunun yazilma ve kosulma sirasi nedir?',
+    orderEn: 'What is the order for writing and running a Gauge scenario?',
+    stepIcons: ['📄', '☕', '🔗', '▶️', '📊'],
+    stepLabelsTr: ['Spec yaz', '@Step implemente et', 'Esletmeyi dogrula', 'gauge run', 'Raporu oku'],
+    stepLabelsEn: ['Write spec', 'Implement @Step', 'Verify binding', 'gauge run', 'Read report'],
+    itemsTr: ['Senaryoyu .spec dosyasina Markdown step\'leri olarak yaz', 'Her step icin @Step annotation\'li Java metodu implemente et', 'Spec cumlesi ile annotation metninin birebir eslestigini dogrula', 'gauge run specs ile kosumu baslat', 'HTML rapordaki PASS/FAIL kanitini step bazinda oku'],
+    itemsEn: ['Write the scenario as Markdown steps in a .spec file', 'Implement a Java method with @Step annotation for each step', 'Verify the spec sentence exactly matches the annotation text', 'Start the run with gauge run specs', 'Read the PASS/FAIL evidence per step in the HTML report'],
+    hintsTr: ['Spec\'teki cift tirnakli deger ("admin"), @Step metnindeki <parametre> yer tutucusuna akar ve metoda arguman olarak gelir.', 'Eslesme karakter karakter yapilir: tek bosluk farki bile "Step implementation not found" hatasina yol acar.', 'TODO satiri buyuk ihtimalle @Step annotation\'i veya spec\'teki * step satiridir — iki tarafin metnini birebir esitle.'],
+    hintsEn: ['A double-quoted value in the spec ("admin") flows into the <parameter> placeholder of the @Step text and arrives as a method argument.', 'Matching is character by character: even a single space difference causes "Step implementation not found".', 'The TODO line is likely the @Step annotation or the * step line in the spec — make both texts match exactly.'],
+  },
+  'gauge-locator': {
+    tr: 'Locator stratejisi kurma',
+    en: 'Locator strategy practice',
+    taskTr: 'Bu micro lab, locator ornegini aktif secim alistirmasina cevirir: dogru By stratejisini sec, kirilganlik merdivenini gozet ve kritik satiri kendin tamamla.',
+    taskEn: 'This micro-lab turns the locator example into an active selection exercise: pick the right By strategy, respect the fragility ladder, and complete the critical line yourself.',
+    orderTr: 'Guvenilir locator secme sirasi nedir?',
+    orderEn: 'What is the order for choosing a reliable locator?',
+    stepIcons: ['🔍', '🥇', '🎯', '🧪', '🗂️'],
+    stepLabelsTr: ['DOM\'u incele', 'id/name ara', 'CSS/XPath kur', 'DevTools\'ta test et', 'Depoya kaydet'],
+    stepLabelsEn: ['Inspect DOM', 'Look for id/name', 'Build CSS/XPath', 'Test in DevTools', 'Save to repository'],
+    itemsTr: ['Elementi DevTools ile incele ve attribute\'larini oku', 'Once id/name gibi tekil ve stabil attribute ara', 'Yoksa CSS selector kur; metin aramasi gerekiyorsa XPath kullan', 'Locator\'i DevTools Console\'da dogrulayip tekilligini kontrol et', 'Locator\'i Page Object\'e (@FindBy) veya locators.json deposuna kaydet'],
+    itemsEn: ['Inspect the element with DevTools and read its attributes', 'First look for unique, stable attributes like id/name', 'Otherwise build a CSS selector; use XPath if text search is needed', 'Verify the locator in the DevTools Console and check uniqueness', 'Save the locator into the Page Object (@FindBy) or the locators.json repository'],
+    hintsTr: ['Oncelik merdiveni id > name > css > xpath\'tir: guc ile kirilganlik ayni eksendedir, her zaman ulasabildigin en ust basamagi kullan.', 'CSS metne gore arama yapamaz (:contains standart degildir) — buton metniyle bulman gerekiyorsa //button[normalize-space()=\'...\'] XPath\'i sart.', 'TODO satiri buyuk ihtimalle By.id/By.cssSelector cagrisi, @FindBy annotation\'i veya LocatorRepository.get(...) satiridir.'],
+    hintsEn: ['The priority ladder is id > name > css > xpath: power and fragility share an axis, always use the highest rung you can reach.', 'CSS cannot search by text (:contains is not standard) — if you must find by button text, the XPath //button[normalize-space()=\'...\'] is required.', 'The TODO line is likely a By.id/By.cssSelector call, a @FindBy annotation, or a LocatorRepository.get(...) line.'],
+  },
   // ── GENERIC FALLBACK ──────────────────────────────────────────────────────
   code: {
     tr: 'Kod yazma',
@@ -1125,6 +1163,34 @@ function hintsForCode(block, pageKey) {
     if (c.includes('statuscode(')) candidates.push({
       tr: 'then().statusCode(200) HTTP status kodunu dogrular. Sadece 200 degil, 201, 204, 400, 404 gibi tum senaryolari ayri testlerle kapsa.',
       en: 'then().statusCode(200) verifies the HTTP status code. Cover all scenarios with separate tests — not just 200, but also 201, 204, 400, 404.',
+    })
+  }
+
+  // ── GAUGE ────────────────────────────────────────────────────────────────────
+  if (pageKey === 'gauge') {
+    if (c.includes('@step')) candidates.push({
+      tr: '@Step("...") icindeki metin, spec\'teki * satiriyla karakter karakter eslesmelidir; cift tirnakli degerler <parametre> yer tutucusuna akar. Metot adi serbesttir — bag annotation metni uzerinden kurulur.',
+      en: 'The text inside @Step("...") must match the * line in the spec character by character; double-quoted values flow into the <parameter> placeholder. The method name is free — the binding is through the annotation text.',
+    })
+    if (c.includes('@findby') || c.includes('pagefactory')) candidates.push({
+      tr: 'PageFactory.initElements alanlara gercek WebElement degil lazy proxy koyar — element, alana ilk erisimde (click/sendKeys) aranir. Bu yuzden constructor\'da initElements cagirmak sayfa yuklenmeden bile guvenlidir.',
+      en: 'PageFactory.initElements injects lazy proxies into the fields, not real WebElements — the element is looked up at first field access (click/sendKeys). That is why calling initElements in the constructor is safe even before the page loads.',
+    })
+    if (c.includes('locatorrepository') || c.includes('objectmapper')) candidates.push({
+      tr: 'locators.json classpath\'ten okunur (getResourceAsStream) — mutlak dosya yolu makineye bagimlidir, classpath kaynagi CI dahil her ortamda ayni calisir. Eksik anahtar sessiz null degil, "Mevcut elementler: [...]" mesajli exception ile patlamalidir.',
+      en: 'locators.json is read from the classpath (getResourceAsStream) — an absolute file path is machine-dependent, a classpath resource works identically everywhere including CI. A missing key must explode with an "Available elements: [...]" exception, not silent null.',
+    })
+    if (c.includes('by.cssselector') || c.includes('by.xpath') || c.includes('by.id')) candidates.push({
+      tr: 'Locator oncelik merdiveni id > name > css > xpath\'tir. CSS metne gore arama yapamaz; buton metniyle bulman gerekiyorsa //button[normalize-space()=\'...\'] XPath\'ini kullan.',
+      en: 'The locator priority ladder is id > name > css > xpath. CSS cannot search by text; if you must find by button text, use the XPath //button[normalize-space()=\'...\'].',
+    })
+    if (c.includes('beforesuite') || c.includes('beforescenario') || c.includes('afterscenario')) candidates.push({
+      tr: 'Hook hiyerarsisi Suite > Spec > Scenario > Step seklindedir: driver @BeforeSuite\'te bir kez baslar, oturum temizligi @BeforeScenario\'da yapilir, @AfterSuite driver\'i kapatir.',
+      en: 'The hook hierarchy is Suite > Spec > Scenario > Step: the driver starts once in @BeforeSuite, session cleanup happens in @BeforeScenario, and @AfterSuite quits the driver.',
+    })
+    if (c.includes('## ') || c.includes('* kullanici') || c.includes('* user')) candidates.push({
+      tr: 'Spec dosyasinda # Specification (dosya basina bir), ## Scenario (bagimsiz test) ve * step hiyerarsisi vardir; # altindaki * satirlar context step olur ve her senaryodan once kosar.',
+      en: 'A spec file has the hierarchy # Specification (one per file), ## Scenario (independent test), and * steps; * lines under # become context steps and run before every scenario.',
     })
   }
 

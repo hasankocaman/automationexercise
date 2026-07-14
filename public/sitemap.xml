@@ -61,6 +61,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://learnqa.dev/gauge</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://learnqa.dev/rest-assured</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
