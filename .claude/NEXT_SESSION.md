@@ -10,13 +10,52 @@
 
 ---
 
-## Gauge Sayfası — Fable çekirdeği + Sonnet WP-S1..S4 TAMAMLANDI (2026-07-14)
+## Gauge Sayfası + Homepage i18n Fix — main'e commit VE push edildi (2026-07-14)
 
 > Plan + Sonnet promptları: `Documents/gauge-plan.md` (iş bölümü, mimari
 > kararlar orada — artık sadece referans, canlı durum burada). `/gauge`
 > sayfası içerik (8 sekme, 50 soruluk mülakat), tam görsel efekt paketi,
 > proje geneli glitch-H1 bug düzeltmesi ve E2E test kapsamıyla birlikte
 > `main`'e commit edildi (bkz. altta ilgili WP bölümlerindeki commit hash'leri).
+> **`origin/main`'e push edildi** — `44d49cd..c568462` (4 commit: `077f3c7`,
+> `51747fb`, `469c403`, `c568462`).
+
+### Push `--no-verify` ile yapıldı — kullanıcı onaylı, gerekçesi kayıtlı
+Repo'nun pre-push hook'u (`npm run build` + tam Playwright suite'i, ~15-18 dk)
+push'u **7 test hatası** yüzünden 2 kez reddetti. Kök neden araştırıldı ve
+kullanıcıya raporlandı:
+- **6 hata deterministik ve tekrar eden** (iki koşumda da AYNI 6 test):
+  `docker-interview-mastery-flow.spec.ts`, `interview-grading-and-reset.spec.ts`,
+  `quiz-ai-explanation-access.spec.ts` (×3), `qa-mentor-progress-tracking.spec.ts`
+  — hepsi aynı köke bağlanıyor: gerçek bir Supabase session'ı
+  `context.addInitScript` ile localStorage'a enjekte ediyorlar ama
+  `[data-testid="nav-account"]` hiç render olmuyor (bkz. WP-S4 bölümündeki
+  ayrıntılı kök neden analizi — auth'un kendisi çalışıyor, uygulama enjekte
+  edilen session'ı tanımıyor). **Bu, Gauge veya homepage i18n değişiklikleriyle
+  hiçbir ilgisi olmayan, önceden var olan bir altyapı sorunu.**
+- **7. hata bir flake olarak doğrulandı**: ilk koşumda `/typescript`, ikinci
+  koşumda `/python` — farklı büyük içerik sayfaları, 4-worker paralel
+  koşumda kaynak çekişmesiyle 180s timeout'a takılıyor; her ikisi de TEK
+  BAŞINA çalıştırıldığında ~1 dakikada sorunsuz geçiyor (elle doğrulandı).
+- Kullanıcıya bu bulgular sunuldu, `/typescript` tekrar denendi (tekil
+  koşumda PASS — flake teyit edildi), push tekrar denendi (aynı 6 deterministik
+  hata + farklı bir flake ile yine reddedildi), kullanıcı **`--no-verify` ile
+  push'u açıkça onayladı**. Testler gevşetilmedi/değiştirilmedi, sadece hook
+  bu seferlik atlandı.
+- **Önemli:** Bu 6 test hâlâ kırık — bir sonraki commit/push'ta da aynı hook
+  reddi tekrar yaşanacak, kalıcı çözüm için altyapı sorunu düzeltilmeli.
+
+### Homepage i18n bug fix (bu oturumda, ayrı bir konu)
+Kullanıcı ana sayfada EN modda "Karşılaştır" butonunun Türkçe kaldığını
+bildirdi. `HomePage.jsx`'te dil kontrolü olmadan hardcode edilmiş 4 metin
+bulundu ve düzeltildi:
+- `⚖️ Karşılaştır` → `language === 'tr' ? 'Karşılaştır' : 'Compare Tools'`
+- `🔀 3 Dil` → `... : '3 Languages'`
+- `🧩 Basit Backend` (admin-only) → `... : 'Simple Backend'`
+- `🔒 Siber Güvenlik` (admin-only) → `... : 'Cyber Security'`
+
+Playwright ile EN modda "Compare Tools"/"3 Languages" göründüğü, hiç
+Türkçe kalıntı olmadığı doğrulandı, 0 konsol hatası. Commit: `c568462`.
 
 ### Yapılan iş (Fable)
 1. **`src/data/gaugeData.js` (yeni, ~1560 satır):** 6 sekme — 🏠 Neden Gauge?,
@@ -263,12 +302,18 @@ commit edildi** (aşağıdaki commit hash'e bakın) — `Documents/gauge-plan.md
 artık sadece kalıcı plan referansı olarak duruyor, canlı durum bilgisi bu
 dosyadadır.
 
-### Kalan işler (Gauge kapsamı DIŞINDA, ayrı bir konu)
-1. **`interview-mastery-flows.spec.ts` / `docker-interview-mastery-flow.spec.ts`**
-   — İKİSİNİN de session-injection ile çalışmaması: proje genelinde
-   AI-grading E2E testlerini bloke eden bir altyapı sorunu, Gauge'dan
-   bağımsız (yukarıdaki WP-S4 bölümünde detaylandırıldı), ayrı bir oturumda
-   `AuthContext.jsx`/`@supabase/supabase-js` sürümü üzerinden araştırılmalı.
+### Kalan işler (Gauge kapsamı DIŞINDA, ÖNCELİKLİ — pre-push hook'u bloke ediyor)
+1. **[ÖNCELİKLİ] Session-injection/auth altyapı sorunu** — `docker-interview-
+   mastery-flow.spec.ts`, `interview-grading-and-reset.spec.ts`,
+   `quiz-ai-explanation-access.spec.ts` (×3), `qa-mentor-progress-tracking.spec.ts`
+   (6 test) `context.addInitScript` ile enjekte edilen gerçek Supabase
+   session'ını tanımıyor (`[data-testid="nav-account"]` hiç render olmuyor,
+   auth'un kendisi çalışıyor — bkz. yukarıdaki WP-S4 ve push bölümleri).
+   Bu artık sadece "bilgi amaçlı" değil: **her commit/push'ta pre-push hook'unu
+   bloke ediyor**, bu oturumda `--no-verify` ile atlatıldı ama kalıcı değil.
+   Bir sonraki oturumda `src/context/AuthContext.jsx`'teki `getSession()`/
+   `onAuthStateChange` akışı ve `@supabase/supabase-js` sürümü (`^2.108.2`)
+   üzerinden araştırılıp düzeltilmeli.
 2. Kullanıcıya sorulacak: Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
 
 ---
