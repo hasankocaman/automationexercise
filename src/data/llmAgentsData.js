@@ -1081,6 +1081,131 @@ expect(score.overall).toBeGreaterThanOrEqual(4)`,
   ],
 }
 
+// ─── RAG Pipeline film bloğu (video-scene pilotu — EN + TR paylaşımlı) ───────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / VideoSceneBlock.jsx
+const ragPipelineFilm = {
+  type: 'video-scene',
+  id: 'llm-rag-pipeline-film',
+  title: {
+    tr: '🎬 RAG Boru Hattı: Bir Sorunun Yolculuğu',
+    en: '🎬 RAG Pipeline: The Journey of a Query',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'query',    emoji: '❓', label: { tr: 'Soru',              en: 'Query' },            color: '#8b5cf6' },
+    { id: 'embedder', emoji: '🧮', label: { tr: 'Embedding Modeli',  en: 'Embedding Model' },  color: '#6366f1' },
+    { id: 'vectordb', emoji: '🗄️', label: { tr: 'Vector DB',         en: 'Vector DB' },        color: '#0ea5e9' },
+    { id: 'doc',      emoji: '📄', label: { tr: 'Politika Belgesi',  en: 'Policy Doc' },       color: '#22c55e' },
+    { id: 'prompt',   emoji: '📋', label: { tr: 'Augmented Prompt',  en: 'Augmented Prompt' }, color: '#f59e0b' },
+    { id: 'llm',      emoji: '🧠', label: { tr: 'LLM',               en: 'LLM' },              color: '#a855f7' },
+    { id: 'answer',   emoji: '💬', label: { tr: 'Yanıt',             en: 'Answer' },           color: '#10b981' },
+    { id: 'ghost',    emoji: '👻', label: { tr: 'Halüsinasyon',      en: 'Hallucination' },    color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kullanıcı soruyor: "İade penceresi kaç gün?" — soru pipeline\'a girer. Model bu cevabı ezbere BİLMİYOR; bilgiyi şirket belgesinden getirmesi gerekecek.',
+        en: 'The user asks: "How many days is the return window?" — the query enters the pipeline. The model does NOT know this by heart; it will have to fetch the fact from a company document.',
+      },
+      positions: {
+        query: { x: 14, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Embed: soru, embedding modeliyle bir sayı dizisine (vektöre) çevrilir. Anlamca benzer metinler, benzer vektörler üretir.',
+        en: 'Step 1 — Embed: the query is converted into an array of numbers (a vector) by the embedding model. Semantically similar texts produce similar vectors.',
+      },
+      code: {
+        tr: `vektor = embed("İade penceresi kaç gün?")`,
+        en: `vector = embed("How many days is the return window?")`,
+      },
+      positions: {
+        query: { x: 28, y: 50 },
+        embedder: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'query', to: 'embedder' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Retrieve: vektör, vector store\'da aranır; soruya anlamca en yakın pasajlar bulunur. Yanlış pasaj gelirse zincirin geri kalanı ne kadar iyi olursa olsun cevap yanlış olur.',
+        en: 'Step 2 — Retrieve: the vector is searched in the vector store; the passages semantically closest to the query are found. If the wrong passage comes back, the rest of the chain cannot save the answer.',
+      },
+      positions: {
+        query: { x: 28, y: 50, opacity: 0.45, scale: 0.85 },
+        embedder: { x: 50, y: 50 },
+        vectordb: { x: 78, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'embedder', to: 'vectordb' }],
+    },
+    {
+      caption: {
+        tr: 'Retrieval başarılı: doğru politika belgesi bulundu — "İadeler 14 gün içinde kabul edilir." Ama dikkat: bu, yolculuğun sonu DEĞİL; model bu belgeye sadık kalacak mı, henüz bilmiyoruz.',
+        en: 'Retrieval succeeded: the correct policy passage was found — "Returns are accepted within 14 days." But note: this is NOT the end of the journey; whether the model will stay faithful to it is still unknown.',
+      },
+      positions: {
+        query: { x: 28, y: 50, opacity: 0.45, scale: 0.85 },
+        vectordb: { x: 78, y: 55 },
+        doc: { x: 78, y: 24, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'vectordb', to: 'doc', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Augment: getirilen pasaj + kullanıcının sorusu tek bir prompt\'ta birleştirilir. Modele "SADECE bu bağlama dayanarak cevapla" talimatı da burada verilir.',
+        en: 'Step 3 — Augment: the retrieved passage + the user\'s question are merged into a single prompt. The instruction "answer based ONLY on this context" is also injected here.',
+      },
+      code: {
+        tr: `prompt = talimat + baglam_pasaji + kullanici_sorusu`,
+        en: `prompt = instruction + context_passage + user_question`,
+      },
+      positions: {
+        query: { x: 30, y: 42 },
+        doc: { x: 56, y: 24 },
+        prompt: { x: 43, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [
+        { from: 'doc', to: 'prompt', color: '#22c55e' },
+        { from: 'query', to: 'prompt' },
+      ],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Generate: LLM, prompt\'taki bağlama dayanarak yanıtı üretir: "İade süreniz 14 gündür." Bağlamdaki gerçek, kullanıcının diline çevrildi — mutlu son... şimdilik.',
+        en: 'Step 4 — Generate: the LLM produces the answer from the context in the prompt: "Your return window is 14 days." The fact in the context was rephrased for the user — a happy ending... so far.',
+      },
+      positions: {
+        prompt: { x: 22, y: 70, opacity: 0.7, scale: 0.9 },
+        llm: { x: 50, y: 66, scale: 1.2, pulse: true },
+        answer: { x: 82, y: 66, scale: 1.1 },
+      },
+      beams: [
+        { from: 'prompt', to: 'llm', color: '#f59e0b' },
+        { from: 'llm', to: 'answer', color: '#10b981' },
+      ],
+    },
+    {
+      caption: {
+        tr: 'Final sahnesi — aynı pipeline, farklı koşum: retrieval yine DOĞRU çalıştı ama model bu kez bağlamda hiç olmayan bir detay uydurdu: "aynı gün para iadesi". Retrieval\'ın başarısı grounding\'i garanti etmez — bu yüzden RAG testinde retrieval, grounding ve relevance AYRI AYRI ölçülür (aşağıdaki lab\'da kendin deneyeceksin).',
+        en: 'Final scene — same pipeline, different run: retrieval worked correctly AGAIN, but this time the model invented a detail that is nowhere in the context: "same-day refund". Successful retrieval does not guarantee grounding — which is exactly why RAG testing measures retrieval, grounding and relevance SEPARATELY (you will try it yourself in the lab below).',
+      },
+      positions: {
+        doc: { x: 22, y: 26, opacity: 0.7, scale: 0.9 },
+        llm: { x: 50, y: 50, scale: 1.1 },
+        answer: { x: 82, y: 70, opacity: 0.55, scale: 0.9 },
+        ghost: { x: 82, y: 30, scale: 1.2, pulse: true },
+      },
+      beams: [
+        { from: 'doc', to: 'llm', color: '#22c55e' },
+        { from: 'llm', to: 'ghost', color: '#ef4444' },
+        { from: 'llm', to: 'answer', color: '#10b981' },
+      ],
+    },
+  ],
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const llmAgentsData = {
@@ -2143,6 +2268,7 @@ while True:
             type: 'text',
             content: `A RAG pipeline has three stages, and each one can fail on its own: (1) Retrieval — did the system fetch the passage that actually contains the answer, out of everything in the knowledge base? (2) Grounding / Faithfulness — does every concrete claim in the generated answer trace back to something actually present in the retrieved context, or did the model add details that were never there? (3) Relevance — does the answer actually address the user's question, independent of whether it's grounded? A model can be perfectly grounded (every word traceable to the source) while being irrelevant (answering a different question than the one asked), and it can be relevant and fluent while being completely ungrounded (a confident hallucination). RAGAS and similar evaluation frameworks score these as separate numbers for exactly this reason — collapsing them into one "quality" score hides which stage actually broke.`,
           },
+          ragPipelineFilm,
           {
             type: 'text',
             content: `Below, the same return-policy knowledge base is used to answer the same question with two candidate answers — one grounded, one that quietly invents extra policy details. Run the analysis on both and watch which of the three rings drops: the grounded answer scores high on all three; the hallucinated one keeps a reasonable relevance score (it is still "about" the right topic) while grounding and faithfulness collapse, because the invented details (a longer window, a same-day refund, a policy exception) simply are not in the source text — the same mechanism as the Judge Playground's "vague report", but applied to an entire generated paragraph checked against a document instead of a rubric of testable properties.`,
@@ -3893,6 +4019,7 @@ while True:
             type: 'text',
             content: `Bir RAG pipeline'ının üç aşaması vardır ve her biri kendi başına başarısız olabilir: (1) Retrieval — sistem, bilgi tabanındaki her şey arasından gerçekten cevabı içeren pasajı mı getirdi? (2) Grounding / Faithfulness — üretilen yanıttaki her somut iddia, getirilen bağlamda gerçekten var olan bir şeye mi dayanıyor, yoksa model orada hiç olmayan detaylar mı ekledi? (3) Relevance — yanıt, grounded olup olmadığından bağımsız olarak, gerçekten kullanıcının sorusunu ele alıyor mu? Bir model mükemmel şekilde grounded olabilir (her kelime kaynağa kadar izlenebilir) ama alakasız olabilir (sorulan sorudan farklı bir soruyu cevaplıyor), ve tamamen grounded olmadan alakalı ve akıcı olabilir (kendinden emin bir halüsinasyon). RAGAS ve benzeri değerlendirme çerçeveleri tam olarak bu yüzden bunları ayrı sayılar olarak puanlar — hepsini tek bir "kalite" puanına sıkıştırmak hangi aşamanın gerçekten bozulduğunu gizler.`,
           },
+          ragPipelineFilm,
           {
             type: 'text',
             content: `Aşağıda, aynı iade-politikası bilgi tabanı, aynı soruyu iki aday yanıtla cevaplamak için kullanılır — biri grounded, diğeri sessizce ekstra politika detayları uyduruyor. Analizi ikisinde de çalıştır ve üç ring'den hangisinin düştüğünü izle: grounded yanıt üçünde de yüksek puan alır; halüsinasyonlu olan makul bir relevance puanı korur (hâlâ doğru konu "hakkında"dır) ama grounding ve faithfulness çöker, çünkü uydurulan detaylar (daha uzun bir pencere, aynı gün iade, bir politika istisnası) kaynak metinde basitçe yoktur — Yargıç Oyun Alanı'nın "belirsiz rapor"uyla aynı mekanizma, ama bu sefer bir rubrik yerine bir belgeye karşı kontrol edilen tüm bir üretilmiş paragrafa uygulanmış hali.`,

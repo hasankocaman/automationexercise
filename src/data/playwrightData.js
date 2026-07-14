@@ -5,6 +5,136 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
+// ─── Test Lifecycle film bloğu (video-scene — EN + TR paylaşımlı) ────────────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+const testLifecycleFilm = {
+  type: 'video-scene',
+  id: 'playwright-test-lifecycle-film',
+  title: {
+    tr: '🎬 Bir Testin Yaşam Döngüsü',
+    en: '🎬 The Life Cycle of a Test',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'browser',  emoji: '🌐', label: { tr: 'Browser (Chromium)',      en: 'Browser (Chromium)' },      color: '#0ea5e9' },
+    { id: 'context',  emoji: '🗂️', label: { tr: 'BrowserContext',          en: 'BrowserContext' },          color: '#6366f1' },
+    { id: 'page',     emoji: '📄', label: { tr: 'Page (Sekme)',            en: 'Page (Tab)' },              color: '#8b5cf6' },
+    { id: 'locator',  emoji: '🎯', label: { tr: 'Locator',                 en: 'Locator' },                 color: '#f59e0b' },
+    { id: 'waiter',   emoji: '⏳', label: { tr: 'Auto-Wait',               en: 'Auto-Wait' },               color: '#f97316' },
+    { id: 'action',   emoji: '👆', label: { tr: 'Action (click/fill)',     en: 'Action (click/fill)' },     color: '#22c55e' },
+    { id: 'assertion',emoji: '✅', label: { tr: 'Assertion (expect)',      en: 'Assertion (expect)' },      color: '#10b981' },
+    { id: 'report',   emoji: '📊', label: { tr: 'Test Raporu',             en: 'Test Report' },             color: '#a855f7' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`npx playwright test` çalıştırdığında, ekranda gördüğün tek yeşil "1 passed" satırının ARDINDA bu 7 adımlık zincir sırayla işler. Bu filmde her adımı tek tek izleyeceksin.',
+        en: 'When you run `npx playwright test`, that single green "1 passed" line hides a 7-step chain running behind the scenes. In this film you will watch each step individually.',
+      },
+      code: { tr: `npx playwright test`, en: `npx playwright test` },
+      positions: {
+        browser: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — browser.launch(): tarayıcı motoru (Chromium/Firefox/WebKit) başlatılır. Bu AĞIR bir işlemdir — bu yüzden Playwright bir browser\'ı testler arasında YENİDEN KULLANIR, her testte yeniden başlatmaz.',
+        en: 'Step 1 — browser.launch(): the browser engine (Chromium/Firefox/WebKit) starts up. This is a HEAVY operation — which is why Playwright REUSES one browser across tests instead of relaunching it every time.',
+      },
+      code: { tr: `const browser = await chromium.launch();`, en: `const browser = await chromium.launch();` },
+      positions: {
+        browser: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — browser.newContext(): browser\'ın İÇİNDE izole bir oturum açılır — kendi cookie\'si, localStorage\'ı, oturum durumu olan ayrı bir "profil". Her test kendi context\'ini alır; bu yüzden testler birbirinin state\'ini KİRLETMEZ.',
+        en: 'Step 2 — browser.newContext(): an isolated session opens INSIDE the browser — its own cookies, localStorage, session state, like a separate "profile". Every test gets its own context, which is why tests never pollute each other\'s state.',
+      },
+      code: { tr: `const context = await browser.newContext();`, en: `const context = await browser.newContext();` },
+      positions: {
+        browser: { x: 16, y: 50, opacity: 0.55, scale: 0.9 },
+        context: { x: 40, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'context' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — context.newPage(): context\'in içinde bir sekme (page) açılır. Test kodunun asıl etkileşim kuracağı nesne budur — { page } fixture\'ı olarak testine otomatik enjekte edilir.',
+        en: 'Step 3 — context.newPage(): a tab (page) opens inside the context. This is the object your test code actually interacts with — it is auto-injected into your test as the { page } fixture.',
+      },
+      code: { tr: `const page = await context.newPage();`, en: `const page = await context.newPage();` },
+      positions: {
+        context: { x: 30, y: 50, opacity: 0.55, scale: 0.9 },
+        page: { x: 56, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'context', to: 'page' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — page.locator(...): Playwright, DOM üzerinde eşleşen elementi TANIMLAR ama henüz TIKLAMAZ. Locator, elementin kendisi değil, onu her seferinde yeniden bulan bir "tarif"tir — bu yüzden dinamik sayfalarda stale element hatası vermez.',
+        en: 'Step 4 — page.locator(...): Playwright DEFINES the matching DOM element but does NOT click it yet. A locator is not the element itself, it is a "recipe" that re-finds it every time — which is why it never throws a stale-element error on dynamic pages.',
+      },
+      code: { tr: `const btn = page.getByRole('button', { name: 'Giriş Yap' });`, en: `const btn = page.getByRole('button', { name: 'Sign in' });` },
+      positions: {
+        page: { x: 24, y: 50, opacity: 0.55, scale: 0.9 },
+        locator: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'page', to: 'locator' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Auto-Wait: aksiyon çalışmadan ÖNCE Playwright elementin görünür, etkin ve stabil olmasını bekler. Selenium\'da bu adımı sen WebDriverWait ile elle yazardın; burada her aksiyondan önce OTOMATİK çalışır.',
+        en: 'Step 5 — Auto-Wait: BEFORE the action runs, Playwright waits for the element to be visible, enabled, and stable. In Selenium you wrote this step manually with WebDriverWait; here it runs AUTOMATICALLY before every action.',
+      },
+      code: { tr: `// aksiyon çağrılmadan önce görünmez adım`, en: `// invisible step before the action call` },
+      positions: {
+        locator: { x: 24, y: 50, opacity: 0.55, scale: 0.9 },
+        waiter: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'locator', to: 'waiter' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 6 — Action: element artık hazır olduğuna göre .click() gerçekten çalışır. Auto-wait\'in ADIM 5\'te bitmiş olması, bu tıklamanın "element henüz DOM\'a gelmedi" hatasıyla patlamamasını garanti eder.',
+        en: 'Step 6 — Action: now that the element is ready, .click() actually executes. Because auto-wait finished in Step 5, this click is guaranteed not to fail with "element not yet attached to DOM".',
+      },
+      code: { tr: `await btn.click();`, en: `await btn.click();` },
+      positions: {
+        waiter: { x: 24, y: 50, opacity: 0.55, scale: 0.9 },
+        action: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'waiter', to: 'action' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 7 — Assertion: expect() çalışır ve testin PASS mı FAIL mı olacağına burada karar verilir. Playwright\'ın "web-first assertion"ları da kendi auto-retry\'ına sahiptir — expect() bile bir süre bekleyip tekrar dener.',
+        en: 'Step 7 — Assertion: expect() runs and this is where the test\'s PASS/FAIL verdict is decided. Playwright\'s "web-first assertions" carry their own auto-retry too — even expect() waits and retries for a short window.',
+      },
+      code: { tr: `await expect(page).toHaveURL('/dashboard');`, en: `await expect(page).toHaveURL('/dashboard');` },
+      positions: {
+        action: { x: 24, y: 50, opacity: 0.55, scale: 0.9 },
+        assertion: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'action', to: 'assertion' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Rapor & Teardown: sonuç (PASS/FAIL) HTML/JSON raporuna yazılır, sonra context.close() ve browser.close() ile temizlik yapılır. Bir sonraki test, sıfırdan TEMİZ bir context ile aynı zinciri baştan başlatır.',
+        en: 'Final — Report & Teardown: the result (PASS/FAIL) is written to the HTML/JSON report, then context.close() and browser.close() clean up. The next test starts this exact chain over again with a completely CLEAN context.',
+      },
+      code: { tr: `await context.close();`, en: `await context.close();` },
+      positions: {
+        assertion: { x: 24, y: 50, opacity: 0.55, scale: 0.9 },
+        report: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'assertion', to: 'report' }],
+    },
+  ],
+}
+
 const s0 = {
   tr: {
     title: '🎭 Playwright Nedir? Neden Kullanılır?',
@@ -3265,6 +3395,7 @@ test('giriş başarılı olursa dashboard\\'a yönlendirir', async ({ page }) =>
   await expect(page.getByText('Tekrar hoş geldin')).toBeVisible();
 });`,
       },
+      testLifecycleFilm,
       { type: 'heading', text: 'describe ile Gruplama + Hook\'lar' },
       {
         type: 'code', language: 'typescript',
@@ -3494,6 +3625,7 @@ test('successful login redirects to dashboard', async ({ page }) => {
   await expect(page.getByText('Welcome back')).toBeVisible();
 });`,
       },
+      testLifecycleFilm,
       { type: 'heading', text: 'Grouping with describe + Hooks' },
       {
         type: 'code', language: 'typescript',

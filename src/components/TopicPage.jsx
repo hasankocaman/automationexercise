@@ -25,6 +25,7 @@ import TokenPredictorBlock from './TokenPredictorBlock'
 import DeterministicVsStochasticBlock from './DeterministicVsStochasticBlock'
 import JudgePlaygroundBlock from './JudgePlaygroundBlock'
 import RagLabBlock from './RagLabBlock'
+import VideoSceneBlock from './VideoSceneBlock'
 import PromptInjectionArenaBlock from './PromptInjectionArenaBlock'
 import DriftMeterBlock from './DriftMeterBlock'
 import ObservabilityDashboardBlock from './ObservabilityDashboardBlock'
@@ -17696,6 +17697,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'rag-lab':
             return <RagLabBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'video-scene':
+            return <VideoSceneBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'injection-arena':
             return <PromptInjectionArenaBlock key={i} block={block} darkMode={darkMode} language={language} />

@@ -10,6 +10,89 @@
 
 ---
 
+## Video-Scene (Film Bloğu) Pilotu — Fable payı TAMAM, Sonnet payı BEKLİYOR (2026-07-14)
+
+> Branch: `feature/llm-agents-interactive-pilot`. Plan + Sonnet master prompt:
+> `PILOT_PLAN_ve_PROMPT.md` (Rev 2 — ilk plan repo incelemesiyle büyük ölçüde
+> değiştirildi; önerdiği 3 bileşen zaten mevcut çıktı, yeni hedef "video
+> benzeri film bloğu" oldu). Plan dosyası `main`'e `5a9cabf` ile commit
+> edilmişti; Rev 2 + kod henüz commit EDİLMEDİ (kullanıcı onayı bekleniyor).
+
+### Yapılan (Fable)
+1. **`src/components/VideoSceneBlock.jsx` (yeni):** generic, veri-güdümlü mini
+   film oynatıcı — `type: 'video-scene'`. Aktörler % koordinatla sahnede,
+   sahneler arası CSS transition ile hareket; SVG beam akış çizgileri; altyazı
+   + opsiyonel bilingual kod satırı; ▶/⏸, ⏮/⏭, ↺, 1×/1.5×/2× hız, tıklanabilir
+   pip timeline; son sahnede `lib/xp.js` ile tek seferlik XP (ChallengeBlock
+   kalıbı); prefers-reduced-motion → geçişsiz slayt modu; `video-scene-*`
+   data-testid sözleşmesi (plan §2'de).
+2. **`TopicPage.jsx`:** import + `case 'video-scene'` kaydı (rag-lab'ın altı).
+3. **`src/index.css`:** `videoSceneBeamFlow` / `videoScenePulse` /
+   `videoSceneXpPop` keyframe'leri + reduced-motion kapatmaları.
+4. **`llmAgentsData.js`:** `ragPipelineFilm` paylaşılan sabiti (7 sahne, 8 aktör,
+   id `llm-rag-pipeline-film`, 15 XP) — "🔍 RAG Pipeline Testing" sekmesinde
+   EN + TR bölümlerinde `rag-lab` girişinin önüne yerleştirildi.
+
+### Doğrulama (§1.1)
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → temiz (41 shell, bilinen chunk uyarıları hariç)
+- Runtime smoke (vite preview + headless Chromium): 9/9 PASS — render, next,
+  pip seek, otomatik oynatma, done rozeti, XP localStorage kaydı
+  (`learnqa_xp_llm-agents`), TR/EN caption geçişi, 380px taşma yok, 0 konsol
+  hatası.
+
+### Yayılım (Sonnet, aynı oturum) — Faz 2-5 TAMAM
+`PILOT_PLAN_ve_PROMPT.md` Bölüm 6'daki master prompt çalıştırıldı, 4 sayfaya
+film eklendi + smoke testi yazıldı. Yayılım tablosu (plan §4) güncel durumu:
+
+| Faz | Sayfa | Film | Durum |
+|---|---|---|---|
+| 1 (pilot) | `/llm-agents` | RAG Boru Hattı (`llm-rag-pipeline-film`) | ✅ (Fable) |
+| 2 | `/playwright` | Bir Testin Yaşam Döngüsü (`playwright-test-lifecycle-film`) | ✅ |
+| 3 | `/docker` | Dockerfile'dan Container'a (`docker-dockerfile-to-container-film`) | ✅ |
+| 4 | `/sql` | SELECT'in Gerçek Çalışma Sırası (`sql-query-order-film`) | ✅ |
+| 5 | `/claude-ai` | LLM-as-Judge Döngüsü (`claude-judge-loop-film`) | ✅ |
+
+Her film ilgili konu anlatımının İÇİNE, kod bloğunun hemen ardına ve varsa
+lab/challenge/quiz'den ÖNCE yerleştirildi (CLAUDE.md §9.1 sırası):
+- **playwrightData.js**: "🗂️ Test Organizasyonu & Fixtures" sekmesi, "Testin
+  Anatomisi — Arrange/Act/Assert" kod bloğunun ardında (TR+EN).
+- **dockerData.js**: "📝 Dockerfile" sekmesi, ilk Dockerfile kod bloğunun
+  ardında, `order-sort` challenge'ından ÖNCE — film build-cache mantığını
+  gösterir, challenge aynı bilgiyi test eder (izle → dene sırası).
+- **sqlData.js**: "🟢 SQL Query Order / Sorgu Sırası" sekmesi, "Logical SQL
+  Query Execution Order" callout'unun ardında, quiz'den ÖNCE. **Not:**
+  sqlData.js `applyTr`/index-override KULLANMIYOR (typescriptData/pythonData'nın
+  aksine) — `finalEnSections`/`finalTrSections` tamamen ayrı iki dizi, film
+  sabiti (`sqlQueryOrderFilm`) her ikisine de aynı referansla eklendi.
+- **claudeAiData.js**: "⚖️ LLM-as-a-Judge / Yargıç Olarak Claude" sekmesi,
+  judge-playground'dan hemen ÖNCE — aynı "belirsiz rapor" örneğini kullanır.
+
+### Test + Doğrulama (§1.1) — hepsi TAMAM
+- `node scripts/check-content-integrity.mjs` → 35 dosya, TÜM KONTROLLER GEÇTİ ✓
+- 4 filmin TR caption/code alanları tek tek okundu — İngilizce açıklama
+  cümlesi yok, teknik terimler (rubric, threshold, judge, SELECT, FROM,
+  HAVING, alias, browser.launch vb.) doğru şekilde İngilizce kalmış.
+- `npm run build` → temiz (41 static shell, bilinen chunk-size uyarıları hariç).
+- `tests/video-scene.spec.ts` (yeni, kalıcı suite) → `/llm-agents` RAG pilotu
+  üzerinden render + play/caption-değişimi + pip-seek + done-rozeti: **PASS**.
+- Ayrıca tek seferlik doğrulama (scratchpad'te, commit edilmedi): `/playwright`,
+  `/docker`, `/claude-ai` sayfalarında `video-scene-block` görünür — 3/3 render
+  onaylandı.
+
+### Kalan/bilinen engeller
+- 6 deterministik auth-injection test hatası hâlâ duruyor (bkz. yukarıdaki
+  Gauge bölümü, kök neden orada belgeli) — bu oturumun konusuyla ilgisiz,
+  push'ta pre-push hook'u yine reddedebilir.
+- Değişiklikler `feature/llm-agents-interactive-pilot` branch'inde, henüz
+  commit EDİLMEDİ (kullanıcı onayı bekleniyor).
+- Plan §7 kontrol listesindeki "Mobil 380px + reduced-motion + TR/EN"
+  maddesi sadece pilot filmde (RAG) runtime smoke ile doğrulandı; 4 yeni
+  filmde ayrıca doğrulanmadı — bileşen aynı olduğu için risk düşük, ama
+  gerekirse bir sonraki oturumda tekrar kontrol edilebilir.
+
+---
+
 ## Gauge Sayfası + Homepage i18n Fix — main'e commit VE push edildi (2026-07-14)
 
 > Plan + Sonnet promptları: `Documents/gauge-plan.md` (iş bölümü, mimari

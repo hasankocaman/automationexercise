@@ -65,6 +65,131 @@ const trTabs = [
   "💼 Mülakat"
 ];
 
+// ─── SQL Query Order film bloğu (video-scene — EN + TR paylaşımlı) ───────────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+const sqlQueryOrderFilm = {
+  type: 'video-scene',
+  id: 'sql-query-order-film',
+  title: {
+    tr: '🎬 SELECT\'in Gerçek Çalışma Sırası',
+    en: '🎬 The Real Execution Order of SELECT',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'table',  emoji: '🗄️', label: { tr: 'test_results Tablosu', en: 'test_results Table' },  color: '#0ea5e9' },
+    { id: 'packet', emoji: '📦', label: { tr: 'Satırlar',              en: 'Rows' },                color: '#8b5cf6' },
+    { id: 'ghost',  emoji: '👻', label: { tr: 'Elenen Satır',          en: 'Rejected Row' },         color: '#ef4444' },
+    { id: 'groups', emoji: '🗂️', label: { tr: 'env\'e Göre Gruplar',   en: 'Groups by env' },        color: '#f59e0b' },
+    { id: 'having', emoji: '🚦', label: { tr: 'HAVING Kapısı',         en: 'HAVING Gate' },          color: '#f97316' },
+    { id: 'alias',  emoji: '🏷️', label: { tr: 'count Alias\'ı',        en: 'count Alias' },          color: '#22c55e' },
+    { id: 'sorted', emoji: '🔀', label: { tr: 'Sıralanmış Sonuç',      en: 'Sorted Result' },        color: '#6366f1' },
+    { id: 'final',  emoji: '🏆', label: { tr: 'Final: 1 Satır',        en: 'Final: 1 Row' },         color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'SELECT en üstte yazılır ama çalıştırılma sırası tamamen farklıdır. Bu filmde, aşağıdaki sorgunun motor içinde GERÇEKTE hangi sırayla işlendiğini adım adım izleyeceksin.',
+        en: 'SELECT is written at the top, but its execution order is completely different. In this film you will watch, step by step, the ACTUAL order the engine uses to process the query below.',
+      },
+      code: {
+        tr: `SELECT env, COUNT(*) AS count\nFROM test_results\nWHERE status = 'FAIL'\nGROUP BY env\nORDER BY count DESC\nLIMIT 1;`,
+        en: `SELECT env, COUNT(*) AS count\nFROM test_results\nWHERE status = 'FAIL'\nGROUP BY env\nORDER BY count DESC\nLIMIT 1;`,
+      },
+      positions: {
+        table: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — FROM: motor önce test_results tablosunun TÜM satırlarını belleğe yükler. Henüz hiçbir filtre veya sütun seçimi yapılmadı.',
+        en: 'Step 1 — FROM: the engine first loads ALL rows of the test_results table into memory. No filtering or column selection has happened yet.',
+      },
+      code: { tr: `FROM test_results`, en: `FROM test_results` },
+      positions: {
+        table: { x: 14, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — WHERE: status = \'FAIL\' koşulunu KARŞILAMAYAN satırlar burada elenir (soluk figür). Sadece FAIL durumundaki satırlar bir sonraki adıma geçer.',
+        en: 'Step 2 — WHERE: rows that do NOT satisfy status = \'FAIL\' are rejected here (faded figure). Only FAIL rows survive to the next step.',
+      },
+      code: { tr: `WHERE status = 'FAIL'`, en: `WHERE status = 'FAIL'` },
+      positions: {
+        table: { x: 14, y: 50, opacity: 0.45, scale: 0.85 },
+        packet: { x: 40, y: 35, scale: 1.1, pulse: true },
+        ghost: { x: 40, y: 72, opacity: 0.5, scale: 0.85 },
+      },
+      beams: [{ from: 'table', to: 'packet' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — GROUP BY: kalan satırlar env sütununa göre kovalara ayrılır (staging, prod...). Her kova artık tek bir grup olarak işlem görecek.',
+        en: 'Step 3 — GROUP BY: the surviving rows are bucketed by the env column (staging, prod...). Each bucket is now treated as a single group.',
+      },
+      code: { tr: `GROUP BY env`, en: `GROUP BY env` },
+      positions: {
+        packet: { x: 36, y: 50, opacity: 0.5, scale: 0.85 },
+        groups: { x: 62, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'packet', to: 'groups' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — HAVING: bu sorguda HAVING yazılmadı ama motor yine de bu adımdan geçer — tıpkı boş bir if(true) gibi hiçbir grubu elemeden ilerler. HAVING yazılsaydı, grup bazlı filtre tam burada uygulanırdı (WHERE satır bazında, HAVING grup bazında filtreler).',
+        en: 'Step 4 — HAVING: this query has no HAVING clause, but the engine still passes through this stage — like an empty if(true), rejecting nothing. If HAVING were present, group-level filtering would happen right here (WHERE filters rows, HAVING filters groups).',
+      },
+      code: {
+        tr: `-- HAVING yazılmadı, tüm gruplar geçer`,
+        en: `-- no HAVING clause, all groups pass through`,
+      },
+      positions: {
+        groups: { x: 36, y: 50, opacity: 0.55, scale: 0.85 },
+        having: { x: 62, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'groups', to: 'having' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — SELECT: ancak ŞİMDİ env ve COUNT(*) AS count sütunları hesaplanır. count alias\'ı tam olarak burada doğar — bu yüzden Adım 2\'deki WHERE aşamasında bu alias henüz YOKTU ve kullanılamazdı.',
+        en: 'Step 5 — SELECT: only NOW are the env and COUNT(*) AS count columns computed. The count alias is born right here — which is exactly why the WHERE stage back in Step 2 did NOT have this alias available.',
+      },
+      code: { tr: `SELECT env, COUNT(*) AS count`, en: `SELECT env, COUNT(*) AS count` },
+      positions: {
+        having: { x: 30, y: 50, opacity: 0.5, scale: 0.85 },
+        alias: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'having', to: 'alias' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 6 — ORDER BY: SELECT\'te hesaplanan count alias\'ı artık mevcut olduğu için ORDER BY onu sorunsuzca kullanabilir — sonuçlar count\'a göre azalan sıralanır.',
+        en: 'Step 6 — ORDER BY: since the count alias computed in SELECT now exists, ORDER BY can freely use it — results are sorted by count, descending.',
+      },
+      code: { tr: `ORDER BY count DESC`, en: `ORDER BY count DESC` },
+      positions: {
+        alias: { x: 30, y: 50, opacity: 0.5, scale: 0.85 },
+        sorted: { x: 62, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'alias', to: 'sorted' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 7 — LIMIT: sıralı sonuçtan sadece ilk 1 satır kalır. Yolculuğun sonu: FROM\'dan başlayan satırlar WHERE → GROUP BY → HAVING → SELECT → ORDER BY\'dan geçerek tek bir satıra indirgendi — SELECT yazıda ilk, çalışmada ise neredeyse SON adımdı.',
+        en: 'Step 7 — LIMIT: only the first row of the sorted result survives. Journey\'s end: rows that started at FROM passed through WHERE → GROUP BY → HAVING → SELECT → ORDER BY to become one single row — SELECT was written first, but it executed nearly LAST.',
+      },
+      code: { tr: `LIMIT 1`, en: `LIMIT 1` },
+      positions: {
+        sorted: { x: 30, y: 50, opacity: 0.5, scale: 0.85 },
+        final: { x: 62, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'sorted', to: 'final' }],
+    },
+  ],
+}
+
 const finalEnSections = [
   {
     "title": "🎯 What is SQL & Why Does Every QA Engineer Need It?",
@@ -1646,6 +1771,7 @@ const finalEnSections = [
           "en": "In SQL, queries are written in a specific visual order (SELECT, FROM, WHERE...), but the database engine executes them in a different logical order:\n\n**FROM ➔ WHERE ➔ GROUP BY ➔ HAVING ➔ SELECT ➔ ORDER BY ➔ LIMIT**\n\n- **Why WHERE runs before SELECT**: The engine must first filter the source rows (WHERE) before deciding which columns or computed fields to output (SELECT).\n- **Alias Limitation**: Because WHERE executes before SELECT, aliases defined in the SELECT clause (e.g. `SELECT name AS user_name`) are not recognized in the WHERE clause yet. You must filter using raw column names."
         }
       },
+      sqlQueryOrderFilm,
       {
         "type": "quiz",
         "question": {
@@ -6938,6 +7064,7 @@ const finalTrSections = [
           "en": "In SQL, queries are written in a specific visual order (SELECT, FROM, WHERE...), but the database engine executes them in a different logical order:\n\n**FROM ➔ WHERE ➔ GROUP BY ➔ HAVING ➔ SELECT ➔ ORDER BY ➔ LIMIT**\n\n- **Why WHERE runs before SELECT**: The engine must first filter the source rows (WHERE) before deciding which columns or computed fields to output (SELECT).\n- **Alias Limitation**: Because WHERE executes before SELECT, aliases defined in the SELECT clause (e.g. `SELECT name AS user_name`) are not recognized in the WHERE clause yet. You must filter using raw column names."
         }
       },
+      sqlQueryOrderFilm,
       {
         "type": "quiz",
         "question": {

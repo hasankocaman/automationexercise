@@ -490,3 +490,31 @@ button, a, [role="button"] {
 @media (prefers-reduced-motion: reduce) {
   .det-vs-stoch-pop { animation: none; }
 }
+
+/* ─── VideoSceneBlock (`video-scene`): film bloğu animasyonları ─── */
+@keyframes videoSceneBeamFlow {
+  to { stroke-dashoffset: -22; }
+}
+.video-scene-beam {
+  animation: videoSceneBeamFlow 0.9s linear infinite;
+}
+@keyframes videoScenePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+.video-scene-pulse {
+  animation: videoScenePulse 1.1s ease-in-out infinite;
+}
+@keyframes videoSceneXpPop {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.8); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.video-scene-xp-pop {
+  animation: videoSceneXpPop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .video-scene-beam,
+  .video-scene-pulse,
+  .video-scene-xp-pop { animation: none; }
+}

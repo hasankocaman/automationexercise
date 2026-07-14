@@ -1,5 +1,125 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Dockerfile → Container film bloğu (video-scene — EN + TR paylaşımlı) ────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+const dockerfileToContainerFilm = {
+  type: 'video-scene',
+  id: 'docker-dockerfile-to-container-film',
+  title: {
+    tr: '🎬 Dockerfile\'dan Çalışan Container\'a',
+    en: '🎬 From Dockerfile to a Running Container',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dockerfile', emoji: '📝', label: { tr: 'Dockerfile',                 en: 'Dockerfile' },              color: '#0ea5e9' },
+    { id: 'layerBase',  emoji: '🧱', label: { tr: 'FROM Katmanı',               en: 'FROM Layer' },              color: '#6366f1' },
+    { id: 'layerDeps',  emoji: '🧱', label: { tr: 'RUN (Bağımlılık) Katmanı',   en: 'RUN (Dependencies) Layer' }, color: '#8b5cf6' },
+    { id: 'layerCode',  emoji: '🧱', label: { tr: 'COPY (Kod) Katmanı',         en: 'COPY (Code) Layer' },       color: '#f59e0b' },
+    { id: 'image',      emoji: '💿', label: { tr: 'Image (docker build)',      en: 'Image (docker build)' },    color: '#22c55e' },
+    { id: 'container',  emoji: '🚀', label: { tr: 'Container (docker run)',    en: 'Container (docker run)' },  color: '#10b981' },
+    { id: 'port',       emoji: '🔌', label: { tr: 'Port Eşleme -p 8080:8080',  en: 'Port Mapping -p 8080:8080' }, color: '#f97316' },
+    { id: 'browser',    emoji: '🌍', label: { tr: 'localhost:8080',            en: 'localhost:8080' },          color: '#a855f7' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker build` ve `docker run` komutlarının GERÇEKTE ne yaptığını izleyeceksin — bir Dockerfile\'ın satır satır nasıl bir Image\'a, sonra ÇALIŞAN bir Container\'a dönüştüğünü.',
+        en: 'You will watch what `docker build` and `docker run` ACTUALLY do — how a Dockerfile turns, line by line, into an Image, and then into a RUNNING Container.',
+      },
+      code: { tr: `FROM python:3.12-slim\nRUN pip install -r requirements.txt\nCOPY . .`, en: `FROM python:3.12-slim\nRUN pip install -r requirements.txt\nCOPY . .` },
+      positions: {
+        dockerfile: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — FROM: taban image (python:3.12-slim) salt-okunur bir KATMAN olarak indirilir. Bu katman neredeyse hiç değişmez, bu yüzden Docker onu en agresif şekilde önbelleğe alır.',
+        en: 'Step 1 — FROM: the base image (python:3.12-slim) is pulled as a read-only LAYER. This layer almost never changes, so Docker caches it most aggressively.',
+      },
+      code: { tr: `FROM python:3.12-slim`, en: `FROM python:3.12-slim` },
+      positions: {
+        dockerfile: { x: 14, y: 26, opacity: 0.6, scale: 0.85 },
+        layerBase: { x: 14, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'dockerfile', to: 'layerBase' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — RUN: bağımlılıklar kurulur ve base katmanının ÜSTÜNE yeni bir katman eklenir. requirements.txt değişmediği sürece bu katman CACHE\'DEN gelir — kurulum tekrar çalışmaz.',
+        en: 'Step 2 — RUN: dependencies are installed and a new layer is stacked ON TOP of the base layer. As long as requirements.txt has not changed, this layer comes straight from CACHE — installation does not re-run.',
+      },
+      code: { tr: `RUN pip install -r requirements.txt`, en: `RUN pip install -r requirements.txt` },
+      positions: {
+        layerBase: { x: 14, y: 70, scale: 0.95 },
+        layerDeps: { x: 38, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'layerBase', to: 'layerDeps' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — COPY: proje kodu EN ÜSTE, ayrı bir katman olarak eklenir. Kod neredeyse HER commit\'te değişir — bu yüzden bilerek en sona konur: sadece bu katman geçersiz olur, alttaki ağır bağımlılık katmanı yeniden kurulmaz.',
+        en: 'Step 3 — COPY: the project code is added on TOP, as its own layer. Code changes on almost EVERY commit — which is exactly why it is placed last: only this layer gets invalidated, the heavy dependency layer below is never reinstalled.',
+      },
+      code: { tr: `COPY . .`, en: `COPY . .` },
+      positions: {
+        layerDeps: { x: 30, y: 55, scale: 0.9 },
+        layerCode: { x: 52, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'layerDeps', to: 'layerCode' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — docker build: üç katman tek bir salt-okunur, taşınabilir Image\'da BİRLEŞTİRİLİR. Image henüz ÇALIŞMIYOR — tıpkı bir Java class\'ının henüz bir nesne (instance) olmaması gibi, sadece bir "tarif" halinde donmuş durumda.',
+        en: 'Step 4 — docker build: the three layers are FUSED into one read-only, portable Image. The image is not RUNNING yet — just like a Java class is not yet an object, it is a frozen "recipe" waiting to be instantiated.',
+      },
+      code: { tr: `docker build -t qa-app .`, en: `docker build -t qa-app .` },
+      positions: {
+        layerCode: { x: 24, y: 40, opacity: 0.55, scale: 0.85 },
+        image: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layerCode', to: 'image' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — docker run: Image\'dan ÇALIŞAN bir örnek (instance) başlatılır — bu bir Container\'dır. Java analojisi tam burada netleşir: Image = class, Container = new ile üretilmiş nesne. Aynı image\'dan istediğin kadar bağımsız container başlatabilirsin.',
+        en: 'Step 5 — docker run: a RUNNING instance is launched from the Image — this is a Container. The Java analogy clicks right here: Image = class, Container = the object created with new. You can start as many independent containers from the same image as you want.',
+      },
+      code: { tr: `docker run -d --name qa-app qa-app`, en: `docker run -d --name qa-app qa-app` },
+      positions: {
+        image: { x: 24, y: 50, opacity: 0.55, scale: 0.85 },
+        container: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'container' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 6 — Port Eşleme: container kendi izole ağında yaşar; -p 8080:8080 olmadan host makineden ona ERİŞİLEMEZ. Bu satır, host\'un 8080 portunu container içindeki 8080 portuna bağlayan bir KÖPRÜdür.',
+        en: 'Step 6 — Port Mapping: the container lives in its own isolated network; without -p 8080:8080 the host machine CANNOT reach it. This flag is a BRIDGE connecting the host\'s port 8080 to port 8080 inside the container.',
+      },
+      code: { tr: `docker run -d -p 8080:8080 qa-app`, en: `docker run -d -p 8080:8080 qa-app` },
+      positions: {
+        container: { x: 26, y: 50, scale: 1.05 },
+        port: { x: 52, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'port' }],
+    },
+    {
+      caption: {
+        tr: 'Final — tarayıcıdan localhost:8080\'e giden istek, port köprüsünden geçip çalışan container\'ın İÇİNDEKİ uygulamaya ulaşır. Dockerfile\'daki 3 satır, sonunda erişilebilir, çalışan bir servise dönüştü.',
+        en: 'Final — a request from the browser to localhost:8080 crosses the port bridge and reaches the application INSIDE the running container. The 3 lines in the Dockerfile have finally become a reachable, running service.',
+      },
+      code: { tr: `curl http://localhost:8080`, en: `curl http://localhost:8080` },
+      positions: {
+        port: { x: 30, y: 50, opacity: 0.55, scale: 0.85 },
+        browser: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'port', to: 'browser' }],
+    },
+  ],
+}
+
 const dockerIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -1476,6 +1596,7 @@ CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]
 # Alternative: ENTRYPOINT — always runs this command
 # ENTRYPOINT ["python", "-m"]  # CMD would then append arguments`,
           },
+          dockerfileToContainerFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3552,6 +3673,7 @@ EXPOSE 8080
 # CMD — Container başladığında çalıştırılacak varsayılan komut
 CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]`,
           },
+          dockerfileToContainerFilm,
           {
             type: 'challenge',
             variant: 'order-sort',

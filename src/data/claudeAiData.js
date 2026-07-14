@@ -4,6 +4,126 @@
 
 // ─── Paylaşılan bilingual interaktif bloklar (EN + TR section'larda aynı const kullanılır) ───
 
+// ─── LLM-as-Judge Döngüsü film bloğu (video-scene) ────────────────────────────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+const judgeLoopFilm = {
+  type: 'video-scene',
+  id: 'claude-judge-loop-film',
+  title: {
+    tr: '🎬 LLM-as-Judge Döngüsü',
+    en: '🎬 The LLM-as-Judge Loop',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'output',    emoji: '📄', label: { tr: 'AI Çıktısı (Bug Raporu)',     en: 'AI Output (Bug Report)' },     color: '#0ea5e9' },
+    { id: 'rubric',    emoji: '📋', label: { tr: 'Rubrik (4 Kriter)',          en: 'Rubric (4 Criteria)' },        color: '#f59e0b' },
+    { id: 'judge',     emoji: '⚖️', label: { tr: 'Judge Model',                en: 'Judge Model' },                color: '#8b5cf6' },
+    { id: 'scores',    emoji: '🔢', label: { tr: 'Kriter Bazlı Puanlar',       en: 'Per-Criterion Scores' },       color: '#6366f1' },
+    { id: 'threshold', emoji: '🚪', label: { tr: 'Eşik (≥4/5)',                en: 'Threshold (≥4/5)' },           color: '#f97316' },
+    { id: 'verdict',   emoji: '❌', label: { tr: 'Pass/Fail Kararı',           en: 'Pass/Fail Verdict' },          color: '#ef4444' },
+    { id: 'human',     emoji: '🧑‍🏫', label: { tr: 'İnsan Kalibrasyonu',      en: 'Human Calibration' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir judge model çağrısının GERÇEKTE ne yaptığını izleyeceksin — "belirsiz rapor" örneğini (Judge Playground\'daki aynı taslak) rubrikten geçirip neden düşük puan aldığını adım adım göreceksin.',
+        en: 'You will watch what a judge-model call ACTUALLY does — running the "vague report" example (the same draft from the Judge Playground) through the rubric and seeing, step by step, why it scores low.',
+      },
+      code: {
+        tr: `// Değerlendirilecek çıktı:\n"Login bazen bozuk oluyor, bazı kullanıcılar giriş yapamıyor."`,
+        en: `// Output to be evaluated:\n"Login is sometimes broken, some users can't log in."`,
+      },
+      positions: {
+        output: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Çıktı: Claude bir hata log\'undan bu bug raporunu üretti. Henüz hiçbir değerlendirme yapılmadı — elimizde sadece serbest metin var.',
+        en: 'Step 1 — Output: Claude generated this bug report from an error log. No evaluation has happened yet — we just have free-form text.',
+      },
+      code: { tr: `çıktı = claude.generate(hata_logu)`, en: `output = claude.generate(error_log)` },
+      positions: {
+        output: { x: 16, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Rubrik: değerlendirmeden ÖNCE, 4 bağımsız kriter tanımlanır (reproducibility, severity, clarity, actionability). Rubrik tek doğru cevap değil, kontrol edilebilir özelliklerin listesidir.',
+        en: 'Step 2 — Rubric: BEFORE evaluation, 4 independent criteria are defined (reproducibility, severity, clarity, actionability). A rubric is not one correct answer — it is a list of checkable properties.',
+      },
+      code: { tr: `rubrik = [reproducibility, severity, clarity, actionability]`, en: `rubric = [reproducibility, severity, clarity, actionability]` },
+      positions: {
+        output: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        rubric: { x: 38, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'output', to: 'rubric' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Judge çağrısı: çıktı + rubrik birlikte judge modele gönderilir. Judge karakter karakter diff yapmaz — her rubrik maddesinin karşılanıp karşılanmadığını okur.',
+        en: 'Step 3 — Judge call: the output + the rubric are sent to the judge model together. The judge does not diff characters — it reads whether each rubric item is satisfied.',
+      },
+      code: { tr: `sonuc = judge(çıktı, rubrik)`, en: `result = judge(output, rubric)` },
+      positions: {
+        rubric: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        judge: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rubric', to: 'judge' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Skorlar: judge TEK bir "iyi/kötü" cevabı DEĞİL, her kriter için ayrı 1-5 puan döndürür. Bu örnekte: reproducibility 1, severity 2, clarity 3, actionability 1 — HANGİ boyutun battığı burada görünür.',
+        en: 'Step 4 — Scores: the judge does NOT return a single "good/bad" verdict — it returns a separate 1-5 score per criterion. In this example: reproducibility 1, severity 2, clarity 3, actionability 1 — you can see exactly WHICH dimension failed.',
+      },
+      code: { tr: `{ reproducibility: 1, severity: 2, clarity: 3, actionability: 1 }`, en: `{ reproducibility: 1, severity: 2, clarity: 3, actionability: 1 }` },
+      positions: {
+        judge: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        scores: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'judge', to: 'scores' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Eşik: her kriter, "geçer" sayılmak için gereken bir eşikle (örn. ≥4/5) karşılaştırılır. Burada 4 kriterin 3\'ü eşiğin ALTINDA kalıyor.',
+        en: 'Step 5 — Threshold: each criterion is compared against the bar required to count as "passing" (e.g. ≥4/5). Here, 3 out of 4 criteria fall BELOW the threshold.',
+      },
+      code: { tr: `eşik = 4  // her kriter >= 4 olmalı`, en: `threshold = 4  // every criterion must be >= 4` },
+      positions: {
+        scores: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        threshold: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'scores', to: 'threshold' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 6 — Karar: eşiği geçemeyen kriter sayısı yeterince fazla olduğu için nihai karar FAIL olur — rapor bir geliştiriciye gitmeden ÖNCE reddedilir, tıpkı bir CI gate\'i gibi.',
+        en: 'Step 6 — Verdict: because too many criteria fall below the threshold, the final verdict is FAIL — the report is rejected BEFORE it ever reaches a developer, just like a CI gate.',
+      },
+      code: { tr: `karar = "FAIL" // 3/4 kriter eşiğin altında`, en: `verdict = "FAIL" // 3/4 criteria below threshold` },
+      positions: {
+        threshold: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        verdict: { x: 48, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'threshold', to: 'verdict' }],
+    },
+    {
+      caption: {
+        tr: 'Final — bu tüm zincir yalnızca judge kalibre edilmişse güvenilirdir: bir insan küçük bir örneği elle puanlar, judge\'ın puanlarıyla karşılaştırır (inter-rater reliability) ve rubrik metnini ikisi örtüşene kadar ayarlar. Kalibrasyonsuz bir judge, bir AI\'ın başka bir AI\'ı körü körüne yargılamasından ibarettir.',
+        en: 'Final — this entire chain is only trustworthy if the judge has been calibrated: a human hand-scores a small sample, compares it to the judge\'s scores on that same sample (inter-rater reliability), and adjusts the rubric wording until the two agree. An uncalibrated judge is just one AI blindly grading another.',
+      },
+      code: { tr: `// insan_puani vs judge_puani karşılaştırması`, en: `// compare human_score vs judge_score` },
+      positions: {
+        verdict: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        human: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'verdict', to: 'human' }],
+    },
+  ],
+}
+
 const claudeDailyLoopAnimation = {
   type: 'step-animation',
   id: 'claude-daily-loop-step-01',
@@ -2004,6 +2124,7 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             type: 'text',
             content: `Below, three drafts of the same bug report are scored against a 4-criterion rubric: reproducibility, severity justification, clarity, and actionability. Toggle criteria on or off, or write your own draft report, then press Evaluate. Notice that the "vague" draft reads as complete, grammatical prose — a simple "is the description field non-empty?" check would pass it instantly. The rubric catches what that check cannot: it asks whether the STEPS are numbered and specific, whether the SEVERITY is backed by concrete impact, and whether a developer could act on it without asking a follow-up question.`,
           },
+          judgeLoopFilm,
           {
             type: 'judge-playground',
             scenario: {
@@ -3638,6 +3759,7 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             type: 'text',
             content: `Aşağıda, aynı bug raporunun üç farklı taslağı 4 kriterlik bir rubriğe göre puanlanır: tekrar üretilebilirlik, önem derecesi gerekçesi, anlaşılırlık ve aksiyon alınabilirlik. Kriterleri aç/kapat ya da kendi taslağını yaz, sonra Değerlendir'e bas. "Belirsiz" taslağın tam ve gramatik bir cümle olduğuna dikkat et — basit bir "açıklama alanı boş değil mi?" kontrolü onu anında geçirirdi. Rubrik, o kontrolün yakalayamadığını yakalar: ADIMLARIN numaralı ve spesifik olup olmadığını, ÖNEM DERECESİNİN somut bir etkiyle desteklenip desteklenmediğini ve bir geliştiricinin ek soru sormadan aksiyon alıp alamayacağını sorar.`,
           },
+          judgeLoopFilm,
           {
             type: 'judge-playground',
             scenario: {
