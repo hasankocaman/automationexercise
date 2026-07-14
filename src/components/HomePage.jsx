@@ -698,7 +698,7 @@ function HomePage() {
                                     <span aria-hidden="true" className="absolute -top-2 -right-1.5 z-10 flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black leading-none pointer-events-none shadow-sm bg-amber-400 text-gray-900">①</span>
                                 </span>
                                 <a href="https://hasankocaman.github.io/boltJSTScompare/" className={nb('blue')}>JS↔TS</a>
-                                <button onClick={() => { setActiveSection('lang-compare'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>🔀 3 Dil</button>
+                                <button onClick={() => { setActiveSection('lang-compare'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>🔀 {language === 'tr' ? '3 Dil' : '3 Languages'}</button>
                             </div>
                         </div>
 
@@ -747,8 +747,8 @@ function HomePage() {
                                     </span>
                                 </span>
                                 <Link to="/llm-agents" data-testid="nav-llm-agents" className={nb('violet')}>🧠 LLM & Agents</Link>
-                                {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 Siber Güvenlik</Link>}
-                                <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ Karşılaştır</button>
+                                {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 {language === 'tr' ? 'Siber Güvenlik' : 'Cyber Security'}</Link>}
+                                <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ {language === 'tr' ? 'Karşılaştır' : 'Compare Tools'}</button>
                             </div>
                         </div>
 
@@ -775,7 +775,7 @@ function HomePage() {
                                 <Link to="/docker" data-testid="nav-docker" className={nb('cyan')}>🐳 Docker</Link>
                                 <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
                                 <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
-                                {isAdmin && <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 Basit Backend</Link>}
+                                {isAdmin && <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 {language === 'tr' ? 'Basit Backend' : 'Simple Backend'}</Link>}
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
