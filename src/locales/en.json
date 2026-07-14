@@ -54,6 +54,11 @@
             "database": "Database",
             "practice": "Practice Lab"
         },
+        "trendingSkills": {
+            "title": "Trending Skills This Week",
+            "subtitle": "Trending technical skills extracted daily from real QA job postings",
+            "empty": "Trend data hasn't been computed yet — check back soon."
+        },
         "heroBadge": "Start here",
         "heroTitle": "Choose a learning path and build interview-ready QA skills.",
         "heroText": "This platform takes a QA engineer from Java knowledge to practical Python, SQL, Selenium, Playwright, API testing, CI/CD, and real interview scenarios. Read the concept, compare it with Java, run examples, then practice on real UI elements.",

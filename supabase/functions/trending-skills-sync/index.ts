@@ -41,7 +41,7 @@ Respond with ONLY a JSON array, no markdown fences, no extra text, in this exact
 
 The array must have exactly as many entries as postings given, in the same order.`
 
-type JSearchJob = { job_title?: string; job_description?: string }
+type JSearchJob = { job_title?: string; job_description?: string; job_publisher?: string }
 type SkillExtraction = { jobTitle: string; skills: string[] }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -55,7 +55,7 @@ function extractJsonArray(text: string): unknown {
 }
 
 async function fetchJobPostings(rapidApiKey: string): Promise<JSearchJob[]> {
-    const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(JOB_SEARCH_QUERY)}&num_pages=1&page=1`
+    const url = `https://jsearch.p.rapidapi.com/search-v2?query=${encodeURIComponent(JOB_SEARCH_QUERY)}&num_pages=1&page=1`
     const response = await fetch(url, {
         headers: {
             'X-RapidAPI-Key': rapidApiKey,
@@ -67,7 +67,7 @@ async function fetchJobPostings(rapidApiKey: string): Promise<JSearchJob[]> {
         throw new Error(`JSearch API error (HTTP ${response.status}): ${errText.slice(0, 300)}`)
     }
     const result = await response.json()
-    const jobs: JSearchJob[] = Array.isArray(result?.data) ? result.data : []
+    const jobs: JSearchJob[] = Array.isArray(result?.data?.jobs) ? result.data.jobs : []
     return jobs.slice(0, TARGET_POSTINGS)
 }
 
@@ -185,11 +185,32 @@ Deno.serve(async (req) => {
         const { error: insertTrendingError } = await supabase.from('trending_skills').insert(trendingRows)
         if (insertTrendingError) throw new Error(`trending_skills insert failed: ${insertTrendingError.message}`)
 
+        // Meta row describes THIS run's own scan (source platforms, posting
+        // count) — separate from trending_skills' 7-day rolling frequency,
+        // but the window dates give the homepage widget a "trending this
+        // week" date range to display alongside it.
+        const sources = Array.from(
+            new Set(postings.map((p) => p.job_publisher?.trim()).filter((s): s is string => Boolean(s)))
+        ).sort()
+        const { error: metaError } = await supabase.from('trending_skills_meta').upsert(
+            {
+                id: 1,
+                window_start: windowStart,
+                window_end: today,
+                postings_scanned: postings.length,
+                sources,
+                updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'id' }
+        )
+        if (metaError) throw new Error(`trending_skills_meta upsert failed: ${metaError.message}`)
+
         return jsonResponse({
             ok: true,
             postingsFetched: postings.length,
             skillsExtracted: snapshotRows.length,
             distinctSkills: trendingRows.length,
+            sources,
         })
     } catch (err) {
         console.error('trending-skills-sync error:', err)

@@ -17,6 +17,7 @@ import Practice from './Practice'
 import PlaywrightLangCompare from './PlaywrightLangCompare'
 import NeuroLocateLab from './NeuroLocateLab'
 import MembershipPromo from './MembershipPromo'
+import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import { getQueueStats } from '../lib/reviewQueue'
@@ -449,6 +450,11 @@ function HomePage() {
                     </div>
                 </div>
             )}
+
+            {/* ── Trend Skill Widget — sayfayı açan herkes hemen görsün ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <TrendingSkillsWidget darkMode={darkMode} />
+            </div>
 
             {/* ── Üyelik Tanıtım Banner'ı — sadece misafirler için ── */}
             {!session && <MembershipPromo darkMode={darkMode} />}

@@ -54,6 +54,11 @@
             "database": "Veritabanı",
             "practice": "Practice Lab"
         },
+        "trendingSkills": {
+            "title": "Bu Hafta En Çok Aranan Skill'ler",
+            "subtitle": "Gerçek QA iş ilanlarından günlük olarak çıkarılan trend teknik yetenekler",
+            "empty": "Trend veriler henüz hesaplanmadı, yakında burada görünecek."
+        },
         "heroBadge": "Buradan başla",
         "heroTitle": "Bir öğrenme yolu seç, mülakata hazır QA becerileri geliştir.",
         "heroText": "Bu platform Java bilen bir QA mühendisini pratik Python, SQL, Selenium, Playwright, API testi, CI/CD ve gerçek mülakat senaryolarına taşır. Konuyu oku, Java ile karşılaştır, örneği çalıştır, sonra gerçek UI elementleri üzerinde pratik yap.",

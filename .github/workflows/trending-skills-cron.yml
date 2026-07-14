@@ -1,0 +1,22 @@
+name: Trending Skills Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke trending-skills-sync edge function
+        run: |
+          http_status=$(curl -s -o response.json -w "%{http_code}" -X POST \
+            "https://${{ secrets.SUPABASE_PROJECT_REF }}.supabase.co/functions/v1/trending-skills-sync" \
+            -H "x-cron-secret: ${{ secrets.CRON_INVOKE_SECRET }}")
+          echo "HTTP status: $http_status"
+          cat response.json
+          if [ "$http_status" -ge 400 ]; then
+            echo "trending-skills-sync failed with status $http_status"
+            exit 1
+          fi
