@@ -401,7 +401,7 @@ function PlaywrightPage() {
         }, 1200)
 
         /* ── 5. Glitch: Hero h1 ────────────────────────────────── */
-        const heroH1 = wrapper.querySelector('main > div > div:first-child h1')
+        const heroH1 = wrapper.querySelector('main > div:first-child h1') /* duzeltildi: onceki secici gercek DOM ile eslesmiyordu, glitch calismiyordu */
         if (heroH1) {
             heroH1.setAttribute('data-text', heroH1.textContent.trim())
             heroH1.classList.add('pw-glitch')

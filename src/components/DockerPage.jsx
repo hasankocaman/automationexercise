@@ -365,7 +365,10 @@ function DockerPage() {
         }, 1200)
 
         /* ── 5. Glitch: Hero h1 ────────────────────────────────── */
-        const heroH1 = wrapper.querySelector('main > div > div:first-child h1')
+        // NOT: eski 'main > div > div:first-child h1' seçici TopicPage'in
+        // gerçek DOM'uyla eşleşmiyordu (main'in İLK çocuğu zaten hero div'i,
+        // araya ekstra katman girmiyor) — glitch efekti hiç çalışmıyordu.
+        const heroH1 = wrapper.querySelector('main > div:first-child h1')
         if (heroH1) {
             heroH1.setAttribute('data-text', heroH1.textContent.trim())
             heroH1.classList.add('dp-glitch')

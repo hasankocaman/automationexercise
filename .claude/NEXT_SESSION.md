@@ -115,19 +115,87 @@
   sonra** Gerçek Hayat Sorunları (doktor analojisi) ve Mülakat (gating kilidi,
   "%60" mesajı) sekmeleri hâlâ doğru çalışıyor; **konsol hatası 0**.
 
+### Commit durumu
+WP-S1 + WP-S2 (mülakat sekmesi + ekosistem&CI/CD sekmesi + route/SEO/HomePage
+altyapısı) `077f3c7` commit'inde **main'e commit edildi** ("feat(gauge): yeni
+/gauge sayfasi..."). WP-S3 (aşağıda) bu commit'ten SONRA yapıldı ve **henüz
+commit edilmedi** — `src/gauge-effects.css` + `src/components/GaugePage.jsx`
+working tree'de değişiklik olarak duruyor.
+
+### WP-S3 tamamlandı (Sonnet, aynı oturum) — Tam Görsel Efekt Paketi
+- **`src/gauge-effects.css`** tamamen genişletildi (RestAssured/Docker
+  seviyesi): sayfa geneli ambiyans glow+parallax (`--gg-scroll-y`), 20 yüzen
+  amber parçacık (`gg-particle`), sekme başlığı hareketli gradient (h2),
+  ana içerik kartı glassmorphism, `gg-block` hover glow + 3D tilt zemini,
+  glitch H1 (`gg-glitch`), squash+ripple+sıvı-dolgu magnetic buton
+  (`gg-magnetic-init`), **gauge dial** scroll progress göstergesi (tick-ring
+  arka planlı, ölçüm aleti temalı — `ra-wave-progress`/`dp-ocean-progress`
+  kalıbının Gauge'a özgü reskin'i), light-mode 10s ritmik ambiyans
+  (`gg-calibration-flash` — kalibrasyon ikaz ışığı parlaması, RestAssured'daki
+  şimşek döngüsünün amber karşılığı) + amber kıvılcım dokusu overlay'i,
+  prefers-reduced-motion'da TÜM animasyonların kapanması.
+- **Rol-bazlı kontrast düzeltmesi (kritik bulgu):** `gg-stat-num`/`gg-stat-suffix`
+  ve h2 gradient metni ÖNCEDEN ham `--gg-accent`/`--gg-accent-2` (parlak
+  sarı #facc15) kullanıyordu — bu, light modda düşük kontrast riski
+  taşıyordu (parlak sarı metin açık arka plan üzerinde). Bu oturumda
+  `--gg-role-accent`/`--gg-role-accent-2` (light modda koyu ocher #8a6d0b/
+  #b45309, dark modda parlak #facc15/#fb923c) kullanacak şekilde değiştirildi
+  — CLAUDE.md'nin "role-bazlı çözüm" talebi tam olarak bunu hedefliyordu.
+- **Gece gökyüzü/ay/kayan yıldız:** Ayrı kod YAZILMADI — proje genelinde
+  ORTAK olan `src/night-sky-effects.css` `GaugePage.jsx`'e import edildi;
+  `.gauge-page`/`.gg-hero-banner-container`/`.gg-stats-bar` sınıf adları o
+  dosyanın jenerik `[class$="..."]` seçicileriyle otomatik eşleşiyor —
+  ekstra kod gerekmedi, sadece import + `position: relative` (zaten vardı).
+- **Kritik bug düzeltmesi (bu oturumda TÜM proje geneline yayıldı):**
+  glitch H1 seçicisi (`'main > div > div:first-child h1'`) TopicPage'in
+  gerçek DOM'uyla eşleşmiyordu (main'in İLK çocuğu zaten hero div'i, araya
+  ekstra katman girmiyor) — GaugePage.jsx'te fark edilip `'main > div:first-child h1'`
+  olarak düzeltildi. İlk raporda sadece RestAssured/Docker/Selenium'da
+  aynı bug'ın olduğu söylenmişti; kullanıcı "diğer 3 sayfaya da yay"
+  deyince kapsamlı bir grep yapıldı ve bug'ın aslında **25 sayfa dosyasının
+  24'ünde** (GaugePage zaten düzeltilmişti) olduğu ortaya çıktı — yani bu
+  glitch efekti proje genelinde HİÇBİR sayfada çalışmıyordu. Tamamı tek
+  seferde düzeltildi: AWSPage, AppiumPage, AzurePage, BrowserStackPage,
+  BrunoPage, ClaudeAiPage, CypressPage, DockerPage, GitGithubPage,
+  JMeterPage, JavaPage, JavaScriptPage, JenkinsPage, KafkaPage,
+  KubernetesPage, LinuxPage, LlmAgentsPage, PlaywrightPage, PostmanPage,
+  PythonPage, RestAssuredPage, SQLPage, SeleniumPage, TypeScriptPage.
+  Doğrulama: `npm run build` temiz, `check-content-integrity.mjs` temiz,
+  Playwright ile 5 örnek sayfada (python/aws/javascript/kafka/jenkins)
+  glitch class'ının artık gerçekten uygulandığı doğrulandı, 0 konsol hatası.
+- **Bilinçli olarak eklenmedi:** Ambient ses (rain+thunder, `ambientSound.js`).
+  Sebep: kütüphane sadece yağmur/gökgürültüsü sentezliyor (Docker/RestAssured/
+  Selenium'un orman/fırtına temasına uygun), Gauge'ın "amber kalibrasyon
+  istasyonu" temasıyla örtüşmüyor; görevin ses talebi de koşulluydu
+  ("eklenecekse"). Kütüphaneyi değiştirmek diğer 3 sayfayı riske atardı.
+
+**Doğrulama (§1.1 + görevin istediği 4 kombinasyon kontrolü):**
+- `npm run build` → temiz geçti (41 static shell dahil), sonra H1 seçici
+  düzeltmesi sonrası tekrar build edildi, yine temiz.
+- `node scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+  (CSS/JSX dosyaları bu scriptin kapsamında değil ama data dosyaları
+  etkilenmedi, regresyon yok).
+- Playwright ile TR×light, TR×dark, EN×light, EN×dark (4 kombinasyon,
+  localStorage `language`+`darkMode` ile ayarlanıp reload): her kombinasyonda
+  glitch H1 (1), 20 parçacık, dial progress, 2 magnetic buton, 8 gg-block,
+  pipeline, console DOM'da doğrulandı; scroll sonrası `--scroll-percent`
+  ve dial yüzdesi güncelleniyor; ekran görüntüleri incelendi — ay dekoru
+  dark modda hero banner köşesinde doğru konumlanıyor, stat sayıları
+  light modda artık okunaklı koyu amber, dark modda parlak amber;
+  **4 kombinasyonun 4'ünde de konsol hatası 0**.
+
 ### Kalan işler (Sonnet — promptlar gauge-plan.md §4'te hazır)
 1. ~~**WP-S1:** 💼 Mülakat Soruları sekmesi~~ — ✅ tamamlandı.
-2. ~~**WP-S2:** 🌍 Ekosistem & CI/CD sekmesi~~ — ✅ tamamlandı (yukarı bakın).
-3. **WP-S3:** Tam görsel efekt paketi (Docker rollout kuralları: 10s döngü,
-   hero-banner-container position:relative, role-bazlı light-mode kontrast).
-4. **WP-S4:** E2E suite'lerine /gauge ekleme — artık ön koşulu (WP-S1) hazır,
-   bu iş paketi şimdi çalıştırılabilir. Not: sekme sırası artık 8 sekmeye çıktı
-   (Neden Gauge?/Kurulum/Spec & Step/By ile Locator/JSON Locator Deposu/
-   **Ekosistem & CI/CD**/Gerçek Hayat Sorunları/Mülakat Soruları) — E2E
-   testleri yazan Sonnet güncel sekme sırasını gauge-plan.md veya bu dosyadan
-   teyit etmeli, WP-S1 zamanındaki 7 sekmelik listeyi referans almamalı.
-5. Kullanıcıya sorulacak: değişiklikler commit edilsin mi (şu an working
-   tree'de), Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
+2. ~~**WP-S2:** 🌍 Ekosistem & CI/CD sekmesi~~ — ✅ tamamlandı.
+3. ~~**WP-S3:** Tam görsel efekt paketi~~ — ✅ tamamlandı.
+4. ~~**Glitch-H1 bug'ının proje geneline yayılması**~~ — ✅ tamamlandı
+   (24 sayfa, yukarı bakın). **Bu değişikliklerin tamamı commit edildi**
+   (bir sonraki commit hash için `git log` kontrol edilebilir).
+5. **WP-S4:** E2E suite'lerine /gauge ekleme — sıradaki iş, aynı oturumda
+   devam ediyor. Sekme sırası 8 sekme: Neden Gauge?/Kurulum/Spec & Step/
+   By ile Locator/JSON Locator Deposu/Ekosistem & CI/CD/Gerçek Hayat
+   Sorunları/Mülakat Soruları.
+6. Kullanıcıya sorulacak: Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
 
 ---
 

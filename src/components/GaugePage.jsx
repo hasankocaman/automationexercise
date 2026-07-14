@@ -3,6 +3,7 @@ import TopicPage from './TopicPage'
 import { gaugeData } from '../data/gaugeData'
 import { useLanguage } from '../context/LanguageContext'
 import '../gauge-effects.css'
+import '../night-sky-effects.css'
 
 /* ─── Spec → Rapor Zinciri: bir Gauge koşumu adım adım nasıl akar ─────────── */
 function GaugePipeline({ isTr }) {
@@ -173,12 +174,30 @@ function GaugeStatsBanner() {
 
 /* ─── GaugePage ────────────────────────────────────────────────────────────── */
 function GaugePage() {
+    const { language } = useLanguage()
+
     useEffect(() => {
         const wrapper = document.querySelector('.gauge-page')
         if (!wrapper) return
         const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-        // Scroll ile içerik bloklarını yumuşakça görünür yap
+        // ── Yüzen kalibrasyon tozu parçacıkları ──────────────────────────
+        const particles = []
+        const pColors = ['#facc15', '#fb923c', '#fde68a', '#f59e0b', '#fbbf24']
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div')
+            p.className = 'gg-particle'
+            const size = 2 + Math.random() * 3.5
+            p.style.left = `${Math.random() * 100}%`
+            p.style.width = p.style.height = `${size}px`
+            p.style.setProperty('--dur', `${10 + Math.random() * 10}s`)
+            p.style.setProperty('--delay', `${Math.random() * 13}s`)
+            p.style.background = pColors[Math.floor(Math.random() * pColors.length)]
+            wrapper.appendChild(p)
+            particles.push(p)
+        }
+
+        // ── Scroll ile içerik bloklarını yumuşakça görünür yap ───────────
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 if (!e.isIntersecting) return
@@ -201,6 +220,7 @@ function GaugePage() {
             Array.from(card.children).forEach(child => {
                 if (child.tagName === 'H2') return
                 if (child.querySelector('button, input, textarea')) return
+                if (!child.classList.contains('gg-block')) child.classList.add('gg-block')
                 setupReveal(child)
             })
         }
@@ -209,11 +229,11 @@ function GaugePage() {
         let mutTimer
         const mutObserver = new MutationObserver(() => {
             clearTimeout(mutTimer)
-            mutTimer = setTimeout(applyBlockClasses, 60)
+            mutTimer = setTimeout(() => { applyBlockClasses(); applyMagnetic() }, 60)
         })
         mutObserver.observe(wrapper, { childList: true, subtree: true })
 
-        // İstatistik sayaçları: görünür olunca 0'dan hedefe say
+        // ── İstatistik sayaçları: görünür olunca 0'dan hedefe say ────────
         function animateCounter(el, target) {
             const startTime = performance.now()
             const duration = target > 1000 ? 2200 : 1600
@@ -230,25 +250,150 @@ function GaugePage() {
         const statObserver = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 if (!e.isIntersecting) return
-                const num = e.target.querySelector('.gg-stat-num')
+                const item = e.target
+                item.classList.remove('gg-stat-pending')
+                item.classList.add('gg-stat-visible')
+                const num = item.querySelector('.gg-stat-num')
                 if (num && !noMotion) animateCounter(num, parseInt(num.dataset.target, 10))
                 else if (num) num.textContent = num.dataset.target
-                statObserver.unobserve(e.target)
+                statObserver.unobserve(item)
             })
         }, { threshold: 0.05 })
-        wrapper.querySelectorAll('.gg-stat-item').forEach(el => statObserver.observe(el))
 
-        // Görünür olamayanlar için güvenlik ağı: kısa süre sonra hepsini aç
+        wrapper.querySelectorAll('.gg-stat-item').forEach((el, i) => {
+            if (!noMotion) { el.classList.add('gg-stat-pending'); el.style.transitionDelay = `${i * 0.12}s` }
+            statObserver.observe(el)
+        })
+
+        const statFallbackTimer = setTimeout(() => {
+            wrapper.querySelectorAll('.gg-stat-item.gg-stat-pending').forEach(el => {
+                el.classList.remove('gg-stat-pending')
+                el.classList.add('gg-stat-visible')
+                const num = el.querySelector('.gg-stat-num')
+                if (num && num.textContent === '0') num.textContent = num.dataset.target
+            })
+        }, 1200)
+
+        // ── Glitch H1 ─────────────────────────────────────────────────────
+        // NOT: RestAssured/Docker/Selenium'daki 'main > div > div:first-child h1'
+        // seçicisi TopicPage'in gerçek DOM'uyla eşleşmiyor (main'in İLK çocuğu
+        // zaten hero div'i, araya bir katman girmiyor) — burada düzeltildi.
+        const heroH1 = wrapper.querySelector('main > div:first-child h1')
+        if (heroH1) {
+            heroH1.setAttribute('data-text', heroH1.textContent.trim())
+            heroH1.classList.add('gg-glitch')
+        }
+
+        // ── Magnetic buton + squash + ripple (geri dön / dark mode toggle) ──
+        let currentMagBtn = null
+        function applyMagnetic() {
+            wrapper.querySelectorAll(
+                '[data-testid="topic-back-btn"]:not(.gg-magnetic-init), ' +
+                '[data-testid="dark-mode-toggle"]:not(.gg-magnetic-init)'
+            ).forEach(btn => { btn.classList.add('gg-magnetic-init', 'no-hover-scale') })
+        }
+        applyMagnetic()
+
+        function onWrapperMouseMove(e) {
+            if (noMotion) return
+            const btn = e.target.closest('button.gg-magnetic-init, a.gg-magnetic-init')
+            if (btn !== currentMagBtn) {
+                if (currentMagBtn) resetMagnetic(currentMagBtn, true)
+                currentMagBtn = btn
+            }
+            if (!btn) return
+            const r = btn.getBoundingClientRect()
+            const x = e.clientX - r.left - r.width / 2
+            const y = e.clientY - r.top - r.height / 2
+            btn.style.setProperty('transition', 'transform 0.15s ease', 'important')
+            btn.style.setProperty('transform', `translate(${x * 0.28}px, ${y * 0.28}px)`, 'important')
+        }
+        function resetMagnetic(btn, spring = false) {
+            if (!btn) return
+            btn.style.setProperty('transition', spring ? 'transform 0.55s cubic-bezier(0.23,1,0.32,1)' : 'transform 0.3s ease', 'important')
+            btn.style.setProperty('transform', 'translate(0,0)', 'important')
+            setTimeout(() => { btn.style.removeProperty('transition'); btn.style.removeProperty('transform') }, 600)
+        }
+        function onWrapperMouseLeave() { if (currentMagBtn) { resetMagnetic(currentMagBtn, true); currentMagBtn = null } }
+
+        wrapper.addEventListener('mousemove', onWrapperMouseMove)
+        wrapper.addEventListener('mouseleave', onWrapperMouseLeave)
+
+        function onWrapperPointerDown(e) {
+            if (noMotion) return
+            const btn = e.target.closest('button.gg-magnetic-init, a.gg-magnetic-init')
+            if (!btn) return
+            btn.style.removeProperty('transform')
+            btn.style.removeProperty('transition')
+            btn.classList.remove('gg-squash')
+            void btn.offsetWidth
+            btn.classList.add('gg-squash')
+            btn.addEventListener('animationend', () => btn.classList.remove('gg-squash'), { once: true })
+            const r = btn.getBoundingClientRect()
+            const size = Math.max(r.width, r.height) * 1.8
+            const span = document.createElement('span')
+            span.className = 'gg-ripple-span'
+            span.style.width = span.style.height = `${size}px`
+            span.style.left = `${e.clientX - r.left - size / 2}px`
+            span.style.top = `${e.clientY - r.top - size / 2}px`
+            span.style.background = 'rgba(31, 20, 8, 0.35)'
+            btn.appendChild(span)
+            span.addEventListener('animationend', () => span.remove(), { once: true })
+        }
+        wrapper.addEventListener('pointerdown', onWrapperPointerDown)
+
+        // ── İçerik bloğu 3D tilt efekti ──────────────────────────────────
+        const MAX_DEG = 6
+        let currentTiltBlock = null
+        function onContentMouseMove(e) {
+            if (noMotion) return
+            const block = e.target.closest('.gg-block')
+            if (block !== currentTiltBlock) {
+                if (currentTiltBlock) {
+                    currentTiltBlock.style.setProperty('transition', 'transform 0.5s ease', 'important')
+                    currentTiltBlock.style.removeProperty('transform')
+                    setTimeout(() => currentTiltBlock?.style.removeProperty('transition'), 520)
+                }
+                currentTiltBlock = block
+            }
+            if (!block) return
+            const r = block.getBoundingClientRect()
+            const x = (e.clientX - r.left) / r.width - 0.5
+            const y = (e.clientY - r.top) / r.height - 0.5
+            block.style.setProperty('transition', 'transform 0.12s ease', 'important')
+            block.style.setProperty('transform', `perspective(800px) rotateX(${-y * MAX_DEG}deg) rotateY(${x * MAX_DEG}deg) scale(1.01)`, 'important')
+        }
+        function onContentMouseLeave() {
+            if (!currentTiltBlock) return
+            currentTiltBlock.style.setProperty('transition', 'transform 0.55s ease', 'important')
+            currentTiltBlock.style.removeProperty('transform')
+            setTimeout(() => currentTiltBlock?.style.removeProperty('transition'), 580)
+            currentTiltBlock = null
+        }
+        const contentArea = wrapper.querySelector('.flex-1.min-w-0')
+        if (contentArea) {
+            contentArea.addEventListener('mousemove', onContentMouseMove)
+            contentArea.addEventListener('mouseleave', onContentMouseLeave)
+        }
+
+        // ── Görünür olamayanlar için güvenlik ağı ────────────────────────
         const revealFallbackTimer = setTimeout(() => {
             wrapper.querySelectorAll('.gg-reveal:not(.gg-visible)').forEach(el => {
-                if (el.getBoundingClientRect().top < window.innerHeight * 1.5) el.classList.add('gg-visible')
-            })
-            wrapper.querySelectorAll('.gg-stat-num').forEach(num => {
-                if (num.textContent === '0') num.textContent = num.dataset.target
+                const top = el.getBoundingClientRect().top
+                if (top < window.innerHeight * 1.5) el.classList.add('gg-visible')
             })
         }, 1500)
 
+        // ── Scroll: parallax glow + dial progress + reveal fallback ──────
         function onScroll() {
+            if (noMotion) return
+            const sY = window.scrollY
+            wrapper.style.setProperty('--gg-scroll-y', `${sY * 0.08}px`)
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight
+            const progress = totalHeight > 0 ? (sY / totalHeight) * 100 : 0
+            wrapper.style.setProperty('--scroll-percent', `${progress}%`)
+            const pctEl = wrapper.querySelector('.gg-dial-percent')
+            if (pctEl) pctEl.textContent = `${Math.round(progress)}%`
             wrapper.querySelectorAll('.gg-reveal:not(.gg-visible)').forEach(el => {
                 if (el.getBoundingClientRect().top < window.innerHeight + 120) {
                     requestAnimationFrame(() => el.classList.add('gg-visible'))
@@ -258,14 +403,33 @@ function GaugePage() {
         window.addEventListener('scroll', onScroll, { passive: true })
 
         return () => {
+            particles.forEach(p => p.remove())
+            mutObserver.disconnect()
             revealObserver.disconnect()
             statObserver.disconnect()
-            mutObserver.disconnect()
             clearTimeout(mutTimer)
+            clearTimeout(statFallbackTimer)
             clearTimeout(revealFallbackTimer)
+            if (heroH1) { heroH1.classList.remove('gg-glitch'); heroH1.removeAttribute('data-text') }
+            wrapper.querySelectorAll('.gg-magnetic-init').forEach(btn => {
+                btn.classList.remove('gg-magnetic-init', 'no-hover-scale', 'gg-squash')
+                btn.style.removeProperty('transform')
+                btn.style.removeProperty('transition')
+            })
+            wrapper.removeEventListener('mousemove', onWrapperMouseMove)
+            wrapper.removeEventListener('mouseleave', onWrapperMouseLeave)
+            wrapper.removeEventListener('pointerdown', onWrapperPointerDown)
+            if (contentArea) {
+                contentArea.removeEventListener('mousemove', onContentMouseMove)
+                contentArea.removeEventListener('mouseleave', onContentMouseLeave)
+            }
             window.removeEventListener('scroll', onScroll)
+            wrapper.style.removeProperty('--gg-scroll-y')
+            wrapper.style.removeProperty('--scroll-percent')
         }
     }, [])
+
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
     return (
         <div className="gauge-page">
@@ -275,6 +439,15 @@ function GaugePage() {
                 bgLight="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50"
                 extraBanner={<GaugeStatsBanner />}
             />
+            <div
+                className="gg-dial-progress"
+                onClick={scrollToTop}
+                title={language === 'tr' ? 'Yukarı Git' : 'Scroll to Top'}
+                data-testid="gauge-dial-progress"
+            >
+                <div className="gg-dial-water" />
+                <span className="gg-dial-percent">0%</span>
+            </div>
         </div>
     )
 }

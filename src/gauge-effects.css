@@ -1,11 +1,20 @@
 /* ═════════════════════════════════════════════════════════════════
-   Gauge Page — Amber/Turuncu + Fildişi Paleti
-   restassured-effects.css referans alınarak sadeleştirilmiş çekirdek
-   efekt paketi (hero banner + konsol + reveal). Tam görsel paket
-   (§9.2 Docker rollout kalıbı) ayrı bir iş paketinde genişletilecek.
+   Gauge Page — Amber/Turuncu Kalibrasyon Işığı Paleti
+   restassured-effects.css / docker-effects.css referans alınarak
+   RestAssured/Docker seviyesine yükseltilmiş tam efekt paketi.
    Tüm stiller .gauge-page wrapper'a scope'lu.
+   Gece gökyüzü/ay/kayan yıldız efektleri ORTAK night-sky-effects.css'te
+   tanımlıdır (GaugePage.jsx içinde import edilir) — burada TEKRAR
+   tanımlanmaz, sadece .gauge-page ve .gg-hero-banner-container/.gg-stats-bar
+   sınıf adları o dosyanın jenerik `[class$="..."]` seçicileriyle eşleşir.
    ═════════════════════════════════════════════════════════════════ */
 
+/* ── 0. Palet — WCAG kontrastları için role-bazlı tokenler ───────────
+   --gg-accent/--gg-accent-2 PARLAK tonlardır (facc15/fb923c) — sadece
+   arka plan/glow/particle gibi METİN OLMAYAN yerlerde kullanılır.
+   Metin/gradient-clip başlıklar HER ZAMAN --gg-role-* tokenlerini
+   kullanır: light modda koyu ocher/amber (kontrast için), dark modda
+   parlak amber/turuncu (aynı token, mod bazında farklı değer). */
 .gauge-page {
   --gg-bg-primary:    #1f1408;
   --gg-bg-secondary:  #2b1c0c;
@@ -19,6 +28,7 @@
   --gg-role-accent-2: #b45309;
   --gg-role-muted:    #6b5744;
   --gg-role-success:  #15803d;
+  --gg-role-ink:      #3a2c12;
   position: relative;
 }
 
@@ -29,46 +39,176 @@
   --gg-role-accent-2: #fb923c;
   --gg-role-muted:    #e2d3c5;
   --gg-role-success:  #86efac;
+  --gg-role-ink:      #fef3c7;
 }
 
-/* Scroll ile yumuşak görünme */
+/* ── 1. Sayfa Geneli Ambiyans — Sabit Glow + Parallax ─────────────── */
+/* --gg-scroll-y JS tarafından scroll ile güncellenir */
+.gauge-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(250, 204, 21, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 80%, rgba(251, 146, 60, 0.09) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(250, 204, 21, 0.04) 0%, transparent 65%),
+    radial-gradient(ellipse at 70% 15%, rgba(254, 240, 138, 0.06) 0%, transparent 44%),
+    radial-gradient(ellipse at 25% 85%, rgba(251, 146, 60, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: gg-glow-pulse 9s ease-in-out infinite alternate;
+  transform: translateY(var(--gg-scroll-y, 0px));
+  will-change: transform;
+}
+@keyframes gg-glow-pulse { from { opacity: 0.55; } to { opacity: 1.0; } }
+
+/* ── 2. Yüzen Parçacıklar (kalibrasyon tozu) ──────────────────────── */
+.gg-particle {
+  position: fixed; border-radius: 50%; opacity: 0; pointer-events: none; z-index: 1;
+  animation: gg-float var(--dur, 14s) var(--delay, 0s) infinite linear;
+}
+@keyframes gg-float {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  8%   { opacity: 0.45; }
+  92%  { opacity: 0.45; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* ── 3. Scroll Reveal ──────────────────────────────────────────────── */
 .gg-reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.55s ease, transform 0.55s ease; }
 .gg-reveal.gg-visible { opacity: 1; transform: translateY(0); }
 
-/* ── Hero banner ızgarası ── */
+/* ── 4. Sekme Başlığı — Hareketli Gradient Metin (role-bazlı) ─────── */
+.gauge-page .flex-1.min-w-0 > div:first-child > h2 {
+  background: linear-gradient(135deg, var(--gg-role-accent), var(--gg-role-accent-2), var(--gg-role-success), var(--gg-role-accent));
+  background-size: 260% 260%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: var(--gg-role-accent);
+  display: inline-block;
+  animation: gg-gradient-shift 5s ease infinite;
+}
+@keyframes gg-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── 5. Ana İçerik Kartı — Amber Glassmorphism ─────────────────────── */
+.gauge-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(255, 251, 235, 0.84) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(250, 204, 21, 0.18) !important;
+  box-shadow:
+    0 0 0 1px rgba(250, 204, 21, 0.05),
+    0 0 0 3px rgba(251, 146, 60, 0.03),
+    0 24px 64px rgba(250, 204, 21, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+.dark-mode .gauge-page .flex-1.min-w-0 > div:first-child,
+[data-theme="dark"] .gauge-page .flex-1.min-w-0 > div:first-child {
+  background: rgba(31, 20, 8, 0.90) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid rgba(250, 204, 21, 0.14) !important;
+  box-shadow:
+    0 0 0 1px rgba(250, 204, 21, 0.04),
+    0 0 0 3px rgba(251, 146, 60, 0.02),
+    0 24px 64px rgba(250, 204, 21, 0.06),
+    inset 0 1px 0 rgba(251, 146, 60, 0.06) !important;
+}
+.gauge-page .flex-1.min-w-0 > div:first-child:hover {
+  border-color: rgba(250, 204, 21, 0.32) !important;
+  box-shadow:
+    0 0 0 1px rgba(250, 204, 21, 0.10),
+    0 0 0 3px rgba(251, 146, 60, 0.04),
+    0 24px 64px rgba(250, 204, 21, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+}
+
+/* ── 6. İçerik Blokları (gg-block) — Amber Glow + 3D Tilt Zemini ──── */
+.gauge-page .gg-block {
+  border-color: rgba(250, 204, 21, 0.12) !important;
+  transition: transform 0.12s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+  transform-style: preserve-3d;
+}
+.gauge-page .gg-block:hover {
+  border-color: rgba(250, 204, 21, 0.30) !important;
+  box-shadow: 0 4px 24px rgba(250, 204, 21, 0.09), 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ── 7. Hero Glitch (H1) — Amber + Turuncu (role-bazlı) ───────────── */
+.gg-glitch { position: relative; }
+.gg-glitch::before, .gg-glitch::after {
+  content: attr(data-text); position: absolute; inset: 0; pointer-events: none;
+}
+.gg-glitch::before {
+  color: color-mix(in srgb, var(--gg-role-accent) 75%, transparent);
+  animation: gg-glitch-1 5s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%);
+  z-index: -1;
+}
+.gg-glitch::after {
+  color: color-mix(in srgb, var(--gg-role-success) 65%, transparent);
+  animation: gg-glitch-2 5s infinite;
+  clip-path: polygon(0 58%, 100% 58%, 100% 100%, 0 100%);
+  z-index: -2;
+}
+@keyframes gg-glitch-1 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82% { transform: translate(-3px, 1px); }
+  84% { transform: translate(2px, -2px); }
+  86% { transform: translate(-1px, 2px); }
+  88% { transform: translate(0, 0); }
+}
+@keyframes gg-glitch-2 {
+  0%, 80%, 100% { transform: translate(0, 0); }
+  82% { transform: translate(3px, -1px); }
+  84% { transform: translate(-2px, 2px); }
+  86% { transform: translate(1px, -1px); }
+  88% { transform: translate(0, 0); }
+}
+
+/* ── 8. Hero banner ızgarası (asimetrik) ──────────────────────────── */
 .gg-hero-banner-container { position: relative; }
 .gg-hero-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.875rem; margin-bottom: 1rem; }
 @media (max-width: 680px) { .gg-hero-banner { grid-template-columns: 1fr; } }
 
-/* ── İstatistik çubuğu ── */
+/* ── 9. İstatistik çubuğu (role-bazlı gradient metin) ─────────────── */
 .gg-stats-bar {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; padding: 1rem 1.1rem; border-radius: 14px;
   background: rgba(250, 204, 21, 0.05); border: 1px solid rgba(250, 204, 21, 0.18);
   backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
   box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   animation: gg-stats-border-pulse 4s ease-in-out infinite alternate;
+  position: relative;
 }
 @keyframes gg-stats-border-pulse {
   from { border-color: rgba(250, 204, 21, 0.18); }
   to   { border-color: rgba(251, 146, 60, 0.32); box-shadow: 0 0 14px rgba(251, 146, 60, 0.08); }
 }
-.gg-stat-item { text-align: center; }
+.gg-stat-item {
+  text-align: center; opacity: 1; transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.gg-stat-item.gg-stat-pending { opacity: 0; transform: translateY(20px); }
+.gg-stat-item.gg-stat-visible { opacity: 1; transform: translateY(0); }
 .gg-stat-number-wrap { display: flex; align-items: baseline; justify-content: center; gap: 1px; }
 .gg-stat-num {
   font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, var(--gg-accent), var(--gg-accent-2));
+  background: linear-gradient(135deg, var(--gg-role-accent), var(--gg-role-accent-2));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  color: var(--gg-accent); line-height: 1.1;
+  color: var(--gg-role-accent); line-height: 1.1;
 }
 .gg-stat-suffix {
   font-size: clamp(0.8rem, 1.8vw, 1.1rem); font-weight: 700;
-  background: linear-gradient(135deg, var(--gg-accent), var(--gg-accent-2));
+  background: linear-gradient(135deg, var(--gg-role-accent), var(--gg-role-accent-2));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  color: var(--gg-accent);
+  color: var(--gg-role-accent);
 }
 .gg-stat-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gg-text-muted); margin-top: 0.2rem; }
 
-/* ── Koşum zinciri (pipeline) ── */
+/* ── 10. Koşum zinciri (pipeline) ─────────────────────────────────── */
 .gg-pipeline {
   padding: 1rem 1.1rem; border-radius: 14px; background: rgba(250, 204, 21, 0.05); border: 1px solid rgba(250, 204, 21, 0.16);
   backdrop-filter: blur(12px) saturate(150%); -webkit-backdrop-filter: blur(12px) saturate(150%);
@@ -94,11 +234,82 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border-color: var(--gg-accent) !important;
 }
 
-/* ── gauge run konsolu + eşleşme panosu ── */
+/* ── 11. Squash & Stretch Buton Animasyonu ────────────────────────── */
+.gauge-page .gg-magnetic-init { position: relative; overflow: hidden; }
+.gg-squash {
+  animation: gg-squash-anim 0.30s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards !important;
+  transform: none !important;
+}
+@keyframes gg-squash-anim {
+  0%   { transform: scale(1.00, 1.00); }
+  22%  { transform: scaleX(1.16) scaleY(0.84); }
+  55%  { transform: scaleX(0.96) scaleY(1.05); }
+  80%  { transform: scaleX(1.01) scaleY(0.99); }
+  100% { transform: scale(1.00, 1.00); }
+}
+
+/* ── 12. Ripple — JS tarafından span oluşturulur ──────────────────── */
+.gg-ripple-span {
+  position: absolute; border-radius: 50%; transform: scale(0); opacity: 0.30; pointer-events: none;
+  animation: gg-ripple-anim 0.55s ease-out forwards;
+}
+@keyframes gg-ripple-anim { to { transform: scale(3); opacity: 0; } }
+
+/* ── 13. Sıvı Dolgulu Butonlar (Amber Kalibrasyon Sıvısı) ─────────── */
+.gauge-page .gg-magnetic-init {
+  z-index: 1; overflow: hidden;
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.gauge-page .gg-magnetic-init::before {
+  content: ''; position: absolute; top: 100%; left: -50%; width: 200%; height: 200%;
+  background: rgba(250, 204, 21, 0.45); border-radius: 38% 42% 40% 45%;
+  transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1); z-index: -2; pointer-events: none;
+}
+.gauge-page .gg-magnetic-init::after {
+  content: ''; position: absolute; top: 100%; left: -48%; width: 200%; height: 200%;
+  background: linear-gradient(45deg, #92400e, #d97706, #fbbf24); border-radius: 43% 39% 45% 40%;
+  transition: all 0.78s cubic-bezier(0.25, 1, 0.5, 1); z-index: -1; pointer-events: none;
+}
+.gauge-page .gg-magnetic-init:hover::before { top: -40%; transform: rotate(320deg); }
+.gauge-page .gg-magnetic-init:hover::after { top: -38%; transform: rotate(360deg); }
+.gauge-page .gg-magnetic-init:hover {
+  color: #1f1408 !important; border-color: var(--gg-accent) !important;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.45);
+}
+
+/* ── 14. Gauge Dial Scroll Progress — Ölçüm Aleti Kadranı ─────────── */
+.gg-dial-progress {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 58px; height: 58px; border-radius: 50%;
+  background:
+    repeating-conic-gradient(rgba(250, 204, 21, 0.35) 0deg 3deg, transparent 3deg 12deg),
+    var(--gg-bg-secondary, #2b1c0c);
+  border: 2px solid rgba(250, 204, 21, 0.30); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1000; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; pointer-events: auto;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.gg-dial-progress:hover { transform: scale(1.1); border-color: var(--gg-accent-2, #fb923c); }
+.gg-dial-water {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: var(--scroll-percent, 0%);
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.70), rgba(31, 20, 8, 0.95));
+  transition: height 0.15s ease-out;
+}
+.gg-dial-water::before {
+  content: ''; position: absolute; top: -6px; left: -50%; width: 200%; height: 12px;
+  background: var(--gg-accent-2, #fb923c); border-radius: 40%;
+  animation: gg-dial-flow 2.2s infinite linear;
+}
+@keyframes gg-dial-flow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.gg-dial-percent {
+  position: relative; font-size: 0.68rem; font-weight: 900; color: var(--gg-text-primary, #faf3e8);
+  z-index: 10; user-select: none; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ── 15. gauge run konsolu + eşleşme panosu ────────────────────────── */
 .gg-console-box {
   display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1rem; padding: 1.2rem; border-radius: 14px;
   background: rgba(43, 28, 12, 0.35); border: 1px solid rgba(250, 204, 21, 0.16); backdrop-filter: blur(12px);
-  margin-top: 0.6rem;
+  margin-top: 0.6rem; transform-style: preserve-3d;
 }
 @media (max-width: 680px) { .gg-console-box { grid-template-columns: 1fr; } }
 .gg-console {
@@ -122,9 +333,59 @@
 }
 .gg-order-item.done { opacity: 1; color: var(--gg-success); }
 
-/* Erişilebilirlik: hareket azaltma tercihi */
+/* ── 16. Gece gökyüzü / ay / kayan yıldız — bkz. night-sky-effects.css ──
+   .gauge-page, .gg-hero-banner-container ve .gg-stats-bar sınıf adları o
+   dosyanın `[class$="-page"]` / `[class$="-hero-banner-container"]` /
+   `[class$="-stats-bar"]` jenerik seçicileriyle otomatik eşleşir. Burada
+   TEKRAR tanımlamayın — ortak dosyayı güncelleyin. */
+
+/* ── 17. Light Mode 10s Ritmik Ambiyans — Kalibrasyon Işığı Yanıp Sönmesi ──
+   RestAssured'daki şimşek / Docker'daki yağmur+şimşek döngüsünün Gauge
+   karşılığı: bir kalibrasyon istasyonunun amber ikaz ışığı her 10 saniyede
+   bir kısa bir parlama yapar — "ölçüm aleti" temasıyla tutarlı. */
+.gauge-page .min-h-screen:not(.dark-mode) {
+  animation: gg-calibration-flash 10s infinite ease-in-out;
+  transition: filter 0.15s ease;
+}
+@keyframes gg-calibration-flash {
+  0%, 92%, 94.5%, 96%, 100% { filter: brightness(1) contrast(1); }
+  93%  { filter: brightness(1.22) contrast(1.05) saturate(1.12); }
+  94%  { filter: brightness(1.06); }
+  95%  { filter: brightness(1.28) contrast(1.08) saturate(1.18); }
+}
+
+/* Kalibrasyon Kıvılcımları — hafif düşen amber kıvılcım dokusu (sadece light mode) */
+.gauge-page .min-h-screen:not(.dark-mode)::before {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    radial-gradient(1.2px 25px at 30px 10px, rgba(250, 204, 21, 0.18), transparent),
+    radial-gradient(1.2px 32px at 130px 90px, rgba(251, 146, 60, 0.16), transparent),
+    radial-gradient(1.2px 22px at 250px 30px, rgba(250, 204, 21, 0.18), transparent),
+    radial-gradient(1.2px 35px at 70px 190px, rgba(251, 146, 60, 0.16), transparent),
+    radial-gradient(1.2px 26px at 210px 110px, rgba(250, 204, 21, 0.18), transparent),
+    radial-gradient(1.8px 30px at 310px 240px, rgba(251, 146, 60, 0.20), transparent);
+  background-size: 380px 380px; opacity: 0.9; pointer-events: none; z-index: 999;
+  animation: gg-spark-flow 0.9s infinite linear;
+}
+@keyframes gg-spark-flow { 0% { background-position: 0px 0px; } 100% { background-position: -32px 380px; } }
+
+/* ── 18. Reduced Motion — tüm animasyonları kapat ─────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  .gauge-page::before { animation: none; opacity: 0.7; transform: none !important; }
+  .gg-particle { animation: none; opacity: 0; }
+  .gauge-page .flex-1.min-w-0 > div:first-child > h2 { animation: none; background: none; -webkit-text-fill-color: unset; color: inherit; }
   .gg-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .gg-glitch::before, .gg-glitch::after { animation: none; }
   .gg-stats-bar { animation: none; }
+  .gg-stat-item, .gg-stat-item.gg-stat-pending { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .gg-squash { animation: none !important; }
+  .gg-ripple-span { display: none; }
   .gg-stages-3d, .gg-stage { transition: none; }
+  .gg-stages-3d:hover .gg-stage { transform: none !important; }
+  .gauge-page .gg-magnetic-init::before,
+  .gauge-page .gg-magnetic-init::after { display: none !important; }
+  .gg-dial-water::before { animation: none !important; }
+  .gauge-page .min-h-screen:not(.dark-mode) { animation: none !important; }
+  .gauge-page .min-h-screen:not(.dark-mode)::before { animation: none !important; display: none !important; }
+  .gauge-page .gg-block { transition: none !important; }
 }
