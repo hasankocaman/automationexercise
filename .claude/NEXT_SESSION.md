@@ -10,6 +10,116 @@
 
 ---
 
+## Trending Skills Widget — WP-C/D tamamlandı, main'e merge edildi (2026-07-14)
+
+> Plan dosyası: `Documents/trending-skills-plan.md` (referans olarak duruyor,
+> iş bölümü ve mimari kararlar orada). WP-A/B (şema + edge function) Fable
+> tarafından `feature/trending-skills-widget` dalında yapılmıştı; bu oturumda
+> WP-C/D (Sonnet) tamamlandı, Fable'ın WP-B kodunda 1 kritik bug bulunup
+> düzeltildi, kullanıcı isteğiyle 2 ek iyileştirme yapıldı, dal `main`'e
+> **fast-forward merge edildi ve push edildi**.
+
+### Yapılan iş
+1. **WP-C** — `.github/workflows/trending-skills-cron.yml`: günlük 06:00 UTC
+   cron, `trending-skills-sync` edge function'ını `x-cron-secret` header'ıyla
+   tetikler, HTTP >=400'de fail-fast (sessiz hata yok).
+2. **WP-D** — `src/components/TrendingSkillsWidget.jsx`: `trending_skills`
+   tablosundan frekansa göre ilk 10 skill'i pill/badge olarak gösterir.
+   `SKILL_ROUTE_MAP` sözlüğündeki skill'ler tıklanabilir `<Link>`, diğerleri
+   düz `<span>`. Supabase yapılandırılmamış/hata durumunda sessizce `null`
+   döner (sayfa bozulmaz). `HomePage.jsx`'e entegre edildi.
+3. **Kullanıcı isteğiyle konum değişikliği:** Widget başlangıçta nav'ın en
+   altına (Practice Area'dan sonra) eklenmişti; kullanıcı "sayfayı açan hemen
+   görsün" dediği için header'ın hemen altına, `MembershipPromo` banner'ının
+   ÜSTÜNE taşındı (`HomePage.jsx` ~455. satır civarı).
+4. **Kullanıcı isteğiyle dinamik meta veri:** Widget başlığı statik bir
+   cümleydi ("Gerçek QA iş ilanlarından günlük çıkarılan..."); kullanıcı
+   tarih aralığı + hangi platformlarda kaç ilan tarandığının gösterilmesini
+   istedi. Yeni **`trending_skills_meta`** singleton tablosu eklendi
+   (`schema.sql`): `window_start`, `window_end`, `postings_scanned`,
+   `sources text[]`. Edge function artık JSearch'ün `job_publisher` alanını
+   (gerçek değerler doğrulandı: `BeBee, Indeed, LinkedIn, TieTalent,
+   ZipRecruiter, BridgingTheGap - Nexxt` vb.) toplayıp bu tabloya yazıyor.
+   Widget artık örn. **"7-14 Temmuz 2026 tarihleri arasında LinkedIn, Indeed
+   ve ZipRecruiter üzerinden taranan 10 iş ilanından çıkarılan trend teknik
+   yetenekler"** gösteriyor.
+
+### Bulunan ve düzeltilen buglar
+1. **Kritik — WP-B'de yanlış JSearch endpoint'i:** `index.ts` `/search`
+   çağırıyordu, RapidAPI 404 "`/search` does not exist" döndürdü. İlk tahmin
+   `/job-search` de yanlış çıktı (yine 404). **Kullanıcının RapidAPI
+   dashboard'undaki gerçek "Code Snippets" paneline bakması sonucu** doğru
+   endpoint'in **`/search-v2`** olduğu netleşti. Ders: JSearch gibi RapidAPI
+   API'lerinde endpoint path'i tahmin etmek yerine kullanıcının dashboard'daki
+   gerçek kod örneğini istemek daha güvenilir — bu API'de iki kez yanlış
+   tahmin edildi.
+2. **Widget'ta çift emoji:** Başlıkta hem ikon span'i hem locale string'i
+   içinde 🔥 vardı, çift görünüyordu — locale string'lerinden kaldırıldı,
+   emoji artık sadece ikon span'inde (diğer kart başlıklarıyla aynı desen).
+3. **EN tarih formatı yanlış sıradaydı:** "7-July 14, 2026" yerine
+   "July 7-14, 2026" olmalıydı — `tr-TR` gün-ay, `en-US` ay-gün sırası
+   kullandığından aynı-ay tarih aralığı formatlaması dile göre ayrı
+   kurgulanarak düzeltildi (`TrendingSkillsWidget.jsx` `formatDateRange`).
+
+### Yan konu — güvenlik doğrulaması (bug DEĞİL)
+Kullanıcı prod'da (`learnqa.dev`) bir ziyaretçinin (`Adem Tatar`) yorum
+kutusuna XSS payload'ları (`<script>...`, `<img onerror=...>`) yazdığını
+fark etti. Kontrol edildi: **güvenlik açığı yok** —
+`CommentsSection.jsx` yorum metnini `{c.comment}` ile düz JSX interpolation
+olarak render ediyor, `dangerouslySetInnerHTML` YOK, React otomatik escape
+ediyor. Payload'lar ekranda literal metin olarak kaldı, çalışmadı. Kullanıcı
+test yorumlarını SQL Editor'den sildi. Not: yorum sisteminde rate-limit/
+moderasyon yok, ama bu ayrı ve düşük öncelikli bir konu.
+
+### ÖNEMLİ — Secret rotasyonu gerekiyor (henüz doğrulanmadı)
+Bu oturumda debug sürecinde kullanıcı iki gerçek credential'ı sohbette açık
+metin paylaştı: **`CRON_INVOKE_SECRET`** (iki kez) ve **`RAPIDAPI_KEY`**
+(bir kez). Kullanıcıya rotasyon önerildi ama **yapıldığı teyit edilmedi** —
+bir sonraki oturumda sorulmalı: "CRON_INVOKE_SECRET ve RAPIDAPI_KEY'i
+rotate ettin mi?" Rotasyon yapılırsa hem Supabase secrets hem (eklenmişse)
+GitHub Actions repo secrets güncellenmeli.
+
+### Doğrulama (§1.1 checklist + runtime)
+- `npm run build` → main'de ✅ PASS (check-seo, check-content-integrity,
+  generate-seo-files, vite build, generate-static-routes, check-dist-seo
+  hepsi temiz).
+- **Runtime (Playwright ile `npm run dev:prod`, gerçek prod Supabase
+  verisiyle):** widget doğru konumda render oldu, TR+EN+dark+light mode'da
+  görsel olarak doğrulandı, konsol hatası yok, `trending_skills` /
+  `trending_skills_meta` sorguları 200 döndü.
+- **Edge function manuel tetikleme (curl, prod):** `{"ok":true,
+  "postingsFetched":10,"skillsExtracted":53,"distinctSkills":72,"sources":
+  [...]}` — uçtan uca çalışıyor.
+- **Önemli araç notu:** İlk doğrulama denemesinde varsayılan
+  `npm run dev` (port 5173, kullanıcının kendi süreci) **test** Supabase
+  projesine bağlıydı, biz şemayı **prod** projeye uygulamıştık — bu yüzden
+  widget ilk denemede "görünmüyor" gibi göründü. Repo'da tam bunun için
+  `npm run dev:prod` (`.env.prodtest.local` okur) script'i var — kafa
+  karışıklığı olursa hangi ortamın hangi `.env*.local` dosyasını okuduğunu
+  kontrol et.
+
+### Deploy/DB durumu (canlı, tamamlandı)
+- `supabase/functions/trending-skills-sync/schema.sql` prod projede
+  (`qmvurwmcuexvuwvaiuhj`) SQL Editor'den **çalıştırıldı** —
+  `job_skill_snapshots`, `trending_skills`, `trending_skills_meta` hepsi var.
+- Edge function prod'a **deploy edildi** (`--no-verify-jwt`), son haliyle
+  test edildi.
+- `feature/trending-skills-widget` → `main`'e **fast-forward merge edildi**
+  (commit `0474e67`) ve **`origin/main`'e push edildi**.
+
+### Kalan işler (bir sonraki oturumda kontrol et)
+1. Kullanıcı `CRON_INVOKE_SECRET` + `RAPIDAPI_KEY` rotasyonunu yaptı mı?
+2. GitHub Actions repo secrets eklendi mi? (`CRON_INVOKE_SECRET`,
+   `SUPABASE_PROJECT_REF`) — eklenmeden `trending-skills-cron.yml` günlük
+   cron'u başarısız olur (fail-fast tasarımı gereği görünür şekilde,
+   sessizce değil).
+3. İlk otomatik cron koşusu (06:00 UTC) gerçekleşti mi, `trending_skills`
+   tablosu günlük güncelleniyor mu?
+4. `feature/trending-skills-widget` dalı artık `main`'e karıştığı için
+   silinebilir (kullanıcıya sor, ben silmedim).
+
+---
+
 ## AIQA_ROADMAP Faz 3 — C-4 Visual Regression TAMAMLANDI — AIQA_ROADMAP.md TAMAMEN BİTTİ (2026-07-09)
 
 > Roadmap'in son modülü. Kullanıcıya C-4'ün API yaklaşımı soruldu (tek gerçek
