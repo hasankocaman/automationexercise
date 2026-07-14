@@ -81,7 +81,7 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 // eşleştirildi; /basit-backend, /security, /backend kalıcı istisnalar (CLAUDE.md §22.1).
 const SAMPLE_ROUTES_FOR_EN_AUDIT = [
     '/jmeter', '/sql', '/typescript', '/javascript', '/python', '/test-frameworks',
-    '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/kubernetes',
+    '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/gauge', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
     '/claude-ai', '/llm-agents',

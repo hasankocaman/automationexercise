@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test';
 // Yeni bir TopicPage route'u eklenirse buraya da eklenmeli (bkz. CLAUDE.md Bölüm 2).
 const TOPIC_ROUTES = [
     '/jmeter', '/sql', '/typescript', '/javascript', '/python', '/test-frameworks',
-    '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/kubernetes',
+    '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/gauge', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
     '/claude-ai', '/llm-agents',

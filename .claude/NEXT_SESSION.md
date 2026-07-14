@@ -10,11 +10,13 @@
 
 ---
 
-## Gauge Sayfası — Fable çekirdeği tamamlandı, Sonnet WP'leri bekliyor (2026-07-14)
+## Gauge Sayfası — Fable çekirdeği + Sonnet WP-S1..S4 TAMAMLANDI (2026-07-14)
 
 > Plan + Sonnet promptları: `Documents/gauge-plan.md` (iş bölümü, mimari
-> kararlar ve 4 hazır WP promptu orada). Çalışma `main` üzerinde, COMMIT
-> EDİLMEDİ — kullanıcı commit istemedi, working tree'de duruyor.
+> kararlar orada — artık sadece referans, canlı durum burada). `/gauge`
+> sayfası içerik (8 sekme, 50 soruluk mülakat), tam görsel efekt paketi,
+> proje geneli glitch-H1 bug düzeltmesi ve E2E test kapsamıyla birlikte
+> `main`'e commit edildi (bkz. altta ilgili WP bölümlerindeki commit hash'leri).
 
 ### Yapılan iş (Fable)
 1. **`src/data/gaugeData.js` (yeni, ~1560 satır):** 6 sekme — 🏠 Neden Gauge?,
@@ -184,18 +186,90 @@ working tree'de değişiklik olarak duruyor.
   light modda artık okunaklı koyu amber, dark modda parlak amber;
   **4 kombinasyonun 4'ünde de konsol hatası 0**.
 
-### Kalan işler (Sonnet — promptlar gauge-plan.md §4'te hazır)
-1. ~~**WP-S1:** 💼 Mülakat Soruları sekmesi~~ — ✅ tamamlandı.
-2. ~~**WP-S2:** 🌍 Ekosistem & CI/CD sekmesi~~ — ✅ tamamlandı.
-3. ~~**WP-S3:** Tam görsel efekt paketi~~ — ✅ tamamlandı.
-4. ~~**Glitch-H1 bug'ının proje geneline yayılması**~~ — ✅ tamamlandı
-   (24 sayfa, yukarı bakın). **Bu değişikliklerin tamamı commit edildi**
-   (bir sonraki commit hash için `git log` kontrol edilebilir).
-5. **WP-S4:** E2E suite'lerine /gauge ekleme — sıradaki iş, aynı oturumda
-   devam ediyor. Sekme sırası 8 sekme: Neden Gauge?/Kurulum/Spec & Step/
-   By ile Locator/JSON Locator Deposu/Ekosistem & CI/CD/Gerçek Hayat
-   Sorunları/Mülakat Soruları.
-6. Kullanıcıya sorulacak: Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
+### WP-S4 tamamlandı (Sonnet, aynı oturum) — /gauge E2E Kapsamı
+
+**Hangi suite'ler /gauge'u kapsıyor (CLAUDE.md §22 haritası):**
+1. **`tests/topic-pages-ui.spec.ts`** (`TOPIC_ROUTES`) — buton tıklanabilirliği,
+   sekme render, prev/next gezinme doğruluğu. `/gauge` eklendi. ✅ **PASS**.
+2. **`tests/i18n-content-toggle.spec.ts`** (`SAMPLE_ROUTES_FOR_EN_AUDIT`) —
+   EN modda Türkçeye özgü karakter (ı/ğ/ş) taraması. `/gauge` eklendi.
+   **İlk koşumda gerçek bir bug buldu ve düzeltti** (aşağıya bakın),
+   düzeltme sonrası ✅ **PASS**.
+3. **`tests-extended/interview-mastery-flows.spec.ts`** (`PAGES`, `npm run
+   test:interview-flows` ile koşulur) — mülakat gating (kapalı/açık),
+   cevap input alanı, gerçek `grade-interview-answer` AI çağrısı, %80
+   mastery → Supabase `user_progress` satırı. `/gauge` eklendi (yapısal
+   olarak doğru: mülakat-dışı 7 sekmede 14 quiz var, %60 eşiği = 9 doğru
+   cevap, `quizQueue.length` 14 ile fazlasıyla yeterli). **Şu an ⚠️ FAIL —
+   ama nedeni Gauge içeriği DEĞİL, aşağıdaki pre-existing altyapı sorunu.**
+
+**Bulunan ve düzeltilen gerçek bug (gaugeData.js):** "Ekosistem & CI/CD"
+sekmesindeki DataStore karşılaştırma tablosunda `SpecDataStore` satırının
+"TestNG karşılığı" hücresi `{tr, en}` yerine düz bir Türkçe string'di
+(`'@BeforeClass ile kurulan bir instance alanı'`) — EN modda da bu Türkçe
+metin sızıyordu. `{ tr: '...', en: 'An instance field set up in
+@BeforeClass' }` olarak düzeltildi. `check-content-integrity.mjs` bu tür
+hataları YAKALAMAZ (sadece kod yorumu/relatedTopicId/tekrar kontrolü yapar,
+tablo hücresi düz string'lerini kontrol etmez) — bu yüzden yeni tablo/grid
+içeriği eklerken her hücrenin gerçekten `{tr, en}` olduğunu manuel gözden
+geçirmek gerekiyor.
+
+**⚠️ PRE-EXISTING altyapı sorunu (Gauge'a özgü DEĞİL — proje geneli, ACİL
+DEĞİL ama kayda değer):** `interview-mastery-flows.spec.ts` VE post-commit
+suite'teki `tests/docker-interview-mastery-flow.spec.ts` — ikisi de gerçek
+Supabase login (`signInWithPassword`) yapıp session'ı `context.addInitScript`
+ile localStorage'a enjekte ediyor, sonra `[data-testid="nav-account"]`
+görünür olmasını bekliyor. **Bu oturumda test edilen 3 sayfanın (`/gauge`,
+`/bruno`, `/docker` — SONUNCUSU HİÇ DOKUNULMAMIŞ, önceden var olan bir
+sayfa) ÜÇÜNDE DE bu adım aynı hatayla timeout oluyor: `nav-account` hiç
+render olmuyor.** Kök neden araştırması:
+- `authClient.auth.signInWithPassword` **gerçekten başarılı** — gerçek
+  session objesi dönüyor (elle doğrulandı, ayrı bir script ile).
+- Hesaplanan `localStorage` anahtarı (`sb-<project-ref>-auth-token`) doğru
+  formatta ve `.env.local`'daki `VITE_SUPABASE_URL` ile proje eşleşiyor.
+- Yani sorun kimlik doğrulamada değil, **uygulamanın enjekte edilen
+  session'ı `AuthContext`/Supabase client üzerinden tanımamasında** —
+  muhtemelen `context.addInitScript` zamanlaması, supabase-js session
+  hydration'ı veya tarayıcı depolama/çerez davranışıyla ilgili bir sorun.
+- **Bu, Gauge'un test suite'ine eklenmesiyle İLGİLİ DEĞİL** — zaten var olan
+  `/docker` sayfası da aynı şekilde fail ediyor, yani bu suite şu an
+  PROJE GENELİNDE kırık (muhtemelen yakın zamanda bir supabase-js sürüm
+  güncellemesi, tarayıcı politikası değişikliği veya .env.local'daki
+  `TEST_USER_*` bilgilerinin değişmiş olması). **Testleri gevşetmedim** —
+  `/gauge` satırı `PAGES` dizisinde doğru ve tam haliyle duruyor, altyapı
+  düzeltildiğinde otomatik olarak PASS etmesi beklenir.
+- **Bir sonraki oturumda araştırılması gereken ayrı bir konu:** neden
+  `AuthContext` enjekte edilen Supabase session'ı tanımıyor — `src/context/
+  AuthContext.jsx`'teki `getSession()`/`onAuthStateChange` akışı ve
+  `@supabase/supabase-js` sürümü (`^2.108.2`) kontrol edilmeli.
+
+**Doğrulama:**
+- `node scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- `npm run build` → temiz.
+- `npx playwright test tests/topic-pages-ui.spec.ts --grep gauge` → ✅ PASS.
+- `npx playwright test tests/i18n-content-toggle.spec.ts --grep gauge` →
+  ilk koşumda FAIL (yukarıdaki gerçek bug), düzeltme sonrası ✅ PASS.
+- `npx playwright test --config=playwright.interview-flows.config.ts --grep gauge`
+  → FAIL, ama `--grep "docker —"` ve `--grep bruno` ile de AYNI hata
+  (pre-existing, gauge'a özgü değil) doğrulandı.
+
+### Gauge iş paketi — gauge-plan.md §4 incelendi, eksik iş YOK (2026-07-14)
+`Documents/gauge-plan.md` §4'teki WP-S1, WP-S2, WP-S3, WP-S4'ün dördü de
+tamamlanmış ve doğrulanmış olarak teyit edildi (yukarıdaki bölümlere bakın).
+§5 "Bilinçli Ertelenenler" listesindeki maddeler (W3Schools müfredatı yok,
+`englishToTurkishCodeComments`'e dokunulmadı, nav chip `nb('orange')`) zaten
+bilinçli kararlar, eksik iş değil. **Bu WP-S1..S4 değişikliklerinin tamamı
+commit edildi** (aşağıdaki commit hash'e bakın) — `Documents/gauge-plan.md`
+artık sadece kalıcı plan referansı olarak duruyor, canlı durum bilgisi bu
+dosyadadır.
+
+### Kalan işler (Gauge kapsamı DIŞINDA, ayrı bir konu)
+1. **`interview-mastery-flows.spec.ts` / `docker-interview-mastery-flow.spec.ts`**
+   — İKİSİNİN de session-injection ile çalışmaması: proje genelinde
+   AI-grading E2E testlerini bloke eden bir altyapı sorunu, Gauge'dan
+   bağımsız (yukarıdaki WP-S4 bölümünde detaylandırıldı), ayrı bir oturumda
+   `AuthContext.jsx`/`@supabase/supabase-js` sürümü üzerinden araştırılmalı.
+2. Kullanıcıya sorulacak: Gauge ana sayfa chip'inin konumu/görünümü onaylı mı?
 
 ---
 

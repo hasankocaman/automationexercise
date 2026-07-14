@@ -2365,7 +2365,7 @@ public class OrderSteps {
           [
             'SpecDataStore',
             { tr: 'Bir .spec dosyasındaki tüm senaryolar boyunca', en: 'Across all scenarios in one .spec file' },
-            '@BeforeClass ile kurulan bir instance alanı',
+            { tr: '@BeforeClass ile kurulan bir instance alanı', en: 'An instance field set up in @BeforeClass' },
           ],
           [
             'SuiteDataStore',

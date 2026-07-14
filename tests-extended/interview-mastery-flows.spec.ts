@@ -26,6 +26,11 @@ import { createClient } from '@supabase/supabase-js';
 // HARİÇ: /security, /backend — RequireAdmin ile korunuyor, normal test
 // hesabıyla erişilemiyor; her ikisinin de kendi dedicated 💼 sekmesi var ama bu
 // suite'e eklenemiyor (admin hesabı/ayrı bir test akışı gerekir).
+//
+// NOT (2026-07-14): /gauge eklendi (WP-S4). gaugeData.js'te dedicated 💼
+// Mülakat Soruları sekmesi mülakat-dışı 7 sekmede toplam 14 quiz bloğu
+// üzerinden gating yapıyor (%60 eşiği = 9 doğru cevap yeterli, quizQueue
+// 14 ile bu eşiği rahatça karşılıyor).
 const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/appium', dataVar: 'appiumData', dataFile: 'appiumData' },
     { route: '/aws', dataVar: 'awsData', dataFile: 'awsData' },
@@ -35,6 +40,7 @@ const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/docker', dataVar: 'dockerData', dataFile: 'dockerData' },
     { route: '/git-github', dataVar: 'gitGithubData', dataFile: 'gitGithubData' },
     { route: '/bruno', dataVar: 'brunoData', dataFile: 'brunoData' },
+    { route: '/gauge', dataVar: 'gaugeData', dataFile: 'gaugeData' },
     { route: '/javascript', dataVar: 'javascriptData', dataFile: 'javascriptData' },
     { route: '/jenkins', dataVar: 'jenkinsData', dataFile: 'jenkinsData' },
     { route: '/jmeter', dataVar: 'jmeterData', dataFile: 'jmeterData' },
