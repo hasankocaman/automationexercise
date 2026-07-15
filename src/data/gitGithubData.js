@@ -431,6 +431,659 @@ const gitInterviewPractice = {
   xpReward: 10,
 }
 
+// ─── Giriş sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A1
+const gitVersionChaosFilm = {
+  type: 'video-scene',
+  id: 'git-version-chaos-film',
+  title: {
+    tr: '🎬 Versiyonsuz Dünyadan Git\'e',
+    en: '🎬 From a Versionless World to Git',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'file1',    emoji: '📁', label: { tr: 'rapor_final.zip',          en: 'report_final.zip' },         color: '#94a3b8' },
+    { id: 'file2',    emoji: '📁', label: { tr: 'rapor_final_v2_SON.zip',   en: 'report_final_v2_FINAL.zip' }, color: '#64748b' },
+    { id: 'lost',     emoji: '😱', label: { tr: 'Kaybolan emek',            en: 'Lost work' },                 color: '#ef4444' },
+    { id: 'snapshot', emoji: '📸', label: { tr: 'Git snapshot zinciri',     en: 'Git snapshot chain' },        color: '#8b5cf6' },
+    { id: 'head',     emoji: '🏷️', label: { tr: 'HEAD',                    en: 'HEAD' },                      color: '#f97316' },
+    { id: 'github',   emoji: '☁️', label: { tr: 'GitHub',                   en: 'GitHub' },                    color: '#0ea5e9' },
+    { id: 'team',     emoji: '👥', label: { tr: 'Takım',                    en: 'Team' },                      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Git\'ten önceki dünyayı izleyeceksin: dosya adına "_v2", "_SON", "_GERCEK_SON" ekleyerek versiyonlamanın gerçekte NEDEN çöktüğünü göreceksin.',
+        en: 'You will watch the world before Git: adding "_v2", "_FINAL", "_ACTUAL_FINAL" to a filename — and why this "versioning" actually collapses.',
+      },
+      positions: {
+        file1: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'İkinci bir kopya doğar: `rapor_final_v2_SON.zip`. Hangisi güncel? İki hafta sonra kimse hatırlamaz — biri yanlış dosya üzerinde çalışır, saatlerce emek SESSİZCE kaybolur, hiçbir uyarı gelmez.',
+        en: 'A second copy is born: `report_final_v2_FINAL.zip`. Which one is current? Two weeks later nobody remembers — someone works on the wrong file, hours of work vanish SILENTLY, with no warning at all.',
+      },
+      positions: {
+        file1: { x: 20, y: 40, scale: 0.9, opacity: 0.6 },
+        file2: { x: 45, y: 55, scale: 1.05 },
+        lost: { x: 72, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'file2', to: 'lost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '`git init` bir zaman makinesi kurar: artık dosya adını değiştirerek versiyon uydurmuyorsun — Git her anlamlı değişikliği kendi başına, isim çakışması olmadan hatırlıyor.',
+        en: '`git init` builds a time machine: you no longer fake versions by renaming files — Git remembers every meaningful change on its own, with no naming collisions.',
+      },
+      code: { tr: `git init`, en: `git init` },
+      positions: {
+        file1: { x: 14, y: 65, scale: 0.6, opacity: 0.3 },
+        file2: { x: 14, y: 35, scale: 0.6, opacity: 0.3 },
+        lost: { x: 30, y: 50, scale: 0.6, opacity: 0.25 },
+        snapshot: { x: 55, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Her `git commit` zincire yeni bir SNAPSHOT ekler — dosyayı EZMEZ, yanına bir kopya da bırakmaz; zaman içinde geriye dönüp karşılaştırabileceğin bir tarih biriktirir.',
+        en: 'Every `git commit` adds a new SNAPSHOT to the chain — it does not overwrite the file, nor does it leave a copy lying around; it accumulates a history you can look back through and compare.',
+      },
+      code: { tr: `git commit -m "rapor: ilk taslak"`, en: `git commit -m "report: first draft"` },
+      positions: {
+        snapshot: { x: 30, y: 50, scale: 1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: '🏷️ HEAD işaretçisi her zaman "şu an neredeyim" sorusunun cevabıdır. İstenirse önceki bir snapshot\'a GERİ dönülebilir — dosya isminde "_SON" yazması gerekmez, HEAD güvenle taşır.',
+        en: 'The 🏷️ HEAD pointer always answers "where am I right now". You can safely move BACK to an earlier snapshot on demand — no filename needs to say "_FINAL", HEAD carries you there safely.',
+      },
+      code: { tr: `git log --oneline`, en: `git log --oneline` },
+      positions: {
+        snapshot: { x: 40, y: 50, scale: 1, opacity: 0.7 },
+        head: { x: 58, y: 32, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'snapshot', to: 'head', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'GitHub, bu zincirin BULUTTAKİ kopyasıdır — üstüne işbirliği katmanı eklenir: takım arkadaşların aynı snapshot zincirini görür, review yapar, kimse dosyayı e-posta ekiyle göndermez.',
+        en: 'GitHub is the CLOUD copy of this chain — a collaboration layer is added on top: your teammates see the same snapshot chain, review it, and nobody emails zip attachments anymore.',
+      },
+      code: { tr: `git push -u origin main`, en: `git push -u origin main` },
+      positions: {
+        snapshot: { x: 24, y: 50, scale: 0.85, opacity: 0.6 },
+        github: { x: 54, y: 50, scale: 1.2, pulse: true },
+        team: { x: 80, y: 40, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'snapshot', to: 'github' }, { from: 'github', to: 'team', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Git ≠ GitHub: Git motorun kendisidir (local, offline çalışır, snapshot zinciri tutar); GitHub o motorun showroom\'udur (bulutta paylaşım, review, CI). QA bağı: versiyonsuz bir test reposu, kanıtsız bir QA demektir — hangi test script\'inin hangi bug\'ı yakaladığını asla ispatlayamazsın.',
+        en: 'Final — Git ≠ GitHub: Git is the engine itself (local, works offline, keeps the snapshot chain); GitHub is that engine\'s showroom (cloud sharing, review, CI). The QA tie-in: a versionless test repo means QA without proof — you can never prove which test script caught which bug.',
+      },
+      positions: {
+        snapshot: { x: 14, y: 55, scale: 0.85 },
+        head: { x: 32, y: 35, scale: 0.85 },
+        github: { x: 54, y: 55, scale: 0.9 },
+        team: { x: 74, y: 35, scale: 0.85 },
+        lost: { x: 88, y: 58, scale: 0.7, opacity: 0.4 },
+      },
+      beams: [{ from: 'snapshot', to: 'head' }, { from: 'head', to: 'github' }, { from: 'github', to: 'team' }],
+    },
+  ],
+}
+
+// ─── Kurulum sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A2
+const gitIdentityConfigFilm = {
+  type: 'video-scene',
+  id: 'git-identity-config-film',
+  title: {
+    tr: '🎬 Bir Commit\'e Kimlik Damgası Vurmak',
+    en: '🎬 Stamping a Commit with an Identity',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'machine',   emoji: '💻', label: { tr: 'Yeni makine',              en: 'Fresh machine' },              color: '#64748b' },
+    { id: 'installer', emoji: '📦', label: { tr: 'Git installer',            en: 'Git installer' },              color: '#f97316' },
+    { id: 'identity',  emoji: '🪪', label: { tr: 'user.name / user.email',   en: 'user.name / user.email' },     color: '#8b5cf6' },
+    { id: 'layers',    emoji: '🗂️', label: { tr: 'Config katmanları',        en: 'Config layers' },              color: '#0ea5e9' },
+    { id: 'commit',    emoji: '✍️', label: { tr: 'İlk commit',               en: 'First commit' },               color: '#22c55e' },
+    { id: 'ghost',     emoji: '❓', label: { tr: 'Kimliksiz commit',         en: 'Identity-less commit' },       color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Yepyeni bir makinedesin — henüz Git yok. Bu filmde `git --version`\'dan ilk commit\'e kadar giden kimlik yolculuğunu izleyeceksin.',
+        en: 'You are on a brand-new machine — no Git yet. In this film you will watch the identity journey from `git --version` all the way to the first commit.',
+      },
+      positions: {
+        machine: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Git kurulur (`winget`/`brew`/`apt`) ve `git --version` ile doğrulanır. Ama kurulum tek başına yetmez — Git seni HENÜZ tanımıyor, her komut anonim çalışır.',
+        en: 'Git gets installed (`winget`/`brew`/`apt`) and verified with `git --version`. But installation alone is not enough — Git does not know who you are YET, every command runs anonymously.',
+      },
+      code: { tr: `git --version\n# git version 2.43.0`, en: `git --version\n# git version 2.43.0` },
+      positions: {
+        machine: { x: 18, y: 50, scale: 0.85, opacity: 0.6 },
+        installer: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'machine', to: 'installer' }],
+    },
+    {
+      caption: {
+        tr: 'Kimlik ayarı: `git config --global user.name` ve `user.email`. Bu ikisi olmadan bir sonraki soru şu — "commit\'i kim attı?" sorusunun cevabı olmaz.',
+        en: 'Identity setup: `git config --global user.name` and `user.email`. Without these two, the next question has no answer — "who made this commit?"',
+      },
+      code: { tr: `git config --global user.name "Hasan Kocaman"\ngit config --global user.email "hasan@example.com"`, en: `git config --global user.name "Hasan Kocaman"\ngit config --global user.email "hasan@example.com"` },
+      positions: {
+        installer: { x: 18, y: 45, scale: 0.85, opacity: 0.6 },
+        identity: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'installer', to: 'identity' }],
+    },
+    {
+      caption: {
+        tr: 'Config\'in 3 katmanı vardır: system → global → local. Aynı ayar birden fazla katmanda varsa LOCAL kazanır — tıpkı Java\'da method-level override\'ın class-level default\'u ezmesi gibi.',
+        en: 'Config has 3 layers: system → global → local. If the same setting exists in more than one layer, LOCAL wins — just like a Java method-level override beats a class-level default.',
+      },
+      code: { tr: `git config --list --show-origin`, en: `git config --list --show-origin` },
+      positions: {
+        identity: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        layers: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'identity', to: 'layers' }],
+    },
+    {
+      caption: {
+        tr: 'İlk commit atılır — ve o an kimlik SNAPSHOT\'ın içine damgalanır: kim, ne zaman, hangi e-postayla. Bu damga o commit\'ten asla silinmez.',
+        en: 'The first commit lands — and at that moment the identity is stamped INTO the snapshot: who, when, with which email. This stamp never leaves that commit.',
+      },
+      code: { tr: `git commit -m "chore: proje iskeleti"\n# Author: Hasan Kocaman <hasan@example.com>`, en: `git commit -m "chore: project scaffold"\n# Author: Hasan Kocaman <hasan@example.com>` },
+      positions: {
+        layers: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        commit: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'layers', to: 'commit' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — kimlik ayarlanmasaydı: commit "unknown" veya makine kullanıcı adıyla düşer. `git blame` kimin yazdığını söyleyemez, audit log\'lar çöker.',
+        en: 'Contrast — had identity not been set: the commit falls back to "unknown" or the machine\'s system username. `git blame` cannot say who wrote it, audit logs break down.',
+      },
+      positions: {
+        commit: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'commit', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — QA bağı: "bu test hangi commit\'te bozuldu, kim değiştirdi?" sorusunun cevabı, kurulumdan ÖNCE değil, `user.name`/`user.email` ayarından SONRA doğru olmaya başlar. Kimlik, test edilebilirliğin ilk katmanıdır.',
+        en: 'Final — the QA tie-in: the answer to "which commit broke this test, who changed it?" only starts being correct AFTER `user.name`/`user.email` are set — not before installation. Identity is the first layer of testability.',
+      },
+      positions: {
+        machine: { x: 10, y: 55, scale: 0.75 },
+        identity: { x: 30, y: 38, scale: 0.85 },
+        layers: { x: 50, y: 58, scale: 0.85 },
+        commit: { x: 72, y: 40, scale: 1.1, pulse: true },
+        ghost: { x: 88, y: 58, scale: 0.65, opacity: 0.35 },
+      },
+      beams: [{ from: 'identity', to: 'layers' }, { from: 'layers', to: 'commit' }],
+    },
+  ],
+}
+
+// ─── .gitignore sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A3
+const gitignoreFilterFilm = {
+  type: 'video-scene',
+  id: 'gitignore-filter-film',
+  title: {
+    tr: '🎬 .gitignore: Kapıdaki Filtre',
+    en: '🎬 .gitignore: The Filter at the Door',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'screenshots', emoji: '📸', label: { tr: 'screenshots/',            en: 'screenshots/' },            color: '#94a3b8' },
+    { id: 'videos',      emoji: '🎥', label: { tr: 'videos/',                 en: 'videos/' },                 color: '#94a3b8' },
+    { id: 'env',         emoji: '🔑', label: { tr: '.env',                    en: '.env' },                    color: '#ef4444' },
+    { id: 'results',     emoji: '📄', label: { tr: 'test-results/',           en: 'test-results/' },           color: '#94a3b8' },
+    { id: 'filter',      emoji: '🛡️', label: { tr: '.gitignore filtresi',     en: '.gitignore filter' },       color: '#059669' },
+    { id: 'staging',     emoji: '🎬', label: { tr: 'Staging',                 en: 'Staging' },                 color: '#f59e0b' },
+    { id: 'leak',        emoji: '💥', label: { tr: 'Sızan secret',            en: 'Leaked secret' },           color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test koşumu bitti: ekran görüntüleri, video kayıtları, `.env` dosyası ve test raporları diskte birikti. Şimdi hepsi `git add .` ile staging\'e süpürülmek üzere.',
+        en: 'The test run just finished: screenshots, video recordings, a `.env` file and test reports piled up on disk. Now all of it is about to be swept into staging with `git add .`.',
+      },
+      positions: {
+        screenshots: { x: 18, y: 30, scale: 0.9 },
+        videos: { x: 18, y: 70, scale: 0.9 },
+        env: { x: 50, y: 50, scale: 1.1, pulse: true },
+        results: { x: 82, y: 50, scale: 0.9 },
+      },
+    },
+    {
+      caption: {
+        tr: '`git add .` çalışır — filtre OLMASAYDI bu dört dosya da doğrudan staging\'e girerdi. Ama araya `.gitignore` giriyor.',
+        en: '`git add .` runs — WITHOUT a filter, all four of these would go straight into staging. But `.gitignore` steps in between.',
+      },
+      code: { tr: `git add .`, en: `git add .` },
+      positions: {
+        screenshots: { x: 30, y: 30, scale: 0.85 },
+        videos: { x: 30, y: 70, scale: 0.85 },
+        env: { x: 45, y: 50, scale: 1 },
+        results: { x: 60, y: 50, scale: 0.85 },
+        filter: { x: 78, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'env', to: 'filter' }, { from: 'screenshots', to: 'filter' }],
+    },
+    {
+      caption: {
+        tr: '.gitignore filtresi devreye girer: `*.png`, `videos/`, `.env*`, `test-results/` desenleriyle eşleşen HER şey kapıda geri döner — kapıdan içeri hiç girmezler.',
+        en: 'The .gitignore filter kicks in: EVERYTHING matching `*.png`, `videos/`, `.env*`, `test-results/` patterns turns back at the door — they never make it inside.',
+      },
+      code: { tr: `screenshots/*.png\nvideos/\n.env*\ntest-results/`, en: `screenshots/*.png\nvideos/\n.env*\ntest-results/` },
+      positions: {
+        screenshots: { x: 30, y: 25, scale: 0.7, opacity: 0.45 },
+        videos: { x: 30, y: 75, scale: 0.7, opacity: 0.45 },
+        env: { x: 30, y: 50, scale: 0.7, opacity: 0.45 },
+        results: { x: 55, y: 50, scale: 0.7, opacity: 0.45 },
+        filter: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Sadece kaynak kod staging\'e geçer — dört üretilmiş dosya kapının dışında kaldı. `git status` artık sadece anlamlı, kasıtlı değişiklikleri gösterir.',
+        en: 'Only source code makes it into staging — the four generated files stayed outside the gate. `git status` now shows only meaningful, intentional changes.',
+      },
+      code: { tr: `git status\n# clean — sadece kaynak kod degisti`, en: `git status\n# clean — only source code changed` },
+      positions: {
+        filter: { x: 30, y: 50, scale: 0.85, opacity: 0.6 },
+        staging: { x: 62, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'filter', to: 'staging', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kural anatomisi: `*.png` her yerdeki eşleşeni yakalar, `node_modules/` sonundaki `/` ile SADECE klasörü hedefler, `!keep.png` ise bir öncekini İSTİSNA ederek geri kabul eder.',
+        en: 'Rule anatomy: `*.png` catches every match anywhere, the trailing `/` in `node_modules/` targets ONLY the folder, and `!keep.png` re-admits a file by EXCEPTING an earlier rule.',
+      },
+      code: { tr: `*.png\nnode_modules/\n!keep.png`, en: `*.png\nnode_modules/\n!keep.png` },
+      positions: {
+        staging: { x: 50, y: 50, scale: 1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — filtre OLMASAYDI: `.env` içindeki gerçek API key remote\'a çıkardı. Herkese açık repo geçmişinde artık bir secret var — rotasyon ZORUNLU, incident raporu açılır.',
+        en: 'Contrast — WITHOUT the filter: the real API key inside `.env` would have gone to the remote. There is now a secret in a public repo\'s history forever — rotation is MANDATORY, an incident report gets opened.',
+      },
+      positions: {
+        staging: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        leak: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'staging', to: 'leak', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — kritik uyarı: .gitignore\'u SONRADAN eklemek, zaten commit\'lenmiş bir dosyayı KURTARMAZ; Git onu izlemeye devam eder. Kurtuluş `git rm --cached <dosya>` ile takibi bırakmaktır — dosya diskte kalır, sadece Git\'in radarından çıkar.',
+        en: 'Final — the critical warning: adding .gitignore AFTERWARD does NOT rescue a file that is already committed; Git keeps tracking it. The fix is `git rm --cached <file>` to stop tracking — the file stays on disk, it just leaves Git\'s radar.',
+      },
+      code: { tr: `git rm --cached .env`, en: `git rm --cached .env` },
+      positions: {
+        filter: { x: 15, y: 55, scale: 0.85 },
+        staging: { x: 38, y: 38, scale: 0.85 },
+        env: { x: 60, y: 55, scale: 0.9, pulse: true },
+        leak: { x: 82, y: 38, scale: 0.75, opacity: 0.4 },
+      },
+      beams: [{ from: 'filter', to: 'staging' }, { from: 'staging', to: 'env' }],
+    },
+  ],
+}
+
+// ─── Branch & Switch sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A4
+const gitBranchParallelFilm = {
+  type: 'video-scene',
+  id: 'git-branch-parallel-film',
+  title: {
+    tr: '🎬 Branch: Ucuz Bir Paralel Evren',
+    en: '🎬 Branch: A Cheap Parallel Universe',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'main',    emoji: '🌳', label: { tr: 'main zinciri',           en: 'main chain' },            color: '#16a34a' },
+    { id: 'feature', emoji: '🌿', label: { tr: 'feature/login-tests',    en: 'feature/login-tests' },   color: '#22c55e' },
+    { id: 'head',    emoji: '🏷️', label: { tr: 'HEAD',                   en: 'HEAD' },                  color: '#f97316' },
+    { id: 'commits', emoji: '📦', label: { tr: 'Dal commit\'leri',       en: 'Branch commits' },        color: '#8b5cf6' },
+    { id: 'stash',   emoji: '📥', label: { tr: 'stash rafı',             en: 'stash shelf' },           color: '#7c3aed' },
+    { id: 'switch',  emoji: '🔀', label: { tr: 'switch',                 en: 'switch' },                color: '#0ea5e9' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'main zinciri stabil ve yeşil — CI ondan deploy ediyor. Bu filmde, main\'i hiç kirletmeden nasıl paralel bir çalışma alanı açtığını izleyeceksin.',
+        en: 'The main chain is stable and green — CI deploys from it. In this film you will watch how to open a parallel workspace without ever dirtying main.',
+      },
+      positions: {
+        main: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: '`git branch feature/login-tests` sadece yeni bir İŞARETÇİ yaratır — dosyaların KOPYASI değil. Ucuzluğun sırrı bu: saniyeler içinde, disk alanı harcamadan.',
+        en: '`git branch feature/login-tests` only creates a new POINTER — not a copy of the files. That is the secret of its cheapness: instant, with zero disk cost.',
+      },
+      code: { tr: `git branch feature/login-tests`, en: `git branch feature/login-tests` },
+      positions: {
+        main: { x: 30, y: 50, scale: 1, pulse: true },
+        feature: { x: 65, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'main', to: 'feature', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: '`git switch feature/login-tests` ile HEAD işaretçisi dala GEÇER. Dosyaların hiçbiri fiziksel olarak taşınmadı — sadece "şu an neredeyim" cevabı değişti.',
+        en: '`git switch feature/login-tests` MOVES the HEAD pointer onto the branch. None of the files physically moved — only the answer to "where am I right now" changed.',
+      },
+      code: { tr: `git switch feature/login-tests`, en: `git switch feature/login-tests` },
+      positions: {
+        main: { x: 22, y: 35, scale: 0.9, opacity: 0.6 },
+        feature: { x: 55, y: 50, scale: 1.1 },
+        head: { x: 55, y: 30, scale: 1.15, pulse: true },
+        switch: { x: 38, y: 40, scale: 0.9, opacity: 0.7 },
+      },
+      beams: [{ from: 'feature', to: 'head', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Dalda commit\'ler birikir — main tamamen KIRLENMEDEN. İki zincir yan yana büyür, biri diğerini hiç etkilemez.',
+        en: 'Commits pile up on the branch — main stays completely UNTOUCHED. Two chains grow side by side, neither affecting the other.',
+      },
+      code: { tr: `git commit -m "test: login timeout senaryosu"`, en: `git commit -m "test: login timeout scenario"` },
+      positions: {
+        main: { x: 20, y: 65, scale: 0.9 },
+        feature: { x: 20, y: 30, scale: 0.9 },
+        commits: { x: 55, y: 30, scale: 1.15, pulse: true },
+        head: { x: 55, y: 15, scale: 0.9 },
+      },
+      beams: [{ from: 'feature', to: 'commits' }],
+    },
+    {
+      caption: {
+        tr: 'Acil bir işle bölündün ama işin yarım — commit atacak durumda değilsin. `git stash` yarım işi geçici bir RAFA kaldırır, working tree tertemiz kalır.',
+        en: 'You get interrupted by something urgent, but your work is half-done — not ready to commit. `git stash` shelves the unfinished work onto a temporary SHELF, leaving the working tree spotless.',
+      },
+      code: { tr: `git stash\ngit switch main`, en: `git stash\ngit switch main` },
+      positions: {
+        commits: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        stash: { x: 55, y: 55, scale: 1.2, pulse: true },
+        main: { x: 80, y: 35, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'commits', to: 'stash' }, { from: 'stash', to: 'main', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Acil iş bitti, dala geri dönülür — `git stash pop` rafı boşaltıp yarım işi AYNI haliyle geri getirir. Hiçbir şey kaybolmadı, sadece bekletildi.',
+        en: 'The urgent work is done, back to the branch — `git stash pop` empties the shelf and restores the unfinished work in the EXACT same state. Nothing was lost, it was only paused.',
+      },
+      code: { tr: `git switch feature/login-tests\ngit stash pop`, en: `git switch feature/login-tests\ngit stash pop` },
+      positions: {
+        main: { x: 20, y: 35, scale: 0.85, opacity: 0.6 },
+        stash: { x: 45, y: 55, scale: 1, opacity: 0.7 },
+        feature: { x: 70, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'stash', to: 'feature', color: '#7c3aed' }],
+    },
+    {
+      caption: {
+        tr: 'Final — branch = paralel evren, stash = o evrende geçici duraklatma. QA bağı: riskli bir locator refactor\'ü main\'deki yeşil suite\'i bozmadan dalda denenir; başarısız olursa dal silinir, main hiç haberdar bile olmaz.',
+        en: 'Final — branch = a parallel universe, stash = a temporary pause inside it. The QA tie-in: a risky locator refactor is tried on a branch without breaking main\'s green suite; if it fails, the branch is deleted and main never even knew.',
+      },
+      positions: {
+        main: { x: 14, y: 60, scale: 0.9 },
+        feature: { x: 40, y: 35, scale: 0.9 },
+        commits: { x: 62, y: 55, scale: 0.85 },
+        head: { x: 62, y: 20, scale: 0.75 },
+        stash: { x: 84, y: 45, scale: 0.85, opacity: 0.6 },
+      },
+      beams: [{ from: 'main', to: 'feature', color: '#22c55e' }, { from: 'feature', to: 'commits' }],
+    },
+  ],
+}
+
+// ─── Merge & Conflict sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A5
+const gitMergeTwoFacesFilm = {
+  type: 'video-scene',
+  id: 'git-merge-two-faces-film',
+  title: {
+    tr: '🎬 Merge\'ün İki Yüzü: Fast-Forward ve Conflict',
+    en: '🎬 The Two Faces of Merge: Fast-Forward and Conflict',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'main',        emoji: '🌳', label: { tr: 'main',                    en: 'main' },                    color: '#16a34a' },
+    { id: 'feature',     emoji: '🌿', label: { tr: 'feature dalı',            en: 'feature branch' },          color: '#22c55e' },
+    { id: 'fastforward', emoji: '⏩', label: { tr: 'Fast-forward',            en: 'Fast-forward' },            color: '#0ea5e9' },
+    { id: 'mergecommit', emoji: '🔗', label: { tr: 'Merge commit',            en: 'Merge commit' },            color: '#8b5cf6' },
+    { id: 'conflict',    emoji: '⚔️', label: { tr: 'Conflict marker\'ları',   en: 'Conflict markers' },        color: '#ef4444' },
+    { id: 'decision',    emoji: '🧑‍⚖️', label: { tr: 'İnsan kararı',           en: 'Human decision' },          color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Senaryo 1: main hiç ilerlememiş, feature dalı ondan ayrıldığından beri tek başına commit atmış. `git merge` çağrılır — ne olacak?',
+        en: 'Scenario 1: main has not moved at all, the feature branch has been committing alone since it split off. `git merge` is called — what happens?',
+      },
+      positions: {
+        main: { x: 30, y: 50, scale: 1.1, pulse: true },
+        feature: { x: 65, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Fast-forward: main\'in işaretçisi sadece ÖNE kayar, feature\'ın ucuna kadar. YENİ bir commit oluşmaz — main zaten hiç sapmamıştı, birleştirilecek "iki taraf" bile yoktu.',
+        en: 'Fast-forward: main\'s pointer simply slides FORWARD, all the way to the tip of feature. NO new commit is created — main never diverged, there were not even "two sides" to combine.',
+      },
+      code: { tr: `git merge feature/login-tests\n# Fast-forward`, en: `git merge feature/login-tests\n# Fast-forward` },
+      positions: {
+        main: { x: 60, y: 50, scale: 1.2, pulse: true },
+        feature: { x: 60, y: 50, scale: 0.9, opacity: 0.5 },
+        fastforward: { x: 35, y: 30, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'fastforward', to: 'main', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Senaryo 2: bu sefer İKİ dal da ilerlemiş. Git ortak atayı bulur ve 3-yönlü bir merge dener — ortak ata + main\'in hali + feature\'ın hali karşılaştırılır.',
+        en: 'Scenario 2: this time BOTH branches have moved forward. Git finds the common ancestor and attempts a 3-way merge — comparing the common ancestor, main\'s state, and feature\'s state.',
+      },
+      code: { tr: `git merge feature/login-tests`, en: `git merge feature/login-tests` },
+      positions: {
+        main: { x: 25, y: 35, scale: 1.05, pulse: true },
+        feature: { x: 25, y: 65, scale: 1.05, pulse: true },
+        mergecommit: { x: 65, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'main', to: 'mergecommit' }, { from: 'feature', to: 'mergecommit' }],
+    },
+    {
+      caption: {
+        tr: 'Aynı dosyanın FARKLI satırları değiştiyse: Git bunu otomatik birleştirir. Sen ellemeden, iki değişiklik de sonuca girer — çünkü çakışma YOK.',
+        en: 'If DIFFERENT lines of the same file changed: Git merges it automatically. Both changes land in the result without you touching anything — because there is NO real collision.',
+      },
+      positions: {
+        mergecommit: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ama AYNI satır İKİ tarafta da değiştiyse: Git durur, tahmin etmez. `<<<<<<< HEAD` / `=======` / `>>>>>>> feature` marker\'larını dosyanın içine yazıp senden karar bekler.',
+        en: 'But if the SAME line changed on BOTH sides: Git stops, it does not guess. It writes `<<<<<<< HEAD` / `=======` / `>>>>>>> feature` markers right into the file and waits for your decision.',
+      },
+      code: { tr: `<<<<<<< HEAD\nexpect(total).toBe(120)\n=======\nexpect(total).toBe(100)\n>>>>>>> feature/login-tests`, en: `<<<<<<< HEAD\nexpect(total).toBe(120)\n=======\nexpect(total).toBe(100)\n>>>>>>> feature/login-tests` },
+      positions: {
+        mergecommit: { x: 22, y: 40, scale: 0.85, opacity: 0.5 },
+        conflict: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'mergecommit', to: 'conflict', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'İnsan araya girer: doğru içeriği seçer, üç marker satırını da SİLER, dosyayı test eder, sonra `git add` + `git commit` ile merge\'i tamamlar.',
+        en: 'A human steps in: picks the correct content, DELETES all three marker lines, tests the file, then finishes the merge with `git add` + `git commit`.',
+      },
+      code: { tr: `git add tests/checkout.spec.js\ngit commit`, en: `git add tests/checkout.spec.js\ngit commit` },
+      positions: {
+        conflict: { x: 22, y: 40, scale: 0.85, opacity: 0.5 },
+        decision: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'conflict', to: 'decision', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — bu merge commit\'in İKİ ebeveyni vardır, main ve feature\'ın ikisi de: tarih birleşmeyi UNUTMAZ. Ve asıl mesaj: conflict bir HATA değildir — Git\'in "iki doğru var, birini SEN seç" demesidir. Panik yerine prosedür.',
+        en: 'Final — this merge commit has TWO parents, both main and feature: history NEVER forgets the merge happened. And the real message: a conflict is NOT an error — it is Git saying "there are two truths, YOU pick one". Procedure over panic.',
+      },
+      positions: {
+        main: { x: 15, y: 60, scale: 0.85 },
+        feature: { x: 15, y: 30, scale: 0.85 },
+        conflict: { x: 45, y: 45, scale: 0.8, opacity: 0.5 },
+        decision: { x: 66, y: 45, scale: 0.9 },
+        mergecommit: { x: 88, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'main', to: 'mergecommit' }, { from: 'feature', to: 'mergecommit' }, { from: 'decision', to: 'mergecommit' }],
+    },
+  ],
+}
+
+// ─── Rebase & İleri Akış sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 A6
+const gitRebaseReplayFilm = {
+  type: 'video-scene',
+  id: 'git-rebase-replay-film',
+  title: {
+    tr: '🎬 Rebase: Commit\'leri Yeniden Oynatmak',
+    en: '🎬 Rebase: Replaying Commits',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'main',       emoji: '🌳', label: { tr: 'main (ilerlemiş)',        en: 'main (advanced)' },        color: '#16a34a' },
+    { id: 'commits',    emoji: '📦', label: { tr: 'feature commit\'leri (C1, C2)', en: 'feature commits (C1, C2)' }, color: '#8b5cf6' },
+    { id: 'replay',     emoji: '🔁', label: { tr: 'Replay mekanizması',      en: 'Replay mechanism' },       color: '#0ea5e9' },
+    { id: 'newcommits', emoji: '🆕', label: { tr: 'C1\', C2\' (yeni hash)',   en: 'C1\', C2\' (new hash)' },   color: '#22c55e' },
+    { id: 'linear',     emoji: '📜', label: { tr: 'Doğrusal tarih',          en: 'Linear history' },         color: '#f59e0b' },
+    { id: 'danger',     emoji: '💥', label: { tr: 'Paylaşılan dalda rebase', en: 'Rebase on a shared branch' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'feature dalı ESKİ bir main\'den ayrılmış. O günden beri main ilerledi — iki dal artık farklı temellerde duruyor.',
+        en: 'The feature branch split off from an OLD main. Since then main has advanced — the two branches now stand on different bases.',
+      },
+      positions: {
+        main: { x: 30, y: 35, scale: 1.1, pulse: true },
+        commits: { x: 30, y: 65, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Merge yerine REBASE seçilir: amaç ayrı iki tarih değil, tek bir DOĞRUSAL hikaye. `git rebase main` çağrılır.',
+        en: 'REBASE is chosen instead of merge: the goal is not two separate histories, but a single LINEAR story. `git rebase main` is called.',
+      },
+      code: { tr: `git switch feature/login-tests\ngit rebase main`, en: `git switch feature/login-tests\ngit rebase main` },
+      positions: {
+        main: { x: 25, y: 40, scale: 1.1, pulse: true },
+        commits: { x: 25, y: 68, scale: 0.9, opacity: 0.6 },
+        replay: { x: 62, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'commits', to: 'replay' }],
+    },
+    {
+      caption: {
+        tr: 'C1 kopyalanır ve main\'in en TEPESİNE yeniden uygulanır: C1\' doğar. İçerik AYNIDIR ama HASH FARKLIDIR — çünkü bir commit\'in kimliği kısmen kendi ATASININ hash\'inden gelir.',
+        en: 'C1 is copied and replayed on TOP of main: C1\' is born. The content is THE SAME but the HASH is DIFFERENT — because a commit\'s identity partly comes from its PARENT\'s hash.',
+      },
+      code: { tr: `# C1 -> C1' (icerik ayni, hash farkli)`, en: `# C1 -> C1' (same content, different hash)` },
+      positions: {
+        replay: { x: 30, y: 50, scale: 0.9, opacity: 0.7 },
+        newcommits: { x: 62, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'replay', to: 'newcommits', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Sıra C2\'de: aynı şekilde kopyalanır, main\'in (artık C1\'\'i içeren) ucuna eklenir — C2\' oluşur. Replay mekanizması her commit\'i TEK TEK, sırayla işler.',
+        en: 'Next is C2: it is copied the same way and appended to the tip of main (which now includes C1\') — C2\' is formed. The replay mechanism processes each commit ONE BY ONE, in order.',
+      },
+      code: { tr: `# C2 -> C2' (main'in yeni ucuna eklenir)`, en: `# C2 -> C2' (appended to main's new tip)` },
+      positions: {
+        newcommits: { x: 40, y: 50, scale: 1.1, pulse: true },
+        linear: { x: 72, y: 50, scale: 1, opacity: 0.6 },
+      },
+      beams: [{ from: 'newcommits', to: 'linear' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: dümdüz DOĞRUSAL bir tarih — merge commit yok, çatallanma yok. `git log --oneline --graph` artık tek bir düz çizgi çizer.',
+        en: 'The result: a completely LINEAR history — no merge commit, no fork. `git log --oneline --graph` now draws a single straight line.',
+      },
+      code: { tr: `git log --oneline --graph`, en: `git log --oneline --graph` },
+      positions: {
+        linear: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — TEHLİKE: bu feature dalı zaten push edilmiş, takım arkadaşların ondan çekmiş OLSAYDI, rebase onların yerel referanslarını "çöp"e çevirirdi — herkesin geçmişi Git\'in gözünde farklılaşır, ortak zemin kaybolur.',
+        en: 'Contrast — DANGER: had this feature branch already been pushed, with teammates having pulled from it, rebase would turn their local references into "garbage" — everyone\'s history diverges in Git\'s eyes, common ground is lost.',
+      },
+      positions: {
+        linear: { x: 22, y: 40, scale: 0.85, opacity: 0.5 },
+        danger: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'linear', to: 'danger', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — kural: merge tarihi KORUR (iki taraf da görünür kalır), rebase tarihi YENİDEN YAZAR (tek doğrusal hikaye anlatır). Hangisi doğru? Cevap ekip sözleşmesindedir — asla tek başına, paylaşılan bir dalda rastgele seçilmez.',
+        en: 'Final — the rule: merge PRESERVES history (both sides stay visible), rebase REWRITES history (tells one linear story). Which is correct? The answer lives in the team\'s contract — never picked at random, alone, on a shared branch.',
+      },
+      positions: {
+        main: { x: 12, y: 55, scale: 0.85 },
+        commits: { x: 30, y: 35, scale: 0.75, opacity: 0.5 },
+        replay: { x: 48, y: 55, scale: 0.85 },
+        newcommits: { x: 66, y: 38, scale: 0.9 },
+        linear: { x: 86, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'main', to: 'replay' }, { from: 'replay', to: 'newcommits' }, { from: 'newcommits', to: 'linear' }],
+    },
+  ],
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -1719,6 +2372,7 @@ export const gitGithubData = {
               { icon: '🧪', label: 'QA value', desc: 'Every test change becomes reviewable, reproducible and traceable to a bug, story or release.' },
             ],
           },
+          gitVersionChaosFilm,
           {
             type: 'quiz',
             question: 'Which statement is the safest mental model?',
@@ -1929,6 +2583,7 @@ export const gitGithubData = {
               { icon: '🌿', label: '3. main is default', desc: 'New repositories start from `main`, not an old default.' },
             ],
           },
+          gitIdentityConfigFilm,
           {
             type: 'simulation',
             scenario: 'github-account-repo-setup',
@@ -2316,6 +2971,7 @@ export const gitGithubData = {
           gitignoreCreatePractice,
           gitignoreVerifyPractice,
           gitignoreRescuePractice,
+          gitignoreFilterFilm,
           {
             type: 'grid',
             cols: 2,
@@ -2584,6 +3240,7 @@ git stash pop
               { id: 5, icon: '🎁', label: { tr: 'Isini geri al', en: 'Bring your work back' }, detail: { tr: '`git stash pop` calistir: "Dropped refs/stash@{0}" mesaji ile `tests/login.spec.js` tekrar modified gorunur.', en: 'Run `git stash pop`: the "Dropped refs/stash@{0}" message appears and `tests/login.spec.js` shows modified again.' } },
             ],
           },
+          gitBranchParallelFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -2980,6 +3637,7 @@ git merge main                            # Merge fresh main into your branch
               { id: 5, icon: '✅', label: { tr: 'Merge commit\'i tamamla', en: 'Complete the merge commit' }, detail: { tr: 'Conflict yoksa Git otomatik bir merge commit olusturur; varsa `git commit` ile sen tamamlarsin.', en: 'If there was no conflict, Git auto-creates a merge commit; if there was, you finish it with `git commit`.' } },
             ],
           },
+          gitMergeTwoFacesFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3236,6 +3894,7 @@ git rebase --continue                # Or: git commit if you were merging`,
               { id: 5, icon: '➡️', label: { tr: 'Devam et', en: 'Continue the rebase' }, detail: { tr: '`git rebase --continue` ile bir sonraki commit\'in replay\'ine gec; tum commit\'ler bitince "Successfully rebased" mesaji gelir.', en: 'Run `git rebase --continue` to move to replaying the next commit; once all commits are done you see "Successfully rebased".' } },
             ],
           },
+          gitRebaseReplayFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -4068,6 +4727,7 @@ git push origin feature/my-branch   # Push only your branch`,
               { icon: '🧪', label: 'QA faydası', desc: 'Her test değişikliği review edilebilir, yeniden üretilebilir ve bug/story/release ile izlenebilir hale gelir.' },
             ],
           },
+          gitVersionChaosFilm,
           {
             type: 'quiz',
             question: 'En güvenli zihinsel model hangisidir?',
@@ -4296,6 +4956,7 @@ git push origin feature/my-branch   # Push only your branch`,
               { icon: '🌿', label: '3. main varsayılan', desc: 'Yeni repository eski varsayılan yerine `main` ile başlıyor.' },
             ],
           },
+          gitIdentityConfigFilm,
           {
             type: 'simulation',
             scenario: 'github-account-repo-setup',
@@ -4683,6 +5344,7 @@ git push origin feature/my-branch   # Push only your branch`,
           gitignoreCreatePractice,
           gitignoreVerifyPractice,
           gitignoreRescuePractice,
+          gitignoreFilterFilm,
           {
             type: 'grid',
             cols: 2,
@@ -4964,6 +5626,7 @@ git stash pop
               { id: 5, icon: '🎁', label: { tr: 'Isini geri al', en: 'Bring your work back' }, detail: { tr: '`git stash pop` calistir: "Dropped refs/stash@{0}" mesaji ile `tests/login.spec.js` tekrar modified gorunur.', en: 'Run `git stash pop`: the "Dropped refs/stash@{0}" message appears and `tests/login.spec.js` shows modified again.' } },
             ],
           },
+          gitBranchParallelFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -5360,6 +6023,7 @@ git merge main                            # Güncel main'i kendi branch'ine al
               { id: 5, icon: '✅', label: { tr: 'Merge commit\'i tamamla', en: 'Complete the merge commit' }, detail: { tr: 'Conflict yoksa Git otomatik bir merge commit olusturur; varsa `git commit` ile sen tamamlarsin.', en: 'If there was no conflict, Git auto-creates a merge commit; if there was, you finish it with `git commit`.' } },
             ],
           },
+          gitMergeTwoFacesFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -5616,6 +6280,7 @@ git rebase --continue                # Merge yapıyorsan: git commit`,
               { id: 5, icon: '➡️', label: { tr: 'Devam et', en: 'Continue the rebase' }, detail: { tr: '`git rebase --continue` ile bir sonraki commit\'in replay\'ine gec; tum commit\'ler bitince "Successfully rebased" mesaji gelir.', en: 'Run `git rebase --continue` to move to replaying the next commit; once all commits are done you see "Successfully rebased".' } },
             ],
           },
+          gitRebaseReplayFilm,
           {
             type: 'challenge',
             variant: 'order-sort',

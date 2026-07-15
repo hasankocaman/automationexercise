@@ -67,12 +67,44 @@
   ARKASINDA — beklenen davranış, gauge Dalga 2'deki durumla aynı; kod
   incelemesiyle sıra doğrulandı (film → steps → practice → interview-questions).
 
+### SONNET PROMPT A — TAMAMLANDI (2026-07-15, uncommitted)
+
+`Documents/video-rollout-plan.md` **Bölüm 8'deki SONNET PROMPT A** koşuldu:
+gitGithubData.js'e 6 yeni `video-scene` film sabiti eklendi (dosya başına,
+mevcut film sabitlerinin yanına), her biri EN + TR section'larının İKİSİNE
+de aynı referansla kondu:
+
+| Sekme | Film id | Yerleşim |
+|---|---|---|
+| 🎯 Giriş | `git-version-chaos-film` | grid'den sonra, quiz'den önce |
+| ⚙️ Kurulum | `git-identity-config-film` | doğrulama grid'inden sonra, GitHub hesap simülasyonundan önce |
+| 🚫 .gitignore | `gitignore-filter-film` | `gitignoreRescuePractice`'ten sonra, özet grid'den önce |
+| 🌿 Branch & Switch | `git-branch-parallel-film` | `git-stash-step-01` step-animation'dan sonra, `git-stash-order-01` challenge'dan önce |
+| 🔀 Merge & Conflict | `git-merge-two-faces-film` | `git-merge-step-01` step-animation'dan sonra, `git-merge-order-01` challenge'dan önce |
+| 🧬 Rebase & İleri Akış | `git-rebase-replay-film` | `git-rebase-step-01` step-animation'dan sonra, `git-rebase-order-01` challenge'dan önce |
+
+Her film 7 sahne, `sceneDurationMs: 3400`, xp 12-15, caption/code `{tr,en}`
+bilingual (commitJourneyFilm kalıbı birebir takip edildi).
+
+**Doğrulama (§1.1) — hepsi geçti:**
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (video-scene bloğu
+  relatedTopicId kapsamı dışında, ihlal yok)
+- 6 filmin TR caption/code'u tek tek tarandı — İngilizce açıklama cümlesi
+  bulunmadı (grep ile doğrulandı: " the / and / with / is / are " kalıpları
+  TR alanlarında yok); code alanlarındaki TR yorumlar mevcut dosya kalıbına
+  uyarak ASCII (diacritics'siz) yazıldı (`icerik`, `guncel` vb.)
+- `npm run build` → temiz, 9.09s, 41 shell üretildi
+- Runtime smoke (vite preview + headless Playwright): `/git-github` içinde
+  🚫 .gitignore ve 🌿 Branch & Switch sekmelerine tıklanıp
+  `video-scene-block` render'ı doğrulandı (count: 1 her ikisinde de)
+
 ### Sıradaki adımlar (sırayla)
-1. Bu oturumun değişikliklerini commit et (kullanıcı onayıyla).
-2. `Documents/video-rollout-plan.md` **Bölüm 8'deki SONNET PROMPT A**'yı çalıştır
-   (git-github ilk 6 film: 🎯/⚙️/🚫/🌿/🔀/🧬).
-3. Sonra **Bölüm 9'daki SONNET PROMPT B** (son 5 film + video-scene.spec.ts
-   genişletme). A ve B'yi AYNI ANDA çalıştırma — ikisi de gitGithubData.js'e dokunur.
+1. Bu oturumun (Prompt A) değişikliklerini commit et (kullanıcı onayıyla).
+2. `Documents/video-rollout-plan.md` **Bölüm 9'daki SONNET PROMPT B**'yi çalıştır
+   (git-github son 5 film: 🐙/🧾/🚀/🌐/⚠️ + `tests/video-scene.spec.ts`
+   genişletme + bu dosyanın Dalga 3 tablosu güncellemesi). Prompt A ile AYNI
+   ANDA çalıştırma — ikisi de gitGithubData.js'e dokunur, A commit edilmeden
+   B başlamamalı.
 
 ---
 
