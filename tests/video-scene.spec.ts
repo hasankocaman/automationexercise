@@ -46,3 +46,78 @@ test.describe('Video-Scene — Film Bloğu (/llm-agents RAG Pipeline pilotu)', (
         await context.close();
     });
 });
+
+// Dalga 2 (video-rollout-plan.md) — 4 yeni TopicPage filmi için hafif render
+// kontrolleri: her sayfada ilgili sekmeye tıklayınca video-scene-block görünür
+// olmalı. Docker'da Compose sekmesinde tam olarak BİR film olmalı (Dockerfile
+// sekmesindeki docker-dockerfile-to-container-film ile karışmamalı — o ayrı
+// bir sekmede, burada göz önünde değil).
+test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / gauge)', () => {
+    test('/git-github — Git Temelleri sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/git-github');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /Git Basics|Git Temelleri/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/linux — Text & Pipes sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/linux');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /Text & Pipes|Metin İşleme & Pipe/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/docker — Compose sekmesinde TAM OLARAK BİR film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /Docker Compose/ }).first().click();
+
+        const blocks = page.getByTestId('video-scene-block');
+        await blocks.first().scrollIntoViewIfNeeded();
+        await expect(blocks.first()).toBeVisible();
+        await expect(blocks).toHaveCount(1);
+
+        await context.close();
+    });
+
+    test('/gauge — Spec & Step sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/gauge');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /Spec & Step Basics|Spec & Step Temelleri/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});

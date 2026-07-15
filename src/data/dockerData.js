@@ -120,6 +120,119 @@ const dockerfileToContainerFilm = {
   ],
 }
 
+// ─── docker compose up film bloğu (video-scene — EN + TR paylaşımlı) ─────────
+// Veri şeması: Documents/video-rollout-plan.md §2.3 / src/components/VideoSceneBlock.jsx
+// Compose sekmesinin 2. filmi — dockerfileToContainerFilm'den TAMAMEN ayrı, farklı id.
+const composeStartupFilm = {
+  type: 'video-scene',
+  id: 'docker-compose-startup-film',
+  title: {
+    tr: '🎬 docker compose up: Servislerin Uyanışı',
+    en: '🎬 docker compose up: The Services Wake Up',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'yaml',    emoji: '📜', label: { tr: 'compose.yml',            en: 'compose.yml' },            color: '#0ea5e9' },
+    { id: 'network', emoji: '🌐', label: { tr: 'Network',                en: 'Network' },                color: '#6366f1' },
+    { id: 'db',      emoji: '🗄️', label: { tr: 'db container',          en: 'db container' },           color: '#8b5cf6' },
+    { id: 'health',  emoji: '🩺', label: { tr: 'Healthcheck',            en: 'Healthcheck' },            color: '#f59e0b' },
+    { id: 'app',     emoji: '🚀', label: { tr: 'app container',         en: 'app container' },          color: '#22c55e' },
+    { id: 'tests',   emoji: '🧪', label: { tr: 'test-runner container', en: 'test-runner container' },  color: '#10b981' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'Flaky FAIL',            en: 'Flaky FAIL' },             color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker compose up` tek bir komut ama arka planda 3 servisin doğru SIRAYLA uyanmasını koordine eder. Bu film, healthcheck OLMADAN neden flaky bir başarısızlık kaçınılmaz olduğunu da göstererek biter.',
+        en: '`docker compose up` is one command, but behind the scenes it coordinates 3 services waking up in the correct ORDER. This film ends by also showing why, WITHOUT a healthcheck, a flaky failure is nearly guaranteed.',
+      },
+      code: { tr: `docker compose up`, en: `docker compose up` },
+      positions: {
+        yaml: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Network: Compose önce tüm servislerin paylaşacağı ortak bir NETWORK kurar. Bu, servislerin birbirini localhost yerine servis ADIYLA (örn. "db") bulabilmesinin temelidir.',
+        en: 'Step 1 — Network: Compose first builds a shared NETWORK that all services will use. This is the foundation that lets services find each other by service NAME (e.g. "db") instead of localhost.',
+      },
+      code: { tr: `Creating network "qa_default"`, en: `Creating network "qa_default"` },
+      positions: {
+        yaml: { x: 14, y: 26, opacity: 0.6, scale: 0.85 },
+        network: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'yaml', to: 'network' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — db başlar ama HAZIR DEĞİL: PostgreSQL container\'ı ayağa kalkar, ama process başlamak ile veritabanının bağlantı KABUL ETMEYE hazır olması aynı an değildir — "starting" durumu bir kaç saniye sürer.',
+        en: 'Step 2 — db starts but is NOT READY: the PostgreSQL container comes up, but the process starting and the database being ready to ACCEPT connections are not the same moment — the "starting" state lasts a few seconds.',
+      },
+      code: { tr: `db: Starting...`, en: `db: Starting...` },
+      positions: {
+        network: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        db: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'network', to: 'db' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Healthcheck yoklar: Compose, `pg_isready` komutunu tekrar tekrar çalıştırarak db\'yi kontrol eder. "healthy" cevabı gelene kadar BEKLER — burası hız kaybı gibi görünür ama aslında bir sonraki felaketi önler.',
+        en: 'Step 3 — Healthcheck probes: Compose repeatedly runs `pg_isready` to check on db. It WAITS until the answer is "healthy" — this looks like lost time, but it is actually preventing the next disaster.',
+      },
+      code: { tr: `healthcheck: pg_isready -U testuser`, en: `healthcheck: pg_isready -U testuser` },
+      positions: {
+        db: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        health: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'db', to: 'health' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — app ANCAK ŞİMDİ başlar: `depends_on: condition: service_healthy` sayesinde app container\'ı, db "healthy" olana kadar hiç başlamaz. Bu satır olmadan Compose sadece process\'in başlamasını bekler, DB\'nin hazır olmasını değil.',
+        en: 'Step 4 — app starts ONLY NOW: thanks to `depends_on: condition: service_healthy`, the app container never starts until db is "healthy". Without this line, Compose only waits for the process to start, not for the DB to actually be ready.',
+      },
+      code: { tr: `depends_on:\n  db:\n    condition: service_healthy`, en: `depends_on:\n  db:\n    condition: service_healthy` },
+      positions: {
+        health: { x: 20, y: 50, opacity: 0.55, scale: 0.85 },
+        app: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'health', to: 'app' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — test-runner en son kalkar: app da hazır olduğunda test-runner başlar ve testler ÇALIŞIR — db gerçekten hazır olduğu için "connection refused" hatası yaşanmaz. Testler yeşil.',
+        en: 'Step 5 — test-runner comes up last: once app is also ready, the test-runner starts and the tests RUN — because db is genuinely ready, there is no "connection refused" error. Tests are green.',
+      },
+      code: { tr: `tests: 12 passed`, en: `tests: 12 passed` },
+      positions: {
+        app: { x: 20, y: 50, opacity: 0.55, scale: 0.85 },
+        tests: { x: 48, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'tests', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — healthcheck OLMASAYDI: `depends_on` sadece "db process\'i başlasın" derdi, "hazır olsun" değil. test-runner db henüz bağlantı kabul etmezken başlar, "connection refused" alır — bu, bir gün geçen bir gün geçmeyen KLASİK bir flaky test\'in doğuşudur.',
+        en: 'Final (the contrast) — WITHOUT the healthcheck: `depends_on` alone would only mean "let the db process start", not "be ready". The test-runner starts while db is not yet accepting connections and gets "connection refused" — this is the birth of a CLASSIC flaky test that passes one day and fails the next.',
+      },
+      positions: {
+        db: { x: 18, y: 40, scale: 0.95 },
+        app: { x: 42, y: 60, opacity: 0.7, scale: 0.9 },
+        tests: { x: 66, y: 40, opacity: 0.55, scale: 0.85 },
+        fail: { x: 66, y: 68, scale: 1.25, pulse: true },
+      },
+      beams: [
+        { from: 'db', to: 'app', color: '#8b5cf6' },
+        { from: 'app', to: 'tests' },
+        { from: 'app', to: 'fail', color: '#ef4444' },
+      ],
+    },
+  ],
+}
+
 const dockerIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -1884,6 +1997,7 @@ services:
 volumes:
   postgres_data:    # Named volume for DB persistence`,
           },
+          composeStartupFilm,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-compose-healthcheck-practice',
@@ -3958,6 +4072,7 @@ services:
 volumes:
   postgres_data:`,
           },
+          composeStartupFilm,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-compose-healthcheck-practice',

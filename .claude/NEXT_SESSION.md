@@ -10,21 +10,70 @@
 
 ---
 
-## Video-Scene Dalga 2 — Fable payı TAMAM, Sonnet payı bekliyor (2026-07-14)
+## Video-Scene Dalga 2 — TAMAMLANDI, commit BEKLİYOR (2026-07-15)
 
-> Plan + film spesifikasyonları + Sonnet promptu: **`Documents/video-rollout-plan.md`**.
+> Plan + film spesifikasyonları: **`Documents/video-rollout-plan.md`**.
 > Kullanıcı hedefi: git-github, linux, docker(2. film), algorithms,
 > manual-testing, gauge sayfalarına da film eklensin; uzun vadede mümkün
 > olduğunca her sayfada video/animasyon olsun (backlog planın Bölüm 6'sında).
+> Fable payı (`2162ec1`) commit edilmişti; Sonnet payı bu oturumda tamamlandı,
+> henüz commit EDİLMEDİ.
 
 | Sayfa | Film id | Kim | Durum |
 |---|---|---|---|
-| `/algorithms` (ÖZEL sayfa) | `algorithms-linear-search-film` | Fable | ✅ TAMAM (henüz commit edilmedi) |
-| `/manual-testing` (ÖZEL sayfa) | `manual-bug-lifecycle-film` | Fable | ✅ TAMAM (henüz commit edilmedi) |
-| `/git-github` | `git-commit-journey-film` | Sonnet | ⬜ bekliyor |
-| `/linux` | `linux-pipe-chain-film` | Sonnet | ⬜ bekliyor |
-| `/docker` (Compose sekmesi, 2. film) | `docker-compose-startup-film` | Sonnet | ⬜ bekliyor |
-| `/gauge` (tek ağaç veri — filme DİKKAT: tek yere) | `gauge-run-chain-film` | Sonnet | ⬜ bekliyor |
+| `/algorithms` (ÖZEL sayfa) | `algorithms-linear-search-film` | Fable | ✅ commit `2162ec1` |
+| `/manual-testing` (ÖZEL sayfa) | `manual-bug-lifecycle-film` | Fable | ✅ commit `2162ec1` |
+| `/git-github` | `git-commit-journey-film` | Sonnet | ✅ TAMAM (commit bekliyor) |
+| `/linux` | `linux-pipe-chain-film` | Sonnet | ✅ TAMAM (commit bekliyor) |
+| `/docker` (Compose sekmesi, 2. film) | `docker-compose-startup-film` | Sonnet | ✅ TAMAM (commit bekliyor) |
+| `/gauge` (tek ağaç veri — filme DİKKAT: tek yere) | `gauge-run-chain-film` | Sonnet | ✅ TAMAM (commit bekliyor) |
+
+### Sonnet payında yapılanlar (bu oturum)
+1. **`gitGithubData.js`** → `commitJourneyFilm` (7 sahne, 7 aktör: working dir →
+   staging → commit → local repo/HEAD → remote, üç bölge özeti finaliyle) —
+   "⌨️ Git Temelleri" sekmesinde `git-commit-step-01` step-animation'ının
+   ardına, `git-commit-order-01` challenge'ından önce, EN+TR ikisine de.
+2. **`linuxData.js`** → `pipeChainFilm` (7 sahne, 7 aktör: cat→grep→sort→
+   uniq -c→>report.txt, Java Stream API analojili final) — "📝 Text & Pipes"
+   sekmesinde "A Real QA Pipeline Example" kod bloğunun ardına, EN+TR ikisine
+   de (TR ve EN kod yorumları FARKLI metin olduğu için 2 ayrı Edit gerekti).
+3. **`dockerData.js`** → `composeStartupFilm` (7 sahne, 7 aktör: network→db→
+   healthcheck→app→test-runner, healthcheck OLMASAYDI flaky FAIL kontrast
+   finaliyle) — "🧩 Docker Compose" sekmesinde compose.yml kod bloğunun
+   ardına, EN+TR ikisine de. Mevcut `dockerfileToContainerFilm`'e (Dockerfile
+   sekmesi) DOKUNULMADI — farklı id, farklı sekme, sayfada artık 2 film var.
+4. **`gaugeData.js`** → `gaugeRunChainFilm` (7 sahne, 7 aktör: spec→parser→
+   step registry→@Step Java metodu→WebDriver→HTML rapor, unimplemented-step
+   hayalet kontrast finaliyle) — "📝 Spec & Step Temelleri" bölümünde Run
+   Commands kod bloğunun ardına, quiz'den önce. gaugeData TEK ağaç olduğu
+   için (bilingual field'lar) **SADECE BİR YERE** eklendi — plandaki uyarıya
+   uyuldu, doğrulandı (`grep -n` ile tek eşleşme).
+5. **`tests/video-scene.spec.ts`** genişletildi: pilot testine dokunmadan yeni
+   bir `describe` bloğu — 4 sayfada ilgili sekmeye tıklayınca `video-scene-block`
+   görünür mü kontrolü; Docker testinde ayrıca `toHaveCount(1)` ile Compose
+   sekmesinde TAM OLARAK bir film olduğu (Dockerfile'daki ayrı filmle
+   karışmadığı) doğrulandı.
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- 4 filmin TR caption/code alanları tek tek okundu — İngilizce açıklama
+  cümlesi yok, teknik terimler (git status, staging, HEAD, grep, sort, uniq,
+  healthcheck, depends_on, Step Registry, WebDriver vb.) doğru şekilde
+  İngilizce kalmış.
+- `npm run build` → temiz (41 shell, 1m 7s).
+- `npx playwright test tests/video-scene.spec.ts` → **4-worker'da 4/5 FAIL**
+  (hepsi `h1` timeout — RAG pilot testi bile etkilendi), **`--workers=1` ile
+  5/5 PASS**. Kök neden: büyük veri dosyalarının (dockerData/linuxData/
+  gitGithubData/gaugeData) dev-server ilk derlemesi 4 paralel worker'da
+  kaynak çekişmesi yaratıyor — `other-pages-ui.spec.ts`'teki algorithms/
+  advanced-algorithms yorumunda belgeli AYNI bilinen desen, içerik bug'ı
+  DEĞİL. Kalıcı çözüm gerekirse: bu spec dosyasını da ayrı/yavaş bir grup
+  olarak işaretlemek düşünülebilir (bu oturumda yapılmadı).
+
+### Sıradaki adım
+Commit + push. Sonra plan Bölüm 6'daki Dalga 3+ backlog'undan (selenium,
+cypress, python, java, kafka, jenkins, kubernetes...) sıradaki sayfalar
+seçilebilir.
 
 ### Fable payında yapılanlar (bu oturum)
 1. **BONUS BUG DÜZELTMESİ — `beginnerAlgorithmsData.js` TR ağacı:** TR

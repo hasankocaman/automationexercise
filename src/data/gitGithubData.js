@@ -1,5 +1,113 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Bir Commit'in Yolculuğu film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Veri şeması: Documents/video-rollout-plan.md §2.1 / src/components/VideoSceneBlock.jsx
+const commitJourneyFilm = {
+  type: 'video-scene',
+  id: 'git-commit-journey-film',
+  title: {
+    tr: '🎬 Bir Commit\'in Yolculuğu',
+    en: '🎬 The Journey of a Commit',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'file',     emoji: '📝', label: { tr: 'checkout.spec.js',       en: 'checkout.spec.js' },      color: '#ef4444' },
+    { id: 'ghost',    emoji: '👻', label: { tr: 'Untracked dosya',        en: 'Untracked file' },        color: '#64748b' },
+    { id: 'staging',  emoji: '🎬', label: { tr: 'Staging Area',           en: 'Staging Area' },          color: '#f59e0b' },
+    { id: 'commit',   emoji: '📦', label: { tr: 'Commit (snapshot)',      en: 'Commit (snapshot)' },     color: '#8b5cf6' },
+    { id: 'repo',     emoji: '🗄️', label: { tr: 'Local Repo (.git)',      en: 'Local Repo (.git)' },      color: '#6366f1' },
+    { id: 'head',     emoji: '🏷️', label: { tr: 'HEAD',                   en: 'HEAD' },                   color: '#f97316' },
+    { id: 'remote',   emoji: '☁️', label: { tr: 'Remote (GitHub)',        en: 'Remote (GitHub)' },        color: '#0ea5e9' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir satır kodun `git push`\'a kadar geçtiği GERÇEK yolculuğu izleyeceksin — working directory\'den staging\'e, commit\'e, local repo\'ya ve en sonda remote\'a.',
+        en: 'You will watch the ACTUAL journey one line of code takes on its way to `git push` — from the working directory to staging, to a commit, to the local repo, and finally to the remote.',
+      },
+      code: { tr: `git status`, en: `git status` },
+      positions: {
+        file: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Working Directory: `checkout.spec.js` düzenlendi (kırmızı = "modified"). `git status` bunu görür ama HENÜZ hiçbir şey commit\'e aday değil — dosya sadece diskte değişti.',
+        en: 'Step 1 — Working Directory: `checkout.spec.js` was edited (red = "modified"). `git status` sees this, but NOTHING is a commit candidate yet — the file only changed on disk.',
+      },
+      code: { tr: `# modified:   tests/checkout.spec.js`, en: `# modified:   tests/checkout.spec.js` },
+      positions: {
+        file: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `git add`: dosya staging area\'ya TAŞINIR (kopyalanmaz, seçilir). Dikkat: yanındaki untracked bir dosya `git add` edilmediği için staging\'e GİRMEDİ — sadece bilerek seçtiğin şey commit\'e aday olur.',
+        en: 'Step 2 — `git add`: the file is MOVED into the staging area (not copied, selected). Notice: a nearby untracked file was NOT `git add`-ed, so it did NOT enter staging — only what you deliberately select becomes a commit candidate.',
+      },
+      code: { tr: `git add tests/checkout.spec.js`, en: `git add tests/checkout.spec.js` },
+      positions: {
+        file: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 14, y: 80, opacity: 0.4, scale: 0.8 },
+        staging: { x: 42, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'staging' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `git commit`: staging area\'daki seçim kalıcı bir SNAPSHOT olarak DONDURULUR. Bu andan sonra staging boşalır — bir sonraki commit için tertemiz başlar.',
+        en: 'Step 3 — `git commit`: the selection in staging is FROZEN into a permanent SNAPSHOT. From this moment, staging empties out — a clean slate for the next commit.',
+      },
+      code: { tr: `git commit -m "fix(checkout): wait for payment iframe"`, en: `git commit -m "fix(checkout): wait for payment iframe"` },
+      positions: {
+        staging: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        commit: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'staging', to: 'commit' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Local Repo: commit, `.git` klasöründeki zincire EKLENİR ve HEAD işaretçisi bu yeni commit\'i gösterecek şekilde İLERLER. Zincir her commit\'te büyür, hiçbiri silinmez.',
+        en: 'Step 4 — Local Repo: the commit is APPENDED to the chain inside `.git`, and the HEAD pointer MOVES FORWARD to point at this new commit. The chain grows with every commit; nothing is deleted.',
+      },
+      code: { tr: `git log --oneline -1`, en: `git log --oneline -1` },
+      positions: {
+        commit: { x: 22, y: 50, opacity: 0.55, scale: 0.85 },
+        repo: { x: 48, y: 50, scale: 1.15, pulse: true },
+        head: { x: 62, y: 30, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'commit', to: 'repo' }, { from: 'repo', to: 'head', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — `git push`: local repo zincirindeki commit\'ler REMOTE\'a (GitHub) kopyalanır. Bu ana kadar her şey senin bilgisayarındaydı — push\'tan önce takım arkadaşların bu commit\'i GÖREMEZ.',
+        en: 'Step 5 — `git push`: the commits in the local repo chain are COPIED to the REMOTE (GitHub). Up to this point everything lived only on your machine — before push, your teammates CANNOT see this commit.',
+      },
+      code: { tr: `git push -u origin main`, en: `git push -u origin main` },
+      positions: {
+        repo: { x: 24, y: 50, opacity: 0.55, scale: 0.85 },
+        remote: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'repo', to: 'remote' }],
+    },
+    {
+      caption: {
+        tr: 'Final — üç bölge özeti: Working Directory (henüz seçilmemiş değişiklikler) → Staging (seçilmiş, commit\'e aday) → Local Repo (kalıcı snapshot\'lar). Bu ayrımı bilmek QA için kritik: yarım kalan, test edilmemiş bir işi asla "sadece stage ettim diye" commit\'lemezsin — commit bir SEÇİM anıdır, bir kaza değil.',
+        en: 'Final — the three-zone summary: Working Directory (unselected changes) → Staging (selected, commit-bound) → Local Repo (permanent snapshots). Knowing this split matters for QA: you never commit unfinished, untested work just because it happened to be staged — a commit is a moment of deliberate SELECTION, not an accident.',
+      },
+      positions: {
+        file: { x: 12, y: 60, scale: 0.9 },
+        staging: { x: 36, y: 40, scale: 0.95 },
+        repo: { x: 60, y: 60, scale: 0.95 },
+        remote: { x: 84, y: 40, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'staging' }, { from: 'staging', to: 'repo' }, { from: 'repo', to: 'remote' }],
+    },
+  ],
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -1692,6 +1800,7 @@ export const gitGithubData = {
               { id: 5, icon: '🔗', label: { tr: 'Geçmişi doğrula', en: 'Verify history' }, detail: { tr: '`git log --oneline -1` ciktisinda `a1b2c3d fix(checkout): ...` gibi yeni bir hash ve mesaj gorursun.', en: '`git log --oneline -1` shows a new hash and message like `a1b2c3d fix(checkout): ...`.' } },
             ],
           },
+          commitJourneyFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -4052,6 +4161,7 @@ git push origin feature/my-branch   # Push only your branch`,
               { id: 5, icon: '🔗', label: { tr: 'Geçmişi doğrula', en: 'Verify history' }, detail: { tr: '`git log --oneline -1` ciktisinda `a1b2c3d fix(checkout): ...` gibi yeni bir hash ve mesaj gorursun.', en: '`git log --oneline -1` shows a new hash and message like `a1b2c3d fix(checkout): ...`.' } },
             ],
           },
+          commitJourneyFilm,
           {
             type: 'challenge',
             variant: 'order-sort',

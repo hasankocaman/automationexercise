@@ -1,5 +1,119 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Bir Pipe Zincirinin Yolculuğu film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Veri şeması: Documents/video-rollout-plan.md §2.2 / src/components/VideoSceneBlock.jsx
+const pipeChainFilm = {
+  type: 'video-scene',
+  id: 'linux-pipe-chain-film',
+  title: {
+    tr: '🎬 Bir Pipe Zincirinin Yolculuğu',
+    en: '🎬 The Journey of a Pipe Chain',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'log',    emoji: '📄', label: { tr: 'test.log (10.000 satır)', en: 'test.log (10,000 lines)' }, color: '#0ea5e9' },
+    { id: 'grep',   emoji: '🔍', label: { tr: 'grep ERROR',              en: 'grep ERROR' },              color: '#f59e0b' },
+    { id: 'lines',  emoji: '📉', label: { tr: 'Filtrelenmiş Satırlar',   en: 'Filtered Lines' },          color: '#8b5cf6' },
+    { id: 'sort',   emoji: '🔀', label: { tr: 'sort',                    en: 'sort' },                    color: '#6366f1' },
+    { id: 'uniq',   emoji: '🧮', label: { tr: 'uniq -c',                 en: 'uniq -c' },                 color: '#22c55e' },
+    { id: 'result', emoji: '📊', label: { tr: 'Sonuç (hata özeti)',      en: 'Result (error summary)' },  color: '#10b981' },
+    { id: 'file',   emoji: '💾', label: { tr: '> rapor.txt',             en: '> report.txt' },            color: '#f97316' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'QA senaryosu: CI koşumundan 10.000 satırlık devasa bir log düştü. Beş küçük komutun bir zincirde nasıl işbirliği yaparak bunu okunabilir bir hata özetine dönüştürdüğünü izleyeceksin.',
+        en: 'QA scenario: a massive 10,000-line log dropped from a CI run. You will watch five small commands cooperate in a chain to turn it into a readable error summary.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c > rapor.txt`, en: `cat test.log | grep ERROR | sort | uniq -c > report.txt` },
+      positions: {
+        log: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `cat test.log`: dosyanın TÜMÜ akıtılır. Tek başına işe yaramaz — 10.000 satırı olduğu gibi ekrana basar, hiçbir filtre yoktur.',
+        en: 'Step 1 — `cat test.log`: the ENTIRE file streams out. Alone it is useless — it dumps all 10,000 lines as-is, no filtering at all.',
+      },
+      code: { tr: `cat test.log`, en: `cat test.log` },
+      positions: {
+        log: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `| grep ERROR`: pipe, cat\'in çıktısını grep\'in girdisine BAĞLAR — ara dosya yok. Sadece "ERROR" içeren satırlar hayatta kalır; 10.000 satır belki 40\'a düşer.',
+        en: 'Step 2 — `| grep ERROR`: the pipe CONNECTS cat\'s output directly to grep\'s input — no intermediate file. Only lines containing "ERROR" survive; 10,000 lines might drop to 40.',
+      },
+      code: { tr: `cat test.log | grep ERROR`, en: `cat test.log | grep ERROR` },
+      positions: {
+        log: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        grep: { x: 38, y: 50, scale: 1.15, pulse: true },
+        lines: { x: 62, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'log', to: 'grep' }, { from: 'grep', to: 'lines', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `| sort`: filtrelenmiş satırlar ALFABETİK sıraya dizilir. Bu adım kritik: aynı hata mesajları artık YAN YANA — bir sonraki adım için gerekli ön koşul.',
+        en: 'Step 3 — `| sort`: the filtered lines are arranged ALPHABETICALLY. This step is critical: identical error messages are now ADJACENT — the required precondition for the next step.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort`, en: `cat test.log | grep ERROR | sort` },
+      positions: {
+        lines: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        sort: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'lines', to: 'sort' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — `| uniq -c`: yan yana duran AYNI satırlar tek satıra indirilir ve başına tekrar SAYISI eklenir. `uniq` sadece ARDIŞIK tekrarları yakalar — bu yüzden bir önceki `sort` adımı olmadan `uniq -c` neredeyse işe yaramaz.',
+        en: 'Step 4 — `| uniq -c`: adjacent IDENTICAL lines collapse into one, prefixed with a repeat COUNT. `uniq` only catches CONSECUTIVE duplicates — which is exactly why `uniq -c` is nearly useless without the preceding `sort`.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c`, en: `cat test.log | grep ERROR | sort | uniq -c` },
+      positions: {
+        sort: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        uniq: { x: 48, y: 50, scale: 1.2, pulse: true },
+        result: { x: 76, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'sort', to: 'uniq' }, { from: 'uniq', to: 'result', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — `> rapor.txt`: sonuç terminale değil bir DOSYAYA yönlendirilir. Artık "3× Connection timeout, 2× Auth failed" gibi kısa bir özet, ekibin paylaşabileceği kalıcı bir dosyada.',
+        en: 'Step 5 — `> report.txt`: the result is redirected to a FILE instead of the terminal. Now a short summary like "3× Connection timeout, 2× Auth failed" lives in a permanent file the team can share.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c > rapor.txt`, en: `cat test.log | grep ERROR | sort | uniq -c > report.txt` },
+      positions: {
+        result: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        file: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'file' }],
+    },
+    {
+      caption: {
+        tr: 'Final — tek satırlık bu zincir aslında BEŞ ayrı programın işbirliğidir: her biri tek bir işi yapar (cat okur, grep filtreler, sort sıralar, uniq sayar, > kaydeder), pipe onları bağlar. Tıpkı Java\'nın `stream().filter().sorted().collect()` zinciri gibi — monolitik tek bir "hepsini yap" komutu yerine, küçük ve test edilebilir parçaların kompozisyonu.',
+        en: 'Final — this one-line chain is actually FIVE separate programs cooperating: each does exactly one job (cat reads, grep filters, sort orders, uniq counts, > saves), and the pipe connects them. Just like Java\'s `stream().filter().sorted().collect()` chain — composition of small, testable pieces instead of one monolithic "do everything" command.',
+      },
+      positions: {
+        log: { x: 10, y: 60, scale: 0.85 },
+        grep: { x: 26, y: 40, scale: 0.85 },
+        sort: { x: 44, y: 60, scale: 0.85 },
+        uniq: { x: 62, y: 40, scale: 0.85 },
+        file: { x: 84, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [
+        { from: 'log', to: 'grep' },
+        { from: 'grep', to: 'sort' },
+        { from: 'sort', to: 'uniq' },
+        { from: 'uniq', to: 'file', color: '#f97316' },
+      ],
+    },
+  ],
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -1002,6 +1116,7 @@ grep -v "PASSED" app.log    # invert match: lines that do NOT contain PASSED`,
 # wc -l → count how many lines remain`,
             expected: '7',
           },
+          pipeChainFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-pipe-redirect-practice-01',
@@ -2338,6 +2453,7 @@ grep -v "PASSED" app.log    # ters eşleşme: PASSED İÇERMEYEN satırlar`,
 # wc -l → kaç satır kaldığını say`,
             expected: '7',
           },
+          pipeChainFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-pipe-redirect-practice-01',

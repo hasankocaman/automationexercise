@@ -3,6 +3,112 @@
 // Kod blokları bilingual: TR varyantında yorumlar Türkçe, EN varyantında İngilizce.
 import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
 
+// ─── gauge run film bloğu (video-scene — gaugeData tek ağaç, TEK yere eklenir) ─
+// Veri şeması: Documents/video-rollout-plan.md §2.6 / src/components/VideoSceneBlock.jsx
+const gaugeRunChainFilm = {
+  type: 'video-scene',
+  id: 'gauge-run-chain-film',
+  title: {
+    tr: '🎬 gauge run: Bir Spec\'in Koşum Zinciri',
+    en: '🎬 gauge run: The Journey of a Spec',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'spec',     emoji: '📄', label: { tr: 'giris-akisi.spec',    en: 'login-flow.spec' },      color: '#0ea5e9' },
+    { id: 'parser',   emoji: '🔎', label: { tr: 'Parser',              en: 'Parser' },                color: '#f59e0b' },
+    { id: 'registry', emoji: '🗂️', label: { tr: 'Step Registry',       en: 'Step Registry' },         color: '#8b5cf6' },
+    { id: 'method',   emoji: '☕', label: { tr: '@Step Java Metodu',    en: '@Step Java Method' },     color: '#6366f1' },
+    { id: 'browser',  emoji: '🌐', label: { tr: 'WebDriver / Browser', en: 'WebDriver / Browser' },   color: '#22c55e' },
+    { id: 'report',   emoji: '📊', label: { tr: 'HTML Rapor',          en: 'HTML Report' },           color: '#10b981' },
+    { id: 'ghost',    emoji: '👻', label: { tr: 'Unimplemented Step',  en: 'Unimplemented Step' },    color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`gauge run specs` tek komut ama arkasında bir Markdown cümlesinin gerçek bir tarayıcı tıklamasına dönüştüğü tam bir zincir var. Bu filmde o zinciri adım adım izleyeceksin — ve sonunda eşleşmeyen bir cümleye ne olduğunu göreceksin.',
+        en: '`gauge run specs` is one command, but behind it lies a full chain that turns a Markdown sentence into a real browser click. In this film you will watch that chain step by step — and at the end, see what happens to a sentence with no match.',
+      },
+      code: { tr: `gauge run specs`, en: `gauge run specs` },
+      positions: {
+        spec: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Parser spec\'i okur: `.spec` dosyasındaki `*` ile başlayan her satır bir STEP CÜMLESİ olarak çıkarılır. Bu aşamada henüz hiçbir Java kodu çalışmadı — sadece metin ayrıştırıldı.',
+        en: 'Step 1 — Parser reads the spec: every line starting with `*` in the `.spec` file is extracted as a STEP SENTENCE. At this point no Java code has run yet — only text has been parsed.',
+      },
+      code: { tr: `* Kullanici login sayfasini acar`, en: `* User opens the login page` },
+      positions: {
+        spec: { x: 16, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Step Registry\'de arama: her step cümlesi, projede taranmış TÜM @Step annotation metinleriyle KARAKTER KARAKTER karşılaştırılır. Bu, Cucumber\'ın regex tabanlı eşleştirmesinden farklıdır — burada birebir metin eşleşmesi aranır.',
+        en: 'Step 2 — Step Registry lookup: each step sentence is compared CHARACTER BY CHARACTER against every scanned @Step annotation text in the project. This differs from Cucumber\'s regex-based matching — here an exact text match is required.',
+      },
+      code: { tr: `registry.find("Kullanici login sayfasini acar")`, en: `registry.find("User opens the login page")` },
+      positions: {
+        spec: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        parser: { x: 36, y: 50, scale: 1.1 },
+        registry: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'spec', to: 'parser' }, { from: 'parser', to: 'registry', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Eşleşme bulundu: registry, bu metne karşılık gelen TEK bir @Step("...") metodunu bulur — `openLoginPage()`. Metod adı önemsizdir, sadece annotation metni bağlayıcıdır.',
+        en: 'Step 3 — Match found: the registry finds the ONE @Step("...") method that corresponds to this text — `openLoginPage()`. The method name is irrelevant; only the annotation text is the binding.',
+      },
+      code: { tr: `@Step("Kullanici login sayfasini acar")\npublic void openLoginPage() { ... }`, en: `@Step("User opens the login page")\npublic void openLoginPage() { ... }` },
+      positions: {
+        registry: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        method: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'registry', to: 'method' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Java metodu çalışır: `driver.get(...)` çağrısı gerçek bir WebDriver komutuna dönüşür ve tarayıcıda GERÇEK bir sayfa açılır. Markdown cümlesi artık somut bir tarayıcı aksiyonu oldu.',
+        en: 'Step 4 — The Java method runs: the `driver.get(...)` call becomes a real WebDriver command and a REAL page opens in the browser. The Markdown sentence has become a concrete browser action.',
+      },
+      code: { tr: `driver.get("https://demo.learnqa.dev/login")`, en: `driver.get("https://demo.learnqa.dev/login")` },
+      positions: {
+        method: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'method', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Sonuç HTML rapora yazılır: step yeşil veya kırmızı olarak işaretlenir; assertion fail olursa (`verifyDashboard()` gibi) step kırmızı olur ve rapor bunu net şekilde gösterir.',
+        en: 'Step 5 — The result is written to the HTML report: the step is marked green or red; if an assertion fails (like `verifyDashboard()`), the step turns red and the report shows it clearly.',
+      },
+      code: { tr: `reports/html-report/index.html`, en: `reports/html-report/index.html` },
+      positions: {
+        browser: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        report: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'report', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — spec\'te bir kelime değişirse: "Kullanici login sayfasini acar" → "Kullanıcı login sayfasını acar" yazılsaydı, registry\'de KARAKTER KARAKTER eşleşen annotation bulunamaz ve step hayalete gider — "Step implementation not found" hatasıyla kırılır. Bu katılık, spec yazarı ile step yazarı arasındaki SÖZLEŞMEDİR: yanlış PASS yerine net bir hata.',
+        en: 'Final (the contrast) — if a word in the spec changes: had it read "User opens the login page." with a period, the registry would find no CHARACTER-BY-CHARACTER match and the step goes to the ghost — it breaks with "Step implementation not found". This rigidity is the CONTRACT between the spec writer and the step writer: a clear error instead of a false PASS.',
+      },
+      positions: {
+        spec: { x: 14, y: 30, scale: 0.9 },
+        registry: { x: 44, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'spec', to: 'registry' }, { from: 'registry', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
 const sections = [
 
   // ── 0: Neden Gauge? ─────────────────────────────────────────────────────────
@@ -954,6 +1060,7 @@ gauge run specs/login-flow.spec
 gauge run --env test specs`,
         },
       },
+      gaugeRunChainFilm,
       {
         type: 'quiz',
         question: {
