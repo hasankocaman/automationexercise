@@ -4478,7 +4478,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                     boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none',
                     transition: 'all 0.3s',
                 }}>
-                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>
+                    <div style={{ color: s.outerActive ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>
                         {s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}
                     </div>
                     <div style={{
@@ -4532,7 +4532,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                         border: `2px solid ${active.includes(w.id) ? w.color : (darkMode ? '#374151' : '#d1d5db')}`,
                         background: active.includes(w.id) ? (darkMode ? '#111827' : '#f9fafb') : (darkMode ? '#1f2937' : '#fff'),
                         boxShadow: active.includes(w.id) ? `0 0 10px ${w.color}44` : 'none',
-                        color: active.includes(w.id) ? w.color : (darkMode ? '#6b7280' : '#9ca3af'),
+                        color: active.includes(w.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'),
                         fontWeight: active.includes(w.id) ? 700 : 400,
                         transition: 'all 0.3s',
                     }}>
@@ -4795,7 +4795,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                         '.until(...) → element bul',
                         isTr ? 'Her action için tekrar yaz!' : 'Repeat it for every action!',
                     ].map((txt, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 3 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 3 ? '#ef4444' : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 3 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 3 ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
                             <span>{['1️⃣', '2️⃣', '3️⃣', '⛔'][idx]}</span><span>{txt}</span>
                         </div>
                     ))}
@@ -4880,7 +4880,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
                 <div style={{ padding: 10, borderRadius: 8, border: `2px solid ${s.outerActive ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#111827' : '#f9fafb', boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none', transition: 'all 0.3s' }}>
-                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>{s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}</div>
+                    <div style={{ color: s.outerActive ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>{s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}</div>
                     <div style={{ padding: 8, borderRadius: 6, border: `2px solid ${s.innerBorder}`, background: darkMode ? '#1f2937' : '#fff', opacity: s.innerOpacity, boxShadow: s.innerOpacity === 1 ? `0 0 10px ${s.innerBorder}44` : 'none', transition: 'all 0.4s' }}>
                         <div style={{ color: s.innerBorder, fontWeight: 700 }}>🖼️ iframe#payment — {s.innerLabel}</div>
                         {s.innerOpacity === 1 && <div style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 4 }}>💳 frameLocator → locator chain</div>}
@@ -4899,7 +4899,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 240, fontFamily: 'monospace', fontSize: 11 }}>
                 {pages.slice(0, showCount).map(p => (
-                    <div key={p.id} style={{ padding: '7px 12px', borderRadius: 8, border: `2px solid ${active.includes(p.id) ? p.color : (darkMode ? '#374151' : '#d1d5db')}`, background: active.includes(p.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#fff'), boxShadow: active.includes(p.id) ? `0 0 10px ${p.color}44` : 'none', color: active.includes(p.id) ? p.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(p.id) ? 700 : 400, transition: 'all 0.3s' }}>
+                    <div key={p.id} style={{ padding: '7px 12px', borderRadius: 8, border: `2px solid ${active.includes(p.id) ? p.color : (darkMode ? '#374151' : '#d1d5db')}`, background: active.includes(p.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#fff'), boxShadow: active.includes(p.id) ? `0 0 10px ${p.color}44` : 'none', color: active.includes(p.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(p.id) ? 700 : 400, transition: 'all 0.3s' }}>
                         {active.includes(p.id) ? '▶ ' : '  '}{p.label}{active.includes(p.id) && <span style={{ fontSize: 9, marginLeft: 6, opacity: 0.7 }}>← active</span>}
                     </div>
                 ))}
@@ -4963,7 +4963,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 <div style={{ textAlign: 'center', marginBottom: 8, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 10 }}>🌐 browser (tek proses)</div>
                 <div style={{ border: `2px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 10, padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
                     {contexts.slice(0, showCount).map(ctx => (
-                        <div key={ctx.id} style={{ padding: '6px 10px', borderRadius: 6, border: `2px solid ${active.includes(ctx.id) ? ctx.color : (darkMode ? '#374151' : '#e5e7eb')}`, background: active.includes(ctx.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), color: active.includes(ctx.id) ? ctx.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(ctx.id) ? 700 : 400, boxShadow: active.includes(ctx.id) ? `0 0 8px ${ctx.color}44` : 'none', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div key={ctx.id} style={{ padding: '6px 10px', borderRadius: 6, border: `2px solid ${active.includes(ctx.id) ? ctx.color : (darkMode ? '#374151' : '#e5e7eb')}`, background: active.includes(ctx.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), color: active.includes(ctx.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(ctx.id) ? 700 : 400, boxShadow: active.includes(ctx.id) ? `0 0 8px ${ctx.color}44` : 'none', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 6 }}>
                             {ctx.label}{active.includes(ctx.id) && state === 'isolation' && <span style={{ marginLeft: 'auto', fontSize: 9, background: `${ctx.color}22`, padding: '2px 5px', borderRadius: 3 }}>🍪 isolated</span>}
                         </div>
                     ))}
@@ -5019,7 +5019,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                         isTr ? 'DOM o anki haliyle okunur' : 'Reads the DOM at this exact instant',
                         isTr ? 'Doğru değilse → ANINDA FAIL' : 'Not correct yet → FAILS IMMEDIATELY',
                     ].map((txt, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 2 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 2 ? '#ef4444' : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 2 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 2 ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
                             <span>{['1️⃣', '2️⃣', '⛔'][idx]}</span><span>{txt}</span>
                         </div>
                     ))}
@@ -5057,19 +5057,19 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ fontFamily: 'monospace', fontSize: 10.5, maxWidth: 260 }}>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 0 ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#111827' : '#f0f9ff', marginBottom: 8, opacity: idx >= 0 ? 1 : 0.5 }}>
-                    <div style={{ color: accent, fontWeight: 700 }}>{"test(async ({ loggedInPage }) => {"}</div>
+                    <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700 }}>{"test(async ({ loggedInPage }) => {"}</div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 1 ? accent : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓</div>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 1 ? '#f59e0b' : (darkMode ? '#374151' : '#d1d5db')}`, background: idx === 1 ? '#fef3c722' : (darkMode ? '#1f2937' : '#f9fafb'), marginBottom: 8, opacity: idx >= 1 ? 1 : 0.4, transition: 'all 0.3s' }}>
-                    <div style={{ color: idx >= 1 ? '#f59e0b' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>🧩 {isTr ? 'Fixture Factory' : 'Fixture Factory'}</div>
+                    <div style={{ color: idx >= 1 ? (darkMode ? '#fbbf24' : '#b45309') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>🧩 {isTr ? 'Fixture Factory' : 'Fixture Factory'}</div>
                     {idx === 1 && <div style={{ fontSize: 9.5, marginTop: 4, color: darkMode ? '#9ca3af' : '#6b7280' }}>{isTr ? 'login adımları çalışıyor...' : 'running login steps...'}</div>}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 2 ? '#10b981' : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓ use()</div>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 2 ? '#10b981' : (darkMode ? '#374151' : '#d1d5db')}`, background: idx === 2 ? '#10b98122' : (darkMode ? '#1f2937' : '#f9fafb'), opacity: idx >= 2 ? 1 : 0.4, transition: 'all 0.3s' }}>
-                    <div style={{ color: idx >= 2 ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>{isTr ? '✅ Test gövdesi çalışıyor' : '✅ Test body runs'}</div>
+                    <div style={{ color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>{isTr ? '✅ Test gövdesi çalışıyor' : '✅ Test body runs'}</div>
                 </div>
                 {state === 'teardown' && (
-                    <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#8b5cf622', border: '1px solid #8b5cf6', color: '#8b5cf6', fontSize: 10 }}>
+                    <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#8b5cf622', border: '1px solid #8b5cf6', color: darkMode ? '#c4b5fd' : '#6d28d9', fontSize: 10 }}>
                         🧹 {isTr ? 'use() sonrası kod → logout (teardown)' : 'code after use() → logout (teardown)'}
                     </div>
                 )}
@@ -5210,19 +5210,19 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ maxWidth: 280, fontFamily: 'monospace', fontSize: 9.5 }}>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 0 ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 0 ? accent : (darkMode ? '#374151' : '#d1d5db')}`, marginBottom: 6, opacity: idx >= 0 ? 1 : 0.4 }}>
-                    <div style={{ color: accent, fontWeight: 700, fontSize: 9 }}>💬 {isTr ? 'Kullanıcı' : 'User'}</div>
+                    <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, fontSize: 9 }}>💬 {isTr ? 'Kullanıcı' : 'User'}</div>
                     {idx === 0 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>{isTr ? '"example.com\'a git ve başlığı söyle"' : '"go to example.com and tell me the title"'}</div>}
                 </div>
                 <div style={{ textAlign: 'center', color: idx >= 1 ? accent : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 1 ? '#f59e0b22' : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 1 ? '#f59e0b' : (darkMode ? '#374151' : '#d1d5db')}`, marginBottom: 6, opacity: idx >= 1 ? 1 : 0.4 }}>
-                    <div style={{ color: idx >= 1 ? '#f59e0b' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🔌 MCP Server</div>
+                    <div style={{ color: idx >= 1 ? (darkMode ? '#fbbf24' : '#b45309') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🔌 MCP Server</div>
                     {idx === 1 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>browser_navigate({'{ url: "..." }'})</div>}
-                    {idx === 2 && <div style={{ color: '#10b981', marginTop: 2 }}>browser_snapshot() →</div>}
+                    {idx === 2 && <div style={{ color: darkMode ? '#34d399' : '#047857', marginTop: 2 }}>browser_snapshot() →</div>}
                     {idx === 3 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>browser_click({'{ ref: "e2" }'})</div>}
                 </div>
                 <div style={{ textAlign: 'center', color: idx >= 2 ? '#10b981' : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 2 ? '#10b98122' : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 2 ? '#10b981' : (darkMode ? '#374151' : '#d1d5db')}`, opacity: idx >= 2 ? 1 : 0.4 }}>
-                    <div style={{ color: idx >= 2 ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🌳 {isTr ? 'Accessibility Tree' : 'Accessibility Tree'}</div>
+                    <div style={{ color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🌳 {isTr ? 'Accessibility Tree' : 'Accessibility Tree'}</div>
                     {idx >= 2 && (
                         <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2, fontSize: 8.5 }}>
                             - heading "Example Domain" [ref=e1]<br />- link "More info" [ref=e2]
@@ -15062,7 +15062,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                 <div>
                     <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 1.9 }}>
                         {nodes.map((n, idx) => {
-                            const col = n.state === 'found' ? '#10b981' : n.state === 'success' ? '#10b981' : n.state === 'active' ? accent : n.state === 'hidden' ? (darkMode ? '#374151' : '#d1d5db') : (darkMode ? '#9ca3af' : '#6b7280')
+                            const col = n.state === 'found' ? (darkMode ? '#34d399' : '#047857') : n.state === 'success' ? (darkMode ? '#34d399' : '#047857') : n.state === 'active' ? accent : n.state === 'hidden' ? (darkMode ? '#374151' : '#d1d5db') : (darkMode ? '#9ca3af' : '#6b7280')
                             const bg = n.state === 'found' ? (darkMode ? '#064e3b44' : '#ecfdf544') : n.state === 'active' ? `${accent}22` : 'transparent'
                             return (
                                 <div key={idx} style={{ paddingLeft: n.level * 14 + 4, paddingRight: 4, paddingTop: 2, paddingBottom: 2, color: col, background: bg, borderRadius: 3, border: (n.state === 'found' || n.state === 'active') ? `1px solid ${n.state === 'found' ? '#10b981' : accent}44` : '1px solid transparent', transition: 'all 0.4s ease', fontWeight: n.state === 'found' ? 700 : 400 }}>
@@ -15531,8 +15531,8 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         { t: '~2s', label: isWithFound ? (isTr ? 'Element bulundu! ✅' : 'Element found! ✅') : '—', success: isWithFound, active: isWithFound },
                     ].map((item, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
-                            <div style={{ width: 28, flexShrink: 0, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, paddingTop: 3 }}>{item.t}</div>
-                            <div style={{ flex: 1, padding: '3px 7px', borderRadius: 4, background: item.error ? '#ef444422' : item.success ? '#10b98122' : (item.active ? `${accent}22` : 'transparent'), border: `1px solid ${item.error ? '#ef4444' : item.success ? '#10b981' : (item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'))}44`, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#9ca3af' : '#6b7280'), opacity: item.active ? 1 : 0.4, transition: 'all 0.4s' }}>
+                            <div style={{ width: 28, flexShrink: 0, color: item.error ? (darkMode ? '#f87171' : '#b91c1c') : item.success ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, paddingTop: 3 }}>{item.t}</div>
+                            <div style={{ flex: 1, padding: '3px 7px', borderRadius: 4, background: item.error ? '#ef444422' : item.success ? '#10b98122' : (item.active ? `${accent}22` : 'transparent'), border: `1px solid ${item.error ? '#ef4444' : item.success ? '#10b981' : (item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'))}44`, color: item.error ? (darkMode ? '#f87171' : '#b91c1c') : item.success ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#9ca3af' : '#6b7280'), opacity: item.active ? 1 : 0.4, transition: 'all 0.4s' }}>
                                 {item.label}
                             </div>
                         </div>
@@ -15632,14 +15632,14 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                             animation: (n.root || n.inner || n.target) ? 'simFadeUp 0.3s' : 'none',
                             background: n.found ? '#10b98122' : n.root ? '#a78bfa11' : n.target ? '#a78bfa11' : 'transparent',
                             border: n.found ? '1px solid #10b98144' : (n.root || n.target) ? '1px solid #a78bfa33' : '1px solid transparent',
-                            color: n.found ? '#10b981' : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : n.host ? (isFailing ? '#ef4444' : '#a78bfa') : n.root ? '#f59e0b' : n.target ? (darkMode ? '#d1d5db' : '#374151') : (darkMode ? '#6b7280' : '#9ca3af'),
+                            color: n.found ? (darkMode ? '#34d399' : '#047857') : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : n.host ? (isFailing ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#c4b5fd' : '#6d28d9')) : n.root ? (darkMode ? '#fbbf24' : '#b45309') : n.target ? (darkMode ? '#d1d5db' : '#374151') : (darkMode ? '#6b7280' : '#9ca3af'),
                             fontWeight: (n.found || n.root) ? 700 : 400,
                             transition: 'all 0.4s',
                         }}>
                             {n.tag}
                             {n.normal && <span style={{ opacity: 0.7 }}> {n.desc}</span>}
-                            {n.host && isFailing && <span style={{ color: '#ef4444', marginLeft: 4, fontSize: 9 }}>← girilemiyor!</span>}
-                            {n.host && isXray && <span style={{ color: '#f59e0b', marginLeft: 4, fontSize: 9 }}>← .shadowRoot</span>}
+                            {n.host && isFailing && <span style={{ color: darkMode ? '#f87171' : '#b91c1c', marginLeft: 4, fontSize: 9 }}>← girilemiyor!</span>}
+                            {n.host && isXray && <span style={{ color: darkMode ? '#fbbf24' : '#b45309', marginLeft: 4, fontSize: 9 }}>← .shadowRoot</span>}
                             {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>← getShadowRoot().findElement() ✅</span>}
                         </div>
                     ))}
@@ -15675,7 +15675,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                     ].map((item, idx) => (
                         <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
                             <span style={{ color: item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'), paddingLeft: item.layer * 10, flexShrink: 0 }}>{idx > 0 ? '↳' : '▸'}</span>
-                            <div style={{ flex: 1, padding: '3px 8px', borderRadius: 4, background: item.success ? '#10b98122' : (item.active ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb')), border: `1px solid ${item.success ? '#10b981' : item.active ? accent : (darkMode ? '#374151' : '#e5e7eb')}44`, color: item.success ? '#10b981' : (item.active ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#4b5563' : '#9ca3af')), fontWeight: item.active ? 600 : 400, transition: 'all 0.4s' }}>
+                            <div style={{ flex: 1, padding: '3px 8px', borderRadius: 4, background: item.success ? '#10b98122' : (item.active ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb')), border: `1px solid ${item.success ? '#10b981' : item.active ? accent : (darkMode ? '#374151' : '#e5e7eb')}44`, color: item.success ? (darkMode ? '#34d399' : '#047857') : (item.active ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#4b5563' : '#9ca3af')), fontWeight: item.active ? 600 : 400, transition: 'all 0.4s' }}>
                                 <span style={{ fontWeight: 700 }}>{item.label}</span>
                                 <span style={{ opacity: 0.7, marginLeft: 4 }}>— {item.desc}</span>
                             </div>

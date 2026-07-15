@@ -198,8 +198,14 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
                             <span
                                 className="mt-1 whitespace-nowrap rounded px-1.5 py-0.5 text-[10px] font-semibold md:text-xs"
                                 style={{
-                                    color: actor.color || '#8b5cf6',
-                                    background: darkMode ? 'rgba(2,6,23,0.7)' : 'rgba(255,255,255,0.85)',
+                                    // Aktör rengi (actor.color) ikon kenarlığında zaten kullanılıyor;
+                                    // burada SADECE aksan olarak border'da tutulur — ham rengi metin
+                                    // rengi yapmak light mode'da beyaza yakın zeminde WCAG kontrastını
+                                    // (çoğu Tailwind ara-tonu için ~2-3:1) ihlal ediyordu. Metin her
+                                    // zaman nötr, yüksek kontrastlı bir tondan gelir.
+                                    color: darkMode ? '#e2e8f0' : '#1e293b',
+                                    background: darkMode ? 'rgba(2,6,23,0.7)' : 'rgba(255,255,255,0.92)',
+                                    border: `1px solid ${(actor.color || '#8b5cf6')}55`,
                                 }}
                             >
                                 {pick(actor.label, isTr)}

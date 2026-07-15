@@ -10,6 +10,48 @@
 
 ---
 
+## DEVIR NOTU — Kullanıcı Dalga 7+'ye BAŞKA bir Claude hesabıyla devam edecek (2026-07-15)
+
+> Branch: `feature/video-scene-dalga3` (main'e henüz merge/push edilmedi —
+> origin'de bu branch push edilmiş durumda, bkz. `git log`). Dalga 6
+> (/selenium, 14/14 sekme) tamamlandı ve commit edildi (`e1376a9`, `5a476f5`).
+>
+> **Bu oturumda Dalga 7'den ÖNCE ek bir düzeltme yapıldı:** kullanıcı
+> "arka plan/font uyumluluğu okunmuyor" şikayetiyle proje geneli bir
+> kontrast incelemesi istedi. Kök neden: `VideoSceneBlock.jsx` (TÜM
+> video-scene filmlerinin ortak render bileşeni) aktör etiket metnini
+> `actor.color` ham hex değeriyle boyuyordu — bu, KARANLIK modda iyi
+> görünen ama AÇIK modda WCAG kontrastını ciddi şekilde ihlal eden
+> (ör. amber `#f59e0b` beyaz zeminde 2.15:1, gerekli eşik 4.5:1) bir
+> tasarımdı. Düzeltme: aktör etiketi artık her zaman nötr yüksek kontrastlı
+> renk kullanıyor (`#1e293b` açık / `#e2e8f0` koyu mod), aktör rengi sadece
+> ikon kenarlığı/beam çizgisinde aksan olarak kalıyor. Aynı anti-pattern
+> `TopicPage.jsx`'te ~14 yerde daha bulundu (WindowVisual, Fixture Factory,
+> MCP Flow, Shadow DOM simülasyonu gibi küçük etkileşimli widget'lar) ve
+> aynı yöntemle düzeltildi. Jenkins/AWS/Azure pipeline simülatörleri (`JK`/
+> `AW`/`AZ` renk paletleri) BİLİNÇLİ olarak dokunulmadı — bunlar tema ne
+> olursa olsun her zaman koyu bir terminal zemininde render olacak şekilde
+> tasarlanmış, bug değil.
+>
+> **Not — TAM bir tarama DEĞİL:** Bu, 18 binden fazla satırlık
+> `TopicPage.jsx`'in tamamının değil, en yaygın etkili ve en açık
+> örneklerin düzeltmesiydi. Devralan oturum, benzer "ham renk + tema
+> fark etmeksizin metin rengi" kalıbını farklı bir sayfada/bileşende
+> görürse aynı yöntemi (nötr açık/koyu metin rengi + rengi sadece
+> border/glow'da aksan olarak tutmak) uygulayabilir.
+>
+> Doğrulama: `npm run build` temiz, `check-content-integrity` temiz,
+> `tests/video-scene.spec.ts --workers=1` 21/21 PASS, ekran görüntüsüyle
+> hem docker hem selenium'da açık/koyu modda görsel teyit yapıldı.
+>
+> **Sıradaki adım (yeni oturum için):** Bu değişiklikleri commit+push et
+> (bu oturumda yapılıyor), sonra `Documents/video-sitewide-plan.md`
+> sırasındaki **Dalga 7'ye (/playwright, 18 sekme, 1 film mevcut)** geç —
+> Dalga 5/6'daki gibi parametrik Sonnet şablonuyla (Bölüm 5) ve ≥14 eşiği
+> nedeniyle muhtemelen 2 batch'e bölünerek.
+
+---
+
 ## DALGA 6 — /selenium (2026-07-15, TAMAMLANDI, commit BEKLİYOR)
 
 > `Documents/video-sitewide-plan.md` Bölüm 5'teki parametrik Sonnet şablonuyla
