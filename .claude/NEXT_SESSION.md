@@ -10,7 +10,68 @@
 
 ---
 
-## Gauge: Her Dikey Sekmeye Video + Animasyon — TAMAMLANDI, commit BEKLİYOR (2026-07-15)
+## Branch Durumu — `feature/video-scene-dalga3` üzerinde çalışılıyor (2026-07-15)
+
+> **Şu an çalışılan branch: `feature/video-scene-dalga3`** (main `d97cc16`'dan
+> açıldı). `feature/llm-agents-interactive-pilot` main'e ff-merge edilmişti ve
+> yerel branch SİLİNDİ (origin'de zaten yoktu). `main`, `origin/main`'in
+> **6 commit ÖNÜNDE** — kullanıcı push'u ERTELEDİ ("henüz push etme" dedi),
+> hâlâ push edilmedi. Push öncesi bilinen risk: pre-push hook'u önceki
+> oturumlardan kalma 6 deterministik auth-injection test hatasında yine
+> reddedebilir — bugünkü değişikliklerle ilgisiz, önceden var olan altyapı
+> sorunu (bkz. altta "Push `--no-verify` ile yapıldı" bölümü).
+
+---
+
+## DALGA 3 — Pilot Derinleştirme: git-github + gauge (2026-07-15, Fable payı TAMAM — commit BEKLİYOR)
+
+> Kullanıcı pilot sayfa olarak `/git-github` + `/gauge` seçti. Hedef: her
+> sekmede ≥1 video + ≥1 animasyon + ≥1 sandbox. Plan, tanımlar, eksik matrisi,
+> 11 film spesifikasyonu ve Sonnet promptları: **`Documents/video-rollout-plan.md`
+> Bölüm 7-10** (bu oturumda yazıldı). Katman 2 ("her konudan sonra film+animasyon")
+> bilinçli olarak Dalga 4'e ertelendi — gerekçe planın §7.5'inde.
+
+### Fable payında yapılanlar (bu oturum, uncommitted)
+1. **`gitGithubData.js`** — 🚨 Hata Sözlüğü sekmesi TAM paket:
+   `git-error-diagnosis-film` (7 sahne, non-fast-forward teşhis zinciri) +
+   `git-error-diagnosis-steps` + `git-error-practice-01` (fetch→merge→push
+   micro lab). 💼 Mülakat sekmesi TAM paket: `git-interview-answer-film`
+   (4 katmanlı senaryo cevabı anatomisi) + `git-interview-answer-steps` +
+   `git-interview-practice-01` (reset --soft senaryosu). Sabitler dosya
+   başında, EN+TR section'larına AYNI referansla kondu (commitJourneyFilm kalıbı).
+2. **`gaugeData.js`** — 3 eksik sandbox eklendi (kodsuz sekmelerde auto-fill
+   çalışmadığı için elle, hepsi `relatedTopicId`'li):
+   `gauge-why-first-spec-practice` (🏠, Excel satırı→spec), 
+   `gauge-step-mismatch-fix-practice` (🚨, @Step eşleşme onarımı),
+   `gauge-interview-stale-fix-practice` (💼, StaleElement senaryosu).
+3. **`Documents/video-rollout-plan.md`** — Bölüm 7 (tanımlar + envanter matrisi
+   + iş bölümü + 11 film spesifikasyonu), Bölüm 8 (SONNET PROMPT A: 6 film),
+   Bölüm 9 (SONNET PROMPT B: 5 film + test + NEXT_SESSION), Bölüm 10 (checklist).
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (relatedTopicId'ler tam)
+- TR yorum taraması: yeni blokların TR code/caption/hint'leri tek tek yazılıp
+  kontrol edildi; gerçek terminal çıktıları (`! [rejected]`, `Your branch is
+  behind...`) kural gereği İngilizce bırakıldı. EN taraflarında TR sızıntısı
+  yok (`rapor.xlsx` EN'de `report.xlsx` yapıldı).
+- `npm run build` → temiz (41 shell) ✓
+- Runtime smoke (vite preview + headless Chromium): **11/11 PASS** — git 🚨
+  film render + başlık + play/next + step-animation + micro lab + EN dil
+  geçişi; gauge 🏠 ve 🚨 sandbox'ları görünür; 380px taşma 0px; 0 konsol hatası.
+- NOT: 💼 Mülakat sekmelerindeki yeni bloklar quiz-gating (%60) kilidi
+  ARKASINDA — beklenen davranış, gauge Dalga 2'deki durumla aynı; kod
+  incelemesiyle sıra doğrulandı (film → steps → practice → interview-questions).
+
+### Sıradaki adımlar (sırayla)
+1. Bu oturumun değişikliklerini commit et (kullanıcı onayıyla).
+2. `Documents/video-rollout-plan.md` **Bölüm 8'deki SONNET PROMPT A**'yı çalıştır
+   (git-github ilk 6 film: 🎯/⚙️/🚫/🌿/🔀/🧬).
+3. Sonra **Bölüm 9'daki SONNET PROMPT B** (son 5 film + video-scene.spec.ts
+   genişletme). A ve B'yi AYNI ANDA çalıştırma — ikisi de gitGithubData.js'e dokunur.
+
+---
+
+## Gauge: Her Dikey Sekmeye Video + Animasyon — main'de, commit `d97cc16` (2026-07-15)
 
 > Kullanıcı talebi: "/gauge sayfasında her dikey sekmeye en az 1 video ve
 > animasyon ekle". `gaugeData.js` tek ağaç (bilingual field'lar) — Dalga 2'de

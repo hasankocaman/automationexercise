@@ -108,6 +108,329 @@ const commitJourneyFilm = {
   ],
 }
 
+// ─── Hata Sözlüğü sekmesi tam paketi (film + animasyon + sandbox — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.3 (Fable payı)
+const gitErrorDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'git-error-diagnosis-film',
+  title: {
+    tr: '🎬 Bir Git Hatasının Teşhis Zinciri',
+    en: '🎬 The Diagnosis Chain of a Git Error',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'error',  emoji: '❌', label: { tr: '! [rejected] hatası',      en: '! [rejected] error' },       color: '#ef4444' },
+    { id: 'reader', emoji: '👀', label: { tr: 'Mesajı okuma',             en: 'Reading the message' },      color: '#f59e0b' },
+    { id: 'map',    emoji: '🗺️', label: { tr: 'Katman haritası',          en: 'Layer map' },                color: '#8b5cf6' },
+    { id: 'remote', emoji: '☁️', label: { tr: 'origin/main (+2 commit)',  en: 'origin/main (+2 commits)' }, color: '#0ea5e9' },
+    { id: 'fetch',  emoji: '📥', label: { tr: 'git fetch',                en: 'git fetch' },                color: '#10b981' },
+    { id: 'merge',  emoji: '🔀', label: { tr: 'git merge',                en: 'git merge' },                color: '#6366f1' },
+    { id: 'push',   emoji: '✅', label: { tr: 'Başarılı push',            en: 'Successful push' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'CI log\'unda korkutucu bir satır belirdi: push REDDEDİLDİ. Panik butonuna basmadan önce bu filmde, sözlükteki HER hataya uygulanabilen 5 adımlık teşhis zincirini izleyeceksin.',
+        en: 'A scary line just appeared in the CI log: the push was REJECTED. Before you hit the panic button, this film shows the 5-step diagnosis chain that applies to EVERY error in the dictionary.',
+      },
+      code: { tr: `git push origin main`, en: `git push origin main` },
+      positions: {
+        error: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Mesajı PARÇALA: "rejected" bozulma değil, Git\'in KORUMA refleksi; "non-fast-forward" ise "uzak zincir seninkinden ileride" demek. Hata cümlesi rastgele değil, teknik olarak kesin bir teşhistir.',
+        en: 'Step 1 — DECOMPOSE the message: "rejected" is not corruption, it is Git\'s PROTECTIVE reflex; "non-fast-forward" means "the remote chain is ahead of yours". The error sentence is not random — it is a technically precise diagnosis.',
+      },
+      code: { tr: `# ! [rejected] main -> main (non-fast-forward)`, en: `# ! [rejected] main -> main (non-fast-forward)` },
+      positions: {
+        error: { x: 20, y: 45, scale: 1 },
+        reader: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'reader' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — KATMANI bul: sorun working tree\'de mi, staging\'de mi, local repo\'da mı, remote\'ta mı? "non-fast-forward" remote katmanının sesidir — local dosyalarını düzeltmeye çalışmak boşa kürek çekmek olur.',
+        en: 'Step 2 — Locate the LAYER: is the problem in the working tree, staging, local repo, or the remote? "non-fast-forward" is the voice of the remote layer — trying to fix your local files would be rowing in the wrong direction.',
+      },
+      positions: {
+        reader: { x: 18, y: 45, opacity: 0.5, scale: 0.85 },
+        map: { x: 48, y: 50, scale: 1.2, pulse: true },
+        remote: { x: 78, y: 35, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'map', to: 'remote', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Önce DEĞİŞTİRMEYEN komutlarla kanıt topla: `git fetch origin` uzaktaki yeniliği indirir ama hiçbir şeye dokunmaz; `git status` artık "behind by 2 commits" der. Teşhis kesinleşti: takım senden önce push\'lamış.',
+        en: 'Step 3 — Collect evidence with NON-DESTRUCTIVE commands first: `git fetch origin` downloads the remote news without touching anything; `git status` now says "behind by 2 commits". Diagnosis confirmed: the team pushed before you.',
+      },
+      code: { tr: `git fetch origin\ngit status  # Your branch is behind 'origin/main' by 2 commits`, en: `git fetch origin\ngit status  # Your branch is behind 'origin/main' by 2 commits` },
+      positions: {
+        remote: { x: 22, y: 40, scale: 0.95, opacity: 0.7 },
+        fetch: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'remote', to: 'fetch' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — En küçük GÜVENLİ düzeltmeyi uygula: `git merge origin/main` takımın 2 commit\'ini local zincirine alır. `--force` ile push\'u zorlamak da "çözerdi" — ama takımın işini ezerek. Sözlükteki çözümler hep bu en-küçük-güvenli hamledir.',
+        en: 'Step 4 — Apply the smallest SAFE fix: `git merge origin/main` brings the team\'s 2 commits into your local chain. Forcing the push with `--force` would also "solve" it — by crushing your team\'s work. Dictionary fixes are always this smallest-safe move.',
+      },
+      code: { tr: `git merge origin/main`, en: `git merge origin/main` },
+      positions: {
+        fetch: { x: 20, y: 45, opacity: 0.5, scale: 0.85 },
+        merge: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fetch', to: 'merge' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — KANITLA: başarısız olan komutu aynen tekrar çalıştır. `git push origin main` artık kabul edilir. Hata mesajı "kayboldu" değil — ANLAŞILDI ve kökten çözüldü; birazdan aynı hata gelirse zinciri yine bilirsin.',
+        en: 'Step 5 — PROVE it: rerun the exact command that failed. `git push origin main` is now accepted. The error did not "disappear" — it was UNDERSTOOD and fixed at the root; if it ever returns, you know the chain.',
+      },
+      code: { tr: `git push origin main  # kabul edildi`, en: `git push origin main  # accepted` },
+      positions: {
+        merge: { x: 20, y: 45, opacity: 0.5, scale: 0.85 },
+        push: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'merge', to: 'push' }],
+    },
+    {
+      caption: {
+        tr: 'Final — teşhis zinciri: mesajı parçala → katmanı bul → değiştirmeyen komutla kanıt topla → en küçük güvenli düzeltme → aynı komutla kanıtla. Java\'daki refleksin aynısı: stack trace\'te ilk satır + "Caused by" okunur, rastgele satır silinmez. Aşağıdaki sözlükteki 9 hatanın HER biri bu zincirle çözülür.',
+        en: 'Final — the diagnosis chain: decompose the message → locate the layer → collect evidence non-destructively → apply the smallest safe fix → prove it with the same command. The exact reflex you use in Java: read the first stack-trace line + "Caused by", never delete random lines. Every one of the 9 errors in the dictionary below yields to this chain.',
+      },
+      positions: {
+        error: { x: 10, y: 60, scale: 0.85 },
+        reader: { x: 26, y: 40, scale: 0.85 },
+        map: { x: 42, y: 60, scale: 0.85 },
+        fetch: { x: 58, y: 40, scale: 0.85 },
+        merge: { x: 74, y: 60, scale: 0.85 },
+        push: { x: 88, y: 40, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'reader' }, { from: 'reader', to: 'map' }, { from: 'map', to: 'fetch' }, { from: 'fetch', to: 'merge' }, { from: 'merge', to: 'push' }],
+    },
+  ],
+}
+
+const gitErrorDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'git-error-diagnosis-steps',
+  title: { tr: 'Adım Adım: Hata Teşhis Refleksi', en: 'Step by Step: The Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Mesajı tam oku', en: 'Read the full message' }, detail: { tr: 'Ilk kelime ciddiyeti soyler: `fatal` islem durdu, `error` islem reddedildi, `warning` islem gecti ama dikkat. Mesajin geri kalani cogu zaman kok nedeni acikca yazar.', en: 'The first word states severity: `fatal` stopped the operation, `error` rejected it, `warning` let it pass with a caveat. The rest of the message usually states the root cause explicitly.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Katmanı belirle', en: 'Locate the layer' }, detail: { tr: 'Hata hangi bolgeden konusuyor: working tree, staging, local repo, remote? Ornegin `not a git repository` local katman, `non-fast-forward` remote katmandir — yanlis katmanda ugrasma.', en: 'Which zone is speaking: working tree, staging, local repo, or remote? For example `not a git repository` is the local layer, `non-fast-forward` is the remote layer — do not struggle in the wrong zone.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Değiştirmeyen komutla kanıt topla', en: 'Collect non-destructive evidence' }, detail: { tr: 'Once `git status`, `git log`, `git fetch` gibi hicbir seyi bozamayan komutlari calistir. `--force`, `reset --hard` gibi kalici hamlelerle ASLA baslama.', en: 'Start with commands that cannot break anything: `git status`, `git log`, `git fetch`. NEVER start with permanent moves like `--force` or `reset --hard`.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltme', en: 'Smallest safe fix' }, detail: { tr: 'Sozlukteki cozumu uygula — hedef her zaman en az yan etkiyle duzeltmektir: fetch+merge varken force push, tek dosya duzeltmesi varken repo silip yeniden clone SECILMEZ.', en: 'Apply the dictionary fix — the goal is always the fewest side effects: never force-push when fetch+merge works, never delete-and-reclone when a single-file fix exists.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı komutla kanıtla', en: 'Prove with the same command' }, detail: { tr: 'Basarisiz olan komutu AYNEN tekrar calistir ve gectigini gor. Gecmediyse teshis yanlisti — 2. adima don, baska katmani dene.', en: 'Rerun the EXACT command that failed and watch it pass. If it still fails, the diagnosis was wrong — go back to step 2 and try another layer.' } },
+  ],
+}
+
+const gitErrorPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'git-github-errors',
+  id: 'git-error-practice-01',
+  label: {
+    tr: 'Micro Lab: Reddedilen push\'u teşhis zinciriyle çöz',
+    en: 'Micro Lab: Fix a rejected push with the diagnosis chain',
+  },
+  language: 'bash',
+  task: {
+    tr: 'Yukarıdaki filmdeki teşhis zincirini kendin uygula: push reddedildi, kanıt toplandı, sıra çözüm adımında. TODO satırını zincirin 4. adımıyla (en küçük güvenli düzeltme) tamamla.',
+    en: 'Apply the diagnosis chain from the film above yourself: the push was rejected, evidence is collected, and the fix step is next. Complete the TODO line with step 4 of the chain (the smallest safe fix).',
+  },
+  explanation: {
+    tr: 'Bu gercek bir runtime degil; amac reddedilen push karsisinda dogru refleks sirasini (kanit → guvenli cozum → dogrulama) elle yazarak pekistirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the correct reflex order for a rejected push (evidence → safe fix → verification) by writing it yourself.',
+  },
+  code: {
+    tr: `# push denemesi reddedildi — takim senden once push'lamis\ngit push origin main\n# cikti: ! [rejected] main -> main (non-fast-forward)\n\n# 1) once degistirmeyen komutlarla kanit topla\ngit fetch origin\ngit status\n# cikti: Your branch is behind 'origin/main' by 2 commits\n\n# 2) takimin commit'lerini local zincirine al\ngit merge origin/main\n\n# 3) dogrula: ayni push artik kabul edilir\ngit push origin main`,
+    en: `# the push attempt was rejected — the team pushed before you\ngit push origin main\n# output: ! [rejected] main -> main (non-fast-forward)\n\n# 1) collect evidence with non-destructive commands first\ngit fetch origin\ngit status\n# output: Your branch is behind 'origin/main' by 2 commits\n\n# 2) bring the team's commits into your local chain\ngit merge origin/main\n\n# 3) verify: the same push is now accepted\ngit push origin main`,
+  },
+  starterCode: {
+    tr: `# push denemesi reddedildi — takim senden once push'lamis\ngit push origin main\n# cikti: ! [rejected] main -> main (non-fast-forward)\n\n# 1) once degistirmeyen komutlarla kanit topla\ngit fetch origin\ngit status\n# cikti: Your branch is behind 'origin/main' by 2 commits\n\n# 2) TODO: takimin commit'lerini local zincirine alan komutu yaz\n\n# 3) dogrula: ayni push artik kabul edilir\ngit push origin main`,
+    en: `# the push attempt was rejected — the team pushed before you\ngit push origin main\n# output: ! [rejected] main -> main (non-fast-forward)\n\n# 1) collect evidence with non-destructive commands first\ngit fetch origin\ngit status\n# output: Your branch is behind 'origin/main' by 2 commits\n\n# 2) TODO: write the command that brings the team's commits into your local chain\n\n# 3) verify: the same push is now accepted\ngit push origin main`,
+  },
+  solutionCode: {
+    tr: `# push denemesi reddedildi — takim senden once push'lamis\ngit push origin main\n# cikti: ! [rejected] main -> main (non-fast-forward)\n\n# 1) once degistirmeyen komutlarla kanit topla\ngit fetch origin\ngit status\n# cikti: Your branch is behind 'origin/main' by 2 commits\n\n# 2) takimin commit'lerini local zincirine al\ngit merge origin/main\n\n# 3) dogrula: ayni push artik kabul edilir\ngit push origin main`,
+    en: `# the push attempt was rejected — the team pushed before you\ngit push origin main\n# output: ! [rejected] main -> main (non-fast-forward)\n\n# 1) collect evidence with non-destructive commands first\ngit fetch origin\ngit status\n# output: Your branch is behind 'origin/main' by 2 commits\n\n# 2) bring the team's commits into your local chain\ngit merge origin/main\n\n# 3) verify: the same push is now accepted\ngit push origin main`,
+  },
+  expected: {
+    tr: 'Son `git push origin main` kabul edilir; `git status` artik "Your branch is up to date" gosterir.',
+    en: 'The final `git push origin main` is accepted; `git status` now shows "Your branch is up to date".',
+  },
+  hints: [
+    { tr: 'Reddedilen push karsisinda ilk hamle asla `--force` degildir — zincirin 4. adimi, uzaktaki yeni commit\'leri KENDI tarafina almaktir.', en: 'The first move after a rejected push is never `--force` — step 4 of the chain is bringing the new remote commits into YOUR side.' },
+    { tr: '`git status` "behind by 2 commits" dediyse, `origin/main`\'i mevcut branch\'ine birlestirmeden push kabul edilmez.', en: 'Once `git status` says "behind by 2 commits", the push will not be accepted until you integrate `origin/main` into your current branch.' },
+    { tr: 'TODO satiri tek bir komuttur ve hedefi `origin/main`\'dir — fetch zaten yapildi, simdi birlestirme sirasi.', en: 'The TODO line is a single command targeting `origin/main` — fetch is already done, now comes the integration.' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Mülakat sekmesi tam paketi (film + animasyon + sandbox — EN + TR paylaşımlı) ───
+const gitInterviewAnswerFilm = {
+  type: 'video-scene',
+  id: 'git-interview-answer-film',
+  title: {
+    tr: '🎬 Senaryo Sorusuna Güçlü Cevap Anatomisi',
+    en: '🎬 The Anatomy of a Strong Scenario Answer',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Senaryo sorusu',    en: 'Scenario question' },  color: '#6366f1' },
+    { id: 'rote',     emoji: '😰', label: { tr: 'Ezber cevap',       en: 'Rote answer' },        color: '#94a3b8' },
+    { id: 'detect',   emoji: '🧭', label: { tr: 'Durum tespiti',     en: 'Situation check' },    color: '#f59e0b' },
+    { id: 'evidence', emoji: '⌨️', label: { tr: 'Komut + gerekçe',   en: 'Command + rationale' }, color: '#10b981' },
+    { id: 'team',     emoji: '🛡️', label: { tr: 'Takım güvenliği',   en: 'Team safety' },        color: '#0ea5e9' },
+    { id: 'java',     emoji: '☕', label: { tr: 'Java analojisi',    en: 'Java analogy' },       color: '#8b5cf6' },
+    { id: 'win',      emoji: '🏆', label: { tr: 'Güçlü cevap',       en: 'Strong answer' },      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı soruyor: "Yanlışlıkla main\'e commit attın, henüz push etmedin — ne yaparsın?" Bu filmde aynı soruya iki cevabın — ezber ile yapılandırılmış cevabın — farkını izleyeceksin.',
+        en: 'The interviewer asks: "You accidentally committed to main and have not pushed yet — what do you do?" In this film you will watch the difference between two answers to the same question — rote versus structured.',
+      },
+      positions: {
+        question: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Zayıf refleks: "git reset kullanırım." Hangi reset? İş kaybolur mu? Push edilmiş olsaydı ne değişirdi? Komut adı ezberlemek Google\'da arama yapabilmekle eşdeğerdir — mülakatçı derinliği burada GÖREMEZ.',
+        en: 'The weak reflex: "I would use git reset." Which reset? Is work lost? What if it had been pushed? Memorizing a command name is equivalent to being able to search Google — the interviewer sees NO depth here.',
+      },
+      positions: {
+        question: { x: 18, y: 40, scale: 0.9, opacity: 0.7 },
+        rote: { x: 52, y: 55, scale: 1.15, pulse: true, opacity: 0.75 },
+      },
+      beams: [{ from: 'question', to: 'rote', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın 1. katmanı — durumu TESPİT et: "Önce `git status` ve `git log --oneline -3` ile neyin commit\'lendiğini ve push edilip edilmediğini doğrularım. Push yoksa tarih hâlâ sadece bende — hareket alanım geniş."',
+        en: 'Layer 1 of the strong answer — CHECK the situation: "First I confirm what was committed and whether it was pushed, with `git status` and `git log --oneline -3`. If there is no push, the history still lives only on my machine — I have room to move."',
+      },
+      code: { tr: `git status\ngit log --oneline -3`, en: `git status\ngit log --oneline -3` },
+      positions: {
+        rote: { x: 14, y: 70, scale: 0.7, opacity: 0.35 },
+        detect: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'detect' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — komut + GEREKÇE: "`git reset --soft HEAD~1` derim, çünkü commit\'i geri alırken işi staging\'de KORUR. `--hard` da commit\'i geri alırdı ama emeği silerdi." Alternatifi neden SEÇMEDİĞİNİ söylemek, komutun kendisinden daha değerlidir.',
+        en: 'Layer 2 — command + RATIONALE: "I would run `git reset --soft HEAD~1`, because it undoes the commit while KEEPING the work staged. `--hard` would also undo the commit but would destroy the work." Saying why you did NOT choose the alternative is worth more than the command itself.',
+      },
+      code: { tr: `git reset --soft HEAD~1`, en: `git reset --soft HEAD~1` },
+      positions: {
+        detect: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        evidence: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'detect', to: 'evidence' }],
+    },
+    {
+      caption: {
+        tr: '3. katman — TAKIM güvenliği: "Commit push edilmiş OLSAYDI reset kullanmazdım; paylaşılan tarihi yeniden yazmak takımın referanslarını bozar. Orada `git revert` ile geri alma commit\'i eklerdim." Bu cümle, gerçek takım tecrübesinin kanıtıdır.',
+        en: 'Layer 3 — TEAM safety: "HAD the commit been pushed, I would not use reset; rewriting shared history breaks the team\'s references. There I would add an undo commit with `git revert`." This sentence is the proof of real team experience.',
+      },
+      code: { tr: `# push edilmis olsaydi:\ngit revert HEAD`, en: `# had it been pushed:\ngit revert HEAD` },
+      positions: {
+        evidence: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        team: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'team' }],
+    },
+    {
+      caption: {
+        tr: '4. katman — Java köprüsü: "reset --soft, IDE\'deki \'undo commit\'e benzer — değişiklik durur, kayıt geri alınır; revert ise muhasebedeki ters kayıt gibi bir compensating transaction\'dır: tarihi silmez, düzelten yeni bir kayıt ekler." Bildiğin dünyaya köprü kurmak cevabı kalıcı yapar.',
+        en: 'Layer 4 — the Java bridge: "reset --soft is like \'undo commit\' in the IDE — the change stays, the record is taken back; revert is a compensating transaction like a reversing entry in accounting: it never erases history, it adds a new correcting record." Bridging to a world you know makes the answer stick.',
+      },
+      positions: {
+        team: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        java: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'team', to: 'java' }],
+    },
+    {
+      caption: {
+        tr: 'Final — formül: durum tespiti → komut + gerekçe → takım güvenliği/risk → Java analojisi. Aşağıdaki her mülakat sorusunda cevabını bu 4 katmandan geçir; sıralı düşünen aday, komut ezberleyeni her zaman geçer.',
+        en: 'Final — the formula: situation check → command + rationale → team safety/risk → Java analogy. Run your answer through these 4 layers for every interview question below; the candidate who thinks in order always beats the one who memorized commands.',
+      },
+      positions: {
+        detect: { x: 14, y: 55, scale: 0.85 },
+        evidence: { x: 34, y: 40, scale: 0.85 },
+        team: { x: 54, y: 55, scale: 0.85 },
+        java: { x: 72, y: 40, scale: 0.85 },
+        win: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'detect', to: 'evidence' }, { from: 'evidence', to: 'team' }, { from: 'team', to: 'java' }, { from: 'java', to: 'win' }],
+    },
+  ],
+}
+
+const gitInterviewAnswerSteps = {
+  type: 'step-animation',
+  id: 'git-interview-answer-steps',
+  title: { tr: 'Adım Adım: Senaryo Cevabı Kurma', en: 'Step by Step: Building a Scenario Answer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Durumu netleştir', en: 'Clarify the situation' }, detail: { tr: 'Cevaba kosullari netlestirerek basla: push edildi mi, kac commit var, kimler etkilenir? Mulakatci bu sorulari sordugunu duymak ister — gercek iste de ilk adim budur.', en: 'Open by clarifying conditions: was it pushed, how many commits, who is affected? The interviewer wants to hear you ask these — it is also the first step in real work.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutlarını söyle', en: 'Name the evidence commands' }, detail: { tr: '"Once `git status` ve `git log` ile gorurum" de — korkusuzca komut listelemek degil, KANIT toplama refleksini gostermek puandir.', en: 'Say "first I look with `git status` and `git log`" — the point is showing the evidence-gathering reflex, not fearlessly listing commands.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'Komut + gerekçe ver', en: 'Give command + rationale' }, detail: { tr: 'Secilen komutu NEDENiyle soyle ve reddettigin alternatifi ekle: "--soft isi korur, --hard silerdi". Gerekce yoksa cevap ezberden ayirt edilemez.', en: 'State the chosen command WITH its why and add the alternative you rejected: "--soft keeps the work, --hard would destroy it". Without rationale the answer is indistinguishable from rote memory.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Takım riskini açıkla', en: 'Explain the team risk' }, detail: { tr: 'Paylasilan tarih kuralini mutlaka soyle: push edilmis commit\'te reset degil `git revert`; force gerekiyorsa `--force-with-lease`. Takim guvenligi cumlesi, junior ile senior cevabi ayiran cizgidir.', en: 'Always state the shared-history rule: `git revert` instead of reset on pushed commits; `--force-with-lease` if force is unavoidable. The team-safety sentence is the line between a junior and a senior answer.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java analojisiyle kapat', en: 'Close with a Java analogy' }, detail: { tr: 'Cevabi bildigin dunyaya bagla: revert bir compensating transaction, stash bir gecici degisken raflamasi gibidir. Analoji, kavrami gercekten ANLADIGINI kanitlar.', en: 'Tie the answer to a world you know: revert is like a compensating transaction, stash like shelving a temporary variable. The analogy proves you truly UNDERSTAND the concept.' } },
+  ],
+}
+
+const gitInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'git-github',
+  id: 'git-interview-practice-01',
+  label: {
+    tr: 'Micro Lab: Mülakat senaryosunu komutlarla cevapla',
+    en: 'Micro Lab: Answer the interview scenario with commands',
+  },
+  language: 'bash',
+  task: {
+    tr: 'Klasik mülakat senaryosu: yanlış dosya commit\'lendi ama henüz push YOK. Filmdeki 4 katmanlı cevabı komut akışına çevir — TODO satırını, commit\'i geri alırken işi staging\'de koruyan komutla tamamla.',
+    en: 'The classic interview scenario: the wrong file was committed but NOT yet pushed. Turn the film\'s 4-layer answer into a command flow — complete the TODO line with the command that undoes the commit while keeping the work staged.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir runtime degil; amac mulakatta anlatacagin cozum akisini (tespit → geri al → ayikla → yeniden commit\'le) elle yazarak pekistirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the solution flow you would narrate in an interview (check → undo → separate → recommit) by writing it yourself.',
+  },
+  code: {
+    tr: `# senaryo: rapor.xlsx yanlislikla commit'lendi (push HENUZ yok)\ngit log --oneline -1\n# cikti: a1b2c3d chore: gecici rapor eklendi\n\n# 1) commit'i geri al ama isi staging'de KORU\ngit reset --soft HEAD~1\n\n# 2) yanlis dosyayi staging'den cikar\ngit restore --staged rapor.xlsx\n\n# 3) bir daha kazara girmesin diye ignore'a ekle\necho "rapor.xlsx" >> .gitignore\n\n# 4) sadece dogru dosyalarla yeniden commit'le\ngit commit -m "test: checkout regression spec eklendi"`,
+    en: `# scenario: report.xlsx was committed by mistake (NOT pushed yet)\ngit log --oneline -1\n# output: a1b2c3d chore: temp report added\n\n# 1) undo the commit but KEEP the work staged\ngit reset --soft HEAD~1\n\n# 2) take the wrong file out of staging\ngit restore --staged report.xlsx\n\n# 3) add it to ignore so it never slips in again\necho "report.xlsx" >> .gitignore\n\n# 4) recommit with only the right files\ngit commit -m "test: add checkout regression spec"`,
+  },
+  starterCode: {
+    tr: `# senaryo: rapor.xlsx yanlislikla commit'lendi (push HENUZ yok)\ngit log --oneline -1\n# cikti: a1b2c3d chore: gecici rapor eklendi\n\n# 1) TODO: commit'i geri al ama isi staging'de koruyan komutu yaz\n\n# 2) yanlis dosyayi staging'den cikar\ngit restore --staged rapor.xlsx\n\n# 3) bir daha kazara girmesin diye ignore'a ekle\necho "rapor.xlsx" >> .gitignore\n\n# 4) sadece dogru dosyalarla yeniden commit'le\ngit commit -m "test: checkout regression spec eklendi"`,
+    en: `# scenario: report.xlsx was committed by mistake (NOT pushed yet)\ngit log --oneline -1\n# output: a1b2c3d chore: temp report added\n\n# 1) TODO: write the command that undoes the commit but keeps the work staged\n\n# 2) take the wrong file out of staging\ngit restore --staged report.xlsx\n\n# 3) add it to ignore so it never slips in again\necho "report.xlsx" >> .gitignore\n\n# 4) recommit with only the right files\ngit commit -m "test: add checkout regression spec"`,
+  },
+  solutionCode: {
+    tr: `# senaryo: rapor.xlsx yanlislikla commit'lendi (push HENUZ yok)\ngit log --oneline -1\n# cikti: a1b2c3d chore: gecici rapor eklendi\n\n# 1) commit'i geri al ama isi staging'de KORU\ngit reset --soft HEAD~1\n\n# 2) yanlis dosyayi staging'den cikar\ngit restore --staged rapor.xlsx\n\n# 3) bir daha kazara girmesin diye ignore'a ekle\necho "rapor.xlsx" >> .gitignore\n\n# 4) sadece dogru dosyalarla yeniden commit'le\ngit commit -m "test: checkout regression spec eklendi"`,
+    en: `# scenario: report.xlsx was committed by mistake (NOT pushed yet)\ngit log --oneline -1\n# output: a1b2c3d chore: temp report added\n\n# 1) undo the commit but KEEP the work staged\ngit reset --soft HEAD~1\n\n# 2) take the wrong file out of staging\ngit restore --staged report.xlsx\n\n# 3) add it to ignore so it never slips in again\necho "report.xlsx" >> .gitignore\n\n# 4) recommit with only the right files\ngit commit -m "test: add checkout regression spec"`,
+  },
+  expected: {
+    tr: '`git log --oneline -1` yeni ve dogru mesajli commit\'i gosterir; rapor.xlsx artik ne commit\'te ne staging\'dedir, .gitignore onu kalici olarak dislar.',
+    en: '`git log --oneline -1` shows the new, correctly-messaged commit; report.xlsx is in neither the commit nor staging, and .gitignore excludes it permanently.',
+  },
+  hints: [
+    { tr: 'Push HENUZ yapilmadigi icin tarih sadece senin makinende — reset ailesi guvenli; push edilmis olsaydi `git revert` gerekirdi.', en: 'Since there is NO push yet, the history lives only on your machine — the reset family is safe; had it been pushed, `git revert` would be required.' },
+    { tr: 'Isi kaybetmeden commit\'i geri almak icin reset\'in `--soft` modunu sec: HEAD bir geri gider, dosyalar staging\'de bekler.', en: 'To undo the commit without losing work, pick the `--soft` mode of reset: HEAD moves back one, the files wait in staging.' },
+    { tr: 'TODO satirinin hedefi `HEAD~1`\'dir — yani "bir onceki commit\'e don ama calismami koru".', en: 'The target of the TODO line is `HEAD~1` — that is, "go back one commit but preserve my work".' },
+  ],
+  xpReward: 10,
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -3597,12 +3920,15 @@ git push origin feature/my-branch   # Push only your branch`,
             emoji: '🧯',
             content: 'Git error messages are like the warning lights on a car dashboard: they look alarming in isolation, but each one pinpoints a specific system fault — the oil pressure light does not mean the engine is destroyed, it means check the oil level before driving further. The "why" worth understanding before you rush to Stack Overflow: why does Git output errors that look like sentences but are not actionable on their own? Because Git was designed for command-line piping and scripting, so its messages are precise technical statements rather than user-friendly suggestions — learning to parse "fatal: refusing to merge unrelated histories" as "these two repos were initialized separately and share no common ancestor commit" takes practice but pays off every single time. Java analogy: Git error messages are like Java\'s checked exceptions — they force you to acknowledge the failure condition explicitly rather than silently continuing; `fatal: not a git repository` is Git\'s equivalent of a `FileNotFoundException` that the caller must handle, not ignore. In QA, the highest-risk moment for misreading a Git error is during a CI incident at deploy time: a `! [rejected] main -> main (non-fast-forward)` error in an Actions log is not a permissions problem or infrastructure failure — it means someone pushed to main between your last fetch and your push, and the correct response is fetch-then-merge, not force-push.',
           },
+          gitErrorDiagnosisFilm,
+          gitErrorDiagnosisSteps,
           {
             type: 'error-dictionary',
               relatedTopicId: 'git-github-errors',
             framework: 'Git & GitHub',
             errors: gitErrorEntries,
           },
+          gitErrorPractice,
           {
             type: 'quiz',
             question: '`git push origin main` fails with `! [rejected] main -> main (non-fast-forward)`. What is the root cause and the correct fix?',
@@ -3636,6 +3962,9 @@ git push origin feature/my-branch   # Push only your branch`,
             emoji: '🎤',
             content: 'A good Git interview answer is not just a command. It explains team safety, history, rollback, review and how you avoid breaking other people’s work.',
           },
+          gitInterviewAnswerFilm,
+          gitInterviewAnswerSteps,
+          gitInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'git-github',
@@ -5971,12 +6300,15 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
             emoji: '🧯',
             content: 'Git hataları çoğu zaman felaket değil, yol tabelasıdır. İlk satırı oku, nerede olduğunu kontrol et, sonra en küçük güvenli düzeltmeyi seç.',
           },
+          gitErrorDiagnosisFilm,
+          gitErrorDiagnosisSteps,
           {
             type: 'error-dictionary',
               relatedTopicId: 'git-github-errors',
             framework: 'Git & GitHub',
             errors: gitErrorEntries,
           },
+          gitErrorPractice,
           {
             type: 'quiz',
             question: '`git push origin main` `! [rejected] main -> main (non-fast-forward)` hatasıyla başarısız oluyor. Kök neden ve doğru çözüm nedir?',
@@ -6010,6 +6342,9 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
             emoji: '🎤',
             content: 'İyi bir Git mülakat cevabı sadece komut söylemez. Takım güvenliğini, history’yi, rollback’i, review’u ve başkasının işini bozmamayı da açıklar.',
           },
+          gitInterviewAnswerFilm,
+          gitInterviewAnswerSteps,
+          gitInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'git-github',

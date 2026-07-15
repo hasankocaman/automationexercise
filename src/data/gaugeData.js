@@ -1022,6 +1022,100 @@ const sections = [
       gaugeVsCompetitorsFilm,
       driftAnatomySteps,
       {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-why',
+        id: 'gauge-why-first-spec-practice',
+        label: {
+          tr: 'Micro Lab: Excel satırını yaşayan spec\'e çevir',
+          en: 'Micro Lab: Turn the Excel row into a living spec',
+        },
+        language: 'markdown',
+        task: {
+          tr: 'Yukarıdaki drift senaryosundaki "TC-101 Giriş testi" Excel satırını, kodla aynı repoda yaşayan bir Gauge spec\'ine kendin çevir. TODO satırını, butona tıklama adımıyla tamamla — diğer step\'lerle aynı biçimde.',
+          en: 'Convert the "TC-101 Login test" Excel row from the drift scenario above into a Gauge spec that lives in the same repo as the code. Complete the TODO line with the button-click step — same shape as the other steps.',
+        },
+        explanation: {
+          tr: 'Bu gerçek bir runtime değil; amaç Gauge spec\'inin Markdown anatomisini (başlık, senaryo, step) elle yazarak pekiştirmek — Excel\'in kopma problemini çözen şeyin tam olarak bu dosya biçimi olduğunu görmek.',
+          en: 'This is not a real runtime; the goal is to reinforce the Markdown anatomy of a Gauge spec (heading, scenario, step) by writing it yourself — and to see that this file format is exactly what solves the Excel drift problem.',
+        },
+        code: {
+          tr: `# Giris Dogrulama
+
+Bu spec, Excel'deki "TC-101 Giris testi" satirinin yasayan karsiligidir.
+
+## Gecerli kullanici giris yapabilir
+* "https://ornek-magaza.com/login" adresine git
+* "email" alanina "qa@ornek.com" yaz
+* "sifre" alanina "gizli123" yaz
+* "Giris" butonuna tikla
+* "Hos geldin" mesajini dogrula`,
+          en: `# Login Verification
+
+This spec is the living counterpart of the "TC-101 Login test" row in Excel.
+
+## Valid user can log in
+* Go to "https://example-shop.com/login"
+* Enter "qa@example.com" into "email"
+* Enter "secret123" into "password"
+* Click the "Login" button
+* Verify the "Welcome" message`,
+        },
+        starterCode: {
+          tr: `# Giris Dogrulama
+
+Bu spec, Excel'deki "TC-101 Giris testi" satirinin yasayan karsiligidir.
+
+## Gecerli kullanici giris yapabilir
+* "https://ornek-magaza.com/login" adresine git
+* "email" alanina "qa@ornek.com" yaz
+* "sifre" alanina "gizli123" yaz
+TODO
+* "Hos geldin" mesajini dogrula`,
+          en: `# Login Verification
+
+This spec is the living counterpart of the "TC-101 Login test" row in Excel.
+
+## Valid user can log in
+* Go to "https://example-shop.com/login"
+* Enter "qa@example.com" into "email"
+* Enter "secret123" into "password"
+TODO
+* Verify the "Welcome" message`,
+        },
+        solutionCode: {
+          tr: `# Giris Dogrulama
+
+Bu spec, Excel'deki "TC-101 Giris testi" satirinin yasayan karsiligidir.
+
+## Gecerli kullanici giris yapabilir
+* "https://ornek-magaza.com/login" adresine git
+* "email" alanina "qa@ornek.com" yaz
+* "sifre" alanina "gizli123" yaz
+* "Giris" butonuna tikla
+* "Hos geldin" mesajini dogrula`,
+          en: `# Login Verification
+
+This spec is the living counterpart of the "TC-101 Login test" row in Excel.
+
+## Valid user can log in
+* Go to "https://example-shop.com/login"
+* Enter "qa@example.com" into "email"
+* Enter "secret123" into "password"
+* Click the "Login" button
+* Verify the "Welcome" message`,
+        },
+        expected: {
+          tr: 'Spec, 5 step\'lik eksiksiz bir senaryo olur; ürün yöneticisi bile PR diff\'inde bu dosyayı ekstra sözdizimi öğrenmeden okuyabilir.',
+          en: 'The spec becomes a complete 5-step scenario; even a product manager can read this file in a PR diff without learning extra syntax.',
+        },
+        hints: [
+          { tr: 'Gauge spec\'inde `#` spec başlığı, `##` senaryo başlığı, `*` ile başlayan her satır çalıştırılabilir bir step\'tir — Given/When/Then zorunluluğu YOKTUR.', en: 'In a Gauge spec, `#` is the spec heading, `##` is the scenario heading, and every line starting with `*` is an executable step — there is NO Given/When/Then requirement.' },
+          { tr: 'Excel satırının aksine bu dosya kodla aynı repoda yaşar: locator değişince aynı PR\'da spec de güncellenir — drift\'in panzehiri tam olarak budur.', en: 'Unlike the Excel row, this file lives in the same repo as the code: when a locator changes, the spec updates in the same PR — that is precisely the antidote to drift.' },
+          { tr: 'TODO satırı, "Giris" butonuna tıklama adımıdır; çift tırnaklı değer taşıyan diğer step\'lerle aynı kalıbı izler.', en: 'The TODO line is the step that clicks the "Login" button; it follows the same pattern as the other steps carrying double-quoted values.' },
+        ],
+        xpReward: 10,
+      },
+      {
         type: 'quiz',
         question: {
           tr: 'Gauge\'ü Cucumber\'dan ayıran en temel fark nedir?',
@@ -3520,6 +3614,122 @@ driver.findElement(
         ],
       },
       {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-real-life-issues',
+        id: 'gauge-step-mismatch-fix-practice',
+        label: {
+          tr: 'Micro Lab: Kopuk spec-step eşleşmesini onar',
+          en: 'Micro Lab: Repair the broken spec-step binding',
+        },
+        language: 'java',
+        task: {
+          tr: 'Sözlükteki 2. hatayı kendin çöz: spec cümlesi ile @Step metni birebir eşleşmediği için "Step implementation not found" alınıyor. TODO satırını, spec\'teki cümlenin parametreli birebir karşılığı olan @Step annotation\'ıyla tamamla.',
+          en: 'Solve dictionary error #2 yourself: "Step implementation not found" occurs because the spec sentence and the @Step text do not match exactly. Complete the TODO line with the @Step annotation that is the exact parameterized counterpart of the spec sentence.',
+        },
+        explanation: {
+          tr: 'Bu gerçek bir runtime değil; amaç Gauge\'un düz-metin eşleştirme sözleşmesini (spec cümlesi ↔ @Step metni) elle kurarak, sahadaki en sık ikinci hatanın kalıcı çözümünü pekiştirmek.',
+          en: 'This is not a real runtime; the goal is to reinforce the permanent fix for the second most common field error by building Gauge\'s plain-text binding contract (spec sentence ↔ @Step text) yourself.',
+        },
+        code: {
+          tr: `// spec dosyasindaki adim:
+// * "Giris" butonuna tikla
+
+// hata: Step implementation not found => '"Giris" butonuna tikla'
+// sebep: annotation metni spec cumlesiyle birebir ayni degil
+
+// YANLIS — metin farkli, parametre yer tutucusu yok:
+// @Step("butona tikla")
+
+// DOGRU — spec cumlesinin parametreli birebir karsiligi:
+@Step("<buton> butonuna tikla")
+public void butonaTikla(String buton) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+          en: `// the step in the spec file:
+// * Click the "Login" button
+
+// error: Step implementation not found => 'Click the "Login" button'
+// cause: the annotation text does not match the spec sentence exactly
+
+// WRONG — different text, no parameter placeholder:
+// @Step("click button")
+
+// CORRECT — the exact parameterized counterpart of the spec sentence:
+@Step("Click the <button> button")
+public void clickButton(String button) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+        },
+        starterCode: {
+          tr: `// spec dosyasindaki adim:
+// * "Giris" butonuna tikla
+
+// hata: Step implementation not found => '"Giris" butonuna tikla'
+// sebep: annotation metni spec cumlesiyle birebir ayni degil
+
+// YANLIS — metin farkli, parametre yer tutucusu yok:
+// @Step("butona tikla")
+
+// TODO: spec cumlesinin parametreli birebir karsiligi olan @Step satirini yaz
+public void butonaTikla(String buton) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+          en: `// the step in the spec file:
+// * Click the "Login" button
+
+// error: Step implementation not found => 'Click the "Login" button'
+// cause: the annotation text does not match the spec sentence exactly
+
+// WRONG — different text, no parameter placeholder:
+// @Step("click button")
+
+// TODO: write the @Step line that is the exact parameterized counterpart of the spec sentence
+public void clickButton(String button) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+        },
+        solutionCode: {
+          tr: `// spec dosyasindaki adim:
+// * "Giris" butonuna tikla
+
+// hata: Step implementation not found => '"Giris" butonuna tikla'
+// sebep: annotation metni spec cumlesiyle birebir ayni degil
+
+// YANLIS — metin farkli, parametre yer tutucusu yok:
+// @Step("butona tikla")
+
+// DOGRU — spec cumlesinin parametreli birebir karsiligi:
+@Step("<buton> butonuna tikla")
+public void butonaTikla(String buton) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+          en: `// the step in the spec file:
+// * Click the "Login" button
+
+// error: Step implementation not found => 'Click the "Login" button'
+// cause: the annotation text does not match the spec sentence exactly
+
+// WRONG — different text, no parameter placeholder:
+// @Step("click button")
+
+// CORRECT — the exact parameterized counterpart of the spec sentence:
+@Step("Click the <button> button")
+public void clickButton(String button) {
+    driver.findElement(LocatorRepository.get("loginPage", "loginButton")).click();
+}`,
+        },
+        expected: {
+          tr: '@Step metni spec cümlesiyle (parametre yer tutucusu dahil) birebir eşleşir; gauge run artık step\'i bulur ve hata kaybolur.',
+          en: 'The @Step text matches the spec sentence exactly (including the parameter placeholder); gauge run now finds the step and the error disappears.',
+        },
+        hints: [
+          { tr: 'Gauge, Cucumber\'ın aksine regex değil DÜZ METİN eşleştirir: spec cümlesi ile @Step metni, parametre yer tutucuları dışında karakteri karakterine aynı olmalıdır.', en: 'Unlike Cucumber, Gauge matches PLAIN TEXT, not regex: the spec sentence and the @Step text must match character for character, except for parameter placeholders.' },
+          { tr: 'Spec\'te çift tırnak içindeki değer (`"Giris"`), annotation tarafında `<parametre>` köşeli yer tutucusuna karşılık gelir — metot da bu parametreyi String olarak alır.', en: 'A double-quoted value in the spec (`"Login"`) corresponds to an angle-bracket `<parameter>` placeholder on the annotation side — and the method receives it as a String.' },
+          { tr: 'Kopuk eşleşmeyi IDE\'de doğrulamanın kısa yolu: spec satırından Ctrl+B ile implementasyona gitmeyi dene — TODO satırın doğruysa artık gidebilirsin.', en: 'The quick IDE check for a broken binding: try jumping from the spec line to the implementation with Ctrl+B — once your TODO line is right, the jump works.' },
+        ],
+        xpReward: 10,
+      },
+      {
         type: 'quiz',
         question: {
           tr: 'Test dün geçiyordu, bugün NoSuchElementException veriyor; locator\'ı DevTools\'ta denedin, element bulunuyor. En olası sebep nedir?',
@@ -3606,6 +3816,128 @@ driver.findElement(
       },
       gaugeJourneyRecapFilm,
       scenarioAnswerReflexSteps,
+      {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-interview',
+        id: 'gauge-interview-stale-fix-practice',
+        label: {
+          tr: 'Micro Lab: Mülakat senaryosunu kodla cevapla — StaleElement',
+          en: 'Micro Lab: Answer the interview scenario in code — StaleElement',
+        },
+        language: 'java',
+        task: {
+          tr: 'Klasik senaryo sorusu: "Tablo AJAX ile yenilenince test StaleElementReferenceException fırlatıyor — düzelt." Sözlükteki teşhisi koda çevir: TODO satırını, elementi aksiyondan hemen önce YENİDEN bulan satırla tamamla.',
+          en: 'The classic scenario question: "The test throws StaleElementReferenceException when the table refreshes via AJAX — fix it." Turn the dictionary diagnosis into code: complete the TODO line with the line that RE-FINDS the element right before the action.',
+        },
+        explanation: {
+          tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın mekanizmayı (DOM yenilenince eski referans ölür → aksiyondan hemen önce yeniden bul) elle yazarak pekiştirmek.',
+          en: 'This is not a real runtime; the goal is to reinforce the mechanism you would narrate in an interview (the old reference dies when the DOM refreshes → re-find right before the action) by writing it yourself.',
+        },
+        code: {
+          tr: `// mulakat senaryosu: tablo AJAX ile yenilenince test
+// StaleElementReferenceException firlatiyor
+
+// YANLIS refleks — referansi sakla, yenileme sonrasi kullan:
+// WebElement satir = driver.findElement(...);
+// tabloyuYenile();
+// satir.click();   // patlar: referans DOM'dan kopmus
+
+@Step("Ilk sonuc satirina tikla")
+public void ilkSonucaTikla() {
+    tabloyuYenile();
+    // dogru refleks: aksiyondan hemen once yeniden bul
+    WebElement satir = driver.findElement(By.cssSelector("#sonuclar tr"));
+    satir.click();
+}`,
+          en: `// interview scenario: when the table refreshes via AJAX, the test
+// throws StaleElementReferenceException
+
+// WRONG reflex — store the reference, use it after the refresh:
+// WebElement row = driver.findElement(...);
+// refreshTable();
+// row.click();   // blows up: the reference is detached from the DOM
+
+@Step("Click the first result row")
+public void clickFirstResult() {
+    refreshTable();
+    // correct reflex: re-find right before the action
+    WebElement row = driver.findElement(By.cssSelector("#results tr"));
+    row.click();
+}`,
+        },
+        starterCode: {
+          tr: `// mulakat senaryosu: tablo AJAX ile yenilenince test
+// StaleElementReferenceException firlatiyor
+
+// YANLIS refleks — referansi sakla, yenileme sonrasi kullan:
+// WebElement satir = driver.findElement(...);
+// tabloyuYenile();
+// satir.click();   // patlar: referans DOM'dan kopmus
+
+@Step("Ilk sonuc satirina tikla")
+public void ilkSonucaTikla() {
+    tabloyuYenile();
+    // TODO: elementi aksiyondan hemen once yeniden bulan satiri yaz
+    satir.click();
+}`,
+          en: `// interview scenario: when the table refreshes via AJAX, the test
+// throws StaleElementReferenceException
+
+// WRONG reflex — store the reference, use it after the refresh:
+// WebElement row = driver.findElement(...);
+// refreshTable();
+// row.click();   // blows up: the reference is detached from the DOM
+
+@Step("Click the first result row")
+public void clickFirstResult() {
+    refreshTable();
+    // TODO: write the line that re-finds the element right before the action
+    row.click();
+}`,
+        },
+        solutionCode: {
+          tr: `// mulakat senaryosu: tablo AJAX ile yenilenince test
+// StaleElementReferenceException firlatiyor
+
+// YANLIS refleks — referansi sakla, yenileme sonrasi kullan:
+// WebElement satir = driver.findElement(...);
+// tabloyuYenile();
+// satir.click();   // patlar: referans DOM'dan kopmus
+
+@Step("Ilk sonuc satirina tikla")
+public void ilkSonucaTikla() {
+    tabloyuYenile();
+    // dogru refleks: aksiyondan hemen once yeniden bul
+    WebElement satir = driver.findElement(By.cssSelector("#sonuclar tr"));
+    satir.click();
+}`,
+          en: `// interview scenario: when the table refreshes via AJAX, the test
+// throws StaleElementReferenceException
+
+// WRONG reflex — store the reference, use it after the refresh:
+// WebElement row = driver.findElement(...);
+// refreshTable();
+// row.click();   // blows up: the reference is detached from the DOM
+
+@Step("Click the first result row")
+public void clickFirstResult() {
+    refreshTable();
+    // correct reflex: re-find right before the action
+    WebElement row = driver.findElement(By.cssSelector("#results tr"));
+    row.click();
+}`,
+        },
+        expected: {
+          tr: 'Element her aksiyondan hemen önce taze bulunduğu için AJAX yenilemesi artık testi kırmaz; mülakatta mekanizmayı da anlatabilirsin: eski WebElement işaretçisi DOM yenilenince ölür.',
+          en: 'Because the element is freshly located right before each action, the AJAX refresh no longer breaks the test; in the interview you can also explain the mechanism: the old WebElement pointer dies when the DOM refreshes.',
+        },
+        hints: [
+          { tr: 'StaleElementReferenceException, elementin YOK olduğunu değil, elindeki referansın DOM\'un ESKİ sürümüne ait olduğunu söyler — beklemek çözmez, yeniden bulmak çözer.', en: 'StaleElementReferenceException does not say the element is GONE; it says your reference belongs to an OLD version of the DOM — waiting does not fix it, re-finding does.' },
+          { tr: 'Mülakat puanı mekanizmadadır: "DOM yenilenince saklanan WebElement işaretçisi ölür; dinamik sayfada @CacheLookup da aynı tuzağı kurar" cümlesini kur.', en: 'The interview points are in the mechanism: say "when the DOM refreshes, a stored WebElement pointer dies; on dynamic pages @CacheLookup sets the same trap".' },
+          { tr: 'TODO satırı, `satir` değişkenini findElement ile tabloyuYenile()\'den SONRA dolduran satırdır — böylece click her zaman taze bir referansla çalışır.', en: 'The TODO line is the one that fills the row variable via findElement AFTER refreshTable() — so click always works with a fresh reference.' },
+        ],
+        xpReward: 10,
+      },
       {
         type: 'interview-questions',
         relatedTopicId: 'gauge-interview',
